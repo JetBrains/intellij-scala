@@ -20,7 +20,7 @@ object ScalaFileTemplateUtil {
   val SCALA_CASE_CLASS = "Scala CaseClass"
   val SCALA_CASE_OBJECT = "Scala CaseObject"
 
-  def setClassAndMethodNameProperties(properties: Properties, aClass: PsiClass, method: PsiMethod) {
+  def setClassAndMethodNameProperties(properties: Properties, aClass: PsiClass, method: PsiMethod): Unit = {
     var className: String = aClass.qualifiedName
     if (className == null) className = ""
     properties.setProperty(FileTemplate.ATTRIBUTE_CLASS_NAME, className)

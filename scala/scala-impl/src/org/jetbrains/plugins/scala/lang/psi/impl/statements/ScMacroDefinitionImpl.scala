@@ -33,7 +33,7 @@ final class ScMacroDefinitionImpl private[psi](stub: ScFunctionStub[ScMacroDefin
   }
 
   //todo: stub for macro definition should also contain reference
-  def macroImplReference: Option[ScStableCodeReference] =
+  override def macroImplReference: Option[ScStableCodeReference] =
     byPsiOrStub(findChild(classOf[ScStableCodeReference]))(_ => None)
 
   override def hasAssign: Boolean = true

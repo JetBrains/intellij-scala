@@ -3,34 +3,30 @@ package org.jetbrains.plugins.scala.worksheet.integration
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
-import org.jetbrains.plugins.scala.util.assertions.StringAssertions.assertStartsWith
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.ViewerEditorData
-import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
-import org.junit.Assert.{assertEquals, assertNotNull, assertTrue}
+import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests.ExceptionFoldingType
+import org.junit.Assert.{assertEquals, assertTrue, fail}
 
 trait WorksheetRuntimeExceptionsTests extends MatcherAssertions {
   self: WorksheetIntegrationBaseTest =>
 
-  def stackTraceLineStart: String
-
-  def exceptionOutputShouldBeExpanded: Boolean
-
-  // TODO: enhance the way stacktrace are tested
   def testDisplayFirstRuntimeException(
     leftText: String,
     expectedRightTextStart: String,
-    expectedExceptionMessage: String
+    exceptionFoldingType: ExceptionFoldingType,
+    assertExceptionMessage: String => Unit
   ): Editor = {
     val leftEditor = doResultTest(leftText, RunWorksheetActionResult.Done)
-    testDisplayFirstRuntimeException(leftEditor, expectedRightTextStart, expectedExceptionMessage)
+    testDisplayFirstRuntimeException(leftEditor, expectedRightTextStart, exceptionFoldingType, assertExceptionMessage)
     leftEditor
   }
 
   def testDisplayFirstRuntimeException(
     leftEditor: Editor,
     expectedRightTextStart: String,
-    expectedExceptionMessage: String
+    exceptionFoldingType: ExceptionFoldingType,
+    assertExceptionMessage: String => Unit
   ): Unit = {
     val ViewerEditorData(_, actualText, actualFoldings) = viewerEditorDataFromLeftEditor(leftEditor)
 
@@ -40,37 +36,36 @@ trait WorksheetRuntimeExceptionsTests extends MatcherAssertions {
 
     assertEquals(expectedTextStart, actualTextStart)
 
-    val exceptionMessage :: exceptionOutputLines = actualTextEnd.linesIterator.toList
-    assertEquals(expectedExceptionMessage, exceptionMessage)
+    assertExceptionMessage(actualTextEnd)
 
-    val (start, end) = exceptionOutputLines.splitAt(WorksheetEditorPrinterFactory.BULK_COUNT - 1)
-    start.filter(_.nonEmpty).foreach { line =>
-      assertStartsWith(line, stackTraceLineStart)
-    }
-    end.filter(_.nonEmpty).foreach { line =>
-      assertEquals(line, WorksheetEditorPrinterFactory.END_MESSAGE.stripLineEnd)
+    val (contentFoldings, exceptionFoldingOpt) = exceptionFoldingType match {
+      case WorksheetRuntimeExceptionsTests.NoFolding => (actualFoldings, None)
+      case WorksheetRuntimeExceptionsTests.Folded(_) => (actualFoldings.dropRight(1), actualFoldings.lastOption)
     }
 
-    val (foldingsStart, foldingsLast) = {
-      val head :: tail = actualFoldings.toList.reverse
-      (tail.reverse, head)
-    }
-    assertFoldings(expectedFoldingsStart, foldingsStart)
+    assertFoldings(expectedFoldingsStart, contentFoldings)
 
-    assertEquals(expectedTextStart.length, foldingsLast.startOffset)
-    assertEquals(actualText.trimRight.length, foldingsLast.endOffset)
+    exceptionFoldingType match {
+      case WorksheetRuntimeExceptionsTests.Folded(expanded) =>
+        val exceptionFolding = exceptionFoldingOpt.getOrElse(fail("exception output was expected to be folded").asInstanceOf[Nothing])
+        assertEquals(expectedTextStart.length, exceptionFolding.startOffset)
+        assertEquals(actualText.trimRight.length, exceptionFolding.endOffset)
 
-    if (exceptionOutputShouldBeExpanded) {
-      assertTrue("exception folding should be expanded", foldingsLast.isExpanded)
-
-      val printer = worksheetCache.getPrinter(leftEditor).orNull
-      assertNotNull("couldn't find editor printer", printer)
-
-      val diffSplitter = printer.diffSplitter.orNull
-      assertNotNull("couldn't find diff splitter", diffSplitter)
-
-      val polygons = diffSplitter.renderedPolygons.toSeq.flatten
-      assertTrue("worksheet diff splitter polygons were not drawn", polygons.size == 1)
+        if (expanded) {
+          assertTrue("exception folding should be expanded", exceptionFolding.isExpanded)
+          val printer = worksheetCache.getPrinter(leftEditor).getOrElse(fail("couldn't find editor printer").asInstanceOf[Nothing])
+          val diffSplitter = printer.diffSplitter.getOrElse(fail("couldn't find diff splitter").asInstanceOf[Nothing])
+          val polygons = diffSplitter.renderedPolygons.toSeq.flatten
+          assertTrue("worksheet diff splitter polygons were not drawn", polygons.size == 1)
+        }
+      case _ =>
     }
   }
+}
+
+object WorksheetRuntimeExceptionsTests {
+
+  sealed trait ExceptionFoldingType
+  object NoFolding extends ExceptionFoldingType
+  final case class Folded(expanded: Boolean) extends ExceptionFoldingType
 }

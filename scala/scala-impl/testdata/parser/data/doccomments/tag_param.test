@@ -1,0 +1,29 @@
+/**
+ * @param String this is book's test
+ * @param <T> strange parameter
+ */
+-----
+ScalaFile
+  DocComment
+    ScPsiDocToken(DOC_COMMENT_START)('/**')
+    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@param')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      ScalaDocTagValue: String
+        ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('String')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('this is book's test')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@param')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      ScalaDocTagValue: <
+        ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('<')
+      ScPsiDocToken(DOC_COMMENT_DATA)('T> strange parameter')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_END)('*/')

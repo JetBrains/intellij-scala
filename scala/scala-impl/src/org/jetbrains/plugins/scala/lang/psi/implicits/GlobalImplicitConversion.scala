@@ -3,44 +3,41 @@ package lang
 package psi
 package implicits
 
+import com.intellij.openapi.project.Project
+import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitConversionIndex
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors.findInheritorObjectsForOwner
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.util.CommonQualifiedNames.PredefFqn
 
-case class GlobalImplicitConversion(containingObject: ScObject, function: ScFunction) {
+final case class GlobalImplicitConversion(containingObject: ScObject, function: ScFunction) {
+  def substitutor: ScSubstitutor =
+    MixinNodes.asSeenFromSubstitutor(containingObject, function.containingClass)
 
-  def toImplicitConversionData: Option[ImplicitConversionData] = TypeDefinitionMembers
-    .getSignatures(containingObject)
-    .forName(function.name)
-    .findNode(function)
-    .map(_.info.substitutor)
-    .flatMap(ImplicitConversionData(function, _))
+  def qualifiedName: String = containingObject.qualifiedName + "." + function.name
 }
 
 object GlobalImplicitConversion {
 
-  private[implicits] def collectIn(elementScope: ElementScope): Iterable[GlobalImplicitConversion] = {
-    implicit val ElementScope(project, scope) = elementScope
+  private[implicits] type ImplicitConversionMap = Map[GlobalImplicitConversion, ImplicitConversionData]
 
-    def containingObjects(function: ScFunction): Set[ScObject] =
-      Option(function.containingClass).fold(Set.empty[ScObject]) {
-        ScalaPsiManager.instance.inheritorOrThisObjects(_)
-      }
+  private[implicits] def computeImplicitConversionMap(scope: GlobalSearchScope)
+                                                     (implicit project: Project): ImplicitConversionMap =
+    (for {
+      globalConversion <- collectConversionsIn(scope)
+      data <- ImplicitConversionData(globalConversion.function, globalConversion.substitutor)
+    } yield globalConversion -> data)
+      .toMap
 
+  private[this] def collectConversionsIn(scope: GlobalSearchScope)
+                                        (implicit project: Project) =
     for {
-      member <- ImplicitConversionIndex.allElements(scope)
-
-      function <- member match {
-        case f: ScFunction => f :: Nil
-        case c: ScClass => c.getSyntheticImplicitMethod.toList
-        case _ => Nil
-      }
-
-      obj <- containingObjects(function)
-      if obj.qualifiedName != "scala.Predef"
-    } yield GlobalImplicitConversion(obj, function)
-  }
+      function         <- ImplicitConversionIndex.allConversions(scope)
+      containingObject <- findInheritorObjectsForOwner(function)
+      if containingObject.qualifiedName != PredefFqn
+    } yield GlobalImplicitConversion(containingObject, function)
 
 }

@@ -4,16 +4,17 @@ import com.intellij.icons.AllIcons
 import com.intellij.ide.util.projectWizard.EmptyModuleBuilder
 import com.intellij.openapi.module.ModuleType
 import javax.swing.Icon
+import org.jetbrains.sbt.SbtBundle
 
 /**
  * @author Pavel Fatin
  */
 class SharedSourcesModuleType extends ModuleType[EmptyModuleBuilder]("SHARED_SOURCES_MODULE") {
-  def createModuleBuilder() = new EmptyModuleBuilder()
+  override def createModuleBuilder() = new EmptyModuleBuilder()
 
-  def getName = "Shared sources module"
+  override def getName: String = SbtBundle.message("sbt.shared.sources.module")
 
-  def getDescription = "During compilation, dependency to a shared sources module mixes in module sources rather than module output"
+  override def getDescription: String = SbtBundle.message("sbt.shared.source.module.description")
 
   def getBigIcon: Icon = AllIcons.Nodes.Package
 
@@ -21,5 +22,5 @@ class SharedSourcesModuleType extends ModuleType[EmptyModuleBuilder]("SHARED_SOU
 }
 
 object SharedSourcesModuleType {
-  val instance: SharedSourcesModuleType = Class.forName("org.jetbrains.sbt.project.sources.SharedSourcesModuleType").newInstance.asInstanceOf[SharedSourcesModuleType]
+  val instance: SharedSourcesModuleType = Class.forName("org.jetbrains.sbt.project.sources.SharedSourcesModuleType").getConstructor().newInstance().asInstanceOf[SharedSourcesModuleType]
 }

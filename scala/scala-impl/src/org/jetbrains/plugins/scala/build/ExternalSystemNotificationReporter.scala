@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.build
 
+import java.io.File
+
 import com.intellij.build.events.MessageEvent.Kind
 import com.intellij.build.events._
 import com.intellij.build.{FilePosition, SyncViewManager}
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.externalSystem.model.task.event.{FailureResult => _, SkippedResult => _, SuccessResult => _, _}
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
@@ -16,12 +17,12 @@ import scala.util.Random
 class ExternalSystemNotificationReporter(workingDir: String,
                                          taskId: ExternalSystemTaskId,
                                          notifications: ExternalSystemTaskNotificationListener)
-  extends BuildTaskReporter {
+  extends BuildReporter {
 
   private val descriptors: mutable.Map[EventId, TaskDescriptor] = mutable.Map.empty
 
   private val viewManager =
-    Option(taskId.findProject()).map(ServiceManager.getService(_, classOf[SyncViewManager]))
+    Option(taskId.findProject()).map(_.getService(classOf[SyncViewManager]))
 
   override def start(): Unit = {
     notifications.onStart(taskId, workingDir)
@@ -32,25 +33,31 @@ class ExternalSystemNotificationReporter(workingDir: String,
       notifications.onEnd(taskId)
       notifications.onSuccess(taskId)
     }
-    else if (messages.status == BuildMessages.Canceled)
-      notifications.onCancel(taskId)
-    else if (messages.exceptions.nonEmpty)
-      notifications.onFailure(taskId, messages.exceptions.head)
-    else if (messages.errors.nonEmpty) {
+    else if (messages.status == BuildMessages.Canceled) {
+      finishCanceled()
+    }
+    else if (messages.exceptions.nonEmpty) {
+      finishWithFailure(messages.exceptions.head)
+    } else if (messages.errors.nonEmpty) {
       val firstError = messages.errors.head
       val throwable = Option(firstError.getError).getOrElse(new Exception(firstError.getMessage))
-      notifications.onFailure(taskId, throwableToException(throwable))
-    } else if (messages.status == BuildMessages.Indeterminate)
-      notifications.onFailure(taskId, new Exception("task ended in indeterminate state"))
-    else
-      notifications.onFailure(taskId, new Exception("task failed"))
+      finishWithFailure(throwable)
+    } else if (messages.status == BuildMessages.Indeterminate) {
+      finishWithFailure(new Exception("task ended in indeterminate state"))
+    } else {
+      finishWithFailure(new Exception("task failed"))
+    }
   }
 
-  override def finishWithFailure(err: Throwable): Unit =
+  override def finishWithFailure(err: Throwable): Unit = {
     notifications.onFailure(taskId, throwableToException(err))
+    notifications.onEnd(taskId)
+  }
 
-  override def finishCanceled(): Unit =
+  override def finishCanceled(): Unit = {
     notifications.onCancel(taskId)
+    notifications.onEnd(taskId)
+  }
 
   override def warning(message: String, position: Option[FilePosition]): Unit =
     viewManager
@@ -63,7 +70,14 @@ class ExternalSystemNotificationReporter(workingDir: String,
     viewManager.foreach(_.onEvent(taskId, event(message, Kind.INFO, position)))
 
   override def log(message: String): Unit =
-    notifications.onTaskOutput(taskId, message + "\n", true)
+    log(message, isStdOut = true)
+
+  def logErr(message: String): Unit =
+    log(message, isStdOut = false)
+
+  private def log(message: String, isStdOut: Boolean): Unit = synchronized {
+    notifications.onTaskOutput(taskId, message + "\n", isStdOut)
+  }
 
   override def startTask(eventId: EventId, parent: Option[EventId], message: String, time: Long = System.currentTimeMillis()): Unit = {
 
@@ -116,6 +130,8 @@ class ExternalSystemNotificationReporter(workingDir: String,
       notifications.onStatusChange(statusEvent)
     }
   }
+
+  override def clear(file: File): Unit = ()
 
   private def event(message: String, kind: MessageEvent.Kind, position: Option[FilePosition])=
     BuildMessages.message(taskId, message, kind, position)

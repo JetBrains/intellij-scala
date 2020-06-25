@@ -1,20 +1,18 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 
 /**
  * @author Nikolay.Tropin
  */
 class ZeroIndexToHeadTest extends OperationsOnCollectionInspectionTest {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[ZeroIndexToHeadInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("replace.with.head")
+    ScalaInspectionBundle.message("replace.with.head")
 
   def testApply(): Unit = {
     doTest(s"List(1, 2).${START}apply(0)$END",
@@ -25,7 +23,7 @@ class ZeroIndexToHeadTest extends OperationsOnCollectionInspectionTest {
       "Seq(1, 2).head")
   }
 
-  def testBraces() {
+  def testBraces(): Unit = {
     doTest(s"List(1, 2)$START(0)$END",
       "List(1, 2)(0)",
       "List(1, 2).head")

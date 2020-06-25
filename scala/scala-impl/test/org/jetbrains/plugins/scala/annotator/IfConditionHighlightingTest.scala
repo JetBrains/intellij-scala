@@ -12,10 +12,6 @@ class IfConditionHighlightingTest extends ScalaHighlightingTestBase {
         |  }
         |
         |  val a = if ("123") 42 else 43
-        |
-        |  implicit def double2Boolean(d: Double): Boolean = false
-        |
-        |  if (2d) () else ()
         |}
         |""".stripMargin
 

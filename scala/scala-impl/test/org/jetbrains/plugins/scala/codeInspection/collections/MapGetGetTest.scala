@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * Nikolay.Tropin
@@ -9,12 +10,10 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
  */
 class MapGetGetTest extends OperationsOnCollectionInspectionTest {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
-  val hint = InspectionBundle.message("get.get.hint")
+  override val hint = ScalaInspectionBundle.message("get.get.hint")
   override val classOfInspection = classOf[MapGetGetInspection]
 
-  def test_1() {
+  def test_1(): Unit = {
     val selected = s"""Map("a"->"x").${START}get("a").get$END"""
     checkTextHasError(selected)
     val text = """Map("a" -> "x").get("a").get"""
@@ -22,7 +21,7 @@ class MapGetGetTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def test_2() {
+  def test_2(): Unit = {
     val selected =
       s"""val m = Map("a" -> "b")
          |m.${START}get("a").get$END""".stripMargin
@@ -36,7 +35,7 @@ class MapGetGetTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def test_3() {
+  def test_3(): Unit = {
     val selected =
       s"""val m = Map(1 -> "b")
           |m.${START}get(1).get$END""".stripMargin
@@ -50,7 +49,7 @@ class MapGetGetTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def test_4() {
+  def test_4(): Unit = {
     val selected = s"""Map("a"->"x").${START}get(0).get$END"""
     checkTextHasError(selected)
     val text = """Map("a" -> "x").get(0).get"""

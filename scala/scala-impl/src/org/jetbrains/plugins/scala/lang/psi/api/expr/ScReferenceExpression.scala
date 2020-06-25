@@ -6,13 +6,12 @@ package expr
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.types.MissedParametersClause
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor}
 
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
 */
@@ -22,7 +21,7 @@ trait ScReferenceExpression extends ScExpression
 
   final def isQualified: Boolean = qualifier.isDefined
 
-  final def qualifier: Option[ScExpression] = getFirstChild match {
+  override final def qualifier: Option[ScExpression] = getFirstChild match {
     case e: ScExpression => Some(e)
     case _ => None
   }
@@ -70,7 +69,7 @@ trait ScReferenceExpression extends ScExpression
   def getSimpleVariants(incomplete: Boolean = true,
                         completion: Boolean = false,
                         implicits: Boolean = false): Seq[ScalaResolveResult] =
-    doResolve(new CompletionProcessor(getKinds(incomplete, completion), this, isImplicit = implicits))
+    doResolve(new CompletionProcessor(getKinds(incomplete, completion), this, withImplicitConversions = implicits))
 }
 
 object ScReferenceExpression {

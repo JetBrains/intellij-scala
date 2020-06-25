@@ -9,14 +9,10 @@ import com.intellij.psi.{PsiComment, PsiElement, PsiErrorElement, PsiFile}
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
-
 class ScalaIsCommentComplete extends CommentCompleteHandler {
-  override def isApplicable(comment: PsiComment, commenter: CodeDocumentationAwareCommenter): Boolean = {
+
+  override def isApplicable(comment: PsiComment, commenter: CodeDocumentationAwareCommenter): Boolean =
     comment.getParent.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
-  }
 
   //same code in com.intellij.codeInsight.editorActions.EnterHandler
   override def isCommentComplete(comment: PsiComment, commenter: CodeDocumentationAwareCommenter, editor: Editor): Boolean = {

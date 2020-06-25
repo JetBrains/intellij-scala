@@ -9,13 +9,11 @@ import com.intellij.testFramework.EditorTestUtil
  */
 class ReverseTakeReverseTest extends OperationsOnCollectionInspectionTest {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[ReverseTakeReverseInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("replace.reverse.take.reverse.with.takeRight")
+    ScalaInspectionBundle.message("replace.reverse.take.reverse.with.takeRight")
 
   def test1(): Unit = {
     doTest(

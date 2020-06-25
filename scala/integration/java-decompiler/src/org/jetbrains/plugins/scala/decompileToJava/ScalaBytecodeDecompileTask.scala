@@ -13,12 +13,12 @@ import com.intellij.psi.PsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 
 class ScalaBytecodeDecompileTask(file: ScFile)
-    extends Task.Backgroundable(file.getProject, "Decompile Scala Bytecode") {
+    extends Task.Backgroundable(file.getProject, JavaDecompilerBundle.message("decompile.scala.bytecode")) {
 
   import ScalaBytecodeDecompileTask._
 
   override def run(indicator: ProgressIndicator): Unit = {
-    indicator.setText(s"Decompiling ${file.getName}")
+    indicator.setText(JavaDecompilerBundle.message("decompiling.file", file.getName))
 
     val tryDecompile = ScalaDecompilerService().decompile(file)
 
@@ -26,7 +26,10 @@ class ScalaBytecodeDecompileTask(file: ScFile)
       inWriteAction {
         if (file.isValid && !file.getProject.isDisposed) {
           tryDecompile.fold(
-            e => Messages.showErrorDialog(s"Cannot decompile ${file.getName}: ${e.getMessage}", "Decompiler Error"),
+            e => Messages.showErrorDialog(
+              JavaDecompilerBundle.message("cannot.decompile.filename.colon.message", file.getName, e.getMessage),
+              JavaDecompilerBundle.message("decompiler.error")
+            ),
             text => {
               val root           = getOrCreateDummyRoot()
               val decompiledName = FileUtil.getNameWithoutExtension(file.getName) + ".decompiled.java"

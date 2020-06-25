@@ -9,7 +9,7 @@ import org.junit.experimental.categories.Category
  */
 @Category(Array(classOf[DebuggerTests]))
 class GetAllClassesTest_since_2_12 extends GetAllClassesTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_12
 
   override def testForStmt(): Unit = {
     checkGetAllClasses("ForStmt$")
@@ -54,7 +54,7 @@ class GetAllClassesTest_since_2_12 extends GetAllClassesTestBase {
 
 @Category(Array(classOf[DebuggerTests]))
 class GetAllClassesTest_2_11 extends GetAllClassesTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_11
 }
 
 abstract class GetAllClassesTestBase extends PositionManagerTestBase {

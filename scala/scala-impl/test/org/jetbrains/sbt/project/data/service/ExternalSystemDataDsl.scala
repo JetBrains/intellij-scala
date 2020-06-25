@@ -163,7 +163,7 @@ object ExternalSystemDataDsl {
   }
 
   class javaModule extends module {
-    val typeId: String = StdModuleTypes.JAVA.getId
+    override val typeId: String = StdModuleTypes.JAVA.getId
   }
 
   class library {

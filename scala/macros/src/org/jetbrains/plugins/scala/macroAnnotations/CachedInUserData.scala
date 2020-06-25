@@ -14,7 +14,7 @@ import scala.reflect.macros.whitebox
   * Author: Svyatoslav Ilinskiy, Nikolay.Tropin
   * Date: 9/25/15.
   */
-class CachedInUserData(userDataHolder: Any, dependencyItem: Object) extends StaticAnnotation {
+class CachedInUserData(userDataHolder: Any, dependencyItem: Object, tracked: Any*) extends StaticAnnotation {
   def macroTransform(annottees: Any*) = macro CachedInUserData.cachedInsideUserDataImpl
 }
 
@@ -23,22 +23,22 @@ object CachedInUserData {
     import CachedMacroUtil._
     import c.universe._
     implicit val x: c.type = c
-    def parameters: (Tree, Tree) = {
+    def parameters: (Tree, Tree, Seq[Tree]) = {
       c.prefix.tree match {
-        case q"new CachedInUserData(..$params)" if params.length == 2 =>
-          (params.head, modCountParamToModTracker(c)(params(1), params.head))
-        case _ => abort("Wrong annotation parameters!")
+        case q"new CachedInUserData(..$params)" if params.length >= 2 =>
+          (params.head, modCountParamToModTracker(c)(params(1), params.head), params.drop(2))
+        case _ => abort(MacrosBundle.message("macros.cached.wrong.annotation.parameters"))
       }
     }
 
     //annotation parameters
-    val (elem, modTracker) = parameters
+    val (elem, modTracker, trackedExprs) = parameters
 
     annottees.toList match {
-      case DefDef(mods, name, tpParams, paramss, retTp, rhs) :: Nil =>
+      case DefDef(mods, termName, tpParams, paramss, retTp, rhs) :: Nil =>
         preventCacheModeParameter(c)(paramss)
         if (retTp.isEmpty) {
-          abort("You must specify return type")
+          abort(MacrosBundle.message("macros.cached.specify.return.type"))
         }
         //function parameters
         val flatParams = paramss.flatten
@@ -51,8 +51,9 @@ object CachedInUserData {
         val resultType = box(c)(retTp)
 
         //generated names
-        val keyId = c.freshName(name.toString + "cacheKey")
-        val cacheName = withClassName(name)
+        val name = c.freshName(termName)
+        val cacheName = withClassName(termName)
+        val keyId = stringLiteral(name + "cacheKey")
         val tracerName = generateTermName(name.toString, "$tracer")
         val elemName = generateTermName(name.toString, "element")
         val dataName = generateTermName(name.toString, "data")
@@ -84,7 +85,7 @@ object CachedInUserData {
         val updatedRhs = q"""
           def $cachedFunName(): $retTp = $actualCalculation
 
-          val $tracerName = $internalTracer($keyId, $cacheName)
+          val $tracerName = ${internalTracerInstance(c)(keyId, cacheName, trackedExprs)}
           $tracerName.invocation()
 
           val $dataName = $dataValue
@@ -111,12 +112,12 @@ object CachedInUserData {
 
           $resultName
           """
-        val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
+        val updatedDef = DefDef(mods, termName, tpParams, paramss, retTp, updatedRhs)
 
         debug(updatedDef)
 
         c.Expr(updatedDef)
-      case _ => abort("You can only annotate one function!")
+      case _ => abort(MacrosBundle.message("macros.cached.only.annotate.one.function"))
     }
   }
 }

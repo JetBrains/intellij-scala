@@ -6,7 +6,7 @@ package top
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ClassConstr, TypeParamClause}
+import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ClassConstr, TraitConstr, TypeParamClause}
 
 sealed abstract class TemplateDef extends ParsingRule {
 
@@ -46,7 +46,7 @@ object ClassDef extends TemplateDef {
 object TraitDef extends TemplateDef {
 
   override protected def parseConstructor()(implicit builder: ScalaPsiBuilder): Unit =
-    TypeParamClause.parse(builder)
+    TraitConstr()
 
   override protected def extendsBlockRule: TraitTemplate.type = TraitTemplate
 }

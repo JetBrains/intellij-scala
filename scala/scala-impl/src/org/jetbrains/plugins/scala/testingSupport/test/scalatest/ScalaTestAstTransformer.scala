@@ -7,6 +7,7 @@ import java.net.{URL, URLClassLoader}
 import com.intellij.execution.Location
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.roots.{OrderEntry, OrderEnumerator, OrderRootType}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
@@ -25,30 +26,32 @@ import org.scalatest.finders.{MethodInvocation => _, _}
 import scala.annotation.tailrec
 import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
+import scala.util.{Failure, Success, Try}
 
 object ScalaTestAstTransformer {
+
   private val LOG: Logger = Logger.getInstance(ScalaTestAstTransformer.getClass)
 
-  def testSelection(location: Location[_ <: PsiElement]): Selection = {
+  def testSelection(location: Location[_ <: PsiElement]): Option[Selection] = {
     val element = location.getPsiElement
-    val clazz = PsiTreeUtil.getNonStrictParentOfType(element, classOf[ScClass], classOf[ScTrait])
+    val typeDef = PsiTreeUtil.getNonStrictParentOfType(element, classOf[ScClass], classOf[ScTrait])
 
-    if (clazz == null) return null
-
-    try {
-      val found = for {
-        finder <- getFinder(clazz, location.getModule)
-        selected <- getSelectedAstNode(clazz.qualifiedName, element)
-      } yield {
-        finder.find(selected)
-      }
-      found.orNull
-    } catch {
-      case e: Exception =>
-        LOG.debug(s"Failed to load scalatest-finders API class for test suite ${clazz.qualifiedName}", e)
-        null
+    if (typeDef == null) return None
+    Try(testSelection(element, typeDef, location.getModule)) match {
+      case Failure(e)     =>
+        LOG.debug(s"Failed to load scalatest-finders API class for test suite ${typeDef.qualifiedName}", e)
+        None
+      case Success(value) =>
+        value
     }
   }
+
+  private def testSelection(element: PsiElement, typeDef: ScTypeDefinition, module: Module): Option[Selection] =
+    for {
+      finder    <- getFinder(typeDef, module)
+      selected  <- getSelectedAstNode(typeDef.qualifiedName, element)
+      selection <- Option(finder.find(selected))
+    } yield selection
 
   def getFinder(clazz: ScTypeDefinition, module: Module): Option[Finder] = {
     val classes = MixinNodes.linearization(clazz).flatMap(_.extractClass.toSeq)
@@ -56,6 +59,8 @@ object ScalaTestAstTransformer {
     for (clazz <- classes) {
       clazz match {
         case td: ScTypeDefinition =>
+          ProgressManager.checkCanceled()
+
           val finderFqn: String = getFinderClassFqn(td, module, "org.scalatest.Style", "org.scalatest.Finders")
           if (finderFqn != null) try {
             val finderClass: Class[_] = Class.forName(finderFqn)
@@ -71,12 +76,16 @@ object ScalaTestAstTransformer {
     None
   }
 
-  @tailrec
   private def getSelectedAstNode(className: String, element: PsiElement): Option[AstNode] = {
-    transformNode(className, element) match {
-      case None => getSelectedAstNode(className, element.getParent)
-      case some => some
-    }
+    @tailrec
+    def inner(el: PsiElement): Option[AstNode] =
+      transformNode(className, el) match {
+        case None => inner(el.getParent)
+        case some => some
+      }
+
+    val astNode = inner(element)
+    astNode
   }
 
   private def getNameFromAnnotLiteral(expr: ScExpression): String = expr match {

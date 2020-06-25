@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
  */
 
 class TypeFilter extends ElementFilter {
-  def isAcceptable(element: Object, context: PsiElement): Boolean = {
+  override def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
     val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context)
 
@@ -35,5 +35,5 @@ class TypeFilter extends ElementFilter {
 
   override def toString: String = "'type' keyword filter"
 
-  def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = true
+  override def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = true
 }

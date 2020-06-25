@@ -1,5 +1,9 @@
 package org.jetbrains.sbt
 
+import org.jetbrains.annotations.NonNls
+
+import scala.util.matching.Regex
+
 case class JvmMemorySize private(sizeInBytes: Long)(val sizeString: String) extends Ordered[JvmMemorySize] {
   override def compare(t: JvmMemorySize): Int =
     sizeInBytes compare t.sizeInBytes
@@ -28,7 +32,7 @@ object JvmMemorySize {
   private val unitMultiplierMapping: Map[String, Long] =
     units.map(unit => unit.unitSuffix -> unit.byteMultiplier).toMap
 
-  private val sizeWithUnit = raw"(\d+)([a-zA-Z]*)".r
+  @NonNls private val sizeWithUnit: Regex = raw"(\d+)([a-zA-Z]*)".r
 
   def parse(sizeString: String): Option[JvmMemorySize] = for {
     sizeWithUnit(sizeStr, unitStr) <- Some(sizeString)

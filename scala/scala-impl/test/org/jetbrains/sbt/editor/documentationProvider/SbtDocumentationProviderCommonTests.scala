@@ -1,74 +1,78 @@
 package org.jetbrains.sbt.editor.documentationProvider
 
-trait SbtDocumentationProviderCommonTests extends SbtDocumentationProviderTestBase {
+trait SbtDocumentationProviderCommonTests {
+  self: SbtDocumentationProviderTestBase =>
 
-  def testSbtDescriptionShouldBeWrappedInDefaultScaladocTemplate(): Unit = doFullTest(
-    s"""val ${CARET}someKey = SettingKey[Int]("some-key", "This is description for some-key")""",
-    s"""<html><body>
-       |<pre>Pattern: <b>someKey</b>: <a href="psi_element://sbt.SettingKey"><code>SettingKey</code></a>[Int]</pre>
-       |<br/><b>This is description for some-key</b>
-       |</body></html>
-       |""".stripMargin
+  def testSbtDescriptionShouldBeWrappedInDefaultScaladocTemplate(): Unit =
+    doGenerateDocTest(
+      s"""val ${CARET}someKey = SettingKey[Int]("some-key", "This is description for some-key")""",
+      s"""$DocStart
+         |${DefinitionStart}val <b>someKey</b>: <a href="psi_element://sbt.SettingKey"><code>SettingKey</code></a>[<a href="psi_element://scala.Int"><code>Int</code></a>]$DefinitionEnd
+         |$ContentStart
+         |This is description for some-key
+         |$ContentEnd
+         |$DocEnd
+         |""".stripMargin
+    )
+
+  def testSettingKey(): Unit = doGenerateSbtDocDescriptionTest(
+    s"""val ${CARET}someKey = SettingKey[Int]("some-key", "$commonDescription")""",
+    commonDescription
   )
 
-  def testSettingKey(): Unit = doShortTest(
-    s"""val ${CARET}someKey = SettingKey[Int]("some-key", "$description")""",
-    description
+  def testAttributeKey(): Unit = doGenerateSbtDocDescriptionTest(
+    s"""val ${CARET}someKey = AttributeKey[Int]("some-key", "$commonDescription")""",
+    commonDescription
   )
 
-  def testAttributeKey(): Unit = doShortTest(
-    s"""val ${CARET}someKey = AttributeKey[Int]("some-key", "$description")""",
-    description
+  def testTaskKey(): Unit = doGenerateSbtDocDescriptionTest(
+    s"""val ${CARET}someKey = TaskKey[Int]("some-key", "$commonDescription")""",
+    commonDescription
   )
 
-  def testTaskKey(): Unit = doShortTest(
-    s"""val ${CARET}someKey = TaskKey[Int]("some-key", "$description")""",
-    description
+  def testInputKey(): Unit = doGenerateSbtDocDescriptionTest(
+    s"""val ${CARET}someKey = InputKey[Int]("some-key", "$commonDescription")""",
+    commonDescription
   )
 
-  def testInputKey(): Unit = doShortTest(
-    s"""val ${CARET}someKey = InputKey[Int]("some-key", "$description")""",
-    description
+  def testKeyWithLabelAndDescription(): Unit = doGenerateSbtDocDescriptionTest(
+    s"""val ${CARET}someKey = SettingKey[Int]("some-key", "$commonDescription")""",
+    commonDescription
   )
 
-  def testKeyWithLabelAndDescription(): Unit = doShortTest(
-    s"""val ${CARET}someKey = SettingKey[Int]("some-key", "$description")""",
-    description
+  def testKeyWithLabelAndDescriptionAndRank(): Unit = doGenerateSbtDocDescriptionTest(
+    s"""val ${CARET}someKey = SettingKey[Int]("some-key", "$commonDescription", KeyRanks.APlusSetting)""",
+    commonDescription
   )
 
-  def testKeyWithLabelAndDescriptionAndRank(): Unit = doShortTest(
-    s"""val ${CARET}someKey = SettingKey[Int]("some-key", "$description", KeyRanks.APlusSetting)""",
-    description
-  )
-
-  def testKeyWithLabelAndDescriptionAndExtend(): Unit = doShortTest(
+  def testKeyWithLabelAndDescriptionAndExtend(): Unit = doGenerateSbtDocDescriptionTest(
     s"""val someKey = SettingKey[Int]("some-key")
-       |val ${CARET}someKey1 = SettingKey[Int]("some-key-1", "$description", someKey)
+       |val ${CARET}someKey1 = SettingKey[Int]("some-key-1", "$commonDescription", someKey)
        |""".stripMargin,
-    description
+    commonDescription
   )
 
-  def testKeyWithLabelAndDescriptionAndRankAndExtend(): Unit = doShortTest(
+  def testKeyWithLabelAndDescriptionAndRankAndExtend(): Unit = doGenerateSbtDocDescriptionTest(
     s"""val someKey = SettingKey[Int]("some-other-key")
-       |val ${CARET}someKey1 = SettingKey[Int]("some-key", "$description", KeyRanks.APlusSetting, someOtherKey)
+       |val ${CARET}someKey1 = SettingKey[Int]("some-key", "$commonDescription", KeyRanks.APlusSetting, someOtherKey)
        |""".stripMargin,
-    description
+    commonDescription
   )
 
-  def testKeyWithReferenceDescription(): Unit = doShortTest(
+  def testKeyWithReferenceDescription(): Unit = doGenerateSbtDocDescriptionTest(
     s"""val someValue: String = "some text"
        |val ${CARET}someKey = SettingKey[Int](someValue)
        |""".stripMargin,
     s"""<i>someValue</i>"""
   )
 
-  def testUseLabelAsDescriptionIfDescriptionIsMissing(): Unit = doShortTest(
+  def testUseLabelAsDescriptionIfDescriptionIsMissing(): Unit = doGenerateSbtDocDescriptionTest(
     s"""val ${CARET}someKey = SettingKey[Int]("some-key-label")""",
     "some-key-label"
   )
 
-  def testDoNotDetectDocumentationForNonKeyApplyMethod(): Unit = doFullTest(
-    s"""val ${CARET}someKey = SomeUnknownClass[Int]("some-key", "$description")""",
-    null
+  def testDoNotDetectDocumentationForNonKeyApplyMethod(): Unit = doGenerateDocTest(
+    s"""val ${CARET}someKey = SomeUnknownClass[Int]("some-key", "$commonDescription")""",
+    null: String
   )
 }

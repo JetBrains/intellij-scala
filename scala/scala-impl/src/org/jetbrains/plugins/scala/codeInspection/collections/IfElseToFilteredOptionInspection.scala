@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.codeInsight.PsiEquivalenceUtil._
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.util.SideEffectsUtil
 
@@ -13,7 +14,7 @@ class IfElseToFilteredOptionInspection extends OperationOnCollectionInspection {
 }
 
 object FilterOption extends SimplificationType {
-  override def hint: String = InspectionBundle.message("ifstmt.to.filteredOption")
+  override def hint: String = ScalaInspectionBundle.message("ifstmt.to.filteredOption")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case ex@IfStmt(ScMethodCall(method, Seq(methodArg)), some@scalaSome(_), scalaNone()) =>

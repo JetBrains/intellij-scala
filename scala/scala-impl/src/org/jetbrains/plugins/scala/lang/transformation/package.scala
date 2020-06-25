@@ -33,16 +33,16 @@ package object transformation {
 
   // TODO create a separate unit test for this method
   // Tries to use simple name, then partially qualified name, then fully qualified name instead of adding imports
-  def bindTo(reference: ScReference, target: String) {
-    implicit val context = reference.getParent
+  def bindTo(reference: ScReference, target: String): Unit = {
+    implicit val context: PsiElement = reference.getParent
 
-    implicit val isExpression = reference.isInstanceOf[ScReferenceExpression]
+    implicit val isExpression: Boolean = reference.isInstanceOf[ScReferenceExpression]
 
     @tailrec
-    def bindTo0(r1: ScReference, paths: Seq[String]) {
+    def bindTo0(r1: ScReference, paths: Seq[String]): Unit = {
       paths match {
         case Seq(path, alternatives @ _*)  =>
-          implicit val projectContext = r1.projectContext
+          implicit val projectContext: ProjectContext = r1.projectContext
           val r2 = r1.replace(createReferenceElement(path)).asInstanceOf[ScReference]
           if (!isResolvedTo(r2, target)) {
             bindTo0(r2, alternatives)
@@ -53,7 +53,7 @@ package object transformation {
 
     val variants = variantsOf(target)
 
-    if (!(reference.getText == variants.head && isResolvedTo(reference, target))) {
+    if (!(reference.textMatches(variants.head) && isResolvedTo(reference, target))) {
       bindTo0(reference, variants)
     }
   }
@@ -100,7 +100,7 @@ package object transformation {
     def unapply(r: ScReference): Option[(String, String)] = {
       val id = r.nameId
       r.bind().flatMap(_.innerResolveResult).orElse(r.bind()).map(_.element) collect  {
-        case target: PsiNamedElement if id.getText != target.name => (id.getText, target.name)
+        case target: PsiNamedElement if !id.textMatches(target.name) => (id.getText, target.name)
       }
     }
   }

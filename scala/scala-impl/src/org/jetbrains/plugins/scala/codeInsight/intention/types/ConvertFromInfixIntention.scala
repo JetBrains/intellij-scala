@@ -10,15 +10,15 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParenthesisedTypeElement, ScInfixTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParenthesisedTypeElement}
 
 /** Converts type element `(A @@ B)` to `@@[A, B]` */
 class ConvertFromInfixIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = "Use Prefix Type Syntax"
+  override def getFamilyName: String = ScalaBundle.message("family.name.use.prefix.type.syntax")
 
   override def getText: String = getFamilyName
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     element match {
       case Parent((_: ScStableCodeReference) && Parent(Parent(_: ScInfixTypeElement))) => true
       case _ => false

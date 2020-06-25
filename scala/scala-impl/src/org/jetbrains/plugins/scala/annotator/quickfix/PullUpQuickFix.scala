@@ -1,94 +1,103 @@
-package org.jetbrains.plugins.scala.annotator.quickfix
+package org.jetbrains.plugins.scala
+package annotator
+package quickfix
 
-import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.codeInsight.navigation.NavigationUtil
-import com.intellij.ide.util.PsiClassListCellRenderer
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.codeInsight.intention.AbstractIntentionAction
+import com.intellij.codeInsight.navigation.NavigationUtil.getPsiElementPopup
+import com.intellij.ide.util.{PsiClassListCellRenderer, PsiElementListCellRenderer}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiFile
 import com.intellij.psi.search.PsiElementProcessor
-import com.intellij.psi.{PsiClass, PsiElement, PsiFile, SmartPsiElementPointer}
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiElementExt, inWriteCommandAction}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier.{ABSTRACT, OVERRIDE}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractMemberInfo
 import org.jetbrains.plugins.scala.lang.refactoring.memberPullUp.ScalaPullUpProcessor
 
-final class PullUpQuickFix(_member: ScMember, name: String) extends IntentionAction {
-  private val smartPointer: SmartPsiElementPointer[ScMember] = _member.createSmartPointer
+final class PullUpQuickFix(member: ScMember, name: String) extends AbstractIntentionAction {
 
-  override val getText: String = _member match {
+  import PullUpQuickFix._
+
+  private val smartPointer = member.createSmartPointer
+
+  override val getText: String = member match {
     case _: ScVariableDefinition => ScalaBundle.message("pull.variable.to", name)
     case _: ScPatternDefinition => ScalaBundle.message("pull.value.to", name)
     case _ => ScalaBundle.message("pull.method.to", name)
   }
-  override val getFamilyName: String = getText
-  override val startInWriteAction: Boolean = true
 
-  override def isAvailable(project: Project, editor: Editor, psiFile: PsiFile): Boolean = {
-    selectedMember.zip(sourceClass).exists {
-      case (member, clazz) =>
-        member.hasModifierProperty("override") && clazz.allSupers.exists(isInWritableFile)
+  override def startInWriteAction: Boolean = true
+
+  override def isAvailable(project: Project, editor: Editor, psiFile: PsiFile): Boolean =
+    selectedMemberWithContainingClass.exists {
+      case PullUpExecutor(memberToOverride, sourceClass) =>
+        memberToOverride.hasModifierProperty(OVERRIDE) && applicableScalaSupers(sourceClass).nonEmpty
     }
-  }
 
-  override def invoke(project: Project, editor: Editor, psiFile: PsiFile): Unit = {
-    for {
-      member      <- selectedMember
-      sourceClass <- sourceClass
-    } {
-      val superClasses = allSupers(project, sourceClass)
+  override def invoke(project: Project, editor: Editor, psiFile: PsiFile): Unit = for {
+    executor <- selectedMemberWithContainingClass
+  } {
+    implicit val p: Project = project
+    val superClasses = applicableScalaSupers(executor.sourceClass)
 
-      if (!ApplicationManager.getApplication.isUnitTestMode) {
-        NavigationUtil
-          .getPsiElementPopup(
-            superClasses.toArray,
-            new PsiClassListCellRenderer,
-            "Choose class",
-            new PullUpProcessor(member, sourceClass, project))
-          .showInBestPositionFor(editor)
-      } else {
-        // for headless test flow
-        superClasses.headOption.foreach(pullUpMember(member, sourceClass, _: PsiClass, project))
+    if (isUnitTestMode) {
+      superClasses.headOption.foreach {
+        executor(_)
       }
+    } else {
+      getPsiElementPopup(
+        superClasses.toArray,
+        (new PsiClassListCellRenderer).asInstanceOf[PsiElementListCellRenderer[ScTypeDefinition]],
+        "Choose class",
+        new PullUpProcessor(executor)
+      ).showInBestPositionFor(editor)
     }
   }
 
-  private def allSupers(project: Project, clazz: PsiClass): Seq[PsiClass] =
-    clazz.allSupers.filter(isInWritableFile)
+  private def selectedMemberWithContainingClass: Option[PullUpExecutor] = smartPointer match {
+    case ValidSmartPointer(memberToOverride@ContainingClass(sourceClass: ScTypeDefinition)) => Some(PullUpExecutor(memberToOverride, sourceClass))
+    case _ => None
+  }
+}
 
-  private def selectedMember: Option[ScMember] =
-    Option(smartPointer.getElement)
+object PullUpQuickFix {
 
-  private def sourceClass: Option[ScTemplateDefinition] =
-    selectedMember.flatMap(_.containingClass.toOption)
+  private case class PullUpExecutor(memberToOverride: ScMember,
+                                    sourceClass: ScTypeDefinition) {
 
-  private def pullUpMember(target: ScMember, from: ScTemplateDefinition, to: PsiClass, project: Project): Unit = {
-    val info = new ScalaExtractMemberInfo(target)
-    info.setToAbstract(true)
-    new ScalaPullUpProcessor(project, from, to.asInstanceOf[ScTemplateDefinition], Seq(info))
-      .moveMembersToBase()
+    def apply(targetClass: ScTypeDefinition)
+             (implicit project: Project): Unit = {
+      val info = new ScalaExtractMemberInfo(memberToOverride)
+      info.setToAbstract(true)
+
+      new ScalaPullUpProcessor(
+        project,
+        sourceClass,
+        targetClass,
+        Seq(info)
+      ).moveMembersToBase()
+    }
   }
 
-  private def isInWritableFile(element: PsiElement): Boolean =
-    element.containingFile.flatMap(_.getVirtualFile.toOption).exists(_.isWritable)
+  private def applicableScalaSupers(sourceClass: ScTypeDefinition) = for {
+    superClass <- sourceClass.allSupers.iterator
+    if superClass.isInstanceOf[ScTypeDefinition] &&
+      superClass.hasModifierProperty(ABSTRACT) &&
+      superClass.containingVirtualFile.exists(_.isWritable)
+  } yield superClass.asInstanceOf[ScTypeDefinition]
 
-  private class PullUpProcessor(memberToOverride: ScMember, sourceClass: ScTemplateDefinition, project: Project)
-    extends PsiElementProcessor[PsiClass] {
+  private final class PullUpProcessor(executor: PullUpExecutor)
+                                     (implicit project: Project)
+    extends PsiElementProcessor[ScTypeDefinition] {
 
-    override def execute(t: PsiClass): Boolean = {
-      ApplicationManager.getApplication.invokeLater(
-        () => {
-          inWriteCommandAction {
-            pullUpMember(
-              target = memberToOverride,
-              from = sourceClass,
-              to = t,
-              project = project
-            )
-          }(project)
-        })
+    override def execute(targetClass: ScTypeDefinition): Boolean = {
+      invokeLater {
+        inWriteCommandAction {
+          executor(targetClass)
+        }
+      }
       true
     }
   }

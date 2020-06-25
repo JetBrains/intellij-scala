@@ -10,10 +10,10 @@ class InheritanceSuperSingleTest extends ResolveTestBase {
     super.folderPath + "inheritance/super/single/"
   }
 
-  def testClashClass() = doTest()
-  def testClashObject() = doTest()
-  def testClashTrait() = doTest()
-  def testClass() = doTest()
-  def testObject() = doTest()
-  def testTrait() = doTest()
+  def testClashClass(): Unit = doTest()
+  def testClashObject(): Unit = doTest()
+  def testClashTrait(): Unit = doTest()
+  def testClass(): Unit = doTest()
+  def testObject(): Unit = doTest()
+  def testTrait(): Unit = doTest()
 }

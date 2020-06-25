@@ -13,7 +13,7 @@ class ExpandBooleanIntentionTest extends intentions.ScalaIntentionTestBase {
 
   import EditorTestUtil.{CARET_TAG => CARET}
 
-  override val familyName = ExpandBooleanIntention.FamilyName
+  override val familyName = ScalaCodeInsightBundle.message("family.name.expand.boolean")
 
   def testExpandBoolean1(): Unit = {
     val text =

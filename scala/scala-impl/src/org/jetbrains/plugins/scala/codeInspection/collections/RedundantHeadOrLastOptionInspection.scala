@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
@@ -11,7 +12,7 @@ class RedundantHeadOrLastOptionInspection extends OperationOnCollectionInspectio
 }
 
 object RedundantHeadOption extends SimplificationType {
-  override def hint: String = InspectionBundle.message("remove.redundant.headOption")
+  override def hint: String = ScalaInspectionBundle.message("remove.redundant.headOption")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case qual`.headOption`() if isOption(qual) =>
@@ -21,7 +22,7 @@ object RedundantHeadOption extends SimplificationType {
 }
 
 object RedundantLastOption extends SimplificationType {
-  override def hint: String = InspectionBundle.message("remove.redundant.lastOption")
+  override def hint: String = ScalaInspectionBundle.message("remove.redundant.lastOption")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case qual`.lastOption`() if isOption(qual) =>

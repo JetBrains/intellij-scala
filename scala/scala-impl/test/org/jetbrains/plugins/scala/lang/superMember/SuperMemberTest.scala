@@ -48,7 +48,7 @@ class SuperMemberTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     runTest(name)
   }
 
-  private def runTest(name: String) = {
+  private def runTest(name: String): Unit = {
 
     var filePath = sourceRootPath + name
     val vFile = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))

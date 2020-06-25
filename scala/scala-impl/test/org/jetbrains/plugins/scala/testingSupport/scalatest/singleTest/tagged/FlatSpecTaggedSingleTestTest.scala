@@ -7,7 +7,7 @@ trait FlatSpecTaggedSingleTestTest extends FlatSpecSingleTestTestBase with FlatS
 
   val flatSpecTaggedTestPath = List("[root]", flatSpecClassName, "A FlatSpecTest", "should run tagged tests")
 
-  def testTaggedFlatSpec() {
+  def testTaggedFlatSpec(): Unit = {
     doTest(flatSpecFileName, flatSpecClassName)(18, 7)(
       "A FlatSpecTest should run tagged tests",
       flatSpecTaggedTestPath

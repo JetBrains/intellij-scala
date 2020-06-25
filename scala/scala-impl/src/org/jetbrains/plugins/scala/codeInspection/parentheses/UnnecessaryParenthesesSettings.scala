@@ -10,7 +10,7 @@ case class UnnecessaryParenthesesSettings(ignoreClarifying: Boolean,
                                           ignoreAroundFunctionExprParam: Boolean)
 
 object UnnecessaryParenthesesSettings {
-  val default = UnnecessaryParenthesesSettings(
+  val default: UnnecessaryParenthesesSettings = UnnecessaryParenthesesSettings(
     ignoreClarifying = true,
     ignoreAroundFunctionType = false,
     ignoreAroundFunctionTypeParam = false,

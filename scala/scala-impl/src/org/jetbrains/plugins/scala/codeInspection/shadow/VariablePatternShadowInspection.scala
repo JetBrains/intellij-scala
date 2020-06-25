@@ -37,7 +37,7 @@ class VariablePatternShadowInspection extends AbstractRegisteredInspection {
 }
 
 object VariablePatternShadowInspection {
-  def description: String = InspectionBundle.message("suspicious.shadowing.by.a.variable.pattern")
+  def description: String = ScalaInspectionBundle.message("suspicious.shadowing.by.a.variable.pattern")
 
   def isInCaseClause(ref: ScReferencePattern): Boolean =
     ScalaPsiUtil.nameContext(ref).isInstanceOf[ScCaseClause]
@@ -53,7 +53,7 @@ object VariablePatternShadowInspection {
 }
 
 class ConvertToStableIdentifierPatternFix(r: ScReferencePattern)
-  extends AbstractFixOnPsiElement(InspectionBundle.message("convert.to.stable.identifier.pattern", r.getText), r) {
+  extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("convert.to.stable.identifier.pattern", r.getText), r) {
 
   override protected def doApplyFix(ref: ScReferencePattern)
                                    (implicit project: Project): Unit = {
@@ -62,4 +62,4 @@ class ConvertToStableIdentifierPatternFix(r: ScReferencePattern)
   }
 }
 
-class RenameVariablePatternFix(ref: ScReferencePattern) extends RenameElementQuickfix(ref, InspectionBundle.message("rename.variable.pattern"))
+class RenameVariablePatternFix(ref: ScReferencePattern) extends RenameElementQuickfix(ref, ScalaInspectionBundle.message("rename.variable.pattern"))

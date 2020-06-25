@@ -1,18 +1,18 @@
 package org.jetbrains.plugins.scala
 package base
 
-import com.intellij.openapi.module.Module
 import junit.framework.{AssertionFailedError, Test, TestListener, TestResult}
-import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 
 import scala.collection.immutable.SortedSet
-import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 
-trait ScalaSdkOwner extends Test {
+trait ScalaSdkOwner extends Test
+  with InjectableJdk
+  with ScalaVersionProvider
+  with LibrariesOwner {
+
   import ScalaSdkOwner._
 
-  implicit final def version: ScalaVersion = {
+  override implicit final def version: ScalaVersion = {
     val supportedVersions = allTestVersions.filter(supportedIn)
     val configuredVersion = configuredScalaVersion.getOrElse(defaultSdkVersion)
     selectVersion(configuredVersion, supportedVersions)
@@ -20,30 +20,12 @@ trait ScalaSdkOwner extends Test {
 
   private var _injectedScalaVersion: Option[ScalaVersion] = None
   def injectedScalaVersion: Option[ScalaVersion] = _injectedScalaVersion
-  def injectedScalaVersion_=(version: ScalaVersion): Unit = _injectedScalaVersion = Some(version)
+  def injectedScalaVersion_=(version: ScalaVersion): Unit = _injectedScalaVersion = Option(version)
 
-  protected def localConfiguredScalaVersion: Option[ScalaVersion] = _injectedScalaVersion
-
-  protected def configuredScalaVersion: Option[ScalaVersion] = localConfiguredScalaVersion.orElse(globalConfiguredScalaVersion)
+  private def configuredScalaVersion: Option[ScalaVersion] =
+    injectedScalaVersion.orElse(globalConfiguredScalaVersion)
 
   protected def supportedIn(version: ScalaVersion): Boolean = true
-
-  protected def librariesLoaders: Seq[LibraryLoader]
-
-  protected lazy val myLoaders: ListBuffer[LibraryLoader] = mutable.ListBuffer.empty[LibraryLoader]
-
-  protected def setUpLibraries(implicit module: Module): Unit = {
-
-    librariesLoaders.foreach { loader =>
-      myLoaders += loader
-      loader.init
-    }
-  }
-
-  protected def disposeLibraries(implicit module: Module): Unit = {
-    myLoaders.foreach(_.clean)
-    myLoaders.clear()
-  }
 
   def skip: Boolean = configuredScalaVersion.exists(!supportedIn(_))
 
@@ -52,7 +34,13 @@ trait ScalaSdkOwner extends Test {
       // Need to initialize before test is run because all tests fields can be reset to null
       // (including injectedScalaVersion) after test is finished
       // see HeavyPlatformTestCase.runBare & UsefulTestCase.clearDeclaredFields
-      val scalaVersionMessage = s"### Scala version used: ${version.minor} (configured: $configuredScalaVersion) ###"
+      val scalaVersionMessage = {
+        val detail = configuredScalaVersion match {
+          case Some(value) if value != version => s" (configured: $value)"
+          case _                               => ""
+        }
+        s"### scala: ${version.minor}$detail, jdk: $testProjectJdkVersion ###"
+      }
       lazy val logVersion: Unit = System.err.println(scalaVersionMessage) // lazy val to log only once
       val listener = new TestListener {
         override def addError(test: Test, t: Throwable): Unit = logVersion
@@ -70,14 +58,14 @@ trait ScalaSdkOwner extends Test {
 object ScalaSdkOwner {
   // todo: eventually move to version Scala_2_13
   //       (or better, move ScalaLanguageLevel.getDefault to Scala_2_13 and use ScalaVersion.default again)
-  val defaultSdkVersion: ScalaVersion = Scala_2_10 // ScalaVersion.default
+  val defaultSdkVersion: ScalaVersion = LatestScalaVersions.Scala_2_10 // ScalaVersion.default
   val allTestVersions: SortedSet[ScalaVersion] = {
     val allScalaMinorVersions = for {
-      latestVersion <- ScalaVersion.allScalaVersions.filterNot(_ == Scala_3_0)
+      latestVersion <- LatestScalaVersions.all.filterNot(_ == LatestScalaVersions.Scala_3_0)
       minor <- 0 to latestVersion.minorSuffix.toInt
     } yield latestVersion.withMinor(minor)
 
-    SortedSet(allScalaMinorVersions :+ Scala_3_0: _*)
+    SortedSet(allScalaMinorVersions :+ LatestScalaVersions.Scala_3_0: _*)
   }
 
   private def selectVersion(wantedVersion: ScalaVersion, possibleVersions: SortedSet[ScalaVersion]): ScalaVersion =

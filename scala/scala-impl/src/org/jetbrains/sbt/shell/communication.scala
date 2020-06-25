@@ -5,6 +5,7 @@ import java.util.concurrent._
 import com.intellij.execution.process.{AnsiEscapeDecoder, OSProcessHandler, ProcessAdapter, ProcessEvent}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.sbt.shell.SbtProcessUtil._
 import org.jetbrains.sbt.shell.SbtShellCommunication._
@@ -17,7 +18,7 @@ import scala.util.{Success, Try}
 /**
   * Service for connecting with an sbt shell associated with project.
   */
-class SbtShellCommunication(project: Project) {
+final class SbtShellCommunication(project: Project) {
 
   private lazy val process: SbtProcessManager = SbtProcessManager.forProject(project)
 
@@ -26,14 +27,11 @@ class SbtShellCommunication(project: Project) {
   private val commands = new LinkedBlockingQueue[(String, CommandListener[_])]()
 
   /** Queue an sbt command for execution in the sbt shell, returning a Future[String] containing the entire shell output. */
-  def command(cmd: String, showShell: Boolean = true): Future[String] =
-    command(cmd, StringBuilder.newBuilder, messageAggregator, showShell).map(_.toString())
+  def command(cmd: String): Future[String] =
+    command(cmd, StringBuilder.newBuilder, messageAggregator).map(_.toString())
 
   /** Queue an sbt command for execution in the sbt shell. */
-  def command[A](cmd: String,
-                 default: A,
-                 eventHandler: EventAggregator[A],
-                 showShell: Boolean): Future[A] = {
+  def command[A](@NonNls cmd: String, default: A, eventHandler: EventAggregator[A]): Future[A] = {
     val listener = new CommandListener(default, eventHandler)
     process.acquireShellRunner()
     commands.put((cmd, listener))
@@ -201,7 +199,7 @@ class SbtShellReadyListener(whenReady: => Unit, whenWorking: => Unit) extends Li
 
 private[shell] object SbtProcessUtil {
 
-  val IDEA_PROMPT_MARKER = "[IJ]"
+  private val IDEA_PROMPT_MARKER = "[IJ]"
 
   // the prompt marker is inserted by the sbt-idea-shell plugin
   def promptReady(line: String): Boolean =

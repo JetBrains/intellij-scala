@@ -23,7 +23,7 @@ object TechHubStarterProjects {
 
   def templateFileName(id: String) = s"$id.zip"
 
-  val dummyEntry = IndexEntry("","","","","","","",Array.empty, Array.empty, EntryFeatured(0))
+  val dummyEntry: IndexEntry = IndexEntry("","","","","","","",Array.empty, Array.empty, EntryFeatured(0))
 
 
   def downloadIndex(): Try[Map[String, IndexEntry]] = {

@@ -14,7 +14,7 @@ class InterpolatedStringsAnnotatorTest extends base.ScalaLightCodeInsightFixture
   import InterpolatedStringsAnnotatorTest._
 
   private def collectAnnotatorMessages(text: String) = {
-    val file = configureFromFileText(text).asInstanceOf[ScalaFile]
+    val file = configureFromFileText(Header + text).asInstanceOf[ScalaFile]
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
@@ -23,11 +23,11 @@ class InterpolatedStringsAnnotatorTest extends base.ScalaLightCodeInsightFixture
   }
 
   private def emptyMessages(text: String): Unit = {
-    val messages = collectAnnotatorMessages(text).isEmpty
-    assertTrue(messages)
+    val messages = collectAnnotatorMessages(text)
+    assertTrue(messages.isEmpty)
   }
 
-  private def messageExists(text: String, message: String) {
+  private def messageExists(text: String, message: String): Unit = {
     val annotatorMessages = collectAnnotatorMessages(text)
     if (!annotatorMessages.exists(_.toString == message)) {
       assertFalse("annotator messages is empty", annotatorMessages.isEmpty)
@@ -36,27 +36,27 @@ class InterpolatedStringsAnnotatorTest extends base.ScalaLightCodeInsightFixture
   }
 
   def testCorrectInt(): Unit = {
-    emptyMessages(Header + "a\"blah blah $i1 $i2 ${1 + 2 + 3} blah\"")
+    emptyMessages("a\"blah blah $i1 $i2 ${1 + 2 + 3} blah\"")
   }
 
   def testCorrectAny(): Unit = {
-    emptyMessages(Header + "b\"blah blah ${1} $s1 ${s2 + c1}blah blah\"")
+    emptyMessages("b\"blah blah ${1} $s1 ${s2 + c1}blah blah\"")
   }
 
   def testCorrectStrings(): Unit = {
-    emptyMessages(Header + "c\"blah blah $s1 ${s2}\"")
+    emptyMessages("c\"blah blah $s1 ${s2}\"")
   }
 
   def testMultiResolve(): Unit = {
-    messageExists(Header + "_\"blah $s1 blah $s2 blah\"", "Error(_,Value '_' is not a member of StringContext)")
+    messageExists("_\"blah $s1 blah $s2 blah\"", "Error(_,Value '_' is not a member of StringContext)")
   }
 
   def testMultipleResolve(): Unit = {
-    messageExists(Header + "c\"blah blah $i1 $i2\"", "Error(i1,Type mismatch, expected: String, actual: Int)")
+    messageExists("c\"blah blah $i1 $i2\"", "Error(i1,Type mismatch, expected: String, actual: Int)")
   }
 
   def testMultipleResolve2(): Unit = {
-    messageExists(Header + "c\"blah $i1 blah $s1 $i2\"", "Error(i2,Too many arguments for method c(String, String))")
+    messageExists("c\"blah $i1 blah $s1 $i2\"", "Error(i2,Too many arguments for method c(String, String))")
   }
 }
 

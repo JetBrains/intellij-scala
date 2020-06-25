@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
@@ -65,10 +66,10 @@ final class Variance private (val flags: Int) extends AnyVal {
     else ""
 
   def name: String =
-    if (isContravariant) "contravariant"
-    else if (isCovariant) "covariant"
-    else if (isInvariant) "invariant"
-    else "bivariant"
+    if (isContravariant) ScalaBundle.message("variance.contravariant")
+    else if (isCovariant) ScalaBundle.message("variance.covariant")
+    else if (isInvariant) ScalaBundle.message("variance.invariant")
+    else ScalaBundle.message("variance.bivariant")
 
   override def toString: String =
     if (isBivariant) "" else name // noisy to print bivariant on everything without type parameters

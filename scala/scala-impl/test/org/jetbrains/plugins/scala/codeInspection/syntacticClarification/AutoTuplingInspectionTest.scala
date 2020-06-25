@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.syntacticClarification
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
 
 /**
   * Author: Svyatoslav Ilinskiy
@@ -10,15 +10,13 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
   */
 class AutoTuplingInspectionTest extends ScalaQuickFixTestBase {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[AutoTuplingInspection]
 
   override protected val description: String =
-    AutoTuplingInspection.message
+    ScalaInspectionBundle.message("scala.compiler.will.replace.this.argument.list.with.tuple")
 
-  val hint = MakeTuplesExplicitFix.hint
+  val hint = ScalaInspectionBundle.message("make.tuple.explicit")
 
   def testBasic(): Unit = {
     val text =

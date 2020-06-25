@@ -28,7 +28,7 @@ trait ScImportExpr extends ScalaPsiElement {
 
   def qualifier: ScStableCodeReference
 
-  def deleteExpr()
+  def deleteExpr(): Unit
 
   def importedNames: Seq[String] = selectorSet match {
     case Some(set) => set.selectors.flatMap(_.importedName)

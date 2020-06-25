@@ -5,11 +5,13 @@ package impl
 package base
 package literals
 
+import java.lang
 import java.lang.{Float => JFloat}
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiLiteralUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScFloatLiteral
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
@@ -18,7 +20,7 @@ final class ScFloatLiteralImpl(node: ASTNode,
   extends NumericLiteralImplBase(node, toString)
     with ScFloatLiteral {
 
-  override protected def wrappedValue(value: JFloat) =
+  override protected def wrappedValue(value: JFloat): ScLiteral.Value[lang.Float] =
     ScFloatLiteralImpl.Value(value)
 
   override protected def parseNumber(text: String): JFloat =
@@ -33,7 +35,7 @@ object ScFloatLiteralImpl {
   final case class Value(override val value: JFloat)
     extends NumericLiteralImplBase.Value(value) {
 
-    override def negate = Value(-value)
+    override def negate: NumericLiteralImplBase.Value[JFloat] = Value(-value)
 
     override def presentation: String = super.presentation + 'f'
 

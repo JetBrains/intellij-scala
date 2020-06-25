@@ -1,6 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection
 
+import org.jetbrains.annotations.Nls
+
 package object scaladoc {
 
-  private[scaladoc] val FamilyName = "Scala: Scaladoc"
+  @Nls
+  private[scaladoc] val FamilyName = ScalaInspectionBundle.message("family.name.scala.scaladoc")
 }

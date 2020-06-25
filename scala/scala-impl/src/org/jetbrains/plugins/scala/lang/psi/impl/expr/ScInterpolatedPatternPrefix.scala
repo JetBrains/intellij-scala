@@ -11,6 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
  * @since 09.03.14.
  */
 class ScInterpolatedPatternPrefix(node: ASTNode) extends ScStableCodeReferenceImpl(node) {
+
+  override protected def debugKind: Option[String] = Some("string interpolator")
+
   override def nameId: PsiElement = this
 
   override def handleElementRename(newElementName: String): PsiElement =

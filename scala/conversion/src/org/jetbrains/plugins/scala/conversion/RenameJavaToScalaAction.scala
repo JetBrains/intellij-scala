@@ -14,14 +14,18 @@ import org.jetbrains.plugins.scala.util.NotificationUtil
 /**
  * @author Alexander Podkhalyuzin
  */
-class RenameJavaToScalaAction extends AnAction {
-  override def update(e: AnActionEvent) {
+class RenameJavaToScalaAction extends AnAction(
+  ScalaConversionBundle.message("convert.java.to.scala.action.text"),
+  ScalaConversionBundle.message("convert.java.to.scala.action.description"),
+  /* icon = */ null
+) {
+  override def update(e: AnActionEvent): Unit = {
     val presentation = e.getPresentation
-    def enable() {
+    def enable(): Unit = {
       presentation.setEnabled(true)
       presentation.setVisible(true)
     }
-    def disable() {
+    def disable(): Unit = {
       presentation.setEnabled(false)
       presentation.setVisible(false)
     }
@@ -53,7 +57,7 @@ class RenameJavaToScalaAction extends AnAction {
 
   }
 
-  def actionPerformed(e: AnActionEvent) {
+  override def actionPerformed(e: AnActionEvent): Unit = {
     var elements = LangDataKeys.PSI_ELEMENT_ARRAY.getData(e.getDataContext)
     if (elements == null) {
       val file = CommonDataKeys.PSI_FILE.getData(e.getDataContext)
@@ -65,17 +69,17 @@ class RenameJavaToScalaAction extends AnAction {
         case jFile: PsiJavaFile if jFile.isInScalaModule =>
           val dir = jFile.getContainingDirectory
           if (dir.isWritable) {
-            executeWriteActionCommand("Convert to Scala") {
+            executeWriteActionCommand(ScalaConversionBundle.message("convert.to.scala")) {
               val directory = jFile.getContainingDirectory
               val name = jFile.getName.substring(0, jFile.getName.length - 5)
               val nameWithExtension: String = name + ".scala"
               val existingFile: VirtualFile = directory.getVirtualFile.findChild(nameWithExtension)
               if (existingFile != null) {
-                NotificationUtil.builder(directory.getProject, s"File $nameWithExtension already exists").
+                NotificationUtil.builder(directory.getProject, ScalaConversionBundle.message("file.already.exists", nameWithExtension)).
                   setDisplayType(NotificationDisplayType.BALLOON).
                   setNotificationType(NotificationType.ERROR).
                   setGroup("rename.java.to.scala").
-                  setTitle("Cannot create file").
+                  setTitle(ScalaConversionBundle.message("cannot.create.file")).
                   show()
                 return
               }

@@ -50,7 +50,7 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
 
   private def shouldHighlightFile: Boolean = HighlightingLevelManager.getInstance(file.getProject).shouldInspect(file)
 
-  override def doApplyInformationToEditor() {
+  override def doApplyInformationToEditor(): Unit = {
     if (shouldHighlightFile) {
       UpdateHighlightersUtil.setHighlightersToEditor(file.getProject, getDocument, 0, file.getTextLength,
         highlightInfos.asJavaCollection, getColorsScheme, getId)

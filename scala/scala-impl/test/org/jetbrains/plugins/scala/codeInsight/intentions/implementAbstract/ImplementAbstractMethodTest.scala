@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInsight.intentions.implementAbstract
 
 import com.intellij.codeInsight.intention.impl.ImplementAbstractMethodAction
-import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
@@ -13,11 +12,9 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
  */
 class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+  override def familyName: String = new ImplementAbstractMethodAction().getFamilyName
 
-  def familyName: String = new ImplementAbstractMethodAction().getFamilyName
-
-  def testFromTrait() {
+  def testFromTrait(): Unit = {
     val text =
       """
         |trait A {
@@ -42,7 +39,7 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
     doTest(text, result)
   }
 
-  def testFromAbstractClass() {
+  def testFromAbstractClass(): Unit = {
     val text =
       """
         |abstract class A {
@@ -65,7 +62,7 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
     doTest(text, result)
   }
 
-  def testParameterizedTrait() {
+  def testParameterizedTrait(): Unit = {
     val text =
       """
         |trait A[T] {
@@ -88,7 +85,7 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
     doTest(text, result)
   }
 
-  def testFunDefInTrait() {
+  def testFunDefInTrait(): Unit = {
     val text =
       """
         |trait A {
@@ -102,7 +99,7 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
     checkIntentionIsNotAvailable(text)
   }
 
-  def testUnitReturn() {
+  def testUnitReturn(): Unit = {
     val text =
       """
         |trait A {

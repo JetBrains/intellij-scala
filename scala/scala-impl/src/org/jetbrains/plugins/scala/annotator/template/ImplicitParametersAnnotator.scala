@@ -2,12 +2,13 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
-import com.intellij.lang.annotation.Annotation
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.annotator.quickfix.ImportImplicitInstanceFix
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.probableArgumentsFor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -24,18 +25,21 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
     element.findImplicitArguments.foreach { params =>
       UsageTracker.registerUsedElementsAndImports(element, params, checkWrite = false)
 
-      val notFoundArgHighlightingEnabled =
-        ScalaProjectSettings.getInstance(element.getProject).isShowNotFoundImplicitArguments
+      val showImplictErrors = {
+        val settings = ScalaProjectSettings.getInstance(element.getProject)
+        settings.isShowNotFoundImplicitArguments || settings.isShowAmbiguousImplicitArguments
+      }
 
-      if (typeAware && notFoundArgHighlightingEnabled)
+      if (typeAware && showImplictErrors)
         highlightNotFound(element, params)
     }
   }
 
   private def highlightNotFound(element: ImplicitArgumentsOwner, parameters: Seq[ScalaResolveResult])
                                (implicit holder: ScalaAnnotationHolder): Unit = {
-    //todo: cover ambiguous implicit case (right now it is not always correct)
-    parameters.filter(_.isNotFoundImplicitParameter) match {
+    val settings = ScalaProjectSettings.getInstance(element.getProject)
+
+    parameters.filter(hasProblemToHighlight(_, settings)) match {
       case Seq() =>
       case params =>
         val presentableTypes = params
@@ -43,11 +47,23 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
 
         val annotation = holder.createErrorAnnotation(lastLineRange(element), message(presentableTypes))
 
-        //SearchImplicitQuickFix(params, element).foreach(annotation.registerFix)
+        val notFound = parameters.filter(_.isNotFoundImplicitParameter)
+        val importImplicitInstanceFix = ImportImplicitInstanceFix(notFound, element)
+        if (importImplicitInstanceFix.exists(_.isAvailable)) {
+          importImplicitInstanceFix.foreach(annotation.registerFix)
+        }
 
         //make annotation invisible in editor in favor of inlay hint
         adjustTextAttributesOf(annotation)
     }
+
+
+  }
+
+  private def hasProblemToHighlight(param: ScalaResolveResult, settings: ScalaProjectSettings): Boolean = {
+    param.isImplicitParameterProblem &&
+      (if (probableArgumentsFor(param).size > 1) settings.isShowAmbiguousImplicitArguments
+      else settings.isShowNotFoundImplicitArguments)
   }
 
   //to avoid error stripes for several lines
@@ -60,7 +76,7 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
     else range
   }
 
-  private def adjustTextAttributesOf(annotation: Annotation): Unit = {
+  private def adjustTextAttributesOf(annotation: ScalaAnnotation): Unit = {
     val errorStripeColor = annotation.getTextAttributes.getDefaultAttributes.getErrorStripeColor
     val attributes = new TextAttributes()
     attributes.setEffectType(null)

@@ -39,7 +39,7 @@ class ScalaAnnotatorHighlighterVisitorTest extends ScalaAnnotatorHighlighterVisi
          |
          |version := "0.1"
          |
-         |scalaVersion := "${Scala_2_13.minor}"
+         |scalaVersion := "${LatestScalaVersions.Scala_2_13.minor}"
          |""".stripMargin,
     fileName = "build.sbt"
   )()
@@ -52,7 +52,7 @@ class ScalaAnnotatorHighlighterVisitorTest extends ScalaAnnotatorHighlighterVisi
 
 class Scala3AnnotatorHighlighterVisitorTest extends ScalaAnnotatorHighlighterVisitorTestBase {
 
-  override protected def supportedIn(version: ScalaVersion) = version >= Scala_3_0
+  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3_0
 
   def testScalaFile(): Unit = doTest(
     "trait Foo() {}"

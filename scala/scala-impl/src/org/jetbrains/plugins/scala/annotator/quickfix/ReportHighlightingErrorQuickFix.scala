@@ -23,7 +23,7 @@ object ReportHighlightingErrorQuickFix extends IntentionAction {
     true
   }
 
-  override def invoke(project: Project, editor: Editor, file: PsiFile) {
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     DesktopUtils.browse("https://youtrack.jetbrains.net/issues/SCL#newissue=yes")
   }
 

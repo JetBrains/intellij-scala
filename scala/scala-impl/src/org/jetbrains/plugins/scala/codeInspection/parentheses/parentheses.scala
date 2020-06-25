@@ -2,12 +2,13 @@ package org.jetbrains.plugins.scala.codeInspection
 
 import com.intellij.codeInspection.{LocalQuickFix, ProblemsHolder}
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 package object parentheses {
 
   private[codeInspection]
-  def registerRedundantParensProblem(description: String, element: ScalaPsiElement, quickfix: LocalQuickFix)
+  def registerRedundantParensProblem(@Nls description: String, element: ScalaPsiElement, quickfix: LocalQuickFix)
                                     (implicit holder: ProblemsHolder, isOnTheFly: Boolean): Unit = {
     import com.intellij.codeInspection.ProblemHighlightType._
 

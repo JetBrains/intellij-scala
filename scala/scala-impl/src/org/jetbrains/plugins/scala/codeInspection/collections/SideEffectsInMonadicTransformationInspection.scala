@@ -1,8 +1,9 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * @author Nikolay.Tropin
@@ -11,9 +12,9 @@ class SideEffectsInMonadicTransformationInspection extends OperationOnCollection
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case qual`.monadicMethod`(arg) =>
-      exprsWithSideEffects(arg).foreach {
-        case expr => holder.registerProblem(expr, InspectionBundle.message("side.effects.in.monadic"), highlightType)
-      }
+      exprsWithSideEffects(arg).foreach(
+        expr => holder.registerProblem(expr, ScalaInspectionBundle.message("side.effects.in.monadic"), highlightType)
+      )
   }
 
 

@@ -79,7 +79,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
 
   // TODO package private
   def annotateObjectCreationImpossible(element: ScTemplateDefinition)
-                                      (implicit holder: ScalaAnnotationHolder) {
+                                      (implicit holder: ScalaAnnotationHolder): Unit = {
     val isNew = element.isInstanceOf[ScNewTemplateDefinition]
     val isObject = element.isInstanceOf[ScObject]
 

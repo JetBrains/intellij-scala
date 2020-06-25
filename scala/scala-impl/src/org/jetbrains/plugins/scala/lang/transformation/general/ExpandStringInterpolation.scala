@@ -11,9 +11,9 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * @author Pavel Fatin
   */
 class ExpandStringInterpolation extends AbstractTransformer {
-  protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
+  override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case e@ScInterpolatedStringLiteral(reference) =>
-      InterpolatedStringParser.parse(e).foreach { parts: Seq[StringPart] =>
+      InterpolatedStringParser.parse(e).foreach { (parts: Seq[StringPart]) =>
         // TODO it's probably simpler to parse the string directly, the format parser is for a different use case
         val normalizedParts = addInitialTextDelimiter(addTextDelimiters(extractSpecifiersIn(parts)))
 

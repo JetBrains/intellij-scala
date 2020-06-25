@@ -9,16 +9,15 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
-/*
- * Type ::= InfixType '=>' Type
- *        | '(' ['=>' Type] ')' => Type
- *        | InfixType [ExistentialClause]
+/**
+ * Type ::= [[InfixTypePrefix]]
+ *        | [[PolyFunOrTypeLambda]] (Scala 3)
  *        | _ SubtypeBounds
  *        | ? SubtypeBounds (Scala 3)
  * SubtypeBounds : == [>: Type] [<: Type]
  */
 object Type extends Type {
-  override protected def infixType = InfixType
+  override protected def infixType: InfixType = InfixType
 
   // TODO: handle changes for later Dotty versions https://dotty.epfl.ch/docs/reference/changed-features/wildcards.html
   //   In Scala 3.0, both _ and ? are legal names for wildcards.
@@ -36,24 +35,19 @@ object Type extends Type {
 trait Type {
   protected def infixType: InfixType
 
-  def parse(builder: ScalaPsiBuilder, star: Boolean = false, isPattern: Boolean = false): Boolean = {
+  def parse(
+    builder:   ScalaPsiBuilder,
+    star:      Boolean = false,
+    isPattern: Boolean = false
+  ): Boolean = {
     implicit val b: ScalaPsiBuilder = builder
     val typeMarker = builder.mark
 
-    if (infixType.parse(builder, star, isPattern)) {
-      builder.getTokenType match {
-        case ScalaTokenTypes.tFUNTYPE =>
-          builder.advanceLexer() //Ate =>
-          if (!parse(builder, isPattern = isPattern)) {
-            builder.error(ScalaBundle.message("wrong.type"))
-          }
-          typeMarker.done(ScalaElementType.TYPE)
-        case ScalaTokenTypes.kFOR_SOME =>
-          ExistentialClause parse builder
-          typeMarker.done(ScalaElementType.EXISTENTIAL_TYPE)
-        case _ =>
-          typeMarker.drop()
-      }
+    if (InfixTypePrefix.parse(star, isPattern)) {
+      typeMarker.drop()
+      true
+    } else if (PolyFunOrTypeLambda.parse(star, isPattern)) {
+      typeMarker.drop()
       true
     } else if (parseWildcardType(typeMarker, isPattern)) {
       true

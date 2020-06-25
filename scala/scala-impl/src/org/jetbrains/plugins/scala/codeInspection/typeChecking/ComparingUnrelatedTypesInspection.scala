@@ -6,7 +6,7 @@ import com.intellij.psi.{PsiElement, PsiMethod}
 import com.siyeh.ig.psiutils.MethodUtils
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.codeInspection.typeChecking.ComparingUnrelatedTypesInspection._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, InspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -24,7 +24,7 @@ import scala.annotation.tailrec
   */
 
 object ComparingUnrelatedTypesInspection {
-  val inspectionName = InspectionBundle.message("comparing.unrelated.types.name")
+  val inspectionName: String = ScalaInspectionBundle.message("comparing.unrelated.types.name")
   val inspectionId = "ComparingUnrelatedTypes"
 
   private val seqFunctions = Seq("contains", "indexOf", "lastIndexOf")
@@ -36,11 +36,16 @@ object ComparingUnrelatedTypesInspection {
     var types = Seq(type1, type2)
     if (types.exists(undefinedTypeAlias)) return false
 
+    // a comparison with AnyRef is always ok, because of autoboxing
+    // i.e:
+    //   val anyRef: AnyRef = new Integer(4)
+    //   anyRef == 4                 <- true
+    //   anyRef.isInstanceOf[Int]    <- true
+    if (types.contains(AnyRef)) return false
+
     types = types.map(extractActualType)
     if (!types.contains(Null)) {
-      types = types.map {
-        case tp => fqnBoxedToScType.getOrElse(tp.canonicalText.stripPrefix("_root_."), tp)
-      }
+      types = types.map(tp => fqnBoxedToScType.getOrElse(tp.canonicalText.stripPrefix("_root_."), tp))
     }
 
     if (types.forall(isNumericType)) return false
@@ -60,15 +65,15 @@ object ComparingUnrelatedTypesInspection {
     }
   }
 
-  private def undefinedTypeAlias(`type`: ScType) = `type`.isAliasType.exists {
+  private def undefinedTypeAlias(`type`: ScType) = `type` match {
     case AliasType(_, Right(lower), Right(upper)) => !lower.equiv(upper)
-    case _ => false
+    case _                                        => false
   }
 
   @tailrec
-  private def extractActualType(`type`: ScType): ScType = `type`.isAliasType match {
-    case Some(AliasType(_, Right(rhs), _)) => extractActualType(rhs)
-    case _ => `type`.tryExtractDesignatorSingleton
+  private def extractActualType(`type`: ScType): ScType = `type` match {
+    case AliasType(_, Right(rhs), _) => extractActualType(rhs)
+    case _                           => `type`.widen
   }
 }
 
@@ -115,10 +120,10 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionNam
   }
 
   private def generateComparingUnrelatedTypesMsg(firstType: ScType, secondType: ScType)(implicit tpc: TypePresentationContext): String = {
-    val nonSingleton1 = firstType.extractDesignatorSingleton.getOrElse(firstType)
-    val nonSingleton2 = secondType.extractDesignatorSingleton.getOrElse(secondType)
+    val nonSingleton1 = firstType.widen
+    val nonSingleton2 = secondType.widen
     val (firstTypeText, secondTypeText) = ScTypePresentation.different(nonSingleton1, nonSingleton2)
-    InspectionBundle.message("comparing.unrelated.types.hint", firstTypeText, secondTypeText)
+    ScalaInspectionBundle.message("comparing.unrelated.types.hint", firstTypeText, secondTypeText)
   }
 
   private def mayNeedHighlighting(fun: ScFunction): Boolean = {

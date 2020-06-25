@@ -8,6 +8,7 @@ import com.intellij.openapi.command.undo.UndoUtil
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
@@ -16,16 +17,16 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationConte
 
 class ChangeTypeFix(typeElement: ScTypeElement, newType: ScType) extends IntentionAction {
 
-  val getText: String = {
+  override val getText: String = {
     implicit val tpc: TypePresentationContext = TypePresentationContext(typeElement)
     val (oldTypeDescripton, newTypeDescription) = typeElement.`type`() match {
       case Right(oldType) => ScTypePresentation.different(oldType, newType)
       case _ => (typeElement.getText, newType.presentableText)
     }
-    s"Change type '$oldTypeDescripton' to '$newTypeDescription'"
+    ScalaBundle.message("change.type.to", oldTypeDescripton, newTypeDescription)
   }
 
-  override def getFamilyName: String = "Change Type"
+  override def getFamilyName: String = ScalaBundle.message("family.name.change.type")
 
   override def startInWriteAction: Boolean = true
 

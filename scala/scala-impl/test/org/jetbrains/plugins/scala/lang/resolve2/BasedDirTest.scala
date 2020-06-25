@@ -10,5 +10,5 @@ class BasedDirTest extends ResolveTestBase {
     super.folderPath + "dir/"
   }
 
-  def testDirBased() = doTest()
+  def testDirBased(): Unit = doTest()
 }

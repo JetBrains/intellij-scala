@@ -28,7 +28,7 @@ object InterpolatedStringParser extends StringParser {
   }
 
   private def parseLiteral(literal: ScInterpolatedStringLiteral, element: PsiElement): Seq[StringPart] = {
-    val formatted = literal.firstChild.exists(_.getText == "f")
+    val formatted = literal.firstChild.exists(_.textMatches("f"))
 
     val pairs: Seq[(PsiElement, Option[PsiElement])] = {
       val elements = literal.children.toList.drop(1)

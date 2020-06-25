@@ -7,7 +7,7 @@ class FormatConversionIntentionTest extends intentions.ScalaIntentionTestBase {
 
   override def familyName: String = FormatConversionIntention.ConvertToStringConcat
 
-  def testInterpolatedToConcatenation() {
+  def testInterpolatedToConcatenation(): Unit = {
     val before =
       s"""object A {
          |  val x = 42
@@ -25,7 +25,7 @@ class FormatConversionIntentionTest extends intentions.ScalaIntentionTestBase {
     doTest(before, after)
   }
 
-  def testInterpolatedToConcatenation_WithMethodCall() {
+  def testInterpolatedToConcatenation_WithMethodCall(): Unit = {
     val before =
       s"""object A {
          |  val x = 42
@@ -43,7 +43,7 @@ class FormatConversionIntentionTest extends intentions.ScalaIntentionTestBase {
     doTest(before, after)
   }
 
-  def testInterpolatedToConcatenation_WithMethodCall2() {
+  def testInterpolatedToConcatenation_WithMethodCall2(): Unit = {
     val before =
       s"""object A {
          |  val x = 42
@@ -61,7 +61,7 @@ class FormatConversionIntentionTest extends intentions.ScalaIntentionTestBase {
     doTest(before, after)
   }
 
-  def testInterpolatedToConcatenation_WithPostfixMethodCall() {
+  def testInterpolatedToConcatenation_WithPostfixMethodCall(): Unit = {
     val before =
       s"""object A {
          |  val x = 42
@@ -79,7 +79,7 @@ class FormatConversionIntentionTest extends intentions.ScalaIntentionTestBase {
     doTest(before, after)
   }
 
-  def testInterpolatedToConcatenation_WithInfixMethodCall() {
+  def testInterpolatedToConcatenation_WithInfixMethodCall(): Unit = {
     val before =
       s"""object A {
          |  val x = 42

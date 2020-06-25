@@ -7,8 +7,8 @@ package expr
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, ScConstructorInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createComma, createNewLineNode}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -21,14 +21,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScArgumentExprList {
   override def toString: String = "ArgumentList"
 
-  def invocationCount: Int = {
+  override def invocationCount: Int = {
     callExpression match {
       case call: ScMethodCall => call.args.invocationCount + 1
       case _ => 1
     }
   }
 
-  def callReference: Option[ScReferenceExpression] = {
+  override def callReference: Option[ScReferenceExpression] = {
     getContext match {
       case call: ScMethodCall =>
         call.deepestInvokedExpr match {
@@ -44,7 +44,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     }
   }
 
-  def callGeneric: Option[ScGenericCall] = {
+  override def callGeneric: Option[ScGenericCall] = {
     getContext match {
       case call: ScMethodCall =>
         call.deepestInvokedExpr match {
@@ -55,7 +55,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     }
   }
 
-  def callExpression: ScExpression = {
+  override def callExpression: ScExpression = {
     getContext match {
       case call: ScMethodCall =>
         call.getEffectiveInvokedExpr
@@ -63,7 +63,10 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     }
   }
 
-  def matchedParameters: Seq[(ScExpression, Parameter)] = {
+  override def isUsing: Boolean =
+    findChildByType(ScalaTokenType.UsingKeyword) != null
+
+  override def matchedParameters: Seq[(ScExpression, Parameter)] = {
     getContext match {
       case call: ScMethodCall => call.matchedParameters
       case constrInvocation: ScConstructorInvocation =>
@@ -91,7 +94,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     }
   }
 
-  def addExpr(expr: ScExpression): ScArgumentExprList = {
+  override def addExpr(expr: ScExpression): ScArgumentExprList = {
     val par = findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS)
     val nextNode = par.getNode.getTreeNext
     val node = getNode
@@ -104,7 +107,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     this
   }
 
-  def addExprAfter(expr: ScExpression, anchor: PsiElement): ScArgumentExprList = {
+  override def addExprAfter(expr: ScExpression, anchor: PsiElement): ScArgumentExprList = {
     val nextNode = anchor.getNode.getTreeNext
     val node = getNode
 
@@ -119,8 +122,29 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     }
     this
   }
-
   private def comma = createComma.getNode
 
   private def space = createNewLineNode(" ")
+
+  override def deleteChildInternal(child: ASTNode): Unit = {
+    val exprs = this.exprs
+    val childIsArgument = exprs.exists(_.getNode == child)
+    def childIsLastArgumentTeBeDeleted = exprs.length == 1 && childIsArgument
+    def isLastArgumentClause = getParent match {
+      case method@ScMethodCall(base, _) =>
+        !base.isInstanceOf[ScMethodCall] && !method.getParent.isInstanceOf[ScMethodCall]
+      case _: ConstructorInvocationLike =>
+        !this.getPrevSiblingNotWhitespaceComment.isInstanceOf[ScArgumentExprList] &&
+          !this.getNextSiblingNotWhitespaceComment.isInstanceOf[ScArgumentExprList]
+      case _ => true
+    }
+
+    if (childIsLastArgumentTeBeDeleted && !isLastArgumentClause) {
+      this.delete()
+    } else if (childIsArgument){
+      ScalaPsiUtil.deleteElementInCommaSeparatedList(this, child)
+    } else {
+      super.deleteChildInternal(child)
+    }
+  }
 }

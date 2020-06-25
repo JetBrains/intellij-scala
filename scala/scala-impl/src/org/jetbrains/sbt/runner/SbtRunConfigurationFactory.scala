@@ -8,5 +8,9 @@ import com.intellij.openapi.project.Project
  * @param typez type of configuration supported by this factory.
  */
 class SbtRunConfigurationFactory(val typez: ConfigurationType) extends ConfigurationFactory(typez) {
-  def createTemplateConfiguration(project: Project): RunConfiguration = new SbtRunConfiguration(project, this, "")
+
+  //should be equal to the default value of SbtConfigurationType.getDisplayName
+  override def getId: String = "sbt Task"
+
+  override def createTemplateConfiguration(project: Project): RunConfiguration = new SbtRunConfiguration(project, this, "")
 }

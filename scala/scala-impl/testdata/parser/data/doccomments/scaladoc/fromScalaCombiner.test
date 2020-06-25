@@ -1,0 +1,201 @@
+ /** Combines the contents of the receiver builder and the `other` builder,
+   *  producing a new builder containing both their elements.
+   *
+   *  This method may combine the two builders by copying them into a larger collection,
+   *  by producing a lazy view that gets evaluated once `result` is invoked, or use
+   *  a merge operation specific to the data structure in question.
+   *
+   *  Note that both the receiver builder and `other` builder become invalidated
+   *  after the invocation of this method, and should be cleared (see `clear`)
+   *  if they are to be used again.
+   *
+   *  Also, combining two combiners `c1` and `c2` for which `c1 eq c2` is `true`, that is,
+   *  they are the same objects in memory:
+   *
+   *  {{{
+   *  c1.combine(c2)
+   *  }}}
+   *
+   *  always does nothing and returns `c1`.
+   *
+   *  @tparam N      the type of elements contained by the `other` builder
+   *  @tparam NewTo  the type of collection produced by the `other` builder
+   *  @param other   the other builder
+   *  @return        the parallel builder containing both the elements of this and the `other` builder
+   */
+-----
+ScalaFile
+  PsiWhiteSpace(' ')
+  DocComment
+    ScPsiDocToken(DOC_COMMENT_START)('/**')
+    ScDocParagraph
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('Combines the contents of the receiver builder and the ')
+      DocSyntaxElement 8
+        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+        ScPsiDocToken(DOC_COMMENT_DATA)('other')
+        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' builder,')
+      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('producing a new builder containing both their elements.')
+      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    ScDocParagraph
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('This method may combine the two builders by copying them into a larger collection,')
+      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('by producing a lazy view that gets evaluated once ')
+      DocSyntaxElement 8
+        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+        ScPsiDocToken(DOC_COMMENT_DATA)('result')
+        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' is invoked, or use')
+      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('a merge operation specific to the data structure in question.')
+      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    ScDocParagraph
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('Note that both the receiver builder and ')
+      DocSyntaxElement 8
+        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+        ScPsiDocToken(DOC_COMMENT_DATA)('other')
+        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' builder become invalidated')
+      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('after the invocation of this method, and should be cleared (see ')
+      DocSyntaxElement 8
+        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+        ScPsiDocToken(DOC_COMMENT_DATA)('clear')
+        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+      ScPsiDocToken(DOC_COMMENT_DATA)(')')
+      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('if they are to be used again.')
+      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    ScDocParagraph
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('Also, combining two combiners ')
+      DocSyntaxElement 8
+        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+        ScPsiDocToken(DOC_COMMENT_DATA)('c1')
+        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' and ')
+      DocSyntaxElement 8
+        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+        ScPsiDocToken(DOC_COMMENT_DATA)('c2')
+        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' for which ')
+      DocSyntaxElement 8
+        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+        ScPsiDocToken(DOC_COMMENT_DATA)('c1 eq c2')
+        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' is ')
+      DocSyntaxElement 8
+        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+        ScPsiDocToken(DOC_COMMENT_DATA)('true')
+        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+      ScPsiDocToken(DOC_COMMENT_DATA)(', that is,')
+      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('they are the same objects in memory:')
+      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    ScDocParagraph
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      InnerCodeElement
+        ScPsiDocToken(DOC_INNER_CODE_TAG)('{{{')
+        ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+        ScPsiDocToken(DOC_INNER_CODE)('  c1.combine(c2)')
+        ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+        ScPsiDocToken(DOC_INNER_CODE)('  ')
+        ScPsiDocToken(DOC_INNER_CLOSE_CODE_TAG)('}}}')
+      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    ScDocParagraph
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('always does nothing and returns ')
+      DocSyntaxElement 8
+        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+        ScPsiDocToken(DOC_COMMENT_DATA)('c1')
+        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+      ScPsiDocToken(DOC_COMMENT_DATA)('.')
+      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_TAG_NAME)('@tparam')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      ScalaDocTagValue: N
+        ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('N')
+      ScPsiDocToken(DOC_WHITESPACE)('      ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('the type of elements contained by the ')
+      DocSyntaxElement 8
+        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+        ScPsiDocToken(DOC_COMMENT_DATA)('other')
+        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' builder')
+      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_TAG_NAME)('@tparam')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      ScalaDocTagValue: NewTo
+        ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('NewTo')
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('the type of collection produced by the ')
+      DocSyntaxElement 8
+        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+        ScPsiDocToken(DOC_COMMENT_DATA)('other')
+        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' builder')
+      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_TAG_NAME)('@param')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      ScalaDocTagValue: other
+        ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('other')
+      ScPsiDocToken(DOC_WHITESPACE)('   ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('the other builder')
+      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_TAG_NAME)('@return')
+      ScPsiDocToken(DOC_WHITESPACE)('        ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('the parallel builder containing both the elements of this and the ')
+      DocSyntaxElement 8
+        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+        ScPsiDocToken(DOC_COMMENT_DATA)('other')
+        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' builder')
+      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+    ScPsiDocToken(DOC_COMMENT_END)('*/')

@@ -228,7 +228,7 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
   }
 
   private def findMethodRefUsages(named: PsiNamedElement, results: ArrayBuffer[UsageInfo], searchInJava: Boolean): Unit = {
-    val process = { ref: PsiReference =>
+    val process = { (ref: PsiReference) =>
         val refElem = ref.getElement
         refElem match {
           case isAnonFunUsage(anonFunUsageInfo) => results += anonFunUsageInfo
@@ -275,7 +275,7 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
     }
   }
 
-  private def addParameterUsages(param: PsiParameter, oldIndex: Int, newName: String, results: ArrayBuffer[UsageInfo]) {
+  private def addParameterUsages(param: PsiParameter, oldIndex: Int, newName: String, results: ArrayBuffer[UsageInfo]): Unit = {
     val scope: SearchScope = param.getUseScope
     val process = (ref: PsiReference) => {
       ref.getElement match {

@@ -10,9 +10,9 @@ class InheritanceAccessTest extends ResolveTestBase {
     super.folderPath + "inheritance/access/"
   }
 
-  def testClashPrivateFunction() = doTest()
-  def testClashProtectedFunction() = doTest()
-  def testPrivateClass() = doTest()
-  def testPrivateFunction() = doTest()
-  def testProtectedFunction() = doTest()
+  def testClashPrivateFunction(): Unit = doTest()
+  def testClashProtectedFunction(): Unit = doTest()
+  def testPrivateClass(): Unit = doTest()
+  def testPrivateFunction(): Unit = doTest()
+  def testProtectedFunction(): Unit = doTest()
 }

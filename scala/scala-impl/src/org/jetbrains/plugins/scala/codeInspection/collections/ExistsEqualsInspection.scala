@@ -23,7 +23,7 @@ object ExistsEquals extends SimplificationType {
     }
   }
 
-  override def hint: String = InspectionBundle.message("exists.equals.hint")
+  override def hint: String = ScalaInspectionBundle.message("exists.equals.hint")
 
   def canBeReplacedWithContains(qual: ScExpression, arg: ScExpression): Boolean = {
     if (qual == null) return false
@@ -51,5 +51,5 @@ object ForallNotEquals extends SimplificationType {
     }
   }
 
-  override def hint: String = InspectionBundle.message("forall.notEquals.hint")
+  override def hint: String = ScalaInspectionBundle.message("forall.notEquals.hint")
 }

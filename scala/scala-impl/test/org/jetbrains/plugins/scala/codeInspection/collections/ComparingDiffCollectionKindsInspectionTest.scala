@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
-import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-import org.jetbrains.plugins.scala.codeInspection.collections.ComparingDiffCollectionKinds.convertHint
+import org.jetbrains.plugins.scala.codeInspection.collections.ComparingDiffCollectionKinds._
 
 /**
   * @author Nikolay.Tropin
@@ -13,7 +12,7 @@ abstract class ComparingDiffCollectionKindsInspectionTest extends OperationsOnCo
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[ComparingDiffCollectionKindsInspection]
 
-  protected val side: String
+  protected val side: Side
 
   protected val toCollection: String
 
@@ -23,7 +22,7 @@ abstract class ComparingDiffCollectionKindsInspectionTest extends OperationsOnCo
 
 class SeqToSetInspectionTest extends ComparingDiffCollectionKindsInspectionTest {
 
-  override protected val side: String = "left"
+  override protected val side: Side = Side.Left
   override protected val toCollection: String = "Set"
 
   def test(): Unit =
@@ -34,7 +33,7 @@ class SeqToSetInspectionTest extends ComparingDiffCollectionKindsInspectionTest 
 
 class SetToSeqInspectionTest extends ComparingDiffCollectionKindsInspectionTest {
 
-  override protected val side: String = "right"
+  override protected val side: Side = Side.Right
   override protected val toCollection: String = "Seq"
 
   def test(): Unit =
@@ -45,7 +44,7 @@ class SetToSeqInspectionTest extends ComparingDiffCollectionKindsInspectionTest 
 
 class SeqToIteratorInspectionTest extends ComparingDiffCollectionKindsInspectionTest {
 
-  override protected val side: String = "left"
+  override protected val side: Side = Side.Left
   override protected val toCollection: String = "Iterator"
 
   def test(): Unit =
@@ -56,7 +55,7 @@ class SeqToIteratorInspectionTest extends ComparingDiffCollectionKindsInspection
 
 class IteratorToSeqInspectionTest extends ComparingDiffCollectionKindsInspectionTest {
 
-  override protected val side: String = "right"
+  override protected val side: Side = Side.Right
   override protected val toCollection: String = "Seq"
 
   def test(): Unit =
@@ -67,7 +66,7 @@ class IteratorToSeqInspectionTest extends ComparingDiffCollectionKindsInspection
 
 class SeqToMapInspectionTest extends ComparingDiffCollectionKindsInspectionTest {
 
-  override protected val side: String = "left"
+  override protected val side: Side = Side.Left
   override protected val toCollection: String = "Map"
 
   def test(): Unit =
@@ -78,7 +77,7 @@ class SeqToMapInspectionTest extends ComparingDiffCollectionKindsInspectionTest 
 
 class MapToSeqInspectionTest extends ComparingDiffCollectionKindsInspectionTest {
 
-  override protected val side: String = "right"
+  override protected val side: Side = Side.Right
   override protected val toCollection: String = "Seq"
 
   def test(): Unit =
@@ -89,7 +88,7 @@ class MapToSeqInspectionTest extends ComparingDiffCollectionKindsInspectionTest 
 
 class SeqToArrayInspectionTest extends ComparingDiffCollectionKindsInspectionTest {
 
-  override protected val side: String = "left"
+  override protected val side: Side = Side.Left
   override protected val toCollection: String = "Array"
 
   def test(): Unit =
@@ -98,7 +97,7 @@ class SeqToArrayInspectionTest extends ComparingDiffCollectionKindsInspectionTes
 
 class ArrayToSeqInspectionTest extends ComparingDiffCollectionKindsInspectionTest {
 
-  override protected val side: String = "right"
+  override protected val side: Side = Side.Right
   override protected val toCollection: String = "Seq"
 
   def test(): Unit =
@@ -109,7 +108,7 @@ class ArrayToSeqInspectionTest extends ComparingDiffCollectionKindsInspectionTes
 
 class SeqToSeqLeftInspectionTest extends ComparingDiffCollectionKindsInspectionTest {
 
-  override protected val side: String = "left"
+  override protected val side: Side = Side.Left
   override protected val toCollection: String = "Seq"
 
   def test(): Unit =
@@ -118,7 +117,7 @@ class SeqToSeqLeftInspectionTest extends ComparingDiffCollectionKindsInspectionT
 
 class SeqToSeqRightInspectionTest extends ComparingDiffCollectionKindsInspectionTest {
 
-  override protected val side: String = "right"
+  override protected val side: Side = Side.Right
   override protected val toCollection: String = "Seq"
 
   def test(): Unit =
@@ -128,7 +127,7 @@ class SeqToSeqRightInspectionTest extends ComparingDiffCollectionKindsInspection
 
 class ToNullInspectionTest extends ComparingDiffCollectionKindsInspectionTest {
 
-  override protected val side: String = null
+  override protected val side: Side = Side.Left
   override protected val toCollection: String = null
 
   def test(): Unit =
@@ -137,7 +136,7 @@ class ToNullInspectionTest extends ComparingDiffCollectionKindsInspectionTest {
 
 class ToNothingInspectionTest extends ComparingDiffCollectionKindsInspectionTest {
 
-  override protected val side: String = null
+  override protected val side: Side = Side.Left
   override protected val toCollection: String = null
 
   def test(): Unit =

@@ -11,7 +11,7 @@ class FunctionCountClashTest extends ResolveTestBase {
   }
 
 //  def testEmptyAndNone = doTest
-  def testOneAndEmpty() = doTest()
-  def testOneAndNone() = doTest()
-  def testOneAndTwo() = doTest()
+  def testOneAndEmpty(): Unit = doTest()
+  def testOneAndNone(): Unit = doTest()
+  def testOneAndTwo(): Unit = doTest()
 }

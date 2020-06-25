@@ -4,11 +4,13 @@ object Versions {
   val scalaVersion: String = Scala.project
   val scalaBinaryVersion: String = Scala.binary_2_12
   // ATTENTION: when updating sbtVersion also update versions in MockSbt_1_0
+  // NOTE: sbt-launch / bloop-launcher won't be fetched on refresh.
+  // run runtimeDependencies/update manually
   val sbtVersion: String = Sbt.latest
-  val bloopVersion = "1.4.0-RC1+2-2d96bcf6"
+  val bloopVersion = "1.4.1"
   val zincVersion = "1.1.1"
-  val intellijVersion = "201.4163"
-  val bspVersion = "2.0.0-M4"
+  val intellijVersion = "202.5792.28"
+  val bspVersion = "2.0.0-M11"
   val sbtStructureVersion: String = "2018.2.1+4-88400d3f"
   val sbtIdeaShellVersion: String = "2018.3"
   val sbtIdeaCompilerIndicesVersion = "0.1.3"
@@ -27,9 +29,10 @@ object Versions {
     val latest_2_9 = "2.9.3"
     val latest_2_10 = "2.10.7"
     val latest_2_11 = "2.11.12"
-    val latest_2_12 = "2.12.8"
-    val latest_2_13 = "2.13.0-M4"
-    val latest_3_0 = "0.15.0-RC1"
+    val latest_2_12 = "2.12.10"
+    val latest_2_13 = "2.13.1"
+    val latest_3_0 = "0.25.0-RC2"
+    val latest_dotty = latest_3_0
     val latest: String = latest_2_12
     /** Version used to build this project. Prefer latest_2_12 unless it causes problems. */
     val project = "2.12.7"
@@ -50,7 +53,7 @@ object Versions {
 
     val latest_0_12 = "0.12.4"
     val latest_0_13 = "0.13.18"
-    val latest_1_0 = "1.2.8"
+    val latest_1_0 = "1.3.8"
     val latest: String = latest_1_0
     // ATTENTION: after adding sbt major version, also update:
     // buildInfoKeys, Sbt.scala and SbtUtil.latestCompatibleVersion
@@ -72,7 +75,7 @@ object Dependencies {
   val sbtStructureExtractor_100: ModuleID = sbtPluginDependency(sbtStructureExtractor, Sbt.binary_1_0)
 
   val sbtLaunch: ModuleID = "org.scala-sbt" % "sbt-launch" % sbtVersion intransitive()
-  val bloopLauncher: ModuleID = "ch.epfl.scala" % s"bloop-launcher_${scalaBinaryVersion}" % bloopVersion
+  val bloopLauncher: ModuleID = "ch.epfl.scala" % s"bloop-launcher_$scalaBinaryVersion" % bloopVersion
   val jamm: ModuleID = "com.github.jbellis" % "jamm" % "0.3.1"
   val scalaLibrary: ModuleID = "org.scala-lang" % "scala-library" % scalaVersion
   val scalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
@@ -82,10 +85,7 @@ object Dependencies {
   // this actually needs the explicit version because something in packager breaks otherwise (???)
   val sbtStructureCore: ModuleID = "org.jetbrains" %% "sbt-structure-core" % sbtStructureVersion
   val evoInflector: ModuleID = "org.atteo" % "evo-inflector" % "1.2"
-  val scalatestFindersPatched: ModuleID = "org.scalatest" % "scalatest-finders-patched" % "0.9.10"
-
-  //  val specs2: ModuleID = "org.specs2" %% "specs2-core" % "3.9.1" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
-  val specs2: ModuleID = "org.specs2" %% "specs2-core" % "2.4.17" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
+  val scalatestFindersPatched: ModuleID = "org.scalatest" % "scalatest-finders-patched" % "0.9.11"
 
   val commonsLang: ModuleID = "commons-lang" % "commons-lang" % "2.6"
   val junitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11" % "test"
@@ -112,7 +112,7 @@ object Dependencies {
   //  2. update version in scala-plugin-common.xml compilerServer.plugin classpath setting
   val compilerIndicesProtocol: ModuleID = "io.github.sugakandrey" %% "scala-compiler-indices-protocol" % "0.1.1"
 
-  val nailgun: ModuleID = "org.jetbrains" % "nailgun-patched" % "1.0.0"
+  val nailgun: ModuleID = "org.jetbrains" % "nailgun-patched" % "1.0.1"
   val zinc = "org.scala-sbt" %% "zinc" % zincVersion
   val zincInterface = "org.scala-sbt" % "compiler-interface" % zincVersion
   val sbtInterface = "org.scala-sbt" % "util-interface" % "1.1.2"
@@ -120,6 +120,7 @@ object Dependencies {
   val compilerBridgeSources_2_10 = "org.scala-sbt" % "compiler-bridge_2.10" % zincVersion classifier "sources"
   val compilerBridgeSources_2_11 = "org.scala-sbt" % "compiler-bridge_2.11" % zincVersion classifier "sources"
   val compilerBridgeSources_2_13 = "org.scala-sbt" % "compiler-bridge_2.13.0-M2" % zincVersion classifier "sources"
+  val dottySbtBridge = "ch.epfl.lamp" % "dotty-sbt-bridge" % Scala.latest_dotty
 
   /** The filtering function returns true for jars to be removed.
    * It's purpose is to exclude platform jars that may conflict with plugin dependencies. */
@@ -149,6 +150,7 @@ object DependencyGroups {
 //    scalaParserCombinators,
     sbtStructureCore,
     evoInflector,
+    "io.github.soc" % "directories" % "11",
     scalatestFindersPatched,
     jamm,
     ivy2,
@@ -176,10 +178,13 @@ object DependencyGroups {
   )
 
   val runners: Seq[ModuleID] = Seq(
-    specs2,
     "org.scala-lang" % "scala-compiler" % scalaVersion,
+    // "provided" danger: we statically depend on a single version, but need to support all the version
+    // some part of our code is now statically dependent on lib classes, another part uses reflections for other versions
     "org.scalatest" %% "scalatest" % "3.0.1" % "provided",
-    "com.lihaoyi" %% "utest" % "0.5.4" % "provided"
+    "com.lihaoyi" %% "utest" % "0.7.4" % "provided",
+    "org.specs2" %% "specs2-core" % "2.4.17" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
+    //  val specs2: ModuleID = "org.specs2" %% "specs2-core" % "3.9.1" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
   )
 
   val runtime: Seq[ModuleID] = Seq(
@@ -187,6 +192,7 @@ object DependencyGroups {
     sbtLaunch,
     compilerBridgeSources_2_10,
     compilerBridgeSources_2_11,
-    compilerBridgeSources_2_13
+    compilerBridgeSources_2_13,
+    dottySbtBridge
   )
 }

@@ -12,7 +12,7 @@ import org.junit.experimental.categories.Category
 class PatternMatchingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   override protected def shouldPass: Boolean = false
 
-  def testSCL13151() = {
+  def testSCL13151(): Unit = {
     val text =
       """
         |class Term[A]
@@ -26,7 +26,7 @@ class PatternMatchingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     checkTextHasNoErrors(text)
   }
 
-  def testSCL13141() = {
+  def testSCL13141(): Unit = {
     val text =
       """
         |object X {

@@ -18,7 +18,7 @@ final class ScCharLiteralImpl(node: ASTNode,
 
   override protected def startQuote: String = QuotedLiteralImplBase.CharQuote
 
-  override protected def wrappedValue(value: Character) =
+  override protected def wrappedValue(value: Character): ScLiteral.Value[Character] =
     ScCharLiteralImpl.Value(value)
 
   override protected def toValue(chars: String): Character = {

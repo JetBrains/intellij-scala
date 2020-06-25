@@ -19,10 +19,10 @@ class ImportAliasClashTest extends ResolveTestBase {
 //  def testRenameValue1 = doTest
   //TODO importexclude
 //  def testRenameValue2 = doTest
-  def testRenameTypeAndValue1() = doTest()
-  def testRenameTypeAndValue2() = doTest()
+  def testRenameTypeAndValue1(): Unit = doTest()
+  def testRenameTypeAndValue2(): Unit = doTest()
   //TODO importexclude
 //  def testRenameMultiple = doTest
-  def testRepeatOther() = doTest()
-  def testRepeatSame() = doTest()
+  def testRepeatOther(): Unit = doTest()
+  def testRepeatSame(): Unit = doTest()
 }

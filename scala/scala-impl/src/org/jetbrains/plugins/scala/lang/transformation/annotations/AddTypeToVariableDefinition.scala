@@ -13,9 +13,9 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * @author Pavel Fatin
   */
 class AddTypeToVariableDefinition extends AbstractTransformer {
-  protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
+  override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case (_: ScReferencePattern) && Parent(l@Parent(_: ScVariableDefinition)) && Typeable(t)
-      if !l.nextSibling.exists(_.getText == ":") =>
+      if !l.nextSibling.exists(_.textMatches(":")) =>
       appendTypeAnnotation(t, l)
   }
 }

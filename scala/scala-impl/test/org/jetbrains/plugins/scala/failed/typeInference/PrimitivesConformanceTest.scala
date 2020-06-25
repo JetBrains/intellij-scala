@@ -13,7 +13,7 @@ class PrimitivesConformanceTest extends TypeConformanceTestBase{
 
   override protected def shouldPass: Boolean = false
 
-  def testSCL5358() = doTest(
+  def testSCL5358(): Unit = doTest(
       """
         |final val x = 0
         |val y: Byte = x

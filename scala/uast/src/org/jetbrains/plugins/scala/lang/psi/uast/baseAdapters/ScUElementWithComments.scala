@@ -40,7 +40,7 @@ trait ScUElementWithComments extends UElement {
                                    )(sibling: PsiElement => PsiElement): Option[PsiComment] =
     sibling(element) match {
       case comment: PsiComment => Some(comment)
-      case whiteSpace: PsiWhiteSpace if !whiteSpace.getText.contains('\n') =>
+      case whiteSpace: PsiWhiteSpace if !whiteSpace.textContains('\n') =>
         nearestCommentSibling(whiteSpace)(sibling)
       case _ => None
     }

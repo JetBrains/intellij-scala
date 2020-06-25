@@ -15,14 +15,10 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
  * Nikolay.Tropin
  * 2014-07-28
  */
-abstract class CreateFromUsageQuickFixBase(ref: ScReference, description: String)
+abstract class CreateFromUsageQuickFixBase(ref: ScReference)
   extends IntentionAction with ProjectContextOwner {
 
-  implicit val projectContext: ProjectContext = ref
-  
-  val getText = s"Create $description '${ref.nameId.getText}'"
-
-  val getFamilyName = s"Create $description"
+  override implicit val projectContext: ProjectContext = ref
 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     if (!ref.isValid) return false
@@ -35,7 +31,7 @@ abstract class CreateFromUsageQuickFixBase(ref: ScReference, description: String
 
   override def startInWriteAction() = false
 
-  override def invoke(project: Project, editor: Editor, file: PsiFile) {
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     PsiDocumentManager.getInstance(project).commitAllDocuments()
     if (!ref.isValid) return
 
@@ -43,5 +39,5 @@ abstract class CreateFromUsageQuickFixBase(ref: ScReference, description: String
     invokeInner(project, editor, file)
   }
 
-  protected def invokeInner(project: Project, editor: Editor, file: PsiFile)
+  protected def invokeInner(project: Project, editor: Editor, file: PsiFile): Unit
 }

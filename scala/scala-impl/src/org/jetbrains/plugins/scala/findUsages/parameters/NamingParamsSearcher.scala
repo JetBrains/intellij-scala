@@ -20,7 +20,7 @@ import scala.collection.mutable
  * Date: 17.08.2009
  */
 class NamingParamsSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
-  def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {
+  override def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {
     val project = queryParameters.getProject
     val scope = inReadAction(ScalaFilterScope(queryParameters))
 
@@ -35,7 +35,7 @@ class NamingParamsSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
       case Some((parameter, name)) =>
         val collectedReferences = new mutable.HashSet[PsiReference]
         val processor = new TextOccurenceProcessor {
-          def execute(element: PsiElement, offsetInElement: Int): Boolean = {
+          override def execute(element: PsiElement, offsetInElement: Int): Boolean = {
             val references = inReadAction(element.getReferences)
             for (ref <- references if ref.getRangeInElement.contains(offsetInElement) && !collectedReferences.contains(ref)) {
               ref match {

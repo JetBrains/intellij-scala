@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
   * 24-Apr-17
   */
 trait ValueType extends ScType {
-  def isValue = true
+  override def isValue = true
 
-  def inferValueType: ValueType = this
+  override def inferValueType: ValueType = this
 }

@@ -15,6 +15,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.containers.ContainerUtil
+import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings._
@@ -50,7 +51,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
   protected def settings(file: PsiFile): OptimizeImportSettings = OptimizeImportSettings(file)
 
-  def processFile(file: PsiFile): Runnable = processFile(file, null)
+  override def processFile(file: PsiFile): Runnable = processFile(file, null)
 
   def processFile(file: PsiFile, progressIndicator: ProgressIndicator = null): Runnable = {
     def collectImportHoldersAndUsers: (util.ArrayList[ScImportsHolder], util.ArrayList[PsiElement]) = {
@@ -94,7 +95,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       if (progressIndicator != null) progressIndicator
       else if (progressManager.hasProgressIndicator) progressManager.getProgressIndicator
       else null
-    if (indicator != null) indicator.setText2(file.getName + ": analyzing imports usage")
+    if (indicator != null) indicator.setText2(ScalaEditorBundle.message("imports.analyzing.usage", file.getName))
 
     val size = importHolders.size + importUsers.size //processAllElementsConcurrentlyUnderProgress will be called 2 times
     val counter = new AtomicInteger(0)
@@ -117,7 +118,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       collectImportsUsed(element, usedImports, usedImportedNames)
     }
 
-    if (indicator != null) indicator.setText2(file.getName + ": collecting additional info")
+    if (indicator != null) indicator.setText2(ScalaEditorBundle.message("imports.collecting.additional.info", file.getName))
 
     def collectRanges(createInfo: ScImportStmt => Seq[ImportInfo]): Seq[RangeInfo] = {
       val importsInfo = ContainerUtil.newConcurrentSet[RangeInfo]()
@@ -143,7 +144,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val optimized = rangeInfos.map(range => (range, optimizedImportInfos(range, importsSettings)))
 
     new Runnable {
-      def run() {
+      override def run(): Unit = {
         val documentManager = PsiDocumentManager.getInstance(project)
         val document: Document = documentManager.getDocument(scalaFile)
         documentManager.commitDocument(document)
@@ -173,7 +174,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
   protected def isImportDelimiter(psi: PsiElement): Boolean = psi.isInstanceOf[PsiWhiteSpace]
 
-  def supports(file: PsiFile): Boolean = file.isInstanceOf[ScalaFile]
+  override def supports(file: PsiFile): Boolean = file.isInstanceOf[ScalaFile]
 
   def replaceWithNewImportInfos(range: RangeInfo, importInfos: Seq[ImportInfo], settings: OptimizeImportSettings, file: PsiFile): Unit = {
     val firstPsi = range.firstPsi.retrieve()
@@ -221,7 +222,9 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
     //it should cover play template files
     val fileFactory = PsiFileFactory.getInstance(file.getProject)
-    val dummyFile = fileFactory.createFileFromText("dummy." + file.getFileType.getDefaultExtension, file.getLanguage, text)
+
+    val dummyFile = fileFactory.createFileFromText("dummy." + file.getFileType.getDefaultExtension, file.getLanguage, text,
+      /*eventSystemEnabled = */ false, /*markAsCopy = */ false)
 
     val errorElements = dummyFile.getChildren.filter(_.isInstanceOf[PsiErrorElement]).map(_.getNode)
     errorElements.foreach(dummyFile.getNode.removeChild)
@@ -269,7 +272,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       }
     }
 
-    def initRange(psi: PsiElement) {
+    def initRange(psi: PsiElement): Unit = {
       firstPsi = psi
       lastPsi = psi
     }
@@ -480,7 +483,7 @@ object ScalaImportOptimizer {
       }
     }
 
-    def updateWithWildcardNames(buffer: ArrayBuffer[ImportInfo]) {
+    def updateWithWildcardNames(buffer: ArrayBuffer[ImportInfo]): Unit = {
       for ((info, idx) <- buffer.zipWithIndex) {
         val withWildcardNames = info.withAllNamesForWildcard(rangeStartPsi)
         if (info != withWildcardNames) {

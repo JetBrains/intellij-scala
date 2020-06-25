@@ -13,20 +13,20 @@ import scala.collection.mutable.ArrayBuffer
  */
 
 sealed class InstructionImpl(override val num: Int,
-                             val element: Option[ScalaPsiElement])
+                             override val element: Option[ScalaPsiElement])
         extends Instruction with Cloneable {
   private val mySucc = new ArrayBuffer[Instruction]
   private val myPred = new ArrayBuffer[Instruction]
 
-  def pred(): ArrayBuffer[Instruction] = myPred
+  override def pred(): ArrayBuffer[Instruction] = myPred
 
-  def succ(): ArrayBuffer[Instruction] = mySucc
+  override def succ(): ArrayBuffer[Instruction] = mySucc
 
-  def addPred(p: Instruction) {
+  override def addPred(p: Instruction): Unit = {
     myPred += p
   }
 
-  def addSucc(s: Instruction) {
+  override def addSucc(s: Instruction): Unit = {
     mySucc += s
   }
 
@@ -43,7 +43,7 @@ sealed class InstructionImpl(override val num: Int,
     builder.toString()
   }
 
-  protected def getPresentation = "element: " + (element match {
+  protected def getPresentation: String = "element: " + (element match {
     case Some(x) => x
     case z => z
   })
@@ -67,5 +67,5 @@ case class ReadWriteVariableInstruction(override val num: Int,
         extends InstructionImpl(num, Some(ref)) {
   private val myName = ref.getText
   def getName: String = myName
-  override protected def getPresentation = (if (write) "WRITE " else "READ ") + getName
+  override protected def getPresentation: String = (if (write) "WRITE " else "READ ") + getName
 }

@@ -41,27 +41,27 @@ object TypeAliasSignature {
             substitutor: ScSubstitutor): TypeAliasSignature =
     Substituted(typeAlias, name, typeParams, lowerBound, upperBound, isDefinition, substitutor)
 
-  private final class Simple(val typeAlias: ScTypeAlias) extends TypeAliasSignature {
+  private final class Simple(override val typeAlias: ScTypeAlias) extends TypeAliasSignature {
 
-    val name: String = typeAlias.name
+    override val name: String = typeAlias.name
 
-    val typeParams: Seq[TypeParameter] = typeAlias.typeParameters.map(TypeParameter(_))
+    override val typeParams: Seq[TypeParameter] = typeAlias.typeParameters.map(TypeParameter(_))
 
-    val lowerBound: ScType = typeAlias.lowerBound.getOrNothing
+    override val lowerBound: ScType = typeAlias.lowerBound.getOrNothing
 
-    val upperBound: ScType = typeAlias.upperBound.getOrAny
+    override val upperBound: ScType = typeAlias.upperBound.getOrAny
 
-    val isDefinition: Boolean = typeAlias.isDefinition
+    override val isDefinition: Boolean = typeAlias.isDefinition
 
-    def substitutor: ScSubstitutor = ScSubstitutor.empty
+    override def substitutor: ScSubstitutor = ScSubstitutor.empty
   }
 
-  private final case class Substituted(typeAlias: ScTypeAlias,
-                                       name: String,
-                                       typeParams: Seq[TypeParameter],
-                                       lowerBound: ScType,
-                                       upperBound: ScType,
-                                       isDefinition: Boolean,
-                                       substitutor: ScSubstitutor) extends TypeAliasSignature
+  private final case class Substituted(override val typeAlias: ScTypeAlias,
+                                       override val name: String,
+                                       override val typeParams: Seq[TypeParameter],
+                                       override val lowerBound: ScType,
+                                       override val upperBound: ScType,
+                                       override val isDefinition: Boolean,
+                                       override val substitutor: ScSubstitutor) extends TypeAliasSignature
 
 }

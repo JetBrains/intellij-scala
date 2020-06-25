@@ -13,6 +13,7 @@ import com.intellij.task.ProjectTaskManager
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.messages.MessageBusConnection
 import org.jetbrains.bsp.settings.{BspProjectSettings, BspSettings}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
   * Builds bsp modules on file save. We should change this to support the bsp file change notifications.
@@ -27,7 +28,7 @@ final class BspBuildLoopService(project: Project) {
         .getLinkedProjectSettings(project.getBasePath)
     )
 
-  private val busConnection: MessageBusConnection = project.getMessageBus.connect(project)
+  private val busConnection: MessageBusConnection = project.getMessageBus.connect(project.unloadAwareDisposable)
   private val fileIndex = ProjectRootManager.getInstance(project).getFileIndex
   private val taskManager = ProjectTaskManager.getInstance(project)
 
@@ -45,7 +46,7 @@ final class BspBuildLoopService(project: Project) {
     /** Delays compilation just a little bit so that it's less likely that multiple builds are triggered for one
       * set of changes. */
     private var scheduledCompile: ScheduledFuture[_] =
-      AppExecutorUtil.getAppScheduledExecutorService.schedule[Unit](()=>(),0,TimeUnit.NANOSECONDS)
+      AppExecutorUtil.getAppScheduledExecutorService.schedule[Unit](()=>(), 0, TimeUnit.NANOSECONDS)
 
     private def checkCompile(): Unit = {
       val now = System.nanoTime()
@@ -111,4 +112,9 @@ final class BspBuildLoopService(project: Project) {
       case _ => false
     }
   }
+}
+
+object BspBuildLoopService {
+  def getInstance(project: Project): BspBuildLoopService =
+    project.getService(classOf[BspBuildLoopService])
 }

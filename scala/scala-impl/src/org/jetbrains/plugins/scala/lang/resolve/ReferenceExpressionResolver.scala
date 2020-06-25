@@ -4,12 +4,11 @@ package resolve
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMethodExt, PsiNamedElementExt}
+import com.intellij.psi.util.PsiTreeUtil._
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dependency.Dependency.DependencyProcessor
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, ScConstructorInvocation, ScMethodLike}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
@@ -26,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
@@ -35,7 +35,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 import scala.collection.Set
-import scala.collection.mutable.ArrayBuffer
 import scala.language.implicitConversions
 
 class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
@@ -57,7 +56,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
   @tailrec
   private def getContextInfo(ref: ScReferenceExpression, e: ScExpression): ContextInfo = {
     e.getContext match {
-      case generic : ScGenericCall => getContextInfo(ref, generic)
+      case generic: ScGenericCall => getContextInfo(ref, generic)
       case call: ScMethodCall if !call.isUpdateCall =>
         ContextInfo(Some(call.argumentExpressions), () => call.expectedType(), isUnderscore = false)
       case call: ScMethodCall =>
@@ -82,16 +81,18 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
   }
 
   @tailrec
-  private def kinds(ref: ScReferenceExpression, e: ScExpression, incomplete: Boolean): scala.collection.Set[ResolveTargets.Value] = {
-    e.getContext match {
-      case gen: ScGenericCall => kinds(ref, gen, incomplete)
-      case parents: ScParenthesisedExpr => kinds(ref, parents, incomplete)
-      case _: ScMethodCall | _: ScUnderscoreSection => StdKinds.methodRef
-      case inf: ScInfixExpr if ref == inf.operation => StdKinds.methodRef
-      case postf: ScPostfixExpr if ref == postf.operation => StdKinds.methodRef
-      case pref: ScPrefixExpr if ref == pref.operation => StdKinds.methodRef
-      case _ => ref.getKinds(incomplete)
-    }
+  private def kinds(
+    ref:        ScReferenceExpression,
+    e:          ScExpression,
+    incomplete: Boolean
+  ): scala.collection.Set[ResolveTargets.Value] = e.getContext match {
+    case gen: ScGenericCall                             => kinds(ref, gen, incomplete)
+    case parents: ScParenthesisedExpr                   => kinds(ref, parents, incomplete)
+    case _: ScMethodCall | _: ScUnderscoreSection       => StdKinds.methodRef
+    case inf: ScInfixExpr if ref == inf.operation       => StdKinds.methodRef
+    case postf: ScPostfixExpr if ref == postf.operation => StdKinds.methodRef
+    case pref: ScPrefixExpr if ref == pref.operation    => StdKinds.methodRef
+    case _                                              => ref.getKinds(incomplete)
   }
 
   @tailrec
@@ -109,7 +110,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
     val name = context match {
       case ScPrefixExpr(`reference`, _) => s"unary_$refName"
-      case _ if reference.getUserData(ScForImpl.desugaredWithFilterKey) == ScForImpl.DesugaredWithFilterUserData =>
+      case _ if ScForImpl.desugaredWithFilterKey.isIn(reference) =>
         // This is a call to withFilter in a desugared for comprehension
         // in scala version 2.11 and below withFilter will be rewritten into filter
         // we try first to resolve withFilter and if we do not get any results we try filter
@@ -212,9 +213,14 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     else result
   }
 
-  def doResolve(ref: ScReferenceExpression, processor: BaseProcessor, accessibilityCheck: Boolean = true,
-                tryThisQualifier: Boolean = false): Array[ScalaResolveResult] = {
-    def resolveUnqalified(processor: BaseProcessor): BaseProcessor = {
+  def doResolve(
+    ref:                ScReferenceExpression,
+    processor:          BaseProcessor,
+    accessibilityCheck: Boolean = true,
+    tryThisQualifier:   Boolean = false
+  ): Array[ScalaResolveResult] = {
+
+    def resolveUnqalified(processor: BaseProcessor): BaseProcessor =
       ref.getContext match {
         case ScSugarCallExpr(operand, operation, _) if ref == operation =>
           processTypes(operand, processor)
@@ -222,11 +228,10 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           resolveUnqualifiedExpression(processor)
           processor
       }
-    }
 
-    def resolveUnqualifiedExpression(processor: BaseProcessor) {
+    def resolveUnqualifiedExpression(processor: BaseProcessor): Unit = {
       @tailrec
-      def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
+      def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
         if (place == null) return
         if (!place.processDeclarations(processor, ScalaResolveState.empty, lastParent, ref)) return
         place match {
@@ -237,6 +242,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       }
 
       val context = ref.getContext
+
       val contextElement = (context, processor) match {
         case (x: ScAssignment, _) if x.leftExpression == ref => Some(context)
         case (_, _: DependencyProcessor) => None
@@ -245,119 +251,136 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       }
 
       contextElement.foreach(processAssignment(_, processor))
-
       treeWalkUp(ref, null)
     }
 
-    def processAssignment(assign: PsiElement, processor: BaseProcessor) {
-      assign.getContext match {
-        //trying to resolve naming parameter
-        case args: ScArgumentExprList =>
-          args.callReference match {
-            case Some(callReference) if args.getContext.isInstanceOf[MethodInvocation] =>
-              processAnyAssignment(args.exprs, args.getContext.asInstanceOf[MethodInvocation], callReference,
-                args.invocationCount, assign, processor)
-            case None => processConstructorReference(args, assign, processor)
-          }
-        case tuple: ScTuple => tuple.getContext match {
-          case infix@ScInfixExpr.withAssoc(_, operation, `tuple`) =>
-            processAnyAssignment(tuple.exprs, infix, operation, 1, assign, processor)
+    def processAssignment(assign: PsiElement, processor: BaseProcessor): Unit = assign.getContext match {
+      //trying to resolve naming parameter
+      case args: ScArgumentExprList =>
+        args.getContext match {
+          case invocation: MethodInvocation =>
+            processMethodAssignment(args, invocation, processor)
+          case invocation: ConstructorInvocationLike =>
+            processConstructorReference(args, invocation, assign, processor, args.invocationCount - 1)
           case _ =>
         }
-        case p: ScParenthesisedExpr => p.getContext match {
-          case infix@ScInfixExpr.withAssoc(_, operation, `p`) =>
-            processAnyAssignment(p.innerElement.toSeq, infix, operation, 1, assign, processor)
-          case _ =>
-        }
+      case tuple: ScTuple => tuple.getContext match {
+        case infix@ScInfixExpr.withAssoc(_, operation, `tuple`) =>
+          processAnyAssignment(tuple.exprs, infix, operation, processor)
         case _ =>
       }
+      case p: ScParenthesisedExpr => p.getContext match {
+        case infix@ScInfixExpr.withAssoc(_, operation, `p`) =>
+          processAnyAssignment(p.innerElement.toSeq, infix, operation, processor)
+        case _ =>
+      }
+      case _ =>
     }
 
-    def processAnyAssignment(exprs: Seq[ScExpression], call: MethodInvocation, callReference: ScReferenceExpression, invocationCount: Int,
-                             assign: PsiElement, processor: BaseProcessor) {
-      val refName = ref.refName
-
-      def addParamForApplyDynamicNamed(): Unit = {
-        if (!processor.isInstanceOf[CompletionProcessor]) {
-          processor.execute(createParameterFromText(refName + ": Any"), ScalaResolveState.withNamedParam)
+    def processMethodAssignment(args: ScArgumentExprList,
+                                call: MethodInvocation,
+                                processor: BaseProcessor): Unit =
+      args.callReference.foreach { reference =>
+        val isNamedParametersEnabled = call match {
+          case call: ScMethodCall => call.isNamedParametersEnabledEverywhere
+          case _ => false
         }
+
+        processAnyAssignment(
+          args.exprs,
+          call,
+          reference,
+          processor,
+          args.invocationCount - 1,
+          isNamedParametersEnabled
+        )
       }
 
-      for (variant <- callReference.multiResolveScala(false)) {
-        def processResult(r: ScalaResolveResult) = r match {
-          case ScalaResolveResult(fun: ScFunction, _) if isApplyDynamicNamed(r) =>
-            addParamForApplyDynamicNamed()
-          case ScalaResolveResult(_, _) if call.applyOrUpdateElement.exists(isApplyDynamicNamed) =>
-            addParamForApplyDynamicNamed()
-          case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) =>
-            if (!processor.isInstanceOf[CompletionProcessor]) {
-              getParamByName(fun, refName, invocationCount - 1) match {
+    def processAnyAssignment(exprs: Seq[ScExpression],
+                             call: MethodInvocation,
+                             callReference: ScReferenceExpression,
+                             processor: BaseProcessor,
+                             index: Int = 0,
+                             isNamedParametersEnabled: Boolean = false): Unit = {
+      val refName = ref.refName
+
+      def addParamForApplyDynamicNamed(): Unit = processor match {
+        case _: CompletionProcessor =>
+        case _ =>
+          processor.execute(
+            createParameterFromText(refName + ": Any"),
+            ScalaResolveState.withNamedParam
+          )
+      }
+
+      def processResult(result: ScalaResolveResult) = result.element match {
+        case _: ScFunction if isApplyDynamicNamed(result) =>
+          addParamForApplyDynamicNamed()
+        case _ if call.applyOrUpdateElement.exists(isApplyDynamicNamed) =>
+          addParamForApplyDynamicNamed()
+        case fun: ScFunction =>
+          val substitutor = result.substitutor
+          processor match {
+            case completionProcessor: CompletionProcessor =>
+              collectNamedCompletions(fun.paramClauses, completionProcessor, substitutor, exprs, index)
+            case _ =>
+              getParamByName(fun, refName, index) match {
                 //todo: why -1?
                 case Some(param) =>
                   val rename =
                     if (!equivalent(param.name, refName)) param.deprecatedName
                     else None
                   val state = ScalaResolveState
-                    .withSubstitutor(subst)
+                    .withSubstitutor(substitutor)
                     .withNamedParam
                     .withRename(rename)
 
                   processor.execute(param, state)
                 case None =>
               }
-            } else {
-              //for completion only!
-              funCollectNamedCompletions(fun.paramClauses, assign, processor, subst, exprs, invocationCount)
-            }
-          case ScalaResolveResult(_: FakePsiMethod, _: ScSubstitutor) => //todo: ?
-          case ScalaResolveResult(method: PsiMethod, subst) =>
-            assign.getContext match {
-              case args: ScArgumentExprList =>
-                args.getContext match {
-                  case methodCall: ScMethodCall if methodCall.isNamedParametersEnabledEverywhere =>
-                    val state = ScalaResolveState.withSubstitutor(subst).withNamedParam
-                    method.parameters.foreach {
-                      processor.execute(_, state)
-                    }
-                  case _ =>
-                }
-              case _ =>
-            }
-          case _ =>
-        }
+          }
+        case _: FakePsiMethod => //todo: ?
+        case method: PsiMethod if isNamedParametersEnabled =>
+          val state = ScalaResolveState
+            .withSubstitutor(result.substitutor)
+            .withNamedParam
 
+          method.parameters.foreach {
+            processor.execute(_, state)
+          }
+        case _ =>
+      }
+
+      for (variant <- callReference.multiResolveScala(false)) {
         processResult(variant)
         // Consider named parameters of apply method; see SCL-2407
         variant.innerResolveResult.foreach(processResult)
       }
     }
 
-    def processConstructorReference(args: ScArgumentExprList, assign: PsiElement, baseProcessor: BaseProcessor) {
-      def processConstructor(elem: PsiElement, tp: ScType, typeArgs: Seq[ScTypeElement], arguments: Seq[ScArgumentExprList],
-                             secondaryConstructors: (ScClass) => Seq[ScFunction]) {
-        tp.extractClassType match {
-          case Some((clazz, subst)) if !clazz.isInstanceOf[ScTemplateDefinition] && clazz.isAnnotationType =>
-            if (!baseProcessor.isInstanceOf[CompletionProcessor]) {
-              for (method <- clazz.getMethods) {
-                method match {
-                  case p: PsiAnnotationMethod =>
-                    if (equivalent(p.name, ref.refName)) {
-                      baseProcessor.execute(p, ScalaResolveState.empty)
-                    }
-                  case _ =>
-                }
-              }
-            } else {
-              if (args.invocationCount == 1) {
-                val methods: ArrayBuffer[PsiAnnotationMethod] = new ArrayBuffer[PsiAnnotationMethod] ++
-                  clazz.getMethods.toSeq.flatMap {
-                    case f: PsiAnnotationMethod => Seq(f)
-                    case _ => Seq.empty
-                  }
+    def processConstructorReference(args: ScArgumentExprList,
+                                    invocation: ConstructorInvocationLike,
+                                    assign: PsiElement,
+                                    baseProcessor: BaseProcessor,
+                                    index: Int): Unit = {
+      def processConstructor(typeable: Typeable)
+                            (isTargetClass: ScClass => Boolean)
+                            (isAcceptableConstructor: ScFunction => Boolean): Unit = for {
+        scType <- typeable.`type`().toOption
+        (clazz, subst) <- scType.extractClassType
+      } {
+        if (!clazz.isInstanceOf[ScTemplateDefinition] && clazz.isAnnotationType) {
+          baseProcessor match {
+            case completionProcessor: CompletionProcessor =>
+              if (index == 0) {
+                val methods = clazz.getMethods.collect {
+                  case annotationMethod: PsiAnnotationMethod => annotationMethod
+                }.toBuffer
+
                 val exprs = args.exprs
                 var i = 0
 
-                def tail() {
+                def tail(): Unit = {
                   if (methods.nonEmpty) methods.remove(0)
                 }
 
@@ -377,123 +400,95 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
                 }
                 val state = ScalaResolveState.withSubstitutor(subst).withNamedParam
                 for (method <- methods) {
-                  baseProcessor.execute(method, state)
+                  completionProcessor.execute(method, state)
                 }
               }
-            }
-          case Some((clazz, subst)) =>
-            val processor: MethodResolveProcessor = new MethodResolveProcessor(elem, "this",
-              arguments.toList.map(_.exprs), typeArgs, Seq.empty /* todo: ? */ ,
-              constructorResolve = true, enableTupling = true)
-            val state = ScalaResolveState.withSubstitutor(subst)
-            clazz match {
-              case clazz: ScClass =>
-                for (constr <- secondaryConstructors(clazz)) {
-                  processor.execute(constr, state)
+            case _ =>
+              for {
+                method <- clazz.getMethods.toSeq.filterBy[PsiAnnotationMethod]
+                if equivalent(method.name, ref.refName)
+              } baseProcessor.execute(method, ScalaResolveState.empty)
+          }
+        } else {
+          val arguments = invocation.arguments.toList
+
+          val processor = new MethodResolveProcessor(
+            invocation,
+            "this",
+            arguments.map(_.exprs),
+            invocation.typeArgList.fold(Seq.empty[ScTypeElement])(_.typeArgs),
+            Seq.empty /* todo: ? */ ,
+            constructorResolve = true,
+            enableTupling = true
+          )
+
+          val state = ScalaResolveState.withSubstitutor(subst)
+          clazz match {
+            case clazz: ScClass =>
+              if (isTargetClass(clazz)) {
+                for {
+                  constructor <- clazz.secondaryConstructors
+                  if isAcceptableConstructor(constructor)
+                } processor.execute(constructor, state)
+              }
+
+              for {
+                constructor <- clazz.constructor
+              } processor.execute(constructor, state)
+            case _ =>
+              for (constr <- clazz.getConstructors) {
+                processor.execute(constr, state)
+              }
+          }
+
+          val refName = ref.refName
+          for (candidate <- processor.candidatesS) {
+            candidate.element match {
+              case method: ScMethodLike =>
+                val isFunction = method.isInstanceOf[ScFunction]
+                baseProcessor match {
+                  case baseProcessor: CompletionProcessor =>
+                    collectNamedCompletions(
+                      method.parameterList,
+                      baseProcessor,
+                      if (isFunction) candidate.substitutor else subst,
+                      args.exprs,
+                      index
+                    )
+                  case _ =>
+                    for {
+                      parameter <- getParamByName(method, refName, arguments.indexOf(args))
+
+                      name = if (isFunction && !equivalent(parameter.name, refName))
+                        parameter.deprecatedName.map(clean)
+                      else
+                        None
+                    } baseProcessor.execute(
+                      parameter,
+                      ScalaResolveState
+                        .withSubstitutor(subst)
+                        .withNamedParam
+                        .withRename(name)
+                    )
                 }
-                clazz.constructor.foreach(processor.execute(_, state))
               case _ =>
-                for (constr <- clazz.getConstructors) {
-                  processor.execute(constr, state)
-                }
             }
-            val refName = ref.refName
-            for (candidate <- processor.candidatesS) {
-              candidate match {
-                case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) =>
-                  if (!baseProcessor.isInstanceOf[CompletionProcessor]) {
-                    getParamByName(fun, refName, arguments.indexOf(args)) match {
-                      case Some(param) =>
-                        val rename =
-                          if (equivalent(param.name, refName)) None
-                          else param.deprecatedName.map(clean)
-
-                        val state = ScalaResolveState
-                          .withSubstitutor(subst)
-                          .withNamedParam
-                          .withRename(rename)
-
-                        baseProcessor.execute(param, state)
-                      case None =>
-                    }
-                  } else {
-                    //for completion only!
-                    funCollectNamedCompletions(fun.paramClauses, assign, baseProcessor, subst, args.exprs, args.invocationCount)
-                  }
-                case ScalaResolveResult(constructor: ScPrimaryConstructor, _) =>
-                  if (!baseProcessor.isInstanceOf[CompletionProcessor])
-                    getParamByName(constructor, refName, arguments.indexOf(args)) match {
-                      case Some(param) =>
-                        baseProcessor.execute(param, ScalaResolveState.withSubstitutor(subst).withNamedParam)
-                      case None =>
-                    }
-                  else {
-                    //for completion only!
-                    funCollectNamedCompletions(constructor.parameterList, assign, baseProcessor, subst, args.exprs, args.invocationCount)
-                  }
-                case _ =>
-              }
-            }
-          case _ =>
+          }
         }
       }
 
-      args.getContext match {
-        case s: ScSelfInvocation =>
-          val clazz = ScalaPsiUtil.getContextOfType(s, true, classOf[ScClass])
-          if (clazz == null) return
-          val tp: ScType = clazz.asInstanceOf[ScClass].`type`().getOrElse(return)
-          val typeArgs: Seq[ScTypeElement] = Seq.empty
-          val arguments = s.arguments
-          val secondaryConstructors = (c: ScClass) => {
-            if (c != clazz) Seq.empty
-            else {
-              c.secondaryConstructors.filter(f =>
-                !PsiTreeUtil.isContextAncestor(f, s, true) &&
-                  f.getTextRange.getStartOffset < s.getTextRange.getStartOffset
-              )
-            }
-          }
-          processConstructor(s, tp, typeArgs, arguments, secondaryConstructors)
-        case constrInvocation: ScConstructorInvocation =>
-          val tp: ScType = constrInvocation.typeElement.`type`().getOrElse(return)
-          val typeArgs: Seq[ScTypeElement] = constrInvocation.typeArgList.map(_.typeArgs).getOrElse(Seq())
-          val arguments = constrInvocation.arguments
-          val secondaryConstructors = (clazz: ScClass) => clazz.secondaryConstructors
-          processConstructor(constrInvocation, tp, typeArgs, arguments, secondaryConstructors)
-        case _ =>
-      }
-    }
-
-    def funCollectNamedCompletions(clauses: ScParameters, assign: PsiElement, processor: BaseProcessor,
-                                           subst: ScSubstitutor, exprs: Seq[ScExpression], invocationCount: Int) {
-      if (clauses.clauses.length >= invocationCount) {
-        val actualClause = clauses.clauses(invocationCount - 1)
-        val params = new ArrayBuffer[ScParameter] ++ actualClause.parameters
-        var i = 0
-
-        def tail() {
-          if (params.nonEmpty) params.remove(0)
-        }
-
-        while (exprs(i) != assign) {
-          exprs(i) match {
-            case assignStmt: ScAssignment =>
-              assignStmt.leftExpression match {
-                case ref: ScReferenceExpression =>
-                  val ind = params.indexWhere(p => equivalent(p.name, ref.refName))
-                  if (ind != -1) params.remove(ind)
-                  else tail()
-                case _ => tail()
+      invocation match {
+        case invocation: ScSelfInvocation =>
+          getContextOfType(invocation, true, classOf[ScClass]) match {
+            case null =>
+            case clazz =>
+              processConstructor(clazz)(_ == clazz) { constructor =>
+                constructor.getTextRange.getStartOffset < invocation.getTextRange.getStartOffset &&
+                  !isContextAncestor(constructor, invocation, true)
               }
-            case _ => tail()
           }
-          i = i + 1
-        }
-        val state = ScalaResolveState.withSubstitutor(subst).withNamedParam
-        for (param <- params) {
-          processor.execute(param, state)
-        }
+        case invocation: ScConstructorInvocation =>
+          processConstructor(invocation.typeElement)(Function.const(true))(Function.const(true))
       }
     }
 
@@ -538,7 +533,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
       val state = fromType match {
         case ScDesignatorType(_: PsiPackage) => ScalaResolveState.empty
-        case _                               => ScalaResolveState.withFromType(fromType)
+        case _ => ScalaResolveState.withFromType(fromType)
       }
       processor.processType(aType, qualifier, state)
 
@@ -551,15 +546,21 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       }
 
       if (candidates.isEmpty || (!shape && candidates.forall(!_.isApplicable())) || (processor match {
-        case cp: CompletionProcessor => cp.isImplicit
+        case cp: CompletionProcessor => cp.withImplicitConversions
         case _ => false
       })) {
         processor match {
-          case rp: ResolveProcessor =>
-            rp.resetPrecedence() //do not clear candidate set, we want wrong resolve, if don't found anything
+          case processor: CompletionProcessor => completeImplicits(qualifier, processor)
           case _ =>
+            ImplicitResolveResult.processImplicitConversions(
+              targetNameFor(processor),
+              ref,
+              processor,
+              noImplicitsForArgs = candidates.nonEmpty
+            ) {
+              _.withImports.withImplicitType.withType
+            }(qualifier)
         }
-        collectImplicits(qualifier, processor, noImplicitsForArgs = candidates.nonEmpty)
 
         (processor, processor.candidates) match {
           case (methodProcessor: MethodResolveProcessor, Array()) if conformsToDynamic(fromType, ref.resolveScope) =>
@@ -571,28 +572,22 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       } else processor
     }
 
-    def collectImplicits(e: ScExpression, processor: BaseProcessor, noImplicitsForArgs: Boolean) {
-      import ImplicitResolveResult._
+    def completeImplicits(qualifier: ScExpression,
+                          processor: CompletionProcessor): Unit = for {
+      result <- ScImplicitlyConvertible.implicitMap(qualifier) // todo: args?
+      builder = result.builder.withImports.withImplicitType
+    } processor.processType(result.`type`, qualifier, builder.state)
 
-      processor match {
-        case _: CompletionProcessor =>
-          for {
-            result <- ScImplicitlyConvertible.implicitMap(e) // todo: args?
-            builder = result.builder.withImports.withImplicitType
-          } processor.processType(result.`type`, e, builder.state)
+    def targetNameFor(processor: BaseProcessor): String = processor match {
+      case processor: ResolveProcessor =>
+        processor.resetPrecedence() //do not clear candidate set, we want wrong resolve, if don't found anything
+        processor match {
+          case processor: MethodResolveProcessor => processor.noImplicitsForArgs = true
+          case _ =>
+        }
 
-          return
-        case m: MethodResolveProcessor => m.noImplicitsForArgs = true
-        case _ =>
-      }
-      val name = processor match {
-        case rp: ResolveProcessor => rp.name // See SCL-2934.
-        case _ => ref.refName
-      }
-
-      processImplicitConversions(name, ref, processor, noImplicitsForArgs) {
-        _.withImports.withImplicitType.withType
-      }(e)
+        processor.name // See SCL-2934.
+      case _ => ref.refName
     }
 
     if (!accessibilityCheck) processor.doNotCheckAccessibility()
@@ -624,21 +619,43 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
   }
 
   /**
-    * Seek parameter with appropriate name in appropriate parameter clause.
-    *
-    * @param name          parameter name
-    * @param clausePosition = -1, effective clause number, if -1 then parameter in any explicit? clause
-    */
-  private def getParamByName(ml: ScMethodLike, name: String, clausePosition: Int = -1): Option[ScParameter] = {
-    val parameters = clausePosition match {
+   * Seek parameter with appropriate name in appropriate parameter clause.
+   *
+   * @param name        parameter name
+   * @param clauseIndex = -1, effective clause number, if -1 then parameter in any explicit? clause
+   */
+  private def getParamByName(ml: ScMethodLike,
+                             name: String,
+                             clauseIndex: Int = -1): Option[ScParameter] = {
+    val parameters = clauseIndex match {
       case -1 => ml.parameters
-      case i if i < 0 || i >= ml.effectiveParameterClauses.length => Seq.empty
-      case _ => ml.effectiveParameterClauses.apply(clausePosition).effectiveParameters
+      case _ => ml.parametersInClause(clauseIndex)
     }
 
-    parameters.find { param =>
-      equivalent(param.name, name) || param.deprecatedName.exists(equivalent(_, name))
+    parameters.find { parameter =>
+      equivalent(parameter.name, name) || parameter.deprecatedName.exists(equivalent(_, name))
     }
   }
 
+  private def collectNamedCompletions(parameters: ScParameters,
+                                      processor: CompletionProcessor,
+                                      substitutor: ScSubstitutor,
+                                      expressions: Seq[ScExpression],
+                                      index: Int): Unit = {
+    val clauses = parameters.clauses
+    if (0 <= index && index < clauses.length) {
+      val usedArgNames = expressions.collect {
+        case ScAssignment(reference: ScReferenceExpression, _) => reference.refName
+      }
+
+      val state = ScalaResolveState
+        .withSubstitutor(substitutor)
+        .withNamedParam
+
+      for {
+        parameter <- clauses(index).parameters
+        if !usedArgNames.exists(equivalent(parameter.name, _))
+      } processor.execute(parameter, state)
+    }
+  }
 }

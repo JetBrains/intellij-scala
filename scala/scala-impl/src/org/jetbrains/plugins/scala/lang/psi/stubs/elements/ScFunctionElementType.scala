@@ -9,7 +9,9 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScMacroDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenAlias
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScFunctionDeclarationImpl, ScFunctionDefinitionImpl, ScMacroDefinitionImpl}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScGivenAliasImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFunctionStubImpl
 
 /**
@@ -107,4 +109,10 @@ object MacroDefinition extends ScFunctionElementType[ScMacroDefinition]("macro d
   override def createElement(node: ASTNode) = new ScMacroDefinitionImpl(null, null, node)
 
   override def createPsi(stub: ScFunctionStub[ScMacroDefinition]) = new ScMacroDefinitionImpl(stub, this, null)
+}
+
+object GivenAlias extends ScFunctionElementType[ScGivenAlias]("given alias") {
+  override def createElement(node: ASTNode): ScGivenAlias = new ScGivenAliasImpl(null, null, node)
+
+  override def createPsi(stub: ScFunctionStub[ScGivenAlias]): ScGivenAlias = new ScGivenAliasImpl(stub, this, null)
 }

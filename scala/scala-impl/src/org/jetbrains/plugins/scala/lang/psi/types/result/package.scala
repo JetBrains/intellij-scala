@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang
 package psi
 package types
 
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -40,7 +41,7 @@ package object result {
     def flatMap[E <: ScalaPsiElement](maybeElement: Option[E])
                                      (function: E => TypeResult): TypeResult =
       maybeElement.map(function)
-        .getOrElse(Failure("No element found"))
+        .getOrElse(Failure(ScalaBundle.message("no.element.found")))
 
     def flatMapType[E <: ScalaPsiElement with Typeable](maybeElement: Option[E]): TypeResult =
       flatMap(maybeElement)(_.`type`())

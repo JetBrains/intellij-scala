@@ -1,9 +1,8 @@
 package org.jetbrains.sbt.runner
 
-import javax.swing.Icon
-
 import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType}
 import com.intellij.openapi.project.DumbAware
+import javax.swing.Icon
 import org.jetbrains.sbt.{Sbt, SbtBundle}
 
 /**
@@ -12,13 +11,13 @@ import org.jetbrains.sbt.{Sbt, SbtBundle}
 class SbtConfigurationType extends ConfigurationType with DumbAware {
   val confFactory = new SbtRunConfigurationFactory(this)
   
-  def getIcon: Icon = Sbt.Icon
+  override def getIcon: Icon = Sbt.Icon
 
-  def getDisplayName: String = SbtBundle("sbt.runner.displayName")
+  override def getDisplayName: String = SbtBundle.message("sbt.runner.displayName")
 
-  def getConfigurationTypeDescription: String = SbtBundle("sbt.runner.description")
+  override def getConfigurationTypeDescription: String = SbtBundle.message("sbt.runner.description")
 
-  def getConfigurationFactories: Array[ConfigurationFactory] = Array[ConfigurationFactory](confFactory)
+  override def getConfigurationFactories: Array[ConfigurationFactory] = Array[ConfigurationFactory](confFactory)
 
-  def getId: String = "SbtRunConfiguration"
+  override def getId: String = "SbtRunConfiguration"
 }

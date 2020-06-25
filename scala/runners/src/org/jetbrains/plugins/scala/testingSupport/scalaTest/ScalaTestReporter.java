@@ -13,53 +13,33 @@ import java.util.Date;
 
 import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeString;
 import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.formatTimestamp;
+import static org.jetbrains.plugins.scala.testingSupport.scalaTest.TeamcityReporter.reportMessage;
 
-/**
+/*
  * referred in:
- * {@link org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunner}
  * {@link org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration}
  */
 public class ScalaTestReporter implements Reporter {
 
-  private SequentialTreeBuilder treeBuilder = new SequentialTreeBuilder();
+  private final SequentialTreeBuilder treeBuilder = new SequentialTreeBuilder();
 
   public static boolean myShowProgressMessages = true;
 
-  private String getStackTraceString(Throwable throwable) {
-    StringWriter writer = new StringWriter();
-    throwable.printStackTrace(new PrintWriter(writer));
-    return writer.getBuffer().toString().trim();
-  }
-
-  /**
-   * Try to deduce location of test in class. Only works whtn both class name and test name are provided and test name
-   * is provided in test definition as a string literal.
-   * @param classNameOption option that should contain full qualified class name
-   * @param testName name of test under consideration
-   * @return location hint in buildserver notation
-   */
-  private String getLocationHint(Option<String> classNameOption, String testName) {
-    if(classNameOption instanceof Some) {
-      String className = classNameOption.get();
-      return " locationHint='scalatest://TopOfClass:" + className + "TestName:" + escapeString(testName) + "'";
-    }
-    else
-      return "";
-  }
-
+  @Override
   public void apply(Event event) {
-    if (!treeBuilder.isInitialized()) treeBuilder.initRun(null);
+    if (!treeBuilder.isInitialized())
+      treeBuilder.initRun(null);
+
     Ordinal ordinal = event.ordinal();
     if (event instanceof RunStarting) {
       RunStarting r = (RunStarting) event;
       treeBuilder.initRun(r);
       int testCount = r.testCount();
-      System.out.println("\n##teamcity[testCount count='" + testCount + "']");
+      reportMessage("##teamcity[testCount count='" + testCount + "']");
     } else if (event instanceof TestStarting) {
       String testName = ((TestStarting) event).testName();
       String locationHint = getLocationHint(((TestStarting) event).suiteClassName(), testName);
-      String message = "testStarted name='" + escapeString(testName) + "'" + locationHint +
-          " captureStandardOutput='true'";
+      String message = "testStarted name='" + escapeString(testName) + "'" + locationHint + " captureStandardOutput='true'";
       treeBuilder.openScope(message, ordinal, ((TestStarting) event).suiteName(), true);
     } else if (event instanceof TestSucceeded) {
       Option<Object> durationOption = ((TestSucceeded) event).duration();
@@ -75,7 +55,7 @@ public class ScalaTestReporter implements Reporter {
           IndentedText t = (IndentedText) formatter.get();
           if (myShowProgressMessages) {
             String escaped = escapeString(t.formattedText() + "\n");
-            System.out.println("\n##teamcity[message text='" + escaped + "' status='INFO'" + "]");
+            reportMessage("##teamcity[message text='" + escaped + "' status='INFO'" + "]");
           }
         }
       }
@@ -108,8 +88,7 @@ public class ScalaTestReporter implements Reporter {
       String testName = testFailed.testName();
       String message = testFailed.message() + failureLocation;
       long timeStamp = event.timeStamp();
-      String res = "testFailed name='" + escapeString(testName) + "' message='" + escapeString(message) +
-          "' details='" + escapeString(detail) + "'";
+      String res = "testFailed name='" + escapeString(testName) + "' message='" + escapeString(message) + "' details='" + escapeString(detail) + "'";
       if (error) res += "error = 'true'";
       res += "timestamp='" + escapeString(formatTimestamp(new Date(timeStamp))) +  "'";
       treeBuilder.closeScope(res, ordinal, testFailed.suiteName(), true);
@@ -120,20 +99,17 @@ public class ScalaTestReporter implements Reporter {
       String locationHint = getLocationHint(testIgnored.suiteClassName(), testName);
       String openMessage = "testStarted name='" + escapeString(testName) + "'" + locationHint;
       treeBuilder.openScope(openMessage, ordinal, testIgnored.suiteName(), true);
-      String closeMessage = "testIgnored name='" + escapeString(testName) + "' message='" +
-          escapeString("Test Ignored") + "'";
+      String closeMessage = "testIgnored name='" + escapeString(testName) + "' message='" + escapeString("Test Ignored") + "'";
       treeBuilder.closeScope(closeMessage, ordinal, testIgnored.suiteName(), true);
     } else if (event instanceof TestPending) {
       String testName = ((TestPending) event).testName();
-      String message = "testIgnored name='" + escapeString(testName) + "' message='" +
-        escapeString("Test Pending") + "'";
+      String message = "testIgnored name='" + escapeString(testName) + "' message='" + escapeString("Test Pending") + "'";
       treeBuilder.closeScope(message, ordinal, ((TestPending) event).suiteName(), true);
       //TODO: should there be TestCanceled processing? It is processed in ScalaTestReporterWithLocation.
     } else if (event instanceof SuiteStarting) {
       String suiteName = ((SuiteStarting) event).suiteName();
       String locationHint = getLocationHint(((SuiteStarting) event).suiteClassName(), suiteName);
-      String message = "testSuiteStarted name='" + escapeString(suiteName) + "'" + locationHint +
-        " captureStandardOutput='true'";
+      String message = "testSuiteStarted name='" + escapeString(suiteName) + "'" + locationHint + " captureStandardOutput='true'";
       treeBuilder.openSuite(message, ((SuiteStarting) event));
     } else if (event instanceof SuiteCompleted) {
       String suiteName = ((SuiteCompleted) event).suiteName();
@@ -149,8 +125,7 @@ public class ScalaTestReporter implements Reporter {
       String statusText = "ERROR";
       String escapedMessage = escapeString(message);
       if (!escapedMessage.isEmpty()) {
-        System.out.println("\n##teamcity[message text='" + escapedMessage + "' status='" + statusText + "'" +
-            throwableString + "]");
+        reportMessage("##teamcity[message text='" + escapedMessage + "' status='" + statusText + "'" + throwableString + "]");
       }
     } else if (event instanceof InfoProvided) {
       String message = ((InfoProvided) event).message();
@@ -164,7 +139,7 @@ public class ScalaTestReporter implements Reporter {
       if (myShowProgressMessages) {
         String escapedMessage = escapeString(message.replaceFirst("\\s+$", ""));
         if (!escapedMessage.isEmpty()) {
-          System.out.println("\n##teamcity[message text='" + escapedMessage + ":|n' status='INFO'" + "]");
+          reportMessage("##teamcity[message text='" + escapedMessage + ":|n' status='INFO'" + "]");
         }
       }
     } else if (event instanceof RunStopped) {
@@ -178,11 +153,34 @@ public class ScalaTestReporter implements Reporter {
       }
       String escapedMessage = escapeString(message);
       if (!escapedMessage.isEmpty()) {
-        System.out.println("\n##teamcity[message text='" + escapedMessage + "' status='ERROR'" +
-            throwableString + "]");
+        reportMessage("##teamcity[message text='" + escapedMessage + "' status='ERROR'" + throwableString + "]");
       }
     } else if (event instanceof RunCompleted) {
 
     }
+  }
+
+  private String getStackTraceString(Throwable throwable) {
+    StringWriter writer = new StringWriter();
+    throwable.printStackTrace(new PrintWriter(writer));
+    return writer.getBuffer().toString().trim();
+  }
+
+  /**
+   * Try to deduce location of test in class. Only works whtn both class name and test name are provided and test name
+   * is provided in test definition as a string literal.
+   * @param classNameOption option that should contain full qualified class name
+   * @param testName name of test under consideration
+   * @return location hint in buildserver notation
+   */
+  private String getLocationHint(Option<String> classNameOption, String testName) {
+    final String result;
+    if(classNameOption instanceof Some) {
+      String className = classNameOption.get();
+      result = " locationHint='scalatest://TopOfClass:" + className + "TestName:" + escapeString(testName) + "'";
+    }
+    else
+      result = "";
+    return result;
   }
 }

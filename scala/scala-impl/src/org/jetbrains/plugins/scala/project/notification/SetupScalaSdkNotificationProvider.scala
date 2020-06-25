@@ -4,27 +4,36 @@ package notification
 
 import com.intellij.framework.FrameworkTypeEx
 import com.intellij.framework.addSupport.impl.AddSupportForSingleFrameworkDialog.createDialog
-import com.intellij.openapi.module.{JavaModuleType, Module, ModuleType}
+import com.intellij.openapi.fileEditor.FileEditor
+import com.intellij.openapi.module.{JavaModuleType, Module, ModuleType, ModuleUtilCore}
 import com.intellij.openapi.project.Project
-import com.intellij.ui.EditorNotifications
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.ui.EditorNotificationPanel
 
 /**
  * @author Pavel Fatin
  */
-//noinspection TypeAnnotation
-final class SetupScalaSdkNotificationProvider(project: Project, notifications: EditorNotifications)
-  extends AbstractNotificationProvider(ScalaBundle.message("sdk.title"), project, notifications) {
+final class SetupScalaSdkNotificationProvider(project: Project)
+  extends AbstractNotificationProvider(ScalaBundle.message("sdk.title"), project) {
 
   override protected def panelText(kitTitle: String): String = s"No $kitTitle in module"
 
-  override protected def hasDeveloperKit(module: Module): Boolean =
-    ModuleType.get(module) != JavaModuleType.getModuleType ||
-      module.getName.endsWith("-build") || // gen-idea doesn't use the sbt module type
-      module.hasScala
+  override protected def hasDeveloperKit(file: VirtualFile): Boolean =
+    findModule(file).forall { module =>
+      ModuleType.get(module) != JavaModuleType.getModuleType ||
+        module.getName.endsWith("-build") || // gen-idea doesn't use the sbt module type
+        module.hasScala
+    }
 
-  override protected def setDeveloperKit(module: Module): Unit =
-    createDialog(
-      module,
-      FrameworkTypeEx.EP_NAME.findExtension(classOf[template.ScalaFrameworkType]).createProvider
-    ).showAndGet
+  override protected def setDeveloperKit(file: VirtualFile, panel: EditorNotificationPanel): Unit =
+    findModule(file).foreach { module =>
+      createDialog(
+        module,
+        FrameworkTypeEx.EP_NAME.findExtension(classOf[template.ScalaFrameworkType]).createProvider
+      ).showAndGet
+    }
+
+  private def findModule(file: VirtualFile): Option[Module] =
+    Option(ModuleUtilCore.findModuleForFile(file, project))
+
 }

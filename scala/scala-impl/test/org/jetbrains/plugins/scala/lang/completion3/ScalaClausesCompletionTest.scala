@@ -6,12 +6,12 @@ import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.lookup.LookupElement
 
 class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_12
 
   import ScalaClausesCompletionTest._
   import ScalaCodeInsightTestBase._
   import completion.ScalaKeyword.{CASE, MATCH}
-  import completion.clauses.DirectInheritors.BlackListedNames
+  import completion.clauses.DirectInheritors.FqnBlockList
 
   def testSyntheticUnapply(): Unit = doPatternCompletionTest(
     fileText =
@@ -1082,6 +1082,42 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     )
   }
 
+  def testCompoundType(): Unit = doMatchCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  final case class Bar() extends Foo
+         |  final case class Baz() extends Foo
+         |  trait FooExt extends Foo
+         |}
+         |
+         |import Foo._
+         |(if (true) Left(""): Either[String, Bar] else Left(""): Either[String, Baz]) match {
+         |  case Left(value) =>
+         |  case Right(value) =>
+         |    value m$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  final case class Bar() extends Foo
+         |  final case class Baz() extends Foo
+         |  trait FooExt extends Foo
+         |}
+         |
+         |import Foo._
+         |(if (true) Left(""): Either[String, Bar] else Left(""): Either[String, Baz]) match {
+         |  case Left(value) =>
+         |  case Right(value) =>
+         |    value match {
+         |      case Bar() => $CARET
+         |      case Baz() =>
+         |    }
+         |}""".stripMargin
+  )
+
   def testInaccessibleInheritors(): Unit = doMatchCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -1245,8 +1281,8 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
        """.stripMargin,
   )(isExhaustiveCase)
 
-  def testBlackList(): Unit = for {
-    fqn <- BlackListedNames
+  def testFqnBlockList(): Unit = for {
+    fqn <- FqnBlockList
   } checkNoCompletion(s"(_: $fqn) m$CARET")(isExhaustiveMatch)
 
   def testQualifiedReference(): Unit = checkNoCompletion(

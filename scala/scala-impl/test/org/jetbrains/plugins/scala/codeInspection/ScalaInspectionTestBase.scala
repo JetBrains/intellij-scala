@@ -9,12 +9,13 @@ import com.intellij.codeInspection.{LocalInspectionEP, LocalInspectionTool}
 import com.intellij.ide.scratch.ScratchRootType
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.profile.codeInspection.ProjectInspectionProfileManager
 import com.intellij.psi.PsiFile
-import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.{findCaretOffset, normalize}
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, executeWriteActionCommand}
+import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.junit.Assert._
 
@@ -30,38 +31,46 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
   protected val fileType: LanguageFileType = ScalaFileType.INSTANCE
   protected val isScratchFile: Boolean = false
 
-  val START = EditorTestUtil.SELECTION_START_TAG
-  val END = EditorTestUtil.SELECTION_END_TAG
+  override protected def setUp(): Unit = {
+    super.setUp()
+    Registry.get(ScalaHighlightingMode.ShowDotcErrorsKey).setValue(false, getTestRootDisposable)
+  }
 
   protected def descriptionMatches(s: String): Boolean = s == normalize(description)
 
   protected override def checkTextHasNoErrors(text: String): Unit = {
-    val highlights = configureByText(text).actualHighlights
+    val TestPrepareResult(fileText, _, highlights) = configureByText(text)
     val ranges = highlights.map(_.range)
+    def rangeText = ranges.mkString(", ")
     assertTrue(
-      if (shouldPass) s"Highlights found at: ${ranges.mkString(", ")}:\n${highlightsDebugText(highlights)}" else failingPassed,
+      if (shouldPass) s"Highlights found at: $rangeText:\n${highlightsDebugText(highlights, fileText)}"
+      else failingPassed,
       !shouldPass ^ ranges.isEmpty
     )
   }
 
-  private def highlightsDebugText(highlights: Seq[HighlightInfo]): String = {
-    val strings = highlights.map(highlightsDebugText)
+  private def highlightsDebugText(highlights: Seq[HighlightInfo], fileText: String): String = {
+    val strings = highlights.map(highlightsDebugText(_, fileText))
     val indent = "  "
     strings.mkString(indent, indent + "\n", "")
   }
 
-  private def highlightsDebugText(info: HighlightInfo): String =
-    s"${info.range}: ${info.getToolTip.replaceAll("\n", " ")}"
+  private def highlightsDebugText(info: HighlightInfo, fileText: String): String = {
+    val range = info.range
+    val rangeText = fileText.substring(range.getStartOffset, range.getEndOffset)
+    s"$range[$rangeText]: ${info.getDescription}"
+  }
 
   protected def checkTextHasError(text: String, allowAdditionalHighlights: Boolean = false): Unit = {
-    val TestPrepareResult(expectedRanges, actualHighlights) = configureByText(text)
+    val TestPrepareResult(fileText, expectedRanges, actualHighlights) = configureByText(text)
     val actualRanges = actualHighlights
-    checkTextHasError(expectedRanges, actualRanges, allowAdditionalHighlights)
+    checkTextHasError(expectedRanges, actualRanges, allowAdditionalHighlights, fileText)
   }
 
   protected def checkTextHasError(expectedHighlights: Seq[ExpectedHighlight],
                                   actualHighlights: Seq[HighlightInfo],
-                                  allowAdditionalHighlights: Boolean): Unit = {
+                                  allowAdditionalHighlights: Boolean,
+                                  fileText: String): Unit = {
     val expectedHighlightRanges = expectedHighlights.map(_.range)
     val actualHighlightRanges = actualHighlights.map(_.range)
 
@@ -77,12 +86,12 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
         expectedRangesNotFound.isEmpty
       )
 
-      assertNoDuplicates(actualHighlights)
+      assertNoDuplicates(actualHighlights, fileText)
 
       if (!allowAdditionalHighlights) {
         assertTrue(
           s"""Found too many highlights:
-             |${highlightsDebugText(actualHighlights)}
+             |${highlightsDebugText(actualHighlights, fileText)}
              |expected: ${expectedHighlightRanges.mkString(", ")}""".stripMargin,
           actualHighlightRanges.length == expectedHighlightRanges.length
         )
@@ -93,13 +102,13 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
     }
   }
 
-  private def assertNoDuplicates(highlights: Seq[HighlightInfo]): Unit = {
+  private def assertNoDuplicates(highlights: Seq[HighlightInfo], fileText: String): Unit = {
     val duplicatedHighlights = highlights
       .groupBy(_.range).toSeq
       .collect { case (_, highlights) if highlights.size > 1 => highlights }
       .flatten
     assertTrue(
-      s"Some highlights were duplicated:\n${highlightsDebugText(duplicatedHighlights)}",
+      s"Some highlights were duplicated:\n${highlightsDebugText(duplicatedHighlights, fileText: String)}",
       duplicatedHighlights.isEmpty
     )
   }
@@ -131,7 +140,7 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
         .filter(it => descriptionMatches(it.getDescription))
         .filter(checkOffset(_, offset))
 
-    TestPrepareResult(expectedHighlights, actualHighlights)
+    TestPrepareResult(fixture.getFile.getText, expectedHighlights, actualHighlights)
   }
 
   private def createScratchFile(normalizedText: String) = {
@@ -148,7 +157,7 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
 object ScalaHighlightsTestBase {
 
   case class ExpectedHighlight(range: TextRange)
-  case class TestPrepareResult(expectedHighlights: Seq[ExpectedHighlight], actualHighlights: Seq[HighlightInfo])
+  case class TestPrepareResult(fileText: String, expectedHighlights: Seq[ExpectedHighlight], actualHighlights: Seq[HighlightInfo])
 
   private def highlightedRange(info: HighlightInfo): TextRange =
     new TextRange(info.getStartOffset, info.getEndOffset)

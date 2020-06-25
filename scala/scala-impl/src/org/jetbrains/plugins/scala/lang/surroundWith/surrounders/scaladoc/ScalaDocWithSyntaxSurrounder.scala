@@ -15,9 +15,9 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
  */
 
 trait ScalaDocWithSyntaxSurrounder extends Surrounder {
-  def isApplicable(elements: Array[PsiElement]): Boolean = elements != null && elements.length >= 1
+  override def isApplicable(elements: Array[PsiElement]): Boolean = elements != null && elements.length >= 1
 
-  def surroundElements(project: Project, editor: Editor, elements: Array[PsiElement]): TextRange = {
+  override def surroundElements(project: Project, editor: Editor, elements: Array[PsiElement]): TextRange = {
     val startOffset = editor.getSelectionModel.getSelectionStart
     val endOffset = editor.getSelectionModel.getSelectionEnd
 

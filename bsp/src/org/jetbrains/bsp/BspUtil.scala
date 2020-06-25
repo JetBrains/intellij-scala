@@ -2,26 +2,68 @@ package org.jetbrains.bsp
 
 import java.io.File
 import java.net.URI
-import java.nio.file.Paths
+import java.nio.file.{Path, Paths}
 import java.util.concurrent.CompletableFuture
 
 import com.intellij.build.events.impl.{FailureResultImpl, SuccessResultImpl}
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
+import com.intellij.openapi.module.{Module, ModuleManager}
+import com.intellij.openapi.project.{Project, ProjectUtil}
+import com.intellij.openapi.roots.CompilerProjectExtension
+import com.intellij.openapi.vfs.VirtualFileManager
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
-import org.jetbrains.plugins.scala.build.BuildTaskReporter
+import org.jetbrains.plugins.scala.build.BuildReporter
 
 import scala.util.{Failure, Success, Try}
 
 object BspUtil {
-
+  
   val BloopConfigDirName = ".bloop"
 
+  /** BSP Workspaces in modules managed by project. */
+  def workspaces(project: Project): Set[Path] =
+    ModuleManager.getInstance(project).getModules.toList
+      .map { module =>
+        val modulePath = ExternalSystemApiUtil.getExternalProjectPath(module)
+        Paths.get(modulePath)
+      }
+      .toSet
+
+  def isBloopConfigFile(file: File): Boolean = {
+    file.isFile &&
+      file.getParentFile.getName == BloopConfigDirName &&
+      file.getName.endsWith(".json")
+  }
+
   def bloopConfigDir(workspace: File): Option[File] = {
-    val bloopDir = new File(workspace, ".bloop")
+    val bloopDir = new File(workspace, BloopConfigDirName)
 
     if (bloopDir.isDirectory)
       Some(bloopDir.getCanonicalFile)
     else None
+  }
+
+  def isBspModule(module: Module): Boolean =
+    ExternalSystemApiUtil.isExternalSystemAwareModule(BSP.ProjectSystemId, module)
+
+  def isBspProject(project: Project): Boolean = {
+    val settings = ExternalSystemApiUtil
+      .getSettings(project, BSP.ProjectSystemId)
+      .getLinkedProjectsSettings
+
+    ! settings.isEmpty
+  }
+
+  def compilerOutputDirFromConfig(base: File): Option[File] = {
+    val vfm = VirtualFileManager.getInstance()
+    for {
+      projectDir <- Option(vfm.findFileByUrl(base.toPath.toUri.toString)) // path.toUri is rendered with :// separator which findFileByUrl needs
+      project <- Option(ProjectUtil.guessProjectForFile(projectDir))
+      cpe = CompilerProjectExtension.getInstance(project)
+      output <- Option(cpe.getCompilerOutput)
+    } yield new File(output.getCanonicalPath)
   }
 
   implicit class ResponseErrorExceptionOps(err: ResponseErrorException) {
@@ -47,10 +89,10 @@ object BspUtil {
       } else Success(result)
     }
 
-    def reportFinished(reporter: BuildTaskReporter,
+    def reportFinished(reporter: BuildReporter,
                        eventId: EventId,
-                       successMsg: String,
-                       failMsg: String
+                       @Nls successMsg: String,
+                       @Nls failMsg: String
                       ): CompletableFuture[T] = {
       cf.thenAccept {
         case Success(_) =>

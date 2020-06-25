@@ -5,7 +5,6 @@ package resolve
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi._
 import com.intellij.psi.impl.source.resolve.JavaResolveUtil
-import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
@@ -22,14 +21,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticValue}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
-import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
 import _root_.scala.collection.Set
@@ -85,6 +83,10 @@ object ResolveUtils {
 
 
   def isAccessibleWithNewModifiers(memb: PsiMember, _place: PsiElement, modifierList: PsiModifierList, forCompletion: Boolean = false): Boolean = {
+    if (!memb.isValid || !_place.isValid) {
+      return false
+    }
+
     var place = _place
     memb match {
       case b: ScBindingPattern =>
@@ -136,16 +138,16 @@ object ResolveUtils {
         }
         while (placeTd != null) {
           if (td == placeTd) return true
-          val companion = getCompanionModule(placeTd).orNull
-          if (companion != null && companion == td) return true
+          if (getCompanionModule(placeTd).contains(td)) return true
           placeTd = getPlaceTd(placeTd)
         }
         return false
       }
       while (placeTd != null) {
         if (td != null && isInheritorOrSelfOrSame(placeTd, td)) return true
-        val companion = getCompanionModule(placeTd).orNull
-        if (withCompanion && companion != null && td != null && isInheritorDeep(companion, td)) return true
+        if (withCompanion &&
+          td != null
+          && getCompanionModule(placeTd).exists(isInheritorDeep(_, td))) return true
         placeTd = getPlaceTd(placeTd)
       }
       false
@@ -410,95 +412,6 @@ object ResolveUtils {
 
   private def packageContains(packageName: String, potentialChild: String): Boolean = {
     ScalaNamesUtil.equivalentFqn(potentialChild, packageName) || potentialChild.startsWith(packageName + ".")
-  }
-
-  def packageProcessDeclarations(pack: PsiPackage, processor: PsiScopeProcessor,
-                                  state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
-    val manager = ScalaPsiManager.instance(pack.getProject)
-    processor match {
-      case b: BaseProcessor if b.isImplicitProcessor =>
-        val objectsIterator = manager.
-          getPackageImplicitObjects(pack.getQualifiedName, place.resolveScope).iterator
-        while (objectsIterator.hasNext) {
-          val obj = objectsIterator.next()
-          if (!processor.execute(obj, state)) return false
-        }
-        true
-      case base: BaseProcessor =>
-        val nameHint = base.getHint(NameHint.KEY)
-        val name = if (nameHint == null) "" else nameHint.getName(state)
-        if (name != null && name != "" && base.getClassKind) {
-          try {
-            base.setClassKind(classKind = false)
-
-            if (base.getClassKindInner) {
-              val qName = pack.getQualifiedName
-
-              val calcForName = {
-                val fqn = if (qName.length() > 0) qName + "." + name else name
-                val scope = base match {
-                  case r: ResolveProcessor => r.getResolveScope
-                  case _ => place.resolveScope
-                }
-                val classes = manager.getCachedClasses(scope, fqn).iterator
-                var stop = false
-                while (classes.hasNext && !stop) {
-                  val clazz = classes.next()
-                  stop = clazz.containingClass == null && !processor.execute(clazz, state)
-                }
-                !stop
-              }
-              if (!calcForName) return false
-            }
-
-            //process subpackages
-            if (base.kinds.contains(ResolveTargets.PACKAGE)) {
-              val psiPack = pack match {
-                case s: ScPackageImpl => s.pack
-                case _ => pack
-              }
-              val qName: String = psiPack.getQualifiedName
-              val subpackageQName: String = if (qName.isEmpty) name else qName + "." + name
-              val subPackage = manager.getCachedPackageInScope(subpackageQName, place.getResolveScope).orNull
-
-              if (subPackage != null) {
-                if (!processor.execute(subPackage, state)) return false
-              }
-              true
-            } else true
-          } finally {
-            base.setClassKind(classKind = true)
-          }
-        } else {
-          try {
-            if (base.getClassKindInner) {
-              base.setClassKind(classKind = false)
-              val scope = base match {
-                case r: ResolveProcessor => r.getResolveScope
-                case _ => place.resolveScope
-              }
-              val iterator = manager.getClasses(pack, scope).iterator
-              while (iterator.hasNext) {
-                val clazz = iterator.next()
-                if (clazz.containingClass == null && !processor.execute(clazz, state)) return false
-              }
-            }
-
-            if (base.kinds.contains(ResolveTargets.PACKAGE)) {
-              //process subpackages
-              pack match {
-                case s: ScPackageImpl =>
-                  s.pack.processDeclarations(processor, state, lastParent, place)
-                case _ =>
-                  pack.processDeclarations(processor, state, lastParent, place)
-              }
-            } else true
-          } finally {
-            base.setClassKind(classKind = true)
-          }
-        }
-      case _ => pack.processDeclarations(processor, state, lastParent, place)
-    }
   }
 
   /**

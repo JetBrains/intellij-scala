@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 
 class ScalaBlankLinesTest extends AbstractScalaFormatterTestBase {
 
-  def testMinimumBlankLinesBeforePackageStatement_1() {
+  def testMinimumBlankLinesBeforePackageStatement_1(): Unit = {
     getCommonSettings.BLANK_LINES_BEFORE_PACKAGE = 0
     getCommonSettings.BLANK_LINES_AFTER_PACKAGE = 0
 
@@ -23,7 +23,7 @@ class ScalaBlankLinesTest extends AbstractScalaFormatterTestBase {
   }
 
 
-  def testMinimumBlankLinesBeforePackageStatement_2() {
+  def testMinimumBlankLinesBeforePackageStatement_2(): Unit = {
     getCommonSettings.BLANK_LINES_BEFORE_PACKAGE = 2
     getCommonSettings.BLANK_LINES_AFTER_PACKAGE = 0
 
@@ -55,7 +55,7 @@ class ScalaBlankLinesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testMinimumBlankLinesBeforePackageStatement_3() {
+  def testMinimumBlankLinesBeforePackageStatement_3(): Unit = {
     getCommonSettings.BLANK_LINES_BEFORE_PACKAGE = 2
     getCommonSettings.BLANK_LINES_AFTER_PACKAGE = 0
 
@@ -87,7 +87,7 @@ class ScalaBlankLinesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testMinimumBlankLinesAfterPackageStatement_1() {
+  def testMinimumBlankLinesAfterPackageStatement_1(): Unit = {
     getCommonSettings.BLANK_LINES_AFTER_PACKAGE = 0
     val before =
       """// comment line
@@ -102,7 +102,7 @@ class ScalaBlankLinesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before)
   }
 
-  def testMinimumBlankLinesAfterPackageStatement_2() {
+  def testMinimumBlankLinesAfterPackageStatement_2(): Unit = {
     getCommonSettings.BLANK_LINES_AFTER_PACKAGE = 2
     val before =
       """// comment line
@@ -123,7 +123,7 @@ class ScalaBlankLinesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before)
   }
 
-  def testMinimumBlankLinesBeforeImports_1() {
+  def testMinimumBlankLinesBeforeImports_1(): Unit = {
     getCommonSettings.BLANK_LINES_BEFORE_IMPORTS = 0
     val before =
       """package A
@@ -140,7 +140,7 @@ class ScalaBlankLinesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before)
   }
 
-  def testMinimumBlankLinesBeforeImports_2() {
+  def testMinimumBlankLinesBeforeImports_2(): Unit = {
     getCommonSettings.BLANK_LINES_BEFORE_IMPORTS = 2
 
     val before =

@@ -16,11 +16,11 @@ object GotoOriginalHandlerUtil {
     psi
   }
   
-  def storePsi(created: PsiElement, original: PsiElement) {
+  def storePsi(created: PsiElement, original: PsiElement): Unit = {
     created.putCopyableUserData(MY_KEY, original)
   }
 
-  def storeNonModifiablePsi(created: PsiElement, original: PsiElement) {
+  def storeNonModifiablePsi(created: PsiElement, original: PsiElement): Unit = {
     created.putUserData(MY_KEY, original)
   }
   

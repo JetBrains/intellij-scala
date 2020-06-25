@@ -29,7 +29,7 @@ case class ScalaChangeInfo(newVisibility: String,
         with UnsupportedJavaInfo with VisibilityChangeInfo with ParametersChangeInfo {
 
   private val project = function.getProject
-  private implicit val elementScope = ElementScope(project)
+  private implicit val elementScope: ElementScope = ElementScope(project)
 
   private var myMethod: PsiMethod = function
 

@@ -15,7 +15,7 @@ abstract class SortedMaxMinInspectionTest extends OperationsOnCollectionInspecti
 class SortedMaxInspectionTest extends SortedMaxMinInspectionTest {
 
   override protected val hint: String =
-    InspectionBundle.message("replace.sorted.head.with.min")
+    ScalaInspectionBundle.message("replace.sorted.head.with.min")
 
   def test(): Unit = {
     doTest(
@@ -29,7 +29,7 @@ class SortedMaxInspectionTest extends SortedMaxMinInspectionTest {
 class SortedMinInspectionTest extends SortedMaxMinInspectionTest {
 
   override protected val hint: String =
-    InspectionBundle.message("replace.sorted.last.with.max")
+    ScalaInspectionBundle.message("replace.sorted.last.with.max")
 
   def test(): Unit = {
     doTest(
@@ -43,7 +43,7 @@ class SortedMinInspectionTest extends SortedMaxMinInspectionTest {
 class SortByMaxInspectionTest extends SortedMaxMinInspectionTest {
 
   override protected val hint: String =
-    InspectionBundle.message("replace.sortBy.head.with.minBy")
+    ScalaInspectionBundle.message("replace.sortBy.head.with.minBy")
 
   def test(): Unit = {
     doTest(
@@ -57,7 +57,7 @@ class SortByMaxInspectionTest extends SortedMaxMinInspectionTest {
 class SortByMinInspectionTest extends SortedMaxMinInspectionTest {
 
   override protected val hint: String =
-    InspectionBundle.message("replace.sortBy.last.with.maxBy")
+    ScalaInspectionBundle.message("replace.sortBy.last.with.maxBy")
 
   def test(): Unit = {
     doTest(

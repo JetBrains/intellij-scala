@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * @author Pavel Fatin
   */
 class ExpandUpdateCall extends AbstractTransformer {
-  protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
+  override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case e @ ScAssignment(ScMethodCall(r @ RenamedReference(_, "update"), keys), Some(value)) =>
       e.replace(code"$r.update(${@@(keys :+ value)})")
   }

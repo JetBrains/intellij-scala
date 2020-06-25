@@ -13,7 +13,6 @@ import com.intellij.lang.parameterInfo._
 import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parameterInfo.ScalaFunctionParameterInfoHandler.AnnotationParameters
@@ -26,6 +25,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTyp
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{ModifiersRenderer, ParameterRenderer, TypeAnnotationRenderer, TypeRenderer}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -44,15 +45,15 @@ import scala.collection.mutable.ArrayBuffer
  */
 
 class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiElement, Any, ScExpression] {
-  def getArgListStopSearchClasses: java.util.Set[_ <: Class[_]] = {
+  override def getArgListStopSearchClasses: java.util.Set[_ <: Class[_]] = {
     java.util.Collections.singleton(classOf[PsiMethod])
   }
 
-  def couldShowInLookup: Boolean = true
+  override def couldShowInLookup: Boolean = true
 
-  def getActualParameterDelimiterType: IElementType = ScalaTokenTypes.tCOMMA
+  override def getActualParameterDelimiterType: IElementType = ScalaTokenTypes.tCOMMA
 
-  def getActualParameters(elem: PsiElement): Array[ScExpression] = {
+  override def getActualParameters(elem: PsiElement): Array[ScExpression] = {
     elem match {
       case argExprList: ScArgumentExprList =>
         argExprList.exprs.toArray
@@ -64,11 +65,11 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
     }
   }
 
-  def getArgumentListClass: Class[PsiElement] = classOf[PsiElement]
+  override def getArgumentListClass: Class[PsiElement] = classOf[PsiElement]
 
-  def getActualParametersRBraceType: IElementType = ScalaTokenTypes.tRBRACE
+  override def getActualParametersRBraceType: IElementType = ScalaTokenTypes.tRBRACE
 
-  def getArgumentListAllowedParentClasses: java.util.Set[Class[_]] = {
+  override def getArgumentListAllowedParentClasses: java.util.Set[Class[_]] = {
     val set = new util.HashSet[Class[_]]()
     set.add(classOf[ScMethodCall])
     set.add(classOf[ScConstructorInvocation])
@@ -78,7 +79,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
     set
   }
 
-  def getParametersForLookup(item: LookupElement, context: ParameterInfoContext): Array[Object] = {
+  override def getParametersForLookup(item: LookupElement, context: ParameterInfoContext): Array[Object] = {
     if (!item.isInstanceOf[LookupItem[_]]) return null
     val allElements = JavaCompletionUtil.getAllPsiElements(item.asInstanceOf[LookupItem[_]])
 
@@ -93,7 +94,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
 
 
 
-  def updateUI(p: Any, context: ParameterInfoUIContext) {
+  override def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
     if (context == null || context.getParameterOwner == null || !context.getParameterOwner.isValid) return
     context.getParameterOwner match {
       case args: PsiElement =>
@@ -103,8 +104,16 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
         val index = context.getCurrentParameterIndex
         val buffer: StringBuilder = new StringBuilder("")
         var isGrey = false
+
         def paramText(param: ScParameter, subst: ScSubstitutor) = {
-          ScalaDocumentationProvider.parseParameter(param, escape = false, memberModifiers = false)(subst(_).presentableText)
+          val typeRenderer: TypeRenderer = subst(_).presentableText
+          val renderer = new ParameterRenderer(
+            typeRenderer,
+            ModifiersRenderer.SimpleText(),
+            new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorateOptions.DecorateAll),
+            withAnnotations = true
+          )
+          renderer.render(param)
         }
         p match {
           case x: String if x == "" =>
@@ -302,7 +311,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
         val namedPrefix = "["
         val namedPostfix = "]"
 
-        def appendFirst(useGrey: Boolean = false) {
+        def appendFirst(useGrey: Boolean = false): Unit = {
           val getIt = used.indexOf(false)
           used(getIt) = true
           if (namedMode) buffer.append(namedPrefix)
@@ -311,7 +320,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
           buffer.append(param._2)
           if (namedMode) buffer.append(namedPostfix)
         }
-        def doNoNamed(expr: ScExpression) {
+        def doNoNamed(expr: ScExpression): Unit = {
           if (namedMode) {
             isGrey = true
             appendFirst()
@@ -496,7 +505,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
     args.parent match {
       case call @ (_: MethodInvocation | _: ScReferenceExpression) =>
         val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
-        def collectResult() {
+        def collectResult(): Unit = {
           val canBeUpdate = call.getParent match {
             case assignStmt: ScAssignment if call == assignStmt.leftExpression => true
             case notExpr if !notExpr.isInstanceOf[ScExpression] || notExpr.isInstanceOf[ScBlockExpr] => true
@@ -516,10 +525,9 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
           def collectForType(typez: ScType): Unit = {
             def process(functionName: String): Unit = {
               val i = if (functionName == "update") -1 else 0
-              val processor = new CompletionProcessor(StdKinds.refExprQualRef, call, isImplicit = true) {
+              val processor: CompletionProcessor = new CompletionProcessor(StdKinds.refExprQualRef, call, withImplicitConversions = true) {
 
-
-                override protected val forName = Some(functionName)
+                override protected val forName: Option[String] = Some(functionName)
               }
               processor.processType(typez, call)
               val variants: Array[ScalaResolveResult] = processor.candidates
@@ -532,7 +540,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                   case ScalaResolveResult(method: ScFunction, subst: ScSubstitutor) =>
                     val signature: PhysicalMethodSignature = new PhysicalMethodSignature(method, subst.followed(collectSubstitutor(method)))
                     res += ((signature, i))
-                    res ++= ScalaParameterInfoEnhancer.enhance(signature, args.arguments).map { (_, i) }
+                    res ++= ScalaParameterInfoEnhancer.enhance(signature, args.arguments).map((_, i))
                   case _ =>
                 }
               }
@@ -573,7 +581,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                     case ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor) =>
                       val signature: PhysicalMethodSignature = new PhysicalMethodSignature(method, subst.followed(collectSubstitutor(method)))
                       res += ((signature, 0))
-                      res ++= ScalaParameterInfoEnhancer.enhance(signature, args.arguments).map { (_, 0) }
+                      res ++= ScalaParameterInfoEnhancer.enhance(signature, args.arguments).map((_, 0))
                     case ScalaResolveResult(typed: ScTypedDefinition, subst: ScSubstitutor) =>
                       val typez = subst(typed.`type`().getOrNothing) //todo: implicit conversions
                       collectForType(typez)
@@ -712,9 +720,14 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
         context.setHighlightedParameter(el)
 
         if (!equivalent(context.getObjectsToView, elementsForParameterInfo(args))) {
+          //e.g. it may happen on moving caret to a different argument clause of the same call
+          //let's try to show more specific hint for it
+
           context.removeHint()
 
-          ShowParameterInfoHandler.invoke(project, context.getEditor, context.getFile, context.getOffset, null, false)
+          invokeLater {
+            ShowParameterInfoHandler.invoke(project, context.getEditor, context.getFile, context.getOffset, null, false)
+          }
         }
       case _ =>
     }

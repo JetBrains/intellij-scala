@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.types
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.KindProjectorSimplifyTypeProjectionInspection
-import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
 /**
@@ -12,13 +12,11 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
  */
 class KindProjectorSimplifyTypeProjectionTest extends ScalaQuickFixTestBase {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[KindProjectorSimplifyTypeProjectionInspection]
 
   override protected val description: String =
-    InspectionBundle.message("kind.projector.simplify.type")
+    ScalaInspectionBundle.message("kind.projector.simplify.type")
 
   private def testFix(text: String, res: String): Unit =
     testQuickFix(text, res, description)
@@ -27,8 +25,9 @@ class KindProjectorSimplifyTypeProjectionTest extends ScalaQuickFixTestBase {
     super.setUp()
 
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
-    val newSettings = defaultProfile.getSettings
-    newSettings.plugins :+= "kind-projector"
+    val newSettings = defaultProfile.getSettings.copy(
+      plugins = defaultProfile.getSettings.plugins :+ "kind-projector"
+    )
     defaultProfile.setSettings(newSettings)
   }
 

@@ -1,144 +1,32 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test
 
-import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext, RunConfigurationProducer}
-import com.intellij.execution.configurations.{ConfigurationType, RunConfiguration}
-import com.intellij.execution.junit.{InheritorChooser, JavaRuntimeConfigurationProducerBase}
+import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext, LazyRunConfigurationProducer}
+import com.intellij.execution.configurations.RunConfigurationBase
+import com.intellij.execution.testframework.AbstractJavaTestConfigurationProducer
 import com.intellij.execution.{JavaRunConfigurationExtensionManager, Location, RunManager, RunnerAndConfigurationSettings}
-import com.intellij.ide.util.PsiClassListCellRenderer
-import com.intellij.openapi.actionSystem.PlatformDataKeys
-import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.ui.popup.JBPopupFactory
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.util.{Condition, Ref}
+import com.intellij.openapi.util.Ref
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
-import com.intellij.ui.components.JBList
-import javax.swing.ListCellRenderer
-import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.apache.commons.lang3.StringUtils
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project.ModuleExt
-import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, SingleTestData, TestConfigurationData}
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer.CreateFromContextInfo.{AllInPackage, ClassWithTestName}
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer._
+import org.jetbrains.plugins.scala.testingSupport.test.testdata.{SingleTestData, _}
 
 import scala.collection.JavaConverters._
 
-abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfiguration](configurationType: ConfigurationType)
-  extends RunConfigurationProducer[T](configurationType) {
+abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfiguration]
+  extends LazyRunConfigurationProducer[T] {
 
-  protected def suitePaths: List[String]
+  final type PsiElementLocation = Location[_ <: PsiElement]
 
-  def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean
-
-  final def createConfigurationByLocation(location: Location[_ <: PsiElement]): Option[(PsiElement, RunnerAndConfigurationSettings)] = {
-    val element = location.getPsiElement
-    if (element == null) return None
-
-    if (element.is[PsiPackage, PsiDirectory]) {
-      getTestPackageWithPackageName(element) match {
-        case (null, _) => None
-        case (testPackage, packageName) =>
-          createConfigurationForPackage(location, element, testPackage, packageName)
-      }
-    } else {
-      getTestClassWithTestName(location) match {
-        case (null, _) => None
-        case (testClass, testName) =>
-          createConfigurationForTestClass(location, testClass, testName)
-      }
-    }
-  }
-
-  private def createConfigurationForPackage(location: Location[_ <: PsiElement], element: PsiElement,
-                                            testPackage: PsiPackage, packageName: String): Option[(PsiElement, RunnerAndConfigurationSettings)] = {
-    val displayName   = configurationNameForPackage(packageName)
-    val settings      = RunManager.getInstance(location.getProject).createConfiguration(displayName, getConfigurationFactory)
-    val configuration = settings.getConfiguration.asInstanceOf[T]
-
-    prepareRunConfigurationForPackage(configuration, location, testPackage, displayName)
-
-    JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(configuration, location)
-    Some((element, settings))
-  }
-
-  private def createConfigurationForTestClass(location: Location[_ <: PsiElement],
-                                              testClass: ScTypeDefinition, testName: String) = {
-    val displayName   = configurationName(testClass, testName)
-    val settings      = RunManager.getInstance(location.getProject).createConfiguration(displayName, getConfigurationFactory)
-    val configuration = settings.getConfiguration.asInstanceOf[T]
-
-    prepareRunConfiguration(configuration, location, testClass, testName)
-
-    JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(configuration, location)
-    Some((testClass, settings))
-  }
-
-  protected def configurationNameForPackage(packageName: String): String
-
-  protected def configurationName(testClass: ScTypeDefinition, testName: String): String
-
-  // TODO: probably it should be moved to TestConfigurationData, reconsider after refactoring TestConfigurationData
-  private def copyTestData(from: TestConfigurationData, to: TestConfigurationData): Unit = {
-    to.javaOptions = from.javaOptions
-    to.envs = from.envs
-    to.testArgs = from.testArgs
-    to.useSbt = from.useSbt
-    to.useUiWithSbt = from.useUiWithSbt
-    to.jrePath = from.jrePath
-    to.showProgressMessages = from.showProgressMessages
-    to.setWorkingDirectory(from.getWorkingDirectory)
-  }
-
-  private def prepareRunConfigurationForPackage(configuration: T, location: Location[_ <: PsiElement], testPackage: PsiPackage, displayName: String): Unit = {
-    if (configuration.getModule == null) {
-      prepareModule(configuration, location)
-    }
-    configuration.setGeneratedName(displayName)
-
-    val testDataOld = configuration.testConfigurationData
-    val testDataNew = AllInPackageTestData(configuration, sanitize(testPackage.getQualifiedName))
-    copyTestData(testDataOld, testDataNew)
-    testDataNew.initWorkingDir()
-
-    configuration.testConfigurationData = testDataNew
-  }
-
-  protected def prepareRunConfiguration(configuration: T, location: Location[_ <: PsiElement], testClass: ScTypeDefinition, testName: String): Unit = {
-    if (configuration.getModule == null) {
-      prepareModule(configuration, location)
-    }
-
-    val testDataOld = configuration.testConfigurationData
-    val testDataNew = ClassTestData(configuration, sanitize(testClass.qualifiedName), testName)
-    copyTestData(testDataOld, testDataNew)
-    testDataNew.initWorkingDir()
-
-    configuration.testConfigurationData = testDataNew
-  }
-
-  private def prepareModule(configuration: T, location: Location[_ <: PsiElement]): Unit =
-    for {
-      module <- Option(location.getModule)
-      jvmModule <- module.findJVMModule
-    } configuration.setModule(jvmModule)
-
-  // do not display backticks in test class/package name
-  private def sanitize(qualifiedName: String): String = qualifiedName.replace("`", "")
-
-  private final def createConfigurationByElement(location: Location[_ <: PsiElement],
-                                                 context: ConfigurationContext): Option[(PsiElement, RunnerAndConfigurationSettings)] = {
-    context.getModule match {
-      case module: Module if hasTestSuitesInModuleDependencies(module) =>
-        val element = location.getPsiElement
-        if (element == null) return None
-        createConfigurationByLocation(location)//.asInstanceOf[RunnerAndConfigurationSettingsImpl]
-      case _ =>
-        null
-    }
-  }
+  protected def suitePaths: Seq[String]
 
   private def hasTestSuitesInModuleDependencies(module: Module): Boolean = {
     val scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module, true)
@@ -146,166 +34,194 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
     suitePaths.exists(psiManager.getCachedClass(scope, _).isDefined)
   }
 
-  protected def isObjectInheritor(clazz: ScTypeDefinition, fqn: String): Boolean =
-    clazz.elementScope.getCachedObject(fqn)
-      .exists {
-        ScalaPsiUtil.isInheritorDeep(clazz, _)
-      }
+  override def setupConfigurationFromContext(
+    configuration: T,
+    context: ConfigurationContext,
+    sourceElement: Ref[PsiElement]
+  ): Boolean = {
+    val contextLocation = context.getLocation
+    val contextModule = contextLocation.getModule //context.getModule
 
-  private def getTestPackageWithPackageName(element: PsiElement): (PsiPackage, String) = element match {
-    case dir: PsiDirectory => (JavaRuntimeConfigurationProducerBase.checkPackage(dir), dir.getName)
-    case pack: PsiPackage  => (pack, pack.getName)
-    case _                 => (null, null)
-  }
-
-  def getTestClassWithTestName(location: Location[_ <: PsiElement]): (ScTypeDefinition, String)
-
-  override def setupConfigurationFromContext(configuration: T,
-                                             context: ConfigurationContext,
-                                             sourceElement: Ref[PsiElement]): Boolean = {
-    def setup(testElement: PsiElement, confSettings: RunnerAndConfigurationSettings) = {
-      val configWithModule = configuration.clone.asInstanceOf[T]
-      val cfg = confSettings.getConfiguration.asInstanceOf[T]
-      configWithModule.setModule(cfg.getModule)
-
-      val runIsPossible = isRunPossibleFor(configWithModule, testElement)
-      if (runIsPossible) {
-        sourceElement.set(testElement)
-        configuration.setGeneratedName(cfg.suggestedName)
-        configuration.setFileOutputPath(cfg.getOutputFilePath)
-        configuration.setModule(cfg.getModule)
-        configuration.setName(cfg.getName)
-        configuration.setNameChangedByUser(!cfg.isGeneratedName)
-        configuration.setSaveOutputToFile(cfg.isSaveOutputToFile)
-        configuration.setShowConsoleOnStdErr(cfg.isShowConsoleOnStdErr)
-        configuration.setShowConsoleOnStdOut(cfg.isShowConsoleOnStdOut)
-        configuration.testConfigurationData = cfg.testConfigurationData.copy(configuration)
-      }
-      runIsPossible
-    }
-
-    if (sourceElement.isNull) {
-      false
-    } else {
-      createConfigurationByElement(context.getLocation, context) match {
-        case Some((testElement, confSettings)) if testElement != null && confSettings != null =>
-          setup(testElement, confSettings)
-        case _ =>
-          false
+    if (contextLocation == null || contextModule == null) false
+    else if (sourceElement.isNull) false
+    else if (!hasTestSuitesInModuleDependencies(contextModule)) false
+    else {
+      val maybeTuple = createConfigurationFromContextLocation(contextLocation)
+      maybeTuple.fold(false) { case (testElement, confSettings) =>
+        val config = confSettings.getConfiguration.asInstanceOf[T]
+        // TODO: should we really check it for configuration (the one we should setup) and not for config (just created)?
+        if (isRunPossibleFor(configuration, testElement, config.getModule)) {
+          sourceElement.set(testElement)
+          configuration.initFrom(config)
+          true
+        }
+        else false
       }
     }
   }
+
+  private def extendCreatedConfiguration(configuration: RunConfigurationBase[_], location: PsiElementLocation): Unit = {
+    val instance = JavaRunConfigurationExtensionManager.getInstance
+    instance.extendCreatedConfiguration(configuration, location)
+  }
+
+  /**
+   * @return element ~ test class OR test package OR test directory
+   */
+  def createConfigurationFromContextLocation(
+    location: PsiElementLocation
+  ): Option[(PsiElement, RunnerAndConfigurationSettings)] = {
+    for {
+      contextInfo <- getContextInfo(location)
+    } yield {
+      val displayName = configurationName(contextInfo)
+      val settings = RunManager.getInstance(location.getProject).createConfiguration(displayName, getConfigurationFactory)
+
+      val configuration = settings.getConfiguration.asInstanceOf[T]
+
+      configuration.testConfigurationData = getUpdatedTestData(configuration, contextInfo)
+      configuration.testKind = configuration.testConfigurationData.getKind
+
+      configuration.setGeneratedName(configuration.getName)
+
+      if (configuration.getModule == null) {
+        val jvmModule = location.getModule.findJVMModule
+        jvmModule.foreach(configuration.setModule)
+      }
+
+      extendCreatedConfiguration(configuration, location)
+
+      val element = contextInfo match {
+        case _: AllInPackage         =>
+          // if original was directory, return directory, not sure if it affects anything
+          location.getPsiElement
+        case info: ClassWithTestName =>
+          info.testClass
+      }
+      (element, settings)
+    }
+  }
+
+  protected def configurationName(contextInfo: CreateFromContextInfo): String
+
+  protected def getContextInfo(location: PsiElementLocation): Option[CreateFromContextInfo] =
+    if (location.getPsiElement.is[PsiPackage, PsiDirectory])
+      getTestPackageWithPackageName(location)
+    else
+      getTestClassWithTestName(location)
+
+  protected def getTestPackageWithPackageName(location: PsiElementLocation): Option[CreateFromContextInfo.AllInPackage] =
+    location.getPsiElement match {
+      case dir: PsiDirectory => Option(AbstractJavaTestConfigurationProducer.checkPackage(dir)).map(p => AllInPackage(p, dir.name))
+      case pack: PsiPackage  => Some(AllInPackage(pack, pack.name))
+      case _                 => None
+    }
+
+  def getTestClassWithTestName(location: PsiElementLocation): Option[ClassWithTestName]
+
+  private def getUpdatedTestData(
+    configuration: T,
+    contextInfo: CreateFromContextInfo
+  ): TestConfigurationData = {
+    val testDataOld = configuration.testConfigurationData
+    val testDataNew = contextInfo match {
+      case AllInPackage(testPackage, _)                                =>
+        // TODO: take name from context info 2nd parameter maybe?
+        AllInPackageTestData(configuration, sanitize(testPackage.getQualifiedName))
+      case ClassWithTestName(testClass, Some(testName)) if StringUtils.isNotBlank(testName) =>
+        SingleTestData(configuration, sanitize(testClass.qualifiedName), testName)
+      case ClassWithTestName(testClass, _)                             =>
+        ClassTestData(configuration, sanitize(testClass.qualifiedName))
+    }
+    testDataNew.copyCommonFieldsFrom(testDataOld)
+    testDataNew.initWorkingDirIfEmpty()
+    testDataNew
+  }
+
+  /**
+   * We check `hasTestSuitesInModuleDependencies` once again because configuration is only created
+   * when the classpath of the module from the context contains test suite class.
+   * However the created configuration can contain another module, defined in the template.
+   * For that case we do not want to hide  'Create Test Configuration' item in context menu.
+   * Instead, we allow opening "create configuration" dialog and show the error there, in the bottom of the dialog.
+   *
+   * @param testElement test class OR package OR directory
+   */
+  private def isRunPossibleFor(configuration: T, testElement: PsiElement, module: Module): Boolean =
+    testElement match {
+      case cl: PsiClass if hasTestSuitesInModuleDependencies(module) =>
+        configuration.isValidSuite(cl) || {
+          // TODO: check with debugger: this shouldn't be true if previous is false cause in previous check we already checked inheritors?
+          //  plus this seems to be not the optimal, cause inside configuration.isValidSuite we do quite a lot of job
+          ClassInheritorsSearch.search(cl).asScala.exists(configuration.isValidSuite)
+        }
+      case _ => true
+    }
 
   override def onFirstRun(configuration: ConfigurationFromContext, context: ConfigurationContext, startRunnable: Runnable): Unit = {
-    configuration.getConfiguration match {
+    // if some class is invalid (e.g. it's abstract class BaseTest) we offer user to choosing some inheritor test to run
+    val handled = configuration.getConfiguration match {
       case config: AbstractTestRunConfiguration =>
         config.testConfigurationData match {
           case testData: ClassTestData =>
             val testClass = testData.getClassPathClazz
-            if (!(config.isInvalidSuite(testClass) &&
-              new InheritorChooser() {
-                override def runMethodInAbstractClass(context: ConfigurationContext, performRunnable: Runnable,
-                                                      psiMethod: PsiMethod, containingClass: PsiClass,
-                                                      acceptAbstractCondition: Condition[PsiClass]): Boolean = {
-                  //TODO this is mostly copy-paste from InheritorChooser; get rid of this once we support pattern test runs
-                  if (containingClass == null) return false
-                  val classes = ClassInheritorsSearch
-                    .search(containingClass)
-                    .asScala
-                    .filterNot{config.isInvalidSuite}
-                    .toList
-
-                  if (classes.isEmpty) return false
-
-                  if (classes.size == 1) {
-                    runForClass(classes.head, psiMethod, context, performRunnable)
-                    return true
-                  }
-
-                  val fileEditor = PlatformDataKeys.FILE_EDITOR.getData(context.getDataContext)
-                  fileEditor match {
-                    case editor: TextEditor =>
-                      val document = editor.getEditor.getDocument
-                      val containingFile = PsiDocumentManager.getInstance(context.getProject).getPsiFile(document)
-                      containingFile match {
-                        case owner: PsiClassOwner =>
-                          val psiClasses = owner.getClasses
-                          psiClasses.filter(classes.contains(_))
-                          if (psiClasses.size == 1) {
-                            runForClass(psiClasses.head, psiMethod, context, performRunnable)
-                            return true
-                          }
-                        case _ =>
-                      }
-                    case _ =>
-                  }
-                  val renderer = new PsiClassListCellRenderer()
-                  val classesSorted = classes.sorted(Ordering.comparatorToOrdering(renderer.getComparator))
-                  val jbList = new JBList(classesSorted:_*)
-                  //scala type system gets confused because someone forgot generics in PsiElementListCellRenderer definition
-                  jbList.setCellRenderer(renderer.asInstanceOf[ListCellRenderer[PsiClass]])
-                  JBPopupFactory.getInstance().createListPopupBuilder(jbList).setTitle("Choose executable classes to run " +
-                    (if (psiMethod != null) psiMethod.getName else containingClass.getName)).setMovable(false).
-                    setResizable(false).setRequestFocus(true).setItemChoosenCallback(new Runnable() {
-                    override def run(): Unit = {
-                      val values = jbList.getSelectedValuesList
-                      if (values == null) return
-                      if (values.size == 1) {
-                        runForClass(values.get(0), psiMethod, context, performRunnable)
-                      }
-                    }
-                  }).createPopup().showInBestPositionFor(context.getDataContext)
-                  true
-                }
-
-                override protected def runForClass(aClass: PsiClass, psiMethod: PsiMethod, context: ConfigurationContext,
-                                                   performRunnable: Runnable) {
-                  testData.setTestClassPath(aClass.getQualifiedName)
-                  config.setName(StringUtil.getShortName(aClass.getQualifiedName) + (testData match {
-                    case single: SingleTestData => "." + single.getTestName
-                    case _ => ""
-                  }))
-                  Option(ScalaPsiUtil.getModule(aClass)) foreach config.setModule
-                  performRunnable.run()
-                }
-              }.runMethodInAbstractClass(context, startRunnable, null, testClass))) super.onFirstRun(configuration, context, startRunnable)
-          case _ => startRunnable.run()
+            if (config.isValidSuite(testClass))
+              false
+            else {
+              val inheritorsChooser = new MyInheritorChooser(config, testData)
+              inheritorsChooser.runMethodInAbstractClass(context, startRunnable, null, testClass)
+            }
+          case _ => false
         }
-      case _ => startRunnable.run()
+      case _ => false
     }
+
+    if (!handled)
+      startRunnable.run()
   }
 
-  override def isConfigurationFromContext(configuration: T, context: ConfigurationContext): Boolean = {
-    //TODO: implement me properly
-    val runnerClassName = configuration.runnerClassName
-
-    if (runnerClassName != null && runnerClassName == configuration.runnerClassName) {
-      val configurationModule: Module = configuration.getConfigurationModule.getModule
-      if (context.getLocation != null) {
-        isConfigurationByLocation(configuration, context.getLocation)
-      } else {
-        (context.getModule == configurationModule ||
-                context.getRunManager.getConfigurationTemplate(getConfigurationFactory).getConfiguration.asInstanceOf[T]
-                        .getConfigurationModule.getModule == configurationModule) && !configuration.testConfigurationData.isInstanceOf[ClassTestData]
+  override final def isConfigurationFromContext(configuration: T, context: ConfigurationContext): Boolean = {
+    val location = context.getLocation
+    if (location == null)
+      configuration.testConfigurationData match {
+        case _: RegexpTestData | _: AllInPackageTestData => sameModules(configuration, context)
+        case _: ClassTestData                            => false
       }
-    } else false
+    else if (TestConfigurationUtil.isPackageConfiguration(location.getPsiElement, configuration))
+      true
+    else
+      isClassOfTestConfigurationFromLocation(configuration, location)
   }
 
-  protected def isRunPossibleFor(configuration: T, testElement: PsiElement): Boolean = {
-    val module = configuration.getModule
-    // We check `hasTestSuitesInModuleDependencies` once again because configuration is only created when classpath
-    // of the module from the context contains test suite class.
-    // However the created configuration can contain another module, defined in the template.
-    // For that case we do not want to hide  'Create Test Configuration' item in context menu.
-    // Instead, we allow opening "create configuration" dialog and show the error there, in the bottom of the dialog.
-    testElement match {
-      case cl: PsiClass if module != null && hasTestSuitesInModuleDependencies(module) =>
-        configuration.isValidSuite(cl) ||
-          ClassInheritorsSearch
-            .search(cl)
-            .asScala
-            .exists(configuration.isValidSuite)
-      case _ => true
+  protected def isClassOfTestConfigurationFromLocation(configuration: T, location: PsiElementLocation): Boolean = {
+    val classWithTestName = getTestClassWithTestName(location)
+    classWithTestName.fold(false) { case ClassWithTestName(testClass, testName) =>
+      val testClassPath = testClass.qualifiedName
+      configuration.testConfigurationData match {
+        case testData: SingleTestData => testData.testClassPath == testClassPath && testName.contains(testData.testName)
+        case classData: ClassTestData => classData.testClassPath == testClassPath && testName.isEmpty
+        case _                        => false
+      }
     }
+  }
+
+  private def sameModules(configuration: T, context: ConfigurationContext) = {
+    val configModule: Module = configuration.getConfigurationModule.getModule
+    configModule == context.getModule || {
+      val configTemplate = context.getRunManager.getConfigurationTemplate(getConfigurationFactory).getConfiguration.asInstanceOf[T]
+      configModule == configTemplate.getConfigurationModule.getModule
+    }
+  }
+}
+
+object AbstractTestConfigurationProducer {
+
+  // do not display backticks in test class/package name
+  private def sanitize(qualifiedName: String): String = qualifiedName.replace("`", "")
+
+  sealed trait CreateFromContextInfo
+  object CreateFromContextInfo {
+    case class AllInPackage(testPackage: PsiPackage, packageName: String) extends CreateFromContextInfo
+    case class ClassWithTestName(testClass: ScTypeDefinition, testName: Option[String]) extends CreateFromContextInfo
   }
 }

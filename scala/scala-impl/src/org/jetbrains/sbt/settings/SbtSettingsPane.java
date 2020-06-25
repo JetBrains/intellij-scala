@@ -14,10 +14,12 @@ import com.intellij.ui.TitledSeparator;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import org.jetbrains.sbt.SbtBundle;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
+import java.lang.reflect.Method;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -33,7 +35,7 @@ public class SbtSettingsPane {
     private JPanel myContentPanel;
     private JrePathEditor myJrePathEditor;
 
-    private Project myProject;
+    private final Project myProject;
 
     public SbtSettingsPane(Project project) {
 
@@ -42,24 +44,21 @@ public class SbtSettingsPane {
         $$$setupUI$$$();
 
         myBundledButton.addItemListener(itemEvent -> setLauncherPathEnabled(itemEvent.getStateChange() == ItemEvent.DESELECTED));
+        myBundledButton.setSelected(true);
 
         myCustomButton.addItemListener(itemEvent -> setLauncherPathEnabled(itemEvent.getStateChange() == ItemEvent.SELECTED));
 
-        myBundledButton.setSelected(true);
+        myLauncherPath.addBrowseFolderListener(
+                SbtBundle.message("sbt.settings.choose.custom.launcher"),
+                SbtBundle.message("sbt.settings.choose.sbt.launch.jar"),
+                project,
+                FileChooserDescriptorFactory.createSingleLocalFileDescriptor());
     }
 
     public void createUIComponents() {
 
         myJrePathEditor = new JrePathEditor(DefaultJreSelector.projectSdk(myProject));
     }
-
-    // TODO: this is a workaround to fix SCL-8059 non-working "..." buttons
-    // Investigation needed to find out why path listeners are being removed.
-    public void setPathListeners() {
-        myLauncherPath.addBrowseFolderListener("Choose a Custom Launcher", "Choose sbt-launch.jar", null,
-                FileChooserDescriptorFactory.createSingleLocalFileDescriptor());
-    }
-
 
     public JPanel getContentPanel() {
         return myContentPanel;
@@ -142,16 +141,16 @@ public class SbtSettingsPane {
         final Spacer spacer1 = new Spacer();
         myContentPanel.add(spacer1, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final TitledSeparator titledSeparator1 = new TitledSeparator();
-        titledSeparator1.setText(ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.sbtLauncher"));
+        titledSeparator1.setText(this.$$$getMessageFromBundle$$$("messages/ScalaSbtBundle", "sbt.settings.sbtLauncher"));
         myContentPanel.add(titledSeparator1, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JPanel panel1 = new JPanel();
         panel1.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
         myContentPanel.add(panel1, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
         myBundledButton = new JRadioButton();
-        this.$$$loadButtonText$$$(myBundledButton, ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.bundled"));
+        this.$$$loadButtonText$$$(myBundledButton, this.$$$getMessageFromBundle$$$("messages/ScalaSbtBundle", "sbt.settings.bundled"));
         panel1.add(myBundledButton, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myCustomButton = new JRadioButton();
-        this.$$$loadButtonText$$$(myCustomButton, ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.custom.launcher"));
+        this.$$$loadButtonText$$$(myCustomButton, this.$$$getMessageFromBundle$$$("messages/ScalaSbtBundle", "sbt.settings.custom.launcher"));
         panel1.add(myCustomButton, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myLauncherPath = new TextFieldWithBrowseButton();
         panel1.add(myLauncherPath, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(250, -1), null, null, 0, false));
@@ -160,22 +159,22 @@ public class SbtSettingsPane {
         myContentPanel.add(panel2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
         panel2.add(myJrePathEditor, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(250, -1), null, null, 0, false));
         final TitledSeparator titledSeparator2 = new TitledSeparator();
-        titledSeparator2.setText(ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.jvm"));
+        titledSeparator2.setText(this.$$$getMessageFromBundle$$$("messages/ScalaSbtBundle", "sbt.settings.jvm"));
         myContentPanel.add(titledSeparator2, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JPanel panel3 = new JPanel();
         panel3.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
         myContentPanel.add(panel3, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
         final JLabel label1 = new JLabel();
-        this.$$$loadLabelText$$$(label1, ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.maxHeapSize"));
+        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("messages/ScalaSbtBundle", "sbt.settings.maxHeapSize"));
         panel3.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label2 = new JLabel();
-        this.$$$loadLabelText$$$(label2, ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.vmParams"));
+        this.$$$loadLabelText$$$(label2, this.$$$getMessageFromBundle$$$("messages/ScalaSbtBundle", "sbt.settings.vmParams"));
         panel3.add(label2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myMaximumHeapSize = new JTextField();
         myMaximumHeapSize.setColumns(5);
         panel3.add(myMaximumHeapSize, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(250, -1), null, 0, false));
         myVmParameters = new RawCommandLineEditor();
-        myVmParameters.setDialogCaption(ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.vmParams"));
+        myVmParameters.setDialogCaption(this.$$$getMessageFromBundle$$$("messages/ScalaSbtBundle", "sbt.settings.vmParams"));
         myVmParameters.setEnabled(true);
         panel3.add(myVmParameters, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(250, -1), new Dimension(250, -1), null, 0, false));
         final Spacer spacer2 = new Spacer();
@@ -185,6 +184,23 @@ public class SbtSettingsPane {
         buttonGroup = new ButtonGroup();
         buttonGroup.add(myBundledButton);
         buttonGroup.add(myCustomButton);
+    }
+
+    private static Method $$$cachedGetBundleMethod$$$ = null;
+
+    private String $$$getMessageFromBundle$$$(String path, String key) {
+        ResourceBundle bundle;
+        try {
+            Class<?> thisClass = this.getClass();
+            if ($$$cachedGetBundleMethod$$$ == null) {
+                Class<?> dynamicBundleClass = thisClass.getClassLoader().loadClass("com.intellij.DynamicBundle");
+                $$$cachedGetBundleMethod$$$ = dynamicBundleClass.getMethod("getBundle", String.class, Class.class);
+            }
+            bundle = (ResourceBundle) $$$cachedGetBundleMethod$$$.invoke(null, path, thisClass);
+        } catch (Exception e) {
+            bundle = ResourceBundle.getBundle(path);
+        }
+        return bundle.getString(key);
     }
 
     /**

@@ -19,10 +19,10 @@ final class ScSymbolLiteralImpl(node: ASTNode,
 
   override protected def endQuote: String = ""
 
-  override protected def wrappedValue(value: Symbol) =
+  override protected def wrappedValue(value: Symbol): ScLiteral.Value[Symbol] =
     ScSymbolLiteralImpl.Value(value)
 
-  override protected def toValue(name: String) = Symbol(name)
+  override protected def toValue(name: String): Symbol = Symbol(name)
 }
 
 object ScSymbolLiteralImpl {

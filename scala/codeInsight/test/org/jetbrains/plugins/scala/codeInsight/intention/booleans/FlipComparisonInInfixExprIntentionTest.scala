@@ -13,7 +13,7 @@ class FlipComparisonInInfixExprIntentionTest extends intentions.ScalaIntentionTe
 
   import EditorTestUtil.{CARET_TAG => CARET}
 
-  override def familyName = FlipComparisonInInfixExprIntention.FamilyName
+  override def familyName = ScalaCodeInsightBundle.message("family.name.flip.comparison.in.infix.expression")
 
   def testFlip1(): Unit = {
     val text = s"if (a =$CARET= b) return"

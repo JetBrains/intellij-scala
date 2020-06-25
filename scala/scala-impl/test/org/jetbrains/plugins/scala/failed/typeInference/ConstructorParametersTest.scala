@@ -20,7 +20,7 @@ class ConstructorParametersTest extends SimpleTestCase {
 
   override protected def shouldPass: Boolean = false
 
-  def testSCL11201() = {
+  def testSCL11201(): Unit = {
     assertNothing(messages(
       """
         |object A extends Enumeration {

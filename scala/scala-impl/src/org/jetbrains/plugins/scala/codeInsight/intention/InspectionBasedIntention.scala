@@ -5,12 +5,13 @@ import com.intellij.codeInspection._
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 
 /**
   * @author Pavel Fatin
   */
-class InspectionBasedIntention(family: String, text: String, inspection: LocalInspectionTool) extends PsiElementBaseIntentionAction {
+class InspectionBasedIntention(@Nls family: String, @Nls text: String, inspection: LocalInspectionTool) extends PsiElementBaseIntentionAction {
   override def getFamilyName: String = family
 
   override def getText: String = text
@@ -19,7 +20,7 @@ class InspectionBasedIntention(family: String, text: String, inspection: LocalIn
     findProblemFrom(element).foreach { descriptor =>
       val fixes = descriptor.getFixes
 
-      if (fixes.length > 0) {
+      if (fixes.nonEmpty) {
         val fix = fixes.apply(0).asInstanceOf[LocalQuickFix]
         fix.applyFix(project, descriptor)
       }

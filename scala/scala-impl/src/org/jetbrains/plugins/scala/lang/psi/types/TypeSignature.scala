@@ -9,23 +9,23 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 /**
   * Represents type alias, inner class or trait.
   */
-case class TypeSignature(namedElement: PsiNamedElement, substitutor: ScSubstitutor)
+case class TypeSignature(override val namedElement: PsiNamedElement, override val substitutor: ScSubstitutor)
   extends Signature {
 
-  val name: String = ScalaNamesUtil.clean(namedElement.name)
+  override val name: String = ScalaNamesUtil.clean(namedElement.name)
 
-  def isAbstract: Boolean = namedElement match {
+  override def isAbstract: Boolean = namedElement match {
     case _: ScTypeAliasDeclaration => true
     case _ => false
   }
 
-  def isImplicit: Boolean = false
+  override def isImplicit: Boolean = false
 
-  def isSynthetic: Boolean = false
+  override def isSynthetic: Boolean = false
 
-  def equiv(other: Signature): Boolean = name == other.name
+  override def equiv(other: Signature): Boolean = name == other.name
 
-  def equivHashCode: Int = name.hashCode
+  override def equivHashCode: Int = name.hashCode
 
   override def equals(other: Any): Boolean = other match {
     case that: TypeSignature => namedElement == that.namedElement

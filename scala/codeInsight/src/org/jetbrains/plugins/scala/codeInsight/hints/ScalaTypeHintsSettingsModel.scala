@@ -11,7 +11,7 @@ import com.intellij.psi.PsiFile
 import javax.swing.JComponent
 import kotlin.Unit.{INSTANCE => kUnit}
 import org.jetbrains.plugins.scala.codeInsight.implicits.{ImplicitHints, ImplicitHintsPass}
-import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightSettings, hints}
+import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings, hints}
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
@@ -50,7 +50,7 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
 
   override def getCases: util.List[ImmediateConfigurable.Case] = Seq(
     new ImmediateConfigurable.Case(
-      "Member variables",
+      ScalaCodeInsightBundle.message("member.variables"),
       "Scala.ScalaTypeHintsSettingsModel.showMemberVariableType",
       () => settings.showMemberVariableType,
       b => {
@@ -59,7 +59,7 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
       },
       null),
     new ImmediateConfigurable.Case(
-      "Method results",
+      ScalaCodeInsightBundle.message("method.results"),
       "Scala.ScalaTypeHintsSettingsModel.showMethodResultType",
       () => settings.showMethodResultType,
       b => {
@@ -68,7 +68,7 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
       },
       null),
     new ImmediateConfigurable.Case(
-      "Local variables",
+      ScalaCodeInsightBundle.message("local.variables"),
       "Scala.ScalaTypeHintsSettingsModel.showLocalVariableType",
       () => settings.showLocalVariableType,
       b => {
@@ -80,9 +80,9 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
 
   override def getComponent: JComponent = null
 
-  override def getMainCheckBoxLabel: String = "Show type hints for:"
+  override def getMainCheckBoxLabel: String = ScalaCodeInsightBundle.message("show.type.hints.for")
 
-  override def getName: String = "Type hints"
+  override def getName: String = ScalaCodeInsightBundle.message("type.hints")
 
   override def getPreviewText: String = {
     if (project.isDefault)

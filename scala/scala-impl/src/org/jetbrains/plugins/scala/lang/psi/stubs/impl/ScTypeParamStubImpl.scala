@@ -19,21 +19,21 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 class ScTypeParamStubImpl(parent: StubElement[_ <: PsiElement],
                           elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
                           name: String,
-                          val text: String,
-                          val lowerBoundText: Option[String],
-                          val upperBoundText: Option[String],
-                          val viewBoundsTexts: Array[String],
-                          val contextBoundsTexts: Array[String],
-                          val isCovariant: Boolean,
-                          val isContravariant: Boolean,
-                          val containingFileName: String)
+                          override val text: String,
+                          override val lowerBoundText: Option[String],
+                          override val upperBoundText: Option[String],
+                          override val viewBoundsTexts: Array[String],
+                          override val contextBoundsTexts: Array[String],
+                          override val isCovariant: Boolean,
+                          override val isContravariant: Boolean,
+                          override val containingFileName: String)
   extends ScNamedStubBase[ScTypeParam](parent, elementType, name)
     with ScTypeParamStub with ScBoundsOwnerStub[ScTypeParam] {
 
   private var viewElementsReferences: SofterReference[Seq[ScTypeElement]] = null
   private var contextElementsReferences: SofterReference[Seq[ScTypeElement]] = null
 
-  def viewBoundsTypeElements: Seq[ScTypeElement] = {
+  override def viewBoundsTypeElements: Seq[ScTypeElement] = {
     getFromReference(viewElementsReferences) {
       case (context, child) =>
         viewBoundsTexts.map {
@@ -42,7 +42,7 @@ class ScTypeParamStubImpl(parent: StubElement[_ <: PsiElement],
     } (viewElementsReferences = _)
   }
 
-  def contextBoundsTypeElements: Seq[ScTypeElement] = {
+  override def contextBoundsTypeElements: Seq[ScTypeElement] = {
     getFromReference(contextElementsReferences) {
       case (context, child) =>
         contextBoundsTexts.map {

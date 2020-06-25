@@ -3,7 +3,7 @@ package annotator
 package annotationHolder
 
 import com.intellij.lang.ASTNode
-import com.intellij.lang.annotation.{Annotation, HighlightSeverity}
+import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 
@@ -14,22 +14,22 @@ trait ErrorIndication extends ScalaAnnotationHolder {
 
   def hadError: Boolean = _hadError
 
-  abstract override def createErrorAnnotation(elt: PsiElement, message: String): Annotation = {
+  abstract override def createErrorAnnotation(elt: PsiElement, message: String): ScalaAnnotation = {
     _hadError = true
     super.createErrorAnnotation(elt, message)
   }
 
-  abstract override def createErrorAnnotation(node: ASTNode, message: String): Annotation = {
+  abstract override def createErrorAnnotation(node: ASTNode, message: String): ScalaAnnotation = {
     _hadError = true
     super.createErrorAnnotation(node, message)
   }
 
-  abstract override def createErrorAnnotation(range: TextRange, message: String): Annotation = {
+  abstract override def createErrorAnnotation(range: TextRange, message: String): ScalaAnnotation = {
     _hadError = true
     super.createErrorAnnotation(range, message)
   }
 
-  abstract override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String, htmlTooltip: String): Annotation = {
+  abstract override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String, htmlTooltip: String): ScalaAnnotation = {
     if (severity >=  HighlightSeverity.ERROR) {
       _hadError = true
     }

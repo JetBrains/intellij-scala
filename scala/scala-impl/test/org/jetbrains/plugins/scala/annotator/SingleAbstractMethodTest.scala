@@ -13,10 +13,7 @@ import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
   * Date: 6/15/15
   */
 abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with MatcherAssertions {
-
-
-
-  def testBasicGenerics() {
+  def testBasicGenerics(): Unit = {
     val code =
       """
         |trait Blargle[T] {
@@ -28,7 +25,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
     checkCodeHasNoErrors(code)
   }
 
-  def testTypeInference() {
+  def testTypeInference(): Unit = {
     val code =
       """
         | abstract class Foo {
@@ -41,7 +38,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
   }
 
 
-  def testFunctionNegOne() {
+  def testFunctionNegOne(): Unit = {
     val code =
       """
         |def z(): Unit = println()
@@ -52,7 +49,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
     }
   }
 
-  def testFunctionNegTwo() {
+  def testFunctionNegTwo(): Unit = {
     val code =
       """
         |def z: Unit = println()
@@ -63,7 +60,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
     }
   }
 
-  def testFunctionNegThree() {
+  def testFunctionNegThree(): Unit = {
     val code =
       """
         |def z(): Unit = println()
@@ -85,7 +82,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
     checkCodeHasNoErrors(code)
   }
 
-  def testUnderscoreOne() {
+  def testUnderscoreOne(): Unit = {
     val code =
       """
         |trait Foo { def bar(i: Int, s: String): String }
@@ -94,7 +91,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
     checkCodeHasNoErrors(code)
   }
 
-  def testUnderscoreTwo() {
+  def testUnderscoreTwo(): Unit = {
     val code =
       """
         |trait Foo { def bar(s: String): String }
@@ -103,7 +100,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
     checkCodeHasNoErrors(code)
   }
 
-  def testSimpleNeg() {
+  def testSimpleNeg(): Unit = {
     val code =
       """
         |trait Foo { def blargle(i: Int): Unit }
@@ -114,7 +111,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
     }
   }
 
-  def testSimpleNegWrongReturnType() {
+  def testSimpleNegWrongReturnType(): Unit = {
     val code =
       """
         |object T {
@@ -123,11 +120,11 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
         |}
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("Blergh", cannotUpcast()) :: Error("j", doesNotConform()) :: Nil => // TODO don't show type mismatch when expected type is due to type ascription
+      case Error("Blergh", cannotUpcast()) :: Nil =>
     }
   }
 
-  def testSimpleNegWrongParamNumber() {
+  def testSimpleNegWrongParamNumber(): Unit = {
     val code =
       """
         |object T {
@@ -136,11 +133,11 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
         |}
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("Blargle", cannotUpcast()) :: Nil =>
+      case Error("t)", "Missing parameter: String") :: Nil =>
     }
   }
 
-  def testSimpleNegWrongParamType() {
+  def testSimpleNegWrongParamType(): Unit = {
     val code =
       """
         |object T {
@@ -149,11 +146,11 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
         |}
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("Blargle", cannotUpcast()) :: Nil =>
+      case Error("Int", typeMismatch()) :: Nil =>
     }
   }
 
-  def testSimpleNegRightParamWrongReturn() {
+  def testSimpleNegRightParamWrongReturn(): Unit = {
     val code =
       """
         |object T {
@@ -162,11 +159,11 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
         |}
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("Blergh", cannotUpcast()) :: Error("j", doesNotConform()) :: Nil => // TODO don't show type mismatch when expected type is due to type ascription
+      case Error("Blergh", cannotUpcast()) :: Nil =>
     }
   }
 
-  def testConstructorWithArgs() {
+  def testConstructorWithArgs(): Unit = {
     val code =
       """
         |abstract class Foo(s: String) { def a(): String }
@@ -177,7 +174,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
     }
   }
 
-  def testImplicitConversionWithSAM() {
+  def testImplicitConversionWithSAM(): Unit = {
     val code =
       """
         |import scala.language.implicitConversions
@@ -199,7 +196,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
         |
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("() => 3", typeMismatch()) :: Nil =>
+      case Error("() => 3", doesNotConform()) :: Nil =>
     }
   }
 
@@ -232,7 +229,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
         |val s: SAAM = (i: String) => i
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("(i: String) => i", doesNotConform()) :: Nil =>
+      case Error("String", typeMismatch()) :: Nil =>
     }
   }
 
@@ -560,7 +557,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
     checkCodeHasNoErrors(code)
   }
 
-  def checkCodeHasNoErrors(scalaCode: String, javaCode: Option[String] = None) {
+  def checkCodeHasNoErrors(scalaCode: String, javaCode: Option[String] = None): Unit = {
     assertNothing(messages(scalaCode, javaCode))
   }
 
@@ -602,9 +599,9 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
 
 class SingleAbstractMethodTest extends SingleAbstractMethodTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
 
-  def testFunctionSAM() {
+  def testFunctionSAM(): Unit = {
     val code =
       """
         |def z() = println()
@@ -700,7 +697,7 @@ class SingleAbstractMethodTest extends SingleAbstractMethodTestBase {
         |def l[T]: MyChangeListener[_ >: T] = (observable: P[_ <: T]) => ()
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("(observable: P[_ <: T]) => ()", typeMismatch()) :: Nil =>
+      case Error("P[_ <: T]", typeMismatch()) :: Nil =>
     }
   }
 
@@ -765,23 +762,93 @@ class SingleAbstractMethodTest extends SingleAbstractMethodTestBase {
       """.stripMargin
     checkCodeHasNoErrors(code, None)
   }
+
+  def testSCL17054(): Unit = checkCodeHasNoErrors(
+    """
+      |class Action[T]
+      |trait Callable[T] {
+      |  def call(): T
+      |}
+      |
+      |def nonBlocking[T](task: Callable[T]): Action[T] =
+      |  new Action[T]
+      |
+      |val action = nonBlocking(() => 123) // should be Action[String]
+      |
+      |def foo[T](action: Action[T]) = ???
+      |
+      |foo[Int](action)
+      |""".stripMargin
+  )
+
+  def testSCL17170(): Unit = checkCodeHasNoErrors(
+    """
+      |sealed trait T
+      |object T {
+      |  case object A extends T
+      |  case object B extends T
+      |}
+      |trait Action {
+      |  def run(file: String, list: Seq[Int]): Unit
+      |}
+      |val x: Map[T, Action] = Map(
+      |  T.A -> ((_, _) => println(42)),
+      |  T.B -> ((_, _) => println(23))
+      |)
+      |class X
+      |val y: Map[X, Action] = Map(
+      |  new X -> ((_, _) => println(42)),
+      |  new X -> ((_, _) => println(23))
+      |)
+      |""".stripMargin
+  )
+
+  def testSCL16596(): Unit = checkCodeHasNoErrors(
+    """
+      |trait Callback {
+      |  def foo(): Unit
+      |}
+      |def method1(c: Callback): Unit = ()
+      |def method2(c: Option[Callback]): Unit = ()
+      |method1(() => ())
+      |method2(Some(() => ()))
+      |""".stripMargin
+  )
+
+  def testSCL11156(): Unit = checkCodeHasNoErrors(
+    """
+      |trait Parser[T] extends Function[String, Option[(T, String)]]
+      |
+      |object Parser {
+      |  val item: Parser[Char] = {
+      |    case "" => None
+      |    case v => Some((v.charAt(0), v.substring(1)))
+      |  }
+      |}
+      |
+      |object Test extends App {
+      |  println(Parser.item apply "abcdef")
+      |}
+      |""".stripMargin
+  )
 }
 
 class SingleAbstractMethodTest_2_11 extends SingleAbstractMethodTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 
-  protected override def setUp() {
+  protected override def setUp(): Unit = {
     super.setUp()
 
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(myFixture.getProject).defaultProfile
-    val newSettings = defaultProfile.getSettings
-    newSettings.experimental = true
+    val newSettings = defaultProfile.getSettings.copy(
+      experimental = true
+    )
     defaultProfile.setSettings(newSettings)
   }
 
 
-  def testFunctionSAM() {
+  def testFunctionSAM(): Unit = {
     val code =
       """
         |def z() = println()

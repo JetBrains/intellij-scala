@@ -16,7 +16,7 @@ object Update {
 }
 
 trait SimpleUpdate extends (ScType => AfterUpdate) with Update {
-  def apply(v1: ScType, v2: Variance): AfterUpdate = apply(v1)
+  override def apply(v1: ScType, v2: Variance): AfterUpdate = apply(v1)
 }
 
 object SimpleUpdate {

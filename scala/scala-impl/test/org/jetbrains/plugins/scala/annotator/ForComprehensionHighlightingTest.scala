@@ -276,7 +276,7 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
 
 class ForComprehensionHighlightingTest_with_cats_2_12 extends ForComprehensionHighlightingTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
   override def librariesLoaders: Seq[LibraryLoader] =
     super.librariesLoaders :+
@@ -301,7 +301,7 @@ class ForComprehensionHighlightingTest_with_cats_2_12 extends ForComprehensionHi
 
 class ForComprehensionHighlightingTest_without_filter extends ForComprehensionHighlightingTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version > Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version > LatestScalaVersions.Scala_2_11
 
   def test_filterOnly(): Unit = {
     val code =
@@ -327,7 +327,20 @@ class ForComprehensionHighlightingTest_without_filter extends ForComprehensionHi
 
 class ForComprehensionHighlightingTest_with_filter extends ForComprehensionHighlightingTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= LatestScalaVersions.Scala_2_11
+
+  def testSCL17260(): Unit = assertNothing(errorsFromScalaCode(
+    """
+      |class CustomCollection[T] {
+      |    def map[R](f: T => R): CustomCollection[R] = ???
+      |    def flatMap[R](f: T => CustomCollection[R]): CustomCollection[R] = ???
+      |    def filter(f: T => Boolean): CustomCollection[T] = ???
+      |  }
+      |  for {
+      |    (k, v) <- new CustomCollection[(Int, Int)]
+      |  } yield (k, v)
+      |""".stripMargin
+  ))
 
   def test_filterOnly(): Unit = {
     val code =
@@ -348,7 +361,7 @@ class ForComprehensionHighlightingTest_with_filter extends ForComprehensionHighl
 
     assertMessagesSorted(errorsFromScalaCode(code))(
       Error("withFilter", "Cannot resolve symbol withFilter"),
-      Error("x", "Missing parameter type: x"),
+      Error("x", "Missing parameter type"),
       Error(">", "Cannot resolve symbol >")
     )
   }
@@ -423,7 +436,6 @@ class ForComprehensionHighlightingTest_with_filter extends ForComprehensionHighl
 
     assertMessagesSorted(errorsFromScalaCode(code))(
       Error("withFilter", "Cannot resolve symbol withFilter"),
-      Error("<-", "Cannot resolve symbol foreach"),
       Error("a", "Cannot resolve symbol a"),
       Error("withFilter", "Cannot resolve symbol withFilter"),
       Error("b", "Cannot resolve symbol b"),
@@ -435,14 +447,15 @@ class ForComprehensionHighlightingTest_with_filter extends ForComprehensionHighl
 
 class ForComprehensionHighlightingTest_with_BetterMonadicFor extends ForComprehensionHighlightingTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
 
   override protected def setUp(): Unit = {
     super.setUp()
 
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
-    val newSettings = defaultProfile.getSettings
-    newSettings.plugins = newSettings.plugins :+ "better-monadic-for"
+    val newSettings = defaultProfile.getSettings.copy(
+      plugins = defaultProfile.getSettings.plugins :+ "better-monadic-for"
+    )
     defaultProfile.setSettings(newSettings)
   }
 

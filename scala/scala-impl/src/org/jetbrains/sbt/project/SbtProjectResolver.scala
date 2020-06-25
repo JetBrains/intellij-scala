@@ -12,10 +12,12 @@ import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, Ext
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
 import com.intellij.openapi.module.StdModuleTypes
-import com.intellij.openapi.project.ProjectManager
+import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.plugins.scala.build.BuildMessages
+import org.jetbrains.annotations.{NonNls, Nullable}
+import org.jetbrains.plugins.scala._
+import org.jetbrains.plugins.scala.build._
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{AndroidJdk, JdkByHome, JdkByName, SdkReference}
 import org.jetbrains.sbt.SbtUtil._
@@ -68,14 +70,20 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
                             settings: SbtExecutionSettings,
                             projectRoot: File,
                             sbtLauncher: File,
-                            sbtVersion: String,
+                            @NonNls sbtVersion: String,
                             notifications: ExternalSystemTaskNotificationListener): DataNode[ESProjectData] = {
 
-    val importTaskId = s"import:${UUID.randomUUID()}"
+    @NonNls val importTaskId = s"import:${UUID.randomUUID()}"
     val importTaskDescriptor =
-      new TaskOperationDescriptorImpl("import to IntelliJ project model", System.currentTimeMillis(), "project-model-import")
+      new TaskOperationDescriptorImpl(SbtBundle.message("sbt.import.to.intellij.project.model"), System.currentTimeMillis(), "project-model-import")
 
-    val structureDump = dumpStructure(projectRoot, sbtLauncher, Version(sbtVersion), settings, taskId, notifications)
+    val esReporter = new ExternalSystemNotificationReporter(projectRoot.getAbsolutePath, taskId, notifications)
+    val reporter = if (isUnitTestMode) {
+      val logReporter = new LogReporter
+      new CompositeReporter(esReporter, logReporter)
+    } else esReporter
+
+    val structureDump = dumpStructure(projectRoot, sbtLauncher, Version(sbtVersion), settings, taskId.findProject(), reporter)
 
     // side-effecty status reporting
     structureDump.foreach { case (_, messages) =>
@@ -91,12 +99,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       }
       .recoverWith {
         case ImportCancelledException(cause) =>
-          val causeMessage = if (cause != null) cause.getMessage else "unknown cause"
+          val causeMessage = if (cause != null) cause.getMessage else SbtBundle.message("sbt.unknown.cause")
 
           // notify user if project exists already
           val projectOpt = ProjectManager.getInstance().getOpenProjects.find(p => FileUtil.pathsEqual(p.getBasePath, projectRoot.getCanonicalPath))
           projectOpt.foreach { p =>
-            val notification = SbtNotifications.notificationGroup.createNotification(s"sbt import cancelled: $causeMessage", NotificationType.INFORMATION)
+            val notification = Sbt.balloonNotification.createNotification(SbtBundle.message("sbt.import.cancelled", causeMessage), NotificationType.INFORMATION)
             notification.notify(p)
           }
 
@@ -131,19 +139,18 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
                             sbtLauncher: File,
                             sbtVersion: Version,
                             settings:SbtExecutionSettings,
-                            taskId: ExternalSystemTaskId,
-                            notifications: ExternalSystemTaskNotificationListener
+                            @Nullable project: Project,
+                            reporter: BuildReporter
                            ): Try[(Elem, BuildMessages)] = {
 
-    lazy val project = taskId.findProject()
     val useShellImport = settings.useShellForImport && shellImportSupported(sbtVersion) && project != null
     val options = dumpOptions(settings)
 
     if (!sbtLauncher.isFile) {
-      val error = s"sbt launcher not found at ${sbtLauncher.getCanonicalPath}"
+      val error = SbtBundle.message("sbt.launcher.not.found", sbtLauncher.getCanonicalPath)
       Failure(new FileNotFoundException(error))
     } else if (!importSupported(sbtVersion)) {
-      val message = s"sbt $sinceSbtVersion+ required. Please update project build.properties."
+      val message = SbtBundle.message("sbt.sincesbtversion.required", sinceSbtVersion)
       Failure(new UnsupportedOperationException(message))
     }
     else usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
@@ -154,7 +161,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
       val messageResult: Try[BuildMessages] = {
         if (useShellImport) {
-          val messagesF = dumper.dumpFromShell(taskId, projectRoot, structureFilePath, options, notifications)
+          val messagesF = dumper.dumpFromShell(project, structureFilePath, options, reporter)
           Try(Await.result(messagesF, Duration.Inf)) // TODO some kind of timeout / cancel mechanism
         }
         else {
@@ -169,17 +176,27 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
           dumper.dumpFromProcess(
             projectRoot, structureFilePath, options,
             settings.vmExecutable, settings.vmOptions, settings.environment,
-            sbtLauncher, sbtStructureJar, taskId, notifications)
+            sbtLauncher, sbtStructureJar, reporter)
         }
       }
       activeProcessDumper = None
 
       messageResult.flatMap { messages =>
-        if (messages.status != BuildMessages.OK || !structureFile.isFile || structureFile.length < 0)
-          Failure(new Exception("extracting structure failed"))
-        else Try {
+        val tried = if (messages.status != BuildMessages.OK || !structureFile.isFile || structureFile.length <= 0) {
+          val message = SbtBundle.message("sbt.import.extracting.structure.failed")
+          Failure(new Exception(message))
+        } else Try {
           val elem = XML.load(structureFile.toURI.toURL)
           (elem, messages)
+        }
+
+        tried.recoverWith { case error =>
+          val exceptions = messages.exceptions.map(_.getLocalizedMessage).mkString("\n")
+          val errorMsgs = messages.errors.map(_.getMessage).mkString("\n")
+          val message = error.getMessage + "\n" +
+            exceptions + (if (exceptions.nonEmpty) "\n" else "") +
+            errorMsgs
+          Failure(new Exception(message, error.getCause))
         }
       }
     }
@@ -546,6 +563,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     // TODO explicit canonical path is needed until IDEA-126011 is fixed
     val result = new ModuleNode(SbtModuleType.instance.getId, buildId, build.uri, buildId, moduleFilesDirectory.path, buildRoot.canonicalPath)
 
+    //todo: probably it should depend on sbt version?
+    result.add(ModuleSdkNode.inheritFromProject)
 
     result.setInheritProjectCompileOutputPath(false)
     result.setCompileOutputPath(ExternalSystemSourceType.SOURCE, (buildRoot / Sbt.TargetDirectory / "idea-classes").path)

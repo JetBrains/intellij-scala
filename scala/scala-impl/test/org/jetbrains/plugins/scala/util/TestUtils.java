@@ -15,7 +15,6 @@
 
 package org.jetbrains.plugins.scala.util;
 
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
@@ -60,6 +59,12 @@ public class TestUtils {
     }
 
     return TEST_DATA_PATH;
+  }
+
+  public static String findCommunityRoot() throws IOException {
+    // <community-root>/scala/scala-impl/testdata/
+    String testDataPath = getTestDataPath();
+    return java.nio.file.Paths.get(testDataPath, "..", "..", "..").normalize().toString() + "/";
   }
 
   @NotNull
@@ -179,8 +184,8 @@ public class TestUtils {
 
 
   public static void disableTimerThread() {
-    ThreadTracker.longRunningThreadCreated(ApplicationManager.getApplication(), "Timer");
-    ThreadTracker.longRunningThreadCreated(ApplicationManager.getApplication(), "BaseDataReader");
-    ThreadTracker.longRunningThreadCreated(ApplicationManager.getApplication(), "ProcessWaitFor");
+    ThreadTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable(), "Timer");
+    ThreadTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable(), "BaseDataReader");
+    ThreadTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable(), "ProcessWaitFor");
   }
 }

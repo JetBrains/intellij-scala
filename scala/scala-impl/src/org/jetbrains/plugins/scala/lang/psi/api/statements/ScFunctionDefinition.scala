@@ -18,7 +18,7 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
 
   def body: Option[ScExpression]
 
-  def hasAssign: Boolean
+  override def hasAssign: Boolean
 
   def assignment: Option[PsiElement]
 

@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 
 class ScalaEditorSmartKeysConfigurable extends BeanConfigurable[ScalaApplicationSettings](ScalaApplicationSettings.getInstance) with SearchableConfigurable {
   override def getId: String = "ScalaSmartKeys"
+  //noinspection ScalaExtractStringToBundle
   override def getDisplayName: String = "Scala"
   override def getHelpTopic: String = null
   override def enableSearch(option: String): Runnable = null
@@ -24,6 +25,7 @@ class ScalaEditorSmartKeysConfigurable extends BeanConfigurable[ScalaApplication
   override def createComponent: JComponent = {
     val result = super.createComponent
     assert(result != null, "ScalaEditorSmartKeysConfigurable panel was not created")
+    //noinspection ScalaExtractStringToBundle
     result.setBorder(IdeBorderFactory.createTitledBorder("Scala"))
     result
   }

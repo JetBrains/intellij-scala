@@ -170,39 +170,32 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestAd
     doTest(code, Seq("1", "=>"))
   }
 
-  def testObject(): Unit = {
+  def testCompanionObject(): Unit = {
     val code =
       """
-        |o<caret>bject Zoo {
-        |  val x = 10
-        |  var z = -1
-        |}
+        |o<caret>bject Zoo
+        |class Zoo
       """.stripMargin
-    doTest(code, Seq("10", "-1", "object"))
+    doTest(code, Seq("object", "class"))
   }
 
-  def testClass(): Unit = {
+  def testCompanionClass(): Unit = {
     val code =
       """
-        |c<caret>lass Zoo(val b: Int) {
-        |  10
-        |  val x = 10
-        |  var z = -1
-        |}
+        |c<caret>lass Zoo
+        |object Zoo
       """.stripMargin
-    doTest(code, Seq("10", "-1", "10", "class"))
+    doTest(code, Seq("class", "object"))
   }
 
-  def testTrait(): Unit = {
+  def testCompanionTrait(): Unit = {
     val code =
       """
-        |tra<caret>it Zoo {
-        |  10
-        |  val x = 10
-        |  var z = -1
+        |tra<caret>it Zoo
+        |object Zoo
         |}
       """.stripMargin
-    doTest(code, Seq("10", "-1", "10", "trait"))
+    doTest(code, Seq("trait", "object"))
   }
 
   def assertHandlerIsNull(fileText: String): Unit = {

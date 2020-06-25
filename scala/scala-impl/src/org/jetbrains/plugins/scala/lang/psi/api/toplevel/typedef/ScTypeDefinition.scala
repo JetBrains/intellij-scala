@@ -48,7 +48,7 @@ trait ScTypeDefinition extends ScTemplateDefinition
 
   def isPackageObject = false
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitTypeDefinition(this)
   }
 
@@ -67,4 +67,22 @@ trait ScTypeDefinition extends ScTemplateDefinition
   override def showAsInheritor: Boolean = true
 
   def baseCompanionModule: Option[ScTypeDefinition]
+}
+
+object ScTypeDefinition {
+
+  implicit class ScTypeDefinitionExt(private val target: ScTypeDefinition) extends AnyVal {
+    def shortDefinition: String =
+      keywordPrefix + target.name
+
+    def keywordPrefix: String =
+      target match {
+        case _: ScObject => "object "
+        case _: ScTrait  => "trait "
+        case _: ScClass  => "class "
+        case _: ScEnum   => "enum "
+        case _: ScGiven   => "given "
+        case _           => ""
+      }
+  }
 }

@@ -51,6 +51,6 @@ class ScEarlyDefinitionsImpl private(stub: ScEarlyDefinitionsStub, node: ASTNode
     true
   }
 
-  def members: Seq[ScMember] =
+  override def members: Seq[ScMember] =
     getStubOrPsiChildren(MEMBERS, ScMemberFactory)
 }

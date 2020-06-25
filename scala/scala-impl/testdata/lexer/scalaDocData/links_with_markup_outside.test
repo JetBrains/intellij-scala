@@ -1,0 +1,41 @@
+/**
+  * ,,__[[http://jetbrains.com]]__,,
+  * [[java.lang.String]] ^[[java.lang.Integer]]^
+  */
+-----
+DOC_COMMENT_START {/**}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_SUBSCRIPT_TAG 32 {,,}
+DOC_UNDERLINE_TAG 4 {__}
+DOC_HTTP_LINK_TAG 128 {[[}
+DOC_HTTP_LINK_VALUE {http://jetbrains.com}
+DOC_LINK_CLOSE_TAG 0 {]]}
+DOC_UNDERLINE_TAG 4 {__}
+DOC_SUBSCRIPT_TAG 32 {,,}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_LINK_TAG 64 {[[}
+identifier {java}
+. {.}
+identifier {lang}
+. {.}
+identifier {String}
+DOC_LINK_CLOSE_TAG 0 {]]}
+DOC_COMMENT_DATA { }
+DOC_SUPERSCRIPT_TAG 16 {^}
+DOC_LINK_TAG 64 {[[}
+identifier {java}
+. {.}
+identifier {lang}
+. {.}
+identifier {Integer}
+DOC_LINK_CLOSE_TAG 0 {]]}
+DOC_SUPERSCRIPT_TAG 16 {^}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_END {*/}

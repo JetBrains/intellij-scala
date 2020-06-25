@@ -10,7 +10,7 @@ import com.intellij.psi._
 import com.intellij.psi.scope._
 import org.jetbrains.plugins.scala.extensions.{Model, PsiElementExt, StringsExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
@@ -66,7 +66,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
       case e => Some(e)
     } match {
       case Some(newExpr) => newExpr.getNonValueType()
-      case None => Failure("Cannot create expression")
+      case None => Failure(ScalaBundle.message("cannot.create.expression"))
     }
   }
 
@@ -84,20 +84,24 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
 
   // we only really need to cache the version that is used by type inference
   @Cached(ModCount.getBlockModificationCount, this)
-  private def getDesugaredExprWithMappings: Option[(ScExpression, Map[ScPattern, ScPattern], Map[ScEnumerator, ScEnumerator.DesugaredEnumerator])] =
+  private def getDesugaredExprWithMappings: Option[(ScExpression, Map[ScPattern, ScPattern], Map[ScEnumerator, ScEnumerator.DesugaredEnumerator])] = {
+    visitWithFilterExprs(this)(e => e.putUserData(explicitWithFilterKey, ()))
+
     generateDesugaredExprWithMappings(forDisplay = false).map {
-      case result@(_, _, enumMapping) =>
+      case result @ (expr, _, _) =>
         if (compilerRewritesWithFilterToFilter) {
           // annotate withFilter-calls with userdata to control method resolving
           // in ReferenceExpressionResolver
-          for {
-            (_: ScGuard, desugaredEnum) <- enumMapping
-            ref <- desugaredEnum.callExpr
-            if ref.refName == "withFilter"
-          } ref.putUserData(ScForImpl.desugaredWithFilterKey, DesugaredWithFilterUserData)
+          visitWithFilterExprs(expr) { e =>
+            if (!explicitWithFilterKey.isIn(e))
+              e.putUserData(desugaredWithFilterKey, ())
+          }
         }
         result
     }
+  }
+
+
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                    state: ResolveState,
@@ -191,8 +195,14 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
         mappings += what -> resultText.length
     }
 
-    def appendFunc[R](funcName: String, enum: Option[ScEnumerator], args: Seq[(Option[ScPattern], String)], forceCases: Boolean = false, forceBlock: Boolean = false)
-                     (appendBody: => R): R = {
+    def appendFunc[R](
+      funcName:   String,
+      enum:       Option[ScEnumerator],
+      args:       Seq[(Option[ScPattern], String)],
+      forceCases: Boolean = false,
+      forceBlock: Boolean = false
+    )(appendBody: =>R
+    ): R = {
       val argPatterns = args.flatMap(_._1)
       val needsCase = !forDisplay || forceCases || args.size > 1 || argPatterns.exists(needsDeconstruction)
       val needsParenthesis = args.size > 1 || !needsCase && argPatterns.exists(needsParenthesisAsLambdaArgument)
@@ -472,7 +482,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
 
   private def hasMethod(ty: ScType, methodName: String): Boolean = {
     var found = false
-    val processor: CompletionProcessor = new CompletionProcessor(StdKinds.methodRef, this, isImplicit = true) {
+    val processor: CompletionProcessor = new CompletionProcessor(StdKinds.methodRef, this, withImplicitConversions = true) {
       override protected def execute(namedElement: PsiNamedElement)
                                     (implicit state: ResolveState): Boolean = {
         super.execute(namedElement)
@@ -488,9 +498,17 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
 }
 
 object ScForImpl {
-  sealed abstract class DesugaredWithFilterUserData
-  object DesugaredWithFilterUserData extends DesugaredWithFilterUserData
-  val desugaredWithFilterKey: Key[DesugaredWithFilterUserData] = new Key("DESUGARED_withFilter_METHOD")
+  val desugaredWithFilterKey: Key[Unit]        = new Key("DESUGARED_withFilter_METHOD")
+  private val explicitWithFilterKey: Key[Unit] = new Key("explicit_withFilter_in_for_comp")
+
+  private def visitWithFilterExprs(expr: ScExpression)(f: ScReferenceExpression => Unit): Unit =
+    expr.accept(new ScalaRecursiveElementVisitor {
+      override def visitReferenceExpression(ref: ScReferenceExpression): Unit = {
+        if (ref.refName == "withFilter") f(ref)
+        super.visitReferenceExpression(ref)
+      }
+    })
+
 
   private def needsDeconstruction(pattern: ScPattern): Boolean = {
     pattern match {

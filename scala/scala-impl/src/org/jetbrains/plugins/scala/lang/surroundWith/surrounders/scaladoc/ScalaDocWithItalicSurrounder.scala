@@ -7,7 +7,7 @@ package lang.surroundWith.surrounders.scaladoc
  */
 
 class ScalaDocWithItalicSurrounder extends ScalaDocWithSyntaxSurrounder {
-  def getSyntaxTag: String = "''"
+  override def getSyntaxTag: String = "''"
 
-  def getTemplateDescription: String = "Italic: '' ''"
+  override def getTemplateDescription: String = "Italic: '' ''"
 }

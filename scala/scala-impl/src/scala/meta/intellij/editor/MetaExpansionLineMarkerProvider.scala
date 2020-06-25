@@ -7,7 +7,6 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.impl.source.tree.LeafPsiElement
-import org.jetbrains.plugin.scala.util.MacroExpansion
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpansionLineMarkerProvider
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -15,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.util.MacroExpansion
 
 class MetaExpansionLineMarkerProvider extends MacroExpansionLineMarkerProvider {
 

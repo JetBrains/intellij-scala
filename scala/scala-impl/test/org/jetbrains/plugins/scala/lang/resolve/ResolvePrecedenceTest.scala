@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.resolve.SimpleResolveTestBase.{REFSRC, REFTGT}
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_12, Scala_2_13}
 
 abstract class ResolvePrecedenceTest extends ScalaLightCodeInsightFixtureTestAdapter
   with SimpleResolveTestBase {
@@ -117,7 +117,7 @@ abstract class ResolvePrecedenceTest extends ScalaLightCodeInsightFixtureTestAda
 
 class ResolvePrecedenceTest2_13 extends ResolvePrecedenceTest {
 
-  override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_13
+  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_2_13
 
   def testSCL16057(): Unit = doResolveTest(
     s"""
@@ -255,7 +255,7 @@ class ResolvePrecedenceTest2_13 extends ResolvePrecedenceTest {
 
 class ResolvePrecedenceTest2_12 extends ResolvePrecedenceTest {
 
-  override protected def supportedIn(version: ScalaVersion) = version <= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion) = version  <= LatestScalaVersions.Scala_2_12
 
   def testSCL16057(): Unit = doResolveTest(
     s"""

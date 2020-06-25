@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
 import java.util
 
-import com.intellij.debugger.DebuggerBundle
+import com.intellij.debugger.JavaDebuggerBundle
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier, TypeEvaluator}
 import com.intellij.debugger.impl.DebuggerUtilsEx
@@ -16,13 +16,13 @@ import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
   */
 class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, typeEvaluator: TypeEvaluator) extends Evaluator {
 
-  def evaluate(context: EvaluationContextImpl): AnyRef = {
+  override def evaluate(context: EvaluationContextImpl): AnyRef = {
     val value: Value = operandEvaluator.evaluate(context).asInstanceOf[Value]
     if (value == null) {
       return DebuggerUtilsEx.createValue(context.getDebugProcess.getVirtualMachineProxy, PsiType.BOOLEAN.getPresentableText(), false)
     }
     if (!value.isInstanceOf[ObjectReference]) {
-      throw EvaluationException(DebuggerBundle.message("evaluation.error.object.reference.expected"))
+      throw EvaluationException(JavaDebuggerBundle.message("evaluation.error.object.reference.expected"))
     }
     try {
       val refType: ReferenceType = typeEvaluator.evaluate(context).asInstanceOf[ReferenceType]

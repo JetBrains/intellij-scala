@@ -1,15 +1,18 @@
 package org.jetbrains.plugins.scala.lang.transformation
 
 import java.awt.Dimension
+import java.lang
+
 import javax.swing._
 import javax.swing.tree.{DefaultTreeCellRenderer, TreeNode}
-
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.profile.codeInspection.ui.table.ThreeStateCheckBoxRenderer
 import com.intellij.ui.treeStructure.treetable.{ListTreeTableModel, TreeColumnInfo, TreeTable}
 import com.intellij.util.ui.ColumnInfo
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode
+import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.transformation.annotations._
 import org.jetbrains.plugins.scala.lang.transformation.calls._
 import org.jetbrains.plugins.scala.lang.transformation.conversions.MakeBoxingExplicit
@@ -95,7 +98,7 @@ class SelectionDialog {
     )
   )
 
-  def show(title: String): Option[Set[Transformer]] = {
+  def show(@Nls title: String): Option[Set[Transformer]] = {
     val dialog = new MyDialog(RootGroup)
     dialog.setTitle(title)
 
@@ -105,22 +108,22 @@ class SelectionDialog {
   private class MyDialog(root: Group) extends DialogWrapper(false) {
     init()
 
-    protected def createCenterPanel = {
-      val rightColumn = new ColumnInfo[Node, java.lang.Boolean]("Enabled") {
-        override def getColumnClass = classOf[Boolean]
+    override protected def createCenterPanel: JComponent = {
+      val rightColumn: ColumnInfo[Node, lang.Boolean] = new ColumnInfo[Node, java.lang.Boolean](ScalaBundle.message("column.enabled")) {
+        override def getColumnClass: Class[_] = classOf[Boolean]
 
         override def isCellEditable(item: Node) = true
 
-        override def valueOf(node: Node) = node.value.map(Boolean.box).orNull
+        override def valueOf(node: Node): lang.Boolean = node.value.map(Boolean.box).orNull
 
-        override def setValue(node: Node, value: java.lang.Boolean) {
+        override def setValue(node: Node, value: java.lang.Boolean): Unit = {
           val toggle = node.value.forall(!_)
           node.value = Some(toggle)
         }
       }
 
-      val model = new ListTreeTableModel(root, Array(new TreeColumnInfo("Transformation"), rightColumn)) {
-        override def setValueAt(aValue: Any, node: Any, column: Int) {
+      val model = new ListTreeTableModel(root, Array(new TreeColumnInfo(ScalaBundle.message("column.transformation")), rightColumn)) {
+        override def setValueAt(aValue: Any, node: Any, column: Int): Unit = {
           super.setValueAt(aValue, node, column)
 
           nodeChanged(node.asInstanceOf[TreeNode])
@@ -164,21 +167,21 @@ private abstract class Node(name: String) extends DefaultMutableTreeTableNode(na
 private case class Group(name: String, nodes: Node*) extends Node(name) {
   nodes.foreach(add)
 
-  def value =
+  override def value: Option[Boolean] =
     if (nodes.forall(_.value.contains(true))) Some(true)
     else if (nodes.forall(_.value.contains(false))) Some(false)
     else None
 
-  def value_=(b: Option[Boolean]) {
+  override def value_=(b: Option[Boolean]): Unit = {
     nodes.foreach(_.value = b)
   }
 
-  def transformers = nodes.flatMap(_.transformers)
+  override def transformers: Seq[Transformer] = nodes.flatMap(_.transformers)
 }
 
 // TODO remove the default argument when all transformers are implemented
 private case class Entry(name: String, private val transformer: Transformer = null, private val enabled: Boolean = true) extends Node(name) {
   var value: Option[Boolean] = Some(enabled)
 
-  def transformers = if (value.contains(true)) Seq(transformer) else Seq.empty
+  override def transformers: Seq[Transformer] = if (value.contains(true)) Seq(transformer) else Seq.empty
 }

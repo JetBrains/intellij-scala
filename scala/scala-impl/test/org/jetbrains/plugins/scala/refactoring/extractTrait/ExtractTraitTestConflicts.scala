@@ -6,7 +6,7 @@ package refactoring.extractTrait
  * 2014-06-04
  */
 class ExtractTraitTestConflicts extends ExtractTraitTestBase {
-  def testPrivateMember() {
+  def testPrivateMember(): Unit = {
     val text =
       """
         |class A {<caret>
@@ -37,7 +37,7 @@ class ExtractTraitTestConflicts extends ExtractTraitTestBase {
     checkResult(text, result, onlyDeclarations = true, onlyFirstMember = true)
   }
 
-  def testFromAnonymousClass() {
+  def testFromAnonymousClass(): Unit = {
     val text =
       """
         |object A {
@@ -69,7 +69,7 @@ class ExtractTraitTestConflicts extends ExtractTraitTestBase {
     checkResult(text, result, onlyDeclarations = false, onlyFirstMember = false)
   }
 
-  def testSuperReference() {
+  def testSuperReference(): Unit = {
     val text =
       """
         |class A extends AA {<caret>
@@ -84,7 +84,7 @@ class ExtractTraitTestConflicts extends ExtractTraitTestBase {
     checkException(text, message, onlyDeclarations = false, onlyFirstMember = true)
   }
 
-  def testClassTypeParams() {
+  def testClassTypeParams(): Unit = {
     val text =
       """
         |class A extends AA[Int] {<caret>

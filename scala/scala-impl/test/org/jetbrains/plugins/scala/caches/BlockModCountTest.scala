@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.caches
 
+import com.intellij.openapi.editor.Document
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiElement}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions._
@@ -15,16 +18,18 @@ class BlockModCountTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override def loadScalaLibrary = false
 
-  protected def doTest(fileText: String): Unit = {
+  protected def doTest(fileText: String, changeAtOffset: Int => Unit): Unit = {
     val fileName = getTestName(true) + ".scala"
     myFixture.configureByText(fileName, fileText.withNormalizedSeparator.trim)
 
-    val caretOffsets = collectMarkerOffsets(|)
-    val offsetsToChange = collectMarkerOffsets(^^)
-    val offsetsToStay = collectMarkerOffsets(~~)
+    val document = myFixture.getDocument(getFile)
+
+    val caretOffsets = extractMarkerOffsets(document, |)
+    def offsetsToChange = collectMarkerOffsets(^^)
+    def offsetsToStay = collectMarkerOffsets(~~)
 
     Assert.assertTrue("No caret markers found", caretOffsets.nonEmpty)
-    Assert.assertTrue("No modCount markers found", offsetsToChange.size + offsetsToStay.size > 0)
+    Assert.assertTrue("No modCount markers found", offsetsToChange.length + offsetsToStay.length > 0)
 
     for {
       caretOffset <- caretOffsets
@@ -33,7 +38,13 @@ class BlockModCountTest extends ScalaLightCodeInsightFixtureTestAdapter {
       val (countsToChangeBefore, countsToStayBefore) =
         (computeModCounts(offsetsToChange), computeModCounts(offsetsToStay))
 
-      changePsiAt(caretOffset)
+      val lengthBefore = document.getTextLength
+      changeAtOffset(caretOffset)
+
+      val lengthAfter = document.getTextLength
+      if (lengthAfter != lengthBefore) {
+        Assert.assertEquals("Only a single caret may be used if document length is changed", 1, caretOffsets.length)
+      }
 
       val (countsToChangeAfter, countsToStayAfter) =
         (computeModCounts(offsetsToChange), computeModCounts(offsetsToStay))
@@ -51,6 +62,9 @@ class BlockModCountTest extends ScalaLightCodeInsightFixtureTestAdapter {
     }
   }
 
+  protected def doTest(fileText: String, charToTypeAndRemove: Char = 'a'): Unit =
+    doTest(fileText, typeAndRemoveChar(_, charToTypeAndRemove))
+
   private def assertError(fileText: String): Unit = {
     try {
       doTest(fileText)
@@ -63,7 +77,15 @@ class BlockModCountTest extends ScalaLightCodeInsightFixtureTestAdapter {
   private def message(description: String, caretOffset: Int, psiOffset: Int) = {
     val elementAtCaret = getFile.findElementAt(caretOffset)
     val psiElement = getFile.findElementAt(psiOffset)
-    s"$description at `${psiElement.getText}` if there was change at `${elementAtCaret.getText}`"
+    s"""$description at `${psiElement.getText}` in `${lineText(psiOffset)}`
+       |if there was change at `${elementAtCaret.getText}` in `${lineText(caretOffset)}`""".stripMargin
+  }
+
+  private def lineText(offset: Int): String = {
+    val document = getEditor.getDocument
+    val line = document.getLineNumber(offset)
+    val range = TextRange.create(document.getLineStartOffset(line), document.getLineEndOffset(line))
+    document.getText(range)
   }
 
   private def modificationCount(element: PsiElement): Long =
@@ -82,6 +104,24 @@ class BlockModCountTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   private def computeModCounts(offsets: Seq[Int]): Array[Long] = inReadAction {
     offsets.map(maxElementWithStartAt).map(modificationCount).toArray
+  }
+
+  private def extractMarkerOffsets(document: Document, marker: String): Seq[Int] = invokeAndWait {
+    implicit val project: Project = getProject
+    inWriteCommandAction {
+      val markerLength = marker.length
+      var text = document.getText
+      var nextOccurrence = text.indexOf(marker)
+      var result = List.empty[Int]
+      while (nextOccurrence >= 0) {
+        result = nextOccurrence :: result
+        text = text.substring(0, nextOccurrence) + text.substring(nextOccurrence + markerLength)
+        nextOccurrence = text.indexOf(marker)
+      }
+      document.replaceString(0, document.getTextLength, text)
+      commitDocumentInEditor()
+      result.reverse
+    }
   }
 
   //SCL-15795
@@ -210,5 +250,35 @@ class BlockModCountTest extends ScalaLightCodeInsightFixtureTestAdapter {
          |  def foo: ${^^}String = "${|}foo"
          |}
          |""".stripMargin)
+  }
+
+  def testImportExpr(): Unit = {
+    doTest(
+      s"""import aaa.bbb${|}
+         |
+         |class ${^^}A {
+         |  def foo(): String = ${^^}"foo"
+         |}""".stripMargin,
+      charToTypeAndRemove = '.'
+    )
+    doTest(
+      s"""import aaa.bbb.${|}
+         |
+         |class ${^^}A {
+         |  def foo(): String = ${^^}"foo"
+         |}""".stripMargin,
+      charToTypeAndRemove = '_'
+    )
+  }
+
+  def testCommentImport(): Unit = {
+    doTest(
+      s"""
+         |${|}import scala.math._
+         |
+         |${^^}class bla {
+         |  ${^^}val x = max (1,2)
+         |}""".stripMargin,
+      changeAtOffset = insertAtOffset(_, "//"))
   }
 }

@@ -50,6 +50,6 @@ class ScalaArrangementEntry(parent: ArrangementEntry,
     case _                            => false
   }
 
-  def spansTextRange(range: TextRange) =
+  def spansTextRange(range: TextRange): Boolean =
     range.getStartOffset == getStartOffset && range.getEndOffset == getEndOffset
 }

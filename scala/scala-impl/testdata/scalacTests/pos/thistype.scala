@@ -1,7 +1,7 @@
 object Test {
 
   class Ctl {
-    def enable: this.type = { Console.println("enable"); this }
+    def enable: this.type = { Console.println("bytecode.indices.enable"); this }
   }
 
   class MouseCtl extends Ctl {

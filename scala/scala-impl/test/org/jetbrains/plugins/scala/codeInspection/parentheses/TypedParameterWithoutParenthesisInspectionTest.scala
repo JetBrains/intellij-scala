@@ -12,18 +12,16 @@ import org.jetbrains.plugins.scala.extensions._
 class TypedParameterWithoutParenthesisInspectionTest extends ScalaQuickFixTestBase with ForceInspectionSeverity {
 
   import CodeInsightTestFixture.CARET_MARKER
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[TypedParameterWithoutParenthesisInspection]
 
   override protected val description: String =
-    InspectionBundle.message("typed.parameter.without.parenthesis.in.function.literal")
+    ScalaInspectionBundle.message("typed.parameter.without.parenthesis.in.function.literal")
 
   override protected def forcedInspectionSeverity: HighlightDisplayLevel =
     HighlightDisplayLevel.WARNING
 
-  val hint = InspectionBundle.message("surround.with.parenthesis")
+  val hint = ScalaInspectionBundle.message("surround.with.parenthesis")
 
   def test_typed_brace(): Unit = {
     val selected =

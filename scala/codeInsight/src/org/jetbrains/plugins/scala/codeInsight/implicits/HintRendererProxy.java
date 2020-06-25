@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits;
 
 import com.intellij.codeInsight.daemon.impl.HintRenderer;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.Inlay;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import org.jetbrains.annotations.NotNull;
@@ -18,19 +19,25 @@ abstract class HintRendererProxy extends HintRenderer {
         super(text);
     }
 
-    @Override
-    public int calcWidthInPixels(@NotNull Inlay inlay) {
-        return calcWidthInPixels(inlay.getEditor());
-    }
+    protected abstract int calcWidthInPixels0(@NotNull Editor editor);
 
     @Override
-    public void paint(@NotNull Inlay inlay, @NotNull Graphics g, @NotNull Rectangle r, @NotNull TextAttributes textAttributes) {
-        paint(inlay.getEditor(), g, r, textAttributes);
+    final public int calcWidthInPixels(@NotNull Inlay inlay) {
+        return calcWidthInPixels0(inlay.getEditor());
     }
+
+    protected abstract void paint0(@NotNull Editor editor, @NotNull Graphics g, @NotNull Rectangle r, @NotNull TextAttributes textAttributes);
+
+    @Override
+    final public void paint(@NotNull Inlay inlay, @NotNull Graphics g, @NotNull Rectangle r, @NotNull TextAttributes textAttributes) {
+        paint0(inlay.getEditor(), g, r, textAttributes);
+    }
+
+    protected abstract String getContextMenuGroupId0(@NotNull Editor editor);
 
     @Nullable
     @Override
-    public String getContextMenuGroupId(@NotNull Inlay inlay) {
-        return getContextMenuGroupId();
+    final public String getContextMenuGroupId(@NotNull Inlay inlay) {
+        return getContextMenuGroupId0(inlay.getEditor());
     }
 }

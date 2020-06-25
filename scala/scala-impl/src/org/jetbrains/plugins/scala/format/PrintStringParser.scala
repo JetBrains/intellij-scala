@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
  */
 
 object PrintStringParser extends StringParser {
-  def parse(element: PsiElement): Option[Seq[StringPart]] = {
+  override def parse(element: PsiElement): Option[Seq[StringPart]] = {
     extractPrintCall(element).map(p => FormattedStringParser.parseFormatCall(p._1, p._2))
   }
 

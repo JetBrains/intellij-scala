@@ -47,8 +47,8 @@ class ScalaGoToSymbolContributor extends GotoClassContributor {
       else GlobalSearchScope.projectScope(project)
 
     val cleanName: String = ScalaNamesUtil.cleanFqn(name)
-    val methods = METHOD_NAME_KEY.elements(cleanName, scope, classOf[ScFunction])
-    val typeAliases = TYPE_ALIAS_NAME_KEY.elements(cleanName, scope, classOf[ScTypeAlias])
+    val methods = METHOD_NAME_KEY.elements(cleanName, scope)
+    val typeAliases = TYPE_ALIAS_NAME_KEY.elements(cleanName, scope)
     val items = ArrayBuffer.empty[NavigationItem]
     if (searchAll) {
       items ++= methods
@@ -58,7 +58,7 @@ class ScalaGoToSymbolContributor extends GotoClassContributor {
       items ++= methods.filter(isNonLocal)
       items ++= typeAliases.filter(isNonLocal)
     }
-    for (property <- PROPERTY_NAME_KEY.elements(cleanName, scope, classOf[ScValueOrVariable])) {
+    for (property <- PROPERTY_NAME_KEY.elements(cleanName, scope)) {
       if (isNonLocal(property) || searchAll) {
         val elems = property.declaredElementsArray
         for (elem <- elems) {
@@ -72,14 +72,14 @@ class ScalaGoToSymbolContributor extends GotoClassContributor {
         }
       }
     }
-    for (clazz <- NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY.elements(cleanName, scope, classOf[PsiClass])) {
+    for (clazz <- NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY.elements(cleanName, scope)) {
       if (isNonLocal(clazz) || searchAll) {
         val navigationItemName: String = ScalaNamesUtil.scalaName(clazz)
         if (ScalaNamesUtil.equivalentFqn(name, navigationItemName))
           items += clazz
       }
     }
-    items ++= CLASS_PARAMETER_NAME_KEY.elements(cleanName, scope, classOf[ScClassParameter])
+    items ++= CLASS_PARAMETER_NAME_KEY.elements(cleanName, scope)
     items.toArray
   }
 

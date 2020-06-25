@@ -27,7 +27,7 @@ abstract class AbstractScopeSuggesterTest extends ScalaLightPlatformCodeInsightT
 
   protected def folderPath = baseRootPath + "introduceVariable/scopeSuggester/"
 
-  protected def doTest(suggestedScopesNames: Seq[String]) {
+  protected def doTest(suggestedScopesNames: Seq[String]): Unit = {
     val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")

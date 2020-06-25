@@ -4,24 +4,27 @@ package completion
 package clauses
 
 import com.intellij.codeInsight.completion.{CompletionParameters, CompletionProvider, CompletionResultSet}
-import com.intellij.psi.util.PsiTreeUtil.getParentOfType
+import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
+import scala.reflect.{ClassTag, classTag}
+
 private[clauses] abstract class ClauseCompletionProvider[
-  T <: ScalaPsiElement with Typeable : reflect.ClassTag
+  T <: ScalaPsiElement with Typeable : ClassTag
 ] extends CompletionProvider[CompletionParameters] {
 
   override final def addCompletions(parameters: CompletionParameters,
                                     context: ProcessingContext,
                                     result: CompletionResultSet): Unit = {
     val place = positionFromParameters(parameters)
-    getParentOfType(place, reflect.classTag.runtimeClass.asInstanceOf[Class[T]]) match {
+    getContextOfType(place, classTag.runtimeClass.asInstanceOf[Class[T]]) match {
       case null =>
-      case typeable => addCompletions(typeable, result) {
-        ClauseCompletionParameters(place, parameters.getOriginalFile.getResolveScope, parameters.getInvocationCount)
-      }
+      case typeable =>
+        val originalFile = parameters.getOriginalFile
+        val clauseParameters = ClauseCompletionParameters(place, originalFile.getResolveScope, parameters.getInvocationCount)
+        addCompletions(typeable, result)(clauseParameters)
     }
   }
 

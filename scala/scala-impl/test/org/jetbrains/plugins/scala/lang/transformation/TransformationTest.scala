@@ -21,9 +21,9 @@ abstract class TransformationTest extends base.ScalaLightCodeInsightFixtureTestA
   protected def transform(element: PsiElement, file: PsiFile, reformat: Transformer.ReformatAction): Unit
 
   protected final def check(@Language("Scala") before: String,
-                      @Language("Scala") after: String)
-                     (@Language("Scala") header: String = "",
-                      @Language("Scala") footer: String = ""): Unit = {
+                            @Language("Scala") after: String)
+                           (@Language("Scala") header: String = "",
+                            @Language("Scala") footer: String = ""): Unit = {
     doCheck(
       before.withNormalizedSeparator,
       after.withNormalizedSeparator

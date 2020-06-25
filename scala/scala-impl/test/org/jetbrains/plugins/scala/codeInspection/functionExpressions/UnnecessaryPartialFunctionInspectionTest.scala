@@ -6,8 +6,6 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
 
 class UnnecessaryPartialFunctionInspectionTest extends ScalaQuickFixTestBase {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[UnnecessaryPartialFunctionInspection]
 
   override protected val description: String = UnnecessaryPartialFunctionInspection.inspectionName

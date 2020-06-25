@@ -6,6 +6,7 @@ package expr
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -26,11 +27,11 @@ class ScThisReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) with
     refTemplate match {
       case Some(hasInlineAnnotation()) => createTypeFromText("scala.meta.Stat", this, null).asTypeResult
       case Some(td) => ScThisReferenceImpl.getThisTypeForTypeDefinition(td, this)
-      case _ => Failure("Cannot infer type")
+      case _ => Failure(ScalaBundle.message("cannot.infer.type"))
     }
   }
 
-  def refTemplate: Option[ScTemplateDefinition] = reference match {
+  override def refTemplate: Option[ScTemplateDefinition] = reference match {
     case Some(ref) => ref.resolve() match {
       case td: ScTypeDefinition if PsiTreeUtil.isContextAncestor(td, ref, false) => Some(td)
       case _ => None
@@ -58,12 +59,13 @@ object ScThisReferenceImpl {
           ScThisType(td)
         case _ =>
 
-          td.getTypeWithProjections(thisProjections = true).map {
-            case scType => td.selfType.map(scType.glb(_)).getOrElse(scType)
-          } match {
-            case Right(scType) => scType
-            case _ => return Failure("No clazz type found")
-          }
+          td.getTypeWithProjections(thisProjections = true)
+            .map(scType => td.selfType.map(scType.glb(_))
+              .getOrElse(scType)
+            ) match {
+              case Right(scType) => scType
+              case _ => return Failure(ScalaBundle.message("no.clazz.type.found"))
+            }
       }
     }
     Right(result)

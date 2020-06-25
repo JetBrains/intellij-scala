@@ -17,4 +17,28 @@ class ParameterBoundedImplicitConversionTest extends ScalaLightCodeInsightFixtur
       """.stripMargin
     checkTextHasNoErrors(text)
   }
+
+  def testSCL17364(): Unit = checkTextHasNoErrors(
+    """
+      |implicit class Test[T](name: Int) {
+      |  def withValue(value: T): Test[T] = this
+      |}
+      |
+      |val test: Test[Boolean] = 123.withValue(true)
+      |""".stripMargin
+  )
+
+  def testSCL17368(): Unit = checkTextHasNoErrors(
+    """
+      |trait TestClassA
+      |trait TestClassB
+      |object TestClassA extends TestUtil[TestClassA]
+      |
+      |trait TestUtil[I <: TestClassA] {
+      |  implicit def convert(classA: TestClassA)(implicit smt: I): TestClassB = null
+      |}
+      |implicit val instA: TestClassA = null
+      |val instB: TestClassB = instA
+      |""".stripMargin
+  )
 }

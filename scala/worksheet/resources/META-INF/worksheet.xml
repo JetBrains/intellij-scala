@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
 <idea-plugin>
-    <resource-bundle xmlns="">messages.WorksheetBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
         <fileType name="Scala Worksheet" language="Scala Worksheet" extensions="sc"
@@ -10,9 +9,11 @@
                                implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetParserDefinition"/>
         <lang.fileViewProviderFactory language="Scala Worksheet"
                                       implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetFileViewProviderFactory"/>
+        <lang.substitutor language="Scala Worksheet" implementationClass="org.jetbrains.plugins.scala.worksheet.ScalaWorksheetLanguageSubstitutor"/>
 
         <localInspection implementationClass="org.jetbrains.plugins.scala.worksheet.inspections.WorksheetPackageDeclarationInspection"
-                         displayName="Worksheet package declaration"
+                         bundle="messages.ScalaWorksheetBundle"
+                         key="displayname.worksheet.package.declaration"
                          groupPath="Scala" groupName="Worksheet"
                          level="ERROR" enabledByDefault="true" language="Scala"/>
 

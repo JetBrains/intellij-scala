@@ -2,11 +2,14 @@ package org.jetbrains.plugins.scala.lang.psi
 package types
 package api
 
+import java.util.concurrent.ConcurrentHashMap
+
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Computable
-import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.RecursionManager
-import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker, Tracer}
+import org.jetbrains.plugins.scala.caches.stats.CacheCapabilities
+import org.jetbrains.plugins.scala.caches.stats.CacheTracker
+import org.jetbrains.plugins.scala.caches.stats.Tracer
 import org.jetbrains.plugins.scala.extensions.NullSafe
 import org.jetbrains.plugins.scala.lang.psi.types.api.Equivalence._
 
@@ -24,7 +27,7 @@ trait Equivalence {
   private val guard = RecursionManager.RecursionGuard[Key, ConstraintsResult](s"${typeSystem.name}.equivalence.guard")
 
   private val cache = {
-    val cache = ContainerUtil.newConcurrentMap[Key, ConstraintsResult]()
+    val cache = new ConcurrentHashMap[Key, ConstraintsResult]()
     CacheTracker.alwaysTrack(equivInnerTraceId, equivInnerTraceId)(this: Equivalence)
     cache
   }

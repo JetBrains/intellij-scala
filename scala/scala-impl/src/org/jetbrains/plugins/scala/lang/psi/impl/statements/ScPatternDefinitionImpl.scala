@@ -41,7 +41,7 @@ final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternD
     case Some(te) => te.`type`()
     case _ =>
       expr.toRight {
-        new Failure("Cannot infer type without an expression")
+        new Failure(ScalaBundle.message("cannot.infer.type.without.an.expression"))
       }.flatMap {
         _.`type`()
       }.map {

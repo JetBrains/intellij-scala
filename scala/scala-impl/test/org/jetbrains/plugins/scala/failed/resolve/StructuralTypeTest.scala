@@ -10,5 +10,5 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class StructuralTypeTest extends FailedResolveTest("structuralType") {
-  def testSCL6894() = doTest()
+  def testSCL6894(): Unit = doTest()
 }

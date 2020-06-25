@@ -20,7 +20,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
   private val commonSettings = settings.getCommonSettings(ScalaLanguage.INSTANCE)
   private val myPostProcessor = new PostFormatProcessorHelper(commonSettings)
 
-  override def visitIf(stmt: ScIf) {
+  override def visitIf(stmt: ScIf): Unit = {
     if (checkElementContainsRange(stmt)) {
       super.visitIf(stmt)
       stmt.thenExpression match {
@@ -37,7 +37,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
     }
   }
 
-  override def visitWhile(ws: ScWhile) {
+  override def visitWhile(ws: ScWhile): Unit = {
     if (checkElementContainsRange(ws)) {
       super.visitWhile(ws)
       ws.expression match {
@@ -48,7 +48,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
     }
   }
 
-  override def visitDo(stmt: ScDo) {
+  override def visitDo(stmt: ScDo): Unit = {
     if (checkElementContainsRange(stmt)) {
       super.visitDo(stmt)
       stmt.body match {
@@ -58,7 +58,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
     }
   }
 
-  override def visitFor(expr: ScFor) {
+  override def visitFor(expr: ScFor): Unit = {
     if (checkElementContainsRange(expr)) {
       super.visitFor(expr)
       expr.body match {
@@ -68,7 +68,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
     }
   }
 
-  override def visitFunction(fun: ScFunction) {
+  override def visitFunction(fun: ScFunction): Unit = {
     if (checkElementContainsRange(fun)) {
       super.visitFunction(fun)
       fun match {
@@ -83,7 +83,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
   }
 
 
-  override def visitTry(tryStmt: ScTry) {
+  override def visitTry(tryStmt: ScTry): Unit = {
     if (checkElementContainsRange(tryStmt)) {
       super.visitTry(tryStmt)
 
@@ -96,7 +96,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
   }
 
 
-  override def visitCaseClause(cc: ScCaseClause) {
+  override def visitCaseClause(cc: ScCaseClause): Unit = {
     if (checkElementContainsRange(cc)) {
       super.visitCaseClause(cc)
       cc.expr match {
@@ -109,7 +109,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
   }
 
 
-  override def visitFunctionExpression(stmt: ScFunctionExpr) {
+  override def visitFunctionExpression(stmt: ScFunctionExpr): Unit = {
     if (checkElementContainsRange(stmt)) {
       super.visitFunctionExpression(stmt)
       stmt.result match {
@@ -121,7 +121,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
     }
   }
 
-  private def processExpression(expr: ScExpression, stmt: PsiElement, option: Int) {
+  private def processExpression(expr: ScExpression, stmt: PsiElement, option: Int): Unit = {
     expr match {
       case _: ScBlockExpr =>
       case c: ScBlock if c.firstChild.exists(_.isInstanceOf[ScBlockExpr]) && c.firstChild == c.lastChild =>
@@ -134,7 +134,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
     }
   }
 
-  private def processExpressions(elements: Seq[PsiElement], stmt: PsiElement, option: Int) {
+  private def processExpressions(elements: Seq[PsiElement], stmt: PsiElement, option: Int): Unit = {
     if (elements.size == 1 && elements.head.isInstanceOf[ScBlockExpr]) return
     if (elements.head.getNode.getElementType != ScalaTokenTypes.tLBRACE ||
       elements.last.getNode.getElementType != ScalaTokenTypes.tRBRACE) {
@@ -188,7 +188,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
     myPostProcessor.isElementPartlyInRange(element)
   }
 
-  protected def updateResultRange(oldTextLength: Int, newTextLength: Int) {
+  protected def updateResultRange(oldTextLength: Int, newTextLength: Int): Unit = {
     myPostProcessor.updateResultRange(oldTextLength, newTextLength)
   }
 

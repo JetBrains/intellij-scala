@@ -11,7 +11,8 @@ import org.jetbrains.annotations.NotNull;
 
 @State(
         name = "ScalaCodeInsightSettings",
-        storages = {@Storage("scala_code_insight_settings.xml")}
+        storages = {@Storage("scala_code_insight_settings.xml")},
+        reportStatistic = true
 )
 public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaCodeInsightSettings> {
 

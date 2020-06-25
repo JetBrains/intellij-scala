@@ -11,6 +11,7 @@ import com.intellij.openapi.util.io.{FileUtil, StreamUtil}
 import com.intellij.util.io.HttpRequests
 import com.intellij.util.net.{HttpConfigurable, NetUtils}
 import org.jetbrains.ide.PooledThreadExecutor
+import org.jetbrains.sbt.SbtBundle
 
 import scala.util.{Failure, Try}
 
@@ -34,7 +35,7 @@ object TechHubDownloadUtil {
   def download(progress: Option[ProgressIndicator], location: String, output: OutputStream): Unit = {
     val originalText: String = progress.map(_.getText).getOrElse("")
     substituteContentLength(progress, originalText, -1)
-    progress.foreach(p => p.setText2(s"Downloading $location"))
+    progress.foreach(p => p.setText2(SbtBundle.message("sbt.techhub.downloading.location", location)))
 
     try {
       PooledThreadExecutor.INSTANCE.invokeAny(util.Arrays.asList(new Callable[Object] {
@@ -68,11 +69,11 @@ object TechHubDownloadUtil {
       val status = connection.getResponseMessage
 
       if (status == null)
-        Failure(new IOException(s"No response status from connection to $url"))
+        Failure(new IOException(SbtBundle.message("sbt.techhub.no.response.status.from.connection.to.url", url)))
       else if (status.trim.startsWith("OK"))
         Try(StreamUtil.readText(connection.getInputStream, StandardCharsets.UTF_8))
       else
-        Failure(new IOException(s"Response to connection to $url was '$status'"))
+        Failure(new IOException(SbtBundle.message("sbt.techhub.response.to.connection.to.url.was.status", url, status)))
 
     } finally {
       if (connection != null) connection.disconnect()

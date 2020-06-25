@@ -14,6 +14,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
 import com.intellij.refactoring.rename.inplace.{MemberInplaceRenamer, VariableInplaceRenamer}
 import com.intellij.refactoring.{RefactoringActionHandler, RefactoringBundle}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaNamesUtil, ScalaRefactoringUtil}
 
@@ -43,7 +44,7 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
 
   protected override def getCommandName: String = {
     if (myInitialName != null) RefactoringBundle.message("renaming.command.name", myInitialName)
-    else "Rename"
+    else ScalaBundle.message("rename")
   }
 
   override def collectRefs(referencesSearchScope: SearchScope): util.Collection[PsiReference] =
@@ -57,7 +58,7 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
 
   override def acceptReference(reference: PsiReference): Boolean = true
 
-  override def beforeTemplateStart() {
+  override def beforeTemplateStart(): Unit = {
     super.beforeTemplateStart()
 
     val revertInfo = ScalaRefactoringUtil.RevertInfo(editor.getDocument.getText, editor.getCaretModel.getOffset)
@@ -71,38 +72,36 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
     myCaretRangeMarker.setGreedyToRight(true)
   }
 
-  override def revertState() {
+  override def revertState(): Unit = {
     if (myOldName == null) return
 
-    CommandProcessor.getInstance.executeCommand(myProject, new Runnable {
-      def run() {
-        val revertInfo = editor.getUserData(ScalaMemberInplaceRenamer.REVERT_INFO)
-        val document = myEditor.getDocument
-        if (revertInfo != null) {
-          extensions.inWriteAction {
-            document.replaceString(0, document.getTextLength, revertInfo.fileText)
-            PsiDocumentManager.getInstance(myProject).commitDocument(document)
-          }
-          val offset = revertInfo.caretOffset
-          myEditor.getCaretModel.moveToOffset(offset)
-          myEditor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
-          PsiDocumentManager.getInstance(myEditor.getProject).commitDocument(document)
-          val clazz = myElementToRename.getClass
-          val element = TargetElementUtil.findTargetElement(myEditor,
-            TargetElementUtil.REFERENCED_ELEMENT_ACCEPTED | TargetElementUtil.ELEMENT_NAME_ACCEPTED)
-          myElementToRename = element match {
-            case null => null
-            case named: PsiNamedElement if named.getClass == clazz => named
-            case _ =>
-              RenamePsiElementProcessor.forElement(element).substituteElementToRename(element, myEditor) match {
-                case named: PsiNamedElement if named.getClass == clazz => named
-                case _ => null
-              }
-          }
-        }
-        if (!myProject.isDisposed && myProject.isOpen) {
+    CommandProcessor.getInstance.executeCommand(myProject, () => {
+      val revertInfo = editor.getUserData(ScalaMemberInplaceRenamer.REVERT_INFO)
+      val document = myEditor.getDocument
+      if (revertInfo != null) {
+        extensions.inWriteAction {
+          document.replaceString(0, document.getTextLength, revertInfo.fileText)
           PsiDocumentManager.getInstance(myProject).commitDocument(document)
         }
+        val offset = revertInfo.caretOffset
+        myEditor.getCaretModel.moveToOffset(offset)
+        myEditor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
+        PsiDocumentManager.getInstance(myEditor.getProject).commitDocument(document)
+        val clazz = myElementToRename.getClass
+        val element = TargetElementUtil.findTargetElement(myEditor,
+          TargetElementUtil.REFERENCED_ELEMENT_ACCEPTED | TargetElementUtil.ELEMENT_NAME_ACCEPTED)
+        myElementToRename = element match {
+          case null => null
+          case named: PsiNamedElement if named.getClass == clazz => named
+          case _ =>
+            RenamePsiElementProcessor.forElement(element).substituteElementToRename(element, myEditor) match {
+              case named: PsiNamedElement if named.getClass == clazz => named
+              case _ => null
+            }
+        }
+      }
+      if (!myProject.isDisposed && myProject.isOpen) {
+        PsiDocumentManager.getInstance(myProject).commitDocument(document)
       }
     }, getCommandName, null)
 
@@ -120,7 +119,7 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
 
   override def getSubstituted: PsiElement = {
     val subst = super.getSubstituted
-    if (subst != null && subst.getText == substituted.getText) subst
+    if (subst != null && subst.textMatches(substituted.getText)) subst
     else {
       val psiFile: PsiFile = PsiDocumentManager.getInstance(myProject).getPsiFile(myEditor.getDocument)
       if (psiFile != null) PsiTreeUtil.getParentOfType(psiFile.findElementAt(substitutorOffset), classOf[PsiNameIdentifierOwner])
@@ -147,10 +146,7 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
         val after = text.subSequence(offset, offset + 50)
         val aroundCaret = before + "<caret>" + after
         val message =
-          s"""Could not perform inplace rename:
-             |element to rename: $element ${element.getName}
-             |substituted: $subst
-             |around caret: $aroundCaret""".stripMargin
+          ScalaBundle.message("could.not.perform.inplace.rename", element, element.getName, subst, aroundCaret).stripMargin
         throw new Throwable(message, t)
     }
   }

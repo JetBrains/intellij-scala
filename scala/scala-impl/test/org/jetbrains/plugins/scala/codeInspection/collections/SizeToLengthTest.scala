@@ -9,13 +9,11 @@ import com.intellij.testFramework.EditorTestUtil
  */
 class SizeToLengthTest extends OperationsOnCollectionInspectionTest {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[SizeToLengthInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("size.to.length")
+    ScalaInspectionBundle.message("size.to.length")
 
   def testString(): Unit = {
     doTest(s"""|"".${START}size$END""".stripMargin, "\"\".size", "\"\".length")

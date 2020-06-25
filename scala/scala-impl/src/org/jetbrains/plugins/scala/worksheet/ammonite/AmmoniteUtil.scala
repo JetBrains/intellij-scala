@@ -193,7 +193,7 @@ object AmmoniteUtil {
     case _ => false
   }
   
-  def processAmmoniteImportUsed(imp: ScImportExpr, importsUsed: ArrayBuffer[ImportUsed]) {
+  def processAmmoniteImportUsed(imp: ScImportExpr, importsUsed: ArrayBuffer[ImportUsed]): Unit = {
     if (isAmmoniteSpecificImport(imp)) importsUsed += ImportExprUsed(imp)
   }
 

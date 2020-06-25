@@ -1,48 +1,59 @@
 package org.jetbrains.plugins.scala
-package project.notification.source
+package project
+package notification
+package source
 
 import java.util
 import java.util._
 
 import com.intellij.codeInsight.AttachSourcesProvider
-import com.intellij.codeInsight.daemon.impl.AttachSourcesNotificationProvider
 import com.intellij.ide.highlighter.{JavaClassFileType, JavaFileType}
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.fileEditor.FileEditor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.roots.{LibraryOrderEntry, OrderEntry, ProjectRootManager}
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.util.{ActionCallback, Comparing}
+import com.intellij.openapi.util.{ActionCallback, Comparing, Key}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
 import com.intellij.ui.{EditorNotificationPanel, EditorNotifications, GuiUtils}
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
-//todo: possibly join with AttachSourcesNorificationProvider
+//todo: possibly join with AttachSourcesNotificationProvider
 //todo: differences only in JavaEditorFileSwapper -> ScalaEditorFileSwapper
-class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: EditorNotifications)
-  extends AttachSourcesNotificationProvider() {
+class ScalaAttachSourcesNotificationProvider
+  extends EditorNotifications.Provider[EditorNotificationPanel] {
   private val EXTENSION_POINT_NAME: ExtensionPointName[AttachSourcesProvider] =
     new ExtensionPointName[AttachSourcesProvider]("com.intellij.attachSourcesProvider")
 
-  override def createNotificationPanel(file: VirtualFile, fileEditor: FileEditor): EditorNotificationPanel = {
+  EXTENSION_POINT_NAME.addChangeListener(() => {
+    for (project <- ProjectManager.getInstance.getOpenProjects) {
+      EditorNotifications.getInstance(project).updateNotifications(this)
+    }
+  }, UnloadAwareDisposable.scalaPluginDisposable)
+
+  override def getKey: Key[EditorNotificationPanel] =
+    ScalaAttachSourcesNotificationProvider.KEY
+
+  override def createNotificationPanel(file: VirtualFile, fileEditor: FileEditor, project: Project): EditorNotificationPanel = {
     if (file.getFileType ne JavaClassFileType.INSTANCE) return null
-    val libraries: util.List[LibraryOrderEntry] = findOrderEntriesContainingFile(file)
+    val libraries: util.List[LibraryOrderEntry] = findOrderEntriesContainingFile(file, project)
     if (libraries == null) return null
 
-    val scalaFile = PsiManager.getInstance(myProject).findFile(file) match {
+    val scalaFile = PsiManager.getInstance(project).findFile(file) match {
       case scalaFile: ScalaFile => scalaFile
-      case _ => return super.createNotificationPanel(file, fileEditor, myProject) //as Java has now different message
+      case _ => return null //as Java has now different message
     }
 
     val fqn = ScalaEditorFileSwapper.getFQN(scalaFile)
-    if (fqn == null || ScalaEditorFileSwapper.findSourceFile(myProject, file) != null) return null
+    if (fqn == null || ScalaEditorFileSwapper.findSourceFile(project, file) != null) return null
 
     val panel: EditorNotificationPanel = new EditorNotificationPanel
     val sourceFile: VirtualFile = findSourceFile(file)
@@ -52,7 +63,7 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
       defaultAction = new AttachSourcesUtil.AttachJarAsSourcesAction(file)
     } else {
       panel.setText(ScalaBundle.message("library.sources.not.found"))
-      defaultAction = new AttachSourcesUtil.ChooseAndAttachSourcesAction(myProject, panel)
+      defaultAction = new AttachSourcesUtil.ChooseAndAttachSourcesAction(project, panel)
     }
 
 
@@ -84,16 +95,16 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
     while (iterator.hasNext) {
       val each = iterator.next()
       panel.createActionLabel(GuiUtils.getTextWithoutMnemonicEscaping(each.getName), new Runnable {
-        def run() {
-          if (!Comparing.equal(libraries, findOrderEntriesContainingFile(file))) {
-            Messages.showErrorDialog(myProject, "Cannot find library for " + StringUtil.getShortName(fqn), "Error")
+        override def run(): Unit = {
+          if (!Comparing.equal(libraries, findOrderEntriesContainingFile(file, project))) {
+            Messages.showErrorDialog(project, ScalaBundle.message("cannot.find.library.for", StringUtil.getShortName(fqn)), ScalaBundle.message("cannot.find.library.error.title"))
             return
           }
           panel.setText(each.getBusyText)
           val onFinish: Runnable = () => {
             invokeLater(panel.setText(ScalaBundle.message("library.sources.not.found")))
           }
-          val callback: ActionCallback = each.perform(findOrderEntriesContainingFile(file))
+          val callback: ActionCallback = each.perform(findOrderEntriesContainingFile(file, project))
           callback.doWhenRejected(onFinish)
           callback.doWhenDone(onFinish)
         }
@@ -102,9 +113,9 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
     panel
   }
 
-  private def findOrderEntriesContainingFile(file: VirtualFile): util.List[LibraryOrderEntry] = {
+  private def findOrderEntriesContainingFile(file: VirtualFile, project: Project): util.List[LibraryOrderEntry] = {
     val libs: util.List[LibraryOrderEntry] = new util.ArrayList[LibraryOrderEntry]
-    val entries: util.List[OrderEntry] = ProjectRootManager.getInstance(myProject).getFileIndex.getOrderEntriesForFile(file)
+    val entries: util.List[OrderEntry] = ProjectRootManager.getInstance(project).getFileIndex.getOrderEntriesForFile(file)
     entries.forEach {
       case entry: LibraryOrderEntry =>
         libs.add(entry)
@@ -122,4 +133,8 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
     if (i != -1) name = name.substring(0, i)
     parent.findChild(name + JavaFileType.DOT_DEFAULT_EXTENSION)
   }
+}
+
+object ScalaAttachSourcesNotificationProvider {
+  private val KEY = Key.create[EditorNotificationPanel]("add sources to class")
 }

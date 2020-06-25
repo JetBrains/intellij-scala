@@ -1,23 +1,37 @@
 package org.jetbrains.plugins.scala.testingSupport.test.scalatest
 
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiElement
+import org.jetbrains.annotations.CalledWithReadLock
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation => ScMethodInvocation, _}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.macroAnnotations.Measure
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.scalatest.finders._
 
+
+// TODO: do not show gutters on non-constants, e.g.:
+//  class WordSpecClassName extends WordSpec {
+//   "example" should {
+//     "constant" + System.currentTimeMillis() in {
+//     }
+//   }
+// }
 object ScalaTestTestLocationsFinder {
 
   type TestLocations = Seq[PsiElement]
 
-  /** should be called in a read action  */
-  @Measure
-  def calculateTestLocations(definition: ScTypeDefinition, module: Module): Option[TestLocations] = {
+  @CalledWithReadLock
+  @CachedInUserData(definition, CachesUtil.fileModTracker(definition.getContainingFile))
+  def calculateTestLocations(definition: ScTypeDefinition): Option[TestLocations] = {
     //Thread.sleep(5000) // uncomment to test long resolve
-    val finder = ScalaTestAstTransformer.getFinder(definition, module)
-    finder.flatMap(doCalculateScalaTestTestLocations(definition, _))
+    for {
+      module <- definition.module
+      finder <- ScalaTestAstTransformer.getFinder(definition, module)
+      locations <- doCalculateScalaTestTestLocations(definition, finder)
+    } yield
+      locations
   }
 
   // NOTE 1:
@@ -74,6 +88,8 @@ object ScalaTestTestLocationsFinder {
   ): TestLocations = {
 
     def inner(expressions: Seq[ScExpression]): Seq[ScReferenceExpression] = expressions.flatMap { expr =>
+      ProgressManager.checkCanceled()
+
       val (methodCall, target) = expr match {
         case call: ScMethodInvocation if infixStyle => (call, call.getInvokedExpr)
         case call: ScMethodCall                     => (call, call.deepestInvokedExpr)
@@ -99,7 +115,7 @@ object ScalaTestTestLocationsFinder {
     inner(constructorExpressions)
   }
 
-  private object SuiteMethodNames {
+  private[scalatest] object SuiteMethodNames {
 
     val EmptySet: Set[String] = Set()
 
@@ -116,7 +132,7 @@ object ScalaTestTestLocationsFinder {
     val FreeSpecNodes     = Set("-")
     val FreeSpecLeaves    = Set("in")
 
-    val FeatureSpecNodes  = Set("feature")
-    val FeatureSpecLeaves = Set("scenario")
+    val FeatureSpecNodes  = Set("feature", "Feature")
+    val FeatureSpecLeaves = Set("scenario", "Scenario")
   }
 }

@@ -7,77 +7,77 @@ import scala.collection.immutable.Seq
 
 class TreeConverterLiteralTest extends  TreeConverterTestBaseNoLibrary {
   
-  def testTrue() {
+  def testTrue(): Unit = {
     doTest(
       "true",
       Lit.Boolean(true)
     )
   }
   
-  def testFalse() {
+  def testFalse(): Unit = {
     doTest(
       "false",
       Lit.Boolean(false)
     )
   }
   
-  def testInt() {
+  def testInt(): Unit = {
     doTest(
       "42",
       Lit.Int(42)
     )
   }
   
-  def testLong() {
+  def testLong(): Unit = {
     doTest(
       "42L",
       Lit.Long(42L)
     )
   }
   
-  def testDouble() {
+  def testDouble(): Unit = {
     doTest(
       "42.0",
       Lit.Double(42.0)
     )
   }
   
-  def testFloat() {
+  def testFloat(): Unit = {
     doTest(
       "42.0f",
       Lit.Float(42.0f)
     )
   }
   
-  def testChar() {
+  def testChar(): Unit = {
     doTest(
       "'c'",
       Lit.Char('c')
     )
   }
   
-  def testString() {
+  def testString(): Unit = {
     doTest(
       "\"foo\"",
       Lit.String("foo")
     )
   }
 
-  def testSymbol() {
+  def testSymbol(): Unit = {
     doTest(
       "'foo'",
       Term.Apply(Term.Select(Term.Name("scala"), Term.Name("Symbol")), Seq(Lit.String("'foo")))
     )
   }
   
-  def testNull() {
+  def testNull(): Unit = {
     doTest(
       "null",
       Lit.Null(null)
     )
   }
 
-  def testUnit() {
+  def testUnit(): Unit = {
     doTest(
       "()",
       Lit.Unit(())

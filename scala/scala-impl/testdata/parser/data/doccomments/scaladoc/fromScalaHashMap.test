@@ -1,0 +1,131 @@
+/** This class implements immutable maps using a hash trie.
+ *
+ *  '''Note:''' the builder of a hash map returns specialized representations EmptyMap,Map1,..., Map4
+ *  for maps of size <= 4.
+ *
+ *  @tparam A      the type of the keys contained in this hash map.
+ *  @tparam B      the type of the values associated with the keys.
+ *
+ *  @author  Martin Odersky
+ *  @author  Tiark Rompf
+ *  @version 2.8
+ *  @since   2.3
+ *  @define Coll immutable.HashMap
+ *  @define coll immutable hash map
+ *  @define mayNotTerminateInf
+ *  @define willNotTerminateInf
+ */
+-----
+ScalaFile
+  DocComment
+    ScPsiDocToken(DOC_COMMENT_START)('/**')
+    ScDocParagraph
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('This class implements immutable maps using a hash trie.')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    ScDocParagraph
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      DocSyntaxElement 1
+        ScPsiDocToken(DOC_BOLD_TAG 1)(''''')
+        ScPsiDocToken(DOC_COMMENT_DATA)('Note:')
+        ScPsiDocToken(DOC_BOLD_TAG 1)(''''')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' the builder of a hash map returns specialized representations EmptyMap,Map1,..., Map4')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('for maps of size <')
+      ScPsiDocToken(DOC_HEADER 256)('=')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' 4.')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_TAG_NAME)('@tparam')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      ScalaDocTagValue: A
+        ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('A')
+      ScPsiDocToken(DOC_WHITESPACE)('      ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('the type of the keys contained in this hash map.')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_TAG_NAME)('@tparam')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      ScalaDocTagValue: B
+        ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('B')
+      ScPsiDocToken(DOC_WHITESPACE)('      ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('the type of the values associated with the keys.')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_TAG_NAME)('@author')
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('Martin Odersky')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_TAG_NAME)('@author')
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('Tiark Rompf')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_TAG_NAME)('@version')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('2.8')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_TAG_NAME)('@since')
+      ScPsiDocToken(DOC_WHITESPACE)('   ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('2.3')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_TAG_NAME)('@define')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      ScalaDocTagValue: Coll
+        ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('Coll')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('immutable.HashMap')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_TAG_NAME)('@define')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      ScalaDocTagValue: coll
+        ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('coll')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('immutable hash map')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_TAG_NAME)('@define')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      ScalaDocTagValue: mayNotTerminateInf
+        ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('mayNotTerminateInf')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_TAG_NAME)('@define')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      ScalaDocTagValue: willNotTerminateInf
+        ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('willNotTerminateInf')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_END)('*/')

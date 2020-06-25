@@ -9,7 +9,7 @@ import com.intellij.testFramework.UsefulTestCase
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.annotator.{Error, _}
-import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
+import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, SmartJDKLoader}
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
@@ -17,12 +17,6 @@ import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.experimental.categories.Category
 
 import scala.collection.JavaConverters._
-
-
-/**
-  * @author Nikolay Obedin
-  * @since 7/23/15.
-  */
 
 abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbtBase {
 
@@ -32,6 +26,9 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbtBase {
     ModuleRootModificationUtil.setModuleSdk(module, getTestProjectJdk)
     module
   }
+
+  override def librariesLoaders: Seq[LibraryLoader] =
+    HeavyJDKLoader() +: super.librariesLoaders
 
   override protected def setUp(): Unit = {
     super.setUp()
@@ -84,11 +81,9 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbtBase {
   }
 
   private def addTestFileToModuleSources(): Unit = {
-    ModuleRootModificationUtil.updateModel(getModule, new Consumer[ModifiableRootModel] {
-      override def consume(model: ModifiableRootModel): Unit = {
-        val testdataUrl = VfsUtilCore.pathToUrl(testdataPath)
-        model.addContentEntry(testdataUrl).addSourceFolder(testdataUrl, false)
-      }
+    ModuleRootModificationUtil.updateModel(getModule, (model: ModifiableRootModel) => {
+      val testdataUrl = VfsUtilCore.pathToUrl(testdataPath)
+      model.addContentEntry(testdataUrl).addSourceFolder(testdataUrl, false)
     })
   }
 }
@@ -126,32 +121,32 @@ class SbtAnnotatorTest_latest extends SbtAnnotatorTestBase with MockSbt_1_0 {
   */
 object Expectations {
   val sbtAll: Seq[Error] = Seq(
-    Error("object Bar", SbtBundle("sbt.annotation.sbtFileMustContainOnlyExpressions"))
+    Error("object Bar", SbtBundle.message("sbt.annotation.sbtFileMustContainOnlyExpressions"))
   )
 
 
   def sbt012_013(sbtVersion: Version): Seq[Error] = sbtAll ++ Seq(
-    Error("organization", SbtBundle("sbt.annotation.expressionMustConform", "SettingKey[String]")),
-    Error(""""some string"""", SbtBundle("sbt.annotation.expressionMustConform", "String")),
-    Error("null", SbtBundle("sbt.annotation.expectedExpressionType")),
-    Error("""version := "SNAPSHOT"""", SbtBundle("sbt.annotation.blankLineRequired", sbtVersion.presentation))
+    Error("organization", SbtBundle.message("sbt.annotation.expressionMustConform", "SettingKey[String]")),
+    Error(""""some string"""", SbtBundle.message("sbt.annotation.expressionMustConform", "String")),
+    Error("null", SbtBundle.message("sbt.annotation.expectedExpressionType")),
+    Error("""version := "SNAPSHOT"""", SbtBundle.message("sbt.annotation.blankLineRequired", sbtVersion.presentation))
   )
 
   def sbt_0_12: Seq[Error] = sbt012_013(Version("0.12.4")) ++ Seq(
     Error(
       """lazy val foo = project.in(file("foo")).enablePlugins(sbt.plugins.JvmPlugin)""",
-      SbtBundle("sbt.annotation.sbtFileMustContainOnlyExpressions"))
+      SbtBundle.message("sbt.annotation.sbtFileMustContainOnlyExpressions"))
   )
 
   def sbt_0_13(sbtVersion: Version): Seq[Error] = sbt012_013(sbtVersion) ++ Seq(
-    Error("???", SbtBundle("sbt.annotation.expectedExpressionType"))
+    Error("???", SbtBundle.message("sbt.annotation.expectedExpressionType"))
   )
 
   val sbt_0_13_7: Seq[Error] = sbtAll ++ Seq(
-    Error("organization", SbtBundle("sbt.annotation.expressionMustConformSbt0136", "SettingKey[String]")),
-    Error(""""some string"""", SbtBundle("sbt.annotation.expressionMustConformSbt0136", "String")),
-    Error("null", SbtBundle("sbt.annotation.expectedExpressionTypeSbt0136")),
-    Error("???", SbtBundle("sbt.annotation.expectedExpressionTypeSbt0136"))
+    Error("organization", SbtBundle.message("sbt.annotation.expressionMustConformSbt0136", "SettingKey[String]")),
+    Error(""""some string"""", SbtBundle.message("sbt.annotation.expressionMustConformSbt0136", "String")),
+    Error("null", SbtBundle.message("sbt.annotation.expectedExpressionTypeSbt0136")),
+    Error("???", SbtBundle.message("sbt.annotation.expectedExpressionTypeSbt0136"))
   )
 
   val sbt_1_0: Seq[Error] = sbt_0_13_7

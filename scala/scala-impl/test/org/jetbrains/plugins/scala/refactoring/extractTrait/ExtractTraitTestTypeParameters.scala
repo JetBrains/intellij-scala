@@ -7,7 +7,7 @@ package refactoring.extractTrait
  */
 class ExtractTraitTestTypeParameters extends ExtractTraitTestBase {
 
-  def testSimpleParameterizedClass() {
+  def testSimpleParameterizedClass(): Unit = {
     val text =
       """
         |class Parameterized[T] {<caret>
@@ -43,7 +43,7 @@ class ExtractTraitTestTypeParameters extends ExtractTraitTestBase {
     checkResult(text, result2, onlyDeclarations = true)
   }
 
-  def testTypeParameterWithBound() {
+  def testTypeParameterWithBound(): Unit = {
     val text =
       """
         |class Parameterized[T <: List[Int]] {<caret>
@@ -68,7 +68,7 @@ class ExtractTraitTestTypeParameters extends ExtractTraitTestBase {
     checkResult(text, result, onlyDeclarations = false)
   }
 
-  def testChainedParameter() {
+  def testChainedParameter(): Unit = {
     val text =
       """
         |class Parameterized[S, T <: List[S]] {<caret>

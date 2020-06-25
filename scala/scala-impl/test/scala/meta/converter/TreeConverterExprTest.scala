@@ -6,28 +6,28 @@ import scala.{Seq => _}
 
 class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
 
-  def testIf() {
+  def testIf(): Unit = {
     doTest(
       "if (true) 42",
       Term.If(Lit.Boolean(value = true), Lit.Int(42), Lit.Unit(()))
     )
   }
 
-  def testIfElse() {
+  def testIfElse(): Unit = {
     doTest(
       "if (false) 42 else 0",
       Term.If(Lit.Boolean(value = false), Lit.Int(42), Lit.Int(0))
     )
   }
 
-  def testIfElseIfElse() {
+  def testIfElseIfElse(): Unit = {
     doTest(
       "if (true) 42 else if (false) 999 else 0",
       Term.If(Lit.Boolean(value = true), Lit.Int(42), Term.If(Lit.Boolean(value = false), Lit.Int(999), Lit.Int(0)))
     )
   }
 
-  def testObjectMethodCall() {
+  def testObjectMethodCall(): Unit = {
     doTest(
       """object Foo { def f() = 42 }
         |//start
@@ -37,7 +37,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
     )
   }
 
-  def testNewNoParen() {
+  def testNewNoParen(): Unit = {
     doTest(
       """class Foo
         |//start
@@ -47,7 +47,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
     )
   }
 
-  def testNewEmptyParen() {
+  def testNewEmptyParen(): Unit = {
     doTest(
       """class Foo
         |//start
@@ -57,7 +57,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
     )
   }
 
-  def testNewWithArg() {
+  def testNewWithArg(): Unit = {
     doTest(
       """class Foo(a: Int)
         |//start
@@ -67,7 +67,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
     )
   }
 
-  def testNewMutiParen() {
+  def testNewMutiParen(): Unit = {
     doTest(
       """class Foo(a:Int)(b:String)
         |//start
@@ -85,7 +85,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
     )
   }
 
-  def testTryCatchFinally() {
+  def testTryCatchFinally(): Unit = {
     doTest(
       """
         |try { () }
@@ -100,7 +100,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
     )
   }
 
-  def testApplyPostfix() {
+  def testApplyPostfix(): Unit = {
     doTest(
       "Seq() tail",
 //      Term.Select(Term.Apply(Term.Name("Seq"), Nil), Term.Name("tail"))  // quasiquote parser emits wrong result?
@@ -108,21 +108,21 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
     )
   }
 
-  def testDoWhile() {
+  def testDoWhile(): Unit = {
     doTest(
       "do {()} while (true)",
       Term.Do(Term.Block(List(Lit.Unit(()))), Lit.Boolean(true))
     )
   }
 
-  def testWhile() {
+  def testWhile(): Unit = {
     doTest(
       "while(true) {()}",
       Term.While(Lit.Boolean(true), Term.Block(List(Lit.Unit(()))))
     )
   }
 
-  def testForSimple() {
+  def testForSimple(): Unit = {
     doTest(
       "for(s <- Seq(1)) {42}",
       Term.For(List(Enumerator.Generator(Pat.Var.Term(Term.Name("s")),
@@ -130,7 +130,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
     )
   }
 
-  def testForMutiWithGuards() {
+  def testForMutiWithGuards(): Unit = {
     doTest(
       "for (s: Int <- Seq(1); y <- Seq(3) if y == s; z = (s, y)) {}",
       Term.For(List(
@@ -142,7 +142,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
     )
   }
 
-  def testSuperReference() {
+  def testSuperReference(): Unit = {
     doTest(
       """
         |object A {
@@ -165,7 +165,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
         ))))
   }
 
-  def testThisReference() {
+  def testThisReference(): Unit = {
     doTest(
       "trait Foo { def foo: Int = this.hashCode }",
       Defn.Trait(Nil, Type.Name("Foo"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),

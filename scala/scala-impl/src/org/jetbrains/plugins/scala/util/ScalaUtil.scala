@@ -17,10 +17,6 @@ import org.jetbrains.plugins.scala.project._
  */
 object ScalaUtil {
 
-  def runnersPath(): String = {
-    PathUtil.getJarPathForClass(classOf[Client]).replace("compiler-shared", "runners")
-  }
-
   def getScalaVersion(file: PsiFile): Option[String] = file match {
     case ScFile.VirtualFile(virtualFile) =>
       getModuleForFile(virtualFile)(file.getProject)

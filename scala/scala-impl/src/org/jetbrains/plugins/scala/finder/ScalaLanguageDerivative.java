@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
  */
 abstract public class ScalaLanguageDerivative {
 
-    public static final ExtensionPointName<ScalaLanguageDerivative> EP_NAME =
+    private static final ExtensionPointName<ScalaLanguageDerivative> EP_NAME =
             ExtensionPointName.create("org.intellij.scala.scalaLanguageDerivative");
 
     @NotNull

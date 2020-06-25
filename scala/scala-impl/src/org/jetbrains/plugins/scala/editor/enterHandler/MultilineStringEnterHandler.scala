@@ -35,7 +35,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
 
     if (caretOffset == 0 || caretOffset >= text.length()) return Result.Continue
     val element = file.findElementAt(caretOffset)
-    if (!MultilineStringUtil.inMultilineString(element)) return Result.Continue
+    if (element == null || !MultilineStringUtil.inMultilineString(element)) return Result.Continue
 
     wasInMultilineString = true
     whiteSpaceAfterCaret = whitespaceAfter(text, caretOffset)

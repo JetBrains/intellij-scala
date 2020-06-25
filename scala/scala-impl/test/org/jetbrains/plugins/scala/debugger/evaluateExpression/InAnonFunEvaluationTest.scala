@@ -4,10 +4,10 @@ package debugger.evaluateExpression
 import org.jetbrains.plugins.scala.debugger._
 import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[DebuggerTests]))
+@Category(Array(classOf[FlakyTests])) // works locally, may fail on server
 class InAnonFunEvaluationTest_212 extends InAnonFunEvaluationTestBase {
 
-  override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_2_12
 
   //todo SCL-9139
   override def testPartialFunction(): Unit = {
@@ -25,7 +25,7 @@ class InAnonFunEvaluationTest_212 extends InAnonFunEvaluationTestBase {
 
 @Category(Array(classOf[DebuggerTests]))
 class InAnonFunEvaluationTest_211 extends InAnonFunEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version == Scala_2_11
+  override protected def supportedIn(version: ScalaVersion) = version  == LatestScalaVersions.Scala_2_11
 }
 
 @Category(Array(classOf[DebuggerTests]))
@@ -46,7 +46,7 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
        |}
       """.stripMargin.trim()
   )
-  def testFunctionValue() {
+  def testFunctionValue(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("a", "a")
@@ -75,7 +75,7 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
        |}
       """.stripMargin.trim()
   )
-  def testPartialFunction() {
+  def testPartialFunction(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("a", "a")
@@ -106,7 +106,7 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
        |}
       """.stripMargin.trim()
   )
-  def testFunctionExpr() {
+  def testFunctionExpr(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("a", "a")
@@ -135,7 +135,7 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
        |}
       """.stripMargin.trim()
   )
-  def testForStmt() {
+  def testForStmt(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("s", "a")

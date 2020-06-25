@@ -1,5 +1,4 @@
-package org.jetbrains.jps.incremental.scala
-package local
+package org.jetbrains.jps.incremental.scala.local
 
 import java.io.File
 import java.nio.file.Path
@@ -7,7 +6,8 @@ import java.util
 import java.util.Optional
 
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.scala.data.CompilationData
+import org.jetbrains.jps.incremental.scala.{Client, ZincLogFilter}
+import org.jetbrains.plugins.scala.compiler.data.CompilationData
 import sbt.internal.inc.{AnalyzingCompiler, CompileOutput, CompilerArguments}
 import xsbti._
 import xsbti.api.{ClassLike, DependencyContext}
@@ -19,9 +19,11 @@ import scala.collection.JavaConverters._
  * Nikolay.Tropin
  * 11/18/13
  */
-class IdeaIncrementalCompiler(scalac: AnalyzingCompiler) extends AbstractCompiler {
-  def compile(compilationData: CompilationData, client: Client): Unit = {
-    val progress = getProgress(client)
+class IdeaIncrementalCompiler(scalac: AnalyzingCompiler)
+  extends AbstractCompiler {
+
+  override def compile(compilationData: CompilationData, client: Client): Unit = {
+    val progress = getProgress(client, compilationData.sources.size)
     val reporter = getReporter(client)
     val logFilter = new ZincLogFilter {
       override def shouldLog(serverity: Kind, msg: String): Boolean = true
@@ -29,12 +31,12 @@ class IdeaIncrementalCompiler(scalac: AnalyzingCompiler) extends AbstractCompile
     val logger = getLogger(client, logFilter)
     val clientCallback = new ClientCallback(client, compilationData.output.toPath)
 
+    val outputDirsCount = compilationData.outputGroups.map(_._2).distinct.size
     val out =
-      if (compilationData.outputGroups.size <= 1) CompileOutput(compilationData.output)
+      if (outputDirsCount <= 1) CompileOutput(compilationData.output)
       else CompileOutput(compilationData.outputGroups: _*)
     val cArgs = new CompilerArguments(scalac.scalaInstance, scalac.classpathOptions)
-    val options = "IntellijIdea.simpleAnalysis" +: cArgs(Nil, compilationData.classpath, None, compilationData.scalaOptions)
-
+    val options = cArgs(Nil, compilationData.classpath, None, compilationData.scalaOptions)
 
     try {
       scalac.compile(compilationData.sources.toArray, emptyChanges, options.toArray, out, clientCallback, reporter, CompilerCache.fresh, logger, Optional.of(progress))
@@ -94,8 +96,8 @@ abstract class ClientCallbackBase extends xsbti.AnalysisCallback {
 }
 
 private object emptyChanges extends DependencyChanges {
-  val modifiedBinaries = new Array[File](0)
-  val modifiedClasses = new Array[String](0)
+  override val modifiedBinaries = new Array[File](0)
+  override val modifiedClasses = new Array[String](0)
 
-  def isEmpty = true
+  override def isEmpty = true
 }

@@ -1,12 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.cast
 
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
 
 class RedundantConversionInspectionTest extends ScalaQuickFixTestBase {
-import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ScalaRedundantConversionInspection]
   override protected val description = "Casting '<from>' to '<to>' is redundant"
@@ -27,6 +24,26 @@ import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
     testQuickFix(
       """val x = "".toString """,
       """val x = "" """,
+      "Remove Redundant Conversion"
+    )
+  }
+
+  //SCL-17290
+  def test_toString_on_variable(): Unit = {
+    checkTextHasError(
+      s"""
+         |val x = ""
+         |val y = x$START.toString$END
+         |""".stripMargin)
+    testQuickFix(
+      s"""
+         |val x = ""
+         |val y = x.toString
+         |""".stripMargin,
+      s"""
+         |val x = ""
+         |val y = x
+         |""".stripMargin,
       "Remove Redundant Conversion"
     )
   }

@@ -7,7 +7,7 @@ package lang.surroundWith.surrounders.scaladoc
  */
 
 class ScalaDocWithSubscriptSurrounder extends ScalaDocWithSyntaxSurrounder {
-  def getSyntaxTag: String = ",,"
+  override def getSyntaxTag: String = ",,"
 
-  def getTemplateDescription: String = "Subscript: ,, ,,"
+  override def getTemplateDescription: String = "Subscript: ,, ,,"
 }

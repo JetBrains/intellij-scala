@@ -20,7 +20,7 @@ trait ScVariableDefinition extends ScVariable {
 
   def bindings: Seq[ScBindingPattern]
 
-  def declaredElements: Seq[ScBindingPattern] = bindings
+  override def declaredElements: Seq[ScBindingPattern] = bindings
 
   def assignment: Option[PsiElement]
 
@@ -30,7 +30,7 @@ trait ScVariableDefinition extends ScVariable {
 
   override def isAbstract: Boolean = false
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitVariableDefinition(this)
   }
 }

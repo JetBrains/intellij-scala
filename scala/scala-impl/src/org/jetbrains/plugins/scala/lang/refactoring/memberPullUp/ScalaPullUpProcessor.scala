@@ -8,6 +8,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.refactoring.{BaseRefactoringProcessor, RefactoringBundle}
 import com.intellij.usageView.{UsageInfo, UsageViewDescriptor}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
@@ -19,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTe
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractMemberInfo
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeContextUtil
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable
 
@@ -46,7 +48,7 @@ final class ScalaPullUpProcessor(project: Project,
   def moveMembersToBase(): Unit = {
     import ScalaChangeContextUtil._
 
-    implicit val projectContext = targetClass.projectContext
+    implicit val projectContext: ProjectContext = targetClass.projectContext
     val extendsBlock = targetClass.extendsBlock
     val templateBody = extendsBlock.templateBody match {
       case Some(tb) => tb
@@ -90,7 +92,7 @@ final class ScalaPullUpProcessor(project: Project,
     reformatAfter()
   }
 
-  private def reformatAfter() {
+  private def reformatAfter(): Unit = {
     val documentManager = PsiDocumentManager.getInstance(project)
     val csManager = CodeStyleManager.getInstance(project)
     val targetDocument = documentManager.getDocument(targetClass.getContainingFile)
@@ -170,14 +172,14 @@ final class ScalaPullUpProcessor(project: Project,
   }
 
   private class PullUpUsageViewDescriptor extends UsageViewDescriptor {
-    def getProcessedElementsHeader: String = "Pull up members from"
+    override def getProcessedElementsHeader: String = ScalaBundle.message("pull.up.members.from")
 
-    def getElements: Array[PsiElement] = Array[PsiElement](sourceClass)
+    override def getElements: Array[PsiElement] = Array[PsiElement](sourceClass)
 
-    def getCodeReferencesText(usagesCount: Int, filesCount: Int): String =
-      s"Class to pull up members to ${targetClass.name}"
+    override def getCodeReferencesText(usagesCount: Int, filesCount: Int): String =
+      ScalaBundle.message("class.to.pull.up.members.to.class", targetClass.name)
 
-    def getCommentReferencesText(usagesCount: Int, filesCount: Int): String = null
+    override def getCommentReferencesText(usagesCount: Int, filesCount: Int): String = null
   }
 
 }

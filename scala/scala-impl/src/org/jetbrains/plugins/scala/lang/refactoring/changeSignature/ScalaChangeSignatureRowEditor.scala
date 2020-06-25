@@ -2,15 +2,17 @@ package org.jetbrains.plugins.scala.lang.refactoring.changeSignature
 
 import java.awt.event.MouseEvent
 import java.awt.{BorderLayout, Color, Font, Toolkit}
+
+import com.intellij.openapi.editor.Document
 import javax.swing.border.MatteBorder
 import javax.swing.{JComponent, JPanel, JTable}
-
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorFontType}
 import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener}
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.ui.EditorTextField
 import com.intellij.util.ui.table.JBTableRowEditor._
 import com.intellij.util.ui.table.{JBTableRow, JBTableRowEditor}
+import org.jetbrains.plugins.scala.ScalaBundle
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -26,15 +28,15 @@ class ScalaChangeSignatureRowEditor(item: ScalaParameterTableModelItem, dialog: 
   private val separatorColor: Color = dialog.clauseSeparatorColor
 
   private val table = dialog.parametersTable
-  val typeDoc = PsiDocumentManager.getInstance(project).getDocument(item.typeCodeFragment)
+  val typeDoc: Document = PsiDocumentManager.getInstance(project).getDocument(item.typeCodeFragment)
   val myTypeEditor: EditorTextField = new EditorTextField(typeDoc, project, fileType)
 
   val myNameEditor: EditorTextField = new EditorTextField(item.parameter.getName, project, fileType)
-  val defaultValueDoc = PsiDocumentManager.getInstance(project).getDocument(item.defaultValueCodeFragment)
+  val defaultValueDoc: Document = PsiDocumentManager.getInstance(project).getDocument(item.defaultValueCodeFragment)
 
   val myDefaultValueEditor = new EditorTextField(defaultValueDoc, project, fileType)
 
-  def prepareEditor(table: JTable, row: Int) {
+  override def prepareEditor(table: JTable, row: Int): Unit = {
     setLayout(new BorderLayout)
     addNameEditor()
     addTypeEditor()
@@ -48,14 +50,14 @@ class ScalaChangeSignatureRowEditor(item: ScalaParameterTableModelItem, dialog: 
     }
   }
 
-  def addNameEditor() {
+  def addNameEditor(): Unit = {
     myNameEditor.addDocumentListener(signatureUpdater)
     myNameEditor.setPreferredWidth(table.getWidth / 3)
     myNameEditor.addDocumentListener(new this.RowEditorChangeListener(0))
-    add(createLabeledPanel("Name:", myNameEditor), BorderLayout.WEST)
+    add(createLabeledPanel(ScalaBundle.message("parameter.label.name"), myNameEditor), BorderLayout.WEST)
   }
 
-  def addTypeEditor() {
+  def addTypeEditor(): Unit = {
     myTypeEditor.addDocumentListener(signatureUpdater)
     myTypeEditor.addDocumentListener(new DocumentListener {
       override def documentChanged(e: DocumentEvent): Unit = {
@@ -63,7 +65,7 @@ class ScalaChangeSignatureRowEditor(item: ScalaParameterTableModelItem, dialog: 
       }
     })
     myTypeEditor.addDocumentListener(new this.RowEditorChangeListener(1))
-    add(createLabeledPanel("Type:", myTypeEditor), BorderLayout.CENTER)
+    add(createLabeledPanel(ScalaBundle.message("parameter.label.type"), myTypeEditor), BorderLayout.CENTER)
   }
 
   def getColumnWidth(letters: Int): Int = {
@@ -76,7 +78,7 @@ class ScalaChangeSignatureRowEditor(item: ScalaParameterTableModelItem, dialog: 
 
   def getNamesColumnWidth: Int = getColumnWidth(dialog.getNamesMaxLength + 2)
 
-  def addDefaultValueEditor(additionalPanel: JPanel) {
+  def addDefaultValueEditor(additionalPanel: JPanel): Unit = {
     myDefaultValueEditor.setPreferredWidth(table.getWidth / 2)
     myDefaultValueEditor.addDocumentListener(new this.RowEditorChangeListener(2))
     myDefaultValueEditor.addDocumentListener(new DocumentListener {
@@ -84,17 +86,17 @@ class ScalaChangeSignatureRowEditor(item: ScalaParameterTableModelItem, dialog: 
         item.parameter.defaultValue = myDefaultValueEditor.getText.trim
       }
     })
-    additionalPanel.add(createLabeledPanel("Default value:", myDefaultValueEditor), BorderLayout.WEST)
+    additionalPanel.add(createLabeledPanel(ScalaBundle.message("parameter.label.default.value"), myDefaultValueEditor), BorderLayout.WEST)
   }
 
-  def getValue: JBTableRow = {
+  override def getValue: JBTableRow = {
     case 0 => myNameEditor.getText.trim
     case 1 => myTypeEditor.getText.trim
     case 2 => myDefaultValueEditor.getText.trim
     case _ => null
   }
 
-  def getPreferredFocusedComponent: JComponent = {
+  override def getPreferredFocusedComponent: JComponent = {
     val me: MouseEvent = getMouseEvent
     if (me == null) {
       return myNameEditor.getFocusTarget
@@ -105,7 +107,7 @@ class ScalaChangeSignatureRowEditor(item: ScalaParameterTableModelItem, dialog: 
     else myDefaultValueEditor.getFocusTarget
   }
 
-  def getFocusableComponents: Array[JComponent] = {
+  override def getFocusableComponents: Array[JComponent] = {
     val focusable = ArrayBuffer[JComponent]()
     focusable += myNameEditor.getFocusTarget
     focusable += myTypeEditor.getFocusTarget

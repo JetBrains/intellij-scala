@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.codeInspection.packageNameInspection
+package org.jetbrains.plugins.scala
+package codeInspection
+package packageNameInspection
 
 import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor}
 import com.intellij.openapi.project.Project
@@ -17,13 +19,13 @@ class EnablePerformanceProblemsQuickFix(project: Project) extends LocalQuickFix 
     settings.setIgnorePerformance(!ignoreSettings)
   }
 
-  val enable: String = if (!ignoreSettings) "Enable" else "Disable"
+  private def enable: Boolean = !ignoreSettings
 
   override def getName: String =
-    enable + " setting, solving resolve problems " + (
-                    if (!ignoreSettings) "(this can cause editor performance problems"
-                    else "(this can improve editor performance"
-                    ) + ")."
+    if (enable) ScalaInspectionBundle.message("enable.setting")
+    else ScalaInspectionBundle.message("disable.setting")
 
-  override def getFamilyName: String =  enable + " setting"
+  override def getFamilyName: String =
+    if (enable) ScalaInspectionBundle.message("family.name.enable.setting")
+    else ScalaInspectionBundle.message("fimaly.name.disable.setting")
 }

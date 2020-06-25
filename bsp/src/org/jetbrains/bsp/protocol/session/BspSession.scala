@@ -1,6 +1,9 @@
-package org.jetbrains.bsp.protocol.session
+package org.jetbrains.bsp
+package protocol
+package session
 
 import java.io._
+import java.lang.reflect.{InvocationHandler, Method}
 import java.nio.file.{Files, Paths}
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -13,11 +16,9 @@ import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.eclipse.lsp4j.jsonrpc.{Launcher, ResponseErrorException}
-import org.jetbrains.bsp._
 import org.jetbrains.bsp.protocol.BspNotifications._
 import org.jetbrains.bsp.protocol.session.BspSession._
 import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
-import org.jetbrains.bsp.protocol.{BspCommunication, BspJob}
 
 import scala.annotation.tailrec
 import scala.concurrent._
@@ -64,12 +65,12 @@ class BspSession private(bspIn: InputStream,
       Try(waitForSession(sessionTimeout))
     } catch {
       case to : TimeoutException =>
-        val error = BspConnectionError("bsp server is not responding", to)
+        val error = BspConnectionError(BspBundle.message("bsp.protocol.bsp.server.is.not.responding"), to)
         logger.warn(error)
         shutdown(Some(error))
         Failure(error)
       case NonFatal(error) =>
-        val msg = s"problem connecting to bsp server: ${error.getMessage}. See IDE log for details."
+        val msg = BspBundle.message("bsp.protocol.problem.connecting.to.bsp.server", error.getMessage)
         val bspError = BspException(msg, error)
         logger.warn(bspError)
         shutdown(Some(bspError))
@@ -94,7 +95,7 @@ class BspSession private(bspIn: InputStream,
     } catch {
       case _: TimeoutException => // just carry on
       case NonFatal(error) =>
-        val bspError = BspException("problem executing bsp job", error)
+        val bspError = BspException(BspBundle.message("bsp.protocol.problem.executing.bsp.job"), error)
         logger.error(bspError)
         currentJob.cancelWithError(bspError)
     }
@@ -159,7 +160,7 @@ class BspSession private(bspIn: InputStream,
       .traceMessages(bspTraceLogger)
       .create()
     val listening = launcher.startListening()
-    val bspServer = launcher.getRemoteProxy
+    val bspServer = cancellationSafeBspServer(launcher.getRemoteProxy)
     localClient.onConnectWithServer(bspServer)
 
     val messageHandler = new BspProcessMessageHandler(bspErr)
@@ -178,6 +179,38 @@ class BspSession private(bspIn: InputStream,
     }
 
     ServerConnection(bspServer, cancelable, listening)
+  }
+
+  /**
+   * Some BSP endpoints return `CompletableFuture`s that represent BSP jobs that are
+   * currently running on BSP server. In order to cancel these, jobs, the `cancel`
+   * method of this future should be called. Unfortunately, the original futures that come
+   * from lsp4j does not support transformations well - after calling `thenApply`, the `cancel`
+   * method of the new future does not stop the job. This method returns a BspServer's proxy that
+   * return fixed CancellableFuture's
+   *
+   * @param bspServer original bspServer with endpoints returning regular `CompletableFuture`s
+   * @return proxy of bspServer with endpoints returning fixed `CompletableFuture`s
+   */
+  private def cancellationSafeBspServer(bspServer: BspServer): BspServer = {
+    val invocationHandler = new InvocationHandler {
+      override def invoke(proxy: Any, method: Method, args: Array[AnyRef]): AnyRef = {
+        val resultFromBsp = method.invoke(bspServer, args:_*)
+        // Some BSP endpoints return CompletableFutures, but other return void
+        resultFromBsp match {
+          case future: CompletableFuture[_] => new CancellableFuture(future)
+          case x => x
+        }
+      }
+    }
+
+    val safeBspServer = java.lang.reflect.Proxy
+      .newProxyInstance(invocationHandler.getClass.getClassLoader,
+        Array(classOf[BspServer]),
+        invocationHandler
+      ).asInstanceOf[BspServer]
+
+    safeBspServer
   }
 
   private def initializeSession: CompletableFuture[bsp4j.InitializeBuildResult] = {
@@ -200,7 +233,7 @@ class BspSession private(bspIn: InputStream,
       val now = System.currentTimeMillis()
       val waited = now - lastProcessOutput
       if (waited > timeout.toMillis)
-        throw BspConnectionError("bsp server is not responding", to)
+        throw BspConnectionError(BspBundle.message("bsp.protocol.bsp.server.is.not.responding"), to)
       else
         waitForSession(timeout)
   }
@@ -212,7 +245,7 @@ class BspSession private(bspIn: InputStream,
     val resultJob = if (isAlive) {
       job
     } else {
-      new FailedBspSessionJob[T, A](BspException("BSP session is not available", deathReason.orNull))
+      new FailedBspSessionJob[T, A](BspException(BspBundle.message("bsp.protocol.session.is.not.available"), deathReason.orNull))
     }
     jobs.put(resultJob)
     resultJob
@@ -276,32 +309,38 @@ class BspSession private(bspIn: InputStream,
   private class BspSessionClient extends BspClient {
     // task notifications
     override def onBuildShowMessage(params: bsp4j.ShowMessageParams): Unit = {
+      updateLastActivity()
       val event = ShowMessage(params)
       currentJob.notification(event)
       notifications(event)
     }
     override def onBuildLogMessage(params: bsp4j.LogMessageParams): Unit = {
+      updateLastActivity()
       val event = LogMessage(params)
       currentJob.notification(event)
       notifications(event)
     }
     override def onBuildPublishDiagnostics(params: bsp4j.PublishDiagnosticsParams): Unit = {
+      updateLastActivity()
       val event = PublishDiagnostics(params)
       currentJob.notification(event)
       notifications(event)
     }
 
     override def onBuildTaskStart(params: bsp4j.TaskStartParams): Unit = {
+      updateLastActivity()
       val event = TaskStart(params)
       currentJob.notification(event)
     }
 
     override def onBuildTaskProgress(params: bsp4j.TaskProgressParams): Unit = {
+      updateLastActivity()
       val event = TaskProgress(params)
       currentJob.notification(event)
     }
 
     override def onBuildTaskFinish(params: bsp4j.TaskFinishParams): Unit = {
+      updateLastActivity()
       val event = TaskFinish(params)
       currentJob.notification(event)
     }
@@ -310,8 +349,13 @@ class BspSession private(bspIn: InputStream,
     override def onConnectWithServer(server: bsp4j.BuildServer): Unit = super.onConnectWithServer(server)
 
     override def onBuildTargetDidChange(didChange: bsp4j.DidChangeBuildTarget): Unit = {
+      updateLastActivity()
       val event = DidChangeBuildTarget(didChange)
       notifications(event)
+    }
+
+    private def updateLastActivity(): Unit = {
+      lastActivity = System.currentTimeMillis()
     }
 
   }
@@ -323,6 +367,7 @@ class BspSession private(bspIn: InputStream,
       lines.foreach { message =>
         lastProcessOutput = System.currentTimeMillis()
         lastActivity = lastProcessOutput
+        //noinspection ScalaExtractStringToBundle,ReferencePassedToNls
         currentJob.log(message + '\n')
       }
     }
@@ -336,7 +381,7 @@ object BspSession {
   type NotificationCallback = BspNotification => Unit
   type BspSessionTask[T] = (BspServer, BuildServerCapabilities) => CompletableFuture[T]
 
-  trait BspServer extends bsp4j.BuildServer with bsp4j.ScalaBuildServer
+  trait BspServer extends bsp4j.BuildServer with bsp4j.ScalaBuildServer with bsp4j.JvmBuildServer
   trait BspClient extends bsp4j.BuildClient
 
   private[protocol] def builder(

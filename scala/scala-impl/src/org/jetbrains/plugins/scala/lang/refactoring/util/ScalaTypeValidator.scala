@@ -75,7 +75,7 @@ class ScalaTypeValidator(val selectedElement: PsiElement, override val noOccurre
 
 object ScalaTypeValidator {
 
-  def empty =
+  def empty: ScalaTypeValidator =
     new ScalaTypeValidator(null, noOccurrences = true, null, null) {
       override def validateName(name: String): String = name
     }
@@ -85,13 +85,12 @@ object ScalaTypeValidator {
 
   private def message(namedElement: PsiNamedElement,
                       name: String): Option[String] =
-    for {
-      kind <- namedElement match {
-        case _: ScTypeAlias | _: ScTypeParam => Some("type")
-        case typeDefinition: ScTypeDefinition if getParentOfType(typeDefinition, classOf[ScFunctionDefinition]) == null => Some("class")
-        case _ => None
+    (namedElement.name == name)
+      .option(namedElement)
+      .collect {
+        case _: ScTypeAlias | _: ScTypeParam =>
+          ScalaBundle.message("introduced.typeAlias.will.conflict.with.type.name", name)
+        case typeDefinition: ScTypeDefinition if getParentOfType(typeDefinition, classOf[ScFunctionDefinition]) == null =>
+          ScalaBundle.message("introduced.typeAlias.will.conflict.with.class.name", name)
       }
-
-      if namedElement.getName == name
-    } yield ScalaBundle.message(s"introduced.typeAlias.will.conflict.with.$kind.name", name)
 }

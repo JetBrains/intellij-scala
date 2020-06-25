@@ -34,11 +34,11 @@ object AddSbtDependencyUtils {
 
     def action(psiElement: PsiElement): Unit = {
       psiElement match {
-        case e: ScInfixExpr if e.left.getText == LIBRARY_DEPENDENCIES && isAddableLibraryDependencies(e) => res ++= Seq(e)
-        case call: ScMethodCall if call.deepestInvokedExpr.getText == SEQ => res ++= Seq(call)
+        case e: ScInfixExpr if e.left.textMatches(LIBRARY_DEPENDENCIES) && isAddableLibraryDependencies(e) => res ++= Seq(e)
+        case call: ScMethodCall if call.deepestInvokedExpr.textMatches(SEQ) => res ++= Seq(call)
         case typedSeq: ScTypedExpression if typedSeq.isSequenceArg =>
           typedSeq.expr match {
-            case call: ScMethodCall if call.deepestInvokedExpr.getText == SEQ => res ++= Seq(typedSeq)
+            case call: ScMethodCall if call.deepestInvokedExpr.textMatches(SEQ) => res ++= Seq(typedSeq)
             case _ =>
           }
         case settings: ScMethodCall if isAddableSettings(settings) =>
@@ -79,7 +79,7 @@ object AddSbtDependencyUtils {
 
     psiSbtFile.acceptChildren(new ScalaElementVisitor {
       override def visitInfixExpression(infix: ScInfixExpr): Unit = {
-        if (infix.left.getText == LIBRARY_DEPENDENCIES && infix.getParent.isInstanceOf[PsiFile]) {
+        if (infix.left.textMatches(LIBRARY_DEPENDENCIES) && infix.getParent.isInstanceOf[PsiFile]) {
           res = res ++ Seq(infix)
         }
       }
@@ -97,8 +97,8 @@ object AddSbtDependencyUtils {
 
   def addDependency(expr: PsiElement, info: ArtifactInfo)(implicit project: Project): Option[PsiElement] = {
     expr match {
-      case e: ScInfixExpr if e.left.getText == LIBRARY_DEPENDENCIES => addDependencyToLibraryDependencies(e, info)
-      case call: ScMethodCall if call.deepestInvokedExpr.getText == SEQ => addDependencyToSeq(call, info)
+      case e: ScInfixExpr if e.left.textMatches(LIBRARY_DEPENDENCIES) => addDependencyToLibraryDependencies(e, info)
+      case call: ScMethodCall if call.deepestInvokedExpr.textMatches(SEQ) => addDependencyToSeq(call, info)
       case typedSeq: ScTypedExpression if typedSeq.isSequenceArg => addDependencyToTypedSeq(typedSeq, info)
       case settings: ScMethodCall if isAddableSettings(settings) =>
         settings.getEffectiveInvokedExpr match {
@@ -119,23 +119,23 @@ object AddSbtDependencyUtils {
     infix.operation.refName match {
       case "+=" =>
         val dependency: ScExpression = infix.right
-        val seqCall: ScMethodCall = generateSeqPsiMethodCall(info)(project)
+        val seqCall: ScMethodCall = generateSeqPsiMethodCall
 
         doInSbtWriteCommandAction({
-          seqCall.args.addExpr(dependency.copy().asInstanceOf[ScExpression])
-          seqCall.args.addExpr(generateArtifactPsiExpression(info)(project))
-          infix.operation.replace(ScalaPsiElementFactory.createElementFromText("++=")(project))
-          dependency.replace(seqCall)
-        }, psiFile)(project)
+                  seqCall.args.addExpr(dependency.copy().asInstanceOf[ScExpression])
+                  seqCall.args.addExpr(generateArtifactPsiExpression(info)(project))
+                  infix.operation.replace(ScalaPsiElementFactory.createElementFromText("++=")(project))
+                  dependency.replace(seqCall)
+                }, psiFile)
 
         Option(infix.right)
 
       case "++=" =>
         val dependencies: ScExpression = infix.right
         dependencies match {
-          case call: ScMethodCall if call.deepestInvokedExpr.getText == SEQ=>
+          case call: ScMethodCall if call.deepestInvokedExpr.textMatches(SEQ) =>
             val addedExpr = generateArtifactPsiExpression(info)(project)
-            doInSbtWriteCommandAction(call.args.addExpr(addedExpr), psiFile)(project)
+            doInSbtWriteCommandAction(call.args.addExpr(addedExpr), psiFile)
             Option(addedExpr)
           case _ => None
         }
@@ -161,8 +161,8 @@ object AddSbtDependencyUtils {
       case seqCall: ScMethodCall =>
         val addedExpr = generateLibraryDependency(info)(project)
         doInSbtWriteCommandAction({
-          seqCall.args.addExpr(addedExpr)
-        }, seqCall.getContainingFile)
+                  seqCall.args.addExpr(addedExpr)
+                }, seqCall.getContainingFile)
         Option(addedExpr)
       case _ => None
     }
@@ -170,17 +170,17 @@ object AddSbtDependencyUtils {
   def addDependencyToFile(file: PsiFile, info: ArtifactInfo)(implicit project: Project): PsiElement = {
     var addedExpr: PsiElement = null
     doInSbtWriteCommandAction({
-      file.addAfter(generateNewLine(project), file.getLastChild)
-      addedExpr = file.addAfter(generateLibraryDependency(info), file.getLastChild)
-    }, file)
+          file.addAfter(generateNewLine(project), file.getLastChild)
+          addedExpr = file.addAfter(generateLibraryDependency(info), file.getLastChild)
+        }, file)
     addedExpr
   }
 
   def addDependencyToSettings(settings: ScMethodCall, info: ArtifactInfo)(implicit project: Project): PsiElement = {
     val addedExpr = generateLibraryDependency(info)(project)
     doInSbtWriteCommandAction({
-      settings.args.addExpr(addedExpr)
-    }, settings.getContainingFile)(project)
+          settings.args.addExpr(addedExpr)
+        }, settings.getContainingFile)
     addedExpr
   }
 
@@ -205,18 +205,18 @@ object AddSbtDependencyUtils {
       case "+=" => true
       case "++=" =>  libDeps.right match {
         // In this case we return false to not repeat it several times
-        case call: ScMethodCall if call.deepestInvokedExpr.getText == SEQ => false
+        case call: ScMethodCall if call.deepestInvokedExpr.textMatches(SEQ) => false
         case _ => true
       }
       case _ => false
     }
 
-  private def doInSbtWriteCommandAction[T](f: => T, psiSbtFile: PsiFile)(implicit project: ProjectContext): T =
+  private def doInSbtWriteCommandAction[T](f: => T, psiSbtFile: PsiFile): T =
     WriteCommandAction
       .writeCommandAction(psiSbtFile)
       .compute(() => f)
 
-  private def generateSeqPsiMethodCall(info: ArtifactInfo)(implicit ctx: ProjectContext): ScMethodCall =
+  private def generateSeqPsiMethodCall(implicit ctx: ProjectContext): ScMethodCall =
     ScalaPsiElementFactory.createElementFromText(s"$SEQ()").asInstanceOf[ScMethodCall]
 
   private def generateLibraryDependency(info: ArtifactInfo)(implicit ctx: ProjectContext): ScInfixExpr =

@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 class PatternDefinitionAnnotatorTest extends SimpleTestCase {
   final val Header = "class A; class B; object A extends A; object B extends B\n"
 
-  def testFine() {
+  def testFine(): Unit = {
     assertMatches(messages("val v = A")) {
       case Nil =>
     }
@@ -55,7 +55,7 @@ class PatternDefinitionAnnotatorTest extends SimpleTestCase {
     }
   }*/
 
-  def testSCL13258() {
+  def testSCL13258(): Unit = {
     assertMatches(messages("val v: A = _")) {
       case Error("_", "Unbound placeholder parameter") :: Nil =>
     }

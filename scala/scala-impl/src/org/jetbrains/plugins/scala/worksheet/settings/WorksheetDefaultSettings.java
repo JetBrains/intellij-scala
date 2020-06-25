@@ -17,7 +17,8 @@ import org.jetbrains.annotations.Nullable;
     storages = {
         @Storage(StoragePathMacros.WORKSPACE_FILE),
         @Storage("scala_settings.xml")
-    }
+    },
+    reportStatistic = true
 )
 public class WorksheetDefaultSettings implements PersistentStateComponent<WorksheetDefaultSettings> {
   private boolean isInteractive;

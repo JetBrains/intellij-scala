@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScCommentOwner
 
+import scala.annotation.tailrec
 import scala.meta.intellij.IDEAContext
 
 trait TreeConverterTestUtils {
@@ -21,6 +22,7 @@ trait TreeConverterTestUtils {
   val startToken = "//start"
 
   def psiFromText(text: String): ScalaPsiElement = {
+    @tailrec
     def nextScalaPsiElement(current: PsiElement): ScalaPsiElement = current match {
       case _: PsiWhiteSpace => nextScalaPsiElement(current.getNextSibling)
       case sce: ScalaPsiElement => sce

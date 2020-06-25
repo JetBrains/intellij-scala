@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 */
 
 class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScExistentialTypeElement {
-  protected def innerType: TypeResult = {
+  override protected def innerType: TypeResult = {
     /** From SLS 3.2.10
       *
       * Existential Quantification over Values
@@ -77,7 +77,7 @@ class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(no
     true
   }
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitExistentialTypeElement(this)
   }
 }

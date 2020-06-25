@@ -27,7 +27,7 @@ trait ScObject extends ScTypeDefinition
     this.flag = flag
   }
 
-  def declaredElements: Seq[ScObject] = Seq(this)
+  override def declaredElements: Seq[ScObject] = Seq(this)
 
   def hasPackageKeyword: Boolean
 

@@ -1,83 +1,93 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest
 
+import com.intellij.compiler.server.BuildManager
+import com.intellij.openapi.util.registry.Registry
+
 trait ScalaTestPackageTest extends ScalaTestTestCase {
 
-  private val packageName = "myPackage"
-  private val secondPackageName = "secondPackage"
-  private val packageNameWithReservedKeyword = "type"
+  protected val packageName = "myPackage"
+  protected val secondPackageName = "secondPackage"
+  protected val packageNameWithReservedKeyword = "type"
 
   addSourceFile(packageName + "/Test1.scala",
-    """
-      |package myPackage
-      |
-      |import org.scalatest._
-      |
-      |class Test1 extends FunSuite {
-      |
-      |  test("Test1") {
-      |  }
-      |}
+    s"""
+       |package $packageName
+       |
+       |import org.scalatest._
+       |
+       |class Test1 extends FunSuite {
+       |
+       |  test("Test1") {
+       |  }
+       |}
     """.stripMargin.trim())
 
   addSourceFile(packageName + "/Test2.scala",
-    """
-      |package myPackage
-      |
-      |import org.scalatest._
-      |
-      |class Test2 extends FunSuite {
-      |
-      |  test("Test2") {
-      |  }
-      |}
+    s"""
+       |package $packageName
+       |
+       |import org.scalatest._
+       |
+       |class Test2 extends FunSuite {
+       |
+       |  test("Test2") {
+       |  }
+       |}
     """.stripMargin.trim())
 
   addSourceFile(secondPackageName + "/Test1.scala",
-    """
-      |package secondPackage
-      |
-      |import org.scalatest._
-      |
-      |class Test1 extends FunSuite {
-      |
-      |  test("SecondTest") {}
-      |}
+    s"""
+       |package $secondPackageName
+       |
+       |import org.scalatest._
+       |
+       |class Test1 extends FunSuite {
+       |
+       |  test("SecondTest") {}
+       |}
     """.stripMargin.trim())
 
   addSourceFile(packageNameWithReservedKeyword + "/Test3.scala",
-    """
-      |package `type`
-      |
-      |import org.scalatest._
-      |
-      |class Test3 extends FunSuite {
-      |
-      |  test("some test name") {}
-      |}
+    s"""
+       |package `$packageNameWithReservedKeyword`
+       |
+       |import org.scalatest._
+       |
+       |class Test3 extends FunSuite {
+       |
+       |  test("some test name") {}
+       |}
     """.stripMargin.trim())
 
-  def testPackageTestRun(): Unit = {
-    runTestByConfig(createTestFromPackage(packageName), checkPackageConfigAndSettings(_, packageName),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", "Test1", "Test1") &&
-        checkResultTreeHasExactNamedPath(root, "[root]", "Test2", "Test2") &&
-        checkResultTreeDoesNotHaveNodes(root, "SecondTest"))
-  }
+  def testPackageTestRun(): Unit =
+    runTestByConfig2(createTestFromPackage(packageName),
+      assertPackageConfigAndSettings(_, packageName),
+      root => {
+        assertResultTreeHasExactNamedPaths(root)(Seq(
+          Seq("[root]", "Test1", "Test1"),
+          Seq("[root]", "Test2", "Test2")
+        ))
+        assertResultTreeDoesNotHaveNodes(root, "SecondTest")
+      }
+    )
 
-  def testPackageTestRun_WithReservedKeywordInName(): Unit = {
-    runTestByConfig(
+  def testPackageTestRun_WithReservedKeywordInName(): Unit =
+    runTestByConfig2(
       createTestFromPackage(packageNameWithReservedKeyword),
-      checkPackageConfigAndSettings(_, packageNameWithReservedKeyword),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", "Test3", "some test name")
+      assertPackageConfigAndSettings(_, packageNameWithReservedKeyword),
+      root => assertResultTreeHasExactNamedPaths(root)(Seq(
+        Seq("[root]", "Test3", "some test name")
+      ))
     )
-  }
 
-  def testModuleTestRun(): Unit = {
-    runTestByConfig(createTestFromModule(testClassName),
-      checkPackageConfigAndSettings(_, generatedName = "ScalaTests in 'src'"),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", "Test1", "Test1") &&
-        checkResultTreeHasExactNamedPath(root, "[root]", "Test2", "Test2") &&
-        checkResultTreeHasExactNamedPath(root, "[root]", "Test1", "SecondTest") &&
-        checkResultTreeHasExactNamedPath(root, "[root]", "Test3", "some test name")
+  def testModuleTestRun(): Unit =
+    runTestByConfig2(createTestFromModule(getModule.getName),
+      assertPackageConfigAndSettings(_, generatedName = "ScalaTests in 'src'"),
+      root => assertResultTreeHasExactNamedPaths(root)(Seq(
+        Seq("[root]", "Test1", "Test1"),
+        Seq("[root]", "Test2", "Test2"),
+        Seq("[root]", "Test1", "SecondTest"),
+        Seq("[root]", "Test3", "some test name"),
+      ))
     )
-  }
 }

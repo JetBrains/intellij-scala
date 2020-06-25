@@ -35,7 +35,7 @@ class MakeBoxingExplicit extends AbstractTransformer {
     }
   }
 
-  protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
+  override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case (e: ScExpression) && Typeable(t) && ExpectedType(et)
       if boxMethodName(t).nonEmpty && et != AnyRef && et != t && !isSpecializedFor(et, t) =>
 
@@ -56,7 +56,7 @@ class MakeBoxingExplicit extends AbstractTransformer {
     holder.annotations.exists { it =>
       val name = it.annotationExpr.constructorInvocation.typeElement.getText
       val arguments = it.annotationExpr.getAnnotationParameters
-      name == "specialized" && (arguments.isEmpty || arguments.exists(_.getText == t.presentableText(TypePresentationContext.emptyContext)))
+      name == "specialized" && (arguments.isEmpty || arguments.exists(_.textMatches(t.presentableText(TypePresentationContext.emptyContext))))
     }
   }
 }

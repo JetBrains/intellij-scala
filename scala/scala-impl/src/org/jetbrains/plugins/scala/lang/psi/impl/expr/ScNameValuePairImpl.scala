@@ -17,13 +17,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 class ScNameValuePairImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScNameValuePair {
   override def toString: String = "NameValuePair: " + ifReadAllowed(name)("")
 
-  def setValue(newValue: PsiAnnotationMemberValue): PsiAnnotationMemberValue = newValue
+  override def setValue(newValue: PsiAnnotationMemberValue): PsiAnnotationMemberValue = newValue
 
-  def getValue: PsiAnnotationMemberValue = null
+  override def getValue: PsiAnnotationMemberValue = null
 
-  def getLiteral: Option[ScLiteral] = findChild(classOf[ScLiteral])
+  override def getLiteral: Option[ScLiteral] = findChild(classOf[ScLiteral])
 
-  def getLiteralValue: String = {
+  override def getLiteralValue: String = {
     getLiteral match {
       case Some(literal) =>
         val value = literal.getValue

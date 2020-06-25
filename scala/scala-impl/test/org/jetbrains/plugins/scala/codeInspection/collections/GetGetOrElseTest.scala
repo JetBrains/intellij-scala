@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
-package codeInspection.collections
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * Nikolay.Tropin
@@ -10,12 +10,10 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
  */
 class GetGetOrElseTest extends OperationsOnCollectionInspectionTest {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
-  val hint = InspectionBundle.message("get.getOrElse.hint")
+  override val hint = ScalaInspectionBundle.message("get.getOrElse.hint")
   override val classOfInspection = classOf[GetGetOrElseInspection]
 
-  def test_1() {
+  def test_1(): Unit = {
     val selected = s"""Map().${START}get(0).getOrElse("")$END"""
     checkTextHasError(selected)
     val text = "Map().get(0).getOrElse(\"\")"
@@ -23,7 +21,7 @@ class GetGetOrElseTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def test_2() {
+  def test_2(): Unit = {
     val selected = s"""Map("a" -> "A") ${START}get "b" getOrElse "B"$END"""
     checkTextHasError(selected)
     val text = """Map("a" -> "A") get "b" getOrElse "B""""

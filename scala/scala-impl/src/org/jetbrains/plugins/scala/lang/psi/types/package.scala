@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -15,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{P
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, _}
 import org.jetbrains.plugins.scala.util.SAMUtil
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
@@ -58,6 +57,7 @@ package object types {
     def isConservativelyCompatible(pt: ScType): ConstraintsResult = {
       def tryConformanceNoParams(fullResults: ConstraintsResult): ConstraintsResult = scType match {
         case ScMethodType(retTpe, ps, _) if ps.isEmpty => retTpe.conforms(pt, ConstraintSystem.empty, checkWeak = true)
+        case FunctionType(retTpe, ps)    if ps.isEmpty => retTpe.conforms(pt, ConstraintSystem.empty, checkWeak = true)
         case _                                         => fullResults
       }
 
@@ -198,26 +198,29 @@ package object types {
 
       def innerUpdate(tp: ScType, visited: Set[ScType]): ScType = {
         tp.recursiveUpdate {
-          `type` => `type`.isAliasType match {
-            case Some(AliasType(_: ScTypeAliasDefinition, Right(_: ScTypePolymorphicType), _)) => ProcessSubtypes
-            case Some(AliasType(ta: ScTypeAliasDefinition, _, Failure(_))) if needExpand(ta) =>
-              ReplaceWith(projectContext.stdTypes.Any)
-            case Some(AliasType(ta: ScTypeAliasDefinition, _, Right(upper))) if needExpand(ta) =>
-              if (visited.contains(`type`)) throw RecursionException
-              val updated =
-                try innerUpdate(upper, visited + `type`)
-                catch {
-                  case RecursionException =>
-                    if (visited.nonEmpty) throw RecursionException
-                    else `type`
-                }
-              ReplaceWith(updated)
-            case _ => ProcessSubtypes
-          }
+          case AliasType(_: ScTypeAliasDefinition, Right(_: ScTypePolymorphicType), _) => ProcessSubtypes
+          case AliasType(ta: ScTypeAliasDefinition, _, Failure(_)) if needExpand(ta) =>
+            ReplaceWith(projectContext.stdTypes.Any)
+          case `type`@AliasType(ta: ScTypeAliasDefinition, _, Right(upper)) if needExpand(ta) =>
+            if (visited.contains(`type`)) throw RecursionException
+            val updated =
+              try innerUpdate(upper, visited + `type`)
+              catch {
+                case RecursionException =>
+                  if (visited.nonEmpty) throw RecursionException
+                  else `type`
+              }
+            ReplaceWith(updated)
+          case _ => ProcessSubtypes
         }
       }
 
       innerUpdate(scType, Set.empty)
+    }
+
+    def widen: ScType = scType match {
+      case lit: ScLiteralType if lit.allowWiden => lit.wideType
+      case other                                => other.tryExtractDesignatorSingleton
     }
 
     def extractDesignatorSingleton: Option[ScType] = scType match {
@@ -237,6 +240,11 @@ package object types {
       case tpt: TypeParameterType =>
         typeParamIds.contains(tpt.typeParamId)
       case _ => false
+    }
+
+    def widenIfLiteral: ScType = scType match {
+      case litTy: ScLiteralType => litTy.wideType
+      case _                    => scType
     }
   }
 
@@ -333,10 +341,6 @@ package object types {
 
   private object RecursionException extends NoStackTrace
 
-  object Aliased {
-    def unapply(tpe: ScType): Option[AliasType] = tpe.isAliasType
-  }
-
   /**
    * Extractor for types, which are function-like
    * (i.e. FunctionN types, PartialFunction types and SAM traits).
@@ -363,6 +367,14 @@ package object types {
     case object FunctionN         extends FunctionTypeMarker
     case object PF                extends FunctionTypeMarker
     case class SAM(cls: PsiClass) extends FunctionTypeMarker
+
+    private[this] def priority(marker: FunctionTypeMarker): Int = marker match {
+      case PF        => 2
+      case FunctionN => 1
+      case _: SAM    => 0
+    }
+
+    implicit val markerOrdering: Ordering[FunctionTypeMarker] = Ordering.by(priority)
   }
 
   object FullyAbstractType {

@@ -11,6 +11,7 @@ import scala.collection.mutable
   * @author Roman.Shein
   *         Date: 16.02.2017
   */
+private[test]
 case class SbtProcessHandlerWrapper(inner: OSProcessHandler) extends ProcessHandler() {
 
   private val myListeners: mutable.ListBuffer[ProcessListener] = mutable.ListBuffer()
@@ -53,5 +54,5 @@ case class SbtProcessHandlerWrapper(inner: OSProcessHandler) extends ProcessHand
 
   override def notifyProcessDetached(): Unit =  destroyProcessImpl()
 
-  override def notifyProcessTerminated(exit: Int) = destroyProcessImpl()
+  override def notifyProcessTerminated(exit: Int): Unit = destroyProcessImpl()
 }

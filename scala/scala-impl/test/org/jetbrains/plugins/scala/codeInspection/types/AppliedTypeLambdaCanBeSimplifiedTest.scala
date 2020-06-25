@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.types
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.AppliedTypeLambdaCanBeSimplifiedInspection
-import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
 /**
@@ -12,13 +12,11 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
  */
 class AppliedTypeLambdaCanBeSimplifiedTest extends ScalaQuickFixTestBase {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[AppliedTypeLambdaCanBeSimplifiedInspection]
 
-  override protected val description: String = InspectionBundle.message("applied.type.lambda.can.be.simplified")
+  override protected val description: String = ScalaInspectionBundle.message("applied.type.lambda.can.be.simplified")
 
-  private val hint: String = InspectionBundle.message("simplify.type")
+  private val hint: String = ScalaInspectionBundle.message("simplify.type")
 
   private def testFix(text: String, res: String): Unit = testQuickFix(text, res, hint)
 
@@ -26,8 +24,9 @@ class AppliedTypeLambdaCanBeSimplifiedTest extends ScalaQuickFixTestBase {
     super.setUp()
 
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
-    val newSettings = defaultProfile.getSettings
-    newSettings.plugins :+= "kind-projector" //only some of the tests require kind-projector
+    val newSettings = defaultProfile.getSettings.copy(
+      plugins = defaultProfile.getSettings.plugins :+ "kind-projector"
+    )
     defaultProfile.setSettings(newSettings)
   }
 

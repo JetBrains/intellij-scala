@@ -5,9 +5,9 @@ class FunctionParameterInfoUpdateTest extends FunctionParameterInfoTestBase {
   override def getTestDataPath: String =
     s"${super.getTestDataPath}update/"
 
-  def testGenericUpdate() = doTest()
+  def testGenericUpdate(): Unit = doTest()
 
-  def testNoUpdate() = doTest()
+  def testNoUpdate(): Unit = doTest()
 
-  def testUpdateOnly() = doTest()
+  def testUpdateOnly(): Unit = doTest()
 }

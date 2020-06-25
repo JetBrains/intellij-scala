@@ -23,7 +23,7 @@ trait UndefinedType extends nonvalue.NonValueType with LeafType {
 
   override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitUndefinedType(this)
 
-  def inferValueType: TypeParameterType = TypeParameterType(typeParameter)
+  override def inferValueType: TypeParameterType = TypeParameterType(typeParameter)
 
   def dependentParameterType: Option[ValueType] = None
 
@@ -45,14 +45,14 @@ trait UndefinedType extends nonvalue.NonValueType with LeafType {
 
 object UndefinedType {
   //todo undefined type should store only typeParamId
-  private case class FromTypeParameter(typeParameter: TypeParameter, level: Int = 0) extends UndefinedType
+  private case class FromTypeParameter(override val typeParameter: TypeParameter, override val level: Int = 0) extends UndefinedType
 
   private case class FromParameter(p: ScParameter, original: ValueType) extends UndefinedType {
     override implicit def projectContext: ProjectContext = p.projectContext
 
-    val level: Int = 0
+    override val level: Int = 0
 
-    val typeParameter: TypeParameter = TypeParameter.light(s"`${p.name}.type`", Seq.empty, Nothing, Any)
+    override val typeParameter: TypeParameter = TypeParameter.light(s"`${p.name}.type`", Seq.empty, Nothing, Any)
 
     override def dependentParameterType: Option[ValueType] = Some(original)
   }

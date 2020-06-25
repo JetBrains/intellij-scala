@@ -18,8 +18,8 @@ import scala.collection.mutable.ListBuffer
  */
 class DuplicatePattern(val elements: Seq[PsiElement], parameters: Seq[ExtractMethodParameter])
                       (implicit val projectContext: ProjectContext) {
-  val paramOccurences = collectParamOccurences()
-  val definitions = collectDefinitions()
+  val paramOccurences: Map[ScReferenceExpression, ExtractMethodParameter] = collectParamOccurences()
+  val definitions: Seq[ScTypedDefinition] = collectDefinitions()
 
   def collectDefinitions(): Seq[ScTypedDefinition] = {
     val buffer = ListBuffer[ScTypedDefinition]()

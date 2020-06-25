@@ -16,7 +16,8 @@ object TokenSets {
     ClassDefinition,
     TraitDefinition,
     EnumDefinition,
-    ObjectDefinition
+    ObjectDefinition,
+    GivenDefinition
   )
 
   val BINDING_PATTERNS: TokenSet = TokenSet.create(
@@ -40,9 +41,17 @@ object TokenSets {
     VARIABLE_DEFINITION
   )
 
-  val MEMBERS: TokenSet =
+  @volatile
+  private var _MEMBERS: TokenSet = computeMemberTypes()
+
+  def MEMBERS: TokenSet = _MEMBERS
+
+  private def computeMemberTypes() = {
     FUNCTIONS ++ ALIASES_SET ++ TYPE_DEFINITIONS ++ PROPERTIES + PRIMARY_CONSTRUCTOR ++
-      MemberElementTypesExtension.getAllElementTypes
+      MemberElementTypesExtension.getExtraMemberTypes
+  }
+
+  MemberElementTypesExtension.EP_NAME.addExtensionPointListener(() => _MEMBERS = computeMemberTypes(), null)
 
   val DECLARED_ELEMENTS_HOLDER: TokenSet = TokenSet.orSet(FUNCTIONS, PROPERTIES)
 
@@ -61,8 +70,10 @@ object TokenSets {
 
   implicit class TokenSetExt(private val set: TokenSet) extends AnyVal {
     def ++ (other: TokenSet): TokenSet = TokenSet.orSet(set, other)
+    def ++ (other: IElementType*): TokenSet = TokenSet.orSet(set, TokenSet.create(other: _*))
     def + (other: IElementType): TokenSet = TokenSet.orSet(set, TokenSet.create(other))
     def -- (other: TokenSet): TokenSet = TokenSet.andNot(set, other)
+    def -- (other: IElementType*): TokenSet = TokenSet.andNot(set, TokenSet.create(other: _*))
     def - (other: IElementType): TokenSet = set -- TokenSet.create(other)
   }
 }

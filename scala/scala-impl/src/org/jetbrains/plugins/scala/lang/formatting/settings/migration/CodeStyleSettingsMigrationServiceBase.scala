@@ -51,7 +51,7 @@ object CodeStyleSettingsMigrationServiceBase {
   //noinspection ScalaDeprecation
   private[migration]
   object Migrations {
-    val DecomposeMultilineStringSupportSettings = MigrationItem(1, scalaSettings => {
+    val DecomposeMultilineStringSupportSettings: MigrationItem = MigrationItem(1, scalaSettings => {
       import ScalaCodeStyleSettings._
       import scalaSettings._
       MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE = MULTILINE_STRING_SUPORT >= MULTILINE_STRING_QUOTES_AND_INDENT

@@ -1,42 +1,74 @@
 package org.jetbrains.plugins.scala.lang.psi.implicits
 
-import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, childOf}
+import com.intellij.psi.{PsiFile, PsiElement}
+import org.jetbrains.plugins.scala.extensions.{childOf, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScGenerator}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScMethodLike}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenerator, ScFunctionExpr, ScForBinding}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
+import org.jetbrains.plugins.scala.macroAnnotations.ModCount
 import org.jetbrains.plugins.scala.project._
+
+import scala.collection.Set
 
 /**
   * @author Nikolay.Tropin
   */
-trait ImplicitSearchScope
+case class ImplicitSearchScope(representative: PsiElement) {
+
+  @CachedWithRecursionGuard(representative, Set.empty, ModCount.getBlockModificationCount)
+  def cachedVisibleImplicits: Set[ScalaResolveResult] = {
+    new ImplicitParametersProcessor(representative, withoutPrecedence = false)
+      .candidatesByPlace
+  }
+
+  @CachedWithRecursionGuard(representative, Set.empty, ModCount.getBlockModificationCount)
+  def cachedImplicitsByType(scType: ScType): Set[ScalaResolveResult] =
+    new ImplicitParametersProcessor(representative, withoutPrecedence = true)
+      .candidatesByType(scType)
+}
 
 object ImplicitSearchScope {
-
-  private case class ImplicitSearchScopeImpl(file: PsiFile, upperBorder: Option[PsiElement]) extends ImplicitSearchScope
-
   //should be different for two elements if they have different sets of available implicit names
   def forElement(e: PsiElement): ImplicitSearchScope = {
     e.getContainingFile match {
-      case scalaFile: ScalaFile =>
-        ImplicitSearchScopeImpl(scalaFile, findBorderUp(e))
-      case file => ImplicitSearchScopeImpl(file, None)
+      case _: ScalaFile => new ImplicitSearchScope(representative(e).getOrElse(e))
+      case _ => new ImplicitSearchScope(e)
     }
   }
 
-  private def findBorderUp(e: PsiElement): Option[PsiElement] = {
-    e.withContexts
+  private def representative(e: PsiElement): Option[PsiElement] = {
+    val elements = e.withContexts
       .takeWhile(e => e != null && !e.isInstanceOf[PsiFile])
-      .flatMap(_.prevSiblings)
-      .find(isImplicitSearchBorder)
+      .flatMap(_.withPrevSiblings)
+
+    var nonBorder: Option[PsiElement] = None
+    while (elements.hasNext) {
+      val next = elements.next()
+      if (isImplicitSearchBorder(next))
+        return nonBorder
+      else if (maySearchImplicitsFor(next)) {
+        nonBorder = Some(next)
+      }
+    }
+    nonBorder
   }
+
+  private def maySearchImplicitsFor(element: PsiElement): Boolean =
+    element.isInstanceOf[ImplicitArgumentsOwner]
 
   private def isImplicitSearchBorder(elem: PsiElement): Boolean = elem match {
     //special treatment for case clauses and for comprehensions to
@@ -47,6 +79,7 @@ object ImplicitSearchScope {
     case _: ScImportStmt | _: ScPackaging                  => true
     case (_: ScParameters) childOf (m: ScMethodLike)       => hasImplicitClause(m)
     case pc: ScPrimaryConstructor                          => hasImplicitClause(pc)
+    case (ps: ScParameters) childOf (_: ScFunctionExpr)    => ps.params.exists(_.isImplicitParameter)
     case p: ScParameter                                    => p.isImplicitParameter
     case m: ScMember                                       => m.hasModifierProperty("implicit")
     case _: ScTemplateParents                              => true

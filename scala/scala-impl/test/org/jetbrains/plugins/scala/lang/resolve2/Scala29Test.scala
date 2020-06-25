@@ -6,5 +6,5 @@ class Scala29Test extends ResolveTestBase {
     super.folderPath + "scala29/"
   }
 
-  def testSCL2913() = doTest()
+  def testSCL2913(): Unit = doTest()
 }

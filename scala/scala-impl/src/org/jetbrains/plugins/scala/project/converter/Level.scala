@@ -25,21 +25,21 @@ private object Level {
 }
 
 private object ProjectLevel extends Level("project", "Project") {
-  def librariesIn(context: ConversionContext): Seq[LibraryData] =
+  override def librariesIn(context: ConversionContext): Seq[LibraryData] =
     context.getProjectLibrariesSettings.getProjectLibraries.asScala.map(LibraryData(_)).toSeq
 }
 
 private object ApplicationLevel extends Level("application", "Global") {
-  def librariesIn(context: ConversionContext): Seq[LibraryData] =
+  override def librariesIn(context: ConversionContext): Seq[LibraryData] =
     LibraryTablesRegistrar.getInstance.getLibraryTable.getLibraries.map(LibraryData(_)).toSeq
 }
 
 private object ModuleLevel extends Level("module", "Module") {
-  def librariesIn(context: ConversionContext) =
+  override def librariesIn(context: ConversionContext) =
     throw new IllegalArgumentException("Module-level libraries are not supported")
 }
 
 private class CustomLevel(title: String) extends Level(title, title) {
-  def librariesIn(context: ConversionContext) =
+  override def librariesIn(context: ConversionContext) =
     throw new IllegalArgumentException("Custom-level libraries are not supported: " + title)
 }

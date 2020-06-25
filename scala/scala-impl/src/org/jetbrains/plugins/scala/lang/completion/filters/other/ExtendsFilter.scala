@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 */
 
 class ExtendsFilter extends ElementFilter {
-  def isAcceptable(element: Object, context: PsiElement): Boolean = {
+  override def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
     val (leaf, isScriptFile) = processPsiLeafForFilter(getLeafByOffset(context.getTextRange.getStartOffset, context))
     
@@ -45,7 +45,7 @@ class ExtendsFilter extends ElementFilter {
     false
   }
 
-  def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = true
+  override def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = true
 
   @NonNls
   override def toString = "'extends' keyword filter"

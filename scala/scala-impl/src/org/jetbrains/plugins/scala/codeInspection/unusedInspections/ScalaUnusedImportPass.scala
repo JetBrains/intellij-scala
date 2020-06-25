@@ -14,7 +14,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
-import com.intellij.util.DocumentUtil
+import com.intellij.util.{DocumentUtil, Processor}
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.caches.CachesUtil.fileModCount
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
  * Date: 15.06.2009
  */
 
-class ScalaUnusedImportPass(val file: PsiFile, editor: Editor, val document: Document,
+class ScalaUnusedImportPass(override val file: PsiFile, editor: Editor, override val document: Document,
                             highlightInfoProcessor: HighlightInfoProcessor)
   extends ProgressableTextEditorHighlightingPass(
     file.getProject,
@@ -87,13 +87,13 @@ object ScalaUnusedImportPass {
   private val SCALA_LAST_POST_PASS_TIMESTAMP = Key.create[java.lang.Long]("SCALA_LAST_POST_PASS_TIMESTAMP")
 
   //todo: copy/paste from QuickFixFactoryImpl
-  private def invokeOnTheFlyImportOptimizer(runnable: Runnable, file: PsiFile) {
+  private def invokeOnTheFlyImportOptimizer(runnable: Runnable, file: PsiFile): Unit = {
     val project: Project = file.getProject
     val document: Document = PsiDocumentManager.getInstance(project).getDocument(file)
     if (document == null) return
     val stamp: Long = document.getModificationStamp
     ApplicationManager.getApplication.invokeLater(new Runnable {
-      def run() {
+      override def run(): Unit = {
         if (project.isDisposed || document.getModificationStamp != stamp) return
         val undoManager: UndoManager = UndoManager.getInstance(project)
         if (undoManager.isUndoInProgress || undoManager.isRedoInProgress) return
@@ -125,14 +125,14 @@ object ScalaUnusedImportPass {
   private def containsErrorsPreventingOptimize(file: PsiFile): Boolean =
     PsiDocumentManager.getInstance(file.getProject).getDocument(file) match {
       case null => true
-      case document =>
+      case document: Document =>
         !DaemonCodeAnalyzerEx.processHighlights(
           document,
           file.getProject,
           HighlightSeverity.ERROR,
           0,
           document.getTextLength,
-          (_: HighlightInfo) => false //todo: only unresolved ref issues?
+          ((_: HighlightInfo) => false) : Processor[_ >: HighlightInfo] //todo: only unresolved ref issues?
         )
 
     }

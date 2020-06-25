@@ -7,9 +7,8 @@ import com.intellij.psi.{PsiComment, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.annotator.template.ImplicitParametersAnnotator
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.ConstructorInvocationLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScLiteralTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike, ScalaConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, ScConstructorInvocation, ScMethodLike, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScArgumentExprList
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
@@ -32,10 +31,11 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
 
   // TODO duplication with application annotator.
   private def annotateConstructorInvocation(constrInvocation: ScConstructorInvocation)
-                                           (implicit holder: ScalaAnnotationHolder) {
+                                           (implicit holder: ScalaAnnotationHolder): Unit = {
     constrInvocation.typeElement match {
       case lit: ScLiteralTypeElement =>
-        holder.createErrorAnnotation(constrInvocation.typeElement, s"Class type required but ($lit) found")
+        val message = ScalaBundle.message("annotator.error.class.type.required.but.found", lit)
+        holder.createErrorAnnotation(constrInvocation.typeElement, message)
       case _ =>
     }
     //in case if constructor is function
@@ -53,16 +53,20 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
       // and as last resort even the class itself (in order to return at least something)
       // But note: a trait will be returned when a trait is instantiated as anonymous class
       // (of course traits cannot have constructors)
-      elementShouldHaveBeenConcreteConstructor = element.isInstanceOf[ScConstructorOwner]
+      // (wrong! they can now in scala 3, that's why we are checking if the element is
+      //  a constructorOwner AND also has a constructor! It will not have one in scala 2)
+      mayBeConstructor = element.asOptionOf[ScConstructorOwner].flatMap(_.constructor)
+      elementShouldHaveBeenConcreteConstructor = mayBeConstructor.isDefined
       if resolveResult.isAccessible && !elementShouldHaveBeenConcreteConstructor
     } yield resolveResult
 
     if (resolved.exists(isConstructorMalformed)) {
-      holder.createErrorAnnotation(constrInvocation.typeElement, "Constructor has malformed definition")
+      val message = ScalaBundle.message("annotator.error.constructor.has.malformed.definition")
+      holder.createErrorAnnotation(constrInvocation.typeElement, message)
     }
 
     resolved match {
-      case Seq() => holder.createErrorAnnotation(argsElementsTextRange(constrInvocation), s"No constructor accessible from here")
+      case Seq() => holder.createErrorAnnotation(argsElementsTextRange(constrInvocation), ScalaBundle.message("annotator.error.no.constructor.accessible"))
       case Seq(r@ScConstructorResolveResult(constr)) if constr.effectiveParameterClauses.length > 1 && !isConstructorMalformed(r) =>
         // if there is only one well-formed, resolved, scala constructor with multiple parameter clauses,
         // check all of these clauses
@@ -83,7 +87,8 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
 
         annotateProblems(res.problems, r, constrInvocation)
       case results if results.length > 1 =>
-        holder.createErrorAnnotation(constrInvocation.typeElement, s"Cannot resolve overloaded constructor `${constrInvocation.typeElement.getText}`")
+        val message = ScalaBundle.message("annotator.error.cannot.resolve.overloaded.constructor", constrInvocation.typeElement.getText)
+        holder.createErrorAnnotation(constrInvocation.typeElement, message)
       case _ =>
         for (r <- resolved)
           annotateProblems(r.problems, r, constrInvocation)
@@ -95,7 +100,7 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
     val element = r.element
     def argsElements = argsElementsTextRange(constrInvocation)
     // TODO decouple
-    def signature = ScReferenceAnnotator.signatureOf(element)
+    def nameWithSignature = ScReferenceAnnotator.nameWithSignature(element)
 
     // mark problematic clauses where parameters are missing
     val missedParams = problems.collect { case MissedValueParameter(p) => p}
@@ -119,8 +124,9 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
           argsElements
         }
 
+        val paramsText = missing.map(p => p.name + ": " + p.paramType.presentableText).mkString(", ")
         holder.createErrorAnnotation(range,
-          "Unspecified value parameters: " + missing.map(p => p.name + ": " + p.paramType.presentableText).mkString(", "))
+          ScalaBundle.message("annotator.error.unspecified.value.parameters", paramsText))
     }
 
     // check if the found element can even be used as a constructor
@@ -130,7 +136,7 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
         // but not   new Trait()() {}
         // or        new Trait(i: Int) {}
         holder.createErrorAnnotation(tail.foldLeft(head.getTextRange)(_ union _.getTextRange),
-          s"${tr.name} is a trait and thus has no constructor")
+          ScalaBundle.message("annotator.error.trait.has.no.constructor", tr.name))
       case _ =>
     }
 
@@ -142,7 +148,8 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
     firstExcessiveArgument.foreach { argument =>
       val opening = argument.prevSiblings.takeWhile(e => e.is[PsiWhiteSpace] || e.is[PsiComment] || e.textMatches(",") || e.textMatches("(")).toSeq.lastOption
       val range = opening.map(e => new TextRange(e.getTextOffset, argument.getTextOffset + 1)).getOrElse(argument.getTextRange)
-      holder.createErrorAnnotation(range, s"Too many arguments for constructor$signature")
+      val message = ScalaBundle.message("annotator.error.too.many.arguments.for.constructor", nameWithSignature)
+      holder.createErrorAnnotation(range, message)
     }
 
     problems.foreach {
@@ -160,16 +167,20 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
           .map(_.getTextRange.getEndOffset)
           .map(off => TextRange.create(off - 1, off))
           .getOrElse(constrInvocation.getTextRange)
-        holder.createErrorAnnotation(markRange, s"Missing argument list for constructor$signature")
+        val message = ScalaBundle.message("annotator.error.missing.argument.list.for.constructor", nameWithSignature)
+        holder.createErrorAnnotation(markRange, message)
       case MissedValueParameter(_) => // simultaneously handled above
       case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
-      case MalformedDefinition() => // handled before to avoid duplications
+      case MalformedDefinition(_) => // handled before to avoid duplications
       case ExpansionForNonRepeatedParameter(expression) =>
-        holder.createErrorAnnotation(expression, "Expansion for non-repeated parameter")
+        val message = ScalaBundle.message("annotator.error.expansion.for.non.repeated.parameter")
+        holder.createErrorAnnotation(expression, message)
       case PositionalAfterNamedArgument(argument) =>
-        holder.createErrorAnnotation(argument, "Positional after named argument")
+        val message = ScalaBundle.message("annotator.error.positional.after.named.argument")
+        holder.createErrorAnnotation(argument, message)
       case ParameterSpecifiedMultipleTimes(assignment) =>
-        holder.createErrorAnnotation(assignment.leftExpression, "Parameter specified multiple times")
+        val message = ScalaBundle.message("annotator.error.parameter.specified.multiple.times")
+        holder.createErrorAnnotation(assignment.leftExpression, message)
       case WrongTypeParameterInferred => //todo: ?
       case ExpectedTypeMismatch => //will be reported later
       case DefaultTypeParameterMismatch(expected, actual) => constrInvocation.typeArgList match {
@@ -178,7 +189,9 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
           holder.createErrorAnnotation(tpArgList, message)
         case _ =>
       }
-      case _ => holder.createErrorAnnotation(argsElements, s"Not applicable. constructor$signature")
+      case _ =>
+        val message = ScalaBundle.message("annotator.error.cannot.apply.constructor", nameWithSignature)
+        holder.createErrorAnnotation(argsElements, message)
     }
   }
 
@@ -193,7 +206,7 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
   }
 
   def isConstructorMalformed(r: ScalaResolveResult): Boolean =
-    r.problems.exists { case MalformedDefinition() => true; case _ => false }
+    r.problems.exists { case MalformedDefinition(_) => true; case _ => false }
 
   def argsElementsTextRange(constrInvocation: ConstructorInvocationLike): TextRange = constrInvocation.arguments match {
     case head +: tail => tail.foldLeft(head.getTextRange)(_ union _.getTextRange)

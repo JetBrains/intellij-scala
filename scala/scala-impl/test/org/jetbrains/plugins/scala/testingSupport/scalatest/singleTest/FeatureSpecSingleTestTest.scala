@@ -10,19 +10,21 @@ trait FeatureSpecSingleTestTest extends FeatureSpecGenerator {
   val featureSpecTestPath = List("[root]", featureSpecClassName, "Feature: Feature 1", "Scenario: Scenario A")
   val featureSpecTaggedTestPath = List("[root]", featureSpecClassName, "Feature: Feature 3", "Scenario: Tagged")
 
-  def testFeatureSpecSingleTest() {
-    runTestByLocation(5, 7, featureSpecFileName,
-      checkConfigAndSettings(_, featureSpecClassName, featureSpecConfigTestName),
-      root => checkResultTreeHasExactNamedPath(root, featureSpecTestPath:_*) &&
-          checkResultTreeDoesNotHaveNodes(root, "Scenario: Scenario B")
+  def testFeatureSpecSingleTest(): Unit =
+    runTestByLocation2(5, 7, featureSpecFileName,
+      assertConfigAndSettings(_, featureSpecClassName, featureSpecConfigTestName),
+      root => {
+        assertResultTreeHasExactNamedPaths(root)(Seq(featureSpecTestPath))
+        assertResultTreeDoesNotHaveNodes(root, "Scenario: Scenario B")
+      }
     )
-  }
 
-  def testTaggedFeatureSpecTest(): Unit = {
-    runTestByLocation(24, 7, featureSpecFileName,
-      checkConfigAndSettings(_, featureSpecClassName, featureSpecTaggedConfigTestName),
-      root => checkResultTreeHasExactNamedPath(root, featureSpecTaggedTestPath:_*) &&
-        checkResultTreeDoesNotHaveNodes(root, "Scenario: Scenario A")
-     )
-  }
+  def testTaggedFeatureSpecTest(): Unit =
+    runTestByLocation2(24, 7, featureSpecFileName,
+      assertConfigAndSettings(_, featureSpecClassName, featureSpecTaggedConfigTestName),
+      root => {
+        assertResultTreeHasExactNamedPaths(root)(Seq(featureSpecTaggedTestPath))
+        assertResultTreeDoesNotHaveNodes(root, "Scenario: Scenario A")
+      }
+    )
 }

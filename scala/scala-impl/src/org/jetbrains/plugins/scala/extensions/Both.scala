@@ -6,5 +6,5 @@ package org.jetbrains.plugins.scala.extensions
 
 object Both {
   @deprecated("Use && instead", "2018.1")
-  def unapply[T](obj: T) = Some((obj, obj))
+  def unapply[T](obj: T): Some[(T, T)] = Some((obj, obj))
 }

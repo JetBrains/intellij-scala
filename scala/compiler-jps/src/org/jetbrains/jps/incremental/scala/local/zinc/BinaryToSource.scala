@@ -2,7 +2,7 @@ package org.jetbrains.jps.incremental.scala.local.zinc
 
 import java.io.File
 
-import org.jetbrains.jps.incremental.scala.data.CompilationData
+import org.jetbrains.plugins.scala.compiler.data.CompilationData
 import sbt.internal.inc.Analysis
 import xsbti.compile.CompileAnalysis
 

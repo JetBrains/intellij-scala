@@ -1,8 +1,11 @@
 .idea/scopes/
+.idea/codeStyles/
+.idea/artifacts/
 .idea/dictionaries/
 .idea/inspectionProfiles/
 .idea/libraries/
 .idea/modules/
+.idea/runConfigurations/
 .idea/.name
 .idea/*.xml
 !.idea/vcs.xml

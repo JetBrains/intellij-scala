@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
@@ -10,10 +12,11 @@ class RangeToIndicesInspection extends OperationOnCollectionInspection {
 }
 
 object RangeToIndices extends SimplificationType {
-  override def hint: String = "Replace with .indices"
+  override def hint: String = ScalaInspectionBundle.message("hint.replace.with.indices")
+  //noinspection ScalaExtractStringToBundle
   override def description: String = "Range(0, seq.size)"
 
-  val Range = invocation("apply").from(Array("scala.collection.immutable.Range"))
+  private val Range = invocation("apply").from(Array("scala.collection.immutable.Range"))
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case Range(_, literal("0"), qual`.sizeOrLength`()) if isSeq(qual) || isArray(qual) => toIndicesSimplification(expr, qual)
@@ -21,14 +24,19 @@ object RangeToIndices extends SimplificationType {
   }
 
   def toIndicesSimplification(expr: ScExpression, qual: ScExpression): Some[Simplification] = {
-    Some(replace(expr).withText(invocationText(qual, "indices")).withHint(s"Replace with ${qual.getText}.indices").highlightAll)
+    Some(replace(expr)
+      .withText(invocationText(qual, "indices"))
+      .withHint(ScalaInspectionBundle.message("hint.replace.with.indices.with.preview", qual.getText))
+      .highlightAll
+    )
   }
 }
 
 object UntilToIndices extends SimplificationType {
+  //noinspection ScalaExtractStringToBundle
   override def hint: String = "0 until seq.size"
 
-  val `.until` = invocation("until").from(Array("scala.runtime.RichInt"))
+  private val `.until` = invocation("until").from(Array("scala.runtime.RichInt"))
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case literal("0")`.until`(qual`.sizeOrLength`())  if isSeq(qual) || isArray(qual) =>
@@ -39,9 +47,10 @@ object UntilToIndices extends SimplificationType {
 }
 
 object ToToIndices extends SimplificationType {
+  //noinspection ScalaExtractStringToBundle
   override def hint: String = "0 to (seq.size - 1)"
 
-  val `.to` = invocation("to").from(Array("scala.runtime.RichInt"))
+  private val `.to` = invocation("to").from(Array("scala.runtime.RichInt"))
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case literal("0")`.to`(qual`.sizeOrLength`() `-` literal("1"))  if isSeq(qual) || isArray(qual) =>

@@ -24,19 +24,19 @@ class ScFunctionWrapper(override val delegate: ScFunction,
 
   override def isConstructor: Boolean = delegate.isConstructor
 
-  protected def modifierList: PsiModifierList = {
+  override protected def modifierList: PsiModifierList = {
     def isSyntheticMethodFromTrait = cClass.nonEmpty && delegate.containingClass.isInstanceOf[ScTrait]
 
     val isOverride = !isStatic && (isSyntheticMethodFromTrait || delegate.hasModifierProperty("override"))
     ScLightModifierList(delegate, isStatic, isAbstract, getContainingClass.isInstanceOf[ScTrait], isOverride)
   }
 
-  protected def parameters: Seq[PsiParameter] =
+  override protected def parameters: Seq[PsiParameter] =
     delegate.effectiveParameterClauses
       .flatMap(_.effectiveParameters)
       .map(ScLightParameter.from(_, superSubstitutor.followed(methodTypeParamsSubstitutor), isJavaVarargs))
 
-  protected def typeParameters: Seq[PsiTypeParameter] =
+  override protected def typeParameters: Seq[PsiTypeParameter] =
     delegate.typeParameters.map(new ScLightTypeParam(_, superSubstitutor))
 
   override protected def returnScType: ScType = {

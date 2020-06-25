@@ -1,6 +1,5 @@
 package org.jetbrains.jps.incremental.scala
 
-import _root_.java.util
 import java.io.File
 
 import com.intellij.openapi.util.io.FileUtil
@@ -15,9 +14,10 @@ import org.jetbrains.jps.incremental.scala.InitialScalaBuilder.isScalaProject
 import org.jetbrains.jps.incremental.scala.SbtBuilder._
 import org.jetbrains.jps.incremental.scala.ScalaBuilder._
 import org.jetbrains.jps.incremental.scala.local.IdeClientSbt
-import org.jetbrains.jps.incremental.scala.model.IncrementalityType
 import org.jetbrains.jps.incremental.scala.sbtzinc.{CompilerOptionsStore, ModulesFedToZincStore}
+import org.jetbrains.plugins.scala.compiler.IncrementalityType
 
+import _root_.java.{util => jutil}
 import _root_.scala.collection.JavaConverters._
 import _root_.scala.collection.mutable
 
@@ -88,18 +88,19 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
     }
   }
 
-  override def getCompilableFileExtensions: util.List[String] = util.Arrays.asList("scala", "java")
+  override def getCompilableFileExtensions: jutil.List[String] =
+    jutil.Arrays.asList("scala", "java")
 
-  private def isDisabled(context: CompileContext): Boolean = {
-    projectSettings(context).getIncrementalityType != IncrementalityType.SBT || !isScalaProject(context)
-  }
+  private def isDisabled(context: CompileContext): Boolean =
+    projectSettings(context).getIncrementalityType != IncrementalityType.SBT ||
+      !isScalaProject(context)
 }
 
 object SbtBuilder {
 
   // TODO Mirror file deletion (either via the outputConsumer or a custom index)
   // TODO use AdditionalRootsProviderService?
-  private def updateSharedResources(context: CompileContext, chunk: ModuleChunk) {
+  private def updateSharedResources(context: CompileContext, chunk: ModuleChunk): Unit = {
     val project = context.getProjectDescriptor
 
     val resourceTargets: Seq[ResourcesTarget] = {
@@ -178,7 +179,7 @@ object SbtBuilder {
   private def logCustomSbtIncOptions(context: CompileContext, chunk: ModuleChunk, client: Client): Unit = {
     val settings = projectSettings(context).getCompilerSettings(chunk)
     val options = settings.getSbtIncrementalOptions
-    client.debug(s"Custom sbt incremental compiler options for ${chunk.getPresentableShortName}: ${options.nonDefault}")
+    client.internalInfo(s"Custom sbt incremental compiler options for ${chunk.getPresentableShortName}: ${options.nonDefault}")
   }
 
   private type DirtyFilesHolder =

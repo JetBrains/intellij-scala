@@ -4,8 +4,9 @@ import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.annotations.Nls
 
-abstract class AbstractIntention(text: String, familyName: String)
+abstract class AbstractIntention(@Nls text: String, @Nls familyName: String)
                                 (f: (Project, Editor) => PartialFunction[PsiElement, Unit])
   extends PsiElementBaseIntentionAction {
 

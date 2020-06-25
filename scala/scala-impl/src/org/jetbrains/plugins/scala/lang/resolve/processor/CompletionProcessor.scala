@@ -3,15 +3,14 @@ package lang
 package resolve
 package processor
 
-import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.withCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.base.AuxiliaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, TermSignature}
+import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScType, TermSignature}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{MappedTopPrecedenceHolder, PrecedenceHelper, TopPrecedenceHolder}
 
@@ -19,37 +18,47 @@ import scala.collection.{Set, mutable}
 
 object CompletionProcessor {
 
-  private def getSignature(element: PsiNamedElement, substitutor: ScSubstitutor): Option[TermSignature] = element match {
+  def variants(scType: ScType, place: PsiElement, nameHint: Option[String] = None): Set[ScalaResolveResult] = {
+    val processor = new CompletionProcessor(StdKinds.methodRef, place, withImplicitConversions = true) {
+      override protected val forName: Option[String] = nameHint
+    }
+    processor.processType(scType, place)
+    processor.candidatesS
+  }
+
+  def variantsWithName(scType: ScType, place: PsiElement, name: String): Set[ScalaResolveResult] =
+    variants(scType, place, Some(name))
+
+  private def findCandidates(element: PsiNamedElement) = element match {
+    case AuxiliaryConstructor(_) => Nil // do not add constructor
+    case definition: ScTypeDefinition => withCompanionModule(definition)
+    case _ => element :: Nil
+  }
+
+  private def toSignature(element: PsiNamedElement,
+                          substitutor: ScSubstitutor) = element match {
     case method: PsiMethod => Some(new PhysicalMethodSignature(method, substitutor))
     case _: ScTypeAlias |
          _: PsiClass => None
     case _ => Some(TermSignature(element, substitutor))
   }
 
-  private def findByKey[T](key: Key[T])
-                          (implicit state: ResolveState): Option[T] =
-    Option(state.get(key))
-
-  private def createResolveResults(candidates: Seq[(PsiNamedElement, Boolean)],
-                                   substitutor: ScSubstitutor,
-                                   implcitConversion: Option[ScalaResolveResult])
-                                  (implicit state: ResolveState): Seq[ScalaResolveResult] = {
-    candidates.map {
-      case (element, isNamedParameter) =>
-        new ScalaResolveResult(element, substitutor,
-          renamed            = state.renamed,
-          implicitConversion = implcitConversion,
-          isNamedParameter   = isNamedParameter,
-          fromType           = state.fromType,
-          importsUsed        = state.importsUsed,
-          prefixCompletion   = state.isPrefixCompletion)
-    }
-  }
+  private def toResolveResult(element: PsiNamedElement)
+                             (implicit state: ResolveState) = new ScalaResolveResult(
+    element,
+    state.substitutor,
+    renamed = state.renamed,
+    implicitConversion = state.implicitConversion,
+    isNamedParameter = !element.isInstanceOf[ScTypeDefinition] && state.isNamedParameter,
+    fromType = state.fromType,
+    importsUsed = state.importsUsed,
+    prefixCompletion = state.isPrefixCompletion
+  )
 }
 
 class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
                           override val getPlace: PsiElement,
-                          val isImplicit: Boolean = false)
+                          val withImplicitConversions: Boolean = false)
   extends BaseProcessor(kinds)(getPlace) with PrecedenceHelper {
 
   private object CompletionStrategy extends NameUniquenessStrategy {
@@ -82,38 +91,18 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
                                 (implicit state: ResolveState): Boolean = {
     if (forName.exists(_ != namedElement.name)) return true
 
-    val candidates = findCandidates(namedElement)
-    if (candidates.isEmpty) return true
+    lazy val predicate: ScalaResolveResult => Boolean = toSignature(namedElement, state.substitutor) match {
+      case Some(signature) if state.implicitConversion.isDefined => _ => implicitCase(signature)
+      case maybeSignature => regularCase(_, maybeSignature)
+    }
 
-    val substitutor = state.substitutor
-    val implicitConversion = state.implicitConversion
-
-    val resolveResults = createResolveResults(candidates, substitutor, implicitConversion)
-    val maybeSignature = getSignature(namedElement, substitutor)
-
-    resolveResults.filter {
-      case _ if implicitConversion.isDefined && maybeSignature.isDefined => implicitCase(maybeSignature.get)
-      case result => regularCase(result, maybeSignature)
-    }.foreach(addResult)
+    findCandidates(namedElement)
+      .filter(ResolveUtils.kindMatches(_, kinds))
+      .map(toResolveResult)
+      .filter(predicate)
+      .foreach(addResult)
 
     true
-  }
-
-  private def findCandidates(namedElement: PsiNamedElement)
-                            (implicit state: ResolveState): Seq[(PsiNamedElement, Boolean)] = {
-    val results = namedElement match {
-      case AuxiliaryConstructor(_) =>
-        Seq.empty // do not add constructor
-      case definition: ScTypeDefinition =>
-        (Seq(definition) ++ getCompanionModule(definition)).map((_, false))
-      case _ =>
-        val isNamedParameter = state.isNamedParameter
-        Seq((namedElement, isNamedParameter))
-    }
-
-    results.filter {
-      case (e, _) => ResolveUtils.kindMatches(e, kinds)
-    }
   }
 
   override def changedLevel: Boolean = {

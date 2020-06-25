@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.lang.annotation.Annotation
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.shouldIgnoreTypeMismatchIn
 import org.jetbrains.plugins.scala.annotator.quickfix._
 import org.jetbrains.plugins.scala.extensions.{&&, Parent}
@@ -46,7 +46,7 @@ trait FunctionAnnotator {
       if (!canBeTailRecursive(function)) {
         val annotation = holder.createErrorAnnotation(
           functionNameId,
-          "Method annotated with @tailrec is neither private nor final (so can be overridden)"
+          ScalaBundle.message("method.annotated.with.tailrec.is.neither.private.nor.final")
         )
 
         import lang.lexer.ScalaModifier
@@ -61,7 +61,7 @@ trait FunctionAnnotator {
       if (typeAware) {
         val annotations = function.recursiveReferencesGrouped match {
           case references if references.noRecursion =>
-            Seq(holder.createErrorAnnotation(functionNameId, "Method annotated with @tailrec contains no recursive calls"))
+            Seq(holder.createErrorAnnotation(functionNameId, ScalaBundle.message("method.annotated.with.tailrec.contains.no.recursive.calls")))
           case references =>
             for {
               reference <- references.ordinaryRecursive
@@ -69,7 +69,7 @@ trait FunctionAnnotator {
                 case methodCall: ScMethodCall => methodCall
                 case _ => reference
               }
-            } yield holder.createErrorAnnotation(target, "Recursive call not in tail position (in @tailrec annotated method)")
+            } yield holder.createErrorAnnotation(target, ScalaBundle.message("recursive.call.not.in.tail.position"))
         }
 
         annotations.foreach {
@@ -114,7 +114,7 @@ trait FunctionAnnotator {
         annotation.registerFix(new AddReturnTypeFix(function, returnTypes.toSeq.lub()))
       }
 
-      def redundantReturnExpression(): Annotation = {
+      def redundantReturnExpression(): ScalaAnnotation = {
         val message = ScalaBundle.message("return.expression.is.redundant", usageType.presentableText(usage))
         holder.createWarningAnnotation(usage.asInstanceOf[ScReturn].expr.get, message)
       }
@@ -163,9 +163,9 @@ object FunctionAnnotator {
     }
 
   private final class RemoveAnnotationQuickFix(annotation: ScAnnotation) extends IntentionAction {
-    override def getText = "Remove @tailrec annotation"
+    override def getFamilyName: String = ScalaBundle.message("family.name.remove.tailrec.annotation")
 
-    override def getFamilyName = ""
+    override def getText: String = getFamilyName
 
     override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
       annotation.isValid

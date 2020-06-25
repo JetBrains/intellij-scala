@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala.settings
 
 import java.util
-import javax.swing.{JComponent, JPanel}
 
+import javax.swing.{JComponent, JPanel}
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationBundle
 import com.intellij.openapi.ui.{InputValidator, Messages}
 import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.ui._
 import com.intellij.util.IconUtil
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.util.JListCompatibility
@@ -34,7 +35,7 @@ object ScalaProjectSettingsUtil {
   }
 
   def getPatternValidator: InputValidator = new InputValidator {
-    def checkInput(inputString: String): Boolean = {
+    override def checkInput(inputString: String): Boolean = {
       checkInput(inputString, checkExcludes = true)
     }
 
@@ -46,23 +47,23 @@ object ScalaProjectSettingsUtil {
         inputString.contains(".") && ScalaProjectSettingsUtil.isValidPackage(inputString)
     }
 
-    def canClose(inputString: String): Boolean = {
+    override def canClose(inputString: String): Boolean = {
       checkInput(inputString)
     }
   }
 
   def getPackageValidator: InputValidator = new InputValidator {
-    def checkInput(inputString: String): Boolean = {
+    override def checkInput(inputString: String): Boolean = {
       ScalaProjectSettingsUtil.isValidPackage(inputString, checkPlaceholder = false)
     }
 
-    def canClose(inputString: String): Boolean = {
+    override def canClose(inputString: String): Boolean = {
       checkInput(inputString)
     }
   }
 
-  def getPatternListPanel(parent: JComponent, patternJBList: JListCompatibility.JListContainer, inputMessage: String, inputTitle: String): JPanel = {
-    def addPattern(pattern: String, patternJBList: JListCompatibility.JListContainer) {
+  def getPatternListPanel(parent: JComponent, patternJBList: JListCompatibility.JListContainer, inputMessage: String, @Nls inputTitle: String): JPanel = {
+    def addPattern(pattern: String, patternJBList: JListCompatibility.JListContainer): Unit = {
       if (pattern == null) return
       val listModel = JListCompatibility.getDefaultListModel(patternJBList.getList.getModel) match {
         case null => return
@@ -76,17 +77,15 @@ object ScalaProjectSettingsUtil {
       IdeFocusManager.getGlobalInstance.requestFocus(patternJBList.getList, false)
     }
 
-    ToolbarDecorator.createDecorator(patternJBList.getList).setAddAction(new AnActionButtonRunnable {
-      def run(button: AnActionButton) {
-        val validator: InputValidator = ScalaProjectSettingsUtil.getPatternValidator
-        val pattern: String = Messages.showInputDialog(parent, inputMessage, inputTitle, Messages.getWarningIcon, "", validator)
-        addPattern(pattern, patternJBList)
-      }
+    ToolbarDecorator.createDecorator(patternJBList.getList).setAddAction((button: AnActionButton) => {
+      val validator: InputValidator = ScalaProjectSettingsUtil.getPatternValidator
+      val pattern: String = Messages.showInputDialog(parent, inputMessage, inputTitle, Messages.getWarningIcon, "", validator)
+      addPattern(pattern, patternJBList)
     }).disableUpDownActions.createPanel
   }
 
-  def getUnsortedPatternListPanel(parent: JComponent, patternJBList: JListCompatibility.JListContainer, inputMessage: String, inputTitle: String): JPanel = {
-    def addPattern(pattern: String, patternJBList: JListCompatibility.JListContainer) {
+  def getUnsortedPatternListPanel(parent: JComponent, patternJBList: JListCompatibility.JListContainer, inputMessage: String, @Nls inputTitle: String): JPanel = {
+    def addPattern(pattern: String, patternJBList: JListCompatibility.JListContainer): Unit = {
       if (pattern == null) return
       val listModel = JListCompatibility.getDefaultListModel(patternJBList.getList.getModel) match {
         case null => return
@@ -99,14 +98,12 @@ object ScalaProjectSettingsUtil {
       IdeFocusManager.getGlobalInstance.requestFocus(patternJBList.getList, false)
     }
 
-    ToolbarDecorator.createDecorator(patternJBList.getList).setAddAction(new AnActionButtonRunnable {
-      def run(button: AnActionButton) {
-        val validator: InputValidator = ScalaProjectSettingsUtil.getPackageValidator
-        val pattern: String = Messages.showInputDialog(parent, inputMessage, inputTitle, Messages.getWarningIcon, "", validator)
-        addPattern(pattern, patternJBList)
-      }
+    ToolbarDecorator.createDecorator(patternJBList.getList).setAddAction((button: AnActionButton) => {
+      val validator: InputValidator = ScalaProjectSettingsUtil.getPackageValidator
+      val pattern: String = Messages.showInputDialog(parent, inputMessage, inputTitle, Messages.getWarningIcon, "", validator)
+      addPattern(pattern, patternJBList)
     }).addExtraAction(new AnActionButton(ApplicationBundle.message("button.add.blank"), IconUtil.getAddBlankLineIcon) {
-      def actionPerformed(e: AnActionEvent) {
+      override def actionPerformed(e: AnActionEvent): Unit = {
         addPattern(ScalaCodeStyleSettings.BLANK_LINE, patternJBList)
       }
     }).setRemoveAction(new AnActionButtonRunnable {

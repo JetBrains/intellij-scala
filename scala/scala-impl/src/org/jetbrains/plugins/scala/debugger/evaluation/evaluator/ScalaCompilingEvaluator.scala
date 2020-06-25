@@ -135,7 +135,7 @@ object ScalaCompilingEvaluator {
   val classNameKey: Key[String] = Key.create[String]("generated.class.name")
   val originalFileKey: Key[PsiFile] = Key.create[PsiFile]("compiling.evaluator.original.file")
 
-  private def keep(reference: ObjectReference, context: EvaluationContext) {
+  private def keep(reference: ObjectReference, context: EvaluationContext): Unit = {
     context.getSuspendContext.asInstanceOf[SuspendContextImpl].keep(reference)
   }
 
@@ -191,7 +191,7 @@ private case class GeneratedClass(syntheticFile: PsiFile, newContext: PsiElement
   private def compileGeneratedClass(fileText: String): Seq[OutputFileObject] = {
     if (module == null) throw EvaluationException("Module for compilation is not found")
 
-    val helper = EvaluatorCompileHelper.EP_NAME.getExtensions.headOption.getOrElse {
+    val helper = EvaluatorCompileHelper.implementations.headOption.getOrElse {
       ScalaEvaluatorCompileHelper.instance(module.getProject)
     }
     val compiled = helper.compile(fileText, module)

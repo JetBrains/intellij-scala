@@ -1,10 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.unused
 
-import com.intellij.testFramework.EditorTestUtil
-
 class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTestBase {
-
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
   private val p = START + "p" + END
 
@@ -153,10 +149,10 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
 
 
   ///////// case class parameter /////////
-  def testUnusedPrivateCaseClass(): Unit = checkTextHasError(
+  def testUnusedPrivateCaseClass(): Unit = checkTextHasNoErrors(
     s"""
        |object Global {
-       |  private case class Test($p: Int)
+       |  private case class Test(a: Int)
        |}
        |""".stripMargin
   )
@@ -203,7 +199,15 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
   )
 
   // implicit stuff
-  private val doImplicitParameterTest = doParamTest(
+  def testDontHighlightImplicitParameter(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def test(implicit unused: A): Unit = ()
+      |}
+      |""".stripMargin
+  )
+
+  /*private val doImplicitParameterTest = doParamTest(
     s"""
        |class Unused {
        |  trait T1
@@ -226,7 +230,7 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
        |  }
        |}
     """.stripMargin
-  ) _
+  )
 
   def testNoCalledImplicit(): Unit = doImplicitParameterTest(
     s"()(implicit $p: Unused)", "()",
@@ -238,7 +242,7 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
     "(new Unused)", "()"
   )
 
-  /*
+
   def testImplicitWithMultipleArgs(): Unit = doImplicitParameterTest(
     s"(implicit $p: Unused, a: T1)", "(implicit a: T1)",
     "(new Unused, new T1)", "(new T1)"
@@ -248,12 +252,12 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
     s"(implicit a: T1, $p: Unused)", "(implicit a: T1)",
     "(new T1, new Unused)", "(new T1)"
   )
-   */
+
 
   def testMultipleImplicitParamsWithNormalParams(): Unit = doImplicitParameterTest(
     s"(i: Int)(implicit $p: Unused, a: T1)", "(i: Int)(a: T1)",
     "(1)(new Unused, new T1)", "(1)(new T1)"
-  )
+  )*/
 
   def testNotHighlightUsedImplicit(): Unit = checkTextHasNoErrors(
     """
@@ -269,11 +273,11 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
       |""".stripMargin
   )
 
-  def testNoHighlightInnerPrivateCaseClassParam(): Unit = checkTextHasError(
+  def testNoHighlightInnerPrivateCaseClassParam(): Unit = checkTextHasNoErrors(
     s"""
       |object Test {
       |  private object Inner {
-      |    case class CC($p: Int)
+      |    case class CC(a: Int)
       |  }
       |
       |  Inner
@@ -284,7 +288,7 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
   def testHighlightCaseClassParamInPrivateTopLevelObject(): Unit = checkTextHasNoErrors(
     s"""
        |private object Test {
-       |  case class CC($p: Int)
+       |  case class CC(a: Int)
        |}
        |""".stripMargin
   )

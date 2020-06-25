@@ -104,7 +104,7 @@ private class SAM {
 
   def takesFoo(f: Foo): Int = f.foo("123")
 
-  def f(i: Int) {
+  def f(i: Int): Unit = {
     takesFoo(_.length + i + x)
   }
 }

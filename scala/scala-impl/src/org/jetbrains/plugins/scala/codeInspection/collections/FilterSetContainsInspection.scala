@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
@@ -12,7 +13,7 @@ class FilterSetContainsInspection extends OperationOnCollectionInspection {
 
 object FilterSetContainsInspection extends SimplificationType {
 
-  override def hint: String = InspectionBundle.message("remove.redundant.contains")
+  override def hint: String = ScalaInspectionBundle.message("remove.redundant.contains")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

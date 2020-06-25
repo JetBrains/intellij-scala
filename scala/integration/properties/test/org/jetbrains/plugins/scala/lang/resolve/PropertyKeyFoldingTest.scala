@@ -28,7 +28,7 @@ class PropertyKeyFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   override protected def librariesLoaders =
     super.librariesLoaders :+ IvyManagedLoader("org.jetbrains" % "annotations" % "18.0.0")
 
-  def testSingleProperty() {
+  def testSingleProperty(): Unit = {
     myFixture.addFileToProject("i18n.properties", "com.example.localization.welcomeMessage=Welcome to our App!")
     myFixture.addFileToProject("MyClass.scala",
       """
@@ -63,7 +63,7 @@ class PropertyKeyFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   }
 
 
-  def testPropertyWithParameters() {
+  def testPropertyWithParameters(): Unit = {
     myFixture.addFileToProject("i18n.properties", "com.example.localization.welcomeMessage=Welcome {0} to our App!")
     myFixture.addFileToProject("MyClass.scala",
       """

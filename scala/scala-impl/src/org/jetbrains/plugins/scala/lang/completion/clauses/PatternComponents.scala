@@ -3,6 +3,7 @@ package lang
 package completion
 package clauses
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
@@ -25,11 +26,11 @@ object PatternComponents {
 
   implicit class Ext(private val components: PatternComponents) extends AnyVal {
 
-    def canonicalClauseText(implicit place: PsiElement): String =
+    def canonicalClauseText(implicit project: Project): String =
       clauseText(components.canonicalPatternText)
 
     def clauseText(patternText: String)
-                  (implicit place: PsiElement): String =
+                  (implicit project: Project): String =
       s"${ScalaKeyword.CASE} $patternText ${psi.ScalaPsiUtil.functionArrow}"
   }
 }

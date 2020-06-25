@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.codeInspection.specs2
 
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
 
 class BuiltinMatcherExistsInspectionTest extends ScalaQuickFixTestBase {
 
-  protected val annotation: String = InspectionBundle.message("specs2.use.builtin.matcher")
-  private val hint = InspectionBundle.message("specs2.builtin.matcher.alternative.exists")
-  protected val classOfInspection: Class[BuiltinMatcherExistsInspection] = classOf[BuiltinMatcherExistsInspection]
+  protected val annotation: String = ScalaInspectionBundle.message("specs2.use.builtin.matcher")
+  private val hint = ScalaInspectionBundle.message("specs2.builtin.matcher.alternative.exists")
+  override protected val classOfInspection: Class[BuiltinMatcherExistsInspection] = classOf[BuiltinMatcherExistsInspection]
 
   //OperationOnCollectionInspectionBase
   def testMustBeSomeSimplification(): Unit = {
@@ -131,5 +131,5 @@ class BuiltinMatcherExistsInspectionTest extends ScalaQuickFixTestBase {
     }
   }
 
-  override protected val description: String = InspectionBundle.message("specs2.use.builtin.matcher")
+  override protected val description: String = ScalaInspectionBundle.message("specs2.use.builtin.matcher")
 }

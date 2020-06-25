@@ -4,7 +4,7 @@ package codeInspection.booleans
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
@@ -13,23 +13,26 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createE
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, api}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getShortText
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
  * Nikolay.Tropin
  * 4/23/13
  *
  */
-class SimplifyBooleanInspection extends AbstractInspection("Simplify boolean expression") {
+class SimplifyBooleanInspection extends AbstractInspection(ScalaInspectionBundle.message("simplify.boolean.expression")) {
 
   override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case _: ScParenthesisedExpr => //do nothing to avoid many similar expressions
     case expr: ScExpression if SimplifyBooleanUtil.canBeSimplified(expr) =>
-        holder.registerProblem(expr, "Simplify boolean expression", ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new SimplifyBooleanQuickFix(expr))
+        holder.registerProblem(expr, ScalaInspectionBundle.message("simplify.boolean.expression"),
+                               ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new SimplifyBooleanQuickFix(expr))
   }
 
 }
 
-class SimplifyBooleanQuickFix(expr: ScExpression) extends AbstractFixOnPsiElement("Simplify " + getShortText(expr), expr) {
+class SimplifyBooleanQuickFix(expr: ScExpression)
+  extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("simplify.with.text", getShortText(expr)), expr) {
 
   override protected def doApplyFix(scExpr: ScExpression)
                                    (implicit project: Project): Unit = {
@@ -117,7 +120,7 @@ object SimplifyBooleanUtil {
   }
 
   private def simplifyInfixWithLiteral(value: Boolean, operation: String, expr: ScExpression): ScExpression = {
-    implicit val projectContext = expr.projectContext
+    implicit val projectContext: ProjectContext = expr.projectContext
     val text: String = booleanConst(expr) match {
       case Some(bool: Boolean) =>
         val result: Boolean = operation match {

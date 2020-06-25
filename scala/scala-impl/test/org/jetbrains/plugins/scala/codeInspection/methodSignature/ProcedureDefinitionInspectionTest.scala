@@ -13,15 +13,13 @@ import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 class ProcedureDefinitionInspectionTest extends ScalaQuickFixTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[UnitMethodInspection.ProcedureDefinition]
 
   protected override val description: String =
-    InspectionBundle.message("method.signature.procedure.definition")
+    ScalaInspectionBundle.message("method.signature.procedure.definition")
 
-  private val hint = InspectionBundle.message("convert.to.function.syntax")
+  private val hint = ScalaInspectionBundle.message("convert.to.function.syntax")
 
   def test1(): Unit = {
     checkTextHasError(

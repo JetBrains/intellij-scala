@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
-package codeInspection.collections
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * Nikolay.Tropin
@@ -10,15 +10,13 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
  */
 class FoldTrueAndTest extends OperationsOnCollectionInspectionTest {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[FoldTrueAndInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("fold.true.and.hint")
+    ScalaInspectionBundle.message("fold.true.and.hint")
 
-  def test_1() {
+  def test_1(): Unit = {
     val selected = s"List(false).${START}foldLeft(true){_ && _}$END"
     checkTextHasError(selected)
     val text = "List(false).foldLeft(true){_ && _}"
@@ -26,7 +24,7 @@ class FoldTrueAndTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def test_2() {
+  def test_2(): Unit = {
     val selected = s"""def a(x: String) = false
                      |List("a").$START/:(true) (_ && a(_))$END""".stripMargin
     checkTextHasError(selected)
@@ -37,7 +35,7 @@ class FoldTrueAndTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def test_3() {
+  def test_3(): Unit = {
     val selected = s"""def a(x: String) = false
                      |List("a").${START}fold(true) ((x,y) => x && a(y))$END""".stripMargin
     checkTextHasError(selected)
@@ -48,7 +46,7 @@ class FoldTrueAndTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def test_4() {
+  def test_4(): Unit = {
 
     val text = """def a(x: String) = false
                  |List("a").foldLeft(true) ((x,y) => x && a(x))""".stripMargin

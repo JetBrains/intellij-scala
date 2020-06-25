@@ -9,7 +9,7 @@ package argument
   */
 class AddNameToArgumentIntentionTest extends intentions.ScalaIntentionTestBase {
 
-  override def familyName = AddNameToArgumentIntention.FamilyName
+  override def familyName = ScalaCodeInsightBundle.message("family.name.use.named.arguments")
 
   def test1(): Unit = {
     val text =

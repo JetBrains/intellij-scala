@@ -7,24 +7,17 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
-/**
- * @author Ksenia.Sautina
- * @since 4/9/12
- */
-object ConvertFromInfixExpressionIntention {
-  val familyName = "Convert from infix expression"
-}
-
 class ConvertFromInfixExpressionIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = ConvertFromInfixExpressionIntention.familyName
+  override def getFamilyName: String = ScalaBundle.message("family.name.convert.from.infix.expression")
 
   override def getText: String = getFamilyName
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val infixExpr : ScInfixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
     if (infixExpr == null) return false
     val range: TextRange = infixExpr.operation.nameId.getTextRange
@@ -32,7 +25,7 @@ class ConvertFromInfixExpressionIntention extends PsiElementBaseIntentionAction 
     range.getStartOffset <= offset && offset <= range.getEndOffset
   }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     val infixExpr : ScInfixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
     if (infixExpr == null || !infixExpr.isValid) return
 

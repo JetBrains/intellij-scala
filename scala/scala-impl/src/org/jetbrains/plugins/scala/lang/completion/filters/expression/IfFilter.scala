@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 */
 
 class IfFilter extends ElementFilter {
-  def isAcceptable(element: Object, context: PsiElement): Boolean = {
+  override def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
     val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context)
     if (leaf != null) {
@@ -50,7 +50,7 @@ class IfFilter extends ElementFilter {
     false
   }
 
-  def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {
+  override def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {
     true
   }
 

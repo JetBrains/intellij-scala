@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.CaretState
 import com.intellij.openapi.fileTypes.FileType
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.startCommand
+import org.jetbrains.plugins.scala.util.ShortCaretMarker
 import org.junit.Assert._
 
 import scala.collection.JavaConverters
@@ -12,7 +13,7 @@ import scala.collection.JavaConverters
 /**
   * @author adkozlov
   */
-abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdapter with ShortCaretMarker {
 
   import ScalaLightCodeInsightFixtureTestAdapter.findCaretOffsets
 

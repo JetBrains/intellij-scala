@@ -3,11 +3,12 @@ package methodChains
 
 import java.awt.Insets
 
+import com.intellij.codeInsight.daemon.impl.HintRenderer
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor._
-import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme, EditorFontType}
+import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColorsManager, EditorColorsScheme, EditorFontType}
 import com.intellij.openapi.util.Disposer
-import com.intellij.psi.{PsiElement, PsiPackage}
+import com.intellij.psi.{PsiElement, PsiFile, PsiPackage}
 import org.jetbrains.plugins.scala.annotator.hints.{AnnotatorHints, Text}
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsPass._
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer
@@ -17,6 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.annotations.Expression
+import org.jetbrains.plugins.scala.extensions.PsiFileExt
+import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -26,10 +29,15 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
 
   protected def settings: ScalaHintsSettings
 
-  def collectMethodChainHints(editor: Editor, root: PsiElement): Unit =
+  def collectMethodChainHints(editor: Editor, root: PsiFile): Unit =
     collectedHintTemplates =
-      if (editor.isOneLineMode || !settings.showMethodChainInlayHints) Seq.empty
-      else gatherMethodChainHints(editor, root)
+      if (editor.isOneLineMode ||
+        !settings.showMethodChainInlayHints ||
+        root.isScala3File && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(root)) {
+        Seq.empty
+      } else {
+        gatherMethodChainHints(editor, root)
+      }
 
   private def gatherMethodChainHints(editor: Editor, root: PsiElement): Seq[(Seq[AlignedHintTemplate], ScExpression)] = {
     val document = editor.getDocument
@@ -66,10 +74,21 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
         uniqueTypeCount = filteredMethodAndTypes.map { case (m, ty) => ty.presentableText(m) }.toSet.size
         if uniqueTypeCount >= settings.uniqueTypesToShowMethodChains
       } {
-        val finalSelection = if (settings.alignMethodChainInlayHints) withoutPackagesAndSingletons else filteredMethodAndTypes
-        val group = for ((expr, ty) <- finalSelection)
-          yield new AlignedHintTemplate(textFor(expr, ty, editor)) {
-            override def endOffset: Int = expr.endOffset
+        val finalSelection =
+          if (settings.alignMethodChainInlayHints) withoutPackagesAndSingletons
+          else filteredMethodAndTypes
+        val differentiateLessImportant = settings.alignMethodChainInlayHints
+        val group =
+          for (sel@(expr, ty) <- finalSelection) yield {
+            val isLessImportant = differentiateLessImportant && (
+              sel.eq(finalSelection.last) ||
+              hasObviousReturnType(sel) ||
+              expr.isInstanceOf[ScReferenceExpression]
+            )
+
+            new AlignedHintTemplate(textFor(expr, ty, editor, isLessImportant)) {
+              override def endOffset: Int = expr.endOffset
+            }
           }
 
         val all = if (settings.alignMethodChainInlayHints) {
@@ -179,21 +198,35 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
       inlay.putUserData(ScalaMethodChainKey, true)
     }
 
-  private def textFor(expr: ScExpression, ty: ScType, editor: Editor): Seq[Text] = {
+  private def textFor(expr: ScExpression, ty: ScType, editor: Editor, isLessImportant: Boolean): Seq[Text] = {
     implicit val scheme: EditorColorsScheme = editor.getColorsScheme
     implicit val tpc: TypePresentationContext = TypePresentationContext(expr)
 
-    Text(": ") +: textPartsOf(ty, settings.presentationLength)
+    val texts = Text(": ") +: textPartsOf(ty, settings.presentationLength)
+    if (!isLessImportant) texts
+    else {
+      val attr = scheme.getAttributes(DefaultLanguageHighlighterColors.INLINE_PARAMETER_HINT).clone()
+      attr.setForegroundColor(attr.getForegroundColor.darker())
+      texts.map(_.withAttributes(attr))
+    }
   }
 }
 
 private object ScalaMethodChainInlayHintsPass {
+  private object CallerAndCall {
+    def unapply(expr: ScExpression): Option[(ScExpression, MethodInvocation)] = expr match {
+      case Parent((ref: ScReferenceExpression) && Parent(mc: ScMethodCall)) => Some(ref -> mc)
+      case Parent(call@ScInfixExpr(`expr`, _, _)) =>  Some(expr -> call)
+      case _ => None
+    }
+  }
+
   private def isFollowedByLineEnd(elem: PsiElement, alsoAfterLambdaArg: Boolean): Boolean = {
     elem match {
       case elem if elem.followedByNewLine(ignoreComments = false) =>
         true
 
-      case Parent((ref: ScReferenceExpression) && Parent(mc: ScMethodCall)) =>
+      case CallerAndCall(ref, mc) =>
         /*
          * Check if we have a situation like
          *  something
@@ -201,6 +234,13 @@ private object ScalaMethodChainInlayHintsPass {
          *   }.func {            // <- add type here (return type of `something.func{...}`)
          *   }.func { x =>       // <- add type here iff alsoAfterLambdaArg
          *   }.func { case x =>  // <- add type here iff alsoAfterLambdaArg
+         *   }
+         *  or
+         *  something
+         *   func {             // <- don't add type here
+         *   } func {            // <- add type here (return type of `something.func{...}`)
+         *   } func { x =>       // <- add type here iff alsoAfterLambdaArg
+         *   } func { case x =>  // <- add type here iff alsoAfterLambdaArg
          *   }
          */
 
@@ -216,7 +256,7 @@ private object ScalaMethodChainInlayHintsPass {
 
         // check }.func( x => \n
         def checkLambdaInParen: Boolean =
-          mc.args.exprs.headOption.exists(checkLambdaStart)
+          mc.argumentExpressions.headOption.exists(checkLambdaStart)
 
         // check }.func { x => \n
         def checkLamdaInBlock(blk: ScBlockExpr): Boolean =
@@ -232,7 +272,13 @@ private object ScalaMethodChainInlayHintsPass {
               .exists(_.followedByNewLine(ignoreComments = false))
           )
 
-        def isArgumentBegin = mc.args.getFirstChild match {
+        def argBegin = mc.argsElement match {
+          case argList: ScArgumentExprList => argList.getFirstChild
+          case parenthesis: ScParenthesisedExpr => parenthesis.getFirstChild
+          case e => e
+        }
+
+        def isArgumentBegin = argBegin match {
           case blk: ScBlockExpr =>
             // check }.func {
             blk.getLBrace.exists(_.followedByNewLine(ignoreComments = false)) ||

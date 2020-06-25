@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.codeInspection.functionExpressions
 
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection
-import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_11}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 /**
   * Author: Svyatoslav Ilinskiy
@@ -13,22 +12,21 @@ import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_11}
   */
 class ConvertExpressionToSAMInspectionTest extends ScalaQuickFixTestBase {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_11
 
   override protected def setUp(): Unit = {
     super.setUp()
 
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
-    val newSettings = defaultProfile.getSettings
-    newSettings.experimental = true
+    val newSettings = defaultProfile.getSettings.copy(
+      experimental = true
+    )
     defaultProfile.setSettings(newSettings)
   }
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ConvertExpressionToSAMInspection]
 
-  override protected val description: String = InspectionBundle.message("convert.expression.to.sam")
+  override protected val description: String = ScalaInspectionBundle.message("convert.expression.to.sam")
 
   def testOverloads(): Unit = {
     val code =

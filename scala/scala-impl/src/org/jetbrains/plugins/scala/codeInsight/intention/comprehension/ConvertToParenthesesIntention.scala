@@ -22,11 +22,11 @@ object ConvertToParenthesesIntention {
 }
 
 class ConvertToParenthesesIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = FamilyName
+  override def getFamilyName: String = FamilyName
 
   override def getText: String = getFamilyName
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     element match {
       case e @ Parent(_: ScFor) =>
         List(ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE).contains(e.getNode.getElementType) && 
@@ -35,17 +35,17 @@ class ConvertToParenthesesIntention extends PsiElementBaseIntentionAction {
     }
   }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     val statement = element.getParent.asInstanceOf[ScFor]
     ScalaPsiUtil.replaceBracesWithParentheses(statement)
 
     val manager = statement.getManager
     for (enumerators <- statement.enumerators;
-         cr <- enumerators.findChildrenByType(TokenType.WHITE_SPACE) if cr.getText.contains('\n')) {
+         cr <- enumerators.findChildrenByType(TokenType.WHITE_SPACE) if cr.textContains('\n')) {
       cr.replace(ScalaPsiElementFactory.createSemicolon(manager))
     }
 
-    for (cr <- statement.findChildrenByType(TokenType.WHITE_SPACE) if cr.getText.contains('\n')) {
+    for (cr <- statement.findChildrenByType(TokenType.WHITE_SPACE) if cr.textContains('\n')) {
       cr.delete()
     }
   }

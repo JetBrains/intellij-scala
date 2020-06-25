@@ -7,7 +7,7 @@ package statements
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPolymorphicElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPolymorphicElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScMember, ScTypeDefinition}
 
 /**
@@ -15,7 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOw
  * Date: 22.02.2008
  * Time: 9:46:00
  */
-trait ScTypeAlias extends ScPolymorphicElement
+trait ScTypeAlias extends ScNamedElement
+  with ScPolymorphicElement
   with ScMember.WithBaseIconProvider
   with ScDocCommentOwner
   with ScCommentOwner {
@@ -34,7 +35,7 @@ trait ScTypeAlias extends ScPolymorphicElement
 
   def getTypeToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kTYPE)
 
-  def getOriginalElement: PsiElement = {
+  override def getOriginalElement: PsiElement = {
     val ccontainingClass = containingClass
     if (ccontainingClass == null) return this
     val originalClass: PsiClass = ccontainingClass.getOriginalElement.asInstanceOf[PsiClass]

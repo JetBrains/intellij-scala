@@ -7,7 +7,7 @@ package lang.surroundWith.surrounders.scaladoc
  */
 
 class ScalaDocWithSuperscriptSurrounder extends ScalaDocWithSyntaxSurrounder {
-  def getSyntaxTag: String = "^"
+  override def getSyntaxTag: String = "^"
 
-  def getTemplateDescription: String = "Superscript: ^ ^"
+  override def getTemplateDescription: String = "Superscript: ^ ^"
 }

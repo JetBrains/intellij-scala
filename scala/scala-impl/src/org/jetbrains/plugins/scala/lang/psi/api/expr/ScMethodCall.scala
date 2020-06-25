@@ -21,6 +21,11 @@ trait ScMethodCall extends ScExpression with MethodInvocation {
       case expr               => expr
     }
 
+  final def argumentListCount: Int = getEffectiveInvokedExpr match {
+    case call: ScMethodCall => call.argumentListCount + 1
+    case _ => 1
+  }
+
   def args: ScArgumentExprList = findChildByClassScala(classOf[ScArgumentExprList])
 
   override def isUpdateCall: Boolean = getContext.isInstanceOf[ScAssignment] &&
@@ -48,4 +53,10 @@ trait ScMethodCall extends ScExpression with MethodInvocation {
 object ScMethodCall {
   def unapply(call: ScMethodCall): Option[(ScExpression, Seq[ScExpression])] =
     Some(call.getInvokedExpr, call.argumentExpressions)
+
+  object withDeepestInvoked {
+
+    def unapply(call: ScMethodCall): Option[ScExpression] =
+      Option(call.deepestInvokedExpr)
+  }
 }

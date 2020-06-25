@@ -1,15 +1,18 @@
 package org.jetbrains.sbt
 package shell
 
+import java.beans.{PropertyChangeEvent, PropertyChangeListener}
+
 import com.intellij.execution.actions.ClearConsoleAction
 import com.intellij.execution.configurations.RemoteConnection
 import com.intellij.execution.console.LanguageConsoleImpl
 import com.intellij.execution.filters.UrlFilter.UrlFilterProvider
 import com.intellij.execution.filters._
 import com.intellij.openapi.actionSystem.{ActionGroup, AnAction, DefaultActionGroup}
-import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
 import com.intellij.openapi.editor.event.{EditorMouseEvent, EditorMouseListener}
+import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.psi.search.GlobalSearchScope
@@ -38,7 +41,8 @@ final class SbtShellConsoleView private(project: Project, debugConnection: Optio
     val debugShellAction = new DebugShellAction(project, debugConnection)
     val scrollToTheEndToolbarAction = new SbtShellScrollToTheEndToolbarAction(getEditor)
     val eofAction = new EOFAction(project)
-    val sigIntAction = new SigIntAction(project)
+    val sigIntAction = new SigIntAction(project, this)
+    val copyFromHistoryViewerAction = new CopyFromHistoryViewerAction(this)
 
     val allActions: Array[AnAction] = Array(
       startAction,
@@ -48,7 +52,8 @@ final class SbtShellConsoleView private(project: Project, debugConnection: Optio
       toggleSoftWrapsAction,
       clearAllAction,
       eofAction,
-      sigIntAction
+      sigIntAction,
+      copyFromHistoryViewerAction
     )
 
     allActions.foreach { act =>
@@ -63,8 +68,10 @@ final class SbtShellConsoleView private(project: Project, debugConnection: Optio
 
   override def dispose(): Unit = {
     super.dispose()
+    SbtShellConsoleView.removeConsoleView(project)
     EditorFactory.getInstance().releaseEditor(getConsoleEditor)
   }
+
 }
 
 object SbtShellConsoleView {
@@ -84,6 +91,10 @@ object SbtShellConsoleView {
 
     cv.getHistoryViewer.addEditorMouseListener(new HistoryMouseListener(cv))
 
+    //in 2020.1 `updateUi` is invoked on toolwindow reopen, it reapplies LookAndFeel and adds default border to console editors
+    forbidBorderFor(cv.getHistoryViewer)
+    forbidBorderFor(cv.getConsoleEditor)
+
     disposeLastConsoleView(project)
     lastConsoleViews.put(project, cv)
 
@@ -92,6 +103,10 @@ object SbtShellConsoleView {
 
   def disposeLastConsoleView(project: Project): Unit = {
     lastConsoleViews.get(project).foreach(_.dispose())
+    lastConsoleViews.remove(project)
+  }
+
+  private def removeConsoleView(project: Project): Option[SbtShellConsoleView] = {
     lastConsoleViews.remove(project)
   }
 
@@ -113,12 +128,24 @@ object SbtShellConsoleView {
     new PatternBasedFileHyperlinkFilter(project, null, dataFinder)
   }
 
-  class HistoryMouseListener(cv: SbtShellConsoleView) extends EditorMouseListener {
+  private def forbidBorderFor(editor: EditorEx): Unit = {
+    editor.getScrollPane.addPropertyChangeListener(new ResetBorderListener(editor))
+  }
+
+  private class HistoryMouseListener(cv: SbtShellConsoleView) extends EditorMouseListener {
     override def mouseClicked(e: EditorMouseEvent): Unit = {
       val focusManager = IdeFocusManager.getInstance(cv.getProject)
       val focusComponent = cv.getConsoleEditor.getContentComponent
       focusManager.doWhenFocusSettlesDown { () =>
         focusManager.requestFocus(focusComponent, false)
+      }
+    }
+  }
+
+  private class ResetBorderListener(editor: Editor) extends PropertyChangeListener {
+    override def propertyChange(evt: PropertyChangeEvent): Unit = {
+      if (evt.getPropertyName == "border" && evt.getNewValue != null) {
+        editor.setBorder(null)
       }
     }
   }

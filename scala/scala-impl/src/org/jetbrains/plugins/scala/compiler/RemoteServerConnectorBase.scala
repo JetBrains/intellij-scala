@@ -2,108 +2,108 @@ package org.jetbrains.plugins.scala
 package compiler
 
 import java.io.File
-import java.net.{URL, URLClassLoader}
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.OrderEnumerator
-import com.intellij.openapi.util.io.FileUtil
-import com.intellij.util.PathUtil
-import org.jetbrains.jps.incremental.scala.data.SbtData
+import org.jetbrains.plugins.scala.compiler.data._
+import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
+import org.jetbrains.plugins.scala.util.ScalaPluginJars
 
-/**
- * Nikolay.Tropin
- * 2014-10-07
- */
-
-abstract class RemoteServerConnectorBase(protected val module: Module, filesToCompile: Seq[File], outputDir: File, needCheck: Boolean = true) {
+//noinspection SameParameterValue
+abstract class RemoteServerConnectorBase(
+  protected val module: Module,
+  filesToCompile: Option[Seq[File]],
+  protected val outputDir: File,
+  needCheck: Boolean = true
+) {
 
   implicit def projectContext: ProjectContext = module.getProject
 
-  if (needCheck) checkFilesToCompile(filesToCompile)
+  if (needCheck)
+    filesToCompile.foreach(checkFilesToCompile)
 
-  def this(module: Module, fileToCompile: File, outputDir: File) = {
-    this(module, Seq(fileToCompile), outputDir)
+  def this(module: Module, fileToCompile: File, outputDir: File) =
+    this(module, Some(Seq(fileToCompile)), outputDir)
+
+  private val sbtData = {
+    val javaClassVersion = System.getProperty("java.class.version")
+    SbtData.from(ScalaPluginJars.jpsRoot, javaClassVersion) match {
+      case Left(msg)   => throw new IllegalArgumentException(msg)
+      case Right(data) => data
+    }
   }
 
-  private val libRoot = CompileServerLauncher.libRoot
-
-  private val libCanonicalPath = PathUtil.getCanonicalPath(libRoot.getPath)
-
-  private val sbtData = SbtData.from(
-    new URLClassLoader(Array(new URL("jar:file:" + (if (libCanonicalPath startsWith "/") "" else "/" ) + libCanonicalPath + "/jps/sbt-interface.jar!/")), getClass.getClassLoader),
-    new File(libRoot, "jps"),
-    System.getProperty("java.class.version")
-  ) match {
-    case Left(msg) => throw new IllegalArgumentException(msg)
-    case Right(data) => data
+  private val sourceRoot: Option[File] = {
+    val fileToCompile = filesToCompile.flatMap(_.headOption)
+    fileToCompile.flatMap(_.getAbsoluteFile.getParentFile.toOption)
   }
 
-  private val sourceRoot = filesToCompile.head.getAbsoluteFile.getParentFile
+  protected def scalaParameters: Seq[String] = compilerSettings.toOptions ++ additionalScalaParameters
 
-  private val scalaParameters = compilerSettings.toOptions.toArray
+  private val javaParameters = Seq.empty[String]
 
-  private val javaParameters = Array.empty[String]
+  private val compilerClasspath: Seq[File] = module.scalaCompilerClasspath
 
-  private val compilerClasspath = module.scalaCompilerClasspath
+  val additionalCp: Seq[File] = compilerClasspath :+ ScalaPluginJars.runnersJar :+ ScalaPluginJars.compilerSharedJar :+ outputDir
 
-  private val compilerSharedJar = new File(libCanonicalPath, "compiler-shared.jar")
-  
-  protected val runnersJar = new File(libCanonicalPath, "runners.jar")
+  protected def additionalScalaParameters: Seq[String] = Seq.empty
 
-  val additionalCp: Seq[File] = compilerClasspath :+ runnersJar :+ compilerSharedJar :+ outputDir
+  protected def worksheetArgs: Option[WorksheetArgs] = None
 
-  protected def worksheetArgs: Array[String] = Array()
-
-  protected def classpath: String = {
+  private def classpath: Seq[File] = {
     val classesRoots = assemblyClasspath().toSeq map (f => new File(f.getCanonicalPath stripSuffix "!" stripSuffix "!/"))
-    (classesRoots ++ additionalCp).mkString("\n")
+    classesRoots ++ additionalCp
   }
 
-  import _root_.scala.language.implicitConversions
+  protected final val NoToken = "NO_TOKEN"
 
-  implicit private def file2path(file: File): String = FileUtil.toCanonicalPath(file.getAbsolutePath)
-  implicit private def option2string(opt: Option[String]): String = opt getOrElse ""
-  implicit private def files2paths(files: Iterable[File]): String = files map file2path mkString "\n"
-  implicit private def array2string(arr: Array[String]): String = arr mkString "\n"
+  // without token, token is added in org.jetbrains.plugins.scala.compiler.RemoteServerRunner.buildProcess
+  protected def argumentsRaw: Seq[String] = arguments.asStrings.tail
 
-  def arguments: Seq[String] = Seq[String](
-    sbtData.sbtInterfaceJar,
-    sbtData.compilerInterfaceJar,
-    sbtData.sourceJars._2_10,
-    sbtData.sourceJars._2_11,
-    sbtData.sourceJars._2_13,
-    sbtData.interfacesHome,
-    sbtData.javaClassVersion,
-    compilerClasspath,
-    findJdk,
-    filesToCompile,
-    classpath,
-    outputDir,
-    scalaParameters,
-    javaParameters,
-    compilerSettings.compileOrder.toString,
-    "", //cache file
-    "",
-    "",
-    IncrementalityType.IDEA.name(),
-    sourceRoot,
-    outputDir,
-    worksheetArgs,
-    "", //allSources, used in zinc only
-    "0", //timestamp, used in zinc only
-    "false" //isCompile
+  private def arguments = Arguments(
+    token = NoToken,
+    sbtData = sbtData,
+    compilerData = CompilerData(
+      compilerJars = CompilerJarsFactory.fromFiles(compilerClasspath).toOption,
+      javaHome = Some(findJdk),
+      incrementalType = IncrementalityType.IDEA
+    ),
+    compilationData = CompilationData(
+      sources = filesToCompile.toSeq.flatten,
+      classpath = classpath,
+      output = outputDir,
+      scalaOptions = scalaParameters,
+      javaOptions = javaParameters,
+      order = CompileOrder.valueOf(compilerSettings.compileOrder.name),
+      cacheFile = new File(""),
+      outputToCacheMap = Map.empty,
+      outputGroups = sourceRoot.map(_ -> outputDir).toSeq,
+      zincData = ZincData(
+        allSources = Seq.empty,
+        compilationStartDate = 0,
+        isCompile = false
+      )
+    ),
+    worksheetArgs = worksheetArgs
   )
 
   protected def settings: ScalaCompileServerSettings = ScalaCompileServerSettings.getInstance()
 
-  private def assemblyClasspath() = OrderEnumerator.orderEntries(module).compileOnly().getClassesRoots
+  private def assemblyClasspath() = {
+    val extensionCp = WorksheetCompilerExtension.worksheetClasspath(module)
+    extensionCp.getOrElse {
+      val enumerator = OrderEnumerator.orderEntries(module).compileOnly()
+      enumerator.getClassesRoots.map(_.toFile).toSeq
+    }
+  }
 
   protected def compilerSettings: ScalaCompilerSettings = module.scalaCompilerSettings
 
   private def findJdk = CompileServerLauncher.compileServerJdk(module.getProject)
-    .fold(throw new IllegalArgumentException("JDK for compiler process not found"))(_.executable)
+    .fold(m => throw new IllegalArgumentException(s"JDK for compiler process not found: $m"), _.executable)
 
   private def checkFilesToCompile(files: Seq[File]): Unit = {
     if (files.isEmpty)

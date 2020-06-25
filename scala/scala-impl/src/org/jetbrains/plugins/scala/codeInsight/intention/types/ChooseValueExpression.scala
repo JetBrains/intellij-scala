@@ -1,15 +1,14 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.types
 
-import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
+import com.intellij.codeInsight.completion.InsertionContext
 import com.intellij.codeInsight.lookup._
 import com.intellij.codeInsight.template.impl.TemplateManagerImpl
 import com.intellij.codeInsight.template.{Expression, ExpressionContext, Result, TextResult}
-import com.intellij.lang.injection.InjectedLanguageManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
-import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypeText
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.ScTypeText
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 
 /**
@@ -24,25 +23,23 @@ abstract class ChooseValueExpression[T](lookupItems: Seq[T], defaultItem: T) ext
   val lookupElements: Array[LookupElement] = calcLookupElements().toArray
 
   def calcLookupElements(): Seq[LookupElementBuilder] = lookupItems.map { elem =>
-    LookupElementBuilder.create(elem, lookupString(elem)).withInsertHandler(new InsertHandler[LookupElement] {
-      override def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
-        val topLevelEditor = InjectedLanguageUtil.getTopLevelEditor(context.getEditor)
-        val templateState = TemplateManagerImpl.getTemplateState(topLevelEditor)
-        if (templateState != null) {
-          val range = templateState.getCurrentVariableRange
-          if (range != null) {
-            //need to insert with FQNs
-            val newText = result(item.getObject.asInstanceOf[T])
-            val document = topLevelEditor.getDocument
-            val startOffset = range.getStartOffset
-            document.replaceString(startOffset, range.getEndOffset, newText)
+    LookupElementBuilder.create(elem, lookupString(elem)).withInsertHandler((context: InsertionContext, item: LookupElement) => {
+      val topLevelEditor = InjectedLanguageUtil.getTopLevelEditor(context.getEditor)
+      val templateState = TemplateManagerImpl.getTemplateState(topLevelEditor)
+      if (templateState != null) {
+        val range = templateState.getCurrentVariableRange
+        if (range != null) {
+          //need to insert with FQNs
+          val newText = result(item.getObject.asInstanceOf[T])
+          val document = topLevelEditor.getDocument
+          val startOffset = range.getStartOffset
+          document.replaceString(startOffset, range.getEndOffset, newText)
 
-            val file = context.getFile
-            PsiDocumentManager.getInstance(file.getProject).commitDocument(document)
-            val newRange = TextRange.create(startOffset, startOffset + newText.length)
-            val elem = ScalaRefactoringUtil.commonParent(file, newRange)
-            TypeAdjuster.markToAdjust(elem)
-          }
+          val file = context.getFile
+          PsiDocumentManager.getInstance(file.getProject).commitDocument(document)
+          val newRange = TextRange.create(startOffset, startOffset + newText.length)
+          val elem = ScalaRefactoringUtil.commonParent(file, newRange)
+          TypeAdjuster.markToAdjust(elem)
         }
       }
     })

@@ -10,14 +10,14 @@ class QualifierSourceMediateTest extends ResolveTestBase {
     super.folderPath + "qualifier/source/mediate/"
   }
 
-  def testCaseClass() = doTest()
-  def testCaseClassObject() = doTest()
+  def testCaseClass(): Unit = doTest()
+  def testCaseClassObject(): Unit = doTest()
   //TODO
 //  def testCaseClassObjectSyntetic = doTest
-  def testCaseObject() = doTest()
+  def testCaseObject(): Unit = doTest()
   //TODO
 //  def testCaseObjectSyntetic = doTest
-  def testClass() = doTest()
-  def testObject() = doTest()
-  def testTrait() = doTest()
+  def testClass(): Unit = doTest()
+  def testObject(): Unit = doTest()
+  def testTrait(): Unit = doTest()
 }

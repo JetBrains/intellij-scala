@@ -19,6 +19,8 @@ import com.intellij.openapi.ui.DialogWrapper.DialogStyle
 import com.intellij.util.PathsList
 import com.intellij.util.xmlb.XmlSerializer
 import org.jdom.Element
+import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfiguration.JlineResolveResult._
 import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfiguration._
 import org.jetbrains.plugins.scala.console.{ScalaLanguageConsole, ScalaLanguageConsoleView}
@@ -29,8 +31,23 @@ import org.jetbrains.sbt.{RichFile, RichOption}
 import scala.beans.BeanProperty
 import scala.collection.JavaConverters._
 
-class ScalaConsoleRunConfiguration(project: Project, configurationFactory: ConfigurationFactory, name: String)
-  extends ModuleBasedConfiguration[RunConfigurationModule, Element](name, new RunConfigurationModule(project), configurationFactory) {
+/**
+ * Run configuration with a single purpose: run Scala REPL instance in a internal IDEA console.
+ * <br>
+ * The class is not intended to be reused/extended in other plugins.
+ * If you want to reuse some of the class functionality, please contact Scala Plugin team
+ * via https://gitter.im/JetBrains/intellij-scala and we will extract some proper abstract base class.
+ */
+@ApiStatus.Experimental
+class ScalaConsoleRunConfiguration(
+  project: Project,
+  configurationFactory: ConfigurationFactory,
+  name: String
+) extends ModuleBasedConfiguration[RunConfigurationModule, Element](
+  name,
+  new RunConfigurationModule(project),
+  configurationFactory
+) {
 
   private val MainClass = "scala.tools.nsc.MainGenericRunner"
   private val DefaultJavaOptions = "-Djline.terminal=NONE"
@@ -45,10 +62,9 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
 
   private def ensureUsesJavaCpByDefault(s: String): String = if (s == null || s.isEmpty) UseJavaCp else s
 
-
   private def getModule: Option[Module] = Option(getConfigurationModule.getModule)
 
-  private def requireModule: Module = getModule.getOrElse(throw new ExecutionException("Module is not specified"))
+  private def requireModule: Module = getModule.getOrElse(throw new ExecutionException(ScalaBundle.message("scala.console.config.module.is.not.specified")))
 
   override protected def getValidModules: java.util.List[Module] = getProject.modulesWithScala.toList.asJava
 
@@ -92,9 +108,10 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
       case None =>
     }
 
-    protected override def createJavaParameters: JavaParameters = {
+    override protected def createJavaParameters: JavaParameters = {
       val params = createParams
-      params.getProgramParametersList.addParametersString(consoleArgs)
+      val args = consoleArgs + " " + disableJLineOption
+      params.getProgramParametersList.addParametersString(args)
       params
     }
 
@@ -116,6 +133,12 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
     }
   }
 
+  private def disableJLineOption: String =
+    getModule.flatMap(minorScalaVersion) match {
+      case Some(version) if version >= "2.13.2" => "-Xjline:off" // https://github.com/scala/scala/pull/8906
+      case _                                    => "-Xnojline"
+    }
+
   private def createParams: JavaParameters = {
     val module = requireModule
 
@@ -126,13 +149,14 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
     }
 
     new JavaParameters {
+      configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
+
       getVMParametersList.addParametersString(javaOptions)
       getClassPath.addScalaClassPath(module)
       setShortenCommandLine(getShortenCommandLineMethod(Option(getJdk)), project)
       getClassPath.addRunners()
       setWorkingDirectory(workingDirectory)
       setMainClass(MainClass)
-      configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
     }
   }
 
@@ -151,17 +175,14 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
     }
 
   private def showJLineMissingNotification(module: Module): Unit = {
-    val message = {
+    val message: String = {
       import JLineFinder.JLineJarName
       import ScalaLanguageConsoleView.ScalaConsole
-      val sdkName = module.scalaSdk.safeMap(_.getName).getOrElse("<unknown sdk>")
-      s"""$ScalaConsole requires $JLineJarName to run
-         |Please add it to `$sdkName` compiler classpath
-         |""".stripMargin.trim.replaceAll("\n", "<br>")
+      val sdkName = module.scalaSdk.safeMap(_.getName).getOrElse(ScalaBundle.message("scala.console.config.unknown.sdk"))
+      ScalaBundle.message("scala.console.config.scala.console.requires.jline", ScalaConsole, JLineJarName, sdkName).replaceAll("\n", "<br>")
     }
 
-    val goToSdkSettingsAction = new NotificationAction("&Configure Scala SDK classpath") {
-      override def startInTransaction: Boolean = true
+    val goToSdkSettingsAction = new NotificationAction(ScalaBundle.message("scala.console.configure.scala.sdk.classpath")) {
       override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
         notification.expire()
         val configurable = ProjectStructureConfigurable.getInstance(project)
@@ -184,6 +205,7 @@ class ScalaConsoleRunConfiguration(project: Project, configurationFactory: Confi
 }
 
 private object ScalaConsoleRunConfiguration {
+
   sealed trait JlineResolveResult
   object JlineResolveResult {
     case object NotRequired extends JlineResolveResult
@@ -193,7 +215,7 @@ private object ScalaConsoleRunConfiguration {
 
   //TODO: Fix Scala SDK setup in order that it includes jline jar as a dependency of scala-compiler
   /**
-   * This is a temporary workaround to make Scala Console run in Scala 2.13 version.
+   * This is a workaround to make Scala Console run in Scala 2.13.0 & 2.13.1 versions
    * It will fail to run if jline jar is not present in classpath.
    * For the details, please see the discussion: [[https://youtrack.jetbrains.com/issue/SCL-15818]]
    *
@@ -209,7 +231,14 @@ private object ScalaConsoleRunConfiguration {
     } else NotRequired
 
   private def isJLineNeeded(module: Module): Boolean =
-    module.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_13)
+    module.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_13) && {
+      // 2.13.2 was fixed and does not require jline jar if jline is disabled
+      // see https://github.com/scala/bug/issues/11654
+      minorScalaVersion(module).exists(v => v == "2.13.0" || v == "2.13.1")
+    }
+
+  private def minorScalaVersion(module: Module): Option[String] =
+    module.scalaSdk.flatMap(_.compilerVersion)
 
   private def isJLinePresentIn(classPath: PathsList): Boolean =
     classPath.getPathList.asScala.exists(new File(_).getName == JLineFinder.JLineJarName)
@@ -221,7 +250,7 @@ private object ScalaConsoleRunConfiguration {
   }
 
   private object JLineFinder {
-    //this is a dependency of scala-compiler-2.13.0, it is the last jline 2.x version
+    //this is a dependency of scala-compiler-2.13.0 & 2.13.1, it is the last jline 2.x version
     //so we can use exact value instead of some regexp with versions
     //see: https://mvnrepository.com/artifact/org.scala-lang/scala-compiler/2.13.0
     //see: https://mvnrepository.com/artifact/jline/jline

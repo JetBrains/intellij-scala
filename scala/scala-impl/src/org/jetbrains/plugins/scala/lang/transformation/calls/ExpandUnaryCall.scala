@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * @author Pavel Fatin
   */
 class ExpandUnaryCall extends AbstractTransformer {
-  protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
+  override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case e @ ScPrefixExpr(RenamedReference(s, t), r) if t == "unary_" + s =>
       e.replace(code"$r.$t}")
   }

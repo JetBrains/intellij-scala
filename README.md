@@ -1,6 +1,5 @@
 [![official JetBrains project](https://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
-[![TC Build Status](https://teamcity.jetbrains.com/app/rest/builds/buildType:(id:Scala_Tests)/statusIcon.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=Scala_Tests&guest=1)
-[![Travis Build Status](https://travis-ci.org/JetBrains/intellij-scala.svg)](https://travis-ci.org/JetBrains/intellij-scala) 
+![Scala Plugin Build & Test](https://github.com/JetBrains/intellij-scala/workflows/Scala%20Plugin%20Build%20&%20Test/badge.svg)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/JetBrains/intellij-scala)
 
 
@@ -27,8 +26,9 @@ Plugin that implements Scala, sbt, Play 2, SSP and Hocon support in IntelliJ IDE
 ### Prerequisites
 In order to take part in Scala plugin development, you need:
 
-1. IntelliJ IDEA 2019.1 or higher with a compatible version of Scala plugin
-2. JDK 11 (recommended: [JetBrains JDK](https://bintray.com/jetbrains/intellij-jdk))
+1. IntelliJ IDEA 2020.1 or higher with a compatible version of Scala plugin
+2. JDK 8
+3. (optional but recommended) Enable "[internal mode](https://www.jetbrains.org/intellij/sdk/docs/reference_guide/internal_actions/enabling_internal.html)" in IDEA
 
 ### Setup
 
@@ -39,56 +39,50 @@ In order to take part in Scala plugin development, you need:
   ```
 
 2. Open IntelliJ IDEA, select `File -> New -> Project from existing sources`, point to
-the directory where Scala plugin repository is and then import it as sbt project.
+the directory where the Scala plugin repository is and then import it as sbt project.
 
-3. In the next step, select JDK 11 as project JDK (create it from an installed JDK if necessary).
+3. In the next step, select JDK 8 as project JDK (create it from an installed JDK if necessary).
 
-4. After importing is completed, to create artifacts and run configurations for IDEA project,
-   run these commands in the *sbt shell*:
-   
-  ```
-  > ;createIDEAArtifactXml ;idea-runner/createIDEARunConfiguration
-  ```
-
-5. Select the IDEA run configuration and select the `Run` or `Debug` button to build and start a development version
-of IDEA with the Scala plugin.
+5. Select the `scalaCommunity` run configuration and select the `Run` or `Debug` button to build and start a
+development version of IDEA with the Scala plugin.
 
 ## Browsing IntelliJ platform sources
 
-When loading the plugin in sbt, the IntelliJ platform is downloaded to 
-`<home>/.ScalaPluginIC/sdk/<sdk version>/`. 
-When opening a platform API class you will see the option to "attach sources". 
-Click it, navigate to the sdk directory and select `sources.zip`, then choose "All".
+When loading the plugin in sbt, the IntelliJ platform is downloaded to `<home>/.ScalaPluginIC/sdk/<sdk version>/`. 
+IntelliJ platform sources should automatically attach after project has been imported and indices have been built.
+
+However, if this didn't happen, and if you're seeing decompiled code when opening a platform API class you can click
+the option "attach sources" at the top of the editor, navigate to the sdk directory and select `sources.zip`,
+then choose "All".
 
 ## Tests
 
 To run tests properly, the plugin needs to be packaged.
 On the sbt shell:
 
-1. `packagePluginCommunity`
+1. `packageArtifact`
 2. `runFastTests`
 
-The "fast tests" can take over an hour. To get a quick feedback on project health, run the "typeInference tests"
+The "fast tests" can take over an hour. To get a quick feedback on project health, run only the type inference tests:
 
-    > testOnly org.jetbrains.plugins.scala.lang.typeInference.*
+    > runTypeInferenceTests
     
-## Travis CI
+## GitHub Actions build
 
-The project is configured to build and run the typeInference tests with Travis CI, which you can enable in your forks.
-The full test suite can't currently be run because Travis doesn't allow builds to take that long.
+The project is configured to build and run the typeInference tests and fast tests with Github Actions. The full test suite isn't run to avoid really long build times.
 
 ## Running the plugin
 
 ### Debugging mode
 
-The easiest way to try your changes is typically to launch the `IDEA` run configuration which is created when you 
-set up the project as described above.
+The easiest way to try your changes is typically to launch the `scalaCommunity` run configuration which is created
+when you set up the project as described above.
 
 ### As a standalone plugin
 
 To run and distribute a modified version of the plugin in a regular IntelliJ instance, you need to package it.
 
-1. on the sbt shell, run `packagePluginZip`. This will output the generated plugin zip location
+1. on the sbt shell, run `packageArtifactZip`. This will output the generated plugin zip location
    (typically into `<project directory>/target/scala-plugin.zip`).
 2. In IntelliJ, open Preferences, section Plugins, choose "Install plugin from disk..." and navigate to the scala-plugin.zip
 3. Restart IntelliJ

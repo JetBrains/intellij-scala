@@ -28,7 +28,7 @@ class TypedParameterWithoutParenthesisInspection extends AbstractRegisteredInspe
 }
 
 object TypedParameterWithoutParenthesisInspection {
-  private def createQuickFix(pc: ScParameterClause): LocalQuickFix = new AbstractFixOnPsiElement(InspectionBundle.message("surround.with.parenthesis"), pc) with HighPriorityAction {
+  private def createQuickFix(pc: ScParameterClause): LocalQuickFix = new AbstractFixOnPsiElement(ScalaInspectionBundle.message("surround.with.parenthesis"), pc) with HighPriorityAction {
     override protected def doApplyFix(pclause: ScParameterClause)
                                      (implicit project: Project): Unit = {
       val replacement = ScalaPsiElementFactory.createExpressionFromText("(" + pclause.getText + ")")

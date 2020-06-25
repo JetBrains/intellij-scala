@@ -1,0 +1,99 @@
+/**
+ * plain text plain text plain text plain text plain text ^superscript_''italic''^
+ * ,,closed by new paragraph subscript
+ *
+ * __{@code underlined text in inline tag}__
+ * ''illegal italic^legal superscript''12345^54231
+ * '''''abcd^abcd__abcd__^abcd'''''
+ * @see something
+ */
+-----
+ScalaFile
+  DocComment
+    ScPsiDocToken(DOC_COMMENT_START)('/**')
+    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    ScDocParagraph
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('plain text plain text plain text plain text plain text ')
+      DocSyntaxElement 16
+        ScPsiDocToken(DOC_SUPERSCRIPT_TAG 16)('^')
+        ScPsiDocToken(DOC_COMMENT_DATA)('superscript_')
+        DocSyntaxElement 18
+          ScPsiDocToken(DOC_ITALIC_TAG 2)('''')
+          ScPsiDocToken(DOC_COMMENT_DATA)('italic')
+          ScPsiDocToken(DOC_ITALIC_TAG 2)('''')
+        ScPsiDocToken(DOC_SUPERSCRIPT_TAG 16)('^')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocSyntaxElement 32
+        ScPsiDocToken(DOC_SUBSCRIPT_TAG 32)(',,')
+        ScPsiDocToken(DOC_COMMENT_DATA)('closed by new paragraph subscript')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      PsiErrorElement:Wiki syntax element closed by new paragraph
+        <empty list>
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    ScDocParagraph
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocSyntaxElement 4
+        ScPsiDocToken(DOC_UNDERLINE_TAG 4)('__')
+        DocInlinedTag
+          ScPsiDocToken(DOC_INLINE_TAG_START)('{')
+          ScPsiDocToken(DOC_TAG_NAME)('@code')
+          PsiErrorElement:Inline tag
+            <empty list>
+          ScPsiDocToken(DOC_WHITESPACE)(' ')
+          ScPsiDocToken(DOC_COMMENT_DATA)('underlined text in inline tag')
+          ScPsiDocToken(DOC_INLINE_TAG_END)('}')
+        ScPsiDocToken(DOC_UNDERLINE_TAG 4)('__')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocSyntaxElement 2
+        ScPsiDocToken(DOC_ITALIC_TAG 2)('''')
+        ScPsiDocToken(DOC_COMMENT_DATA)('illegal italic')
+        DocSyntaxElement 18
+          ScPsiDocToken(DOC_SUPERSCRIPT_TAG 16)('^')
+          ScPsiDocToken(DOC_COMMENT_DATA)('legal superscript')
+          ScPsiDocToken(DOC_ITALIC_TAG 2)('''')
+          PsiErrorElement:Cross tags
+            <empty list>
+          ScPsiDocToken(DOC_COMMENT_DATA)('12345')
+          ScPsiDocToken(DOC_SUPERSCRIPT_TAG 16)('^')
+        ScPsiDocToken(DOC_COMMENT_DATA)('54231')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        DocSyntaxElement 3
+          ScPsiDocToken(DOC_BOLD_TAG 1)(''''')
+          ScPsiDocToken(DOC_ITALIC_TAG 2)('''')
+          PsiErrorElement:Cross tags
+            <empty list>
+          ScPsiDocToken(DOC_COMMENT_DATA)('abcd')
+          DocSyntaxElement 19
+            ScPsiDocToken(DOC_SUPERSCRIPT_TAG 16)('^')
+            ScPsiDocToken(DOC_COMMENT_DATA)('abcd')
+            DocSyntaxElement 23
+              ScPsiDocToken(DOC_UNDERLINE_TAG 4)('__')
+              ScPsiDocToken(DOC_COMMENT_DATA)('abcd')
+              ScPsiDocToken(DOC_UNDERLINE_TAG 4)('__')
+            ScPsiDocToken(DOC_SUPERSCRIPT_TAG 16)('^')
+          ScPsiDocToken(DOC_COMMENT_DATA)('abcd')
+          ScPsiDocToken(DOC_ITALIC_TAG 2)('''')
+          PsiErrorElement:Cross tags
+            <empty list>
+          ScPsiDocToken(DOC_BOLD_TAG 1)(''''')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+      PsiErrorElement:Wiki syntax element closed by tag
+        <empty list>
+    DocTag
+      ScPsiDocToken(DOC_TAG_NAME)('@see')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('something')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_END)('*/')

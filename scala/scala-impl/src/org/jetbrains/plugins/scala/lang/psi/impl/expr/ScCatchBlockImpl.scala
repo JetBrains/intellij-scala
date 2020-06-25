@@ -15,12 +15,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
  */
 class ScCatchBlockImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScCatchBlock {
 
-  def getLeftParenthesis: Option[PsiElement] = {
+  override def getLeftParenthesis: Option[PsiElement] = {
     val leftParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS)
     Option(leftParenthesis)
   }
 
-  def getRightParenthesis: Option[PsiElement] = {
+  override def getRightParenthesis: Option[PsiElement] = {
     val rightParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS)
     Option(rightParenthesis)
   }

@@ -6,7 +6,7 @@ import scala.{Seq => _}
 
 class TreeConverterMatchTest extends TreeConverterTestBaseWithLibrary {
 
-  def testMatchRef() {
+  def testMatchRef(): Unit = {
     doTest(
       """
         |val a = 42
@@ -17,7 +17,7 @@ class TreeConverterMatchTest extends TreeConverterTestBaseWithLibrary {
     )
   }
 
-  def testMatchExtractorSimple() {
+  def testMatchExtractorSimple(): Unit = {
     doTest(
       """def f = {
         |case class Foo(a: Any, b: Any)
@@ -30,7 +30,7 @@ class TreeConverterMatchTest extends TreeConverterTestBaseWithLibrary {
     )
   }
 
-  def testMatchExtractorTypedArgs() {
+  def testMatchExtractorTypedArgs(): Unit = {
     doTest(
       """
         |val a = 42
@@ -42,7 +42,7 @@ class TreeConverterMatchTest extends TreeConverterTestBaseWithLibrary {
     )
   }
   
-  def testMatchBinding() {
+  def testMatchBinding(): Unit = {
     doTest(
       """
         |val a = 42
@@ -53,42 +53,42 @@ class TreeConverterMatchTest extends TreeConverterTestBaseWithLibrary {
     )
   }
   
-  def testMatchTyped() {
+  def testMatchTyped(): Unit = {
     doTest(
       "42 match { case b: Int => }",
       Term.Match(Lit.Int(42), List(Case(Pat.Typed(Pat.Var.Term(Term.Name("b")), Type.Name("Int")), None, Term.Block(Nil))))
     )
   }
   
-  def testMatchTuple() {
+  def testMatchTuple(): Unit = {
     doTest(
       "(42, 24) match { case (b, c) => }",
       Term.Match(Term.Tuple(List(Lit.Int(42), Lit.Int(24))) , List(Case(Pat.Tuple(List(Pat.Var.Term(Term.Name("b")), Pat.Var.Term(Term.Name("c")))), None, Term.Block(Nil))))
     )
   }
   
-  def testMatchWildCard() {
+  def testMatchWildCard(): Unit = {
     doTest(
       "42 match { case _ => }",
       Term.Match(Lit.Int(42), List(Case(Pat.Wildcard(), None, Term.Block(Nil))))
     )
   }
   
-  def testMatchLiteral() {
+  def testMatchLiteral(): Unit = {
     doTest(
       "42 match { case 42 => }",
       Term.Match(Lit.Int(42), List(Case(Lit.Int(42), None, Term.Block(Nil))))
     )
   }
   
-  def testMatchComposite() {
+  def testMatchComposite(): Unit = {
     doTest(
       "42 match { case 1 | 2 | 3 => }",
       Term.Match(Lit.Int(42), List(Case(Pat.Alternative(Lit.Int(1), Pat.Alternative(Lit.Int(2), Lit.Int(3))), None, Term.Block(Nil))))
     )
   }
 
-  def testMatchTypedWildCard() {
+  def testMatchTypedWildCard(): Unit = {
     doTest(
       "42 match { case _: Int => }",
       Term.Match(Lit.Int(42), List(Case(Pat.Typed(Pat.Wildcard(), Type.Name("Int")), None, Term.Block(Nil))))
@@ -97,7 +97,7 @@ class TreeConverterMatchTest extends TreeConverterTestBaseWithLibrary {
 
   // TODO: type variables
   // FIXME: disabled until semantics engine is implemented
-  def testMatchWildCardTypeVar() {
+  def testMatchWildCardTypeVar(): Unit = {
     return
     doTest(
       "42 match { case _: Any[t] => }",
@@ -105,14 +105,14 @@ class TreeConverterMatchTest extends TreeConverterTestBaseWithLibrary {
     )
   }
   
-  def testMatchWildCardTypeApplyWildCard() {
+  def testMatchWildCardTypeApplyWildCard(): Unit = {
     doTest(
       "42 match { case _: Any[_] => }",
       Term.Match(Lit.Int(42), List(Case(Pat.Typed(Pat.Wildcard(), Pat.Type.Apply(Type.Name("Any"), List(Pat.Type.Wildcard()))), None, Term.Block(Nil))))
     )
   }
 
-  def testMatchTypeApplyInfix() {
+  def testMatchTypeApplyInfix(): Unit = {
     doTest(
       """
         |def f[T,U] = {
@@ -123,21 +123,21 @@ class TreeConverterMatchTest extends TreeConverterTestBaseWithLibrary {
     )
   }
   
-  def testMatchExtractorWildCardSeq() {
+  def testMatchExtractorWildCardSeq(): Unit = {
     doTest(
       "42 match { case Some(_*) => }",
       Term.Match(Lit.Int(42), List(Case(Pat.Extract(Term.Name("Some"), Nil, List(Pat.Arg.SeqWildcard())), None, Term.Block(Nil))))
     )
   }
 
-  def testMatchExtractorBoundWildCardSeq() {
+  def testMatchExtractorBoundWildCardSeq(): Unit = {
     doTest(
       "42 match { case Some(x @ _*) => }",
       Term.Match(Lit.Int(42), List(Case(Pat.Extract(Term.Name("Some"), Nil, List(Pat.Bind(Pat.Var.Term(Term.Name("x")), Pat.Arg.SeqWildcard()))), None, Term.Block(Nil))))
     )
   }
   
-  def testMatchInfix() {
+  def testMatchInfix(): Unit = {
     doTest(
       "42 match { case a :: b => }",
       Term.Match(Lit.Int(42), List(Case(Pat.ExtractInfix(Pat.Var.Term(Term.Name("a")), Term.Name("::"), List(Pat.Var.Term(Term.Name("b")))), None, Term.Block(Nil))))

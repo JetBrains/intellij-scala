@@ -11,7 +11,7 @@ package statements
 */
 
 trait ScTypeAliasDeclaration extends ScTypeAlias with ScDeclaration {
-  def declaredElements = Seq(this)
+  override def declaredElements = Seq(this)
 
   override def isDefinition: Boolean = false
 }

@@ -16,8 +16,7 @@ class ScalaLibraryHighlightingTest extends base.ScalaLightCodeInsightFixtureTest
   import base.libraryLoaders._
   import util.reporter.ProgressReporter
 
-  private val filesWithProblems = Map(
-    "scala/Responder.scala" -> Set[TextRange]((1987, 1988), (2133, 2134), (2278, 2279))
+  private val filesWithProblems = Map[String, Set[TextRange]](
   )
 
   override def librariesLoaders = Seq(

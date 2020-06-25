@@ -10,5 +10,5 @@ class PackageLocalTest extends ResolveTestBase {
     super.folderPath + "element/packagelocalclash/"
   }
 
-  def testC() = doTest()
+  def testC(): Unit = doTest()
 }

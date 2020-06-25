@@ -15,7 +15,7 @@
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="messages/DebuggerBundle" key="label.debugger.general.configurable.always.smart.step.into"/>
+          <text resource-bundle="messages/JavaDebuggerBundle" key="label.debugger.general.configurable.always.smart.step.into"/>
         </properties>
       </component>
       <vspacer id="2b017">
@@ -29,7 +29,7 @@
         </constraints>
         <properties>
           <selected value="false"/>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.debug.disable.specific.methods"/>
+          <text resource-bundle="messages/ScalaBundle" key="scala.debug.disable.specific.methods"/>
         </properties>
       </component>
     </children>

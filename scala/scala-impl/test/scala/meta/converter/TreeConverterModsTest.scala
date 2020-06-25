@@ -5,42 +5,42 @@ import scala.meta._
 
 class TreeConverterModsTest extends TreeConverterTestBaseNoLibrary {
 
-def testPrivateUnqual() {
+def testPrivateUnqual(): Unit = {
   doTest(
     "private val a = 42",
      Defn.Val(List(Mod.Private(Name.Anonymous())), List(Pat.Var.Term(Term.Name("a"))), None, Lit.Int(42))
   )
 }
   
-  def testPrivateThis() {
+  def testPrivateThis(): Unit = {
     doTest(
       "private[this] val a = 42",
       Defn.Val(List(Mod.Private(Term.This(Name.Anonymous()))), List(Pat.Var.Term(Term.Name("a"))), None, Lit.Int(42))
     )
   }
   
-  def testPrivatePackage() {
+  def testPrivatePackage(): Unit = {
     doTest(
       "private[scala] val a = 42",
       Defn.Val(List(Mod.Private(Name.Indeterminate("scala"))), List(Pat.Var.Term(Term.Name("a"))), None, Lit.Int(42))
     )
   }
 
-  def testProtectedUnqual() {
+  def testProtectedUnqual(): Unit = {
     doTest(
       "protected val a = 42",
       Defn.Val(List(Mod.Protected(Name.Anonymous())), List(Pat.Var.Term(Term.Name("a"))), None, Lit.Int(42))
     )
   }
 
-  def testProtectedThis() {
+  def testProtectedThis(): Unit = {
     doTest(
       "protected[this] val a = 42",
       Defn.Val(List(Mod.Protected(Term.This(Name.Anonymous()))), List(Pat.Var.Term(Term.Name("a"))), None, Lit.Int(42))
     )
   }
 
-  def testProtectedPackage() {
+  def testProtectedPackage(): Unit = {
     doTest(
       "protected[scala] val a = 42",
       Defn.Val(List(Mod.Protected(Name.Indeterminate("scala"))), List(Pat.Var.Term(Term.Name("a"))), None, Lit.Int(42))

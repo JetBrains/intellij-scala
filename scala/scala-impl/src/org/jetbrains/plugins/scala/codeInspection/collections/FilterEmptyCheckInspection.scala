@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
-package codeInspection.collections
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
@@ -14,7 +14,7 @@ class FilterEmptyCheckInspection extends OperationOnCollectionInspection {
 }
 
 object FilterIsEmptyCheck extends SimplificationType {
-  override def hint: String = InspectionBundle.message("filter.empty.check.hint")
+  override def hint: String = ScalaInspectionBundle.message("filter.empty.check.hint")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
@@ -29,7 +29,7 @@ object FilterIsEmptyCheck extends SimplificationType {
 }
 
 object FilterNonEmptyCheck extends SimplificationType {
-  override def hint: String = InspectionBundle.message("filter.nonempty.check.hint")
+  override def hint: String = ScalaInspectionBundle.message("filter.nonempty.check.hint")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case CheckNonEmpty(qual`.filter`(pred), s, e) if !hasSideEffects(pred) =>
@@ -42,7 +42,7 @@ object FilterNonEmptyCheck extends SimplificationType {
 }
 
 object FilterNotIsEmptyCheck extends SimplificationType {
-  override def hint: String = InspectionBundle.message("filterNot.empty.check.hint")
+  override def hint: String = ScalaInspectionBundle.message("filterNot.empty.check.hint")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case CheckIsEmpty(qual`.filterNot`(pred), s, e) =>
@@ -55,7 +55,7 @@ object FilterNotIsEmptyCheck extends SimplificationType {
 }
 
 object FilterNotNonEmptyCheck extends SimplificationType {
-  override def hint: String = InspectionBundle.message("filterNot.nonempty.check.hint")
+  override def hint: String = ScalaInspectionBundle.message("filterNot.nonempty.check.hint")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case CheckNonEmpty(qual`.filterNot`(pred), s, e) =>

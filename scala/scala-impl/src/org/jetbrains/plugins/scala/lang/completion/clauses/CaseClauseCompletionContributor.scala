@@ -169,7 +169,6 @@ object CaseClauseCompletionContributor {
   }
 
   private final class CaseClauseInsertHandler(components: ClassPatternComponents)
-                                             (implicit place: PsiElement)
     extends ClauseInsertHandler[ScCaseClause] {
 
     override protected def handleInsert(implicit context: InsertionContext): Unit = {

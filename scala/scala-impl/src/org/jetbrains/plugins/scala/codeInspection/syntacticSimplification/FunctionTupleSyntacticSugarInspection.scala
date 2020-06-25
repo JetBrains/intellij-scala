@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplatePar
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TupleType}
 
+import scala.util.matching.Regex
+
 class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 
@@ -31,7 +33,7 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
     import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.FunctionTupleSyntacticSugarInspection._
 
     new ScalaElementVisitor {
-      override def visitScalaElement(elem: ScalaPsiElement) {
+      override def visitScalaElement(elem: ScalaPsiElement): Unit = {
         elem match {
           case te: ScParameterizedTypeElement =>
             te.typeElement match {
@@ -42,10 +44,10 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
                       val referredElement = ref.bind().map(_.getElement)
                       referredElement match {
                         case Some(QualifiedName(FunctionN(n))) if te.typeArgList.typeArgs.length == (n.toInt + 1) =>
-                          holder.registerProblem(holder.getManager.createProblemDescriptor(te, "syntactic sugar could be used",
+                          holder.registerProblem(holder.getManager.createProblemDescriptor(te, ScalaInspectionBundle.message("syntactic.sugar.could.be.used"),
                             new FunctionTypeSyntacticSugarQuickFix(te), ProblemHighlightType.WEAK_WARNING, false))
                         case Some(QualifiedName(TupleN(n))) if (te.typeArgList.typeArgs.length == n.toInt) && n.toInt != 1 =>
-                          holder.registerProblem(holder.getManager.createProblemDescriptor(te, "syntactic sugar could be used",
+                          holder.registerProblem(holder.getManager.createProblemDescriptor(te, ScalaInspectionBundle.message("syntactic.sugar.could.be.used"),
                             new TupleTypeSyntacticSugarQuickFix(te), ProblemHighlightType.WEAK_WARNING, false))
                         case _ =>
                       }
@@ -63,8 +65,8 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
 }
 
 object FunctionTupleSyntacticSugarInspection {
-  val FunctionN = raw"${FunctionType.TypeName}(\d)".r
-  val TupleN = raw"${TupleType.TypeName}(\d)".r
+  val FunctionN: Regex = raw"${FunctionType.TypeName}(\d)".r
+  val TupleN: Regex = raw"${TupleType.TypeName}(\d)".r
   
   import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 

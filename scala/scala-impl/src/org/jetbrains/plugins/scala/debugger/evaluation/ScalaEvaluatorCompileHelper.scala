@@ -5,13 +5,14 @@ import java.io.File
 
 import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.debugger.impl.{DebuggerManagerListener, DebuggerSession}
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.scala.Client
+import org.jetbrains.jps.incremental.scala.remote.CommandIds
+import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerConnectorBase, RemoteServerRunner, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.project.ProjectExt
 
@@ -23,7 +24,7 @@ import scala.collection.mutable.ListBuffer
  * Nikolay.Tropin
  * 2014-10-07
  */
-class ScalaEvaluatorCompileHelper(project: Project) extends ProjectComponent with EvaluatorCompileHelper {
+class ScalaEvaluatorCompileHelper(project: Project) extends Disposable with EvaluatorCompileHelper {
 
   private val tempFiles = mutable.Set[File]()
 
@@ -38,18 +39,16 @@ class ScalaEvaluatorCompileHelper(project: Project) extends ProjectComponent wit
       clearTempFiles()
 
       if (!ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED && EvaluatorCompileHelper.needCompileServer) {
-        CompileServerLauncher.ensureNotRunning(project)
+        CompileServerLauncher.ensureServerNotRunning(project)
       }
     }
   }
 
-  override def projectOpened(): Unit = {
-    if (!ApplicationManager.getApplication.isUnitTestMode) {
-      DebuggerManagerEx.getInstanceEx(project).addDebuggerManagerListener(listener)
-    }
+  if (!ApplicationManager.getApplication.isUnitTestMode) {
+    DebuggerManagerEx.getInstanceEx(project).addDebuggerManagerListener(listener)
   }
 
-  override def projectClosed(): Unit = {
+  override def dispose(): Unit = {
     DebuggerManagerEx.getInstanceEx(project).removeDebuggerManagerListener(listener)
   }
 
@@ -70,7 +69,7 @@ class ScalaEvaluatorCompileHelper(project: Project) extends ProjectComponent wit
     file
   }
 
-  def compile(fileText: String, module: Module): Array[(File, String)] = {
+  override def compile(fileText: String, module: Module): Array[(File, String)] = {
     compile(fileText, module, tempDir())
   }
 
@@ -100,26 +99,19 @@ class ScalaEvaluatorCompileHelper(project: Project) extends ProjectComponent wit
 }
 
 object ScalaEvaluatorCompileHelper {
-  def instance(project: Project): ScalaEvaluatorCompileHelper = project.getComponent(classOf[ScalaEvaluatorCompileHelper])
+  def instance(project: Project): ScalaEvaluatorCompileHelper =
+    project.getService(classOf[ScalaEvaluatorCompileHelper])
 }
 
 
 private class ServerConnector(module: Module, filesToCompile: Seq[File], outputDir: File)
-  extends RemoteServerConnectorBase(module, filesToCompile, outputDir) {
+  extends RemoteServerConnectorBase(module, Some(filesToCompile), outputDir) {
 
   private val errors: ListBuffer[String] = ListBuffer[String]()
 
-  private val client: Client = new Client {
-    override def message(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]): Unit = {
-      if (kind == Kind.ERROR) errors += text
-    }
-    override def deleted(module: File): Unit = {}
-    override def progress(text: String, done: Option[Float]): Unit = {}
-    override def isCanceled: Boolean = false
-    override def debug(text: String): Unit = {}
-    override def processed(source: File): Unit = {}
-    override def trace(exception: Throwable): Unit = {}
-    override def generated(source: File, module: File, name: String): Unit = {}
+  private val client: Client = new DummyClient {
+    override def message(msg: Client.ClientMsg): Unit =
+      if (msg.kind == Kind.ERROR) errors += msg.text
   }
 
   @tailrec
@@ -131,7 +123,7 @@ private class ServerConnector(module: Module, filesToCompile: Seq[File], outputD
   def compile(): Either[Array[(File, String)], Seq[String]] = {
     val project = module.getProject
 
-    val compilationProcess = new RemoteServerRunner(project).buildProcess(arguments, client)
+    val compilationProcess = new RemoteServerRunner(project).buildProcess(CommandIds.Compile, argumentsRaw, client)
     var result: Either[Array[(File, String)], Seq[String]] = Right(Seq("Compilation failed"))
     compilationProcess.addTerminationCallback { exception => // TODO: do not ignore possible exception
       result = if (errors.nonEmpty) Right(errors) else Left(classfiles(outputDir))

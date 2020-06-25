@@ -4,9 +4,10 @@ package codeInspection.syntacticSimplification
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.ConvertibleToMethodValueInspection._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.{&&, PsiElementExt, PsiModifierListOwnerExt, ResolvesTo, childOf}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike}
@@ -30,7 +31,7 @@ import org.jetbrains.plugins.scala.util.KindProjectorUtil.PolymorphicLambda
  * 5/30/13
  */
 object ConvertibleToMethodValueInspection {
-  val inspectionName = InspectionBundle.message("convertible.to.method.value.name")
+  val inspectionName: String = ScalaInspectionBundle.message("convertible.to.method.value.name")
   val inspectionId = "ConvertibleToMethodValue"
 
   /**
@@ -58,7 +59,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionNa
       if ref.bind().exists(involvesImplicitsOrByNameParams) => //do nothing
     case MethodRepr(expr, qualOpt, Some(_), args) =>
       if (allArgsUnderscores(args) && qualOpt.forall(onlyStableValuesUsed))
-        registerProblem(holder, expr, InspectionBundle.message("convertible.to.method.value.anonymous.hint"))
+        registerProblem(holder, expr, ScalaInspectionBundle.message("convertible.to.method.value.anonymous.hint"))
     case und@ScUnderscoreSection.binding(bindingExpr) =>
       val isInParameterOfParameterizedClass = und.parentOfType(classOf[ScClassParameter])
         .exists(_.containingClass.hasTypeParameters)
@@ -69,7 +70,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionNa
       }
 
       if (!isInParameterOfParameterizedClass && mayReplace())
-        registerProblem(holder, und, InspectionBundle.message("convertible.to.method.value.eta.hint"))
+        registerProblem(holder, und, ScalaInspectionBundle.message("convertible.to.method.value.eta.hint"))
   }
 
   private def hasInitialEmptyArgList(element: PsiElement): Boolean =
@@ -109,7 +110,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionNa
     }
   }
 
-  private def registerProblem(holder: ProblemsHolder, expr: ScExpression, hint: String) {
+  private def registerProblem(holder: ProblemsHolder, expr: ScExpression, @Nls hint: String): Unit = {
     possibleReplacements(expr).find(isSuitableForReplace(expr, _)).foreach { replacement =>
       holder.registerProblem(expr, inspectionName,
         ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
@@ -168,7 +169,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionNa
   }
 }
 
-class ConvertibleToMethodValueQuickFix(expr: ScExpression, replacement: String, hint: String)
+class ConvertibleToMethodValueQuickFix(expr: ScExpression, replacement: String, @Nls hint: String)
   extends AbstractFixOnPsiElement(hint, expr) {
 
   override protected def doApplyFix(scExpr: ScExpression)

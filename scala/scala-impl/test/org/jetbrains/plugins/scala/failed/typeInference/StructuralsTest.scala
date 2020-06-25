@@ -17,7 +17,7 @@ class StructuralsTest extends TypeInferenceTestBase {
 
   def testSCL8689(): Unit = doTest()
   
-  def testSCL5423() = doTest {
+  def testSCL5423(): Unit = doTest {
     """
       |trait Test {
       |  trait SettValue {

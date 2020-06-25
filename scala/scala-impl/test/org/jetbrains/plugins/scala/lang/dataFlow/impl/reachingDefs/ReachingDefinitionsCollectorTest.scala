@@ -16,7 +16,7 @@ class ReachingDefinitionsCollectorTest extends ScalaLightCodeInsightFixtureTestA
 
   override protected def getBasePath: String = TestUtils.getTestDataPath + "/dataFlow/reachingDefsCollect/"
 
-  override def setUp() {
+  override def setUp(): Unit = {
     super.setUp()
     myFixture.setTestDataPath(getBasePath)
   }

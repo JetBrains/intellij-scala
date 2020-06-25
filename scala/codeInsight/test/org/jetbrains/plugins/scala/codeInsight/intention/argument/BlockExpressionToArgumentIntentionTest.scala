@@ -1,10 +1,12 @@
-package org.jetbrains.plugins.scala.codeInsight.intention.argument
+package org.jetbrains.plugins.scala
+package codeInsight
+package intention
+package argument
 
-import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
 class BlockExpressionToArgumentIntentionTest extends ScalaIntentionTestBase {
-  override def familyName: String = BlockExpressionToArgumentIntention.FAMILY_NAME
+  override def familyName: String = ScalaCodeInsightBundle.message("family.name.convert.to.argument.in.parentheses")
 
   private val AFTER_SINGLE_EXPRESSION =
     s"""object Test {

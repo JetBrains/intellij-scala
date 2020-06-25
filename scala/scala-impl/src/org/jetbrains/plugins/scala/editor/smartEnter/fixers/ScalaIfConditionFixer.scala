@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScIf
  */
 @SuppressWarnings(Array("HardCodedStringLiteral"))
 class ScalaIfConditionFixer extends ScalaFixer {
-  def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement): OperationPerformed = {
+  override def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement): OperationPerformed = {
     val ifStatement = PsiTreeUtil.getParentOfType(psiElement, classOf[ScIf], false)
     if (ifStatement == null) return NoOperation
 
@@ -27,9 +27,9 @@ class ScalaIfConditionFixer extends ScalaFixer {
         val ifStartOffset = ifStatement.getTextRange.getStartOffset
         var stopOffset = doc.getLineEndOffset(doc getLineNumber ifStartOffset)
 
-        ifStatement.thenExpression.foreach {
-          case thenBranch => stopOffset = Math.min(stopOffset, thenBranch.getTextRange.getStartOffset)
-        }
+        ifStatement.thenExpression.foreach(
+          thenBranch => stopOffset = Math.min(stopOffset, thenBranch.getTextRange.getStartOffset)
+        )
 
         doc.replaceString(ifStartOffset, stopOffset, "if () {\n\n}")
 

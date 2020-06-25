@@ -4,11 +4,13 @@ import java.nio.file.attribute.FileTime
 import java.nio.file.{Files, Path}
 
 import com.typesafe.config.{ConfigException, ConfigFactory}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamic.{FormatResult, _}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader.{DownloadProgressListener, DownloadSuccess}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.{ReflectionException, ScalafmtConfigException, ScalafmtException}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.utils.{BuildInfo, ConsoleScalafmtReporter}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.interfaces.{Scalafmt, ScalafmtReporter}
+import org.jetbrains.sbt.Sbt
 
 import scala.collection.concurrent.TrieMap
 import scala.collection.mutable
@@ -17,13 +19,15 @@ import scala.util.Try
 import scala.util.control.NonFatal
 
 // TODO: Naumenko: after freezing implementation move this to scalafmt-dynamic project, cover with tests and make pull request
-final case class ScalafmtDynamic(reporter: ScalafmtReporter,
-                                 respectVersion: Boolean,
-                                 respectExcludeFilters: Boolean,
-                                 defaultVersion: String,
-                                 fmtsCache: mutable.Map[ScalafmtVersion, ScalafmtReflect],
-                                 cacheConfigs: Boolean,
-                                 configsCache: mutable.Map[Path, (ScalafmtDynamicConfig, FileTime)]) extends Scalafmt {
+final case class ScalafmtDynamic(
+  reporter: ScalafmtReporter,
+  respectVersion: Boolean,
+  respectExcludeFilters: Boolean,
+  defaultVersion: String,
+  fmtsCache: mutable.Map[ScalafmtVersion, ScalafmtReflect],
+  cacheConfigs: Boolean,
+  configsCache: mutable.Map[Path, (ScalafmtReflectConfig, FileTime)]
+) extends Scalafmt {
 
   def this() = this(
     ConsoleScalafmtReporter,
@@ -69,11 +73,11 @@ final case class ScalafmtDynamic(reporter: ScalafmtReporter,
     case ScalafmtDynamicError.ConfigParseError(configPath, cause) =>
       reporter.error(configPath, cause.getMessage)
     case ScalafmtDynamicError.ConfigDoesNotExist(configPath) =>
-      reporter.error(configPath, "file does not exist")
+      reporter.error(configPath, ScalaBundle.message("file.does.not.exist"))
     case ScalafmtDynamicError.ConfigMissingVersion(configPath) =>
       reporter.missingVersion(configPath, defaultVersion)
     case ScalafmtDynamicError.CannotDownload(version, cause) =>
-      val message = s"failed to resolve Scalafmt version '$version'"
+      val message = ScalaBundle.message("failed.to.resolve.scalafmt.version", version)
       cause match {
         case Some(value) =>
           reporter.error(config, ScalafmtException(message, value))
@@ -87,11 +91,11 @@ final case class ScalafmtDynamic(reporter: ScalafmtReporter,
   }
 
   def formatDetailed(configPath: Path, file: Path, code: String): FormatResult = {
-    def tryFormat(reflect: ScalafmtReflect, config: ScalafmtDynamicConfig): FormatResult = {
+    def tryFormat(reflect: ScalafmtReflect, config: ScalafmtReflectConfig): FormatResult = {
       Try {
-        val filename = file.toString
-        val configWithDialect: ScalafmtDynamicConfig =
-          if (filename.endsWith(".sbt") || filename.endsWith(".sc")) {
+        val filename                                 = file.toString
+        val configWithDialect: ScalafmtReflectConfig =
+          if (filename.endsWith(Sbt.Extension) || filename.endsWith(".sc")) {
             config.withSbtDialect
           } else {
             config
@@ -100,7 +104,7 @@ final case class ScalafmtDynamic(reporter: ScalafmtReporter,
           reporter.excluded(file)
           code
         } else {
-          reflect.format(code, configWithDialect, Some(file))
+          reflect.format(code, configWithDialect, Some(filename))
         }
       }.toEither.left.map {
         case ReflectionException(e) => ScalafmtDynamicError.UnknownError(e)
@@ -114,11 +118,11 @@ final case class ScalafmtDynamic(reporter: ScalafmtReporter,
     } yield codeFormatted
   }
 
-  private def isIgnoredFile(filename: String, config: ScalafmtDynamicConfig): Boolean = {
+  private def isIgnoredFile(filename: String, config: ScalafmtReflectConfig): Boolean = {
     respectExcludeFilters && !config.isIncludedInProject(filename)
   }
 
-  private def resolveConfig(configPath: Path): Either[ScalafmtDynamicError, ScalafmtDynamicConfig] = {
+  private def resolveConfig(configPath: Path): Either[ScalafmtDynamicError, ScalafmtReflectConfig] = {
     if (cacheConfigs) {
       val currentTimestamp: FileTime = Files.getLastModifiedTime(configPath)
       configsCache.get(configPath) match {
@@ -137,7 +141,7 @@ final case class ScalafmtDynamic(reporter: ScalafmtReporter,
       resolvingConfigDownloading(configPath)
     }
   }
-  private def resolvingConfigDownloading(configPath: Path): Either[ScalafmtDynamicError, ScalafmtDynamicConfig] = {
+  private def resolvingConfigDownloading(configPath: Path): Either[ScalafmtDynamicError, ScalafmtReflectConfig] = {
     for {
       _ <- Option(configPath).filter(conf => Files.exists(conf)).toRight {
         ScalafmtDynamicError.ConfigDoesNotExist(configPath)
@@ -150,7 +154,7 @@ final case class ScalafmtDynamic(reporter: ScalafmtReporter,
     } yield config
   }
 
-  private def parseConfig(configPath: Path, fmtReflect: ScalafmtReflect): Either[ScalafmtDynamicError, ScalafmtDynamicConfig] = {
+  private def parseConfig(configPath: Path, fmtReflect: ScalafmtReflect): Either[ScalafmtDynamicError, ScalafmtReflectConfig] = {
     Try(fmtReflect.parseConfig(configPath)).toEither.left.map {
       case ex: ScalafmtConfigException => ScalafmtDynamicError.ConfigParseError(configPath, ex)
       case ex => ScalafmtDynamicError.UnknownError(ex)
@@ -166,12 +170,12 @@ final case class ScalafmtDynamic(reporter: ScalafmtReporter,
         Right(value)
       case None =>
         val downloadWriter = reporter.downloadWriter()
-        val progressListener: DownloadProgressListener = downloadWriter.println _
+        val progressListener: DownloadProgressListener = message => downloadWriter.println(message)
         val downloader = new ScalafmtDynamicDownloader(progressListener)
         downloader.download(version)
           .left.map(f => ScalafmtDynamicError.CannotDownload(f.version, Some(f.cause)))
           .flatMap(resolveClassPath)
-          .map { scalafmt: ScalafmtReflect =>
+          .map { (scalafmt: ScalafmtReflect) =>
             fmtsCache(version) = scalafmt
             scalafmt
           }

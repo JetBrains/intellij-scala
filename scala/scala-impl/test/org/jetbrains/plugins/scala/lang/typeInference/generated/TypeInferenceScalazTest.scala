@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
 class TypeInferenceScalazTest extends TypeInferenceTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  <= LatestScalaVersions.Scala_2_11
 
   override def folderPath: String = super.folderPath + "scalaz/"
 

@@ -16,7 +16,7 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[TypecheckerTests]))
 abstract class JavaHighlightingTestBase extends ScalaFixtureTestCase with MatcherAssertions {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_11
 
   private var filesCreated: Boolean = false
 

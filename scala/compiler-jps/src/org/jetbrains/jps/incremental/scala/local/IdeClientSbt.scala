@@ -8,8 +8,9 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.builders.{BuildRootDescriptor, BuildTarget}
 import org.jetbrains.jps.incremental.fs.CompilationRound
-import org.jetbrains.jps.incremental.{FSOperations, CompileContext}
+import org.jetbrains.jps.incremental.{CompileContext, FSOperations}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.OutputConsumer
+import org.jetbrains.plugins.scala.compiler.CompilerEvent
 
 import scala.collection.JavaConverters._
 import scala.util.control.Exception._
@@ -24,9 +25,9 @@ class IdeClientSbt(compilerName: String,
                    modules: Seq[String],
                    consumer: OutputConsumer,
                    sourceToTarget: File => Option[BuildTarget[_ <: BuildRootDescriptor]])
-        extends IdeClient(compilerName, context, modules, consumer) {
+        extends IdeClient(compilerName, context, modules) {
 
-  def generated(source: File, outputFile: File, name: String) {
+  override def generated(source: File, outputFile: File, name: String): Unit = {
     invalidateBoundForms(source)
     val target = sourceToTarget(source).getOrElse {
       throw new RuntimeException("Unknown source file: " + source)
@@ -35,7 +36,9 @@ class IdeClientSbt(compilerName: String,
     consumer.registerCompiledClass(target, compiledClass)
   }
 
-  def processed(source: File): Unit = {}
+  override def worksheetOutput(text: String): Unit = ()
+
+  override def processingEnd(): Unit = ()
 
   // TODO Expect JPS compiler in UI-designer to take generated class events into account
   private val FormsToCompileKey = catching(classOf[ClassNotFoundException], classOf[NoSuchFieldException]).opt {
@@ -44,7 +47,7 @@ class IdeClientSbt(compilerName: String,
     field.get(null).asInstanceOf[Key[util.Map[File, util.Collection[File]]]]
   }
 
-  private def invalidateBoundForms(source: File) {
+  private def invalidateBoundForms(source: File): Unit = {
     FormsToCompileKey.foreach { key =>
       val boundForms: Option[Iterable[File]] = {
         val sourceToForm = context.getProjectDescriptor.dataManager.getSourceToFormMap

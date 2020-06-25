@@ -71,7 +71,7 @@ class SbtRunAnythingProvider extends RunAnythingProviderBase[SbtRunItem] {
   override def execute(dataContext: DataContext, value: SbtRunItem): Unit = {
     val project = fetchProject(dataContext)
     val com = SbtShellCommunication.forProject(project)
-    com.command(value.command, showShell = true)
+    com.command(value.command)
   }
 
   override def getCommand(value: SbtRunItem): String = {
@@ -103,7 +103,7 @@ object SbtRunAnythingProvider {
   sealed abstract class SbtRunItem {
     def command: String
   }
-  case class SbtShellCommandString(command: String) extends SbtRunItem
+  case class SbtShellCommandString(override val command: String) extends SbtRunItem
   case class SbtShellTask(projectId: String, task: String) extends SbtRunItem {
     override def command: String = SbtNodeAction.scopedKey(projectId, task)
   }

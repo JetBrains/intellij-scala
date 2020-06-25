@@ -15,13 +15,13 @@ import org.jetbrains.jps.incremental.scala._
  * @author Dmitry Naydanov
  */
 trait RemoteResourceOwner {
-  protected val address: InetAddress
-  protected val port: Int
+
+  protected def address: InetAddress
+  protected def port: Int
   
   protected val currentDirectory: String = System.getProperty("user.dir")
-  protected val serverAlias = "compile-server"
 
-  def send(command: String, arguments: Seq[String], client: Client) {
+  def send(command: String, arguments: Seq[String], client: Client): Unit = {
     val encodedArgs = arguments.map(s =>
       Base64.getEncoder.encodeToString(s.getBytes(StandardCharsets.UTF_8)))
     using(new Socket(address, port)) { socket =>
@@ -37,7 +37,7 @@ trait RemoteResourceOwner {
     }
   }
 
-  protected def handle(input: DataInputStream, client: Client) {
+  protected def handle(input: DataInputStream, client: Client): Unit = {
     val processor = new ClientEventProcessor(client)
 
     while (!client.isCanceled) {
@@ -60,13 +60,16 @@ trait RemoteResourceOwner {
         // Main server class redirects all (unexpected) stdout data to stderr.
         // In theory, there should be no such data at all, however, in practice,
         // sbt "leaks" some messages into console (e.g. for "explain type errors" option).
-        // Report such output not as errors, but as warings (to continue make process).
+        // For example such errors occur during compilation errors of worksheet ILoopWrapper instances.
+        // Report such output not as errors, but as warnings (to continue make process).
         case Chunk(NGConstants.CHUNKTYPE_STDERR, data) =>
           val message = fromBytes(data)
-          if(StringUtils.isNotBlank(message))
-            client.message(Kind.WARNING, message)
+          if (StringUtils.isNotBlank(message)) {
+            val messageClean = RemoteResourceOwner.ansiColorCodePattern.replaceAllIn(message, "")
+            client.message(Kind.WARNING, messageClean)
+          }
         case Chunk(kind, data) =>
-          val message = s"Unexpected server output: $data"
+          val message = s"Unexpected server output of kind $kind: $data"
           client.message(Kind.ERROR, message)
       }
     }
@@ -81,10 +84,38 @@ trait RemoteResourceOwner {
   private def toBytes(s: String) = s.getBytes
 
   private def fromBytes(bytes: Array[Byte]) = new String(bytes)
+
+  protected def cantConnectToCompileServerErrorMessage: String =
+    s"Cannot connect to compile server at ${address.toString}:$port"
+
+  protected def unknownHostErrorMessage: String =
+    s"Unknown IP address of compile server host: ${address.toString}"
+
+  protected def reportException(message: String, ex: Throwable, client: Client): Unit = {
+    val className = this.getClass.getSimpleName
+    val tid = Thread.currentThread
+    client.internalInfo(s"[$className] [t$tid] $message\n${exceptionText(ex)}")
+  }
+
+  protected def exceptionText(ex: Throwable): String =
+    s"${ex.toString}\n${stackTraceText(ex)}"
+
+  private def stackTraceText(exception: Throwable): String =
+    stackTraceText(exception.getStackTrace)
+
+  private def stackTraceText(stackTrace: Array[StackTraceElement]): String = {
+    val linePrefix = "\tat "
+    stackTrace.mkString(linePrefix, "\n" + linePrefix, "")
+  }
+}
+
+object RemoteResourceOwner {
+
+  private val ansiColorCodePattern = "\\u001B\\[[\\d*]*m".r
 }
 
 case class Chunk(kind: Chunk.Kind, data: Array[Byte]) {
-  def writeTo(output: DataOutputStream) {
+  def writeTo(output: DataOutputStream): Unit = {
     output.writeInt(data.length)
     output.writeByte(kind.toByte)
     output.write(data)

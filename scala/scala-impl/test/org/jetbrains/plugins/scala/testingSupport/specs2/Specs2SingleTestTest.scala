@@ -33,22 +33,27 @@ abstract class Specs2SingleTestTest extends Specs2TestCase {
     """.stripMargin
   )
 
-  def testSpecification() {
-    runTestByLocation(5, 10, specsTestFileName,
-      checkConfigAndSettings(_, specsTestClassName, "run single test"),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", specsTestClassName, "The 'SpecificationTest' should", "run single test") &&
-        checkResultTreeDoesNotHaveNodes(root, "ignore other test", "run greater test", "run exclamation test"),
-      debug = true
+  def testSpecification(): Unit = {
+    runTestByLocation2(5, 10, specsTestFileName,
+      assertConfigAndSettings(_, specsTestClassName, "run single test"),
+      root => {
+        assertResultTreeHasExactNamedPath(root, Seq("[root]", specsTestClassName, "The 'SpecificationTest' should", "run single test"))
+        assertResultTreeDoesNotHaveNodes(root, "ignore other test", "run greater test", "run exclamation test")
+      }
     )
 
-    runTestByLocation(10, 35, specsTestFileName,
-      checkConfigAndSettings(_, specsTestClassName, "run exclamation test"),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", specsTestClassName, "The 'SpecificationTest' should", "run exclamation test") &&
-        checkResultTreeDoesNotHaveNodes(root, "ignore other test", "run single test", "run greater test"))
+    runTestByLocation2(10, 35, specsTestFileName,
+      assertConfigAndSettings(_, specsTestClassName, "run exclamation test"),
+      root => {
+        assertResultTreeHasExactNamedPath(root, Seq("[root]", specsTestClassName, "The 'SpecificationTest' should", "run exclamation test"))
+        assertResultTreeDoesNotHaveNodes(root, "ignore other test", "run single test", "run greater test")
+      })
 
-    runTestByLocation(12, 10, specsTestFileName,
-      checkConfigAndSettings(_, specsTestClassName, "run greater test"),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", specsTestClassName, "The 'SpecificationTest' should", "run greater test") &&
-        checkResultTreeDoesNotHaveNodes(root, "ignore other test", "run single test", "run exclamation test"))
+    runTestByLocation2(12, 10, specsTestFileName,
+      assertConfigAndSettings(_, specsTestClassName, "run greater test"),
+      root => {
+        assertResultTreeHasExactNamedPath(root, Seq("[root]", specsTestClassName, "The 'SpecificationTest' should", "run greater test"))
+        assertResultTreeDoesNotHaveNodes(root, "ignore other test", "run single test", "run exclamation test")
+      })
   }
 }

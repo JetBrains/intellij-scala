@@ -13,7 +13,7 @@ class InvertIfConditionIntentionTest extends intentions.ScalaIntentionTestBase {
 
   import EditorTestUtil.{CARET_TAG => CARET}
 
-  override def familyName = InvertIfConditionIntention.FamilyName
+  override def familyName = ScalaCodeInsightBundle.message("family.name.invert.if.condition")
 
   def testInvertIf1(): Unit = {
     val text =

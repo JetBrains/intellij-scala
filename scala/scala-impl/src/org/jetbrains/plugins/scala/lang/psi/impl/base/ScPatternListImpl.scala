@@ -26,17 +26,17 @@ class ScPatternListImpl private(stub: ScPatternListStub, node: ASTNode)
 
   override def toString: String = "ListOfPatterns"
 
-  def patterns: Seq[ScPattern] = {
+  override def patterns: Seq[ScPattern] = {
     if (simplePatternsByStub) getStubOrPsiChildren(REFERENCE_PATTERN, ScReferencePatternFactory)
     else findChildrenByClass(classOf[ScPattern])
   }
 
-  def bindings: Seq[ScBindingPattern] =
+  override def bindings: Seq[ScBindingPattern] =
     byStubOrPsi(_.getChildrenByType(BINDING_PATTERNS, ScBindingPatternFactory).toSeq) {
       patterns.flatMap(_.bindings)
     }
 
-  def simplePatterns: Boolean = simplePatternsByStub || patterns.forall(_.isInstanceOf[ScReferencePattern])
+  override def simplePatterns: Boolean = simplePatternsByStub || patterns.forall(_.isInstanceOf[ScReferencePattern])
 
   private def simplePatternsByStub: Boolean = Option(getGreenStub).exists(_.simplePatterns)
 }

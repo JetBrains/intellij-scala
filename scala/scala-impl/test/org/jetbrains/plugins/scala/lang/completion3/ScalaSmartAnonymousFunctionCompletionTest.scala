@@ -10,8 +10,6 @@ import com.intellij.testFramework.EditorTestUtil
   */
 class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCodeInsightTestBase {
 
-  import EditorTestUtil.{CARET_TAG => CARET}
-
   def testAbstractTypeInfoFromFirstClause(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -21,7 +19,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCodeInsightTestBase
     resultText =
       s"""
          |def foo[T](x: T)(y: T => Int) = 1
-         |foo(2)((i: Int) => $CARET)
+         |foo(2)((i: Int) => ???$CARET)
       """.stripMargin
   )
 
@@ -34,7 +32,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCodeInsightTestBase
     resultText =
       s"""
          |def foo(x: String => String) = 1
-         |foo {case str: String => $CARET}
+         |foo {case str: String => ???$CARET}
        """.stripMargin
   )
 
@@ -47,7 +45,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCodeInsightTestBase
     resultText =
       s"""
          |def foo(x: String => String) = 1
-         |foo((str: String) => $CARET)
+         |foo((str: String) => ???$CARET)
        """.stripMargin
   )
 
@@ -60,7 +58,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCodeInsightTestBase
     resultText =
       s"""
          |def foo(x: Tuple2[Int, Int] => Int) = 1
-         |foo((tuple: (Int, Int)) => $CARET)
+         |foo((tuple: (Int, Int)) => ???$CARET)
        """.stripMargin
   )
 
@@ -73,7 +71,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCodeInsightTestBase
     resultText =
       s"""
          |def foo(x: Tuple2[Int, Int] => Int) = 1
-         |foo{case (i: Int, i1: Int) => $CARET}
+         |foo{case (i: Int, i1: Int) => ???$CARET}
        """.stripMargin
   )
 
@@ -86,7 +84,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCodeInsightTestBase
     resultText =
       s"""
          |def foo[T <: Runnable](x: (T, String) => String) = 1
-         |foo((value: Runnable, str: String) => $CARET)
+         |foo((value: Runnable, str: String) => ???$CARET)
        """.stripMargin
   )
 
@@ -99,7 +97,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCodeInsightTestBase
     resultText =
       s"""
          |def foo[T >: Int](x: (T, String) => String) = 1
-         |foo((i: Int, str: String) => $CARET)
+         |foo((i: Int, str: String) => ???$CARET)
        """.stripMargin
   )
 
@@ -114,7 +112,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCodeInsightTestBase
       s"""
          |def foo[T <: Runnable](x: T => String) = 1
          |class X extends Runnable
-         |foo[X]((x: X) => $CARET)
+         |foo[X]((x: X) => ???$CARET)
        """.stripMargin
   )
 
@@ -127,7 +125,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCodeInsightTestBase
     resultText =
       s"""
          |def foo(c: (Int, Int, Int, Int) => Int) = 1
-         |foo((i: Int, i1: Int, i2: Int, i3: Int) => $CARET)
+         |foo((i: Int, i1: Int, i2: Int, i3: Int) => ???$CARET)
        """.stripMargin
   )
 
@@ -140,7 +138,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCodeInsightTestBase
     resultText =
       s"""
          |def foo(x: (Int, String, Int, String) => Int) = 1
-         |foo((i: Int, str: String, i1: Int, str1: String) => $CARET)
+         |foo((i: Int, str: String, i1: Int, str1: String) => ???$CARET)
        """.stripMargin
   )
 
@@ -153,7 +151,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCodeInsightTestBase
     resultText =
       s"""
          |def foo[T](x: (T, String) => String) = 1
-         |foo((value: T, str: String) => $CARET)
+         |foo((value: T, str: String) => ???$CARET)
        """.stripMargin
   )
 
@@ -168,7 +166,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCodeInsightTestBase
       s"""
          |type T = Int => String
          |def zoo(p: T) {}
-         |zoo((i: Int) => $CARET)
+         |zoo((i: Int) => ???$CARET)
       """.stripMargin
   )
 

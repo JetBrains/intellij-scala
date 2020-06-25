@@ -199,7 +199,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       case _ => return
     }
     keywordToChange.foreach { kw =>
-      val defKeyword = createMethodFromText("def foo {}")(named.getManager).children.find(_.getText == "def").get
+      val defKeyword = createMethodFromText("def foo {}")(named.getManager).children.find(_.textMatches("def")).get
       if (change.getNewParameters.nonEmpty) kw.replace(defKeyword)
     }
 

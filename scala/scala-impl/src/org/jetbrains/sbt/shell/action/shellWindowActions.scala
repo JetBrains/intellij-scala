@@ -16,14 +16,16 @@ import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.{ExecutionManager, ProgramRunnerUtil, RunManager, RunnerAndConfigurationSettings}
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem._
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actions.ScrollToTheEndToolbarAction
 import com.intellij.openapi.editor.ex.util.EditorUtil
+import com.intellij.openapi.editor.{Editor, SelectionModel}
 import com.intellij.openapi.project.{DumbAwareAction, Project}
 import javax.swing.{Icon, KeyStroke}
 import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
+import org.jetbrains.sbt.SbtBundle
+import org.jetbrains.sbt.shell.action.CopyFromHistoryViewerAction._
 import org.jetbrains.sbt.shell.action.SbtShellActionUtil._
-import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellToolWindowFactory}
+import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellConsoleView, SbtShellToolWindowFactory}
 
 import scala.collection.JavaConverters._
 
@@ -41,7 +43,7 @@ class StartAction(project: Project) extends DumbAwareAction {
 
   val templatePresentation: Presentation = getTemplatePresentation
   templatePresentation.setIcon(AllIcons.Actions.Execute)
-  templatePresentation.setText("Start sbt shell") // TODO i18n / language-bundle
+  templatePresentation.setText(SbtBundle.message("sbt.shell.start"))
 
   override def actionPerformed(e: AnActionEvent): Unit = {
     SbtShellToolWindowFactory.instance(project).foreach { toolWindow =>
@@ -57,10 +59,10 @@ class StartAction(project: Project) extends DumbAwareAction {
     val presentation = e.getPresentation
     if (shellAlive(project)) {
       presentation.setIcon(AllIcons.Actions.Restart)
-      presentation.setText("Restart sbt shell")
+      presentation.setText(SbtBundle.message("sbt.shell.restart"))
     } else {
       presentation.setIcon(AllIcons.Actions.Execute)
-      presentation.setText("Start sbt shell")
+      presentation.setText(SbtBundle.message("sbt.shell.start"))
     }
   }
 
@@ -70,7 +72,7 @@ class StopAction(project: Project) extends DumbAwareAction {
   copyFrom(ActionManager.getInstance.getAction(IdeActions.ACTION_STOP_PROGRAM))
   val templatePresentation: Presentation = getTemplatePresentation
   templatePresentation.setIcon(AllIcons.Actions.Suspend)
-  templatePresentation.setText("Stop sbt shell") // TODO i18n / language-bundle
+  templatePresentation.setText(SbtBundle.message("sbt.shell.stop"))
   templatePresentation.setDescription(null: String)
 
   override def actionPerformed(e: AnActionEvent): Unit = {
@@ -91,7 +93,7 @@ class StopAction(project: Project) extends DumbAwareAction {
 class ExecuteTaskAction(console: LanguageConsoleView, task: String, icon: Option[Icon]) extends DumbAwareAction {
 
   getTemplatePresentation.setIcon(icon.orNull)
-  getTemplatePresentation.setText(s"Execute $task")
+  getTemplatePresentation.setText(SbtBundle.message("sbt.shell.execute.task", task))
 
   override def actionPerformed(e: AnActionEvent): Unit = {
     // TODO execute with indicator
@@ -110,7 +112,8 @@ class EOFAction(project: Project) extends DumbAwareAction {
 
   private val templatePresentation: Presentation = getTemplatePresentation
   templatePresentation.setIcon(AllIcons.Actions.TraceOver) // TODO sensible icon
-  templatePresentation.setText("Ctrl+D EOF")
+  templatePresentation.setText(SbtBundle.message("sbt.shell.ctrl.d.eof"))
+  //noinspection ScalaExtractStringToBundle
   templatePresentation.setDescription("")
 
   private val ctrlD = KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK)
@@ -122,13 +125,43 @@ class EOFAction(project: Project) extends DumbAwareAction {
   }
 }
 
-class SigIntAction(project: Project) extends DumbAwareAction {
+class SigIntAction(project: Project, view: SbtShellConsoleView) extends DumbAwareAction {
 
-  setShortcutSet(new CustomShortcutSet(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK)))
+  setShortcutSet(`ctrl + C`)
+
+  override def update(e: AnActionEvent): Unit = {
+    e.getPresentation.setEnabled(!CopyFromHistoryViewerAction.isEnabled(view))
+  }
 
   override def actionPerformed(e: AnActionEvent): Unit = {
     SbtShellCommunication.forProject(project).sendSigInt()
   }
+}
+
+class CopyFromHistoryViewerAction(view: SbtShellConsoleView) extends DumbAwareAction {
+
+  setShortcutSet(`ctrl + C`)
+
+  override def update(e: AnActionEvent): Unit = {
+    e.getPresentation.setEnabled(CopyFromHistoryViewerAction.isEnabled(view))
+  }
+
+  override def actionPerformed(e: AnActionEvent): Unit = {
+    copyFromHistoryToClipboard(view)
+  }
+}
+
+private object CopyFromHistoryViewerAction {
+  def `ctrl + C` = new CustomShortcutSet(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK))
+
+  private def selectionModel(view: SbtShellConsoleView): SelectionModel =
+    view.getHistoryViewer.getSelectionModel
+
+  def isEnabled(view: SbtShellConsoleView): Boolean =
+    selectionModel(view).hasSelection
+
+  private def copyFromHistoryToClipboard(view: SbtShellConsoleView): Unit =
+    selectionModel(view).copySelectionToClipboard()
 }
 
 class DebugShellAction(project: Project, remoteConnection: Option[RemoteConnection]) extends ToggleAction {
@@ -136,14 +169,14 @@ class DebugShellAction(project: Project, remoteConnection: Option[RemoteConnecti
   private val templatePresentation: Presentation = getTemplatePresentation
   templatePresentation.setIcon(AllIcons.Actions.StartDebugger)
   if (remoteConnection.isDefined) {
-    templatePresentation.setText("Attach debugger to sbt shell")
+    templatePresentation.setText(SbtBundle.message("sbt.shell.attach.debugger"))
     templatePresentation.setEnabled(false)
   } else {
-    templatePresentation.setText("Enable sbt shell debugging in sbt settings and restart shell to attach debugging")
+    templatePresentation.setText(SbtBundle.message("sbt.shell.enable.debugging.in.sbt.settings"))
   }
 
   private val configType = new RemoteConfigurationType
-  private val configName = "Debug sbt shell"
+  private val configName = SbtBundle.message("sbt.shell.debug")
 
   override def setSelected(e: AnActionEvent, toSet: Boolean): Unit = {
     val active = isSelected(e)

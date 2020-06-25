@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.codeInspection.typeAnnotation.TypeAnnotationI
 
 class WorksheetAnnotationInspectionTest extends TypeAnnotationInspectionTest {
 
-  override protected val fileType = WorksheetFileType
+  override protected val fileType: WorksheetFileType.type = WorksheetFileType
 
   private var excludeInDialectSources: Boolean = _
 

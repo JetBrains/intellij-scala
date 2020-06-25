@@ -17,7 +17,7 @@ import scala.Function._
   * @author Pavel Fatin
   */
 class ExpandEtaExpansion extends AbstractTransformer {
-  protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
+  override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case (e: ScUnderscoreSection) && FirstChild(r @ ReferenceTarget(m: ScFunction)) =>
       process(e, r, clausesOf(m), typed = true)
 

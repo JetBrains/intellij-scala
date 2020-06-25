@@ -6,6 +6,7 @@ package expr
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -89,7 +90,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
   @Cached(ModCount.getModificationCount, this)
   private def polymorphicLambdaType: TypeResult = this match {
     case PolymorphicLambda(des, lhs, rhs) => kindProjectorPolymorphicLambdaType(des, lhs, rhs, this).asTypeResult
-    case _                                => Failure("Not a polymorphic lambda.")
+    case _                                => Failure(ScalaBundle.message("not.a.polymorphic.lambda"))
   }
 
   protected override def innerType: TypeResult =
@@ -98,7 +99,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
       convertReferencedType(typeResult, isShape = false)
     }
 
-  def shapeType: TypeResult =
+  override def shapeType: TypeResult =
     polymorphicLambdaType.left.flatMap { _ =>
       val typeResult: TypeResult = referencedExpr match {
         case ref: ScReferenceExpression => ref.shapeType
@@ -107,7 +108,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
       convertReferencedType(typeResult, isShape = true)
     }
 
-  def shapeMultiType: Array[TypeResult] = {
+  override def shapeMultiType: Array[TypeResult] = {
     val polyLambdaType = polymorphicLambdaType
     if (polyLambdaType.isLeft) {
       val typeResult: Array[TypeResult] = referencedExpr match {
@@ -125,7 +126,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
     }
   }
 
-  def multiType: Array[TypeResult] = {
+  override def multiType: Array[TypeResult] = {
     val polyLambdaType = polymorphicLambdaType
     if (polyLambdaType.isLeft) {
       val typeResult: Array[TypeResult] = referencedExpr match {

@@ -20,7 +20,7 @@ trait WorksheetPerFileConfig {
   protected def isDisabled(file: PsiFile, attribute: FileAttribute): Boolean =
     FileAttributeUtilCache.readAttribute(attribute, file).contains(disabled)
 
-  protected def setEnabled(file: PsiFile, attribute: FileAttribute, e: Boolean) {
+  protected def setEnabled(file: PsiFile, attribute: FileAttribute, e: Boolean): Unit = {
     FileAttributeUtilCache.writeAttribute(attribute, file, getStringRepresent(e))
   }
 }

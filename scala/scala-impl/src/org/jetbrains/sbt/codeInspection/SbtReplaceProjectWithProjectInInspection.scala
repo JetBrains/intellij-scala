@@ -23,7 +23,7 @@ class SbtReplaceProjectWithProjectInInspection extends AbstractInspection {
       (defn.expr, defn.bindings) match {
         case (Some(call: ScMethodCall), Seq(projectNamePattern: ScReferencePattern)) =>
           findPlaceToFix(call, projectNamePattern.getText).foreach { place =>
-            holder.registerProblem(place, SbtBundle("sbt.inspection.projectIn.name"),
+            holder.registerProblem(place, SbtBundle.message("sbt.inspection.projectIn.name"),
                                           ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
                                           new SbtReplaceProjectWithProjectInQuickFix(place))
           }
@@ -36,7 +36,7 @@ class SbtReplaceProjectWithProjectInInspection extends AbstractInspection {
     val visitor = new ScalaRecursiveElementVisitor {
       override def visitMethodCallExpression(call: ScMethodCall): Unit = call match {
         case ScMethodCall(expr, Seq(ScStringLiteral(name), _))
-          if expr.getText == "Project" && name == projectName =>
+          if expr.textMatches("Project") && name == projectName =>
             placeToFix = Some(call)
         case _ =>
           super.visitMethodCallExpression(call)
@@ -48,7 +48,7 @@ class SbtReplaceProjectWithProjectInInspection extends AbstractInspection {
 }
 
 class SbtReplaceProjectWithProjectInQuickFix(call: ScMethodCall)
-        extends AbstractFixOnPsiElement(SbtBundle("sbt.inspection.projectIn.name"), call) {
+        extends AbstractFixOnPsiElement(SbtBundle.message("sbt.inspection.projectIn.name"), call) {
 
   override protected def doApplyFix(element: ScMethodCall)
                                    (implicit project: Project): Unit = {

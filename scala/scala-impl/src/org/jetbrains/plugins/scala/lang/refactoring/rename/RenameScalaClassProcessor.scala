@@ -43,7 +43,7 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
                               searchInCommentsAndStrings: Boolean): util.Collection[PsiReference] =
     ScalaRenameUtil.replaceImportClassReferences(super.findReferences(element, searchScope, searchInCommentsAndStrings))
 
-  override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]) {
+  override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]): Unit = {
     element match {
       case td: ScTypeDefinition =>
         ScalaPsiUtil.getCompanionModule(td) match {
@@ -68,7 +68,7 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
             commentOwner.getDocComment match {
               case comment: ScDocComment =>
                 comment.findTagsByName(MyScaladocParsing.TYPE_PARAM_TAG).foreach {
-                  b => if (b.getValueElement != null && b.getValueElement.getText == docTagParam.name)
+                  b => if (b.getValueElement != null && b.getValueElement.textMatches(docTagParam.name))
                     allRenames.put(b.getValueElement, newName)
                 }
               case _ =>
@@ -79,7 +79,7 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
     }
 
     //put rename for fake object companion class
-    def addLightClasses(element: PsiElement) {
+    def addLightClasses(element: PsiElement): Unit = {
       element match {
         case o: ScObject =>
           o.fakeCompanionClass match {
@@ -96,7 +96,7 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
     val elems = allRenames.keySet().asScala.clone()
     elems.foreach(addLightClasses)
 
-    ScalaElementToRenameContributor.getAll(element, newName, allRenames)
+    ScalaElementToRenameContributor.addAllElements(element, newName, allRenames)
   }
 
   override def getElementToSearchInStringsAndComments(element: PsiElement): PsiElement = {
@@ -111,7 +111,7 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
   override def createRenameDialog(project: Project, element: PsiElement, nameSuggestionContext: PsiElement, editor: Editor): RenameDialog =
     new ScalaClassRenameDialog(project, element, nameSuggestionContext, editor)
 
-  override def renameElement(element: PsiElement, newName: String, usages: Array[UsageInfo], listener: RefactoringElementListener) {
+  override def renameElement(element: PsiElement, newName: String, usages: Array[UsageInfo], listener: RefactoringElementListener): Unit = {
     ScalaRenameUtil.doRenameGenericNamedElement(element, newName, usages, listener)
   }
 }
@@ -147,7 +147,7 @@ class ScalaClassRenameDialog(project: Project, psiElement: PsiElement, nameSugge
     }.orNull
   }
 
-  override def performRename(newName: String) {
+  override def performRename(newName: String): Unit = {
     ScalaApplicationSettings.getInstance().RENAME_COMPANION_MODULE = chbRenameCompanion.isSelected
     super.performRename(newName)
     ScalaApplicationSettings.getInstance().RENAME_COMPANION_MODULE = true

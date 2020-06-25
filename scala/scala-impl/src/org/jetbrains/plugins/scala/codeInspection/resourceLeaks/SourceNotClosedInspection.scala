@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.resourceLeaks
 import com.intellij.codeInspection.{ProblemHighlightType, _}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.collections.{MethodRepr, Qualified, invocation, unqualifed}
-import org.jetbrains.plugins.scala.codeInspection.{AbstractRegisteredInspection, InspectionBundle, _}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractRegisteredInspection, ScalaInspectionBundle, _}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
@@ -16,10 +16,10 @@ class SourceNotClosedInspection extends AbstractRegisteredInspection {
                                 (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] = {
     element match {
       case MethodRepr(_, Some(SourceCreatingMethod(_)), _, _) && NonClosingMethodOfSource() =>
-        super.problemDescriptor(element, maybeQuickFix, InspectionBundle.message("source.not.closed"), highlightType)
+        super.problemDescriptor(element, maybeQuickFix, ScalaInspectionBundle.message("source.not.closed"), highlightType)
 
       case SourceCreatingMethod(expr) if expressionResultIsNotUsed(expr) =>
-        super.problemDescriptor(element, maybeQuickFix, InspectionBundle.message("source.not.closed"), highlightType)
+        super.problemDescriptor(element, maybeQuickFix, ScalaInspectionBundle.message("source.not.closed"), highlightType)
 
       case _ =>
         None

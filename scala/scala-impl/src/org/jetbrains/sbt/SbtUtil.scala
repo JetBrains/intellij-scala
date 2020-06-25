@@ -11,7 +11,7 @@ import com.intellij.openapi.externalSystem.model.project.ModuleData
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.util.BooleanFunction
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
@@ -28,6 +28,17 @@ object SbtUtil {
   object CommandLineOptions {
     val globalPlugins = "sbt.global.plugins"
     val globalBase = "sbt.global.base"
+  }
+
+  def isSbtModule(module: Module): Boolean =
+    ExternalSystemApiUtil.isExternalSystemAwareModule(SbtProjectSystem.Id, module)
+
+  def isSbtProject(project: Project): Boolean = {
+    val settings = ExternalSystemApiUtil
+      .getSettings(project, SbtProjectSystem.Id)
+      .getLinkedProjectsSettings
+
+    ! settings.isEmpty
   }
 
   /** Directory for global sbt plugins given sbt version */
@@ -59,7 +70,7 @@ object SbtUtil {
     if (path.isEmpty) None else Some(new File(path))
   }
   private def fileProperty(name: String): File = new File(System.getProperty(name))
-  private[sbt] def defaultGlobalBase = fileProperty("user.home") / ".sbt"
+  private[sbt] def defaultGlobalBase = fileProperty("user.home") / Sbt.Extension
   private def defaultVersionedGlobalBase(sbtVersion: Version): File = {
     defaultGlobalBase / binaryVersion(sbtVersion).presentation
   }
@@ -236,7 +247,7 @@ object SbtUtil {
     else version
   }
 
-  private def pluginBase = {
+  private def pluginBase: File = {
     val file: File = jarWith[this.type]
     val deep = if (file.getName == "classes") 1 else 2
     file << deep
@@ -259,4 +270,32 @@ object SbtUtil {
   }
 
   private def isInTest: Boolean = ApplicationManager.getApplication.isUnitTestMode
+
+
+  def canUpgradeSbtVersion(sbtVersion: Version): Boolean =
+    sbtVersion >= MayUpgradeSbtVersion &&
+      sbtVersion < SbtUtil.latestCompatibleVersion(sbtVersion)
+
+  def upgradedSbtVersion(sbtVersion: Version): Version =
+    if (canUpgradeSbtVersion(sbtVersion))
+      SbtUtil.latestCompatibleVersion(sbtVersion)
+    else sbtVersion
+
+  def sbtVersionParam(sbtVersion: Version): String =
+    s"-Dsbt.version=$sbtVersion"
+
+  def addPluginCommandSupported(sbtVersion: Version): Boolean =
+    sbtVersion >= AddPluginCommandVersion_1 ||
+      sbtVersion.inRange(AddPluginCommandVersion_013, Version("1.0.0"))
+
+  /** Since version 1.2.0 sbt supports injecting additional plugins to the sbt shell with a command.
+   * This allows injecting plugins without messing with the user's global directory.
+   * https://github.com/sbt/sbt/pull/4211
+   */
+  private val AddPluginCommandVersion_1 = Version("1.2.0")
+  private val AddPluginCommandVersion_013 = Version("0.13.18")
+
+  /** Minimum project sbt version that is allowed version override. */
+  private val MayUpgradeSbtVersion = Version("0.13.0")
+
 }

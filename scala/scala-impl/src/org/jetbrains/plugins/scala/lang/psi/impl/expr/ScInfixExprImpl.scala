@@ -12,6 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 
+import scala.annotation.tailrec
+
 /**
   * @author Alexander Podkhalyuzin
   *         Date: 06.03.2008
@@ -40,6 +42,7 @@ class ScInfixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScI
         createExpressionWithContextFromText(s"$baseText = $baseText ${element.name} $argumentText",
           getContext, this).`type`()
       case ScalaResolveResult(synth: ScSyntheticFunction, _) =>
+        @tailrec
         def foldConstTypes(left: Option[ScType], right: Option[ScType]): TypeResult = (left, right) match {
           case (Some(ScLiteralType(valueLeft, _)), Some(ScLiteralType(valueRight, _))) =>
             Option(evaluateConstInfix(valueLeft.value, valueRight.value, synth.name))

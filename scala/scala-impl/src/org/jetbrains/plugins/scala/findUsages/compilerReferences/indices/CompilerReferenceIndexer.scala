@@ -8,13 +8,14 @@ import java.util.concurrent.atomic.AtomicReference
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProgressIndicator, Task}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Disposer
 import com.intellij.util.containers.ContainerUtil
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.bytecode.{ClassfileParser, CompiledScalaFile}
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.indices.IndexerFailure._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.indices.IndexingStage._
 import org.jetbrains.plugins.scala.indices.protocol.{CompilationInfo, CompiledClass}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.JavaConverters._
 import scala.util.control.NonFatal
@@ -31,7 +32,9 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
   private[this] val jobFailures  = ContainerUtil.newConcurrentSet[IndexerJobFailure]()
   private[this] val fatalFailure = new AtomicReference[Option[Throwable]](Option.empty)
 
-  Disposer.register(project, () => shutdown())
+  invokeOnDispose(project.unloadAwareDisposable){
+    shutdown()
+  }
 
   private[this] def shutdown(): Unit =
     if (!isShutdown) indexingExecutor.shutdownNow()
@@ -72,11 +75,11 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
 
   def toTask(job: IndexingStage): Task.Backgroundable =
     job match {
-      case OpenWriter(isCleanBuild) => task(project, "Initializing compiler indices writer") { _ =>
+      case OpenWriter(isCleanBuild) => task(project, ScalaBundle.message("title.initializing.compiler.indices.writer")) { _ =>
         initialiseExecutorIfNeeded()
         indexWriter = indexDir(project).flatMap(ScalaCompilerReferenceWriter(_, expectedIndexVersion, isCleanBuild))
       }
-      case CloseWriter(onFinish) => task(project, "Closing compiler indices writer") { _ =>
+      case CloseWriter(onFinish) => task(project, ScalaBundle.message("title.closing.compiler.indices.writer")) { _ =>
         val maybeFatalFailure = fatalFailure.get().map(FatalFailure)
 
         val maybeFailure = maybeFatalFailure.orElse {
@@ -89,7 +92,7 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
       }
       case ProcessCompilationInfo(info, onFinish) => new IndexCompilationInfoTask(info, onFinish)
       case InvalidateIndex(index) =>
-        task(project, "Invalidating compiler indices") { _ =>
+        task(project, ScalaBundle.message("title.invalidating.compiler.indices")) { _ =>
           index.foreach(_.close())
           cleanUp(shouldClearIndex = true)
         }
@@ -107,7 +110,7 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
     }
 
   private final class IndexCompilationInfoTask(info: CompilationInfo, callback: () => Unit)
-      extends Task.Backgroundable(project, "Indexing classfiles ...", true) {
+      extends Task.Backgroundable(project, ScalaBundle.message("bytecode.indices.indexing"), true) {
 
     private[this] def processInfo(progressIndicator: ProgressIndicator): Unit = {
       val start = System.currentTimeMillis()

@@ -32,8 +32,9 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
-              CodeReferenceElement: Unit
-                PsiElement(identifier)('Unit')
+              SimpleType: Unit
+                CodeReferenceElement: Unit
+                  PsiElement(identifier)('Unit')
             PsiWhiteSpace(' ')
             PsiElement(identifier)('*')
         PsiElement())(')')

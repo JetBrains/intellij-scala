@@ -3,7 +3,7 @@ package local
 
 import java.io.File
 
-import org.jetbrains.jps.incremental.scala.data.{CompilerData, CompilerJars, SbtData}
+import org.jetbrains.plugins.scala.compiler.data.{CompilerData, CompilerJars, SbtData}
 import sbt.internal.inc.AnalyzingCompiler
 import xsbti.compile.AnalysisStore
 

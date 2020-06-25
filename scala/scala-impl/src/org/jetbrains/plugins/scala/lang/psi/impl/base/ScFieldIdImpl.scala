@@ -27,12 +27,12 @@ class ScFieldIdImpl private(stub: ScFieldIdStub, node: ASTNode)
 
   override def toString: String = "Field identifier: " + ifReadAllowed(name)("")
 
-  def `type`(): TypeResult = getParent /*id list*/ .getParent match {
+  override def `type`(): TypeResult = getParent /*id list*/ .getParent match {
     case typed: ScTypedDeclaration => typed.`type`()
     //partial matching
   }
 
-  def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
+  override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
 
   override def isStable: Boolean = getContext match {
     case l: ScIdList => l.getContext match {
@@ -42,7 +42,7 @@ class ScFieldIdImpl private(stub: ScFieldIdStub, node: ASTNode)
     case _ => true
   }
 
-  override def delete() {
+  override def delete(): Unit = {
     getContext match {
       case id: ScIdList if id.fieldIds == Seq(this) =>
         id.getContext.delete()

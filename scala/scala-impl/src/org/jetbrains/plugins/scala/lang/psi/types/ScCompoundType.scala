@@ -12,11 +12,13 @@ import org.jetbrains.plugins.scala.util.HashBuilder._
 
 import scala.collection.mutable
 
-final case class ScCompoundType private(
+final case class ScCompoundType private (
   components:   Seq[ScType],
-  signatureMap: Map[TermSignature, ScType]          = Map.empty,
+  signatureMap: Map[TermSignature, ScType]      = Map.empty,
   typesMap:     Map[String, TypeAliasSignature] = Map.empty
-                                       )(implicit override val projectContext: ProjectContext) extends ScalaType with api.ValueType {
+)(implicit
+  override val projectContext: ProjectContext
+) extends ScalaType with api.ValueType {
 
   private var hash: Int = -1
 
@@ -26,7 +28,6 @@ final case class ScCompoundType private(
 
     hash
   }
-
 
   override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitCompoundType(this)
 
@@ -124,7 +125,7 @@ final case class ScCompoundType private(
 object ScCompoundType {
   def apply(
     components:   Seq[ScType],
-    signatureMap: Map[TermSignature, ScType]          = Map.empty,
+    signatureMap: Map[TermSignature, ScType]      = Map.empty,
     typesMap:     Map[String, TypeAliasSignature] = Map.empty
   )(implicit projectContext: ProjectContext): ScCompoundType = {
     val (comps, sigs, types) =

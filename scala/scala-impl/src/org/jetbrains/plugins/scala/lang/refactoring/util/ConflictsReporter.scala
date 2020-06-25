@@ -38,7 +38,7 @@ trait DialogConflictsReporter extends ConflictsReporter {
 
 class BalloonConflictsReporter(editor: Editor) extends ConflictsReporter {
 
-  def reportConflicts(project: Project, conflicts: Seq[(PsiElement, String)]): Boolean = {
+  override def reportConflicts(project: Project, conflicts: Seq[(PsiElement, String)]): Boolean = {
     val messages = conflicts.map(_._2).toSet
     createWarningBalloon(messages.mkString("\n"))
     true //this means that we do nothing, only show balloon

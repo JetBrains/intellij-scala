@@ -3,62 +3,44 @@ package testingSupport.test.utest
 
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.openapi.project.Project
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, PsiModifierList}
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestConfigurationUtil}
+import com.intellij.psi.PsiClass
+import com.intellij.testIntegration.TestFramework
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.TestFrameworkRunnerInfo
+import org.jetbrains.plugins.scala.testingSupport.test.sbt.{SbtCommandsBuilder, SbtCommandsBuilderBase, SbtTestRunningSupport, SbtTestRunningSupportBase}
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, SuiteValidityChecker, SuiteValidityCheckerBase, TestConfigurationUtil}
 
-import scala.annotation.tailrec
+class UTestRunConfiguration(
+  project: Project,
+  configurationFactory: ConfigurationFactory,
+  name: String
+) extends AbstractTestRunConfiguration(
+  project,
+  configurationFactory,
+  name
+) {
 
-class UTestRunConfiguration(project: Project,
-                            override val configurationFactory: ConfigurationFactory,
-                            override val name: String)
-        extends AbstractTestRunConfiguration(project, configurationFactory, name, TestConfigurationUtil.uTestConfigurationProducer) {
+  override val suitePaths: Seq[String] = UTestUtil.suitePaths
 
-  override protected[test] def isInvalidSuite(clazz: PsiClass): Boolean = {
-    if (!clazz.isInstanceOf[ScObject]) return true
-    val list: PsiModifierList = clazz.getModifierList
-    list != null && list.hasModifierProperty("abstract") || getSuiteClass.fold(_ => true, !ScalaPsiUtil.isInheritorDeep(clazz, _))
+  override val testFramework: TestFramework = TestFramework.EXTENSION_NAME.findExtension(classOf[UTestTestFramework])
+
+  override val configurationProducer: UTestConfigurationProducer = TestConfigurationUtil.uTestConfigurationProducer
+
+  override protected val validityChecker: SuiteValidityChecker = new SuiteValidityCheckerBase {
+    override protected def isValidClass(clazz: PsiClass): Boolean = clazz.isInstanceOf[ScObject]
+    override protected def hasSuitableConstructor(clazz: PsiClass): Boolean = true
   }
 
-  @tailrec
-  private def getClassPath(currentClass: ScTypeDefinition, acc: String = ""): String = {
-    val parentTypeDef = PsiTreeUtil.getParentOfType(currentClass, classOf[ScTypeDefinition], true)
-    if (parentTypeDef == null) {
-      currentClass.qualifiedName + acc
-    } else {
-      getClassPath(parentTypeDef, acc + (if (parentTypeDef.isObject) "$" else ".") + currentClass.getName)
+  override protected val runnerInfo: TestFrameworkRunnerInfo = TestFrameworkRunnerInfo(
+    classOf[org.jetbrains.plugins.scala.testingSupport.uTest.UTestRunner].getName
+  )
+
+  override val sbtSupport: SbtTestRunningSupport = new SbtTestRunningSupportBase {
+    override def commandsBuilder: SbtCommandsBuilder = new SbtCommandsBuilderBase {
+      override def classKey: Option[String] = Some("--")
+      override def testNameKey: Option[String] = None
+      override def escapeClassAndTest(input: String): String = quoteSpaces(input)
+      override def escapeTestName(test: String): String = test.stripPrefix("tests").replace("\\", ".")
     }
-  }
-
-  override protected def getClassFileNames(classes: scala.collection.mutable.HashSet[PsiClass]): Seq[String] =
-    classes.map {
-      case typeDef: ScTypeDefinition => getClassPath(typeDef)
-      case aClass => aClass.qualifiedName
-    }.toSeq
-
-  override def reporterClass: String = null
-
-  override def suitePaths = List("utest.framework.TestSuite", "utest.TestSuite")
-
-  override def runnerClassName = "org.jetbrains.plugins.scala.testingSupport.uTest.UTestRunner"
-
-  override def errorMessage: String = "utest is not specified"
-
-  override def currentConfiguration: UTestRunConfiguration = UTestRunConfiguration.this
-
-  override protected def sbtClassKey = " -- "
-
-  override protected def sbtTestNameKey = ""
-
-  override protected def escapeTestName(test: String): String = {
-    test.stripPrefix("tests").replace("\\", ".")
-  }
-
-  override protected def escapeClassAndTest(input: String): String = {
-    if (input.contains(" ")) s""""$input""""
-    else input
   }
 }

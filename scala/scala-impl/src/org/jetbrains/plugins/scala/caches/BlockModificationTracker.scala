@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.caches
 
-import com.intellij.openapi.util.{Key, ModificationTracker, SimpleModificationTracker}
+import com.intellij.openapi.util.{Key, SimpleModificationTracker, ModificationTracker}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.caches.CachesUtil.scalaTopLevelModTracker
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValueOrVariable, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 
 import scala.annotation.tailrec
@@ -23,14 +24,6 @@ object BlockModificationTracker {
   def hasStableType(expr: ScExpression): Boolean = !hasUnstableType(expr)
 
   private val key: Key[ExpressionModificationTracker] = Key.create("local.modification.counter")
-
-  def redirect(mirrorElement: ScExpression, originalElement: ScExpression): Unit = {
-    val originalCounter = ExpressionModificationTracker(originalElement)
-
-    assert(hasStableType(mirrorElement))
-
-    mirrorElement.putUserData(key, originalCounter)
-  }
 
   private object ExpressionModificationTracker {
     def apply(expression: ScExpression): ExpressionModificationTracker = {
@@ -73,13 +66,20 @@ object BlockModificationTracker {
         case None       => scalaTopLevelModTracker(element.getProject)
       }
 
-  @tailrec
   def contextWithStableType(element: PsiElement): Option[ScExpression] =
+    withStableType(element, _.getContext)
+
+  def parentWithStableType(element: PsiElement): Option[ScExpression] =
+    withStableType(element, _.getParent)
+
+  @tailrec
+  private def withStableType(element: PsiElement, nextElement: PsiElement => PsiElement): Option[ScExpression] =
     element match {
       case null | _: ScalaFile => None
       case owner: ScExpression if hasStableType(owner) => Some(owner)
-      case owner => contextWithStableType(owner.getContext)
+      case owner => withStableType(nextElement(owner), nextElement)
     }
+
 
   private def hasUnstableType(expr: ScExpression): Boolean = expr.getContext match {
     case f: ScFunction => f.returnTypeElement.isEmpty && f.hasAssign
@@ -93,7 +93,7 @@ object BlockModificationTracker {
          _: ScDo => false
 // TODO enable (SmartIfCondition test needs to be fixed)
 //    case `if`: ScIf if `if`.condition.contains(expr) => false
-    case guard: ScGuard if guard.expr.contains(expr) => false
+    case guard: ScGuard if guard.getContext.isInstanceOf[ScCaseClause] && guard.expr.contains(expr) => false
     //expression is not last in a block and not assigned to anything, cannot affect type inference outside
     case block: ScBlock => block.resultExpression.contains(expr)
     case _ => true

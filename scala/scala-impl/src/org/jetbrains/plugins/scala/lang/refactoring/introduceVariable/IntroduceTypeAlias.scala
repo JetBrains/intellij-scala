@@ -16,8 +16,9 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getChildOfType, getParentOfType}
 import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ValidSmartPointer, callbackInTransaction, executeWriteActionCommand, inWriteAction}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ValidSmartPointer, executeWriteActionCommand, inWriteAction, invokeLaterInTransaction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -87,7 +88,7 @@ trait IntroduceTypeAlias {
       // replace all occurrences, don't replace occurences available from companion object or inheritors
       // suggest to choose scope
       def runInplace(): Unit = {
-        def handleScope(scopeItem: SimpleScopeItem, needReplacement: Boolean) {
+        def handleScope(scopeItem: SimpleScopeItem, needReplacement: Boolean): Unit = {
           val suggestedNames = scopeItem.availableNames
 
           val allOccurrences = OccurrenceData(inTypeElement,
@@ -238,7 +239,7 @@ trait IntroduceTypeAlias {
   }
 
   def afterScopeChoosing(project: Project, editor: Editor, file: PsiFile, scopes: Array[ScopeItem],
-                         refactoringName: String)(invokesNext: (ScopeItem) => Unit) {
+                         refactoringName: String)(invokesNext: (ScopeItem) => Unit): Unit = {
 
     def chooseScopeItem(item: ScopeItem): Unit = {
       invokesNext(item)
@@ -276,7 +277,7 @@ trait IntroduceTypeAlias {
   }
 
 
-  def showTypeAliasChooser[T](editor: Editor, elements: Array[T], pass: T => Unit, title: String, elementName: T => String): Unit = {
+  def showTypeAliasChooser[T](editor: Editor, elements: Array[T], pass: T => Unit, @Nls title: String, elementName: T => String): Unit = {
     class Selection {
       val selectionModel: SelectionModel = editor.getSelectionModel
       val (start, end) = (selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
@@ -303,8 +304,8 @@ trait IntroduceTypeAlias {
     }
     val list = JListCompatibility.createJListFromModel(model)
     JListCompatibility.setCellRenderer(list, new DefaultListCellRendererAdapter {
-      def getListCellRendererComponentAdapter(container: JListCompatibility.JListContainer,
-                                              value: Object, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
+      override def getListCellRendererComponentAdapter(container: JListCompatibility.JListContainer,
+                                                       value: Object, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
         val rendererComponent: Component = getSuperListCellRendererComponent(container.getList, value, index, isSelected, cellHasFocus)
         val element: T = value.asInstanceOf[T]
         //        if (element.isValid) {
@@ -314,7 +315,7 @@ trait IntroduceTypeAlias {
       }
     })
     list.addListSelectionListener(new ListSelectionListener {
-      def valueChanged(e: ListSelectionEvent) {
+      override def valueChanged(e: ListSelectionEvent): Unit = {
         highlighter.dropHighlight()
         val index: Int = list.getSelectedIndex
         if (index < 0) return
@@ -326,13 +327,13 @@ trait IntroduceTypeAlias {
         selection.addHighlighter()
       }
 
-      override def onClosed(event: LightweightWindowEvent) {
+      override def onClosed(event: LightweightWindowEvent): Unit = {
         highlighter.dropHighlight()
         selection.removeHighlighter()
       }
     }
 
-    val callback: Runnable = callbackInTransaction(editor.getProject) {
+    val callback: Runnable = () => invokeLaterInTransaction(editor.getProject) {
       pass(list.getSelectedValue.asInstanceOf[T])
     }
 

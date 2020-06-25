@@ -9,13 +9,11 @@ import com.intellij.testFramework.EditorTestUtil
   */
 class ReplaceToWithUntilTest extends OperationsOnCollectionInspectionTest {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[ReplaceToWithUntilInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("replace.to.with.until")
+    ScalaInspectionBundle.message("replace.to.with.until")
 
   def testInfix(): Unit = {
     doTest(

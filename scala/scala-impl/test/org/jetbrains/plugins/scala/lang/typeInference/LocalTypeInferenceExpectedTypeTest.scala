@@ -104,4 +104,12 @@ class LocalTypeInferenceExpectedTypeTest extends ScalaLightCodeInsightFixtureTes
       |}
     """.stripMargin
   )
+
+  def testSCL17198(): Unit = checkTextHasNoErrors(
+    """
+      |class Foo { def foo[A](f: A): A = f }
+      |val f1: Foo = ???
+      |val f: Int => Int = f1 foo
+      |""".stripMargin
+  )
 }

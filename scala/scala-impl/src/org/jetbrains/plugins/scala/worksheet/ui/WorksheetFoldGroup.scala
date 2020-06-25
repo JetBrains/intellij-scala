@@ -11,6 +11,7 @@ import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.macroAnnotations.Measure
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.worksheet.processor.FileAttributeUtilCache
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.{DiffMapping, SimpleWorksheetSplitter}
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup._
@@ -33,7 +34,7 @@ final class WorksheetFoldGroup(
   private val _regions = mutable.ArrayBuffer[FoldRegionInfo]()
   private val unfolded = new util.TreeMap[Int, Int]()
 
-  def foldedLines: Int = _regions.map(_.spaces).sum
+  def foldedLinesCount: Int = _regions.map(_.spaces).sum
 
   def expandedRegionsIndexes: Seq[Int] = _regions.zipWithIndex.filter(_._1.expanded).map(_._2)
 
@@ -106,7 +107,7 @@ final class WorksheetFoldGroup(
     traverseAndChange(region, expand = false)
 
   def installOn(model: FoldingModelEx): Unit =
-    model.addListener(new WorksheetFoldRegionListener(this), project)
+    model.addListener(new WorksheetFoldRegionListener(this), project.unloadAwareDisposable)
 
   def initMappings(): Unit = {
     val (mappings, _, _) = traverseRegions(null)
@@ -161,7 +162,7 @@ final class WorksheetFoldGroup(
     }
   }
 
-  private def updateChangeFolded(target: FoldRegionInfo, expand: Boolean) {
+  private def updateChangeFolded(target: FoldRegionInfo, expand: Boolean): Unit = {
     val line = originalDocument.safeLineNumber(target.leftEndOffset - 1)
     val key = unfolded floorKey line
 
@@ -219,7 +220,7 @@ object WorksheetFoldGroup {
       if (region.isExpanded) owner.expand(region)
       else owner.collapse(region)
 
-    override def onFoldProcessingEnd() {}
+    override def onFoldProcessingEnd(): Unit = {}
   }
 
   /**

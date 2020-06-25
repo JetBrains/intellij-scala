@@ -119,7 +119,7 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
 
   def testMalformedSignature(): Unit = {
     assertMessagesSorted(messages("def f(a: A*, b: B) {}; f(A, B)"))(
-      Error("f", "f has malformed definition"),
+      Error("f", "'f' has malformed definition"),
       Error("a: A*", "*-parameter must come last")
     )
   }

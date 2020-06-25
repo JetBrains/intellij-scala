@@ -13,15 +13,15 @@ import com.intellij.psi.PsiElement
 trait ScPrefixExpr extends ScExpression with ScSugarCallExpr {
   def operand: ScExpression = findChildrenByClassScala(classOf[ScExpression]).apply(1)
 
-  def operation: ScReferenceExpression = findChildrenByClassScala(classOf[ScExpression]).apply(0) match {
+  override def operation: ScReferenceExpression = findChildrenByClassScala(classOf[ScExpression]).apply(0) match {
     case re: ScReferenceExpression => re
     case _ =>
       throw new UnsupportedOperationException("Prefix Expr Operation is not reference expression: " + this.getText)
   }
 
-  def argsElement: PsiElement = operation
+  override def argsElement: PsiElement = operation
 
-  def getBaseExpr: ScExpression = operand
+  override def getBaseExpr: ScExpression = operand
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitPrefixExpression(this)
@@ -29,5 +29,5 @@ trait ScPrefixExpr extends ScExpression with ScSugarCallExpr {
 }
 
 object ScPrefixExpr {
-  def unapply(e: ScPrefixExpr) = Some(e.operation, e.operand)
+  def unapply(e: ScPrefixExpr): Some[(ScReferenceExpression, ScExpression)] = Some(e.operation, e.operand)
 }

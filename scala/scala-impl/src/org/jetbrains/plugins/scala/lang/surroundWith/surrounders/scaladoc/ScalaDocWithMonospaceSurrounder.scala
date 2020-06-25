@@ -7,7 +7,7 @@ package lang.surroundWith.surrounders.scaladoc
  */
 
 class ScalaDocWithMonospaceSurrounder extends ScalaDocWithSyntaxSurrounder {
-  def getSyntaxTag: String = "`"
+  override def getSyntaxTag: String = "`"
 
-  def getTemplateDescription: String = "Monospace: ` `"
+  override def getTemplateDescription: String = "Monospace: ` `"
 }

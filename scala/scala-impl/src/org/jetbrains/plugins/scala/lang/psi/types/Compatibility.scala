@@ -8,14 +8,11 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsParameterImpl
-import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
-import org.jetbrains.plugins.scala.lang.psi.api.ConstructorInvocationLike
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.extractImplicitParameterType
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -29,11 +26,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.SAMUtil
 
-import scala.collection.mutable.ArrayBuffer
 import scala.collection.Seq
+import scala.collection.mutable.ArrayBuffer
 import scala.meta.intellij.QuasiquoteInferUtil
 
 /**
@@ -79,8 +76,7 @@ object Compatibility {
       case _               => None
     }
 
-    final case class OfType(tpe: ScType, place: Option[PsiElement])(implicit ctx: ProjectContext)
-        extends Expression {
+    final case class OfType(tpe: ScType, place: Option[PsiElement]) extends Expression {
       private def default: ExpressionTypeResult = ExpressionTypeResult(Right(tpe))
 
       override def getTypeAfterImplicitConversion(
@@ -130,24 +126,42 @@ object Compatibility {
       fromUnderscore: Boolean,
       checkResolve:   Boolean = true
     ): Option[ExpressionTypeResult] = {
-      def checkForSAM(etaExpansionHappened: Boolean = false): Option[ExpressionTypeResult] = {
-        def expectedResult = Some(ExpressionTypeResult(Right(pt)))
+      def expectedResult(subst: ScSubstitutor): ScExpression.ExpressionTypeResult =
+        ExpressionTypeResult(Right(subst(pt)))
 
+      def conformanceSubst(tpe: ScType, methodType: ScType): Option[ScSubstitutor] = {
+        val withUndefParams = methodType.updateLeaves {
+          case abs: ScAbstractType => UndefinedType(abs.typeParameter)
+        }
+
+        val conformance = tpe.conforms(withUndefParams, ConstraintSystem.empty)
+
+        if (conformance.isLeft) None
+        else
+          conformance.constraints
+            .substitutionBounds(canThrowSCE = false)
+            .map(_.substitutor)
+      }
+
+      def checkForSAM(etaExpansionHappened: Boolean = false): Option[ExpressionTypeResult] =
         tp match {
           case FunctionType(_, params) if place.isSAMEnabled =>
             SAMUtil.toSAMType(pt, place) match {
-              case Some(methodType) if tp.conforms(methodType) => expectedResult
-              case Some(methodType @ FunctionType(retTp, _))
-                  if etaExpansionHappened && retTp.isUnit =>
-                val newTp = FunctionType(Unit, params)
+              case Some(methodType @ FunctionType(retTpe, _)) =>
+                val maybeSubst = conformanceSubst(tp, methodType)
 
-                if (newTp.conforms(methodType)) expectedResult
-                else None
+                maybeSubst match {
+                  case Some(subst) => Option(expectedResult(subst))
+                  case None if etaExpansionHappened && retTpe.isUnit =>
+                    val newTp    = FunctionType(Unit, params)
+                    val newSubst = conformanceSubst(newTp, methodType)
+                    newSubst.map(expectedResult)
+                  case _ => None
+                }
               case _ => None
             }
           case _ => None
         }
-      }
 
       place match {
         case ScFunctionExpr(_, _) if fromUnderscore => checkForSAM()
@@ -203,15 +217,22 @@ object Compatibility {
       else throw new RuntimeException("Illegal state for seqClass variable")
     ).orElse(expr.elementScope.scalaSeqType)
 
-  def checkConformance(checkNames: Boolean,
-                       parameters: Seq[Parameter],
-                       exprs: Seq[Expression],
-                       checkWithImplicits: Boolean)
-                      (implicit project: ProjectContext): ConstraintsResult = {
-    val r = checkConformanceExt(checkNames, parameters, exprs, checkWithImplicits, isShapesResolve = false)
+  def checkConformance(
+    checkNames:         Boolean,
+    parameters:         Seq[Parameter],
+    exprs:              Seq[Expression],
+    checkWithImplicits: Boolean
+  ): ConstraintsResult = {
+    val r = checkConformanceExt(
+      checkNames,
+      parameters,
+      exprs,
+      checkWithImplicits,
+      isShapesResolve = false
+    )
 
     if (r.problems.nonEmpty) ConstraintsResult.Left
-    else r.constraints
+    else                     r.constraints
   }
 
   def clashedAssignmentsIn(exprs: Seq[Expression]): Seq[ScAssignment] = {
@@ -252,12 +273,13 @@ object Compatibility {
     problems
   }
 
-  def checkConformanceExt(checkNames: Boolean,
-                          parameters: Seq[Parameter],
-                          exprs: Seq[Expression],
-                          checkWithImplicits: Boolean,
-                          isShapesResolve: Boolean)
-                         (implicit project: ProjectContext): ConformanceExtResult = {
+  def checkConformanceExt(
+    checkNames:         Boolean,
+    parameters:         Seq[Parameter],
+    exprs:              Seq[Expression],
+    checkWithImplicits: Boolean,
+    isShapesResolve:    Boolean
+  ): ConformanceExtResult = {
     ProgressManager.checkCanceled()
     var constraintAccumulator = ConstraintSystem.empty
 
@@ -378,7 +400,7 @@ object Compatibility {
             problems :::= doNoNamed(extractExpression(assign)).reverse
           } else {
             if (!checkNames) {
-              val internalProblem = InternalApplicabilityProblem("Found named parameter which were not supposed to be checked")
+              val internalProblem = InternalApplicabilityProblem(ScalaBundle.message("found.chekced.named.parameter"))
               return ConformanceExtResult(Seq(internalProblem), constraintAccumulator, defaultParameterUsed, matched)
             }
             used(index) = true
@@ -416,7 +438,7 @@ object Compatibility {
                   }
                 }
               case _ =>
-                return ConformanceExtResult(Seq(IncompleteCallSyntax("Assignment missing right side")), constraintAccumulator, defaultParameterUsed, matched)
+                return ConformanceExtResult(Seq(IncompleteCallSyntax(ScalaBundle.message("assignment.missing.right.side"))), constraintAccumulator, defaultParameterUsed, matched)
             }
           }
         case expr: Expression =>
@@ -501,14 +523,16 @@ object Compatibility {
       })
   }
 
-  def compatible(named: PsiNamedElement,
-                 substitutor: ScSubstitutor,
-                 argClauses: List[Seq[Expression]],
-                 checkWithImplicits: Boolean,
-                 scope: GlobalSearchScope,
-                 isShapesResolve: Boolean,
-                 ref: PsiElement = null)
-                (implicit project: ProjectContext): ConformanceExtResult = {
+  def compatible(
+    named:              PsiNamedElement,
+    substitutor:        ScSubstitutor,
+    argClauses:         List[Seq[Expression]],
+    checkWithImplicits: Boolean,
+    isShapesResolve:    Boolean,
+    ref:                PsiElement = null
+  )(implicit
+    project: ProjectContext
+  ): ConformanceExtResult = {
     def checkParameterListConformance(checkNames: Boolean, parameters: Seq[Parameter], arguments: Seq[Expression]) =
       checkConformanceExt(checkNames, parameters, arguments, checkWithImplicits, isShapesResolve)
 
@@ -551,7 +575,7 @@ object Compatibility {
 
         checkParameterListConformance(checkNames = false, parameters, firstArgumentListArgs)
       case unknown =>
-        val problem = InternalApplicabilityProblem(s"Cannot handle compatibility for $unknown")
+        val problem = InternalApplicabilityProblem(ScalaBundle.message("cannot.handle.compatibility.for", unknown))
         LOG.error(problem.toString)
         ConformanceExtResult(Seq(problem))
     }
@@ -608,19 +632,24 @@ object Compatibility {
     // Providing more clauses than required is ok, as those might be calls to apply
     // see: class A(i: Int) { def apply(j: Int) = ??? }
     // new A(2)(3) is ok
+    val missedParameterClauseProblems = missedParameterClauseProblemsFor(paramClauses, nonEmptyArgClause.length)
+    if (missedParameterClauseProblems.isEmpty) result
+    else result.copy(problems = result.problems ++ missedParameterClauseProblems)
+  }
+
+  def missedParameterClauseProblemsFor(paramClauses: Seq[ScParameterClause],
+                                       argClauseCount: Int): Seq[MissedParametersClause] = {
     var minParamClauses = paramClauses.length
 
     val hasImplicitClause = paramClauses.lastOption.exists(_.isImplicit)
     if (hasImplicitClause)
       minParamClauses -= 1
 
-    if (nonEmptyArgClause.length < minParamClauses) {
-      val missingClauses = paramClauses.drop(nonEmptyArgClause.length)
-      result.copy(
-        problems = result.problems ++ missingClauses.map(MissedParametersClause.apply)
-      )
+    if (argClauseCount < minParamClauses) {
+      val missingClauses = paramClauses.drop(argClauseCount)
+      missingClauses.map(MissedParametersClause.apply)
     } else {
-      result
+      Seq.empty
     }
   }
 }

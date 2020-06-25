@@ -9,27 +9,19 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
-/**
- * @author Ksenia.Sautina
- * @since 4/9/12
- */
-
-object ConvertToInfixExpressionIntention {
-  val familyName = "Convert to infix expression"
-}
-
 class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = ConvertToInfixExpressionIntention.familyName
+  override def getFamilyName: String = ScalaBundle.message("family.name.convert.to.infix.expression")
 
   override def getText: String = getFamilyName
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     if (!IntentionAvailabilityChecker.checkIntention(this, element)) return false
     val methodCallExpr : ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
     if (methodCallExpr == null) return false
@@ -48,7 +40,7 @@ class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
     false
   }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     implicit val ctx: ProjectContext = project
 
     val methodCallExpr: ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)

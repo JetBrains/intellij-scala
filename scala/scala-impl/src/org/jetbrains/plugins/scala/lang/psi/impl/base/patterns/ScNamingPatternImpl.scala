@@ -8,6 +8,7 @@ package patterns
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -31,18 +32,18 @@ class ScNamingPatternImpl private(stub: ScBindingPatternStub[ScNamingPattern], n
 
   override def toString: String = "NamingPattern: " + ifReadAllowed(name)("")
 
-  def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
+  override def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
 
-  def isWildcard: Boolean = findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null
+  override def isWildcard: Boolean = findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null
 
   override def `type`(): TypeResult = {
     if (getLastChild.isInstanceOf[ScSeqWildcard]) {
       return this.expectedType match {
         case Some(x) => Right(x)
-        case _ =>  Failure("No expected type for wildcard naming")
+        case _ =>  Failure(ScalaBundle.message("no.expected.type.for.wildcard.naming"))
       }
     }
-    if (named == null) Failure("Cannot infer type")
+    if (named == null) Failure(ScalaBundle.message("cannot.infer.type"))
     else {
       this.expectedType match {
         case Some(expectedType) => named.`type`().map(expectedType.glb(_))

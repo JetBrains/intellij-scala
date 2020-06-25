@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.projectHighlighting
 
 import com.intellij.openapi.project.Project
+import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.HighlightingTests
 import org.jetbrains.plugins.scala.performance.ImportingProjectTestCase
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -22,6 +23,9 @@ abstract class LocalSbtProjectHighlightingTest extends ImportingProjectTestCase 
 
 @Category(Array(classOf[HighlightingTests]))
 class AkkaSamplesTest extends LocalSbtProjectHighlightingTest {
+
+  override def jdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_8
+
   override def projectName = "akka-samples"
 }
 

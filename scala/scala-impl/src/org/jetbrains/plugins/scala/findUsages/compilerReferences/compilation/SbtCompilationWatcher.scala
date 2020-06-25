@@ -10,13 +10,15 @@ import com.intellij.ProjectTopics
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.{ModuleListener, Project}
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService.CompilerIndicesState
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationListener.ProjectIdentifier
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationListener.ProjectIdentifier._
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService.CompilerIndicesState
 import org.jetbrains.plugins.scala.indices.protocol.IdeaIndicesJsonProtocol._
 import org.jetbrains.plugins.scala.indices.protocol.sbt.Locking.FileLockingExt
 import org.jetbrains.plugins.scala.indices.protocol.sbt._
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.project.ProjectExt
 import spray.json._
 
 import scala.util.Try
@@ -68,7 +70,7 @@ private[compilerReferences] class SbtCompilationWatcher(
     val parsedInfos = infoFiles.flatMap(parseCompilationInfo(_).toOption)
 
     if (parsedInfos.size != infoFiles.size) {
-      processEventInTransaction(_.onError("Failed to parse offline compilation analysis files."))
+      processEventInTransaction(_.onError(ScalaBundle.message("failed.to.parse.offline.compilation.analysis.files")))
     } else {
       val infos = parsedInfos.sortBy(_.startTimestamp)
       processEventInTransaction { publisher => infos.foreach(processCompilationInfo(_, publisher, isOffline = true)) }
@@ -79,14 +81,14 @@ private[compilerReferences] class SbtCompilationWatcher(
 
   private[this] def subscribeToSbtNotifications(): Unit = {
     val messageBus = project.getMessageBus
-    val connection = messageBus.connect(project)
+    val connection = messageBus.connect(project.unloadAwareDisposable)
 
     connection.subscribe(ProjectTopics.MODULES, new ModuleListener {
       // if an sbt project is added to the IDEA model, just nuke the indices
       // since it may possess a compiler state we are unaware of
       // (this is fine since reindexing is relatively cheap with sbt (no rebuild)).
       override def moduleAdded(project: Project, module: Module): Unit =
-        processEventInTransaction(_.onError("sbt module added."))
+        processEventInTransaction(_.onError(ScalaBundle.message("sbt.module.added")))
     })
 
     // can be called from multiple threads in case of a parallel compilation of
@@ -101,7 +103,7 @@ private[compilerReferences] class SbtCompilationWatcher(
         if (thisBuild(base)) processEventInTransaction(_.onCompilationStart())
 
       override def connectionFailure(identifier: ProjectIdentifier, compilationId: Option[UUID]): Unit =
-        if (thisBuild(identifier)) processEventInTransaction(_.onError("sbt compilation supervisor: connection failure."))
+        if (thisBuild(identifier)) processEventInTransaction(_.onError(ScalaBundle.message("sbt.connection.failure")))
 
       override def onCompilationFailure(
         identifier:    ProjectBase,
@@ -119,7 +121,7 @@ private[compilerReferences] class SbtCompilationWatcher(
         // us to keep transactions short and avoid blocking UI thread.
         parseCompilationInfo(infoFile).fold(
           error => processEventInTransaction { publisher =>
-            publisher.onError(s"Failed to parse compilation info file $compilationId", Option(error))
+            publisher.onError(ScalaBundle.message("failed.to.parse.compilation.info.file", compilationId), Option(error))
           },
           sbtInfo => processEventInTransaction(processCompilationInfo(sbtInfo, _))
         )
@@ -148,7 +150,7 @@ private[compilerReferences] class SbtCompilationWatcher(
       } finally moduleInfoDirs.foreach(_.unlock(log = logger.info))
     } catch {
       case NonFatal(e) => processEventInTransaction { publisher =>
-        publisher.onError(s"An error occured while trying to read sbt compilation info files.", Option(e))
+        publisher.onError(ScalaBundle.message("error.while.reading.sbt.compilation.info"), Option(e))
       }
     } finally subscribeToSbtNotifications()
   }

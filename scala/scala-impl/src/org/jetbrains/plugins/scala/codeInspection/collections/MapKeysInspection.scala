@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
@@ -11,14 +12,14 @@ class MapKeysInspection extends OperationOnCollectionInspection {
 }
 
 object MapKeys extends SimplificationType {
-  override def hint: String = InspectionBundle.message("replace.with.keys")
+  override def hint: String = ScalaInspectionBundle.message("replace.with.keys")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case qual`.map`(`_._1`())`.toIterator`() if isMap(qual) =>
-      val iteratorHint = InspectionBundle.message("replace.with.keysIterator")
+      val iteratorHint = ScalaInspectionBundle.message("replace.with.keysIterator")
       Some(replace(expr).withText(invocationText(qual, "keysIterator")).highlightFrom(qual).withHint(iteratorHint))
     case qual`.map`(`_._1`())`.toSet`() if isMap(qual) =>
-      val setHint = InspectionBundle.message("replace.with.keySet")
+      val setHint = ScalaInspectionBundle.message("replace.with.keySet")
       Some(replace(expr).withText(invocationText(qual, "keySet")).highlightFrom(qual).withHint(setHint))
     case qual`.map`(`_._1`()) if isMap(qual) =>
       Some(replace(expr).withText(invocationText(qual, "keys")).highlightFrom(qual))

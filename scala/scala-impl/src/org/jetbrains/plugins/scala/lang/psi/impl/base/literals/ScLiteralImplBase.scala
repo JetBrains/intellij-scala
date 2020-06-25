@@ -22,9 +22,9 @@ abstract class ScLiteralImplBase(node: ASTNode,
     case null =>
       result.Failure(ScalaBundle.message("wrong.psi.for.literal.type", getText))
     case value =>
-      Right {
+      Right(
         ScLiteralType(wrappedValue(value))(getProject)
-      }
+      )
   }
 
   override protected final def acceptScala(visitor: ScalaElementVisitor): Unit = {

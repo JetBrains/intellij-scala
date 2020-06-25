@@ -5,11 +5,12 @@ import java.awt.Point
 import java.awt.event.{MouseEvent, MouseMotionAdapter}
 
 import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, HintUtil}
-import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys, Presentation}
+import com.intellij.openapi.actionSystem.{ActionManager, AnAction, AnActionEvent, CommonDataKeys, Presentation}
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
 import com.intellij.ui.LightweightHint
-import com.intellij.util.ui.{StartupUiUtil, UIUtil}
+import com.intellij.util.ui.StartupUiUtil
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 object ScalaActionUtil {
@@ -39,7 +40,7 @@ object ScalaActionUtil {
 
   def getFileFrom(e: AnActionEvent): Option[PsiFile] = Option(CommonDataKeys.PSI_FILE.getData(e.getDataContext))
   
-  def showHint(editor: Editor, text: String) {
+  def showHint(editor: Editor, @Nls text: String): Unit = {
     val label = HintUtil.createInformationLabel(text)
     label.setFont(StartupUiUtil.getLabelFont)
 
@@ -48,7 +49,7 @@ object ScalaActionUtil {
     val hintManager: HintManagerImpl = HintManagerImpl.getInstanceImpl
 
     label.addMouseMotionListener(new MouseMotionAdapter {
-      override def mouseMoved(e: MouseEvent) {
+      override def mouseMoved(e: MouseEvent): Unit = {
         hintManager.hideAllHints()
       }
     })

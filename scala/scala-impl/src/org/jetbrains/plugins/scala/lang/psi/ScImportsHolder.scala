@@ -4,10 +4,12 @@ package psi
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.scope._
+import com.intellij.psi.util.PsiTreeUtil.getParentOfType
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScImportStmtFactory
 import org.jetbrains.plugins.scala.editor.importOptimizer._
 import org.jetbrains.plugins.scala.extensions._
@@ -80,7 +82,7 @@ trait ScImportsHolder extends ScalaPsiElement {
 
   def getAllImportUsed: mutable.Set[ImportUsed] = {
     val res = mutable.HashSet.empty[ImportUsed]
-    def processChild(element: PsiElement) {
+    def processChild(element: PsiElement): Unit = {
       for (child <- element.getChildren) {
         child match {
           case imp: ScImportExpr =>
@@ -102,7 +104,7 @@ trait ScImportsHolder extends ScalaPsiElement {
   }
 
 
-  def addImportForClass(clazz: PsiClass, ref: PsiElement = null) {
+  def addImportForClass(clazz: PsiClass, ref: PsiElement = null): Unit = {
     ref match {
       case ref: ScReference =>
         if (!ref.isValid || ref.isReferenceTo(clazz)) return
@@ -265,7 +267,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       case ws: PsiWhiteSpace =>
         val oldTextNoIndent = ws.getText.reverse.dropWhile(c => c == ' ' || c == '\t').reverse
         val newText = oldTextNoIndent + indent
-        if (newText != ws.getText) {
+        if (!ws.textMatches(newText)) {
           val indented = ScalaPsiElementFactory.createNewLine(newText)
           ws.replace(indented)
         }
@@ -297,31 +299,31 @@ trait ScImportsHolder extends ScalaPsiElement {
     addImportBefore(element, anchor.getNode.getTreeNext.getPsi)
   }
 
-  def plainDeleteImport(stmt: ScImportExpr) {
+  def plainDeleteImport(stmt: ScImportExpr): Unit = {
     stmt.deleteExpr()
   }
 
-  def plainDeleteSelector(sel: ScImportSelector) {
+  def plainDeleteSelector(sel: ScImportSelector): Unit = {
     sel.deleteSelector()
   }
 
-  def deleteImportStmt(stmt: ScImportStmt) {
+  def deleteImportStmt(stmt: ScImportStmt): Unit = {
     def remove(node: ASTNode): Unit = getNode.removeChild(node)
-    def shortenWhitespace(node: ASTNode) {
+    def shortenWhitespace(node: ASTNode): Unit = {
       if (node == null) return
       if (node.getText.count(_ == '\n') >= 2) {
         val nl = createNewLine(node.getText.replaceFirst("[\n]", ""))(getManager)
         getNode.replaceChild(node, nl.getNode)
       }
     }
-    def removeWhitespace(node: ASTNode) {
+    def removeWhitespace(node: ASTNode): Unit = {
       if (node == null) return
       if (node.getPsi.isInstanceOf[PsiWhiteSpace]) {
         if (node.getText.count(_ == '\n') < 2) remove(node)
         else shortenWhitespace(node)
       }
     }
-    def removeSemicolonAndWhitespace(node: ASTNode) {
+    def removeSemicolonAndWhitespace(node: ASTNode): Unit = {
       if (node == null) return
       if (node.getElementType == ScalaTokenTypes.tSEMICOLON) {
         removeWhitespace(node.getTreeNext)
@@ -338,4 +340,22 @@ trait ScImportsHolder extends ScalaPsiElement {
     remove(node)
     shortenWhitespace(prev)
   }
+}
+
+object ScImportsHolder {
+
+  def apply(reference: PsiElement)
+           (implicit project: Project = reference.getProject): ScImportsHolder =
+    if (ScalaCodeStyleSettings.getInstance(project).isAddImportMostCloseToReference)
+      getParentOfType(reference, classOf[ScImportsHolder])
+    else {
+      getParentOfType(reference, classOf[ScPackaging]) match {
+        case null => reference.getContainingFile match {
+          case holder: ScImportsHolder => holder
+          case file =>
+            throw new AssertionError(s"Holder is wrong, file text: ${file.getText}")
+        }
+        case packaging: ScPackaging => packaging
+      }
+    }
 }

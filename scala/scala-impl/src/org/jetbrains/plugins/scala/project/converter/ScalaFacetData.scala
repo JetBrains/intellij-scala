@@ -14,7 +14,7 @@ private case class ScalaFacetData(languageLevel: String,
                                   maximumHeapSize: Int,
                                   vmOptions: Seq[String],
                                   compilerSettings: ScalaCompilerSettings) {
-  def removeFrom(module: ModuleSettings) {
+  def removeFrom(module: ModuleSettings): Unit = {
     val facetElement = ScalaFacetData.scalaFacetElementIn(module).getOrElse(
       throw new IllegalStateException("Cannot remove Scala facet from module: " + module.getModuleName))
 

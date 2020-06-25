@@ -21,7 +21,9 @@ class OverloadedResolutionTest extends ScalaResolveTestCase {
   //SCL-15381
   def testByNameParameter(): Unit = doTest()
 
-  private def doTest() = {
+  def testSCL15408(): Unit = doTest()
+
+  private def doTest(): Unit = {
     findReferenceAtCaret() match {
       case ref: ScReference =>
         val variants = ref.multiResolveScala(false)

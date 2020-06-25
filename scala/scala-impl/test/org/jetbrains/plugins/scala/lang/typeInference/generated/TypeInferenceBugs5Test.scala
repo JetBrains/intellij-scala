@@ -816,7 +816,7 @@ class TypeInferenceBugs5Test extends TypeInferenceBugs5TestBase {
 
   def testSCL9877(): Unit = doTest()
 
-  def testSCL10037() = doTest {
+  def testSCL10037(): Unit = doTest {
     """
       |import scala.language.existentials
       |class SCL10037 {
@@ -868,7 +868,7 @@ class TypeInferenceBugs5Test extends TypeInferenceBugs5TestBase {
       """.stripMargin)
   }
 
-  def testSCL9929() = doTest()
+  def testSCL9929(): Unit = doTest()
 
   def testSOE(): Unit = doTest()
 
@@ -1150,7 +1150,7 @@ class TypeInferenceBugs5Test extends TypeInferenceBugs5TestBase {
 }
 
 class TypeInferenceBugs5Test_with_parser_combinators extends TypeInferenceBugs5TestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_10
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  <= LatestScalaVersions.Scala_2_10
 
   def testSCL3076(): Unit = doTest()
 
@@ -1164,7 +1164,7 @@ class TypeInferenceBugs5Test_with_parser_combinators extends TypeInferenceBugs5T
 }
 
 class TypeInferenceBug5Test_with_xml extends TypeInferenceBugs5TestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_10
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= LatestScalaVersions.Scala_2_10
 
   def testSCL3542(): Unit = doTest()
 
@@ -1174,7 +1174,7 @@ class TypeInferenceBug5Test_with_xml extends TypeInferenceBugs5TestBase {
 }
 
 class TypeInferenceBugs5_with_StreamWithFilter extends TypeInferenceBugs5TestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version < Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version < LatestScalaVersions.Scala_2_12
 
   def testSCL5669A(): Unit = doTest()
 }

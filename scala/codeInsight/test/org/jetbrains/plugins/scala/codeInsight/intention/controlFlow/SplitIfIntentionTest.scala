@@ -13,7 +13,7 @@ class SplitIfIntentionTest extends intentions.ScalaIntentionTestBase {
 
   import EditorTestUtil.{CARET_TAG => CARET}
 
-  override def familyName = SplitIfIntention.FamilyName
+  override def familyName = ScalaCodeInsightBundle.message("family.name.split.if")
 
   def testSplitIf1(): Unit = {
     val text =

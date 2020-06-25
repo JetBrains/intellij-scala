@@ -10,12 +10,12 @@ import org.jetbrains.plugins.scala.extensions.{StringExt, TextRangeExt}
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.MarkersUtils
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners._
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest._
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_9, WorksheetEvaluationTests}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, WorksheetEvaluationTests}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
@@ -24,16 +24,24 @@ import scala.concurrent.duration.{Duration, DurationInt}
 import scala.language.postfixOps
 
 /*
+  TODO 1: currently all tests with all configs run very long, profile and think where can we optimize them
   TODO 2: check that run / stop buttons are enabled/disabled when evaluation is in process/ended
   TODO 3: test clean action
   TODO 4: test Repl iterative evaluation
   TODO 5: test split SimpleWorksheetSplitter polygons coordinates in different scrolling positions
+  TODO 6: make tests methods more composible, there are just too many methods in this class now
 */
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_10,
   TestScalaVersion.Scala_2_11,
   TestScalaVersion.Scala_2_12,
   TestScalaVersion.Scala_2_13,
+))
+// TODO: probably we do not have to run all tests on both JDKs,
+//  we could run all tests on JDK 11 and several some health check tests for JDK 1.8
+@RunWithJdkVersions(Array(
+  TestJdkVersion.JDK_1_8,
+  TestJdkVersion.JDK_11
 ))
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @Category(Array(classOf[WorksheetEvaluationTests]))
@@ -47,7 +55,7 @@ abstract class WorksheetIntegrationBaseTest
   protected val (foldStart, foldEnd)                 = ("<folding>", "</folding>")
   protected val (foldStartExpanded, foldEndExpanded) = ("<foldingExpanded>", "</foldingExpanded>")
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version > Scala_2_9
+  override protected def supportedIn(version: ScalaVersion): Boolean = version > LatestScalaVersions.Scala_2_9
 
   protected def evaluationTimeout: Duration = 60 seconds
 
@@ -56,6 +64,8 @@ abstract class WorksheetIntegrationBaseTest
   protected def worksheetCache = WorksheetCache.getInstance(project)
 
   protected def worksheetFileName: String = s"worksheet_${getTestName(false)}.sc"
+
+  override protected def reuseCompileServerProcessBetweenTests: Boolean = true
 
   protected def setupWorksheetSettings(settings: WorksheetCommonSettings): Unit = {
     settings.setRunType(self.runType)
@@ -71,23 +81,44 @@ abstract class WorksheetIntegrationBaseTest
   protected def createCompilerProfileForCurrentModule(profileName: String): ScalaCompilerSettingsProfile =
     ScalaCompilerConfiguration.instanceIn(project).createCustomProfileForModule(profileName, myModule)
 
+  override def initApplication(): Unit = {
+    super.initApplication()
+
+    if (useCompileServer) {
+      val result = CompileServerLauncher.ensureServerRunning(getProject)
+      assertTrue("compile server is expected to be running", result)
+    }
+  }
+
   override def setUp(): Unit = {
     super.setUp()
 
     val settings = ScalaProjectSettings.getInstance(project)
     settings.setInProcessMode(self.runInCompileServerProcess)
     settings.setAutoRunDelay(300)
-
-    if (useCompileServer) {
-      val result = CompileServerLauncher.ensureServerRunning(project)
-      assertTrue("compile server is expected to be running", result)
-    }
   }
 
   protected def doRenderTest(before: String, afterWithFoldings: String): Editor = {
     val beforeFixed = before
     val (afterFixed, foldings) = preprocessViewerText(afterWithFoldings)
     doRenderTest(beforeFixed, afterFixed, foldings)
+  }
+
+  protected def doRenderTestWithoutCompilationWarningsChecks(before: String, afterWithFoldings: String): Editor = {
+    val beforeFixed = before
+    val (afterFixed, foldings) = preprocessViewerText(afterWithFoldings)
+    doRenderTestWithoutCompilationWarningsChecks(beforeFixed, afterFixed, foldings)
+  }
+
+  protected def doRenderTest(before: String, afterAssert: String => Unit): Editor = {
+    val TestRunResult(editor, evaluationResult) = doRenderTestWithoutCompilationChecks(before, afterAssert)
+
+    evaluationResult shouldBe RunWorksheetActionResult.Done
+
+    assertNoErrorMessages(editor)
+    assertNoWarningMessages(editor)
+
+    editor
   }
 
   protected def doRenderTest(editor: Editor, afterWithFoldings: String): Editor = {
@@ -106,6 +137,20 @@ abstract class WorksheetIntegrationBaseTest
 
     assertNoErrorMessages(editor)
     assertNoWarningMessages(editor)
+
+    editor
+  }
+
+  private def doRenderTestWithoutCompilationWarningsChecks(
+    before: String,
+    after: String,
+    foldings: Seq[Folding]
+  ): Editor = {
+    val TestRunResult(editor, evaluationResult) = doRenderTestWithoutCompilationChecks(before, after, foldings)
+
+    evaluationResult shouldBe RunWorksheetActionResult.Done
+
+    assertNoErrorMessages(editor)
 
     editor
   }
@@ -137,7 +182,16 @@ abstract class WorksheetIntegrationBaseTest
     foldings: Seq[Folding]
   ): TestRunResult = {
     val result = runWorksheetEvaluationAndWait(before)
-    assertViewerOutput(result.worksheetEditor)(after, foldings)
+    assertViewerOutput(result.worksheetEditor, after, foldings)
+    result
+  }
+
+  protected def doRenderTestWithoutCompilationChecks(
+    before: String,
+    afterAssert: String => Unit
+  ): TestRunResult = {
+    val result = runWorksheetEvaluationAndWait(before)
+    assertViewerEditorText(result.worksheetEditor, afterAssert)
     result
   }
 
@@ -147,7 +201,7 @@ abstract class WorksheetIntegrationBaseTest
     foldings: Seq[Folding]
   ): TestRunResult = {
     val result = runWorksheetEvaluationAndWait(editor)
-    assertViewerOutput(editor)(after, foldings)
+    assertViewerOutput(editor, after, foldings)
     result
   }
 
@@ -172,7 +226,7 @@ abstract class WorksheetIntegrationBaseTest
       MarkersUtils.extractSequentialMarkers(text.withNormalizedSeparator, markers)
     }
     val foldings = ranges.map { case (TextRangeExt(startOffset, endOffset), markerType) =>
-      Folding(startOffset, endOffset, textFixed.substring(startOffset, endOffset), isExpanded = markerType == 1)
+      Folding(startOffset, endOffset, isExpanded = markerType == 1)
     }
     (textFixed, foldings)
   }
@@ -184,7 +238,8 @@ abstract class WorksheetIntegrationBaseTest
 
   protected def viewerEditorData(viewer: Editor): ViewerEditorData = {
     val renderedText = viewer.getDocument.getText
-    val foldings = viewer.getFoldingModel.getAllFoldRegions.map(Folding.apply)
+    val foldRegions = viewer.getFoldingModel.getAllFoldRegions
+    val foldings = foldRegions.map(Folding.apply)
     ViewerEditorData(viewer, renderedText, foldings)
   }
 }
@@ -202,16 +257,17 @@ object WorksheetIntegrationBaseTest {
     foldings: Seq[Folding]
   )
 
+  // placeholder text isn't tested, but it actually has some construction logic which limits placeholder length:
+  // see org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup.addRegion
   case class Folding(
     startOffset: Int,
     endOffset: Int,
-    placeholderText: String,
     isExpanded: Boolean = false
   )
 
   object Folding {
 
     def apply(region: FoldRegion): Folding =
-      Folding(region.getStartOffset, region.getEndOffset, region.getPlaceholderText, region.isExpanded)
+      Folding(region.getStartOffset, region.getEndOffset, region.isExpanded)
   }
 }

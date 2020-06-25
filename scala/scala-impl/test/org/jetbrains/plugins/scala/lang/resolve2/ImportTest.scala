@@ -21,7 +21,7 @@ class ImportTest extends ImportTestBase {
 }
 
 class ImportTest_without_AbstractMap extends ImportTestBase {
-  override def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_10
+  override def supportedIn(version: ScalaVersion): Boolean = version  <= LatestScalaVersions.Scala_2_10
 
   def testSelection(): Unit = doTest()
 }

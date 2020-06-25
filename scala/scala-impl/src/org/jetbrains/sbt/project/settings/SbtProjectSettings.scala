@@ -14,6 +14,7 @@ import scala.beans.BeanProperty
 /**
  * @author Pavel Fatin
  */
+//noinspection ConvertNullInitializerToUnderscore
 class SbtProjectSettings extends ExternalProjectSettings {
 
   def jdkName: Option[String] = Option(jdk)

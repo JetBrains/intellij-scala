@@ -14,7 +14,7 @@ class ReplaceEqualsOrEqualityInInfixExprIntentionTest extends intentions.ScalaIn
 
   import EditorTestUtil.{CARET_TAG => CARET}
 
-  override def familyName = ReplaceEqualsOrEqualityInInfixExprIntention.FamilyName
+  override def familyName = ScalaCodeInsightBundle.message("family.name.replace.equals.or.equality.in.infix.expression")
 
   def testReplaceQuality(): Unit = {
     val text = s"if (a ==$CARET b) return"

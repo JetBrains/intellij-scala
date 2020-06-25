@@ -4,91 +4,91 @@ class Bug3Test extends ResolveTestBase {
   override def folderPath: String = {
     super.folderPath + "bug3/"
   }
-  def testSCL1707() {doTest()}
-  def testSCL2073() {doTest()}
-  def testSCL2109() {doTest()}
-  def testSCL2116() {doTest()}
-  def testSCL2386A() {doTest()}
-  def testSCL2386B() {doTest()}
-  def testSCL2386C() {doTest()}
-  def testSCL2386D() {doTest()}
-  def testSCL2386E() {doTest()}
-  def testSCL2456() {doTest()}
-  def testFromCompanion() {doTest()}
-  def testPathDependent() {doTest()}
-  def testPathDependent2() {doTest()}
-  def testPathDependent3() {doTest()}
-  def testPathDependent4() {doTest()}
-  def testValueFunction11() {doTest()}
-  def testSCL2169() {doTest()}
-  def testSCL2509() {doTest()}
-  def testSCL2886() {doTest()}
-  def testSCL3053() {doTest()}
-  def testSCL3100() {doTest()}
-  def testSCL3191() {doTest()}
-  def testSCL3273() {doTest()}
-  def testSCL3371() {doTest()}
-  def testSCL3374() {doTest()}
-  def testSCL3450() {doTest()}
-  def testSCL3548() {doTest()}
-  def testSCL3583() {doTest()}
-  def testSCL3592A() {doTest()}
-  def testSCL3592B() {doTest()}
-  def testSCL3592C() {doTest()}
-  def testSCL3707() {doTest()}
-  def testSCL3773() {doTest()}
-  def testSCL3840() {doTest()}
-  def testSCL3846() {doTest()}
-  def testSCL3982() {doTest()}
-  def testSCL3898() {doTest()}
-  def testSCL3905() {doTest()}
-  def testSCL3992() {doTest()}
-  def testSCL4001() {doTest()}
-  def testSCL4014() {doTest()}
-  def testSCL4023() {doTest()}
-  def testSCL4035() {doTest()}
-  def testSCL4039() {doTest()}
-  def testSCL4063() {doTest()}
-  def testSCL4179A() {doTest()}
-  def testSCL4179B() {doTest()}
-  def testSCL4200() {doTest()}
-  def testSCL4347() {doTest()}
-  def testSCL4390() {doTest()}
-  def testSCL4393() {doTest()}
-  def testSCL4399() {doTest()}
-  def testSCL4529() {doTest()}
-  def testSCL4684() {doTest()}
-  def testSCL4697() {doTest()}
-  def testSCL4891() {doTest()}
-  def testSCL4961() {doTest()}
-  def testSCL4987() {doTest()}
-  def testSCL4993() {doTest()}
-  def testSCL5107() {doTest()}
-  def testSCL5145() {doTest()}
-  def testSCL5245() {doTest()}
-  def testSCL5245B() {doTest()}
-  def testSCL5246() {doTest()}
-  def testSCL5249() {doTest()}
-  def testSCL5357() {doTest()}
-  def testSCL5360() {doTest()}
-  def testSCL5377() {doTest()}
-  def testSCL5418() {doTest()}
-  def testSCL5424() {doTest()}
-  def testSCL5971() {doTest()}
-  def testSCL5982() {doTest()}
-  def testSCL5987() {doTest()}
-  def testSCL6478() {doTest()}
-  def testSCL6628() {doTest()}
-  def testSCL6785() {doTest()}
-  def testSCL6825() {doTest()}
-  def testSCL6825B() {doTest()}
-  def testSCL7142() {doTest()}
-  def testStringInterpolatorPrefix() {doTest()}
-  def testShadowedImport() {doTest()}
-  def testSOE() {doTest()}
-  def testAccessiblePattern() {doTest()}
-  def testConstructorNamedParameters() {doTest()}
-  def testSCL9926() {doTest()}
+  def testSCL1707(): Unit = {doTest()}
+  def testSCL2073(): Unit = {doTest()}
+  def testSCL2109(): Unit = {doTest()}
+  def testSCL2116(): Unit = {doTest()}
+  def testSCL2386A(): Unit = {doTest()}
+  def testSCL2386B(): Unit = {doTest()}
+  def testSCL2386C(): Unit = {doTest()}
+  def testSCL2386D(): Unit = {doTest()}
+  def testSCL2386E(): Unit = {doTest()}
+  def testSCL2456(): Unit = {doTest()}
+  def testFromCompanion(): Unit = {doTest()}
+  def testPathDependent(): Unit = {doTest()}
+  def testPathDependent2(): Unit = {doTest()}
+  def testPathDependent3(): Unit = {doTest()}
+  def testPathDependent4(): Unit = {doTest()}
+  def testValueFunction11(): Unit = {doTest()}
+  def testSCL2169(): Unit = {doTest()}
+  def testSCL2509(): Unit = {doTest()}
+  def testSCL2886(): Unit = {doTest()}
+  def testSCL3053(): Unit = {doTest()}
+  def testSCL3100(): Unit = {doTest()}
+  def testSCL3191(): Unit = {doTest()}
+  def testSCL3273(): Unit = {doTest()}
+  def testSCL3371(): Unit = {doTest()}
+  def testSCL3374(): Unit = {doTest()}
+  def testSCL3450(): Unit = {doTest()}
+  def testSCL3548(): Unit = {doTest()}
+  def testSCL3583(): Unit = {doTest()}
+  def testSCL3592A(): Unit = {doTest()}
+  def testSCL3592B(): Unit = {doTest()}
+  def testSCL3592C(): Unit = {doTest()}
+  def testSCL3707(): Unit = {doTest()}
+  def testSCL3773(): Unit = {doTest()}
+  def testSCL3840(): Unit = {doTest()}
+  def testSCL3846(): Unit = {doTest()}
+  def testSCL3982(): Unit = {doTest()}
+  def testSCL3898(): Unit = {doTest()}
+  def testSCL3905(): Unit = {doTest()}
+  def testSCL3992(): Unit = {doTest()}
+  def testSCL4001(): Unit = {doTest()}
+  def testSCL4014(): Unit = {doTest()}
+  def testSCL4023(): Unit = {doTest()}
+  def testSCL4035(): Unit = {doTest()}
+  def testSCL4039(): Unit = {doTest()}
+  def testSCL4063(): Unit = {doTest()}
+  def testSCL4179A(): Unit = {doTest()}
+  def testSCL4179B(): Unit = {doTest()}
+  def testSCL4200(): Unit = {doTest()}
+  def testSCL4347(): Unit = {doTest()}
+  def testSCL4390(): Unit = {doTest()}
+  def testSCL4393(): Unit = {doTest()}
+  def testSCL4399(): Unit = {doTest()}
+  def testSCL4529(): Unit = {doTest()}
+  def testSCL4684(): Unit = {doTest()}
+  def testSCL4697(): Unit = {doTest()}
+  def testSCL4891(): Unit = {doTest()}
+  def testSCL4961(): Unit = {doTest()}
+  def testSCL4987(): Unit = {doTest()}
+  def testSCL4993(): Unit = {doTest()}
+  def testSCL5107(): Unit = {doTest()}
+  def testSCL5145(): Unit = {doTest()}
+  def testSCL5245(): Unit = {doTest()}
+  def testSCL5245B(): Unit = {doTest()}
+  def testSCL5246(): Unit = {doTest()}
+  def testSCL5249(): Unit = {doTest()}
+  def testSCL5357(): Unit = {doTest()}
+  def testSCL5360(): Unit = {doTest()}
+  def testSCL5377(): Unit = {doTest()}
+  def testSCL5418(): Unit = {doTest()}
+  def testSCL5424(): Unit = {doTest()}
+  def testSCL5971(): Unit = {doTest()}
+  def testSCL5982(): Unit = {doTest()}
+  def testSCL5987(): Unit = {doTest()}
+  def testSCL6478(): Unit = {doTest()}
+  def testSCL6628(): Unit = {doTest()}
+  def testSCL6785(): Unit = {doTest()}
+  def testSCL6825(): Unit = {doTest()}
+  def testSCL6825B(): Unit = {doTest()}
+  def testSCL7142(): Unit = {doTest()}
+  def testStringInterpolatorPrefix(): Unit = {doTest()}
+  def testShadowedImport(): Unit = {doTest()}
+  def testSOE(): Unit = {doTest()}
+  def testAccessiblePattern(): Unit = {doTest()}
+  def testConstructorNamedParameters(): Unit = {doTest()}
+  def testSCL9926(): Unit = {doTest()}
   def testSCL11119(): Unit = { doTest() }
   def testSCL10839(): Unit = { doTest() }
   def testSCL10845(): Unit = { doTest() }

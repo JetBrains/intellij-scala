@@ -5,6 +5,7 @@ package methodSignature
 import com.intellij.codeInspection.LocalQuickFix
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
@@ -40,7 +41,7 @@ object UnitMethodInspection {
 
     override protected def createQuickFix(function: ScFunction): Option[LocalQuickFix] = {
       val quickFix = new AbstractFixOnPsiElement(
-        "Remove redundant type annotation",
+        ScalaInspectionBundle.message("remove.redundant.type.annotation"),
         function
       ) {
         override protected def doApplyFix(function: ScFunction)(implicit project: Project): Unit =
@@ -61,7 +62,7 @@ object UnitMethodInspection {
 
     override protected def createQuickFix(function: ScFunction): Option[LocalQuickFix] = {
       val quickFix = new AbstractFixOnPsiElement(
-        "Remove redundant type annotation and equals sign",
+        ScalaInspectionBundle.message("remove.redundant.type.annotation.and.equals.sign"),
         function.asInstanceOf[ScFunctionDefinition]
       ) {
         override protected def doApplyFix(function: ScFunctionDefinition)(implicit project: Project): Unit = {
@@ -86,7 +87,7 @@ object UnitMethodInspection {
 
     override protected def createQuickFix(function: ScFunction): Option[LocalQuickFix] = {
       val quickFix = new AbstractFixOnPsiElement(
-        "Remove redundant equals sign",
+        ScalaInspectionBundle.message("remove.redundant.equals.sign"),
         function.asInstanceOf[ScFunctionDefinition]
       ) {
         override protected def doApplyFix(function: ScFunctionDefinition)(implicit project: Project): Unit =
@@ -107,7 +108,7 @@ object UnitMethodInspection {
 
     override protected def createQuickFix(function: ScFunction): Option[LocalQuickFix] = {
       val quickFix = new AbstractFixOnPsiElement(
-        InspectionBundle.message("convert.to.function.syntax"),
+        ScalaInspectionBundle.message("convert.to.function.syntax"),
         function.asInstanceOf[ScFunctionDefinition]
       ) {
         override protected def doApplyFix(function: ScFunctionDefinition)(implicit project: Project): Unit = {
@@ -129,7 +130,7 @@ object UnitMethodInspection {
 
     override protected def createQuickFix(function: ScFunction): Option[LocalQuickFix] = {
       val quickFix = new AbstractFixOnPsiElement(
-        InspectionBundle.message("convert.to.function.syntax"),
+        ScalaInspectionBundle.message("convert.to.function.syntax"),
         function
       ) {
         override protected def doApplyFix(function: ScFunction)(implicit project: Project): Unit = {

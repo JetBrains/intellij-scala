@@ -10,7 +10,7 @@ import com.intellij.psi.PsiElementVisitor
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocSyntaxElement
 
@@ -22,13 +22,13 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocSyntaxElement
 class ScalaDocUnclosedTagWithoutParserInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 
-  override def getDisplayName: String = "Unclosed Tag"
+  override def getDisplayName: String = ScalaInspectionBundle.message("display.name.unclosed.tag")
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
-      override def visitWikiSyntax(s: ScDocSyntaxElement) {
+      override def visitWikiSyntax(s: ScDocSyntaxElement): Unit = {
         val firstElementType = s.getFirstChild.getNode.getElementType
-        if (!ScaladocSyntaxElementType.canClose(firstElementType,
+        if (!ScalaDocSyntaxElementType.canClose(firstElementType,
           s.getLastChild.getNode.getElementType) &&
           firstElementType != ScalaDocTokenType.DOC_HEADER && firstElementType != ScalaDocTokenType.VALID_DOC_HEADER) {
 

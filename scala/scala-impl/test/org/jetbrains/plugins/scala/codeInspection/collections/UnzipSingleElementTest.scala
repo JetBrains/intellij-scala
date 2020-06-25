@@ -1,19 +1,17 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 
 /**
   * @author t-kameyama
   */
 class UnzipSingleElementTest extends OperationsOnCollectionInspectionTest {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[UnzipSingleElementInspection]
 
-  override protected val hint: String = InspectionBundle.message("replace.with.map")
+  override protected val hint: String = ScalaInspectionBundle.message("replace.with.map")
 
   def testSeqUnzip_1(): Unit = {
     doTest(

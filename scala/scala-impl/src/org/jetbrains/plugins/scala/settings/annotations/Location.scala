@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScFileViewProvider}
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScFileViewProvider, ScalaPsiUtil}
 
 /**
  * @author Pavel Fatin
@@ -96,9 +96,13 @@ object Location {
       Option(getModule(element))
         .map(moduleWithDependenciesAndLibrariesScope)
         .map(ElementScope(element.getProject, _))
-        .exists { scope =>
-          classes.flatMap(scope.getCachedClass).exists(element.sameOrInheritor)
-        }
+        .exists(scope =>
+          classes
+            .flatMap(scope.getCachedClass)
+            .exists { clazz =>
+              ScalaPsiUtil.thisSubsumes(element, clazz)
+            }
+        )
   }
 
   object InsideClassLocation {

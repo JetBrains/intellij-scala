@@ -6,12 +6,12 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[DebuggerTests]))
 class ScalaFieldEvaluationTest_2_11 extends ScalaFieldEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version <= Scala_2_11
+  override protected def supportedIn(version: ScalaVersion) = version  <= LatestScalaVersions.Scala_2_11
 }
 
 @Category(Array(classOf[DebuggerTests]))
 class ScalaFieldEvaluationTest_2_12 extends ScalaFieldEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_2_12
 }
 @Category(Array(classOf[DebuggerTests]))
 abstract class ScalaFieldEvaluationTestBase extends ScalaDebuggerTestCase {
@@ -59,7 +59,7 @@ abstract class ScalaFieldEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testSimpleJava() {
+  def testSimpleJava(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalStartsWith("x.x", "23")
@@ -93,7 +93,7 @@ abstract class ScalaFieldEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testPrivateThisField() {
+  def testPrivateThisField(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalStartsWith("x", "0")
@@ -121,7 +121,7 @@ abstract class ScalaFieldEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
-  def testNonStatic() {
+  def testNonStatic(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalStartsWith("a.x", "0")
@@ -143,7 +143,7 @@ abstract class ScalaFieldEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testSimpleDynamicField() {
+  def testSimpleDynamicField(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalStartsWith("x.x", "23")

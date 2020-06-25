@@ -4,6 +4,7 @@ import com.intellij.codeInsight.FileModificationService
 import com.intellij.codeInspection.LocalQuickFixOnPsiElement
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.ValidSmartPointer
 
 /**
@@ -19,7 +20,7 @@ import org.jetbrains.plugins.scala.extensions.ValidSmartPointer
   * Important: Use methods getElement, getStartElement, getEndElement to get psiElements passed via constructor
   * arguments.
   */
-abstract class AbstractFixOnPsiElement[T <: PsiElement](name: String, element: T)
+abstract class AbstractFixOnPsiElement[T <: PsiElement](@Nls name: String, element: T)
   extends LocalQuickFixOnPsiElement(element) {
 
   override def getText: String = name
@@ -39,7 +40,7 @@ abstract class AbstractFixOnPsiElement[T <: PsiElement](name: String, element: T
                           (implicit project: Project): Unit
 }
 
-abstract class AbstractFixOnTwoPsiElements[T <: PsiElement, S <: PsiElement](name: String,
+abstract class AbstractFixOnTwoPsiElements[T <: PsiElement, S <: PsiElement](@Nls name: String,
                                                                              startElement: T,
                                                                              endElement: S)
   extends LocalQuickFixOnPsiElement(startElement, endElement) {

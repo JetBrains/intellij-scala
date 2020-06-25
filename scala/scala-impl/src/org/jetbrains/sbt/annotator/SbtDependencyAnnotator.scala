@@ -3,7 +3,9 @@ package annotator
 
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.openapi.module.{Module, ModuleManager, ModuleType}
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.annotationHolder.ScalaAnnotationHolderAdapter
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -37,7 +39,7 @@ class SbtDependencyAnnotator extends Annotator {
     }
 
   private def doAnnotate(element: PsiElement, holder: ScalaAnnotationHolder): Unit = {
-    def moduleByName(name: String) = ModuleManager.getInstance(element.getProject).getModules.find(_.getName == name)
+    def moduleByName(@NonNls name: String) = ModuleManager.getInstance(element.getProject).getModules.find(_.getName == name)
 
     def findBuildModule(module: Option[Module]): Option[Module] = module match {
       case Some(SbtModuleType(_)) => module
@@ -50,7 +52,7 @@ class SbtDependencyAnnotator extends Annotator {
       case _ => module
     }
 
-    implicit val p = element.getProject
+    implicit val p: Project = element.getProject
 
     val module = Option(ScalaPsiUtil.getModule(element))
 
@@ -69,7 +71,7 @@ class SbtDependencyAnnotator extends Annotator {
           indexes.exists(_.searchVersion(info.group, info.artifact).contains(info.version))
       }
       if (!isInRepo) {
-        val annotation = holder.createWeakWarningAnnotation(element, SbtBundle("sbt.annotation.unresolvedDependency"))
+        val annotation = holder.createWeakWarningAnnotation(element, SbtBundle.message("sbt.annotation.unresolvedDependency"))
 
         val sbtModule = findBuildModule(module)
         sbtModule.foreach { m =>
@@ -97,7 +99,7 @@ class SbtDependencyAnnotator extends Annotator {
 
 
   private def isOneOrTwoPercents(op: ScReferenceExpression) =
-    op.getText == "%" || op.getText == "%%"
+    op.textMatches("%") || op.textMatches("%%")
 
   private def extractArtifactInfo(from: PsiElement, scalaVersion: Option[String]): Option[ArtifactInfo] = {
     for {
@@ -106,7 +108,7 @@ class SbtDependencyAnnotator extends Annotator {
       ScStringLiteral(version) <- Option(maybeVersion)
       ScStringLiteral(group) <- Option(maybeGroup)
       ScStringLiteral(artifact) <- Option(maybeArtifact)
-      shouldAppendScalaVersion = maybePercents.getText == "%%"
+      shouldAppendScalaVersion = maybePercents.textMatches("%%")
     } yield {
       if (shouldAppendScalaVersion && scalaVersion.isDefined)
         ArtifactInfo(group, artifact + "_" + scalaVersion.get, version)
@@ -115,7 +117,7 @@ class SbtDependencyAnnotator extends Annotator {
     }
   }
 
-  private def isDynamicVersion(version: String): Boolean =
+  private def isDynamicVersion(@NonNls version: String): Boolean =
     version.startsWith("latest") || version.endsWith("+") || "[]()".exists(version.contains(_))
 }
 

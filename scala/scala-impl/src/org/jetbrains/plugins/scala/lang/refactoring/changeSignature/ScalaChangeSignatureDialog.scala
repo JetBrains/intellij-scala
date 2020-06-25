@@ -26,6 +26,7 @@ import javax.swing._
 import javax.swing.border.MatteBorder
 import javax.swing.event.{ChangeEvent, HyperlinkEvent}
 import javax.swing.table.TableCellEditor
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -88,7 +89,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
 
   protected def createDefaultArgumentPanel(): JPanel = {
     val optionsPanel = new JPanel(new BorderLayout())
-    val label = new JLabel("Default value:")
+    val label = new JLabel(ScalaBundle.message("parameter.label.default.value"))
     defaultValuesUsagePanel = new DefaultValuesUsagePanel("")
   
     val holder = new JPanel()
@@ -128,17 +129,17 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
 
   protected def createParametersTable(): TableView[ScalaParameterTableModelItem] = {
     new TableView[ScalaParameterTableModelItem](myParametersTableModel) {
-      override def removeEditor() {
+      override def removeEditor(): Unit = {
         clearEditorListeners()
         super.removeEditor()
       }
 
-      override def editingStopped(e: ChangeEvent) {
+      override def editingStopped(e: ChangeEvent): Unit = {
         super.editingStopped(e)
         repaint()
       }
 
-      private def clearEditorListeners() {
+      private def clearEditorListeners(): Unit = {
         val editor: TableCellEditor = getCellEditor
         editor match {
           case ed: StringTableCellEditor =>
@@ -153,7 +154,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
 
       override def prepareEditor(editor: TableCellEditor, row: Int, column: Int): Component = {
         val listener: DocumentListener = new DocumentListener() {
-          override def documentChanged(e: DocumentEvent) {
+          override def documentChanged(e: DocumentEvent): Unit = {
             val ed: TableCellEditor = parametersTable.getCellEditor
             if (ed != null) {
               val editorValue: AnyRef = ed.getCellEditorValue
@@ -174,7 +175,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
         super.prepareEditor(editor, row, column)
       }
 
-      override def editingCanceled(e: ChangeEvent) {
+      override def editingCanceled(e: ChangeEvent): Unit = {
         super.editingCanceled(e)
       }
     }
@@ -311,7 +312,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
 
   override protected def postponeValidation: Boolean = false
 
-  def signatureUpdater = mySignatureUpdater
+  def signatureUpdater: ChangeSignatureDialogBase[ScalaParameterInfo, ScFunction, String, ScalaMethodDescriptor, ScalaParameterTableModelItem, ScalaParameterTableModel]#UpdateSignatureListener = mySignatureUpdater
 
   def getTypesMaxLength: Int = {
     parameterItems.map(_.typeText.length) match {
@@ -359,7 +360,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
   }
 
   protected def createAddClauseButton(): AnActionButton = {
-    val addClauseButton = new AnActionButton("Add parameter clause", null, Icons.ADD_CLAUSE) {
+    val addClauseButton = new AnActionButton(ScalaBundle.message("change.signature.add.parameter.clause"), null, Icons.ADD_CLAUSE) {
       override def actionPerformed(e: AnActionEvent): Unit = {
         val table = parametersTable
         val editedColumn = editingColumn(table)
@@ -382,7 +383,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
   }
 
   protected def createRemoveClauseButton(): AnActionButton = {
-    val removeClauseButton = new AnActionButton("Remove parameter clause", null, Icons.REMOVE_CLAUSE) {
+    val removeClauseButton = new AnActionButton(ScalaBundle.message("change.signature.remove.parameter.clause"), null, Icons.REMOVE_CLAUSE) {
       override def actionPerformed(e: AnActionEvent): Unit = {
         val table = parametersTable
         val editedColumn = editingColumn(table)
@@ -542,7 +543,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
   }
   
   class ScalaParametersListTable extends ParametersListTable {
-    protected def getRowRenderer(row: Int): JBTableRowRenderer = {
+    override protected def getRowRenderer(row: Int): JBTableRowRenderer = {
       (table: JTable, row: Int, selected: Boolean, focused: Boolean) => {
         val item = getRowItem(row)
         val name = nameText(item)

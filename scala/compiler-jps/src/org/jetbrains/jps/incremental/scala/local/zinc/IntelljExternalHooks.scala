@@ -4,11 +4,13 @@ package local.zinc
 import java.io.File
 import java.util.Optional
 
+import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.jps.incremental.scala.local.ClassFileUtils
 import xsbti.compile.ExternalHooks.Lookup
 import xsbti.compile.{ClassFileManager, ExternalHooks}
 
 case class IntelljExternalHooks(lookup: IntellijExternalLookup,
-                           classFileManager: ClassFileManager)
+                                classFileManager: ClassFileManager)
   extends ExternalHooks {
   override def getExternalLookup: Optional[Lookup] = Optional.of(lookup)
 
@@ -23,7 +25,11 @@ class IntellijClassfileManager extends ClassFileManager with ClassfilesChanges {
   private var _deleted: Seq[Array[File]] = Nil
   private var _generated: Seq[Array[File]] = Nil
 
-  override def delete(classes: Array[File]): Unit = _deleted :+= classes
+  override def delete(classes: Array[File]): Unit = {
+    val tastyFiles = classes.flatMap(ClassFileUtils.correspondingTastyFile)
+    tastyFiles.foreach(FileUtil.delete)
+    _deleted :+= classes
+  }
 
   override def complete(success: Boolean): Unit = {}
 

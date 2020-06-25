@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 sealed abstract class ApplicabilityProblem
 
 // definition syntax problems
-case class MalformedDefinition() extends ApplicabilityProblem
+case class MalformedDefinition(name: String) extends ApplicabilityProblem
 
 // application syntax problems
 case class PositionalAfterNamedArgument(argument: ScExpression) extends ApplicabilityProblem

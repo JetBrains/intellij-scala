@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
   */
 abstract class FailedResolveCaretTestBase extends SimpleTestCase {
 
-  def doResolveCaretTest(code: String) {
+  def doResolveCaretTest(code: String): Unit = {
     val (psi, caretPos) = parseText(code, EditorTestUtil.CARET_TAG)
     val reference = psi.findElementAt(caretPos).getParent
     reference match {

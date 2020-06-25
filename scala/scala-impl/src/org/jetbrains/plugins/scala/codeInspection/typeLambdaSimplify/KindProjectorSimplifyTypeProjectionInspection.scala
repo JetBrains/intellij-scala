@@ -4,7 +4,7 @@ import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.KindProjectorTypeLambdaUtil.TypeLambda
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, InspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -53,7 +53,7 @@ class KindProjectorSimplifyTypeProjectionInspection extends LocalInspectionTool 
 
 object KindProjectorSimplifyTypeProjectionInspection {
   private val inspectionId: String   = "KindProjectorSimplifyTypeProjection"
-  private val inspectionName: String = InspectionBundle.message("kind.projector.simplify.type")
+  private val inspectionName: String = ScalaInspectionBundle.message("kind.projector.simplify.type")
 
   class KindProjectorSimplifyTypeProjectionQuickFix(e: PsiElement, replacement: =>String)
     extends AbstractFixOnPsiElement(KindProjectorSimplifyTypeProjectionInspection.inspectionName, e) {

@@ -4,71 +4,86 @@ package testingSupport.test.specs2
 import com.intellij.execution.configurations._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
+import com.intellij.testIntegration.TestFramework
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.SettingMap
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{SettingMap, TestFrameworkRunnerInfo}
 import org.jetbrains.plugins.scala.testingSupport.test._
+import org.jetbrains.plugins.scala.testingSupport.test.sbt.{SbtCommandsBuilder, SbtCommandsBuilderBase, SbtTestRunningSupport, SbtTestRunningSupportBase}
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, RegexpTestData}
-import org.jetbrains.plugins.scala.util.ScalaUtil
+import org.jetbrains.plugins.scala.util.ScalaPluginJars
 import org.jetbrains.sbt.shell.SbtShellCommunication
 
 import scala.concurrent.Future
 
-/**
-  * @author Ksenia.Sautina
-  * @since 5/17/12
-  */
+class Specs2RunConfiguration(
+  project: Project,
+  configurationFactory: ConfigurationFactory,
+  name: String
+) extends AbstractTestRunConfiguration(
+  project,
+  configurationFactory,
+  name
+) {
 
-class Specs2RunConfiguration(project: Project,
-                             override val configurationFactory: ConfigurationFactory,
-                             override val name: String)
-  extends AbstractTestRunConfiguration(project, configurationFactory, name, TestConfigurationUtil.specs2ConfigurationProducer) {
+  override val suitePaths: List[String] = Specs2Util.suitePaths
 
-  override def suitePaths: List[String] = Specs2Util.suitePaths
+  override val testFramework: TestFramework = TestFramework.EXTENSION_NAME.findExtension(classOf[Specs2TestFramework])
 
-  override def runnerClassName = "org.jetbrains.plugins.scala.testingSupport.specs2.JavaSpecs2Runner"
+  override val configurationProducer: Specs2ConfigurationProducer = TestConfigurationUtil.specs2ConfigurationProducer
 
-  override def reporterClass = "org.jetbrains.plugins.scala.testingSupport.specs2.JavaSpecs2Notifier"
+  override protected val validityChecker: SuiteValidityChecker = Specs2RunConfiguration.validityChecker
 
-  override def errorMessage: String = "Specs2 is not specified"
+  override protected val runnerInfo: TestFrameworkRunnerInfo = TestFrameworkRunnerInfo(
+    classOf[org.jetbrains.plugins.scala.testingSupport.specs2.Specs2Runner].getName
+  )
 
-  override def currentConfiguration: Specs2RunConfiguration = Specs2RunConfiguration.this
+  override val sbtSupport: SbtTestRunningSupport = new SbtTestRunningSupportBase {
 
-  protected[test] override def isInvalidSuite(clazz: PsiClass): Boolean = getSuiteClass.fold(_ => true, Specs2RunConfiguration.isInvalidSuite(clazz, _))
+    override def allowsSbtUiRun: Boolean = false //TODO temporarily disabled: SCL-11640, SCL-11638
 
-  override protected def sbtClassKey = " -- -specname "
+    override def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[SettingMap] = {
+      val value = "Attributed(new File(\"" + ScalaPluginJars.runnersJar.getAbsolutePath.replace("\\", "\\\\") + "\"))(AttributeMap.empty)"
+      modifySbtSetting(
+        comm, getModule, SettingMap(), "fullClasspath", "test", "Test", value,
+        !_.contains(ScalaPluginJars.runnersJarName),
+        shouldRevert = false
+      )
+    }
 
-  override protected def sbtTestNameKey = " -- -ex "
+    override def commandsBuilder: SbtCommandsBuilder = new SbtCommandsBuilderBase {
+      override def classKey: Option[String] = Some("-- -specname")
+      override def testNameKey: Option[String] = Some("-- -ex")
 
-  //TODO temporarily disabled
-  override def allowsSbtUiRun: Boolean = false
+      override def escapeTestName(test: String): String = "\\A" + test + "\\Z" //TODO: should we have quotes here?
 
-  override def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[SettingMap] =
-    modifySetting(SettingMap(), "fullClasspath", "test", "Test",
-      "Attributed(new File(\"" + ScalaUtil.runnersPath().replace("\\", "\\\\") + "\"))(AttributeMap.empty)",
-      comm, !_.contains("runners.jar"), shouldRevert = false)
-
-  override def buildSbtParams(classToTests: Map[String, Set[String]]): Seq[String] = {
-    testConfigurationData match {
-      case regexpData: RegexpTestData =>
-        val pattern = regexpData.zippedRegexps.head
-        Seq(s"$sbtClassKey${pattern._1}$sbtTestNameKey${pattern._2}")
-      case packageData: AllInPackageTestData =>
-        Seq(s"$sbtClassKey${"\\A" + ScPackageImpl(packageData.getPackage(getTestPackagePath)).getQualifiedName + ".*"}")
-      case _ =>
-        super.buildSbtParams(classToTests)
+      override def buildTestOnly(classToTests: Map[String, Set[String]]): Seq[String] = {
+        testConfigurationData match {
+          case regexpData: RegexpTestData =>
+            val pattern = regexpData.zippedRegexps.head
+            Seq(s"$classKey${pattern._1}$testNameKey${pattern._2}")
+          case packageData: AllInPackageTestData =>
+            Seq(s"$classKey${"\\A" + ScPackageImpl(packageData.getPackage(packageData.testPackagePath)).getQualifiedName + ".*"}")
+          case _ =>
+            super.buildTestOnly(classToTests)
+        }
+      }
     }
   }
-
-  //TODO: should we have quotes here?
-  override def escapeTestName(test: String): String = "\\A" + test + "\\Z"
 }
 
-object Specs2RunConfiguration extends SuiteValidityChecker {
-  private def isScalaObject(clazz: PsiClass) = clazz.getQualifiedName.endsWith("$")
+object Specs2RunConfiguration {
 
-  override protected[test] def lackSuitableConstructor(clazz: PsiClass): Boolean =
-    !isScalaObject(clazz) && AbstractTestRunConfiguration.lackSuitableConstructorWithParams(clazz, 1)
+  private val validityChecker = new SuiteValidityCheckerBase {
+    // SCL-12787: single parameters possible: class MySpec(implicit ee: ExecutionEnv) extends Specification
+    override def hasSuitableConstructor(clazz: PsiClass): Boolean =
+      isScalaObject(clazz) || hasPublicConstructor(clazz, maxParameters = 1)
 
-  override protected[test] def isInvalidClass(clazz: PsiClass): Boolean = !clazz.isInstanceOf[ScClass] && !clazz.isInstanceOf[ScObject]
+    override def isValidClass(clazz: PsiClass): Boolean =
+      clazz.is[ScClass, ScObject]
+  }
+
+  private def isScalaObject(clazz: PsiClass): Boolean =
+    clazz.getQualifiedName.endsWith("$")
 }

@@ -74,7 +74,7 @@ class SimpleScalaRenderingLogTest
 
   override def check(testName: String,
                      file: UFile,
-                     doParentConsistencyCheck: Boolean) {
+                     doParentConsistencyCheck: Boolean): Unit = {
     val renderFile = getTestFile(testName, "render.txt")
     val logFile = getTestFile(testName, "log.txt")
 

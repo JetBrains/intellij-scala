@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration
 
 import java.io.{File, IOException}
+
 import javax.swing.event.{HyperlinkEvent, HyperlinkListener}
 import javax.swing.{BoxLayout, JComponent, JPanel}
-
 import com.intellij.execution.Executor
 import com.intellij.execution.configurations._
 import com.intellij.execution.filters.TextConsoleBuilderImpl
@@ -20,13 +20,11 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.ui.RawCommandLineEditor
 import org.jdom.Element
+import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder
 import org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunConfiguration.{AmmNotFoundException, MyEditor}
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 12.09.17.
-  */
 class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) extends
   RunConfigurationBase[Element](project, factory, AmmoniteRunConfiguration.AMMONITE_RUN_NAME) {
 
@@ -39,15 +37,15 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
   private var fileName: Option[String] = None
   private var scriptParameters: Option[String] = None
 
-  def setFilePath(path: String) {
+  def setFilePath(path: String): Unit = {
     fileName = Option(path).filter(_ != "")
   }
 
-  def setExecPath(path: String) {
+  def setExecPath(path: String): Unit = {
     execName = Option(path)
   }
 
-  def setScriptParameters(params: String) {
+  def setScriptParameters(params: String): Unit = {
     scriptParameters = Option(params).filter(_ != "")
   }
 
@@ -56,7 +54,7 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
   override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new MyEditor
 
   override def getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState = {
-    def patchSdkVersion(cmd: GeneralCommandLine) {
+    def patchSdkVersion(cmd: GeneralCommandLine): Unit = {
       Option(ProjectRootManager.getInstance(project).getProjectSdk).foreach {
         sdk => cmd.getEnvironment.put("JAVA_HOME", sdk.getHomePath)
       }
@@ -123,10 +121,10 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
     state
   }
 
-  override def writeExternal(element: Element) {
+  override def writeExternal(element: Element): Unit = {
     super.writeExternal(element)
 
-    def saveFileElement(name: String, maybeString: Option[String]) {
+    def saveFileElement(name: String, maybeString: Option[String]): Unit = {
       JDOMExternalizer.write(element, name, maybeString.getOrElse(""))
     }
 
@@ -135,7 +133,7 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
     saveFileElement("scriptParameters", scriptParameters)
   }
 
-  override def readExternal(element: Element) {
+  override def readExternal(element: Element): Unit = {
     super.readExternal(element)
 
     def retrieveFileElement(name: String): Option[String] = {
@@ -167,7 +165,7 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
 }
 
 object AmmoniteRunConfiguration {
-  val AMMONITE_RUN_NAME = "Ammonite script"
+  val AMMONITE_RUN_NAME: String = "Ammonite Script"
 
   class AmmNotFoundException(message: String, commandLine: GeneralCommandLine, project: Project) extends ProcessNotCreatedException(message, commandLine) with HyperlinkListener {
     override def hyperlinkUpdate(e: HyperlinkEvent): Unit = {
@@ -182,14 +180,14 @@ object AmmoniteRunConfiguration {
 
     override def createEditor(): JComponent = form.panel
 
-    override def applyEditorTo(s: AmmoniteRunConfiguration) {
+    override def applyEditorTo(s: AmmoniteRunConfiguration): Unit = {
       val (fileName, execName, scriptParameters) = form.get
       s.setFilePath(fileName)
       s.setExecPath(execName)
       s.setScriptParameters(scriptParameters)
     }
 
-    override def resetEditorFrom(s: AmmoniteRunConfiguration) {
+    override def resetEditorFrom(s: AmmoniteRunConfiguration): Unit = {
       form(s.fileName.getOrElse(""), s.execName.getOrElse("amm"), s.scriptParameters.getOrElse(""))
     }
   }
@@ -199,7 +197,7 @@ object AmmoniteRunConfiguration {
 
     def get: (String, String, String) = (fileNameField.getText, execNameField.getText, scriptParameters.getText)
 
-    def apply(fileName: String, execName: String, parametersRaw: String) {
+    def apply(fileName: String, execName: String, parametersRaw: String): Unit = {
       fileNameField.setText(fileName)
       execNameField.setText(execName)
       scriptParameters.setText(parametersRaw)
@@ -209,9 +207,9 @@ object AmmoniteRunConfiguration {
       val panel = new JPanel()
       panel setLayout new BoxLayout(panel, BoxLayout.Y_AXIS)
 
-      val comp0 = createLabeledElement("Script:", createFileBrowser)
-      val comp1 = createLabeledElement("Amm executable:", createFileBrowser)
-      val comp2 = createLabeledElement("Script parameters:", new RawCommandLineEditor)
+      val comp0 = createLabeledElement(ScalaBundle.message("ammonite.script"), createFileBrowser)
+      val comp1 = createLabeledElement(ScalaBundle.message("ammonite.executable"), createFileBrowser)
+      val comp2 = createLabeledElement(ScalaBundle.message("ammonite.script.parameters"), new RawCommandLineEditor)
 
       panel.add(comp0, 0)
       panel.add(comp1, 1)
@@ -220,7 +218,7 @@ object AmmoniteRunConfiguration {
       (panel, comp0.getComponent, comp1.getComponent, comp2.getComponent)
     }
 
-    private def createLabeledElement[T <: JComponent](name: String, comp: T): LabeledComponent[T] = {
+    private def createLabeledElement[T <: JComponent](@Nls name: String, comp: T): LabeledComponent[T] = {
       val c = new LabeledComponent[T]
       c.setComponent(comp)
       c.setText(name)
@@ -229,7 +227,7 @@ object AmmoniteRunConfiguration {
 
     private def createFileBrowser: TextFieldWithBrowseButton = {
       val fileBrowser = new TextFieldWithBrowseButton()
-      fileBrowser.addBrowseFolderListener("Select...", "", null, new FileChooserDescriptor(true, false, true, true, false, false))
+      fileBrowser.addBrowseFolderListener(ScalaBundle.message("ammonite.config.select"), null, null, new FileChooserDescriptor(true, false, true, true, false, false))
       fileBrowser
     }
   }

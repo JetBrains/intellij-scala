@@ -7,24 +7,25 @@ import java.util
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
 import com.intellij.openapi.externalSystem.test.ExternalSystemImportingTestCase
-import com.intellij.openapi.projectRoots.ProjectJdkTable
-import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
+import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScopesCore}
+import com.intellij.testFramework.VfsTestUtil
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, IdeaTestFixtureFactory}
-import com.intellij.testFramework.{IdeaTestUtil, VfsTestUtil}
+import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
+import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
-
-import scala.collection.JavaConverters.collectionAsScalaIterableConverter
-
 /**
   * Nikolay.Tropin
   * 14-Dec-17
@@ -48,17 +49,14 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
     myTestFixture = null
   }
 
-  override protected def getExternalSystemConfigFileName: String = "build.sbt"
+  override protected def getExternalSystemConfigFileName: String = Sbt.BuildFile
 
   override protected def getCurrentExternalProjectSettings: ExternalProjectSettings = {
     val sbtSettings = SbtSettings.getInstance(myProject)
-    sbtSettings.setVmParameters(sbtSettings.getVmParameters + s"-Dsbt.ivy.home=${rootDirPath}/.ivy_cache")
+    sbtSettings.setVmParameters(sbtSettings.getVmParameters + s"-Dsbt.ivy.home=$rootDirPath/.ivy_cache")
+
     val settings = new SbtProjectSettings
-    val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
-    val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk18
-    else internalSdk
-    settings.jdk = sdk.getName
-    settings.setCreateEmptyContentRootDirectories(true)
+    settings.jdk = getJdk.getName
     settings
   }
 
@@ -78,6 +76,8 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
 
   def doBeforeImport(): Unit = {}
 
+  def jdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_11
+
   override def setUpInWriteAction(): Unit = {
     super.setUpInWriteAction()
 
@@ -87,14 +87,13 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
 
     myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(projectDir)
     extensions.inWriteAction {
-      val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
-      val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk18
-      else internalSdk
+      val jdk = getJdk
 
-      if (ProjectJdkTable.getInstance().findJdk(sdk.getName) == null) {
-        ProjectJdkTable.getInstance().addJdk(sdk, myProject)
+      val jdkTable = ProjectJdkTable.getInstance
+      if (jdkTable.findJdk(jdk.getName) == null) {
+        jdkTable.addJdk(jdk, myProject.unloadAwareDisposable)
       }
-      ProjectRootManager.getInstance(myProject).setProjectSdk(sdk)
+      ProjectRootManager.getInstance(myProject).setProjectSdk(jdk)
       reporter.notify("Finished sbt setup, starting import")
     }
   }
@@ -105,8 +104,15 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
     importProject()
   }
 
-  def findFile(filename: String): VirtualFile = {
+  override def tearDown(): Unit = {
+    inWriteAction {
+      ProjectJdkTable.getInstance().removeJdk(getJdk)
+    }
+    super.tearDown()
+  }
 
+  protected def findFile(filename: String): VirtualFile = {
+    import collection.JavaConverters._
     val searchScope = SourceFilterScope(GlobalSearchScopesCore.directoryScope(myProject, myProjectRoot, true))(myProject)
 
     val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(ScalaFileType.INSTANCE, searchScope)
@@ -126,4 +132,7 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
     LocalFileSystem.getInstance().refreshFiles(files)
     file
   }
+
+  def getJdk: Sdk = SmartJDKLoader.getOrCreateJDK(jdkLanguageLevel)
+
 }

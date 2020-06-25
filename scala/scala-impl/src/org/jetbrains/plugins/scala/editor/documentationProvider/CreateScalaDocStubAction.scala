@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package editor.documentationProvider
+package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.command.CommandProcessor
@@ -8,7 +7,10 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiUtilBase
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.plugins.scala.ScalaLanguage
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
+import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -22,12 +24,16 @@ import scala.collection.mutable
  * User: Dmitry Naydanov
  * Date: 11/14/12
  */
-class CreateScalaDocStubAction extends AnAction(ScalaBundle message "create.scaladoc.stub.action") {
-  override def update(e: AnActionEvent) {
+class CreateScalaDocStubAction extends AnAction(
+  ScalaEditorBundle.message("create.scaladoc.stub.action.text"),
+  ScalaEditorBundle.message("create.scaladoc.stub.action.description"),
+  /* icon = */ null
+) {
+  override def update(e: AnActionEvent): Unit = {
     ScalaActionUtil enableAndShowIfInScalaFile e
   }
 
-  def actionPerformed(e: AnActionEvent) {
+  override def actionPerformed(e: AnActionEvent): Unit = {
     val context = e.getDataContext
     val editor = CommonDataKeys.EDITOR.getData(context)
 
@@ -49,31 +55,32 @@ class CreateScalaDocStubAction extends AnAction(ScalaBundle message "create.scal
     }
   }
   
-  private def createStub(docOwner: ScDocCommentOwner, psiDocument: Document) {
-    val newComment = createDocCommentFromText(ScalaDocumentationProvider.createScalaDocStub(docOwner).trim())(docOwner.getManager)
+  private def createStub(docOwner: ScDocCommentOwner, psiDocument: Document): Unit = {
+    val stubText = ScalaDocStubGenerator.createScalaDocStub(docOwner).trim()
+    val newComment = createDocCommentFromText(stubText)(docOwner.getManager)
     val project = docOwner.getProject
     val docCommentEnd = docOwner.getTextRange.getStartOffset - 1
     
     CommandProcessor.getInstance().executeCommand(project, new Runnable {
-      def run() {
-        extensions inWriteAction {
+      override def run(): Unit = {
+        inWriteAction {
           psiDocument insertString (docCommentEnd, newComment.getText + "\n")
           PsiDocumentManager getInstance project commitDocument psiDocument
         }
         
         val docRange = docOwner.getDocComment.getTextRange
-        extensions inWriteAction {
+        inWriteAction {
           CodeStyleManager getInstance project reformatText (docOwner.getContainingFile, docRange.getStartOffset, docRange.getEndOffset + 2)
         }
       }
-    }, "Create ScalaDoc stub", null, psiDocument)
+    }, ScalaEditorBundle.message("action.create.scaladoc.stub"), null, psiDocument)
   }
   
-  private def recreateStub(docOwner: ScDocCommentOwner, psiDocument: Document) {
+  private def recreateStub(docOwner: ScDocCommentOwner, psiDocument: Document): Unit = {
     val oldComment = docOwner.getDocComment.asInstanceOf[ScDocComment]
     val oldTags = oldComment findTagsByName (_ => true)
     
-    def filterTags[T](groupName: String, newTags: mutable.HashMap[String, T]) {
+    def filterTags[T](groupName: String, newTags: mutable.HashMap[String, T]): Unit = {
       oldTags foreach {
         case tag if tag.getName == groupName => newTags remove tag.getValueElement.getText match {
           case Some(_) => //do nothing
@@ -85,7 +92,7 @@ class CreateScalaDocStubAction extends AnAction(ScalaBundle message "create.scal
 
     @inline def convertToParamMap[T <: ScNamedElement](params: Seq[T]) = mutable.HashMap(params map (p => (p.getName, p)): _*)
 
-    def processParams[T <: ScNamedElement](groupNames: List[String], params: List[Seq[T]]) {
+    def processParams[T <: ScNamedElement](groupNames: List[String], params: List[Seq[T]]): Unit = {
       val paramMaps = groupNames zip params map {
         case (name, param) =>
           val paramMap = convertToParamMap(param)
@@ -110,8 +117,8 @@ class CreateScalaDocStubAction extends AnAction(ScalaBundle message "create.scal
 
     val project = docOwner.getProject
     CommandProcessor.getInstance().executeCommand(project, new Runnable {
-      def run() {
-        extensions inWriteAction {
+      override def run(): Unit = {
+        inWriteAction {
           docOwner match {
             case fun: ScFunctionDefinition =>
               processParams(List("@param", "@tparam"), List(fun.parameters, fun.typeParameters))
@@ -126,6 +133,6 @@ class CreateScalaDocStubAction extends AnAction(ScalaBundle message "create.scal
           CodeStyleManager getInstance project reformatText(docOwner.getContainingFile, range.getStartOffset, range.getEndOffset)
         }
       }
-    }, "Create ScalaDoc Stub", null, psiDocument)
+    }, ScalaEditorBundle.message("action.create.scaladoc.stub"), null, psiDocument)
   }
 }

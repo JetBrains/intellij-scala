@@ -11,7 +11,7 @@ class ScalaCompilerSettingsProfile(name: String) {
 
   private var myName: String = name
   private val myModuleNames: AtomicReference[List[String]] = new AtomicReference(Nil)
-  private var mySettings = new ScalaCompilerSettings
+  private var mySettings = ScalaCompilerSettings.fromState(new ScalaCompilerSettingsState)
 
   def getName: String = myName
 

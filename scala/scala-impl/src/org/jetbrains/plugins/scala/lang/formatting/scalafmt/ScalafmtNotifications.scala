@@ -9,6 +9,7 @@ import scala.ref.WeakReference
 
 private[formatting]
 object ScalafmtNotifications {
+
   private val notificationGroup =
     new NotificationGroup("Scalafmt (Scala plugin)", NotificationDisplayType.BALLOON, true)
   private val notificationErrorGroup =

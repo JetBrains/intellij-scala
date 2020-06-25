@@ -24,12 +24,12 @@ class TestResultListener(private val testConfigurationName: String) extends Proc
       case Success(0)     =>
       case Success(code)     =>
         fail(
-          s"""test $testConfigurationName terminated with error exit code: $code; captured outputs:
+          s"""test `$testConfigurationName` terminated with error exit code: $code; captured outputs:
              |${outputTextAll.toString}""".stripMargin
         )
       case Failure(exception) =>
         failWithCause(
-          s"""test $testConfigurationName did not terminate correctly after $durationMs ms; captured outputs:
+          s"""test `$testConfigurationName` did not terminate correctly after $durationMs ms; captured outputs:
              |${outputTextAll.toString}""".stripMargin,
           exception
         )

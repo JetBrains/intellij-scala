@@ -44,9 +44,9 @@ private[changeInfo] trait ParametersChangeInfo {
 
   def newParameters: Seq[ScalaParameterInfo] = newParams.flatten
 
-  def getOldParameterNames: Array[String] = oldParameterNames
+  override def getOldParameterNames: Array[String] = oldParameterNames
 
-  def getOldParameterTypes: Array[String] = oldParameterTypes
+  override def getOldParameterTypes: Array[String] = oldParameterTypes
 
   def defaultParameterForJava(p: ScalaParameterInfo, idx: Int): String = {
     if (this.isAddDefaultArgs) {

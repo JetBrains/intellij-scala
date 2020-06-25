@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.syntacticClarification
 
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.transformation.calls.ExpandApplyCall
 
 /**
@@ -7,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.transformation.calls.ExpandApplyCall
   */
 // TODO add checkboxes to exclude FunctionN descendants and case classes
 class ConcealedApplyCall extends TransformerBasedInspection(
-  "Concealed \"apply\" call",
-  "Make \"apply\" call explicit",
-  new ExpandApplyCall())
+  ScalaInspectionBundle.message("concealed.apply.call"),
+  ScalaInspectionBundle.message("make.apply.call.explicit"),
+  new ExpandApplyCall()
+)

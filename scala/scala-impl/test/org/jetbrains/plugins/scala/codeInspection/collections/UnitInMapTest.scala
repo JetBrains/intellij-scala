@@ -9,16 +9,14 @@ import com.intellij.testFramework.EditorTestUtil
  */
 class UnitInMapTest extends OperationsOnCollectionInspectionTest {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[UnitInMapInspection]
 
   override protected lazy val description: String =
-    InspectionBundle.message("expression.unit.return.in.map")
+    ScalaInspectionBundle.message("expression.unit.return.in.map")
 
   override protected val hint: String =
-    InspectionBundle.message("use.foreach.instead.of.map")
+    ScalaInspectionBundle.message("use.foreach.instead.of.map")
 
   def test1(): Unit = {
     doTest(

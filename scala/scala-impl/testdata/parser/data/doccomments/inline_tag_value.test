@@ -1,0 +1,23 @@
+/**
+ * Evaluates the script starting with {@value #SCRIPT_START}.
+ */
+-----
+ScalaFile
+  DocComment
+    ScPsiDocToken(DOC_COMMENT_START)('/**')
+    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    ScDocParagraph
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('Evaluates the script starting with ')
+      DocInlinedTag
+        ScPsiDocToken(DOC_INLINE_TAG_START)('{')
+        ScPsiDocToken(DOC_TAG_NAME)('@value')
+        PsiErrorElement:Inline tag
+          <empty list>
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('#SCRIPT_START')
+        ScPsiDocToken(DOC_INLINE_TAG_END)('}')
+      ScPsiDocToken(DOC_COMMENT_DATA)('.')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_END)('*/')

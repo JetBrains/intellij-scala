@@ -2,10 +2,12 @@ package org.jetbrains.plugins.scala
 package annotator
 package element
 
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
+import org.jetbrains.plugins.scala.extensions._
 
 object ScParameterAnnotator extends ElementAnnotator[ScParameter] {
 
@@ -13,11 +15,13 @@ object ScParameterAnnotator extends ElementAnnotator[ScParameter] {
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     element.owner match {
       case null =>
-        holder.createErrorAnnotation(element, "Parameter without an owner: " + element.name)
+        val message = ScalaBundle.message("annotator.error.parameter.without.an.owner.name", element.name)
+        holder.createErrorAnnotation(element, message)
       case _: ScMethodLike =>
         element.typeElement match {
           case None =>
-            holder.createErrorAnnotation(element, "Missing type annotation for parameter: " + element.name)
+            val message = ScalaBundle.message("annotator.error.missing.type.annotation.for.parameter", element.name)
+            holder.createErrorAnnotation(element, message)
           case _ =>
         }
         if (element.isCallByNameParameter)
@@ -27,7 +31,10 @@ object ScParameterAnnotator extends ElementAnnotator[ScParameter] {
           case None =>
             element.expectedParamType match {
               case None =>
-                holder.createErrorAnnotation(element, "Missing parameter type: " + element.name)
+                val inFunctionLiteral = element.parents.drop(2).headOption.exists(_.is[ScFunctionExpr])
+                if (!inFunctionLiteral) { // ScFunctionExprAnnotator does that more gracefully
+                  holder.createErrorAnnotation(element, ScalaBundle.message("missing.parameter.type.name", element.name))
+                }
               case _ =>
             }
           case _ =>

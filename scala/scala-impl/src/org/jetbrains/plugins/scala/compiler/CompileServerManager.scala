@@ -7,9 +7,9 @@ import java.awt.event.{ActionEvent, ActionListener, MouseEvent}
 import com.intellij.icons.AllIcons
 import com.intellij.ide.DataManager
 import com.intellij.notification.{Notification, NotificationType, Notifications}
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, DefaultActionGroup, Separator}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.util.IconLoader
@@ -17,6 +17,7 @@ import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.util.Consumer
 import javax.swing.{Icon, Timer}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.compiler.CompileServerManager._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project._
@@ -25,24 +26,24 @@ import org.jetbrains.plugins.scala.settings.ShowSettingsUtilImplExt
 /**
  * @author Pavel Fatin
  */
-final class CompileServerManager(project: Project) extends ProjectComponent {
+final class CompileServerManager(project: Project) extends Disposable {
 
   private val IconRunning = Icons.COMPILE_SERVER
   private val IconStopped = IconLoader.getDisabledIcon(IconRunning)
 
   private val timer = new Timer(1000, TimerListener)
+  private var installed = false
 
-  override def getComponentName: String = getClass.getSimpleName
+  { // init
+    if (! ApplicationManager.getApplication.isUnitTestMode) {
 
-  override def projectOpened() {
-    if (ApplicationManager.getApplication.isUnitTestMode) return
-
-    configureWidget()
-    timer.setRepeats(true)
-    timer.start()
+      configureWidget()
+      timer.setRepeats(true)
+      timer.start()
+    }
   }
 
-  override def projectClosed(): Unit = {
+  override def dispose(): Unit = {
     if (ApplicationManager.getApplication.isUnitTestMode) return
 
     configureWidget()
@@ -55,13 +56,12 @@ final class CompileServerManager(project: Project) extends ProjectComponent {
 
   private def running: Boolean = launcher.running
 
-  private var installed = false
-
   private def launcher = CompileServerLauncher
 
   private def statusBar = Option(WindowManager.getInstance.getStatusBar(project))
 
-  private def title = "Scala Compile Server"
+  @Nls
+  private def title = ScalaBundle.message("scala.compile.server.title")
 
   private def configureWidget(): Unit = {
     if (ApplicationManager.getApplication.isUnitTestMode) return
@@ -71,7 +71,7 @@ final class CompileServerManager(project: Project) extends ProjectComponent {
       case (true, true) => // do nothing
       case (true, false) =>
         statusBar.foreach { b =>
-          b.addWidget(Widget, "before Position", project)
+          b.addWidget(Widget, "before Position", project.unloadAwareDisposable)
           installed = true
         }
       case (false, true) =>
@@ -100,10 +100,11 @@ final class CompileServerManager(project: Project) extends ProjectComponent {
     override def dispose(): Unit = {}
 
     object Presentation extends StatusBarWidget.IconPresentation {
-      override def getIcon: Icon = if(running) IconRunning else IconStopped
+      override def getIcon: Icon = if (running) IconRunning else IconStopped
 
       override def getClickConsumer: Consumer[MouseEvent] = ClickConsumer
 
+      //noinspection ReferencePassedToNls
       override def getTooltipText: String = title + launcher.port.map(_.formatted(" (TCP %d)")).getOrElse("")
 
       private object ClickConsumer extends Consumer[MouseEvent] {
@@ -122,7 +123,7 @@ final class CompileServerManager(project: Project) extends ProjectComponent {
     popup.show(new RelativePoint(e.getComponent, at))
   }
 
-  private object Start extends AnAction("&Run", "Start compile server", AllIcons.Actions.Execute) with DumbAware {
+  private object Start extends AnAction(ScalaBundle.message("action.run"), ScalaBundle.message("start.compile.server"), AllIcons.Actions.Execute) with DumbAware {
     override def update(e: AnActionEvent): Unit =
       e.getPresentation.setEnabled(!launcher.running)
 
@@ -130,7 +131,7 @@ final class CompileServerManager(project: Project) extends ProjectComponent {
       launcher.tryToStart(project)
   }
 
-  private object Stop extends AnAction("&Stop", "Shutdown compile server", AllIcons.Actions.Suspend) with DumbAware {
+  private object Stop extends AnAction(ScalaBundle.message("action.stop"), ScalaBundle.message("shutdown.compile.server"), AllIcons.Actions.Suspend) with DumbAware {
     override def update(e: AnActionEvent): Unit =
       e.getPresentation.setEnabled(launcher.running)
 
@@ -138,7 +139,7 @@ final class CompileServerManager(project: Project) extends ProjectComponent {
       launcher.stop(e.getProject)
   }
 
-  private object Configure extends AnAction("&Configure...", "Configure compile server", AllIcons.General.Settings) with DumbAware {
+  private object Configure extends AnAction(ScalaBundle.message("action.configure"), ScalaBundle.message("configure.compile.server"), AllIcons.General.Settings) with DumbAware {
     override def actionPerformed(e: AnActionEvent): Unit =
       showCompileServerSettingsDialog(project)
   }
@@ -167,12 +168,14 @@ final class CompileServerManager(project: Project) extends ProjectComponent {
 
 object CompileServerManager {
 
-  def configureWidget(project: Project): Unit = {
-    if (!project.isDisposed) {
-      val instance = project.getComponent(classOf[CompileServerManager])
+  def configureWidget(project: Project): Unit =
+    // in unit tests we preload compile server before any project is started
+    if (project == null && isUnitTestMode || project.isDisposed) {
+     // ok, nothing to configure
+    } else {
+      val instance = project.getService(classOf[CompileServerManager])
       instance.configureWidget()
     }
-  }
 
   def showCompileServerSettingsDialog(project: Project, filter: String = ""): Unit =
     ShowSettingsUtilImplExt.showSettingsDialog(project, classOf[ScalaCompileServerForm], filter)

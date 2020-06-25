@@ -53,21 +53,21 @@ object ScalaRenameUtil {
             new PsiReference {
               override def getVariants: Array[AnyRef] = ref.getVariants
 
-              def getCanonicalText: String = ref.getCanonicalText
+              override def getCanonicalText: String = ref.getCanonicalText
 
-              def getElement: PsiElement = ref.getElement
+              override def getElement: PsiElement = ref.getElement
 
-              def isReferenceTo(element: PsiElement): Boolean = ref.isReferenceTo(element)
+              override def isReferenceTo(element: PsiElement): Boolean = ref.isReferenceTo(element)
 
-              def bindToElement(element: PsiElement): PsiElement = ref.bindToElement(element)
+              override def bindToElement(element: PsiElement): PsiElement = ref.bindToElement(element)
 
-              def handleElementRename(newElementName: String): PsiElement = ref.handleElementRename(newElementName)
+              override def handleElementRename(newElementName: String): PsiElement = ref.handleElementRename(newElementName)
 
-              def isSoft: Boolean = ref.isSoft
+              override def isSoft: Boolean = ref.isSoft
 
-              def getRangeInElement: TextRange = ref.getRangeInElement
+              override def getRangeInElement: TextRange = ref.getRangeInElement
 
-              def resolve(): PsiElement = multiResolve.apply(0).getElement
+              override def resolve(): PsiElement = multiResolve.apply(0).getElement
             }
           } else ref
         } else ref

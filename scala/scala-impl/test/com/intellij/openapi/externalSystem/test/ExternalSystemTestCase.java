@@ -53,6 +53,7 @@ import com.intellij.util.io.TestFileSystemItem;
 import gnu.trove.THashSet;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.util.UnloadAwareDisposable;
 import org.junit.After;
 import org.junit.Before;
 
@@ -62,8 +63,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -138,12 +139,9 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
         VfsRootAccess.allowRootAccess(newRootsArray);
         myAllowedRoots.addAll(newRoots);
 
-        Disposer.register(disposable, new Disposable() {
-            @Override
-            public void dispose() {
-                VfsRootAccess.disallowRootAccess(newRootsArray);
-                myAllowedRoots.removeAll(newRoots);
-            }
+        Disposer.register(disposable, () -> {
+            VfsRootAccess.disallowRootAccess(newRootsArray);
+            myAllowedRoots.removeAll(newRoots);
         });
     }
 
@@ -418,7 +416,7 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
 
     private void compile(final CompileScope scope) {
         try {
-            CompilerTester tester = new CompilerTester(myProject, Arrays.asList(scope.getAffectedModules()), myProject);
+            CompilerTester tester = new CompilerTester(myProject, Arrays.asList(scope.getAffectedModules()), UnloadAwareDisposable.forProject(myProject));
             try {
                 List<CompilerMessage> messages = tester.make(scope);
                 for (CompilerMessage message : messages) {

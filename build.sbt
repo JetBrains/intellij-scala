@@ -5,16 +5,20 @@ import sbtide.Keys.ideSkipProject
 
 // Global build settings
 
-//useCoursier in Global := false
-
 intellijPluginName in ThisBuild := "Scala"
 
 intellijBuild in ThisBuild := Versions.intellijVersion
+
+intellijPlatform in ThisBuild := IntelliJPlatform.IdeaCommunity
 
 resolvers in ThisBuild ++=
   BintrayJetbrains.allResolvers :+
     Resolver.typesafeIvyRepo("releases") :+
     Resolver.sonatypeRepo("snapshots")
+
+javacOptions in Global := globalJavacOptions
+
+scalacOptions in Global := globalScalacOptions
 
 // Main projects
 lazy val scalaCommunity: sbt.Project =
@@ -34,9 +38,10 @@ lazy val scalaCommunity: sbt.Project =
       mavenIntegration % "test->test;compile->compile",
       propertiesIntegration % "test->test;compile->compile",
       javaDecompilerIntegration)
+    .aggregate(tastyProvided, tastyCompile, tastyRuntime, tastyReader)
     .settings(
       ideExcludedDirectories    := Seq(baseDirectory.value / "target"),
-      packageAdditionalProjects := Seq(scalaApi, compilerJps, repackagedZinc, decompiler, compilerShared, nailgunRunners, runners, runtimeDependencies),
+      packageAdditionalProjects := Seq(scalaApi, compilerJps, repackagedZinc, decompiler, compilerShared, nailgunRunners, runners, runtimeDependencies, tastyCompile, tastyRuntime, tastyReader),
       packageLibraryMappings    := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
       definedTests in Test := { // all sub-project tests need to be run within main project's classpath
         definedTests.all(ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))).value.flatten }
@@ -75,6 +80,25 @@ lazy val worksheet = newProject(
   scalaImpl % "test->test;compile->compile"
 )
 
+lazy val tastyProvided = newProject("tasty-provided", file("tasty/provided"))
+  .settings(scalaVersion := "2.13.1", packageMethod := PackagingMethod.Skip())
+
+lazy val tastyCompile = newProject("tasty-compile", file("tasty/compile"))
+  .dependsOn(tastyProvided % Provided)
+  .settings(scalaVersion := "2.13.1", packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-compile.jar"))
+
+lazy val tastyRuntime = newProject("tasty-runtime", file("tasty/runtime"))
+  .dependsOn(tastyCompile % "compile-internal", tastyProvided % Provided)
+  .settings(scalaVersion := "2.13.1", packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-runtime.jar"))
+
+lazy val tastyExample = newProject("tasty-example", file("tasty/example"))
+  .dependsOn(tastyCompile, tastyProvided % Provided)
+  .settings(scalaVersion := "2.13.1", libraryDependencies += "ch.epfl.lamp" % "dotty-library_0.25" % "0.25.0-RC2" % Runtime)
+
+lazy val tastyReader = newProject("tasty-reader", file("tasty/reader"))
+  .dependsOn(tastyCompile, tastyProvided % Provided)
+  .settings(scalaVersion := "2.13.1", packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-reader.jar"))
+
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
     .dependsOn(
@@ -86,41 +110,37 @@ lazy val scalaImpl: sbt.Project =
     .enablePlugins(BuildInfoPlugin)
     .settings(
       ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
-      javacOptions in Global ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
-      scalacOptions in Global ++= Seq("-target:jvm-1.8", "-deprecation"),
       //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
       libraryDependencies ++= DependencyGroups.scalaCommunity,
       addCompilerPlugin(Dependencies.macroParadise),
-      intellijInternalPlugins := Seq(
-        "IntelliLang",
-        "java-i18n",
-        "android",
-        "stats-collector", // required for ml completion testing
-        "smali",      // required by Android
-        "gradle",     // required by Android
-        "Groovy",     // required by Gradle
-        "properties", // required by Gradle
-        "maven",      // TODO remove after extracting the SBT module (which depends on Maven)
-        "junit"
-      ),
+      intellijPlugins := Seq(
+        "org.intellij.intelliLang",
+        "com.intellij.java-i18n",
+        "org.jetbrains.android",
+        "com.intellij.stats.completion", // required for ml completion testing
+        "com.android.tools.idea.smali",      // required by Android
+        "com.intellij.gradle",     // required by Android
+        "org.intellij.groovy",     // required by Gradle
+        "org.jetbrains.idea.maven",      // TODO remove after extracting the SBT module (which depends on Maven)
+        "JUnit"
+      ).map(_.toPlugin),
       intellijPluginJars :=
         intellijPluginJars.value.filterNot(cp => cp.data.getName.contains("junit-jupiter-api")),
       packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity),
       packageLibraryMappings ++= Seq(
         "org.scalameta" %% ".*" % ".*"                        -> Some("lib/scalameta.jar"),
         "com.trueaccord.scalapb" %% "scalapb-runtime" % ".*"  -> None,
-//        "com.google.protobuf" % "protobuf-java" % ".*"        -> None,
         "com.trueaccord.lenses" %% "lenses" % ".*"            -> None,
         "com.lihaoyi" %% "fastparse-utils" % ".*"             -> None,
-//        "commons-lang" % "commons-lang" % ".*"                -> None,
         Dependencies.scalaXml                                 -> Some("lib/scala-xml.jar"),
         Dependencies.scalaReflect                             -> Some("lib/scala-reflect.jar"),
         Dependencies.scalaLibrary                             -> None
       ),
       packageFileMappings ++= Seq(
-        baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapperImpl.scala" -> "lib/jps/repl-interface-sources.jar",
+        baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapperImpl.scala"      -> "lib/jps/repl-interface-sources.jar",
         baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapper213_0Impl.scala" -> "lib/jps/repl-interface-sources.jar",
-        baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapper213Impl.scala" -> "lib/jps/repl-interface-sources.jar"
+        baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapper213Impl.scala"   -> "lib/jps/repl-interface-sources.jar",
+        baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapper3Impl.scala"     -> "lib/jps/repl-interface-sources.jar"
       ),
       buildInfoPackage := "org.jetbrains.plugins.scala.buildinfo",
       buildInfoKeys := Seq(
@@ -180,7 +200,6 @@ lazy val runners =
 
 lazy val nailgunRunners =
   newProject("nailgun", file("scala/nailgun"))
-    .dependsOn(runners)
     .settings(
       libraryDependencies += Dependencies.nailgun,
       packageLibraryMappings += Dependencies.nailgun -> Some("lib/jps/nailgun.jar"),
@@ -214,38 +233,39 @@ lazy val bsp =
 
 lazy val devKitIntegration = newProject(
   "devKit",
-  file("scala/integration/devKit")
-).settings(
-  intellijInternalPlugins += "devkit"
+  file("scala/integration/devKit"))
+  .dependsOn(scalaImpl)
+  .settings(
+  intellijPlugins += "DevKit".toPlugin
 )
 
 lazy val androidIntegration =
   newProject("android", file("scala/integration/android"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
-      intellijInternalPlugins ++= Seq(
-        "android",
-        "smali", // required by Android
-        "gradle", // required by Android
-        "Groovy", // required by Gradle
-        "properties") // required by Gradle
+      intellijPlugins ++= Seq(
+        "org.jetbrains.android",
+        "com.android.tools.idea.smali",      // required by Android
+        "com.intellij.gradle",     // required by Android
+        "org.intellij.groovy",     // required by Gradle
+        "com.intellij.properties").map(_.toPlugin) // required by Gradle
     )
 
 lazy val copyrightIntegration =
   newProject("copyright", file("scala/integration/copyright"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
-      intellijInternalPlugins ++= Seq("copyright")
+      intellijPlugins += "com.intellij.copyright".toPlugin
     )
 
 lazy val gradleIntegration =
   newProject("gradle", file("scala/integration/gradle"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
-      intellijInternalPlugins ++= Seq(
-        "gradle",
-        "Groovy",     // required by Gradle
-        "properties") // required by Gradle
+      intellijPlugins ++= Seq(
+        "com.intellij.gradle",     // required by Android
+        "org.intellij.groovy",     // required by Gradle
+        "com.intellij.properties").map(_.toPlugin) // required by Gradle
     )
 
 lazy val intelliLangIntegration = newProject(
@@ -255,28 +275,28 @@ lazy val intelliLangIntegration = newProject(
   scalaImpl % "test->test;compile->compile"
 ).settings(
   addCompilerPlugin(Dependencies.macroParadise),
-  intellijInternalPlugins ++= Seq("IntelliLang")
+  intellijPlugins += "org.intellij.intelliLang".toPlugin
 )
 
 lazy val mavenIntegration =
   newProject("maven", file("scala/integration/maven"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
-      intellijInternalPlugins ++= Seq("maven")
+      intellijPlugins += "org.jetbrains.idea.maven".toPlugin
     )
 
 lazy val propertiesIntegration =
   newProject("properties", file("scala/integration/properties"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
-      intellijInternalPlugins ++= Seq("properties")
+      intellijPlugins += "com.intellij.properties".toPlugin
     )
 
 lazy val javaDecompilerIntegration =
   newProject("java-decompiler", file("scala/integration/java-decompiler"))
     .dependsOn(scalaApi % Compile)
     .settings(
-      intellijInternalPlugins ++= Seq("java-decompiler")
+      intellijPlugins += "org.jetbrains.java.decompiler".toPlugin
     )
 
 
@@ -304,6 +324,7 @@ lazy val runtimeDependencies =
         Dependencies.sbtLaunch -> Some("launcher/sbt-launch.jar"),
         Dependencies.sbtInterface -> Some("lib/jps/sbt-interface.jar"),
         Dependencies.zincInterface -> Some("lib/jps/compiler-interface.jar"),
+        Dependencies.dottySbtBridge -> Some("lib/jps/dotty-sbt-bridge.jar"),
         Dependencies.compilerBridgeSources_2_13 -> Some("lib/jps/compiler-interface-sources-2.13.jar"),
         Dependencies.compilerBridgeSources_2_11 -> Some("lib/jps/compiler-interface-sources-2.11.jar"),
         Dependencies.compilerBridgeSources_2_10 -> Some("lib/jps/compiler-interface-sources-2.10.jar")
@@ -338,6 +359,7 @@ addCommandAlias("runScalacTests", s"testOnly -- --include-categories=$scalacTest
 addCommandAlias("runTypeInferenceTests", s"testOnly -- --include-categories=$typecheckerTests")
 addCommandAlias("runTestingSupportTests", s"testOnly -- --include-categories=$testingSupportTests")
 addCommandAlias("runWorksheetEvaluationTests", s"testOnly -- --include-categories=$worksheetEvaluationTests")
+addCommandAlias("runFlakyTests", s"testOnly -- --include-categories=$flakyTests")
 
 val fastTestOptions = "-v -s -a +c +q " +
   s"--exclude-categories=$slowTests " +
@@ -347,7 +369,8 @@ val fastTestOptions = "-v -s -a +c +q " +
   s"--exclude-categories=$typecheckerTests " +
   s"--exclude-categories=$testingSupportTests " +
   s"--exclude-categories=$highlightingTests " +
-  s"--exclude-categories=$worksheetEvaluationTests "
+  s"--exclude-categories=$worksheetEvaluationTests " +
+  s"--exclude-categories=$flakyTests "
 
 addCommandAlias("runFastTests", s"testOnly -- $fastTestOptions")
 // subsets of tests to split the complete test run into smaller chunks

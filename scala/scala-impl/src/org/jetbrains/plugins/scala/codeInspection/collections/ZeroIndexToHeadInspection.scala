@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
@@ -11,7 +12,7 @@ class ZeroIndexToHeadInspection extends OperationOnCollectionInspection {
 }
 
 object ZeroIndexToHead extends SimplificationType() {
-  override def hint: String = InspectionBundle.message("replace.with.head")
+  override def hint: String = ScalaInspectionBundle.message("replace.with.head")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

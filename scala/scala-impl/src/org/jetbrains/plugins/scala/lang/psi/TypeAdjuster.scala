@@ -7,7 +7,6 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.annotator.intention.ScalaAddImportAction
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -184,7 +183,7 @@ object TypeAdjuster extends ApplicationListener {
   }
 
   private def replaceElem: ReplacementInfo => Unit = {
-    case SimpleInfo(place, replacement, _, _) if place.getText != replacement =>
+    case SimpleInfo(place, replacement, _, _) if !place.textMatches(replacement) =>
       val maybeNewElement = place match {
         case _: ScTypeElement => Some(newTypeElem(replacement, place))
         case _: ScReference => newRef(replacement, place)
@@ -237,7 +236,7 @@ object TypeAdjuster extends ApplicationListener {
           .flatMap(unapply)
           .filter { info =>
             val SimpleInfo(place, replacement, _, _) = info
-            replacement != place.getText
+            !place.textMatches(replacement)
           }
 
       @tailrec
@@ -333,7 +332,7 @@ object TypeAdjuster extends ApplicationListener {
         val infoToHolders = for {
           info <- infos
           place = info.place
-        } yield info -> ScalaAddImportAction.getImportHolder(place, place.getProject)
+        } yield info -> ScImportsHolder(place)
 
         val holders = infoToHolders.map(_._2)
         val maxHolders = holders.filterNot { holder =>
@@ -409,10 +408,10 @@ object TypeAdjuster extends ApplicationListener {
     def pathsToImport: List[String]
   }
 
-  private final case class SimpleInfo(place: PsiElement,
+  private final case class SimpleInfo(override val place: PsiElement,
                                       replacement: String,
                                       resolve: Option[PsiElement],
-                                      pathsToImport: List[String] = Nil) extends ReplacementInfo {
+                                      override val pathsToImport: List[String] = Nil) extends ReplacementInfo {
 
     def updateTarget(target: PsiNamedElement): SimpleInfo = {
       def prefixAndPath(qualifiedName: String, prefixLength: Int): Option[(String, Some[String])] =
@@ -497,7 +496,7 @@ object TypeAdjuster extends ApplicationListener {
   }
 
   private final case class CompoundInfo(children: List[ReplacementInfo])
-                                       (val place: PsiElement,
+                                       (override val place: PsiElement,
                                         private val typeElement: ScTypeElement) extends ReplacementInfo {
 
     if (!children.map(_.place).forall(typeElement.isAncestorOf)) {

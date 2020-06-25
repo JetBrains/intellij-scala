@@ -5,6 +5,7 @@ package clauses
 
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.LookupElement
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.codeStyle.CodeStyleManager
@@ -16,6 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScC
 private[clauses] abstract class ClauseInsertHandler[
   E <: ScalaPsiElement : reflect.ClassTag
 ] extends InsertHandler[LookupElement] {
+
+  protected implicit def projectFromContext(implicit context: InsertionContext): Project = context.getProject
 
   protected def handleInsert(implicit context: InsertionContext): Unit
 

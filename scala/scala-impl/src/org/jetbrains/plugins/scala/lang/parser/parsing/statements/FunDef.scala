@@ -6,8 +6,8 @@ package statements
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Block, Expr}
-import org.jetbrains.plugins.scala.lang.parser.parsing.params.ParamClauses
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Block, ExprInIndentationRegion}
+import org.jetbrains.plugins.scala.lang.parser.parsing.params.{FunTypeParamClause, ParamClauses, Params}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 
 /**
@@ -31,6 +31,33 @@ object FunDef {
         faultMarker.drop()
         return false
     }
+
+    if (builder.isScala3) {
+      if (FunTypeParamClause.parse(builder)) {
+        if (builder.getTokenType != ScalaTokenTypes.tLPARENTHESIS) {
+          builder error ErrMsg("expected.parameter.clause.for.extension.method")
+        }
+      }
+
+      if (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS) {
+        val extensionMethodParamMarker = builder.mark()
+        builder.advanceLexer()
+        Params.parse(builder)
+
+        if (builder.getTokenType == ScalaTokenTypes.tRPARENTHESIS) {
+          builder.advanceLexer() // ate )
+
+          extensionMethodParamMarker.done(ScalaElementType.PARAM_CLAUSE)
+
+          if (builder.getTokenType == ScalaTokenTypes.tDOT) {
+            builder.advanceLexer() // ate .
+          }
+        } else {
+          extensionMethodParamMarker.drop()
+        }
+      }
+    }
+
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
         FunSig parse builder
@@ -41,7 +68,7 @@ object FunDef {
               builder.getTokenType match {
                 case ScalaTokenTypes.tASSIGN =>
                   builder.advanceLexer() //Ate =
-                  if (Expr.parse(builder)) {
+                  if (ExprInIndentationRegion.parse(builder)) {
                     faultMarker.drop()
                     true
                   }
@@ -63,7 +90,7 @@ object FunDef {
             builder.advanceLexer() //Ate =
             builder.skipExternalToken()
 
-            if (Expr parse builder) {
+            if (ExprInIndentationRegion.parse(builder)) {
               faultMarker.drop()
               true
             }
@@ -86,7 +113,7 @@ object FunDef {
         }
       case ScalaTokenTypes.kTHIS =>
         builder.advanceLexer() //Ate this
-        ParamClauses parse(builder, true)
+        ParamClauses parse(builder, expectAtLeastOneClause = true)
         builder.getTokenType match {
           case ScalaTokenTypes.tASSIGN =>
             builder.advanceLexer() //Ate =

@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.collections.UnzipSingleElementInspection._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -15,7 +16,7 @@ class UnzipSingleElementInspection extends OperationOnCollectionInspection {
 private object UnzipSingleElementInspection {
   private val UnzipSingleElement: SimplificationType = new SimplificationType {
 
-    override def hint: String = InspectionBundle.message("replace.with.map")
+    override def hint: String = ScalaInspectionBundle.message("replace.with.map")
 
     override def getSimplification(e: ScExpression): Option[Simplification] = Some(e).collect {
       case q `.unzip` () `._1` () => (q, 1)

@@ -6,7 +6,6 @@ package statements
 package params
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -30,7 +29,7 @@ trait ScParameterClause extends ScalaPsiElement {
 
   def isImplicit: Boolean
 
-  def implicitToken: Option[PsiElement] = Option(findFirstChildByType(ScalaTokenTypes.kIMPLICIT))
+  def isUsing: Boolean
 
   def hasRepeatedParam: Boolean = parameters.lastOption.exists(_.isRepeatedParameter)
 

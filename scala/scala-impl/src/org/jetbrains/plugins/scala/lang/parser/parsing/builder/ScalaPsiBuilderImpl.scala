@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala
 package lang
-package parser.parsing
+package parser
+package parsing
 package builder
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.lang.impl.PsiBuilderAdapter
 import com.intellij.openapi.util.text.StringUtil.isWhiteSpace
 import com.intellij.psi.impl.source.resolve.FileContextUtil.CONTAINING_FILE_KEY
+import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 
 // TODO: now isScala3 is properly set only in org.jetbrains.plugins.scala.lang.parser.ScalaParser
 //  update all ScalaPsiBuilderImpl instantiations passing propper isScala3 value
@@ -112,5 +114,23 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) 
         }
       }
     case _ => true
+  }
+
+  override def error(messageText: String): Unit =
+    if (!ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(getProject))
+      super.error(messageText)
+
+  private var indentationStack = List(IndentationWidth.initial)
+
+  override def currentIndentationWidth: IndentationWidth =
+    indentationStack.head
+
+  override def pushIndentationWidth(width: IndentationWidth): Unit =
+    indentationStack ::= width
+
+  override def popIndentationWidth(): IndentationWidth = {
+    val top :: rest = indentationStack
+    indentationStack = rest
+    top
   }
 }

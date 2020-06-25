@@ -4,16 +4,15 @@ package completion
 
 import com.intellij.codeInsight.completion._
 import com.intellij.openapi.actionSystem.{ActionManager, IdeActions}
-import com.intellij.openapi.keymap.KeymapUtil
-import com.intellij.patterns.PlatformPatterns
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.openapi.keymap.KeymapUtil.getFirstKeyboardShortcutText
+import com.intellij.patterns.PlatformPatterns.psiElement
+import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-
-import scala.collection.JavaConverters
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
  * @author Alexander Podkhalyuzin
@@ -21,91 +20,123 @@ import scala.collection.JavaConverters
 final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor {
 
   import ScalaGlobalMembersCompletionContributor._
+  import global._
 
   //extension methods with import
   extend(
     CompletionType.BASIC,
-    PlatformPatterns.psiElement,
+    psiElement,
     new CompletionProvider[CompletionParameters] {
-      def addCompletions(parameters: CompletionParameters,
-                         context: ProcessingContext,
-                         resultSet: CompletionResultSet): Unit = {
+      override def addCompletions(parameters: CompletionParameters,
+                                  context: ProcessingContext,
+                                  resultSet: CompletionResultSet): Unit = {
         val invocationCount = parameters.getInvocationCount
-        if (invocationCount < 2) return
+        if (!regardlessAccessibility(invocationCount)) return
 
         for {
-          refExpr <- findReference(parameters)
-          qual    <- qualifier(refExpr)
-          finder  <- ExtensionMethodsFinder(qual)
+          reference@Qualifier(place@TypeWithoutImplicits(originalType)) <- findReference(parameters)
         } {
-          val items = finder.lookupItems(parameters.getOriginalFile, refExpr)
+          val items = new ExtensionMethodsFinder(originalType, place)
+            .lookupItems(reference, parameters.getOriginalFile)
           addGlobalCompletions(items, resultSet)
         }
       }
     }
   )
 
-  //static members with import
   extend(
     CompletionType.BASIC,
-    PlatformPatterns.psiElement,
+    identifierWithParentPattern(classOf[ScReferenceExpression]),
     new CompletionProvider[CompletionParameters] {
-      def addCompletions(parameters: CompletionParameters,
-                         context: ProcessingContext,
-                         resultSet: CompletionResultSet): Unit = {
+      override def addCompletions(parameters: CompletionParameters,
+                                  context: ProcessingContext,
+                                  resultSet: CompletionResultSet): Unit = {
+        val reference = positionFromParameters(parameters)
+          .getContext
+          .asInstanceOf[ScReferenceExpression]
+
         val invocationCount = parameters.getInvocationCount
+        val requiresAdvertisement = regardlessAccessibility(invocationCount)
 
-        if (invocationCount < 2) return
-        val accessAll = invocationCount >= 3
+        val matcher = resultSet.getPrefixMatcher
+        val maybeFinder = reference match {
+          case Qualifier(qualifier) =>
+            for {
+              TypeWithoutImplicits(placeType) <- Some(qualifier)
 
-        for {
-          refExpr <- findReference(parameters)
-          if qualifier(refExpr).isEmpty
-          finder  <- StaticMembersFinder(refExpr, resultSet.getPrefixMatcher, accessAll)
-        } {
-          val items = finder.lookupItems(parameters.getOriginalFile, refExpr)
-          addGlobalCompletions(items, resultSet)
+              originalType = toValueType(placeType)
+
+              ClassOrTrait(definition) <- originalType.extractClass
+            } yield CompanionObjectMembersFinder.ExtensionLike(originalType, definition)
+          case _ =>
+            val finder = if (requiresAdvertisement && matcher.getPrefix.nonEmpty)
+              StaticMembersFinder(reference) {
+                accessAll(invocationCount) || isAccessible(_)(reference)
+              }
+            else
+              CompanionObjectMembersFinder.Regular(reference)
+            Some(finder)
         }
+
+        val items = maybeFinder.map {
+          _.apply(matcher.prefixMatches)
+        }.fold(Seq.empty[ScalaLookupItem]) {
+          _.lookupItems(reference, parameters.getOriginalFile)
+        }
+        addGlobalCompletions(items, resultSet, requiresAdvertisement)
       }
     }
   )
-
 }
 
 object ScalaGlobalMembersCompletionContributor {
 
   private def findReference(parameters: CompletionParameters): Option[ScReferenceExpression] =
     positionFromParameters(parameters).getContext match {
-      case refExpr: ScReferenceExpression if PsiTreeUtil.getContextOfType(refExpr, classOf[ScalaFile]) != null => Some(refExpr)
+      case refExpr: ScReferenceExpression if getContextOfType(refExpr, classOf[ScalaFile]) != null => Some(refExpr)
       case _ => None
     }
 
-  private def addGlobalCompletions(lookupItems: Seq[ScalaLookupItem], resultSet: CompletionResultSet): Unit = {
-    if (lookupItems.exists(!_.shouldImport)) {
+  private def addGlobalCompletions(lookupItems: Seq[ScalaLookupItem],
+                                   resultSet: CompletionResultSet,
+                                   requiresAdvertisement: Boolean = true): Unit = {
+    if (requiresAdvertisement && !lookupItems.forall(_.shouldImport)) {
       hintString.foreach(resultSet.addLookupAdvertisement)
     }
 
-    import JavaConverters._
+    import collection.JavaConverters._
     resultSet.addAllElements(lookupItems.asJava)
   }
 
   private def hintString: Option[String] =
-    Option(ActionManager.getInstance.getAction(IdeActions.ACTION_SHOW_INTENTION_ACTIONS)).map { action =>
-      "To import a method statically, press " + KeymapUtil.getFirstKeyboardShortcutText(action)
-    }
+    Option(ActionManager.getInstance.getAction(IdeActions.ACTION_SHOW_INTENTION_ACTIONS))
+      .map(getFirstKeyboardShortcutText)
+      .map(ScalaBundle.message("to.import.method.statically.press.hotkey", _))
 
-  private def qualifier(refExpr: ScReferenceExpression) = refExpr.qualifier.orElse(desugaredQualifier(refExpr))
+  private object Qualifier {
 
-  private def stringContextQualifier(lit: ScInterpolatedStringLiteral): Option[ScExpression] =
-    lit.desugaredExpression.flatMap {
-      case (reference: ScReferenceExpression, _) => reference.qualifier
-      case _ => None
-    }
+    def unapply(reference: ScReferenceExpression): Option[ScExpression] =
+      reference.qualifier.orElse {
+        desugaredQualifier(reference)
+      }
 
-  private def desugaredQualifier(refExpr: ScReferenceExpression): Option[ScExpression] =
-    refExpr.getContext match {
-      case ScSugarCallExpr(baseExpression, `refExpr`, _) => Option(baseExpression)
-      case lit: ScInterpolatedStringLiteral              => stringContextQualifier(lit)
-      case _                                             => None
-    }
+    private[this] def stringContextQualifier(literal: ScInterpolatedStringLiteral) =
+      literal.desugaredExpression.flatMap {
+        case (reference: ScReferenceExpression, _) => reference.qualifier
+        case _ => None
+      }
+
+    private[this] def desugaredQualifier(reference: ScReferenceExpression) =
+      reference.getContext match {
+        case ScSugarCallExpr(baseExpression, `reference`, _) => Option(baseExpression)
+        case literal: ScInterpolatedStringLiteral => stringContextQualifier(literal)
+        case _ => None
+      }
+  }
+
+  private object TypeWithoutImplicits {
+
+    def unapply(qualifier: ScExpression): Option[ScType] =
+      qualifier.getTypeWithoutImplicits().toOption
+  }
 }

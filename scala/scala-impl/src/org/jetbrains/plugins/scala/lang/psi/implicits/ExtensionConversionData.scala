@@ -56,7 +56,7 @@ object ExtensionConversionHelper {
 
     specialExtractParameterType(candidate).filter {
       case _: ValType if isHardCoded => false
-      case _ => true
+      case _                         => true
     }.filter {
       checkHasMethodFast(data, _)
     }.flatMap { tp =>
@@ -72,7 +72,7 @@ object ExtensionConversionHelper {
         findInType(tp, data, typeParams).map { tp =>
           typeParams match {
             case Seq() => candidate
-            case _ => update(candidate, tp)
+            case _     => update(candidate, tp)
           }
         }
       }

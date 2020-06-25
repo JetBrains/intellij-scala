@@ -7,21 +7,20 @@ import com.intellij.openapi.util.text.StringUtil.isEmpty
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{KEYWORDS, tIDENTIFIER}
+import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 class ScalaNamesValidator extends NamesValidator {
 
-  private val lexerCache = new ThreadLocal[ScalaLexer] {
-    override def initialValue(): ScalaLexer = new ScalaLexer
-  }
+  private val lexerCache = UnloadableThreadLocal(new ScalaLexer(false, null))
 
   private val keywordNames: Set[String] = KEYWORDS.getTypes
     .map(_.toString)
     .toSet
 
-  def isIdentifier(name: String, project: Project): Boolean = {
+  override def isIdentifier(name: String, project: Project): Boolean = {
     if (isEmpty(name)) return false
 
-    val lexer = lexerCache.get()
+    val lexer = lexerCache.value
     lexer.start(name)
 
     if (lexer.getTokenType != tIDENTIFIER) return false
@@ -29,7 +28,7 @@ class ScalaNamesValidator extends NamesValidator {
     lexer.getTokenType == null
   }
 
-  def isKeyword(name: String, project: Project): Boolean =
+  override def isKeyword(name: String, project: Project): Boolean =
     keywordNames.contains(name)
 }
 

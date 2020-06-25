@@ -1,7 +1,7 @@
 /**
   * =header1==
   * __This is underlined and '''bold text'''.__ And this is plain text
-  * This is ,,subscripted and ''italic text'',, [[some.code.Link  badText]]
+  * This is ,,subscripted and ''italic text'',, [[some.code.Link   description  text]]
   * [[http://scala-lang.org very looooooooooooooooooooooooooooooooooooooooooooooooooooooong
   * http link]]
   * ===sub-header===
@@ -55,22 +55,17 @@ identifier {some}
 identifier {code}
 . {.}
 identifier {Link}
-DOC_COMMENT_BAD_CHARACTER { }
-DOC_COMMENT_BAD_CHARACTER { }
-DOC_COMMENT_BAD_CHARACTER {b}
-DOC_COMMENT_BAD_CHARACTER {a}
-DOC_COMMENT_BAD_CHARACTER {d}
-DOC_COMMENT_BAD_CHARACTER {T}
-DOC_COMMENT_BAD_CHARACTER {e}
-DOC_COMMENT_BAD_CHARACTER {x}
-DOC_COMMENT_BAD_CHARACTER {t}
+DOC_WHITESPACE {   }
+DOC_COMMENT_DATA {description  text}
 DOC_LINK_CLOSE_TAG 0 {]]}
 DOC_WHITESPACE {
   }
 DOC_COMMENT_LEADING_ASTERISKS {*}
 DOC_WHITESPACE { }
 DOC_HTTP_LINK_TAG 128 {[[}
-DOC_COMMENT_DATA {http://scala-lang.org very looooooooooooooooooooooooooooooooooooooooooooooooooooooong}
+DOC_HTTP_LINK_VALUE {http://scala-lang.org}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {very looooooooooooooooooooooooooooooooooooooooooooooooooooooong}
 DOC_WHITESPACE {
   }
 DOC_COMMENT_LEADING_ASTERISKS {*}

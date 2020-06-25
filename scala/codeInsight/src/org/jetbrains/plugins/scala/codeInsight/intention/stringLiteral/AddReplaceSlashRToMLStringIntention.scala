@@ -7,6 +7,7 @@ import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 
 /**
   * User: Dmitry Naydanov
@@ -27,8 +28,8 @@ final class AddReplaceSlashRToMLStringIntention extends PsiElementBaseIntentionA
     editor.getDocument.insertString(element.getTextRange.getEndOffset, ".replace(\"\\r\", \"\")")
   }
 
-  override def getFamilyName: String = """Add .replace("\r","")"""
+  override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.add.replace.call")
 
-  override def getText: String = "Add 'replace(\"\\r\", \"\")'"
+  override def getText: String = ScalaCodeInsightBundle.message("add.replace.call")
 }
 

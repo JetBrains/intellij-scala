@@ -11,11 +11,9 @@ class IfElseToFilteredOptionInspectionTest extends OperationsOnCollectionInspect
 
   override protected val hint: String = "Replace if with filtered option"
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   private val evenFunction = "def isEven(x:Int) = x % 2 == 0;"
 
-  def testShouldReplaceWhenReturningSome() = {
+  def testShouldReplaceWhenReturningSome(): Unit = {
     doTest(
       s"$evenFunction ${START}if (isEven(2)) Some(2) else None$END",
       s"$evenFunction if (isEven(2)) Some(2) else None",
@@ -23,7 +21,7 @@ class IfElseToFilteredOptionInspectionTest extends OperationsOnCollectionInspect
     )
   }
 
-  def testShouldReplaceWhenReturningOption() = {
+  def testShouldReplaceWhenReturningOption(): Unit = {
     doTest(
       s"$evenFunction ${START}if (isEven(2)) Option(2) else None$END",
       s"$evenFunction if (isEven(2)) Option(2) else None",
@@ -31,7 +29,7 @@ class IfElseToFilteredOptionInspectionTest extends OperationsOnCollectionInspect
     )
   }
 
-  def testShouldWorkEvenIfWhitespacePresent() = {
+  def testShouldWorkEvenIfWhitespacePresent(): Unit = {
     doTest(
       s"$evenFunction ${START}if (isEven(2   )) Option( 2) else None$END",
       s"$evenFunction if (isEven(2   )) Option( 2) else None",
@@ -39,12 +37,12 @@ class IfElseToFilteredOptionInspectionTest extends OperationsOnCollectionInspect
     )
   }
 
-  def testShouldNotReplaceWithMethodCallAsParam() = {
+  def testShouldNotReplaceWithMethodCallAsParam(): Unit = {
     val getInt = "def getInt() = 2;"
     checkTextHasNoErrors(s"$evenFunction $getInt ${START}if (isEven(getInt())) Option(getInt()) else None$END")
   }
 
-  def testShouldNotShowIfMethodParametersAreNotEqual() =
+  def testShouldNotShowIfMethodParametersAreNotEqual(): Unit =
     checkTextHasNoErrors(s"$evenFunction if (isEven(4)) Option(2) else None")
 
 }

@@ -8,51 +8,51 @@ import com.intellij.psi.PsiElement
 
 
 abstract class TreeIteratorTestBase extends IteratorTestCase {
-  def testEmpty() = {
+  def testEmpty(): Unit = {
     assertIterates("0", "0")
   }
 
-  def testSingleChild() = {
+  def testSingleChild(): Unit = {
     assertIterates("0, 1.1", "0 (1.1)")
   }
 
-  def testTwoChildren() = {
+  def testTwoChildren(): Unit = {
     assertIterates("0, 1.1, 1.2", "0 (1.1, 1.2)")
   }
 
-  def testThreeChildren() = {
+  def testThreeChildren(): Unit = {
     assertIterates("0, 1.1, 1.2, 1.3", "0 (1.1, 1.2, 1.3)")
   }
   
-  def testTwoLevels() = {
+  def testTwoLevels(): Unit = {
     assertIterates("0, 1.1, 2.1", "0 (1.1 (2.1))")
   }
   
-  def testThreeLevels() = {
+  def testThreeLevels(): Unit = {
     assertIterates("0, 1.1, 2.1, 3.1", "0 (1.1 (2.1 (3.1)))")
   }
 
-  def testInitialElementSibling() = {
+  def testInitialElementSibling(): Unit = {
     assertIterates("1.1", parse("0 (1.1, 1.2)").getFirstChild)
   }
 
-  def testInitialElementSiblingOnReturn() = {
+  def testInitialElementSiblingOnReturn(): Unit = {
     assertIterates("1.1, 2.1", parse("0 (1.1 (2.1), 1.2)").getFirstChild)
   }
   
-  def testPredicateOnOriginalElement() = {
+  def testPredicateOnOriginalElement(): Unit = {
     assertIterates("0", createIterator(parse("0"), _.toString != "0"))
   }
   
-  def testPredicateOnFirstChild() = {
+  def testPredicateOnFirstChild(): Unit = {
     assertIterates("0, 1.1", createIterator(parse("0 (1.1)"), _.toString != "1.1"))
   }
   
-  def testPredicateOnMiddleChild() = {
+  def testPredicateOnMiddleChild(): Unit = {
     assertIterates("0, 1.1, 1.2, 1.3", createIterator(parse("0 (1.1, 1.2, 1.3)"), _.toString != "1.2"))
   }
 
-  def testPredicateOnNested() = {
+  def testPredicateOnNested(): Unit = {
     assertIterates("0, 1.1, 1.2", createIterator(parse("0 (1.1 (1.2 (1.3)))"), _.toString != "1.2"))
   }
   

@@ -29,7 +29,7 @@ class ScParametersImpl private (stub: ScParamClausesStub, node: ASTNode)
   override def toString: String = "Parameters"
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
-  def clauses: Seq[ScParameterClause] = {
+  override def clauses: Seq[ScParameterClause] = {
     getStubOrPsiChildren(ScalaElementType.PARAM_CLAUSE, JavaArrayFactoryUtil.ScParameterClauseFactory).toSeq
   }
 
@@ -53,7 +53,7 @@ class ScParametersImpl private (stub: ScParamClausesStub, node: ASTNode)
     true
   }
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitParameters(this)
   }
 

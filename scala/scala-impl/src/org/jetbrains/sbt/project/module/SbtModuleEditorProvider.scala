@@ -8,7 +8,7 @@ import com.intellij.openapi.roots.ui.configuration._
  * @author Pavel Fatin
  */
 class SbtModuleEditorProvider extends ModuleConfigurationEditorProvider {
-  def createEditors(state: ModuleConfigurationState): Array[ModuleConfigurationEditor] = {
+  override def createEditors(state: ModuleConfigurationState): Array[ModuleConfigurationEditor] = {
     val module = state.getRootModel.getModule
 
     ModuleType.get(module) match {

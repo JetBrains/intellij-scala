@@ -4,7 +4,7 @@ import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.element.ScPatternAnnotator
 import org.jetbrains.plugins.scala.codeInspection.typeChecking.PatternMayNeverMatchInspection.{ScPatternExpectedAndPatternType, inspectionName}
-import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, InspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil._
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
@@ -29,10 +29,10 @@ class PatternMayNeverMatchInspection extends AbstractInspection(inspectionName) 
 
 object PatternMayNeverMatchInspection {
   val inspectionId: String = "PatternMayNeverMatch"
-  val inspectionName: String = InspectionBundle.message("pattern.may.never.match")
+  val inspectionName: String = ScalaInspectionBundle.message("pattern.may.never.match")
   def message(_expected: ScType, _found: ScType)(implicit tpc: TypePresentationContext): String = {
     val (expected, found) = ScTypePresentation.different(_expected, _found)
-    InspectionBundle.message("pattern.may.never.match", expected, found)
+    ScalaInspectionBundle.message("pattern.may.never.match", expected, found)
   }
   
   object ScPatternExpectedAndPatternType {

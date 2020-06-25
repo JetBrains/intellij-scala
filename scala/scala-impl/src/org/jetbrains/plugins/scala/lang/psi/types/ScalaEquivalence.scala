@@ -35,28 +35,30 @@ trait ScalaEquivalence extends api.Equivalence {
       }
 
       (left, right) match {
-        case (UndefinedType(_, _), _) if right.isAliasType.isDefined =>
+        case (UndefinedType(_, _), _) if right.isAliasType =>
           val t = left.equivInner(right, empty, falseUndef)
           if (t.isRight) return t
-        case (_, UndefinedType(_, _)) if left.isAliasType.isDefined =>
+        case (_, UndefinedType(_, _)) if left.isAliasType =>
           val t = left.equivInner(right, empty, falseUndef)
           if (t.isRight) return t
-        case (ParameterizedType(UndefinedType(_, _), _), _) if right.isAliasType.isDefined =>
+        case (ParameterizedType(UndefinedType(_, _), _), _) if right.isAliasType =>
           val t = left.equivInner(right, empty, falseUndef)
           if (t.isRight) return t
-        case (_, ParameterizedType(UndefinedType(_, _), _)) if left.isAliasType.isDefined =>
+        case (_, ParameterizedType(UndefinedType(_, _), _)) if left.isAliasType =>
           val t = right.equivInner(left, empty, falseUndef)
           if (t.isRight) return t
         case _ =>
       }
 
-      right.isAliasType match {
-        case Some(AliasType(_: ScTypeAliasDefinition, Right(right), _)) => return equivInner(left, right, falseUndef = falseUndef)
+      right match {
+        case AliasType(_: ScTypeAliasDefinition, Right(right), _) =>
+          return equivInner(left, right, falseUndef = falseUndef)
         case _ =>
       }
 
-      left.isAliasType match {
-        case Some(AliasType(_: ScTypeAliasDefinition, Right(left), _)) => return equivInner(left, right, falseUndef = falseUndef)
+      left match {
+        case AliasType(_: ScTypeAliasDefinition, Right(left), _) =>
+          return equivInner(left, right, falseUndef = falseUndef)
         case _ =>
       }
 

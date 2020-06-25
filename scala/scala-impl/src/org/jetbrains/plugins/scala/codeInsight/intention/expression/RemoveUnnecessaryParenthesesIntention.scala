@@ -17,14 +17,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScParenthesizedElement
  * Nikolay.Tropin
  * 4/29/13
  */
-object RemoveUnnecessaryParenthesesIntention {
-  def familyName = "Remove unnecessary parentheses"
-}
-
 class RemoveUnnecessaryParenthesesIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = RemoveUnnecessaryParenthesesIntention.familyName
+  override def getFamilyName: String = ScalaBundle.message("remove.unnecessary.parentheses")
 
-  override def getText = "Remove unnecessary parentheses"
+  override def getText: String = ScalaBundle.message("remove.unnecessary.parentheses")
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     !isInspectionEnabledIn(project, "ScalaUnnecessaryParentheses") &&

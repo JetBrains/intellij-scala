@@ -68,7 +68,7 @@ class ScalaProjectSettings(basePackages: Seq[String]) extends XmlConversion {
     new File(base, "scala_settings.xml")
   }
 
-  private def addProjectBasedOptions(options: Elem, context: ConversionContext) {
+  private def addProjectBasedOptions(options: Elem, context: ConversionContext): Unit = {
     val rootElement = context.getProjectSettings.getRootElement
     rootElement.addContent(asJava(options))
   }

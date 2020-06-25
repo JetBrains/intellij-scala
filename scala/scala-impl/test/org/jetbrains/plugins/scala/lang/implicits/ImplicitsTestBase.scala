@@ -30,7 +30,7 @@ abstract class ImplicitsTestBase extends ScalaLightPlatformCodeInsightTestCaseAd
 
   def folderPath: String = baseRootPath + "implicits/"
 
-  protected def doTest() {
+  protected def doTest(): Unit = {
     import _root_.junit.framework.Assert._
 
     val filePath = folderPath + getTestName(false) + ".scala"

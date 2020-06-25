@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, Comple
   * 19-Jan-17
   */
 abstract class ScReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScReference {
-  def resolve(): PsiElement = {
+  override def resolve(): PsiElement = {
     bind() match {
       case Some(result) => result.element
       case _ => null
@@ -38,7 +38,7 @@ abstract class ScReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) 
   protected def toLookupItem(result: ScalaResolveResult): Option[ScalaLookupItem] =
     result.getLookupElement(isInImport = PsiTreeUtil.getContextOfType(this, classOf[ScImportStmt]) != null)
 
-  final def bind(): Option[ScalaResolveResult] = {
+  override final def bind(): Option[ScalaResolveResult] = {
     ProgressManager.checkCanceled()
 
     multiResolveScala(false) match {

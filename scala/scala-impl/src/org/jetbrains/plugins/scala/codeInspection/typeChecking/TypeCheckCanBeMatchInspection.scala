@@ -8,6 +8,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -77,7 +78,8 @@ final class TypeCheckCanBeMatchInspection extends AbstractInspection(TypeCheckCa
 
 object TypeCheckCanBeMatchInspection {
   val inspectionId = "TypeCheckCanBeMatch"
-  val inspectionName = "Type check can be replaced by pattern matching"
+  @Nls
+  val inspectionName: String = ScalaInspectionBundle.message("type.check.can.be.replaced.by.pattern.matching")
 
   private type RenameData = mutable.ArrayBuffer[(Int, Seq[String])]
 
@@ -293,7 +295,7 @@ object TypeCheckCanBeMatchInspection {
     case _ => Seq.empty
   }
 
-  def setElementsForRename(matchStmt: ScMatch, renameHelper: InplaceRenameHelper, renameData: RenameData) {
+  def setElementsForRename(matchStmt: ScMatch, renameHelper: InplaceRenameHelper, renameData: RenameData): Unit = {
     val caseClauses = matchStmt.clauses.toList
 
     for {
@@ -305,7 +307,7 @@ object TypeCheckCanBeMatchInspection {
       val dependents = mutable.SortedSet.empty[ScalaPsiElement](Ordering.by(_.getTextOffset))
 
       val patternVisitor = new ScalaRecursiveElementVisitor() {
-        override def visitPattern(pat: ScPattern) {
+        override def visitPattern(pat: ScPattern): Unit = {
           pat match {
             case bp: ScBindingPattern if bp.name == name =>
               primary += bp
@@ -316,7 +318,7 @@ object TypeCheckCanBeMatchInspection {
       }
 
       val referenceVisitor = new ScalaRecursiveElementVisitor() {
-        override def visitReferenceExpression(ref: ScReferenceExpression) {
+        override def visitReferenceExpression(ref: ScReferenceExpression): Unit = {
           for (prim <- primary) {
             if (ref.refName == name && ref.resolve() == prim)
               dependents += ref

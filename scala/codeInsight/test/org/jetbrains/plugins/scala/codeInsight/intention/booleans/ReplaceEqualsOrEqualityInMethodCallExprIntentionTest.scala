@@ -13,7 +13,7 @@ class ReplaceEqualsOrEqualityInMethodCallExprIntentionTest extends intentions.Sc
 
   import EditorTestUtil.{CARET_TAG => CARET}
 
-  override def familyName = ReplaceEqualsOrEqualityInMethodCallExprIntention.FamilyName
+  override def familyName = ScalaCodeInsightBundle.message("family.name.replace.equals.or.equality.in.method.call.expression")
 
   def testReplaceEquality(): Unit = {
     val text = s"if (a.$CARET==(b)) return"

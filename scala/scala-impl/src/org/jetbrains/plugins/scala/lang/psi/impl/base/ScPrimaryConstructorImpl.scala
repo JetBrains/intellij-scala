@@ -4,7 +4,7 @@ package psi
 package impl
 package base
 
-import java.util.ArrayList
+import java.util
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
@@ -36,64 +36,64 @@ class ScPrimaryConstructorImpl private(stub: ScPrimaryConstructorStub, node: AST
   //todo rewrite me!
   override def hasModifier: Boolean = false
 
-  def getClassNameText: String = {
+  override def getClassNameText: String = {
     getNode.getTreeParent.getPsi.asInstanceOf[ScTypeDefinition].name
   }
 
   override def toString: String = "PrimaryConstructor"
 
 
-  def parameterList: ScParameters = {
+  override def parameterList: ScParameters = {
     getStubOrPsiChild(ScalaElementType.PARAM_CLAUSES)
   }
 
   override def getName: String = this.containingClass.name
 
-  def getNameIdentifier: PsiIdentifier = null
+  override def getNameIdentifier: PsiIdentifier = null
 
-  def getReturnTypeElement = null
+  override def getReturnTypeElement: PsiTypeElement = null
 
-  def getHierarchicalMethodSignature = new HierarchicalMethodSignatureImpl(getSignature(PsiSubstitutor.EMPTY))
+  override def getHierarchicalMethodSignature = new HierarchicalMethodSignatureImpl(getSignature(PsiSubstitutor.EMPTY))
 
-  def findSuperMethods(parentClass: PsiClass) = PsiMethod.EMPTY_ARRAY
+  override def findSuperMethods(parentClass: PsiClass): Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
 
-  def findSuperMethods(checkAccess: Boolean) = PsiMethod.EMPTY_ARRAY
+  override def findSuperMethods(checkAccess: Boolean): Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
 
-  def findSuperMethods = PsiMethod.EMPTY_ARRAY
+  override def findSuperMethods: Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
 
-  def findDeepestSuperMethod = null
+  override def findDeepestSuperMethod: PsiMethod = null
 
-  def findDeepestSuperMethods = PsiMethod.EMPTY_ARRAY
+  override def findDeepestSuperMethods: Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
 
   def getReturnTypeNoResolve: PsiType = PsiType.VOID
 
-  def findSuperMethodSignaturesIncludingStatic(checkAccess: Boolean) =
-    new ArrayList[MethodSignatureBackedByPsiMethod]()
+  override def findSuperMethodSignaturesIncludingStatic(checkAccess: Boolean) =
+    new util.ArrayList[MethodSignatureBackedByPsiMethod]()
 
-  def getSignature(substitutor: PsiSubstitutor): MethodSignatureBackedByPsiMethod = MethodSignatureBackedByPsiMethod.create(this, substitutor)
+  override def getSignature(substitutor: PsiSubstitutor): MethodSignatureBackedByPsiMethod = MethodSignatureBackedByPsiMethod.create(this, substitutor)
 
-  def psiTypeParameters = PsiTypeParameter.EMPTY_ARRAY
+  override def psiTypeParameters: Array[PsiTypeParameter] = PsiTypeParameter.EMPTY_ARRAY
 
   //todo implement me!
-  def isVarArgs = false
+  override def isVarArgs = false
 
-  def isConstructor = true
+  override def isConstructor = true
 
-  def getBody = null
+  override def getBody: PsiCodeBlock = null
 
-  def getThrowsList: ScAnnotations = findChildByClass(classOf[ScAnnotations])
+  override def getThrowsList: ScAnnotations = findChildByClass(classOf[ScAnnotations])
 
-  def getTypeParameterList = null
+  override def getTypeParameterList: PsiTypeParameterList = null
 
-  def hasTypeParameters = false
+  override def hasTypeParameters: Boolean = false
 
-  def getParameterList: ScParameters = parameterList
+  override def getParameterList: ScParameters = parameterList
 
-  def setName(name: String): PsiElement = this
+  override def setName(name: String): PsiElement = this
 
-  def getReturnType: PsiType = PsiType.VOID
+  override def getReturnType: PsiType = PsiType.VOID
 
-  def getDocComment: PsiDocComment = null
+  override def getDocComment: PsiDocComment = null
 
-  def isDeprecated: Boolean = false
+  override def isDeprecated: Boolean = false
 }

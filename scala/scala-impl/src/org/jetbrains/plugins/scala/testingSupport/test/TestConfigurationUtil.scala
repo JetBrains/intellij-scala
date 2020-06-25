@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test
 
-import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.{OptionExt, PsiElementExt}
@@ -24,24 +23,28 @@ object TestConfigurationUtil {
   val uTestConfigurationProducer = new UTestConfigurationProducer
   val scalaTestConfigurationProducer = new ScalaTestConfigurationProducer
 
-  def isPackageConfiguration(element: PsiElement, configuration: RunConfiguration): Boolean = {
+  def isPackageConfiguration(element: PsiElement, configuration: AbstractTestRunConfiguration): Boolean = {
     val pack: PsiPackage = element match {
       case dir: PsiDirectory => JavaDirectoryService.getInstance.getPackage(dir)
-      case pack: PsiPackage => pack
+      case pack: PsiPackage  => pack
+      case _                 => null
     }
-    if (pack == null) return false
-    configuration match {
-      case configuration: AbstractTestRunConfiguration =>
-        configuration.testConfigurationData.isInstanceOf[AllInPackageTestData] &&
-          configuration.getTestPackagePath == pack.getQualifiedName
-      case _ => false
-    }
+    pack != null && isPackageConfiguration(pack, configuration)
   }
+
+  private def isPackageConfiguration(pack: PsiPackage, configuration: AbstractTestRunConfiguration): Boolean =
+    configuration.testConfigurationData match {
+      case data: AllInPackageTestData => data.getTestPackagePath == pack.getQualifiedName
+      case _                          => false
+    }
 
   def isInheritor(clazz: ScTemplateDefinition, fqn: String): Boolean = {
     val suiteClazz = ScalaPsiManager.instance(clazz.getProject).getCachedClass(clazz.resolveScope, fqn)
     suiteClazz.fold(false)(ScalaPsiUtil.isInheritorDeep(clazz, _))
   }
+
+  def isInheritor(clazz: ScTemplateDefinition, fqn: String, otherFqns: String*): Boolean =
+    isInheritor(clazz, fqn) || otherFqns.exists(isInheritor(clazz, _))
 
   //noinspection TypeAnnotation
   private object StringMethodNames {
@@ -80,7 +83,7 @@ object TestConfigurationUtil {
       } else {
         refExpr.smartQualifier
           .flatMap(getStaticTestNameRaw(_, allowSymbolLiterals))
-          .flatMap { name: String =>
+          .flatMap { (name: String) =>
             methodName match {
               case ToLowerCase => Some(name.toLowerCase)
               case ToUpperCase => Some(name.toUpperCase)
@@ -171,7 +174,7 @@ object TestConfigurationUtil {
             }
           case _ => None
         }
-      case refExpr: ScReferenceExpression if refExpr.getText == "+" =>
+      case refExpr: ScReferenceExpression if refExpr.textMatches("+") =>
         getStaticTestNameRaw(refExpr.getParent, allowSymbolLiterals)
       case refExpr: ScReferenceExpression if NoArgMethods.contains(refExpr.refName) =>
         processNoArgMethod(refExpr)

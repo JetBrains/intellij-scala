@@ -10,16 +10,19 @@ import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory, JBPopupListener, LightweightWindowEvent}
+import com.intellij.openapi.ui.popup.{JBPopupFactory, LightweightWindowEvent, JBPopup, JBPopupListener}
 import com.intellij.openapi.util.{Disposer, Ref}
 import com.intellij.psi.util.PsiUtilBase
-import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
+import com.intellij.psi.{PsiFile, PsiElement, PsiWhiteSpace}
 import com.intellij.ui.tree.{AsyncTreeModel, StructureTreeModel}
 import com.intellij.ui.treeStructure.Tree
-import com.intellij.ui.{ClickListener, ScrollPaneFactory}
+import com.intellij.ui.{ScrollPaneFactory, ClickListener}
 import com.intellij.util.ArrayUtil
 import javax.swing.tree.{DefaultMutableTreeNode, TreePath}
 import javax.swing.{JPanel, JTree}
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -34,12 +37,16 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
   * Date: 25.10.11
   */
 
-class ShowImplicitArgumentsAction extends AnAction("Show implicit arguments action") {
+class ShowImplicitArgumentsAction extends AnAction(
+  ScalaBundle.message("show.implicit.arguments.action.text"),
+  ScalaBundle.message("show.implicit.arguments.action.description"),
+  /* icon = */ null
+) {
   import ShowImplicitArgumentsAction._
 
   override def update(e: AnActionEvent): Unit = ScalaActionUtil.enableAndShowIfInScalaFile(e)
 
-  def actionPerformed(e: AnActionEvent): Unit = {
+  override def actionPerformed(e: AnActionEvent): Unit = {
     val context = e.getDataContext
     implicit val project: Project = CommonDataKeys.PROJECT.getData(context)
     implicit val editor: Editor = CommonDataKeys.EDITOR.getData(context)
@@ -53,12 +60,12 @@ class ShowImplicitArgumentsAction extends AnAction("Show implicit arguments acti
     val targets = findAllTargets(file)
 
     if (targets.length == 0)
-      ScalaActionUtil.showHint(editor, "No implicit arguments")
+      ScalaActionUtil.showHint(editor, ScalaBundle.message("no.implicit.arguments"))
     else if (targets.length == 1)
       onChosen(targets(0))
     else
       ScalaRefactoringUtil.showChooserGeneric[ImplicitArgumentsTarget](
-        editor, targets, onChosen, "Expressions", _.presentation, _.expression
+        editor, targets, onChosen, ScalaBundle.message("title.expressions"), _.presentation, _.expression
       )
   }
 
@@ -140,24 +147,22 @@ object ShowImplicitArgumentsAction {
 
     val succeeded: Ref[Boolean] = new Ref[Boolean]
     val commandProcessor: CommandProcessor = CommandProcessor.getInstance
-    commandProcessor.executeCommand(project, new Runnable {
-      def run(): Unit = {
-        if (selectedNode != null) {
-          if (selectedNode.canNavigateToSource) {
-            popup.cancel()
-            selectedNode.navigate(true)
-            succeeded.set(true)
-          }
-          else {
-            succeeded.set(false)
-          }
+    commandProcessor.executeCommand(project, () => {
+      if (selectedNode != null) {
+        if (selectedNode.canNavigateToSource) {
+          popup.cancel()
+          selectedNode.navigate(true)
+          succeeded.set(true)
         }
         else {
           succeeded.set(false)
         }
-        IdeDocumentHistory.getInstance(project).includeCurrentCommandAsNavigation()
       }
-    }, "Navigate", null)
+      else {
+        succeeded.set(false)
+      }
+      IdeDocumentHistory.getInstance(project).includeCurrentCommandAsNavigation()
+    }, ScalaBundle.message("navigate"), null)
     succeeded.get
   }
 
@@ -168,7 +173,7 @@ object ShowImplicitArgumentsAction {
     val structure = new ImplicitArgumentsTreeStructure(project, results)
 
     val tempDisposable = new Disposable {
-      def dispose(): Unit = ()
+      override def dispose(): Unit = ()
     }
     val structureTreeModel = new StructureTreeModel[ImplicitArgumentsTreeStructure](structure, tempDisposable)
     val asyncTreeModel = new AsyncTreeModel(structureTreeModel, true, tempDisposable)
@@ -189,7 +194,7 @@ object ShowImplicitArgumentsAction {
     val ENTER: Array[Shortcut] = CustomShortcutSet.fromString("ENTER").getShortcuts
     val shortcutSet: CustomShortcutSet = new CustomShortcutSet(ArrayUtil.mergeArrays(F4, ENTER): _*)
 
-    val title = if (isConversion) "Implicit arguments for implicit conversion:" else "Implicit arguments:"
+    val title = if (isConversion) ScalaBundle.message("implicit.arguments.for.implicit.conversion") else ScalaBundle.message("implicit.arguments")
 
     val popup: JBPopup = JBPopupFactory.getInstance().createComponentPopupBuilder(panel, jTree).
       setRequestFocus(true).
@@ -199,7 +204,7 @@ object ShowImplicitArgumentsAction {
       createPopup
 
     new AnAction {
-      def actionPerformed(e: AnActionEvent) {
+      override def actionPerformed(e: AnActionEvent): Unit = {
         val succeeded: Boolean = navigateSelectedElement(popup, jTree, project)
         if (succeeded) {
           unregisterCustomShortcutSet(panel)
@@ -208,7 +213,7 @@ object ShowImplicitArgumentsAction {
     }.registerCustomShortcutSet(shortcutSet, panel)
 
     new ClickListener {
-      def onClick(e: MouseEvent, clickCount: Int): Boolean = {
+      override def onClick(e: MouseEvent, clickCount: Int): Boolean = {
         val path: TreePath = jTree.getPathForLocation(e.getX, e.getY)
         if (path == null) return false
         navigateSelectedElement(popup, jTree, project)

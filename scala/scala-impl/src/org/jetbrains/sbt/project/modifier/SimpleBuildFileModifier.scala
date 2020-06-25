@@ -18,7 +18,9 @@ import scala.collection.mutable
  * @author Roman.Shein
  * @since 16.03.2015.
  */
-class SimpleBuildFileModifier(val libDependencies: Seq[String], val resolvers: Seq[String], val scalacOptions: Seq[String],
+class SimpleBuildFileModifier(val libDependencies: Seq[String],
+                              val resolvers: Seq[String],
+                              val scalacOptions: Seq[String],
                               val buildFileProviders: List[BuildFileProvider] = List(SimpleModuleBuildFileProvider, ProjectRootBuildFileProvider),
                               val buildFileLocationProviders: List[BuildFileModificationLocationProvider] = List(EndOfFileLocationProvider))
     extends BuildFileModifier {
@@ -61,7 +63,7 @@ class SimpleBuildFileModifier(val libDependencies: Seq[String], val resolvers: S
     }
   }
 
-  protected def requiredElementTypes = {
+  protected def requiredElementTypes: Seq[BuildFileElementType] = {
     SimpleBuildFileModifier.supportedElementTypes.filter{
       case BuildFileElementType.libraryDependencyElementId => libDependencies.nonEmpty
       case BuildFileElementType.resolverElementId => resolvers.nonEmpty
@@ -96,7 +98,7 @@ object SimpleBuildFileModifier {
   def addElementsToBuildFile(module: Module, locationProvider: BuildFileModificationLocationProvider,
                              elementType: BuildFileElementType, buildFile: PsiFile, psiElements: PsiElement*): Option[VirtualFile] = {
     locationProvider.getAddElementLocation(module, elementType, buildFile) match {
-      case Some((parent, index)) if (index == 0) || parent.getChildren.size >= index =>
+      case Some((parent, index)) if (index == 0) || parent.getChildren.length >= index =>
         val children = parent.getChildren
         if (children.isEmpty) {
           for (psiElement <- psiElements) parent.add(psiElement)

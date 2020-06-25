@@ -9,7 +9,7 @@ import org.junit.experimental.categories.Category
  */
 @Category(Array(classOf[DebuggerTests]))
 class LocationOfLineTest_since_2_12 extends LocationsOfLineTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_12
 
   override def testLambdas(): Unit = {
     checkLocationsOfLine(
@@ -35,7 +35,7 @@ class LocationOfLineTest_since_2_12 extends LocationsOfLineTestBase {
 
 @Category(Array(classOf[DebuggerTests]))
 class LocationOfLineTest_2_11 extends LocationsOfLineTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_11
 }
 
 abstract class LocationsOfLineTestBase extends PositionManagerTestBase {

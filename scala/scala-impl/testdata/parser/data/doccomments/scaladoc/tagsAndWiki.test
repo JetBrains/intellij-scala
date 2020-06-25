@@ -1,0 +1,102 @@
+/**
+ * {@plain asdfshgfdj} __asdfsfdh{@plain} __ ^gasfdhhj {@code asdfdsgh}
+ * ^ blah blah {@code __not a marked element__} '''''{@link linjkl}'''''
+ * ,, unclosed marked element
+ * @see something
+ * @author author
+ */
+-----
+ScalaFile
+  DocComment
+    ScPsiDocToken(DOC_COMMENT_START)('/**')
+    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    ScDocParagraph
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocInlinedTag
+        ScPsiDocToken(DOC_INLINE_TAG_START)('{')
+        ScPsiDocToken(DOC_TAG_NAME)('@plain')
+        PsiErrorElement:Inline tag
+          <empty list>
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('asdfshgfdj')
+        ScPsiDocToken(DOC_INLINE_TAG_END)('}')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      DocSyntaxElement 4
+        ScPsiDocToken(DOC_UNDERLINE_TAG 4)('__')
+        ScPsiDocToken(DOC_COMMENT_DATA)('asdfsfdh')
+        DocInlinedTag
+          ScPsiDocToken(DOC_INLINE_TAG_START)('{')
+          ScPsiDocToken(DOC_TAG_NAME)('@plain')
+          PsiErrorElement:Inline tag
+            <empty list>
+          ScPsiDocToken(DOC_INLINE_TAG_END)('}')
+        ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+        ScPsiDocToken(DOC_UNDERLINE_TAG 4)('__')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      DocSyntaxElement 16
+        ScPsiDocToken(DOC_SUPERSCRIPT_TAG 16)('^')
+        ScPsiDocToken(DOC_COMMENT_DATA)('gasfdhhj ')
+        DocInlinedTag
+          ScPsiDocToken(DOC_INLINE_TAG_START)('{')
+          ScPsiDocToken(DOC_TAG_NAME)('@code')
+          PsiErrorElement:Inline tag
+            <empty list>
+          ScPsiDocToken(DOC_WHITESPACE)(' ')
+          ScPsiDocToken(DOC_COMMENT_DATA)('asdfdsgh')
+          ScPsiDocToken(DOC_INLINE_TAG_END)('}')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_SUPERSCRIPT_TAG 16)('^')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('blah blah ')
+      DocInlinedTag
+        ScPsiDocToken(DOC_INLINE_TAG_START)('{')
+        ScPsiDocToken(DOC_TAG_NAME)('@code')
+        PsiErrorElement:Inline tag
+          <empty list>
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('__not a marked element__')
+        ScPsiDocToken(DOC_INLINE_TAG_END)('}')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      DocSyntaxElement 1
+        ScPsiDocToken(DOC_BOLD_TAG 1)(''''')
+        DocSyntaxElement 3
+          ScPsiDocToken(DOC_ITALIC_TAG 2)('''')
+          DocInlinedTag
+            ScPsiDocToken(DOC_INLINE_TAG_START)('{')
+            ScPsiDocToken(DOC_TAG_NAME)('@link')
+            PsiErrorElement:Inline tag
+              <empty list>
+            ScPsiDocToken(DOC_WHITESPACE)(' ')
+            CodeReferenceElement (scalaDoc): linjkl
+              PsiElement(identifier)('linjkl')
+            ScPsiDocToken(DOC_INLINE_TAG_END)('}')
+          ScPsiDocToken(DOC_ITALIC_TAG 2)('''')
+        ScPsiDocToken(DOC_BOLD_TAG 1)(''''')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocSyntaxElement 32
+        ScPsiDocToken(DOC_SUBSCRIPT_TAG 32)(',,')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('unclosed marked element')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+      PsiErrorElement:Wiki syntax element closed by tag
+        <empty list>
+    DocTag
+      ScPsiDocToken(DOC_TAG_NAME)('@see')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('something')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@author')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('author')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_END)('*/')

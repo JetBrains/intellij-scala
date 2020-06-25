@@ -12,14 +12,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeString;
+import static org.jetbrains.plugins.scala.testingSupport.scalaTest.TeamcityReporter.reportMessage;
 
 /**
  * @author Roman.Shein
  * @since 11.02.2015.
  */
 public class ParallelTreeBuilder implements TreeBuilder {
-  static List<Integer> getOrdinalList(Ordinal ordinal) {
-    List newOrdinalList = MyJavaConverters.toJava(ordinal.toList());
+
+  private static List<Integer> getOrdinalList(Ordinal ordinal) {
+    List<?> newOrdinalList = MyJavaConverters.toJava(ordinal.toList());
     ArrayList<Integer> result = new ArrayList<>(newOrdinalList.size());
     for (Object o : newOrdinalList) {
       result.add((Integer) o);
@@ -27,11 +29,12 @@ public class ParallelTreeBuilder implements TreeBuilder {
     return result;
   }
 
-  private AtomicInteger idGenerator = new AtomicInteger(0);
+  private final AtomicInteger idGenerator = new AtomicInteger(0);
+  private final AtomicBoolean isParallelSuitesMode = new AtomicBoolean(false);
   private volatile boolean suiteModeDetermined = false;
-  private AtomicBoolean isParallelSuitesMode = new AtomicBoolean(false);
-  private ConcurrentHashMap<SuiteTree, Stack<String>> waitingScopeMessages = new ConcurrentHashMap<SuiteTree, Stack<String>>();
-  private ConcurrentHashMap<SuiteTree, Stack<Integer>> ids = new ConcurrentHashMap<SuiteTree, Stack<Integer>>();
+
+  private final ConcurrentHashMap<SuiteTree, Stack<String>> waitingScopeMessages = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<SuiteTree, Stack<Integer>> ids = new ConcurrentHashMap<>();
 
   private int generateId() {
     return idGenerator.getAndIncrement();
@@ -39,8 +42,8 @@ public class ParallelTreeBuilder implements TreeBuilder {
 
   private final Object outLock = new Object();
   private SuiteTree suiteRoot;
-  private ConcurrentHashMap<SuiteId, SuiteTree> suiteById = new ConcurrentHashMap<SuiteId, SuiteTree>();
-  private Stack<SuiteTree> suiteStack = new Stack<SuiteTree>();
+  private final ConcurrentHashMap<SuiteId, SuiteTree> suiteById = new ConcurrentHashMap<>();
+  private final Stack<SuiteTree> suiteStack = new Stack<>();
 
   private static class SuiteId {
     private final String suiteId;
@@ -79,7 +82,7 @@ public class ParallelTreeBuilder implements TreeBuilder {
     public final int id;
     private final int ordinalTail;
     private final List<Integer> ordinalElements;
-    private final Map<Integer, SuiteTree> children = new HashMap<Integer, SuiteTree>();
+    private final Map<Integer, SuiteTree> children = new HashMap<>();
 
     public SuiteTree getParent() {
       return parent;
@@ -99,11 +102,7 @@ public class ParallelTreeBuilder implements TreeBuilder {
     public int placeSuite(SuiteTree suite) {
       //suites are organized in a tree-like structure
       if (!suiteModeDetermined) {
-        if (suite.ordinalElements.size() == ordinalElements.size()) {
-          isParallelSuitesMode.set(false);
-        } else {
-          isParallelSuitesMode.set(true);
-        }
+        isParallelSuitesMode.set(suite.ordinalElements.size() != ordinalElements.size());
         suiteModeDetermined = true;
       }
       SuiteTree parent;
@@ -152,11 +151,11 @@ public class ParallelTreeBuilder implements TreeBuilder {
       int parentNode = myIds.peek();
       int id = generateId();
       myIds.push(id);
-      myWaitingMessages.push("\n##teamcity[" + message + " nodeId='" + id + "' parentNodeId='" + parentNode + "']");
+      myWaitingMessages.push("##teamcity[" + message + " nodeId='" + id + "' parentNodeId='" + parentNode + "']");
       if (isTestStarted) {
         for (String openMessage : myWaitingMessages) {
           synchronized (outLock) {
-            System.out.println(openMessage);
+            reportMessage(openMessage);
           }
         }
         myWaitingMessages.clear();
@@ -168,11 +167,9 @@ public class ParallelTreeBuilder implements TreeBuilder {
       Stack<String> myWaitingMessages = waitingScopeMessages.get(this);
       if (myWaitingMessages.isEmpty()) {
         //print three messages from ScopePending event processing
-        System.out.println("\n##teamcity[testIgnored name='(Scope Pending)' message='" +
-            escapeString("Scope Pending") + "' nodeId='" + myIds.peek() + "']");
-        System.out.println("\n##teamcity[testIgnored name='" + escapeString(scopePendingMessage) + "' message='" +
-            escapeString("Scope Pending") + "' nodeId='" + myIds.peek() + "']");
-        System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(scopePendingMessage) + "' nodeId='" + myIds.peek() + "']");
+        reportMessage("##teamcity[testIgnored name='(Scope Pending)' message='" + escapeString("Scope Pending") + "' nodeId='" + myIds.peek() + "']");
+        reportMessage("##teamcity[testIgnored name='" + escapeString(scopePendingMessage) + "' message='" + escapeString("Scope Pending") + "' nodeId='" + myIds.peek() + "']");
+        reportMessage("##teamcity[testSuiteFinished name='" + escapeString(scopePendingMessage) + "' nodeId='" + myIds.peek() + "']");
       } else {
         myWaitingMessages.pop();
       }
@@ -184,7 +181,7 @@ public class ParallelTreeBuilder implements TreeBuilder {
       Stack<String> myWaitingMessages = waitingScopeMessages.get(this);
       if (myWaitingMessages.isEmpty()) {
         //there are no open empty scopes, so scope currently being closed must be not empty, print the actual message
-        System.out.println("\n##teamcity[" + message + "nodeId='" + myIds.peek() + "']");
+        reportMessage("##teamcity[" + message + "nodeId='" + myIds.peek() + "']");
       } else {
         myWaitingMessages.pop();
       }
@@ -232,13 +229,13 @@ public class ParallelTreeBuilder implements TreeBuilder {
         suiteStack.push(nextSuite);
       }
     }
-    waitingScopeMessages.put(nextSuite, new Stack<String>());
-    Stack<Integer> myIds = new Stack<Integer>();
+    waitingScopeMessages.put(nextSuite, new Stack<>());
+    Stack<Integer> myIds = new Stack<>();
     myIds.push(id);
     ids.put(nextSuite, myIds);
-    //suite palce found, report that it has started
+    //suite place found, report that it has started
     synchronized (outLock) {
-      System.out.println("\n##teamcity[" + message + " nodeId='" + id + "' parentNodeId='" + parentId + "']");
+      reportMessage("##teamcity[" + message + " nodeId='" + id + "' parentNodeId='" + parentId + "']");
     }
   }
 
@@ -252,7 +249,7 @@ public class ParallelTreeBuilder implements TreeBuilder {
       }
     }
     synchronized (outLock) {
-      System.out.println("\n##teamcity[" + message + "nodeId='" + parentId + "']");
+      reportMessage("##teamcity[" + message + "nodeId='" + parentId + "']");
     }
   }
 
@@ -260,6 +257,6 @@ public class ParallelTreeBuilder implements TreeBuilder {
   public void initRun(RunStarting runStarting) {
     int id = generateId();
     suiteRoot = new SuiteTree(runStarting.ordinal(), id);
-    waitingScopeMessages.put(suiteRoot, new Stack<String>());
+    waitingScopeMessages.put(suiteRoot, new Stack<>());
   }
 }

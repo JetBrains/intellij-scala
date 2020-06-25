@@ -29,13 +29,13 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
 
   override def toString: String = "ImportExpression"
 
-  def isSingleWildcard: Boolean = byStubOrPsi(_.isSingleWildcard)(wildcardElement.nonEmpty)
+  override def isSingleWildcard: Boolean = byStubOrPsi(_.isSingleWildcard)(wildcardElement.nonEmpty)
 
-  def wildcardElement: Option[PsiElement] =
+  override def wildcardElement: Option[PsiElement] =
     Option(findChildByType(ScalaTokenTypes.tUNDER))
       .orElse(selectorSet.flatMap(_.wildcardElement))
 
-  def qualifier: ScStableCodeReference = {
+  override def qualifier: ScStableCodeReference = {
     if (reference.isEmpty)
       throw new IncorrectOperationException()
     else if (!isSingleWildcard && selectorSet.isEmpty)
@@ -44,7 +44,7 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
       reference.get
   }
 
-  def deleteExpr() {
+  override def deleteExpr(): Unit = {
     val parent = getParent.asInstanceOf[ScImportStmt]
     if (parent.importExprs.size == 1) {
       parent.getParent match {
@@ -56,18 +56,18 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
       val remove = node.removeChild _
       val next = getNextSibling
       if (next != null) {
-        def removeWhitespaceAfterComma(comma: ASTNode) {
+        def removeWhitespaceAfterComma(comma: ASTNode): Unit = {
           if (comma.getTreeNext != null && !comma.getTreeNext.getText.contains("\n") &&
             comma.getTreeNext.getText.trim.isEmpty) {
             remove(comma.getTreeNext)
           }
         }
-        if (next.getText == ",") {
+        if (next.textMatches(",")) {
           val comma = next.getNode
           removeWhitespaceAfterComma(comma)
           remove(comma)
         } else {
-          if (next.getNextSibling != null && next.getNextSibling.getText == ",") {
+          if (next.getNextSibling != null && next.getNextSibling.textMatches(",")) {
             val comma = next.getNextSibling
             removeWhitespaceAfterComma(comma.getNode)
             remove(next.getNode)
@@ -75,10 +75,10 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
           } else {
             val prev = getPrevSibling
             if (prev != null) {
-              if (prev.getText == ",") {
+              if (prev.textMatches(",")) {
                 remove(prev.getNode)
               } else {
-                if (prev.getPrevSibling != null && prev.getPrevSibling.getText == ",") {
+                if (prev.getPrevSibling != null && prev.getPrevSibling.textMatches(",")) {
                   remove(prev.getPrevSibling.getNode)
                 }
               }
@@ -88,10 +88,10 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
       } else {
         val prev = getPrevSibling
         if (prev != null) {
-          if (prev.getText == ",") {
+          if (prev.textMatches(",")) {
             remove(prev.getNode)
           } else {
-            if (prev.getPrevSibling != null && prev.getPrevSibling.getText == ",") {
+            if (prev.getPrevSibling != null && prev.getPrevSibling.textMatches(",")) {
               val prevSibling = prev.getPrevSibling
               remove(prev.getNode)
               remove(prevSibling.getNode)
@@ -103,9 +103,9 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
     }
   }
 
-  def selectorSet: Option[ScImportSelectors] =
+  override def selectorSet: Option[ScImportSelectors] =
     this.stubOrPsiChild(IMPORT_SELECTORS)
 
-  def reference: Option[ScStableCodeReference] =
+  override def reference: Option[ScStableCodeReference] =
     byPsiOrStub(getFirstChild.asOptionOf[ScStableCodeReference])(_.reference)
 }

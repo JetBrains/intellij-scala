@@ -8,26 +8,26 @@ package refactoring.extractMethod
 class ScalaExtractMethodOutputTest extends ScalaExtractMethodTestBase {
   override def folderPath: String = super.folderPath + "output/"
 
-  def testNoReturnNoOutput() = doTest()
+  def testNoReturnNoOutput(): Unit = doTest()
 
-  def testNoReturnOneOutput() = doTest()
+  def testNoReturnOneOutput(): Unit = doTest()
 
-  def testNoReturnSeveralOutput() = doTest()
+  def testNoReturnSeveralOutput(): Unit = doTest()
 
-  def testNoReturnUnitOutput() = doTest()
+  def testNoReturnUnitOutput(): Unit = doTest()
 
-  def testReturnNoOutput() = doTest()
+  def testReturnNoOutput(): Unit = doTest()
 
-  def testReturnSeveralOutput1() = doTest()
+  def testReturnSeveralOutput1(): Unit = doTest()
 
-  def testReturnSeveralOutput2() = doTest()
+  def testReturnSeveralOutput2(): Unit = doTest()
 
-  def testUnitReturnNoOutput() = doTest()
+  def testUnitReturnNoOutput(): Unit = doTest()
 
-  def testUnitReturnOneOutput() = doTest()
+  def testUnitReturnOneOutput(): Unit = doTest()
 
-  def testUnitReturnSeveralOutput1() = doTest()
+  def testUnitReturnSeveralOutput1(): Unit = doTest()
 
-  def testUnitReturnSeveralOutput2() = doTest()
+  def testUnitReturnSeveralOutput2(): Unit = doTest()
 
 }

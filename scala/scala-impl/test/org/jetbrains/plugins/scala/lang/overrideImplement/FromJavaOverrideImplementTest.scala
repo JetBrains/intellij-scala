@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.overrideImplement
 
-import com.intellij.testFramework.IdeaTestUtil
 import com.intellij.testFramework.builders.JavaModuleFixtureBuilder
 import com.intellij.testFramework.fixtures.{JavaCodeInsightFixtureTestCase, ModuleFixture}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -14,13 +13,16 @@ import org.junit.Assert.assertEquals
  * 12/18/13
  */
 class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
-  protected override def tuneFixture(moduleBuilder: JavaModuleFixtureBuilder[_ <: ModuleFixture]) {
+  protected override def tuneFixture(moduleBuilder: JavaModuleFixtureBuilder[_ <: ModuleFixture]): Unit = {
     moduleBuilder.setMockJdkLevel(JavaModuleFixtureBuilder.MockJdkLevel.jdk15)
-    moduleBuilder.addJdk(IdeaTestUtil.getMockJdk14Path.getPath)
+    // TODO: the path returned from IdeaTestUtil.getMockJdk14Path is invalid in the scala plugin
+    //       because the mock-jdk14 does only exists in the intellij-community source
+    //       we either have to copy the mock directory into our repo as well or just not add it at all
+    //moduleBuilder.addJdk(IdeaTestUtil.getMockJdk14Path.getPath)
   }
   
   def runTest(methodName: String, javaText: String, scalaText: String, expectedText: String, isImplement: Boolean,
-              defaultSettings: ScalaCodeStyleSettings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject))) {
+              defaultSettings: ScalaCodeStyleSettings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject))): Unit = {
     myFixture.addFileToProject("JavaDummy.java", javaText.stripMargin.trim)
     val oldSettings = ScalaCodeStyleSettings.getInstance(getProject).clone()
     val scalaFile = myFixture.configureByText("ScalaDummy.scala", scalaText.replace("\r", "").stripMargin.trim)
@@ -55,7 +57,7 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
     runTest("foo", javaText, scalaText, expectedText, isImplement = false)
   }
 
-  def testVarargImplement() {
+  def testVarargImplement(): Unit = {
     val javaText =
       """
         |public abstract class JavaDummy {
@@ -77,7 +79,7 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
     runTest("vararg", javaText, scalaText, expectedText, isImplement = true)
   }
 
-  def testVarargOverride() {
+  def testVarargOverride(): Unit = {
     val javaText =
       """
         |public class JavaDummy {
@@ -99,7 +101,7 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
     runTest("vararg", javaText, scalaText, expectedText, isImplement = false)
   }
 
-  def testKeywordNames() {
+  def testKeywordNames(): Unit = {
     val javaText =
       """
         |public class JavaDummy {
@@ -123,7 +125,7 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
     runTest("def", javaText, scalaText, expectedText, isImplement = false, defaultSettings = TypeAnnotationSettings.noTypeAnnotationForPublic(settings))
   }
 
-  def testWithOverrideAnnotation() {
+  def testWithOverrideAnnotation(): Unit = {
     val javaText =
       """
         |public class JavaDummy {
@@ -151,7 +153,7 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
     runTest("method", javaText, scalaText, expected, isImplement = false)
   }
 
-  def testWithoutOverrideAnnotation() {
+  def testWithoutOverrideAnnotation(): Unit = {
     val javaText =
       """
         |public class JavaDummy {
@@ -178,7 +180,7 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
     runTest("method", javaText, scalaText, expected, isImplement = false)
   }
 
-  def testSimpleGenerics() {
+  def testSimpleGenerics(): Unit = {
     val javaText =
       """
         |public class JavaDummy<T> {
@@ -202,7 +204,7 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
     runTest("method", javaText, scalaText, expected, isImplement = false)
   }
 
-  def testSimpleGenerics2() {
+  def testSimpleGenerics2(): Unit = {
     val javaText =
       """
         |public class JavaDummy<T> {
@@ -226,7 +228,7 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
     runTest("method", javaText, scalaText, expected, isImplement = false)
   }
 
-  def testGenerics() {
+  def testGenerics(): Unit = {
     val javaText =
       """
         |public class JavaDummy<T, S> {
@@ -250,7 +252,7 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
     runTest("method", javaText, scalaText, expectedText, isImplement = false)
   }
 
-  def testTypeParameter() {
+  def testTypeParameter(): Unit = {
     val javaText =
       """
         |public class JavaDummy<T> {
@@ -276,7 +278,7 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
     runTest("method", javaText, scalaText, expectedText, isImplement = false)
   }
 
-  def testQueryLikeMethod() {
+  def testQueryLikeMethod(): Unit = {
     val javaText =
       """
         |public class JavaDummy<T> {
@@ -299,7 +301,7 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
 
   }
 
-  def testMap() {
+  def testMap(): Unit = {
     val javaText = {
       """
         |public interface Map<K,V>

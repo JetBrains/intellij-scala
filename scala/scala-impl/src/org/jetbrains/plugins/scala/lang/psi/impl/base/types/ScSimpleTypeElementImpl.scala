@@ -40,11 +40,11 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, M
 
 class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSimpleTypeElement {
 
-  protected def innerType: TypeResult = innerNonValueType(inferValueType = true)
+  override protected def innerType: TypeResult = innerNonValueType(inferValueType = true)
 
   override def getTypeNoConstructor: TypeResult = innerNonValueType(inferValueType = true, noConstructor = true)
 
-  @CachedWithRecursionGuard(this, Failure("Recursive non value type of type element"),
+  @CachedWithRecursionGuard(this, Failure(ScalaBundle.message("recursive.non.value.type.of.type.element")),
     ModCount.getBlockModificationCount)
   override def getNonValueType(withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult =
     innerNonValueType(inferValueType = false, withUnnecessaryImplicitsUpdate = withUnnecessaryImplicitsUpdate)
@@ -78,17 +78,23 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     }
 
     def updateImplicits(tp: ScType, withExpected: Boolean, params: Seq[Seq[Parameter]], lastImplicit: Boolean): ScType = {
-      if (lastImplicit) {
-        //Let's add implicit parameters
-        val newTp = tp match {
-          case ScTypePolymorphicType(i, p) =>
-            ScTypePolymorphicType(ScMethodType(i, params.last, isImplicit = true), p)
-          case _ => ScMethodType(tp, params.last, isImplicit = true)
+      val (innerRes, implicitParams) =
+        if (lastImplicit) {
+          //Let's add implicit parameters
+          val newTp = tp match {
+            case ScTypePolymorphicType(i, p) =>
+              ScTypePolymorphicType(ScMethodType(i, params.last, isImplicit = true), p)
+            case _ => ScMethodType(tp, params.last, isImplicit = true)
+          }
+          InferUtil.updateTypeWithImplicitParameters(newTp, this, None, withExpected, fullInfo = false)
+        } else {
+          (tp, None)
         }
-        val res = InferUtil.updateTypeWithImplicitParameters(newTp, this, None, withExpected, fullInfo = false)
-        findConstructorInvocation.foreach(_.setImplicitArguments(res._2))
-        res._1
-      } else tp
+      findConstructorInvocation foreach {
+        invoc =>
+          invoc.setImplicitArguments(if (invoc.arguments.length < params.length) implicitParams else None)
+      }
+      innerRes
     }
 
     def typeForConstructor(ref: ScStableCodeReference, constr: PsiMethod,
@@ -319,7 +325,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     }
   }
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitSimpleTypeElement(this)
   }
 }
@@ -352,9 +358,9 @@ object ScSimpleTypeElementImpl {
       case Some(ScalaResolveResult(MacroDef(f), _)) =>
         val macroEvaluator = ScalaMacroEvaluator.getInstance(f.getProject)
         val typeFromMacro = macroEvaluator.checkMacro(f, MacroContext(ref, None))
-        return typeFromMacro.map(Right(_)).getOrElse(Failure("Unknown macro in type position"))
+        return typeFromMacro.map(Right(_)).getOrElse(Failure(ScalaBundle.message("unknown.macro.in.type.position")))
       case Some(r@ScalaResolveResult(n: PsiNamedElement, _)) => (n, r.fromType)
-      case _ => return Failure("Cannot resolve reference")
+      case _ => return Failure(ScalaBundle.message("cannot.resolve.ref"))
     }
 
     def makeProjection(`type`: ScType, superReference: Boolean = false) =
@@ -416,7 +422,7 @@ object ScSimpleTypeElementImpl {
                                 function: ScTemplateDefinition => ScType)
                                (path: ScPathElement = thisReference) =
     fromTemplate(thisReference.refTemplate,
-      "Cannot find template for this reference",
+      ScalaBundle.message("cannot.find.template.for.this.reference"),
       path,
       function)
 
@@ -424,7 +430,7 @@ object ScSimpleTypeElementImpl {
                                  function: ScTemplateDefinition => ScType)
                                 (path: ScPathElement = superReference) =
     fromTemplate(superReference.drvTemplate,
-      "Cannot find enclosing container",
+      ScalaBundle.message("cannot.find.enclosing.container"),
       path,
       function)
 

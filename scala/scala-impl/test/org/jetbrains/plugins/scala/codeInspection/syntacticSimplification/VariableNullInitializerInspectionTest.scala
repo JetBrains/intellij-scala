@@ -10,8 +10,6 @@ import org.jetbrains.plugins.scala.codeInspection.syntacticClarification.Variabl
   */
 class VariableNullInitializerInspectionTest extends ScalaQuickFixTestBase {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[VariableNullInitializerInspection]
 
   override protected val description: String = VariableNullInitializerInspection.inspectionName

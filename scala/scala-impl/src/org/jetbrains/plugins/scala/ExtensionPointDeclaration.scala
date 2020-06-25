@@ -6,7 +6,10 @@ import com.intellij.openapi.extensions.ExtensionPointName
   * Handy base class for declaring extension points.
   */
 abstract class ExtensionPointDeclaration[T](private val name: String) {
-  private val extensionPointName: ExtensionPointName[T] = ExtensionPointName.create(name)
+  private val extensionPointName = ExtensionPointName.create[T](name)
 
-  def implementations: Seq[T] = extensionPointName.getExtensions
+  def implementations: Seq[T] = {
+    import collection.JavaConverters._
+    extensionPointName.getExtensionList.asScala
+  }
 }

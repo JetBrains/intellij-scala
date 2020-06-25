@@ -57,6 +57,8 @@ trait ScArgumentExprList extends ScArguments {
    */
   def matchedParameters: Seq[(ScExpression, Parameter)]
 
+  def isUsing: Boolean
+
   def parameterOf(argExpr: ScExpression): Option[Parameter] = ScalaPsiUtil.parameterOf(argExpr)
 
   def missedLastExpr: Boolean = {

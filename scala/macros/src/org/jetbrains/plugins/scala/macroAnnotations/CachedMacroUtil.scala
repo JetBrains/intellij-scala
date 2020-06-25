@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.macroAnnotations
 
+import org.jetbrains.annotations.Nls
+
 import scala.annotation.tailrec
 import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
@@ -51,6 +53,12 @@ object CachedMacroUtil {
     import c.universe.Quasiquote
     q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil.CacheCapabilties"
   }
+
+  def cleanupSchedulerTypeFqn(implicit c: whitebox.Context): c.universe.Tree = {
+    import c.universe.Quasiquote
+    tq"_root_.org.jetbrains.plugins.scala.caches.CleanupScheduler"
+  }
+
   def defaultValue(c: whitebox.Context)(tp: c.universe.Tree): c.universe.Tree = {
     import c.universe.Quasiquote
     tp match {
@@ -76,9 +84,51 @@ object CachedMacroUtil {
     tq"_root_.com.intellij.openapi.util.Key"
   }
 
-  def internalTracer(implicit c: whitebox.Context): c.universe.Tree = {
+  private def internalTracer(implicit c: whitebox.Context): c.universe.Tree = {
     import c.universe.Quasiquote
     q"_root_.org.jetbrains.plugins.scala.caches.stats.Tracer"
+  }
+
+  def internalTracerInstance(c: whitebox.Context)(cacheKey: c.universe.Tree, cacheName: c.universe.Tree, trackedExprs: Seq[c.universe.Tree]): c.universe.Tree = {
+    implicit val ctx: c.type = c
+    import c.universe.Quasiquote
+
+    if (trackedExprs.nonEmpty) {
+
+      if (!expressionTracersEnabled(c)) {
+        val message =
+          MacrosBundle.message("macros.cached.expression.tracers.are.enabled.only.for.debug.and.tests").stripMargin
+        abort(message)
+      }
+
+      val tracingSuffix = expressionsWithValuesText(c)(trackedExprs)
+      val tracingKeyId = q"$cacheKey + $tracingSuffix"
+      val tracingKeyName = q"$cacheName + $tracingSuffix"
+      q"$internalTracer($tracingKeyId, $tracingKeyName)"
+    }
+    else q"$internalTracer($cacheKey, $cacheName)"
+
+
+  }
+
+  private def expressionsWithValuesText(c: whitebox.Context)(trees: Seq[c.universe.Tree]): c.universe.Tree = {
+    import c.universe.Quasiquote
+
+    val textTrees = trees.map(p => q"""" " + ${p.toString} + " == " + $p.toString""")
+    val concatenation = textTrees match {
+      case Seq(t) => q"$t"
+      case ts     =>
+        def concat(t1: c.universe.Tree, t2: c.universe.Tree) = q"""$t1 + "," + $t2"""
+        q"${ts.reduce((t1, t2) => concat(t1, t2))}"
+    }
+
+    concatenation
+  }
+
+  //expression tracing may have unlimited performance overhead
+  //to prevent it's accidental usage in production, compilation will fail on teamcity
+  private def expressionTracersEnabled(c: whitebox.Context): Boolean = {
+    System.getProperty("ij.scala.compile.server") == "true" || c.settings.contains("enable-expression-tracers")
   }
 
   def recursionGuardFQN(implicit c: whitebox.Context): c.universe.Tree = {
@@ -140,7 +190,7 @@ object CachedMacroUtil {
     q"${enclosingName + "." + name.toString}"
   }
 
-  def abort(s: String)(implicit c: whitebox.Context): Nothing = c.abort(c.enclosingPosition, s)
+  def abort(@Nls s: String)(implicit c: whitebox.Context): Nothing = c.abort(c.enclosingPosition, s)
 
   def extractCacheModeParameter(c: whitebox.Context)(paramClauses: List[List[c.universe.ValDef]]): (List[c.universe.ValDef], Boolean) = {
     val params = paramClauses.flatten
@@ -153,7 +203,7 @@ object CachedMacroUtil {
     val params = paramClauses.flatten
     val hasCacheMode = params.exists(_.name.toString == "cacheMode")
     if (hasCacheMode) {
-      abort("This macro does not support a cacheMode parameter")(c)
+      abort(MacrosBundle.message("macros.cached.macro.does.not.support.cachemode.parameter"))(c)
     }
   }
 

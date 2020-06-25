@@ -9,13 +9,11 @@ import com.intellij.testFramework.EditorTestUtil
   */
 class CollectHeadOptionTest extends OperationsOnCollectionInspectionTest {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[CollectHeadOptionInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("replace.collect.headOption.with.collectFirst")
+    ScalaInspectionBundle.message("replace.collect.headOption.with.collectFirst")
 
   def testSeq(): Unit = {
     doTest(

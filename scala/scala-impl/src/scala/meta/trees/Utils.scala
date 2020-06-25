@@ -14,45 +14,46 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{types => ptype}
 
 import scala.collection.immutable.LongMap
+import scala.meta.{Term, Type}
 import scala.meta.trees.error._
 import scala.{meta => m, Seq => _}
 
 trait Utils {
   self: TreeConverter =>
 
-  val LOG = Logger.getInstance(this.getClass)
+  val LOG: Logger = Logger.getInstance(this.getClass)
 
   def ??? = throw new UnimplementedException("???")
 
   object std {
 
-    def scalaTypeName(name: String) = {
+    def scalaTypeName(name: String): Type.Name = {
       m.Type.Name(name) //.withAttrs(h.Denotation.Single(std.scalaPackagePrefix, h.Symbol.Global(std.scalaPackageSymbol, h.ScalaSig.Term(name), h.BinarySig.None))).setTypechecked
     }
 
-    val rootPackageName = m.Term.Name("_root_") //.withAttrs(denot = h.Denotation.Single(h.Prefix.None, h.Symbol.RootPackage), typingLike = h.Typing.Recursive)
+    val rootPackageName: Term.Name = m.Term.Name("_root_") //.withAttrs(denot = h.Denotation.Single(h.Prefix.None, h.Symbol.RootPackage), typingLike = h.Typing.Recursive)
 //    val rootPackagePrefix = h.Prefix.Type(m.Type.Singleton(rootPackageName))//.setTypechecked)
 
 //    val scalaPackageSymbol = h.Symbol.Global(h.Symbol.RootPackage, h.ScalaSig.Term("scala"), h.BinarySig.None)
 //    val scalaPackageName = m.Term.Name("scala") //.withAttrs(denot = h.Denotation.Single(rootPackagePrefix, scalaPackageSymbol), h.Typing.Recursive)
 //    val scalaPackagePrefix = h.Prefix.Type(m.Type.Singleton(scalaPackageName))//.setTypechecked)
 
-    lazy val anyTypeName       = scalaTypeName("Any")
-    lazy val anyRefTypeName    = scalaTypeName("AnyRef")
-    lazy val anyValTypeName    = scalaTypeName("AnyVal")
-    lazy val nothingTypeName   = scalaTypeName("Nothing")
-    lazy val nullTypeName      = scalaTypeName("Null")
-    lazy val singletonTypeName = scalaTypeName("Singleton")
+    lazy val anyTypeName: Type.Name = scalaTypeName("Any")
+    lazy val anyRefTypeName: Type.Name = scalaTypeName("AnyRef")
+    lazy val anyValTypeName: Type.Name = scalaTypeName("AnyVal")
+    lazy val nothingTypeName: Type.Name = scalaTypeName("Nothing")
+    lazy val nullTypeName: Type.Name = scalaTypeName("Null")
+    lazy val singletonTypeName: Type.Name = scalaTypeName("Singleton")
 
     // boxed stuff
-    lazy val unit = scalaTypeName("Unit")
-    lazy val boolean = scalaTypeName("Boolean")
-    lazy val char = scalaTypeName("Char")
-    lazy val int = scalaTypeName("Int")
-    lazy val float = scalaTypeName("Float")
-    lazy val double = scalaTypeName("Double")
-    lazy val byte = scalaTypeName("Byte")
-    lazy val short = scalaTypeName("Short")
+    lazy val unit: Type.Name = scalaTypeName("Unit")
+    lazy val boolean: Type.Name = scalaTypeName("Boolean")
+    lazy val char: Type.Name = scalaTypeName("Char")
+    lazy val int: Type.Name = scalaTypeName("Int")
+    lazy val float: Type.Name = scalaTypeName("Float")
+    lazy val double: Type.Name = scalaTypeName("Double")
+    lazy val byte: Type.Name = scalaTypeName("Byte")
+    lazy val short: Type.Name = scalaTypeName("Short")
 
   }
 
@@ -79,7 +80,7 @@ trait Utils {
       loop(ptpe)
     }
 
-    def stripped = ptpe match {
+    def stripped: Type = ptpe match {
       case m.Type.Select(_, n:m.Type.Name) => n
       case m.Type.Project(_, n:m.Type.Name) => n
       case other: m.Type => other
@@ -98,7 +99,7 @@ trait Utils {
   implicit class RichPSI(psi: PsiElement) {
     def ?! = throw new AbortException(psi, s"Unexpected psi(${psi.getClass}): ${psi.getText}")
     def ??? = throw new UnimplementedException(psi)
-    def isSingletonType = psi match {
+    def isSingletonType: Boolean = psi match {
       case _: PsiPackage => true
       case _: ScObject   => true
       case _ => false

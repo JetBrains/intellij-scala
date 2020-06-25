@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
@@ -12,7 +13,7 @@ class SameElementsToEqualsInspection extends OperationOnCollectionInspection {
 }
 
 object SameElementsToEquals extends SimplificationType {
-  override def hint: String = InspectionBundle.message("replace.sameElements.with.equals")
+  override def hint: String = ScalaInspectionBundle.message("replace.sameElements.with.equals")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case left`.sameElements`(right) if isOfSameKind(left, right) && !bothSortedSetsOrMaps(left, right) =>
@@ -32,7 +33,7 @@ object SameElementsToEquals extends SimplificationType {
 }
 
 object CorrespondsToEquals extends SimplificationType {
-  override def hint: String = InspectionBundle.message("replace.corresponds.with.equals")
+  override def hint: String = ScalaInspectionBundle.message("replace.corresponds.with.equals")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case left`.corresponds`(right, binaryOperation("==")) if isSeq(left) && isSeq(right) =>

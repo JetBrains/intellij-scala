@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * InfixPattern  ::=  SimplePattern { id [nl] SimplePattern }
  */
 object Pattern2 {
-  protected def pattern3= Pattern3
+  protected def pattern3: Pattern3.type = Pattern3
 
   def parse(builder: ScalaPsiBuilder, forDef: Boolean): Boolean = {
     def testForId = {

@@ -11,17 +11,19 @@ trait ScType extends project.ProjectContextOwner {
 
   def typeSystem: api.TypeSystem = projectContext.typeSystem
 
-  private var aliasType: Option[AliasType] = null
+  private var aliasTypeInner: Option[AliasType] = _
 
-  final def isAliasType: Option[AliasType] = {
-    if (aliasType == null) {
+  final def aliasType: Option[AliasType] = {
+    if (aliasTypeInner == null) {
       ProgressManager.checkCanceled()
-      aliasType = isAliasTypeInner
+      aliasTypeInner = calculateAliasType
     }
-    aliasType
+    aliasTypeInner
   }
 
-  private var unpacked: ScType = null
+  final def isAliasType: Boolean = aliasType.isDefined
+
+  private var unpacked: ScType = _
 
   final def unpackedType: ScType = {
     if (unpacked == null) {
@@ -31,8 +33,10 @@ trait ScType extends project.ProjectContextOwner {
     unpacked
   }
 
-  protected def isAliasTypeInner: Option[AliasType] = None
+  protected def calculateAliasType: Option[AliasType] = None
 
+  // TODO: we must not override toString which does such a complex stuff (resolve, tree traversal etc...)
+  //  for such things we should always use explicit methods oText/mkString/presentableText/etc...
   override final def toString: String = extensions.ifReadAllowed {
     presentableText(TypePresentationContext.emptyContext)
   }(getClass.getSimpleName)
@@ -59,6 +63,9 @@ trait ScType extends project.ProjectContextOwner {
 
   def presentableText(implicit context: TypePresentationContext): String =
     typeSystem.presentableText(this)
+
+  def urlText(implicit context: TypePresentationContext): String =
+    typeSystem.urlText(this)
 
   def canonicalText: String = typeSystem.canonicalText(this)
 }

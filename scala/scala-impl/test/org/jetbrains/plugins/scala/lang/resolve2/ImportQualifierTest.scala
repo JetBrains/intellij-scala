@@ -10,13 +10,13 @@ class ImportQualifierTest extends ResolveTestBase {
     super.folderPath + "import/qualifier/"
   }
 
-  def testImport1() = doTest()
-  def testImport2() = doTest()
-  def testValue1() = doTest()
-  def testValue2() = doTest()
+  def testImport1(): Unit = doTest()
+  def testImport2(): Unit = doTest()
+  def testValue1(): Unit = doTest()
+  def testValue2(): Unit = doTest()
   //TODO
 //  def testValueCaseClass = doTest
-  def testValueClass() = doTest()
-  def testVariable() = doTest()
-  def testFunction() = doTest()
+  def testValueClass(): Unit = doTest()
+  def testVariable(): Unit = doTest()
+  def testFunction(): Unit = doTest()
 }

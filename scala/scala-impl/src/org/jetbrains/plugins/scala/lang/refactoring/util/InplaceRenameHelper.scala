@@ -34,7 +34,7 @@ class InplaceRenameHelper(parent: PsiElement) {
   val editor: Editor = EditorFactory.getInstance.getEditors(document)(0)
 
   def addGroup(primary: PsiElement, newName: String,
-               dependentsWithRanges: Seq[(PsiElement, TextRange)], suggestedNames: Seq[String]) {
+               dependentsWithRanges: Seq[(PsiElement, TextRange)], suggestedNames: Seq[String]): Unit = {
     val names = new java.util.LinkedHashSet[String]()
     suggestedNames.foreach(names.add)
     val lookupExpr = primary match {
@@ -61,7 +61,7 @@ class InplaceRenameHelper(parent: PsiElement) {
     addGroup(primary.nameId, primary.name, dependents.map((_, null)), suggestedNames)
   }
 
-  def startRenaming() {
+  def startRenaming(): Unit = {
     CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(parent)
     editor.getCaretModel.moveToOffset(parent.getTextRange.getStartOffset)
 
@@ -76,26 +76,26 @@ class InplaceRenameHelper(parent: PsiElement) {
     val rangesToHighlight = mutable.HashMap[RangeMarker, TextAttributes]()
 
     TemplateManager.getInstance(project).startTemplate(editor, template, new TemplateEditingAdapter {
-      override def waitingForInput(template: Template) {
+      override def waitingForInput(template: Template): Unit = {
         markCurrentVariables(0)
       }
 
       override def currentVariableChanged(templateState: TemplateState, template: Template,
-                                          oldIndex: Int, newIndex: Int) {
+                                          oldIndex: Int, newIndex: Int): Unit = {
         if (oldIndex >= 0) clearHighlighters()
         if (newIndex >= 0) markCurrentVariables(newIndex)
       }
 
-      override def templateCancelled(template: Template) {
+      override def templateCancelled(template: Template): Unit = {
         clearHighlighters()
       }
 
-      override def templateFinished(template: Template, brokenOff: Boolean) {
+      override def templateFinished(template: Template, brokenOff: Boolean): Unit = {
         clearHighlighters()
       }
 
       private def addHighlights(ranges: mutable.HashMap[RangeMarker, TextAttributes], editor: Editor,
-                        highlighters: ArrayBuffer[RangeHighlighter], highlightManager: HighlightManager) {
+                        highlighters: ArrayBuffer[RangeHighlighter], highlightManager: HighlightManager): Unit = {
         for ((range, attributes) <- ranges) {
           highlightManager.addOccurrenceHighlight(editor, range.getStartOffset, range.getEndOffset,
             attributes, 0, highlighters.asJava, null)
@@ -106,7 +106,7 @@ class InplaceRenameHelper(parent: PsiElement) {
         }
       }
 
-      private def markCurrentVariables(groupIndex: Int) {
+      private def markCurrentVariables(groupIndex: Int): Unit = {
         val colorsManager: EditorColorsManager = EditorColorsManager.getInstance
         val templateState: TemplateState = TemplateManagerImpl.getTemplateState(editor)
         val document = editor.getDocument
@@ -125,7 +125,7 @@ class InplaceRenameHelper(parent: PsiElement) {
         addHighlights(rangesToHighlight, editor, myHighlighters, HighlightManager.getInstance(project))
       }
 
-      private def clearHighlighters() {
+      private def clearHighlighters(): Unit = {
         val highlightManager = HighlightManager.getInstance(project)
         myHighlighters.foreach {a => highlightManager.removeSegmentHighlighter(editor, a)}
         rangesToHighlight.clear()

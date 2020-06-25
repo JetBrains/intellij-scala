@@ -24,6 +24,7 @@ import com.intellij.codeInsight.navigation.AbstractDocumentationTooltipAction;
 import com.intellij.codeInsight.navigation.DocPreviewUtil;
 import com.intellij.ide.PowerSaveMode;
 import com.intellij.lang.documentation.DocumentationProvider;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.impl.ActionButton;
 import com.intellij.openapi.actionSystem.impl.PresentationFactory;
 import com.intellij.openapi.application.ApplicationManager;
@@ -60,6 +61,7 @@ import org.jetbrains.plugins.scala.actions.ScalaExpressionTypeProvider;
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
+import org.jetbrains.plugins.scala.util.UnloadAwareDisposable;
 import scala.Option;
 
 import javax.swing.*;
@@ -95,7 +97,8 @@ public class MouseHoverHandler implements ProjectManagerListener {
     private volatile Point myMouseLocationOnHintActivation;
     @Nullable
     private LightweightHint myHint;
-    private Project myProject;
+    private final Project myProject;
+    private final Disposable myProjectDisposable;
 
     private enum BrowseMode {None, Hover}
 
@@ -130,7 +133,7 @@ public class MouseHoverHandler implements ProjectManagerListener {
         }
 
         if (myHint != null) {
-          HintManager.getInstance().hideAllHints();
+          myHint.hide();
           myHint = null;
           myMouseLocationOnHintActivation = null;
         }
@@ -194,16 +197,17 @@ public class MouseHoverHandler implements ProjectManagerListener {
 
     public MouseHoverHandlerListeners(final Project project) {
       myProject = project;
+      myProjectDisposable = UnloadAwareDisposable.forProject(myProject);
       myDocumentationManager = DocumentationManager.getInstance(project);
-      myDocAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, myProject);
-      myTooltipAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD, myProject);
+      myDocAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, myProjectDisposable);
+      myTooltipAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD, myProjectDisposable);
     }
 
     public void registerListeners() {
       EditorEventMulticaster eventMulticaster = EditorFactory.getInstance().getEventMulticaster();
-      eventMulticaster.addEditorMouseListener(myEditorMouseAdapter, myProject);
-      eventMulticaster.addEditorMouseMotionListener(myEditorMouseMotionListener, myProject);
-      eventMulticaster.addCaretListener(myCaretListener, myProject);
+      eventMulticaster.addEditorMouseListener(myEditorMouseAdapter, myProjectDisposable);
+      eventMulticaster.addEditorMouseMotionListener(myEditorMouseMotionListener, myProjectDisposable);
+      eventMulticaster.addCaretListener(myCaretListener, myProjectDisposable);
     }
 
     private boolean isMouseOverTooltip(@NotNull Point mouseLocationOnScreen) {

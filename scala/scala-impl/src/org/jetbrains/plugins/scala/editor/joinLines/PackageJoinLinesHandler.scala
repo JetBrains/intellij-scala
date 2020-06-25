@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 /** `package a\npackageb` => `package a.b` */
 class PackageJoinLinesHandler extends JoinRawLinesHandlerDelegate {
 
-  def tryJoinRawLines(document: Document, file: PsiFile, start: Int, end: Int): Int = {
+  override def tryJoinRawLines(document: Document, file: PsiFile, start: Int, end: Int): Int = {
     val elementAtStart: PsiElement = file.findElementAt(start)
     val elementAtEnd: PsiElement = file.findElementAt(end)
 
@@ -31,7 +31,7 @@ class PackageJoinLinesHandler extends JoinRawLinesHandlerDelegate {
     }
   }
 
-  def tryJoinLines(document: Document, file: PsiFile, start: Int, end: Int): Int = {
+  override def tryJoinLines(document: Document, file: PsiFile, start: Int, end: Int): Int = {
     JoinLinesHandlerDelegate.CANNOT_JOIN
   }
 

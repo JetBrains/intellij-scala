@@ -39,7 +39,7 @@ class ScalaTypeSurrounder extends ScalaExpressionSurrounder {
       case x: ScParenthesisedExpr => x.innerElement match {
         case Some(y: ScTypedExpression) => y.typeElement match {
           case Some(te: ScTypeElement) =>
-            if (te.getText == "Any")
+            if (te.textMatches("Any"))
               te.getTextRange
             else
               defaultRange

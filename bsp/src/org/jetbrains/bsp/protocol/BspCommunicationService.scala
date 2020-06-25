@@ -12,6 +12,7 @@ import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerList
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.jetbrains.bsp.settings.BspExecutionSettings
+import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 
 import scala.collection.mutable
 import scala.concurrent.duration._
@@ -22,10 +23,9 @@ class BspCommunicationService extends Disposable {
   import BspCommunicationService.projectPath
 
   { // init
-    val app = ApplicationManager.getApplication
-    Disposer.register(app, this)
+    Disposer.register(UnloadAwareDisposable.scalaPluginDisposable, this)
 
-    val bus = ApplicationManager.getApplication.getMessageBus.connect()
+    val bus = ApplicationManager.getApplication.getMessageBus.connect(this)
     bus.subscribe(ProjectManager.TOPIC, MyProjectListener)
   }
 
@@ -51,13 +51,13 @@ class BspCommunicationService extends Disposable {
     comms.getOrElseUpdate(
       base.getCanonicalFile.toURI,
       {
-        val comm = new BspCommunication(base, executionSettings(base))
+        val comm = new BspCommunication(base)
         Disposer.register(this, comm)
         comm
       }
     )
 
-  @deprecated("Multiple BSP servers per IDEA project are possible. use communicate(File) instead")
+  @deprecated("Multiple BSP servers per IDEA project are possible. use communicate(File) instead", "2020.1")
   private[protocol] def communicate(implicit project: Project): BspCommunication =
     projectPath.map(new File(_))
       .map(communicate)

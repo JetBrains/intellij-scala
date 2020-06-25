@@ -7,28 +7,16 @@ trait FlatSpecSingleTestTestBase extends ScalaTestTestCase {
 
   protected def doTest(fileName: String, testClassName: String)
                       (lineNumber: Int, offset: Int)
-                      (expectedTestName: String, expectedTestPath: Seq[String]): Unit = {
+                      (expectedTestName: String, expectedTestPath: Seq[String]): Unit =
     runTestByLocation2(
       lineNumber, offset, fileName,
-      configAndSettings => {
-        assertConfigAndSettings(configAndSettings, testClassName, expectedTestName)
-        true
-      },
+      configAndSettings => assertConfigAndSettings(configAndSettings, testClassName, expectedTestName),
       root => {
         val expectedTestPathFinal = preprocessSingleFlatSpecExpectedPath(expectedTestPath)
-        assertTrue(
-          s"result tree doesn't contain test name with path: $expectedTestPathFinal",
-          checkResultTreeHasExactNamedPath(root, expectedTestPathFinal: _*)
-        )
-        val unexpectedTestName = "should not run other tests"
-        assertTrue(
-          s"result tree contained unexpected test name: `$unexpectedTestName`",
-          checkResultTreeDoesNotHaveNodes(root, unexpectedTestName)
-        )
-        true
+        assertResultTreeHasExactNamedPath(root, expectedTestPathFinal)
+        assertResultTreeDoesNotHaveNodes(root, "should not run other tests")
       }
     )
-  }
 
   protected def preprocessSingleFlatSpecExpectedPath(path: Seq[String]): Seq[String] = path
 }

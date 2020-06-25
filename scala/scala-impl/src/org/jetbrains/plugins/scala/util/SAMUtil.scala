@@ -88,6 +88,7 @@ object SAMUtil {
 
   def singleAbstractMethod(cls: PsiClass): Option[PsiMethod] = cls.singleAbstractMethodWithSubstitutor.map(_._1)
 
+  // TODO We should probably (optionally) adjust the .expectedType of corresponding element instead of adding the uitlity method
   /**
     * Determines if expected can be created with a Single Abstract Method and if so return the required ScType for it
     *
@@ -126,7 +127,6 @@ object SAMUtil {
     case f: ScFunction => f.paramClauses.clauses.size == 1
     case _             => true
   }
-
 
   implicit class PsiClassToSAMExt(private val cls: PsiClass) extends AnyVal {
     @CachedInUserData(cls, ScalaPsiManager.instance(cls.getProject).TopLevelModificationTracker)

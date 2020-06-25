@@ -13,7 +13,7 @@ class MergeIfToOrIntentionTest extends intentions.ScalaIntentionTestBase {
 
   import EditorTestUtil.{CARET_TAG => CARET}
 
-  override def familyName = MergeIfToOrIntention.FamilyName
+  override def familyName = ScalaCodeInsightBundle.message("family.name.merge.equivalent.ifs.to.ored.condition")
 
   def testMergeIfToOr1(): Unit = {
     val text =

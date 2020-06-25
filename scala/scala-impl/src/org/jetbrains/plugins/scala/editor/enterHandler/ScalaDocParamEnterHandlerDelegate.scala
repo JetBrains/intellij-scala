@@ -13,15 +13,17 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTag
 
 /**
- * User: Dmitry Naydanov
- * Date: 2/1/12
+ * @see [[com.intellij.codeInsight.editorActions.enter.EnterInBlockCommentHandler]]
+ *      [[com.intellij.codeInsight.editorActions.enter.EnterInLineCommentHandler]]
+ *      [[org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete]]
+ *      [[org.jetbrains.plugins.scala.highlighter.ScalaCommenter]]
  */
-
 class ScalaDocParamEnterHandlerDelegate extends EnterHandlerDelegateAdapter {
+
   override def postProcessEnter(file: PsiFile, editor: Editor, dataContext: DataContext): Result = {
-    if (!file.isInstanceOf[ScalaFile] || !editor.inDocComment(editor.offset)) {
+    if (!file.isInstanceOf[ScalaFile] || !editor.inDocComment(editor.offset))
       return Result.Continue
-    }
+
     val document = editor.getDocument
     val project = file.getProject
     document.commit(project)
@@ -29,17 +31,18 @@ class ScalaDocParamEnterHandlerDelegate extends EnterHandlerDelegateAdapter {
     val scalaFile = file.asInstanceOf[ScalaFile]
     val caretOffset = editor.getCaretModel.getOffset
 
-    var nextParent = scalaFile.findElementAt(caretOffset)
-    if (nextParent == null) {
+    val elementAtCaret = scalaFile.findElementAt(caretOffset)
+    if (elementAtCaret == null)
       return Result.Continue
-    }
 
+    var nextParent = elementAtCaret
     while (!nextParent.isInstanceOf[ScDocTag]) {
       nextParent = nextParent.getParent
       if (nextParent == null || nextParent.isInstanceOf[ScalaFile]) {
         return Result.Continue
       }
     }
+
     val tagParent = nextParent.asInstanceOf[ScDocTag]
     val tagValueElement = tagParent.getValueElement
     val tagNameElement = tagParent.getNameElement

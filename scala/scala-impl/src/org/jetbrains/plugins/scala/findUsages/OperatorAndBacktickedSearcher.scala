@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
   */
 class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
 
-  def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {
+  override def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {
     val elementToSearch = queryParameters.getElementToSearch
 
     val namesToProcess = inReadAction {
@@ -51,7 +51,7 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
     val scope = inReadAction(ScalaFilterScope(queryParameters))
     namesToProcess.foreach { name =>
       val processor = new TextOccurenceProcessor {
-        def execute(element: PsiElement, offsetInElement: Int): Boolean = {
+        override def execute(element: PsiElement, offsetInElement: Int): Boolean = {
           val references = inReadAction(element.getReferences)
           for {
             reference <- references
@@ -80,16 +80,16 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
   private class ScalaPsiSearchHelper(project: Project)
     extends PsiSearchHelperImpl(project) {
 
-    override def processFilesWithText(scope: GlobalSearchScope,
-                                      searchContext: Short,
-                                      caseSensitively: Boolean,
-                                      text: String,
-                                      processor: Processor[_ >: VirtualFile]): Boolean = {
+    override def processCandidateFilesForText(scope: GlobalSearchScope,
+                                              searchContext: Short,
+                                              caseSensitively: Boolean,
+                                              text: String,
+                                              processor: Processor[_ >: VirtualFile]): Boolean = {
       if (!ScalaNamesValidator.isIdentifier(text)) return true
 
       val entries = ju.Collections.singletonList(new IdIndexEntry(text, caseSensitively))
       val collectProcessor = new CommonProcessors.CollectProcessor[VirtualFile]
-      val condition: Condition[Integer] = { value: Integer =>
+      val condition: Condition[Integer] = { (value: Integer) =>
         (value.intValue & searchContext) != 0
       }
 
@@ -97,7 +97,7 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
         FileBasedIndex.getInstance.processFilesContainingAllKeys(IdIndex.NAME, entries, scope, condition, collectProcessor)
       }
 
-      val readActionProcessor: ReadActionProcessor[VirtualFile] = { virtualFile: VirtualFile =>
+      val readActionProcessor: ReadActionProcessor[VirtualFile] = { (virtualFile: VirtualFile) =>
         processor.process(virtualFile)
       }
       ContainerUtil.process(collectProcessor.getResults, readActionProcessor)

@@ -57,7 +57,7 @@ package object intention {
     else {
       val doIt = () => {
         argsAndMatchedParams.foreach {
-          case (_ childOf (a: ScAssignment), param) if a.leftExpression.getText == param.name =>
+          case (_ childOf (a: ScAssignment), param) if a.leftExpression.textMatches(param.name) =>
           case (argExpr, param) =>
             if (!onlyBoolean || (onlyBoolean && param.paramType.isBoolean)) {
               inWriteAction {
@@ -74,7 +74,7 @@ package object intention {
   /**
     * The usages of this method need to be refactored to remove StringBuilder implementation
     */
-  def analyzeMethodCallArgs(methodCallArgs: ScArgumentExprList, argsBuilder: StringBuilder) {
+  def analyzeMethodCallArgs(methodCallArgs: ScArgumentExprList, argsBuilder: StringBuilder): Unit = {
     if (methodCallArgs.exprs.length == 1) {
       methodCallArgs.exprs.head match {
         case _: ScLiteral | _: ScTuple | _: ScReferenceExpression | _: ScGenericCall | _: ScXmlExpr | _: ScMethodCall =>
@@ -94,7 +94,7 @@ package object intention {
   }
 
   def negate(expression: ScExpression): String = expression match {
-    case ScPrefixExpr(operation, operand) if operation.getText == "!" =>
+    case ScPrefixExpr(operation, operand) if operation.textMatches("!") =>
       val target = operand match {
         case ScParenthesisedExpr(scExpression) => scExpression
         case _ => operand

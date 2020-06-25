@@ -7,6 +7,8 @@ package index
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.IndexSink
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
 /**
@@ -27,11 +29,17 @@ object ImplicitConversionIndex extends ImplicitIndex {
 
   private val dummyStringKey: String = "implicit_conversion"
 
-  def allElements(scope: GlobalSearchScope)
-                 (implicit project: Project): Iterable[ScMember] = for {
-    key <- indexKey.allKeys
-    element <- indexKey.elements(key, scope, classOf[ScMember])
-  } yield element
+  def allConversions(scope: GlobalSearchScope)
+                    (implicit project: Project): Iterable[ScFunction] = for {
+    key      <- indexKey.allKeys
+    member   <- indexKey.elements(key, scope)
+
+    function <- member match {
+      case f: ScFunction => f :: Nil
+      case c: ScClass => c.getSyntheticImplicitMethod.toList
+      case _ => Nil
+    }
+  } yield function
 
   override def occurrences(sink: IndexSink, names: Array[String]): Unit = {
     super.occurrences(sink, names)

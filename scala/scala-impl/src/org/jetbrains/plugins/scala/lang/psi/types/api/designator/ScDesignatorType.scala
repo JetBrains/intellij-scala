@@ -18,14 +18,14 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
   * It can be whether singleton type (v.type) or simple type (java.lang.String).
   * element can be any stable element, class, value or type alias
   */
-final case class ScDesignatorType(element: PsiNamedElement) extends DesignatorOwner with LeafType {
+final case class ScDesignatorType(override val element: PsiNamedElement) extends DesignatorOwner with LeafType {
 
   private var static = false
 
   private def setStatic(): Unit = static = true
   def isStatic: Boolean = static
 
-  override protected def isAliasTypeInner: Option[AliasType] = {
+  override protected def calculateAliasType: Option[AliasType] = {
     element match {
       case ta: ScTypeAlias if ta.typeParameters.isEmpty =>
         Some(AliasType(ta, ta.lowerBound, ta.upperBound))

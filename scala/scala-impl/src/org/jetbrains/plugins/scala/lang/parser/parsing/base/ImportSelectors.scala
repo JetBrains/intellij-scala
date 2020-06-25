@@ -32,7 +32,7 @@ object ImportSelectors {
         return false
     }
     
-    def doneImportSelectors() {
+    def doneImportSelectors(): Unit = {
       builder.advanceLexer()
       builder.restoreNewlinesState()
       importSelectorMarker.done(ScalaElementType.IMPORT_SELECTORS)

@@ -99,7 +99,7 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     assertNoErrors(code)
   }
 
-  def testStableIdPattern() {
+  def testStableIdPattern(): Unit = {
     emptyMessages(
       """
         |val xs = List("")
@@ -157,7 +157,7 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     assertNoWarnings(code)
   }
 
-  def testIncompatibleExtractorMatchStmtNonFinalType() = {
+  def testIncompatibleExtractorMatchStmtNonFinalType(): Unit = {
     val code =
       """
         |class B
@@ -170,7 +170,7 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     assertNoWarnings(code)
   }
 
-  def testNonFinalClass() = {
+  def testNonFinalClass(): Unit = {
     //the reason this compiles without errors is that equals in A can be overridden.
     //for more see https://stackoverflow.com/questions/33354987/stable-identifier-conformance-check/
     emptyMessages(
@@ -208,7 +208,7 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     assertNoWarnings(code)
   }
 
-  def testLiteral() = {
+  def testLiteral(): Unit = {
     val text = """
       |object Foo {
       |  def foo(i: String) = {
@@ -223,7 +223,7 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
   }
 
 
-  def testCannotBeUsed() {
+  def testCannotBeUsed(): Unit = {
     val anyValCode =
       """
         |1 match {
@@ -285,7 +285,7 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     emptyMessages(code)
   }
 
-  def testUncheckedRefinement() {
+  def testUncheckedRefinement(): Unit = {
     checkWarning("val Some(x: AnyRef{def foo(i: Int): Int}) = Some(new AnyRef())", "AnyRef{def foo(i: Int): Int}",
       ScalaBundle.message("pattern.on.refinement.unchecked"))
   }

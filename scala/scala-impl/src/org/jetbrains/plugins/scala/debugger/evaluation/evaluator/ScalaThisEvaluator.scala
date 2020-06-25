@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
-import com.intellij.debugger.DebuggerBundle
+import com.intellij.debugger.JavaDebuggerBundle
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.Evaluator
 import com.intellij.debugger.impl.DebuggerUtilsEx
@@ -20,7 +20,7 @@ class ScalaThisEvaluator(iterations: Int = 0) extends Evaluator {
     if (objRef == null) {
       return null
     }
-    val list = objRef.referenceType.fields.asScala
+    val list = objRef.referenceType.visibleFields.asScala
     for (field <- list) {
       val name: String = field.name
       if (name != null && name.startsWith("$outer")) {
@@ -33,7 +33,7 @@ class ScalaThisEvaluator(iterations: Int = 0) extends Evaluator {
     null
   }
 
-  def evaluate(context: EvaluationContextImpl): AnyRef = {
+  override def evaluate(context: EvaluationContextImpl): AnyRef = {
     lazy val frameProxy: StackFrameProxyImpl = context.getFrameProxy
     var objRef: Value = context.getThisObject match {
       case null => //so we possibly in trait $class
@@ -69,7 +69,7 @@ class ScalaThisEvaluator(iterations: Int = 0) extends Evaluator {
       }
     }
     if (objRef == null) {
-      throw EvaluationException(DebuggerBundle.message("evaluation.error.this.not.avalilable"))
+      throw EvaluationException(JavaDebuggerBundle.message("evaluation.error.this.not.avalilable"))
     }
     objRef
   }

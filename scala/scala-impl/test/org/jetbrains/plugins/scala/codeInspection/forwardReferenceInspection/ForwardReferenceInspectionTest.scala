@@ -6,8 +6,6 @@ import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
 
 class ForwardReferenceInspectionTest extends ScalaInspectionTestBase {
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ForwardReferenceInspection]
 

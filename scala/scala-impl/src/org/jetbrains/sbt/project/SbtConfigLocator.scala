@@ -27,8 +27,8 @@ class SbtConfigLocator extends ExternalSystemConfigLocator {
 
   override def adjust(configPath: VirtualFile): VirtualFile = {
     // FIXME this is not a comprehensive sbt config location
-    val buildSbt   = configPath.find("build.sbt")
-    val buildScala = configPath.find("project").flatMap(_.find("Build.scala"))
+    val buildSbt = configPath.find(Sbt.BuildFile)
+    val buildScala = configPath.find(Sbt.ProjectDirectory).flatMap(_.find("Build.scala"))
     buildSbt.orElse(buildScala).orNull
   }
 }

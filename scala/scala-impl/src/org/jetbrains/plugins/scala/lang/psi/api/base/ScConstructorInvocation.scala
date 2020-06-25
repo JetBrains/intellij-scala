@@ -18,16 +18,16 @@ import scala.collection.Seq
 * Date: 22.02.2008
 */
 
-trait ScConstructorInvocation extends ScalaPsiElement with ConstructorInvocationLike with ImplicitArgumentsOwner {
+trait ScConstructorInvocation extends ScalaPsiElement with ConstructorInvocationLike {
   def typeElement: ScTypeElement
 
   def simpleTypeElement: Option[ScSimpleTypeElement]
 
-  def typeArgList: Option[ScTypeArgs]
+  override def typeArgList: Option[ScTypeArgs]
 
   def args: Option[ScArgumentExprList]
 
-  def arguments: Seq[ScArgumentExprList]
+  override def arguments: Seq[ScArgumentExprList]
 
   def expectedType: Option[ScType]
 
@@ -47,6 +47,10 @@ trait ScConstructorInvocation extends ScalaPsiElement with ConstructorInvocation
 object ScConstructorInvocation {
   def unapply(c: ScConstructorInvocation): Option[(ScTypeElement, Seq[ScArgumentExprList])] = {
     Option(c).map(it => (it.typeElement, it.arguments))
+  }
+
+  object reference {
+    def unapply(c: ScConstructorInvocation): Option[ScStableCodeReference] = c.reference
   }
 
   object byReference {

@@ -11,6 +11,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
 import org.apache.commons.lang3.StringUtils
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteAction}
 import org.jetbrains.plugins.scala.format.{Text, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
@@ -22,12 +23,12 @@ final class StringToMultilineStringIntention extends PsiElementBaseIntentionActi
 
   import StringToMultilineStringIntention._
 
-  override def getFamilyName: String = StringToMultilineStringIntention.FAMILY_NAME
+  override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.regular.multi.line.string.conversion")
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val maybeText = literalParent(element).collect {
-      case lit if lit.isMultiLineString => "Convert to \"string\""
-      case lit if lit.isString => "Convert to \"\"\"string\"\"\""
+      case lit if lit.isMultiLineString => ScalaCodeInsightBundle.message("convert.to.normal.string")
+      case lit if lit.isString => ScalaCodeInsightBundle.message("convert.to.multiline.string")
     }
 
     maybeText.foreach(setText)
@@ -52,9 +53,6 @@ final class StringToMultilineStringIntention extends PsiElementBaseIntentionActi
 }
 
 object StringToMultilineStringIntention {
-
-  val FAMILY_NAME = "Regular/Multi-line String conversion"
-
   private val Quote = "\""
 
   import MultilineStringUtil.{MultilineQuotes => Quotes, MultilineQuotesEscaped => QuotesEscaped}

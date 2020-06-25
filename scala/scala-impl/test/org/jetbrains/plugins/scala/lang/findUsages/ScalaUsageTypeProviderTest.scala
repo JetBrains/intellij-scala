@@ -61,16 +61,16 @@ class ScalaUsageTypeProviderTest extends ScalaFixtureTestCase {
       |  WHITE_SPACE
       |  ScClass[Test]
       |    annotations
-      |    moifiers
+      |    modifiers
       |    primary constructor
       |      annotations
-      |      moifiers
+      |      modifiers
       |      parameter clauses
       |    extends block
       |      template body -> Value read
       |        variable definition -> Value read
       |          annotations -> Value read
-      |          moifiers -> Value read
+      |          modifiers -> Value read
       |          pattern list -> Value read
       |            reference pattern[x] -> Value read
       |          IntegerLiteral -> Value read
@@ -79,7 +79,7 @@ class ScalaUsageTypeProviderTest extends ScalaFixtureTestCase {
       |          IntegerLiteral -> Value read
       |        function definition[method] -> Value read
       |          annotations -> Value read
-      |          moifiers -> Value read
+      |          modifiers -> Value read
       |          parameter clauses -> Value read
       |            parameter clause -> Value read
       |          simple type -> Method return type

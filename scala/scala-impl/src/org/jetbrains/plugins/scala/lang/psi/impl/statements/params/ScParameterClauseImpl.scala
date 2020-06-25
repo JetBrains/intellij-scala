@@ -7,8 +7,9 @@ package params
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
+import com.intellij.psi.impl.PsiImplUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScModifierList, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
@@ -85,6 +86,14 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
     byStubOrPsi(_.isImplicit)(hasImplicitKeyword)
   }
 
+  @Cached(ModCount.anyScalaPsiModificationCount, this)
+  override def isUsing: Boolean = {
+    def hasUsingKeyword =
+      findChildByType(ScalaTokenType.UsingKeyword) != null
+
+    byStubOrPsi(_.isUsing)(hasUsingKeyword)
+  }
+
   override def addParameter(param: ScParameter): ScParameterClause = {
     val params = parameters
     val vararg =
@@ -108,6 +117,29 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
       node.addChild(space, rParen)
     }
     this
+  }
+
+  override def deleteChildInternal(child: ASTNode): Unit = {
+    val parameters = this.parameters
+    val isParameter = parameters.exists(_.getNode == child)
+    def childIsLastParameterToBeDeleted = parameters.length == 1 && isParameter
+    def isSingleParameterClause =
+      !this.getPrevSiblingNotWhitespaceComment.isInstanceOf[ScParameterClause] &&
+        !this.getNextSiblingNotWhitespaceComment.isInstanceOf[ScParameterClause]
+
+    if (childIsLastParameterToBeDeleted && !isSingleParameterClause) {
+      this.delete()
+    } else if (isParameter) {
+      if (childIsLastParameterToBeDeleted) {
+        val prev = PsiImplUtil.skipWhitespaceAndCommentsBack(child.getTreePrev)
+        if (prev.hasElementType(ScalaTokenTypes.kIMPLICIT)) {
+          deleteChildInternal(prev)
+        }
+      }
+      ScalaPsiUtil.deleteElementInCommaSeparatedList(this, child)
+    } else {
+      super.deleteChildInternal(child)
+    }
   }
 
   override def owner: PsiElement = {

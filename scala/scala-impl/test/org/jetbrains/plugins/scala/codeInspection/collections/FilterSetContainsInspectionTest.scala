@@ -1,20 +1,19 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
   * @author t-kameyama
   */
 class FilterSetContainsInspectionTest extends OperationsOnCollectionInspectionTest {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[FilterSetContainsInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("remove.redundant.contains")
+    ScalaInspectionBundle.message("remove.redundant.contains")
 
   def testSetContains(): Unit = {
     doTest(

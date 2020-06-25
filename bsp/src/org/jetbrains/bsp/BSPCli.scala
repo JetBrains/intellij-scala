@@ -9,7 +9,6 @@ import ch.epfl.scala.bsp4j
 import ch.epfl.scala.bsp4j._
 import com.intellij.mock.{MockApplication, MockLocalFileSystem}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener, ExternalSystemTaskType}
 import com.intellij.openapi.vfs.impl.VirtualFileManagerImpl
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
@@ -18,7 +17,7 @@ import org.jetbrains.bsp.project.resolver.BspProjectResolver
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, BspSessionTask}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspCommunicationService}
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspSystemSettings}
-import org.jetbrains.plugins.scala.build.{BuildTaskReporter, ConsoleReporter}
+import org.jetbrains.plugins.scala.build.{BuildReporter, ConsoleReporter}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
@@ -70,9 +69,7 @@ object BSPCli extends App {
 
       override def getComponent[T](interfaceClass: Class[T]): T = {
         if (interfaceClass == classOf[VirtualFileManager])
-          new VirtualFileManagerImpl(Collections.singletonList(new MockLocalFileSystem())){
-            override def findFileByUrl(url: String): VirtualFile = null
-          }.asInstanceOf[T]
+          new VirtualFileManagerImpl(Collections.singletonList(new MockLocalFileSystem())).asInstanceOf[T]
         else if (interfaceClass == classOf[BspCommunicationService])
           (new BspCommunicationService).asInstanceOf[T]
         else if (interfaceClass == classOf[BspSystemSettings]) {
@@ -80,7 +77,7 @@ object BSPCli extends App {
           set.loadState(bspSettingsState)
           set.asInstanceOf[T]
         }
-        else super.getComponent(interfaceClass)
+        else super.getService(interfaceClass)
       }
     }
     ApplicationManager.setApplication(application, () => {})
@@ -95,12 +92,12 @@ object BSPCli extends App {
   }
 
   var running = true
-  val bspExecSettings = new BspExecutionSettings(new File(opts.projectPath), true)
+  val bspExecSettings = new BspExecutionSettings(new File(opts.projectPath), true, true)
   val bspComm = BspCommunication.forWorkspace(new File(opts.projectPath))
   val resolver = new BspProjectResolver()
   val targets = {
     println("Resolving build targets...")
-    val task = ExternalSystemTaskId.create(new ProjectSystemId("BSP", "bsp"), ExternalSystemTaskType.RESOLVE_PROJECT, opts.projectPath)
+    val task = ExternalSystemTaskId.create(BSP.ProjectSystemId, ExternalSystemTaskType.RESOLVE_PROJECT, opts.projectPath)
     resolver.resolveProjectInfo(task, opts.projectPath, isPreviewMode = false, bspExecSettings, new DummyListener)
     val targets = bspReq(buildTargets)
     println(s"Received ${targets.getTargets.size()} targets:")
@@ -146,9 +143,8 @@ object BSPCli extends App {
 
   def logDto(not: Any): Unit = println(Console.YELLOW + not + Console.RESET)
 
-  def bspReq[T](bspSessionTask: BspSessionTask[T])(implicit reporter: BuildTaskReporter): T = {
-    val reporter = new ConsoleReporter("")
-    val result = Await.result(bspComm.run(bspSessionTask, logDto, reporter, logProcess).future, Int.MaxValue seconds)
+  def bspReq[T](bspSessionTask: BspSessionTask[T])(implicit reporter: BuildReporter): T = {
+    val result = Await.result(bspComm.run(bspSessionTask, logDto, logProcess).future, Int.MaxValue seconds)
     logDto(result)
     result
   }
@@ -192,7 +188,7 @@ object BSPCli extends App {
     server.buildTargetScalaTestClasses(params)
   }
 
-  private def repl(implicit reporter: BuildTaskReporter): Unit = {
+  private def repl(implicit reporter: BuildReporter): Unit = {
     val exit = "exit[ \t]*".r
     val help = "help[ \t]*".r
     val compile = "compile[ \t]*".r

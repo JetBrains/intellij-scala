@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.patterns
 
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScPattern, ScReferencePattern, ScTypedPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeVariableTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenerator
@@ -10,12 +11,12 @@ import scala.collection.mutable
 
 trait ScPatternImpl extends ScPattern {
 
-  override def `type`(): TypeResult = Failure("Cannot type pattern")
+  override def `type`(): TypeResult = Failure(ScalaBundle.message("cannot.type.pattern"))
 
   override def bindings: Seq[ScBindingPattern] = {
     val b = mutable.ArrayBuffer.empty[ScBindingPattern]
 
-    def inner(p: ScPattern) {
+    def inner(p: ScPattern): Unit = {
       p match {
         case binding: ScBindingPattern => b += binding
         case _ =>
@@ -33,7 +34,7 @@ trait ScPatternImpl extends ScPattern {
   override def typeVariables: Seq[ScTypeVariableTypeElement] = {
     val b = mutable.ArrayBuffer.empty[ScTypeVariableTypeElement]
 
-    def inner(p: ScPattern) {
+    def inner(p: ScPattern): Unit = {
       p match {
         case ScTypedPattern(te) =>
           te.accept(new ScalaRecursiveElementVisitor {
@@ -53,7 +54,7 @@ trait ScPatternImpl extends ScPattern {
     b
   }
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitPattern(this)
   }
 

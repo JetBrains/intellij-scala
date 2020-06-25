@@ -22,12 +22,12 @@ import scala.collection.mutable
 class ReachingDefsTest extends LightCodeInsightFixtureTestCase {
   protected override def getBasePath = TestUtils.getTestDataPath + "/dataFlow/reachingDefs/"
 
-  override def setUp() = {
+  override def setUp(): Unit = {
     super.setUp()
     myFixture.setTestDataPath(getBasePath)
   }
 
-  def doTest() {
+  def doTest(): Unit = {
     val input: java.util.List[String] = TestUtils.readInput(getBasePath + getTestName(true) + ".test")
     myFixture.configureByText(ScalaFileType.INSTANCE, input.get(0))
     val file: ScalaFile = myFixture.getFile.asInstanceOf[ScalaFile]
@@ -48,7 +48,7 @@ class ReachingDefsTest extends LightCodeInsightFixtureTestCase {
   }
 
   protected def dumpDataFlow(markup: mutable.Map[Instruction, Set[Instruction]]): String = {
-    var builder: StringBuilder = new StringBuilder
+    val builder: StringBuilder = new StringBuilder
     for (instruction <- markup.keySet.toSeq.sortBy(_.num)) {
       builder.append(instruction.toString)
       val defs: Set[Instruction] = markup(instruction)
@@ -61,7 +61,7 @@ class ReachingDefsTest extends LightCodeInsightFixtureTestCase {
     builder.toString
   }
 
-  def testFirst() = doTest
-  def testSecond() = doTest
+  def testFirst(): Unit = doTest()
+  def testSecond(): Unit = doTest()
 
 }

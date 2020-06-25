@@ -3,7 +3,7 @@ package codeInspection.infiniteCycle
 
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.{PsiElement, PsiReference}
-import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
+import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
  * Pavel Fatin
  */
 
-class LoopVariableNotUpdatedInspection extends AbstractInspection("Loop variable not updated inside loop") {
+class LoopVariableNotUpdatedInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.loop.variable.not.updated.inside.loop")) {
   private val ComparisonOperators = Set("==", "!=", ">", "<", ">=", "<=")
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {

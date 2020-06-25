@@ -12,6 +12,7 @@ import com.intellij.psi.util.PsiUtilBase
 import com.intellij.psi.{NavigatablePsiElement, PsiDocumentManager, PsiElement, PsiNamedElement}
 import com.intellij.ui.awt.RelativePoint
 import javax.swing.JList
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScReferenceExpression}
@@ -24,7 +25,11 @@ import org.jetbrains.plugins.scala.util.JListCompatibility.GoToImplicitConversio
   * @author Ksenia.Sautina
   * @since 6/20/12
   */
-final class MakeExplicitAction extends AnAction("Replace implicit conversion action") {
+final class MakeExplicitAction extends AnAction(
+  ScalaBundle.message("make.implicit.conversion.explicit.action.text"),
+  ScalaBundle.message("make.implicit.conversion.explicit.action.description"),
+  /* icon = */ null
+) {
 
   override def actionPerformed(event: AnActionEvent): Unit = {
     val context = event.getDataContext
@@ -84,8 +89,8 @@ object MakeExplicitAction {
 
   private[this] def createPopupBuilder(list: JList[_]) =
     PopupFactory.createListPopupBuilder(list)
-      .setTitle("Choose implicit conversion method:")
-      .setAdText("Press Alt+Enter")
+      .setTitle(ScalaBundle.message("title.choose.implicit.conversion.method"))
+      .setAdText(ScalaBundle.message("press.alt.enter"))
       .setMovable(false)
       .setResizable(false)
       .setRequestFocus(true)

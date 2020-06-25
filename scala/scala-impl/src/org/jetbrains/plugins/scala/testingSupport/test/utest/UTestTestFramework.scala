@@ -5,38 +5,30 @@ import org.jetbrains.plugins.scala.extensions.IteratorExt
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestFramework
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestFramework, TestFrameworkSetupSupportBase}
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestFramework.TestFrameworkSetupInfo
 
-class UTestTestFramework extends AbstractTestFramework {
+class UTestTestFramework extends AbstractTestFramework with TestFrameworkSetupSupportBase {
 
   override def getName: String = "uTest"
 
-  override def getTestFileTemplateName = "uTest Object"
+  override def testFileTemplateName = "uTest Object"
 
-  override def getMnemonic: Char = 'm'
+  override def getMarkerClassFQName: String = "utest.TestSuite"
 
-  override def getMarkerClassFQName: String = "utest.framework.TestSuite"
+  override def getDefaultSuperClass: String = "utest.TestSuite"
 
-  override def getDefaultSuperClass: String = "utest.framework.TestSuite" // TODO: base class has changed to utest.TestSuite
-
-  override def getSuitePaths: Seq[String] = UTestUtil.suitePaths
-
-  override protected def getAdditionalBuildCommands(scalaVersion: Option[String]): Seq[String] = Seq()
-
-  override protected def getLibraryDependencies(scalaVersion: Option[String]): Seq[String] = scalaVersion match {
-    case Some(v) if v.startsWith("2.11") => Seq(""""com.lihaoyi" % "utest_2.11" % "latest.integration"""")
-    case Some(v) if v.startsWith("2.10") => Seq(""""com.lihaoyi" % "utest_2.10" % "latest.integration"""")
-    case _                               => Seq(""""com.lihaoyi" %% "utest" % "latest.integration"""")
-  }
-
-  override protected def getLibraryResolvers(scalaVersion: Option[String]): Seq[String] = Seq()
+  override def baseSuitePaths: Seq[String] = UTestUtil.suitePaths
 
   // overridden cause UTest now has 2 marker classes which are equal to suitePathes
   override protected def isTestClass(definition: ScTemplateDefinition): Boolean = {
     if (!definition.isInstanceOf[ScObject]) return false
 
     val elementScope = ElementScope(definition.getProject)
-    val cachedClass = getSuitePaths.iterator.flatMap(elementScope.getCachedClass).headOption
+    val cachedClass = baseSuitePaths.iterator.flatMap(elementScope.getCachedClass).headOption
     cachedClass.exists(isInheritorDeep(definition, _))
   }
+
+  override def frameworkSetupInfo(scalaVersion: Option[String]): TestFrameworkSetupInfo =
+    TestFrameworkSetupInfo(Seq(""""com.lihaoyi" %% "utest" % "latest.integration""""), Seq())
 }

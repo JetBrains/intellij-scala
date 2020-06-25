@@ -2,12 +2,14 @@ package org.jetbrains.plugins.scala
 package project
 
 import java.io._
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.util.stream
 
 import com.intellij.execution.process.{OSProcessHandler, ProcessAdapter, ProcessEvent}
 import com.intellij.openapi.util.{Key, io}
-import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.openapi.vfs.{VfsUtil, VirtualFile, VirtualFileManager}
 import com.intellij.util.{PathUtil, net}
 
 import scala.collection.JavaConverters
@@ -142,6 +144,11 @@ package object template {
     }
 
     def toLibraryRootURL: String = VfsUtil.getUrlForLibraryRoot(delegate)
+
+    def toVirtualFile: Option[VirtualFile] = {
+      val url = URLDecoder.decode(delegate.toPath.toUri.toString, StandardCharsets.UTF_8.name())
+      Option(VirtualFileManager.getInstance.findFileByUrl(url))
+    }
   }
 
   private[this] def launcherOptions(path: String) =
@@ -152,11 +159,18 @@ package object template {
 
   private[this] def vmOptions = {
     import JavaConverters._
-    net.HttpConfigurable.getInstance
+    val proxyOpts = net.HttpConfigurable.getInstance
       .getJvmProperties(false, null)
       .asScala
+    val javaOpts = Seq(sysprop("java.io.tmpdir")).flatten
+    (proxyOpts ++ javaOpts)
       .map { pair =>
         "-D" + pair.getFirst + "=" + pair.getSecond
       }
+  }
+
+  private def sysprop(key: String) = {
+    import com.intellij.openapi.util.Pair
+    Option(System.getProperty(key)).map(value => Pair.pair(key, value))
   }
 }

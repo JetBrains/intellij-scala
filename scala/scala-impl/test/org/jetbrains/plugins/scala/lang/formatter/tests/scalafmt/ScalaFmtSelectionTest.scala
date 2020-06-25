@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.lang.formatter.tests.scalafmt
 
-import org.jetbrains.plugins.scala.lang.formatter.tests.SelectionTest
+import org.jetbrains.plugins.scala.util.Markers
 
 //noinspection RedundantBlock
-class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
+class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
 
   def testExprSelection(): Unit = {
-    val before =
-      s"class Test { val v = ${startMarker}1    +     22  $endMarker}"
+    val before = s"class Test { val v = ${startMarker}1    +     22  $endMarker}"
     val after = "class Test { val v = 1 + 22 }"
     doTextTest(before, after)
   }
@@ -561,19 +560,42 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
 
   def testScl14129_spacesAroundRewrite(): Unit = {
     setScalafmtConfig("avoidInfix.conf")
-    val before =
-      s"""
-         |class C {
-         |  def foo = $startMarker   (    1      to      42   )   +     $endMarker  11
+    doTextTest(
+      s"""class C {
+         |  def foo =  $startMarker  (    1      to      42   )   +      $endMarker 11
          |}
-       """.stripMargin
-    val after =
-      s"""
-         |class C {
-         |  def foo =    1.to(42) + 11
+         |""".stripMargin,
+      s"""class C {
+         |  def foo =    (1 to 42) + 11
          |}
-       """.stripMargin
-    doTextTest(before, after)
+         |""".stripMargin
+    )
+  }
+
+
+  def testScl14129_spacesAroundRewrite_1(): Unit = {
+    setScalafmtConfig("avoidInfix.conf")
+    doTextTest(
+      s"""class C {
+         |  def foo = $startMarker   (    1      to      42   )   +       11 $endMarker
+         |}
+         |""".stripMargin,
+      s"""class C {
+         |  def foo = (1.to(42)) + 11
+         |}
+         |""".stripMargin
+    )
+  }
+
+  def testScl14129_spacesAroundRewrite_AllRangesNoExceptions(): Unit = {
+    setScalafmtConfig("avoidInfix.conf")
+    doAllRangesTextTest(
+      s"""class C {
+         |  def foo =    (    1      to      42   )   +       11
+         |}
+         |""".stripMargin,
+      checkResult = false
+    )
   }
 
   def testSCL14031(): Unit = {
@@ -974,8 +996,8 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
     doTextTest(before, after)
   }
 
-  def testScConstructorPattern_SCL15406(): Unit = {
-    val before =
+  def testScConstructorPattern_SCL15406(): Unit =
+    doTextTest(
       s"""object Test {
          |  sealed trait SuperName
          |  case class Name(firstName: String, lastName: String) extends SuperName
@@ -988,8 +1010,45 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
          |  }
          |}
       """.stripMargin
-    doTextTest(before)
-  }
+    )
+
+  def testScConstructorPattern_SCL15406_AllRanges(): Unit =
+    doAllRangesTextTest(
+      s"""object Test {
+         |  sealed trait SuperName
+         |  case class Name(firstName: String, lastName: String) extends SuperName
+         |
+         |  ${startMarker}def behavior(sn: SuperName): String = {
+         |    sn match {
+         |      case Name(firstName, lastName) =>
+         |        s"$$firstName$$lastName"
+         |    }
+         |  }${endMarker}
+         |}
+      """.stripMargin
+    )
+
+  def testScConstructorPattern_SCL15406_1(): Unit =
+    doTextTest(
+      s"""object Test extends App {
+         |  val some = Some(0)
+         |  some match {
+         |    case Some(test) => ${startMarker}test${endMarker} + 1
+         |  }
+         |}
+         |""".stripMargin
+    )
+
+  def testScConstructorPattern_SCL15406_1_AllRanges(): Unit =
+    doAllRangesTextTest(
+      s"""object Test extends App {
+         |  val some = Some(0)
+         |  some match {
+         |    case Some(test) => test + 1 + 2
+         |  }
+         |}
+         |""".stripMargin
+    )
 
   def testClassName_SCL15338(): Unit = {
     doTextTest(

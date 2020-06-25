@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
@@ -12,7 +13,7 @@ class SortedMaxMinInspection extends OperationOnCollectionInspection {
 }
 
 object SortedHeadIsMin extends SimplificationType {
-  override def hint: String = InspectionBundle.message("replace.sorted.head.with.min")
+  override def hint: String = ScalaInspectionBundle.message("replace.sorted.head.with.min")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case qual`.sorted`()`.head`() =>
@@ -22,7 +23,7 @@ object SortedHeadIsMin extends SimplificationType {
 }
 
 object SortedLastIsMax extends SimplificationType {
-  override def hint: String = InspectionBundle.message("replace.sorted.last.with.max")
+  override def hint: String = ScalaInspectionBundle.message("replace.sorted.last.with.max")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case qual`.sorted`()`.last`() =>
@@ -32,7 +33,7 @@ object SortedLastIsMax extends SimplificationType {
 }
 
 object SortByHeadIsMinBy extends SimplificationType {
-  override def hint: String = InspectionBundle.message("replace.sortBy.head.with.minBy")
+  override def hint: String = ScalaInspectionBundle.message("replace.sortBy.head.with.minBy")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case qual`.sortBy`(f)`.head`() =>
@@ -42,7 +43,7 @@ object SortByHeadIsMinBy extends SimplificationType {
 }
 
 object SortByLastIsMaxBy extends SimplificationType {
-  override def hint: String = InspectionBundle.message("replace.sortBy.last.with.maxBy")
+  override def hint: String = ScalaInspectionBundle.message("replace.sortBy.last.with.maxBy")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case qual`.sortBy`(f)`.last`() =>

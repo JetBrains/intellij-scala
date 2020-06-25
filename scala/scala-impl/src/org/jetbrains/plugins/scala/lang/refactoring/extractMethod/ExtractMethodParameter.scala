@@ -14,16 +14,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 case class ExtractMethodParameter(oldName: String, newName: String, fromElement: ScTypedDefinition, tp: ScType,
                                   passAsParameter: Boolean) {
 
-  val isEmptyParamFunction = fromElement match {
+  val isEmptyParamFunction: Boolean = fromElement match {
     case fun: ScFunction => fun.parameters.length == 0
     case _ => false
   }
-  val isCallByNameParameter = ScalaPsiUtil.nameContext(fromElement) match {
+  val isCallByNameParameter: Boolean = ScalaPsiUtil.nameContext(fromElement) match {
     case v: ScValue if v.hasModifierProperty("lazy") => true
     case p: ScParameter if p.isCallByNameParameter => true
     case _ => false
   }
-  val isFunction = fromElement.isInstanceOf[ScFunction]
+  val isFunction: Boolean = fromElement.isInstanceOf[ScFunction]
 }
 
 object ExtractMethodParameter {

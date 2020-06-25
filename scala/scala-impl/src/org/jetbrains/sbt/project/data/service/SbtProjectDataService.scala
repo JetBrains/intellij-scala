@@ -12,6 +12,7 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.ModuleType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.project.IncrementalityType
 import org.jetbrains.plugins.scala.project.external.{AbstractDataService, AbstractImporter, Importer, SdkUtils}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
@@ -121,7 +122,7 @@ object SbtProjectDataService {
     }
 
     private def additionalOptionsFrom(options: Seq[String]): Seq[String] = {
-      val handledOptions = Set("-g:none", "-nowarn", "-Xlint:none", "-deprecation", "-Xlint:deprecation")
+      @NonNls val handledOptions = Set("-g:none", "-nowarn", "-Xlint:none", "-deprecation", "-Xlint:deprecation")
 
       def removePair(name: String, options: Seq[String]): Seq[String] = {
         val index = options.indexOf(name)

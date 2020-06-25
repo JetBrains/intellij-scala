@@ -23,28 +23,15 @@ import org.scalatest.prop.Checkers
 import scala.collection.JavaConverters._
 
 @Category(Array(classOf[SlowTests]))
-class  BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
+class BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
 
   implicit val gson: Gson = new GsonBuilder().setPrettyPrinting().create()
-
-  @Test @Ignore
-  def testCommonBase(): Unit = check(
-    forAll(Gen.listOf(genPath)) { paths: List[Path] =>
-      val files = paths.map(_.toFile)
-      val base = commonBase(files)
-      val findsBase =
-        files.nonEmpty ==> base.isDefined
-      val baseIsAncestor =
-        (files.size > 1) ==> files.forall { f => FileUtil.isAncestor(base.get, f, false) }
-
-      findsBase && baseIsAncestor
-    })
 
   @Test @Ignore
   def testGetScalaSdkData(): Unit = check(
     forAll { (scalaBuildTarget: ScalaBuildTarget, scalacOptionsItem: ScalacOptionsItem) =>
 
-      val data = getScalaSdkData(scalaBuildTarget, Some(scalacOptionsItem))
+      val (_, data) = getScalaSdkData(scalaBuildTarget, Some(scalacOptionsItem))
       val jarsToClasspath = ! scalaBuildTarget.getJars.isEmpty ==> ! data.scalacClasspath.isEmpty
 
       jarsToClasspath && data.scalaVersion != null
@@ -83,7 +70,7 @@ class  BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
       forAll(Gen.listOf(genSourceDirectoryUnder(basePath)), Gen.listOf(genSourceDirectoryUnder(basePath))) {
           (sourceRoots: List[SourceDirectory], resourceRoots: List[SourceDirectory]) =>
         forAll { (target: BuildTarget, moduleBase: Option[File], outputPath: Option[File], classpath: List[File], dependencySources: List[File]) =>
-          val description = createModuleDescriptionData(Seq(target), tags, moduleBase, outputPath, sourceRoots, resourceRoots, classpath, dependencySources)
+          val description = createModuleDescriptionData(target, tags, moduleBase, outputPath, sourceRoots, resourceRoots, classpath, dependencySources)
 
           val p1 = (description.basePath == moduleBase) :| "base path should be set"
           val p2 = (tags.contains(BuildTargetTag.LIBRARY) || tags.contains(BuildTargetTag.APPLICATION)) ==>
@@ -128,7 +115,7 @@ class  BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
 
         val projectRootPath = root.toString
         val projectModules = ProjectModules(moduleDescriptions, Seq.empty)
-        val node = projectNode(projectRootPath, moduleFilesDir.toString, projectModules)
+        val node = projectNode(root.toFile, projectModules, BspProjectResolver.rootExclusions(root.toFile))
 
         // TODO more thorough properties
         node.getChildren.size >= moduleDescriptions.size

@@ -3,7 +3,6 @@ package annotator
 package element
 
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.lang.annotation.Annotation
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker.registerUsedImports
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReturn}
 import org.jetbrains.plugins.scala.lang.psi.types.api
@@ -17,7 +16,7 @@ object ScReturnAnnotator extends ElementAnnotator[ScReturn] {
 
     val function = element.method.getOrElse {
       val error = ScalaBundle.message("return.outside.method.definition")
-      val annotation: Annotation = holder.createErrorAnnotation(element.keyword, error)
+      val annotation = holder.createErrorAnnotation(element.keyword, error)
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
       return
     }

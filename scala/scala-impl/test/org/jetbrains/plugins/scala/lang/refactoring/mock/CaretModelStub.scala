@@ -73,4 +73,6 @@ class CaretModelStub extends CaretModel {
   override def addCaret(visualPosition: VisualPosition, b: Boolean): Caret = ???
 
   override def addCaretActionListener(listener: CaretActionListener, disposable: Disposable): Unit = ???
+
+  override def addCaret(pos: LogicalPosition, makePrimary: Boolean): Caret = ???
 }

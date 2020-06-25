@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.interfaces.ScalafmtR
 
 object ConsoleScalafmtReporter extends ConsoleScalafmtReporter(System.err)
 
+//noinspection HardCodedStringLiteral
 class ConsoleScalafmtReporter(out: PrintStream) extends ScalafmtReporter {
   override def error(file: Path, e: Throwable): Unit = {
     out.print(s"error: $file: ")

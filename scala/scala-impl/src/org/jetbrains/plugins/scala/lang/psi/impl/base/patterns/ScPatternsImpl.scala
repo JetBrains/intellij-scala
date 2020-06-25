@@ -16,5 +16,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 class ScPatternsImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScPatterns{
   override def toString: String = "ArgumentPatterns"
 
-  def patterns: Seq[ScPattern] = findChildrenByClass(classOf[ScPattern]).toSeq
+  override def patterns: Seq[ScPattern] = findChildrenByClass(classOf[ScPattern]).toSeq
 }

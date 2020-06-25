@@ -8,7 +8,7 @@ import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiTypeParametersOwnerAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createClauseFromText, createTypeParameterClauseFromTextWithContext}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeParameterClauseFromTextWithContext
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 
 /**
@@ -51,4 +51,11 @@ trait ScMethodLike extends ScMember with PsiMethod with PsiTypeParametersOwnerAd
   def parameterList: ScParameters
 
   def parameters: Seq[ScParameter]
+
+  final def parametersInClause(clauseIndex: Int): Seq[ScParameter] =
+    effectiveParameterClauses match {
+      case clauses if clauses.indices.contains(clauseIndex) =>
+        clauses(clauseIndex).effectiveParameters
+      case _ => Seq.empty
+    }
 }

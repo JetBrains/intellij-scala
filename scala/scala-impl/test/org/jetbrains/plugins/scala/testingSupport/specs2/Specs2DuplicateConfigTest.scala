@@ -24,7 +24,7 @@ abstract class Specs2DuplicateConfigTest extends Specs2TestCase {
   )
   def testDuplicateConfig(): Unit = {
     runDuplicateConfigTest(5, 10, "DuplicateConfigTest.scala",
-      checkConfigAndSettings(_, "DuplicateConfigTest", "create only one config")
+      assertConfigAndSettings(_, "DuplicateConfigTest", "create only one config")
     )
   }
 }

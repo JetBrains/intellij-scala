@@ -8,60 +8,60 @@ class BugTest extends ResolveTestBase {
   override def folderPath: String = {
     super.folderPath + "bug/"
   }
-  def testBug1() {doTest()}
+  def testBug1(): Unit = {doTest()}
 
   //TODO answer?
 //  def testIncomplete() {doTest()}
 
-  def testSimplePrivateAccess() {doTest()}
-  def testPrivateThis() {doTest()}
-  def testProtectedThis() {doTest()}
-  def testGetOrElse() {doTest()}
-  def testAnonymousClassMethods() {doTest()}
+  def testSimplePrivateAccess(): Unit = {doTest()}
+  def testPrivateThis(): Unit = {doTest()}
+  def testProtectedThis(): Unit = {doTest()}
+  def testGetOrElse(): Unit = {doTest()}
+  def testAnonymousClassMethods(): Unit = {doTest()}
   //TODO ok
 //  def testIntegerEqualiity() {doTest()}
-  def testEarlyDefinitionsBefore() {doTest()}
-  def testFunctionEmptyParamList() {doTest()}
+  def testEarlyDefinitionsBefore(): Unit = {doTest()}
+  def testFunctionEmptyParamList(): Unit = {doTest()}
 
-  def testCaseClassObjectStaticImport() {doTest()}
-  def testBufferPlusPlus() {doTest()}
+  def testCaseClassObjectStaticImport(): Unit = {doTest()}
+  def testBufferPlusPlus(): Unit = {doTest()}
 
-  def testCollectionExpression() {doTest()}
+  def testCollectionExpression(): Unit = {doTest()}
 
-  def testNamedConstructorParam() {doTest()}
-  def testNamedConstructorThisParam() {doTest()}
+  def testNamedConstructorParam(): Unit = {doTest()}
+  def testNamedConstructorThisParam(): Unit = {doTest()}
 
-  def testValueFunctionOverloading() {doTest()}
-  def testClassParameterResolve() {doTest()}
-  def testClassParameterResolveTwo() {doTest()}
-  def testAnnonymousFunctionUsage() {doTest()}
-  def testImplicitsApplicability() {doTest()}
+  def testValueFunctionOverloading(): Unit = {doTest()}
+  def testClassParameterResolve(): Unit = {doTest()}
+  def testClassParameterResolveTwo(): Unit = {doTest()}
+  def testAnnonymousFunctionUsage(): Unit = {doTest()}
+  def testImplicitsApplicability(): Unit = {doTest()}
 
-  def testImplicitChoose() {doTest()}
+  def testImplicitChoose(): Unit = {doTest()}
 
-  def testResolveEmpty() {doTest()}
-  def testOverloadedAction() {doTest()}
-  def testImplicitsInShapeIgnored() {doTest()}
+  def testResolveEmpty(): Unit = {doTest()}
+  def testOverloadedAction(): Unit = {doTest()}
+  def testImplicitsInShapeIgnored(): Unit = {doTest()}
 
-  def testInfixApply() {doTest()}
-  def testSCL2172() {doTest()}
+  def testInfixApply(): Unit = {doTest()}
+  def testSCL2172(): Unit = {doTest()}
   //TODO failed on buildserver
 //  def testSCL2182() {doTest()}
-  def testSCL2198() {doTest()}
-  def testSCL2205() {doTest()}
-  def testSCL2207() {doTest()}
-  def testSCL2256() {doTest()}
-  def testSCL1990() {doTest()}
-  def testSCL2156() {doTest()}
-  def testSCL1946() {doTest()}
-  def testSCL2041() {doTest()}
-  def testSCL2208() {doTest()}
-  def testSCL2239() {doTest()}
-  def testSCL2257() {doTest()}
+  def testSCL2198(): Unit = {doTest()}
+  def testSCL2205(): Unit = {doTest()}
+  def testSCL2207(): Unit = {doTest()}
+  def testSCL2256(): Unit = {doTest()}
+  def testSCL1990(): Unit = {doTest()}
+  def testSCL2156(): Unit = {doTest()}
+  def testSCL1946(): Unit = {doTest()}
+  def testSCL2041(): Unit = {doTest()}
+  def testSCL2208(): Unit = {doTest()}
+  def testSCL2239(): Unit = {doTest()}
+  def testSCL2257(): Unit = {doTest()}
   //TODO Java AnyRef
   //def testSCL2238() {doTest()}
 
-  def testThisTypeSelfType() {doTest()}
+  def testThisTypeSelfType(): Unit = {doTest()}
   
-  def testImplicitsOverloading() {doTest()}
+  def testImplicitsOverloading(): Unit = {doTest()}
 }

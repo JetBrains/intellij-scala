@@ -11,8 +11,6 @@ import org.junit.Assert
   */
 class ScalaUnresolvedCompletionTest extends ScalaCodeInsightTestBase {
 
-  import EditorTestUtil.{CARET_TAG => CARET}
-
   def testFieldVal(): Unit = {
     val fileText =
       s"""

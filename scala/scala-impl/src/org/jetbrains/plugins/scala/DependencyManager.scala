@@ -10,6 +10,7 @@ import org.apache.ivy.core.resolve.ResolveOptions
 import org.apache.ivy.core.settings.IvySettings
 import org.apache.ivy.plugins.resolver.{ChainResolver, IBiblioResolver, RepositoryResolver, URLResolver}
 import org.apache.ivy.util.{DefaultMessageLogger, MessageLogger}
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.project.template._
 
 import scala.collection.JavaConverters
@@ -117,7 +118,7 @@ abstract class DependencyManagerBase {
     processIvyReport(report)
   }
 
-  protected def artToDep(id: ModuleRevisionId) = DependencyDescription(id.getOrganisation, id.getName, id.getRevision)
+  protected def artToDep(id: ModuleRevisionId): DependencyDescription = DependencyDescription(id.getOrganisation, id.getName, id.getRevision)
 
   protected def processIvyReport(report: ResolveReport): Seq[ResolvedDependency] = {
 
@@ -189,9 +190,9 @@ object DependencyManagerBase {
 
   private def scalaDependency(kind: String)
                              (implicit scalaVersion: ScalaVersion) = {
-    val (org, idPrefix, idSuffix) = scalaVersion match {
-      case Scala_3_0 => ("ch.epfl.lamp", "dotty", "_" + scalaVersion.major)
-      case _ => ("org.scala-lang", "scala", "")
+    val (org, idPrefix, idSuffix) = scalaVersion.languageLevel match {
+      case ScalaLanguageLevel.Scala_3_0 => ("ch.epfl.lamp", "dotty", "_" + scalaVersion.major)
+      case _                            => ("org.scala-lang", "scala", "")
     }
 
     DependencyDescription(org, idPrefix + "-" + kind + idSuffix, scalaVersion.minor)
@@ -203,11 +204,12 @@ object DependencyManagerBase {
 
   def scalaReflectDescription(implicit scalaVersion: ScalaVersion): DependencyDescription = scalaDependency("reflect")
 
+
   implicit class RichStr(private val org: String) extends AnyVal {
 
-    def %(artId: String) = DependencyDescription(org, artId, "")
+    def %(artId: String): DependencyDescription = DependencyDescription(org, artId, "")
 
-    def %%(artId: String)(implicit scalaVersion: ScalaVersion) = DependencyDescription(
+    def %%(artId: String)(implicit scalaVersion: ScalaVersion): DependencyDescription = DependencyDescription(
       org,
       artId + "_" + scalaVersion.major,
       ""

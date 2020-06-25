@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * @author Pavel Fatin
   */
 class ExpandSetterCall extends AbstractTransformer {
-  protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
+  override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case e @ ScAssignment(l @ ReferenceTarget((_: ScReferencePattern | _: ScFieldId) &&
       Parent(Parent((v: ScVariable) && Parent(_: ScTemplateBody)))), r)
       if !v.getModifierList.accessModifier.exists(it => it.isPrivate && it.isThis)=>

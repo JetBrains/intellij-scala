@@ -31,14 +31,14 @@ trait ScInfixExpr extends ScExpression with ScSugarCallExpr with ScInfixElement 
     case _ => None
   }
 
-  def getBaseExpr: ScExpression = {
+  override def getBaseExpr: ScExpression = {
     val withAssoc(base, _, _) = this
     base
   }
 
-  def getInvokedExpr: ScExpression = operation
+  override def getInvokedExpr: ScExpression = operation
 
-  def argsElement: ScExpression = {
+  override def argsElement: ScExpression = {
     val withAssoc(_, _, argument) = this
     argument
   }

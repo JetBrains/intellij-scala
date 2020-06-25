@@ -104,22 +104,22 @@ object ParameterInfoTestBase {
 
   private[this] def createInfoUIContext[Owner <: PsiElement](parameterOwner: Owner)
                                                             (consume: String => Unit) = new ParameterInfoUIContext {
-    def getParameterOwner: PsiElement = parameterOwner
+    override def getParameterOwner: PsiElement = parameterOwner
 
-    def setupUIComponentPresentation(text: String, highlightStartOffset: Int, highlightEndOffset: Int,
-                                     isDisabled: Boolean, strikeout: Boolean, isDisabledBeforeHighlight: Boolean,
-                                     background: Color): String = {
+    override def setupUIComponentPresentation(text: String, highlightStartOffset: Int, highlightEndOffset: Int,
+                                              isDisabled: Boolean, strikeout: Boolean, isDisabledBeforeHighlight: Boolean,
+                                              background: Color): String = {
       consume(text)
       text
     }
 
-    def getDefaultParameterColor: Color = HintUtil.getInformationColor
+    override def getDefaultParameterColor: Color = HintUtil.getInformationColor
 
-    def isUIComponentEnabled: Boolean = false
+    override def isUIComponentEnabled: Boolean = false
 
-    def getCurrentParameterIndex: Int = 0
+    override def getCurrentParameterIndex: Int = 0
 
-    def setUIComponentEnabled(enabled: Boolean): Unit = {}
+    override def setUIComponentEnabled(enabled: Boolean): Unit = {}
 
     override def isSingleParameterInfo = false
 

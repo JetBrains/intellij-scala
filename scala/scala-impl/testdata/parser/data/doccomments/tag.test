@@ -4,13 +4,13 @@
 -----
 ScalaFile
   DocComment
-    PsiElement(DOC_COMMENT_START)('/**')
-    PsiElement(DOC_WHITESPACE)('\n ')
-    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-    PsiElement(DOC_WHITESPACE)(' ')
+    ScPsiDocToken(DOC_COMMENT_START)('/**')
+    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
     DocTag
-      PsiElement(DOC_TAG_NAME)('@author')
-      PsiElement(DOC_WHITESPACE)(' ')
-      PsiElement(DOC_COMMENT_DATA)('Alexnder')
-      PsiElement(DOC_WHITESPACE)('\n ')
-    PsiElement(DOC_COMMENT_END)('*/')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@author')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('Alexnder')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_END)('*/')

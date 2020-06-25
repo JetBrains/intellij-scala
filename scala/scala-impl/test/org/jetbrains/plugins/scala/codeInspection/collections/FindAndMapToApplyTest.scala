@@ -10,15 +10,13 @@ import com.intellij.testFramework.EditorTestUtil
   */
 class FindAndMapToApplyTest extends OperationsOnCollectionInspectionTest {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection: Class[FindAndMapToApplyInspection] =
     classOf[FindAndMapToApplyInspection]
 
   override protected val hint: String =
     "Replace find and map with apply"
 
-  def test_inline_map() {
+  def test_inline_map(): Unit = {
     val selected = s"Map().${START}find(_ == 1).map(_._2)$END"
 
     checkTextHasError(selected)
@@ -30,7 +28,7 @@ class FindAndMapToApplyTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def test_with_map_as_val() = {
+  def test_with_map_as_val(): Unit = {
     val selected =
       s"""val m = Map("k" -> "5", "v" -> "6")
           m.${START}find(_ == "5").map(_._2)$END"""

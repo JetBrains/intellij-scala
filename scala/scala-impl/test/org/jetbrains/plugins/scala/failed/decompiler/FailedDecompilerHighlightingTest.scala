@@ -14,23 +14,23 @@ class FailedDecompilerHighlightingTest extends DecompilerHighlightingTestBase {
 
   override protected def shouldPass: Boolean = false
 
-  def testTypers() = doTest("Typers.class")
+  def testTypers(): Unit = doTest("Typers.class")
 
-  def testReifiers() = doTest("Reifiers.class")
+  def testReifiers(): Unit = doTest("Reifiers.class")
 
-  def testParsers() = doTest("Parsers.class")
+  def testParsers(): Unit = doTest("Parsers.class")
 
-  def testReference() = doTest("Reference.class")
+  def testReference(): Unit = doTest("Reference.class")
 
-  def testScaladocModelTest() = doTest("ScaladocModelTest.class")
+  def testScaladocModelTest(): Unit = doTest("ScaladocModelTest.class")
 
-  def testClassloadVerify() = doTest("ClassloadVerify.class")
+  def testClassloadVerify(): Unit = doTest("ClassloadVerify.class")
 
-  def testScalac() = doTest("Scalac.class")
+  def testScalac(): Unit = doTest("Scalac.class")
 
-  def testScaladoc() = doTest("Scaladoc.class")
+  def testScaladoc(): Unit = doTest("Scaladoc.class")
 
-  def testPathResolver() = doTest("PathResolver.class")
+  def testPathResolver(): Unit = doTest("PathResolver.class")
 
-  def testDocParser() = doTest("DocParser.class")
+  def testDocParser(): Unit = doTest("DocParser.class")
 }

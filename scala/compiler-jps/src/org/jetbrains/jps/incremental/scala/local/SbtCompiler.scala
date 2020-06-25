@@ -4,10 +4,10 @@ package local
 import java.io.File
 import java.util.Optional
 
-import org.jetbrains.jps.incremental.scala.data.CompilationData
 import org.jetbrains.jps.incremental.scala.local.zinc.Utils._
 import org.jetbrains.jps.incremental.scala.local.zinc.{BinaryToSource, _}
-import org.jetbrains.jps.incremental.scala.model.CompileOrder
+import org.jetbrains.plugins.scala.compiler.CompileOrder
+import org.jetbrains.plugins.scala.compiler.data.CompilationData
 import sbt.internal.inc._
 import xsbti.compile._
 
@@ -17,14 +17,13 @@ import scala.util.Try
   * @author Pavel Fatin
   */
 class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileToStore: File => AnalysisStore) extends AbstractCompiler {
-  def compile(compilationData: CompilationData, client: Client): Unit = optScalac match {
+  override def compile(compilationData: CompilationData, client: Client): Unit = optScalac match {
     case Some(scalac) => doCompile(compilationData, client, scalac)
     case _ =>
       client.error(s"No scalac found to compile scala sources: ${compilationData.sources.take(10).mkString("\n")}...")
   }
 
   private def doCompile(compilationData: CompilationData, client: Client, scalac: ScalaCompiler): Unit = {
-    val startTime = System.currentTimeMillis()
     client.progress("Loading cached results...")
 
     val incrementalCompiler = new IncrementalCompilerImpl
@@ -41,7 +40,7 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
 
     client.progress("Searching for changed files...")
 
-    val progress = getProgress(client)
+    val progress = getProgress(client, compilationData.sources.size)
     val reporter = getReporter(client)
     val logger = getLogger(client, zincLogFilter)
 
@@ -58,7 +57,7 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
     val cs = incrementalCompiler.compilers(javaTools, scalac)
     val setup = incrementalCompiler.setup(
       IntellijEntryLookup(compilationData, fileToStore),
-      /*skip = */ false,
+      skip = false,
       compilationData.cacheFile,
       CompilerCache.fresh,
       incOptions,
@@ -98,7 +97,7 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
         intellijClassfileManager.generatedDuringCompilation().flatten.foreach(processGeneratedFile)
 
         if (cacheDetails.isCached)
-          previousAnalysis.asInstanceOf[Analysis].stamps.allProducts.foreach(processGeneratedFile)
+          previousAnalysis.stamps.allProducts.foreach(processGeneratedFile)
       }
       result
     }
@@ -126,7 +125,7 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
               |  ${e.getStackTrace.mkString("\n  ")}
           """.stripMargin
 
-        client.error(msg, None, None, None)
+        client.error(msg, None)
     }
 
     zincMetadata.compilationFinished(compilationData, compilationResult, intellijClassfileManager, cacheDetails)

@@ -4,6 +4,7 @@ package monads
 
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.PsiElement
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
@@ -30,8 +31,8 @@ final class NestedStatefulMonadsInspection extends AbstractInspection(NestedStat
 }
 
 object NestedStatefulMonadsInspection {
-
-  private[monads] final val Description = "Nested stateful monads"
+  @Nls
+  private[monads] final val Description = ScalaInspectionBundle.message("nested.stateful.monads")
 
   private final val StatefulMonadsTypesNames = Set("scala.concurrent.Future", "scala.util.Try")
 

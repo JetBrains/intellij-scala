@@ -5,10 +5,6 @@ package controlFlow
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-/**
-  * Nikolay.Tropin
-  * 2014-09-23
-  */
 abstract class UnusedExpressionInspectionTestBase extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
@@ -18,7 +14,7 @@ abstract class UnusedExpressionInspectionTestBase extends ScalaInspectionTestBas
 class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase {
 
   override protected val description =
-    InspectionBundle.message("unused.expression.no.side.effects")
+    ScalaInspectionBundle.message("unused.expression.no.side.effects")
 
   def testLiteral(): Unit = checkTextHasError {
     s"""def foo(): Int = {
@@ -381,7 +377,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
 class UnusedExpressionThrowsInspectionTest extends UnusedExpressionInspectionTestBase {
 
   override protected val description =
-    InspectionBundle.message("unused.expression.throws")
+    ScalaInspectionBundle.message("unused.expression.throws")
 
   def testUnsafeGet(): Unit = checkTextHasError {
     s"""

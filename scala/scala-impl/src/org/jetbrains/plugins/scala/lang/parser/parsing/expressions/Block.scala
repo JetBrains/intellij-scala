@@ -19,12 +19,12 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  */
 object Block {
 
-  def parse(builder: ScalaPsiBuilder) {
+  def parse(builder: ScalaPsiBuilder): Unit = {
     if (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
       var hasSemicolon = false
       var rollbackMarker = builder.mark()
 
-      def updateSemicolon() {
+      def updateSemicolon(): Unit = {
         builder.getTokenType match {
           case ScalaTokenTypes.tSEMICOLON =>
             hasSemicolon = true
@@ -64,13 +64,11 @@ object Block {
         continue = false
         i = i + 1
         tts ::= builder.getTokenType
+      } else if (BlockStat.parse(builder)) {
+        i = i + 1
+        tts ::= builder.getTokenType
       } else {
-        if (BlockStat.parse(builder)) {
-          i = i + 1
-          tts ::= builder.getTokenType
-        } else {
-          continue = false
-        }
+        continue = false
       }
     }
     if (tts.drop(1).headOption.contains(ScalaTokenTypes.tSEMICOLON)) i -= 1  // See unit_to_unit.test

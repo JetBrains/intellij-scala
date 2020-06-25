@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.project.settings
+package org.jetbrains.plugins.scala
+package project
+package settings
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.compiler.server.BuildManager
@@ -6,14 +8,15 @@ import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.options.Configurable.Composite
 import com.intellij.openapi.project.Project
 import javax.swing.JPanel
-import org.jetbrains.plugins.scala.project.AbstractConfigurable
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-class ScalaCompilerConfigurable(project: Project, configuration: ScalaCompilerConfiguration)
+class ScalaCompilerConfigurable(project: Project)
   extends AbstractConfigurable(ScalaCompilerConfigurable.Name)
     with Composite {
 
   private val form = new ScalaCompilerConfigurationPanel(project)
+
+  private def configuration = ScalaCompilerConfiguration.instanceIn(project)
   
   private val profilesPanel: ScalaCompilerProfilesPanel = form.getProfilesPanel
 
@@ -22,9 +25,9 @@ class ScalaCompilerConfigurable(project: Project, configuration: ScalaCompilerCo
   override def isModified: Boolean = {
     if (form.getIncrementalityType != configuration.incrementalityType)
       return true
-    if (profilesPanel.getDefaultProfile.getSettings.getState != configuration.defaultProfile.getSettings.getState)
+    if (profilesPanel.getDefaultProfile.getSettings.toState != configuration.defaultProfile.getSettings.toState)
       return true
-    if (!profilesPanel.getModuleProfiles.corresponds(configuration.customProfiles)(_.getSettings.getState == _.getSettings.getState))
+    if (!profilesPanel.getModuleProfiles.corresponds(configuration.customProfiles)(_.getSettings.toState == _.getSettings.toState))
       return true
 
     false
@@ -52,6 +55,5 @@ class ScalaCompilerConfigurable(project: Project, configuration: ScalaCompilerCo
 }
 
 object ScalaCompilerConfigurable {
-
-  val Name = "Scala Compiler"
+  val Name: String = ScalaBundle.message("scala.compiler")
 }

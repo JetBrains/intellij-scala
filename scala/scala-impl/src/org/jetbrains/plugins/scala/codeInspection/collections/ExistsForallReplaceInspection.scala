@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
@@ -24,7 +25,7 @@ private object NegatedPredicate {
 }
 
 object ReplaceForallWithExists extends SimplificationType {
-  override def hint: String = InspectionBundle.message("replace.with.exists")
+  override def hint: String = ScalaInspectionBundle.message("replace.with.exists")
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
       case `!`(qual`.forall`(NegatedPredicate(pred))) =>
@@ -35,7 +36,7 @@ object ReplaceForallWithExists extends SimplificationType {
 }
 
 object ReplaceExistsWithForall extends SimplificationType {
-  override def hint: String = InspectionBundle.message("replace.with.forall")
+  override def hint: String = ScalaInspectionBundle.message("replace.with.forall")
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
       case `!`(qual`.exists`(NegatedPredicate(pred))) =>

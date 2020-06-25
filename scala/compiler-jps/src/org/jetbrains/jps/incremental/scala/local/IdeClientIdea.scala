@@ -8,9 +8,11 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.builders.java.dependencyView.Callbacks
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.OutputConsumer
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage}
+import org.jetbrains.jps.incremental.scala.local.IdeClientIdea.CompilationResult
 import org.jetbrains.jps.incremental.scala.local.PackageObjectsData.packageObjectClassName
 import org.jetbrains.jps.incremental.{CompileContext, Utils}
 import org.jetbrains.org.objectweb.asm.ClassReader
+import org.jetbrains.plugins.scala.compiler.CompilerEvent
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection._
@@ -27,13 +29,35 @@ class IdeClientIdea(compilerName: String,
                     mappingsCallback: Callbacks.Backend,
                     successfullyCompiled: mutable.Set[File],
                     packageObjectsData: PackageObjectsData)
-  extends IdeClient(compilerName, context, modules, consumer) {
+  extends IdeClient(compilerName, context, modules) {
 
-  private val tempSuccessfullyCompiled = mutable.Set[File]()
   private val packageObjectsBaseClasses = ArrayBuffer[PackageObjectBaseClass]()
+  private var compilationResults: Seq[CompilationResult] = List.empty
 
   //logic is taken from org.jetbrains.jps.incremental.java.OutputFilesSink.save
-  def generated(source: File, outputFile: File, name: String): Unit = {
+  override def generated(source: File, outputFile: File, name: String): Unit = {
+    val compilationResult = CompilationResult(
+      source = source,
+      outputFile = outputFile,
+      name = name
+    )
+    compilationResults = compilationResult +: compilationResults
+  }
+
+  override def compilationEnd(sources: Predef.Set[File]): Unit = {
+    compilationResults.foreach(handleCompilationResult)
+    persistPackageObjectData()
+    super.compilationEnd(sources)
+  }
+
+  override def worksheetOutput(text: String): Unit = ()
+
+  override def processingEnd(): Unit = ()
+
+  override def sourceStarted(source: String): Unit = ()
+
+  private def handleCompilationResult(compilationResult: CompilationResult): Unit = {
+    val CompilationResult(source, outputFile, name) = compilationResult
     val compiledClass = new LazyCompiledClass(outputFile, source, name)
     val content = compiledClass.getContent
     var isTemp: Boolean = false
@@ -46,8 +70,15 @@ class IdeClientIdea(compilerName: String,
         isTemp = rootDescriptor.isTemp
         if (!isTemp) {
           try {
-            if (isClassFile) consumer.registerCompiledClass(rootDescriptor.target, compiledClass)
-            else consumer.registerOutputFile(rootDescriptor.target, outputFile, Collections.singleton[String](sourcePath))
+            val sourcePaths = Collections.singleton(sourcePath)
+            if (isClassFile) {
+              consumer.registerCompiledClass(rootDescriptor.target, compiledClass)
+              ClassFileUtils.correspondingTastyFile(outputFile).foreach { tastyFile =>
+                consumer.registerOutputFile(rootDescriptor.target, tastyFile, sourcePaths)
+              }
+            } else {
+              consumer.registerOutputFile(rootDescriptor.target, outputFile, sourcePaths)
+            }
           }
           catch {
             case e: IOException => context.processMessage(CompilerMessage.createInternalBuilderError(compilerName, e))
@@ -70,19 +101,7 @@ class IdeClientIdea(compilerName: String,
     }
 
     if (isClassFile && !isTemp && source != null)
-      tempSuccessfullyCompiled += source
-  }
-
-  //add source to successfullyCompiled only after the whole file is processed
-  def processed(source: File): Unit = {
-    if (tempSuccessfullyCompiled(source)) {
       successfullyCompiled += source
-      tempSuccessfullyCompiled -= source
-    }
-  }
-
-  override def compilationEnd(): Unit = {
-    persistPackageObjectData()
   }
 
   private def handlePackageObject(source: File, outputFile: File, reader: ClassReader): Any = {
@@ -125,5 +144,10 @@ class IdeClientIdea(compilerName: String,
 
   private case class PackageObjectBaseClass(packObjectSrc: File, packageName: String, baseClassName: String)
 
+}
+
+object IdeClientIdea {
+
+  private case class CompilationResult(source: File, outputFile: File, name: String)
 }
 

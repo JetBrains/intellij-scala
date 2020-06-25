@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.annotator.Tree.Leaf
 import org.jetbrains.plugins.scala.annotator.TypeDiff.{Mismatch, asString}
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScTypedExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, TypePresentationContext}
 
 object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
@@ -15,9 +15,20 @@ object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
   override def annotate(element: ScTypedExpression, typeAware: Boolean = true)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     if (typeAware) {
-      implicit val context: TypePresentationContext = TypePresentationContext(element)
-      element.typeElement.foreach(checkUpcasting(element.expr, _))
+      val isTypeAscriptionToFunctionLiteral = element.expr match {
+        case ScParenthesisedExpr(_: ScFunctionExpr) | ScBlock(_: ScFunctionExpr) => true
+        case _ => false
+      }
+
+      if (!isTypeAscriptionToFunctionLiteral) { // handled in ScFunctionExprAnnotator
+        doAnnotate(element)
+      }
     }
+  }
+
+  private[annotator] def doAnnotate(element: ScTypedExpression)(implicit holder: ScalaAnnotationHolder): Unit = {
+    implicit val context: TypePresentationContext = TypePresentationContext(element)
+    element.typeElement.foreach(checkUpcasting(element.expr, _))
   }
 
   // SCL-15544
@@ -35,7 +46,7 @@ object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
           case (_, t2: ScLiteralType) => t2.wideType
           case (_, t2) => t2
         }
-        val message = s"Cannot upcast ${wideActual.presentableText} to ${expected.presentableText}"
+        val message = ScalaBundle.message("cannot.upcast.type.to.other.type", wideActual.presentableText, expected.presentableText)
         ranges.foreach { range =>
           val annotation = holder.createErrorAnnotation(range, message)
           annotation.registerFix(ReportHighlightingErrorQuickFix)
@@ -48,7 +59,7 @@ object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
   def mismatchRangesIn(expected: ScTypeElement, actual: ScType)(implicit context: TypePresentationContext): Seq[TextRange] = {
     val diff = TypeDiff.forExpected(expected.calcType, actual)
 
-    if (asString(diff) == expected.getText) { // make sure that presentations match
+    if (expected.textMatches(asString(diff))) { // make sure that presentations match
       val (ranges, _) =  diff.flatten.foldLeft((Seq.empty[TextRange], expected.getTextOffset)) { case ((acc, offset), x) =>
         val length = asString(x).length
         val isMismatch: Tree[TypeDiff] => Boolean = { case Leaf(Mismatch(_, _)) => true; case _ => false }

@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
-import com.intellij.debugger.DebuggerBundle
+import com.intellij.debugger.JavaDebuggerBundle
 import com.intellij.debugger.engine.evaluation.EvaluateExceptionUtil
 import com.intellij.debugger.engine.evaluation.expression.CodeFragmentEvaluator
 import com.intellij.debugger.jdi.VirtualMachineProxyImpl
@@ -21,7 +21,7 @@ class SyntheticVariablesHolderEvaluator(parentEvaluator: CodeFragmentEvaluator) 
 
   override def setInitialValue(localName: String, value: scala.Any): Unit = {
     if (mySyntheticLocals.contains(localName)) {
-      throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.variable.already.declared", localName))
+      throw EvaluateExceptionUtil.createEvaluateException(JavaDebuggerBundle.message("evaluation.error.variable.already.declared", localName))
     }
     mySyntheticLocals.put(localName, NonInitializedValue)
   }

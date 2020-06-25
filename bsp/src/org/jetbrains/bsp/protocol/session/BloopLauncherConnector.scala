@@ -4,10 +4,10 @@ import java.io.File
 import ch.epfl.scala.bsp4j.BspConnectionDetails
 import com.intellij.execution.configurations.JavaParameters
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
-import org.jetbrains.bsp.BspError
+import org.jetbrains.bsp.{BspBundle, BspError}
 import org.jetbrains.bsp.protocol.session.BspServerConnector.BspCapabilities
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
-import org.jetbrains.plugins.scala.build.BuildTaskReporter
+import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.sbt.SbtUtil
 
@@ -18,13 +18,14 @@ class BloopLauncherConnector(base: File, compilerOutput: File, capabilities: Bsp
   val bloopVersion: String = BuildInfo.bloopVersion // TODO parameterize from build
   val bspVersion = "2.0.0"
 
-  override def connect(reporter: BuildTaskReporter): Either[BspError, Builder] = {
+  override def connect(reporter: BuildReporter): Either[BspError, Builder] = {
 
     val launcher = new File(SbtUtil.getLauncherDir, "bloop-launcher.jar")
     val scalaSdk = new File(SbtUtil.getLibDir, "scala-library.jar")
     val jna = new File(SbtUtil.getLibDir, "jna-4.5.0.jar") // TODO ensure it's the version that is packaged
     val jnaPlatform = new File(SbtUtil.getLibDir, "jna-platform-4.5.0.jar")
-    val launcherClasspath = List(launcher, scalaSdk, jna, jnaPlatform).map(_.getCanonicalPath).asJava
+    val scalaXml = new File(SbtUtil.getLibDir, "scala-xml.jar")
+    val launcherClasspath = List(launcher, scalaSdk, jna, jnaPlatform, scalaXml).map(_.getCanonicalPath).asJava
 
     // TODO handle no available jdk case
     val jdk = ProjectJdkTable.getInstance().findMostRecentSdkOfType(JavaSdk.getInstance())
@@ -40,16 +41,17 @@ class BloopLauncherConnector(base: File, compilerOutput: File, capabilities: Bsp
 
     val argv = cmdLine.getCommandLineList(null)
 
+    reporter.log(BspBundle.message("bsp.protocol.starting.bloop"))
+    reporter.log(cmdLine.getCommandLineString)
+
     val details = new BspConnectionDetails("Bloop", argv, bloopVersion, bspVersion, List("java","scala").asJava)
     Right(prepareBspSession(details))
   }
 
   private def prepareBspSession(details: BspConnectionDetails): Builder = {
 
-    val process =
-      new java.lang.ProcessBuilder(details.getArgv)
-        .directory(base)
-        .start()
+    val processBuilder = new java.lang.ProcessBuilder(details.getArgv).directory(base)
+    val process = processBuilder.start()
 
     val cleanup = () => {
       process.destroy()

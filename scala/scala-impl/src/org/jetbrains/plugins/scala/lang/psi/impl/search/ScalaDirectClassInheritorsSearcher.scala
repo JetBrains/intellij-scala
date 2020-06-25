@@ -3,13 +3,12 @@ package psi
 package impl
 package search
 
-
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Comparing
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.searches.DirectClassInheritorsSearch
-import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
+import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiUtil
 import com.intellij.util.{Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.extensions.inReadAction
@@ -21,33 +20,17 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 24.10.2008
+ * @see [[ScalaLocalInheritorsSearcher]]
  */
-
 class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectClassInheritorsSearch.SearchParameters] {
 
   override def execute(queryParameters: DirectClassInheritorsSearch.SearchParameters, consumer: Processor[_ >: PsiClass]): Boolean = {
     val clazz = queryParameters.getClassToProcess
 
-    val scope = inReadAction {
-      val useScope = clazz.getUseScope match {
-        case _: LocalSearchScope =>
-          clazz.getContainingFile match {
-            case null => null
-            case file =>
-              file.getVirtualFile match {
-                case null => GlobalSearchScope.allScope(file.getProject)
-                case _ => GlobalSearchScope.fileScope(file)
-              }
-          }
-        case global: GlobalSearchScope => global
-        case _ => null
-      }
-      ScalaUseScope.intersect(queryParameters.getScope, Option(useScope)) match {
-        case x: GlobalSearchScope => x
-        case _ => return true
-      }
+    val scope: SearchScope = inReadAction {
+      val resolveScope = queryParameters.getScope
+      val useScope = clazz.getUseScope
+      resolveScope.intersectWith(useScope)
     }
 
     val anonymousClasses = new ArrayBuffer[PsiClass]()
@@ -89,15 +72,18 @@ class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectC
       val clazzJar = getJarFile(clazz)
       for ((_, sameNameInheritors) <- map) {
         ProgressManager.checkCanceled()
-        sameNameInheritors.find { inheritor =>
+        val found = sameNameInheritors.find { inheritor =>
           ProgressManager.checkCanceled()
           Comparing.equal(getJarFile(inheritor), clazzJar)
-        } match {
+        }
+        found match {
           case Some(inheritor) =>
-            if (!consumer.process(inheritor)) return false
+            if (!consumer.process(inheritor))
+              return false
           case _ if clazzJar == null => //this is possible during completion
             for (inheritor <- sameNameInheritors) {
-              if (!consumer.process(inheritor)) return false
+              if (!consumer.process(inheritor))
+                return false
             }
           case _ =>
             val closestClass = sameNameInheritors.maxBy { inheritor =>
@@ -105,7 +91,8 @@ class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectC
               if (jarFile == null) 0
               else StringUtil.commonPrefixLength(jarFile.getCanonicalPath, clazzJar.getCanonicalPath)
             }
-            if (!consumer.process(closestClass)) return false
+            if (!consumer.process(closestClass))
+              return false
         }
       }
     }

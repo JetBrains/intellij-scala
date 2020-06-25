@@ -16,7 +16,7 @@ class CompilerIndicesConfigurable(project: Project) extends Configurable {
   private[this] val panel                              = new CompilerIndicesSettingsForm(project)
   private[this] var shutdownCallback: Option[Runnable] = None
 
-  override def getDisplayName: String        = "Bytecode Indices"
+  override def getDisplayName: String        = ScalaBundle.message("bytecode.indices")
   override def createComponent(): JComponent = panel.mainPanel
   override def isModified: Boolean           = panel.isModified(CompilerIndicesSettings(project), CompilerIndicesSbtSettings())
   override def reset(): Unit                 = panel.from(CompilerIndicesSettings(project), CompilerIndicesSbtSettings())
@@ -38,12 +38,14 @@ object CompilerIndicesConfigurable {
       ApplicationManagerEx.getApplicationEx.restart(true)
 
   private def showRestartDialog(): Int = {
-    val action = IdeBundle.message(
-      if (ApplicationManagerEx.getApplicationEx.isRestartCapable) "ide.restart.action"
-      else                                                        "ide.shutdown.action"
-    )
-    val message = ScalaBundle.message("scala.compiler.indices.restart.required.message", action)
-    val title   = ScalaBundle.message("scala.compiler.indices.restart.required.title")
+    val canRestart = ApplicationManagerEx.getApplicationEx.isRestartCapable
+    val action =
+      if (canRestart) IdeBundle.message("ide.restart.action")
+      else IdeBundle.message("ide.shutdown.action")
+    val message =
+      if (canRestart) ScalaBundle.message("bytecode.indices.restart.message")
+      else ScalaBundle.message("bytecode.indices.shutdown.message")
+    val title   = ScalaBundle.message("bytecode.indices.restart.title")
 
     Messages.showYesNoDialog(message, title, action, IdeBundle.message("ide.postpone.action"), Messages.getQuestionIcon)
   }

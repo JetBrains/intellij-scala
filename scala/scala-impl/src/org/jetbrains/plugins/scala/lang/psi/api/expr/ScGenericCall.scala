@@ -18,10 +18,7 @@ trait ScGenericCall extends ScExpression {
 
   def typeArgs: Option[ScTypeArgs] = findChild(classOf[ScTypeArgs])
 
-  def arguments: Seq[ScTypeElement] = (for (t <- typeArgs) yield t.typeArgs) match {
-    case Some(x) => x
-    case _ => Nil
-  }
+  def arguments: Seq[ScTypeElement] = typeArgs.fold(Seq.empty[ScTypeElement])(_.typeArgs)
 
   def shapeType: TypeResult
 

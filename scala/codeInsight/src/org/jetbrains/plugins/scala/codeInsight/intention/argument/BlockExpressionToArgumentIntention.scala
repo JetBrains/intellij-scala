@@ -7,7 +7,6 @@ import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.codeInsight.intention.argument.BlockExpressionToArgumentIntention.FAMILY_NAME
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -17,7 +16,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 final class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAction {
-  override def getFamilyName: String = FAMILY_NAME
+  override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.convert.to.argument.in.parentheses")
 
   override def getText: String = getFamilyName
 
@@ -79,8 +78,4 @@ final class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAc
       }
     } yield s"foo($newParamsText => $newBodyText)"
   }
-}
-
-object BlockExpressionToArgumentIntention {
-  val FAMILY_NAME = "Convert to argument in parentheses"
 }

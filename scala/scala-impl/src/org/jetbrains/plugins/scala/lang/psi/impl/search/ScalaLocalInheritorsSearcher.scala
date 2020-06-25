@@ -13,9 +13,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 
 /**
-  * @author Nikolay.Tropin
+  * @see [[ScalaDirectClassInheritorsSearcher]]
+  * TODO: show inheritors via gutter doesn't work in Scratch files
   */
 class ScalaLocalInheritorsSearcher extends QueryExecutorBase[PsiClass, ClassInheritorsSearch.SearchParameters] {
+
   override def processQuery(params: SearchParameters, consumer: Processor[_ >: PsiClass]): Unit = {
     val clazz = params.getClassToProcess
 
@@ -43,7 +45,6 @@ class ScalaLocalInheritorsSearcher extends QueryExecutorBase[PsiClass, ClassInhe
         }
       }
     }
-
   }
 
   private def checkCandidate(candidate: PsiClass, parameters: ClassInheritorsSearch.SearchParameters): Boolean = {

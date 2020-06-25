@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet
 
+import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.codeInspection.feature.{LanguageFeatureInspection, LanguageFeatureInspectionTestBase}
@@ -10,14 +11,16 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 abstract class WorksheetLanguageFeatureInspectionBaseTest extends LanguageFeatureInspectionTestBase {
 
   override protected val fileType: LanguageFileType = WorksheetFileType
-  override protected val classOfInspection = classOf[LanguageFeatureInspection]
+  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[LanguageFeatureInspection]
   override protected val description = "Advanced language feature: higher-kinded type "
 }
 
 class WorksheetLanguageFeatureInspection extends WorksheetLanguageFeatureInspectionBaseTest {
 
   def testThatModuleCompilerProfileSettingsAreUsedInWorksheet_HasError(): Unit = {
-    getModule.scalaCompilerSettings.higherKinds = false
+    val profile = getModule.scalaCompilerSettingsProfile
+    val newSettings = profile.getSettings.copy(higherKinds = false)
+    profile.setSettings(newSettings)
     checkTextHasError(
       s"""def foo[F$START[_]$END, A](fa: F[A]): String = "123"
          |""".stripMargin
@@ -25,7 +28,9 @@ class WorksheetLanguageFeatureInspection extends WorksheetLanguageFeatureInspect
   }
 
   def testThatModuleCompilerProfileSettingsAreUsedInWorksheet_NoError(): Unit = {
-    getModule.scalaCompilerSettings.higherKinds = true
+    val profile = getModule.scalaCompilerSettingsProfile
+    val newSettings = profile.getSettings.copy(higherKinds = true)
+    profile.setSettings(newSettings)
     checkTextHasNoErrors(
       s"""def foo[F[_], A](fa: F[A]): String = "123"
          |""".stripMargin
@@ -43,7 +48,9 @@ class WorksheetScratchFileLanguageFeatureInspection extends WorksheetLanguageFea
     WorksheetFileSettings(file).setCompilerProfileName(TestCompilerProfile)
 
   def testThatSpecifiedCompilerProfileSettingsAreUsedInScratchFile_NoError(): Unit = {
-    createCompilerProfile(TestCompilerProfile).getSettings.higherKinds = true
+    val profile = createCompilerProfile(TestCompilerProfile)
+    val newSettings = profile.getSettings.copy(higherKinds = true)
+    profile.setSettings(newSettings)
     checkTextHasNoErrors(
       s"""def foo[F[_], A](fa: F[A]): String = "123"
          |""".stripMargin
@@ -51,7 +58,9 @@ class WorksheetScratchFileLanguageFeatureInspection extends WorksheetLanguageFea
   }
 
   def testThatSpecifiedCompilerProfileSettingsAreUsedInWorksheet_Scratchfile(): Unit = {
-    createCompilerProfile(TestCompilerProfile).getSettings.higherKinds = true
+    val profile = createCompilerProfile(TestCompilerProfile)
+    val newSettings = profile.getSettings.copy(higherKinds = true)
+    profile.setSettings(newSettings)
     checkTextHasNoErrors(
       s"""def foo[F[_], A](fa: F[A]): String = "123"
          |""".stripMargin

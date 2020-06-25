@@ -8,9 +8,9 @@ import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiNamedElement}
-import org.jetbrains.plugins.scala.annotator.intention.ScalaAddImportAction
 import org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportMembersUtil._
 import org.jetbrains.plugins.scala.extensions.PsiReferenceEx.resolve
+import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -21,10 +21,12 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 * 2014-03-19
 */
 class ImportAllMembersIntention extends PsiElementBaseIntentionAction {
+  override def getFamilyName: String = ScalaBundle.message("family.name.import.all.members")
+
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val qualAtCaret = PsiTreeUtil.getParentOfType(element, classOf[ScReference])
     if (qualAtCaret == null) return false
-    setText(s"Import all members of ${qualAtCaret.refName}")
+    setText(ScalaBundle.message("import.all.members.of.reference", qualAtCaret.refName))
     checkQualifier(qualAtCaret)
   }
 
@@ -37,7 +39,7 @@ class ImportAllMembersIntention extends PsiElementBaseIntentionAction {
     if (qualAtCaret == null || !checkQualifier(qualAtCaret)) return
     qualAtCaret.resolve() match {
       case named: PsiNamedElement =>
-        val importHolder = ScalaAddImportAction.getImportHolder(element, project)
+        val importHolder = ScImportsHolder(element)(project)
         val usages = ReferencesSearch.search(named, new LocalSearchScope(importHolder)).findAll()
         val pathWithWildcard = ScalaNamesUtil.qualifiedName(named).getOrElse(return) + "._"
 
@@ -54,17 +56,11 @@ class ImportAllMembersIntention extends PsiElementBaseIntentionAction {
     }
   }
 
-  override def getFamilyName: String = ImportAllMembersIntention.familyName
-
   private def checkQualifier(qual: ScReference): Boolean = qual match {
     case isQualifierInImport(impExpr: ScImportExpr) =>
       val text = impExpr.getText
-      qual.getText != text && !text.endsWith("_")
+      !qual.textMatches(text) && !text.endsWith("_")
     case isQualifierFor(ref) => !isInImport(ref) && resolvesToStablePath(ref)
     case _ => false
   }
-}
-
-object ImportAllMembersIntention {
-  val familyName = "Import all members"
 }

@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScIf}
  * @since 1/31/13
  */
 class ScalaMissingIfBranchesFixer extends ScalaFixer {
-  def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement): OperationPerformed = {
+  override def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement): OperationPerformed = {
     val ifStatement = PsiTreeUtil.getParentOfType(psiElement, classOf[ScIf], false)
     if (ifStatement == null) return NoOperation
 
@@ -23,10 +23,10 @@ class ScalaMissingIfBranchesFixer extends ScalaFixer {
 
     ifStatement.thenExpression match {
       case Some(block: ScBlockExpr) =>
-        ifStatement.condition.foreach {
-          case cond =>
-            if (cond.getTextRange.containsOffset(editor.getCaretModel.getOffset)) return placeInWholeBlock(block, editor)
-        }
+        ifStatement.condition.foreach(cond =>
+          if (cond.getTextRange.containsOffset(editor.getCaretModel.getOffset))
+            return placeInWholeBlock(block, editor)
+        )
         return NoOperation
       case Some(branch) if startLine(doc, branch) == startLine(doc, ifStatement) =>
         if (ifStatement.condition.isDefined) return NoOperation

@@ -9,12 +9,10 @@ import com.intellij.testFramework.EditorTestUtil
   */
 class SomeToOptionInspectionTest extends OperationsOnCollectionInspectionTest {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[SomeToOptionInspection]
 
-  override protected val hint: String = InspectionBundle.message("replace.with.option")
+  override protected val hint: String = ScalaInspectionBundle.message("replace.with.option")
 
   def testVal(): Unit = {
     doTest(

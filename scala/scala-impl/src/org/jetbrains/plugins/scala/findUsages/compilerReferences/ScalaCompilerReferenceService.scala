@@ -1,22 +1,24 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
 import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.{AtomicInteger, LongAdder}
 import java.util.concurrent.locks.ReentrantReadWriteLock
 
 import com.intellij.compiler.backwardRefs.LanguageCompilerRefAdapter
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{Project, ProjectManagerListener}
 import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.util.{Disposer, ModificationTracker}
+import com.intellij.openapi.startup.StartupActivity
+import com.intellij.openapi.util.ModificationTracker
 import com.intellij.psi.search.{ScopeOptimizer, SearchScope}
 import com.intellij.psi.{PsiClass, PsiDocumentManager, PsiElement}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.jps.backwardRefs.CompilerRef
 import org.jetbrains.jps.backwardRefs.index.CompilerReferenceIndex
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.indices.IndexerFailure._
@@ -25,14 +27,11 @@ import org.jetbrains.plugins.scala.findUsages.compilerReferences.indices._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings
 import org.jetbrains.plugins.scala.indices.protocol.CompilationInfo
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.JavaConverters._
 
-private[findUsages] class ScalaCompilerReferenceService(
-  project:        Project,
-  fileDocManager: FileDocumentManager,
-  psiDocManager:  PsiDocumentManager
-) extends ProjectComponent with ModificationTracker {
+final private[findUsages] class ScalaCompilerReferenceService(project: Project) extends ModificationTracker {
   import ScalaCompilerReferenceService._
 
   private[this] val compilationCount = new LongAdder
@@ -43,10 +42,10 @@ private[findUsages] class ScalaCompilerReferenceService(
 
   private[this] val dirtyScopeHolder = new ScalaDirtyScopeHolder(
     project,
-    LanguageCompilerRefAdapter.INSTANCES.flatMap(_.getFileTypes.asScala),
+    LanguageCompilerRefAdapter.EP_NAME.getExtensions.flatMap(_.getFileTypes.asScala),
     projectFileIndex,
-    fileDocManager,
-    psiDocManager,
+    FileDocumentManager.getInstance(),
+    PsiDocumentManager.getInstance(project),
     this
   )
 
@@ -59,7 +58,7 @@ private[findUsages] class ScalaCompilerReferenceService(
     new CompilerReferenceIndexerScheduler(project, ScalaCompilerReferenceReaderFactory.expectedIndexVersion)
 
   private[this] val failedToParse                       = ContainerUtil.newConcurrentSet[File]()
-  private[this] val compilationTimestamps               = ContainerUtil.newConcurrentMap[String, Long]()
+  private[this] val compilationTimestamps               = new ConcurrentHashMap[String, Long]()
   private[this] val messageBus                          = project.getMessageBus
   private[this] var currentCompilerMode: CompilerMode   = CompilerMode.JPS
 
@@ -88,7 +87,7 @@ private[findUsages] class ScalaCompilerReferenceService(
     }
 
     override def onCompilationFinish(success: Boolean): Unit = {
-      indexerScheduler.schedule("Open compiler index reader", () => {
+      indexerScheduler.schedule(ScalaBundle.message("open.compiler.index.reader"), () => {
         openReader(success)
         logCompilerIndicesEvent(
           s"onCompilationFinish. success: $success, active indexing phases: ${activeIndexingPhases.get()}"
@@ -135,7 +134,7 @@ private[findUsages] class ScalaCompilerReferenceService(
     dirtyScopeHolder.reset()
     messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic).onIndexingPhaseFinished(success = false)
     indexerScheduler.schedule(InvalidateIndex(index))
-    indexerScheduler.schedule("Index invalidation callback", () => {
+    indexerScheduler.schedule(ScalaBundle.message("index.invalidation.callback"), () => {
       logger.warn(s"Compiler indices were corrupted and invalidated.")
       activeIndexingPhases.set(0)
       failedToParse.clear()
@@ -190,34 +189,37 @@ private[findUsages] class ScalaCompilerReferenceService(
 
   override def getModificationCount: Long = compilationCount.longValue()
 
-  override def projectOpened(): Unit =
+  def initializeReferenceService(): Unit =
     if (CompilerIndicesSettings(project).isBytecodeIndexingActive || ApplicationManager.getApplication.isUnitTestMode) {
-
-      inTransaction { _ =>
-        currentCompilerMode = CompilerMode.forProject(project)
-
-        logger.info(
-          s"Initialized ScalaCompilerReferenceService in ${project.getName}, " +
-            s"current compiler mode = $currentCompilerMode"
-        )
-      }
-
-      new JpsCompilationWatcher(project, transactionManager).start()
-      new SbtCompilationWatcher(project, transactionManager, ScalaCompilerReferenceReaderFactory.expectedIndexVersion).start()
-
-      dirtyScopeHolder.markProjectAsOutdated()
-      dirtyScopeHolder.installVFSListener()
-
-      Disposer.register(project, () => {
-        openCloseLock.locked {
-          if (isIndexingInProgress) {
-            // if the project is force-closed while indexing is in progress - invalidate index
-            indexDir(project).foreach(CompilerReferenceIndex.removeIndexFiles)
-          }
-          closeReader(incrementBuildCount = false)
-        }
-      })
+      initializedReferenceService
     }
+
+  private lazy val initializedReferenceService: Unit = {
+    inTransaction { _ =>
+      currentCompilerMode = CompilerMode.forProject(project)
+
+      logger.info(
+        s"Initialized ScalaCompilerReferenceService in ${project.getName}, " +
+          s"current compiler mode = $currentCompilerMode"
+      )
+    }
+
+    new JpsCompilationWatcher(project, transactionManager).start()
+    new SbtCompilationWatcher(project, transactionManager, ScalaCompilerReferenceReaderFactory.expectedIndexVersion).start()
+
+    dirtyScopeHolder.markProjectAsOutdated()
+    dirtyScopeHolder.installVFSListener()
+
+    invokeOnDispose(project.unloadAwareDisposable) {
+      openCloseLock.locked {
+        if (isIndexingInProgress) {
+          // if the project is force-closed while indexing is in progress - invalidate index
+          indexDir(project).foreach(CompilerReferenceIndex.removeIndexFiles)
+        }
+        closeReader(incrementBuildCount = false)
+      }
+    }
+  }
 
   private[this] def toCompilerRef(e: PsiElement): Option[CompilerRef] = readDataLock.locked {
     for {
@@ -261,6 +263,8 @@ private[findUsages] class ScalaCompilerReferenceService(
 
   def invalidateIndex(): Unit                    = onIndexCorruption()
   def getDirtyScopeHolder: ScalaDirtyScopeHolder = dirtyScopeHolder
+
+  initializeReferenceService()
 }
 
 object ScalaCompilerReferenceService {
@@ -271,7 +275,13 @@ object ScalaCompilerReferenceService {
   private[compilerReferences] type CompilerIndicesState = (CompilerMode, CompilerIndicesEventPublisher)
 
   def apply(project: Project): ScalaCompilerReferenceService =
-    project.getComponent(classOf[ScalaCompilerReferenceService])
+    project.getService(classOf[ScalaCompilerReferenceService])
+
+  class Startup extends ProjectManagerListener with StartupActivity {
+    // ensure service is initialized with project
+    override def runActivity(project: Project): Unit =
+      ScalaCompilerReferenceService(project)
+  }
 }
 
 class ScalaCompilerReferenceScopeOptimizer extends ScopeOptimizer {

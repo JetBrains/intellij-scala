@@ -380,7 +380,7 @@ class MultiLineStringCopyPasteProcessorTest extends CopyPasteTestBase {
     doTestMultiline(from, to, after)
   }
 
-  def testFromMultilineStringToMultilineMarginString_WithoutStripMarginButWithAllLinesWithMargin(): Unit = {
+  def testFromMultilineStringToMultilineMarginString_WithoutStripMarginButWithAllLines_WithMargin(): Unit = {
     val from =
       s"""s'''${Start}first line
          |    second line
@@ -584,7 +584,7 @@ class MultiLineStringCopyPasteProcessorTest extends CopyPasteTestBase {
     doTestMultiline(from, to, after)
   }
 
-  def testToEmptyOneLineMultilineStringWithMargin(): Unit = {
+  def testToEmptyOneLineMultilineString_WithMargin(): Unit = {
     val from =
       s"""${Start}first line
          |    second line$End
@@ -616,7 +616,7 @@ class MultiLineStringCopyPasteProcessorTest extends CopyPasteTestBase {
     doTestMultilineForAnyInsertMarginSetting(from, to, after)
   }
 
-  def testToEmptyMultilineStringWithMargin(): Unit = {
+  def testToEmptyMultilineString_WithMargin(): Unit = {
     val from =
       s"""${Start}first line
          |    second line$End
@@ -665,7 +665,7 @@ class MultiLineStringCopyPasteProcessorTest extends CopyPasteTestBase {
     doTestMultiline(from, to, after)
   }
 
-  def testToEmptyInterpOneLineMultilineStringWithMargin(): Unit = {
+  def testToEmptyInterpOneLineMultilineString_WithMargin(): Unit = {
     val from =
       s"""${Start}first line
          |    second line$End
@@ -697,7 +697,7 @@ class MultiLineStringCopyPasteProcessorTest extends CopyPasteTestBase {
     doTestMultilineForAnyInsertMarginSetting(from, to, after)
   }
 
-  def testToEmptyInterpMultilineStringWithMargin(): Unit = {
+  def testToEmptyInterpMultilineString_WithMargin(): Unit = {
     val from =
       s"""${Start}first line
          |    second line$End
@@ -747,7 +747,7 @@ class MultiLineStringCopyPasteProcessorTest extends CopyPasteTestBase {
     doTestMultiline(from, to, after)
   }
 
-  def testToNonEmptyOneLineMultilineStringWithMargin(): Unit = {
+  def testToNonEmptyOneLineMultilineString_WithMargin(): Unit = {
     val from =
       s"""${Start}first line
          |    second line$End
@@ -794,7 +794,7 @@ class MultiLineStringCopyPasteProcessorTest extends CopyPasteTestBase {
     doTestMultiline(from, to, after)
   }
 
-  def testToNonEmptyInterpOneLineMultilineStringWithMargin(): Unit = {
+  def testToNonEmptyInterpOneLineMultilineString_WithMargin(): Unit = {
     val from =
       s"""${Start}first line
          |    second line$End

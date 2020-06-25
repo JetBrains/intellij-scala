@@ -34,7 +34,7 @@ abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCa
     }
   }
 
-  def configureFromFileText(fileName: String, fileText: Option[String]): ScalaFile = {
+  override def configureFromFileText(fileName: String, fileText: Option[String]): ScalaFile = {
     val text = fileText.getOrElse {
       val filePath = folderPath + fileName
       val ioFile: File = new File(filePath)

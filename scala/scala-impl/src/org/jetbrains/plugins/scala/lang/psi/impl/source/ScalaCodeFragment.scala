@@ -40,47 +40,47 @@ final class ScalaCodeFragment private(private var viewProvider: SingleRootFileVi
   private var filter: IntentionActionsFilter = _
   private var imports = mutable.HashSet.empty[String]
 
-  def getThisType: PsiType = thisType
+  override def getThisType: PsiType = thisType
 
-  def setThisType(thisType: PsiType): Unit = {
+  override def setThisType(thisType: PsiType): Unit = {
     this.thisType = thisType
   }
 
-  def getSuperType: PsiType = superType
+  override def getSuperType: PsiType = superType
 
-  def setSuperType(superType: PsiType): Unit = {
+  override def setSuperType(superType: PsiType): Unit = {
     this.superType = superType
   }
 
-  def importsToString(): String = {
+  override def importsToString(): String = {
     imports.mkString(",")
   }
 
-  def addImportsFromString(imports: String): Unit = {
+  override def addImportsFromString(imports: String): Unit = {
     this.imports ++= imports.split(',').filter(_.nonEmpty)
   }
 
-  def setVisibilityChecker(checker: VisibilityChecker): Unit = {}
+  override def setVisibilityChecker(checker: VisibilityChecker): Unit = {}
 
-  def getVisibilityChecker: VisibilityChecker = VisibilityChecker.EVERYTHING_VISIBLE
+  override def getVisibilityChecker: VisibilityChecker = VisibilityChecker.EVERYTHING_VISIBLE
 
-  def setExceptionHandler(exceptionHandler: ExceptionHandler): Unit = {
+  override def setExceptionHandler(exceptionHandler: ExceptionHandler): Unit = {
     this.exceptionHandler = exceptionHandler
   }
 
-  def getExceptionHandler: ExceptionHandler = exceptionHandler
+  override def getExceptionHandler: ExceptionHandler = exceptionHandler
 
-  def forceResolveScope(resolveScope: GlobalSearchScope): Unit = {
+  override def forceResolveScope(resolveScope: GlobalSearchScope): Unit = {
     this.resolveScope = resolveScope
   }
 
-  def getForcedResolveScope: GlobalSearchScope = resolveScope
+  override def getForcedResolveScope: GlobalSearchScope = resolveScope
 
-  def setIntentionActionsFilter(filter: IntentionActionsFilter): Unit = {
+  override def setIntentionActionsFilter(filter: IntentionActionsFilter): Unit = {
     this.filter = filter
   }
 
-  def getIntentionActionsFilter: IntentionActionsFilter = filter
+  override def getIntentionActionsFilter: IntentionActionsFilter = filter
 
   override def getViewProvider: SingleRootFileViewProvider = viewProvider
 
@@ -143,11 +143,11 @@ final class ScalaCodeFragment private(private var viewProvider: SingleRootFileVi
 
   private class ImportClassUndoableAction(path: String) extends BasicUndoableAction {
 
-    def undo(): Unit = {
+    override def undo(): Unit = {
       imports -= path
     }
 
-    def redo(): Unit = {
+    override def redo(): Unit = {
       imports += path
     }
   }

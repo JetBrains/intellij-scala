@@ -84,7 +84,7 @@ class ScalaSigReader(bytes: Array[Byte]) {
     index
   }
 
-  private def skipVersion() {
+  private def skipVersion(): Unit = {
     val major = readNat()
     val minor = readNat()
   }

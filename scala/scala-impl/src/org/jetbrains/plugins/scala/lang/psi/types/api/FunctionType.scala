@@ -51,8 +51,9 @@ object FunctionTypeFactory {
 
   private[this] object AliasLowerBound {
 
-    def unapply(`type`: ScType): Option[ScType] = `type`.isAliasType.collect {
-      case AliasType(_: ScTypeAliasDefinition, Right(lower), _) => lower
+    def unapply(`type`: ScType): Option[ScType] = `type` match {
+      case AliasType(_: ScTypeAliasDefinition, Right(lower), _) => Option(lower)
+      case _                                                    => None
     }
   }
 

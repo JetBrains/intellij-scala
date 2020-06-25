@@ -19,7 +19,7 @@ class IntroduceVariableSuggestNamesTest extends AbstractIntroduceVariableValidat
       .mkString("\n")
   }
 
-  protected def getName(fileText: String): String = ???
+  override protected def getName(fileText: String): String = ???
 }
 
 object IntroduceVariableSuggestNamesTest {

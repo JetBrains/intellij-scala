@@ -16,6 +16,7 @@ private[integration] object MyUiUtils {
     val sleepTime = timeout / attempts
     while (idx < attempts && !earlyBreakCondition()) {
       UIUtil.dispatchAllInvocationEvents()
+      PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
       Thread.sleep(sleepTime)
       idx += 1
     }

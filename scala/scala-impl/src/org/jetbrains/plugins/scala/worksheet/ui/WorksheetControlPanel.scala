@@ -2,15 +2,16 @@ package org.jetbrains.plugins.scala.worksheet.ui
 
 import java.awt.Dimension
 
-import com.intellij.openapi.vfs.VirtualFile
 import javax.swing._
+import org.jetbrains.plugins.scala.compiler.WorksheetCompilerExtension
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.worksheet.actions.InteractiveStatusDisplay
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.StopWorksheetAction.StoppableProcess
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu._
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetControlPanel._
 
-class WorksheetControlPanel(private val file: VirtualFile) extends JPanel {
+// TODO: check if Scala Plugin is unloadable if there are some worksheets with initialized top panel UI
+final class WorksheetControlPanel extends JPanel {
 
   private val statusDisplay = new InteractiveStatusDisplay()
   private val runAction = new RunWorksheetAction()
@@ -18,6 +19,7 @@ class WorksheetControlPanel(private val file: VirtualFile) extends JPanel {
   private val cleanAction = new CleanWorksheetAction()
   private val copyAction = new CopyWorksheetAction()
   private val settingsAction = new ShowWorksheetSettingsAction()
+  private val extraActions = WorksheetCompilerExtension.extraWorksheetActions()
 
   private var runEnabled = false
 
@@ -52,6 +54,9 @@ class WorksheetControlPanel(private val file: VirtualFile) extends JPanel {
       addSplitter()
       settingsAction.init(panel)
       addSplitter()
+      extraActions.foreach { action =>
+        action.init(panel)
+      }
       panel.add(Box.createHorizontalGlue())
       addSplitter()
       statusDisplay.init(panel)

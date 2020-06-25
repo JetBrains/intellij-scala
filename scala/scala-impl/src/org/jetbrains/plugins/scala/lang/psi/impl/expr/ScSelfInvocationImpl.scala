@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ConstructorInvocationLikeImpl
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
@@ -29,7 +30,7 @@ import scala.collection.Seq
   * @author Alexander Podkhalyuzin
   *         Date: 22.02.2008
   */
-class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScSelfInvocation {
+class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScSelfInvocation with ConstructorInvocationLikeImpl {
 
   override def args: Option[ScArgumentExprList] =
     findChild(classOf[ScArgumentExprList])
@@ -97,16 +98,16 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
     }
   }
 
-  def shapeType(i: Int): TypeResult = {
+  override def shapeType(i: Int): TypeResult = {
     val option = bindInternal(shapeResolve = true)
     workWithBindInternal(option, i)
   }
 
-  def shapeMultiType(i: Int): Array[TypeResult] = {
+  override def shapeMultiType(i: Int): Array[TypeResult] = {
     bindMultiInternal(shapeResolve = true).map(pe => workWithBindInternal(Some(pe), i))
   }
 
-  def multiType(i: Int): Array[TypeResult] = {
+  override def multiType(i: Int): Array[TypeResult] = {
     bindMultiInternal(shapeResolve = false).map(pe => workWithBindInternal(Some(pe), i))
   }
 
@@ -132,4 +133,6 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
     val start = this.getTextRange.getStartOffset
     Option(thisElement).getOrElse(this).getTextRange.shiftRight(-start)
   }
+
+  override def resolveConstructor(): PsiElement = resolve()
 }

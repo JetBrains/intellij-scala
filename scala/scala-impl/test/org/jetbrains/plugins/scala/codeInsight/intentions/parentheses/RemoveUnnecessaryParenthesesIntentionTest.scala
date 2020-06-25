@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package codeInsight.intentions.parentheses
 
-import org.jetbrains.plugins.scala.codeInsight.intention.expression.RemoveUnnecessaryParenthesesIntention
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
 /**
@@ -11,7 +10,7 @@ import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
 //test only removing clarifying paretheses here
 class RemoveUnnecessaryParenthesesIntentionTest extends ScalaIntentionTestBase {
-  def familyName: String = RemoveUnnecessaryParenthesesIntention.familyName
+  override def familyName: String = ScalaBundle.message("remove.unnecessary.parentheses")
 
   def test_1(): Unit = {
     val text = "1 + (1 * 2<caret>)"

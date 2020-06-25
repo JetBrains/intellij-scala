@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
-package codeInspection.collections
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
@@ -13,9 +13,7 @@ class MapGetOrElseBooleanInspection extends OperationOnCollectionInspection {
     Array(MapGetOrElseFalse, MapGetOrElseTrue)
 }
 
-abstract class MapGetOrElseBoolean(defaultValue: String, newMethodName: String, hintKey: String) extends SimplificationType() {
-  def hint: String = InspectionBundle.message(hintKey)
-
+abstract class MapGetOrElseBoolean(defaultValue: String, newMethodName: String, override val hint: String) extends SimplificationType {
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
       case qual `.map` (f@returnsBoolean()) `.getOrElse` (literal(`defaultValue`)) if isOption(qual) =>
@@ -25,6 +23,6 @@ abstract class MapGetOrElseBoolean(defaultValue: String, newMethodName: String, 
   }
 }
 
-object MapGetOrElseFalse extends MapGetOrElseBoolean("false", "exists", "map.getOrElse.false.hint")
+object MapGetOrElseFalse extends MapGetOrElseBoolean("false", "exists", ScalaInspectionBundle.message("map.getOrElse.false.hint"))
 
-object MapGetOrElseTrue extends MapGetOrElseBoolean("true", "forall", "map.getOrElse.true.hint")
+object MapGetOrElseTrue extends MapGetOrElseBoolean("true", "forall", ScalaInspectionBundle.message("map.getOrElse.true.hint"))

@@ -38,5 +38,9 @@ class ScTupleImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTuple
         TupleType(widenedComponents)
     })
 
+  override def deleteChildInternal(child: ASTNode): Unit = {
+    ScalaPsiUtil.deleteElementInCommaSeparatedList(this, child)
+  }
+
   override def toString: String = "Tuple"
 }

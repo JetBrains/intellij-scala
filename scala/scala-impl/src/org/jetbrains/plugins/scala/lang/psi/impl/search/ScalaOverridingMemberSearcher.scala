@@ -51,7 +51,7 @@ class MethodImplementationsSearch extends QueryExecutor[PsiElement, PsiElement] 
  *  That's why we need to stop processing, to avoid showing wrappers in Scala.
  */
 class ScalaOverridingMemberSearcher extends QueryExecutor[PsiMethod, OverridingMethodsSearch.SearchParameters] {
-  def execute(queryParameters: SearchParameters, consumer: Processor[_ >: PsiMethod]): Boolean = {
+  override def execute(queryParameters: SearchParameters, consumer: Processor[_ >: PsiMethod]): Boolean = {
     val method = queryParameters.getMethod
     method match {
       case namedElement: ScNamedElement =>

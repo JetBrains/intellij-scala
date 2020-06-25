@@ -35,8 +35,8 @@ class AddTypeToFunctionParameterTest extends TransformerTest(new AddTypeToFuncti
   )()
 
   def testMethodParameter(): Unit = check(
-    before = "def f(p: A) {}",
-    after = "def f(p: A) {}"
+    before = "def f(p: A): Unit = {}",
+    after = "def f(p: A): Unit = {}"
   )()
 
   def testClassParameter(): Unit = check(

@@ -5,6 +5,7 @@ package types
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle.message
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
@@ -13,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScUnderscore
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypeText
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.ScTypeText
 import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScType, ScTypeExt, TypePresentationContext}
 
 /**
@@ -37,7 +38,7 @@ class MakeTypeMoreSpecificIntention extends AbstractTypeAnnotationIntention {
     override def functionWithType(function: ScFunctionDefinition, typeElement: ScTypeElement): Boolean =
       setTextIfCanBeMoreSpecific(function.returnType.toOption, function.body, message("make.type.more.specific.fun"))
 
-    private def setTextIfCanBeMoreSpecific(declTypeOpt: Option[ScType], exprOpt: Option[ScExpression], text: String): Boolean = {
+    private def setTextIfCanBeMoreSpecific(declTypeOpt: Option[ScType], exprOpt: Option[ScExpression], @Nls text: String): Boolean = {
       if (canBeMoreSpecific(declTypeOpt, exprOpt)) {
         setText(text)
         true

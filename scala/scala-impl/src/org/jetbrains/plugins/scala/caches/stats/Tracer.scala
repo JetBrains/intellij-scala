@@ -4,8 +4,9 @@ import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 
 import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.plugins.scala.caches.stats.Tracer.{currentTracers, root, roundToMillis}
+import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
-class Tracer(val id: String, val name: String) {
+class Tracer private (val id: String, val name: String) {
 
   private val invocationCounter       = new AtomicInteger(0)
   private val actualCounter           = new AtomicInteger(0)
@@ -52,20 +53,22 @@ class Tracer(val id: String, val name: String) {
   private def pushNested(currentTime: Long): Unit = {
     recursionDepth.set(recursionDepth.get + 1)
 
-    currentTracers.get() match {
+    val tracers = currentTracers.value
+    tracers match {
       case previous :: _ =>
         previous.updateTotalTime(currentTime, isNested = false)
         callFrom(previous)
       case _ =>
         callFrom(root)
     }
-    currentTracers.set(this :: currentTracers.get())
+    currentTracers.value = this :: tracers
   }
 
   private def popNested(currentTime: Long): Unit = {
-    currentTracers.set(currentTracers.get().tail)
+    val tail = currentTracers.value.tail
+    currentTracers.value = tail
 
-    currentTracers.get() match {
+    tail match {
       case previous :: _ => previous.updateTotalTime(currentTime, isNested = true)
       case _ =>
     }
@@ -147,6 +150,6 @@ object Tracer {
 
   private def roundToMillis(nanos: Long): Int = Math.round(nanos.toDouble / (1000 * 1000)).toInt
 
-  private val currentTracers: ThreadLocal[List[Tracer]] = ThreadLocal.withInitial(() => Nil)
+  private val currentTracers: UnloadableThreadLocal[List[Tracer]] = UnloadableThreadLocal(Nil)
 
 }

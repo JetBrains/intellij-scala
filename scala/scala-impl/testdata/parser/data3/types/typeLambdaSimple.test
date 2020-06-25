@@ -1,0 +1,33 @@
+type A = [X] =>> List[X]
+-----
+ScalaFile
+  ScTypeAliasDefinition: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    TypeLambda: [X] =>> List[X]
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: X
+          PsiElement(identifier)('X')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=>>)('=>>')
+      PsiWhiteSpace(' ')
+      ParametrizedType: List[X]
+        SimpleType: List
+          CodeReferenceElement: List
+            PsiElement(identifier)('List')
+        TypeArgumentsList
+          PsiElement([)('[')
+          SimpleType: X
+            CodeReferenceElement: X
+              PsiElement(identifier)('X')
+          PsiElement(])(']')

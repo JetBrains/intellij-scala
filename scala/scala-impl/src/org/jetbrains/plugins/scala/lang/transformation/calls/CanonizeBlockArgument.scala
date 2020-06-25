@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * @author Pavel Fatin
   */
 class CanonizeBlockArgument extends AbstractTransformer {
-  protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
+  override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case e @ ScMethodCall(expression, Seq(block: ScBlockExpr)) =>
       e.replace(code"$expression(${block.asSimpleExpression.getOrElse(block)})")
 

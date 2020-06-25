@@ -10,7 +10,13 @@ trait WorksheetEditorPrinter {
   def flushBuffer(): Unit
   def close(): Unit
   def scheduleWorksheetUpdate(): Unit
-  def internalError(errorMessage: String)
+
+  /**
+   * Handles unexpected exceptions.
+   * Exceptions occurred during REPL commands execution are redirected to
+   * worksheet standard output, see [[ILoopWrapperFactory#loadReplWrapperAndRun]]
+   */
+  def internalError(ex: Throwable): Unit
 
   @TestOnly
   def diffSplitter: Option[SimpleWorksheetSplitter]

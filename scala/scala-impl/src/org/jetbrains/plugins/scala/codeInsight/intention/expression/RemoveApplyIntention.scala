@@ -9,7 +9,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiMethod, PsiNamedElement}
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScalaConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -20,21 +21,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
-/**
- * @author Ksenia.Sautina
- * @since 4/12/12
- */
-
-object RemoveApplyIntention {
-  val familyName = "Remove unnecessary apply"
-}
-
 class RemoveApplyIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = RemoveApplyIntention.familyName
+  override def getFamilyName: String = ScalaBundle.message("family.name.remove.unnecessary.apply")
 
   override def getText: String = getFamilyName
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val methodCallExpr: ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
     if (methodCallExpr == null) return false
 
@@ -44,14 +36,14 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
         val offset = editor.getCaretModel.getOffset
 
         if (!(range.getStartOffset <= offset && offset <= range.getEndOffset)) return false
-        if (ref.isQualified && ref.nameId.getText == "apply") return true
+        if (ref.isQualified && ref.nameId.textMatches("apply")) return true
       case _ =>
     }
 
     false
   }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     def countMethodCall(call: ScMethodCall): Int = {
       call.getInvokedExpr match {
         case call: ScMethodCall => 1 + countMethodCall(call)
@@ -59,7 +51,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
       }
     }
 
-    def showErrorHint(hint: String) {
+    def showErrorHint(hint: String): Unit = {
       if (ApplicationManager.getApplication.isUnitTestMode) {
         throw new RuntimeException(hint)
       } else {
@@ -127,7 +119,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
             }
 
             if (flag) {
-              showErrorHint(InspectionBundle.message("remove.apply.overloaded",
+              showErrorHint(ScalaInspectionBundle.message("remove.apply.overloaded",
                 namedElement.name))
               return
             }
@@ -143,7 +135,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
               case fun: ScFunction =>
                 val clauses = fun.effectiveParameterClauses
                 if (clauses.length > 1 && clauses.last.isImplicit && clauses.length == cmc + 1) {
-                  showErrorHint(InspectionBundle.message("remove.apply.implicit.parameter",
+                  showErrorHint(ScalaInspectionBundle.message("remove.apply.implicit.parameter",
                     resolve.asInstanceOf[PsiNamedElement].name))
                   return
                 }
@@ -163,7 +155,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
               val argsCount = constrInvocation.arguments.length
               val clauses = constr.effectiveParameterClauses
               if (clauses.length > 1 && clauses.last.isImplicit && clauses.length == argsCount + 1) {
-                showErrorHint(InspectionBundle.message("remove.apply.constructor.implicit.parameter", constrInvocation.getText))
+                showErrorHint(ScalaInspectionBundle.message("remove.apply.constructor.implicit.parameter", constrInvocation.getText))
                 return
               }
             case _ =>

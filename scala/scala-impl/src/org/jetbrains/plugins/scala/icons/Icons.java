@@ -44,6 +44,16 @@ public interface Icons {
     Icon CLASS_AND_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/class_object_scala.svg");
     Icon ABSTRACT_CLASS_AND_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/abstract_class_object_scala.svg");
     Icon TRAIT_AND_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/trait_object_scala.svg");
+    Icon PACKAGE_WITH_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/packageWithObject.svg");
+    Icon MULTIPLE_TYPE_DEFINITONS = getIcon("/org/jetbrains/plugins/scala/images/multipleTypeDefinitions.svg");
+
+    //Companion gutter icons
+    Icon CLASS_COMPANION = getIcon("/org/jetbrains/plugins/scala/images/class_companion.svg");
+    Icon CLASS_COMPANION_SWAPPED = getIcon("/org/jetbrains/plugins/scala/images/class_companion_swapped.svg");
+    Icon TRAIT_COMPANION = getIcon("/org/jetbrains/plugins/scala/images/trait_companion.svg");
+    Icon TRAIT_COMPANION_SWAPPED = getIcon("/org/jetbrains/plugins/scala/images/trait_companion_swapped.svg");
+    Icon OBECT_COMPANION = getIcon("/org/jetbrains/plugins/scala/images/object_companion.svg");
+    Icon OBECT_COMPANION_SWAPPED = getIcon("/org/jetbrains/plugins/scala/images/object_companion_swapped.svg");
 
     //Internal nodes
     Icon FIELD_VAR = getIcon("/org/jetbrains/plugins/scala/images/field_variable.svg");
@@ -82,5 +92,6 @@ public interface Icons {
     Icon SBT_SHELL = getIcon("/org/jetbrains/plugins/scala/images/sbt_shell.svg");
     // used from SBT.xml
     Icon SBT_SHELL_TOOLWINDOW = getIcon("/org/jetbrains/plugins/scala/images/sbt_shell_toolwin.svg");
+    Icon SBT_LOAD_CHANGES = getIcon("/org/jetbrains/plugins/scala/images/sbtLoadChanges.svg");
 
 }

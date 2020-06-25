@@ -68,7 +68,7 @@ object ImportMembersUtil {
   }
 
   @tailrec
-  def replaceAndBind(oldRef: ScReference, name: String, toBind: PsiNamedElement) {
+  def replaceAndBind(oldRef: ScReference, name: String, toBind: PsiNamedElement): Unit = {
     toBind match {
       case fun: ScFunction if fun.isSynthetic =>
         fun.syntheticNavigationElement match {

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
  * Date: 14.10.11
  */
 class ScalaPositionManagerFactory extends PositionManagerFactory {
-  def createPositionManager(process: DebugProcess): PositionManager = {
+  override def createPositionManager(process: DebugProcess): PositionManager = {
     invokeLater {
       Stats.trigger(process.getProject.hasScala, FeatureKey.debuggerTotal)
     }

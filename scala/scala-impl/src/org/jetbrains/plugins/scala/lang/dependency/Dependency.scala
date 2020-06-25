@@ -41,7 +41,7 @@ object Dependency {
       else superRes
     }
 
-    override protected val forName = Some(ref.refName)
+    override protected val forName: Option[String] = Some(ref.refName)
 
     private val nameHint = new NameHint {
       override def getName(state: ResolveState): String = forName.get

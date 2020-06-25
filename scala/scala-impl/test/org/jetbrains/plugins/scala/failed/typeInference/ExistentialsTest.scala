@@ -15,7 +15,7 @@ class ExistentialsTest extends TypeInferenceTestBase {
 
   override def folderPath: String = super.folderPath + "bugs5/"
 
-  def testSCL9474() = doTest {
+  def testSCL9474(): Unit = doTest {
     """
       |object Foo {
       |  trait Sys[L <: Sys[L]]
@@ -42,7 +42,7 @@ class ExistentialsTest extends TypeInferenceTestBase {
     """.stripMargin.trim
   }
 
-  def testSCL7895() = doTest {
+  def testSCL7895(): Unit = doTest {
     """
       |object SCL7895 {
       |  import scala.language.existentials

@@ -1,0 +1,35 @@
+/**
+ * @see  {@aaa}
+    {@bbb}
+   @ccc
+ */
+-----
+ScalaFile
+  DocComment
+    ScPsiDocToken(DOC_COMMENT_START)('/**')
+    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_TAG_NAME)('@see')
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_INLINE_TAG_START)('{')
+    DocTag
+      ScPsiDocToken(DOC_TAG_NAME)('@aaa')
+      PsiErrorElement:Unknown tag: @aaa
+        <empty list>
+      ScPsiDocToken(DOC_INLINE_TAG_END)('}')
+      ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+      ScPsiDocToken(DOC_INLINE_TAG_START)('{')
+    DocTag
+      ScPsiDocToken(DOC_TAG_NAME)('@bbb')
+      PsiErrorElement:Unknown tag: @bbb
+        <empty list>
+      ScPsiDocToken(DOC_INLINE_TAG_END)('}')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+      ScPsiDocToken(DOC_TAG_NAME)('@ccc')
+      PsiErrorElement:Unknown tag: @ccc
+        <empty list>
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_END)('*/')

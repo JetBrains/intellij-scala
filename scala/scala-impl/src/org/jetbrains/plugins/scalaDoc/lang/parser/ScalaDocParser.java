@@ -15,9 +15,7 @@ public class ScalaDocParser implements PsiParser {
 
   @NotNull
   public ASTNode parse(@NotNull IElementType root, @NotNull PsiBuilder builder) {
-    PsiBuilder.Marker rootMarker = builder.mark();
-    new MyScaladocParsing(builder).parse();
-    rootMarker.done(root);
+    new MyScaladocParsing(builder).parse(root);
     return builder.getTreeBuilt();
   }
 }

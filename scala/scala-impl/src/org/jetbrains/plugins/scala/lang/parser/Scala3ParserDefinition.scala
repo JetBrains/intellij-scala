@@ -15,6 +15,8 @@ final class Scala3ParserDefinition extends ScalaParserDefinitionBase {
 
   override def createLexer(project: Project) = new ScalaLexer(true, project)
 
+  override def createParser(project: Project): ScalaParser = new ScalaParser(isScala3 = true)
+
   override def createFile(viewProvider: FileViewProvider) = new ScalaFileImpl(viewProvider)
 }
 

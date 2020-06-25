@@ -11,13 +11,13 @@ abstract class TypeAnnotationInspectionTest extends ScalaQuickFixTestBase {
     classOf[TypeAnnotationInspection]
 
   override protected val description: String =
-    TypeAnnotationInspection.DescriptionPrefix
+    ScalaInspectionBundle.message("type.annotation.required.for", "")
 
   override protected def descriptionMatches(s: String): Boolean =
     Option(s).exists(_.startsWith(description))
 
   protected def testQuickFix(text: String, expected: String): Unit =
-    testQuickFix(text, expected, AddTypeAnnotationQuickFix.Name)
+    testQuickFix(text, expected, ScalaInspectionBundle.message("add.type.annotation"))
 }
 
 class MembersTypeAnnotationInspectionTest extends TypeAnnotationInspectionTest {
@@ -243,6 +243,48 @@ class SuperTypeAnnotationInspectionTest extends TypeAnnotationInspectionTest {
         |""".stripMargin
     )
   }
+
+  def testIgnoredIfInheritsIgnored(): Unit = checkTextHasNoErrors(
+    """
+      |object junit {
+      |  object framework {
+      |    trait TestCase
+      |  }
+      |}
+      |
+      |class Test extends junit.framework.TestCase {
+      |  val x = "test" + 3
+      |}
+      |""".stripMargin
+  )
+
+  def testIgnoredIfIsIgnored(): Unit = checkTextHasNoErrors(
+    """
+      |object junit {
+      |  object framework {
+      |    trait TestCase {
+      |      val x = "test" + 3
+      |    }
+      |  }
+      |}
+      |""".stripMargin
+  )
+
+
+  // SCL-17115
+  def testIgnoredIfSelfTypeInheritsIgnored(): Unit = checkTextHasNoErrors(
+    """
+      |object junit {
+      |  object framework {
+      |    trait TestCase
+      |  }
+      |}
+      |
+      |class Test { this: junit.framework.TestCase =>
+      |  val x = "test" + 3
+      |}
+      |""".stripMargin
+  )
 
   override protected def createTestText(text: String): String = text
 }

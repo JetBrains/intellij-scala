@@ -1,149 +1,99 @@
 package org.jetbrains.jps.incremental.scala.local.worksheet
 
 import java.io._
-import java.net.URL
 import java.nio.{Buffer, ByteBuffer}
-import java.util.Base64
 
-import com.martiansoftware.nailgun.ThreadLocalPrintStream
-import org.jetbrains.jps.incremental.scala.data.CompilerJars
-import org.jetbrains.jps.incremental.scala.local.worksheet.compatibility.{ReplArgsJava, WorksheetArgsJava}
-import org.jetbrains.jps.incremental.scala.remote.{Arguments, EventGeneratingClient, WorksheetOutputEvent}
-
-import scala.collection.JavaConverters._
+import org.jetbrains.jps.incremental.scala.Client
+import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactoryHandler.ReplContext
+import org.jetbrains.plugins.scala.compiler.data.{Arguments, CompilerJars}
+import org.jetbrains.plugins.scala.compiler.data.worksheet._
 
 class WorksheetServer {
   import WorksheetServer._
 
   private val plainFactory = new WorksheetInProcessRunnerFactory
-  private val replFactory = new ILoopWrapperFactoryHandler
+  private val replFactoryHandler = new ILoopWrapperFactoryHandler
 
   def loadAndRun(
-    commonArguments: Arguments,
-    out: PrintStream,
-    client: EventGeneratingClient,
-    standalone: Boolean
-  ) {
-    val printStream = new MyEncodingOutputStream(out, standalone)
-    
-    if (isRepl(commonArguments)) {
-      replFactory.loadReplWrapperAndRun(commonArguments, printStream, client)
-    } else {
-      val argsParsed = WorksheetServer.parseWorksheetArgsFrom(commonArguments)
-      argsParsed.foreach { args =>
-        plainFactory.getRunner(printStream, standalone).loadAndRun(args, client)
-      }
+    worksheetArgs: WorksheetArgs,
+    commonArgs: Arguments,
+    client: Client
+  ): Unit = {
+    def printStream = new PrintStream(new RedirectToClientOutputStream(client))
+
+    val compilerJars = commonArgs.compilerData.compilerJars.getOrElse {
+      client.error("Compiler jars are missing")
+      return
+    }
+    worksheetArgs match {
+      case args: WorksheetArgsRepl  =>
+        val context = replContext(commonArgs, compilerJars)
+        replFactoryHandler.loadReplWrapperAndRun(args, context, printStream, client)
+      case args: WorksheetArgsPlain =>
+        val context = plainContext(commonArgs, compilerJars)
+        plainFactory.getRunner(printStream).loadAndRun(args, context, client)
     }
   }
 
-  def isRepl(commonArguments: Arguments): Boolean = 
-    commonArguments.worksheetFiles.lastOption.contains("replenabled")
+  private def replContext(args: Arguments, compilerJars: CompilerJars): ReplContext = {
+    val compilationData = args.compilationData
+    ReplContext(
+      args.sbtData,
+      compilerJars,
+      compilationData.classpath,
+      compilationData.scalaOptions
+    )
+  }
+
+  private def plainContext(args: Arguments, compilerJars: CompilerJars): WorksheetRunnerContext =
+    WorksheetRunnerContext(
+      compilerJars,
+      args.compilationData.classpath
+    )
 }
 
 object WorksheetServer {
-  def patchSystemOut(out: OutputStream) {
-    val printStream = new PrintStream(out)
-    
-    System.out match {
-      case threadLocal: ThreadLocalPrintStream => threadLocal.init(printStream)
-      case _ => System.setOut(printStream)
-    }
-  }
 
-  def convertWorksheetArgsFromJava(javaArgs: WorksheetArgsJava): WorksheetArgs = {
-    val replArgs = Option(javaArgs.getReplArgs).map(ReplArgs.fromJava)
-
-    val compilerJars = CompilerJars(
-      javaArgs.getCompLibrary,
-      javaArgs.getCompiler,
-      javaArgs.getCompExtra.asScala
-    )
-    WorksheetArgs(
-      javaArgs.getWorksheetClassName,
-      javaArgs.getPathToRunners,
-      javaArgs.getWorksheetTempFile,
-      javaArgs.getOutputDirs.asScala,
-      replArgs,
-      javaArgs.getNameForST,
-      compilerJars,
-      javaArgs.getClasspathURLs.asScala
-    )
-  }
-  
-  def parseWorksheetArgsFrom(commonArgs: Arguments): Option[WorksheetArgs] = {
-    val compilerJars = commonArgs.compilerData.compilerJars.orNull
-    
-    if (compilerJars == null) return None
-    
-    val javaArgs = WorksheetArgsJava.constructArgsFrom(
-      commonArgs.worksheetFiles.asJava,
-      commonArgs.compilationData.scalaOptions.asJava,
-      commonArgs.compilationData.sources.headOption.map(_.getName).orNull, 
-      compilerJars.library,
-      compilerJars.compiler,
-      compilerJars.extra.asJava,
-      commonArgs.compilationData.classpath.asJava
-    )
-    
-    Option(javaArgs).map(convertWorksheetArgsFromJava)
-  }
-  
-  case class WorksheetArgs(compiledClassName: String,
-                           pathToRunners: File,
-                           worksheetTemp: File,
-                           outputDirs: Seq[File],
-                           replArgs: Option[ReplArgs],
-                           nameForST: String,
-                           compilerJars: CompilerJars,
-                           classpathUrls: Seq[URL])
-
-  case class ReplArgs(sessionId: String, codeChunk: String)
-
-  object ReplArgs {
-    def fromJava(args: ReplArgsJava): ReplArgs = ReplArgs(args.getSessionId, args.getCodeChunk)
-  }
-
-  private class MyEncodingOutputStream(delegateOut: PrintStream, standalone: Boolean) extends OutputStream {
+  private class RedirectToClientOutputStream(client: Client) extends OutputStream {
     private var capacity = 1200
     private var buffer = ByteBuffer.allocate(capacity)
 
-    override def write(b: Int) {
+    override def write(b: Int): Unit = {
       if (b == '\r') return
 
-      if (buffer.position() < capacity) buffer.put(b.toByte) else {
-        val copy = buffer.array().clone()
-        capacity *= 2
-        buffer = ByteBuffer.allocate(capacity)
-        buffer.put(copy)
-        buffer.put(b.toByte)
-      }
+      if (buffer.position() >= capacity)
+        growBuffer()
+      buffer.put(b.toByte)
 
-      if (b == '\n') flush()
+      if (b == '\n')
+        flush()
     }
-    
-    override def close() {
+
+    private def growBuffer(): Unit = {
+      capacity *= 2
+      val newBuffer = ByteBuffer.allocate(capacity)
+      newBuffer.put(buffer.array())
+      val old = buffer
+      buffer = newBuffer
+      clearBuffer(old)
+    }
+
+    override def close(): Unit =
       flush()
-    }
 
-    override def flush() {
+    override def flush(): Unit = {
       if (buffer.position() == 0) return
-      val event = WorksheetOutputEvent(new String(buffer.array(), 0, buffer.position()))
-      // ATTENTION: do not delete this cast to Buffer!
-      // it is required to be run on JDK 8 in case plugin is built with JDK 11, see SCL-16277 for the details
-      buffer.asInstanceOf[Buffer].clear()
-      val encode = Base64.getEncoder.encodeToString(event.toBytes)
-      delegateOut.write(if (standalone && !encode.endsWith("=")) (encode + "=").getBytes else encode.getBytes)
+
+      val worksheetOutputText = new String(buffer.array(), 0, buffer.position())
+      client.worksheetOutput(worksheetOutputText)
+
+      clearBuffer(buffer)
     }
   }
-  
-  class MyUpdatePrintWriter(stream: OutputStream) extends PrintWriter(stream) {
-    private var curHash = stream.hashCode()
-    
-    def updateOut(stream: OutputStream) {
-      if (stream.hashCode() != curHash) {
-        out = new BufferedWriter(new OutputStreamWriter(stream))
-        curHash = stream.hashCode()
-      }
-    }
+
+  // ATTENTION: use this method to clear buffer, do not delete this to Buffer!
+  // it is required to be run on JDK 8 in case plugin is built with JDK 11, see SCL-16277 for the details
+  private def clearBuffer(buffer: Buffer): Unit = {
+    buffer.clear()
   }
 }

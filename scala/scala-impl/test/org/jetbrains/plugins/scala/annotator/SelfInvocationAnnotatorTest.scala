@@ -43,18 +43,18 @@ class SelfInvocationAnnotatorTest extends SimpleTestCase {
     assertNothing(messagesForGeneric("this(true, true)"))
   }
 
-  def testExcessArguments() {
+  def testExcessArguments(): Unit = {
     assertMatches(messagesForNonGeneric("this(1, 2, 3)")) {
-      case Error(", 3", "Too many arguments for constructor(Int, Int)") :: Nil =>
+      case Error(", 3", "Too many arguments for constructor NonGenericTest(Int, Int)") :: Nil =>
     }
 
     assertMessagesSorted(messagesForNonGenericMulti("this(1, 2, false)"))(
-      Error(", f", "Too many arguments for constructor(Int, Int)(Int)"),
-      Error(", f", "Too many arguments for constructor(Boolean, Boolean)")
+      Error(", f", "Too many arguments for constructor NonGenericTest(Int, Int)(Int)"),
+      Error(", f", "Too many arguments for constructor NonGenericTest(Boolean, Boolean)")
     )
 
     assertMessagesSorted(messagesForNonGenericMulti("this(0, 1)(2, 3)"))(
-      Error(", 3", "Too many arguments for constructor(Int, Int)(Int)")
+      Error(", 3", "Too many arguments for constructor NonGenericTest(Int, Int)(Int)")
     )
   }
 
@@ -90,7 +90,7 @@ class SelfInvocationAnnotatorTest extends SimpleTestCase {
 
   def testMissingArgumentClause(): Unit = {
     assertMessagesSorted(messagesForNonGenericMulti("this(1, 2)"))(
-      Error(")", "Missing argument list for constructor(Int, Int)(Int)")
+      Error(")", "Missing argument list for constructor NonGenericTest(Int, Int)(Int)")
     )
   }
 
@@ -100,7 +100,7 @@ class SelfInvocationAnnotatorTest extends SimpleTestCase {
     )
   }
 
-  def testNamedDuplicates() {
+  def testNamedDuplicates(): Unit = {
     assertMessagesSorted(messagesForNonGeneric("this(a = 0, a = 1)"))(
       Error("a", "Parameter specified multiple times"),
       Error("a", "Parameter specified multiple times")
@@ -109,7 +109,7 @@ class SelfInvocationAnnotatorTest extends SimpleTestCase {
 
 
 
-  def testTypeMismatch() {
+  def testTypeMismatch(): Unit = {
     assertMessagesSorted(messagesForNonGeneric("this(0, false)"))(
       Error("false", "Type mismatch, expected: Int, actual: Boolean")
     )
@@ -133,14 +133,14 @@ class SelfInvocationAnnotatorTest extends SimpleTestCase {
     )
   }
 
-  def testMissingAndTypeMismatch() {
+  def testMissingAndTypeMismatch(): Unit = {
     assertMessagesSorted(messagesForGeneric("this(true)"))(
       Error("e)", "Unspecified value parameters: d: Boolean"),
       Error("true", "Type mismatch, expected: Int, actual: Boolean")
     )
   }
 
-  def testMalformedSignature() {
+  def testMalformedSignature(): Unit = {
     val code =
       """
         |class A

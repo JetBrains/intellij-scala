@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * @author Pavel Fatin
   */
 class MakeResultExpressionExplicit extends AbstractTransformer {
-  protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
+  override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case e: ScFunctionDefinition if e.hasExplicitType && !e.hasUnitResultType =>
       e.returnUsages.foreach {
         case _: ScReturn => // skip

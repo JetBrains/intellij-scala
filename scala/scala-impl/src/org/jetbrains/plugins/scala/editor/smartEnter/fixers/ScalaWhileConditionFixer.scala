@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScWhile}
  */
 @SuppressWarnings(Array("HardCodedStringLiteral"))
 class ScalaWhileConditionFixer extends ScalaFixer {
-  def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement): OperationPerformed = {
+  override def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement): OperationPerformed = {
     val whileStatement = PsiTreeUtil.getParentOfType(psiElement, classOf[ScWhile], false)
     if (whileStatement == null) return NoOperation
 

@@ -26,12 +26,12 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
  */
 abstract class ScalaIntroduceFieldHandlerBase extends ScalaRefactoringActionHandler {
 
-  val REFACTORING_NAME = ScalaBundle.message("introduce.field.title")
+  val REFACTORING_NAME: String = ScalaBundle.message("introduce.field.title")
 
   protected def isSuitableClass(elem: PsiElement, clazz: ScTemplateDefinition): Boolean
 
   def afterClassChoosing[T <: PsiElement](elem: T, types: Array[ScType], project: Project, editor: Editor, file: PsiFile, title: String)
-                                         (action: IntroduceFieldContext[T] => Unit) {
+                                         (action: IntroduceFieldContext[T] => Unit): Unit = {
     try {
       val classes = ScalaPsiUtil.getParents(elem, file).collect {
         case t: ScTemplateDefinition if isSuitableClass(elem, t) => t
@@ -42,7 +42,7 @@ abstract class ScalaIntroduceFieldHandlerBase extends ScalaRefactoringActionHand
         case _ =>
           val selection = classes(0)
           val processor = new PsiElementProcessor[PsiClass] {
-            def execute(aClass: PsiClass): Boolean = {
+            override def execute(aClass: PsiClass): Boolean = {
               action(new IntroduceFieldContext[T](project, editor, file, elem, types, aClass.asInstanceOf[ScTemplateDefinition]))
               false
             }

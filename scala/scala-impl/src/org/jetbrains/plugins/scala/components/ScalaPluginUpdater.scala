@@ -25,6 +25,7 @@ import org.jdom.JDOMException
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch._
+import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
 
 import scala.xml.transform.{RewriteRule, RuleTransformer}
@@ -113,7 +114,7 @@ object ScalaPluginUpdater {
     doUpdatePluginHosts(branch)
     if(UpdateSettings.getInstance().isCheckNeeded) {
       UpdateChecker.updateAndShowResult()
-        .doWhenDone(extensions.toRunnable(postCheckIdeaCompatibility(branch)))
+        .doWhenDone(() => postCheckIdeaCompatibility(branch))
     }
   }
 
@@ -276,7 +277,7 @@ object ScalaPluginUpdater {
     if (ApplicationManager.getApplication.isUnitTestMode) return
 
     import com.intellij.openapi.editor.EditorFactory
-    EditorFactory.getInstance().getEventMulticaster.addDocumentListener(updateListener)
+    EditorFactory.getInstance().getEventMulticaster.addDocumentListener(updateListener, UnloadAwareDisposable.scalaPluginDisposable)
   }
 
   // this hack uses fake plugin.xml deserialization to downgrade plugin version
@@ -304,11 +305,11 @@ object ScalaPluginUpdater {
     val document = new RuleTransformer(versionPatcher).transform(XML.withSAXParser(factory.newSAXParser).load(stream))
     val tempFile = File.createTempFile("plugin", "xml")
     XML.save(tempFile.getAbsolutePath, document.head, enc = "UTF-8")
-    pluginDescriptor.loadFromFile(tempFile, null, true)
+    PluginManager.loadDescriptorFromFile(pluginDescriptor, tempFile.toPath, null, DisabledPluginsState.disabledPlugins)
     tempFile.delete()
   }
 
-  def askUpdatePluginBranch(): Unit = {
+  def askUpdatePluginBranchIfNeeded(): Unit = {
     val infoImpl = ApplicationInfo.getInstance().asInstanceOf[ApplicationInfoImpl]
     val applicationSettings = ScalaApplicationSettings.getInstance()
     if (infoImpl.isEAP
@@ -316,18 +317,16 @@ object ScalaPluginUpdater {
       && ScalaPluginUpdater.pluginIsRelease) {
       val message =
         """Please select Scala plugin update channel:<p/>
-          |<a href="Nightly">Nightly</a>, <a href="EAP">EAP</a>, <a href="Release">Release</a>""".stripMargin
+          |<a href="Release">Stable Releases</a> | <a href="EAP">Early Access Program</a> | <a href="Nightly">Nightly Bulds</a>""".stripMargin
 
-      val notification = new Notification(updGroupId, title, message, NotificationType.INFORMATION, new NotificationListener {
-        def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent) {
-          notification.expire()
-          applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS = false
-          event.getDescription match {
-            case "EAP"     => doUpdatePluginHostsAndCheck(EAP)
-            case "Nightly" => doUpdatePluginHostsAndCheck(Nightly)
-            case "Release" => doUpdatePluginHostsAndCheck(Release)
-            case _         => applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS = true
-          }
+      val notification = new Notification(updGroupId, title, message, NotificationType.INFORMATION, (notification: Notification, event: HyperlinkEvent) => {
+        notification.expire()
+        applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS = false
+        event.getDescription match {
+          case "Release" => doUpdatePluginHostsAndCheck(Release)
+          case "EAP" => doUpdatePluginHostsAndCheck(EAP)
+          case "Nightly" => doUpdatePluginHostsAndCheck(Nightly)
+          case _ => applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS = true
         }
       })
       val project = ProjectManager.getInstance().getOpenProjects.headOption.orNull

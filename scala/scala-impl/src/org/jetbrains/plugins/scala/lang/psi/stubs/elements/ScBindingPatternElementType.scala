@@ -23,8 +23,8 @@ abstract class ScBindingPatternElementType[P <: ScBindingPattern](debugName: Str
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScBindingPatternStub[P] =
     new ScBindingPatternStubImpl[P](parentStub, this, name = dataStream.readNameString)
 
-  protected def createStubImpl(psi: P,
-                               parentStub: StubElement[_ <: PsiElement]): ScBindingPatternStub[P] =
+  override protected def createStubImpl(psi: P,
+                                        parentStub: StubElement[_ <: PsiElement]): ScBindingPatternStub[P] =
     new ScBindingPatternStubImpl[P](parentStub, this, psi.name)
 }
 

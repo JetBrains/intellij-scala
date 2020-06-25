@@ -4,11 +4,12 @@ package psi
 package impl
 
 import com.intellij.extapi.psi.{ASTWrapperPsiElement, StubBasedPsiElementBase}
+import com.intellij.ide.scratch.ScratchUtil
 import com.intellij.lang.{ASTNode, Language}
 import com.intellij.openapi.util.UserDataHolderBase
 import com.intellij.psi.impl.CheckUtil
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
-import com.intellij.psi.search.SearchScope
+import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, StubBasedPsiElement}
@@ -36,10 +37,10 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
     super[ScalaPsiElement].findLastChildByType(t)
   }
 
-  protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
+  override protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
     findChildrenByClass[T](clazz)
 
-  protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
+  override protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
 
   // todo override in more specific cases
   override def replace(newElement: PsiElement): PsiElement = {
@@ -48,7 +49,7 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
     newElementCopy
   }
 
-  override def delete() {
+  override def delete(): Unit = {
     getParent match {
       case x: LazyParseablePsiElement =>
         CheckUtil.checkWritable(this)
@@ -65,7 +66,7 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
   override final def getLanguage: Language = super.getLanguage
 
   override def getUseScope: SearchScope =
-    ScalaUseScope.intersect(super.getUseScope, ScalaUseScope(this))
+    ScalaUseScope(super.getUseScope, this)
 }
 
 abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](stub: S,
@@ -96,12 +97,12 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](s
     super[ScalaPsiElement].findLastChildByType(t)
   }
 
-  protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
+  override protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
     findChildrenByClass[T](clazz)
 
-  protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
+  override protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
 
-  override def delete() {
+  override def delete(): Unit = {
     getParent match {
       case x: LazyParseablePsiElement =>
         CheckUtil.checkWritable(this)
@@ -138,5 +139,5 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](s
   override final def getLanguage: Language = super.getLanguage
 
   override def getUseScope: SearchScope =
-    ScalaUseScope.intersect(super.getUseScope, ScalaUseScope(this))
+    ScalaUseScope(super.getUseScope, this)
 }

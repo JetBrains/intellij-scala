@@ -8,6 +8,10 @@ import org.jetbrains.jps.incremental.scala.local.JavacOutputParsing._
 import xsbti.Logger
 import java.util.function.Supplier
 
+import org.jetbrains.jps.incremental.scala.Client.PosInfo
+
+import scala.util.matching.Regex
+
 /**
  * @author Pavel Fatin
  */
@@ -19,23 +23,28 @@ trait JavacOutputParsing extends Logger {
 
   protected def client: Client
 
-  abstract override def error(msg: Supplier[String]) {
+  abstract override def error(msg: Supplier[String]): Unit = {
     process(msg.get(), Kind.ERROR)
   }
 
-  abstract override def warn(msg: Supplier[String]) {
+  abstract override def warn(msg: Supplier[String]): Unit = {
     process(msg.get(), Kind.PROGRESS)
   }
 
   // Move Javac output parsing to sbt compiler
-  private def process(line: String, kind: Kind) {
+  private def process(line: String, kind: Kind): Unit = {
     line match {
       case HeaderPattern(path, row, modifier, message) =>
         header = Some(Header(new File(path), row.toLong, if (modifier == null) kind else Kind.WARNING))
         lines :+= message
       case PointerPattern(prefix) if header.isDefined =>
         val text = (lines :+ line).mkString("\n")
-        client.message(header.get.kind, text, header.map(_.file), header.map(_.line), Some(1L + prefix.length))
+        val fromPosInfo = PosInfo(
+          line = header.map(_.line),
+          column = Some(1L + prefix.length),
+          offset = None
+        )
+        client.message(header.get.kind, text, header.map(_.file), fromPosInfo)
         header = None
         lines = Vector.empty
       case NotePattern(message) =>
@@ -53,8 +62,8 @@ trait JavacOutputParsing extends Logger {
 }
 
 object JavacOutputParsing {
-  val HeaderPattern = "(.*?):(\\d+):( warning:)?(.*)".r
-  val PointerPattern = "(\\s*)\\^".r
-  val NotePattern = "Note: (.*)".r
-  val TotalsPattern = "\\d+ (errors?|warnings?)".r
+  val HeaderPattern: Regex = "(.*?):(\\d+):( warning:)?(.*)".r
+  val PointerPattern: Regex = "(\\s*)\\^".r
+  val NotePattern: Regex = "Note: (.*)".r
+  val TotalsPattern: Regex = "\\d+ (errors?|warnings?)".r
 }

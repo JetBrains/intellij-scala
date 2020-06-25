@@ -26,18 +26,19 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
+import scala.annotation.tailrec
 import scala.collection.{Seq, mutable}
 
 class TermSignature(_name: String,
                     private val typesEval: Seq[Seq[() => ScType]],
                     private val tParams: Seq[TypeParameter],
-                    val substitutor: ScSubstitutor,
-                    val namedElement: PsiNamedElement,
+                    override val substitutor: ScSubstitutor,
+                    override val namedElement: PsiNamedElement,
                     val hasRepeatedParam: Array[Int] = Array.empty) extends Signature with ProjectContextOwner {
 
   override implicit def projectContext: ProjectContext = namedElement
 
-  val name: String = ScalaNamesUtil.clean(_name)
+  override val name: String = ScalaNamesUtil.clean(_name)
 
   val paramClauseSizes: Array[Int] = typesEval.map(_.length).toArray
   val paramLength: Int = paramClauseSizes.arraySum
@@ -50,7 +51,7 @@ class TermSignature(_name: String,
 
   private def isField = namedElement.isInstanceOf[PsiField]
 
-  def equiv(other: Signature): Boolean = other match {
+  override def equiv(other: Signature): Boolean = other match {
     case otherTerm: TermSignature =>
       ProgressManager.checkCanceled()
 
@@ -66,7 +67,7 @@ class TermSignature(_name: String,
   def javaErasedEquiv(other: TermSignature): Boolean = {
     (this, other) match {
       case (ps1: PhysicalMethodSignature, ps2: PhysicalMethodSignature) if ps1.isJava && ps2.isJava =>
-        implicit val elementScope = ps1.method.elementScope
+        implicit val elementScope: ElementScope = ps1.method.elementScope
         val psiSub1 = ScalaPsiUtil.getPsiSubstitutor(ps1.substitutor)
         val psiSub2 = ScalaPsiUtil.getPsiSubstitutor(ps2.substitutor)
         val psiSig1 = ps1.method.getSignature(psiSub1)
@@ -81,30 +82,36 @@ class TermSignature(_name: String,
   }
 
 
-  def paramTypesEquivExtended(other: TermSignature, constraints: ConstraintSystem,
-                              falseUndef: Boolean): ConstraintsResult = {
+  def paramTypesEquivExtended(
+    other:       TermSignature,
+    constraints: ConstraintSystem,
+    falseUndef:  Boolean
+  ): ConstraintsResult = {
 
     if (paramLength != other.paramLength ||
         paramLength > 0 && paramClauseSizes =!= other.paramClauseSizes ||
         hasRepeatedParam =!= other.hasRepeatedParam)
       return ConstraintsResult.Left
 
-    val depParamTypeSubst = depParamTypeSubstitutor(other)
-    val unified = other.substitutor.withBindings(typeParams, other.typeParams)
-    val clauseIterator = substitutedTypes.iterator
+    val depParamTypeSubst   = depParamTypeSubstitutor(other)
+    val unified             = other.substitutor.withBindings(typeParams, other.typeParams)
+    val clauseIterator      = substitutedTypes.iterator
     val otherClauseIterator = other.substitutedTypes.iterator
-    var lastConstraints = constraints
+    var lastConstraints     = constraints
+
     while (clauseIterator.hasNext && otherClauseIterator.hasNext) {
-      val clause1 = clauseIterator.next()
-      val clause2 = otherClauseIterator.next()
-      val typesIterator = clause1.iterator
+      val clause1            = clauseIterator.next()
+      val clause2            = otherClauseIterator.next()
+      val typesIterator      = clause1.iterator
       val otherTypesIterator = clause2.iterator
+
       while (typesIterator.hasNext && otherTypesIterator.hasNext) {
-        val t1 = typesIterator.next()
-        val t2 = otherTypesIterator.next()
+        val t1  = typesIterator.next()
+        val t2  = otherTypesIterator.next()
         val tp1 = unified.followed(depParamTypeSubst)(t1())
         val tp2 = unified(t2())
-        var t = tp2.equiv(tp1, lastConstraints, falseUndef)
+        var t   = tp2.equiv(tp1, lastConstraints, falseUndef)
+
         if (t.isLeft && tp1.equiv(api.AnyRef) && this.isJava) {
           t = tp2.equiv(Any, lastConstraints, falseUndef)
         }
@@ -153,7 +160,7 @@ class TermSignature(_name: String,
     * Use it, while building class hierarchy.
     * Because for class hierarchy def foo(): Int is the same thing as def foo: Int and val foo: Int.
     */
-  def equivHashCode: Int = name #+ parameterSizeHash
+  override def equivHashCode: Int = name #+ parameterSizeHash
 
   def isJava: Boolean = false
 
@@ -180,7 +187,7 @@ class TermSignature(_name: String,
 
   override def toString = s"Signature($namedElement, $substitutor)"
 
-  def isAbstract: Boolean = namedElement match {
+  override def isAbstract: Boolean = namedElement match {
     case _: ScFunctionDeclaration => true
     case _: ScFunctionDefinition => false
     case _: ScFieldId => true
@@ -188,9 +195,9 @@ class TermSignature(_name: String,
     case _ => false
   }
 
-  def isImplicit: Boolean = ScalaPsiUtil.isImplicit(namedElement)
+  override def isImplicit: Boolean = ScalaPsiUtil.isImplicit(namedElement)
 
-  def isSynthetic: Boolean = namedElement match {
+  override def isSynthetic: Boolean = namedElement match {
     case m: ScMember                => m.isSynthetic
     case inNameContext(m: ScMember) => m.isSynthetic
     case _                          => false
@@ -225,14 +232,14 @@ object TermSignature {
   def withoutParams(name: String, subst: ScSubstitutor, namedElement: PsiNamedElement): TermSignature =
     TermSignature(name, Seq.empty, subst, namedElement)
 
-  def setter(name: String, definition: ScTypedDefinition, subst: ScSubstitutor = ScSubstitutor.empty) = TermSignature(
+  def setter(name: String, definition: ScTypedDefinition, subst: ScSubstitutor = ScSubstitutor.empty): TermSignature = TermSignature(
     name,
     Seq(() => definition.`type`().getOrAny),
     subst,
     definition
   )
 
-  def scalaSetter(definition: ScTypedDefinition, subst: ScSubstitutor = ScSubstitutor.empty) =
+  def scalaSetter(definition: ScTypedDefinition, subst: ScSubstitutor = ScSubstitutor.empty): TermSignature =
     setter(methodName(definition.name, PropertyMethods.EQ), definition, subst)
 
   private val Parameterless = 1
@@ -242,10 +249,8 @@ object TermSignature {
   private val HasParameters = 5
 }
 
-
-
-import com.intellij.psi.PsiMethod
 object PhysicalMethodSignature {
+  @tailrec
   def typesEval(method: PsiMethod): List[Seq[() => ScType]] = method match {
     case fun: ScFunction =>
       fun.effectiveParameterClauses.toList
@@ -263,11 +268,12 @@ object PhysicalMethodSignature {
 
   def hasRepeatedParam(method: PsiMethod): Array[Int] = {
     val originalMethod = method match {
-      case s: ScMethodLike => s
-      case wrapper: ScFunctionWrapper => wrapper.delegate
+      case s: ScMethodLike                      => s
+      case wrapper: ScFunctionWrapper           => wrapper.delegate
       case wrapper: ScPrimaryConstructorWrapper => wrapper.delegate
-      case _ => method
+      case _                                    => method
     }
+
     originalMethod.getParameterList match {
       case p: ScParameters =>
         val params = p.params
@@ -294,14 +300,13 @@ object PhysicalMethodSignature {
   private def javaParamType(p: PsiParameter): ScType = {
     val treatJavaObjectAsAny = p.parentsInFile.instanceOf[PsiClass] match {
       case Some(cls) if cls.qualifiedName == "java.lang.Object" => true // See SCL-3036
-      case _ => false
+      case _                                                    => false
     }
+
     val paramTypeNoVarargs = p.paramType(extractVarargComponent = true, treatJavaObjectAsAny = treatJavaObjectAsAny)
 
-    implicit val scope: ElementScope = ElementScope(p.getProject)
-
-    if (p.isVarArgs) paramTypeNoVarargs.tryWrapIntoSeqType
-    else paramTypeNoVarargs
+    if (p.isVarArgs) paramTypeNoVarargs.tryWrapIntoSeqType(p.elementScope)
+    else             paramTypeNoVarargs
   }
 
   private def scalaParamType(p: ScParameter): ScType = {
@@ -314,14 +319,17 @@ object PhysicalMethodSignature {
   }
 }
 
-class PhysicalMethodSignature(val method: PsiMethod, override val substitutor: ScSubstitutor)
-        extends TermSignature(
-          method.name,
-          PhysicalMethodSignature.typesEval(method),
-          method.getTypeParameters.instantiate,
-          substitutor,
-          method,
-          PhysicalMethodSignature.hasRepeatedParam(method)) {
+final class PhysicalMethodSignature(
+  val method: PsiMethod,
+  override val substitutor: ScSubstitutor
+) extends TermSignature(
+  method.name,
+  PhysicalMethodSignature.typesEval(method),
+  method.getTypeParameters.instantiate,
+  substitutor,
+  method,
+  PhysicalMethodSignature.hasRepeatedParam(method)
+) {
 
   override def isJava: Boolean = method.getLanguage == JavaLanguage.INSTANCE
 }

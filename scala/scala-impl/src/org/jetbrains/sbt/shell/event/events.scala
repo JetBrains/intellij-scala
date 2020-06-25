@@ -39,7 +39,7 @@ trait SbtFileBuildEvent extends FileMessageEvent { outer =>
 
   override def getResult: FileMessageEventResult = new FileMessageEventResult() {
     override def getFilePosition: FilePosition = position
-    def getKind: MessageEvent.Kind = outer.getKind
+    override def getKind: MessageEvent.Kind = outer.getKind
   }
 }
 
@@ -49,7 +49,7 @@ case class SbtShellBuildWarning(parentId: Any, message: String)
 case class SbtShellBuildError(parentId: Any, message: String)
   extends SbtBuildEvent(parentId, MessageEvent.Kind.ERROR, "errors", message) with SbtShellBuildEvent
 
-case class SbtFileBuildError(parentId: Any, message: String, position: FilePosition)
+case class SbtFileBuildError(parentId: Any, message: String, override val position: FilePosition)
   extends SbtBuildEvent(parentId, MessageEvent.Kind.ERROR, "errors", message) with SbtFileBuildEvent
 
 case class SbtShellNavigatable(shell: SbtShellRunner) extends Navigatable {

@@ -10,10 +10,12 @@
   <extensions defaultExtensionNs="com.intellij">
     <multiHostInjector implementation="org.jetbrains.plugins.scala.injection.ScalaLanguageInjector"/>
     <!--<multiHostInjector implementation="org.jetbrains.plugins.scala.lang.scaladoc.injection.ScalaDocInnerCodeInjector"/>-->
+    <regExpLanguageHost forClass="org.jetbrains.plugins.scala.lang.psi.impl.base.ScStringLiteralImpl"
+                        implementationClass="org.jetbrains.plugins.scala.injection.ScalaRegExpHost"/>
   </extensions>
     
   <extensions defaultExtensionNs="org.intellij.scala">
-      <scalaUiWithDependency implementation="org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings"/>
+      <dependencyAwareInjectionSettings implementation="org.jetbrains.plugins.scala.settings.uiControls.IntelliLangInjectionSettings"/>
   </extensions>
 
 </idea-plugin>

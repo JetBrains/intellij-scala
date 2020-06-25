@@ -21,43 +21,21 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
  * @author Alexander Podkhalyuzin
  *         Date: 11.02.2008
  */
-object Def {
+object Def extends ParsingRule {
 
   import lexer.ScalaTokenType._
   import lexer.ScalaTokenTypes
 
-  def parse(builder: ScalaPsiBuilder,
-            isMod: Boolean = true,
-            isImplicit: Boolean = false): Boolean = {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val defMarker = builder.mark
     defMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_COMMENTS_TOKEN, null)
-    if (isMod || isImplicit) {
-      Annotations.parseAndBindToLeft()(builder)
+    Annotations.parseAndBindToLeft()(builder)
 
-      //parse modifiers
-      val modifierMarker = builder.mark
-      if (isMod) {
-        while (Modifier.parse(builder)) {}
-        
-        if (builder.isMetaEnabled) while (builder.getTokenText == ScalaTokenTypes.kINLINE.toString) {
-//          val inlineMarker = builder.mark()
-          builder.remapCurrentToken(ScalaTokenTypes.kINLINE)
-          builder.advanceLexer()
-//          inlineMarker.done(ScalaTokenTypes.kINLINE)
-        }
-      }
-      else {
-        while (builder.getTokenType == ScalaTokenTypes.kIMPLICIT || builder.getTokenType == ScalaTokenTypes.kLAZY) {
-          builder.advanceLexer()
-        }
-      }
-      modifierMarker.done(ScalaElementType.MODIFIERS)
-    } else {
-      val annotationsMarker = builder.mark
-      annotationsMarker.done(ScalaElementType.ANNOTATIONS)
-      val modifierMarker = builder.mark
-      modifierMarker.done(ScalaElementType.MODIFIERS)
-    }
+    val modifierMarker = builder.mark
+    def parseScalaMetaInline(): Boolean = builder.isMetaEnabled && builder.tryParseSoftKeyword(ScalaTokenTypes.kINLINE)
+    while (Modifier() || parseScalaMetaInline()) {}
+    modifierMarker.done(ScalaElementType.MODIFIERS)
+
     //Look for val,var,def or type
     builder.getTokenType match {
       case ScalaTokenTypes.kVAL =>
@@ -102,7 +80,7 @@ object Def {
         }
       case ScalaTokenTypes.kCASE | IsTemplateDefinition() =>
         defMarker.rollbackTo()
-        TmplDef.parse(builder)
+        TmplDef()
       case _ =>
         defMarker.rollbackTo()
         false

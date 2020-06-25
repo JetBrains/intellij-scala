@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.project.data.service
 
 import java.io.File
+import java.net.URI
 import java.util.Optional
 
 import com.intellij.compiler.CompilerConfiguration
@@ -189,7 +190,7 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
       libraries ++= Seq(evictedScalaLibrary, newScalaLibrary)
 
       modules += new javaModule {
-        val uri = new File(getProject.getBasePath).toURI
+        val uri: URI = new File(getProject.getBasePath).toURI
         val moduleName = "Module 1"
         projectId := ModuleNode.combinedId(moduleName, Option(uri))
         projectURI := uri
@@ -228,7 +229,7 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
       scalaLibrary.foreach(libraries += _)
 
       modules += new javaModule {
-        val uri = new File(getProject.getBasePath).toURI
+        val uri: URI = new File(getProject.getBasePath).toURI
         val moduleName = "Module 1"
         projectId := ModuleNode.combinedId(moduleName, Option(uri))
         projectURI := uri

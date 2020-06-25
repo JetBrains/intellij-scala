@@ -9,18 +9,18 @@ import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer.DaemonListener
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, HighlightInfoType}
 import com.intellij.codeInspection.ex.QuickFixWrapper
 import com.intellij.openapi.command.CommandProcessor
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.ex.{MarkupModelEx, RangeHighlighterEx}
 import com.intellij.openapi.editor.impl.DocumentMarkupModel
 import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorManagerListener}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiManager}
-import com.intellij.util.Processor
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 
@@ -30,7 +30,7 @@ import scala.collection.mutable
   * User: Dmitry.Naydanov
   * Date: 03.08.17.
   */
-class AmmoniteScriptWrappersHolder(project: Project) extends ProjectComponent {
+class AmmoniteScriptWrappersHolder(project: Project) {
   import AmmoniteScriptWrappersHolder._
   
   private val file2object = mutable.WeakHashMap.empty[ScalaFile, (ScObject, Long)]
@@ -66,17 +66,18 @@ class AmmoniteScriptWrappersHolder(project: Project) extends ProjectComponent {
     }
   }
 
-  override def projectOpened(): Unit = {
-    project.getMessageBus.connect(project).subscribe(DaemonCodeAnalyzer.DAEMON_EVENT_TOPIC, new DaemonListener {
+  private def init(): Unit = {
+    val connection = project.getMessageBus.connect(project.unloadAwareDisposable)
+    connection.subscribe(DaemonCodeAnalyzer.DAEMON_EVENT_TOPIC, new DaemonListener {
       override def daemonFinished(): Unit = problemFiles.replaceAll(setMask(SET_DAEMON_MASK))
     })
 
-    project.getMessageBus.connect(project).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorManagerListener {
-      override def fileClosed(source: FileEditorManager, file: VirtualFile) {
+    connection.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorManagerListener {
+      override def fileClosed(source: FileEditorManager, file: VirtualFile): Unit = {
         decrementImpl(file, SET_OPEN_MASK)
       }
 
-      override def fileOpened(source: FileEditorManager, file: VirtualFile) {
+      override def fileOpened(source: FileEditorManager, file: VirtualFile): Unit = {
         getFile(file).foreach(ammoniteFileOpened)
       }
     })
@@ -94,50 +95,48 @@ class AmmoniteScriptWrappersHolder(project: Project) extends ProjectComponent {
     if (!isIgnoreImport) ImportAmmoniteDependenciesFix.suggestAddingAmmonite(file)
   }
   
-  def onAmmoniteRun(vFile: VirtualFile) {
+  def onAmmoniteRun(vFile: VirtualFile): Unit = {
     if (getFile(vFile).isEmpty) return
     val state = disabledFiles get vFile
     if (state != AlwaysDisabled) disabledFiles.remove(vFile)
   }
   
-  private def setFileState(vFile: VirtualFile, state: DisabledState) {
+  private def setFileState(vFile: VirtualFile, state: DisabledState): Unit = {
     disabledFiles.put(vFile, state)
   }
   
-  private def increment(file: ScalaFile, mask: Int) {
+  private def increment(file: ScalaFile, mask: Int): Unit = {
     Option(file.getVirtualFile).foreach(incrementImpl(_, mask))
   }
   
-  private def decrement(file: ScalaFile, mask: Int) {
+  private def decrement(file: ScalaFile, mask: Int): Unit = {
     Option(file.getVirtualFile).foreach(decrementImpl(_, mask))
   }
   
-  private def incrementImpl(vFile: VirtualFile, mask: Int) {
-    problemFiles.merge(vFile, mask, new BiFunction[Int, Int, Int] {
-      override def apply(t: Int, u: Int): Int = t | u
-    })
+  private def incrementImpl(vFile: VirtualFile, mask: Int): Unit = {
+    problemFiles.merge(vFile, mask, (t: Int, u: Int) => t | u)
     
     tryFetching(vFile)
   }
   
-  private def decrementImpl(vFile: VirtualFile, mask: Int) {
+  private def decrementImpl(vFile: VirtualFile, mask: Int): Unit = {
     problemFiles.computeIfPresent(vFile, removeMask(mask))
     problemFiles.remove(vFile, 0)
   }
   
-  private def tryFetching(file: VirtualFile) {
+  private def tryFetching(file: VirtualFile): Unit = {
     if (!disabledFiles.containsKey(file) && problemFiles.get(file) == READY_MASK) {
       decrementImpl(file, SET_DAEMON_MASK | SET_PROBLEM_MASK)
       showInfo(file)
     }
   }
   
-  private def showInfo(vFile: VirtualFile) {
+  private def showInfo(vFile: VirtualFile): Unit = {
     setFileState(vFile, PerRunDisabled)
     
     NotificationUtil.showMessage (
       project = project,
-      title = "Ammonite imports found",
+      title = ScalaBundle.message("notification.title.ammonite.imports.found"),
       message =
         s"""
           |<html>
@@ -154,33 +153,29 @@ class AmmoniteScriptWrappersHolder(project: Project) extends ProjectComponent {
                 val acc = mutable.ArrayBuffer.empty[CreateImportedLibraryQuickFix]
 
                 DocumentMarkupModel.forDocument(textEditor.getDocument, project, true).asInstanceOf[MarkupModelEx].processRangeHighlightersOverlappingWith(
-                  0, ammFile.getTextLength, new Processor[RangeHighlighterEx] {
-                    override def process(t: RangeHighlighterEx): Boolean = {
-                      t.getErrorStripeTooltip match {
-                        case hInfo: HighlightInfo if hInfo.`type` == HighlightInfoType.WEAK_WARNING =>
-                          val it = hInfo.quickFixActionRanges.iterator()
-                          while (it.hasNext) {
-                            it.next().first.getAction match {
-                              case wrapper: QuickFixWrapper =>
-                                wrapper.getFix match {
-                                  case ammoniteFix: CreateImportedLibraryQuickFix => acc.append(ammoniteFix)
-                                  case _ =>
-                                }
-                              case _ =>
-                            }
+                  0, ammFile.getTextLength, (t: RangeHighlighterEx) => {
+                    t.getErrorStripeTooltip match {
+                      case hInfo: HighlightInfo if hInfo.`type` == HighlightInfoType.WEAK_WARNING =>
+                        val it = hInfo.quickFixActionRanges.iterator()
+                        while (it.hasNext) {
+                          it.next().first.getAction match {
+                            case wrapper: QuickFixWrapper =>
+                              wrapper.getFix match {
+                                case ammoniteFix: CreateImportedLibraryQuickFix => acc.append(ammoniteFix)
+                                case _ =>
+                              }
+                            case _ =>
                           }
-                        case _ =>
-                      }
-                      true
+                        }
+                      case _ =>
                     }
+                    true
                   })
 
-                CommandProcessor.getInstance().executeCommand(project, new Runnable {
-                  override def run(): Unit = {
-                    acc.foreach {
-                      fix =>
-                        fix.invoke(project, ammFile, ammFile, ammFile)
-                    }
+                CommandProcessor.getInstance().executeCommand(project, () => {
+                  acc.foreach {
+                    fix =>
+                      fix.invoke(project, ammFile, ammFile, ammFile)
                   }
                 }, null, null)
             }
@@ -220,9 +215,15 @@ object AmmoniteScriptWrappersHolder {
     override def apply(t: VirtualFile, u: Int): Int = u & ~mask
   }
   
-  def getInstance(project: Project): AmmoniteScriptWrappersHolder = project.getComponent(classOf[AmmoniteScriptWrappersHolder])
+  def getInstance(project: Project): AmmoniteScriptWrappersHolder =
+    project.getService(classOf[AmmoniteScriptWrappersHolder])
 
   def getWrapperName(from: PsiFile): String = from.getName.stripSuffix("." + WorksheetFileType.getDefaultExtension)
   
-  def getOffsetFix(from: PsiFile): Int = (getWrapperName(from) + "object  {\n").length 
+  def getOffsetFix(from: PsiFile): Int = (getWrapperName(from) + "object  {\n").length
+
+  private final class Startup extends StartupActivity {
+    override def runActivity(project: Project): Unit =
+      getInstance(project).init()
+  }
 }

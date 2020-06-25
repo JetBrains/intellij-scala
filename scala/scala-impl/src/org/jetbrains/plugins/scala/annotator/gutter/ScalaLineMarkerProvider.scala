@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 package gutter
 
+import java.awt.event.MouseEvent
 import java.{util => ju}
 
 import com.intellij.codeInsight.daemon._
@@ -17,6 +18,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.{Function => IJFunction}
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClauses, ScPattern}
@@ -25,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types.TermSignature
 import org.jetbrains.plugins.scala.util.SAMUtil._
 
@@ -45,6 +47,7 @@ final class ScalaLineMarkerProvider extends LineMarkerProvider with ScalaSeparat
       val lineMarkerInfo =
         getOverridesImplementsMarkers(element)
           .orElse(getImplementsSAMTypeMarker(element))
+          .orElse(companionMarker(element))
           .orNull
 
       if (DaemonCodeAnalyzerSettings.getInstance().SHOW_METHOD_SEPARATORS && isSeparatorNeeded(element)) {
@@ -121,7 +124,7 @@ final class ScalaLineMarkerProvider extends LineMarkerProvider with ScalaSeparat
     val isIdentifier = element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER
     val notReference = element.parent.exists {
       case _: ScReference => false
-      case  _                    => true
+      case _              => true
     }
 
     if (isIdentifier && notReference) {
@@ -144,7 +147,7 @@ final class ScalaLineMarkerProvider extends LineMarkerProvider with ScalaSeparat
           if (signatures.nonEmpty) arrowUpLineMarker(element, icon, markerType).toOption
           else None
         case v: ScValueOrVariable if !v.isLocal && containsNamedElement(v) =>
-          val bindings   = v.declaredElements.filter(_.name == element.getText)
+          val bindings   = v.declaredElements.filter(e => element.textMatches(e.name))
           val signatures = bindings.flatMap(ScalaPsiUtil.superValsSignatures(_, withSelfType = true))
           val icon       = getOverridesOrImplementsIcon(v, signatures)
           val markerType = overridingMember
@@ -161,8 +164,9 @@ final class ScalaLineMarkerProvider extends LineMarkerProvider with ScalaSeparat
     } else None
   }
 
-  override def collectSlowLineMarkers(elements: ju.List[PsiElement],
-                                      result: ju.Collection[LineMarkerInfo[_ <: PsiElement]]): Unit = {
+
+  override def collectSlowLineMarkers(elements: ju.List[_ <: PsiElement],
+                                      result: ju.Collection[_ >: LineMarkerInfo[_]]): Unit = {
     import scala.collection.JavaConverters._
 
     ApplicationManager.getApplication.assertReadAccessAllowed()
@@ -184,6 +188,7 @@ final class ScalaLineMarkerProvider extends LineMarkerProvider with ScalaSeparat
   }
 }
 
+// TODO Split methods between a companion object and packet object (so that methods can be more private)
 private object GutterUtil {
 
   import Gutter._
@@ -209,9 +214,10 @@ private object GutterUtil {
       case _                                 => false
     }
 
-    override def getCommonIcon(list: ju.List[MergeableLineMarkerInfo[_ <: PsiElement]]): Icon = icon
+    override def getCommonIcon(infos: ju.List[_ <: MergeableLineMarkerInfo[_]]): Icon = icon
 
-    override def getCommonTooltip(infos: ju.List[MergeableLineMarkerInfo[_ <: PsiElement]]): IJFunction[_ >: PsiElement, String] =
+
+    override def getCommonTooltip(infos: ju.List[_ <: MergeableLineMarkerInfo[_]]): IJFunction[_ >: PsiElement, String] =
       _ =>
         markerType match {
           case ScalaMarkerType.overriddenMember => ScalaBundle.message("multiple.overriden.tooltip")
@@ -300,5 +306,38 @@ private object GutterUtil {
     case _: ScVariableDeclaration  => true
     case _: ScTypeAliasDeclaration => true
     case _                         => false
+  }
+
+  // Show companion for class / trait / object in the gutter, https://youtrack.jetbrains.com/issue/SCL-17697
+  private[gutter] def companionMarker(element: PsiElement): Option[LineMarkerInfo[_ <: PsiElement]] =
+    // TODO Enable in tests when GutterMarkersTest will be able to separate different maker providers
+    if (ApplicationManager.getApplication.isUnitTestMode) None else element match {
+      case identifier @ ElementType(ScalaTokenTypes.tIDENTIFIER) && Parent(_: ScClass | _: ScTrait | _: ScObject) =>
+        val typeDefinition = identifier.getParent.asInstanceOf[ScTypeDefinition]
+
+        typeDefinition.baseCompanionModule.map { companion =>
+          val swapped = typeDefinition.startOffset > companion.startOffset ^ typeDefinition.is[ScObject]
+
+          new LineMarkerInfo(identifier,
+            identifier.getTextRange,
+            iconFor(typeDefinition, swapped), (_: PsiElement) => ScalaBundle.message("has.companion", nameOf(companion)),
+            (_: MouseEvent, _: PsiElement) => companion.navigate(/* requestFocus = */ true), Alignment.LEFT)
+        }
+
+      case _ => None
+    }
+
+  private[this] def nameOf(definition: ScTypeDefinition) = definition match {
+    case _: ScClass => ScalaBundle.message("companion.class")
+    case _: ScTrait => ScalaBundle.message("companion.trait")
+    case _: ScObject => ScalaBundle.message("companion.object")
+    case _ => "" // Just "Has a companion" is OK.
+  }
+
+  private[this] def iconFor(definition: ScTypeDefinition, swapped: Boolean): Icon = definition match {
+    case _: ScClass => if (swapped) Icons.CLASS_COMPANION_SWAPPED else Icons.CLASS_COMPANION
+    case _: ScTrait => if (swapped) Icons.TRAIT_COMPANION_SWAPPED else Icons.TRAIT_COMPANION
+    case _: ScObject => if (swapped) Icons.OBECT_COMPANION_SWAPPED else Icons.OBECT_COMPANION
+    case _ => null
   }
 }

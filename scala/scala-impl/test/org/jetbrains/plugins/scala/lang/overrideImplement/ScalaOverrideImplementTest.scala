@@ -32,8 +32,9 @@ class ScalaOverrideImplementTest extends base.ScalaLightCodeInsightFixtureTestAd
     val oldSettings = ScalaCodeStyleSettings.getInstance(project).clone()
     TypeAnnotationSettings.set(project, settings)
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(project).defaultProfile
-    val newSettings = defaultProfile.getSettings
-    newSettings.plugins = newSettings.plugins :+ "kind-projector"
+    val newSettings = defaultProfile.getSettings.copy(
+      plugins = defaultProfile.getSettings.plugins :+ "kind-projector"
+    )
     defaultProfile.setSettings(newSettings)
 
     implicit val editor: Editor = getEditor

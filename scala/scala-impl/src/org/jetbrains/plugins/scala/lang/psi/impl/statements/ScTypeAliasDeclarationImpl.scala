@@ -39,24 +39,24 @@ final class ScTypeAliasDeclarationImpl private(stub: ScTypeAliasStub, node: ASTN
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
-  override def navigate(requestFocus: Boolean) {
+  override def navigate(requestFocus: Boolean): Unit = {
     val descriptor = EditSourceUtil.getDescriptor(nameId)
     if (descriptor != null) descriptor.navigate(requestFocus)
   }
 
-  def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
+  override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
     case null => createIdentifier(getGreenStub.getName).getPsi
     case n => n
   }
   
   override def toString: String = "ScTypeAliasDeclaration: " + ifReadAllowed(name)("")
 
-  def lowerBound: TypeResult = lowerTypeElement match {
+  override def lowerBound: TypeResult = lowerTypeElement match {
     case Some(te) => te.`type`()
     case None => Right(Nothing)
   }
 
-  def upperBound: TypeResult = upperTypeElement match {
+  override def upperBound: TypeResult = upperTypeElement match {
     case Some(te) => te.`type`()
     case None => Right(Any)
   }
@@ -79,16 +79,19 @@ final class ScTypeAliasDeclarationImpl private(stub: ScTypeAliasStub, node: ASTN
 
   override def getPresentation: ItemPresentation = {
     new ItemPresentation() {
-      def getPresentableText: String = name
-      def getTextAttributesKey: TextAttributesKey = null
-      def getLocationString: String = "(" + ScTypeAliasDeclarationImpl.this.containingClass.qualifiedName + ")"
+      override def getPresentableText: String = name
+      override def getLocationString: String = {
+        val containingClass = ScTypeAliasDeclarationImpl.this.containingClass
+        val qname = if (containingClass==null) containingClass.qualifiedName else ""
+        "(" + qname + ")"
+      }
       override def getIcon(open: Boolean): Icon = ScTypeAliasDeclarationImpl.this.getIcon(0)
     }
   }
 
   override def getOriginalElement: PsiElement = super[ScTypeAliasDeclaration].getOriginalElement
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitTypeAliasDeclaration(this)
   }
 }

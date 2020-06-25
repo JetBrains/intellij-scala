@@ -1,15 +1,32 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
 <idea-plugin>
+    <depends optional="true" config-file="BSP-JUnit.xml">JUnit</depends>
+    <extensionPoints>
+        <extensionPoint qualifiedName="com.intellij.bspEnvironmentRunnerExtension"
+                        interface="org.jetbrains.bsp.project.test.environment.BspEnvironmentRunnerExtension"
+                        dynamic="true"/>
+        <extensionPoint qualifiedName="com.intellij.bspResolverNamingExtension"
+                        interface="org.jetbrains.bsp.project.resolver.BspResolverNamingExtension"
+                        dynamic="true"/>
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="org.intellij.scala">
+        <worksheetCompilerExtension implementation="org.jetbrains.bsp.project.test.environment.BspWorksheetCompilerExtension"/>
+    </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
+        <bspEnvironmentRunnerExtension implementation="org.jetbrains.bsp.project.test.environment.BspEnvironmentScalaTestRunnerExtension"/>
+        <bspEnvironmentRunnerExtension implementation="org.jetbrains.bsp.project.test.environment.BspEnvironmentApplicationRunnerExtension"/>
+
         <moduleType id="BSP_SYNTHETIC_MODULE" implementationClass="org.jetbrains.bsp.project.BspSyntheticModuleType"/>
         <moduleConfigurationEditorProvider implementation="org.jetbrains.bsp.project.BspSyntheticModuleEditorProvider"/>
 
         <externalSystemManager implementation="org.jetbrains.bsp.project.BspExternalSystemManager"/>
 
-        <externalProjectDataService implementation="org.jetbrains.bsp.data.ScalaSdkService"/>
+        <externalProjectDataService implementation="org.jetbrains.bsp.data.ScalaSdkService" order="last"/>
         <externalProjectDataService implementation="org.jetbrains.bsp.data.BspMetadataService"/>
+        <externalProjectDataService implementation="org.jetbrains.bsp.data.BspProjectDataService"/>
 
         <externalIconProvider key="BSP" implementationClass="org.jetbrains.bsp.BspIconProvider" />
 
@@ -32,11 +49,25 @@
                     factoryClass="org.jetbrains.bsp.BspToolWindowFactory" />
 
         <projectTaskRunner implementation="org.jetbrains.bsp.project.BspProjectTaskRunner"/>
-        <applicationInitializedListener implementation="org.jetbrains.bsp.StartupRoutine"/>
+        <postStartupActivity implementation="org.jetbrains.bsp.BspStartupActivity"/>
 
         <configurationType implementation="org.jetbrains.bsp.project.test.BspTestRunType"/>
 
+        <statusBarWidgetProvider implementation="org.jetbrains.bsp.BspServerWidgetProvider"/>
+
+        <java.programPatcher implementation="org.jetbrains.bsp.project.test.environment.BspJvmEnvironmentProgramPatcher"/>
+        <stepsBeforeRunProvider implementation="org.jetbrains.bsp.project.test.environment.BspFetchEnvironmentTaskProvider"/>
+
+        <moduleService serviceImplementation="org.jetbrains.bsp.project.test.environment.PersistentBspTargetIdHolder"/>
+
+        <registryKey key="BSP.system.in.process" defaultValue="true" restartRequired="true"
+                     description="Internal, do not change"/>
     </extensions>
+
+    <projectListeners>
+        <listener class="org.jetbrains.bsp.project.test.environment.BspFetchTestEnvironmentTaskInstaller"
+                  topic="com.intellij.execution.RunManagerListener"/>
+    </projectListeners>
 
     <actions>
     </actions>

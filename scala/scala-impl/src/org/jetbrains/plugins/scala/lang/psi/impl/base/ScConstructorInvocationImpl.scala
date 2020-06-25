@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgs, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -27,7 +26,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
@@ -37,12 +35,14 @@ import scala.collection.mutable.ArrayBuffer
 * Date: 22.02.2008
 */
 
-class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScConstructorInvocation {
+class ScConstructorInvocationImpl(node: ASTNode)
+  extends ScalaPsiElementImpl(node)
+    with ScConstructorInvocation with ConstructorInvocationLikeImpl {
 
   override def typeElement: ScTypeElement =
     findNotNullChildByClass(classOf[ScTypeElement])
 
-  def typeArgList: Option[ScTypeArgs] = typeElement match {
+  override def typeArgList: Option[ScTypeArgs] = typeElement match {
     case x: ScParameterizedTypeElement => Some(x.typeArgList)
     case _ => None
   }
@@ -54,13 +54,11 @@ class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
     Seq(findChildrenByClassScala(classOf[ScArgumentExprList]): _*)
 
   override protected def updateImplicitArguments(): Unit =
-    if (explicitImplicitArgList.isEmpty) {
-      simpleTypeElement.foreach(_.getNonValueType(withUnnecessaryImplicitsUpdate = true))
-    }
+    simpleTypeElement.foreach(_.getNonValueType(withUnnecessaryImplicitsUpdate = true))
 
   override def toString: String = "ConstructorInvocation"
 
-  def expectedType: Option[ScType] = getContext match {
+  override def expectedType: Option[ScType] = getContext match {
     case parents: ScTemplateParents =>
         if (parents.allTypeElements.length != 1) None
         else {
@@ -77,7 +75,7 @@ class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
       case _ => None
   }
 
-  def newTemplate: Option[ScNewTemplateDefinition] = getContext match {
+  override def newTemplate: Option[ScNewTemplateDefinition] = getContext match {
     case parents: ScTemplateParents =>
       parents.getContext match {
         case e: ScExtendsBlock =>
@@ -99,18 +97,18 @@ class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
     }
   }
 
-  def shapeType(i: Int): TypeResult = {
+  override def shapeType(i: Int): TypeResult = {
     val seq = shapeMultiType(i)
     if (seq.length == 1) seq.head
-    else Failure("Can't resolve type")
+    else Failure(ScalaBundle.message("can.t.resolve.type"))
   }
 
-  def shapeMultiType(i: Int): Array[TypeResult] = innerMultiType(i, isShape = true)
+  override def shapeMultiType(i: Int): Array[TypeResult] = innerMultiType(i, isShape = true)
 
-  def multiType(i: Int): Array[TypeResult] = innerMultiType(i, isShape = false)
+  override def multiType(i: Int): Array[TypeResult] = innerMultiType(i, isShape = false)
 
   private def innerMultiType(i: Int, isShape: Boolean): Array[TypeResult] = {
-    def FAILURE = Failure("Can't resolve type")
+    def FAILURE = Failure(ScalaBundle.message("can.t.resolve.type"))
     def workWithResolveResult(constr: PsiMethod, r: ScalaResolveResult,
                               subst: ScSubstitutor, s: ScSimpleTypeElement,
                               ref: ScStableCodeReference): TypeResult = {
@@ -125,7 +123,7 @@ class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
         case fun: ScMethodLike =>
           fun.nestedMethodType(i, Some(tp), subst).getOrElse(return FAILURE)
         case method: PsiMethod =>
-          if (i > 0) return Failure("Java constructors only have one parameter section")
+          if (i > 0) return Failure(ScalaBundle.message("java.constructors.only.have.one.parameter.section"))
           val methodType = method.methodTypeProvider(elementScope).methodType(Some(tp))
           subst(methodType)
       }
@@ -160,7 +158,7 @@ class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
                 param => Parameter(mySubst(param.paramType), param.isRepeated, param.index)
               )
 
-              val extRes = Compatibility.checkConformanceExt(false, undefParams, paramsByClauses.map(_._1), false, false)
+              val extRes = Compatibility.checkConformanceExt(checkNames = false, undefParams, paramsByClauses.map(_._1), checkWithImplicits = false, isShapesResolve = false)
               val maybeSubstitutor = extRes.constraints match {
                 case ConstraintSystem(substitutor) => Some(substitutor)
                 case _ => None
@@ -194,7 +192,7 @@ class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
             case _ =>
           }
           buffer.toArray
-        case _ => Array(Failure("Hasn't reference"))
+        case _ => Array(Failure(ScalaBundle.message("has.no.reference")))
       }
     }
 
@@ -202,11 +200,11 @@ class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
       .getOrElse(Array.empty)
   }
 
-  def reference: Option[ScStableCodeReference] = {
+  override def reference: Option[ScStableCodeReference] = {
     simpleTypeElement.flatMap(_.reference)
   }
 
-  def simpleTypeElement: Option[ScSimpleTypeElement] = typeElement match {
+  override def simpleTypeElement: Option[ScSimpleTypeElement] = typeElement match {
     case s: ScSimpleTypeElement => Some(s)
     case p: ScParameterizedTypeElement =>
       p.typeElement match {
@@ -216,32 +214,9 @@ class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
     case _ => None
   }
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitConstructorInvocation(this)
   }
 
-  override def matchedParameters: Seq[(ScExpression, Parameter)] = matchedParametersByClauses.flatten
-
-  @Cached(ModCount.getBlockModificationCount, this)
-  def matchedParametersByClauses: Seq[Seq[(ScExpression, Parameter)]] = {
-    val paramClauses = this.reference.map(_.resolve()).orNull match {
-      case ScalaConstructor(constr) => constr.effectiveParameterClauses.map(_.effectiveParameters)
-      case JavaConstructor(constr)  => Seq(constr.parameters)
-      case _                        => Seq.empty
-    }
-    (for {
-      (paramClause, argList) <- paramClauses.zip(arguments)
-    } yield {
-      for ((arg, idx) <- argList.exprs.zipWithIndex) yield
-        arg match {
-          case ScAssignment(refToParam: ScReferenceExpression, Some(expr)) =>
-            val param = paramClause.find(_.getName == refToParam.refName)
-              .orElse(refToParam.resolve().asOptionOf[ScParameter])
-            param.map(p => (expr, Parameter(p))).toSeq
-          case expr =>
-            val paramIndex = Math.min(idx, paramClause.size - 1)
-            paramClause.lift(paramIndex).map(p => (expr, Parameter(p))).toSeq
-        }
-    }).map(_.flatten)
-  }
+  override protected def resolveConstructor(): PsiElement = this.reference.map(_.resolve()).orNull
 }

@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.macroAnnotations
 
+import org.jetbrains.annotations.Nls
+
 import scala.annotation.StaticAnnotation
 import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
@@ -20,7 +22,7 @@ import scala.reflect.macros.whitebox
  * Author: Svyatoslav Ilinskiy
  * Date: 9/18/15.
  */
-class Cached(dependencyItem: Object, psiElement: Any) extends StaticAnnotation {
+class Cached(dependencyItem: Object, psiElement: Any, trackedExpressions: Any*) extends StaticAnnotation {
   def macroTransform(annottees: Any*) = macro Cached.cachedImpl
 }
 
@@ -30,25 +32,25 @@ object Cached {
     import c.universe._
     implicit val x: c.type = c
 
-    def abort(message: String) = c.abort(c.enclosingPosition, message)
+    def abort(@Nls message: String) = c.abort(c.enclosingPosition, message)
 
-    def parameters: (Tree, Tree) = {
+    def parameters: (Tree, Tree, Seq[Tree]) = {
       c.prefix.tree match {
-        case q"new Cached(..$params)" if params.length == 2 =>
-          val Seq(depItem, psiElement, _*) = params.map(_.asInstanceOf[c.universe.Tree])
+        case q"new Cached(..$params)" if params.length >= 2 =>
+          val Seq(depItem, psiElement, tracked @ _*) = params.map(_.asInstanceOf[c.universe.Tree])
           val modTracker = modCountParamToModTracker(c)(depItem, psiElement)
-          (modTracker, psiElement)
-        case _ => abort("Wrong parameters")
+          (modTracker, psiElement, tracked)
+        case _ => abort(MacrosBundle.message("macros.cached.wrong.parameters"))
       }
     }
 
     //annotation parameters
-    val (modTracker, psiElement) = parameters
+    val (modTracker, psiElement, trackedExprs) = parameters
 
     annottees.toList match {
       case (dd@DefDef(mods, nameTerm, tpParams, paramss, retTp, rhs)) :: Nil =>
         if (retTp.isEmpty) {
-          abort("You must specify return type")
+          abort(MacrosBundle.message("macros.cached.specify.return.type"))
         }
         val name = c.freshName(nameTerm.toString)
         //generated names
@@ -56,7 +58,7 @@ object Cached {
         val tracerName = generateTermName(name, "$tracer")
         val cacheName = withClassName(nameTerm)
 
-        val keyId = c.freshName(name + "$cacheKey")
+        val keyId = stringLiteral(name + "$cacheKey")
 
         val mapAndCounterRef = generateTermName(name, "$mapAndCounter")
         val timestampedDataRef = generateTermName(name,  "$valueAndCounter")
@@ -75,7 +77,7 @@ object Cached {
           //wrap type of value in Some to avoid unboxing in putIfAbsent for primitive types
           val mapType = tq"$concurrentMapTypeFqn[(..${flatParams.map(_.tpt)}), _root_.scala.Some[$retTp]]"
 
-          def createNewMap = q"_root_.com.intellij.util.containers.ContainerUtil.newConcurrentMap()"
+          def createNewMap = q"new _root_.java.util.concurrent.ConcurrentHashMap()"
 
           val fields =
             q"""
@@ -119,7 +121,7 @@ object Cached {
 
              val currModCount = $modTracker.getModificationCount()
 
-             val $tracerName = $internalTracer($keyId, $cacheName)
+             val $tracerName = ${internalTracerInstance(c)(keyId, cacheName, trackedExprs)}
              $tracerName.invocation()
 
              val key = (..$paramNames)
@@ -191,7 +193,7 @@ object Cached {
 
                val currModCount = $modTracker.getModificationCount()
 
-               val $tracerName = $internalTracer($keyId, $cacheName)
+               val $tracerName = ${internalTracerInstance(c)(keyId, cacheName, trackedExprs)}
                $tracerName.invocation()
 
                val timestamped = $timestampedDataRef.get
@@ -226,7 +228,7 @@ object Cached {
           """
         CachedMacroUtil.debug(res)
         c.Expr(res)
-      case _ => abort("You can only annotate one function!")
+      case _ => abort(MacrosBundle.message("macros.cached.only.annotate.one.function"))
     }
   }
 }

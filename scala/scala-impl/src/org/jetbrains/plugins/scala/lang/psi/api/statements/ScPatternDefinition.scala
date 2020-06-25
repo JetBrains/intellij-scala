@@ -27,7 +27,7 @@ trait ScPatternDefinition extends ScValue {
 
   override def isAbstract: Boolean = false
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitPatternDefinition(this)
   }
 }

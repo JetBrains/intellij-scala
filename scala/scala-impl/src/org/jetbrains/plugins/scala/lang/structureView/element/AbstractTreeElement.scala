@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
 // TODO make private (after decoupling Test)
-abstract class AbstractTreeElement[T <: PsiElement](val element: T, val inherited: Boolean = false)
+abstract class AbstractTreeElement[T <: PsiElement](override val element: T, override val inherited: Boolean = false)
   extends Element with AbstractNavigatable with AbstractItemPresentation {
 
   override def getPresentation: ItemPresentation = this

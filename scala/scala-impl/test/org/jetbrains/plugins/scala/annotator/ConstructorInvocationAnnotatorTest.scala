@@ -44,11 +44,11 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
   type Alias[A] = Klass[A]
   """
   
-  def testEmpty() {
+  def testEmpty(): Unit = {
     assertNothing(messages(""))
   }
   
-  def testFine() {
+  def testFine(): Unit = {
     val codes = Seq(
       "new Simple",
       "new Simple()",
@@ -79,9 +79,9 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
     }
   }
 
-  def testExcessArguments() {
+  def testExcessArguments(): Unit = {
     assertMatches(messages("new A(0, 1)")) {
-      case Error(", 1", "Too many arguments for constructor(Int)") :: Nil =>
+      case Error(", 1", "Too many arguments for constructor A(Int)") :: Nil =>
     }
 
     assertMessagesSorted(messages("new D(0, 1)"))(
@@ -97,7 +97,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
     )
 
     assertMessagesSorted(messages("new DDD(1)(2, 3)"))(
-      Error(", 3", "Too many arguments for constructor(Int)(Int)")
+      Error(", 3", "Too many arguments for constructor DDD(Int)(Int)")
     )
   }
 
@@ -112,7 +112,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
   }
 
   // TODO Don't separate the code from the expected messages (it's hard to understand such a test)
-  def testMissedParameters() {
+  def testMissedParameters(): Unit = {
     assertMatches(messages("new A")) {
       case Error(_, "Unspecified value parameters: a: Int") :: Nil =>
     }
@@ -155,11 +155,11 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
 
   def testMissingArgumentClause(): Unit = {
     assertMessagesSorted(messages("new DDD(3)"))(
-      Error(")", "Missing argument list for constructor(Int)(Int)")
+      Error(")", "Missing argument list for constructor DDD(Int)(Int)")
     )
 
     assertMessagesSorted(messages("new DDD2(true)"))(
-      Error(")", "Missing argument list for constructor(Boolean)(Boolean)")
+      Error(")", "Missing argument list for constructor DDD2(Boolean)(Boolean)")
     )
   }
 
@@ -172,7 +172,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
     )
   }
 
-  def testMissingAndTypeMismatch() {
+  def testMissingAndTypeMismatch(): Unit = {
     assertMessagesSorted(messages("new DD(true)"))(
       Error("DD", "Cannot resolve overloaded constructor `DD`") // SCL-15594
     )
@@ -180,7 +180,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
 
 
 
-  def testPositionalAfterNamed() {
+  def testPositionalAfterNamed(): Unit = {
     assertMatches(messages("new Complex(i = 1.0, 5.0)")) {
       case Error("5.0", "Positional after named argument") :: Nil =>
     }
@@ -190,7 +190,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
     }
   }
 
-  def testNamedDuplicates() {
+  def testNamedDuplicates(): Unit = {
     assertMessagesSorted(messages("new A(a = null, a = Unit)"))(
       Error("a", "Parameter specified multiple times"),
       Error("a", "Parameter specified multiple times")
@@ -279,7 +279,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
     }
   }
 
-  def testTypeMismatch() {
+  def testTypeMismatch(): Unit = {
     assertMatches(messages("new A(false)")) {
       case Error("false", "Type mismatch, expected: Int, actual: Boolean") :: Nil =>
     }
@@ -305,7 +305,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
     )
   }
   
-  def testMalformedSignature() {
+  def testMalformedSignature(): Unit = {
     assertMatches(messages("class Malformed(a: A*, b: B); new Malformed(0)")) {
       case Error("Malformed", "Constructor has malformed definition") :: Nil =>
     }
@@ -339,7 +339,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
       """.stripMargin
 
     assertMessages(messages(code))(
-      Error("(2, 2)", "T is a trait and thus has no constructor")
+      Error("(2, 2)", "trait T is a trait; does not take constructor arguments")
     )
   }
 
@@ -350,7 +350,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
       """.stripMargin
 
     assertMessages(messages(code))(
-      Error(")", "Missing argument list for constructor(Int)(Int)")
+      Error(")", "Missing argument list for constructor DDD(Int)(Int)")
     )
   }
 

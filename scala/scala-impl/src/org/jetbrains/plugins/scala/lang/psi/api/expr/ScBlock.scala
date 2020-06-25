@@ -8,6 +8,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.{PsiElement, ResolveState}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
@@ -51,13 +52,13 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
         case _: ScCatchBlock =>
           val manager = ScalaPsiManager.instance
           val funs = manager.getCachedClasses(resolveScope, PartialFunctionType.TypeName)
-          val fun = funs.find(_.isInstanceOf[ScTrait]).getOrElse(return Failure("Cannot find PartialFunction class"))
+          val fun = funs.find(_.isInstanceOf[ScTrait]).getOrElse(return Failure(ScalaBundle.message("cannot.find.partialfunction.class")))
           val throwable = manager.getCachedClass(resolveScope, "java.lang.Throwable").orNull
-          if (throwable == null) return Failure("Cannot find Throwable class")
+          if (throwable == null) return Failure(ScalaBundle.message("cannot.find.throwable.class"))
           return Right(ScParameterizedType(ScDesignatorType(fun), Seq(ScDesignatorType(throwable), clausesLubType)))
         case _ =>
           val et = this.expectedType(fromUnderscore = false)
-            .getOrElse(return Failure("Cannot infer type without expected type"))
+            .getOrElse(return Failure(ScalaBundle.message("cannot.infer.type.without.expected.type")))
 
           return et match {
             case FunctionType(_, params) =>
@@ -65,7 +66,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
             case PartialFunctionType(_, param) =>
               Right(PartialFunctionType(clausesLubType, param.removeVarianceAbstracts()))
             case _ =>
-              Failure("Cannot infer type without expected type of scala.FunctionN or scala.PartialFunction")
+              Failure(ScalaBundle.message("cannot.infer.type.without.function.expected.type"))
           }
       }
     }

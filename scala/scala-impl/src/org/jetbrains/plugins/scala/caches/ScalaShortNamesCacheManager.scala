@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.caches
+package org.jetbrains.plugins.scala
+package caches
 
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi._
@@ -8,7 +9,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.light.PsiMethodWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
@@ -62,7 +62,7 @@ final class ScalaShortNamesCacheManager(implicit project: Project) {
   }
 
   def getClassesByName(name: String, scope: GlobalSearchScope): Iterable[PsiClass] =
-    SHORT_NAME_KEY.elements(name, scope, classOf[PsiClass])
+    SHORT_NAME_KEY.elements(name, scope)
 
   def findPackageObjectByName(fqn: String, scope: GlobalSearchScope): Option[ScObject] = {
     if (DumbService.getInstance(project).isDumb) {
@@ -76,22 +76,6 @@ final class ScalaShortNamesCacheManager(implicit project: Project) {
     }
   }
 
-  def getClasses(psiPackage: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = {
-    val packageName = psiPackage.getQualifiedName match {
-      case "" => ""
-      case qualifiedName => s"$qualifiedName."
-    }
-
-    getClassNames(psiPackage, scope).toArray.map { className =>
-      packageName + className
-    }.flatMap {
-      psiManager.getCachedClasses(scope, _)
-    }
-  }
-
-  def getClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): Set[String] =
-    psiManager.getScalaClassNames(psiPackage, scope)
-
   def allProperties(predicate: String => Boolean)
                    (implicit scope: GlobalSearchScope): Iterable[ScValueOrVariable] =
     for {
@@ -100,7 +84,7 @@ final class ScalaShortNamesCacheManager(implicit project: Project) {
 
       cleanName = cleanFqn(propertyName)
 
-      property <- PROPERTY_NAME_KEY.elements(cleanName, scope, classOf[ScValueOrVariable])
+      property <- PROPERTY_NAME_KEY.elements(cleanName, scope)
       if property.declaredNames.map(cleanFqn).contains(cleanName)
     } yield property
 
@@ -115,7 +99,7 @@ final class ScalaShortNamesCacheManager(implicit project: Project) {
 
   private def allFunctionsByName(cleanName: String)
                                 (implicit scope: GlobalSearchScope): Iterable[ScFunction] =
-    METHOD_NAME_KEY.elements(cleanName, scope, classOf[ScFunction]).filter { function =>
+    METHOD_NAME_KEY.elements(cleanName, scope).filter { function =>
       equivalentFqn(cleanName, function.name)
     }
 
@@ -151,14 +135,11 @@ final class ScalaShortNamesCacheManager(implicit project: Project) {
       case _ => true
     }
 
-  // Don't use val, there is a loop
-  private def psiManager = ScalaPsiManager.instance(project)
-
   private def psiNamesCache = PsiShortNamesCache.getInstance(project)
 
   private def classesFromIndex(name: String, scope: GlobalSearchScope,
                               indexKey: StubIndexKey[java.lang.Integer, PsiClass] = FQN_KEY): Iterable[PsiClass] =
-    indexKey.integerElements(name, scope, classOf[PsiClass])
+    indexKey.elementsByHash(name, scope)
 }
 
 object ScalaShortNamesCacheManager {

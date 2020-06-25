@@ -1,18 +1,17 @@
 package org.jetbrains.sbt
 package project.settings
 
-import java.awt.{Component, FlowLayout}
+import java.awt.FlowLayout
 
 import com.intellij.openapi.externalSystem.service.settings.AbstractExternalProjectSettingsControl
 import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
 import com.intellij.openapi.externalSystem.util.PaintAwarePanel
-import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
+import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, SdkTypeId}
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
-import com.intellij.openapi.util.Condition
+import com.intellij.openapi.util.{Condition, Disposer}
 import javax.swing._
 import org.jetbrains.annotations.NotNull
-import org.jetbrains.plugins.scala.extensions._
 
 /**
  * @author Pavel Fatin
@@ -22,122 +21,79 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 
   private val jdkComboBox: JdkComboBox = {
     val model = new ProjectSdksModel()
-    model.reset(null)
+    model.reset(getProject)
+    val jdkFilter: Condition[SdkTypeId] = (sdk: SdkTypeId) => sdk == JavaSdk.getInstance()
 
-    val result = new JdkComboBox(model)
-
-    val button = new JButton("Ne\u001Bw...")
-
-    val addToTable = new Condition[Sdk] {
-      override def value(sdk: Sdk): Boolean = {
-        inWriteAction {
-          val table = ProjectJdkTable.getInstance()
-          if (!table.getAllJdks.contains(sdk)) table.addJdk(sdk)
-        }
-        false
-      }
-    }
-
-    result.setSetupButton(button, null, model, new JdkComboBox.NoneJdkComboBoxItem, addToTable, false)
-
-    result
+    new JdkComboBox(getProject, model, jdkFilter, null, jdkFilter, null)
   }
 
-  private val resolveClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveClassifiers"))
-  private val resolveSbtClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveSbtClassifiers"))
-  private val useSbtShellForImportCheckBox = new JCheckBox(SbtBundle("sbt.settings.useShellForImport"))
-  private val useSbtShellForBuildCheckBox = new JCheckBox(SbtBundle("sbt.settings.useShellForBuild"))
-  private val remoteDebugSbtShell = new JCheckBox(SbtBundle("sbt.settings.remoteDebug"))
-  private val allowSbtVersionOverride = new JCheckBox(SbtBundle("sbt.settings.allowSbtVersionOverride"))
+  private val extraControls = new SbtExtraControlsEx()
 
-  override def fillExtraControls(@NotNull content: PaintAwarePanel, indentLevel: Int) {
+  override def fillExtraControls(@NotNull content: PaintAwarePanel, indentLevel: Int): Unit = {
     val labelConstraints = getLabelConstraints(indentLevel)
     val fillLineConstraints = getFillLineConstraints(indentLevel)
 
-    val downloadPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0))
-    downloadPanel.add(resolveClassifiersCheckBox)
-    downloadPanel.add(resolveSbtClassifiersCheckBox)
-    content.add(new JLabel("Download:"), labelConstraints)
-    content.add(downloadPanel, fillLineConstraints)
-
-    val sbtShellPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0))
-    val useSbtShellLabel = new JLabel(SbtBundle("sbt.settings.useShell"))
-    sbtShellPanel.add(useSbtShellLabel)
-    sbtShellPanel.add(useSbtShellForImportCheckBox)
-    sbtShellPanel.add(useSbtShellForBuildCheckBox)
-    content.add(sbtShellPanel, fillLineConstraints)
-
-    val optionPanel = new JPanel()
-    optionPanel.setLayout(new BoxLayout(optionPanel, BoxLayout.Y_AXIS))
-    optionPanel.add(allowSbtVersionOverride)
-    optionPanel.add(remoteDebugSbtShell)
-    remoteDebugSbtShell.setAlignmentX(Component.LEFT_ALIGNMENT)
-    content.add(optionPanel, fillLineConstraints)
+    content.add(extraControls.$$$getRootComponent$$$(), fillLineConstraints)
 
     if (context == Context.Wizard) {
-      val label = new JLabel("Project \u001BJDK:")
+      val label = new JLabel(SbtBundle.message("sbt.settings.project.jdk"))
       label.setLabelFor(jdkComboBox)
 
       val jdkPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0))
       jdkPanel.add(jdkComboBox)
-      jdkPanel.add(jdkComboBox.getSetUpButton)
 
       content.add(label, labelConstraints)
       content.add(jdkPanel, fillLineConstraints)
 
-      // hide the sbt shell option until it matures (SCL-10984)
-      // useSbtShellCheckBox.setVisible(false)
-      remoteDebugSbtShell.setVisible(false)
+      extraControls.remoteDebugSbtShellCheckBox.setVisible(false)
     }
   }
 
-  def isExtraSettingModified: Boolean = {
+  override def isExtraSettingModified: Boolean = {
     val settings = getInitialSettings
 
     selectedJdkName != settings.jdkName ||
-      resolveClassifiersCheckBox.isSelected != settings.resolveClassifiers ||
-      resolveSbtClassifiersCheckBox.isSelected != settings.resolveSbtClassifiers ||
-      useSbtShellForImportCheckBox.isSelected != settings.useSbtShellForImport ||
-      useSbtShellForBuildCheckBox.isSelected != settings.useSbtShellForBuild ||
-      remoteDebugSbtShell.isSelected != settings.enableDebugSbtShell ||
-      allowSbtVersionOverride.isSelected != settings.allowSbtVersionOverride
+      extraControls.resolveClassifiersCheckBox.isSelected != settings.resolveClassifiers ||
+      extraControls.resolveSbtClassifiersCheckBox.isSelected != settings.resolveSbtClassifiers ||
+      extraControls.useSbtShellForImportCheckBox.isSelected != settings.useSbtShellForImport ||
+      extraControls.useSbtShellForBuildCheckBox.isSelected != settings.useSbtShellForBuild ||
+      extraControls.remoteDebugSbtShellCheckBox.isSelected != settings.enableDebugSbtShell ||
+      extraControls.allowSbtVersionOverrideCheckBox.isSelected != settings.allowSbtVersionOverride
   }
 
-  protected def resetExtraSettings(isDefaultModuleCreation: Boolean) {
+  override protected def resetExtraSettings(isDefaultModuleCreation: Boolean): Unit = {
     val settings = getInitialSettings
 
     val jdk = settings.jdkName.flatMap(name => Option(ProjectJdkTable.getInstance.findJdk(name)))
     jdkComboBox.setSelectedJdk(jdk.orNull)
 
-    resolveClassifiersCheckBox.setSelected(settings.resolveClassifiers)
-    resolveSbtClassifiersCheckBox.setSelected(settings.resolveSbtClassifiers)
-
-    useSbtShellForImportCheckBox.setSelected(settings.importWithShell)
-    useSbtShellForBuildCheckBox.setSelected(settings.buildWithShell)
-
-    remoteDebugSbtShell.setSelected(settings.enableDebugSbtShell)
-    allowSbtVersionOverride.setSelected(settings.allowSbtVersionOverride)
+    extraControls.resolveClassifiersCheckBox.setSelected(settings.resolveClassifiers)
+    extraControls.resolveSbtClassifiersCheckBox.setSelected(settings.resolveSbtClassifiers)
+    extraControls.useSbtShellForImportCheckBox.setSelected(settings.importWithShell)
+    extraControls.useSbtShellForBuildCheckBox.setSelected(settings.buildWithShell)
+    extraControls.remoteDebugSbtShellCheckBox.setSelected(settings.enableDebugSbtShell)
+    extraControls.allowSbtVersionOverrideCheckBox.setSelected(settings.allowSbtVersionOverride)
   }
 
-  override def updateInitialExtraSettings() {
+  override def updateInitialExtraSettings(): Unit = {
     applyExtraSettings(getInitialSettings)
   }
 
-  protected def applyExtraSettings(settings: SbtProjectSettings) {
+  override protected def applyExtraSettings(settings: SbtProjectSettings): Unit = {
     settings.jdk = selectedJdkName.orNull
-    settings.resolveClassifiers = resolveClassifiersCheckBox.isSelected
-    settings.resolveSbtClassifiers = resolveSbtClassifiersCheckBox.isSelected
-    settings.useSbtShellForImport = useSbtShellForImportCheckBox.isSelected
-    settings.enableDebugSbtShell = remoteDebugSbtShell.isSelected
-    settings.allowSbtVersionOverride = allowSbtVersionOverride.isSelected
+    settings.resolveClassifiers = extraControls.resolveClassifiersCheckBox.isSelected
+    settings.resolveSbtClassifiers = extraControls.resolveSbtClassifiersCheckBox.isSelected
+    settings.useSbtShellForImport = extraControls.useSbtShellForImportCheckBox.isSelected
+    settings.enableDebugSbtShell = extraControls.remoteDebugSbtShellCheckBox.isSelected
+    settings.allowSbtVersionOverride = extraControls.allowSbtVersionOverrideCheckBox.isSelected
 
     val useSbtShellForBuildSettingChanged =
-      settings.useSbtShellForBuild != useSbtShellForBuildCheckBox.isSelected
+      settings.useSbtShellForBuild != extraControls.useSbtShellForBuildCheckBox.isSelected
 
     if (useSbtShellForBuildSettingChanged) {
       import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService
       import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.CompilerMode
-      settings.useSbtShellForBuild = useSbtShellForBuildCheckBox.isSelected
+      settings.useSbtShellForBuild = extraControls.useSbtShellForBuildCheckBox.isSelected
       val project = getProject
 
       // locking here is hardly ideal, but we assume that transactions are very short
@@ -156,6 +112,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 
   private def selectedJdkName = Option(jdkComboBox.getSelectedJdk).map(_.getName)
 
-  def validate(sbtProjectSettings: SbtProjectSettings): Boolean = selectedJdkName.isDefined
+  override def validate(sbtProjectSettings: SbtProjectSettings): Boolean = selectedJdkName.isDefined
 }
 

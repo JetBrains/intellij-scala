@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
  */
 
 class ScalaCodeBlockSelectioner extends ExtendWordSelectionHandlerBase {
-  def canSelect(e: PsiElement): Boolean = e.isInstanceOf[ScBlockExpr]
+  override def canSelect(e: PsiElement): Boolean = e.isInstanceOf[ScBlockExpr]
 
   override def select(e: PsiElement, editorText: CharSequence, cursorOffset: Int, editor: Editor): util.List[TextRange] = {
     var firstChild = e.getNode.getFirstChildNode

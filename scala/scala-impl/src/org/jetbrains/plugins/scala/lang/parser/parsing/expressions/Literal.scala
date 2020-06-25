@@ -5,6 +5,7 @@ package parsing
 package expressions
 
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.annotations.{Nls, Nullable}
 
 /**
  * Literal ::= ['-']integerLiteral
@@ -33,7 +34,7 @@ object Literal {
     val marker = builder.mark()
 
     def advanceAndMarkDone(elementType: ScExpressionElementType,
-                           errorMessage: String = null) = {
+                           @Nullable @Nls errorMessage: String = null) = {
       builder.advanceLexer()
       if (errorMessage != null) builder.error(errorMessage)
       marker.done(elementType)
@@ -78,7 +79,7 @@ object Literal {
            `tMULTILINE_STRING` =>
         advanceAndMarkDone(StringLiteral)
       case `tWRONG_STRING` =>
-        advanceAndMarkDone(StringLiteral, "Wrong string literal")
+        advanceAndMarkDone(StringLiteral, ScalaBundle.message("wrong.string.literal"))
       case tokenType =>
         matchNumber(tokenType)
     }

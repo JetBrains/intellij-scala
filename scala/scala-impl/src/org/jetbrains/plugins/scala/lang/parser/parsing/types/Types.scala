@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  *  Types ::= Type {',' Type}
  */
 object Types extends Types {
-  override protected def `type` = ParamType
+  override protected def `type`: ParamType = ParamType
 }
 
 trait Types {

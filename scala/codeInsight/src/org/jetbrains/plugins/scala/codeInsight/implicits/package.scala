@@ -2,12 +2,13 @@ package org.jetbrains.plugins.scala.codeInsight
 
 import com.intellij.openapi.actionSystem.{KeyboardShortcut, Shortcut}
 import com.intellij.openapi.editor.{EditorCustomElementRenderer, InlayModel}
-import com.intellij.openapi.keymap.KeymapManager
+import com.intellij.openapi.keymap.{Keymap, KeymapManager}
 import com.intellij.openapi.util.{Key, TextRange}
 import javax.swing.KeyStroke
 import org.jetbrains.plugins.scala.annotator.hints.Hint
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 package object implicits {
   private val ScalaImplicitHintKey = Key.create[Boolean]("SCALA_IMPLICIT_HINT")
@@ -21,28 +22,46 @@ package object implicits {
         .filter(ScalaImplicitHintKey.isIn)
 
     def add(hint: Hint): Unit = {
-      Option(Hint.addTo(hint, model)).foreach(_.putUserData(ScalaImplicitHintKey, true))
+      Option(ImplicitHint.addTo(hint, model)).foreach(_.putUserData(ScalaImplicitHintKey, true))
     }
   }
 
-  val EnableShortcuts = Seq(
-    new KeyboardShortcut(KeyStroke.getKeyStroke("control alt shift EQUALS"), null),
-    new KeyboardShortcut(KeyStroke.getKeyStroke("control alt shift ADD"), null))
+  class ShortcutManager {
+    case class ManagedShortcut private(shortCut: Shortcut)
 
-  val DisableShortcuts = Seq(
-    new KeyboardShortcut(KeyStroke.getKeyStroke("control alt shift MINUS"), null),
-    new KeyboardShortcut(KeyStroke.getKeyStroke("control alt shift SUBTRACT"), null))
+    private val allShortCuts = mutable.Buffer.empty[Shortcut]
 
-  def setShortcuts(id: String, shortcuts: Seq[Shortcut]): Unit = {
-    val keymap = KeymapManager.getInstance().getActiveKeymap
-    keymap.removeAllActionShortcuts(id)
-    shortcuts.foreach(keymap.addShortcut(id, _))
+    protected def register(shortcut: Shortcut): ManagedShortcut = {
+      allShortCuts += shortcut
+      ManagedShortcut(shortcut)
+    }
+
+    def setShortcuts(id: String, shortcuts: Seq[this.ManagedShortcut]): Unit = {
+      val keymap = KeymapManager.getInstance().getActiveKeymap
+      removeAllShortcuts(id)
+      shortcuts.foreach(s => keymap.addShortcut(id, s.shortCut))
+    }
+
+    def removeAllShortcuts(id: String): Unit = {
+      removeAllShortcuts(KeymapManager.getInstance().getActiveKeymap, id)
+    }
+    private def removeAllShortcuts(keymap: Keymap, id: String): Unit = {
+      allShortCuts.foreach(keymap.removeShortcut(id, _))
+    }
   }
 
-  def removeAllShortcuts(id: String): Unit = {
-    val keymap = KeymapManager.getInstance().getActiveKeymap
-    keymap.removeAllActionShortcuts(id)
+  object ImplicitShortcuts extends ShortcutManager {
+    val EnableShortcuts = Seq(
+      register(new KeyboardShortcut(KeyStroke.getKeyStroke("control alt shift EQUALS"), null)),
+      register(new KeyboardShortcut(KeyStroke.getKeyStroke("control alt shift ADD"), null)),
+    )
+
+    val DisableShortcuts = Seq(
+      register(new KeyboardShortcut(KeyStroke.getKeyStroke("control alt shift MINUS"), null)),
+      register(new KeyboardShortcut(KeyStroke.getKeyStroke("control alt shift SUBTRACT"), null)),
+    )
   }
+
 
   def pairFor[T](element: T, elements: Seq[T], isOpening: T => Boolean, isClosing: T => Boolean): Option[T] = {
     def pairIn(elements: Seq[T]) = {

@@ -19,8 +19,8 @@ private sealed trait DecompilationResult {
 }
 
 private sealed trait ScalaDecompilationResult extends DecompilationResult {
-  val isScala = true
-  val sourceName: String
+  override val isScala = true
+  override val sourceName: String
   def sourceText: String
 }
 
@@ -34,19 +34,19 @@ private object DecompilationResult {
     }
   }
 
-  private case class NonScala(timeStamp: Long) extends WritableResult {
-    val isScala: Boolean = false
-    val sourceName: String = ""
+  private case class NonScala(override val timeStamp: Long) extends WritableResult {
+    override val isScala: Boolean = false
+    override val sourceName: String = ""
   }
 
-  private case class PartialScala(sourceName: String, timeStamp: Long) extends WritableResult {
-    val isScala: Boolean = true
+  private case class PartialScala(override val sourceName: String, override val timeStamp: Long) extends WritableResult {
+    override val isScala: Boolean = true
   }
 
-  private case class Full(sourceName: String, sourceText: String, timeStamp: Long) extends ScalaDecompilationResult
+  private case class Full(override val sourceName: String, override val sourceText: String, override val timeStamp: Long) extends ScalaDecompilationResult
 
-  private case class Lazy(sourceName: String, timeStamp: Long, sourceTextComputation: () => String) extends ScalaDecompilationResult {
-    lazy val sourceText: String = sourceTextComputation()
+  private case class Lazy(override val sourceName: String, override val timeStamp: Long, sourceTextComputation: () => String) extends ScalaDecompilationResult {
+    override lazy val sourceText: String = sourceTextComputation()
   }
 
   private def toWritable(decompilationResult: DecompilationResult): WritableResult = decompilationResult match {

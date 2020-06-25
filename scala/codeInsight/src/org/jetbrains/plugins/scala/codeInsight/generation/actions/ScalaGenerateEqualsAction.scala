@@ -13,6 +13,7 @@ import com.intellij.openapi.ui.{DialogWrapper, Messages}
 import com.intellij.openapi.util.Computable
 import com.intellij.psi.{PsiAnonymousClass, PsiFile}
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -29,7 +30,11 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * Nikolay.Tropin
   * 8/19/13
   */
-final class ScalaGenerateEqualsAction extends ScalaBaseGenerateAction(new ScalaGenerateEqualsAction.Handler)
+final class ScalaGenerateEqualsAction extends ScalaBaseGenerateAction(
+  new ScalaGenerateEqualsAction.Handler,
+  ScalaCodeInsightBundle.message("generate.equals.and.hashcode.methods.action.text"),
+  ScalaCodeInsightBundle.message("generate.equals.and.hashcode.methods.action.description")
+)
 
 object ScalaGenerateEqualsAction {
 
@@ -51,7 +56,7 @@ object ScalaGenerateEqualsAction {
           else CodeInsightBundle.message("generate.equals.and.hashcode.already.defined.warning", aClass.qualifiedName)
         if (Messages.showYesNoDialog(project, text, CodeInsightBundle.message("generate.equals.and.hashcode.already.defined.title"), Messages.getQuestionIcon) == DialogWrapper.OK_EXIT_CODE) {
           val deletedOk = ApplicationManager.getApplication.runWriteAction(new Computable[Boolean] {
-            def compute: Boolean = {
+            override def compute: Boolean = {
               try {
                 equalsMethod.get.delete()
                 hashCodeMethod.get.delete()
@@ -146,7 +151,7 @@ object ScalaGenerateEqualsAction {
       createMethodWithContext(text, aClass, aClass.extendsBlock)
     }
 
-    override def invoke(project: Project, editor: Editor, file: PsiFile) {
+    override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
       if (!FileDocumentManager.getInstance.requestWriting(editor.getDocument, project)) return
 
       try {

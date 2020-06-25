@@ -5,7 +5,7 @@ import scala.meta.TreeConverterTestBaseNoLibrary
 class TreeConverterIntegrationTest extends TreeConverterTestBaseNoLibrary {
 
 
-  def testSomeBigClass() {
+  def testSomeBigClass(): Unit = {
     // TODO
   }
 }

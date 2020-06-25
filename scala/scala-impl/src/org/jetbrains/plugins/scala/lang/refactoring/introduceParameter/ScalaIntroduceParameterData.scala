@@ -25,30 +25,30 @@ case class ScalaIntroduceParameterData(methodLike: ScMethodLike,
                                        functionalArgParams: Option[String] = None) extends IntroduceParameterData {
 
 
-  def getParametersToRemove: TIntArrayList = new TIntArrayList()
+  override def getParametersToRemove: TIntArrayList = new TIntArrayList()
 
-  def getForcedType: PsiType = tp.toPsiType
+  override def getForcedType: PsiType = tp.toPsiType
 
   def getScalaForcedType: ScType = tp
 
-  def isGenerateDelegate: Boolean = false
+  override def isGenerateDelegate: Boolean = false
 
-  def isDeclareFinal: Boolean = false
+  override def isDeclareFinal: Boolean = false
 
-  def getReplaceFieldsWithGetters: Int = 0
+  override def getReplaceFieldsWithGetters: Int = 0
 
-  def getParameterName: String = paramName
+  override def getParameterName: String = paramName
 
-  def getParameterInitializer =
+  override def getParameterInitializer =
     new JavaExpressionWrapper(
       JavaPsiFacade.getElementFactory(methodLike.getProject).createExpressionFromText(getParameterName, elems.head.getContext)
     )
 
-  def getMethodToSearchFor: PsiMethod = methodToSearchFor
+  override def getMethodToSearchFor: PsiMethod = methodToSearchFor
 
-  def getMethodToReplaceIn: PsiMethod = methodLike
+  override def getMethodToReplaceIn: PsiMethod = methodLike
 
-  def getProject: Project = methodLike.getProject
+  override def getProject: Project = methodLike.getProject
 }
 
 object isIntroduceParameter {

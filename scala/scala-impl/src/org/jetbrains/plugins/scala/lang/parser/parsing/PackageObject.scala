@@ -5,6 +5,7 @@ package parsing
 
 
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.ObjectDef
 
 /**
@@ -17,9 +18,11 @@ object PackageObject {
 
   def parse(builder: ScalaPsiBuilder) : Boolean = {
     val marker = builder.mark
+    marker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_COMMENTS_TOKEN, null)
+
     //empty annotations
-     val annotationsMarker = builder.mark
-    annotationsMarker.done(ScalaElementType.ANNOTATIONS)
+    Annotations.parseEmptyAndBindLeft()(builder)
+
     //empty modifiers
     val modifierMarker = builder.mark
     modifierMarker.done(ScalaElementType.MODIFIERS)

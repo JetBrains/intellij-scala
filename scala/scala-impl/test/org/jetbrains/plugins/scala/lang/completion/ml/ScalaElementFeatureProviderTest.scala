@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.completion.ml
+package org.jetbrains.plugins.scala
+package lang
+package completion
+package ml
 
 import java.util
 
@@ -6,535 +9,633 @@ import com.intellij.codeInsight.completion.ml.{ContextFeatures, ElementFeaturePr
 import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionLocation, CompletionType}
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.PsiNamedElement
-import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.ml.CompletionItem._
-import org.junit.{Assert, Test}
 
 import scala.collection.mutable
 
 class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  @Test
+  import MLFeatureValue._
+
   def testPostfix(): Unit = {
 
-    assertContext("postfix", MLFeatureValue.binary(true))(
-      """object X {
-        |  val a = 1
-        |  a <caret>
-        |}
-        |""".stripMargin
+    assertContext("postfix", binary(true))(
+      s"""object X {
+         |  val a = 1
+         |  a $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertContext("postfix", MLFeatureValue.binary(false))(
-      """object X {
-        |  val a = 1
-        |  a.<caret>
-        |}
-        |""".stripMargin
+    assertContext("postfix", binary(false))(
+      s"""object X {
+         |  val a = 1
+         |  a.$CARET
+         |}
+         |""".stripMargin
     )
   }
 
-  @Test
   def testInsideCatch(): Unit = {
 
-    assertContext("inside_catch", MLFeatureValue.binary(true))(
-      """object X {
-        |  try a
-        |  catch <caret>
-        |}
-        |""".stripMargin
+    assertContext("inside_catch", binary(true))(
+      s"""object X {
+         |  try a
+         |  catch $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertContext("inside_catch", MLFeatureValue.binary(false))(
-      """object X {
-        |  try <caret>
-        |  catch b
-        |}
-        |""".stripMargin
+    assertContext("inside_catch", binary(false))(
+      s"""object X {
+         |  try $CARET
+         |  catch b
+         |}
+         |""".stripMargin
     )
   }
 
-  @Test
   def testTypeExpected(): Unit = {
-    assertContext("type_expected", MLFeatureValue.binary(true))(
-      """object X {
-        |  List[<caret>]
+    assertContext("type_expected", binary(true))(
+      s"""object X {
+         |  List[$CARET]
+         |}
+         |""".stripMargin
+    )
+
+    assertContext("type_expected", binary(true))(
+      s"""object X {
+         |  type A = $CARET
+         |}
+         |""".stripMargin
+    )
+
+    assertContext("type_expected", binary(true))(
+      s"""object X {
+         |  val a: $CARET
+         |}
+         |""".stripMargin
+    )
+
+    assertContext("type_expected", binary(true))(
+      s"""object X {
+         |  class A extends $CARET
+         |}
+         |""".stripMargin
+    )
+
+    assertContext("type_expected", binary(true))(
+      s"""object X {
+         |  type A = Int with $CARET
+         |}
+         |""".stripMargin
+    )
+
+    assertContext("type_expected", binary(true))(
+      s"""object X {
+         |  1 match { case _: $CARET }
+         |}
+         |""".stripMargin
+    )
+
+    assertContext("type_expected", binary(true))(
+      s"""object X {
+        |  def f(): $CARET
         |}
         |""".stripMargin
     )
 
-    assertContext("type_expected", MLFeatureValue.binary(true))(
-      """object X {
-        |  type A = <caret>
-        |}
-        |""".stripMargin
+    assertContext("type_expected", binary(false))(
+      s"""object X {
+         |  $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertContext("type_expected", MLFeatureValue.binary(true))(
-      """object X {
-        |  val a: <caret>
-        |}
-        |""".stripMargin
+    assertContext("type_expected", binary(false))(
+      s"""object X {
+         |  val a = $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertContext("type_expected", MLFeatureValue.binary(true))(
-      """object X {
-        |  class A extends <caret>
-        |}
-        |""".stripMargin
-    )
-
-    assertContext("type_expected", MLFeatureValue.binary(true))(
-      """object X {
-        |  type A = Int with <caret>
-        |}
-        |""".stripMargin
-    )
-
-    assertContext("type_expected", MLFeatureValue.binary(true))(
-      """object X {
-        |  1 match { case _: <caret> }
-        |}
-        |""".stripMargin
-    )
-
-    assertContext("type_expected", MLFeatureValue.binary(false))(
-      """object X {
-        |  <caret>
-        |}
-        |""".stripMargin
-    )
-
-    assertContext("type_expected", MLFeatureValue.binary(false))(
-      """object X {
-        |  val a = <caret>
-        |}
-        |""".stripMargin
-    )
-
-    assertContext("type_expected", MLFeatureValue.binary(false))(
-      """object X {
-        |  1.<caret>
-        |}
-        |""".stripMargin
+    assertContext("type_expected", binary(false))(
+      s"""object X {
+         |  1.$CARET
+         |}
+         |""".stripMargin
     )
   }
 
-  @Test
   def testAfterNew(): Unit = {
-    assertContext("after_new", MLFeatureValue.binary(true))(
-      """object X {
-        |  new <caret>
-        |}
-        |""".stripMargin
+    assertContext("after_new", binary(true))(
+      s"""object X {
+         |  new $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertContext("after_new", MLFeatureValue.binary(false))(
-      """object X {
-        |  new java.util.HashMap(<caret>)
-        |}
-        |""".stripMargin
+    assertContext("after_new", binary(false))(
+      s"""object X {
+         |  new java.util.HashMap($CARET)
+         |}
+         |""".stripMargin
     )
   }
 
-  @Test
   def testKind(): Unit = {
+    import CompletionItem._
 
-    assertElement("kind", "type", MLFeatureValue.categorical(KEYWORD))(
-      """object X {
-        |  <caret>
+    assertElement("kind", "type", categorical(KEYWORD))(
+      s"""object X {
+         |  $CARET
+         |}
+         |""".stripMargin
+    )
+
+    assertElement("kind", "Nil", categorical(VALUE))(
+      s"""object X {
+         |  $CARET
+         |}
+         |""".stripMargin
+    )
+
+    assertElement("kind", "BufferedIterator", categorical(TYPE_ALIAS))(
+      s"""object X {
+         |  type a = $CARET
+         |}
+         |""".stripMargin
+    )
+
+    assertElement("kind", "a", categorical(VARIABLE))(
+      s"""object X {
+         |  var a = 1
+         |  $CARET
+         |}
+         |""".stripMargin
+    )
+
+    assertElement("kind", "X", categorical(OBJECT))(
+      s"""object X {
+         |  $CARET
+         |}
+         |""".stripMargin
+    )
+
+    assertElement("kind", "X", categorical(CLASS))(
+      s"""class X {
+         |  type a = $CARET
+         |}
+         |""".stripMargin
+    )
+
+    assertElement("kind", "X", categorical(TRAIT))(
+      s"""trait X {
+         |  type a = $CARET
+         |}
+         |""".stripMargin
+    )
+
+    assertElement("kind", "int2Integer", categorical(FUNCTION))(
+      s"""object X {
+         |  $CARET
+         |}
+         |""".stripMargin
+    )
+
+    assertElement("kind", "asInstanceOf", categorical(SYNTHETHIC_FUNCTION))(
+      s"""object X {
+         |  "" $CARET
+         |}
+         |""".stripMargin
+    )
+
+
+    assertElement("kind", "LinkageError", categorical(EXCEPTION))(
+      s"""object X {
+         |  $CARET
+         |}
+         |""".stripMargin
+    )
+
+    assertElement("kind", "java", categorical(PACKAGE))(
+      s"""object X {
+         |  $CARET
+         |}
+         |""".stripMargin
+    )
+  }
+
+  def testKeyword(): Unit = {
+    import Keyword._
+
+    assertElement("keyword", "import", categorical(IMPORT))(
+      s"""$CARET
+        |""".stripMargin
+    )
+
+    assertElement("keyword", "import", categorical(IMPORT))(
+      s"""object X {
+        |  $CARET
         |}
         |""".stripMargin
     )
 
-    assertElement("kind", "Nil", MLFeatureValue.categorical(VALUE))(
-      """object X {
-        |  <caret>
+    assertElement("keyword", "val", categorical(VAL))(
+      s"""object X {
+        |  $CARET
         |}
         |""".stripMargin
     )
 
-    assertElement("kind", "BufferedIterator", MLFeatureValue.categorical(TYPE_ALIAS))(
-      """object X {
-        |  type a = <caret>
+    assertElement("keyword", "var", categorical(VAR))(
+      s"""object X {
+        |  $CARET
         |}
         |""".stripMargin
     )
 
-    assertElement("kind", "a", MLFeatureValue.categorical(VARIABLE))(
-      """object X {
-        |  var a = 1
-        |  <caret>
+    assertElement("keyword", "class", categorical(CLASS))(
+      s"""object X {
+        |  $CARET
         |}
         |""".stripMargin
     )
 
-    assertElement("kind", "X", MLFeatureValue.categorical(OBJECT))(
-      """object X {
-        |  <caret>
+    assertElement("keyword", "if", categorical(IF))(
+      s"""object X {
+        |  $CARET
         |}
         |""".stripMargin
     )
 
-    assertElement("kind", "X", MLFeatureValue.categorical(CLASS))(
-      """class X {
-        |  type a = <caret>
+    assertElement("keyword", "if", categorical(IF))(
+      s"""object X {
+        |  if (true) {
+        |  }
+        |  else $CARET
         |}
         |""".stripMargin
     )
 
-    assertElement("kind", "X", MLFeatureValue.categorical(TRAIT))(
-      """trait X {
-        |  type a = <caret>
+    assertElement("keyword", "else", categorical(ELSE))(
+      s"""object X {
+        |  if (true) {
+        |  }
+        |  $CARET
         |}
         |""".stripMargin
     )
 
-    assertElement("kind", "int2Integer", MLFeatureValue.categorical(FUNCTION))(
-      """object X {
-        |  <caret>
+    assertElement("keyword", "yield", categorical(YIELD))(
+      s"""object X {
+        |  for {
+        |    _ <- List.empty
+        |  }
+        |  $CARET
         |}
         |""".stripMargin
     )
 
-    assertElement("kind", "asInstanceOf", MLFeatureValue.categorical(SYNTHETHIC_FUNCTION))(
-      """object X {
-        |  "" <caret>
+    assertElement("keyword", "else", categorical(ELSE))(
+      s"""object X {
+        |  if (true) {
+        |  }
+        |  $CARET
         |}
         |""".stripMargin
     )
 
-
-    assertElement("kind", "LinkageError", MLFeatureValue.categorical(EXCEPTION))(
-      """object X {
-        |  <caret>
-        |}
-        |""".stripMargin
+    assertElement("keyword", "try", categorical(TRY))(
+      s"""object X {
+         |  $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertElement("kind", "java", MLFeatureValue.categorical(PACKAGE))(
-      """object X {
-        |  <caret>
+    assertElement("keyword", "catch", categorical(CATCH))(
+      s"""object X {
+        |  try {
+        |  }
+        |  $CARET
         |}
         |""".stripMargin
     )
   }
 
-  @Test
   def testSymbolic(): Unit = {
-    assertElement("symbolic", "+", MLFeatureValue.binary(true))(
-      """object X {
-        |  Set.empty <caret>
-        |}
-        |""".stripMargin
+    assertElement("symbolic", "+", binary(true))(
+      s"""object X {
+         |  Set.empty $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertElement("symbolic", "--", MLFeatureValue.binary(true))(
-      """object X {
-        |  Set.empty <caret>
-        |}
-        |""".stripMargin
+    assertElement("symbolic", "--", binary(true))(
+      s"""object X {
+         |  Set.empty $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertElement("symbolic", "contains", MLFeatureValue.binary(false))(
-      """object X {
-        |  Set.empty <caret>
-        |}
-        |""".stripMargin
+    assertElement("symbolic", "contains", binary(false))(
+      s"""object X {
+         |  Set.empty $CARET
+         |}
+         |""".stripMargin
     )
   }
 
-  @Test
   def testUnary(): Unit = {
-    assertElement("unary", "unary_+", MLFeatureValue.binary(true))(
-      """object X {
-        |  1 <caret>
-        |}
-        |""".stripMargin
+    assertElement("unary", "unary_+", binary(true))(
+      s"""object X {
+         |  1 $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertElement("unary", "+", MLFeatureValue.binary(false))(
-      """object X {
-        |  1 <caret>
-        |}
-        |""".stripMargin
+    assertElement("unary", "+", binary(false))(
+      s"""object X {
+         |  1 $CARET
+         |}
+         |""".stripMargin
     )
   }
 
-  @Test
   def testScala(): Unit = {
 
-    assertElement("scala", "List", MLFeatureValue.binary(true))(
-      """object X {
-        |  <caret>
-        |}
-        |""".stripMargin
+    assertElement("scala", "List", binary(true))(
+      s"""object X {
+         |  $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertElement("scala", "NoSuchMethodError", MLFeatureValue.binary(false))(
-      """object X {
-        |  <caret>
-        |}
-        |""".stripMargin
+    assertElement("scala", "NoSuchMethodError", binary(false))(
+      s"""object X {
+         |  $CARET
+         |}
+         |""".stripMargin
     )
   }
 
-  @Test
   def testJavaObjectMethod(): Unit = {
 
-    assertElement("java_object_method", "equals", MLFeatureValue.binary(true))(
-      """object X {
-        |  1 <caret>
-        |}
-        |""".stripMargin
+    assertElement("java_object_method", "equals", binary(true))(
+      s"""object X {
+         |  1 $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertElement("java_object_method", "+", MLFeatureValue.binary(false))(
-      """object X {
-        |  1 <caret>
-        |}
-        |""".stripMargin
+    assertElement("java_object_method", "+", binary(false))(
+      s"""object X {
+         |  1 $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertElement("java_object_method", "to", MLFeatureValue.binary(false))(
-      """object X {
-        |  1 <caret>
-        |}
-        |""".stripMargin
+    assertElement("java_object_method", "to", binary(false))(
+      s"""object X {
+         |  1 $CARET
+         |}
+         |""".stripMargin
     )
   }
 
-  @Test
   def testArgumentCount(): Unit = {
 
-    assertElement("argument_count", "Nil", MLFeatureValue.float(-1.0))(
-      """object X {
-        |  <caret>
-        |}
-        |""".stripMargin
+    assertElement("argument_count", "Nil", float(-1.0))(
+      s"""object X {
+         |  $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertElement("argument_count", "f", MLFeatureValue.float(0.0))(
-      """object X {
-        |  def f(): Unit = ???
-        |  <caret>
-        |}
-        |""".stripMargin
+    assertElement("argument_count", "f", float(0.0))(
+      s"""object X {
+         |  def f(): Unit = ???
+         |  $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertElement("argument_count", "print", MLFeatureValue.float(1.0))(
-      """object X {
-        |  <caret>
-        |}
-        |""".stripMargin
+    assertElement("argument_count", "print", float(1.0))(
+      s"""object X {
+         |  $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertElement("argument_count", "f", MLFeatureValue.float(2))(
-      """object X {
-        |  val f: (Int, Int) => Double = ???
-        |  <caret>
-        |}
-        |""".stripMargin
+    assertElement("argument_count", "f", float(2))(
+      s"""object X {
+         |  val f: (Int, Int) => Double = ???
+         |  $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertElement("argument_count", "f", MLFeatureValue.float(0))(
-      """object X {
-        |  def f(implicit int: Int): Unit = ???
-        |  <caret>
-        |}
-        |""".stripMargin
+    assertElement("argument_count", "f", float(0))(
+      s"""object X {
+         |  def f(implicit int: Int): Unit = ???
+         |  $CARET
+         |}
+         |""".stripMargin
     )
   }
 
-  @Test
   def testNameNameDist(): Unit = {
 
-    assertElement("name_name_sim", "List", MLFeatureValue.float(-1.0))(
-      """object X {
-        |  val l = <caret>
-        |}
-        |""".stripMargin
+    assertElement("name_name_sim", "List", float(-1.0))(
+      s"""object X {
+         |  val l = $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertElement("name_name_sim", "List", MLFeatureValue.float(1.0))(
-      """object X {
-        |  val list = <caret>
-        |}
-        |""".stripMargin
+    assertElement("name_name_sim", "List", float(1.0))(
+      s"""object X {
+         |  val list = $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertElement("name_name_sim", "ScalaReflectionException", MLFeatureValue.float(1.0))(
-      """object X {
-        |  var scalaReflectionException = <caret>
-        |}
-        |""".stripMargin
+    assertElement("name_name_sim", "ScalaReflectionException", float(1.0))(
+      s"""object X {
+         |  var scalaReflectionException = $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertElement("name_name_sim", "ind", MLFeatureValue.float(0.6))(
-      """object X {
-        |  val ind = ???
-        |  "".charAt(index = <caret>)
-        |}
-        |""".stripMargin
+    assertElement("name_name_sim", "ind", float(0.6))(
+      s"""object X {
+         |  val ind = ???
+         |  "".charAt(index = $CARET)
+         |}
+         |""".stripMargin
     )
 
-    assertElement("name_name_sim", "List", MLFeatureValue.float(0.5))(
-      """object X {
-        |  def byteList = <caret>
-        |}
-        |""".stripMargin
+    assertElement("name_name_sim", "List", float(0.5))(
+      s"""object X {
+         |  def byteList = $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertElement("name_name_sim", "List", MLFeatureValue.float(0.25))(
-      """object X {
-        |  type ByteListTypeName = <caret>
-        |}
-        |""".stripMargin
+    assertElement("name_name_sim", "List", float(0.25))(
+      s"""object X {
+         |  type ByteListTypeName = $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertElement("name_name_sim", "List", MLFeatureValue.float(0.5))(
-      """object X {
-        |  def f(listname: Nothing) = ???
-        |  f(<caret>)
-        |}
-        |""".stripMargin
+    assertElement("name_name_sim", "List", float(0.5))(
+      s"""object X {
+         |  def f(listname: Nothing) = ???
+         |  f($CARET)
+         |}
+         |""".stripMargin
     )
 
     // TODO for some reason expectedTypeEx don't return name for non local methods
-//    assertElement("name_name_sim", "requ", MLFeatureValue.float(0.5))(
-//      """object X {
-//        |  val requ = ???
-//        |  require(<caret>)
-//        |}
-//        |""".stripMargin
-//    )
+    //    assertElement("name_name_sim", "requ", float(0.5))(
+    //      s"""object X {
+    //        |  val requ = ???
+    //        |  require($CARET)
+    //        |}
+    //        |""".stripMargin
+    //    )
   }
 
-  @Test
   def testNameTypeDist(): Unit = {
 
-    assertElement("name_type_sim", "Array", MLFeatureValue.float(-1.0))(
-      """object X {
-        |  type A = <caret>
-        |}
-        |""".stripMargin
+    assertElement("name_type_sim", "Array", float(-1.0))(
+      s"""object X {
+         |  type A = $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertElement("name_type_sim", "List", MLFeatureValue.float(0.25))(
-      """object X {
-        |  type ByteListTypeName = <caret>
-        |}
-        |""".stripMargin
+    assertElement("name_type_sim", "List", float(0.25))(
+      s"""object X {
+         |  type ByteListTypeName = $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertElement("name_type_sim", "Product12", MLFeatureValue.float(1.0))(
-      """object X {
-        |  def f(product11: <caret>)
-        |}
-        |""".stripMargin
+    assertElement("name_type_sim", "Product12", float(1.0))(
+      s"""object X {
+         |  def f(product11: $CARET)
+         |}
+         |""".stripMargin
     )
 
-    assertElement("name_type_sim", "List", MLFeatureValue.float(1.0))(
-      """object X {
-        |  val list: <caret>
-        |}
-        |""".stripMargin
+    assertElement("name_type_sim", "List", float(1.0))(
+      s"""object X {
+         |  val list: $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertElement("name_type_sim", "a", MLFeatureValue.float(0.5))(
-      """object X {
-        |  val a: List[Int] = ???
-        |  def f(listname: Nothing) = ???
-        |  f(<caret>)
-        |}
-        |""".stripMargin
+    assertElement("name_type_sim", "a", float(0.5))(
+      s"""object X {
+         |  val a: List[Int] = ???
+         |  def f(listname: Nothing) = ???
+         |  f($CARET)
+         |}
+         |""".stripMargin
     )
   }
 
-  @Test
   def testTypeNameDist(): Unit = {
 
-    assertElement("type_name_sim", "Array", MLFeatureValue.float(-1.0))(
-      """object X {
-        |  val a = <caret>
-        |}
-        |""".stripMargin
+    assertElement("type_name_sim", "Array", float(-1.0))(
+      s"""object X {
+         |  val a = $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertElement("type_name_sim", "integral", MLFeatureValue.float(0.375))(
-      """object X {
-        |  val integral = ???
-        |  val b: Int = <caret>
-        |}
-        |""".stripMargin
+    assertElement("type_name_sim", "integral", float(0.375))(
+      s"""object X {
+         |  val integral = ???
+         |  val b: Int = $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertElement("type_name_sim", "index", MLFeatureValue.float(0.4))(
-      """object X {
-        |  val index = ???
-        |  "".charAt(<caret>)
-        |}
-        |""".stripMargin
+    assertElement("type_name_sim", "index", float(0.4))(
+      s"""object X {
+         |  val index = ???
+         |  "".charAt($CARET)
+         |}
+         |""".stripMargin
     )
 
     // TODO for some reason expectedTypeEx don't return any type for overloading
-//    assertElement("name_name_sim", "requ", MLFeatureValue.float(0.5))(
-//      """object X {
-//        |  val string = ???
-//        |  "".indexOf(<caret>)
-//        |}
-//        |""".stripMargin
-//    )
+    //    assertElement("name_name_sim", "requ", float(0.5))(
+    //      s"""object X {
+    //        |  val string = ???
+    //        |  "".indexOf($CARET)
+    //        |}
+    //        |""".stripMargin
+    //    )
   }
 
-  @Test
   def testTypeTypeDist(): Unit = {
 
-    assertElement("type_type_sim", "integer", MLFeatureValue.float(-1.0))(
-      """object X {
-        |  type I = Int
-        |  val integer: Int = ???
-        |  val anotherInteger: I = <caret>
-        |}
-        |""".stripMargin
+    assertElement("type_type_sim", "integer", float(-1.0))(
+      s"""object X {
+         |  type I = Int
+         |  val integer: Int = ???
+         |  val anotherInteger: I = $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertElement("type_type_sim", "a", MLFeatureValue.float(0.5))(
-      """object X {
-        |  val a: Option[Int] = ???
-        |  var b: Int with Double = <caret>
-        |}
-        |""".stripMargin
+    assertElement("type_type_sim", "a", float(0.5))(
+      s"""object X {
+         |  val a: Option[Int] = ???
+         |  var b: Int with Double = $CARET
+         |}
+         |""".stripMargin
     )
 
-    assertElement("type_type_sim", "a", MLFeatureValue.float(1.0))(
-      """object X {
-        |  val a: Option[Int] = ???
-        |  def f(o: Option[Int]) = ???
-        |  f(<caret>)
-        |}
-        |""".stripMargin
+    assertElement("type_type_sim", "a", float(1.0))(
+      s"""object X {
+         |  val a: Option[Int] = ???
+         |  def f(o: Option[Int]) = ???
+         |  f($CARET)
+         |}
+         |""".stripMargin
     )
 
-    assertElement("type_type_sim", "a", MLFeatureValue.float(1.0))(
-      """object X {
-        |  val a: Option[Int] = ???
-        |  val b: Int = <caret>
+    assertElement("type_type_sim", "a", float(1.0))(
+      s"""object X {
+         |  val a: Option[Int] = ???
+         |  val b: Int = $CARET
+         |}
+         |""".stripMargin
+    )
+
+    assertElement("type_type_sim", "true", float(1.0))(
+      s"""object X {
+        |  def f(x: Boolean): Unit = ???
+        |  f($CARET)
         |}
         |""".stripMargin
     )
   }
 
-  private def assertContext(name: String, expected: MLFeatureValue)(fileText : String): Unit = {
+  private def assertContext(name: String, expected: MLFeatureValue)(fileText: String): Unit = {
     val elementsFeatures = computeElementsFeatures(fileText)
-    assertFeatureEquals(expected, elementsFeatures.head._2.get(name))
+    AssertFeatureValues.equals(expected, elementsFeatures.head._2.get(name))
   }
 
-  private def assertElement(name: String, element: String, expected: MLFeatureValue)(fileText : String): Unit = {
+  private def assertElement(name: String, element: String, expected: MLFeatureValue)(fileText: String): Unit = {
     val elementFeatures = computeElementsFeatures(fileText)
-    assertFeatureEquals(expected, elementFeatures(element).get(name))
+    AssertFeatureValues.equals(expected, elementFeatures(element).get(name))
   }
 
   private def computeElementsFeatures(fileText: String): Map[String, util.Map[String, MLFeatureValue]] = {
@@ -544,7 +645,7 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
 
       val elements = mutable.Map.empty[String, util.Map[String, MLFeatureValue]]
 
-      override def getName: String = "scala"
+      override def getName: String = original.getName
 
       override def calculateFeatures(element: LookupElement, location: CompletionLocation, contextFeatures: ContextFeatures): util.Map[String, MLFeatureValue] = {
         val result = original.calculateFeatures(element, location, contextFeatures)
@@ -575,23 +676,6 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
     }
     finally {
       ElementFeatureProvider.EP_NAME.removeExplicitExtension(ScalaLanguage.INSTANCE, provider)
-    }
-  }
-
-  private def assertFeatureEquals(expected: MLFeatureValue, actual: MLFeatureValue): Unit = {
-
-    // no equals impl for MLFeatureValue
-    def adapter(value: MLFeatureValue): Any = {
-      val actualValue = Option(value.asBinary()) orElse Option(value.asCategorical()) orElse Option(value.asFloat())
-      actualValue.get
-    }
-
-    val adaptedExpected = adapter(expected)
-    val adaptedActual = adapter(actual)
-
-    adaptedExpected match {
-      case floatExpected: Double => Assert.assertEquals(floatExpected, adaptedActual.asInstanceOf[Double], 0.001)
-      case _ => Assert.assertEquals(adaptedExpected, adaptedActual)
     }
   }
 }

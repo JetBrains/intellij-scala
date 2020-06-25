@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScSymbolLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createWildcardPattern
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs._
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures.ScParamElementType
@@ -41,11 +42,11 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
-  def isCallByNameParameter: Boolean = byStubOrPsi(_.isCallByNameParameter)(paramType.exists(_.isCallByNameParameter))
+  override def isCallByNameParameter: Boolean = byStubOrPsi(_.isCallByNameParameter)(paramType.exists(_.isCallByNameParameter))
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
-  def deprecatedName: Option[String] = byStubOrPsi(_.deprecatedName) {
+  override def deprecatedName: Option[String] = byStubOrPsi(_.deprecatedName) {
     // by-text heuristic is used because this method is called during stub creation,
     // so actual resolving of an annotation causes deadlock
 
@@ -56,16 +57,27 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
     } yield symbol.name
   }
 
-  def nameId: PsiElement = {
+  // in Scala 3 in a using clause you can have parameter without a name
+  // Example:
+  //   def test(normalParam: Int)(using Ordering[Int]) = ???
+  //                                    ^^^^^^^^^^^^^ <- parameter without name
+  private lazy val syntheticWildcardIdForTypeOnlyUsingParameter: PsiElement = createWildcardPattern
+
+  override def nameId: PsiElement = {
     val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
-    if (id == null) findChildByType[PsiElement](ScalaTokenTypes.tUNDER) else id
+    if (id != null) id
+    else {
+      val under = findChildByType[PsiElement](ScalaTokenTypes.tUNDER)
+      if (under != null) under
+      else syntheticWildcardIdForTypeOnlyUsingParameter
+    }
   }
 
-  def getTypeElement: PsiTypeElement = null
+  override def getTypeElement: PsiTypeElement = null
 
-  def typeElement: Option[ScTypeElement] = byPsiOrStub(paramType.flatMap(_.typeElement.toOption))(_.typeElement)
+  override def typeElement: Option[ScTypeElement] = byPsiOrStub(paramType.flatMap(_.typeElement.toOption))(_.typeElement)
 
-  def `type`(): TypeResult = {
+  override def `type`(): TypeResult = {
     def success(t: ScType): TypeResult = Right(t)
     //todo: this is very error prone way to calc type, when usually we need real parameter type
     getStub match {
@@ -86,11 +98,11 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
         paramStub.typeText match {
           case None if paramStub.getParentStub != null && paramStub.getParentStub.getParentStub != null &&
             paramStub.getParentStub.getParentStub.getParentStub.isInstanceOf[ScFunctionStub[_]] =>
-            Failure("Cannot infer type")
-          case None => Failure("Wrong Stub problem") //shouldn't be
+            Failure(ScalaBundle.message("cannot.infer.type"))
+          case None => Failure(ScalaBundle.message("wrong.stub.problem")) //shouldn't be
           case Some(_: String) => paramStub.typeElement match {
             case Some(te) => te.`type`()
-            case None => Failure("Wrong type element")
+            case None => Failure(ScalaBundle.message("wrong.type.element"))
           }
         }
     }
@@ -143,17 +155,17 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
         (inv, args)  <- maybeInvokedAndArgs
         targetMethod <- inv.bind().collect { case ScalaResolveResult(m: PsiMethod, _) => m }
         if !targetMethod.hasTypeParameters // if the function is polymorphic -- bail out
-        targetArg <- args.find(_.getText == name)
+        targetArg <- args.find(_.textMatches(name))
         eTpe      <- targetArg.expectedType(false)
       } yield eTpe
     }
   }
 
-  def baseDefaultParam: Boolean = byStubOrPsi(_.isDefaultParameter)(findChildByType(ScalaTokenTypes.tASSIGN) != null)
+  override def baseDefaultParam: Boolean = byStubOrPsi(_.isDefaultParameter)(findChildByType(ScalaTokenTypes.tASSIGN) != null)
 
-  def isRepeatedParameter: Boolean = byStubOrPsi(_.isRepeated)(paramType.exists(_.isRepeatedParameter))
+  override def isRepeatedParameter: Boolean = byStubOrPsi(_.isRepeated)(paramType.exists(_.isRepeatedParameter))
 
-  def getActualDefaultExpression: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
+  override def getActualDefaultExpression: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
 
   override def getNavigationElement: PsiElement = {
     val maybeResult = owner match {
@@ -169,14 +181,12 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
       case _ => None
     }
 
-    maybeResult.getOrElse {
-      ScalaPsiUtil.withOriginalContextBound(this)(this: PsiElement) {
-        case (_, bound, _) => bound
-      }
-    }
+    maybeResult
+      .orElse(ScalaPsiUtil.findSyntheticContextBoundInfo(this).map(_.contextType))
+      .getOrElse(this)
   }
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitParameter(this)
   }
 }

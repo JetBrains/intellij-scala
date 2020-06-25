@@ -40,7 +40,7 @@ final class ScAbstractType(val typeParameter: TypeParameter) extends ScalaType w
     }
   }
 
-  def inferValueType: TypeParameterType = TypeParameterType(typeParameter)
+  override def inferValueType: TypeParameterType = TypeParameterType(typeParameter)
 
   def simplifyType: ScType = {
     if (upper.equiv(Any)) lower else if (lower.equiv(Nothing)) upper else lower

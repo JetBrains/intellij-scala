@@ -67,10 +67,7 @@ object ScalaPrefixPackageCompletionContributor {
 
       new ScalaResolveResult(pckg, prefixCompletion = true)
         .getLookupElement(shouldImport = true)
-        .foreach { item =>
-          item.elementToImport = Option(pckg)
-          result.addElement(item)
-        }
+        .foreach(result.addElement)
     }
 
     val prefixMatcher = result.getPrefixMatcher

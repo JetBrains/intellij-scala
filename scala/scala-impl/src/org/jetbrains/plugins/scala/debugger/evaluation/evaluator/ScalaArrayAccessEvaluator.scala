@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
-import com.intellij.debugger.DebuggerBundle
+import com.intellij.debugger.JavaDebuggerBundle
 import com.intellij.debugger.engine.DebuggerUtils
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
@@ -21,11 +21,11 @@ class ScalaArrayAccessEvaluator(arrayReferenceEvaluator: Evaluator, indexEvaluat
     val indexValue: Value = indexEvaluator.evaluate(context).asInstanceOf[Value]
     val arrayValue: Value = arrayReferenceEvaluator.evaluate(context).asInstanceOf[Value]
     if (!arrayValue.isInstanceOf[ArrayReference]) {
-      throw EvaluationException(DebuggerBundle.message("evaluation.error.array.reference.expected"))
+      throw EvaluationException(JavaDebuggerBundle.message("evaluation.error.array.reference.expected"))
     }
     myEvaluatedArrayReference = arrayValue.asInstanceOf[ArrayReference]
     if (!DebuggerUtils.isInteger(indexValue)) {
-      throw EvaluationException(DebuggerBundle.message("evaluation.error.invalid.index.expression"))
+      throw EvaluationException(JavaDebuggerBundle.message("evaluation.error.invalid.index.expression"))
     }
     myEvaluatedIndex = indexValue.asInstanceOf[PrimitiveValue].intValue
     try {
@@ -41,12 +41,12 @@ class ScalaArrayAccessEvaluator(arrayReferenceEvaluator: Evaluator, indexEvaluat
     var modifier: Modifier = null
     if (myEvaluatedArrayReference != null) {
       modifier = new Modifier {
-        def canInspect: Boolean = true
-        def canSetValue: Boolean = true
-        def setValue(value: Value) {
+        override def canInspect: Boolean = true
+        override def canSetValue: Boolean = true
+        override def setValue(value: Value): Unit = {
           myEvaluatedArrayReference.setValue(myEvaluatedIndex, value)
         }
-        def getExpectedType: Type = {
+        override def getExpectedType: Type = {
           try {
             val tp: ArrayType = myEvaluatedArrayReference.referenceType.asInstanceOf[ArrayType]
             tp.componentType
@@ -56,7 +56,7 @@ class ScalaArrayAccessEvaluator(arrayReferenceEvaluator: Evaluator, indexEvaluat
               throw EvaluationException(e)
           }
         }
-        def getInspectItem(project: Project): NodeDescriptorImpl = {
+        override def getInspectItem(project: Project): NodeDescriptorImpl = {
           new ArrayElementDescriptorImpl(project, myEvaluatedArrayReference, myEvaluatedIndex)
         }
       }

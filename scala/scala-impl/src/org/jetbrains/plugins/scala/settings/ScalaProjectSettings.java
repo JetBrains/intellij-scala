@@ -1,10 +1,16 @@
 package org.jetbrains.plugins.scala.settings;
 
 import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.components.*;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.xmlb.Converter;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import com.intellij.util.xmlb.annotations.OptionTag;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.statistics.FeatureKey;
 import org.jetbrains.plugins.scala.statistics.Stats;
 
@@ -21,9 +27,10 @@ import java.util.*;
     storages = {
         @Storage(StoragePathMacros.WORKSPACE_FILE),
         @Storage("scala_settings.xml")
-    }
+    },
+    reportStatistic = true
 )
-public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProjectSettings>, ExportableComponent {
+public class ScalaProjectSettings implements PersistentStateComponent<ScalaProjectSettings> {
   private int IMPLICIT_PARAMETERS_SEARCH_DEPTH = -1;
 
   private String[] BASE_PACKAGES = new String[0];
@@ -36,6 +43,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean DONT_SHOW_CONVERSION_DIALOG = false;
   private boolean SHOW_IMPLICIT_CONVERSIONS = false;
   private boolean SHOW_NOT_FOUND_IMPLICIT_ARGUMENTS = true;
+  private boolean SHOW_AMBIGUOUS_IMPLICIT_ARGUMENTS = true;
 
   private boolean SHOW_ARGUMENTS_TO_BY_NAME_PARAMETERS = false;
   private boolean INCLUDE_BLOCK_EXPRESSIONS = false;
@@ -46,7 +54,6 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   private boolean TREAT_DOC_COMMENT_AS_BLOCK_COMMENT = false;
   private boolean DISABLE_LANGUAGE_INJECTION = false;
-  private boolean DISABLE_I18N = false;
   private boolean DONT_CACHE_COMPOUND_TYPES = false;
   private boolean AOT_COMPLETION = true;
   private boolean PROJECT_VIEW_HIGHLIGHTING = false;
@@ -80,21 +87,16 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean BREADCRUMBS_VAL_DEF_ENABLED = false;
   private boolean BREADCRUMBS_IF_DO_WHILE_ENABLED = false;
 
-  //MIGRATORS AND BUNDLED INSPECTIONS
-  private boolean BUNDLED_MIGRATORS_SEARCH_ENABLED = false;
-  private boolean BUNDLED_INSPECTIONS_SEARCH_ENABLED = false;
-  private Set<String> BUNDLED_INSPECTION_IDS_DISABLED = new HashSet<String>();
-  private Map<String, ArrayList<String>> BUNDLED_LIB_JAR_PATHS_TO_INSPECTIONS = new HashMap<String, ArrayList<String>>();
-
   // LIBRARY EXTENSIONS
   private boolean ENABLE_LIBRARY_EXTENSIONS = true;
-  private boolean LEXT_SHOW_ALL_PROJECTS = false;
+
+  private boolean SCALA_3_DISCLAIMER_SHOWN = false;
 
   //INDEXING
-  public enum Ivy2IndexingMode {Disabled, Metadata, Classes};
+  public enum Ivy2IndexingMode {Disabled, Metadata, Classes}
   private Ivy2IndexingMode IVY2_INDEXING_MODE = Ivy2IndexingMode.Metadata;
 
-  private Map<String, String> INTERPOLATED_INJECTION_MAPPING = new HashMap<String, String>();
+  private Map<String, String> INTERPOLATED_INJECTION_MAPPING = new HashMap<>();
 
   {
     INTERPOLATED_INJECTION_MAPPING.put("sql", "SQL");
@@ -102,12 +104,32 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     INTERPOLATED_INJECTION_MAPPING.put("xml", "XML");
   }
 
-  //colection type highlighting settings
-  private int COLLECTION_TYPE_HIGHLIGHTING_LEVEL = 0;
+  public enum ScalaCollectionHighlightingLevel {None, OnlyNonQualified, All}
 
-  public static final int COLLECTION_TYPE_HIGHLIGHTING_ALL = 2;
-  public static final int COLLECTION_TYPE_HIGHLIGHTING_NOT_QUALIFIED = 1;
-  public static final int COLLECTION_TYPE_HIGHLIGHTING_NONE = 0;
+  //collection type highlighting settings
+  private ScalaCollectionHighlightingLevel COLLECTION_TYPE_HIGHLIGHTING_LEVEL = ScalaCollectionHighlightingLevel.None;
+
+  // This is only needed cause previously collection type setting was integer value
+  // now it is a enum, but we want to migrate old integers to enums
+  // TODO: remove somewhere in 2020.2/3 when most of the users will install new idea (and migrate the settings)
+  public static class ScalaCollectionHighlightingLevelConverter extends Converter<ScalaCollectionHighlightingLevel> {
+    @Nullable
+    @Override
+    public ScalaCollectionHighlightingLevel fromString(@NotNull String value) {
+      try {
+        int index = Integer.parseInt(value);
+        return ScalaCollectionHighlightingLevel.values()[index];
+      } catch (NumberFormatException ex) {
+        return ScalaCollectionHighlightingLevel.valueOf(value);
+      }
+    }
+
+    @Nullable
+    @Override
+    public String toString(@NotNull ScalaCollectionHighlightingLevel value) {
+      return value.toString();
+    }
+  }
 
   private boolean TYPE_MISMATCH_HINTS = true;
 
@@ -121,11 +143,13 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     return project.getService(ScalaProjectSettings.class);
   }
 
+  @Override
   public ScalaProjectSettings getState() {
     return this;
   }
 
-  public void loadState(ScalaProjectSettings scalaProjectSettings) {
+  @Override
+  public void loadState(@NotNull ScalaProjectSettings scalaProjectSettings) {
     XmlSerializerUtil.copyBean(scalaProjectSettings, this);
   }
 
@@ -191,12 +215,22 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     return SHOW_IMPLICIT_CONVERSIONS;
   }
 
+  // TODO Refresh editors
   public void setShowNotFoundImplicitArguments(boolean value) {
     SHOW_NOT_FOUND_IMPLICIT_ARGUMENTS = value;
   }
 
   public boolean isShowNotFoundImplicitArguments() {
     return SHOW_NOT_FOUND_IMPLICIT_ARGUMENTS;
+  }
+
+  // TODO Refresh editors
+  public void setShowAmbiguousImplicitArguments(boolean value) {
+    SHOW_AMBIGUOUS_IMPLICIT_ARGUMENTS = value;
+  }
+
+  public boolean isShowAmbiguousImplicitArguments() {
+    return SHOW_AMBIGUOUS_IMPLICIT_ARGUMENTS;
   }
 
   public void setShowImplisitConversions(boolean value) {
@@ -315,12 +349,12 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     TYPE_AWARE_HIGHLIGHTING_ENABLED = !TYPE_AWARE_HIGHLIGHTING_ENABLED;
   }
 
-
-  public int getCollectionTypeHighlightingLevel() {
+  @OptionTag(converter = ScalaCollectionHighlightingLevelConverter.class)
+  public ScalaCollectionHighlightingLevel getCollectionTypeHighlightingLevel() {
     return COLLECTION_TYPE_HIGHLIGHTING_LEVEL;
   }
 
-  public void setCollectionTypeHighlightingLevel(int level) {
+  public void setCollectionTypeHighlightingLevel(ScalaCollectionHighlightingLevel level) {
     this.COLLECTION_TYPE_HIGHLIGHTING_LEVEL = level;
   }
 
@@ -329,7 +363,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   }
 
   public List<String> getBasePackages() {
-    return new ArrayList<String>(Arrays.asList(BASE_PACKAGES));
+    return new ArrayList<>(Arrays.asList(BASE_PACKAGES));
   }
 
   public String getScalaTestDefaultSuperClass() {
@@ -340,6 +374,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     SCALATEST_DEFAULT_SUPERCLASS = superClassName;
   }
 
+  @SuppressWarnings("ToArrayCallWithZeroLengthArrayArgument")
   public void setBasePackages(List<String> packages) {
     BASE_PACKAGES = packages.toArray(new String[packages.size()]);
   }
@@ -396,7 +431,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     Stats.trigger(FeatureKey.scFileModeSet(mode.name()));
     SC_FILE_MODE = mode;
   }
-  
+
   public void setBreadcrumbsClassEnabled(boolean enabled) {
     BREADCRUMBS_CLASS_ENABLED = enabled;
   }
@@ -445,41 +480,6 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     return BREADCRUMBS_IF_DO_WHILE_ENABLED;
   }
 
-  public boolean isBundledMigratorsSearchEnabled() {
-    return BUNDLED_MIGRATORS_SEARCH_ENABLED;
-  }
-
-  public boolean isBundledInspectionsSearchEnabled() {
-    return BUNDLED_INSPECTIONS_SEARCH_ENABLED;
-  }
-
-  public Set<String> getBundledInspectionIdsDisabled() {
-    return BUNDLED_INSPECTION_IDS_DISABLED;
-  }
-
-  public Map<String, ArrayList<String>> getBundledLibJarsPathsToInspections() {
-    return BUNDLED_LIB_JAR_PATHS_TO_INSPECTIONS;
-  }
-
-  public void setBundledMigratorsSearchEnabled(boolean enabled) {
-    BUNDLED_MIGRATORS_SEARCH_ENABLED = enabled;
-  }
-
-  public void setBundledInspectionsSearchEnabled(boolean enabled) {
-    BUNDLED_INSPECTIONS_SEARCH_ENABLED = enabled;
-  }
-
-  public void setBundledInspectionsIdsDisabled(Set<String> disabled) {
-    BUNDLED_INSPECTION_IDS_DISABLED = disabled;
-  }
-
-  public void setBundledLibJarsPathsToInspections(Map<String, ? extends List<String>> pathToInspections) {
-    BUNDLED_LIB_JAR_PATHS_TO_INSPECTIONS = new HashMap<String, ArrayList<String>>();
-    for (Map.Entry<String, ? extends List<String>> entry : pathToInspections.entrySet()) {
-      BUNDLED_LIB_JAR_PATHS_TO_INSPECTIONS.put(entry.getKey(), new ArrayList<String>(entry.getValue()));
-    }
-  }
-
   public boolean isGenerateToStringWithPropertiesNames() {
     return GENERATE_TOSTRING_WITH_FIELD_NAMES;
   }
@@ -504,15 +504,15 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     this.ENABLE_LIBRARY_EXTENSIONS = ENABLE_LIBRARY_EXTENSIONS;
   }
 
-  public boolean isLextShowAllProjects() {
-    return LEXT_SHOW_ALL_PROJECTS;
+  public boolean isScala3DisclaimerShown() {
+    return SCALA_3_DISCLAIMER_SHOWN;
   }
 
-  public void setLextShowAllProjects(boolean LEXT_SHOW_ALL_PROJECTS) {
-    this.LEXT_SHOW_ALL_PROJECTS = LEXT_SHOW_ALL_PROJECTS;
+  public void setScala3DisclaimerShown(boolean b) {
+    SCALA_3_DISCLAIMER_SHOWN = b;
   }
 
-    public ScalaMetaMode getScalaMetaMode() {
+  public ScalaMetaMode getScalaMetaMode() {
     return scalaMetaMode;
   }
 

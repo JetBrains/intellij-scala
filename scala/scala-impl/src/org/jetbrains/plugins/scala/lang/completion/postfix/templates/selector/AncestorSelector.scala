@@ -46,7 +46,7 @@ sealed abstract class AncestorSelector(condition: Condition[PsiElement])
                                 (implicit offset: Int): List[PsiElement] = element.getParent match {
     case current if isAcceptable(current) && current.getTextRange.getEndOffset <= offset =>
       val newTail = result match {
-        case head :: tail if head.getText == current.getText => tail
+        case head :: tail if head.textMatches(current.getText) => tail
         case list => list
       }
 

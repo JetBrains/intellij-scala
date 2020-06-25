@@ -39,7 +39,7 @@ package object clauses {
   def isAccessible(member: PsiMember)
                   (implicit parameters: ClauseCompletionParameters): Boolean = {
     val ClauseCompletionParameters(place, _, invocationCount) = parameters
-    invocationCount >= 2 || completion.isAccessible(member)(place)
+    completion.isAccessible(member, invocationCount)(place)
   }
 
   import PlatformPatterns.psiElement
@@ -121,8 +121,7 @@ package object clauses {
     import CommonClassNames._
     import util.CommonQualifiedNames._
 
-    //noinspection TypeAnnotation
-    val BlackListedNames = Set(
+    val FqnBlockList = Set(
       JAVA_LANG_OBJECT,
       JAVA_LANG_THROWABLE,
       JAVA_LANG_EXCEPTION,
@@ -135,7 +134,7 @@ package object clauses {
     def unapply(`class`: PsiClass)
                (implicit parameters: ClauseCompletionParameters): Option[Inheritors] =
       `class`.qualifiedName match {
-        case fqn if BlackListedNames(fqn) => None
+        case fqn if FqnBlockList(fqn) => None
         case _ =>
           val isSealed = `class`.isSealed
           val (accessibleNamedInheritors, restInheritors) = directInheritors(`class`)

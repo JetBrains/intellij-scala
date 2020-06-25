@@ -22,7 +22,7 @@ class ScIdListImpl private (stub: ScIdListStub, node: ASTNode)
 
   def this(stub: ScIdListStub) = this(stub, null)
 
-  def fieldIds: Seq[ScFieldId] = getStubOrPsiChildren(FIELD_ID, ScFieldIdFactory)
+  override def fieldIds: Seq[ScFieldId] = getStubOrPsiChildren(FIELD_ID, ScFieldIdFactory)
 
   override def toString: String = "ListOfIdentifiers"
 }

@@ -3,12 +3,13 @@ package codeInspection
 
 import com.intellij.codeInspection._
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import org.jetbrains.annotations.Nls
 
 abstract class AbstractRegisteredInspection extends LocalInspectionTool {
 
   protected def problemDescriptor(element: PsiElement,
                                   maybeQuickFix: Option[LocalQuickFix] = None,
-                                  descriptionTemplate: String = getDisplayName,
+                                  @Nls descriptionTemplate: String = getDisplayName,
                                   highlightType: ProblemHighlightType = ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                                  (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] = {
     val fixes = maybeQuickFix match {

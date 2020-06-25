@@ -18,14 +18,14 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
  */
 
 class AddBracesIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = "Add braces"
+  override def getFamilyName: String = ScalaBundle.message("family.name.add.braces")
 
-  override def getText = "Add braces around single line expression"
+  override def getText: String = ScalaBundle.message("add.braces.around.single.line.expression")
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
     check(project, editor, element).isDefined && IntentionAvailabilityChecker.checkIntention(this, element)
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     if (element == null || !element.isValid) return
     check(project, editor, element) match {
       case Some(x) => x()

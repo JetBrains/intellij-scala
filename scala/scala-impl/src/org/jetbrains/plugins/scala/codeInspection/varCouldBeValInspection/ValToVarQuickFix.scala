@@ -20,13 +20,9 @@ class ValToVarQuickFix(value: ScValue) extends IntentionAction {
     value.replace(replacement)
   }
 
-  override def getText: String = VarCouldBeValInspection.DESCRIPTION
+  override def getText: String = ScalaInspectionBundle.message("convert.val.to.var")
 
   override def getFamilyName: String = getText
 
   override def startInWriteAction: Boolean = true
-}
-
-object ValToVarQuickFix {
-  val DESCRIPTION: String = "Convert 'val' to 'var'"
 }

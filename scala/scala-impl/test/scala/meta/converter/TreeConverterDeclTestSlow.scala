@@ -7,7 +7,7 @@ import scala.{Seq => _}
 
 // tests that require library loading
 class TreeConverterDeclTestSlow extends TreeConverterTestBaseWithLibrary {
-  def testExistentialType() {
+  def testExistentialType(): Unit = {
     doTest(
       "def foo(x: Map[T, U] forSome {type T >: Nothing <: Int; type U})",
       Decl.Def(Nil, Term.Name("foo"), Nil, Seq(Seq(Term.Param(Nil, Term.Name("x"),
@@ -19,7 +19,7 @@ class TreeConverterDeclTestSlow extends TreeConverterTestBaseWithLibrary {
   }
 
 
-  def testDefFunctionalTypeParam() {
+  def testDefFunctionalTypeParam(): Unit = {
     doTest(
       "def f(a: Int => Any)",
       Decl.Def(Nil, Term.Name("f"), Nil,
@@ -30,7 +30,7 @@ class TreeConverterDeclTestSlow extends TreeConverterTestBaseWithLibrary {
 
 
 
-  def testDefTupleFunctionalTypeParam() {
+  def testDefTupleFunctionalTypeParam(): Unit = {
     doTest(
       "def f(a: (Int, Any) => Any)",
       Decl.Def(Nil, Term.Name("f"), Nil,

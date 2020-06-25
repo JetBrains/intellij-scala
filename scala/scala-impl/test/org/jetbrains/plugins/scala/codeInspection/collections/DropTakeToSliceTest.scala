@@ -16,7 +16,7 @@ abstract class ReplaceWithSliceTest extends OperationsOnCollectionInspectionTest
 class DropTakeToSliceTest extends ReplaceWithSliceTest {
 
   override protected val hint: String =
-    InspectionBundle.message("replace.drop.take.with.slice")
+    ScalaInspectionBundle.message("replace.drop.take.with.slice")
 
   def testSeqWithLiteralArg(): Unit = {
     doTest(
@@ -62,7 +62,7 @@ class DropTakeToSliceTest extends ReplaceWithSliceTest {
 class TakeDropToSliceTest extends ReplaceWithSliceTest {
 
   override protected val hint: String =
-    InspectionBundle.message("replace.take.drop.with.slice")
+    ScalaInspectionBundle.message("replace.take.drop.with.slice")
 
   def testSeqWithLiteralArg(): Unit = {
     doTest(

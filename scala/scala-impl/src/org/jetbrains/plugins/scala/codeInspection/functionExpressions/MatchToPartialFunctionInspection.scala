@@ -11,6 +11,7 @@ import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil.{getParentOfType, isAncestor}
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -44,7 +45,8 @@ class MatchToPartialFunctionInspection extends AbstractInspection(MatchToPartial
 object MatchToPartialFunctionInspection {
 
   private[functionExpressions] val ID = "MatchToPartialFunction"
-  private[functionExpressions] val DESCRIPTION = "Convert match statement to pattern matching anonymous function"
+  @Nls
+  private[functionExpressions] val DESCRIPTION = ScalaInspectionBundle.message("convert.match.statement.to.pattern.matching.function")
 
   private def isValid(function: ScFunctionExpr): Boolean =
     (function.parameters.head.typeElement.isEmpty ||

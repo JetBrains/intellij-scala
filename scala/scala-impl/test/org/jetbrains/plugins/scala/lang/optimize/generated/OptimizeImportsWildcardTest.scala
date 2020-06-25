@@ -9,19 +9,19 @@ class OptimizeImportsWildcardTest extends OptimizeImportsTestBase {
 
   override def folderPath: String = super.folderPath + "wildcard/"
 
-  def testMayReplace() = doTest()
+  def testMayReplace(): Unit = doTest()
 
-  def testNotUsedNameClash() = doTest()
+  def testNotUsedNameClash(): Unit = doTest()
 
-  def testUsedNameClash() = doTest()
+  def testUsedNameClash(): Unit = doTest()
 
-  def testNameClash() = doTest()
+  def testNameClash(): Unit = doTest()
 
-  def testImplicitClass() = doTest()
+  def testImplicitClass(): Unit = doTest()
 
-  def testImplicitDef() = doTest()
+  def testImplicitDef(): Unit = doTest()
 
-  def testNameConflictTypeAlias() = doTest()
+  def testNameConflictTypeAlias(): Unit = doTest()
 
-  def testShadowAndSelectors() = doTest()
+  def testShadowAndSelectors(): Unit = doTest()
 }

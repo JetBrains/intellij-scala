@@ -15,7 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.lang.psi.{impl, api => p, types => ptype}
 
+import scala.annotation.tailrec
 import scala.language.postfixOps
+import scala.meta.Ctor.Ref
 //import scala.meta.internal.ast.Type
 import scala.meta.internal.{semantic => h}
 import scala.meta.trees.error._
@@ -90,7 +92,7 @@ trait Namer {
   def toStdTypeName(tp: ScType): m.Type.Name = {
     var res: m.Type.Name = null
     val visitor = new ScalaTypeVisitor {
-      override def visitStdType(x: StdType) = {
+      override def visitStdType(x: StdType): Unit = {
         val stdTypes = x.projectContext.stdTypes
         import stdTypes._
 
@@ -134,7 +136,7 @@ trait Namer {
     m.Term.Name(param.name) // TODO: param denotation
   }
 
-  def toPrimaryCtorName(t: ScPrimaryConstructor) = {
+  def toPrimaryCtorName(t: ScPrimaryConstructor): Ref.Name = {
     m.Ctor.Ref.Name("this")
   }
 
@@ -149,6 +151,7 @@ trait Namer {
 
   // only raw type names can be used as super selector
   def getSuperName(tp: ScSuperReference): m.Name.Qualifier = {
+    @tailrec
     def loop(mtp: m.Type): m.Name.Qualifier = {
       mtp match {
         case n@m.Type.Name(value) => m.Name.Indeterminate(value)
@@ -161,7 +164,7 @@ trait Namer {
   }
 
   // FIXME: everything
-  def ctorParentName(tpe: types.ScTypeElement) = {
+  def ctorParentName(tpe: types.ScTypeElement): Ref.Name = {
     val raw = toType(tpe)
     raw.stripped match {
       case n@m.Type.Name(value) =>

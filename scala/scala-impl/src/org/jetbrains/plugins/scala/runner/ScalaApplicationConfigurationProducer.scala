@@ -1,16 +1,19 @@
 package org.jetbrains.plugins.scala
 package runner
 
+import java.lang.Boolean.TRUE
+
 import com.intellij.execution._
 import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext}
 import com.intellij.execution.application.{ApplicationConfiguration, ApplicationConfigurationProducer, ApplicationConfigurationType}
 import com.intellij.execution.impl.RunManagerImpl
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.util.Ref
+import com.intellij.openapi.util.{Key, Ref}
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.util.ScalaMainMethodUtil
 
 /**
@@ -19,6 +22,13 @@ import org.jetbrains.plugins.scala.util.ScalaMainMethodUtil
  */
 class ScalaApplicationConfigurationProducer
   extends BaseScalaApplicationConfigurationProducer[ApplicationConfiguration](ApplicationConfigurationType.getInstance)
+
+private object ScalaApplicationConfigurationProducer {
+  val key: Key[java.lang.Boolean] = Key.create("is.scala3.application.run.configuration")
+
+  def isScala3ApplicationConfiguration(configuration: ApplicationConfiguration): Boolean =
+    configuration.getCopyableUserData(key) == TRUE
+}
 
 abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfiguration](configurationType: ApplicationConfigurationType)
   extends JavaRuntimeConfigurationProduceBaseAdapter[T](configurationType)
@@ -29,6 +39,11 @@ abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfigu
     configuration.setMainClassName(nameForConfiguration(obj))
     configuration.setName(configuration.suggestedName())
     setupConfigurationModule(context, configuration)
+
+    if (obj.isInScala3Module) {
+      configuration.putCopyableUserData(ScalaApplicationConfigurationProducer.key, TRUE)
+    }
+
     JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(configuration, location)
   }
 

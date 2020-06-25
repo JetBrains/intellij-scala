@@ -8,7 +8,7 @@ trait FeatureSpecFileStructureViewTest extends ScalaTestTestCase {
 
   private val className = "FeatureSpecViewTest"
 
-  private def runTest(status: Int, names: String*) {
+  private def runTest(status: Int, names: String*): Unit = {
     runFileStructureViewTest(className, status, names: _*)
   }
 
@@ -41,5 +41,5 @@ trait FeatureSpecFileStructureViewTest extends ScalaTestTestCase {
   def testFeatureSpecIgnored(): Unit = runTest(IgnoredStatusId, "ignore(\"ignored1\")", "ignore(\"ignored2\")")
 
   def testFeatureSpecIgnoredHierarchy(): Unit = runTest("scenario(\"ignored_inner\")", Some("ignore(\"ignored2\")" +
-    TestNodeProvider.ignoredSuffix))
+    TestNodeProvider.IgnoredSuffix))
 }

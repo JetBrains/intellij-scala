@@ -1,7 +1,5 @@
-package org.jetbrains.plugins.scala
-package lang.scaladoc
+package org.jetbrains.plugins.scala.lang.scaladoc
 
-import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 
 /**
@@ -10,60 +8,61 @@ import org.jetbrains.plugins.scala.base.EditorActionTestBase
  */
 class WikiPairedTagBackspaceTest extends EditorActionTestBase {
 
-  import CodeInsightTestFixture.CARET_MARKER
+  def testDeleteUnderlinedTag(): Unit =
+    checkGeneratedTextAfterBackspace(
+      s"/** __${|}blah blah__ */",
+      "/** _blah blah */"
+    )
 
-  def testDeleteUnderlinedTag(): Unit = {
-    checkGeneratedTextAfterBackspace("/** __" + CARET_MARKER + "blah blah__ */",
-      "/** _blah blah */")
-  }
+  def testDeleteMonospaceTag(): Unit =
+    checkGeneratedTextAfterBackspace(
+      s"/** `${|}blahblah` */",
+      "/** blahblah */"
+    )
 
-  def testDeleteMonospaceTag(): Unit = {
-    checkGeneratedTextAfterBackspace("/** `" + CARET_MARKER + "blahblah` */",
-      "/** blahblah */")
-  }
+  def testDeleteItalicTag(): Unit =
+    checkGeneratedTextAfterBackspace(
+      s"/** ''${|}blah blah'' */",
+      "/** 'blah blah */"
+    )
 
-  def testDeleteItalicTag(): Unit = {
-    checkGeneratedTextAfterBackspace("/** ''" + CARET_MARKER + "blah blah'' */",
-      "/** 'blah blah */")
-  }
+  def testDeleteBoldTag(): Unit =
+    checkGeneratedTextAfterBackspace(
+      s"/** '''${|}blah blah''' */",
+      "/** ''blah blah'' */"
+    )
 
-  def testDeleteBoldTag(): Unit = {
-    checkGeneratedTextAfterBackspace("/** '''" + CARET_MARKER + "blah blah''' */",
-      "/** ''blah blah'' */")
-  }
+  def testDeleteSubscriptTag(): Unit =
+    checkGeneratedTextAfterBackspace(
+      s"/** ,,${|}blah blah,, */",
+      "/** ,blah blah */"
+    )
 
-  def testDeleteSubscriptTag(): Unit = {
-    checkGeneratedTextAfterBackspace("/** ,," + CARET_MARKER + "blah blah,, */",
-      "/** ,blah blah */")
-  }
-
-  def testScl6717(): Unit = {
+  def testScl6717(): Unit =
     checkGeneratedTextAfterBackspace(
       s"""
          | /**
-         |  * a =$CARET_MARKER b
+         |  * a =${|} b
          |  */
        """.stripMargin,
       s"""
          | /**
-         |  * a $CARET_MARKER b
+         |  * a ${|} b
          |  */
        """.stripMargin
     )
-  }
 
-  def testDeleteInnerCodeTag(): Unit = {
-    val text =
-      ("""
-      | /**
-      |   * {{{""" + CARET_MARKER + """
-                                      |   *   class A {
-                                      |   *     def f (): Unit = {}
-                                      |   * }
-                                      |   *}}}
-                                      |   */
-      """).stripMargin.replace("\r", "")
-    val assumedStub =
+  def testDeleteInnerCodeTag(): Unit =
+    checkGeneratedTextAfterBackspace(
+      s"""
+         | /**
+         |   * {{{${|}
+         |   *   class A {
+         |   *     def f (): Unit = {}
+         |   * }
+         |   *}}}
+         |   */
+      """.stripMargin,
       """
         | /**
         |   * {{
@@ -72,18 +71,18 @@ class WikiPairedTagBackspaceTest extends EditorActionTestBase {
         |   * }
         |   *
         |   */
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
+    )
 
-    checkGeneratedTextAfterBackspace(text, assumedStub)
-  }
+  def testDeleteCodeLinkTag(): Unit =
+    checkGeneratedTextAfterBackspace(
+      s"/** [[${|}java.lang.String]] */",
+      "/** [java.lang.String */"
+    )
 
-  def testDeleteCodeLinkTag(): Unit = {
-    checkGeneratedTextAfterBackspace("/** [[" + CARET_MARKER + "java.lang.String]] */",
-      "/** [java.lang.String */")
-  }
-
-  def testDeleteEmptyItalicTag(): Unit = {
-    checkGeneratedTextAfterBackspace("/** ''" + CARET_MARKER + "'' */",
-      "/** ' */")
-  }
+  def testDeleteEmptyItalicTag(): Unit =
+    checkGeneratedTextAfterBackspace(
+      s"/** ''${|}'' */",
+      "/** ' */"
+    )
 }

@@ -7,19 +7,23 @@ trait FunSuiteSingleTestTest extends FunSuiteGenerator {
   val funSuiteTestPath = List("[root]", funSuiteClassName, "should run single test")
   val funSuiteTaggedTestPath = List("[root]", funSuiteClassName, "tagged")
 
-  def testFunSuite() {
-    runTestByLocation(9, 8, funSuiteFileName,
-      checkConfigAndSettings(_, funSuiteClassName, "should run single test"),
-      root => checkResultTreeHasExactNamedPath(root, funSuiteTestPath:_*) &&
-          checkResultTreeDoesNotHaveNodes(root, "should not run other tests")
+  def testFunSuite(): Unit = {
+    runTestByLocation2(9, 8, funSuiteFileName,
+      assertConfigAndSettings(_, funSuiteClassName, "should run single test"),
+      root => {
+        assertResultTreeHasExactNamedPath(root, funSuiteTestPath)
+        assertResultTreeDoesNotHaveNodes(root, "should not run other tests")
+      }
     )
   }
 
-  def testTaggedFunSuite() {
-    runTestByLocation(12, 8, funSuiteFileName,
-      checkConfigAndSettings(_, funSuiteClassName, "tagged"),
-      root => checkResultTreeHasExactNamedPath(root, funSuiteTaggedTestPath:_*) &&
-        checkResultTreeDoesNotHaveNodes(root, "should not run other tests")
+  def testTaggedFunSuite(): Unit = {
+    runTestByLocation2(12, 8, funSuiteFileName,
+      assertConfigAndSettings(_, funSuiteClassName, "tagged"),
+      root => {
+        assertResultTreeHasExactNamedPath(root, funSuiteTaggedTestPath)
+        assertResultTreeDoesNotHaveNodes(root, "should not run other tests")
+      }
     )
   }
 }

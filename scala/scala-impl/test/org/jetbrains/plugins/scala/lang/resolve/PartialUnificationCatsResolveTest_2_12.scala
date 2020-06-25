@@ -10,14 +10,18 @@ import org.jetbrains.plugins.scala.project._
 class PartialUnificationCatsResolveTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter with SimpleResolveTestBase {
   import SimpleResolveTestBase._
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_12
 
   override def librariesLoaders: Seq[LibraryLoader] =
     super.librariesLoaders :+ IvyManagedLoader("org.typelevel" %% "cats-core" % "1.4.0")
 
   override def setUp(): Unit = {
     super.setUp()
-    getModule.scalaCompilerSettings.additionalCompilerOptions = Seq("-Ypartial-unification")
+    val profile = getModule.scalaCompilerSettingsProfile
+    val newSettings = profile.getSettings.copy(
+      additionalCompilerOptions = Seq("-Ypartial-unification")
+    )
+    profile.setSettings(newSettings)
   }
 
   def testFunctionMap(): Unit = doResolveTest(

@@ -18,7 +18,7 @@
           <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="friendly.collection.display.enabled"/>
+          <text resource-bundle="messages/ScalaBundle" key="friendly.collection.display.enabled"/>
         </properties>
       </component>
       <grid id="a3322" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -34,7 +34,7 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="friendly.collection.debug.start.index"/>
+              <text resource-bundle="messages/ScalaBundle" key="friendly.collection.debug.start.index"/>
             </properties>
           </component>
           <component id="a241f" class="javax.swing.JSpinner" binding="myStartIndexSpinner">
@@ -48,7 +48,7 @@
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="friendly.collection.debug.end.index"/>
+              <text resource-bundle="messages/ScalaBundle" key="friendly.collection.debug.end.index"/>
             </properties>
           </component>
           <component id="3cd45" class="javax.swing.JSpinner" binding="myEndIndexSpinner">
@@ -64,7 +64,7 @@
           <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="friendly.collection.do.not.display.streams"/>
+          <text resource-bundle="messages/ScalaBundle" key="friendly.collection.do.not.display.streams"/>
         </properties>
       </component>
       <hspacer id="dfa0b">
@@ -98,7 +98,7 @@
           <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="dont.show.runtime.refs"/>
+          <text resource-bundle="messages/ScalaBundle" key="dont.show.runtime.refs"/>
         </properties>
       </component>
       <component id="d789e" class="javax.swing.JCheckBox" binding="showOuterVariables">
@@ -106,7 +106,7 @@
           <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="show.variables.from.outer.scopes.in.variables.view"/>
+          <text resource-bundle="messages/ScalaBundle" key="show.variables.from.outer.scopes.in.variables.view"/>
         </properties>
       </component>
       <component id="e14e1" class="javax.swing.JCheckBox" binding="forceClassPrepareRequestsForNestedTypes">
@@ -114,7 +114,7 @@
           <grid row="5" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="force.class.prepare.request.for.nested.types"/>
+          <text resource-bundle="messages/ScalaBundle" key="force.class.prepare.request.for.nested.types"/>
         </properties>
       </component>
       <component id="2a410" class="javax.swing.JCheckBox" binding="forcePositionLookupInNestedTypes">
@@ -122,7 +122,7 @@
           <grid row="6" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="force.position.lookup.in.nested.types"/>
+          <text resource-bundle="messages/ScalaBundle" key="force.position.lookup.in.nested.types"/>
         </properties>
       </component>
     </children>

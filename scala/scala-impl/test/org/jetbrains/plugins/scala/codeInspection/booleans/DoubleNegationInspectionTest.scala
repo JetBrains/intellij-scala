@@ -11,14 +11,12 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
  */
 class DoubleNegationInspectionTest extends ScalaQuickFixTestBase {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[DoubleNegationInspection]
   override protected val description: String = "Double negation"
 
   private val hint = "Remove double negation"
   
-  def test_NotNotTrue() {
+  def test_NotNotTrue(): Unit = {
     val selectedText = s"$START!(!true)$END"
     checkTextHasError(selectedText)
 
@@ -27,7 +25,7 @@ class DoubleNegationInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_Not_ANotEqualsB() {
+  def test_Not_ANotEqualsB(): Unit = {
     val selectedText = s"val flag: Boolean = $START!(a != b)$END"
     checkTextHasError(selectedText)
 
@@ -36,7 +34,7 @@ class DoubleNegationInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_NotA_NotEquals_B() {
+  def test_NotA_NotEquals_B(): Unit = {
     val selectedText = s"if ($START!a != b$END) true else false"
     checkTextHasError(selectedText)
 
@@ -45,7 +43,7 @@ class DoubleNegationInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_NotA_Equals_NotB() {
+  def test_NotA_Equals_NotB(): Unit = {
     val selectedText = s"$START!a == !b$END"
     checkTextHasError(selectedText)
 
@@ -54,7 +52,7 @@ class DoubleNegationInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_NotA_NotEquals_NotB() {
+  def test_NotA_NotEquals_NotB(): Unit = {
     val selectedText = s"$START!a != !b$END"
     checkTextHasError(selectedText)
 

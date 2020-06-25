@@ -14,5 +14,5 @@ class CheckAccessTest extends CheckPrivateAccessTestBase {
 
   override def folderPath: String = super.folderPath + "failed/"
 
-  def testSCL9212() = doTest()
+  def testSCL9212(): Unit = doTest()
 }

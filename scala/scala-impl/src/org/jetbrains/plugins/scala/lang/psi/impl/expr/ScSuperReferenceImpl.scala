@@ -9,6 +9,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -24,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResul
   *         Date: 14.03.2008
   */
 class ScSuperReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScSuperReference {
-  def isHardCoded: Boolean = {
+  override def isHardCoded: Boolean = {
     val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
     if (id == null) false else {
       ScalaPsiUtil.fileContext(id) match {
@@ -53,7 +54,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
     }
   }
 
-  def drvTemplate: Option[ScTemplateDefinition] = reference match {
+  override def drvTemplate: Option[ScTemplateDefinition] = reference match {
     case Some(q) => q.bind() match {
       case Some(ScalaResolveResult(td: ScTypeDefinition, _)) => Some(td)
       case _ => None
@@ -62,30 +63,30 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
   }
 
 
-  def staticSuper: Option[ScType] = {
+  override def staticSuper: Option[ScType] = {
     val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
     if (id == null) None else findSuper(id)
   }
 
-  def staticSuperName = Option(findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)).map(_.getText).getOrElse("")
+  override def staticSuperName: String = Option(findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)).map(_.getText).getOrElse("")
 
-  override def getReference = {
+  override def getReference: PsiReference = {
     val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
     if (id == null) null else new PsiReference {
-      def getElement: ScSuperReferenceImpl = ScSuperReferenceImpl.this
+      override def getElement: ScSuperReferenceImpl = ScSuperReferenceImpl.this
 
-      def getRangeInElement: TextRange = new TextRange(0, id.getTextLength).shiftRight(id.getStartOffsetInParent)
+      override def getRangeInElement: TextRange = new TextRange(0, id.getTextLength).shiftRight(id.getStartOffsetInParent)
 
-      def getCanonicalText: String = resolve match {
+      override def getCanonicalText: String = resolve match {
         case c: PsiClass => c.qualifiedName
         case _ => null
       }
 
-      def isSoft: Boolean = false
+      override def isSoft: Boolean = false
 
-      def handleElementRename(newElementName: String): ScSuperReferenceImpl = doRename(newElementName)
+      override def handleElementRename(newElementName: String): ScSuperReferenceImpl = doRename(newElementName)
 
-      def bindToElement(e: PsiElement): ScSuperReferenceImpl = e match {
+      override def bindToElement(e: PsiElement): ScSuperReferenceImpl = e match {
         case c: PsiClass => doRename(c.name)
         case _ => throw new IncorrectOperationException("cannot bind to anything but class")
       }
@@ -96,12 +97,12 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
         ScSuperReferenceImpl.this
       }
 
-      def isReferenceTo(element: PsiElement): Boolean = element match {
-        case c: PsiClass => c.name == id.getText && resolve == c
+      override def isReferenceTo(element: PsiElement): Boolean = element match {
+        case c: PsiClass => id.textMatches(c.name) && resolve == c
         case _ => false
       }
 
-      def resolve: PsiClass = {
+      override def resolve: PsiClass = {
         def resolveNoHack: PsiClass = {
           findSuper(id) match {
             case Some(t) => t.extractClass match {
@@ -159,7 +160,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
     case None => ResolveUtils.enclosingTypeDef(this).map(_.extendsBlock.superTypes)
   }
 
-  protected override def innerType = Failure("Cannot infer type of `super' expression")
+  protected override def innerType: TypeResult = Failure(ScalaBundle.message("cannot.infer.type.of.super.expression"))
 
   override def toString = "SuperReference"
 }

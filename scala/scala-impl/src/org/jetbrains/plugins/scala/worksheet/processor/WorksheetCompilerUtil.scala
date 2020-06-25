@@ -7,19 +7,18 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.content.{ContentFactory, MessageView}
 import com.intellij.util.ui.MessageCategory
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl
+import org.jetbrains.plugins.scala.worksheet.ui.printers.repl.QueuedPsi
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 29.05.18.
-  */
+
+private[worksheet]
 object WorksheetCompilerUtil {
-  private val ERROR_CONTENT_NAME = "Worksheet errors"
+  private val ERROR_CONTENT_NAME = "Worksheet errors" // TODO: is it effectively used?
 
   sealed trait WorksheetCompileRunRequest
-
-  case class RunRepl(code: String) extends WorksheetCompileRunRequest
-  case class RunCompile(code: String, className: String) extends WorksheetCompileRunRequest
+  object WorksheetCompileRunRequest {
+    final case class RunRepl(code: String, evaluatedElements: Seq[QueuedPsi]) extends WorksheetCompileRunRequest
+    final case class RunCompile(code: String, className: String) extends WorksheetCompileRunRequest
+  }
   
   sealed trait CompilationMessageSeverity {
     def toType: Int
@@ -76,7 +75,6 @@ object WorksheetCompilerUtil {
         }
 
       contentManager.setSelectedContent(currentContent)
-      MigrationApiImpl.openMessageView(project, currentContent, treeError)
 
       onShow()
     }
@@ -86,7 +84,7 @@ object WorksheetCompilerUtil {
                           (implicit project: Project): Unit =
     showCompilationMessage(file, pos, msg, ErrorSeverity, onShow)
 
-  def removeOldMessageContent(project: Project) {
+  def removeOldMessageContent(project: Project): Unit = {
     val contentManager = MessageView.SERVICE.getInstance(project).getContentManager
     val oldContent = contentManager findContent ERROR_CONTENT_NAME
     if (oldContent != null) {

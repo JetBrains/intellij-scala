@@ -4,14 +4,14 @@ package evaluateExpression
 
 import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[DebuggerTests]))
+@Category(Array(classOf[FlakyTests])) // works locally, may fail on server
 class ScalaLocalVariablesEvaluationTest_2_11 extends ScalaLocalVariablesEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version <= Scala_2_11
+  override protected def supportedIn(version: ScalaVersion) = version  <= LatestScalaVersions.Scala_2_11
 }
 
 @Category(Array(classOf[DebuggerTests]))
 class ScalaLocalVariablesEvaluationTest_2_12 extends ScalaLocalVariablesEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_2_12
 }
 
 @Category(Array(classOf[DebuggerTests]))

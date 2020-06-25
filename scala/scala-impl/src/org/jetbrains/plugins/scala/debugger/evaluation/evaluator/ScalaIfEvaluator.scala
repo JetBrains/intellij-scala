@@ -13,7 +13,7 @@ class ScalaIfEvaluator(condition: Evaluator, ifBranch: Evaluator, elseBranch: Op
 
   private var modifier: Modifier = _
 
-  def evaluate(context: EvaluationContextImpl): AnyRef = {
+  override def evaluate(context: EvaluationContextImpl): AnyRef = {
     var value: AnyRef = condition.evaluate(context)
     value match {
       case v: BooleanValue =>

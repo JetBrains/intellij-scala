@@ -5,6 +5,7 @@ package parameters
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScBooleanLiteral
@@ -26,7 +27,7 @@ abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
-      override def visitMethodCallExpression(mc: ScMethodCall) {
+      override def visitMethodCallExpression(mc: ScMethodCall): Unit = {
         if (mc == null || mc.args == null || mc.args.exprs.isEmpty) return
         if (isIgnoreSingleParameter && isSingleParamMethodCall(mc)) return
         val argList = mc.args
@@ -34,7 +35,7 @@ abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
           expr match {
             case literal: ScBooleanLiteral if isArgForBooleanParam(expr, argList) &&
               addNameToArgumentsFix(literal).isDefined =>
-              val message = InspectionBundle.message("name.boolean.params")
+              val message = ScalaInspectionBundle.message("name.boolean.params")
               val quickFix = new NameBooleanParametersQuickFix(message, literal)
               val descriptor = holder.getManager.createProblemDescriptor(
                 expr,
@@ -79,7 +80,7 @@ abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
 
   def isIgnoreSingleParameter: Boolean
 
-  def setIgnoreSingleParameter(value: Boolean)
+  def setIgnoreSingleParameter(value: Boolean): Unit
 
 }
 
@@ -88,7 +89,7 @@ object NameBooleanParametersInspectionBase {
   private def addNameToArgumentsFix(literal: ScBooleanLiteral) =
     codeInsight.intention.addNameToArgumentsFix(literal, onlyBoolean = true)
 
-  private class NameBooleanParametersQuickFix(name: String, literal: ScBooleanLiteral)
+  private class NameBooleanParametersQuickFix(@Nls name: String, literal: ScBooleanLiteral)
     extends AbstractFixOnPsiElement(name, literal) {
 
     override protected def doApplyFix(literal: ScBooleanLiteral)

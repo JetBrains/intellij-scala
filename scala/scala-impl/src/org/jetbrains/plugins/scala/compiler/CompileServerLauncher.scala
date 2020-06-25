@@ -2,100 +2,146 @@ package org.jetbrains.plugins.scala
 package compiler
 
 import java.io.{File, IOException}
+import java.nio.file.Files
+import java.util.UUID
 
-import com.intellij.compiler.server.BuildManager
-import com.intellij.ide.plugins.{IdeaPluginDescriptor, PluginManagerCore}
+import com.intellij.compiler.server.impl.BuildProcessClasspathManager
+import com.intellij.compiler.server.{BuildManager, BuildManagerListener, BuildProcessParametersProvider}
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.impl.OrderEntryUtil
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
 import com.intellij.openapi.util.ShutDownTracker
-import com.intellij.openapi.util.io.FileUtil
-import com.intellij.util.PathUtil
 import com.intellij.util.net.NetUtils
-import gnu.trove.TByteArrayList
 import javax.swing.event.HyperlinkEvent
-import org.jetbrains.jps.incremental.BuilderService
+import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.server.CompileServerToken
+import org.jetbrains.plugins.scala.util.{IntellijPlatformJars, LibraryJars, ScalaPluginJars}
 
 import scala.collection.JavaConverters._
+import scala.util.Try
 import scala.util.control.Exception._
 
-/**
- * @author Pavel Fatin
- */
 object CompileServerLauncher {
+
   private var serverInstance: Option[ServerInstance] = None
   private val LOG = Logger.getInstance(getClass)
 
-  ShutDownTracker.getInstance().registerShutdownTask(() =>
-    if (running) stop()
-  )
+  private val NailgunRunnerFQN = "org.jetbrains.plugins.scala.nailgun.NailgunRunner"
 
-  def tryToStart(project: Project): Boolean =
+  private def attachDebugAgent = false
+  private def waitUntilDebuggerAttached = false
+
+  /* @see [[org.jetbrains.plugins.scala.compiler.ServerMediatorTask]] */
+  private class Listener extends BuildManagerListener {
+
+    override def beforeBuildProcessStarted(project: Project, sessionId: UUID): Unit = {
+      ensureCompileServerRunning(project)
+      if (ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED)
+        CompileServerNotifications.warnIfCompileServerJdkVersionTooOld(project)
+    }
+
+    override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit =
+      ensureCompileServerRunning(project)
+
+    private def ensureCompileServerRunning(project: Project): Unit = {
+      val settings = ScalaCompileServerSettings.getInstance
+
+      val compileServerRequired = settings.COMPILE_SERVER_ENABLED && project.hasScala
+      LOG.traceSafe(s"Listener.compileServerRequired: $compileServerRequired")
+      if (compileServerRequired) {
+        invokeAndWait {
+          CompileServerManager.configureWidget(project)
+        }
+        CompileServerLauncher.ensureServerRunning(project)
+      }
+    }
+  }
+
+  ShutDownTracker.getInstance().registerShutdownTask { () =>
+    ensureServerNotRunning()
+  }
+
+  def tryToStart(project: Project): Boolean = serverStartLock.synchronized {
     if (running) true else {
       val started = start(project)
       if (started) {
-        try {
-          val runner = new RemoteServerRunner(project)
-          runner.send("addDisconnectListener", Seq.empty, null)
-        } catch {
-          case _: Exception =>
-        }
+        sendDummyRequest(project)
       }
       started
     }
+  }
 
-  private def start(project: Project): Boolean = {
-
-    val result = compileServerJdk(project).map(start(project, _)) match {
-      case None                 => Left("JDK for compiler process not found")
-      case Some(Left(msg))      => Left(msg)
-      case Some(Right(process)) =>
-        invokeLater { CompileServerManager.configureWidget(project) }
-        Right(process)
+  // TODO: implement proper wait for server initialization, addDisconnectListener command doesn't even exist
+  //  Nailgun server sends error for it via stderr which we ignore by passing null client
+  private def sendDummyRequest(project: Project): Try[Unit] =
+    Try {
+      new RemoteServerRunner(project).send("addDisconnectListener", Seq.empty, null)
+    }.recoverWith { case _: Exception if isUnitTestMode && waitUntilDebuggerAttached =>
+      LOG.traceSafe("waiting for compile server initialization...")
+      sendDummyRequest(project)
     }
 
+
+  private def isUnitTestMode: Boolean =
+    ApplicationManager.getApplication.isUnitTestMode
+
+  private def start(project: Project): Boolean = {
+    val result = for {
+      jdk     <- compileServerJdk(project).left.map(m => s"JDK for compiler process not found: $m")
+      process <- start(project, jdk)
+    } yield process
+
     result match {
-      case Right(_)     => true
+      case Right(_) =>
+        invokeLater {
+          CompileServerManager.configureWidget(project)
+        }
+        true
       case Left(error)  =>
-        val title = "Cannot start Scala compile server"
+        val title = ScalaBundle.message("cannot.start.scala.compile.server")
         Notifications.Bus.notify(new Notification("scala", title, error, NotificationType.ERROR))
         LOG.error(title, error)
         false
     }
   }
 
-  private def compilerServerAddtionalCP(): Seq[File] = for {
-    extension <- NailgunServerAdditionalCp.EP_NAME.getExtensions
-    filesPath <- extension.getClasspath.split(";")
-    pluginId: PluginId = extension.getPluginDescriptor.getPluginId
-    plugin: IdeaPluginDescriptor = PluginManagerCore.getPlugin(pluginId)
-    pluginsLibs = new File(plugin.getPath, "lib")
+  private def compilerServerAdditionalCP(): Seq[File] = for {
+    extension        <- CompileServerClasspathProvider.implementations
+    pluginDescriptor = extension.getPluginDescriptor
+    pluginsLibs      = new File(pluginDescriptor.getPluginPath.toFile, "lib")
+    filesPath        <- extension.classpathSeq
   } yield new File(pluginsLibs, filesPath)
 
   private def start(project: Project, jdk: JDK): Either[String, Process] = {
+    LOG.traceSafe(s"starting server")
+
     val settings = ScalaCompileServerSettings.getInstance
 
     settings.COMPILE_SERVER_SDK = jdk.name
     saveSettings()
 
-    compilerJars.partition(_.exists) match {
+    compileServerJars.partition(_.exists) match {
       case (presentFiles, Seq()) =>
-        val bootCp = dottyClasspath(project)
-        val bootClassPathLibs = bootCp.map(_.getAbsolutePath)
-        val bootclasspathArg =
-          if (bootClassPathLibs.isEmpty) Nil
-          else Seq("-Xbootclasspath/a:" + bootClassPathLibs.mkString(File.pathSeparator))
-        val classpath = (jdk.tools ++ (presentFiles ++ compilerServerAddtionalCP()))
-          .map(_.canonicalPath)
-          .mkString(File.pathSeparator)
+        val (nailgunCpFiles, classpathFiles) = presentFiles.partition(_.getName contains "nailgun")
+        val nailgunClasspath = nailgunCpFiles
+          .map(_.canonicalPath).mkString(File.pathSeparator)
+        val buildProcessClasspath = {
+          // in worksheet tests we reuse compile server between project
+          // so we initialize it before the first test starts
+          val pluginsClasspath = if (isUnitTestMode && project == null) Seq() else
+            new BuildProcessClasspathManager(project.unloadAwareDisposable).getBuildProcessPluginsClasspath(project).asScala
+          val applicationClasspath = ClasspathBootstrap.getBuildProcessApplicationClasspath.asScala
+          pluginsClasspath ++ applicationClasspath
+        }
+        val classpath = ((jdk.tools ++ (classpathFiles ++ compilerServerAdditionalCP()))
+          .map(_.canonicalPath) ++ buildProcessClasspath)
 
         val freePort = CompileServerLauncher.findFreePort
         if (settings.COMPILE_SERVER_PORT != freePort) {
@@ -103,19 +149,35 @@ object CompileServerLauncher {
           settings.COMPILE_SERVER_PORT = freePort
           saveSettings()
         }
-
-        val ngRunnerFqn = "org.jetbrains.plugins.scala.nailgun.NailgunRunner"
+        deleteOldTokenFile(freePort)
         val id = settings.COMPILE_SERVER_ID
 
         val shutdownDelay = settings.COMPILE_SERVER_SHUTDOWN_DELAY
         val shutdownDelayArg = if (settings.COMPILE_SERVER_SHUTDOWN_IDLE && shutdownDelay >= 0) {
           Seq(s"-Dshutdown.delay=$shutdownDelay")
         } else Nil
+        val isScalaCompileServer = "-Dij.scala.compile.server=true"
 
-        val extraJvmParameters = CompileServerVmOptionsProvider.implementations.flatMap(_.vmOptionsFor(project))
+        val vmOptions: Seq[String] = if (isUnitTestMode && project == null) Seq() else {
+          val buildProcessParameters = BuildProcessParametersProvider.EP_NAME.getExtensions(project).asScala
+            .flatMap(_.getVMArguments.asScala)
+          val extraJvmParameters = CompileServerVmOptionsProvider.implementations
+            .flatMap(_.vmOptionsFor(project))
+          buildProcessParameters ++ extraJvmParameters
+        }
 
-        val commands = jdk.executable.canonicalPath +: bootclasspathArg ++: "-cp" +: classpath +: jvmParameters ++: shutdownDelayArg ++:
-          extraJvmParameters ++: ngRunnerFqn +: freePort.toString +: id.toString +: Nil
+        val commands =
+          jdk.executable.canonicalPath +:
+            "-cp" +: nailgunClasspath +:
+            jvmParameters ++:
+            shutdownDelayArg ++:
+            isScalaCompileServer +:
+            vmOptions ++:
+            NailgunRunnerFQN +:
+            freePort.toString +:
+            id +:
+            classpath.mkString(File.pathSeparator) +:
+            Nil
 
         val builder = new ProcessBuilder(commands.asJava)
 
@@ -123,39 +185,43 @@ object CompileServerLauncher {
           projectHome(project).foreach(dir => builder.directory(dir))
         }
 
-        catching(classOf[IOException]).either(builder.start())
-                .left.map(_.getMessage)
-                .right.map { process =>
-          val watcher = new ProcessWatcher(process, "scalaCompileServer")
-          serverInstance = Some(ServerInstance(watcher, freePort, builder.directory(), withTimestamps(bootCp), jdk))
-          watcher.startNotify()
-          process
-        }
+        catching(classOf[IOException])
+          .either(builder.start())
+          .left.map(_.getMessage)
+          .map { process =>
+            val watcher = new ProcessWatcher(process, "scalaCompileServer")
+            val instance = ServerInstance(watcher, freePort, builder.directory(), jdk)
+            serverInstance = Some(instance)
+            watcher.startNotify()
+            LOG.info(s"compile server process started: ${instance.summary}")
+            process
+          }
       case (_, absentFiles) =>
         val paths = absentFiles.map(_.getPath).mkString(", ")
         Left("Required file(s) not found: " + paths)
     }
   }
 
-  // TODO stop server more gracefully
-  def stop() {
-    serverInstance.foreach { it =>
-      it.destroyAndWait(0L)
-    }
-  }
+  // ensure that old tokens from old sessions do not exist on file system to avoid race conditions (see ticket from the commit)
+  // it should be deleted in org.jetbrains.plugins.scala.nailgun.NailgunRunner.ShutdownHook.run
+  // but in case of some server crashes it can remain on the file system
+  private def deleteOldTokenFile(freePort: Int): Unit =
+    Try(Files.delete(CompileServerToken.tokenPathForPort(freePort)))
 
-  def stopAndWaitTermination(timeoutMs: Long): Boolean = {
+  // TODO stop server more gracefully
+  def stop(timeoutMs: Long = 0): Boolean = {
+    LOG.traceSafe(s"stop: ${serverInstance.map(_.summary)}")
     serverInstance.forall { it =>
       it.destroyAndWait(timeoutMs)
     }
   }
 
-  def stop(project: Project) {
+  def stop(project: Project): Unit = {
     stop()
 
-    ApplicationManager.getApplication invokeLater (() => {
+    invokeLater {
       CompileServerManager.configureWidget(project)
-    })
+    }
   }
 
   def running: Boolean = serverInstance.exists(_.running)
@@ -163,63 +229,50 @@ object CompileServerLauncher {
   def errors(): Seq[String] = serverInstance.map(_.errors()).getOrElse(Seq.empty)
 
   def port: Option[Int] = serverInstance.map(_.port)
+  
+  def defaultSdk(project: Project): Sdk =
+    CompileServerJdkManager.recommendedSdk(project)
+      .getOrElse(getBuildProcessRuntimeSdk(project))
 
-  def compileServerSdk(project: Project): Option[Sdk] = {
-    def defaultSdk = BuildManager.getBuildProcessRuntimeSdk(project).first
+  /**
+   * Returns the Build Process runtime SDK.
+   * The method isn't thread-safe, so the synchronized is used.
+   * @see SCL-17710
+   */
+  private def getBuildProcessRuntimeSdk(project: Project): Sdk = synchronized {
+    BuildManager.getBuildProcessRuntimeSdk(project).first
+  }
 
+  def compileServerSdk(project: Project): Either[String, Sdk] = {
     val settings = ScalaCompileServerSettings.getInstance()
 
     val sdk =
-      if (settings.USE_DEFAULT_SDK) defaultSdk
-      else ProjectJdkTable.getInstance().findJdk(settings.COMPILE_SERVER_SDK)
+      if (settings.USE_DEFAULT_SDK) Option(defaultSdk(project)).toRight("can't find default jdk")
+      else Option(ProjectJdkTable.getInstance().findJdk(settings.COMPILE_SERVER_SDK)).toRight(s"can't find jdk: ${settings.COMPILE_SERVER_SDK}")
 
-    Option(sdk)
+    sdk
   }
 
-  def compileServerJdk(project: Project): Option[JDK] = {
+  def compileServerJdk(project: Project): Either[String, JDK] = {
     val sdk = compileServerSdk(project)
     sdk.flatMap(toJdk)
   }
 
-  def compilerJars: Seq[File] = {
-    val jpsBuildersJar = new File(PathUtil.getJarPathForClass(classOf[BuilderService]))
-    val utilJar = new File(PathUtil.getJarPathForClass(classOf[FileUtil]))
-    val trove4jJar = new File(PathUtil.getJarPathForClass(classOf[TByteArrayList]))
-
-    val pluginRoot = libRoot.getCanonicalPath
-    val jpsRoot = new File(pluginRoot, "jps")
-
-    Seq(
-      jpsBuildersJar,
-      utilJar,
-      trove4jJar,
-      new File(pluginRoot, "scala-library.jar"),
-      new File(pluginRoot, "scala-reflect.jar"),
-      new File(pluginRoot, "scala-nailgun-runner.jar"),
-      new File(pluginRoot, "compiler-shared.jar"),
-      new File(jpsRoot, "nailgun.jar"),
-      new File(jpsRoot, "sbt-interface.jar"),
-      new File(jpsRoot, "incremental-compiler.jar"),
-      new File(jpsRoot, "compiler-jps.jar")
-    )
-  }
-
-  def libRoot: File = {
-    if (ApplicationManager.getApplication.isUnitTestMode) new File(System.getProperty("plugin.path"), "lib")
-    else {
-      val jarPath = new File(PathUtil.getJarPathForClass(getClass))
-
-      if (jarPath.getName == "classes") //development mode
-        new File(jarPath.getParentFile, "lib")
-      else jarPath.getParentFile
-    }
-  }
-
-  def dottyClasspath(project: Project): Seq[File] = Seq.empty
-
-  private def withTimestamps(files: Seq[File]): Set[(File, Long)] = {
-    files.map(f => (f, f.lastModified())).toSet
-  }
+  def compileServerJars: Seq[File] = Seq(
+    IntellijPlatformJars.jpsBuildersJar,
+    IntellijPlatformJars.utilJar,
+    IntellijPlatformJars.trove4jJar,
+    IntellijPlatformJars.protobufJava,
+    LibraryJars.scalaParserCombinators,
+    ScalaPluginJars.scalaLibraryJar,
+    ScalaPluginJars.scalaReflectJar,
+    ScalaPluginJars.scalaNailgunRunnerJar,
+    ScalaPluginJars.compilerSharedJar,
+    ScalaPluginJars.nailgunJar,
+    ScalaPluginJars.sbtInterfaceJar,
+    ScalaPluginJars.incrementalCompilerJar,
+    ScalaPluginJars.compilerJpsJar,
+  )
 
   def jvmParameters: Seq[String] = {
     val settings = ScalaCompileServerSettings.getInstance
@@ -229,43 +282,65 @@ object CompileServerLauncher {
 
     val (_, otherParams) = settings.COMPILE_SERVER_JVM_PARAMETERS.split(" ").partition(_.contains("-XX:MaxPermSize"))
 
-    xmx ++ otherParams
+    val debugAgent: Option[String] =
+      if (attachDebugAgent) {
+        val suspend = if(waitUntilDebuggerAttached) "y" else "n"
+        Some(s"-agentlib:jdwp=transport=dt_socket,server=y,suspend=$suspend,address=5006")
+      } else None
+
+    xmx ++ otherParams ++ debugAgent
   }
 
-  def ensureServerRunning(project: Project): Boolean = {
-    if (needRestart(project)) stop()
+  private val serverStartLock = new Object
+
+  // TODO: make it thread safe, call from a single thread OR use some locking mechanism
+
+  def ensureServerRunning(project: Project): Boolean = serverStartLock.synchronized {
+    LOG.traceSafe(s"ensureServerRunning [thread:${Thread.currentThread.getId}]")
+    if (needRestart(project)) {
+      LOG.traceSafe("ensureServerRunning: need to restart, stopping")
+      stop()
+    }
 
     running || tryToStart(project)
   }
 
-  def needRestart(project: Project): Boolean = {
+  private def needRestart(project: Project): Boolean = {
     val currentInstance = serverInstance
     val settings = ScalaCompileServerSettings.getInstance()
     currentInstance match {
-      case None => true
+      case None => false // if no server running, then nothing to restart
       case Some(instance) =>
         val useProjectHome = settings.USE_PROJECT_HOME_AS_WORKING_DIR
         val workingDirChanged = useProjectHome && projectHome(project) != currentInstance.map(_.workingDir)
         val jdkChanged = compileServerJdk(project) match {
-          case Some(projectJdk) => projectJdk != instance.jdk
+          case Right(projectJdk) => projectJdk != instance.jdk
           case _ => false
         }
-        workingDirChanged || instance.bootClasspath != withTimestamps(dottyClasspath(project)) || jdkChanged
+        workingDirChanged || jdkChanged
     }
   }
 
-  def ensureNotRunning(project: Project): Unit = {
+  def ensureServerNotRunning(project: Project): Unit = serverStartLock.synchronized {
     if (running) stop(project)
   }
 
-  def findFreePort: Int = {
-    val port = ScalaCompileServerSettings.getInstance().COMPILE_SERVER_PORT
-    if (NetUtils.canConnectToSocket("localhost", port))
-      NetUtils.findAvailableSocketPort()
-    else port
+  private def ensureServerNotRunning(): Unit = serverStartLock.synchronized {
+    if (running) stop()
   }
 
-  def saveSettings(): Unit = invokeAndWait {
+  private def findFreePort: Int = {
+    val port = ScalaCompileServerSettings.getInstance().COMPILE_SERVER_PORT
+    if (!isUsed(port)) port else {
+      LOG.info(s"compile server port is already used ($port), searching for available port")
+      NetUtils.findAvailableSocketPort()
+    }
+  }
+
+  private def isUsed(portFromSettings: Int): Boolean =
+    NetUtils.canConnectToSocket("localhost", portFromSettings)
+
+  private def saveSettings(): Unit = invokeAndWait {
     ApplicationManager.getApplication.saveSettings()
   }
 
@@ -280,14 +355,14 @@ object CompileServerLauncher {
 
 
   class ConfigureLinkListener(project: Project) extends NotificationListener.Adapter {
-    def hyperlinkActivated(notification: Notification, event: HyperlinkEvent) {
+    override def hyperlinkActivated(notification: Notification, event: HyperlinkEvent): Unit = {
       CompileServerManager.showCompileServerSettingsDialog(project)
       notification.expire()
     }
   }
 
   class ConfigureJDKListener(project: Project) extends NotificationListener.Adapter {
-    def hyperlinkActivated(notification: Notification, event: HyperlinkEvent) {
+    override def hyperlinkActivated(notification: Notification, event: HyperlinkEvent): Unit = {
       val jdkEntries = project.modulesWithScala.flatMap { module =>
         val rootManager = ModuleRootManager.getInstance(module)
         Option(OrderEntryUtil.findJdkOrderEntry(rootManager, rootManager.getSdk))
@@ -305,7 +380,6 @@ object CompileServerLauncher {
 private case class ServerInstance(watcher: ProcessWatcher,
                                   port: Int,
                                   workingDir: File,
-                                  bootClasspath: Set[(File, Long)],
                                   jdk: JDK) {
   private var stopped = false
 
@@ -316,5 +390,13 @@ private case class ServerInstance(watcher: ProcessWatcher,
   def destroyAndWait(timeoutMs: Long): Boolean = {
     stopped = true
     watcher.destroyAndWait(timeoutMs)
+  }
+
+  def summary: String = {
+    s"port: $port" +
+      s", jdk: $jdk" +
+      s", stopped: $stopped" +
+      s", running: $running" +
+      s", errors: ${errors().mkString("(", ", ", ")")}"
   }
 }

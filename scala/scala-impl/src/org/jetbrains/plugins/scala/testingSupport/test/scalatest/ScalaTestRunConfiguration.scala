@@ -5,55 +5,83 @@ import com.intellij.execution.configurations._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.ProjectScope
 import com.intellij.psi.{PsiClass, PsiModifier}
+import com.intellij.testIntegration.TestFramework
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMethodExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.SettingMap
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{SettingMap, TestFrameworkRunnerInfo}
 import org.jetbrains.plugins.scala.testingSupport.test._
+import org.jetbrains.plugins.scala.testingSupport.test.sbt.{SbtCommandsBuilder, SbtCommandsBuilderBase, SbtTestRunningSupport, SbtTestRunningSupportBase}
+import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration.DoNotDiscoverAnnotationFqn
 import org.jetbrains.sbt.shell.SbtShellCommunication
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-/**
-  * @author Ksenia.Sautina
-  * @since 5/17/12
-  */
+class ScalaTestRunConfiguration(
+  project: Project,
+  configurationFactory: ConfigurationFactory,
+  name: String
+) extends AbstractTestRunConfiguration(
+  project,
+  configurationFactory,
+  name
+) {
 
-class ScalaTestRunConfiguration(project: Project,
-                                override val configurationFactory: ConfigurationFactory,
-                                override val name: String)
-  extends AbstractTestRunConfiguration(project, configurationFactory, name, TestConfigurationUtil.scalaTestConfigurationProducer) {
+  override val suitePaths: List[String] = ScalaTestUtil.suitePaths
 
-  override def suitePaths: List[String] = ScalaTestUtil.suitePaths
+  override val testFramework: TestFramework = TestFramework.EXTENSION_NAME.findExtension(classOf[ScalaTestTestFramework])
 
-  override def runnerClassName = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunner"
+  override val configurationProducer: ScalaTestConfigurationProducer = TestConfigurationUtil.scalaTestConfigurationProducer
 
-  override def reporterClass = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter"
+  override protected def validityChecker: SuiteValidityChecker = ScalaTestRunConfiguration.validityChecker
 
-  override def errorMessage: String = "ScalaTest is not specified"
+  override protected[test] def canBeDiscovered(clazz: PsiClass): Boolean = !clazz.hasAnnotation(DoNotDiscoverAnnotationFqn)
 
-  override def currentConfiguration: ScalaTestRunConfiguration = ScalaTestRunConfiguration.this
+  override protected val runnerInfo: TestFrameworkRunnerInfo = TestFrameworkRunnerInfo(
+    classOf[org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunner].getName
+  )
 
-  protected[test] override def isInvalidSuite(clazz: PsiClass): Boolean = getSuiteClass.fold(_ => true, ScalaTestRunConfiguration.isInvalidSuite(clazz, _))
+  override val sbtSupport: SbtTestRunningSupport = new SbtTestRunningSupportBase {
 
-  override def allowsSbtUiRun: Boolean = true
+    override def allowsSbtUiRun: Boolean = true
 
-  override def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[SettingMap] =
-    modifySetting(SettingMap(), "testOptions", "test", "Test", """Tests.Argument(TestFrameworks.ScalaTest, "-oDU")""", comm, !_.contains("-oDU"))
-      .flatMap(modifySetting(_, "parallelExecution", "test", "Test", "false", comm, !_.contains("false"), shouldSet = true))
+    override def commandsBuilder: SbtCommandsBuilder = new SbtCommandsBuilderBase {
+      override def testNameKey: Option[String] = Some("-- -t")
+    }
 
-  override protected def sbtTestNameKey = " -- -t "
+    override def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[SettingMap] = {
+      val module = getModule
+      for {
+        x <- modifySbtSetting(comm, module, SettingMap(), "testOptions", "test", "Test", """Tests.Argument(TestFrameworks.ScalaTest, "-oDU")""", !_.contains("-oDU"))
+        y <- modifySbtSetting(comm, module, x, "parallelExecution", "test", "Test", "false", !_.contains("false"), shouldSet = true)
+      } yield y
+    }
+  }
 }
 
-object ScalaTestRunConfiguration extends SuiteValidityChecker {
+object ScalaTestRunConfiguration {
 
-  protected def wrapWithAnnotationFqn = "org.scalatest.WrapWith"
+  private def WrapWithAnnotationFqn = "org.scalatest.WrapWith"
+  private val DoNotDiscoverAnnotationFqn = "org.scalatest.DoNotDiscover"
 
-  protected[test] def lackConfigMapConstructor(clazz: PsiClass): Boolean = {
+  private val validityChecker = new SuiteValidityCheckerBase {
+    override def hasSuitableConstructor(clazz: PsiClass): Boolean = {
+      val hasConfigMapAnnotation = clazz match {
+        case classDef: ScTypeDefinition => classDef.hasAnnotation(WrapWithAnnotationFqn)
+        case _                          => false
+      }
+      if (hasConfigMapAnnotation) {
+        !lackConfigMapConstructor(clazz)
+      } else {
+        super.hasSuitableConstructor(clazz)
+      }
+    }
+  }
+
+  private def lackConfigMapConstructor(clazz: PsiClass): Boolean = {
     implicit val project: ProjectContext = clazz.projectContext
 
     val constructors = clazz match {
@@ -85,18 +113,5 @@ object ScalaTestRunConfiguration extends SuiteValidityChecker {
     }
 
     true
-  }
-
-  override protected[test] def lackSuitableConstructor(clazz: PsiClass): Boolean = {
-    val hasConfigMapAnnotation = clazz match {
-      case classDef: ScTypeDefinition =>
-        classDef.hasAnnotation(wrapWithAnnotationFqn)
-      case _ => false
-    }
-    if (hasConfigMapAnnotation) {
-      lackConfigMapConstructor(clazz)
-    } else {
-      AbstractTestRunConfiguration.lackSuitableConstructor(clazz)
-    }
   }
 }

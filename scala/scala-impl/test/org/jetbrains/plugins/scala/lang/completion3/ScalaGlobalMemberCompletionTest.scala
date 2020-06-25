@@ -81,7 +81,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     fileText =
       s"""
          |class TUI {
-         |  patternVal$CARET
+         |  patVal$CARET
          |}
       """.stripMargin,
     resultText =
@@ -89,10 +89,10 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
         |import rawObject.RawObject4
         |
         |class TUI {
-        |  RawObject4.patternValue
+        |  RawObject4.patValue
         |}
       """.stripMargin,
-    item = "patternValue",
+    item = "patValue",
     time = 2
   )
 
@@ -200,6 +200,259 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     assertTrue(lookups.exists(hasLookupString(_, "doSmthPrivate")))
   }
 
+  def testCompanionObjectMethod(): Unit = doCompletionTest(
+    fileText =
+      s"""class Foo {
+         |  import Foo.bar
+         |
+         |  f$CARET
+         |}
+         |
+         |object Foo {
+         |  def foo(foo: Int): Unit = {}
+         |
+         |  def bar(): Unit = {}
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""class Foo {
+         |  import Foo.bar
+         |
+         |  Foo.foo($CARET)
+         |}
+         |
+         |object Foo {
+         |  def foo(foo: Int): Unit = {}
+         |
+         |  def bar(): Unit = {}
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
+  def testCompanionObjectValue(): Unit = doRawCompletionTest(
+    fileText =
+      s"""class Foo {
+         |  f$CARET
+         |}
+         |
+         |object Foo {
+         |  val (_, foo) = (42, 42)
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""class Foo {
+         |  Foo.foo$CARET
+         |}
+         |
+         |object Foo {
+         |  val (_, foo) = (42, 42)
+         |}
+         |""".stripMargin
+  ) {
+    hasItemText(_, "foo")(
+      itemText = "Foo.foo",
+      tailText = " <default>"
+    )
+  }
+
+  def testImportedCompanionObjectValue(): Unit = checkNoCompletion(
+    fileText =
+      s"""class Foo {
+         |  import Foo._
+         |
+         |  f$CARET
+         |}
+         |
+         |object Foo {
+         |  val foo = 42
+         |}
+         |""".stripMargin,
+  ) {
+    hasItemText(_, "foo")(
+      itemText = "Foo.foo",
+      tailText = " <default>"
+    )
+  }
+
+  def testNestedCompanionObjectValue(): Unit = doCompletionTest(
+    fileText =
+      s"""class Foo {
+         |  class Bar {
+         |    f$CARET
+         |  }
+         |}
+         |
+         |object Foo {
+         |  val (_, foo) = (42, 42)
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""class Foo {
+         |  class Bar {
+         |    Foo.foo$CARET
+         |  }
+         |}
+         |
+         |object Foo {
+         |  val (_, foo) = (42, 42)
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
+  def testCompanionObjectVariableNameCollision(): Unit = doRawCompletionTest(
+    fileText =
+      s"""class Foo {
+         |  val foo = 42
+         |  f$CARET
+         |}
+         |
+         |object Foo {
+         |  var foo = 42
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""class Foo {
+         |  val foo = 42
+         |  Foo.foo$CARET
+         |}
+         |
+         |object Foo {
+         |  var foo = 42
+         |}
+         |""".stripMargin
+  ) {
+    hasItemText(_, "foo")(
+      itemText = "Foo.foo",
+      tailText = " <default>"
+    )
+  }
+
+  def testCompanionObjectExtensionLikeMethod(): Unit = doCompletionTest(
+    fileText =
+      s"""class Foo {
+         |  class Bar {
+         |    val foo = new Foo
+         |  }
+         |
+         |  val bar = new Bar
+         |  bar.foo.$CARET
+         |}
+         |
+         |object Foo {
+         |  def foo(foo: Foo): Unit = {}
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""class Foo {
+         |  class Bar {
+         |    val foo = new Foo
+         |  }
+         |
+         |  val bar = new Bar
+         |  Foo.foo(bar.foo)$CARET
+         |}
+         |
+         |object Foo {
+         |  def foo(foo: Foo): Unit = {}
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
+  def testCompanionObjectExtensionLikeMethod2(): Unit = doCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |
+         |  def foo(foo: Foo): Unit = {}
+         |}
+         |
+         |object Main {
+         |  (_: Foo).f$CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |
+         |  def foo(foo: Foo): Unit = {}
+         |}
+         |
+         |object Main {
+         |  Foo.foo((_: Foo))$CARET
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
+  def testCompanionObjectExtensionLikeMethod3(): Unit = doCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |
+         |  def foo(foo: Foo): Unit = {}
+         |
+         |  final case class Bar() extends Foo
+         |}
+         |
+         |object Main {
+         |  val bar = Foo.Bar()
+         |  bar.f$CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |
+         |  def foo(foo: Foo): Unit = {}
+         |
+         |  final case class Bar() extends Foo
+         |}
+         |
+         |object Main {
+         |  val bar = Foo.Bar()
+         |  Foo.foo(bar)$CARET
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
+  def testCompanionObjectInvalidExtensionLikeMethodInvalidArgumentsCount(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""class Foo {
+         |  val foo = new Foo
+         |  foo.$CARET
+         |}
+         |
+         |object Foo {
+         |  def bar(foo: Foo, bar: Int): Unit = {}
+         |}
+         |""".stripMargin,
+    item = "bar"
+  )
+
+  def testCompanionObjectInvalidExtensionLikeMethodInvalidArgumentType(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""class Foo {
+         |  class Bar
+         |
+         |  val bar = new Bar
+         |  bar.$CARET
+         |}
+         |
+         |object Foo {
+         |  def foo(foo: Foo): Unit = {}
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
   def testGlobalMemberInherited(): Unit = {
     configureFromFileText(
       fileText =
@@ -226,14 +479,14 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     val actual = completeBasic(3).toSet
       .filterBy[ScalaLookupItem]
       .map { lookup =>
-        s"${lookup.containingClass.name}.${lookup.getLookupString}"
+        s"${lookup.containingClassName}.${lookup.getLookupString}"
       }
 
     val expected = Set(
       "D1.zeeGlobalDef",
       "D1.zeeGlobalVal",
-      "D2.zeeGlobalDefInherited",
-      "D2.zeeGlobalValInherited"
+      "D1.zeeGlobalDefInherited",
+      "D1.zeeGlobalValInherited"
     )
     assertEquals(expected, actual)
   }

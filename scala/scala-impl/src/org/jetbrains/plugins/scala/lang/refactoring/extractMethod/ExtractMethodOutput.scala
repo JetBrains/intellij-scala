@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 
 case class ExtractMethodOutput(paramName: String, returnType: ScType, needNewDefinition: Boolean, fromElement: ScTypedDefinition) {
 
-  val isVal = ScalaPsiUtil.nameContext(fromElement) match {
+  val isVal: Boolean = ScalaPsiUtil.nameContext(fromElement) match {
     case _: ScValue | _: ScFunction => true
     case _ => false
   }

@@ -37,37 +37,33 @@ abstract class Specs2SpecialCharactersTest extends Specs2TestCase {
   )
 
   def testComma(): Unit = {
-    runTestByLocation(5, 5, testName + ".scala",
-      checkConfigAndSettings(_, testName, "Comma , test"),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", testName, "Special characters test should", "Comma , " +
-          "test")
+    runTestByLocation2(5, 5, testName + ".scala",
+      assertConfigAndSettings(_, testName, "Comma , test"),
+      root => assertResultTreeHasExactNamedPath(root, Seq("[root]", testName, "Special characters test should", "Comma , test"))
     )
   }
 
   def testExclamation(): Unit = {
-    runTestByLocation(9, 5, testName + ".scala",
-      checkConfigAndSettings(_, testName, "! test"),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", testName, "Special characters test should", "! test"))
+    runTestByLocation2(9, 5, testName + ".scala",
+      assertConfigAndSettings(_, testName, "! test"),
+      root => assertResultTreeHasExactNamedPath(root, Seq("[root]", testName, "Special characters test should", "! test")))
   }
 
   def testTick(): Unit = {
-    runTestByLocation(13, 5, testName + ".scala",
-      checkConfigAndSettings(_, testName, "tick ' test"),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", testName, "Special characters test should", "tick ' " +
-          "test"))
+    runTestByLocation2(13, 5, testName + ".scala",
+      assertConfigAndSettings(_, testName, "tick ' test"),
+      root => assertResultTreeHasExactNamedPath(root, Seq("[root]", testName, "Special characters test should", "tick ' test")))
   }
 
   def testBacktick(): Unit = {
-    runTestByLocation(17, 5, testName + ".scala",
-      checkConfigAndSettings(_, testName, "backtick ` test"),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", testName, "Special characters test should", "backtick " +
-          "` test"))
+    runTestByLocation2(17, 5, testName + ".scala",
+      assertConfigAndSettings(_, testName, "backtick ` test"),
+      root => assertResultTreeHasExactNamedPath(root, Seq("[root]", testName, "Special characters test should", "backtick ` test")))
   }
 
   def testTilde(): Unit = {
-    runTestByLocation(21, 5, testName + ".scala",
-      checkConfigAndSettings(_, testName, "tilde ~ test"),
-      root => checkResultTreeHasExactNamedPath(root, "[root]", testName, "Special characters test should", "tilde ~ " +
-          "test"))
+    runTestByLocation2(21, 5, testName + ".scala",
+      assertConfigAndSettings(_, testName, "tilde ~ test"),
+      root => assertResultTreeHasExactNamedPath(root, Seq("[root]", testName, "Special characters test should", "tilde ~ test")))
   }
 }

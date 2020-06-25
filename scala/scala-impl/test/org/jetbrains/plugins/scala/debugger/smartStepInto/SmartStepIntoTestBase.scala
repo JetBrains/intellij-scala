@@ -15,12 +15,12 @@ import scala.collection.JavaConverters._
  */
 @Category(Array(classOf[DebuggerTests]))
 class SmartStepIntoTest_until_2_11 extends SmartStepIntoTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  <= LatestScalaVersions.Scala_2_11
 }
 
 @Category(Array(classOf[DebuggerTests]))
 class SmartStepIntoTest_since_2_12 extends SmartStepIntoTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_12
 
   override def testByNameArgument(): Unit = {
     runDebugger() {
@@ -50,7 +50,7 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
     Assert.assertEquals("Wrong set of smart step targets:", expected, targets)
   }
 
-  def checkSmartStepInto(target: String, source: String, methodName: String, line: Int) = {
+  def checkSmartStepInto(target: String, source: String, methodName: String, line: Int): Unit = {
     val sst = inReadAction {
       availableSmartStepTargets().find(_.getPresentation == target)
     }
@@ -97,7 +97,7 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
        |}
        |""".stripMargin.trim()
   )
-  def testChainedMethodsAndConstructor() {
+  def testChainedMethodsAndConstructor(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       checkSmartStepTargets("new A(int)", "id1()", "id2()", "asString()")

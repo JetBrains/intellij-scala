@@ -12,7 +12,6 @@ import org.apache.bcel.classfile._
 import scala.reflect.internal.pickling.ByteCodecs
 
 object Decompiler {
-  private val SCALA_SIG                 = "ScalaSig"
   val BYTES_VALUE                       = "bytes"
   val SCALA_SIG_ANNOTATION: String      = "Lscala/reflect/ScalaSignature;"
   val SCALA_LONG_SIG_ANNOTATION: String = "Lscala/reflect/ScalaLongSignature;"
@@ -26,12 +25,7 @@ object Decompiler {
   def sourceNameAndText(fileName: String, bytes: Array[Byte]): Option[(String, String)] = {
 
     if (fileName.endsWith(".sig")) {
-      val scalaSig = Parser.parseScalaSig(bytes, fileName)
-      val isPackageObject = fileName == "package.sig"
-      val sourceNameGuess = fileName.stripSuffix(".sig") + ".scala"
-
-      return decompiledText(scalaSig, fileName, isPackageObject)
-        .map((sourceNameGuess, _))
+      return tryDecompileSigFile(fileName, bytes)
     }
 
     if (!containsMarker(bytes)) return None
@@ -49,6 +43,22 @@ object Decompiler {
 
       text <- decompiledText(signature, parsed.getClassName, fileName == "package.class")
     } yield (parsed.getSourceFileName, StringUtil.convertLineSeparators(text))
+  }
+
+  private def tryDecompileSigFile(fileName: String, bytes: Array[Byte]): Option[(String, String)] = {
+    try {
+      val scalaSig = Parser.parseScalaSig(bytes, fileName)
+      val isPackageObject = fileName == "package.sig"
+      val sourceNameGuess = fileName.stripSuffix(".sig") + ".scala"
+
+      decompiledText(scalaSig, fileName, isPackageObject)
+        .map((sourceNameGuess, _))
+    } catch {
+      case e: Exception =>
+        //not every `.sig` file is a scala signature file
+        Log.debug(s"Couldn't decompile scala signatures from file $fileName", e)
+        None
+    }
   }
 
   private def isScalaSignatureAnnotation(entry: AnnotationEntry) =

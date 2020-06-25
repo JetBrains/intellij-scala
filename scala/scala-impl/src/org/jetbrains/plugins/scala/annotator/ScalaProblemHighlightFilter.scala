@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.codeInsight.daemon.ProblemHighlightFilter
-import com.intellij.ide.scratch.ScratchFileService
+import com.intellij.ide.scratch.ScratchUtil
 import com.intellij.openapi.roots.{JavaProjectRootsUtil, ProjectRootManager}
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.console.ScalaConsoleInfo
@@ -16,20 +16,34 @@ import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 final class ScalaProblemHighlightFilter extends ProblemHighlightFilter {
 
   override def shouldHighlight(file: PsiFile): Boolean = file match {
-    case file: ScalaFile if file.getFileType == ScalaFileType.INSTANCE && !AmmoniteUtil.isAmmoniteFile(file) => // can be for example sbt file type
-      !JavaProjectRootsUtil.isOutsideJavaSourceRoot(file) ||
-        ScratchFileService.isInScratchRoot(file.getVirtualFile) ||
-        file.isScriptFile ||
-        ScalaConsoleInfo.isConsole(file)
+    case file: ScalaFile =>
+      isInSourceRoots(file) || isSpecialFile(file)
     case _ => true
   }
 
-  override def shouldProcessInBatch(file: PsiFile): Boolean =
-    ProblemHighlightFilter.shouldHighlightFile(file) && {
-      file.getFileType != ScalaFileType.INSTANCE || {
-        val virtualFile = file.getVirtualFile
-        virtualFile == null ||
-          !ProjectRootManager.getInstance(file.getProject).getFileIndex.isInLibrarySource(virtualFile)
-      }
+  override def shouldProcessInBatch(file: PsiFile): Boolean = {
+    val shouldHighlight = ProblemHighlightFilter.shouldHighlightFile(file)
+
+    shouldHighlight && !isLibraryAndNotSource(file)
+  }
+
+
+  private def isSpecialFile(file: ScalaFile): Boolean = {
+    file.getFileType != ScalaFileType.INSTANCE ||
+      AmmoniteUtil.isAmmoniteFile(file) ||
+      ScratchUtil.isScratch(file.getVirtualFile) ||
+      file.isScriptFile ||
+      ScalaConsoleInfo.isConsole(file)
+  }
+
+  private def isInSourceRoots(file: ScalaFile): Boolean =
+    !JavaProjectRootsUtil.isOutsideJavaSourceRoot(file)
+
+  //file may be both source and library source
+  private def isLibraryAndNotSource(file: PsiFile): Boolean = {
+    val fileIndex = ProjectRootManager.getInstance(file.getProject).getFileIndex
+    Option(file.getVirtualFile).exists { vFile =>
+      fileIndex.isInLibrary(vFile) && !fileIndex.isInSourceContent(vFile)
     }
+  }
 }

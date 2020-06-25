@@ -24,7 +24,7 @@ trait FunSpecFileStructureViewTest extends ScalaTestTestCase {
       |}
     """.stripMargin)
 
-  def testFunSpecNormal() {
+  def testFunSpecNormal(): Unit = {
     runFileStructureViewTest(className, NormalStatusId, "describe(\"parent\")", "it (\"child1\")")
   }
 

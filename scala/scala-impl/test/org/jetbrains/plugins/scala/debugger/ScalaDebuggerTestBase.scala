@@ -34,7 +34,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
 
   private val sourceFiles = mutable.HashMap[String, String]()
 
-  override def setUp() {
+  override def setUp(): Unit = {
     val testDataValid = testDataProjectIsValid()
     if (!testDataValid) {
       needMake = true
@@ -110,7 +110,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
     }
   }
 
-  protected def addFileToProject(fileText: String) {
+  protected def addFileToProject(fileText: String): Unit = {
     Assert.assertTrue(s"File should start with `object $mainClassName`", fileText.startsWith(s"object $mainClassName"))
     addFileToProjectSources(mainFileName, fileText)
   }
@@ -156,7 +156,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
 
   private def computeChecksums(): Checksums = {
     val result = new mutable.HashMap[String, Array[Byte]]
-    def computeForDir(dir: File) {
+    def computeForDir(dir: File): Unit = {
       if (dir.exists) dir.listFiles().foreach { f =>
         if (f.isDirectory) computeForDir(f)
         else {

@@ -28,16 +28,16 @@ private class ScalaArrangementParseInfo {
   private val javaPropertiesData = mutable.HashMap[(String/*property name*/, PsiElement/*PSI parent*/), ScalaPropertyInfo]()
   private val scalaPropertiesData = mutable.HashMap[(String/*property name*/, PsiElement/*PSI parent*/), ScalaPropertyInfo]()
 
-  def onMethodEntryCreated(method: ScFunction, entry: ScalaArrangementEntry) = methodToEntry += ((method, entry))
+  def onMethodEntryCreated(method: ScFunction, entry: ScalaArrangementEntry): Unit = methodToEntry += ((method, entry))
 
-  def addEntry(entry: ScalaArrangementEntry) = myEntries += entry
+  def addEntry(entry: ScalaArrangementEntry): Unit = myEntries += entry
 
   def entries: immutable.List[ScalaArrangementEntry] = myEntries.toList
 
   def javaProperties: Iterable[ScalaPropertyInfo] = javaPropertiesData.values
   def scalaProperties: Iterable[ScalaPropertyInfo] = scalaPropertiesData.values
 
-  def registerDependency(caller: ScFunction, callee: ScFunction) {
+  def registerDependency(caller: ScFunction, callee: ScFunction): Unit = {
     currentMethodDependencyRoots -= callee
     if (!currentDependentMethods.contains(caller)) {
       currentMethodDependencyRoots += caller
@@ -106,28 +106,28 @@ private class ScalaArrangementParseInfo {
     Some(result)
   }
 
-  def registerJavaGetter(key: (String, PsiElement), getter: ScFunction, entry: ScalaArrangementEntry) {
+  def registerJavaGetter(key: (String, PsiElement), getter: ScFunction, entry: ScalaArrangementEntry): Unit = {
     javaPropertiesData.get(key) match {
       case Some(existingData) => javaPropertiesData += (key -> new ScalaPropertyInfo(entry, existingData.setter))
       case None               => javaPropertiesData += (key -> new ScalaPropertyInfo(entry, null))
     }
   }
 
-  def registerJavaSetter(key: (String, PsiElement), setter: ScFunction, entry: ScalaArrangementEntry) {
+  def registerJavaSetter(key: (String, PsiElement), setter: ScFunction, entry: ScalaArrangementEntry): Unit = {
     javaPropertiesData.get(key) match {
       case Some(existingData) => javaPropertiesData += (key -> new ScalaPropertyInfo(existingData.getter, entry))
       case None               => javaPropertiesData += (key -> new ScalaPropertyInfo(null, entry))
     }
   }
 
-  def registerScalaGetter(key: (String, PsiElement), getter: ScFunction, entry: ScalaArrangementEntry) {
+  def registerScalaGetter(key: (String, PsiElement), getter: ScFunction, entry: ScalaArrangementEntry): Unit = {
     scalaPropertiesData.get(key) match {
       case Some(existingData) => scalaPropertiesData += (key -> new ScalaPropertyInfo(entry, existingData.setter))
       case None               => scalaPropertiesData += (key -> new ScalaPropertyInfo(entry, null))
     }
   }
 
-  def registerScalaSetter(key: (String, PsiElement), setter: ScFunction, entry: ScalaArrangementEntry) {
+  def registerScalaSetter(key: (String, PsiElement), setter: ScFunction, entry: ScalaArrangementEntry): Unit = {
     scalaPropertiesData.get(key) match {
       case Some(existingData) => scalaPropertiesData += (key -> new ScalaPropertyInfo(existingData.getter, entry))
       case None               => scalaPropertiesData += (key -> new ScalaPropertyInfo(null, entry))

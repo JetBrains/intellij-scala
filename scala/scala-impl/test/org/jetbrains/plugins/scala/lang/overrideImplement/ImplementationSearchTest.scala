@@ -40,7 +40,7 @@ class ImplementationSearchTest extends JavaCodeInsightFixtureTestCase {
     Assert.assertEquals(s"Wrong set of overriders for $clazz", shouldFoundInClasses, classNames2.toSet)
   }
 
-  def testRawTypeFromJava() = {
+  def testRawTypeFromJava(): Unit = {
     val javaText =
       """
         |public class JavaClass {
@@ -64,7 +64,7 @@ class ImplementationSearchTest extends JavaCodeInsightFixtureTestCase {
     findFromJava(javaText, scalaText, Set("ScalaClass"))
   }
 
-  def testRawTypeWithBound() = {
+  def testRawTypeWithBound(): Unit = {
     val javaText =
       """
         |public class JavaClass {

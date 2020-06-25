@@ -6,6 +6,8 @@ import java.awt.{Graphics, Insets, Rectangle}
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.editor._
+import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.{Disposer, Key}
 import org.jetbrains.plugins.scala.annotator.hints.Text
@@ -75,7 +77,7 @@ private class AlignedInlayGroup(hints: Seq[AlignedHintTemplate],
     for (inlay <- inlays) {
       val renderer = inlay.getRenderer
       val endX = renderer.line.lineEndX(editor)
-      renderer.setMargin(endX, targetMaxX - endX, inlay)
+      renderer.setMargin(endX, targetMaxX - endX, inlay, !editor.asOptionOf[EditorEx].exists(_.isPurePaintingMode))
     }
   }
 
@@ -96,10 +98,12 @@ private object AlignedInlayGroup {
 
     def hasHint: Boolean = maybeHint.isDefined
 
+    def lineNumber: Int = document.getLineNumber(marker.getEndOffset)
+
     def lineEndX(editor: Editor): Int = {
       val endOffset = marker.getEndOffset
       if (endOffset < 0 || endOffset >= document.getTextLength) 0
-      else editor.offsetToXY(document.getLineEndOffset(document.getLineNumber(marker.getEndOffset)), true, false).x
+      else editor.offsetToXY(document.getLineEndOffset(lineNumber), true, false).x
     }
 
     override def dispose(): Unit = marker.dispose()
@@ -113,15 +117,17 @@ private object AlignedInlayGroup {
 
     private var cached: Cached = Cached(lineEndX = 0, margin = 0)
 
-    def setMargin(lineEndX: Int, margin: Int, inlay: Inlay[_]): Unit = {
+    def setMargin(lineEndX: Int, margin: Int, inlay: Inlay[_], repaint: Boolean): Unit = {
       if (cached.margin != margin) {
         cached = Cached(lineEndX, margin)
 
-        inlay.update()
+        if (repaint) {
+          inlay.update()
+        }
       }
     }
 
-    override def paint(editor: Editor, g: Graphics, r: Rectangle, textAttributes: TextAttributes): Unit = {
+    override def paint0(editor: Editor, g: Graphics, r: Rectangle, textAttributes: TextAttributes): Unit = {
       if (cached.lineEndX != line.lineEndX(editor)) {
         val oldMargin = cached.margin
         recalculateGroupsOffsets(editor)
@@ -129,7 +135,11 @@ private object AlignedInlayGroup {
         r.width += cached.margin - oldMargin
       }
 
-      super.paint(editor, g, r, textAttributes)
+      var hasSomethingElseInLine = false
+      editor.asOptionOf[EditorImpl].foreach(_.processLineExtensions(line.lineNumber, _ => { hasSomethingElseInLine = true; false} ))
+      if (!hasSomethingElseInLine) {
+        super.paint0(editor, g, r, textAttributes)
+      }
     }
 
     override def getMargin(editor: Editor): Insets = new Insets(0, cached.margin, 0, 0)

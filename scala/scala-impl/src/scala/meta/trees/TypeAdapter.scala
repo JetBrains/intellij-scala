@@ -159,10 +159,11 @@ trait TypeAdapter {
   def toType(tp: ptype.ScType, pivot: PsiElement = null): m.Type = {
     ProgressManager.checkCanceled()
     typeCache.getOrElseUpdate(tp, {
-      tp.isAliasType match {
-        case Some(AliasType(ta, lower, upper)) => return toTypeName(ta)
-        case _ =>
+      tp match {
+        case AliasType(ta, _, _) => return toTypeName(ta)
+        case _                   =>
       }
+
       tp match {
         case t: ptype.ScParameterizedType =>
           m.Type.Apply(toType(t.designator), Seq(t.typeArguments.map(toType(_)): _*))//.setTypechecked

@@ -10,7 +10,7 @@ class FunctionCurryTest extends ResolveTestBase {
     super.folderPath + "function/curry/"
   }
 
-  def testCurryiedToCurryied() = doTest()
-  def testCurryiedToNormal() = doTest()
-  def testNormalToCurryied() = doTest()
+  def testCurryiedToCurryied(): Unit = doTest()
+  def testCurryiedToNormal(): Unit = doTest()
+  def testNormalToCurryied(): Unit = doTest()
 }

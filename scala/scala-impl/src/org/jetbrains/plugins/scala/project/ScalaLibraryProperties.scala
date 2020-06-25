@@ -20,7 +20,8 @@ final class ScalaLibraryProperties private(private[this] var _languageLevel: Sca
   def languageLevel: ScalaLanguageLevel = _languageLevel
 
   def languageLevel_=(languageLevel: ScalaLanguageLevel): Unit = {
-    if (_languageLevel != languageLevel) settings.ScalaCompilerConfiguration.incModificationCount()
+    if (_languageLevel != languageLevel)
+      settings.ScalaCompilerConfiguration.incModificationCount()
     _languageLevel = languageLevel
   }
 
@@ -30,12 +31,12 @@ final class ScalaLibraryProperties private(private[this] var _languageLevel: Sca
     _compilerClasspath = compilerClasspath
   }
 
-  def loadState(state: ScalaLibraryPropertiesState) {
+  override def loadState(state: ScalaLibraryPropertiesState): Unit = {
     languageLevel = state.getLanguageLevel
     compilerClasspath = state.getCompilerClasspath.map(pathToFile)
   }
 
-  def getState: ScalaLibraryPropertiesState = new ScalaLibraryPropertiesState(
+  override def getState: ScalaLibraryPropertiesState = new ScalaLibraryPropertiesState(
     languageLevel,
     compilerClasspath.map(fileToPath).toArray
   )
@@ -58,11 +59,10 @@ object ScalaLibraryProperties {
   import VfsUtilCore._
 
   def apply(version: Option[String] = None,
-            compilerClasspath: Seq[File] = Seq.empty) =
-    new ScalaLibraryProperties(
-      version.flatMap(findByVersion).getOrElse(getDefault),
-      compilerClasspath
-    )
+            compilerClasspath: Seq[File] = Seq.empty): ScalaLibraryProperties = {
+    val languageLevel = version.flatMap(findByVersion).getOrElse(getDefault)
+    new ScalaLibraryProperties(languageLevel, compilerClasspath)
+  }
 
   private def pathToFile(url: String) =
     new File(urlToPath(url))

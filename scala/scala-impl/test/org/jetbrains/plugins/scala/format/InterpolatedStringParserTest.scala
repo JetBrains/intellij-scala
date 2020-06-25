@@ -10,79 +10,79 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
  */
 
 class InterpolatedStringParserTest extends SimpleTestCase {
-  def testEmpty() {
+  def testEmpty(): Unit = {
     assertMatches(parse("")) {
       case Nil =>
     }
   }
 
-  def testText() {
+  def testText(): Unit = {
     assertMatches(parse("foo")) {
       case Text("foo") :: Nil =>
     }
   }
 
-  def testEscapeChar() {
+  def testEscapeChar(): Unit = {
     assertMatches(parse("\\n")) {
       case Text("\n") :: Nil =>
     }
   }
 
-  def testEscapeCharInMultilineString() {
+  def testEscapeCharInMultilineString(): Unit = {
     assertMatches(parse("\n", multiline = true)) {
       case Text("\n") :: Nil =>
     }
   }
 
-  def testDollarEscapeChar() {
+  def testDollarEscapeChar(): Unit = {
     assertMatches(parse("$$")) {
       case Text("$") :: Nil =>
     }
   }
 
-  def testExpression() {
+  def testExpression(): Unit = {
     assertMatches(parse("$foo")) {
       case Injection(ElementText("foo"), None) :: Nil =>
     }
   }
 
-  def testBlockExpression() {
+  def testBlockExpression(): Unit = {
     assertMatches(parse("${foo.bar}")) {
       case Injection(ElementText("foo.bar"), None) :: Nil =>
     }
   }
 
-  def testComplexBlockExpression() {
+  def testComplexBlockExpression(): Unit = {
     assertMatches(parse("${null; foo}")) {
       case Injection(ElementText("{null; foo}"), None) :: Nil =>
     }
   }
 
-  def testFormattedExpression() {
+  def testFormattedExpression(): Unit = {
     assertMatches(parse("$foo%d")) {
       case Injection(ElementText("foo"), Some(Specifier(Span(_, 0, 2), "%d"))) :: Nil =>
     }
   }
 
-  def testExpressionWithSeparatedFormatter() {
+  def testExpressionWithSeparatedFormatter(): Unit = {
     assertMatches(parse("$foo %d")) {
       case Injection(ElementText("foo"), None) :: Text(" ") :: Injection(ElementText("\"%\""), None) :: Text("d") :: Nil =>
     }
   }
 
-  def testFormattedBlockExpression() {
+  def testFormattedBlockExpression(): Unit = {
     assertMatches(parse("${foo}%d")) {
       case Injection(ElementText("foo"), Some(Specifier(Span(_, 0, 2), "%d"))) :: Nil =>
     }
   }
 
-  def testFormattedComplexBlockExpression() {
+  def testFormattedComplexBlockExpression(): Unit = {
     assertMatches(parse("${null; foo}%d")) {
       case Injection(ElementText("{null; foo}"), Some(Specifier(Span(_, 0, 2), "%d"))) :: Nil =>
     }
   }
 
-  def testMixed() {
+  def testMixed(): Unit = {
     assertMatches(parse("foo $exp ${it.name}%2d bar")) {
       case Text("foo ") ::
               Injection(ElementText("exp"), None) ::
@@ -93,13 +93,13 @@ class InterpolatedStringParserTest extends SimpleTestCase {
     }
   }
 
-  def testUnformattedWithSpecifiers() {
+  def testUnformattedWithSpecifiers(): Unit = {
     assertMatches(parse("$foo%d", formatted = false)) {
       case Injection(ElementText("foo"), None) :: Injection(ElementText("\"%\""), None) :: Text("d") :: Nil =>
     }
   }
 
-  def testMultiline() {
+  def testMultiline(): Unit = {
     assertMatches(parse("$foo%d", multiline = true)) {
       case Injection(ElementText("foo"), Some(Specifier(Span(_, 0, 2), "%d"))) :: Nil =>
     }

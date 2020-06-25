@@ -55,8 +55,8 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
   extend(
     classOf[ScAssignment],
     new CompletionProvider[CompletionParameters] {
-      def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
-                         result: CompletionResultSet) {
+      override def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
+                                  result: CompletionResultSet): Unit = {
         val element = positionFromParameters(parameters)
 
         extractReference[ScAssignment](element).foreach { case (ref, assign) =>
@@ -84,8 +84,8 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
   extend(
     superParentPattern(classOf[ScPatternDefinition]) || superParentPattern(classOf[ScVariableDefinition]),
     new CompletionProvider[CompletionParameters] {
-      def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
-                         result: CompletionResultSet) {
+      override def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
+                                  result: CompletionResultSet): Unit = {
         val element = positionFromParameters(parameters)
         extractReference[PsiElement](element).foreach { case (ref, _) =>
           acceptTypes(ref.expectedType().toList, ref.getVariants, result, ref.resolveScope,
@@ -100,7 +100,7 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
   extend(
     classOf[ScReturn],
     new CompletionProvider[CompletionParameters] {
-      def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+      override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
         val element = positionFromParameters(parameters)
         extractReference[ScReturn](element).foreach { case (ref, _) =>
           val fun: ScFunction = PsiTreeUtil.getContextOfType(ref, classOf[ScFunction])
@@ -119,8 +119,8 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
   extend(
     classOf[ScArgumentExprList],
     new CompletionProvider[CompletionParameters] {
-      def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
-                         result: CompletionResultSet) {
+      override def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
+                                  result: CompletionResultSet): Unit = {
         val element = positionFromParameters(parameters)
         extractReference[ScArgumentExprList](element).foreach { case (referenceExpression, args) =>
           val elements = functionArguments(args, referenceExpression)
@@ -137,8 +137,8 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
   extend(
     identifierWithParentsPattern(classOf[ScReferenceExpression], classOf[ScBlockExpr], classOf[ScArgumentExprList], classOf[ScMethodCall]),
     new CompletionProvider[CompletionParameters] {
-      def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
-                         result: CompletionResultSet) {
+      override def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
+                                  result: CompletionResultSet): Unit = {
         val element = positionFromParameters(parameters)
         val referenceExpression = element.getContext.asInstanceOf[ScReferenceExpression]
         val block = referenceExpression.getContext.asInstanceOf[ScBlockExpr]
@@ -163,8 +163,8 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
   extend(
     classOf[ScIf],
     new CompletionProvider[CompletionParameters] {
-      def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
-                         result: CompletionResultSet) {
+      override def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
+                                  result: CompletionResultSet): Unit = {
         val element = positionFromParameters(parameters)
         extractReference[ScIf](element).foreach { case (ref, ifStmt) =>
           if (ifStmt.condition.getOrElse(null: ScExpression) == ref)
@@ -184,8 +184,8 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
   extend(
     classOf[ScWhile],
     new CompletionProvider[CompletionParameters] {
-      def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
-                         result: CompletionResultSet) {
+      override def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
+                                  result: CompletionResultSet): Unit = {
         val element = positionFromParameters(parameters)
         extractReference[ScWhile](element).foreach { case (ref, whileStmt) =>
           if (whileStmt.condition.getOrElse(null: ScExpression) == ref)
@@ -205,8 +205,8 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
   extend(
     classOf[ScDo],
     new CompletionProvider[CompletionParameters] {
-      def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
-                         result: CompletionResultSet) {
+      override def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
+                                  result: CompletionResultSet): Unit = {
         val element = positionFromParameters(parameters)
         extractReference[ScDo](element).foreach { case (ref, doStmt) =>
           if (doStmt.condition.getOrElse(null: ScExpression) == ref)
@@ -227,7 +227,7 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
   extend(
     classOf[ScInfixExpr],
     new CompletionProvider[CompletionParameters] {
-      def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+      override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
         val element = positionFromParameters(parameters)
         extractReference[ScInfixExpr](element).foreach { case (ref, infix) =>
           val typez: ArrayBuffer[ScType] = new ArrayBuffer[ScType]
@@ -345,7 +345,7 @@ object ScalaSmartCompletionContributor {
 
     if (typez.isEmpty || typez.forall(_ == Nothing)) return
 
-    def applyVariant(variant: Object, checkForSecondCompletion: Boolean = false) {
+    def applyVariant(variant: Object, checkForSecondCompletion: Boolean = false): Unit = {
 
       def handleVariant(scalaLookupItem: ScalaLookupItem, chainVariant: Boolean = false): Unit = {
         val elemToAdd = variant.asInstanceOf[LookupElement]
@@ -379,8 +379,10 @@ object ScalaSmartCompletionContributor {
 
                 override protected def postProcess(result: ScalaResolveResult): Unit = {
                   if (!result.isNamedParameter) {
-                    val newElem = result.getLookupElement().head
-                    applyVariant(new ScalaChainLookupElement(scalaLookupItem, newElem))
+                    for {
+                      delegate <- result.getLookupElement()
+                      variant = new ScalaChainLookupElement(delegate, scalaLookupItem)
+                    } applyVariant(variant)
                   }
                 }
               }
@@ -390,7 +392,7 @@ object ScalaSmartCompletionContributor {
             elementAdded
           }
 
-          scalaLookupItem.element match {
+          scalaLookupItem.getPsiElement match {
             case clazz: PsiClass if isExcluded(clazz) =>
             case fun: ScSyntheticFunction =>
               val second = checkForSecondCompletion && fun.paramClauses.flatten.isEmpty
@@ -432,7 +434,7 @@ object ScalaSmartCompletionContributor {
 
       variant match {
         case el: ScalaLookupItem => handleVariant(el)
-        case ch: ScalaChainLookupElement => handleVariant(ch.element, chainVariant = true)
+        case ch: ScalaChainLookupElement => handleVariant(ch.getDelegate, chainVariant = true)
         case _ =>
       }
     }
@@ -465,7 +467,7 @@ object ScalaSmartCompletionContributor {
             }
           }
 
-          def checkTypeProjection(tp: ScType) {
+          def checkTypeProjection(tp: ScType): Unit = {
             tp match {
               case ScProjectionType(proj, _: ScTypeAlias | _: ScClass | _: ScTrait) =>
                 proj.extractClass match {
@@ -477,7 +479,7 @@ object ScalaSmartCompletionContributor {
           }
 
           @tailrec
-          def checkType(tp: ScType) {
+          def checkType(tp: ScType): Unit = {
             def isValid(member: PsiMember) =
               member.hasModifierProperty("static") && isAccessible(member)
 
@@ -550,7 +552,7 @@ object ScalaSmartCompletionContributor {
   }
 
   private[this] def isAccessible(item: ScalaLookupItem)
-                                (implicit place: PsiElement): Boolean = ScalaPsiUtil.nameContext(item.element) match {
+                                (implicit place: PsiElement): Boolean = ScalaPsiUtil.nameContext(item.getPsiElement) match {
     case member: ScMember => isAccessible(member)
     case _ => true
   }
@@ -598,43 +600,35 @@ object ScalaSmartCompletionContributor {
       simplifiedType = parameterType.removeAbstracts
     } yield (simplifiedType, simplifiedType.presentableText(TypePresentationContext.emptyContext))
 
-    def renderElement(element: LookupElement,
-                      presentation: LookupElementPresentation): Unit = {
+    override def renderElement(element: LookupElement,
+                               presentation: LookupElementPresentation): Unit = {
       val itemText = builder(presentableParams)
-      presentation match {
-        case realPresentation: RealLookupElementPresentation =>
-          object isEnoughSpaceFor {
-            def unapply(text: String): Boolean =
-              realPresentation.hasEnoughSpaceFor(text, false)
-          }
 
-          val text = itemText match {
-            case isEnoughSpaceFor() => itemText
-            case _ =>
-              @tailrec
-              def innerItemText(index: Int): String = index - 1 match {
-                case 0 => s"... $functionArrow "
-                case newIndex =>
-                  builder(presentableParams.take(newIndex), separator = ", ...") match {
-                    case string@isEnoughSpaceFor() => string
-                    case _ => innerItemText(newIndex)
-                  }
-              }
+      def isEnoughSpaceFor(text: String): Boolean = text.length < 100
 
-              innerItemText(presentableParams.length)
-          }
+      @tailrec
+      def collapseLastParams(index: Int): String = index - 1 match {
+        case 0 => s"... $functionArrow "
+        case newIndex =>
+          val shortened = builder(presentableParams.take(newIndex), paramsSuffix = ", ...")
 
-          presentation.setItemText(text)
-          presentation.setIcon(Icons.LAMBDA)
-        case _ => presentation.setItemText(itemText)
+          if (isEnoughSpaceFor(shortened)) shortened
+          else collapseLastParams(index - 1)
       }
+
+      val text =
+        if (isEnoughSpaceFor(itemText)) itemText
+        else collapseLastParams(presentableParams.length)
+
+      presentation.setItemText(text)
+      presentation.setIcon(Icons.LAMBDA)
     }
   }
 
   private class AnonymousFunctionInsertHandler(params: Seq[ScType],
                                                builder: AnonymousFunctionTextBuilder) extends InsertHandler[LookupElement] {
 
-    def handleInsert(context: InsertionContext, lookupElement: LookupElement): Unit = {
+    override def handleInsert(context: InsertionContext, lookupElement: LookupElement): Unit = {
       val abstracts = {
         val result = mutable.HashSet.empty[ScAbstractType]
         params.foreach {
@@ -661,14 +655,7 @@ object ScalaSmartCompletionContributor {
       val file = documentManager.getPsiFile(document)
       val startOffset = context.getStartOffset
       val endOffset = startOffset + text.length()
-      val commonParent = PsiTreeUtil.findCommonParent(file.findElementAt(startOffset),
-        file.findElementAt(endOffset - 1))
-      if (commonParent.getTextRange.getStartOffset != startOffset ||
-        commonParent.getTextRange.getEndOffset != endOffset) {
-        document.insertString(endOffset, " ")
-        editor.getCaretModel.moveToOffset(endOffset + 1)
-        return
-      }
+      val commonParent = PsiTreeUtil.findCommonParent(file.findElementAt(startOffset), file.findElementAt(endOffset - 1))
 
       ScalaPsiUtil.adjustTypes(commonParent)
 
@@ -706,6 +693,11 @@ object ScalaSmartCompletionContributor {
             parameter.typeElement.foreach(seekAbstracts(_))
             builder.replaceElement(parameter.nameId, parameter.name)
           }
+          f.result.foreach {
+            case qMarks: ScReferenceExpression if qMarks.refName == NotImplementedError =>
+              builder.replaceElement(qMarks.nameId, qMarks.refName)
+            case _ =>
+          }
         case c: ScCaseClause => c.pattern match {
           case Some(pattern) =>
             for (binding <- pattern.bindings) {
@@ -728,17 +720,7 @@ object ScalaSmartCompletionContributor {
       } template.addVariable(name, actualName, actualName, false)
 
       document.deleteString(commonParent.getTextRange.getStartOffset, commonParent.getTextRange.getEndOffset)
-      TemplateManager.getInstance(project).startTemplate(editor, template, new TemplateEditingAdapter {
-        override def templateFinished(template: Template, brokenOff: Boolean): Unit = {
-          if (!brokenOff) {
-            val offset = editor.getCaretModel.getOffset
-            inWriteAction {
-              document.insertString(offset, " ")
-            }
-            editor.getCaretModel.moveToOffset(offset + 1)
-          }
-        }
-      })
+      TemplateManager.getInstance(project).startTemplate(editor, template)
     }
   }
 
@@ -746,13 +728,15 @@ object ScalaSmartCompletionContributor {
 
     type Parameter = (ScType, String)
 
-    def apply(types: Seq[Parameter], separator: String = "")
+    def apply(types: Seq[Parameter], paramsSuffix: String = "")
              (implicit project: Project): String =
       createBuffer
         .append(suggestedParameters(types))
-        .append(separator)
+        .append(paramsSuffix)
         .append(" ")
         .append(functionArrow)
+        .append(" ")
+        .append(NotImplementedError)
         .toString
 
     private def createBuffer = StringBuilder.newBuilder match {

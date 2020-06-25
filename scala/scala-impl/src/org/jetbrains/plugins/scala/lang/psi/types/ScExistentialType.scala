@@ -11,6 +11,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{P
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
+import scala.annotation.tailrec
+
 /**
   * @author ilyas
   */
@@ -20,8 +22,8 @@ final class ScExistentialType private (val quantified: ScType,
 
   override implicit def projectContext: project.ProjectContext = quantified.projectContext
 
-  override protected def isAliasTypeInner: Option[AliasType] = {
-    quantified.isAliasType.map(a => a.copy(lower = a.lower.map(_.unpackedType), upper = a.upper.map(_.unpackedType)))
+  override protected def calculateAliasType: Option[AliasType] = {
+    quantified.aliasType.map(a => a.copy(lower = a.lower.map(_.unpackedType), upper = a.upper.map(_.unpackedType)))
   }
 
   override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
@@ -140,6 +142,7 @@ object ScExistentialType {
     * 1. and 2. are always true by construction.
     * Simplification by 3. and 4. is computed once when existential type is created.
     */
+  @tailrec
   final def apply(quantified: ScType): ScExistentialType = {
     quantified match {
       case e: ScExistentialType =>
@@ -224,8 +227,8 @@ object ScExistentialType {
 
     val rightToLeft: java.util.Map[ScExistentialArgument, ScExistentialArgument] = {
       val byName: TObjectHashingStrategy[ScExistentialArgument] = new TObjectHashingStrategy[ScExistentialArgument] {
-        def computeHashCode(t: ScExistentialArgument): Int = t.name.hashCode
-        def equals(t: ScExistentialArgument, t1: ScExistentialArgument): Boolean = t.name == t1.name
+        override def computeHashCode(t: ScExistentialArgument): Int = t.name.hashCode
+        override def equals(t: ScExistentialArgument, t1: ScExistentialArgument): Boolean = t.name == t1.name
       }
       val map = new THashMap[ScExistentialArgument, ScExistentialArgument](byName)
       right.wildcards.zip(left.wildcards).foreach {

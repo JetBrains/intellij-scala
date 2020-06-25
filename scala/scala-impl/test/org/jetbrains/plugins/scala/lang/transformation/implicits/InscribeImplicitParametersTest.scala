@@ -14,12 +14,12 @@ class InscribeImplicitParametersTest extends TransformerTest(new InscribeImplici
   def testReferenceExpression(): Unit = check(
     before = "f",
     after = "f(v)"
-  )(header = "def f(implicit p: A) {}")
+  )(header = "def f(implicit p: A): Unit = {}")
 
   def testMethodCall(): Unit = check(
     before = "f(A)",
     after = "f(A)(v)"
-  )(header = "def f(p1: A)(implicit p2: A) {}")
+  )(header = "def f(p1: A)(implicit p2: A): Unit = {}")
 
   def testInfixExpression(): Unit = check(
     before = "O f A",
@@ -27,7 +27,7 @@ class InscribeImplicitParametersTest extends TransformerTest(new InscribeImplici
   )(header =
     """
      object O {
-       def f(p1: A)(implicit p2: A) {}
+       def f(p1: A)(implicit p2: A): Unit = {}
      }
     """)
 
@@ -37,7 +37,7 @@ class InscribeImplicitParametersTest extends TransformerTest(new InscribeImplici
   )(header =
     """
      object O {
-       def f(implicit p: A) {}
+       def f(implicit p: A): Unit = {}
      }
     """)
 
@@ -50,7 +50,7 @@ class InscribeImplicitParametersTest extends TransformerTest(new InscribeImplici
        object O {
          implicit val v: O = _
        }
-       def f(implicit p: O) {}
+       def f(implicit p: O): Unit = {}
     """)
 
   def testIndirection(): Unit = check(
@@ -63,7 +63,7 @@ class InscribeImplicitParametersTest extends TransformerTest(new InscribeImplici
       }
       class O
       object O extends T
-      def f(implicit p: O) {}
+      def f(implicit p: O): Unit = {}
     """)
 
   // TODO inscribe something like "implicitly[ClassTag[T]]"?
@@ -73,7 +73,7 @@ class InscribeImplicitParametersTest extends TransformerTest(new InscribeImplici
   )(header =
     """
      object O {
-       def f(implicit p: scala.reflect.ClassTag[A]) {}
+       def f(implicit p: scala.reflect.ClassTag[A]): Unit = {}
      }
     """)
 

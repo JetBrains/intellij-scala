@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScConstructorInvocation}
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 import scala.collection.{JavaConverters, mutable}
 import scala.language.postfixOps
@@ -32,9 +33,7 @@ object JavaToScala {
 
   case class AssociationHelper(node: IntermediateNode, path: Path)
 
-  private val context: ThreadLocal[java.util.Stack[(Boolean, String)]] = new ThreadLocal[java.util.Stack[(Boolean, String)]] {
-    override def initialValue(): java.util.Stack[(Boolean, String)] = new java.util.Stack[(Boolean, String)]()
-  }
+  private val context: UnloadableThreadLocal[java.util.Stack[(Boolean, String)]] = UnloadableThreadLocal(new java.util.Stack)
 
   def findVariableUsage(elementToFind: PsiElement, maybeElement: Option[PsiElement]): Seq[PsiReferenceExpression] =
     maybeElement.fold(Seq.empty[PsiReferenceExpression]) { element =>
@@ -249,7 +248,7 @@ object JavaToScala {
             case f: PsiMember
               if f.hasModifierProperty("static") =>
               val clazz = f.containingClass
-              if (clazz != null && context.get().contains((false, clazz.qualifiedName))) {
+              if (clazz != null && context.value.contains((false, clazz.qualifiedName))) {
                 val name = Option(clazz.getNameIdentifier).map(convertPsiToIntermediate(_, externalProperties))
                 iResult = JavaCodeReferenceStatement(name, args, refName)
               }
@@ -268,7 +267,7 @@ object JavaToScala {
         def isOk: Boolean = {
           if (be.getLOperand.getType.isInstanceOf[PsiPrimitiveType]) return false
           be.getROperand match {
-            case l: PsiLiteralExpression if l.getText == "null" => return false
+            case l: PsiLiteralExpression if l.textMatches("null") => return false
             case _ =>
           }
           true
@@ -552,6 +551,7 @@ object JavaToScala {
                   refs: Seq[ReferenceData] = Seq.empty,
                   usedComments: mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement](),
                   textMode: Boolean = false): IntermediateNode = {
+    val context = this.context.value
 
     def extendList: Seq[(PsiClassType, PsiJavaCodeReferenceElement)] = {
       val typez = mutable.ArrayBuffer[(PsiClassType, PsiJavaCodeReferenceElement)]()
@@ -563,7 +563,7 @@ object JavaToScala {
     def collectClassObjectMembers(): (Seq[PsiMember], Seq[PsiMember]) = {
       var forClass = mutable.ArrayBuffer[PsiMember]()
       var forObject = mutable.ArrayBuffer[PsiMember]()
-      for (method <- inClass.getMethods) {
+      for (method <- inClass.getMethods if PsiTreeUtil.isAncestor(inClass, method, true)) {
         if (method.hasModifierProperty("static") || inClass.isEnum) forObject += method else forClass += method
       }
 
@@ -599,13 +599,13 @@ object JavaToScala {
       }
 
       if (objectMembers.nonEmpty && !inClass.isInstanceOf[PsiAnonymousClass]) {
-        context.get().push((true, inClass.qualifiedName))
+        context.push((true, inClass.qualifiedName))
         try {
           val modifiers = handleModifierList(inClass)
           val updatedModifiers = modifiers.asInstanceOf[ModifiersConstruction].without(ModifierType.ABSTRACT)
           if (inClass.isEnum) handleAsEnum(updatedModifiers) else handleAsObject(updatedModifiers)
         } finally {
-          context.get().pop()
+          context.pop()
         }
       } else {
         EmptyConstruction()
@@ -704,7 +704,7 @@ object JavaToScala {
         }
 
       if (classMembers.nonEmpty || objectMembers.isEmpty || extendList.nonEmpty || couldFindInstancesForClass) {
-        context.get().push((false, inClass.qualifiedName))
+        context.push((false, inClass.qualifiedName))
         try {
           inClass match {
             case clazz: PsiAnonymousClass => handleAnonymousClass(clazz)
@@ -724,7 +724,7 @@ object JavaToScala {
                 None, classType, companionObject, Some(convertExtendList()))
           }
         } finally {
-          context.get().pop()
+          context.pop()
         }
       } else {
         companionObject
@@ -925,6 +925,7 @@ object JavaToScala {
     }
 
     def handleModifiers: Seq[IntermediateNode] = {
+      val context = this.context.value
       val modifiers = mutable.ArrayBuffer[IntermediateNode]()
 
       val simpleList = SIMPLE_MODIFIERS_MAP.filter {
@@ -968,7 +969,7 @@ object JavaToScala {
             LiteralExpression(packageName.substring(packageName.lastIndexOf(".") + 1))))
       }
 
-      if (owner.hasModifierProperty(PsiModifier.FINAL) && !context.get.empty() && !context.get.peek()._1) {
+      if (owner.hasModifierProperty(PsiModifier.FINAL) && !context.empty() && !context.peek()._1) {
         owner match {
           case _: PsiLocalVariable =>
           case _: PsiParameter =>

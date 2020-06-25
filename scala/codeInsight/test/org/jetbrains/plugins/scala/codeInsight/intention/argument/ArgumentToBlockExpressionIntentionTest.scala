@@ -13,9 +13,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
   */
 class ArgumentToBlockExpressionIntentionTest extends intentions.ScalaIntentionTestBase {
 
-  import EditorTestUtil.{CARET_TAG => CARET}
-
-  override def familyName = ArgumentToBlockExpressionIntention.FamilyName
+  override def familyName = ScalaCodeInsightBundle.message("family.name.convert.to.block.expression")
 
   def test(): Unit = {
     val text =

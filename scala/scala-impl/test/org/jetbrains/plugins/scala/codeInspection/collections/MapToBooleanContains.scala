@@ -16,7 +16,7 @@ abstract class MapToBooleanContainsInspectionTest extends OperationsOnCollection
 class MapContainsTrueTest extends MapToBooleanContainsInspectionTest {
 
   override protected val hint: String =
-    InspectionBundle.message("replace.map.contains.true.with.exists")
+    ScalaInspectionBundle.message("replace.map.contains.true.with.exists")
 
   def testSimple(): Unit = {
     doTest(
@@ -58,7 +58,7 @@ class MapContainsTrueTest extends MapToBooleanContainsInspectionTest {
 class MapContainsFalseTest extends MapToBooleanContainsInspectionTest {
 
   override protected val hint: String =
-    InspectionBundle.message("replace.map.contains.false.with.not.forall")
+    ScalaInspectionBundle.message("replace.map.contains.false.with.not.forall")
 
   def testSimple(): Unit = {
     doTest(

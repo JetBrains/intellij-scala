@@ -16,15 +16,13 @@ import com.intellij.psi.PsiFile
  */
 class SbtUpdateResolverIndexesQuickFix(module: Module) extends AbstractIntentionAction {
 
-  def getText = SbtBundle("sbt.fix.updateIndexes")
+  override def getText: String = SbtBundle.message("sbt.fix.updateIndexes")
 
-  def invoke(project: Project, editor: Editor, file: PsiFile) {
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     val ui = ProjectStructureConfigurable.getInstance(project)
     val editor = new SingleConfigurableEditor(project, ui)
     ui.select(module.getName, "sbt", false)
     //Project Structure should be shown in a transaction
-    TransactionGuard.getInstance().submitTransactionAndWait(new Runnable {
-      def run(): Unit = editor.show()
-    })
+    TransactionGuard.getInstance().submitTransactionAndWait(() => editor.show())
   }
 }

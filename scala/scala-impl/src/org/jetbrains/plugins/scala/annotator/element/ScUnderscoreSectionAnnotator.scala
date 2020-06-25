@@ -17,8 +17,8 @@ object ScUnderscoreSectionAnnotator extends ElementAnnotator[ScUnderscoreSection
   }
 
   private def checkUnboundUnderscore(under: ScUnderscoreSection)
-                                    (implicit holder: ScalaAnnotationHolder) {
-    if (under.getText == "_") {
+                                    (implicit holder: ScalaAnnotationHolder): Unit = {
+    if (under.textMatches("_")) {
       under.parentOfType(classOf[ScValueOrVariable], strict = false).foreach {
         case varDef @ ScVariableDefinition.expr(_) if varDef.expr.contains(under) =>
           if (varDef.containingClass == null) {

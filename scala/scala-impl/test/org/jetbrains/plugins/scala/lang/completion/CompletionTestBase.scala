@@ -51,13 +51,13 @@ abstract class CompletionTestBase extends base.ScalaLightPlatformCodeInsightTest
     text.substring(2, text.length - trimRight).trim
   }
 
-  protected def checkResult(variants: Array[String], expected: String) {
+  protected def checkResult(variants: Array[String], expected: String): Unit = {
     val actual = variants.sortWith(_ < _)
       .mkString("\n").trim
     assertEquals(expected, actual)
   }
 
-  protected def doTest() {
+  protected def doTest(): Unit = {
     val fileName = getTestName(false) + s".$extension"
     val filePath = s"$folderPath$fileName".replace(File.separatorChar, '/')
 

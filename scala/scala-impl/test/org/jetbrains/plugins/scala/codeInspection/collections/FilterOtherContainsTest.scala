@@ -16,7 +16,7 @@ abstract class FilterOtherTest extends OperationsOnCollectionInspectionTest {
 class FilterOtherContainsTest extends FilterOtherTest {
 
   override protected val hint: String =
-    InspectionBundle.message("replace.filter.with.intersect")
+    ScalaInspectionBundle.message("replace.filter.with.intersect")
 
   def testFunExpr(): Unit = {
     doTest(
@@ -82,7 +82,7 @@ class FilterOtherContainsTest extends FilterOtherTest {
 class FilterOtherNotContainsTest extends FilterOtherTest {
 
   override protected val hint: String =
-    InspectionBundle.message("replace.filter.with.diff")
+    ScalaInspectionBundle.message("replace.filter.with.diff")
 
   def testFunExpr(): Unit = {
     doTest(

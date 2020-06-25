@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
-package codeInspection.collections
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * Nikolay.Tropin
@@ -10,15 +10,13 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
  */
 class SortFilterTest extends OperationsOnCollectionInspectionTest {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[SortFilterInspection]
 
   override protected val hint: String =
-    InspectionBundle.message("sort.filter.hint")
+    ScalaInspectionBundle.message("sort.filter.hint")
 
-  def testWithoutParams() {
+  def testWithoutParams(): Unit = {
     val selected = s"List(0, 1).${START}sorted.filter(_ => true)$END"
     checkTextHasError(selected)
 
@@ -27,7 +25,7 @@ class SortFilterTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def testWithParameter() {
+  def testWithParameter(): Unit = {
     val selected = s"List(0, 1).${START}sortWith((x, y) => x < y).filter(_ => true)$END"
     checkTextHasError(selected)
 
@@ -36,7 +34,7 @@ class SortFilterTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def testWithGenericParameter() {
+  def testWithGenericParameter(): Unit = {
     val selected = s"List(0, 1).${START}sortBy[String](_.toString).filter(_ => true)$END"
     checkTextHasError(selected)
 
@@ -45,7 +43,7 @@ class SortFilterTest extends OperationsOnCollectionInspectionTest {
     testQuickFix(text, result, hint)
   }
 
-  def testInfix() {
+  def testInfix(): Unit = {
     val selected = s"List(0, 1).${START}sortBy[String](_.toString) filter (_ => true)$END"
     checkTextHasError(selected)
 

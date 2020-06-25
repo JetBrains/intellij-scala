@@ -6,10 +6,9 @@ import java.util.concurrent.locks.ReentrantLock
 
 import com.intellij.find.FindManager
 import com.intellij.find.impl.FindManagerImpl
-import com.intellij.openapi.application.TransactionGuard
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.ui.{DialogWrapper, Messages}
 import com.intellij.psi._
@@ -135,7 +134,7 @@ object CompilerIndicesReferencesSearcher {
   private[this] val indexingFinishedCondition = lock.newCondition()
 
   private[this] def showProgressIndicator(project: Project): Unit = {
-    val awaitIndexing = task(project, ScalaBundle.message("scala.compiler.indices.progress.title")) { _ =>
+    val awaitIndexing = task(project, ScalaBundle.message("bytecode.indices.progress.title")) { _ =>
       lock.locked(indexingFinishedCondition.awaitUninterruptibly())
     }
     ProgressManager.getInstance().run(awaitIndexing)
@@ -151,7 +150,7 @@ object CompilerIndicesReferencesSearcher {
       lock.locked(indexingFinishedCondition.signal())
     }
 
-    pendingConnection = project.getMessageBus.connect(project)
+    pendingConnection = project.getMessageBus.connect(project.unloadAwareDisposable)
 
     pendingConnection.subscribe(CompilerReferenceServiceStatusListener.topic, new CompilerReferenceServiceStatusListener {
       private[this] val targetModuleNames = ContainerUtil.newConcurrentSet[String]
@@ -187,7 +186,7 @@ object CompilerIndicesReferencesSearcher {
               )
 
             pendingConnection.disconnect()
-            TransactionGuard.getInstance().submitTransactionAndWait(runnable)
+            DumbService.getInstance(project).runWhenSmart(runnable)
           }
         } else {
           lock.locked(indexingFinishedCondition.signal())
@@ -249,8 +248,8 @@ object CompilerIndicesReferencesSearcher {
   }
 
   private[this] def showIndexingInProgressDialog(project: Project): Unit = {
-    val message = "Find Usages via bytecode indices is unavailable during compilation."
-    Messages.showInfoMessage(project, message, "Indexing In Progress")
+    val message = ScalaBundle.message("bytecode.indices.unavailable")
+    Messages.showInfoMessage(project, message, ScalaBundle.message("bytecode.indices.in.progress"))
   }
 
   private[this] def showRebuildSuggestionDialog(

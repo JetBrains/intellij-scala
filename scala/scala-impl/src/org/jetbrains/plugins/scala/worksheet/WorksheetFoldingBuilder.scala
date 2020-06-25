@@ -21,7 +21,7 @@ import scala.collection.mutable.ArrayBuffer
 
 class WorksheetFoldingBuilder extends FoldingBuilder {
 
-  def getPlaceholderText(node: ASTNode): String = {
+  override def getPlaceholderText(node: ASTNode): String = {
     val element: PsiElement = SourceTreeToPsiMap.treeElementToPsi(node)
     element match {
       case comment: PsiComment =>
@@ -36,7 +36,7 @@ class WorksheetFoldingBuilder extends FoldingBuilder {
     "/../"
   }
 
-  def isCollapsedByDefault(node: ASTNode): Boolean = {
+  override def isCollapsedByDefault(node: ASTNode): Boolean = {
     true
   }
 
@@ -50,7 +50,7 @@ class WorksheetFoldingBuilder extends FoldingBuilder {
   private def appendDescriptors(node: ASTNode,
                                 document: Document,
                                 descriptors: ArrayBuffer[FoldingDescriptor],
-                                processedComments: util.HashSet[PsiElement]) {
+                                processedComments: util.HashSet[PsiElement]): Unit = {
     if (node.getElementType == ScalaTokenTypes.tLINE_COMMENT &&
       (node.getText.startsWith(WorksheetFoldingBuilder.FIRST_LINE_PREFIX) ||
         node.getText.startsWith(WorksheetFoldingBuilder.LINE_PREFIX))) {

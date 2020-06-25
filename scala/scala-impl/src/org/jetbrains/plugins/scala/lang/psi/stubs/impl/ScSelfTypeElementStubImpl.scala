@@ -15,6 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 class ScSelfTypeElementStubImpl(parent: StubElement[_ <: PsiElement],
                                 elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
                                 name: String,
-                                val typeText: Option[String],
-                                val classNames: Array[String])
+                                override val typeText: Option[String],
+                                override val classNames: Array[String])
   extends ScNamedStubBase[ScSelfTypeElement](parent, elementType, name) with ScSelfTypeElementStub

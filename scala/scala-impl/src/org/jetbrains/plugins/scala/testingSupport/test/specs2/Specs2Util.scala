@@ -9,6 +9,8 @@ object Specs2Util {
 
   val unitSpecBase: String = "org.specs2.mutable.Specification"
 
-  val suitePaths: List[String] = List("org.specs2.specification.SpecificationStructure",
-    "org.specs2.specification.core.SpecificationStructure")
+  val suitePaths: List[String] = List(
+    "org.specs2.specification.SpecificationStructure",
+    "org.specs2.specification.core.SpecificationStructure"
+  )
 }

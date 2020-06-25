@@ -7,15 +7,16 @@ import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
 class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
 
   override def familyName: String             = ToggleTypeAnnotation.FamilyName
 
   override def setUp(): Unit = {
     super.setUp()
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
-    val newSettings = defaultProfile.getSettings
-    newSettings.plugins = newSettings.plugins :+ "kind-projector"
+    val newSettings = defaultProfile.getSettings.copy(
+      plugins = defaultProfile.getSettings.plugins :+ "kind-projector"
+    )
     defaultProfile.setSettings(newSettings)
   }
 

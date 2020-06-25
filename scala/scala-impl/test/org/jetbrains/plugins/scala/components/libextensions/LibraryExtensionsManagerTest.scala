@@ -2,12 +2,10 @@ package org.jetbrains.plugins.scala.components.libextensions
 
 import java.io.File
 
-import org.jetbrains.plugins.scala.DependencyManagerBase.ResolvedDependency
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.components.libextensions.api.psi.Inspection
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
-
 
 class LibraryExtensionsManagerTest extends SimpleTestCase {
 

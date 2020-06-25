@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n
+package org.jetbrains.plugins.scala
+package scalai18n
+package codeInspection
+package i18n
 
 import java.text.MessageFormat
 
@@ -12,11 +15,17 @@ import com.intellij.openapi.util.Ref
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import org.jetbrains.annotations.{NotNull, Nullable}
-import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, ResolvesTo}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScMethodCall}
+import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, _}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 
 /**
@@ -25,87 +34,182 @@ import scala.collection.mutable
  */
 
 object ScalaI18nUtil {
-  def mustBePropertyKey(@NotNull literal: ScLiteral,
-                        @NotNull annotationAttributeValues: mutable.HashMap[String, AnyRef]): Boolean = {
-    mayBePropertyKey(literal) && isPassedToAnnotatedParam(literal, AnnotationUtil.PROPERTY_KEY, annotationAttributeValues, null)
+  trait AnnotationChecker {
+    def check(owner: PsiModifierListOwner): Boolean
   }
 
-  private def mayBePropertyKey(literal: ScLiteral): Boolean = literal match {
-    case ScStringLiteral(string) => !string.exists {
-      case '=' | ':' => true
-      case character => Character.isWhitespace(character)
+  object PassedToNlsChecker extends AnnotationChecker {
+    override def check(owner: PsiModifierListOwner): Boolean = {
+      def resolveAnnotation(annotation: PsiAnnotation): Option[PsiModifierListOwner] = {
+        def resolveInScala =
+          annotation
+            .asOptionOf[ScAnnotation]
+            .flatMap(_.typeElement.`type`().toOption)
+            .flatMap(_.extractClass)
+
+        def resolveInJava =
+          annotation
+            .getNameReferenceElement
+            .toOption
+            .flatMap(_.resolve().asOptionOf[PsiModifierListOwner])
+
+        resolveInJava.orElse(resolveInScala)
+      }
+
+
+      // annotated with @Nls
+      AnnotationUtil.findAnnotation(owner, AnnotationUtil.NLS) != null ||
+        // annotated with Annotation itself annotated with @Nls
+        owner
+          .getAnnotations.iterator
+          .flatMap(resolveAnnotation)
+          .exists(AnnotationUtil.findAnnotation(_, AnnotationUtil.NLS) != null)
     }
-    case _ => false
   }
 
-  def isPassedToAnnotatedParam(@NotNull literal: ScLiteral, annFqn: String,
-                               @Nullable annotationAttributeValues: mutable.HashMap[String, AnyRef],
-                               @Nullable nonNlsTargets: mutable.HashSet[PsiModifierListOwner]): Boolean = {
-    literal.getParent match {
-      case argList: ScArgumentExprList =>
-        val idx = argList.exprs.indexOf(literal)
-        if (idx == -1) return false
+  def isPassedToNls(element: PsiElement): Boolean =
+    ScalaI18nUtil.isPassedToAnnotated(element, PassedToNlsChecker)
 
-        argList.getParent match {
-          case ScMethodCall(ResolvesTo(method: PsiMethod), _) =>
-            isMethodParameterAnnotatedWith(method, idx, null, annFqn, annotationAttributeValues, nonNlsTargets)
-          case _ =>
-            false
+
+  def mustBePropertyKey(literal: ScLiteral,
+                        @Nullable annotationAttributeValues: mutable.HashMap[String, AnyRef] = null): Boolean = {
+    isPassedToAnnotated(literal, AnnotationUtil.PROPERTY_KEY, annotationAttributeValues)
+  }
+
+  def isPassedToAnnotated(element: PsiElement,
+                          annFqn: String,
+                          @Nullable
+                          annotationAttributeValues: mutable.HashMap[String, AnyRef] = null): Boolean =
+    isPassedToAnnotated(element, new AnnotationChecker {
+      override def check(owner: PsiModifierListOwner): Boolean = {
+        val annotation = AnnotationUtil.findAnnotation(owner, annFqn)
+        if (annotation != null) {
+          addToAnnotationAttributeValues(annotation)
+          true
+        } else false
+      }
+
+      private def addToAnnotationAttributeValues(annotation: PsiAnnotation): Unit = {
+        if (annotationAttributeValues != null) {
+          val parameterList = annotation.getParameterList
+          val attributes = parameterList.getAttributes
+          for (attribute <- attributes) {
+            val name: String = attribute.getName
+            if (annotationAttributeValues.contains(name)) {
+              annotationAttributeValues.put(name, attribute.getValue)
+            }
+          }
         }
+      }
+    })
+
+  @tailrec
+  def isPassedToAnnotated(@NotNull element: PsiElement, checker: AnnotationChecker): Boolean = {
+    def isAnnotated(member: PsiElement): Boolean = ScalaI18nUtil.isAnnotated(member, checker)
+    def checkParam(matchedParameters: Seq[(ScExpression, Parameter)]): Boolean =
+      matchedParameters
+        .find(_._1 == element)
+        .flatMap { case (_, param) => param.psiParam }
+        .exists(isAnnotated)
+
+    element.getParent match {
+      case argList: ScArgumentExprList =>
+        checkParam(argList.matchedParameters)
+      case infix@ScInfixExpr(_, _, `element`) =>
+        checkParam(infix.matchedParameters)
+      case (tuple: ScTuple) && Parent(infix@ScInfixExpr(_, _, arg)) if tuple == arg =>
+        checkParam(infix.matchedParameters)
+      case assign: ScAssignment =>
+        assign
+          .resolveAssignment
+          .orElse(assign.leftExpression.asOptionOf[ScReferenceExpression].flatMap(_.bind()))
+          .exists {
+            case ScalaResolveResult(f: ScFunction, _) =>
+              f.parameters.headOption.exists(isAnnotated)
+            case ScalaResolveResult(e, _) =>
+              isAnnotated(e)
+            case _ =>
+              false
+          }
+      case block: ScBlock if block.lastStatement.contains(element) =>
+        isPassedToAnnotated(block, checker)
+      case ScReturn.of(method) => isAnnotated(method)
+      case f: ScFunctionDefinition => isAnnotated(f)
+      case v: ScValueOrVariable => isAnnotated(v)
+      case parenthesised: ScParenthesisedExpr =>
+        isPassedToAnnotated(parenthesised, checker)
+      case typed: ScTypedExpression if !typed.isSequenceArg =>
+        isPassedToAnnotated(typed, checker)
+      case matchCase: ScCaseClause =>
+        // in match:      caseClause -> caseClauses -> matchExpr (in some other expression)
+        // in call block: caseClause -> caseClauses -> block of expression (in argumentList)
+        isPassedToAnnotated(matchCase.getParent.getParent, checker)
+      case ifExpr: ScIf if !ifExpr.condition.contains(element) =>
+        isPassedToAnnotated(ifExpr, checker)
       case _ => false
     }
   }
 
-  def isMethodParameterAnnotatedWith(method: PsiMethod, idx: Int, @Nullable myProcessed: mutable.HashSet[PsiMethod],
-                                     annFqn: String, @Nullable annotationAttributeValues: mutable.HashMap[String, AnyRef],
-                                     @Nullable nonNlsTargets: mutable.HashSet[PsiModifierListOwner]): Boolean = {
-    var processed = myProcessed
-    if (processed != null) {
-      if (processed.contains(method)) return false
-    }
-    else {
-      processed = new mutable.HashSet[PsiMethod]
-    }
-    processed.add(method)
+  def isMethodParameterAnnotated(method: PsiMethod, idx: Int, checker: AnnotationChecker): Boolean = {
     val params = method.parameters
-    var param: PsiParameter = null
-    if (idx >= params.length) {
-      if (params.isEmpty) {
-        return false
-      }
-      val lastParam: PsiParameter = params.last
-      if (lastParam.isVarArgs) {
-        param = lastParam
-      }
-      else {
-        return false
-      }
-    }
-    else {
-      param = params(idx)
-    }
-    val annotation: PsiAnnotation = AnnotationUtil.findAnnotation(param, annFqn)
-    if (annotation != null) {
-      if (annotationAttributeValues != null) {
-        val parameterList: PsiAnnotationParameterList = annotation.getParameterList
-        val attributes: Array[PsiNameValuePair] = parameterList.getAttributes
-        for (attribute <- attributes) {
-          val name: String = attribute.getName
-          if (annotationAttributeValues.contains(name)) {
-            annotationAttributeValues.put(name, attribute.getValue)
+    def varArgsParam = params.lastOption.filter(_.isVarArgs)
+    val param: PsiParameter =
+      params
+        .lift(idx)
+        .orElse(varArgsParam)
+        .getOrElse(return false)
+    isAnnotated(param, checker)
+  }
+
+  def isAnnotatedWithNls(element: PsiElement): Boolean = isAnnotated(element, PassedToNlsChecker)
+
+  def isAnnotated(element: PsiElement, checker: AnnotationChecker): Boolean = {
+    import ScalaPsiUtil._
+    def isDirectAnnotated(element: PsiElement): Boolean =
+      checkAnnotationsOnElement(element, checker)
+    def isSuperAnnotatedWith(element: PsiNamedElement): Boolean =
+      superValsSignatures(element, withSelfType = true).iterator.map(_.namedElement).exists(isDirectAnnotated)
+    element match {
+      case param: ScClassParameter =>
+        isDirectAnnotated(param) || isSuperAnnotatedWith(param)
+
+      case v: ScValueOrVariable =>
+        isDirectAnnotated(v) || v.declaredElements.exists(isSuperAnnotatedWith)
+
+      case bindingPattern: ScBindingPattern =>
+        isDirectAnnotated(bindingPattern) || isSuperAnnotatedWith(bindingPattern)
+
+      case function: ScFunction =>
+        isDirectAnnotated(function) || function.superSignaturesIncludingSelfType.map(_.namedElement).exists(isDirectAnnotated)
+
+      case method: PsiMethod =>
+        isDirectAnnotated(method) || method.findSuperMethods().exists(isDirectAnnotated)
+
+      case param: PsiParameter =>
+        isDirectAnnotated(param) || {
+          param.getDeclarationScope match {
+            case method: PsiMethod =>
+              val pIndex = param.index
+              method
+                .findSuperMethods()
+                .iterator
+                .flatMap(_.parameters.lift(pIndex))
+                .exists(isDirectAnnotated)
+            case _ =>
+              // support more then methods
+              false
           }
         }
-      }
-      return true
+      case _ =>
+        false
     }
-    if (nonNlsTargets != null) {
-      nonNlsTargets.add(param)
+  }
+
+  private def checkAnnotationsOnElement(element: PsiElement, checker: AnnotationChecker): Boolean = {
+    element match {
+      case owner: PsiModifierListOwner => checker.check(owner)
+      case _ => false
     }
-    val superMethods: Array[PsiMethod] = method.findSuperMethods
-    for (superMethod <- superMethods) {
-      if (isMethodParameterAnnotatedWith(superMethod, idx, processed, annFqn, annotationAttributeValues, null)) return true
-    }
-    false
   }
 
   def isPropertyRef(expression: ScLiteral, key: String, resourceBundleName: String): Boolean = {
@@ -122,7 +226,7 @@ object ScalaI18nUtil {
     }
   }
 
-  @NotNull def propertiesFilesByBundleName(resourceBundleName: String, context: PsiElement): java.util.List[PropertiesFile] = {
+  def propertiesFilesByBundleName(resourceBundleName: String, context: PsiElement): java.util.List[PropertiesFile] = {
     var containingFile: PsiFile = context.getContainingFile
     val containingFileContext: PsiElement = containingFile.getContext
     if (containingFileContext != null) containingFile = containingFileContext.getContainingFile
@@ -175,11 +279,11 @@ object ScalaI18nUtil {
     maxCount
   }
 
-  def isValidPropertyReference(@NotNull project: Project, @NotNull expression: ScLiteral, @NotNull key: String, @NotNull outResourceBundle: Ref[String]): Boolean = {
+  def isValidPropertyReference(expression: ScLiteral, key: String, outResourceBundle: Ref[String]): Boolean = {
     val annotationAttributeValues = new mutable.HashMap[String, AnyRef]
     annotationAttributeValues.put(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER, null)
     if (mustBePropertyKey(expression, annotationAttributeValues)) {
-      annotationAttributeValues get AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER exists {
+      annotationAttributeValues.get(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER).exists {
         case bundleName: PsiElement =>
           val result = JavaPsiFacade.getInstance(bundleName.getProject).getConstantEvaluationHelper.computeConstantExpression(bundleName)
           if (result == null) false else {

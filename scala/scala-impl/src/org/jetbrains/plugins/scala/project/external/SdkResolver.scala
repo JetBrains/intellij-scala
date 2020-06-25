@@ -1,16 +1,12 @@
 package org.jetbrains.plugins.scala.project.external
 
-import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.projectRoots.Sdk
+import org.jetbrains.plugins.scala.ExtensionPointDeclaration
 
-/**
-  * @author Pavel Fatin
-  */
 abstract class SdkResolver {
-  def sdkOf(reference: SdkReference): Option[Sdk]
+  def findSdk(reference: SdkReference): Option[Sdk]
 }
 
-object SdkResolver {
-  var EP_NAME: ExtensionPointName[SdkResolver] =
-    ExtensionPointName.create("org.intellij.scala.sdkResolver")
-}
+object SdkResolver extends ExtensionPointDeclaration[SdkResolver](
+  "org.intellij.scala.sdkResolver"
+)

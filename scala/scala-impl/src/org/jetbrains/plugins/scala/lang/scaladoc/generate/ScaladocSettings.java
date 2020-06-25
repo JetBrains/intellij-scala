@@ -4,13 +4,13 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import org.jetbrains.annotations.NotNull;
 
-/**
- * User: Dmitry Naidanov
- * Date: 22.10.11
- */
 
-@State(name = "ScaladocSettings")
+@State(
+        name = "ScaladocSettings",
+        reportStatistic = true
+)
 public class ScaladocSettings implements PersistentStateComponent<ScaladocSettings> {
 
   public String outputDir = null;
@@ -24,8 +24,8 @@ public class ScaladocSettings implements PersistentStateComponent<ScaladocSettin
     return this;
   }
 
-  public void loadState(ScaladocSettings state) {
-    XmlSerializerUtil.copyBean(state, this);
+  public void loadState(@NotNull ScaladocSettings state) {
+    XmlSerializerUtil.copyBean(state, this); // TODO: from docs:  defensive copying is not required.
   }
 
   public static ScaladocSettings getInstance(Project project) {

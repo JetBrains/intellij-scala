@@ -21,15 +21,15 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.InplaceRenameHelper
 import scala.collection.JavaConverters._
 
 class ConvertImplicitBoundsToImplicitParameter extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = "Convert Implicit Bounds"
+  override def getFamilyName: String = ScalaBundle.message("family.name.convert.implicit.bounds")
 
-  override def getText: String = "Convert view and context bounds to implicit parameters"
+  override def getText: String = ScalaBundle.message("convert.view.and.context.bounds.to.implicit.parameters")
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     canBeConverted(element)
   }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     val addedParams = doConversion(element)
     runRenamingTemplate(addedParams)
   }

@@ -9,7 +9,6 @@ import com.intellij.testFramework.EditorTestUtil
   */
 class VarCouldBeValInspectionTest extends ScalaQuickFixTestBase {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
   import varCouldBeValInspection.VarCouldBeValInspection
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
@@ -17,7 +16,7 @@ class VarCouldBeValInspectionTest extends ScalaQuickFixTestBase {
 
   import VarCouldBeValInspection._
 
-  override protected val description: String = DESCRIPTION
+  override protected val description: String = ScalaInspectionBundle.message("var.could.be.a.val")
 
   def testPrivateField(): Unit = testQuickFix(
     text =
@@ -176,5 +175,5 @@ class VarCouldBeValInspectionTest extends ScalaQuickFixTestBase {
   )
 
   private def testQuickFix(text: String, expected: String): Unit =
-    testQuickFix(text, expected, VarToValFix.HINT)
+    testQuickFix(text, expected, ScalaInspectionBundle.message("convert.var.to.val"))
 }

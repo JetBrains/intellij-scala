@@ -5,6 +5,7 @@ package api
 package expr
 
 import com.intellij.psi.{PsiElement, PsiReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ConstructorInvocationLike
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -15,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 trait ScSelfInvocation extends ScalaPsiElement with PsiReference with ConstructorInvocationLike {
   def args: Option[ScArgumentExprList]
 
-  def arguments: Seq[ScArgumentExprList]
+  override def arguments: Seq[ScArgumentExprList]
 
   def bind: Option[PsiElement]
 

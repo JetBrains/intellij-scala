@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.worksheet.actions.topmenu
 
 import java.awt.BorderLayout
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.icons.AllIcons
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.actionSystem._
@@ -21,13 +22,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
 
-class CleanWorksheetAction extends AnAction with TopComponentAction {
+class CleanWorksheetAction extends AnAction(
+  ScalaBundle.message("clean.scala.worksheet.action.text"),
+  ScalaBundle.message("clean.scala.worksheet.action.description"),
+  AllIcons.Actions.GC
+) with TopComponentAction {
 
   override def genericText: String = ScalaBundle.message("worksheet.clear.button")
 
   override def actionIcon: Icon = AllIcons.Actions.GC
 
-  override def actionPerformed(e: AnActionEvent) {
+  override def actionPerformed(e: AnActionEvent): Unit = {
     val project = e.getProject
     if (project == null) return //EA-72055
 
@@ -66,6 +71,7 @@ object CleanWorksheetAction {
 
         editor.getSettings.setFoldingOutlineShown(true)
         editor.getContentComponent.requestFocus() //  properly repaints editor SCL-16073
+        DaemonCodeAnalyzer.getInstance(project).restart(psiFile)
       }
     }
   }

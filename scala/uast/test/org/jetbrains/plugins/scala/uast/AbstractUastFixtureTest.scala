@@ -15,23 +15,27 @@ import scala.reflect.ClassTag
 abstract class AbstractUastFixtureTest
   extends ScalaLightCodeInsightFixtureTestAdapter {
 
+  override def runInDispatchThread() = false
+
   override def getTestDataPath: String = super.getTestDataPath + "uast"
 
   def getTestFile(testName: String): File =
     new File(getTestDataPath, testName + ".scala")
 
-  def check(testName: String, file: UFile)
+  def check(testName: String, file: UFile): Unit
 
   def doTest(testName: String = getTestName(false),
-             checkCallback: (String, UFile) => Unit = check) {
+             checkCallback: (String, UFile) => Unit = check): Unit = {
     val testFile = getTestFile(testName)
     if (!testFile.exists())
       throw new IllegalStateException(s"File does not exist: $testFile")
     val psiFile = myFixture.configureByFile(testFile.getPath)
-    psiFile.convertWithParentTo[UElement]() match {
-      case Some(uFile: UFile) => checkCallback(testName, uFile)
-      case _ =>
-        throw new IllegalStateException(s"Can't get UFile for $testName")
+    extensions.inReadAction {
+      psiFile.convertWithParentTo[UElement]() match {
+        case Some(uFile: UFile) => checkCallback(testName, uFile)
+        case _ =>
+          throw new IllegalStateException(s"Can't get UFile for $testName")
+      }
     }
   }
 }
@@ -42,7 +46,7 @@ object AbstractUastFixtureTest {
     elem.accept(new AbstractUastVisitor {
       override def visitElement(node: UElement): Boolean = {
         node match {
-          case e: T if Option(node.getSourcePsi).exists(_.getText == refText) =>
+          case e: T if Option(node.getSourcePsi).exists(_.textMatches(refText)) =>
             matchingElements += e; false
           case _ => false
         }
@@ -102,7 +106,7 @@ object AbstractUastFixtureTest {
       )
 
     val uElemSourcePsi = uElemContainingText.getSourcePsi
-    if (strict && uElemSourcePsi != null && uElemSourcePsi.getText != refText)
+    if (strict && uElemSourcePsi != null && !uElemSourcePsi.textMatches(refText))
       throw new AssertionError(
         s"requested text '$refText' found as '${uElemSourcePsi.getText}' in $uElemContainingText"
       )

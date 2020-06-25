@@ -4,6 +4,7 @@ import java.util.{Collections, List => JList}
 
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.actions.{JvmSmartStepIntoHandler, MethodSmartStepTarget, SmartStepTarget}
+import com.intellij.debugger.engine.MethodFilter
 import com.intellij.debugger.impl.DebuggerSession
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.util.TextRange
@@ -88,12 +89,12 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
             .foreach(_.accept(collector))
     collector.result.sortBy(_.getHighlightElement.getTextOffset).asJava
   }
-  def isAvailable(position: SourcePosition): Boolean = {
+  override def isAvailable(position: SourcePosition): Boolean = {
     val file: PsiFile = position.getFile
     file.isInstanceOf[ScalaFile]
   }
 
-  override def createMethodFilter(stepTarget: SmartStepTarget) = {
+  override def createMethodFilter(stepTarget: SmartStepTarget): MethodFilter = {
     stepTarget match {
       case methodTarget: MethodSmartStepTarget =>
         val scalaFilter = methodTarget.getMethod match {
@@ -122,7 +123,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
   }
 
   private class TargetCollector(noStopAtLines: Range[Integer], elementFilter: PsiElement => Boolean) extends ScalaRecursiveElementVisitor {
-    val result = ArrayBuffer[SmartStepTarget]()
+    val result: ArrayBuffer[SmartStepTarget] = ArrayBuffer[SmartStepTarget]()
 
     override def visitNewTemplateDefinition(templ: ScNewTemplateDefinition): Unit = {
       if (!elementFilter(templ)) return
@@ -175,7 +176,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
       addMethodsIfInArgument()
     }
 
-    override def visitExpression(expr: ScExpression) {
+    override def visitExpression(expr: ScExpression): Unit = {
       if (!elementFilter(expr)) return
 
       expr.implicitElement().collect {

@@ -21,7 +21,7 @@ class ScalaPackageObjectFilterFactory extends ExceptionFilterFactory {
 }
 
 class ScalaPackageObjectConsoleFilterProvider extends ConsoleFilterProvider {
-  def getDefaultFilters(project: Project): Array[Filter] =
+  override def getDefaultFilters(project: Project): Array[Filter] =
     Array(new ScalaPackageObjectFilter(GlobalSearchScope.allScope(project)))
 }
 

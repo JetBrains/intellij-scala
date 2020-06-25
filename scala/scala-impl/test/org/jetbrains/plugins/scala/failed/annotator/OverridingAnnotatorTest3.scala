@@ -15,15 +15,13 @@ class OverridingAnnotatorTest3 extends ScalaInspectionTestBase {
 
   override protected def shouldPass: Boolean = false
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[AnnotatorBasedErrorInspection]
 
   override protected val description: String =
     "overriding variable name in class Abs of type String"
 
-  def testScl7536() {
+  def testScl7536(): Unit = {
     checkTextHasError(
       s"""
          |class Abs(var name: String){ }         |

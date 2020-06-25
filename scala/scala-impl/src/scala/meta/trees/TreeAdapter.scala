@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
 import scala.collection.immutable.Seq
 import scala.language.postfixOps
+import scala.meta.Defn
 import scala.meta.trees.error._
 import scala.{meta => m}
 
@@ -132,7 +133,7 @@ trait TreeAdapter {
     }
   }
 
-  def toClass(c: PsiClass) = m.Defn.Class(
+  def toClass(c: PsiClass): Defn.Class = m.Defn.Class(
     convertMods(c.getModifierList),
     toTypeName(c),
     Seq(c.getTypeParameters map toTypeParams:_*),
@@ -140,7 +141,7 @@ trait TreeAdapter {
     template(c.getAllMethods)
   )
 
-  def toObject(o: ScObject) = m.Defn.Object(
+  def toObject(o: ScObject): Defn.Object = m.Defn.Object(
     convertMods(o),
     toTermName(o),
     template(o.physicalExtendsBlock)

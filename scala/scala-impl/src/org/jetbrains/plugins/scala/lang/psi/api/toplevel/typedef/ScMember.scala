@@ -9,6 +9,7 @@ import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.util._
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, OptionExt, StubBasedExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameterClause}
@@ -28,7 +29,7 @@ import scala.collection.mutable.ArrayBuffer
   */
 trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 
-  def getContainingClass: PsiClass = containingClass
+  override def getContainingClass: PsiClass = containingClass
 
   final def syntheticNavigationElement: PsiElement =
     getUserData(syntheticNavigationElementKey)
@@ -48,6 +49,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     * `object a { def foo { def bar = 0 }}`
     */
   @Cached(ModCount.anyScalaPsiModificationCount, this)
+  @Nullable
   def containingClass: ScTemplateDefinition = {
     this match {
       case stub: StubBasedPsiElementBase[_] =>

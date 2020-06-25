@@ -9,7 +9,7 @@ import com.intellij.openapi.roots.{OrderEnumerator, libraries}
 import com.intellij.openapi.util.io.JarUtil.{containsEntry, getJarAttribute}
 import com.intellij.util.CommonProcessors.FindProcessor
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel._
-import org.jetbrains.plugins.scala.project.ScalaModuleSettings.RootImportSetting
+import org.jetbrains.plugins.scala.project.ScalaModuleSettings.{Yimports, YnoPredefOrNoImports}
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
 import org.jetbrains.sbt.settings.SbtSettings
 
@@ -67,6 +67,9 @@ private class ScalaModuleSettings(module: Module, val scalaSdk: LibraryEx) {
   val betterMonadicForPluginEnabled: Boolean =
     compilerPlugins.exists(_.contains("better-monadic-for"))
 
+  val contextAppliedPluginEnabled: Boolean =
+    compilerPlugins.exists(_.contains("context-applied"))
+
   /**
    * Should we check if it's a Single Abstract Method?
    * In 2.11 works with -Xexperimental
@@ -90,8 +93,10 @@ private class ScalaModuleSettings(module: Module, val scalaSdk: LibraryEx) {
     settingsForHighlighting.exists(_.strict)
 
   val customDefaultImports: Option[Seq[String]] =
-    additionalCompilerOptions
-      .collectFirst { case RootImportSetting(imports) => imports }
+    additionalCompilerOptions.collectFirst {
+      case Yimports(imports) if scalaLanguageLevel >= Scala_2_13 => imports
+      case YnoPredefOrNoImports(imports)                         => imports
+    }
 
   private[this] def isMetaParadiseJar(pathname: String): Boolean = new File(pathname) match {
     case file if containsEntry(file, "scalac-plugin.xml") =>
@@ -112,9 +117,7 @@ private object ScalaModuleSettings {
     val processor: FindProcessor[libraries.Library] = _.isScalaSdk
 
     OrderEnumerator.orderEntries(module)
-      .recursively
       .librariesOnly
-      .exportedOnly
       .forEachLibrary(processor)
 
     val scalaSdk = processor.getFoundValue.asInstanceOf[LibraryEx]
@@ -123,18 +126,25 @@ private object ScalaModuleSettings {
       .map(new ScalaModuleSettings(module, _))
   }
 
-  private object RootImportSetting {
-    private val Yimports   = "-Yimports:"
+  private object Yimports {
+    private val YimportsPrefix = "-Yimports:"
+
+    def unapply(setting: String): Option[Seq[String]] =
+      if (setting.startsWith(YimportsPrefix))
+        Option(setting.substring(YimportsPrefix.length).split(",").map(_.trim))
+      else None
+  }
+
+  private object YnoPredefOrNoImports {
     private val Ynopredef  = "-Yno-predef"
     private val Ynoimports = "-Yno-imports"
 
-    private val importSettingsPrefixes = Seq(Yimports, Ynopredef, Ynoimports)
+    private val importSettingsPrefixes = Seq(Ynopredef, Ynoimports)
 
     def unapply(setting: String): Option[Seq[String]] = {
       val prefix = importSettingsPrefixes.find(setting.startsWith)
 
       prefix.collect {
-        case Yimports   => setting.substring(Yimports.length).split(",").map(_.trim)
         case Ynopredef  => Seq("java.lang", "scala")
         case Ynoimports => Seq.empty
       }

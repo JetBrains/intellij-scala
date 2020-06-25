@@ -17,7 +17,7 @@ class ScalaTestCreator extends JavaTestCreator {
     try {
       val action = new CreateTestAction {
         override protected def createTestDialog(project: Project, srcModule: Module, srcClass: PsiClass,
-                                                srcPackage: PsiPackage) =
+                                                srcPackage: PsiPackage): CreateTestDialog =
           new CreateTestDialog(project, getText, srcClass, srcPackage, srcModule) {
             override def suggestTestClassName(targetClass: PsiClass): String = targetClass match {
               case obj: ScObject => obj.getName.stripSuffix("$") + "Test"

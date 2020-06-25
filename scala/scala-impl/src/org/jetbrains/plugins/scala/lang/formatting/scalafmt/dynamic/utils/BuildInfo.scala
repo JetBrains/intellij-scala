@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.utils
 
+//noinspection HardCodedStringLiteral
 case object BuildInfo {
   /** The value is "dynamic". */
   val name: String = "dynamic"

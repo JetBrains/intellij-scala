@@ -1,41 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ScalaSbtSettings">
+    <option name="customVMPath" />
     <option name="linkedExternalProjectsSettings">
       <SbtProjectSettings>
-        <option name="enableDebugSbtShell" value="false" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/bsp" />
-            <option value="$PROJECT_DIR$/hydra/compiler-jps" />
-            <option value="$PROJECT_DIR$/hydra/hydra-impl" />
             <option value="$PROJECT_DIR$/project" />
+            <option value="$PROJECT_DIR$/scala/codeInsight" />
             <option value="$PROJECT_DIR$/scala/compiler-jps" />
             <option value="$PROJECT_DIR$/scala/compiler-shared" />
+            <option value="$PROJECT_DIR$/scala/conversion" />
             <option value="$PROJECT_DIR$/scala/decompiler" />
             <option value="$PROJECT_DIR$/scala/integration/android" />
             <option value="$PROJECT_DIR$/scala/integration/copyright" />
+            <option value="$PROJECT_DIR$/scala/integration/devKit" />
             <option value="$PROJECT_DIR$/scala/integration/gradle" />
-            <option value="$PROJECT_DIR$/scala/integration/intellilang" />
+            <option value="$PROJECT_DIR$/scala/integration/intelliLang" />
             <option value="$PROJECT_DIR$/scala/integration/java-decompiler" />
             <option value="$PROJECT_DIR$/scala/integration/maven" />
             <option value="$PROJECT_DIR$/scala/integration/properties" />
             <option value="$PROJECT_DIR$/scala/macros" />
             <option value="$PROJECT_DIR$/scala/nailgun" />
             <option value="$PROJECT_DIR$/scala/runners" />
+            <option value="$PROJECT_DIR$/scala/scala-api" />
             <option value="$PROJECT_DIR$/scala/scala-impl" />
-            <option value="$PROJECT_DIR$/scalaFmtBin" />
+            <option value="$PROJECT_DIR$/scala/uast" />
+            <option value="$PROJECT_DIR$/scala/worksheet" />
             <option value="$PROJECT_DIR$/target/tools/idea-runner" />
             <option value="$PROJECT_DIR$/target/tools/zinc" />
           </set>
         </option>
-        <option name="sbtVersion" value="0.13.17" />
-        <option name="resolveClassifiers" value="false" />
+        <option name="sbtVersion" value="0.13.18" />
+        <option name="useQualifiedModuleNames" value="true" />
         <option name="useSbtShellForImport" value="true" />
       </SbtProjectSettings>
     </option>
-    <option name="maximumHeapSize" value="2048" />
   </component>
 </project>

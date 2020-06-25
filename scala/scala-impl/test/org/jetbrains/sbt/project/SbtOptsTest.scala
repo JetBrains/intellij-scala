@@ -28,7 +28,7 @@ class SbtOptsTest {
   @Test
   def testLoad(): Unit = {
     val optsDir = FileUtil.createTempDirectory("sbtOptsTest","",true)
-    val optsFile = new File(optsDir,".sbtopts")
+    val optsFile = new File(optsDir,SbtOpts.SbtOptsFile)
     FileUtil.writeToFile(optsFile, input)
     val opts = SbtOpts.loadFrom(optsDir)
     assertEquals(expected, opts)

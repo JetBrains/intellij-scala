@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{Dcl, EmptyDcl
  */
 
 object ExistentialDclSeq {
-  def parse(builder: ScalaPsiBuilder) {
+  def parse(builder: ScalaPsiBuilder): Unit = {
     builder.getTokenType match {
       case ScalaTokenTypes.kTYPE | ScalaTokenTypes.kVAL =>
         if (!Dcl.parse(builder, isMod = false)) {

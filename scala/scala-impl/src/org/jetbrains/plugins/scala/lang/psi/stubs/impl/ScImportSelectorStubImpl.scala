@@ -17,9 +17,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createRe
   */
 class ScImportSelectorStubImpl(parent: StubElement[_ <: PsiElement],
                                elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                               val referenceText: Option[String],
-                               val importedName: Option[String],
-                               val isAliasedImport: Boolean)
+                               override val referenceText: Option[String],
+                               override val importedName: Option[String],
+                               override val isAliasedImport: Boolean)
   extends StubBase[ScImportSelector](parent, elementType) with ScImportSelectorStub with PsiOwner[ScImportSelector] {
 
   private var referenceReference: SofterReference[Option[ScStableCodeReference]] = null

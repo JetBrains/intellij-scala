@@ -6,6 +6,7 @@ package expr
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.scope._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -20,11 +21,23 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.Singleton
   */
 class ScFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFunctionExpr {
 
-  def parameters: Seq[ScParameter] = params.params
+  override def parameters: Seq[ScParameter] = params.params
 
-  def params: ScParameters = findChildByClass(classOf[ScParameters])
+  override def params: ScParameters = findChildByClass(classOf[ScParameters])
 
-  def result: Option[ScExpression] = findChild(classOf[ScExpression])
+  override def result: Option[ScExpression] = findChild(classOf[ScExpression])
+
+  override def hasParentheses: Boolean = leftParen.isDefined && rightParen.isDefined
+
+  override def leftParen: Option[PsiElement] = params.clauses.head.getFirstChild match {
+    case (e: LeafPsiElement) if e.textMatches("(") => Some(e)
+    case _ => None
+  }
+
+  override def rightParen: Option[PsiElement] = params.clauses.head.getLastChild match {
+    case (e: LeafPsiElement) if e.textMatches(")") => Some(e)
+    case _ => None
+  }
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                    state: ResolveState,

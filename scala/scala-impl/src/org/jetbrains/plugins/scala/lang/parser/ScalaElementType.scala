@@ -22,13 +22,14 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.{ScExportStmtI
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScImportStmtStub, ScTemplateDefinitionStub}
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 
 sealed abstract class ScalaElementType(debugName: String,
                                        override val isLeftBound: Boolean = true)
   extends IElementType(debugName, ScalaLanguage.INSTANCE)
     with SelfPsiCreator {
 
-  def createElement(node: ASTNode): ScalaPsiElement
+  override def createElement(node: ASTNode): ScalaPsiElement
 
   override final def toString: String = super.toString
 }
@@ -69,11 +70,12 @@ object ScalaElementType {
   val FUNCTION_DECLARATION: ScFunctionElementType[ScFunctionDeclaration] = FunctionDeclaration
   val FUNCTION_DEFINITION: ScFunctionElementType[ScFunctionDefinition] = FunctionDefinition
   val MACRO_DEFINITION: ScFunctionElementType[ScMacroDefinition] = MacroDefinition
+  val GIVEN_ALIAS: ScFunctionElementType[ScGivenAlias] = GivenAlias
   val TYPE_DECLARATION = new ScTypeAliasDeclarationElementType
   val PATTERN_LIST = new ScPatternListElementType
   val TYPE_DEFINITION = new ScTypeAliasDefinitionElementType
   val EARLY_DEFINITIONS = new ScEarlyDefinitionsElementType
-  val MODIFIERS = new ScModifiersElementType("moifiers") // TODO: should it be moDifiers?
+  val MODIFIERS = new ScModifiersElementType("modifiers")
   val ACCESS_MODIFIER = new ScAccessModifierElementType
   val ANNOTATION = new ScAnnotationElementType
   val ANNOTATIONS = new ScAnnotationsElementType
@@ -148,6 +150,15 @@ object ScalaElementType {
       new ScNewTemplateDefinitionImpl(stub, nodeType, node, debugName)
   }
 
+  val GivenDefinition = new ScTemplateDefinitionElementType[ScGivenDefinition]("ScGivenDefinition") {
+    override protected def createPsi(stub: ScTemplateDefinitionStub[ScGivenDefinition],
+                                     nodeType: this.type,
+                                     node: ASTNode,
+                                     debugName: String): ScGivenDefinition = {
+      new ScGivenDefinitionImpl(stub, nodeType, node, debugName)
+    }
+  }
+
   val REFERENCE_PATTERN: ScBindingPatternElementType[ScReferencePattern] = ScReferencePatternElementType
   val TYPED_PATTERN: ScBindingPatternElementType[ScTypedPattern] = ScTypedPatternElementType
   val NAMING_PATTERN: ScBindingPatternElementType[ScNamingPattern] = ScNamingPatternElementType
@@ -167,11 +178,21 @@ object ScalaElementType {
   val REFERENCE: ScalaElementType = new ScalaElementType("reference") {
     override def createElement(node: ASTNode) = new ScStableCodeReferenceImpl(node)
   }
+  /** NOTE: only created to be used from
+   *  [[org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory#createDocReferenceFromText]]
+   *  to create a syntetic reference from doc
+   */
+  val DOC_REFERENCE: ScalaElementType = new ScalaElementType("doc reference") {
+    override def createElement(node: ASTNode) = new ScDocResolvableCodeReferenceImpl(node)
+  }
   val NAME_VALUE_PAIR: ScalaElementType = new ScalaElementType("name value pair") {
     override def createElement(node: ASTNode) = new ScNameValuePairImpl(node)
   }
   val ANNOTATION_EXPR: ScalaElementType = new ScalaElementType("annotation expression") {
     override def createElement(node: ASTNode) = new ScAnnotationExprImpl(node)
+  }
+  val END_STMT: ScalaElementType = new ScalaElementType("end") {
+    override def createElement(node: ASTNode): ScalaPsiElement = new ScEndImpl(node)
   }
 
   /** ***********************************************************************************/
@@ -179,7 +200,7 @@ object ScalaElementType {
   /** ***********************************************************************************/
 
   sealed abstract class ScTypeElementType(debugName: String) extends ScalaElementType(debugName) {
-    def createElement(node: ASTNode): ScTypeElement
+    override def createElement(node: ASTNode): ScTypeElement
   }
 
   val COMPOUND_TYPE: ScTypeElementType = new ScTypeElementType("compound type") {
@@ -215,12 +236,26 @@ object ScalaElementType {
   val TYPE_GENERIC_CALL: ScTypeElementType = new ScTypeElementType("type generic call") {
     override def createElement(node: ASTNode) = new ScParameterizedTypeElementImpl(node)
   }
-  val LITERAL_TYPE: ScTypeElementType = new ScTypeElementType("Literal type") {
+  val LITERAL_TYPE: ScTypeElementType = new ScTypeElementType("literal type") {
     override def createElement(node: ASTNode) = new ScLiteralTypeElementImpl(node)
   }
-
   val TYPE_VARIABLE: ScTypeElementType = new ScTypeElementType("type variable") {
     override def createElement(node: ASTNode) = new ScTypeVariableTypeElementImpl(node)
+  }
+  val SPLICED_BLOCK_TYPE: ScTypeElementType = new ScTypeElementType("spliced block") {
+    override def createElement(node: ASTNode) = new ScSplicedBlockImpl(node)
+  }
+  val TYPE_LAMBDA: ScTypeElementType = new ScTypeElementType("type lambda") {
+    override def createElement(node: ASTNode): ScTypeElement = new ScTypeLambdaTypeElementImpl(node)
+  }
+  val MATCH_TYPE: ScTypeElementType = new ScTypeElementType("match type") {
+    override def createElement(node: ASTNode): ScTypeElement = new ScMatchTypeElementImpl(node)
+  }
+  val POLY_FUNCTION_TYPE: ScTypeElementType = new ScTypeElementType("poly function type") {
+    override def createElement(node: ASTNode): ScTypeElement = new ScPolyFunctionTypeElementImpl(node)
+  }
+  val DEPENDENT_FUNCTION_TYPE: ScTypeElementType = new ScTypeElementType("dependent function type") {
+    override def createElement(node: ASTNode): ScTypeElement = new ScDependentFunctionTypeElementImpl(node)
   }
 
   /** ***********************************************************************************/
@@ -234,6 +269,14 @@ object ScalaElementType {
   }
   val TYPES: ScalaElementType = new ScalaElementType("common type") {
     override def createElement(node: ASTNode) = new ScTypesImpl(node)
+  }
+
+  val TYPE_CASE_CLAUSES: ScalaElementType = new ScalaElementType("match type cases") {
+    override def createElement(node: ASTNode): ScalaPsiElement = new ScMatchTypeCasesImpl(node)
+  }
+
+  val TYPE_CASE_CLAUSE: ScalaElementType = new ScalaElementType("match type case") {
+    override def createElement(node: ASTNode): ScalaPsiElement = new ScMatchTypeCaseImpl(node)
   }
 
   /** ***********************************************************************************/
@@ -283,6 +326,15 @@ object ScalaElementType {
   }
   val BLOCK: ScExpressionElementType = new ScExpressionElementType("block") {
     override def createElement(node: ASTNode) = new ScBlockImpl(node)
+  }
+  val SPLICED_BLOCK_EXPR: ScExpressionElementType = new ScExpressionElementType("spliced block") {
+    override def createElement(node: ASTNode) = new ScSplicedBlockImpl(node)
+  }
+  val QUOTED_BLOCK: ScExpressionElementType = new ScExpressionElementType("quoted block") {
+    override def createElement(node: ASTNode) = new ScQuotedBlockImpl(node)
+  }
+  val QUOTED_TYPE: ScExpressionElementType = new ScExpressionElementType("quoted type") {
+    override def createElement(node: ASTNode): ScExpression = new ScQuotedTypeImpl(node)
   }
   val TUPLE: ScExpressionElementType = new ScExpressionElementType("Tuple") {
     override def createElement(node: ASTNode) = new ScTupleImpl(node)

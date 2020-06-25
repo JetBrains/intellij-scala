@@ -3,7 +3,7 @@ package local
 
 import java.io.File
 
-import org.jetbrains.jps.incremental.scala.data.{CompilerData, CompilerJars, SbtData}
+import org.jetbrains.plugins.scala.compiler.data.{CompilerData, CompilerJars, SbtData}
 import sbt.internal.inc.AnalyzingCompiler
 import xsbti.compile.AnalysisStore
 
@@ -17,7 +17,7 @@ class CachingFactory(delegate: CompilerFactory, compilersLimit: Int, analysisLim
 
   private val scalacCache = new Cache[(SbtData, Option[CompilerJars]), Option[AnalyzingCompiler]](scalacLimit)
 
-  def createCompiler(compilerData: CompilerData, client: Client, fileToStore: File => AnalysisStore): Compiler = {
+  override def createCompiler(compilerData: CompilerData, client: Client, fileToStore: File => AnalysisStore): Compiler = {
     val cachingFileToStore = (file: File) => analysisCache.getOrUpdate(file)(fileToStore(file))
 
     compilerCache.getOrUpdate(compilerData) {
@@ -25,7 +25,7 @@ class CachingFactory(delegate: CompilerFactory, compilersLimit: Int, analysisLim
     }
   }
 
-  def getScalac(sbtData: SbtData, compilerJars: Option[CompilerJars], client: Client): Option[AnalyzingCompiler] = {
+  override def getScalac(sbtData: SbtData, compilerJars: Option[CompilerJars], client: Client): Option[AnalyzingCompiler] = {
     scalacCache.getOrUpdate((sbtData, compilerJars)) {
       delegate.getScalac(sbtData, compilerJars, client)
     }

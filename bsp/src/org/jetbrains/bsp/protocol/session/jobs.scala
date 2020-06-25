@@ -4,14 +4,15 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicReference
 
 import ch.epfl.scala.bsp4j.BuildServerCapabilities
+import org.jetbrains.annotations.Nls
 import org.jetbrains.bsp.protocol.BspJob
 import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, BspSessionTask, NotificationAggregator, ProcessLogger}
 import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
 import org.jetbrains.bsp.{BspError, BspTaskCancelled}
-import org.jetbrains.plugins.scala.build.BuildTaskReporter
 
 import scala.concurrent.{CancellationException, Future, Promise}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object jobs {
 
@@ -26,7 +27,7 @@ object jobs {
   private[protocol] abstract class BspSessionJob[T,A] extends BspJob[(T,A)] {
 
     /** Log message to job--specific logging function. */
-    private[protocol] def log(message: String): Unit
+    private[protocol] def log(@Nls message: String): Unit
 
     /** Invoke a bsp notification aggregator or callback with given notification.
       * The result of aggregated notifications is the result value of the future returned by `run`.
@@ -39,14 +40,13 @@ object jobs {
     private[session] def run(bspServer: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[(T, A)]
 
     /** Cancel and abort this job with given error. */
-    private[session] def cancelWithError(error: BspError)
+    private[session] def cancelWithError(error: BspError): Unit
   }
 }
 
-
 private[session] class FailedBspSessionJob[T,A](problem: BspError) extends BspSessionJob[T,A] {
 
-  override private[protocol] def log(message: String): Unit = ()
+  override private[protocol] def log(@Nls message: String): Unit = ()
   override private[session] def notification(bspNotification: BspNotification): Unit = ()
   override private[session] def run(bspServer: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[(T, A)] = {
     val cf = new CompletableFuture[(T, A)]()
@@ -59,6 +59,7 @@ private[session] class FailedBspSessionJob[T,A](problem: BspError) extends BspSe
 
 }
 
+case class Bsp4JJobFailure[A](error: Throwable, messages: A) extends Throwable
 
 private[session] class Bsp4jJob[T,A](task: BspSessionTask[T],
                                      default: A,
@@ -93,7 +94,7 @@ private[session] class Bsp4jJob[T,A](task: BspSessionTask[T],
       })
   }
 
-  private[session] def run(bspServer: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[(T, A)] =
+  override private[session] def run(bspServer: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[(T, A)] =
     runningTask.synchronized {
       runningTask.get match {
         case Some(running) =>
@@ -105,7 +106,9 @@ private[session] class Bsp4jJob[T,A](task: BspSessionTask[T],
       }
     }
 
-  override def future: Future[(T, A)] = promise.future
+  override def future: Future[(T, A)] = promise.future.recoverWith{
+    case err  => Future.failed(Bsp4JJobFailure(err, a))
+  }
 
   override def cancel() : Unit =
     if (! promise.isCompleted)
@@ -121,7 +124,7 @@ private[session] class Bsp4jJob[T,A](task: BspSessionTask[T],
         runningTask.set(Some(errorFuture))
     }
 
-    promise.failure(error)
+    promise.tryFailure(error)
   }
 }
 

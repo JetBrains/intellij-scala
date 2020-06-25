@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
@@ -11,7 +11,7 @@ class CollectHeadOptionInspection extends OperationOnCollectionInspection {
 }
 
 object CollectHeadOption extends SimplificationType {
-  override def hint: String = InspectionBundle.message("replace.collect.headOption.with.collectFirst")
+  override def hint: String = ScalaInspectionBundle.message("replace.collect.headOption.with.collectFirst")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator.createFromUsage
 
 import com.intellij.codeInsight.template.TemplateBuilder
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
@@ -14,17 +15,21 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
  */
 
 class CreateApplyQuickFix(td: ScTypeDefinition, call: ScMethodCall)
-        extends {val getFamilyName = "Create 'apply' method"} with CreateApplyOrUnapplyQuickFix(td) {
+  extends CreateApplyOrUnapplyQuickFix(td) {
 
-  val methodType = call.expectedType().map(_.canonicalText)
+  override def getFamilyName: String = ScalaBundle.message("family.name.create.apply.method")
 
-  val methodText = {
+  override def getText: String = ScalaBundle.message("create.apply.method.in", td.shortDefinition)
+
+  override val methodType: Option[String] = call.expectedType().map(_.canonicalText)
+
+  override val methodText: String = {
     val argsText = CreateFromUsageUtil.paramsText(call.argumentExpressions)
     val dummyTypeText = methodType.fold("")(_ => ": Int")
     s"def apply$argsText$dummyTypeText = ???"
   }
 
-  override protected def addElementsToTemplate(method: ScFunction, builder: TemplateBuilder) = {
+  override protected def addElementsToTemplate(method: ScFunction, builder: TemplateBuilder): Unit = {
     for (aType <- methodType;
          typeElement <- method.children.instanceOf[ScSimpleTypeElement]) {
       builder.replaceElement(typeElement, aType)

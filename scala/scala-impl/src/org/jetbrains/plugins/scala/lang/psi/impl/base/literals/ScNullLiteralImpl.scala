@@ -19,7 +19,7 @@ final class ScNullLiteralImpl(node: ASTNode,
     wrappedValue(getValue).wideType(getProject)
   }
 
-  override protected def wrappedValue(value: Null) = new ScLiteral.Value(value) {
+  override protected def wrappedValue(value: Null): ScLiteral.Value[Null] = new ScLiteral.Value(value) {
     override def wideType(implicit project: Project): ScType = api.Null
   }
 

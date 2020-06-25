@@ -1,13 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.unused
 
-import com.intellij.testFramework.EditorTestUtil
-
 /**
   * Created by Svyatoslav Ilinskiy on 11.07.16.
   */
 class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBase {
-
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
   def testPrivateField(): Unit = {
     val code =
@@ -477,4 +473,66 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
     testQuickFix(before, after, hint)
   }
 
+  // SCL-17181
+  def testOverridingSymbol(): Unit = checkTextHasNoErrors(
+    """
+      |trait A {
+      |  val foo: Int
+      |  val foo1: Int = foo + 1
+      |}
+      |val a: A = new A {
+      |  override val foo: Int = 1 // marked as unused
+      |}
+      |""".stripMargin
+  )
+
+  // SCL-16919
+  def testOverriddenSymbol(): Unit = checkTextHasNoErrors(
+    """
+      |class A {
+      |  def foo(str: String): Unit = ()
+      |}
+      |class B extends A {
+      |  override def foo(str: String): Unit = {
+      |    println(str)
+      |  }
+      |}
+      |""".stripMargin
+  )
+
+  def testPublicTypeMemberInPublicTrait(): Unit = checkTextHasNoErrors(
+    """
+      |trait Test {
+      |  type ty = Int
+      |}
+      |""".stripMargin
+  )
+
+  def testPrivateTypeMemberInPublicTrait(): Unit = checkTextHasNoErrors(
+    """
+      |trait Test {
+      |  private type ${START}ty$END = Int
+      |}
+      |""".stripMargin
+  )
+
+
+  def testPublictTypeMemberInPrivateTrait(): Unit = checkTextHasNoErrors(
+    s"""
+      |private trait Test {
+      |  type ${START}ty$END = Int
+      |}
+      |""".stripMargin
+  )
+
+  def testOverridenTypeMember(): Unit = checkTextHasNoErrors(
+    """
+      |private trait Base {
+      |  type ty
+      |}
+      |private class Test extends Base {
+      |  override type ty = Int
+      |}
+      |""".stripMargin
+  )
 }

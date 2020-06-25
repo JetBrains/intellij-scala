@@ -41,7 +41,7 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
   override def isValidFor(editor: Editor, file: PsiFile): Boolean =
     targetElements(file, editor).nonEmpty
 
-  override def invoke(@NotNull project: Project, @NotNull editor: Editor, @NotNull file: PsiFile) {
+  override def invoke(@NotNull project: Project, @NotNull editor: Editor, @NotNull file: PsiFile): Unit = {
     if (!FileDocumentManager.getInstance.requestWriting(editor.getDocument, project)) return
     PsiDocumentManager.getInstance(project).commitAllDocuments()
 
@@ -132,9 +132,8 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     val tBody = aClass.extendsBlock.templateBody.get
     val place = createExpressionWithContextFromText(delegateText(delegate), tBody, tBody.getFirstChild)
     if (aClass == null) return null
-    val processor = new CompletionProcessor(StdKinds.methodRef, place)
-    processor.processType(delegateType, place)
-    val candidates = processor.candidatesS
+
+    val candidates = CompletionProcessor.variants(delegateType, place)
     val members = toMethodMembers(candidates, place)
 
     if (!ApplicationManager.getApplication.isUnitTestMode) {

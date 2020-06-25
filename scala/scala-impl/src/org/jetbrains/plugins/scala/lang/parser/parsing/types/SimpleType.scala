@@ -6,9 +6,10 @@ package types
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.lang.PsiBuilder.Marker
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Literal
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Literal, Spliced}
 
 import scala.annotation.tailrec
 
@@ -25,8 +26,8 @@ import scala.annotation.tailrec
  *              | '(' Types [','] ')'
  */
 object SimpleType extends SimpleType {
-  override protected def typeArgs = TypeArgs
-  override protected def types = Types
+  override protected def typeArgs: TypeArgs = TypeArgs
+  override protected def types: Types = Types
 }
 
 trait SimpleType {
@@ -35,7 +36,7 @@ trait SimpleType {
 
   def parse(builder: ScalaPsiBuilder, isPattern: Boolean, multipleSQBrackets: Boolean = true): Boolean = {
     @tailrec
-    def parseTail(curMarker: PsiBuilder.Marker, checkSQBracket: Boolean = true) {
+    def parseTail(curMarker: PsiBuilder.Marker, checkSQBracket: Boolean = true): Unit = {
       builder.getTokenType match {
         case ScalaTokenTypes.tLSQBRACKET if checkSQBracket =>
           val newMarker = curMarker.precede
@@ -85,7 +86,7 @@ trait SimpleType {
                 builder.advanceLexer() //Ate )
                 if (isTuple) tupleMarker.done(ScalaElementType.TUPLE_TYPE)
                 else {
-                  builder.error("Identifier expected, but ',' found")
+                  builder.error(ScalaBundle.message("identifier.expected.comma.found"))
                   tupleMarker.done(ScalaElementType.TYPE_IN_PARENTHESIS)
                 }
               case _ =>
@@ -127,7 +128,10 @@ trait SimpleType {
             StableId parse(builder, ScalaElementType.REFERENCE)
             fMarker.done(ScalaElementType.SIMPLE_TYPE)
         }
-      case _ => return rollbackCase(builder, simpleMarker)
+      case ScalaTokenType.SpliceStart =>
+        Spliced.parse(builder, inType = true)
+      case _ =>
+        return rollbackCase(builder, simpleMarker)
     }
     parseTail(simpleMarker)
     true

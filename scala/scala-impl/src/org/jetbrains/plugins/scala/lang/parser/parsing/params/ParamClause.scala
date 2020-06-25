@@ -4,7 +4,7 @@ package parser
 package parsing
 package params
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
@@ -38,7 +38,16 @@ object ParamClause {
         return false
       case _ =>
     }
-    Params parse builder
+
+    if (builder.isScala3 && builder.tryParseSoftKeyword(ScalaTokenType.UsingKeyword)) {
+      if (!TypesAsParams.parse(builder)) {
+        Params.parse(builder)
+      }
+    } else {
+      Params.parse(builder)
+    }
+
+
     builder.getTokenType match {
       case ScalaTokenTypes.tRPARENTHESIS =>
         builder.advanceLexer() //Ate )

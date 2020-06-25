@@ -46,7 +46,7 @@ object ScalaCode {
     val file = parse(format.replace("%e", Placeholder))
 
     // we can optionally supplement element types to disambiguate target elements
-    val placeholders = file.depthFirst(_.getText != Placeholder).filter(_.getText == Placeholder).toVector
+    val placeholders = file.depthFirst(!_.textMatches(Placeholder)).filter(_.textMatches(Placeholder)).toVector
 
     if (placeholders.length != elements.length) {
       throw new IllegalArgumentException("Format string / arguments mismatch: %s VS %s".format(
@@ -108,7 +108,7 @@ object ScalaCode {
 
   class Context(val format: String => String, val select: ScalaPsiElement => ScalaPsiElement)
 
-  implicit val Block = new Context(identity, identity)
+  implicit val Block: Context = new Context(identity, identity)
 
   val Type = new Context("val v: " + _, _.getLastChild.asInstanceOf[ScTypeElement])
 }

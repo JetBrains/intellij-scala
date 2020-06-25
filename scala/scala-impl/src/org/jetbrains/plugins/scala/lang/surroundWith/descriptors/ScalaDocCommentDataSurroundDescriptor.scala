@@ -4,7 +4,7 @@ package lang.surroundWith.descriptors
 import com.intellij.lang.surroundWith.{SurroundDescriptor, Surrounder}
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType._
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.scaladoc._
 
 import scala.collection.mutable.ArrayBuffer
@@ -16,11 +16,11 @@ import scala.collection.mutable.ArrayBuffer
  */
 
 class ScalaDocCommentDataSurroundDescriptor extends SurroundDescriptor {
-  val surrounders = Array[Surrounder](new ScalaDocWithBoldSurrounder, new ScalaDocWithUnderlinedSurrounder,
+  val surrounders: Array[Surrounder] = Array[Surrounder](new ScalaDocWithBoldSurrounder, new ScalaDocWithUnderlinedSurrounder,
     new ScalaDocWithMonospaceSurrounder, new ScalaDocWithItalicSurrounder, new ScalaDocWithSubscriptSurrounder,
     new ScalaDocWithSuperscriptSurrounder)
 
-  def getElementsToSurround(file: PsiFile, startOffset: Int, endOffset: Int): Array[PsiElement] = {
+  override def getElementsToSurround(file: PsiFile, startOffset: Int, endOffset: Int): Array[PsiElement] = {
     if (endOffset == startOffset) return PsiElement.EMPTY_ARRAY
 
     val validBoundElements = Set(DOC_COMMENT_DATA, DOC_WHITESPACE)
@@ -29,7 +29,7 @@ class ScalaDocCommentDataSurroundDescriptor extends SurroundDescriptor {
     def checkBoundElement(element: PsiElement): Boolean = validBoundElements.contains(element.getNode.getElementType)
 
     def checkSyntaxBoundElement(element: PsiElement, isStart: Boolean): Boolean =
-      element.getNode.getElementType.isInstanceOf[ScaladocSyntaxElementType] &&
+      element.getNode.getElementType.isInstanceOf[ScalaDocSyntaxElementType] &&
               (isStart && startOffset == element.getTextOffset || !isStart && endOffset == element.getTextRange.getEndOffset)
 
 
@@ -85,7 +85,7 @@ class ScalaDocCommentDataSurroundDescriptor extends SurroundDescriptor {
       if (nextElement == null) return PsiElement.EMPTY_ARRAY
 
       if ((!Set(DOC_COMMENT_DATA, DOC_COMMENT_LEADING_ASTERISKS, DOC_WHITESPACE).contains(nextElement.getNode.getElementType) &&
-              !nextElement.getNode.getElementType.isInstanceOf[ScaladocSyntaxElementType]) ||
+              !nextElement.getNode.getElementType.isInstanceOf[ScalaDocSyntaxElementType]) ||
               (nextElement.getNode.getElementType == DOC_WHITESPACE && nextElement.getText.indexOf("\n") != nextElement.getText.lastIndexOf("\n"))) {
         return PsiElement.EMPTY_ARRAY
       } else if (nextElement.getNode.getElementType == DOC_COMMENT_LEADING_ASTERISKS) {
@@ -101,7 +101,7 @@ class ScalaDocCommentDataSurroundDescriptor extends SurroundDescriptor {
     elementsToSurround.toArray
   }
 
-  def getSurrounders: Array[Surrounder] = surrounders
+  override def getSurrounders: Array[Surrounder] = surrounders
 
-  def isExclusive: Boolean = false
+  override def isExclusive: Boolean = false
 }

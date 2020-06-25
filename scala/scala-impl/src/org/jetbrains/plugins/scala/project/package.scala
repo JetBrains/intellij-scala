@@ -1,10 +1,13 @@
 package org.jetbrains.plugins.scala
 
 import java.io.File
+import java.net.URL
 
 import com.intellij.ProjectTopics
 import com.intellij.execution.ExecutionException
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.editor.Document
+import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
 import com.intellij.openapi.module._
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots._
@@ -19,8 +22,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
-import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
+import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.util.{ScalaPluginJars, UnloadAwareDisposable}
 import org.jetbrains.sbt.project.module.SbtModuleType
 
 import scala.collection.JavaConverters._
@@ -53,6 +57,13 @@ package object project {
     def hasRuntimeLibrary: Boolean = name.exists(isRuntimeLibrary)
 
     private def name: Option[String] = Option(library.getName)
+
+    def jarUrls: Set[URL] =
+      library
+        .getFiles(OrderRootType.CLASSES)
+        .map(_.getPath)
+        .map(path => new URL(s"jar:file://$path"))
+        .toSet
   }
 
   object LibraryExt {
@@ -84,11 +95,15 @@ package object project {
     private def scalaModuleSettings: Option[ScalaModuleSettings] =
       ScalaModuleSettings(module)
 
+    def isBuildModule: Boolean =
+      module.getName.endsWith("-build")
+
     def isSourceModule: Boolean = SbtModuleType.unapply(module).isEmpty
 
     def hasScala: Boolean =
       scalaModuleSettings.isDefined
 
+    // TODO Generalize: hasScala(Version => Boolean), hasScala(_ >= Scala3)
     def hasScala3: Boolean =
       scalaModuleSettings.exists(_.hasScala3)
 
@@ -129,6 +144,14 @@ package object project {
       ModuleRootManager.getInstance(module).getDependencies
         .find(_.isSharedSourceModule)
 
+    def dependencyModules: Seq[Module] = {
+      val manager = ModuleManager.getInstance(module.getProject)
+      manager.getModules.filter(manager.isModuleDependent(module, _))
+    }
+
+    def withDependencyModules: Seq[Module] =
+      module +: dependencyModules
+
     def modifiableModel: ModifiableRootModel =
       ModuleRootManager.getInstance(module).getModifiableModel
 
@@ -147,14 +170,20 @@ package object project {
     def isTrailingCommasEnabled: Boolean =
       scalaModuleSettings.exists(_.isTrailingCommasEnabled)
 
+    def scalaCompilerSettingsProfile: ScalaCompilerSettingsProfile =
+      compilerConfiguration.getProfileForModule(module)
+
     def scalaCompilerSettings: ScalaCompilerSettings =
       compilerConfiguration.getSettingsForModule(module)
 
     def configureScalaCompilerSettingsFrom(source: String, options: Seq[String]): Unit =
-      compilerConfiguration.configureSettingsForModule(module, source, options)
+      compilerConfiguration.configureSettingsForModule(module, source, ScalaCompilerSettings.fromOptions(options))
 
     def scalaLanguageLevel: Option[ScalaLanguageLevel] =
       scalaModuleSettings.map(_.scalaLanguageLevel)
+
+    def scalaMinorVersion: Option[ScalaVersion] =
+      scalaSdk.flatMap(_.compilerVersion).flatMap(ScalaVersion.fromString)
 
     def isCompilerStrictMode: Boolean =
       scalaModuleSettings.exists(_.isCompilerStrictMode)
@@ -178,6 +207,9 @@ package object project {
 
     def betterMonadicForPluginEnabled: Boolean =
       scalaModuleSettings.exists(_.betterMonadicForPluginEnabled)
+
+    def contextAppliedPluginEnabled: Boolean =
+      scalaModuleSettings.exists(_.contextAppliedPluginEnabled)
 
     /**
      * Should we check if it's a Single Abstract Method?
@@ -205,8 +237,10 @@ package object project {
   class ScalaSdkNotConfiguredException(module: Module) extends IllegalArgumentException(s"No Scala SDK configured for module: ${module.getName}")
 
   implicit class ProjectExt(private val project: Project) extends AnyVal {
+    def unloadAwareDisposable: Disposable =
+      UnloadAwareDisposable.forProject(project)
 
-    def subscribeToModuleRootChanged(parentDisposable: Disposable = project)
+    def subscribeToModuleRootChanged(parentDisposable: Disposable = unloadAwareDisposable)
                                     (onRootsChanged: ModuleRootEvent => Unit): Unit =
       project.getMessageBus.connect(parentDisposable).subscribe(
         ProjectTopics.PROJECT_ROOTS,
@@ -228,8 +262,15 @@ package object project {
 
     def hasScala: Boolean = modulesWithScala.nonEmpty
 
-    @CachedInUserData(project, ProjectRootManager.getInstance(project))
+    // TODO Generalize: hasScala(Version => Boolean), hasScala(_ >= Scala3)
+    def hasScala3: Boolean = modulesWithScala.exists(_.hasScala3)
+
     def modulesWithScala: Seq[Module] =
+      if (project.isDisposed) Seq.empty
+      else modulesWithScalaCached
+
+    @CachedInUserData(project, ProjectRootManager.getInstance(project))
+    private def modulesWithScalaCached: Seq[Module] =
       modules.filter(_.hasScala)
 
     def anyScalaModule: Option[Module] =
@@ -241,6 +282,10 @@ package object project {
     def baseDir: VirtualFile = LocalFileSystem.getInstance().findFileByPath(project.getBasePath)
 
     def isPartialUnificationEnabled: Boolean = modulesWithScala.exists(_.isPartialUnificationEnabled)
+
+    def selectedDocument: Option[Document] =
+      Option(FileEditorManager.getInstance(project).getSelectedTextEditor)
+        .map(_.getDocument)
   }
 
   implicit class UserDataHolderExt(private val holder: UserDataHolder) extends AnyVal {
@@ -266,6 +311,12 @@ package object project {
         file,
         project
       ) != ScalaLanguage.INSTANCE
+
+    def findDocument: Option[Document] =
+      Option(FileDocumentManager.getInstance.getDocument(file))
+
+    def toFile: File =
+      new File(file.getCanonicalPath)
   }
 
   implicit class ProjectPsiFileExt(private val file: PsiFile) extends AnyVal {
@@ -274,7 +325,9 @@ package object project {
 
     @CachedInUserData(file, ProjectRootManager.getInstance(file.getProject))
     private def projectModule: Option[Module] =
-      Option(ModuleUtilCore.findModuleForPsiElement(file))
+      inReadAction { // assuming that most of the time it will be read from cache
+        Option(ModuleUtilCore.findModuleForPsiElement(file))
+      }
 
     def scratchFileModule: Option[Module] =
       Option(file.getUserData(UserDataKeys.SCALA_ATTACHED_MODULE)).flatMap(_.get)
@@ -319,6 +372,8 @@ package object project {
 
     def betterMonadicForEnabled: Boolean = isDefinedInModuleOrProject(_.betterMonadicForPluginEnabled)
 
+    def contextAppliedEnabled: Boolean = isDefinedInModuleOrProject(_.contextAppliedPluginEnabled)
+
     def isSAMEnabled: Boolean = isDefinedInModuleOrProject(_.isSAMEnabled)
 
     def literalTypesEnabled: Boolean = isDefinedInModuleOrProject(_.literalTypesEnabled)
@@ -354,6 +409,6 @@ package object project {
         case e: IllegalArgumentException => throw new ExecutionException(e.getMessage.replace("SDK", "facet"))
       }
 
-    def addRunners(): Unit = list.add(util.ScalaUtil.runnersPath())
+    def addRunners(): Unit = list.add(ScalaPluginJars.runnersJar)
   }
 }

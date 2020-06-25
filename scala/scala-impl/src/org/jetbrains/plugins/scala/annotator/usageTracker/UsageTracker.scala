@@ -62,7 +62,7 @@ object UsageTracker {
 
   private def registerUsedElement(element: PsiElement,
                                   resolveResult: ScalaResolveResult,
-                                  checkWrite: Boolean) {
+                                  checkWrite: Boolean): Unit = {
     val named = resolveResult.getActualElement
     val file = element.getContainingFile
     if (named.isValid && named.getContainingFile == file &&

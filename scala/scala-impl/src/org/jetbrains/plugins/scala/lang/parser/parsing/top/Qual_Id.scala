@@ -26,13 +26,13 @@ object Qual_Id {
     //parsing td identifier
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
-        builder.advanceLexer //Ate identifier
+        builder.advanceLexer() //Ate identifier
         //Look for dot
         builder.getTokenType match {
           case ScalaTokenTypes.tDOT => {
             val newMarker = qualMarker.precede
             qualMarker.done(ScalaElementType.REFERENCE)
-            builder.advanceLexer //Ate dot
+            builder.advanceLexer() //Ate dot
             //recursively parse qualified identifier
             Qual_Id parse(builder, newMarker)
             return true
@@ -45,7 +45,7 @@ object Qual_Id {
         }
       case _ =>
         builder error ScalaBundle.message("wrong.qual.identifier")
-        qualMarker.drop
+        qualMarker.drop()
         return true
     }
   }

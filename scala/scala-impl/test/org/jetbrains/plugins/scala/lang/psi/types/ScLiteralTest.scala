@@ -11,39 +11,39 @@ import org.junit.Assert
  */
 
 class ScLiteralTest extends SimpleTestCase {
-  def testNullLiteral() {
+  def testNullLiteral(): Unit = {
     assertTypeIs("null", Null)
   }
 
-  def testIntLiteral() {
+  def testIntLiteral(): Unit = {
     assertTypeIs("1", Int)
   }
 
-  def testLongLiteral() {
+  def testLongLiteral(): Unit = {
     assertTypeIs("1l", Long)
     assertTypeIs("1L", Long)
   }
 
-  def testFloatLiteral() {
+  def testFloatLiteral(): Unit = {
     assertTypeIs("1f", Float)
     assertTypeIs("1F", Float)
   }
 
-  def testDoubleLiteral() {
+  def testDoubleLiteral(): Unit = {
     assertTypeIs("1d", Double)
     assertTypeIs("1D", Double)
   }
 
-  def testCharLiteral() {
+  def testCharLiteral(): Unit = {
     assertTypeIs("'c'", Char)
   }
 
-  def testBooleanLiteral() {
+  def testBooleanLiteral(): Unit = {
     assertTypeIs("true", Boolean)
     assertTypeIs("false", Boolean)
   }
 
-  private def assertTypeIs(code: String, expectation: ScType) {
+  private def assertTypeIs(code: String, expectation: ScType): Unit = {
     val exp = code.parse[ScExpression]
     val actual = exp.`type`().get
     Assert.assertEquals(expectation, actual)

@@ -37,7 +37,7 @@ class ScalaParameterInfo(@BeanProperty var name: String,
       keywordsAndAnnotations = ScalaParameterInfo.keywordsAndAnnotations(p))
   }
 
-  var defaultForJava = defaultValue
+  var defaultForJava: String = defaultValue
 
   @BooleanBeanProperty
   var useAnySingleVariable: Boolean = false
@@ -47,7 +47,7 @@ class ScalaParameterInfo(@BeanProperty var name: String,
     case _ => false
   }
 
-  val isVarargType = false //overriders in java of method with repeated parameters are not varargs
+  override val isVarargType = false //overriders in java of method with repeated parameters are not varargs
 
   protected def psiType: PsiType = {
     if (scType == null) return null

@@ -7,16 +7,18 @@ import com.intellij.psi.{FileViewProvider, FileViewProviderFactory, PsiManager}
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.vfs.VirtualFile
 import javax.swing._
-import org.jetbrains.plugins.scala.ScalaLanguage
+import org.jetbrains.annotations.NonNls
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
 /**
  * Scala signatures which are usually stored in .class files, as a separate files
  * https://github.com/scala/scala/pull/7712
  * */
 object SigFileType extends FileType {
+  @NonNls
   override def getName = "SIG"
 
-  override def getDescription = "Scala outlines"
+  override def getDescription: String = ScalaBundle.message("file.type.scala.outlines")
 
   override def getDefaultExtension = "sig"
 
@@ -31,10 +33,10 @@ object SigFileType extends FileType {
 
 
 class SigFileViewProviderFactory extends FileViewProviderFactory {
-  def createFileViewProvider(file: VirtualFile,
-                             language: Language,
-                             manager: PsiManager,
-                             eventSystemEnabled: Boolean): FileViewProvider = {
+  override def createFileViewProvider(file: VirtualFile,
+                                      language: Language,
+                                      manager: PsiManager,
+                                      eventSystemEnabled: Boolean): FileViewProvider = {
 
     ScClassFileDecompiler.createFileViewProviderImpl(manager, file, eventSystemEnabled, ScalaLanguage.INSTANCE)
   }
@@ -44,6 +46,6 @@ class SigFileStubBuilder extends ClassFileStubBuilder
 
 class SigFileDecompiler extends BinaryFileDecompiler {
   override def decompile(file: VirtualFile): CharSequence = {
-    DecompilationResult.sourceNameAndText(file).map(_._2).getOrElse(s"//couldn't decompile ${file.getName}")
+    DecompilationResult.sourceNameAndText(file).map(_._2).getOrElse(ScalaBundle.message("could.not.decompile.file.comment", file.getName))
   }
 }

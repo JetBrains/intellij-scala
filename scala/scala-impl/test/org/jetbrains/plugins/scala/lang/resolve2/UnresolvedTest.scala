@@ -10,8 +10,8 @@ class UnresolvedTest extends ResolveTestBase {
     super.folderPath + "unresolved/"
   }
 
-  def testNamedParameter() = doTest()
-  def testFunction() = doTest()
-  def testRef() = doTest()
-  def testType() = doTest()
+  def testNamedParameter(): Unit = doTest()
+  def testFunction(): Unit = doTest()
+  def testRef(): Unit = doTest()
+  def testType(): Unit = doTest()
 }

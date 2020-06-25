@@ -19,7 +19,7 @@ trait WorksheetAction {
       file   <- Option(PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument))
     } yield file
   
-  def updateInner(e: AnActionEvent) {
+  def updateInner(e: AnActionEvent): Unit = {
     if (e == null) return
 
     val project = e.getProject

@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.function.Supplier
 
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
+import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import xsbti._
 import xsbti.compile._
 import org.jetbrains.jps.incremental.scala.local.zinc.Utils._
@@ -18,67 +19,65 @@ import scala.collection.JavaConverters._
  */
 abstract class AbstractCompiler extends Compiler {
 
-
   def getReporter(client: Client): Reporter = new ClientReporter(client)
 
   def getLogger(client: Client, zincLogFilter: ZincLogFilter): Logger = new ClientLogger(client, zincLogFilter) with JavacOutputParsing
 
-  def getProgress(client: Client): ClientProgress = new ClientProgress(client)
+  def getProgress(client: Client, sourcesCount: Int): ClientProgress = new ClientProgress(client, sourcesCount)
 
   private class ClientLogger(val client: Client, logFilter: ZincLogFilter) extends Logger {
-    def error(msg: Supplier[String]) {
+    override def error(msg: Supplier[String]): Unit = {
       val txt = msg.get()
       if (logFilter.shouldLog(Kind.ERROR, txt)) client.error(txt)
     }
 
-    def warn(msg: Supplier[String]) {
+    override def warn(msg: Supplier[String]): Unit = {
       val txt = msg.get()
       if (logFilter.shouldLog(Kind.WARNING, txt)) client.warning(txt)
     }
 
-    def info(msg: Supplier[String]) {
+    override def info(msg: Supplier[String]): Unit = {
       val txt = msg.get()
       if (logFilter.shouldLog(Kind.INFO, txt)) client.info(txt)
     }
 
-    def debug(msg: Supplier[String]) {
+    override def debug(msg: Supplier[String]): Unit = {
       val txt = msg.get()
-      if (logFilter.shouldLog(Kind.PROGRESS, txt)) client.debug(txt)
+      if (logFilter.shouldLog(Kind.PROGRESS, txt)) client.internalInfo(txt)
     }
 
-    def trace(exception: Supplier[Throwable]) {
+    override def trace(exception: Supplier[Throwable]): Unit = {
       client.trace(exception.get())
     }
   }
 
-  class ClientProgress(client: Client) extends CompileProgress {
+  class ClientProgress(client: Client, sourcesCount: Int)
+    extends CompileProgress {
 
     private var lastTimeChecked = System.currentTimeMillis()
     private final val cancelThreshold = 1000L
 
-    def startUnit(phase: String, unitPath: String) {
-      val unitName = new File(unitPath).getName
-      client.progress("Phase " + phase + " on " + unitName)
-    }
+    override def startUnit(phase: String, unitPath: String): Unit = ()
 
-    def advance(current: Int, total: Int): Boolean = {
-      client.progress("", Some(current.toFloat / total.toFloat))
+    override def advance(current: Int, total: Int): Boolean = {
+      val done = Some(current.toFloat / total.toFloat)
+      val doneString = done
+        .filter(_ > 0)
+        .map { value =>
+          val percents = math.round(value * 100)
+          s" $percents%"
+        }
+        .getOrElse("")
+      val text = s"Compiling $sourcesCount sources...$doneString"
+      client.progress(text, done)
       // Since isCanceled is blocking method (waiting on flush on socket connection to finish).
-      // We don't want to block compilation more often then once per second (this is optimalization)
+      // We don't want to block compilation more often then once per second (this is optimization)
       // It also means that compilation may be canceled 1 sec later - but this is not a problem.
       val time = System.currentTimeMillis()
       if (time - lastTimeChecked > cancelThreshold) {
         lastTimeChecked = time
         !client.isCanceled
       } else true
-    }
-
-    def generated(source: File, module: File, name: String): Unit = {
-      client.generated(source, module, name)
-    }
-
-    def deleted(module: File) {
-      client.deleted(module)
     }
   }
 
@@ -87,15 +86,15 @@ abstract class AbstractCompiler extends Compiler {
     private var errorSeen = false
     private var warningSeen = false
 
-    def reset() {
+    override def reset(): Unit = {
       entries.clear()
       errorSeen = false
       warningSeen = false
     }
 
-    override def hasErrors(): Boolean = errorSeen
+    override def hasErrors: Boolean = errorSeen
 
-    override def hasWarnings(): Boolean = warningSeen
+    override def hasWarnings: Boolean = warningSeen
 
     override def printSummary(): Unit = {} // Not needed in Intellij-zinc integration
 
@@ -117,20 +116,23 @@ abstract class AbstractCompiler extends Compiler {
           Kind.ERROR
       }
 
-      val messageWithLineAndPointer = {
-        val pos = problem.position()
-        val indent = pos.pointerSpace.toOption.map("\n" + _ + "^").getOrElse("")
-        s"${problem.message()}\n${pos.lineContent}\n$indent"
-      }
-      logInClient(messageWithLineAndPointer, problem.position(), kind)
+      val pos = problem.position
+      val messageWithoutAnsiColorCodes = ansiColorCodePattern.replaceAllIn(problem.message(), "")
+      val resultMsg = s"${messageWithoutAnsiColorCodes}\n${pos.lineContent}\n"
+      logInClient(resultMsg, pos, kind)
     }
 
     private def logInClient(msg: String, pos: Position, kind: Kind): Unit = {
       val source = pos.sourceFile.toOption
-      val line = pos.line.toOption.map(_.toLong)
-      val column = pos.pointer.toOption.map(_.toLong + 1L)
-      client.message(kind, msg, source, line, column)
+      val fromPosInfo = PosInfo(
+        line = pos.line.toOption.map(_.toLong),
+        column = pos.pointer.toOption.map(_.toLong + 1L),
+        offset = pos.offset.toOption.map(_.toLong)
+      )
+      client.message(kind, msg, source, fromPosInfo)
     }
   }
+
+  private val ansiColorCodePattern = "\\u001B\\[[\\d*]*m".r
 }
 

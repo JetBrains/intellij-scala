@@ -3,44 +3,38 @@ package remote
 
 import java.io._
 
-import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
+import org.jetbrains.jps.incremental.scala.Client.PosInfo
+import org.jetbrains.plugins.scala.util.ObjectSerialization
 
 /**
  * @author Pavel Fatin
  */
 sealed abstract class Event {
-  def toBytes: Array[Byte] = {
-    val buffer = new ByteArrayOutputStream()
-    val stream = new ObjectOutputStream(buffer)
-    stream.writeObject(this)
-    stream.close()
-    buffer.toByteArray
-  }
+  def toBytes: Array[Byte] =
+    ObjectSerialization.toBytes(this)
 }
 
 object Event {
-  def fromBytes(bytes: Array[Byte]): Event = {
-    val buffer = new ByteArrayInputStream(bytes)
-    val stream = new ObjectInputStream(buffer)
-    val event = stream.readObject().asInstanceOf[Event]
-    if (stream.available > 0) {
-      val excess = FileUtil.loadTextAndClose(stream)
-      throw new IllegalArgumentException("Excess bytes after event deserialization: " + excess)
-    }
-    stream.close()
-    event
-  }
+  def fromBytes(bytes: Array[Byte]): Event =
+    ObjectSerialization.fromBytes(bytes)
 }
 
-@SerialVersionUID(1317094340928824239L)
-case class MessageEvent(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]) extends Event
+@SerialVersionUID(-284506638701953916L)
+case class MessageEvent(kind: Kind,
+                        text: String,
+                        source: Option[File],
+                        from: PosInfo,
+                        to: PosInfo) extends Event
 
 @SerialVersionUID(-6777609711619086870L)
 case class ProgressEvent(text: String, done: Option[Float]) extends Event
 
-@SerialVersionUID(7993329544064571494L)
+@SerialVersionUID(7993329544064571495L)
 case class DebugEvent(text: String) extends Event
+
+@SerialVersionUID(1L)
+case class InfoEvent(text: String) extends Event
 
 @SerialVersionUID(1668649599159817915L)
 case class TraceEvent(exceptionClassName: String, message: String, stackTrace: Array[StackTraceElement]) extends Event
@@ -51,11 +45,11 @@ case class GeneratedEvent(source: File, module: File, name: String) extends Even
 @SerialVersionUID(-7935816100194567870L)
 case class DeletedEvent(module: File) extends Event
 
-@SerialVersionUID(3581751389645846347L)
-case class SourceProcessedEvent(source: File) extends Event
+@SerialVersionUID(-6907017854101285465L)
+case class CompilationStartEvent() extends Event
 
-@SerialVersionUID(-2795117544723203396L)
-case class CompilationEndEvent() extends Event
+@SerialVersionUID(2848760871163806524L)
+case class CompilationEndEvent(sources: Set[File]) extends Event
 
 @SerialVersionUID(1L)
 case class ProcessingEndEvent() extends Event
@@ -65,4 +59,3 @@ case class WorksheetOutputEvent(text: String) extends Event
 
 @SerialVersionUID(1L)
 case class CompilationStartedInSbt(path: String) extends Event
-

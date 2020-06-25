@@ -40,7 +40,8 @@ object ScalaCompletionUtil {
                                    prefixMatcher: PrefixMatcher,
                                    checkInvocationCount: Boolean = true)
                                   (implicit parameters: CompletionParameters): Boolean = {
-    if (checkInvocationCount && parameters.getInvocationCount < 2) return false
+    val invocationCount = parameters.getInvocationCount
+    if (checkInvocationCount && !regardlessAccessibility(invocationCount)) return false
 
     if (dummyPosition.getNode.getElementType == tIDENTIFIER) {
       dummyPosition.getParent match {
@@ -49,7 +50,7 @@ object ScalaCompletionUtil {
       }
     }
 
-    if (checkInvocationCount && parameters.getInvocationCount >= 2) return true
+    if (checkInvocationCount && regardlessAccessibility(invocationCount)) return true
 
     val prefix = prefixMatcher.getPrefix
     prefix.nonEmpty && prefix.charAt(0).isUpper

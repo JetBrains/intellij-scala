@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.worksheet.actions.topmenu
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.ModalityState
-import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileEditorManager
@@ -12,7 +11,10 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import com.intellij.task.ProjectTaskContext
+import com.intellij.task.ProjectTaskManager
 import javax.swing.Icon
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{LoggerExt, inWriteAction, invokeAndWait, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -22,18 +24,22 @@ import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.Workshe
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.WorksheetCompilerError
 import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetCompilerErrorReporter}
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
-import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.control.NonFatal
 
-class RunWorksheetAction extends AnAction with TopComponentAction {
+class RunWorksheetAction extends AnAction(
+  ScalaBundle.message("run.scala.worksheet.action.text"),
+  ScalaBundle.message("run.scala.worksheet.action.description"),
+  AllIcons.Actions.Execute
+) with TopComponentAction {
 
   override def genericText: String = ScalaBundle.message("worksheet.execute.button")
 
   override def actionIcon: Icon = AllIcons.Actions.Execute
 
-  override def shortcutId: Option[String] = Some("Scala.RunWorksheet")
+  override def shortcutId: Option[String] = Some(RunWorksheetAction.ShortcutId)
 
   override def actionPerformed(e: AnActionEvent): Unit =
     RunWorksheetAction.runCompilerForSelectedEditor(e, auto = false)
@@ -41,11 +47,12 @@ class RunWorksheetAction extends AnAction with TopComponentAction {
   override def update(e: AnActionEvent): Unit = {
     super.update(e)
 
-    val shortcuts = KeymapManager.getInstance.getActiveKeymap.getShortcuts("Scala.RunWorksheet")
+    val shortcuts = KeymapManager.getInstance.getActiveKeymap.getShortcuts(RunWorksheetAction.ShortcutId)
 
     if (shortcuts.nonEmpty) {
-      val shortcutText = s" (${KeymapUtil.getShortcutText(shortcuts(0))})"
-      e.getPresentation.setText(ScalaBundle.message("worksheet.execute.button") + shortcutText)
+      val shortcutText = " (" + KeymapUtil.getShortcutText(shortcuts(0)) + ")"
+      //noinspection ReferencePassedToNls
+      e.getPresentation.setText(genericText + shortcutText)
     }
   }
 }
@@ -53,6 +60,8 @@ class RunWorksheetAction extends AnAction with TopComponentAction {
 object RunWorksheetAction {
 
   private val Log: Logger = Logger.getInstance(getClass)
+  @NonNls
+  private val ShortcutId = "Scala.RunWorksheet"
 
   sealed trait RunWorksheetActionResult
   object RunWorksheetActionResult {
@@ -61,7 +70,7 @@ object RunWorksheetAction {
     case object NoModuleError extends Error
     case object NoWorksheetFileError extends Error
     case object AlreadyRunning extends Error
-    final case class ProjectCompilationError(aborted: Boolean, errors: Int, warnings: Int, context: CompileContext) extends Error
+    final case class ProjectCompilationError(aborted: Boolean, errors: Boolean, context: ProjectTaskContext) extends Error
     final case class WorksheetRunError(error: WorksheetCompilerError) extends Error
   }
 
@@ -85,6 +94,7 @@ object RunWorksheetAction {
   }
 
   def runCompiler(project: Project, editor: Editor, auto: Boolean): Future[RunWorksheetActionResult] = {
+    val start = System.currentTimeMillis()
     Log.debugSafe(s"worksheet evaluation started")
     val promise = Promise[RunWorksheetActionResult]()
     try {
@@ -95,10 +105,14 @@ object RunWorksheetAction {
     }
     val runImmediatelyExecutionContext = new ExecutionContext {
       override def execute(runnable: Runnable): Unit = runnable.run()
+
       override def reportFailure(cause: Throwable): Unit = Log.error(cause)
     }
     val future = promise.future
-    future.onComplete(s => Log.debugSafe("worksheet evaluation result: " + s.toString))(runImmediatelyExecutionContext)
+    future.onComplete(s => {
+      val end = System.currentTimeMillis()
+      Log.debugSafe(s"worksheet evaluation result (took ${end - start}ms): " + s.toString)
+    })(runImmediatelyExecutionContext)
     future
   }
 
@@ -130,6 +144,7 @@ object RunWorksheetAction {
     Log.debugSafe(s"worksheet file: ${vFile.getPath}")
 
     val viewer = WorksheetCache.getInstance(project).getViewer(editor)
+
     if (viewer != null && !WorksheetFileSettings.isRepl(file)) {
       invokeAndWait(ModalityState.any()) {
         inWriteAction {
@@ -151,7 +166,8 @@ object RunWorksheetAction {
     }
 
     def runnable(): Unit = {
-      val callback: WorksheetCompilerResult => Unit = result => {
+      val compiler = new WorksheetCompiler(module, file)
+      compiler.compileAndRun(auto, editor) { result =>
         val resultTransformed = result match {
           case WorksheetCompilerResult.CompiledAndEvaluated =>
             RunWorksheetActionResult.Done
@@ -167,21 +183,21 @@ object RunWorksheetAction {
           WorksheetFileHook.enableRun(vFile, hasErrors)
         }
       }
-      val compiler = new WorksheetCompiler(module, editor, file, callback, auto)
-      compiler.compileAndRunFile()
     }
 
     if (makeBeforeRun) {
-      val compilerNotification: CompileStatusNotification =
-        (aborted: Boolean, errors: Int, warnings: Int, context: CompileContext) => {
-          val finishedWithError = aborted && errors != 0
-          if (!finishedWithError) {
-            runnable()
+      ProjectTaskManager.getInstance(project)
+        .build(module)
+        .`then`[Unit] { result: ProjectTaskManager.Result =>
+          if (result.hasErrors || result.isAborted) {
+            promise.success(RunWorksheetActionResult.ProjectCompilationError(result.isAborted, result.hasErrors, result.getContext))
+            invokeLater {
+              WorksheetFileHook.enableRun(vFile, result.hasErrors)
+            }
           } else {
-            promise.success(RunWorksheetActionResult.ProjectCompilationError(aborted, errors, warnings, context))
+            runnable()
           }
         }
-      CompilerManager.getInstance(project).make(module, compilerNotification)
     } else {
       runnable()
     }

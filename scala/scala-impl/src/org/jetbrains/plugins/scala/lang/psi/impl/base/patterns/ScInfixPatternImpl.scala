@@ -24,7 +24,7 @@ class ScInfixPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with 
   override def `type`(): TypeResult = {
     this.expectedType match {
       case Some(x) => Right(x)
-      case _ => Failure("cannot define expected type")
+      case _ => Failure(ScalaBundle.message("cannot.define.expected.type"))
     }
   }
 }

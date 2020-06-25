@@ -9,7 +9,6 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.annotator.intention.ScalaAddImportAction
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
@@ -48,7 +47,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
 
   override def toString: String = "ReferenceExpression: " + ifReadAllowed(getText)("")
 
-  def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
+  override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitReferenceExpression(this)
@@ -72,12 +71,12 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     }
   }
 
-  def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult] =
+  override def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult] =
     new ReferenceExpressionResolver().doResolve(this, processor, accessibilityCheck)
 
-  def bindToElement(element: PsiElement): PsiElement = bindToElement(element, None)
+  override def bindToElement(element: PsiElement): PsiElement = bindToElement(element, None)
 
-  def bindToElement(element: PsiElement, containingClass: Option[PsiClass]): PsiElement = {
+  override def bindToElement(element: PsiElement, containingClass: Option[PsiClass]): PsiElement = {
     def tail(qualName: String)(simpleImport: => PsiElement): PsiElement = {
       safeBindToElement(qualName, {
         case (qual, true) =>
@@ -103,7 +102,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         val qualName = c.qualifiedName
         if (qualName != null) {
           return tail(qualName) {
-            ScalaAddImportAction.getImportHolder(ref = this, project = getProject).addImportForClass(c, ref = this)
+            ScImportsHolder(this).addImportForClass(c, ref = this)
             //need to use unqualified reference with new import
             if (!this.isQualified) this
             else this.replace(createExpressionFromText(this.refName).asInstanceOf[ScReferenceExpression])
@@ -118,7 +117,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case pack: ScPackage =>
         val qualName = pack.getQualifiedName
         tail(qualName) {
-          ScalaAddImportAction.getImportHolder(this, getProject).addImportForPath(qualName, this)
+          ScImportsHolder(this).addImportForPath(qualName, this)
           this
         }
       case elem: PsiNamedElement =>
@@ -130,7 +129,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             if (cClass != null && cClass.qualifiedName != null) {
               val qualName: String = cClass.qualifiedName + "." + elem.name
               return tail(qualName) {
-                ScalaAddImportAction.getImportHolder(this, getProject).addImportForPsiNamedElement(elem, this, Some(cClass))
+                ScImportsHolder(this).addImportForPsiNamedElement(elem, this, Some(cClass))
                 this
               }
             }
@@ -146,13 +145,13 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
   override def completionVariants(implicits: Boolean): Seq[ScalaLookupItem] =
     getSimpleVariants(incomplete = true, completion = false, implicits).flatMap(toLookupItem)
 
-  def getSameNameVariants: Array[ScalaResolveResult] = this.doResolve(
-    new CompletionProcessor(getKinds(incomplete = true), this, isImplicit = true) {
+  override def getSameNameVariants: Array[ScalaResolveResult] = this.doResolve(
+    new CompletionProcessor(getKinds(incomplete = true), this, withImplicitConversions = true) {
 
-      override protected val forName = Some(refName)
+      override protected val forName: Option[String] = Some(refName)
     })
 
-  def getKinds(incomplete: Boolean, completion: Boolean = false): _root_.org.jetbrains.plugins.scala.lang.resolve.ResolveTargets.ValueSet = {
+  override def getKinds(incomplete: Boolean, completion: Boolean = false): _root_.org.jetbrains.plugins.scala.lang.resolve.ResolveTargets.ValueSet = {
     getContext match {
       case _ if completion => StdKinds.refExprQualRef // SC-3092
       case _: ScReferenceExpression => StdKinds.refExprQualRef
@@ -163,7 +162,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     }
   } // See SCL-3092
 
-  def multiType: Array[TypeResult] = {
+  override def multiType: Array[TypeResult] = {
     val buffer = mutable.ArrayBuffer[TypeResult]()
     val iterator = multiResolveScala(incomplete = false).iterator
     while (iterator.hasNext) {
@@ -176,19 +175,23 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     this.bind() match {
       case Some(srr) => convertBindToType(srr)
       case _ if getContainingFile.asOptionOf[ScalaFile].exists(_.isMultipleDeclarationsAllowed) =>
-        multiResolveScala(false).headOption.map(convertBindToType).getOrElse(resolveFailure)
+        val priorDeclarations = multiResolveScala(false).filter(
+          result => result.element.getContainingFile == getContainingFile && result.element.getTextOffset < getTextOffset
+        )
+
+        if (priorDeclarations.nonEmpty) convertBindToType(priorDeclarations.maxBy(_.element.getTextOffset)) else resolveFailure
       case _ => resolveFailure
     }
   }
 
-  def shapeType: TypeResult = {
+  override def shapeType: TypeResult = {
     shapeResolve match {
       case Array(bind) if bind.isApplicable() => convertBindToType(bind)
       case _ => resolveFailure
     }
   }
 
-  def shapeMultiType: Array[TypeResult] = {
+  override def shapeMultiType: Array[TypeResult] = {
     val buffer = mutable.ArrayBuffer[TypeResult]()
     val iterator = shapeResolve.iterator
     while (iterator.hasNext) {
@@ -216,12 +219,13 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
   private[this] def isStableContext(t: ScType): Boolean = {
     val expectedStable = this.expectedType() match {
       case Some(downer: DesignatorOwner)     => downer.isStable
+      case Some(t) if t eq Singleton         => true
       case Some(other) if !t.conforms(other) =>
         other match {
-          case Aliased(AliasType(_, Right(lower: DesignatorOwner), _))                   => lower.isStable
-          case Aliased(AliasType(_: ScTypeAliasDefinition, Right(c: ScCompoundType), _)) => isRefinement(c)
-          case c: ScCompoundType                                                         => isRefinement(c)
-          case _                                                                         => false
+          case AliasType(_, Right(lower: DesignatorOwner), _)                   => lower.isStable
+          case AliasType(_: ScTypeAliasDefinition, Right(c: ScCompoundType), _) => isRefinement(c)
+          case c: ScCompoundType                                                => isRefinement(c)
+          case _                                                                => false
         }
       case _ => false
     }
@@ -229,7 +233,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     val isParamToDepMethod = this.expectedTypeEx().collect {
       case (_, Some(te)) =>
         (for {
-          param     <- te.contexts.take(2).findBy[ScParameter] //parameter is first context for stub elements and second context for ast
+          param     <- te.contexts.take(2).instanceOf[ScParameter] //parameter is first context for stub elements and second context for ast
           if !param.getDefaultExpression.contains(this)
           method     <- param.owner.asOptionOf[ScFunction]
         } yield isReferencedInReturnType(method, param)).getOrElse(false)
@@ -283,11 +287,11 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         ScalaPsiUtil.nameContext(refPatt) match {
           case pd: ScPatternDefinition if PsiTreeUtil.isContextAncestor(pd, this, true) => pd.declaredType match {
             case Some(t) => t
-            case None => return Failure("No declared type found")
+            case None => return Failure(ScalaBundle.message("no.declared.type.found"))
           }
           case vd: ScVariableDefinition if PsiTreeUtil.isContextAncestor(vd, this, true) => vd.declaredType match {
             case Some(t) => t
-            case None => return Failure("No declared type found")
+            case None => return Failure(ScalaBundle.message("no.declared.type.found"))
           }
           case _ =>
             val result = refPatt.`type`()
@@ -415,7 +419,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case ScalaResolveResult(clazz: ScClass, s) if clazz.isCase =>
         val constructor =
           clazz.constructor
-            .getOrElse(return Failure("Case Class hasn't primary constructor"))
+            .getOrElse(return Failure(ScalaBundle.message("case.class.has.no.primary.constructor")))
         constructor.polymorphicType(s)
       case ScalaResolveResult(clazz: ScTypeDefinition, s) if clazz.typeParameters.nonEmpty =>
         s(ScParameterizedType(ScalaType.designator(clazz),
@@ -525,7 +529,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     Right(inner)
   }
 
-  def getPrevTypeInfoParams: Seq[TypeParameter] = {
+  override def getPrevTypeInfoParams: Seq[TypeParameter] = {
     val maybeExpression = qualifier match {
       case Some(_: ScSuperReference) => None
       case None => getContext match {
@@ -540,7 +544,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     }.getOrElse(Seq.empty)
   }
 
-  private def resolveFailure = Failure("Cannot resolve expression")
+  private def resolveFailure = Failure(ScalaBundle.message("cannot.resolve.expression"))
 
   @CachedWithRecursionGuard(this, ScalaResolveResult.EMPTY_ARRAY, ModCount.getBlockModificationCount)
   private[this] def multiResolveImpl(incomplete: Boolean): Array[ScalaResolveResult] =

@@ -2,25 +2,27 @@ package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature
 
 import java.awt.event.{ItemEvent, ItemListener}
+
 import javax.swing._
+import org.jetbrains.plugins.scala.ScalaBundle
 
 /**
  * Nikolay.Tropin
  * 2014-09-05
  */
-class DefaultValuesUsagePanel(labelText: String = "Default values:") extends JPanel {
+class DefaultValuesUsagePanel(labelText: String = ScalaBundle.message("default.values")) extends JPanel {
   private val myRbModifyCalls: JRadioButton = new JRadioButton
   private val myRbAddDefaultArg: JRadioButton = new JRadioButton
 
   init()
 
-  def init() {
+  def init(): Unit = {
     val boxLayout: BoxLayout = new BoxLayout(this, BoxLayout.X_AXIS)
     setLayout(boxLayout)
 
     add(new JLabel(labelText))
-    myRbAddDefaultArg.setText("Add to definition")
-    myRbModifyCalls.setText("Modify method calls")
+    myRbAddDefaultArg.setText(ScalaBundle.message("add.to.definition"))
+    myRbModifyCalls.setText(ScalaBundle.message("modify.method.calls"))
     myRbAddDefaultArg.setMnemonic('d')
     myRbModifyCalls.setMnemonic('m')
     myRbModifyCalls.setSelected(true)
@@ -34,7 +36,7 @@ class DefaultValuesUsagePanel(labelText: String = "Default values:") extends JPa
     Seq(myRbAddDefaultArg, myRbModifyCalls).foreach(bg.add)
 
     val listener = new ItemListener {
-      def itemStateChanged(e: ItemEvent) {
+      override def itemStateChanged(e: ItemEvent): Unit = {
         stateModified()
       }
     }
@@ -43,7 +45,7 @@ class DefaultValuesUsagePanel(labelText: String = "Default values:") extends JPa
   }
 
 
-  protected def stateModified() {
+  protected def stateModified(): Unit = {
   }
 
   def isAddDefaultArgs: Boolean = myRbAddDefaultArg.isSelected

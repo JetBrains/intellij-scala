@@ -5,6 +5,7 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -21,7 +22,7 @@ class ScParenthesisedExprImpl(node: ASTNode) extends ScExpressionImplBase(node) 
       case Some(x: ScExpression) =>
         val res = x.getNonValueType()
         res
-      case _ => Failure("No expression in parentheseses")
+      case _ => Failure(ScalaBundle.message("no.expression.in.parentheseses"))
     }
   }
 

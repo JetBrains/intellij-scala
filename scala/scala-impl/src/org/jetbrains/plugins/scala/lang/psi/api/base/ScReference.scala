@@ -7,7 +7,6 @@ package base
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.annotator.intention.ScalaAddImportAction
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -149,13 +148,13 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
     isIndirectReferenceTo(resolved, element)
   }
 
-  private def isSyntheticForCaseClass(method: ScFunction, td: ScTemplateDefinition): Boolean = {
-    td match {
+  private def isSyntheticForCaseClass(method: ScFunction,
+                                      templateDefinition: ScTemplateDefinition): Boolean =
+    templateDefinition match {
       case cl: ScClass if cl.isCase && method.isSynthetic =>
-        ScalaPsiUtil.getCompanionModule(td).exists(isReferenceTo)
+        ScalaPsiUtil.getCompanionModule(cl).exists(isReferenceTo)
       case _ => false
     }
-  }
 
   /**
    * Is `resolved` (the resolved target of this reference) itself a reference to `element`, by way of a type alias defined in a object, such as:
@@ -198,7 +197,7 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
 
   def getSameNameVariants: Array[ScalaResolveResult]
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitReference(this)
   }
 
@@ -219,7 +218,7 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
 
       var reject = false
       getContainingFile.accept(new ScalaRecursiveElementVisitor {
-        override def visitReference(ref: ScReference) {
+        override def visitReference(ref: ScReference): Unit = {
           if (reject) return
           if (usedNames.contains(ref.refName)) {
             ref.bind() match {
@@ -256,11 +255,10 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
             else {
               val result = resolve(0)
               def smartCheck: Boolean = {
-                val holder = ScalaAddImportAction.getImportHolder(this, getProject)
                 var res = true
-                holder.accept(new ScalaRecursiveElementVisitor {
+                ScImportsHolder(this).accept(new ScalaRecursiveElementVisitor {
                   //Override also visitReferenceExpression! and visitTypeProjection!
-                  override def visitReference(ref: ScReference) {
+                  override def visitReference(ref: ScReference): Unit = {
                     ref.qualifier match {
                       case Some(_) =>
                       case None =>
@@ -286,7 +284,7 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
             }
           }
           if (isOk) {
-            ScalaAddImportAction.getImportHolder(this, getProject).addImportForPath(packagePart, this)
+            ScImportsHolder(this).addImportForPath(packagePart, this)
             val ref = referenceCreator(toReplace, false)
             return this.replace(ref)
           }
@@ -303,7 +301,7 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
     extensions.inWriteAction {
       val refText =
         if (addImport) {
-          val importHolder = ScalaAddImportAction.getImportHolder(ref = this, project = getProject)
+          val importHolder = ScImportsHolder(this)
           val imported = importHolder.getAllImportUsed.exists {
             case ImportExprUsed(expr) => expr.reference.exists { ref =>
               ref.multiResolveScala(false).exists(rr => rr.getElement match {

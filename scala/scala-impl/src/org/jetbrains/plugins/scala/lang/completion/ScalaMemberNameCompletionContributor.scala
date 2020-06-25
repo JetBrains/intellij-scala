@@ -1,59 +1,79 @@
-package org.jetbrains.plugins.scala.lang.completion
+package org.jetbrains.plugins.scala.lang
+package completion
 
-import com.intellij.codeInsight.completion._
+import com.intellij.codeInsight.completion.{CompletionParameters, CompletionType}
 import com.intellij.codeInsight.lookup.LookupElementBuilder
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil.getChildrenOfTypeAsList
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
-
-import scala.collection.mutable
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
 /**
  * @author Alefas
  * @since 31.03.12
  */
-class ScalaMemberNameCompletionContributor extends ScalaCompletionContributor {
+final class ScalaMemberNameCompletionContributor extends ScalaCompletionContributor {
   //suggest class name
-  extend(CompletionType.BASIC, identifierWithParentPattern(classOf[ScTypeDefinition]),
-    new CompletionProvider[CompletionParameters]() {
-      def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
-        val position = positionFromParameters(parameters)
-        val classesNames: mutable.HashSet[String] = mutable.HashSet.empty
-        val objectNames: mutable.HashSet[String] = mutable.HashSet.empty
-        val parent = position.getContext.getContext
-        if (parent == null) return
-        parent.getChildren.foreach {
-          case c: ScClass => classesNames += c.name
-          case t: ScTrait => classesNames += t.name
-          case o: ScObject => objectNames += o.name
-          case _ =>
-        }
-        val shouldCompleteFileName = parent match {
-          case _: ScalaFile => true
-          case _: ScPackaging => true
-          case _ => false
-        }
-        parameters.getOriginalFile.getVirtualFile match {
-          case vFile: VirtualFile if shouldCompleteFileName =>
-            val fileName = vFile.getNameWithoutExtension
-            if (!classesNames.contains(fileName) && !objectNames.contains(fileName)) {
-              result.addElement(LookupElementBuilder.create(fileName))
-            }
-          case _ =>
-        }
-        position.getContext match {
-          case _: ScClass | _: ScTrait =>
-            for (o <- objectNames if !classesNames.contains(o)) {
-              result.addElement(LookupElementBuilder.create(o))
-            }
-          case _: ScObject =>
-            for (o <- classesNames if !objectNames.contains(o)) {
-              result.addElement(LookupElementBuilder.create(o))
-            }
-          case _ =>
+  extend(
+    CompletionType.BASIC,
+    identifierWithParentPattern(classOf[ScTypeDefinition]),
+    new ScalaCompletionProvider {
+
+      override protected def completionsFor(position: PsiElement)
+                                           (implicit parameters: CompletionParameters,
+                                            context: ProcessingContext): Iterable[LookupElementBuilder] = {
+        val typeDefinition = position.getContext
+        typeDefinition.getContext match {
+          case null => Iterable.empty
+          case parent =>
+            val (objects, classes) = objectsAndClassesIn(parent)
+            val (targetNames, companionNames) = toNames(typeDefinition, classes, objects)
+
+            (findFileName(parent) ++ targetNames)
+              .filterNot(companionNames)
+              .map(LookupElementBuilder.create)
         }
       }
-    })
+
+      private def objectsAndClassesIn(parent: PsiElement) = {
+        import collection.JavaConverters._
+        getChildrenOfTypeAsList(parent, classOf[ScTypeDefinition])
+          .asScala
+          .toSet
+          .partition(_.isObject)
+      }
+
+      private def toNames(typeDefinition: PsiElement,
+                          classes: Set[ScTypeDefinition],
+                          objects: Set[ScTypeDefinition]): (Set[String], Set[String]) = {
+        val classNames = classes.map(_.name)
+        val objectNames = objects.map(_.name)
+
+        typeDefinition match {
+          case _: ScClass |
+               _: ScTrait =>
+            (objectNames, classNames)
+          case _: ScObject =>
+            (classNames, objectNames)
+          case _ /*: ScEnum */ =>
+            (Set.empty[String], classNames union objectNames)
+        }
+      }
+
+      private def findFileName(parent: PsiElement)
+                              (implicit parameters: CompletionParameters) =
+        parent match {
+          case _: ScalaFile |
+               _: ScPackaging => Some {
+            parameters
+              .getOriginalFile
+              .getVirtualFile
+              .getNameWithoutExtension
+          }
+          case _ => None
+        }
+    }
+  )
 }

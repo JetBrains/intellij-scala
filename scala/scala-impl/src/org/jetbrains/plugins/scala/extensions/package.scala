@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala
 import java.io.Closeable
 import java.lang.ref.Reference
 import java.lang.reflect.InvocationTargetException
+import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.{Callable, ScheduledFuture, TimeUnit, ConcurrentMap => JConcurrentMap, Future => JFuture}
 import java.util.regex.Pattern
@@ -10,6 +11,8 @@ import java.util.{Arrays, Set => JSet}
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.extapi.psi.StubBasedPsiElementBase
+import com.intellij.ide.plugins.DynamicPluginListener
+import com.intellij.lang.ASTNode
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.ApplicationUtil
 import com.intellij.openapi.application.{ApplicationManager, ModalityState, TransactionGuard}
@@ -22,6 +25,7 @@ import com.intellij.openapi.util._
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
+import com.intellij.psi.impl.PsiImplUtil
 import com.intellij.psi.impl.source.tree.SharedImplUtil
 import com.intellij.psi.impl.source.{PostprocessReformattingAspect, PsiFileImpl}
 import com.intellij.psi.search.GlobalSearchScope
@@ -32,6 +36,8 @@ import com.intellij.util.CommonProcessors.CollectUniquesProcessor
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.text.CharArrayUtil
 import com.intellij.util.{ArrayFactory, ExceptionUtil, Processor}
+import org.jetbrains.annotations.{Nls, NonNls}
+import org.jetbrains.plugins.scala.caches.UserDataHolderDelegator
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
@@ -54,6 +60,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TermSignat
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
+import org.jetbrains.plugins.scala.util.ScalaPluginUtils
 
 import scala.annotation.tailrec
 import scala.collection.generic.CanBuildFrom
@@ -143,6 +150,12 @@ package object extensions {
 
     def findScalaLikeFile: Option[PsiFile] =
       if (file.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) Option(file) else findAnyScalaFile
+
+    def isScala3File: Boolean =
+      file.getLanguage == Scala3Language.INSTANCE
+
+    def isScala2File: Boolean =
+      file.getLanguage == ScalaLanguage.INSTANCE
 
     private def viewProvider = file.getViewProvider
   }
@@ -256,7 +269,7 @@ package object extensions {
       b
     }
 
-    def foreachWithIndex[B](f: (A, Int) => B) {
+    def foreachWithIndex[B](f: (A, Int) => B): Unit = {
       var i = 0
       for (x <- value) {
         f(x, i)
@@ -450,6 +463,7 @@ package object extensions {
       if (needBraces) s"{$nl$string$nl}" else string
     }
 
+    // TODO: rename to reflect that it's line separator
     def withNormalizedSeparator: String =
       StringUtil.convertLineSeparators(string)
 
@@ -461,6 +475,8 @@ package object extensions {
       case _: NumberFormatException => None
     }
 
+    // TODO: remove, and use stripTrailing() (available since JDK 11)
+    //  (search for similar methods definitions in project)
     def trimRight: String = StringExt.TrimRightRegex.replaceFirstIn(string, "")
   }
 
@@ -519,6 +535,8 @@ package object extensions {
   implicit class TextRangeExt(private val target: TextRange) extends AnyVal {
     def expand(delta: Int): TextRange = TextRange.create(target.getStartOffset - delta, target.getEndOffset + delta)
     def shrink(delta: Int): TextRange = TextRange.create(target.getStartOffset + delta, target.getEndOffset - delta)
+    def shiftStart(delta: Int): TextRange = TextRange.create(target.getStartOffset + delta, target.getEndOffset)
+    def shiftEnd(delta: Int): TextRange = TextRange.create(target.getStartOffset, target.getEndOffset + delta)
   }
 
   object TextRangeExt {
@@ -601,6 +619,8 @@ package object extensions {
     def findContextOfType[Psi <: PsiElement](clazz: Class[Psi]): Option[Psi] =
       Option(getContextOfType(element, clazz))
 
+    def elementAt(offset: Int): Option[PsiElement] = Option(element.findElementAt(offset))
+
     def isAncestorOf(otherElement: PsiElement): Boolean = isAncestor(element, otherElement, true)
 
     def parents: Iterator[PsiElement] = new ParentsIterator(element)
@@ -633,6 +653,23 @@ package object extensions {
     def nextSiblings: Iterator[PsiElement] = new NextSiblignsIterator(element)
 
     def withNextSiblings: Iterator[PsiElement] = Iterator(element) ++ nextSiblings
+
+    def withPrevSiblings: Iterator[PsiElement] = Iterator(element) ++ prevSiblings
+
+    def prevElement: Option[PsiElement] = element.containingFile.flatMap(_.elementAt(element.startOffset - 1))
+
+    def nextElement: Option[PsiElement] = element.containingFile.flatMap(_.elementAt(element.endOffset))
+
+    def isWhitespace: Boolean = element.isInstanceOf[PsiWhiteSpace]
+
+    def isComment: Boolean = element.isInstanceOf[PsiComment]
+
+    def isWhitespaceOrComment: Boolean = isWhitespace || isComment
+
+    // TODO Scala 2.13: use Iterator.unfold to extract prevElements and nextElements methods
+    def prevElementNotWhitespace: Option[PsiElement] = element.prevElement.flatMap(e => if (e.isWhitespace) e.prevElement else Some(e))
+
+    def nextElementNotWhitespace: Option[PsiElement] = element.nextElement.flatMap(e => if (e.isWhitespace) e.nextElement else Some(e))
 
     def contexts: Iterator[PsiElement] = new ContextsIterator(element)
 
@@ -679,6 +716,9 @@ package object extensions {
       prev
     }
 
+    def prevSiblingNotWhitespace: Option[PsiElement] =
+       Option(getPrevSiblingNotWhitespace)
+
     def getPrevSiblingNotWhitespaceComment: PsiElement = {
       var prev: PsiElement = element.getPrevSibling
       while (prev != null && (prev.isInstanceOf[PsiWhiteSpace] ||
@@ -687,6 +727,9 @@ package object extensions {
       prev
     }
 
+    def prevSiblingNotWhitespaceComment: Option[PsiElement] =
+      Option(getPrevSiblingNotWhitespaceComment)
+
     def getNextSiblingNotWhitespace: PsiElement = {
       var next: PsiElement = element.getNextSibling
       while (next != null && (next.isInstanceOf[PsiWhiteSpace] ||
@@ -694,12 +737,26 @@ package object extensions {
       next
     }
 
-    def getFirstChildNotWhitespace: PsiElement = {
+    def nextSiblingNotWhitespace: Option[PsiElement] =
+      Option(getNextSiblingNotWhitespace)
+
+    def getFirstChildNotWhitespace: PsiElement =
       element.getFirstChild match {
         case ws: PsiWhiteSpace => ws.getNextSiblingNotWhitespace
         case child => child
       }
-    }
+
+    def firstChildNotWhitespace: Option[PsiElement] =
+      Option(getFirstChildNotWhitespace)
+
+    def getFirstChildNotWhitespaceComment: PsiElement =
+      element.getFirstChild match {
+        case ws@(_: PsiWhiteSpace | _: PsiComment) => ws.getNextSiblingNotWhitespaceComment
+        case child => child
+      }
+
+    def firstChildNotWhitespaceComment: Option[PsiElement] =
+      Option(getFirstChildNotWhitespaceComment)
 
     def getNextSiblingNotWhitespaceComment: PsiElement = {
       var next: PsiElement = element.getNextSibling
@@ -708,6 +765,9 @@ package object extensions {
         next = next.getNextSibling
       next
     }
+
+    def nextSiblingNotWhitespaceComment: Option[PsiElement] =
+      Option(getNextSiblingNotWhitespaceComment)
 
     /** skips empty annotations, modifiers, etc.. */
     def getPrevNonEmptyLeaf: PsiElement = {
@@ -873,7 +933,7 @@ package object extensions {
           wrappers.foreach(w => processName(w.name))
         case method: PsiMethod if !method.isConstructor =>
           if (isStatic) {
-            if (method.containingClass != null && method.containingClass.qualifiedName != "java.lang.Object") {
+            if (method.containingClass != null && !method.containingClass.isJavaLangObject) {
               processMethod(StaticPsiMethodWrapper.getWrapper(method, clazz))
               processName(method.getName)
             }
@@ -889,6 +949,9 @@ package object extensions {
         case _ =>
       }
     }
+
+    def isJavaLangObject: Boolean =
+      clazz.qualifiedName == "java.lang.Object"
 
     def namedElements: Seq[PsiNamedElement] = {
       clazz match {
@@ -959,8 +1022,27 @@ package object extensions {
 
   }
 
+  implicit class ASTNodeExt(private val node: ASTNode) extends AnyVal {
+    def treeNextNodes: Iterator[ASTNode] = new ASTNodeTreeNextIterator(node)
+    def withTreeNextNodes: Iterator[ASTNode] = Iterator(node) ++ new ASTNodeTreeNextIterator(node)
+    def treePrevNodes: Iterator[ASTNode] = new ASTNodeTreePrevIterator(node)
+    def withTreePrevNodes: Iterator[ASTNode] = Iterator(node) ++ new ASTNodeTreePrevIterator(node)
+
+    def hasElementType(elementType: IElementType): Boolean =
+      node.nullSafe.exists(_.getElementType == elementType)
+
+    def isWhitespaceOrComment: Boolean = {
+      node != null && PsiImplUtil.isWhitespaceOrComment(node)
+    }
+  }
+
   implicit class PipedObject[T](private val value: T) extends AnyVal {
     def |>[R](f: T => R): R = f(value)
+  }
+
+  implicit class DisposableExt[T <: Disposable](private val target: T) extends AnyVal {
+    def delegateUserDataHolder: UserDataHolderEx =
+      UserDataHolderDelegator.userDataHolderFor(target)
   }
 
   implicit class IteratorExt[A](private val delegate: Iterator[A]) extends AnyVal {
@@ -997,11 +1079,6 @@ package object extensions {
       else Some(result)
     }
 
-    def findBy[T: ClassTag]: Option[T] = {
-      val clazz = implicitly[ClassTag[T]].runtimeClass
-      delegate.find(clazz.isInstance).asInstanceOf[Option[T]]
-    }
-
     // https://github.com/scala/collection-strawman/issues/208
     def intersperse[B >: A](sep: B): Iterator[B] = new Iterator[B] {
       private var intersperseNext = false
@@ -1017,6 +1094,11 @@ package object extensions {
 
     def intersperse[B >: A](start: B, sep: B, end: B): Iterator[B] =
       Iterator(start) ++ delegate.intersperse(sep) ++ Iterator(end)
+
+    def findByType[B](implicit classTag: ClassTag[B]): Option[B] = {
+      val runtimeClass = classTag.runtimeClass
+      delegate.find(runtimeClass.isInstance).map(_.asInstanceOf[B])
+    }
   }
 
   implicit class ConcurrentMapExt[K, V](private val map: JConcurrentMap[K, V]) extends AnyVal {
@@ -1046,13 +1128,11 @@ package object extensions {
 
   implicit def toProcessor[T](action: T => Boolean): Processor[T] = (t: T) => action(t)
 
-  implicit def toRunnable(action: => Any): Runnable = () => action
-
   implicit def toComputable[T](action: => T): Computable[T] = () => action
 
   implicit def toCallable[T](action: => T): Callable[T] = () => action
 
-  def startCommand(commandName: String = null)
+  def startCommand(@Nls commandName: String = null)
                   (body: => Unit)
                   (implicit project: Project): Unit =
     CommandProcessor.getInstance().executeCommand(
@@ -1062,7 +1142,7 @@ package object extensions {
       null
     )
 
-  def executeWriteActionCommand(commandName: String = "",
+  def executeWriteActionCommand(@Nls commandName: String = "",
                                 policy: UndoConfirmationPolicy = UndoConfirmationPolicy.DEFAULT)
                                (body: => Unit)
                                (implicit project: Project): Unit =
@@ -1075,7 +1155,7 @@ package object extensions {
     )
 
   def executeWriteActionCommand(runnable: Runnable,
-                                commandName: String,
+                                @Nls commandName: String,
                                 policy: UndoConfirmationPolicy)
                                (implicit project: Project): Unit =
     CommandProcessor.getInstance().executeCommand(
@@ -1087,7 +1167,7 @@ package object extensions {
     )
 
   def executeUndoTransparentAction(body: => Any): Unit =
-    CommandProcessor.getInstance().runUndoTransparentAction(body)
+    CommandProcessor.getInstance().runUndoTransparentAction(() => body)
 
   def inWriteAction[T](body: => T): T = ApplicationManager.getApplication match {
     case application if application.isWriteAccessAllowed => body
@@ -1107,7 +1187,7 @@ package object extensions {
   def ifReadAllowed[T](body: => T)(default: => T): T = {
     try {
       val ref = Ref.create[T]
-      ProgressManager.getInstance().executeNonCancelableSection {
+      ProgressManager.getInstance().executeNonCancelableSection { () =>
         ref.set(ApplicationUtil.tryRunReadAction(body))
       }
       ref.get
@@ -1124,22 +1204,24 @@ package object extensions {
 
   def schedulePeriodicTask(delay: Long, unit: TimeUnit, parentDisposable: Disposable)(body: => Unit): Unit = {
     val task = AppExecutorUtil.getAppScheduledExecutorService.scheduleWithFixedDelay(() => body, delay, delay, unit)
-    Disposer.register(parentDisposable, () => task.cancel(true))
+    invokeOnDispose(parentDisposable) {
+      task.cancel(true)
+    }
   }
 
-  def withProgressSynchronously[T](title: String)(body: => T): T = {
+  def withProgressSynchronously[T](@Nls title: String)(body: => T): T = {
     withProgressSynchronouslyTry[T](title)(_ => body) match {
       case Success(result) => result
       case Failure(exception) => throw exception
     }
   }
 
-  def withProgressSynchronouslyTry[T](title: String)(body: ProgressManager => T): Try[T] = {
+  def withProgressSynchronouslyTry[T](@Nls title: String, canBeCanceled: Boolean = false)(body: ProgressManager => T): Try[T] = {
     val manager = ProgressManager.getInstance
     catching(classOf[Exception]).withTry {
       manager.runProcessWithProgressSynchronously(new ThrowableComputable[T, Exception] {
-        def compute: T = body(manager)
-      }, title, false, null)
+        override def compute: T = body(manager)
+      }, title, canBeCanceled, null)
     }
   }
 
@@ -1156,11 +1238,13 @@ package object extensions {
     promise.future
   }
 
-  def invokeLater[T](body: => T, modalityState: ModalityState = ModalityState.defaultModalityState()): Unit =
-    ApplicationManager.getApplication.invokeLater(() => body, modalityState)
+  def invokeLater[T](body: => T): Unit =
+    ApplicationManager.getApplication.invokeLater(() => body)
 
   def invokeLater[T](modalityState: ModalityState)(body: => T): Unit =
-    ApplicationManager.getApplication.invokeLater(() => body, modalityState)
+    ApplicationManager.getApplication.invokeLater(new Runnable {
+      override def run(): Unit = body
+    }, modalityState)
 
   def invokeAndWait[T](body: => T): T = {
     val result = new AtomicReference[T]()
@@ -1175,15 +1259,21 @@ package object extensions {
       ApplicationManager.getApplication.invokeAndWait(() => body, modalityState)
     }
 
-  def callbackInTransaction(disposable: Disposable)(body: => Unit): Runnable = {
-    TransactionGuard.getInstance().submitTransactionLater(disposable, body)
+  def invokeLaterInTransaction(disposable: Disposable)(body: => Unit): Unit =
+    TransactionGuard.getInstance().submitTransactionLater(disposable, () => body)
+
+  def invokeAndWaitInTransaction(body: => Unit): Unit =
+    TransactionGuard.getInstance().submitTransactionAndWait(() => body)
+
+  def registerDynamicPluginListener(listener: DynamicPluginListener, parentDisposable: Disposable): Unit = {
+    val connection = ApplicationManager.getApplication.getMessageBus.connect(parentDisposable)
+    connection.subscribe(DynamicPluginListener.TOPIC, listener)
   }
 
-  def invokeAndWaitInTransaction(disposable: Disposable)(body: => Unit): Unit = {
-    TransactionGuard.getInstance().submitTransactionAndWait(disposable, body)
-  }
+  def invokeOnDispose(parentDisposable: Disposable)(body: => Unit): Unit =
+    Disposer.register(parentDisposable, () => body)
 
-  private def preservingControlFlow(body: => Unit) {
+  private def preservingControlFlow(body: => Unit): Unit =
     try {
       body
     } catch {
@@ -1192,13 +1282,12 @@ package object extensions {
         case _ => throw e
       }
     }
-  }
 
   /** Create a PartialFunction from a sequence of cases. Workaround for pattern matcher bug */
   def pf[A, B](cases: PartialFunction[A, B]*): PartialFunction[A, B] = new PartialFunction[A, B] {
-    def isDefinedAt(x: A): Boolean = cases.exists(_.isDefinedAt(x))
+    override def isDefinedAt(x: A): Boolean = cases.exists(_.isDefinedAt(x))
 
-    def apply(v1: A): B = {
+    override def apply(v1: A): B = {
       val it = cases.iterator
       while (it.hasNext) {
         val caze = it.next()
@@ -1367,13 +1456,27 @@ package object extensions {
 
   implicit final class LoggerExt(private val logger: Logger) extends AnyVal {
 
-    def debugSafe(message: => String): Unit =
+    def debugSafe(@NonNls message: => String): Unit =
       if (logger.isDebugEnabled) {
         logger.debug(message)
+      }
+
+    def traceSafe(@NonNls message: => String): Unit =
+      if (logger.isTraceEnabled) {
+        logger.trace(message)
+      } else if (ApplicationManager.getApplication.isUnitTestMode || ScalaPluginUtils.isRunningFromSources) {
+        logger.debugSafe(message)
       }
   }
 
   implicit class HighlightInfoExt(private val info: HighlightInfo) extends AnyVal {
     def range: TextRange = TextRange.create(info.startOffset, info.endOffset)
+  }
+
+  implicit class PathExt(private val path: Path) extends AnyVal {
+    def parents: Iterator[Path] =
+      withParents.drop(1)
+    def withParents: Iterator[Path] =
+      Iterator.iterate(path)(_.getParent).takeWhile(_ != null)
   }
 }

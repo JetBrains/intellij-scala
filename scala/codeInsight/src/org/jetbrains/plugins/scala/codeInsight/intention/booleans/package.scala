@@ -34,7 +34,7 @@ package object booleans {
     }
 
     parent match {
-      case prefix: ScPrefixExpr if prefix.operation.getText == "!" =>
+      case prefix: ScPrefixExpr if prefix.operation.textMatches("!") =>
         val newExpr = createExpressionFromText(text)
 
         val size = newExpr match {

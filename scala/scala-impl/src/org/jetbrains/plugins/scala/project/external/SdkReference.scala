@@ -3,14 +3,13 @@ package org.jetbrains.plugins.scala.project.external
 import java.io.File
 
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
-import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.serialization.PropertyMapping
 import org.jetbrains.plugins.scala.extensions.inReadAction
 
-import scala.language.implicitConversions
 import scala.collection.JavaConverters._
+import scala.language.implicitConversions
 
 
 /**
@@ -25,20 +24,19 @@ final case class JdkByVersion @PropertyMapping(Array("version")) (version: Strin
 final case class AndroidJdk @PropertyMapping(Array("version")) (version: String) extends SdkReference
 
 object SdkUtils {
-  def findProjectSdk(sdk: SdkReference): Option[Sdk] = {
-    SdkResolver.EP_NAME.getExtensions
-      .view
-      .flatMap(_.sdkOf(sdk))
-      .headOption
-      .orElse {
-        sdk match {
-          case JdkByVersion(version) => findMostRecentJdk(sdk => Option(sdk.getVersionString).exists(_.contains(version)))
-          case JdkByName(version) => findMostRecentJdk(_.getName == version).orElse(findMostRecentJdk(_.getName.contains(version)))
-          case JdkByHome(homeFile) => findMostRecentJdk(sdk => FileUtil.comparePaths(homeFile.getCanonicalPath, sdk.getHomePath) == 0)
-          case _ => None
-        }
-      }
+
+  def findProjectSdk(sdkRef: SdkReference): Option[Sdk] = {
+    val sdkFromExternalResolver = SdkResolver.implementations.view.flatMap(_.findSdk(sdkRef)).headOption
+    sdkFromExternalResolver.orElse(findProjectSdk2(sdkRef))
   }
+
+  private def findProjectSdk2(sdkRef: SdkReference) =
+    sdkRef match {
+      case JdkByVersion(version) => findMostRecentJdk(sdk => Option(sdk.getVersionString).exists(_.contains(version)))
+      case JdkByName(version)    => findMostRecentJdk(_.getName == version).orElse(findMostRecentJdk(_.getName.contains(version)))
+      case JdkByHome(homeFile)   => findMostRecentJdk(sdk => FileUtil.comparePaths(homeFile.getCanonicalPath, sdk.getHomePath) == 0)
+      case _                     => None
+    }
 
   private def findMostRecentJdk(condition: Sdk => Boolean): Option[Sdk] = {
     import scala.math.Ordering.comparatorToOrdering

@@ -6,7 +6,8 @@ import java.{util => ju}
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.AnnotationUtil
-import com.intellij.extapi.psi.StubBasedPsiElementBase
+import com.intellij.extapi.psi.{ASTDelegatePsiElement, StubBasedPsiElementBase}
+import com.intellij.lang.ASTNode
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
@@ -17,6 +18,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightModifierList
 import com.intellij.psi.impl.source.PsiFileImpl
+import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
@@ -40,10 +42,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, _}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaPsiElement, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -53,10 +55,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.BetterMonadicForSupport.Implicit0Binding
 import org.jetbrains.plugins.scala.util.{SAMUtil, ScEquivalenceUtil}
+import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetExternalRunType, WorksheetFileSettings}
 
 import scala.annotation.tailrec
 import scala.collection.{Seq, Set, mutable}
@@ -114,12 +116,6 @@ object ScalaPsiUtil {
     paramText
   }
 
-  def debug(message: => String, logger: Logger) {
-    if (logger.isDebugEnabled) {
-      logger.debug(message)
-    }
-  }
-
   def functionArrow(implicit project: ProjectContext): String = {
     val useUnicode = project.project != null && ScalaCodeStyleSettings.getInstance(project).REPLACE_CASE_ARROW_WITH_UNICODE_CHAR
     if (useUnicode) ScalaTypedHandler.unicodeCaseArrow else "=>"
@@ -154,6 +150,27 @@ object ScalaPsiUtil {
 
   def isInheritorDeep(clazz: PsiClass, base: PsiClass): Boolean = clazz.isInheritor(base, true)
 
+  /**
+   * Checks if thisClass subsumes base, i.e if base is thisClass or a super class of it (with self type)
+   */
+  def thisSubsumes(thisClass: PsiClass, base: PsiClass): Boolean = {
+    object TypeOfThis {
+      def unapply(td: ScTemplateDefinition): Option[ScType] =
+        td.selfType.map(_.glb(td.getTypeWithProjections().getOrAny))
+    }
+
+    def checkWithSelfType =
+      thisClass match {
+        case TypeOfThis(thisType) =>
+          thisType.conforms(ScalaType.designator(base))
+        case _ => false
+      }
+
+    thisClass == base ||
+      isInheritorDeep(thisClass, base) ||
+      checkWithSelfType
+  }
+
   @tailrec
   def fileContext(psi: PsiElement): PsiFile = {
     if (psi == null) return null
@@ -175,23 +192,20 @@ object ScalaPsiUtil {
       case Seq() => Some(Unit)
       // object A { def foo(a: Any) = ()}; A foo () ==>> A.foo(()), or A.foo() ==>> A.foo( () )
       case _ =>
-        def getType(expression: Expression) = {
-          val result =
-            expression
-              .getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)
-              .tr
-          result.getOrAny
-        }
+        def getType(expression: Expression): ScType =
+          expression
+            .getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)
+            .tr
+            .getOrAny
+            .widenIfLiteral
 
         TupleType(s.map(getType)) match {
           case t if t.isNothing => None
-          case t => Some(t)
+          case t                => Some(t)
         }
     }
 
-    maybeType.map { t =>
-      Seq(Expression(t, firstLeaf(context)))
-    }
+    maybeType.map(t => Seq(Expression(t, firstLeaf(context))))
   }
 
   def getNextSiblingOfType[T <: PsiElement](sibling: PsiElement, aClass: Class[T]): T = {
@@ -332,8 +346,7 @@ object ScalaPsiUtil {
       val name =
         if (lastDot < 0) ""
         else packageFqn.substring(0, lastDot)
-      val psiPack = ScalaPsiManager.instance(project).getCachedPackage(name).orNull
-      Option(ScPackageImpl(psiPack))
+      Option(ScPackageImpl.findPackage(project, name))
     }
   }
 
@@ -345,7 +358,7 @@ object ScalaPsiUtil {
   def getExprImports(z: ScExpression): Set[ImportUsed] = {
     var res: Set[ImportUsed] = Set.empty
     val visitor = new ScalaRecursiveElementVisitor {
-      override def visitExpression(expr: ScExpression) {
+      override def visitExpression(expr: ScExpression): Unit = {
         //Implicit parameters
         expr.findImplicitArguments match {
           case Some(results) => for (r <- results if r != null) res = res ++ r.importsUsed
@@ -353,7 +366,7 @@ object ScalaPsiUtil {
         }
 
         //implicit conversions
-        def addConversions(fromUnderscore: Boolean) {
+        def addConversions(fromUnderscore: Boolean): Unit = {
           res = res ++ expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType(fromUnderscore),
             fromUnderscore = fromUnderscore).importsUsed
         }
@@ -576,18 +589,12 @@ object ScalaPsiUtil {
       if (withSelfType) TypeDefinitionMembers.getSelfTypeSignatures(clazz)
       else TypeDefinitionMembers.getSignatures(clazz)
     val sigs = signatures.forName(x.name)
-    var res: Seq[TermSignature] = (sigs.get(s): @unchecked) match {
-      //partial match
-      case Some(node) if !withSelfType || node.info.namedElement == x => node.supers.map {
-        _.info
-      }
+    var res: Seq[TermSignature] = sigs.get(s) match {
+      case Some(node) if !withSelfType || node.info.namedElement == x =>
+        node.supers.map(_.info)
       case Some(node) =>
-        node.supers.map {
-          _.info
-        }.filter {
-          _.namedElement != x
-        } :+ node.info
-      case None =>
+        node.supers.map(_.info).filter(_.namedElement != x) :+ node.info
+      case _ =>
         //this is possible case: private member of library source class.
         //Problem is that we are building signatures over decompiled class.
         Seq.empty
@@ -595,34 +602,24 @@ object ScalaPsiUtil {
 
 
     val beanMethods = getBeanMethods(typed)
-    beanMethods.foreach {
-      method =>
-        val sigs = TypeDefinitionMembers.getSignatures(clazz).forName(method.name)
-        (sigs.get(new PhysicalMethodSignature(method, ScSubstitutor.empty)): @unchecked) match {
-          //partial match
-          case Some(node) if !withSelfType || node.info.namedElement == method => res ++= node.supers.map {
-            _.info
-          }
-          case Some(node) =>
-            res +:= node.info
-            res ++= node.supers.map {
-              _.info
-            }.filter {
-              _.namedElement != method
-            }
-          case None =>
-        }
+    beanMethods.foreach { method =>
+      val sigs = TypeDefinitionMembers.getSignatures(clazz).forName(method.name)
+      sigs.get(new PhysicalMethodSignature(method, ScSubstitutor.empty)) match {
+        case Some(node) if !withSelfType || node.info.namedElement == method =>
+          res ++= node.supers.map(_.info)
+        case Some(node) =>
+          res +:= node.info
+          res ++= node.supers.map(_.info).filter(_.namedElement != method)
+        case _ =>
+      }
     }
 
     res
-
   }
 
   def superTypeMembers(element: PsiNamedElement,
-                       withSelfType: Boolean = false): Seq[PsiNamedElement] = {
-
+                       withSelfType: Boolean = false): Seq[PsiNamedElement] =
     superTypeSignatures(element, withSelfType).map(_.namedElement)
-  }
 
   def superTypeSignatures(element: PsiNamedElement,
                           withSelfType: Boolean = false): Seq[TypeSignature] = {
@@ -636,11 +633,11 @@ object ScalaPsiUtil {
       else TypeDefinitionMembers.getTypes(clazz)
 
     types.forName(element.name).findNode(element) match {
-      //partial match
-      case Some(x) if !withSelfType || x.info == element => x.supers.map(_.info)
+      case Some(x) if !withSelfType || x.info.namedElement == element =>
+        x.supers.map(_.info)
       case Some(x) =>
-        x.supers.map(_.info).filter(_ != element) :+ x.info
-      case None =>
+        x.supers.map(_.info).filter(_.namedElement != element) :+ x.info
+      case _ =>
         //this is possible case: private member of library source class.
         //Problem is that we are building types over decompiled class.
         Seq.empty
@@ -666,21 +663,8 @@ object ScalaPsiUtil {
         else !super.hasModifierProperty("private") && !super.hasModifierProperty("protected")
     }
 
-  def adjustTypes(element: PsiElement, addImports: Boolean = true, useTypeAliases: Boolean = true) {
+  def adjustTypes(element: PsiElement, addImports: Boolean = true, useTypeAliases: Boolean = true): Unit = {
     TypeAdjuster.adjustFor(Seq(element), addImports, useTypeAliases)
-  }
-
-  def getMethodPresentableText(method: PsiMethod, subst: ScSubstitutor = ScSubstitutor.empty): String = {
-    method match {
-      case method: ScFunction =>
-        ScalaElementPresentation.getMethodPresentableText(method, fast = false, subst)
-      case _ =>
-        val PARAM_OPTIONS: Int = PsiFormatUtilBase.SHOW_NAME | PsiFormatUtilBase.SHOW_TYPE | PsiFormatUtilBase.TYPE_AFTER
-
-        implicit val elementScope: ElementScope = method.elementScope
-        PsiFormatUtil.formatMethod(method, getPsiSubstitutor(subst),
-          PARAM_OPTIONS | PsiFormatUtilBase.SHOW_PARAMETERS, PARAM_OPTIONS)
-    }
   }
 
   def isLineTerminator(element: PsiElement): Boolean = {
@@ -725,7 +709,7 @@ object ScalaPsiUtil {
 
   /**
     * For one classOf use PsiTreeUtil.getContextOfType instead
-    */
+   */
   def getContextOfType(element: PsiElement, strict: Boolean, classes: Class[_ <: PsiElement]*): PsiElement = {
     var el: PsiElement = if (!strict) element else {
       if (element == null) return null
@@ -735,12 +719,27 @@ object ScalaPsiUtil {
     el
   }
 
-  def getCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = clazz match {
-    case obj: ScObject if obj.isSyntheticObject => obj.syntheticNavigationElement.asOptionOf[ScTypeDefinition]
-    case obj: ScObject                          => obj.baseCompanionModule
-    case definition: ScTypeDefinition           => definition.baseCompanionModule.orElse(definition.fakeCompanionModule)
-    case _                                      => None
-  }
+  def getCompanionModule(typeDefinition: ScTypeDefinition): Option[ScTypeDefinition] =
+    typeDefinition match {
+      case scObject: ScObject =>
+        if (scObject.isSyntheticObject)
+          scObject.syntheticNavigationElement
+            .asOptionOf[ScTypeDefinition]
+        else
+          scObject.baseCompanionModule
+      case _: ScTypeDefinition =>
+        typeDefinition.baseCompanionModule
+          .orElse(typeDefinition.fakeCompanionModule)
+    }
+
+  def getCompanionModule(`class`: PsiClass): Option[ScTypeDefinition] =
+    `class` match {
+      case typeDefinition: ScTypeDefinition => getCompanionModule(typeDefinition)
+      case _ => None
+    }
+
+  def withCompanionModule(`class`: PsiClass): List[PsiClass] =
+    `class` :: getCompanionModule(`class`).toList
 
   // determines if an element can access other elements in a synthetic subtree that shadows
   // element's original(physical) subtree - e.g. physical method of some class referencing
@@ -796,27 +795,27 @@ object ScalaPsiUtil {
                        (implicit elementScope: ElementScope): PsiSubstitutor = {
 
     case class PseudoPsiSubstitutor(substitutor: ScSubstitutor) extends PsiSubstitutor {
-      def putAll(parentClass: PsiClass, mappings: Array[PsiType]): PsiSubstitutor = PsiSubstitutor.EMPTY
+      override def putAll(parentClass: PsiClass, mappings: Array[PsiType]): PsiSubstitutor = PsiSubstitutor.EMPTY
 
-      def isValid: Boolean = true
+      override def isValid: Boolean = true
 
-      def put(classParameter: PsiTypeParameter, mapping: PsiType): PsiSubstitutor = PsiSubstitutor.EMPTY
+      override def put(classParameter: PsiTypeParameter, mapping: PsiType): PsiSubstitutor = PsiSubstitutor.EMPTY
 
-      def getSubstitutionMap: ju.Map[PsiTypeParameter, PsiType] = new ju.HashMap[PsiTypeParameter, PsiType]()
+      override def getSubstitutionMap: ju.Map[PsiTypeParameter, PsiType] = new ju.HashMap[PsiTypeParameter, PsiType]()
 
-      def substitute(`type`: PsiType): PsiType = {
+      override def substitute(`type`: PsiType): PsiType = {
         substitutor(`type`.toScType()).toPsiType
       }
 
-      def substitute(typeParameter: PsiTypeParameter): PsiType = {
+      override def substitute(typeParameter: PsiTypeParameter): PsiType = {
         substitutor(TypeParameterType(typeParameter)).toPsiType
       }
 
-      def putAll(another: PsiSubstitutor): PsiSubstitutor = PsiSubstitutor.EMPTY
+      override def putAll(another: PsiSubstitutor): PsiSubstitutor = PsiSubstitutor.EMPTY
 
-      def substituteWithBoundsPromotion(typeParameter: PsiTypeParameter): PsiType = substitute(typeParameter)
+      override def substituteWithBoundsPromotion(typeParameter: PsiTypeParameter): PsiType = substitute(typeParameter)
 
-      def ensureValid() {}
+      override def ensureValid(): Unit = {}
     }
 
     PseudoPsiSubstitutor(subst)
@@ -937,7 +936,7 @@ object ScalaPsiUtil {
             val text = expr.getText
             val dummyFile = createScalaFileFromText(text)(expr.getManager)
             dummyFile.firstChild match {
-              case Some(newExpr: ScExpression) => newExpr.getText != text
+              case Some(newExpr: ScExpression) => !newExpr.textMatches(text)
               case _ => true
             }
           case _ => false
@@ -952,7 +951,7 @@ object ScalaPsiUtil {
         //order of these case clauses is important!
         case (_: ScGuard, _: ScMatch) => true
         case _ if !parent.isInstanceOf[ScExpression] => false
-        case _ if expr.getText == "_" => false
+        case _ if expr.textMatches("_") => false
         case (_: ScTuple | _: ScBlock | _: ScXmlExpr, _) => false
         case (infix: ScInfixExpr, tuple: ScTuple) => tupleInInfixNeedParentheses(infix, from, tuple)
         case (_: ScSugarCallExpr |
@@ -983,7 +982,11 @@ object ScalaPsiUtil {
   }
 
   def isScope(element: PsiElement): Boolean = element match {
-    case worksheetFile: ScalaFile if worksheetFile.isWorksheetFile => false
+    case worksheetFile: ScalaFile if worksheetFile.isWorksheetFile =>
+      //don't annotate clashing definitions on top level of worksheet files and scala files that explicitly allow multiple declarations
+      // exception: worksheets in Plain mode
+      val runType = WorksheetFileSettings(worksheetFile).getRunTypeOpt
+      runType.contains(WorksheetExternalRunType.PlainRunType)
     case multDeclAllowedFile: ScalaFile if multDeclAllowedFile.isMultipleDeclarationsAllowed => false
     case _: ScalaFile | _: ScBlock | _: ScTemplateBody | _: ScPackaging | _: ScParameters |
          _: ScTypeParamClause | _: ScCaseClause | _: ScFor | _: ScExistentialClause |
@@ -1017,10 +1020,7 @@ object ScalaPsiUtil {
       if (clauses.isEmpty) None
       else {
         val params = clauses.head.parameters
-        if (params.length > n)
-          Some(params(n))
-        else
-          None
+        params.lift(n)
       }
     case _ => None
   }
@@ -1131,19 +1131,24 @@ object ScalaPsiUtil {
           case _ => None
         }
 
-    private def cantBeEtaExpanded(m: ScFunctionDefinition): Boolean = {
+    private def cantBeEtaExpanded(m: PsiMethod): Boolean = {
       import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
-      val clauses         = m.paramClauses.clauses
       lazy val isScala211 = m.scalaLanguageLevelOrDefault == Scala_2_11
 
-      clauses.isEmpty ||
-        clauses.forall { clause =>
-          val isEmptyClause =
-            if (isScala211) false
-            else            clause.parameters.isEmpty
+      m match {
+        case f: ScFunctionDefinition =>
+          val clauses = f.paramClauses.clauses
 
-          clause.isImplicit || isEmptyClause
-        }
+          clauses.isEmpty ||
+            clauses.forall { clause =>
+              val isEmptyClause =
+                if (isScala211) false
+                else            clause.parameters.isEmpty
+
+              clause.isImplicit || isEmptyClause
+            }
+        case _ => isScala211 || m.hasParameters
+      }
     }
 
     @tailrec
@@ -1151,8 +1156,8 @@ object ScalaPsiUtil {
       expr:               ScExpression,
       canBeParameterless: Boolean
     ): Option[PsiMethod] = expr match {
-      case ResolvesTo(f: ScFunctionDefinition) if cantBeEtaExpanded(f) && !canBeParameterless => None
-      case ResolvesTo(m: PsiMethod)                                                           => Some(m)
+      case ResolvesTo(m: PsiMethod) if cantBeEtaExpanded(m) && !canBeParameterless => None
+      case ResolvesTo(m: PsiMethod)                                                => Some(m)
       case gc: ScGenericCall =>
         referencedMethod(gc.referencedExpr, canBeParameterless)
       case us: ScUnderscoreSection if us.bindingExpr.isDefined =>
@@ -1162,7 +1167,7 @@ object ScalaPsiUtil {
     }
 
     private def isSimpleUnderscore(expr: ScExpression) = expr match {
-      case _: ScUnderscoreSection => expr.getText == "_"
+      case _: ScUnderscoreSection => expr.textMatches("_")
       case typed: ScTypedExpression => Option(typed.expr).map(_.getText).contains("_")
       case _ => false
     }
@@ -1238,27 +1243,44 @@ object ScalaPsiUtil {
     )
   }
 
-  def withOriginalContextBound[T](parameter: ScParameter)
-                                 (default: => T)
-                                 (function: ((ScTypeParam, ScTypeElement, Int)) => T): T =
-    if (parameter.isPhysical) default
-    else {
-      val maybeOwner = parameter.owner match {
-        case ScPrimaryConstructor.ofClass(cls) => Option(cls)
-        case other: ScTypeParametersOwner => Option(other)
-        case _ => None
-      }
+  /**
+   * Example: lets consider T2 in this code {{{
+   * def foo[T1, T2 : Show : Render](x: T2): String = ???
+   * }}}
+   * typeParam   ~ T2 <br>
+   * contextType ~ Show OR Render <br>
+   * boundIndex  ~ 0 OR 1 <br>
+   */
+  case class ContextBoundInfo(typeParam: ScTypeParam, contextType: ScTypeElement, boundIndex: Int)
 
-      val bounds = for {
-        owner <- maybeOwner.toSeq
-        typeParameter <- owner.typeParameters
-        (bound, idx) <- typeParameter.contextBoundTypeElement.zipWithIndex
-      } yield (typeParameter, bound, idx)
+  /**
+   * @param parameter physical parameter OR
+   *                  synthetic implicit parameter corresponding to some context bound
+   * @return None if `parameter` is a normal physical parameter<br>
+   *         Some(context bound info) if parameter represents some synthetic implicit parameter of some context bound
+   */
+  def findSyntheticContextBoundInfo(parameter: ScParameter): Option[ContextBoundInfo] =
+    if (parameter.isPhysical) None
+    else extractSyntheticContextBoundInfo(parameter)
 
-      bounds.find {
-        case (typeParameter, typeElement, index) => contextBoundParameterName(typeParameter, typeElement, index) == parameter.name
-      }.fold(default)(function)
+  private def extractSyntheticContextBoundInfo(contextParameter: ScParameter): Option[ContextBoundInfo] = {
+    val maybeOwner: Option[ScTypeParametersOwner] = contextParameter.owner match {
+      case ScPrimaryConstructor.ofClass(cls) => Option(cls)
+      case other: ScTypeParametersOwner      => Option(other)
+      case _                                 => None
     }
+
+    val contextBounds: Seq[ContextBoundInfo] = for {
+      owner         <- maybeOwner.toSeq
+      typeParameter <- owner.typeParameters
+      (bound, idx)  <- typeParameter.contextBoundTypeElement.zipWithIndex
+    } yield ContextBoundInfo(typeParameter, bound, idx)
+
+    contextBounds.find { case ContextBoundInfo(typeParameter, typeElement, index) =>
+      val currentParameterName = contextBoundParameterName(typeParameter, typeElement, index)
+      contextParameter.name == currentParameterName
+    }
+  }
 
   /** Creates a synthetic parameter clause based on view and context bounds */
   def syntheticParamClause(parameterOwner: ScTypeParametersOwner,
@@ -1304,13 +1326,43 @@ object ScalaPsiUtil {
         s"${contextBoundParameterName(typeParameter, typeElement, index)} : (${typeElement.getText})[$name]"
     }
 
-    val clausesTexts = viewsTexts ++ boundsTexts
+    // if the context-applied compiler plugin is active, generate additional implicits params with default values
+    // which are named by the type params with context bounds and combine all bounds as a compound type
+    // to mimick context-applied's behavior
+    val (contextAppliedVirtualBounds, contextAppliedVirtualBoundsTexts) =
+      if (parameterOwner.contextAppliedEnabled &&
+        // context-applied doesn't work inside classes extending AnyVal
+        !paramClauses.parentOfType[PsiClass].exists(ValueClassType.extendsAnyVal)) {
+
+        val paramNames = paramClauses.getParameters.map(_.getName)
+
+        val caBounds = for {
+          (typeParameter, name) <- namedTypeParameters
+          if typeParameter.contextBoundTypeElement.nonEmpty
+          // if there's already a param with the name of type param, then skip this type param
+          if !paramNames.contains(name)
+          // reverse is necessary for bounds with common ancestors, resolving ancestor methods to the first bound
+          boundTypes   = typeParameter.contextBoundTypeElement.reverse
+          compoundText = boundTypes.map(_.getText + s"[$name]").mkString(" with ")
+          compound     = createTypeElementFromText(compoundText)(typeParameter.projectContext)
+        } yield ParameterDescriptor(typeParameter, name, compound, 0)
+
+        val caBoundsTexts = caBounds.map {
+          case ParameterDescriptor(_, name, typeElement, _) =>
+            // default value avoids red squiggles at call site
+            s"$name : ${typeElement.getText} = ???"
+        }
+
+        (caBounds, caBoundsTexts)
+      } else (Nil, Nil)
+
+    val clausesTexts = viewsTexts ++ boundsTexts ++ contextAppliedVirtualBoundsTexts
     if (clausesTexts.isEmpty) return None
 
     val result = createImplicitClauseFromTextWithContext(clausesTexts, paramClauses, isClassParameter)
     result.parameters
       .flatMap(_.typeElement)
-      .zip(views ++ bounds)
+      .zip(views ++ bounds ++ contextAppliedVirtualBounds)
       .foreach {
         case (typeElement, ParameterDescriptor(_, _, context, _)) => context.analog = typeElement
       }
@@ -1383,7 +1435,7 @@ object ScalaPsiUtil {
     clauses.isEmpty || (clauses.length == 1 && clauses.head.isImplicit)
   }
 
-  def padWithWhitespaces(element: PsiElement) {
+  def padWithWhitespaces(element: PsiElement): Unit = {
     val range: TextRange = element.getTextRange
     val previousOffset = range.getStartOffset - 1
     val nextOffset = range.getEndOffset
@@ -1503,5 +1555,33 @@ object ScalaPsiUtil {
 
       case _ => false
     }
+  }
+
+  def deleteElementInCommaSeparatedList(list: ASTDelegatePsiElement, element: ASTNode): Unit = {
+    val (end, foundAfterComma) = {
+      var last = element
+      var cur = element.getTreeNext
+      while (cur.isWhitespaceOrComment) {
+        last = cur
+        cur = cur.getTreeNext
+      }
+      if (cur.hasElementType(ScalaTokenTypes.tCOMMA))
+        (cur, true)
+      else (last, false)
+    }
+
+    val begin = {
+      var last = element
+      var cur = element.getTreePrev
+      while (cur.isWhitespaceOrComment) {
+        last = cur
+        cur = cur.getTreePrev
+      }
+      if (!foundAfterComma && cur.hasElementType(ScalaTokenTypes.tCOMMA))
+        cur
+      else last
+    }
+
+    CodeEditUtil.removeChildren(list.getNode, begin, end)
   }
 }

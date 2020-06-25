@@ -10,7 +10,7 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class JavaAnnotationTest extends JavaHighlightingTestBase() {
   override protected def shouldPass: Boolean = false
-  def testSCL10385() = {
+  def testSCL10385(): Unit = {
     val scala =
       """
         |case class IdeBugFail @Inject() @Singleton()(var1: String)
@@ -28,7 +28,7 @@ class JavaAnnotationTest extends JavaHighlightingTestBase() {
     assertNothing(errorsFromScalaCode(scala, java))
   }
 
-  def testSCL11283() = {
+  def testSCL11283(): Unit = {
     val scala =
       """
       """.stripMargin

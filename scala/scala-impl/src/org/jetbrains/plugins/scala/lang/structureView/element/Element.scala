@@ -23,22 +23,18 @@ trait Element extends StructureViewTreeElement with ColoredItemPresentation {
 }
 
 object Element {
+
   def apply(element: PsiElement, inherited: Boolean = false): Seq[Element] = element match {
     case packaging: ScPackaging => packaging.typeDefinitions.map(new TypeDefinition(_))
     // TODO Type definition can be inherited
     case definition: ScTypeDefinition => Seq(new TypeDefinition(definition))
-    case parameter: ScClassParameter => Seq(new ValOrVarParameter(parameter, inherited))
-    case function: ScFunction => Seq(//new ScalaFunctionStructureViewElement(function, isInherited, showType = true),
-      new Function(function, inherited, showType = false))
-    case variable: ScVariable => variable.declaredElements.flatMap( element =>
-      Seq(//new ScalaVariableStructureViewElement(element, inherited, showType = true),
-        new Variable(element, inherited, showType = false)))
-    case value: ScValue => value.declaredElements.flatMap( element =>
-      Seq(//new ScalaValueStructureViewElement(element, inherited, showType = true),
-        new Value(element, inherited, showType = false)))
-    case alias: ScTypeAlias => Seq(new TypeAlias(alias, inherited))
-    case block: ScBlockExpr => Seq(new Block(block))
-    case _ => Seq.empty
+    case parameter: ScClassParameter  => Seq(new ValOrVarParameter(parameter, inherited))
+    case function: ScFunction         => Seq(new Function(function, inherited))
+    case variable: ScVariable         => variable.declaredElements.map(new Variable(_, inherited))
+    case value: ScValue               => value.declaredElements.map(new Value(_, inherited))
+    case alias: ScTypeAlias           => Seq(new TypeAlias(alias, inherited))
+    case block: ScBlockExpr           => Seq(new Block(block))
+    case _                            => Seq.empty
   }
 
   def apply(fileProvider: () => ScalaFile): Element = new File(fileProvider)

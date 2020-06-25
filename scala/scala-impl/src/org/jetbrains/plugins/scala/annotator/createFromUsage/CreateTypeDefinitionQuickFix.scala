@@ -12,6 +12,8 @@ import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
+import javax.swing.Icon
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil._
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
 import org.jetbrains.plugins.scala.extensions._
@@ -27,8 +29,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
  * Nikolay.Tropin
  * 2014-07-28
  */
-abstract class CreateTypeDefinitionQuickFix(ref: ScReference, description: String, kind: ClassKind)
-        extends CreateFromUsageQuickFixBase(ref, description) {
+abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
+        extends CreateFromUsageQuickFixBase(ref) {
   private final val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.annotator.createFromUsage.CreateTemplateDefinitionQuickFix")
   private val name = ref.refName
 
@@ -43,7 +45,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, description: Strin
     super.isAvailable(project, editor, file) && goodQualifier
   }
 
-  override protected def invokeInner(project: Project, editor: Editor, file: PsiFile) = {
+  override protected def invokeInner(project: Project, editor: Editor, file: PsiFile): Unit = {
     inWriteAction {
       ref.qualifier match {
         case Some(InstanceOfClass(typeDef: ScTypeDefinition)) => createInnerClassIn(typeDef)
@@ -97,8 +99,8 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, description: Strin
     }
   }
 
-  private def createClassWithLevelChoosing(editor: Editor, siblings: Seq[PsiElement]) {
-    val renderer = new PsiElementListCellRenderer[PsiElement] {
+  private def createClassWithLevelChoosing(editor: Editor, siblings: Seq[PsiElement]): Unit = {
+    val renderer: PsiElementListCellRenderer[PsiElement] = new PsiElementListCellRenderer[PsiElement] {
       override def getElementText(element: PsiElement): String = element match {
         case _: PsiFile => "New file"
         case td: ScTypeDefinition if td.isTopLevel => "Top level in this file"
@@ -108,9 +110,9 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, description: Strin
         case _ => "Local scope"
       }
 
-      override def getContainerText(element: PsiElement, name: String) = null
+      override def getContainerText(element: PsiElement, name: String): String = null
       override def getIconFlags = 0
-      override def getIcon(element: PsiElement) = null
+      override def getIcon(element: PsiElement): Icon = null
     }
     siblings match {
       case Seq() =>
@@ -118,7 +120,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, description: Strin
       case _ =>
         val selection = siblings.head
         val processor = new PsiElementProcessor[PsiElement] {
-          def execute(elem: PsiElement): Boolean = {
+          override def execute(elem: PsiElement): Boolean = {
             inWriteCommandAction {
               createClassAtLevel(elem)
             }(elem.getProject)
@@ -140,12 +142,12 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, description: Strin
     }
   }
   
-  private def createClassInDirectory(directory: PsiDirectory) = {
+  private def createClassInDirectory(directory: PsiDirectory): Unit = {
     val clazz = ScalaDirectoryService.createClassFromTemplate(directory, name, kind.templateName, askToDefineVariables = false)
     afterCreationWork(clazz.asInstanceOf[ScTypeDefinition])
   }
 
-  protected def afterCreationWork(clazz: ScTypeDefinition) {
+  protected def afterCreationWork(clazz: ScTypeDefinition): Unit = {
     addGenericParams(clazz)
     addClassParams(clazz)
     ScalaPsiUtil.adjustTypes(clazz)
@@ -206,10 +208,18 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, description: Strin
 }
 
 class CreateObjectQuickFix(ref: ScReference)
-        extends CreateTypeDefinitionQuickFix(ref, "object", Object)
+        extends CreateTypeDefinitionQuickFix(ref, Object) {
+
+  override val getText: String = ScalaBundle.message("create.object.named", ref.nameId.getText)
+  override val getFamilyName: String = ScalaBundle.message("family.name.create.object")
+}
+
 
 class CreateTraitQuickFix(ref: ScReference)
-        extends CreateTypeDefinitionQuickFix(ref, "trait", Trait) {
+        extends CreateTypeDefinitionQuickFix(ref, Trait) {
+
+  override val getText: String = ScalaBundle.message("create.trait.named", ref.nameId.getText)
+  override val getFamilyName: String = ScalaBundle.message("family.name.create.trait")
   
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     super.isAvailable(project, editor, file) && parametersText(ref).isEmpty
@@ -217,10 +227,17 @@ class CreateTraitQuickFix(ref: ScReference)
 }
 
 class CreateClassQuickFix(ref: ScReference)
-        extends CreateTypeDefinitionQuickFix(ref, "class", Class)
+        extends CreateTypeDefinitionQuickFix(ref, Class) {
+
+  override val getText: String = ScalaBundle.message("create.class.named", ref.nameId.getText)
+  override val getFamilyName: String = ScalaBundle.message("family.name.create.class")
+}
 
 class CreateCaseClassQuickFix(ref: ScReference)
-        extends CreateTypeDefinitionQuickFix(ref, "case class", Class) {
+        extends CreateTypeDefinitionQuickFix(ref, Class) {
+
+  override val getText: String = ScalaBundle.message("create.case.class.named", ref.nameId.getText)
+  override val getFamilyName: String = ScalaBundle.message("family.name.create.case.class")
 
   override protected def afterCreationWork(clazz: ScTypeDefinition): Unit = {
     clazz.setModifierProperty("case")

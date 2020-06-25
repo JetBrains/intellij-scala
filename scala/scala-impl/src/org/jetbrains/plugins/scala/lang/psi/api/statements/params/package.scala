@@ -1,12 +1,22 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
 
-import com.intellij.psi.{PsiClass, PsiNamedElement, PsiTypeParameter}
-import com.intellij.util.containers.{ConcurrentLongObjectMap, ContainerUtil}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiElementExt, PsiNamedElementExt}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
+import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.PsiTypeParameter
+import com.intellij.util.containers.ConcurrentLongObjectMap
+import com.intellij.util.containers.ContainerUtil
+import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.PsiClassExt
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
+import org.jetbrains.plugins.scala.extensions.StubBasedExt
 
 import scala.language.implicitConversions
 
@@ -15,7 +25,7 @@ import scala.language.implicitConversions
   */
 package object params {
   private val typeParameterCounter = new AtomicLong(0)
-  private val reusableIdMap = ContainerUtil.newConcurrentMap[String, Long]()
+  private val reusableIdMap = new ConcurrentHashMap[String, Long]()
 
   private val paramToIdMap = ContainerUtil.createConcurrentWeakMap[PsiNamedElement, Long]()
 
@@ -35,14 +45,16 @@ package object params {
 
   private val nameBasedIdBaseline = Long.MaxValue / 2
 
-  private def elementQual(element: ScalaPsiElement): String = {
+  private def elementQual(element: ScalaPsiElement): String =
     element match {
       case t: ScTypeParam => elementQual(t.owner) + "#" + t.name
-      case c: PsiClass => c.qualifiedName
-      case f: ScFunction => elementQual(f.containingClass) + ".." + f.name
-      case _ => ""
+      case c: PsiClass    => c.qualifiedName
+      case f: ScFunction  =>
+        val maybeStub     = f.greenStub
+        val indexInParent = maybeStub.fold(0)(s => s.getParentStub.getChildrenStubs.indexOf(s))
+        elementQual(f.containingClass) + ".." + indexInParent
+      case _              => ""
     }
-  }
 
   def freshTypeParamId(element: PsiNamedElement): Long = {
     val id = typeParameterCounter.getAndIncrement()
@@ -70,7 +82,7 @@ package object params {
   }
 
   object TypeParamId {
-    implicit val psi: TypeParamId[PsiTypeParameter] = psiTypeParameter => psiTypeParameter match {
+    implicit val psi: TypeParamId[PsiTypeParameter] = {
       case sc: ScTypeParam => sc.typeParamId
       case null => -1
       case p => cachedId(p, p.name)

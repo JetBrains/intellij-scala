@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
   * Pavel Fatin
   */
 final class AddEmptyParentheses(function: ScFunction)
-  extends AbstractFixOnPsiElement(InspectionBundle.message("empty.parentheses"), function) {
+  extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("empty.parentheses"), function) {
 
   override protected def doApplyFix(function: ScFunction)
                                    (implicit project: Project): Unit = {

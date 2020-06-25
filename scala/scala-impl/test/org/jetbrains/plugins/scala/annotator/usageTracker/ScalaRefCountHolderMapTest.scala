@@ -92,7 +92,7 @@ class ScalaRefCountHolderMapTest extends TestCase {
   private case class Key(x: Int)
 
   private def createTestMap(maximumSize: Int) =
-    new ScalaRefCountHolderComponent.TimestampedValueMap[Key, String](
+    new ScalaRefCountHolderService.TimestampedValueMap[Key, String](
       2,
       maximumSize,
       100

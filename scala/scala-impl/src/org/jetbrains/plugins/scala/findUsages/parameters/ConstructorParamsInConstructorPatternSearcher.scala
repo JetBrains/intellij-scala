@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
  * User: Jason Zaugg
  */
 class ConstructorParamsInConstructorPatternSearcher extends CustomUsageSearcher {
-  override def processElementUsages(element: PsiElement, processor0: Processor[_ >: Usage], options: FindUsagesOptions) {
+  override def processElementUsages(element: PsiElement, processor0: Processor[_ >: Usage], options: FindUsagesOptions): Unit = {
     element match {
       case parameterOfClassWithIndex(cls, index) =>
         val scope = inReadAction(element.getUseScope)
@@ -34,13 +34,11 @@ class ConstructorParamsInConstructorPatternSearcher extends CustomUsageSearcher 
         val processor = new Processor[PsiReference] {
           override def process(t: PsiReference): Boolean = t match {
             case correspondingSubpatternWithBindings(Seq(only)) =>
-              ReferencesSearch.search(only, scope, false).forEach(new Processor[PsiReference] {
-                override def process(t: PsiReference): Boolean = {
-                  inReadAction {
-                    val descriptor = new UsageInfoToUsageConverter.TargetElementsDescriptor(Array(), Array(only))
-                    val usage = UsageInfoToUsageConverter.convert(descriptor, new UsageInfo(t))
-                    processor0.process(usage)
-                  }
+              ReferencesSearch.search(only, scope, false).forEach((t: PsiReference) => {
+                inReadAction {
+                  val descriptor = new UsageInfoToUsageConverter.TargetElementsDescriptor(Array(), Array(only))
+                  val usage = UsageInfoToUsageConverter.convert(descriptor, new UsageInfo(t))
+                  processor0.process(usage)
                 }
               })
             case _ => true

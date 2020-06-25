@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration,
   * User: Dmitry.Naydanov
   * Date: 14.03.18.
   */
-class WorksheetProjectSettings(val project: Project) extends WorksheetCommonSettings {
+class WorksheetProjectSettings(override val project: Project) extends WorksheetCommonSettings {
 
   private val storeComponent = WorksheetDefaultSettings.getInstance(project)
 

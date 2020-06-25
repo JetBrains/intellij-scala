@@ -26,16 +26,16 @@ trait ScalaBounds extends api.Bounds {
 
   import ScalaBounds._
 
-  def glb(t1: ScType, t2: ScType, checkWeak: Boolean = false): ScType = {
+  override def glb(t1: ScType, t2: ScType, checkWeak: Boolean = false): ScType = {
     if (conforms(t1, t2, checkWeak)) t1
     else if (conforms(t2, t1, checkWeak)) t2
     else {
       (t1, t2) match {
-        case (arg @ ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(_, _, lower2, upper2)) =>
+        case (arg @ ScExistentialArgument(_, _, lower, upper), ScExistentialArgument(_, _, lower2, upper2)) =>
           arg.copyWithBounds(lub(lower, lower2, checkWeak), glb(upper, upper2, checkWeak))
-        case (arg @ ScExistentialArgument(name, args, lower, upper), _) =>
+        case (arg @ ScExistentialArgument(_, _, lower, upper), _) =>
           arg.copyWithBounds(lub(lower, t2, checkWeak), glb(upper, t2))
-        case (_, arg @ ScExistentialArgument(name, args, lower, upper)) =>
+        case (_, arg @ ScExistentialArgument(_, _, lower, upper)) =>
           arg.copyWithBounds(lub(lower, t1, checkWeak), glb(upper, t1))
         case (ex: ScExistentialType, _) => glb(ex.quantified, t2, checkWeak).unpackedType
         case (_, ex: ScExistentialType) => glb(t1, ex.quantified, checkWeak).unpackedType
@@ -46,7 +46,7 @@ trait ScalaBounds extends api.Bounds {
     }
   }
 
-  def glb(typez: Seq[ScType], checkWeak: Boolean): ScType = {
+  override def glb(typez: Seq[ScType], checkWeak: Boolean): ScType = {
     if (typez.length == 1) typez.head
     var res = typez.head
     for (i <- 1 until typez.length) {
@@ -93,11 +93,11 @@ trait ScalaBounds extends api.Bounds {
     ScTypePolymorphicType(intTpe, newParams)
   }
 
-  def lub(t1: ScType, t2: ScType, checkWeak: Boolean): ScType = {
+  override def lub(t1: ScType, t2: ScType, checkWeak: Boolean): ScType = {
     lubInner(t1, t2, lubDepth(Seq(t1, t2)), checkWeak)(stopAddingUpperBound = false)
   }
 
-  def lub(seq: Seq[ScType], checkWeak: Boolean): ScType = {
+  override def lub(seq: Seq[ScType], checkWeak: Boolean): ScType = {
     seq.reduce((l: ScType, r: ScType) => lub(l, r, checkWeak))
   }
 
@@ -141,16 +141,10 @@ trait ScalaBounds extends api.Bounds {
       case other => other
     }
 
-    private val typeNamedElement: Option[(PsiNamedElement, ScSubstitutor)] = {
-      tp.extractClassType match {
-        case None =>
-          tp.isAliasType match {
-            case Some(AliasType(ta, _, _)) => Some(ta, ScSubstitutor.empty)
-            case _ => None
-          }
-        case some => some
+    private val typeNamedElement: Option[(PsiNamedElement, ScSubstitutor)] =
+      tp.extractDesignatedType(false).collect {
+        case tpl @ (_: PsiClass | _: ScTypeAlias | _: ScTypeParam, _) => tpl
       }
-    }
 
     def isEmpty: Boolean = typeNamedElement.isEmpty
 
@@ -159,25 +153,24 @@ trait ScalaBounds extends api.Bounds {
     @tailrec
     private def projectionOptionImpl(tp: ScType): Option[ScType] = tp match {
       case ParameterizedType(des, _) => projectionOptionImpl(des)
-      case proj@ScProjectionType(p, _) => proj.actualElement match {
-        case _: PsiClass => Some(p)
-        case t: ScTypeAliasDefinition =>
-          t.aliasedType.toOption match {
-            case None => None
-            case Some(aliased) => projectionOptionImpl(proj.actualSubst(aliased))
-          }
-        case _: ScTypeAliasDeclaration => Some(p)
-        case _ => None
-      }
+      case proj @ ScProjectionType(p, _) =>
+        proj.actualElement match {
+          case _: PsiClass => Some(p)
+          case t: ScTypeAliasDefinition =>
+            t.aliasedType.toOption match {
+              case None          => None
+              case Some(aliased) => projectionOptionImpl(proj.actualSubst(aliased))
+            }
+          case _: ScTypeAliasDeclaration => Some(p)
+          case _                         => None
+        }
       case ScDesignatorType(t: ScTypeAliasDefinition) =>
         t.aliasedType.toOption match {
-          case None => None
+          case None          => None
           case Some(aliased) => projectionOptionImpl(aliased)
         }
       case _ => None
     }
-
-    def getSubst: ScSubstitutor = typeNamedElement.get._2
 
     def getSuperClasses: Seq[ClassLike] = {
       val subst = this.projectionOption match {
@@ -188,7 +181,7 @@ trait ScalaBounds extends api.Bounds {
         case t: ScTemplateDefinition => t.superTypes.map(tp => new ClassLike(subst(tp))).filter(!_.isEmpty)
         case p: PsiClass => p.getSupers.toSeq.map(cl => new ClassLike(ScalaType.designator(cl))).filter(!_.isEmpty)
         case _: ScTypeAlias =>
-          val upperType: ScType = tp.isAliasType.get.upper.getOrAny
+          val upperType: ScType = tp.aliasType.get.upper.getOrAny
           val classes: Seq[ClassLike] = {
             upperType match {
               case ScCompoundType(comps1, _, _) => comps1.map(new ClassLike(_))
@@ -196,11 +189,18 @@ trait ScalaBounds extends api.Bounds {
             }
           }
           classes.filter(!_.isEmpty)
+        case param: ScTypeParam =>
+          val upper = param.upperBound.getOrAny
+          upper match {
+            case ScCompoundType(comps, _, _) => comps.map(new ClassLike(_))
+            case t                           => Seq(new ClassLike(t))
+          }
       }
     }
 
-    def isSameOrBaseClass(other: ClassLike): Boolean = {
+    def isSameOrBaseClass(other: ClassLike): Boolean =
       (getNamedElement, other.getNamedElement) match {
+        case (lp: ScTypeParam, rp: ScTypeParam) => smartEquivalence(lp, rp)
         case (base: PsiClass, inheritor: PsiClass) =>
           inheritor.sameOrInheritor(base)
         case (base, inheritor: ScTypeAlias) =>
@@ -211,21 +211,24 @@ trait ScalaBounds extends api.Bounds {
           false
         case _ => false //class can't be inheritor of type alias
       }
-    }
 
     def getNamedElement: PsiNamedElement = typeNamedElement.get._1
 
-    def getTypeParameters: Array[PsiTypeParameter] = typeNamedElement.get._1 match {
-      case a: ScTypeAlias => a.typeParameters.toArray
-      case p: PsiClass => p.getTypeParameters
+    def getTypeParameters: Array[PsiTypeParameter] = getNamedElement match {
+      case tp: ScTypeParam => tp.typeParameters.toArray
+      case a: ScTypeAlias  => a.typeParameters.toArray
+      case p: PsiClass     => p.getTypeParameters
     }
 
-    def baseDesignator: ScType = {
+    def baseDesignator: ScType =
       projectionOption match {
         case Some(proj) => ScProjectionType(proj, getNamedElement)
-        case None => ScalaType.designator(getNamedElement)
+        case None =>
+          getNamedElement match {
+            case tp: ScTypeParam => TypeParameterType(tp)
+            case other           => ScalaType.designator(other)
+          }
       }
-    }
 
     def superSubstitutor(other: ClassLike): Option[ScSubstitutor] = {
       def superSubstitutor(base: PsiClass, drv: PsiClass, drvSubst: ScSubstitutor,
@@ -300,20 +303,20 @@ trait ScalaBounds extends api.Bounds {
           case (_, ex: ScExistentialType) => lubInner(t1, ex.quantified, depth, checkWeak).unpackedType
           case (tpt: TypeParameterType, _) if !stopAddingUpperBound => lubInner(tpt.upperType, t2, depth - 1, checkWeak)
           case (_, tpt: TypeParameterType) if !stopAddingUpperBound => lubInner(t1, tpt.upperType, depth - 1, checkWeak)
-          case (arg @ ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(_, _, lower2, upper2))
+          case (arg @ ScExistentialArgument(_, _, lower, upper), ScExistentialArgument(_, _, lower2, upper2))
             if !stopAddingUpperBound =>
             arg.copyWithBounds(glb(lower, lower2, checkWeak), lubInner(upper, upper2, depth - 1, checkWeak))
-          case (arg @ ScExistentialArgument(name, args, lower, upper), r) if !stopAddingUpperBound =>
+          case (arg @ ScExistentialArgument(_, _, lower, upper), r) if !stopAddingUpperBound =>
             arg.copyWithBounds(glb(lower, r, checkWeak), lubInner(upper, t2, depth - 1, checkWeak))
-          case (r, arg @ ScExistentialArgument(name, args, lower, upper)) if !stopAddingUpperBound =>
+          case (r, arg @ ScExistentialArgument(_, _, lower, upper)) if !stopAddingUpperBound =>
             arg.copyWithBounds(glb(lower, r, checkWeak), lubInner(upper, t2, depth - 1, checkWeak))
           case (_: ValType, _: ValType) => AnyVal
           case (lit1: ScLiteralType, lit2: ScLiteralType) => lubInner(lit1.wideType, lit2.wideType, depth, checkWeak = true)
           case (JavaArrayType(arg1), JavaArrayType(arg2)) =>
             val (v, ex) = calcForTypeParamWithoutVariance(arg1, arg2, checkWeak)
             ex match {
-              case Some(w) => ScExistentialType(JavaArrayType(v))
-              case None => JavaArrayType(v)
+              case Some(_) => ScExistentialType(JavaArrayType(v))
+              case None    => JavaArrayType(v)
             }
           case (JavaArrayType(arg), ParameterizedType(des, args)) if args.length == 1 && (des.extractClass match {
             case Some(q) => q.qualifiedName == "scala.Array"
@@ -321,8 +324,8 @@ trait ScalaBounds extends api.Bounds {
           }) =>
             val (v, ex) = calcForTypeParamWithoutVariance(arg, args.head, checkWeak)
             ex match {
-              case Some(w) => ScExistentialType(ScParameterizedType(des, Seq(v)))
-              case None => ScParameterizedType(des, Seq(v))
+              case Some(_) => ScExistentialType(ScParameterizedType(des, Seq(v)))
+              case None    => ScParameterizedType(des, Seq(v))
             }
           case (ParameterizedType(des, args), JavaArrayType(arg)) if args.length == 1 && (des.extractClass match {
             case Some(q) => q.qualifiedName == "scala.Array"
@@ -330,8 +333,8 @@ trait ScalaBounds extends api.Bounds {
           }) =>
             val (v, ex) = calcForTypeParamWithoutVariance(arg, args.head, checkWeak)
             ex match {
-              case Some(w) => ScExistentialType(ScParameterizedType(des, Seq(v)))
-              case None => ScParameterizedType(des, Seq(v))
+              case Some(_) => ScExistentialType(ScParameterizedType(des, Seq(v)))
+              case None    => ScParameterizedType(des, Seq(v))
             }
           case (JavaArrayType(_), tp) =>
             if (tp.conforms(AnyRef)) AnyRef
@@ -444,7 +447,7 @@ trait ScalaBounds extends api.Bounds {
 
   private def getLeastUpperClasses(leftClasses: Seq[ClassLike], rightClasses: Seq[ClassLike]): Array[(ClassLike, Int, Int)] = {
     val res = new ArrayBuffer[(ClassLike, Int, Int)]
-    def addClass(baseClassToAdd: ClassLike, x: Int, y: Int) {
+    def addClass(baseClassToAdd: ClassLike, x: Int, y: Int): Unit = {
       var i = 0
       var break = false
       while (!break && i < res.length) {
@@ -461,7 +464,7 @@ trait ScalaBounds extends api.Bounds {
         res += ((baseClassToAdd, x, y))
       }
     }
-    def checkClasses(leftClasses: Seq[ClassLike], baseIndex: Int = -1, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty) {
+    def checkClasses(leftClasses: Seq[ClassLike], baseIndex: Int = -1, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty): Unit = {
       ProgressManager.checkCanceled()
 
       if (leftClasses.isEmpty) return

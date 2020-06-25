@@ -13,6 +13,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.ui.DocumentAdapter
 import javax.swing.JComponent
 import javax.swing.event.DocumentEvent
+import org.jetbrains.annotations.NonNls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleConfigurationType
 import org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocAction.ScaladocRunConfiguration
 
@@ -21,14 +23,20 @@ import org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocAction.Scalado
  * User: Dmitry Naidanov
  * Date: 01.10.11
  */
-class ScaladocAction extends BaseAnalysisAction("Generate Scaladoc", "Scaladoc") {
-  private var configurationDialog: ScaladocConsoleRunConfigurationForm = null
+class ScaladocAction extends BaseAnalysisAction(ScalaBundle.message("generate.scaladoc"), "Scaladoc": @NonNls) {
+  private var configurationDialog: ScaladocConsoleRunConfigurationForm = _
 
-  private def disposeForm() {
+  locally {
+    val presentation = getTemplatePresentation
+    presentation.setText(ScalaBundle.message("generate.scaladoc.action.text"))
+    presentation.setDescription(ScalaBundle.message("generate.scaladoc.action.description"))
+  }
+
+  private def disposeForm(): Unit = {
     configurationDialog = null
   }
 
-  def analyze(project: Project, scope: AnalysisScope) {
+  override def analyze(project: Project, scope: AnalysisScope): Unit = {
     var config: ScaladocConfiguration = null
     try {
       configurationDialog.saveSettings()
@@ -53,7 +61,7 @@ class ScaladocAction extends BaseAnalysisAction("Generate Scaladoc", "Scaladoc")
     }
   }
 
-  override def canceled() {
+  override def canceled(): Unit = {
     super.canceled()
     disposeForm()
   }
@@ -61,7 +69,7 @@ class ScaladocAction extends BaseAnalysisAction("Generate Scaladoc", "Scaladoc")
   override def getAdditionalActionSettings(project: Project, dialog: BaseAnalysisActionDialog): JComponent = {
     configurationDialog = new ScaladocConsoleRunConfigurationForm(project)
     configurationDialog.getOutputDirChooser.getDocument.addDocumentListener(new DocumentAdapter() {
-      def textChanged(e: DocumentEvent) {
+      override def textChanged(e: DocumentEvent): Unit = {
         updateAvailability(dialog)
       }
     })
@@ -69,7 +77,7 @@ class ScaladocAction extends BaseAnalysisAction("Generate Scaladoc", "Scaladoc")
     configurationDialog.createCenterPanel()
   }
 
-  private def updateAvailability(dialog: BaseAnalysisActionDialog) {
+  private def updateAvailability(dialog: BaseAnalysisActionDialog): Unit = {
     dialog.setOKActionEnabled(!configurationDialog.getOutputDir.isEmpty)
   }
 }
@@ -79,20 +87,21 @@ object ScaladocAction {
   // just stub entities, will never be invoked
   object ScaladocRunConfigurationFactory extends ConfigurationFactory(new ScalaConsoleConfigurationType) {
     override def createTemplateConfiguration(project: Project): RunConfiguration = new ScaladocRunConfiguration(project, null, null)
+    override def getId: String = "ScaladocRunConfigurationFactory"
   }
 
   class ScaladocRunConfiguration(project: Project,
                                  dialog: ScaladocConsoleRunConfigurationForm,
                                  config: ScaladocConfiguration)
     extends RunConfigurationBase[Unit](project, ScaladocRunConfigurationFactory, "Generate Scaladoc") {
-    override def checkConfiguration() {}
+    override def checkConfiguration(): Unit = {}
 
     override def getConfigurationEditor: SettingsEditor[_ <: ScaladocRunConfiguration] = new SettingsEditor[ScaladocRunConfiguration]() {
       override def createEditor(): JComponent = dialog.createCenterPanel()
 
-      override def resetEditorFrom(s: ScaladocRunConfiguration) {}
+      override def resetEditorFrom(s: ScaladocRunConfiguration): Unit = {}
 
-      override def applyEditorTo(s: ScaladocRunConfiguration) {}
+      override def applyEditorTo(s: ScaladocRunConfiguration): Unit = {}
     }
 
     override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = config.getState(executor, env)

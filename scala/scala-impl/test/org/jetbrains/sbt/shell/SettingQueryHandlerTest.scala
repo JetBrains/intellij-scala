@@ -16,7 +16,7 @@ import scala.concurrent.duration.Duration
 abstract class SettingQueryHandlerTest extends SbtProjectPlatformTestCase {
 
   def testFailedCommand(): Unit = {
-    Await.result(comm.command("set npSuchSetting:=42", showShell = false), Duration(timeout, "second"))
+    Await.result(comm.command("set npSuchSetting:=42"), Duration(timeout, "second"))
     runner.getConsoleView.flushDeferredText()
     assert(logger.getLog.contains(SbtProjectPlatformTestCase.errorPrefix))
   }
@@ -59,7 +59,7 @@ abstract class SettingQueryHandlerTest extends SbtProjectPlatformTestCase {
                                   projectName: Option[String] = None): Unit = {
     val handler = SettingQueryHandler(settingName, taskName, projectUri, projectName, comm)
     val res = Await.result(
-      comm.command(commandBefore, showShell = false).flatMap { _ => handler.getSettingValue },
+      comm.command(commandBefore).flatMap { _ => handler.getSettingValue },
       Duration(timeoutSeconds, TimeUnit.SECONDS))
     runner.getConsoleView.flushDeferredText()
     val log = logger.getLog
@@ -86,7 +86,7 @@ abstract class SettingQueryHandlerTest extends SbtProjectPlatformTestCase {
                                    projectName: Option[String] = None): Unit = {
     val addHandler = SettingQueryHandler(settingName, addTaskName, projectUri, projectName, comm)
     val handler = SettingQueryHandler(settingName, taskName, projectUri, projectName, comm)
-    val res = Await.result(comm.command(setCommand, showShell = false).flatMap {
+    val res = Await.result(comm.command(setCommand).flatMap {
       _ => addHandler.addToSettingValue(addValue)
     }.flatMap {
       _ => handler.getSettingValue

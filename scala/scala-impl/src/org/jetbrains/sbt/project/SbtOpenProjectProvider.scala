@@ -1,5 +1,7 @@
 package org.jetbrains.sbt.project
 
+import java.nio.file.Path
+
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.importing.{AbstractOpenProjectProvider, ImportSpecBuilder}
@@ -21,13 +23,13 @@ class SbtOpenProjectProvider() extends AbstractOpenProjectProvider {
   override def isProjectFile(file: VirtualFile): Boolean =
     SbtProjectImportProvider.canImport(file)
 
-  override def linkAndRefreshProject(projectDirectory: String, project: Project): Unit = {
+  override def linkAndRefreshProject(projectDirectory: Path, project: Project): Unit = {
     val sbtProjectSettings = SbtProjectSettings.forProject(project).getOrElse(SbtProjectSettings.default)
-    sbtProjectSettings.setExternalProjectPath(projectDirectory)
+    sbtProjectSettings.setExternalProjectPath(projectDirectory.toString)
     attachSbtProjectAndRefresh(sbtProjectSettings, project)
   }
 
-  private def attachSbtProjectAndRefresh(settings: SbtProjectSettings, project: Project) {
+  private def attachSbtProjectAndRefresh(settings: SbtProjectSettings, project: Project): Unit = {
     val externalProjectPath = settings.getExternalProjectPath
     ExternalProjectsManagerImpl.getInstance(project).runWhenInitialized { () =>
       ExternalSystemUtil.ensureToolWindowInitialized(project, SbtProjectSystem.Id)

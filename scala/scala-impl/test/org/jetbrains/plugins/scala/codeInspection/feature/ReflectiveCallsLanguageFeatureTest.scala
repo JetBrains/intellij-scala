@@ -3,8 +3,6 @@ package org.jetbrains.plugins.scala.codeInspection.feature
 import com.intellij.testFramework.EditorTestUtil
 
 class ReflectiveCallsLanguageFeatureTest extends LanguageFeatureInspectionTestBase  {
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
   override protected val classOfInspection = classOf[LanguageFeatureInspection]
   override protected val description = "Advanced language feature: reflective call"
 

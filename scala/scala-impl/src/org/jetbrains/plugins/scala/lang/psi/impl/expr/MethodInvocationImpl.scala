@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiMethod
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, MacroInvocationContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
@@ -49,7 +50,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
   }
 
   override final def getImportsUsed: Set[ImportUsed] = innerTypeExt match {
-    case syntheticCase: SyntheticCase => syntheticCase.resolveResult.importsUsed.toSet
+    case syntheticCase: SyntheticCase => syntheticCase.resolveResult.importsUsed
     case _ => Set.empty
   }
 
@@ -147,10 +148,10 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
     if (fromMacroExpansion.isDefined) return fromMacroExpansion
 
     val maybeTuple = invokedNonValueType match {
-      case polymorphicType@ScTypePolymorphicType(ScMethodType(returnType, parameters, _), _) =>
-        Some((returnType, parameters, Some(polymorphicType)))
-      case polymorphicType@ScTypePolymorphicType(FunctionTypeParameters(returnType, parameters), _) =>
-        Some((returnType, parameters, Some(polymorphicType)))
+      case pTpe @ ScTypePolymorphicType(ScMethodType(returnType, parameters, _), _) =>
+        Some((returnType, parameters, Some(pTpe)))
+      case pTpe @ ScTypePolymorphicType(FunctionTypeParameters(returnType, parameters), _) =>
+        Some((returnType, parameters, Some(pTpe)))
       case ScMethodType(returnType, parameters, _) =>
         Some((returnType, parameters, None))
       case _ => None
@@ -161,9 +162,31 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
         val function = maybePolymorphicType match {
           case Some(polymorphicType) =>
             val canThrowSCE = useExpectedType && this.expectedType().isDefined /* optimization to avoid except */
-            localTypeInferenceWithApplicabilityExt(returnType, parameters, _: Seq[Expression], polymorphicType.typeParameters, canThrowSCE = canThrowSCE)
+
+            val paramSubst = canThrowSCE.option(
+              polymorphicType.argsProtoTypeSubst(this.expectedType().get)
+            )
+
+            localTypeInferenceWithApplicabilityExt(
+              returnType,
+              parameters,
+              _: Seq[Expression],
+              polymorphicType.typeParameters,
+              canThrowSCE = canThrowSCE,
+              paramSubst  = paramSubst
+            )
           case _ =>
-            (expressions: Seq[Expression]) => (returnType, checkConformanceExt(checkNames = true, parameters, expressions, checkWithImplicits = true, isShapesResolve = false))
+            (expressions: Seq[Expression]) => {
+              val conformanceResult = checkConformanceExt(
+                checkNames = true,
+                parameters,
+                expressions,
+                checkWithImplicits = true,
+                isShapesResolve    = false
+              )
+
+              (returnType, conformanceResult)
+            }
         }
 
         tuplizyCase(arguments(maybeResolveResult))(function)
@@ -213,7 +236,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 }
 
 object MethodInvocationImpl {
-  private val noSuitableMethodFoundError = "Suitable method not found"
+  private val noSuitableMethodFoundError: String = ScalaBundle.message("suitable.method.not.found")
 
   private object FunctionTypeParameters {
 
@@ -321,7 +344,7 @@ object MethodInvocationImpl {
     override def typeResult: TypeResult = full.typeResult
   }
 
-  private case class FailureCase(typeResult: Left[Failure, ScType],
+  private case class FailureCase(override val typeResult: Left[Failure, ScType],
                                  problems: Seq[ApplicabilityProblem] = Seq.empty) extends InvocationData
 
 }

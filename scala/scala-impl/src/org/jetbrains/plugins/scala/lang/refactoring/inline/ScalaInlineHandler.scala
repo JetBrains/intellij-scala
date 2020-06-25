@@ -17,6 +17,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.HelpID
 import com.intellij.refactoring.util.{CommonRefactoringUtil, RefactoringMessageDialog}
 import com.intellij.util.FilteredQuery
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -32,6 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionTyp
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.highlightOccurrences
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
@@ -44,8 +46,8 @@ import scala.collection.mutable.ArrayBuffer
 
 class ScalaInlineHandler extends InlineHandler {
 
-  def removeDefinition(element: PsiElement, settings: InlineHandler.Settings) {
-    def removeElementWithNonSignificantSibilings(value: PsiElement) = {
+  override def removeDefinition(element: PsiElement, settings: InlineHandler.Settings): Unit = {
+    def removeElementWithNonSignificantSibilings(value: PsiElement): Unit = {
       val children = new ArrayBuffer[PsiElement]
       var psiElement = value.getNextSibling
       while (psiElement != null && (psiElement.getNode.getElementType == ScalaTokenTypes.tSEMICOLON || psiElement.getText.trim == "")) {
@@ -72,12 +74,12 @@ class ScalaInlineHandler extends InlineHandler {
     }
   }
 
-  def createInliner(element: PsiElement, settings: InlineHandler.Settings): InlineHandler.Inliner = new ScalaInliner
+  override def createInliner(element: PsiElement, settings: InlineHandler.Settings): InlineHandler.Inliner = new ScalaInliner
 
-  def prepareInlineElement(element: PsiElement, editor: Editor, invokedOnReference: Boolean): InlineHandler.Settings = {
+  override def prepareInlineElement(element: PsiElement, editor: Editor, invokedOnReference: Boolean): InlineHandler.Settings = {
     def title(suffix: String) = "Scala Inline " + suffix
 
-    def showErrorHint(message: String, titleSuffix: String): InlineHandler.Settings = {
+    def showErrorHint(@Nls message: String, titleSuffix: String): InlineHandler.Settings = {
       val inlineTitle = title(titleSuffix)
       CommonRefactoringUtil.showErrorHint(element.getProject, editor, message, inlineTitle, HelpID.INLINE_VARIABLE)
       Settings.CANNOT_INLINE_SETTINGS
@@ -88,7 +90,7 @@ class ScalaInlineHandler extends InlineHandler {
       val inlineTitle = title(inlineTitleSuffix)
       val occurrenceHighlighters = highlightOccurrences(refs.map(_.getElement))(element.getProject, editor)
       val settings = new InlineHandler.Settings {
-        def isOnlyOneReferenceToInline: Boolean = false
+        override def isOnlyOneReferenceToInline: Boolean = false
       }
       if (refs.isEmpty)
         showErrorHint(ScalaBundle.message("cannot.inline.never.used"), inlineTitleSuffix)
@@ -140,7 +142,7 @@ class ScalaInlineHandler extends InlineHandler {
 
     Stats.trigger(FeatureKey.inline)
 
-    implicit val project = element.projectContext
+    implicit val project: ProjectContext = element.projectContext
 
     def isFunctionalType(typedDef: ScTypedDefinition) =
       FunctionType.unapply(typedDef.`type`().getOrAny).exists(_._2.nonEmpty) &&

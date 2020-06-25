@@ -8,9 +8,9 @@ import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
   * 07-Nov-17
   */
 class OptionWithLiteralToSomeIntentionTest extends ScalaIntentionTestBase {
-  val familyName = OptionWithLiteralToSomeIntention.familyName
+  override val familyName = OptionWithLiteralToSomeIntention.familyName
 
-  def testString() {
+  def testString(): Unit = {
     doTest(
       s"""${caretTag}Option("constant")""",
       """Some("constant")""")

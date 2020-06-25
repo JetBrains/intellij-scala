@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.annotator
 
-import com.intellij.lang.annotation.Annotation
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme}
 import com.intellij.openapi.editor.markup.TextAttributes
@@ -17,7 +16,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 private object TypeMismatchError {
   def register(element: PsiElement, expectedType: ScType, actualType: ScType, blockLevel: Int = 0, canBeHint: Boolean = true)
               (formatMessage: (String, String) => String)
-              (implicit holder: ScalaAnnotationHolder): Annotation = {
+              (implicit holder: ScalaAnnotationHolder): ScalaAnnotation = {
     val annotatedElement = elementAt(element, blockLevel)
     implicit val context: TypePresentationContext = TypePresentationContext(annotatedElement)
 
@@ -82,7 +81,7 @@ private object TypeMismatchError {
     case 0 => element
   }
 
-  private def adjustTextAttributesOf(annotation: Annotation): Unit = {
+  private def adjustTextAttributesOf(annotation: ScalaAnnotation): Unit = {
     val errorStripeColor = annotation.getTextAttributes.getDefaultAttributes.getErrorStripeColor
     val attributes = new TextAttributes()
     attributes.setEffectType(null)

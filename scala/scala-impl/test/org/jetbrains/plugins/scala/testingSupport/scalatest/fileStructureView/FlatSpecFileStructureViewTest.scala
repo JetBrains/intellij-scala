@@ -31,20 +31,15 @@ trait FlatSpecFileStructureViewTest extends ScalaTestTestCase {
       |}
     """.stripMargin)
 
-  def testFlatSpecNormal(): Unit = {
+  def testFlatSpecNormal(): Unit =
     runFileStructureViewTest(className, NormalStatusId, "it should \"child1\"", "they should \"child2\"")
-  }
 
-  def testFlatSpecIgnored(): Unit = {
-    runFileStructureViewTest(className, IgnoredStatusId, "ignore should \"ignore1\"",
-      "they should \"ignore2\"")
-  }
+  def testFlatSpecIgnored(): Unit =
+    runFileStructureViewTest(className, IgnoredStatusId, "ignore should \"ignore1\"", "they should \"ignore2\"")
 
-  def testFlatSpecIgnoredAndPending(): Unit = {
+  def testFlatSpecIgnoredAndPending(): Unit =
     runFileStructureViewTest(className, IgnoredStatusId, "ignore should \"ignore and pend\"", "it should \"ignore and pend2\"")
-  }
 
-  def testFlatSpecPending(): Unit = {
+  def testFlatSpecPending(): Unit =
     runFileStructureViewTest(className, PendingStatusId, "\"second\" should \"pend1\"", "it should \"pend2\"")
-  }
 }

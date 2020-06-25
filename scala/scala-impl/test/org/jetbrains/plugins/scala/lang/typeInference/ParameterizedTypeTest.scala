@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
   * @since 29/08/16
   */
 class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
-  def testSCL4990() = {
+  def testSCL4990(): Unit = {
     val text =
       """
         |object Example {
@@ -26,7 +26,7 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
     checkTextHasNoErrors(text)
   }
 
-  def testSCL8161() = {
+  def testSCL8161(): Unit = {
     val text =
       """
         |trait TypeMismatch {
@@ -40,7 +40,7 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
     checkTextHasNoErrors(text)
   }
 
-  def testSCL10168() = {
+  def testSCL10168(): Unit = {
     checkTextHasNoErrors(
       """  trait Members {
         |  type F[_]
@@ -56,7 +56,7 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
     )
   }
 
-  def testSCL6384() = {
+  def testSCL6384(): Unit = {
     val text =
       """
         |object Test {
@@ -68,7 +68,7 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
     checkTextHasNoErrors(text)
   }
 
-  def testSCL9555() = {
+  def testSCL9555(): Unit = {
     val text =
       """
         |object Test {
@@ -83,7 +83,7 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
     checkTextHasNoErrors(text)
   }
 
-  def testSCL10149() = {
+  def testSCL10149(): Unit = {
     val text =
       """
         |object SCL10149{
@@ -106,7 +106,7 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
     checkTextHasNoErrors(text)
   }
 
-  def testSCL10151() = {
+  def testSCL10151(): Unit = {
     val text =
       """
         |object Test {
@@ -119,7 +119,7 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
     checkTextHasNoErrors(text)
   }
 
-  def testSCL10264() = {
+  def testSCL10264(): Unit = {
     checkTextHasNoErrors(
       """
         |import scala.language.higherKinds
@@ -138,7 +138,7 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
     )
   }
 
-  def testSCL7891() = {
+  def testSCL7891(): Unit = {
     val text =
       """
         |trait TestTrait[A, B] { def foo(a: A): B }
@@ -154,7 +154,7 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
     checkTextHasNoErrors(text)
   }
 
-  def testSCL10156() = {
+  def testSCL10156(): Unit = {
     checkTextHasNoErrors(
       """  import scala.language.higherKinds
         |  import scala.language.reflectiveCalls
@@ -205,7 +205,7 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
     checkTextHasNoErrors(fileText)
   }
 
-  def testSCL11597() = {
+  def testSCL11597(): Unit = {
     checkTextHasNoErrors(
       """trait Node
         |

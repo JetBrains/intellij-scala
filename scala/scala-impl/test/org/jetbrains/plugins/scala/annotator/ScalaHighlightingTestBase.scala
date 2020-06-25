@@ -1,12 +1,15 @@
 package org.jetbrains.plugins.scala.annotator
 
-import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import com.intellij.openapi.util.registry.Registry
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.TypecheckerTests
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 import org.junit.experimental.categories.Category
+import org.junit.Assert.fail
 
 /**
   * @author Alefas
@@ -19,18 +22,36 @@ abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with Match
 
   protected def withHints = false
 
-  def errorsFromScalaCode(scalaFileText: String): List[Message] = {
-    if (filesCreated) throw new AssertionError("Don't add files 2 times in a single test")
+  override protected def setUp(): Unit = {
+    super.setUp()
+    Registry.get(ScalaHighlightingMode.ShowDotcErrorsKey).setValue(false)
+  }
 
-    myFixture.configureByText("dummy.scala", scalaFileText)
+  def assertErrors(code: String, messages: Message*): Unit =
+    assertEqualsFailable(messages.mkString("\n"), errorsFromScalaCode(code).mkString("\n"))
+
+  def errorsFromScalaCode(scalaFileText: String): List[Message] = {
+    val fileName = s"dummy.scala"
+    errorsFromScalaCode(scalaFileText, fileName)
+  }
+
+  def errorsFromScalaCode(scalaFileText: String, fileName: String): List[Message] = {
+    if (filesCreated)
+      fail("Don't add files 2 times in a single test")
+
+    myFixture.configureByText(fileName, scalaFileText)
 
     filesCreated = true
 
+    errorsFromScalaCode(getFile)
+  }
+
+  def errorsFromScalaCode(file: PsiFile): List[Message] = {
     PsiDocumentManager.getInstance(getProject).commitAllDocuments()
 
-    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(getFile)
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
-    getFile.depthFirst().foreach(annotate(_))
+    file.depthFirst().foreach(annotate(_))
 
     val messages = mock.annotations.filter {
       case Error(_, null) | Error(null, _) => false
@@ -40,7 +61,7 @@ abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with Match
 
     if (withHints) {
       // TODO allow to check prefix / suffix, text attributes, error tooltip
-      val hints = getFile.elements
+      val hints = file.elements
         .flatMap(AnnotatorHints.in(_).toSeq.flatMap(_.hints))
         .map(hint => Hint(hint.element.getText, hint.parts.map(_.string).mkString, offsetDelta = hint.offsetDelta)).toList
       hints ::: messages

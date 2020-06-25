@@ -11,11 +11,11 @@ import scala.collection.mutable
 
 object OrderingUtil {
   trait NaturalStringOrdering extends Ordering[String] {
-    def compare(x: String, y: String): Int = StringUtil.naturalCompare(x, y)
+    override def compare(x: String, y: String): Int = StringUtil.naturalCompare(x, y)
   }
 
   trait PackageNameOrdering extends Ordering[String] {
-    def compare(x: String, y: String): Int = {
+    override def compare(x: String, y: String): Int = {
       import implicits.NaturalStringOrdering
 
       implicitly[Ordering[Tuple2[String, String]]]
@@ -80,7 +80,7 @@ object OrderingUtil {
         .map(_.qualName)
     val ctxImportQualifiers = ctxImportRawQualifiers.distinct.map(_.split('.')).toArray
 
-    fullQualifedName: String => {
+    (fullQualifedName: String) => {
       val candidateQualifier = fullQualifedName.split('.').init
       assert(candidateQualifier.nonEmpty)
 

@@ -1,22 +1,23 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_13}
 
 class YimportsResolveTest extends ScalaLightCodeInsightFixtureTestAdapter with SimpleResolveTestBase {
   import SimpleResolveTestBase._
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
-    version >= Scala_2_13
+    version >= LatestScalaVersions.Scala_2_13
 
   private[this] def setUpDefaultImports(imports: String*): Unit =
     setCompilerOptions(s"-Yimports:${imports.mkString(",")}")
 
   private[this] def setCompilerOptions(options: String*): Unit = {
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
-    val newSettings    = defaultProfile.getSettings
-    newSettings.additionalCompilerOptions = options
+    val newSettings    = defaultProfile.getSettings.copy(
+      additionalCompilerOptions = options
+    )
     defaultProfile.setSettings(newSettings)
   }
 

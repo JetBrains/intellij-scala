@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 /**
@@ -24,17 +25,7 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
  */
 abstract class CreateApplyOrUnapplyQuickFix(td: ScTypeDefinition)
         extends IntentionAction {
-  private implicit val ctx = td.projectContext
-
-  override val getText = {
-    val classKind = td match {
-      case _: ScObject => "object"
-      case _: ScTrait => "trait"
-      case _: ScClass => "class"
-      case _ => ""
-    }
-    s"$getFamilyName in $classKind ${td.name}"
-  }
+  private implicit val ctx: ProjectContext = td.projectContext
 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     if (!td.isValid) return false

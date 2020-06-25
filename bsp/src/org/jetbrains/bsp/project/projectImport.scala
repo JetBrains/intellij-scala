@@ -1,6 +1,7 @@
 package org.jetbrains.bsp.project
 
 import java.io.File
+import java.nio.file.Path
 import java.util
 import java.util.Collections
 
@@ -28,8 +29,9 @@ import com.intellij.packaging.artifacts.ModifiableArtifactModel
 import com.intellij.projectImport.{ProjectImportBuilder, ProjectImportProvider, ProjectOpenProcessor}
 import javax.swing.Icon
 import org.jetbrains.bsp._
+import org.jetbrains.bsp.protocol.BspConnectionConfig
 import org.jetbrains.bsp.settings._
-import org.jetbrains.sbt.project.SbtProjectImportProvider
+import org.jetbrains.sbt.project.{MillProjectImportProvider, SbtProjectImportProvider}
 
 class BspProjectImportBuilder
   extends AbstractExternalProjectImportBuilder[BspImportControl](
@@ -62,7 +64,7 @@ class BspProjectImportBuilder
     Collections.emptyList()
   }
 
-  def linkAndRefreshProject(projectFilePath: String, project: Project) {
+  def linkAndRefreshProject(projectFilePath: String, project: Project): Unit = {
     val localFileSystem = LocalFileSystem.getInstance()
     val projectFile = localFileSystem.refreshAndFindFileByPath(projectFilePath)
     if (projectFile == null) {
@@ -80,13 +82,13 @@ class BspOpenProjectProvider() extends AbstractOpenProjectProvider {
   override def canOpenProject(file: VirtualFile): Boolean =
     BspProjectOpenProcessor.canOpenProject(file)
 
-  override def linkAndRefreshProject(projectDirectory: String, project: Project): Unit = {
+  override def linkAndRefreshProject(projectDirectory: Path, project: Project): Unit = {
     val bspProjectSettings = new BspProjectSettings()
-    bspProjectSettings.setExternalProjectPath(projectDirectory)
+    bspProjectSettings.setExternalProjectPath(projectDirectory.toString)
     attachBspProjectAndRefresh(bspProjectSettings, project)
   }
 
-  private def attachBspProjectAndRefresh(settings: BspProjectSettings, project: Project) {
+  private def attachBspProjectAndRefresh(settings: BspProjectSettings, project: Project): Unit = {
     val externalProjectPath = settings.getExternalProjectPath
     ExternalProjectsManagerImpl.getInstance(project).runWhenInitialized { () =>
       ExternalSystemUtil.ensureToolWindowInitialized(project, BSP.ProjectSystemId)
@@ -166,7 +168,8 @@ class BspProjectImportProvider(builder: BspProjectImportBuilder)
     this(ProjectImportBuilder.EXTENSIONS_POINT_NAME.findExtensionOrFail(classOf[BspProjectImportBuilder]))
 
   override def canImport(fileOrDirectory: VirtualFile, project: Project): Boolean =
-    BspProjectOpenProcessor.canOpenProject(fileOrDirectory)
+    BspProjectOpenProcessor.canOpenProject(fileOrDirectory) ||
+      SbtProjectImportProvider.canImport(fileOrDirectory)
 
   override def createSteps(context: WizardContext): Array[ModuleWizardStep] =
     ModuleWizardStep.EMPTY_ARRAY
@@ -189,15 +192,16 @@ class BspProjectOpenProcessor extends ProjectOpenProcessor {
 
 object BspProjectOpenProcessor {
 
-  def canOpenProject(file: VirtualFile): Boolean = {
-    val bspConnectionProtocolSupported = Option(file.findChild(".bsp"))
-      .exists(bspDir =>
-        bspDir.isDirectory &&
-        bspDir.getChildren.exists(_.getExtension == "json"))
+  def canOpenProject(workspace: VirtualFile): Boolean = {
+    val ioWorkspace = new File(workspace.getPath)
 
-    val bloopProject = Option(file.findChild(BspUtil.BloopConfigDirName)).exists(_.isDirectory)
-    val sbtProject = SbtProjectImportProvider.canImport(file)
+    val bspConnectionProtocolSupported = BspConnectionConfig.workspaceConfigurations(ioWorkspace).nonEmpty
+    val bloopProject = BspUtil.bloopConfigDir(ioWorkspace).isDefined
+    // val sbtProject = SbtProjectImportProvider.canImport(workspace)
+    // temporarily disable sbt importing via bloop from welcome screen (SCL-17359)
+    val sbtProject = false
+    val millProject = MillProjectImportProvider.canImport(workspace)
 
-    bspConnectionProtocolSupported || bloopProject || bspConnectionProtocolSupported
+    bspConnectionProtocolSupported || bloopProject || bspConnectionProtocolSupported || sbtProject || millProject
   }
 }

@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, Librar
 
 abstract class Scalatest2_11_3_0_1_Base extends ScalaTestTestCase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_11
 
   override protected def additionalLibraries: Seq[LibraryLoader] = IvyManagedLoader(
       "org.scala-lang.modules" %% "scala-xml" % "1.0.6",

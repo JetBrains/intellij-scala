@@ -5,7 +5,6 @@ package highlighting
 import java.io.File
 import java.util
 
-import com.intellij.lang.annotation.Annotation
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
 import com.intellij.openapi.externalSystem.test.ExternalSystemImportingTestCase
@@ -18,11 +17,12 @@ import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScope}
 import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.testFramework.IdeaTestUtil
-import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
+import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotation, ScalaAnnotator}
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.junit.experimental.categories.Category
@@ -40,6 +40,7 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
 
   override protected def getCurrentExternalProjectSettings: ExternalProjectSettings = {
     val settings = new SbtProjectSettings
+    //noinspection ScalaDeprecation
     val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
     val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk17
     else internalSdk
@@ -50,7 +51,7 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
 
   override protected def getExternalSystemId: ProjectSystemId = SbtProjectSystem.Id
 
-  override protected def getExternalSystemConfigFileName: String = "build.sbt"
+  override protected def getExternalSystemConfigFileName: String = Sbt.BuildFile
 
   override protected def getTestsTempDir: String = ""
 
@@ -70,6 +71,7 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
     importProject()
 
     extensions.inWriteAction {
+      //noinspection ScalaDeprecation
       val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
       val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk17
       else internalSdk
@@ -110,13 +112,13 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
       val psi = fileManager.findFile(file)
 
       val mock = new AnnotatorHolderMock(psi) {
-        override def createErrorAnnotation(range: TextRange, message: String): Annotation = {
+        override def createErrorAnnotation(range: TextRange, message: String): ScalaAnnotation = {
           errorCount += 1
           println(s"Error in ${file.getName}. Range: $range. Message: $message.")
           super.createErrorAnnotation(range, message)
         }
 
-        override def createErrorAnnotation(elt: PsiElement, message: String): Annotation = {
+        override def createErrorAnnotation(elt: PsiElement, message: String): ScalaAnnotation = {
           errorCount += 1
           println(s"Error in ${file.getName}. Range: ${elt.getTextRange}. Message: $message.")
           super.createErrorAnnotation(elt, message)
@@ -124,7 +126,7 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
       }
 
       val visitor = new ScalaRecursiveElementVisitor {
-        override def visitScalaElement(element: ScalaPsiElement) {
+        override def visitScalaElement(element: ScalaPsiElement): Unit = {
           try {
             annotator.annotate(element)(mock)
           } catch {

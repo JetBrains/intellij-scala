@@ -6,10 +6,12 @@ trait FreeSpecTaggedSingleTestTest extends FreeSpecGenerator {
   val freeSpecTaggedTestPath = List("[root]", freeSpecClassName, "A FreeSpecTest", "can be tagged")
 
   def testTaggedFreeSpec(): Unit = {
-    runTestByLocation(12, 7, freeSpecFileName,
-      checkConfigAndSettings(_, freeSpecClassName, "A FreeSpecTest can be tagged"),
-      root => checkResultTreeHasExactNamedPath(root, freeSpecTaggedTestPath:_*) &&
-        checkResultTreeDoesNotHaveNodes(root, "should not run tests that are not selected")
+    runTestByLocation2(12, 7, freeSpecFileName,
+      assertConfigAndSettings(_, freeSpecClassName, "A FreeSpecTest can be tagged"),
+      root => {
+        assertResultTreeHasExactNamedPath(root, freeSpecTaggedTestPath)
+        assertResultTreeDoesNotHaveNodes(root, "should not run tests that are not selected")
+      }
     )
   }
 }

@@ -34,7 +34,7 @@ class ScalaCompilerConfiguration(defaultSettings: ScalaCompilerSettings, profile
     file
   }
 
-  private def addProjectBasedOptions(options: Elem, context: ConversionContext) {
+  private def addProjectBasedOptions(options: Elem, context: ConversionContext): Unit = {
     val rootElement = context.getProjectSettings.getRootElement
     rootElement.addContent(asJava(options))
   }

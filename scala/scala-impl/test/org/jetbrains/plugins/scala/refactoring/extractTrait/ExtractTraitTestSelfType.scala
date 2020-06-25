@@ -7,7 +7,7 @@ package refactoring.extractTrait
 */
 class ExtractTraitTestSelfType extends ExtractTraitTestBase {
 
-  def testMethodFromClassItself() {
+  def testMethodFromClassItself(): Unit = {
     val text =
       """
         |class A {<caret>
@@ -52,7 +52,7 @@ class ExtractTraitTestSelfType extends ExtractTraitTestBase {
     checkResult(text, result2, onlyDeclarations = true, onlyFirstMember = true)
   }
 
-  def testMembersFromAncestor() {
+  def testMembersFromAncestor(): Unit = {
     val text =
       """
         |class A extends AA {<caret>
@@ -100,7 +100,7 @@ class ExtractTraitTestSelfType extends ExtractTraitTestBase {
     checkResult(text, result2, onlyDeclarations = true)
   }
 
-  def testMembersFromTwoAncestors() {
+  def testMembersFromTwoAncestors(): Unit = {
     val text =
       """
         |class A extends AA with BB {<caret>
@@ -138,7 +138,7 @@ class ExtractTraitTestSelfType extends ExtractTraitTestBase {
     checkResult(text, result, onlyDeclarations = false)
   }
 
-  def testMembersFromTwoAncestors2() {
+  def testMembersFromTwoAncestors2(): Unit = {
     val text =
       """
         |class A extends AA {<caret>
@@ -176,7 +176,7 @@ class ExtractTraitTestSelfType extends ExtractTraitTestBase {
     checkResult(text, result, onlyDeclarations = false)
   }
 
-  def testMemberFromObject() {
+  def testMemberFromObject(): Unit = {
     val text =
       """
         |object A {

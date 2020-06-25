@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 
 class ScalaMoveRefactoringHelper extends RefactoringHelper[Unit] {
 
-  def prepareOperation(usages: Array[UsageInfo]): Unit = {
+  override def prepareOperation(usages: Array[UsageInfo]): Unit = {
     def priority(usageInfo: UsageInfo) = usageInfo match {
       case moveUsage: MoveRenameUsageInfo =>
         moveUsage.getReference match {
@@ -30,5 +30,5 @@ class ScalaMoveRefactoringHelper extends RefactoringHelper[Unit] {
     util.Arrays.sort(usages, (o1: UsageInfo, o2: UsageInfo) => priority(o1) - priority(o2))
   }
 
-  def performOperation(project: Project, operationData: Unit): Unit = {}
+  override def performOperation(project: Project, operationData: Unit): Unit = {}
 }

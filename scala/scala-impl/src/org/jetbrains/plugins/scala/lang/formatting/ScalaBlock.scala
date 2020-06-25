@@ -11,11 +11,10 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.isConstructorArgOrMemberFunctionParameter
 import org.jetbrains.plugins.scala.lang.formatting.processors._
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScPrimaryConstructor}
@@ -176,7 +175,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
 
   private def getChildAttributesScalafmtInner(newChildIndex: Int, parent: PsiElement): ChildAttributes = {
     val file = parent.getContainingFile
-    val configManager = ScalafmtDynamicConfigManager.instanceIn(file.getProject)
+    val configManager = ScalafmtDynamicConfigService.instanceIn(file.getProject)
     val configOpt = configManager.configForFile(file, FmtVerbosity.FailSilent, resolveFast = true)
     val (indentDefn, indentCall) = configOpt match {
       case Some(config) => (config.continuationIndentDefnSite, config.continuationIndentCallSite)
@@ -270,6 +269,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
     } yield a
 
 
+  //noinspection HardCodedStringLiteral
   // use these methods only for debugging
   private def printSubBlocksDebugInfoToConsole(): Unit = {
     println("#########################################")
@@ -283,6 +283,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
     println()
   }
 
+  //noinspection HardCodedStringLiteral
   private def printSubBlocksSpacingDebugInfoToConsole(child1: Block, child2: Block, spacing: Spacing): Unit = {
     (child1, child2, spacing) match {
       case (c1: ScalaBlock, c2: ScalaBlock, s: SpacingImpl) =>
@@ -297,6 +298,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
     }
   }
 
+  //noinspection HardCodedStringLiteral
   private def debugText: String = {
     import extensions._
     val text = node.getPsi.getContainingFile.getText.substring(getTextRange)

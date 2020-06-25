@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.lang.annotation.Annotation
 import com.intellij.openapi.editor.markup.TextAttributes
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiElement, PsiErrorElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.annotator.template.kindOf
 import org.jetbrains.plugins.scala.extensions._
@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
@@ -48,11 +49,12 @@ object AnnotatorUtils {
     }
   }
 
-  def shouldIgnoreTypeMismatchIn(e: PsiElement): Boolean = {
-    // Don't show type a mismatch error when there's a parser error, SCL-16899
+  def shouldIgnoreTypeMismatchIn(e: PsiElement, fromFunctionLiteral: Boolean = false): Boolean = {
+    // Don't show type a mismatch error when there's a parser error, SCL-16899, SCL-17206
     def hasParserErrors = e.elements.exists(_.isInstanceOf[PsiErrorElement]) ||
       e.getPrevSibling.isInstanceOf[PsiErrorElement] ||
       e.getNextSibling.isInstanceOf[PsiErrorElement] ||
+      e.getNextSibling.isInstanceOf[LeafPsiElement] && e.getNextSibling.textMatches(".") && e.getNextSibling.getNextSibling.isInstanceOf[PsiErrorElement] ||
       e.parent.exists { parent =>
         e == parent.getFirstChild && parent.getPrevSibling.isInstanceOf[PsiErrorElement] ||
           e == parent.getLastChild && parent.getNextSibling.isInstanceOf[PsiErrorElement]
@@ -60,33 +62,22 @@ object AnnotatorUtils {
 
     // Don't show type mismatch for a whole function literal when result type doesn't match, SCL-16901
 
-    def isFunctionLiteralWithResultTypeMismatch = e match {
-      case f: ScFunctionExpr => f.result.exists { result =>
-        result.`type`().exists(t => result.expectedType().exists(!t.conforms(_)))
-      }
+    def isFunctionLiteral = e match {
+      case _: ScFunctionExpr | ScBlock(_: ScFunctionExpr) => true
       case _ => false
     }
 
-    def isResultOfFunctionLiteralInBlock = e match {
-      case Parent(Parent((f: ScFunctionExpr) && Parent(_: ScBlockExpr))) => f.result.contains(e.getParent)
+    def isResultOfFunctionLiteral = e match {
+      case Parent(_: ScFunctionExpr) => true
+      case Parent(Parent((_: ScFunctionExpr) && Parent(_: ScBlockExpr))) => true
       case _ => false
     }
 
-    // TODO This part is a workaround for SCL-16898 (Function literals: don't infer type when parameter type is not known)
-
-    def hasUnresolvedReferences = e.elements.exists(_.asOptionOf[ScReference].exists(_.resolve() == null))
-
-    // This might result in false positives (when parameter type is wrongly inferred as Nothing), but it's a lesser evil.
-    def isFunctionLiteralWithMissingParameterType = e match {
-      case f: ScFunctionExpr => f.parameters.exists(_.`type`().exists(_.isNothing))
-      case _ => false
-    }
+    def hasUnresolvedReferences = e.elements.exists(_.asOptionOf[ScReference].exists(_.multiResolveScala(false).isEmpty))
 
     hasParserErrors ||
-      isFunctionLiteralWithResultTypeMismatch ||
-      isResultOfFunctionLiteralInBlock ||
       hasUnresolvedReferences ||
-      isFunctionLiteralWithMissingParameterType
+      !fromFunctionLiteral && (isFunctionLiteral || isResultOfFunctionLiteral)
   }
 
   //fix for SCL-7176
@@ -110,8 +101,10 @@ object AnnotatorUtils {
   def registerTypeMismatchError(actualType: ScType, expectedType: ScType,
                                 expression: ScExpression)
                                (implicit holder: ScalaAnnotationHolder): Unit = {
-
-    if (ScMethodType.hasMethodType(expression)) {
+    // See comments in ScMethodType.hasMethodType
+    // The workaround is nice but there is a situation where we want to show the mismatch error with function types:
+    // => namely if a function type is expected
+    if (!FunctionType.isFunctionType(expectedType) && ScMethodType.hasMethodType(expression)) {
       return
     }
 
@@ -124,7 +117,7 @@ object AnnotatorUtils {
   }
 
   def annotationWithoutHighlighting(te: PsiElement)
-                                   (implicit holder: ScalaAnnotationHolder): Annotation = {
+                                   (implicit holder: ScalaAnnotationHolder): ScalaAnnotation = {
     val teAnnotation = holder.createErrorAnnotation(te, null)
     teAnnotation.setHighlightType(ProblemHighlightType.INFORMATION)
     val emptyAttr = new TextAttributes()
@@ -155,7 +148,7 @@ object AnnotatorUtils {
                            (implicit holder: ScalaAnnotationHolder): Unit = {
     if (ScalaProjectSettings.getInstance(elementToHighlight.getProject).isShowImplisitConversions) {
       val range = elementToHighlight.getTextRange
-      val annotation: Annotation = holder.createInfoAnnotation(range, null)
+      val annotation = holder.createInfoAnnotation(range, null)
       annotation.setTextAttributes(DefaultHighlighter.IMPLICIT_CONVERSIONS)
       annotation.setAfterEndOfLine(false)
     }

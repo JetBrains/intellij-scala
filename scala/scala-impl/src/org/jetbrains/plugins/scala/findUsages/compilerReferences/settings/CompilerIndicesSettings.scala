@@ -13,7 +13,8 @@ import scala.util.control.NonFatal
 
 @State(
   name     = "CompilerIndicesSettings",
-  storages = Array(new Storage("compiler_indices_settings.xml"))
+  storages = Array(new Storage("compiler_indices_settings.xml")),
+  reportStatistic = true
 )
 class CompilerIndicesSettings(project: Project) extends PersistentStateComponent[CompilerIndicesSettings.State] {
   private[this] var state: CompilerIndicesSettings.State = new settings.CompilerIndicesSettings.State

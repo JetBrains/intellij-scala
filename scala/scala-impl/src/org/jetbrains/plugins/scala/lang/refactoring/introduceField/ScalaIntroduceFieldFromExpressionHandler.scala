@@ -8,6 +8,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import com.intellij.refactoring.HelpID
+import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -78,12 +80,12 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
             runRefactoring(ifc, settings)
           }
         } else {
-          showErrorHint("Cannot create field from this expression")
+          showErrorHint(ScalaBundle.message("cannot.create.field.from.this.expression"))
         }
     }
   }
 
-  private def runRefactoringInside(ifc: IntroduceFieldContext[ScExpression], settings: IntroduceFieldSettings[ScExpression]) {
+  private def runRefactoringInside(ifc: IntroduceFieldContext[ScExpression], settings: IntroduceFieldSettings[ScExpression]): Unit = {
     implicit val project: Project = ifc.project
     implicit val editor: Editor = ifc.editor
 
@@ -93,7 +95,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     val aClass = ifc.aClass
     val checkAnchor: PsiElement = anchorForNewDeclaration(expression, occurrencesToReplace, aClass)
     if (checkAnchor == null) {
-      showErrorHint("Cannot find place for the new field")
+      showErrorHint(ScalaBundle.message("cannot.find.place.for.the.new.field"))
       return
     }
     implicit val projectContext: ProjectContext = aClass.projectContext
@@ -180,7 +182,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     document.getLineNumber(range.getStartOffset) == document.getLineNumber(range.getEndOffset)
   }
 
-  private def showErrorHint(message: String)
+  private def showErrorHint(@Nls message: String)
                            (implicit project: Project, editor: Editor): Unit = {
     ScalaRefactoringUtil.showErrorHint(message, REFACTORING_NAME, HelpID.INTRODUCE_FIELD)
   }

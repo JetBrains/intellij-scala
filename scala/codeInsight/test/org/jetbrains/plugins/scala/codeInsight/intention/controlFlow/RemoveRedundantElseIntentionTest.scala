@@ -13,7 +13,7 @@ class RemoveRedundantElseIntentionTest extends intentions.ScalaIntentionTestBase
 
   import EditorTestUtil.{CARET_TAG => CARET}
 
-  override def familyName = RemoveRedundantElseIntention.FamilyName
+  override def familyName = ScalaCodeInsightBundle.message("family.name.remove.redundant.else")
 
   def testRemoveElse1(): Unit = {
     val text =

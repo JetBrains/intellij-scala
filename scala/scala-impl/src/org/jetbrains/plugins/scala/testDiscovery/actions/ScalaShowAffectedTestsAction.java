@@ -1,7 +1,6 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.plugins.scala.testDiscovery.actions;
 
-import com.intellij.codeInsight.actions.FormatChangedTextUtil;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
 import com.intellij.execution.JavaTestConfigurationWithDiscoverySupport;
@@ -64,6 +63,7 @@ import com.intellij.util.ui.tree.TreeModelAdapter;
 import com.intellij.vcsUtil.VcsFileUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember;
@@ -81,6 +81,12 @@ import static org.jetbrains.plugins.scala.testDiscovery.actions.ScalaShowAffecte
 
 public class ScalaShowAffectedTestsAction extends AnAction {
   private static final String RUN_ALL_ACTION_TEXT = "Run All Affected Tests (Scala)";
+
+  public ScalaShowAffectedTestsAction() {
+    super(ScalaBundle.message("show.affected.tests.action.text"),
+          ScalaBundle.message("show.affected.tests.action.description"),
+          AllIcons.Actions.Execute);
+  }
 
   @Override
   public void update(@NotNull AnActionEvent e) {
@@ -132,7 +138,7 @@ public class ScalaShowAffectedTestsAction extends AnAction {
     ApplicationManager.getApplication().executeOnPooledThread(() -> {
       JBIterable<String> paths = JBIterable
         .from(files)
-        .flatMap(f -> VfsUtil.collectChildrenRecursively(f))
+        .flatMap(VfsUtil::collectChildrenRecursively)
         .map(f -> VcsFileUtil.getRelativeFilePath(f, projectBasePath))
         .filter(Objects::nonNull)
         .map(p -> "/" + p);
@@ -211,12 +217,11 @@ public class ScalaShowAffectedTestsAction extends AnAction {
     // NOTE: changes in primary constructor non-member elements can't be detected because
     // ScPrimaryConstructor text range only includes its parameters, not body elements
     return PsiDocumentManager.getInstance(project).commitAndRunReadAction(() -> {
-      FormatChangedTextUtil instance = FormatChangedTextUtil.getInstance();
       Class<ScMember> memberClass = ScMember.class;
-      List<PsiElement> changedElements =
-          instance.getChangedElements(project, changes, file -> getElementsOfType(project, file, memberClass));
-      return changedElements
-          .stream()
+      return Arrays.stream(changes)
+          .map(Change::getVirtualFile)
+          .filter(Objects::nonNull)
+          .flatMap(file -> getElementsOfType(project, file, memberClass).stream())
           .filter(Objects::nonNull)
           .map(m -> ObjectUtils.tryCast(m, memberClass))
           .filter(Objects::nonNull)
@@ -267,7 +272,7 @@ public class ScalaShowAffectedTestsAction extends AnAction {
     }
     return virtualFiles == null
            ? Collections.emptyList()
-           : Arrays.stream(virtualFiles).filter(v -> v.isInLocalFileSystem()).collect(Collectors.toList());
+           : Arrays.stream(virtualFiles).filter(VirtualFile::isInLocalFileSystem).collect(Collectors.toList());
   }
 
   @Nullable

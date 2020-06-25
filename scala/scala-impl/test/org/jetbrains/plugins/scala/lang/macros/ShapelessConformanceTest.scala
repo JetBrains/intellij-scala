@@ -8,10 +8,10 @@ import org.jetbrains.plugins.scala.lang.typeConformance.TypeConformanceTestBase
 
 class ShapelessConformanceTest_2_12 extends ShapelessConformanceTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
-    Scala_2_10 <= version && version <= Scala_2_12
+    LatestScalaVersions.Scala_2_10 <= version && version  <= LatestScalaVersions.Scala_2_12
 }
 class ShapelessConformanceTest_2_13 extends ShapelessConformanceTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_13
 }
 
 abstract class ShapelessConformanceTestBase extends TypeConformanceTestBase {

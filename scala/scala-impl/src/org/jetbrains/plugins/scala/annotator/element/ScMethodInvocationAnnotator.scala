@@ -3,14 +3,17 @@ package annotator
 package element
 
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiComment, PsiWhiteSpace}
+import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.annotator.createFromUsage.{CreateApplyQuickFix, InstanceOfClass}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethodCall}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
@@ -27,9 +30,12 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
   }
 
   def annotateMethodInvocation(call: MethodInvocation)
-                              (implicit holder: ScalaAnnotationHolder) {
+                              (implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = call
     implicit val tpc: TypePresentationContext = TypePresentationContext(call)
+
+    // this has to be checked in every case
+    checkMissingArgumentClauses(call)
 
     //do we need to check it:
     call.getEffectiveInvokedExpr match {
@@ -53,7 +59,8 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
         .map(e => new TextRange(e.getTextRange.getEndOffset - 1, call.argsElement.getTextRange.getEndOffset))
         .getOrElse(call.argsElement.getTextRange)
 
-      holder.createErrorAnnotation(range, "Unspecified value parameters: " + missed.mkString(", "))
+      val message = ScalaBundle.message("annotator.error.unspecified.value.parameters.mkstring", missed.mkString(", "))
+      holder.createErrorAnnotation(range, message)
     }
 
     if (problems.isEmpty) {
@@ -61,7 +68,8 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
     }
 
     if (isAmbiguousOverload(problems) || isAmbiguousOverload(call)) {
-      holder.createErrorAnnotation(call.getEffectiveInvokedExpr, s"Cannot resolve overloaded method")
+      val message = ScalaBundle.message("annotator.error.cannot.resolve.overloaded.method")
+      holder.createErrorAnnotation(call.getEffectiveInvokedExpr, message)
       return
     }
 
@@ -73,7 +81,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
     firstExcessiveArgument.foreach { argument =>
       val opening = argument.prevSiblings.takeWhile(e => e.is[PsiWhiteSpace] || e.is[PsiComment] || e.textMatches(",") || e.textMatches("(")).toSeq.lastOption
       val range = opening.map(e => new TextRange(e.getTextOffset, argument.getTextOffset + 1)).getOrElse(argument.getTextRange)
-      holder.createErrorAnnotation(range, "Too many arguments")
+      holder.createErrorAnnotation(range, ScalaBundle.message("annotator.error.too.many.arguments"))
     }
 
     //todo: better error explanation?
@@ -83,7 +91,8 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
         val targetName = call.getInvokedExpr.`type`().toOption
           .map("'" + _.presentableText + "'")
           .getOrElse("Application")
-        val annotation = holder.createErrorAnnotation(call.argsElement, s"$targetName does not take parameters")
+        val message = ScalaBundle.message("annotator.error.target.does.not.take.parameters", targetName)
+        val annotation = holder.createErrorAnnotation(call.argsElement, message)
         (call, call.getInvokedExpr) match {
           case (c: ScMethodCall, InstanceOfClass(td: ScTypeDefinition)) =>
             annotation.registerFix(new CreateApplyQuickFix(td, c))
@@ -99,14 +108,14 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
         }
       case MissedValueParameter(_) => // simultaneously handled above
       case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
-      case MalformedDefinition() =>
-        holder.createErrorAnnotation(call.getInvokedExpr, "Application has malformed definition")
+      case MalformedDefinition(name) =>
+        holder.createErrorAnnotation(call.getInvokedExpr, ScalaBundle.message("annotator.error.name.has.malformed.definition", name))
       case ExpansionForNonRepeatedParameter(expression) =>
-        holder.createErrorAnnotation(expression, "Expansion for non-repeated parameter")
+        holder.createErrorAnnotation(expression, ScalaBundle.message("annotator.error.expansion.for.non.repeated.parameter"))
       case PositionalAfterNamedArgument(argument) =>
-        holder.createErrorAnnotation(argument, "Positional after named argument")
+        holder.createErrorAnnotation(argument, ScalaBundle.message("annotator.error.positional.after.named.argument"))
       case ParameterSpecifiedMultipleTimes(assignment) =>
-        holder.createErrorAnnotation(assignment.leftExpression, "Parameter specified multiple times")
+        holder.createErrorAnnotation(assignment.leftExpression, ScalaBundle.message("annotator.error.parameter.specified.multiple.times"))
       case ExpectedTypeMismatch => // it will be reported later
       case DefaultTypeParameterMismatch(_, _) => //it will be reported later
 
@@ -130,5 +139,54 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
     case call: MethodInvocation => isAmbiguousOverload(call)
     case reference: ScReference => reference.multiResolveScala(false).length > 1
     case _ => false
+  }
+
+  @tailrec
+  private def isOuterMostCall(e: PsiElement): Boolean =
+    e.getParent match {
+      case MethodInvocation(`e`, _) => false
+      case p: ScParenthesisedExpr => isOuterMostCall(p)
+      case _ => true
+    }
+
+  private def countArgumentClauses(call: MethodInvocation): Int = {
+    @tailrec
+    def inner(expr: ScExpression, acc: Int): Int = expr match {
+      case MethodInvocation(expr, _) => inner(expr, acc + 1)
+      case ScParenthesisedExpr(expr) => inner(expr, acc)
+      case _ => acc
+    }
+
+    inner(call, 0)
+  }
+
+  private def checkMissingArgumentClauses(call: MethodInvocation)(implicit holder: ScalaAnnotationHolder): Unit = {
+    def functionTypeExpected = call.expectedType().exists(FunctionType.isFunctionType)
+    if (!call.isInScala3Module && isOuterMostCall(call) && !functionTypeExpected && !call.parent.exists(_.is[ScUnderscoreSection])) {
+      for {
+        ref <- call.getEffectiveInvokedExpr.asOptionOf[ScReference]
+        resolveResult <- call.applyOrUpdateElement.orElse(ref.bind())
+        if !resolveResult.isDynamic
+        fun <- resolveResult.element.asOptionOf[ScFunction]
+        numArgumentClauses = countArgumentClauses(call)
+        problems = Compatibility.missedParameterClauseProblemsFor(fun.effectiveParameterClauses, numArgumentClauses)
+        MissedParametersClause(missedClause) <- problems
+      } {
+        val endOffset = call.getTextRange.getEndOffset
+        val markRange = call
+          .asOptionOf[ScMethodCall]
+          .flatMap(_.args.toOption)
+          .flatMap(_.findLastChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS).toOption)
+          .map(_.getTextRange)
+          .getOrElse(TextRange.create(endOffset - 1, endOffset))
+
+        val funNameWithSig = ScReferenceAnnotator.nameWithSignature(fun)
+        val message =
+          if (missedClause != null)
+            ScalaBundle.message("missing.argument.list.for.method.with.explicit.list", missedClause.getText, funNameWithSig)
+          else ScalaBundle.message("missing.argument.list.for.method", funNameWithSig)
+        holder.createErrorAnnotation(markRange, message)
+      }
+    }
   }
 }

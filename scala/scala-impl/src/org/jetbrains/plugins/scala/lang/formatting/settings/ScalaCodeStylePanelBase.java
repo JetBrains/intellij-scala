@@ -16,7 +16,7 @@ abstract public class ScalaCodeStylePanelBase extends CodeStyleAbstractPanel {
     @Nullable
     private final String myTabTitle;
 
-    protected ScalaCodeStylePanelBase(@NotNull CodeStyleSettings settings, @NotNull @NonNls String tabTitle) {
+    protected ScalaCodeStylePanelBase(@NotNull CodeStyleSettings settings, @NotNull String tabTitle) {
         super(settings);
         myTabTitle = tabTitle;
     }

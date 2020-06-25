@@ -16,8 +16,9 @@ import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, LightJavaCodeInsightFixtureTestCase}
 import com.intellij.testFramework.{EditorTestUtil, LightPlatformTestCase, LightProjectDescriptor}
-import org.jetbrains.plugins.scala.extensions.invokeAndWait
+import org.jetbrains.plugins.scala.extensions.{inWriteCommandAction, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.util.ShortCaretMarker
 import org.junit.Assert.{assertNotNull, fail}
 
 import scala.collection.JavaConverters._
@@ -27,12 +28,17 @@ import scala.collection.JavaConverters._
  * Date: 3/5/12
  */
 abstract class ScalaLightCodeInsightFixtureTestAdapter
-  extends LightJavaCodeInsightFixtureTestCase with ScalaSdkOwner with TestFixtureProvider with FailableTest {
+  extends LightJavaCodeInsightFixtureTestCase
+    with ScalaSdkOwner
+    with TestFixtureProvider
+    with FailableTest {
 
   import ScalaLightCodeInsightFixtureTestAdapter._
   import libraryLoaders._
 
   val CARET = EditorTestUtil.CARET_TAG
+  val START = EditorTestUtil.SELECTION_START_TAG
+  val END = EditorTestUtil.SELECTION_END_TAG
 
   override final def getFixture: JavaCodeInsightTestFixture = myFixture
 
@@ -72,7 +78,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
   }
 
   protected def configureFromFileText(fileText: String, fileType: String): PsiFile = {
-    val file = getFixture.configureByText(fileType, normalize(fileText))
+    val file = getFixture.configureByText("Test." + fileType, normalize(fileText))
     assertNotNull(file)
     file
   }
@@ -129,17 +135,27 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     virtualFile
   )
 
-  protected def changePsiAt(offset: Int): Unit = {
-    invokeAndWait {
-      getEditor.getCaretModel.moveToOffset(offset)
-      myFixture.`type`('a')
-      commitDocument()
-      myFixture.performEditorAction(IdeActions.ACTION_EDITOR_BACKSPACE)
-      commitDocument()
-    }
+  protected def changePsiAt(offset: Int): Unit =
+    typeAndRemoveChar(offset, 'a')
+
+  protected def typeAndRemoveChar(offset: Int, charToTypeAndRemove: Char): Unit = invokeAndWait {
+    getEditor.getCaretModel.moveToOffset(offset)
+    myFixture.`type`(charToTypeAndRemove)
+    commitDocumentInEditor()
+    myFixture.performEditorAction(IdeActions.ACTION_EDITOR_BACKSPACE)
+    commitDocumentInEditor()
   }
 
-  private def commitDocument(): Unit = PsiDocumentManager.getInstance(getProject).commitDocument(getEditor.getDocument)
+  protected def insertAtOffset(offset: Int, text: String): Unit = invokeAndWait {
+    inWriteCommandAction {
+      getEditor.getDocument.insertString(offset, text)
+      commitDocumentInEditor()
+    }(getProject)
+  }
+
+  protected final def commitDocumentInEditor(): Unit =
+    PsiDocumentManager.getInstance(getProject)
+      .commitDocument(getEditor.getDocument)
 }
 
 object ScalaLightCodeInsightFixtureTestAdapter {

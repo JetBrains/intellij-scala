@@ -18,8 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateParentsStubImpl
   */
 final class ScTemplateParentsStubImpl(parent: StubElement[_ <: PsiElement],
                                       elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                                      val parentTypesTexts: Array[String],
-                                      val constructorText: Option[String])
+                                      override val parentTypesTexts: Array[String],
+                                      override val constructorText: Option[String])
   extends StubBase[ScTemplateParents](parent, elementType) with ScTemplateParentsStub with PsiOwner[ScTemplateParents] {
 
   private var constructorAndParentTypeElementsReference: SofterReference[Data] = null
@@ -37,7 +37,7 @@ final class ScTemplateParentsStubImpl(parent: StubElement[_ <: PsiElement],
     }, constructorAndParentTypeElementsReference = _)
   }
 
-  def parentTypeElements: Seq[ScTypeElement] = {
+  override def parentTypeElements: Seq[ScTypeElement] = {
     constructorAndParentTypeElements match {
       case (Some(constr), typeElems) => constr.typeElement +: typeElems
       case (_, typeElems) => typeElems

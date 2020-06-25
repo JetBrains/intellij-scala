@@ -1,15 +1,17 @@
 package org.jetbrains.plugins.scala.project.template;
 
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.table.TableView;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.project.sdkdetect.ScalaSdkProvider;
 import scala.Option;
@@ -34,14 +36,14 @@ public class SdkSelectionDialog extends JDialog {
     private final SdkTableModel myTableModel = new SdkTableModel();
     private ScalaSdkDescriptor mySelectedSdk;
 
-    private ProgressIndicator sdkScanProcess;
+    private ProgressIndicator sdkScanIndicator;
 
     public SdkSelectionDialog(JComponent parent, VirtualFile contextDirectory) {
         super((Window) parent.getTopLevelAncestor());
 
         myParent = parent;
 
-        setTitle("Select JAR's for the new Scala SDK");
+        setTitle(ScalaBundle.message("sdk.create.select.files"));
 
         setContentPane(contentPane);
         setModal(true);
@@ -64,27 +66,43 @@ public class SdkSelectionDialog extends JDialog {
 
         contentPane.registerKeyboardAction(e -> onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
-        new Task.Backgroundable(null, ScalaBundle.message("sdk.scan.title", ""), true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 
-            private void updateTable(SdkChoice sdkChoice) {
+        createScanTask(contextDirectory, null).queue();
+
+    }
+
+    @NotNull
+    private Task.Backgroundable createScanTask(VirtualFile contextDirectory, @Nullable Runnable whenFinished) {
+        Project maybeProject = ProjectUtil.guessCurrentProject(myParent);
+        return new Task.Backgroundable(null,
+                ScalaBundle.message("sdk.scan.title", ""),
+                true,
+                () -> !maybeProject.isDefault()) {
+
+            private void addToTable(SdkChoice sdkChoice) {
                 ApplicationManager.getApplication().invokeLater(() -> {
+                    int previousSelection = myTable.getSelectedRow();
                     myTableModel.addRow(sdkChoice);
-                    myTable.setModelAndUpdateColumns(myTableModel);
+                    myTableModel.fireTableDataChanged();
+                    if (previousSelection >= 0)
+                        myTable.getSelectionModel().setSelectionInterval(previousSelection, previousSelection);
                 });
             }
 
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                sdkScanProcess = indicator;
+                sdkScanIndicator = indicator;
                 ScalaSdkProvider scalaSdkProvider = new ScalaSdkProvider(indicator, contextDirectory);
-                scalaSdkProvider.discoverSDKsAsync(this::updateTable);
-                sdkScanProcess = null;
+                scalaSdkProvider.discoverSDKs(this::addToTable);
+                if (whenFinished != null) {
+                    whenFinished.run();
+                }
+                sdkScanIndicator = null;
             }
-        }.queue();
-
+        };
     }
 
-    private int setSelectionInterval(String version) {
+    private int setSelectionInterval(String version) throws RuntimeException {
         for (int i = 0; i < myTable.getRowCount(); i++) {
             if ("Ivy".equals(myTable.getValueAt(i, 0)) &&
                     version.equals(myTable.getValueAt(i, 1))) {
@@ -92,17 +110,21 @@ public class SdkSelectionDialog extends JDialog {
             }
         }
 
-        throw new RuntimeException("No Scala " + version + " in the Ivy repository");
+        throw new RuntimeException(ScalaBundle.message("sdk.create.missing.version", version));
     }
 
     private void onDownload() {
         Option<String> result = new VersionDialog(contentPane).showAndGetSelected();
 
         if (result.isDefined()) {
-            int rowIndex = setSelectionInterval(result.get());
-
-            myTable.getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
-            onOK();
+            for (int i = myTableModel.getRowCount() - 1; i >= 0; i--) {
+                myTableModel.removeRow(i);
+            }
+            createScanTask(null, () -> {
+                int rowIndex = setSelectionInterval(result.get());
+                myTable.getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
+                onOK();
+            }).queue();
         }
     }
 
@@ -119,17 +141,17 @@ public class SdkSelectionDialog extends JDialog {
         if (myTable.getSelectedRowCount() > 0) {
             mySelectedSdk = myTableModel.getItems().get(myTable.getSelectedRow()).sdk();
         }
-        if (sdkScanProcess != null)
-            sdkScanProcess.cancel();
-        sdkScanProcess = null;
+        if (sdkScanIndicator != null)
+            sdkScanIndicator.cancel();
+        sdkScanIndicator = null;
         dispose();
     }
 
     private void onCancel() {
         mySelectedSdk = null;
-        if (sdkScanProcess != null)
-            sdkScanProcess.cancel();
-        sdkScanProcess = null;
+        if (sdkScanIndicator != null)
+            sdkScanIndicator.cancel();
+        sdkScanIndicator = null;
         dispose();
     }
 

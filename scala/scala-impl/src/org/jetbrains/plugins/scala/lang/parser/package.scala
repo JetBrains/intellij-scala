@@ -78,6 +78,24 @@ package object parser {
   }
 
   implicit class ScalaPsiBuilderExt(private val repr: parser.parsing.builder.ScalaPsiBuilder) extends AnyVal {
+    // this alters the state of the builder, so if you want to undo this with a marker,
+    // the marker must be created beforehand
+    def tryParseSoftKeyword(softKeyword: IElementType): Boolean = {
+      if (repr.getTokenText == softKeyword.toString) {
+        repr.remapCurrentToken(softKeyword)
+        repr.advanceLexer()
+        true
+      } else false
+    }
+
+    def tryParseSoftKeywordWithRollbackMarker(softKeyword: IElementType): Option[PsiBuilder.Marker] = {
+      if (repr.getTokenText == softKeyword.toString) {
+        val marker = repr.mark()
+        repr.remapCurrentToken(softKeyword)
+        repr.advanceLexer()
+        Some(marker)
+      } else None
+    }
 
     def consumeTrailingComma(expectedBrace: IElementType): Boolean = {
       val result = repr.isTrailingComma &&
@@ -91,6 +109,18 @@ package object parser {
       result
     }
 
+    def withDisabledNewlines[T](body: => T): T = {
+      repr.disableNewlines()
+      try body
+      finally repr.restoreNewlinesState()
+    }
+
+    def withEnabledNewlines[T](body: => T): T = {
+      repr.enableNewlines()
+      try body
+      finally repr.restoreNewlinesState()
+    }
+
     def findPreviousNewLine: Option[String] = {
       val (steps, _) = repr.skipWhiteSpacesAndComments(1)
 
@@ -100,6 +130,25 @@ package object parser {
       ).toString
       if (originalSubText.contains('\n')) Some(originalSubText)
       else None
+    }
+
+    def findPreviousIndent: Option[IndentationWidth] = {
+      findPreviousNewLine.flatMap {
+        ws =>
+          val lastNewLine = ws.lastIndexOf('\n')
+          if (lastNewLine < 0) None
+          else IndentationWidth(ws.substring(lastNewLine + 1))
+      }
+    }
+
+    def withIndentationWidth[R](width: IndentationWidth)(body: => R): R = {
+      repr.pushIndentationWidth(width)
+      try body
+      finally repr.popIndentationWidth()
+    }
+
+    def isPrecededByNewIndent: Boolean = {
+      findPreviousIndent.exists(_ > repr.currentIndentationWidth)
     }
   }
 }

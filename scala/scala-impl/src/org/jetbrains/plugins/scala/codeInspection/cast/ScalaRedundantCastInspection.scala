@@ -6,7 +6,7 @@ import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.{ElementText, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScGenericCall}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, TypePresentationContext}
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, TypePresentationCo
 /**
  * Pavel Fatin
  */
-class ScalaRedundantCastInspection extends AbstractInspection("Redundant cast") {
+class ScalaRedundantCastInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.redundant.cast")) {
 
   override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case call: ScGenericCall =>
@@ -42,7 +42,7 @@ class ScalaRedundantCastInspection extends AbstractInspection("Redundant cast") 
   }
 
   class RemoveCastQuickFix(c: ScGenericCall, e: ScExpression)
-          extends AbstractFixOnTwoPsiElements("Remove Redundant Cast", c, e) {
+          extends AbstractFixOnTwoPsiElements(ScalaInspectionBundle.message("remove.redundant.cast"), c, e) {
 
 
     override protected def doApplyFix(call: ScGenericCall, expr: ScExpression)

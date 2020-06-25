@@ -13,7 +13,7 @@ class VarArgsInCurlyBracesTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override protected def shouldPass: Boolean = false
 
-  def testSCL3856() = {
+  def testSCL3856(): Unit = {
     val code =
       """
         |val array = Array[String]()

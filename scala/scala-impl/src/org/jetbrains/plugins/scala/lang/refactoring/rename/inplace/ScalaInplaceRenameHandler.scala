@@ -10,7 +10,8 @@ import com.intellij.psi.util.PsiUtilBase.getElementAtCaret
 import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement}
 import com.intellij.refactoring.rename.inplace.InplaceRefactoring
 import com.intellij.refactoring.rename.{PsiElementRenameHandler, RenamePsiElementProcessor}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, callbackInTransaction}
+import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, invokeLaterInTransaction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
@@ -50,10 +51,10 @@ trait ScalaInplaceRenameHandler {
   }
 
   def afterElementSubstitution(elementToRename: PsiElement, editor: Editor, dataContext: DataContext)(inplaceRename: PsiElement => InplaceRefactoring): InplaceRefactoring = {
-    def showSubstitutePopup(title: String, positive: String, subst: => PsiNamedElement): Unit = {
+    def showSubstitutePopup(@Nls title: String, positive: String, subst: => PsiNamedElement): Unit = {
       val cancel = ScalaBundle.message("rename.cancel")
       val list = JListCompatibility.createJBListFromListData(positive, cancel)
-      val callback = callbackInTransaction(editor.getProject) {
+      val callback: Runnable = () => invokeLaterInTransaction(editor.getProject) {
         list.getSelectedValue match {
           case s: String if s == positive =>
             val file = subst.getContainingFile.getVirtualFile

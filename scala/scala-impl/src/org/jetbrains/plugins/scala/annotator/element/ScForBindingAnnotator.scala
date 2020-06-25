@@ -7,6 +7,7 @@ import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.RemoveValFromForBindingIntentionAction
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScPatternedEnumerator}
@@ -32,7 +33,9 @@ object ScForBindingAnnotator extends ElementAnnotator[ScForBinding] {
 
   class RemoveCaseFromPatternedEnumeratorFix(enumerator: ScPatternedEnumerator) extends IntentionAction {
 
-    override def getText: String = "Remove 'case'"
+    override def getFamilyName: String = ScalaBundle.message("family.name.remove.case.from.enumerator")
+
+    override def getText: String = ScalaBundle.message("remove.case")
 
     override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = true
 
@@ -42,7 +45,5 @@ object ScForBindingAnnotator extends ElementAnnotator[ScForBinding] {
     }
 
     override def startInWriteAction(): Boolean = true
-
-    override def getFamilyName: String = "Remove 'case' from enumerator"
   }
 }

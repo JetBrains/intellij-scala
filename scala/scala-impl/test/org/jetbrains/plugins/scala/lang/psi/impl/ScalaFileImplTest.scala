@@ -32,7 +32,7 @@ class ScalaFileImplTest extends SimpleTestCase {
 //    Assert.assertSame(file, newClass.getContainingFile)
 //  }
 
-  def testPathIn() {
+  def testPathIn(): Unit = {
     assertPathIs("", List())
     assertPathIs("package a", List(List("a")))
     assertPathIs("package a.b", List(List("a", "b")))
@@ -66,7 +66,7 @@ class ScalaFileImplTest extends SimpleTestCase {
 //    Assert.assertSame(file, newClass.getContainingFile)
 //  }
 
-  def testSplitsIn() {
+  def testSplitsIn(): Unit = {
     assertSplitsAre(List(), List())
     assertSplitsAre(List(List("a")), List())
     assertSplitsAre(List(List("a", "b")), List())
@@ -77,7 +77,7 @@ class ScalaFileImplTest extends SimpleTestCase {
     assertSplitsAre(List(List("a", "b"), List("c", "d"), List("e")), List(List("a", "b"), List("a", "b", "c", "d")))
   }
 
-  def testSplitAt() {
+  def testSplitAt(): Unit = {
     assertSplitAs(List(), List(), List())
     assertSplitAs(List(), List("a"), List())
     assertSplitAs(List(List("a")), List(), List(List("a")))
@@ -130,7 +130,7 @@ class ScalaFileImplTest extends SimpleTestCase {
 //    Assert.assertEquals(describe(parseText(after)), describe(file))
 //  }
 
-  private def assertPathIs(code: String, path: List[List[String]]) {
+  private def assertPathIs(code: String, path: List[List[String]]): Unit = {
     Assert.assertEquals(path, ScalaFileImpl.pathIn(parseText(code)))
   }
 
@@ -140,15 +140,15 @@ class ScalaFileImplTest extends SimpleTestCase {
 //    Assert.assertEquals(describe(parseText(after)), describe(file))
 //  }
 
-  private def assertSplitAs(before: List[List[String]], vector: List[String], after: List[List[String]]) {
+  private def assertSplitAs(before: List[List[String]], vector: List[String], after: List[List[String]]): Unit = {
     Assert.assertEquals(after, ScalaFileImpl.splitAt(before, vector))
   }
 
-  private def assertSplitsAre(path: List[List[String]], vectors: List[List[String]]) {
+  private def assertSplitsAre(path: List[List[String]], vectors: List[List[String]]): Unit = {
     Assert.assertEquals(vectors, ScalaFileImpl.splitsIn(path))
   }
 
-  private def assertPackageNameSetAs(before: String, name: (String,  String), after: String ) {
+  private def assertPackageNameSetAs(before: String, name: (String,  String), after: String ): Unit = {
     val file = parseText(before).asInstanceOf[ScalaFileImpl]
     file.setPackageName(name._1, name._2)
     Assert.assertEquals(describe(parseText(after)), describe(file))

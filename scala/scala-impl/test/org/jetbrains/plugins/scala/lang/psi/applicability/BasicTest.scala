@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
  */
 
 class BasicTest extends ApplicabilityTestBase {
-  def testFine() {
+  def testFine(): Unit = {
     assertProblems("", "") {
       case Nil =>
     }
@@ -43,7 +43,7 @@ class BasicTest extends ApplicabilityTestBase {
     }
   }*/
 
-  def testTooManyArguments() {
+  def testTooManyArguments(): Unit = {
     assertProblems("()", "(A)") {
       case ExcessArgument(Expression("A")) :: Nil =>
     }
@@ -58,7 +58,7 @@ class BasicTest extends ApplicabilityTestBase {
     }
   }
 
-  def testMissedParametersClause() {
+  def testMissedParametersClause(): Unit = {
     //for functions and for constructors there are different message
     //reason: you can't apply eta-expansion for constructors
     assertProblems("(p: A)", "") {
@@ -75,7 +75,7 @@ class BasicTest extends ApplicabilityTestBase {
     }
   }
 
-  def testMissedParameter() {
+  def testMissedParameter(): Unit = {
     assertProblems("(a: A)", "()") {
       case MissedValueParameter(Parameter("a")) :: Nil =>
     }
@@ -87,7 +87,7 @@ class BasicTest extends ApplicabilityTestBase {
     }
   }
   
-  def testTypeMismatch() {
+  def testTypeMismatch(): Unit = {
     assertProblems("(a: A)", "(B)") {
       case TypeMismatch(Expression("B"), Type("A")) :: Nil =>
     }

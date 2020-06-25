@@ -6,6 +6,7 @@ package types
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
@@ -13,12 +14,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * InfixType ::= CompoundType {id [nl] CompoundType}
  */
 object InfixType extends InfixType {
-  override protected def componentType = CompoundType
-  override protected def errorMessage = ScalaBundle.message("compound.type.expected")
+  override protected def componentType: Type = CompoundType
+  override protected def errorMessage: String = ScalaBundle.message("compound.type.expected")
 }
 
 trait InfixType {
   protected def componentType: Type
+  @Nls
   protected def errorMessage: String
 
   def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, star = false)
@@ -115,7 +117,7 @@ trait InfixType {
     true
   }
 
-  protected def parseId(builder: ScalaPsiBuilder, elementType: IElementType = ScalaElementType.REFERENCE) {
+  protected def parseId(builder: ScalaPsiBuilder, elementType: IElementType = ScalaElementType.REFERENCE): Unit = {
     val idMarker = builder.mark
     builder.advanceLexer() //Ate id
     idMarker.done(elementType)

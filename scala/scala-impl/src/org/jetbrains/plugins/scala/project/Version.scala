@@ -1,13 +1,15 @@
 package org.jetbrains.plugins.scala
 package project
 
+import org.jetbrains.annotations.NonNls
+
 import scala.Ordering.Implicits._
 
 /**
  * @author Pavel Fatin
  */
 // TODO Make universal (it seems that this class is now used in lots of places ourside the "proect" package).
-case class Version(presentation: String) extends Ordered[Version] {
+case class Version(@NonNls presentation: String) extends Ordered[Version] {
 
   import Version._
 
@@ -17,7 +19,7 @@ case class Version(presentation: String) extends Ordered[Version] {
   private val essentialGroups: Seq[Group] =
     groups.reverse.dropWhile(_.isNotEssential).reverse
 
-  def compare(other: Version): Int = {
+  override def compare(other: Version): Int = {
     val emptyGroup = Group(Seq.empty, VersionStatus.DEFAULT)
     val (groups1, groups2) = essentialGroups.zipAll(other.essentialGroups, emptyGroup, emptyGroup).unzip
 

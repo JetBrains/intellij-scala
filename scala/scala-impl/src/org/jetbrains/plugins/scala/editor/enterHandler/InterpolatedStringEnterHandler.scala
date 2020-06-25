@@ -34,7 +34,7 @@ class InterpolatedStringEnterHandler extends EnterHandlerDelegateAdapter {
 
     import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 
-    def modifyOffset(moveOn: Int) {
+    def modifyOffset(moveOn: Int): Unit = {
       offset += moveOn
       caretOffset.set(caretOffset.get + moveOn)
     }

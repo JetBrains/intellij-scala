@@ -7,6 +7,7 @@ import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScParenthesisedExpr, ScReturn}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -52,15 +53,12 @@ final class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
     }
   }
 
-  override def getText: String = "Expand boolean use to 'if else'"
+  override def getText: String = ScalaCodeInsightBundle.message("expand.boolean.use.to.ifelse")
 
-  override def getFamilyName: String = FamilyName
+  override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.expand.boolean")
 }
 
 object ExpandBooleanIntention {
-
-  private[booleans] val FamilyName = "Expand Boolean"
-
   private def findReturnParent(element: PsiElement): Option[ScReturn] =
     element.parentOfType(classOf[ScReturn], strict = false)
 }

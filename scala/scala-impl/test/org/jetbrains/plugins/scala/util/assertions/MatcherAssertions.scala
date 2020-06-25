@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.annotator.Message
 import org.jetbrains.plugins.scala.base.FailableTest
 import org.junit.Assert
 
+import scala.collection.SeqLike
 import scala.reflect.ClassTag
 
 trait MatcherAssertions extends FailableTest {
@@ -16,7 +17,16 @@ trait MatcherAssertions extends FailableTest {
   def assertMatches[T](actual: Option[T])(pattern: PartialFunction[T, Unit]): Unit =
     actual match {
       case Some(value) =>
-        Assert.assertTrue(if (shouldPass) "actual: " + value.toString else failingPassed, shouldPass == pattern.isDefinedAt(value))
+        def message = if (shouldPass) {
+          val actualValueFancy = value match {
+            case seq: SeqLike[_, _] => seq.mkString(s"${seq.stringPrefix}(\n  ", ",\n  ", "\n)")
+            case v                  => v.toString
+          }
+          "actual: " + actualValueFancy
+        } else {
+          failingPassed
+        }
+        Assert.assertTrue(message, shouldPass == pattern.isDefinedAt(value))
       case None => Assert.assertFalse(shouldPass)
     }
 

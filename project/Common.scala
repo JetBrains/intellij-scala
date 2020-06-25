@@ -10,6 +10,9 @@ object Common {
   lazy val communityFullClasspath: TaskKey[Classpath] =
     taskKey[Classpath]("scalaCommunity module's fullClasspath in Compile and Test scopes")
 
+  val globalJavacOptions = Seq("-source", "1.8","-target","1.8")
+  val globalScalacOptions = Seq("-target:jvm-1.8", "-deprecation")
+
   def newProject(projectName: String, base: File): Project =
     Project(projectName, base).settings(
       name := projectName,
@@ -22,10 +25,11 @@ object Common {
       libraryDependencies ++= Seq(Dependencies.junitInterface),
       updateOptions := updateOptions.value.withCachedResolution(true),
       intellijMainJars := intellijMainJars.value.filterNot(file => Dependencies.excludeJarsFromPlatformDependencies(file.data)),
-      intellijInternalPlugins += "java",
+      intellijPlugins += "com.intellij.java".toPlugin,
       pathExcludeFilter := excludePathsFromPackage,
       testOptions in Test += Tests.Argument(TestFrameworks.ScalaCheck, "-maxSize", "20"),
-      testFrameworks in Test := (testFrameworks in Test).value.filterNot(_.implClassNames.exists(_.contains("org.scalatest")))
+      testFrameworks in Test := (testFrameworks in Test).value.filterNot(_.implClassNames.exists(_.contains("org.scalatest"))),
+      scalacOptions in Test += "-Xmacro-settings:enable-expression-tracers"
     )
 
   def excludePathsFromPackage(path: java.nio.file.Path): Boolean = {
@@ -59,6 +63,7 @@ object Common {
     val typecheckerTests: String = cat("TypecheckerTests")
     val testingSupportTests: String = cat("TestingSupportTests")
     val worksheetEvaluationTests: String = cat("WorksheetEvaluationTests")
+    val flakyTests: String = cat("FlakyTests")
   }
 
   def pluginVersion: String =

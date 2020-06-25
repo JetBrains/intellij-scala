@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
-import com.intellij.debugger.DebuggerBundle
+import com.intellij.debugger.JavaDebuggerBundle
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
 import com.intellij.debugger.impl.DebuggerUtilsEx
@@ -71,7 +71,7 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
     null
   }
 
-  def evaluate(context: EvaluationContextImpl): AnyRef = {
+  override def evaluate(context: EvaluationContextImpl): AnyRef = {
     myEvaluatedField = null
     myEvaluatedQualifier = null
     val obj: AnyRef = DebuggerUtil.unwrapScalaRuntimeRef {
@@ -88,7 +88,7 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
           field = fieldByName(refType, fieldName)
         }
         if (field == null || !field.isStatic) {
-          throw EvaluationException(DebuggerBundle.message("evaluation.error.no.static.field", fieldName))
+          throw EvaluationException(JavaDebuggerBundle.message("evaluation.error.no.static.field", fieldName))
         }
         myEvaluatedField = field
         myEvaluatedQualifier = refType
@@ -96,7 +96,7 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
       case objRef: ObjectReference =>
         val refType: ReferenceType = objRef.referenceType
         if (!(refType.isInstanceOf[ClassType] || refType.isInstanceOf[ArrayType])) {
-          throw EvaluationException(DebuggerBundle.message("evaluation.error.class.or.array.expected", fieldName))
+          throw EvaluationException(JavaDebuggerBundle.message("evaluation.error.class.or.array.expected", fieldName))
         }
         objRef match {
           case arrayRef: ArrayReference if "length" == fieldName =>
@@ -108,14 +108,14 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
           field = refType.fieldByName(fieldName)
         }
         if (field == null) {
-          throw EvaluationException(DebuggerBundle.message("evaluation.error.no.instance.field", fieldName))
+          throw EvaluationException(JavaDebuggerBundle.message("evaluation.error.no.instance.field", fieldName))
         }
         myEvaluatedQualifier = if (field.isStatic) refType else objRef
         myEvaluatedField = field
         if (field.isStatic) refType.getValue(field) else objRef.getValue(field)
       case null => throw EvaluationException(new NullPointerException)
       case _ =>
-        throw EvaluationException(DebuggerBundle.message("evaluation.error.evaluating.field", fieldName))
+        throw EvaluationException(JavaDebuggerBundle.message("evaluation.error.evaluating.field", fieldName))
     }
   }
 
@@ -125,15 +125,15 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
       (myEvaluatedQualifier.isInstanceOf[ClassType] ||
         myEvaluatedQualifier.isInstanceOf[ObjectReference])) {
       modifier = new Modifier {
-        def canInspect: Boolean = {
+        override def canInspect: Boolean = {
           myEvaluatedQualifier.isInstanceOf[ObjectReference]
         }
 
-        def canSetValue: Boolean = {
+        override def canSetValue: Boolean = {
           true
         }
 
-        def setValue(value: Value) {
+        override def setValue(value: Value): Unit = {
           if (myEvaluatedQualifier.isInstanceOf[ReferenceType]) {
             val classType: ClassType = myEvaluatedQualifier.asInstanceOf[ClassType]
             classType.setValue(myEvaluatedField, value)
@@ -144,11 +144,11 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
           }
         }
 
-        def getExpectedType: Type = {
+        override def getExpectedType: Type = {
           myEvaluatedField.`type`
         }
 
-        def getInspectItem(project: Project): NodeDescriptorImpl = {
+        override def getInspectItem(project: Project): NodeDescriptorImpl = {
           myEvaluatedQualifier match {
             case reference: ObjectReference =>
               new FieldDescriptorImpl(project, reference, myEvaluatedField)

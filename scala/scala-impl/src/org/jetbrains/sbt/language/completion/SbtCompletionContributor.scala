@@ -48,7 +48,7 @@ final class SbtCompletionContributor extends ScalaCompletionContributor {
 
       // In expression `setting += ???` extracts type T of `setting: Setting[Seq[T]]`
       def extractSeqType: Option[ScType] = {
-        if (operator.getText != "+=") return None
+        if (!operator.textMatches("+=")) return None
         operator.`type`() match {
           case Right(ParameterizedType(_, typeArgs)) =>
             typeArgs.last match {
@@ -66,7 +66,7 @@ final class SbtCompletionContributor extends ScalaCompletionContributor {
       }
 
       def getScopeType: Option[ScType] = {
-        if (operator.getText != "in") return None
+        if (!operator.textMatches("in")) return None
         place.elementScope.getCachedClass("sbt.Scope").map {
           ScDesignatorType(_)
         }
@@ -90,7 +90,7 @@ final class SbtCompletionContributor extends ScalaCompletionContributor {
       // Collect all values, variables and inner objects from given object amd apply them
       def collectAndApplyVariants(obj: PsiClass): Unit = obj match {
         case obj: ScObject if isAccessible(obj) && ScalaPsiUtil.hasStablePath(obj) =>
-          def fetchAndApply(element: ScTypedDefinition) {
+          def fetchAndApply(element: ScTypedDefinition): Unit = {
             val lookup = new ScalaResolveResult(element)
               .getLookupElement(isClassName = true, shouldImport = true)
               .head
@@ -106,18 +106,18 @@ final class SbtCompletionContributor extends ScalaCompletionContributor {
         case _ => // do nothing
       }
 
-      def applyVariant(variantObj: Object) {
-        def apply(item: ScalaLookupItem) {
+      def applyVariant(variantObj: Object): Unit = {
+        def apply(item: ScalaLookupItem): Unit = {
           item.isSbtLookupItem = true
           result.addElement(item)
         }
         val variant = variantObj match {
           case el: ScalaLookupItem => el
-          case ch: ScalaChainLookupElement => ch.element
+          case ch: ScalaChainLookupElement => ch.getDelegate
           case _ => return
         }
 
-        variant.element match {
+        variant.getPsiElement match {
           case f: PsiField if f.getType.toScType().conforms(expectedType) =>
             apply(variant)
           case typed: ScTypedDefinition if typed.`type`().getOrAny.conforms(expectedType) =>
@@ -152,7 +152,7 @@ final class SbtCompletionContributor extends ScalaCompletionContributor {
       }
 
       // Get results from parent reference
-      parentRef.getVariants() foreach applyVariant
+      parentRef.getVariants.foreach(applyVariant)
     }
   })
 }

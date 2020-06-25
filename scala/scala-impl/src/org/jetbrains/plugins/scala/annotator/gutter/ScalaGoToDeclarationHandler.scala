@@ -5,9 +5,12 @@ package gutter
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.IsTemplateDefinition
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
@@ -19,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelecto
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
+import org.jetbrains.plugins.scala.tasty._
 
 import scala.annotation.tailrec
 
@@ -29,7 +33,7 @@ import scala.annotation.tailrec
 
 class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
 
-  def getGotoDeclarationTargets(element: PsiElement, offset: Int, editor: Editor): Array[PsiElement] = {
+  override def getGotoDeclarationTargets(element: PsiElement, offset: Int, editor: Editor): Array[PsiElement] = {
     if (element == null) return null
     val containingFile = element.getContainingFile
     if (containingFile == null) return null
@@ -37,8 +41,26 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     if (sourceElement == null) return null
     if (!sourceElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return null
 
+    if (isTastyEnabledFor(element)) {
+      for (Location(outputDirectory, className) <- compiledLocationOf(sourceElement);
+           tastyFile <- TastyReader.read(outputDirectory, className);  // IDEA shows "Resolving Reference..." modal progress
+           (file, offset) <- referenceTargetAt(editor.getCaretModel.getLogicalPosition, tastyFile);
+           virtualFile <- Option(VfsUtil.findFileByIoFile(file, false));
+           psiFile <- Option(PsiManager.getInstance(element.getProject).findFile(virtualFile));
+           targetElement <- Option(psiFile.findElementAt(offset))) {
+
+        showTastyNotification("Navigation")
+
+        return Array(targetElement)
+      }
+    }
+
     val maybeParent = sourceElement.parent
     sourceElement.getNode.getElementType match {
+      case IsTemplateDefinition() =>
+        val typeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition])
+        typeDefinition.baseCompanionModule.map(_.nameId.getPrevSiblingNotWhitespace).toArray
+
       case ScalaTokenTypes.tASSIGN =>
         maybeParent
           .collect { case assign: ScAssignment => assign }

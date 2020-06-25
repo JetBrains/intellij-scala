@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.parameters;
 
 import com.intellij.codeInspection.ui.SingleCheckboxOptionsPanel;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle;
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle;
 
 import javax.swing.*;
 
@@ -27,6 +27,6 @@ public class NameBooleanParametersInspection extends NameBooleanParametersInspec
   @Nullable
   @Override
   public JComponent createOptionsPanel() {
-    return new SingleCheckboxOptionsPanel(InspectionBundle.message("name.boolean.ignore.single.parameter.methods"), this, "ignoreSingleParameter");
+    return new SingleCheckboxOptionsPanel(ScalaInspectionBundle.message("name.boolean.ignore.single.parameter.methods"), this, "ignoreSingleParameter");
   }
 }

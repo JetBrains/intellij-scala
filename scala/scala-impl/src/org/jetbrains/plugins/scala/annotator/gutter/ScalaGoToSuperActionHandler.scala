@@ -8,7 +8,6 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
-import org.jetbrains.plugins.scala.annotator.gutter.ScalaMarkerType.ScCellRenderer
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -17,27 +16,24 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTe
 
 import scala.collection.mutable
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 08.11.2008
-  */
 class ScalaGoToSuperActionHandler extends ScalaCodeInsightActionHandler {
+
   override def startInWriteAction: Boolean = false
 
-  def invoke(project: Project, editor: Editor, file: PsiFile) {
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     val offset = editor.getCaretModel.getOffset
     val (superClasses, superSignatureElements) = ScalaGoToSuperActionHandler.findSuperElements(file, offset)
 
-    def popupChooser(superElements: Seq[PsiElement], title: String) {
-      NavigationUtil.getPsiElementPopup[PsiElement](superElements.toArray, new ScCellRenderer, title, new PsiElementProcessor[PsiElement] {
-        def execute(element: PsiElement): Boolean = {
-          val descriptor = EditSourceUtil.getDescriptor(element)
-          if (descriptor != null && descriptor.canNavigate) {
-            descriptor.navigate(true)
-          }
-          true
+    def popupChooser(superElements: Seq[PsiElement], title: String): Unit = {
+      val processor: PsiElementProcessor[PsiElement] = (element: PsiElement) => {
+        val descriptor = EditSourceUtil.getDescriptor(element)
+        if (descriptor != null && descriptor.canNavigate) {
+          descriptor.navigate(true)
         }
-      }).showInBestPositionFor(editor)
+        true
+      }
+      val popup = NavigationUtil.getPsiElementPopup[PsiElement](superElements.toArray, ScalaMarkerType.newCellRenderer, title, processor)
+      popup.showInBestPositionFor(editor)
     }
 
     (superClasses, superSignatureElements) match {

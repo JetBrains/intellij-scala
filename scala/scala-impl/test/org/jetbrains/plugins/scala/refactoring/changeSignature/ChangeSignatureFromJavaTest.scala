@@ -34,14 +34,14 @@ class ChangeSignatureFromJavaTest extends ChangeSignatureTestBase {
     element.asInstanceOf[PsiMethod]
   }
 
-  def testStaticMethod() = {
+  def testStaticMethod(): Unit = {
     val params = Seq(
       new ParameterInfoImpl(0, "ii", PsiType.INT),
       new ParameterInfoImpl(-1, "b", PsiType.BOOLEAN, "true"))
     doTest(null, "bar", null, Seq(params))
   }
 
-  def testInstanceMethod() = {
+  def testInstanceMethod(): Unit = {
     val newParams = Seq(
       new ParameterInfoImpl(-1, "b", PsiType.BOOLEAN, "true"),
       new ParameterInfoImpl(0, "ii", PsiType.INT)
@@ -49,7 +49,7 @@ class ChangeSignatureFromJavaTest extends ChangeSignatureTestBase {
     doTest(null, "bar", null, Seq(newParams))
   }
 
-  def testOverriders() = {
+  def testOverriders(): Unit = {
     val newParams = Seq(
       new ParameterInfoImpl(-1, "b", PsiType.BOOLEAN, "true"),
       new ParameterInfoImpl(0, "ii", PsiType.INT)
@@ -57,7 +57,7 @@ class ChangeSignatureFromJavaTest extends ChangeSignatureTestBase {
     doTest(null, "bar", "boolean", Seq(newParams))
   }
 
-  def testOverriderInAnonClass() = {
+  def testOverriderInAnonClass(): Unit = {
     val newParams = Seq(
       new ParameterInfoImpl(-1, "b", PsiType.BOOLEAN, "true"),
       new ParameterInfoImpl(0, "ii", PsiType.INT)
@@ -65,21 +65,21 @@ class ChangeSignatureFromJavaTest extends ChangeSignatureTestBase {
     doTest(null, "bar", "boolean", Seq(newParams))
   }
 
-  def testParameterlessOverriders() = {
+  def testParameterlessOverriders(): Unit = {
     doTest(null, "bar", null, Seq(Seq.empty))
   }
 
-  def testParameterlessOverriders2() = {
+  def testParameterlessOverriders2(): Unit = {
     val params = Seq(new ParameterInfoImpl(-1, "b", PsiType.BOOLEAN, "true"))
     doTest(null, "bar", null, Seq(params))
   }
 
-  def testInfixUsage() = {
+  def testInfixUsage(): Unit = {
     val params = Seq(new ParameterInfoImpl(-1, "b", PsiType.BOOLEAN, "true"))
     doTest(null, "print", null, Seq(params))
   }
 
-  def testInfixUsage2() = {
+  def testInfixUsage2(): Unit = {
     val params = Seq(new ParameterInfoImpl(0, "i", PsiType.INT),
       new ParameterInfoImpl(-1, "b", PsiType.BOOLEAN, "true"))
     doTest(null, "print", null, Seq(params))

@@ -18,7 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTy
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ScTypeText, StdTypes}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, StdTypes}
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.ScTypeText
 import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScType, TermSignature}
 import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -189,7 +190,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
       case Seq(st, t) if t.ty.isNothing || t.ty.isAny =>
         // if the computed type is nothing or any, the super type can only be more expressive
         Seq(st)
-      case Seq(st, t) if t.ty.isAliasType.isEmpty && t.ty.equiv(st.ty) =>
+      case Seq(st, t) if !t.ty.isAliasType && t.ty.equiv(st.ty) =>
         // if both types are equivalent, use the super type, because it might be a type alias
         // except, of course, the computed type is a type alias then better let the user choose
         Seq(st)

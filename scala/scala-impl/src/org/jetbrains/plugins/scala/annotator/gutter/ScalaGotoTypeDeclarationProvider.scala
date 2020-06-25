@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, ScTyp
  */
 
 class ScalaGotoTypeDeclarationProvider extends TypeDeclarationProvider {
-  def getSymbolTypeDeclarations(symbol: PsiElement): Array[PsiElement] = {
+  override def getSymbolTypeDeclarations(symbol: PsiElement): Array[PsiElement] = {
     symbol match {
       case typed: ScTypedDefinition =>
         val res = typed.`type`()

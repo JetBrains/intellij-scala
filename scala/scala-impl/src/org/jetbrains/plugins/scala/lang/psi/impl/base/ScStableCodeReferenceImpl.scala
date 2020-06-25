@@ -10,7 +10,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.JavaDummyHolder
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.annotator.intention.{ClassToImport, ElementToImport, ScalaAddImportAction, TypeAliasToImport}
+import org.jetbrains.plugins.scala.annotator.intention.{ClassToImport, ElementToImport, MemberToImport}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -48,18 +48,19 @@ import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 
 class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) with ScStableCodeReference {
 
-  def getResolveResultVariants: Array[ScalaResolveResult] =
+  override def toString: String = s"CodeReferenceElement${debugKind.fold("")(" (" + _ + ")")}: ${ifReadAllowed(getText)("")}"
+  protected def debugKind: Option[String] = None
+
+  override def getResolveResultVariants: Array[ScalaResolveResult] =
     doResolve(new CompletionProcessor(getKinds(incomplete = true), this))
 
   override def getConstructorInvocation: Option[ScConstructorInvocation] =
     getContext.asOptionOf[ScSimpleTypeElement]
       .flatMap(_.findConstructorInvocation)
 
-  def isConstructorReference: Boolean = getConstructorInvocation.nonEmpty
+  override def isConstructorReference: Boolean = getConstructorInvocation.nonEmpty
 
-  override def toString: String = "CodeReferenceElement: " + ifReadAllowed(getText)("")
-
-  def getKinds(incomplete: Boolean, completion: Boolean): Set[ResolveTargets.Value] = {
+  override def getKinds(incomplete: Boolean, completion: Boolean): Set[ResolveTargets.Value] = {
     import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
 
     val result = getContext match {
@@ -94,10 +95,10 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     if (completion) result + ResolveTargets.PACKAGE + ResolveTargets.OBJECT + ResolveTargets.VAL else result
   }
 
-  def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
+  override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
 
   //  @throws(IncorrectOperationException)
-  def bindToElement(element: PsiElement): PsiElement = {
+  override def bindToElement(element: PsiElement): PsiElement = {
     def isCorrectReference(text: String): Option[ScStableCodeReference] = {
       val ref = createReferenceFromText(text, getContext, ScStableCodeReferenceImpl.this)
 
@@ -150,7 +151,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           if (!ResolveUtils.kindMatches(c.element, suitableKinds)) {
             reportWrongKind(c, suitableKinds)
           }
-          if (nameId.getText != c.name) {
+          if (!nameId.textMatches(c.name)) {
             val ref = createReferenceFromText(c.name)
             return this.replace(ref).asInstanceOf[ScStableCodeReference].bindToElement(c.element)
           }
@@ -174,13 +175,12 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
                 case (qual, true) => createReferenceFromText(qual, getContext, this)
                 case (qual, false) => createReferenceFromText(qual)
               }) {
+                val importsHolder = ScImportsHolder(this)
                 c match {
                   case ClassToImport(clazz) =>
-                    ScalaAddImportAction.getImportHolder(ref = this, project = getProject).
-                      addImportForClass(clazz, ref = this)
+                    importsHolder.addImportForClass(clazz, ref = this)
                   case ta =>
-                    ScalaAddImportAction.getImportHolder(ref = this, project = getProject).
-                      addImportForPath(ta.qualifiedName, ref = this)
+                    importsHolder.addImportForPath(ta.qualifiedName, ref = this)
                 }
                 if (qualifier.isDefined) {
                   //let's make our reference unqualified
@@ -205,7 +205,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             else bindToType(ClassToImport(c))
           case ta: ScTypeAlias =>
             if (ta.containingClass != null && ScalaPsiUtil.hasStablePath(ta)) {
-              bindToType(TypeAliasToImport(ta))
+              bindToType(MemberToImport(ta, ta.containingClass))
             } else {
               //todo: nothing to do yet, probably in future it would be great to implement something context-specific
               this
@@ -248,11 +248,11 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
          |$contextText""".stripMargin)
   }
 
-  def getSameNameVariants: Array[ScalaResolveResult] = doResolve(new CompletionProcessor(getKinds(incomplete = true), this) {
-    override protected val forName = Some(refName)
+  override def getSameNameVariants: Array[ScalaResolveResult] = doResolve(new CompletionProcessor(getKinds(incomplete = true), this) {
+    override protected val forName: Option[String] = Some(refName)
   })
 
-  override def delete() {
+  override def delete(): Unit = {
     getContext match {
       case sel: ScImportSelector => sel.deleteSelector()
       case expr: ScImportExpr => expr.deleteExpr()
@@ -266,11 +266,11 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     resolver.resolve(ScStableCodeReferenceImpl.this, incomplete)
   }
 
-  protected def processQualifier(processor: BaseProcessor): Array[ScalaResolveResult] = {
+  override protected def processQualifier(processor: BaseProcessor): Array[ScalaResolveResult] = {
     _qualifier() match {
       case None =>
         @scala.annotation.tailrec
-        def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
+        def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
           ProgressManager.checkCanceled()
           place match {
             case null =>
@@ -425,17 +425,18 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     }
   }
 
-  def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult] = {
-    def candidatesFilter(result: ScalaResolveResult) = {
+  override def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult] = {
+    def candidatesFilter(result: ScalaResolveResult): Boolean = {
       result.element match {
-        case c: PsiClass if c.name == c.qualifiedName => c.getContainingFile match {
-          case _: ScalaFile => true // scala classes are available from default package
-          /** in completion in [[ScalaFile]] [[JavaDummyHolder]] usually used as file */
-          case dummyHolder: JavaDummyHolder
-            if Option(dummyHolder.getContext).map(_.getContainingFile).exists(_.isInstanceOf[ScalaFile]) =>
-            true
-          // Other classes from default package are available only for top-level Scala statements
-          case _ => PsiTreeUtil.getContextOfType(this, true, classOf[ScPackaging]) == null
+        case c: PsiClass if c.name == c.qualifiedName =>
+          c.getContainingFile match {
+            case _: ScalaFile => true // scala classes are available from default package
+            /** in completion in [[ScalaFile]] [[JavaDummyHolder]] usually used as file */
+            case dummyHolder: JavaDummyHolder
+              if Option(dummyHolder.getContext).map(_.getContainingFile).exists(_.isInstanceOf[ScalaFile]) =>
+              true
+            // Other classes from default package are available only for top-level Scala statements
+            case _ => PsiTreeUtil.getContextOfType(this, true, classOf[ScPackaging]) == null
         }
         case _ => true
       }
@@ -481,24 +482,25 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         }
       }
     }
+
     if (!accessibilityCheck) processor.doNotCheckAccessibility()
-    var x = false
     //performance improvement
     ScalaPsiUtil.fileContext(this) match {
       case s: ScalaFile if s.isCompiled =>
-        x = true
         //todo: improve checking for this and super
-        val refText: String = getText
-        if (!refText.contains("this") && !refText.contains("super") && (
-          refText.contains(".") || getContext.isInstanceOf[ScStableCodeReference]
-          )) {
+        val refText = getText
+
+        if (!refText.contains("this") &&
+          !refText.contains("super") &&
+          (refText.contains(".") || getContext.isInstanceOf[ScStableCodeReference])) {
           //so this is full qualified reference => findClass, or findPackage
-          val facade = JavaPsiFacade.getInstance(getProject)
           val manager = ScalaPsiManager.instance(getProject)
           val classes = manager.getCachedClasses(getResolveScope, refText)
-          val pack = facade.findPackage(refText)
-          if (pack != null) processor.execute(pack, ScalaResolveState.empty)
-          for (clazz <- classes) processor.execute(clazz, ScalaResolveState.empty)
+          val pack    = manager.getCachedPackage(refText)
+
+          pack.foreach(processor.execute(_, ScalaResolveState.empty))
+          classes.foreach(processor.execute(_, ScalaResolveState.empty))
+
           val candidates = processor.candidatesS
           val filtered = candidates.filter(candidatesFilter)
 
@@ -513,9 +515,9 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     val candidates = processQualifier(processor)
     val filtered = candidates.filter(candidatesFilter)
 
-    if (accessibilityCheck && filtered.isEmpty) doResolve(processor, accessibilityCheck = false)
-    else filtered
+    if (accessibilityCheck && filtered.isEmpty)
+      doResolve(processor, accessibilityCheck = false)
+    else
+      filtered
   }
-
-
 }

@@ -4,7 +4,7 @@ import java.io.File
 import java.util.Optional
 
 import org.jetbrains.jps.incremental.scala.Client
-import org.jetbrains.jps.incremental.scala.data.CompilationData
+import org.jetbrains.plugins.scala.compiler.data.CompilationData
 import sbt.internal.inc._
 import xsbti.compile._
 
@@ -21,13 +21,13 @@ case class IntellijExternalLookup(compilationData: CompilationData, client: Clie
     val previousSources = previousAnalysis.readStamps().getAllSourceStamps.keySet().asScala.toSet
 
     Some(new UnderlyingChanges[File] {
-      def added: Set[File] = all -- previousSources
+      override def added: Set[File] = all -- previousSources
 
-      def removed: Set[File] = previousSources -- all
+      override def removed: Set[File] = previousSources -- all
 
-      def changed: Set[File] = changedSources & previousSources
+      override def changed: Set[File] = changedSources & previousSources
 
-      def unmodified: Set[File] = previousSources -- changedSources
+      override def unmodified: Set[File] = previousSources -- changedSources
     })
   }
 
@@ -37,7 +37,7 @@ case class IntellijExternalLookup(compilationData: CompilationData, client: Clie
 
   override def shouldDoIncrementalCompilation(changedClasses: Set[String], analysis: CompileAnalysis): Boolean = {
     if (compilationData.zincData.isCompile){
-      def invalidateClass(source: File) = client.sourceStarted(source.getAbsolutePath)
+      def invalidateClass(source: File): Unit = client.sourceStarted(source.getAbsolutePath)
 
       changedClasses.flatMap(analysis.asInstanceOf[Analysis].relations.definesClass).foreach(invalidateClass)
     }

@@ -71,16 +71,16 @@ abstract class ExactBreakpointTestBase extends ScalaDebuggerTestCase {
 
 @Category(Array(classOf[DebuggerTests]))
 class ExactBreakpointTest_2_11 extends ExactBreakpointTest {
-  override protected def supportedIn(version: ScalaVersion) = version <= Scala_2_11
+  override protected def supportedIn(version: ScalaVersion) = version  <= LatestScalaVersions.Scala_2_11
 }
 @Category(Array(classOf[DebuggerTests]))
 class ExactBreakpointTest_2_12 extends ExactBreakpointTest {
-  override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_2_12
 }
 
 @Category(Array(classOf[DebuggerTests]))
 abstract class ExactBreakpointTest extends ExactBreakpointTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_11
 
   addSourceFile("OneLine.scala",
     """object OneLine {
@@ -330,7 +330,7 @@ abstract class ExactBreakpointTest extends ExactBreakpointTestBase {
 
 @Category(Array(classOf[DebuggerTests]))
 class ExactBreakpointTest_with_SAM_abstraction extends ExactBreakpointTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_12
 
   addSourceFile("SamAbstractClass.scala",
     """object SamAbstractClass  {

@@ -11,6 +11,7 @@ import com.intellij.problems.WolfTheProblemSolver
 import com.intellij.psi.{PsiDocumentManager, PsiFile, PsiWhiteSpace}
 import com.intellij.util.Alarm
 import com.intellij.util.containers.ContainerUtil
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction
@@ -28,7 +29,7 @@ object WorksheetAutoRunner extends WorksheetPerFileConfig {
 class WorksheetAutoRunner(project: Project) {
 
   private val listeners = ContainerUtil.createConcurrentWeakMap[Document, DocumentListener]()
-  private val myAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD, project)
+  private val myAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD, project.unloadAwareDisposable)
 
   private def getAutoRunDelay: Int = ScalaProjectSettings.getInstance(project).getAutoRunDelay
   
@@ -82,7 +83,7 @@ class WorksheetAutoRunner(project: Project) {
       if (isRepl && needToResetLastLine) {
         val manager = FileEditorManager.getInstance(project)
         WorksheetFileHook.handleEditor(manager, psiFile.getVirtualFile) { editor =>
-          WorksheetCache.getInstance(project).setLastProcessedIncremental(editor, None)
+          WorksheetCache.getInstance(project).resetLastProcessedIncremental(editor)
         }
       }
 

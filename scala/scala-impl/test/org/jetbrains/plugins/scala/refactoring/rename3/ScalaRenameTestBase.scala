@@ -50,7 +50,7 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
     filesBefore.foreach(VirtualFilePointerManager.getInstance().create(_, projectAdapter, null))
   }
 
-  protected def doTest(newName: String = "NameAfterRename") {
+  protected def doTest(newName: String = "NameAfterRename"): Unit = {
     val caretPositions = findCaretsAndRemoveMarkers(filesBefore)
     PsiDocumentManager.getInstance(projectAdapter).commitAllDocuments()
     myEditors = createEditors(filesBefore)
@@ -108,7 +108,7 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
     files.map(f => f -> createEditor(f)).toMap
   }
 
-  protected override def tearDown() {
+  protected override def tearDown(): Unit = {
     super.tearDown()
     myEditors = null
     myDirectory = null

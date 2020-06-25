@@ -5,7 +5,7 @@ import scala.meta._
 
 class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
 
-  def testTraitEmpty() {
+  def testTraitEmpty(): Unit = {
     doTest(
       "trait A",
       Defn.Trait(Nil, Type.Name("A"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
@@ -13,7 +13,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testTraitEmptyNone() {
+  def testTraitEmptyNone(): Unit = {
     doTest(
       "trait T {}",
       Defn.Trait(Nil, Type.Name("T"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
@@ -21,7 +21,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testTraitTyped() {
+  def testTraitTyped(): Unit = {
     doTest(
       "trait T[A]",
       Defn.Trait(Nil, Type.Name("T"), List(Type.Param(Nil, Type.Name("A"), Nil, Type.Bounds(None, None), Nil, Nil)),
@@ -29,7 +29,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testTraitExtends() {
+  def testTraitExtends(): Unit = {
     doTest(
     """
       |trait B
@@ -41,7 +41,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testTraitExtendsEarly() {
+  def testTraitExtendsEarly(): Unit = {
     doTest(
       """
         |trait B
@@ -54,7 +54,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testTraitSelf() {
+  def testTraitSelf(): Unit = {
     doTest(
       """
         |trait B
@@ -66,7 +66,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testTraitTemplateBody() {
+  def testTraitTemplateBody(): Unit = {
     doTest(
       "trait T { def x: Int }",
       Defn.Trait(Nil, Type.Name("T"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
@@ -75,7 +75,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testTraitTemplateExprs() {
+  def testTraitTemplateExprs(): Unit = {
     doTest(
       "trait T { def f = 1 ; f()}",
       Defn.Trait(Nil, Type.Name("T"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
@@ -84,7 +84,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testClassEmpty() {
+  def testClassEmpty(): Unit = {
     doTest(
       "class C",
       Defn.Class(Nil, Type.Name("C"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
@@ -92,7 +92,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testClassParametrized() {
+  def testClassParametrized(): Unit = {
     doTest(
       "class C[T]",
       Defn.Class(Nil, Type.Name("C"), List(Type.Param(Nil, Type.Name("T"), Nil, Type.Bounds(None, None), Nil, Nil)),
@@ -100,7 +100,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testClassExtends() {
+  def testClassExtends(): Unit = {
     doTest(
       """
         |class B
@@ -112,7 +112,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testNestedClass() {
+  def testNestedClass(): Unit = {
     doTest(
       "class A { class B { class C }}}",
       Defn.Class(Nil, Type.Name("A"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
@@ -124,7 +124,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testClassMixedChildren() {
+  def testClassMixedChildren(): Unit = {
     doTest(
       // FIXME: member/expr order preser vation not working for now, exprs will always go after members
       "class A {val a = 42; class B; def f = 42; type T; trait Foo; 42; f(a)}",
@@ -142,7 +142,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
   }
 
 
-  def testClassEarlyDefn() {
+  def testClassEarlyDefn(): Unit = {
     doTest(
       """
         |class B
@@ -156,7 +156,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testClassSelf() {
+  def testClassSelf(): Unit = {
     doTest(
       """
         |class B
@@ -176,7 +176,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
 //    )
 //  }
 
-  def testClassTemplate() {
+  def testClassTemplate(): Unit = {
     doTest(
       "class C { def x: Int }",
        Defn.Class(Nil, Type.Name("C"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
@@ -185,7 +185,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testClassCtor() {
+  def testClassCtor(): Unit = {
     doTest(
       "class C(x: Int)",
        Defn.Class(Nil, Type.Name("C"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"),
@@ -194,7 +194,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testClassCtorPrivate() {
+  def testClassCtorPrivate(): Unit = {
     doTest(
       "class C private(x: Int)",
       Defn.Class(Nil, Type.Name("C"), Nil, Ctor.Primary(List(Mod.Private(Name.Anonymous())),
@@ -203,7 +203,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testClassValParam() {
+  def testClassValParam(): Unit = {
     doTest(
       "class C(val x: Int)",
       Defn.Class(Nil, Type.Name("C"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"),
@@ -212,7 +212,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testClassVarParam() {
+  def testClassVarParam(): Unit = {
     doTest(
       "class C(var x: Int)",
       Defn.Class(Nil, Type.Name("C"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"),
@@ -221,7 +221,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testClassImplicitParam() {
+  def testClassImplicitParam(): Unit = {
     doTest(
       "class C(implicit x: Int)",
       Defn.Class(Nil, Type.Name("C"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"),
@@ -230,7 +230,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testClassParamOverride() {
+  def testClassParamOverride(): Unit = {
     doTest(
       "class C(override val x: Int)",
       Defn.Class(Nil, Type.Name("C"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"),
@@ -239,7 +239,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testObjectSimple() {
+  def testObjectSimple(): Unit = {
     doTest(
       "object A",
       Defn.Object(Nil, Term.Name("A"),
@@ -247,7 +247,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testObjectExtends() {
+  def testObjectExtends(): Unit = {
     doTest(
       """
         |trait B
@@ -259,7 +259,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testObjectEarlyDefns() {
+  def testObjectEarlyDefns(): Unit = {
     doTest(
       """
         |trait B
@@ -272,7 +272,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testObjectSelfType() {
+  def testObjectSelfType(): Unit = {
     doTest(
       """
         |trait B

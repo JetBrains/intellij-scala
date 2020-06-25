@@ -10,19 +10,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTypedExpression
 class TypedStatementAnnotatorTest extends SimpleTestCase {
   private final val Header = "class A; class B; object A extends A; object B extends B\n"
 
-  def testFine() {
+  def testFine(): Unit = {
     assertMatches(messages("A: A")) {
       case Nil =>
     }
   }
 
-  def testTypeMismatch() {
+  def testTypeMismatch(): Unit = {
     assertMatches(messages("B: A")) {
       case Error("A", UpcastingError()) :: Nil =>
     }
   }
 
-  def testTypeMismatchMessage() {
+  def testTypeMismatchMessage(): Unit = {
     assertMatches(messages("B: A")) {
       case Error(_, "Cannot upcast B.type to A") :: Nil =>
     }

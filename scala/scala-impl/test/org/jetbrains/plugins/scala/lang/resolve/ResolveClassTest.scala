@@ -12,27 +12,27 @@ class ResolveClassTest extends ScalaResolveTestCase {
   override def folderPath = super.folderPath + "resolve/class/companion/"
 
   def testCaseClass(): Unit = {
-    val ref = findReferenceAtCaret
+    val ref = findReferenceAtCaret()
     val resolved = ref.resolve
     assertNotNull(resolved)
     assertTrue(resolved.isInstanceOf[ScObject])
   }
 
   def testApplyToCase(): Unit = {
-    val ref = findReferenceAtCaret
+    val ref = findReferenceAtCaret()
     val resolved = ref.resolve
     assertNotNull(resolved)
   }
 
   def testApplyToObjectApply(): Unit = {
-    val ref = findReferenceAtCaret
+    val ref = findReferenceAtCaret()
     val resolved = ref.resolve
     assertNotNull(resolved)
     assertTrue(resolved.isInstanceOf[ScFunction])
   }
 
   def testApplyFromTrait(): Unit = {
-    val ref = findReferenceAtCaret
+    val ref = findReferenceAtCaret()
     val resolved = ref.resolve
     assertTrue(resolved match {
       case f: ScFunction if !f.isSynthetic => true

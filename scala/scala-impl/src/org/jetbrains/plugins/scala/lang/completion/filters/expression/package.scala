@@ -5,12 +5,15 @@ import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.getLeafByOffset
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
+import scala.annotation.tailrec
+
 /**
   * Nikolay.Tropin
   * 26-Jan-18
   */
 package object expression {
 
+  @tailrec
   def getPrevNotWhitespaceAndComment(index: Int, context: PsiElement): Int = {
     if (index < 0) return 0
     val file = context.getContainingFile
@@ -26,6 +29,7 @@ package object expression {
     }
   }
 
+  @tailrec
   def getNextNotWhitespaceAndComment(index: Int, context: PsiElement): Int = {
     val file = context.getContainingFile
     if (index >= file.getTextLength - 1) return file.getTextLength - 2

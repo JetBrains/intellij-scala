@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.annotator.Tree.{Leaf, Node}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt, SeqExt}
+import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, SeqExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, ScTypePresentation, TupleType, Variance}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScExistentialArgument, ScExistentialType, ScLiteralType, ScParameterizedType, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScExistentialArgument, ScExistentialType, ScParameterizedType, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
@@ -42,7 +42,7 @@ object TypeDiff {
   def forBoth(expected: ScType, actual: ScType)(implicit context: TypePresentationContext): (Tree[TypeDiff], Tree[TypeDiff]) =
     (forExpected(expected, actual), forActual(expected, actual))
 
-  def lengthOf(nodeLength: Int)(diff: Tree[TypeDiff]) = diff match {
+  def lengthOf(nodeLength: Int)(diff: Tree[TypeDiff]): Int = diff match {
     case Node(_ @_*) => nodeLength
     case Leaf(element) => element.text.length
   }

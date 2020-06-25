@@ -30,7 +30,7 @@ trait ScValueOrVariable extends ScBlockStatement
 
   def isAbstract: Boolean
 
-  def declaredElements: Seq[ScTypedDefinition]
+  override def declaredElements: Seq[ScTypedDefinition]
 
   def typeElement: Option[ScTypeElement]
 

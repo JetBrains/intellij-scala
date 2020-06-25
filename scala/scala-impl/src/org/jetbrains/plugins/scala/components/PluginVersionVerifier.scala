@@ -3,15 +3,15 @@ package components
 
 import java.io.File
 
-import com.intellij.ide.ApplicationInitializedListener
 import com.intellij.ide.plugins._
 import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.notification._
 import com.intellij.openapi.application.{Application, ApplicationManager}
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.extensions.{ExtensionPointName, PluginId}
+import com.intellij.openapi.extensions.PluginId
 import com.intellij.util.PathUtil
 import javax.swing.event.HyperlinkEvent
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.invokeLater
 
 /**
@@ -24,10 +24,11 @@ abstract class ScalaPluginVersionVerifier {
   def getUntilVersion: String
 }
 
-object ScalaPluginVersionVerifier {
+object ScalaPluginVersionVerifier
+  extends ExtensionPointDeclaration[ScalaPluginVersionVerifier]("org.intellij.scala.scalaPluginVersionVerifier") {
 
   class Version(private val major: Int, private val minor: Int, private val build: Int) extends Ordered[Version] with Serializable {
-    def compare(that: Version): Int = implicitly[Ordering[(Int, Int, Int)]]
+    override def compare(that: Version): Int = implicitly[Ordering[(Int, Int, Int)]]
       .compare((major, minor, build), (that.major, that.minor, that.build))
 
     val presentation: String = if (major == Int.MaxValue) "SNAPSHOT" else s"$major.$minor.$build"
@@ -41,6 +42,7 @@ object ScalaPluginVersionVerifier {
 
   object Version {
     object Snapshot extends Version(Int.MaxValue, Int.MaxValue, Int.MaxValue)
+    object Zero extends Version(0,0,0)
     def parse(version: String): Option[Version] = {
       val VersionRegex = "(\\d+)[.](\\d+)[.](\\d+)".r
       version match {
@@ -50,8 +52,6 @@ object ScalaPluginVersionVerifier {
       }
     }
   }
-
-  val EP_NAME: ExtensionPointName[ScalaPluginVersionVerifier] = ExtensionPointName.create("org.intellij.scala.scalaPluginVersionVerifier")
 
   lazy val getPluginVersion: Option[Version] = {
     getClass.getClassLoader match {
@@ -74,8 +74,8 @@ object ScalaPluginVersionVerifier {
   private[components] val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier")
 }
 
-class ScalaPluginVersionVerifierListener extends ApplicationInitializedListener {
-  override def componentsInitialized(): Unit = {
+class ScalaPluginVersionVerifierActivity extends RunOnceStartupActivity {
+  override def doRunActivity(): Unit = {
     invokeLater {
       ScalaPluginUpdater.upgradeRepo()
       checkVersion()
@@ -85,16 +85,18 @@ class ScalaPluginVersionVerifierListener extends ApplicationInitializedListener 
     }
   }
 
-  private def checkVersion() {
+  override protected def doCleanup(): Unit = {}
+
+  private def checkVersion(): Unit = {
     import ScalaPluginVersionVerifier._
 
     ScalaPluginVersionVerifier.getPluginVersion match {
       case Some(version) =>
-        val extensions = ScalaPluginVersionVerifier.EP_NAME.getExtensions
+        val extensions = ScalaPluginVersionVerifier.implementations
 
         for (extension <- extensions) {
           var failed = false
-          def wrongVersion() {
+          def wrongVersion(): Unit = {
             failed = true
             extension.getClass.getClassLoader match {
               case pluginLoader: PluginClassLoader =>
@@ -131,10 +133,10 @@ class ScalaPluginVersionVerifierListener extends ApplicationInitializedListener 
         }
       case None          =>
     }
-    ScalaPluginUpdater.askUpdatePluginBranch()
+    ScalaPluginUpdater.askUpdatePluginBranchIfNeeded()
   }
 
-  private def showIncompatiblePluginNotification(plugin: IdeaPluginDescriptor, message: String)(callback: String => Unit): Unit = {
+  private def showIncompatiblePluginNotification(plugin: IdeaPluginDescriptor, @Nls message: String)(callback: String => Unit): Unit = {
     if (ApplicationManager.getApplication.isUnitTestMode) {
       ScalaPluginVersionVerifier.LOG.error(message)
     } else {
@@ -144,12 +146,10 @@ class ScalaPluginVersionVerifierListener extends ApplicationInitializedListener 
         app.getMessageBus.syncPublisher(Notifications.TOPIC).register(Scala_Group, NotificationDisplayType.STICKY_BALLOON)
       }
       NotificationGroup.balloonGroup(Scala_Group)
-      val notification = new Notification(Scala_Group, "Incompatible plugin detected", message, NotificationType.ERROR, new NotificationListener {
-        def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent) {
-          notification.expire()
-          val description = event.getDescription
-          callback(description)
-        }
+      val notification = new Notification(Scala_Group, ScalaBundle.message("incompatible.plugin.detected"), message, NotificationType.ERROR, (notification: Notification, event: HyperlinkEvent) => {
+        notification.expire()
+        val description = event.getDescription
+        callback(description)
       })
 
       Notifications.Bus.notify(notification)

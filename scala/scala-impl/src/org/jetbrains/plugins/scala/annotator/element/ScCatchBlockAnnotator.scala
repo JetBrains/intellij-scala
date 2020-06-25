@@ -30,7 +30,7 @@ object ScCatchBlockAnnotator extends ElementAnnotator[ScCatchBlock] {
         val throwable = ScalaPsiManager.instance(expr.getProject).getCachedClass(expr.resolveScope, "java.lang.Throwable").orNull
         if (throwable == null) return
         val throwableType = ScDesignatorType(throwable)
-        def checkMember(memberName: String, checkReturnTypeIsBoolean: Boolean) {
+        def checkMember(memberName: String, checkReturnTypeIsBoolean: Boolean): Unit = {
           val processor = new MethodResolveProcessor(expr, memberName, List(Seq(Compatibility.Expression(throwableType))),
             Seq.empty, Seq.empty)
           processor.processType(tp, expr)

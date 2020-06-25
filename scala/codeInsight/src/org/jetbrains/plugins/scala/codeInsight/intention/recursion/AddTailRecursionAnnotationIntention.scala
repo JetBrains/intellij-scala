@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.FunctionAnnotator
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 
 /**
@@ -31,7 +32,7 @@ final class AddTailRecursionAnnotationIntention extends PsiElementBaseIntentionA
 
   override def getText: String = ScalaCodeInsightBundle.message("no.tailrec.annotation.fix")
 
-  override def getFamilyName = "Recursion"
+  override def getFamilyName = ScalaCodeInsightBundle.message("family.name.recursion")
 }
 
 object AddTailRecursionAnnotationIntention {

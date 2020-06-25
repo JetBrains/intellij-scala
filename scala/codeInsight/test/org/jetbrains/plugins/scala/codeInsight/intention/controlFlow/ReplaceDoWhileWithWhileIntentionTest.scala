@@ -9,7 +9,7 @@ package controlFlow
   */
 final class ReplaceDoWhileWithWhileIntentionTest extends intentions.ScalaIntentionTestBase {
 
-  override def familyName = ReplaceDoWhileWithWhileIntention.FamilyName
+  override def familyName = ScalaCodeInsightBundle.message("family.name.replace.do.while.with.while")
 
   def testReplaceDoWhile1(): Unit = {
     val text =

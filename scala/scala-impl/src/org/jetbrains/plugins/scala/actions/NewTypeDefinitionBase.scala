@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.actions
 
 import java.util.Properties
-import javax.swing.Icon
 
+import javax.swing.Icon
 import com.intellij.ide.IdeView
 import com.intellij.ide.actions.CreateTemplateInPackageAction
 import com.intellij.ide.fileTemplates.{FileTemplateManager, JavaTemplateUtil}
@@ -13,6 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
+import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
@@ -20,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
  * User: Dmitry.Naydanov
  * Date: 27.03.15.
  */
-abstract class NewTypeDefinitionBase[T <: ScTemplateDefinition](txt: String, description: String, icon: Icon)
+abstract class NewTypeDefinitionBase[T <: ScTemplateDefinition](@Nls txt: String, @Nls description: String, icon: Icon)
   extends CreateTemplateInPackageAction[T](txt, description, icon, JavaModuleSourceRootTypes.SOURCES) {
   override def checkPackageExists(psiDirectory: PsiDirectory): Boolean = JavaDirectoryService.getInstance.getPackage(psiDirectory) != null
 

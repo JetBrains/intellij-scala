@@ -35,25 +35,25 @@ abstract class Specs2GoToSourceTest extends Specs2TestCase {
 
   def testGoToSuccessfulLocation(): Unit = {
     runGoToSourceTest(4, 8, testName + ".scala",
-      checkConfigAndSettings(_, testName, "run fine"),
+      assertConfigAndSettings(_, testName, "run fine"),
       List("[root]", testName, "Successful test should", "run fine"), 4)
   }
 
   def testGoToPendingLocation(): Unit = {
     runGoToSourceTest(9, 8, testName + ".scala",
-      checkConfigAndSettings(_, testName, "be pending"),
+      assertConfigAndSettings(_, testName, "be pending"),
       List("[root]", testName, "Pending test should", "be pending"), 9)
   }
 
   def testGoToIgnoredLocation(): Unit = {
     runGoToSourceTest(14, 8, testName + ".scala",
-      checkConfigAndSettings(_, testName, "be ignored"),
+      assertConfigAndSettings(_, testName, "be ignored"),
       List("[root]", testName, "Ignored test should", "be ignored"), 14)
   }
 
   def testGoToFailedLocation(): Unit = {
     runGoToSourceTest(19, 8, testName + ".scala",
-      checkConfigAndSettings(_, testName, "fail"),
+      assertConfigAndSettings(_, testName, "fail"),
       List("[root]", testName, "Failed test should", "fail"), 19)
   }
 }

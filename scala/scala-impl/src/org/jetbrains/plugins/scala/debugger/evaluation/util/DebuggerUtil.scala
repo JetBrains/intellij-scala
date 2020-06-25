@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.util
 
 import com.intellij.debugger.engine.{DebugProcess, DebugProcessImpl, JVMName, JVMNameUtil}
-import com.intellij.debugger.{DebuggerBundle, NoDataException, SourcePosition}
+import com.intellij.debugger.{JavaDebuggerBundle, NoDataException, SourcePosition}
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
@@ -46,21 +46,21 @@ object DebuggerUtil {
   val packageSuffix = ".package$"
 
   class JVMNameBuffer {
-    def append(evaluator: JVMName) {
+    def append(evaluator: JVMName): Unit = {
       buffer += evaluator
     }
 
-    def append(name: Char) {
+    def append(name: Char): Unit = {
       append(Character.toString(name))
     }
 
-    def append(text: String) {
+    def append(text: String): Unit = {
       buffer += JVMNameUtil.getJVMRawText(text)
     }
 
     def toName: JVMName = {
       new JVMName {
-        def getName(process: DebugProcessImpl): String = {
+        override def getName(process: DebugProcessImpl): String = {
           if (myName == null) {
             var name: String = ""
             for (nameEvaluator <- buffer) {
@@ -71,7 +71,7 @@ object DebuggerUtil {
           myName
         }
 
-        def getDisplayName(debugProcess: DebugProcessImpl): String = {
+        override def getDisplayName(debugProcess: DebugProcessImpl): String = {
           if (myDisplayName == null) {
             var displayName: String = ""
             for (nameEvaluator <- buffer) {
@@ -240,17 +240,17 @@ object DebuggerUtil {
     }
 
   class JVMClassAt(sourcePosition: SourcePosition) extends JVMName {
-    def getName(process: DebugProcessImpl): String = {
+    override def getName(process: DebugProcessImpl): String = {
       jvmClassAtPosition(sourcePosition, process) match {
         case Some(refType) => refType.name
         case _ =>
-          throw EvaluationException(DebuggerBundle.message("error.class.not.loaded", getDisplayName(process)))
+          throw EvaluationException(JavaDebuggerBundle.message("error.class.not.loaded", getDisplayName(process)))
       }
     }
 
-    def getDisplayName(debugProcess: DebugProcessImpl): String = {
+    override def getDisplayName(debugProcess: DebugProcessImpl): String = {
       ApplicationManager.getApplication.runReadAction(new Computable[String] {
-        def compute: String = {
+        override def compute: String = {
           JVMNameUtil.getSourcePositionClassDisplayName(debugProcess, sourcePosition)
         }
       })
@@ -258,13 +258,13 @@ object DebuggerUtil {
   }
 
   class JVMConstructorSignature(clazz: PsiClass) extends JVMName {
-    val position = SourcePosition.createFromElement(clazz)
+    val position: SourcePosition = SourcePosition.createFromElement(clazz)
 
     override def getName(process: DebugProcessImpl): String = {
       jvmClassAtPosition(position, process) match {
         case Some(refType) => refType.methodsByName("<init>").get(0).signature()
         case None =>
-          throw EvaluationException(DebuggerBundle.message("error.class.not.loaded", inReadAction(clazz.qualifiedName)))
+          throw EvaluationException(JavaDebuggerBundle.message("error.class.not.loaded", inReadAction(clazz.qualifiedName)))
       }
     }
 
@@ -414,7 +414,7 @@ object DebuggerUtil {
 
     val buf = ArrayBuffer.empty[ScTypedDefinition]
     block.accept(new ScalaRecursiveElementVisitor {
-      override def visitReference(ref: ScReference) {
+      override def visitReference(ref: ScReference): Unit = {
         if (ref.qualifier.isDefined || isArgName(ref)) {
           super.visitReference(ref)
           return
@@ -539,7 +539,10 @@ object DebuggerUtil {
     val transformed = if (endsWithPackageSuffix) withDots + packageSuffix else withDots
 
     val isScalaObject = originalQName.endsWith("$")
-    val predicate: PsiClass => Boolean = c => isScalaObject && c.isInstanceOf[ScObject]
+    val predicate: PsiClass => Boolean = {
+      case _: ScObject => isScalaObject
+      case _           => !isScalaObject
+    }
 
     val classes = findClassesByQName(transformed, elementScope, fallbackToProjectScope = true)
 

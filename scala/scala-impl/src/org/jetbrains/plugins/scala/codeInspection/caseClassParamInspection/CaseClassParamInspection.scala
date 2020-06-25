@@ -6,13 +6,14 @@ import com.intellij.codeInspection._
 import com.intellij.codeInspection.ex.ProblemDescriptorImpl
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.util.EnumSet._
 
 
-class CaseClassParamInspection extends AbstractInspection("Case Class Parameter") {
+class CaseClassParamInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.case.class.parameter")) {
 
   override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case c: ScClass if c.isCase =>

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 class ImplicitPriorityTest extends ScalaResolveTestCase {
   override def folderPath(): String = super.folderPath + "resolve/implicitPriority/"
 
-  def testlowPriorityImplicits() {
+  def testlowPriorityImplicits(): Unit = {
     findReferenceAtCaret() match {
       case r: ScReference =>
         val results = r.multiResolveScala(false)
@@ -20,7 +20,7 @@ class ImplicitPriorityTest extends ScalaResolveTestCase {
     }
   }
 
-  def testlowPriorityImplicits2() {
+  def testlowPriorityImplicits2(): Unit = {
     findReferenceAtCaret() match {
       case r: ScReference =>
         val results = r.multiResolveScala(false)
@@ -29,7 +29,7 @@ class ImplicitPriorityTest extends ScalaResolveTestCase {
     }
   }
 
-  def testmostSpecificImplicit() {
+  def testmostSpecificImplicit(): Unit = {
     findReferenceAtCaret() match {
       case r: ScReference =>
         val results = r.multiResolveScala(false)

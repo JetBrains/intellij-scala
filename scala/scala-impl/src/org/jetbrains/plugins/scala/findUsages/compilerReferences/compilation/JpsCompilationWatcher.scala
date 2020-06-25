@@ -8,10 +8,11 @@ import com.intellij.compiler.server.{BuildManagerListener, CustomBuilderMessageH
 import com.intellij.openapi.compiler.{CompilationStatusListener, CompileContext, CompilerTopics}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import org.jetbrains.plugin.scala.compilerReferences.{Builder, Messages}
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.compilerReferences.{Builder, Messages}
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService.CompilerIndicesState
 import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
-import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
 
 private[compilerReferences] class JpsCompilationWatcher(
   override val project:          Project,
@@ -40,7 +41,7 @@ private[compilerReferences] class JpsCompilationWatcher(
 
         buildData.fold(
           error => {
-            publisher.onError(s"Malformed messageText from builder: $messageText", Option(error))
+            publisher.onError(ScalaBundle.message("malformed.message.from.builder", messageText), Option(error))
           },
           publisher.processCompilationInfo(_, offline = false)
         )
@@ -53,7 +54,7 @@ private[compilerReferences] class JpsCompilationWatcher(
     }
 
   override def start(): Unit = {
-    val connection = project.getMessageBus.connect(project)
+    val connection = project.getMessageBus.connect(project.unloadAwareDisposable)
 
     connection.subscribe(
       CustomBuilderMessageHandler.TOPIC,
@@ -82,8 +83,9 @@ private[compilerReferences] class JpsCompilationWatcher(
 
         // noinspection ScalaDeprecation
         // this key is declared private in CompileDriver
-        val key         = Key.findKeyByName("COMPILE_SERVER_BUILD_STATUS")
-        val wasUpToDate = compileContext.getUserData(key) == ExitStatus.UP_TO_DATE
+        val key         = Option(Key.findKeyByName("COMPILE_SERVER_BUILD_STATUS"))
+        val status      = key.flatMap(k => Option(compileContext.getUserData(k)))
+        val wasUpToDate = status.contains(ExitStatus.UP_TO_DATE)
 
         val modules =
           Option(compileContext.getCompileScope)

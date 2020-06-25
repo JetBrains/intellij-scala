@@ -7,11 +7,15 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi.{PsiElement, PsiManager}
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints.AnnotatorHintsKey
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 
 // Annotator hints, SCL-15593
 case class AnnotatorHints(hints: Seq[Hint], modificationCount: Long) {
   def putTo(element: PsiElement): Unit = {
-    element.putUserData(AnnotatorHintsKey, this)
+    val showCompilerErrors =
+      Option(element.getContainingFile).exists(ScalaHighlightingMode.isShowErrorsFromCompilerEnabled)
+    if (!showCompilerErrors)
+      element.putUserData(AnnotatorHintsKey, this)
   }
 }
 

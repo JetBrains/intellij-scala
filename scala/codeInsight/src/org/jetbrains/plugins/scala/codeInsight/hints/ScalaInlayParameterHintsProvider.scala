@@ -7,6 +7,7 @@ import java.{util => ju}
 import com.intellij.codeInsight.hints
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi.{PsiElement, PsiMethod}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScLiteral}
@@ -41,39 +42,43 @@ final class ScalaInlayParameterHintsProvider extends hints.InlayParameterHintsPr
     }
   }
 
-  override final def getHintInfo(element: PsiElement): hints.HintInfo = element match {
+  override def getHintInfo(element: PsiElement): hints.HintInfo = element match {
     case ResolveMethodCall(methodInfo(info)) => info
     case ResolveConstructorCall(methodInfo(info)) => info
     case _ => null
   }
 
-  override final def getInlayPresentation(inlayText: String): String = inlayText
+  override def getInlayPresentation(inlayText: String): String = inlayText
 
-  override def getMainCheckboxText: String = "Show parameter hints"
+  override def getMainCheckboxText: String = ScalaCodeInsightBundle.message("inlay.hints.show.parameter.hints")
 
-  override final def getSupportedOptions: ju.List[hints.Option] = ju.Arrays.asList(
+  override def getSupportedOptions: ju.List[hints.Option] = ju.Arrays.asList(
     applyUpdateParameterNames,
     referenceParameterNames
   )
 
-  override final def getDefaultBlackList: ju.Set[String] = ju.Collections.singleton("scala.*")
+  override def getDefaultBlackList: ju.Set[String] = ju.Collections.singleton("scala.*")
 
-  override final def getBlackListDependencyLanguage: JavaLanguage = JavaLanguage.INSTANCE
+  override def getBlackListDependencyLanguage: JavaLanguage = JavaLanguage.INSTANCE
 }
 
 object ScalaInlayParameterHintsProvider {
 
   import CommonNames.{Apply, Update}
 
-  private[hints] val applyUpdateParameterNames = HintOption(s"<code>$Apply</code> and <code>$Update</code> methods", Apply, Update)
-  private[hints] val referenceParameterNames = HintOption(s"non-literal expressions", "references", "names")
+  private[hints] val applyUpdateParameterNames = HintOption(
+    "scala.apply.update.hint",
+    ScalaCodeInsightBundle.message("inlay.hints.even.for.code.apply.code.and.code.update.code.methods", Apply, Update)
+  )
+  private[hints] val referenceParameterNames = HintOption(
+    "scala.references.names.hint",
+    ScalaCodeInsightBundle.message("inlay.hints.even.for.non.literal.expressions")
+  )
 
   private[this] object HintOption {
 
-    def apply(nameSuffix: String, idSegments: String*): hints.Option = {
-      val id = "scala" +: idSegments :+ "hint"
-      new hints.Option(id.mkString("."), s"<html><body>Even for $nameSuffix</body></html>", false)
-    }
+    def apply(id: String, @Nls nameBody: String): hints.Option =
+      new hints.Option(id, s"<html><body>$nameBody</body></html>", false)
   }
 
   private def parameterHints(matchedParameters: Seq[(ScExpression, Parameter)]) = {

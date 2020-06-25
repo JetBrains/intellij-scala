@@ -9,11 +9,11 @@ import com.intellij.build.events.MessageEvent
 import com.intellij.build.events.impl.{FailureResultImpl, SkippedResultImpl, SuccessResultImpl}
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
-import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.project.Project
 import com.intellij.pom.Navigatable
+import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
-import org.jetbrains.plugins.scala.build.{BuildMessages, BuildTaskReporter, ExternalSystemNotificationReporter}
+import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, ExternalSystemNotificationReporter}
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings
 import org.jetbrains.sbt.SbtUtil._
@@ -22,28 +22,26 @@ import org.jetbrains.sbt.project.structure.SbtStructureDump._
 import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.shell.SbtShellCommunication._
 import org.jetbrains.sbt.shell.event.SbtBuildEvent
-import org.jetbrains.sbt.using
+import org.jetbrains.sbt.{SbtBundle, using}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
-class SbtStructureDump {
+class SbtStructureDump extends Cancellable {
 
   private val cancellationFlag: AtomicBoolean = new AtomicBoolean(false)
 
   def cancel(): Unit = cancellationFlag.set(true)
 
-  def dumpFromShell(taskId: ExternalSystemTaskId,
-                    dir: File,
+  def dumpFromShell(project: Project,
                     structureFilePath: String,
                     options: Seq[String],
-                    notifications: ExternalSystemTaskNotificationListener,
+                    reporter: BuildReporter
                    ): Future[BuildMessages] = {
 
-    notifications.onStart(taskId, dir.getCanonicalPath)
+    reporter.start()
 
-    val project = taskId.findProject() // assume responsibility of caller not to call dumpFromShell with null project
     val shell = SbtShellCommunication.forProject(project)
 
     val optString = options.mkString(" ")
@@ -56,10 +54,9 @@ class SbtStructureDump {
       } else ""
 
     val cmd = s";reload; $setCmd ;*/*:dumpStructureTo $structureFilePath; session clear-all $ideaPortSetting"
-    val reporter = new ExternalSystemNotificationReporter(dir.getAbsolutePath, taskId, notifications)
-    val aggregator = shellMessageAggregator(taskId, EventId(s"dump:${UUID.randomUUID()}"), shell, reporter)
+    val aggregator = shellMessageAggregator(EventId(s"dump:${UUID.randomUUID()}"), shell, reporter)
 
-    shell.command(cmd, BuildMessages.empty, aggregator, showShell = false)
+    shell.command(cmd, BuildMessages.empty, aggregator)
   }
 
   def dumpFromProcess(directory: File,
@@ -70,8 +67,7 @@ class SbtStructureDump {
                       environment: Map[String, String],
                       sbtLauncher: File,
                       sbtStructureJar: File,
-                      taskId: ExternalSystemTaskId,
-                      notifications: ExternalSystemTaskNotificationListener
+                      reporter: BuildReporter
                      ): Try[BuildMessages] = {
 
     val optString = options.mkString(", ")
@@ -83,7 +79,7 @@ class SbtStructureDump {
       s"""SettingKey[_root_.java.lang.String]("sbtStructureOptions") in _root_.sbt.Global := "$optString""""
     ).mkString("set _root_.scala.collection.Seq(", ",", ")")
 
-    val sbtCommandArgs = ""
+    val sbtCommandArgs = List.empty
 
     val sbtCommands = Seq(
       setCommands,
@@ -91,12 +87,11 @@ class SbtStructureDump {
       s"*/*:dumpStructure"
     ).mkString(";", ";", "")
 
-    val reporter = new ExternalSystemNotificationReporter(directory.getAbsolutePath, taskId, notifications)
 
     runSbt(
       directory, vmExecutable, vmOptions, environment,
       sbtLauncher, sbtCommandArgs, sbtCommands, reporter,
-      "extracting project structure from sbt"
+      SbtBundle.message("sbt.extracting.project.structure.from.sbt")
     )
   }
 
@@ -106,10 +101,10 @@ class SbtStructureDump {
              vmOptions: Seq[String],
              environment: Map[String, String],
              sbtLauncher: File,
-             sbtCommandLineArgs: String,
-             sbtCommands: String,
-             reporter: BuildTaskReporter,
-             reportMessage: String,
+             sbtCommandLineArgs: List[String],
+             @NonNls sbtCommands: String,
+             reporter: BuildReporter,
+             @Nls reportMessage: String,
             ): Try[BuildMessages] = {
 
     val startTime = System.currentTimeMillis()
@@ -118,14 +113,14 @@ class SbtStructureDump {
     val jvmOptions = SbtOpts.loadFrom(directory) ++ JvmOpts.loadFrom(directory) ++ vmOptions
 
     val processCommandsRaw =
-      normalizePath(vmExecutable) +:
-        "-Djline.terminal=jline.UnsupportedTerminal" +:
-        "-Dsbt.log.noformat=true" +:
-        "-Dfile.encoding=UTF-8" +:
-        jvmOptions :+
-        "-jar" :+
-        normalizePath(sbtLauncher) :+
-        sbtCommandLineArgs
+      List(
+        normalizePath(vmExecutable),
+        "-Djline.terminal=jline.UnsupportedTerminal",
+        "-Dsbt.log.noformat=true",
+        "-Dfile.encoding=UTF-8") ++
+      jvmOptions ++
+      List("-jar", normalizePath(sbtLauncher)) ++
+      sbtCommandLineArgs
 
     val processCommands = processCommandsRaw.filterNot(_.isEmpty)
 
@@ -136,6 +131,9 @@ class SbtStructureDump {
       val processBuilder = new ProcessBuilder(processCommands.asJava)
       processBuilder.directory(directory)
       processBuilder.environment().putAll(environment.asJava)
+      val procString = processBuilder.command().asScala.mkString(" ")
+      reporter.log(procString)
+
       val process = processBuilder.start()
       val result = using(new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream, "UTF-8")))) { writer =>
         writer.println(sbtCommands)
@@ -172,32 +170,36 @@ class SbtStructureDump {
 
   private def handle(process: Process,
                      dumpTaskId: EventId,
-                     reporter: BuildTaskReporter
+                     reporter: BuildReporter
                     ): Try[BuildMessages] = {
 
     var messages = BuildMessages.empty
 
-    def update(textRaw: String): Unit = {
+   def update(typ: OutputType, textRaw: String): Unit = {
       val text = textRaw.trim
 
       if (text.nonEmpty) {
         messages = reportEvent(messages, reporter, text)
         reporter.progressTask(dumpTaskId, 1, -1, "", text)
-        reporter.log(text)
+        (typ, reporter) match {
+          case (OutputType.StdErr, reporter: ExternalSystemNotificationReporter) =>
+            reporter.logErr(text)
+          case _ => reporter.log(text)
+        }
       }
     }
 
     val processListener: (OutputType, String) => Unit = {
-      case (OutputType.StdOut, text) =>
+      case (typ@OutputType.StdOut, text) =>
         if (text.contains("(q)uit")) {
           val writer = new PrintWriter(process.getOutputStream)
           writer.println("q")
           writer.close()
         } else {
-          update(text)
+          update(typ, text)
         }
-      case (OutputType.StdErr, text) =>
-        update(text)
+      case (typ@OutputType.StdErr, text) =>
+        update(typ, text)
     }
 
     Try {
@@ -228,11 +230,11 @@ object SbtStructureDump {
   private val SBT_PROCESS_CHECK_TIMEOUT_MSEC = 100
 
   private def reportEvent(messages: BuildMessages,
-                          reporter: BuildTaskReporter,
+                          reporter: BuildReporter,
                           text: String): BuildMessages = {
 
     if (text.startsWith("[error] Total time")) {
-      val msg = "sbt task failed, see log for details"
+      val msg = SbtBundle.message("sbt.task.failed.see.log.for.details")
       reporter.error(msg, None)
       messages
         .addError(msg)
@@ -240,24 +242,23 @@ object SbtStructureDump {
     } else messages
   }
 
-  private def shellMessageAggregator(id: ExternalSystemTaskId,
-                                    dumpTaskId: EventId,
-                                    shell: SbtShellCommunication,
-                                    reporter: BuildTaskReporter,
+  private def shellMessageAggregator(dumpTaskId: EventId,
+                                     shell: SbtShellCommunication,
+                                     reporter: BuildReporter,
                                    ): EventAggregator[BuildMessages] = {
     case (messages, TaskStart) =>
-      reporter.startTask(dumpTaskId, None, "extracting project structure from sbt shell")
+      reporter.startTask(dumpTaskId, None, SbtBundle.message("sbt.extracting.project.structure.from.sbt.shell"))
       messages
 
     case (messages, TaskComplete) =>
-      reporter.finishTask(dumpTaskId, "project structure extracted", new SuccessResultImpl())
+      reporter.finishTask(dumpTaskId, SbtBundle.message("sbt.project.structure.extracted"), new SuccessResultImpl())
       val messagesUpdated =
         if (messages.status == BuildMessages.Indeterminate) messages.status(BuildMessages.OK)
         else messages
       messagesUpdated
 
     case (messages, ErrorWaitForInput) =>
-      val msg = "import errors, project reload aborted"
+      val msg = SbtBundle.message("sbt.import.errors.project.reload.aborted")
       val ex = new ExternalSystemException(msg)
 
       val result = new FailureResultImpl(msg, ex)
@@ -270,12 +271,21 @@ object SbtStructureDump {
     case (messages, Output(raw)) =>
       val text = raw.trim
 
-      reporter.progressTask(dumpTaskId, 1, -1, "events", text)
+      val newMessages =
+        if (text startsWith ERROR_PREFIX) {
+          messages.addError(text.stripPrefix(ERROR_PREFIX))
+        } else if (text startsWith WARN_PREFIX) {
+          messages.addWarning(text.stripPrefix(WARN_PREFIX))
+        } else messages
+
+      reporter.progressTask(dumpTaskId, 1, -1, SbtBundle.message("sbt.events"), text)
       reporter.log(text)
 
-      messages
+      newMessages
   }
 
+  private val WARN_PREFIX = "[warn]"
+  private val ERROR_PREFIX = "[error]"
 
   sealed trait ImportType
   case object ShellImport extends ImportType

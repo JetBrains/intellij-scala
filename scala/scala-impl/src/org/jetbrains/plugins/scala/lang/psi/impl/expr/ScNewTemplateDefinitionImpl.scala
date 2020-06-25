@@ -56,6 +56,11 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
   }
 
   protected override def innerType: TypeResult = {
+    // Reliably prevent cases like SCL-17168
+    if (extendsBlock.getTextLength == 0) {
+      return Failure("Empty new expression")
+    }
+
     desugaredApply match {
       case Some(expr) =>
         return expr.getNonValueType()
@@ -141,7 +146,7 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
     case _ => true
   }
 
-  def nameId: PsiElement = null
+  override def nameId: PsiElement = null
   override def setName(name: String): PsiElement = throw new IncorrectOperationException("cannot set name")
   override def name: String = "<anonymous>"
 
@@ -163,9 +168,9 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
 
   override def getImplementsListTypes: Array[PsiClassType] = innerExtendsListTypes
 
-  def getTypeWithProjections(thisProjections: Boolean = false): TypeResult = `type`() //no projections for new template definition
+  override def getTypeWithProjections(thisProjections: Boolean = false): TypeResult = `type`() //no projections for new template definition
 
-  override protected def acceptScala(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitNewTemplateDefinition(this)
   }
 

@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.codeInsight.PsiEquivalenceUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
@@ -12,7 +13,7 @@ class LastIndexToLastInspection extends OperationOnCollectionInspection {
 }
 
 object LastIndexToLast extends SimplificationType {
-  override def hint: String = InspectionBundle.message("replace.with.last")
+  override def hint: String = ScalaInspectionBundle.message("replace.with.last")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

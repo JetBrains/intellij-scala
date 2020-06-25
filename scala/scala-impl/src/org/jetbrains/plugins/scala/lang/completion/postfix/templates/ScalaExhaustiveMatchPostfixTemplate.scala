@@ -14,7 +14,12 @@ import org.jetbrains.plugins.scala.lang.completion.clauses.{ClauseCompletionPara
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr, ScMatch}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
-final class ScalaExhaustiveMatchPostfixTemplate(alias: String = ScalaExhaustiveMatchPostfixTemplate.alias) extends PostfixTemplate(
+/**
+ * @see [[ScalaMatchPostfixTemplate]]
+ */
+final class ScalaExhaustiveMatchPostfixTemplate(
+  alias: String = ScalaExhaustiveMatchPostfixTemplate.alias
+) extends PostfixTemplate(
   null,
   alias,
   s"${StringBasedPostfixTemplate.EXPR} ${ScalaExhaustiveMatchPostfixTemplate.alias} ${ScalaExhaustiveMatchPostfixTemplate.exhaustiveAlias}",
@@ -58,7 +63,7 @@ object ScalaExhaustiveMatchPostfixTemplate {
   private def expandForStrategy(expression: ScExpression,
                                 strategy: PatternGenerationStrategy)
                                (implicit project: Project, editor: Editor): Unit = {
-    val (components, clausesText) = strategy.createClauses()(expression)
+    val (components, clausesText) = strategy.createClauses()
     val file = expression.getContainingFile
     val expressionText = expression.getText
 

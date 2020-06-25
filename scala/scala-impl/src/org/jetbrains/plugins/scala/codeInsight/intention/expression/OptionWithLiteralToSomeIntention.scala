@@ -5,7 +5,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.collections.{`scalaOption`, literal}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -19,7 +19,7 @@ class OptionWithLiteralToSomeIntention extends PsiElementBaseIntentionAction  {
 
   override def getFamilyName: String = familyName
 
-  override def getText: String = InspectionBundle.message("replace.with.some")
+  override def getText: String = ScalaInspectionBundle.message("replace.with.some")
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = element match {
     case OptionLiteral(_, _) => true
@@ -36,7 +36,7 @@ class OptionWithLiteralToSomeIntention extends PsiElementBaseIntentionAction  {
 
 object OptionWithLiteralToSomeIntention {
 
-  val familyName: String = InspectionBundle.message("replace.option.with.some")
+  val familyName: String = ScalaInspectionBundle.message("replace.option.with.some")
 
   object OptionLiteral {
     def unapply(element: PsiElement): Option[(ScMethodCall, String)] =  {

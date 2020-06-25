@@ -1,6 +1,6 @@
 package org.jetbrains.jps.incremental.scala
 
-import java.util
+import _root_.java.{util => jutil}
 
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.jps.incremental._
@@ -18,13 +18,12 @@ class ScalaBuilderService extends BuilderService {
   })
 
   @NotNull
-  override def createModuleLevelBuilders: util.List[_ <: ModuleLevelBuilder] = {
-    util.Arrays.asList[ModuleLevelBuilder](
+  override def createModuleLevelBuilders: jutil.List[_ <: ModuleLevelBuilder] =
+    jutil.Arrays.asList[ModuleLevelBuilder](
       new InitialScalaBuilder,
       new IdeaIncrementalBuilder(BuilderCategory.SOURCE_PROCESSOR),
       new IdeaIncrementalBuilder(BuilderCategory.OVERWRITING_TRANSLATOR),
       new SbtBuilder,
       new ScalaCompilerReferenceIndexBuilder
     )
-  }
 }

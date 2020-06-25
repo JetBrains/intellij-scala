@@ -4,14 +4,8 @@ import scala.collection.mutable.ListBuffer
 import scala.util.control.NonFatal
 
 
-private trait Cancelable {
+private abstract class Cancelable {
   def cancel(): Unit
-}
-
-private class OpenCancelable extends Cancelable {
-  private val toCancel = ListBuffer.empty[Cancelable]
-  def add(cancelable: Cancelable): Unit = toCancel += cancelable
-  override def cancel(): Unit = Cancelable.cancelAll(toCancel)
 }
 
 private object Cancelable {

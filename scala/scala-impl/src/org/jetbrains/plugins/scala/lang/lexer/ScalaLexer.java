@@ -17,7 +17,6 @@ package org.jetbrains.plugins.scala.lang.lexer;
 
 import com.intellij.lexer.Lexer;
 import com.intellij.lexer.LexerPosition;
-import com.intellij.lexer.LexerState;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.xml.IXmlLeafElementType;
@@ -350,7 +349,7 @@ public final class ScalaLexer extends Lexer {
     return tpe != null && ScalaXmlTokenTypes.XML_ELEMENTS().contains(tpe);
   }
 
-  private static class MyState implements LexerState {
+  private static class MyState {
 
     public TIntStack braceStack;
     public Stack<Stack<MyOpenXmlTag>> tagStack;
@@ -365,10 +364,6 @@ public final class ScalaLexer extends Lexer {
       this.currentLexer = lexer;
       this.xmlState = xmlState;
       this.scalaState = scalaState;
-    }
-
-    public short intern() {
-      return 0;
     }
   }
 

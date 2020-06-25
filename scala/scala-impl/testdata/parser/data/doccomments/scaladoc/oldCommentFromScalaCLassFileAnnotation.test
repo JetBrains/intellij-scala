@@ -1,0 +1,62 @@
+/** <p>
+ *    A base class for classfile annotations. These are stored as
+ *    <a href="http://java.sun.com/j2se/1.5.0/docs/guide/language/annotations.html"
+ *    target="_top">Java annotations</a> in classfiles.
+ *  </p>
+ *
+ *  @author  Martin Odersky
+ *  @version 1.1, 2/02/2007
+ *  @since 2.4
+ */
+-----
+ScalaFile
+  DocComment
+    ScPsiDocToken(DOC_COMMENT_START)('/**')
+    ScDocParagraph
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('<p>')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)('    ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('A base class for classfile annotations. These are stored as')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)('    ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('<a href')
+      ScPsiDocToken(DOC_HEADER 256)('=')
+      ScPsiDocToken(DOC_COMMENT_DATA)('"http://java.sun.com/j2se/1.5.0/docs/guide/language/annotations.html"')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)('    ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('target')
+      ScPsiDocToken(DOC_HEADER 256)('=')
+      ScPsiDocToken(DOC_COMMENT_DATA)('"_top">Java annotations</a> in classfiles.')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('</p>')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_TAG_NAME)('@author')
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('Martin Odersky')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_TAG_NAME)('@version')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('1.1, 2/02/2007')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    DocTag
+      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      ScPsiDocToken(DOC_TAG_NAME)('@since')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('2.4')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_END)('*/')

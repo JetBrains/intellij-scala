@@ -76,7 +76,7 @@ class MemoryLeakTest extends PlatformTestCase {
 
     val module: Module = ModuleManager.getInstance(project).getModules()(0)
 
-    librariesLoaders.foreach(_.init(module, Scala_2_10))
+    librariesLoaders.foreach(_.init(module, LatestScalaVersions.Scala_2_10))
 
     project
   }

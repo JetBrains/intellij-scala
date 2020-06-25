@@ -1,13 +1,10 @@
 package org.jetbrains.plugins.scala.codeInspection.parameters
 
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
 
 // TODO constructors
 class RedundantDefaultArgumentInspectionTest extends ScalaQuickFixTestBase {
-
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[RedundantDefaultArgumentInspection]
 
@@ -17,7 +14,7 @@ class RedundantDefaultArgumentInspectionTest extends ScalaQuickFixTestBase {
 
   private def testFix(text: String, result: String): Unit = testQuickFix(text, result, hint)
 
-  def test_Simple() {
+  def test_Simple(): Unit = {
     val selectedText =
       s"""
          |def f(x: Int = 0) {}
@@ -39,7 +36,7 @@ class RedundantDefaultArgumentInspectionTest extends ScalaQuickFixTestBase {
     testFix(text, result)
   }
 
-  def test_SimpleNotDefault() {
+  def test_SimpleNotDefault(): Unit = {
     val text =
       """
         |def f(x: Int) {}
@@ -48,7 +45,7 @@ class RedundantDefaultArgumentInspectionTest extends ScalaQuickFixTestBase {
     checkTextHasNoErrors(text)
   }
 
-  def test_SimpleWrongValue() {
+  def test_SimpleWrongValue(): Unit = {
     val text =
       """
         |def f(x: Int = 0) {}
@@ -57,7 +54,7 @@ class RedundantDefaultArgumentInspectionTest extends ScalaQuickFixTestBase {
     checkTextHasNoErrors(text)
   }
 
-  def test_NamedArgument() {
+  def test_NamedArgument(): Unit = {
     val selectedText =
       s"""
          |def f(x: Int, y: Int = 0, z: Int) {}
@@ -79,7 +76,7 @@ class RedundantDefaultArgumentInspectionTest extends ScalaQuickFixTestBase {
     testFix(text, result)
   }
 
-  def test_NotLastArgument() {
+  def test_NotLastArgument(): Unit = {
     val text =
       """
         |def f(x: Int, y: Int = 0, z: Int) {]
@@ -97,7 +94,7 @@ class RedundantDefaultArgumentInspectionTest extends ScalaQuickFixTestBase {
     checkTextHasNoErrors(text)
   }
 
-  def test_LastArgument() {
+  def test_LastArgument(): Unit = {
     val selectedText =
       s"""
          |def f(x: Int, y: Int = 0) {}
@@ -119,7 +116,7 @@ class RedundantDefaultArgumentInspectionTest extends ScalaQuickFixTestBase {
     testFix(text, result)
   }
 
-  def test_LastArgumentBeforeNamed() {
+  def test_LastArgumentBeforeNamed(): Unit = {
     val selectedText =
       s"""
          |def f(x: Int, y: Int = 0, z: Int, t: Int) {}
@@ -141,7 +138,7 @@ class RedundantDefaultArgumentInspectionTest extends ScalaQuickFixTestBase {
     testFix(text, result)
   }
 
-  def test_FunctionDeclaration() {
+  def test_FunctionDeclaration(): Unit = {
     val selectedText =
       s"""
          |def f(x: Int = 0)

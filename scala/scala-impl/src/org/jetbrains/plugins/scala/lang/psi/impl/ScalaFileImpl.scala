@@ -9,6 +9,7 @@ import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.LanguageFileType
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
@@ -19,6 +20,7 @@ import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiUtilCore
 import com.intellij.util.indexing.FileBasedIndex
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.finder.{ResolveFilterScope, WorksheetResolveFilterScope}
 import org.jetbrains.plugins.scala.lang.TokenSets._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
@@ -55,10 +57,10 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
 
   override def toString: String = "ScalaFile: " + getName
 
-  protected final def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
+  override protected final def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
     findChildrenByClass[T](clazz)
 
-  protected final def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T =
+  override protected final def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T =
     findChildByClass[T](clazz)
 
   override final def getName: String = super.getName
@@ -112,7 +114,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   override def isWorksheetFile: Boolean =
     ScFile.VirtualFile.unapply(this).exists(worksheet.WorksheetFileType.isWorksheetFile(_)(getProject))
 
-  def setPackageName(inName: String): Unit = {
+  override def setPackageName(inName: String): Unit = {
     // TODO support multiple base packages simultaneously
     val basePackageName = {
       import JavaConverters._
@@ -136,7 +138,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     }
   }
 
-  def setPackageName(base: String, name: String) {
+  def setPackageName(base: String, name: String): Unit = {
     if (packageName == null) return
 
     val vector = toVector(name)
@@ -170,7 +172,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     }
   }
 
-  private def preservingClasses(block: => Unit) {
+  private def preservingClasses(block: => Unit): Unit = {
     val data = this.typeDefinitions
 
     block
@@ -179,7 +181,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
       codeStyle.CodeEditUtil.setNodeGenerated(oldClass.getNode, true)
       PostprocessReformattingAspect.getInstance(getProject).disablePostprocessFormattingInside {
         new Runnable {
-          def run() {
+          override def run(): Unit = {
             try {
               DebugUtil.startPsiModification(null)
               aClass.getNode.getTreeParent.replaceChild(aClass.getNode, oldClass.getNode)
@@ -193,7 +195,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     }
   }
 
-  private def stripPackagings(document: Document) {
+  private def stripPackagings(document: Document): Unit = {
     this.depthFirst().instanceOf[ScPackaging].foreach { p =>
       val startOffset = p.getTextOffset
       val endOffset = startOffset + p.getTextLength
@@ -217,11 +219,11 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
 
   override def firstPackaging: Option[ScPackaging] = packagings.headOption
 
-  protected def packagings = foldStub(findChildrenByClassScala(classOf[ScPackaging])) {
+  protected def packagings: Array[ScPackaging] = foldStub(findChildrenByClassScala(classOf[ScPackaging])) {
     _.getChildrenByType(PACKAGING, JavaArrayFactoryUtil.ScPackagingFactory)
   }
 
-  def getPackageName: String = packageName match {
+  override def getPackageName: String = packageName match {
     case null => ""
     case name => name
   }
@@ -268,7 +270,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
 
   override def controlFlowScope: Option[ScalaPsiElement] = Some(this)
 
-  def getClassNames: ju.Set[String] = {
+  override def getClassNames: ju.Set[String] = {
     import JavaConverters._
     typeDefinitions.toSet[ScTypeDefinition].flatMap { definition =>
       val classes = definition :: (definition match {
@@ -280,18 +282,30 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     }.asJava
   }
 
-  def packagingRanges: Seq[TextRange] =
+  override def packagingRanges: Seq[TextRange] =
     this.depthFirst().instancesOf[ScPackaging].flatMap(_.reference).map(_.getTextRange).toList
 
-  def getFileResolveScope: GlobalSearchScope = getOriginalFile.getVirtualFile match {
-    case file if file != null && file.isValid => defaultFileResolveScope(file)
-    case _ => GlobalSearchScope.allScope(getProject)
+  override def getFileResolveScope: GlobalSearchScope = {
+    implicit val project: Project = getProject
+    val file = getOriginalFile.getVirtualFile
+    if (file != null && file.isValid) {
+      val defaultResolveScope = defaultFileResolveScope(file)
+      if (isWorksheetFile)
+        WorksheetResolveFilterScope(defaultResolveScope, file)
+      else
+        ResolveFilterScope(defaultResolveScope)
+    }
+    else
+      GlobalSearchScope.allScope(project)
   }
+
+  override final def getUseScope: SearchScope =
+    ScalaUseScope(super[PsiFileBase].getUseScope, this)
 
   protected def defaultFileResolveScope(file: VirtualFile): GlobalSearchScope =
     ResolveScopeManager.getInstance(getProject).getDefaultResolveScope(file)
 
-  def ignoreReferencedElementAccessibility(): Boolean = true //todo: ?
+  override def ignoreReferencedElementAccessibility(): Boolean = true //todo: ?
 
   override def getPrevSibling: PsiElement = this.child match {
     case null => super.getPrevSibling
@@ -333,8 +347,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     ScalaPsiManager.AnyScalaPsiModificationTracker.incModificationCount()
     super.subtreeChanged()
   }
-
-  override final def getUseScope: SearchScope = super[PsiFileBase].getUseScope
 
   override val allowsForwardReferences: Boolean = false
 
@@ -378,7 +390,7 @@ object ScalaFileImpl {
 
   private def isDuringMoveRefactoring: Boolean = duringMoveRefactoring
 
-  def performMoveRefactoring(body: => Unit) {
+  def performMoveRefactoring(body: => Unit): Unit = {
     synchronized {
       try {
         duringMoveRefactoring = true

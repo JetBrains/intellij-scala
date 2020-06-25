@@ -5,9 +5,9 @@ class PatternParameterInfoCaseClassesTest extends PatternParameterInfoTestBase {
   override def getTestDataPath: String =
     s"${super.getTestDataPath}caseClasses/"
 
-  def testCaseClass() = doTest()
+  def testCaseClass(): Unit = doTest()
 
-  def testCaseClassB() = doTest()
+  def testCaseClassB(): Unit = doTest()
 
-  def testAliasedPattern() = doTest()
+  def testAliasedPattern(): Unit = doTest()
 }

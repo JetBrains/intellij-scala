@@ -1,5 +1,0 @@
-package scala.macros.macroannotations
-
-import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
-
-abstract class MacroAnnotationTestBase extends JavaCodeInsightFixtureTestCase

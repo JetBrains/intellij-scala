@@ -6,25 +6,21 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.typeChecking._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScIf, ScMatch}
 import org.jetbrains.plugins.scala.lang.refactoring.util.InplaceRenameHelper
 
-
-/**
- * Nikolay.Tropin
- * 5/16/13
- */
 final class ReplaceTypeCheckWithMatchIntention extends PsiElementBaseIntentionAction {
 
   import TypeCheckCanBeMatchInspection._
 
-  override def getFamilyName: String = ReplaceTypeCheckWithMatchIntention.FamilyName
+  override def getFamilyName: String = ScalaBundle.message("family.name.replace.type.check.with.pattern.matching")
 
   override def getText: String = getFamilyName
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     for {
       IsInstanceOfCall(iioCall) <- element.parentOfType(classOf[ScGenericCall], strict = false)
       ifStmt <- iioCall.parentOfType(classOf[ScIf])
@@ -38,7 +34,7 @@ final class ReplaceTypeCheckWithMatchIntention extends PsiElementBaseIntentionAc
     false
   }
 
-  def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     for {
       IsInstanceOfCall(iioCall) <- element.parentOfType(classOf[ScGenericCall], strict = false)
       ifStmt <- iioCall.parentOfType(classOf[ScIf])
@@ -58,8 +54,4 @@ final class ReplaceTypeCheckWithMatchIntention extends PsiElementBaseIntentionAc
       }
     }
   }
-}
-
-object ReplaceTypeCheckWithMatchIntention {
-  val FamilyName = "Replace type check with pattern matching"
 }

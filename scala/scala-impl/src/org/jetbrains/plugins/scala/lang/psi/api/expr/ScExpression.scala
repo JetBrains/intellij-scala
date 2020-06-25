@@ -72,7 +72,7 @@ trait ScExpression extends ScBlockStatement
   @volatile
   private var additionalExpression: Option[(ScExpression, ScType)] = None
 
-  def setAdditionalExpression(additionalExpression: Option[(ScExpression, ScType)]) {
+  def setAdditionalExpression(additionalExpression: Option[(ScExpression, ScType)]): Unit = {
     this.additionalExpression = additionalExpression
   }
 
@@ -202,9 +202,17 @@ object ScExpression {
               Parameter(tpe, isRepeated = false, index = index)
           }
           val methType =
-            ScMethodType(expr.getTypeAfterImplicitConversion(ignoreBaseTypes = ignoreBaseType,
-              fromUnderscore = true).tr.getOrAny,
-              params, isImplicit = false)
+            ScMethodType(
+              expr
+                .getTypeAfterImplicitConversion(
+                  ignoreBaseTypes = ignoreBaseType,
+                  fromUnderscore  = true
+                )
+                .tr
+                .getOrAny,
+              params,
+              isImplicit = false
+            )
           Right(methType)
         }
       }
@@ -228,8 +236,8 @@ object ScExpression {
 
             val valueType =
               widened
-                .updateWithExpected(expr, maybeSAMpt.orElse(expectedType), fromUnderscore)
                 .dropMethodTypeEmptyParams(expr, expectedType)
+                .updateWithExpected(expr, maybeSAMpt.orElse(expectedType), fromUnderscore)
                 .inferValueType
                 .unpackedType
                 .synthesizePartialFunctionType(expr, expectedType)
@@ -287,10 +295,10 @@ object ScExpression {
       import stdTypes._
 
       expected.removeAbstracts match {
-        case Char if isChar(intLiteralValue) => success(Char)
-        case Byte if isByte(intLiteralValue) => success(Byte)
+        case Char if isChar(intLiteralValue)   => success(Char)
+        case Byte if isByte(intLiteralValue)   => success(Byte)
         case Short if isShort(intLiteralValue) => success(Short)
-        case _ => None
+        case _                                 => None
       }
     }
 
@@ -315,19 +323,20 @@ object ScExpression {
     private def isWidening(valueType: ScType, expected: ScType): Option[TypeResult] = {
       val (l, r) = (getStdType(valueType), getStdType(expected)) match {
         case (Some(left), Some(right)) => (left, right)
-        case _ => return None
+        case _                         => return None
       }
+
       val stdTypes = project.stdTypes
       import stdTypes._
 
       (l, r) match {
-        case (Byte, Short | Int | Long | Float | Double) => Some(Right(expected))
-        case (Short, Int | Long | Float | Double) => Some(Right(expected))
+        case (Byte, Short | Int | Long | Float | Double)        => Some(Right(expected))
+        case (Short, Int | Long | Float | Double)               => Some(Right(expected))
         case (Char, Byte | Short | Int | Long | Float | Double) => Some(Right(expected))
-        case (Int, Long | Float | Double) => Some(Right(expected))
-        case (Long, Float | Double) => Some(Right(expected))
-        case (Float, Double) => Some(Right(expected))
-        case _ => None
+        case (Int, Long | Float | Double)                       => Some(Right(expected))
+        case (Long, Float | Double)                             => Some(Right(expected))
+        case (Float, Double)                                    => Some(Right(expected))
+        case _                                                  => None
       }
     }
 
@@ -439,13 +448,14 @@ object ScExpression {
       @scala.annotation.tailrec
       def checkForSAM(tp: ScType): Option[ScType] =
         tp match {
-          case FunctionType(_, _) if expr.isSAMEnabled => SAMUtil.toSAMType(expected, expr)
-          case _: ScMethodType    if expr.isSAMEnabled => SAMUtil.toSAMType(expected, expr)
-          case ScTypePolymorphicType(tp, _)            => checkForSAM(tp)
-          case _                                       => None
+          case FunctionType(_, _)           => SAMUtil.toSAMType(expected, expr)
+          case _: ScMethodType              => SAMUtil.toSAMType(expected, expr)
+          case ScTypePolymorphicType(tp, _) => checkForSAM(tp)
+          case _                            => None
         }
 
-      expr match {
+      if (!expr.isSAMEnabled) None
+      else expr match {
         case ScFunctionExpr(_, _) if fromUnderscore                      => checkForSAM(scType)
         case _ if !fromUnderscore && ScalaPsiUtil.isAnonExpression(expr) => checkForSAM(scType)
         case MethodValue(_)                                              => checkForSAM(scType)

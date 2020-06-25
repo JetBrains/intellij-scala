@@ -5,6 +5,7 @@ package api
 package statements
 
 import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
@@ -27,11 +28,11 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
   def aliasedType: TypeResult =
     aliasedTypeElement.map {
       _.`type`()
-    }.getOrElse(Failure("No alias type"))
+    }.getOrElse(Failure(ScalaBundle.message("no.alias.type")))
 
-  def lowerBound: TypeResult = aliasedType
+  override def lowerBound: TypeResult = aliasedType
 
-  def upperBound: TypeResult = aliasedType
+  override def upperBound: TypeResult = aliasedType
 
   def isExactAliasFor(cls: PsiClass): Boolean = {
     val isDefinedInObject = containingClass match {

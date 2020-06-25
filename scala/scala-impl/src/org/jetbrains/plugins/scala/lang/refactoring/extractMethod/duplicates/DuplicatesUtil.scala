@@ -16,6 +16,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import com.intellij.refactoring.RefactoringBundle
 import com.intellij.ui.ReplacePromptDialog
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
@@ -66,7 +67,7 @@ object DuplicatesUtil {
     pattern.findDuplicates(settings.nextSibling.getParent)
   }
 
-  def previewDuplicate(project: Project, editor: Editor, duplicate: DuplicateMatch)(work: => Unit) {
+  def previewDuplicate(project: Project, editor: Editor, duplicate: DuplicateMatch)(work: => Unit): Unit = {
     val highlighter = new util.ArrayList[RangeHighlighter](1)
     highlightDuplicate(project, editor, duplicate, highlighter)
     val range = duplicate.textRange
@@ -121,7 +122,7 @@ object DuplicatesUtil {
     def showDuplicatesDialog(): Int = {
       val message = RefactoringBundle.message("0.has.detected.1.code.fragments.in.this.file.that.can.be.replaced.with.a.call.to.extracted.method",
         ApplicationNamesInfo.getInstance.getProductName, Int.box(duplicates.size))
-      Messages.showYesNoDialog(project, message, "Process Duplicates", Messages.getQuestionIcon)
+      Messages.showYesNoDialog(project, message, ScalaBundle.message("process.duplicates"), Messages.getQuestionIcon)
     }
 
     if (ApplicationManager.getApplication.isUnitTestMode) {
@@ -142,18 +143,16 @@ object DuplicatesUtil {
     }
   }
 
-  private def expandAllRegionsCoveringRange(project: Project, editor: Editor, textRange: TextRange) {
+  private def expandAllRegionsCoveringRange(project: Project, editor: Editor, textRange: TextRange): Unit = {
     val foldRegions: Array[FoldRegion] = CodeFoldingManager.getInstance(project).getFoldRegionsAtOffset(editor, textRange.getStartOffset)
     val anyCollapsed: Boolean = foldRegions.exists(!_.isExpanded)
     if (anyCollapsed) {
-      editor.getFoldingModel.runBatchFoldingOperation(new Runnable {
-          def run(): Unit = foldRegions.filterNot(_.isExpanded).foreach(_.setExpanded(true))
-        }
+      editor.getFoldingModel.runBatchFoldingOperation(() => foldRegions.filterNot(_.isExpanded).foreach(_.setExpanded(true))
       )
     }
   }
 
-  def highlightDuplicate(project: Project, editor: Editor, duplicate: DuplicateMatch, highlighters: util.Collection[RangeHighlighter]) {
+  def highlightDuplicate(project: Project, editor: Editor, duplicate: DuplicateMatch, highlighters: util.Collection[RangeHighlighter]): Unit = {
     val colorsManager: EditorColorsManager = EditorColorsManager.getInstance
     val attributes: TextAttributes = colorsManager.getGlobalScheme.getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES)
     val range = duplicate.textRange

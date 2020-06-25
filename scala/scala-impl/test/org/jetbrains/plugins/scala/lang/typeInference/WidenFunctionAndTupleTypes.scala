@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
-import org.jetbrains.plugins.scala.{ScalaVersion, Scala_2_13}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class WidenFunctionAndTupleTypes extends TypeInferenceTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13
 
   def testSCL16384(): Unit = doTest(
     s"""
@@ -33,5 +33,18 @@ class WidenFunctionAndTupleTypes extends TypeInferenceTestBase {
       |}
       |//String => Int
       |""".stripMargin
+  )
+
+  def testSCL17648(): Unit = doTest(
+    s"""
+       |object A {
+       |trait Job { val length: Long; val weight: Long }
+       |  def wct3(jobs: Array[Job]): Long = (jobs foldLeft(0L, 0L)) { (r, j) =>
+       |    ${START}r$END
+       |    ???
+       |  }._2
+       |}
+       |//(Long, Long)
+       |""".stripMargin
   )
 }

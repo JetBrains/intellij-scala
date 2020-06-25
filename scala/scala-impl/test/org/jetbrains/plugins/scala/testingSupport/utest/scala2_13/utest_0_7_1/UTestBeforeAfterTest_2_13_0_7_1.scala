@@ -25,12 +25,12 @@ class UTestBeforeAfterTest_2_13_0_7_1 extends UTestTestBase_2_13_0_7_1 {
 
     runTestByLocation2(4, 10, beforeAfterFileName,
       assertConfigAndSettings(_, beforeAfterTestName, "tests\\test1"),
-      _ => true, expectedText = "BEFORE", checkOutputs = true)
+      DoNotCheck, expectedText = "BEFORE", checkOutputs = true)
   }
 
   def testAfter(): Unit = {
     runTestByLocation2(4, 10, beforeAfterFileName,
       assertConfigAndSettings(_, beforeAfterTestName, "tests\\test1"),
-      _ => true, expectedText = "AFTER", checkOutputs = true)
+      DoNotCheck, expectedText = "AFTER", checkOutputs = true)
   }
 }

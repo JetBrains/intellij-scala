@@ -10,12 +10,12 @@ package generated
 class TypeInferenceNewExtractorsTest extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "newExtractors/"
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_11
 
-  def testUnapply() {doTest()}
-  def testUnapply2() {doTest()}
-  def testUnapplySeq() {doTest()}
-  def testUnapplySeq2() {doTest()}
-  def testUnapplyWithImplicitParam() {doTest()}
-  def testUnapplySeqWithImplicitParam() {doTest()}
+  def testUnapply(): Unit = {doTest()}
+  def testUnapply2(): Unit = {doTest()}
+  def testUnapplySeq(): Unit = {doTest()}
+  def testUnapplySeq2(): Unit = {doTest()}
+  def testUnapplyWithImplicitParam(): Unit = {doTest()}
+  def testUnapplySeqWithImplicitParam(): Unit = {doTest()}
 }

@@ -3,11 +3,11 @@ package annotator
 
 
 class ApplicationTestBase_2_11 extends ApplicationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= LatestScalaVersions.Scala_2_11
 }
 
 class ApplicationTestBase_2_12 extends ApplicationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
 }
 
 abstract class ApplicationTestBase extends AnnotatorLightCodeInsightFixtureTestAdapter {

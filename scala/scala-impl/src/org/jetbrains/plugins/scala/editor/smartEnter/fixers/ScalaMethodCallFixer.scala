@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterCla
  * @since 1/31/13
  */
 class ScalaMethodCallFixer extends ScalaFixer {
-  def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement): OperationPerformed = {
+  override def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement): OperationPerformed = {
     val args = psiElement match {
       case call: ScMethodCall => call.args
       case _ => return NoOperation
@@ -24,7 +24,7 @@ class ScalaMethodCallFixer extends ScalaFixer {
 
     val methodCall = psiElement.asInstanceOf[ScMethodCall]
 
-    if (args.lastChild.exists(_.getText == ")")) {
+    if (args.lastChild.exists(_.textMatches(")"))) {
       val ref = Option(methodCall.deepestInvokedExpr).flatMap(_.getReference.toOption)
 
       ref.map(_.resolve()) match {

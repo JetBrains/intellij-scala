@@ -75,8 +75,8 @@ class ExpandEtaExpansionTest extends TransformerTest(new ExpandEtaExpansion()) {
   )()
 
   def testImplicitByNameParameter(): Unit = check(
-    before = "def f(a: => A) = { val v: () => A = a }", // not applicable
-    after = "def f(a: => A) = { val v: () => A = a }"
+    before = "def f(a: => A): Unit = { val v: () => A = a }", // not applicable
+    after = "def f(a: => A): Unit = { val v: () => A = a }"
   )()
 
   def testExplicitNormalParameter(): Unit = check(

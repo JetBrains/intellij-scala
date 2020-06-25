@@ -17,7 +17,7 @@ abstract class MapGetOrElseBooleanTest extends OperationsOnCollectionInspectionT
 class ReplaceWithExistsTest extends MapGetOrElseBooleanTest {
 
   override protected val hint: String =
-    InspectionBundle.message("map.getOrElse.false.hint")
+    ScalaInspectionBundle.message("map.getOrElse.false.hint")
 
   def test_1(): Unit = {
     val selected = s"None.${START}map(x => true).getOrElse(false)$END"
@@ -66,7 +66,7 @@ class ReplaceWithExistsTest extends MapGetOrElseBooleanTest {
 class ReplaceWithForallTest extends MapGetOrElseBooleanTest {
 
   override protected val hint: String =
-    InspectionBundle.message("map.getOrElse.true.hint")
+    ScalaInspectionBundle.message("map.getOrElse.true.hint")
 
   def test(): Unit = {
     val selected =

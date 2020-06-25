@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
   * Pavel Fatin
   */
 final class RemoveParentheses(function: ScFunction)
-  extends AbstractFixOnPsiElement(InspectionBundle.message("redundant.parentheses"), function) {
+  extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("redundant.parentheses"), function) {
 
   override protected def doApplyFix(function: ScFunction)
                                    (implicit project: Project): Unit = {

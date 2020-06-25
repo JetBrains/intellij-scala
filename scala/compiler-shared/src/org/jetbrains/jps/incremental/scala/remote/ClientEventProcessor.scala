@@ -7,16 +7,19 @@ package remote
  */
 class ClientEventProcessor(client: Client) {
 
-  def process(event: Event) {
+  def process(event: Event): Unit = {
     event match {
-      case MessageEvent(kind, text, source, line, column) =>
-        client.message(kind, text, source, line, column)
+      case MessageEvent(kind, text, source, from, to) =>
+        client.message(kind, text, source, from, to)
 
       case ProgressEvent(text, done) =>
         client.progress(text, done)
 
       case DebugEvent(text) =>
-        client.debug(text)
+        client.internalDebug(text)
+
+      case InfoEvent(text) =>
+        client.internalInfo(text)
 
       case TraceEvent(exceptionClassName, message, stackTrace) =>
         client.trace(new ServerException(exceptionClassName, message, stackTrace))
@@ -27,11 +30,11 @@ class ClientEventProcessor(client: Client) {
       case DeletedEvent(module) =>
         client.deleted(module)
 
-      case SourceProcessedEvent(source) =>
-        client.processed(source)
-
-      case CompilationEndEvent() =>
-        client.compilationEnd()
+      case CompilationStartEvent() =>
+        client.compilationStart()
+        
+      case CompilationEndEvent(sources) =>
+        client.compilationEnd(sources)
 
       case ProcessingEndEvent() =>
         client.processingEnd()

@@ -1,40 +1,39 @@
-package org.jetbrains.plugins.scala.lang
+package org.jetbrains.plugins.scala
+package lang
 package psi
 package implicits
 
-import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitInstanceIndex
-import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors.findInheritorObjectsForOwner
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors.withStableInheritors
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames._
+import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.OptionExt
+import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
+import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.TypeDoesntConformResult
+import org.jetbrains.plugins.scala.lang.psi.types.WrongTypeParameterInferred
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 
-case class GlobalImplicitInstance(containingObject: ScObject, member: ScMember) {
+final case class GlobalImplicitInstance(containingObject: ScObject, member: ScMember) {
 
   def named: ScNamedElement = member match {
     case named: ScNamedElement => named
     case vs: ScValueOrVariable => vs.declaredElements.head
   }
 
-  def possiblyUndefinedType: ScType = {
-    val substitutor = MixinNodes.asSeenFromSubstitutor(containingObject, member.containingClass)
-
-    val (maybeType, fullSubstitutor) = member match {
-      case f: ScFunction =>
-        (f.returnType, substitutor.followed(ScalaPsiUtil.undefineMethodTypeParams(f)))
-      case t: Typeable =>
-        (t.`type`(), substitutor)
-    }
-
-    fullSubstitutor(maybeType.getOrNothing)
-  }
+  def toScalaResolveResult: ScalaResolveResult =
+    new ScalaResolveResult(named, MixinNodes.asSeenFromSubstitutor(containingObject, member.containingClass))
 
   def qualifiedName: String = containingObject.qualifiedName + "." + named.name
 
@@ -50,34 +49,53 @@ case class GlobalImplicitInstance(containingObject: ScObject, member: ScMember) 
 
 object GlobalImplicitInstance {
 
-  private[this] def allCandidates(clazz: PsiClass, scope: GlobalSearchScope)
-                                 (implicit project: Project): Set[ScMember] = for {
-    psiClass <- ScalaInheritors.withStableScalaInheritors(clazz)
+  def from(srr: ScalaResolveResult): Option[GlobalImplicitInstance] = {
+    for {
+      member <- srr.element.asOptionOf[ScMember]
+      obj <- containingObject(srr)
+    } yield GlobalImplicitInstance(obj, member)
+  }
 
-    qualifiedName = psiClass.qualifiedName
-    if qualifiedName != AnyRefFqn &&
-      qualifiedName != AnyFqn &&
-      qualifiedName != JavaObjectFqn
-
-    candidate <- ImplicitInstanceIndex.forClassFqn(qualifiedName, scope)
-  } yield candidate
-
-  private[this] def globalInstances(member: ScMember)
-                                   (implicit project: Project): Set[GlobalImplicitInstance] = for {
-    containingClass <- Option(member.containingClass).toSet[ScTemplateDefinition]
-    objectToImport <- ScalaPsiManager.instance.inheritorOrThisObjects(containingClass)
-  } yield GlobalImplicitInstance(objectToImport, member)
-
-  def compatibleInstances(`type`: ScType, elementScope: ElementScope): Set[GlobalImplicitInstance] = {
-    implicit val ElementScope(project, scope) = elementScope
-
+  def compatibleInstances(`type`: ScType,
+                          scope: GlobalSearchScope,
+                          place: ImplicitArgumentsOwner): Set[GlobalImplicitInstance] = {
+    val collector = new ImplicitCollector(place, `type`, `type`, None, false, fullInfo = true)
     for {
       clazz <- `type`.extractClass.toSet[PsiClass]
-      candidate <- allCandidates(clazz, scope)
 
-      global <- globalInstances(candidate)
-      if global.possiblyUndefinedType.conforms(`type`)
+      qualifiedName <- withStableInheritors(clazz)
+      if !isRootClass(qualifiedName)
+
+      candidateMember <- ImplicitInstanceIndex.forClassFqn(qualifiedName, scope)(place.getProject)
+      objectToImport <- findInheritorObjectsForOwner(candidateMember)
+
+      global = GlobalImplicitInstance(objectToImport, candidateMember)
+      if checkCompatible(global, collector)
     } yield global
   }
 
+  private[this] def isRootClass(qualifiedName: String) = qualifiedName match {
+    case AnyRefFqn | AnyFqn | JavaObjectFqn => true
+    case _ => false
+  }
+
+  private def containingObject(srr: ScalaResolveResult): Option[ScObject] = {
+    val ownerType = srr.implicitScopeObject.orElse {
+      srr.element.containingClassOfNameContext
+        .filterByType[ScTemplateDefinition]
+        .map(c => srr.substitutor(ScThisType(c)))
+    }
+    ownerType.flatMap(_.extractClass).filterByType[ScObject]
+  }
+
+  private def checkCompatible(global: GlobalImplicitInstance, collector: ImplicitCollector): Boolean = {
+    val srr = global.toScalaResolveResult
+    collector.checkCompatible(srr, withLocalTypeInference = false)
+      .orElse(collector.checkCompatible(srr, withLocalTypeInference = true))
+      .exists(isCompatible)
+  }
+
+  private def isCompatible(srr: ScalaResolveResult): Boolean = {
+    !srr.problems.contains(WrongTypeParameterInferred) && srr.implicitReason != TypeDoesntConformResult
+  }
 }

@@ -48,7 +48,7 @@ object ImplicitParamClause {
       case _ =>
         builder error ScalaBundle.message("rparenthesis.expected")
     }
-    builder.restoreNewlinesState
+    builder.restoreNewlinesState()
     paramMarker.done(ScalaElementType.PARAM_CLAUSE)
     true
   }

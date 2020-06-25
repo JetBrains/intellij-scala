@@ -16,61 +16,61 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
   */
 object DummyASTNode extends TreeElement(new ScalaTokenType("Dummy Element")) {
 
-  def getText: String = null
+  override def getText: String = null
 
-  def removeRange(firstNodeToRemove: ASTNode, firstNodeToKeep: ASTNode): Unit = {}
+  override def removeRange(firstNodeToRemove: ASTNode, firstNodeToKeep: ASTNode): Unit = {}
 
-  def replaceChild(oldChild: ASTNode, newChild: ASTNode): Unit = {}
+  override def replaceChild(oldChild: ASTNode, newChild: ASTNode): Unit = {}
 
   override def toString: String = "Dummy AST node"
 
-  def addChild(child: ASTNode): Unit = {}
+  override def addChild(child: ASTNode): Unit = {}
 
-  def textContains(c: Char): Boolean = false
+  override def textContains(c: Char): Boolean = false
 
-  def replaceAllChildrenToChildrenOf(anotherParent: ASTNode): Unit = {}
+  override def replaceAllChildrenToChildrenOf(anotherParent: ASTNode): Unit = {}
 
-  def addChild(child: ASTNode, anchorBefore: ASTNode): Unit = {}
+  override def addChild(child: ASTNode, anchorBefore: ASTNode): Unit = {}
 
-  def getTextLength: Int = 42
+  override def getTextLength: Int = 42
 
-  def getChildren(filter: TokenSet): Array[ASTNode] = Array[ASTNode]()
+  override def getChildren(filter: TokenSet): Array[ASTNode] = Array[ASTNode]()
 
-  def addLeaf(leafType: IElementType, leafText: CharSequence, anchorBefore: ASTNode): Unit = {}
+  override def addLeaf(leafType: IElementType, leafText: CharSequence, anchorBefore: ASTNode): Unit = {}
 
-  def removeChild(child: ASTNode): Unit = {}
+  override def removeChild(child: ASTNode): Unit = {}
 
-  def addChildren(firstChild: ASTNode, firstChildToNotAdd: ASTNode, anchorBefore: ASTNode): Unit = {}
+  override def addChildren(firstChild: ASTNode, firstChildToNotAdd: ASTNode, anchorBefore: ASTNode): Unit = {}
 
-  def findChildByType(typesSet: TokenSet): ASTNode = null
+  override def findChildByType(typesSet: TokenSet): ASTNode = null
 
-  def findChildByType(elem: IElementType): ASTNode = null
+  override def findChildByType(elem: IElementType): ASTNode = null
 
-  def findChildByType(elem: IElementType, anchor: ASTNode): ASTNode = null
+  override def findChildByType(elem: IElementType, anchor: ASTNode): ASTNode = null
 
-  def findChildByType(typesSet: TokenSet, anchor: ASTNode): ASTNode = null
+  override def findChildByType(typesSet: TokenSet, anchor: ASTNode): ASTNode = null
 
-  def findLeafElementAt(offset: Int): LeafElement = null
+  override def findLeafElementAt(offset: Int): LeafElement = null
 
-  def textToCharArray = new Array[Char](42)
+  override def textToCharArray = new Array[Char](42)
 
-  def getLastChildNode: TreeElement = null
+  override def getLastChildNode: TreeElement = null
 
-  def getFirstChildNode: TreeElement = null
+  override def getFirstChildNode: TreeElement = null
 
-  def hc: Int = 42
+  override def hc: Int = 42
 
-  def getPsi: PsiElement = null
+  override def getPsi: PsiElement = null
 
-  def acceptTree(visitor: TreeElementVisitor): Unit = {}
+  override def acceptTree(visitor: TreeElementVisitor): Unit = {}
 
-  def getCachedLength: Int = 42
+  override def getCachedLength: Int = 42
 
-  def textMatches(buffer: CharSequence, start: Int): Int = -1
+  override def textMatches(buffer: CharSequence, start: Int): Int = -1
 
   def getNotCachedLength: Int = 42
 
-  def getChars: CharSequence = textToCharArray.mkString
+  override def getChars: CharSequence = textToCharArray.mkString
 
-  def getPsi[T <: PsiElement](p1: Class[T]): T = null.asInstanceOf[T]
+  override def getPsi[T <: PsiElement](p1: Class[T]): T = null.asInstanceOf[T]
 }

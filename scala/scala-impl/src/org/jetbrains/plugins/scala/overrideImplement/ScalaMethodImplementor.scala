@@ -21,13 +21,11 @@ import scala.collection.mutable
  * 12/25/13
  */
 class ScalaMethodImplementor extends MethodImplementor {
-  val emptyConsumer: Consumer[PsiMethod] = new Consumer[PsiMethod] {
-    def consume(t: PsiMethod) {}
-  }
+  val emptyConsumer: Consumer[PsiMethod] = (t: PsiMethod) => {}
 
   private val prototypeToBaseMethod = mutable.WeakHashMap[PsiMethod, PsiMethod]()
 
-  def createImplementationPrototypes(inClass: PsiClass, method: PsiMethod): Array[PsiMethod] = {
+  override def createImplementationPrototypes(inClass: PsiClass, method: PsiMethod): Array[PsiMethod] = {
     (for {
       td <- inClass.asOptionOf[ScTemplateDefinition].toSeq
       member <- ScalaOIUtil.getMembersToImplement(td).collect {
@@ -42,22 +40,22 @@ class ScalaMethodImplementor extends MethodImplementor {
     }).toArray
   }
 
-  def createGenerationInfo(method: PsiMethod, mergeIfExists: Boolean): GenerationInfo = {
+  override def createGenerationInfo(method: PsiMethod, mergeIfExists: Boolean): GenerationInfo = {
     val baseMethod = prototypeToBaseMethod.get(method)
     prototypeToBaseMethod.clear()
     new ScalaPsiMethodGenerationInfo(method, baseMethod.orNull)
   }
 
-  def createDecorator(targetClass: PsiClass, baseMethod: PsiMethod, toCopyJavaDoc: Boolean, insertOverrideIfPossible: Boolean): Consumer[PsiMethod] = emptyConsumer
+  override def createDecorator(targetClass: PsiClass, baseMethod: PsiMethod, toCopyJavaDoc: Boolean, insertOverrideIfPossible: Boolean): Consumer[PsiMethod] = emptyConsumer
 
-  def getMethodsToImplement(aClass: PsiClass): Array[PsiMethod] = Array()
+  override def getMethodsToImplement(aClass: PsiClass): Array[PsiMethod] = Array()
 }
 
 private class ScalaPsiMethodGenerationInfo(method: PsiMethod, baseMethod: PsiMethod) extends PsiGenerationInfo[PsiMethod](method) {
 
   var member: PsiMember = method
 
-  override def insert(aClass: PsiClass, anchor: PsiElement, before: Boolean) {
+  override def insert(aClass: PsiClass, anchor: PsiElement, before: Boolean): Unit = {
     aClass match {
       case td: ScTemplateDefinition =>
         member = ScalaGenerationInfo.insertMethod(ScMethodMember(method), td, findAnchor(td, baseMethod))

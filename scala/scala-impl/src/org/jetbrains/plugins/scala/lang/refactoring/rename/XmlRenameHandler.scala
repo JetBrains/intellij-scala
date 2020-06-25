@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPairedTag
  * Date: 4/8/12
  */
 class XmlRenameHandler extends RenameHandler with ScalaRefactoringActionHandler {
-  def isAvailableOnDataContext(dataContext: DataContext): Boolean = {
+  override def isAvailableOnDataContext(dataContext: DataContext): Boolean = {
     val editor = CommonDataKeys.EDITOR.getData(dataContext)
     if (editor == null || !editor.getSettings.isVariableInplaceRenameEnabled) return false
 
@@ -66,7 +66,7 @@ class XmlRenameHandler extends RenameHandler with ScalaRefactoringActionHandler 
     val rangeHighlighters = new util.ArrayList[RangeHighlighter]()
     val matchedRange = element.getMatchedTag.getTagNameElement.getTextRange
 
-    def highlightMatched() {
+    def highlightMatched(): Unit = {
       val colorsManager = EditorColorsManager.getInstance()
       val attributes = colorsManager.getGlobalScheme.getAttributes(EditorColors.WRITE_SEARCH_RESULT_ATTRIBUTES)
 
@@ -79,31 +79,27 @@ class XmlRenameHandler extends RenameHandler with ScalaRefactoringActionHandler 
       }
     }
 
-    def rename() {
-      CommandProcessor.getInstance().executeCommand(project, new Runnable {
-        def run() {
-          extensions.inWriteAction {
-            val offset = editor.getCaretModel.getOffset
-            val template = buildTemplate()
-            editor.getCaretModel.moveToOffset(element.getParent.getTextOffset)
+    def rename(): Unit = {
+      CommandProcessor.getInstance().executeCommand(project, () => {
+        extensions.inWriteAction {
+          val offset = editor.getCaretModel.getOffset
+          val template = buildTemplate()
+          editor.getCaretModel.moveToOffset(element.getParent.getTextOffset)
 
-            TemplateManager.getInstance(project).startTemplate(editor, template, new TemplateEditingAdapter {
-              override def templateFinished(template: Template, brokenOff: Boolean) {
-                templateCancelled(template)
-              }
+          TemplateManager.getInstance(project).startTemplate(editor, template, new TemplateEditingAdapter {
+            override def templateFinished(template: Template, brokenOff: Boolean): Unit = {
+              templateCancelled(template)
+            }
 
-              override def templateCancelled(template: Template) {
-                val highlightManager = HighlightManager.getInstance(project)
-                rangeHighlighters.forEach { a => highlightManager.removeSegmentHighlighter(editor, a) }
-              }
-            },
-              new PairProcessor[String, String] {
-                def process(s: String, t: String): Boolean = !(t.length == 0 || t.charAt(t.length - 1) == ' ')
-              })
+            override def templateCancelled(template: Template): Unit = {
+              val highlightManager = HighlightManager.getInstance(project)
+              rangeHighlighters.forEach { a => highlightManager.removeSegmentHighlighter(editor, a) }
+            }
+          },
+            (s: String, t: String) => !(t.length == 0 || t.charAt(t.length - 1) == ' '))
 
-            highlightMatched()
-            editor.getCaretModel.moveToOffset(offset)
-          }
+          highlightMatched()
+          editor.getCaretModel.moveToOffset(offset)
         }
       }, RefactoringBundle.message("rename.title"), null)
 

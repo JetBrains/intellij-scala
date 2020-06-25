@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.hierarchy
 
 import com.intellij.ide.hierarchy.call.CallHierarchyNodeDescriptor
-import com.intellij.ide.hierarchy.newAPI.{HierarchyNodeDescriptor, HierarchyTreeStructure}
+import com.intellij.ide.hierarchy.{HierarchyNodeDescriptor, HierarchyTreeStructure}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.searches.OverridingMethodsSearch
 import com.intellij.psi.{PsiElement, PsiMethod, _}
@@ -19,7 +19,7 @@ import scala.collection.mutable.ArrayBuffer
 class ScalaCalleeMethodsTreeStructure(project: Project, method: PsiMethod, myScopeType: String)
   extends HierarchyTreeStructure(project, new CallHierarchyNodeDescriptor(project, null, method, true, false)) {
 
-  protected final def buildChildren(descriptor: HierarchyNodeDescriptor): Array[AnyRef] = {
+  override protected final def buildChildren(descriptor: HierarchyNodeDescriptor): Array[AnyRef] = {
     val enclosingElement: PsiMember = descriptor.asInstanceOf[CallHierarchyNodeDescriptor].getEnclosingElement
     val method: PsiMethod = enclosingElement match {
       case method: PsiMethod => method

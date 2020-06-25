@@ -2,12 +2,13 @@ package org.jetbrains.sbt.resolvers
 
 import java.io.File
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.Ivy2IndexingMode
@@ -22,16 +23,14 @@ import scala.collection.mutable
   * @author Mikhail Mutcianko
   * @since 26.07.16
   */
-class SbtIndexesManager(val project: Project) extends ProjectComponent {
+final class SbtIndexesManager(val project: Project) extends Disposable {
   import SbtIndexesManager._
 
   private val LOG = Logger.getInstance(classOf[SbtIndexesManager])
 
-  override def projectClosed(): Unit = {
+  override def dispose(): Unit = {
     indexes.values.foreach(_.close())
   }
-
-  override def getComponentName: String = "SbtResolversManager"
 
   private val indexes = new mutable.HashMap[String, ResolverIndex]()
 
@@ -40,10 +39,10 @@ class SbtIndexesManager(val project: Project) extends ProjectComponent {
       return
 
     if (!project.isDisposed) {
-      ProgressManager.getInstance().run(new Task.Backgroundable(project, "Updating Indices") {
+      ProgressManager.getInstance().run(new Task.Backgroundable(project, SbtBundle.message("title.updating.indices")) {
         override def run(indicator: ProgressIndicator): Unit = {
           indicator.setIndeterminate(true)
-          indicator.setText(s"Updating: $name")
+          indicator.setText(SbtBundle.message("indicator.updating.name", name))
           try {
             index.doUpdate(Some(indicator))
           } catch {
@@ -57,7 +56,7 @@ class SbtIndexesManager(val project: Project) extends ProjectComponent {
                   LOG.error("Error while closing index while recovering from another error", e)
               }
               try {
-                indicator.setText("Force rebuilding dependency index")
+                indicator.setText(SbtBundle.message("indicator.force.rebuilding.dependency.index"))
                 FileUtil.delete(ResolverIndex.indexesDir)
                 index.doUpdate(Some(indicator))
               } catch {
@@ -114,20 +113,20 @@ class SbtIndexesManager(val project: Project) extends ProjectComponent {
 }
 
 object SbtIndexesManager {
-  def getInstance(project: Project): Option[SbtIndexesManager] = Option(project.getComponent(classOf[SbtIndexesManager]))
+  def getInstance(project: Project): Option[SbtIndexesManager] =
+    Option(project.getService(classOf[SbtIndexesManager]))
 
   def cleanUpCorruptedIndex(indexDir: File): Unit = {
     try {
       FileUtil.delete(indexDir)
-//      notifyWarning(SbtBundle("sbt.resolverIndexer.indexDirIsCorruptedAndRemoved", indexDir.getAbsolutePath))
     } catch {
       case pce: ProcessCanceledException => throw pce
       case _ : Throwable =>
-        notifyWarning(SbtBundle("sbt.resolverIndexer.indexDirIsCorruptedCantBeRemoved", indexDir.getAbsolutePath))
+        notifyWarning(SbtBundle.message("sbt.resolverIndexer.indexDirIsCorruptedCantBeRemoved", indexDir.getAbsolutePath))
     }
   }
 
-  private def notifyWarning(message: String): Unit =
-    NotificationUtil.showMessage(null, message, title = "Resolver Indexer")
+  private def notifyWarning(@Nls message: String): Unit =
+    NotificationUtil.showMessage(null, message, title = SbtBundle.message("title.resolver.indexer"))
 
 }

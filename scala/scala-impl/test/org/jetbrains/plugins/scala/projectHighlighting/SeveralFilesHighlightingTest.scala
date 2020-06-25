@@ -77,13 +77,20 @@ trait SeveralFilesHighlightingTest {
     val (flagFiles, sourceFiles) = files.flatMap(allFiles).partition(isFlagsFile)
     val addedFiles = sourceFiles.map(addFileToProject(_, relativeTo = root))
 
+    val profile = getModule.scalaCompilerSettingsProfile
     try {
-      getModule.scalaCompilerSettings.additionalCompilerOptions = flagFiles.flatMap(parseScalacFlags)
+      val newSettings = profile.getSettings.copy(
+        additionalCompilerOptions = flagFiles.flatMap(parseScalacFlags)
+      )
+      profile.setSettings(newSettings)
       ScalaCompilerConfiguration.incModificationCount()
       addedFiles.foreach(AllProjectHighlightingTest.annotateScalaFile(_, reporter))
     } finally {
       addedFiles.foreach(removeFile)
-      getModule.scalaCompilerSettings.additionalCompilerOptions = Seq.empty
+      val newSettings = profile.getSettings.copy(
+        additionalCompilerOptions = Seq.empty
+      )
+      profile.setSettings(newSettings)
     }
   }
 

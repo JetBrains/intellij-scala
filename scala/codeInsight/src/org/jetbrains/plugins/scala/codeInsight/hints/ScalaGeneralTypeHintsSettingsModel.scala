@@ -7,7 +7,7 @@ import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
 import javax.swing.JComponent
-import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings
+import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings}
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 
 class ScalaGeneralTypeHintsSettingsModel extends InlayProviderSettingsModel(true, "Scala.ScalaGeneralTypeHintsSettingsModel") {
@@ -46,9 +46,9 @@ class ScalaGeneralTypeHintsSettingsModel extends InlayProviderSettingsModel(true
 
   override def getComponent: JComponent = generalSettingsPanel.getPanel
 
-  override def getMainCheckBoxLabel: String = "Show types even if they are obvious"
+  override def getMainCheckBoxLabel: String = ScalaCodeInsightBundle.message("show.types.even.if.they.are.obvious")
 
-  override def getName: String = "General settings"
+  override def getName: String = ScalaCodeInsightBundle.message("general.settings")
 
   override def getPreviewText: String = null
 

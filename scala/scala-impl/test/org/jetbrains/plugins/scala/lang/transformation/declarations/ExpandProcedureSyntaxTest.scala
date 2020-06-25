@@ -9,23 +9,23 @@ package declarations
 class ExpandProcedureSyntaxTest extends TransformerTest(new ExpandProcedureSyntax()) {
 
   def testProcedureSyntax(): Unit = check(
-    before = "def f() {}",
+    before = "def f(): Unit = {}",
     after = "def f(): Unit = {}"
   )()
 
   def testNonUnitExpression(): Unit = check(
-    before = "def f() { A }",
+    before = "def f(): Unit = { A }",
     after = "def f(): Unit = { A }"
   )()
 
   def testElementPreservation(): Unit = check(
-    before = "def f[A, B, C](a: A, b: B)(c: C) { A; B; C }",
+    before = "def f[A, B, C](a: A, b: B)(c: C): Unit = { A; B; C }",
     after = "def f[A, B, C](a: A, b: B)(c: C): Unit = { A; B; C }"
   )()
 
   def testImplicitUnitType(): Unit = check(
-    before = "def f() = {}",
-    after = "def f() = {}"
+    before = "def f(): Unit = {}",
+    after = "def f(): Unit = {}"
   )()
 
   def testExplicitUnityType(): Unit = check(
@@ -39,8 +39,8 @@ class ExpandProcedureSyntaxTest extends TransformerTest(new ExpandProcedureSynta
   )()
 
   def testDefinitionImplicitType(): Unit = check(
-    before = "def f()",
-    after = "def f()"
+    before = "def f(): Unit",
+    after = "def f(): Unit"
   )()
 
   def testDefinitionExplicitType(): Unit = check(

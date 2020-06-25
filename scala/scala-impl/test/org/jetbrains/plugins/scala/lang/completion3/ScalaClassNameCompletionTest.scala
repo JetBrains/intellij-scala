@@ -18,7 +18,7 @@ abstract class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
                           companionObject: Boolean = false): Boolean =
     Option(lookup).collect {
       case lookup: ScalaLookupItem => lookup
-    }.map(_.element).collect {
+    }.map(_.getPsiElement).collect {
       case o: ScObject if companionObject => o
       case c: ScClass => c
     }.exists(_.qualifiedName == qualifiedName)
@@ -175,6 +175,21 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
       """.stripMargin,
     item = "Foo"
   )
+
+  def testJavaClassLocation(): Unit = {
+    this.configureJavaFile(
+      fileText =
+        "public class Foo",
+      className = "Foo"
+    )
+
+    doRawCompletionTest(
+      fileText = s"val foo: $CARET = null",
+      resultText = s"val foo: Foo$CARET = null"
+    ) {
+      ScalaCodeInsightTestBase.hasItemText(_, "Foo")()
+    }
+  }
 }
 
 class ImportsWithPrefixCompletionTest extends ScalaClassNameCompletionTest {

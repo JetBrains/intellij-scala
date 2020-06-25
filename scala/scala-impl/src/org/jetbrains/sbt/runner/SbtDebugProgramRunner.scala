@@ -50,7 +50,7 @@ class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerB
       er
     }
     
-    def detach() {
+    def detach(): Unit = {
       execResult.foreach {
         result => 
           Option(result.getProcessHandler).foreach(_.detachProcess())

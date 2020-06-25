@@ -7,6 +7,7 @@ import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.ObjectKeyword
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -19,11 +20,11 @@ object CaseClassWithoutParamList extends AnnotatorPart[ScClass] {
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     def createAnnotation(nameId: PsiElement) = {
       if (element.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_11)) {
-        val message = "case classes without a parameter list are not allowed"
+        val message = ScalaBundle.message("case.classes.without.parameter.list.not.allowed")
         holder.createErrorAnnotation(nameId, message)
       }
       else {
-        val message = "case classes without a parameter list have been deprecated"
+        val message = ScalaBundle.message("case.classes.without.parameter.list.deprecated")
         val deprAnnot = holder.createWarningAnnotation(nameId, message)
         deprAnnot.setHighlightType(ProblemHighlightType.LIKE_DEPRECATED)
         deprAnnot
@@ -41,9 +42,9 @@ object CaseClassWithoutParamList extends AnnotatorPart[ScClass] {
 
 class AddEmptyParenthesesToPrimaryConstructorFix(c: ScClass) extends IntentionAction {
 
-  override def getText: String = "Add empty parentheses"
+  override def getFamilyName: String = ScalaBundle.message("family.name.add.empty.parentheses")
 
-  override def getFamilyName: String = getText
+  override def getText: String = getFamilyName
 
   override def startInWriteAction: Boolean = true
 
@@ -57,16 +58,16 @@ class AddEmptyParenthesesToPrimaryConstructorFix(c: ScClass) extends IntentionAc
 }
 
 final class ConvertToObjectFix(c: ScClass) extends IntentionAction {
-  override def getText: String = "Convert to object"
+  override def getFamilyName: String = ScalaBundle.message("family.name.convert.to.object")
 
-  override def getFamilyName: String = getText
+  override def getText: String = getFamilyName
 
   override def startInWriteAction: Boolean = true
 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
     c.isValid && c.getManager.isInProject(file)
 
-  override def invoke(project: Project, editor: Editor, file: PsiFile) {
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     val classKeywordTextRange = c.targetToken.getTextRange
 
     val objectText = c.getText.patch(

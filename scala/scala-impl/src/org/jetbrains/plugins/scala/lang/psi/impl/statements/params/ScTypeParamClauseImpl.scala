@@ -30,11 +30,11 @@ class ScTypeParamClauseImpl private (stub: ScTypeParamClauseStub, node: ASTNode)
 
   override def toString: String = "TypeParameterClause"
 
-  def getTextByStub: String = byStubOrPsi(_.typeParameterClauseText)(getText)
+  override def getTextByStub: String = byStubOrPsi(_.typeParameterClauseText)(getText)
 
-  def typeParameters: Seq[ScTypeParam] = getStubOrPsiChildren(TYPE_PARAM, ScTypeParamFactory)
+  override def typeParameters: Seq[ScTypeParam] = getStubOrPsiChildren(TYPE_PARAM, ScTypeParamFactory)
 
-  def getTypeParameters: Array[PsiTypeParameter] = getStubOrPsiChildren(TYPE_PARAM, PsiTypeParameter.ARRAY_FACTORY)
+  override def getTypeParameters: Array[PsiTypeParameter] = getStubOrPsiChildren(TYPE_PARAM, PsiTypeParameter.ARRAY_FACTORY)
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
     if (!processor.isInstanceOf[BaseProcessor] || isResolveInSyntheticClause(lastParent)) {

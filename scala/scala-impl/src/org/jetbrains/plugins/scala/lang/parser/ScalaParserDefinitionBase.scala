@@ -16,7 +16,7 @@ abstract class ScalaParserDefinitionBase protected() extends ParserDefinition {
   override def createLexer(project: Project) =
     new lexer.ScalaLexer(false, project)
 
-  override def createParser(project: Project) = new ScalaParser
+  override def createParser(project: Project) = new ScalaParser(false)
 
   override def createElement(node: ASTNode): PsiElement = node.getElementType match {
     case creator: SelfPsiCreator => creator.createElement(node)
@@ -41,7 +41,7 @@ abstract class ScalaParserDefinitionBase protected() extends ParserDefinition {
 
     import ParserDefinition.SpaceRequirements._
     rightNode.getElementType match {
-      case `tWHITE_SPACE_IN_LINE` if rightNode.getText.contains('\n') => MAY
+      case `tWHITE_SPACE_IN_LINE` if rightNode.textContains('\n') => MAY
       case _ if isNeighbour => MUST_LINE_BREAK
       case `kIMPORT` => MUST_LINE_BREAK
       case _ => MAY

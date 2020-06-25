@@ -1,223 +1,228 @@
-package org.jetbrains.plugins.scala.annotator.intention
-
-
-import java.awt.Point
+package org.jetbrains.plugins.scala
+package annotator
+package intention
 
 import com.intellij.codeInsight.JavaProjectCodeInsightSettings
-import com.intellij.codeInsight.completion.JavaCompletionUtil
-import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl}
+import com.intellij.codeInsight.completion.JavaCompletionUtil.isInExcludedPackage
 import com.intellij.codeInsight.intention.HighPriorityAction
-import com.intellij.codeInspection.HintAction
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.command.CommandProcessor
-import com.intellij.openapi.editor.{Editor, LogicalPosition}
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{getCompanionModule, hasStablePath, inNameContext}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScPostfixExpr, ScPrefixExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScSugarCallExpr
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.isAccessible
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.kindMatches
 import org.jetbrains.plugins.scala.settings._
-import org.jetbrains.plugins.scala.util.OrderingUtil
-
-import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.util.OrderingUtil.orderingByRelevantImports
 
 /**
-  * User: Alexander Podkhalyuzin
-  * Date: 15.07.2009
-  */
+ * User: Alexander Podkhalyuzin
+ * Date: 15.07.2009
+ */
+final class ScalaImportTypeFix private (override val elements: Seq[ElementToImport],
+                                        ref: ScReference)
+  extends ScalaImportElementFix(ref) {
 
-class ScalaImportTypeFix(private var classes: Array[ElementToImport], ref: ScReference)
-  extends HintAction with HighPriorityAction {
-
-  private val project = ref.getProject
-
-  def getText: String = {
-    if (classes.length == 1) ScalaBundle.message("import.with", classes(0).qualifiedName)
-    else ElementToImport.messageByType(classes)(
-      ScalaBundle.message("import.class"),
-      ScalaBundle.message("import.package"),
-      ScalaBundle.message("import.something")
-    )
+  override def getText: String = elements match {
+    case Seq(head) =>
+      ScalaBundle.message("import.with", head.qualifiedName)
+    case _ =>
+      ElementToImport.messageByType(elements)(
+        ScalaBundle.message("import.class"),
+        ScalaBundle.message("import.package"),
+        ScalaBundle.message("import.something")
+      )
   }
 
-  def getFamilyName: String = ScalaBundle.message("import.class")
-
-  def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = file.isInstanceOf[ScalaFile] || file.findAnyScalaFile.isDefined
-
-  def invoke(project: Project, editor: Editor, file: PsiFile) {
-    CommandProcessor.getInstance().runUndoTransparentAction(() => {
-      if (ref.isValid) {
-        classes = ScalaImportTypeFix.getTypesToImport(ref)
-        ScalaAddImportAction(editor, classes, ref).execute()
-      }
-    })
+  override def shouldShowHint(): Boolean = {
+    val settings = ScalaApplicationSettings.getInstance()
+    val showForClasses = elements.exists(_.element.is[PsiClass, ScTypeAlias]) && settings.SHOW_IMPORT_POPUP_CLASSES
+    val showForMethods = elements.exists(_.is[MemberToImport]) && settings.SHOW_IMPORT_POPUP_STATIC_METHODS
+    super.shouldShowHint() && (showForClasses || showForMethods)
   }
 
-  def showHint(editor: Editor): Boolean = {
-    if (!ref.isValid) return false
-    if (ref.qualifier.isDefined) return false
-    ref.getContext match {
-      case postf: ScPostfixExpr if postf.operation == ref => false
-      case pref: ScPrefixExpr if pref.operation == ref => false
-      case inf: ScInfixExpr if inf.operation == ref => false
-      case _ =>
-        classes = ScalaImportTypeFix.getTypesToImport(ref)
-        classes.length match {
-          case 0 => false
-          case 1 if ScalaApplicationSettings.getInstance().ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY &&
-            !caretNear(editor) =>
-            CommandProcessor.getInstance().runUndoTransparentAction(() => {
-              ScalaAddImportAction(editor, classes, ref).execute()
-            })
-            false
-          case _ =>
-            fixesAction(editor)
-            true
-        }
-    }
+  override def getFamilyName: String = ScalaBundle.message("import.class")
+
+  override def isAvailable: Boolean =
+    super.isAvailable && ref.qualifier.isEmpty && !isSugarCallReference
+
+  private def isSugarCallReference: Boolean = ref.getContext match {
+    case ScSugarCallExpr(_, `ref`, _) => true
+    case _ => false
   }
 
-  private def caretNear(editor: Editor): Boolean = ref.getTextRange.grown(1).contains(editor.getCaretModel.getOffset)
+  override def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _] =
+    ScalaAddImportAction(editor, ref, elements)
 
-  private def range(editor: Editor) = {
-    val visibleRectangle = editor.getScrollingModel.getVisibleArea
-    val startPosition = editor.xyToLogicalPosition(new Point(visibleRectangle.x, visibleRectangle.y))
-    val myStartOffset = editor.logicalPositionToOffset(startPosition)
-    val endPosition = editor.xyToLogicalPosition(new Point(visibleRectangle.x + visibleRectangle.width, visibleRectangle.y + visibleRectangle.height))
-    val myEndOffset = myStartOffset max editor.logicalPositionToOffset(new LogicalPosition(endPosition.line + 1, 0))
-    new TextRange(myStartOffset, myEndOffset)
-  }
-
-  private def startOffset(editor: Editor) = range(editor).getStartOffset
-
-  private def endOffset(editor: Editor) = range(editor).getEndOffset
-
-  private def fixesAction(editor: Editor) {
-    ApplicationManager.getApplication.invokeLater(() => {
-      if (ref.isValid && ref.resolve() == null && !HintManagerImpl.getInstanceImpl.hasShownHintsThatWillHideByOtherHint(true)) {
-        val action = ScalaAddImportAction(editor, classes, ref)
-
-        val refStart = ref.getTextRange.getStartOffset
-        val refEnd = ref.getTextRange.getEndOffset
-        if (classes.nonEmpty &&
-            refStart >= startOffset(editor) &&
-            refStart <= endOffset(editor) &&
-            editor != null &&
-            refEnd < editor.getDocument.getTextLength) {
-          HintManager.getInstance().showQuestionHint(editor,
-            if (classes.length == 1) classes(0).qualifiedName + "? Alt+Enter"
-            else classes(0).qualifiedName + "? (multiple choices...) Alt+Enter",
-            refStart,
-            refEnd,
-            action)
-        }
-      }
-    })
-  }
-
-  override def startInWriteAction(): Boolean = true
+  override def isAddUnambiguous: Boolean = ScalaApplicationSettings.getInstance().ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY
 }
 
 object ScalaImportTypeFix {
 
-  @tailrec
-  private def notInner(clazz: PsiClass, ref: PsiElement): Boolean = {
-    clazz match {
-      case o: ScObject if o.isSyntheticObject =>
-        ScalaPsiUtil.getCompanionModule(o) match {
-          case Some(cl) => notInner(cl, ref)
-          case _ => true
-        }
-      case t: ScTypeDefinition =>
-        t.getParent match {
-          case _: ScalaFile => true
-          case _: ScPackaging => true
-          case _: ScTemplateBody =>
-            Option(t.containingClass) match {
-              case Some(obj: ScObject) => ResolveUtils.isAccessible(obj, ref) && notInner(obj, ref)
-              case _ => false
-            }
-          case _ => false
-        }
-      case _ => true
-    }
+  def apply(reference: ScReference) = new ScalaImportTypeFix(
+    getTypesToImport(reference),
+    reference
+  )
+
+  @annotation.tailrec
+  private[this] def notInner(clazz: PsiClass, ref: PsiElement): Boolean = clazz match {
+    case o: ScObject if o.isSyntheticObject =>
+      getCompanionModule(o) match {
+        case Some(cl) => notInner(cl, ref)
+        case _ => true
+      }
+    case t: ScTypeDefinition =>
+      t.getParent match {
+        case _: ScalaFile |
+             _: ScPackaging => true
+        case _: ScTemplateBody =>
+          t.containingClass match {
+            case obj: ScObject if isAccessible(obj, ref) => notInner(obj, ref)
+            case _ => false
+          }
+        case _ => false
+      }
+    case _ => true
   }
 
   def getTypesToImport(ref: ScReference): Array[ElementToImport] = {
     if (!ref.isValid || ref.isInstanceOf[ScTypeProjection])
       return Array.empty
 
-    val project = ref.getProject
+    implicit val project: Project = ref.getProject
 
     val kinds = ref.getKinds(incomplete = false)
-    val cache = ScalaPsiManager.instance(project)
-    val classes = cache.getClassesByName(ref.refName, ref.resolveScope)
+    val manager = ScalaPsiManager.instance(project)
 
-    def shouldAddClass(clazz: PsiClass) = {
-      clazz != null &&
-        clazz.qualifiedName != null &&
-        clazz.qualifiedName.indexOf(".") > 0 &&
-        ResolveUtils.kindMatches(clazz, kinds) &&
-        notInner(clazz, ref) &&
-        ResolveUtils.isAccessible(clazz, ref) &&
-        !JavaCompletionUtil.isInExcludedPackage(clazz, false)
+    def kindMatchesAndIsAccessible(named: PsiNamedElement) = named match {
+      case member: PsiMember => kindMatches(member, kinds) && isAccessible(member, ref)
+      case _ => false
     }
 
-    val buffer = new ArrayBuffer[ElementToImport]
-
-    classes.flatMap {
-      case df: ScTypeDefinition => df.fakeCompanionModule ++: Seq(df)
-      case c => Seq(c)
-    }.filter(shouldAddClass).foreach(buffer += ClassToImport(_))
-
-    val typeAliases = cache.getStableAliasesByName(ref.refName, ref.resolveScope)
-    for (alias <- typeAliases) {
-      val containingClass = alias.containingClass
-      if (containingClass != null && ScalaPsiUtil.hasStablePath(alias) &&
-        ResolveUtils.kindMatches(alias, kinds) && ResolveUtils.isAccessible(alias, ref) &&
-        !JavaCompletionUtil.isInExcludedPackage(containingClass, false)) {
-        buffer += TypeAliasToImport(alias)
-      }
+    val predicate: PsiClass => Boolean = ref.getParent match {
+      case _: ScMethodCall => hasApplyMethod
+      case _ => Function.const(true)
     }
 
-    val packagesList = ScalaCodeStyleSettings.getInstance(project).getImportsWithPrefix.filter {
-      case exclude if exclude.startsWith(ScalaCodeStyleSettings.EXCLUDE_PREFIX) => false
-      case include =>
-        val parts = include.split('.')
-        if (parts.length > 1) parts.takeRight(2).head == ref.refName
-        else false
-    }.map(s => s.reverse.dropWhile(_ != '.').tail.reverse)
-
-    for (packageQualifier <- packagesList) {
-      val pack = ScPackageImpl.findPackage(project, packageQualifier)
-      if (pack != null && pack.getQualifiedName.indexOf('.') != -1 && ResolveUtils.kindMatches(pack, kinds) &&
-        !JavaProjectCodeInsightSettings.getSettings(project).isExcluded(pack.getQualifiedName)) {
-        buffer += PrefixPackageToImport(pack)
+    val referenceName = ref.refName
+    val classes = for {
+      clazz <- manager.getClassesByName(referenceName, ref.resolveScope)
+      classOrCompanion <- clazz match {
+        case clazz: ScTypeDefinition => clazz.fakeCompanionModule match {
+          case Some(companion) => companion :: clazz :: Nil
+          case _ => clazz :: Nil
+        }
+        case _ => clazz :: Nil
       }
+
+      if classOrCompanion != null &&
+        classOrCompanion.qualifiedName != null &&
+        isQualified(classOrCompanion.qualifiedName) &&
+        kindMatchesAndIsAccessible(classOrCompanion) &&
+        notInner(classOrCompanion, ref) &&
+        !isInExcludedPackage(classOrCompanion, false) &&
+        predicate(classOrCompanion)
+
+    } yield ClassToImport(classOrCompanion)
+
+    val membersFromCompanion = for {
+      CompanionObject(companion) <- ref.withContexts.toIterable
+      term <- companion.allTermsByName(referenceName)
+      if kindMatchesAndIsAccessible(term)
+    } yield MemberToImport(term, companion)
+
+    val aliases = for {
+      alias <- manager.getStableAliasesByName(referenceName, ref.resolveScope)
+
+      containingClass = alias.containingClass
+
+      if containingClass != null &&
+        hasStablePath(alias) &&
+        kindMatchesAndIsAccessible(alias) &&
+        !isInExcludedPackage(containingClass, false)
+
+    } yield MemberToImport(alias, containingClass)
+
+    val packagesList = importsWithPrefix(referenceName).map { s =>
+      s.reverse.dropWhile(_ != '.').tail.reverse
     }
 
-    val finalImports = if (ref.getParent.isInstanceOf[ScMethodCall]) {
-      buffer.filter {
-        case ClassToImport(clazz) =>
-          clazz.isInstanceOf[ScObject] &&
-            clazz.asInstanceOf[ScObject].allFunctionsByName("apply").nonEmpty
-        case _ => false
-      }
-    } else buffer
+    val packages = for {
+      packageQualifier <- packagesList
+      pack = ScPackageImpl.findPackage(packageQualifier)(manager)
 
-    implicit val byRelevance: Ordering[String] = OrderingUtil.orderingByRelevantImports(ref)
-    finalImports.sortBy(_.qualifiedName).toArray
+      if pack != null &&
+        kindMatches(pack, kinds) &&
+        !isExcluded(pack.getQualifiedName)
+
+    } yield PrefixPackageToImport(pack)
+
+    (classes ++
+      membersFromCompanion ++
+      aliases ++
+      packages)
+      .sortBy(_.qualifiedName)(orderingByRelevantImports(ref))
+      .toArray
+  }
+
+  private def hasApplyMethod(`class`: PsiClass) = `class` match {
+    case `object`: ScObject => `object`.allFunctionsByName(ScFunction.CommonNames.Apply).nonEmpty
+    case _ => false
+  }
+
+  private def importsWithPrefix(prefix: String)
+                               (implicit project: Project) =
+    ScalaCodeStyleSettings.getInstance(project)
+      .getImportsWithPrefix
+      .filter {
+        case exclude if exclude.startsWith(ScalaCodeStyleSettings.EXCLUDE_PREFIX) => false
+        case include =>
+          include.split('.') match {
+            case parts if parts.length < 2 => false
+            case parts => parts(parts.length - 2) == prefix
+          }
+      }
+
+  private def isExcluded(qualifiedName: String)
+                        (implicit project: Project) =
+    !isQualified(qualifiedName) ||
+      JavaProjectCodeInsightSettings.getSettings(project).isExcluded(qualifiedName)
+
+  private def isQualified(name: String) =
+    name.indexOf('.') != -1
+
+  // todo to be unified!
+  /**
+   * @see [[lang.completion.global.CompanionObjectMembersFinder]]
+   */
+  private object CompanionObject {
+
+    def unapply(constructorOwner: ScConstructorOwner): Option[ScObject] =
+      constructorOwner match {
+        case _: ScClass |
+             _: ScTrait =>
+          constructorOwner.baseCompanionModule.filterByType[ScObject]
+        case _ => None
+      }
+  }
+
+  private object ValueOrVariable {
+
+    def unapply(member: ScMember): Option[ScValueOrVariable] = member match {
+      case member: ScValueOrVariable => Some(member)
+      case _ => None
+    }
   }
 }

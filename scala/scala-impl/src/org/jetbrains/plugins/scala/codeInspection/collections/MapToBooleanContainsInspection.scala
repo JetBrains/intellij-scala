@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
@@ -12,7 +13,7 @@ class MapToBooleanContainsInspection extends OperationOnCollectionInspection {
 }
 
 object MapContainsFalse extends SimplificationType {
-  override def hint: String = InspectionBundle.message("replace.map.contains.false.with.not.forall")
+  override def hint: String = ScalaInspectionBundle.message("replace.map.contains.false.with.not.forall")
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
       case qual`.map`(pred @ returnsBoolean())`.contains`(literal("false")) =>
@@ -24,7 +25,7 @@ object MapContainsFalse extends SimplificationType {
 }
 
 object MapContainsTrue extends SimplificationType {
-  override def hint: String = InspectionBundle.message("replace.map.contains.true.with.exists")
+  override def hint: String = ScalaInspectionBundle.message("replace.map.contains.true.with.exists")
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case qual`.map`(pred @ returnsBoolean())`.contains`(literal("true")) =>
       val existsText = invocationText(qual, "exists", pred)

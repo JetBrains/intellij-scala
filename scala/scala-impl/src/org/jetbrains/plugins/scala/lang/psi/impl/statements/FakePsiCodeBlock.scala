@@ -7,17 +7,17 @@ import com.intellij.psi.impl.light.LightElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 
 final class FakePsiCodeBlock(body: ScExpression) extends LightElement(body.getManager, body.getLanguage) with PsiCodeBlock {
-  def shouldChangeModificationCount(place: PsiElement): Boolean = false
+  override def shouldChangeModificationCount(place: PsiElement): Boolean = false
 
-  def getRBrace: PsiJavaToken = null
+  override def getRBrace: PsiJavaToken = null
 
-  def getLBrace: PsiJavaToken = null
+  override def getLBrace: PsiJavaToken = null
 
-  def getLastBodyElement: PsiElement = null
+  override def getLastBodyElement: PsiElement = null
 
-  def getFirstBodyElement: PsiElement = null
+  override def getFirstBodyElement: PsiElement = null
 
-  def getStatements: Array[PsiStatement] = body match {
+  override def getStatements: Array[PsiStatement] = body match {
     case x: ScBlockExpr => x.statements.map(new FakePsiStatement(_)).toArray
     case _ => Array(new FakePsiStatement(body))
   }

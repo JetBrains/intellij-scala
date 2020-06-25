@@ -46,7 +46,7 @@ object WorksheetDiffSplitters {
       setHonorComponentsMinimumSize(false)
 
       getDivider.addMouseListener(new MouseAdapter {
-        override def mouseReleased(mouseEvent: MouseEvent) {
+        override def mouseReleased(mouseEvent: MouseEvent): Unit = {
           val documentManager = PsiDocumentManager.getInstance(editor1.getProject)
           val file = documentManager.getCachedPsiFile(editor1.getDocument)
           file match {

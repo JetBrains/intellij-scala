@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -18,10 +19,10 @@ import org.jetbrains.plugins.scala.util.SAMUtil.PsiClassToSAMExt
 object SearchTargetExtractors {
   sealed trait UsageType {
     override def toString: String = this match {
-      case UsageType.SAMInterfaceImplementation => "SAM type"
-      case UsageType.InstanceApplyUnapply       => "apply/unapply method"
-      case UsageType.ForComprehensionMethods    => "for-comprehension method"
-      case UsageType.ImplicitDefinitionUsages   => "implicit definition"
+      case UsageType.SAMInterfaceImplementation => ScalaBundle.message("bytecode.indices.target.sam.type")
+      case UsageType.InstanceApplyUnapply       => ScalaBundle.message("bytecode.indices.target.unapply.method")
+      case UsageType.ForComprehensionMethods    => ScalaBundle.message("bytecode.indices.target.for.comprehension.method")
+      case UsageType.ImplicitDefinitionUsages   => ScalaBundle.message("bytecode.indices.target.implicit.definition")
     }
   }
 

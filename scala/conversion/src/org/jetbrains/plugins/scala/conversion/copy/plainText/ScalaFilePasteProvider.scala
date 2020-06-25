@@ -13,6 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages.showErrorDialog
 import com.intellij.psi._
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.conversion.ScalaConversionBundle
 import org.jetbrains.plugins.scala.conversion.copy.plainText.ScalaFilePasteProvider._
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, ToNullSafe, inWriteCommandAction, startCommand}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -58,7 +59,8 @@ final class ScalaFilePasteProvider extends PasteProvider {
       }
     }.recover {
       case e: IncorrectOperationException =>
-        showErrorDialog(project, e.getMessage, "Paste")
+        //noinspection ReferencePassedToNls
+        showErrorDialog(project, e.getMessage, ScalaConversionBundle.message("paste.error.title"))
     }
 
   private def fileName(scalaFile: ScalaFile): String =
@@ -66,7 +68,7 @@ final class ScalaFilePasteProvider extends PasteProvider {
 
   private def updatePackageStatement(file: ScalaFile, targetDir: PsiDirectory)
                                     (implicit project: Project): Unit =
-    startCommand("Updating package statement") {
+    startCommand(ScalaConversionBundle.message("updating.package.statement")) {
       Try {
         JavaDirectoryService.getInstance().nullSafe
           .map(_.getPackage(targetDir))

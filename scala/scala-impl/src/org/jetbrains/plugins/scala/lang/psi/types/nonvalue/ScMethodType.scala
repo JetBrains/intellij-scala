@@ -4,20 +4,21 @@ package psi
 package types
 package nonvalue
 
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScGenericCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScGenericCall, ScMethodCall, ScReferenceExpression, ScUnderscoreSection}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 import scala.annotation.tailrec
 
 final case class ScMethodType(result: ScType, params: Seq[Parameter], isImplicit: Boolean)
                              (implicit val elementScope: ElementScope) extends NonValueType {
 
-  implicit def projectContext: project.ProjectContext = elementScope.projectContext
+  override implicit def projectContext: project.ProjectContext = elementScope.projectContext
 
   override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitMethodType(this)
 
   override def typeDepth: Int = result.typeDepth
 
-  def inferValueType: api.ValueType = {
+  override def inferValueType: api.ValueType = {
     api.FunctionType(result.inferValueType, params.map(p => {
       val inferredParamType = p.paramType.inferValueType
       if (!p.isRepeated) inferredParamType
@@ -53,6 +54,15 @@ object ScMethodType {
   // TODO Actually infer method types
   @tailrec def hasMethodType(e: ScExpression): Boolean = e match {
     case r: ScReferenceExpression => r.bind().exists(_.problems.exists(_.isInstanceOf[MissedParametersClause]))
+    case call: ScMethodCall if !call.getParent.isInstanceOf[ScUnderscoreSection] => call.deepestInvokedExpr match {
+      case method: ScReferenceExpression => method.bind().map(_.element) match {
+        case Some(definition: ScFunctionDefinition) =>
+          definition.paramClauses.clauses.takeWhile(!_.isImplicit).length > call.argumentListCount
+        case _ => false
+      }
+      case _ => false
+    }
+    case i: MethodInvocation => i.applicationProblems.exists(_.isInstanceOf[MissedValueParameter]) // Infix Expression
     case c: ScGenericCall => hasMethodType(c.referencedExpr)
     case _ => false
   }

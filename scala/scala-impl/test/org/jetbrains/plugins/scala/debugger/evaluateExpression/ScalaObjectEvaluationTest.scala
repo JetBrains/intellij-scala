@@ -6,12 +6,12 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[DebuggerTests]))
 class ScalaObjectEvaluationTest_2_11 extends ScalaObjectEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version <= Scala_2_11
+  override protected def supportedIn(version: ScalaVersion) = version  <= LatestScalaVersions.Scala_2_11
 }
 
 @Category(Array(classOf[DebuggerTests]))
 class ScalaObjectEvaluationTest_2_12 extends ScalaObjectEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version >= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_2_12
 }
 
 @Category(Array(classOf[DebuggerTests]))
@@ -58,7 +58,7 @@ abstract class ScalaObjectEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testEvaluateObjects() {
+  def testEvaluateObjects(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalStartsWith("Simple", "Simple$")
@@ -95,7 +95,7 @@ abstract class ScalaObjectEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
-  def testInnerClassObjectFromObject() {
+  def testInnerClassObjectFromObject(): Unit = {
     runDebugger() {
       waitForBreakpoint()
       evalStartsWith("SS.G", "InnerClassObjectFromObject$S$SS$G")

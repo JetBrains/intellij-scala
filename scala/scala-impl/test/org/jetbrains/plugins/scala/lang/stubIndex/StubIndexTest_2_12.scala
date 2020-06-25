@@ -18,15 +18,14 @@ import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
 class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_12
 
   private def intKey(s: String): Integer = Integer.valueOf(s.hashCode)
 
   private def moduleWithLibraries: GlobalSearchScope = GlobalSearchScope.moduleWithLibrariesScope(getModule)
 
   private def elementsInScalaLibrary[Key, Psi <: PsiElement : ClassTag](key: Key, indexKey: StubIndexKey[Key, Psi]): Seq[Psi] = {
-    val classOfPsi = implicitly[ClassTag[Psi]].runtimeClass.asInstanceOf[Class[Psi]]
-    indexKey.elements(key, moduleWithLibraries, classOfPsi)(getProject).toList
+    indexKey.elements(key, moduleWithLibraries)(getProject).toList
   }
 
   private def fqnsInScalaLibrary[Key, Psi <: PsiMember : ClassTag](key: Key, indexKey: StubIndexKey[Key, Psi]): Seq[String] = {
@@ -212,7 +211,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
   }
 
   def testImplicitConversion(): Unit = {
-    val all = ImplicitConversionIndex.allElements(moduleWithLibraries)(getProject).flatMap(_.qualifiedNameOpt).toSet
+    val all = ImplicitConversionIndex.allConversions(moduleWithLibraries)(getProject).flatMap(_.qualifiedNameOpt).toSet
     assertEquals(285, all.size)
     assertContains(all, "scala.math.Ordering.mkOrderingOps")
     assertContains(all, "scala.math.Ordering.ExtraImplicits.infixOrderingOps")

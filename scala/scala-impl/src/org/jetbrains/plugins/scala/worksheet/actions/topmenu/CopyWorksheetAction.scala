@@ -16,13 +16,17 @@ import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup
 
-class CopyWorksheetAction extends AnAction with TopComponentAction {
+class CopyWorksheetAction extends AnAction(
+  ScalaBundle.message("copy.scala.worksheet.action.text"),
+  ScalaBundle.message("copy.scala.worksheet.action.description"),
+  AllIcons.Actions.Copy
+) with TopComponentAction {
 
   override def genericText: String = ScalaBundle.message("worksheet.copy.button")
 
   override def actionIcon: Icon = AllIcons.Actions.Copy
 
-  override def actionPerformed(e: AnActionEvent) {
+  override def actionPerformed(e: AnActionEvent): Unit = {
     val project = e.getProject
     val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
     if (editor == null) return
@@ -71,7 +75,7 @@ object CopyWorksheetAction {
 
     def getLines(doc: Document) = getLinesFrom(0, doc.getLineCount, doc)
 
-    def append2Result(leftLines: Seq[CharSequence], rightLines: Seq[CharSequence]) {
+    def append2Result(leftLines: Seq[CharSequence], rightLines: Seq[CharSequence]): Unit = {
       leftLines.zipAll(rightLines, "", fullShift).foreach {
         case (textLeft, textRight) =>
           result.append(StringUtil.trimTrailing(textLeft))

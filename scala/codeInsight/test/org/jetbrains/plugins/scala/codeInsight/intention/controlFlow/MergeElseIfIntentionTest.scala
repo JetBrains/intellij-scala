@@ -13,7 +13,7 @@ class MergeElseIfIntentionTest extends intentions.ScalaIntentionTestBase {
 
   import EditorTestUtil.{CARET_TAG => CARET}
 
-  override def familyName = MergeElseIfIntention.FamilyName
+  override def familyName = ScalaCodeInsightBundle.message("family.name.merge.else.if")
 
   def testMergeElseIf1(): Unit = {
     val text =

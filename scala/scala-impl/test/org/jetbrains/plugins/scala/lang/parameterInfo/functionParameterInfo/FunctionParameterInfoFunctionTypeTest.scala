@@ -4,9 +4,9 @@ class FunctionParameterInfoFunctionTypeTest extends FunctionParameterInfoTestBas
   override def getTestDataPath: String =
     s"${super.getTestDataPath}functionType/"
 
-  def testFunctionType() = doTest()
+  def testFunctionType(): Unit = doTest()
 
-  def testFunctionTypeTwo() = doTest()
+  def testFunctionTypeTwo(): Unit = doTest()
 
-  def testNamingFunctionType() = doTest()
+  def testNamingFunctionType(): Unit = doTest()
 }

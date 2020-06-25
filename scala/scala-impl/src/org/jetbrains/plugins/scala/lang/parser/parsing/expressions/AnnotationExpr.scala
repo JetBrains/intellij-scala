@@ -36,7 +36,7 @@ object AnnotationExpr {
         builder.advanceLexer() //Ate }
         builder.enableNewlines()
         
-        def foo() {
+        def foo(): Unit = {
           while (NameValuePair.parse(builder)) {
             builder.getTokenType match {
               case ScalaTokenTypes.tCOMMA => builder.advanceLexer()

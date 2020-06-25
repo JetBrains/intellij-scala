@@ -8,6 +8,7 @@ package patterns
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{PsiTypeExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -31,9 +32,9 @@ class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], nod
 
   def this(stub: ScBindingPatternStub[ScTypedPattern]) = this(stub, null)
 
-  def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
+  override def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
 
-  def isWildcard: Boolean = findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null
+  override def isWildcard: Boolean = findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null
 
   override def isIrrefutableFor(t: Option[ScType]): Boolean = {
     for {
@@ -49,7 +50,7 @@ class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], nod
   override def `type`(): TypeResult = {
     typePattern match {
       case Some(tp) =>
-        if (tp.typeElement == null) return Failure("No type element for type pattern")
+        if (tp.typeElement == null) return Failure(ScalaBundle.message("no.type.element.for.type.pattern"))
         val typeElementType: TypeResult =
           tp.typeElement.`type`().map {
             case tp: ScExistentialType =>
@@ -96,12 +97,10 @@ class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], nod
           }
         this.expectedType match {
           case Some(expectedType) =>
-            typeElementType.map {
-              case resType => expectedType.glb(resType, checkWeak = false)
-            }
+            typeElementType.map(resType => expectedType.glb(resType, checkWeak = false))
           case _ => typeElementType
         }
-      case None => Failure("No type pattern")
+      case None => Failure(ScalaBundle.message("no.type.pattern"))
     }
   }
 

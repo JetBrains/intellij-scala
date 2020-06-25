@@ -9,15 +9,15 @@ class OverloadingGenerics extends ResolveTestBase {
     super.folderPath + "overloading/generics/"
   }
 
-  def testDefaultValue() = doTest()
-  def testDefaultValue2() = doTest()
+  def testDefaultValue(): Unit = doTest()
+  def testDefaultValue2(): Unit = doTest()
   //TODO
 //  def testDefaultValue3 = doTest
-  def testGenerics1() = doTest()
-  def testGenerics2() = doTest()
+  def testGenerics1(): Unit = doTest()
+  def testGenerics2(): Unit = doTest()
   //TODO
 //  def testGenerics3 = doTest
-  def testNoLiteralNarrowing() = doTest()
-  def testSimpleGenercs() = doTest()
-  def testWeakConforms() = doTest()
+  def testNoLiteralNarrowing(): Unit = doTest()
+  def testSimpleGenercs(): Unit = doTest()
+  def testWeakConforms(): Unit = doTest()
 }

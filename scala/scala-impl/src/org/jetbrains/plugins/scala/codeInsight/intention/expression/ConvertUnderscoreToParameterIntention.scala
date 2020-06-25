@@ -10,7 +10,6 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
 import com.intellij.openapi.editor.markup.{RangeHighlighter, TextAttributes}
-import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
@@ -30,28 +29,19 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-/**
- * @author Ksenia.Sautina
- * @since 4/13/12
- */
-
-object ConvertUnderscoreToParameterIntention {
-  def familyName = "Convert underscore section to parameter"
-}
-
 class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = ConvertUnderscoreToParameterIntention.familyName
+  override def getFamilyName: String = ScalaBundle.message("family.name.convert.underscore.section.to.parameter")
 
   override def getText: String = getFamilyName
 
-  def isAvailable(project: Project, editor: Editor, _element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, _element: PsiElement): Boolean = {
     findExpression(_element, editor) match {
       case Some(_) => true
       case None => false
     }
   }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     implicit val ctx: ProjectContext = project
 
     val expr = findExpression(element, editor).get
@@ -182,26 +172,26 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
       val rangesToHighlight: mutable.HashMap[TextRange, TextAttributes] = new mutable.HashMap[TextRange, TextAttributes]
 
       TemplateManager.getInstance(project).startTemplate(editor, template, new TemplateEditingAdapter {
-        override def waitingForInput(template: Template) {
+        override def waitingForInput(template: Template): Unit = {
           markCurrentVariables(1)
         }
 
         override def currentVariableChanged(templateState: TemplateState, template: Template,
-                                            oldIndex: Int, newIndex: Int) {
+                                            oldIndex: Int, newIndex: Int): Unit = {
           if (oldIndex >= 0) clearHighlighters()
           if (newIndex > 0) markCurrentVariables(newIndex + 1)
         }
 
-        override def templateCancelled(template: Template) {
+        override def templateCancelled(template: Template): Unit = {
           clearHighlighters()
         }
 
-        override def templateFinished(template: Template, brokenOff: Boolean) {
+        override def templateFinished(template: Template, brokenOff: Boolean): Unit = {
           clearHighlighters()
         }
 
         private def addHighlights(ranges: mutable.HashMap[TextRange, TextAttributes], editor: Editor,
-                                  highlighters: ArrayBuffer[RangeHighlighter], highlightManager: HighlightManager) {
+                                  highlighters: ArrayBuffer[RangeHighlighter], highlightManager: HighlightManager): Unit = {
           for ((range, attributes) <- ranges) {
             highlightManager.addOccurrenceHighlight(
               editor, range.getStartOffset, range.getEndOffset,
@@ -213,7 +203,7 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
           }
         }
 
-        private def markCurrentVariables(index: Int) {
+        private def markCurrentVariables(index: Int): Unit = {
           val colorsManager: EditorColorsManager = EditorColorsManager.getInstance
           val templateState: TemplateState = TemplateManagerImpl.getTemplateState(editor)
           var i: Int = 0
@@ -234,7 +224,7 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
           addHighlights(rangesToHighlight, editor, myHighlighters, HighlightManager.getInstance(project))
         }
 
-        private def clearHighlighters() {
+        private def clearHighlighters(): Unit = {
           val highlightManager = HighlightManager.getInstance(project)
           myHighlighters.foreach {a => highlightManager.removeSegmentHighlighter(editor, a)}
           rangesToHighlight.clear()

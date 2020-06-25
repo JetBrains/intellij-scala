@@ -7,7 +7,7 @@ package lang.surroundWith.surrounders.scaladoc
  */
 
 class ScalaDocWithBoldSurrounder extends ScalaDocWithSyntaxSurrounder {
-  def getTemplateDescription: String = "Bold: ''' '''"
+  override def getTemplateDescription: String = "Bold: ''' '''"
 
-  def getSyntaxTag = "'''"
+  override def getSyntaxTag = "'''"
 }

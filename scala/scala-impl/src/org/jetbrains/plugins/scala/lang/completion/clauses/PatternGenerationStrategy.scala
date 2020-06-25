@@ -3,13 +3,14 @@ package lang
 package completion
 package clauses
 
-import com.intellij.psi.{PsiClass, PsiElement, PsiEnumConstant}
+import com.intellij.openapi.project.Project
+import com.intellij.psi.{PsiClass, PsiEnumConstant}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, TypePresentationContext}
 
 sealed trait PatternGenerationStrategy {
   def canBeExhaustive: Boolean
@@ -32,7 +33,7 @@ object PatternGenerationStrategy {
 
     def createClauses(prefix: Option[String] = None,
                       suffix: Option[String] = None)
-                     (implicit place: PsiElement): (Seq[PatternComponents], String) = {
+                     (implicit project: Project): (Seq[PatternComponents], String) = {
       val components = strategy.patterns
 
       val clausesText = components.map(_.canonicalClauseText)
@@ -48,7 +49,7 @@ object PatternGenerationStrategy {
 
   def unapply(`type`: ScType)
              (implicit parameters: ClauseCompletionParameters): Option[PatternGenerationStrategy] = {
-    val valueType = `type`.extractDesignatorSingleton.getOrElse(`type`)
+    val valueType = toValueType(`type`)
     val strategy = valueType match {
       case ScProjectionType(DesignatorOwner(enumClass@ScalaEnumeration(values)), _) =>
         val membersNames = for {
@@ -73,6 +74,18 @@ object PatternGenerationStrategy {
               enumConstants.map(_.getName)
             )
         }
+      case ScCompoundType(Seq(ExtractClass(DirectInheritors(inheritors)), _*), _, _) =>
+        val Inheritors(namedInheritors, isSealed, isExhaustive) = inheritors
+
+        val appropriateNamedInheritors = for {
+          inheritor <- namedInheritors
+          if ScDesignatorType(inheritor).conforms(valueType)
+        } yield inheritor
+
+        if (appropriateNamedInheritors.isEmpty) null
+        else new DirectInheritorsGenerationStrategy(
+          Inheritors(appropriateNamedInheritors, isSealed, isExhaustive)
+        )
       case ExtractClass(DirectInheritors(inheritors)) =>
         new DirectInheritorsGenerationStrategy(inheritors)
       case _ =>

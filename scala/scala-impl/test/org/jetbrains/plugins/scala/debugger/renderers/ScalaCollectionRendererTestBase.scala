@@ -13,11 +13,11 @@ import org.junit.experimental.categories.Category
  */
 @Category(Array(classOf[DebuggerTests]))
 class ScalaCollectionRendererTest_until_2_11 extends ScalaCollectionRendererTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version <= Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  <= LatestScalaVersions.Scala_2_11
 }
 @Category(Array(classOf[DebuggerTests]))
 class ScalaCollectionRendererTest_since_2_12 extends ScalaCollectionRendererTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_12
 
   addFileWithBreakpoints("Lazy.scala",
     s"""
@@ -30,13 +30,13 @@ class ScalaCollectionRendererTest_since_2_12 extends ScalaCollectionRendererTest
       """.replace("\r", "").stripMargin.trim
   )
 
-  def testLazy() {
+  def testLazy(): Unit = {
     testLazyCollectionRendering("stream", "scala.collection.immutable.Stream$Cons", "Stream(42, ?)")
   }
 }
 @Category(Array(classOf[DebuggerTests]))
 class ScalaCollectionRendererTest_since_2_13 extends ScalaCollectionRendererTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_13
 
   addFileWithBreakpoints("Lazy.scala",
     s"""
@@ -50,7 +50,7 @@ class ScalaCollectionRendererTest_since_2_13 extends ScalaCollectionRendererTest
        |}
       """.replace("\r", "").stripMargin.trim
   )
-  def testLazy() {
+  def testLazy(): Unit = {
     testLazyCollectionRendering("list", "scala.collection.immutable.LazyList", "LazyList(<not computed>)")
     testLazyCollectionRendering("stream", "scala.collection.immutable.Stream$Cons", "Stream(1, <not computed>)")
   }
@@ -107,7 +107,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
        |}
       """.replace("\r", "").stripMargin.trim
   )
-  def testShortList() {
+  def testShortList(): Unit = {
     testScalaCollectionRenderer("lst", 6, "scala.collection.immutable.$colon$colon")
   }
 
@@ -123,7 +123,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
        |}
       """.stripMargin.replace("\r","").trim
   )
-  def testStack() {
+  def testStack(): Unit = {
     testScalaCollectionRenderer("stack", 8, "scala.collection.mutable.Stack")
   }
 
@@ -137,7 +137,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
        |}
     """.stripMargin.replace("\r", "").trim
   )
-  def testMutableList() {
+  def testMutableList(): Unit = {
     testScalaCollectionRenderer("mutableList", 5, "scala.collection.mutable.ListBuffer")
   }
 
@@ -151,7 +151,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
        |}
       """.stripMargin.replace("\r", "").trim
   )
-  def testQueue() {
+  def testQueue(): Unit = {
     testScalaCollectionRenderer("queue", 4, "scala.collection.immutable.Queue")
   }
 
@@ -165,7 +165,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
        |}
       """.stripMargin.replace("\r", "").trim
   )
-  def testLongList() {
+  def testLongList(): Unit = {
     testScalaCollectionRenderer("longList", 50, "scala.collection.immutable.$colon$colon")
   }
 }

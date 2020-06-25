@@ -1,42 +1,55 @@
 package org.jetbrains.plugins.scala.debugger.ui
 
 import java.util
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletableFuture.completedFuture
 
 import com.intellij.debugger.DebuggerContext
-import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContext, EvaluationContextImpl}
+import com.intellij.debugger.engine.evaluation.EvaluateException
+import com.intellij.debugger.engine.evaluation.EvaluationContext
+import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.impl.PositionUtil
-import com.intellij.debugger.ui.impl.watch.{ValueDescriptorImpl, WatchItemDescriptor}
+import com.intellij.debugger.ui.impl.watch.ValueDescriptorImpl
+import com.intellij.debugger.ui.impl.watch.WatchItemDescriptor
 import com.intellij.debugger.ui.tree.render._
-import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptor, ValueDescriptor}
+import com.intellij.debugger.ui.tree.DebuggerTreeNode
+import com.intellij.debugger.ui.tree.NodeDescriptor
+import com.intellij.debugger.ui.tree.ValueDescriptor
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{JavaPsiFacade, PsiExpression}
+import com.intellij.psi.JavaPsiFacade
+import com.intellij.psi.PsiExpression
 import com.intellij.util.IncorrectOperationException
 import com.sun.jdi._
 import com.sun.tools.jdi.ObjectReferenceImpl
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
-import org.jetbrains.plugins.scala.debugger.ui.NonStrictCollectionsRenderer.{CollectionElementNodeDescriptor, Fail, SimpleMethodInvocationResult}
-import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer.{hasDefiniteSize, instanceOf, lazyList_2_13, nonEmpty, streamClassName, streamViewClassName, transformName, viewClassName, viewClassName_2_13}
+import org.jetbrains.plugins.scala.debugger.ui.NonStrictCollectionsRenderer._
+import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer._
 
 /**
  * User: Dmitry Naydanov
  * Date: 9/3/12
  */
 class NonStrictCollectionsRenderer extends NodeRendererImpl {
-  import org.jetbrains.plugins.scala.debugger.ui.NonStrictCollectionsRenderer.{MethodNotFound, Success}
-  import org.jetbrains.plugins.scala.debugger.ui.{NonStrictCollectionsRenderer => companionObject}
+
+  //noinspection UnstableApiUsage
+  setIsApplicableChecker {
+    case tpe@(_: ReferenceType) if !mustNotExpandStreams =>
+      orAsync(isLazyAsync(tpe), isViewAsync(tpe))
+    case _ => completedFuture(false)
+  }
 
   def getStartIndex: Int = ScalaDebuggerSettings.getInstance().COLLECTION_START_INDEX.intValue()
   def getEndIndex: Int = ScalaDebuggerSettings.getInstance().COLLECTION_END_INDEX.intValue()
 
-  def getUniqueId = "NonStrictCollectionsRenderer"
+  override def getUniqueId = "NonStrictCollectionsRenderer"
 
   override def getName = "Scala streams as collections"
 
-  override def setName(text: String) {/*do nothing*/}
+  override def setName(text: String): Unit = {/*do nothing*/}
 
   override def isEnabled: Boolean = !mustNotExpandStreams
 
-  override def setEnabled(enabled: Boolean) {/*see ScalaDebuggerSettingsConfigurable */}
+  override def setEnabled(enabled: Boolean): Unit = {/*see ScalaDebuggerSettingsConfigurable */}
 
   private def mustNotExpandStreams: Boolean = ScalaDebuggerSettings.getInstance().DO_NOT_DISPLAY_STREAMS
 
@@ -44,7 +57,7 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
                                        context: EvaluationContext) = {
     val suitableMethods = objectRef.referenceType().methodsByName(methodName, "()" + signature)
     if (suitableMethods.size() > 0) {
-      companionObject.invokeEmptyArgsMethod(objectRef, suitableMethods get 0, context)
+      invokeEmptyArgsMethod(objectRef, suitableMethods get 0, context)
     } else {
       MethodNotFound()
     }
@@ -65,13 +78,13 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
     }
   }
 
-  override def buildChildren(value: Value, builder: ChildrenBuilder, evaluationContext: EvaluationContext) {
+  override def buildChildren(value: Value, builder: ChildrenBuilder, evaluationContext: EvaluationContext): Unit = {
     def invokeEmptyArgsMethod(obj: ObjectReference, actualRefType: ReferenceType, methodName: String): Value = {
       val suitableMethods = actualRefType methodsByName methodName
       if (suitableMethods.size() == 0) return null
 
       try {
-        evaluationContext.getDebugProcess.invokeMethod(evaluationContext, obj, suitableMethods get 0, companionObject.EMPTY_ARGS)
+        evaluationContext.getDebugProcess.invokeMethod(evaluationContext, obj, suitableMethods get 0, EMPTY_ARGS)
       }
       catch {
         case (_: EvaluateException | _: InvocationException | _: InvalidTypeException |
@@ -88,7 +101,7 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
 
     val myChildren = new util.ArrayList[DebuggerTreeNode]()
 
-    def returnChildren() {
+    def returnChildren(): Unit = {
       builder.setChildren(myChildren)
     }
     value match {
@@ -131,24 +144,25 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
 
   }
 
-  override def isExpandable(value: Value, evaluationContext: EvaluationContext, parentDescriptor: NodeDescriptor): Boolean = value match {
-    case objectRef: ObjectReferenceImpl => nonEmpty(objectRef, evaluationContext)
-    case _ => false
+  override def isExpandableAsync(value: Value,
+                                 evaluationContext: EvaluationContext,
+                                 parentDescriptor: NodeDescriptor): CompletableFuture[java.lang.Boolean] = {
+    val isExpandable = value match {
+      case objectRef: ObjectReferenceImpl => nonEmpty(objectRef, evaluationContext)
+      case _ => false
+    }
+    CompletableFuture.completedFuture(isExpandable)
   }
 
-  def isApplicable(tpe: Type): Boolean = tpe match {
-    case _: ReferenceType if !mustNotExpandStreams =>
-      isLazy(tpe) || isView(tpe)
-    case _ => false
-  }
+  private def isViewAsync(tpe: Type): CompletableFuture[Boolean] =
+    instanceOfAsync(tpe, viewClassName, viewClassName_2_13)
 
-  private def isView(tpe: Type): Boolean = instanceOf(tpe, viewClassName, viewClassName_2_13)
-
-  private def isLazy(tpe: Type): Boolean = instanceOf(tpe, streamClassName, lazyList_2_13)
+  private def isLazyAsync(tpe: Type): CompletableFuture[Boolean] =
+    instanceOfAsync(tpe, streamClassName, lazyList_2_13)
 
   private def isStreamView(tpe: Type): Boolean = instanceOf(tpe, streamViewClassName)
 
-  def calcLabel(descriptor: ValueDescriptor, context: EvaluationContext, listener: DescriptorLabelListener): String = {
+  override def calcLabel(descriptor: ValueDescriptor, context: EvaluationContext, listener: DescriptorLabelListener): String = {
     val stringBuilder = new StringBuilder()
 
     descriptor.getValue match {
@@ -201,9 +215,9 @@ object NonStrictCollectionsRenderer {
   private case class Fail[E <: Throwable](exc: E) extends SimpleMethodInvocationResult[E]
   
   private class CollectionElementNodeDescriptor(name: String, project: Project, value: Value) extends ValueDescriptorImpl(project, value) {
-    def calcValue(evaluationContext: EvaluationContextImpl): Value = value
+    override def calcValue(evaluationContext: EvaluationContextImpl): Value = value
 
-    def getDescriptorEvaluation(context: DebuggerContext): PsiExpression = {
+    override def getDescriptorEvaluation(context: DebuggerContext): PsiExpression = {
       try {
         JavaPsiFacade.getInstance(project).getElementFactory.createExpressionFromText(name, PositionUtil getContextElement context)
       } 

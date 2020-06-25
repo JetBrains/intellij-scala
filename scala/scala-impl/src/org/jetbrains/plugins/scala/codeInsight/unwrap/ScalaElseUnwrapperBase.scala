@@ -41,5 +41,5 @@ abstract class ScalaElseUnwrapperBase extends ScalaUnwrapper {
     case _ => ifStmt
   }
 
-  protected def unwrapElseBranch(expr: ScExpression, ifStmt: ScIf, context: ScalaUnwrapContext)
+  protected def unwrapElseBranch(expr: ScExpression, ifStmt: ScIf, context: ScalaUnwrapContext): Unit
 }

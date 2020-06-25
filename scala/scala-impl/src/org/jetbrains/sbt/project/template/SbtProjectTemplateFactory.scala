@@ -13,7 +13,7 @@ import org.jetbrains.sbt.project.template.techhub.TechHubProjectTemplate
   * Date: 11.03.14.
   */
 class SbtProjectTemplateFactory extends ProjectTemplatesFactory {
-  override def getGroups = Array(ScalaProjectTemplatesFactory.Group)
+  override def getGroups: Array[String] = Array(ScalaProjectTemplatesFactory.Group)
 
   override def getGroupIcon(group: String): Icon = Icons.SCALA_SMALL_LOGO
 

@@ -36,7 +36,7 @@ object ExistentialClause {
         existMarker.done(ScalaElementType.EXISTENTIAL_CLAUSE)
         return true
     }
-    def foo() {
+    def foo(): Unit = {
       ExistentialDclSeq parse builder
     }
     ParserUtils.parseLoopUntilRBrace(builder, foo _)

@@ -5,15 +5,16 @@ package zinc
 import java.io.{PrintWriter, StringWriter}
 import java.util.ServiceLoader
 
+import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.scala.data.CompilationData
+import org.jetbrains.jps.incremental.scala.local.zinc.Utils._
+import org.jetbrains.plugins.scala.compiler.data.CompilationData
 import sbt.internal.inc.Analysis
-import xsbti.compile.{AnalysisStore, CompileResult, MiniSetup, AnalysisContents}
-import Utils._
+import xsbti.compile.{AnalysisContents, AnalysisStore, CompileResult, MiniSetup}
 
+import scala.collection.JavaConverters._
 import scala.util.Try
 import scala.util.control.NonFatal
-import scala.collection.JavaConverters._
 
 case class CompilationMetadata(previousAnalysis: Analysis,
                                previousSetup: Option[MiniSetup],
@@ -43,12 +44,12 @@ object CompilationMetadata {
     val cacheLoadingStart = System.currentTimeMillis()
     val cacheProviders = cachedCompilationServices.flatMap(_.createProvider(compilationData))
 
-    def cacheStats(description: String, isCached: Boolean) = {
+    def cacheStats(@Nls description: String, isCached: Boolean) = {
       val cacheLoadingEnd = System.currentTimeMillis()
       CacheStats(description, cacheLoadingEnd - cacheLoadingStart, cacheLoadingEnd, isCached)
     }
 
-    def notUseCache(description: String) = {
+    def notUseCache(@Nls description: String) = {
       val (localAnalysis, localSetup) = if (analysisFromLocalStore.isPresent) {
         val content = analysisFromLocalStore.get()
         (content.getAnalysis.asInstanceOf[Analysis], Some(content.getMiniSetup))
@@ -61,7 +62,7 @@ object CompilationMetadata {
       val logs = new StringWriter()
       e.printStackTrace(new PrintWriter(logs))
       e.printStackTrace(System.out) // It will become a warning
-      CacheResult(s"Exception when loading cache:\n$logs", None)
+      CacheResult(JpsBundle.message("exception.when.loading.cache.logs", logs), None)
     }
 
     val cachedResults: List[CacheResult] = cacheProviders.map{
@@ -83,16 +84,16 @@ object CompilationMetadata {
         result match {
           case Some(content: AnalysisContents) =>
             CompilationMetadata(content.getAnalysis.asInstanceOf[Analysis], Some(content.getMiniSetup), cacheStats(description, isCached = true))(cacheProviders)
-          case Some(badFormat) =>
+          case Some(badFormat: AnyRef) =>
             val cacheResultClass = badFormat.getClass.getName
-            client.warning(s"Unrecognized cache format: $badFormat (class $cacheResultClass)")
-            notUseCache(s"No cache: badFormat ($cacheResultClass): $description")
+            client.warning(JpsBundle.message("unrecognized.cache.format", badFormat, cacheResultClass))
+            notUseCache(JpsBundle.message("no.cache") + s" badFormat ($cacheResultClass): $description")
 
           case _ =>
-            notUseCache(s"No cache: $description")
+            notUseCache(JpsBundle.message("no.cache") +s" $description")
         }
       case _ =>
-        notUseCache("No cache found.")
+        notUseCache(JpsBundle.message("no.cache.found"))
     }
   }
 }

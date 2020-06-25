@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator;
 
-import com.intellij.debugger.DebuggerBundle;
+import com.intellij.debugger.JavaDebuggerBundle;
 import com.intellij.debugger.engine.DebugProcessImpl;
 import com.intellij.debugger.engine.JVMName;
 import com.intellij.debugger.engine.evaluation.EvaluateException;
@@ -38,14 +38,14 @@ public class ScalaNewClassInstanceEvaluator implements Evaluator {
     DebugProcessImpl debugProcess = context.getDebugProcess();
     Object obj = myClassTypeEvaluator.evaluate(context);
     if (!(obj instanceof ClassType)) {
-      throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.cannot.evaluate.class.type"));
+      throw EvaluateExceptionUtil.createEvaluateException(JavaDebuggerBundle.message("evaluation.error.cannot.evaluate.class.type"));
     }
     ClassType classType = (ClassType)obj;
     // find constructor
     Method method = DebuggerUtilsEx.findMethod(classType, "<init>", myConstructorSignature.getName(debugProcess));
     if (method == null) {
       throw EvaluateExceptionUtil.createEvaluateException(
-          DebuggerBundle.message("evaluation.error.cannot.resolve.constructor", myConstructorSignature.getDisplayName(debugProcess)));
+          JavaDebuggerBundle.message("evaluation.error.cannot.resolve.constructor", myConstructorSignature.getDisplayName(debugProcess)));
     }
     // evaluate arguments
     List<Value> arguments;
