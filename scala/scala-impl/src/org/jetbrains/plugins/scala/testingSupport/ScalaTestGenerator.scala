@@ -137,9 +137,12 @@ class ScalaTestGenerator extends TestGenerator {
     import ScalaTestGenerator._
     import TestConfigurationUtil.isInheritor
 
-    if (isInheritor(typeDef, "org.scalatest.FeatureSpecLike", "org.scalatest.fixture.FeatureSpecLike", "org.scalatest.featurespec.AnyFeatureSpecLike", "org.scalatest.featurespec.FixtureAnyFeatureSpecLike")) {
+    if (isInheritor(typeDef, "org.scalatest.FeatureSpecLike", "org.scalatest.fixture.FeatureSpecLike")) {
       generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
       addScalaTestFeatureSpecMethods(methods, body)
+    } else if (isInheritor(typeDef, "org.scalatest.featurespec.AnyFeatureSpecLike", "org.scalatest.featurespec.FixtureAnyFeatureSpecLike")) {
+      generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
+      addScalaTestFeatureSpecMethods(methods, body, isScalaTest3_1_0 = true)
     } else if (isInheritor(typeDef, "org.scalatest.FlatSpecLike", "org.scalatest.fixture.FlatSpecLike", "org.scalatest.flatspec.AnyFlatSpecLike", "org.scalatest.flatspec.FixtureAnyFlatSpecLike")) {
       generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
       addScalaTestFlatSpecMethods(methods, body, className)
@@ -224,14 +227,17 @@ object ScalaTestGenerator {
     }
   }
 
-  private def addScalaTestFeatureSpecMethods(methods: Seq[MemberInfo], templateBody: ScTemplateBody): Unit = {
+  private def addScalaTestFeatureSpecMethods(methods: Seq[MemberInfo], templateBody: ScTemplateBody, isScalaTest3_1_0: Boolean = false): Unit = {
     import templateBody.projectContext
 
+    val scenario = if (isScalaTest3_1_0) "Scenario" else "scenario"
+    val feature = if (isScalaTest3_1_0) "Feature" else "feature"
+
     if (methods.nonEmpty) {
-      val methodStrings = methods.map(m => s"scenario (${m.nameQuoted}){\n\n}\n")
+      val methodStrings = methods.map(m => s"$scenario (${m.nameQuoted}){\n\n}\n")
       val methodsConcat = methodStrings.mkString("\n")
       val result = 
-        s"""feature("Methods tests") {
+        s"""$feature("Methods tests") {
            |$methodsConcat}""".stripMargin
       templateBody.addBefore(createExpressionFromText(result), templateBody.getLastChild)
       templateBody.addBefore(createNewLine(), templateBody.getLastChild)
