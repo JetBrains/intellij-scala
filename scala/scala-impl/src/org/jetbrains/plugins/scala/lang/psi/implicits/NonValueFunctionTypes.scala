@@ -6,8 +6,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.implicits.NonValueFunctionTypes._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.macroAnnotations.Measure
@@ -16,18 +16,33 @@ import scala.collection.Set
 
 private case class NonValueFunctionTypes(fun: ScFunction, substitutor: ScSubstitutor, typeFromMacro: Option[ScType]) {
 
-  private lazy val undefinedData: Option[UndefinedTypeData] = computeUndefinedType(fun, substitutor, typeFromMacro)
+  @volatile
+  private var _undefinedData: Option[UndefinedTypeData] = _
+  @volatile
+  private var _methodTypeData: Option[MethodTypeData] = _
 
-  private lazy val methodTypeData: Option[MethodTypeData] =
-    undefinedData.flatMap(computeMethodType(fun, substitutor, _))
+  //lazy vals may lead to deadlock, see SCL-17722
+  private def lazyUndefinedData: Option[UndefinedTypeData] = {
+    if (_undefinedData == null) {
+      _undefinedData = computeUndefinedType(fun, substitutor, typeFromMacro)
+    }
+    _undefinedData
+  }
 
-  def undefinedType: Option[ScType] = undefinedData.map(_.undefinedType)
+  private def lazyMethodTypeData: Option[MethodTypeData] = {
+    if (_methodTypeData == null) {
+      _methodTypeData = lazyUndefinedData.flatMap(computeMethodType(fun, substitutor, _))
+    }
+    _methodTypeData
+  }
 
-  def hadDependents: Boolean = undefinedData.exists(_.hadDependent)
+  def undefinedType: Option[ScType] = lazyUndefinedData.map(_.undefinedType)
 
-  def methodType: Option[ScType] = methodTypeData.map(_.methodType)
+  def hadDependents: Boolean = lazyUndefinedData.exists(_.hadDependent)
 
-  def hasImplicitClause: Boolean = methodTypeData.exists(_.hasImplicitClause)
+  def methodType: Option[ScType] = lazyMethodTypeData.map(_.methodType)
+
+  def hasImplicitClause: Boolean = lazyMethodTypeData.exists(_.hasImplicitClause)
 }
 
 private object NonValueFunctionTypes {
