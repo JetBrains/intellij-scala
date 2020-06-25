@@ -114,7 +114,7 @@ final class ScalafmtDynamicConfigServiceImpl(private val project: Project)
       override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
         notification.expire()
 
-        val result = createConfigurationFile(project)
+        val result = createConfigurationFile(project, DefaultConfigurationFileName, openInEditor = true)
         result match {
           case Left(ex)  =>
             ex.foreach(Log.error("Couldn't create scalafmt configuration file", _))
@@ -237,17 +237,20 @@ object ScalafmtDynamicConfigServiceImpl {
                                   vFileModificationTimestamp: Long,
                                   docModificationTimestamp: Long)
 
-  private def createConfigurationFile(project: Project): Either[Option[Throwable], Unit] =
-    ScalafmtConfigUtils.projectConfigFileAbsolutePath(project, DefaultConfigurationFileName) match {
+  def createConfigurationFile(project: Project, path: String, openInEditor: Boolean): Either[Option[Throwable], VirtualFile] =
+    ScalafmtConfigUtils.projectConfigFileAbsolutePath(project, path) match {
       case Some(path) =>
         val tri = Try {
           val file = new File(path)
-          file.createNewFile()
-          val vFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file)
           FileUtils.writeStringToFile(file, "version = 2.5.0", Charset.forName("UTF-8"))
-          FileEditorManager.getInstance(project).openFile(vFile, true)
+          val vFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file)
+          if (openInEditor)
+            invokeLater {
+              FileEditorManager.getInstance(project).openFile(vFile, true)
+            }
+          vFile
         }
-        tri.toEither.left.map(Some(_)).map(_ => ())
+        tri.toEither.left.map(Some(_))
       case _ =>
         Left(None)
     }

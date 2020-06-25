@@ -3,13 +3,14 @@ package org.jetbrains.plugins.scala.lang.formatting.scalafmt.utils
 import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.vfs.{StandardFileSystems, VirtualFile}
 import com.intellij.vcsUtil.VcsUtil
+import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.DefaultConfigurationFileName
 
 object ScalafmtConfigUtils {
 
   def actualConfigPath(configPath: String): String =
-    if (configPath.nonEmpty) configPath else DefaultConfigurationFileName
+    if (StringUtils.isNotBlank(configPath)) configPath else DefaultConfigurationFileName
 
   def projectConfigFile(project: Project, configPath: String): Option[VirtualFile] = {
     val actualPath = actualConfigPath(configPath)
