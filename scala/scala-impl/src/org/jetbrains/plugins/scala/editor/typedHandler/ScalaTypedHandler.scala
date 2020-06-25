@@ -4,10 +4,10 @@ import java.{util => ju}
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.completion.CompletionType
+import com.intellij.codeInsight.editorActions.TypedHandlerDelegate
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate.Result
-import com.intellij.codeInsight.editorActions.{TypedHandler, TypedHandlerDelegate}
 import com.intellij.codeInsight.{AutoPopupController, CodeInsightSettings}
-import com.intellij.openapi.editor.{Document, Editor, EditorModificationUtil}
+import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -38,7 +38,6 @@ import org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
-import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.IndentUtil
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
@@ -49,7 +48,6 @@ import scala.language.implicitConversions
 //noinspection HardCodedStringLiteral
 final class ScalaTypedHandler extends TypedHandlerDelegate {
 
-  @Measure
   override def charTyped(c: Char, project: Project, editor: Editor, file: PsiFile): Result = {
     if (!file.isInstanceOf[ScalaFile]) return Result.CONTINUE
 
@@ -138,7 +136,6 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     }
   }
 
-  @Measure
   override def beforeCharTyped(c: Char, project: Project, editor: Editor, file: PsiFile, fileType: FileType): Result = {
     if (!file.isInstanceOf[ScalaFile]) return Result.CONTINUE
 
