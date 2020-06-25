@@ -6,35 +6,20 @@ package util
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
-import com.intellij.psi.search.searches.ClassInheritorsSearch
-import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.search.LocalSearchScope
-import com.intellij.psi.search.SearchScope
+import com.intellij.psi.search.searches.{ClassInheritorsSearch, ReferencesSearch}
+import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScInfixTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParenthesisedTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParameterizedTypeElement, ScParenthesisedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
-import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
-import org.jetbrains.plugins.scala.macroAnnotations.Measure
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
-import org.jetbrains.plugins.scala.macroAnnotations.ModCount
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
@@ -226,22 +211,5 @@ object ScalaInheritors {
     buffer.toSet
   }
 
-  //find objects which may be used to import members of `clazz`
-  @CachedInUserData(clazz, ModCount.getBlockModificationCount)
-  def findInheritorObjects(clazz: ScTemplateDefinition): Set[ScObject] = {
-    val allObjects = collectStableInheritors[ScObject](clazz)
-
-    if (allObjects.isEmpty || clazz.hasTypeParameters) {
-      allObjects
-    } else {
-      //if `clazz` is not generic, members in all objects are the same, so we return one with the shortest qualified name
-      Set(allObjects.minBy(o => (o.qualifiedName.length, o.qualifiedName)))
-    }
-  }
-
-  def findInheritorObjectsForOwner(member: ScMember): Set[ScObject] =
-    member.containingClass match {
-      case null => Set.empty
-      case clazz => findInheritorObjects(clazz)
-    }
+  def allInheritorObjects(clazz: ScTemplateDefinition): Set[ScObject] = collectStableInheritors[ScObject](clazz)
 }

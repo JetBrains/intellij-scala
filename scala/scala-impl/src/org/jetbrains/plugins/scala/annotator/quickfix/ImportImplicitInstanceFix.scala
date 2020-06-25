@@ -1,17 +1,13 @@
 package org.jetbrains.plugins.scala.annotator.quickfix
 
+import com.intellij.codeInsight.completion.JavaCompletionUtil.isInExcludedPackage
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.intention.ImplicitToImport
-import org.jetbrains.plugins.scala.annotator.intention.PopupPosition
-import org.jetbrains.plugins.scala.annotator.intention.ScalaAddImportAction
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportElementFix
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.extensions.SeqExt
+import org.jetbrains.plugins.scala.annotator.intention.{ImplicitToImport, PopupPosition, ScalaAddImportAction, ScalaImportElementFix}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, SeqExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
-import org.jetbrains.plugins.scala.lang.psi.implicits.GlobalImplicitInstance
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
+import org.jetbrains.plugins.scala.lang.psi.implicits.{GlobalImplicitInstance, ImplicitCollector}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -69,7 +65,7 @@ object ImportImplicitInstanceFix {
     val instances =
       allInstances
         .distinctBy(_.instance)
-        .filterNot(x => alreadyImported.contains(x.instance))
+        .filterNot(x => alreadyImported.contains(x.instance) || isInExcludedPackage(x.instance.containingObject, false))
         .sortBy {
           case FoundImplicit(instance, path, scType) => (path.size, scType.hashCode(), instance.qualifiedName)
         }

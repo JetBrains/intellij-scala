@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.quickfix
 
+import com.intellij.codeInsight.completion.JavaCompletionUtil.isInExcludedPackage
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -49,7 +50,8 @@ object ImportImplicitConversionFix {
     val conversions = for {
       qualifier                <- qualifier(ref).toSeq
       (conversion, resultType) <- ImplicitConversionCache(ref.getProject).getPossibleConversions(qualifier).toSeq
-      if CompletionProcessor.variantsWithName(resultType, qualifier, ref.refName).nonEmpty
+      if !isInExcludedPackage(conversion.containingObject, false) &&
+        CompletionProcessor.variantsWithName(resultType, qualifier, ref.refName).nonEmpty
     } yield conversion
 
     if (conversions.isEmpty) None

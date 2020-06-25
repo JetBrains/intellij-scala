@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.intention
 
+import com.intellij.codeInsight.completion.JavaCompletionUtil.isInExcludedPackage
 import com.intellij.codeInsight.intention.{IntentionAction, PriorityAction}
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiMethod
@@ -7,6 +8,7 @@ import com.intellij.psi.impl.java.stubs.index.JavaStaticMemberNameIndex
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, SeqExt, TraversableExt}
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
@@ -16,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.StubIndexKeyExt
-import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -88,7 +89,7 @@ object ScalaImportGlobalMemberFix {
       Seq(new ScalaImportGlobalMemberWithPrefixFix(allCandidates, ref))
     }
     else {
-      val compatible = allCandidates.filter(isCompatible(ref, _))
+      val compatible = allCandidates.filter(c => !isInExcludedPackage(c.owner, false) && isCompatible(ref, c))
       val candidates = if (compatible.isEmpty) allCandidates else compatible
 
       if (candidates.isEmpty) Seq.empty
@@ -116,7 +117,7 @@ object ScalaImportGlobalMemberFix {
       .flatMap(withContainingObjectOrInheritor)
 
   private def withContainingObjectOrInheritor(f: ScFunctionDefinition): Set[MemberToImport] =
-    (f.containingClass.asOptionOf[ScObject] ++: ScalaInheritors.findInheritorObjectsForOwner(f))
+    (f.containingClass.asOptionOf[ScObject] ++: ScalaCompletionUtil.findInheritorObjectsForOwner(f))
       .map(MemberToImport(f, _))
 
   private def isStable(m: PsiMethod) =

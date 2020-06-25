@@ -4,6 +4,7 @@ package completion
 
 import java.util.regex.{Matcher, Pattern}
 
+import com.intellij.codeInsight.completion.JavaCompletionUtil.isInExcludedPackage
 import com.intellij.codeInsight.completion.{CompletionParameters, CompletionUtil, PrefixMatcher}
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
@@ -17,7 +18,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 
 /**
 * User: Alexander Podkhalyuzin
@@ -232,4 +235,25 @@ object ScalaCompletionUtil {
       case _ => (null, false)
     }
   } getOrElse (null, false)
+
+  //find objects which may be used to import members of `clazz`
+  @CachedInUserData(clazz, ModCount.getBlockModificationCount)
+  def findInheritorObjects(clazz: ScTemplateDefinition): Set[ScObject] = {
+    val allObjects =
+      ScalaInheritors.allInheritorObjects(clazz)
+        .filterNot(isInExcludedPackage(_, false))
+
+    if (allObjects.isEmpty || clazz.hasTypeParameters) {
+      allObjects
+    } else {
+      //if `clazz` is not generic, members in all objects are the same, so we return one with the shortest qualified name
+      Set(allObjects.minBy(o => (o.isDeprecated, o.qualifiedName.length, o.qualifiedName)))
+    }
+  }
+
+  def findInheritorObjectsForOwner(member: ScMember): Set[ScObject] =
+    member.containingClass match {
+      case null => Set.empty
+      case clazz => findInheritorObjects(clazz)
+    }
 }
