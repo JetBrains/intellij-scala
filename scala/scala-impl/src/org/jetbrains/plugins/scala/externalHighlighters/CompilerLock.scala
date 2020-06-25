@@ -4,19 +4,28 @@ import java.util.concurrent.Semaphore
 
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.util.CompilationId
 
 trait CompilerLock {
-  def lock(): Unit
 
   /**
+   * @param sessionId the lock source
+   */
+  def lock(sessionId: String): Unit
+
+  /**
+   * Unlock can be done only if it was locked with the same sessionId.
+   *
    * @param exceptionIfNotLocked #SCL-17720
    */
-  def unlock(exceptionIfNotLocked: Boolean = true): Unit
+  def unlock(sessionId: String,
+             exceptionIfNotLocked: Boolean = true): Unit
 
   final def withLock[A](action: => A): A = {
-    lock()
+    val fakeSessionId = CompilationId.generate().toString
+    lock(fakeSessionId)
     try action
-    finally unlock()
+    finally unlock(fakeSessionId)
   }
 }
 
@@ -32,17 +41,26 @@ private class CompilerLockImpl(project: Project)
   private val lockSynchronizer = new Object
   private val unlockSynchronizer = new Object
   private val semaphore = new Semaphore(1, true)
+  @volatile private var lockSessionId: Option[String] = None
 
-  override def lock(): Unit = lockSynchronizer.synchronized {
+  override def lock(sessionId: String): Unit = lockSynchronizer.synchronized {
+    lockSessionId = Some(sessionId)
     semaphore.acquire()
   }
 
-  override def unlock(exceptionIfNotLocked: Boolean): Unit = unlockSynchronizer.synchronized {
+  override def unlock(sessionId: String,
+                      exceptionIfNotLocked: Boolean): Unit = unlockSynchronizer.synchronized {
     val permits = semaphore.availablePermits()
     if (permits == 0) {
-      semaphore.release()
+      if (lockSessionId.contains(sessionId)) {
+        semaphore.release()
+        lockSessionId = None
+      } else {
+        val msg = s"unlock($sessionId) for $project failed. Locked with other session id: $lockSessionId"
+        throw new IllegalStateException(msg)
+      }
     } else if (exceptionIfNotLocked) {
-      val msg = s"Can't unlock compiler for $project. Available permits: $permits."
+      val msg = s"unlock($sessionId) for $project failed. Available permits: $permits"
       throw new IllegalStateException(msg)
     }
   }
