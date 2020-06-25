@@ -7,6 +7,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.testFramework.CompilerTester
+import org.apache.commons.lang3.exception.ExceptionUtils
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
@@ -20,6 +21,7 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.Metering._
 
 import scala.collection.JavaConverters.seqAsJavaListConverter
+import scala.util.{Failure, Success, Try}
 
 // TODO ignore these tests?
 abstract class CompilationBenchmark
@@ -78,13 +80,12 @@ abstract class CompilationBenchmark
 
   private implicit val scaleConfig: ScaleConfig = ScaleConfig(1, TimeUnit.SECONDS)
 
-  private var results: Map[Params, Double] = Map.empty
 
   private case class Params(compileInParallel: Boolean,
                             heapSize: Int,
                             jvmOptions: String)
 
-  private def benchmark(params: Params): Unit = {
+  private def benchmark(params: Params): Try[Double] = Try {
     val Params(compileInParallel, heapSize, jvmOptions) = params
 
     CompilerWorkspaceConfiguration.getInstance(myProject).PARALLEL_COMPILATION = compileInParallel
@@ -96,13 +97,22 @@ abstract class CompilationBenchmark
     CompileServerLauncher.stop(timeoutMs = 3000)
     CompileServerLauncher.ensureServerRunning(myProject)
 
+    var result: Double = Double.PositiveInfinity
     implicit val printReportHandler: MeteringHandler = { (time: Double, _) =>
-      results += params -> time
+      result = time
     }
 
     benchmarked(Repeats) {
       compiler.rebuild().assertNoProblems(allowWarnings = true)
     }
+    result
+  }
+
+  private def resultAsString(params: Params, time: Double): String = {
+    val Params(compileInParallel, heapSize, jvmOptions) = params
+    val paramsStr = s"compileInParallel=$compileInParallel;heapSize=$heapSize;jvmOptions=$jvmOptions"
+    val timeStr = s"$time ${scaleConfig.unit}"
+    s"$paramsStr => $timeStr"
   }
 
   def testBenchmark(): Unit = {
@@ -115,21 +125,32 @@ abstract class CompilationBenchmark
       heapSize = heapSize,
       jvmOptions = jvmOptions
     )
+    val benchmarksCount = paramsList.size
 
     println(
-      s"""|==================Benchmark Report==================
+      s"""|=====================Info=====================
           |OS:      ${SystemInfo.OS_NAME} (${SystemInfo.OS_VERSION}, ${SystemInfo.OS_ARCH})
           |Project: $githubRepoUrl
           |Repeats: $Repeats""".stripMargin
     )
 
-    for (params <- paramsList)
-      benchmark(params)
+    var results: Map[Params, Double] = Map.empty
+    println("==================Progress==================")
+    for ((params, i) <- paramsList.zipWithIndex) {
+      println(s"Performing benchmark ${i + 1}/$benchmarksCount...")
+      val resultMessage = benchmark(params) match {
+        case Success(result) =>
+          results += params -> result
+          resultAsString(params, result)
+        case Failure(exception) =>
+          ExceptionUtils.getStackTrace(exception)
+      }
+      println(resultMessage)
+    }
 
-    results.toSeq.sortBy(_._2).foreach { case (Params(compileInParallel, heapSize, jvmOptions), time) =>
-      val paramsStr = s"compileInParallel=$compileInParallel;heapSize=$heapSize;jvmOptions=$jvmOptions"
-      val timeStr = s"$time ${scaleConfig.unit}"
-      println(s"$paramsStr => $timeStr")
+    println("==================Result=================")
+    results.toSeq.sortBy(_._2).foreach { case (params, time) =>
+      println(resultAsString(params, time))
     }
   }
 }
