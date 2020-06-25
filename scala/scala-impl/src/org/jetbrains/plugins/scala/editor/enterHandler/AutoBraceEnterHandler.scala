@@ -22,7 +22,7 @@ class AutoBraceEnterHandler extends EnterHandlerDelegateAdapter {
     }
 
     val element = file.findElementAt(caretOffset)
-    if (element == null || hasNewlinesBeforeCaret(element, caretOffset)) {
+    if (element == null || !hasFirstNewlineAfterCaret(element, caretOffset)) {
       return Result.Continue
     }
 
@@ -32,11 +32,12 @@ class AutoBraceEnterHandler extends EnterHandlerDelegateAdapter {
     else Result.Continue
   }
 
-  private def hasNewlinesBeforeCaret(element: PsiElement, caretOffset: Int): Boolean =
+  private def hasFirstNewlineAfterCaret(element: PsiElement, caretOffset: Int): Boolean =
     element match {
       case ws: PsiWhiteSpace =>
         val charsBeforeCaret = caretOffset - ws.getTextOffset
-        ws.getText.take(charsBeforeCaret).contains('\n')
+        val indexOfFirstNewline = ws.getText.indexOf('\n')
+        indexOfFirstNewline >= charsBeforeCaret
       case _ => false
     }
 }
