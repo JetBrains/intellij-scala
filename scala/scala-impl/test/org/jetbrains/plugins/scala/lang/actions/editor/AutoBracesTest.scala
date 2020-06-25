@@ -159,6 +159,23 @@ class AutoBracesTest extends EditorActionTestBase {
     'e'
   )
 
+  def testTypingBetweenCommentAndIndentedExpr(): Unit = checkInAllContexts(
+    s"""
+       |def test =
+       |  // test
+       |  $CARET
+       |  expr
+       |""".stripMargin,
+    s"""
+       |def test = {
+       |  // test
+       |  e$CARET
+       |  expr
+       |}
+       |""".stripMargin,
+    'e'
+  )
+
 
   val contexts = Seq(
     """

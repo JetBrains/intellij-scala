@@ -555,7 +555,11 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     // Start with the opening brace, then the user input, and then the closing brace
     val document = editor.getDocument
 
-    val openingBraceOffset = exprWS.startOffset
+    val openingBraceOffset =
+      exprWS
+        .prevSiblingNotWhitespaceComment
+        .fold(exprWS.startOffset)(_.endOffset)
+//    val openingBraceOffset = exprWS.startOffset
     document.insertString(openingBraceOffset, "{")
     val openingBraceRange = TextRange.from(openingBraceOffset, 1)
     val displacementAfterClosingBrace = 1
