@@ -58,12 +58,12 @@ abstract class CompilationBenchmark
   // All benchmark parameters
   private final val Repeats = 1
   private final val HeapSizeValues = Seq(2048, 4096)
-  private final val CompileInParallelValues = Seq(false, true)
+  private final val CompileInParallelValues = Seq(true)
   private final val PossibleJvmOptions = Seq(
-    Seq("-server", ""),
-    Seq("-Xss1m", ""),
-    Seq("-XX:+UseParallelGC", ""),
-    Seq("-XX:MaxInlineLevel=20", "-XX:MaxInlineLevel=40", "")
+    Seq("-server"),
+    Seq("-Xss1m", "-Xss2m", ""),
+    Seq("-XX:+UseParallelGC"),
+    Seq("-XX:MaxInlineLevel=10", "-XX:MaxInlineLevel=20", "-XX:MaxInlineLevel=30")
   )
 
   private def jvmOptionsIterator: Iterator[String] =
