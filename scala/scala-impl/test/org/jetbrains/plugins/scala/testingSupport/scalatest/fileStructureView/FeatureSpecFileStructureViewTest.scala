@@ -8,6 +8,9 @@ trait FeatureSpecFileStructureViewTest extends ScalaTestTestCase {
 
   private val className = "FeatureSpecViewTest"
 
+  protected def feature = "feature"
+  protected def scenario = "scenario"
+
   private def runTest(status: Int, names: String*): Unit = {
     runFileStructureViewTest(className, status, names: _*)
   }
@@ -21,25 +24,26 @@ trait FeatureSpecFileStructureViewTest extends ScalaTestTestCase {
       |import org.scalatest._
       |
       |class $className extends FeatureSpec {
-      | feature("parent") {
-      |   scenario("pending1") (pending)
-      |   scenario("child1") {}
+      | $feature("parent") {
+      |   $scenario("pending1") (pending)
+      |   $scenario("child1") {}
       |   ignore("ignored1") {}
       | }
       |
       | ignore("ignored2") {
-      |   scenario("ignored_inner") {}
+      |   $scenario("ignored_inner") {}
       | }
       |}
     """.stripMargin.trim()
   )
 
-  def testFeatureSpecNormal(): Unit = runTest("scenario(\"child1\")", Some("feature(\"parent\")"))
+  def testFeatureSpecNormal(): Unit = runTest(s"""$scenario("child1")""", Some(s"""$feature("parent")"""))
 
-  def testFeatureSpecPending(): Unit = runTest(PendingStatusId, "scenario(\"pending1\")")
+  def testFeatureSpecPending(): Unit = runTest(PendingStatusId, s"""$scenario("pending1")""")
 
-  def testFeatureSpecIgnored(): Unit = runTest(IgnoredStatusId, "ignore(\"ignored1\")", "ignore(\"ignored2\")")
+  def testFeatureSpecIgnored(): Unit = runTest(IgnoredStatusId, s"""ignore("ignored1")""", s"""ignore("ignored2")""")
 
-  def testFeatureSpecIgnoredHierarchy(): Unit = runTest("scenario(\"ignored_inner\")", Some("ignore(\"ignored2\")" +
-    TestNodeProvider.IgnoredSuffix))
+  def testFeatureSpecIgnoredHierarchy(): Unit = runTest(
+    s"""$scenario("ignored_inner")""", Some(s"""ignore("ignored2")""" + TestNodeProvider.IgnoredSuffix)
+  )
 }

@@ -9,4 +9,8 @@ class Scalatest2_13_3_1_1_StructureViewTest extends Scalatest2_13_3_1_1_Base
   with FunSuiteFileStructureViewTest
   with PropSpecFileStructureViewTest
   with WordSpecFileStructureViewTest
-  with FunSpecFileStructureViewTest
+  with FunSpecFileStructureViewTest {
+
+  override protected def feature = "Feature"
+  override protected def scenario = "Scenario"
+}

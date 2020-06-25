@@ -1,9 +1,15 @@
 package org.jetbrains.plugins.scala.testingSupport.test.scalatest
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestMigrationUtils.MigrationOps._
 
+/**
+ * NOTE!!!
+ * see [[ScalaTestMigrationUtils]] and [[ScalaTestMigrationUtils.MigrationOps.SetOps.withMigrated]]
+ */
 object ScalaTestUtil {
 
-  lazy val itWordFqns: Set[String] = {
+  val itWordFqns: Set[String] = {
     val flatSpecItWordFqns = Set(
       "org.scalatest.FlatSpecLike.ItWord",
       "org.scalatest.FlatSpecLike.ItVerbStringTaggedAs",
@@ -30,7 +36,7 @@ object ScalaTestUtil {
     )
   }.withMigrated
 
-  lazy val theyWordFqns: Set[String] = {
+  val theyWordFqns: Set[String] = {
     val flatSpecTheyWordFqns = Set(
       "org.scalatest.FlatSpecLike.TheyWord",
       "org.scalatest.FlatSpecLike.TheyVerbStringTaggedAs",
@@ -58,7 +64,7 @@ object ScalaTestUtil {
     )
   }.withMigrated
 
-  lazy val funSuiteBases: List[String] = List(
+  val funSuiteBases: List[String] = List(
     "org.scalatest.FunSuite",
     "org.scalatest.FunSuiteLike",
     "org.scalatest.fixture.FunSuite",
@@ -67,17 +73,18 @@ object ScalaTestUtil {
     "org.scalatest.fixture.MultipleFixtureFunSuite"
   ).withMigrated
 
-  lazy val featureSpecBases: List[String] = List(
-    "org.scalatest.featurespec.AnyFeatureSpecLike", // 3.1.0
+  private val featureSpecOldBases = List(
     "org.scalatest.FeatureSpec",
     "org.scalatest.FeatureSpecLike",
     "org.scalatest.fixture.FeatureSpec",
     "org.scalatest.fixture.FeatureSpecLike",
     "org.scalatest.fixture.FixtureFeatureSpec",
     "org.scalatest.fixture.MultipleFixtureFeatureSpec"
-  ).withMigrated
+  )
+  private val featureSpecNewBases = featureSpecOldBases.migrated
+  val featureSpecBases: List[String] = featureSpecOldBases ++ featureSpecNewBases
 
-  lazy val freeSpecBases: List[String] = List(
+  val freeSpecBases: List[String] = List(
     "org.scalatest.FreeSpec",
     "org.scalatest.FreeSpecLike",
     "org.scalatest.fixture.FreeSpec",
@@ -88,16 +95,16 @@ object ScalaTestUtil {
     "org.scalatest.path.FreeSpecLike"
   ).withMigrated
 
-  lazy val JUnit3SuiteBases: List[String] = List(
+  val JUnit3SuiteBases: List[String] = List(
     "org.scalatest.junit.JUnit3Suite"
   ).withMigrated
 
-  lazy val JUnitSuiteBases: List[String] = List(
+  val JUnitSuiteBases: List[String] = List(
     "org.scalatest.junit.JUnitSuite",
     "org.scalatest.junit.JUnitSuiteLike"
   ).withMigrated
 
-  lazy val propSpecBases: List[String] = List(
+  val propSpecBases: List[String] = List(
     "org.scalatest.PropSpec",
     "org.scalatest.PropSpecLike",
     "org.scalatest.fixture.PropSpec",
@@ -106,7 +113,7 @@ object ScalaTestUtil {
     "org.scalatest.fixture.MultipleFixturePropSpec"
   ).withMigrated
 
-  lazy val funSpecBasesPre2_0: List[String] = List(
+  val funSpecBasesPre2_0: List[String] = List(
     "org.scalatest.Spec",
     "org.scalatest.SpecLike",
     "org.scalatest.fixture.Spec",
@@ -115,7 +122,7 @@ object ScalaTestUtil {
     "org.scalatest.fixture.MultipleFixtureSpec"
   ).withMigrated
 
-  lazy val funSpecBasesPost2_0: List[String] = List(
+  val funSpecBasesPost2_0: List[String] = List(
     "org.scalatest.FunSpec",
     "org.scalatest.FunSpecLike",
     "org.scalatest.fixture.FunSpec",
@@ -124,12 +131,12 @@ object ScalaTestUtil {
     "org.scalatest.path.FunSpecLike"
   ).withMigrated
 
-  lazy val testNGSuiteBases: List[String] = List(
+  val testNGSuiteBases: List[String] = List(
     "org.scalatest.testng.TestNGSuite",
     "org.scalatest.testng.TestNGSuiteLike"
   ).withMigrated
 
-  lazy val flatSpecBases: List[String] = List(
+  val flatSpecBases: List[String] = List(
     "org.scalatest.FlatSpec",
     "org.scalatest.FlatSpecLike",
     "org.scalatest.fixture.FlatSpec",
@@ -138,7 +145,7 @@ object ScalaTestUtil {
     "org.scalatest.fixture.MultipleFixtureFlatSpec"
   ).withMigrated
 
-  lazy val wordSpecBases: List[String] = List(
+  val wordSpecBases: List[String] = List(
     "org.scalatest.WordSpec",
     "org.scalatest.WordSpecLike",
     "org.scalatest.fixture.WordSpec",
@@ -147,7 +154,16 @@ object ScalaTestUtil {
     "org.scalatest.fixture.MultipleFixtureWordSpec"
   ).withMigrated
 
-  lazy val suitePaths: List[String] = List(
+  val suitePaths: List[String] = List(
     "org.scalatest.Suite"
   ).withMigrated
+
+  def isFeatureSpecOld(typeDef: ScTypeDefinition): Boolean = isInheritor(typeDef, featureSpecOldBases)
+  def isFeatureSpecNew(typeDef: ScTypeDefinition): Boolean = isInheritor(typeDef, featureSpecNewBases)
+  def isFlatSpec(typeDef: ScTypeDefinition): Boolean = isInheritor(typeDef, flatSpecBases)
+  def isFreeSpec(typeDef: ScTypeDefinition): Boolean = isInheritor(typeDef, freeSpecBases)
+  def isFunSpec(typeDef: ScTypeDefinition): Boolean = isInheritor(typeDef, funSpecBasesPost2_0)
+  def isFunSuite(typeDef: ScTypeDefinition): Boolean = isInheritor(typeDef, funSuiteBases)
+  def isPropSpec(typeDef: ScTypeDefinition): Boolean = isInheritor(typeDef, propSpecBases)
+  def isWorldSpec(typeDef: ScTypeDefinition): Boolean = isInheritor(typeDef, wordSpecBases)
 }

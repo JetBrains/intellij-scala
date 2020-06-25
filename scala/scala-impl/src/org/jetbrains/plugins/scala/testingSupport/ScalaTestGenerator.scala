@@ -25,12 +25,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ExtractSuperUtil
+import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestUtil
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestFramework, TestConfigurationUtil}
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 import scala.collection.JavaConverters._
 
 class ScalaTestGenerator extends TestGenerator {
+
+  import ScalaTestGenerator._
 
   override def generateTest(project: Project, dialog: CreateTestDialog): PsiElement = {
     postponeFormattingWithin(project) {
@@ -134,31 +137,31 @@ class ScalaTestGenerator extends TestGenerator {
   ): Unit = {
     val body = typeDef.extendsBlock.templateBody.getOrElse(return)
 
-    import ScalaTestGenerator._
+    import ScalaTestUtil._
     import TestConfigurationUtil.isInheritor
 
-    if (isInheritor(typeDef, "org.scalatest.FeatureSpecLike", "org.scalatest.fixture.FeatureSpecLike")) {
+    if (isFeatureSpecOld(typeDef)) {
       generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
       addScalaTestFeatureSpecMethods(methods, body)
-    } else if (isInheritor(typeDef, "org.scalatest.featurespec.AnyFeatureSpecLike", "org.scalatest.featurespec.FixtureAnyFeatureSpecLike")) {
+    } else if (isFeatureSpecNew(typeDef)) {
       generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
-      addScalaTestFeatureSpecMethods(methods, body, isScalaTest3_1_0 = true)
-    } else if (isInheritor(typeDef, "org.scalatest.FlatSpecLike", "org.scalatest.fixture.FlatSpecLike", "org.scalatest.flatspec.AnyFlatSpecLike", "org.scalatest.flatspec.FixtureAnyFlatSpecLike")) {
+      addScalaTestFeatureSpecMethods(methods, body, useUpperCase = true)
+    } else if (isFlatSpec(typeDef)) {
       generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
       addScalaTestFlatSpecMethods(methods, body, className)
-    } else if (isInheritor(typeDef, "org.scalatest.FreeSpecLike", "org.scalatest.fixture.FreeSpecLike", "org.scalatest.path.FreeSpecLike", "org.scalatest.freespec.AnyFreeSpecLike", "org.scalatest.freespec.FixtureAnyFreeSpecLike", "org.scalatest.freespec.PathAnyFreeSpecLike")) {
+    } else if (isFreeSpec(typeDef)) {
       generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
       addScalaTestFreeSpecMethods(methods, body)
-    } else if (isInheritor(typeDef, "org.scalatest.FunSpecLike", "org.scalatest.fixture.FunSpecLike", "org.scalatest.funspec.AnyFunSpecLike", "org.scalatest.funspec.FixtureAnyFunSpecLike")) {
+    } else if (isFunSpec(typeDef)) {
       generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
       addScalaTestFunSpecMethods(methods, body, className)
-    } else if (isInheritor(typeDef, "org.scalatest.FunSuiteLike", "org.scalatest.fixture.FunSuiteLike", "org.scalatest.funsuite.AnyFunSuiteLike", "org.scalatest.funsuite.FixtureAnyFunSuiteLike")) {
+    } else if (isFunSuite(typeDef)) {
       generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
       addScalaTestFunSuiteMethods(methods, body)
-    } else if (isInheritor(typeDef, "org.scalatest.PropSpecLike", "org.scalatest.fixture.PropSpecLike", "org.scalatest.propspec.AnyPropSpecLike", "org.scalatest.propspec.FixtureAnyPropSpecLike")) {
+    } else if (isPropSpec(typeDef)) {
       generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
       addScalaTestPropSpecMethods(methods, body)
-    } else if (isInheritor(typeDef, "org.scalatest.WordSpecLike", "org.scalatest.fixture.WordSpecLike", "org.scalatest.wordspec.AnyWordSpecLike", "org.scalatest.wordspec.FixtureAnyWordSpecLike")) {
+    } else if (isWorldSpec(typeDef)) {
       generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
       addScalaTestWordSpecMethods(methods, body, className)
     } else if (isInheritor(typeDef, "org.specs2.specification.script.SpecificationLike")) {
@@ -227,11 +230,13 @@ object ScalaTestGenerator {
     }
   }
 
-  private def addScalaTestFeatureSpecMethods(methods: Seq[MemberInfo], templateBody: ScTemplateBody, isScalaTest3_1_0: Boolean = false): Unit = {
+  /** @param useUpperCase from ScalaTest 3.1.0 changelog:<br>
+   *                     `Changed feature to Feature and scenario to Scenario in FeatureSpec.` */
+  private def addScalaTestFeatureSpecMethods(methods: Seq[MemberInfo], templateBody: ScTemplateBody, useUpperCase: Boolean = false): Unit = {
     import templateBody.projectContext
 
-    val scenario = if (isScalaTest3_1_0) "Scenario" else "scenario"
-    val feature = if (isScalaTest3_1_0) "Feature" else "feature"
+    val scenario = if (useUpperCase) "Scenario" else "scenario"
+    val feature = if (useUpperCase) "Feature" else "feature"
 
     if (methods.nonEmpty) {
       val methodStrings = methods.map(m => s"$scenario (${m.nameQuoted}){\n\n}\n")
