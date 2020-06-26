@@ -15,7 +15,8 @@
 
 <!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "https://plugins.jetbrains.com/plugin.dtd">
 <idea-plugin url="https://confluence.jetbrains.com/display/SCA/Scala+Plugin+for+IntelliJ+IDEA"
-             xmlns:xi="http://www.w3.org/2001/XInclude">
+             xmlns:xi="http://www.w3.org/2001/XInclude"
+             require-restart="true">
     <id>org.intellij.scala</id>
     <name>Scala</name>
     <description>
