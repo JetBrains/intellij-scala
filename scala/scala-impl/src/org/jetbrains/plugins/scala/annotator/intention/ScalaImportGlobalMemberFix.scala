@@ -3,23 +3,24 @@ package org.jetbrains.plugins.scala.annotator.intention
 import com.intellij.codeInsight.completion.JavaCompletionUtil.isInExcludedPackage
 import com.intellij.codeInsight.intention.{IntentionAction, PriorityAction}
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.impl.java.stubs.index.JavaStaticMemberNameIndex
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, SeqExt, TraversableExt}
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
+import org.jetbrains.plugins.scala.extensions.{&&, ObjectExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, SeqExt}
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.findInheritorObjectsForOwner
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, isImplicit}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.StubIndexKeyExt
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.isAccessible
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
@@ -110,24 +111,25 @@ object ScalaImportGlobalMemberFix {
         case _ => None
       }
 
-  private def findScalaCandidates(ref: ScReferenceExpression): Iterable[MemberToImport] =
-    ScalaIndexKeys.METHOD_NAME_KEY.elements(ref.refName, ref.resolveScope)(ref.getProject)
-      .filterBy[ScFunctionDefinition]
-      .filter(f => isAccessible(f, ref) && !isImplicit(f))
-      .flatMap(withContainingObjectOrInheritor)
+  private def findScalaCandidates(ref: ScReferenceExpression): Iterable[MemberToImport] = {
+    implicit val project: Project = ref.getProject
 
-  private def withContainingObjectOrInheritor(f: ScFunctionDefinition): Set[MemberToImport] =
-    (f.containingClass.asOptionOf[ScObject] ++: ScalaCompletionUtil.findInheritorObjectsForOwner(f))
-      .map(MemberToImport(f, _))
+    val functions = ScalaIndexKeys.METHOD_NAME_KEY.elements(ref.refName, ref.resolveScope)
+    val properties = ScalaIndexKeys.PROPERTY_NAME_KEY.elements(ref.refName, ref.resolveScope).flatMap(_.declaredElements)
+    (functions ++ properties)
+      .flatMap {
+        case (td: ScTypedDefinition) && inNameContext(m: ScMember)
+          if isAccessible(m, ref) && !isImplicit(m) =>
+
+          (m.containingClass.asOptionOf[ScObject] ++: findInheritorObjectsForOwner(m))
+            .filter(_.isStable)
+            .map(MemberToImport(td, _))
+        case _ => None
+      }
+  }
 
   private def isStable(m: PsiMethod) =
     ScalaPsiUtil.hasStablePath(m)
-
-  private def isAccessible(m: PsiMethod, ref: ScReferenceExpression) =
-    ResolveUtils.isAccessible(m, ref)
-
-  private def isImplicit(f: ScFunctionDefinition) =
-    ScalaPsiUtil.isImplicit(f: ScModifierListOwner)
 
   private def isCompatible(originalRef: ScReferenceExpression, candidate: MemberToImport): Boolean = {
     val fixedQualifiedName = ScalaNamesUtil.escapeKeywordsFqn(candidate.qualifiedName)
