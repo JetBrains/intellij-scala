@@ -90,11 +90,6 @@ object ScalastyleCodeInspection {
       case StyleException(_, _, message, _, None, None) =>
         Some(manager.createProblemDescriptor(file, message, true, Array.empty[LocalQuickFix], ProblemHighlightType.GENERIC_ERROR))
 
-      case StyleException(_, _, message, _, Some(line), column) =>
-        findPsiElement(line, column).filter(e => e.isPhysical && !e.getTextRange.isEmpty).map { e =>
-          manager.createProblemDescriptor(e, message, true, Array.empty[LocalQuickFix], ProblemHighlightType.GENERIC_ERROR)
-        }
-
       case StyleError(_, _, key, level, args, Some(line), column, customMessage) =>
         findPsiElement(line, column).filter(e => e.isPhysical && !e.getTextRange.isEmpty).map { e =>
           val message = Messages.format(key, args, customMessage)
