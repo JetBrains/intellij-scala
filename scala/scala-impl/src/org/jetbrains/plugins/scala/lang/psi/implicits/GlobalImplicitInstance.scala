@@ -5,19 +5,19 @@ package implicits
 
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, OptionExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.findInheritorObjectsForOwner
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.TypeDoesntConformResult
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitInstanceIndex
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors.withStableInheritors
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, WrongTypeParameterInferred}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult.containingObject
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames._
 
 final case class GlobalImplicitInstance(containingObject: ScObject, member: ScMember) {
@@ -72,15 +72,6 @@ object GlobalImplicitInstance {
   private[this] def isRootClass(qualifiedName: String) = qualifiedName match {
     case AnyRefFqn | AnyFqn | JavaObjectFqn => true
     case _ => false
-  }
-
-  private def containingObject(srr: ScalaResolveResult): Option[ScObject] = {
-    val ownerType = srr.implicitScopeObject.orElse {
-      srr.element.containingClassOfNameContext
-        .filterByType[ScTemplateDefinition]
-        .map(c => srr.substitutor(ScThisType(c)))
-    }
-    ownerType.flatMap(_.extractClass).filterByType[ScObject]
   }
 
   private def checkCompatible(global: GlobalImplicitInstance, collector: ImplicitCollector): Boolean = {
