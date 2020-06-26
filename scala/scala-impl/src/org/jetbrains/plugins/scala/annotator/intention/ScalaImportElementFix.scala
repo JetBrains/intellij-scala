@@ -3,22 +3,16 @@ package org.jetbrains.plugins.scala.annotator.intention
 import java.awt.Point
 
 import com.intellij.codeInsight.hint.HintManagerImpl
-import com.intellij.codeInsight.intention.{HighPriorityAction, PriorityAction}
+import com.intellij.codeInsight.intention.PriorityAction
 import com.intellij.codeInspection.HintAction
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.LogicalPosition
+import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.ModificationTracker
-import com.intellij.openapi.util.TextRange
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiFile
+import com.intellij.openapi.util.{ModificationTracker, TextRange}
+import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportElementFix._
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
-import org.jetbrains.plugins.scala.extensions.executeUndoTransparentAction
-import org.jetbrains.plugins.scala.extensions.invokeLater
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiFileExt, executeUndoTransparentAction, invokeLater}
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenericCall
@@ -46,21 +40,27 @@ abstract class ScalaImportElementFix(val place: PsiElement) extends HintAction w
   def isAvailable: Boolean = place.isValid && elements.nonEmpty && modificationCount == currentModCount()
 
   override def showHint(editor: Editor): Boolean = {
-    if (!shouldShowHint()) return false
-
-    elements.length match {
-      case 0 => false
-      case 1 if isAddUnambiguous && !editor.caretNear(place) =>
-        executeUndoTransparentAction {
-          createAddImportAction(editor).execute()
-        }
-        false
-      case _ =>
-        invokeLater {
-          showHintWithAction(editor)
-        }
-        true
+    if (elements.isEmpty || !shouldShowHint())
+      false
+    else if (fixSilently(editor))
+      true
+    else {
+      invokeLater {
+        showHintWithAction(editor)
+      }
+      true
     }
+
+  }
+
+  override def fixSilently(editor: Editor): Boolean = {
+    if (elements.size == 1 && isAddUnambiguous && !editor.caretNear(place)) {
+      executeUndoTransparentAction {
+        createAddImportAction(editor).execute()
+      }
+      true
+    }
+    else false
   }
 
   override def invoke(project: Project,
