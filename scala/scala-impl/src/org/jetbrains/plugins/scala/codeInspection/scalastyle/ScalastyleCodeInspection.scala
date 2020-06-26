@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.scalastyle
 
 import com.intellij.codeInspection._
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.roots.TestSourcesFilter
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
@@ -53,9 +53,7 @@ object ScalastyleCodeInspection {
       possibleConfigFileNames.flatMap(name => Option(dir.findChild(name))).headOption
 
     def findIn(project: Project, possibleConfigFileNames: Seq[String]): Option[VirtualFile] = {
-      val root = project.getBaseDir
-      if (root == null) return None
-
+      val root = ProjectUtil.guessProjectDir(project)
       val dirs = possibleLocations.flatMap(name => Option(root.findChild(name))) :+ root
       dirs.flatMap(findConfigFile(_, possibleConfigFileNames)).headOption
     }
@@ -89,6 +87,14 @@ object ScalastyleCodeInspection {
     private val maybeDocument = PsiDocumentManager.getInstance(file.getProject).getDocument(file).toOption
 
     def toProblemDescriptor(msg: Message[SourceSpec]): Option[ProblemDescriptor] = msg match {
+      case StyleException(_, _, message, _, None, None) =>
+        Some(manager.createProblemDescriptor(file, message, true, Array.empty[LocalQuickFix], ProblemHighlightType.GENERIC_ERROR))
+
+      case StyleException(_, _, message, _, Some(line), column) =>
+        findPsiElement(line, column).filter(e => e.isPhysical && !e.getTextRange.isEmpty).map { e =>
+          manager.createProblemDescriptor(e, message, true, Array.empty[LocalQuickFix], ProblemHighlightType.GENERIC_ERROR)
+        }
+
       case StyleError(_, _, key, level, args, Some(line), column, customMessage) =>
         findPsiElement(line, column).filter(e => e.isPhysical && !e.getTextRange.isEmpty).map { e =>
           val message = Messages.format(key, args, customMessage)
