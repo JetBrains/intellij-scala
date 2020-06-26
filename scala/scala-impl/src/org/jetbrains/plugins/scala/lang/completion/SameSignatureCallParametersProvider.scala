@@ -6,8 +6,8 @@ import com.intellij.codeInsight.CodeInsightUtilCore.forcePsiPostprocessAndRestor
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.codeInsight.template.TemplateBuilderFactory
-import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil.getContextOfType
+import com.intellij.psi.{PsiElement, PsiMember, PsiMethod}
 import com.intellij.ui.LayeredIcon
 import com.intellij.util.ProcessingContext
 import javax.swing.Icon
@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -65,20 +65,25 @@ object SameSignatureCallParametersProvider {
         case ScMethodCall.withDeepestInvoked(reference: ScReferenceExpression) =>
           val clauseIndex = argumentsList.invocationCount - 1
 
-          createFunctionArgumentsElements(reference, clauseIndex)() ++
-            createAssignmentElements(reference, clauseIndex)
+          createFunctionArgumentsElements(
+            reference,
+            clauseIndex,
+            reference.qualifier.exists(_.isInstanceOf[ScSuperReference]),
+            parameters.getInvocationCount
+          ) ++ createAssignmentElements(reference, clauseIndex)
         case _ => Iterable.empty
       }
     }
 
     private def createFunctionArgumentsElements(reference: ScReferenceExpression,
-                                                clauseIndex: Int)
-                                               (hasSuperQualifier: Boolean = reference.qualifier.exists(_.isInstanceOf[ScSuperReference])) = for {
+                                                clauseIndex: Int,
+                                                hasSuperQualifier: Boolean,
+                                                invocationCount: Int) = for {
       ScalaResolveResult(method: ScMethodLike, substitutor) <- reference.getSimpleVariants(completion = true)
       if method.name == reference.refName
 
       lookupElement <- createLookupElement(method, clauseIndex, substitutor) {
-        findResolvableParameters(reference)
+        findResolvableParameters(reference, invocationCount)
       }
     } yield lookupElement
       .withMoveCaretInsertionHandler
@@ -100,19 +105,29 @@ object SameSignatureCallParametersProvider {
       .withTailText(AssignmentText)
       .withInsertHandler(new AssignmentsInsertHandler)
 
-    private def findResolvableParameters(reference: PsiElement)
+    private def findResolvableParameters(reference: PsiElement,
+                                         invocationCount: Int)
                                         (parameters: Seq[ScParameter]) = {
+      final case class ExpressionArgument(override protected val typeable: ScExpression,
+                                          override protected val iconable: PsiElement)
+        extends Argument(typeable, iconable)
+
       val names = parameters.map(_.name)
 
       val elements = names.map {
-        createReferenceFromText(_, reference.getContext, reference)
-          .resolve
+        createExpressionWithContextFromText(_, reference.getContext, reference)
+      }.flatMap {
+        case expression@ResolvesTo(iconable) =>
+          iconable match {
+            case method: PsiMethod if method.isConstructor || !method.isParameterless => None
+            case member: PsiMember if !isAccessible(member, invocationCount)(reference) => None
+            case _ => Some(ExpressionArgument(expression, iconable))
+          }
+        case _ => None
       }
 
-      if (elements.forall(_.isInstanceOf[Argument]))
-        names
-          .zip(elements)
-          .asInstanceOf[Seq[(String, Argument)]]
+      if (elements.size == names.size)
+        names.zip(elements)
       else
         Seq.empty
     }
@@ -156,39 +171,56 @@ object SameSignatureCallParametersProvider {
       }
   }
 
-  private[this] type Argument = PsiElement with Typeable
+  private[this] sealed abstract class Argument(protected val typeable: Typeable,
+                                               protected val iconable: PsiElement) {
+
+    final def conformsTo(parameter: ScParameter,
+                         substitutor: ScSubstitutor): Boolean = {
+      val parameterType = substitutor(parameter.`type`().getOrAny)
+      typeable.`type`().getOrAny.conforms(parameterType)
+    }
+
+    final def icon: Icon = iconable.getIcon(0)
+  }
 
   private[this] def createLookupElementBySignature(parameterMethod: ScMethodLike,
                                                    clauseIndex: Int)
                                                   (argumentMethod: ScMethodLike,
-                                                   substitutor: ScSubstitutor): Option[LookupElementBuilder] =
+                                                   substitutor: ScSubstitutor): Option[LookupElementBuilder] = {
+    final case class ParameterArgument(override protected val typeable: ScParameter)
+      extends Argument(typeable, typeable)
+
     createLookupElement(parameterMethod, clauseIndex, substitutor) { _ =>
       argumentMethod
         .parameterList
         .params
-        .map(parameter => parameter.name -> parameter)
+        .map { parameter =>
+          parameter.name -> ParameterArgument(parameter)
+        }
     }
+  }
 
   private[this] def createLookupElement(method: ScMethodLike,
                                         clauseIndex: Int,
                                         substitutor: ScSubstitutor)
-                                       (argumensWithNames: Seq[ScParameter] => Seq[(String, Argument)]) = {
+                                       (argumentsWithNames: Seq[ScParameter] => Seq[(String, Argument)]) = {
     val parameters = method.parametersInClause(clauseIndex)
     parameters.length match {
       case 0 | 1 => None
       case clauseLength =>
-        val nameToArgument = argumensWithNames(parameters).toMap
+        val nameToArgument = argumentsWithNames(parameters).toMap
 
         applicableNames(parameters, substitutor, nameToArgument) match {
           case names if names.length == clauseLength =>
-            //noinspection ZeroIndexToHead
-            val first = nameToArgument(names(0))
-            val second = nameToArgument(names(1))
+            val Seq(leftIcon, rightIcon) = names
+              .take(2)
+              .map(nameToArgument)
+              .map(_.icon)
 
             Some {
               LookupElementBuilder
                 .create(names.commaSeparated())
-                .withCompositeIcon(first, second)
+                .withIcon(compositeIcon(leftIcon, rightIcon))
             }
           case _ => None
         }
@@ -204,9 +236,7 @@ object SameSignatureCallParametersProvider {
     if name != null
 
     argument <- nameToArgument.get(name)
-
-    parameterType = substitutor(parameter.`type`().getOrAny)
-    if argument.`type`().getOrAny.conforms(parameterType)
+    if argument.conformsTo(parameter, substitutor)
   } yield name
 
   private[this] abstract class ExpressionListInsertHandler extends InsertHandler[LookupElement] {
@@ -279,12 +309,6 @@ object SameSignatureCallParametersProvider {
 
     import LookupElementBuilderExt._
 
-    def withCompositeIcon(first: PsiElement,
-                          second: PsiElement): LookupElementBuilder =
-      builder.withIcon {
-        compositeIcon(first, second)
-      }
-
     def withMoveCaretInsertionHandler: LookupElementBuilder =
       builder.withInsertHandler {
         new MoveCaretInsertHandler
@@ -308,27 +332,22 @@ object SameSignatureCallParametersProvider {
           .getCaretModel
           .moveToOffset(list.getTextRange.getEndOffset) // put caret after )
     }
+  }
 
-    import language.implicitConversions
-
-    private implicit def element2Icon(element: PsiElement): Icon =
-      element.getIcon(0)
-
-    private def compositeIcon(leftIcon: Icon,
-                              rightIcon: Icon) = {
-      val result = new LayeredIcon(2)
-      result.setIcon(
-        rightIcon,
-        0,
-        2 * leftIcon.getIconWidth / 5,
-        0
-      )
-      result.setIcon(
-        leftIcon,
-        1
-      )
-      result
-    }
+  private[this] def compositeIcon(leftIcon: Icon,
+                                  rightIcon: Icon) = {
+    val result = new LayeredIcon(2)
+    result.setIcon(
+      rightIcon,
+      0,
+      2 * leftIcon.getIconWidth / 5,
+      0
+    )
+    result.setIcon(
+      leftIcon,
+      1
+    )
+    result
   }
 
 }

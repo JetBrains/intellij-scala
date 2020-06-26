@@ -654,6 +654,60 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
     icons = PARAMETER, PATTERN_VAL
   )
 
+  def testClauseLookupElement2(): Unit = checkLookupElement(
+    fileText =
+      s"""def foo(bar: Int,
+         |        baz: String): Unit = {}
+         |
+         |var bar = 42
+         |"" match {
+         |  case baz => foo(b$CARET)
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""def foo(bar: Int,
+         |        baz: String): Unit = {}
+         |
+         |var bar = 42
+         |"" match {
+         |  case baz => foo(bar, baz)$CARET
+         |}
+         |""".stripMargin,
+    item = "bar, baz",
+    isSuper = false,
+    icons = PATTERN_VAL, PATTERN_VAL
+  )
+
+  def testClauseLookupElement3(): Unit = doRawCompletionTest(
+    fileText =
+      s"""import java.util.{Collections, List}
+         |import Thread._
+         |
+         |def emptyList = Collections.emptyList[String]
+         |
+         |def foo(emptyList: List[String],
+         |        currentThread: Thread,
+         |        defaultUncaughtExceptionHandler: UncaughtExceptionHandler): Unit = {}
+         |
+         |foo(e$CARET)
+         |""".stripMargin,
+    resultText =
+      s"""import java.util.{Collections, List}
+         |import Thread._
+         |
+         |def emptyList = Collections.emptyList[String]
+         |
+         |def foo(emptyList: List[String],
+         |        currentThread: Thread,
+         |        defaultUncaughtExceptionHandler: UncaughtExceptionHandler): Unit = {}
+         |
+         |foo(emptyList, currentThread, defaultUncaughtExceptionHandler)$CARET
+         |""".stripMargin,
+    invocationCount = 2
+  ) {
+    hasLookupString(_, "emptyList, currentThread, defaultUncaughtExceptionHandler")
+  }
+
   def testEmptyClause(): Unit = checkNoCompletion(
     s"""def foo() = 42
        |
