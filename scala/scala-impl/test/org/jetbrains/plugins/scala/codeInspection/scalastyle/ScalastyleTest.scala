@@ -25,7 +25,7 @@ class ScalastyleTest extends ScalaInspectionTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ScalastyleCodeInspection]
 
-  override protected val description = "Class name does not match the regular expression '[A-Z][A-Za-z]*'"
+  override protected val description = "Class name does not match the regular expression '[A-Z][A-Za-z]*'."
 
   private def setup(): Unit = {
     def getOrCreateFile(dir: VirtualFile, file: String): VirtualFile =
