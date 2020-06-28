@@ -1,18 +1,25 @@
 package org.jetbrains.bsp.project.test.environment
 
 import com.intellij.execution.Executor
-import com.intellij.execution.configurations.{JavaParameters, ModuleBasedConfiguration, RunConfigurationModule, RunProfile}
+import com.intellij.execution.configurations.{JavaParameters, RunConfiguration, RunProfile}
 import com.intellij.execution.runners.JavaProgramPatcher
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.UserDataHolderBase
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
 
 import scala.collection.JavaConverters._
 
 class BspJvmEnvironmentProgramPatcher extends JavaProgramPatcher {
 
+  val logger = Logger.getInstance(classOf[BspJvmEnvironmentProgramPatcher])
+
   override def patchJavaParameters(executor: Executor, configuration: RunProfile, javaParameters: JavaParameters): Unit = {
     configuration match {
-      case testConfig: UserDataHolderBase =>
+      case testConfig: UserDataHolderBase with RunConfiguration =>
+        if(BspEnvironmentRunnerExtension.isSupported(testConfig)) {
+          if(testConfig.getBeforeRunTasks.stream().noneMatch(_.getProviderId == BspFetchEnvironmentTask.runTaskKey)) {
+            logger.error("Trying to execute BSP-based RunConfiguration without BSP environment set.")
+          }
+        }
         val env = testConfig.getUserData(BspFetchEnvironmentTask.jvmEnvironmentKey)
         if (env != null) {
           val oldEnvironmentVariables = javaParameters.getEnv.asScala.toMap
