@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.ListCompilerMe
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.Metering._
+import org.junit.Ignore
 
 import scala.collection.JavaConverters.seqAsJavaListConverter
 import scala.util.{Failure, Success, Try}
@@ -155,6 +156,7 @@ abstract class CompilationBenchmark
   }
 }
 
+@Ignore("Benchmark")
 class ZioCompilationBenchmark
   extends CompilationBenchmark {
 
