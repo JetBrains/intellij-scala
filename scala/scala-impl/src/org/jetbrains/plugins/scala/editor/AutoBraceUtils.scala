@@ -17,11 +17,12 @@ object AutoBraceUtils {
 
   def previousExpressionInIndentationContext(element: PsiElement): Option[ScExpression] = {
 
+    val orgStartOffset = element.endOffset
     val lastRealElement = PsiTreeUtil.prevLeaf(element)
 
     lastRealElement
       .withParents
-      .takeWhile(!_.isInstanceOf[ScBlock])
+      .takeWhile(e => !e.isInstanceOf[ScBlock] && e.endOffset <= orgStartOffset)
       .flatMap(toIndentedExpression)
       .headOption
   }

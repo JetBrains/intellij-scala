@@ -177,6 +177,38 @@ class AutoBracesTest extends EditorActionTestBase {
   )
 
 
+  def testEnterInsideOfIndentedCall(): Unit = checkInAllContexts(
+    s"""
+       |def test =
+       |  call($CARET)
+       |""".stripMargin,
+    s"""
+       |def test =
+       |  call(
+       |    $CARET
+       |  )
+       |""".stripMargin,
+    '\n'
+  )
+
+
+  def testTypingInsideOfIndentedCall(): Unit = checkInAllContexts(
+    s"""
+       |def test =
+       |  call(
+       |  $CARET
+       |  )
+       |""".stripMargin,
+    s"""
+       |def test =
+       |  call(
+       |  e$CARET
+       |  )
+       |""".stripMargin,
+    'e'
+  )
+
+
   val contexts = Seq(
     """
       |def test =$BODY$
