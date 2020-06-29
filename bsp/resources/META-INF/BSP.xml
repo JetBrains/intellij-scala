@@ -60,14 +60,4 @@
         <stepsBeforeRunProvider implementation="org.jetbrains.bsp.project.test.environment.BspFetchEnvironmentTaskProvider"/>
         <moduleService serviceImplementation="org.jetbrains.bsp.project.test.environment.PersistentBspTargetIdHolder"/>
     </extensions>
-
-    <projectListeners>
-        <listener class="org.jetbrains.bsp.project.test.environment.BspFetchTestEnvironmentTaskInstaller"
-                  topic="com.intellij.execution.RunManagerListener"/>
-    </projectListeners>
-
-    <actions>
-    </actions>
-
-
 </idea-plugin>
