@@ -2,18 +2,16 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package scaladoc
 
+import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.PsiElementVisitor
+import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTag
+import ScalaDocMissingParameterDescriptionInspection._
 
-
-/**
- * User: Dmitry Naydanov
- * Date: 12/17/11
- */
 
 class ScalaDocMissingParameterDescriptionInspection extends LocalInspectionTool {
 
@@ -21,21 +19,22 @@ class ScalaDocMissingParameterDescriptionInspection extends LocalInspectionTool 
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
-      override def visitTag(s: ScDocTag): Unit = {
-        if (!ScalaDocMissingParameterDescriptionInspection.OurTags.contains(s.name) || s.getValueElement == null) {
+      override def visitTag(tag: ScDocTag): Unit = {
+        if (!TagsWithValueElement.contains(tag.name))
           return
-        }
 
-        val children = s.findChildrenByType(ScalaDocTokenType.DOC_COMMENT_DATA)
-        for (child <- children) {
-          if (child.getText.length() > 1 && child.getText.split(" ").nonEmpty) {
-            return
-          }
-        }
+        val valueElement = tag.getValueElement
+        if (valueElement == null)
+          return
 
-        holder.registerProblem(holder.getManager.createProblemDescriptor(
-          if (s.getValueElement != null) s.getValueElement else s, getDisplayName, true,
-          ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly))
+        val hasDescription = !valueElement.nextSiblings.forall(el => NonDataTokens.contains(el.elementType))
+
+        if (!hasDescription) {
+          holder.registerProblem(holder.getManager.createProblemDescriptor(
+            if (tag.getValueElement != null) tag.getValueElement else tag, getDisplayName, true,
+            ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly
+          ))
+        }
       }
     }
   }
@@ -45,5 +44,6 @@ class ScalaDocMissingParameterDescriptionInspection extends LocalInspectionTool 
 object ScalaDocMissingParameterDescriptionInspection {
   import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing._
 
-  val OurTags = Set(PARAM_TAG, THROWS_TAG, TYPE_PARAM_TAG)
+  private val TagsWithValueElement = Set(PARAM_TAG, THROWS_TAG, TYPE_PARAM_TAG)
+  private val NonDataTokens = TokenSet.create(ScalaDocTokenType.DOC_WHITESPACE, ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS)
 }
