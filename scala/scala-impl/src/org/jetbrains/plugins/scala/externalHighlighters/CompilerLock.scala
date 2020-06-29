@@ -44,8 +44,8 @@ private class CompilerLockImpl(project: Project)
   @volatile private var lockSessionId: Option[String] = None
 
   override def lock(sessionId: String): Unit = lockSynchronizer.synchronized {
-    lockSessionId = Some(sessionId)
     semaphore.acquire()
+    lockSessionId = Some(sessionId)
   }
 
   override def unlock(sessionId: String,
@@ -53,8 +53,8 @@ private class CompilerLockImpl(project: Project)
     val permits = semaphore.availablePermits()
     if (permits == 0) {
       if (lockSessionId.contains(sessionId)) {
-        semaphore.release()
         lockSessionId = None
+        semaphore.release()
       } else {
         val msg = s"unlock($sessionId) for $project failed. Locked with other session id: $lockSessionId"
         throw new IllegalStateException(msg)
