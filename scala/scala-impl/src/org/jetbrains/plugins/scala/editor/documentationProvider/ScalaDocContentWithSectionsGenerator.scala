@@ -39,14 +39,10 @@ private class ScalaDocContentWithSectionsGenerator(
   def this(
     commentOwner: ScDocCommentOwner,
     comment: ScDocComment,
-    rendered: Boolean
+    rendered: Boolean // todo: does it work in DumpMode, maybe disable macro in render mode?
   ) = this(
     comment,
-    new MacroFinderImpl(commentOwner, element => {
-      // TODO: for now we do not support recursive macros, only 1 level
-      val generator = new ScalaDocContentGenerator(comment, MacroFinderDummy, rendered)
-      generator.nodeText(element)
-    }),
+    new MacroFinderImpl(commentOwner, rendered),
     rendered
   )
 
@@ -62,7 +58,7 @@ private class ScalaDocContentWithSectionsGenerator(
     val inheritDocTagOpt = tags.find(_.name == MyScaladocParsing.INHERITDOC_TAG)
     inheritDocTagOpt.foreach { inheritDocTag =>
       addInheritedDocText(buffer)
-      newContentGenerator.appendNodeText(buffer, inheritDocTag)
+      newContentGenerator.appendTagDescriptionText(buffer, inheritDocTag)
     }
     buffer.append(DocumentationMarkup.CONTENT_END)
 
@@ -115,8 +111,8 @@ private class ScalaDocContentWithSectionsGenerator(
 
   private def prepareSimpleSections(tags: Seq[ScDocTag], tagName: String, sectionTitle: String): Seq[Section] = {
     val matchingTags = tags.filter(_.name == tagName)
-    val result = matchingTags.map { tag =>
-      val sectionContent = newContentGenerator.nodesText(tag.children)
+    val result = matchingTags.map { tag: ScDocTag =>
+      val sectionContent = newContentGenerator.tagDescriptionText(tag)
       Section(sectionTitle, sectionContent.trim)
     }
 
@@ -144,7 +140,7 @@ private class ScalaDocContentWithSectionsGenerator(
   private def prepareReturnsSection(tags: Seq[ScDocTag]): Option[Section] = {
     // TODO: if there is inherited doc, get return description from there
     val returnTag = tags.find(_.name == MyScaladocParsing.RETURN_TAG)
-    returnTag.map(newContentGenerator.nodeText(_)).map(Section("Returns:", _))
+    returnTag.map(newContentGenerator.tagDescriptionText).map(Section("Returns:", _))
   }
 
   private def prepareThrowsSection(tags: Seq[ScDocTag]): Option[Section] = {
@@ -156,17 +152,19 @@ private class ScalaDocContentWithSectionsGenerator(
     } else None
   }
 
-  private def parameterInfo(tag: ScDocTag): Option[ParamInfo] =
-    tag.children.findByType[ScDocTagValue].map { tagValue =>
-      val tagDescription = newContentGenerator.nodesText(tagValue.nextSiblings)
+  private def parameterInfo(tag: ScDocTag): Option[ParamInfo] = {
+    val tagValue = Option(tag.getValueElement)
+    tagValue.map { tagValue =>
+      val tagDescription = newContentGenerator.tagDescriptionText(tag)
       ParamInfo(tagValue.getText, tagDescription)
     }
+  }
 
   private def throwsInfo(tag: ScDocTag): Option[ParamInfo] = {
     val exceptionRef = tag.children.findByType[ScStableCodeReference]
     exceptionRef.map { ref =>
       val value = ScalaDocContentGenerator.generatePsiElementLink(ref, resolveContext)
-      val description = newContentGenerator.nodesText(ref.nextSiblings)
+      val description = newContentGenerator.tagDescriptionText(tag)
       ParamInfo(value, description)
     }
   }

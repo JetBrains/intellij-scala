@@ -3,9 +3,6 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 // TODO: in-editor doc: code example in the end of the doc produces new line
 class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase {
 
-  // helper symbol used to prevent empty lines in multiline strings from trimming by IDEA
-  private def blank = ""
-
   def testClass(): Unit =
     doGenerateDocDefinitionTest(
       s"""package a.b.c
@@ -1202,16 +1199,112 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         |Sequences support a number of methods to find occurrences of elements or subsequences, including
         |<tt>segmentLength</tt>,<tt>prefixLength</tt>,<tt>indexWhere</tt>,<tt>indexOf</tt>,
         |<tt>lastIndexWhere</tt>,<tt>lastIndexOf</tt>,<tt>startsWith</tt>,<tt>endsWith</tt>,<tt>indexOfSlice</tt>.
+        |<p>
         |Another way to see a sequence is as a<tt>PartialFunction</tt>from<tt>Int</tt>values
         |to the element type of the sequence. The<tt>isDefinedAt</tt>method of a sequence returns<tt>true</tt>for the
-        |interval from<tt>0</tt>until<tt>length</tt>. Sequences can be accessed in reverse order of their elements,
+        |interval from<tt>0</tt>until<tt>length</tt>.
+        |<p>
+        |Sequences can be accessed in reverse order of their elements,
         |using methods<tt>reverse</tt>and<tt>reverseIterator</tt>.
+        |<p>
         |Sequences have two principal subtraits,<tt>IndexedSeq</tt>and<tt>LinearSeq</tt>, which give different
         |guarantees for performance. An<tt>IndexedSeq</tt>provides fast random-access of elements
         |and a fast<tt>length</tt>operation. A<tt>LinearSeq</tt>provides fast access only to the first element
         |via<tt>head</tt>, but also has a fast<tt>tail</tt>operation.
         |""".stripMargin
     )
+
+  def testMacro_WithParagraphs_InjectedInVariousPlaces(): Unit = {
+    val fileContent =
+      s"""/**
+         | * @define macro1 short macro value
+         | * @define macro2 long macro value line 1
+         | *                long macro value line 2
+         | *
+         | *                long macro value line 3
+         | */
+         |class Parent
+         |
+         |/**
+         | * $$macro1
+         | * $$macro2
+         | *
+         | * $$macro1
+         | *
+         | * $$macro2
+         | *
+         | * Some prefix $$macro1
+         | * Some prefix $$macro2
+         | *
+         | * Some prefix $$macro1
+         | *
+         | * Some prefix $$macro2
+         | */
+         |class ${|}Child extends Parent
+         |""".stripMargin
+
+    val expectedContent =
+      """<p>short macro value long macro value line 1 long macro value line 2
+        |<p>long macro value line 3
+        |<p>short macro value
+        |<p>long macro value line 1 long macro value line 2
+        |<p>long macro value line 3
+        |<p>Some prefix short macro value Some prefix long macro value line 1 long macro value line 2
+        |<p>long macro value line 3
+        |<p>Some prefix short macro value
+        |<p>Some prefix long macro value line 1 long macro value line 2
+        |<p>long macro value line 3
+        |""".stripMargin
+
+    doGenerateDocContentTest(fileContent, expectedContent)
+  }
+
+  def testMacro_WithLists(): Unit = {
+    val fileContent =
+      s"""/**
+         | * @define macro1 some text
+         | *                - item
+         | *                - item
+         | *                  i. item
+         | *                  i. item
+         | *
+         | *                another text
+         | */
+         |class Parent
+         |
+         |/**
+         | * Some prefix $$macro1 some postfix
+         | *
+         | * $$macro1
+         | */
+         |class ${|}Child extends Parent""".stripMargin
+
+    val expectedContent =
+      """<p>Some prefix some text
+        |<ul>
+        |<li>item</li>
+        |<li>item
+        |<ol class="lowerRoman">
+        |<li>item</li>
+        |<li>item</li>
+        |</ol>
+        |</li>
+        |</ul>
+        |<p>another text some postfix
+        |<p>some text
+        |<ul>
+        |<li>item</li>
+        |<li>item
+        |<ol class="lowerRoman">
+        |<li>item</li>
+        |<li>item</li>
+        |</ol>
+        |</li>
+        |</ul>
+        |<p>another text""".stripMargin
+
+    doGenerateDocContentTest(fileContent, expectedContent)
+  }
 
   def testAnnotationArgs(): Unit = {
     val fileContent =
@@ -1510,14 +1603,14 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
 
     val expectedContent =
       s"""<p><pre><code>
-         |  code line 1
-         | $blank
-         |  code line 2
-         | $blank
-         | $blank
-         |  code line 3
-         |  code line 4
-         |  </code></pre>
+         | code line 1
+         |
+         | code line 2
+         |
+         |
+         | code line 3
+         | code line 4
+         | </code></pre>
          |""".stripMargin
 
     doGenerateDocContentDanglingTest(input, expectedContent)
@@ -1555,16 +1648,16 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val expectedContent =
       s"""<p>
          |<pre>
-         |  line 1
-         | $blank
-         |  line 2
-         |  </pre>
+         | line 1
+         |
+         | line 2
+         | </pre>
          |<p>
          |before <pre>
-         |  line 1
-         | $blank
-         |  line 2
-         |  </pre> after
+         | line 1
+         |
+         | line 2
+         | </pre> after
          |<p><u>line 1 line 2</u>
          |<p>before<b>line 1 line 2</b>after
          |""".stripMargin

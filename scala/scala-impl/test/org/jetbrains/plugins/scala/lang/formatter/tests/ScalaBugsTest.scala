@@ -1582,12 +1582,20 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
         |     {{{
         | * val x = 2
         | *      }}}
+        | * @example   some text
+        |     {{{
+        | * val x = 2
+        | *      }}}
         | */
         |class A
       """.stripMargin
     val after =
       """/**
         | * @example
+        | * {{{
+        | * val x = 2
+        | * }}}
+        | * @example some text
         | * {{{
         | * val x = 2
         | * }}}

@@ -85,7 +85,7 @@ final class ScalaDocNewlinedPreFormatProcessor extends PreFormatProcessor with S
               !isParamTag(prevElement) && isParamTag(element) && scalaSettings.SD_BLANK_LINE_BEFORE_PARAMETERS
 
           val newlinesNew = if (needBlankLineBetweenTags) 2 else 1
-          fixNewlinesBetweenElements(prevElement.getLastChild, newlinesNew, scalaSettings)
+          fixNewlinesBetweenElements(PsiTreeUtil.getDeepestLast(prevElement), newlinesNew, scalaSettings)
         case (false, true) =>
           val prevElementFixed = prevElement match {
             case paragraph: ScDocParagraph => Option(PsiTreeUtil.getDeepestLast(paragraph))

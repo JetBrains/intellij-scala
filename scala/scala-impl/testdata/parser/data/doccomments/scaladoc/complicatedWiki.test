@@ -93,7 +93,8 @@ ScalaFile
         <empty list>
     DocTag
       ScPsiDocToken(DOC_TAG_NAME)('@see')
-      ScPsiDocToken(DOC_WHITESPACE)(' ')
-      ScPsiDocToken(DOC_COMMENT_DATA)('something')
-      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('something')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
     ScPsiDocToken(DOC_COMMENT_END)('*/')

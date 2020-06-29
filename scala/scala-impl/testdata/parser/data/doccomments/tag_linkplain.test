@@ -12,7 +12,8 @@ ScalaFile
       ScPsiDocToken(DOC_TAG_NAME)('@linkplain')
       PsiErrorElement:Unknown tag: @linkplain
         <empty list>
-      ScPsiDocToken(DOC_WHITESPACE)(' ')
-      ScPsiDocToken(DOC_COMMENT_DATA)('scala.collection.Set#apply')
-      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('scala.collection.Set#apply')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
     ScPsiDocToken(DOC_COMMENT_END)('*/')

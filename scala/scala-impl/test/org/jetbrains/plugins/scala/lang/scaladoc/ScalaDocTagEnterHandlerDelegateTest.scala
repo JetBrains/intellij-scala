@@ -3,7 +3,7 @@ package lang.scaladoc
 
 import com.intellij.openapi.util.text.StringUtil
 
-class ScalaDocParamDescriptionAlignmentTest extends ScalaDocEnterActionTestBase {
+class ScalaDocTagEnterHandlerDelegateTest extends ScalaDocEnterActionTestBase {
 
   private val spaces = StringUtil.repeat(" ", 4)
 
@@ -25,7 +25,7 @@ class ScalaDocParamDescriptionAlignmentTest extends ScalaDocEnterActionTestBase 
          | */""".stripMargin,
       s"""/**
          | * @param i $spaces
-         | *          ${|}
+         | * ${|}
          | */""".stripMargin,
     )
 
@@ -43,11 +43,23 @@ class ScalaDocParamDescriptionAlignmentTest extends ScalaDocEnterActionTestBase 
   def testEnterWithInvalidParam(): Unit =
     doTest(
       s"""/**
-        | * @param ${|}
-        | */""".stripMargin,
+         | * @param ${|}
+         | */""".stripMargin,
       s"""/**
          | * @param
-         | *       ${|}
+         | * ${|}
+         | */""".stripMargin,
+    )
+
+
+  def testEnterWithInvalidParam_1(): Unit =
+    doTest(
+      s"""/**
+         | * @param   xxx   ${|}
+         | */""".stripMargin,
+      s"""/**
+         | * @param   xxx
+         | * ${|}
          | */""".stripMargin,
     )
 
@@ -58,6 +70,28 @@ class ScalaDocParamDescriptionAlignmentTest extends ScalaDocEnterActionTestBase 
          | */""".stripMargin,
       s"""/**
          | * @see        something
+         | *             ${|}
+         | */""".stripMargin
+    )
+
+  def testEnterWithTagWithoutValue_1(): Unit =
+    doTest(
+      s"""/**
+         | * @see        `something`   ${|}
+         | */""".stripMargin,
+      s"""/**
+         | * @see        `something`
+         | *             ${|}
+         | */""".stripMargin
+    )
+
+  def testEnterWithTagWithoutValue_2(): Unit =
+    doTest(
+      s"""/**
+         | * @see        [[something]]   ${|}
+         | */""".stripMargin,
+      s"""/**
+         | * @see        [[something]]
          | *             ${|}
          | */""".stripMargin
     )

@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
-import scala.util.{Failure, Try}
+import scala.util.Try
 
 object ScalaDocGenerator {
 
@@ -50,7 +50,7 @@ object ScalaDocGenerator {
     builder.append("</body>")
     builder.append("</html>")
 
-    val result = builder.result()
+    val result = builder.result
     result
   }
 

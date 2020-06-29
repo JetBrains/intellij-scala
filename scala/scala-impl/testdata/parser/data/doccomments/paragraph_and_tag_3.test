@@ -12,6 +12,7 @@ ScalaFile
     DocTag
       ScPsiDocToken(DOC_WHITESPACE)(' ')
       ScPsiDocToken(DOC_TAG_NAME)('@since')
-      ScPsiDocToken(DOC_WHITESPACE)(' ')
-      ScPsiDocToken(DOC_COMMENT_DATA)('42 ')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('42 ')
     ScPsiDocToken(DOC_COMMENT_END)('*/')

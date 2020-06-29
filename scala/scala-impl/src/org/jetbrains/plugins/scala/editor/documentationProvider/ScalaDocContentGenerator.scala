@@ -6,7 +6,7 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentGenerator._
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiClassExt, PsiElementExt, PsiMemberExt}
+import org.jetbrains.plugins.scala.extensions.{&&, ElementType, IteratorExt, PrevLeaf, PsiClassExt, PsiElementExt, PsiMemberExt, TraversableExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
 
-import scala.collection.{Map, Seq, TraversableOnce}
+import scala.collection.{Map, TraversableOnce}
 import scala.util.Try
 
 /**
@@ -29,36 +29,53 @@ private class ScalaDocContentGenerator(
 
   import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentGenerator.DocListType._
 
-  private var isLeadingSpaces = true
-
   def appendCommentDescription(
     buffer: StringBuilder,
     comment: ScDocComment
-  ): Unit =
-    appendNodesText(buffer, comment.getDescriptionElements)
+  ): Unit = {
+    val parts = comment.getDescriptionElements.toTraversable.filterBy[ScDocDescriptionPart]
+    appendDescriptionParts(buffer, parts)
+  }
 
-  def appendNodesText(
+  def appendTagDescriptionText(
     buffer: StringBuilder,
-    elements: Seq[PsiElement]
-  ): Unit =
-    elements.foreach(visitNode(buffer, _))
+    tag: ScDocTag
+  ): Unit = {
+    val descriptionParts = tagDescriptionParts(tag)
+    appendDescriptionParts(buffer, descriptionParts, skipFirstParagraph = true)
+  }
 
-  def appendNodeText(
-    buffer: StringBuilder,
-    element: PsiElement
-  ): Unit =
-    visitNode(buffer, element)
+  def tagDescriptionText(
+    tag: ScDocTag
+  ): String = {
+    val buffer = newStringBuilder
+    appendTagDescriptionText(buffer, tag)
+    buffer.result
+  }
 
-  def nodesText(elements: TraversableOnce[PsiElement]): String = {
-    val buffer = StringBuilder.newBuilder
+  private def tagDescriptionParts(tag: ScDocTag): Traversable[ScDocDescriptionPart] = {
+    val descriptionElements = Option(tag.getValueElement)
+      .orElse(tag.children.findByType[ScStableCodeReference]) // for @throws tag
+      .getOrElse(tag.getNameElement).nextSiblings
+    descriptionElements.toTraversable.filterBy[ScDocDescriptionPart]
+  }
+
+  private def nodesText(elements: TraversableOnce[PsiElement]): String = {
+    val buffer = newStringBuilder
     elements.foreach(visitNode(buffer, _))
     buffer.result
   }
 
-  def nodeText(element: PsiElement): String = {
-    val buffer = StringBuilder.newBuilder
-    visitNode(buffer, element)
-    buffer.result
+  private def appendDescriptionParts(
+    buffer: StringBuilder,
+    parts: TraversableOnce[ScDocDescriptionPart],
+    skipFirstParagraph: Boolean = false
+  ): Unit = {
+    var isFirst = true
+    parts.foreach { part =>
+      visitDescriptionPartNode(buffer, part, isFirst && skipFirstParagraph)
+      isFirst = false
+    }
   }
 
   private def generatePsiElementLinkWithLabelForChildren(
@@ -73,6 +90,14 @@ private class ScalaDocContentGenerator(
     } yield generatePsiElementLinkWithLabel(ref, plainLink, isContentChild)
     result.merge
   }
+
+  // NOTE: assuming nested ScDocDescriptionPart is not the case
+  private def visitDescriptionPartNode(buffer: StringBuilder, part: ScDocDescriptionPart, skipParagraphElement: Boolean): Unit =
+    part match {
+      case paragraph: ScDocParagraph   => visitParagraph(buffer, paragraph, skipParagraphElement)
+      case list: ScDocList             => visitDocList(buffer, list)
+      case _                           => // impossible case
+    }
 
   private def generatePsiElementLinkWithLabel(
     ref: ScStableCodeReference,
@@ -105,18 +130,17 @@ private class ScalaDocContentGenerator(
     else element match {
       case syntax: ScDocSyntaxElement  => visitSyntaxNode(buffer, syntax)
       case inlinedTag: ScDocInlinedTag => visitInlinedTag(buffer, inlinedTag)
-      case paragraph: ScDocParagraph   => visitParagraph(buffer, paragraph)
       case list: ScDocList             => visitDocList(buffer, list)
       case _                           => element.children.foreach(visitNode(buffer, _))
     }
   }
 
-  private def visitParagraph(buffer: StringBuilder, paragraph: ScDocParagraph): Unit = {
-    buffer.append("<p>")
+  private def visitParagraph(buffer: StringBuilder, paragraph: ScDocParagraph, skipParagraphElement: Boolean): Unit = {
+    if (!skipParagraphElement)
+      buffer.append(HtmlParagraph)
     paragraph.children.foreach(visitNode(buffer, _))
   }
 
-  // TODO: review SCL-6599
   private def visitDocList(buffer: StringBuilder, list: ScDocList): Unit = {
     val listItems = list.items
     val firstItem = listItems.head.headToken
@@ -223,38 +247,24 @@ private class ScalaDocContentGenerator(
     result: StringBuilder,
     element: PsiElement
   ): Unit = {
-    val elementText = element.getText
     val elementType = element.getNode.getElementType
-
-    val appendText: Option[String] = elementType match {
+    elementType match {
       // leading '*' only can come from tags description, filtered for main content description
       case ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS => None
       case ScalaDocTokenType.DOC_TAG_NAME                  => None
       case ScalaDocTokenType.DOC_TAG_VALUE_TOKEN           => None
-      case ScalaDocTokenType.DOC_INNER_CODE_TAG            => Some("""<pre><code>""");
-      case ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG      => Some("""</code></pre>""");
-      case ScalaDocTokenType.DOC_COMMENT_DATA              => Some(elementText)
-      case ScalaDocTokenType.DOC_MACROS                    => Some(macroValueSafe(macroFinder, elementText.stripPrefix("$")))
-      case _ if isDocLineBreak(element)                    => handleLineBreak(element)
-      case _                                               => Some(elementText)
-    }
-
-    appendText match {
-      case Some(text) =>
-        result.append(text)
-        if (elementType != ScalaDocTokenType.DOC_WHITESPACE)
-          isLeadingSpaces = false
-      case None        =>
+      case ScalaDocTokenType.DOC_INNER_CODE_TAG            => result.append("""<pre><code>""")
+      case ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG      => result.append("""</code></pre>""")
+      case ScalaDocTokenType.DOC_MACROS                    => appendMacroValue(result, element)
+      case _ if isDocLineBreak(element)                    => result.append("\n") // ignore other spaces except line break
+      case _                                               => result.append(element.getText)
     }
   }
 
-  private def handleLineBreak(lineBreakElement: PsiElement): Option[String] = {
-    val firstLineElement = lineBreakElement.nextSibling
-      .filter(_.elementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS)
-      .flatMap(_.nextSibling)
-
-    // can be empty for the last tag child element (it's dangling new line DOC_WHITESPACE_
-    firstLineElement.map(_ => "\n ")
+  private def appendMacroValue(result: StringBuilder, macroElement: PsiElement): Unit = {
+    val macroValue = macroValueSafe(macroFinder, macroElement)
+    val endIdx = macroValue.lastIndexWhere(!_.isWhitespace) + 1
+    result.append(macroValue, 0, endIdx)
   }
 
   private def isDocLineBreak(element: PsiElement): Boolean =
@@ -264,6 +274,8 @@ private class ScalaDocContentGenerator(
 object ScalaDocContentGenerator {
 
   private val Log = Logger.getInstance(classOf[ScalaDocContentGenerator])
+
+  private val HtmlParagraph = "<p>"
 
   private case class PsiElementResolveResult(refText: String, label: String)
 
@@ -342,7 +354,8 @@ object ScalaDocContentGenerator {
    */
   private def unresolvedReference(text: String): String = s"<font color=red>$text</font>"
 
-  private def macroValueSafe(macroFinder: MacroFinder, macroKey: String): String = {
+  private def macroValueSafe(macroFinder: MacroFinder, macroElement: PsiElement): String = {
+    val macroKey = macroElement.getText.stripPrefix("$")
     val macroValue: Option[String] = Try(macroFinder.getMacroBody(macroKey))
       .recover { case exception =>
         Log.debug(s"Error occurred during macro resolving: $macroKey", exception)
@@ -351,6 +364,26 @@ object ScalaDocContentGenerator {
       .get
     macroValue.getOrElse(s"[Cannot find macro: $$$macroKey]")
   }
+
+  private def isLeadingDocLineElement(element: PsiElement): Boolean = {
+    import ScalaDocTokenType._
+    element match {
+      case PrevLeaf(ElementType(DOC_WHITESPACE) && PrevLeaf(ElementType(DOC_COMMENT_LEADING_ASTERISKS))) |
+           PrevLeaf(ElementType(DOC_COMMENT_LEADING_ASTERISKS)) => true
+      case _ => false
+    }
+  }
+
+  private def isFirstParagraphChild(element: PsiElement): Boolean =
+    element.getParent match {
+      case p: ScDocParagraph =>
+        p.getFirstChild match {
+          case null                                             => false
+          case ws@ElementType(ScalaDocTokenType.DOC_WHITESPACE) => ws.getNextSibling == element
+          case `element`                                        => true
+        }
+      case _ => false
+    }
 
   private def markupTagToHtmlTag(markupTag: String): Option[String] = markupTag match {
     case "__"  => Some("u")

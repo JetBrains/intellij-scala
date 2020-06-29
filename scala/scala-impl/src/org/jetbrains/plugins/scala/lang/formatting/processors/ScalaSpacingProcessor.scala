@@ -215,7 +215,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         WITH_SPACING
       case (ScalaDocTokenType.DOC_TAG_NAME, _, _, _)                                                   =>
         val rightText = getText(rightNode, fileText) //rightString is not semantically equal for PsiError nodes
-        if (rightText.nonEmpty && rightText.apply(0) == ' ') Spacing.getReadOnlySpacing
+        if (rightText.nonEmpty && rightText.apply(0) == ' ') WITH_SPACING
         else tagSpacing
       case (ScalaDocTokenType.DOC_TAG_VALUE_TOKEN, _, ScalaDocElementTypes.DOC_TAG, _) => tagSpacing
       case (_, x, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) => Spacing.getReadOnlySpacing

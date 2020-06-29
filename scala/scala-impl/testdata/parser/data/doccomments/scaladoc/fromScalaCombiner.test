@@ -150,52 +150,56 @@ ScalaFile
     DocTag
       ScPsiDocToken(DOC_WHITESPACE)('  ')
       ScPsiDocToken(DOC_TAG_NAME)('@tparam')
-      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
       ScalaDocTagValue: N
         ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('N')
-      ScPsiDocToken(DOC_WHITESPACE)('      ')
-      ScPsiDocToken(DOC_COMMENT_DATA)('the type of elements contained by the ')
-      DocSyntaxElement 8
-        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
-        ScPsiDocToken(DOC_COMMENT_DATA)('other')
-        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
-      ScPsiDocToken(DOC_COMMENT_DATA)(' builder')
-      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
-      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)('      ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('the type of elements contained by the ')
+        DocSyntaxElement 8
+          ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+          ScPsiDocToken(DOC_COMMENT_DATA)('other')
+          ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+        ScPsiDocToken(DOC_COMMENT_DATA)(' builder')
+        ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
     DocTag
       ScPsiDocToken(DOC_WHITESPACE)('  ')
       ScPsiDocToken(DOC_TAG_NAME)('@tparam')
-      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
       ScalaDocTagValue: NewTo
         ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('NewTo')
-      ScPsiDocToken(DOC_WHITESPACE)('  ')
-      ScPsiDocToken(DOC_COMMENT_DATA)('the type of collection produced by the ')
-      DocSyntaxElement 8
-        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
-        ScPsiDocToken(DOC_COMMENT_DATA)('other')
-        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
-      ScPsiDocToken(DOC_COMMENT_DATA)(' builder')
-      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
-      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)('  ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('the type of collection produced by the ')
+        DocSyntaxElement 8
+          ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+          ScPsiDocToken(DOC_COMMENT_DATA)('other')
+          ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+        ScPsiDocToken(DOC_COMMENT_DATA)(' builder')
+        ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
     DocTag
       ScPsiDocToken(DOC_WHITESPACE)('  ')
       ScPsiDocToken(DOC_TAG_NAME)('@param')
-      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
       ScalaDocTagValue: other
         ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('other')
-      ScPsiDocToken(DOC_WHITESPACE)('   ')
-      ScPsiDocToken(DOC_COMMENT_DATA)('the other builder')
-      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
-      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)('   ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('the other builder')
+        ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
     DocTag
       ScPsiDocToken(DOC_WHITESPACE)('  ')
       ScPsiDocToken(DOC_TAG_NAME)('@return')
-      ScPsiDocToken(DOC_WHITESPACE)('        ')
-      ScPsiDocToken(DOC_COMMENT_DATA)('the parallel builder containing both the elements of this and the ')
-      DocSyntaxElement 8
-        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
-        ScPsiDocToken(DOC_COMMENT_DATA)('other')
-        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
-      ScPsiDocToken(DOC_COMMENT_DATA)(' builder')
-      ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)('        ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('the parallel builder containing both the elements of this and the ')
+        DocSyntaxElement 8
+          ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+          ScPsiDocToken(DOC_COMMENT_DATA)('other')
+          ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+        ScPsiDocToken(DOC_COMMENT_DATA)(' builder')
+        ScPsiDocToken(DOC_WHITESPACE)('\n   ')
     ScPsiDocToken(DOC_COMMENT_END)('*/')

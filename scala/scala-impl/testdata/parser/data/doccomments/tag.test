@@ -10,7 +10,8 @@ ScalaFile
     DocTag
       ScPsiDocToken(DOC_WHITESPACE)(' ')
       ScPsiDocToken(DOC_TAG_NAME)('@author')
-      ScPsiDocToken(DOC_WHITESPACE)(' ')
-      ScPsiDocToken(DOC_COMMENT_DATA)('Alexnder')
-      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('Alexnder')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
     ScPsiDocToken(DOC_COMMENT_END)('*/')

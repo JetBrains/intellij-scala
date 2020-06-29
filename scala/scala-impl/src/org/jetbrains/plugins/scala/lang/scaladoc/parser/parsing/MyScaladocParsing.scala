@@ -207,6 +207,9 @@ final class MyScaladocParsing(private val builder: PsiBuilder) extends ScalaDocE
       hasLineBreak = true
     }
   }
+  private def consumeWhiteSpaces(): Unit =
+    while (!isEndOfComment && builder.getTokenType == ScalaDocTokenType.DOC_WHITESPACE)
+      builder.advanceLexer()
 
   private def isTagStart: Boolean =
     builder.lookAhead(DOC_TAG_NAME) || builder.lookAhead(DOC_WHITESPACE, DOC_TAG_NAME)
@@ -512,6 +515,7 @@ final class MyScaladocParsing(private val builder: PsiBuilder) extends ScalaDocE
     val tagName = builder.getTokenText
     assert(builder.getTokenType == DOC_TAG_NAME, s"$tagName  ${builder.getTokenType}  ${builder.getCurrentOffset}")
 
+    // eat doc tag name
     if (!isEndOfComment)
       builder.advanceLexer()
     else
@@ -519,26 +523,23 @@ final class MyScaladocParsing(private val builder: PsiBuilder) extends ScalaDocE
 
     tagName match {
       case THROWS_TAG =>
-        if (!isEndOfComment) {
-          builder.advanceLexer()
-        }
+        consumeWhiteSpaces()
         val psiBuilder = new ScalaPsiBuilderImpl(builder, isScala3 = false)
         StableId.parse(psiBuilder, forImport = true, DOC_TAG_VALUE_TOKEN)
       case PARAM_TAG | TYPE_PARAM_TAG | DEFINE_TAG =>
-        if (!builder.lookAhead(builder.getTokenType, DOC_TAG_VALUE_TOKEN))
+        if (builder.lookAhead(DOC_WHITESPACE, DOC_TAG_VALUE_TOKEN)) {
+          builder.advanceLexer() // ate space
+          parseTagValue()
+        } else {
           scaladocError(builder, ScalaBundle.message("scaladoc.parsing.missing.tag.param"))
+        }
+
       case tag if allTags.contains(tag) => //do nothing
       case _ =>
         scaladocError(builder, ScalaBundle.message("scaladoc.parsing.unknown.tag", tagName))
     }
 
-    while (!isEndOfComment && !isTagStart)
-      builder.getTokenType match {
-        case DOC_TAG_NAME                 => // stop
-        case _: ScalaDocSyntaxElementType => parseWikiSyntax()
-        case DOC_TAG_VALUE_TOKEN          => parseTagValue()
-        case _                            => builder.advanceLexer()
-      }
+    parseDescription()
 
     marker.done(DOC_TAG)
 

@@ -12,20 +12,21 @@ ScalaFile
     DocTag
       ScPsiDocToken(DOC_WHITESPACE)(' ')
       ScPsiDocToken(DOC_TAG_NAME)('@see')
-      ScPsiDocToken(DOC_WHITESPACE)('  ')
-      ScPsiDocToken(DOC_INLINE_TAG_START)('{')
-    DocTag
-      ScPsiDocToken(DOC_TAG_NAME)('@aaa')
-      PsiErrorElement:Unknown tag: @aaa
-        <empty list>
-      ScPsiDocToken(DOC_INLINE_TAG_END)('}')
-      ScPsiDocToken(DOC_WHITESPACE)('\n    ')
-      ScPsiDocToken(DOC_INLINE_TAG_START)('{')
-    DocTag
-      ScPsiDocToken(DOC_TAG_NAME)('@bbb')
-      PsiErrorElement:Unknown tag: @bbb
-        <empty list>
-      ScPsiDocToken(DOC_INLINE_TAG_END)('}')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)('  ')
+        DocInlinedTag
+          ScPsiDocToken(DOC_INLINE_TAG_START)('{')
+          ScPsiDocToken(DOC_TAG_NAME)('@aaa')
+          PsiErrorElement:Inline tag
+            <empty list>
+          ScPsiDocToken(DOC_INLINE_TAG_END)('}')
+        ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+        DocInlinedTag
+          ScPsiDocToken(DOC_INLINE_TAG_START)('{')
+          ScPsiDocToken(DOC_TAG_NAME)('@bbb')
+          PsiErrorElement:Inline tag
+            <empty list>
+          ScPsiDocToken(DOC_INLINE_TAG_END)('}')
     DocTag
       ScPsiDocToken(DOC_WHITESPACE)('\n   ')
       ScPsiDocToken(DOC_TAG_NAME)('@ccc')

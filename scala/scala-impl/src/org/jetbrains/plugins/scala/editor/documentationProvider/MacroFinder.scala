@@ -1,48 +1,44 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.editor.documentationProvider.MacroFinderImpl.DefineTagContentTokens
-import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
-import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScMember, ScTemplateDefinition, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocTag}
 
 import scala.collection.mutable
-import org.jetbrains.plugins.scala.extensions.ObjectExt
 
 /**
- * TODO: $seqInfo is not found in scala.collection.immutable.Seq
- *  write a test for std lib like org.jetbrains.plugins.scala.projectHighlighting.ScalaLibraryHighlightingTest
+ * TODO: write a test for std lib like org.jetbrains.plugins.scala.projectHighlighting.ScalaLibraryHighlightingTest
  */
 private trait MacroFinder {
   def getMacroBody(name: String): Option[String]
 }
 
 private object MacroFinderDummy extends MacroFinder {
-  override def getMacroBody(name: String): Option[String] = None
+  override def getMacroBody(name: String): Option[String] = Some("")
 }
 
 private class MacroFinderImpl(
   commentOwner: ScDocCommentOwner,
-  renderDefineTagChildElement: PsiElement => String
+  rendered: Boolean
 ) extends MacroFinder {
   private val myCache = mutable.HashMap[String, String]()
 
-  private val processingQueue = mutable.Queue.apply[ScDocCommentOwner]()
+  private var inheritedCommentOwners: Seq[ScDocCommentOwner] = Seq.empty
   private var init = false
 
   override def getMacroBody(macroName: String): Option[String] = {
     if (!init) {
-      fillQueue()
+      inheritedCommentOwners = inheritedOwners()
       init = true
     }
 
     myCache.get(macroName) match {
-      case macroValue: Some[_] => return macroValue
+      case macroValue: Some[_] =>
+        return macroValue
       case None             =>
     }
 
@@ -50,89 +46,78 @@ private class MacroFinderImpl(
   }
 
   private def findMacroValue(macroName: String): Option[String] = {
-    val commentOwners   = dequeueIterator(processingQueue)
-    val comments = for {
-      owner       <- commentOwners
+    val comments: Iterator[ScDocComment] = for {
+      owner       <- inheritedCommentOwners.iterator
       actualOwner <- owner.getNavigationElement.asOptionOf[ScDocCommentOwner]
       comment     <- actualOwner.docComment
     } yield comment
 
-    val defineTags = comments.flatMap(findDefineTags)
-    defineTags.find(_._1 == macroName).map(_._2)
+    val macroValues: Iterator[String] = for {
+      comment <- comments
+      (defineKey, defineTag) <- findDefineTags(comment)
+      if defineKey.nonEmpty && defineKey == macroName
+    } yield defineTagValue(comment, defineTag)
+
+    val macroValue = macroValues.headOption
+    macroValue.foreach { value =>
+      myCache.put(macroName, value)
+    }
+    macroValue
   }
 
-  private def findDefineTags(comment: ScDocComment): Seq[(String, String)] =
+  private def findDefineTags(comment: ScDocComment): Seq[(String, ScDocTag)] =
     for {
       tag <- comment.getTags
       if tag.name == MyScaladocParsing.DEFINE_TAG
-    } yield getDefineTagNameAndValue(tag.asInstanceOf[ScDocTag])
+      defineTag = tag.asInstanceOf[ScDocTag]
+      key <- defineTagKey(defineTag)
+    } yield (key, defineTag)
 
-  private def getDefineTagNameAndValue(tag: ScDocTag): (String, String) = {
+  private def defineTagKey(tag: ScDocTag): Option[String] = {
     val valueElement = Option(tag.getValueElement)
-    val tagText = valueElement.map(_.getText).mkString
-
-    val tagValue = defineTagContentChildren(tag).map(renderDefineTagChildElement).mkString(" ").trim
-    val result = (tagText, tagValue)
-    if (tagText.nonEmpty)
-      myCache += result
-    result
+    valueElement.map(_.getText)
   }
 
-  private def defineTagContentChildren(tag: ScDocTag): Array[PsiElement] =
-    tag.getNode.getChildren(DefineTagContentTokens).map(_.getPsi)
+  private def defineTagValue(comment: ScDocComment, tag: ScDocTag): String = {
+    val macroFinder = MacroFinderDummy // TODO: for now we do not support recursive macros, only 1 level
+    val generator = new ScalaDocContentGenerator(comment, macroFinder, rendered)
+    generator.tagDescriptionText(tag)
+  }
 
-  private def fillQueue(): Unit = {
-    def fillInner(from: Iterable[ScDocCommentOwner]): Unit = {
-      if (from.isEmpty) return
-      val tc = mutable.ArrayBuffer.apply[ScDocCommentOwner]()
+  private def inheritedOwners(): Seq[ScDocCommentOwner] = {
+    val result = mutable.ArrayBuffer.empty[ScDocCommentOwner]
 
-      from.foreach {
-        case clazz: ScTemplateDefinition =>
-          processingQueue enqueue clazz
+    val queue = mutable.Queue[ScDocCommentOwner](commentOwner)
 
-          clazz.supers.foreach {
-            case cz: ScDocCommentOwner => tc += cz
-            case _ =>
-          }
-        case member: ScMember if member.hasModifierProperty("override") =>
-          processingQueue enqueue member
-
-          member match {
-            case named: ScNamedElement =>
-              ScalaPsiUtil.superValsSignatures(named).map(_.namedElement).foreach {
-                case od: ScDocCommentOwner => tc += od
-                case _ =>
-              }
-            case _ =>
-          }
-
-          member.containingClass match {
-            case od: ScDocCommentOwner => tc += od
-            case _ =>
-          }
-        case member: ScMember if member.containingClass != null =>
-          processingQueue enqueue member
-
-          member.containingClass match {
-            case od: ScDocCommentOwner => tc += od
-            case _ =>
-          }
-        case _ => return
-      }
-
-      fillInner(tc)
+    def enqueue(el: PsiElement): Unit = el  match {
+      case od: ScDocCommentOwner => queue += od
+      case _ =>
     }
 
-    fillInner(Option(commentOwner))
+    var continue = true
+    while (queue.nonEmpty && continue) {
+      queue.dequeue() match {
+        case clazz: ScTemplateDefinition =>
+          result += clazz
+          val supers = clazz.supers
+          supers.foreach(enqueue)
+        case member: ScMember if member.hasModifierPropertyScala("override") =>
+          result += member
+
+          val fromSuper = member match {
+            case named: ScNamedElement => ScalaPsiUtil.superValsSignatures(named).map(_.namedElement)
+            case _ => Seq()
+          }
+          fromSuper.foreach(enqueue)
+          enqueue(member.containingClass)
+        case member: ScMember if member.containingClass != null =>
+          result += member
+          enqueue(member.containingClass)
+        case _ =>
+          continue = false
+      }
+    }
+
+    result
   }
-
-  private def dequeueIterator[T](queue: mutable.Queue[T]): Iterator[T] = new Iterator[T] {
-    override def hasNext: Boolean = queue.nonEmpty
-    override def next(): T = queue.dequeue()
-  }
-}
-
-object MacroFinderImpl {
-
-  private val DefineTagContentTokens = ScalaDocTokenType.ALL_SCALADOC_SYNTAX_ELEMENTS ++ ScalaDocTokenType.DOC_COMMENT_DATA
 }

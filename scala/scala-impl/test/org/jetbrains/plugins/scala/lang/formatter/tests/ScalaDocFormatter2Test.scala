@@ -236,4 +236,106 @@ class ScalaDocFormatter2Test extends AbstractScalaFormatterTestBase {
 
     doTextTest(before, before)
   }
+
+  def testParamTag(): Unit =
+    doTextTest(
+      """/**
+        | *   @param      x      description
+        | */""".stripMargin,
+      """/**
+        | * @param x description
+        | */""".stripMargin
+    )
+
+  def testParamTag_1(): Unit =
+    doTextTest(
+      """/**
+        | *   @param      x      description 1
+        | *   @param    xxxxx      description 2
+        | */""".stripMargin,
+      """/**
+        | * @param x     description 1
+        | * @param xxxxx description 2
+        | */""".stripMargin
+    )
+
+
+  def testListMix_InsideTags(): Unit =
+    doTextTest(
+      """/**
+        | * @param x some text
+        | *          - item
+        | *          - item
+        | *               i. item
+        | *               i. item
+        | *
+        | *          another text
+        | * @define macro1 some text
+        | *                - item
+        | *                - item
+        | *                  i. item
+        | *                  i. item
+        | *
+        | *                another text
+        | */
+        |class Parent""".stripMargin
+    )
+
+  def testParamTag_WithParagraphsAndLists(): Unit =
+    doTextTest(
+      """/**
+        | * @param x description 1
+        | *          description 2
+        | *       description 3
+        | *                   description 4
+        | *
+        | *                   description 5
+        | *                   description 6
+        | *          - item 1
+        | *          - item 2
+        | *            - item inner 1
+        | *
+        | */""".stripMargin,
+      """/**
+        | * @param x description 1
+        | *          description 2
+        | *          description 3
+        | *          description 4
+        | *
+        | *          description 5
+        | *          description 6
+        | *          - item 1
+        | *          - item 2
+        | *            - item inner 1
+        | *
+        | */""".stripMargin
+    )
+
+  def testFixCommentEndIndentAfterEmptyTag(): Unit =
+    doTextTest(
+      """/**
+        | * @note
+        |   */
+        |class A {
+        |
+        |  /**
+        |   * @note
+        |     */
+        |  class B
+        |
+        |}""".stripMargin,
+      """/**
+        | * @note
+        | */
+        |class A {
+        |
+        |  /**
+        |   * @note
+        |   */
+        |  class B
+        |
+        |}""".stripMargin
+    )
+
+
 }

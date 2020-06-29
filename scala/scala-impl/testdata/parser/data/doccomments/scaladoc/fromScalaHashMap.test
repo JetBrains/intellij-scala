@@ -46,77 +46,85 @@ ScalaFile
     DocTag
       ScPsiDocToken(DOC_WHITESPACE)('  ')
       ScPsiDocToken(DOC_TAG_NAME)('@tparam')
-      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
       ScalaDocTagValue: A
         ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('A')
-      ScPsiDocToken(DOC_WHITESPACE)('      ')
-      ScPsiDocToken(DOC_COMMENT_DATA)('the type of the keys contained in this hash map.')
-      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)('      ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('the type of the keys contained in this hash map.')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
     DocTag
       ScPsiDocToken(DOC_WHITESPACE)('  ')
       ScPsiDocToken(DOC_TAG_NAME)('@tparam')
-      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
       ScalaDocTagValue: B
         ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('B')
-      ScPsiDocToken(DOC_WHITESPACE)('      ')
-      ScPsiDocToken(DOC_COMMENT_DATA)('the type of the values associated with the keys.')
-      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)('      ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('the type of the values associated with the keys.')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
     DocTag
       ScPsiDocToken(DOC_WHITESPACE)('  ')
       ScPsiDocToken(DOC_TAG_NAME)('@author')
-      ScPsiDocToken(DOC_WHITESPACE)('  ')
-      ScPsiDocToken(DOC_COMMENT_DATA)('Martin Odersky')
-      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)('  ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('Martin Odersky')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
     DocTag
       ScPsiDocToken(DOC_WHITESPACE)('  ')
       ScPsiDocToken(DOC_TAG_NAME)('@author')
-      ScPsiDocToken(DOC_WHITESPACE)('  ')
-      ScPsiDocToken(DOC_COMMENT_DATA)('Tiark Rompf')
-      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)('  ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('Tiark Rompf')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
     DocTag
       ScPsiDocToken(DOC_WHITESPACE)('  ')
       ScPsiDocToken(DOC_TAG_NAME)('@version')
-      ScPsiDocToken(DOC_WHITESPACE)(' ')
-      ScPsiDocToken(DOC_COMMENT_DATA)('2.8')
-      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('2.8')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
     DocTag
       ScPsiDocToken(DOC_WHITESPACE)('  ')
       ScPsiDocToken(DOC_TAG_NAME)('@since')
-      ScPsiDocToken(DOC_WHITESPACE)('   ')
-      ScPsiDocToken(DOC_COMMENT_DATA)('2.3')
-      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)('   ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('2.3')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
     DocTag
       ScPsiDocToken(DOC_WHITESPACE)('  ')
       ScPsiDocToken(DOC_TAG_NAME)('@define')
-      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
       ScalaDocTagValue: Coll
         ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('Coll')
-      ScPsiDocToken(DOC_WHITESPACE)(' ')
-      ScPsiDocToken(DOC_COMMENT_DATA)('immutable.HashMap')
-      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('immutable.HashMap')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
     DocTag
       ScPsiDocToken(DOC_WHITESPACE)('  ')
       ScPsiDocToken(DOC_TAG_NAME)('@define')
-      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
       ScalaDocTagValue: coll
         ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('coll')
-      ScPsiDocToken(DOC_WHITESPACE)(' ')
-      ScPsiDocToken(DOC_COMMENT_DATA)('immutable hash map')
-      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('immutable hash map')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
     DocTag
       ScPsiDocToken(DOC_WHITESPACE)('  ')
       ScPsiDocToken(DOC_TAG_NAME)('@define')
-      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
       ScalaDocTagValue: mayNotTerminateInf
         ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('mayNotTerminateInf')
       ScPsiDocToken(DOC_WHITESPACE)('\n ')
@@ -124,7 +132,7 @@ ScalaFile
     DocTag
       ScPsiDocToken(DOC_WHITESPACE)('  ')
       ScPsiDocToken(DOC_TAG_NAME)('@define')
-      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
       ScalaDocTagValue: willNotTerminateInf
         ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('willNotTerminateInf')
       ScPsiDocToken(DOC_WHITESPACE)('\n ')

@@ -18,10 +18,9 @@ private object ScalaDocCss {
     """/*
       | * NOTE: margin for list items is calculated relatively to list item content, so if margin=0, list head element
       | * will be rendered to the left of the main content. List item head is ~5px.
-      | * So first list requires a little bit larger margin the nested lists.
       | */
       |ol, ul {
-      |  margin-left-ltr: 20px;
+      |  margin-left-ltr: 10px;
       |  margin-top: 0;
       |}
       |
