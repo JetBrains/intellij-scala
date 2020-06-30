@@ -1,10 +1,13 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.codeInsight.documentation.DocumentationManagerUtil
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentGenerator._
 import org.jetbrains.plugins.scala.extensions.{&&, ElementType, IteratorExt, PrevLeaf, PsiClassExt, PsiElementExt, PsiMemberExt, TraversableExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
@@ -14,24 +17,26 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
 
-import scala.collection.{Map, TraversableOnce}
-import scala.util.Try
+import scala.collection.{Map, TraversableOnce, mutable}
+import scala.util.{Failure, Success, Try}
 
 /**
  * @see [[scala.tools.nsc.doc.base.CommentFactoryBase.WikiParser]]
  * @see [[scala.tools.nsc.doc.html.HtmlPage]]
  */
 private class ScalaDocContentGenerator(
-  resolveContext: PsiElement,
+  originalComment: ScDocComment,
   macroFinder: MacroFinder,
   rendered: Boolean // TODO: use
 ) {
+
+  private val resolveContext: PsiElement = originalComment
 
   import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentGenerator.DocListType._
 
   def appendCommentDescription(
     buffer: StringBuilder,
-    comment: ScDocComment
+    comment: ScDocComment // can be comment of a super method
   ): Unit = {
     val parts = comment.getDescriptionElements.toTraversable.filterBy[ScDocDescriptionPart]
     appendDescriptionParts(buffer, parts)
@@ -262,9 +267,24 @@ private class ScalaDocContentGenerator(
   }
 
   private def appendMacroValue(result: StringBuilder, macroElement: PsiElement): Unit = {
-    val macroValue = macroValueSafe(macroFinder, macroElement)
+    val macroValue = macroValueSafe(macroElement)
     val endIdx = macroValue.lastIndexWhere(!_.isWhitespace) + 1
     result.append(macroValue, 0, endIdx)
+  }
+
+  private def macroValueSafe(macroElement: PsiElement): String = {
+    val macroKey = macroElement.getText.stripPrefix("$")
+    val macroValue: Option[String] = Try(macroFinder.getMacroBody(macroKey)) match {
+      case Success(value)     => value
+      case Failure(exception) =>
+        val message = s"Error occurred during macro resolving: $macroKey"
+        if (ApplicationManager.getApplication.isInternal)
+          Log.error(message, exception)
+        else
+          Log.debug(message, exception)
+        None
+    }
+    macroValue.getOrElse(macroElement.getText)
   }
 
   private def isDocLineBreak(element: PsiElement): Boolean =
@@ -353,17 +373,6 @@ object ScalaDocContentGenerator {
    *  consider some underline?
    */
   private def unresolvedReference(text: String): String = s"<font color=red>$text</font>"
-
-  private def macroValueSafe(macroFinder: MacroFinder, macroElement: PsiElement): String = {
-    val macroKey = macroElement.getText.stripPrefix("$")
-    val macroValue: Option[String] = Try(macroFinder.getMacroBody(macroKey))
-      .recover { case exception =>
-        Log.debug(s"Error occurred during macro resolving: $macroKey", exception)
-        None
-      }
-      .get
-    macroValue.getOrElse(s"[Cannot find macro: $$$macroKey]")
-  }
 
   private def isLeadingDocLineElement(element: PsiElement): Boolean = {
     import ScalaDocTokenType._

@@ -34,7 +34,7 @@ private class ScalaDocContentWithSectionsGenerator(
   private val resolveContext: PsiElement = comment
 
   private def newContentGenerator: ScalaDocContentGenerator =
-    new ScalaDocContentGenerator(resolveContext, macroFinder, rendered)
+    new ScalaDocContentGenerator(comment, macroFinder, rendered)
 
   def this(
     commentOwner: ScDocCommentOwner,

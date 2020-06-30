@@ -1128,7 +1128,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""$DefinitionStart<a href="psi_element://C"><code>C</code></a>
          |override def <b>boo</b>(): <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
          |$ContentStart
-         |<p>a VALUE1 b VALUE2 c [Cannot find macro: $$KEY_UNREACHED]
+         |<p>a VALUE1 b VALUE2 c $$KEY_UNREACHED
          |$ContentEnd""".stripMargin
     )
 
@@ -1152,10 +1152,25 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
 
   def testMacro_Undefined(): Unit =
     doGenerateDocContentTest(
-      """/** Returns true if the option is $none, false otherwise */
-        |class A {}
-        |""".stripMargin,
-      """<p>Returns true if the option is [Cannot find macro: $none], false otherwise""".stripMargin
+      s"""/**
+        | * $$myKey
+        | * $${myKey}
+        | * $${  myKey  }
+        | * $${{myKey}}
+        | * $${{ myKey }}
+        | * $$myKey$$
+        | * $$myKey$$myKey
+        | */
+        |class ${|}A""".stripMargin,
+      """<p>
+        |$myKey
+        |${myKey}
+        |${  myKey  }
+        |${{myKey}}
+        |${{ myKey }}
+        |$myKey$
+        |$myKey$myKey
+        |""".stripMargin
     )
 
   def testMacro_Recursive_ShouldNotFail_1(): Unit =
