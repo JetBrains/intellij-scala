@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolv
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
+import scala.collection.JavaConverters.seqAsJavaListConverter
 import scala.collection.mutable
 
 object TypeAdjuster extends ApplicationListener {
@@ -64,6 +65,7 @@ object TypeAdjuster extends ApplicationListener {
   def adjustFor(elements: Seq[PsiElement],
                 addImports: Boolean = true,
                 useTypeAliases: Boolean = true): Unit = {
+    val commonParent = PsiTreeUtil.findCommonParent(elements.asJava)
     val infos = for {
       element <- elements
       typeElement <- collectAdjustableTypeElements(element).distinct
@@ -77,7 +79,7 @@ object TypeAdjuster extends ApplicationListener {
     val rewrittenInfos = rewriteInfosAsInfix(infos)
     for {
       (holder, paths) <- replaceAndAddImports(rewrittenInfos, addImports)
-    } holder.addImportsForPaths(paths.toSeq, null)
+    } holder.addImportsForPaths(paths.toSeq, Option(commonParent))
   }
 
   private def newRef(text: String, position: PsiElement): Option[ScReference] =

@@ -200,7 +200,7 @@ object ScalaAddImportAction {
       ScalaBundle.message("import.conversion.chooser.title")
 
     override protected def doAddImport(toImport: MemberToImport): Unit = {
-      ScImportsHolder(ref).addImportForPath(toImport.qualifiedName)
+      ScImportsHolder(ref).addImportForPath(toImport.qualifiedName, ref)
     }
   }
 
@@ -230,7 +230,7 @@ object ScalaAddImportAction {
       ScalaBundle.message("import.implicit.chooser.title")
 
     override protected def doAddImport(toImport: ImplicitToImport): Unit =
-      ScImportsHolder(place).addImportForPath(toImport.qualifiedName)
+      ScImportsHolder(place).addImportForPath(toImport.qualifiedName, place)
 
     override protected def secondPopupStep(element: ImplicitToImport): PopupStep[_] =
       PopupStep.FINAL_CHOICE

@@ -45,7 +45,7 @@ final class Associations private(override val associations: Array[Association])
           val importsHolder = ScImportsHolder(commonParent)(project)
 
           inWriteAction {
-            importsHolder.addImportsForPaths(paths, commonParent)
+            importsHolder.addImportsForPaths(paths, Option(commonParent))
           }
       }
   }

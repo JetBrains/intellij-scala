@@ -10,6 +10,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.scope._
 import com.intellij.psi.util.PsiTreeUtil.getParentOfType
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScImportStmtFactory
 import org.jetbrains.plugins.scala.editor.importOptimizer._
 import org.jetbrains.plugins.scala.extensions._
@@ -149,7 +150,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     }
   }
 
-  def addImportsForPaths(paths: Seq[String], refsContainer: PsiElement = null): Unit = {
+  def addImportsForPaths(paths: Seq[String], refsContainer: Option[PsiElement]): Unit = {
     import ScalaImportOptimizer._
 
     implicit val manager: PsiManager = getManager
@@ -184,18 +185,20 @@ trait ScImportsHolder extends ScalaPsiElement {
       case _ => return
     }
 
-    val place = getImportStatements.lastOption.getOrElse(getFirstChild.getNextSibling)
+    val refsOffset = refsContainer.map(_.startOffset).getOrElse(this.endOffset)
+    val lastImport = getImportStatements.filter(_.startOffset < refsOffset).lastOption
+    val context = refsContainer.orElse(lastImport).getOrElse(getFirstChild.getNextSibling)
 
     val importInfosToAdd = paths
       .filterNot(samePackage)
-      .flatMap(createInfoFromPath(_, place))
-      .filter(hasValidQualifier(_, place))
+      .flatMap(createInfoFromPath(_, context))
+      .filter(hasValidQualifier(_, context))
 
-    val importRanges = optimizer.collectImportRanges(this, createInfo(_), Set.empty)
+    val importRanges = optimizer.collectImportRanges(this, createInfo(_), Set.empty).filter(_.startOffset < refsOffset)
 
     val needToInsertFirst =
       if (importRanges.isEmpty) true
-      else refsContainer == null && hasCodeBeforeImports
+      else refsContainer.isEmpty && hasCodeBeforeImports
 
     if (needToInsertFirst) {
       val dummyImport = createImportFromText("import dummy.dummy")
@@ -210,7 +213,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       val sortedRanges = importRanges.toSeq.sortBy(_.startOffset)
       val selectedRange =
         if (refsContainer != null && ScalaCodeStyleSettings.getInstance(getProject).isAddImportMostCloseToReference)
-          sortedRanges.reverse.find(_.endOffset < refsContainer.getTextRange.getStartOffset)
+          sortedRanges.reverse.find(_.endOffset < refsOffset)
         else sortedRanges.headOption
 
       selectedRange match {
@@ -222,7 +225,10 @@ trait ScImportsHolder extends ScalaPsiElement {
     }
   }
 
-  def addImportForPath(path: String, ref: PsiElement = null): Unit =
+  final def addImportForPath(path: String, @Nullable ref: PsiElement): Unit =
+    addImportsForPaths(Seq(path), Option(ref))
+
+  def addImportForPath(path: String, ref: Option[PsiElement]): Unit =
     addImportsForPaths(Seq(path), ref)
 
   private def hasValidQualifier(importInfo: ImportInfo, place: PsiElement): Boolean = {

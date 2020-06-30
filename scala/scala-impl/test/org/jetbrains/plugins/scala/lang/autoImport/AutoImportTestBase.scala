@@ -67,7 +67,7 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
       executeWriteActionCommand("Test") {
         val holder = ScImportsHolder(ref)(project)
         classes(0) match {
-          case ClassToImport(clazz) => holder.addImportForClass(clazz)
+          case ClassToImport(clazz) => holder.addImportForClass(clazz, ref)
           case ta => holder.addImportForPath(ta.qualifiedName, ref)
         }
         UsefulTestCase.doPostponedFormatting(project)

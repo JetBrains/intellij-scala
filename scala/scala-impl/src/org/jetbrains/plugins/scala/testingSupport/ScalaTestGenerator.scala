@@ -176,7 +176,7 @@ class ScalaTestGenerator extends TestGenerator {
     } else if (isInheritor(typeDef, "utest.framework.TestSuite")) {
       val file = typeDef.getContainingFile
       assert(file.isInstanceOf[ScalaFile])
-      file.asInstanceOf[ScalaFile].addImportForPath("utest._")
+      file.asInstanceOf[ScalaFile].addImportForPath("utest._", typeDef)
       generateUTestMethods(methods, body)
     }
   }
