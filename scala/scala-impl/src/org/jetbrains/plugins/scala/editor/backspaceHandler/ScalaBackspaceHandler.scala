@@ -139,7 +139,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     }
 
     element.parents.find(_.is[ScBlockExpr]) match {
-      case Some(block: ScBlockExpr) if canAutoRemoveBraces(block) && AutoBraceUtils.isIndentationContext(block) =>
+      case Some(block: ScBlockExpr) if canAutoDeleteBraces(block) && AutoBraceUtils.isIndentationContext(block) =>
         (block.getLBrace, block.getRBrace, block.getParent) match {
           case (Some(lBrace), Some(rBrace), parent: PsiElement) =>
             val project = element.getProject
@@ -147,7 +147,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
             val tabSize = CodeStyle.getSettings(project).getTabSize(ScalaFileType.INSTANCE)
             if (IndentUtil.compare(rBrace, parent, tabSize) >= 0) {
               val document = editor.getDocument
-              // remove closing brace first because removing it doesn't change position of the left brace
+              // delete closing brace first because deleting it doesn't change position of the left brace
               deleteBrace(rBrace, document)
               deleteBrace(lBrace, document)
               document.commit(project)
@@ -158,7 +158,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     }
   }
 
-  private def canAutoRemoveBraces(block: ScBlockExpr): Boolean = {
+  private def canAutoDeleteBraces(block: ScBlockExpr): Boolean = {
     val it = block.children
     var foundCommentsOrExpressions = 0
 
@@ -184,7 +184,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       if element.isInstanceOf[ScBlockExpr]
       block = element.asInstanceOf[ScBlockExpr]
       rBrace <- block.getRBrace
-      if canRemoveClosingBrace(block, rBrace)
+      if canDeleteClosingBrace(block, rBrace)
       project = file.getProject
       tabSize = CodeStyle.getSettings(project).getTabSize(ScalaFileType.INSTANCE)
       if IndentUtil.compare(rBrace, parent, tabSize) >= 0
@@ -219,20 +219,20 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     document.deleteString(start, end)
   }
 
-  private def canRemoveClosingBrace(block: ScBlockExpr, blockRBrace: PsiElement): Boolean = {
+  private def canDeleteClosingBrace(block: ScBlockExpr, blockRBrace: PsiElement): Boolean = {
     val statements = block.statements
 
     if (statements.isEmpty)
       true
     else if (statements.size == 1)
-      canRemoveClosingBrace(statements.head, blockRBrace)
+      canDeleteClosingBrace(statements.head, blockRBrace)
     else
       false
   }
 
   /**
-   * do not remove brace if it breaks the code semantics (and leaves the code syntax correct)
-   * e.g. here we can't remove the brace cause `else` will transfer to the inner `if`
+   * do not delete brace if it breaks the code semantics (and leaves the code syntax correct)
+   * e.g. here we can't delete the brace cause `else` will transfer to the inner `if`
    * {{{
    * if (condition1) {<CARET>
    *   if (condition2)
@@ -241,7 +241,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
    *   bar()
    * }}}
    */
-  private def canRemoveClosingBrace(statement: ScBlockStatement, blockRBrace: PsiElement) =
+  private def canDeleteClosingBrace(statement: ScBlockStatement, blockRBrace: PsiElement) =
     statement match {
       case innerIf: ScIf   =>
         innerIf.elseKeyword.isDefined || !isFollowedBy(blockRBrace, ScalaTokenTypes.kELSE)
@@ -262,7 +262,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       bag in BraceMatchingUtil (it looks for every lbrace/rbrace token regardless of they are a pair or not)
       So we have to fix it in our handler
      */
-  override def charDeleted(charRemoved: Char, file: PsiFile, editor: Editor): Boolean = {
+  override def charDeleted(deletedChar: Char, file: PsiFile, editor: Editor): Boolean = {
     val document = editor.getDocument
     val offset = editor.getCaretModel.getOffset
 
@@ -304,7 +304,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     }
 
     val charNext = document.getImmutableCharSequence.charAt(offset)
-    (charRemoved, charNext) match {
+    (deletedChar, charNext) match {
       case ('{', '}') => fixBrace()
       case ('(', ')') => fixBrace()
       case _ =>
