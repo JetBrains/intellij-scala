@@ -58,6 +58,7 @@ private class ScalaDocContentWithSectionsGenerator(
     val inheritDocTagOpt = tags.find(_.name == MyScaladocParsing.INHERITDOC_TAG)
     inheritDocTagOpt.foreach { inheritDocTag =>
       addInheritedDocText(buffer)
+      buffer.append("<p>")
       newContentGenerator.appendTagDescriptionText(buffer, inheritDocTag)
     }
     buffer.append(DocumentationMarkup.CONTENT_END)
@@ -184,14 +185,12 @@ private class ScalaDocContentWithSectionsGenerator(
         scalaDocOwner.docComment.map { superComment =>
           buffer.append("<p>")
           newContentGenerator.appendCommentDescription(buffer, superComment)
-          buffer.append("<p>")
         }
       case javaDocOwner =>
         val superContent = ScalaDocUtil.generateJavaDocInfoContentInner(javaDocOwner)
         superContent.foreach { content =>
           buffer.append("<p>")
           buffer.append(content)
-          buffer.append("<p>")
         }
     }
   }

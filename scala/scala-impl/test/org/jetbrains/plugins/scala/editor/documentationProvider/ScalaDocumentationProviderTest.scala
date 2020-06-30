@@ -1000,6 +1000,32 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     doGenerateDocBodyTest(fileText, expectedDoc)
   }
 
+  def testTags_InheritDoc_EmptyBaseContent(): Unit = {
+    val fileText =
+      s"""class A {
+         |  def f = 42
+         |}
+         |
+         |class B extends A {
+         |  /**
+         |   * Child description
+         |   * @inheritdoc
+         |   * Extra child description
+         |   */
+         |  override def ${|}f = 23
+         |}
+         |""".stripMargin
+
+    val expectedDoc =
+      s"""$DefinitionStart<a href="psi_element://B"><code>B</code></a>
+         |override def <b>f</b>: <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
+         |$ContentStart
+         |<p>Child description
+         |<p>Extra child description
+         |$ContentEnd""".stripMargin
+    doGenerateDocBodyTest(fileText, expectedDoc)
+  }
+
   def testTags_InheritDoc_WithMacro(): Unit = {
     val fileText =
       s"""
