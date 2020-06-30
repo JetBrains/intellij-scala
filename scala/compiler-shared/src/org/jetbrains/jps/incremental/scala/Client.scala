@@ -5,6 +5,7 @@ import java.io.File
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.Client.{ClientMsg, PosInfo}
+import org.jetbrains.jps.incremental.scala.remote.CompileServerMeteringInfo
 
 /**
  * TODO: add documentation with method contracts, currently there are too many methods with vague meaning
@@ -65,6 +66,8 @@ trait Client {
 
   /** Used in sbt compile to invalidate every begined source - so after cancel there will be work to recomile */
   def sourceStarted(source: String): Unit
+
+  def meteringInfo(info: CompileServerMeteringInfo): Unit
 }
 
 object Client {

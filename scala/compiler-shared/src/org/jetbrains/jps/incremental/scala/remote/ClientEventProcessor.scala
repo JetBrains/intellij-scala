@@ -44,6 +44,9 @@ class ClientEventProcessor(client: Client) {
 
       case CompilationStartedInSbt(file) =>
         client.sourceStarted(file)
+
+      case MeteringInfo(info) =>
+        client.meteringInfo(info)
     }
   }
 }

@@ -17,7 +17,7 @@ import com.intellij.util.ui.UIUtil
 import org.jetbrains.jps.incremental.Utils
 import org.jetbrains.jps.incremental.scala.remote.CompileServerCommand
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerRunner}
+import org.jetbrains.plugins.scala.compiler.{CompileServerClient, CompileServerLauncher, RemoteServerRunner}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.util.RescheduledExecutor
@@ -97,7 +97,8 @@ class JpsCompilerImpl(project: Project)
       override def run(indicator: ProgressIndicator): Unit = CompilerLock.get(project).withLock {
         progressIndicator = Some(indicator)
         val client = new CompilerEventGeneratingClient(project, indicator)
-        val result = Try(new RemoteServerRunner(project).buildProcess(command, client).runSync())
+        val compileServerClient = CompileServerClient.get(project)
+        val result = Try(compileServerClient.execCommand(command, client))
         progressIndicator = None
         promise.complete(result)
       }

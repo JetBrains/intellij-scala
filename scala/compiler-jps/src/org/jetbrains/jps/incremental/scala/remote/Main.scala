@@ -4,6 +4,7 @@ import java.io._
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.util
+import java.util.concurrent.{Executors, ScheduledExecutorService, TimeUnit}
 import java.util.{Base64, Timer, TimerTask}
 
 import com.martiansoftware.nailgun.NGContext
@@ -22,6 +23,7 @@ import org.jetbrains.plugins.scala.compiler.data.Arguments
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
 import scala.collection.JavaConverters.seqAsJavaListConverter
+import scala.concurrent.duration.FiniteDuration
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -36,7 +38,11 @@ object Main {
   private val worksheetServer = new WorksheetServer
 
   private var shutdownTimer: Timer = _
-  
+
+  @volatile private var currentParallelism: Int = 0
+
+  def getCurrentParallelism(): Int = currentParallelism
+
   /**
    * This method is called by NGServer
    *
@@ -106,13 +112,31 @@ object Main {
     }
   }
 
-  private def handleCommand(command: CompileServerCommand, client: EncodingEventGeneratingClient): Unit =
-    command match {
-      case CompileServerCommand.Compile(arguments) =>
-        compileLogic(arguments, client)
-      case compileJps: CompileServerCommand.CompileJps =>
-        compileJpsLogic(compileJps, client)
+  private def handleCommand(command: CompileServerCommand, client: EncodingEventGeneratingClient): Unit = {
+    def decorated(action: => Unit): Unit =
+      if (command.isCompileCommand)
+        try {
+          currentParallelism += 1
+          action
+        } finally {
+          currentParallelism -= 1
+        }
+      else
+        action
+
+    decorated {
+      command match {
+        case CompileServerCommand.Compile(arguments) =>
+          compileLogic(arguments, client)
+        case compileJps: CompileServerCommand.CompileJps =>
+          compileJpsLogic(compileJps, client)
+        case startMetering: CompileServerCommand.StartMetering =>
+          startMeteringLogic(startMetering, client)
+        case endMetering: CompileServerCommand.EndMetering =>
+          endMeteringLogic(endMetering, client)
+      }
     }
+  }
 
   private def compileLogic(args: Arguments, client: EncodingEventGeneratingClient): Unit = {
     val worksheetArgs = args.worksheetArgs
@@ -188,7 +212,17 @@ object Main {
       descriptor.release()
     }
   }
-  
+
+  private def startMeteringLogic(command: CompileServerCommand.StartMetering, client: Client): Unit = {
+    val CompileServerCommand.StartMetering(_, meteringInterval) = command
+    MeteringScheduler.start(meteringInterval)
+  }
+
+  private def endMeteringLogic(command: CompileServerCommand.EndMetering, client: Client): Unit = {
+    val result = MeteringScheduler.stop()
+    client.meteringInfo(result)
+  }
+
   private def parseArgs(command: String, argsEncoded: Seq[String]): Try[CompileServerCommand] = {
     val args = argsEncoded.map(decodeArgument)
     CompileServerCommandParser.parse(command, args)
@@ -241,5 +275,37 @@ object Main {
         shutdownTimer.schedule(shutdownTask, delayMs)
       }
     }
+  }
+}
+
+object MeteringScheduler {
+
+  private val lock = new Object
+  @volatile private var executor: ScheduledExecutorService = _
+  @volatile private var meteringInfo: CompileServerMeteringInfo = _
+
+  def start(meteringInterval: FiniteDuration): Unit = lock.synchronized {
+    executor = Executors.newScheduledThreadPool(1)
+    meteringInfo = CompileServerMeteringInfo(0, 0)
+    executor.scheduleWithFixedDelay({ () =>
+      val currentParallelism = Main.getCurrentParallelism()
+      val newMaxParallelism = math.max(meteringInfo.maxParallelism, currentParallelism)
+
+      val currentHeapSizeMb = (Runtime.getRuntime.totalMemory / 1024 / 1024).toInt
+      val newMaxHeapSizeMb = math.max(meteringInfo.maxHeapSizeMb, currentHeapSizeMb)
+
+      meteringInfo = meteringInfo.copy(
+        maxParallelism = newMaxParallelism,
+        maxHeapSizeMb = newMaxHeapSizeMb
+      )
+    }, 0, meteringInterval.length, meteringInterval.unit)
+  }
+
+  def stop(): CompileServerMeteringInfo = lock.synchronized {
+    Option(executor).foreach(_.awaitTermination(2, TimeUnit.SECONDS))
+    val result = Option(meteringInfo)
+    executor = null
+    meteringInfo = null
+    result.getOrElse(throw new IllegalStateException("MeteringScheduler wasn't started"))
   }
 }
