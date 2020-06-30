@@ -101,11 +101,13 @@ WHITE_DOC_SPACE_CHAR=[\ \t\f\n\r]
 WHITE_DOC_SPACE_NO_NL=[\ \t\f]
 DIGIT=[0-9]
 ALPHA=[:jletter:] // see java.lang.Character.isJavaIdentifierPart
-ALPHA_RAW=[a-zA-Z] // e.g. does not include $ or
+ALPHA_RAW=[a-zA-Z] // e.g. does not include $ or _
 
 TAG_IDENTIFIER=[^\ \t\f\n\r}]+ // SCL-13537
 
-// see scala.tools.nsc.util.DocStrings.skipVariable and scala.reflect.internal.Chars.isVarPart
+// see (checked for scala <= 2.13.3)
+// scala.tools.nsc.util.DocStrings.skipVariable
+// scala.reflect.internal.Chars.isVarPart
 MACRO_IDENTIFIER=("{" .* "}") | ({ALPHA_RAW} | {DIGIT})+ // SCL-9720
 
 COMMENT_BEGIN = "/*"
