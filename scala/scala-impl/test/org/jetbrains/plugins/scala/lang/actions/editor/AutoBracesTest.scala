@@ -4,26 +4,27 @@ package actions
 package editor
 
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 class AutoBracesTest extends EditorActionTestBase {
   val space = " "
   val indent = "  "
 
 
-  def testBlubBlub(): Unit = checkGeneratedTextAfterTyping(
-    s"""
-       |for (e <- expr)
-       |  $CARET
-       |  expr
-       |""".stripMargin,
-    s"""
-       |for (e <- expr) {
-       |  e$CARET
-       |  expr
-       |}
-       |""".stripMargin,
-    'e'
-  )
+//  def testBlubBlub(): Unit = checkGeneratedTextAfterTyping(
+//    s"""
+//       |for (e <- expr)
+//       |  $CARET
+//       |  expr
+//       |""".stripMargin,
+//    s"""
+//       |for (e <- expr) {
+//       |  e$CARET
+//       |  expr
+//       |}
+//       |""".stripMargin,
+//    'e'
+//  )
 
 
   def testEnterAfterExpr(): Unit = checkTypingInAllContexts(
@@ -36,6 +37,11 @@ class AutoBracesTest extends EditorActionTestBase {
        |  expr
        |  $CARET
        |""".stripMargin,
+    s"""
+       |def test =
+       |  expr
+       |$CARET
+       |""".stripMargin,
     '\n'
   )
 
@@ -44,6 +50,12 @@ class AutoBracesTest extends EditorActionTestBase {
        |def test =
        |  expr
        |  $CARET
+       |""".stripMargin,
+    s"""
+       |def test =
+       |  expr
+       |$indent
+       |$CARET
        |""".stripMargin,
     s"""
        |def test =
@@ -66,12 +78,22 @@ class AutoBracesTest extends EditorActionTestBase {
        |  e$CARET
        |}
        |""".stripMargin,
+    s"""
+       |def test =
+       |  expr
+       |  e$CARET
+       |""".stripMargin,
     'e'
   )
 
   def testEnterBeforeIndentedExpr(): Unit = checkTypingInAllContexts(
     s"""
        |def test = $CARET
+       |  expr
+       |""".stripMargin,
+    s"""
+       |def test =$space
+       |  $CARET
        |  expr
        |""".stripMargin,
     s"""
@@ -94,6 +116,11 @@ class AutoBracesTest extends EditorActionTestBase {
        |  expr
        |}
        |""".stripMargin,
+    s"""
+       |def test =
+       |  e$CARET
+       |  expr
+       |""".stripMargin,
     'e'
   )
 
@@ -102,6 +129,11 @@ class AutoBracesTest extends EditorActionTestBase {
        |def test =
        |  expr
        |   $CARET
+       |""".stripMargin,
+    s"""
+       |def test =
+       |  expr
+       |   e$CARET
        |""".stripMargin,
     s"""
        |def test =
@@ -125,6 +157,12 @@ class AutoBracesTest extends EditorActionTestBase {
        |  e$CARET
        |}
        |""".stripMargin,
+    s"""
+       |def test =
+       |  expr
+       |   .prod
+       |  e$CARET
+       |""".stripMargin,
     'e'
   )
 
@@ -142,6 +180,13 @@ class AutoBracesTest extends EditorActionTestBase {
        |$indent
        |$CARET
        |""".stripMargin,
+    s"""
+       |def test =
+       |  expr
+       |   + expr
+       |$indent
+       |$CARET
+       |""".stripMargin,
     '\n'
   )
 
@@ -150,6 +195,11 @@ class AutoBracesTest extends EditorActionTestBase {
        |def test =
        |  expr
        |$CARET
+       |""".stripMargin,
+    s"""
+       |def test =
+       |  expr
+       |e$CARET
        |""".stripMargin,
     s"""
        |def test =
@@ -173,6 +223,13 @@ class AutoBracesTest extends EditorActionTestBase {
        |  expr
        |}
        |""".stripMargin,
+    s"""
+       |def test =
+       |  // test
+       |  e$CARET
+       |  expr
+       |
+       |""".stripMargin,
     'e'
   )
 
@@ -181,6 +238,12 @@ class AutoBracesTest extends EditorActionTestBase {
     s"""
        |def test =
        |  call($CARET)
+       |""".stripMargin,
+    s"""
+       |def test =
+       |  call(
+       |    $CARET
+       |  )
        |""".stripMargin,
     s"""
        |def test =
@@ -205,6 +268,12 @@ class AutoBracesTest extends EditorActionTestBase {
        |  e$CARET
        |  )
        |""".stripMargin,
+    s"""
+       |def test =
+       |  call(
+       |  e$CARET
+       |  )
+       |""".stripMargin,
     'e'
   )
 
@@ -220,6 +289,12 @@ class AutoBracesTest extends EditorActionTestBase {
        |  $CARET
        |  expr
        |""".stripMargin,
+    s"""
+       |def test = {
+       |  $CARET
+       |  expr
+       |}
+       |""".stripMargin,
   )
 
   def testDeletingLastExprAfter(): Unit = checkBackspaceInAllContexts(
@@ -233,6 +308,12 @@ class AutoBracesTest extends EditorActionTestBase {
        |def test =
        |  expr
        |  $CARET
+       |""".stripMargin,
+    s"""
+       |def test = {
+       |  expr
+       |  $CARET
+       |}
        |""".stripMargin,
   )
 
@@ -251,6 +332,13 @@ class AutoBracesTest extends EditorActionTestBase {
        |  $CARET
        |}
        |""".stripMargin,
+    s"""
+       |def test = {
+       |  // comment
+       |  expr
+       |  $CARET
+       |}
+       |""".stripMargin,
   )
 
   def testDeletingLastExprWithStatement(): Unit = checkBackspaceInAllContexts(
@@ -258,6 +346,12 @@ class AutoBracesTest extends EditorActionTestBase {
        |def test = {
        |  val x = expr
        |  x$CARET
+       |}
+       |""".stripMargin,
+    s"""
+       |def test = {
+       |  val x = expr
+       |  $CARET
        |}
        |""".stripMargin,
     s"""
@@ -298,20 +392,32 @@ class AutoBracesTest extends EditorActionTestBase {
       |""".stripMargin,
   )
 
-  def checkBackspaceInAllContexts(bodyBefore: String, bodyAfter: String): Unit =
-    checkInAllContexts(bodyBefore, bodyAfter)(checkGeneratedTextAfterBackspace)
+  def checkBackspaceInAllContexts(bodyBefore: String, bodyAfter: String, bodyAfterWithSettingsTurnedOff: String): Unit =
+    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff)(checkGeneratedTextAfterBackspace)
 
-  def checkTypingInAllContexts(bodyBefore: String, bodyAfter: String, typedChar: Char): Unit =
-    checkInAllContexts(bodyBefore, bodyAfter)(checkGeneratedTextAfterTyping(_, _, typedChar))
+  def checkTypingInAllContexts(bodyBefore: String, bodyAfter: String, bodyAfterWithSettingsTurnedOff: String, typedChar: Char): Unit =
+    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff)(checkGeneratedTextAfterTyping(_, _, typedChar))
 
-  def checkInAllContexts(bodyBefore: String, bodyAfter: String)(check: (String, String) => Unit): Unit = {
+  def checkInAllContexts(bodyBefore: String, bodyAfter: String, bodyAfterWithSettingsTurnedOff: String)(check: (String, String) => Unit): Unit = {
     def transform(body: String): String =
       body.trim.replace("def test =", "")
+
+    val settings = ScalaApplicationSettings.getInstance()
+
     for (context <- contexts) {
-      check(
-        context.replace("$BODY$", transform(bodyBefore)),
-        context.replace("$BODY$", transform(bodyAfter)),
-      )
+      def buildBody(body: String): String =
+        context.replace("$BODY$", transform(body))
+
+      val before = buildBody(bodyBefore)
+      assert(settings.HANDLE_BLOCK_BRACES_AUTOMATICALLY)
+
+      try {
+        check(before, buildBody(bodyAfter))
+        settings.HANDLE_BLOCK_BRACES_AUTOMATICALLY = false
+        check(before, buildBody(bodyAfterWithSettingsTurnedOff))
+      } finally {
+        settings.HANDLE_BLOCK_BRACES_AUTOMATICALLY = true
+      }
     }
   }
 }
