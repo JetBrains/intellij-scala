@@ -83,7 +83,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       }
     } else if (c == '{' && scalaSettings.WRAP_SINGLE_EXPRESSION_BODY) {
       handleLeftBrace(offset, element, file, editor)
-    } else if (!c.isWhitespace) {
+    } else if (scalaSettings.HANDLE_BLOCK_BRACES_AUTOMATICALLY && !c.isWhitespace) {
       handleAutoBrace(offset, element, file, editor)
     }
   }

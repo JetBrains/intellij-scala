@@ -152,6 +152,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     implicit val f: PsiFile = file
     implicit val settings: CodeStyleSettings = CodeStyle.getSettings(project)
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    lazy val smartKeySettings = ScalaApplicationSettings.getInstance
 
     def moveCaret(): Unit = {
       editor.getCaretModel.moveCaretRelatively(1, 0, false, false, false)
@@ -178,9 +179,9 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     } else if (c == '>' && scalaSettings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR && prevElement != null &&
       prevElement.getNode.getElementType == ScalaTokenTypes.tFUNTYPE) {
       Result.STOP
-    } else if (c == '{' && ScalaApplicationSettings.getInstance.WRAP_SINGLE_EXPRESSION_BODY) {
+    } else if (c == '{' && smartKeySettings.WRAP_SINGLE_EXPRESSION_BODY) {
       handleLeftBraceWrap(offset, element)
-    } else if (!c.isWhitespace && c != '{' && c != '}') {
+    } else if (smartKeySettings.HANDLE_BLOCK_BRACES_AUTOMATICALLY && !c.isWhitespace && c != '{' && c != '}') {
       handleAutoBraces(c, offset, element)
     } else {
       Result.CONTINUE

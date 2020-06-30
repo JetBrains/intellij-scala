@@ -55,6 +55,8 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
 
   public boolean WRAP_SINGLE_EXPRESSION_BODY = true;
 
+  public boolean HANDLE_BLOCK_BRACES_AUTOMATICALLY = true;
+
   public boolean MOVE_COMPANION = true;
 
   public boolean UPGRADE_TO_INTERPOLATED = true;
