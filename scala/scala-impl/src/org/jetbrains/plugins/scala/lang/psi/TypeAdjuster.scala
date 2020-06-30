@@ -18,20 +18,17 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScalaTypePresentation, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.{isOperatorName, qualifiedName, splitName}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
-import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters.seqAsJavaListConverter
 import scala.collection.mutable
 
 object TypeAdjuster extends ApplicationListener {
-
-  import ScEquivalenceUtil.smartEquivalence
-  import ScalaNamesUtil.{isOperatorName, qualifiedName, splitName}
 
   private val LOG = Logger.getInstance(getClass)
 
@@ -140,7 +137,8 @@ object TypeAdjuster extends ApplicationListener {
               case text =>
                 for {
                   oldRes <- resolve
-                  ResolvesTo(newRes) <- newRef(text, place)
+                  newRef <- newRef(text, place)
+                  newRes <- elementToImport(newRef)
                   if smartEquivalence(oldRes, newRes)
                 } yield info.copy(replacement = text)
             }
@@ -272,7 +270,8 @@ object TypeAdjuster extends ApplicationListener {
     def infoToMappings(info: ReplacementInfo): List[(String, PsiElement)] = info match {
       case SimpleInfo(place, replacement, _, _) =>
         val maybePair = for {
-          ResolvesTo(target) <- findRef(place)
+          ref    <- findRef(place)
+          target <- elementToImport(ref)
         } yield replacement -> target
 
         maybePair.toList
@@ -461,7 +460,7 @@ object TypeAdjuster extends ApplicationListener {
           ScDesignatorType(left).equiv(ScDesignatorType(right))
 
       val ref = newRef(refText, place)
-        .flatMap(reference => Option(reference.resolve()))
+        .flatMap(reference => elementToImport(reference))
 
       (ref, resolve) match {
         case (Some(e1: PsiNamedElement), Some(e2: PsiNamedElement)) =>
@@ -491,7 +490,8 @@ object TypeAdjuster extends ApplicationListener {
 
     private def applyImpl(element: PsiElement): SimpleInfo = {
       val resolve = for {
-        ResolvesTo(target) <- findRef(element)
+        ref <- findRef(element)
+        target <- elementToImport(ref)
       } yield target
       SimpleInfo(element, element.getText, resolve)
     }
@@ -521,6 +521,9 @@ object TypeAdjuster extends ApplicationListener {
     def flatMap(function: ReplacementInfo => Traversable[ReplacementInfo]): CompoundInfo =
       CompoundInfo(children.flatMap(function))(place, typeElement)
   }
+
+  private def elementToImport(ref: ScReference): Option[PsiNamedElement] =
+    ref.bind().map(srr => srr.parentElement.getOrElse(srr.element))
 
 }
 
