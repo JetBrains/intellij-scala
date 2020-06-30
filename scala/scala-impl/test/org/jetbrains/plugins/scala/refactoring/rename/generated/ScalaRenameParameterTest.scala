@@ -10,4 +10,6 @@ class ScalaRenameParameterTest extends ScalaRenameTestBase {
   def testStableRef(): Unit = doTest()
 
   def testnaming(): Unit = doTest()
+
+  def testSyntheticCopyParameter(): Unit = doTest()
 }
