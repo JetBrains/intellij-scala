@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScSugarCallExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValueOrVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
@@ -45,7 +45,7 @@ final class ScalaImportTypeFix private (override val elements: Seq[ElementToImpo
   override def shouldShowHint(): Boolean = {
     val settings = ScalaApplicationSettings.getInstance()
     val showForClasses = elements.exists(_.element.is[PsiClass, ScTypeAlias]) && settings.SHOW_IMPORT_POPUP_CLASSES
-    val showForMethods = elements.exists(_.is[MemberToImport]) && settings.SHOW_IMPORT_POPUP_STATIC_METHODS
+    val showForMethods = elements.exists(_.element.is[PsiMethod, ScTypedDefinition]) && settings.SHOW_IMPORT_POPUP_STATIC_METHODS
     super.shouldShowHint() && (showForClasses || showForMethods)
   }
 
