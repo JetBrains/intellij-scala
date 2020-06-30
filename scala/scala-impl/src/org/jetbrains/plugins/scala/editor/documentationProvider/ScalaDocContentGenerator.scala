@@ -264,8 +264,15 @@ private class ScalaDocContentGenerator(
       case ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG      => result.append("""</code></pre>""")
       case ScalaDocTokenType.DOC_MACROS                    => appendMacroValue(result, element)
       case _ if isDocLineBreak(element)                    => result.append("\n") // ignore other spaces except line break
-      case _                                               => result.append(element.getText)
+      case _                                               => result.append(unescape(element.getText))
     }
+  }
+
+  private def unescape(text: String): String = {
+    val escapedDollar = "\\$"
+    if (text.contains(escapedDollar))
+      text.replace(escapedDollar, "$")
+    else text
   }
 
   private def appendMacroValue(result: StringBuilder, macroElement: PsiElement): Unit = {

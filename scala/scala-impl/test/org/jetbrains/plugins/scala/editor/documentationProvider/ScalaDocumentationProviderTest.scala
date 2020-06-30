@@ -1170,6 +1170,29 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         |""".stripMargin
     )
 
+  def testNotMacro_EscapedDollar(): Unit =
+    doGenerateDocContentTest(
+      s"""/**
+         | * \\$$myKey
+         | * \\$$myKey$$
+         | * \\$$myKey\\$$myKey
+         | * \\$${myKey}
+         | * \\$${myKey}$$
+         | * \\$${myKey}\\$$myKey
+         | *
+         | * @define myKey my value
+         | */
+         |class ${|}A""".stripMargin,
+      """<p>
+        |$myKey
+        |$myKey$
+        |$myKey$myKey
+        |${myKey}
+        |${myKey}$
+        |${myKey}$myKey
+        |""".stripMargin
+    )
+
   def testMacro_Wiki(): Unit =
     doGenerateDocBodyTest(
       s"""/**
