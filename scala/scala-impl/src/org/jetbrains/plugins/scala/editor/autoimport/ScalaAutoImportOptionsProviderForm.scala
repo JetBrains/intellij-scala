@@ -2,12 +2,18 @@ package org.jetbrains.plugins.scala.editor.autoimport
 
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.openapi.application.ApplicationBundle
+import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.ui.ComboBox
+import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.ui.IdeBorderFactory
+import com.intellij.ui.components.labels.LinkLabel
+import com.intellij.util.ui.JBUI
 import javax.swing.{JCheckBox, JComboBox, JLabel, JPanel}
 import net.miginfocom.layout.CC
 import net.miginfocom.swing.MigLayout
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.settings.ShowSettingsUtilImplExt
 
 class ScalaAutoImportOptionsProviderForm {
   private val INSERT_IMPORTS_ALWAYS = ApplicationBundle.message("combobox.insert.imports.all")
@@ -113,8 +119,33 @@ class ScalaAutoImportOptionsProviderForm {
     panel.add(addUnambiguousImportsMethodsCheckBox, indent.wrap())
 
     panel.add(optimizeImportsOnTheCheckBox)
+    addMoreOptionsLink()
   }
 
   private def wrap = new CC().wrap()
   private def indent = new CC().gapBefore("indent")
+
+  private def lastFocusedOrDefaultProject: Project =
+    IdeFocusManager.getGlobalInstance.getLastFocusedFrame.toOption
+      .flatMap(_.getProject.toOption)
+      .filter(!_.isDisposed)
+      .getOrElse(ProjectManager.getInstance().getDefaultProject)
+
+  private def addMoreOptionsLink(): Unit = {
+    val project = lastFocusedOrDefaultProject
+    val moreOptionsLabel = new JLabel(ScalaBundle.message("auto.import.find.more.options.in"))
+    val linkLabel = new LinkLabel[Unit](ScalaBundle.message("auto.import.code.style.link"), null)
+
+    val smallFont = JBUI.Fonts.smallFont()
+    moreOptionsLabel.setFont(smallFont)
+    linkLabel.setFont(smallFont)
+
+    linkLabel.setListener((_, _) => {
+      //todo: can we open Imports tab in Code style settings?
+      ShowSettingsUtilImplExt.showScalaCodeStyleSettingsDialog(project, null)
+    }, null)
+
+    panel.add(moreOptionsLabel, new CC().split(2).newline("0"))
+    panel.add(linkLabel)
+  }
 }
