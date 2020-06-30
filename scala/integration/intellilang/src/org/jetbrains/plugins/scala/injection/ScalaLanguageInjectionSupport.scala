@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.patterns.ScalaPatterns
 final class ScalaLanguageInjectionSupport extends AbstractLanguageInjectionSupport {
   override def getId: String = "scala"
 
-  override def isApplicableTo(host: PsiLanguageInjectionHost): Boolean = host.is[ScLiteral, ScInfixExpr]
+  override def isApplicableTo(host: PsiLanguageInjectionHost): Boolean = host.isInstanceOf[ScLiteral] || host.isInstanceOf[ScInfixExpr]
 
   override def getPatternClasses: Array[Class[_]] = Array(classOf[ScalaPatterns])
 
