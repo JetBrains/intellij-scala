@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocTag}
+import org.jetbrains.plugins.scala.macroAnnotations.Measure
 
 import scala.collection.mutable
 
@@ -27,12 +28,12 @@ private class MacroFinderImpl(
 ) extends MacroFinder {
   private val myCache = mutable.HashMap[String, String]()
 
-  private var inheritedCommentOwners: Seq[ScDocCommentOwner] = Seq.empty
+  private var resolvableCommentOwners: Seq[ScDocCommentOwner] = Seq.empty
   private var init = false
 
   override def getMacroBody(macroName: String): Option[String] = {
     if (!init) {
-      inheritedCommentOwners = inheritedOwners()
+      resolvableCommentOwners = findCommentOwnersWithResolvableMacroDefinitions(commentOwner)
       init = true
     }
 
@@ -45,9 +46,10 @@ private class MacroFinderImpl(
     findMacroValue(macroName)
   }
 
+  @Measure
   private def findMacroValue(macroName: String): Option[String] = {
     val comments: Iterator[ScDocComment] = for {
-      owner       <- inheritedCommentOwners.iterator
+      owner       <- resolvableCommentOwners.iterator
       actualOwner <- owner.getNavigationElement.asOptionOf[ScDocCommentOwner]
       comment     <- actualOwner.docComment
     } yield comment
@@ -84,7 +86,7 @@ private class MacroFinderImpl(
     generator.tagDescriptionText(tag)
   }
 
-  private def inheritedOwners(): Seq[ScDocCommentOwner] = {
+  private def findCommentOwnersWithResolvableMacroDefinitions(commentOwner: ScDocCommentOwner): Seq[ScDocCommentOwner] = {
     val result = mutable.ArrayBuffer.empty[ScDocCommentOwner]
 
     val queue = mutable.Queue[ScDocCommentOwner](commentOwner)
@@ -96,23 +98,26 @@ private class MacroFinderImpl(
 
     var continue = true
     while (queue.nonEmpty && continue) {
-      queue.dequeue() match {
+      val next = queue.dequeue()
+      next match {
         case clazz: ScTemplateDefinition =>
           result += clazz
+
           val supers = clazz.supers
           supers.foreach(enqueue)
-        case member: ScMember if member.hasModifierPropertyScala("override") =>
+
+          Option(clazz.containingClass).foreach(enqueue)
+        case member: ScMember =>
           result += member
 
-          val fromSuper = member match {
-            case named: ScNamedElement => ScalaPsiUtil.superValsSignatures(named).map(_.namedElement)
-            case _ => Seq()
+          if (member.hasModifierPropertyScala("override")){
+            val fromSuper = member match {
+              case named: ScNamedElement => ScalaPsiUtil.superValsSignatures(named).map(_.namedElement)
+              case _ => Seq()
+            }
+            fromSuper.foreach(enqueue)
           }
-          fromSuper.foreach(enqueue)
-          enqueue(member.containingClass)
-        case member: ScMember if member.containingClass != null =>
-          result += member
-          enqueue(member.containingClass)
+          Option(member.containingClass).foreach(enqueue)
         case _ =>
           continue = false
       }

@@ -1126,7 +1126,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |""".stripMargin
     )
 
-  def testMacro_Complicated(): Unit =
+  def testMacro_ResolveFromContainingClass_ForMethod(): Unit =
     doGenerateDocBodyTest(
       s"""/**
          | * @define KEY1 VALUE1
@@ -1156,6 +1156,47 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |$ContentStart
          |<p>a VALUE1 b VALUE2 c $$KEY_UNREACHED
          |$ContentEnd""".stripMargin
+    )
+
+  def testMacro_ResolveFromContainingClass_ForClass(): Unit =
+    doGenerateDocContentTest(
+      s"""/**
+         | * @define macroOuter outer value
+         | */
+         |class Outer {
+         |  /**
+         |   * $$macroInner
+         |   * $$macroOuter
+         |   * @define macroInner inner value
+         |   */
+         |  class ${|}Inner {
+         |  }
+         |}""".stripMargin,
+      """<p>
+        |inner value
+        |outer value""".stripMargin
+    )
+
+  def testMacro_FromContainingClass_ForClass_Deep(): Unit =
+    doGenerateDocContentTest(
+      s"""/**
+         | * @define macroOuter outer value
+         | */
+         |object Outer1 {
+         |  class Outer2 {
+         |    trait Outer3 {
+         |      /**
+         |       * $$macroInner
+         |       * $$macroOuter
+         |       * @define macroInner inner value
+         |       */
+         |      def ${|}innerMethod: Unit = ???
+         |    }
+         |  }
+         |}""".stripMargin,
+      """<p>
+        |inner value
+        |outer value""".stripMargin
     )
 
   def testMacro_WithBraces(): Unit =
@@ -1314,6 +1355,29 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         |and a fast<tt>length</tt>operation. A<tt>LinearSeq</tt>provides fast access only to the first element
         |via<tt>head</tt>, but also has a fast<tt>tail</tt>operation.
         |""".stripMargin
+    )
+
+  def testMacro_FromContainingClass_1(): Unit =
+    doGenerateDocContentTest(
+      s"""/**
+         | * @define macroOuter outer value
+         | */
+         |object Outer1 {
+         |  class Outer2 {
+         |    trait Outer3 {
+         |      /**
+         |       * $$macroInner
+         |       * $$macroOuter
+         |       * @define macroInner inner value
+         |       */
+         |      class ${|}Inner {
+         |      }
+         |    }
+         |  }
+         |}""".stripMargin,
+      """<p>
+        |inner value
+        |outer value""".stripMargin
     )
 
   def testMacro_WithParagraphs_InjectedInVariousPlaces(): Unit = {
