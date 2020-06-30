@@ -143,7 +143,9 @@ private class ScalaDocContentGenerator(
   private def visitParagraph(buffer: StringBuilder, paragraph: ScDocParagraph, skipParagraphElement: Boolean): Unit = {
     if (!skipParagraphElement)
       buffer.append(HtmlParagraph)
-    paragraph.children.foreach(visitNode(buffer, _))
+    paragraph.children
+      .dropWhile(_.elementType == ScalaDocTokenType.DOC_WHITESPACE)
+      .foreach(visitNode(buffer, _))
   }
 
   private def visitDocList(buffer: StringBuilder, list: ScDocList): Unit = {

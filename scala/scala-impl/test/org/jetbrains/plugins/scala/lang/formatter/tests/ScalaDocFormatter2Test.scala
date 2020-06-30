@@ -337,5 +337,35 @@ class ScalaDocFormatter2Test extends AbstractScalaFormatterTestBase {
         |}""".stripMargin
     )
 
+  def testMacro(): Unit = doTextTest(
+    """/**
+      | * $myMacro text
+      | * $myMacro$myMacro text
+      | * $myMacro $myMacro text
+      | */""".stripMargin
+  )
 
+  def testMacroWithBraces(): Unit = doTextTest(
+    """/**
+      | * ${myMacro} text
+      | * ${myMacro}$myMacro text
+      | * $myMacro${myMacro} text
+      | * ${myMacro}${myMacro} text
+      | * ${myMacro} ${myMacro} text
+      | */""".stripMargin
+  )
+
+  def testEscapedDollarSign(): Unit = doTextTest(
+    """/**
+      | * \$notMacro
+      | * \${not macro}
+      | */""".stripMargin
+  )
+
+  def testDollarSignWithoutMacro(): Unit = doTextTest(
+    """/**
+      | * $ not macro
+      | * $ {not macro}
+      | */""".stripMargin
+  )
 }

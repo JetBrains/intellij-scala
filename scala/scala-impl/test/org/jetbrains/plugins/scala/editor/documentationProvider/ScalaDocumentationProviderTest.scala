@@ -1153,6 +1153,23 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         |""".stripMargin
     )
 
+  def testMacro_Adjacent(): Unit =
+    doGenerateDocContentTest(
+      s"""/**
+         | * $$myKey$$
+         | * $$myKey$$myKey
+         | * $$myKey $$myKey
+         | *
+         | * @define myKey my value
+         | */
+         |class ${|}A""".stripMargin,
+      """<p>
+        |my value$
+        |my valuemy value
+        |my value my value
+        |""".stripMargin
+    )
+
   def testMacro_Wiki(): Unit =
     doGenerateDocBodyTest(
       s"""/**

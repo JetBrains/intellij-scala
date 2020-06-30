@@ -27,10 +27,11 @@ import org.jetbrains.plugins.scala.util.IndentUtil
 
 import scala.collection.immutable.HashMap
 
-// TODO: looks like plenty of complex logic in ScalaDoc parsing is only required during
-//  "Quick Info" generation. For example: Paragraphs parsing, Lists parsing, Html tags tracking
-//  I am not sure, but maybe it's worth to do this parsing only on info rendering?
-//  But first do some performance test and decide whether it worth it.
+/**
+ * @see [[scala.tools.nsc.ast.DocComments]]
+ * @see [[scala.tools.nsc.doc.base.CommentFactoryBase.WikiParser]]
+ * @see [[scala.tools.nsc.doc.html.HtmlPage]]
+ */
 final class MyScaladocParsing(private val builder: PsiBuilder) extends ScalaDocElementTypes {
 
   private var hasClosingElementsInWikiSyntax: Boolean = false
