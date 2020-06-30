@@ -59,3 +59,6 @@ case class WorksheetOutputEvent(text: String) extends Event
 
 @SerialVersionUID(1L)
 case class CompilationStartedInSbt(path: String) extends Event
+
+@SerialVersionUID(1L)
+case class MeteringInfo(info: CompileServerMeteringInfo) extends Event

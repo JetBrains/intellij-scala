@@ -8,23 +8,25 @@ import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.testFramework.CompilerTester
 import org.apache.commons.lang3.exception.ExceptionUtils
+import org.jetbrains.jps.incremental.scala.remote.CompileServerMeteringInfo
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 import org.jetbrains.plugins.scala.performance.DownloadingAndImportingTestCase
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.RevertableChange
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
+import org.jetbrains.plugins.scala.compiler.{CompileServerClient, CompileServerLauncher, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.ListCompilerMessageExt
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.Metering._
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersionsFilter, TestScalaVersion}
 import org.junit.Ignore
 
 import scala.collection.JavaConverters.seqAsJavaListConverter
+import scala.concurrent.duration.FiniteDuration
 import scala.util.{Failure, Success, Try}
 
-// TODO ignore these tests?
 abstract class CompilationBenchmark
   extends DownloadingAndImportingTestCase
     with ScalaSdkOwner {
@@ -58,13 +60,13 @@ abstract class CompilationBenchmark
 
   // All benchmark parameters
   private final val Repeats = 1
-  private final val HeapSizeValues = Seq(2048, 4096)
+  private final val HeapSizeValues = Seq(1024, 2048, 4096)
   private final val CompileInParallelValues = Seq(true)
   private final val PossibleJvmOptions = Seq(
     Seq("-server"),
     Seq("-Xss1m", "-Xss2m", ""),
     Seq("-XX:+UseParallelGC"),
-    Seq("-XX:MaxInlineLevel=10", "-XX:MaxInlineLevel=20", "-XX:MaxInlineLevel=30")
+    Seq("-XX:MaxInlineLevel=20", "")
   )
 
   private def jvmOptionsIterator: Iterator[String] =
@@ -86,7 +88,10 @@ abstract class CompilationBenchmark
                             heapSize: Int,
                             jvmOptions: String)
 
-  private def benchmark(params: Params): Try[Double] = Try {
+  private case class BenchmarkResult(compilationTime: Double,
+                                     meteringInfo: CompileServerMeteringInfo)
+
+  private def benchmark(params: Params): Try[BenchmarkResult] = Try {
     val Params(compileInParallel, heapSize, jvmOptions) = params
 
     CompilerWorkspaceConfiguration.getInstance(myProject).PARALLEL_COMPILATION = compileInParallel
@@ -98,22 +103,31 @@ abstract class CompilationBenchmark
     CompileServerLauncher.stop(timeoutMs = 3000)
     CompileServerLauncher.ensureServerRunning(myProject)
 
-    var result: Double = Double.PositiveInfinity
+    var resultTime: Double = Double.PositiveInfinity
     implicit val printReportHandler: MeteringHandler = { (time: Double, _) =>
-      result = time
+      resultTime = time
     }
 
-    benchmarked(Repeats) {
-      compiler.rebuild().assertNoProblems(allowWarnings = true)
+    val compileServerClient = CompileServerClient.get(myProject)
+
+    val resultMeteringInfo = compileServerClient.withMetering(FiniteDuration(5, TimeUnit.SECONDS)) {
+      benchmarked(Repeats) {
+        compiler.rebuild().assertNoProblems(allowWarnings = true)
+      }
     }
-    result
+    BenchmarkResult(resultTime, resultMeteringInfo)
   }
 
-  private def resultAsString(params: Params, time: Double): String = {
+  private def resultAsString(params: Params, result: BenchmarkResult): String = {
     val Params(compileInParallel, heapSize, jvmOptions) = params
     val paramsStr = s"compileInParallel=$compileInParallel;heapSize=$heapSize;jvmOptions=$jvmOptions"
-    val timeStr = s"$time ${scaleConfig.unit}"
-    s"$paramsStr => $timeStr"
+
+    val timeStr = s"${result.compilationTime} ${scaleConfig.unit}"
+
+    val CompileServerMeteringInfo(maxParallelism, maxHeapSizeMb) = result.meteringInfo
+    val meteringStr = s"maxParallelism=$maxParallelism;maxHeapSizeMb=$maxHeapSizeMb"
+
+    s"$paramsStr => $timeStr [$meteringStr]"
   }
 
   def testBenchmark(): Unit = {
@@ -135,7 +149,7 @@ abstract class CompilationBenchmark
           |Repeats: $Repeats""".stripMargin
     )
 
-    var results: Map[Params, Double] = Map.empty
+    var results: Map[Params, BenchmarkResult] = Map.empty
     println("==================Progress==================")
     for ((params, i) <- paramsList.zipWithIndex) {
       println(s"Performing benchmark ${i + 1}/$benchmarksCount...")
@@ -150,7 +164,7 @@ abstract class CompilationBenchmark
     }
 
     println("==================Result=================")
-    results.toSeq.sortBy(_._2).foreach { case (params, time) =>
+    results.toSeq.sortBy(_._2.compilationTime).foreach { case (params, time) =>
       println(resultAsString(params, time))
     }
   }
@@ -165,4 +179,14 @@ class ZioCompilationBenchmark
   override def githubRepoName: String = "zio"
 
   override def revision: String = "dd21e98ead466bfef5d63e84a77b115122296146"
+}
+
+@Ignore("Benchmark")
+class DoobieCompilationBenchmark
+  extends CompilationBenchmark {
+  override def githubUsername: String = "tpolecat"
+
+  override def githubRepoName: String = "doobie"
+
+  override def revision: String = "bec7d361a85fa5026e967159615cd1e3d49c09e2"
 }
