@@ -1132,6 +1132,27 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |$ContentEnd""".stripMargin
     )
 
+  def testMacro_WithBraces(): Unit =
+    doGenerateDocContentTest(
+      s"""/**
+         | * $$myKey
+         | * $${myKey}
+         | * $${  myKey  }
+         | * $${{myKey}}
+         | * $${{ myKey }}
+         | *
+         | * @define myKey my value
+         | */
+         |class ${|}A""".stripMargin,
+      """<p>
+        |my value
+        |my value
+        |${  myKey  }
+        |${{myKey}}
+        |${{ myKey }}
+        |""".stripMargin
+    )
+
   def testMacro_Wiki(): Unit =
     doGenerateDocBodyTest(
       s"""/**
@@ -1153,15 +1174,15 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
   def testMacro_Undefined(): Unit =
     doGenerateDocContentTest(
       s"""/**
-        | * $$myKey
-        | * $${myKey}
-        | * $${  myKey  }
-        | * $${{myKey}}
-        | * $${{ myKey }}
-        | * $$myKey$$
-        | * $$myKey$$myKey
-        | */
-        |class ${|}A""".stripMargin,
+         | * $$myKey
+         | * $${myKey}
+         | * $${  myKey  }
+         | * $${{myKey}}
+         | * $${{ myKey }}
+         | * $$myKey$$
+         | * $$myKey$$myKey
+         | */
+         |class ${|}A""".stripMargin,
       """<p>
         |$myKey
         |${myKey}

@@ -273,7 +273,7 @@ private class ScalaDocContentGenerator(
   }
 
   private def macroValueSafe(macroElement: PsiElement): String = {
-    val macroKey = macroElement.getText.stripPrefix("$")
+    val macroKey = macroName(macroElement)
     val macroValue: Option[String] = Try(macroFinder.getMacroBody(macroKey)) match {
       case Success(value)     => value
       case Failure(exception) =>
@@ -284,8 +284,12 @@ private class ScalaDocContentGenerator(
           Log.debug(message, exception)
         None
     }
+
     macroValue.getOrElse(macroElement.getText)
   }
+
+  private def macroName(macroElement: PsiElement): String =
+    macroElement.getText.stripPrefix("$").stripPrefix("{").stripSuffix("}")
 
   private def isDocLineBreak(element: PsiElement): Boolean =
     element.elementType == ScalaDocTokenType.DOC_WHITESPACE && element.textContains('\n')
