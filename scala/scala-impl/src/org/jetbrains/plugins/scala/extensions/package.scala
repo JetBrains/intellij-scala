@@ -386,12 +386,32 @@ package object extensions {
     def ifNot(predicate: T => Boolean): Option[T] =
       if (predicate(v)) None else Some(v)
 
-    // todo: can we make these methods macro?
-    @inline def is[T1: ClassTag]: Boolean = implicitly[ClassTag[T1]].runtimeClass.isInstance(v)
-    @inline def is[T1: ClassTag, T2: ClassTag]: Boolean = is[T1] || is[T2]
-    @inline def is[T1: ClassTag, T2: ClassTag, T3: ClassTag]: Boolean = is[T1, T2] || is[T3]
-    @inline def is[T1: ClassTag, T2: ClassTag, T3: ClassTag, T4: ClassTag]: Boolean = is[T1, T2, T3] || is[T4]
-    @inline def is[T1: ClassTag, T2: ClassTag, T3: ClassTag, T4: ClassTag, T5: ClassTag]: Boolean = is[T1, T2, T3, T4] || is[T5]
+   /** Concise and type-safe version of isInstanceOf / typed pattern.
+    *
+    * Any dynamic type test is potentially unsafe, because it can be appied to a wrong (expression, Type) combination,
+    * either initially, or after a refactoring, making refactorings unsafe.
+    *
+    * The Scala compiler can detect fruitless type tests, and show a warning for isInstanceOf, and an error for match.
+    * However, the warning is not enough, whereas the match is too verbose.
+    *
+    * Another problem is that incorrect type tests can be formally proven wrong in a very limited number of cases.
+    * Instead of replicating that logic in a macro, we can define a more strict version of a dynamic type test,
+    * which requires that the type of expression is a supertype of the given type argument.
+    * In this way, we can detect more issues statically.
+    *
+    * The additional restriction limits the applicability of the method, but that's OK for our use cases,
+    * because the most common use case is testing whether an instance of PsiElement is a subtype of ...Element.
+    *
+    * Ideally, pattern matching should only be used with ADTs, where the subtype / supertype relation is
+    * verified at compile time (and is just an implementation detail - it's about data constructors, not subtypes),
+    * and all the variants are statically known. Although we cannot seal the PsiElement hierarchy, we can at least
+    * verify the subtype / supertype relation. So this method is a good match for semi-sum types :)
+    */
+    @inline def is[T1 <: T : ClassTag]: Boolean = v match { case _: T1 => true; case _ => false }
+    @inline def is[T1 <: T : ClassTag, T2 <: T : ClassTag]: Boolean = is[T1] || is[T2]
+    @inline def is[T1 <: T : ClassTag, T2 <: T : ClassTag, T3 <: T : ClassTag]: Boolean = is[T1, T2] || is[T3]
+    @inline def is[T1 <: T : ClassTag, T2 <: T : ClassTag, T3 <: T : ClassTag, T4 <: T : ClassTag]: Boolean = is[T1, T2, T3] || is[T4]
+    @inline def is[T1 <: T : ClassTag, T2 <: T : ClassTag, T3 <: T : ClassTag, T4 <: T : ClassTag, T5 <: T : ClassTag]: Boolean = is[T1, T2, T3, T4] || is[T5]
   }
 
   implicit class ReferenceExt[T](private val target: Reference[T]) extends AnyVal {

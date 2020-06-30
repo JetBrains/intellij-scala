@@ -44,8 +44,9 @@ final class ScalaImportTypeFix private (override val elements: Seq[ElementToImpo
 
   override def shouldShowHint(): Boolean = {
     val settings = ScalaApplicationSettings.getInstance()
-    val showForClasses = elements.exists(_.element.is[PsiClass, ScTypeAlias]) && settings.SHOW_IMPORT_POPUP_CLASSES
-    val showForMethods = elements.exists(_.element.is[PsiMethod, ScTypedDefinition]) && settings.SHOW_IMPORT_POPUP_STATIC_METHODS
+    val psiElements = elements.view.map(_.element: PsiElement)
+    val showForClasses = psiElements.exists(_.is[PsiClass, ScTypeAlias]) && settings.SHOW_IMPORT_POPUP_CLASSES
+    val showForMethods = psiElements.exists(_.is[PsiMethod, ScTypedDefinition]) && settings.SHOW_IMPORT_POPUP_STATIC_METHODS
     super.shouldShowHint() && (showForClasses || showForMethods)
   }
 

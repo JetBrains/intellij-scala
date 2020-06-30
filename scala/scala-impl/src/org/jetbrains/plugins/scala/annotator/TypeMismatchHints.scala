@@ -68,7 +68,7 @@ object TypeMismatchHints {
     def toText(diff: Tree[TypeDiff]): Text = diff match {
       case Node(diffs @_*) =>
         Text(foldedString,
-          foldedAttributes(diff.flatten.exists(_.is[Mismatch])),
+          foldedAttributes(diff.flatten.exists { case Leaf(_: Mismatch) => true; case _ => false }),
           expansion = Some(() => diffs.map(toText)))
       case Leaf(Match(text, tpe)) =>
         Text(text,
