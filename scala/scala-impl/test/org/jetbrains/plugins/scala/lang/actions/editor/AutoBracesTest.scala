@@ -26,7 +26,7 @@ class AutoBracesTest extends EditorActionTestBase {
   )
 
 
-  def testEnterAfterExpr(): Unit = checkInAllContexts(
+  def testEnterAfterExpr(): Unit = checkTypingInAllContexts(
     s"""
        |def test =
        |  expr$CARET
@@ -39,7 +39,7 @@ class AutoBracesTest extends EditorActionTestBase {
     '\n'
   )
 
-  def testEnterAfterExprAndIndentation(): Unit = checkInAllContexts(
+  def testEnterAfterExprAndIndentation(): Unit = checkTypingInAllContexts(
     s"""
        |def test =
        |  expr
@@ -54,7 +54,7 @@ class AutoBracesTest extends EditorActionTestBase {
     '\n'
   )
 
-  def testTypingAfterIndentation(): Unit = checkInAllContexts(
+  def testTypingAfterIndentation(): Unit = checkTypingInAllContexts(
     s"""
        |def test =
        |  expr
@@ -69,7 +69,7 @@ class AutoBracesTest extends EditorActionTestBase {
     'e'
   )
 
-  def testEnterBeforeIndentedExpr(): Unit = checkInAllContexts(
+  def testEnterBeforeIndentedExpr(): Unit = checkTypingInAllContexts(
     s"""
        |def test = $CARET
        |  expr
@@ -82,7 +82,7 @@ class AutoBracesTest extends EditorActionTestBase {
     '\n'
   )
 
-  def testTypingAfterIndentBeforeIndentedExpr(): Unit = checkInAllContexts(
+  def testTypingAfterIndentBeforeIndentedExpr(): Unit = checkTypingInAllContexts(
     s"""
        |def test =
        |  $CARET
@@ -97,7 +97,7 @@ class AutoBracesTest extends EditorActionTestBase {
     'e'
   )
 
-  def testTypingAfterDoubleIndentation(): Unit = checkInAllContexts(
+  def testTypingAfterDoubleIndentation(): Unit = checkTypingInAllContexts(
     s"""
        |def test =
        |  expr
@@ -111,7 +111,7 @@ class AutoBracesTest extends EditorActionTestBase {
     'e'
   )
 
-  def testTypingAfterSecondIndentation(): Unit = checkInAllContexts(
+  def testTypingAfterSecondIndentation(): Unit = checkTypingInAllContexts(
     s"""
        |def test =
        |  expr
@@ -128,7 +128,7 @@ class AutoBracesTest extends EditorActionTestBase {
     'e'
   )
 
-  def testEnterAfterSecondIndentation(): Unit = checkInAllContexts(
+  def testEnterAfterSecondIndentation(): Unit = checkTypingInAllContexts(
     s"""
        |def test =
        |  expr
@@ -145,7 +145,7 @@ class AutoBracesTest extends EditorActionTestBase {
     '\n'
   )
 
-  def testTypingInUnindented(): Unit = checkInAllContexts(
+  def testTypingInUnindented(): Unit = checkTypingInAllContexts(
     s"""
        |def test =
        |  expr
@@ -159,7 +159,7 @@ class AutoBracesTest extends EditorActionTestBase {
     'e'
   )
 
-  def testTypingBetweenCommentAndIndentedExpr(): Unit = checkInAllContexts(
+  def testTypingBetweenCommentAndIndentedExpr(): Unit = checkTypingInAllContexts(
     s"""
        |def test =
        |  // test
@@ -177,7 +177,7 @@ class AutoBracesTest extends EditorActionTestBase {
   )
 
 
-  def testEnterInsideOfIndentedCall(): Unit = checkInAllContexts(
+  def testEnterInsideOfIndentedCall(): Unit = checkTypingInAllContexts(
     s"""
        |def test =
        |  call($CARET)
@@ -192,7 +192,7 @@ class AutoBracesTest extends EditorActionTestBase {
   )
 
 
-  def testTypingInsideOfIndentedCall(): Unit = checkInAllContexts(
+  def testTypingInsideOfIndentedCall(): Unit = checkTypingInAllContexts(
     s"""
        |def test =
        |  call(
@@ -208,7 +208,67 @@ class AutoBracesTest extends EditorActionTestBase {
     'e'
   )
 
+  def testDeletingLastExprBefore(): Unit = checkBackspaceInAllContexts(
+    s"""
+       |def test = {
+       |  e$CARET
+       |  expr
+       |}
+       |""".stripMargin,
+    s"""
+       |def test =
+       |  $CARET
+       |  expr
+       |""".stripMargin,
+  )
 
+  def testDeletingLastExprAfter(): Unit = checkBackspaceInAllContexts(
+    s"""
+       |def test = {
+       |  expr
+       |  e$CARET
+       |}
+       |""".stripMargin,
+    s"""
+       |def test =
+       |  expr
+       |  $CARET
+       |""".stripMargin,
+  )
+
+  def testDeletingLastExprWithComment(): Unit = checkBackspaceInAllContexts(
+    s"""
+       |def test = {
+       |  // comment
+       |  expr
+       |  e$CARET
+       |}
+       |""".stripMargin,
+    s"""
+       |def test = {
+       |  // comment
+       |  expr
+       |  $CARET
+       |}
+       |""".stripMargin,
+  )
+
+  def testDeletingLastExprWithStatement(): Unit = checkBackspaceInAllContexts(
+    s"""
+       |def test = {
+       |  val x = expr
+       |  x$CARET
+       |}
+       |""".stripMargin,
+    s"""
+       |def test = {
+       |  val x = expr
+       |  $CARET
+       |}
+       |""".stripMargin,
+  )
+
+  /**************************************** Test in multiple contexts *************************************************/
   val contexts = Seq(
     """
       |def test =$BODY$
@@ -233,17 +293,24 @@ class AutoBracesTest extends EditorActionTestBase {
       |while (cond)$BODY$
       |""".stripMargin,
     """
-      |try somthing
+      |try something
       |finally$BODY$
       |""".stripMargin,
   )
 
-  def checkInAllContexts(bodyBefore: String, bodyAfter: String, typedChar: Char): Unit = {
+  def checkBackspaceInAllContexts(bodyBefore: String, bodyAfter: String): Unit =
+    checkInAllContexts(bodyBefore, bodyAfter)(checkGeneratedTextAfterBackspace)
+
+  def checkTypingInAllContexts(bodyBefore: String, bodyAfter: String, typedChar: Char): Unit =
+    checkInAllContexts(bodyBefore, bodyAfter)(checkGeneratedTextAfterTyping(_, _, typedChar))
+
+  def checkInAllContexts(bodyBefore: String, bodyAfter: String)(check: (String, String) => Unit): Unit = {
+    def transform(body: String): String =
+      body.trim.replace("def test =", "")
     for (context <- contexts) {
-      checkGeneratedTextAfterTyping(
-        context.replace("$BODY$", bodyBefore.trim.replace("def test =", "")),
-        context.replace("$BODY$", bodyAfter.trim.replace("def test =", "")),
-        typedChar
+      check(
+        context.replace("$BODY$", transform(bodyBefore)),
+        context.replace("$BODY$", transform(bodyAfter)),
       )
     }
   }

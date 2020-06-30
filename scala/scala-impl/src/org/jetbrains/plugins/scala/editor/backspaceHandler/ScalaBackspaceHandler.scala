@@ -5,7 +5,7 @@ import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.editorActions.BackspaceHandlerDelegate
 import com.intellij.codeInsight.highlighting.BraceMatchingUtil
-import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.HighlighterIterator
 import com.intellij.psi._
@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler.BraceWr
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScBlockStatement, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlStartTag
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScBlockStatement, ScIf, ScTry}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -82,6 +83,8 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       }
     } else if (c == '{' && scalaSettings.WRAP_SINGLE_EXPRESSION_BODY) {
       handleLeftBrace(offset, element, file, editor)
+    } else if (!c.isWhitespace) {
+      handleAutoBrace(offset, element, file, editor)
     }
   }
 
@@ -128,6 +131,53 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
           element.getPrevSibling.textMatches("'"))
   }
 
+  private def handleAutoBrace(offset: Int, element: PsiElement, file: PsiFile, editor: Editor): Unit = {
+    if (element.getTextLength != 1 ||
+      !element.followedByNewLine(ignoreComments = false) ||
+      !element.startsFromNewLine(ignoreComments = false)) {
+      return
+    }
+
+    element.parents.find(_.is[ScBlockExpr]) match {
+      case Some(block: ScBlockExpr) if canAutoRemoveBraces(block) && AutoBraceUtils.isIndentationContext(block) =>
+        (block.getLBrace, block.getRBrace, block.getParent) match {
+          case (Some(lBrace), Some(rBrace), parent: PsiElement) =>
+            val project = element.getProject
+
+            val tabSize = CodeStyle.getSettings(project).getTabSize(ScalaFileType.INSTANCE)
+            if (IndentUtil.compare(rBrace, parent, tabSize) >= 0) {
+              val document = editor.getDocument
+              // remove closing brace first because removing it doesn't change position of the left brace
+              deleteBrace(rBrace, document)
+              deleteBrace(lBrace, document)
+              document.commit(project)
+            }
+          case _ =>
+        }
+      case _ =>
+    }
+  }
+
+  private def canAutoRemoveBraces(block: ScBlockExpr): Boolean = {
+    val it = block.children
+    var foundCommentsOrExpressions = 0
+
+    while (it.hasNext) {
+      it.next() match {
+        case _: PsiComment | _: ScExpression =>
+          foundCommentsOrExpressions += 1
+
+          // return early if we already found 2 expressions/comments
+          if (foundCommentsOrExpressions > 2)
+            return false
+        case _: ScBlockStatement /* cannot be an expression because we matched those in the previous case */  =>
+          return false
+        case _ =>
+      }
+    }
+    foundCommentsOrExpressions == 2
+  }
+
   private def handleLeftBrace(offset: Int, element: PsiElement, file: PsiFile, editor: Editor): Unit = {
     for {
       BraceWrapInfo(element, _, parent, _) <- ScalaTypedHandler.findElementToWrap(element)
@@ -139,25 +189,34 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       tabSize = CodeStyle.getSettings(project).getTabSize(ScalaFileType.INSTANCE)
       if IndentUtil.compare(rBrace, parent, tabSize) >= 0
     } {
-      val (start, end) = PsiTreeUtil.nextLeaf(rBrace) match {
-        case ws: PsiWhiteSpace =>
-          if (ws.textContains('\n')) {
-            val start = PsiTreeUtil.prevLeaf(rBrace) match {
-              case ws: PsiWhiteSpace => ws.startOffset + StringUtils.lastIndexOf(ws.getNode.getChars, '\n')
-              case _                 => rBrace.startOffset
-            }
-            (start, rBrace.endOffset)
-          } else {
-            (rBrace.startOffset, ws.endOffset)
-          }
-        case _                                           =>
-          (rBrace.startOffset, rBrace.endOffset)
-      }
-
       val document = editor.getDocument
-      document.deleteString(start, end)
+      deleteBrace(rBrace, document)
       document.commit(project)
     }
+  }
+
+  // ! Attention !
+  // Modifies the document!
+  // Further modifications of the document must take
+  // moved positions into account!
+  // Also document needs to be commited
+  private def deleteBrace(brace: PsiElement, document: Document): Unit = {
+    val (start, end) = PsiTreeUtil.nextLeaf(brace) match {
+      case ws: PsiWhiteSpace =>
+        if (ws.textContains('\n')) {
+          val start = PsiTreeUtil.prevLeaf(brace) match {
+            case ws: PsiWhiteSpace => ws.startOffset + StringUtils.lastIndexOf(ws.getNode.getChars, '\n').max(0)
+            case _                 => brace.startOffset
+          }
+          (start, brace.endOffset)
+        } else {
+          (brace.startOffset, ws.endOffset)
+        }
+      case _ =>
+        (brace.startOffset, brace.endOffset)
+    }
+
+    document.deleteString(start, end)
   }
 
   private def canRemoveClosingBrace(block: ScBlockExpr, blockRBrace: PsiElement): Boolean = {
