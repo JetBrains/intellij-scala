@@ -54,6 +54,8 @@ object ScalastyleCodeInspection {
 
     def findIn(project: Project, possibleConfigFileNames: Seq[String]): Option[VirtualFile] = {
       val root = ProjectUtil.guessProjectDir(project)
+      if (root == null) return None
+
       val dirs = possibleLocations.flatMap(name => Option(root.findChild(name))) :+ root
       dirs.flatMap(findConfigFile(_, possibleConfigFileNames)).headOption
     }
@@ -87,9 +89,6 @@ object ScalastyleCodeInspection {
     private val maybeDocument = PsiDocumentManager.getInstance(file.getProject).getDocument(file).toOption
 
     def toProblemDescriptor(msg: Message[SourceSpec]): Option[ProblemDescriptor] = msg match {
-      case StyleException(_, _, message, _, None, None) =>
-        Some(manager.createProblemDescriptor(file, message, true, Array.empty[LocalQuickFix], ProblemHighlightType.GENERIC_ERROR))
-
       case StyleError(_, _, key, level, args, Some(line), column, customMessage) =>
         findPsiElement(line, column).filter(e => e.isPhysical && !e.getTextRange.isEmpty).map { e =>
           val message = Messages.format(key, args, customMessage)
