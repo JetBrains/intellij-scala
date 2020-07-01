@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.scalastyle
 
 import com.intellij.codeInspection._
-import com.intellij.openapi.project.{Project, ProjectUtil}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.TestSourcesFilter
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
@@ -53,7 +53,7 @@ object ScalastyleCodeInspection {
       possibleConfigFileNames.flatMap(name => Option(dir.findChild(name))).headOption
 
     def findIn(project: Project, possibleConfigFileNames: Seq[String]): Option[VirtualFile] = {
-      val root = ProjectUtil.guessProjectDir(project)
+      val root = project.getBaseDir
       if (root == null) return None
 
       val dirs = possibleLocations.flatMap(name => Option(root.findChild(name))) :+ root
