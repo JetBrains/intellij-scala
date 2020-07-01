@@ -31,18 +31,19 @@ class AutoBracesTest extends EditorActionTestBase {
     s"""
        |def test =
        |  expr$CARET
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test =
        |  expr
        |  $CARET
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test =
        |  expr
        |$CARET
-       |""".stripMargin,
-    '\n'
+       |""".stripMargin -> NextConstructOnNewline,
+    '\n',
+    checkContextsWithPostfix = false
   )
 
   def testEnterAfterExprAndIndentation(): Unit = checkTypingInAllContexts(
@@ -50,20 +51,21 @@ class AutoBracesTest extends EditorActionTestBase {
        |def test =
        |  expr
        |  $CARET
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test =
        |  expr
        |$indent
        |$CARET
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test =
        |  expr
        |$indent
        |$CARET
-       |""".stripMargin,
-    '\n'
+       |""".stripMargin -> NextConstructOnNewline,
+    '\n',
+    checkContextsWithPostfix = false
   )
 
   def testTypingAfterIndentation(): Unit = checkTypingInAllContexts(
@@ -71,18 +73,18 @@ class AutoBracesTest extends EditorActionTestBase {
        |def test =
        |  expr
        |  $CARET
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test = {
        |  expr
        |  e$CARET
        |}
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnSameLine,
     s"""
        |def test =
        |  expr
        |  e$CARET
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     'e'
   )
 
@@ -90,17 +92,17 @@ class AutoBracesTest extends EditorActionTestBase {
     s"""
        |def test = $CARET
        |  expr
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test =$space
        |  $CARET
        |  expr
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test =$space
        |  $CARET
        |  expr
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     '\n'
   )
 
@@ -109,18 +111,18 @@ class AutoBracesTest extends EditorActionTestBase {
        |def test =
        |  $CARET
        |  expr
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test = {
        |  e$CARET
        |  expr
        |}
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnSameLine,
     s"""
        |def test =
        |  e$CARET
        |  expr
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     'e'
   )
 
@@ -129,17 +131,17 @@ class AutoBracesTest extends EditorActionTestBase {
        |def test =
        |  expr
        |   $CARET
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test =
        |  expr
        |   e$CARET
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test =
        |  expr
        |   e$CARET
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     'e'
   )
 
@@ -149,20 +151,20 @@ class AutoBracesTest extends EditorActionTestBase {
        |  expr
        |   .prod
        |  $CARET
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test = {
        |  expr
        |   .prod
        |  e$CARET
        |}
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnSameLine,
     s"""
        |def test =
        |  expr
        |   .prod
        |  e$CARET
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     'e'
   )
 
@@ -172,21 +174,21 @@ class AutoBracesTest extends EditorActionTestBase {
        |  expr
        |   + expr
        |  $CARET
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test =
        |  expr
        |   + expr
        |$indent
        |$CARET
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test =
        |  expr
        |   + expr
        |$indent
        |$CARET
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     '\n'
   )
 
@@ -195,17 +197,17 @@ class AutoBracesTest extends EditorActionTestBase {
        |def test =
        |  expr
        |$CARET
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test =
        |  expr
        |e$CARET
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test =
        |  expr
        |e$CARET
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     'e'
   )
 
@@ -215,21 +217,20 @@ class AutoBracesTest extends EditorActionTestBase {
        |  // test
        |  $CARET
        |  expr
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test = {
        |  // test
        |  e$CARET
        |  expr
        |}
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnSameLine,
     s"""
        |def test =
        |  // test
        |  e$CARET
        |  expr
-       |
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     'e'
   )
 
@@ -238,19 +239,19 @@ class AutoBracesTest extends EditorActionTestBase {
     s"""
        |def test =
        |  call($CARET)
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test =
        |  call(
        |    $CARET
        |  )
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test =
        |  call(
        |    $CARET
        |  )
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     '\n'
   )
 
@@ -261,19 +262,19 @@ class AutoBracesTest extends EditorActionTestBase {
        |  call(
        |  $CARET
        |  )
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test =
        |  call(
        |  e$CARET
        |  )
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test =
        |  call(
        |  e$CARET
        |  )
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     'e'
   )
 
@@ -283,18 +284,18 @@ class AutoBracesTest extends EditorActionTestBase {
        |  e$CARET
        |  expr
        |}
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnSameLine,
     s"""
        |def test =
        |  $CARET
        |  expr
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test = {
        |  $CARET
        |  expr
        |}
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnSameLine,
   )
 
   def testDeletingLastExprAfter(): Unit = checkBackspaceInAllContexts(
@@ -303,18 +304,18 @@ class AutoBracesTest extends EditorActionTestBase {
        |  expr
        |  e$CARET
        |}
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnSameLine,
     s"""
        |def test =
        |  expr
        |  $CARET
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test = {
        |  expr
        |  $CARET
        |}
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnSameLine,
   )
 
   def testDeletingLastExprWithComment(): Unit = checkBackspaceInAllContexts(
@@ -324,21 +325,21 @@ class AutoBracesTest extends EditorActionTestBase {
        |  expr
        |  e$CARET
        |}
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnSameLine,
     s"""
        |def test = {
        |  // comment
        |  expr
        |  $CARET
        |}
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnSameLine,
     s"""
        |def test = {
        |  // comment
        |  expr
        |  $CARET
        |}
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnSameLine,
   )
 
   def testDeletingLastExprWithStatement(): Unit = checkBackspaceInAllContexts(
@@ -347,66 +348,99 @@ class AutoBracesTest extends EditorActionTestBase {
        |  val x = expr
        |  x$CARET
        |}
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnSameLine,
     s"""
        |def test = {
        |  val x = expr
        |  $CARET
        |}
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnSameLine,
     s"""
        |def test = {
        |  val x = expr
        |  $CARET
        |}
-       |""".stripMargin,
+       |""".stripMargin -> NextConstructOnSameLine,
   )
 
   /**************************************** Test in multiple contexts *************************************************/
+  case class SubsequentConstructNewlineSeparator(separator: String)
+  val NextConstructOnNewline = SubsequentConstructNewlineSeparator("\n")
+  val NextConstructOnSameLine = SubsequentConstructNewlineSeparator(" ")
+
   val contexts = Seq(
     """
-      |def test =$BODY$
-      |""".stripMargin,
+      |def test =
+      |""".stripMargin -> "",
     """
-      |val test =$BODY$
-      |""".stripMargin,
+      |val test =
+      |""".stripMargin -> "",
     """
-      |if (cond)$BODY$
-      |""".stripMargin,
+      |if (cond)
+      |""".stripMargin -> "",
+    """
+      |if (cond)
+      |""".stripMargin -> "else elseBranch",
     """
       |if (cond) thenBranch
-      |else$BODY$
-      |""".stripMargin,
+      |else
+      |""".stripMargin -> "",
     """
-      |for (x <- xs)$BODY$
-      |""".stripMargin,
+      |for (x <- xs)
+      |""".stripMargin -> "",
     """
-      |for (x <- xs) yield$BODY$
-      |""".stripMargin,
+      |for (x <- xs) yield
+      |""".stripMargin -> "",
     """
-      |while (cond)$BODY$
-      |""".stripMargin,
+      |while (cond)
+      |""".stripMargin -> "",
     """
       |try something
-      |finally$BODY$
-      |""".stripMargin,
+      |finally
+      |""".stripMargin -> "",
+    """
+      |try
+      |""".stripMargin -> "catch { e => something }",
+    """
+      |try
+      |""".stripMargin -> "finally something",
   )
 
-  def checkBackspaceInAllContexts(bodyBefore: String, bodyAfter: String, bodyAfterWithSettingsTurnedOff: String): Unit =
-    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff)(checkGeneratedTextAfterBackspace)
+  def checkBackspaceInAllContexts(bodyBefore: (String, SubsequentConstructNewlineSeparator),
+                                  bodyAfter: (String, SubsequentConstructNewlineSeparator),
+                                  bodyAfterWithSettingsTurnedOff: (String, SubsequentConstructNewlineSeparator),
+                                  checkContextsWithPostfix: Boolean = true): Unit =
+    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, checkContextsWithPostfix)(checkGeneratedTextAfterBackspace)
 
-  def checkTypingInAllContexts(bodyBefore: String, bodyAfter: String, bodyAfterWithSettingsTurnedOff: String, typedChar: Char): Unit =
-    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff)(checkGeneratedTextAfterTyping(_, _, typedChar))
+  def checkTypingInAllContexts(bodyBefore: (String, SubsequentConstructNewlineSeparator),
+                               bodyAfter: (String, SubsequentConstructNewlineSeparator),
+                               bodyAfterWithSettingsTurnedOff: (String, SubsequentConstructNewlineSeparator),
+                               typedChar: Char,
+                               checkContextsWithPostfix: Boolean = true): Unit =
+    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, checkContextsWithPostfix)(checkGeneratedTextAfterTyping(_, _, typedChar))
 
-  def checkInAllContexts(bodyBefore: String, bodyAfter: String, bodyAfterWithSettingsTurnedOff: String)(check: (String, String) => Unit): Unit = {
+  def checkInAllContexts(bodyBefore: (String, SubsequentConstructNewlineSeparator),
+                         bodyAfter: (String, SubsequentConstructNewlineSeparator),
+                         bodyAfterWithSettingsTurnedOff: (String, SubsequentConstructNewlineSeparator),
+                         checkContextsWithPostfix: Boolean = true)
+                        (check: (String, String) => Unit): Unit = {
+
     def transform(body: String): String =
       body.trim.replace("def test =", "")
 
     val settings = ScalaApplicationSettings.getInstance()
 
-    for (context <- contexts) {
-      def buildBody(body: String): String =
-        context.replace("$BODY$", transform(body))
+    for ((context, contextPostfix) <- contexts if checkContextsWithPostfix || contextPostfix.isEmpty) {
+      def buildBody(body: (String, SubsequentConstructNewlineSeparator)): String = {
+        val (text, sep) = body
+
+        val postfix = {
+          if (contextPostfix.isEmpty) "\n"
+          else sep.separator + contextPostfix
+        }
+
+        context.trim + transform(text) + postfix
+      }
 
       val before = buildBody(bodyBefore)
       assert(settings.HANDLE_BLOCK_BRACES_AUTOMATICALLY)

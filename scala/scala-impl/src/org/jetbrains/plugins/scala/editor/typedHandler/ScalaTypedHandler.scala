@@ -549,7 +549,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
       return Result.CONTINUE
     }
 
-    // ========= Insert braces ==========
+    // ========= Insert braces =========
     // Start with the opening brace, then the user input, and then the closing brace
     val document = editor.getDocument
 
@@ -557,28 +557,46 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
       exprWS
         .prevSiblingNotWhitespaceComment
         .fold(exprWS.startOffset)(_.endOffset)
-//    val openingBraceOffset = exprWS.startOffset
+    // ========= Opening brace =========
     document.insertString(openingBraceOffset, "{")
     val openingBraceRange = TextRange.from(openingBraceOffset, 1)
-    val displacementAfterClosingBrace = 1
+    val displacementAfterOpeningBrace = 1
 
-    val closingBraceRange = if (caretIsBeforeExpr) {
-      document.insertString(caretOffset + displacementAfterClosingBrace, c.toString)
+    // ========= User input =========
+    document.insertString(caretOffset + displacementAfterOpeningBrace, c.toString)
+    val displacementAfterUserInput = displacementAfterOpeningBrace + 1
+    editor.getCaretModel.moveToOffset(caretOffset + displacementAfterUserInput)
 
-      val displacementAfterUserInput = displacementAfterClosingBrace + 1
-      editor.getCaretModel.moveToOffset(caretOffset + displacementAfterUserInput)
+    // ========= Closing brace =========
+    // After the caret there could many whitespaces and then something that
+    // proceeds to complete the parent of expr for example in
+    //   if (cond)
+    //     expr
+    //     <caret>
+    //
+    //   else
+    //     elseExpr
+    //
+    // In this case the braces should be added before the else and not directly after the caret
+    val subsequentConstructOffset = expr.getNextNonWhitespaceAndNonEmptyLeaf match {
+      case tok: PsiElement if continuesConstructAfterIndentationContext(tok) => Some(tok.startOffset)
+      case _ => None
+    }
 
-      val closingBraceOffset = expr.endOffset + displacementAfterUserInput
-      document.insertString(closingBraceOffset, "\n}")
-      TextRange.from(closingBraceOffset, 3)
-    } else {
-      // we want the closing brace right after the user input, so put it here
-      val inputAndClosingBraceOffset = caretOffset + displacementAfterClosingBrace
-      document.insertString(inputAndClosingBraceOffset, c + "\n}")
+    val closingBraceRange = subsequentConstructOffset match {
+      case Some(subsequentConstructOffset) =>
+        val braceInsertPosition = subsequentConstructOffset + displacementAfterUserInput
+        document.insertString(braceInsertPosition, "} ")
 
-      val afterInputOffset = inputAndClosingBraceOffset + 1
-      editor.getCaretModel.moveToOffset(afterInputOffset)
-      TextRange.from(afterInputOffset, 3)
+        TextRange.from(braceInsertPosition, 3)
+      case None =>
+        // There is no subsequent construct, so just insert the braces after the caret or the expression
+        val braceInsertPosition =
+          if (caretIsBeforeExpr) expr.endOffset + displacementAfterUserInput
+          else caretOffset + displacementAfterUserInput
+
+        document.insertString(braceInsertPosition, "\n}")
+        TextRange.from(braceInsertPosition, 3)
     }
     document.commit(project)
 
