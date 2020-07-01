@@ -56,7 +56,7 @@ class MouseHandler extends ProjectManagerListener {
             }
           } else {
             expandableAt(editor, event.getPoint).foreach { case (inlay, text) =>
-              inlay.getRenderer.asOptionOf[TextPartsHintRenderer].foreach { renderer =>
+              inlay.getRenderer.asOptionOfUnsafe[TextPartsHintRenderer].foreach { renderer =>
                 renderer.expand(text)
                 inlay.update()
                 if (!ImplicitHints.expanded) {
@@ -201,7 +201,7 @@ class MouseHandler extends ProjectManagerListener {
 
   private def textAt(editor: Editor, point: Point): Option[(Inlay, Text)] =
     Option(editor.getInlayModel.getElementAt(point)).flatMap { inlay =>
-      inlay.getRenderer.asOptionOf[TextPartsHintRenderer].flatMap { renderer =>
+      inlay.getRenderer.asOptionOfUnsafe[TextPartsHintRenderer].flatMap { renderer =>
         val inlayPoint = editor.visualPositionToXY(inlay.getVisualPosition)
         renderer.textAt(editor, point.x - inlayPoint.x).map((inlay, _))
       }
@@ -276,7 +276,7 @@ class MouseHandler extends ProjectManagerListener {
     }
 
     val elements = editor.getInlayModel.getInlineElementsInRange(lineStart, lineEnd).asScala.toSeq.flatMap { inlay =>
-      inlay.getRenderer.asOptionOf[TextPartsHintRenderer].toSeq.flatMap(_.parts.map((inlay, _)))
+      inlay.getRenderer.asOptionOfUnsafe[TextPartsHintRenderer].toSeq.flatMap(_.parts.map((inlay, _)))
     }
 
     pairFor[(Inlay, Text)](element, elements, _._2.string == "(", _._2.string == ")")

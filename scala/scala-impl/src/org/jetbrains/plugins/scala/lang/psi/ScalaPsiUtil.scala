@@ -1005,7 +1005,7 @@ object ScalaPsiUtil {
         .flatMap(_.getParent.asOptionOf[ScPatternList])
         .filter(_.simplePatterns)
         .flatMap(_.getParent.asOptionOf[ScPatternDefinition])
-        .flatMap(_.expr.flatMap(_.asOptionOf[PsiLiteral]))
+        .flatMap(_.expr.flatMap(_.asOptionOfUnsafe[PsiLiteral]))
         .flatMap(stringValueOf)
       case _ => None
     }

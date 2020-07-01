@@ -214,7 +214,7 @@ private object ImplicitHintsPass {
 
     val tooltip = ScalaDocQuickInfoGenerator.getQuickNavigateInfo(delegate, delegate, result.substitutor)
     Seq(
-      Text(result.name, navigatable = delegate.asOptionOf[Navigatable], tooltip = Some(tooltip))
+      Text(result.name, navigatable = delegate.asOptionOfUnsafe[Navigatable], tooltip = Some(tooltip))
     )
   }
 
@@ -230,7 +230,7 @@ private object ImplicitHintsPass {
   private def noApplicableExpandedPresentation(parameter: ScalaResolveResult)
                                               (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner) = {
 
-    val qMarkText = Text("?", likeWrongReference, navigatable = parameter.element.asOptionOf[Navigatable])
+    val qMarkText = Text("?", likeWrongReference, navigatable = parameter.element.asOptionOfUnsafe[Navigatable])
     val paramTypeSuffix = Text(typeSuffix(parameter))
 
     (qMarkText :: paramTypeSuffix :: Nil)
@@ -250,7 +250,7 @@ private object ImplicitHintsPass {
       presentationString,
       foldedAttributes(error = parameter.isImplicitParameterProblem),
       effectRange = Some((0, foldedString.length)),
-      navigatable = parameter.element.asOptionOf[Navigatable],
+      navigatable = parameter.element.asOptionOfUnsafe[Navigatable],
       errorTooltip = Some(errorTooltip),
       expansion = Some(() => expandedProblemPresentation(parameter, probableArgs))
     ))

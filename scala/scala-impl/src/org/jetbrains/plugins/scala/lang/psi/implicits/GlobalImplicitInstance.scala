@@ -46,7 +46,7 @@ object GlobalImplicitInstance {
 
   def from(srr: ScalaResolveResult): Option[GlobalImplicitInstance] = {
     for {
-      member <- srr.element.asOptionOf[ScMember]
+      member <- srr.element.asOptionOfUnsafe[ScMember]
       obj <- containingObject(srr)
     } yield GlobalImplicitInstance(obj, member)
   }
