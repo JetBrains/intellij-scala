@@ -10,6 +10,10 @@ sealed trait Tree[+T] {
   def flattenTo(lengthOf: Tree[T] => Int, maxLength: Int): Seq[Tree[T]] = flattenTo0(lengthOf, maxLength)._1
 
   protected def flattenTo0(lengthOf: Tree[T] => Int, maxLength: Int): (Seq[Tree[T]], Int)
+
+  def exists(p: T => Boolean): Boolean = fold(false)(_ || p(_))
+
+  def fold[B](z: B)(op: (B, T) => B): B
 }
 
 object Tree {
@@ -22,9 +26,13 @@ object Tree {
       val nodeLength = lenghtOf(this)
       if (length <= maxLength.max(nodeLength)) (xs, length) else (Seq(Node(xs: _*)), nodeLength)
     }
+
+    def fold[B](z: B)(op: (B, T) => B): B = children.foldLeft(z)((acc, x) => x.fold(acc)(op))
   }
 
   final case class Leaf[+T](element: T) extends Tree[T] {
     override protected def flattenTo0(lengthOf: Tree[T] => Int, maxLength: Int): (Seq[Tree[T]], Int) = (Seq(this), lengthOf(this))
+
+    def fold[B](z: B)(op: (B, T) => B): B = op(z, element)
   }
 }
