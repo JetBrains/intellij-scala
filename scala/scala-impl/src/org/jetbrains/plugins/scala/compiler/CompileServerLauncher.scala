@@ -21,7 +21,7 @@ import javax.swing.event.HyperlinkEvent
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.server.CompileServerToken
+import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServerToken}
 import org.jetbrains.plugins.scala.util.{IntellijPlatformJars, LibraryJars, ScalaPluginJars}
 
 import scala.collection.JavaConverters._
@@ -156,7 +156,7 @@ object CompileServerLauncher {
         val shutdownDelayArg = if (settings.COMPILE_SERVER_SHUTDOWN_IDLE && shutdownDelay >= 0) {
           Seq(s"-Dshutdown.delay=$shutdownDelay")
         } else Nil
-        val isScalaCompileServer = "-Dij.scala.compile.server=true"
+        val isScalaCompileServer = s"-D${CompileServerProperties.IsScalaCompileServer}=true"
 
         val vmOptions: Seq[String] = if (isUnitTestMode && project == null) Seq() else {
           val buildProcessParameters = BuildProcessParametersProvider.EP_NAME.getExtensions(project).asScala
