@@ -11,5 +11,5 @@ trait AbstractNavigatable extends Navigatable { self: Element =>
 
   override def canNavigateToSource: Boolean = navigatable.exists(_.canNavigateToSource)
 
-  private def navigatable = element.asOptionOf[Navigatable]
+  private def navigatable = element.asOptionOfUnsafe[Navigatable]
 }

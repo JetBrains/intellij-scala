@@ -54,7 +54,7 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
 
     val returnTypeText = returnTypeElement.map(_.getText)
 
-    val maybeDefinition = function.asOptionOf[ScFunctionDefinition]
+    val maybeDefinition = function.asOptionOfUnsafe[ScFunctionDefinition]
 
     val bodyText = returnTypeText match {
       case Some(_) => None

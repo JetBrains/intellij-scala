@@ -164,7 +164,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
     def functionTypeExpected = call.expectedType().exists(FunctionType.isFunctionType)
     if (!call.isInScala3Module && isOuterMostCall(call) && !functionTypeExpected && !call.parent.exists(_.is[ScUnderscoreSection])) {
       for {
-        ref <- call.getEffectiveInvokedExpr.asOptionOf[ScReference]
+        ref <- call.getEffectiveInvokedExpr.asOptionOfUnsafe[ScReference]
         resolveResult <- call.applyOrUpdateElement.orElse(ref.bind())
         if !resolveResult.isDynamic
         fun <- resolveResult.element.asOptionOf[ScFunction]

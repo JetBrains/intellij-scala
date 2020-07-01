@@ -378,11 +378,6 @@ package object extensions {
   implicit class ObjectExt[T](private val v: T) extends AnyVal {
     def toOption: Option[T] = Option(v)
 
-    def asOptionOf[E: ClassTag]: Option[E] = {
-      if (classTag[E].runtimeClass.isInstance(v)) Some(v.asInstanceOf[E])
-      else None
-    }
-
     def ifNot(predicate: T => Boolean): Option[T] =
       if (predicate(v)) None else Some(v)
 
@@ -412,6 +407,14 @@ package object extensions {
     @inline def is[T1 <: T : ClassTag, T2 <: T : ClassTag, T3 <: T : ClassTag]: Boolean = is[T1, T2] || is[T3]
     @inline def is[T1 <: T : ClassTag, T2 <: T : ClassTag, T3 <: T : ClassTag, T4 <: T : ClassTag]: Boolean = is[T1, T2, T3] || is[T4]
     @inline def is[T1 <: T : ClassTag, T2 <: T : ClassTag, T3 <: T : ClassTag, T4 <: T : ClassTag, T5 <: T : ClassTag]: Boolean = is[T1, T2, T3, T4] || is[T5]
+
+    // See the `is` method description.
+    def asOptionOf[E <: T : ClassTag]: Option[E] = asOptionOfUnsafe[E]
+
+    // For `is` there's "unsafe" `isInstanceOf`, but for `asOption` there's only `match` (which is verbose).
+    def asOptionOfUnsafe[E : ClassTag]: Option[E] = Some(v).collect {
+      case e: E => e
+    }
   }
 
   implicit class ReferenceExt[T](private val target: Reference[T]) extends AnyVal {

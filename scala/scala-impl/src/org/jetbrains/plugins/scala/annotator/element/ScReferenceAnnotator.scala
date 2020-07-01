@@ -226,7 +226,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
       case x: ScInfixExpr => Some(x.left)
       case _ => None
     }
-    val refElementOpt = qualifier.flatMap(_.asOptionOf[ScReference])
+    val refElementOpt = qualifier.flatMap(_.asOptionOfUnsafe[ScReference])
     val ref: Option[PsiElement] = refElementOpt.flatMap(_.resolve().toOption)
     val reassignment = ref.exists(ScalaPsiUtil.isReadonly)
     if (reassignment) {

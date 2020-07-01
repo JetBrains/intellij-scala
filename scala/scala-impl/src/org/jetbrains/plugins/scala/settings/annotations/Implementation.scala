@@ -146,7 +146,7 @@ object Implementation {
         .exists(_.isApplyMethod)
 
     private def referencesObject(rr: ScalaResolveResult): Boolean =
-      rr.element.asOptionOf[Typeable]
+      rr.element.asOptionOfUnsafe[Typeable]
         .flatMap(_.`type`().toOption)
         .flatMap(_.asOptionOf[DesignatorOwner])
         .exists(_.element.is[ScObject])

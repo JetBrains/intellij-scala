@@ -51,7 +51,7 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
             case func@ScFunction.inSynthetic(clazz) if func.isApplyMethod && clazz.isDeprecated => Some(clazz)
             case other if other.isDeprecated => Some(other)
             case func: ScFunction =>
-              result.getActualElement.asOptionOf[PsiDocCommentOwner].filter(_.isDeprecated)
+              result.getActualElement.asOptionOfUnsafe[PsiDocCommentOwner].filter(_.isDeprecated)
             case _ =>
               None
           }
@@ -98,7 +98,7 @@ object ScalaDeprecationInspection {
 
   private def deprecationMessage(commentOwner: PsiDocCommentOwner): Option[String] =
     for {
-      holder     <- commentOwner.asOptionOf[ScAnnotationsHolder]
+      holder     <- commentOwner.asOptionOfUnsafe[ScAnnotationsHolder]
       annotation <- holder.annotations(ScalaDeprecatedAnnotation).headOption
       message    <- ScalaPsiUtil.readAttribute(annotation, ScalaDeprecatedAnnotationMessageField)
     } yield message
