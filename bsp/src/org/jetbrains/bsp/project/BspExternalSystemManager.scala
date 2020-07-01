@@ -106,4 +106,10 @@ class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings,
 
 object BspExternalSystemManager {
   val DetectExternalProjectFiles: Key[Boolean] = Key.create[Boolean]("BSP.detectExternalProjectFiles")
+
+  def parseAsMap(file: File): Map[String, Any] = {
+    val virtualFile = LocalFileSystem.getInstance.findFileByIoFile(file)
+    val content = new String(virtualFile.contentsToByteArray())
+    new Gson().fromJson(content, classOf[JMap[String, _]]).asScala.toMap
+  }
 }
