@@ -1158,6 +1158,28 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |$ContentEnd""".stripMargin
     )
 
+  def testMacro_FromContainingClass_ForMethod_Deep(): Unit =
+    doGenerateDocContentTest(
+      s"""/**
+         | * @define macroOuter outer value
+         | */
+         |object Outer1 {
+         |  class Outer2 {
+         |    trait Outer3 {
+         |      /**
+         |       * $$macroInner
+         |       * $$macroOuter
+         |       * @define macroInner inner value
+         |       */
+         |      def ${|}innerMethod: Unit = ???
+         |    }
+         |  }
+         |}""".stripMargin,
+      """<p>
+        |inner value
+        |outer value""".stripMargin
+    )
+
   def testMacro_ResolveFromContainingClass_ForClass(): Unit =
     doGenerateDocContentTest(
       s"""/**
@@ -1190,7 +1212,8 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |       * $$macroOuter
          |       * @define macroInner inner value
          |       */
-         |      def ${|}innerMethod: Unit = ???
+         |      class ${|}Inner {
+         |      }
          |    }
          |  }
          |}""".stripMargin,
@@ -1198,6 +1221,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         |inner value
         |outer value""".stripMargin
     )
+
 
   def testMacro_WithBraces(): Unit =
     doGenerateDocContentTest(
@@ -1355,29 +1379,6 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         |and a fast<tt>length</tt>operation. A<tt>LinearSeq</tt>provides fast access only to the first element
         |via<tt>head</tt>, but also has a fast<tt>tail</tt>operation.
         |""".stripMargin
-    )
-
-  def testMacro_FromContainingClass_1(): Unit =
-    doGenerateDocContentTest(
-      s"""/**
-         | * @define macroOuter outer value
-         | */
-         |object Outer1 {
-         |  class Outer2 {
-         |    trait Outer3 {
-         |      /**
-         |       * $$macroInner
-         |       * $$macroOuter
-         |       * @define macroInner inner value
-         |       */
-         |      class ${|}Inner {
-         |      }
-         |    }
-         |  }
-         |}""".stripMargin,
-      """<p>
-        |inner value
-        |outer value""".stripMargin
     )
 
   def testMacro_WithParagraphs_InjectedInVariousPlaces(): Unit = {
