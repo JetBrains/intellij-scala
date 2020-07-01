@@ -11,11 +11,13 @@ import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerListener, ProjectUtil}
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.concurrency.AppExecutorUtil
+import org.jetbrains.bsp.project.BspExternalSystemManager
 import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 
 import scala.collection.mutable
 import scala.concurrent.duration._
+import scala.collection.JavaConverters._
 import scala.util.{Success, Try}
 
 class BspCommunicationService extends Disposable {
@@ -70,16 +72,30 @@ class BspCommunicationService extends Disposable {
   def closeCommunication(base: File): Try[Unit] =
     closeCommunication(base.getCanonicalFile.toURI)
 
-  def closeCommunication(base: URI): Try[Unit] =
-    comms.get(base)
+  def closeCommunication(base: URI): Try[Unit] = {
+    val res = comms.get(base)
       .toRight(new NoSuchElementException)
       .toTry
       .flatMap(_.closeSession())
+    comms.remove(base)
+    res
+  }
 
-  def closeAll: Try[Unit] =
-    comms.values
+  def exitCommands(base: URI): Try[List[List[String]]] = {
+    comms.get(base)
+      .toRight(new NoSuchElementException)
+      .toTry
+      .map(_.exitCommands)
+  }
+
+  def closeAll: Try[Unit] = {
+    val res = comms.values
       .map(_.closeSession())
       .foldLeft(Success(Unit): Try[Unit])(_.orElse(_))
+    comms.clear()
+    res
+  }
+
 
   private def executionSettings(base: File): BspExecutionSettings =
     BspExecutionSettings.executionSettingsFor(base)

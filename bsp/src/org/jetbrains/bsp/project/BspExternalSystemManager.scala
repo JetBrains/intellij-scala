@@ -77,17 +77,11 @@ class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings,
         val workspace = new File(project.getBasePath)
         val files = BspConnectionConfig.workspaceConfigurations(workspace)
         files.forall { file =>
-          val bspConnectionDetails = parseAsMap(file)
+          val bspConnectionDetails = BspExternalSystemManager.parseAsMap(file)
           !bspConnectionDetails.get("X-detectExternalProjectFiles").contains(false)
         }
       } else true
     }
-  }
-
-  private def parseAsMap(file: File): Map[String, Any] = {
-    val virtualFile = LocalFileSystem.getInstance.findFileByIoFile(file)
-    val content = new String(virtualFile.contentsToByteArray())
-    new Gson().fromJson(content, classOf[JMap[String, _]]).asScala.toMap
   }
 
   private def cached[A](key: Key[A], holder: UserDataHolder)(compute: => A): A = {
@@ -102,4 +96,10 @@ class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings,
 
 object BspExternalSystemManager {
   val DetectExternalProjectFiles: Key[Boolean] = Key.create[Boolean]("BSP.detectExternalProjectFiles")
+
+  def parseAsMap(file: File): Map[String, Any] = {
+    val virtualFile = LocalFileSystem.getInstance.findFileByIoFile(file)
+    val content = new String(virtualFile.contentsToByteArray())
+    new Gson().fromJson(content, classOf[JMap[String, _]]).asScala.toMap
+  }
 }

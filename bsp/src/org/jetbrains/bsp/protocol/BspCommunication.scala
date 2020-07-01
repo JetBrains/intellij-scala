@@ -11,6 +11,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.bsp._
+import org.jetbrains.bsp.project.BspExternalSystemManager
 import org.jetbrains.bsp.protocol.BspCommunication._
 import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
 import org.jetbrains.bsp.protocol.session.BspServerConnector._
@@ -21,14 +22,26 @@ import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, Bsp
 import org.jetbrains.plugins.scala.build.BuildReporter
 
 import scala.concurrent.duration._
+import scala.collection.JavaConverters._
 import scala.util.{Success, Try}
-
 
 class BspCommunication private[protocol](base: File) extends Disposable {
 
   private val log = Logger.getInstance(classOf[BspCommunication])
 
   private val session: AtomicReference[Option[BspSession]] = new AtomicReference[Option[BspSession]](None)
+
+  val exitCommands: List[List[String]] = {
+    val workspace = new File(base.getAbsolutePath)
+    val files = BspConnectionConfig.workspaceConfigurations(workspace)
+    val argvExitCommands = files.flatMap { file =>
+      val bspConnectionDetails = BspExternalSystemManager.parseAsMap(file)
+      bspConnectionDetails.get("argvExit").flatMap{comand =>
+        Try {comand.asInstanceOf[java.util.List[String]]}.toOption.map(_.asScala.toList)
+      }
+    }
+    argvExitCommands
+  }
 
   private def acquireSessionAndRun(job: BspSessionJob[_,_], reporter: BuildReporter):
   Either[BspError, BspSession] = session.synchronized {
