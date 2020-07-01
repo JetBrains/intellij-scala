@@ -57,7 +57,7 @@ private[codeInsight] object ImplicitHints {
     val model = editor.getInlayModel
 
     inlaysIn(model).forEach { inlay =>
-      inlay.getRenderer.asOptionOf[TextPartsHintRenderer].foreach(_.expand())
+      inlay.getRenderer.asOptionOfUnsafe[TextPartsHintRenderer].foreach(_.expand())
       inlay.updateSize()
     }
   }
@@ -66,7 +66,7 @@ private[codeInsight] object ImplicitHints {
     val model = editor.getInlayModel
 
     inlaysIn(model).forEach { inlay =>
-      inlay.getRenderer.asOptionOf[TextPartsHintRenderer].filter(_.expanded).foreach(_.collapse())
+      inlay.getRenderer.asOptionOfUnsafe[TextPartsHintRenderer].filter(_.expanded).foreach(_.collapse())
       inlay.updateSize()
     }
   }

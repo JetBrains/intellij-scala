@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 object isWrapper {
   def unapply(lightElem: LightElement): Option[PsiNamedElement] = lightElem match {
     case PsiClassWrapper(definition) => Some(definition)
-    case methodWrapper: PsiMethodWrapper[_] => methodWrapper.delegate.asOptionOf[PsiNamedElement]
+    case methodWrapper: PsiMethodWrapper[_] => methodWrapper.delegate.asOptionOfUnsafe[PsiNamedElement]
     case _ => None
   }
 }
