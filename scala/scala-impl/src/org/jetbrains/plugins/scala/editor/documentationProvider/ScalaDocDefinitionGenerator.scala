@@ -196,10 +196,10 @@ private class ScalaDocDefinitionGenerator private(
 
   // UTILS
 
-  private def containingClassHyperLink(elem: ScMember): Option[String]= {
+  private def containingClassHyperLink(elem: ScMember): Option[String] = {
     val clazz = elem.containingClass
     if (clazz == null) None
-    else Some(HtmlPsiUtils.classFullLink(clazz))
+    else HtmlPsiUtils.classFullLinkSafe(clazz)
   }
 
   private def typeAnnotationRenderer(implicit typeRenderer: TypeRenderer): TypeAnnotationRenderer =
