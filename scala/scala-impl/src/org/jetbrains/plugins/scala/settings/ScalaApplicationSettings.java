@@ -55,7 +55,7 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
 
   public boolean WRAP_SINGLE_EXPRESSION_BODY = true;
 
-  public boolean HANDLE_BLOCK_BRACES_AUTOMATICALLY = true;
+  public boolean HANDLE_BLOCK_BRACES_AUTOMATICALLY = org.jetbrains.plugins.scala.package$.MODULE$.isInternalMode();
 
   public boolean MOVE_COMPANION = true;
 
