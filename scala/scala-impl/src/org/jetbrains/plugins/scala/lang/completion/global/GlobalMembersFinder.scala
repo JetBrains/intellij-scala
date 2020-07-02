@@ -16,7 +16,14 @@ abstract class GlobalMembersFinder {
 
   import GlobalMembersFinder._
 
-  FeatureUsageTracker.getInstance.triggerFeatureUsed(JavaCompletionFeatures.GLOBAL_MEMBER_NAME)
+  protected trait GlobalMemberInsertHandler {
+    this: InsertHandler[ScalaLookupItem] =>
+
+    def triggerGlobalMemberCompletionFeature(): Unit =
+      FeatureUsageTracker
+        .getInstance
+        .triggerFeatureUsed(JavaCompletionFeatures.GLOBAL_MEMBER_NAME)
+  }
 
   final def lookupItems(reference: ScReferenceExpression, originalFile: PsiFile): Seq[ScalaLookupItem] = {
     val shouldImport = new ShouldImportPredicate(reference, originalFile)
@@ -47,10 +54,7 @@ abstract class GlobalMembersFinder {
     protected def buildItem(lookupItem: ScalaLookupItem,
                             shouldImport: Boolean): Option[ScalaLookupItem] = {
       lookupItem.shouldImport = shouldImport
-      createInsertHandler match {
-        case null =>
-        case handler => lookupItem.setInsertHandler(handler)
-      }
+      lookupItem.setInsertHandler(createInsertHandler)
       lookupItem.withBooleanUserData(JavaCompletionUtil.FORCE_SHOW_SIGNATURE_ATTR)
       Some(lookupItem)
     }

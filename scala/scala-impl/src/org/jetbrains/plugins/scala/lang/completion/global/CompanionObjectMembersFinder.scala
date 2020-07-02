@@ -90,7 +90,7 @@ private[completion] object CompanionObjectMembersFinder {
         override protected def createInsertHandler: ScalaImportingInsertHandler = new ScalaImportingInsertHandler(`object`) {
 
           override protected def qualifyAndImport(reference: ScReferenceExpression): Unit =
-            replaceReference(reference)
+            qualifyOnly(reference)
         }
       }
   }

@@ -9,6 +9,7 @@ import com.intellij.psi.{PsiClass, PsiMember, PsiNamedElement}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.findInheritorObjects
+import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaImportingInsertHandler
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, isStatic}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
@@ -79,7 +80,15 @@ private[completion] final class StaticMembersFinder private(namePredicate: NameP
       super.buildItem(lookupItem, shouldImport)
     }
 
-    override protected def createInsertHandler: Null = null
+    override protected def createInsertHandler: ScalaImportingInsertHandler =
+      new ScalaImportingInsertHandler(classToImport)
+        with GlobalMemberInsertHandler {
+
+        override protected def qualifyAndImport(reference: ScReferenceExpression): Unit = {
+          triggerGlobalMemberCompletionFeature()
+          qualifyOnly(reference)
+        }
+      }
   }
 
 }
