@@ -66,8 +66,10 @@ object ImportImplicitConversionFix {
         CompletionProcessor.variantsWithName(resultType, qualifier, ref.refName).nonEmpty
     } yield conversion
 
-    if (conversions.isEmpty) None
-    else Some(new ImportImplicitConversionFix(ref, conversions))
+    val sorted = conversions.sortBy(c => (isDeprecated(c), c.qualifiedName))
+
+    if (sorted.isEmpty) None
+    else Some(new ImportImplicitConversionFix(ref, sorted))
   }
 
   private def qualifier(ref: ScReferenceExpression): Option[ScExpression] = ref match {
@@ -76,4 +78,7 @@ object ImportImplicitConversionFix {
         .desugaredExpression.flatMap(_._1.qualifier)
     case _ => ref.qualifier
   }
+
+  private def isDeprecated(conversion: GlobalImplicitConversion): Boolean =
+    conversion.containingObject.isDeprecated || conversion.function.isDeprecated
 }
