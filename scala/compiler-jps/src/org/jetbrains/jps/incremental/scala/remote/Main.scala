@@ -4,6 +4,7 @@ import java.io._
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.util
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.{Executors, ScheduledExecutorService, TimeUnit}
 import java.util.{Base64, Timer, TimerTask}
 
@@ -39,9 +40,9 @@ object Main {
 
   private var shutdownTimer: Timer = _
 
-  @volatile private var currentParallelism: Int = 0
+  private val currentParallelism = new AtomicInteger(0)
 
-  def getCurrentParallelism(): Int = currentParallelism
+  def getCurrentParallelism(): Int = currentParallelism.get()
 
   /**
    * This method is called by NGServer
@@ -116,10 +117,10 @@ object Main {
     def decorated(action: => Unit): Unit =
       if (command.isCompileCommand)
         try {
-          currentParallelism += 1
+          currentParallelism.incrementAndGet()
           action
         } finally {
-          currentParallelism -= 1
+          currentParallelism.decrementAndGet()
         }
       else
         action
@@ -293,6 +294,8 @@ object MeteringScheduler {
 
       val currentHeapSizeMb = (Runtime.getRuntime.totalMemory / 1024 / 1024).toInt
       val newMaxHeapSizeMb = math.max(meteringInfo.maxHeapSizeMb, currentHeapSizeMb)
+      
+      // TODO more useful metrics
 
       meteringInfo = meteringInfo.copy(
         maxParallelism = newMaxParallelism,
