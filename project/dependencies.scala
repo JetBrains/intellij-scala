@@ -91,7 +91,7 @@ object Dependencies {
   val junitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11" % "test"
   val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.4.0"
 
-  val scalastyle: ModuleID = "org.scalastyle" %% "scalastyle" % "1.0.0"
+  val scalastyle: ModuleID = "com.beautiful-scala" %% "scalastyle" % "1.4.0"
   val scalariform: ModuleID = "org.scalariform" %% "scalariform" % "0.2.2"
   val scalafmt: Seq[ModuleID] = Seq(
     "com.geirsson" %% "scalafmt-core" % "1.5.1",
