@@ -35,13 +35,13 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
     Option(findChildByType(ScalaTokenTypes.tUNDER))
       .orElse(selectorSet.flatMap(_.wildcardElement))
 
-  override def qualifier: ScStableCodeReference = {
-    if (reference.isEmpty)
-      throw new IncorrectOperationException()
-    else if (!isSingleWildcard && selectorSet.isEmpty)
-      reference.flatMap(_.qualifier).orNull
-    else
-      reference.get
+  override def qualifier: ScStableCodeReference = reference match {
+    case Some(reference) =>
+      if (isSingleWildcard || selectorSet.isDefined)
+        reference
+      else
+        reference.qualifier.orNull
+    case _ => throw new IncorrectOperationException
   }
 
   override def deleteExpr(): Unit = {

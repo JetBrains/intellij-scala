@@ -2,14 +2,15 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
+import com.intellij.codeInsight.completion.JavaCompletionUtil.getAllMethods
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, SourcesLoader}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.junit.Assert.{assertEquals, assertTrue}
+import org.junit.Assert.assertEquals
 
 /**
-  * @author Alexander Podkhalyuzin
-  */
+ * @author Alexander Podkhalyuzin
+ */
 class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
 
   import ScalaCodeInsightTestBase._
@@ -111,7 +112,8 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
         |  RawObject5.patternVariable
         |}
       """.stripMargin,
-    item = "patternVariable", time = 2
+    item = "patternVariable",
+    time = 2
   )
 
   def testGlobalMember6(): Unit = doCompletionTest(
@@ -119,7 +121,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
       s"""
          |import rawObject.RawObject6.importedDef
          |
-        |class TUI {
+         |class TUI {
          |  importDe$CARET
          |}
       """.stripMargin,
@@ -189,6 +191,20 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     time = 3
   )
 
+  def testGlobalMemberJava3(): Unit = {
+    configureFromFileText("sort" + CARET)
+
+    val actual = completeBasic(2)
+      .count { lookup =>
+        hasItemText(lookup, "sort")(
+          itemText = "Collections.sort",
+          tailText = "[T](...) (java.util)"
+        ) && getAllMethods(lookup).size() == 2
+      }
+
+    assertEquals(1, actual)
+  }
+
   def testGlobalMember8(): Unit = checkNoCompletion(
     fileText =
       s"""
@@ -206,31 +222,69 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     invocationCount = 2
   )(hasLookupString(_, "doSmthPrivate"))
 
-  def testGlobalMember9(): Unit = {
-    configureFromFileText(
-      fileText =
-        s"""
-           |object BlahBlahBlahContainer {
-           |  private def doSmthPrivate() {}
-           |  def doSmthPublic() {}
-           |}
-           |
-           |class Test {
-           |  def test() {
-           |    dsp$CARET
-           |  }
-           |}""".stripMargin
-    )
+  def testGlobalMember9(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |object BlahBlahBlahContainer {
+         |  private def doSmthPrivate() {}
+         |  def doSmthPublic() {}
+         |}
+         |
+         |class Test {
+         |  def test() {
+         |    dsp$CARET
+         |  }
+         |}""".stripMargin,
+    resultText =
+      s"""
+         |object BlahBlahBlahContainer {
+         |  private def doSmthPrivate() {}
+         |  def doSmthPublic() {}
+         |}
+         |
+         |class Test {
+         |  def test() {
+         |    BlahBlahBlahContainer.doSmthPrivate()$CARET
+         |  }
+         |}""".stripMargin,
+    item = "doSmthPrivate",
+    time = 3
+  )
 
-    val lookups = completeBasic(3)
-    assertTrue(lookups.exists(hasLookupString(_, "doSmthPrivate")))
-  }
+  def testGlobalMember10(): Unit = doCompletionTest(
+    fileText =
+      s"""trait Foo {
+         |  def foo: Int
+         |}
+         |
+         |object Bar extends Foo {
+         |  override val foo = 42
+         |}
+         |
+         |object Baz {
+         |  f$CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""trait Foo {
+         |  def foo: Int
+         |}
+         |
+         |object Bar extends Foo {
+         |  override val foo = 42
+         |}
+         |
+         |object Baz {
+         |  Bar.foo$CARET
+         |}
+         |""".stripMargin,
+    item = "foo",
+    time = 2
+  )
 
   def testCompanionObjectMethod(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class Foo {
-         |  import Foo.bar
-         |
          |  $CARET
          |}
          |
@@ -246,8 +300,6 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
   def testCompanionObjectMethodAccessAll(): Unit = doCompletionTest(
     fileText =
       s"""class Foo {
-         |  import Foo.bar
-         |
          |  $CARET
          |}
          |
@@ -259,8 +311,6 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |""".stripMargin,
     resultText =
       s"""class Foo {
-         |  import Foo.bar
-         |
          |  Foo.foo($CARET)
          |}
          |
@@ -840,5 +890,147 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
         """.stripMargin,
     item = "xy",
     time = 2
+  )
+
+  def testImportableMethod(): Unit = doRawCompletionTest(
+    fileText =
+      s"""import java.util.Collections.emptyList
+         |
+         |e$CARET
+         |""".stripMargin,
+    resultText =
+      s"""import java.util.Collections.{emptyList, emptyMap}
+         |
+         |emptyMap()$CARET
+         |""".stripMargin
+  ) {
+    hasItemText(_, "emptyMap")(tailText = "[K, V]() (java.util.Collections)")
+  }
+
+  def testImportableField(): Unit = doCompletionTest(
+    fileText =
+      s"""import Thread.currentThread
+         |
+         |$CARET
+         |""".stripMargin,
+    resultText =
+      s"""import Thread.{currentThread, defaultUncaughtExceptionHandler}
+         |
+         |defaultUncaughtExceptionHandler$CARET
+         |""".stripMargin,
+    item = "defaultUncaughtExceptionHandler",
+    time = 2
+  )
+
+  def testImportableFunction(): Unit = doCompletionTest(
+    fileText =
+      s"""import Foo.foo
+         |
+         |object Foo {
+         |  def foo(): Unit = {}
+         |
+         |  def bar(): Unit = {}
+         |}
+         |
+         |b$CARET
+         |""".stripMargin,
+    resultText =
+      s"""import Foo.{bar, foo}
+         |
+         |object Foo {
+         |  def foo(): Unit = {}
+         |
+         |  def bar(): Unit = {}
+         |}
+         |
+         |bar()$CARET
+         |""".stripMargin,
+    item = "bar"
+  )
+
+  def testImportableValue(): Unit = doCompletionTest(
+    fileText =
+      s"""import Foo.foo
+         |
+         |object Foo {
+         |  def foo(): Unit = {}
+         |
+         |  val bar = 42
+         |}
+         |
+         |b$CARET
+         |""".stripMargin,
+    resultText =
+      s"""import Foo.{bar, foo}
+         |
+         |object Foo {
+         |  def foo(): Unit = {}
+         |
+         |  val bar = 42
+         |}
+         |
+         |bar$CARET
+         |""".stripMargin,
+    item = "bar"
+  )
+
+  def testImportableVariable(): Unit = doCompletionTest(
+    fileText =
+      s"""import Foo.foo
+         |
+         |object Foo {
+         |  def foo(): Unit = {}
+         |
+         |  var bar = 42
+         |}
+         |
+         |b$CARET
+         |""".stripMargin,
+    resultText =
+      s"""import Foo.{bar, foo}
+         |
+         |object Foo {
+         |  def foo(): Unit = {}
+         |
+         |  var bar = 42
+         |}
+         |
+         |bar$CARET
+         |""".stripMargin,
+    item = "bar"
+  )
+
+  def testImportableFromPackageObject(): Unit = doCompletionTest(
+    fileText =
+      s"""package foo
+         |
+         |package object bar {
+         |  def foo(): Unit = {}
+         |
+         |  def baz(): Unit = {}
+         |}
+         |
+         |import bar.foo
+         |
+         |object Bar {
+         |  b$CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""package foo
+         |
+         |package object bar {
+         |  def foo(): Unit = {}
+         |
+         |  def baz(): Unit = {}
+         |}
+         |
+         |import bar.{baz, foo}
+         |
+         |object Bar {
+         |  baz()$CARET
+         |}
+         |""".stripMargin,
+    item = "baz"
   )
 }

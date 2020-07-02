@@ -46,7 +46,7 @@ final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContr
             val finder = if (requiresAdvertisement && matcher.getPrefix.nonEmpty)
               new StaticMembersFinder(reference, accessAll(invocationCount))(matcher.prefixMatches)
             else
-              new CompanionObjectMembersFinder.Regular(reference, requiresAdvertisement)
+              new LocallyImportableMembersFinder(reference, requiresAdvertisement)
 
             Some(finder)
         }

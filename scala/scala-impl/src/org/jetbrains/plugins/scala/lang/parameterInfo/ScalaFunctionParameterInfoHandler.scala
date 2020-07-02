@@ -5,7 +5,7 @@ package parameterInfo
 import java.awt.Color
 import java.util
 
-import com.intellij.codeInsight.completion.JavaCompletionUtil
+import com.intellij.codeInsight.completion.JavaCompletionUtil.getAllPsiElements
 import com.intellij.codeInsight.hint.ShowParameterInfoHandler
 import com.intellij.codeInsight.lookup.{LookupElement, LookupItem}
 import com.intellij.codeInsight.{CodeInsightBundle, TargetElementUtil}
@@ -45,9 +45,9 @@ import scala.collection.mutable.ArrayBuffer
  */
 
 class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiElement, Any, ScExpression] {
-  override def getArgListStopSearchClasses: java.util.Set[_ <: Class[_]] = {
-    java.util.Collections.singleton(classOf[PsiMethod])
-  }
+
+  override def getArgListStopSearchClasses: util.Set[_ <: Class[_]] =
+    util.Collections.singleton(classOf[PsiMethod])
 
   override def couldShowInLookup: Boolean = true
 
@@ -69,7 +69,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
 
   override def getActualParametersRBraceType: IElementType = ScalaTokenTypes.tRBRACE
 
-  override def getArgumentListAllowedParentClasses: java.util.Set[Class[_]] = {
+  override def getArgumentListAllowedParentClasses: util.Set[Class[_]] = {
     val set = new util.HashSet[Class[_]]()
     set.add(classOf[ScMethodCall])
     set.add(classOf[ScConstructorInvocation])
@@ -79,20 +79,17 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
     set
   }
 
-  override def getParametersForLookup(item: LookupElement, context: ParameterInfoContext): Array[Object] = {
-    if (!item.isInstanceOf[LookupItem[_]]) return null
-    val allElements = JavaCompletionUtil.getAllPsiElements(item.asInstanceOf[LookupItem[_]])
-
-    if (allElements != null &&
-        allElements.size > 0 &&
-        allElements.get(0).isInstanceOf[PsiMethod]) {
-      return allElements.toArray(new Array[Object](allElements.size))
-    }
-    null
+  override def getParametersForLookup(item: LookupElement,
+                                      context: ParameterInfoContext): Array[Object] = item match {
+    case item: LookupItem[_] =>
+      getAllPsiElements(item) match {
+        case null => null
+        case elements if !elements.isEmpty &&
+          elements.get(0).isInstanceOf[PsiMethod] => elements.toArray()
+        case _ => null
+      }
+    case _ => null
   }
-
-
-
 
   override def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
     if (context == null || context.getParameterOwner == null || !context.getParameterOwner.isValid) return
