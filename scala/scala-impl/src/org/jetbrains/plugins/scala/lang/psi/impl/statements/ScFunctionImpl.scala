@@ -121,6 +121,11 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
 
   // TODO unify with ScValue and ScVariable
   protected override final def baseIcon: Icon = {
+    syntheticNavigationElement match {
+      case c: ScClass if ScalaPsiUtil.hasImplicitModifier(c) => return c.getIcon(flags = 0)
+      case _ =>
+    }
+
     var parent = getParent
     while (parent != null) {
       parent match {
