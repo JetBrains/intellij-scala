@@ -83,6 +83,8 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     file
   }
 
+  protected def getEditorOffset: Int = getEditor.getCaretModel.getOffset
+
   protected def checkTextHasNoErrors(text: String): Unit = {
     getFixture.configureByText(
       ScalaFileType.INSTANCE,

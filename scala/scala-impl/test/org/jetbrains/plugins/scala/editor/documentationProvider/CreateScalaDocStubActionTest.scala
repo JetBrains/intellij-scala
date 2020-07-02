@@ -20,7 +20,7 @@ class CreateScalaDocStubActionTest extends ScalaLightCodeInsightFixtureTestAdapt
     inWriteAction {
       action.actionPerformedImpl(myFixture.getFile, myFixture.getEditor)
     }
-    assertEquals("Wrong caret offset", expectedOffset, getEditor.getCaretModel.getOffset)
+    assertEquals("Wrong caret offset", expectedOffset, getEditorOffset)
 
     getFixture.checkResult(expected, stripTrailingSpaces)
   }
