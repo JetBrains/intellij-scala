@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
 // TODO: in-editor doc: code example in the end of the doc produces new line
+// TODO: split tests per-sections: definition part & content part (rendered scaladoc)
 class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase {
 
   def testClass(): Unit =
@@ -336,6 +337,15 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     doValVarTest(
       s"""var ${|}v: Int""",
       s"""<a href="psi_element://X"><code>X</code></a>\nvar <b>v</b>: <a href="psi_element://scala.Int"><code>Int</code></a>"""
+    )
+
+  def testBindingPatternFromCaseClause(): Unit =
+    doGenerateDocDefinitionTest(
+      s"""Array(1, 2, 3) match {
+         |  case Array(_, x, y) =>
+         |    println(${|}x + y)
+         |}""".stripMargin,
+      """Pattern: <b>x</b>: <a href="psi_element://scala.Int"><code>Int</code></a>"""
     )
 
   def testAllTags(): Unit = {
