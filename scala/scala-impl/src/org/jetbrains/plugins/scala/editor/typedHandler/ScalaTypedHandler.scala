@@ -505,34 +505,83 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
                               (implicit project: Project, file: PsiFile, editor: Editor, settings: CodeStyleSettings): Result = {
     import AutoBraceUtils._
 
-    val caretWS = element match {
-      case ws: PsiWhiteSpace => ws
+    val (wsBeforeCaret, caretWS, curLineIndent, isAfterPossibleContinuation) = element match {
+      case caretWS: PsiWhiteSpace =>
+        if (caretOffset == caretWS.startOffset) {
+          // There is a possible continuation before the caret (like els(e)/catc(h)/fina(lly)
+          // We now have to take the whitespace before and after this token into account
+          //   if (cond)
+          //     expr
+          //     els<caret>
+          //  ^       ^caretWS
+          //  ^beforeContWS
+          def isPossibleContinuationButWillNotBeContinuation(tok: PsiElement, addedChar: Char): Boolean = {
+            val tokText = tok.getText
+            couldBeContinuationAfterIndentationContext(tokText) &&
+              !couldBeContinuationAfterIndentationContext(tokText + addedChar)
+          }
+
+          val tok = PsiTreeUtil.prevVisibleLeaf(caretWS) match {
+            case tok: PsiElement if  isPossibleContinuationButWillNotBeContinuation(tok, c) => tok
+            case _ => return Result.CONTINUE
+          }
+
+          val beforeContWS = PsiTreeUtil.prevLeaf(tok) match {
+            case beforeContWS: PsiWhiteSpace => beforeContWS
+            case _ => return Result.CONTINUE
+          }
+
+          val beforeContWSText = beforeContWS.getText
+          val newlinePosBeforeCaret = beforeContWSText.lastIndexOf('\n')
+
+          if (newlinePosBeforeCaret < 0) {
+            // there is something else before the possible continuation, so do nothing
+            return Result.CONTINUE
+          }
+
+          val beforeContIndent = beforeContWSText.substring(newlinePosBeforeCaret)
+          (beforeContWS, caretWS, beforeContIndent, true)
+        } else {
+          // There is no possible continuation before the caret, so check if it looks like this
+          //   def test =
+          //     expr
+          //     <caret>
+          val caretWSText = caretWS.getText
+          val posInWs = caretOffset - element.getTextOffset
+          val newlinePosBeforeCaret = caretWSText.lastIndexOf('\n', posInWs - 1)
+
+          if (newlinePosBeforeCaret < 0) {
+            // there is something before the caret, so do nothing
+            return Result.CONTINUE
+          }
+
+          val caretIndent = caretWSText.substring(newlinePosBeforeCaret, posInWs)
+          (caretWS, caretWS, caretIndent, false)
+        }
       case _ => return Result.CONTINUE
     }
 
-    val caretWSText = caretWS.getText
-    val posInWs = caretOffset - element.getTextOffset
-    val newlinePosBeforeCaret = caretWSText.lastIndexOf('\n', posInWs - 1)
-
-    if (newlinePosBeforeCaret < 0) {
-      // caret is not at some indentation position but rather there is something before us in the same line
-      return Result.CONTINUE
-    }
-
-
-    // ========= Get block that should be wraped ==========
+    // ========= Get block that should be wrapped ==========
     // caret could be before or after the expression that should be wrapped
-    val (expr, exprWS, caretIsBeforeExpr) = nextExpressionInIndentationContext(element) match {
+    val (expr, exprWS, caretIsBeforeExpr) = nextExpressionInIndentationContext(caretWS) match {
       case Some(expr) => (expr, caretWS, true)
       case None =>
-        previousExpressionInIndentationContext(element) match {
+        previousExpressionInIndentationContext(wsBeforeCaret) match {
+          case Some(expr) if indentationContextContinuation(expr).exists(_.toString.head == c) =>
+            // if we start typing something that could be a continuation if a parent construct do not insert braces
+            // for example:
+            // if (cond)
+            //   expr
+            //   <caret>      <- when you type 'e', it could be start of 'else' which would then be inside the block. so do nothing for now
+            return Result.CONTINUE
           case Some(expr) =>
             val exprWs = expr.prevElement match {
               case Some(ws: PsiWhiteSpace) => ws
               case _ => return Result.CONTINUE
             }
             (expr, exprWs, false)
-          case None => return Result.CONTINUE
+          case None =>
+            return Result.CONTINUE
         }
     }
     val exprWSText = exprWS.getText
@@ -543,9 +592,8 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
       return Result.CONTINUE
     }
     val exprIndent = exprWSText.substring(newlinePosBeforeExpr)
-    val caretIndent = caretWSText.substring(newlinePosBeforeCaret, posInWs)
 
-    if (exprIndent != caretIndent) {
+    if (exprIndent != curLineIndent) {
       return Result.CONTINUE
     }
 
@@ -578,7 +626,8 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     //     elseExpr
     //
     // In this case the braces should be added before the else and not directly after the caret
-    val subsequentConstructOffset = expr.getNextNonWhitespaceAndNonEmptyLeaf match {
+    val lastElement = if (caretIsBeforeExpr) expr else caretWS
+    val subsequentConstructOffset = lastElement.getNextNonWhitespaceAndNonEmptyLeaf match {
       case tok: PsiElement if continuesConstructAfterIndentationContext(tok) => Some(tok.startOffset)
       case _ => None
     }

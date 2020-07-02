@@ -9,6 +9,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 
+import scala.util.matching.Regex
+
 object AutoBraceUtils {
   def nextExpressionInIndentationContext(element: PsiElement): Option[ScExpression] = {
     element.nextSibling match {
@@ -41,27 +43,55 @@ object AutoBraceUtils {
     element.getPrevSibling.nullSafe.exists(_.textContains('\n'))
   }
 
-  def isIndentationContext(element: PsiElement): Boolean = {
-    element.getParent match {
-      case ScReturn(`element`) => true
-      case ScIf(_, thenBranch, elseBranch) if thenBranch.contains(element) || elseBranch.contains(element) => true
-      case ScWhile(_, Some(`element`)) => true
-      case ScPatternDefinition.expr(`element`) => true
-      case ScVariableDefinition.expr(`element`) => true
-      case ScFunctionDefinition.withBody(`element`) => true
-      case ScFor(_, `element`) => true
-      case ScTry(Some(`element`), _, _) => true
-      case ScFinallyBlock(`element`) => true
-      case _ => false
-    }
+  def isIndentationContext(element: PsiElement): Boolean = element.getParent match {
+    case ScReturn(`element`) => true
+    case ScIf(_, thenBranch, elseBranch) if thenBranch.contains(element) || elseBranch.contains(element) => true
+    case ScWhile(_, Some(`element`)) => true
+    case ScPatternDefinition.expr(`element`) => true
+    case ScVariableDefinition.expr(`element`) => true
+    case ScFunctionDefinition.withBody(`element`) => true
+    case ScFor(_, `element`) => true
+    case ScTry(Some(`element`), _, _) => true
+    case ScFinallyBlock(`element`) => true
+    case _ => false
   }
 
-  val indentationContextContinuations: Set[IElementType] = Set(
+  private val ifIndentationContextContinuation = Set(ScalaTokenTypes.kELSE)
+  private val tryIndentationContextContinuation = Set(ScalaTokenTypes.kCATCH, ScalaTokenTypes.kFINALLY)
+
+  def indentationContextContinuation(element: PsiElement): Set[IElementType] = element.getParent match {
+    case ScIf(_, Some(`element`), _) => ifIndentationContextContinuation
+    case ScTry(Some(`element`), _, _) => tryIndentationContextContinuation
+    case _ => Set.empty
+  }
+
+
+  val indentationContextContinuationsElements: Set[IElementType] = Set(
     ScalaTokenTypes.kELSE,
     ScalaTokenTypes.kCATCH,
     ScalaTokenTypes.kFINALLY
   )
 
   def continuesConstructAfterIndentationContext(elem: PsiElement): Boolean =
-    indentationContextContinuations.contains(elem.elementType)
+    indentationContextContinuationsElements.contains(elem.elementType)
+
+
+  val indentationContextContinuationsTexts: Set[String] =
+    indentationContextContinuationsElements.map(_.toString)
+
+  def continuesConstructAfterIndentationContext(elementText: String): Boolean =
+    indentationContextContinuationsTexts.contains(elementText)
+
+
+  private val continuationPrefixRegexPattern = new Regex(
+    indentationContextContinuationsTexts
+      .iterator
+      .map(_.foldRight("")("(" + _ + _ + ")?"))
+      .mkString("|")
+  ).pattern
+
+  def couldBeContinuationAfterIndentationContext(keywordPrefix: String): Boolean = {
+    val matcher = continuationPrefixRegexPattern.matcher(keywordPrefix)
+    matcher.matches()
+  }
 }

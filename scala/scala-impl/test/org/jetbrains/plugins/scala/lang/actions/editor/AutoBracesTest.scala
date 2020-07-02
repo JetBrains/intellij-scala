@@ -77,15 +77,15 @@ class AutoBracesTest extends EditorActionTestBase {
     s"""
        |def test = {
        |  expr
-       |  e$CARET
+       |  x$CARET
        |}
        |""".stripMargin -> NextConstructOnSameLine,
     s"""
        |def test =
        |  expr
-       |  e$CARET
+       |  x$CARET
        |""".stripMargin -> NextConstructOnNewline,
-    'e'
+    'x'
   )
 
   def testEnterBeforeIndentedExpr(): Unit = checkTypingInAllContexts(
@@ -114,16 +114,16 @@ class AutoBracesTest extends EditorActionTestBase {
        |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test = {
-       |  e$CARET
+       |  x$CARET
        |  expr
        |}
        |""".stripMargin -> NextConstructOnSameLine,
     s"""
        |def test =
-       |  e$CARET
+       |  x$CARET
        |  expr
        |""".stripMargin -> NextConstructOnNewline,
-    'e'
+    'x'
   )
 
   def testTypingAfterDoubleIndentation(): Unit = checkTypingInAllContexts(
@@ -135,14 +135,14 @@ class AutoBracesTest extends EditorActionTestBase {
     s"""
        |def test =
        |  expr
-       |   e$CARET
+       |   x$CARET
        |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test =
        |  expr
-       |   e$CARET
+       |   x$CARET
        |""".stripMargin -> NextConstructOnNewline,
-    'e'
+    'x'
   )
 
   def testTypingAfterSecondIndentation(): Unit = checkTypingInAllContexts(
@@ -156,16 +156,16 @@ class AutoBracesTest extends EditorActionTestBase {
        |def test = {
        |  expr
        |   .prod
-       |  e$CARET
+       |  x$CARET
        |}
        |""".stripMargin -> NextConstructOnSameLine,
     s"""
        |def test =
        |  expr
        |   .prod
-       |  e$CARET
+       |  x$CARET
        |""".stripMargin -> NextConstructOnNewline,
-    'e'
+    'x'
   )
 
   def testEnterAfterSecondIndentation(): Unit = checkTypingInAllContexts(
@@ -201,14 +201,14 @@ class AutoBracesTest extends EditorActionTestBase {
     s"""
        |def test =
        |  expr
-       |e$CARET
+       |x$CARET
        |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test =
        |  expr
-       |e$CARET
+       |x$CARET
        |""".stripMargin -> NextConstructOnNewline,
-    'e'
+    'x'
   )
 
   def testTypingBetweenCommentAndIndentedExpr(): Unit = checkTypingInAllContexts(
@@ -221,17 +221,17 @@ class AutoBracesTest extends EditorActionTestBase {
     s"""
        |def test = {
        |  // test
-       |  e$CARET
+       |  x$CARET
        |  expr
        |}
        |""".stripMargin -> NextConstructOnSameLine,
     s"""
        |def test =
        |  // test
-       |  e$CARET
+       |  x$CARET
        |  expr
        |""".stripMargin -> NextConstructOnNewline,
-    'e'
+    'x'
   )
 
 
@@ -266,16 +266,16 @@ class AutoBracesTest extends EditorActionTestBase {
     s"""
        |def test =
        |  call(
-       |  e$CARET
+       |  x$CARET
        |  )
        |""".stripMargin -> NextConstructOnNewline,
     s"""
        |def test =
        |  call(
-       |  e$CARET
+       |  x$CARET
        |  )
        |""".stripMargin -> NextConstructOnNewline,
-    'e'
+    'x'
   )
 
   def testDeletingLastExprBefore(): Unit = checkBackspaceInAllContexts(
