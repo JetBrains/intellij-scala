@@ -348,6 +348,14 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       """Pattern: <b>x</b>: <a href="psi_element://scala.Int"><code>Int</code></a>"""
     )
 
+  def testMethodAnonymousClass(): Unit =
+    doGenerateDocDefinitionTest(
+      s"""new Object {
+         |  def ${|}foo = 42
+         |}""".stripMargin,
+      """def <b>foo</b>: <a href="psi_element://scala.Int"><code>Int</code></a>"""
+    )
+
   def testAllTags(): Unit = {
     // Should only add to sections these tags in the same order:
     // @deprecated @param, @tparam, @return, @throws
