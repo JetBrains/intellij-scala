@@ -4,11 +4,10 @@ package completion
 package lookups
 
 import com.intellij.codeInsight.lookup.{Lookup, LookupActionProvider, LookupElement, LookupElementAction}
-import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.psi.PsiClass
 import com.intellij.util.ui.EmptyIcon
 import com.intellij.util.{Consumer, PlatformIcons}
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaImportingInsertHandler
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 
 /**
  * @author Alexander Podkhalyuzin
@@ -32,22 +31,14 @@ final class ScalaImportStaticLookupActionProvider extends LookupActionProvider {
         import LookupElementAction.Result.ChooseItem
 
         override def performLookupAction: ChooseItem = {
-          val handler = new BindingInsertHandler(element.getPsiElement, element.containingClass)
+          val handler = new ScalaImportingInsertHandler.WithBinding(
+            element.getPsiElement,
+            element.containingClass
+          )
           element.setInsertHandler(handler)
           new ChooseItem(element)
         }
       })
     case _ =>
-  }
-
-  private final class BindingInsertHandler(private val elementToBindTo: PsiElement,
-                                           override protected val containingClass: PsiClass)
-    extends ScalaImportingInsertHandler(containingClass) {
-
-    override protected def qualifyAndImport(reference: ScReferenceExpression): Unit =
-      reference.bindToElement(
-        elementToBindTo,
-        Some(containingClass)
-      )
   }
 }

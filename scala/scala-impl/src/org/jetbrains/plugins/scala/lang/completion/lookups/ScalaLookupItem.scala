@@ -311,7 +311,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
           new ScalaImportingInsertHandler(containingClass) {
 
             override protected def qualifyAndImport(reference: ScReferenceExpression): Unit =
-              replaceReference(reference)
+              super.qualifyOnly(reference)
 
             override protected def qualifyOnly(reference: ScReferenceExpression): Unit = {}
           }.handleInsert(context, this)

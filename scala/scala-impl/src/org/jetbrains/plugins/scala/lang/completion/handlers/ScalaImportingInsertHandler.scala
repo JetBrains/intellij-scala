@@ -4,7 +4,7 @@ package completion
 package handlers
 
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
-import com.intellij.psi.PsiClass
+import com.intellij.psi.{PsiClass, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
@@ -27,14 +27,31 @@ abstract class ScalaImportingInsertHandler(protected val containingClass: PsiCla
 
   protected def qualifyAndImport(reference: ScReferenceExpression): Unit
 
-  protected final def replaceReference(reference: ScReferenceExpression): Unit =
+  protected def qualifyOnly(reference: ScReferenceExpression): Unit =
+    qualifyReference(reference)
+
+  private /*final*/ def qualifyReference(reference: ScReferenceExpression): Unit =
     ScalaInsertHandler.replaceReference(
       reference,
       containingClass.name + "." + reference.getText
     )(containingClass) {
       case ScReferenceExpression.withQualifier(qualifier: ScReferenceExpression) => qualifier
     }
+}
 
-  protected def qualifyOnly(reference: ScReferenceExpression): Unit =
-    replaceReference(reference)
+object ScalaImportingInsertHandler {
+
+  class WithBinding(private val targetElement: PsiNamedElement,
+                    override protected val containingClass: PsiClass)
+    extends ScalaImportingInsertHandler(containingClass) {
+
+    override protected def qualifyAndImport(reference: ScReferenceExpression): Unit =
+      bindToTargetElement(reference)
+
+    private /*final*/ def bindToTargetElement(reference: ScReferenceExpression): Unit =
+      reference.bindToElement(
+        targetElement,
+        Some(containingClass)
+      )
+  }
 }
