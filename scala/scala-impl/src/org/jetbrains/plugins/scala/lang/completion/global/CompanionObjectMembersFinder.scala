@@ -16,9 +16,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-private[completion] sealed abstract class CompanionObjectMembersFinder[E <: PsiElement](private val place: E)
-                                                                                       (private val namePredicate: NamePredicate)
-  extends GlobalMembersFinder {
+private[completion] sealed abstract class CompanionObjectMembersFinder[E <: PsiElement](override protected val place: E,
+                                                                                        accessAll: Boolean)
+                                                                                       (override protected val namePredicate: NamePredicate)
+  extends GlobalMembersFinderBase(place, accessAll)(namePredicate) {
 
   // todo import, class scope import setting reconsider
 
@@ -33,11 +34,13 @@ private[completion] sealed abstract class CompanionObjectMembersFinder[E <: PsiE
   protected def findTargets(place: E): Iterable[PsiElement]
 
   protected def functions(`object`: ScObject): Seq[ScFunction] =
-    `object`.functions
+    `object`
+      .functions
+      .filter(isAccessible)
 
   protected def members(`object`: ScObject): Seq[ScTypedDefinition] =
     `object`.members.flatMap {
-      case value: ScValueOrVariable /* todo if isAccessible */ => value.declaredElements
+      case value: ScValueOrVariable if isAccessible(value) => value.declaredElements
       case _ => Seq.empty
     }
 
@@ -69,9 +72,10 @@ private[completion] sealed abstract class CompanionObjectMembersFinder[E <: PsiE
 
 private[completion] object CompanionObjectMembersFinder {
 
-  final class Regular private(place: ScReferenceExpression)
-                             (namePredicate: NamePredicate)
-    extends CompanionObjectMembersFinder(place)(namePredicate) {
+  final class Regular(override protected val place: ScReferenceExpression,
+                      accessAll: Boolean)
+                     (override protected val namePredicate: NamePredicate)
+    extends CompanionObjectMembersFinder(place, accessAll)(namePredicate) {
 
     override protected def findTargets(place: ScReferenceExpression): Iterable[PsiElement] =
       place.withContexts.toIterable
@@ -95,16 +99,11 @@ private[completion] object CompanionObjectMembersFinder {
       }
   }
 
-  object Regular {
-
-    def apply(place: ScReferenceExpression): NamePredicate => Regular =
-      new Regular(place)(_)
-  }
-
-  final class ExtensionLike private(private val originalType: ScType,
-                                    classOrTrait: ScConstructorOwner)
-                                   (namePredicate: NamePredicate)
-    extends CompanionObjectMembersFinder(classOrTrait)(namePredicate) {
+  final class ExtensionLike(private val originalType: ScType,
+                            override protected val place: ScConstructorOwner,
+                            accessAll: Boolean)
+                           (override protected val namePredicate: NamePredicate)
+    extends CompanionObjectMembersFinder(place, accessAll)(namePredicate) {
 
     override protected def findTargets(place: ScConstructorOwner): Iterable[PsiClass] =
       place +: place.supers
@@ -146,12 +145,5 @@ private[completion] object CompanionObjectMembersFinder {
             )
           }
       }
-  }
-
-  object ExtensionLike {
-
-    def apply(originalType: ScType,
-              classOrTrait: ScConstructorOwner): NamePredicate => ExtensionLike =
-      new ExtensionLike(originalType, classOrTrait)(_)
   }
 }

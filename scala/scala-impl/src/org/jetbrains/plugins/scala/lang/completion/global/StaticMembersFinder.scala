@@ -3,7 +3,6 @@ package lang
 package completion
 package global
 
-import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiMember, PsiNamedElement}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
@@ -16,19 +15,24 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-private[completion] final class StaticMembersFinder private(namePredicate: NamePredicate)
-                                                           (isAccessible: PsiMember => Boolean)
-                                                           (implicit private val project: Project,
-                                                            private val scope: GlobalSearchScope)
-  extends GlobalMembersFinder {
+private[completion] final class StaticMembersFinder(override protected val place: ScReferenceExpression,
+                                                    accessAll: Boolean)
+                                                   (override protected val namePredicate: NamePredicate)
+  extends GlobalMembersFinderBase(place, accessAll)(namePredicate) {
 
   import StaticMembersFinder._
 
-  private val cacheManager = ScalaShortNamesCacheManager.getInstance
+  private val cacheManager = ScalaShortNamesCacheManager.getInstance(place.getProject)
 
-  override protected def candidates: Iterable[GlobalMemberResult] = methodsLookups ++ fieldsLookups ++ propertiesLookups
+  override protected def candidates: Iterable[GlobalMemberResult] = {
+    implicit val scope: GlobalSearchScope = place.resolveScope
 
-  private def methodsLookups = for {
+    methodsLookups ++
+      fieldsLookups ++
+      propertiesLookups
+  }
+
+  private def methodsLookups(implicit scope: GlobalSearchScope) = for {
     method <- cacheManager.allFunctions(namePredicate) ++ cacheManager.allMethods(namePredicate)
     if isAccessible(method)
 
@@ -49,7 +53,7 @@ private[completion] final class StaticMembersFinder private(namePredicate: NameP
     }
   } yield StaticMemberResult(namedElement, classToImport, isOverloadedForClassName)
 
-  private def fieldsLookups = for {
+  private def fieldsLookups(implicit scope: GlobalSearchScope) = for {
     field <- cacheManager.allFields(namePredicate)
     if isAccessible(field) && isStatic(field)
 
@@ -57,7 +61,7 @@ private[completion] final class StaticMembersFinder private(namePredicate: NameP
     if classToImport != null && isAccessible(classToImport)
   } yield StaticMemberResult(field, classToImport)
 
-  private def propertiesLookups = for {
+  private def propertiesLookups(implicit scope: GlobalSearchScope) = for {
     property <- cacheManager.allProperties(namePredicate)
     if isAccessible(property)
 
@@ -94,10 +98,6 @@ private[completion] final class StaticMembersFinder private(namePredicate: NameP
 }
 
 object StaticMembersFinder {
-
-  def apply(place: ScReferenceExpression)
-           (isAccessible: PsiMember => Boolean): NamePredicate => StaticMembersFinder =
-    new StaticMembersFinder(_)(isAccessible)(place.getProject, place.resolveScope)
 
   private def classesToImportFor(member: PsiMember): Set[_ <: PsiClass] = member.containingClass match {
     case clazz: ScTemplateDefinition => findInheritorObjects(clazz)

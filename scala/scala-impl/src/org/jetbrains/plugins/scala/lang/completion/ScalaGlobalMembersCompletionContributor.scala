@@ -67,14 +67,12 @@ final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContr
               originalType = toValueType(placeType)
 
               ClassOrTrait(definition) <- originalType.extractClass
-            } yield CompanionObjectMembersFinder.ExtensionLike(originalType, definition)
+            } yield new CompanionObjectMembersFinder.ExtensionLike(originalType, definition, requiresAdvertisement)(_)
           case _ =>
             val finder = if (requiresAdvertisement && matcher.getPrefix.nonEmpty)
-              StaticMembersFinder(reference) {
-                accessAll(invocationCount) || isAccessible(_)(reference)
-              }
+              new StaticMembersFinder(reference, accessAll(invocationCount))(_)
             else
-              CompanionObjectMembersFinder.Regular(reference)
+              new CompanionObjectMembersFinder.Regular(reference, requiresAdvertisement)(_)
             Some(finder)
         }
 

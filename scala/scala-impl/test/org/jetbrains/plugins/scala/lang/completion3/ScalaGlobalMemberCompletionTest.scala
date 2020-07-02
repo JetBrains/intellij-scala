@@ -163,6 +163,32 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     time = 2
   )
 
+  def testGlobalMemberJava2(): Unit = checkNoCompletion(
+    fileText =
+      s"""class TUI {
+         |  defaultUn$CARET
+         |}
+      """.stripMargin,
+    invocationCount = 2
+  ) {
+    hasLookupString(_, "defaultUncaughtExceptionHandler")
+  }
+
+  def testGlobalMemberJavaAccessAll(): Unit = doCompletionTest(
+    fileText =
+      s"""class TUI {
+         |  defaultUn$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      s"""class TUI {
+         |  Thread.defaultUncaughtExceptionHandler$CARET
+         |}
+      """.stripMargin,
+    item = "defaultUncaughtExceptionHandler",
+    time = 3
+  )
+
   def testGlobalMember8(): Unit = checkNoCompletion(
     fileText =
       s"""
@@ -200,16 +226,33 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     assertTrue(lookups.exists(hasLookupString(_, "doSmthPrivate")))
   }
 
-  def testCompanionObjectMethod(): Unit = doCompletionTest(
+  def testCompanionObjectMethod(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class Foo {
          |  import Foo.bar
          |
-         |  f$CARET
+         |  $CARET
          |}
          |
          |object Foo {
-         |  def foo(foo: Int): Unit = {}
+         |  private[this] def foo(foo: Int): Unit = {}
+         |
+         |  def bar(): Unit = {}
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
+  def testCompanionObjectMethodAccessAll(): Unit = doCompletionTest(
+    fileText =
+      s"""class Foo {
+         |  import Foo.bar
+         |
+         |  $CARET
+         |}
+         |
+         |object Foo {
+         |  private[this] def foo(foo: Int): Unit = {}
          |
          |  def bar(): Unit = {}
          |}
@@ -222,12 +265,13 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |
          |object Foo {
-         |  def foo(foo: Int): Unit = {}
+         |  private[this] def foo(foo: Int): Unit = {}
          |
          |  def bar(): Unit = {}
          |}
          |""".stripMargin,
-    item = "foo"
+    item = "foo",
+    time = 2
   )
 
   def testCompanionObjectValue(): Unit = doRawCompletionTest(
@@ -361,13 +405,29 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     item = "foo"
   )
 
-  def testCompanionObjectExtensionLikeMethod2(): Unit = doCompletionTest(
+  def testCompanionObjectExtensionLikeMethod2(): Unit = checkNoBasicCompletion(
     fileText =
       s"""sealed trait Foo
          |
          |object Foo {
          |
-         |  def foo(foo: Foo): Unit = {}
+         |  private[this] def foo(foo: Foo): Unit = {}
+         |}
+         |
+         |object Main {
+         |  (_: Foo).f$CARET
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
+  def testCompanionObjectExtensionLikeMethodAccessAll(): Unit = doCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |
+         |  private[this] def foo(foo: Foo): Unit = {}
          |}
          |
          |object Main {
@@ -379,14 +439,15 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |
          |object Foo {
          |
-         |  def foo(foo: Foo): Unit = {}
+         |  private[this] def foo(foo: Foo): Unit = {}
          |}
          |
          |object Main {
          |  Foo.foo((_: Foo))$CARET
          |}
          |""".stripMargin,
-    item = "foo"
+    item = "foo",
+    time = 2
   )
 
   def testCompanionObjectExtensionLikeMethod3(): Unit = doCompletionTest(

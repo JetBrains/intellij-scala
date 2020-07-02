@@ -754,7 +754,23 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
     icons = PATTERN_VAL, PATTERN_VAL
   )
 
-  def testClauseLookupElement3(): Unit = doRawCompletionTest(
+  def testClauseLookupElement3(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""import java.util.{Collections, List}
+         |import Thread._
+         |
+         |def emptyList = Collections.emptyList[String]
+         |
+         |def foo(emptyList: List[String],
+         |        currentThread: Thread,
+         |        defaultUncaughtExceptionHandler: UncaughtExceptionHandler): Unit = {}
+         |
+         |foo(e$CARET)
+         |""".stripMargin,
+    item = "emptyList, currentThread, defaultUncaughtExceptionHandler",
+  )
+
+  def testClauseLookupElementAccessAll(): Unit = doCompletionTest(
     fileText =
       s"""import java.util.{Collections, List}
          |import Thread._
@@ -779,10 +795,9 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
          |
          |foo(emptyList, currentThread, defaultUncaughtExceptionHandler)$CARET
          |""".stripMargin,
-    invocationCount = 2
-  ) {
-    hasLookupString(_, "emptyList, currentThread, defaultUncaughtExceptionHandler")
-  }
+    item = "emptyList, currentThread, defaultUncaughtExceptionHandler",
+    time = 2
+  )
 
   def testPositionInClause(): Unit = doCompletionTest(
     fileText =
