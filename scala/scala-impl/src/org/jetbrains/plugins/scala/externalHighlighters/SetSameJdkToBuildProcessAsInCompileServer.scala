@@ -5,7 +5,7 @@ import java.util.UUID
 import com.intellij.compiler.server.BuildManagerListener
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.compiler.{CompileContext, CompileTask}
-import com.intellij.openapi.components.ServiceManager
+import com.intellij.openapi.components.{Service, ServiceManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.registry.{Registry, RegistryValue}
@@ -71,7 +71,8 @@ class SetSameJdkToBuildProcessAsInCompileServer
   }
 }
 
-class TempCompilerProcessJdkService
+@Service
+final class TempCompilerProcessJdkService
   extends Disposable {
 
   import TempCompilerProcessJdkService._

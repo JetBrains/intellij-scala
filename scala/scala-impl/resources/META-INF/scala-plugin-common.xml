@@ -507,7 +507,6 @@
                         serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.JpsCompilerImpl"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.CompileServerClient"
                         serviceImplementation="org.jetbrains.plugins.scala.compiler.CompileServerClientImpl"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.TempCompilerProcessJdkService"/>
 
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
