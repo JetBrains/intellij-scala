@@ -8,46 +8,42 @@ import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaImportingInsertHandler
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-private[completion] sealed abstract class CompanionObjectMembersFinder[E <: PsiElement](override protected val place: E,
-                                                                                        accessAll: Boolean)
-                                                                                       (override protected val namePredicate: NamePredicate)
+private[completion] sealed abstract class CompanionObjectMembersFinder[E <: ScalaPsiElement](override protected val place: E,
+                                                                                             accessAll: Boolean)
+                                                                                            (override protected val namePredicate: NamePredicate)
   extends GlobalMembersFinderBase(place, accessAll)(namePredicate) {
 
   // todo import, class scope import setting reconsider
 
+  protected type T <: ScTypedDefinition
+
   override protected final def candidates: Iterable[GlobalMemberResult] = for {
     ClassOrTrait(CompanionModule(targetObject)) <- findTargets(place)
 
-    member <- functions(targetObject) ++ members(targetObject)
+    member <- targetObject.members
+    if isAccessible(member)
 
-    if namePredicate(member.name)
-  } yield createResult(member, targetObject)
+    namedElement <- namedElementsIn(member)
+    if namePredicate(namedElement.name)
+  } yield createResult(namedElement, targetObject)
 
   protected def findTargets(place: E): Iterable[PsiElement]
 
-  protected def functions(`object`: ScObject): Seq[ScFunction] =
-    `object`
-      .functions
-      .filter(isAccessible)
+  protected def namedElementsIn(member: ScMember): Seq[T]
 
-  protected def members(`object`: ScObject): Seq[ScTypedDefinition] =
-    `object`.members.flatMap {
-      case value: ScValueOrVariable if isAccessible(value) => value.declaredElements
-      case _ => Seq.empty
-    }
-
-  protected def createResult(member: ScTypedDefinition,
+  protected def createResult(namedElement: T,
                              `object`: ScObject): CompanionObjectMemberResult
 
-  protected sealed abstract class CompanionObjectMemberResult(protected val member: ScTypedDefinition,
+  protected sealed abstract class CompanionObjectMemberResult(protected val member: T,
                                                               protected val `object`: ScObject)
     extends GlobalMemberResult(
       new ScalaResolveResult(member),
@@ -77,10 +73,18 @@ private[completion] object CompanionObjectMembersFinder {
                      (override protected val namePredicate: NamePredicate)
     extends CompanionObjectMembersFinder(place, accessAll)(namePredicate) {
 
+    override protected type T = ScTypedDefinition
+
     override protected def findTargets(place: ScReferenceExpression): Iterable[PsiElement] =
       place.withContexts.toIterable
 
-    override protected def createResult(member: ScTypedDefinition,
+    override protected def namedElementsIn(member: ScMember): Seq[ScTypedDefinition] = member match {
+      case value: ScValueOrVariable => value.declaredElements
+      case function: ScFunction if !function.isConstructor => Seq(function)
+      case _ => Seq.empty
+    }
+
+    override protected def createResult(member: T,
                                         `object`: ScObject): CompanionObjectMemberResult =
       new CompanionObjectMemberResult(member, `object`) {
 
@@ -105,27 +109,24 @@ private[completion] object CompanionObjectMembersFinder {
                            (override protected val namePredicate: NamePredicate)
     extends CompanionObjectMembersFinder(place, accessAll)(namePredicate) {
 
+    override protected type T = ScFunction
+
     override protected def findTargets(place: ScConstructorOwner): Iterable[PsiClass] =
       place +: place.supers
 
-    override protected def functions(`object`: ScObject): Seq[ScFunction] = for {
-      function <- super.functions(`object`)
+    override protected def namedElementsIn(member: ScMember): Seq[ScFunction] = member match {
+      case function: ScFunction =>
+        function.parameters match {
+          case Seq(head) if head.getRealParameterType.exists(originalType.conforms) =>
+            Seq(function)
+          case _ => Seq.empty
+        }
+      case _ => Seq.empty
+    }
 
-      parameters = function.parameters
-      if parameters.size == 1
-
-      parameterType <- parameters.head
-        .getRealParameterType
-        .toOption
-      if originalType.conforms(parameterType)
-    } yield function
-
-    override protected def members(`object`: ScObject) =
-      Seq.empty[ScTypedDefinition]
-
-    override protected def createResult(member: ScTypedDefinition,
+    override protected def createResult(function: ScFunction,
                                         `object`: ScObject): CompanionObjectMemberResult =
-      new CompanionObjectMemberResult(member.asInstanceOf[ScFunction], `object`) {
+      new CompanionObjectMemberResult(function, `object`) {
 
         override protected def createInsertHandler: InsertHandler[ScalaLookupItem] =
           (context: InsertionContext, _: ScalaLookupItem) => {

@@ -300,6 +300,32 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     )
   }
 
+  def testCompanionObjectTypeAlias(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""class Foo {
+         |  B$CARET
+         |}
+         |
+         |object Foo {
+         |  type Bar = Int
+         |}
+         |""".stripMargin,
+    item = "Bar"
+  )
+
+  def testCompanionObjectNestedObject(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""class Foo {
+         |  B$CARET
+         |}
+         |
+         |object Foo {
+         |  object Bar
+         |}
+         |""".stripMargin,
+    item = "Bar"
+  )
+
   def testImportedCompanionObjectValue(): Unit = checkNoCompletion(
     fileText =
       s"""class Foo {
