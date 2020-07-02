@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
 import org.jetbrains.plugins.scala.extensions.{&&, ObjectExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, SeqExt}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.findInheritorObjectsForOwner
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, isImplicit}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, hasImplicitModifier}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -119,7 +119,7 @@ object ScalaImportGlobalMemberFix {
     (functions ++ properties)
       .flatMap {
         case (td: ScTypedDefinition) && inNameContext(m: ScMember)
-          if isAccessible(m, ref) && !isImplicit(m) =>
+          if isAccessible(m, ref) && !hasImplicitModifier(m) =>
 
           (m.containingClass.asOptionOf[ScObject] ++: findInheritorObjectsForOwner(m))
             .filter(_.isStable)
