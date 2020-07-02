@@ -182,6 +182,10 @@ private class ScalaDocDefinitionGenerator private(
           appendDeclMainSection2(pattern, definition)
         }
       case _  =>
+        appendDefinitionSection {
+          builder.append("Pattern: ")
+          appendDeclMainSection(pattern)
+        }
     }
 
   // TODO: it should contain description of the parameter from the scaladoc
