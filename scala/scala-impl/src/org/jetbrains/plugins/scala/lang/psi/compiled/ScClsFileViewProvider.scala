@@ -9,10 +9,18 @@ import com.intellij.lang.Language
 import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.{OrderEntry, OrderRootType, ProjectRootManager, impl => rootsImpl}
+import com.intellij.openapi.roots.impl.LibraryScopeCache
+import com.intellij.openapi.roots.{OrderEntry, OrderRootType, ProjectRootManager}
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiClassOwner, PsiElement, PsiFileSystemItem, PsiManager, SingleRootFileViewProvider, search}
+import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
+import com.intellij.psi.{PsiClassOwner, PsiElement, PsiFileSystemItem, PsiManager, SingleRootFileViewProvider}
 import com.intellij.util.Processor
+import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, PsiClassExt}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.annotation.tailrec
 
@@ -35,10 +43,8 @@ final class ScClsFileViewProvider(decompilationResult: ScalaDecompilationResult)
 
 object ScClsFileViewProvider {
 
-  import api.toplevel._
-
   final class ScClsFileImpl(override val getViewProvider: ScClsFileViewProvider)
-    extends impl.ScalaFileImpl(getViewProvider) {
+    extends ScalaFileImpl(getViewProvider) {
 
     import ScClsFileImpl._
 
@@ -53,15 +59,12 @@ object ScClsFileViewProvider {
         super.getNavigationElement
       }
 
-    import macroAnnotations.CachedInUserData
-
     @CachedInUserData(this, ProjectRootManager.getInstance(getProject))
-    override protected def defaultFileResolveScope(file: VirtualFile): search.GlobalSearchScope = {
+    override protected def defaultFileResolveScope(file: VirtualFile): GlobalSearchScope = {
       implicit val manager: PsiManager = getManager
 
       // this cache is very inefficient when orderEntries.size is large
-      rootsImpl.LibraryScopeCache
-        .getInstance(manager.getProject)
+      LibraryScopeCache.getInstance(manager.getProject)
         .getLibraryScope(orderEntries(file))
     }
 
@@ -76,7 +79,6 @@ object ScClsFileViewProvider {
       ).orElse {
         //Look in libraries sources if file not relative to path
 
-        import extensions._
         typeDefinitions.headOption match {
           case Some(ClassQualifiedName(qualifiedName)) =>
             var result = Option.empty[VirtualFile]
@@ -97,7 +99,7 @@ object ScClsFileViewProvider {
       }
     }
 
-    private def relativePath(typeDefinitions: Seq[typedef.ScTypeDefinition]) = {
+    private def relativePath(typeDefinitions: Seq[ScTypeDefinition]) = {
       val builder = StringBuilder.newBuilder
 
       buildPackagePath(firstPackaging, builder)
@@ -148,12 +150,11 @@ object ScClsFileViewProvider {
     private def findInSources(sourceFile: VirtualFile, qualifiedName: String)
                              (implicit manager: PsiManager) = {
       val clazzIterator = findFile(sourceFile) match {
-        case scalaFile: api.ScalaFile => scalaFile.typeDefinitions.iterator
+        case scalaFile: ScalaFile => scalaFile.typeDefinitions.iterator
         case classOwner: PsiClassOwner => classOwner.getClasses.iterator
         case _ => Iterator.empty
       }
 
-      import extensions._
       clazzIterator.exists(_.qualifiedName == qualifiedName)
     }
 
@@ -161,11 +162,11 @@ object ScClsFileViewProvider {
                                   (processor: Processor[PsiFileSystemItem])
                                   (implicit manager: PsiManager) = {
       val project = manager.getProject
-      search.FilenameIndex.processFilesByName(
+      FilenameIndex.processFilesByName(
         name,
         false,
         processor,
-        search.GlobalSearchScope.allScope(project),
+        GlobalSearchScope.allScope(project),
         project,
         null
       )
