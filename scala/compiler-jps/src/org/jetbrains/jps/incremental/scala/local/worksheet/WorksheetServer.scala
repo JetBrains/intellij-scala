@@ -3,7 +3,7 @@ package org.jetbrains.jps.incremental.scala.local.worksheet
 import java.io._
 import java.nio.{Buffer, ByteBuffer}
 
-import org.jetbrains.jps.incremental.scala.Client
+import org.jetbrains.jps.incremental.scala.{Client, JpsBundle}
 import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactoryHandler.ReplContext
 import org.jetbrains.plugins.scala.compiler.data.{Arguments, CompilerJars}
 import org.jetbrains.plugins.scala.compiler.data.worksheet._
@@ -22,7 +22,7 @@ class WorksheetServer {
     def printStream = new PrintStream(new RedirectToClientOutputStream(client))
 
     val compilerJars = commonArgs.compilerData.compilerJars.getOrElse {
-      client.error("Compiler jars are missing")
+      client.error(JpsBundle.message("compiler.jars.are.missing"))
       return
     }
     worksheetArgs match {

@@ -62,11 +62,14 @@ case object BuildMessages {
 
   def empty: BuildMessages = BuildMessages(Vector.empty, Vector.empty, Vector.empty, Vector.empty, BuildMessages.Indeterminate)
 
-  def message(parentId: Any, @Nls message: String, kind: MessageEvent.Kind, position: Option[FilePosition]): AbstractBuildEvent with MessageEvent =
+  def message(parentId: Any, @Nls message: String, kind: MessageEvent.Kind, position: Option[FilePosition]): AbstractBuildEvent with MessageEvent = {
+    val kindGroup = kind.toString
+
     position match {
-      case None => new BuildEventMessage(parentId, kind, kind.toString, message)
-      case Some(filePosition) => new FileMessageEventImpl(parentId, kind, kind.toString, message, null, filePosition)
+      case None => new BuildEventMessage(parentId, kind, kindGroup, message)
+      case Some(filePosition) => new FileMessageEventImpl(parentId, kind, kindGroup, message, null, filePosition)
     }
+  }
 }
 
 class BuildEventMessage(parentId: Any, kind: MessageEvent.Kind, @Nls group: String, @Nls message: String)

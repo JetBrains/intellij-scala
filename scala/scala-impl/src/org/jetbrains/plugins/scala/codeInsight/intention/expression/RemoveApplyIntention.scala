@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiMethod, PsiNamedElement}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions._
@@ -51,7 +52,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
       }
     }
 
-    def showErrorHint(hint: String): Unit = {
+    def showErrorHint(@Nls hint: String): Unit = {
       if (ApplicationManager.getApplication.isUnitTestMode) {
         throw new RuntimeException(hint)
       } else {

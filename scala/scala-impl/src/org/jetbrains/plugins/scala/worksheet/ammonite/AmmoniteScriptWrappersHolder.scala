@@ -138,13 +138,7 @@ class AmmoniteScriptWrappersHolder(project: Project) {
       project = project,
       title = ScalaBundle.message("notification.title.ammonite.imports.found"),
       message =
-        s"""
-          |<html>
-          |   <body>
-          |   <a href="ftp://run">Import</a> all $$ivy dependencies (present in local caches) declared in ${vFile.getName}? <a href="ftp://disable">Ignore</a>
-          |   </body>
-          |  </html>
-        """.stripMargin, 
+        ScalaBundle.message("ammonite.import.ivy.dependencies.message", vFile.getName),
       handler = {
         case "run" => getFile(vFile) foreach {
           ammFile =>

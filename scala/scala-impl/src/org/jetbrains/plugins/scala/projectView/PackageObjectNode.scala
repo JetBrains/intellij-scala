@@ -7,6 +7,7 @@ import com.intellij.openapi.util.io.FileUtil.getNameWithoutExtension
 import com.intellij.ui.SimpleTextAttributes
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import extensions._
 
 private[projectView] class PackageObjectNode(definition: ScTypeDefinition)
                                             (implicit project: Project, settings: ViewSettings)
@@ -24,7 +25,8 @@ private[projectView] class PackageObjectNode(definition: ScTypeDefinition)
     if (!groupWithPackage && definition.isValid) {
       data.clearText()
       Option(definition.getContainingFile).foreach { file =>
-        data.addText(getNameWithoutExtension(file.getName) + " ", SimpleTextAttributes.REGULAR_ATTRIBUTES)
+        //noinspection ScalaExtractStringToBundle,ReferencePassedToNls
+        data.addText(getNameWithoutExtension(file.name) + " ", SimpleTextAttributes.REGULAR_ATTRIBUTES)
       }
     }
   }

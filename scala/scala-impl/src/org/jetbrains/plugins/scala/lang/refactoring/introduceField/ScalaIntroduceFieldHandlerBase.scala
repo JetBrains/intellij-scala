@@ -11,6 +11,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression}
@@ -30,7 +31,7 @@ abstract class ScalaIntroduceFieldHandlerBase extends ScalaRefactoringActionHand
 
   protected def isSuitableClass(elem: PsiElement, clazz: ScTemplateDefinition): Boolean
 
-  def afterClassChoosing[T <: PsiElement](elem: T, types: Array[ScType], project: Project, editor: Editor, file: PsiFile, title: String)
+  def afterClassChoosing[T <: PsiElement](elem: T, types: Array[ScType], project: Project, editor: Editor, file: PsiFile, @Nls title: String)
                                          (action: IntroduceFieldContext[T] => Unit): Unit = {
     try {
       val classes = ScalaPsiUtil.getParents(elem, file).collect {

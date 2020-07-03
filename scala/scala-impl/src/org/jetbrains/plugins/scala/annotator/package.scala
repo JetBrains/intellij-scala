@@ -3,15 +3,16 @@ package org.jetbrains.plugins.scala
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.psi.PsiElement
 import com.intellij.util.text.LiteralFormatUtil
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
 
 package object annotator {
   def conditionalError(
-    condition: PsiElement => Boolean,
-    e:         PsiElement,
-    message:   String,
-    severityF: HighlightSeverity = HighlightSeverity.WARNING,
-    severityT: HighlightSeverity = HighlightSeverity.ERROR,
+    condition:    PsiElement => Boolean,
+    e:            PsiElement,
+    @Nls message: String,
+    severityF:    HighlightSeverity = HighlightSeverity.WARNING,
+    severityT:    HighlightSeverity = HighlightSeverity.ERROR,
   )(implicit
     holder: ScalaAnnotationHolder
   ): Unit = {
@@ -19,7 +20,7 @@ package object annotator {
     holder.createAnnotation(severity, e.getTextRange, message)
   }
 
-  def errorIf2_13(e: PsiElement, message: String)(implicit holder: ScalaAnnotationHolder): Unit =
+  def errorIf2_13(e: PsiElement, @Nls message: String)(implicit holder: ScalaAnnotationHolder): Unit =
     conditionalError(_.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_13), e, message)
 
   private[annotator] sealed abstract class IntegerKind(val radix: Int,

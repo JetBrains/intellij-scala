@@ -102,6 +102,7 @@ object BundleExtraction {
     (key, text, arguments)
   }
 
+  //noinspection ScalaExtractStringToBundle,ReferencePassedToNls
   private class BundleNameInputValidator(bundle: I18nBundleContent) extends InputValidatorEx {
     private val wrongRegex = raw"[^\w\.]+".r
     @Nullable

@@ -7,6 +7,7 @@ import com.intellij.build.events._
 import com.intellij.build.{FilePosition, SyncViewManager}
 import com.intellij.openapi.externalSystem.model.task.event.{FailureResult => _, SkippedResult => _, SuccessResult => _, _}
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.ExternalSystemNotificationReporter._
 
@@ -133,7 +134,7 @@ class ExternalSystemNotificationReporter(workingDir: String,
 
   override def clear(file: File): Unit = ()
 
-  private def event(message: String, kind: MessageEvent.Kind, position: Option[FilePosition])=
+  private def event(@Nls message: String, kind: MessageEvent.Kind, position: Option[FilePosition])=
     BuildMessages.message(taskId, message, kind, position)
 }
 

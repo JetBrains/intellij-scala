@@ -42,6 +42,7 @@ class BloopLauncherConnector(base: File, compilerOutput: File, capabilities: Bsp
     val argv = cmdLine.getCommandLineList(null)
 
     reporter.log(BspBundle.message("bsp.protocol.starting.bloop"))
+    //noinspection ReferencePassedToNls
     reporter.log(cmdLine.getCommandLineString)
 
     val details = new BspConnectionDetails("Bloop", argv, bloopVersion, bspVersion, List("java","scala").asJava)

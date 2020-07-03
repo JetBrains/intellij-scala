@@ -179,7 +179,7 @@ final class ScalafmtDynamicServiceImpl
         val backgroundTask = new Task.Backgroundable(project, title, true) {
           override def run(indicator: ProgressIndicator): Unit = {
             indicator.setIndeterminate(true)
-            val progressListener = new ProgressIndicatorDownloadListener(indicator, title + ": ")
+            val progressListener = new ProgressIndicatorDownloadListener(indicator, title)
             val result = try {
               resolve(version, downloadIfMissing = true, FmtVerbosity.Verbose, progressListener = progressListener)
             } catch {
@@ -216,12 +216,14 @@ object ScalafmtDynamicServiceImpl {
 
   private class ProgressIndicatorDownloadListener(
     indicator: ProgressIndicator,
-    prefix: String = ""
+    @Nls prefix: String = ""
   ) extends DownloadProgressListener {
     @throws[ProcessCanceledException]
     override def progressUpdate(message: String): Unit = {
-      if (!message.isEmpty)
-        indicator.setText(prefix + message)
+      if (!message.isEmpty) {
+        //noinspection ReferencePassedToNls,ScalaExtractStringToBundle
+        indicator.setText(prefix + ": " + message)
+      }
       indicator.checkCanceled()
     }
     @throws[ProcessCanceledException]

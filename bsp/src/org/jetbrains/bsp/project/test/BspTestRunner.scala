@@ -169,7 +169,7 @@ class BspTestRunner(
 
     val cancelToken = Promise[Unit]()
     val cancelAction = new CancelBuildAction(cancelToken)
-    implicit val reporter: BuildReporter = new BuildToolWindowReporter(project, BuildMessages.randomEventId, "BSP Tests", cancelAction)
+    implicit val reporter: BuildReporter = new BuildToolWindowReporter(project, BuildMessages.randomEventId, BspBundle.message("bsp.tests.reporter.title"), cancelAction)
     reporter.start()
 
     bspCommunication

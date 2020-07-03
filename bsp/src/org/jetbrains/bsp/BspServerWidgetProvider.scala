@@ -67,6 +67,7 @@ class BspServerWidgetProvider extends StatusBarWidgetProvider {
       override def getTooltipText: String = BspBundle.message("bsp.widget.bsp.connection")
     }
 
+    //noinspection ReferencePassedToNls
     private class CloseBspSession(uri: URI) extends AnAction(uri.toString, BspBundle.message("bsp.widget.kill.bsp.connection.at.uri", uri), AllIcons.Actions.Suspend) with DumbAware {
       override def update(e: AnActionEvent): Unit = {
         val isAlive = BspCommunicationService.getInstance.isAlive(uri)

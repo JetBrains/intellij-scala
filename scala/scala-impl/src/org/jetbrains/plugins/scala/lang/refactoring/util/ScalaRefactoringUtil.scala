@@ -1157,6 +1157,7 @@ object ScalaRefactoringUtil {
 
     val messages = elements.flatMap(errors).distinct
     if (messages.nonEmpty) {
+      //noinspection ReferencePassedToNls
       showErrorHint(messages.mkString("\n"), refactoringName)
       return true
     }

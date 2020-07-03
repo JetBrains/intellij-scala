@@ -21,6 +21,7 @@ class ScalaWithIfElseSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String =
     "if (a) { " + super.getTemplateAsString(elements) + "} else {  }"
 
+  //noinspection ScalaExtractStringToBundle
   override def getTemplateDescription = "if / else"
 
   override def getSurroundSelectionRange(nodeWithIfNode: ASTNode): TextRange = {

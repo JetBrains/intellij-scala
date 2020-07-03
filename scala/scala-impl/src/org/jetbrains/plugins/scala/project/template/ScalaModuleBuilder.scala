@@ -45,6 +45,7 @@ class ScalaModuleBuilder extends JavaModuleBuilder {
       false
     )
 
+    //noinspection ScalaExtractStringToBundle
     settingsStep.addSettingsField("Scala S\u001BDK:", libraryPanel.getSimplePanel)
 
     // TODO Remove the label patching when JavaModuleBuilder will use the proper label natively

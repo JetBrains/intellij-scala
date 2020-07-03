@@ -44,10 +44,8 @@ object ScParameterAnnotator extends ElementAnnotator[ScParameter] {
 
   private def annotateCallByNameParameter(element: ScParameter)
                                          (implicit holder: ScalaAnnotationHolder): Any = {
-    def errorWithMessageAbout(topic: String): Unit = {
-      val message = s"$topic parameters may not be call-by-name"
-      holder.createErrorAnnotation(element, message)
-    }
+    def errorWithMessageAbout(topic: String): Unit =
+      holder.createErrorAnnotation(element, ScalaBundle.message("topic.parameters.may.not.be.call.by.name", topic))
     // TODO move to ScClassParameter
     element match {
       case cp: ScClassParameter if cp.isVal => errorWithMessageAbout("""'val'""")

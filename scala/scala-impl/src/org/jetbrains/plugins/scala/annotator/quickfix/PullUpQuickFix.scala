@@ -50,7 +50,7 @@ final class PullUpQuickFix(member: ScMember, name: String) extends AbstractInten
       getPsiElementPopup(
         superClasses.toArray,
         (new PsiClassListCellRenderer).asInstanceOf[PsiElementListCellRenderer[ScTypeDefinition]],
-        "Choose class",
+        ScalaBundle.message("choose.class"),
         new PullUpProcessor(executor)
       ).showInBestPositionFor(editor)
     }

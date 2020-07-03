@@ -21,6 +21,7 @@ class ScalaWithWhileSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String =
     "while (true) {" + super.getTemplateAsString(elements) + "}"
 
+  //noinspection ScalaExtractStringToBundle
   override def getTemplateDescription = "while"
 
   override def getSurroundSelectionRange(withWhileNode: ASTNode): TextRange = {

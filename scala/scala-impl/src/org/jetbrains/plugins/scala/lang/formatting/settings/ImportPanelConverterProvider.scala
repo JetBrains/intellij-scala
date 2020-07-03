@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package lang.formatting.settings
 
 import java.io.File
-import java.nio.file.Paths
 import java.util
 import java.util.Collections
 
@@ -20,7 +19,7 @@ import scala.collection.JavaConverters._
  */
 class ImportPanelConverterProvider extends ConverterProvider("ImportPanelConverterProvider") {
   override def getConversionDescription: String = {
-    "Scala imports settings will be moved to Code Style settings."
+    ScalaBundle.message("scala.imports.settings.will.be.moved.to.code.style.settings")
   }
 
   override def createConverter(context: ConversionContext): ProjectConverter = {

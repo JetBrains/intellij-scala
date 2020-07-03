@@ -12,6 +12,7 @@ import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
 import com.intellij.util.AlarmFactory
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.project._
@@ -19,6 +20,10 @@ import org.jetbrains.plugins.scala.project._
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 
 package object tasty {
+  //noinspection ScalaExtractStringToBundle
+  @Nls
+  val tastyName = "TASTy"
+
   // TODO Remove the structural types when the project use Scala 2.13
   import scala.language.reflectiveCalls
 
@@ -91,9 +96,9 @@ package object tasty {
     lines.take(position.startLine).map(_.length + 1).sum + position.startColumn
   }
 
-  def showTastyNotification(message: String): Unit = if (ApplicationManager.getApplication.isInternal) {
+  def showTastyNotification(@Nls message: String): Unit = if (ApplicationManager.getApplication.isInternal) {
     invokeLater {
-      val notification = new Notification("TASTy", "TASTy", message, NotificationType.INFORMATION)
+      val notification = new Notification(tastyName, tastyName, message, NotificationType.INFORMATION)
       Notifications.Bus.notify(notification)
       AlarmFactory.getInstance.create.addRequest(() => notification.expire(), TimeUnit.SECONDS.toMillis(1))
     }

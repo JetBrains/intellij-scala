@@ -21,6 +21,7 @@ class ScalaWithForYieldSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String =
     "for (a <- as) yield {" + super.getTemplateAsString(elements) + "}"
 
+  //noinspection ScalaExtractStringToBundle
   override def getTemplateDescription = "for / yield"
 
   override def getSurroundSelectionRange(withForNode: ASTNode): TextRange = {

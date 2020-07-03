@@ -17,6 +17,7 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -37,11 +38,15 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
 ) with DumbAware {
   override protected def buildDialog(project: Project, directory: PsiDirectory,
                                      builder: CreateFileFromTemplateDialog.Builder): Unit = {
-    builder.addKind("Class", Icons.CLASS, ScalaFileTemplateUtil.SCALA_CLASS)
-    builder.addKind("Case Class", Icons.CASE_CLASS, ScalaFileTemplateUtil.SCALA_CASE_CLASS)
-    builder.addKind("Object", Icons.OBJECT, ScalaFileTemplateUtil.SCALA_OBJECT)
-    builder.addKind("Case Object", Icons.CASE_OBJECT, ScalaFileTemplateUtil.SCALA_CASE_OBJECT)
-    builder.addKind("Trait", Icons.TRAIT, ScalaFileTemplateUtil.SCALA_TRAIT)
+
+    //noinspection ScalaExtractStringToBundle
+    {
+      builder.addKind("Class", Icons.CLASS, ScalaFileTemplateUtil.SCALA_CLASS)
+      builder.addKind("Case Class", Icons.CASE_CLASS, ScalaFileTemplateUtil.SCALA_CASE_CLASS)
+      builder.addKind("Object", Icons.OBJECT, ScalaFileTemplateUtil.SCALA_OBJECT)
+      builder.addKind("Case Object", Icons.CASE_OBJECT, ScalaFileTemplateUtil.SCALA_CASE_OBJECT)
+      builder.addKind("Trait", Icons.TRAIT, ScalaFileTemplateUtil.SCALA_TRAIT)
+    }
 
     for {
       template <- FileTemplateManager.getInstance(project).getAllTemplates
@@ -52,11 +57,11 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
       templateName = template.getName
     } builder.addKind(templateName, fileType.getIcon, templateName)
 
-    builder.setTitle("Create New Scala Class")
+    builder.setTitle(ScalaBundle.message("create.new.scala.class"))
     builder.setValidator(new InputValidatorEx {
       override def getErrorText(inputString: String): String = {
         if (inputString.length > 0 && !ScalaNamesUtil.isQualifiedName(inputString)) {
-          return "This is not a valid Scala qualified name"
+          return ScalaBundle.message("this.is.not.a.valid.scala.qualified.name")
         }
         null
       }

@@ -18,6 +18,7 @@ import com.intellij.ui.{EditorTextField, EditorTextFieldWithBrowseButton, EnumCo
 import com.intellij.uiDesigner.core.{GridConstraints, Spacer}
 import com.intellij.util.ui.{JBUI, UIUtil}
 import javax.swing._
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.IteratorExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -265,7 +266,7 @@ final class TestRunConfigurationForm(val myProject: Project) {
     myShortenClasspathMode = append(labeledComponent(
       ExecutionBundle.message("application.configuration.shorten.command.line.label"),
       new ShortenCommandLineModeCombo(myProject, myJrePathEditor, myModule.getComponent())
-    ));
+    ))
     myShowProgressMessagesCheckBox = (new JCheckBox)
       .setTextWithMnemonic(ScalaBundle.message("test.run.config.print.information.messages.to.console"))
     append(myShowProgressMessagesCheckBox)
@@ -284,10 +285,10 @@ final class TestRunConfigurationForm(val myProject: Project) {
     myShortenClasspathMode.setAnchor(myModule.getLabel)
   }
 
-  private def labeledComponent[T <: JComponent](labelText: String, component: T): LabeledComponent[T] =
+  private def labeledComponent[T <: JComponent](@Nls labelText: String, component: T): LabeledComponent[T] =
     labeledComponent(labelText, component, isMultilineContent = false)
 
-  private def labeledComponent[T <: JComponent](labelText: String, component: T, isMultilineContent: Boolean): LabeledComponent[T] = {
+  private def labeledComponent[T <: JComponent](@Nls labelText: String, component: T, isMultilineContent: Boolean): LabeledComponent[T] = {
     val result = new LabeledComponent[T]
     result.setText(labelText)
     result.setComponent(component)

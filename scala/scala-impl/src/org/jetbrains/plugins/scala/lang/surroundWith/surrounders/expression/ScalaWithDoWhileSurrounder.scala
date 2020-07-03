@@ -20,6 +20,7 @@ class ScalaWithDoWhileSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String =
     "do {" + super.getTemplateAsString(elements) + "} while (true)"
 
+  //noinspection ScalaExtractStringToBundle
   override def getTemplateDescription = "do / while"
 
   override def getSurroundSelectionRange(withDoWhileNode: ASTNode): TextRange = {

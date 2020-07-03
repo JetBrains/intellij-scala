@@ -46,6 +46,7 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
       case c: PsiClass if !c.isInstanceOf[PsiClassFake] => c.qualifiedName
       case _ => element.getText
     }
+    //noinspection ReferencePassedToNls
     Option(name) getOrElse "anonymous"
   }
 
@@ -62,6 +63,7 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
       case c: PsiClass if !c.isInstanceOf[PsiClassFake] => if (useFullName) c.qualifiedName else c.name
       case _ => element.getText
     }
+    //noinspection ReferencePassedToNls
     Option(name) getOrElse "anonymous"
   }
 }

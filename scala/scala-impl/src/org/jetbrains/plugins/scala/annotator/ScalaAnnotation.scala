@@ -7,6 +7,7 @@ import com.intellij.lang.annotation.Annotation
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.annotations.Nls
 
 class ScalaAnnotation(annotation: Annotation) {
 
@@ -28,7 +29,7 @@ class ScalaAnnotation(annotation: Annotation) {
   def setEnforcedTextAttributes(enforcedAttributes: TextAttributes): Unit =
     annotation.setEnforcedTextAttributes(enforcedAttributes)
 
-  def setTooltip(tooltip: String): Unit =
+  def setTooltip(@Nls tooltip: String): Unit =
     annotation.setTooltip(tooltip)
 
   def setHighlightType(highlightType: ProblemHighlightType): Unit =

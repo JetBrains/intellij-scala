@@ -12,6 +12,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.pom.Navigatable
 import com.intellij.psi.PsiElement
 import com.intellij.util.DocumentUtil
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.hints._
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
 import org.jetbrains.plugins.scala.annotator.intention.PopupPosition
@@ -325,7 +326,7 @@ private object ImplicitHintsPass {
     }
   }
 
-  private def notFoundErrorTooltip(message: String, notFoundArgs: Seq[ScalaResolveResult])
+  private def notFoundErrorTooltip(@Nls message: String, notFoundArgs: Seq[ScalaResolveResult])
                                   (implicit owner: ImplicitArgumentsOwner): ErrorTooltip = {
     val quickFix = ImportImplicitInstanceFix(notFoundArgs, owner, PopupPosition.atCustomLocation)
     quickFix match {

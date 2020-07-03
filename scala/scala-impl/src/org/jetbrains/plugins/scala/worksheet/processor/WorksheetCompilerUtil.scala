@@ -69,6 +69,7 @@ object WorksheetCompilerUtil {
           case None =>
             val newView = new CompilerErrorTreeView(project, null)
             addMessageToView(newView)
+            //noinspection ReferencePassedToNls
             val errorContent = ContentFactory.SERVICE.getInstance.createContent(newView, ERROR_CONTENT_NAME, true)
             contentManager.addContent(errorContent)
             (errorContent, newView)

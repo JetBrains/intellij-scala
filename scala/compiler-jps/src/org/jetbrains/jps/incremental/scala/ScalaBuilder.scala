@@ -97,7 +97,7 @@ object ScalaBuilder {
 
     if (hasScalaFacet && !hasScalaLibrary && hasScalaSources) {
       val names = modules.map(_.getName).mkString(", ")
-      client.warning("No 'scala-library*.jar' in module dependencies [%s]".format(names))
+      client.warning(JpsBundle.message("no.scala.library.jar.in.module.dependencies", names))
     }
   }
 

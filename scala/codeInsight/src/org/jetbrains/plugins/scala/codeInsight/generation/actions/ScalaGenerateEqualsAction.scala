@@ -78,7 +78,7 @@ object ScalaGenerateEqualsAction {
 
       fields(aClass) match {
         case Seq() =>
-          HintManager.getInstance.showErrorHint(editor, "No fields to include in equals/hashCode have been found")
+          HintManager.getInstance.showErrorHint(editor, ScalaCodeInsightBundle.message("no.fields.to.include.in.equals.hashcode.have.been.found"))
           false
         case fields if ApplicationManager.getApplication.isUnitTestMode =>
           myEqualsFields ++= fields

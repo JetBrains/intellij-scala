@@ -9,13 +9,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 sealed abstract class ModifierQuickFix(listOwner: ScModifierListOwner)
-                                      (modifierToText: String => String)
+                                      (@Nls modifierToText: String => String)
                                       (modifier: ScalaModifier, value: Boolean = false)
   extends intention.IntentionAction {
 
@@ -90,7 +91,7 @@ object ModifierQuickFix {
     }
   }
 
-  sealed abstract class MakeNonPrivate(listOwner: ScModifierListOwner, modifierToText: String => String)
+  sealed abstract class MakeNonPrivate(listOwner: ScModifierListOwner, @Nls modifierToText: String => String)
                                       (modifier: ScalaModifier, value: Boolean)
     extends ModifierQuickFix(listOwner)(modifierToText)(modifier, value) {
 

@@ -47,6 +47,7 @@ class BuildToolWindowReporter(project: Project,
   }
 
   override def finish(messages: BuildMessages): Unit = {
+    @Nls
     val (result, resultMessage) =
       if (messages.status == BuildMessages.OK && messages.errors.isEmpty)
         (new SuccessResultImpl, "success")
@@ -64,7 +65,7 @@ class BuildToolWindowReporter(project: Project,
   override def finishWithFailure(err: Throwable): Unit = {
     val failureResult = new FailureResultImpl(err)
     val finishEvent =
-      new FinishBuildEventImpl(buildId, null, System.currentTimeMillis(), "failed", failureResult)
+      new FinishBuildEventImpl(buildId, null, System.currentTimeMillis(), ScalaBundle.message("report.build.toolwindow.failed"), failureResult)
     viewManager.onEvent(buildId, finishEvent)
   }
 
@@ -105,11 +106,15 @@ class BuildToolWindowReporter(project: Project,
   override def log(message: String): Unit =
     viewManager.onEvent(buildId, logEvent(message))
 
-  private def logEvent(msg: String): BuildEvent =
+  private def logEvent(msg: String): BuildEvent = {
+    //noinspection ReferencePassedToNls
     new OutputBuildEventImpl(buildId, msg.trim + System.lineSeparator(), true)
+  }
 
-  private def event(message: String, kind: MessageEvent.Kind, position: Option[FilePosition])=
+  private def event(message: String, kind: MessageEvent.Kind, position: Option[FilePosition])= {
+    //noinspection ReferencePassedToNls
     BuildMessages.message(buildId, message, kind, position)
+  }
 }
 
 object BuildToolWindowReporter {

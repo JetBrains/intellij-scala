@@ -125,7 +125,7 @@ final class SbtProjectService(project: Project) extends Disposable {
     notificationData.setListener(
       "#disable", (notification: Notification, e: HyperlinkEvent) => {
         val result: Int = Messages.showYesNoDialog(project,
-          SbtBundle.message("sbt.notification.will.be.disabled.for.all.projects", SBT_MAVEN_NOTIFICATION_GROUP).stripMargin,
+          SbtBundle.message("sbt.notification.will.be.disabled.for.all.projects", SBT_MAVEN_NOTIFICATION_GROUP),
           SbtBundle.message("sbt.unindexed.maven.repositories.sbt.detection"),
           SbtBundle.message("sbt.disable.notification"),
           CommonBundle.getCancelButtonText,
