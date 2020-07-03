@@ -30,6 +30,8 @@ private class ScalaDocContentGenerator(
   rendered: Boolean // TODO: use
 ) {
 
+  import ApplicationManager.{getApplication => application}
+
   private val resolveContext: PsiElement = originalComment
 
   import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentGenerator.DocListType._
@@ -287,11 +289,17 @@ private class ScalaDocContentGenerator(
       case Success(value)     => value
       case Failure(exception) =>
         val message = s"Error occurred during macro resolving: $macroKey"
-        if (ApplicationManager.getApplication.isInternal)
+        if (application.isInternal || application.isUnitTestMode)
           Log.error(message, exception)
         else
           Log.debug(message, exception)
         None
+    }
+
+    if (macroValue.isEmpty && application.isUnitTestMode) {
+      val commentOwner = originalComment.getOwner
+      val info = UnresolvedMacroInfo(commentOwner.getContainingFile.getVirtualFile, commentOwner.getName, macroKey)
+      unresolvedMacro.append(info)
     }
 
     macroValue.getOrElse(macroElement.getText)
@@ -437,5 +445,11 @@ object ScalaDocContentGenerator {
     final case class OrderedList(cssClass: String) extends DocListType
     final object UnorderedList extends DocListType
   }
+
+  @TestOnly
+  case class UnresolvedMacroInfo(file: VirtualFile, commentOwnerName: String, macroKey: String)
+  @TestOnly
+  lazy val unresolvedMacro: mutable.Buffer[UnresolvedMacroInfo] =
+    mutable.ArrayBuffer.empty[UnresolvedMacroInfo]
 }
 
