@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaImportingInsertHandler
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScMember, ScObject}
@@ -84,7 +84,7 @@ private[completion] object CompanionObjectMembersFinder {
       case _ => Seq.empty
     }
 
-    override protected def createResult(member: T,
+    override protected def createResult(member: ScTypedDefinition,
                                         `object`: ScObject): CompanionObjectMemberResult =
       new CompanionObjectMemberResult(member, `object`) {
 
@@ -134,17 +134,24 @@ private[completion] object CompanionObjectMembersFinder {
               .getFile
               .findReferenceAt(context.getStartOffset)
 
-            val newReference = createExpressionWithContextFromText(
-              `object`.name + "." + member.name + "(" + qualifier.getText + ")",
-              reference.getContext,
-              reference
-            )
+            val functionName = member.name
+            val ScMethodCall(methodReference: ScReferenceExpression, _) =
+              replaceReference(reference, functionName + "(" + qualifier.getText + ")")
 
-            reference.replaceExpression(
-              newReference,
-              removeParenthesis = true
-            )
+            if (member != methodReference.resolve) {
+              val ScReferenceExpression.withQualifier(objectReference: ScReferenceExpression) =
+                replaceReference(methodReference, `object`.name + "." + functionName)
+
+              objectReference.bindToElement(`object`)
+            }
           }
+
+        private def replaceReference(reference: ScReferenceExpression,
+                                     text: String) =
+          reference.replaceExpression(
+            createExpressionWithContextFromText(text, reference.getContext, reference),
+            removeParenthesis = true
+          )
       }
   }
 }

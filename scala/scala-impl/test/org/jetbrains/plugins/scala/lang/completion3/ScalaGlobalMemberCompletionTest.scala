@@ -510,6 +510,30 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     item = "foo"
   )
 
+  def testCompanionObjectExtensionLikeMethod4(): Unit = doCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |
+         |  def foo(foo: Foo): Unit = {}
+         |
+         |  (_: Foo).f$CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |
+         |  def foo(foo: Foo): Unit = {}
+         |
+         |  foo((_: Foo))$CARET
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
   def testCompanionObjectInvalidExtensionLikeMethodInvalidArgumentsCount(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class Foo {
