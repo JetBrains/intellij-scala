@@ -7,8 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
 package object global {
 
-  private[global] type NamePredicate = String => Boolean
-
   private[completion] object ClassOrTrait {
 
     def unapply(element: ScalaPsiElement): Option[ScConstructorOwner] = element match {

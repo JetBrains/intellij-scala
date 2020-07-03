@@ -58,7 +58,6 @@ final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContr
         val invocationCount = parameters.getInvocationCount
         val requiresAdvertisement = regardlessAccessibility(invocationCount)
 
-        val matcher = resultSet.getPrefixMatcher
         val maybeFinder = reference match {
           case Qualifier(qualifier) =>
             for {
@@ -67,20 +66,23 @@ final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContr
               originalType = toValueType(placeType)
 
               ClassOrTrait(definition) <- originalType.extractClass
-            } yield new CompanionObjectMembersFinder.ExtensionLike(originalType, definition, requiresAdvertisement)(_)
+            } yield new CompanionObjectMembersFinder.ExtensionLike(originalType, definition, requiresAdvertisement)
           case _ =>
+            val matcher = resultSet.getPrefixMatcher
             val finder = if (requiresAdvertisement && matcher.getPrefix.nonEmpty)
-              new StaticMembersFinder(reference, accessAll(invocationCount))(_)
+              new StaticMembersFinder(reference, accessAll(invocationCount))(matcher.prefixMatches)
             else
-              new CompanionObjectMembersFinder.Regular(reference, requiresAdvertisement)(_)
+              new CompanionObjectMembersFinder.Regular(reference, requiresAdvertisement)
+
             Some(finder)
         }
 
-        val items = maybeFinder.map {
-          _.apply(matcher.prefixMatches)
-        }.fold(Seq.empty[ScalaLookupItem]) {
-          _.lookupItems(reference, parameters.getOriginalFile)
-        }
+        val items = maybeFinder
+          .toIterable
+          .flatMap {
+            _.lookupItems(reference, parameters.getOriginalFile)
+          }
+
         addGlobalCompletions(items, resultSet, requiresAdvertisement)
       }
     }
@@ -95,7 +97,7 @@ object ScalaGlobalMembersCompletionContributor {
       case _ => None
     }
 
-  private def addGlobalCompletions(lookupItems: Seq[ScalaLookupItem],
+  private def addGlobalCompletions(lookupItems: Iterable[ScalaLookupItem],
                                    resultSet: CompletionResultSet,
                                    requiresAdvertisement: Boolean = true): Unit = {
     if (requiresAdvertisement && !lookupItems.forall(_.shouldImport)) {

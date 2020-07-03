@@ -17,8 +17,8 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 private[completion] final class StaticMembersFinder(override protected val place: ScReferenceExpression,
                                                     accessAll: Boolean)
-                                                   (override protected val namePredicate: NamePredicate)
-  extends GlobalMembersFinderBase(place, accessAll)(namePredicate) {
+                                                   (private val namePredicate: String => Boolean)
+  extends GlobalMembersFinder(place, accessAll) {
 
   import StaticMembersFinder._
 
@@ -71,7 +71,7 @@ private[completion] final class StaticMembersFinder(override protected val place
   } yield StaticMemberResult(namedElement, classToImport)
 
   private final case class StaticMemberResult(elementToImport: PsiNamedElement,
-                                              classToImport: PsiClass,
+                                              override val classToImport: PsiClass,
                                               isOverloadedForClassName: Boolean = false)
     extends GlobalMemberResult(
       new ScalaResolveResult(elementToImport),
