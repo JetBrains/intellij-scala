@@ -67,7 +67,7 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
         "scala.jdk.CollectionConverters._"
       else
         "scala.collection.JavaConverters._"
-      importsHolder.addImportForPath(path, element)
+      importsHolder.addImportForPath(path)
     }
     def appendAsMethod(): Unit = {
       val expression: ScExpression = getTargetExpression(element)

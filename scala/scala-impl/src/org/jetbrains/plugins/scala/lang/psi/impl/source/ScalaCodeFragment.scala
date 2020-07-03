@@ -84,7 +84,7 @@ final class ScalaCodeFragment private(private var viewProvider: SingleRootFileVi
 
   override def getViewProvider: SingleRootFileViewProvider = viewProvider
 
-  override def addImportForPath(path: String, refsContainer: Option[PsiElement]): Unit = {
+  override def addImportForPath(path: String, refsContainer: PsiElement): Unit = {
     imports += path
     myManager.beforeChange(false)
 
@@ -100,12 +100,12 @@ final class ScalaCodeFragment private(private var viewProvider: SingleRootFileVi
     }
 
     newRef match {
-      case Some(r) if r.resolve() != null => refsContainer.foreach(_.replace(r))
+      case Some(r) if r.resolve() != null => refsContainer.replace(r)
       case _ =>
     }
   }
 
-  override def addImportsForPaths(paths: Seq[String], refsContainer: Option[PsiElement]): Unit = {
+  override def addImportsForPaths(paths: Seq[String], refsContainer: PsiElement): Unit = {
     paths.foreach(addImportForPath(_, refsContainer))
   }
 

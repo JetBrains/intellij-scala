@@ -117,7 +117,7 @@ object ScalaExtractStringToBundleInspection {
           val importsHolder: ScImportsHolder =
             Option(PsiTreeUtil.getParentOfType(element, classOf[ScPackaging]))
               .getOrElse(element.getContainingFile.asInstanceOf[ScImportsHolder])
-          importsHolder.addImportForPath(bundleQualifiedClassName, element)
+          importsHolder.addImportForPath(bundleQualifiedClassName)
 
           // replace string with message call
           val argString =

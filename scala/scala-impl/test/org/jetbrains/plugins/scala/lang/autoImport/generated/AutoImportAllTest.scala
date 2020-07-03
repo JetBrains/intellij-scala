@@ -27,6 +27,4 @@ class AutoImportAllTest extends AutoImportTestBase {
         // todo decompose doTest
     case e: AssertionError if e.getMessage == "Element to import not found" =>
   }
-
-  def testCorrectPlace(): Unit = doTest()
 }

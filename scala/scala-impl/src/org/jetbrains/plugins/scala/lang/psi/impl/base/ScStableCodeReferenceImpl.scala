@@ -126,7 +126,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           importExpr.deleteExpr()
           c match {
             case ClassToImport(clazz) => holder.addImportForClass(clazz)
-            case ta => holder.addImportForPath(ta.qualifiedName, this)
+            case ta => holder.addImportForPath(ta.qualifiedName)
           }
         } else {
           //qualifier reference in import expression
