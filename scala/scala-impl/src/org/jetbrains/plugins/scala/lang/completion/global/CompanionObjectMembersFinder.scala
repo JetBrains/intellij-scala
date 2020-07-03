@@ -3,17 +3,14 @@ package lang
 package completion
 package global
 
-import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
-import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaImportingInsertHandler
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScMember, ScObject}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 private[completion] trait CompanionObjectMembersFinder[T <: ScTypedDefinition] {
@@ -80,64 +77,6 @@ private[completion] object CompanionObjectMembersFinder {
           override protected def qualifyAndImport(reference: ScReferenceExpression): Unit =
             qualifyOnly(reference)
         }
-    }
-  }
-
-  final class ExtensionLike(private val originalType: ScType,
-                            override protected val place: ScConstructorOwner,
-                            accessAll: Boolean)
-    extends GlobalMembersFinder(place, accessAll)
-      with CompanionObjectMembersFinder[ScFunction] {
-
-    override protected def findTargets: Seq[PsiClass] =
-      place +: place.supers
-
-    override protected def namedElementsIn(member: ScMember): Seq[ScFunction] = member match {
-      case function: ScFunction =>
-        function.parameters match {
-          case Seq(head) if head.getRealParameterType.exists(originalType.conforms) =>
-            Seq(function)
-          case _ => Seq.empty
-        }
-      case _ => Seq.empty
-    }
-
-    override protected def createResult(resolveResult: ScalaResolveResult,
-                                        classToImport: ScObject): GlobalMemberResult =
-      ExtensionLikeCandidate(resolveResult, classToImport)
-
-    private final case class ExtensionLikeCandidate(override val resolveResult: ScalaResolveResult,
-                                                    override val classToImport: ScObject)
-      extends GlobalMemberResult(resolveResult, classToImport, Some(classToImport)) {
-
-      override protected def createInsertHandler: InsertHandler[ScalaLookupItem] =
-        (context: InsertionContext, _: ScalaLookupItem) => {
-          val reference@ScReferenceExpression.withQualifier(qualifier) = context
-            .getFile
-            .findReferenceAt(context.getStartOffset)
-
-          val function = resolveResult
-            .getElement
-            .asInstanceOf[ScFunction]
-          val functionName = function.name
-
-          val ScMethodCall(methodReference: ScReferenceExpression, _) =
-            replaceReference(reference, functionName + "(" + qualifier.getText + ")")
-
-          if (function != methodReference.resolve) {
-            val ScReferenceExpression.withQualifier(objectReference: ScReferenceExpression) =
-              replaceReference(methodReference, classToImport.name + "." + functionName)
-
-            objectReference.bindToElement(classToImport)
-          }
-        }
-
-      private def replaceReference(reference: ScReferenceExpression,
-                                   text: String) =
-        reference.replaceExpression(
-          createExpressionWithContextFromText(text, reference.getContext, reference),
-          removeParenthesis = true
-        )
     }
   }
 }
