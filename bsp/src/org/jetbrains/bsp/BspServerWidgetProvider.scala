@@ -98,7 +98,7 @@ class BspServerWidgetProvider extends StatusBarWidgetProvider {
       }
     }
 
-    class TerminateServer extends AnAction(BspBundle.message("bsp.widget.stop.all.bsp.restart"), BspBundle.message("bsp.widget.stop.all.bsp.restart"), AllIcons.Actions.Exit) with DumbAware {
+    class TerminateServer extends AnAction(BspBundle.message("bsp.widget.bsp.terminate.server"), BspBundle.message("bsp.widget.bsp.terminate.server"), AllIcons.Actions.Exit) with DumbAware {
 
       override def update(e: AnActionEvent): Unit = {
         val workspace = new File(project.getBasePath)
