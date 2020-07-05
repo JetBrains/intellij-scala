@@ -43,6 +43,8 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
 
   def functions: Seq[ScFunction] = extendsBlock.functions
 
+  def properties: Seq[ScValueOrVariable] = extendsBlock.properties
+
   def aliases: Seq[ScTypeAlias] = extendsBlock.aliases
 
   def members: Seq[ScMember] = extendsBlock.members
