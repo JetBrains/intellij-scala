@@ -540,7 +540,7 @@
         <filetype.stubBuilder filetype="SIG" implementationClass="org.jetbrains.plugins.scala.lang.psi.compiled.SigFileStubBuilder"/>
         <filetype.decompiler filetype="SIG" implementationClass="org.jetbrains.plugins.scala.lang.psi.compiled.SigFileDecompiler"/>
 
-        <fileType name="TASTY" extensions="tasty" implementationClass="org.jetbrains.plugins.scala.tasty.TastyFileType$" fieldName="MODULE$"/>
+        <fileType name="TASTy" extensions="tasty" implementationClass="org.jetbrains.plugins.scala.tasty.TastyFileType$" fieldName="MODULE$"/>
         <filetype.decompiler filetype="TASTY" implementationClass="org.jetbrains.plugins.scala.tasty.TastyDecompiler"/>
         <compilableFileTypesProvider implementation="org.jetbrains.plugins.scala.lang.psi.compiled.ScalaCompilableFileTypesProvider" />
         <syntaxHighlighter id="tasty.file" key="TASTY" factoryClass="org.jetbrains.plugins.scala.tasty.TastySyntaxHighlighterFactory"/>
