@@ -111,7 +111,7 @@ object ScalaMarkerType {
           GutterTooltipHelper.getTooltipText(namedElements.asJava,
             (e: PsiElement) => (if (e == namedElements.head) prefix else elementDivider + prefix) + " ",
             (_: PsiElement) => true,
-            null)
+            IdeActions.ACTION_GOTO_SUPER)
         }
         .orNull,
     (event, element) =>
@@ -189,7 +189,7 @@ object ScalaMarkerType {
           GutterTooltipHelper.getTooltipText(inheritors.asJava,
             (e: PsiElement) => (if (e == inheritors.head) prefix else elementDivider + prefix) + " ",
             (_: PsiElement) => false,
-            null)
+            IdeActions.ACTION_GOTO_IMPLEMENTATION)
       }.orNull,
     (event, element) =>
       element.parent.collect {
@@ -226,7 +226,7 @@ object ScalaMarkerType {
       GutterTooltipHelper.getTooltipText(psiElements.asJava,
         (e: PsiElement) => (if (e == psiElements.head) prefix else elementDivider + prefix) + " ",
         (_: PsiElement) => true,
-        null)
+        IdeActions.ACTION_GOTO_SUPER)
     }
     ScalaMarkerType(tooltipProvider, (event, _) => SAMUtil.singleAbstractMethod(aClass).foreach(navigateToSuperMethod(event, _, includeSelf = true)))
   }
