@@ -183,8 +183,13 @@ object ScalaMarkerType {
   val subclassedClass: ScalaMarkerType = ScalaMarkerType(
     element =>
       element.parent.collect {
-        case _: ScTrait => ScalaBundle.message("trait.has.implementations")
-        case _          => ScalaBundle.message("class.has.subclasses")
+        case aClass: PsiClass =>
+          val inheritors = ClassInheritorsSearch.search(aClass, aClass.getUseScope, true).toArray(PsiClass.EMPTY_ARRAY).toSeq.map(nameIdOf)
+          val prefix = if (aClass.is[ScTrait]) ScalaBundle.message("trait.has.implementations") else ScalaBundle.message("class.has.subclasses")
+          GutterTooltipHelper.getTooltipText(inheritors.asJava,
+            (e: PsiElement) => (if (e == inheritors.head) prefix else elementDivider + prefix) + " ",
+            (_: PsiElement) => false,
+            null)
       }.orNull,
     (event, element) =>
       element.parent.collect {
@@ -216,11 +221,7 @@ object ScalaMarkerType {
 
   def samTypeImplementation(aClass: PsiClass): ScalaMarkerType = {
     val tooltipProvider = (_: PsiElement) => {
-      val psiElements = SAMUtil.singleAbstractMethod(aClass).toSeq.flatMap(superMethodsOf(_, includeSelf = true)).map {
-        case namedElement: ScNamedElement => namedElement.nameId
-        case identifierOwner: PsiNameIdentifierOwner => identifierOwner.getNameIdentifier
-        case element => element
-      }
+      val psiElements = SAMUtil.singleAbstractMethod(aClass).toSeq.flatMap(superMethodsOf(_, includeSelf = true)).map(nameIdOf)
       val prefix = ScalaBundle.message("implements.method.from.super")
       GutterTooltipHelper.getTooltipText(psiElements.asJava,
         (e: PsiElement) => (if (e == psiElements.head) prefix else elementDivider + prefix) + " ",
@@ -228,6 +229,12 @@ object ScalaMarkerType {
         null)
     }
     ScalaMarkerType(tooltipProvider, (event, _) => SAMUtil.singleAbstractMethod(aClass).foreach(navigateToSuperMethod(event, _, includeSelf = true)))
+  }
+
+  private def nameIdOf(element: PsiElement): PsiElement = element match {
+    case namedElement: ScNamedElement => namedElement.nameId
+    case identifierOwner: PsiNameIdentifierOwner => identifierOwner.getNameIdentifier
+    case element => element
   }
 
   // com.intellij.codeInsight.daemon.impl.GutterTooltipHelper.getElementDivider
