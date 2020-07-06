@@ -299,6 +299,27 @@ class AutoBracesTest extends EditorActionTestBase {
     '\"'
   )
 
+  // SCL-17793
+  def testNoAutoBraceOnDot(): Unit = checkTypingInAllContexts(
+    s"""
+       |def test =
+       |  expr
+       |  $CARET
+       |""".stripMargin -> NextConstructOnNewline,
+    s"""
+       |def test =
+       |  expr
+       |  .$CARET
+       |""".stripMargin -> NextConstructOnNewline,
+    s"""
+       |def test =
+       |  expr
+       |  .$CARET
+       |""".stripMargin -> NextConstructOnNewline,
+    '.',
+    checkContextsWithPostfix = false
+  )
+
   def testDeletingLastExprBefore(): Unit = checkBackspaceInAllContexts(
     s"""
        |def test = {

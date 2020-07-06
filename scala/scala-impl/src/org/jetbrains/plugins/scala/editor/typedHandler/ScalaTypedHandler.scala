@@ -501,6 +501,8 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
       document.commit(project)
     }
 
+  private val continuesPreviousLine = Set('.')
+
   private def handleAutoBraces(c: Char, caretOffset: Int, element: PsiElement)
                               (implicit project: Project, file: PsiFile, editor: Editor, settings: CodeStyleSettings): Result = {
     import AutoBraceUtils._
@@ -542,6 +544,10 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
           val beforeContIndent = beforeContWSText.substring(newlinePosBeforeCaret)
           (beforeContWS, caretWS, beforeContIndent, true)
         } else {
+          if (continuesPreviousLine(c)) {
+            return Result.CONTINUE
+          }
+
           // There is no possible continuation before the caret, so check if it looks like this
           //   def test =
           //     expr
