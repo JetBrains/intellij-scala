@@ -10,6 +10,7 @@ import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
 import com.intellij.codeInsight.daemon.impl.{GutterTooltipHelper, PsiElementListNavigator}
 import com.intellij.codeInsight.hint.HintUtil
 import com.intellij.ide.util.{PsiClassListCellRenderer, PsiElementListCellRenderer}
+import com.intellij.lang.jvm.JvmModifier
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.psi._
 import com.intellij.psi.presentation.java.ClassPresentationUtil
@@ -208,10 +209,10 @@ object ScalaMarkerType {
     }
   )
 
-  def samTypeImplementation(aClass: PsiClass): ScalaMarkerType = ScalaMarkerType(
-    _ => GutterTooltipHelper.getTooltipText(singletonList(aClass), ScalaBundle.message("implements.method.from.super"), false, null),
-    (event, _) => SAMUtil.singleAbstractMethod(aClass).foreach(navigateToSuperMethod(event, _, includeSelf = true))
-  )
+  def samTypeImplementation(aClass: PsiClass): ScalaMarkerType = ScalaMarkerType(_ => {
+    val abstractMethod = aClass.getMethods.find(_.hasModifier(JvmModifier.ABSTRACT))
+    GutterTooltipHelper.getTooltipText(singletonList(abstractMethod.getOrElse(aClass)), ScalaBundle.message("implements.method.from.super"), abstractMethod.isDefined, null)
+  }, (event, _) => SAMUtil.singleAbstractMethod(aClass).foreach(navigateToSuperMethod(event, _, includeSelf = true))    )
 
   private class ScCellRenderer extends PsiElementListCellRenderer[PsiElement] {
 
