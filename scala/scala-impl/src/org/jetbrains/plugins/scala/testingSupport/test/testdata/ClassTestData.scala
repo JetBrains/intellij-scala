@@ -20,7 +20,7 @@ class ClassTestData(config: AbstractTestRunConfiguration) extends TestConfigurat
 
   override def getKind: TestKind = TestKind.CLAZZ
 
-  protected[test] def getClassPathClazz: PsiClass = config.getClazz(getTestClassPath, withDependencies = false)
+  protected[test] def getClassPathClazz: PsiClass = config.getClazz(getTestClassPath)
 
   override def checkSuiteAndTestName: CheckResult =
     for {
