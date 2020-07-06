@@ -3,10 +3,14 @@ package annotator
 package gutter
 
 import java.awt.event.MouseEvent
+
+import java.util.Collections.singletonList
 import java.{util => ju}
 
 import com.intellij.codeInsight.daemon._
+import com.intellij.codeInsight.daemon.impl.GutterTooltipHelper
 import com.intellij.icons.AllIcons.Gutter
+import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColorsManager}
 import com.intellij.openapi.editor.markup.{GutterIconRenderer, SeparatorPlacement}
@@ -320,7 +324,9 @@ private object GutterUtil {
 
           new LineMarkerInfo(identifier,
             identifier.getTextRange,
-            iconFor(typeDefinition, swapped), (_: PsiElement) => ScalaBundle.message("has.companion", nameOf(companion)),
+            iconFor(typeDefinition, swapped), (_: PsiElement) =>
+              GutterTooltipHelper.getTooltipText(singletonList(companion.nameId), ScalaBundle.message("has.companion", nameOf(companion)), false, IdeActions.ACTION_GOTO_DECLARATION)
+                .replace("to navigate", "on the keyword to navigate"),
             (_: MouseEvent, _: PsiElement) => companion.navigate(/* requestFocus = */ true), Alignment.LEFT)
         }
 
