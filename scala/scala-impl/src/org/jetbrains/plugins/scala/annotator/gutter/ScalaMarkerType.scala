@@ -4,13 +4,11 @@ package gutter
 
 import java.awt.event.MouseEvent
 import java.util
-import java.util.Collections.singletonList
 
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
 import com.intellij.codeInsight.daemon.impl.{GutterTooltipHelper, PsiElementListNavigator}
 import com.intellij.codeInsight.hint.HintUtil
 import com.intellij.ide.util.{PsiClassListCellRenderer, PsiElementListCellRenderer}
-import com.intellij.lang.jvm.JvmModifier
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.psi._
 import com.intellij.psi.presentation.java.ClassPresentationUtil
@@ -54,16 +52,20 @@ object ScalaMarkerType {
     method:      PsiMethod,
     includeSelf: Boolean
   ): Unit = {
+    val superMethods = superMethodsOf(method, includeSelf)
+    val title           = ScalaBundle.message("navigation.title.super.methods", method.name)
+    val findUsagesTitle = ScalaBundle.message("navigation.findUsages.title.super.methods", method.name)
+    navigateToSuperMember(event, superMethods, title, findUsagesTitle)
+  }
+
+  private def superMethodsOf(method: PsiMethod, includeSelf: Boolean): Array[NavigatablePsiElement] = {
     val superMethods = (method match {
       case fn: ScFunction =>
         val sigs = fn.superSignaturesIncludingSelfType
         sigs.flatMap(sigToNavigatableElement).toArray
       case _ => method.findSuperMethods(false).map(e => e: NavigatablePsiElement)
     }) ++ (if (includeSelf) Array(method) else NavigatablePsiElement.EMPTY_NAVIGATABLE_ELEMENT_ARRAY)
-
-    val title           = ScalaBundle.message("navigation.title.super.methods", method.name)
-    val findUsagesTitle = ScalaBundle.message("navigation.findUsages.title.super.methods", method.name)
-    navigateToSuperMember(event, superMethods, title, findUsagesTitle)
+    superMethods
   }
 
   def findOverrides(member: ScMember, deep: Boolean): Seq[PsiNamedElement] = {
@@ -106,7 +108,10 @@ object ScalaMarkerType {
             (superMembers, ScalaBundle.message("overrides.type.from.super"))
         }
         .map { case (namedElements, prefix) =>
-          GutterTooltipHelper.getTooltipText(singletonList(namedElements.head), prefix, true, null)
+          GutterTooltipHelper.getTooltipText(namedElements.asJava,
+            (e: PsiElement) => (if (e == namedElements.head) prefix else elementDivider + prefix) + " ",
+            (_: PsiElement) => true,
+            null)
         }
         .orNull,
     (event, element) =>
@@ -209,10 +214,27 @@ object ScalaMarkerType {
     }
   )
 
-  def samTypeImplementation(aClass: PsiClass): ScalaMarkerType = ScalaMarkerType(_ => {
-    val abstractMethod = aClass.getMethods.find(_.hasModifier(JvmModifier.ABSTRACT))
-    GutterTooltipHelper.getTooltipText(singletonList(abstractMethod.getOrElse(aClass)), ScalaBundle.message("implements.method.from.super"), abstractMethod.isDefined, null)
-  }, (event, _) => SAMUtil.singleAbstractMethod(aClass).foreach(navigateToSuperMethod(event, _, includeSelf = true))    )
+  def samTypeImplementation(aClass: PsiClass): ScalaMarkerType = {
+    val tooltipProvider = (_: PsiElement) => {
+      val psiElements = SAMUtil.singleAbstractMethod(aClass).toSeq.flatMap(superMethodsOf(_, includeSelf = true)).map {
+        case namedElement: ScNamedElement => namedElement.nameId
+        case identifierOwner: PsiNameIdentifierOwner => identifierOwner.getNameIdentifier
+        case element => element
+      }
+      val prefix = ScalaBundle.message("implements.method.from.super")
+      GutterTooltipHelper.getTooltipText(psiElements.asJava,
+        (e: PsiElement) => (if (e == psiElements.head) prefix else elementDivider + prefix) + " ",
+        (_: PsiElement) => true,
+        null)
+    }
+    ScalaMarkerType(tooltipProvider, (event, _) => SAMUtil.singleAbstractMethod(aClass).foreach(navigateToSuperMethod(event, _, includeSelf = true)))
+  }
+
+  // com.intellij.codeInsight.daemon.impl.GutterTooltipHelper.getElementDivider
+  private def elementDivider: String = {
+    val separatorColor = toHex(JBColor.namedColor("GutterTooltip.lineSeparatorColor", HintUtil.INFORMATION_BORDER_COLOR))
+    s"</p><p style='margin-top:2pt;border-top:thin solid #$separatorColor;'>"
+  }
 
   private class ScCellRenderer extends PsiElementListCellRenderer[PsiElement] {
 
