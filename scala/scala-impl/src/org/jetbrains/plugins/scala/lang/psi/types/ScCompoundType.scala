@@ -10,8 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
-import scala.collection.mutable
-
 final case class ScCompoundType private (
   components:   Seq[ScType],
   signatureMap: Map[TermSignature, ScType]      = Map.empty,
@@ -138,33 +136,45 @@ object ScCompoundType {
     new ScCompoundType(comps.distinct, sigs, types)
   }
 
+  def fromPsi(
+    components: Seq[ScType],
+    decls:      Seq[ScDeclaredElementsHolder],
+    typeDecls:  Seq[ScTypeAlias]
+  )(implicit
+    projectContext: ProjectContext
+  ): ScCompoundType = {
+    val signatureMapVal = signaturesFromPsi(decls)
 
-  def fromPsi(components: Seq[ScType], decls: Seq[ScDeclaredElementsHolder], typeDecls: Seq[ScTypeAlias])
-             (implicit projectContext: ProjectContext): ScCompoundType = {
-    val signatureMapVal = mutable.HashMap.empty[TermSignature, ScType]
+    ScCompoundType(components, signatureMapVal, typeDecls.map { typeDecl =>
+      (typeDecl.name, TypeAliasSignature(typeDecl))
+    }.toMap)
+  }
+
+  def signaturesFromPsi(
+    decls: Seq[ScDeclaredElementsHolder]
+  )(implicit
+    pc: ProjectContext
+  ): Map[TermSignature, ScType] = {
+    val signatureMapVal = Map.newBuilder[TermSignature, ScType]
 
     for (decl <- decls) {
       decl match {
         case fun: ScFunction => signatureMapVal += ((TermSignature(fun), fun.returnType.getOrAny))
         case varDecl: ScVariable =>
-          signatureMapVal ++= varDecl.declaredElements.map {
-            e => (TermSignature(e), e.`type`().getOrAny)
+          signatureMapVal ++= varDecl.declaredElements.map { e =>
+            (TermSignature(e), e.`type`().getOrAny)
           }
-          signatureMapVal ++= varDecl.declaredElements.map {
-            e => (TermSignature.scalaSetter(e), api.Unit)
+          signatureMapVal ++= varDecl.declaredElements.map { e =>
+            (TermSignature.scalaSetter(e), api.Unit)
           }
         case valDecl: ScValue =>
-          signatureMapVal ++= valDecl.declaredElements.map {
-            e => (TermSignature(e), e.`type`().getOrAny)
+          signatureMapVal ++= valDecl.declaredElements.map { e =>
+            (TermSignature(e), e.`type`().getOrAny)
           }
+        case _ => ()
       }
     }
 
-    ScCompoundType(
-      components,
-      signatureMapVal.toMap,
-      typeDecls.map {
-        typeDecl => (typeDecl.name, TypeAliasSignature(typeDecl))
-      }.toMap)
+    signatureMapVal.result()
   }
 }

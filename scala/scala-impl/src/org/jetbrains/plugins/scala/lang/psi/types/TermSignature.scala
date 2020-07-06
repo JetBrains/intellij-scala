@@ -81,7 +81,6 @@ class TermSignature(_name: String,
     paramTypesEquivExtended(other, ConstraintSystem.empty, falseUndef = true).isRight
   }
 
-
   def paramTypesEquivExtended(
     other:       TermSignature,
     constraints: ConstraintSystem,
@@ -155,7 +154,6 @@ class TermSignature(_name: String,
 
   override def hashCode: Int = equivHashCode * 31 + parameterlessKind
 
-
   /**
     * Use it, while building class hierarchy.
     * Because for class hierarchy def foo(): Int is the same thing as def foo: Int and val foo: Int.
@@ -188,11 +186,11 @@ class TermSignature(_name: String,
   override def toString = s"Signature($namedElement, $substitutor)"
 
   override def isAbstract: Boolean = namedElement match {
-    case _: ScFunctionDeclaration => true
-    case _: ScFunctionDefinition => false
-    case _: ScFieldId => true
+    case _: ScFunctionDeclaration                                                    => true
+    case _: ScFunctionDefinition                                                     => false
+    case _: ScFieldId                                                                => true
     case m: PsiModifierListOwner if m.hasModifierPropertyScala(PsiModifier.ABSTRACT) => true
-    case _ => false
+    case _                                                                           => false
   }
 
   override def isImplicit: Boolean = ScalaPsiUtil.isImplicit(namedElement)
@@ -206,10 +204,18 @@ class TermSignature(_name: String,
 
 object TermSignature {
 
-  def apply(name: String, paramTypes: Seq[() => ScType], substitutor: ScSubstitutor, namedElement: PsiNamedElement): TermSignature =
+  def apply(
+    name:         String,
+    paramTypes:   Seq[() => ScType],
+    substitutor:  ScSubstitutor,
+    namedElement: PsiNamedElement
+  ): TermSignature =
     new TermSignature(name, List(paramTypes), Seq.empty, substitutor, namedElement)
 
-  def apply(definition: PsiNamedElement, substitutor: ScSubstitutor = ScSubstitutor.empty): TermSignature = definition match {
+  def apply(
+    definition:  PsiNamedElement,
+    substitutor: ScSubstitutor = ScSubstitutor.empty
+  ): TermSignature = definition match {
     case function: ScFunction =>
       new TermSignature(
         function.name,
@@ -229,24 +235,35 @@ object TermSignature {
       )
   }
 
-  def withoutParams(name: String, subst: ScSubstitutor, namedElement: PsiNamedElement): TermSignature =
+  def withoutParams(
+    name:         String,
+    subst:        ScSubstitutor,
+    namedElement: PsiNamedElement
+  ): TermSignature =
     TermSignature(name, Seq.empty, subst, namedElement)
 
-  def setter(name: String, definition: ScTypedDefinition, subst: ScSubstitutor = ScSubstitutor.empty): TermSignature = TermSignature(
+  def setter(
+    name:       String,
+    definition: ScTypedDefinition,
+    subst:      ScSubstitutor = ScSubstitutor.empty
+  ): TermSignature = TermSignature(
     name,
     Seq(() => definition.`type`().getOrAny),
     subst,
     definition
   )
 
-  def scalaSetter(definition: ScTypedDefinition, subst: ScSubstitutor = ScSubstitutor.empty): TermSignature =
+  def scalaSetter(
+    definition: ScTypedDefinition,
+    subst:      ScSubstitutor = ScSubstitutor.empty
+  ): TermSignature =
     setter(methodName(definition.name, PropertyMethods.EQ), definition, subst)
 
-  private val Parameterless = 1
+  private val Parameterless    = 1
   private val EmptyParentheses = 2
-  private val ScalaVal = 3
-  private val JavaField = 4
-  private val HasParameters = 5
+  private val ScalaVal         = 3
+  private val JavaField        = 4
+  private val HasParameters    = 5
 }
 
 object PhysicalMethodSignature {

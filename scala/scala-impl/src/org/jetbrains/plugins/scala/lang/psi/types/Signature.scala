@@ -34,11 +34,11 @@ trait Signature {
     case inNameContext(s: ScModifierListOwner) =>
       s.getModifierList.accessModifier match {
         case Some(a: ScAccessModifier) => a.isUnqualifiedPrivateOrThis
-        case _ => false
+        case _                         => false
       }
-    case s: ScNamedElement => false
+    case _: ScNamedElement       => false
     case n: PsiModifierListOwner => n.hasModifierPropertyScala("private")
-    case _ => false
+    case _                       => false
   }
 
   //relation to use for building type hierarchy

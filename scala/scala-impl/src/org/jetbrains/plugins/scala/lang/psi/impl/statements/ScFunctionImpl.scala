@@ -370,13 +370,11 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
       }
   }
 
-
-  override def superSignatures: Seq[TermSignature] = {
+  override def superSignatures: Seq[TermSignature] =
     TypeDefinitionMembers.getSignatures(containingClass).forName(name).findNode(this) match {
-      case Some(x) => x.supers.map {_.info}
-      case None => Seq.empty
+      case Some(x) => x.supers.map { _.info }
+      case None    => Seq.empty
     }
-  }
 
   override def superSignaturesIncludingSelfType: Seq[TermSignature] = {
     val clazz = containingClass

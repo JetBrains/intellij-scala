@@ -4,7 +4,7 @@ package psi
 package api
 package base
 
-import com.intellij.psi.{PsiAnnotation, PsiModifierList}
+import com.intellij.psi.PsiModifierList
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.util.EnumSet._
 

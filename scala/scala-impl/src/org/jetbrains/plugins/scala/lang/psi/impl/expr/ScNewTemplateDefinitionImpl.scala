@@ -15,13 +15,15 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{JavaConstructor, ScConstructorInvocation, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTemplateDefinitionImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{ScTemplateDefinitionImpl, TypeDefinitionMembers}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -56,43 +58,68 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
   }
 
   protected override def innerType: TypeResult = {
+    def filterTypeSignatures(aliases: Seq[ScTypeAlias]): Map[String, TypeAliasSignature] = {
+      aliases.flatMap { alias =>
+        val sig = TypeAliasSignature(alias)
+
+        if (alias.isPrivate || alias.isProtected) None
+        else                                      Option((alias.name, sig))
+      }.toMap
+    }
+
+    def filterTermSignatures(terms: Seq[ScDeclaredElementsHolder]): Map[TermSignature, ScType] = {
+      lazy val sigs = TypeDefinitionMembers.getSignatures(this)
+      val termSigs  = ScCompoundType.signaturesFromPsi(terms)
+
+      termSigs.filterNot { case (sig, _) =>
+        val isAvalableOutside = sig.namedElement.nameContext match {
+          case m: ScMember => !m.isPrivate && !m.isProtected
+          case _           => false
+        }
+
+        !isAvalableOutside || sigs.forName(sig.name).findNode(sig.namedElement).exists(_.supers.nonEmpty)
+      }
+    }
+
     // Reliably prevent cases like SCL-17168
     if (extendsBlock.getTextLength == 0) {
       return Failure("Empty new expression")
     }
 
     desugaredApply match {
-      case Some(expr) =>
-        return expr.getNonValueType()
-      case _ =>
+      case Some(expr) => return expr.getNonValueType()
+      case _          =>
     }
 
     val earlyHolders: Seq[ScDeclaredElementsHolder] = extendsBlock.earlyDefinitions match {
-      case Some(e: ScEarlyDefinitions) => e.members.flatMap {
-        case holder: ScDeclaredElementsHolder => Seq(holder)
-        case _ => Seq.empty
-      }
+      case Some(e: ScEarlyDefinitions) =>
+        e.members.flatMap {
+          case holder: ScDeclaredElementsHolder => Seq(holder)
+          case _                                => Seq.empty
+        }
       case None => Seq.empty
     }
 
-    val (holders, aliases) : (Seq[ScDeclaredElementsHolder], Seq[ScTypeAlias]) = extendsBlock.templateBody match {
-      case Some(b: ScTemplateBody) => (b.holders ++ earlyHolders, b.aliases)
-      case None => (earlyHolders, Seq.empty)
-    }
+    val (termSignatures, typeSignatures) =
+      extendsBlock.templateBody match {
+        case Some(b: ScTemplateBody) =>
+          val termSigs = filterTermSignatures(b.holders ++ earlyHolders)
+          val typeSigs = filterTypeSignatures(b.aliases)
+          (termSigs, typeSigs)
+        case None => (ScCompoundType.signaturesFromPsi(earlyHolders), Map.empty[String, TypeAliasSignature])
+      }
 
     val superTypes = extendsBlock.superTypes
+    val superTypeElements = extendsBlock.templateParents.fold(Seq.empty[ScTypeElement])(_.allTypeElements)
 
-    if (superTypes.length > 1 || holders.nonEmpty || aliases.nonEmpty) {
-      Right(ScCompoundType.fromPsi(superTypes, holders.toList, aliases.toList))
+    if (superTypeElements.length > 1 || termSignatures.nonEmpty || typeSignatures.nonEmpty) {
+      Right(ScCompoundType(superTypes, termSignatures, typeSignatures))
+    } else if (superTypeElements.length == 1) {
+      superTypeElements.head.getNonValueType()
     } else {
-      extendsBlock.templateParents match {
-        case Some(tp) if tp.allTypeElements.length == 1 =>
-          tp.allTypeElements.head.getNonValueType()
-        case _ =>
-          superTypes.headOption match {
-            case Some(t) => Right(t)
-            case None => Right(AnyRef) //this is new {} case
-          }
+      superTypes.headOption match {
+        case Some(t) => Right(t)
+        case None    => Right(AnyRef) //this is new {} case
       }
     }
   }

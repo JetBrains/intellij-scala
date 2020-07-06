@@ -10,7 +10,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.util._
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, OptionExt, StubBasedExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, StubBasedExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValueOrVariable}
@@ -198,7 +198,6 @@ object ScMember {
   }
 
   implicit class ScMemberExt(private val member: ScMember) extends AnyVal {
-
     def isSynthetic: Boolean = member.syntheticNavigationElement != null
 
     def isPrivate: Boolean = member.hasModifierPropertyScala(PsiModifier.PRIVATE)

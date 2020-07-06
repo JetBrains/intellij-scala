@@ -278,6 +278,17 @@ class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBas
       """.stripMargin
     assertNothing(messages(text))
   }
+
+  def testSCL17677(): Unit = assertNothing(messages(
+    """
+      |class Foo; class Bar extends Foo
+      |trait C[-A] { def f(p: A): Unit }
+      |implicit val cFoo = new C[Foo] { def f(p: Foo) = () }
+      |implicit val cBar = new C[Bar] { def f(p: Bar) = () }
+      |def f[A: C](p: A) = ()
+      |f(new Bar)
+      |""".stripMargin
+  ))
 }
 
 //annotator tests doesn't have scala library, so it's not possible to use FunctionType, for example
