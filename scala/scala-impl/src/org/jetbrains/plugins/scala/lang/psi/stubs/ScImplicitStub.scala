@@ -59,6 +59,8 @@ object ScImplicitStub {
   private def classOrUpperBoundClass(typeElem: ScTypeElement, owner: ScTypeParametersOwner): Option[String] = {
     def className(te: ScTypeElement) = classNames(te).headOption
 
+    //it is very common to have implicit conversion defined for a type parameter
+    //we cannot do a real resolve during indexing, but this heuristic works good enough
     @tailrec
     def findTypeParam(owner: ScTypeParametersOwner, tpName: String): Option[ScTypeParam] = {
       if (owner == null) None
@@ -70,19 +72,25 @@ object ScImplicitStub {
       }
     }
 
-    val text = typeElem.getText
-
-    if (!text.contains('.')) {
-      findTypeParam(owner, text) match {
-        case Some(typeParam) =>
-          typeParam.upperTypeElement match {
-            case None        => Some(AnyFqn)
-            case Some(upper) => className(upper)
-          }
-        case None => className(typeElem)
-      }
+    @tailrec
+    def simpleName(te: ScTypeElement): Option[String] = te match {
+      case ScSimpleTypeElement(ref) if ref.qualifier.isEmpty => Some(ref.refName)
+      case ScParameterizedTypeElement(te, _) => simpleName(te)
+      case _ => None
     }
-    else className(typeElem)
+
+    simpleName(typeElem) match {
+      case Some(name) =>
+        findTypeParam(owner, name) match {
+          case Some(typeParam) =>
+            typeParam.upperTypeElement match {
+              case None        => Some(AnyFqn)
+              case Some(upper) => className(upper)
+            }
+          case None => className(typeElem)
+        }
+      case None => className(typeElem)
+    }
   }
 
   final def classNames(te: ScTypeElement): Array[String] = {
