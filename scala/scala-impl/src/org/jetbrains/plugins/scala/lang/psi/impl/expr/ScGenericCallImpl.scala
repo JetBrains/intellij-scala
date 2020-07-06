@@ -6,7 +6,6 @@ package expr
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -57,7 +56,6 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
           else Seq.empty) :: Nil
       }
     val typeArgs: Seq[ScTypeElement] = this.arguments
-    import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression._
     val processor = new MethodResolveProcessor(referencedExpr, methodName, args, typeArgs,
       Seq.empty /* todo: ? */ , isShapeResolve = isShape, enableTupling = true)
     processor.processType(tp, referencedExpr, ScalaResolveState.empty)
@@ -71,8 +69,8 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
   private def substPolymorphicType: ScType => ScType = {
     case ScTypePolymorphicType(internal, tps) =>
       //type parameters of a method are appended to the right of ScTypePolymorphicType parameters
-      ScSubstitutor.bind(tps.takeRight(arguments.length), arguments)(_.calcType)
-        .apply(internal)
+      val tpSubst = ScSubstitutor.bind(tps.takeRight(arguments.length), arguments)(_.calcType)
+      tpSubst(internal)
     case t => t
   }
 

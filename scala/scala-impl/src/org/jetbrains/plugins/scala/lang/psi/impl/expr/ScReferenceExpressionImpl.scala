@@ -493,9 +493,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
               case Right(ScTypePolymorphicType(_, typeParams)) =>
                 inner match {
                   case ScTypePolymorphicType(internal, typeParams2) =>
-                    return Right(ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2 ++ unresolvedTypeParameters)))
+                    return Right(ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, unresolvedTypeParameters ++ typeParams ++ typeParams2)))
                   case _ =>
-                    return Right(ScTypePolymorphicType(inner, typeParams ++ unresolvedTypeParameters))
+                    return Right(ScTypePolymorphicType(inner, unresolvedTypeParameters ++ typeParams))
                 }
               case _ if unresolvedTypeParameters.nonEmpty =>
                 inner match {
@@ -513,9 +513,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           case Right(ScTypePolymorphicType(_, typeParams)) =>
             inner match {
               case ScTypePolymorphicType(internal, typeParams2) =>
-                return Right(ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2 ++ unresolvedTypeParameters)))
+                return Right(ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, unresolvedTypeParameters ++ typeParams ++ typeParams2)))
               case _ =>
-                return Right(ScTypePolymorphicType(inner, typeParams ++ unresolvedTypeParameters))
+                return Right(ScTypePolymorphicType(inner, unresolvedTypeParameters ++ typeParams))
             }
           case _ if unresolvedTypeParameters.nonEmpty =>
             inner match {
