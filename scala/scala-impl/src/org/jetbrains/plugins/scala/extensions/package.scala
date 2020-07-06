@@ -412,9 +412,11 @@ package object extensions {
     def asOptionOf[E <: T : ClassTag]: Option[E] = asOptionOfUnsafe[E]
 
     // For `is` there's "unsafe" `isInstanceOf`, but for `asOption` there's only `match` (which is verbose).
-    def asOptionOfUnsafe[E : ClassTag]: Option[E] = Some(v).collect {
-      case e: E => e
-    }
+    def asOptionOfUnsafe[E : ClassTag]: Option[E] =
+      v match {
+        case e: E => Some(e)
+        case _    => None
+      }
   }
 
   implicit class ReferenceExt[T](private val target: Reference[T]) extends AnyVal {
