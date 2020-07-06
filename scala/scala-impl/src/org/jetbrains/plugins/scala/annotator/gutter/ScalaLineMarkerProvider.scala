@@ -9,6 +9,7 @@ import java.{util => ju}
 import com.intellij.codeInsight.daemon._
 import com.intellij.codeInsight.daemon.impl.GutterTooltipHelper
 import com.intellij.icons.AllIcons.Gutter
+import com.intellij.ide.util.PsiNavigationSupport
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColorsManager}
@@ -320,10 +321,14 @@ private object GutterUtil {
 
           val info = new LineMarkerInfo(identifier,
             identifier.getTextRange,
-            iconFor(typeDefinition, swapped), (_: PsiElement) =>
-              GutterTooltipHelper.getTooltipText(singletonList(companion.nameId), ScalaBundle.message("has.companion", nameOf(companion)), false, IdeActions.ACTION_GOTO_DECLARATION)
+            iconFor(typeDefinition, swapped),
+            (_: PsiElement) =>
+              GutterTooltipHelper.getTooltipText(singletonList(companion.nameId.getPrevSiblingNotWhitespace), ScalaBundle.message("has.companion", nameOf(companion)), false, IdeActions.ACTION_GOTO_DECLARATION)
                 .replace("to navigate", "on the keyword to navigate"), // Not internationalizable (which is somewhat OK).
-            (_: MouseEvent, _: PsiElement) => companion.navigate(/* requestFocus = */ true), Alignment.LEFT)
+            (_: MouseEvent, _: PsiElement) =>
+              Option(PsiNavigationSupport.getInstance.createNavigatable(companion.getProject,
+                companion.getContainingFile.getVirtualFile, companion.nameId.getPrevSiblingNotWhitespace.startOffset)).foreach(_.navigate(true)),
+            Alignment.LEFT)
           NavigateAction.setNavigateAction(info, ScalaBundle.message("go.to.companion", nameOf(companion)), IdeActions.ACTION_GOTO_DECLARATION)
         }
 
