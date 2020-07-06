@@ -278,6 +278,27 @@ class AutoBracesTest extends EditorActionTestBase {
     'x'
   )
 
+  // SCL-17794
+  def testClosingStringQuote(): Unit = checkTypingInAllContexts(
+    s"""
+       |def test =
+       |  "test"
+       |  $CARET
+       |""".stripMargin -> NextConstructOnNewline,
+    s"""
+       |def test = {
+       |  "test"
+       |  "$CARET"
+       |}
+       |""".stripMargin -> NextConstructOnSameLine,
+    s"""
+       |def test =
+       |  "test"
+       |  "$CARET"
+       |""".stripMargin -> NextConstructOnNewline,
+    '\"'
+  )
+
   def testDeletingLastExprBefore(): Unit = checkBackspaceInAllContexts(
     s"""
        |def test = {

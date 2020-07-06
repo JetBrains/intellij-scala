@@ -598,7 +598,8 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     }
 
     // ========= Insert braces =========
-    // Start with the opening brace, then the user input, and then the closing brace
+    // Start with the opening brace, and then the closing brace.
+    // Also remember brace ranges for later reformating
     val document = editor.getDocument
 
     val openingBraceOffset =
@@ -609,11 +610,6 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     document.insertString(openingBraceOffset, "{")
     val openingBraceRange = TextRange.from(openingBraceOffset, 1)
     val displacementAfterOpeningBrace = 1
-
-    // ========= User input =========
-    document.insertString(caretOffset + displacementAfterOpeningBrace, c.toString)
-    val displacementAfterUserInput = displacementAfterOpeningBrace + 1
-    editor.getCaretModel.moveToOffset(caretOffset + displacementAfterUserInput)
 
     // ========= Closing brace =========
     // After the caret there could many whitespaces and then something that
@@ -634,24 +630,34 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
 
     val closingBraceRange = subsequentConstructOffset match {
       case Some(subsequentConstructOffset) =>
-        val braceInsertPosition = subsequentConstructOffset + displacementAfterUserInput
+        val braceInsertPosition = subsequentConstructOffset + displacementAfterOpeningBrace
         document.insertString(braceInsertPosition, "} ")
 
         TextRange.from(braceInsertPosition, 3)
       case None =>
         // There is no subsequent construct, so just insert the braces after the caret or the expression
         val braceInsertPosition =
-          if (caretIsBeforeExpr) expr.endOffset + displacementAfterUserInput
-          else caretOffset + displacementAfterUserInput
+          if (caretIsBeforeExpr) expr.endOffset + displacementAfterOpeningBrace
+          else caretOffset + displacementAfterOpeningBrace
 
         document.insertString(braceInsertPosition, "\n}")
         TextRange.from(braceInsertPosition, 3)
     }
     document.commit(project)
 
-    CodeStyleManager.getInstance(project).reformatText(file, ju.Arrays.asList(openingBraceRange, closingBraceRange))
+    // We have to remember the exact caret position, because the reformatting
+    // will destroy the caret position because of the way ws-only lines are reformatted
+    val caretOffsetBeforeFormatting = caretOffset + displacementAfterOpeningBrace
+    val marker = document.createRangeMarker(caretOffsetBeforeFormatting, caretOffsetBeforeFormatting)
+    marker.setGreedyToRight(true)
+    try {
+      CodeStyleManager.getInstance(project).reformatText(file, ju.Arrays.asList(openingBraceRange, closingBraceRange))
+      editor.getCaretModel.moveToOffset(marker.getEndOffset)
+    } finally {
+      marker.dispose()
+    }
 
-    Result.STOP
+    Result.CONTINUE
   }
 
   private def handleLeftBraceWrap(caretOffset: Int, element: PsiElement)
