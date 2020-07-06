@@ -227,7 +227,20 @@ object WorksheetEditorPrinterPlain {
 
     chunks.sliding(2).foreach {
       case Seq(prev, curr) =>
-        assert(prev.inputEndLine <= curr.inputStartLine, "chunks should be ordered")
+        def logExtraDebugInfo = {
+          val application = ApplicationManager.getApplication
+          application.isUnitTestMode || application.isInternal
+        }
+        def extraDebugInfo =
+          if (logExtraDebugInfo) chunks.mkString("chunks:\n", "\n", "") else ""
+
+        Log.assertTrue(
+          prev.inputEndLine <= curr.inputStartLine,
+          s"""chunks should be ordered:
+             |prev: (${prev.inputStartLine}, ${prev.inputEndLine})
+             |curr: (${curr.inputStartLine}, ${curr.inputEndLine})
+             |$extraDebugInfo""".stripMargin
+        )
 
         if (prev.inputEndLine == curr.inputStartLine) {
           result.last += curr
