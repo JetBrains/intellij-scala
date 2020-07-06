@@ -32,9 +32,7 @@ private[completion] final class ExtensionMethodsFinder(private val originalType:
       (if (accessAll) globalCandidates(new ApplicabilityPredicate) else Iterable.empty)
 
   private def globalCandidates(predicate: ScalaResolveResult => Boolean) = for {
-    (GlobalImplicitConversion(classToImport, elementToImport), resultType) <- ImplicitConversionCache(place.getProject)
-      .getPossibleConversions(place)
-
+    (GlobalImplicitConversion(classToImport, elementToImport), resultType) <- ImplicitConversionData.getPossibleConversions(place)
     resolveResult <- candidatesForType(resultType)
     if predicate(resolveResult)
   } yield ExtensionMethodCandidate(resolveResult, classToImport, elementToImport)

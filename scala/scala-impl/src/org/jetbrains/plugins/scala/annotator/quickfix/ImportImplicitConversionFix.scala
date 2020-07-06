@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLitera
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScReferenceExpression, ScSugarCallExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
-import org.jetbrains.plugins.scala.lang.psi.implicits.{GlobalImplicitConversion, ImplicitCollector, ImplicitConversionCache}
+import org.jetbrains.plugins.scala.lang.psi.implicits.{GlobalImplicitConversion, ImplicitCollector, ImplicitConversionData}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult.containingObject
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -61,7 +61,7 @@ object ImportImplicitConversionFix {
 
     val conversions = for {
       qualifier                <- qualifier(ref).toSeq
-      (conversion, resultType) <- ImplicitConversionCache(ref.getProject).getPossibleConversions(qualifier).toSeq
+      (conversion, resultType) <- ImplicitConversionData.getPossibleConversions(qualifier).toSeq
       if !isInExcludedPackage(conversion.containingObject, false) &&
         !visible.contains(conversion) &&
         CompletionProcessor.variantsWithName(resultType, qualifier, ref.refName).nonEmpty

@@ -5,11 +5,15 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.CachesUtil
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.findInheritorObjectsForOwner
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.findImplicits
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitConversionIndex
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -17,8 +21,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{P
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
 import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScParameterizedType, ScType}
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, Measure}
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.util.CommonQualifiedNames.AnyFqn
 
 abstract class ImplicitConversionData {
   def element: PsiNamedElement
@@ -143,6 +148,9 @@ abstract class ImplicitConversionData {
 
 object ImplicitConversionData {
 
+  def apply(globalConversion: GlobalImplicitConversion): Option[ImplicitConversionData] =
+    ImplicitConversionData(globalConversion.function, globalConversion.substitutor)
+
   def apply(element: PsiNamedElement, substitutor: ScSubstitutor): Option[ImplicitConversionData] = {
     ProgressManager.checkCanceled()
 
@@ -154,7 +162,31 @@ object ImplicitConversionData {
     }
   }
 
-  @CachedInUserData(function, ModCount.getBlockModificationCount)
+  def getPossibleConversions(expr: ScExpression): Map[GlobalImplicitConversion, ScType] =
+    expr.getTypeWithoutImplicits().toOption match {
+      case None => Map.empty
+      case Some(originalType) =>
+        val withSuperClasses = originalType.widen.extractClass match {
+          case Some(clazz) => MixinNodes.allSuperClasses(clazz).map(_.qualifiedName) + clazz.qualifiedName + AnyFqn
+          case _ => Set.empty
+        }
+
+        (for {
+          qName <- withSuperClasses
+          function <- ImplicitConversionIndex.conversionCandidatesForFqn(qName, expr.resolveScope)(expr.getProject)
+
+          if ImplicitConversionProcessor.applicable(function, expr)
+
+          containingObject <- findInheritorObjectsForOwner(function)
+          conversion = GlobalImplicitConversion(containingObject, function)
+          data <- ImplicitConversionData(conversion)
+          resultType <- data.resultType(originalType, expr).map((conversion, _))
+        } yield resultType)
+          .toMap
+    }
+
+
+  @CachedInUserData(function, CachesUtil.libraryAwareModTracker(function))
   private def rawCheck(function: ScFunction): Option[ImplicitConversionData] = {
     for {
       retType   <- function.returnType.toOption
@@ -165,7 +197,7 @@ object ImplicitConversionData {
     }
   }
 
-  @CachedInUserData(named, ModCount.getBlockModificationCount)
+  @CachedInUserData(named, CachesUtil.libraryAwareModTracker(named))
   private def rawElementWithFunctionTypeCheck(named: PsiNamedElement with Typeable): Option[ImplicitConversionData] = {
     for {
       function1Type <- named.elementScope.cachedFunction1Type
