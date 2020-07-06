@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.{ScExpressionOwnerStub, S
 trait ScParameterStub extends NamedStub[ScParameter]
   with ScTypeElementOwnerStub[ScParameter]
   with ScExpressionOwnerStub[ScParameter]
-  with ScImplicitInstanceStub {
+  with ScImplicitStub {
 
   def isStable: Boolean
 

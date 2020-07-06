@@ -36,7 +36,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     dataStream.writeBoolean(stub.isLocal)
     dataStream.writeBoolean(stub.isVisibleInJava)
     dataStream.writeBoolean(stub.isImplicitObject)
-    dataStream.writeBoolean(stub.isImplicitConversion)
+    dataStream.writeOptionName(stub.implicitConversionParameterClass)
     dataStream.writeNames(stub.implicitClassNames)
   }
 
@@ -56,7 +56,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     isLocal = dataStream.readBoolean,
     isVisibleInJava = dataStream.readBoolean,
     isImplicitObject = dataStream.readBoolean,
-    isImplicitConversion = dataStream.readBoolean,
+    implicitConversionParameterClass = dataStream.readOptionName,
     implicitClassNames = dataStream.readNames
   )
 
@@ -96,12 +96,11 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     }
 
     val isImplicit = definition.hasModifierPropertyScala("implicit")
-    val qualifiedName = definition.qualifiedName
 
-    val (isImplicitObject, isImplicitConversion, implicitClassNames) = definition match {
-      case obj: ScObject if isImplicit => (true, false, ScImplicitInstanceStub.superClassNames(obj))
-      case _: ScClass if isImplicit => (false, true, Array(qualifiedName))
-      case _ => (false, false, EMPTY_STRING_ARRAY)
+    val (isImplicitObject, implicitConversionParamClass, implicitClassNames) = definition match {
+      case obj: ScObject if isImplicit => (true, None, ScImplicitStub.superClassNames(obj))
+      case c: ScClass if isImplicit    => (false, ScImplicitStub.conversionParamClass(c), EMPTY_STRING_ARRAY)
+      case _                           => (false, None, EMPTY_STRING_ARRAY)
     }
 
     new ScTemplateDefinitionStubImpl(
@@ -119,7 +118,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       isLocal = isLocal,
       isVisibleInJava = isVisibleInJava,
       isImplicitObject = isImplicitObject,
-      isImplicitConversion = isImplicitConversion,
+      implicitConversionParameterClass = implicitConversionParamClass,
       implicitClassNames = implicitClassNames
     )
   }

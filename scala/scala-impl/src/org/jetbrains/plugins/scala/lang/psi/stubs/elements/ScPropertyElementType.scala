@@ -53,7 +53,7 @@ sealed abstract class ScPropertyElementType[P <: ScValueOrVariable](debugName: S
       typeText = property.typeElement.map(_.getText),
       bodyText = body(property).map(_.getText),
       isLocal = property.containingClass == null,
-      implicitClassNames = ScImplicitInstanceStub.implicitClassNames(property, property.typeElement)
+      implicitClassNames = ScImplicitStub.implicitClassNames(property, property.typeElement)
     )
 
   override final def indexStub(stub: ScPropertyStub[P], sink: IndexSink): Unit = {
