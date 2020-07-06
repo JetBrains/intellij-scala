@@ -5,7 +5,10 @@ import com.intellij.psi.{PsiClass, PsiElement, PsiPackage}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScParameterizedType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 /**
@@ -33,7 +36,7 @@ object ScEquivalenceUtil {
 
     if (isLocalOrAnonymous(clazz1) || isLocalOrAnonymous(clazz2))
       return false
-     
+
     clazz1.isInstanceOf[ScObject] == clazz2.isInstanceOf[ScObject]
   }
 
@@ -65,6 +68,31 @@ object ScEquivalenceUtil {
       case (p1: PsiPackage, p2: PsiPackage) => arePackagesEquivalent(p1, p2)
       case (ta1: ScTypeAlias, ta2: ScTypeAlias) => areTypeAliasesEquivalent(ta1, ta2)
       case _ => elem1 == elem2
+    }
+  }
+
+  /**
+   * Checks if provided [[DesignatorOwner]] references class/type alias
+   * and so is equivalent to it's "eta expansion" poly type in a higher-kinded
+   * scenario. e.g. `F[Option]` and `F[[A] Option[A]]`.
+   */
+  def isDesignatorEqiuivalentToPolyType(
+    des:         DesignatorOwner,
+    poly:        ScTypePolymorphicType,
+    constraints: ConstraintSystem,
+    falseUndef:  Boolean
+  ): Option[ConstraintsResult] = {
+    val typeParams = des.element match {
+      case alias: ScTypeAlias => alias.typeParameters.map(TypeParameter(_))
+      case cls: PsiClass      => cls.getTypeParameters.map(TypeParameter(_)).toSeq
+      case _                  => Seq.empty
+    }
+
+    if (typeParams.isEmpty) None
+    else {
+      val appliedToParams = ScParameterizedType(des, typeParams.map(TypeParameterType(_)))
+      val tpt             = ScTypePolymorphicType(appliedToParams, typeParams)
+      Option(tpt.equiv(poly, constraints, falseUndef))
     }
   }
 }

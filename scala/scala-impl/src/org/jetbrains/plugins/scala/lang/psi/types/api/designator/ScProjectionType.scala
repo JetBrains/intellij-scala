@@ -212,12 +212,20 @@ final class ScProjectionType private(val projected: ScType,
           case designatorOwner: DesignatorOwner if designatorOwner.isSingleton =>
             val resInner = tp.equiv(r, constraints, falseUndef)
             if (resInner.isRight) return resInner
-          case lit: ScLiteralType =>
+          case _: ScLiteralType =>
             val resInner = tp.equiv(r, constraints, falseUndef)
             if (resInner.isRight) return resInner
           case _ =>
         }
       case _ =>
+    }
+
+    r match {
+      case tpt: ScTypePolymorphicType =>
+        return ScEquivalenceUtil
+          .isDesignatorEqiuivalentToPolyType(this, tpt, constraints, falseUndef)
+          .getOrElse(ConstraintsResult.Left)
+      case _ => ()
     }
 
     this match {

@@ -10,7 +10,9 @@ import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
 
 /**
@@ -67,32 +69,30 @@ final case class ScDesignatorType(override val element: PsiNamedElement) extends
   }
 
   override def equivInner(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
-    def equivSingletons(left: DesignatorOwner, right: DesignatorOwner) = left.designatorSingletonType.filter {
-      case designatorOwner: DesignatorOwner if designatorOwner.isSingleton => true
-      case _ => false
-    }.map {
-      _.equiv(right, constraints, falseUndef)
-    }
+    def equivSingletons(left: DesignatorOwner, right: DesignatorOwner) =
+      left.designatorSingletonType.filter {
+        case designatorOwner: DesignatorOwner if designatorOwner.isSingleton => true
+        case _                                                               => false
+      }.map(
+        _.equiv(right, constraints, falseUndef)
+      )
 
-    (element match {
-      case definition: ScTypeAliasDefinition =>
-        definition.aliasedType.toOption.map {
+    (`type` match {
+      case rhs: ScTypePolymorphicType =>
+        ScEquivalenceUtil.isDesignatorEqiuivalentToPolyType(this, rhs, constraints, falseUndef)
+      case _ if element.isInstanceOf[ScTypeAliasDefinition] =>
+        element.asInstanceOf[ScTypeAliasDefinition].aliasedType.toOption.map(
           _.equiv(`type`, constraints, falseUndef)
+        )
+      case ScDesignatorType(thatElement) if smartEquivalence(element, thatElement) =>
+        Option(constraints)
+      case that: DesignatorOwner if isSingleton && that.isSingleton =>
+        equivSingletons(this, that) match {
+          case None   => equivSingletons(that, this)
+          case result => result
         }
-      case _ =>
-        `type` match {
-          case ScDesignatorType(thatElement) if smartEquivalence(element, thatElement) =>
-            Some(constraints)
-          case that: DesignatorOwner if isSingleton && that.isSingleton =>
-            equivSingletons(this, that) match {
-              case None => equivSingletons(that, this)
-              case result => result
-            }
-          case _ => None
-        }
-    }).getOrElse {
-      ConstraintsResult.Left
-    }
+      case _ => None
+    }).getOrElse(ConstraintsResult.Left)
   }
 
   override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitDesignatorType(this)

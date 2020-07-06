@@ -7,6 +7,7 @@ package nonvalue
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.types.ConstraintSystem.SubstitutionBounds
 import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ProcessSubtypes
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -159,6 +160,12 @@ final case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq
         }
         val subst = ScSubstitutor.bind(typeParameters, p.typeParameters)(TypeParameterType(_))
         subst(internalType).equiv(p.internalType, lastConstraints, falseUndef)
+      case des: ScDesignatorType =>
+        /** Consider simple designator type `Option` in `F[Option]`
+           and `[A] Option[A]` in `F[[A] Option[A]]`,
+           the arguments should obviously be equivalent.
+           [[ScDesignatorType.equivInner()]] is tailored to deal with such cases. */
+        des.equiv(this, constraints, falseUndef)
       case _ => ConstraintsResult.Left
     }
   }
