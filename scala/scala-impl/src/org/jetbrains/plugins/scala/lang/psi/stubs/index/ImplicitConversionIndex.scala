@@ -8,8 +8,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.IndexSink
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.StubIndexKeyExt
+import org.jetbrains.plugins.scala.macroAnnotations.Measure
 
 /**
  * @author Alexander Podkhalyuzin
@@ -22,12 +23,21 @@ final class ImplicitConversionIndex extends ScStringStubIndexExtension[ScMember]
 
 object ImplicitConversionIndex extends ImplicitIndex {
 
-  import ScalaIndexKeys._
-
   //noinspection TypeAnnotation
-  override protected val indexKey = IMPLICIT_CONVERSION_KEY
+  override protected val indexKey = ScalaIndexKeys.IMPLICIT_CONVERSION_KEY
 
   private val dummyStringKey: String = "implicit_conversion"
+
+  def conversionCandidatesForFqn(classFqn: String, scope: GlobalSearchScope)
+                                (implicit project: Project): Iterable[ScFunction] =
+    for {
+      member   <- forClassFqn(classFqn, scope)
+      function <- member match {
+        case f: ScFunction => f :: Nil
+        case c: ScClass => c.getSyntheticImplicitMethod.toSet
+        case _ => Nil
+      }
+    } yield function
 
   def allConversions(scope: GlobalSearchScope)
                     (implicit project: Project): Iterable[ScFunction] = for {

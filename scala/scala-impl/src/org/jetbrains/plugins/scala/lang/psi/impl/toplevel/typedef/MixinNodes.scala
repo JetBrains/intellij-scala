@@ -152,6 +152,9 @@ object MixinNodes {
 
   }
 
+  def allSuperClasses(clazz: PsiClass): Set[PsiClass] =
+    SuperTypesData(clazz).substitutors.keys.toSet
+
   def asSeenFromSubstitutor(superClass: PsiClass, thisClass: PsiClass): ScSubstitutor =
     SuperTypesData(thisClass).substitutors.getOrElse(superClass, ScSubstitutor.empty)
 

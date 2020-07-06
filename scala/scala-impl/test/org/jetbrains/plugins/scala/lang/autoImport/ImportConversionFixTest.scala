@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.annotator.quickfix.ImportImplicitConversionFi
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-class ImportConversionFix extends ImportElementFixTestBase[ScReferenceExpression] {
+class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpression] {
   //conversions from standard library may be different in older versions
   override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_2_13
 
@@ -57,9 +57,7 @@ class ImportConversionFix extends ImportElementFixTestBase[ScReferenceExpression
        |  100 ${CARET}seconds
        |}
        |""".stripMargin,
-    "scala.concurrent.duration.DurationDouble",
     "scala.concurrent.duration.DurationInt",
-    "scala.concurrent.duration.DurationLong",
   )
 
   def testDoubleSecondsInfix(): Unit = checkElementsToImport(
@@ -116,6 +114,22 @@ class ImportConversionFix extends ImportElementFixTestBase[ScReferenceExpression
        |""".stripMargin,
 
     "StringInterpol.Xy"
+  )
+
+  def testParamWithTypeConstructor(): Unit = checkElementsToImport(
+    s"""
+       |object conversions {
+       |  implicit class SeqExt[CC[X] <: Seq[X], A <: AnyRef](private val value: CC[A]) extends AnyVal {
+       |    def firstBy[B](f: A => B)(implicit ord: Ordering[B]): Option[A] = ???
+       |  }
+       |}
+       |
+       |class Test {
+       |  Nil.${CARET}firstBy()
+       |}
+       |""".stripMargin,
+
+    "conversions.SeqExt"
   )
 
 }

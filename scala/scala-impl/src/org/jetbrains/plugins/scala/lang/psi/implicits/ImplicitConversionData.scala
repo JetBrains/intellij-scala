@@ -1,29 +1,24 @@
 package org.jetbrains.plugins.scala.lang.psi.implicits
 
-import com.intellij.openapi.application.{ApplicationManager, ReadAction}
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.startup.StartupActivity
-import com.intellij.psi.{PsiElement, PsiNamedElement}
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.concurrency.AppExecutorUtil
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.findImplicits
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitConversionIndex
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 abstract class ImplicitConversionData {
   def element: PsiNamedElement
@@ -147,28 +142,6 @@ abstract class ImplicitConversionData {
 }
 
 object ImplicitConversionData {
-
-  class WarmUpActivity extends StartupActivity {
-    override def runActivity(project: Project): Unit = {
-      scheduleWarmUp(project)
-
-      project.subscribeToModuleRootChanged()(_ => scheduleWarmUp(project))
-    }
-  }
-
-  private def scheduleWarmUp(project: Project): Unit = {
-    if (ApplicationManager.getApplication.isUnitTestMode)
-      return
-
-    val task: Runnable = { () =>
-      val conversions = ImplicitConversionIndex.allConversions(GlobalSearchScope.allScope(project))(project)
-      conversions.foreach(rawCheck)
-    }
-    ReadAction.nonBlocking(task)
-      .inSmartMode(project)
-      .expireWhen(() => project.isDisposed)
-      .submit(AppExecutorUtil.getAppExecutorService)
-  }
 
   def apply(element: PsiNamedElement, substitutor: ScSubstitutor): Option[ImplicitConversionData] = {
     ProgressManager.checkCanceled()

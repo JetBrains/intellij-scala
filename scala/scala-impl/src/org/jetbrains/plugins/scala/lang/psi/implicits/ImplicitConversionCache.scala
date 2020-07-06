@@ -3,90 +3,43 @@ package lang
 package psi
 package implicits
 
-import java.util.concurrent.Callable
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.TimeUnit
-
-import com.intellij.openapi.Disposable
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.LowMemoryWatcher
-import com.intellij.openapi.util.LowMemoryWatcher.LowMemoryWatcherType
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.util.concurrency.AppExecutorUtil
-import org.jetbrains.concurrency.CancellablePromise
-import org.jetbrains.plugins.scala.caches.CachesUtil.Timestamped
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.findInheritorObjectsForOwner
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitConversionIndex
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-
-import scala.util.Try
+import org.jetbrains.plugins.scala.util.CommonQualifiedNames.AnyFqn
 
 @Service
-final class ImplicitConversionCache(implicit val project: Project) extends Disposable {
-
-  import GlobalImplicitConversion._
-
-  private val implicitConversionDataCache = new ConcurrentHashMap[GlobalSearchScope, Timestamped[ImplicitConversionMap]]
-
-  LowMemoryWatcher.register(() => implicitConversionDataCache.clear(), LowMemoryWatcherType.ALWAYS, this)
-
-  private val defaultTimeoutMs: Int =
-    if (ApplicationManager.getApplication.isUnitTestMode) 10000
-    else 100
-
-  def getOrScheduleUpdate(scope: GlobalSearchScope): ImplicitConversionMap = {
-    val currentCount = currentTopLevelModCount
-
-    implicitConversionDataCache.get(scope) match {
-      case null =>
-        Try(
-          scheduleUpdateFor(scope)
-            .blockingGet(defaultTimeoutMs, TimeUnit.MILLISECONDS)
-            .data
-        ).getOrElse(Map.empty)
-      case Timestamped(data, modCount) =>
-        if (currentCount != modCount) {
-          scheduleUpdateFor(scope)
-        }
-        data
-    }
-  }
+final class ImplicitConversionCache(implicit val project: Project) {
 
   def getPossibleConversions(expr: ScExpression): Map[GlobalImplicitConversion, ScType] = {
     expr.getTypeWithoutImplicits().toOption match {
       case None               => Map.empty
       case Some(originalType) =>
-        getOrScheduleUpdate(expr.resolveScope)
-          .filter {
-            case (_, data) => ImplicitConversionProcessor.applicable(data.element, expr)
-          }
-          .flatMap {
-            case (conversion, data) => data.resultType(originalType, expr).map((conversion, _))
-          }
+        val withSuperClasses = originalType.widen.extractClass match {
+          case Some(clazz) => MixinNodes.allSuperClasses(clazz).map(_.qualifiedName) + clazz.qualifiedName + AnyFqn
+          case _ => Set.empty
+        }
+
+        (for {
+          qName            <- withSuperClasses
+          function         <- ImplicitConversionIndex.conversionCandidatesForFqn(qName, expr.resolveScope)
+
+          if ImplicitConversionProcessor.applicable(function, expr)
+
+          containingObject <- findInheritorObjectsForOwner(function)
+          globalConversion =  GlobalImplicitConversion(containingObject, function)
+          data             <- ImplicitConversionData(function, globalConversion.substitutor)
+          resultType       <- data.resultType(originalType, expr).map((globalConversion, _))
+        } yield resultType)
+          .toMap
     }
   }
 
-  override def dispose(): Unit = implicitConversionDataCache.clear()
-
-  private def scheduleUpdateFor(scope: GlobalSearchScope): CancellablePromise[Timestamped[ImplicitConversionMap]] = {
-    val callback: Callable[Timestamped[ImplicitConversionMap]] = () => {
-      val currentCount = currentTopLevelModCount
-      implicitConversionDataCache.computeIfAbsent(
-        scope,
-        scope => Timestamped(computeImplicitConversionMap(scope), currentCount)
-      )
-    }
-    ReadAction.nonBlocking(callback)
-      .inSmartMode(project)
-      .submit(AppExecutorUtil.getAppExecutorService)
-  }
-
-  private def currentTopLevelModCount =
-    ScalaPsiManager.instance.TopLevelModificationTracker.getModificationCount
 }
 
 object ImplicitConversionCache {
