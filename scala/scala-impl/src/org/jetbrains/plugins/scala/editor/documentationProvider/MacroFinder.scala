@@ -87,12 +87,28 @@ private class MacroFinderImpl(
   }
 
   private def findCommentOwnersWithResolvableMacroDefinitions(commentOwner: ScDocCommentOwner): Seq[ScDocCommentOwner] = {
-    val result = mutable.ArrayBuffer.empty[ScDocCommentOwner]
+    // NOTE: the order is important so using LinkedHashSet here!
+    // we want the first macro definition to be used, not arbitrary macro from the hierarchy
+    val result = mutable.LinkedHashSet.empty[ScDocCommentOwner]
 
     val queue = mutable.Queue[ScDocCommentOwner](commentOwner)
 
     def enqueue(el: PsiElement): Unit = el  match {
-      case od: ScDocCommentOwner => queue += od
+      case od: ScDocCommentOwner =>
+        /**
+         * Even though there should not be class inheritor cycles in valid programs, it is still possible to write them
+         * by accident. For example, generating scala doc here could start an infinite cycle:
+         * {{{
+         * /** @define bar bar */
+         * class A extends B
+         *
+         * /** $bar
+         *  * @define foo foo */
+         * class B extends A
+         * }}}
+         */
+        if (!result.contains(od))
+          queue += od
       case _ =>
     }
 
@@ -123,6 +139,6 @@ private class MacroFinderImpl(
       }
     }
 
-    result
+    result.toSeq
   }
 }

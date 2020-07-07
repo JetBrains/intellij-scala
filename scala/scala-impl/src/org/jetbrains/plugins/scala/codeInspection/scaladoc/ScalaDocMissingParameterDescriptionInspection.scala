@@ -31,7 +31,7 @@ class ScalaDocMissingParameterDescriptionInspection extends LocalInspectionTool 
 
         if (!hasDescription) {
           holder.registerProblem(holder.getManager.createProblemDescriptor(
-            if (tag.getValueElement != null) tag.getValueElement else tag, getDisplayName, true,
+            valueElement, getDisplayName, true,
             ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly
           ))
         }

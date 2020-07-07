@@ -637,11 +637,15 @@ package object extensions {
     def parentOfType(classes: Seq[Class[_ <: PsiElement]]): Option[PsiElement] =
       Option(getParentOfType(element, classes: _*))
 
+    def nonStrictParentOfType[Psi <: PsiElement: ClassTag]: Option[Psi] =
+      nonStrictParentOfType(implicitly[ClassTag[Psi]].runtimeClass.asInstanceOf[Class[Psi]])
+
+    def nonStrictParentOfType[Psi <: PsiElement](clazz: Class[Psi]): Option[Psi] =
+      Option(getNonStrictParentOfType(element, clazz))
+
     def nonStrictParentOfType(classes: Seq[Class[_ <: PsiElement]]): Option[PsiElement] =
       Option(getNonStrictParentOfType(element, classes: _*))
 
-    def nonStrictParentOfType[T <: PsiElement](clazz: Class[T]): Option[T] =
-      Option(getNonStrictParentOfType(element, clazz))
 
     def findContextOfType[Psi <: PsiElement](clazz: Class[Psi]): Option[Psi] =
       Option(getContextOfType(element, clazz))
@@ -1001,7 +1005,14 @@ package object extensions {
     def sameOrInheritor(other: PsiClass): Boolean = areClassesEquivalent(clazz, other) || isInheritorDeep(clazz, other)
   }
 
-  implicit class PsiNamedElementExt(val named: PsiNamedElement) extends AnyVal {
+//  implicit class NavigationItemExt(private val item: NavigationItem) extends AnyVal {
+//    def name: String = item match {
+//      case scItem: ScNamedElement => scItem.name
+//      case _ => item.getName
+//    }
+//  }
+
+  implicit class PsiNamedElementExt(private val named: PsiNamedElement) extends AnyVal {
     /**
       * Second match branch is for Java only.
       */
