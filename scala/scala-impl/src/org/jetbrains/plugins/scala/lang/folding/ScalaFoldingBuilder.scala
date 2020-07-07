@@ -174,6 +174,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
   override def getLanguagePlaceholderText(node: ASTNode, textRange: TextRange): String = {
     if (isMultiline(node) || isMultilineImport(node) && !isWorksheetResults(node)) {
       node.getElementType match {
+        case BLOCK => return "{...}"
         case ScCodeBlockElementType.BlockExpression => return "{...}"
         case ScalaTokenTypes.tBLOCK_COMMENT => return "/.../"
         case ScalaDocElementTypes.SCALA_DOC_COMMENT => return "/**...*/"
