@@ -14,10 +14,14 @@ import org.junit.experimental.categories.Category
 class GutterMarkersTest extends ScalaFixtureTestCase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
 
+  // TODO Accept a predicate
   protected def testLineMarker(expectedTooltip: String): Unit = {
     myFixture.doHighlighting()
     val processed = CodeInsightTestFixtureImpl.processGuttersAtCaret(getEditor, getProject, mark => {
-      assertEquals(expectedTooltip, mark.getTooltipText)
+      val actualTooltip = mark.getTooltipText
+      if (!actualTooltip.contains(expectedTooltip)) {
+        assertEquals("Must include", expectedTooltip, actualTooltip)
+      }
       false
     })
     if (processed)
@@ -31,22 +35,23 @@ class GutterMarkersTest extends ScalaFixtureTestCase {
     })
   }
 
-  protected def testOverridesImplementsMarker(superName: String, isOverride: Boolean, member: String): Unit =
+  // TODO Use the strings directly (or we have to test the test or something)
+  protected def testOverridesImplementsMarker(superClass: String, superMethod: String, isOverride: Boolean, member: String, presentation: String): Unit =
     testLineMarker(
-      s"""${if (isOverride) "Overrides" else "Implements"} $member in <a href="#javaClass/$superName">$superName</a>"""
+      s"""${if (isOverride) "Overrides" else "Implements"} $member in <a href="#element/$superClass#$superMethod"><code>$presentation</code></a>"""
     )
 
-  protected def testImplementsMarker(superName: String, member: String): Unit =
-    testOverridesImplementsMarker(superName, isOverride = false, member)
+  protected def testImplementsMarker(superName: String, superMethod: String, member: String)(presentation: String = superName): Unit =
+    testOverridesImplementsMarker(superName, superMethod, isOverride = false, member, presentation)
 
-  protected def testOverridesMarker(superName: String, member: String): Unit =
-    testOverridesImplementsMarker(superName, isOverride = true, member)
+  protected def testOverridesMarker(superName: String, superMethod: String, member: String)(presentation: String = superName): Unit =
+    testOverridesImplementsMarker(superName, superMethod, isOverride = true, member, presentation)
 
   protected def testRecursionMarker(methodName: String, isTailRecursive: Boolean = false): Unit =
     testLineMarker(s"Method '$methodName' is ${if (isTailRecursive) "tail recursive" else "recursive"}")
 
   protected def testHasSubclassesMarker(isTrait: Boolean): Unit =
-    testLineMarker(s"${if (isTrait) "Trait" else "Class"} has ${if (isTrait) "implementations" else "subclasses"}")
+    testLineMarker(s"${if (isTrait) "Is mixed into" else "Class has subclasses"}")
 
   protected def testIsOverridenMarker(isOverride: Boolean = true): Unit =
     testLineMarker(s"Member has ${if (isOverride) "overrides" else "implementations"}")
@@ -65,7 +70,7 @@ class GutterMarkersTest extends ScalaFixtureTestCase {
          |  override val x: String = "42"$caret
          |}
        """.stripMargin,
-  )(testImplementsMarker("Foo", "value"))
+  )(testImplementsMarker("Foo", "x", "value")())
 
   @Test
   def testOverrides(): Unit = doTest(
@@ -75,7 +80,7 @@ class GutterMarkersTest extends ScalaFixtureTestCase {
        |  override def x: Int = 43$caret
        |}
      """.stripMargin
-  )(testOverridesMarker("Foo", "method"))
+  )(testOverridesMarker("Foo", "x", "method")())
 
   @Test
   def testRecursionSimple(): Unit = doTest(
@@ -107,7 +112,7 @@ class GutterMarkersTest extends ScalaFixtureTestCase {
      |trait Foo { type T <: Any }
      |trait Bar extends Foo { override type T <: AnyVal }$caret
    """.stripMargin
-  )(testOverridesMarker("Foo", "type"))
+  )(testOverridesMarker("Foo", "T", "type")("T in Foo"))
 
   @Test
   def testOverridingClassParameter(): Unit = doTest(
@@ -115,7 +120,7 @@ class GutterMarkersTest extends ScalaFixtureTestCase {
       |abstract class Foo { def x: Double }
       |class Bar(override val x: Double) extends Foo$caret
     """.stripMargin
-  )(testImplementsMarker("Foo", "value"))
+  )(testImplementsMarker("Foo", "x", "value")())
 
   @Test
   def testSubclassed(): Unit = doTest(
@@ -140,7 +145,7 @@ class GutterMarkersTest extends ScalaFixtureTestCase {
        |object SAM { val f: SAM = _ + _ }$caret
        |
      """.stripMargin
-  )(testImplementsMarker("SAM", "method"))
+  )(testLineMarker("Implements method in "))
 
   @Test
   def testLambdaTrivial(): Unit = doTest(
@@ -208,6 +213,6 @@ class GutterMarkersTest extends ScalaFixtureTestCase {
          |  type S = String$caret
          |}
          |""".stripMargin
-    )(testOverridesMarker("Base", "type"))
+    )(testOverridesMarker("Base", "S", "type")("S in Base"))
   }
 }
