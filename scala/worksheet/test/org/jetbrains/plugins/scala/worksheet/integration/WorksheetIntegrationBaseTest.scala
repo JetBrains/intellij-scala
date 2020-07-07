@@ -81,8 +81,8 @@ abstract class WorksheetIntegrationBaseTest
   protected def createCompilerProfileForCurrentModule(profileName: String): ScalaCompilerSettingsProfile =
     ScalaCompilerConfiguration.instanceIn(project).createCustomProfileForModule(profileName, myModule)
 
-  override def initApplication(): Unit = {
-    super.initApplication()
+  override def setUpProject(): Unit = {
+    super.setUpProject()
 
     if (useCompileServer) {
       val result = CompileServerLauncher.ensureServerRunning(getProject)

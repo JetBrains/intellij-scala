@@ -44,8 +44,8 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
    * Needed to avoid ThreadLeaked exceptions after each test run,
    * cause we want compile server to be reused in all tests.
    */
-  override def initApplication(): Unit = {
-    super.initApplication()
+  override def setUpProject(): Unit = {
+    super.setUpProject()
 
     revertable =
       CompilerTestUtil.withEnabledCompileServer(useCompileServer) |+|
