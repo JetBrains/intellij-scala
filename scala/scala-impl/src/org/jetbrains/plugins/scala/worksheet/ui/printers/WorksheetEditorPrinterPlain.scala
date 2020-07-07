@@ -24,6 +24,8 @@ final class WorksheetEditorPrinterPlain private[printers](
   file: ScalaFile
 ) extends WorksheetEditorPrinterBase(editor, viewer) {
 
+  private val myLock = new Object()
+
   // used to flush collected output if there is some long process generating running
   private val flushTimer = new Timer(WorksheetEditorPrinterFactory.IDLE_TIME_MLS, _ => flushOnTimer())
 
@@ -48,7 +50,7 @@ final class WorksheetEditorPrinterPlain private[printers](
   override def scheduleWorksheetUpdate(): Unit = flushTimer.start()
 
   /** @param line single worksheet output line, currently expecting with '\n' in the end */
-  override def processLine(line: String): Boolean = {
+  override def processLine(line: String): Boolean = myLock.synchronized {
     //debug(s"line: ${line.replaceAll("\n", " \\\\n ")}")
     if (isTerminationLine(line)) {
       flushBuffer()
@@ -88,14 +90,14 @@ final class WorksheetEditorPrinterPlain private[printers](
     false
   }
 
-  override def internalError(ex: Throwable): Unit = {
+  override def internalError(ex: Throwable): Unit = myLock.synchronized {
     flushBuffer()
     super.internalError(ex)
     terminated = true
     stopTimer()
   }
 
-  override def flushBuffer(): Unit = {
+  override def flushBuffer(): Unit = myLock.synchronized {
     if (!isInited) init()
     if (terminated) return
 
@@ -116,7 +118,8 @@ final class WorksheetEditorPrinterPlain private[printers](
   // for now we are ok with this cause `renderText` proved to be quite a lightweight operation
   // Called from timer, so body invoked in EDT
   @CalledInAwt
-  private def flushOnTimer(): Unit = {
+  @Measure
+  private def flushOnTimer(): Unit = myLock.synchronized {
     if (terminated) return
 
     flushContent()
