@@ -164,6 +164,7 @@ class ScalaContextFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
       s"""class X {
         |  def f(): Unit = {
         |    2 + 2 == 5
+        |    2 + 3
         |    $CARET
         |  }
         |}

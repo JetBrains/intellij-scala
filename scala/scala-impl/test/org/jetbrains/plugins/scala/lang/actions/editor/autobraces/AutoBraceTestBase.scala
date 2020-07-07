@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.actions.editor.autobraces
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
-class AutoBraceTestBase extends EditorActionTestBase {
+abstract class AutoBraceTestBase extends EditorActionTestBase {
 
   /**************************************** Test in multiple contexts *************************************************/
   case class SubsequentConstructNewlineSeparator(separator: String)
