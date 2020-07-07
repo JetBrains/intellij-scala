@@ -27,17 +27,25 @@ object ScalastyleCodeInspection {
   private type TimestampedScalastyleConfiguration = (Long, ScalastyleConfiguration)
   private val cache = new mutable.HashMap[VirtualFile, TimestampedScalastyleConfiguration]()
 
-  def configurationFor(file: ScalaFile): Option[ScalastyleConfiguration] = {
-    val virtualFile = file.getVirtualFile
-    val fileIndex = ProjectFileIndex.getInstance(file.getProject)
-
+  private def findConfiguration(dir: VirtualFile, isTestSource: Boolean): Option[ScalastyleConfiguration] = {
     import Locations.{possibleSrcConfigFileNames, possibleTestConfigFileNames}
     val possibleFileNames =
-      if (fileIndex.isInTestSourceContent(virtualFile)) possibleTestConfigFileNames ++ possibleSrcConfigFileNames
+      if (isTestSource) possibleTestConfigFileNames ++ possibleSrcConfigFileNames
       else possibleSrcConfigFileNames
 
-    Option(fileIndex.getContentRootForFile(virtualFile)).
-      flatMap(Locations.findIn(_, possibleFileNames).map(latest))
+    Locations.findIn(dir, possibleFileNames).map(latest)
+  }
+
+  def configurationFor(file: ScalaFile): Option[ScalastyleConfiguration] = {
+    val virtualFile = file.getVirtualFile
+    val project = file.getProject
+    val baseDir = Option(project.getBaseDir)
+    val fileIndex = ProjectFileIndex.getInstance(project)
+    val contentRoot = Option(fileIndex.getContentRootForFile(virtualFile))
+    val isTest = fileIndex.isInTestSourceContent(virtualFile)
+
+    contentRoot.flatMap(findConfiguration(_, isTest)).
+      orElse(baseDir.flatMap(findConfiguration(_, isTest)))
   }
 
   def configurationFor(file: PsiFile): Option[ScalastyleConfiguration] = {
