@@ -26,6 +26,7 @@ trait ExprInIndentationRegion extends ParsingRule {
     builder.withIndentationWidth(indentationForExprBlock) {
 
       val blockMarker = builder.mark()
+      blockMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_WS_AND_COMMENT_TOKENS, null)
       if (!exprKind()) {
         BlockStat.parse(builder)
       }

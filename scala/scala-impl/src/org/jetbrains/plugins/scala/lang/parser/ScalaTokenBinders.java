@@ -74,4 +74,24 @@ public class ScalaTokenBinders {
       return resultEdgeIdx;
     }
   };
+
+  public static final WhitespacesAndCommentsBinder PRECEDING_WS_AND_COMMENT_TOKENS = new WhitespacesAndCommentsBinder() {
+    @Override
+    public int getEdgePosition(final List<IElementType> tokens, final boolean atStreamEdge, final TokenTextGetter getter) {
+      if (tokens.isEmpty()) return 0;
+
+      int tokensSize = tokens.size();
+      int edgeIdx = tokensSize;
+
+      for (int idx = tokensSize - 1; idx >= 0; idx--) {
+        IElementType type = tokens.get(idx);
+        if (!ScalaTokenTypes.WHITES_SPACES_AND_COMMENTS_TOKEN_SET.contains(type)) {
+          break;
+        }
+        edgeIdx = idx;
+      }
+
+      return edgeIdx;
+    }
+  };
 }
