@@ -29,6 +29,8 @@ class ScalaLibraryQuickDocGenerationHealthCheckTest extends base.ScalaLightCodeI
     knownProblems.contains(KnownProblem(unresolved))
 
   def testAllMacroAreResolved(): Unit = {
+    ScalaDocContentGenerator.unresolvedMacro.clear()
+
     val scalaSdkLoader = librariesLoaders.toArray.findByType[ScalaSDKLoader].get
     val sourceLibrarySourcesRoot = scalaSdkLoader.sourceRoot
 

@@ -17,8 +17,11 @@ abstract class DocumentationProviderTestBase
 
   override protected def generateDoc(editor: Editor, file: PsiFile): String = {
     val (referredElement, elementAtCaret) = extractReferredAndOriginalElements(editor, file)
-    documentationProvider.generateDoc(referredElement, elementAtCaret)
+    generateDoc(referredElement, elementAtCaret)
   }
+
+  protected def generateDoc(referredElement: PsiElement, elementAtCaret: PsiElement): String =
+    documentationProvider.generateDoc(referredElement, elementAtCaret)
 
   override final protected def createEditorAndFile(fileContent: String): (Editor, PsiFile) = {
     val file = createFile(fileContent)

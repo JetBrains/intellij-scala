@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocTag}
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocDescriptionPart, ScDocTag}
 
 import scala.collection.mutable
 
@@ -50,7 +50,16 @@ final class ScDocCommentImpl(buffer: CharSequence,
   //todo: implement me
   override def getTags: Array[PsiDocTag] = findTagsByName(_ => true)
 
-  override def getDescriptionElements: Array[PsiElement] = {
+  override def getDescriptionElements: Array[PsiElement] =
+    descriptionElements.toArray
+
+  override def descriptionParts: Seq[ScDocDescriptionPart] =
+    descriptionElements
+      .filter(_.isInstanceOf[ScDocDescriptionPart])
+      .map(_.asInstanceOf[ScDocDescriptionPart])
+      .toSeq
+
+  private def descriptionElements: Iterator[PsiElement] = {
     val beforeTags = this.getFirstChildNode.treeNextNodes.takeWhile(_.getElementType != ScalaDocElementTypes.DOC_TAG)
     beforeTags
       .filter { node =>
@@ -60,7 +69,6 @@ final class ScDocCommentImpl(buffer: CharSequence,
           elementType != ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS
       }
       .map(_.getPsi)
-      .toArray
   }
 
   override def findTagByName(name: String): PsiDocTag = {
