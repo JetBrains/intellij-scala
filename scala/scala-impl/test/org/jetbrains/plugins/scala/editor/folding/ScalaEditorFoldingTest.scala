@@ -13,69 +13,57 @@ import scala.collection.mutable.ArrayBuffer
  * Date: 14.08.15.
  */
 class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
-  private val FOLD_START_MARKER = "<|fold>"
+  private val FOLD_START_MARKER_BEGIN = "<|fold["
+  private val FOLD_START_MARKER_END = "]>"
   private val FOLD_END_MARKER = "</fold>"
-  private val FOLD_MARKER_LENGTH = FOLD_START_MARKER.length
 
-  private[this] val ST = FOLD_START_MARKER
+  private[this] def ST(text: String) =
+    FOLD_START_MARKER_BEGIN + text + FOLD_START_MARKER_END
   private[this] val END = FOLD_END_MARKER
 
   private def genericCheckRegions(fileText: String): Unit = {
-    val myRegions = new ArrayBuffer[TextRange]()
-    val myFileText = new StringBuilder(fileText.length)
-    val myOpenMarkers = mutable.Stack[Int]()
+    val expectedRegions = new ArrayBuffer[(TextRange, String)]()
+    val textWithoutMarkers = new StringBuilder(fileText.length)
+    val openMarkers = mutable.Stack[(Int, String)]()
 
-    var i1 = fileText indexOf FOLD_START_MARKER
-    var i2 = fileText indexOf FOLD_END_MARKER
+    var pos = 0
+    while ({
+      val nextStartMarker = fileText.indexOf(FOLD_START_MARKER_BEGIN, pos)
+      val nextEndMarker = fileText.indexOf(FOLD_END_MARKER, pos)
 
-    var overallFixOffset = 0
-    @inline def increaseOverall(): Unit = overallFixOffset += FOLD_MARKER_LENGTH
-    @inline def appendPair(errorPlaceMsg: String): Unit = {
-      assert(myOpenMarkers.nonEmpty, "Unbalanced fold markers " + errorPlaceMsg)
-      val st = myOpenMarkers.pop()
-      myRegions += new TextRange(st, i2 - overallFixOffset)
-    }
+      Seq(nextStartMarker -> true, nextEndMarker -> false)
+        .filter(_._1 >= 0)
+        .sortBy(_._1) match {
+        case (closestIdx, isStartMarker) +: _ =>
+          textWithoutMarkers.append(fileText.substring(pos, closestIdx))
+          val idxInTargetFile = textWithoutMarkers.length
 
-    assert(i1 > -1 && i2 > -2, s"Bad fold markers: $i1 and $i2")
+          if (isStartMarker) {
+            val replacementTextBeginIdx = closestIdx + FOLD_START_MARKER_BEGIN.length
+            val replacementTextEndIdx = fileText.indexOf(FOLD_START_MARKER_END, replacementTextBeginIdx)
+            assert(replacementTextEndIdx >= 0, "Expected end of start marker " + replacementTextBeginIdx)
+            val replacementText = fileText.substring(replacementTextBeginIdx, replacementTextEndIdx)
+            pos = replacementTextEndIdx + FOLD_START_MARKER_END.length
 
-    myFileText append fileText.substring(0, i1)
+            openMarkers.push(idxInTargetFile -> replacementText)
+          } else {
+            assert(openMarkers.nonEmpty, "No more open markers for end marker at " + closestIdx)
+            val (regionBegin, replacementText) = openMarkers.pop()
+            val regionEnd = idxInTargetFile
+            pos = closestIdx + FOLD_END_MARKER.length
+            expectedRegions += (TextRange.create(regionBegin, regionEnd) -> replacementText)
+          }
+          true
+        case Seq() =>
+          false
+      }
+    }) ()
 
-    while (i1 > -1 || i2 > -1) {
-      if (i2 < i1 && i2 > -1) {
-        appendPair("#1")
+    assert(openMarkers.isEmpty, s"Unbalanced fold markers #3: ${openMarkers.mkString}")
 
-        val i2Old = i2
-        i2 = fileText.indexOf(FOLD_END_MARKER, i2Old + 1)
-        myFileText append fileText.substring(i2Old + FOLD_MARKER_LENGTH, if (i2 > 0) Math.min(i2, i1) else i1)
+    val assumedRegionRanges = expectedRegions.result().sortBy(_._1.getStartOffset)
 
-        increaseOverall()
-      } else if (i1 < i2 && i1 > -1) {
-        myOpenMarkers.push(i1 - overallFixOffset)
-
-        increaseOverall()
-
-        val i1Old = i1
-        i1 = fileText.indexOf(FOLD_START_MARKER, i1Old + 1)
-
-        myFileText append fileText.substring(i1Old + FOLD_MARKER_LENGTH, if (i1 > -1) Math.min(i2, i1) else i2)
-      } else if (i1 < i2) { //i1 == -1
-        appendPair("#1.5")
-
-        increaseOverall()
-
-        val i2Old = i2
-        i2 = fileText.indexOf(FOLD_END_MARKER, i2Old + 1)
-        myFileText.append (
-          if (i2 == -1) fileText.substring(i2Old + FOLD_MARKER_LENGTH) else fileText.substring(i2Old + FOLD_MARKER_LENGTH, i2)
-        )
-      } else assert(assertion = false, "Unbalanced fold markers #2")
-    }
-
-    assert(myOpenMarkers.isEmpty, s"Unbalanced fold markers #3: ${myOpenMarkers.mkString}")
-
-    val assumedRegionRanges = myRegions.result().sortWith((x, y) => x.getStartOffset < y.getStartOffset)
-
-    myFixture.configureByText("dummy.scala", myFileText.result())
+    myFixture.configureByText("dummy.scala", textWithoutMarkers.result())
 
     val myBuilder = new ScalaFoldingBuilder
     val regions = myBuilder.buildFoldRegions(myFixture.getFile.getNode, myFixture getDocument myFixture.getFile)
@@ -83,31 +71,41 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     assert(regions.length == assumedRegionRanges.size, s"Different region count, expected: ${assumedRegionRanges.size}, but got: ${regions.length}")
 
     (regions zip assumedRegionRanges).zipWithIndex foreach {
-      case ((region, assumedRange), idx) =>
+      case ((region, (assumedRange, expectedPlaceholderText)), idx) =>
         assert(region.getRange.getStartOffset == assumedRange.getStartOffset,
           s"Different start offsets in region #$idx : expected ${assumedRange.getStartOffset}, but got ${region.getRange.getStartOffset}")
         assert(region.getRange.getEndOffset == assumedRange.getEndOffset,
           s"Different end offsets in region #$idx : expected ${assumedRange.getEndOffset}, but got ${region.getRange.getEndOffset}")
+        val actualReplacementText = myBuilder.getLanguagePlaceholderText(region.getElement, region.getRange)
+        assert(actualReplacementText == expectedPlaceholderText,
+          s"Different placeholderTexts in region #$idx: expected ${expectedPlaceholderText}, but got ${actualReplacementText}")
     }
   }
 
+  val BLOCK_ST = ST("{...}")
+  val PAR_ST = ST("(...)")
+  val DOTS_ST = ST("...")
+  val COMMENT_ST = ST("/.../")
+  val DOC_COMMENT_ST = ST("/**...*/")
+  val MLS_ST = ST("\"\"\"...\"\"\"")
+
   def testNested(): Unit = {
     val text =
-      s""" class A $ST{
-        |  1 match $ST{
-        |    case 1 => $ST{
+      s""" class A $BLOCK_ST{
+        |  1 match $BLOCK_ST{
+        |    case 1 => $BLOCK_ST{
         |      //azaza
         |    }$END
         |  }$END
         |
-        |  object Azazaible $ST{
-        |    for (i <- 1 to 10) $ST{
+        |  object Azazaible $BLOCK_ST{
+        |    for (i <- 1 to 10) $BLOCK_ST{
         |      println("azaza!")
         |    }$END
         |  }$END
         |
-        |  def boo() $ST{
-        |    if (true) $ST{
+        |  def boo() $BLOCK_ST{
+        |    if (true) $BLOCK_ST{
         |      //azaza
         |    }$END
         |  }$END
@@ -120,7 +118,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testMatchBody(): Unit = {
     val text =
       s"""
-         | 1 match $ST{
+         | 1 match $BLOCK_ST{
          |   case 1 =>
          | }$END
        """.stripMargin.replace("\r", "")
@@ -131,7 +129,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testClassBody(): Unit = {
     val text =
       s"""
-         | class A $ST{
+         | class A $BLOCK_ST{
          |   //azaza
          | }$END
        """.stripMargin.replace("\r", "")
@@ -142,7 +140,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testMethodBody(): Unit = {
     val text =
       s"""
-         | def boo() $ST{
+         | def boo() $BLOCK_ST{
          |
          | }$END
        """.stripMargin.replace("\r", "")
@@ -153,7 +151,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testIfBody(): Unit = {
     val text =
       s"""
-         | if (true) $ST{
+         | if (true) $BLOCK_ST{
          |   println("")
          | }$END
        """.stripMargin.replace("\r", "")
@@ -164,8 +162,8 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testMatchInner(): Unit = {
     val text =
       s"""
-         |1 match $ST{
-         |    case 1 => $ST{
+         |1 match $BLOCK_ST{
+         |    case 1 => $BLOCK_ST{
          |
          |    }$END
          |  }$END
@@ -179,7 +177,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
       s"""
          | def foo(i: Int => Int, j: Int) = i(j)
          |
-         | foo$ST(
+         | foo$PAR_ST(
          |   jj => jj + 1, 123
          | )$END
        """.stripMargin.replace("\r", "")
@@ -190,11 +188,11 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testSelectorImport(): Unit = {
     val text =
       s"""
-         |  import ${ST}scala.collection.mutable.{
+         |  import ${DOTS_ST}scala.collection.mutable.{
          |    AbstractSeq, ArrayOps, Buffer
          |  }$END
          |
-         |  class A $ST{
+         |  class A $BLOCK_ST{
          |
          |  }$END
        """.stripMargin.replace("\r", "")
@@ -205,7 +203,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testBlockComment(): Unit = {
     val text =
       s"""
-         |  $ST/*
+         |  $COMMENT_ST/*
          |   * Marker trait
          |   */$END
          |  trait MyMarker
@@ -217,7 +215,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testDocComment(): Unit = {
     val text =
       s"""
-         |  $ST/**
+         |  $DOC_COMMENT_ST/**
          |   * Marker trait
          |   */$END
          |  trait MyMarker
@@ -230,7 +228,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     val text =
       s"""
          | val tratata =
-         |   $ST${MultilineStringUtil.MultilineQuotes}
+         |   $MLS_ST${MultilineStringUtil.MultilineQuotes}
          |     aaaaaa
          |     aaaaaa
          |     aaaaaa
