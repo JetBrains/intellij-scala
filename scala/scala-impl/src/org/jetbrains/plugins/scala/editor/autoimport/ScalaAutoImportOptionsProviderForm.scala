@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.editor.autoimport
 
+import com.intellij.application.options.CodeStyleConfigurableWrapper
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.ide.DataManager
 import com.intellij.openapi.application.ApplicationBundle
@@ -11,7 +12,7 @@ import javax.swing.{JCheckBox, JComboBox, JLabel, JPanel}
 import net.miginfocom.layout.CC
 import net.miginfocom.swing.MigLayout
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.invokeLater
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeLater}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaTabbedCodeStylePanel
 
 class ScalaAutoImportOptionsProviderForm {
@@ -138,22 +139,23 @@ class ScalaAutoImportOptionsProviderForm {
       ScalaBundle.message("auto.import.code.style.link"),
       ""
     )
+    UIUtil.applyStyle(UIUtil.ComponentStyle.SMALL, label)
 
     label.addHyperlinkListener { _ =>
       DataManager.getInstance.getDataContextFromFocusAsync.`then`[Unit] { dataContext =>
         if (dataContext != null)
           invokeLater {
-            val settings = Settings.KEY.getData(dataContext)
-            if (settings != null) {
-              val configurable = settings.find("preferences.sourceCode.Scala")
-              ScalaTabbedCodeStylePanel.setSelectedTab(ScalaBundle.message("imports.panel.title"))
-
-              settings.select(configurable)
+            for {
+              settings <- Settings.KEY.getData(dataContext).toOption
+              configurable <- settings.find("preferences.sourceCode.Scala").asOptionOf[CodeStyleConfigurableWrapper]
+            } {
+              settings.select(configurable).doWhenDone { () =>
+                configurable.selectTab(ScalaBundle.message("imports.panel.title"))
+              }
             }
           }
       }
     }
-    UIUtil.applyStyle(UIUtil.ComponentStyle.SMALL, label)
     label
   }
 }

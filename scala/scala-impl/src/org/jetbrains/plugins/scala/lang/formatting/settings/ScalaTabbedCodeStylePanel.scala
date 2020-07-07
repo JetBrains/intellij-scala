@@ -5,7 +5,6 @@ import java.awt.event.ItemEvent
 
 import com.intellij.application.options._
 import com.intellij.application.options.codeStyle.CodeStyleSchemesModel
-import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.util.Disposer
@@ -153,13 +152,6 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
 }
 
 object ScalaTabbedCodeStylePanel {
-  //see com.intellij.application.options.codeStyle.CodeStyleMainPanel.getSelectedTabPropertyName
-  private val selectedTabKey = "settings.code.style.selected.tab.Scala"
-
-  def setSelectedTab(title: String): Unit = {
-    PropertiesComponent.getInstance().setValue(selectedTabKey, title)
-  }
-
   @NonNls
   private val formatters: Map[String, Int] = Map(
     "IntelliJ" -> ScalaCodeStyleSettings.INTELLIJ_FORMATTER,
