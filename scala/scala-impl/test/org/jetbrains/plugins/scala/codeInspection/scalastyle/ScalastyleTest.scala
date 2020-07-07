@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.scalastyle
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.openapi.application.WriteAction
+import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
 class ScalastyleTest extends ScalaInspectionTestBase {
@@ -38,6 +40,23 @@ class ScalastyleTest extends ScalaInspectionTestBase {
 
   def test(): Unit = {
     setup()
+
+    checkTextHasError(
+      s"""
+         |${START}class test$END
+      """.stripMargin
+    )
+  }
+
+  def testFallback(): Unit = {
+    def getOrCreateFile(dir: VirtualFile, file: String): VirtualFile =
+      Option(dir.findChild(file)).getOrElse(dir.createChildData(this, file))
+
+    WriteAction.runAndWait { () =>
+      val baseDir = VfsUtil.createDirectoryIfMissing(getProject.getBasePath)
+      val file = getOrCreateFile(baseDir, "scalastyle-config.xml")
+      VfsUtil.saveText(file, configString)
+    }
 
     checkTextHasError(
       s"""
