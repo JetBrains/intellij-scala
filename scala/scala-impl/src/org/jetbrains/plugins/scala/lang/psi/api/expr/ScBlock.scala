@@ -8,9 +8,9 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.{PsiElement, ResolveState}
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScBraceless
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createNewLineNode
@@ -26,8 +26,11 @@ import scala.collection.mutable.ArrayBuffer
  * Author: ilyas, alefas
  */
 
-trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImportsHolder {
-
+trait ScBlock extends ScExpression
+  with ScDeclarationSequenceHolder
+  with ScImportsHolder
+  with ScBraceless
+{
   protected override def innerType: TypeResult = {
     if (hasCaseClauses) {
       val caseClauses = findChildByClassScala(classOf[ScCaseClauses])
@@ -115,6 +118,8 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
     super[ScImportsHolder].processDeclarations(processor, state, lastParent, place)
 
   def needCheckExpectedType = true
+
+  override def isBraceless: Boolean = false
 }
 
 object ScBlock {
