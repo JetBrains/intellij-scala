@@ -12,4 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 */
 class ScBlockImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScBlock {
   override def toString: String = "BlockOfExpressions"
+
+  override def isBraceless: Boolean = true
 }

@@ -5,6 +5,7 @@ package api
 package toplevel
 package templates
 
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScBraceless
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScTypeAlias, ScValueOrVariable}
@@ -17,7 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
  */
 trait ScTemplateBody extends ScalaPsiElement
   with ScControlFlowOwner
-  with ScImportsHolder {
+  with ScImportsHolder
+  with ScBraceless {
 
   def members: Seq[ScMember]
 
