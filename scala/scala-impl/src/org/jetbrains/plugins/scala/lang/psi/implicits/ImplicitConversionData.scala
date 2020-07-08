@@ -172,16 +172,16 @@ object ImplicitConversionData {
         }
 
         (for {
-          qName <- withSuperClasses
+          qName    <- withSuperClasses
           function <- ImplicitConversionIndex.conversionCandidatesForFqn(qName, expr.resolveScope)(expr.getProject)
 
           if ImplicitConversionProcessor.applicable(function, expr)
 
           containingObject <- findInheritorObjectsForOwner(function)
-          conversion = GlobalImplicitConversion(containingObject, function)
-          data <- ImplicitConversionData(conversion)
-          resultType <- data.resultType(originalType, expr).map((conversion, _))
-        } yield resultType)
+          conversion        = GlobalImplicitConversion(containingObject, function)
+          data             <- ImplicitConversionData(conversion)
+          resultType       <- data.resultType(originalType, expr)
+        } yield (conversion, resultType))
           .toMap
     }
 

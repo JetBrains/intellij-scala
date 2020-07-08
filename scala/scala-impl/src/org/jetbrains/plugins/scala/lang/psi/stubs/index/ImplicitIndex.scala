@@ -18,9 +18,6 @@ trait ImplicitIndex {
   def occurrence(sink: IndexSink, name: String): Unit =
     sink.occurrence(indexKey, name)
 
-  def occurrences(sink: IndexSink, names: Array[String]): Unit =
-    names.foreach(occurrence(sink, _))
-
   def forClassFqn(qualifiedName: String, scope: GlobalSearchScope)
                  (implicit project: Project): collection.Set[ScMember] = {
     val stubIndex = StubIndex.getInstance

@@ -25,36 +25,20 @@ object ImplicitConversionIndex extends ImplicitIndex {
   //noinspection TypeAnnotation
   override protected val indexKey = ScalaIndexKeys.IMPLICIT_CONVERSION_KEY
 
-  private val dummyStringKey: String = "implicit_conversion"
-
   def conversionCandidatesForFqn(classFqn: String, scope: GlobalSearchScope)
                                 (implicit project: Project): Iterable[ScFunction] =
-    for {
-      member   <- forClassFqn(classFqn, scope)
-      function <- member match {
-        case f: ScFunction => f :: Nil
-        case c: ScClass => c.getSyntheticImplicitMethod.toSet
-        case _ => Nil
-      }
-    } yield function
+    forClassFqn(classFqn, scope)
+      .flatMap(findImplicitFunction)
 
   def allConversions(scope: GlobalSearchScope)
-                    (implicit project: Project): Iterable[ScFunction] = for {
-    key      <- indexKey.allKeys
-    member   <- indexKey.elements(key, scope)
+                    (implicit project: Project): Iterable[ScFunction] =
+    indexKey.allKeys
+      .flatMap(indexKey.elements(_, scope))
+      .flatMap(findImplicitFunction)
 
-    function <- member match {
-      case f: ScFunction => f :: Nil
-      case c: ScClass => c.getSyntheticImplicitMethod.toList
-      case _ => Nil
-    }
-  } yield function
-
-  override def occurrences(sink: IndexSink, names: Array[String]): Unit = {
-    super.occurrences(sink, names)
-    //type of definition is missing or we couldn't extract class name from it
-    if (names.isEmpty) {
-      occurrence(sink, dummyStringKey)
-    }
+  private def findImplicitFunction(member: ScMember): Option[ScFunction] = member match {
+    case f: ScFunction => Option(f)
+    case c: ScClass => c.getSyntheticImplicitMethod
+    case _ => None
   }
 }

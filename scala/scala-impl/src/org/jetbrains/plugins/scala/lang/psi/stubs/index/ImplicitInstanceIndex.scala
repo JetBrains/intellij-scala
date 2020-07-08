@@ -4,6 +4,7 @@ package psi
 package stubs
 package index
 
+import com.intellij.psi.stubs.IndexSink
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
 final class ImplicitInstanceIndex extends ScStringStubIndexExtension[ScMember] {
@@ -13,6 +14,8 @@ final class ImplicitInstanceIndex extends ScStringStubIndexExtension[ScMember] {
 }
 
 object ImplicitInstanceIndex extends ImplicitIndex {
+  final def occurrences(sink: IndexSink, names: Array[String]): Unit =
+    names.foreach(occurrence(sink, _))
 
   //noinspection TypeAnnotation
   override protected val indexKey = ScalaIndexKeys.IMPLICIT_INSTANCE_KEY
