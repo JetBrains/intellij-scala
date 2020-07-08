@@ -104,4 +104,15 @@ class AutoBraceEnterTest extends AutoBraceTestBase {
     '\n'
   )
 
+  def testEnterInDoubleIndention(): Unit = checkGeneratedTextAfterEnter(
+    s"""
+       |def test =
+       |  if (true)$CARET
+       |""".stripMargin,
+    s"""
+       |def test =
+       |  if (true)
+       |    $CARET
+       |""".stripMargin
+  )
 }

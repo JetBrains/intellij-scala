@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package editor
 
-import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile}
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -25,11 +25,14 @@ object AutoBraceUtils {
     val orgStartOffset = element.endOffset
     val lastRealElement = PsiTreeUtil.prevLeaf(element)
 
-    lastRealElement
-      .withParents
-      .takeWhile(e => !e.is[ScBlock, PsiFile] && e.endOffset <= orgStartOffset)
-      .flatMap(toIndentedExpression)
-      .headOption
+    if (lastRealElement.is[PsiErrorElement]) {
+      None
+    } else
+      lastRealElement
+        .withParentsInFile
+        .takeWhile(e => !e.is[ScBlock] && e.endOffset <= orgStartOffset)
+        .flatMap(toIndentedExpression)
+        .headOption
   }
 
 
