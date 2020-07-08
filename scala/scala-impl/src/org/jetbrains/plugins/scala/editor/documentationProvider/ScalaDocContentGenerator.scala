@@ -83,7 +83,7 @@ private class ScalaDocContentGenerator(
   ): String = {
     val result = for {
       ref <- element.children.findByType[ScStableCodeReference].toRight {
-        unresolvedReference(nodesText(element.children.filter(isContentChild)), rendered)
+        unresolvedReference(nodesText(element.children.filter(isContentChild)))
       }
     } yield generatePsiElementLinkWithLabel(ref, plainLink, isContentChild)
     result.merge
@@ -109,7 +109,7 @@ private class ScalaDocContentGenerator(
         hyperLinkToPsi(res.refText, label, plainLink)
       }
       .getOrElse {
-        unresolvedReference(labelFromSiblings(ref, isContentChild).getOrElse(escapeHtml(ref.getText)), rendered)
+        unresolvedReference(labelFromSiblings(ref, isContentChild).getOrElse(escapeHtml(ref.getText)))
       }
   }
 
@@ -319,7 +319,7 @@ object ScalaDocContentGenerator {
     val resolved = resolvePsiElementLink(ref, context)
     resolved
       .map(res => hyperLinkToPsi(res.refText, escapeHtml(res.label), plainLink = false))
-      .getOrElse(unresolvedReference(ref.getText, rendered))
+      .getOrElse(unresolvedReference(ref.getText))
   }
 
   private def resolvePsiElementLink(ref: ScStableCodeReference, context: PsiElement): Option[PsiElementResolveResult] = {
@@ -386,12 +386,9 @@ object ScalaDocContentGenerator {
   /** @note I considered using some reddish, wavy underline, but looks like Java Swing HTML/CSS renderer does not support
    *        text-decorator-style & text-decorator-color, see [[javax.swing.text.html.CSS]]. So for now we use just text.
    */
-  private def unresolvedReference(text: String, rendered: Boolean): String =
+  private def unresolvedReference(text: String): String =
     if (StringUtils.isBlank(text)) ""
-    else {
-      val inner = if (rendered) text else s"<font color=red>$text</font>"
-      s"""<code>$inner</code>"""
-    }
+    else s"""<code>$text</code>"""
 
   private def markupTagToHtmlTag(markupTag: String): Option[String] = markupTag match {
     case "__"  => Some("u")

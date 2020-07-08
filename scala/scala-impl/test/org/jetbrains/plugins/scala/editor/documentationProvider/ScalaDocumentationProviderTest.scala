@@ -829,8 +829,8 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |val ${|}a = 1
          |""".stripMargin
     val expectedDoc =
-      s"""<code><font color=red>org.Unresolved</font></code><br>
-         |<code><font color=red>description <u>with markup</u></font></code><br>
+      s"""<code>org.Unresolved</code><br>
+         |<code>description <u>with markup</u></code><br>
          |""".stripMargin
     doGenerateDocContentTest(fileText, expectedDoc)
   }
@@ -1678,8 +1678,8 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          | */
          |class ${|}X
          |""".stripMargin,
-      """<code><font color=red>org.Unresolved</font></code><br>
-        |<code><font color=red>label text</font></code><br>
+      """<code>org.Unresolved</code><br>
+        |<code>label text</code><br>
         |""".stripMargin
     )
 
