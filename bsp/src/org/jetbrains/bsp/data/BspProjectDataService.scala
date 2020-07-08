@@ -49,9 +49,13 @@ class BspProjectDataService extends AbstractDataService[BspProjectData, Project]
 object BspProjectDataService {
 
   private def configureVcs(vcsRootsCandidates: Seq[File], project: Project): Unit = {
+    val vcsManager = ProjectLevelVcsManager.getInstance(project)
+    val currentVcsRoots = vcsManager.getAllVcsRoots
+    val currentMappings = vcsManager.getDirectoryMappings
+
     val detectedRoots = {
       val detector = ServiceManager.getService(project, classOf[VcsRootDetector])
-      val detected = mutable.Set[VcsRoot]()
+      val detected = mutable.Set[VcsRoot](currentVcsRoots: _*)
       vcsRootsCandidates.foreach { candidate =>
         val virtualFile = LocalFileSystem.getInstance.findFileByIoFile(candidate)
         val isUnderDetectedVcsRoot = VfsUtilCore.isUnder(virtualFile, detected.map(_.getPath).asJava)
@@ -62,10 +66,6 @@ object BspProjectDataService {
       }
       detected
     }
-
-    val vcsManager = ProjectLevelVcsManager.getInstance(project)
-    val currentVcsRoots = vcsManager.getAllVcsRoots
-    val currentMappings = vcsManager.getDirectoryMappings
 
     val newMappings = detectedRoots
       .filterNot(currentVcsRoots.contains)
