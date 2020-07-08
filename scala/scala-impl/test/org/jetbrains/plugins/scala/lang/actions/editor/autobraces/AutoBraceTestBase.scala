@@ -4,8 +4,9 @@ import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 abstract class AutoBraceTestBase extends EditorActionTestBase {
+  val space = " "
+  val indent = "  "
 
-  /**************************************** Test in multiple contexts *************************************************/
   case class SubsequentConstructNewlineSeparator(separator: String)
   val NextConstructOnNewline = SubsequentConstructNewlineSeparator("\n")
   val NextConstructOnSameLine = SubsequentConstructNewlineSeparator(" ")

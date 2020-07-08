@@ -5,10 +5,6 @@ package editor
 package autobraces
 
 class AutoBracesTest extends AutoBraceTestBase {
-  val space = " "
-  val indent = "  "
-
-
 //  def testBlubBlub(): Unit = checkGeneratedTextAfterTyping(
 //    s"""
 //       |for (e <- expr)
@@ -24,47 +20,6 @@ class AutoBracesTest extends AutoBraceTestBase {
 //    'e'
 //  )
 
-
-  def testEnterAfterExpr(): Unit = checkTypingInAllContexts(
-    s"""
-       |def test =
-       |  expr$CARET
-       |""".stripMargin -> NextConstructOnNewline,
-    s"""
-       |def test =
-       |  expr
-       |  $CARET
-       |""".stripMargin -> NextConstructOnNewline,
-    s"""
-       |def test =
-       |  expr
-       |$CARET
-       |""".stripMargin -> NextConstructOnNewline,
-    '\n',
-    checkContextsWithPostfix = false
-  )
-
-  def testEnterAfterExprAndIndentation(): Unit = checkTypingInAllContexts(
-    s"""
-       |def test =
-       |  expr
-       |  $CARET
-       |""".stripMargin -> NextConstructOnNewline,
-    s"""
-       |def test =
-       |  expr
-       |$indent
-       |$CARET
-       |""".stripMargin -> NextConstructOnNewline,
-    s"""
-       |def test =
-       |  expr
-       |$indent
-       |$CARET
-       |""".stripMargin -> NextConstructOnNewline,
-    '\n',
-    checkContextsWithPostfix = false
-  )
 
   def testTypingAfterIndentation(): Unit = checkTypingInAllContexts(
     s"""
@@ -84,24 +39,6 @@ class AutoBracesTest extends AutoBraceTestBase {
        |  x$CARET
        |""".stripMargin -> NextConstructOnNewline,
     'x'
-  )
-
-  def testEnterBeforeIndentedExpr(): Unit = checkTypingInAllContexts(
-    s"""
-       |def test = $CARET
-       |  expr
-       |""".stripMargin -> NextConstructOnNewline,
-    s"""
-       |def test =$space
-       |  $CARET
-       |  expr
-       |""".stripMargin -> NextConstructOnNewline,
-    s"""
-       |def test =$space
-       |  $CARET
-       |  expr
-       |""".stripMargin -> NextConstructOnNewline,
-    '\n'
   )
 
   def testTypingAfterIndentBeforeIndentedExpr(): Unit = checkTypingInAllContexts(
@@ -166,30 +103,6 @@ class AutoBracesTest extends AutoBraceTestBase {
     'x'
   )
 
-  def testEnterAfterSecondIndentation(): Unit = checkTypingInAllContexts(
-    s"""
-       |def test =
-       |  expr
-       |   + expr
-       |  $CARET
-       |""".stripMargin -> NextConstructOnNewline,
-    s"""
-       |def test =
-       |  expr
-       |   + expr
-       |$indent
-       |$CARET
-       |""".stripMargin -> NextConstructOnNewline,
-    s"""
-       |def test =
-       |  expr
-       |   + expr
-       |$indent
-       |$CARET
-       |""".stripMargin -> NextConstructOnNewline,
-    '\n'
-  )
-
   def testTypingInUnindented(): Unit = checkTypingInAllContexts(
     s"""
        |def test =
@@ -231,28 +144,6 @@ class AutoBracesTest extends AutoBraceTestBase {
        |""".stripMargin -> NextConstructOnNewline,
     'x'
   )
-
-
-  def testEnterInsideOfIndentedCall(): Unit = checkTypingInAllContexts(
-    s"""
-       |def test =
-       |  call($CARET)
-       |""".stripMargin -> NextConstructOnNewline,
-    s"""
-       |def test =
-       |  call(
-       |    $CARET
-       |  )
-       |""".stripMargin -> NextConstructOnNewline,
-    s"""
-       |def test =
-       |  call(
-       |    $CARET
-       |  )
-       |""".stripMargin -> NextConstructOnNewline,
-    '\n'
-  )
-
 
   def testTypingInsideOfIndentedCall(): Unit = checkTypingInAllContexts(
     s"""
@@ -317,90 +208,4 @@ class AutoBracesTest extends AutoBraceTestBase {
     '.',
     checkContextsWithPostfix = false
   )
-
-  def testDeletingLastExprBefore(): Unit = checkBackspaceInAllContexts(
-    s"""
-       |def test = {
-       |  e$CARET
-       |  expr
-       |}
-       |""".stripMargin -> NextConstructOnSameLine,
-    s"""
-       |def test =
-       |  $CARET
-       |  expr
-       |""".stripMargin -> NextConstructOnNewline,
-    s"""
-       |def test = {
-       |  $CARET
-       |  expr
-       |}
-       |""".stripMargin -> NextConstructOnSameLine,
-  )
-
-  def testDeletingLastExprAfter(): Unit = checkBackspaceInAllContexts(
-    s"""
-       |def test = {
-       |  expr
-       |  e$CARET
-       |}
-       |""".stripMargin -> NextConstructOnSameLine,
-    s"""
-       |def test =
-       |  expr
-       |  $CARET
-       |""".stripMargin -> NextConstructOnNewline,
-    s"""
-       |def test = {
-       |  expr
-       |  $CARET
-       |}
-       |""".stripMargin -> NextConstructOnSameLine,
-  )
-
-  def testDeletingLastExprWithComment(): Unit = checkBackspaceInAllContexts(
-    s"""
-       |def test = {
-       |  // comment
-       |  expr
-       |  e$CARET
-       |}
-       |""".stripMargin -> NextConstructOnSameLine,
-    s"""
-       |def test = {
-       |  // comment
-       |  expr
-       |  $CARET
-       |}
-       |""".stripMargin -> NextConstructOnSameLine,
-    s"""
-       |def test = {
-       |  // comment
-       |  expr
-       |  $CARET
-       |}
-       |""".stripMargin -> NextConstructOnSameLine,
-  )
-
-  def testDeletingLastExprWithStatement(): Unit = checkBackspaceInAllContexts(
-    s"""
-       |def test = {
-       |  val x = expr
-       |  x$CARET
-       |}
-       |""".stripMargin -> NextConstructOnSameLine,
-    s"""
-       |def test = {
-       |  val x = expr
-       |  $CARET
-       |}
-       |""".stripMargin -> NextConstructOnSameLine,
-    s"""
-       |def test = {
-       |  val x = expr
-       |  $CARET
-       |}
-       |""".stripMargin -> NextConstructOnSameLine,
-  )
-
 }
