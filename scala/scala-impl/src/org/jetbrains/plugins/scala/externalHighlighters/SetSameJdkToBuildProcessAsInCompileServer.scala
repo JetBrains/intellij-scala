@@ -2,10 +2,9 @@ package org.jetbrains.plugins.scala.externalHighlighters
 
 import java.util.UUID
 
-import com.intellij.compiler.CompilerManagerImpl
 import com.intellij.compiler.server.BuildManagerListener
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.compiler.{CompileContext, CompileScope, CompileTask}
+import com.intellij.openapi.compiler.{CompileContext, CompileTask}
 import com.intellij.openapi.components.{Service, ServiceManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
@@ -30,11 +29,6 @@ import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompile
  * If user kills the Idea process the property may be not resetted. There are no solutions for this problem.
  * But we hope this is a very rare situation.
  *
- * Note 3:
- * [[org.jetbrains.jps.api.BuildType.UP_TO_DATE_CHECK]] runs in JPS process. But for this build type
- * the platform doesn't invoke compiler task.
- * So we also need [[SetSameJdkToBuildProcessAsInCompileServerCompilerManager]].
- *
  * @see SCL-17676
  */
 class SetSameJdkToBuildProcessAsInCompileServer
@@ -43,7 +37,9 @@ class SetSameJdkToBuildProcessAsInCompileServer
 
   // BEFORE
   override def execute(context: CompileContext): Boolean = {
-    TempCompilerProcessJdkService.get(context.getProject).overrideBuildProcessJdk()
+    val project = context.getProject
+    if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
+      TempCompilerProcessJdkService.get(project).setTempCompilerProcessJdk(getCompileServerJdkHome(project))
     true
   }
 
@@ -52,50 +48,16 @@ class SetSameJdkToBuildProcessAsInCompileServer
 
   override def buildFinished(project: Project, sessionId: UUID, isAutomake: Boolean): Unit =
     TempCompilerProcessJdkService.get(project).resetCompilerProcessJdk()
-}
 
-class SetSameJdkToBuildProcessAsInCompileServerCompilerManager(project: Project)
-  extends CompilerManagerImpl(project) {
-
-  override def isUpToDate(scope: CompileScope): Boolean = {
-    TempCompilerProcessJdkService.get(project).overrideBuildProcessJdk()
-    super.isUpToDate(scope)
-  }
-}
-
-@Service
-final class TempCompilerProcessJdkService(project: Project)
-  extends Disposable {
-
-  import TempCompilerProcessJdkService._
-
-  private def registryValue: RegistryValue =
-    Registry.get("compiler.process.jdk")
-
-  def overrideBuildProcessJdk(): Unit =
-    if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
-      TempCompilerProcessJdkService.get(project).setTempCompilerProcessJdk(getCompileServerJdkHome)
-
-  private def setTempCompilerProcessJdk(tempJdkHome: => String): Unit = lock.synchronized {
-    if (originalJdkHome.isEmpty)
-      originalJdkHome = Some(registryValue.asString)
-    registryValue.setValue(tempJdkHome)
-  }
-
-  def resetCompilerProcessJdk(): Unit = lock.synchronized {
-    originalJdkHome.foreach(registryValue.setValue)
-    originalJdkHome = None
-  }
-
-  private def getCompileServerJdkHome: String = {
+  private def getCompileServerJdkHome(project: Project): String = {
     val compileServerJdkHome = for {
-      jdk <- getCompileServerSdk
+      jdk <- getCompileServerSdk(project)
       jdkHome <- Option(jdk.getHomePath)
     } yield jdkHome
     compileServerJdkHome.getOrElse("")
   }
 
-  private def getCompileServerSdk: Option[Sdk] = {
+  private def getCompileServerSdk(project: Project): Option[Sdk] = {
     val settings = ScalaCompileServerSettings.getInstance
     if (settings.COMPILE_SERVER_ENABLED)
       Option(
@@ -106,6 +68,27 @@ final class TempCompilerProcessJdkService(project: Project)
       )
     else
       None
+  }
+}
+
+@Service
+final class TempCompilerProcessJdkService
+  extends Disposable {
+
+  import TempCompilerProcessJdkService._
+
+  private def registryValue: RegistryValue =
+    Registry.get("compiler.process.jdk")
+
+  def setTempCompilerProcessJdk(tempJdkHome: => String): Unit = lock.synchronized {
+    if (originalJdkHome.isEmpty)
+      originalJdkHome = Some(registryValue.asString)
+    registryValue.setValue(tempJdkHome)
+  }
+
+  def resetCompilerProcessJdk(): Unit = lock.synchronized {
+    originalJdkHome.foreach(registryValue.setValue)
+    originalJdkHome = None
   }
 
   override def dispose(): Unit =
