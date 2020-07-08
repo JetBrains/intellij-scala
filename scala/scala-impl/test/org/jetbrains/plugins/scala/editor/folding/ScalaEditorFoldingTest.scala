@@ -11,7 +11,7 @@ class ScalaEditorFoldingTest extends ScalaEditorFoldingTestBase {
     val text =
       s""" class A $BLOCK_ST{
         |  1 match $BLOCK_ST{
-        |    case 1 => $BLOCK_ST{
+        |    case 1 => $DOTS_ST{
         |      //azaza
         |    }$END
         |  }$END
@@ -81,7 +81,7 @@ class ScalaEditorFoldingTest extends ScalaEditorFoldingTestBase {
     val text =
       s"""
          |1 match $BLOCK_ST{
-         |    case 1 => $BLOCK_ST{
+         |    case 1 => $DOTS_ST{
          |
          |    }$END
          |  }$END
