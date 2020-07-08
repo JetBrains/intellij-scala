@@ -7,18 +7,18 @@ class AutoBraceBackspaceTest extends AutoBraceTestBase {
        |  e$CARET
        |  expr
        |}
-       |""".stripMargin -> NextConstructOnSameLine,
+       |""".stripMargin -> ContinuationOnSameLine,
     s"""
        |def test =
        |  $CARET
        |  expr
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test = {
        |  $CARET
        |  expr
        |}
-       |""".stripMargin -> NextConstructOnSameLine,
+       |""".stripMargin -> ContinuationOnSameLine,
   )
 
   def testDeletingLastExprAfter(): Unit = checkBackspaceInAllContexts(
@@ -27,18 +27,18 @@ class AutoBraceBackspaceTest extends AutoBraceTestBase {
        |  expr
        |  e$CARET
        |}
-       |""".stripMargin -> NextConstructOnSameLine,
+       |""".stripMargin -> ContinuationOnSameLine,
     s"""
        |def test =
        |  expr
        |  $CARET
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test = {
        |  expr
        |  $CARET
        |}
-       |""".stripMargin -> NextConstructOnSameLine,
+       |""".stripMargin -> ContinuationOnSameLine,
   )
 
   def testDeletingLastExprWithComment(): Unit = checkBackspaceInAllContexts(
@@ -48,21 +48,21 @@ class AutoBraceBackspaceTest extends AutoBraceTestBase {
        |  expr
        |  e$CARET
        |}
-       |""".stripMargin -> NextConstructOnSameLine,
+       |""".stripMargin -> ContinuationOnSameLine,
     s"""
        |def test = {
        |  // comment
        |  expr
        |  $CARET
        |}
-       |""".stripMargin -> NextConstructOnSameLine,
+       |""".stripMargin -> ContinuationOnSameLine,
     s"""
        |def test = {
        |  // comment
        |  expr
        |  $CARET
        |}
-       |""".stripMargin -> NextConstructOnSameLine,
+       |""".stripMargin -> ContinuationOnSameLine,
   )
 
   def testDeletingLastExprWithStatement(): Unit = checkBackspaceInAllContexts(
@@ -71,18 +71,18 @@ class AutoBraceBackspaceTest extends AutoBraceTestBase {
        |  val x = expr
        |  x$CARET
        |}
-       |""".stripMargin -> NextConstructOnSameLine,
+       |""".stripMargin -> ContinuationOnSameLine,
     s"""
        |def test = {
        |  val x = expr
        |  $CARET
        |}
-       |""".stripMargin -> NextConstructOnSameLine,
+       |""".stripMargin -> ContinuationOnSameLine,
     s"""
        |def test = {
        |  val x = expr
        |  $CARET
        |}
-       |""".stripMargin -> NextConstructOnSameLine,
+       |""".stripMargin -> ContinuationOnSameLine,
   )
 }

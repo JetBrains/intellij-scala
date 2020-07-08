@@ -8,10 +8,10 @@ abstract class AutoBraceTestBase extends EditorActionTestBase {
   val indent = "  "
 
   case class SubsequentConstructNewlineSeparator(separator: String)
-  val NextConstructOnNewline = SubsequentConstructNewlineSeparator("\n")
-  val NextConstructOnSameLine = SubsequentConstructNewlineSeparator(" ")
+  val ContinuationOnNewline = SubsequentConstructNewlineSeparator("\n")
+  val ContinuationOnSameLine = SubsequentConstructNewlineSeparator(" ")
 
-  val contexts = Seq(
+  val uncontinuedContexts = Seq(
     """
       |def test =
       |""".stripMargin -> "",
@@ -21,9 +21,6 @@ abstract class AutoBraceTestBase extends EditorActionTestBase {
     """
       |if (cond)
       |""".stripMargin -> "",
-    """
-      |if (cond)
-      |""".stripMargin -> "else elseBranch",
     """
       |if (cond) thenBranch
       |else
@@ -41,6 +38,12 @@ abstract class AutoBraceTestBase extends EditorActionTestBase {
       |try something
       |finally
       |""".stripMargin -> "",
+  )
+
+  val continuedContexts = Seq(
+    """
+      |if (cond)
+      |""".stripMargin -> "else elseBranch",
     """
       |try
       |""".stripMargin -> "catch { e => something }",
@@ -49,23 +52,48 @@ abstract class AutoBraceTestBase extends EditorActionTestBase {
       |""".stripMargin -> "finally something",
   )
 
+  val allContexts = uncontinuedContexts ++ continuedContexts
+
   def checkBackspaceInAllContexts(bodyBefore: (String, SubsequentConstructNewlineSeparator),
                                   bodyAfter: (String, SubsequentConstructNewlineSeparator),
-                                  bodyAfterWithSettingsTurnedOff: (String, SubsequentConstructNewlineSeparator),
-                                  checkContextsWithPostfix: Boolean = true): Unit =
-    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, checkContextsWithPostfix)(checkGeneratedTextAfterBackspace)
+                                  bodyAfterWithSettingsTurnedOff: (String, SubsequentConstructNewlineSeparator)): Unit =
+    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, allContexts)(checkGeneratedTextAfterBackspace)
 
   def checkTypingInAllContexts(bodyBefore: (String, SubsequentConstructNewlineSeparator),
                                bodyAfter: (String, SubsequentConstructNewlineSeparator),
                                bodyAfterWithSettingsTurnedOff: (String, SubsequentConstructNewlineSeparator),
-                               typedChar: Char,
-                               checkContextsWithPostfix: Boolean = true): Unit =
-    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, checkContextsWithPostfix)(checkGeneratedTextAfterTyping(_, _, typedChar))
+                               typedChar: Char): Unit =
+    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, allContexts)(checkGeneratedTextAfterTyping(_, _, typedChar))
+
+  def checkBackspaceInContinuedContexts(bodyBefore: (String, SubsequentConstructNewlineSeparator),
+                                          bodyAfter: (String, SubsequentConstructNewlineSeparator),
+                                          bodyAfterWithSettingsTurnedOff: (String, SubsequentConstructNewlineSeparator)): Unit =
+    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, continuedContexts)(checkGeneratedTextAfterBackspace)
+
+  def checkTypingInContinuedContexts(bodyBefore: (String, SubsequentConstructNewlineSeparator),
+                                       bodyAfter: (String, SubsequentConstructNewlineSeparator),
+                                       bodyAfterWithSettingsTurnedOff: (String, SubsequentConstructNewlineSeparator),
+                                       typedChar: Char): Unit =
+    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, continuedContexts)(checkGeneratedTextAfterTyping(_, _, typedChar))
+
+  def checkBackspaceInUncontinuedContexts(bodyBefore: (String, SubsequentConstructNewlineSeparator),
+                                          bodyAfter: (String, SubsequentConstructNewlineSeparator),
+                                          bodyAfterWithSettingsTurnedOff: (String, SubsequentConstructNewlineSeparator)): Unit =
+    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, uncontinuedContexts)(checkGeneratedTextAfterBackspace)
+
+  def checkTypingInUncontinuedContexts(bodyBefore: (String, SubsequentConstructNewlineSeparator),
+                                       bodyAfter: (String, SubsequentConstructNewlineSeparator),
+                                       bodyAfterWithSettingsTurnedOff: (String, SubsequentConstructNewlineSeparator),
+                                       typedChar: Char): Unit =
+    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, uncontinuedContexts)(checkGeneratedTextAfterTyping(_, _, typedChar))
+
+
+
 
   def checkInAllContexts(bodyBefore: (String, SubsequentConstructNewlineSeparator),
                          bodyAfter: (String, SubsequentConstructNewlineSeparator),
                          bodyAfterWithSettingsTurnedOff: (String, SubsequentConstructNewlineSeparator),
-                         checkContextsWithPostfix: Boolean = true)
+                         contexts: Seq[(String, String)])
                         (check: (String, String) => Unit): Unit = {
 
     def transform(body: String): String =
@@ -73,7 +101,7 @@ abstract class AutoBraceTestBase extends EditorActionTestBase {
 
     val settings = ScalaApplicationSettings.getInstance()
 
-    for ((context, contextPostfix) <- contexts if checkContextsWithPostfix || contextPostfix.isEmpty) {
+    for ((context, contextPostfix) <- contexts) {
       def buildBody(body: (String, SubsequentConstructNewlineSeparator)): String = {
         val (text, sep) = body
 

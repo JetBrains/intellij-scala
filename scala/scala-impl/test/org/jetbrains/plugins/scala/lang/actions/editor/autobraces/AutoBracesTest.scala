@@ -26,18 +26,18 @@ class AutoBracesTest extends AutoBraceTestBase {
        |def test =
        |  expr
        |  $CARET
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test = {
        |  expr
        |  x$CARET
        |}
-       |""".stripMargin -> NextConstructOnSameLine,
+       |""".stripMargin -> ContinuationOnSameLine,
     s"""
        |def test =
        |  expr
        |  x$CARET
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     'x'
   )
 
@@ -46,18 +46,18 @@ class AutoBracesTest extends AutoBraceTestBase {
        |def test =
        |  $CARET
        |  expr
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test = {
        |  x$CARET
        |  expr
        |}
-       |""".stripMargin -> NextConstructOnSameLine,
+       |""".stripMargin -> ContinuationOnSameLine,
     s"""
        |def test =
        |  x$CARET
        |  expr
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     'x'
   )
 
@@ -66,17 +66,17 @@ class AutoBracesTest extends AutoBraceTestBase {
        |def test =
        |  expr
        |   $CARET
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test =
        |  expr
        |   x$CARET
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test =
        |  expr
        |   x$CARET
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     'x'
   )
 
@@ -86,20 +86,20 @@ class AutoBracesTest extends AutoBraceTestBase {
        |  expr
        |   .prod
        |  $CARET
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test = {
        |  expr
        |   .prod
        |  x$CARET
        |}
-       |""".stripMargin -> NextConstructOnSameLine,
+       |""".stripMargin -> ContinuationOnSameLine,
     s"""
        |def test =
        |  expr
        |   .prod
        |  x$CARET
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     'x'
   )
 
@@ -108,17 +108,17 @@ class AutoBracesTest extends AutoBraceTestBase {
        |def test =
        |  expr
        |$CARET
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test =
        |  expr
        |x$CARET
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test =
        |  expr
        |x$CARET
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     'x'
   )
 
@@ -128,20 +128,20 @@ class AutoBracesTest extends AutoBraceTestBase {
        |  // test
        |  $CARET
        |  expr
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test = {
        |  // test
        |  x$CARET
        |  expr
        |}
-       |""".stripMargin -> NextConstructOnSameLine,
+       |""".stripMargin -> ContinuationOnSameLine,
     s"""
        |def test =
        |  // test
        |  x$CARET
        |  expr
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     'x'
   )
 
@@ -151,19 +151,19 @@ class AutoBracesTest extends AutoBraceTestBase {
        |  call(
        |  $CARET
        |  )
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test =
        |  call(
        |  x$CARET
        |  )
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test =
        |  call(
        |  x$CARET
        |  )
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     'x'
   )
 
@@ -173,39 +173,38 @@ class AutoBracesTest extends AutoBraceTestBase {
        |def test =
        |  "test"
        |  $CARET
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test = {
        |  "test"
        |  "$CARET"
        |}
-       |""".stripMargin -> NextConstructOnSameLine,
+       |""".stripMargin -> ContinuationOnSameLine,
     s"""
        |def test =
        |  "test"
        |  "$CARET"
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     '\"'
   )
 
   // SCL-17793
-  def testNoAutoBraceOnDot(): Unit = checkTypingInAllContexts(
+  def testNoAutoBraceOnDot(): Unit = checkTypingInUncontinuedContexts(
     s"""
        |def test =
        |  expr
        |  $CARET
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test =
        |  expr
        |  .$CARET
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test =
        |  expr
        |  .$CARET
-       |""".stripMargin -> NextConstructOnNewline,
-    '.',
-    checkContextsWithPostfix = false
+       |""".stripMargin -> ContinuationOnNewline,
+    '.'
   )
 }

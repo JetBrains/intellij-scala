@@ -2,62 +2,60 @@ package org.jetbrains.plugins.scala.lang.actions.editor.autobraces
 
 class AutoBraceEnterTest extends AutoBraceTestBase {
 
-  def testEnterAfterExpr(): Unit = checkTypingInAllContexts(
+  def testEnterAfterExpr(): Unit = checkTypingInUncontinuedContexts(
     s"""
        |def test =
        |  expr$CARET
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test =
        |  expr
        |  $CARET
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test =
        |  expr
        |$CARET
-       |""".stripMargin -> NextConstructOnNewline,
-    '\n',
-    checkContextsWithPostfix = false
+       |""".stripMargin -> ContinuationOnNewline,
+    '\n'
   )
 
-  def testEnterAfterExprAndIndentation(): Unit = checkTypingInAllContexts(
+  def testEnterAfterExprAndIndentation(): Unit = checkTypingInUncontinuedContexts(
     s"""
        |def test =
        |  expr
        |  $CARET
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test =
        |  expr
        |$indent
        |$CARET
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test =
        |  expr
        |$indent
        |$CARET
-       |""".stripMargin -> NextConstructOnNewline,
-    '\n',
-    checkContextsWithPostfix = false
+       |""".stripMargin -> ContinuationOnNewline,
+    '\n'
   )
 
   def testEnterBeforeIndentedExpr(): Unit = checkTypingInAllContexts(
     s"""
        |def test = $CARET
        |  expr
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test =$space
        |  $CARET
        |  expr
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test =$space
        |  $CARET
        |  expr
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     '\n'
   )
 
@@ -67,21 +65,21 @@ class AutoBraceEnterTest extends AutoBraceTestBase {
        |  expr
        |   + expr
        |  $CARET
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test =
        |  expr
        |   + expr
        |$indent
        |$CARET
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test =
        |  expr
        |   + expr
        |$indent
        |$CARET
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     '\n'
   )
 
@@ -90,19 +88,19 @@ class AutoBraceEnterTest extends AutoBraceTestBase {
     s"""
        |def test =
        |  call($CARET)
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test =
        |  call(
        |    $CARET
        |  )
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test =
        |  call(
        |    $CARET
        |  )
-       |""".stripMargin -> NextConstructOnNewline,
+       |""".stripMargin -> ContinuationOnNewline,
     '\n'
   )
 
