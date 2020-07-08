@@ -7,9 +7,9 @@ abstract class AutoBraceTestBase extends EditorActionTestBase {
   val space = " "
   val indent = "  "
 
-  case class SubsequentConstructNewlineSeparator(separator: String)
-  val ContinuationOnNewline = SubsequentConstructNewlineSeparator("\n")
-  val ContinuationOnSameLine = SubsequentConstructNewlineSeparator(" ")
+  case class ContinuationNewlineSeparator(separator: String)
+  val ContinuationOnNewline = ContinuationNewlineSeparator("\n")
+  val ContinuationOnSameLine = ContinuationNewlineSeparator(" ")
 
   val uncontinuedContexts = Seq(
     """
@@ -54,60 +54,63 @@ abstract class AutoBraceTestBase extends EditorActionTestBase {
 
   val allContexts = uncontinuedContexts ++ continuedContexts
 
-  def checkBackspaceInAllContexts(bodyBefore: (String, SubsequentConstructNewlineSeparator),
-                                  bodyAfter: (String, SubsequentConstructNewlineSeparator),
-                                  bodyAfterWithSettingsTurnedOff: (String, SubsequentConstructNewlineSeparator)): Unit =
-    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, allContexts)(checkGeneratedTextAfterBackspace)
+  def checkBackspaceInAllContexts(bodyBefore: (String, ContinuationNewlineSeparator),
+                                  bodyAfter: (String, ContinuationNewlineSeparator),
+                                  bodyAfterWithSettingsTurnedOff: (String, ContinuationNewlineSeparator)): Unit =
+    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, allContexts, checkGeneratedTextAfterBackspace)
 
-  def checkTypingInAllContexts(bodyBefore: (String, SubsequentConstructNewlineSeparator),
-                               bodyAfter: (String, SubsequentConstructNewlineSeparator),
-                               bodyAfterWithSettingsTurnedOff: (String, SubsequentConstructNewlineSeparator),
+  def checkTypingInAllContexts(bodyBefore: (String, ContinuationNewlineSeparator),
+                               bodyAfter: (String, ContinuationNewlineSeparator),
+                               bodyAfterWithSettingsTurnedOff: (String, ContinuationNewlineSeparator),
                                typedChar: Char): Unit =
-    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, allContexts)(checkGeneratedTextAfterTyping(_, _, typedChar))
+    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, allContexts, checkGeneratedTextAfterTyping(_, _, typedChar))
 
-  def checkBackspaceInContinuedContexts(bodyBefore: (String, SubsequentConstructNewlineSeparator),
-                                          bodyAfter: (String, SubsequentConstructNewlineSeparator),
-                                          bodyAfterWithSettingsTurnedOff: (String, SubsequentConstructNewlineSeparator)): Unit =
-    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, continuedContexts)(checkGeneratedTextAfterBackspace)
+  val continuedContextsPreviewStrings = Seq("try", " finally ()", "finally ()")
 
-  def checkTypingInContinuedContexts(bodyBefore: (String, SubsequentConstructNewlineSeparator),
-                                       bodyAfter: (String, SubsequentConstructNewlineSeparator),
-                                       bodyAfterWithSettingsTurnedOff: (String, SubsequentConstructNewlineSeparator),
+  def checkBackspaceInContinuedContexts(bodyBefore: (String, ContinuationNewlineSeparator),
+                                        bodyAfter: (String, ContinuationNewlineSeparator),
+                                        bodyAfterWithSettingsTurnedOff: (String, ContinuationNewlineSeparator)): Unit =
+    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, continuedContexts, checkGeneratedTextAfterBackspace, continuedContextsPreviewStrings)
+
+  def checkTypingInContinuedContexts(bodyBefore: (String, ContinuationNewlineSeparator),
+                                     bodyAfter: (String, ContinuationNewlineSeparator),
+                                     bodyAfterWithSettingsTurnedOff: (String, ContinuationNewlineSeparator),
+                                     typedChar: Char): Unit =
+    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, continuedContexts, checkGeneratedTextAfterTyping(_, _, typedChar), continuedContextsPreviewStrings)
+
+  def checkBackspaceInUncontinuedContexts(bodyBefore: (String, ContinuationNewlineSeparator),
+                                          bodyAfter: (String, ContinuationNewlineSeparator),
+                                          bodyAfterWithSettingsTurnedOff: (String, ContinuationNewlineSeparator)): Unit =
+    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, uncontinuedContexts, checkGeneratedTextAfterBackspace)
+
+  def checkTypingInUncontinuedContexts(bodyBefore: (String, ContinuationNewlineSeparator),
+                                       bodyAfter: (String, ContinuationNewlineSeparator),
+                                       bodyAfterWithSettingsTurnedOff: (String, ContinuationNewlineSeparator),
                                        typedChar: Char): Unit =
-    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, continuedContexts)(checkGeneratedTextAfterTyping(_, _, typedChar))
-
-  def checkBackspaceInUncontinuedContexts(bodyBefore: (String, SubsequentConstructNewlineSeparator),
-                                          bodyAfter: (String, SubsequentConstructNewlineSeparator),
-                                          bodyAfterWithSettingsTurnedOff: (String, SubsequentConstructNewlineSeparator)): Unit =
-    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, uncontinuedContexts)(checkGeneratedTextAfterBackspace)
-
-  def checkTypingInUncontinuedContexts(bodyBefore: (String, SubsequentConstructNewlineSeparator),
-                                       bodyAfter: (String, SubsequentConstructNewlineSeparator),
-                                       bodyAfterWithSettingsTurnedOff: (String, SubsequentConstructNewlineSeparator),
-                                       typedChar: Char): Unit =
-    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, uncontinuedContexts)(checkGeneratedTextAfterTyping(_, _, typedChar))
+    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, uncontinuedContexts, checkGeneratedTextAfterTyping(_, _, typedChar))
 
 
 
 
-  def checkInAllContexts(bodyBefore: (String, SubsequentConstructNewlineSeparator),
-                         bodyAfter: (String, SubsequentConstructNewlineSeparator),
-                         bodyAfterWithSettingsTurnedOff: (String, SubsequentConstructNewlineSeparator),
-                         contexts: Seq[(String, String)])
-                        (check: (String, String) => Unit): Unit = {
+  def checkInAllContexts(bodyBefore: (String, ContinuationNewlineSeparator),
+                         bodyAfter: (String, ContinuationNewlineSeparator),
+                         bodyAfterWithSettingsTurnedOff: (String, ContinuationNewlineSeparator),
+                         contexts: Seq[(String, String)],
+                         check: (String, String) => Unit,
+                         removePreviewString: Seq[String] = Seq("def test =")): Unit = {
 
     def transform(body: String): String =
-      body.trim.replace("def test =", "")
+      removePreviewString.foldLeft(body.trim)(_.replace(_, ""))
 
     val settings = ScalaApplicationSettings.getInstance()
 
-    for ((context, contextPostfix) <- contexts) {
-      def buildBody(body: (String, SubsequentConstructNewlineSeparator)): String = {
+    for ((context, contextContinuation) <- contexts) {
+      def buildBody(body: (String, ContinuationNewlineSeparator)): String = {
         val (text, sep) = body
 
         val postfix = {
-          if (contextPostfix.isEmpty) "\n"
-          else sep.separator + contextPostfix
+          if (contextContinuation.isEmpty) "\n"
+          else sep.separator + contextContinuation
         }
 
         context.trim + transform(text) + postfix

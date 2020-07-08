@@ -4,7 +4,7 @@ package actions
 package editor
 package autobraces
 
-class AutoBracesTest extends AutoBraceTestBase {
+class AutoBracesTypingTest extends AutoBraceTestBase {
 //  def testBlubBlub(): Unit = checkGeneratedTextAfterTyping(
 //    s"""
 //       |for (e <- expr)
@@ -207,4 +207,61 @@ class AutoBracesTest extends AutoBraceTestBase {
        |""".stripMargin -> ContinuationOnNewline,
     '.'
   )
+
+  def testTypingBeforeContinuation(): Unit = checkTypingInContinuedContexts(
+    s"""
+       |try
+       |  expr
+       |  $CARET
+       |finally ()
+       |""".stripMargin -> ContinuationOnSameLine,
+    s"""
+       |try {
+       |  expr
+       |  a$CARET
+       |} finally ()
+       |""".stripMargin -> ContinuationOnSameLine,
+    s"""
+       |try
+       |  expr
+       |  a$CARET
+       |finally ()
+       |""".stripMargin -> ContinuationOnSameLine,
+    'a'
+  )
+
+  // todo: fix SCL-17843
+  /*def testMultilineBeforeContinuation(): Unit = checkTypingInContinuedContexts(
+    s"""
+       |try
+       |  expr
+       |  $CARET
+       |
+       |
+       |
+       |
+       |finally ()
+       |""".stripMargin -> ContinuationOnSameLine,
+    s"""
+       |try {
+       |  expr
+       |  a$CARET
+       |
+       |
+       |
+       |
+       |} finally ()
+       |""".stripMargin -> ContinuationOnSameLine,
+    s"""
+       |try
+       |  expr
+       |  a$CARET
+       |
+       |
+       |
+       |
+       |finally ()
+       |""".stripMargin -> ContinuationOnSameLine,
+    'a'
+  )*/
 }
