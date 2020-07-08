@@ -8,6 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
+import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentGenerator._
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiClassExt, PsiElementExt, PsiMemberExt, TraversableExt}
@@ -82,7 +83,7 @@ private class ScalaDocContentGenerator(
   ): String = {
     val result = for {
       ref <- element.children.findByType[ScStableCodeReference].toRight {
-        unresolvedReference(nodesText(element.children.filter(isContentChild)))
+        unresolvedReference(nodesText(element.children.filter(isContentChild)), rendered)
       }
     } yield generatePsiElementLinkWithLabel(ref, plainLink, isContentChild)
     result.merge
@@ -108,7 +109,7 @@ private class ScalaDocContentGenerator(
         hyperLinkToPsi(res.refText, label, plainLink)
       }
       .getOrElse {
-        unresolvedReference(labelFromSiblings(ref, isContentChild).getOrElse(escapeHtml(ref.getText)))
+        unresolvedReference(labelFromSiblings(ref, isContentChild).getOrElse(escapeHtml(ref.getText)), rendered)
       }
   }
 
@@ -314,11 +315,11 @@ object ScalaDocContentGenerator {
 
   private case class PsiElementResolveResult(refText: String, label: String)
 
-  def generatePsiElementLink(ref: ScStableCodeReference, context: PsiElement): String = {
+  def generatePsiElementLink(ref: ScStableCodeReference, context: PsiElement, rendered: Boolean): String = {
     val resolved = resolvePsiElementLink(ref, context)
     resolved
       .map(res => hyperLinkToPsi(res.refText, escapeHtml(res.label), plainLink = false))
-      .getOrElse(unresolvedReference(ref.getText))
+      .getOrElse(unresolvedReference(ref.getText, rendered))
   }
 
   private def resolvePsiElementLink(ref: ScStableCodeReference, context: PsiElement): Option[PsiElementResolveResult] = {
@@ -382,12 +383,15 @@ object ScalaDocContentGenerator {
   private def hyperLink(href: String, label: String): String =
     s"""<a href="${escapeHtml(href)}">$label</a>""".stripMargin
 
-  /**
-   * TODO: do not make it so annoying red
-   *  especially in in-editor mode (rendered)
-   *  consider some underline?
+  /** @note I considered using some reddish, wavy underline, but looks like Java Swing HTML/CSS renderer does not support
+   *        text-decorator-style & text-decorator-color, see [[javax.swing.text.html.CSS]]. So for now we use just text.
    */
-  private def unresolvedReference(text: String): String = s"<font color=red>$text</font>"
+  private def unresolvedReference(text: String, rendered: Boolean): String =
+    if (StringUtils.isBlank(text)) ""
+    else {
+      val inner = if (rendered) text else s"<font color=red>$text</font>"
+      s"""<code>$inner</code>"""
+    }
 
   private def markupTagToHtmlTag(markupTag: String): Option[String] = markupTag match {
     case "__"  => Some("u")

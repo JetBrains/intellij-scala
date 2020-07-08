@@ -81,4 +81,23 @@ class ScalaDocumentationProviderRenderInEditorTest extends ScalaDocumentationPro
          |""".stripMargin
     doGenerateDocTest(fileText, expectedDoc)
   }
+
+  def testUnresolvedReference(): Unit =
+    doGenerateDocTest(
+      s"""/**
+         | * [[unknown.Reference]]
+         | * [[unknown.Reference ref label]]
+         | * @throws unknown.Reference description
+         | */
+         |def ${|}foo = ???""".stripMargin,
+      s"""$ContentStart
+         |<code>unknown.Reference</code>
+         |<code>ref label</code>
+         |$ContentEnd
+         |$SectionsStart
+         |<tr><td valign='top' class='section'><p>Throws:</td>
+         |<td valign='top'><code>unknown.Reference</code> &ndash; description</td>
+         |$SectionsEnd
+         |""".stripMargin
+    )
 }

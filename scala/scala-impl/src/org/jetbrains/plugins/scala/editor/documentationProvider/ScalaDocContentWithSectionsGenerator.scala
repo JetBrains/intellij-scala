@@ -221,7 +221,7 @@ private class ScalaDocContentWithSectionsGenerator(
   private def throwsInfo(tag: ScDocTag): Option[ParamInfo] = {
     val exceptionRef = tag.children.findByType[ScStableCodeReference]
     exceptionRef.map { ref =>
-      val value = ScalaDocContentGenerator.generatePsiElementLink(ref, resolveContext)
+      val value = ScalaDocContentGenerator.generatePsiElementLink(ref, resolveContext, rendered)
       val description = newContentGenerator.tagDescriptionText(tag)
       ParamInfo(value, description)
     }
