@@ -174,7 +174,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
   override def getLanguagePlaceholderText(node: ASTNode, textRange: TextRange): String = {
     if (isMultiline(node) || isMultilineImport(node) && !isWorksheetResults(node)) {
       node.getElementType match {
-        case BLOCK => return blockPlaceholderText(node.getPsi)
+        case BLOCK => return if (isBraceless(node)) "..." else "{...}"
         case ScCodeBlockElementType.BlockExpression => return "{...}"
         case ScalaTokenTypes.tBLOCK_COMMENT => return "/.../"
         case ScalaDocElementTypes.SCALA_DOC_COMMENT => return "/**...*/"
@@ -350,7 +350,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
     body match {
       case _: ScBlock =>
         val isCorrectRange = range.getStartOffset + 1 < range.getEndOffset
-        return (isCorrectRange, range, blockPlaceholderText(body))
+        return (isCorrectRange, range, if (isBraceless(body)) " ..." else "{...}")
       case _ =>
         val isMultilineBody = (body.getText.indexOf("\n") != -1) && (range.getStartOffset + 1 < range.getEndOffset)
         val textRange = if (isMultilineBody) range else null
@@ -478,9 +478,6 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
 
   private def isBraceless(element: PsiElement): Boolean =
     element.asOptionOf[ScBraceless].exists(_.isBraceless)
-
-  private def blockPlaceholderText(node: PsiElement): String =
-    if (isBraceless(node)) " ..." else "{...}"
 
   override def isDumbAware: Boolean = true
 }
