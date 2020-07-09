@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlStartTag
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScBlockStatement, ScIf, ScTry}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.IndentUtil
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotesLength => QuotesLength}
@@ -160,22 +161,25 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
 
   private def canAutoDeleteBraces(block: ScBlockExpr): Boolean = {
     val it = block.children
-    var foundCommentsOrExpressions = 0
+    var foundExpressions = 0
 
     while (it.hasNext) {
       it.next() match {
-        case _: PsiComment | _: ScExpression =>
-          foundCommentsOrExpressions += 1
+        case _: ScExpression =>
+          foundExpressions += 1
 
           // return early if we already found 2 expressions/comments
-          if (foundCommentsOrExpressions > 2)
+          if (foundExpressions > 2)
             return false
         case _: ScBlockStatement /* cannot be an expression because we matched those in the previous case */  =>
+          return false
+        case _: PsiComment =>
           return false
         case _ =>
       }
     }
-    foundCommentsOrExpressions == 2
+
+    foundExpressions == 2
   }
 
   private def handleLeftBrace(offset: Int, element: PsiElement, file: PsiFile, editor: Editor): Unit = {

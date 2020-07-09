@@ -41,7 +41,7 @@ class AutoBraceBackspaceTest extends AutoBraceTestBase {
        |""".stripMargin -> ContinuationOnSameLine,
   )
 
-  def testDeletingLastExprWithComment(): Unit = checkBackspaceInAllContexts(
+  def testDeletingSecondToLastExprWithComment(): Unit = checkBackspaceInAllContexts(
     s"""
        |def test = {
        |  // comment
@@ -60,6 +60,27 @@ class AutoBraceBackspaceTest extends AutoBraceTestBase {
        |def test = {
        |  // comment
        |  expr
+       |  $CARET
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+  )
+
+  def testDeletingLastExprWithComment(): Unit = checkBackspaceInAllContexts(
+    s"""
+       |def test = {
+       |  // blub
+       |  x$CARET
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+    s"""
+       |def test = {
+       |  // blub
+       |  $CARET
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+    s"""
+       |def test = {
+       |  // blub
        |  $CARET
        |}
        |""".stripMargin -> ContinuationOnSameLine,
