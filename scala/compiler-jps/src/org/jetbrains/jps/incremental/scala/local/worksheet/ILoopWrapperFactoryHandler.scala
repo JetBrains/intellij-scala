@@ -8,7 +8,7 @@ import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.local.worksheet.util.{IOUtils, IsolatingClassLoader}
 import org.jetbrains.jps.incremental.scala.local.{CompilerFactoryImpl, NullLogger}
 import org.jetbrains.jps.incremental.scala.{Client, compilerVersion}
-import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgsRepl
+import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.compiler.data.{CompilerJars, SbtData}
 import sbt.internal.inc.{AnalyzingCompiler, RawCompiler}
 import sbt.io.Path
@@ -21,7 +21,7 @@ class ILoopWrapperFactoryHandler {
   private var cachedReplFactory: (ClassLoader, ILoopWrapperFactory, ScalaVersion) = _
 
   def loadReplWrapperAndRun(
-    args: WorksheetArgsRepl,
+    args: WorksheetArgs.RunRepl,
     replContext: ReplContext,
     out: PrintStream, // the consumed output is delegated to client then encoded and delegated to Nailgun out and sent to the
     client: Client

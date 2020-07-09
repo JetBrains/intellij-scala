@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.compiler.data.serialization
 
 import org.jetbrains.plugins.scala.compiler.data.serialization.ArgListSerializer._
 import org.jetbrains.plugins.scala.compiler.data.serialization.extensions._
-import org.jetbrains.plugins.scala.compiler.data.worksheet.{WorksheetArgs, WorksheetArgsPlain, WorksheetArgsRepl}
+import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 
 /** TODO: cover with property-based tests */
 object WorksheetArgsSerializer extends ArgListSerializer[WorksheetArgs] {
@@ -11,8 +11,8 @@ object WorksheetArgsSerializer extends ArgListSerializer[WorksheetArgs] {
   private val PlainMode = "plain"
 
   override def serialize(value: WorksheetArgs): ArgList = value match {
-    case plain: WorksheetArgsPlain             => PlainMode +: WorksheetArgsPlainSerializer.serialize(plain)
-    case repl: WorksheetArgsRepl               => ReplMode +: WorksheetArgsReplSerializer.serialize(repl)
+    case plain: WorksheetArgs.RunPlain => PlainMode +: WorksheetArgsPlainSerializer.serialize(plain)
+    case repl: WorksheetArgs.RunRepl   => ReplMode +: WorksheetArgsReplSerializer.serialize(repl)
   }
 
   override def deserialize(args: ArgList): Either[DeserializationError, WorksheetArgs] =
@@ -24,11 +24,11 @@ object WorksheetArgsSerializer extends ArgListSerializer[WorksheetArgs] {
     }
 }
 
-object WorksheetArgsPlainSerializer extends ArgListSerializer[WorksheetArgsPlain] {
+object WorksheetArgsPlainSerializer extends ArgListSerializer[WorksheetArgs.RunPlain] {
 
   import SerializationUtils._
 
-  override def serialize(value: WorksheetArgsPlain): ArgList = Seq(
+  override def serialize(value: WorksheetArgs.RunPlain): ArgList = Seq(
     value.worksheetClassName,
     fileToPath(value.pathToRunnersJar),
     fileToPath(value.worksheetTempFile),
@@ -36,14 +36,14 @@ object WorksheetArgsPlainSerializer extends ArgListSerializer[WorksheetArgsPlain
     filesToPaths(value.outputDirs)
   )
 
-  override def deserialize(args: ArgList): Either[DeserializationError, WorksheetArgsPlain] =
+  override def deserialize(args: ArgList): Either[DeserializationError, WorksheetArgs.RunPlain] =
     for {
       worksheetClassName <- Right(args.head)
       pathToRunners      <- pathToFileValidated(args(1), "pathToRunners").lift
       worksheetTempFile  <- pathToFileValidated(args(2), "worksheetTempFile").lift
       originalFileName   <- notNull(args(3), "originalFileName").lift
       outputDirs         = args.drop(4).flatMap(pathToFile(_, "outputDirs"))
-    } yield WorksheetArgsPlain(
+    } yield WorksheetArgs.RunPlain(
       worksheetClassName,
       pathToRunners,
       worksheetTempFile,
@@ -52,24 +52,24 @@ object WorksheetArgsPlainSerializer extends ArgListSerializer[WorksheetArgsPlain
     )
 }
 
-object WorksheetArgsReplSerializer extends ArgListSerializer[WorksheetArgsRepl] {
+object WorksheetArgsReplSerializer extends ArgListSerializer[WorksheetArgs.RunRepl] {
 
   import SerializationUtils._
 
-  override def serialize(value: WorksheetArgsRepl): ArgList = Seq(
+  override def serialize(value: WorksheetArgs.RunRepl): ArgList = Seq(
     value.sessionId,
     value.codeChunk,
     value.continueOnChunkError.toString,
     SerializationUtils.filesToPaths(value.outputDirs)
   )
 
-  override def deserialize(args: ArgList): Either[DeserializationError, WorksheetArgsRepl] =
+  override def deserialize(args: ArgList): Either[DeserializationError, WorksheetArgs.RunRepl] =
     for {
       sessionId  <- notNull(args.head, "repl session id").lift
       codeChunk  <- notNull(args(1), "codeChunk").lift
       continueOnChunkError <- boolean(args(2), "continueOnChunkError").lift
       outputDirs = args.drop(3).flatMap(SerializationUtils.pathToFile(_, "outputDirs"))
-    } yield WorksheetArgsRepl(
+    } yield WorksheetArgs.RunRepl(
       sessionId,
       codeChunk,
       continueOnChunkError,

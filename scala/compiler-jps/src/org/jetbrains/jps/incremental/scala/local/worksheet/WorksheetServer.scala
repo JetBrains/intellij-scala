@@ -26,10 +26,10 @@ class WorksheetServer {
       return
     }
     worksheetArgs match {
-      case args: WorksheetArgsRepl  =>
+      case args: WorksheetArgs.RunRepl  =>
         val context = replContext(commonArgs, compilerJars)
         replFactoryHandler.loadReplWrapperAndRun(args, context, printStream, client)
-      case args: WorksheetArgsPlain =>
+      case args: WorksheetArgs.RunPlain =>
         val context = plainContext(commonArgs, compilerJars)
         plainFactory.getRunner(printStream).loadAndRun(args, context, client)
     }

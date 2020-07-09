@@ -21,6 +21,7 @@ import org.jetbrains.jps.incremental.scala.local.LocalServer
 import org.jetbrains.jps.incremental.scala.local.worksheet.WorksheetServer
 import org.jetbrains.plugins.scala.compiler.CompilerEvent
 import org.jetbrains.plugins.scala.compiler.data.Arguments
+import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
 import scala.collection.JavaConverters.seqAsJavaListConverter
@@ -141,7 +142,8 @@ object Main {
 
   private def compileLogic(args: Arguments, client: EncodingEventGeneratingClient): Unit = {
     val worksheetArgs = args.worksheetArgs
-    if (!worksheetArgs.exists(_.isRepl)) {
+    val needToCompile = !worksheetArgs.exists(_.isInstanceOf[WorksheetArgs.RunRepl])
+    if (needToCompile) {
       server.compile(args.sbtData, args.compilerData, args.compilationData, client)
     }
 

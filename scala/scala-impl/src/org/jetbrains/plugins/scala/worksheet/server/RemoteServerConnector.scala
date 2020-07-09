@@ -14,7 +14,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.CommandIds
-import org.jetbrains.plugins.scala.compiler.data.worksheet.{WorksheetArgs, WorksheetArgsPlain, WorksheetArgsRepl}
+import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.compiler.{CompilationProcess, NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
@@ -49,7 +49,7 @@ final class RemoteServerConnector(
       case _ =>
         val argsTransformed = args match {
           case Args.PlainModeArgs(sourceFile, outputDir, className) =>
-            Some(WorksheetArgsPlain(
+            Some(WorksheetArgs.RunPlain(
               className,
               ScalaPluginJars.runnersJar,
               sourceFile,
@@ -57,7 +57,7 @@ final class RemoteServerConnector(
               outputDir +: outputDirs,
             ))
           case Args.ReplModeArgs(path, codeChunk) =>
-            Some(WorksheetArgsRepl(
+            Some(WorksheetArgs.RunRepl(
               sessionId = path,
               codeChunk,
               continueOnChunkError = Registry.is(WorksheetContinueOnFirstFailure),

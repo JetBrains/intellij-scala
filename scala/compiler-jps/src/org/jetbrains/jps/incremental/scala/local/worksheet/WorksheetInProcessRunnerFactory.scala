@@ -6,7 +6,7 @@ import java.net.{URL, URLClassLoader}
 
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.local.worksheet.util.IOUtils
-import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgsPlain
+import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 
 class WorksheetInProcessRunnerFactory {
 
@@ -36,7 +36,7 @@ class WorksheetInProcessRunnerFactory {
     private val TRACE_PREFIX = 21
     private val WORKSHEET = "#worksheet#"
 
-    override def loadAndRun(args: WorksheetArgsPlain, context: WorksheetRunnerContext, client: Client): Unit = {
+    override def loadAndRun(args: WorksheetArgs.RunPlain, context: WorksheetRunnerContext, client: Client): Unit = {
       def toUrlSpec(p: String): URL = new File(p).toURI.toURL
 
       val classLoader: URLClassLoader = {

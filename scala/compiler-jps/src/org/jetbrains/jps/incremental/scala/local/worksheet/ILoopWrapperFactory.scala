@@ -10,11 +10,9 @@ import java.{util => ju}
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactory._
 import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactoryHandler.{ReplContext, ReplWrapperCompiled}
-import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgsRepl
+import org.jetbrains.plugins.scala.compiler.data.worksheet.{ReplMessages, WorksheetArgs}
 
 import scala.collection.JavaConverters.{collectionAsScalaIterableConverter, seqAsJavaListConverter}
-import org.jetbrains.plugins.scala.compiler.data.worksheet.ReplMessages
-
 import scala.util.control.NonFatal
 
 class ILoopWrapperFactory {
@@ -30,7 +28,7 @@ class ILoopWrapperFactory {
   def clearCaches(): Unit = cache.clear()
 
   def loadReplWrapperAndRun(
-    args: WorksheetArgsRepl,
+    args: WorksheetArgs.RunRepl,
     replContext: ReplContext,
     outStream: PrintStream,
     replWrapper: ReplWrapperCompiled,
@@ -122,7 +120,7 @@ class ILoopWrapperFactory {
   }
 
   private def createILoopWrapper(
-    args: WorksheetArgsRepl,
+    args: WorksheetArgs.RunRepl,
     replContext: ReplContext,
     replWrapper: ReplWrapperCompiled,
     out: PrintStream,
