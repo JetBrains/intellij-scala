@@ -115,4 +115,20 @@ class AutoBraceEnterTest extends AutoBraceTestBase {
        |    $CARET
        |""".stripMargin
   )
+
+  def testEnterAfterBlock(): Unit = checkGeneratedTextAfterEnter(
+    s"""
+       |def test =
+       |  if (true) {
+       |    expr
+       |  }$CARET
+       |""".stripMargin,
+    s"""
+       |def test =
+       |  if (true) {
+       |    expr
+       |  }
+       |  $CARET
+       |""".stripMargin
+  )
 }

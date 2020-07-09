@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala
 package editor
 
-import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile}
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiErrorElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 
@@ -30,7 +29,7 @@ object AutoBraceUtils {
     } else
       lastRealElement
         .withParentsInFile
-        .takeWhile(e => !e.is[ScBlock] && e.endOffset <= orgStartOffset)
+        .takeWhile(_.endOffset <= orgStartOffset)
         .flatMap(toIndentedExpression)
         .headOption
   }
