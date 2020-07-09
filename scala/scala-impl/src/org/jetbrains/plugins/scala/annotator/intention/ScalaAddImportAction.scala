@@ -19,7 +19,7 @@ import com.intellij.ui.popup.list.ListPopupImpl
 import com.intellij.util.ui.JBUI
 import javax.swing.event.ListSelectionEvent
 import javax.swing.{Icon, JLabel, JList}
-import org.jetbrains.annotations.Nls
+import org.jetbrains.annotations.{Nls, TestOnly}
 import org.jetbrains.plugins.scala.annotator.quickfix.FoundImplicit
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
@@ -140,14 +140,22 @@ sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToI
   protected def customizePopup(popup: ListPopup, editor: Editor): Unit = {}
 
   protected def addImport(toImport: Elem): Unit = invokeLater {
-    if (place.isValid && FileModificationService.getInstance.prepareFileForWrite(place.getContainingFile))
-      executeWriteActionCommand(ScalaBundle.message("add.import.action")) {
-        PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
-        if (place.isValid) {
-          doAddImport(toImport)
-        }
-      }
+    if (place.isValid && FileModificationService.getInstance.prepareFileForWrite(place.getContainingFile)) {
+      executeAddImportInCommand(toImport)
+    }
   }
+
+  @TestOnly
+  final def addImportTestOnly(toImport: ElementToImport): Unit =
+    executeAddImportInCommand(toImport.asInstanceOf[Elem])
+
+  private def executeAddImportInCommand(toImport: Elem): Unit =
+    executeWriteActionCommand(ScalaBundle.message("add.import.action")) {
+      PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+      if (place.isValid) {
+        doAddImport(toImport)
+      }
+    }
 }
 
 object ScalaAddImportAction {

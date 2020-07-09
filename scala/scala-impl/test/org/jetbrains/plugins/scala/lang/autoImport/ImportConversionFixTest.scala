@@ -2,7 +2,12 @@ package org.jetbrains.plugins.scala.lang.autoImport
 
 import org.jetbrains.plugins.scala.annotator.quickfix.ImportImplicitConversionFix
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.worksheet.WorksheetFileType
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+
+class ImportConversionWorksheetTest extends ImportConversionFixTest {
+  override def fileType = WorksheetFileType
+}
 
 class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpression] {
   //conversions from standard library may be different in older versions
@@ -68,16 +73,30 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
     "scala.concurrent.duration.DurationDouble",
   )
 
-  def testGenericImplicitClass(): Unit = checkElementsToImport(
-    s"""object conversions {
-       |  implicit class ObjectExt[T](private val v: T) extends AnyVal {
-       |    def toOption: Option[T] = Option(v)
-       |  }
-       |}
-       |class Test {
-       |  "".${CARET}toOption
-       |}
-       |""".stripMargin,
+  def testGenericImplicitClass(): Unit = doTest(
+    fileText =
+      s"""
+         |object conversions {
+         |  implicit class ObjectExt[T](private val v: T) extends AnyVal {
+         |    def toOption: Option[T] = Option(v)
+         |  }
+         |}
+         |class Test {
+         |  "".${CARET}toOption
+         |}
+         |""".stripMargin,
+    expectedText =
+      """
+        |import conversions.ObjectExt
+        |
+        |object conversions {
+        |  implicit class ObjectExt[T](private val v: T) extends AnyVal {
+        |    def toOption: Option[T] = Option(v)
+        |  }
+        |}
+        |class Test {
+        |  "".toOption
+        |}""".stripMargin,
 
     "conversions.ObjectExt"
   )
