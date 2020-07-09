@@ -573,8 +573,16 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
       case Some(expr) => (expr, caretWS, true)
       case None =>
         previousExpressionInIndentationContext(wsBeforeCaret) match {
-          case Some(expr) if indentationContextContinuation(expr).exists(_.toString.head == c) =>
-            // if we start typing something that could be a continuation if a parent construct do not insert braces
+          case Some(expr) if canBeContinuedWith(expr, c) =>
+            // if we start typing something that could be a continuation of the previous construct, do not insert braces
+            // for example:
+            //
+            // def test =
+            //   if (cond) expr
+            //   <caret>      <- when you type 'e', it could be the continuation of the previous if
+            return Result.CONTINUE
+          case Some(expr) if  indentationContextContinuation(expr).exists(_.toString.head == c) =>
+            // if we start typing something that could be a continuation of a parent construct, do not insert braces
             // for example:
             // if (cond)
             //   expr

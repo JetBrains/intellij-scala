@@ -264,4 +264,63 @@ class AutoBracesTypingTest extends AutoBraceTestBase {
        |""".stripMargin -> ContinuationOnSameLine,
     'a'
   )*/
+
+  def testTypingAContinuationOfEquallyIndented(): Unit = checkTypingInAllContexts(
+    s"""
+       |def test =
+       |  if (true) 3
+       |  $CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    s"""
+       |def test =
+       |  if (true) 3
+       |  e$CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    s"""
+       |def test =
+       |  if (true) 3
+       |  e$CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    'e'
+  )
+
+  def testAbandoningAContinuationOfEquallyIndented(): Unit = checkTypingInAllContexts(
+    s"""
+       |def test =
+       |  if (true) 3
+       |  e$CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    s"""
+       |def test = {
+       |  if (true) 3
+       |  ex$CARET
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+    s"""
+       |def test =
+       |  if (true) 3
+       |  ex$CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    'x'
+  )
+
+  def testTypingANonContinuationOfEquallyIndented(): Unit = checkTypingInUncontinuedContexts(
+    s"""
+       |def test =
+       |  if (true) 3
+       |  $CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    s"""
+       |def test = {
+       |  if (true) 3
+       |  t$CARET
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+    s"""
+       |def test =
+       |  if (true) 3
+       |  t$CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    't'
+  )
 }

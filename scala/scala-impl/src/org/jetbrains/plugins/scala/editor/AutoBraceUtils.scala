@@ -69,6 +69,13 @@ object AutoBraceUtils {
     case _ => Set.empty
   }
 
+  def canBeContinuedWith(element: PsiElement, continuationChar: Char): Boolean = element match {
+    case ScIf(_, _, None) if continuationChar == 'e' => true
+    case ScTry(_, None, None) if continuationChar == 'c' => true
+    case ScTry(_, _, None) if continuationChar == 'f'  => true
+    case _ => false
+  }
+
 
   val indentationContextContinuationsElements: Set[IElementType] = Set(
     ScalaTokenTypes.kELSE,
