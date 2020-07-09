@@ -79,4 +79,36 @@ class SpaceInsertTest extends EditorActionTestBase {
          |}""".stripMargin
     doTest(before, after)
   }
+
+  def testTryCatch(): Unit = {
+    val before =
+      s"""def test = {
+         |  val x =
+         |    try ()
+         |  catch$CARET
+         |}""".stripMargin
+    val after =
+      s"""def test = {
+         |  val x =
+         |    try ()
+         |    catch $CARET
+         |}""".stripMargin
+    doTest(before, after)
+  }
+
+  def testTryFinally(): Unit = {
+    val before =
+      s"""def test = {
+         |  val x =
+         |    try ()
+         |  finally$CARET
+         |}""".stripMargin
+    val after =
+      s"""def test = {
+         |  val x =
+         |    try ()
+         |    finally $CARET
+         |}""".stripMargin
+    doTest(before, after)
+  }
 }

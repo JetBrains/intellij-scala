@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.editor.typedHandler
+package org.jetbrains.plugins.scala
+package editor
+package typedHandler
 
 import java.{util => ju}
 
@@ -18,7 +20,6 @@ import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettings}
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler._
-import org.jetbrains.plugins.scala.editor.{AutoBraceUtils, DocumentExt, EditorExt}
 import org.jetbrains.plugins.scala.extensions.{CharSeqExt, PsiFileExt, _}
 import org.jetbrains.plugins.scala.highlighter.ScalaCommenter
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence
@@ -40,7 +41,6 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxE
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.IndentUtil
-import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 import scala.annotation.tailrec
 import scala.language.implicitConversions
@@ -78,9 +78,13 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     val myTask: Task = if (element != null && isInDocComment(element)) { //we don't have to check offset >= 3 because "/**" is already has 3 characters
       getScaladocTask(text, offset)
     } else if (c == ' ' && hasPrefix(" case ")) {
-      indentCase(file)
+      indentKeyword[ScCaseClause](ScalaTokenTypes.kCASE, file)
     } else if (c == ' ' && hasPrefix("else ")) {
-      indentElse(file)
+      indentKeyword[ScIf](ScalaTokenTypes.kELSE, file)
+    } else if (c == ' ' && hasPrefix("catch ")) {
+      indentKeyword[ScCatchBlock](ScalaTokenTypes.kCATCH, file)
+    } else if (c == ' ' && hasPrefix("finally ")) {
+      indentKeyword[ScFinallyBlock](ScalaTokenTypes.kFINALLY, file)
     } else if (c == '{' && hasPrefix(" {")) {
       indentValBraceStyle(file)
     } else if (element != null && isInPlace(element, classOf[ScXmlExpr], classOf[ScXmlPattern])) {
@@ -159,7 +163,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     }
 
     if (c == ' ' && prevElement != null && needClosingScaladocTag(element, prevElement)) {
-      insertClosingScaladocTag(offset, element)
+      insertClosingScaladocTag(offset)
       moveCaret()
       Result.STOP
     } else if (isClosingScaladocTagOrMarkup(c, element, elementType)) {
@@ -213,7 +217,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
         false
     })
 
-  private def insertClosingScaladocTag(offset: Int, element: PsiElement)(implicit editor: Editor): Unit = {
+  private def insertClosingScaladocTag(offset: Int)(implicit editor: Editor): Unit = {
     val docEnd = ScalaCommenter.getDocumentationCommentSuffix
     insertAndCommit(offset, "  " + docEnd, editor.getDocument, editor.getProject)
   }
@@ -309,16 +313,6 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
 
   private val NoMatter: PsiElement => Boolean = _ => true
 
-  private def indentCase(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
-    indentElement(file)(document, project, element, offset)(
-      elem => elem.getNode.getElementType == ScalaTokenTypes.kCASE && elem.getParent.isInstanceOf[ScCaseClause]
-    )
-
-  private def indentElse(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
-    indentElement(file)(document, project, element, offset)(
-      elem => elem.getNode.getElementType == ScalaTokenTypes.kELSE && elem.getParent.isInstanceOf[ScIf]
-    )
-
   private def indentRefExprDot(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
     indentElement(file)(document, project, element, offset)(
       NoMatter,
@@ -354,25 +348,6 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
       ScalaPsiUtil.isLineTerminator,
       ScalaPsiUtil.getParent(_, 2).exists(_.isInstanceOf[ScValue])
     )
-
-  private def indentElement(
-    file: PsiFile
-  )(
-    document: Document,
-    project: Project,
-    element: PsiElement,
-    offset: Int
-  )(
-    prevCondition: PsiElement => Boolean,
-    condition: PsiElement => Boolean = _.isInstanceOf[PsiWhiteSpace]
-  ): Unit =
-    if (condition(element)) {
-      val anotherElement = file.findElementAt(offset - 2)
-      if (prevCondition(anotherElement)) {
-        document.commit(project)
-        CodeStyleManager.getInstance(project).adjustLineIndent(file, anotherElement.getTextRange)
-      }
-    }
 
   private def addContinuationIndentBeforeDot(indentOptions: IndentOptions)
                                             (document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
