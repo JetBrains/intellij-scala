@@ -117,16 +117,11 @@ object ScalaDocGenerator {
     supersDocs.find(_._2 != null)
   }
 
-  new Object {
-    override def toString: String = super.toString
-  }
-
   private def selectMethodFromSources(method: PsiMethod): PsiMethod =
     method.getNavigationElement match {
       case m: PsiMethod => m
       case _            => method
     }
-
 
   private def inheritedDisclaimer(clazz: PsiClass): String =
     s"""${DocumentationMarkup.CONTENT_START}
