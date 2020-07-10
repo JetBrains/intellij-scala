@@ -131,4 +131,46 @@ class AutoBraceEnterTest extends AutoBraceTestBase {
        |  $CARET
        |""".stripMargin
   )
+
+  def testUnIndentElseAfterEnter(): Unit = checkGeneratedTextAfterEnter(
+    s"""
+       |if (true)
+       |  expr
+       |  else$CARET
+       |""".stripMargin,
+    s"""
+       |if (true)
+       |  expr
+       |else
+       |  $CARET
+       |""".stripMargin
+  )
+
+  def testUnIndentCatchAfterEnter(): Unit = checkGeneratedTextAfterEnter(
+    s"""
+       |try
+       |  expr
+       |  catch$CARET
+       |""".stripMargin,
+    s"""
+       |try
+       |  expr
+       |catch
+       |  $CARET
+       |""".stripMargin
+  )
+
+  def testUnIndentFinallyAfterEnter(): Unit = checkGeneratedTextAfterEnter(
+    s"""
+       |try
+       |  expr
+       |  finally$CARET
+       |""".stripMargin,
+    s"""
+       |try
+       |  expr
+       |finally
+       |  $CARET
+       |""".stripMargin
+  )
 }
