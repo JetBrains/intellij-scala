@@ -403,4 +403,21 @@ class ConvertExpressionToSAMInspectionTest extends ScalaQuickFixTestBase {
       """.stripMargin
     checkTextHasNoErrors(code)
   }
+
+
+  def testConstructor(): Unit = checkTextHasNoErrors(
+    """
+      |abstract class Blub {
+      |  def this(i: Int) = this()
+      |
+      |  def singleMethod(x: Int): Unit
+      |}
+      |
+      |def take(blub: Blub): Unit = ()
+      |
+      |take(new Blub(34) {
+      |  override def singleMethod(x: Int): Unit = ()
+      |})
+      |""".stripMargin
+  )
 }
