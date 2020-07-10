@@ -861,16 +861,20 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         leftElementType == ScalaTokenTypes.tIDENTIFIER |
         rightElementType == ScalaTokenTypes.tIDENTIFIER
       ))
-    return Spacing.getReadOnlySpacing
+      return Spacing.getReadOnlySpacing
 
     //old formatter spacing
 
 
     //comments processing
-    if (leftPsi.isInstanceOf[ScDocComment]) return ON_NEW_LINE
-    if (rightPsi.isInstanceOf[ScDocComment] && leftElementType == ScalaTokenTypes.tLBRACE) return ON_NEW_LINE
-    if (rightPsi.isInstanceOf[ScDocComment]) return DOUBLE_LINE
-    if (rightPsi.isInstanceOf[PsiComment] || leftPsi.isInstanceOf[PsiComment]) return COMMON_SPACING
+    if (leftPsi.isInstanceOf[ScDocComment])
+      return ON_NEW_LINE
+    if (rightPsi.isInstanceOf[ScDocComment] && leftElementType == ScalaTokenTypes.tLBRACE)
+      return ON_NEW_LINE
+    if (rightPsi.isInstanceOf[ScDocComment])
+      return DOUBLE_LINE
+    if (rightPsi.isInstanceOf[PsiComment] || leftPsi.isInstanceOf[PsiComment])
+      return COMMON_SPACING
 
     //; : . and , processing
     if (rightBlockString.startsWith(".") &&
@@ -1266,6 +1270,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (ScalaElementType.ANNOTATIONS, ScalaTokenTypes.kDEF, _, _) if scalaSettings.NEWLINE_AFTER_ANNOTATIONS =>
         ON_NEW_LINE
       //Other cases
+      case (ScalaTokenTypes.tSTUB, _, _, _) |
+           (_, ScalaTokenTypes.tSTUB, _, _) => NO_SPACING_WITH_NEWLINE
       case _ =>
         COMMON_SPACING
     }

@@ -79,8 +79,23 @@ object getDummyBlocks {
   private def multiLevelAlignmentMap(project: Project): mutable.Map[IElementType, List[ElementPointerAlignmentStrategy]] =
     project.getOrUpdateUserData(multiLevelAlignmentKey, mutable.Map[IElementType, List[ElementPointerAlignmentStrategy]]())
 
-  private def isCorrectBlock(node: ASTNode): Boolean =
-    StringUtils.isNotBlank(node.getChars)
+  // TODO: rename to isNonEmptyNode
+  // TODO: rename FormatterUtil to ScalaFormatterUtil
+  /** see [[com.intellij.psi.formatter.java.SimpleJavaBlock.isNotEmptyNode]] */
+  private def isNotEmptyNode(node: ASTNode): Boolean =
+    !com.intellij.psi.formatter.FormatterUtil.containsWhiteSpacesOnly(node) &&
+      node.getTextLength > 0
+
+  private def isNotEmptyDocNode(node: ASTNode): Boolean =
+    !isEmptyDocNode(node)
+
+  private def isEmptyDocNode(node: ASTNode): Boolean =
+    node.getElementType match {
+      case ScalaDocTokenType.DOC_WHITESPACE => true
+      case ScalaDocTokenType.DOC_COMMENT_DATA |
+           ScalaDocTokenType.DOC_INNER_CODE => StringUtils.isBlank(node.getText)
+      case _                                => node.getTextLength == 0
+    }
 
   private class StringLineScalaBlock(myTextRange: TextRange, mainNode: ASTNode, myParentBlock: ScalaBlock,
                                      myAlignment: Alignment, myIndent: Indent, myWrap: Wrap, mySettings: CodeStyleSettings)
@@ -112,12 +127,18 @@ class getDummyBlocks(private val block: ScalaBlock) {
 
   // TODO: there are quite many unnecessary array allocations and copies, consider passing
   //  mutable buffer/list to submethods, and measure the performance!
-  def apply(firstNode: ASTNode, lastNode: ASTNode): util.ArrayList[Block] =
-    if (lastNode != null) {
-      applyInner(firstNode, lastNode)
-    } else {
-      applyInner(firstNode)
-    }
+  def apply(firstNode: ASTNode, lastNode: ASTNode): util.ArrayList[Block] = {
+    if (isScalaDocNode(firstNode))
+      if (lastNode != null)
+        applyInnerScaladoc(firstNode, lastNode)
+      else
+        applyInnerScaladoc(firstNode)
+    else
+      if (lastNode != null)
+        applyInner(firstNode, lastNode)
+      else
+        applyInner(firstNode)
+  }
 
   private def applyInner(node: ASTNode): util.ArrayList[Block] = {
     val subBlocks = new util.ArrayList[Block]
@@ -155,7 +176,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
         subBlocks.addAll(getMultilineStringBlocks(node))
         return subBlocks
       case pack: ScPackaging if pack.isExplicit =>
-        val correctChildren = node.getChildren(null).filter(isCorrectBlock)
+        val correctChildren = node.getChildren(null).filter(isNotEmptyNode)
         val (beforeOpenBrace, afterOpenBrace) = correctChildren.span(_.getElementType != tLBRACE)
         val hasValidTail = afterOpenBrace.nonEmpty && afterOpenBrace.head.getElementType == tLBRACE &&
           afterOpenBrace.last.getElementType == tRBRACE
@@ -166,19 +187,11 @@ class getDummyBlocks(private val block: ScalaBlock) {
           subBlocks.add(subBlock(afterOpenBrace.head, afterOpenBrace.last))
         }
         return subBlocks
-      case _: ScDocComment =>
-        addScalaDocCommentSubBlocks(node, subBlocks)
-        return subBlocks
-
-      case docTag: ScDocTag =>
-        addScalaDocTagSubBlocks(docTag, subBlocks)
-        return subBlocks
-
       case interpolated: ScInterpolatedStringLiteral =>
         //create and store alignment; required for support of multi-line interpolated strings (SCL-8665)
         alignmentsMap(interpolated.getProject).put(interpolated.createSmartPointer, buildQuotesAndMarginAlignments)
       case psi@(_: ScValueOrVariable | _: ScFunction) if node.getFirstChildNode.getPsi.isInstanceOf[PsiComment] =>
-        val childrenFiltered: Array[ASTNode] = node.getChildren(null).filter(isCorrectBlock)
+        val childrenFiltered: Array[ASTNode] = node.getChildren(null).filter(isNotEmptyNode)
         val childHead :: childTail = childrenFiltered.toList
         subBlocks.add(subBlock(childHead))
         val indent: Indent = {
@@ -204,7 +217,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
     val sharedAlignment: Alignment = createAlignment(node)
 
     val children = node.getChildren(null)
-    for (child <- children if isCorrectBlock(child)) {
+    for (child <- children if isNotEmptyNode(child)) {
       val childAlignment: Alignment = calcChildAlignment(node, child, sharedAlignment)
 
       val needFlattenInterpolatedStrings = child.getFirstChildNode == null &&
@@ -304,7 +317,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
 
     var prevTagName            : Option[String] = None
     var lastTagContextAlignment: Alignment      = Alignment.createAlignment(true)
-    for (child <- node.getChildren(null) if isCorrectBlock(child)) {
+    for (child <- node.getChildren(null) if isNotEmptyDocNode(child)) {
       val tagContextAlignment = child.getElementType match {
         case ScalaDocElementTypes.DOC_TAG =>
           val tagName = child.getFirstChildNode.withTreeNextNodes.find(_.getElementType == ScalaDocTokenType.DOC_TAG_NAME).map(_.getText)
@@ -334,7 +347,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
      * also it can contain leading white space
      */
     childrenLeading.foreach { c =>
-      if (!FormatterUtil.isDocWhiteSpace(c))
+      if (isNotEmptyDocNode(c))
         subBlocks.add(subBlock(c))
     }
 
@@ -349,7 +362,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
 
         if (tail.nonEmpty) {
           val (leadingAsterisks, other) = tail
-            .filterNot(FormatterUtil.isDocWhiteSpace)
+            .filter(isNotEmptyDocNode)
             .span(_.getElementType == DOC_COMMENT_LEADING_ASTERISKS)
           leadingAsterisks.foreach { c =>
             subBlocks.add(subBlock(c))
@@ -363,7 +376,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
 
 
   private def getCaseClauseGroupSubBlocks(node: ASTNode): util.ArrayList[Block] = {
-    val children = node.getChildren(null).filter(isCorrectBlock)
+    val children = node.getChildren(null).filter(isNotEmptyNode)
     val subBlocks = new util.ArrayList[Block]
 
     def getPrevGroupNode(nodePsi: PsiElement) = {
@@ -399,7 +412,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
   }
 
   private def getFieldGroupSubBlocks(node: ASTNode): util.ArrayList[Block] = {
-    val children = node.getChildren(null).filter(isCorrectBlock)
+    val children = node.getChildren(null).filter(isNotEmptyNode)
     val subBlocks = new util.ArrayList[Block]
 
     def getPrevGroupNode(nodePsi: PsiElement) = {
@@ -555,7 +568,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
       case _ =>
         addTail(children)
     }
-    addFor(children.filter(isCorrectBlock).toList)
+    addFor(children.filter(isNotEmptyNode).toList)
 
     subBlocks
   }
@@ -688,7 +701,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
     for (child <- children) {
       if (InfixElementsTokenSet.contains(child.getElementType) && infixPriority(node) == infixPriority(child)) {
         subBlocks.addAll(getInfixBlocks(child, alignment))
-      } else if (isCorrectBlock(child)) {
+      } else if (isNotEmptyNode(child)) {
         subBlocks.add(subBlock(child, null, alignment))
       }
     }
@@ -718,7 +731,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
       node.getPsi match {
         case _: ScLiteral | _: ScBlockExpr=>
           result.add(subBlock(node, null))
-          for (child <- delegatedChildren.filter(isCorrectBlock)) {
+          for (child <- delegatedChildren.filter(isNotEmptyNode)) {
             result.add(subBlock(child, null))
           }
           return
@@ -726,7 +739,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
       }
 
       val alignment = createAlignment(node)
-      val childrenAll = node.getChildren(null).filter(isCorrectBlock).toList
+      val childrenAll = node.getChildren(null).filter(isNotEmptyNode).toList
       val (comments, children) = childrenAll.partition(isComment)
 
       //don't check for element types other then absolutely required - they do not matter
@@ -774,7 +787,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
 
         case _ =>
           val childrenWithDelegated = children ++ delegatedChildren
-          for (child <- childrenWithDelegated.filter(isCorrectBlock)) {
+          for (child <- childrenWithDelegated.filter(isNotEmptyNode)) {
             result.add(subBlock(child, null))
           }
       }
@@ -834,23 +847,19 @@ class getDummyBlocks(private val block: ScalaBlock) {
       subBlock(child, lastNode, alignment, context = context)
     }
 
-    if (insideScalaDocComment(node)) {
-      applyInnerScaladoc(node, lastNode, subBlocks)
-    } else {
-      var child: ASTNode = node
-      do {
-        if (isCorrectBlock(child)) {
-          if (child.getPsi.isInstanceOf[ScTemplateParents]) {
-            subBlocks.addAll(getTemplateParentsBlocks(child))
-          } else {
-            subBlocks.add(childBlock(child))
-          }
+    var child: ASTNode = node
+    do {
+      if (isNotEmptyNode(child)) {
+        if (child.getPsi.isInstanceOf[ScTemplateParents]) {
+          subBlocks.addAll(getTemplateParentsBlocks(child))
+        } else {
+          subBlocks.add(childBlock(child))
         }
-      } while (child != lastNode && {
-        child = child.getTreeNext
-        child != null
-      })
-    }
+      }
+    } while (child != lastNode && {
+      child = child.getTreeNext
+      child != null
+    })
 
     //it is not used right now, but could come in handy later
     for {
@@ -863,16 +872,39 @@ class getDummyBlocks(private val block: ScalaBlock) {
     subBlocks
   }
 
-  private def insideScalaDocComment(node: ASTNode): Boolean = {
-    val insideIncompleteScalaDocTag = {
+  private def isScalaDocNode(node: ASTNode): Boolean = {
+    def isInsideIncompleteScalaDocTag = {
       val parent = node.getTreeParent
       parent!= null && parent.getElementType == ScalaDocElementTypes.DOC_TAG &&
         node.getPsi.isInstanceOf[PsiErrorElement]
     }
-    ScalaDocElementTypes.AllElementAndTokenTypes.contains(node.getElementType) || insideIncompleteScalaDocTag
+    node.getElementType == ScalaDocElementTypes.SCALA_DOC_COMMENT ||
+      ScalaDocElementTypes.AllElementAndTokenTypes.contains(node.getElementType) ||
+      isInsideIncompleteScalaDocTag
   }
 
-  private def applyInnerScaladoc(node: ASTNode, lastNode: ASTNode, subBlocks: util.List[Block]): Unit = {
+  private def applyInnerScaladoc(node: ASTNode): util.ArrayList[Block] = {
+    val subBlocks = new util.ArrayList[Block]
+
+    val nodePsi = node.getPsi
+    nodePsi match {
+      case _: ScDocComment  => addScalaDocCommentSubBlocks(node, subBlocks)
+      case docTag: ScDocTag => addScalaDocTagSubBlocks(docTag, subBlocks)
+      case _ =>
+        val sharedAlignment = createAlignment(node)
+        val children = node.getChildren(null)
+        for (child <- children if isNotEmptyDocNode(child)) {
+          val childAlignment = calcChildAlignment(node, child, sharedAlignment)
+          subBlocks.add(subBlock(child, null, childAlignment))
+        }
+    }
+
+    subBlocks
+  }
+
+  private def applyInnerScaladoc(node: ASTNode, lastNode: ASTNode): util.ArrayList[Block] = {
+    val subBlocks = new util.ArrayList[Block]
+
     val parent = node.getTreeParent
 
     var scaladocNode = node.getElementType match {
@@ -896,7 +928,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
       block.parentBlock.subBlocksContext.flatMap(_.alignment)
         .getOrElse(Alignment.createAlignment(true))
 
-    children.view.filter(isCorrectBlock).foreach { child =>
+    children.view.filter(isNotEmptyDocNode).foreach { child =>
       import ScalaDocTokenType._
 
       val childType = child.getElementType
@@ -934,6 +966,8 @@ class getDummyBlocks(private val block: ScalaBlock) {
 
       subBlocks.add(subBlock(child, null, childAlignment, wrap = Some(childWrap)))
     }
+
+    subBlocks
   }
 
   private def needFlattenDocElementChildren(node: ASTNode): Boolean = {
@@ -962,7 +996,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
       else Alignment.createAlignment(true)
 
     val children = node.getChildren(null)
-    for (child <- children if isCorrectBlock(child)) {
+    for (child <- children if isNotEmptyNode(child)) {
       val actualAlignment = (child.getElementType, alignSetting) match {
         case (_, DO_NOT_ALIGN) => null
         case (`kWITH` | `kEXTENDS`, ON_FIRST_ANCESTOR) => null

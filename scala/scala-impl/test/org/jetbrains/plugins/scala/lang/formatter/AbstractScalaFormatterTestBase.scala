@@ -80,6 +80,12 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
   def doTextTest(text: String, textAfter: String): Unit =
     doTextTest(text, textAfter, 1)
 
+  def assertFormatterDoesNotFail(text: String, repeats: Int): Unit =
+    doTextTest(TestData.apply(text, None, tempFileName, Action.Reformat, Seq(), repeats, checkAfterEachIteration = false))
+
+  def doTextTest(text: String, textAfter: String, repeats: Int): Unit =
+    doTextTest(TestData.reformat(text, textAfter, tempFileName, repeats, checkAfterEachIteration = false))
+
   def doTextTest(text: String, textAfter: String, repeats: Int, checkAfterEachIteration: Boolean = false): Unit =
     doTextTest(TestData.reformat(text, textAfter, tempFileName, repeats, checkAfterEachIteration))
 
@@ -93,7 +99,7 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     doTextTest(value, value, actionRepeats)
 
   private def doTextTest(action: Action, text: String, textAfter: String): Unit =
-    doTextTest(TestData(text, textAfter, tempFileName, action, 1, false))
+    doTextTest(TestData(text, textAfter, tempFileName, action, 1, checkAfterEachIteration = false))
 
   private def initFile(fileName: String, text: String): PsiFile = {
     PsiFileFactory.getInstance(project)
@@ -182,14 +188,19 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     val manager  = PsiDocumentManager.getInstance(getProject)
     val document = manager.getDocument(file)ensuring(_ != null, "Don't expect the document to be null")
 
+    def check(expected: String): Unit = {
+      val expected2 = prepareText(expected)
+      assertEquals(expected2, prepareText(document.getText))
+      manager.commitDocument(document)
+      assertEquals(expected2, prepareText(file.getText))
+    }
+
     runCommandInWriteAction(() => try {
       for (_ <- 0 until actionRepeats) {
         val ranges = if (selectedRanges.nonEmpty) selectedRanges else Seq(file.getTextRange)
         Actions(action).run(file, ranges)
         if (checkAfterEachIteration) {
-          assertEquals(prepareText(textAfter), prepareText(document.getText))
-          manager.commitDocument(document)
-          assertEquals(prepareText(textAfter), prepareText(file.getText))
+          textAfter.foreach(check)
         }
       }
     } catch {
@@ -198,9 +209,7 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     }, "", "")
 
 
-    assertEquals(prepareText(textAfter), prepareText(document.getText))
-    manager.commitDocument(document)
-    assertEquals(prepareText(textAfter), prepareText(file.getText))
+    textAfter.foreach(check)
   }
 
   private def prepareText(actual0: String) = {
@@ -231,7 +240,7 @@ private object AbstractScalaFormatterTestBase {
 
   case class TestData(
     textBefore: String,
-    textAfter: String,
+    textAfter: Option[String], // None means that we just want to test that formatter doesnt fail
     fileName: String,
     action: Action,
     ranges: Seq[TextRange],
@@ -242,12 +251,12 @@ private object AbstractScalaFormatterTestBase {
   object TestData {
 
     def apply(textBefore: String, textAfter: String, fileName: String, action: Action, ranges: Seq[TextRange], actionRepeats: Int): TestData =
-      new TestData(textBefore, textAfter, fileName, action, ranges, actionRepeats, checkAfterEachIteration = false)
+      new TestData(textBefore, Some(textAfter), fileName, action, ranges, actionRepeats, checkAfterEachIteration = false)
 
     def apply(before: String, after: String, fileName: String, action: Action, actionRepeats: Int, checkAfterEachIteration: Boolean): TestData = {
       val (beforeWithoutMarkers, selectedTextRanges) = MarkersUtils.extractMarkers(before.withNormalizedSeparator)
       val (afterWithoutMarkers, _) = MarkersUtils.extractMarkers(after.withNormalizedSeparator)
-      TestData(beforeWithoutMarkers, afterWithoutMarkers, fileName, action, selectedTextRanges, actionRepeats, checkAfterEachIteration)
+      TestData(beforeWithoutMarkers, Some(afterWithoutMarkers), fileName, action, selectedTextRanges, actionRepeats, checkAfterEachIteration)
     }
 
     def reformat(before: String, after: String, fileName: String, repeats: Int, checkAfterEachIteration: Boolean): TestData =
