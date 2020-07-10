@@ -1,6 +1,4 @@
-package org.jetbrains.bsp
-package protocol
-package session
+package org.jetbrains.bsp.protocol.session
 
 import java.util.concurrent.CompletableFuture
 
@@ -9,26 +7,38 @@ import java.util.concurrent.CompletableFuture
  * When a future overrides a `cancel` method, it is lost
  * when doing transformations like `thenApply` or `thenCompose`.
  *
+ * In Java 9, the new CompletableFuture's method was introduced: `newIncompleteFuture`.
+ * When using it, the cancel method of the original future will be called event when the
+ * `cancel` is done on a transformed one.
+ *
  * When we know about CompletableFutures that override `cancel` methods, we should convert them
  * to CancellableFuture before calling methods like `thenCompose`
+ *
+ * @param original
  */
-final class CancellableFuture[T](delegateFuture: CompletableFuture[T])
-  extends CompletableFuture[T] {
-
-  delegateFuture.whenComplete {
-    case (value, null) => complete(value)
-    case (_, ex) => completeExceptionally(ex)
-  }
-
+class CancellableFuture[T](original: CompletableFuture[_]) extends CompletableFuture[T] {
   override def cancel(mayInterruptIfRunning: Boolean): Boolean = {
-    delegateFuture.cancel(mayInterruptIfRunning)
+    original.cancel(mayInterruptIfRunning)
     super.cancel(mayInterruptIfRunning)
   }
 
-  /**
-   * * In Java 9, the new CompletableFuture's method was introduced: `newIncompleteFuture`.
-   * * When using it, the cancel method of the original future will be called event when the
-   * * `cancel` is done on a transformed one.
-   */
-  //override def newIncompleteFuture[U] = new CancellableFuture(delegateFuture)
+  def newIncompleteFuture[U](): CompletableFuture[U] = {
+    new CancellableFuture(original)
+  }
+}
+
+object CancellableFuture {
+  def from[T](original: CompletableFuture[T]): CancellableFuture[T] = {
+    val result = new CancellableFuture[T](original)
+    original.whenComplete{ (value, error) =>
+      if (error != null) {
+        result.completeExceptionally(error)
+      }
+      else {
+        result.complete(value)
+      }
+      ()
+    }
+    result
+  }
 }
