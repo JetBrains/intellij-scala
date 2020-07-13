@@ -574,7 +574,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
     def completeImplicits(qualifier: ScExpression,
                           processor: CompletionProcessor): Unit = for {
-      result <- ScImplicitlyConvertible.implicitMap(qualifier) // todo: args?
+      result <- ScImplicitlyConvertible.applicableImplicitConversions(qualifier)
       builder = result.builder.withImports.withImplicitType
     } processor.processType(result.`type`, qualifier, builder.state)
 
