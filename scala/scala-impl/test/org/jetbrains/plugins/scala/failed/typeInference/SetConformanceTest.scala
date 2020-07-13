@@ -60,14 +60,24 @@ class SetConformanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
        |//true
     """.stripMargin)
 
-  def testSCL13786(): Unit = checkTextHasNoErrors(
-    s"""
-       |trait Builder {
-       |  type Self = this.type
-       |  def foo(): Self = this
-       |}
-       |class Test extends Builder
-       |val x: Test = new Test().foo()
-       |//true
-    """.stripMargin)
+
+  def testSCL9738(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |sealed trait FeedbackReason
+         |case object CostReason extends FeedbackReason
+         |case object BugsReason extends FeedbackReason
+         |case object OtherReason extends FeedbackReason
+         |
+         |object FeedbackTypes {
+         |  def asMap(): Map[FeedbackReason, String] = {
+         |    val reasons = Map(
+         |      CostReason -> "It's too expensive",
+         |      BugsReason -> "It's buggy"
+         |    )
+         |    reasons ++ Map(OtherReason -> "Some other reason")
+         |  }
+         |}
+      """.stripMargin)
+  }
 }
