@@ -350,16 +350,15 @@ object ScExpression {
       }
     }
 
-    @tailrec
     private def getStdType(t: ScType): Option[StdType] = {
-      val stdTypes = project.stdTypes
+      val stdTypes  = project.stdTypes
+      val dealiased = t.widenIfLiteral.removeAliasDefinitions()
       import stdTypes._
 
-      t match {
+      dealiased match {
         case AnyVal                           => Some(AnyVal)
         case valType: ValType                 => Some(valType)
         case designatorType: ScDesignatorType => designatorType.getValType
-        case lt: ScLiteralType                => getStdType(lt.wideType)
         case _                                => None
       }
     }
