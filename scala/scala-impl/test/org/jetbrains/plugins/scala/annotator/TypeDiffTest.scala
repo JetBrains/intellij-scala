@@ -609,7 +609,7 @@ class TypeDiffTest extends ScalaFixtureTestCase {
 
   private def typesIn(context: String, types: String*): Seq[ScType] =
     parseText(s"$context; ${types.map("null: " + _).mkString(";")}")
-      .children.instancesOf[ScTypedExpression]
+      .children.filterByType[ScTypedExpression]
       .map(typeOf).toSeq
 
   private def typeOf(e: ScTypedExpression) = {

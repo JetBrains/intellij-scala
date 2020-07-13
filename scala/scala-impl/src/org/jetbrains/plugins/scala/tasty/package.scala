@@ -62,7 +62,7 @@ package object tasty {
         val index = ProjectFileIndex.SERVICE.getInstance(element.getProject)
         val inTest = index.isInTestSourceContent(psiFile.getVirtualFile)
         Option(CompilerPaths.getModuleOutputPath(module, inTest)).flatMap { outputDirectory =>
-          element.parentsInFile.instancesOf[ScTypeDefinition].lastOption.map { topLevelTypeDefinition =>
+          element.parentsInFile.filterByType[ScTypeDefinition].lastOption.map { topLevelTypeDefinition =>
             Location(outputDirectory, topLevelTypeDefinition.qualifiedName)
           }
         }

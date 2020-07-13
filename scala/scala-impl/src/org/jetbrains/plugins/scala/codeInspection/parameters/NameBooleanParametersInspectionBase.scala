@@ -68,7 +68,7 @@ abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
         mc.getInvokedExpr match {
           case ref: ScReferenceExpression =>
             ref.bind().exists { srr =>
-              val targets = (Seq(srr.element) ++ srr.innerResolveResult.map(_.getElement)).filterBy[ScFunction]
+              val targets = (Seq(srr.element) ++ srr.innerResolveResult.map(_.getElement)).filterByType[ScFunction]
               targets.exists(_.parameters.size == 1)
             }
           case _ => false

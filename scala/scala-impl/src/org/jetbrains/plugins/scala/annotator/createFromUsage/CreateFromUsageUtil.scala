@@ -89,7 +89,7 @@ object CreateFromUsageUtil {
   }
 
   def addParametersToTemplate(elem: PsiElement, builder: TemplateBuilder): Unit = {
-    elem.depthFirst().instancesOf[ScParameter].foreach { parameter =>
+    elem.depthFirst().filterByType[ScParameter].foreach { parameter =>
       val id = parameter.getNameIdentifier
       builder.replaceElement(id, id.getText)
 
@@ -100,14 +100,14 @@ object CreateFromUsageUtil {
   }
 
   def addTypeParametersToTemplate(elem: PsiElement, builder: TemplateBuilder): Unit = {
-    elem.depthFirst().instancesOf[ScTypeParam].foreach { tp =>
+    elem.depthFirst().filterByType[ScTypeParam].foreach { tp =>
       builder.replaceElement(tp.nameId, tp.name)
     }
   }
 
   def addQmarksToTemplate(elem: PsiElement, builder: TemplateBuilder): Unit = {
     val Q_MARKS = "???"
-    elem.depthFirst().instancesOf[ScReferenceExpression].filter(_.textMatches(Q_MARKS))
+    elem.depthFirst().filterByType[ScReferenceExpression].filter(_.textMatches(Q_MARKS))
             .foreach { qmarks =>
       builder.replaceElement(qmarks, Q_MARKS)
     }

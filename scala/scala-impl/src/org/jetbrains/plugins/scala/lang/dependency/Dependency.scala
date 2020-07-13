@@ -54,7 +54,7 @@ object Dependency {
   }
 
   def dependenciesIn(scope: PsiElement): Seq[Dependency] = scope.depthFirst()
-    .instancesOf[ScReference]
+    .filterByType[ScReference]
     .toList
     .flatMap(dependenciesFor)
 

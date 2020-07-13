@@ -56,7 +56,7 @@ private class ScalaDocContentGenerator(
     val descriptionElements = Option(tag.getValueElement)
       .orElse(tag.children.findByType[ScStableCodeReference]) // for @throws tag
       .getOrElse(tag.getNameElement).nextSiblings
-    descriptionElements.toTraversable.filterBy[ScDocDescriptionPart]
+    descriptionElements.toTraversable.filterByType[ScDocDescriptionPart]
   }
 
   private def nodesText(elements: TraversableOnce[PsiElement]): String = {

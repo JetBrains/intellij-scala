@@ -77,7 +77,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
 
     var typeMismatchShown = false
 
-    val firstExcessiveArgument = problems.filterBy[ExcessArgument].map(_.argument).firstBy(_.getTextOffset)
+    val firstExcessiveArgument = problems.filterByType[ExcessArgument].map(_.argument).firstBy(_.getTextOffset)
     firstExcessiveArgument.foreach { argument =>
       val opening = argument.prevSiblings.takeWhile(e => e.is[PsiWhiteSpace] || e.is[PsiComment] || e.textMatches(",") || e.textMatches("(")).toSeq.lastOption
       val range = opening.map(e => new TextRange(e.getTextOffset, argument.getTextOffset + 1)).getOrElse(argument.getTextRange)
@@ -132,7 +132,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
   }
 
   private def isAmbiguousOverload(problems: Seq[ApplicabilityProblem]): Boolean =
-    problems.filterBy[TypeMismatch].groupBy(_.expression).exists(_._2.length > 1)
+    problems.filterByType[TypeMismatch].groupBy(_.expression).exists(_._2.length > 1)
 
   @tailrec
   private def isAmbiguousOverload(call: MethodInvocation): Boolean = call.getEffectiveInvokedExpr match {

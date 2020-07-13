@@ -84,7 +84,7 @@ class ScFunctionWrapper(override val delegate: ScFunction,
       TypeDefinitionMembers.getSignatures(getContainingClass)
         .forName(delegate.name)
         .findNode(delegate)
-        .map(_.supers.map(_.info).filterBy[PhysicalMethodSignature])
+        .map(_.supers.map(_.info).filterByType[PhysicalMethodSignature])
 
     superSignatures.getOrElse(Seq.empty).mapToArray(wrap)(PsiMethod.ARRAY_FACTORY)
   }

@@ -170,12 +170,12 @@ package object extensions {
     def foreachDefined(pf: PartialFunction[A, Unit]): Unit =
       value.foreach(pf.applyOrElse(_, (_: A) => Unit))
 
-    def filterBy[T: ClassTag](implicit cbf: CanBuildTo[T, CC]): CC[T] = {
+    def filterByType[T: ClassTag](implicit cbf: CanBuildTo[T, CC]): CC[T] = {
       val clazz = implicitly[ClassTag[T]].runtimeClass
-      value.filter(clazz.isInstance).map[T, CC[T]](_.asInstanceOf[T])(collection.breakOut)
+      value.filter(clazz.isInstance).asInstanceOf[CC[T]]
     }
 
-    def findBy[T: ClassTag]: Option[T] = {
+    def findByType[T: ClassTag]: Option[T] = {
       val clazz = implicitly[ClassTag[T]].runtimeClass
       value.find(clazz.isInstance).asInstanceOf[Option[T]]
     }
@@ -1090,14 +1090,14 @@ package object extensions {
   }
 
   implicit class IteratorExt[A](private val delegate: Iterator[A]) extends AnyVal {
-    def instanceOf[T: ClassTag]: Option[T] = {
+    def findByType[T: ClassTag]: Option[T] = {
       val aClass = implicitly[ClassTag[T]].runtimeClass
-      delegate.find(aClass.isInstance).map(_.asInstanceOf[T])
+      delegate.find(aClass.isInstance).asInstanceOf[Option[T]]
     }
 
-    def instancesOf[T: ClassTag]: Iterator[T] = {
+    def filterByType[T: ClassTag]: Iterator[T] = {
       val aClass = implicitly[ClassTag[T]].runtimeClass
-      delegate.filter(aClass.isInstance).map(_.asInstanceOf[T])
+      delegate.filter(aClass.isInstance).asInstanceOf[Iterator[T]]
     }
 
     def containsInstanceOf[T: ClassTag]: Boolean = {
@@ -1138,11 +1138,6 @@ package object extensions {
 
     def intersperse[B >: A](start: B, sep: B, end: B): Iterator[B] =
       Iterator(start) ++ delegate.intersperse(sep) ++ Iterator(end)
-
-    def findByType[B](implicit classTag: ClassTag[B]): Option[B] = {
-      val runtimeClass = classTag.runtimeClass
-      delegate.find(runtimeClass.isInstance).map(_.asInstanceOf[B])
-    }
   }
 
   implicit class ConcurrentMapExt[K, V](private val map: JConcurrentMap[K, V]) extends AnyVal {

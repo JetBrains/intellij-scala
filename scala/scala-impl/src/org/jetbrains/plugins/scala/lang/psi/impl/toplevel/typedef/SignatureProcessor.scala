@@ -66,7 +66,7 @@ object TypesCollector extends SignatureProcessor[TypeSignature] {
   }
 
   override def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, sink: Sink): Unit = {
-    for (member <- template.membersWithSynthetic.filterBy[ScNamedElement]) {
+    for (member <- template.membersWithSynthetic.filterByType[ScNamedElement]) {
       process(TypeSignature(member, subst), sink)
     }
   }

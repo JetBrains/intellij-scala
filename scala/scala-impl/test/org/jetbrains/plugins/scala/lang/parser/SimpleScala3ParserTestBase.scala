@@ -34,7 +34,7 @@ trait SimpleScala3ParserTestBase extends SimpleTestCase {
     val (code, expectedErrors) = extractExpectedErrors(text)
 
     val file = parseText(code, lang = Scala3Language.INSTANCE)
-    val errors = file.depthFirst().toSeq.filterBy[PsiErrorElement]
+    val errors = file.depthFirst().toSeq.filterByType[PsiErrorElement]
     if (expectedErrors.isEmpty) {
       assert(errors.isEmpty, "Expected no errors but found: " + errors.map(_.getErrorDescription).mkString(", "))
     } else {

@@ -36,7 +36,7 @@ class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(no
       * xx.type with tt.
       */
     def withDesugaredValTypes(quantified: ScType): ScType = {
-      val valDeclarations = clause.declarations.filterBy[ScValueDeclaration]
+      val valDeclarations = clause.declarations.filterByType[ScValueDeclaration]
 
       if (valDeclarations.isEmpty) quantified
       else quantified.updateLeaves {

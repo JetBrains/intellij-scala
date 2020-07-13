@@ -11,7 +11,7 @@ import org.junit.Assert._
 class ScalaDocTokenTypeTest extends TestCase {
 
   def testAllScaladocSyntaxElementShouldHaveUniqueFlags(): Unit = {
-    val syntaxElements = ScalaDocTokenType.ALL_SCALADOC_TOKENS.getTypes.toSeq.filterBy[ScalaDocSyntaxElementType]
+    val syntaxElements = ScalaDocTokenType.ALL_SCALADOC_TOKENS.getTypes.toSeq.filterByType[ScalaDocSyntaxElementType]
     assertTrue(syntaxElements.nonEmpty)
 
     val map = syntaxElements.groupBy(_.getFlagConst)

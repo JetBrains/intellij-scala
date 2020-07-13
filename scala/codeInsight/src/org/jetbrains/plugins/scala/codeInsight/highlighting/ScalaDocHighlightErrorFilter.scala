@@ -12,5 +12,5 @@ final class ScalaDocHighlightErrorFilter extends HighlightErrorFilter {
   override def shouldHighlightErrorElement(element: PsiErrorElement): Boolean = !isInScaladoc(element)
 
   private def isInScaladoc(element: PsiErrorElement) =
-    element.parentsInFile.instancesOf[ScDocComment].nonEmpty
+    element.parentsInFile.filterByType[ScDocComment].nonEmpty
 }

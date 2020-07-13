@@ -40,7 +40,7 @@ trait ImplicitArgumentsOwner extends ScalaPsiElement {
     }
     implicitArg.toSeq
       .flatMap(_.parentsInFile.take(2)) //argument or rhs of a named argument
-      .filterBy[ScArgumentExprList]
+      .filterByType[ScArgumentExprList]
       .headOption
   }
 }

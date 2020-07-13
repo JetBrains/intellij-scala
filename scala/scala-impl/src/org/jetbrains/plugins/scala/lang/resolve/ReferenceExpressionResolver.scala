@@ -405,7 +405,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
               }
             case _ =>
               for {
-                method <- clazz.getMethods.toSeq.filterBy[PsiAnnotationMethod]
+                method <- clazz.getMethods.toSeq.filterByType[PsiAnnotationMethod]
                 if equivalent(method.name, ref.refName)
               } baseProcessor.execute(method, ScalaResolveState.empty)
           }

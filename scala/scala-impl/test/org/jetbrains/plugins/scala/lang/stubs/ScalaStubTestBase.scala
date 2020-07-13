@@ -14,6 +14,6 @@ abstract class ScalaStubTestBase extends SimpleTestCase {
     val psiFile = parseText(fileText)
     val stubTree = psiFile.asInstanceOf[PsiFileImpl].calcStubTree()
     val list = stubTree.getPlainList.asScala
-    list.filterBy[Stub].foreach(stubCheck)
+    list.filterByType[Stub].foreach(stubCheck)
   }
 }

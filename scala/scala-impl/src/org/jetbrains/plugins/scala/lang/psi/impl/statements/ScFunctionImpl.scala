@@ -356,7 +356,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     }
   }
 
-  override def superMethods: Seq[PsiMethod] = superSignatures.map(_.namedElement).filterBy[PsiMethod]
+  override def superMethods: Seq[PsiMethod] = superSignatures.map(_.namedElement).filterByType[PsiMethod]
 
   override def superMethod: Option[PsiMethod] = superMethodAndSubstitutor.map(_._1)
 

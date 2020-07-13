@@ -38,5 +38,5 @@ private class Variable(element: ScNamedElement, inherited: Boolean)
 
   override def isAlwaysLeaf: Boolean = false
 
-  private def variable = element.parentsInFile.instanceOf[ScVariable]
+  private def variable = element.parentsInFile.findByType[ScVariable]
 }

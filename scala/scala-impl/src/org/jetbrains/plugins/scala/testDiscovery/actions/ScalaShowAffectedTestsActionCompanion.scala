@@ -32,7 +32,7 @@ object ScalaShowAffectedTestsActionCompanion {
     * @return deepest parent method which parents are inner classes in terms of java
     */
   def findBestMethod(@NotNull element: PsiElement): ScMethodLike = {
-    val allMethodsFromRoot = element.parentsInFile.toSeq.filterBy[ScMethodLike].reverse
+    val allMethodsFromRoot = element.parentsInFile.toSeq.filterByType[ScMethodLike].reverse
     allMethodsFromRoot
       .takeWhile(m => m.containingClass match {
         case typedef: ScTypeDefinition =>

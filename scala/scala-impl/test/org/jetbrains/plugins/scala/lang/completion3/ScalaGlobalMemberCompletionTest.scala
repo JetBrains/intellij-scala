@@ -693,7 +693,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     )
 
     val actual = completeBasic(3).toSet
-      .filterBy[ScalaLookupItem]
+      .filterByType[ScalaLookupItem]
       .map { lookup =>
         s"${lookup.containingClassName}.${lookup.getLookupString}"
       }
