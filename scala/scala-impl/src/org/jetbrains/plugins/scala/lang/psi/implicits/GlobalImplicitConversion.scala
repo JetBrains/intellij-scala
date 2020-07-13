@@ -13,11 +13,11 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitConversionIndex
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.PredefFqn
 
-final case class GlobalImplicitConversion(containingObject: ScObject, function: ScFunction) {
+final case class GlobalImplicitConversion(owner: ScObject, function: ScFunction) {
   def substitutor: ScSubstitutor =
-    MixinNodes.asSeenFromSubstitutor(containingObject, function.containingClass)
+    MixinNodes.asSeenFromSubstitutor(owner, function.containingClass)
 
-  def qualifiedName: String = containingObject.qualifiedName + "." + function.name
+  def qualifiedName: String = owner.qualifiedName + "." + function.name
 }
 
 object GlobalImplicitConversion {

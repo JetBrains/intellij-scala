@@ -139,7 +139,7 @@ object ImplicitConversionData {
     }
   }
 
-  def getPossibleConversions(expr: ScExpression): Map[GlobalImplicitConversion, ScType] =
+  def getPossibleConversions(expr: ScExpression): Map[GlobalImplicitConversion, ImplicitConversionApplication] =
     expr.getTypeWithoutImplicits().toOption match {
       case None => Map.empty
       case Some(originalType) =>
@@ -157,8 +157,8 @@ object ImplicitConversionData {
           containingObject <- findInheritorObjectsForOwner(function)
           conversion        = GlobalImplicitConversion(containingObject, function)
           data             <- ImplicitConversionData(conversion)
-          resultType       <- data.resultType(originalType, expr)
-        } yield (conversion, resultType))
+          application      <- data.isApplicable(originalType, expr)
+        } yield (conversion, application))
           .toMap
     }
 
