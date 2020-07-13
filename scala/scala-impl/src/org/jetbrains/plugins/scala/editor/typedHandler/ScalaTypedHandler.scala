@@ -499,7 +499,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
           }
 
           val tok = PsiTreeUtil.prevVisibleLeaf(caretWS) match {
-            case tok: PsiElement if  isPossibleContinuationButWillNotBeContinuation(tok, c) => tok
+            case tok: PsiElement if isPossibleContinuationButWillNotBeContinuation(tok, c) => tok
             case _ => return Result.CONTINUE
           }
 
