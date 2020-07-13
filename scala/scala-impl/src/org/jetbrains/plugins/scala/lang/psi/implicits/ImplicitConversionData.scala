@@ -96,41 +96,26 @@ abstract class ImplicitConversionData {
 
         lastConstraints match {
           case ConstraintSystem(lastSubstitutor) =>
-            val clauses = function.paramClauses.clauses
 
-            val parameters = clauses.headOption.toSeq.flatMap(_.parameters).map(Parameter(_))
+            val firstParameter = function.parameters.headOption.map(Parameter(_))
 
-            val dependentSubstitutor = ScSubstitutor.paramToType(parameters, Seq.fill(parameters.length)(fromType))
+            val firstParamSubstitutor = ScSubstitutor.paramToType(firstParameter.toSeq, Seq(fromType))
 
-            def dependentMethodTypes: Option[ScParameterClause] =
-              function.returnType.toOption.flatMap { functionType =>
-                clauses match {
-                  case Seq(_, last) if last.isImplicit =>
-                    var result: Option[ScParameterClause] = None
-                    functionType.recursiveUpdate { t =>
-                      t match {
-                        case ScDesignatorType(p: ScParameter) if last.parameters.contains(p) =>
-                          result = Some(last)
-                        case _ =>
-                      }
-                      if (result.isDefined) Stop
-                      else ProcessSubtypes
-                    }
+            val implicitParameters =
+              function.parameters
+                .filter(_.isImplicitParameter)
+                .map(Parameter(_))
 
-                    result
-                  case _ => None
-                }
-              }
-
-            val effectiveParameters = dependentMethodTypes.toSeq
-              .flatMap(_.effectiveParameters)
-              .map(Parameter(_))
-
-            val (inferredParameters, expressions, _) = findImplicits(effectiveParameters, None, place, canThrowSCE = false,
-              abstractSubstitutor = substitutor.followed(dependentSubstitutor).followed(unSubst))
+            val (inferredParameters, expressions, _) =
+              findImplicits(implicitParameters,
+                None,
+                place,
+                canThrowSCE = false,
+                abstractSubstitutor = substitutor.followed(firstParamSubstitutor).followed(unSubst)
+              )
 
             Right(
-              lastSubstitutor(dependentSubstitutor(returnType)),
+              lastSubstitutor(firstParamSubstitutor(returnType)),
               ScSubstitutor.paramToExprType(inferredParameters, expressions, useExpected = false)
             )
           case _ => problematicBounds(fromType)
