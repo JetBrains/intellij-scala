@@ -508,9 +508,6 @@
                         serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.JpsCompilerImpl"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.CompileServerClient"
                         serviceImplementation="org.jetbrains.plugins.scala.compiler.CompileServerClientImpl"/>
-        <projectService serviceInterface="com.intellij.openapi.compiler.CompilerManager"
-                        serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.SetSameJdkToBuildProcessAsInCompileServerCompilerManager"
-                        overrides="true"/>
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
                             serviceInterface="org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes"/>
@@ -1755,6 +1752,8 @@
                   class="org.jetbrains.plugins.scala.externalHighlighters.UpdateCompilerGeneratedStateListener"/>
         <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
                   class="org.jetbrains.plugins.scala.externalHighlighters.RegisterCompilationListener$MyFileEditorManagerListener"/>
+        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
+                  class="org.jetbrains.plugins.scala.externalHighlighters.SetSameJdkToBuildProcessAsInCompileServerProjectManagerListener"/>
 
         <listener topic="com.intellij.execution.ExecutionListener"
                   class="org.jetbrains.plugins.scala.runner.SyncOutputExecutionListener"/>

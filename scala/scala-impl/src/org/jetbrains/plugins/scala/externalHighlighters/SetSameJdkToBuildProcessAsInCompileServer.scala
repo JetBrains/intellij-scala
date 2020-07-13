@@ -2,12 +2,11 @@ package org.jetbrains.plugins.scala.externalHighlighters
 
 import java.util.UUID
 
-import com.intellij.compiler.CompilerManagerImpl
 import com.intellij.compiler.server.BuildManagerListener
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.compiler.{CompileContext, CompileScope, CompileTask}
+import com.intellij.openapi.compiler.{CompileContext, CompileTask}
 import com.intellij.openapi.components.{Service, ServiceManager}
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{Project, ProjectManagerListener}
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.registry.{Registry, RegistryValue}
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
@@ -32,8 +31,8 @@ import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompile
  *
  * Note 3:
  * [[org.jetbrains.jps.api.BuildType.UP_TO_DATE_CHECK]] runs in JPS process. But for this build type
- * the platform doesn't invoke compiler task.
- * So we also need [[SetSameJdkToBuildProcessAsInCompileServerCompilerManager]].
+ * the platform doesn't invoke compiler task. So we also override JDK of the JPS-process after project was opened
+ * (see [[SetSameJdkToBuildProcessAsInCompileServerProjectManagerListener]]).
  *
  * @see SCL-17676
  */
@@ -54,13 +53,11 @@ class SetSameJdkToBuildProcessAsInCompileServer
     TempCompilerProcessJdkService.get(project).resetCompilerProcessJdk()
 }
 
-class SetSameJdkToBuildProcessAsInCompileServerCompilerManager(project: Project)
-  extends CompilerManagerImpl(project) {
+class SetSameJdkToBuildProcessAsInCompileServerProjectManagerListener
+  extends ProjectManagerListener {
 
-  override def isUpToDate(scope: CompileScope): Boolean = {
+  override def projectOpened(project: Project): Unit =
     TempCompilerProcessJdkService.get(project).overrideBuildProcessJdk()
-    super.isUpToDate(scope)
-  }
 }
 
 @Service
