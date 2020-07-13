@@ -97,7 +97,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         val kinds = getKinds(incomplete = false)
         if (!ResolveUtils.kindMatches(element, kinds))
           throw new IncorrectOperationException(s"class $c does not match expected kind,\nexpected: ${kinds.mkString(", ")}")
-        if (!ScalaNamesUtil.equivalent(refName, c.name))
+        if (!ScalaNamesUtil.equivalent(refName, c.name) &&
+          refName != ScFunction.CommonNames.Apply)
           throw new IncorrectOperationException(s"class $c does not match expected name $refName")
         val qualName = c.qualifiedName
         if (qualName != null) {
@@ -112,7 +113,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         this
       case _: ScTypeAlias =>
         throw new IncorrectOperationException("type does not match expected kind")
-      case fun: ScFunction if ScalaPsiUtil.hasStablePath(fun) && fun.name == "apply" =>
+      case fun: ScFunction if ScalaPsiUtil.hasStablePath(fun) && fun.isApplyMethod =>
         bindToElement(fun.containingClass)
       case pack: ScPackage =>
         val qualName = pack.getQualifiedName

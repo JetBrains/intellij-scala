@@ -326,6 +326,32 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     hasItemText(_, "foo")(tailText = "() (Foo)")
   }
 
+  def testCompanionObjectApplyMethod(): Unit = doRawCompletionTest(
+    fileText =
+      s"""class Foo {
+         |  a$CARET
+         |}
+         |
+         |object Foo {
+         |  def apply(): Foo = new Foo
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""class Foo {
+         |  Foo.apply()$CARET
+         |}
+         |
+         |object Foo {
+         |  def apply(): Foo = new Foo
+         |}
+         |""".stripMargin
+  ) {
+    hasItemText(_, "apply")(
+      itemText = "Foo.apply",
+      tailText = "() <default>"
+    )
+  }
+
   def testCompanionObjectMethodAccessAll(): Unit = doCompletionTest(
     fileText =
       s"""class Foo {
