@@ -33,6 +33,21 @@ trait Symbol extends Flags with Entry {
     case Some(NoSymbol) | None => name
     case Some(sym) => s"${sym.path}.$name"
   }
+
+  def isStableObject: Boolean = {
+    @annotation.tailrec
+    def loop(parent: Option[Symbol]): Boolean = parent match {
+      case Some(_: ExternalSymbol) | Some(NoSymbol) | None => true
+      case Some(sym) =>
+        (sym.isStable ||
+          (sym.isModule && sym.name == "package")) &&
+          loop(sym.parent)
+    }
+
+    if (isStable)       true
+    else if (!isModule) false
+    else                loop(parent)
+  }
 }
 
 abstract class ScalaSigSymbol(protected val scalaSig: ScalaSig) extends Symbol {

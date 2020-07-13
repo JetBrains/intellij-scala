@@ -9,7 +9,7 @@ final case class SessionSettings(val currentBuild : java.net.URI, val currentPro
 }
 object SessionSettings extends scala.AnyRef with scala.Serializable {
   type SessionSetting = scala.Tuple2[sbt.Def.Setting[_], scala.Seq[scala.Predef.String]]
-  type SessionMap = scala.Predef.Map[sbt.ProjectRef, scala.Seq[SessionSettings.SessionSetting]]
+  type SessionMap = scala.Predef.Map[sbt.ProjectRef, scala.Seq[sbt.SessionSettings.SessionSetting]]
   type SbtConfigFile = scala.Tuple2[java.io.File, scala.Seq[scala.Predef.String]]
   def reapply(session : sbt.SessionSettings, s : sbt.State) : sbt.State = { /* compiled code */ }
   def clearSettings(s : sbt.State) : sbt.State = { /* compiled code */ }
@@ -24,25 +24,25 @@ object SessionSettings extends scala.AnyRef with scala.Serializable {
   def saveSettings(s : sbt.State) : sbt.State = { /* compiled code */ }
   def saveSomeSettings(s : sbt.State)(include : scala.Function1[sbt.ProjectRef, scala.Boolean]) : sbt.State = { /* compiled code */ }
   @scala.deprecated("This method will no longer be public", "0.13.7")
-  def writeSettings(pref : sbt.ProjectRef, settings : scala.List[SessionSettings.SessionSetting], original : scala.Seq[sbt.Def.Setting[_]], structure : sbt.BuildStructure) : scala.Tuple2[scala.Seq[SessionSettings.SessionSetting], scala.Seq[sbt.Def.Setting[_]]] = { /* compiled code */ }
+  def writeSettings(pref : sbt.ProjectRef, settings : scala.List[sbt.SessionSettings.SessionSetting], original : scala.Seq[sbt.Def.Setting[_]], structure : sbt.BuildStructure) : scala.Tuple2[scala.Seq[sbt.SessionSettings.SessionSetting], scala.Seq[sbt.Def.Setting[_]]] = { /* compiled code */ }
   @scala.deprecated("This method will no longer be public", "0.13.7")
   def needsTrailingBlank(lines : scala.Seq[scala.Predef.String]) : scala.Boolean = { /* compiled code */ }
   def printAllSettings(s : sbt.State) : sbt.State = { /* compiled code */ }
   def printSettings(s : sbt.State) : sbt.State = { /* compiled code */ }
-  def printSettings(settings : scala.Seq[SessionSettings.SessionSetting]) : scala.Unit = { /* compiled code */ }
+  def printSettings(settings : scala.Seq[sbt.SessionSettings.SessionSetting]) : scala.Unit = { /* compiled code */ }
   def Help : java.lang.String = { /* compiled code */ }
   sealed trait SessionCommand extends scala.AnyRef {
   }
-  final class Clear(val all : scala.Boolean) extends scala.AnyRef with SessionSettings.SessionCommand {
+  final class Clear(val all : scala.Boolean) extends scala.AnyRef with sbt.SessionSettings.SessionCommand {
   }
-  final class Print(val all : scala.Boolean) extends scala.AnyRef with SessionSettings.SessionCommand {
+  final class Print(val all : scala.Boolean) extends scala.AnyRef with sbt.SessionSettings.SessionCommand {
   }
-  final class Remove(val ranges : scala.Seq[scala.Tuple2[scala.Int, scala.Int]]) extends scala.AnyRef with SessionSettings.SessionCommand {
+  final class Remove(val ranges : scala.Seq[scala.Tuple2[scala.Int, scala.Int]]) extends scala.AnyRef with sbt.SessionSettings.SessionCommand {
   }
-  final class Save(val all : scala.Boolean) extends scala.AnyRef with SessionSettings.SessionCommand {
+  final class Save(val all : scala.Boolean) extends scala.AnyRef with sbt.SessionSettings.SessionCommand {
   }
-  lazy val parser : sbt.complete.Parser[SessionSettings.SessionCommand] = { /* compiled code */ }
-  lazy val remove : sbt.complete.Parser[SessionSettings.Remove] = { /* compiled code */ }
+  lazy val parser : sbt.complete.Parser[sbt.SessionSettings.SessionCommand] = { /* compiled code */ }
+  lazy val remove : sbt.complete.Parser[sbt.SessionSettings.Remove] = { /* compiled code */ }
   def natSelect : sbt.complete.Parser[scala.Seq[scala.Tuple2[scala.Int, scala.Int]]] = { /* compiled code */ }
   def range : sbt.complete.Parser[scala.Tuple2[scala.Int, scala.Int]] = { /* compiled code */ }
   def command(s : sbt.State) : sbt.complete.Parser[scala.Function0[sbt.State]] = { /* compiled code */ }

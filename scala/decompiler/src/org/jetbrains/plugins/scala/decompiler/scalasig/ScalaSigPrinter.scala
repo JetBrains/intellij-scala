@@ -574,7 +574,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
           }
           val prefixStr = (prefix.get, symbol.get, toString(prefix.get, level)) match {
             case (NoPrefixType, _, _) => ""
-            case (ThisType(Ref(objectSymbol)), _, _) if objectSymbol.isModule && !objectSymbol.isStable =>
+            case (ThisType(Ref(objectSymbol)), _, _) if objectSymbol.isModule && !objectSymbol.isStableObject =>
               val name: String = objectSymbol.name
               objectSymbol match {
                 case classSymbol: ClassSymbol if name == "package" =>
