@@ -189,11 +189,6 @@ package object extensions {
       result.asInstanceOf[Option[T]]
     }
 
-    def mkParenString(implicit ev: A <:< String): String = value.mkString("(", ", ", ")")
-  }
-
-  implicit class SeqExt[CC[X] <: Seq[X], A <: AnyRef](private val value: CC[A]) extends AnyVal {
-
     def distinctBy[K](f: A => K): Seq[A] = {
       val buffer = new ArrayBuffer[A](value.size)
       var seen = Set[K]()
@@ -206,6 +201,11 @@ package object extensions {
       }
       buffer
     }
+
+    def mkParenString(implicit ev: A <:< String): String = value.mkString("(", ", ", ")")
+  }
+
+  implicit class SeqExt[CC[X] <: Seq[X], A <: AnyRef](private val value: CC[A]) extends AnyVal {
 
     def firstBy[B](f: A => B)(implicit ord: Ordering[B]): Option[A] =
       if (value.isEmpty) None else Some(value.minBy(f))
