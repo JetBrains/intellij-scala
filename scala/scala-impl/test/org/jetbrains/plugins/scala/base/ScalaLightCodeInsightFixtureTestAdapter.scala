@@ -18,8 +18,7 @@ import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, LightJav
 import com.intellij.testFramework.{EditorTestUtil, LightPlatformTestCase, LightProjectDescriptor}
 import org.jetbrains.plugins.scala.extensions.{inWriteCommandAction, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.util.ShortCaretMarker
-import org.junit.Assert.{assertNotNull, fail}
+import org.junit.Assert.{assertEquals, assertNotNull, fail}
 
 import scala.collection.JavaConverters._
 
@@ -121,6 +120,21 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     }
   }
 
+  protected def checkCaretOffsets(expectedCarets: Seq[Int],
+                                  actualCarets: Seq[Int] = this.allCaretOffsets,
+                                  inText: String = getFile.getText): Unit = {
+    if (expectedCarets.nonEmpty) {
+      def patchTextWithCarets(text: String, caretOffsets: Seq[Int]): String =
+        caretOffsets
+          .sorted(Ordering.Int.reverse)
+          .foldLeft(text)(_.patch(_, "<caret>", 0))
+
+      assertEquals(
+        patchTextWithCarets(inText, expectedCarets),
+        patchTextWithCarets(inText, actualCarets),
+      )
+    }
+  }
 
   protected def failingTestPassed(): Unit = throw new RuntimeException(failingPassed)
 
@@ -211,6 +225,14 @@ object ScalaLightCodeInsightFixtureTestAdapter {
 
       val file = root.createChildData(null, className + ".java")
       VfsUtil.saveText(file, normalize(fileText))
+    }
+
+    def allCaretOffsets: Seq[Int] = {
+      adapter.getFixture
+        .getEditor
+        .getCaretModel
+        .getAllCarets.asScala
+        .map(_.getOffset)
     }
   }
 }
