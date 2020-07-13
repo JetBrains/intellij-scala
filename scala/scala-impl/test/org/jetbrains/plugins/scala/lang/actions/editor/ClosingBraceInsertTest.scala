@@ -1010,8 +1010,8 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
          |  42
          |""".stripMargin
     val afterWithEnabled =
-      s"""def foo = {$CARET
-         |  42
+      s"""def foo = {
+         |  ${CARET}42
          |}
          |""".stripMargin
     // TODO: change after fixing SCL-14330
@@ -1052,8 +1052,8 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
          |}""".stripMargin
     // NOT strong requirement!
     val after =
-      s"""if (true) {${|}
-         |  if (false)
+      s"""if (true) {
+         |  ${|}if (false)
          |    println("Smiling")
          |else {
          |  println("Launching the rocket!")
@@ -1072,8 +1072,8 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
          |  println("Launching the rocket!")
          |}""".stripMargin
     val after =
-      s"""if (true) {${|}
-         |  if (false)
+      s"""if (true) {
+         |  ${|}if (false)
          |    println("Smiling")
          |  else {}
          |} else {
@@ -1147,8 +1147,8 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
 
     // NOT strong requirement!
     val after =
-      s"""try {${|}
-         |  try
+      s"""try {
+         |  ${|}try
          |    println("1")
          |finally {
          |  println("in finally")
@@ -1172,8 +1172,8 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
 
     // NOT strong requirement!
     val after =
-      s"""try {${|}
-         |  try
+      s"""try {
+         |  ${|}try
          |    println("1")
          |  catch { case _ => }
          |finally {
@@ -1197,8 +1197,8 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
          |}
          |""".stripMargin
     val after =
-      s"""try {${|}
-         |  try
+      s"""try {
+         |  ${|}try
          |    println("1")
          |  finally
          |    println("in inner finally")
@@ -1223,8 +1223,8 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
          |}
          |""".stripMargin
     val after =
-      s"""try {${|}
-         |  try
+      s"""try {
+         |  ${|}try
          |    println("1")
          |  catch { case _ => }
          |  finally
@@ -1247,8 +1247,8 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
 
     // NOT strong requirement!
     val after =
-      s"""try {${|}
-         |  try
+      s"""try {
+         |  ${|}try
          |    println("1")
          |catch { case _: Exception42 => }
          |}
@@ -1266,8 +1266,8 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
          |catch { case _: Exception42 => }
          |""".stripMargin
     val after =
-      s"""try {${|}
-         |  try
+      s"""try {
+         |  ${|}try
          |    println("1")
          |  finally {}
          |} catch { case _: Exception42 => }
@@ -1285,8 +1285,8 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
          |catch { case _: Exception42 => }
          |""".stripMargin
     val after =
-      s"""try {${|}
-         |  try
+      s"""try {
+         |  ${|}try
          |    println("1")
          |  catch { case _: Exception23: => }
          |} catch { case _: Exception42 => }
@@ -1305,8 +1305,8 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
          |catch { case _: Exception42 => }
          |""".stripMargin
     val after =
-      s"""try {${|}
-         |  try
+      s"""try {
+         |  ${|}try
          |    println("1")
          |  catch { case _: Exception23: => }
          |  finally {}
