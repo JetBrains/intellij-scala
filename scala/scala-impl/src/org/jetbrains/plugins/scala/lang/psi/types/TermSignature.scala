@@ -298,7 +298,7 @@ object PhysicalMethodSignature {
   }
 
   private def javaParamType(p: PsiParameter): ScType = {
-    val treatJavaObjectAsAny = p.parentsInFile.instanceOf[PsiClass] match {
+    val treatJavaObjectAsAny = p.parentsInFile.findByType[PsiClass] match {
       case Some(cls) if cls.qualifiedName == "java.lang.Object" => true // See SCL-3036
       case _                                                    => false
     }

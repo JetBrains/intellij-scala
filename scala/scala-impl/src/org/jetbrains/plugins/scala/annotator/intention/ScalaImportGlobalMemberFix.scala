@@ -82,11 +82,11 @@ object ScalaImportGlobalMemberFix {
 
   @TestOnly
   def fixWithoutPrefix(ref: ScReferenceExpression): Option[ScalaImportElementFix] =
-    create(ref).findBy[ScalaImportGlobalMemberFix]
+    create(ref).findByType[ScalaImportGlobalMemberFix]
 
   @TestOnly
   def fixWithPrefix(ref: ScReferenceExpression): Option[ScalaImportElementFix] =
-    create(ref).findBy[ScalaImportGlobalMemberWithPrefixFix]
+    create(ref).findByType[ScalaImportGlobalMemberWithPrefixFix]
 
   private def create(ref: ScReferenceExpression): Seq[IntentionAction] = {
     val allCandidates =

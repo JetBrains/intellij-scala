@@ -105,7 +105,7 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
                     (pattern: PartialFunction[List[ApplicabilityProblem], Unit]): Unit = {
     val line = if(preface.isEmpty) code else preface + "; " + code
     val file = (Header + "\n" + line).parse
-    Compatibility.seqClass = file.depthFirst().instanceOf[ScClass]
+    Compatibility.seqClass = file.depthFirst().findByType[ScClass]
     try {
       val message = "\n\n             code: " + line +
         "\n  actual problems: " + problemsIn(file).toString + "\n"
@@ -117,7 +117,7 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
   }
   
   private def problemsIn(file: ScalaFile): List[ApplicabilityProblem] = {
-    for (ref <- file.depthFirst().instancesOf[ScReference].toList;
+    for (ref <- file.depthFirst().filterByType[ScReference].toList;
          result <- ref.bind().toList;
          problem <- result.problems.filter(_ != ExpectedTypeMismatch))
     yield problem

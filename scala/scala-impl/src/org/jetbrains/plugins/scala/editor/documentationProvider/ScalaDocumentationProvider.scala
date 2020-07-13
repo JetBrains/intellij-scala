@@ -100,7 +100,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
 
   override def parseContext(startPoint: PsiElement): Pair[PsiElement, PsiComment] = {
     def findDocCommentOwner(elem: PsiElement): Option[ScDocCommentOwner] =
-      elem.withParents.instanceOf[ScDocCommentOwner]
+      elem.withParents.findByType[ScDocCommentOwner]
 
     val docOwner = Option(startPoint).flatMap(findDocCommentOwner)
     docOwner.map(d => Pair.create(d, d.getDocComment).asInstanceOf[Pair[PsiElement, PsiComment]]).orNull

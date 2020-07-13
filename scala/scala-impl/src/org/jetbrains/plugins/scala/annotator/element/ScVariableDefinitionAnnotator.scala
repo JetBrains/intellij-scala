@@ -14,7 +14,7 @@ object ScVariableDefinitionAnnotator extends ElementAnnotator[ScVariableDefiniti
     if (typeAware && element.pList.simplePatterns) {
       for {
         expr <- element.expr
-        element <- element.children.instanceOf[ScSimpleTypeElement]
+        element <- element.children.findByType[ScSimpleTypeElement]
       } checkConformance(expr, element)
     }
   }

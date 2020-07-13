@@ -281,7 +281,7 @@ trait OverridingAnnotator {
 
     for {
       overridingType <- comparableType(namedElement)
-      superSig       <- superSignatures.filterBy[TermSignature]
+      superSig       <- superSignatures.filterByType[TermSignature]
       baseType       <- comparableType(superSig.namedElement)
       if !overrideTypeMatchesBase(baseType, overridingType, superSig, superSig.namedElement.name)
     } {

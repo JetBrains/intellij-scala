@@ -729,7 +729,7 @@ object ScalaRefactoringUtil {
     selectedElement.withParentsInFile
       .takeWhile(e => !isBlockLike(e))
       .toSeq
-      .filterBy[ScExpression]
+      .filterByType[ScExpression]
 
   def isBlockLike(e: PsiElement): Boolean = e match {
     case null => true

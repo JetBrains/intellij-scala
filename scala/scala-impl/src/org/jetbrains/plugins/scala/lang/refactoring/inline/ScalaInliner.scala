@@ -64,7 +64,7 @@ class ScalaInliner extends InlineHandler.Inliner {
     val scope = new LocalSearchScope(funBodyCopy)
 
     val refToReplacement = paramToReplacement.flatMap { case (p, expr) =>
-      ReferencesSearch.search(p, scope).asScala.filterBy[ScReferenceExpression].map(ref => (ref.asInstanceOf[ScExpression], expr))
+      ReferencesSearch.search(p, scope).asScala.filterByType[ScReferenceExpression].map(ref => (ref.asInstanceOf[ScExpression], expr))
     }.toMap
 
     unparExpr(replaceAll(funBodyCopy, refToReplacement))

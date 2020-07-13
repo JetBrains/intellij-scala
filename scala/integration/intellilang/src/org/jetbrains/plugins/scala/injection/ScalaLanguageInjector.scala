@@ -118,7 +118,7 @@ final class ScalaLanguageInjector extends MultiHostInjector {
                                     mapping: ju.Map[String, String])
                                    (implicit support: ScalaLanguageInjectionSupport,
                                     registrar: MultiHostRegistrar): Boolean =
-    literals.filterBy[ScInterpolatedStringLiteral with PsiLanguageInjectionHost] match {
+    literals.filterByType[ScInterpolatedStringLiteral with PsiLanguageInjectionHost] match {
       case interpolatedLiterals if interpolatedLiterals.size == literals.size =>
         val languages = for {
           interpolated <- interpolatedLiterals

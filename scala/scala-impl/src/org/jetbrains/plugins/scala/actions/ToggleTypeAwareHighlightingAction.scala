@@ -42,7 +42,7 @@ object ToggleTypeAwareHighlightingAction {
   }
 
   private def reparseActiveFiles(project: Project): Unit = {
-    val openEditors = EditorFactory.getInstance().getAllEditors.toSeq.filterBy[EditorEx]
+    val openEditors = EditorFactory.getInstance().getAllEditors.toSeq.filterByType[EditorEx]
     val vFiles = openEditors.map(_.getVirtualFile).filterNot(_ == null)
     FileContentUtil.reparseFiles(project, vFiles.asJava, true)
   }

@@ -72,7 +72,7 @@ object ScalaMarkerType {
   def findOverrides(member: ScMember, deep: Boolean): Seq[PsiNamedElement] = {
 
     val namedElems: Seq[ScNamedElement] = member match {
-      case d: ScDeclaredElementsHolder => d.declaredElements.filterBy[ScNamedElement]
+      case d: ScDeclaredElementsHolder => d.declaredElements.filterByType[ScNamedElement]
       case param: ScClassParameter => Seq(param)
       case ta: ScTypeAlias => Seq(ta)
       case _ => Seq.empty

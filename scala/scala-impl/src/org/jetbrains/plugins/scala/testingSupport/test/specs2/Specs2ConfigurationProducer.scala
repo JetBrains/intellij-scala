@@ -46,7 +46,7 @@ final class Specs2ConfigurationProducer extends AbstractTestConfigurationProduce
 
   private def extractStaticTestName(testDefExpr: ScInfixExpr): Option[String] =
     testDefExpr.getChildren.toSeq
-      .filterBy[ScExpression]
+      .filterByType[ScExpression]
       .headOption
       .flatMap(TestConfigurationUtil.getStaticTestName(_))
 

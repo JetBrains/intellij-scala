@@ -21,7 +21,7 @@ object InterpolatedStringFormatter extends StringFormatter {
 
   private def format(parts: Seq[StringPart], toMultiline: Boolean): String = {
     val prefix = {
-      val injections = parts.filterBy[Injection]
+      val injections = parts.filterByType[Injection]
 
       if (injections.forall(injectByValue)) ""
       else if (injections.exists(_.isFormattingRequired)) "f"

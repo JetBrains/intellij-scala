@@ -51,7 +51,7 @@ class ForwardReferenceAnnotatorTest extends AnnotatorSimpleTestCase {
 
     parse
       .depthFirst()
-      .instancesOf[ScReference]
+      .filterByType[ScReference]
       .foreach(annotator.annotate)
 
     mock.errorAnnotations

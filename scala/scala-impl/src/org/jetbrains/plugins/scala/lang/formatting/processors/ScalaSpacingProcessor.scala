@@ -171,7 +171,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       pf.lift(elementTypesWithParents)
 
     //ScalaDoc
-    def docCommentOf(node: ASTNode) = node.getPsi.parentsInFile.instanceOf[ScDocComment]
+    def docCommentOf(node: ASTNode) = node.getPsi.parentsInFile.findByType[ScDocComment]
       .getOrElse(throw new RuntimeException("Unable to find parent doc comment"))
 
     def isScalaDocListStart(typ: IElementType): Boolean =
