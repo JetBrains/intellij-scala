@@ -5,7 +5,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.intention.{ImplicitToImport, PopupPosition, ScalaAddImportAction, ScalaImportElementFix}
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, SeqExt}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, TraversableExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.implicits.{GlobalImplicitInstance, ImplicitCollector}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
