@@ -16,7 +16,11 @@ final class RecursiveCallLineMarkerProvider extends LineMarkerProvider {
   import RecursiveCallLineMarkerProvider._
   import icons.Icons._
 
-  override def getLineMarkerInfo(element: PsiElement): LineMarkerInfo[_ <: PsiElement] =
+  override def getLineMarkerInfo(element: PsiElement): LineMarkerInfo[_ <: PsiElement] = {
+    if (!GutterUtil.RecursionOption.isEnabled) {
+      return null
+    }
+
     element.getParent match {
       case function: ScFunctionDefinition if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER =>
         val references = function.recursiveReferencesGrouped
@@ -37,6 +41,7 @@ final class RecursiveCallLineMarkerProvider extends LineMarkerProvider {
         else null
       case _ => null
     }
+  }
 }
 
 object RecursiveCallLineMarkerProvider {
