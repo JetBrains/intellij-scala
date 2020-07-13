@@ -28,7 +28,7 @@ object GlobalImplicitConversion {
                                                      (implicit project: Project): ImplicitConversionMap =
     (for {
       globalConversion <- collectConversionsIn(scope)
-      data <- ImplicitConversionData(globalConversion.function, globalConversion.substitutor)
+      data <- ImplicitConversionData(globalConversion)
     } yield globalConversion -> data)
       .toMap
 

@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
-// TODO: in-editor doc: code example in the end of the doc produces new line
 // TODO: split tests per-sections: definition part & content part (rendered scaladoc)
 class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase {
 
@@ -116,7 +115,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |}""".stripMargin,
       s"""$DefinitionStart<a href="psi_element://A"><code>A</code></a>
          |def <b>foo</b>: <a href="psi_element://scala.Predef.String"><code>String</code></a>$DefinitionEnd
-         |$ContentStart<p>description of foo $ContentEnd
+         |${ContentStart}description of foo $ContentEnd
          |""".stripMargin
     )
 
@@ -136,7 +135,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |""".stripMargin,
       s"""$DefinitionStart<a href="psi_element://A"><code>A</code></a>
          |def <b>baseMethod</b>: <a href="psi_element://scala.Predef.String"><code>String</code></a>$DefinitionEnd
-         |$ContentStart<p>description of base method from A $ContentEnd
+         |${ContentStart}description of base method from A $ContentEnd
          |""".stripMargin
     )
   }
@@ -162,7 +161,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |<a href="psi_element://BaseScalaClass"><code>BaseScalaClass</code></a>
          |$ContentEnd
          |$ContentStart
-         |<p>description of base method from BaseScalaClass
+         |description of base method from BaseScalaClass
          |$ContentEnd
          |""".stripMargin
     )
@@ -284,7 +283,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     doGenerateDocBodyTest(
       sharedValVarDefinition(definitionBody),
       s"""$DefinitionStart$expectedDocDefinitionSection$DefinitionEnd
-         |$ContentStart<p>some description $ContentEnd
+         |${ContentStart}some description $ContentEnd
          |$SectionsStart
          |<tr><td valign='top' class='section'><p>Note:</td><td valign='top'>some note</td>
          |$SectionsEnd""".stripMargin
@@ -425,7 +424,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |""".stripMargin
     val expectedDoc =
       s"""${DefinitionStart}class <b>A</b>$DefinitionEnd
-         |$ContentStart<p>Description $ContentEnd
+         |${ContentStart}Description $ContentEnd
          |""".stripMargin
 
     doGenerateDocBodyTest(
@@ -553,7 +552,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |val ${|}a = 1
          |""".stripMargin,
       s"""${DefinitionStart}val <b>a</b>: <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
-         |$ContentStart<p><u>xxx<sup>yyy<i>zzz</i>yyy</sup>xxx</u>$ContentEnd
+         |$ContentStart<u>xxx<sup>yyy<i>zzz</i>yyy</sup>xxx</u>$ContentEnd
          |""".stripMargin
     )
 
@@ -588,7 +587,6 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val expectedDoc =
       s"""${DefinitionStart}val <b>a</b>: <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
          |$ContentStart
-         |<p>
          |<a href="http://example.org">http://example.org</a><br>
          |<a href="http://example.org">http://example.org</a><br>
          |<a href="http://example.org">http://example.org</a><br>
@@ -610,7 +608,6 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val expectedDoc =
       s"""${DefinitionStart}val <b>a</b>: <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
          |$ContentStart
-         |<p>
          |<a href="http://example.org">label</a><br>
          |<a href="http://example.org">label</a><br>
          |<a href="http://example.org">label with   spaces</a><br>
@@ -634,7 +631,6 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val expectedDoc =
       s"""${DefinitionStart}val <b>a</b>: <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
          |$ContentStart
-         |<p>
          |<a href="http://example.org"><b>label with markdown text</b></a><br>
          |<a href="http://example.org">label <b>with markdown text</b></a><br>
          |<a href="http://example.org"><b>label with markdown</b> text</a><br>
@@ -658,7 +654,6 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val expectedDoc =
       s"""${DefinitionStart}val <b>a</b>: <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
          |$ContentStart
-         |<p>
          |<sub><u><a href="http://example.org">http://example.org</a></u></sub><br>
          |<sub><u><a href="http://example.org">label text</a></u></sub><br>
          |<a href="http://example.org">http://example.org</a> <sup><a href="http://example.org">http://example.org</a></sup><br>
@@ -672,7 +667,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""/** [[https://example.org?at=location]] */
          |val ${|}a = 1
          |""".stripMargin,
-      s"""<p><a href="https://example.org?at=location">https://example.org?at=location</a>""".stripMargin
+      s"""<a href="https://example.org?at=location">https://example.org?at=location</a>""".stripMargin
     )
 
   def testEmptyLink(): Unit = {
@@ -684,7 +679,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |val ${|}a = 1
          |""".stripMargin
     val expectedDoc =
-      s"""<p><font color=red></font><br><font color=red></font><br>""".stripMargin
+      s"""<br><br>""".stripMargin
     doGenerateDocContentTest(fileText, expectedDoc)
   }
 
@@ -699,8 +694,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |val ${|}a = 1
          |""".stripMargin
     val expectedDoc =
-      s"""<p>
-         |<a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a><br>
+      s"""<a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a><br>
          |<a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a><br>
          |<a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a><br>
          |<a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a><br>
@@ -716,7 +710,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |val ${|}a = 1
          |""".stripMargin
     val expectedDoc =
-      """<p><a href="psi_element://scala.util.Try"><code>scala.util.Try</code></a><br>
+      """<a href="psi_element://scala.util.Try"><code>scala.util.Try</code></a><br>
         |""".stripMargin
     doGenerateDocContentTest(fileText, expectedDoc)
   }
@@ -742,7 +736,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |val ${|}a = 1
          |""".stripMargin
     val expectedDoc =
-      """<p><a href="psi_element://scala.util.Properties"><code>scala.util.Properties</code></a><br>
+      """<a href="psi_element://scala.util.Properties"><code>scala.util.Properties</code></a><br>
         |""".stripMargin
     doGenerateDocContentTest(fileText, expectedDoc)
   }
@@ -773,8 +767,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |val ${|}a = 1
          |""".stripMargin
     val expectedDoc =
-      s"""<p>
-         |<a href="psi_element://scala.util.DynamicVariable"><code>label</code></a><br>
+      s"""<a href="psi_element://scala.util.DynamicVariable"><code>label</code></a><br>
          |<a href="psi_element://scala.util.DynamicVariable"><code>label</code></a><br>
          |<a href="psi_element://scala.util.DynamicVariable"><code>label with   spaces</code></a><br>
          |<a href="psi_element://scala.util.DynamicVariable"><code>label with   spaces</code></a><br>
@@ -796,8 +789,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |val ${|}a = 1
          |""".stripMargin
     val expectedDoc =
-      s"""<p>
-         |<a href="psi_element://scala.util.DynamicVariable"><code><b>label with markdown text</b></code></a><br>
+      s"""<a href="psi_element://scala.util.DynamicVariable"><code><b>label with markdown text</b></code></a><br>
          |<a href="psi_element://scala.util.DynamicVariable"><code>label <b>with markdown text</b></code></a><br>
          |<a href="psi_element://scala.util.DynamicVariable"><code><b>label with markdown</b> text</code></a><br>
          |<a href="psi_element://scala.util.DynamicVariable"><code>label <b>with markdown</b> text</code></a><br>
@@ -819,8 +811,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |val ${|}a = 1
          |""".stripMargin
     val expectedDoc =
-      s"""<p>
-         |<sub><u><a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a></u></sub><br>
+      s"""<sub><u><a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a></u></sub><br>
          |<sub><u><a href="psi_element://scala.util.DynamicVariable"><code>label text</code></a></u></sub><br>
          |<a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a>
          |<sup><a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a></sup><br>
@@ -838,9 +829,8 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |val ${|}a = 1
          |""".stripMargin
     val expectedDoc =
-      s"""<p>
-         |<font color=red>org.Unresolved</font><br>
-         |<font color=red>description <u>with markup</u></font><br>
+      s"""<code>org.Unresolved</code><br>
+         |<code>description <u>with markup</u></code><br>
          |""".stripMargin
     doGenerateDocContentTest(fileText, expectedDoc)
   }
@@ -858,8 +848,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |class ${|}A
          |""".stripMargin
     val expectedDoc =
-      s"""<p>
-         |<a href="psi_element://scala.util.DynamicVariable"><code>DynamicVariable</code></a><br>
+      s"""<a href="psi_element://scala.util.DynamicVariable"><code>DynamicVariable</code></a><br>
          |<a href="psi_element://scala.util.DynamicVariable"><code>DynamicVariable</code></a><br>
          |<a href="psi_element://scala.util.DynamicVariable"><code>DynamicVariable</code></a><br>
          |<a href="psi_element://scala.util.DynamicVariable"><code>DynamicVariable</code></a><br>
@@ -877,8 +866,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |class ${|}A
          |""".stripMargin
     val expectedDoc =
-      s"""<p>
-         |<a href="psi_element://java.lang.Exception"><code>java.lang.Exception</code></a><br>
+      s"""<a href="psi_element://java.lang.Exception"><code>java.lang.Exception</code></a><br>
          |<a href="psi_element://scala.Exception"><code>Exception</code></a><br>
          |<a href="psi_element://scala.Exception"><code>Exception</code></a><br>
          |""".stripMargin
@@ -896,8 +884,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |class ${|}A
          |""".stripMargin
     val expectedDoc =
-      s"""<p>
-         |<a href="psi_element://<:::<"><code>&lt;:::&lt;</code></a><br>
+      s"""<a href="psi_element://<:::<"><code>&lt;:::&lt;</code></a><br>
          |<a href="psi_element://<:::<"><code>&lt;:::&lt;</code></a><br>
          |""".stripMargin
     doGenerateDocContentTest(fileText, expectedDoc)
@@ -931,8 +918,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |""".stripMargin
 
     val expectedContent =
-      """<p>
-        |<a href="psi_element://com.example.MyClass1"><code>MyClass1</code></a><br>
+      """<a href="psi_element://com.example.MyClass1"><code>MyClass1</code></a><br>
         |<a href="psi_element://com.example.MyClass1"><code>MyClass1</code></a><br>
         |<a href="psi_element://com.example.MyClass1"><code>MyClass1</code></a><br>
         |<a href="psi_element://com.example.MyClass2"><code>MyClass2</code></a><br>
@@ -960,7 +946,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |""".stripMargin,
       s"""${DefinitionStart}val <b>a</b>: <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
          |$ContentStart
-         |<p><sup>blah-blah  </sup>
+         |<sup>blah-blah  </sup>
          |<p>
          |<u>aaaaaaa<sub>bbbbbbb </sub></u>
          |$ContentEnd""".stripMargin
@@ -978,7 +964,6 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |val ${|}a = 1
          |""".stripMargin,
       s"""${DefinitionStart}val <b>a</b>: <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
-         |$ContentStart$ContentEnd
          |$SectionsStart
          |<tr><td valign='top' class='section'><p>Note:</td>
          |<td valign='top'>aaaaa</td>
@@ -1010,8 +995,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""$DefinitionStart<a href="psi_element://B"><code>B</code></a>
          |override def <b>f</b>: <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
          |$ContentStart
-         |<p>Child description
-         |<p>
+         |Child description
          |<p>Parent description
          |<p>Extra child description
          |$ContentEnd""".stripMargin
@@ -1038,7 +1022,57 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""$DefinitionStart<a href="psi_element://B"><code>B</code></a>
          |override def <b>f</b>: <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
          |$ContentStart
-         |<p>Child description
+         |Child description
+         |<p>Extra child description
+         |$ContentEnd""".stripMargin
+    doGenerateDocBodyTest(fileText, expectedDoc)
+  }
+
+  def testTags_InheritDoc_EmptyBaseContent_1(): Unit = {
+    val fileText =
+      s"""class A {
+         |  def f = 42
+         |}
+         |
+         |class B extends A {
+         |  /**
+         |   * @inheritdoc
+         |   * Extra child description
+         |   */
+         |  override def ${|}f = 23
+         |}
+         |""".stripMargin
+
+    val expectedDoc =
+      s"""$DefinitionStart<a href="psi_element://B"><code>B</code></a>
+         |override def <b>f</b>: <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
+         |$ContentStart
+         |Extra child description
+         |$ContentEnd""".stripMargin
+    doGenerateDocBodyTest(fileText, expectedDoc)
+  }
+
+  def testTags_InheritDoc_EmptyOwnDescription(): Unit = {
+    val fileText =
+      s"""class A {
+         |  /** Parent description */
+         |  def f = 42
+         |}
+         |
+         |class B extends A {
+         |  /**
+         |   * @inheritdoc
+         |   * Extra child description
+         |   */
+         |  override def ${|}f = 23
+         |}
+         |""".stripMargin
+
+    val expectedDoc =
+      s"""$DefinitionStart<a href="psi_element://B"><code>B</code></a>
+         |override def <b>f</b>: <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
+         |$ContentStart
+         |Parent description
          |<p>Extra child description
          |$ContentEnd""".stripMargin
     doGenerateDocBodyTest(fileText, expectedDoc)
@@ -1046,8 +1080,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
 
   def testTags_InheritDoc_WithMacro(): Unit = {
     val fileText =
-      s"""
-         |/**
+      s"""/**
          | *
          | * @define THIS A
          | */
@@ -1078,10 +1111,8 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""$DefinitionStart<a href="psi_element://B"><code>B</code></a>
          |override def <b>f</b>(i: <a href="psi_element://scala.Int"><code>Int</code></a>): <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
          |$ContentStart
-         |<p>
-         |<p>The function f defined in B returns some integer without no special property. (previously defined in A)
-         |<p>
-         |Some notes on implementation performance, the function runs in O(1).
+         |The function f defined in B returns some integer without no special property. (previously defined in A)
+         |<p>Some notes on implementation performance, the function runs in O(1).
          |$ContentEnd
          |$SectionsStart
          |<tr><td valign='top' class='section'><p>Params:</td>
@@ -1113,7 +1144,6 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""${DefinitionStart}class <b>ScalaClass</b>
          |extends <a href="psi_element://JavaClass"><code>JavaClass</code></a>$DefinitionEnd
          |$ContentStart
-         |<p>
          |text from<u>scala</u>
          |<p>
          |text from <b>java</b><br>
@@ -1140,7 +1170,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |""".stripMargin,
       s"""$DefinitionStart<a href="psi_element://A"><code>A</code></a>
          |def <b>boo</b>(): <a href="psi_element://scala.Unit"><code>Unit</code></a>$DefinitionEnd
-         |$ContentStart<p>Function defined in A $ContentEnd
+         |${ContentStart}Function defined in A $ContentEnd
          |""".stripMargin
     )
 
@@ -1172,7 +1202,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""$DefinitionStart<a href="psi_element://C"><code>C</code></a>
          |override def <b>boo</b>(): <a href="psi_element://scala.Int"><code>Int</code></a>$DefinitionEnd
          |$ContentStart
-         |<p>a VALUE1 b VALUE2 c $$KEY_UNREACHED
+         |a VALUE1 b VALUE2 c $$KEY_UNREACHED
          |$ContentEnd""".stripMargin
     )
 
@@ -1193,8 +1223,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |    }
          |  }
          |}""".stripMargin,
-      """<p>
-        |inner value
+      """inner value
         |outer value""".stripMargin
     )
 
@@ -1212,8 +1241,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |  class ${|}Inner {
          |  }
          |}""".stripMargin,
-      """<p>
-        |inner value
+      """inner value
         |outer value""".stripMargin
     )
 
@@ -1235,8 +1263,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |    }
          |  }
          |}""".stripMargin,
-      """<p>
-        |inner value
+      """inner value
         |outer value""".stripMargin
     )
 
@@ -1253,8 +1280,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          | * @define myKey my value
          | */
          |class ${|}A""".stripMargin,
-      """<p>
-        |my value
+      """my value
         |my value
         |${  myKey  }
         |${{myKey}}
@@ -1272,8 +1298,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          | * @define myKey my value
          | */
          |class ${|}A""".stripMargin,
-      """<p>
-        |my value$
+      """my value$
         |my valuemy value
         |my value my value
         |""".stripMargin
@@ -1292,8 +1317,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          | * @define myKey my value
          | */
          |class ${|}A""".stripMargin,
-      """<p>
-        |$myKey
+      """$myKey
         |$myKey$
         |$myKey$myKey
         |${myKey}
@@ -1316,7 +1340,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |""".stripMargin,
       s"""$DefinitionStart<a href="psi_element://A"><code>A</code></a>
          |def <b>foo</b>(): <a href="psi_element://scala.Unit"><code>Unit</code></a>$DefinitionEnd
-         |$ContentStart<p><tt>None</tt>$ContentEnd
+         |$ContentStart<tt>None</tt>$ContentEnd
          |""".stripMargin
     )
 
@@ -1332,8 +1356,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          | * $$myKey$$myKey
          | */
          |class ${|}A""".stripMargin,
-      """<p>
-        |$myKey
+      """$myKey
         |${myKey}
         |${  myKey  }
         |${{myKey}}
@@ -1351,7 +1374,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          | */
          |class ${|}RecursiveDefine
          |""".stripMargin,
-      """<p>test myTag description""".stripMargin
+      """test myTag description""".stripMargin
     )
 
   def testMacro_Recursive_ShouldNotFail_2(): Unit =
@@ -1363,7 +1386,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          | */
          |class RecursiveDefine2
          |""".stripMargin,
-      """<p>test myTag1 description myTag2 description""".stripMargin
+      """test myTag1 description myTag2 description""".stripMargin
     )
 
   /**
@@ -1377,8 +1400,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
   def testMacro_FromInheritedLibrarySources_Scala_2_12(): Unit =
     doGenerateDocContentTest(
       s"""abstract class SeqUsageExample2 extends scala.collection.S${|}eq[String]""".stripMargin,
-      """<p>
-        |A base trait for sequences. Sequences are special cases of iterable collections of class<tt>Iterable</tt>.
+      """A base trait for sequences. Sequences are special cases of iterable collections of class<tt>Iterable</tt>.
         |Unlike iterables, sequences always have a defined order of elements. Sequences provide a method<tt>apply</tt>for indexing.
         |Indices range from<tt>0</tt>up to the<tt>length</tt>of a sequence.
         |Sequences support a number of methods to find occurrences of elements or subsequences, including
@@ -1429,7 +1451,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |""".stripMargin
 
     val expectedContent =
-      """<p>short macro value long macro value line 1 long macro value line 2
+      """short macro value long macro value line 1 long macro value line 2
         |<p>long macro value line 3
         |<p>short macro value
         |<p>long macro value line 1 long macro value line 2
@@ -1465,7 +1487,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |class ${|}Child extends Parent""".stripMargin
 
     val expectedContent =
-      """<p>Some prefix some text
+      """Some prefix some text
         |<ul>
         |<li>item</li>
         |<li>item
@@ -1570,8 +1592,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |class ${|}NestedDoc""".stripMargin
 
     val expectedContent =
-      """<p>
-        |text 1
+      """text 1
         |/**
         |* text inner 1
         |*/
@@ -1591,8 +1612,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          | */
          |class ${|}X
          |""".stripMargin,
-      """<p>
-        |<code></code><br>
+      """<code></code><br>
         |<code></code><br>
         |<code>[[this.is.not.an.actual.Link]]</code><br>
         |""".stripMargin
@@ -1606,7 +1626,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          | */
          |class ${|}X
          |""".stripMargin,
-      """<p>"""
+      """"""
     )
 
   def testJavadocInlinedTag_Literal_Value(): Unit =
@@ -1617,8 +1637,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          | */
          |class ${|}X
          |""".stripMargin,
-      """<p>
-        |<tt>some text</tt>
+      """<tt>some text</tt>
         |<tt>some text</tt>
         |""".stripMargin
     )
@@ -1632,8 +1651,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          | */
          |class ${|}X
          |""".stripMargin,
-      """<p>
-        |<a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a><br>
+      """<a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a><br>
         |<a href="psi_element://scala.util.DynamicVariable"><code>label</code></a><br>
         |<a href="psi_element://scala.util.DynamicVariable">label text</a><br>
         |""".stripMargin
@@ -1647,9 +1665,8 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          | */
          |class ${|}X
          |""".stripMargin,
-      """<p>
-        |<font color=red></font><br>
-        |<font color=red></font><br>
+      """<br>
+        |<br>
         |""".stripMargin
     )
 
@@ -1661,9 +1678,8 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          | */
          |class ${|}X
          |""".stripMargin,
-      """<p>
-        |<font color=red>org.Unresolved</font><br>
-        |<font color=red>label text</font><br>
+      """<code>org.Unresolved</code><br>
+        |<code>label text</code><br>
         |""".stripMargin
     )
 
@@ -1674,7 +1690,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          | */
          |class ${|}X
          |""".stripMargin,
-      """<p>{@unknown javadoc tag}""".stripMargin
+      """{@unknown javadoc tag}""".stripMargin
     )
 
   def testTreatLineBreaksAsParagraphs(): Unit = {
@@ -1702,8 +1718,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         | */""".stripMargin
 
     val expectedContent =
-      """<p>
-        |line 1
+      """line 1
         |line 2
         |<p>
         |line 3
@@ -1740,7 +1755,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         | *
         | */""".stripMargin
 
-    val expectedContent = """<p>line 1"""
+    val expectedContent = """line 1"""
 
     doGenerateDocContentDanglingTest(input1, expectedContent)
     doGenerateDocContentDanglingTest(input2, expectedContent)
@@ -1755,7 +1770,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         | * @since 42
         | */""".stripMargin
 
-    val expectedContent = """<p>line 1"""
+    val expectedContent = """line 1"""
     doGenerateDocContentDanglingTest(input1, expectedContent)
   }
 
@@ -1767,7 +1782,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         | *@since 42
         | */""".stripMargin
 
-    val expectedContent = """<p>line 1"""
+    val expectedContent = """line 1"""
     doGenerateDocContentDanglingTest(input1, expectedContent)
   }
 
@@ -1787,7 +1802,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         | """.stripMargin
 
     val expectedContent =
-      s"""<p><pre><code>
+      s"""<pre><code>
          | code line 1
          |
          | code line 2
@@ -1831,8 +1846,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         |""".stripMargin
 
     val expectedContent =
-      s"""<p>
-         |<pre>
+      s"""<pre>
          | line 1
          |
          | line 2
@@ -1886,7 +1900,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
 
     //language=HTML
     val expectedContent =
-      """<p>description
+      """description
         |<ol class="decimal">
         |<li>item
         |<ol class="upperRoman">

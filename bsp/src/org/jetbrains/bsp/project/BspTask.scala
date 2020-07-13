@@ -45,6 +45,7 @@ class BspTask[T](project: Project,
   private def notifications(implicit reporter: BuildReporter): NotificationAggregator[BuildMessages] =
     (messages, notification) => notification match {
     case LogMessage(params) =>
+      //noinspection ReferencePassedToNls
       reporter.log(params.getMessage)
       messages
     case ShowMessage(params) =>
@@ -66,6 +67,7 @@ class BspTask[T](project: Project,
   }
 
   private def processLog(implicit report: BuildReporter): ProcessLogger = { message =>
+    //noinspection ReferencePassedToNls
     report.log(message)
   }
 
@@ -235,6 +237,7 @@ class BspTask[T](project: Project,
     }
   }
 
+  //noinspection ReferencePassedToNls
   private def reportDiagnostics(buildMessages: BuildMessages, params: bsp4j.PublishDiagnosticsParams)
                                (implicit reporter: BuildReporter): BuildMessages = {
     // TODO use params.originId to show tree structure
@@ -280,6 +283,7 @@ class BspTask[T](project: Project,
         }
   }
 
+  //noinspection ReferencePassedToNls
   private def reportTaskStart(params: TaskStartParams)(implicit reporter: BuildReporter): Unit = {
     val taskId = params.getTaskId
     val id = EventId(taskId.getId)
@@ -288,6 +292,7 @@ class BspTask[T](project: Project,
     reporter.startTask(id, parent, params.getMessage, time)
   }
 
+  //noinspection ReferencePassedToNls
   private def reportTaskProgress(params: TaskProgressParams)(implicit reporter: BuildReporter): Unit = {
     val taskId = params.getTaskId
     val id = EventId(taskId.getId)
@@ -295,6 +300,7 @@ class BspTask[T](project: Project,
     reporter.progressTask(id, params.getTotal, params.getProgress, params.getUnit, params.getMessage, time)
   }
 
+  //noinspection ReferencePassedToNls
   private def reportTaskFinish(params: TaskFinishParams)(implicit reporter: BuildReporter): Unit = {
     val taskId = params.getTaskId
     val id = EventId(taskId.getId)

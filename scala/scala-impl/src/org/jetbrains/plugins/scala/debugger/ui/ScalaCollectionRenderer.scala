@@ -1,36 +1,23 @@
 package org.jetbrains.plugins.scala.debugger.ui
 
-import java.lang
-import java.util
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletableFuture.completedFuture
+import java.{lang, util}
 
+import com.intellij.debugger.engine.DebugProcessImpl.getDefaultRenderer
 import com.intellij.debugger.engine._
-import com.intellij.debugger.engine.evaluation.expression.Evaluator
-import com.intellij.debugger.engine.evaluation.expression.ExpressionEvaluator
-import com.intellij.debugger.engine.evaluation.expression.ExpressionEvaluatorImpl
-import com.intellij.debugger.engine.evaluation.expression.TypeEvaluator
-import com.intellij.debugger.engine.evaluation.CodeFragmentKind
-import com.intellij.debugger.engine.evaluation.EvaluateException
-import com.intellij.debugger.engine.evaluation.EvaluationContext
-import com.intellij.debugger.engine.evaluation.TextWithImportsImpl
+import com.intellij.debugger.engine.evaluation.expression.{Evaluator, ExpressionEvaluator, ExpressionEvaluatorImpl, TypeEvaluator}
+import com.intellij.debugger.engine.evaluation.{CodeFragmentKind, EvaluateException, EvaluationContext, TextWithImportsImpl}
 import com.intellij.debugger.impl.DebuggerUtilsAsync
 import com.intellij.debugger.settings.NodeRendererSettings
 import com.intellij.debugger.ui.tree.render._
-import com.intellij.debugger.ui.tree.DebuggerTreeNode
-import com.intellij.debugger.ui.tree.NodeDescriptor
-import com.intellij.debugger.ui.tree.NodeManager
-import com.intellij.debugger.ui.tree.ValueDescriptor
-import com.intellij.debugger.DebuggerContext
-import com.intellij.debugger.JavaDebuggerBundle
-import com.intellij.openapi.fileTypes.StdFileTypes
+import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptor, ValueDescriptor}
+import com.intellij.debugger.{DebuggerContext, JavaDebuggerBundle}
+import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.psi.PsiElement
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
-import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaDuplexEvaluator
-import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaFieldEvaluator
-import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaMethodEvaluator
-import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaThisEvaluator
+import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.{ScalaDuplexEvaluator, ScalaFieldEvaluator, ScalaMethodEvaluator, ScalaThisEvaluator}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -42,10 +29,11 @@ import scala.reflect.NameTransformer
 /**
  * @author Nikolay.Tropin
  */
-
 class ScalaCollectionRenderer extends CompoundReferenceRenderer(NodeRendererSettings.getInstance(), "Scala collection", sizeLabelRenderer, ScalaToArrayRenderer) {
 
-  setClassName(collectionClassName)
+  setIsApplicableChecker { tp =>
+    forallAsync(instanceOfAsync(tp, collectionClassName), notStreamAsync(tp), notViewAsync(tp))
+  }
 
   override def isEnabled: Boolean = ScalaDebuggerSettings.getInstance().FRIENDLY_COLLECTION_DISPLAY_ENABLED
 }
@@ -175,7 +163,7 @@ object ScalaCollectionRenderer {
         }
       }
     }
-    labelRenderer.setLabelExpression(new TextWithImportsImpl(CodeFragmentKind.EXPRESSION, expressionText, "", StdFileTypes.JAVA))
+    labelRenderer.setLabelExpression(new TextWithImportsImpl(CodeFragmentKind.EXPRESSION, expressionText, "", JavaFileType.INSTANCE))
     labelRenderer
   }
 
@@ -226,7 +214,7 @@ object ScalaCollectionRenderer {
 
       try {
         val children: Value = evaluateChildren(evaluationContext, parentDescriptor)
-        val defaultChildrenRenderer: ChildrenRenderer = DebugProcessImpl.getDefaultRenderer(value.`type`)
+        val defaultChildrenRenderer = getDefaultRenderer(value.`type`)
         defaultChildrenRenderer.isExpandableAsync(children, evaluationContext, parentDescriptor)
       }
       catch {
@@ -241,28 +229,49 @@ object ScalaCollectionRenderer {
 
 
     override def buildChildren(value: Value, builder: ChildrenBuilder, evaluationContext: EvaluationContext): Unit = {
-      val nodeManager: NodeManager = builder.getNodeManager
+      val nodeManager = builder.getNodeManager
+
+      def addErrorChildren(e: EvaluateException): Unit = {
+        val errorChildren: util.ArrayList[DebuggerTreeNode] = new util.ArrayList[DebuggerTreeNode]
+        errorChildren.add(nodeManager.createMessageNode(JavaDebuggerBundle.message("error.unable.to.evaluate.expression") + " " + e.getMessage))
+        builder.setChildren(errorChildren)
+      }
+
       try {
         val parentDescriptor: ValueDescriptor = builder.getParentDescriptor
         val childrenValue: Value = evaluateChildren(evaluationContext.createEvaluationContext(value), parentDescriptor)
-        val renderer: NodeRenderer = getChildrenRenderer(childrenValue, parentDescriptor)
-        renderer.buildChildren(childrenValue, builder, evaluationContext)
+        getChildrenRendererAsync(childrenValue, parentDescriptor).whenComplete { (renderer, throwable) =>
+          throwable match {
+            case e: EvaluateException => addErrorChildren(e)
+            case t: Throwable => throw t
+            case null =>
+              try renderer.buildChildren(childrenValue, builder, evaluationContext)
+              catch {
+                case e: EvaluateException => addErrorChildren(e)
+              }
+
+          }
+        }
       }
       catch {
-        case e: EvaluateException =>
-          val errorChildren: util.ArrayList[DebuggerTreeNode] = new util.ArrayList[DebuggerTreeNode]
-          errorChildren.add(nodeManager.createMessageNode(JavaDebuggerBundle.message("error.unable.to.evaluate.expression") + " " + e.getMessage))
-          builder.setChildren(errorChildren)
+        case e: EvaluateException => addErrorChildren(e)
       }
     }
 
-    private def getChildrenRenderer(childrenValue: Value, parentDescriptor: ValueDescriptor): NodeRenderer = {
-      var renderer: NodeRenderer = ExpressionChildrenRenderer.getLastChildrenRenderer(parentDescriptor)
-      if (renderer == null || childrenValue == null || !renderer.isApplicable(childrenValue.`type`)) {
-        renderer = DebugProcessImpl.getDefaultRenderer(if (childrenValue != null) childrenValue.`type` else null)
-        ExpressionChildrenRenderer.setPreferableChildrenRenderer(parentDescriptor, renderer)
+    private def getChildrenRendererAsync(childrenValue: Value, parentDescriptor: ValueDescriptor): CompletableFuture[NodeRenderer] = {
+      if (childrenValue == null)
+        return completedFuture(getDefaultRenderer(null: Type))
+
+      val childrenType = childrenValue.`type`
+
+      val lastRenderer = ExpressionChildrenRenderer.getLastChildrenRenderer(parentDescriptor)
+      if (lastRenderer == null)
+        return completedFuture(getDefaultRenderer(childrenType))
+
+      lastRenderer.isApplicableAsync(childrenType).thenApply { applicable =>
+        if (applicable) lastRenderer
+        else getDefaultRenderer(childrenType)
       }
-      renderer
     }
 
     private def evaluateChildren(context: EvaluationContext, descriptor: NodeDescriptor): Value = {

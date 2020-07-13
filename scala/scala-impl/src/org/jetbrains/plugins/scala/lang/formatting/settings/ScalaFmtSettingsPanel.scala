@@ -31,6 +31,7 @@ import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import javax.swing._
 import javax.swing.event.ChangeEvent
 import org.apache.commons.lang.StringUtils
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveError
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveError.{ConfigError, ConfigScalafmtResolveError}
@@ -192,7 +193,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     )
   }
 
-  private def displayMessage(text: String, relativeTo: JComponent,
+  private def displayMessage(@Nls text: String, relativeTo: JComponent,
                              xPosition: Int, yPosition: Int,
                              direction: Balloon.Position,
                              messageType: MessageType): Unit = {

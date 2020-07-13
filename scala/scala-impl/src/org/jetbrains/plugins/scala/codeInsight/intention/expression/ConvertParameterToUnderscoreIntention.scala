@@ -42,6 +42,7 @@ class ConvertParameterToUnderscoreIntention extends PsiElementBaseIntentionActio
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     def showErrorHint(hint: String): Unit = {
+      //noinspection ReferencePassedToNls
       if (ApplicationManager.getApplication.isUnitTestMode) throw new RuntimeException(hint)
       else HintManager.getInstance().showErrorHint(editor, hint)
     }

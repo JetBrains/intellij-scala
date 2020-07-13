@@ -19,6 +19,7 @@ class ScalaWithBracesSurrounder extends ScalaExpressionSurrounder {
 
   override def getTemplateAsString(elements: Array[PsiElement]): String = "{" + super.getTemplateAsString(elements) + "}"
 
+  //noinspection ScalaExtractStringToBundle
   override def getTemplateDescription = "{  }"
 
   override def getSurroundSelectionRange(expr: ASTNode): TextRange = {

@@ -17,10 +17,6 @@ class AutoImportAllTest extends AutoImportTestBase {
 
   def testNoPlaceHolder(): Unit = doTest()
 
-  def testCompanionObjectMethod(): Unit = doTest()
-
-  def testCompanionObjectValue(): Unit = doTest()
-
   def testCompanionObjectMemberNotFound(): Unit = try {
     doTest()
   } catch {

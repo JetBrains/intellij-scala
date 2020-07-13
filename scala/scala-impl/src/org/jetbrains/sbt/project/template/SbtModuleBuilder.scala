@@ -17,7 +17,6 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.extensions.JComponentExt.ActionListenersOwner
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, Version, Versions}
-import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
 /**
@@ -172,8 +171,8 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
       def reportMisconfiguration(libraryName: String,
                                  libraryVersion: String) =
         throw new ConfigurationException(
-          s"Scala ${languageLevel.getVersion} requires $libraryName $libraryVersion",
-          s"Wrong $libraryName version"
+          SbtBundle.message("scala.version.requires.library.version", languageLevel.getVersion, libraryName, libraryVersion),
+          SbtBundle.message("wrong.library.version", libraryName)
         )
 
       languageLevel match {

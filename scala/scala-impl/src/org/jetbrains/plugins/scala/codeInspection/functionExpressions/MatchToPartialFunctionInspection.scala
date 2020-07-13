@@ -44,6 +44,8 @@ class MatchToPartialFunctionInspection extends AbstractInspection(MatchToPartial
 
 object MatchToPartialFunctionInspection {
 
+  //noinspection ScalaExtractStringToBundle
+  @Nls
   private[functionExpressions] val ID = "MatchToPartialFunction"
   @Nls
   private[functionExpressions] val DESCRIPTION = ScalaInspectionBundle.message("convert.match.statement.to.pattern.matching.function")

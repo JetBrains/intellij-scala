@@ -14,7 +14,7 @@ class ApplicationTestHeavy extends ScalaHighlightingTestBase {
         |""".stripMargin
 
     assertMessages(errorsFromScalaCode(code))(
-      Error(")", "Missing argument list (j: Int) for Method test(Int)(Int)"),
+      Error(")", "Missing argument list (j: Int) for method test(Int)(Int)"),
     )
   }
 
@@ -28,7 +28,7 @@ class ApplicationTestHeavy extends ScalaHighlightingTestBase {
         |""".stripMargin
 
     assertMessages(errorsFromScalaCode(code))(
-      Error(")", "Missing argument list (j: Int) for Method apply(Int)(Int)"),
+      Error(")", "Missing argument list (j: Int) for method apply(Int)(Int)"),
     )
   }
 
@@ -42,7 +42,7 @@ class ApplicationTestHeavy extends ScalaHighlightingTestBase {
         |""".stripMargin
 
     assertMessages(errorsFromScalaCode(code))(
-      Error("3", "Missing argument list (j: Int) for Method blub(Int)(Int)"),
+      Error("3", "Missing argument list (j: Int) for method blub(Int)(Int)"),
     )
   }
 
@@ -67,7 +67,7 @@ class ApplicationTestHeavy extends ScalaHighlightingTestBase {
         |}
         |""".stripMargin
     assertMessagesSorted(errorsFromScalaCode(code))(
-      Error(")", "Missing argument list (j: Int) for Method test(Int)(Int)"),
+      Error(")", "Missing argument list (j: Int) for method test(Int)(Int)"),
     )
   }
 

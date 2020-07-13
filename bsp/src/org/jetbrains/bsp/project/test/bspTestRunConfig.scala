@@ -43,7 +43,7 @@ class BspTestRunFactory(t: ConfigurationType) extends ConfigurationFactory(t) {
 
 class BspNoMatchingClassException() extends ConfigurationException(
   BspBundle.message("bsp.test.no.class.matches.with.the.regex"),
-  s"The test class  was not reported by BSP endpoint buildTarget/scalaTestClasses (try to reimport the project)")
+  BspBundle.message("the.test.class.was.not.reported.by.bsp.endpoint"))
 
 class TestClass(@BeanProperty var target: String, @BeanProperty var classes: j.List[String]) {
   def this() = this("", Collections.emptyList())

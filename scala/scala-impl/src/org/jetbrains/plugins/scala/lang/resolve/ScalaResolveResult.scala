@@ -27,6 +27,9 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceT
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
+/**
+ * @param parentElement class for constructor or object/val of `apply/unapply` methods
+ */
 class ScalaResolveResult(
   val element:                  PsiNamedElement,
   val substitutor:              ScSubstitutor = ScSubstitutor.empty,

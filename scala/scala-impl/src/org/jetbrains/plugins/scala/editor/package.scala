@@ -8,11 +8,15 @@ import com.intellij.openapi.fileEditor.impl.{FileDocumentManagerImpl, LoadTextUt
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiWhiteSpace}
 import com.intellij.psi.tree.IElementType
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType
-import org.jetbrains.plugins.scala.extensions.invokeAndWait
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeAndWait}
+
+import scala.reflect.ClassTag
 
 /**
   * Nikolay.Tropin
@@ -86,5 +90,25 @@ package object editor {
   implicit class HighlighterIteratorExt(private val hiterator: HighlighterIterator) extends AnyVal {
 
     @inline def tokenLength: Int = hiterator.getEnd - hiterator.getStart
+  }
+
+
+  private[editor] def indentKeyword[T <: PsiElement: ClassTag](keywordType: IElementType, file: PsiFile)
+                                                              (document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
+    indentElement(file)(document, project, element, offset)(
+      elem => elem.getNode.getElementType == keywordType && elem.getParent.is[T]
+    )
+  }
+
+  private[editor] def indentElement(file: PsiFile)
+                                   (document: Document, project: Project, element: PsiElement, offset: Int)
+                                   (prevCondition: PsiElement => Boolean, condition: PsiElement => Boolean = _.isInstanceOf[PsiWhiteSpace]): Unit = {
+    if (condition(element)) {
+      val anotherElement = PsiTreeUtil.prevVisibleLeaf(element)
+      if (prevCondition(anotherElement)) {
+        document.commit(project)
+        CodeStyleManager.getInstance(project).adjustLineIndent(file, anotherElement.getTextRange)
+      }
+    }
   }
 }

@@ -18,10 +18,11 @@ import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.{NoOpRevertableChange, RevertableChange}
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
-import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.ListCompilerMessageExt
+import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.{ListCompilerMessageExt, markCompileServerThreadsLongRunning}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{IncrementalityType, ProjectExt}
+import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 import org.jetbrains.plugins.scala.util.matchers.HamcrestMatchers.emptyCollection
 import org.junit.Assert._
 
@@ -44,8 +45,12 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
    * Needed to avoid ThreadLeaked exceptions after each test run,
    * cause we want compile server to be reused in all tests.
    */
-  override def initApplication(): Unit = {
-    super.initApplication()
+  override def setUpProject(): Unit = {
+    super.setUpProject()
+
+    if (useCompileServer && reuseCompileServerProcessBetweenTests) {
+      markCompileServerThreadsLongRunning()
+    }
 
     revertable =
       CompilerTestUtil.withEnabledCompileServer(useCompileServer) |+|
@@ -173,6 +178,15 @@ object ScalaCompilerTestBase {
     s"Compile server process have not terminated after $timeout",
     CompileServerLauncher.stop(timeout.toMillis)
   )
+
+  private def markCompileServerThreadsLongRunning(): Unit = {
+    ThreadTracker.longRunningThreadCreated(
+      UnloadAwareDisposable.scalaPluginDisposable,
+      "scalaCompileServer",
+      "BaseDataReader: output stream of scalaCompileServer",
+      "BaseDataReader: error stream of scalaCompileServer"
+    )
+  }
 
   implicit class ListCompilerMessageExt(val messages: JList[CompilerMessage])
     extends AnyVal {

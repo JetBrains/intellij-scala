@@ -24,6 +24,7 @@ class DeprecatedKindProjectorSyntaxInspection extends AbstractRegisteredInspecti
     isOnTheFly: Boolean
   ): Option[ProblemDescriptor] = element match {
     case DeprecatedIdentifier(e, qf, message) =>
+      //noinspection ReferencePassedToNls
       super.problemDescriptor(e, qf, message, ProblemHighlightType.LIKE_DEPRECATED)
     case _ => None
   }
@@ -33,13 +34,10 @@ object DeprecatedKindProjectorSyntaxInspection {
   @Nls
   private[deprecation] val quickFixId = ScalaInspectionBundle.message("replace.with.star.syntax")
 
-  private def kindProjectorMessage(hasUpToDateVersion: Boolean): String = {
-    val updateSuggestion =
-      if (hasUpToDateVersion) ""
-      else                    "updating kind-projector plugin and "
-
-    "Usage of `?` placeholder is going to be deprecated. Consider " + updateSuggestion + "using `*` instead."
-  }
+  @Nls
+  private def kindProjectorMessage(hasUpToDateVersion: Boolean): String =
+      if (hasUpToDateVersion) ScalaInspectionBundle.message("kind.projector.deprecated.tip")
+      else ScalaInspectionBundle.message("kind.projector.deprecated.tip.with.update")
 
   object DeprecatedIdentifier {
     def unapply(e: PsiElement): Option[(PsiElement, Option[LocalQuickFix], String)] =

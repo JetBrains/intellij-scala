@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -24,7 +25,7 @@ class ScalaGoToSuperActionHandler extends ScalaCodeInsightActionHandler {
     val offset = editor.getCaretModel.getOffset
     val (superClasses, superSignatureElements) = ScalaGoToSuperActionHandler.findSuperElements(file, offset)
 
-    def popupChooser(superElements: Seq[PsiElement], title: String): Unit = {
+    def popupChooser(superElements: Seq[PsiElement], @Nls title: String): Unit = {
       val processor: PsiElementProcessor[PsiElement] = (element: PsiElement) => {
         val descriptor = EditSourceUtil.getDescriptor(element)
         if (descriptor != null && descriptor.canNavigate) {

@@ -3,105 +3,78 @@ package lang
 package completion
 package global
 
+import java.util.Arrays.asList
+
+import com.intellij.codeInsight.completion.JavaCompletionUtil.putAllMethods
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.{PsiClass, PsiMember, PsiNamedElement}
+import com.intellij.psi.{PsiClass, PsiMethod, PsiNamedElement}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.findInheritorObjects
-import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaImportingInsertHandler
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.findInheritorObjectsForOwner
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, isStatic}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 private[completion] final class StaticMembersFinder(override protected val place: ScReferenceExpression,
                                                     accessAll: Boolean)
-                                                   (override protected val namePredicate: NamePredicate)
-  extends GlobalMembersFinderBase(place, accessAll)(namePredicate) {
-
-  import StaticMembersFinder._
-
-  private val cacheManager = ScalaShortNamesCacheManager.getInstance(place.getProject)
+                                                   (private val namePredicate: String => Boolean)
+  extends GlobalMembersFinder(place, accessAll)
+    with ImportableMembersFinder {
 
   override protected def candidates: Iterable[GlobalMemberResult] = {
     implicit val scope: GlobalSearchScope = place.resolveScope
+    val cacheManager = ScalaShortNamesCacheManager.getInstance(place.getProject)
 
-    methodsLookups ++
-      fieldsLookups ++
-      propertiesLookups
+    findFunctions(cacheManager.allFunctions(namePredicate))(findInheritorObjectsForOwner) ++
+      findProperties(cacheManager.allProperties(namePredicate))(findInheritorObjectsForOwner) ++
+      findStaticMethods(cacheManager.allMethods(namePredicate)) ++
+      findStaticFields(cacheManager.allFields(namePredicate))
   }
 
-  private def methodsLookups(implicit scope: GlobalSearchScope) = for {
-    method <- cacheManager.allFunctions(namePredicate) ++ cacheManager.allMethods(namePredicate)
-    if isAccessible(method)
+  //noinspection ScalaWrongPlatformMethodsUsage
+  override protected def createMethodResult(methodToImport: PsiMethod,
+                                            classToImport: PsiClass): ImportableMemberResult = {
+    val overloadsToImport = methodToImport match {
+      case methodToImport: ScFunction =>
+        val `object` = classToImport.asInstanceOf[ScObject]
+        val name = methodToImport.name
 
-    classToImport <- classesToImportFor(method)
-
-    // filter out type class instances, such as scala.math.Numeric.String, to avoid too many results.
-    if !isImplicit(classToImport)
-
-    methodName = method.name
-    overloads = classToImport match {
-      case o: ScObject => o.allFunctionsByName(methodName).toSeq
-      case _ => classToImport.getAllMethods.filter(_.name == methodName).toSeq
+        `object`.allFunctionsByName(name).toArray match {
+          case Array() if methodToImport.isParameterless =>
+            // todo to be investigated
+            return StaticFieldResult(`object`.allTermsByName(name).head, classToImport)
+          case functions => functions
+        }
+      case _ => classToImport.findMethodsByName(methodToImport.getName, true)
     }
 
-    first <- overloads.headOption
-    (namedElement, isOverloadedForClassName) = overloads.lift(1).fold((first, false)) { second =>
-      (if (first.isParameterless) second else first, true)
-    }
-  } yield StaticMemberResult(namedElement, classToImport, isOverloadedForClassName)
+    StaticMethodResult(overloadsToImport, classToImport)
+  }
 
-  private def fieldsLookups(implicit scope: GlobalSearchScope) = for {
-    field <- cacheManager.allFields(namePredicate)
-    if isAccessible(field) && isStatic(field)
-
-    classToImport = field.containingClass
-    if classToImport != null && isAccessible(classToImport)
-  } yield StaticMemberResult(field, classToImport)
-
-  private def propertiesLookups(implicit scope: GlobalSearchScope) = for {
-    property <- cacheManager.allProperties(namePredicate)
-    if isAccessible(property)
-
-    namedElement <- property.declaredElements
-
-    classToImport <- classesToImportFor(property)
-  } yield StaticMemberResult(namedElement, classToImport)
-
-  private final case class StaticMemberResult(elementToImport: PsiNamedElement,
-                                              classToImport: PsiClass,
-                                              isOverloadedForClassName: Boolean = false)
-    extends GlobalMemberResult(
-      new ScalaResolveResult(elementToImport),
-      classToImport,
-      Some(classToImport)
+  private final case class StaticMethodResult(overloadsToImport: Array[PsiMethod],
+                                              override val classToImport: PsiClass)
+    extends ImportableMemberResult(
+      overloadsToImport match {
+        case Array() => throw new IllegalArgumentException(s"$classToImport doesn't contain corresponding members")
+        case Array(first) => first
+        case Array(first, second, _*) => if (first.isParameterless) second else first
+      },
+      classToImport
     ) {
+
     override protected def buildItem(lookupItem: ScalaLookupItem,
                                      shouldImport: Boolean): Option[ScalaLookupItem] = {
-      lookupItem.isOverloadedForClassName = isOverloadedForClassName
+      putAllMethods(lookupItem, asList(overloadsToImport: _*))
       super.buildItem(lookupItem, shouldImport)
     }
-
-    override protected def createInsertHandler: ScalaImportingInsertHandler =
-      new ScalaImportingInsertHandler(classToImport)
-        with GlobalMemberInsertHandler {
-
-        override protected def qualifyAndImport(reference: ScReferenceExpression): Unit = {
-          triggerGlobalMemberCompletionFeature()
-          qualifyOnly(reference)
-        }
-      }
   }
 
-}
+  override protected def createFieldResult(elementToImport: PsiNamedElement,
+                                           classToImport: PsiClass): ImportableMemberResult =
+    StaticFieldResult(elementToImport, classToImport)
 
-object StaticMembersFinder {
-
-  private def classesToImportFor(member: PsiMember): Set[_ <: PsiClass] = member.containingClass match {
-    case clazz: ScTemplateDefinition => findInheritorObjects(clazz)
-    case clazz: PsiClass if isStatic(member) => Set(clazz)
-    case _ => Set.empty
-  }
+  private final case class StaticFieldResult(elementToImport: PsiNamedElement,
+                                             override val classToImport: PsiClass)
+    extends ImportableMemberResult(elementToImport, classToImport)
 }

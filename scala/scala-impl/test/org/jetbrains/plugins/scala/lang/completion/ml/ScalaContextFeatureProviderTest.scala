@@ -164,6 +164,7 @@ class ScalaContextFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
       s"""class X {
         |  def f(): Unit = {
         |    2 + 2 == 5
+        |    2 + 3
         |    $CARET
         |  }
         |}
@@ -320,7 +321,7 @@ class ScalaContextFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
       ContextFeatureProvider.EP_NAME.addExplicitExtension(ScalaLanguage.INSTANCE, provider)
 
       configureFromFileText(fileText)
-      changePsiAt(getEditor.getCaretModel.getOffset)
+      changePsiAt(getEditorOffset)
       getFixture.complete(CompletionType.BASIC, 1)
 
       val handler = new CodeCompletionHandlerBase(CompletionType.BASIC, false, false, true)

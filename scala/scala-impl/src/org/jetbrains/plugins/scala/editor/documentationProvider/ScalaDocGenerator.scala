@@ -6,13 +6,13 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.{PsiClass, PsiDocCommentOwner, PsiElement, PsiMethod}
-import org.jetbrains.plugins.scala.editor.documentationProvider.extensions.PsiMethodExt
 import org.jetbrains.plugins.scala.extensions.{&&, PsiClassExt, PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.HtmlPsiUtils
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScTypeAlias, ScValueOrVariable, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
+import org.jetbrains.plugins.scala.macroAnnotations.Measure
 
 import scala.util.Try
 
@@ -107,16 +107,30 @@ object ScalaDocGenerator {
 
   private def findSuperElementWithDocComment(docOwner: PsiDocCommentOwner): Option[(PsiDocCommentOwner, PsiDocComment)] =
     docOwner match {
-      case method: PsiMethod => findSuperMethodWithDocComment(method)
-      case _                 => None
+      case method: ScFunction => findSuperMethodWithDocComment(method)
+      case _                  => None
     }
 
-  private def findSuperMethodWithDocComment(method: PsiMethod): Option[(PsiMethod, PsiDocComment)] =
-    method.superMethods.map(base => (base, base.getDocComment)).find(_._2 != null)
+  private def findSuperMethodWithDocComment(method: ScFunction): Option[(PsiMethod, PsiDocComment)] = {
+    val supers = method.superMethods
+    val supersDocs = supers.iterator.map(selectMethodFromSources).map(base => (base, base.getDocComment))
+    supersDocs.find(_._2 != null)
+  }
+
+  new Object {
+    override def toString: String = super.toString
+  }
+
+  private def selectMethodFromSources(method: PsiMethod): PsiMethod =
+    method.getNavigationElement match {
+      case m: PsiMethod => m
+      case _            => method
+    }
+
 
   private def inheritedDisclaimer(clazz: PsiClass): String =
-      s"""${DocumentationMarkup.CONTENT_START}
-         |<b>Description copied from class: </b>
-         |${HtmlPsiUtils.psiElementLink(clazz.qualifiedName, clazz.name)}
-         |${DocumentationMarkup.CONTENT_END}""".stripMargin
+    s"""${DocumentationMarkup.CONTENT_START}
+       |<b>Description copied from class: </b>
+       |${HtmlPsiUtils.psiElementLink(clazz.qualifiedName, clazz.name)}
+       |${DocumentationMarkup.CONTENT_END}""".stripMargin
 }

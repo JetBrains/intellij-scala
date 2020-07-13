@@ -15,7 +15,7 @@ trait ScPropertyStub[P <: ScValueOrVariable] extends StubElement[P]
   with ScTypeElementOwnerStub[P]
   with ScExpressionOwnerStub[P]
   with ScMemberOrLocal
-  with ScImplicitInstanceStub {
+  with ScImplicitStub {
 
   def isDeclaration: Boolean
 

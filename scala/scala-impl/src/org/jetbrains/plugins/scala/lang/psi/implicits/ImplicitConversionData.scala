@@ -1,29 +1,29 @@
 package org.jetbrains.plugins.scala.lang.psi.implicits
 
-import com.intellij.openapi.application.{ApplicationManager, ReadAction}
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.startup.StartupActivity
-import com.intellij.psi.{PsiElement, PsiNamedElement}
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.concurrency.AppExecutorUtil
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.findInheritorObjectsForOwner
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.findImplicits
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitConversionIndex
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, Measure}
+import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.util.CommonQualifiedNames.AnyFqn
 
 abstract class ImplicitConversionData {
   def element: PsiNamedElement
@@ -148,27 +148,8 @@ abstract class ImplicitConversionData {
 
 object ImplicitConversionData {
 
-  class WarmUpActivity extends StartupActivity {
-    override def runActivity(project: Project): Unit = {
-      scheduleWarmUp(project)
-
-      project.subscribeToModuleRootChanged()(_ => scheduleWarmUp(project))
-    }
-  }
-
-  private def scheduleWarmUp(project: Project): Unit = {
-    if (ApplicationManager.getApplication.isUnitTestMode)
-      return
-
-    val task: Runnable = { () =>
-      val conversions = ImplicitConversionIndex.allConversions(GlobalSearchScope.allScope(project))(project)
-      conversions.foreach(rawCheck)
-    }
-    ReadAction.nonBlocking(task)
-      .inSmartMode(project)
-      .expireWhen(() => project.isDisposed)
-      .submit(AppExecutorUtil.getAppExecutorService)
-  }
+  def apply(globalConversion: GlobalImplicitConversion): Option[ImplicitConversionData] =
+    ImplicitConversionData(globalConversion.function, globalConversion.substitutor)
 
   def apply(element: PsiNamedElement, substitutor: ScSubstitutor): Option[ImplicitConversionData] = {
     ProgressManager.checkCanceled()
@@ -181,7 +162,31 @@ object ImplicitConversionData {
     }
   }
 
-  @CachedInUserData(function, ModCount.getBlockModificationCount)
+  def getPossibleConversions(expr: ScExpression): Map[GlobalImplicitConversion, ScType] =
+    expr.getTypeWithoutImplicits().toOption match {
+      case None => Map.empty
+      case Some(originalType) =>
+        val withSuperClasses = originalType.widen.extractClass match {
+          case Some(clazz) => MixinNodes.allSuperClasses(clazz).map(_.qualifiedName) + clazz.qualifiedName + AnyFqn
+          case _ => Set.empty
+        }
+
+        (for {
+          qName    <- withSuperClasses
+          function <- ImplicitConversionIndex.conversionCandidatesForFqn(qName, expr.resolveScope)(expr.getProject)
+
+          if ImplicitConversionProcessor.applicable(function, expr)
+
+          containingObject <- findInheritorObjectsForOwner(function)
+          conversion        = GlobalImplicitConversion(containingObject, function)
+          data             <- ImplicitConversionData(conversion)
+          resultType       <- data.resultType(originalType, expr)
+        } yield (conversion, resultType))
+          .toMap
+    }
+
+
+  @CachedInUserData(function, CachesUtil.libraryAwareModTracker(function))
   private def rawCheck(function: ScFunction): Option[ImplicitConversionData] = {
     for {
       retType   <- function.returnType.toOption
@@ -192,7 +197,7 @@ object ImplicitConversionData {
     }
   }
 
-  @CachedInUserData(named, ModCount.getBlockModificationCount)
+  @CachedInUserData(named, CachesUtil.libraryAwareModTracker(named))
   private def rawElementWithFunctionTypeCheck(named: PsiNamedElement with Typeable): Option[ImplicitConversionData] = {
     for {
       function1Type <- named.elementScope.cachedFunction1Type

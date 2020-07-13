@@ -40,6 +40,7 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefac
 
   private def invokeOnElement(element: PsiElement)
                              (implicit project: Project, editor: Editor): Unit = {
+    //noinspection ReferencePassedToNls
     def showErrorHint =
       ScalaRefactoringUtil.showErrorHint(_: String, ChangeSignatureHandler.REFACTORING_NAME, HelpID.CHANGE_SIGNATURE)
 

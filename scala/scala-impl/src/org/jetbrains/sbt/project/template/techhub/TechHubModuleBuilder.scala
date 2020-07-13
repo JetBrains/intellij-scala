@@ -3,7 +3,7 @@ package org.jetbrains.sbt.project.template.techhub
 
 import java.io.File
 
-import javax.swing.Icon
+import com.intellij.CommonBundle
 import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SdkSettingsStep, SettingsStep}
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
@@ -13,12 +13,13 @@ import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.io.ZipUtil
+import javax.swing.Icon
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
-import org.jetbrains.sbt.{Sbt, SbtBundle}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.template.SbtModuleBuilderUtil.tryToSetupRootModel
+import org.jetbrains.sbt.{Sbt, SbtBundle}
 
 /**
  * Creates sbt projects based on Lightbend tech hub project starter API.
@@ -99,7 +100,7 @@ class TechHubModuleBuilder extends
     }
   }
 
-  private def error(@Nls msg: String) = throw new ConfigurationException(msg, "Error")
+  private def error(@Nls msg: String) = throw new ConfigurationException(msg, CommonBundle.getErrorTitle)
 
   private def downloadTemplateList(): Unit =
     doWithProgress(

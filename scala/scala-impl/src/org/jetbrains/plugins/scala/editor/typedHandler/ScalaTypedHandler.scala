@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.editor.typedHandler
+package org.jetbrains.plugins.scala
+package editor
+package typedHandler
 
 import java.{util => ju}
 
@@ -18,7 +20,6 @@ import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettings}
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler._
-import org.jetbrains.plugins.scala.editor.{AutoBraceUtils, DocumentExt, EditorExt}
 import org.jetbrains.plugins.scala.extensions.{CharSeqExt, PsiFileExt, _}
 import org.jetbrains.plugins.scala.highlighter.ScalaCommenter
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence
@@ -40,7 +41,6 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxE
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.IndentUtil
-import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 import scala.annotation.tailrec
 import scala.language.implicitConversions
@@ -78,9 +78,13 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     val myTask: Task = if (element != null && isInDocComment(element)) { //we don't have to check offset >= 3 because "/**" is already has 3 characters
       getScaladocTask(text, offset)
     } else if (c == ' ' && hasPrefix(" case ")) {
-      indentCase(file)
+      indentKeyword[ScCaseClause](ScalaTokenTypes.kCASE, file)
     } else if (c == ' ' && hasPrefix("else ")) {
-      indentElse(file)
+      indentKeyword[ScIf](ScalaTokenTypes.kELSE, file)
+    } else if (c == ' ' && hasPrefix("catch ")) {
+      indentKeyword[ScCatchBlock](ScalaTokenTypes.kCATCH, file)
+    } else if (c == ' ' && hasPrefix("finally ")) {
+      indentKeyword[ScFinallyBlock](ScalaTokenTypes.kFINALLY, file)
     } else if (c == '{' && hasPrefix(" {")) {
       indentValBraceStyle(file)
     } else if (element != null && isInPlace(element, classOf[ScXmlExpr], classOf[ScXmlPattern])) {
@@ -152,13 +156,14 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     implicit val f: PsiFile = file
     implicit val settings: CodeStyleSettings = CodeStyle.getSettings(project)
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    lazy val smartKeySettings = ScalaApplicationSettings.getInstance
 
     def moveCaret(): Unit = {
       editor.getCaretModel.moveCaretRelatively(1, 0, false, false, false)
     }
 
     if (c == ' ' && prevElement != null && needClosingScaladocTag(element, prevElement)) {
-      insertClosingScaladocTag(offset, element)
+      insertClosingScaladocTag(offset)
       moveCaret()
       Result.STOP
     } else if (isClosingScaladocTagOrMarkup(c, element, elementType)) {
@@ -178,9 +183,9 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     } else if (c == '>' && scalaSettings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR && prevElement != null &&
       prevElement.getNode.getElementType == ScalaTokenTypes.tFUNTYPE) {
       Result.STOP
-    } else if (c == '{' && ScalaApplicationSettings.getInstance.WRAP_SINGLE_EXPRESSION_BODY) {
+    } else if (c == '{' && smartKeySettings.WRAP_SINGLE_EXPRESSION_BODY) {
       handleLeftBraceWrap(offset, element)
-    } else if (!c.isWhitespace && c != '{' && c != '}') {
+    } else if (smartKeySettings.HANDLE_BLOCK_BRACES_AUTOMATICALLY && !c.isWhitespace && c != '{' && c != '}') {
       handleAutoBraces(c, offset, element)
     } else {
       Result.CONTINUE
@@ -212,7 +217,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
         false
     })
 
-  private def insertClosingScaladocTag(offset: Int, element: PsiElement)(implicit editor: Editor): Unit = {
+  private def insertClosingScaladocTag(offset: Int)(implicit editor: Editor): Unit = {
     val docEnd = ScalaCommenter.getDocumentationCommentSuffix
     insertAndCommit(offset, "  " + docEnd, editor.getDocument, editor.getProject)
   }
@@ -308,16 +313,6 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
 
   private val NoMatter: PsiElement => Boolean = _ => true
 
-  private def indentCase(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
-    indentElement(file)(document, project, element, offset)(
-      elem => elem.getNode.getElementType == ScalaTokenTypes.kCASE && elem.getParent.isInstanceOf[ScCaseClause]
-    )
-
-  private def indentElse(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
-    indentElement(file)(document, project, element, offset)(
-      elem => elem.getNode.getElementType == ScalaTokenTypes.kELSE && elem.getParent.isInstanceOf[ScIf]
-    )
-
   private def indentRefExprDot(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
     indentElement(file)(document, project, element, offset)(
       NoMatter,
@@ -353,25 +348,6 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
       ScalaPsiUtil.isLineTerminator,
       ScalaPsiUtil.getParent(_, 2).exists(_.isInstanceOf[ScValue])
     )
-
-  private def indentElement(
-    file: PsiFile
-  )(
-    document: Document,
-    project: Project,
-    element: PsiElement,
-    offset: Int
-  )(
-    prevCondition: PsiElement => Boolean,
-    condition: PsiElement => Boolean = _.isInstanceOf[PsiWhiteSpace]
-  ): Unit =
-    if (condition(element)) {
-      val anotherElement = file.findElementAt(offset - 2)
-      if (prevCondition(anotherElement)) {
-        document.commit(project)
-        CodeStyleManager.getInstance(project).adjustLineIndent(file, anotherElement.getTextRange)
-      }
-    }
 
   private def addContinuationIndentBeforeDot(indentOptions: IndentOptions)
                                             (document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
@@ -500,38 +476,101 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
       document.commit(project)
     }
 
+  private val continuesPreviousLine = Set('.')
+
   private def handleAutoBraces(c: Char, caretOffset: Int, element: PsiElement)
                               (implicit project: Project, file: PsiFile, editor: Editor, settings: CodeStyleSettings): Result = {
     import AutoBraceUtils._
 
-    val caretWS = element match {
-      case ws: PsiWhiteSpace => ws
+    val (wsBeforeCaret, caretWS, curLineIndent, isAfterPossibleContinuation) = element match {
+      case caretWS: PsiWhiteSpace =>
+        if (caretOffset == caretWS.startOffset) {
+          // There is a possible continuation before the caret (like els(e)/catc(h)/fina(lly)
+          // We now have to take the whitespace before and after this token into account
+          //   if (cond)
+          //     expr
+          //     els<caret>
+          //  ^       ^caretWS
+          //  ^beforeContWS
+          def isPossibleContinuationButWillNotBeContinuation(tok: PsiElement, addedChar: Char): Boolean = {
+            val tokText = tok.getText
+            couldBeContinuationAfterIndentationContext(tokText) &&
+              !couldBeContinuationAfterIndentationContext(tokText + addedChar)
+          }
+
+          val tok = PsiTreeUtil.prevVisibleLeaf(caretWS) match {
+            case tok: PsiElement if  isPossibleContinuationButWillNotBeContinuation(tok, c) => tok
+            case _ => return Result.CONTINUE
+          }
+
+          val beforeContWS = PsiTreeUtil.prevLeaf(tok) match {
+            case beforeContWS: PsiWhiteSpace => beforeContWS
+            case _ => return Result.CONTINUE
+          }
+
+          val beforeContWSText = beforeContWS.getText
+          val newlinePosBeforeCaret = beforeContWSText.lastIndexOf('\n')
+
+          if (newlinePosBeforeCaret < 0) {
+            // there is something else before the possible continuation, so do nothing
+            return Result.CONTINUE
+          }
+
+          val beforeContIndent = beforeContWSText.substring(newlinePosBeforeCaret)
+          (beforeContWS, caretWS, beforeContIndent, true)
+        } else {
+          if (continuesPreviousLine(c)) {
+            return Result.CONTINUE
+          }
+
+          // There is no possible continuation before the caret, so check if it looks like this
+          //   def test =
+          //     expr
+          //     <caret>
+          val caretWSText = caretWS.getText
+          val posInWs = caretOffset - element.getTextOffset
+          val newlinePosBeforeCaret = caretWSText.lastIndexOf('\n', posInWs - 1)
+
+          if (newlinePosBeforeCaret < 0) {
+            // there is something before the caret, so do nothing
+            return Result.CONTINUE
+          }
+
+          val caretIndent = caretWSText.substring(newlinePosBeforeCaret, posInWs)
+          (caretWS, caretWS, caretIndent, false)
+        }
       case _ => return Result.CONTINUE
     }
 
-    val caretWSText = caretWS.getText
-    val posInWs = caretOffset - element.getTextOffset
-    val newlinePosBeforeCaret = caretWSText.lastIndexOf('\n', posInWs - 1)
-
-    if (newlinePosBeforeCaret < 0) {
-      // caret is not at some indentation position but rather there is something before us in the same line
-      return Result.CONTINUE
-    }
-
-
-    // ========= Get block that should be wraped ==========
+    // ========= Get block that should be wrapped ==========
     // caret could be before or after the expression that should be wrapped
-    val (expr, exprWS, caretIsBeforeExpr) = nextExpressionInIndentationContext(element) match {
+    val (expr, exprWS, caretIsBeforeExpr) = nextExpressionInIndentationContext(caretWS) match {
       case Some(expr) => (expr, caretWS, true)
       case None =>
-        previousExpressionInIndentationContext(element) match {
+        previousExpressionInIndentationContext(wsBeforeCaret) match {
+          case Some(expr) if canBeContinuedWith(expr, c) =>
+            // if we start typing something that could be a continuation of the previous construct, do not insert braces
+            // for example:
+            //
+            // def test =
+            //   if (cond) expr
+            //   <caret>      <- when you type 'e', it could be the continuation of the previous if
+            return Result.CONTINUE
+          case Some(expr) if  indentationContextContinuation(expr).exists(_.toString.head == c) =>
+            // if we start typing something that could be a continuation of a parent construct, do not insert braces
+            // for example:
+            // if (cond)
+            //   expr
+            //   <caret>      <- when you type 'e', it could be start of 'else' which would then be inside the block. so do nothing for now
+            return Result.CONTINUE
           case Some(expr) =>
             val exprWs = expr.prevElement match {
               case Some(ws: PsiWhiteSpace) => ws
               case _ => return Result.CONTINUE
             }
             (expr, exprWs, false)
-          case None => return Result.CONTINUE
+          case None =>
+            return Result.CONTINUE
         }
     }
     val exprWSText = exprWS.getText
@@ -542,48 +581,72 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
       return Result.CONTINUE
     }
     val exprIndent = exprWSText.substring(newlinePosBeforeExpr)
-    val caretIndent = caretWSText.substring(newlinePosBeforeCaret, posInWs)
 
-    if (exprIndent != caretIndent) {
+    if (exprIndent != curLineIndent) {
       return Result.CONTINUE
     }
 
-    // ========= Insert braces ==========
-    // Start with the opening brace, then the user input, and then the closing brace
+    // ========= Insert braces =========
+    // Start with the opening brace, and then the closing brace.
+    // Also remember brace ranges for later reformating
     val document = editor.getDocument
 
     val openingBraceOffset =
       exprWS
         .prevSiblingNotWhitespaceComment
         .fold(exprWS.startOffset)(_.endOffset)
-//    val openingBraceOffset = exprWS.startOffset
+    // ========= Opening brace =========
     document.insertString(openingBraceOffset, "{")
     val openingBraceRange = TextRange.from(openingBraceOffset, 1)
-    val displacementAfterClosingBrace = 1
+    val displacementAfterOpeningBrace = 1
 
-    val closingBraceRange = if (caretIsBeforeExpr) {
-      document.insertString(caretOffset + displacementAfterClosingBrace, c.toString)
+    // ========= Closing brace =========
+    // After the caret there could many whitespaces and then something that
+    // proceeds to complete the parent of expr for example in
+    //   if (cond)
+    //     expr
+    //     <caret>
+    //
+    //   else
+    //     elseExpr
+    //
+    // In this case the braces should be added before the else and not directly after the caret
+    val lastElement = if (caretIsBeforeExpr) expr else caretWS
+    val subsequentConstructOffset = lastElement.getNextNonWhitespaceAndNonEmptyLeaf match {
+      case tok: PsiElement if continuesConstructAfterIndentationContext(tok) => Some(tok.startOffset)
+      case _ => None
+    }
 
-      val displacementAfterUserInput = displacementAfterClosingBrace + 1
-      editor.getCaretModel.moveToOffset(caretOffset + displacementAfterUserInput)
+    val closingBraceRange = subsequentConstructOffset match {
+      case Some(subsequentConstructOffset) =>
+        val braceInsertPosition = subsequentConstructOffset + displacementAfterOpeningBrace
+        document.insertString(braceInsertPosition, "} ")
 
-      val closingBraceOffset = expr.endOffset + displacementAfterUserInput
-      document.insertString(closingBraceOffset, "\n}")
-      TextRange.from(closingBraceOffset, 3)
-    } else {
-      // we want the closing brace right after the user input, so put it here
-      val inputAndClosingBraceOffset = caretOffset + displacementAfterClosingBrace
-      document.insertString(inputAndClosingBraceOffset, c + "\n}")
+        TextRange.from(braceInsertPosition, 3)
+      case None =>
+        // There is no subsequent construct, so just insert the braces after the caret or the expression
+        val braceInsertPosition =
+          if (caretIsBeforeExpr) expr.endOffset + displacementAfterOpeningBrace
+          else caretOffset + displacementAfterOpeningBrace
 
-      val afterInputOffset = inputAndClosingBraceOffset + 1
-      editor.getCaretModel.moveToOffset(afterInputOffset)
-      TextRange.from(afterInputOffset, 3)
+        document.insertString(braceInsertPosition, "\n}")
+        TextRange.from(braceInsertPosition, 3)
     }
     document.commit(project)
 
-    CodeStyleManager.getInstance(project).reformatText(file, ju.Arrays.asList(openingBraceRange, closingBraceRange))
+    // We have to remember the exact caret position, because the reformatting
+    // will destroy the caret position because of the way ws-only lines are reformatted
+    val caretOffsetBeforeFormatting = caretOffset + displacementAfterOpeningBrace
+    val marker = document.createRangeMarker(caretOffsetBeforeFormatting, caretOffsetBeforeFormatting)
+    marker.setGreedyToRight(true)
+    try {
+      CodeStyleManager.getInstance(project).reformatText(file, ju.Arrays.asList(openingBraceRange, closingBraceRange))
+      editor.getCaretModel.moveToOffset(marker.getEndOffset)
+    } finally {
+      marker.dispose()
+    }
 
-    Result.STOP
+    Result.CONTINUE
   }
 
   private def handleLeftBraceWrap(caretOffset: Int, element: PsiElement)

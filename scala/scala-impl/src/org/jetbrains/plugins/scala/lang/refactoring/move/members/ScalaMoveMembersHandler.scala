@@ -36,7 +36,7 @@ class ScalaMoveMembersHandler extends MoveHandlerDelegate {
 
   private object NotSupportedMember {
     def unapply(member: ScMember): Option[String] = {
-      if (ScalaPsiUtil.isImplicit(member))
+      if (ScalaPsiUtil.hasImplicitModifier(member))
         Some(ScalaBundle.message("move.members.not.supported.implicits"))
 
       else if (!hasStablePath(member))

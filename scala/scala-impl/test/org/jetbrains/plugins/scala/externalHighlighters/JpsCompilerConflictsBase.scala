@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
+import java.io.File
+
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.CompilerModuleExtension
-import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.EdtTestUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
@@ -64,13 +65,16 @@ abstract class JpsCompilerConflictsBase(compileServerLanguageLevel: LanguageLeve
 
   private def getTargetFileTimestamp(className: String): Long = {
     val targetFileName = s"$className.class"
-    val optionResult = Option(CompilerModuleExtension.getInstance(getModule).getCompilerOutputPath)
-      .flatMap { targetDir =>
-        VfsUtil.markDirtyAndRefresh(false, true, true, targetDir)
-        targetDir.getChildren
-          .find(_.getName == targetFileName)
-          .map(_.getTimeStamp)
-      }
+    val optionResult =
+      Option(CompilerModuleExtension.getInstance(getModule).getCompilerOutputPath)
+        .map(_.getCanonicalPath)
+        .map(new File(_))
+        .flatMap { targetDir =>
+          targetDir.listFiles((_, name) => name == targetFileName)
+            .find(_.getName == targetFileName)
+            .map(_.lastModified())
+        }
+
     assertTrue(s"$targetFileName doesn't exist", optionResult.isDefined)
     optionResult.get
   }

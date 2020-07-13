@@ -20,6 +20,7 @@ class ScalaWithTryCatchFinallySurrounder extends ScalaExpressionSurrounder {
     "try {\n" + super.getTemplateAsString(elements) + s"\n} catch {\n case _ $arrow \n} finally {}"
   }
 
+  //noinspection ScalaExtractStringToBundle
   override def getTemplateDescription = "try / catch / finally"
 
   override def getSurroundSelectionRange(withTryCatchNode: ASTNode): TextRange = {

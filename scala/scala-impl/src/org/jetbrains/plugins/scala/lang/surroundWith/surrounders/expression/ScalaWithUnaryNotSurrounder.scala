@@ -20,6 +20,7 @@ class ScalaWithUnaryNotSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String =
     "!" + super.getTemplateAsString(elements).parenthesize()
 
+  //noinspection ScalaExtractStringToBundle
   override def getTemplateDescription: String = "!(expr)"
 
   override def isApplicable(elements: Array[PsiElement]): Boolean = elements match {

@@ -1,10 +1,7 @@
 package org.jetbrains.plugins.scala.settings;
 
 import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.State;
-import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.components.StoragePathMacros;
+import com.intellij.openapi.components.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.Converter;
 import com.intellij.util.xmlb.XmlSerializerUtil;
@@ -31,6 +28,7 @@ import java.util.*;
     reportStatistic = true
 )
 public class ScalaProjectSettings implements PersistentStateComponent<ScalaProjectSettings> {
+  @ReportValue
   private int IMPLICIT_PARAMETERS_SEARCH_DEPTH = -1;
 
   private String[] BASE_PACKAGES = new String[0];
@@ -171,6 +169,7 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     IMPLICIT_PARAMETERS_SEARCH_DEPTH = value;
   }
 
+  @ReportValue
   public int getOutputLimit() {
     return  OUTPUT_LIMIT;
   }
@@ -407,6 +406,7 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     this.USE_ECLIPSE_COMPATIBILITY = USE_ECLIPSE_COMPATIBILITY;
   }
 
+  @ReportValue
   public int getAutoRunDelay() {
     return AUTORUN_DELAY;
   }

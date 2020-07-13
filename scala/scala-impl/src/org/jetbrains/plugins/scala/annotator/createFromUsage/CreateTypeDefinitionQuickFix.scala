@@ -13,7 +13,6 @@ import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import javax.swing.Icon
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil._
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
 import org.jetbrains.plugins.scala.extensions._
@@ -66,7 +65,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
   private def createClassInPackage(psiPackage: PsiPackage): Unit = {
     val directory = psiPackage.getDirectories.filter(_.isWritable) match {
       case Array(dir) => dir
-      case Array() => throw new IllegalStateException(s"Cannot find directory for the package `${psiPackage.getName}`")
+      case Array() => throw new IllegalStateException(s"Cannot find directory for the package `${psiPackage.name}`")
       case dirs => 
         val currentDir = dirs.find(PsiTreeUtil.isAncestor(_, ref, true))
                 .orElse(dirs.find(ScalaPsiUtil.getModule(_) == ScalaPsiUtil.getModule(ref)))
@@ -127,7 +126,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
             false
           }
         }
-        NavigationUtil.getPsiElementPopup(siblings.toArray, renderer, "Choose level", processor, selection)
+        NavigationUtil.getPsiElementPopup(siblings.toArray, renderer, ScalaBundle.message("choose.level.popup.title"), processor, selection)
                 .showInBestPositionFor(editor)
     }
   }
@@ -171,7 +170,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
 
     val template = builder.buildTemplate()
     val targetFile = clazz.getContainingFile
-    val isScalaConsole = targetFile.getName == ScalaLanguageConsoleView.ScalaConsole
+    val isScalaConsole = targetFile.name == ScalaLanguageConsoleView.ScalaConsole
 
     if (!isScalaConsole) {
       val newEditor = positionCursor(clazz.nameId)

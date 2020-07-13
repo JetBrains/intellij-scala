@@ -57,6 +57,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
       blockFor(expr) match {
         case Success(bl) => Some(bl)
         case Failure(e) =>
+          //noinspection ReferencePassedToNls
           CommonRefactoringUtil.showErrorHint(project, editor, e.getMessage, ScalaBundle.message("error.message.title.create.entity.quickfix"), null)
           None
       }

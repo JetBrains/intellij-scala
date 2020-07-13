@@ -10,6 +10,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.ui.LightweightHint
 import com.intellij.util.ui.JBUI
 import javax.swing.JLabel
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 
 private class HintUI(override val message: String,
@@ -45,7 +46,7 @@ private class HintUI(override val message: String,
 }
 
 private object HintUI {
-  def apply(message: String, editor: Editor): TooltipUI = {
+  def apply(@Nls message: String, editor: Editor): TooltipUI = {
     val hint = {
       // TODO Why HTML is rewritten by com.intellij.ide.IdeTooltipManager.initPane(com.intellij.util.ui.Html, com.intellij.ui.HintHint, javax.swing.JLayeredPane) ?
       val label = if (message.contains(ScalaBundle.message("type.mismatch.dot"))) new JLabel(message) else HintUtil.createInformationLabel(message)

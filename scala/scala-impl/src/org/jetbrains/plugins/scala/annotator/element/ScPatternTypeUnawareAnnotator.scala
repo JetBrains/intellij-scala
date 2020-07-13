@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
@@ -41,7 +42,7 @@ object ScPatternTypeUnawareAnnotator extends ElementAnnotator[ScPattern] {
 
   private def processNamedPattern(pattern: ScNamingPattern)
                                   (implicit holder: ScalaAnnotationHolder): Unit = {
-    def annotateBinder(message: String, element: PsiElement, replaceWithType: IElementType, highlightType: ProblemHighlightType): Unit = {
+    def annotateBinder(@Nls message: String, element: PsiElement, replaceWithType: IElementType, highlightType: ProblemHighlightType): Unit = {
       val annotation = holder.createWarningAnnotation(element, message)
       annotation.setHighlightType(highlightType)
       annotation.registerFix(new ReplaceNamingPatternBindingElementFix(element, replaceWithType))

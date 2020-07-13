@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.scalastyle
 
 import com.intellij.codeInspection._
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.TestSourcesFilter
+import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection._
@@ -28,16 +27,25 @@ object ScalastyleCodeInspection {
   private type TimestampedScalastyleConfiguration = (Long, ScalastyleConfiguration)
   private val cache = new mutable.HashMap[VirtualFile, TimestampedScalastyleConfiguration]()
 
-  def configurationFor(file: ScalaFile): Option[ScalastyleConfiguration] = {
-    val project = file.getProject
-    val isTestSource = TestSourcesFilter.isTestSources(file.getVirtualFile, project)
-
+  private def findConfiguration(dir: VirtualFile, isTestSource: Boolean): Option[ScalastyleConfiguration] = {
     import Locations.{possibleSrcConfigFileNames, possibleTestConfigFileNames}
     val possibleFileNames =
       if (isTestSource) possibleTestConfigFileNames ++ possibleSrcConfigFileNames
       else possibleSrcConfigFileNames
 
-    Locations.findIn(project, possibleFileNames).map(latest)
+    Locations.findIn(dir, possibleFileNames).map(latest)
+  }
+
+  def configurationFor(file: ScalaFile): Option[ScalastyleConfiguration] = {
+    val virtualFile = file.getVirtualFile
+    val project = file.getProject
+    val baseDir = Option(project.getBaseDir)
+    val fileIndex = ProjectFileIndex.getInstance(project)
+    val contentRoot = Option(fileIndex.getContentRootForFile(virtualFile))
+    val isTest = fileIndex.isInTestSourceContent(virtualFile)
+
+    contentRoot.flatMap(findConfiguration(_, isTest)).
+      orElse(baseDir.flatMap(findConfiguration(_, isTest)))
   }
 
   def configurationFor(file: PsiFile): Option[ScalastyleConfiguration] = {
@@ -52,11 +60,8 @@ object ScalastyleCodeInspection {
     private def findConfigFile(dir: VirtualFile, possibleConfigFileNames: Seq[String]): Option[VirtualFile] =
       possibleConfigFileNames.flatMap(name => Option(dir.findChild(name))).headOption
 
-    def findIn(project: Project, possibleConfigFileNames: Seq[String]): Option[VirtualFile] = {
-      val root = project.getBaseDir
-      if (root == null) return None
-
-      val dirs = possibleLocations.flatMap(name => Option(root.findChild(name))) :+ root
+    def findIn(contentRoot: VirtualFile, possibleConfigFileNames: Seq[String]): Option[VirtualFile] = {
+      val dirs = possibleLocations.flatMap(name => Option(contentRoot.findChild(name))) :+ contentRoot
       dirs.flatMap(findConfigFile(_, possibleConfigFileNames)).headOption
     }
   }

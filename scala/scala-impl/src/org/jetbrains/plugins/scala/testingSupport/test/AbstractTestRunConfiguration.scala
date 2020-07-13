@@ -109,14 +109,14 @@ abstract class AbstractTestRunConfiguration(
       GlobalSearchScope.EMPTY_SCOPE
   }
 
-  private def getScope(withDependencies: Boolean): GlobalSearchScope =
+  private def configurationScope: GlobalSearchScope =
     getModule match {
-      case null   => projectScope(getProject, withDependencies)
-      case module => moduleScope(module, withDependencies)
+      case null   => projectScope(getProject)
+      case module => moduleScope(module)
     }
 
-  protected[test] def getClazz(path: String, withDependencies: Boolean): PsiClass = {
-    val scope = getScope(withDependencies)
+  protected[test] def getClazz(path: String): PsiClass = {
+    val scope = configurationScope
     val classes = ScalaPsiManager.instance(project).getCachedClasses(scope, path)
     val (objects, nonObjects) = classes.partition(_.isInstanceOf[ScObject])
     if (nonObjects.nonEmpty) nonObjects(0)
@@ -126,7 +126,7 @@ abstract class AbstractTestRunConfiguration(
 
   // TODO: when checking suite on validity we search inheritors here and in validation, extra work
   protected[test] def getSuiteClass: Either[RuntimeConfigurationException, PsiClass] = {
-    val suiteClasses = suitePaths.map(getClazz(_, withDependencies = true)).filter(_ != null)
+    val suiteClasses = suitePaths.map(getClazz).filter(_ != null)
 
     if (suiteClasses.isEmpty)
       Left(configurationException(ScalaBundle.message("test.framework.is.not.specified", testFramework.getName)))
@@ -234,27 +234,16 @@ object AbstractTestRunConfiguration {
    */
   case class TestFrameworkRunnerInfo(runnerClass: String)
 
-  private def moduleScope(module: Module, withDependencies: Boolean): GlobalSearchScope =
-    if (withDependencies)
-      GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module)
-    else {
-      val sharedSourceScope= sharedSourcesModuleScope(module)
-      GlobalSearchScope.moduleScope(module).union(sharedSourceScope)
-    }
-
-  private def sharedSourcesModuleScope(module: Module): GlobalSearchScope =
-    module.sharedSourceDependency
-      .map(GlobalSearchScope.moduleScope)
-      .getOrElse(GlobalSearchScope.EMPTY_SCOPE)
+  private def moduleScope(module: Module): GlobalSearchScope =
+    GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module)
 
   /**
    * TODO: why not using just [[GlobalSearchScope.projectScope]]?
    */
-  private def projectScope(project: Project, withDependencies: Boolean): GlobalSearchScope = {
+  private def projectScope(project: Project): GlobalSearchScope = {
     val projectModules = ModuleManager.getInstance(project).getModules
     projectModules.iterator
-      .foldLeft(GlobalSearchScope.EMPTY_SCOPE) { case (res, module) =>
-        res.union(moduleScope(module, withDependencies))
-      }
+      .map(moduleScope)
+      .foldLeft(GlobalSearchScope.EMPTY_SCOPE)(_.union(_))
   }
 }

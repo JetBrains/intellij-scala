@@ -8,6 +8,10 @@ import com.intellij.codeInsight.completion.JavaCompletionUtil.isInExcludedPackag
 import com.intellij.codeInsight.completion.{CompletionParameters, CompletionUtil, PrefixMatcher}
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.search.GlobalSearchScope.notScope
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
@@ -236,24 +240,36 @@ object ScalaCompletionUtil {
     }
   } getOrElse (null, false)
 
-  //find objects which may be used to import members of `clazz`
-  @CachedInUserData(clazz, ModCount.getBlockModificationCount)
-  def findInheritorObjects(clazz: ScTemplateDefinition): Set[ScObject] = {
-    val allObjects =
-      ScalaInheritors.allInheritorObjects(clazz)
-        .filterNot(isInExcludedPackage(_, false))
 
-    if (allObjects.isEmpty || clazz.hasTypeParameters) {
-      allObjects
-    } else {
-      //if `clazz` is not generic, members in all objects are the same, so we return one with the shortest qualified name
-      Set(allObjects.minBy(o => (o.isDeprecated, o.qualifiedName.length, o.qualifiedName)))
-    }
-  }
-
+  //find objects which may be used to import this member
   def findInheritorObjectsForOwner(member: ScMember): Set[ScObject] =
     member.containingClass match {
       case null => Set.empty
-      case clazz => findInheritorObjects(clazz)
+      case clazz =>
+        val allObjects =
+          (inheritorObjectsInLibraries(clazz) ++ inheritorObjectsInProject(clazz))
+            .filterNot(isInExcludedPackage(_, false))
+
+        if (allObjects.isEmpty || clazz.hasTypeParameters) {
+          allObjects
+        } else {
+          //if `clazz` is not generic, members in all objects are the same, so we return one with the shortest qualified name
+          Set(allObjects.minBy(o => (o.isDeprecated, o.qualifiedName.length, o.qualifiedName)))
+        }
+
     }
+
+  @CachedInUserData(clazz, ModCount.getBlockModificationCount)
+  private def inheritorObjectsInProject(clazz: ScTemplateDefinition): Set[ScObject] = {
+    val scope = projectScope(clazz).intersectWith(clazz.resolveScope)
+    ScalaInheritors.allInheritorObjects(clazz, scope)
+  }
+
+  @CachedInUserData(clazz, CachesUtil.libraryAwareModTracker(clazz))
+  private def inheritorObjectsInLibraries(clazz: ScTemplateDefinition): Set[ScObject] = {
+    val notProjectScope = notScope(projectScope(clazz)).intersectWith(clazz.resolveScope)
+    ScalaInheritors.allInheritorObjects(clazz, notProjectScope)
+  }
+
+  private def projectScope(clazz: PsiClass) = GlobalSearchScope.projectScope(clazz.getProject)
 }

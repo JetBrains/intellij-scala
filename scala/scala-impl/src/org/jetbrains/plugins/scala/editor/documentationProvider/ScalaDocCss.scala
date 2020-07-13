@@ -6,6 +6,7 @@ private object ScalaDocCss {
    * After discussing it Dmitrii Batrak from IntelliJ core team, we concluded that for now the only normal way
    * to provide some custom CSS styles is directly via <head><style>...</style><head> in <html> tag.
    *
+   * @see [[javax.swing.text.html.CSS]] for the supported css properties
    * @see [[com.intellij.util.ui.JBHtmlEditorKit]]
    * @see [[com.intellij.codeInsight.documentation.DocumentationComponent.prepareCSS]]
    * @see platform-impl.jar!/com/intellij/ide/ui/laf/intellijlaf.css

@@ -3,13 +3,15 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 import com.intellij.codeInsight.documentation.DocumentationManagerUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
+import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentGenerator._
-import org.jetbrains.plugins.scala.extensions.{&&, ElementType, IteratorExt, PrevLeaf, PsiClassExt, PsiElementExt, PsiMemberExt, TraversableExt}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiClassExt, PsiElementExt, PsiMemberExt, TraversableExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -27,27 +29,19 @@ import scala.util.{Failure, Success, Try}
 private class ScalaDocContentGenerator(
   originalComment: ScDocComment,
   macroFinder: MacroFinder,
-  rendered: Boolean // TODO: use
+  rendered: Boolean
 ) {
 
+  import ApplicationManager.{getApplication => application}
+
   private val resolveContext: PsiElement = originalComment
-
-  import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentGenerator.DocListType._
-
-  def appendCommentDescription(
-    buffer: StringBuilder,
-    comment: ScDocComment // can be comment of a super method
-  ): Unit = {
-    val parts = comment.getDescriptionElements.toTraversable.filterBy[ScDocDescriptionPart]
-    appendDescriptionParts(buffer, parts)
-  }
 
   def appendTagDescriptionText(
     buffer: StringBuilder,
     tag: ScDocTag
   ): Unit = {
     val descriptionParts = tagDescriptionParts(tag)
-    appendDescriptionParts(buffer, descriptionParts, skipFirstParagraph = true)
+    appendDescriptionParts(buffer, descriptionParts)
   }
 
   def tagDescriptionText(
@@ -71,14 +65,13 @@ private class ScalaDocContentGenerator(
     buffer.result
   }
 
-  private def appendDescriptionParts(
+  def appendDescriptionParts(
     buffer: StringBuilder,
-    parts: TraversableOnce[ScDocDescriptionPart],
-    skipFirstParagraph: Boolean = false
+    parts: TraversableOnce[ScDocDescriptionPart]
   ): Unit = {
     var isFirst = true
     parts.foreach { part =>
-      visitDescriptionPartNode(buffer, part, isFirst && skipFirstParagraph)
+      visitDescriptionPartNode(buffer, part, isFirst)
       isFirst = false
     }
   }
@@ -151,6 +144,8 @@ private class ScalaDocContentGenerator(
   private def visitDocList(buffer: StringBuilder, list: ScDocList): Unit = {
     val listItems = list.items
     val firstItem = listItems.head.headToken
+
+    import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentGenerator.DocListType._
 
     val listType = listStyles.getOrElse(firstItem.getText, UnorderedList)
 
@@ -285,13 +280,21 @@ private class ScalaDocContentGenerator(
     val macroKey = macroName(macroElement)
     val macroValue: Option[String] = Try(macroFinder.getMacroBody(macroKey)) match {
       case Success(value)     => value
+      case Failure(_: ProcessCanceledException) =>
+        None
       case Failure(exception) =>
         val message = s"Error occurred during macro resolving: $macroKey"
-        if (ApplicationManager.getApplication.isInternal)
+        if (application.isInternal || application.isUnitTestMode)
           Log.error(message, exception)
         else
           Log.debug(message, exception)
         None
+    }
+
+    if (macroValue.isEmpty && application.isUnitTestMode) {
+      val commentOwner = originalComment.getOwner
+      val info = UnresolvedMacroInfo(commentOwner.getContainingFile.getVirtualFile, commentOwner.getName, macroKey)
+      unresolvedMacro.append(info)
     }
 
     macroValue.getOrElse(macroElement.getText)
@@ -312,7 +315,7 @@ object ScalaDocContentGenerator {
 
   private case class PsiElementResolveResult(refText: String, label: String)
 
-  def generatePsiElementLink(ref: ScStableCodeReference, context: PsiElement): String = {
+  def generatePsiElementLink(ref: ScStableCodeReference, context: PsiElement, rendered: Boolean): String = {
     val resolved = resolvePsiElementLink(ref, context)
     resolved
       .map(res => hyperLinkToPsi(res.refText, escapeHtml(res.label), plainLink = false))
@@ -380,32 +383,12 @@ object ScalaDocContentGenerator {
   private def hyperLink(href: String, label: String): String =
     s"""<a href="${escapeHtml(href)}">$label</a>""".stripMargin
 
-  /**
-   * TODO: do not make it so annoying red
-   *  especially in in-editor mode (rendered)
-   *  consider some underline?
+  /** @note I considered using some reddish, wavy underline, but looks like Java Swing HTML/CSS renderer does not support
+   *        text-decorator-style & text-decorator-color, see [[javax.swing.text.html.CSS]]. So for now we use just text.
    */
-  private def unresolvedReference(text: String): String = s"<font color=red>$text</font>"
-
-  private def isLeadingDocLineElement(element: PsiElement): Boolean = {
-    import ScalaDocTokenType._
-    element match {
-      case PrevLeaf(ElementType(DOC_WHITESPACE) && PrevLeaf(ElementType(DOC_COMMENT_LEADING_ASTERISKS))) |
-           PrevLeaf(ElementType(DOC_COMMENT_LEADING_ASTERISKS)) => true
-      case _ => false
-    }
-  }
-
-  private def isFirstParagraphChild(element: PsiElement): Boolean =
-    element.getParent match {
-      case p: ScDocParagraph =>
-        p.getFirstChild match {
-          case null                                             => false
-          case ws@ElementType(ScalaDocTokenType.DOC_WHITESPACE) => ws.getNextSibling == element
-          case `element`                                        => true
-        }
-      case _ => false
-    }
+  private def unresolvedReference(text: String): String =
+    if (StringUtils.isBlank(text)) ""
+    else s"""<code>$text</code>"""
 
   private def markupTagToHtmlTag(markupTag: String): Option[String] = markupTag match {
     case "__"  => Some("u")
@@ -437,5 +420,11 @@ object ScalaDocContentGenerator {
     final case class OrderedList(cssClass: String) extends DocListType
     final object UnorderedList extends DocListType
   }
+
+  @TestOnly
+  case class UnresolvedMacroInfo(file: VirtualFile, commentOwnerName: String, macroKey: String)
+  @TestOnly
+  lazy val unresolvedMacro: mutable.Buffer[UnresolvedMacroInfo] =
+    mutable.ArrayBuffer.empty[UnresolvedMacroInfo]
 }
 

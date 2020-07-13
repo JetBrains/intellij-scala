@@ -350,6 +350,7 @@
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.ScalaEnterAfterUnmatchedBraceHandler" order="first"/>
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.AddUnitTypeEnterHandler" order="first"/>
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.PackageSplitEnterHandler"/>
+        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.FormatAfterEnterHandler"/>
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.AutoBraceEnterHandler"/>
 
         <javaMainMethodProvider implementation="org.jetbrains.plugins.scala.runner.ScalaMainMethodProvider"/>
@@ -507,7 +508,9 @@
                         serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.JpsCompilerImpl"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.CompileServerClient"
                         serviceImplementation="org.jetbrains.plugins.scala.compiler.CompileServerClientImpl"/>
-
+        <projectService serviceInterface="com.intellij.openapi.compiler.CompilerManager"
+                        serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.SetSameJdkToBuildProcessAsInCompileServerCompilerManager"
+                        overrides="true"/>
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
                             serviceInterface="org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes"/>
@@ -540,7 +543,7 @@
         <filetype.stubBuilder filetype="SIG" implementationClass="org.jetbrains.plugins.scala.lang.psi.compiled.SigFileStubBuilder"/>
         <filetype.decompiler filetype="SIG" implementationClass="org.jetbrains.plugins.scala.lang.psi.compiled.SigFileDecompiler"/>
 
-        <fileType name="TASTY" extensions="tasty" implementationClass="org.jetbrains.plugins.scala.tasty.TastyFileType$" fieldName="MODULE$"/>
+        <fileType name="TASTy" extensions="tasty" implementationClass="org.jetbrains.plugins.scala.tasty.TastyFileType$" fieldName="MODULE$"/>
         <filetype.decompiler filetype="TASTY" implementationClass="org.jetbrains.plugins.scala.tasty.TastyDecompiler"/>
         <compilableFileTypesProvider implementation="org.jetbrains.plugins.scala.lang.psi.compiled.ScalaCompilableFileTypesProvider" />
         <syntaxHighlighter id="tasty.file" key="TASTY" factoryClass="org.jetbrains.plugins.scala.tasty.TastySyntaxHighlighterFactory"/>
@@ -1693,7 +1696,6 @@
         <postStartupActivity implementation="org.jetbrains.plugins.scala.util.UIFreezingGuard"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierActivity"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor$Activity"/>
-        <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitConversionData$WarmUpActivity"/>
 
         <editorFactoryListener implementation="org.jetbrains.plugins.scala.externalHighlighters.HighlightCreatedEditorListener"/>
 

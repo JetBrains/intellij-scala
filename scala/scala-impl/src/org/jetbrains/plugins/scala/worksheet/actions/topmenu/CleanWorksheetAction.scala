@@ -14,7 +14,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import javax.swing.{DefaultBoundedRangeModel, Icon}
-import org.jetbrains.annotations.CalledInAwt
+import org.jetbrains.annotations.{CalledInAwt, TestOnly}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions._
@@ -37,9 +37,13 @@ class CleanWorksheetAction extends AnAction(
     if (project == null) return //EA-72055
 
     val editor: Editor = FileEditorManager.getInstance(project).getSelectedTextEditor
-    val file: VirtualFile = CommonDataKeys.VIRTUAL_FILE.getData(e.getDataContext)
+    if (editor == null) return
 
-    if (editor == null || file == null) return
+    val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
+    if (psiFile == null) return
+
+    val file: VirtualFile = psiFile.getVirtualFile
+    if (file == null) return
 
     CleanWorksheetAction.cleanAll(editor, project)
   }
@@ -47,6 +51,7 @@ class CleanWorksheetAction extends AnAction(
 
 object CleanWorksheetAction {
 
+  @TestOnly
   def cleanAll(editor: Editor, project: Project): Unit = {
     val psiFile: PsiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
     val viewer = WorksheetCache.getInstance(project).getViewer(editor)

@@ -1,6 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
- <g fill-rule="evenodd" transform="matrix(.73054 0 0 .73054 2.1557 2.0213)">
-  <path d="m1 8c0 3.866 3.134 7 7 7s7-3.134 7-7z" fill="#40b6e0" fill-opacity=".6"/>
-  <path d="m11.109 3.7328-3.109-3.7308-3.109 3.7308h6.2179z" fill="#6e6e6e"/>
- </g>
+<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12">
+ <path d="m0.88622 6.3645c0 2.8243 2.2895 5.1138 5.1138 5.1138s5.1138-2.2895 5.1138-5.1138z" fill="#40b6e0" fill-opacity=".6"/>
+ <path d="m8.2712 3.2472-2.2712-2.7255-2.2712 2.7255h4.5424z" fill="#6e6e6e"/>
 </svg>

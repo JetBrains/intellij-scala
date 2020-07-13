@@ -24,6 +24,7 @@ import scala.collection.mutable.ArrayBuffer
  *       If a comment is not provided for an entity at the current inheritance level, but is supplied for the overridden entity at a higher level
  *       in the inheritance hierarchy, the comment from the super-class will be used.
  *       Likewise if @param, @tparam, @return and other entity tags are omitted but available from a superclass, those comments will be used.`
+ * @todo some kind of JavaDocInfoGenerator#generateSuperMethodsSection when NOT in editor render mode
  */
 private class ScalaDocContentWithSectionsGenerator(
   comment: ScDocComment,
@@ -39,7 +40,7 @@ private class ScalaDocContentWithSectionsGenerator(
   def this(
     commentOwner: ScDocCommentOwner,
     comment: ScDocComment,
-    rendered: Boolean // todo: does it work in DumpMode, maybe disable macro in render mode?
+    rendered: Boolean // todo: does it work in DumbMode, maybe disable macro in render mode?
   ) = this(
     comment,
     new MacroFinderImpl(commentOwner, rendered),
@@ -49,20 +50,9 @@ private class ScalaDocContentWithSectionsGenerator(
   def generate(
     buffer: StringBuilder
   ): Unit = {
-
     val tags: Seq[ScDocTag] = comment.tags
 
-    buffer.append(DocumentationMarkup.CONTENT_START)
-    newContentGenerator.appendCommentDescription(buffer, comment)
-
-    val inheritDocTagOpt = tags.find(_.name == MyScaladocParsing.INHERITDOC_TAG)
-    inheritDocTagOpt.foreach { inheritDocTag =>
-      addInheritedDocText(buffer)
-      buffer.append("<p>")
-      newContentGenerator.appendTagDescriptionText(buffer, inheritDocTag)
-    }
-    buffer.append(DocumentationMarkup.CONTENT_END)
-
+    appendContentSection(buffer, tags)
 
     val sections = buildSections(tags)
     if (sections.nonEmpty) {
@@ -70,6 +60,54 @@ private class ScalaDocContentWithSectionsGenerator(
       appendSections(sections, buffer)
       buffer.append(DocumentationMarkup.SECTIONS_END)
     }
+  }
+
+  /**
+   * @todo there are currently so much logic in different places to avoid adding `<p>` in the very beginning of Content
+   *       section (in in-editor render mode it adds extra visual indent in the beginning)
+   *       first non-empty content can come from too many places:
+   *       - comment description
+   *       - inherited comment description via @inheritdoc (if own comment is empty)
+   *       - @inheritdoc body (if inherited comment is empty. Yes it's a rare case, but still..)
+   *
+   *       Lets maybe move this peace of logic to some custom buffer instead of StringBuilder
+   *       The buffer can also track whether "CONTENT_START" & "CONTENT_END" should be added.
+   *       It can contain some kinda states begin -> definition -> content -> sections -> end
+   *
+   * @todo we could avoid many hacks making whole rendering pipeline more functional:
+   *       rendering all around the places the parts/sub-parts to Strings, holding them in memory
+   *       instead of rendering directly passed StringBuilder.
+   *       But we should not forget about GC... in big documents there can be quite a lot of comments and if in-editor
+   *       doc rendering is enabled it can consume quite a lot of CPU circles.
+   *       It would be nice to investigate the impact on performance in more details in 2020.3 release cycle.
+   */
+  private def appendContentSection(buffer: StringBuilder, tags: Seq[ScDocTag]) = {
+    var contentStartAdded = false
+    def ensureContentStartAdded(): Unit =
+      if (!contentStartAdded) {
+        buffer.append(DocumentationMarkup.CONTENT_START)
+        contentStartAdded = true
+      }
+
+    val descriptionParts = comment.descriptionParts
+    val hasOwnDescription = descriptionParts.nonEmpty
+    if (hasOwnDescription) {
+      ensureContentStartAdded()
+      newContentGenerator.appendDescriptionParts(buffer, descriptionParts)
+    }
+
+    tags.find(_.name == MyScaladocParsing.INHERITDOC_TAG) match {
+      case Some(inheritDocTag) =>
+        ensureContentStartAdded()
+        val added = addInheritedDocText(buffer, hasOwnDescription)
+        if (added || hasOwnDescription)
+          buffer.append("<p>")
+        newContentGenerator.appendTagDescriptionText(buffer, inheritDocTag)
+      case _ =>
+    }
+
+    if (contentStartAdded)
+      buffer.append(DocumentationMarkup.CONTENT_END)
   }
 
   private def appendSections(sections: Seq[Section], result: StringBuilder): Unit =
@@ -87,7 +125,8 @@ private class ScalaDocContentWithSectionsGenerator(
   private def buildSections(tags: Seq[ScDocTag]): Seq[Section] = {
     val sections = ArrayBuffer.empty[Section]
 
-    sections ++= prepareSimpleSections(tags, MyScaladocParsing.DEPRECATED_TAG, ScalaEditorBundle.message("scaladoc.section.deprecated"))
+    sections ++=
+      prepareSimpleSections(tags, MyScaladocParsing.DEPRECATED_TAG, ScalaEditorBundle.message("scaladoc.section.deprecated"))
 
     val paramsSection     = prepareParamsSection(tags)
     val typeParamsSection = prepareTypeParamsSection(tags)
@@ -104,7 +143,25 @@ private class ScalaDocContentWithSectionsGenerator(
       prepareSimpleSections(tags, MyScaladocParsing.NOTE_TAG, ScalaEditorBundle.message("scaladoc.section.note")) ++=
       prepareSimpleSections(tags, MyScaladocParsing.EXAMPLE_TAG, ScalaEditorBundle.message("scaladoc.section.example")) ++=
       prepareSimpleSections(tags, MyScaladocParsing.SEE_TAG, ScalaEditorBundle.message("scaladoc.section.see.also")) ++=
-      prepareSimpleSections(tags, MyScaladocParsing.SINCE_TAG, ScalaEditorBundle.message("scaladoc.section.since")) ++=
+      prepareSimpleSections(tags, MyScaladocParsing.SINCE_TAG, ScalaEditorBundle.message("scaladoc.section.since"))
+
+    // trying to be consistent with Java
+    // search for "rendered" parameter usage in com.intellij.codeInsight.javadoc.JavaDocInfoGenerator
+    // current java tags order:
+    // generateApiSection(buffer, docComment);
+    // generateDeprecatedSection(buffer, docComment);
+    // generateSinceSection(buffer, docComment);
+    // generateSeeAlsoSection(buffer, docComment);
+    // generateAuthorAndVersionSections(buffer, comment); (IN RENDERED)
+    // generateRecordParametersSection(buffer, aClass, comment);
+    // generateTypeParametersSection(buffer, aClass, rendered);
+    if (rendered) {
+      sections ++=
+        prepareSimpleSections(tags, MyScaladocParsing.AUTHOR_TAG, ScalaEditorBundle.message("scaladoc.section.author")) ++=
+        prepareSimpleSections(tags, MyScaladocParsing.VERSION_TAG, ScalaEditorBundle.message("scaladoc.section.version"))
+    }
+
+    sections ++=
       prepareSimpleSections(tags, MyScaladocParsing.TODO_TAG, ScalaEditorBundle.message("scaladoc.section.todo"))
 
     sections
@@ -164,7 +221,7 @@ private class ScalaDocContentWithSectionsGenerator(
   private def throwsInfo(tag: ScDocTag): Option[ParamInfo] = {
     val exceptionRef = tag.children.findByType[ScStableCodeReference]
     exceptionRef.map { ref =>
-      val value = ScalaDocContentGenerator.generatePsiElementLink(ref, resolveContext)
+      val value = ScalaDocContentGenerator.generatePsiElementLink(ref, resolveContext, rendered)
       val description = newContentGenerator.tagDescriptionText(tag)
       ParamInfo(value, description)
     }
@@ -173,24 +230,36 @@ private class ScalaDocContentWithSectionsGenerator(
   private def parameterInfosText(infos: Seq[ParamInfo]): String =
     infos.map(p => s"${p.value} &ndash; ${p.description.trim}").mkString("<p>")
 
-  private def addInheritedDocText(buffer: StringBuilder): Unit = {
+  /** @return true - if some content was added from inherited doc<br>
+   *          false - otherwise */
+  private def addInheritedDocText(buffer: StringBuilder, hasOwnDescription: Boolean): Boolean = {
     val superCommentOwner: Option[PsiDocCommentOwner] = comment.getOwner match {
       case fun: ScFunction             => fun.superMethod
       case clazz: ScTemplateDefinition => clazz.supers.headOption
       case _                           => None
     }
 
-    superCommentOwner.foreach {
+    superCommentOwner.fold(false) {
       case scalaDocOwner: ScDocCommentOwner =>
-        scalaDocOwner.docComment.map { superComment =>
-          buffer.append("<p>")
-          newContentGenerator.appendCommentDescription(buffer, superComment)
+        scalaDocOwner.docComment match {
+          case Some(superComment) =>
+            if (hasOwnDescription)
+              buffer.append("<p>")
+            val parts = superComment.descriptionParts
+            newContentGenerator.appendDescriptionParts(buffer, superComment.descriptionParts)
+            parts.nonEmpty
+          case _ =>
+            false
         }
       case javaDocOwner =>
-        val superContent = ScalaDocUtil.generateJavaDocInfoContentInner(javaDocOwner)
-        superContent.foreach { content =>
-          buffer.append("<p>")
-          buffer.append(content)
+        ScalaDocUtil.generateJavaDocInfoContentInner(javaDocOwner) match {
+          case Some(superContent) =>
+            if (hasOwnDescription)
+              buffer.append("<p>")
+            buffer.append(superContent)
+            true
+          case None   =>
+            false
         }
     }
   }

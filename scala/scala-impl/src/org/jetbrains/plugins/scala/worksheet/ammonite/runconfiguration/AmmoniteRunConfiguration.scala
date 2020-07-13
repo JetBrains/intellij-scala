@@ -198,7 +198,9 @@ object AmmoniteRunConfiguration {
     def get: (String, String, String) = (fileNameField.getText, execNameField.getText, scriptParameters.getText)
 
     def apply(fileName: String, execName: String, parametersRaw: String): Unit = {
+      //noinspection ReferencePassedToNls
       fileNameField.setText(fileName)
+      //noinspection ReferencePassedToNls
       execNameField.setText(execName)
       scriptParameters.setText(parametersRaw)
     }

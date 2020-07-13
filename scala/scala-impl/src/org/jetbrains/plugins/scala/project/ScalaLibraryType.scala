@@ -18,6 +18,7 @@ final class ScalaLibraryType extends LibraryType[ScalaLibraryProperties](ScalaLi
 
   override def getIcon: Icon = icons.Icons.SCALA_SDK
 
+  //noinspection ScalaExtractStringToBundle
   override def getCreateActionName = "Scala SDK"
 
   override def createNewLibrary(parent: JComponent,

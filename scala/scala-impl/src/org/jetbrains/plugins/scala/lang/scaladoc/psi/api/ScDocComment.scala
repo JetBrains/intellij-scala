@@ -14,4 +14,7 @@ trait ScDocComment extends PsiDocComment with ScalaPsiElement {
   def findTagsByName(filter: String => Boolean): Array[PsiDocTag]
 
   override def getOwner: PsiDocCommentOwner
+
+  /** same as [[getDescriptionElements]] but only returns instances of [[ScDocDescriptionPart]] */
+  def descriptionParts: Seq[ScDocDescriptionPart]
 }

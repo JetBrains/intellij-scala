@@ -55,6 +55,7 @@ object ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
        |}""".stripMargin
   }
 
+  //noinspection ReferencePassedToNls
   override def getTemplateDescription: String = ScalaKeyword.MATCH
 
   override def getSurroundSelectionRange(withMatchNode: ASTNode): TextRange = {

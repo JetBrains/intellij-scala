@@ -134,12 +134,6 @@ object ScalaImportTypeFix {
 
     } yield ClassToImport(classOrCompanion)
 
-    val membersFromCompanion = for {
-      CompanionObject(companion) <- ref.withContexts.toIterable
-      term <- companion.allTermsByName(referenceName)
-      if kindMatchesAndIsAccessible(term)
-    } yield MemberToImport(term, companion)
-
     val aliases = for {
       alias <- manager.getStableAliasesByName(referenceName, ref.resolveScope)
 
@@ -167,7 +161,6 @@ object ScalaImportTypeFix {
     } yield PrefixPackageToImport(pack)
 
     (classes ++
-      membersFromCompanion ++
       aliases ++
       packages)
       .sortBy(_.qualifiedName)(orderingByRelevantImports(ref))
@@ -199,27 +192,4 @@ object ScalaImportTypeFix {
 
   private def isQualified(name: String) =
     name.indexOf('.') != -1
-
-  // todo to be unified!
-  /**
-   * @see [[lang.completion.global.CompanionObjectMembersFinder]]
-   */
-  private object CompanionObject {
-
-    def unapply(constructorOwner: ScConstructorOwner): Option[ScObject] =
-      constructorOwner match {
-        case _: ScClass |
-             _: ScTrait =>
-          constructorOwner.baseCompanionModule.filterByType[ScObject]
-        case _ => None
-      }
-  }
-
-  private object ValueOrVariable {
-
-    def unapply(member: ScMember): Option[ScValueOrVariable] = member match {
-      case member: ScValueOrVariable => Some(member)
-      case _ => None
-    }
-  }
 }

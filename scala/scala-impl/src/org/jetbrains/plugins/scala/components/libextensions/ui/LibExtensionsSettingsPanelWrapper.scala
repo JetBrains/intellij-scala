@@ -102,8 +102,10 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
           librariesList.setModel(new LibraryListModel(detailsModel))
         } catch {
           case ex: ExtensionException =>
+            //noinspection ReferencePassedToNls
             Messages.showErrorDialog(ex.getMessage, ScalaBundle.message("title.failed.to.load.extension.jar"))
           case ex: Exception =>
+            //noinspection ReferencePassedToNls
             Messages.showErrorDialog(ex.toString, ScalaBundle.message("title.failed.to.load.extension.jar"))
         }
     }

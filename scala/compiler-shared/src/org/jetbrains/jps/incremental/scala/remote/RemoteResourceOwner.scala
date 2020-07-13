@@ -69,8 +69,7 @@ trait RemoteResourceOwner {
             client.message(Kind.WARNING, messageClean)
           }
         case Chunk(kind, data) =>
-          val message = s"Unexpected server output of kind $kind: $data"
-          client.message(Kind.ERROR, message)
+          client.message(Kind.ERROR, s"Unexpected server output of kind $kind: ${new String(data, StandardCharsets.UTF_8)}")
       }
     }
   }

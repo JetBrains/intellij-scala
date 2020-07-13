@@ -94,12 +94,14 @@ class ScalaAttachSourcesNotificationProvider
     val iterator = actions.iterator()
     while (iterator.hasNext) {
       val each = iterator.next()
+      //noinspection ReferencePassedToNls
       panel.createActionLabel(GuiUtils.getTextWithoutMnemonicEscaping(each.getName), new Runnable {
         override def run(): Unit = {
           if (!Comparing.equal(libraries, findOrderEntriesContainingFile(file, project))) {
             Messages.showErrorDialog(project, ScalaBundle.message("cannot.find.library.for", StringUtil.getShortName(fqn)), ScalaBundle.message("cannot.find.library.error.title"))
             return
           }
+          //noinspection ReferencePassedToNls
           panel.setText(each.getBusyText)
           val onFinish: Runnable = () => {
             invokeLater(panel.setText(ScalaBundle.message("library.sources.not.found")))

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package javaHighlighting
 
+import com.intellij.codeInsight.daemon.JavaErrorBundle
 import org.jetbrains.plugins.scala.annotator._
 
 
@@ -1176,11 +1177,11 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
        """.stripMargin
 
     val fooMessage = ScalaBundle.message("illegal.inheritance.from.sealed.kind", "trait", "Foo")
-    val barMessage = ScalaBundle.message("illegal.inheritance.from.sealed.kind", "class", "Bar")
+    val bazMessage = JavaErrorBundle.INSTANCE.getMessage("not.allowed.in.sealed.hierarchy", "Baz")
 
     assertMatches(errorsFromJavaCode(scalaFileText, javaFileText, "Baz")) {
-      case Error("Bar", `barMessage`) ::
-        Error("Foo", `fooMessage`) ::
+      case Error("Bar", `bazMessage`) ::
+        Error("Foo", `bazMessage`) ::
         Error("Foo", `fooMessage`) ::
         Nil =>
     }

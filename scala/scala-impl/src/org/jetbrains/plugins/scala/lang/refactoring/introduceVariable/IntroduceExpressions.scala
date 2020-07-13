@@ -57,6 +57,7 @@ trait IntroduceExpressions {
       }
 
       cannotBeIntroducedReason(expr).foreach { message =>
+        //noinspection ReferencePassedToNls
         showErrorHint(message, INTRODUCE_VARIABLE_REFACTORING_NAME)
         return
       }

@@ -6,12 +6,13 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.impl.java.stubs.index.JavaStaticMemberNameIndex
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
-import org.jetbrains.plugins.scala.extensions.{&&, ObjectExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, SeqExt}
+import org.jetbrains.plugins.scala.extensions.{&&, ObjectExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, SeqExt, TraversableExt}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.findInheritorObjectsForOwner
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, isImplicit}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{hasImplicitModifier, inNameContext}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -22,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.StubIndex
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.isAccessible
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.util.OrderingUtil.orderingByRelevantImports
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
@@ -78,11 +80,20 @@ object ScalaImportGlobalMemberFix {
       }
   }
 
+  @TestOnly
+  def fixWithoutPrefix(ref: ScReferenceExpression): Option[ScalaImportElementFix] =
+    create(ref).findBy[ScalaImportGlobalMemberFix]
+
+  @TestOnly
+  def fixWithPrefix(ref: ScReferenceExpression): Option[ScalaImportElementFix] =
+    create(ref).findBy[ScalaImportGlobalMemberWithPrefixFix]
+
   private def create(ref: ScReferenceExpression): Seq[IntentionAction] = {
     val allCandidates =
       (findJavaCandidates(ref) ++ findScalaCandidates(ref))
         .toSeq
         .distinctBy(_.qualifiedName)
+        .sortBy(_.qualifiedName)(orderingByRelevantImports(ref))
 
     //check for compatibility takes too long if there are that many candidates
     //in this case it's probably better to use qualified reference anyway
@@ -119,7 +130,7 @@ object ScalaImportGlobalMemberFix {
     (functions ++ properties)
       .flatMap {
         case (td: ScTypedDefinition) && inNameContext(m: ScMember)
-          if isAccessible(m, ref) && !isImplicit(m) =>
+          if isAccessible(m, ref) && !hasImplicitModifier(m) =>
 
           (m.containingClass.asOptionOf[ScObject] ++: findInheritorObjectsForOwner(m))
             .filter(_.isStable)

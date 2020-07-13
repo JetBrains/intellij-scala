@@ -6,6 +6,7 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import com.intellij.util.ui.StartupUiUtil
 import com.intellij.xml.util.XmlStringUtil.escapeString
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.Format.{InnerParentheses, OuterParentheses, Plain}
 import org.jetbrains.plugins.scala.annotator.Tree.{Leaf, Node}
@@ -86,6 +87,7 @@ object TypeMismatchHints {
       .map(_.copy(errorTooltip = Some(message)))
   }
 
+  @Nls
   private[annotator] def tooltipFor(expectedType: ScType, actualType: ScType)(implicit context: TypePresentationContext): String = {
     def format(diff: Tree[TypeDiff], f: String => String) = {
       val parts = diff.flatten.map {

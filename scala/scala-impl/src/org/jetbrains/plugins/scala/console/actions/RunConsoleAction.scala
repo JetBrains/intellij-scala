@@ -60,6 +60,7 @@ object RunConsoleAction {
       }
       catch {
         case e: ExecutionException =>
+          //noinspection ReferencePassedToNls
           Messages.showErrorDialog(project, e.getMessage, ExecutionBundle.message("error.common.title"))
       }
     }

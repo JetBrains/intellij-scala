@@ -8,11 +8,11 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress._
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar
 import com.intellij.openapi.roots.{ModuleRootManager, OrderRootType}
 import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.psi.PsiFile
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.project.template._
@@ -188,17 +188,15 @@ object ImportAmmoniteDependenciesFix {
     if (hasAmmonite(file)) return
     implicit val project: Project = file.getProject
 
+    //noinspection ScalaExtractStringToBundle
+    @Nls
+    val ammoniteName = "Ammonite"
+
     NotificationUtil.showMessage(
       project = project,
-      title = "Ammonite",
+      title = ammoniteName,
       message =
-        """
-          | <html>
-          | <body>
-          | <p><a href="ftp://run">Add</a> all Ammonite standard dependencies to the project? <a href="ftp://disable">Ignore</a></p>
-          | </body>
-          | </html>
-        """.stripMargin,
+        ScalaBundle.message("add.a.all.ammonite.deps.to.project"),
       handler = {
         case "run" => apply(file)
         case "disable" => AmmoniteScriptWrappersHolder.getInstance(project).setIgnoreImports()

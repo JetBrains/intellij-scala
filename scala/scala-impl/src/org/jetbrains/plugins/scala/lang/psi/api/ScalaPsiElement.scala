@@ -69,13 +69,6 @@ trait ScalaPsiElement extends PsiElement
     if (node == null) null else node.getPsi
   }
 
-  def findFirstChildByType(set: tree.TokenSet): PsiElement = {
-    var node = getNode.getFirstChildNode
-    while (node != null && !set.contains(node.getElementType))
-      node = node.getTreeNext
-    if (node == null) null else node.getPsi
-  }
-
   def findChildrenByType(t: tree.IElementType): List[PsiElement] = {
     val buffer = new collection.mutable.ArrayBuffer[PsiElement]
     var node = getNode.getFirstChildNode

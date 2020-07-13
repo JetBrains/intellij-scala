@@ -200,6 +200,7 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     doc.getText.trim
   }
 
+  //noinspection ReferencePassedToNls
   private def runCommandInWriteAction(runnable: Runnable, name: String, groupId: String): Unit =
     CommandProcessor.getInstance.executeCommand(getProject, () => {
       ApplicationManager.getApplication.runWriteAction(runnable)

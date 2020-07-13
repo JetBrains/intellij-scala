@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package refactoring.rename3
 
 import java.io.File
+import java.nio.file.Path
 import java.util
 
 import com.intellij.codeInsight.TargetElementUtil
@@ -14,7 +15,7 @@ import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.refactoring.rename.{RenameProcessor, RenamePsiElementProcessor}
-import com.intellij.testFramework.{LightPlatformCodeInsightTestCase, LightPlatformTestCase, PlatformTestUtil, PsiTestUtil}
+import com.intellij.testFramework.{LightPlatformTestCase, PlatformTestUtil, PsiTestUtil}
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -41,7 +42,7 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
   override protected def afterSetUpProject(module: Module): Unit = {
     super.afterSetUpProject(module)
     LocalFileSystem.getInstance().refresh(false)
-    myDirectory = PsiTestUtil.createTestProjectStructure(projectAdapter, moduleAdapter, rootBefore, new util.HashSet[File]())
+    myDirectory = PsiTestUtil.createTestProjectStructure(projectAdapter, moduleAdapter, rootBefore, new util.HashSet[Path]())
     filesBefore =
       VfsUtil.collectChildrenRecursively(myDirectory.findChild("tests")).asScala
         .filter(!_.isDirectory)

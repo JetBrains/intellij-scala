@@ -12,6 +12,8 @@ import com.intellij.psi.PsiNamedElement
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.SimpleTextAttributes.{GRAYED_ATTRIBUTES, REGULAR_ATTRIBUTES, STYLE_WAVED}
 import javax.swing.Icon
+import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.implicitArguments.ImplicitArgumentNodes.resolveResultNode
 import org.jetbrains.plugins.scala.extensions.{ContainingClass, PsiElementExt, PsiNamedElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
@@ -49,11 +51,12 @@ private class ImplicitArgumentWithReason(value: ScalaResolveResult, reason: Full
     super.updateImpl(data)
   }
 
+  @Nls
   private def presentationTooltip: String = reason match {
-    case OkResult                        => "Implicit argument is applicable"
-    case DivergedImplicitResult          => "Implicit is diverged"
-    case CantInferTypeParameterResult    => "Can't infer proper types for type parameters"
-    case ImplicitParameterNotFoundResult => "Can't find implicit argument for this definition"
+    case OkResult                        => ScalaBundle.message("implicit.argument.is.applicable")
+    case DivergedImplicitResult          => ScalaBundle.message("implicit.is.diverged")
+    case CantInferTypeParameterResult    => ScalaBundle.message("can.t.infer.proper.types.for.type.parameters")
+    case ImplicitParameterNotFoundResult => ScalaBundle.message("can.t.find.implicit.argument.for.this.definition")
   }
 
   override protected def infoPrefix: Option[String] = Some(reasonPrefix)
@@ -77,10 +80,10 @@ private class ImplicitParameterProblemNode(value: ScalaResolveResult)
       case (resolveResult, fullInfo) => new ImplicitArgumentWithReason(resolveResult, fullInfo)
     }
     if (nodes.nonEmpty) nodes.asJavaCollection
-    else errorLeafNode("No implicits applicable by type")
+    else errorLeafNode(ScalaBundle.message("no.implicits.applicable.by.type"))
   }
 
-  private def errorLeafNode(errorText: String): util.Collection[AbstractTreeNode[_]] = {
+  private def errorLeafNode(@Nls errorText: String): util.Collection[AbstractTreeNode[_]] = {
     singletonList(new AbstractTreeNode[String](project, errorText) {
       override def getChildren = new util.ArrayList[AbstractTreeNode[_]]()
 

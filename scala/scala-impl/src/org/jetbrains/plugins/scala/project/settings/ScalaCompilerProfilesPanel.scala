@@ -310,6 +310,7 @@ class ScalaCompilerProfilesPanel(val myProject: Project) extends JPanel(new Bord
         case node: MyModuleNode =>
           val module = node.getUserObject.asInstanceOf[Module]
           setIcon(AllIcons.Nodes.Module)
+          //noinspection ReferencePassedToNls
           append(module.getName)
         case _ =>
       }

@@ -3,10 +3,14 @@ package annotator
 package gutter
 
 import java.awt.event.MouseEvent
+import java.util.Collections.singletonList
 import java.{util => ju}
 
 import com.intellij.codeInsight.daemon._
+import com.intellij.codeInsight.daemon.impl.GutterTooltipHelper
 import com.intellij.icons.AllIcons.Gutter
+import com.intellij.ide.util.PsiNavigationSupport
+import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColorsManager}
 import com.intellij.openapi.editor.markup.{GutterIconRenderer, SeparatorPlacement}
@@ -78,19 +82,14 @@ final class ScalaLineMarkerProvider extends LineMarkerProvider with ScalaSeparat
     info
   }
 
-  private[this] def arrowUpLineMarker(
-    element:            PsiElement,
-    icon:               Icon,
-    markerType:         ScalaMarkerType,
-    presentationParent: Option[PsiElement] = None
-  ): LineMarkerInfo[PsiElement] =
-    ArrowUpOrDownLineMarkerInfo(
-      element,
-      icon,
-      markerType,
-      Alignment.LEFT,
-      presentationParent
-    )
+  private[this] def arrowUpLineMarker(element: PsiElement,
+                                      icon: Icon,
+                                      markerType: ScalaMarkerType,
+                                      presentationParent: Option[PsiElement] = None): LineMarkerInfo[PsiElement] = {
+
+    val info = ArrowUpOrDownLineMarkerInfo(element, icon, markerType, Alignment.LEFT, presentationParent)
+    NavigateAction.setNavigateAction(info, ScalaBundle.message("go.to.super.method"), IdeActions.ACTION_GOTO_SUPER)
+  }
 
   /* Validates that this psi element can be the first one in a lambda */
   private[this] def canBeFunctionalExpressionAnchor(e: PsiElement): Boolean =
@@ -246,7 +245,7 @@ private object GutterUtil {
         case _ => OverridenMethod
       }
 
-      new LineMarkerInfo(
+      val info = new LineMarkerInfo(
         aClass.nameId,
         range,
         icon,
@@ -254,6 +253,7 @@ private object GutterUtil {
         subclassedClass.navigationHandler,
         Alignment.RIGHT
       )
+      NavigateAction.setNavigateAction(info, ScalaBundle.message("go.to.implementation"), IdeActions.ACTION_GOTO_IMPLEMENTATION)
     }
   }
 
@@ -263,12 +263,13 @@ private object GutterUtil {
       case _ =>
 
         ScalaMarkerType.findOverrides(member, deep = false).nonEmpty.option {
-          ArrowUpOrDownLineMarkerInfo(
+          val info = ArrowUpOrDownLineMarkerInfo(
             anchor,
             if (isAbstract(member)) ImplementedMethod else OverridenMethod,
             overriddenMember,
             Alignment.RIGHT
           )
+          NavigateAction.setNavigateAction(info, ScalaBundle.message("go.to.super.method"), IdeActions.ACTION_GOTO_SUPER)
         }
     }
 
@@ -318,10 +319,17 @@ private object GutterUtil {
         typeDefinition.baseCompanionModule.map { companion =>
           val swapped = typeDefinition.startOffset > companion.startOffset ^ typeDefinition.is[ScObject]
 
-          new LineMarkerInfo(identifier,
+          val info = new LineMarkerInfo(identifier,
             identifier.getTextRange,
-            iconFor(typeDefinition, swapped), (_: PsiElement) => ScalaBundle.message("has.companion", nameOf(companion)),
-            (_: MouseEvent, _: PsiElement) => companion.navigate(/* requestFocus = */ true), Alignment.LEFT)
+            iconFor(typeDefinition, swapped),
+            (_: PsiElement) =>
+              GutterTooltipHelper.getTooltipText(singletonList(companion.nameId.getPrevSiblingNotWhitespace), ScalaBundle.message("has.companion", nameOf(companion)), false, IdeActions.ACTION_GOTO_DECLARATION)
+                .replace("to navigate", "on the keyword to navigate"), // Not internationalizable (which is somewhat OK).
+            (_: MouseEvent, _: PsiElement) =>
+              Option(PsiNavigationSupport.getInstance.createNavigatable(companion.getProject,
+                companion.getContainingFile.getVirtualFile, companion.nameId.getPrevSiblingNotWhitespace.startOffset)).foreach(_.navigate(true)),
+            Alignment.LEFT)
+          NavigateAction.setNavigateAction(info, ScalaBundle.message("go.to.companion", nameOf(companion)), IdeActions.ACTION_GOTO_DECLARATION)
         }
 
       case _ => None
