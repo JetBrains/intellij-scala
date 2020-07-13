@@ -114,7 +114,8 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     } else if (c == '{') {
       convertToInterpolated(file, editor)
     } else if (c == '.' && isSingleCharOnLine(editor)) {
-      addContinuationIndentBeforeDot(CodeStyle.getLanguageSettings(file, ScalaLanguage.INSTANCE).getIndentOptions)
+      prepareContinuationIndentBeforeDot(document, offset)
+      addContinuationIndentBeforeDot(editor)
     } else if (c == '.') {
       startAutoPopupCompletionInInterpolatedString(file, editor)
     } else if (offset > 1) {
@@ -349,23 +350,21 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
       ScalaPsiUtil.getParent(_, 2).exists(_.isInstanceOf[ScValue])
     )
 
-  private def addContinuationIndentBeforeDot(indentOptions: IndentOptions)
-                                            (document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
+  private def prepareContinuationIndentBeforeDot(document: Document, offset: Int): Unit = {
+    // 1. to indent '.' correctly we add an identifier after the dot
+    // 2. the document will then be committed in `charTyped`. This will build the correct block structure
+    // 3. In `addContinuationIndentBeforeDot` we can then indent the line correctly
+    // 4. At the end we have to remove the x, which we have inserted
+    document.insertString(offset, "x")
+  }
+
+  private def addContinuationIndentBeforeDot(editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
     val file = element.getContainingFile
 
     val dotOffset = offset - 1
-    val baseIndent = CodeStyleManager.getInstance(project).getLineIndent(file, dotOffset)
-
-    val extraIndentSize = indentOptions.CONTINUATION_INDENT_SIZE
-    val indentString =
-      if (indentOptions.USE_TAB_CHARACTER)
-        IndentUtil.appendSpacesToIndentString(baseIndent, extraIndentSize, indentOptions.TAB_SIZE)
-      else
-        baseIndent + StringUtil.repeatSymbol(' ', extraIndentSize)
-
-    val lineStartOffset = document.lineStartOffset(dotOffset)
-    document.replaceString(lineStartOffset, dotOffset, indentString)
-    document.commit(project)
+    CodeStyleManager.getInstance(project).adjustLineIndent(file, dotOffset)
+    val newCaretOffset = editor.offset
+    document.deleteString(newCaretOffset, newCaretOffset + 1)
   }
 
   private def isSingleCharOnLine(editor: Editor): Boolean = {

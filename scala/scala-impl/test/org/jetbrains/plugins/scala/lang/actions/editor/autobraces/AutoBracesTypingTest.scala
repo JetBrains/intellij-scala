@@ -198,12 +198,12 @@ class AutoBracesTypingTest extends AutoBraceTestBase {
     s"""
        |def test =
        |  expr
-       |  .$CARET
+       |    .$CARET
        |""".stripMargin -> ContinuationOnNewline,
     s"""
        |def test =
        |  expr
-       |  .$CARET
+       |    .$CARET
        |""".stripMargin -> ContinuationOnNewline,
     '.'
   )
