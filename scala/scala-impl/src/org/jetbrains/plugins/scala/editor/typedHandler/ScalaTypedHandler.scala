@@ -114,8 +114,10 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     } else if (c == '{') {
       convertToInterpolated(file, editor)
     } else if (c == '.' && isSingleCharOnLine(editor)) {
-      prepareContinuationIndentBeforeDot(document, offset)
-      addContinuationIndentBeforeDot(editor)
+      prepareIndentAdjustmentBeforeDot(document, offset)
+      adjustIndentBeforeDot(editor)
+    } else if (c != '.' && element != null && isSingleCharOnLine(editor) && continuesPostfixExpr(offset, element, document)) {
+      adjustIndent
     } else if (c == '.') {
       startAutoPopupCompletionInInterpolatedString(file, editor)
     } else if (offset > 1) {
@@ -350,21 +352,24 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
       ScalaPsiUtil.getParent(_, 2).exists(_.isInstanceOf[ScValue])
     )
 
-  private def prepareContinuationIndentBeforeDot(document: Document, offset: Int): Unit = {
+  private def prepareIndentAdjustmentBeforeDot(document: Document, offset: Int): Unit = {
     // 1. to indent '.' correctly we add an identifier after the dot
     // 2. the document will then be committed in `charTyped`. This will build the correct block structure
-    // 3. In `addContinuationIndentBeforeDot` we can then indent the line correctly
+    // 3. In `adjustIndentBeforeDot` we can then indent the line correctly
     // 4. At the end we have to remove the x, which we have inserted
     document.insertString(offset, "x")
   }
 
-  private def addContinuationIndentBeforeDot(editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
-    val file = element.getContainingFile
-
-    val dotOffset = offset - 1
-    CodeStyleManager.getInstance(project).adjustLineIndent(file, dotOffset)
+  private def adjustIndentBeforeDot(editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
+    adjustIndent(document, project, element, offset)
     val newCaretOffset = editor.offset
     document.deleteString(newCaretOffset, newCaretOffset + 1)
+  }
+
+  private def adjustIndent(document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
+    val file = element.getContainingFile
+    val dotOffset = offset - 1
+    CodeStyleManager.getInstance(project).adjustLineIndent(file, dotOffset)
   }
 
   private def isSingleCharOnLine(editor: Editor): Boolean = {
@@ -379,6 +384,13 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     val suffix = document.getImmutableCharSequence.substring(offset, document.lineEndOffset(offset))
 
     (prefix + suffix).forall(_.isWhitespace)
+  }
+
+  private def continuesPostfixExpr(offset: Int, element: PsiElement, document: Document): Boolean = {
+    val caretLine = document.getLineNumber(offset)
+    val lastElementLine = document.getLineNumber(element.startOffset)
+    (caretLine - lastElementLine == 1) &&
+      isBehindPostfixExpr(element)
   }
 
   private def replaceArrowTask(file: PsiFile, editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
@@ -535,6 +547,14 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
             return Result.CONTINUE
           }
 
+          // check if the new char is behind a postfix expression
+          // in that case the postfix expr will be continued into an infix expression
+          // but only check if there is now new line between the operator and the rhs operand
+          val emptyNewlineBeforeCaret = caretWSText.lastIndexOf('\n', newlinePosBeforeCaret - 1) >= 0
+          if (!emptyNewlineBeforeCaret && isBehindPostfixExpr(element)) {
+            return Result.CONTINUE
+          }
+
           val caretIndent = caretWSText.substring(newlinePosBeforeCaret, posInWs)
           (caretWS, caretWS, caretIndent, false)
         }
@@ -646,6 +666,17 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     }
 
     Result.CONTINUE
+  }
+
+  private def isBehindPostfixExpr(element: PsiElement): Boolean = {
+    val start = element.startOffset
+    PsiTreeUtil.prevVisibleLeaf(element).nullSafe
+      .exists(prev =>
+        prev
+          .withParentsInFile
+          .takeWhile(_.endOffset <= start)
+          .exists(_.is[ScPostfixExpr])
+      )
   }
 
   private def handleLeftBraceWrap(caretOffset: Int, element: PsiElement)

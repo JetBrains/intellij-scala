@@ -323,4 +323,46 @@ class AutoBracesTypingTest extends AutoBraceTestBase {
        |""".stripMargin -> ContinuationOnNewline,
     't'
   )
+
+  def testContinuingPostfix(): Unit = checkTypingInAllContexts(
+    s"""
+       |def test =
+       |  expr +
+       |  $CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    s"""
+       |def test =
+       |  expr +
+       |    x$CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    s"""
+       |def test =
+       |  expr +
+       |    x$CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    'x'
+  )
+
+  def testNotContinuingPostfix(): Unit = checkTypingInAllContexts(
+    s"""
+       |def test =
+       |  expr +
+       |
+       |  $CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    s"""
+       |def test = {
+       |  expr +
+       |
+       |  x$CARET
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+    s"""
+       |def test =
+       |  expr +
+       |
+       |  x$CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    'x'
+  )
 }
