@@ -1477,6 +1477,93 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
   ) {
     hasItemText(_, "foo")(tailText = " = (foo: Int)")
   }
+
+  def testConversionWithImplicitParameter(): Unit = doCompletionTest(
+    fileText =
+      s"""sealed trait ToInt[A] { def toInt(a: A): Int }
+         |object ToInt {
+         |  implicit val int: ToInt[Int] = ???
+         |}
+         |object test extends App {
+         |  implicit class OptSyntax[A](o: Option[A])(implicit onlyIntImplicit: ToInt[A]) {
+         |    def asX: Int = ???
+         |  }
+         |  val s: Option[Int] = ???
+         |  s.as$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""
+         |sealed trait ToInt[A] { def toInt(a: A): Int }
+         |object ToInt {
+         |  implicit val int: ToInt[Int] = ???
+         |}
+         |object test extends App {
+         |  implicit class OptSyntax[A](o: Option[A])(implicit onlyIntImplicit: ToInt[A]) {
+         |    def asX: Int = ???
+         |  }
+         |  val s: Option[Int] = ???
+         |  s.asX$CARET
+         |}""".stripMargin,
+    item = "asX"
+  )
+
+  def testNoConversionWithoutImplicitParameter(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""sealed trait ToInt[A] { def toInt(a: A): Int }
+         |object ToInt {
+         |  implicit val int: ToInt[Int] = ???
+         |}
+         |object test extends App {
+         |  implicit class OptSyntax[A](o: Option[A])(implicit onlyIntImplicit: ToInt[A]) {
+         |    def asX: Int = ???
+         |  }
+         |  val s: Option[String] = ???
+         |  s.as$CARET
+         |}""".stripMargin,
+    item = "asX"
+  )
+
+  def testConversionWithImplicitParameter2(): Unit = doCompletionTest(
+    fileText =
+      s"""object Test {
+         |  trait A
+         |  trait B {
+         |    def bMethod: Unit = ???
+         |  }
+         |
+         |  trait Builder[From, To] {
+         |    def buildFrom(x: From): To
+         |  }
+         |
+         |  implicit val a2bBuilder: Builder[A, B] = ???
+         |
+         |  implicit def a2b[From, To >: B](x: From)(implicit bl: Builder[From, To]): To = bl.buildFrom(x)
+         |
+         |  val a: A = ???
+         |  a.b$CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""object Test {
+         |  trait A
+         |  trait B {
+         |    def bMethod: Unit = ???
+         |  }
+         |
+         |  trait Builder[From, To] {
+         |    def buildFrom(x: From): To
+         |  }
+         |
+         |  implicit val a2bBuilder: Builder[A, B] = ???
+         |
+         |  implicit def a2b[From, To >: B](x: From)(implicit bl: Builder[From, To]): To = bl.buildFrom(x)
+         |
+         |  val a: A = ???
+         |  a.bMethod$CARET
+         |}
+         |""".stripMargin,
+    item = "bMethod"
+  )
 }
 
 class ScalaBasicCompletionTest_with_2_13_extensionMethods extends ScalaBasicCompletionTestBase {

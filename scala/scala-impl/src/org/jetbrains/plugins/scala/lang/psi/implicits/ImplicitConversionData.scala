@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiNamedElement}
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.findInheritorObjectsForOwner
@@ -11,17 +10,14 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.findImplicits
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitConversionIndex
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
 import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScParameterizedType, ScType}
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, Measure}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.AnyFqn
 
@@ -36,32 +32,32 @@ abstract class ImplicitConversionData {
 
   override def toString: String = element.name
 
-  def isCompatible(fromType: ScType, place: PsiElement): Either[String, (ScType, ScSubstitutor)] = {
+  def isApplicable(fromType: ScType, place: PsiElement): Option[ImplicitConversionApplication] = {
     // to prevent infinite recursion
     if (PsiTreeUtil.isContextAncestor(element.nameContext, place, false))
-      return Left(ScalaBundle.message("conversion.is.not.available.in.it.s.own.definition"))
+      return None
 
     ProgressManager.checkCanceled()
 
     fromType.conforms(paramType, ConstraintSystem.empty, checkWeak = true) match {
-      case ConstraintsResult.Left => conformanceFailure(fromType, paramType)
+      case ConstraintsResult.Left => None
       case system: ConstraintSystem =>
         element match {
           case f: ScFunction if f.hasTypeParameters =>
             returnTypeWithLocalTypeInference(f, fromType, place, system)
           case _ =>
-            Right((returnType, ScSubstitutor.empty))
+            Some(ImplicitConversionApplication(returnType))
         }
     }
   }
 
   def resultType(from: ScType, place: PsiElement): Option[ScType] =
-    isCompatible(from: ScType, place: PsiElement).toOption.map(_._1)
+    isApplicable(from: ScType, place: PsiElement).map(_.resultType)
 
   private def returnTypeWithLocalTypeInference(function: ScFunction,
                                                fromType: ScType,
                                                place: PsiElement,
-                                               constraints: ConstraintSystem): Either[String, (ScType, ScSubstitutor)] = {
+                                               constraints: ConstraintSystem): Option[ImplicitConversionApplication] = {
 
     implicit val projectContext: ProjectContext = function.projectContext
 
@@ -106,29 +102,25 @@ abstract class ImplicitConversionData {
                 .filter(_.isImplicitParameter)
                 .map(Parameter(_))
 
-            val (inferredParameters, expressions, _) =
+            val (inferredParameters, expressions, found) =
               findImplicits(implicitParameters,
                 None,
                 place,
                 canThrowSCE = false,
-                abstractSubstitutor = substitutor.followed(firstParamSubstitutor).followed(unSubst)
+                abstractSubstitutor = lastSubstitutor.followed(firstParamSubstitutor).followed(unSubst)
               )
 
-            Right(
-              lastSubstitutor(firstParamSubstitutor(returnType)),
+            val resultType = lastSubstitutor(firstParamSubstitutor(returnType))
+
+            val resultSubstitutor =
               ScSubstitutor.paramToExprType(inferredParameters, expressions, useExpected = false)
-            )
-          case _ => problematicBounds(fromType)
+
+            Some(ImplicitConversionApplication(resultType, resultSubstitutor, found))
+          case _ => None
         }
-      case _ => problematicBounds(fromType)
+      case _ => None
     }
   }
-
-  private def problematicBounds(fromType: ScType) =
-    Left(ScalaBundle.message("element.has.incompatible.type.parameter.bounds.for.type", element.name, fromType))
-
-  private def conformanceFailure(fromType: ScType, paramType: ScType) =
-    Left(ScalaBundle.message("type.does.not.conform.to.type", fromType, paramType))
 }
 
 object ImplicitConversionData {
@@ -262,6 +254,5 @@ object ImplicitConversionData {
       }
     }
   }
-
 
 }
