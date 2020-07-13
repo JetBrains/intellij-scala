@@ -22,8 +22,8 @@ private[completion] final class LocallyImportableMembersFinder(override protecte
     with ImportableMembersFinder {
 
   override protected def candidates: Iterable[GlobalMemberResult] =
-    super.candidates ++
-      localCandidates
+    localCandidates ++
+      super.candidates
 
   private def localCandidates = for {
     target <- findTargets
