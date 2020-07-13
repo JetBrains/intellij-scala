@@ -1001,20 +1001,13 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
     override def visitExistentialType(e: ScExistentialType): Unit = {
       var rightVisitor: ScalaTypeVisitor =
-        new ValDesignatorSimplification with UndefinedSubstVisitor
-          with AbstractVisitor
-          with ParameterizedAbstractVisitor {}
+        new ValDesignatorSimplification with UndefinedSubstVisitor with AbstractVisitor
+          with LiteralTypeWideningVisitor with ParameterizedAbstractVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
       checkEquiv()
       if (result != null) return
-
-      val simplified = e.simplify()
-      if (simplified != l) {
-        result = conformsInner(simplified, r, visited, constraints, checkWeak)
-        return
-      }
 
       rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor
         with ParameterizedExistentialArgumentVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
@@ -1076,6 +1069,12 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
       rightVisitor = new DesignatorVisitor {}
       r.visitType(rightVisitor)
+      if (result != null) return
+
+      val simplified = e.simplify()
+      if (simplified != l) {
+        result = conformsInner(simplified, r, visited, constraints, checkWeak)
+      }
     }
 
     override def visitThisType(t: ScThisType): Unit = {
