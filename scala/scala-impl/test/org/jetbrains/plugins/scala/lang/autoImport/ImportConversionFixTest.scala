@@ -13,7 +13,7 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
   //conversions from standard library may be different in older versions
   override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_2_13
 
-  override def createFix(ref: ScReferenceExpression) = ImportImplicitConversionFix(ref)
+  override def createFix(ref: ScReferenceExpression) = ImportImplicitConversionFix(ref).headOption
 
   def testAsJavaCollection(): Unit = checkElementsToImport(
     s"""object Test {
@@ -150,5 +150,53 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
 
     "conversions.SeqExt"
   )
+
+  def testImplicitParameterOfImplicitConversion1(): Unit = checkElementsToImport(
+    s"""
+      |object show {
+      |  trait Show[T] {
+      |    def show(t: T): String
+      |  }
+      |  trait Ops {
+      |    def show: String = ???
+      |  }
+      |}
+      |
+      |object implicits {
+      |  implicit def toShow[A](target: A)(implicit tc: show.Show[A]): show.Ops = ???
+      |  implicit val stringShow: show.Show[String] = ???
+      |}
+      |
+      |class Test {
+      |  "ab".${CARET}show
+      |}""".stripMargin,
+    "implicits.toShow"
+  )
+
+  def testImplicitParameterOfImplicitConversion2(): Unit = checkElementsToImport(
+    s"""
+       |import implicits.toShow
+       |
+       |object show {
+       |  trait Show[T] {
+       |    def show(t: T): String
+       |  }
+       |  trait Ops {
+       |    def show: String = ???
+       |  }
+       |}
+       |
+       |object implicits {
+       |  implicit def toShow[A](target: A)(implicit tc: show.Show[A]): show.Ops = ???
+       |  implicit val stringShow: show.Show[String] = ???
+       |}
+       |
+       |class Test {
+       |  "ab".${CARET}show
+       |}""".stripMargin,
+
+    "implicits.stringShow"
+  )
+
 
 }
