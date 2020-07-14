@@ -721,6 +721,8 @@ package object extensions {
           inner(PsiTreeUtil.prevLeaf(el))
         case _ if el.getTextLength == 0 => // empty annotations, modifiers, etc...
           inner(PsiTreeUtil.prevLeaf(el))
+        case _: PsiErrorElement =>
+          inner(PsiTreeUtil.prevLeaf(el))
         case _ => false
       }
       inner(PsiTreeUtil.prevLeaf(element))
@@ -734,6 +736,8 @@ package object extensions {
           if (ws.textContains('\n')) true
           else inner(PsiTreeUtil.nextLeaf(el))
         case _: PsiComment if ignoreComments =>
+          inner(PsiTreeUtil.nextLeaf(el))
+        case _: PsiErrorElement =>
           inner(PsiTreeUtil.nextLeaf(el))
         case _ => false
       }
