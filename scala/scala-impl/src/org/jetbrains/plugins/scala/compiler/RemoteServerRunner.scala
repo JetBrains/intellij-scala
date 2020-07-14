@@ -22,7 +22,7 @@ class RemoteServerRunner(project: Project)
   override protected val port: Int = ScalaCompileServerSettings.getInstance().COMPILE_SERVER_PORT
 
   def buildProcess(command: CompileServerCommand, client: Client): CompilationProcess =
-    buildProcess(command.id, command.asArgsWithoutToken, client)
+    buildProcess(command.id, command.asArgs, client)
 
   // TODO: make it cancelable, if request is hanging we cant cancel it now.
   //  E.g. when the server is down and we retry to connect to it.

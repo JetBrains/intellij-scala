@@ -58,13 +58,7 @@ abstract class RemoteServerConnectorBase(
     classesRoots ++ additionalCp
   }
 
-  protected final val NoToken = "NO_TOKEN"
-
-  // without token, token is added in org.jetbrains.plugins.scala.compiler.RemoteServerRunner.buildProcess
-  protected def argumentsRaw: Seq[String] = arguments.asStrings.tail
-
-  private def arguments = Arguments(
-    token = NoToken,
+  protected final def arguments = Arguments(
     sbtData = sbtData,
     compilerData = CompilerData(
       compilerJars = CompilerJarsFactory.fromFiles(compilerClasspath).toOption,

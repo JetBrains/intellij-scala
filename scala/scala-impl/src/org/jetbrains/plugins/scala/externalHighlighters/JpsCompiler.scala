@@ -85,7 +85,6 @@ class JpsCompilerImpl(project: Project)
       projectPath
     ).getCanonicalPath
     val command = CompileServerCommand.CompileJps(
-      token = "",
       projectPath = projectPath,
       globalOptionsPath = globalOptionsPath,
       dataStorageRootPath = dataStorageRootPath,

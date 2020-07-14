@@ -13,8 +13,8 @@ trait CompileServerClient {
 
   final def withMetering[A](meteringInterval: FiniteDuration)
                            (action: => Unit): CompileServerMeteringInfo = {
-    val startCommand = CompileServerCommand.StartMetering("", meteringInterval)
-    val endCommand = CompileServerCommand.EndMetering("")
+    val startCommand = CompileServerCommand.StartMetering(meteringInterval)
+    val endCommand = CompileServerCommand.EndMetering()
 
     execCommand(startCommand, new DummyClient)
     action
@@ -38,6 +38,6 @@ class CompileServerClientImpl(project: Project)
 
   override def execCommand(command: CompileServerCommand, client: Client): Unit =
     new RemoteServerRunner(project)
-      .buildProcess(command.id, command.asArgsWithoutToken, client)
+      .buildProcess(command.id, command.asArgs, client)
       .runSync()
 }

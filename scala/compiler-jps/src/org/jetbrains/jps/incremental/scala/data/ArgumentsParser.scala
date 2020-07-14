@@ -21,7 +21,7 @@ object ArgumentsParser
   case class ArgumentsParserError(message: String) extends RuntimeException(message)
 
   override def parse(strings: Seq[String]): Either[ArgumentsParserError, Arguments] = strings match {
-    case token +: Seq(
+    case Seq(
       PathToFile(sbtInterfaceJar),
       PathToFile(compilerInterfaceJar),
       PathToFile(scalaBridgeSourceJar_2_10),
@@ -107,7 +107,7 @@ object ArgumentsParser
           case Left(errors) => return error(s"Couldn't parse worksheet arguments:\n${errors.mkString("\n")}")
         }
 
-      Right(Arguments(token, sbtData, compilerData, compilationData, worksheetArgs))
+      Right(Arguments(sbtData, compilerData, compilationData, worksheetArgs))
   }
 
   private val PathToFile = extractor[String, File] { path: String =>

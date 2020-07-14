@@ -18,12 +18,12 @@ class RemoteServer(override val address: InetAddress, override val port: Int)
                        compilerData: CompilerData,
                        compilationData: CompilationData,
                        client: Client): ExitCode = {
-    val token = CompileServerToken.tokenForPort(port).getOrElse("NO_TOKEN")
 
-    val arguments = Arguments(token, sbtData, compilerData, compilationData, None).asStrings
+    val arguments = Arguments(sbtData, compilerData, compilationData, None).asStrings
 
     try {
-      send(CommandIds.Compile, arguments, client)
+      val token = CompileServerToken.tokenForPort(port).getOrElse("NO_TOKEN")
+      send(CommandIds.Compile, token +: arguments, client)
       // client.compilationEnd() is meant to be sent by remote server
       ExitCode.OK
     } catch {

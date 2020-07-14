@@ -1,7 +1,6 @@
 package org.jetbrains.jps.incremental.scala.data
 
 import org.jetbrains.jps.incremental.scala.remote.{CommandIds, CompileServerCommand}
-import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils
 
 import scala.concurrent.duration.DurationLong
 import scala.util.Try
@@ -23,9 +22,8 @@ object CompileServerCommandParser
         }
       case CommandIds.CompileJps =>
         args match {
-          case Seq(token, projectPath, globalOptionsPath, dataStorageRootPath, testScopeOnly, forceCompileModule) =>
+          case Seq(projectPath, globalOptionsPath, dataStorageRootPath, testScopeOnly, forceCompileModule) =>
             CompileServerCommand.CompileJps(
-              token = token,
               projectPath = projectPath,
               globalOptionsPath = globalOptionsPath,
               dataStorageRootPath = dataStorageRootPath,
@@ -37,18 +35,13 @@ object CompileServerCommandParser
         }
       case CommandIds.StartMetering =>
         args match {
-          case Seq(token, meteringInterval) =>
-            CompileServerCommand.StartMetering(token, meteringInterval.toLong.seconds)
+          case Seq(meteringInterval) =>
+            CompileServerCommand.StartMetering(meteringInterval.toLong.seconds)
           case _ =>
             throwIllegalArgs(commandId, args)
         }
       case CommandIds.EndMetering =>
-        args match {
-          case Seq(token) =>
-            CompileServerCommand.EndMetering(token)
-          case _ =>
-            throwIllegalArgs(commandId, args)
-        }
+        CompileServerCommand.EndMetering()
       case unknownCommand =>
         throw new IllegalArgumentException(s"Unknown commandId: $unknownCommand")
     }

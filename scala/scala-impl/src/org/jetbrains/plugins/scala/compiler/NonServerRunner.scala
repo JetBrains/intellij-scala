@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package compiler
 
 import java.io.{BufferedReader, File, InputStreamReader, Reader}
+import java.nio.charset.StandardCharsets
 import java.util.Base64
 import java.util.concurrent.Future
 import java.util.concurrent.atomic.AtomicBoolean
@@ -39,12 +40,16 @@ class NonServerRunner(project: Project) {
       case Left(error) => // TODO: propagate error
         null
       case Right(jdk) =>
+        // in non-server mode token is ignored, but is required in order args are parsed correctly
+        val argsEncoded = ("IGNORED_TOKEN" +: args).map { arg =>
+          Base64.getEncoder.encodeToString(arg.getBytes(StandardCharsets.UTF_8))
+        }
         val commands: Seq[String] = {
           val jdkPath = FileUtil.toCanonicalPath(jdk.executable.getPath)
           val runnerClassPath = classPathArg(jdk.tools.toSeq :+ ScalaPluginJars.scalaNailgunRunnerJar)
           val mainClassPath = classPathArg(jdk.tools.toSeq ++ CompileServerLauncher.compileServerJars)
           (jdkPath +: "-cp" +: runnerClassPath +: jvmParameters) ++
-            (SERVER_CLASS_NAME +: "-classpath" +: mainClassPath +: args)
+            (SERVER_CLASS_NAME +: "-classpath" +: mainClassPath +: argsEncoded)
         }
 
         val builder = new ProcessBuilder(commands.asJava)

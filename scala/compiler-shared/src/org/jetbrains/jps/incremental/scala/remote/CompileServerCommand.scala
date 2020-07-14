@@ -5,25 +5,17 @@ import org.jetbrains.plugins.scala.compiler.data.Arguments
 import scala.concurrent.duration.FiniteDuration
 
 sealed trait CompileServerCommand {
-
-  def token: String
-
   def asArgs: Seq[String]
 
   def id: String
 
   def isCompileCommand: Boolean
-
-  final def asArgsWithoutToken: Seq[String] =
-    asArgs.tail // token must be the first argument
 }
 
 object CompileServerCommand {
 
   case class Compile(arguments: Arguments)
     extends CompileServerCommand {
-
-    override def token: String = arguments.token
 
     override def id: String = CommandIds.Compile
 
@@ -32,8 +24,7 @@ object CompileServerCommand {
     override def isCompileCommand: Boolean = true
   }
 
-  case class CompileJps(token: String,
-                        projectPath: String,
+  case class CompileJps(projectPath: String,
                         globalOptionsPath: String,
                         dataStorageRootPath: String,
                         testScopeOnly: Boolean,
@@ -43,7 +34,6 @@ object CompileServerCommand {
     override def id: String = CommandIds.CompileJps
 
     override def asArgs: Seq[String] = Seq(
-      token,
       projectPath,
       globalOptionsPath,
       dataStorageRootPath,
@@ -54,20 +44,20 @@ object CompileServerCommand {
     override def isCompileCommand: Boolean = true
   }
 
-  case class StartMetering(token: String, meteringInterval: FiniteDuration)
+  case class StartMetering(meteringInterval: FiniteDuration)
     extends CompileServerCommand {
 
-    override def asArgs: Seq[String] = Seq(token, meteringInterval.toSeconds.toString)
+    override def asArgs: Seq[String] = Seq(meteringInterval.toSeconds.toString)
 
     override def id: String = CommandIds.StartMetering
 
     override def isCompileCommand: Boolean = false
   }
 
-  case class EndMetering(token: String)
+  case class EndMetering()
     extends CompileServerCommand {
 
-    override def asArgs: Seq[String] = Seq(token)
+    override def asArgs: Seq[String] = Seq()
 
     override def id: String = CommandIds.EndMetering
 

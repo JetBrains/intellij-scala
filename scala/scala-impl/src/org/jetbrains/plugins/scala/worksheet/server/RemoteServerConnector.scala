@@ -101,20 +101,16 @@ final class RemoteServerConnector(
   )(callback: RemoteServerConnectorResult => Unit): Unit = {
     Log.debugSafe(s"compileAndRun: originalFile = $originalFile")
     val process = {
+      val argumentsRaw = arguments.asStrings
+
       val worksheetProcess: CompilationProcess = makeType match {
         case InProcessServer | OutOfProcessServer =>
           val runner = new RemoteServerRunner(project)
-          val argumentsFinal = argumentsRaw
-          runner.buildProcess(CommandIds.Compile, argumentsFinal, client)
+          runner.buildProcess(CommandIds.Compile, argumentsRaw, client)
 
         case NonServer =>
-          val argumentsFinal = NoToken +: argumentsRaw
-          val argumentsEncoded = argumentsFinal.map { arg =>
-            val argFixed = if(arg.isEmpty) "#STUB#" else arg
-            Base64.getEncoder.encodeToString(argFixed.getBytes(StandardCharsets.UTF_8))
-          }
           val runner = new NonServerRunner(project)
-          runner.buildProcess(argumentsEncoded, client)
+          runner.buildProcess(argumentsRaw, client)
       }
 
       if (worksheetProcess == null) {

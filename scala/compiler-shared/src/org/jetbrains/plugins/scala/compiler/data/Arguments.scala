@@ -3,8 +3,7 @@ package org.jetbrains.plugins.scala.compiler.data
 import org.jetbrains.plugins.scala.compiler.data.serialization.{SerializationUtils, WorksheetArgsSerializer}
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 
-case class Arguments(token: String,
-                     sbtData: SbtData,
+case class Arguments(sbtData: SbtData,
                      compilerData: CompilerData,
                      compilationData: CompilationData,
                      // TODO: separate different kinds of requests: Compile / Run worksheet / Run Repl worksheet / (potentially run tests)
@@ -25,7 +24,6 @@ case class Arguments(token: String,
     val incrementalType = compilerData.incrementalType
 
     Seq(
-      token,
       fileToPath(sbtData.sbtInterfaceJar),
       fileToPath(sbtData.compilerInterfaceJar),
       fileToPath(sbtData.compilerBridges.scala._2_10),

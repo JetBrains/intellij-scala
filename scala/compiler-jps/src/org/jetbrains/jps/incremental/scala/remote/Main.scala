@@ -19,6 +19,7 @@ import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.data.CompileServerCommandParser
 import org.jetbrains.jps.incremental.scala.local.LocalServer
 import org.jetbrains.jps.incremental.scala.local.worksheet.WorksheetServer
+import org.jetbrains.jps.incremental.scala.remote.MeteringScheduler.ArgsParsed
 import org.jetbrains.plugins.scala.compiler.CompilerEvent
 import org.jetbrains.plugins.scala.compiler.data.Arguments
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
@@ -82,7 +83,7 @@ object Main {
 
 
     try {
-      val command = parseArgs(commandId, argsEncoded) match {
+      val argsParsed = parseArgs(commandId, argsEncoded) match {
         case Success(result) =>
           result
         case Failure(error) =>
@@ -94,7 +95,7 @@ object Main {
       if (port != -1) {
         try {
           val tokenPath = CompileServerToken.tokenPathForPort(port)
-          validateToken(tokenPath, command.token)
+          validateToken(tokenPath, argsParsed.token)
         } catch {
           // We must abort the process on _any_ error
           case e: Throwable =>
@@ -103,7 +104,7 @@ object Main {
         }
       }
 
-      handleCommand(command, client)
+      handleCommand(argsParsed.command, client)
     } catch {
       case e: Throwable =>
         client.trace(e)
@@ -155,7 +156,7 @@ object Main {
   }
 
   private def compileJpsLogic(command: CompileServerCommand.CompileJps, client: Client): Unit = {
-    val CompileServerCommand.CompileJps(_, projectPath, globalOptionsPath, dataStorageRootPath, testScopeOnly, forceCompileModule) = command
+    val CompileServerCommand.CompileJps(projectPath, globalOptionsPath, dataStorageRootPath, testScopeOnly, forceCompileModule) = command
     val dataStorageRoot = new File(dataStorageRootPath)
     val loader = new JpsModelLoaderImpl(projectPath, globalOptionsPath, false, null)
     val buildRunner = new BuildRunner(loader)
@@ -217,7 +218,7 @@ object Main {
   }
 
   private def startMeteringLogic(command: CompileServerCommand.StartMetering, client: Client): Unit = {
-    val CompileServerCommand.StartMetering(_, meteringInterval) = command
+    val CompileServerCommand.StartMetering(meteringInterval) = command
     MeteringScheduler.start(meteringInterval)
   }
 
@@ -226,9 +227,12 @@ object Main {
     client.meteringInfo(result)
   }
 
-  private def parseArgs(command: String, argsEncoded: Seq[String]): Try[CompileServerCommand] = {
+  private def parseArgs(command: String, argsEncoded: Seq[String]): Try[ArgsParsed] = {
     val args = argsEncoded.map(decodeArgument)
-    CompileServerCommandParser.parse(command, args)
+    args match {
+      case Seq(token, other@_*) => CompileServerCommandParser.parse(command, other).map(ArgsParsed(token, _))
+      case _                    => Failure(new IllegalArgumentException(s"arguments are empty"))
+    }
   }
 
   private def decodeArgument(argEncoded: String): String = {
@@ -286,6 +290,8 @@ object MeteringScheduler {
   private val lock = new Object
   @volatile private var executor: ScheduledExecutorService = _
   @volatile private var meteringInfo: CompileServerMeteringInfo = _
+
+  final case class ArgsParsed(token: String, command: CompileServerCommand)
 
   def start(meteringInterval: FiniteDuration): Unit = lock.synchronized {
     executor = Executors.newScheduledThreadPool(1)
