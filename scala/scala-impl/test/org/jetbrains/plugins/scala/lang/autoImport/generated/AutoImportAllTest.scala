@@ -16,11 +16,4 @@ class AutoImportAllTest extends AutoImportTestBase {
   def testObjectPackage(): Unit = doTest()
 
   def testNoPlaceHolder(): Unit = doTest()
-
-  def testCompanionObjectMemberNotFound(): Unit = try {
-    doTest()
-  } catch {
-        // todo decompose doTest
-    case e: AssertionError if e.getMessage == "Element to import not found" =>
-  }
 }

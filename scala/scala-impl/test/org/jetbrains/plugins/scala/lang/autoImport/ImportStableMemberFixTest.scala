@@ -174,4 +174,28 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
         |}""".stripMargin,
     selected = "Foo.foo"
   )
+
+  def testPrivateThisCompanionObjectMethod(): Unit = checkNoImportFix(
+    s"""
+       |class Foo {
+       |  ${CARET}foo
+       |}
+       |
+       |object Foo {
+       |  private[this] def foo(): Unit = {}
+       |}""".stripMargin
+  )
+
+  def testPrivateCompanionObjectMethod(): Unit = checkElementsToImport(
+    s"""
+       |class Foo {
+       |  ${CARET}foo
+       |}
+       |
+       |object Foo {
+       |  private def foo(): Unit = {}
+       |}""".stripMargin,
+
+    "Foo.foo"
+  )
 }
