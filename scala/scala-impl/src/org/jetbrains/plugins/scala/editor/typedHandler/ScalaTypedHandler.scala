@@ -13,9 +13,7 @@ import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
-import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettings}
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
@@ -636,36 +634,45 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
       case _ => None
     }
 
+    // We have to add a char at the position of the caret, otherwise formatting will screw up our indentation.
+    // And we cannot use Result.STOP because that would interfere with other handlers of typedChar afterwards.
+    // Unfortunately we have to delete it after formatting, so IDEA can do the char insertion correctly itself.
+    // Also note that we cannot use c (parameter of this method) to insert it here, because some characters like '('
+    // might confuse the formatter.
+    val fakeInputPosition = caretOffset + displacementAfterOpeningBrace
+    document.insertString(fakeInputPosition, "x")
+    val displacementAfterFakeInput = displacementAfterOpeningBrace + 1
+
     val closingBraceRange = subsequentConstructOffset match {
       case Some(subsequentConstructOffset) =>
-        val braceInsertPosition = subsequentConstructOffset + displacementAfterOpeningBrace
+        val braceInsertPosition = subsequentConstructOffset + displacementAfterFakeInput
         document.insertString(braceInsertPosition, "} ")
 
         TextRange.from(braceInsertPosition, 3)
       case None =>
         // There is no subsequent construct, so just insert the braces after the caret or the expression
         val braceInsertPosition =
-          if (caretIsBeforeExpr) expr.endOffset + displacementAfterOpeningBrace
-          else caretOffset + displacementAfterOpeningBrace
+          if (caretIsBeforeExpr) expr.endOffset + displacementAfterFakeInput
+          else caretOffset + displacementAfterFakeInput
 
         document.insertString(braceInsertPosition, "\n}")
         TextRange.from(braceInsertPosition, 3)
     }
     document.commit(project)
 
-    // We have to remember the exact caret position, because the reformatting
-    // will destroy the caret position because of the way ws-only lines are reformatted
+    // Set the caret now, so the formatting can adjust it correctly
     val caretOffsetBeforeFormatting = caretOffset + displacementAfterOpeningBrace
-    val marker = document.createRangeMarker(caretOffsetBeforeFormatting, caretOffsetBeforeFormatting)
-    marker.setGreedyToRight(true)
-    try {
-      CodeStyleManager.getInstance(project).reformatText(file, ju.Arrays.asList(openingBraceRange, closingBraceRange))
-      editor.getCaretModel.moveToOffset(marker.getEndOffset)
-    } finally {
-      marker.dispose()
-    }
+    editor.getCaretModel.moveToOffset(caretOffsetBeforeFormatting)
 
-    Result.CONTINUE
+    CodeStyleManager.getInstance(project)
+      .reformatText(file, ju.Arrays.asList(openingBraceRange, closingBraceRange))
+
+    // Delete the fake character 'x' we inserted
+    val newCaretPos = editor.getCaretModel.getOffset
+    document.deleteString(newCaretPos, newCaretPos + 1)
+
+    // prevent other beforeTyped-handlers from being executed because psi tree is out of sync now
+    Result.DEFAULT
   }
 
   private def isBehindPostfixExpr(element: PsiElement): Boolean = {
