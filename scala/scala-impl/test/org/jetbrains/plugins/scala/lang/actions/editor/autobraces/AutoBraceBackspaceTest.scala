@@ -106,4 +106,25 @@ class AutoBraceBackspaceTest extends AutoBraceTestBase {
        |}
        |""".stripMargin -> ContinuationOnSameLine,
   )
+
+  // SCL-17867
+  def testDeletingSingleParenthesis(): Unit = checkBackspaceInAllContexts(
+    s"""
+       |def test = {
+       |  expr
+       |  ($CARET
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+    s"""
+       |def test =
+       |  expr
+       |  $CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    s"""
+       |def test = {
+       |  expr
+       |  $CARET
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+  )
 }
