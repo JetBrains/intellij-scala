@@ -41,8 +41,6 @@ public class AttachIntellijSourcesAction extends AnAction {
     private static final Logger LOG = Logger.getInstance(IntellijSourcesAttachListener.class);
 
     private static final Predicate<String> JAR_PATTERN = Pattern.compile("^sources\\.(zip|jar)$").asPredicate();
-    private static final Predicate<String> DIRECTORY_PATTERN = Pattern.compile("^\\d+\\.\\d+(\\.\\d+)?$").asPredicate();
-
 
     public static void attachIJSources(@NotNull Project project) {
         if (project.isDisposed()) return;
@@ -153,7 +151,9 @@ public class AttachIntellijSourcesAction extends AnAction {
     }
 
     private static boolean isIJInstallationDir(@NotNull VirtualFile dir) {
-        return DIRECTORY_PATTERN.test(dir.getName());
+        return (dir.findChild("bin") != null) &&
+                (dir.findChild("lib") != null) &&
+                (dir.findChild("plugins") != null);
     }
 
     @Nullable
