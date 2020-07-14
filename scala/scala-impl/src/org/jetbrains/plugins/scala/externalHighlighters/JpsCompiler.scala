@@ -54,7 +54,8 @@ class JpsCompilerImpl(project: Project)
   
   // SCL-17295
   @Cached(ProjectRootManager.getInstance(project), null)
-  private def saveProjectOnce(): Unit = project.save()
+  private def saveProjectOnce(): Unit =
+    if (!project.isDisposed) project.save()
 
   override def rescheduleCompilation(testScopeOnly: Boolean,
                                      delayedProgressShow: Boolean,
