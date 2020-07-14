@@ -10,15 +10,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
+import org.jetbrains.plugins.scala.editor.documentationProvider.listeners.ScalaDocRenderInEditorAdvertiser._
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ShowSettingsUtilImplExt}
 
 final class ScalaDocRenderInEditorAdvertiser(project: Project) extends FileEditorManagerListener {
-
-  private val RenderViewHttpsHelpPage =
-    "https://www.jetbrains.com/help/idea/working-with-code-documentation.html#toggle-rendered-view"
 
   override def fileOpened(source: FileEditorManager, file: VirtualFile): Unit =
     if (isNotificationEnabled) {
@@ -29,6 +27,12 @@ final class ScalaDocRenderInEditorAdvertiser(project: Project) extends FileEdito
         suggestInEditorDocRendering(project)
       }
     }
+}
+
+object ScalaDocRenderInEditorAdvertiser {
+
+  private val RenderViewHttpsHelpPage =
+    "https://www.jetbrains.com/help/idea/working-with-code-documentation.html#toggle-rendered-view"
 
   private def isNotificationEnabled: Boolean =
     ScalaApplicationSettings.getInstance.SUGGEST_IN_EDITOR_DOC_RENDERING
