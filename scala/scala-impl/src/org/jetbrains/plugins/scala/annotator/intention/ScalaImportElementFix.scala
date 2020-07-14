@@ -9,7 +9,9 @@ import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{ModificationTracker, TextRange}
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.annotator.intention.Presentation.htmlWithBody
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportElementFix._
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiFileExt, executeUndoTransparentAction, invokeLater}
@@ -22,6 +24,11 @@ abstract class ScalaImportElementFix(val place: PsiElement) extends HintAction w
   private val modificationCount = currentModCount()
 
   val elements: Seq[ElementToImport]
+
+  final def getText: String = htmlWithBody(getTextInner)
+
+  @Nls
+  protected def getTextInner: String
 
   def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _]
 
@@ -95,13 +102,13 @@ abstract class ScalaImportElementFix(val place: PsiElement) extends HintAction w
 
       val hintText = ScalaBundle.message(
         "import.hint.text",
-        elements.head.qualifiedName,
+        elements.head.presentationBody,
         if (elements.length == 1) "" else ScalaBundle.message("import.multiple.choices")
       )
 
       hintManager.showQuestionHint(
         editor,
-        hintText,
+        htmlWithBody(hintText),
         elementStart,
         elementEnd,
         createAddImportAction(editor)

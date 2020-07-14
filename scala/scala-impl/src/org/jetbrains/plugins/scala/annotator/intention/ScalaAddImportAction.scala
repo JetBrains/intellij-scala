@@ -87,7 +87,7 @@ sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToI
         aValue.element.getIcon(0)
 
       override def getTextFor(value: Elem): String =
-        value.qualifiedName
+        value.presentation
 
       override def isAutoSelectionEnabled: Boolean = false
 

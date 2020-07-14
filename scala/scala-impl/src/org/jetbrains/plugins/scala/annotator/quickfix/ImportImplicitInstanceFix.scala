@@ -30,11 +30,9 @@ final class ImportImplicitInstanceFix private (found: Seq[FoundImplicit],
 
   override def isAddUnambiguous: Boolean = false
 
-  override def getText: String = {
-    if (found.size == 1)
-      ScalaBundle.message("import.with", found.head.instance.qualifiedName)
-    else
-      ScalaBundle.message("import.implicit")
+  override def getTextInner: String = elements match {
+    case Seq(element) => ScalaBundle.message("import.with", element.presentationBody)
+    case _            => ScalaBundle.message("import.implicit")
   }
 
   override def getFamilyName: String =

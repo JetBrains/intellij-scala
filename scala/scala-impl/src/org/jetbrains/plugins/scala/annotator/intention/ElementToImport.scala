@@ -16,6 +16,10 @@ sealed trait ElementToImport {
 
   def qualifiedName: String
 
+  final def presentation: String = s"<html><body>$presentationBody</body></html>"
+
+  def presentationBody: String = qualifiedName
+
   final def name: String = element.name
 
   final def isValid: Boolean = element.isValid
@@ -40,6 +44,8 @@ final case class ClassToImport(override val element: PsiClass) extends ElementTo
   override protected type E = PsiClass
 
   override def qualifiedName: String = element.qualifiedName
+
+  override def presentationBody: String = Presentation.withDeprecation(element)
 }
 
 final case class MemberToImport(override val element: PsiNamedElement,
@@ -53,6 +59,9 @@ final case class MemberToImport(override val element: PsiNamedElement,
     case _ =>
       name
   }
+
+  override def presentationBody: String =
+    Presentation.withDeprecations(element, owner)
 }
 
 final case class PrefixPackageToImport(override val element: ScPackage) extends ElementToImport {
@@ -68,4 +77,7 @@ final case class ImplicitToImport(found: FoundImplicit) extends ElementToImport 
   override def element: ScNamedElement = found.instance.named
 
   override def qualifiedName: String = found.instance.qualifiedName
+
+  override def presentationBody: String =
+    Presentation.withDeprecations(element, found.instance.containingObject)
 }
