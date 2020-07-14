@@ -42,7 +42,7 @@ class ToggleHighlightingModeListener
   
   private def forceStandradHighlighting(project: Project): Unit = {
     ResolveCache.getInstance(project).clearCache(true)
-    PsiManager.getInstance(project).getModificationTracker.asInstanceOf[PsiModificationTrackerImpl].incCounter()
+    PsiManager.getInstance(project).dropPsiCaches()
     DaemonCodeAnalyzer.getInstance(project).restart()
   }
 }
