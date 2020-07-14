@@ -122,6 +122,53 @@ class AutoBracesTypingTest extends AutoBraceTestBase {
     'x'
   )
 
+  def testTypingAfterEmptyLinesAndIndent(): Unit = checkTypingInAllContexts(
+    s"""
+       |def test =
+       |  expr
+       |
+       |  $CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    s"""
+       |def test = {
+       |  expr
+       |
+       |  x$CARET
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+    s"""
+       |def test =
+       |  expr
+       |
+       |  x$CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    'x'
+  )
+
+  // SCL-17866
+  def testTypingAfterEmptyLinesWithOnlySpacesAndIndent(): Unit = checkTypingInAllContexts(
+    s"""
+       |def test =
+       |  expr
+       |$indent$indent
+       |  $CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    s"""
+       |def test = {
+       |  expr
+       |$indent$indent
+       |  x$CARET
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+    s"""
+       |def test =
+       |  expr
+       |$indent$indent
+       |  x$CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    'x'
+  )
+
   def testTypingBetweenCommentAndIndentedExpr(): Unit = checkTypingInAllContexts(
     s"""
        |def test =
