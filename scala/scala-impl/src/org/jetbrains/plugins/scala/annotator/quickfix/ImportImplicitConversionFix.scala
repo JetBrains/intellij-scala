@@ -72,9 +72,11 @@ object ImportImplicitConversionFix {
         CompletionProcessor.variantsWithName(application.resultType, qualifier, ref.refName).nonEmpty
 
     } {
+      val notFoundImplicitParameters = application.implicitParameters.filter(_.isNotFoundImplicitParameter)
+
       if (visible.contains(conversion.function))
-        notFoundImplicits ++= application.implicitParameters.filter(_.isNotFoundImplicitParameter)
-      else
+        notFoundImplicits ++= notFoundImplicitParameters
+      else if (mayFindImplicits(notFoundImplicitParameters, qualifier))
         conversionsToImport += conversion
     }
 
@@ -103,4 +105,10 @@ object ImportImplicitConversionFix {
 
   private def isDeprecated(conversion: GlobalImplicitConversion): Boolean =
     conversion.owner.isDeprecated || conversion.function.isDeprecated
+
+  //todo we already search for implicit parameters, so we could import them together with a conversion
+  // need to think about UX
+  private def mayFindImplicits(notFoundImplicitParameters: Seq[ScalaResolveResult],
+                              owner: ScExpression): Boolean =
+    notFoundImplicitParameters.isEmpty || ImportImplicitInstanceFix(notFoundImplicitParameters, owner).nonEmpty
 }
