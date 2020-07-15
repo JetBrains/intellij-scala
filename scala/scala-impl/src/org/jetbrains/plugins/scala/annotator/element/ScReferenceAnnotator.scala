@@ -372,17 +372,17 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     def isOnTopLevel(element: PsiElement) = element match {
       case scalaPsi: ScalaPsiElement => !scalaPsi.parents.exists(_.isInstanceOf[ScTypeDefinition])
       case _ => false
-    } 
-    
+    }
+
     //don't highlight ambiguous definitions, if they are resolved to multiple top-level declarations
     //needed for worksheet and scala notebook files (e.g. zeppelin)
     def isTopLevelResolve =
       resolve.length > 1 && resolve.headOption.map(_.element).filter(isOnTopLevel).exists {
-        firstElement => 
+        firstElement =>
           val fFile = firstElement.getContainingFile
           resolve.tail.map(_.element).forall(nextEl => nextEl.getContainingFile == fFile && isOnTopLevel(nextEl))
       }
-    
+
     if (typeAware && resolve.length != 1 && !(refElement.containingScalaFile.exists(_.isMultipleDeclarationsAllowed) && isTopLevelResolve)) {
       val parent = refElement.getParent
       def addCreateApplyOrUnapplyFix(errorWithRefName: String => String, fix: ScTypeDefinition => IntentionAction): Boolean = {

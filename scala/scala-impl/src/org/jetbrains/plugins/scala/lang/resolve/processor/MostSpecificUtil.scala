@@ -147,7 +147,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                 Expression(if (params1.nonEmpty) params1.last.paramType else Nothing, elem)
               val exprs: Seq[Expression] = params1.map(p => Expression(p.paramType, elem)) ++
                       Seq.fill(i)(default)
-              Compatibility.checkConformance(checkNames = false, params2, exprs, checkImplicits)
+              Compatibility.checkConformance(params2, exprs, checkImplicits)
             case (Right(type1), Right(type2)) =>
               type1.conforms(type2, ConstraintSystem.empty) //todo: with implcits?
             //todo this is possible, when one variant is empty with implicit parameters, and second without parameters.

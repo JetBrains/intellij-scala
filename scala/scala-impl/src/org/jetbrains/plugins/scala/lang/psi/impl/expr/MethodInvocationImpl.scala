@@ -179,7 +179,6 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
           case _ =>
             (expressions: Seq[Expression]) => {
               val conformanceResult = checkConformanceExt(
-                checkNames = true,
                 parameters,
                 expressions,
                 checkWithImplicits = true,

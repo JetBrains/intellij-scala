@@ -518,7 +518,6 @@ object InferUtil {
 
     val conformanceResult @ ConformanceExtResult(problems, constraints, _, _) =
       Compatibility.checkConformanceExt(
-        checkNames = true,
         paramsWithUndefTypes,
         exprs,
         checkWithImplicits = true,

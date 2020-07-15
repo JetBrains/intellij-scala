@@ -218,13 +218,11 @@ object Compatibility {
     ).orElse(expr.elementScope.scalaSeqType)
 
   def checkConformance(
-    checkNames:         Boolean,
     parameters:         Seq[Parameter],
     exprs:              Seq[Expression],
     checkWithImplicits: Boolean
   ): ConstraintsResult = {
     val r = checkConformanceExt(
-      checkNames,
       parameters,
       exprs,
       checkWithImplicits,
@@ -274,7 +272,6 @@ object Compatibility {
   }
 
   def checkConformanceExt(
-    checkNames:         Boolean,
     parameters:         Seq[Parameter],
     exprs:              Seq[Expression],
     checkWithImplicits: Boolean,
@@ -399,10 +396,6 @@ object Compatibility {
             }
             problems :::= doNoNamed(extractExpression(assign)).reverse
           } else {
-            if (!checkNames) {
-              val internalProblem = InternalApplicabilityProblem(ScalaBundle.message("found.chekced.named.parameter"))
-              return ConformanceExtResult(Seq(internalProblem), constraintAccumulator, defaultParameterUsed, matched)
-            }
             used(index) = true
             val param: Parameter = parameters(index)
             if (index != k) {
@@ -533,8 +526,8 @@ object Compatibility {
   )(implicit
     project: ProjectContext
   ): ConformanceExtResult = {
-    def checkParameterListConformance(checkNames: Boolean, parameters: Seq[Parameter], arguments: Seq[Expression]) =
-      checkConformanceExt(checkNames, parameters, arguments, checkWithImplicits, isShapesResolve)
+    def checkParameterListConformance(parameters: Seq[Parameter], arguments: Seq[Expression]) =
+      checkConformanceExt(parameters, arguments, checkWithImplicits, isShapesResolve)
 
     val firstArgumentListArgs: Seq[Expression] = argClauses.headOption.getOrElse(Seq.empty)
 
@@ -547,14 +540,14 @@ object Compatibility {
           p.copy(paramType = substitutor(p.paramType))
         )
 
-        checkParameterListConformance(checkNames = false, parameters, firstArgumentListArgs)
+        checkParameterListConformance(parameters, firstArgumentListArgs)
       case fun: ScFunction =>
         if (!fun.hasParameterClause && argClauses.nonEmpty)
           return ConformanceExtResult(Seq(new DoesNotTakeParameters))
 
         if (QuasiquoteInferUtil.isMetaQQ(fun) && ref.isInstanceOf[ScReferenceExpression]) {
           val params = QuasiquoteInferUtil.getMetaQQExpectedTypes(ref.asInstanceOf[ScReferenceExpression])
-          return checkParameterListConformance(checkNames = false, params, firstArgumentListArgs)
+          return checkParameterListConformance(params, firstArgumentListArgs)
         }
 
         val parameters =
@@ -564,16 +557,22 @@ object Compatibility {
              .flatMap(_.effectiveParameters)
              .map(toParameter(_, substitutor))
 
-        checkParameterListConformance(checkNames = true, parameters, firstArgumentListArgs)
+        checkParameterListConformance(parameters, firstArgumentListArgs)
       case constructor: ScPrimaryConstructor =>
         val parameters = constructor.effectiveFirstParameterSection.map(toParameter(_, substitutor))
-        checkParameterListConformance(checkNames = true, parameters, firstArgumentListArgs)
+        checkParameterListConformance(parameters, firstArgumentListArgs)
       case method: PsiMethod =>
-        val parameters = method.parameters.map(param =>
-          Parameter(substitutor(param.paramType()), isRepeated = param.isVarArgs, index = -1, param.getName)
+        val parameters = method.parameters.map(
+          param =>
+            Parameter(
+              substitutor(param.paramType()),
+              isRepeated = param.isVarArgs,
+              index      = -1,
+              param.getName
+            )
         )
 
-        checkParameterListConformance(checkNames = false, parameters, firstArgumentListArgs)
+        checkParameterListConformance(parameters, firstArgumentListArgs)
       case unknown =>
         val problem = InternalApplicabilityProblem(ScalaBundle.message("cannot.handle.compatibility.for", unknown))
         LOG.error(problem.toString)
@@ -600,19 +599,18 @@ object Compatibility {
         val eligibleForAutoTupling = args.length != 1 && params.length == 1 && !params.head.isDefault
 
         val curRes =
-          checkConformanceExt(
-            checkNames = true,
-            params, args, checkWithImplicits = true, isShapesResolve = false
-          ) match {
-          case res if eligibleForAutoTupling && res.problems.nonEmpty =>
-            // try autotupling. If the conformance check succeeds without problems we use that result
-            ScalaPsiUtil
-              .tupled(args, constrInvocation)
-              .map(checkConformanceExt(checkNames = true, params, _, checkWithImplicits = true, isShapesResolve = true))
-              .filter(_.problems.isEmpty)
-              .getOrElse(res)
-          case res => res
-        }
+          checkConformanceExt(params, args, checkWithImplicits = true, isShapesResolve = false) match {
+            case res if eligibleForAutoTupling && res.problems.nonEmpty =>
+              // try autotupling. If the conformance check succeeds without problems we use that result
+              ScalaPsiUtil
+                .tupled(args, constrInvocation)
+                .map(
+                  checkConformanceExt(params, _, checkWithImplicits = true, isShapesResolve = true)
+                )
+                .filter(_.problems.isEmpty)
+                .getOrElse(res)
+            case res => res
+          }
 
         val res = prevRes.copy(
           problems = prevRes.problems ++ curRes.problems,
