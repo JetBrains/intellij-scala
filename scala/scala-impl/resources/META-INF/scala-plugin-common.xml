@@ -20,7 +20,7 @@
         <extensionPoint name="sdkResolver" interface="org.jetbrains.plugins.scala.project.external.SdkResolver" dynamic="true"/>
         <extensionPoint name="unresolvedReferenceFixProvider" interface="org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider" dynamic="true"/>
         <extensionPoint name="interpolatedStringMacroTypeProvider" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.InterpolatedStringMacroTypeProvider" dynamic="true"/>
-        <extensionPoint name="fileDeclarationsContributor" interface="org.jetbrains.plugins.scala.worksheet.FileDeclarationsContributor" dynamic="true"/>
+        <extensionPoint name="fileDeclarationsContributor" interface="org.jetbrains.plugins.scala.lang.psi.api.FileDeclarationsContributor" dynamic="true"/>
         <extensionPoint name="worksheetCompilerExtension" interface="org.jetbrains.plugins.scala.compiler.WorksheetCompilerExtension" dynamic="true"/>
 
         <!-- EP extracted during extraction of worksheet module -->
@@ -53,7 +53,6 @@
         <genericTypeNamesProvider
                 implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.TupleTypeNamesProvider"/>
 
-        <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.ui.WorksheetFileDeclarationsContributor"/>
         <unresolvedReferenceFixProvider implementation="org.jetbrains.plugins.scala.autoImport.quickFix.ImportImplicitConversionFix$Provider"/>
         <unresolvedReferenceFixProvider implementation="org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportGlobalMemberFix$Provider"/>
     </extensions>

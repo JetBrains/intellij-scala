@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{Precedence
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.util.{BetterMonadicForSupport, KindProjectorUtil}
-import org.jetbrains.plugins.scala.worksheet.FileDeclarationsContributor
 
 /**
   * User: Dmitry Naydanov
