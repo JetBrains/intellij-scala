@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.annotator.quickfix
 
-import com.intellij.codeInsight.completion.JavaCompletionUtil.isInExcludedPackage
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.Editor
+import com.intellij.psi.{PsiDocCommentOwner, PsiNamedElement}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
 import org.jetbrains.plugins.scala.annotator.intention.{MemberToImport, ScalaAddImportAction, ScalaImportElementFix}
-import org.jetbrains.plugins.scala.extensions.{ChildOf, ObjectExt}
+import org.jetbrains.plugins.scala.codeInspection.collections.`!`
+import org.jetbrains.plugins.scala.extensions.{ChildOf, ObjectExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.isInExcludedPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression, ScSugarCallExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -22,7 +24,7 @@ class ImportImplicitConversionFix private (ref: ScReferenceExpression,
                                            found: Seq[GlobalImplicitConversion])
   extends ScalaImportElementFix(ref) {
 
-  override val elements: Seq[MemberToImport] = found.map(f => MemberToImport(f.function, f.owner))
+  override val elements: Seq[MemberToImport] = found.map(f => MemberToImport(f.function, f.owner, f.pathToOwner))
 
   override def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _] =
     ScalaAddImportAction.importImplicitConversion(editor, elements, ref)
@@ -68,7 +70,7 @@ object ImportImplicitConversionFix {
       qualifier                 <- qualifier(ref).toSeq
       (conversion, application) <- ImplicitConversionData.getPossibleConversions(qualifier).toSeq
 
-      if !isInExcludedPackage(conversion.owner, false) &&
+      if !isInExcludedPackage(conversion.pathToOwner, ref.getProject) &&
         CompletionProcessor.variantsWithName(application.resultType, qualifier, ref.refName).nonEmpty
 
     } {
@@ -104,7 +106,12 @@ object ImportImplicitConversionFix {
   }
 
   private def isDeprecated(conversion: GlobalImplicitConversion): Boolean =
-    conversion.owner.isDeprecated || conversion.function.isDeprecated
+    isDeprecated(conversion.owner) || isDeprecated(conversion.function)
+
+  private def isDeprecated(named: PsiNamedElement): Boolean = named.nameContext match {
+    case member: PsiDocCommentOwner => member.isDeprecated
+    case _                          => false
+  }
 
   //todo we already search for implicit parameters, so we could import them together with a conversion
   // need to think about UX

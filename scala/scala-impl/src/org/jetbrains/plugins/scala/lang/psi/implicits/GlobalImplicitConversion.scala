@@ -7,20 +7,23 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.findInheritorObjectsForOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitConversionIndex
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.PredefFqn
 
-final case class GlobalImplicitConversion(owner: ScObject, function: ScFunction) {
-  def substitutor: ScSubstitutor =
-    MixinNodes.asSeenFromSubstitutor(owner, function.containingClass)
-
-  def qualifiedName: String = owner.qualifiedName + "." + function.name
-}
+final class GlobalImplicitConversion(owner: ScTypedDefinition,
+                                     pathToOwner: String,
+                                     val function: ScFunction)
+  extends GlobalInstance(owner, pathToOwner, function)
 
 object GlobalImplicitConversion {
+
+  def apply(owner: ScTypedDefinition, pathToOwner: String, function: ScFunction): GlobalImplicitConversion =
+    new GlobalImplicitConversion(owner, pathToOwner, function)
+
+  def apply(owner: ScObject, function: ScFunction): GlobalImplicitConversion =
+    GlobalImplicitConversion(owner, owner.qualifiedName, function)
 
   private[implicits] type ImplicitConversionMap = Map[GlobalImplicitConversion, ImplicitConversionData]
 

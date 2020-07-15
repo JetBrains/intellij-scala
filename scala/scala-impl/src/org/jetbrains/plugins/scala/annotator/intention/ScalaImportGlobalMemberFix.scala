@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.annotator.intention
 
-import com.intellij.codeInsight.completion.JavaCompletionUtil.isInExcludedPackage
 import com.intellij.codeInsight.intention.{IntentionAction, PriorityAction}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -10,7 +9,7 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
 import org.jetbrains.plugins.scala.extensions.{&&, ObjectExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, SeqExt, TraversableExt}
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.findInheritorObjectsForOwner
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.{findInheritorObjectsForOwner, isInExcludedPackage}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{hasImplicitModifier, inNameContext}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -101,7 +100,7 @@ object ScalaImportGlobalMemberFix {
       Seq(new ScalaImportGlobalMemberWithPrefixFix(allCandidates, ref))
     }
     else {
-      val compatible = allCandidates.filter(c => !isInExcludedPackage(c.owner, false) && isCompatible(ref, c))
+      val compatible = allCandidates.filter(c => !isInExcludedPackage(c.pathToOwner, ref.getProject) && isCompatible(ref, c))
       val candidates = if (compatible.isEmpty) allCandidates else compatible
 
       if (candidates.isEmpty) Seq.empty

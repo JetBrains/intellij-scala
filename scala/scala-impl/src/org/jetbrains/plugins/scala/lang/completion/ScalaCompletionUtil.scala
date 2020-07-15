@@ -4,8 +4,9 @@ package completion
 
 import java.util.regex.{Matcher, Pattern}
 
-import com.intellij.codeInsight.completion.JavaCompletionUtil.isInExcludedPackage
+import com.intellij.codeInsight.JavaProjectCodeInsightSettings
 import com.intellij.codeInsight.completion.{CompletionParameters, CompletionUtil, PrefixMatcher}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
@@ -248,7 +249,7 @@ object ScalaCompletionUtil {
       case clazz =>
         val allObjects =
           (inheritorObjectsInLibraries(clazz) ++ inheritorObjectsInProject(clazz))
-            .filterNot(isInExcludedPackage(_, false))
+            .filterNot(o => isInExcludedPackage(o.qualifiedName, member.getProject))
 
         if (allObjects.isEmpty || clazz.hasTypeParameters) {
           allObjects
@@ -258,6 +259,9 @@ object ScalaCompletionUtil {
         }
 
     }
+
+  def isInExcludedPackage(qualifiedName: String, project: Project): Boolean =
+    JavaProjectCodeInsightSettings.getSettings(project).isExcluded(qualifiedName)
 
   @CachedInUserData(clazz, ModCount.getBlockModificationCount)
   private def inheritorObjectsInProject(clazz: ScTemplateDefinition): Set[ScObject] = {
