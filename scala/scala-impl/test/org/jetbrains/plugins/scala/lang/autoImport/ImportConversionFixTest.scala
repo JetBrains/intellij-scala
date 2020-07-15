@@ -30,15 +30,10 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
        |}
        |""".stripMargin,
 
-    //todo reduce by fixing SCL-17791
-
     "scala.jdk.CollectionConverters.IterableHasAsJava",
     "scala.jdk.CollectionConverters.SeqHasAsJava",
-    "scala.jdk.FunctionConverters.enrichAsJavaDoubleFunction",
     "scala.jdk.FunctionConverters.enrichAsJavaFunction",
     "scala.jdk.FunctionConverters.enrichAsJavaIntFunction",
-    "scala.jdk.FunctionConverters.enrichAsJavaLongFunction",
-    "scala.jdk.FunctionConverters.enrichAsJavaUnaryOperator",
     "scala.collection.JavaConverters.asJavaIterableConverter",
     "scala.collection.JavaConverters.seqAsJavaListConverter"
   )

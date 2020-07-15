@@ -31,9 +31,9 @@ final class ScalaImportTypeFix private (override val elements: Seq[ElementToImpo
                                         ref: ScReference)
   extends ScalaImportElementFix(ref) {
 
-  override def getText: String = elements match {
+  override def getTextInner: String = elements match {
     case Seq(head) =>
-      ScalaBundle.message("import.with", head.qualifiedName)
+      ScalaBundle.message("import.with", head.presentationBody)
     case _ =>
       ElementToImport.messageByType(elements)(
         ScalaBundle.message("import.class"),
