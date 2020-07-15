@@ -16,17 +16,11 @@ import org.jetbrains.plugins.scala.util.ScalaPluginJars
 abstract class RemoteServerConnectorBase(
   protected val module: Module,
   filesToCompile: Option[Seq[File]],
-  protected val outputDir: File,
-  needCheck: Boolean = true
+  protected val outputDir: File
 ) {
+  filesToCompile.foreach(checkFilesToCompile)
 
   implicit def projectContext: ProjectContext = module.getProject
-
-  if (needCheck)
-    filesToCompile.foreach(checkFilesToCompile)
-
-  def this(module: Module, fileToCompile: File, outputDir: File) =
-    this(module, Some(Seq(fileToCompile)), outputDir)
 
   private val sbtData = {
     val javaClassVersion = System.getProperty("java.class.version")
@@ -47,14 +41,14 @@ abstract class RemoteServerConnectorBase(
 
   private val compilerClasspath: Seq[File] = module.scalaCompilerClasspath
 
-  val additionalCp: Seq[File] = compilerClasspath :+ ScalaPluginJars.runnersJar :+ ScalaPluginJars.compilerSharedJar :+ outputDir
+  private val additionalCp: Seq[File] = compilerClasspath :+ ScalaPluginJars.runnersJar :+ ScalaPluginJars.compilerSharedJar :+ outputDir
 
   protected def additionalScalaParameters: Seq[String] = Seq.empty
 
   protected def worksheetArgs: Option[WorksheetArgs] = None
 
   private def classpath: Seq[File] = {
-    val classesRoots = assemblyClasspath().toSeq map (f => new File(f.getCanonicalPath stripSuffix "!" stripSuffix "!/"))
+    val classesRoots = assemblyClasspath().map(f => new File(f.getCanonicalPath.stripSuffix("!").stripSuffix("!/")))
     classesRoots ++ additionalCp
   }
 
@@ -86,7 +80,7 @@ abstract class RemoteServerConnectorBase(
 
   protected def settings: ScalaCompileServerSettings = ScalaCompileServerSettings.getInstance()
 
-  private def assemblyClasspath() = {
+  private def assemblyClasspath(): Seq[File] = {
     val extensionCp = WorksheetCompilerExtension.worksheetClasspath(module)
     extensionCp.getOrElse {
       val enumerator = OrderEnumerator.orderEntries(module).compileOnly()

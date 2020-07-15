@@ -36,8 +36,7 @@ final class RemoteServerConnector(
 ) extends RemoteServerConnectorBase(
   module,
   filesToCompile = args.compiledFile.map(Seq(_)),
-  outputDir = args.compilationOutputDir.getOrElse(new File("")),
-  needCheck = args.compiledFile.nonEmpty
+  outputDir = args.compilationOutputDir.getOrElse(new File(""))
 ) {
 
   override protected def compilerSettings: ScalaCompilerSettings =

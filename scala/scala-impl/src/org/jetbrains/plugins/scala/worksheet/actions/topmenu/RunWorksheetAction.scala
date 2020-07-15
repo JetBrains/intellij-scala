@@ -118,15 +118,14 @@ object RunWorksheetAction {
 
   private def doRunCompiler(project: Project, editor: Editor, auto: Boolean)
                            (promise: Promise[RunWorksheetActionResult]): Unit = {
-    val psiFile: PsiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
-    val file: ScalaFile = psiFile match {
+    val psiFile: ScalaFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument) match {
       case file: ScalaFile if file.isWorksheetFile => file
       case _ =>
         promise.success(RunWorksheetActionResult.NoWorksheetFileError)
         return
     }
 
-    val fileSettings = WorksheetFileSettings(file)
+    val fileSettings = WorksheetFileSettings(psiFile)
 
     val module: Module = fileSettings.getModuleFor match {
       case m: Module => m
@@ -135,7 +134,7 @@ object RunWorksheetAction {
         return
     }
 
-    doRunCompiler(project, editor, auto, psiFile.getVirtualFile, file, fileSettings.isMakeBeforeRun, module)(promise)
+    doRunCompiler(project, editor, auto, psiFile.getVirtualFile, psiFile, fileSettings.isMakeBeforeRun, module)(promise)
   }
 
   private def doRunCompiler(project: Project, editor: Editor, auto: Boolean,
