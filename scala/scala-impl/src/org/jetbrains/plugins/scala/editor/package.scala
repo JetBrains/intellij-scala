@@ -33,6 +33,13 @@ package object editor {
     def lineEndOffset(offset: Int): Int =
       document.getLineEndOffset(document.getLineNumber(offset))
 
+    def lineTextAt(offset: Int): CharSequence = {
+      val line = document.getLineNumber(offset)
+      val start = document.getLineStartOffset(line)
+      val lineEnd = document.getLineEndOffset(line)
+      document.getImmutableCharSequence.subSequence(start, lineEnd)
+    }
+
     def virtualFile: Option[VirtualFile] =
       Option(FileDocumentManager.getInstance().getFile(document))
 
