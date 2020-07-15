@@ -5,7 +5,7 @@ package intention
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.quickfix.FoundImplicit
-import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, PsiClassExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
@@ -49,19 +49,20 @@ final case class ClassToImport(override val element: PsiClass) extends ElementTo
 }
 
 final case class MemberToImport(override val element: PsiNamedElement,
-                                owner: PsiClass) extends ElementToImport {
+                                owner: PsiNamedElement,
+                                pathToOwner: String) extends ElementToImport {
 
   override protected type E = PsiNamedElement
 
-  override def qualifiedName: String = owner match {
-    case ClassQualifiedName(qualifiedName) if qualifiedName.nonEmpty =>
-      qualifiedName + "." + name
-    case _ =>
-      name
-  }
+  override def qualifiedName: String = pathToOwner + "." + name
 
   override def presentationBody: String =
-    Presentation.withDeprecations(element, owner)
+    Presentation.withDeprecations(element, owner, pathToOwner)
+}
+
+object MemberToImport {
+  def apply(element: PsiNamedElement, owner: PsiClass): MemberToImport =
+    MemberToImport(element, owner, owner.qualifiedName)
 }
 
 final case class PrefixPackageToImport(override val element: ScPackage) extends ElementToImport {
@@ -79,5 +80,5 @@ final case class ImplicitToImport(found: FoundImplicit) extends ElementToImport 
   override def qualifiedName: String = found.instance.qualifiedName
 
   override def presentationBody: String =
-    Presentation.withDeprecations(element, found.instance.containingObject)
+    Presentation.withDeprecations(element, found.instance.owner, found.instance.pathToOwner)
 }

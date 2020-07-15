@@ -5,7 +5,7 @@ package global
 
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.psi.PsiClass
-import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ContainingClass}
+import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ContainingClass, ObjectExt}
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaImportingInsertHandler
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
@@ -33,9 +33,10 @@ private[completion] final class ExtensionMethodsFinder(private val originalType:
 
   private def globalCandidates(predicate: ScalaResolveResult => Boolean) = for {
     (conversion, application) <- ImplicitConversionData.getPossibleConversions(place)
+    owner                     <- conversion.owner.asOptionOf[ScObject].toSeq
     resolveResult             <- candidatesForType(application.resultType)
     if predicate(resolveResult)
-  } yield ExtensionMethodCandidate(resolveResult, conversion.owner, conversion.function)
+  } yield ExtensionMethodCandidate(resolveResult, owner, conversion.function)
 
   override protected def findTargets: Seq[PsiClass] = valueType match {
     case ExtractClass(ClassOrTrait(definition)) =>

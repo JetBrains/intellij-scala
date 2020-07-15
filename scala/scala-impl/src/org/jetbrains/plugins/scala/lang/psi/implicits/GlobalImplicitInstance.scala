@@ -8,10 +8,8 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.findInheritorObjectsForOwner
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.TypeDoesntConformResult
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitInstanceIndex
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors.withStableInheritors
@@ -20,29 +18,20 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult.containingObject
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames._
 
-final case class GlobalImplicitInstance(containingObject: ScObject, member: ScMember) {
-
-  def named: ScNamedElement = member match {
-    case named: ScNamedElement => named
-    case vs: ScValueOrVariable => vs.declaredElements.head
-  }
+final class GlobalImplicitInstance(owner: ScTypedDefinition, pathToOwner: String, member: ScMember)
+  extends GlobalInstance(owner, pathToOwner, member) {
 
   def toScalaResolveResult: ScalaResolveResult =
-    new ScalaResolveResult(named, MixinNodes.asSeenFromSubstitutor(containingObject, member.containingClass))
-
-  def qualifiedName: String = containingObject.qualifiedName + "." + named.name
-
-  override def hashCode(): Int = qualifiedName.hashCode
-
-  override def equals(obj: Any): Boolean = obj match {
-    case g: GlobalImplicitInstance => g.qualifiedName == qualifiedName
-    case _ => false
-  }
-
-  override def toString: String = "GlobalImplicitInstance(" + qualifiedName + ")"
+    new ScalaResolveResult(named, substitutor)
 }
 
 object GlobalImplicitInstance {
+
+  def apply(owner: ScTypedDefinition, pathToOwner: String, member: ScMember): GlobalImplicitInstance =
+    new GlobalImplicitInstance(owner, pathToOwner, member)
+
+  def apply(owner: ScObject, member: ScMember): GlobalImplicitInstance =
+    new GlobalImplicitInstance(owner, owner.qualifiedName, member)
 
   def from(srr: ScalaResolveResult): Option[GlobalImplicitInstance] = {
     for {

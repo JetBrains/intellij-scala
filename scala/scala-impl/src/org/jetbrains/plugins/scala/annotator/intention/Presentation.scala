@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.annotator.intention
 
 import com.intellij.psi.{PsiClass, PsiDocCommentOwner, PsiElement, PsiNamedElement}
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, PsiClassExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt}
 
 object Presentation {
   //noinspection ScalaExtractStringToBundle
@@ -17,18 +17,15 @@ object Presentation {
     s"$prefix<s>$name</s>"
   }
 
-  private def decoratedQualifiedName(element: PsiNamedElement, owner: PsiClass)
-                                    (function: (PsiElement, String) => String): String = owner match {
-    case ClassQualifiedName(qualifiedName) if qualifiedName.nonEmpty =>
-      val prefix = function(owner, qualifiedName)
-      val suffix = function(element, element.name)
-      prefix + "." + suffix
-    case _ =>
-      function(element, element.name)
+  private def decoratedQualifiedName(element: PsiNamedElement, owner: PsiNamedElement, pathToOwner: String)
+                                    (function: (PsiElement, String) => String): String = {
+    val prefix = function(owner, pathToOwner)
+    val suffix = function(element, element.name)
+    prefix + "." + suffix
   }
 
-  def withDeprecations(element: PsiNamedElement, owner: PsiClass): String =
-    decoratedQualifiedName(element, owner) {
+  def withDeprecations(element: PsiNamedElement, owner: PsiNamedElement, pathToOwner: String): String =
+    decoratedQualifiedName(element, owner, pathToOwner) {
       case (member: PsiDocCommentOwner, string) if member.isDeprecated => asDeprecated(string)
       case (_, string)                                                 => string
     }
