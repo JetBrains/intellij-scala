@@ -5,9 +5,9 @@ import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.editorActions.BackspaceHandlerDelegate
 import com.intellij.codeInsight.highlighting.BraceMatchingUtil
-import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.HighlighterIterator
+import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
@@ -18,20 +18,20 @@ import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler.BraceWr
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScBlockStatement, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlStartTag
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScBlockStatement, ScIf, ScTry}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.IndentUtil
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotesLength => QuotesLength}
 
 class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
-
   override def beforeCharDeleted(c: Char, file: PsiFile, editor: Editor): Unit = {
     if (!file.isInstanceOf[ScalaFile]) return
+
+    val document = editor.getDocument
 
     val offset = editor.getCaretModel.getOffset
     val element = file.findElementAt(offset - 1)
@@ -41,8 +41,6 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
 
     if (needCorrectWiki(element)) {
       inWriteAction {
-        val document = editor.getDocument
-
         if (element.getParent.getLastChild != element) {
           val tagToDelete = element.getParent.getLastChild
 
@@ -84,8 +82,6 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       }
     } else if (c == '{' && scalaSettings.WRAP_SINGLE_EXPRESSION_BODY) {
       handleLeftBrace(offset, element, file, editor)
-    } else if (scalaSettings.HANDLE_BLOCK_BRACES_AUTOMATICALLY && !c.isWhitespace) {
-      handleAutoBrace(offset, element, file, editor)
     }
   }
 
@@ -130,56 +126,6 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       (element.getParent.getLastChild != element ||
         element.textMatches("'''") && element.getPrevSibling != null &&
           element.getPrevSibling.textMatches("'"))
-  }
-
-  private def handleAutoBrace(offset: Int, element: PsiElement, file: PsiFile, editor: Editor): Unit = {
-    if (element.getTextLength != 1 ||
-      !element.followedByNewLine(ignoreComments = false) ||
-      !element.startsFromNewLine(ignoreComments = false)) {
-      return
-    }
-
-    element.parents.find(_.is[ScBlockExpr]) match {
-      case Some(block: ScBlockExpr) if canAutoDeleteBraces(block) && AutoBraceUtils.isIndentationContext(block) =>
-        (block.getLBrace, block.getRBrace, block.getParent) match {
-          case (Some(lBrace), Some(rBrace), parent: PsiElement) =>
-            val project = element.getProject
-
-            val tabSize = CodeStyle.getSettings(project).getTabSize(ScalaFileType.INSTANCE)
-            if (IndentUtil.compare(rBrace, parent, tabSize) >= 0) {
-              val document = editor.getDocument
-              // delete closing brace first because deleting it doesn't change position of the left brace
-              deleteBrace(rBrace, document)
-              deleteBrace(lBrace, document)
-              document.commit(project)
-            }
-          case _ =>
-        }
-      case _ =>
-    }
-  }
-
-  private def canAutoDeleteBraces(block: ScBlockExpr): Boolean = {
-    val it = block.children
-    var foundExpressions = 0
-
-    while (it.hasNext) {
-      it.next() match {
-        case _: ScExpression =>
-          foundExpressions += 1
-
-          // return early if we already found 2 expressions/comments
-          if (foundExpressions > 2)
-            return false
-        case _: ScBlockStatement /* cannot be an expression because we matched those in the previous case */  =>
-          return false
-        case _: PsiComment =>
-          return false
-        case _ =>
-      }
-    }
-
-    foundExpressions == 2
   }
 
   private def handleLeftBrace(offset: Int, element: PsiElement, file: PsiFile, editor: Editor): Unit = {
@@ -270,8 +216,22 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     val document = editor.getDocument
     val offset = editor.getCaretModel.getOffset
 
-    if (!CodeInsightSettings.getInstance.AUTOINSERT_PAIR_BRACKET || offset >= document.getTextLength) return false
+    if (offset >= document.getTextLength) {
+      return false
+    }
 
+    if (CodeInsightSettings.getInstance.AUTOINSERT_PAIR_BRACKET) {
+      handleAutoInsertBraces(deletedChar, offset, file, document, editor)
+    }
+
+    if (ScalaApplicationSettings.getInstance.HANDLE_BLOCK_BRACES_AUTOMATICALLY && !deletedChar.isWhitespace) {
+      handleDeleteAutoBrace(offset, document, file, editor)
+    }
+
+    false
+  }
+
+  private def handleAutoInsertBraces(deletedChar: Char, offset: Int, file: PsiFile, document: Document, editor: Editor): Unit = {
     def hasLeft: Option[Boolean] = {
       val fileType = file.getFileType
       if (fileType != ScalaFileType.INSTANCE) return None
@@ -313,8 +273,62 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       case ('(', ')') => fixBrace()
       case _ =>
     }
-
-    false
   }
 
+  private def handleDeleteAutoBrace(offset: Int, document: Document, file: PsiFile, editor: Editor): Unit = {
+    val lineText = document.lineTextAt(offset)
+    if (!containsOnlyWhitespaces(lineText)) {
+      return
+    }
+
+    val project = file.getProject
+    document.commit(file.getProject)
+
+    val element = file.findElementAt(offset)
+
+    element.parents.find(_.is[ScBlockExpr]) match {
+      case Some(block: ScBlockExpr) if canAutoDeleteBraces(block) && AutoBraceUtils.isIndentationContext(block) =>
+        (block.getLBrace, block.getRBrace, block.getParent) match {
+          case (Some(lBrace), Some(rBrace), parent: PsiElement) =>
+
+            val tabSize = CodeStyle.getSettings(project).getTabSize(ScalaFileType.INSTANCE)
+            if (IndentUtil.compare(rBrace, parent, tabSize) >= 0) {
+              val document = editor.getDocument
+              // delete closing brace first because deleting it doesn't change position of the left brace
+              deleteBrace(rBrace, document)
+              deleteBrace(lBrace, document)
+              document.commit(project)
+            }
+          case _ =>
+        }
+      case _ =>
+    }
+  }
+
+  private def containsOnlyWhitespaces(seq: CharSequence): Boolean = {
+    seq.forall(_.isWhitespace)
+  }
+
+  private def canAutoDeleteBraces(block: ScBlockExpr): Boolean = {
+    val it = block.children
+    var foundExpressions = false
+
+    while (it.hasNext) {
+      it.next() match {
+        case _: ScExpression =>
+          // return early if we already found 2 expressions/comments
+          if (foundExpressions)
+            return false
+
+          foundExpressions = true
+        case _: ScBlockStatement /* cannot be an expression because we matched those in the previous case */  =>
+          return false
+        case _: PsiComment =>
+          return false
+        case _ =>
+      }
+    }
+
+    true
+  }
 }

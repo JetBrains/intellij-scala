@@ -107,6 +107,46 @@ class AutoBraceBackspaceTest extends AutoBraceTestBase {
        |""".stripMargin -> ContinuationOnSameLine,
   )
 
+  /*def testDeletingQuotes(): Unit = checkBackspaceInAllContexts(
+    s"""
+       |def test = {
+       |  expr
+       |  "$CARET"
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+    s"""
+       |def test =
+       |  expr
+       |  $CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    s"""
+       |def test = {
+       |  expr
+       |  $CARET
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+  )*/
+
+  def testDeletingDoubleParenthesis(): Unit = checkBackspaceInAllContexts(
+    s"""
+       |def test = {
+       |  expr
+       |  ($CARET)
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+    s"""
+       |def test =
+       |  expr
+       |  $CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    s"""
+       |def test = {
+       |  expr
+       |  $CARET
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+  )
+
   // SCL-17867
   def testDeletingSingleParenthesis(): Unit = checkBackspaceInAllContexts(
     s"""
@@ -123,6 +163,33 @@ class AutoBraceBackspaceTest extends AutoBraceTestBase {
     s"""
        |def test = {
        |  expr
+       |  $CARET
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+  )
+
+  def testDeletingOnlyPartOfSecondToLastExpr(): Unit = checkBackspaceInAllContexts(
+    s"""
+       |def test = {
+       |  expr
+       |  call(
+       |
+       |  )$CARET
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+    s"""
+       |def test = {
+       |  expr
+       |  call(
+       |
+       |  $CARET
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+    s"""
+       |def test = {
+       |  expr
+       |  call(
+       |
        |  $CARET
        |}
        |""".stripMargin -> ContinuationOnSameLine,

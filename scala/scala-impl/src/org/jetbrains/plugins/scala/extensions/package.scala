@@ -524,6 +524,10 @@ package object extensions {
 
     def count(pred: Char => Boolean): Int = iterator.count(pred)
 
+    def exists(pred: Char => Boolean): Boolean = iterator.exists(pred)
+
+    def forall(pred: Char => Boolean): Boolean = iterator.forall(pred)
+
     def prefixLength(pred: Char => Boolean): Int = iterator.takeWhile(pred).size
 
     def startsWith(prefix: String): Boolean =
