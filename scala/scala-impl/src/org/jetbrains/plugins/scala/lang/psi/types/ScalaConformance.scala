@@ -1009,9 +1009,10 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       checkEquiv()
       if (result != null) return
 
-      rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor
-        with ParameterizedExistentialArgumentVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
-         with TypeParameterTypeVisitor with ThisVisitor {}
+      rightVisitor =
+        new ExistentialArgumentVisitor with ParameterizedExistentialArgumentVisitor
+          with OtherNonvalueTypesVisitor with NothingNullVisitor
+          with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1024,6 +1025,12 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         (remapper.remapExistentials(e.quantified), remapper.remapped)
       }
 
+      undefines.foreach { undef =>
+        val tparam = undef.typeParameter
+        constraints = constraints
+          .withLower(tparam.typeParamId, tparam.lowerType)
+      }
+
       val skolemizeExistentialsOnTheRight = r match {
         case etpe: ScExistentialType =>
           new ExistentialArgumentsToTypeParameters(etpe.wildcards, TypeParameterType(_))
@@ -1031,49 +1038,37 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         case t => t
       }
 
-      conformsInner(updatedWithUndefinedTypes, skolemizeExistentialsOnTheRight, HashSet.empty, constraints) match {
-        case unSubst @ ConstraintSystem(solvingSubstitutor) =>
-          for (un <- undefines if result == null) {
-            val solvedType = solvingSubstitutor(un)
-
-            val lowerBoundSubsted = solvingSubstitutor(un.typeParameter.lowerType.unpackedType)
-            var t = conformsInner(solvedType, lowerBoundSubsted, constraints = constraints)
-            if (solvedType != un && t.isLeft) {
-              result = ConstraintsResult.Left
-              return
+      conformsInner(
+        updatedWithUndefinedTypes,
+        skolemizeExistentialsOnTheRight,
+        constraints = constraints
+      ) match {
+        case cs: ConstraintSystem =>
+          constraints = cs
+          val subst =
+            cs.substitutionBounds(canThrowSCE = true, checkWeak = false)
+              .map(_.substitutor) match {
+              case Some(subst) => subst
+              case None        => result = ConstraintsResult.Left; return
             }
 
-            constraints = t.constraints
-            val upperBoundSubsted = solvingSubstitutor(un.typeParameter.upperType.unpackedType)
-            t = conformsInner(upperBoundSubsted, solvedType, constraints = constraints)
+          undefines.foreach { undef =>
+            val inst = subst(undef)
 
-            if (solvedType != un && t.isLeft) {
-              result = ConstraintsResult.Left
-              return
+            val loBound = subst(undef.typeParameter.lowerType)
+            conformsInner(inst, loBound, constraints = constraints) match {
+              case s: ConstraintSystem => constraints = s
+              case _                   => result = ConstraintsResult.Left; return
             }
-            constraints = t.constraints
-          }
 
-          if (result == null) {
-            //ignore undefined types from existential arguments
-            val typeParamIds = undefines
-              .map(_.typeParameter.typeParamId)
-              .toSet
-
-            constraints += unSubst.removeTypeParamIds(typeParamIds)
-            result = constraints
+            val hiBound = subst(undef.typeParameter.upperType)
+            conformsInner(hiBound, inst, constraints = constraints) match {
+              case s: ConstraintSystem => constraints = s
+              case _                   => result = ConstraintsResult.Left; return
+            }
           }
+          if (result == null) result = constraints
         case _ => result = ConstraintsResult.Left
-      }
-      if (result != null) return
-
-      rightVisitor = new DesignatorVisitor {}
-      r.visitType(rightVisitor)
-      if (result != null) return
-
-      val simplified = e.simplify()
-      if (simplified != l) {
-        result = conformsInner(simplified, r, visited, constraints, checkWeak)
       }
     }
 

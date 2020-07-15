@@ -41,7 +41,7 @@ class ExistentialAbstractionsTest extends ScalaLightCodeInsightFixtureTestAdapte
       |trait ZIO[-R, +E, A]
       |trait Foo[F[_]]
       |
-      |val b: Foo[({ type L[A] = ZIO[R, Throwable, A]] })#L forSome { type R } = null
+      |val b: Foo[({ type L[A] = ZIO[R, Throwable, A] })#L] forSome { type R } = null
       |val a: Foo[({ type L[A] = ZIO[R, E, A] })#L]         forSome { type R; type E } = b
       |""".stripMargin
   )

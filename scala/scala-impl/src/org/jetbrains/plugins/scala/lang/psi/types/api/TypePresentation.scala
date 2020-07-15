@@ -4,7 +4,6 @@ import com.intellij.psi.{PsiClass, PsiNamedElement, PsiPackage}
 import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiNamedElementExt, childOf}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation._
