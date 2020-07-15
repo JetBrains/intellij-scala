@@ -224,7 +224,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       handleAutoInsertBraces(deletedChar, offset, file, document, editor)
     }
 
-    if (ScalaApplicationSettings.getInstance.HANDLE_BLOCK_BRACES_AUTOMATICALLY && !deletedChar.isWhitespace) {
+    if (ScalaApplicationSettings.getInstance.HANDLE_BLOCK_BRACES_REMOVAL_AUTOMATICALLY && !deletedChar.isWhitespace) {
       handleDeleteAutoBrace(offset, document, file, editor)
     }
 

@@ -19,7 +19,8 @@ class ScalaEditorSmartKeysConfigurable extends BeanConfigurable[ScalaApplication
     val settings: ScalaApplicationSettings = getInstance();
     checkBox(ScalaBundle.message("insert.pair.multiline.quotes"), () => settings.INSERT_MULTILINE_QUOTES, settings.INSERT_MULTILINE_QUOTES = _)
     checkBox(ScalaBundle.message("wrap.single.expression.body"), () => settings.WRAP_SINGLE_EXPRESSION_BODY, settings.WRAP_SINGLE_EXPRESSION_BODY = _)
-    checkBox(ScalaBundle.message("insert.and.remove.block.braces.automatically.based.on..."), () => settings.HANDLE_BLOCK_BRACES_AUTOMATICALLY, settings.HANDLE_BLOCK_BRACES_AUTOMATICALLY = _)
+    checkBox(ScalaBundle.message("insert.block.braces.automatically.based.on.indentation"), () => settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY, settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY = _)
+    checkBox(ScalaBundle.message("remove.block.braces.automatically.based.on.indentation"), () => settings.HANDLE_BLOCK_BRACES_REMOVAL_AUTOMATICALLY, settings.HANDLE_BLOCK_BRACES_REMOVAL_AUTOMATICALLY = _)
     checkBox(ScalaBundle.message("upgrade.to.interpolated"), () => settings.UPGRADE_TO_INTERPOLATED, settings.UPGRADE_TO_INTERPOLATED = _)
   }
 

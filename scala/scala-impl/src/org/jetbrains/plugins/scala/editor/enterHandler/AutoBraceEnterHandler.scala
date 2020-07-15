@@ -16,7 +16,7 @@ class AutoBraceEnterHandler extends EnterHandlerDelegateAdapter {
   override def preprocessEnter(file: PsiFile, editor: Editor, caretOffsetRef: Ref[Integer], caretAdvance: Ref[Integer],
                                dataContext: DataContext, originalHandler: EditorActionHandler): Result = {
 
-    if (!ScalaApplicationSettings.getInstance.HANDLE_BLOCK_BRACES_AUTOMATICALLY)
+    if (!ScalaApplicationSettings.getInstance.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY)
       return Result.Continue
 
     val caretOffset = caretOffsetRef.get.intValue

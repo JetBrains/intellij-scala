@@ -116,15 +116,19 @@ abstract class AutoBraceTestBase extends EditorActionTestBase {
         context.trim + transform(text) + postfix
       }
 
-      val before = buildBody(bodyBefore)
-      assert(settings.HANDLE_BLOCK_BRACES_AUTOMATICALLY)
+      assert(!settings.HANDLE_BLOCK_BRACES_REMOVAL_AUTOMATICALLY)
+      assert(settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY)
 
+      val before = buildBody(bodyBefore)
       try {
+        settings.HANDLE_BLOCK_BRACES_REMOVAL_AUTOMATICALLY = true
         check(before, buildBody(bodyAfter))
-        settings.HANDLE_BLOCK_BRACES_AUTOMATICALLY = false
+        settings.HANDLE_BLOCK_BRACES_REMOVAL_AUTOMATICALLY = false
+        settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY = false
         check(before, buildBody(bodyAfterWithSettingsTurnedOff))
       } finally {
-        settings.HANDLE_BLOCK_BRACES_AUTOMATICALLY = true
+        settings.HANDLE_BLOCK_BRACES_REMOVAL_AUTOMATICALLY = false
+        settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY = true
       }
     }
   }
