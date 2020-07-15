@@ -92,25 +92,4 @@ object ScImplicitStub {
       case None => className(typeElem)
     }
   }
-
-  final def classNames(te: ScTypeElement): Array[String] = {
-    val allNames = te match {
-      case s: ScSimpleTypeElement => Array(s.getText)
-      case p: ScParameterizedTypeElement => classNames(p.typeElement)
-      case i: ScInfixTypeElement => Array(i.operation.getText)
-      case c: ScCompoundTypeElement =>
-        c.components.toArray.flatMap(classNames)
-      case d: ScDesugarizableTypeElement =>
-        d.computeDesugarizedType match {
-          case Some(tp) => classNames(tp)
-          case _ => EMPTY_STRING_ARRAY
-        }
-      case tp: ScTypeProjection => Array(tp.refName)
-      case _ => EMPTY_STRING_ARRAY
-    }
-
-    allNames.filterNot(defaultBaseClasses.contains)
-  }
-
-  private val defaultBaseClasses = Array("scala.AnyRef", "java.lang.Object")
 }

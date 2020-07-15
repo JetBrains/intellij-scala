@@ -42,6 +42,7 @@ object ScalaIndexKeys {
   val IMPLICIT_OBJECT_KEY = createIndexKey[String, ScObject]("sc.implcit.object")
   val ANNOTATED_MEMBER_KEY = createIndexKey[String, ScAnnotation]("sc.annotatde.member.name")
   val PROPERTY_NAME_KEY = createIndexKey[String, ScValueOrVariable]("sc.property.name")
+  val PROPERTY_CLASS_NAME_KEY = createIndexKey[String, ScValueOrVariable]("sc.property.class.name")
   val CLASS_PARAMETER_NAME_KEY = createIndexKey[String, ScClassParameter]("sc.class.parameter.name")
   val TYPE_ALIAS_NAME_KEY = createIndexKey[String, ScTypeAlias]("sc.type.alias.name")
   val STABLE_ALIAS_NAME_KEY = createIndexKey[String, ScTypeAlias]("sc.stable.alias.name")
