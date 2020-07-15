@@ -44,7 +44,10 @@ import scala.annotation.tailrec
 import scala.language.implicitConversions
 
 //noinspection HardCodedStringLiteral
-final class ScalaTypedHandler extends TypedHandlerDelegate with AutoBraceInserter {
+final class ScalaTypedHandler extends TypedHandlerDelegate
+  with AutoBraceInserter
+  with IndentAdjustor
+{
 
   override def charTyped(c: Char, project: Project, editor: Editor, file: PsiFile): Result = {
     if (!file.isInstanceOf[ScalaFile]) return Result.CONTINUE
@@ -111,10 +114,10 @@ final class ScalaTypedHandler extends TypedHandlerDelegate with AutoBraceInserte
       startAutoPopupCompletion(file, editor)
     } else if (c == '{') {
       convertToInterpolated(file, editor)
-    } else if (c == '.' && isSingleCharOnLine(editor)) {
+    } else if (c == '.' && shouldAdjustIndentAfterDot(editor)) {
       prepareIndentAdjustmentBeforeDot(document, offset)
       adjustIndentBeforeDot(editor)
-    } else if (c != '.' && element != null && isSingleCharOnLine(editor) && continuesPostfixExpr(offset, element, document)) {
+    } else if (c != '.' && element != null && shouldAdjustIndentBecauseOfPostfix(offset, element, document, editor)) {
       adjustIndent
     } else if (c == '.') {
       startAutoPopupCompletionInInterpolatedString(file, editor)
@@ -349,47 +352,6 @@ final class ScalaTypedHandler extends TypedHandlerDelegate with AutoBraceInserte
       ScalaPsiUtil.isLineTerminator,
       ScalaPsiUtil.getParent(_, 2).exists(_.isInstanceOf[ScValue])
     )
-
-  private def prepareIndentAdjustmentBeforeDot(document: Document, offset: Int): Unit = {
-    // 1. to indent '.' correctly we add an identifier after the dot
-    // 2. the document will then be committed in `charTyped`. This will build the correct block structure
-    // 3. In `adjustIndentBeforeDot` we can then indent the line correctly
-    // 4. At the end we have to remove the x, which we have inserted
-    document.insertString(offset, "x")
-  }
-
-  private def adjustIndentBeforeDot(editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
-    adjustIndent(document, project, element, offset)
-    val newCaretOffset = editor.offset
-    document.deleteString(newCaretOffset, newCaretOffset + 1)
-  }
-
-  private def adjustIndent(document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
-    val file = element.getContainingFile
-    val dotOffset = offset - 1
-    CodeStyleManager.getInstance(project).adjustLineIndent(file, dotOffset)
-  }
-
-  private def isSingleCharOnLine(editor: Editor): Boolean = {
-    val document = editor.getDocument
-    val offset = editor.offset
-    val lineStart = document.lineStartOffset(offset)
-
-    val prefix =
-      if (lineStart < offset)
-        document.getImmutableCharSequence.substring(lineStart, offset - 1)
-      else ""
-    val suffix = document.getImmutableCharSequence.substring(offset, document.lineEndOffset(offset))
-
-    (prefix + suffix).forall(_.isWhitespace)
-  }
-
-  private def continuesPostfixExpr(offset: Int, element: PsiElement, document: Document): Boolean = {
-    val caretLine = document.getLineNumber(offset)
-    val lastElementLine = document.getLineNumber(element.startOffset)
-    (caretLine - lastElementLine == 1) &&
-      isBehindPostfixExpr(element)
-  }
 
   private def replaceArrowTask(file: PsiFile, editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
     @inline def replaceElement(replaceWith: String): Unit = {
