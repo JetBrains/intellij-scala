@@ -4,9 +4,9 @@ import com.intellij.execution.RunManagerEx
 import com.intellij.execution.configurations.ConfigurationTypeUtil
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.vfs.LocalFileSystem
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.console.actions.RunConsoleAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 
 import scala.jdk.CollectionConverters._
@@ -15,8 +15,8 @@ import scala.jdk.CollectionConverters._
   * User: Dmitry.Naydanov
   * Date: 13.09.17.
   */
-class AmmoniteRunScriptAction extends AnAction(ScalaBundle.message("ammonite.run.script")) {
-  def this(target: ScalaFile) = {
+class AmmoniteRunScriptAction extends AnAction(WorksheetBundle.message("ammonite.run.script")) {
+  def this(target: ScalaFile) {
     this()
     file = Option(target)
   }

@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package worksheet
+package org.jetbrains.plugins.scala.worksheet
 
 import com.intellij.ide.scratch.ScratchUtil
 import com.intellij.openapi.project.Project
@@ -8,11 +7,14 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.jps.model.java.JavaSourceRootType
+import org.jetbrains.plugins.scala.finder.FileTypeWithIsolatedDeclarations
 import org.jetbrains.plugins.scala.lang.psi.ScFileViewProvider
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.{LanguageFileTypeBase, ScalaFileType}
 
 //noinspection TypeAnnotation
-object WorksheetFileType extends LanguageFileTypeBase(WorksheetLanguage.INSTANCE) {
+object WorksheetFileType extends LanguageFileTypeBase(WorksheetLanguage.INSTANCE)
+  with FileTypeWithIsolatedDeclarations {
 
   override def getDefaultExtension = "sc"
 

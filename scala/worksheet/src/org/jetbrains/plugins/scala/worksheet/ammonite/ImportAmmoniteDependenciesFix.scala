@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package worksheet
-package ammonite
+package org.jetbrains.plugins.scala.worksheet.ammonite
 
 import java.io.File
 
@@ -13,11 +11,12 @@ import com.intellij.openapi.roots.{ModuleRootManager, OrderRootType}
 import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.psi.PsiFile
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{inWriteAction, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
-import org.jetbrains.plugins.scala.project.template._
+import org.jetbrains.plugins.scala.project.template.{Artifact, createTempSbtProject}
 import org.jetbrains.plugins.scala.project.{Version, Versions}
 import org.jetbrains.plugins.scala.util.{NotificationUtil, ScalaUtil}
+import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 
 import scala.collection.mutable
 import scala.util.{Success, Try}
@@ -30,6 +29,7 @@ object ImportAmmoniteDependenciesFix {
 
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.worksheet.ammonite.ImportAmmoniteDependenciesFix")
 
+  // TODO: update versions
   private val DEFAULT_SCALA_VERSION = "2.12.4"
   private val DEFAULT_AMMONITE_VERSION = "1.0.3"
 
@@ -40,10 +40,10 @@ object ImportAmmoniteDependenciesFix {
            (implicit project: Project): Unit = {
     val manager = ProgressManager.getInstance
 
-    val task = new Task.Backgroundable(project, ScalaBundle.message("ammonite.adding.dependencies.title"), false) {
+    val task = new Task.Backgroundable(project, WorksheetBundle.message("ammonite.adding.dependencies.title"), false) {
 
       override def run(indicator: ProgressIndicator): Unit = {
-        indicator.setText(ScalaBundle.message("ammonite.loading.list.of.versions"))
+        indicator.setText(WorksheetBundle.message("ammonite.loading.list.of.versions"))
 
         val (forScala, predicate) = ScalaUtil.getScalaVersion(file)
           .fold(
@@ -60,7 +60,7 @@ object ImportAmmoniteDependenciesFix {
 
         val (scalaVersion, ammoniteVersion) = detectAmmoniteVersion(forScala)
 
-        indicator.setText(ScalaBundle.message("ammonite.extracting.info.from.sbt"))
+        indicator.setText(WorksheetBundle.message("ammonite.extracting.info.from.sbt"))
 
         val files = mutable.ListBuffer.empty[File]
         val e = new AmmoniteUtil.RegexExtractor
@@ -77,7 +77,7 @@ object ImportAmmoniteDependenciesFix {
               case _ =>
             }
           case mre"[success]$_" =>
-            indicator.setText(ScalaBundle.message("ammonite.adding.dependencies.progress"))
+            indicator.setText(WorksheetBundle.message("ammonite.adding.dependencies.progress"))
 
             ScalaUtil.getModuleForFile(file.getVirtualFile).foreach { module =>
               invokeLater {
@@ -130,7 +130,7 @@ object ImportAmmoniteDependenciesFix {
     ProgressIndicatorProvider.getGlobalProgressIndicator match {
       case null => new BackgroundableProcessIndicator(
         project,
-        ScalaBundle.message("ammonite.config.display.name"),
+        WorksheetBundle.message("ammonite.config.display.name"),
         PerformInBackgroundOption.ALWAYS_BACKGROUND,
         null,
         null,
@@ -196,7 +196,7 @@ object ImportAmmoniteDependenciesFix {
       project = project,
       title = ammoniteName,
       message =
-        ScalaBundle.message("add.a.all.ammonite.deps.to.project"),
+        WorksheetBundle.message("add.a.all.ammonite.deps.to.project"),
       handler = {
         case "run" => apply(file)
         case "disable" => AmmoniteScriptWrappersHolder.getInstance(project).setIgnoreImports()

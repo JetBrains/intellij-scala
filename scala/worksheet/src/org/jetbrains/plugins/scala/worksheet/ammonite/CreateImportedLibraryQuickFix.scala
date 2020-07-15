@@ -7,12 +7,13 @@ import com.intellij.openapi.roots.libraries.{LibraryTable, LibraryTablesRegistra
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ModuleStructureConfigurable
 import com.intellij.openapi.roots.ui.configuration.projectRoot.daemon.ModuleProjectStructureElement
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.util.ScalaUtil
-import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
+import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 
 class CreateImportedLibraryQuickFix(private val myPsi: PsiElement) extends LocalQuickFixOnPsiElement(myPsi) {
-  override def getText: String = ScalaBundle.message("ammonite.create.library.from.jar")
+  override def getText: String = WorksheetBundle.message("ammonite.create.library.from.jar")
 
   override def invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement): Unit = {
     def selectLibName(stableExpr: ScStableCodeReference, table: LibraryTable): String = {

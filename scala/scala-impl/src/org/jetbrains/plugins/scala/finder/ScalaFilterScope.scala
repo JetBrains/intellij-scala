@@ -11,9 +11,9 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.searches.{MethodReferencesSearch, ReferencesSearch}
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.compiled.SigFileType
 import org.jetbrains.plugins.scala.util.HashBuilder._
-import org.jetbrains.plugins.scala.worksheet.WorksheetFileType
 
 sealed abstract class FilterScope(val delegate: GlobalSearchScope)
                                  (implicit project: Project)
@@ -131,7 +131,7 @@ final class ResolveFilterScope(delegate: GlobalSearchScope)
   extends ResolveFilterScopeBase(delegate) {
 
   override def mayContain(file: VirtualFile): Boolean =
-    super.mayContain(file) && file.getFileType != WorksheetFileType
+    super.mayContain(file) && !file.getFileType.is[FileTypeWithIsolatedDeclarations]
 }
 
 object ResolveFilterScope {
@@ -157,7 +157,7 @@ final class WorksheetResolveFilterScope(delegate: GlobalSearchScope,
 
   override def mayContain(file: VirtualFile): Boolean =
     super.mayContain(file) && {
-      if (file.getFileType == WorksheetFileType)
+      if (file.getFileType.is[FileTypeWithIsolatedDeclarations])
         file == worksheetFile // worksheet elements shouldn't be available outside the worksheet
       else
         true
