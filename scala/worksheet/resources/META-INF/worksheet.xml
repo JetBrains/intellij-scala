@@ -31,6 +31,7 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder$Startup"/>
         <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteFileDeclarationsContributor"/>
+        <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.WorksheetFileDeclarationsContributor"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala">

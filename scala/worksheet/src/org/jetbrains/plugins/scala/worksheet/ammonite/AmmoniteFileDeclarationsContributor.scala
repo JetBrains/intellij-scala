@@ -2,16 +2,15 @@ package org.jetbrains.plugins.scala.worksheet.ammonite
 
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.{PsiElement, ResolveState}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsContributor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.worksheet.FileDeclarationsContributor
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil.isAmmoniteFile
 
 /**
   * User: Dmitry.Naydanov
   * Date: 02.08.18.
   */
-class AmmoniteFileDeclarationsContributor extends FileDeclarationsContributor {
+final class AmmoniteFileDeclarationsContributor extends FileDeclarationsContributor {
   import AmmoniteFileDeclarationsContributor._
   
   override def accept(holder: PsiElement): Boolean = holder match {

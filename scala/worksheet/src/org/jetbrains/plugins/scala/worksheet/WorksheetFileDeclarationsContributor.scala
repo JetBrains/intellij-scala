@@ -1,22 +1,19 @@
-package org.jetbrains.plugins.scala.worksheet.ui
+package org.jetbrains.plugins.scala.worksheet
 
 import com.intellij.codeInsight.completion.CompletionUtil
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.{PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.FileDeclarationsContributor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory}
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
-import org.jetbrains.plugins.scala.worksheet.{FileDeclarationsContributor, GotoOriginalHandlerUtil}
 
 import scala.collection.mutable.ArrayBuffer
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 02.08.18.
-  */
-class WorksheetFileDeclarationsContributor extends FileDeclarationsContributor {
+final class WorksheetFileDeclarationsContributor extends FileDeclarationsContributor {
+
   override def accept(holder: PsiElement): Boolean = holder match {
     case scalaFile: ScalaFileImpl if scalaFile.isWorksheetFile => 
       WorksheetFileSettings.isReplLight(scalaFile) || WorksheetFileSettings.isRepl(scalaFile)
