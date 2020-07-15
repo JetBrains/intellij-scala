@@ -186,7 +186,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
       Result.STOP
     } else if (c == '{' && smartKeySettings.WRAP_SINGLE_EXPRESSION_BODY) {
       handleLeftBraceWrap(offset, element)
-    } else if (smartKeySettings.HANDLE_BLOCK_BRACES_AUTOMATICALLY && !c.isWhitespace && c != '{' && c != '}') {
+    } else if (smartKeySettings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY && !c.isWhitespace && c != '{' && c != '}') {
       handleAutoBraces(c, offset, element)
     } else {
       Result.CONTINUE
