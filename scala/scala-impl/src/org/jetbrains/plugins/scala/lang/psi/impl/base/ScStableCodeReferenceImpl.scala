@@ -39,14 +39,11 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, Comple
 import org.jetbrains.plugins.scala.lang.resolve.{StableCodeReferenceResolver, _}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocSyntaxElement}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
-import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
-
 
 /**
  * @author AlexanderPodkhalyuzin
  *         Date: 22.02.2008
  */
-
 class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) with ScStableCodeReference {
 
   override def toString: String = s"CodeReferenceElement${debugKind.fold("")(" (" + _ + ")")}: ${ifReadAllowed(getText)("")}"
@@ -443,24 +440,10 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       }
     }
 
-    getContainingFile match {
-      case ammoniteScript: ScalaFile if AmmoniteUtil.isAmmoniteFile(ammoniteScript) =>
-        def psi2result(psiElement: PsiNamedElement) = Array(new ScalaResolveResult(psiElement))
-
-        val fsi = AmmoniteUtil.scriptResolveQualifier(this)
-
-        (fsi, fsi.flatMap(AmmoniteUtil.file2Object)) match {
-          case (_, Some(obj)) =>
-            return psi2result(obj)
-          case (Some(dir), _) =>
-            return psi2result(dir)
-          case _ =>
-            AmmoniteUtil.scriptResolveSbtDependency(this) match {
-              case Some(dir) => return psi2result(dir)
-              case _ =>
-            }
-        }
-      case _ =>
+    ScStableCodeReferenceExtraResolver.resolveWithFileCheck(this) match {
+      case Some(element) =>
+        return Array(new ScalaResolveResult(element))
+      case None        =>
     }
 
     val importStmt = PsiTreeUtil.getContextOfType(this, true, classOf[ScImportStmt])

@@ -32,7 +32,6 @@ import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
-import org.jetbrains.plugins.scala.worksheet.ScalaScriptImportsUtil
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 import scala.annotation.tailrec
@@ -95,7 +94,9 @@ class ScalaImportOptimizer extends ImportOptimizer {
       if (progressIndicator != null) progressIndicator
       else if (progressManager.hasProgressIndicator) progressManager.getProgressIndicator
       else null
-    if (indicator != null) indicator.setText2(ScalaEditorBundle.message("imports.analyzing.usage", file.getName))
+
+    if (indicator != null)
+      indicator.setText2(ScalaEditorBundle.message("imports.analyzing.usage", file.getName))
 
     val size = importHolders.size + importUsers.size //processAllElementsConcurrentlyUnderProgress will be called 2 times
     val counter = new AtomicInteger(0)
@@ -136,7 +137,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       //todo: collect proper information about language features
       importUsed.isAlwaysUsed ||
         usedImports.contains(importUsed) ||
-        ScalaScriptImportsUtil.isImportUsed(importUsed)
+        ScalaImportOptimizerHelper.extensions.exists(_.isImportUsed(importUsed))
     }
 
     val rangeInfos = collectRanges(createInfo(_, isImportUsed))
@@ -435,7 +436,8 @@ object ScalaImportOptimizer {
       if (info.canAddRoot && importedNames.contains(getFirstId(info.prefixQualifier)))
         importInfos.update(i, info.withRootPrefix)
 
-      if (!ScalaScriptImportsUtil.cannotShadowName(info)) importedNames ++= info.allNames
+      if (!ScalaImportOptimizerHelper.extensions.exists(_.cannotShadowName(info)))
+        importedNames ++= info.allNames
     }
   }
 
@@ -667,7 +669,10 @@ object ScalaImportOptimizer {
 
   private def mergeImportInfos(buffer: ArrayBuffer[ImportInfo]): ArrayBuffer[ImportInfo] = {
     def canBeMergedAt(i: Int): Boolean =
-      i > -1 && i < buffer.length && !ScalaScriptImportsUtil.preventMerging(buffer(i))
+      i > -1 && i < buffer.length && {
+        val el = buffer(i)
+        !ScalaImportOptimizerHelper.extensions.exists(_.preventMerging(el))
+      }
 
     def samePrefixAfter(i: Int): Int = {
       if (!canBeMergedAt(i)) return -1

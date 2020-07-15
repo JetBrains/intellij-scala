@@ -17,6 +17,31 @@
                          groupPath="Scala" groupName="Worksheet"
                          level="ERROR" enabledByDefault="true" language="Scala"/>
 
+        <!-- Util ammonite inspection -->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUnresolvedLibraryInspection"
+                         bundle="messages.ScalaWorksheetBundle"
+                         key="displayname.ammonite.unresolved.import"
+                         groupPath="Scala" shortName="AmmoniteUnresolvedLibrary"
+                         level="WARNING" enabledByDefault="true" language="Scala" groupName="Other"/>
+
         <stubElementTypeHolder class="org.jetbrains.plugins.scala.worksheet.WorksheetParserDefinition$"/>
+        <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteGotoHandler" order="first"/>
+        <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunMarkerContributor" language="Scala"/>
+        <configurationType implementation="org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunConfigurationType"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder$Startup"/>
+        <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteFileDeclarationsContributor"/>
     </extensions>
+
+    <extensions defaultExtensionNs="org.intellij.scala">
+        <importUsedProvider implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteImportInfoProvider"/>
+        <importOptimizerHelper implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteImportOptimizerHelper"/>
+        <referenceExtraResolver implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScStableCodeReferenceExtraResolver"/>
+    </extensions>
+
+    <actions>
+        <action id="Scala.NewScalaWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.NewScalaWorksheetAction">
+            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
+        </action>
+    </actions>
 </idea-plugin>

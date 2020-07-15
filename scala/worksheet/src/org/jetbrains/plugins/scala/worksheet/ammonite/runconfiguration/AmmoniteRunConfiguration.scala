@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration
 
 import java.io.{File, IOException}
 
-import javax.swing.event.{HyperlinkEvent, HyperlinkListener}
-import javax.swing.{BoxLayout, JComponent, JPanel}
 import com.intellij.execution.Executor
 import com.intellij.execution.configurations._
 import com.intellij.execution.filters.TextConsoleBuilderImpl
@@ -15,13 +13,15 @@ import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.ui.{LabeledComponent, TextFieldWithBrowseButton}
-import com.intellij.openapi.util.{JDOMExternalizer, SystemInfo}
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.{JDOMExternalizer, SystemInfo}
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.ui.RawCommandLineEditor
+import javax.swing.event.{HyperlinkEvent, HyperlinkListener}
+import javax.swing.{BoxLayout, JComponent, JPanel}
 import org.jdom.Element
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder
 import org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunConfiguration.{AmmNotFoundException, MyEditor}
 
@@ -209,9 +209,9 @@ object AmmoniteRunConfiguration {
       val panel = new JPanel()
       panel setLayout new BoxLayout(panel, BoxLayout.Y_AXIS)
 
-      val comp0 = createLabeledElement(ScalaBundle.message("ammonite.script"), createFileBrowser)
-      val comp1 = createLabeledElement(ScalaBundle.message("ammonite.executable"), createFileBrowser)
-      val comp2 = createLabeledElement(ScalaBundle.message("ammonite.script.parameters"), new RawCommandLineEditor)
+      val comp0 = createLabeledElement(WorksheetBundle.message("ammonite.script"), createFileBrowser)
+      val comp1 = createLabeledElement(WorksheetBundle.message("ammonite.executable"), createFileBrowser)
+      val comp2 = createLabeledElement(WorksheetBundle.message("ammonite.script.parameters"), new RawCommandLineEditor)
 
       panel.add(comp0, 0)
       panel.add(comp1, 1)
@@ -229,7 +229,7 @@ object AmmoniteRunConfiguration {
 
     private def createFileBrowser: TextFieldWithBrowseButton = {
       val fileBrowser = new TextFieldWithBrowseButton()
-      fileBrowser.addBrowseFolderListener(ScalaBundle.message("ammonite.config.select"), null, null, new FileChooserDescriptor(true, false, true, true, false, false))
+      fileBrowser.addBrowseFolderListener(WorksheetBundle.message("ammonite.config.select"), null, null, new FileChooserDescriptor(true, false, true, true, false, false))
       fileBrowser
     }
   }
