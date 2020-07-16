@@ -9,6 +9,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{StubIndex, StubIndexKey}
 import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.util.CommonProcessors.alwaysFalse
+import org.jetbrains.plugins.scala.extensions.CollectUniquesProcessorEx
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
@@ -101,4 +102,31 @@ object ScalaIndexKeys {
                           (implicit project: Project): Boolean =
       indexKey.hasElements(key(name), scope, requiredClass)
   }
+
+  implicit class StubIndexStringKeyExt[Psi <: PsiElement : ClassTag](private val indexKey: StubIndexKey[String, Psi]) {
+
+    def forClassFqn(qualifiedName: String, scope: GlobalSearchScope)
+                   (implicit project: Project): collection.Set[Psi] = {
+      val stubIndex = StubIndex.getInstance
+      val collectProcessor = new CollectUniquesProcessorEx[Psi]
+
+      for {
+        segments <- ScalaNamesUtil.splitName(qualifiedName).tails
+        if segments.nonEmpty
+
+        name = segments.mkString(".")
+      } stubIndex.processElements(
+        indexKey,
+        name,
+        project,
+        scope,
+        implicitly[ClassTag[Psi]].runtimeClass.asInstanceOf[Class[Psi]],
+        collectProcessor
+      )
+
+      collectProcessor.results
+    }
+
+  }
+
 }

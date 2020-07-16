@@ -243,22 +243,26 @@ object ScalaCompletionUtil {
 
 
   //find objects which may be used to import this member
-  def findInheritorObjectsForOwner(member: ScMember): Set[ScObject] =
+  //select a single one if possible
+  def findInheritorObjectsForOwner(member: ScMember): Set[ScObject] = {
+    val allObjects = findAllInheritorObjectsForOwner(member)
+    if (allObjects.isEmpty || member.containingClass.hasTypeParameters) {
+      allObjects
+    } else {
+      //if `clazz` is not generic, members in all objects are the same, so we return one with the shortest qualified name
+      Set(allObjects.minBy(o => (o.isDeprecated, o.qualifiedName.length, o.qualifiedName)))
+    }
+  }
+
+  //find objects which may be used to import this member
+  def findAllInheritorObjectsForOwner(member: ScMember): Set[ScObject] =
     member.containingClass match {
       case null => Set.empty
       case clazz =>
-        val allObjects =
-          (inheritorObjectsInLibraries(clazz) ++ inheritorObjectsInProject(clazz))
-            .filterNot(o => isInExcludedPackage(o.qualifiedName, member.getProject))
-
-        if (allObjects.isEmpty || clazz.hasTypeParameters) {
-          allObjects
-        } else {
-          //if `clazz` is not generic, members in all objects are the same, so we return one with the shortest qualified name
-          Set(allObjects.minBy(o => (o.isDeprecated, o.qualifiedName.length, o.qualifiedName)))
-        }
-
+        (inheritorObjectsInLibraries(clazz) ++ inheritorObjectsInProject(clazz))
+          .filterNot(o => isInExcludedPackage(o.qualifiedName, member.getProject))
     }
+
 
   def isInExcludedPackage(qualifiedName: String, project: Project): Boolean =
     JavaProjectCodeInsightSettings.getSettings(project).isExcluded(qualifiedName)
