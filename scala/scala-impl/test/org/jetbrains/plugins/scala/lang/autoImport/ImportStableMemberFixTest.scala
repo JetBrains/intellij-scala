@@ -109,18 +109,18 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
 
   def testSingleOptionIfNonParameterizedInheritance(): Unit = checkElementsToImport(
     s"""
-      |trait Base {
-      |  def foo(): Int = 1
-      |}
-      |class A extends Base
-      |object B extends A
-      |
-      |object C extends Base
-      |
-      |object Test {
-      |  ${CARET}foo()
-      |}
-      |""".stripMargin,
+       |trait Base {
+       |  def foo(): Int = 1
+       |}
+       |class A extends Base
+       |object B extends A
+       |
+       |object C extends Base
+       |
+       |object Test {
+       |  ${CARET}foo()
+       |}
+       |""".stripMargin,
 
     "B.foo"
   )
@@ -197,5 +197,30 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
        |}""".stripMargin,
 
     "Foo.foo"
+  )
+
+  def testMethodFromVal(): Unit = checkElementsToImport(
+    s"""
+       |trait MyMethods {
+       |  def myMethod(): Unit = ???
+       |}
+       |
+       |trait Abc {
+       |  trait API extends MyMethods
+       |  val api: API
+       |}
+       |
+       |trait Abc2 extends Abc {
+       |  trait API extends super.API
+       |  val api: API = ???
+       |}
+       |
+       |object AbcImpl extends Abc2
+       |
+       |object Test {
+       |  ${CARET}myMethod()
+       |}""".stripMargin,
+
+    "AbcImpl.api.myMethod"
   )
 }

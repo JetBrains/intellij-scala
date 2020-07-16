@@ -8,6 +8,8 @@ import com.intellij.psi.impl.java.stubs.index.JavaStaticMemberNameIndex
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
+import org.jetbrains.plugins.scala.autoImport.GlobalMember
+import org.jetbrains.plugins.scala.autoImport.GlobalMember.findGlobalMembers
 import org.jetbrains.plugins.scala.extensions.{&&, ObjectExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, TraversableExt}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.{findInheritorObjectsForOwner, isInExcludedPackage}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -131,9 +133,8 @@ object ScalaImportGlobalMemberFix {
         case (td: ScTypedDefinition) && inNameContext(m: ScMember)
           if isAccessible(m, ref) && !hasImplicitModifier(m) =>
 
-          (m.containingClass.asOptionOf[ScObject] ++: findInheritorObjectsForOwner(m))
-            .filter(_.isStable)
-            .map(MemberToImport(td, _))
+          findGlobalMembers(m, ref.resolveScope)(new GlobalMember(_, _, _))
+            .map(gm => MemberToImport(gm.named, gm.owner, gm.pathToOwner))
         case _ => None
       }
   }
