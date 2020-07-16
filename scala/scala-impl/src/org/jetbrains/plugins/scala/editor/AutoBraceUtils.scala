@@ -96,7 +96,7 @@ object AutoBraceUtils {
   private val continuationPrefixRegexPattern = new Regex(
     indentationContextContinuationsTexts
       .iterator
-      .map(_.foldRight("")("(" + _ + _ + ")?"))
+      .map(_.foldRight("")("(" + _ + _ + "?)"))
       .mkString("|")
   ).pattern
 
@@ -104,4 +104,7 @@ object AutoBraceUtils {
     val matcher = continuationPrefixRegexPattern.matcher(keywordPrefix)
     matcher.matches()
   }
+
+  def startsWithContinuationPrefix(text: String): Boolean =
+    continuationPrefixRegexPattern.matcher(text).lookingAt()
 }

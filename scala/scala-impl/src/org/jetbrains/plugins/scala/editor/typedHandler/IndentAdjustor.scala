@@ -7,8 +7,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.codeStyle.CodeStyleManager
 import extensions._
+import org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceInsertionTools.isBehindPostfixExpr
 
-trait IndentAdjustor { this: AutoBraceInserter =>
+trait IndentAdjustor {
   def shouldAdjustIndentAfterDot(editor: Editor): Boolean =
     isSingleCharOnLine(editor)
 
@@ -48,5 +49,12 @@ trait IndentAdjustor { this: AutoBraceInserter =>
     val suffix = document.getImmutableCharSequence.substring(offset, document.lineEndOffset(offset))
 
     (prefix + suffix).forall(_.isWhitespace)
+  }
+
+  def continuesPostfixExpr(offset: Int, element: PsiElement, document: Document): Boolean = {
+    val caretLine = document.getLineNumber(offset)
+    val lastElementLine = document.getLineNumber(element.startOffset)
+    (caretLine - lastElementLine == 1) &&
+      isBehindPostfixExpr(element)
   }
 }

@@ -2,20 +2,19 @@ package org.jetbrains.plugins.scala
 package editor
 package typedHandler
 
-import com.intellij.codeInsight.editorActions.TypedHandlerDelegate.Result
+import java.{util => ju}
+
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
-import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettings}
+import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
-import extensions._
+import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScPostfixExpr
-import java.{util => ju}
-
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
-trait AutoBraceInserter {
+object AutoBraceInsertionTools {
   def autoBraceInsertionActivated: Boolean =
     ScalaApplicationSettings.getInstance.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY
 
@@ -27,8 +26,8 @@ trait AutoBraceInserter {
 
   private val continuesPreviousLine = Set('.')
 
-  def handleAutoBraces(c: Char, caretOffset: Int, element: PsiElement)
-                      (implicit project: Project, file: PsiFile, editor: Editor, settings: CodeStyleSettings): Result = {
+  def findAutoBraceInsertionOpportunity(c: Char, caretOffset: Int, element: PsiElement)
+                                       (implicit project: Project, file: PsiFile, editor: Editor): Option[AutoBraceInsertionInfo] = {
     import AutoBraceUtils._
 
     val (wsBeforeCaret, caretWS, curLineIndent, isAfterPossibleContinuation) = element match {
@@ -49,12 +48,12 @@ trait AutoBraceInserter {
 
           val tok = PsiTreeUtil.prevVisibleLeaf(caretWS) match {
             case tok: PsiElement if isPossibleContinuationButWillNotBeContinuation(tok, c) => tok
-            case _ => return Result.CONTINUE
+            case _ => return None
           }
 
           val beforeContWS = PsiTreeUtil.prevLeaf(tok) match {
             case beforeContWS: PsiWhiteSpace => beforeContWS
-            case _ => return Result.CONTINUE
+            case _ => return None
           }
 
           val beforeContWSText = beforeContWS.getText
@@ -62,14 +61,14 @@ trait AutoBraceInserter {
 
           if (newlinePosBeforeCaret < 0) {
             // there is something else before the possible continuation, so do nothing
-            return Result.CONTINUE
+            return None
           }
 
           val beforeContIndent = beforeContWSText.substring(newlinePosBeforeCaret)
           (beforeContWS, caretWS, beforeContIndent, true)
         } else {
           if (continuesPreviousLine(c)) {
-            return Result.CONTINUE
+            return None
           }
 
           // There is no possible continuation before the caret, so check if it looks like this
@@ -82,7 +81,7 @@ trait AutoBraceInserter {
 
           if (newlinePosBeforeCaret < 0) {
             // there is something before the caret, so do nothing
-            return Result.CONTINUE
+            return None
           }
 
           // check if the new char is behind a postfix expression
@@ -90,13 +89,13 @@ trait AutoBraceInserter {
           // but only check if there is now new line between the operator and the rhs operand
           val emptyNewlineBeforeCaret = caretWSText.lastIndexOf('\n', newlinePosBeforeCaret - 1) >= 0
           if (!emptyNewlineBeforeCaret && isBehindPostfixExpr(element)) {
-            return Result.CONTINUE
+            return None
           }
 
           val caretIndent = caretWSText.substring(newlinePosBeforeCaret, posInWs)
           (caretWS, caretWS, caretIndent, false)
         }
-      case _ => return Result.CONTINUE
+      case _ => return None
     }
 
     // ========= Get block that should be wrapped ==========
@@ -112,50 +111,46 @@ trait AutoBraceInserter {
             // def test =
             //   if (cond) expr
             //   <caret>      <- when you type 'e', it could be the continuation of the previous if
-            return Result.CONTINUE
+            return None
           case Some(expr) if  indentationContextContinuation(expr).exists(_.toString.head == c) =>
             // if we start typing something that could be a continuation of a parent construct, do not insert braces
             // for example:
             // if (cond)
             //   expr
             //   <caret>      <- when you type 'e', it could be start of 'else' which would then be inside the block. so do nothing for now
-            return Result.CONTINUE
+            return None
           case Some(expr) =>
             val exprWs = expr.prevElement match {
               case Some(ws: PsiWhiteSpace) => ws
-              case _ => return Result.CONTINUE
+              case _ => return None
             }
             (expr, exprWs, false)
           case None =>
-            return Result.CONTINUE
+            return None
         }
     }
     val exprWSText = exprWS.getText
 
-    // ========= Check correct indention ==========
+    // ========= Check correct indentation ==========
     val newlinePosBeforeExpr = exprWSText.lastIndexOf('\n')
     if (newlinePosBeforeExpr < 0) {
-      return Result.CONTINUE
+      return None
     }
     val exprIndent = exprWSText.substring(newlinePosBeforeExpr)
 
     if (exprIndent != curLineIndent) {
-      return Result.CONTINUE
+      return None
     }
 
-    // ========= Insert braces =========
+    // ========= Calculate brace positions =========
     // Start with the opening brace, and then the closing brace.
-    // Also remember brace ranges for later reformating
     val document = editor.getDocument
 
+    // ========= Opening brace =========
     val openingBraceOffset =
       exprWS
         .prevSiblingNotWhitespaceComment
         .fold(exprWS.startOffset)(_.endOffset)
-    // ========= Opening brace =========
-    document.insertString(openingBraceOffset, "{")
-    val openingBraceRange = TextRange.from(openingBraceOffset, 1)
-    val displacementAfterOpeningBrace = 1
 
     // ========= Closing brace =========
     // After the caret there could many whitespaces and then something that
@@ -169,35 +164,59 @@ trait AutoBraceInserter {
     //
     // In this case the braces should be added before the else and not directly after the caret
     val lastElement = if (caretIsBeforeExpr) expr else caretWS
-    val subsequentConstructOffset = lastElement.getNextNonWhitespaceAndNonEmptyLeaf match {
-      case tok: PsiElement if continuesConstructAfterIndentationContext(tok) => Some(tok.startOffset)
-      case _ => None
+    val (closingBraceOffset, isBeforeContinuation) = lastElement.getNextNonWhitespaceAndNonEmptyLeaf match {
+      case tok: PsiElement if continuesConstructAfterIndentationContext(tok) =>
+        tok.startOffset -> true
+      case _ if caretIsBeforeExpr =>
+        expr.endOffset -> false
+      case _ =>
+        caretOffset -> false
     }
 
-    // We have to add a char at the position of the caret, otherwise formatting will screw up our indentation.
-    // And we cannot use Result.STOP because that would interfere with other handlers of typedChar afterwards.
-    // Unfortunately we have to delete it after formatting, so IDEA can do the char insertion correctly itself.
-    // Also note that we cannot use c (parameter of this method) to insert it here, because some characters like '('
-    // might confuse the formatter.
-    val fakeInputPosition = caretOffset + displacementAfterOpeningBrace
-    document.insertString(fakeInputPosition, "x")
-    val displacementAfterFakeInput = displacementAfterOpeningBrace + 1
+    Some(AutoBraceInsertionInfo(
+      openBraceOffset = openingBraceOffset,
+      inputOffset = caretOffset,
+      closingBraceOffset = closingBraceOffset,
+      needsFakeInput = !isAfterPossibleContinuation,
+      isBeforeContinuation = isBeforeContinuation
+    ))
+  }
 
-    val closingBraceRange = subsequentConstructOffset match {
-      case Some(subsequentConstructOffset) =>
-        val braceInsertPosition = subsequentConstructOffset + displacementAfterFakeInput
+  def insertAutoBraces(info: AutoBraceInsertionInfo)(implicit project: Project, file: PsiFile, editor: Editor): Unit = {
+    // ========= Insert braces =========
+    // Start with the opening brace, then the fake input, and finally the closing brace.
+    // Also remember brace ranges for later reformatting
+    val document = editor.getDocument
+
+    // ========= Opening brace =========
+    val openingBraceOffset = info.openBraceOffset
+    document.insertString(openingBraceOffset, "{")
+    val openingBraceRange = TextRange.from(openingBraceOffset, 1)
+    val displacementAfterOpeningBrace = 1
+
+    val caretOffset = info.inputOffset
+    val displacementAfterFakeInput =
+      if (info.needsFakeInput) {
+        // We have to add a char at the position of the caret, otherwise formatting will screw up our indentation.
+        // Unfortunately we have to delete it after formatting, so IDEA can do the char insertion correctly itself.
+        // Also note that we cannot use c (parameter of this method) to insert it here, because some characters like '('
+        // might confuse the formatter.
+        val fakeInputPosition = caretOffset + displacementAfterOpeningBrace
+        document.insertString(fakeInputPosition, "x")
+        displacementAfterOpeningBrace + 1
+      } else displacementAfterOpeningBrace
+
+    val braceInsertPosition = info.closingBraceOffset + displacementAfterFakeInput
+    val closingBraceRange =
+      if (info.isBeforeContinuation) {
         document.insertString(braceInsertPosition, "} ")
 
         TextRange.from(braceInsertPosition, 3)
-      case None =>
-        // There is no subsequent construct, so just insert the braces after the caret or the expression
-        val braceInsertPosition =
-          if (caretIsBeforeExpr) expr.endOffset + displacementAfterFakeInput
-          else caretOffset + displacementAfterFakeInput
-
+      } else {
+        // There is no continuation, so just insert the braces after the caret or the expression
         document.insertString(braceInsertPosition, "\n}")
         TextRange.from(braceInsertPosition, 3)
-    }
+      }
     document.commit(project)
 
     // Set the caret now, so the formatting can adjust it correctly
@@ -207,12 +226,12 @@ trait AutoBraceInserter {
     CodeStyleManager.getInstance(project)
       .reformatText(file, ju.Arrays.asList(openingBraceRange, closingBraceRange))
 
-    // Delete the fake character 'x' we inserted
-    val newCaretPos = editor.getCaretModel.getOffset
-    document.deleteString(newCaretPos, newCaretPos + 1)
-
-    // prevent other beforeTyped-handlers from being executed because psi tree is out of sync now
-    Result.DEFAULT
+    if (info.needsFakeInput) {
+      // Delete the fake character 'x' we inserted
+      val newCaretPos = editor.getCaretModel.getOffset
+      document.deleteString(newCaretPos, newCaretPos + 1)
+      document.commit(project)
+    }
   }
 
   def isBehindPostfixExpr(element: PsiElement): Boolean = {
@@ -225,11 +244,31 @@ trait AutoBraceInserter {
           .exists(_.is[ScPostfixExpr])
       )
   }
+  /*
+    todo: use for caret being at the end of the file
+    def isBehindPostfixExpr(element: Option[PsiElement], file: PsiFile): Boolean = {
+      val prevElement = element.map(PsiTreeUtil.prevVisibleLeaf).orElse(file.lastChild)
+      prevElement
+        .exists { prev =>
+          val start = element.fold(file.endOffset)(_.startOffset)
+          prev
+            .withParentsInFile
+            .takeWhile(_.endOffset <= start)
+            .exists(_.is[ScPostfixExpr])
+        }
+    }
+   */
 
-  def continuesPostfixExpr(offset: Int, element: PsiElement, document: Document): Boolean = {
-    val caretLine = document.getLineNumber(offset)
-    val lastElementLine = document.getLineNumber(element.startOffset)
-    (caretLine - lastElementLine == 1) &&
-      isBehindPostfixExpr(element)
-  }
+  /**
+   * @param openBraceOffset       the position where the opening braces should be put
+   * @param inputOffset           the position where fake input should be put if needsFakeInput is true
+   * @param closingBraceOffset    the position where the closing brace should be put
+   * @param needsFakeInput        if fake input is needed to get indentation correct for empty lines
+   * @param isBeforeContinuation  if the closing will be added before some continuation like else, catch, finally
+   */
+  case class AutoBraceInsertionInfo(openBraceOffset: Int,
+                                    inputOffset: Int,
+                                    closingBraceOffset: Int,
+                                    needsFakeInput: Boolean,
+                                    isBeforeContinuation: Boolean)
 }
