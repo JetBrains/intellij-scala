@@ -1,10 +1,7 @@
-package org.jetbrains.plugins.scala
-package annotator
-package intention
+package org.jetbrains.plugins.scala.autoImport.quickFix
 
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.annotator.quickfix.FoundImplicit
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement

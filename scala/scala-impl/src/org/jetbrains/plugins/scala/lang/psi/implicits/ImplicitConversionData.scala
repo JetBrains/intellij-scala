@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiNamedElement}
+import org.jetbrains.plugins.scala.autoImport.GlobalImplicitConversion
+import org.jetbrains.plugins.scala.autoImport.GlobalMember.findGlobalMembers
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -10,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.findImplicits
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
-import org.jetbrains.plugins.scala.lang.psi.implicits.GlobalMember.findGlobalMembers
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitConversionIndex
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter

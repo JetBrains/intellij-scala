@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.autoImport
 
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportGlobalMemberFix
+import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportGlobalMemberFix
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 
 class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpression] {

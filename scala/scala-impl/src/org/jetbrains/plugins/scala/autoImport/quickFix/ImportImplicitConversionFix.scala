@@ -1,19 +1,18 @@
-package org.jetbrains.plugins.scala.annotator.quickfix
+package org.jetbrains.plugins.scala.autoImport.quickFix
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.{PsiDocCommentOwner, PsiNamedElement}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
-import org.jetbrains.plugins.scala.annotator.intention.{MemberToImport, ScalaAddImportAction, ScalaImportElementFix}
-import org.jetbrains.plugins.scala.codeInspection.collections.`!`
+import org.jetbrains.plugins.scala.autoImport.GlobalImplicitConversion
 import org.jetbrains.plugins.scala.extensions.{ChildOf, ObjectExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.isInExcludedPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression, ScSugarCallExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
-import org.jetbrains.plugins.scala.lang.psi.implicits.{GlobalImplicitConversion, ImplicitCollector, ImplicitConversionData}
+import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ImplicitConversionData}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings

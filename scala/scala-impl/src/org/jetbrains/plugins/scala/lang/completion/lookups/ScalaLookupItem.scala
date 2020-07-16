@@ -8,7 +8,7 @@ import com.intellij.codeInsight.lookup._
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil._
-import org.jetbrains.plugins.scala.annotator.intention._
+import org.jetbrains.plugins.scala.autoImport.quickFix._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.handlers.{ScalaImportingInsertHandler, ScalaInsertHandler}
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage

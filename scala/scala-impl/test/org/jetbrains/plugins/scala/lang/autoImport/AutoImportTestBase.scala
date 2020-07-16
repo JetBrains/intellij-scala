@@ -4,20 +4,16 @@ package autoImport
 
 import java.io.File
 
-import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
-import com.intellij.psi.{PsiClass, PsiPackage, SmartPointerManager}
 import com.intellij.psi.util.PsiTreeUtil.getParentOfType
-import com.intellij.testFramework.UsefulTestCase
-import org.jetbrains.plugins.scala.annotator.intention.{ClassToImport, ScalaImportTypeFix}
+import com.intellij.psi.{PsiClass, PsiPackage, SmartPointerManager}
+import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.junit.Assert._

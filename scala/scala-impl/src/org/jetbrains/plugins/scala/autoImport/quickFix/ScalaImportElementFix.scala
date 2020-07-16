@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.annotator.intention
+package org.jetbrains.plugins.scala.autoImport.quickFix
 
 import java.awt.Point
 
@@ -10,8 +10,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{ModificationTracker, TextRange}
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.intention.Presentation.htmlWithBody
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportElementFix._
+import org.jetbrains.plugins.scala.autoImport.quickFix.Presentation.htmlWithBody
+import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportElementFix._
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiFileExt, executeUndoTransparentAction, invokeLater}
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode

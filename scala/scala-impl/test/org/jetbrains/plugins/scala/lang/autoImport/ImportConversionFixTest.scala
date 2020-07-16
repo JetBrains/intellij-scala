@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.autoImport
 
-import org.jetbrains.plugins.scala.annotator.quickfix.ImportImplicitConversionFix
+import org.jetbrains.plugins.scala.autoImport.quickFix.ImportImplicitConversionFix
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.worksheet.WorksheetFileType
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
