@@ -97,7 +97,10 @@ object ScalaInheritors {
       extendsBlock.getParent match {
         case tp: ScTemplateDefinition =>
           // simple names are stored in index, but in decompiled files they are qualified
-          val superReferenceTexts = directSuperReferenceTexts(extendsBlock).map(_.stripPrefix("_root_."))
+          val superReferenceTexts =
+            directSuperReferenceTexts(extendsBlock)
+              .map(_.stripPrefix("_root_.").stripPrefix("super."))
+
           if (superReferenceTexts.exists(qName.endsWith)) {
             inheritors += tp
           }
@@ -184,17 +187,15 @@ object ScalaInheritors {
     else selfTypeInheritorsInner()
   }
 
-  def withStableInheritors(clazz: PsiClass): Set[String] =
-    collectStableInheritors[PsiClass](clazz, clazz.resolveScope).map(_.qualifiedName)
-
-  private def collectStableInheritors[T <: PsiClass : ClassTag](clazz: PsiClass,
-                                                                scope: GlobalSearchScope,
-                                                                visited: Set[PsiClass] = Set.empty,
-                                                                buffer: ArrayBuffer[T] = ArrayBuffer.empty[T]): Set[T] = {
+  private def withInheritors[T <: PsiClass : ClassTag](clazz: PsiClass,
+                                                       scope: GlobalSearchScope,
+                                                       visited: Set[PsiClass] = Set.empty,
+                                                       buffer: ArrayBuffer[T] = ArrayBuffer.empty[T])
+                                                      (predicate: T => Boolean): Set[T] = {
     if (!visited(clazz)) {
 
       clazz match {
-        case t: T if ScalaPsiUtil.hasStablePath(t) => buffer += t
+        case t: T if predicate(t) => buffer += t
         case _ =>
       }
 
@@ -202,7 +203,7 @@ object ScalaInheritors {
         case td: ScTypeDefinition if !td.isEffectivelyFinal =>
           val directInheritors = directInheritorCandidates(clazz, clazz.resolveScope).filter(_.isInheritor(td, false))
           directInheritors
-            .foreach(collectStableInheritors(_, scope, visited + clazz, buffer))
+            .foreach(withInheritors(_, scope, visited + clazz, buffer)(predicate))
 
         //todo collect inheritors of java classes
         case _ =>
@@ -212,6 +213,15 @@ object ScalaInheritors {
     buffer.toSet
   }
 
+  private def withStableInheritors[T <: PsiClass : ClassTag](clazz: PsiClass, scope: GlobalSearchScope): Set[T] =
+    withInheritors(clazz, scope)(ScalaPsiUtil.hasStablePath)
+
+  def withStableInheritorsNames[T <: PsiClass : ClassTag](clazz: PsiClass, scope: GlobalSearchScope): Set[String] =
+    withStableInheritors[PsiClass](clazz, scope).map(_.qualifiedName)
+
   def allInheritorObjects(clazz: ScTemplateDefinition, scope: GlobalSearchScope): Set[ScObject] =
-    collectStableInheritors[ScObject](clazz, scope)
+    withStableInheritors[ScObject](clazz, scope)
+
+  def withAllInheritors(clazz: PsiClass, scope: GlobalSearchScope): Set[PsiClass] =
+    withInheritors(clazz, scope)(Function.const(true))
 }

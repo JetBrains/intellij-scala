@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.autoImport
 
+import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.{findAllInheritorObjectsForOwner, findInheritorObjectsForOwner}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.hasStablePath
@@ -8,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScOb
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.StableValIndex
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors.withAllInheritors
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 
 class GlobalMember[M <: ScMember](val owner: ScTypedDefinition,
@@ -45,15 +47,16 @@ object GlobalMember {
 
     if (fromObjects.nonEmpty) fromObjects
     else {
-      val valuesOfClass: Set[(ScValue, ScTypedDefinition)] =
-        StableValIndex.findValuesOfClass(member.containingClass, scope)
-          .flatMap(v => v.declaredElements.map((v, _)))
-          .toSet
-
       for {
-        (value, named)   <- valuesOfClass
+        clazz            <- withAllInheritors(member.containingClass, scope)
+        (value, named)   <- valuesOfClass(clazz, scope)
         containingObject <- findAllInheritorObjectsForOwner(value)
       } yield constructor(named, containingObject.qualifiedName + "." + named.name, member)
     }
   }
+
+  private def valuesOfClass(c: PsiClass, scope: GlobalSearchScope): Set[(ScValue, ScTypedDefinition)] =
+    StableValIndex.findValuesOfClass(c, scope)
+      .flatMap(v => v.declaredElements.map((v, _)))
+      .toSet
 }
