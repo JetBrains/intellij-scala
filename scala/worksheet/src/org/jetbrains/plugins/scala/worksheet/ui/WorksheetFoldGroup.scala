@@ -117,7 +117,6 @@ final class WorksheetFoldGroup(
       .foreach(updateChangeFolded(_, expand = true))
   }
 
-  @Measure
   private def traverseAndChange(target: FoldRegion, expand: Boolean): Boolean = {
     val (mappings, targetInfo, _) = traverseRegions(target)
 

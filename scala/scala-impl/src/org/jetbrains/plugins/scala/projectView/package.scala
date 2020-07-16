@@ -17,15 +17,19 @@ package object projectView {
     import FileNode._
 
     def apply(file: ScalaFile)
-             (implicit project: Project, settings: ViewSettings): Node with IconableNode = file.getFileType match {
-      case ScalaFileType.INSTANCE =>
-        if (file.isScriptFile)
-          new ScriptFileNode(file)
-        else
-          FileKind.unapply(file)
-            .flatMap(_.node)
-            .getOrElse(new ScalaFileNode(file))
-      case fileType => new DialectFileNode(file, fileType)
+             (implicit project: Project, settings: ViewSettings): Node with IconableNode = {
+      val fileType = file.getFileType
+      fileType match {
+        case ScalaFileType.INSTANCE =>
+          if (file.isScriptFile)
+            new ScriptFileNode(file)
+          else
+            FileKind.unapply(file)
+              .flatMap(_.node)
+              .getOrElse(new ScalaFileNode(file))
+        case fileType               =>
+          new DialectFileNode(file, fileType)
+      }
     }
   }
 }

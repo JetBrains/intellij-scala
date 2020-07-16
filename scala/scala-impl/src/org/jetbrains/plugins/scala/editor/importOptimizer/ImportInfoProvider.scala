@@ -1,16 +1,15 @@
 package org.jetbrains.plugins.scala.editor.importOptimizer
 
 import com.intellij.openapi.extensions.ExtensionPointName
-import com.intellij.psi.PsiFile
-import org.jetbrains.annotations.ApiStatus.Experimental
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.extensions.{OptionExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportUsed}
 
-import scala.jdk.CollectionConverters.collectionAsScalaIterableConverter
+import scala.jdk.CollectionConverters.IterableHasAsScala
 
-@Experimental
+@ApiStatus.Internal
 trait ImportInfoProvider {
 
   def acceptsFile(file: ScalaFile): Boolean
@@ -33,7 +32,7 @@ object ImportInfoProvider {
   def providers: Iterable[ImportInfoProvider] =
     ImportInfoProvider.EP_NAME.getExtensionList.asScala
 
-  def filterOutUsedImports(file: ScalaFile, unused: Seq[ImportUsed]): Seq[ImportUsed] =
+  def filterOutUsedImports(file: ScalaFile, unused: collection.Seq[ImportUsed]): collection.Seq[ImportUsed] =
     providers.foldLeft(unused) { case (acc, provider) =>
       if (provider.acceptsFile(file))
         acc.filterNot {

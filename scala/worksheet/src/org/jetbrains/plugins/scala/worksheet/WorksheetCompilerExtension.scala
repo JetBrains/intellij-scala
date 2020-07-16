@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.compiler
+package org.jetbrains.plugins.scala.worksheet
 
 import java.io.File
 

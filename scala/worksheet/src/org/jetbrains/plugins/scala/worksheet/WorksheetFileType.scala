@@ -42,8 +42,8 @@ object WorksheetFileType extends LanguageFileTypeBase(WorksheetLanguage.INSTANCE
     import ScalaProjectSettings.ScFileMode._
     projectSettings.getScFileMode match {
       case Worksheet => false
-      case Ammonite => true
-      case _ =>
+      case Ammonite  => true
+      case _         =>
         ProjectRootManager.getInstance(project).getFileIndex.isUnderSourceRootOfType(
           file,
           ContainerUtil.newHashSet(JavaSourceRootType.TEST_SOURCE)
