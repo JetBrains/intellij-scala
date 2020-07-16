@@ -4,7 +4,7 @@ private object ScalaDocCss {
 
   /**
    * After discussing it Dmitrii Batrak from IntelliJ core team, we concluded that for now the only normal way
-   * to provide some custom CSS styles is directly via <head><style>...</style><head> in <html> tag.
+   * to provide some custom CSS styles is directly via {{{<head><style>...</style><head>}}} in {{{<html>}}} tag.
    *
    * @see [[javax.swing.text.html.CSS]] for the supported css properties
    * @see [[com.intellij.util.ui.JBHtmlEditorKit]]
@@ -15,28 +15,35 @@ private object ScalaDocCss {
    */
   //noinspection HtmlRequiredTitleElement,CssUnknownProperty
   //language=CSS
-  val  value: String =
+  def value: String =
     """/*
-      | * NOTE: margin for list items is calculated relatively to list item content, so if margin=0, list head element
-      | * will be rendered to the left of the main content. List item head is ~5px.
+      | * NOTE: margin for list items is calculated relatively to list item content,
+      | * so if margin=0, list head element will be rendered to the left of the main content.
+      | * So the item head (digit or circle or any other mark) will be clipped.
+      | * (List item head is ~5px.)
       | */
-      |ol, ul {
+      |ol {
+      |  margin-left-ltr: 17px;
+      |}
+      |ul {
       |  margin-left-ltr: 10px;
+      |}
+      |
+      |ol, ul {
       |  margin-top: 0;
+      |  margin-bottom: 0;
       |}
       |
       |li ol, li ul {
       |  margin-left-ltr: 15px;
       |  margin-top: 0;
-      |  margin-bottom: 0;
-      |  padding-bottom: 0;
       |}
       |
       |li {
       |  margin-left-ltr: 0;
       |  margin-left: 0;
       |  margin-bottom: 0;
-      |  padding-bottom: 0;
+      |  margin-top: 0;
       |}
       |
       |ul { list-style-type: disc; }

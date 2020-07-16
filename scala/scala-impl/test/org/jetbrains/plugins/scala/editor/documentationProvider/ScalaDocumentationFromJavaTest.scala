@@ -40,7 +40,9 @@ class ScalaDocumentationFromJavaTest extends DocumentationProviderTestBase
          |        ScalaObject.${|}scalaMethod("dummy1", "dummy1");
          |    }
          |}""".stripMargin,
-      s"""$DocStart
+      s"""<html>
+         |${DocHtmlHead(myFixture.getFile)}
+         |$BodyStart
          |$DefinitionStart<a href="psi_element://ScalaObject"><code>ScalaObject</code></a>
          |def <b>scalaMethod</b>(s: <a href="psi_element://scala.Predef.String"><code>String</code></a>, t: <a href="psi_element://scala.Predef.String"><code>String</code></a>): <a href="psi_element://scala.Unit"><code>Unit</code></a>$DefinitionEnd
          |$ContentStart
@@ -50,7 +52,8 @@ class ScalaDocumentationFromJavaTest extends DocumentationProviderTestBase
          |<tr><td valign='top' class='section'><p>Params:</td>
          |<td valign='top'>s &ndash; some parameter  <p>t &ndash; another parameter (indented)</td>
          |$SectionsEnd
-         |$DocEnd
+         |$BodyEnd
+         |</html>
          |""".stripMargin
     )
   }
