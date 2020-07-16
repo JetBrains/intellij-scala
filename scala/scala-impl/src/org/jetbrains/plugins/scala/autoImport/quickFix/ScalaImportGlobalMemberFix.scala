@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.annotator.intention
+package org.jetbrains.plugins.scala.autoImport.quickFix
 
 import com.intellij.codeInsight.intention.{IntentionAction, PriorityAction}
 import com.intellij.openapi.editor.Editor
@@ -8,7 +8,7 @@ import com.intellij.psi.impl.java.stubs.index.JavaStaticMemberNameIndex
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
-import org.jetbrains.plugins.scala.extensions.{&&, ObjectExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, SeqExt, TraversableExt}
+import org.jetbrains.plugins.scala.extensions.{&&, ObjectExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, TraversableExt}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.{findInheritorObjectsForOwner, isInExcludedPackage}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{hasImplicitModifier, inNameContext}

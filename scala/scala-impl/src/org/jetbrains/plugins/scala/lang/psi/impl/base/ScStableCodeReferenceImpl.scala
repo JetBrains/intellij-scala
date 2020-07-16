@@ -10,7 +10,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.JavaDummyHolder
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.annotator.intention.{ClassToImport, ElementToImport, MemberToImport}
+import org.jetbrains.plugins.scala.autoImport.quickFix.{ClassToImport, ElementToImport, MemberToImport}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes

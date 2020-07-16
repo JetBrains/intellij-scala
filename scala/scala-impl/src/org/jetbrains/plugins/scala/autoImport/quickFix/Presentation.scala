@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.annotator.intention
+package org.jetbrains.plugins.scala.autoImport.quickFix
 
 import com.intellij.psi.{PsiClass, PsiDocCommentOwner, PsiElement, PsiNamedElement}
 import org.jetbrains.annotations.Nls

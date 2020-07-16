@@ -1,9 +1,9 @@
-package org.jetbrains.plugins.scala.lang.psi.implicits
+package org.jetbrains.plugins.scala.autoImport
 
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.{findAllInheritorObjectsForOwner, findInheritorObjectsForOwner}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.hasStablePath
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes

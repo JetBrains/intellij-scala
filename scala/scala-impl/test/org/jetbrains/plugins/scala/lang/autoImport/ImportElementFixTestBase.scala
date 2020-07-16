@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.autoImport
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportElementFix
+import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportElementFix
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
 import org.junit.Assert.{assertEquals, fail}

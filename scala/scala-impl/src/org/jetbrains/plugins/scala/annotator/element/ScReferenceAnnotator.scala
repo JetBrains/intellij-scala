@@ -10,9 +10,9 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.{findCommonContext, findFirstContext}
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.{highlightImplicitView, registerTypeMismatchError}
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
+import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -34,7 +34,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocTag}
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 
 import scala.collection.Seq
 

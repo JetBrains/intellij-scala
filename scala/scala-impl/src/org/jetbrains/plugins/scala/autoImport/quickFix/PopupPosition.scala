@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.annotator.intention
+package org.jetbrains.plugins.scala.autoImport.quickFix
 
 import java.awt.Point
 

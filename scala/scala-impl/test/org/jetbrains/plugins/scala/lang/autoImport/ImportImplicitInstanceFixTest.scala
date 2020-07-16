@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.autoImport
 
-import org.jetbrains.plugins.scala.annotator.quickfix.ImportImplicitInstanceFix
+import org.jetbrains.plugins.scala.autoImport.quickFix.ImportImplicitInstanceFix
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult

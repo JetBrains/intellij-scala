@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package annotator
-package intention
+package org.jetbrains.plugins.scala.autoImport.quickFix
 
 import java.awt.Point
 
@@ -20,7 +18,7 @@ import com.intellij.util.ui.JBUI
 import javax.swing.event.ListSelectionEvent
 import javax.swing.{Icon, JLabel, JList}
 import org.jetbrains.annotations.{Nls, TestOnly}
-import org.jetbrains.plugins.scala.annotator.quickfix.FoundImplicit
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner

@@ -1,28 +1,20 @@
 package org.jetbrains.plugins.scala.annotator.hints
 
 import java.awt.Point
-import java.awt.event.FocusAdapter
-import java.awt.event.FocusEvent
-import java.awt.event.InputEvent
-import java.awt.event.KeyEvent
-import java.awt.event.KeyListener
+import java.awt.event.{InputEvent, KeyEvent, KeyListener}
 import java.util.concurrent.TimeUnit
 
 import com.intellij.codeInsight.hint.LineTooltipRenderer
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInsight.intention.impl.ShowIntentionActionsHandler
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.ex.EditorMarkupModel
-import com.intellij.openapi.editor.ex.TooltipAction
-import com.intellij.openapi.ui.popup.JBPopup
-import com.intellij.openapi.ui.popup.JBPopupFactory
-import com.intellij.openapi.ui.popup.JBPopupListener
-import com.intellij.openapi.ui.popup.LightweightWindowEvent
+import com.intellij.openapi.editor.ex.{EditorMarkupModel, TooltipAction}
+import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory, JBPopupListener, LightweightWindowEvent}
 import com.intellij.openapi.util.Ref
 import com.intellij.psi.PsiElement
 import com.intellij.ui.HintHint
 import com.intellij.util.concurrency.AppExecutorUtil
-import org.jetbrains.plugins.scala.annotator.intention.PopupPosition
+import org.jetbrains.plugins.scala.autoImport.quickFix.PopupPosition
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 
 private class PopupUI(override val message: String,

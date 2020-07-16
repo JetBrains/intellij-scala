@@ -1,17 +1,23 @@
-package org.jetbrains.plugins.scala.annotator.quickfix
+package org.jetbrains.plugins.scala.autoImport.quickFix
 
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.{PsiClass, PsiNamedElement}
+import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.intention.{ImplicitToImport, PopupPosition, ScalaAddImportAction, ScalaImportElementFix}
+import org.jetbrains.plugins.scala.autoImport.GlobalImplicitInstance
+import org.jetbrains.plugins.scala.autoImport.GlobalMember.findGlobalMembers
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, TraversableExt}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.isInExcludedPackage
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
-import org.jetbrains.plugins.scala.lang.psi.implicits.{GlobalImplicitInstance, ImplicitCollector}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.TypeDoesntConformResult
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitInstanceIndex
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors.withStableInheritors
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, WrongTypeParameterInferred}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.util.CommonQualifiedNames.{AnyFqn, AnyRefFqn, JavaObjectFqn}
 
 import scala.collection.Seq
 
@@ -100,12 +106,45 @@ object ImportImplicitInstanceFix {
       return Set.empty
 
     val allInstances =
-      GlobalImplicitInstance.compatibleInstances(typeToSearch, owner.resolveScope, owner)
+      compatibleInstances(typeToSearch, owner.resolveScope, owner)
 
     val availableByType =
       ImplicitCollector.implicitsFromType(owner, typeToSearch).flatMap(GlobalImplicitInstance.from)
 
     allInstances -- availableByType
+  }
+
+  private def compatibleInstances(`type`: ScType,
+                          scope: GlobalSearchScope,
+                          place: ImplicitArgumentsOwner): Set[GlobalImplicitInstance] = {
+    val collector = new ImplicitCollector(place, `type`, `type`, None, false, fullInfo = true)
+    for {
+      clazz <- `type`.extractClass.toSet[PsiClass]
+
+      qualifiedName <- withStableInheritors(clazz)
+      if !isRootClass(qualifiedName)
+
+      candidateMember <- ImplicitInstanceIndex.forClassFqn(qualifiedName, scope)(place.getProject)
+
+      global <- findGlobalMembers(candidateMember, scope)(GlobalImplicitInstance(_, _, _))
+      if checkCompatible(global, collector)
+    } yield global
+  }
+
+  private[this] def isRootClass(qualifiedName: String) = qualifiedName match {
+    case AnyRefFqn | AnyFqn | JavaObjectFqn => true
+    case _ => false
+  }
+
+  private def checkCompatible(global: GlobalImplicitInstance, collector: ImplicitCollector): Boolean = {
+    val srr = global.toScalaResolveResult
+    collector.checkCompatible(srr, withLocalTypeInference = false)
+      .orElse(collector.checkCompatible(srr, withLocalTypeInference = true))
+      .exists(isCompatible)
+  }
+
+  private def isCompatible(srr: ScalaResolveResult): Boolean = {
+    !srr.problems.contains(WrongTypeParameterInferred) && srr.implicitReason != TypeDoesntConformResult
   }
 
   private def implicitTypeToSearch(parameter: ScalaResolveResult): Option[ScType] =

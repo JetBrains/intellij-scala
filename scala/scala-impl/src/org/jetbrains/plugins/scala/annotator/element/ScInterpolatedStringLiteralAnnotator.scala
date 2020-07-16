@@ -5,7 +5,7 @@ package element
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationSession
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.annotator.quickfix.ImportImplicitConversionFix
+import org.jetbrains.plugins.scala.autoImport.quickFix.ImportImplicitConversionFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpolatedStringLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
