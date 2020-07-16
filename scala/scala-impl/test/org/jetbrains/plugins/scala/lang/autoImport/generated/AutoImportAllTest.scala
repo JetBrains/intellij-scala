@@ -16,4 +16,8 @@ class AutoImportAllTest extends AutoImportTestBase {
   def testObjectPackage(): Unit = doTest()
 
   def testNoPlaceHolder(): Unit = doTest()
+
+  def testInheritedTypeAlias(): Unit = doTest()
+
+  def testTypeAliasFromVal(): Unit = doTest()
 }

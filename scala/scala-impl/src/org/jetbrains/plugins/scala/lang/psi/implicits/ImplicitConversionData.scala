@@ -155,7 +155,7 @@ object ImplicitConversionData {
 
           if ImplicitConversionProcessor.applicable(function, expr)
 
-          conversion  <- findGlobalMembers(function, scope)(GlobalImplicitConversion(_, _, _))
+          conversion  <- findGlobalMembers(function, scope)(GlobalImplicitConversion)
           data        <- ImplicitConversionData(conversion)
           application <- data.isApplicable(originalType, expr)
         } yield (conversion, application))

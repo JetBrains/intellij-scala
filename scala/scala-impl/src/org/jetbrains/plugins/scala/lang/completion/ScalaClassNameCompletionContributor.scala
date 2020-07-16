@@ -206,7 +206,7 @@ object ScalaClassNameCompletionContributor {
         name <- manager.getStableTypeAliasesNames
         if prefixMatcher.prefixMatches(name)
 
-        alias <- manager.getStableAliasesByName(name, position.resolveScope)
+        alias <- manager.getTypeAliasesByName(name, position.resolveScope)
         if state.isValidAlias(alias)
       } yield state.createLookupItem(alias)
 

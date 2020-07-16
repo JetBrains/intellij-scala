@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.autoImport
 
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, OptionExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult.containingObject
 
-final class GlobalImplicitInstance(owner: ScTypedDefinition, pathToOwner: String, member: ScMember)
+final case class GlobalImplicitInstance(override val owner: ScTypedDefinition,
+                                        override val pathToOwner: String,
+                                        override val member: ScMember)
   extends GlobalMember(owner, pathToOwner, member) {
 
   def toScalaResolveResult: ScalaResolveResult =
@@ -14,17 +16,20 @@ final class GlobalImplicitInstance(owner: ScTypedDefinition, pathToOwner: String
 }
 
 object GlobalImplicitInstance {
-
-  def apply(owner: ScTypedDefinition, pathToOwner: String, member: ScMember): GlobalImplicitInstance =
-    new GlobalImplicitInstance(owner, pathToOwner, member)
-
-  def apply(owner: ScObject, member: ScMember): GlobalImplicitInstance =
-    new GlobalImplicitInstance(owner, owner.qualifiedName, member)
-
   def from(srr: ScalaResolveResult): Option[GlobalImplicitInstance] = {
     for {
       member <- srr.element.asOptionOfUnsafe[ScMember]
       obj <- containingObject(srr)
-    } yield GlobalImplicitInstance(obj, member)
+    } yield GlobalImplicitInstance(obj, obj.qualifiedName, member)
   }
+
+  private def containingObject(srr: ScalaResolveResult): Option[ScObject] = {
+    val ownerType = srr.implicitScopeObject.orElse {
+      srr.element.containingClassOfNameContext
+        .filterByType[ScTemplateDefinition]
+        .map(c => srr.substitutor(ScThisType(c)))
+    }
+    ownerType.flatMap(_.extractClass).filterByType[ScObject]
+  }
+
 }

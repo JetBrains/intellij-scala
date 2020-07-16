@@ -412,14 +412,4 @@ object ScalaResolveResult {
       case _ => null
     }
   }
-
-  def containingObject(srr: ScalaResolveResult): Option[ScObject] = {
-    val ownerType = srr.implicitScopeObject.orElse {
-      srr.element.containingClassOfNameContext
-        .filterByType[ScTemplateDefinition]
-        .map(c => srr.substitutor(ScThisType(c)))
-    }
-    ownerType.flatMap(_.extractClass).filterByType[ScObject]
-  }
-
 }

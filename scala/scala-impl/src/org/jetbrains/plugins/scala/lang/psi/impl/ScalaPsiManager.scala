@@ -160,7 +160,7 @@ class ScalaPsiManager(implicit val project: Project) {
     Option(res).orElse(getCachedFacadeClass(scope, fqn))
   }
 
-  def getStableAliasesByName(name: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
+  def getTypeAliasesByName(name: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
     TYPE_ALIAS_NAME_KEY.elements(cleanFqn(name), scope)
 
   def getStableAliasesByFqn(fqn: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
