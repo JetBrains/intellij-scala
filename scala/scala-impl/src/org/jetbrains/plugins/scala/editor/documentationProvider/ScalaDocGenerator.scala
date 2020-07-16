@@ -1,9 +1,12 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
+import java.net.URL
+
 import com.intellij.lang.documentation.DocumentationMarkup
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProcessCanceledException
+import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.{PsiClass, PsiDocCommentOwner, PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.extensions.{&&, PsiClassExt, PsiMemberExt, PsiNamedElementExt}
@@ -12,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScTypeAlias, ScValueOrVariable, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
-import org.jetbrains.plugins.scala.macroAnnotations.Measure
 
 import scala.util.Try
 
@@ -38,17 +40,15 @@ object ScalaDocGenerator {
   def generateDoc(elementWithDoc: PsiElement, originalElement: Option[PsiElement]): String = internalLog {
     val builder = new StringBuilder
 
-    builder.append("<html>")
-    builder.append("<head><style>").append(ScalaDocCss.value).append("</style></head>")
-    builder.append("<body>")
-
-    // for library, get class from sources jar
+    // for library classes, get class from sources jar
     val actualElementWithDoc = elementWithDoc.getNavigationElement
+
+    appendHeader(builder, actualElementWithDoc)
+
     ScalaDocDefinitionGenerator.generate(builder, actualElementWithDoc, originalElement)
     generateDocContent(builder, actualElementWithDoc)
 
-    builder.append("</body>")
-    builder.append("</html>")
+    appendFooter(builder)
 
     val result = builder.result
     result
@@ -56,9 +56,36 @@ object ScalaDocGenerator {
 
   def generateDocRendered(commentOwner: ScDocCommentOwner, comment: ScDocComment): String = internalLog {
     val builder = new StringBuilder
+
+    appendHeader(builder, commentOwner)
     new ScalaDocContentWithSectionsGenerator(commentOwner, comment, rendered = true).generate(builder)
+    appendFooter(builder)
+
     builder.result
   }
+
+  private def appendHeader(builder: StringBuilder, actualElementWithDoc: PsiElement): Unit = {
+    builder.append("<html>")
+    builder.append("<head>")
+    builder.append("<style>").append(ScalaDocCss.value).append("</style>")
+    baseUrl(actualElementWithDoc).foreach { url =>
+      // used to resolve URLs of local images (see com.intellij.codeInsight.javadoc.JavaDocInfoGenerator.getBaseUrl)
+      builder.append(s"""<base href="$url">""")
+    }
+    builder.append("</head>")
+    builder.append("<body>")
+  }
+
+  private def appendFooter(builder: StringBuilder): Unit = {
+    builder.append("</body>")
+    builder.append("</html>")
+  }
+
+  private def baseUrl(element: PsiElement): Option[URL] =
+    for {
+      file  <- Option(element.getContainingFile)
+      vFile <- Option(file.getVirtualFile)
+    } yield VfsUtilCore.convertToURL(vFile.getUrl)
 
   private def generateDocContent(builder: StringBuilder, e: PsiElement): Unit =
     for {

@@ -1,14 +1,21 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.lang.documentation.DocumentationMarkup
+import com.intellij.openapi.vfs.VfsUtilCore
+import com.intellij.psi.PsiFile
 import org.junit.Assert._
 
 trait ScalaDocumentationsSectionsTesting {
   self: DocumentationTesting =>
 
-  protected val DocHtmlHeader = s"<head><style>${ScalaDocCss.value}</style></head>"
-  protected val DocStart      = s"<html>$DocHtmlHeader<body>"
-  protected val DocEnd        = "</body></html>"
+  protected def DocHtmlHead(file: PsiFile): String =
+    s"""<head>
+       |<style>${ScalaDocCss.value}</style>
+       |<base href="${VfsUtilCore.convertToURL(file.getVirtualFile.getUrl)}">
+       |</head>""".stripMargin
+
+  protected val BodyStart = s"<body>"
+  protected val BodyEnd   = "</body>"
 
   protected val DefinitionStart: String = DocumentationMarkup.DEFINITION_START
   protected val DefinitionEnd  : String = DocumentationMarkup.DEFINITION_END
@@ -19,7 +26,7 @@ trait ScalaDocumentationsSectionsTesting {
 
   protected def doGenerateDocBodyTest(fileContent: String, expectedBody: String): Unit = {
     val actualDoc = generateDoc(fileContent)
-    val actualPart = extractSectionInner(actualDoc, "body", DocStart, DocEnd)
+    val actualPart = extractSectionInner(actualDoc, "body", BodyStart, BodyEnd)
     assertDocHtml(expectedBody, actualPart)
   }
 

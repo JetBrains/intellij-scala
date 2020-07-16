@@ -21,7 +21,7 @@ trait DocumentationTesting extends HtmlAssertions {
     generateDoc(editor, file)
   }
 
-  protected def doGenerateDocTest(fileContent: String, expectedDoc: String): Unit = {
+  protected def doGenerateDocTest(fileContent: String, expectedDoc: => String): Unit = {
     val actualDoc = generateDoc(fileContent)
     assertDocHtml(expectedDoc, actualDoc)
   }

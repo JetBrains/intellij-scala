@@ -15,9 +15,14 @@ class ScalaDocumentationProviderRenderInEditorTest extends ScalaDocumentationPro
          |  def ${|}foo[T](p: String) = 42
          |}
          |""".stripMargin,
-      s"""$ContentStart
+      s"""<html>
+         |${DocHtmlHead(myFixture.getFile)}
+         |$BodyStart
+         |$ContentStart
          |description
          |$ContentEnd
+         |$BodyEnd
+         |</html>
          |""".stripMargin
     )
 
@@ -79,11 +84,11 @@ class ScalaDocumentationProviderRenderInEditorTest extends ScalaDocumentationPro
          |<td valign='top'>some text</td>
          |$SectionsEnd
          |""".stripMargin
-    doGenerateDocTest(fileText, expectedDoc)
+    doGenerateDocBodyTest(fileText, expectedDoc)
   }
 
   def testUnresolvedReference(): Unit =
-    doGenerateDocTest(
+    doGenerateDocBodyTest(
       s"""/**
          | * [[unknown.Reference]]
          | * [[unknown.Reference ref label]]
