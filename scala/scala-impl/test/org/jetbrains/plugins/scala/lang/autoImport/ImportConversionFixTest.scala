@@ -193,5 +193,28 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
     "implicits.stringShow"
   )
 
+  def testImportFromVal(): Unit = checkElementsToImport(
+    s"""
+      |trait Owner {
+      |  trait A
+      |  trait B {
+      |    def bMethod(): Unit = ???
+      |  }
+      |  trait API {
+      |    implicit def a2b(a: A): B = ???
+      |  }
+      |  val api: API = ???
+      |}
+      |
+      |object OwnerImpl extends Owner
+      |
+      |object Test {
+      |  val a: OwnerImpl.A = ???
+      |  a.${CARET}bMethod
+      |}""".stripMargin,
+
+    "OwnerImpl.api.a2b"
+  )
+
 
 }

@@ -5,12 +5,12 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiNamedElementExt}
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.findInheritorObjectsForOwner
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.findImplicits
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
+import org.jetbrains.plugins.scala.lang.psi.implicits.GlobalMember.findGlobalMembers
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitConversionIndex
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -147,17 +147,16 @@ object ImplicitConversionData {
           case Some(clazz) => MixinNodes.allSuperClasses(clazz).map(_.qualifiedName) + clazz.qualifiedName + AnyFqn
           case _ => Set.empty
         }
-
+        val scope = expr.resolveScope
         (for {
           qName    <- withSuperClasses
-          function <- ImplicitConversionIndex.conversionCandidatesForFqn(qName, expr.resolveScope)(expr.getProject)
+          function <- ImplicitConversionIndex.conversionCandidatesForFqn(qName, scope)(expr.getProject)
 
           if ImplicitConversionProcessor.applicable(function, expr)
 
-          containingObject <- findInheritorObjectsForOwner(function)
-          conversion        = GlobalImplicitConversion(containingObject, function)
-          data             <- ImplicitConversionData(conversion)
-          application      <- data.isApplicable(originalType, expr)
+          conversion  <- findGlobalMembers(function, scope)(GlobalImplicitConversion(_, _, _))
+          data        <- ImplicitConversionData(conversion)
+          application <- data.isApplicable(originalType, expr)
         } yield (conversion, application))
           .toMap
     }

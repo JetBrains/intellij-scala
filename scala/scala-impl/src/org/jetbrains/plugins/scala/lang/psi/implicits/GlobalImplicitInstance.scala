@@ -6,10 +6,10 @@ package implicits
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.findInheritorObjectsForOwner
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.implicits.GlobalMember.findGlobalMembers
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.TypeDoesntConformResult
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitInstanceIndex
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors.withStableInheritors
@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult.containingObj
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames._
 
 final class GlobalImplicitInstance(owner: ScTypedDefinition, pathToOwner: String, member: ScMember)
-  extends GlobalInstance(owner, pathToOwner, member) {
+  extends GlobalMember(owner, pathToOwner, member) {
 
   def toScalaResolveResult: ScalaResolveResult =
     new ScalaResolveResult(named, substitutor)
@@ -51,9 +51,8 @@ object GlobalImplicitInstance {
       if !isRootClass(qualifiedName)
 
       candidateMember <- ImplicitInstanceIndex.forClassFqn(qualifiedName, scope)(place.getProject)
-      objectToImport <- findInheritorObjectsForOwner(candidateMember)
 
-      global = GlobalImplicitInstance(objectToImport, candidateMember)
+      global <- findGlobalMembers(candidateMember, scope)(GlobalImplicitInstance(_, _, _))
       if checkCompatible(global, collector)
     } yield global
   }

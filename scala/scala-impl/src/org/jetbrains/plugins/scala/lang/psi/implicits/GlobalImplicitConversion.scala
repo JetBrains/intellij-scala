@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.util.CommonQualifiedNames.PredefFqn
 final class GlobalImplicitConversion(owner: ScTypedDefinition,
                                      pathToOwner: String,
                                      val function: ScFunction)
-  extends GlobalInstance(owner, pathToOwner, function)
+  extends GlobalMember(owner, pathToOwner, function)
 
 object GlobalImplicitConversion {
 

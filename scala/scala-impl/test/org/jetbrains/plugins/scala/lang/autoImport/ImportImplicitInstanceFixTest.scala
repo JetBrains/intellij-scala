@@ -141,4 +141,24 @@ class ImportImplicitInstanceFixTest extends ImportElementFixTestBase[ImplicitArg
        |}
        |""".stripMargin)
 
+  def testImportFromVal(): Unit = checkElementsToImport(
+    s"""
+       |trait A
+       |trait Owner {
+       |
+       |  trait API {
+       |    implicit val implicitA: A = ???
+       |  }
+       |  val api: API = ???
+       |}
+       |
+       |object OwnerImpl extends Owner
+       |
+       |object Test {
+       |  ${CARET}implicitly[A]
+       |}""".stripMargin,
+
+    "OwnerImpl.api.implicitA"
+  )
+
 }
