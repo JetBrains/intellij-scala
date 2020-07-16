@@ -17,6 +17,7 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettings}
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceInsertionTools._
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler._
 import org.jetbrains.plugins.scala.extensions.{CharSeqExt, PsiFileExt, _}
 import org.jetbrains.plugins.scala.highlighter.ScalaCommenter
@@ -45,7 +46,6 @@ import scala.language.implicitConversions
 
 //noinspection HardCodedStringLiteral
 final class ScalaTypedHandler extends TypedHandlerDelegate
-  with AutoBraceInserter
   with IndentAdjustor
 {
 
@@ -190,7 +190,15 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
     } else if (c == '{' && smartKeySettings.WRAP_SINGLE_EXPRESSION_BODY) {
       handleLeftBraceWrap(offset, element)
     } else if (shouldHandleAutoBracesBeforeTyped(c)) {
-      handleAutoBraces(c, offset, element)
+      findAutoBraceInsertionOpportunity(c, offset, element) match {
+        case Some(info) =>
+          insertAutoBraces(info)
+          // prevent other beforeTyped-handlers from being executed because psi tree is out of sync now
+          Result.DEFAULT
+        case None =>
+          Result.CONTINUE
+      }
+
     } else {
       Result.CONTINUE
     }
