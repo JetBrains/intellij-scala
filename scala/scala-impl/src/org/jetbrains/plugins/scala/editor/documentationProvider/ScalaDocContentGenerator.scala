@@ -252,10 +252,11 @@ private class ScalaDocContentGenerator(
     val elementType = element.getNode.getElementType
     elementType match {
       // leading '*' only can come from tags description, filtered for main content description
-      case ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS => None
-      case ScalaDocTokenType.DOC_TAG_NAME                  => None
-      case ScalaDocTokenType.DOC_TAG_VALUE_TOKEN           => None
+      case ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS =>
+      case ScalaDocTokenType.DOC_TAG_NAME                  =>
+      case ScalaDocTokenType.DOC_TAG_VALUE_TOKEN           =>
       case ScalaDocTokenType.DOC_INNER_CODE_TAG            => result.append("""<pre><code>""")
+      case ScalaDocTokenType.DOC_INNER_CODE                => result.append(escapeHtml(element.getText))
       case ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG      => result.append("""</code></pre>""")
       case ScalaDocTokenType.DOC_MACROS                    => appendMacroValue(result, element)
       case _ if isDocLineBreak(element)                    => result.append("\n") // ignore other spaces except line break

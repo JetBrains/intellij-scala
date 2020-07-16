@@ -1931,4 +1931,15 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""class Test${|} extends""".stripMargin,
       s"""class <b>Test</b>""".stripMargin
     )
+
+  def testEscapeHtmlInCodeExampleContent(): Unit =
+    doGenerateDocContentTest(
+      s"""/**
+         | * text before {{{<head><style>...</style><head>}}} text after
+         | */
+         |class ${|}A""".stripMargin,
+      """text before
+        |<pre><code>&lt;head&gt;&lt;style&gt;...&lt;/style&gt;&lt;head&gt;</code></pre>
+        |text after""".stripMargin
+    )
 }
