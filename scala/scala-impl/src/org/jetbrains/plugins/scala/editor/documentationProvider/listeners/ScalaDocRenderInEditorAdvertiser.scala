@@ -8,12 +8,12 @@ import com.intellij.openapi.editor.ex.EditorSettingsExternalizable
 import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorManagerListener}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiManager
+import com.intellij.psi.{PsiElement, PsiManager}
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.editor.documentationProvider.listeners.ScalaDocRenderInEditorAdvertiser._
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScTypeDefinition}
 import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ShowSettingsUtilImplExt}
 
 final class ScalaDocRenderInEditorAdvertiser(project: Project) extends FileEditorManagerListener {
@@ -22,9 +22,10 @@ final class ScalaDocRenderInEditorAdvertiser(project: Project) extends FileEdito
     if (isNotificationEnabled) {
       if (editorSettings.isDocCommentRenderingEnabled) {
         disableNotification() // do not suggest if user already knows about the setting
-      } else if (isScalaFileWithSomeScalaDoc(file, project)) {
-        disableNotification()
+      }
+      else if (isScalaFileWithSomeScalaDocComment(file, project)) {
         suggestInEditorDocRendering(project)
+        disableNotification()
       }
     }
 }
@@ -42,11 +43,23 @@ object ScalaDocRenderInEditorAdvertiser {
 
   private def editorSettings = EditorSettingsExternalizable.getInstance
 
-  private def isScalaFileWithSomeScalaDoc(file: VirtualFile, project: Project) =
+  private def isScalaFileWithSomeScalaDocComment(file: VirtualFile, project: Project) =
     PsiManager.getInstance(project).findFile(file) match {
-      case scalaFile: ScalaFile => scalaFile.depthFirst(_.isInstanceOf[ScDocComment]).nonEmpty
+      case scalaFile: ScalaFile => scalaFile.children.exists(hasScalaDocComment)
       case _                    => false
     }
+
+  private def hasScalaDocComment(element: PsiElement): Boolean = {
+    val hasDoc = element match {
+      case owner: ScDocCommentOwner => owner.getDocComment != null
+      case _                        => false
+    }
+    hasDoc || (element match {
+      case typeDef: ScTypeDefinition =>
+        typeDef.members.exists(hasScalaDocComment)
+      case _ => false
+    })
+  }
 
   private def suggestInEditorDocRendering(project: Project): Unit = {
     val notification = {
