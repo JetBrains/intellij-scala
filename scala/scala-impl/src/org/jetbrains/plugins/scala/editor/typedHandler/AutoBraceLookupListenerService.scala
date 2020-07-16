@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package editor
 package typedHandler
 
-import com.intellij.codeInsight.lookup.{Lookup, LookupEvent, LookupListener, LookupManagerListener}
+import com.intellij.codeInsight.lookup.{Lookup, LookupElement, LookupEvent, LookupItem, LookupListener, LookupManagerListener}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.project.Project
@@ -105,15 +105,22 @@ object AutoBraceLookupListenerService {
         return None
       }
 
+      // if the selected item is something other than a continuation,
+      // just delude findAutoBraceInsertionOpportunity with a character that certainly cannot be part of a continuation
+      val currentItem = event.getItem.toOption.collect {
+        case item if !continuesConstructAfterIndentationContext(item.getLookupString) => 'x'
+      }
+
       val element = file.findElementAt(caret)
-      findAutoBraceInsertionOpportunity('x', caret, element)(project, file, editor)
+      findAutoBraceInsertionOpportunity(currentItem, caret, element)(project, file, editor)
     }
 
     private def doAutoBraceInsertion(event: LookupEvent, info: AutoBraceInsertionInfo): Unit = {
       val lookup = event.getLookup
-      inWriteAction(
-        insertAutoBraces(info)(lookup.getProject, lookup.getPsiFile, lookup.getEditor)
-      )
+      val project = lookup.getProject
+      inWriteCommandAction(
+        insertAutoBraces(info)(project, lookup.getPsiFile, lookup.getEditor)
+      )(project)
     }
   }
 }

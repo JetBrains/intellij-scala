@@ -26,7 +26,7 @@ object AutoBraceInsertionTools {
 
   private val continuesPreviousLine = Set('.')
 
-  def findAutoBraceInsertionOpportunity(c: Char, caretOffset: Int, element: PsiElement)
+  def findAutoBraceInsertionOpportunity(c: Option[Char], caretOffset: Int, element: PsiElement)
                                        (implicit project: Project, file: PsiFile, editor: Editor): Option[AutoBraceInsertionInfo] = {
     import AutoBraceUtils._
 
@@ -46,8 +46,9 @@ object AutoBraceInsertionTools {
               !couldBeContinuationAfterIndentationContext(tokText + addedChar)
           }
 
-          val tok = PsiTreeUtil.prevVisibleLeaf(caretWS) match {
-            case tok: PsiElement if isPossibleContinuationButWillNotBeContinuation(tok, c) => tok
+          val tok = (PsiTreeUtil.prevVisibleLeaf(caretWS), c) match {
+            case (tok: PsiElement, Some(c)) if isPossibleContinuationButWillNotBeContinuation(tok, c) => tok
+            case (tok: PsiElement, None) if !couldBeContinuationAfterIndentationContext(tok.getText) => tok
             case _ => return None
           }
 
@@ -67,7 +68,7 @@ object AutoBraceInsertionTools {
           val beforeContIndent = beforeContWSText.substring(newlinePosBeforeCaret)
           (beforeContWS, caretWS, beforeContIndent, true)
         } else {
-          if (continuesPreviousLine(c)) {
+          if (c.exists(continuesPreviousLine)) {
             return None
           }
 
@@ -103,8 +104,8 @@ object AutoBraceInsertionTools {
     val (expr, exprWS, caretIsBeforeExpr) = nextExpressionInIndentationContext(caretWS) match {
       case Some(expr) => (expr, caretWS, true)
       case None =>
-        previousExpressionInIndentationContext(wsBeforeCaret) match {
-          case Some(expr) if canBeContinuedWith(expr, c) =>
+        (previousExpressionInIndentationContext(wsBeforeCaret), c) match {
+          case (Some(expr), Some(c)) if canBeContinuedWith(expr, c) =>
             // if we start typing something that could be a continuation of the previous construct, do not insert braces
             // for example:
             //
@@ -112,20 +113,20 @@ object AutoBraceInsertionTools {
             //   if (cond) expr
             //   <caret>      <- when you type 'e', it could be the continuation of the previous if
             return None
-          case Some(expr) if  indentationContextContinuation(expr).exists(_.toString.head == c) =>
+          case (Some(expr), Some(c)) if indentationContextContinuation(expr).exists(_.toString.head == c) =>
             // if we start typing something that could be a continuation of a parent construct, do not insert braces
             // for example:
             // if (cond)
             //   expr
             //   <caret>      <- when you type 'e', it could be start of 'else' which would then be inside the block. so do nothing for now
             return None
-          case Some(expr) =>
+          case (Some(expr), _) =>
             val exprWs = expr.prevElement match {
               case Some(ws: PsiWhiteSpace) => ws
               case _ => return None
             }
             (expr, exprWs, false)
-          case None =>
+          case _ =>
             return None
         }
     }
