@@ -20,4 +20,6 @@ class AutoImportAllTest extends AutoImportTestBase {
   def testInheritedTypeAlias(): Unit = doTest()
 
   def testTypeAliasFromVal(): Unit = doTest()
+
+  def testTypeAliasFromValInheritor(): Unit = doTest()
 }

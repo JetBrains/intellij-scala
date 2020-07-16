@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.autoImport.quickFix
 
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.{PsiClass, PsiNamedElement}
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{PsiClass, PsiNamedElement}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.autoImport.GlobalImplicitInstance
 import org.jetbrains.plugins.scala.autoImport.GlobalMember.findGlobalMembers
@@ -12,9 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.TypeDoesntConformResult
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitInstanceIndex
-import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors.withStableInheritors
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, WrongTypeParameterInferred}
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors.withStableInheritorsNames
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, WrongTypeParameterInferred}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.{AnyFqn, AnyRefFqn, JavaObjectFqn}
@@ -115,13 +115,13 @@ object ImportImplicitInstanceFix {
   }
 
   private def compatibleInstances(`type`: ScType,
-                          scope: GlobalSearchScope,
-                          place: ImplicitArgumentsOwner): Set[GlobalImplicitInstance] = {
+                                  scope: GlobalSearchScope,
+                                  place: ImplicitArgumentsOwner): Set[GlobalImplicitInstance] = {
     val collector = new ImplicitCollector(place, `type`, `type`, None, false, fullInfo = true)
     for {
       clazz <- `type`.extractClass.toSet[PsiClass]
 
-      qualifiedName <- withStableInheritors(clazz)
+      qualifiedName <- withStableInheritorsNames(clazz, scope)
       if !isRootClass(qualifiedName)
 
       candidateMember <- ImplicitInstanceIndex.forClassFqn(qualifiedName, scope)(place.getProject)
