@@ -61,10 +61,15 @@ object InfixExpr extends ParsingRule {
         }
       }
       val setMarker = builder.mark
+      val gcMarker = builder.mark
       val opMarker = builder.mark
       builder.advanceLexer() //Ate id
       opMarker.done(ScalaElementType.REFERENCE_EXPRESSION)
-      TypeArgs.parse(builder, isPattern = false)
+
+      if (TypeArgs.parse(builder, isPattern = false))
+        gcMarker.done(ScalaElementType.GENERIC_CALL)
+      else gcMarker.drop()
+
       if (builder.twoNewlinesBeforeCurrentToken) {
         setMarker.rollbackTo()
         count = 0

@@ -7,7 +7,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -18,7 +17,7 @@ class ConvertFromInfixExpressionIntention extends PsiElementBaseIntentionAction 
   override def getText: String = getFamilyName
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    val infixExpr : ScInfixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
+    val infixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
     if (infixExpr == null) return false
     val range: TextRange = infixExpr.operation.nameId.getTextRange
     val offset = editor.getCaretModel.getOffset
@@ -26,7 +25,7 @@ class ConvertFromInfixExpressionIntention extends PsiElementBaseIntentionAction 
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    val infixExpr : ScInfixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
+    val infixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
     if (infixExpr == null || !infixExpr.isValid) return
 
     val start = infixExpr.getTextRange.getStartOffset
@@ -35,7 +34,7 @@ class ConvertFromInfixExpressionIntention extends PsiElementBaseIntentionAction 
     val methodCallExpr = ScalaPsiElementFactory.createEquivMethodCall(infixExpr)
     val referenceExpr = methodCallExpr.getInvokedExpr match {
       case ref: ScReferenceExpression => ref
-      case call: ScGenericCall => call.referencedExpr.asInstanceOf[ScReferenceExpression]
+      case ScGenericCall(ref, _)      => ref
     }
     val size = referenceExpr.nameId.getTextRange.getStartOffset -
        methodCallExpr.getTextRange.getStartOffset

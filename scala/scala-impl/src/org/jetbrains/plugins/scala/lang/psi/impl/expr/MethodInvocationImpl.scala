@@ -36,11 +36,11 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
   override protected def innerType: TypeResult = innerTypeExt.typeResult
 
   override def applicationProblems: Seq[ApplicabilityProblem] = innerTypeExt match {
-    case RegularCase(_, problems, _) => problems
-    case SyntheticCase(RegularCase(_, problems, _), _, _) => problems
-    case FailureCase(_, problems) if problems.nonEmpty => problems
+    case RegularCase(_, problems, _)                           => problems
+    case SyntheticCase(RegularCase(_, problems, _), _, _)      => problems
+    case FailureCase(_, problems) if problems.nonEmpty         => problems
     case FailureCase(Failure(`noSuitableMethodFoundError`), _) => Seq(DoesNotTakeParameters())
-    case _ => Seq.empty
+    case _                                                     => Seq.empty
   }
 
   override protected def matchedParametersInner: Seq[(Parameter, ScExpression, ScType)] = innerTypeExt match {
@@ -88,9 +88,10 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
     getEffectiveInvokedExpr.getNonValueType() match {
       case Right(scType) =>
         val nonValueType = updateType(scType, canThrowSCE = true)
+
         val invokedResolveResult = getEffectiveInvokedExpr match {
           case ref: ScReferenceExpression => ref.bind()
-          case _ => None
+          case _                          => None
         }
 
         checkApplication(nonValueType, invokedResolveResult) match {

@@ -15,14 +15,15 @@ ScalaFile
               PsiElement(()('(')
               PsiElement())(')')
     PsiWhiteSpace(' ')
-    ReferenceExpression: map
-      PsiElement(identifier)('map')
-    TypeArgumentsList
-      PsiElement([)('[')
-      SimpleType: String
-        CodeReferenceElement: String
-          PsiElement(identifier)('String')
-      PsiElement(])(']')
+    GenericCall
+      ReferenceExpression: map
+        PsiElement(identifier)('map')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: String
+          CodeReferenceElement: String
+            PsiElement(identifier)('String')
+        PsiElement(])(']')
     PsiWhiteSpace(' ')
     ReferenceExpression: _.toString
       UnderscoreSection

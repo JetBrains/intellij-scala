@@ -47,7 +47,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         //TODO should right expression really be parsed as Tuple (not as argument list)?
         infixExpr.right match {
           case t: ScTuple => t.exprs
-          case op => Seq(op)
+          case op         => Seq(op)
         }
       case methodCall: ScMethodCall => methodCall.argumentExpressions
     }
@@ -224,6 +224,8 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       ref.getContext match {
         case ScSugarCallExpr(operand, operation, _) if ref == operation =>
           processTypes(operand, processor)
+        case (gc: ScGenericCall) childOf ScInfixExpr(lhs, ref, _) if ref == gc.referencedExpr =>
+          processTypes(lhs, processor)
         case _ =>
           resolveUnqualifiedExpression(processor)
           processor

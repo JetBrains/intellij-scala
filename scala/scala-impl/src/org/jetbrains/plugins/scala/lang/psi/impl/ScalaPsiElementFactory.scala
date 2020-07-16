@@ -996,7 +996,7 @@ object ScalaPsiElementFactory {
 
     val clauseText = argument match {
       case _: ScTuple | _: ScParenthesisedExpr | _: ScUnitExpr => argument.getText
-      case ElementText(text) => text.parenthesize()
+      case ElementText(text)                                   => text.parenthesize()
     }
 
     val typeArgText = infix.typeArgs.map(_.getText).getOrElse("")
@@ -1004,10 +1004,10 @@ object ScalaPsiElementFactory {
 
     val exprA = createExpressionWithContextFromText(base.getText, infix, base)
 
-    val methodCall = createExpressionWithContextFromText(exprText.toString, infix.getContext, infix)
+    val methodCall = createExpressionWithContextFromText(exprText, infix.getContext, infix)
     val referenceExpression = methodCall match {
       case ScMethodCall(reference: ScReferenceExpression, _) => reference
-      case ScMethodCall(ScGenericCall(reference, _), _) => reference
+      case ScMethodCall(ScGenericCall(reference, _), _)      => reference
     }
 
     referenceExpression.qualifier.foreach {
