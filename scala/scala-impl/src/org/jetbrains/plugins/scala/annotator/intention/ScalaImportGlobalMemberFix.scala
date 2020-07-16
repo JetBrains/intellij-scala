@@ -42,8 +42,8 @@ private class ScalaImportGlobalMemberFix(override val elements: Seq[MemberToImpo
       candidatesAreCompatible &&
       ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_STATIC_METHODS
 
-  override protected def getTextInner: String = elements match {
-    case Seq(element) => ScalaBundle.message("import.with", element.presentationBody)
+  override def getText: String = elements match {
+    case Seq(element) => ScalaBundle.message("import.with", element.qualifiedName)
     case _            => ScalaBundle.message("import.something")
   }
 
@@ -61,7 +61,7 @@ private class ScalaImportGlobalMemberWithPrefixFix(override val elements: Seq[Me
 
   override def getPriority: PriorityAction.Priority = PriorityAction.Priority.HIGH
 
-  override def getTextInner: String = elements match {
+  override def getText: String = elements match {
     case Seq(elem) => ScalaBundle.message("import.as", elem.owner.name + "." + elem.name)
     case _         => ScalaBundle.message("import.with.prefix.ellipsis")
   }
