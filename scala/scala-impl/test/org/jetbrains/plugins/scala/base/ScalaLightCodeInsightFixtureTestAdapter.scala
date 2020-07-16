@@ -18,6 +18,7 @@ import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, LightJav
 import com.intellij.testFramework.{EditorTestUtil, LightPlatformTestCase, LightProjectDescriptor}
 import org.jetbrains.plugins.scala.extensions.{inWriteCommandAction, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.junit.Assert.{assertEquals, assertNotNull, fail}
 
 import scala.collection.JavaConverters._
@@ -151,8 +152,14 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     virtualFile
   )
 
-  protected def changePsiAt(offset: Int): Unit =
-    typeAndRemoveChar(offset, 'a')
+  protected def changePsiAt(offset: Int): Unit = {
+    val settings = ScalaApplicationSettings.getInstance()
+    val oldAutoBraceSettings = settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY
+    settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY = false
+    try {
+      typeAndRemoveChar(offset, 'a')
+    } finally settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY = oldAutoBraceSettings
+  }
 
   protected def typeAndRemoveChar(offset: Int, charToTypeAndRemove: Char): Unit = invokeAndWait {
     getEditor.getCaretModel.moveToOffset(offset)

@@ -102,6 +102,29 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
     assertFalse(lookups != null && lookups.exists(predicate))
   }
 
+  protected final def checkNonEmptyCompletionWithKeyAbortion(fileText: String,
+                                                             resultText: String,
+                                                             char: Char,
+                                                             invocationCount: Int = DEFAULT_TIME,
+                                                             completionType: CompletionType = BASIC): Unit = {
+    val (_, items) = activeLookupWithItems(fileText, completionType, invocationCount)()
+    assertTrue(items.nonEmpty)
+
+    getFixture.`type`(char)
+    checkResultByText(resultText)
+  }
+
+  protected final def checkEmptyCompletionAbortion(fileText: String,
+                                                   resultText: String,
+                                                   char: Char = REPLACE_SELECT_CHAR,
+                                                   invocationCount: Int = DEFAULT_TIME,
+                                                   completionType: CompletionType = BASIC): Unit = {
+    val (lookup, items) = activeLookupWithItems(fileText, completionType, invocationCount)()
+    assertTrue(items.nonEmpty)
+    lookup.finishLookup(char, null)
+    checkResultByText(resultText)
+  }
+
   protected final def completeBasic(invocationCount: Int) = {
     assertNotEquals("Please use `completeBasic`", 1, invocationCount)
 

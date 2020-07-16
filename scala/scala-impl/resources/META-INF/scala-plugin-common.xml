@@ -480,6 +480,7 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCache"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceLookupListenerService" preload="true" />
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalaFmtSuggesterService"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService"
                         serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigServiceImpl"/>

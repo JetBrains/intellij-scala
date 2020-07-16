@@ -31,7 +31,7 @@ object ScalaKeywordLookupItem {
     element = ScalaKeywordLookupItem(keyword)
   } resultSet.addElement(element)
 
-  final class KeywordInsertHandler(keyword: String) extends InsertHandler[LookupElement] {
+  final class KeywordInsertHandler(val keyword: String) extends InsertHandler[LookupElement] {
 
     import KeywordInsertHandler._
     import ScalaKeyword._
