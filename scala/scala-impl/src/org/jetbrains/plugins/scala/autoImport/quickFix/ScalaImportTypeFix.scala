@@ -142,6 +142,9 @@ object ScalaImportTypeFix {
 
     } yield MemberToImport(alias, global.owner, global.pathToOwner)
 
+    //it's possible to have same qualified name with different owners in case of val overriding
+    val distinctAliases = aliases.distinctBy(_.qualifiedName)
+
     val packagesList = importsWithPrefix(referenceName).map { s =>
       s.reverse.dropWhile(_ != '.').tail.reverse
     }
@@ -157,7 +160,7 @@ object ScalaImportTypeFix {
     } yield PrefixPackageToImport(pack)
 
     (classes ++
-      aliases ++
+      distinctAliases ++
       packages)
       .sortBy(_.qualifiedName)(orderingByRelevantImports(ref))
       .toArray
