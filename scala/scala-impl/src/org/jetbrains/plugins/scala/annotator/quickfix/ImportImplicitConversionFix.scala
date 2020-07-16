@@ -29,8 +29,8 @@ class ImportImplicitConversionFix private (ref: ScReferenceExpression,
 
   override def isAddUnambiguous: Boolean = false
 
-  override def getTextInner: String = elements match {
-    case Seq(conversion) => ScalaBundle.message("import.with", conversion.presentationBody)
+  override def getText: String = found match {
+    case Seq(conversion) => ScalaBundle.message("import.with", conversion.qualifiedName)
     case _               => ScalaBundle.message("import.implicit.conversion")
   }
 

@@ -9,7 +9,6 @@ import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{ModificationTracker, TextRange}
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.intention.Presentation.htmlWithBody
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportElementFix._
@@ -24,11 +23,6 @@ abstract class ScalaImportElementFix(val place: PsiElement) extends HintAction w
   private val modificationCount = currentModCount()
 
   val elements: Seq[ElementToImport]
-
-  final def getText: String = htmlWithBody(getTextInner)
-
-  @Nls
-  protected def getTextInner: String
 
   def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _]
 
