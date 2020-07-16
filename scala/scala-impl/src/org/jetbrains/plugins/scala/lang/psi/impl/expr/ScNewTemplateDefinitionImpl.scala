@@ -10,6 +10,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import javax.swing.Icon
+import org.jetbrains.plugins.scala.annotator.OverridingAnnotator
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
@@ -19,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{JavaConstructor, ScConstructorInvocation, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScTypeAlias}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
@@ -58,14 +59,13 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
   }
 
   protected override def innerType: TypeResult = {
-    def filterTypeSignatures(aliases: Seq[ScTypeAlias]): Map[String, TypeAliasSignature] = {
+    def filterTypeSignatures(aliases: Seq[ScTypeAlias]): Map[String, TypeAliasSignature] =
       aliases.flatMap { alias =>
         val sig = TypeAliasSignature(alias)
 
         if (alias.isPrivate || alias.isProtected) None
         else                                      Option((alias.name, sig))
       }.toMap
-    }
 
     def filterTermSignatures(terms: Seq[ScDeclaredElementsHolder]): Map[TermSignature, ScType] = {
       lazy val sigs = TypeDefinitionMembers.getSignatures(this)
@@ -77,7 +77,23 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
           case _           => false
         }
 
-        !isAvalableOutside || sigs.forName(sig.name).findNode(sig.namedElement).exists(_.supers.nonEmpty)
+        !isAvalableOutside || {
+          val maybeTpe = OverridingAnnotator.typeFromSigElement(sig.namedElement)
+          val supers =
+            sigs
+              .forName(sig.name)
+              .findNode(sig.namedElement)
+              .map(_.supers.map(_.info.namedElement))
+              .getOrElse(Seq.empty)
+
+            maybeTpe.exists(
+              tpe =>
+                supers.exists(
+                  superElem =>
+                    OverridingAnnotator.typeFromSigElement(superElem).exists(_.equiv(tpe))
+                )
+            )
+        }
       }
     }
 

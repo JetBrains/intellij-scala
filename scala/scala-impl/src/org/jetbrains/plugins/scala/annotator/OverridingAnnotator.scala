@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
   */
 
 trait OverridingAnnotator {
-
+  import OverridingAnnotator._
   import lang.psi.ScalaPsiUtil._
 
   def checkStructural(element: PsiElement, supers: Seq[Any], isInSources: Boolean): Unit = {
@@ -271,18 +271,12 @@ trait OverridingAnnotator {
       })
     }
 
-    def comparableType(named: PsiNamedElement): Option[ScType] = named match {
-      case cp: ScClassParameter => cp.getRealParameterType.toOption
-      case t: Typeable          => t.`type`().toOption
-      case _                    => None
-    }
-
     implicit val tpc: TypePresentationContext = TypePresentationContext(memberNameId)
 
     for {
-      overridingType <- comparableType(namedElement)
+      overridingType <- typeFromSigElement(namedElement)
       superSig       <- superSignatures.filterByType[TermSignature]
-      baseType       <- comparableType(superSig.namedElement)
+      baseType       <- typeFromSigElement(superSig.namedElement)
       if !overrideTypeMatchesBase(baseType, overridingType, superSig, superSig.namedElement.name)
     } {
       holder.createErrorAnnotation(
@@ -294,5 +288,13 @@ trait OverridingAnnotator {
         )
       )
     }
+  }
+}
+
+object OverridingAnnotator {
+  def typeFromSigElement(named: PsiNamedElement): Option[ScType] = named match {
+    case cp: ScClassParameter => cp.getRealParameterType.toOption
+    case t: Typeable          => t.`type`().toOption
+    case _                    => None
   }
 }
