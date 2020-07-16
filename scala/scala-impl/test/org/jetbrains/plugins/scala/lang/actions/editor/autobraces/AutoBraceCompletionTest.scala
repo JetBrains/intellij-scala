@@ -64,7 +64,7 @@ class AutoBraceCompletionTest extends ScalaCodeInsightTestBase {
        |object Test {
        |  if (true)
        |    4
-       |    $CARET
+       |    el$CARET
        |}
        |""".stripMargin,
     s"""
@@ -101,6 +101,65 @@ class AutoBraceCompletionTest extends ScalaCodeInsightTestBase {
     'e'
   )
 
+  def testAutoBraceAbortionWithKey(): Unit = checkNonEmptyCompletionWithKeyAbortion(
+    s"""
+       |def ella(i: Int): Unit = ()
+       |if (true)
+       |  4
+       |  e$CARET
+       |
+       |blub
+       |""".stripMargin,
+    s"""
+       |def ella(i: Int): Unit = ()
+       |if (true) {
+       |  4
+       |  eü$CARET
+       |}
+       |
+       |blub
+       |""".stripMargin,
+    'ü'
+  )
+
+  def testAutoBraceAbortionAfterUncertainContinuation(): Unit = checkEmptyCompletionAbortion(
+    s"""
+       |def ella(i: Int): Unit = ()
+       |if (true)
+       |  4
+       |  ex$CARET
+       |
+       |blub
+       |""".stripMargin,
+    s"""
+       |def ella(i: Int): Unit = ()
+       |if (true) {
+       |  4
+       |  ex$CARET
+       |}
+       |
+       |blub
+       |""".stripMargin,
+  )
+
+  def testAutoBraceAbortionAfterPossibleContinuation(): Unit = checkEmptyCompletionAbortion(
+    s"""
+       |def ella(i: Int): Unit = ()
+       |if (true)
+       |  4
+       |  el$CARET
+       |
+       |blub
+       |""".stripMargin,
+    s"""
+       |def ella(i: Int): Unit = ()
+       |if (true)
+       |  4
+       |  el$CARET
+       |
+       |blub
+       |""".stripMargin,
+  )
 
   // todo: fix completion from within
   /*def testAutoBraceCompletionWithNewlineWithin(): Unit = doRawCompletionTest(
