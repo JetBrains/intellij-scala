@@ -171,7 +171,8 @@ object ScalaAddImportAction {
     override protected def doAddImport(toImport: ToImport): Unit = {
       toImport match {
         case PrefixPackageToImport(pack) => ref.bindToPackage(pack, addImport = true)
-        case _ => ref.bindToElement(toImport.element)
+        case _: MemberToImport           => ScImportsHolder(ref).addImportForPath(toImport.qualifiedName)
+        case _                           => ref.bindToElement(toImport.element)
       }
     }
   }

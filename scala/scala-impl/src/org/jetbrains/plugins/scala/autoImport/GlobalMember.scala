@@ -32,18 +32,6 @@ class GlobalMember[M <: ScMember](val owner: ScTypedDefinition,
   }
 
   def qualifiedName: String = pathToOwner + "." + named.name
-
-  def canEqual(other: GlobalMember[_]): Boolean = other.getClass == getClass
-
-  override def hashCode(): Int = qualifiedName.hashCode
-
-  override def equals(obj: Any): Boolean = obj match {
-    case g: GlobalMember[_] if canEqual(g) => g.qualifiedName == qualifiedName
-    case _ => false
-  }
-
-  override def toString: String =
-    s"${getClass.getSimpleName}(" + qualifiedName + ")"
 }
 
 object GlobalMember {

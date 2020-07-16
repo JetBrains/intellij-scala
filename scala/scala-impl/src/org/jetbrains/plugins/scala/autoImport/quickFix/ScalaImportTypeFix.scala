@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.autoImport.{GlobalMember, GlobalTypeAlias}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{getCompanionModule, hasStablePath}
@@ -134,16 +135,12 @@ object ScalaImportTypeFix {
     } yield ClassToImport(classOrCompanion)
 
     val aliases = for {
-      alias <- manager.getStableAliasesByName(referenceName, ref.resolveScope)
+      alias  <- manager.getTypeAliasesByName(referenceName, ref.resolveScope)
+      global <- GlobalMember.findGlobalMembers(alias, ref.resolveScope)(GlobalTypeAlias)
 
-      containingClass = alias.containingClass
+      if kindMatchesAndIsAccessible(alias)
 
-      if containingClass != null &&
-        hasStablePath(alias) &&
-        kindMatchesAndIsAccessible(alias) &&
-        !isInExcludedPackage(containingClass, false)
-
-    } yield MemberToImport(alias, containingClass)
+    } yield MemberToImport(alias, global.owner, global.pathToOwner)
 
     val packagesList = importsWithPrefix(referenceName).map { s =>
       s.reverse.dropWhile(_ != '.').tail.reverse
