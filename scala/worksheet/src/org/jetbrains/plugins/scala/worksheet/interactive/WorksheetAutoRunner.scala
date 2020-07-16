@@ -20,9 +20,7 @@ import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
 object WorksheetAutoRunner extends WorksheetPerFileConfig {
-  val RUN_DELAY_MS_MAXIMUM = 3000
-  val RUN_DELAY_MS_MINIMUM = 700
-  
+
   def getInstance(project: Project): WorksheetAutoRunner = project.getService(classOf[WorksheetAutoRunner])
 }
 

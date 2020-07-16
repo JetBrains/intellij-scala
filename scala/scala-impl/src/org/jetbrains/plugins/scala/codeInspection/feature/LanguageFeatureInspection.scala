@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplatePar
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerSettings, ScalaCompilerSettingsProfile}
-import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
 /**
  * @author Pavel Fatin
@@ -88,9 +87,12 @@ private case class Feature(name: String,
 
   private def compilerProfile(e: PsiElement): Option[ScalaCompilerSettingsProfile] =
     e.getContainingFile match {
-      case null                                    => None
-      case file: ScalaFile if file.isWorksheetFile => Option(WorksheetFileSettings(file).getCompilerProfile)
-      case file                                    => file.module.map(_.scalaCompilerSettingsProfile)
+      case null => None
+      case file =>
+        // TODO: maybe cache the profile for file
+        //  investigate the performance for this method
+        val provided = ScalaCompilerSettingsProfileProvider.settingsFor(file)
+        provided.orElse(file.module.map(_.scalaCompilerSettingsProfile))
     }
 
   private def isFlagImportedFor(e: PsiElement): Boolean = {

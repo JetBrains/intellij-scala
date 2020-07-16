@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala
 
 import com.intellij.lang.Language
-import com.intellij.openapi.fileTypes.{LanguageFileType, ex}
+import com.intellij.openapi.fileTypes.LanguageFileType
+import com.intellij.openapi.fileTypes.ex.FileTypeIdentifiableByVirtualFile
 import com.intellij.openapi.vfs.VirtualFile
 
 abstract class LanguageFileTypeBase(language: Language) extends LanguageFileType(language)
-  with ex.FileTypeIdentifiableByVirtualFile {
+  with FileTypeIdentifiableByVirtualFile {
 
   //noinspection ReferencePassedToNls
   override def getName: String = getLanguage.getID

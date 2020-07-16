@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package worksheet.server
 
 import java.io._
-import java.nio.charset.StandardCharsets
-import java.util.Base64
 
 import com.intellij.openapi.compiler.{CompilerMessage, CompilerPaths}
 import com.intellij.openapi.diagnostic.Logger
@@ -21,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
+import org.jetbrains.plugins.scala.worksheet.WorksheetCompilerExtension
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector._
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
@@ -139,6 +138,13 @@ final class RemoteServerConnector(
     val modules = ModuleRootManager.getInstance(module).getDependencies :+ module
     val strings = modules.map(CompilerPaths.getModuleOutputPath(_, false))
     strings.map(new File(_))
+  }
+
+  override protected def assemblyClasspath(): Seq[File] = {
+    val extensionCp = WorksheetCompilerExtension.worksheetClasspath(module)
+    extensionCp.getOrElse {
+      super.assemblyClasspath()
+    }
   }
 }
 

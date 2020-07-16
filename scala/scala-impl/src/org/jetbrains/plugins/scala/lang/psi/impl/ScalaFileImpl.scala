@@ -112,8 +112,11 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
 
   override def isMultipleDeclarationsAllowed: Boolean = false
 
-  override def isWorksheetFile: Boolean =
-    ScFile.VirtualFile.unapply(this).exists(worksheet.WorksheetFileType.isWorksheetFile(_)(getProject))
+  override def isWorksheetFile: Boolean = {
+    false
+//     TODO
+    //ScFile.VirtualFile.unapply(this).exists(worksheet.WorksheetFileType.isWorksheetFile(_)(getProject))
+  }
 
   override def setPackageName(inName: String): Unit = {
     // TODO support multiple base packages simultaneously

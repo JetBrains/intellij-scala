@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.worksheet.ui
 import java.awt.Dimension
 
 import javax.swing._
-import org.jetbrains.plugins.scala.compiler.WorksheetCompilerExtension
 import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.worksheet.WorksheetCompilerExtension
 import org.jetbrains.plugins.scala.worksheet.actions.InteractiveStatusDisplay
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.StopWorksheetAction.StoppableProcess
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu._

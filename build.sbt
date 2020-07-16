@@ -73,12 +73,14 @@ lazy val uast = newProject(
   scalaImpl % "test->test;compile->compile"
 )
 
-lazy val worksheet = newProject(
-  "worksheet",
-  file("scala/worksheet")
-).dependsOn(
-  scalaImpl % "test->test;compile->compile"
-)
+lazy val worksheet =
+  newProject("worksheet", file("scala/worksheet"))
+  .settings(
+    addCompilerPlugin(Dependencies.macroParadise)
+  )
+  .dependsOn(
+    scalaImpl % "test->test;compile->compile"
+  )
 
 lazy val tastyProvided = newProject("tasty-provided", file("tasty/provided"))
   .settings(scalaVersion := "2.13.1", packageMethod := PackagingMethod.Skip())
@@ -223,7 +225,10 @@ lazy val macroAnnotations =
 
 lazy val bsp =
   newProject("bsp", file("bsp"))
-    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .dependsOn(
+      scalaImpl % "test->test;compile->compile",
+      worksheet % "test->test;compile->compile"
+    )
     .settings(
       libraryDependencies ++= DependencyGroups.bsp,
       intellijMainJars := Seq.empty

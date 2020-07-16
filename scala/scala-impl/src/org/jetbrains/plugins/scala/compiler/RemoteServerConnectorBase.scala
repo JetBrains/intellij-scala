@@ -52,7 +52,12 @@ abstract class RemoteServerConnectorBase(
     classesRoots ++ additionalCp
   }
 
-  protected final def arguments = Arguments(
+  protected def assemblyClasspath(): Seq[File] = {
+    val enumerator = OrderEnumerator.orderEntries(module).compileOnly()
+    enumerator.getClassesRoots.map(_.toFile).toSeq
+  }
+
+  protected final def arguments: Arguments = Arguments(
     sbtData = sbtData,
     compilerData = CompilerData(
       compilerJars = CompilerJarsFactory.fromFiles(compilerClasspath).toOption,
@@ -79,14 +84,6 @@ abstract class RemoteServerConnectorBase(
   )
 
   protected def settings: ScalaCompileServerSettings = ScalaCompileServerSettings.getInstance()
-
-  private def assemblyClasspath(): Seq[File] = {
-    val extensionCp = WorksheetCompilerExtension.worksheetClasspath(module)
-    extensionCp.getOrElse {
-      val enumerator = OrderEnumerator.orderEntries(module).compileOnly()
-      enumerator.getClassesRoots.map(_.toFile).toSeq
-    }
-  }
 
   protected def compilerSettings: ScalaCompilerSettings = module.scalaCompilerSettings
 

@@ -4,7 +4,7 @@ import java.io.File
 
 import com.intellij.openapi.module.Module
 import org.jetbrains.bsp.BspUtil
-import org.jetbrains.plugins.scala.compiler.WorksheetCompilerExtension
+import org.jetbrains.plugins.scala.worksheet.WorksheetCompilerExtension
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.TopComponentAction
 
 class BspWorksheetCompilerExtension extends WorksheetCompilerExtension {

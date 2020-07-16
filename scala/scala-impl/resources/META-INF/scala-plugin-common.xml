@@ -21,12 +21,13 @@
         <extensionPoint name="unresolvedReferenceFixProvider" interface="org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider" dynamic="true"/>
         <extensionPoint name="interpolatedStringMacroTypeProvider" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.InterpolatedStringMacroTypeProvider" dynamic="true"/>
         <extensionPoint name="fileDeclarationsContributor" interface="org.jetbrains.plugins.scala.lang.psi.api.FileDeclarationsContributor" dynamic="true"/>
-        <extensionPoint name="worksheetCompilerExtension" interface="org.jetbrains.plugins.scala.compiler.WorksheetCompilerExtension" dynamic="true"/>
 
         <!-- EP extracted during extraction of worksheet module -->
         <extensionPoint name="importUsedProvider" interface="org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfoProvider" dynamic="true"/>
         <extensionPoint name="importOptimizerHelper" interface="org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizerHelper" dynamic="true"/>
         <extensionPoint name="referenceExtraResolver" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceExtraResolver" dynamic="true"/>
+        <extensionPoint name="highlightingCompiler" interface="org.jetbrains.plugins.scala.externalHighlighters.HighlightingCompiler" dynamic="true"/>
+        <extensionPoint name="compilerSettingsProfileProvider" interface="org.jetbrains.plugins.scala.codeInspection.feature.ScalaCompilerSettingsProfileProvider" dynamic="true"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">
@@ -269,25 +270,21 @@
         <internalFileTemplate name="Scala Object"/>
         <internalFileTemplate name="Scala Script"/>
         <internalFileTemplate name="Package Object"/>
-        <internalFileTemplate name="Scala Worksheet"/>
         <defaultTemplatePropertiesProvider implementation="org.jetbrains.plugins.scala.actions.ScalaDefaultTemplatePropertiesProvider"/>
 
         <indexPatternBuilder implementation="org.jetbrains.plugins.scala.editor.todo.ScalaIndexPatternBuilder"/>
         <todoIndexer filetype="Scala" implementationClass="org.jetbrains.plugins.scala.editor.todo.ScalaTodoIndexer"/>
-        <todoIndexer filetype="Scala Worksheet" implementationClass="org.jetbrains.plugins.scala.editor.todo.ScalaTodoIndexer"/>
         <todoIndexer filetype="sbt" implementationClass="org.jetbrains.plugins.scala.editor.todo.ScalaTodoIndexer"/>
 
         <readWriteAccessDetector implementation="org.jetbrains.plugins.scala.highlighter.readWriteAccess.ScalaReadWriteAccessDetector"/>
         <directClassInheritorsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaDirectClassInheritorsSearcher"/>
         <classInheritorsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaLocalInheritorsSearcher"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaLineMarkerProvider"/>
-        <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="scala.meta.intellij.editor.MetaExpansionLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.RecursiveCallLineMarkerProvider"/>
         <codeInsight.gotoSuper language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToSuperActionHandler"/>
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler"/>
-        <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.worksheet.actions.repl.WorksheetResNGotoHandler" order="first"/>
         <debuggerClassFilterProvider implementation="org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerClassFilterProvider"/>
         <xdebugger.settings implementation="org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings"/>
         <debugger.jvmSmartStepIntoHandler implementation="org.jetbrains.plugins.scala.debugger.smartStepInto.ScalaSmartStepIntoHandler"/>
@@ -401,7 +398,6 @@
         <methodHierarchyProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.hierarchy.ScalaMethodHierarchyProvider"/>
         <callHierarchyProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.hierarchy.ScalaCallHierarchyProvider"/>
         <highlightUsagesHandlerFactory implementation="org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightUsagesHandlerFactory"/>
-        <highlightUsagesHandlerFactory implementation="org.jetbrains.plugins.scala.worksheet.actions.repl.WorksheetResNHighlightFactory"/>
         <constantExpressionEvaluator language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.util.ScalaConstantExpressionEvaluator"/>
         <annotationSupport language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.ScalaAnnotationSupport"/>
         <!--<classNameInsertHandler implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaClassNameInsertHandler" language="Scala"/>-->
@@ -419,9 +415,7 @@
 
         <configurationType implementation="org.jetbrains.plugins.scala.console.configuration.ScalaConsoleConfigurationType"/>
         <actionPromoter implementation="org.jetbrains.plugins.scala.console.actions.ScalaConsoleActionsPromoter"/>
-        <actionPromoter implementation="org.jetbrains.plugins.scala.worksheet.actions.repl.WorksheetReplRunActionPromoter"/>
         <actionPromoter implementation="org.jetbrains.plugins.scala.actions.implicitArguments.ShowImplicitArgumentsActionPromoter"/>
-        <actionPromoter implementation="org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetActionPromoter"/>
 
         <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2ConfigurationType"/>
         <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationType"/>
@@ -496,9 +490,6 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.testDiscovery.ScalaAffectedTestsInChangeListPainter"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.util.BetterMonadicForSupport"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.util.KindProjectorUtil"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.settings.WorksheetDefaultSettings"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.externalHighlighters.CompilerLock"
                         serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.CompilerLockImpl"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.CompilerGeneratedStateManager$MutableState"/>
@@ -554,9 +545,6 @@
                      description="Delay between runs of the compilation for highlighting, millis"/>
         <registryKey key="scala.highlighting.compilation.timeout.to.show.progress.millis" defaultValue="7000" restartRequired="false"
                      description="The progress of compilation for highlighting will be shown after this timeout"/>
-
-        <registryKey key="scala.worksheet.continue.evalutaion.on.first.expression.failure" defaultValue="false" restartRequired="false"
-                     description="Allow to continue worksheet expressions evaluation even if some expression failed in REPL mode"/>
 
         <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
         <spellchecker.support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>
@@ -1741,10 +1729,6 @@
     <projectListeners>
         <listener topic="com.intellij.openapi.compiler.CompilationStatusListener"
                   class="scala.meta.intellij.ClearMetaExpansionManagerListener"/>
-        <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
-                  class="org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook$WorksheetEditorListener"/>
-        <listener topic="com.intellij.openapi.project.DumbService$DumbModeListener"
-                  class="org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook$WorksheetDumbModeListener"/>
         <listener topic="org.jetbrains.sbt.project.settings.SbtProjectSettingsListener"
                   class="org.jetbrains.plugins.scala.components.Scala3Disclaimer$SbtProjectListener"/>
 
@@ -1777,10 +1761,6 @@
             <keyboard-shortcut first-keystroke="control shift D" keymap="$default"/>
         </action>
         <!--suppress PluginXmlCapitalization -->
-        <action id="Scala.CreateLightWorksheetAction" class="org.jetbrains.plugins.scala.worksheet.actions.CreateLightWorksheetAction">
-            <keyboard-shortcut first-keystroke="control alt shift X" keymap="$default"/>
-            <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl shift M"/>
-        </action>
         <action id="Scala.SendSelectionToConsole" class="org.jetbrains.plugins.scala.console.actions.SendSelectionToConsoleAction">
             <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
             <keyboard-shortcut first-keystroke="control shift X" keymap="$default"/>
@@ -1839,12 +1819,6 @@
         <action id="Scala.ShowImplicitArguments" class="org.jetbrains.plugins.scala.actions.implicitArguments.ShowImplicitArgumentsAction">
             <keyboard-shortcut first-keystroke="control shift P" keymap="$default"/>
         </action>
-        <action id="Scala.RunWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction">
-            <keyboard-shortcut first-keystroke="control alt W" keymap="$default"/>
-            <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
-        </action>
-        <action id="Scala.CleanWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.topmenu.CleanWorksheetAction" />
-        <action id="Scala.CopyWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.topmenu.CopyWorksheetAction" />
         <action id="Scala.ExtractTrait" class="org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractTraitAction">
             <add-to-group group-id="IntroduceActionsGroup"/>
         </action>
