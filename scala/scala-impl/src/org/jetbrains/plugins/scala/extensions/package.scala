@@ -544,6 +544,8 @@ package object extensions {
 
     def indexOf(pattern: CharSequence, fromIndex: Int = 0): Int =
       CharArrayUtil.indexOf(cs, pattern, fromIndex)
+
+    def indexWhere(pred: Char => Boolean): Int = iterator.indexWhere(pred)
   }
 
   implicit class StringsExt(private val strings: Seq[String]) extends AnyVal {
