@@ -8,9 +8,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * Helper class for Scala <--> Java collections conversions that can be used in any scala version without cross compilation.
- * It is needed due to {@link scala.collection.JavaConverters} and other standard library collection classes
- * are changed quite frequently without backward compatibility
+ * Helper class for Scala <--> Java collections conversions that can be used in any scala version without cross compilation.<br>
+ * Methods of this class are "linked" at runtime and for that reason need to be compatible with different versions of Scala.<br>
+ * It is needed because {@link scala.collection.JavaConverters} and other standard library collection classes
+ * are changed quite frequently without backward compatibility.
  */
 public class MyJavaConverters {
 
@@ -23,19 +24,28 @@ public class MyJavaConverters {
     return list;
   }
 
-  /* Construct scala List manually by allocating head & tails.
-   *
+  /**
+   * Construct scala List manually by allocating head & tails.
+   * <p>
    * NOTE: We cant just use some conversion method/Builders/Buffers from scala standard library.
    * Couldn't find some common methods that would exist in scala 2.13 and scala 2.12.
-   * For example, we can't just use `builder.$plus$eq(item)` because `+=` method is defined:
-   *   in 2.12 in `scala.collection.mutable.Builder`
-   *   in 2.13 in `scala.collection.mutable.Growable`
+   * <p>
+   * For example, we can't just use `builder.$plus$eq(item)` because `+=` method is defined:<br>
+   *     <ul>
+   *         <li>in 2.12 in `scala.collection.mutable.Builder`</li>
+   *         <li>in 2.13 in `scala.collection.mutable.Growable</li>
+   *     </ul>
+   * <p>
    * Builder extends Growable, BUT:
-   *   in 2.12 Growable has base package `scala.collection.generic`
-   *   in 2.13 Growable has base package `scala.collection.mutable`
+   * <ul>
+   *     <li>in 2.12 Growable has base package `scala.collection.generic`</li>
+   *     <li>in 2.13 Growable has base package `scala.collection.mutable`</li>
+   * </ul>
    * AND
-   *   in 2.12 Builder defines `+=` method
-   *   in 2.13 Builder defines `+=` method
+   * <ul>
+   *     <li>in 2.12 Builder defines `+=` method</li>
+   *     <li>in 2.13 Builder defines `+=` method</li>
+   * </ul>
    * This breaks JVM virtual method dispatch in runtime.
    */
   @SuppressWarnings({"unchecked", "ConstantConditions"})
