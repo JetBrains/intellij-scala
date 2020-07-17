@@ -11,12 +11,12 @@ import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerListener, ProjectUtil}
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.concurrency.AppExecutorUtil
-import org.jetbrains.bsp.settings.BspExecutionSettings
+import org.jetbrains.bsp.settings.BspProjectSettings.BspServerConfig
 import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 
 import scala.collection.mutable
 import scala.concurrent.duration._
-import scala.util.{Success, Try}
+import scala.concurrent.{ExecutionContext, Future}
 
 class BspCommunicationService extends Disposable {
 
@@ -47,42 +47,35 @@ class BspCommunicationService extends Disposable {
     }
   }
 
-  private[protocol] def communicate(base: File): BspCommunication =
+  private[protocol] def communicate(base: File, config: BspServerConfig): BspCommunication =
     comms.getOrElseUpdate(
       base.getCanonicalFile.toURI,
       {
-        val comm = new BspCommunication(base)
+        val comm = new BspCommunication(base, config)
         Disposer.register(this, comm)
         comm
       }
     )
 
-  @deprecated("Multiple BSP servers per IDEA project are possible. use communicate(File) instead", "2020.1")
-  private[protocol] def communicate(implicit project: Project): BspCommunication =
-    projectPath.map(new File(_))
-      .map(communicate)
-      .orNull // TODO
-
   def listOpenComms: Iterable[URI] = comms.keys
 
-  def isAlive(base: URI): Boolean = communicate(new File(base)).alive
+  def isAlive(base: URI): Boolean =
+    comms.get(base).exists(_.alive)
 
-  def closeCommunication(base: File): Try[Unit] =
-    closeCommunication(base.getCanonicalFile.toURI)
-
-  def closeCommunication(base: URI): Try[Unit] =
-    comms.get(base)
+  /** Close BSP connection if there is an open one associated with `base`. */
+  def closeCommunication(base: URI): Future[Unit] = {
+    val tryComm = comms.get(base)
       .toRight(new NoSuchElementException)
       .toTry
-      .flatMap(_.closeSession())
 
-  def closeAll: Try[Unit] =
-    comms.values
-      .map(_.closeSession())
-      .foldLeft(Success(Unit): Try[Unit])(_.orElse(_))
+    Future.fromTry(tryComm)
+      .flatMap(_.closeSession())(ExecutionContext.global)
+  }
 
-  private def executionSettings(base: File): BspExecutionSettings =
-    BspExecutionSettings.executionSettingsFor(base)
+  def closeAll: Future[Unit] = {
+    import ExecutionContext.Implicits.global
+    Future.traverse(comms.values)(_.closeSession()).map(_ => ())
+  }
 
   override def dispose(): Unit = {
     comms.values.foreach(_.closeSession())
@@ -90,7 +83,6 @@ class BspCommunicationService extends Disposable {
   }
 
   private object MyProjectListener extends ProjectManagerListener {
-
     override def projectClosed(project: Project): Unit = for {
       path <- projectPath(project)
       uri = Paths.get(path).toUri

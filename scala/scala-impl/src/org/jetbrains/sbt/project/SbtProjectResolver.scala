@@ -78,12 +78,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       new TaskOperationDescriptorImpl(SbtBundle.message("sbt.import.to.intellij.project.model"), System.currentTimeMillis(), "project-model-import")
 
     val esReporter = new ExternalSystemNotificationReporter(projectRoot.getAbsolutePath, taskId, notifications)
-    val reporter = if (isUnitTestMode) {
+    implicit val reporter: BuildReporter = if (isUnitTestMode) {
       val logReporter = new LogReporter
       new CompositeReporter(esReporter, logReporter)
     } else esReporter
 
-    val structureDump = dumpStructure(projectRoot, sbtLauncher, Version(sbtVersion), settings, taskId.findProject(), reporter)
+    val structureDump = dumpStructure(projectRoot, sbtLauncher, Version(sbtVersion), settings, taskId.findProject())
 
     // side-effecty status reporting
     structureDump.foreach { case (_, messages) =>
@@ -139,9 +139,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
                             sbtLauncher: File,
                             sbtVersion: Version,
                             settings:SbtExecutionSettings,
-                            @Nullable project: Project,
-                            reporter: BuildReporter
-                           ): Try[(Elem, BuildMessages)] = {
+                            @Nullable project: Project
+                           )(implicit reporter: BuildReporter): Try[(Elem, BuildMessages)] = {
 
     val useShellImport = settings.useShellForImport && shellImportSupported(sbtVersion) && project != null
     val options = dumpOptions(settings)
@@ -176,7 +175,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
           dumper.dumpFromProcess(
             projectRoot, structureFilePath, options,
             settings.vmExecutable, settings.vmOptions, settings.environment,
-            sbtLauncher, sbtStructureJar, reporter)
+            sbtLauncher, sbtStructureJar)
         }
       }
       activeProcessDumper = None

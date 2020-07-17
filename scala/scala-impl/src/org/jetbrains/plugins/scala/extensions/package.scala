@@ -66,7 +66,7 @@ import scala.annotation.tailrec
 import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.collection.{JavaConverters, Seq}
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Future, Promise}
 import scala.io.Source
 import scala.language.higherKinds
 import scala.math.Ordering
@@ -1560,5 +1560,10 @@ package object extensions {
       withParents.drop(1)
     def withParents: Iterator[Path] =
       Iterator.iterate(path)(_.getParent).takeWhile(_ != null)
+  }
+
+  object executionContext {
+    private val appExecutorService = AppExecutorUtil.getAppExecutorService
+    implicit val appExecutionContext: ExecutionContextExecutorService = ExecutionContext.fromExecutorService(appExecutorService)
   }
 }

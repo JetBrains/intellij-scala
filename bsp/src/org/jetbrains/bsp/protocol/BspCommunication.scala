@@ -3,6 +3,7 @@ package org.jetbrains.bsp.protocol
 import java.io.File
 import java.util.concurrent.atomic.AtomicReference
 
+import com.google.gson.Gson
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
@@ -17,33 +18,34 @@ import org.jetbrains.bsp.protocol.session.BspServerConnector._
 import org.jetbrains.bsp.protocol.session.BspSession._
 import org.jetbrains.bsp.protocol.session._
 import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
+import org.jetbrains.bsp.settings.BspProjectSettings.BspServerConfig
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, BspSettings}
 import org.jetbrains.plugins.scala.build.BuildReporter
 
+import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.util.{Success, Try}
 
 
-class BspCommunication private[protocol](base: File) extends Disposable {
+class BspCommunication private[protocol](base: File, config: BspServerConfig) extends Disposable {
 
   private val log = Logger.getInstance(classOf[BspCommunication])
 
   private val session: AtomicReference[Option[BspSession]] = new AtomicReference[Option[BspSession]](None)
 
-  private def acquireSessionAndRun(job: BspSessionJob[_,_], reporter: BuildReporter):
+  private def acquireSessionAndRun(job: BspSessionJob[_,_])(implicit reporter: BuildReporter):
   Either[BspError, BspSession] = session.synchronized {
     session.get() match {
       case Some(currentSession) =>
         if (currentSession.isAlive) Right(currentSession)
-        else openSession(job, reporter)
+        else openSession(job)
 
       case None =>
-        openSession(job, reporter)
+        openSession(job)
     }
   }
 
-  private def openSession(job: BspSessionJob[_,_], reporter: BuildReporter): Either[BspError, BspSession] = {
-    val sessionBuilder = prepareSession(base, reporter)
+  private def openSession(job: BspSessionJob[_,_])(implicit reporter: BuildReporter): Either[BspError, BspSession] = {
+    val sessionBuilder = prepareSession(base, config)
 
     sessionBuilder match {
       case Left(error) =>
@@ -83,8 +85,9 @@ class BspCommunication private[protocol](base: File) extends Disposable {
     case _ => // ignore
   }
 
-  private[bsp] def closeSession(): Try[Unit] = session.get() match {
-    case None => Success(())
+  /** Close this session. This method may block on I/O. */
+  private[bsp] def closeSession(): Future[Unit] = session.get() match {
+    case None => Future.successful(())
     case Some(s) =>
       session.set(None)
       s.shutdown()
@@ -107,7 +110,7 @@ class BspCommunication private[protocol](base: File) extends Disposable {
                (implicit reporter: BuildReporter): BspJob[(T, A)] = {
     val job = jobs.create(task, default, aggregator, processLogger)
 
-    acquireSessionAndRun(job, reporter) match {
+    acquireSessionAndRun(job) match {
       case Left(error) => new FailedBspJob(error)
       case Right(currentSession) =>
         currentSession.run(job)
@@ -131,37 +134,58 @@ class BspCommunication private[protocol](base: File) extends Disposable {
 
 object BspCommunication {
 
-  def forWorkspace(baseDir: File): BspCommunication = {
+  def forWorkspace(baseDir: File, config: BspServerConfig): BspCommunication = {
     if (!baseDir.isDirectory)
       throw new IllegalArgumentException(s"Base path for BspCommunication is not a directory: $baseDir")
     else
-      BspCommunicationService.getInstance.communicate(baseDir)
+      BspCommunicationService.getInstance.communicate(baseDir, config)
+  }
+
+  def forWorkspace(baseDir: File, project: Project): BspCommunication = {
+    val bspSettings = BspUtil.bspSettings(project).getLinkedProjectSettings(baseDir.getCanonicalPath)
+    val config = bspSettings.serverConfig
+    forWorkspace(baseDir, config)
   }
 
 
-  private def prepareSession(base: File, reporter: BuildReporter): Either[BspError, Builder] = {
+  private def prepareSession(base: File, config: BspServerConfig)(implicit reporter: BuildReporter): Either[BspError, Builder] = {
 
-    val supportedLanguages = List("scala","java") // TODO somehow figure this out more generically?
+    // TODO supported languages should be extendable
+    val supportedLanguages = List("scala","java")
     val capabilities = BspCapabilities(supportedLanguages)
-    val connectionDetails = BspConnectionConfig.allBspConfigs(base)
-    val configuredMethods = connectionDetails.map(ProcessBsp)
-
     val compilerOutputDir = BspUtil.compilerOutputDirFromConfig(base)
       .getOrElse(new File(base, "out"))
+    val bloopEnabled = BspUtil.bloopConfigDir(base).isDefined
 
-    // TODO user dialog when multiple valid connectors exist: https://youtrack.jetbrains.com/issue/SCL-14880
-    val connector =
-      if (connectionDetails.nonEmpty)
-        new GenericConnector(base, compilerOutputDir, capabilities, configuredMethods)
-      else if (BspUtil.bloopConfigDir(base).isDefined)
-        new BloopLauncherConnector(
-          base,
-          compilerOutputDir,
-          capabilities
-        )
-      else new DummyConnector(base.toURI)
+    val connector: Either[BspError, BspServerConnector] = config match {
 
-    connector.connect(reporter)
+      case BspProjectSettings.AutoConfig =>
+        // only use workspace configs for autodetection, system configs might not be applicable
+        val connectionDetails = BspConnectionConfig.workspaceBspConfigs(base)
+        val configuredMethods = connectionDetails.map(_._2).map(ProcessBsp)
+        if (connectionDetails.nonEmpty)
+          Right(new GenericConnector(base, compilerOutputDir, capabilities, configuredMethods))
+        else if (bloopEnabled)
+          Right(new BloopLauncherConnector(base, compilerOutputDir, capabilities))
+        else
+          Left(BspErrorMessage(s"Unable to automatically determine BSP connection configuration in $base"))
+
+      case BspProjectSettings.BloopConfig =>
+        if (bloopEnabled)
+          Right(new BloopLauncherConnector(base, compilerOutputDir, capabilities))
+        else
+          Left(BspErrorMessage(s"Bloop is not configured for BSP workspace in $base"))
+
+      case BspProjectSettings.BspConfigFile(path) =>
+        BspConnectionConfig.readConnectionFile(path.toFile)(new Gson)
+          .map { details =>
+            val method = ProcessBsp(details)
+            new GenericConnector(base, compilerOutputDir, capabilities, List(method))
+          }.toEither.left
+          .map(cause => BspConnectionError(s"Unable to read BSP connection file at $path", cause))
+    }
+
+    connector.flatMap(_.connect(reporter))
   }
 
 }

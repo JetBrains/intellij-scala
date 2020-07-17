@@ -1,7 +1,7 @@
-package org.jetbrains.bsp.project.resolver
+package org.jetbrains.bsp.project.importing
 
 import com.intellij.openapi.extensions.ExtensionPointName
-import org.jetbrains.bsp.project.resolver.BspResolverDescriptors.ModuleDescription
+import org.jetbrains.bsp.project.importing.BspResolverDescriptors.ModuleDescription
 
 /**
  * This extension allows to customize names created during BSP project import/refresh.

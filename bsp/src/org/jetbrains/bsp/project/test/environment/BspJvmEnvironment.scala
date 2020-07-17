@@ -219,7 +219,7 @@ object BspJvmEnvironment {
                             project: Project,
                             @Nls reporterTitle: String,
                             task: BspSessionTask[A]): Try[A] = {
-    val communication = BspCommunication.forWorkspace(workspace.toFile)
+    val communication = BspCommunication.forWorkspace(workspace.toFile, project)
     val bspTaskId = BuildMessages.randomEventId
     val cancelAction = new CancelBuildAction(Promise[Unit]())
     implicit val reporter: BuildToolWindowReporter =

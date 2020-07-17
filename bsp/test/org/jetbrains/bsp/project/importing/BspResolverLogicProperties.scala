@@ -1,4 +1,4 @@
-package org.jetbrains.bsp.project.resolver
+package org.jetbrains.bsp.project.importing
 
 import java.io.File
 import java.nio.file.Path
@@ -9,9 +9,9 @@ import ch.epfl.scala.bsp4j._
 import com.google.gson.{Gson, GsonBuilder}
 import com.intellij.openapi.externalSystem.model.ProjectKeys
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.bsp.project.resolver.BspResolverDescriptors.{ModuleDescription, ProjectModules, ScalaModule, SourceDirectory}
-import org.jetbrains.bsp.project.resolver.BspResolverLogic._
-import org.jetbrains.bsp.project.resolver.Generators._
+import org.jetbrains.bsp.project.importing.BspResolverDescriptors.{ModuleDescription, ProjectModules, ScalaModule, SourceDirectory}
+import org.jetbrains.bsp.project.importing.BspResolverLogic._
+import org.jetbrains.bsp.project.importing.Generators._
 import org.jetbrains.plugins.scala.SlowTests
 import org.junit.experimental.categories.Category
 import org.junit.{Ignore, Test}

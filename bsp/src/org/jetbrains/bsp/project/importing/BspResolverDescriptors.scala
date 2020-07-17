@@ -1,4 +1,4 @@
-package org.jetbrains.bsp.project.resolver
+package org.jetbrains.bsp.project.importing
 
 import java.io.File
 

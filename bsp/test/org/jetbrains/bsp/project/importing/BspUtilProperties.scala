@@ -1,4 +1,4 @@
-package org.jetbrains.bsp.project.resolver
+package org.jetbrains.bsp.project.importing
 
 import ch.epfl.scala.bsp.testkit.gen.UtilGenerators._
 import org.jetbrains.bsp.BspUtil._

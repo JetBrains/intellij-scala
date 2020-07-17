@@ -16,7 +16,7 @@ import com.intellij.openapi.util.UserDataHolder
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.util.Function
 import org.jetbrains.bsp._
-import org.jetbrains.bsp.project.resolver.BspProjectResolver
+import org.jetbrains.bsp.project.importing.BspProjectResolver
 import org.jetbrains.bsp.settings._
 import org.jetbrains.bsp.project.BspExternalSystemManager.DetectExternalProjectFiles
 import org.jetbrains.bsp.protocol.BspConnectionConfig
@@ -61,7 +61,7 @@ class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings,
   override def getAffectedExternalProjectFiles(projectPath: String, project: Project): JList[File] = {
     if (detectExternalProjectFiles(project)) {
       val workspace = new File(projectPath)
-      val bspConfigs = BspConnectionConfig.workspaceConfigurations(workspace)
+      val bspConfigs = BspConnectionConfig.workspaceConfigurationFiles(workspace)
       val bloopConfigs = BspUtil.bloopConfigDir(workspace).toList
         .flatMap(_.listFiles(file => file.getName.endsWith(".json")).toList)
 
@@ -75,7 +75,7 @@ class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings,
     cached(DetectExternalProjectFiles, project) {
       if (BspUtil.isBspProject(project)) {
         val workspace = new File(project.getBasePath)
-        val files = BspConnectionConfig.workspaceConfigurations(workspace)
+        val files = BspConnectionConfig.workspaceConfigurationFiles(workspace)
         files.forall { file =>
           val bspConnectionDetails = parseAsMap(file)
           !bspConnectionDetails.get("X-detectExternalProjectFiles").contains(false)
