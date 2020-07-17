@@ -12,7 +12,7 @@ import javax.swing.{DefaultListModel, JComponent, JPanel, ListSelectionModel}
 import org.jetbrains.bsp.BspUtil
 import org.jetbrains.bsp.project.importing.BspSetupConfigStep.ConfigSetupTask
 import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, MillConfigSetup, NoConfigSetup, SbtConfigSetup}
-import org.jetbrains.bsp.project.importing.steps._
+import org.jetbrains.bsp.project.importing.bspConfigSteps._
 import org.jetbrains.bsp.protocol.BspConnectionConfig
 import org.jetbrains.bsp.settings.BspProjectSettings.{AutoConfig, AutoPreImport, BloopConfig, BloopSbtPreImport, BspConfigFile, NoPreImport}
 import org.jetbrains.plugins.scala.build.IndicatorReporter
@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.{MillProjectImportProvider, SbtProjectImportProvider}
 
-object steps {
+object bspConfigSteps {
 
   sealed private[importing] abstract class ConfigSetup
   case object NoSetup extends ConfigSetup
@@ -111,23 +111,23 @@ class BspSetupConfigStep(context: WizardContext, builder: BspProjectImportBuilde
       else chooseBspSetup.getSelectedIndex
 
     val setup = configSetupChoices(configIndex) match {
-      case steps.NoSetup =>
+      case bspConfigSteps.NoSetup =>
         builder.setPreImportConfig(AutoPreImport)
         builder.setServerConfig(AutoConfig)
         new NoConfigSetup
-      case steps.BloopSetup =>
+      case bspConfigSteps.BloopSetup =>
         builder.setPreImportConfig(NoPreImport)
         builder.setServerConfig(BloopConfig)
         new NoConfigSetup
-      case steps.BloopSbtSetup =>
+      case bspConfigSteps.BloopSbtSetup =>
         builder.setPreImportConfig(BloopSbtPreImport)
         builder.setServerConfig(BloopConfig)
         new NoConfigSetup
-      case steps.SbtSetup =>
+      case bspConfigSteps.SbtSetup =>
         builder.setPreImportConfig(NoPreImport)
         // server config to be set in next step
         SbtConfigSetup(workspace)
-      case steps.MillSetup =>
+      case bspConfigSteps.MillSetup =>
         builder.setPreImportConfig(NoPreImport)
         MillConfigSetup(workspace)
     }

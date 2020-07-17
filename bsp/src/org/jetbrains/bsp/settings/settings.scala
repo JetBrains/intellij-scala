@@ -1,7 +1,7 @@
 package org.jetbrains.bsp.settings
 
 import java.io.File
-import java.nio.file.Path
+import java.nio.file.{Path, Paths}
 import java.util
 
 import com.intellij.openapi.components._
@@ -12,9 +12,10 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
 import com.intellij.openapi.externalSystem.util.{ExternalSystemSettingsControl, ExternalSystemUiUtil, PaintAwarePanel}
 import com.intellij.openapi.project.Project
 import com.intellij.util.messages.Topic
-import com.intellij.util.xmlb.annotations.XCollection
+import com.intellij.util.xmlb.Converter
+import com.intellij.util.xmlb.annotations.{OptionTag, XCollection}
 import javax.swing.JCheckBox
-import org.jetbrains.bsp.settings.BspProjectSettings.{AutoConfig, BspServerConfig, AutoPreImport, PreImportConfig}
+import org.jetbrains.bsp.settings.BspProjectSettings.{AutoConfig, AutoPreImport, BspServerConfig, BspServerConfigConverter, PreImportConfig, PreImportConfigConverter}
 import org.jetbrains.bsp.{BspBundle, _}
 import org.jetbrains.plugins.scala.project.ProjectExt
 
@@ -29,9 +30,11 @@ class BspProjectSettings extends ExternalProjectSettings {
   var runPreImportTask = true
 
   @BeanProperty
+  @OptionTag(converter = classOf[BspServerConfigConverter])
   var serverConfig: BspServerConfig = AutoConfig
 
   @BeanProperty
+  @OptionTag(converter = classOf[PreImportConfigConverter])
   var preImportConfig: PreImportConfig = AutoPreImport
 
   override def clone(): BspProjectSettings = {
@@ -44,6 +47,7 @@ class BspProjectSettings extends ExternalProjectSettings {
     result
   }
 }
+
 object BspProjectSettings {
 
   /** A specific configuration to start and connect to a BSP server. */
@@ -63,6 +67,40 @@ object BspProjectSettings {
   case object AutoPreImport extends PreImportConfig
   /** Preimport with Bloop from sbt project */
   case object BloopSbtPreImport extends PreImportConfig
+
+  class PreImportConfigConverter extends Converter[PreImportConfig] {
+    override def fromString(value: String): PreImportConfig =
+      value match {
+        case "NoPreImport" => NoPreImport
+        case "AutoPreImport" => AutoPreImport
+        case "BloopBspPreImport" => BloopSbtPreImport
+      }
+
+    override def toString(value: PreImportConfig): String =
+      value match {
+        case NoPreImport => "NoPreImport"
+        case AutoPreImport => "AutoPreImport"
+        case BloopSbtPreImport => "BloopBspPreImport"
+      }
+  }
+
+  class BspServerConfigConverter extends Converter[BspServerConfig] {
+    private val configFile = "BspConfigFile:(.*)".r("path")
+    override def fromString(value: String): BspServerConfig = {
+      value match {
+        case "AutoConfig" => AutoConfig
+        case "BloopConfig" => BloopConfig
+        case configFile(path) => BspConfigFile(Paths.get(path))
+      }
+    }
+
+    override def toString(value: BspServerConfig): String =
+      value match {
+        case AutoConfig => "AutoConfig"
+        case BloopConfig =>"BloopConfig"
+        case BspConfigFile(path) => s"BspConfigFile:$path"
+      }
+  }
 }
 
 class BspProjectSettingsControl(settings: BspProjectSettings)
