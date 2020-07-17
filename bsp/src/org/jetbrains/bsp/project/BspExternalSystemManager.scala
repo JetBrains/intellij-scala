@@ -1,6 +1,6 @@
 package org.jetbrains.bsp.project
 
-import java.io.File
+import java.io.{File, FileReader}
 import java.util.{Collections, List => JList, Map => JMap}
 
 import com.google.gson.Gson
@@ -22,6 +22,7 @@ import org.jetbrains.bsp.project.BspExternalSystemManager.DetectExternalProjectF
 import org.jetbrains.bsp.protocol.BspConnectionConfig
 
 import scala.collection.JavaConverters._
+import scala.util.Try
 
 class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings, BspProjectSettingsListener, BspSettings, BspLocalSettings, BspExecutionSettings]
   with ExternalSystemConfigurableAware
@@ -76,18 +77,21 @@ class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings,
       if (BspUtil.isBspProject(project)) {
         val workspace = new File(project.getBasePath)
         val files = BspConnectionConfig.workspaceConfigurationFiles(workspace)
-        files.forall { file =>
-          val bspConnectionDetails = parseAsMap(file)
-          !bspConnectionDetails.get("X-detectExternalProjectFiles").contains(false)
-        }
+        files
+          .flatMap(parseAsMap(_).toOption)
+          .forall { details =>
+            ! details.get("X-detectExternalProjectFiles")
+              .contains(false)
+          }
       } else true
     }
   }
 
-  private def parseAsMap(file: File): Map[String, Any] = {
-    val virtualFile = LocalFileSystem.getInstance.findFileByIoFile(file)
-    val content = new String(virtualFile.contentsToByteArray())
-    new Gson().fromJson(content, classOf[JMap[String, _]]).asScala.toMap
+  private def parseAsMap(file: File): Try[Map[String, Any]] = Try {
+    new Gson()
+      .fromJson(new FileReader(file), classOf[JMap[String, _]])
+      .asScala
+      .toMap
   }
 
   private def cached[A](key: Key[A], holder: UserDataHolder)(compute: => A): A = {
