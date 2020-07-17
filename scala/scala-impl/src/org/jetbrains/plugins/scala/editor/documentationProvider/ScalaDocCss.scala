@@ -15,7 +15,7 @@ private object ScalaDocCss {
    */
   //noinspection HtmlRequiredTitleElement,CssUnknownProperty
   //language=CSS
-  def value: String =
+  val value: String =
     """/*
       | * NOTE: margin for list items is calculated relatively to list item content,
       | * so if margin=0, list head element will be rendered to the left of the main content.
