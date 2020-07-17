@@ -10,12 +10,13 @@ import ch.epfl.scala.bsp4j._
 import com.intellij.mock.{MockApplication, MockLocalFileSystem}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener, ExternalSystemTaskType}
+import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.openapi.vfs.impl.VirtualFileManagerImpl
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import org.jetbrains.bsp
-import org.jetbrains.bsp.project.resolver.BspProjectResolver
+import org.jetbrains.bsp.project.importing.BspProjectResolver
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, BspSessionTask}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspCommunicationService}
+import org.jetbrains.bsp.settings.BspProjectSettings.{AutoConfig, AutoPreImport}
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspSystemSettings}
 import org.jetbrains.plugins.scala.build.{BuildReporter, ConsoleReporter}
 
@@ -92,8 +93,9 @@ object BSPCli extends App {
   }
 
   var running = true
-  val bspExecSettings = new BspExecutionSettings(new File(opts.projectPath), true, true)
-  val bspComm = BspCommunication.forWorkspace(new File(opts.projectPath))
+  val bspExecSettings = new BspExecutionSettings(
+    new File(opts.projectPath), true, true, AutoPreImport, AutoConfig)
+  val bspComm = BspCommunication.forWorkspace(new File(opts.projectPath), AutoConfig)
   val resolver = new BspProjectResolver()
   val targets = {
     println("Resolving build targets...")

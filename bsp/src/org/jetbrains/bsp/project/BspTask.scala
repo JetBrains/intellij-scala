@@ -95,7 +95,7 @@ class BspTask[T](project: Project,
 
     val buildJobs = targetByWorkspace.map { case (workspace, targets) =>
       val targetsToClean = targetToCleanByWorkspace.getOrElse(workspace, List.empty)
-      val communication: BspCommunication = BspCommunication.forWorkspace(workspace.toFile)
+      val communication: BspCommunication = BspCommunication.forWorkspace(workspace.toFile, project)
       communication.run(
         buildRequests(targets, targetsToClean)(_, _, reporter),
         BuildMessages.empty,

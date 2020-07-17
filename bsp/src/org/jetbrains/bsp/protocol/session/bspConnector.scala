@@ -16,9 +16,6 @@ import scala.collection.JavaConverters._
 object BspServerConnector {
   sealed abstract class BspConnectionMethod
   final case class ProcessBsp(details: BspConnectionDetails) extends BspConnectionMethod
-  final case class UnixLocalBsp(socketFile: File) extends BspConnectionMethod
-  final case class WindowsLocalBsp(pipeName: String) extends BspConnectionMethod
-  final case class TcpBsp(host: URI, port: Int) extends BspConnectionMethod
 
   case class BspCapabilities(languageIds: List[String])
 

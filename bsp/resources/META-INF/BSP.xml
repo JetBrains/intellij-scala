@@ -7,7 +7,7 @@
                         interface="org.jetbrains.bsp.project.test.environment.BspEnvironmentRunnerExtension"
                         dynamic="true"/>
         <extensionPoint qualifiedName="com.intellij.bspResolverNamingExtension"
-                        interface="org.jetbrains.bsp.project.resolver.BspResolverNamingExtension"
+                        interface="org.jetbrains.bsp.project.importing.BspResolverNamingExtension"
                         dynamic="true"/>
     </extensionPoints>
 
@@ -37,10 +37,10 @@
 
         <applicationService serviceImplementation="org.jetbrains.bsp.protocol.BspCommunicationService"/>
 
-        <projectImportProvider implementation="org.jetbrains.bsp.project.BspProjectImportProvider"/>
-        <projectImportBuilder implementation="org.jetbrains.bsp.project.BspProjectImportBuilder"/>
+        <projectImportProvider implementation="org.jetbrains.bsp.project.importing.BspProjectImportProvider"/>
+        <projectImportBuilder implementation="org.jetbrains.bsp.project.importing.BspProjectImportBuilder"/>
 
-        <projectOpenProcessor implementation="org.jetbrains.bsp.project.BspProjectOpenProcessor"/>
+        <projectOpenProcessor implementation="org.jetbrains.bsp.project.importing.BspProjectOpenProcessor"/>
 
         <projectConfigurable groupId="build.tools" displayName="BSP" instance="org.jetbrains.bsp.project.BspExternalSystemConfigurable" />
 

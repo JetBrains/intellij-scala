@@ -270,7 +270,9 @@ class BspSession private(bspIn: InputStream,
     sessionError.orElse(queueError)
   }
 
-  private[protocol] def shutdown(error: Option[BspError] = None): Try[Unit] = {
+  private[protocol] def shutdown(error: Option[BspError] = None): Future[Unit] = {
+    import org.jetbrains.plugins.scala.extensions.executionContext.appExecutionContext
+
     def whenDone: CompletableFuture[Unit] = {
       serverConnection.server.buildShutdown()
         .thenApply[Unit](_=> serverConnection.server.onBuildExit())
@@ -298,9 +300,10 @@ class BspSession private(bspIn: InputStream,
     }
     queueProcessor.cancel(false)
     sessionInitialized.cancel(false)
-    val result = Try(whenDone.get(sessionTimeout.toMillis, TimeUnit.MILLISECONDS))
-    serverConnection.cancelable.cancel()
-    result
+
+    // ensure connection-related stuff is canceled after a timeout
+    Future(whenDone.get(sessionTimeout.toMillis, TimeUnit.MILLISECONDS))
+      .andThen { case _ => serverConnection.cancelable.cancel() }
   }
 
   private[protocol] def getLastActivity: Long = lastActivity

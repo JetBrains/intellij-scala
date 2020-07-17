@@ -1,4 +1,4 @@
-package org.jetbrains.bsp.project.resolver
+package org.jetbrains.bsp.project.importing
 
 import java.io.File
 import java.nio.file.{Path, Paths}
@@ -10,7 +10,7 @@ import ch.epfl.scala.bsp4j.{BuildTarget, BuildTargetIdentifier}
 import com.google.gson.{Gson, GsonBuilder}
 import org.jetbrains.bsp.data.JdkData
 import org.jetbrains.bsp.data.ScalaSdkData
-import org.jetbrains.bsp.project.resolver.BspResolverDescriptors.{ModuleDescription, SourceDirectory, _}
+import org.jetbrains.bsp.project.importing.BspResolverDescriptors.{ModuleDescription, SourceDirectory, _}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
 

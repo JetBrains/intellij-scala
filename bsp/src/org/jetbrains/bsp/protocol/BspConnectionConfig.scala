@@ -18,17 +18,23 @@ object BspConnectionConfig {
   
   private val BspSystemConfigDirName = "bsp"
 
-  def workspaceConfigurations(workspace: File): List[File] = {
+  def workspaceConfigurationFiles(workspace: File): List[File] = {
     val bspDir = new File(workspace, BspWorkspaceConfigDirName)
     if(bspDir.isDirectory)
       bspDir.listFiles(file => file.getName.endsWith(".json")).toList
     else List.empty
   }
 
-  /** Find all BSP connection configs either in a workspace, or installed on a system. */
-  def allBspConfigs(workspace: File): List[BspConnectionDetails] = {
+  /** Find all BSP connection configs for a workspace. */
+  def workspaceBspConfigs(workspace: File): List[(File, BspConnectionDetails)] = {
+    val files = workspaceConfigurationFiles(workspace)
+    tryReadingConnectionFiles(files).flatMap(_.toOption).toList
+  }
 
-    val workspaceConfigs = workspaceConfigurations(workspace)
+  /** Find all BSP connection configs either in a workspace, or installed on a system. */
+  def allBspConfigs(workspace: File): List[(File, BspConnectionDetails)] = {
+
+    val workspaceConfigs = workspaceConfigurationFiles(workspace)
     val systemConfigs = systemDependentConnectionFiles
     val potentialConfigs = tryReadingConnectionFiles(workspaceConfigs ++ systemConfigs)
 
@@ -55,14 +61,17 @@ object BspConnectionConfig {
     listFiles(bspDirs(basePaths))
   }
 
-  private def tryReadingConnectionFiles(files: Seq[File]): Seq[Try[BspConnectionDetails]] = {
-    val gson = new Gson()
-    files.map { file =>
-      if (file.canRead) {
-        val reader = Source.fromFile(file).bufferedReader()
-        Try(gson.fromJson(reader, classOf[BspConnectionDetails]))
-      } else Failure(BspErrorMessage(BspBundle.message("bsp.protocol.file.not.readable", file)))
-    }
+  private def tryReadingConnectionFiles(files: Seq[File]): Seq[Try[(File, BspConnectionDetails)]] = {
+    implicit val gson: Gson = new Gson()
+    files.map { f => readConnectionFile(f).map((f, _)) }
+  }
+
+  def readConnectionFile(file: File)(implicit gson: Gson): Try[BspConnectionDetails] = {
+    if (file.canRead) {
+      val reader = Source.fromFile(file).bufferedReader()
+      Try(gson.fromJson(reader, classOf[BspConnectionDetails]))
+    } else Failure(BspErrorMessage(BspBundle.message("bsp.protocol.file.not.readable", file)))
+
   }
 
   private def windowsBspFiles() = {
