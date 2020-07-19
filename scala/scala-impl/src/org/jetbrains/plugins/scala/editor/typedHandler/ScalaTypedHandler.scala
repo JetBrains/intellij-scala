@@ -190,15 +190,20 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
     } else if (c == '{' && smartKeySettings.WRAP_SINGLE_EXPRESSION_BODY) {
       handleLeftBraceWrap(offset, element)
     } else if (shouldHandleAutoBracesBeforeTyped(c)) {
-      findAutoBraceInsertionOpportunity(Some(c), offset, element) match {
-        case Some(info) =>
+      findAutoBraceInsertionOpportunity(Some(c), offset, element)
+        .fold(Result.CONTINUE) { info =>
           insertAutoBraces(info)
           // prevent other beforeTyped-handlers from being executed because psi tree is out of sync now
           Result.DEFAULT
-        case None =>
-          Result.CONTINUE
-      }
+        }
 
+    } else if (c.isWhitespace) {
+      findAutoBraceInsertionOpportunityWhenStartingStatement(c, offset, element)
+        .fold(Result.CONTINUE) { info =>
+          insertAutoBraces(info)
+          // prevent other beforeTyped-handlers from being executed because psi tree is out of sync now
+          Result.DEFAULT
+        }
     } else {
       Result.CONTINUE
     }

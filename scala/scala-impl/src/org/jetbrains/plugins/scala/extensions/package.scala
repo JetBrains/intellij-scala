@@ -781,6 +781,41 @@ package object extensions {
     def nextSiblingNotWhitespace: Option[PsiElement] =
       Option(getNextSiblingNotWhitespace)
 
+    def nextLeaf: Option[PsiElement] =
+      PsiTreeUtil.nextLeaf(element).toOption
+
+    def prevLeaf: Option[PsiElement] =
+      PsiTreeUtil.prevLeaf(element).toOption
+
+    def nextVisibleLeaf: Option[PsiElement] =
+      PsiTreeUtil.nextVisibleLeaf(element).toOption
+
+    def prevVisibleLeaf: Option[PsiElement] =
+      PsiTreeUtil.prevVisibleLeaf(element).toOption
+
+    def nextLeafNotWhitespaceComment: Option[PsiElement] = {
+      var next = PsiTreeUtil.nextLeaf(element)
+      while (
+        next != null && (next.isInstanceOf[PsiWhiteSpace] ||
+        next.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)
+      ) {
+        next = PsiTreeUtil.nextLeaf(next)
+      }
+      next.toOption
+    }
+
+    def prevLeafNotWhitespaceComment: Option[PsiElement] = {
+      var prev = PsiTreeUtil.prevLeaf(element)
+      while (
+        prev != null && (prev.isInstanceOf[PsiWhiteSpace] ||
+          prev.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)
+      ) {
+        prev = PsiTreeUtil.prevLeaf(prev)
+      }
+      prev.toOption
+    }
+
+
     def getFirstChildNotWhitespace: PsiElement =
       element.getFirstChild match {
         case ws: PsiWhiteSpace => ws.getNextSiblingNotWhitespace

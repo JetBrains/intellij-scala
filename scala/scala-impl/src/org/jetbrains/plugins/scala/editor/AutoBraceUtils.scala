@@ -59,6 +59,24 @@ object AutoBraceUtils {
     case _ => false
   }
 
+  def isBeforeIndentationContext(element: PsiElement): Boolean = {
+    val parent = element.getParent
+    parent.getLastChild == element && (
+      element.getParent match {
+        case _: ScReturn |
+             _: ScIf |
+             _: ScWhile |
+             _: ScPatternDefinition |
+             _: ScVariableDefinition |
+             _: ScFunctionDefinition |
+             _: ScFor |
+             _: ScTry |
+             _: ScFinallyBlock => true
+        case _ => false
+      }
+    )
+  }
+
   private val ifIndentationContextContinuation = Set(ScalaTokenTypes.kELSE)
   private val tryIndentationContextContinuation = Set(ScalaTokenTypes.kCATCH, ScalaTokenTypes.kFINALLY)
 
