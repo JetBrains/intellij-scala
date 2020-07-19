@@ -4,15 +4,19 @@ package typedHandler
 
 import java.{util => ju}
 
-import com.intellij.openapi.editor.{Document, Editor}
+import com.intellij.application.options.CodeStyle
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.editor.AutoBraceUtils.{continuesConstructAfterIndentationContext, isBeforeIndentationContext}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScPostfixExpr
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.util.IndentUtil.calcIndent
 
 object AutoBraceInsertionTools {
   def autoBraceInsertionActivated: Boolean =
@@ -165,14 +169,12 @@ object AutoBraceInsertionTools {
     //
     // In this case the braces should be added before the else and not directly after the caret
     val lastElement = if (caretIsBeforeExpr) expr else caretWS
-    val (closingBraceOffset, isBeforeContinuation) = lastElement.getNextNonWhitespaceAndNonEmptyLeaf match {
-      case tok: PsiElement if continuesConstructAfterIndentationContext(tok) =>
-        tok.startOffset -> true
-      case _ if caretIsBeforeExpr =>
-        expr.endOffset -> false
-      case _ =>
-        caretOffset -> false
-    }
+    val (closingBraceOffset, isBeforeContinuation) =
+      findClosingBraceOffsetBeforeContinuation(lastElement).map(_ -> true)
+        .getOrElse(
+          if (caretIsBeforeExpr) expr.endOffset -> false
+          else caretOffset -> false
+        )
 
     Some(AutoBraceInsertionInfo(
       openBraceOffset = openingBraceOffset,
@@ -181,6 +183,91 @@ object AutoBraceInsertionTools {
       needsFakeInput = !isAfterPossibleContinuation,
       isBeforeContinuation = isBeforeContinuation
     ))
+  }
+
+  def findClosingBraceOffsetBeforeContinuation(lastElementBeforePossibleContinuation: PsiElement): Option[Int] =
+    lastElementBeforePossibleContinuation.getNextNonWhitespaceAndNonEmptyLeaf match {
+      case tok: PsiElement if continuesConstructAfterIndentationContext(tok) => Some(tok.startOffset)
+      case _ => None
+    }
+
+  private val startsStatement = {
+    import ScalaTokenType._
+    import ScalaTokenTypes._
+    Set(
+      // modifier
+      kABSTRACT,
+      kCASE,
+      kIMPLICIT,
+      kFINAL,
+      kLAZY,
+      kOVERRIDE,
+      kSEALED,
+      //kINLINE,    // can be used with if and match in scala 3
+      kTRANSPARENT,
+      OpaqueKeyword,
+
+      kVAL,
+      kVAR,
+      kDEF,
+      GivenKeyword,
+
+      kTYPE,
+      ClassKeyword,
+      TraitKeyword,
+      ObjectKeyword,
+      EnumKeyword,
+      ExtensionKeyword,
+    )
+  }
+
+  /**
+   * Finds autobrace info for when the user types a statement where an expression is expected
+   * For example
+   *   def test =
+   *     val<caret>   // now pressing space should insert braces, because it cannot be an expression
+   *
+   */
+  def findAutoBraceInsertionOpportunityWhenStartingStatement(c: Char, caretOffset: Int, element: PsiElement)
+                                                            (implicit project: Project, file: PsiFile, editor: Editor): Option[AutoBraceInsertionInfo] = {
+    assert(c.isWhitespace)
+    if (!autoBraceInsertionActivated) {
+      return None
+    }
+
+    // check if the element before the caret certainly starts a statement
+    val keyword = element.prevVisibleLeaf match {
+      case Some(kw) if startsStatement(kw.elementType) => kw
+      case _ => return None
+    }
+
+    // find out if this new statement is where an expression should be
+    val elementWhereExprShouldBe = keyword.prevLeafNotWhitespaceComment match {
+      case Some(last) if isBeforeIndentationContext(last) => last
+      case _ => return None
+    }
+
+    val elementWithIndentationContext = elementWhereExprShouldBe.getParent
+    val newlineBeforeKeyword = keyword.prevLeaf.exists(_.textContains('\n'))
+    val tabSize = CodeStyle.getSettings(project).getTabSize(ScalaFileType.INSTANCE)
+
+    //check indentation
+    if (newlineBeforeKeyword && calcIndent(keyword, tabSize) > calcIndent(elementWithIndentationContext, tabSize)) {
+      val document = editor.getDocument
+
+      // find correct positions for braces when the current construct is
+      // has a continuation
+      val closingBraceOffsetBeforeContinuation =
+        findClosingBraceOffsetBeforeContinuation(element)
+
+      Some(AutoBraceInsertionInfo(
+        openBraceOffset = elementWhereExprShouldBe.endOffset,
+        inputOffset = caretOffset,
+        closingBraceOffset = closingBraceOffsetBeforeContinuation.getOrElse(document.lineEndOffset(caretOffset)),
+        needsFakeInput = false,
+        isBeforeContinuation = closingBraceOffsetBeforeContinuation.isDefined
+      ))
+    } else None
   }
 
   def insertAutoBraces(info: AutoBraceInsertionInfo)(implicit project: Project, file: PsiFile, editor: Editor): Unit = {

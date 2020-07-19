@@ -412,4 +412,68 @@ class AutoBracesTypingTest extends AutoBraceTestBase {
        |""".stripMargin -> ContinuationOnNewline,
     'x'
   )
+
+  def testFinishingVal(): Unit = checkTypingInAllContexts(
+    s"""
+       |def test =
+       |  val$CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    s"""
+       |def test = {
+       |  val $CARET
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+    s"""
+       |def test =
+       |  val $CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    ' '
+  )
+
+  def testFinishingValOnSameLine(): Unit = checkTypingInAllContexts(
+    s"""
+       |def test = val$CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    s"""
+       |def test = val $CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    s"""
+       |def test = val $CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    ' '
+  )
+
+  def testFinishingValOnSameIndent(): Unit = checkTypingInAllContexts(
+    s"""
+       |def test =
+       |val$CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    s"""
+       |def test =
+       |val $CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    s"""
+       |def test =
+       |val $CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    ' '
+  )
+
+  // todo: also allow something behind the caret when typing the beginning of a statement
+  /*def testFinishingValWithSomethingBehind(): Unit = checkTypingInAllContexts(
+    s"""
+       |def test =
+       |  val${CARET}expr
+       |""".stripMargin -> ContinuationOnNewline,
+    s"""
+       |def test = {
+       |  val ${CARET}expr
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+    s"""
+       |def test =
+       |  val ${CARET}expr
+       |""".stripMargin -> ContinuationOnNewline,
+    ' '
+  )*/
 }
