@@ -725,9 +725,7 @@ package object extensions {
           else inner(PsiTreeUtil.prevLeaf(el))
         case _: PsiComment if ignoreComments =>
           inner(PsiTreeUtil.prevLeaf(el))
-        case _ if el.getTextLength == 0 => // empty annotations, modifiers, etc...
-          inner(PsiTreeUtil.prevLeaf(el))
-        case _: PsiErrorElement =>
+        case _ if el.getTextLength == 0 => // empty annotations, modifiers, parse errors, etc...
           inner(PsiTreeUtil.prevLeaf(el))
         case _ => false
       }
@@ -743,8 +741,8 @@ package object extensions {
           else inner(PsiTreeUtil.nextLeaf(el))
         case _: PsiComment if ignoreComments =>
           inner(PsiTreeUtil.nextLeaf(el))
-        case _: PsiErrorElement =>
-          inner(PsiTreeUtil.nextLeaf(el))
+        case _ if el.getTextLength == 0 => // empty annotations, modifiers, parse errors, etc...
+          inner(PsiTreeUtil.prevLeaf(el))
         case _ => false
       }
       inner(PsiTreeUtil.nextLeaf(element))
