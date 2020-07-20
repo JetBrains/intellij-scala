@@ -21,8 +21,8 @@ object CompilationUnit {
   import lexer.ScalaTokenType.ObjectKeyword
   import lexer.ScalaTokenTypes._
 
-  def parse()(implicit builder: ScalaPsiBuilder): Int = {
-    var parseState = EMPTY_STATE
+  def parse()(implicit builder: ScalaPsiBuilder): ParserState = {
+    var parseState: ParserState = EMPTY_STATE
 
     def parsePackagingBody(hasPackage: Boolean): Unit = {
       while (builder.getTokenType != null) {
@@ -94,8 +94,7 @@ object CompilationUnit {
             }
         }
 
-        parsePackageSequence(completed = true) {
-        }
+        parsePackageSequence(completed = true) {}
       case _ => parsePackagingBody(false)
     }
 

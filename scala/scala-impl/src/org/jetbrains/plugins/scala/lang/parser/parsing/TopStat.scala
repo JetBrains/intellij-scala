@@ -24,15 +24,15 @@ object TopStat {
   import lexer.ScalaTokenTypes._
 
   @annotation.tailrec
-  final def parse(state: Int)
-                 (implicit builder: ScalaPsiBuilder): Int =
+  final def parse(state: ParserState)
+                 (implicit builder: ScalaPsiBuilder): ParserState =
     builder.getTokenType match {
       case `kIMPORT` =>
         Import()
-        ADDITIONAL_STATE
+        UNKNOWN_STATE
       case ExportKeyword =>
         Export()
-        ADDITIONAL_STATE
+        UNKNOWN_STATE
       case `kPACKAGE` =>
         if (state == SCRIPT_STATE) EMPTY_STATE
         else {
@@ -51,7 +51,7 @@ object TopStat {
           case EMPTY_STATE => if (!TmplDef.parse(builder)) {
             if (!TemplateStat.parse(builder)) EMPTY_STATE
             else SCRIPT_STATE
-          } else ADDITIONAL_STATE
+          } else UNKNOWN_STATE
           case FILE_STATE => if (!TmplDef.parse(builder)) EMPTY_STATE
           else FILE_STATE
           case SCRIPT_STATE => if (!TemplateStat.parse(builder)) EMPTY_STATE
