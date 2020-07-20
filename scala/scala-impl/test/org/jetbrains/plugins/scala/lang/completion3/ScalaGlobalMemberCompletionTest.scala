@@ -165,16 +165,15 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     time = 2
   )
 
-  def testGlobalMemberJava2(): Unit = checkNoCompletion(
+  def testGlobalMemberJava2(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class TUI {
          |  defaultUn$CARET
          |}
       """.stripMargin,
+    item = "defaultUncaughtExceptionHandler",
     invocationCount = 2
-  ) {
-    hasLookupString(_, "defaultUncaughtExceptionHandler")
-  }
+  )
 
   def testGlobalMemberJavaAccessAll(): Unit = doCompletionTest(
     fileText =
@@ -205,7 +204,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     assertEquals(1, actual)
   }
 
-  def testGlobalMember8(): Unit = checkNoCompletion(
+  def testGlobalMember8(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
          |object BlahBlahBlahContainer {
@@ -219,8 +218,9 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |  }
          |}
        """.stripMargin,
+    item = "doSmthPrivate",
     invocationCount = 2
-  )(hasLookupString(_, "doSmthPrivate"))
+  )
 
   def testGlobalMember9(): Unit = doCompletionTest(
     fileText =
@@ -282,6 +282,22 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     time = 2
   )
 
+  def testGlobalMember11(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""class Foo
+         |
+         |object Foo {
+         |  def update(key: String, foo: Foo): Foo = foo
+         |}
+         |
+         |object Bar {
+         |  u$CARET
+         |}
+         |""".stripMargin,
+    item = "foo",
+    invocationCount = 2
+  )
+
   def testCompanionObjectMethod(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class Foo {
@@ -326,31 +342,18 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     hasItemText(_, "foo")(tailText = "() (Foo)")
   }
 
-  def testCompanionObjectApplyMethod(): Unit = doRawCompletionTest(
+  def testCompanionObjectUpdateMethod(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class Foo {
-         |  a$CARET
+         |  u$CARET
          |}
          |
          |object Foo {
-         |  def apply(): Foo = new Foo
+         |  def update(key: String, foo: Foo): Foo = foo
          |}
          |""".stripMargin,
-    resultText =
-      s"""class Foo {
-         |  Foo.apply()$CARET
-         |}
-         |
-         |object Foo {
-         |  def apply(): Foo = new Foo
-         |}
-         |""".stripMargin
-  ) {
-    hasItemText(_, "apply")(
-      itemText = "Foo.apply",
-      tailText = "() <default>"
-    )
-  }
+    item = "update"
+  )
 
   def testCompanionObjectMethodAccessAll(): Unit = doCompletionTest(
     fileText =
@@ -365,8 +368,10 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |""".stripMargin,
     resultText =
-      s"""class Foo {
-         |  Foo.foo($CARET)
+      s"""import Foo.foo
+         |
+         |class Foo {
+         |  foo($CARET)
          |}
          |
          |object Foo {
@@ -390,8 +395,10 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |""".stripMargin,
     resultText =
-      s"""class Foo {
-         |  Foo.foo$CARET
+      s"""import Foo.foo
+         |
+         |class Foo {
+         |  foo$CARET
          |}
          |
          |object Foo {
@@ -399,10 +406,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |""".stripMargin
   ) {
-    hasItemText(_, "foo")(
-      itemText = "Foo.foo",
-      tailText = " <default>"
-    )
+    hasItemText(_, "foo")(tailText = " (Foo)")
   }
 
   def testCompanionObjectTypeAlias(): Unit = checkNoBasicCompletion(
@@ -443,11 +447,12 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |  val foo = 42
          |}
          |""".stripMargin,
-  ) {
-    hasItemText(_, "foo")(
-      itemText = "Foo.foo",
-      tailText = " <default>"
-    )
+  ) { lookup =>
+    hasItemText(lookup, "foo")(tailText = " (Foo)") ||
+      hasItemText(lookup, "foo")(
+        itemText = "Foo.foo",
+        tailText = " <default>"
+      )
   }
 
   def testNestedCompanionObjectValue(): Unit = doCompletionTest(
@@ -463,9 +468,11 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |""".stripMargin,
     resultText =
-      s"""class Foo {
+      s"""import Foo.foo
+         |
+         |class Foo {
          |  class Bar {
-         |    Foo.foo$CARET
+         |    foo$CARET
          |  }
          |}
          |

@@ -87,8 +87,10 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
     }
   }
 
-  protected final def checkNoBasicCompletion(fileText: String, item: String): Unit =
-    checkNoCompletion(fileText) {
+  protected final def checkNoBasicCompletion(fileText: String,
+                                             item: String,
+                                             invocationCount: Int = DEFAULT_TIME): Unit =
+    checkNoCompletion(fileText, invocationCount = invocationCount) {
       hasLookupString(_, item)
     }
 
