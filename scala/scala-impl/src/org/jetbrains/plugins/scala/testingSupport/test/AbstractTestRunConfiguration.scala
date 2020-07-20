@@ -18,6 +18,7 @@ import com.intellij.testIntegration.TestFramework
 import com.intellij.util.xmlb.XmlSerializer
 import com.intellij.util.xmlb.annotations.Transient
 import org.jdom.Element
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
@@ -30,6 +31,7 @@ import scala.beans.BeanProperty
 import scala.collection.JavaConverters._
 
 //noinspection ConvertNullInitializerToUnderscore
+@ApiStatus.Internal
 abstract class AbstractTestRunConfiguration(
   project: Project,
   val configurationFactory: ConfigurationFactory,

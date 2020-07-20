@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala.testingSupport.test
 
 import com.intellij.psi.{PsiClass, PsiMethod, PsiModifier, PsiModifierList}
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 
 import scala.collection.immutable
 
-private[test]
+@ApiStatus.Internal
 trait SuiteValidityChecker {
   def isValidSuite(clazz: PsiClass, suiteClass: PsiClass): Boolean
 }

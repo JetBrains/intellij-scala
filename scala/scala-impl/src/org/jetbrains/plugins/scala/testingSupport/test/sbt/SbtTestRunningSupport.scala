@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala.testingSupport.test.sbt
 
 import com.intellij.openapi.module.Module
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{SettingEntry, SettingMap}
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.shell.{SbtShellCommunication, SettingQueryHandler}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
-private[test]
+@ApiStatus.Internal
 trait SbtTestRunningSupport {
 
   implicit def executionContext: ExecutionContext
@@ -41,7 +42,6 @@ trait SbtTestRunningSupport {
   ): Future[Boolean]
 }
 
-private[test]
 abstract class SbtTestRunningSupportBase extends SbtTestRunningSupport {
 
   override implicit def executionContext: ExecutionContextExecutor = scala.concurrent.ExecutionContext.global
