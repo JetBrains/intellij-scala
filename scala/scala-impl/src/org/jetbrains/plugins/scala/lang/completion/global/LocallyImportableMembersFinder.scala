@@ -4,6 +4,7 @@ package completion
 package global
 
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, PsiNamedElement}
+import com.intellij.util.ThreeState
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaImportingInsertHandler
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
@@ -54,56 +55,60 @@ private[completion] final class LocallyImportableMembersFinder(override protecte
 
   override protected def namedElementsIn(member: ScMember): Seq[ScTypedDefinition] = member match {
     case value: ScValueOrVariable => value.declaredElements
-    case function: ScFunction if !function.isConstructor => Seq(function)
+    case function: ScFunction if !(function.isConstructor || function.isSpecial) => Seq(function)
     case _ => Seq.empty
   }
 
   override protected def createResult(resolveResult: ScalaResolveResult,
                                       classToImport: ScObject): GlobalMemberResult =
-    CompanionMemberResult(resolveResult, classToImport)
-
-  private final case class CompanionMemberResult(override val resolveResult: ScalaResolveResult,
-                                                 override val classToImport: ScObject)
-    extends ImportableMemberResult(resolveResult, classToImport, None) {
-
-    override protected def buildItem(lookupItem: ScalaLookupItem,
-                                     shouldImport: Boolean): Option[ScalaLookupItem] =
-      if (shouldImport)
-        super.buildItem(lookupItem, shouldImport)
-      else
-        None
-  }
+    LocallyImportableMemberResult(resolveResult, classToImport, None)
 
   override protected def createMethodResult(methodToImport: PsiMethod,
                                             classToImport: PsiClass): ImportableMemberResult =
-    LocallyImportableMemberResult(methodToImport, classToImport)
+    new LocallyImportableMemberResult(methodToImport, classToImport)
 
   override protected def createFieldResult(elementToImport: PsiNamedElement,
                                            classToImport: PsiClass): ImportableMemberResult =
-    LocallyImportableMemberResult(elementToImport, classToImport)
+    new LocallyImportableMemberResult(elementToImport, classToImport)
 
-  private final case class LocallyImportableMemberResult(elementToImport: PsiNamedElement,
-                                                         override val classToImport: PsiClass)
-    extends ImportableMemberResult(elementToImport, classToImport) {
+  private final case class LocallyImportableMemberResult(override protected val resolveResult: ScalaResolveResult,
+                                                         override protected val classToImport: PsiClass,
+                                                         containingClass: Option[PsiClass])
+    extends ImportableMemberResult(resolveResult, classToImport, containingClass) {
+
+    import ThreeState._
+
+    def this(elementToImport: PsiNamedElement,
+             classToImport: PsiClass) = this(
+      new ScalaResolveResult(elementToImport),
+      classToImport,
+      Some(classToImport)
+    )
 
     override protected def buildItem(lookupItem: ScalaLookupItem,
-                                     shouldImport: Boolean): Option[ScalaLookupItem] =
-      if (shouldImport)
-        super.buildItem(lookupItem, shouldImport = false)
-      else
-        None
+                                     shouldImport: ThreeState): Option[ScalaLookupItem] = shouldImport match {
+      case NO => None
+      case YES => super.buildItem(lookupItem, YES)
+      case UNSURE => super.buildItem(lookupItem, NO)
+    }
 
-    override protected def createInsertHandler: ScalaImportingInsertHandler with GlobalMemberInsertHandler =
-      new ScalaImportingInsertHandler.WithBinding(elementToImport, classToImport)
-        with GlobalMemberInsertHandler {
+    override protected def createInsertHandler(shouldImport: ThreeState): ScalaImportingInsertHandler with GlobalMemberInsertHandler =
+      shouldImport match {
+        case NO =>
+          new ScalaImportingInsertHandler.WithBinding(
+            resolveResult.getElement,
+            classToImport
+          ) with GlobalMemberInsertHandler {
 
-        override protected def qualifyAndImport(reference: ScReferenceExpression): Unit =
-          throw new IllegalStateException("shouldImport has been set to false explicitly")
+            override protected def qualifyAndImport(reference: ScReferenceExpression): Unit =
+              throw new IllegalStateException("shouldImport has been set to false explicitly")
 
-        override protected def qualifyOnly(reference: ScReferenceExpression): Unit = {
-          triggerGlobalMemberCompletionFeature()
-          super.qualifyAndImport(reference)
-        }
+            override protected def qualifyOnly(reference: ScReferenceExpression): Unit = {
+              triggerGlobalMemberCompletionFeature()
+              super.qualifyAndImport(reference)
+            }
+          }
+        case _ => super.createInsertHandler(shouldImport)
       }
   }
 

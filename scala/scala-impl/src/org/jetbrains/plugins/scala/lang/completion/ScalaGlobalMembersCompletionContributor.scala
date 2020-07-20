@@ -53,9 +53,7 @@ final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContr
 
         val items = maybeFinder
           .toIterable
-          .flatMap {
-            _.lookupItems(reference, parameters.getOriginalFile)
-          }
+          .flatMap(_.lookupItems(reference))
 
         if (requiresAdvertisement && !items.forall(_.shouldImport)) {
           addLookupAdvertisement(resultSet)

@@ -4,6 +4,7 @@ package completion
 package global
 
 import com.intellij.psi._
+import com.intellij.util.ThreeState
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaImportingInsertHandler
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, isStatic}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
@@ -18,7 +19,8 @@ trait ImportableMembersFinder {
   protected final def findFunctions(functions: Iterable[ScFunction])
                                    (classesToImport: ScFunction => Set[ScObject]): Iterable[ImportableMemberResult] = for {
     function <- functions
-    if isAccessible(function)
+    if !function.isSpecial &&
+      isAccessible(function)
 
     classToImport <- classesToImport(function)
     if !isImplicit(classToImport) // filter out type class instances, such as scala.math.Numeric.String, to avoid too many results.
@@ -47,9 +49,9 @@ trait ImportableMembersFinder {
   protected def createFieldResult(elementToImport: PsiNamedElement,
                                   classToImport: PsiClass): ImportableMemberResult
 
-  protected abstract class ImportableMemberResult protected(override protected val resolveResult: ScalaResolveResult,
-                                                            override protected val classToImport: PsiClass,
-                                                            containingClass: Option[PsiClass])
+  protected abstract class ImportableMemberResult(override protected val resolveResult: ScalaResolveResult,
+                                                  override protected val classToImport: PsiClass,
+                                                  containingClass: Option[PsiClass])
     extends GlobalMemberResult(resolveResult, classToImport, containingClass) {
 
     protected def this(elementToImport: PsiNamedElement,
@@ -59,7 +61,7 @@ trait ImportableMembersFinder {
       Some(classToImport)
     )
 
-    override protected def createInsertHandler: ScalaImportingInsertHandler with GlobalMemberInsertHandler =
+    override protected def createInsertHandler(shouldImport: ThreeState): ScalaImportingInsertHandler with GlobalMemberInsertHandler =
       new ScalaImportingInsertHandler(classToImport)
         with GlobalMemberInsertHandler {
 

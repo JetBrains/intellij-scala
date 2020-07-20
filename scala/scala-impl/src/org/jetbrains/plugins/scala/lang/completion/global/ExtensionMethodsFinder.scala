@@ -5,7 +5,9 @@ package global
 
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.psi.PsiClass
-import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ContainingClass, ObjectExt}
+import com.intellij.util.ThreeState
+import org.jetbrains.plugins.scala.autoImport.GlobalImplicitConversion
+import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ContainingClass}
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaImportingInsertHandler
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
@@ -32,11 +34,10 @@ private[completion] final class ExtensionMethodsFinder(private val originalType:
       (if (accessAll) globalCandidates(new ApplicabilityPredicate) else Iterable.empty)
 
   private def globalCandidates(predicate: ScalaResolveResult => Boolean) = for {
-    (conversion, application) <- ImplicitConversionData.getPossibleConversions(place)
-    owner                     <- conversion.owner.asOptionOf[ScObject].toSeq
-    resolveResult             <- candidatesForType(application.resultType)
+    (GlobalImplicitConversion(owner: ScObject, _, function), application) <- ImplicitConversionData.getPossibleConversions(place)
+    resolveResult <- candidatesForType(application.resultType)
     if predicate(resolveResult)
-  } yield ExtensionMethodCandidate(resolveResult, owner, conversion.function)
+  } yield ExtensionMethodCandidate(resolveResult, owner, function)
 
   override protected def findTargets: Seq[PsiClass] = valueType match {
     case ExtractClass(ClassOrTrait(definition)) =>
@@ -66,7 +67,7 @@ private[completion] final class ExtensionMethodsFinder(private val originalType:
                                                     elementToImport: ScFunction)
     extends GlobalMemberResult(resolveResult, classToImport) {
 
-    override protected def createInsertHandler: ScalaImportingInsertHandler = new ScalaImportingInsertHandler(classToImport) {
+    override protected def createInsertHandler(shouldImport: ThreeState): ScalaImportingInsertHandler = new ScalaImportingInsertHandler(classToImport) {
 
       override protected def qualifyAndImport(reference: ScReferenceExpression): Unit = for {
         ContainingClass(ClassQualifiedName(_)) <- Option(elementToImport.nameContext)
@@ -83,7 +84,7 @@ private[completion] final class ExtensionMethodsFinder(private val originalType:
                                                   override val classToImport: ScObject)
     extends GlobalMemberResult(resolveResult, classToImport, Some(classToImport)) {
 
-    override protected def createInsertHandler: InsertHandler[ScalaLookupItem] =
+    override protected def createInsertHandler(shouldImport: ThreeState): InsertHandler[ScalaLookupItem] =
       (context: InsertionContext, _: ScalaLookupItem) => {
         val reference@ScReferenceExpression.withQualifier(qualifier) = context
           .getFile

@@ -6,7 +6,8 @@ package global
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.completion.{InsertHandler, JavaCompletionFeatures, JavaCompletionUtil}
 import com.intellij.featureStatistics.FeatureUsageTracker
-import com.intellij.psi.{PsiClass, PsiFile, PsiMember, PsiNamedElement}
+import com.intellij.psi.{PsiClass, PsiMember, PsiNamedElement}
+import com.intellij.util.ThreeState
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -31,10 +32,8 @@ abstract class GlobalMembersFinder protected(protected val place: ScalaPsiElemen
     accessAll ||
       completion.isAccessible(member)(place)
 
-  final def lookupItems(reference: ScReferenceExpression,
-                        originalFile: PsiFile): Iterable[ScalaLookupItem] = {
-    val shouldImport = new ShouldImportPredicate(reference, originalFile)
-
+  final def lookupItems(reference: ScReferenceExpression): Iterable[ScalaLookupItem] = {
+    val shouldImport = new ShouldImportPredicate(reference)
     candidates.flatMap(_.createLookupItem(shouldImport))
   }
 
@@ -44,7 +43,7 @@ abstract class GlobalMembersFinder protected(protected val place: ScalaPsiElemen
                                               protected val classToImport: PsiClass,
                                               containingClass: Option[PsiClass] = None) {
 
-    final def createLookupItem(shouldImport: PsiNamedElement => Boolean): Option[ScalaLookupItem] =
+    final def createLookupItem(shouldImport: PsiNamedElement => ThreeState): Option[ScalaLookupItem] =
       if (isApplicable)
         resolveResult.getLookupElement(
           isClassName = true,
@@ -59,14 +58,14 @@ abstract class GlobalMembersFinder protected(protected val place: ScalaPsiElemen
         None
 
     protected def buildItem(lookupItem: ScalaLookupItem,
-                            shouldImport: Boolean): Option[ScalaLookupItem] = {
-      lookupItem.shouldImport = shouldImport
-      lookupItem.setInsertHandler(createInsertHandler)
+                            shouldImport: ThreeState): Option[ScalaLookupItem] = {
+      lookupItem.shouldImport = shouldImport != ThreeState.NO
+      lookupItem.setInsertHandler(createInsertHandler(shouldImport))
       lookupItem.withBooleanUserData(JavaCompletionUtil.FORCE_SHOW_SIGNATURE_ATTR)
       Some(lookupItem)
     }
 
-    protected def createInsertHandler: InsertHandler[ScalaLookupItem]
+    protected def createInsertHandler(shouldImport: ThreeState): InsertHandler[ScalaLookupItem]
 
     private def isApplicable: Boolean = Option(classToImport.qualifiedName).forall(isNotExcluded)
   }
@@ -74,27 +73,20 @@ abstract class GlobalMembersFinder protected(protected val place: ScalaPsiElemen
 
 object GlobalMembersFinder {
 
-  private final class ShouldImportPredicate(reference: ScReferenceExpression,
-                                            originalFile: PsiFile) extends (PsiNamedElement => Boolean) {
+  private final class ShouldImportPredicate(reference: ScReferenceExpression)
+    extends (PsiNamedElement => ThreeState) {
+
+    import ThreeState._
 
     private lazy val elements = reference
       .completionVariants()
       .toSet[ScalaLookupItem]
       .map(_.getPsiElement)
 
-    override def apply(element: PsiNamedElement): Boolean = element.getContainingFile match {
-      case `originalFile` =>
-        element.containingClassOfNameContext.forall { containingClass =>
-          //complex logic to detect static methods in the same file, which we shouldn't import
-          val name = element.name
-          !elements
-            .filter(_.getContainingFile == originalFile)
-            .filter(_.name == name)
-            .flatMap(_.containingClassOfNameContext)
-            .contains(containingClass)
-        }
-      case _ => !elements.contains(element)
-    }
+    override def apply(element: PsiNamedElement): ThreeState =
+      if (elements.contains(element)) NO
+      else if (elements.exists(_.name == element.name)) YES
+      else UNSURE
   }
 
   private def isNotExcluded(qualifiedName: String): Boolean = {
