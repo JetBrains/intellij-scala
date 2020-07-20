@@ -8,6 +8,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateStat
 
+import scala.annotation.tailrec
+
 /**
  * [[TopStat]] ::= {Annotation} {Modifier} -> [[TmplDef]] (it's mean that all parsed in TmplDef)
  * | [[Import]]
@@ -23,39 +25,41 @@ object TopStat {
   import lexer.ScalaTokenType._
   import lexer.ScalaTokenTypes._
 
-  @annotation.tailrec
+  @tailrec
   final def parse(state: ParserState)
-                 (implicit builder: ScalaPsiBuilder): ParserState =
+                 (implicit builder: ScalaPsiBuilder): Option[ParserState] =
     builder.getTokenType match {
       case `kIMPORT` =>
         Import()
-        UNKNOWN_STATE
+        None
       case ExportKeyword =>
         Export()
-        UNKNOWN_STATE
+        None
       case `kPACKAGE` =>
-        if (state == SCRIPT_STATE) EMPTY_STATE
+        if (state == SCRIPT_STATE) Some(EMPTY_STATE)
         else {
           if (builder.lookAhead(kPACKAGE, ObjectKeyword)) {
-            if (PackageObject.parse(builder)) FILE_STATE
-            else EMPTY_STATE
+            if (PackageObject.parse(builder)) Some(FILE_STATE)
+            else Some(EMPTY_STATE)
           } else {
-            if (Packaging.parse(builder)) FILE_STATE
-            else EMPTY_STATE
+            if (Packaging.parse(builder)) Some(FILE_STATE)
+            else Some(EMPTY_STATE)
           }
         }
       case _ if builder.skipExternalToken() =>
-        if (!builder.eof()) parse(state) else SCRIPT_STATE
+        if (!builder.eof()) parse(state) else Some(SCRIPT_STATE)
       case _ =>
         state match {
-          case EMPTY_STATE => if (!TmplDef.parse(builder)) {
-            if (!TemplateStat.parse(builder)) EMPTY_STATE
-            else SCRIPT_STATE
-          } else UNKNOWN_STATE
-          case FILE_STATE => if (!TmplDef.parse(builder)) EMPTY_STATE
-          else FILE_STATE
-          case SCRIPT_STATE => if (!TemplateStat.parse(builder)) EMPTY_STATE
-          else SCRIPT_STATE
+          case EMPTY_STATE =>
+            if (TmplDef.parse(builder)) None
+            else if (TemplateStat.parse(builder)) Some(SCRIPT_STATE)
+            else Some(EMPTY_STATE)
+          case FILE_STATE =>
+            if (TmplDef.parse(builder)) Some(FILE_STATE)
+            else Some(EMPTY_STATE)
+          case SCRIPT_STATE =>
+            if (TemplateStat.parse(builder)) Some(SCRIPT_STATE)
+            else Some(EMPTY_STATE)
         }
     }
 }

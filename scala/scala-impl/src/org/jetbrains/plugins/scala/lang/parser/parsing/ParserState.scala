@@ -10,5 +10,4 @@ object ParserState {
   case object EMPTY_STATE extends ParserState
   case object FILE_STATE extends ParserState
   case object SCRIPT_STATE extends ParserState
-  case object UNKNOWN_STATE extends ParserState
 }
