@@ -170,7 +170,7 @@ object AutoBraceInsertionTools {
     // In this case the braces should be added before the else and not directly after the caret
     val lastElement = if (caretIsBeforeExpr) expr else caretWS
     val (closingBraceOffset, isBeforeContinuation) =
-      findClosingBraceOffsetBeforeContinuation(lastElement).map(_ -> true)
+      findClosingBraceOffsetBeforeContinuation(lastElement).map((_, true))
         .getOrElse(
           if (caretIsBeforeExpr) expr.endOffset -> false
           else caretOffset -> false
