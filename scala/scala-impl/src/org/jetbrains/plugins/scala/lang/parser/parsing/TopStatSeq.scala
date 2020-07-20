@@ -33,12 +33,12 @@ object TopStatSeq {
         //otherwise parse TopStat
         case _ =>
           TopStat.parse(parseState)(builder) match {
-            case EMPTY_STATE =>
+            case Some(EMPTY_STATE) =>
               builder error ScalaBundle.message("wrong.top.statment.declaration")
               builder.advanceLexer()
             case newState =>
               if (parseState == EMPTY_STATE) {
-                parseState = if (newState == UNKNOWN_STATE) EMPTY_STATE else newState
+                parseState = newState.getOrElse(EMPTY_STATE)
               }
               builder.getTokenType match {
                 case ScalaTokenTypes.tSEMICOLON => builder.advanceLexer() //it is good
