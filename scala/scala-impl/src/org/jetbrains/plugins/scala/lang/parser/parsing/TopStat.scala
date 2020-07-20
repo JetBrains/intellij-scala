@@ -54,6 +54,9 @@ object TopStat {
             if (TmplDef.parse(builder)) None
             else if (TemplateStat.parse(builder)) Some(SCRIPT_STATE)
             else Some(EMPTY_STATE)
+          case FILE_STATE if builder.isScala3 =>
+            if (TemplateStat.parse(builder)) Some(FILE_STATE)
+            else Some(EMPTY_STATE)
           case FILE_STATE =>
             if (TmplDef.parse(builder)) Some(FILE_STATE)
             else Some(EMPTY_STATE)
