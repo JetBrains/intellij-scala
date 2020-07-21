@@ -164,6 +164,7 @@ object ScalaCodeInsightTestBase {
                   itemTextItalic: Boolean = false,
                   itemTextBold: Boolean = false,
                   tailText: String = null,
+                  typeText: String = null,
                   grayed: Boolean = false): Boolean = lookup match {
     case LookupString(`lookupString`) =>
       val presentation = createPresentation(lookup)
@@ -171,6 +172,7 @@ object ScalaCodeInsightTestBase {
         presentation.isItemTextItalic == itemTextItalic &&
         presentation.isItemTextBold == itemTextBold &&
         presentation.getTailText == tailText &&
+        presentation.getTypeText == typeText &&
         isTailGrayed(presentation) == grayed
     case _ => false
   }
