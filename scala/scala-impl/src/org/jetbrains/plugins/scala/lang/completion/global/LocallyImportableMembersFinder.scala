@@ -3,6 +3,7 @@ package lang
 package completion
 package global
 
+import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, PsiNamedElement}
 import com.intellij.util.ThreeState
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -86,8 +87,8 @@ private[completion] final class LocallyImportableMembersFinder(override protecte
     )
 
     override protected def buildItem(lookupItem: ScalaLookupItem,
-                                     shouldImport: ThreeState): Option[ScalaLookupItem] = shouldImport match {
-      case NO => None
+                                     shouldImport: ThreeState): LookupElement = shouldImport match {
+      case NO => null
       case YES => super.buildItem(lookupItem, YES)
       case UNSURE => super.buildItem(lookupItem, NO)
     }

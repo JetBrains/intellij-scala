@@ -7,6 +7,7 @@ import com.intellij.openapi.actionSystem.{ActionManager, IdeActions}
 import com.intellij.openapi.keymap.KeymapUtil.getFirstKeyboardShortcutText
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.util.ProcessingContext
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression, ScSugarCallExpr}
 
@@ -55,7 +56,10 @@ final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContr
           .toIterable
           .flatMap(_.lookupItems(reference))
 
-        if (requiresAdvertisement && !items.forall(_.shouldImport)) {
+        if (requiresAdvertisement && !items.forall {
+          case item: ScalaLookupItem => item.shouldImport
+          case _ => false
+        }) {
           addLookupAdvertisement(resultSet)
         }
 

@@ -4,6 +4,7 @@ package completion
 package global
 
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
+import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementPresentation, LookupElementRenderer}
 import com.intellij.psi.PsiClass
 import com.intellij.util.ThreeState
 import org.jetbrains.plugins.scala.autoImport.GlobalImplicitConversion
@@ -84,34 +85,46 @@ private[completion] final class ExtensionMethodsFinder(private val originalType:
                                                   override val classToImport: ScObject)
     extends GlobalMemberResult(resolveResult, classToImport, Some(classToImport)) {
 
-    override protected def createInsertHandler(shouldImport: ThreeState): InsertHandler[ScalaLookupItem] =
-      (context: InsertionContext, _: ScalaLookupItem) => {
+    override protected def buildItem(lookupItem: ScalaLookupItem,
+                                     shouldImport: ThreeState): LookupElement =
+      LookupElementBuilder
+        .create(resolveResult.getElement)
+        .withInsertHandler(createInsertHandler(shouldImport))
+        .withRenderer(createRenderer(lookupItem))
+
+    override protected def createInsertHandler(shouldImport: ThreeState): InsertHandler[LookupElement] =
+      (context: InsertionContext, _: LookupElement) => {
         val reference@ScReferenceExpression.withQualifier(qualifier) = context
           .getFile
           .findReferenceAt(context.getStartOffset)
 
-        val function = resolveResult
-          .getElement
-          .asInstanceOf[ScFunction]
-        val functionName = function.name
+        val ScalaResolveResult(function: ScFunction, _) = resolveResult
 
-        val ScMethodCall(methodReference: ScReferenceExpression, _) =
-          replaceReference(reference, functionName + "(" + qualifier.getText + ")")
+        val replacement = createExpressionWithContextFromText(
+          function.name + "(" + qualifier.getText + ")",
+          reference.getContext,
+          reference
+        )
 
-        if (function != methodReference.resolve) {
-          val ScReferenceExpression.withQualifier(objectReference: ScReferenceExpression) =
-            replaceReference(methodReference, classToImport.name + "." + functionName)
+        val ScMethodCall(methodReference: ScReferenceExpression, _) = reference.replaceExpression(
+          replacement,
+          removeParenthesis = true
+        )
 
-          objectReference.bindToElement(classToImport)
-        }
+        methodReference.bindToElement(
+          function,
+          Some(classToImport)
+        )
       }
 
-    private def replaceReference(reference: ScReferenceExpression,
-                                 text: String) =
-      reference.replaceExpression(
-        createExpressionWithContextFromText(text, reference.getContext, reference),
-        removeParenthesis = true
-      )
+    private def createRenderer(lookupItem: ScalaLookupItem): LookupElementRenderer[LookupElement] =
+      (_: LookupElement, presentation: LookupElementPresentation) => {
+        val delegate = new LookupElementPresentation
+        lookupItem.renderElement(delegate)
+
+        presentation.copyFrom(delegate)
+        presentation.setTailText(null)
+      }
   }
 
   private class ApplicabilityPredicate extends (ScalaResolveResult => Boolean) {
@@ -122,4 +135,5 @@ private[completion] final class ExtensionMethodsFinder(private val originalType:
     override def apply(resolveResult: ScalaResolveResult): Boolean =
       !originalTypeMemberNames.contains(resolveResult.name)
   }
+
 }

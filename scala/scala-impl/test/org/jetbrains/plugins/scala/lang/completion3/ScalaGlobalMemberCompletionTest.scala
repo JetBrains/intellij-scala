@@ -519,7 +519,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     )
   }
 
-  def testCompanionObjectExtensionLikeMethod(): Unit = doCompletionTest(
+  def testCompanionObjectExtensionLikeMethod(): Unit = doRawCompletionTest(
     fileText =
       s"""class Foo {
          |  class Bar {
@@ -535,28 +535,30 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |""".stripMargin,
     resultText =
-      s"""class Foo {
+      s"""import Foo.foo
+         |
+         |class Foo {
          |  class Bar {
          |    val foo = new Foo
          |  }
          |
          |  val bar = new Bar
-         |  Foo.foo(bar.foo)$CARET
+         |  foo(bar.foo)$CARET
          |}
          |
          |object Foo {
          |  def foo(foo: Foo): Unit = {}
          |}
-         |""".stripMargin,
-    item = "foo"
-  )
+         |""".stripMargin
+  ) {
+    hasItemText(_, "foo")(typeText = "Unit")
+  }
 
   def testCompanionObjectExtensionLikeMethod2(): Unit = checkNoBasicCompletion(
     fileText =
       s"""sealed trait Foo
          |
          |object Foo {
-         |
          |  private[this] def foo(foo: Foo): Unit = {}
          |}
          |
@@ -572,7 +574,6 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
       s"""sealed trait Foo
          |
          |object Foo {
-         |
          |  private[this] def foo(foo: Foo): Unit = {}
          |}
          |
@@ -581,15 +582,16 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |""".stripMargin,
     resultText =
-      s"""sealed trait Foo
+      s"""import Foo.foo
+         |
+         |sealed trait Foo
          |
          |object Foo {
-         |
          |  private[this] def foo(foo: Foo): Unit = {}
          |}
          |
          |object Main {
-         |  Foo.foo((_: Foo))$CARET
+         |  foo((_: Foo))$CARET
          |}
          |""".stripMargin,
     item = "foo",
@@ -635,7 +637,6 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
       s"""sealed trait Foo
          |
          |object Foo {
-         |
          |  def foo(foo: Foo): Unit = {}
          |
          |  (_: Foo).f$CARET
@@ -645,7 +646,6 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
       s"""sealed trait Foo
          |
          |object Foo {
-         |
          |  def foo(foo: Foo): Unit = {}
          |
          |  foo((_: Foo))$CARET

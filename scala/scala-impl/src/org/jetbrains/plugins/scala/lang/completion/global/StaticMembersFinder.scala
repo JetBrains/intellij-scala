@@ -6,6 +6,7 @@ package global
 import java.util.Arrays.asList
 
 import com.intellij.codeInsight.completion.JavaCompletionUtil.putAllMethods
+import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiMethod, PsiNamedElement}
 import com.intellij.util.ThreeState
@@ -65,7 +66,7 @@ private[completion] final class StaticMembersFinder(override protected val place
     ) {
 
     override protected def buildItem(lookupItem: ScalaLookupItem,
-                                     shouldImport: ThreeState): Option[ScalaLookupItem] = {
+                                     shouldImport: ThreeState): LookupElement = {
       putAllMethods(lookupItem, asList(overloadsToImport: _*))
       super.buildItem(lookupItem, shouldImport)
     }
