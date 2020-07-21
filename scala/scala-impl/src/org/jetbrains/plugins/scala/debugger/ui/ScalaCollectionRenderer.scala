@@ -31,8 +31,9 @@ import scala.reflect.NameTransformer
  */
 class ScalaCollectionRenderer extends CompoundReferenceRenderer(NodeRendererSettings.getInstance(), "Scala collection", sizeLabelRenderer, ScalaToArrayRenderer) {
 
-  setIsApplicableChecker { tp =>
-    forallAsync(instanceOfAsync(tp, collectionClassName), notStreamAsync(tp), notViewAsync(tp))
+  setIsApplicableChecker {
+    case ct: ClassType => forallAsync(instanceOfAsync(ct, collectionClassName), notStreamAsync(ct), notViewAsync(ct))
+    case _             => completedFuture(false)
   }
 
   override def isEnabled: Boolean = ScalaDebuggerSettings.getInstance().FRIENDLY_COLLECTION_DISPLAY_ENABLED
@@ -206,7 +207,7 @@ object ScalaCollectionRenderer {
       //todo: make async
       val evaluationContext: EvaluationContext = context.createEvaluationContext(value)
       try {
-        return CompletableFuture.completedFuture(nonEmpty(value, context) && hasDefiniteSize(value, context))
+        return completedFuture(nonEmpty(value, context) && hasDefiniteSize(value, context))
       }
       catch {
         case _: EvaluateException =>
@@ -219,7 +220,7 @@ object ScalaCollectionRenderer {
       }
       catch {
         case _: EvaluateException =>
-          CompletableFuture.completedFuture(true)
+          completedFuture(true)
       }
     }
 

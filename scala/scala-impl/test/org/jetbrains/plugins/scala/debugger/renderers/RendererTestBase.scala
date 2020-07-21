@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.debugger.renderers
 
 import java.util
+import java.util.Collections.emptyList
 
 import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContextImpl}
 import com.intellij.debugger.ui.impl.ThreadsDebuggerTree
@@ -23,13 +24,18 @@ import scala.concurrent.{Await, Promise}
  */
 abstract class RendererTestBase extends ScalaDebuggerTestCase {
 
-  protected def renderLabelAndChildren(variableName: String, render: NodeDescriptor => String): (String, List[String]) = {
+  protected def renderLabelAndChildren(variableName: String,
+                                       render: NodeDescriptor => String,
+                                       renderChildren: Boolean): (String, List[String]) = {
     val timeout = 5.seconds
 
     val frameTree = new ThreadsDebuggerTree(getProject)
     Disposer.register(getTestRootDisposable, frameTree)
 
-    val testVariableChildren: Promise[util.List[_ <: DebuggerTreeNode]] = Promise()
+    val testVariableChildren: Promise[util.List[_ <: DebuggerTreeNode]] = {
+      if (renderChildren) Promise()
+      else Promise.successful(emptyList)
+    }
 
     val testVariable = inSuspendContextAction(timeout, "Too long computing variable value") {
       val context = evaluationContext()
@@ -39,11 +45,13 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
         testVariable.updateRepresentation(context, DescriptorLabelListener.DUMMY_LISTENER)
 
         val value = testVariable.calcValue(context)
-        renderer.buildChildren(value, new DummyChildrenBuilder(frameTree, testVariable) {
-          override def setChildren(children: util.List[_ <: DebuggerTreeNode]): Unit = {
-            testVariableChildren.success(children)
-          }
-        }, context)
+        if (renderChildren) {
+          renderer.buildChildren(value, new DummyChildrenBuilder(frameTree, testVariable) {
+            override def setChildren(children: util.List[_ <: DebuggerTreeNode]): Unit = {
+              testVariableChildren.success(children)
+            }
+          }, context)
+        }
 
       }
       testVariable
