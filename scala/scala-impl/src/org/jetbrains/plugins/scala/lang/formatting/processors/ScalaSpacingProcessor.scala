@@ -512,6 +512,16 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       return result
     }
 
+    // no spaces before braceless template body
+    //   class Test:
+    //
+    // TODO: settings?
+    rightPsi match {
+      case ScExtendsBlock.TemplateBody(body) if body.isBraceless =>
+        return WITHOUT_SPACING
+      case _ =>
+    }
+
     //this is a dirty hack for SCL-9264. It looks bad, but seems to be the only fast way to make this work.
     (leftElementType, leftPsi.getPrevSiblingNotWhitespace) match {
       case (ScalaTokenTypes.tLBRACE | ScalaTokenTypes.tLPARENTHESIS, forNode: LeafPsiElement) if !left.isLeaf() &&
@@ -597,7 +607,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       }
     }
 
-    if (rightElementType == ScalaTokenTypes.tRBRACE) {
+    if (rightElementType == ScalaTokenTypes.tRBRACE || rightElementType == END_STMT) {
       val rightTreeParent = rightNode.getTreeParent
       return rightTreeParent.getPsi match {
         case block@(_: ScEarlyDefinitions | _: ScTemplateBody | _: ScPackaging |
@@ -637,7 +647,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       }
     }
 
-    if (leftElementType == ScalaTokenTypes.tLBRACE) {
+    // TODO: do we need separate settings for : block syntax
+    if (leftElementType == ScalaTokenTypes.tLBRACE || (leftElementType == tCOLON && leftNodeParentElementType == TEMPLATE_BODY)) {
       if (!scalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE) {
         val b = leftNode.getTreeParent.getPsi
         val spaceInsideOneLineBlock = scalaSettings.SPACES_IN_ONE_LINE_BLOCKS && !getText(b.getNode, fileText).contains('\n')
@@ -741,8 +752,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       }
     }
 
-    // TODO: how to name it normally?
-    def spacingMagicProcessor(psi: PsiElement): Option[Spacing] = {
+    def spacingForTemplateBodyMember(psi: PsiElement): Option[Spacing] = {
       psi.getParent match {
         case b@(_: ScEarlyDefinitions | _: ScTemplateBody) =>
           val p = PsiTreeUtil.getParentOfType(b, classOf[ScTemplateDefinition])
@@ -761,7 +771,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (rightPsi.isInstanceOf[PsiComment]) {
       val pseudoRightPsi = rightPsi.getNextSiblingNotWhitespaceComment
       if (pseudoRightPsi.is[ScFunction, ScValueOrVariable, ScTypeAlias]) {
-        spacingMagicProcessor(pseudoRightPsi) match {
+        spacingForTemplateBodyMember(pseudoRightPsi) match {
           case Some(spacing) => return spacing
           case _ =>
         }
@@ -771,7 +781,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       if (leftPsi.isInstanceOf[PsiComment]) {
         return ON_NEW_LINE
       }
-      spacingMagicProcessor(rightPsi) match {
+      spacingForTemplateBodyMember(rightPsi) match {
         case Some(spacing) => return spacing
         case _ =>
       }
