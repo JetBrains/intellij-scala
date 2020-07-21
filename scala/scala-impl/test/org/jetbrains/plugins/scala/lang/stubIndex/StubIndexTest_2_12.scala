@@ -213,7 +213,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
 
   def testImplicitConversion(): Unit = {
     val all = ImplicitConversionIndex.allConversions(moduleWithLibraries)(getProject).flatMap(_.qualifiedNameOpt).toSet
-    assertEquals(285, all.size)
+    assertEquals(281, all.size)
     assertContains(all, "scala.math.Ordering.mkOrderingOps")
     assertContains(all, "scala.math.Ordering.ExtraImplicits.infixOrderingOps")
     assertContains(all, "scala.Predef.augmentString")
