@@ -602,31 +602,19 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     fileText =
       s"""sealed trait Foo
          |
-         |object Foo {
-         |
+         |object Bar {
          |  def foo(foo: Foo): Unit = {}
          |
-         |  final case class Bar() extends Foo
-         |}
-         |
-         |object Main {
-         |  val bar = Foo.Bar()
-         |  bar.f$CARET
+         |  (_: Foo).f$CARET
          |}
          |""".stripMargin,
     resultText =
       s"""sealed trait Foo
          |
-         |object Foo {
-         |
+         |object Bar {
          |  def foo(foo: Foo): Unit = {}
          |
-         |  final case class Bar() extends Foo
-         |}
-         |
-         |object Main {
-         |  val bar = Foo.Bar()
-         |  Foo.foo(bar)$CARET
+         |  foo((_: Foo))$CARET
          |}
          |""".stripMargin,
     item = "foo"

@@ -5,7 +5,7 @@ package global
 
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementPresentation, LookupElementRenderer}
-import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiElement
 import com.intellij.util.ThreeState
 import org.jetbrains.plugins.scala.autoImport.GlobalImplicitConversion
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ContainingClass}
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 import org.jetbrains.plugins.scala.lang.psi.implicits._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -40,9 +40,10 @@ private[completion] final class ExtensionMethodsFinder(private val originalType:
     if predicate(resolveResult)
   } yield ExtensionMethodCandidate(resolveResult, owner, function)
 
-  override protected def findTargets: Seq[PsiClass] = valueType match {
-    case ExtractClass(ClassOrTrait(definition)) =>
-      definition +: definition.supers
+  override protected def findTargets: Seq[PsiElement] = valueType match {
+    case ExtractClass(definition: ScConstructorOwner) =>
+      (definition +: definition.supers) ++
+        super.findTargets
     case _ => Seq.empty
   }
 
