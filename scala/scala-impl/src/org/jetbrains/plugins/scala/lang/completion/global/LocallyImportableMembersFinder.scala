@@ -51,9 +51,6 @@ private[completion] final class LocallyImportableMembersFinder(override protecte
     }
   } yield result
 
-  override protected def findTargets: Iterable[PsiElement] =
-    place.withContexts.toIterable
-
   override protected def namedElementsIn(member: ScMember): Seq[ScTypedDefinition] = member match {
     case value: ScValueOrVariable => value.declaredElements
     case function: ScFunction if !(function.isConstructor || function.isSpecial) => Seq(function)

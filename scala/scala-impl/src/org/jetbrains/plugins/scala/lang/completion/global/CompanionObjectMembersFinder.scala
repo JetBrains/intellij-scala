@@ -4,8 +4,9 @@ package completion
 package global
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions.{OptionExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 private[completion] trait CompanionObjectMembersFinder[T <: ScTypedDefinition] {
@@ -15,7 +16,7 @@ private[completion] trait CompanionObjectMembersFinder[T <: ScTypedDefinition] {
   // todo import, class scope import setting reconsider
 
   override protected def candidates: Iterable[GlobalMemberResult] = for {
-    ClassOrTrait(CompanionModule(targetObject)) <- findTargets
+    ScalaObject(targetObject) <- findTargets
 
     member <- targetObject.members
     if isAccessible(member)
@@ -26,11 +27,20 @@ private[completion] trait CompanionObjectMembersFinder[T <: ScTypedDefinition] {
     targetObject
   )
 
-  protected def findTargets: Iterable[PsiElement]
+  protected def findTargets: Iterable[PsiElement] =
+    place.withContexts.toIterable
 
   protected def namedElementsIn(member: ScMember): Seq[T]
 
   protected def createResult(resolveResult: ScalaResolveResult,
                              classToImport: ScObject): GlobalMemberResult
+
+  private object ScalaObject {
+
+    def unapply(definition: ScTypeDefinition): Option[ScObject] = definition match {
+      case targetObject: ScObject => Some(targetObject)
+      case _ => definition.baseCompanionModule.filterByType[ScObject] // todo ScalaPsiUtil.getCompanionModule / fakeCompanionModule
+    }
+  }
 
 }
