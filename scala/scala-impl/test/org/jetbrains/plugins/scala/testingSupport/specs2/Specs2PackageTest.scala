@@ -78,7 +78,7 @@ abstract class Specs2PackageTest extends Specs2TestCase {
     )
 
   def testModuleTestRun(): Unit =
-    runTestByConfig2(createTestFromModule(testClassName),
+    runTestByConfig2(createTestFromModule(getModule.getName),
       assertPackageConfigAndSettings(_, generatedName = "ScalaTests in 'src'"),
       root => {
         assertResultTreeHasExactNamedPaths(root)(Seq(

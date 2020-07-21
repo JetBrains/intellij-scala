@@ -72,7 +72,7 @@ trait UTestPackageTest extends UTestTestCase {
   }
 
   def testModuleTestRun(): Unit =
-    runTestByConfig2(createTestFromModule(testClassName),
+    runTestByConfig2(createTestFromModule(getModule.getName),
       assertPackageConfigAndSettings(_, generatedName = "ScalaTests in 'src'"),
       root => assertResultTreeHasExactNamedPaths(root)(Seq(
         Seq("[root]", "Test1", "tests", "test1"),
