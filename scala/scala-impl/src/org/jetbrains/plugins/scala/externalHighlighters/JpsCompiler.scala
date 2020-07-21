@@ -10,6 +10,7 @@ import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.util.SimpleModificationTracker
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.openapi.wm.ex.{StatusBarEx, WindowManagerEx}
 import com.intellij.util.io.PathKt
@@ -51,9 +52,10 @@ class JpsCompilerImpl(project: Project)
   private val showIndicatorExecutor = new RescheduledExecutor(s"ShowIndicator-${project.getName}", this)
 
   @volatile private var progressIndicator: Option[ProgressIndicator] = None
-  
+  private val modTracker = new SimpleModificationTracker
+
   // SCL-17295
-  @Cached(ProjectRootManager.getInstance(project), null)
+  @Cached(modTracker, null)
   private def saveProjectOnce(): Unit =
     if (!project.isDisposed || project.isDefault) project.save()
 
