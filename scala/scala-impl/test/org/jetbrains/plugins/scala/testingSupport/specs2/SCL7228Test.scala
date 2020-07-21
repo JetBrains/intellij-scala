@@ -8,8 +8,6 @@ package specs2
  */
 abstract class SCL7228Test extends Specs2TestCase {
 
-  override def debugProcessOutput: Boolean = true
-
   addSourceFile("SCL7228Test.scala",
     """
       |import org.specs2.mutable.Specification

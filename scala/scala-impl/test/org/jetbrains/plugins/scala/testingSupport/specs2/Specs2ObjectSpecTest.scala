@@ -7,8 +7,6 @@ package testingSupport.specs2
  */
 abstract class Specs2ObjectSpecTest extends Specs2TestCase {
 
-  override def debugProcessOutput: Boolean = true
-
   addSourceFile("SpecObject.scala",
     """
       |import org.specs2.mutable.Specification
