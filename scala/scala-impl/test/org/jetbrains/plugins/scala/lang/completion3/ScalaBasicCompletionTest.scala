@@ -448,7 +448,10 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
          |}
       """.stripMargin
   ) {
-    hasItemText(_, "length")(itemTextBold = true)
+    hasItemText(_, "length")(
+      itemTextBold = true,
+      typeText = "Int",
+    )
   }
 
   def testStringTrim(): Unit = doRawCompletionTest(
@@ -463,7 +466,10 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
          |}
       """.stripMargin
   ) {
-    hasItemText(_, "trim")(itemTextBold = true)
+    hasItemText(_, "trim")(
+      itemTextBold = true,
+      typeText = "String",
+    )
   }
 
   def testStringHashCode(): Unit = doRawCompletionTest(
@@ -478,7 +484,10 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
          |}
       """.stripMargin
   ) {
-    hasItemText(_, "hashCode")(itemTextBold = true)
+    hasItemText(_, "hashCode")(
+      itemTextBold = true,
+      typeText = "Int",
+    )
   }
 
   def testObjectHashCode(): Unit = doRawCompletionTest(
@@ -493,7 +502,11 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
          |}
       """.stripMargin
   ) {
-    hasItemText(_, "hashCode")(tailText = "()", itemTextBold = true)
+    hasItemText(_, "hashCode")(
+      itemTextBold = true,
+      tailText = "()",
+      typeText = "Int",
+    )
   }
 
   def testJavaMethod(): Unit = {
@@ -519,7 +532,10 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
            |}
       """.stripMargin
     ) {
-      hasItemText(_, "getFoo")(itemTextBold = true)
+      hasItemText(_, "getFoo")(
+        itemTextBold = true,
+        typeText = "Int",
+      )
     }
   }
 
@@ -539,7 +555,7 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
          |}
          |""".stripMargin,
   ) {
-    hasItemText(_, "bar")()
+    hasItemText(_, "bar")(typeText = "Int")
   }
 
   def testNamedParameterCompletion(): Unit = doRawCompletionTest(
@@ -558,7 +574,10 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
          |}
          |""".stripMargin
   ) {
-    hasItemText(_, "bar")(tailText = " = ")
+    hasItemText(_, "bar")(
+      tailText = " = ",
+      typeText = "Int",
+    )
   }
 
   def testHiding1(): Unit = doCompletionTest(
@@ -1475,7 +1494,10 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
          |
          |foo = $CARET""".stripMargin
   ) {
-    hasItemText(_, "foo")(tailText = " = (foo: Int)")
+    hasItemText(_, "foo")(
+      tailText = " = (foo: Int)",
+      typeText = "Unit",
+    )
   }
 
   def testConversionWithImplicitParameter(): Unit = doCompletionTest(

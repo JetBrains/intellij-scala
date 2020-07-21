@@ -197,7 +197,8 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
       .count { lookup =>
         hasItemText(lookup, "sort")(
           itemText = "Collections.sort",
-          tailText = "[T](...) (java.util)"
+          tailText = "[T](...) (java.util)",
+          typeText = "Unit",
         ) && getAllMethods(lookup).size() == 2
       }
 
@@ -339,7 +340,10 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |""".stripMargin
   ) {
-    hasItemText(_, "foo")(tailText = "() (Foo)")
+    hasItemText(_, "foo")(
+      tailText = "() (Foo)",
+      typeText = "Int",
+    )
   }
 
   def testCompanionObjectUpdateMethod(): Unit = checkNoBasicCompletion(
@@ -406,7 +410,10 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |""".stripMargin
   ) {
-    hasItemText(_, "foo")(tailText = " (Foo)")
+    hasItemText(_, "foo")(
+      tailText = " (Foo)",
+      typeText = "Int",
+    )
   }
 
   def testCompanionObjectTypeAlias(): Unit = checkNoBasicCompletion(
@@ -507,7 +514,8 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
   ) {
     hasItemText(_, "foo")(
       itemText = "Foo.foo",
-      tailText = " <default>"
+      tailText = " <default>",
+      typeText = "Int",
     )
   }
 
@@ -966,7 +974,10 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |emptyMap()$CARET
          |""".stripMargin
   ) {
-    hasItemText(_, "emptyMap")(tailText = "[K, V]() (java.util.Collections)")
+    hasItemText(_, "emptyMap")(
+      tailText = "[K, V]() (java.util.Collections)",
+      typeText = "util.Map[K, V]",
+    )
   }
 
   def testImportableField(): Unit = doCompletionTest(

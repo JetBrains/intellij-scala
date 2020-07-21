@@ -36,7 +36,9 @@ package object aot {
     override def renderElement(decorator: Decorator,
                                presentation: LookupElementPresentation): Unit = {
       decorator.getDelegate.renderElement(presentation)
+
       presentation.setItemText(itemText)
+      presentation.setTypeText(null)
     }
   }
 
