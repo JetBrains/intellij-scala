@@ -57,7 +57,7 @@ abstract class ScalaTestingTestCase
 
   override def runInDispatchThread(): Boolean = false
 
-  def debugProcessOutput = false
+  final def debugProcessOutput = false
 
   override protected def addFileToProjectSources(fileName: String, fileText: String): VirtualFile =
     EdtTestUtil.runInEdtAndGet { () =>
