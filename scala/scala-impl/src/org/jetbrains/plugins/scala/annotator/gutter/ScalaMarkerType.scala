@@ -4,6 +4,7 @@ package gutter
 
 import java.awt.event.MouseEvent
 import java.util
+import java.util.Collections.emptyList
 
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
 import com.intellij.codeInsight.daemon.impl.{GutterTooltipHelper, PsiElementListNavigator}
@@ -82,39 +83,36 @@ object ScalaMarkerType {
   }
 
   val overridingMember: ScalaMarkerType = ScalaMarkerType(
-    element =>
+    element => {
       namedParent(element)
         .collect {
           case method: ScFunction =>
-            val signatures = method.superSignaturesIncludingSelfType
-            (signatures.map(_.namedElement),
-              if (GutterUtil.isOverrides(element, signatures)) ScalaBundle.message("overrides.method.from.super")
-              else ScalaBundle.message("implements.method.from.super"))
-
+            val supers = method.superSignaturesIncludingSelfType.map(_.namedElement)
+            (method, supers)
           case param: ScClassParameter =>
-            val signatures = ScalaPsiUtil.superValsSignatures(param, withSelfType = true)
-            (signatures.map(_.namedElement),
-              if (GutterUtil.isOverrides(element, signatures)) ScalaBundle.message("overrides.val.from.super")
-              else ScalaBundle.message("implements.val.from.super"))
-
+            val supers = ScalaPsiUtil.superValsSignatures(param, withSelfType = true)
+              .map(_.namedElement)
+            (param, supers)
           case v: ScValueOrVariable =>
             val bindings   = v.declaredElements.filter(e => element.textMatches(e.name))
-            val signatures = bindings.flatMap(ScalaPsiUtil.superValsSignatures(_, withSelfType = true))
-            (signatures.map(_.namedElement),
-              if (GutterUtil.isOverrides(element, signatures)) ScalaBundle.message("overrides.val.from.super")
-              else ScalaBundle.message("implements.val.from.super"))
-
+            val supers = bindings
+              .flatMap(ScalaPsiUtil.superValsSignatures(_, withSelfType = true))
+              .map(_.namedElement)
+            (v, supers)
           case ta: ScTypeAlias =>
-            val superMembers = ScalaPsiUtil.superTypeMembers(ta, withSelfType = true)
-            (superMembers, ScalaBundle.message("overrides.type.from.super"))
+            (ta, ScalaPsiUtil.superTypeMembers(ta, withSelfType = true))
         }
-        .map { case (namedElements, prefix) =>
-          GutterTooltipHelper.getTooltipText(namedElements.asJava,
-            (e: PsiElement) => (if (e == namedElements.head) prefix else elementDivider + prefix) + " ",
-            (_: PsiElement) => true,
+        .map { case (member, namedElements) =>
+          val prefix = overridesImplementsPrefix(member, namedElements)
+          val shownElements =
+            if (namedElements.size > maxNumberOfElements) emptyList else namedElements.asJava
+          GutterTooltipHelper.getTooltipText(shownElements,
+            prefix,
+            true, //skip member, show only containing class
             IdeActions.ACTION_GOTO_SUPER)
         }
-        .orNull,
+        .orNull
+    },
     (event, element) =>
       namedParent(element).collect {
         case method: ScFunction => navigateToSuperMethod(event, method, includeSelf = false)
@@ -144,8 +142,8 @@ object ScalaMarkerType {
   val overriddenMember: ScalaMarkerType = ScalaMarkerType(
     element =>
       namedParent(element).collect {
-        case _: ScMember =>
-          if (GutterUtil.isAbstract(element)) ScalaBundle.message("has.implementations")
+        case m: ScMember =>
+          if (GutterUtil.isAbstract(m)) ScalaBundle.message("has.implementations")
           else ScalaBundle.message("is.overridden.by")
       }.orNull,
     (event, element) =>
@@ -185,12 +183,23 @@ object ScalaMarkerType {
     element =>
       element.parent.collect {
         case aClass: PsiClass =>
-          val inheritors = ClassInheritorsSearch.search(aClass, aClass.getUseScope, true).toArray(PsiClass.EMPTY_ARRAY).toSeq.map(nameIdOf)
-          val prefix = if (aClass.is[ScTrait]) ScalaBundle.message("trait.has.implementations") else ScalaBundle.message("class.has.subclasses")
-          GutterTooltipHelper.getTooltipText(inheritors.asJava,
-            (e: PsiElement) => (if (e == inheritors.head) prefix else elementDivider + prefix) + " ",
-            (_: PsiElement) => false,
-            IdeActions.ACTION_GOTO_IMPLEMENTATION)
+          val inheritors = ClassInheritorsSearch.search(aClass, aClass.getUseScope, true).toArray(PsiClass.EMPTY_ARRAY).toSeq
+          val isTooMany = inheritors.size > maxNumberOfElements
+          val prefix = aClass match {
+            case _: ScTrait =>
+              if (isTooMany) ScalaBundle.message("trait.has.several.implementations", inheritors.size)
+              else           ScalaBundle.message("trait.has.implementations")
+            case _ =>
+              if (isTooMany) ScalaBundle.message("class.has.several.subclasses", inheritors.size)
+              else           ScalaBundle.message("class.has.subclasses")
+          }
+          val shownInheritors = if (isTooMany) emptyList else inheritors.asJava
+
+          GutterTooltipHelper.getTooltipText(shownInheritors,
+              prefix,
+              false, //do not skip inheritor itself
+              IdeActions.ACTION_GOTO_IMPLEMENTATION)
+
       }.orNull,
     (event, element) =>
       element.parent.collect {
@@ -222,26 +231,40 @@ object ScalaMarkerType {
 
   def samTypeImplementation(aClass: PsiClass): ScalaMarkerType = {
     val tooltipProvider = (_: PsiElement) => {
-      val psiElements = SAMUtil.singleAbstractMethod(aClass).toSeq.flatMap(superMethodsOf(_, includeSelf = true)).map(nameIdOf)
-      val prefix = ScalaBundle.message("implements.method.from.super")
+      val psiElements = SAMUtil.singleAbstractMethod(aClass).toSeq.flatMap(superMethodsOf(_, includeSelf = true))
+      val prefix = ScalaBundle.message("implements.method.prefix")
       GutterTooltipHelper.getTooltipText(psiElements.asJava,
-        (e: PsiElement) => (if (e == psiElements.head) prefix else elementDivider + prefix) + " ",
-        (_: PsiElement) => true,
+        prefix,
+        false,
         IdeActions.ACTION_GOTO_SUPER)
     }
     ScalaMarkerType(tooltipProvider, (event, _) => SAMUtil.singleAbstractMethod(aClass).foreach(navigateToSuperMethod(event, _, includeSelf = true)))
   }
 
-  private def nameIdOf(element: PsiElement): PsiElement = element match {
-    case namedElement: ScNamedElement => namedElement.nameId
-    case identifierOwner: PsiNameIdentifierOwner => identifierOwner.getNameIdentifier
-    case element => element
-  }
+  private val maxNumberOfElements = 5
 
-  // com.intellij.codeInsight.daemon.impl.GutterTooltipHelper.getElementDivider
-  private def elementDivider: String = {
-    val separatorColor = toHex(JBColor.namedColor("GutterTooltip.lineSeparatorColor", HintUtil.INFORMATION_BORDER_COLOR))
-    s"</p><p style='margin-top:2pt;border-top:thin solid #$separatorColor;'>"
+  private def overridesImplementsPrefix(member: ScMember, supers: Seq[PsiNamedElement]): String = {
+    val isTooMany = supers.size > maxNumberOfElements
+    val isOverrides = GutterUtil.isOverrides(member, supers)
+    member match {
+      case _: ScFunction =>
+        (isOverrides, isTooMany) match {
+          case (true, true)   => ScalaBundle.message("overrides.method.from.several.classes", supers.size)
+          case (true, false)  => ScalaBundle.message("overrides.method.from.prefix")
+          case (false, true)  => ScalaBundle.message("implements.method.from.several.classes", supers.size)
+          case (false, false) => ScalaBundle.message("implements.method.from.prefix")
+        }
+      case _: ScValueOrVariable | _: ScClassParameter =>
+        (isOverrides, isTooMany) match {
+          case (true, true)   => ScalaBundle.message("overrides.val.in.several.classes", supers.size)
+          case (true, false)  => ScalaBundle.message("overrides.val.from.prefix")
+          case (false, true)  => ScalaBundle.message("implements.val.from.several.classes", supers.size)
+          case (false, false) => ScalaBundle.message("implements.val.from.prefix")
+        }
+      case _: ScTypeAlias =>
+        if (isTooMany) ScalaBundle.message("overrides.type.from.super.several.classes", supers.size)
+        else           ScalaBundle.message("overrides.type.prefix")
+    }
   }
 
   private class ScCellRenderer extends PsiElementListCellRenderer[PsiElement] {
