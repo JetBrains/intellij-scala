@@ -2,12 +2,10 @@ package org.jetbrains.plugins.scala
 package debugger
 
 import java.io._
-import java.nio.file.Path
 import java.security.MessageDigest
 import java.util
 
 import com.intellij.execution.application.{ApplicationConfiguration, ApplicationConfigurationType}
-import com.intellij.ide.highlighter.{ModuleFileType, ProjectFileType}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
@@ -48,25 +46,10 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
     })
   }
 
-  override def setUpModule(): Unit = {
-    if (needMake) super.setUpModule()
-    else myModule = loadModule(getImlFile.getAbsolutePath)
+  override protected def getBaseDir = VfsUtil.findFileByIoFile(testDataBasePath, true)
 
-    myFilesToDelete.remove(getImlFile)
-  }
-
-  override def getProjectDirOrFile: Path = {
-    val file = new File(testDataBasePath, testClassName + ProjectFileType.DOT_DEFAULT_EXTENSION)
-    FileUtil.createIfDoesntExist(file)
-    file.toPath
-  }
-
-  protected def getImlFile: File = {
-    if (testDataBasePath.exists()) testDataBasePath.listFiles().find {
-      _.getName.endsWith(ModuleFileType.DOT_DEFAULT_EXTENSION)
-    }.orNull
-    else null
-  }
+  override def getOpenProjectOptions =
+    super.getOpenProjectOptions.projectName(testClassName)
 
   override def runInDispatchThread(): Boolean = false
 
@@ -212,7 +195,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
     sameSourceFiles() && loadChecksums() &&
       checksums.scalaVersion == version.minor &&
       checksums.fileToMd5.keys.forall(checkFile) &&
-      getImlFile != null
+      outDir.exists()
   }
 
   private def sameSourceFiles(): Boolean = {
