@@ -30,7 +30,7 @@ abstract class SpecializedRendererTestBase extends RendererTestBase {
   private def checkChildrenNames(varName: String, childrenNames: Seq[String]): Unit = {
     runDebugger() {
       waitForBreakpoint()
-      val (_, names) = renderLabelAndChildren(varName, calcName)
+      val (_, names) = renderLabelAndChildren(varName, calcName, renderChildren = true)
       Assert.assertEquals(childrenNames.sorted, names.sorted)
     }
   }

@@ -66,7 +66,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
     import org.junit.Assert._
     runDebugger() {
       waitForBreakpoint()
-      val (label, children) = renderLabelAndChildren(collectionName, _.getLabel)
+      val (label, children) = renderLabelAndChildren(collectionName, _.getLabel, checkChildren)
       val classRenderer: ClassRenderer = NodeRendererSettings.getInstance().getClassRenderer
       val typeName = classRenderer.renderTypeName(collectionClass)
       val expectedLabel = s"$collectionName = {$typeName@$UNIQUE_ID}$afterTypeLabel"
