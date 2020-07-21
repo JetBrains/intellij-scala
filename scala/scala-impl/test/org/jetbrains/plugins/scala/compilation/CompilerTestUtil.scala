@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 
 import scala.util.Try
 
+// TODO: move it to `scala` package and rename to some more generic utility class
 object CompilerTestUtil {
 
   trait RevertableChange {
@@ -133,6 +134,9 @@ object CompilerTestUtil {
 
   def withModifiedRegistryValue(key: String, newValue: Boolean): RevertableChange =
     withModifiedRegistryValueInternal[Boolean](key, newValue, _.asBoolean, _ setValue _)
+
+  def withModifiedRegistryValue(key: String, newValue: Int): RevertableChange =
+    withModifiedRegistryValueInternal[Int](key, newValue, _.asInteger(), _ setValue _)
 
   def withErrorsFromCompiler(body: => Unit): Unit = {
     val newValue = true
