@@ -82,8 +82,9 @@ abstract class CompletionTestBase extends base.ScalaLightPlatformCodeInsightTest
     val editor = FileEditorManager.getInstance(project)
       .openTextEditor(new OpenFileDescriptor(project, getVFileAdapter, offset), false)
 
+    val completionType = if (fileName.startsWith("Smart")) CompletionType.SMART else CompletionType.BASIC
     new CodeCompletionHandlerBase(
-      if (fileName.startsWith("Smart")) CompletionType.SMART else CompletionType.BASIC,
+      completionType,
       false,
       false,
       true
@@ -94,6 +95,7 @@ abstract class CompletionTestBase extends base.ScalaLightPlatformCodeInsightTest
       case _ => Array.empty[String]
     }
 
-    checkResult(items, getExpectedResult)
+    val expected = getExpectedResult
+    checkResult(items, expected)
   }
 }
