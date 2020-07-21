@@ -66,16 +66,17 @@ public final class UTestReporter {
   }
 
   private void reportScopeStarted(UTestPath scopePath) {
+    if (isStarted(scopePath))
+      return;
+
     UTestPath parent = scopePath.parent();
-    boolean isTestSuitePath = parent == null;
+    if (parent != null) {
+      reportScopeStarted(parent);
+    }
 
-    if (!isStarted(parent))
-      if (isTestSuitePath)
-        reportClassSuiteStarted(scopePath);
-      else
-        reportScopeStarted(parent);
-
-    if (!isTestSuitePath)
+    if (parent == null)
+      reportClassSuiteStarted(scopePath);
+    else
       reportScopeStarted(scopePath, getScopeLocationHint(scopePath));
   }
 
