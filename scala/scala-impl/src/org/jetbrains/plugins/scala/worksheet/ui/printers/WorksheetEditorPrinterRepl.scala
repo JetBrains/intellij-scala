@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterB
 import org.jetbrains.plugins.scala.worksheet.ui.printers.repl.{PrintChunk, QueuedPsi}
 
 import scala.collection.mutable
+import scala.util.matching.Regex
 
 //noinspection HardCodedStringLiteral
 final class WorksheetEditorPrinterRepl private[printers](
@@ -274,22 +275,7 @@ final class WorksheetEditorPrinterRepl private[printers](
     )
 
   private def adjustOutputLineContent(outputLine: String): String =
-    adjustLambdaDefinitionOutput(outputLine)
-
-  /**
-   * Handles lambda functions definitions
-   * for input: `val f: (Int) => Boolean = _ == 42`
-   * prints: `f: Int => Boolean = <function>134087`
-   * instead of: `f: Int => Boolean = $$Lambda$2299/0x000000010152a040@747dd14a`
-   */
-  private def adjustLambdaDefinitionOutput(outputLine: String): String =
-    outputLine.indexOf(LAMBDA_PREFIX) match {
-      case -1 => outputLine
-      case idx =>
-        val prefix = outputLine.substring(0, Math.max(idx - 1, 0))
-        val suffix = outputLine.substring(Math.min(outputLine.length, LAMBDA_LENGTH + idx + 1))
-        prefix + "<function>" + suffix
-    }
+    stripLambdaClassName(outputLine)
 
   private def handleReplMessageLine(messageLine: String): Unit = {
     val messagesConsumer = messagesConsumerOpt.getOrElse(return)
@@ -355,8 +341,28 @@ final class WorksheetEditorPrinterRepl private[printers](
 
 object WorksheetEditorPrinterRepl {
 
-  private val LAMBDA_PREFIX = "$Lambda$"
-  private val LAMBDA_LENGTH = 32
+  /**
+   * Base on scala.tools.partest.Lambdaless (from [[https://github.com/scala/scala]])
+   *
+   * Added support for 1 or 2 leading dollars
+   * @note in scala 2.12.10 & 2.13.1 prefix is with two dollar  signs: '''`$$Lambda$`'''<br>
+   *        in scala 2.12.12 & 2.13.3 prefix is with one dolar  sign: '''`$Lambda$$`'''
+   */
+  private val LambdaRegex= """\$\$?Lambda\$\d+/(?:0x[a-f0-9]{16}|\d+)(@[a-fA-F0-9]+)?""".r
+
+  /**
+   * Handles lambda functions definitions
+   *
+   * @example
+   * Input:<br>
+   * {{{val f: (Int) => Boolean = _ == 42}}}
+   * Raw REPL output:<br>
+   * {{{f: Int => Boolean = $$Lambda$2299/0x000000010152a040@747dd14a}}}
+   * Worksheet in REPL mode output:<br>
+   * {{{f: Int => Boolean = <function>}}}
+   */
+  private def stripLambdaClassName(s: String): String =
+    LambdaRegex.replaceAllIn(s, Regex.quoteReplacement("<function>"))
 
   // Required due to compiler reports wrong error positions with extra offsets which we need to fix.
   // This happens because compiler prepossesses original input adding extra classes, indents, imports, etc...
@@ -421,8 +427,8 @@ object WorksheetEditorPrinterRepl {
    *
    *     // comment 2
    *     // comment 3
-   *     object A {    // lastElementLine
-   *     }             // contentEndLine
+   *     object A {     // lastElementLine
+   *     }              // contentEndLine
    * }}}
    */
   private case class InputLinesInfo(

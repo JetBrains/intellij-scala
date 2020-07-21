@@ -2,10 +2,8 @@ package org.jetbrains.plugins.scala.worksheet.integration.repl
 
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.withModifiedRegistryValue
-import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions._
 import org.jetbrains.plugins.scala.util.runners._
-import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.TestRunResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests
@@ -23,24 +21,18 @@ import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
 
 @RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_10,
-  TestScalaVersion.Scala_2_11,
-  TestScalaVersion.Scala_2_12
+  TestScalaVersion.Scala_2_13,
 ))
 @Category(Array(classOf[WorksheetEvaluationTests]))
-class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
+class WorksheetReplIntegration_Scala_2_13_Test extends WorksheetReplIntegrationBaseTest
   with WorksheetRuntimeExceptionsTests {
 
-  // fixme (minor) : fails for scala 2.10:
-  //  sbt.internal.inc.CompileFailed: Error compiling the sbt component 'repl-wrapper-2.10.7-55.0-2-ILoopWrapperImpl.jar'
-  //  https://youtrack.jetbrains.com/issue/SCL-16175
-  override protected def supportedIn(version: ScalaVersion): Boolean = version > LatestScalaVersions.Scala_2_10
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version == LatestScalaVersions.Scala_2_13
 
   // with some health check runs
   @RunWithScalaVersions(extra = Array(
-    //TestScalaVersion.Scala_2_10_0
-    TestScalaVersion.Scala_2_11_0,
-    TestScalaVersion.Scala_2_12_0,
+    TestScalaVersion.Scala_2_13_0,
   ))
   def testSimpleDeclaration(): Unit = {
     val left =
@@ -49,8 +41,8 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
         |""".stripMargin
 
     val right =
-      """a: Int = 1
-        |b: Int = 2""".stripMargin
+      """val a: Int = 1
+        |var b: Int = 2""".stripMargin
 
     doRenderTest(left, right)
   }
@@ -65,7 +57,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
       s"""${foldStart}1
          |2
          |3$foldEnd
-         |x: Int = 42""".stripMargin
+         |val x: Int = 42""".stripMargin
 
     doRenderTest(left, right)
   }
@@ -82,11 +74,11 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
       s"""${foldStart}1
          |2
          |3$foldEnd
-         |x: Int = 42
+         |val x: Int = 42
          |${foldStart}4
          |5
          |6$foldEnd
-         |y: Int = 23""".stripMargin
+         |val y: Int = 23""".stripMargin
 
     doRenderTest(left, right)
   }
@@ -103,7 +95,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
          |1
          |2
          |3$foldEnd
-         |x: Int = 42""".stripMargin
+         |val x: Int = 42""".stripMargin
 
     doRenderTest(left, right)
   }
@@ -130,7 +122,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
          |3$foldEnd
          |
          |
-         |x: Int = 42
+         |val x: Int = 42
          |
          |
          |${foldStart}4
@@ -138,7 +130,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
          |6$foldEnd
          |
          |
-         |y: Int = 23""".stripMargin
+         |val y: Int = 23""".stripMargin
 
     doRenderTest(left, right)
   }
@@ -150,7 +142,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
         |""".stripMargin
 
     val right =
-      s"""${foldStart}text: String =
+      s"""${foldStart}val text: String =
          |1
          |^
          |2
@@ -162,7 +154,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
          |7
          |8
          |9$foldEnd
-         |x: Int = 42""".stripMargin
+         |val x: Int = 42""".stripMargin
 
     doRenderTest(left, right)
   }
@@ -292,15 +284,15 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
     doRenderTest(
       """var a1 = new Array[Int](3)
         |val a2 = Array(1, 2, 3)""".stripMargin,
-      """a1: Array[Int] = Array(0, 0, 0)
-        |a2: Array[Int] = Array(1, 2, 3)""".stripMargin
+      """var a1: Array[Int] = Array(0, 0, 0)
+        |val a2: Array[Int] = Array(1, 2, 3)""".stripMargin
     )
   }
 
   def testInteractive(): Unit = {
     val editor = doRenderTest(
       """42""",
-      """res0: Int = 42"""
+      """val res0: Int = 42"""
     )
     worksheetSettings(editor).setInteractive(true)
 
@@ -315,8 +307,8 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
     }
 
     assertViewerEditorText(editor,
-      """res0: Int = 42
-        |res1: Int = 23""".stripMargin
+      """val res0: Int = 42
+        |val res1: Int = 23""".stripMargin
     )
 
     assertNoErrorMessages(editor)
@@ -325,7 +317,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
   def testInteractive_WithError(): Unit = {
     val editor = doRenderTest(
       """42""",
-      """res0: Int = 42"""
+      """val res0: Int = 42"""
     )
     worksheetSettings(editor).setInteractive(true)
 
@@ -336,7 +328,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
     MyUiUtils.wait(5 seconds)
 
     assertViewerEditorText(editor,
-      """res0: Int = 42
+      """val res0: Int = 42
         |""".stripMargin
     )
 
@@ -353,65 +345,12 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
       |foo { x: Int => x * 2 }
       |""".stripMargin
 
-  // -Ypartial-unification is enabled in 2.13 by default, so testing on 2.12
-  @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
-  def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile(): Unit = {
-    val editor = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
-    val profile = getModule.scalaCompilerSettingsProfile
-    val newSettings = profile.getSettings.copy(
-      additionalCompilerOptions = PartialUnificationCompilerOptions
-    )
-    profile.setSettings(newSettings)
-    doRenderTest(editor,
-      """foo: [F[_], A](fa: F[A])String
-        |res0: String = 123""".stripMargin
-    )
-  }
-
-  @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
-  def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile_WithoutSetting(): Unit = {
-    val editor = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
-    val profile = getModule.scalaCompilerSettingsProfile
-    val newSettings = profile.getSettings.copy(
-      additionalCompilerOptions = Seq.empty
-    )
-    profile.setSettings(newSettings)
-    doResultTest(editor, RunWorksheetActionResult.WorksheetRunError(WorksheetCompilerResult.CompilationError))
-  }
-
-  @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
-  def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile_NonDefaultProfile(): Unit = {
-    val editor = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
-    worksheetSettings(editor).setCompilerProfileName(TestProfileName)
-    val profile = createCompilerProfileForCurrentModule(TestProfileName)
-    val newSettings = profile.getSettings.copy(
-      additionalCompilerOptions = PartialUnificationCompilerOptions
-    )
-    profile.setSettings(newSettings)
-    doRenderTest(editor,
-      """foo: [F[_], A](fa: F[A])String
-        |res0: String = 123""".stripMargin
-    )
-  }
-
-  @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
-  def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile_WithoutSetting_NonDefaultProfile(): Unit = {
-    val editor = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
-    worksheetSettings(editor).setCompilerProfileName(TestProfileName)
-    val profile = createCompilerProfileForCurrentModule(TestProfileName)
-    val newSettings = profile.getSettings.copy(
-      additionalCompilerOptions = Seq.empty
-    )
-    profile.setSettings(newSettings)
-    doResultTest(editor, RunWorksheetActionResult.WorksheetRunError(WorksheetCompilerResult.CompilationError))
-  }
-
   // see SCL-11450
   def testLambdaValueDefinitionOutputShouldBeFancy(): Unit = {
     val before = """val foo: String => Int = _.length"""
 
     doRenderTest(before, actual => {
-      assertStringMatches(actual, """foo: String => Int = <function\d*>[\d\w]*""".r)
+      assertStringMatches(actual, """val foo: String => Int = <function\d*>[\d\w]*""".r)
     })
   }
 
@@ -420,8 +359,8 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
       """val x = 42
         |val y = 23""".stripMargin
     val after =
-      """x: Int = 42
-        |y: Int = 23""".stripMargin
+      """val x: Int = 42
+        |val y: Int = 23""".stripMargin
     val worksheetEditor = prepareWorksheetEditor(before)
     runWorksheetEvaluationAndWait(worksheetEditor)
     assertViewerEditorText(worksheetEditor, after)
@@ -434,7 +373,7 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
       """val x = 42
         |println(s"x: $x")
         |System.exit(0)""".stripMargin,
-      """x: Int = 42
+      """val x: Int = 42
         |x: 42""".stripMargin
     )
 
@@ -509,72 +448,72 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
         |
         |}""".stripMargin
     val after =
-      """x: Int = 1
+      """val x: Int = 1
         |
         |
         |
-        |defined class A
-        |
-        |
-        |
-        |
-        |defined object A
+        |class A
         |
         |
         |
         |
-        |
-        |defined class X
-        |
-        |defined object X
+        |object A
         |
         |
         |
         |
         |
+        |class X
         |
-        |
-        |defined class Y
-        |
-        |
-        |
-        |defined object Y
-        |
-        |
-        |
-        |defined class Z
-        |
-        |
-        |
-        |
-        |defined object Z
+        |object X
         |
         |
         |
         |
         |
-        |defined class XX
-        |
-        |defined object XX
         |
         |
+        |class Y
         |
         |
         |
-        |defined class YY
+        |object Y
         |
         |
         |
-        |defined object YY
+        |class Z
         |
         |
         |
         |
-        |defined class ZZ
+        |object Z
         |
         |
         |
-        |defined object ZZ""".stripMargin
+        |
+        |
+        |class XX
+        |
+        |object XX
+        |
+        |
+        |
+        |
+        |
+        |class YY
+        |
+        |
+        |
+        |object YY
+        |
+        |
+        |
+        |
+        |class ZZ
+        |
+        |
+        |
+        |object ZZ""".stripMargin
     doRenderTest(before, after)
   }
 
@@ -598,30 +537,30 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
         |object O
         |trait O""".stripMargin
     val after  =
-      """defined class C1
-        |defined object C1
+      """class C1
+        |object C1
         |
-        |defined class C2
-        |defined object C2
+        |class C2
+        |object C2
         |
-        |defined class C3
-        |defined object C3
+        |class C3
+        |object C3
         |
-        |defined trait T1
-        |defined object T1
+        |trait T1
+        |object T1
         |
-        |defined trait T2
-        |defined object T2
+        |trait T2
+        |object T2
         |
-        |defined object O
-        |defined trait O""".stripMargin
+        |object O
+        |trait O""".stripMargin
     doRenderTest(before, after)
   }
 
   def testSealedTraitHierarchy_1(): Unit = {
     val editor = doRenderTest(
       """sealed trait T""",
-      """defined trait T"""
+      """trait T"""
     )
     assertLastLine(editor, 0)
   }
@@ -630,8 +569,8 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
     val editor = doRenderTest(
       """sealed trait T
         |case class A() extends T""".stripMargin,
-      """defined trait T
-        |defined class A""".stripMargin
+      """trait T
+        |class A""".stripMargin
     )
     assertLastLine(editor, 1)
   }
@@ -641,9 +580,9 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
       """sealed trait T
         |case class A() extends T
         |case class B() extends T""".stripMargin,
-      """defined trait T
-        |defined class A
-        |defined class B""".stripMargin
+      """trait T
+        |class A
+        |class B""".stripMargin
     )
     assertLastLine(editor, 2)
   }
@@ -663,19 +602,19 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
         |  *
         |  */
         |case class D() extends T""".stripMargin,
-      """defined trait T
-        |defined class A
-        |defined class B
+      """trait T
+        |class A
+        |class B
         |
         |
         |
-        |defined class C
+        |class C
         |
         |
         |
         |
         |
-        |defined class D""".stripMargin
+        |class D""".stripMargin
     )
     assertLastLine(editor, 12)
   }
@@ -692,16 +631,16 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
         |
         |sealed trait T3
         |case class C() extends T3""".stripMargin,
-      """defined trait T1
+      """trait T1
         |
-        |x: Int = 1
+        |val x: Int = 1
         |
-        |defined trait T2
-        |defined class A
-        |defined class B
+        |trait T2
+        |class A
+        |class B
         |
-        |defined trait T3
-        |defined class C""".stripMargin
+        |trait T3
+        |class C""".stripMargin
     )
     assertLastLine(editor, 9)
   }
@@ -712,9 +651,9 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
       """val x = 23; val y = 42; def f(i: Int): String = "hello"; println("1\n2")""",
       s"""${foldStart}1
          |2
-         |x: Int = 23
-         |y: Int = 42
-         |f: (i: Int)String$foldEnd""".stripMargin
+         |val x: Int = 23
+         |val y: Int = 42
+         |def f(i: Int): String$foldEnd""".stripMargin
     )
 
   def testSemicolonSeparatedExpressions_OnMultipleLines(): Unit =
@@ -725,9 +664,9 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
         |)""".stripMargin,
       s"""1
          |2
-         |x: Int = 23
-         |${foldStart}y: Int = 42
-         |f: (i: Int)String$foldEnd""".stripMargin
+         |val x: Int = 23
+         |${foldStart}val y: Int = 42
+         |def f(i: Int): String$foldEnd""".stripMargin
     )
 
   def testDoNoAddLineCommentsWithLineIndexesInsideMultilineStringLiterals(): Unit =
@@ -742,15 +681,15 @@ class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
          |    |}\"\"\".stripMargin
          |y.length
          |""".stripMargin,
-      """x: String =
+      """val x: String =
         |"
         |"
-        |res0: Int = 1
-        |y: String =
+        |val res0: Int = 1
+        |val y: String =
         |{
         |  "foo" : "bar"
         |}
-        |res1: Int = 19""".stripMargin
+        |val res1: Int = 19""".stripMargin
     )
 
   private val LargeInputWithErrors =
