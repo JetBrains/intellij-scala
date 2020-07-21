@@ -5,6 +5,7 @@ package global
 
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.completion.{InsertHandler, JavaCompletionFeatures, JavaCompletionUtil}
+import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.featureStatistics.FeatureUsageTracker
 import com.intellij.psi.{PsiClass, PsiMember, PsiNamedElement}
 import com.intellij.util.ThreeState
@@ -20,7 +21,8 @@ abstract class GlobalMembersFinder protected(protected val place: ScalaPsiElemen
   import GlobalMembersFinder._
 
   protected trait GlobalMemberInsertHandler {
-    this: InsertHandler[ScalaLookupItem] =>
+
+    this: InsertHandler[LookupElement] =>
 
     def triggerGlobalMemberCompletionFeature(): Unit =
       FeatureUsageTracker
@@ -32,9 +34,11 @@ abstract class GlobalMembersFinder protected(protected val place: ScalaPsiElemen
     accessAll ||
       completion.isAccessible(member)(place)
 
-  final def lookupItems(reference: ScReferenceExpression): Iterable[ScalaLookupItem] = {
+  final def lookupItems(reference: ScReferenceExpression): Iterable[LookupElement] = {
     val shouldImport = new ShouldImportPredicate(reference)
-    candidates.flatMap(_.createLookupItem(shouldImport))
+    candidates
+      .map(_.createLookupItem(shouldImport))
+      .filterNot(_ == null)
   }
 
   protected def candidates: Iterable[GlobalMemberResult]
@@ -43,29 +47,30 @@ abstract class GlobalMembersFinder protected(protected val place: ScalaPsiElemen
                                               protected val classToImport: PsiClass,
                                               containingClass: Option[PsiClass] = None) {
 
-    final def createLookupItem(shouldImport: PsiNamedElement => ThreeState): Option[ScalaLookupItem] =
+    final def createLookupItem(shouldImport: PsiNamedElement => ThreeState): LookupElement =
       if (isApplicable)
         resolveResult.getLookupElement(
           isClassName = true,
           containingClass = containingClass
-        ).flatMap { lookupItem =>
-          buildItem(
-            lookupItem,
-            shouldImport(lookupItem.getPsiElement)
-          )
+        ) match {
+          case Some(lookupItem) =>
+            buildItem(
+              lookupItem,
+              shouldImport(lookupItem.getPsiElement)
+            )
+          case _ => null
         }
       else
-        None
+        null
 
     protected def buildItem(lookupItem: ScalaLookupItem,
-                            shouldImport: ThreeState): Option[ScalaLookupItem] = {
+                            shouldImport: ThreeState): LookupElement = {
       lookupItem.shouldImport = shouldImport != ThreeState.NO
       lookupItem.setInsertHandler(createInsertHandler(shouldImport))
       lookupItem.withBooleanUserData(JavaCompletionUtil.FORCE_SHOW_SIGNATURE_ATTR)
-      Some(lookupItem)
     }
 
-    protected def createInsertHandler(shouldImport: ThreeState): InsertHandler[ScalaLookupItem]
+    protected def createInsertHandler(shouldImport: ThreeState): InsertHandler[LookupElement]
 
     private def isApplicable: Boolean = Option(classToImport.qualifiedName).forall(isNotExcluded)
   }
