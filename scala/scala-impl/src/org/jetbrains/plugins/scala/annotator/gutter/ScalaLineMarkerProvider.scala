@@ -284,7 +284,7 @@ private object GutterUtil {
   }
 
   def getOverridesOrImplementsIcon(element: PsiElement, signatures: Seq[TermSignature]): Icon =
-    if (isOverrides(element, signatures)) OverridingMethod else ImplementingMethod
+    if (isOverrides(element, signatures.map(_.namedElement))) OverridingMethod else ImplementingMethod
 
   def namedParent(e: PsiElement): Option[PsiElement] =
     e.withParentsInFile.find(ScalaPsiUtil.isNameContext)
@@ -337,7 +337,7 @@ private object GutterUtil {
         }
     }
 
-  def isOverrides(element: PsiElement, supers: Seq[TermSignature]): Boolean =
+  def isOverrides(element: PsiElement, supers: Seq[PsiNamedElement]): Boolean =
     element match {
       case _: ScFunctionDeclaration  => true
       case _: ScValueDeclaration     => true
@@ -346,8 +346,8 @@ private object GutterUtil {
       case _ =>
         val iter = supers.iterator
         while (iter.hasNext) {
-          val s = iter.next()
-          ScalaPsiUtil.nameContext(s.namedElement) match {
+          val named = iter.next()
+          ScalaPsiUtil.nameContext(named) match {
             case _: ScFunctionDefinition                          => return true
             case _: ScFunction                                    =>
             case method: PsiMethod if !method.hasAbstractModifier => return true
