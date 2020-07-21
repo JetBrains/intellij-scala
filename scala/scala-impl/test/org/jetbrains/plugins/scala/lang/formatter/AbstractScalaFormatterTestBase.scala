@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.formatter
 import java.io.File
 
 import com.intellij.application.options.CodeStyle
+import com.intellij.lang.Language
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.EditorFactory
@@ -11,7 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.psi.codeStyle.CodeStyleManager
-import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiFileFactory}
 import com.intellij.testFramework.LightIdeaTestCase
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.ScalaLanguage
@@ -31,7 +32,9 @@ import org.junit.Assert._
 // NOTE: initially was almost duplicate from Java
 abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
 
-  protected def getCommonSettings = getSettings.getCommonSettings(ScalaLanguage.INSTANCE)
+  protected def language: Language = ScalaLanguage.INSTANCE
+
+  protected def getCommonSettings = getSettings.getCommonSettings(language)
   protected def getScalaSettings = getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
   protected def getIndentOptions = getCommonSettings.getIndentOptions
   protected def getSettings = CodeStyle.getSettings(getProject)
@@ -92,6 +95,11 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
   private def doTextTest(action: Action, text: String, textAfter: String): Unit =
     doTextTest(TestData(text, textAfter, tempFileName, action, 1))
 
+  private def initFile(fileName: String, text: String): PsiFile = {
+    PsiFileFactory.getInstance(project)
+      .createFileFromText(fileName, language, text, true, false)
+  }
+
   /**
    * For a given selection create all possible selections text ranges with borders leaf elements ranges borders.
    * For each selection runs a formatting test and ensures it doesn't break the code.
@@ -106,7 +114,7 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
       case other       => fail(s"expecting single range for all ranges test, but got: $other").asInstanceOf[Nothing]
     }
 
-    val file = createFile(tempFileName, textClean)
+    val file = initFile(tempFileName, textClean)
     val startElement = file.findElementAt(selection.getStartOffset)
     //val endElement = file.findElementAt(selection.getEndOffset)
     val element = // select non-leaf element
@@ -169,7 +177,7 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     if (actionRepeats > 1 && selectedRanges.nonEmpty)
       fail("for now an action can not be applied multiple times for selection")
 
-    val file = createFile(fileName, textBefore)
+    val file = initFile(fileName, textBefore)
     val manager  = PsiDocumentManager.getInstance(getProject)
     val document = manager.getDocument(file)ensuring(_ != null, "Don't expect the document to be null")
 

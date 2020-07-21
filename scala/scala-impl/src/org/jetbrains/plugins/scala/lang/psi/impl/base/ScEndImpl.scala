@@ -9,7 +9,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScEnd
 
 class ScEndImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEnd {
-  override def toString: String = "end " + endingElementDesignator
+  override def toString: String = "End: " + endingElementDesignator.getText
 
   override def endingElementDesignator: PsiElement = getLastChild
 }
