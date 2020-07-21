@@ -22,6 +22,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
+import com.intellij.util.ThrowableRunnable;
 import junit.framework.TestSuite;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -195,7 +196,7 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
         }
 
         @Override
-        protected void runTest() throws Throwable {
+        protected void runTestRunnable(@NotNull ThrowableRunnable<Throwable> testRunnable) throws Throwable {
             String fileText = new String(loadFileText(myTestFile, "UTF-8"));
             ScalaFileSetTestCase.this.runTest(
                     myTestFile.getName(),

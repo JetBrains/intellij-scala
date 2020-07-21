@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package memoryLeaks
 
 import java.nio.file.Paths
+import java.util.function.Predicate
 
 import com.intellij.codeInspection.ex.{InspectionProfileImpl, InspectionToolWrapper, LocalInspectionToolWrapper}
 import com.intellij.codeInspection.{InspectionManager, InspectionProfile}
@@ -116,8 +117,8 @@ class MemoryLeakTest extends PlatformTestCase {
   }
 
   private def checkLeak[T](root: AnyRef, clazz: Class[T], isLeak: T => Boolean): Unit = {
-    LeakHunter.checkLeak(root, clazz, new Condition[T] {
-      override def value(t: T): Boolean = isLeak(t)
+    LeakHunter.checkLeak(root, clazz, new Predicate[T] {
+      override def test(t: T): Boolean = isLeak(t)
     })
   }
 

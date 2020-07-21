@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala
 package project.converter
 
-import java.io.File
-import com.intellij.conversion.{ConversionContext, ModuleSettings, ConversionProcessor}
+import java.nio.file.Path
+
+import com.intellij.conversion.{ConversionContext, ConversionProcessor, ModuleSettings}
 import org.jetbrains.plugins.scala.project.converter.ScalaModuleConversionProcessor._
 
 /**
@@ -10,7 +11,7 @@ import org.jetbrains.plugins.scala.project.converter.ScalaModuleConversionProces
  */
 private class ScalaModuleConversionProcessor(context: ConversionContext) extends ConversionProcessor[ModuleSettings] {
   private var createdSdks: Seq[ScalaSdkData] = Seq.empty
-  private var newSdkFiles: Seq[File] = Seq.empty
+  private var newSdkFiles: Seq[Path] = Seq.empty
   
   override def isConversionNeeded(module: ModuleSettings): Boolean = ScalaFacetData.isPresentIn(module)
 
@@ -43,7 +44,7 @@ private class ScalaModuleConversionProcessor(context: ConversionContext) extends
     scalaFacet.removeFrom(module)
   }
   
-  def createdFiles: Seq[File] = newSdkFiles
+  def createdFiles: Seq[Path] = newSdkFiles
 }
 
 object ScalaModuleConversionProcessor {

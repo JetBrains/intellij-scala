@@ -8,7 +8,7 @@ import java.util
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import com.intellij.util.containers.SmartHashSet
-import gnu.trove.TObjectHashingStrategy
+import gnu.trove.{THashSet, TObjectHashingStrategy}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -39,7 +39,7 @@ trait PrecedenceHelper {
 
   protected def nameUniquenessStrategy: NameUniquenessStrategy
 
-  private class UniqueNamesSet extends SmartHashSet[ScalaResolveResult](nameUniquenessStrategy) {
+  private class UniqueNamesSet extends THashSet[ScalaResolveResult](nameUniquenessStrategy) {
 
     override def add(result: ScalaResolveResult): Boolean =
       if (nameUniquenessStrategy.isValid(result)) super.add(result)

@@ -75,4 +75,6 @@ class CaretModelStub extends CaretModel {
   override def addCaretActionListener(listener: CaretActionListener, disposable: Disposable): Unit = ???
 
   override def addCaret(pos: LogicalPosition, makePrimary: Boolean): Caret = ???
+
+  override def getMaxCaretCount: Int = ???
 }

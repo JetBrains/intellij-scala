@@ -25,8 +25,6 @@ class InterpolatedStringAutopopupTypingTest extends EditorActionTestBase {
 
   override protected def runInDispatchThread = false
 
-  override protected def invokeTestRunnable(runnable: Runnable): Unit = myTester.runWithAutoPopupEnabled(runnable)
-
   private def doTest(text: String): Unit = {
     myFixture.configureByText(defaultFileName, text)
     myTester.typeWithPauses(Dot)

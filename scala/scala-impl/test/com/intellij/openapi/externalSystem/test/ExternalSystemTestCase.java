@@ -19,10 +19,7 @@ import com.intellij.compiler.CompilerTestUtil;
 import com.intellij.compiler.artifacts.ArtifactsTestUtil;
 import com.intellij.compiler.impl.ModuleCompileScope;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.application.AccessToken;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.Result;
-import com.intellij.openapi.application.WriteAction;
+import com.intellij.openapi.application.*;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.compiler.CompilerMessage;
@@ -100,32 +97,37 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
         setUpFixtures();
         myProject = myTestFixture.getProject();
 
-        EdtTestUtil.runInEdtAndWait(new ThrowableRunnable<Throwable>() {
-            @Override
-            public void run() {
-                ApplicationManager.getApplication().runWriteAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            setUpInWriteAction();
-                        } catch (Throwable e) {
-                            try {
-                                tearDown();
-                            } catch (Exception e1) {
-                                e1.printStackTrace();
-                            }
-                            throw new RuntimeException(e);
-                        }
-                    }
-                });
+        try {
+            EdtTestUtil.runInEdtAndWait(
+                    (ThrowableRunnable<Throwable>) () -> WriteAction.run(this::setUpInWriteAction)
+            );
+        } catch (Throwable e) {
+            try {
+                tearDown();
+            } catch (Exception e1) {
+                e1.printStackTrace();
             }
-        });
+            throw new RuntimeException(e);
+        }
 
         ArrayList<String> allowedRoots = new ArrayList<String>();
         collectAllowedRoots(allowedRoots);
         registerAllowedRoots(allowedRoots, getTestRootDisposable());
 
         CompilerTestUtil.enableExternalCompiler();
+    }
+
+    private void trySetupInWriteAction() {
+        try {
+            setUpInWriteAction();
+        } catch (Throwable e) {
+            try {
+                tearDown();
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+            throw new RuntimeException(e);
+        }
     }
 
     protected void collectAllowedRoots(List<String> roots) throws IOException {
@@ -170,16 +172,9 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
     @Override
     public void tearDown() throws Exception {
         try {
-            EdtTestUtil.runInEdtAndWait(new ThrowableRunnable<Throwable>() {
-                @Override
-                public void run() {
-                    try {
-                        CompilerTestUtil.disableExternalCompiler(myProject);
-                        tearDownFixtures();
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }
+            EdtTestUtil.runInEdtAndWait((ThrowableRunnable<Throwable>) () -> {
+                CompilerTestUtil.disableExternalCompiler(myProject);
+                tearDownFixtures();
             });
             myProject = null;
             if (!FileUtil.delete(myTestDir) && myTestDir.exists()) {
@@ -187,6 +182,8 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
                 //printDirectoryContent(myDir);
                 myTestDir.deleteOnExit();
             }
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
         } finally {
             super.tearDown();
             resetClassFields(getClass());
@@ -234,17 +231,12 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
     }
 
     @Override
-    protected void runTest() throws Throwable {
+    protected void runTestRunnable(@NotNull ThrowableRunnable<Throwable> testRunnable) throws Throwable {
         try {
             if (runInWriteAction()) {
-                new WriteAction() {
-                    @Override
-                    protected void run(@NotNull Result result) throws Throwable {
-                        ExternalSystemTestCase.super.runTest();
-                    }
-                }.executeSilently().throwException();
+                WriteAction.run(() -> ExternalSystemTestCase.super.runTestRunnable(testRunnable));
             } else {
-                ExternalSystemTestCase.super.runTest();
+                ExternalSystemTestCase.super.runTestRunnable(testRunnable);
             }
         } catch (Exception throwable) {
             Throwable each = throwable;
@@ -257,11 +249,7 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
             while ((each = each.getCause()) != null);
             throw throwable;
         }
-    }
 
-    @Override
-    protected void invokeTestRunnable(@NotNull Runnable runnable) throws Exception {
-        runnable.run();
     }
 
     protected boolean runInWriteAction() {
@@ -469,14 +457,11 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
     }
 
     protected Module getModule(final String name) {
-        AccessToken accessToken = ApplicationManager.getApplication().acquireReadActionLock();
-        try {
+        return ReadAction.compute(() -> {
             Module m = ModuleManager.getInstance(myProject).findModuleByName(name);
             assertNotNull("Module " + name + " not found", m);
             return m;
-        } finally {
-            accessToken.finish();
-        }
+        });
     }
 
     protected void assertExplodedLayout(String artifactName, String expected) {

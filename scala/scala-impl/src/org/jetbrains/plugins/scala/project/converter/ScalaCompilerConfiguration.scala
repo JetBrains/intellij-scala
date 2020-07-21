@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.project.converter
 
-import java.io.File
+import java.nio.file.Path
 
 import com.google.common.io.Files
 import com.intellij.conversion.{CannotConvertException, ConversionContext}
@@ -12,7 +12,7 @@ import scala.xml.Elem
  * @author Pavel Fatin
  */
 class ScalaCompilerConfiguration(defaultSettings: ScalaCompilerSettings, profiles: Seq[ScalaCompilerSettingsProfile]) extends XmlConversion {
-  def createIn(context: ConversionContext): Option[File] = {
+  def createIn(context: ConversionContext): Option[Path] = {
     val optionsElement = createOptionsElement()
 
     context.getStorageScheme match {
@@ -24,14 +24,14 @@ class ScalaCompilerConfiguration(defaultSettings: ScalaCompilerSettings, profile
     }
   }
 
-  private def addDirectoryBasedOptions(options: Elem, context: ConversionContext): File = {
+  private def addDirectoryBasedOptions(options: Elem, context: ConversionContext): Path = {
     val base = Option(context.getSettingsBaseDir)
             .getOrElse(throw new CannotConvertException("Only directory-based IDEA projects are supported"))
 
-    val file = new File(base, "scala_compiler.xml")
+    val file = base.resolve("scala_compiler.xml").toFile
     val componentElement = <project version="4"> {options} </project>
     Files.write(formatXml(componentElement).getBytes, file)
-    file
+    file.toPath
   }
 
   private def addProjectBasedOptions(options: Elem, context: ConversionContext): Unit = {

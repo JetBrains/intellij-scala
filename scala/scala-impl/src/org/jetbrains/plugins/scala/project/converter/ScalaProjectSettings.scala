@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.project.converter
 
-import java.io.File
+import java.nio.file.Path
 
 import com.google.common.io.Files
 import com.intellij.conversion.{CannotConvertException, ConversionContext}
@@ -14,7 +14,7 @@ import scala.xml.Elem
  * @author Pavel Fatin
  */
 class ScalaProjectSettings(basePackages: Seq[String]) extends XmlConversion {
-  def createOrUpdateIn(context: ConversionContext): Option[File] = {
+  def createOrUpdateIn(context: ConversionContext): Option[Path] = {
     if (basePackages.isEmpty) return None
 
     val optionsElement = createOptionsElement(basePackages)
@@ -28,20 +28,20 @@ class ScalaProjectSettings(basePackages: Seq[String]) extends XmlConversion {
     }
   }
 
-  def getFilesToUpdate(context: ConversionContext): Set[File] = {
+  def getFilesToUpdate(context: ConversionContext): Set[Path] = {
     if (basePackages.isEmpty) return Set.empty
 
     context.getStorageScheme match {
       case StorageScheme.DIRECTORY_BASED =>
         val file = getDirectorySettingsFileIn(context)
-        if (file.exists()) Set(file) else Set.empty
+        if (file.toFile.exists()) Set(file) else Set.empty
       case StorageScheme.DEFAULT =>
         Set(context.getProjectFile)
     }
   }
 
-  private def addDirectoryBasedOptions(options: Elem, context: ConversionContext): Option[File] = {
-    val file = getDirectorySettingsFileIn(context)
+  private def addDirectoryBasedOptions(options: Elem, context: ConversionContext): Option[Path] = {
+    val file = getDirectorySettingsFileIn(context).toFile
 
     if (file.exists()) {
       val rootElement = parseXml(FileUtil.loadFile(file))
@@ -57,15 +57,15 @@ class ScalaProjectSettings(basePackages: Seq[String]) extends XmlConversion {
     } else {
       val componentElement = createSettingsElement(options)
       Files.write(formatXml(componentElement).getBytes, file)
-      Some(file)
+      Some(file.toPath)
     }
   }
 
-  private def getDirectorySettingsFileIn(context: ConversionContext): File = {
+  private def getDirectorySettingsFileIn(context: ConversionContext): Path = {
     val base = Option(context.getSettingsBaseDir).getOrElse(
       throw new CannotConvertException("Only directory-based IDEA projects are supported"))
 
-    new File(base, "scala_settings.xml")
+    base.resolve("scala_settings.xml")
   }
 
   private def addProjectBasedOptions(options: Elem, context: ConversionContext): Unit = {

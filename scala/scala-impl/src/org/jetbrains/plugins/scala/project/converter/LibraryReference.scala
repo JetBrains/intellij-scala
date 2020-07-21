@@ -3,6 +3,7 @@ package project.converter
 
 import java.io.File
 import java.nio.charset.Charset
+import java.nio.file.Path
 
 import com.google.common.io.Files
 import com.intellij.conversion.{ConversionContext, ModuleSettings}
@@ -50,17 +51,17 @@ private case class LibraryReference(level: Level, name: String) {
   private def rootManagerElementIn(module: ModuleSettings): Element =
     module.getComponentElement("NewModuleRootManager")
 
-  def libraryStorageFileIn(context: ConversionContext): Option[File] = {
+  def libraryStorageFileIn(context: ConversionContext): Option[Path] = {
     context.getStorageScheme match {
       case StorageScheme.DIRECTORY_BASED => directoryBasedLibraryFileIn(context)
       case StorageScheme.DEFAULT => Some(context.getProjectFile)
     }
   }
 
-  private def directoryBasedLibraryFileIn(context: ConversionContext): Option[File] = {
+  private def directoryBasedLibraryFileIn(context: ConversionContext): Option[Path] = {
     val libraryFiles = {
-      val librariesDirectory = new File(context.getSettingsBaseDir, "libraries")
-      val files = Option(librariesDirectory.listFiles).map(_.toSeq).getOrElse(Seq.empty)
+      val librariesDirectory = context.getSettingsBaseDir.resolve("libraries")
+      val files = Option(librariesDirectory.toFile.listFiles).map(_.toSeq).getOrElse(Seq.empty)
       files.filter(_.getName.endsWith(".xml"))
     }
 
@@ -68,6 +69,7 @@ private case class LibraryReference(level: Level, name: String) {
       val lines = Files.readLines(file, Charset.defaultCharset())
       lines.get(1).contains("name=\"%s\"".format(name))
     }
+    .map(_.toPath)
   }
 
   def deleteIn(context: ConversionContext): Unit = {
@@ -77,14 +79,14 @@ private case class LibraryReference(level: Level, name: String) {
     }
   }
 
-  private def deleteDirectoryBasedLibrary(context: ConversionContext): File = {
+  private def deleteDirectoryBasedLibrary(context: ConversionContext): Path = {
       val libraryFile = directoryBasedLibraryFileIn(context).getOrElse(
       throw new IllegalArgumentException(s"Cannot delete project library: $name"))
 
     // We have to resort to this workaround because IDEA's converter "restores" the file otherwise
     invokeLater {
       inWriteAction {
-        VfsUtil.findFileByIoFile(libraryFile, true).delete(this)
+        VfsUtil.findFile(libraryFile, true).delete(this)
       }
     }
 

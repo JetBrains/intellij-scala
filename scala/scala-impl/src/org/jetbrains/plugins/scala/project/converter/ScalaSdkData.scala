@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package project.converter
 
 import java.io.{File, StringReader}
+import java.nio.file.Path
 
 import com.google.common.io.Files
 import com.intellij.conversion.{CannotConvertException, ConversionContext, ModuleSettings}
@@ -26,7 +27,7 @@ private case class ScalaSdkData(name: String, standardLibrary: LibraryData, lang
     id.addTo(module)
   }
   
-  def createIn(context: ConversionContext): Option[File] = {
+  def createIn(context: ConversionContext): Option[Path] = {
     val libraryElement = createLibraryElement()
 
     context.getStorageScheme match {
@@ -38,14 +39,14 @@ private case class ScalaSdkData(name: String, standardLibrary: LibraryData, lang
     }
   }
 
-  private def addDirectoryBasedLibrary(library: Elem, context: ConversionContext): File = {
+  private def addDirectoryBasedLibrary(library: Elem, context: ConversionContext): Path = {
     val file = {
       val fileName = name.replaceAll("\\W", "_")
       suggestLibraryFile(fileName, context)
     }
     val componentElement = <component name="libraryTable"> {library} </component>
     Files.write(formatXml(componentElement).getBytes, file)
-    file
+    file.toPath
   }
 
   private def addProjectBasedLibrary(library: Elem, context: ConversionContext): Unit = {
@@ -140,7 +141,7 @@ private object ScalaSdkData {
 
     val candidates = {
       val suffixes = Iterator.single("") ++ Iterator.from(2).map("_" + _.toString)
-      suffixes.map(suffix => new File(new File(base, "libraries"), s"$name$suffix.xml"))
+      suffixes.map(suffix => base.resolve("libraries").resolve(s"$name$suffix.xml").toFile)
     }
 
     candidates.find(!_.exists).getOrElse(throw new IllegalStateException("Run out of integer numbers :)"))

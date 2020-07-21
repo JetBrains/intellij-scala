@@ -16,6 +16,7 @@ import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.{LanguageSubstitutors, PsiElement, PsiFile}
+import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.util.PathsList
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -279,7 +280,7 @@ package object project {
     def libraries: Seq[Library] =
       LibraryTablesRegistrar.getInstance.getLibraryTable(project).getLibraries.toSeq
 
-    def baseDir: VirtualFile = LocalFileSystem.getInstance().findFileByPath(project.getBasePath)
+    def baseDir: VirtualFile = PlatformTestUtil.getOrCreateProjectBaseDir(project)
 
     def isPartialUnificationEnabled: Boolean = modulesWithScala.exists(_.isPartialUnificationEnabled)
 

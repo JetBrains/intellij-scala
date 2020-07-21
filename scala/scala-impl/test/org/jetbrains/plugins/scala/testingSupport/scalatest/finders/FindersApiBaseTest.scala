@@ -10,7 +10,7 @@ trait FindersApiBaseTest extends ScalaTestTestCase {
 
   def checkSelection(lineNumber: Int, offset: Int, fileName: String, testNames: Set[String]): Unit = {
     val location = createLocation(lineNumber, offset, fileName)
-    val selection = EdtTestUtil.runInEdtAndGet[Option[Selection]] { () =>
+    val selection = EdtTestUtil.runInEdtAndGet[Option[Selection], Throwable] { () =>
       ScalaTestAstTransformer.testSelection(location)
     }.orNull
     assertNotNull(s"selection is null for $fileName:$lineNumber:$offset", selection)

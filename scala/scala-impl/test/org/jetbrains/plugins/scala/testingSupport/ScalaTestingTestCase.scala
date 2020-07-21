@@ -67,9 +67,7 @@ abstract class ScalaTestingTestCase
   override val testDataBasePrefix = "testingSupport"
 
   protected val useDynamicClassPath = false
-
-  override def invokeTestRunnable(runnable: Runnable): Unit = runnable.run()
-
+  
   override protected def runFileStructureViewTest(testClassName: String, status: Int, tests: String*): Unit = {
     val structureViewRoot = buildFileStructure(testClassName + ".scala")
     tests.foreach(assertTestNodeInFileStructure(structureViewRoot, _, None, status))
