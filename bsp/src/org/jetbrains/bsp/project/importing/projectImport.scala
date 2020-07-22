@@ -40,8 +40,25 @@ class BspProjectImportBuilder
     BspImportControlFactory,
     BSP.ProjectSystemId) {
 
+
   private[importing] var preImportConfig: PreImportConfig = AutoPreImport
   private[importing] var serverConfig: BspServerConfig = AutoConfig
+
+  /** The wizard system reuses the builder between different runs of the wizard (IDEA-246371),
+   * so we need to manually reset on every run. On this occasion, we can preconfigure any
+   * data that can be autodetected before running the wizard. */
+  def reset(): Unit = {
+    preImportConfig = AutoPreImport
+    serverConfig = AutoConfig
+  }
+
+  def autoConfigure(workspace: File): Unit = {
+
+    val configSetups = bspConfigSteps.configSetupChoices(workspace)
+    if (configSetups.size == 1)
+      bspConfigSteps.configureBuilder(this, workspace, configSetups.head)
+    else ()
+  }
 
   def applyBspSetupSettings(project: Project): Unit = {
     val bspSettings = BspUtil.bspSettings(project)
@@ -187,11 +204,15 @@ class BspProjectImportProvider(builder: BspProjectImportBuilder)
     BspProjectOpenProcessor.canOpenProject(fileOrDirectory) ||
       SbtProjectImportProvider.canImport(fileOrDirectory)
 
-  override def createSteps(context: WizardContext): Array[ModuleWizardStep] =
+  override def createSteps(context: WizardContext): Array[ModuleWizardStep] = {
+    builder.reset()
+    builder.autoConfigure(context.getProjectDirectory.toFile)
+
     Array(
       new BspSetupConfigStep(context, builder),
       new BspChooseConfigStep(context, builder)
     )
+  }
 
   override def getPathToBeImported(file: VirtualFile): String =
     ProjectImportProvider.getDefaultPath(file)

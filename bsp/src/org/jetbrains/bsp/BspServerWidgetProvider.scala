@@ -17,6 +17,7 @@ import com.intellij.ui.awt.RelativePoint
 import com.intellij.util.Consumer
 import javax.swing.{Icon, Timer}
 import org.jetbrains.bsp.protocol.BspCommunicationService
+import org.jetbrains.bsp.settings.BspProjectSettings.BspServerConfig
 
 import scala.collection.JavaConverters._
 
@@ -40,7 +41,7 @@ class BspServerWidgetProvider extends StatusBarWidgetProvider {
 
     def connectionsActive: Boolean = {
       val comService = BspCommunicationService.getInstance
-      comService.listOpenComms.exists(comService.isAlive)
+      comService.listOpenComms.exists((comService.isAlive _).tupled)
     }
 
     override def ID = "BSP Manager"
@@ -68,14 +69,14 @@ class BspServerWidgetProvider extends StatusBarWidgetProvider {
     }
 
     //noinspection ReferencePassedToNls
-    private class CloseBspSession(uri: URI) extends AnAction(uri.toString, BspBundle.message("bsp.widget.kill.bsp.connection.at.uri", uri), AllIcons.Actions.Suspend) with DumbAware {
+    private class CloseBspSession(uri: URI, config: BspServerConfig) extends AnAction(uri.toString, BspBundle.message("bsp.widget.kill.bsp.connection.at.uri", uri), AllIcons.Actions.Suspend) with DumbAware {
       override def update(e: AnActionEvent): Unit = {
-        val isAlive = BspCommunicationService.getInstance.isAlive(uri)
+        val isAlive = BspCommunicationService.getInstance.isAlive(uri, config)
         e.getPresentation.setEnabled(isAlive)
       }
 
       override def actionPerformed(e: AnActionEvent): Unit = {
-        BspCommunicationService.getInstance.closeCommunication(uri)
+        BspCommunicationService.getInstance.closeCommunication(uri, config)
       }
     }
 
@@ -93,7 +94,7 @@ class BspServerWidgetProvider extends StatusBarWidgetProvider {
     private def toggleList(e: MouseEvent): Unit = {
       val openCom = BspCommunicationService.getInstance.listOpenComms
       val connectionClosers =
-        (openCom.map(new CloseBspSession(_)).toList
+        (openCom.map(c => new CloseBspSession(c._1, c._2)).toList
           :+ new CloseAllSessions
           :+ Separator.getInstance
           ).asJava

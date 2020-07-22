@@ -40,6 +40,42 @@ object bspConfigSteps {
   private[importing] def configName(config: BspConnectionDetails) =
     s"${config.getName} ${config.getVersion}"
 
+  def configSetupChoices(workspace: File): List[ConfigSetup] = {
+    val workspaceConfigs = workspaceSetupChoices(workspace)
+    if (workspaceConfigs.size == 1) List(NoSetup)
+    else if (workspaceConfigs.nonEmpty) workspaceConfigs
+    else List(NoSetup)
+  }
+
+  def configureBuilder(builder: BspProjectImportBuilder, workspace: File, configSetup: ConfigSetup): BspConfigSetup = {
+    val workspaceBspConfigs = BspConnectionConfig.workspaceBspConfigs(workspace)
+    if (workspaceBspConfigs.size == 1) {
+      builder.setPreImportConfig(NoPreImport)
+      builder.setServerConfig(BspConfigFile(workspaceBspConfigs.head._1.toPath))
+      new NoConfigSetup
+    } else configSetup match {
+        case bspConfigSteps.NoSetup =>
+          builder.setPreImportConfig(AutoPreImport)
+          builder.setServerConfig(AutoConfig)
+          new NoConfigSetup
+        case bspConfigSteps.BloopSetup =>
+          builder.setPreImportConfig(NoPreImport)
+          builder.setServerConfig(BloopConfig)
+          new NoConfigSetup
+        case bspConfigSteps.BloopSbtSetup =>
+          builder.setPreImportConfig(BloopSbtPreImport)
+          builder.setServerConfig(BloopConfig)
+          new NoConfigSetup
+        case bspConfigSteps.SbtSetup =>
+          builder.setPreImportConfig(NoPreImport)
+          // server config to be set in next step
+          SbtConfigSetup(workspace)
+        case bspConfigSteps.MillSetup =>
+          builder.setPreImportConfig(NoPreImport)
+          MillConfigSetup(workspace)
+      }
+  }
+
   def workspaceSetupChoices(workspace: File): List[ConfigSetup] = {
 
     val vfile = LocalFileSystem.getInstance().findFileByIoFile(workspace)
@@ -69,14 +105,17 @@ object bspConfigSteps {
 
 class BspSetupConfigStep(context: WizardContext, builder: BspProjectImportBuilder)
   extends ModuleWizardStep {
+
+  private var runSetupTask: BspConfigSetup = new NoConfigSetup
+
   private val workspace = context.getProjectDirectory.toFile
 
-  private val bspConfigs = BspConnectionConfig.allBspConfigs(workspace)
-  private lazy val workspaceConfigs: List[ConfigSetup] = workspaceSetupChoices(workspace)
+  private val workspaceBspConfigs = BspConnectionConfig.workspaceBspConfigs(workspace)
+  private lazy val workspaceSetupConfigs: List[ConfigSetup] = workspaceSetupChoices(workspace)
 
   private val configSetupChoices = {
-    if (bspConfigs.size == 1) List(NoSetup)
-    else if (workspaceConfigs.nonEmpty) workspaceConfigs
+    if (workspaceBspConfigs.size == 1) List(NoSetup)
+    else if (workspaceSetupConfigs.nonEmpty) workspaceSetupConfigs
     else List(NoSetup)
   }
 
@@ -92,7 +131,7 @@ class BspSetupConfigStep(context: WizardContext, builder: BspProjectImportBuilde
   override def getComponent: JComponent = myComponent
 
   override def validate(): Boolean = {
-    bspConfigs.nonEmpty ||
+    workspaceBspConfigs.nonEmpty ||
       configSetupChoices.size == 1 ||
       chooseBspSetup.getSelectedIndex >= 0
   }
@@ -110,36 +149,20 @@ class BspSetupConfigStep(context: WizardContext, builder: BspProjectImportBuilde
       if (configSetupChoices.size == 1) 0
       else chooseBspSetup.getSelectedIndex
 
-    val setup = configSetupChoices(configIndex) match {
-      case bspConfigSteps.NoSetup =>
-        builder.setPreImportConfig(AutoPreImport)
-        builder.setServerConfig(AutoConfig)
-        new NoConfigSetup
-      case bspConfigSteps.BloopSetup =>
-        builder.setPreImportConfig(NoPreImport)
-        builder.setServerConfig(BloopConfig)
-        new NoConfigSetup
-      case bspConfigSteps.BloopSbtSetup =>
-        builder.setPreImportConfig(BloopSbtPreImport)
-        builder.setServerConfig(BloopConfig)
-        new NoConfigSetup
-      case bspConfigSteps.SbtSetup =>
-        builder.setPreImportConfig(NoPreImport)
-        // server config to be set in next step
-        SbtConfigSetup(workspace)
-      case bspConfigSteps.MillSetup =>
-        builder.setPreImportConfig(NoPreImport)
-        MillConfigSetup(workspace)
-    }
-    // TODO show a spinner or something
-    val task = new ConfigSetupTask(setup)
-    task.queue()
-
+    runSetupTask = configureBuilder(builder, workspace, configSetupChoices(configIndex))
   }
 
   override def isStepVisible: Boolean = {
-    // TODO visible only if user choice required.
-    super.isStepVisible
+    builder.preImportConfig == AutoPreImport &&
+      configSetupChoices.size > 1 &&
+      workspaceBspConfigs.isEmpty
+  }
+
+  override def onWizardFinished(): Unit = {
+    // TODO this spawns an indicator window which is not nice.
+    // show a live log in the window or something?
+    val task = new ConfigSetupTask(runSetupTask)
+    task.queue()
   }
 
 }
@@ -173,7 +196,6 @@ class BspChooseConfigStep(context: WizardContext, builder: BspProjectImportBuild
   chooseBspConfig.setModel(chooseBspSetupModel)
   chooseBspConfig.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
 
-
   override def getComponent: JComponent = myComponent
 
   override def validate(): Boolean = {
@@ -204,5 +226,19 @@ class BspChooseConfigStep(context: WizardContext, builder: BspProjectImportBuild
       val config = BspConfigFile(file.toPath)
       builder.setServerConfig(config)
     }
+  }
+
+  override def onWizardFinished(): Unit = {
+    updateStep()
+    if (builder.serverConfig == AutoConfig && chooseBspConfig.getItemsCount == 1) {
+      val (file,_) = bspConfigs.head
+      val config = BspConfigFile(file.toPath)
+      builder.setServerConfig(config)
+    }
+  }
+
+  override def isStepVisible: Boolean = {
+    updateStep()
+    builder.serverConfig == AutoConfig && chooseBspConfig.getItemsCount > 1
   }
 }
