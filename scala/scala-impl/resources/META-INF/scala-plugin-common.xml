@@ -988,6 +988,11 @@
                          groupPath="Scala" groupName="General"
                          shortName="DeprecatedViewBound" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.modifiers.RedundantFinalOnToplevelObjectInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="final.modifier.is.redundant.for.toplevel.objects"
+                         groupPath="Scala" groupName="General" shortName="RedundantFinalOnToplevelObject"
+                         level="WARNING" enabledByDefault="true" language="Scala"/>
         <!--suppress PluginXmlCapitalization -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection"
                          bundle="messages.ScalaInspectionBundle"
