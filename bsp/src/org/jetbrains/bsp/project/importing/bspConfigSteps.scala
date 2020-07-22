@@ -8,16 +8,17 @@ import com.intellij.ide.util.projectWizard.{ModuleWizardStep, WizardContext}
 import com.intellij.openapi.progress.{ProgressIndicator, Task}
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.ui.TitledSeparator
-import com.intellij.ui.components.{JBLabel, JBList}
-import com.intellij.uiDesigner.core
+import com.intellij.ui.components.JBList
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
+import com.intellij.util.ui.UI
 import javax.swing.{DefaultListModel, JComponent, JPanel, ListSelectionModel}
-import org.jetbrains.bsp.BspUtil
+import org.jetbrains.annotations.Nls
+import org.jetbrains.bsp.{BspBundle, BspUtil}
 import org.jetbrains.bsp.project.importing.BspSetupConfigStep.ConfigSetupTask
-import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, MillConfigSetup, NoConfigSetup, SbtConfigSetup}
 import org.jetbrains.bsp.project.importing.bspConfigSteps._
+import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, MillConfigSetup, NoConfigSetup, SbtConfigSetup}
 import org.jetbrains.bsp.protocol.BspConnectionConfig
-import org.jetbrains.bsp.settings.BspProjectSettings.{AutoConfig, AutoPreImport, BloopConfig, BloopSbtPreImport, BspConfigFile, NoPreImport}
+import org.jetbrains.bsp.settings.BspProjectSettings._
 import org.jetbrains.plugins.scala.build.IndicatorReporter
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil._
@@ -33,15 +34,43 @@ object bspConfigSteps {
   case object MillSetup extends ConfigSetup
 
   private[importing] def configChoiceName(configs: ConfigSetup) = configs match {
-    case NoSetup => "do net setup BSP configuration"
-    case SbtSetup => "create sbt configuration"
-    case BloopSetup => "use existing Bloop configuration"
-    case BloopSbtSetup => "use sbt with Bloop"
-    case MillSetup => "create Mill configuration"
+    case NoSetup => BspBundle.message("bsp.config.steps.choice.no.setup")
+    case SbtSetup => BspBundle.message("bsp.config.steps.choice.sbt")
+    case BloopSetup => BspBundle.message("bsp.config.steps.choice.bloop")
+    case BloopSbtSetup => BspBundle.message("bsp.config.steps.choice.sbt.with.bloop")
+    case MillSetup => BspBundle.message("bsp.config.steps.choice.mill")
   }
 
   private[importing] def configName(config: BspConnectionDetails) =
     s"${config.getName} ${config.getVersion}"
+
+  private[importing] def withTooltip(component: JComponent, @Nls tooltip: String) =
+    UI.PanelFactory.panel(component).withTooltip(tooltip).createPanel()
+
+  private[importing] def addTitledList(parent: JComponent, title: JComponent, list: JBList[String]): Unit = {
+    val manager = new GridLayoutManager(3,1)
+    manager.setSameSizeVertically(false)
+    parent.setLayout(manager)
+
+    val titleConstraints = new GridConstraints()
+    titleConstraints.setRow(0)
+    titleConstraints.setFill(GridConstraints.FILL_HORIZONTAL)
+    parent.add(title, titleConstraints)
+
+    val listConstraints = new GridConstraints()
+    listConstraints.setRow(1)
+    listConstraints.setFill(GridConstraints.FILL_BOTH)
+    listConstraints.setIndent(1)
+    parent.add(list, listConstraints)
+
+    list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
+
+    val spacer = new Spacer()
+    val spacerConstraints = new GridConstraints()
+    spacerConstraints.setRow(2)
+    spacerConstraints.setVSizePolicy(GridConstraints.SIZEPOLICY_WANT_GROW | GridConstraints.SIZEPOLICY_CAN_GROW)
+    parent.add(spacer, spacerConstraints)
+  }
 
   def configSetupChoices(workspace: File): List[ConfigSetup] = {
     val workspaceConfigs = workspaceSetupChoices(workspace)
@@ -126,26 +155,9 @@ class BspSetupConfigStep(context: WizardContext, builder: BspProjectImportBuilde
   private val chooseBspSetup = new JBList[String](chooseBspSetupModel)
 
   {
-    val manager = new GridLayoutManager(3,1)
-    manager.setSameSizeVertically(false)
-    myComponent.setLayout(manager)
-    val chooseSetupTitle = new TitledSeparator("choose bsp config")
-    val titleConstraints = new GridConstraints()
-    titleConstraints.setRow(0)
-    titleConstraints.setFill(GridConstraints.FILL_HORIZONTAL)
-    myComponent.add(chooseSetupTitle, titleConstraints)
-    val listConstraints = new GridConstraints()
-    listConstraints.setRow(1)
-    listConstraints.setFill(GridConstraints.FILL_BOTH)
-    listConstraints.setIndent(1)
-    myComponent.add(chooseBspSetup, listConstraints)
-    chooseBspSetup.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
-
-    val spacer = new Spacer()
-    val spacerConstraints = new GridConstraints()
-    spacerConstraints.setRow(2)
-    spacerConstraints.setVSizePolicy(GridConstraints.SIZEPOLICY_WANT_GROW | GridConstraints.SIZEPOLICY_CAN_GROW)
-    myComponent.add(spacer, spacerConstraints)
+    val chooseSetupTitle = new TitledSeparator(BspBundle.message("bsp.config.steps.setup.config.choose.tool"))
+    val titleWithTip = withTooltip(chooseSetupTitle, BspBundle.message("bsp.config.steps.setup.config.choose.tool.tooltip"))
+    addTitledList(myComponent, titleWithTip, chooseBspSetup)
   }
 
   override def getComponent: JComponent = myComponent
@@ -160,9 +172,10 @@ class BspSetupConfigStep(context: WizardContext, builder: BspProjectImportBuilde
 
   override def updateStep(): Unit = {
     chooseBspSetupModel.clear()
+    val recommendedSuffix = BspBundle.message("bsp.config.steps.choose.config.recommended.suffix")
     val choiceStrings = configSetupChoices
       .map(configChoiceName) match {
-      case h :: t => h + " (recommended)" :: t
+      case h :: t => s"$h ($recommendedSuffix)" :: t
       case Nil => Nil
     }
     choiceStrings.foreach(choice => chooseBspSetupModel.addElement(choice))
@@ -195,7 +208,7 @@ class BspSetupConfigStep(context: WizardContext, builder: BspProjectImportBuilde
 object BspSetupConfigStep {
 
   private class ConfigSetupTask(setup: BspConfigSetup)
-    extends Task.Modal(null, "Setting up BSP configuration", true) {
+    extends Task.Modal(null, BspBundle.message("bsp.config.steps.setup.config.task.title"), true) {
 
     override def run(indicator: ProgressIndicator): Unit = {
       val reporter = new IndicatorReporter(indicator)
@@ -214,33 +227,14 @@ class BspChooseConfigStep(context: WizardContext, builder: BspProjectImportBuild
   private val myComponent = new JPanel(new BorderLayout)
   private val chooseBspConfig = new JBList[String]()
   private val chooseBspSetupModel = new DefaultListModel[String]
+  chooseBspConfig.setModel(chooseBspSetupModel)
 
   private def bspConfigs = BspConnectionConfig.allBspConfigs(context.getProjectDirectory.toFile)
 
   {
-    chooseBspConfig.setModel(chooseBspSetupModel)
-    chooseBspConfig.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
-
-    val manager = new GridLayoutManager(3,1)
-    manager.setSameSizeVertically(false)
-    myComponent.setLayout(manager)
-    val chooseSetupTitle = new TitledSeparator("choose bsp config")
-    val titleConstraints = new GridConstraints()
-    titleConstraints.setRow(0)
-    titleConstraints.setFill(GridConstraints.FILL_HORIZONTAL)
-    myComponent.add(chooseSetupTitle, titleConstraints)
-    val listConstraints = new GridConstraints()
-    listConstraints.setRow(1)
-    listConstraints.setFill(GridConstraints.FILL_BOTH)
-    listConstraints.setIndent(1)
-    myComponent.add(chooseBspConfig, listConstraints)
-    chooseBspConfig.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
-
-    val spacer = new Spacer()
-    val spacerConstraints = new GridConstraints()
-    spacerConstraints.setRow(2)
-    spacerConstraints.setVSizePolicy(GridConstraints.SIZEPOLICY_WANT_GROW | GridConstraints.SIZEPOLICY_CAN_GROW)
-    myComponent.add(spacer, spacerConstraints)
+    val chooseSetupTitle = new TitledSeparator(BspBundle.message("bsp.config.steps.choose.config.title"))
+    val titleWithTip = withTooltip(chooseSetupTitle, BspBundle.message("bsp.config.steps.choose.config.title.tooltip"))
+    addTitledList(myComponent, titleWithTip, chooseBspConfig)
   }
 
   override def getComponent: JComponent = myComponent
