@@ -624,19 +624,23 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     fileText =
       s"""sealed trait Foo
          |
+         |case object Bar extends Foo
+         |
          |object Foo {
          |  def foo(foo: Foo): Unit = {}
          |
-         |  (_: Foo).f$CARET
+         |  Bar.f$CARET
          |}
          |""".stripMargin,
     resultText =
       s"""sealed trait Foo
          |
+         |case object Bar extends Foo
+         |
          |object Foo {
          |  def foo(foo: Foo): Unit = {}
          |
-         |  foo((_: Foo))$CARET
+         |  foo(Bar)$CARET
          |}
          |""".stripMargin,
     item = "foo"
