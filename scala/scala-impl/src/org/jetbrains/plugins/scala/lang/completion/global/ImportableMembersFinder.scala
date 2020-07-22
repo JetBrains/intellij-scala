@@ -4,7 +4,6 @@ package completion
 package global
 
 import com.intellij.psi._
-import com.intellij.util.ThreeState
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaImportingInsertHandler
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, isStatic}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
@@ -61,7 +60,7 @@ trait ImportableMembersFinder {
       Some(classToImport)
     )
 
-    override protected def createInsertHandler(shouldImport: ThreeState): ScalaImportingInsertHandler with GlobalMemberInsertHandler =
+    override protected def createInsertHandler(state: NameAvailabilityState): ScalaImportingInsertHandler with GlobalMemberInsertHandler =
       new ScalaImportingInsertHandler(classToImport)
         with GlobalMemberInsertHandler {
 

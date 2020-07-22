@@ -5,7 +5,6 @@ package global
 
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, PsiNamedElement}
-import com.intellij.util.ThreeState
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaImportingInsertHandler
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
@@ -74,7 +73,7 @@ private[completion] final class LocallyImportableMembersFinder(override protecte
                                                          containingClass: Option[PsiClass])
     extends ImportableMemberResult(resolveResult, classToImport, containingClass) {
 
-    import ThreeState._
+    import NameAvailabilityState._
 
     def this(elementToImport: PsiNamedElement,
              classToImport: PsiClass) = this(
@@ -84,15 +83,15 @@ private[completion] final class LocallyImportableMembersFinder(override protecte
     )
 
     override protected def buildItem(lookupItem: ScalaLookupItem,
-                                     shouldImport: ThreeState): LookupElement = shouldImport match {
-      case NO => null
-      case YES => super.buildItem(lookupItem, YES)
-      case UNSURE => super.buildItem(lookupItem, NO)
+                                     state: NameAvailabilityState): LookupElement = state match {
+      case AVAILABLE => null
+      case CONFLICT => super.buildItem(lookupItem, CONFLICT)
+      case NO_CONFLICT => super.buildItem(lookupItem, AVAILABLE)
     }
 
-    override protected def createInsertHandler(shouldImport: ThreeState): ScalaImportingInsertHandler with GlobalMemberInsertHandler =
-      shouldImport match {
-        case NO =>
+    override protected def createInsertHandler(state: NameAvailabilityState): ScalaImportingInsertHandler with GlobalMemberInsertHandler =
+      state match {
+        case AVAILABLE =>
           new ScalaImportingInsertHandler.WithBinding(
             resolveResult.getElement,
             classToImport
@@ -106,7 +105,7 @@ private[completion] final class LocallyImportableMembersFinder(override protecte
               super.qualifyAndImport(reference)
             }
           }
-        case _ => super.createInsertHandler(shouldImport)
+        case _ => super.createInsertHandler(state)
       }
   }
 
