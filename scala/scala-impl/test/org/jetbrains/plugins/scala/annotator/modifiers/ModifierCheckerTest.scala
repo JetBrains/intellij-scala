@@ -10,12 +10,6 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
 class ModifierCheckerTest extends SimpleTestCase {
-  def testToplevelObject(): Unit = {
-    assertMatches(messages("final object A")) {
-      case List(Warning(_,RedundantFinal())) =>
-    }
-  }
-
   def testInnerObject(): Unit = {
     assertMatches(messages("object A { final object B }")) {
       case Nil => // SCL-10420

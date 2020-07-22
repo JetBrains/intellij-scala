@@ -118,16 +118,7 @@ private[annotator] object ModifierChecker {
                       Final
                     )
                   case _: ScClass => checkDuplicates(modifierPsi, Final)
-                  case e: ScObject =>
-                    if (checkDuplicates(modifierPsi, Final) && e.isTopLevel) {
-                      registerQuickFix(
-                        ScalaBundle.message("final.modifier.is.redundant.with.object"),
-                        modifierPsi,
-                        owner,
-                        Final,
-                        WARNING
-                      )
-                    }
+                  case _: ScObject => checkDuplicates(modifierPsi, Final)
                   case e: ScMember if e.getParent.isInstanceOf[ScTemplateBody] || e.getParent.isInstanceOf[ScEarlyDefinitions] =>
                     val redundant = (e.containingClass, e) match {
                       case (_, valMember: ScPatternDefinition) if valMember.typeElement.isEmpty &&
