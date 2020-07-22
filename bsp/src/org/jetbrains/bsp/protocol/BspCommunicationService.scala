@@ -32,7 +32,7 @@ class BspCommunicationService extends Disposable {
   private val timeout = 10.minutes
   private val cleanerPause = 10.seconds
 
-  private val comms = mutable.Map[URI, BspCommunication]()
+  private val comms = mutable.Map[(URI, BspServerConfig), BspCommunication]()
 
   private val executorService = AppExecutorUtil.getAppScheduledExecutorService
 
@@ -49,7 +49,7 @@ class BspCommunicationService extends Disposable {
 
   private[protocol] def communicate(base: File, config: BspServerConfig): BspCommunication =
     comms.getOrElseUpdate(
-      base.getCanonicalFile.toURI,
+      (base.getCanonicalFile.toURI, config),
       {
         val comm = new BspCommunication(base, config)
         Disposer.register(this, comm)
@@ -57,14 +57,14 @@ class BspCommunicationService extends Disposable {
       }
     )
 
-  def listOpenComms: Iterable[URI] = comms.keys
+  def listOpenComms: Iterable[(URI, BspServerConfig)] = comms.keys
 
-  def isAlive(base: URI): Boolean =
-    comms.get(base).exists(_.alive)
+  def isAlive(base: URI, config: BspServerConfig): Boolean =
+    comms.get((base,config)).exists(_.alive)
 
   /** Close BSP connection if there is an open one associated with `base`. */
-  def closeCommunication(base: URI): Future[Unit] = {
-    val tryComm = comms.get(base)
+  def closeCommunication(base: URI, config: BspServerConfig): Future[Unit] = {
+    val tryComm = comms.get(base, config)
       .toRight(new NoSuchElementException)
       .toTry
 
@@ -86,7 +86,7 @@ class BspCommunicationService extends Disposable {
     override def projectClosed(project: Project): Unit = for {
       path <- projectPath(project)
       uri = Paths.get(path).toUri
-      session <- comms.get(uri)
+      session <- comms.filterKeys(_._1 == uri).values
     } session.closeSession()
   }
 }
