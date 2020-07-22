@@ -27,12 +27,27 @@ abstract class SbtAnnotatorConformanceTestBase extends SbtAnnotatorTestBase {
 
     val isAllowed = SbtAnnotator.isTypeAllowed(
       expression,
-      expression.`type`().get,
+      expression.`type`() match {
+        case Right(value) => value
+        case Left(failure)  =>
+          throw new NoSuchElementException(
+            s"""Couldn't infer expression type
+              |expression: $expression
+              |cause: $failure""".stripMargin
+          )
+      },
       expected
     )
     assertTrue(s"$expression should conform to $expected", isAllowed)
   }
 }
+
+/**
+ * TODO: looks like org.jetbrains.plugins.scala.DependencyManagerBase works incorrectly:
+ *  transitive dependencies for sbt from [[MockSbtBase.librariesLoaders]] are not downloaded
+ *  It can be one of the reason why wo many sbt tests are flaky.
+ *  Once the above issue is fixed unmark these tests as `FlakyTests`
+ */
 
 @Category(Array(classOf[FlakyTests]))
 class SbtAnnotatorConformanceTest_0_12_4 extends SbtAnnotatorConformanceTestBase with MockSbt_0_12 {
@@ -61,7 +76,7 @@ class SbtAnnotatorConformanceTest_0_13_7 extends SbtAnnotatorConformanceTestBase
   def testSeqSettings(): Unit = testSeqSettings("sbt.internals.DslEntry")
 }
 
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[FlakyTests]))
 class SbtAnnotatorConformanceTest_latest extends SbtAnnotatorConformanceTestBase with MockSbt_1_0 {
   override implicit val sbtVersion: Version = Sbt.LatestVersion
 
