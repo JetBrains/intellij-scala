@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScMember, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 import org.jetbrains.plugins.scala.lang.psi.implicits._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -40,7 +40,7 @@ private[completion] final class ExtensionMethodsFinder(private val originalType:
   } yield ExtensionMethodCandidate(resolveResult, owner, function)
 
   override protected def findTargets: Seq[PsiElement] = valueType match {
-    case ExtractClass(definition: ScConstructorOwner) =>
+    case ExtractClass(definition: ScTypeDefinition) =>
       (definition +: definition.supers) ++
         super.findTargets
     case _ => Seq.empty
