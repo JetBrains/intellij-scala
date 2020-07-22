@@ -7,7 +7,10 @@ import ch.epfl.scala.bsp4j.BspConnectionDetails
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, WizardContext}
 import com.intellij.openapi.progress.{ProgressIndicator, Task}
 import com.intellij.openapi.vfs.LocalFileSystem
-import com.intellij.ui.components.JBList
+import com.intellij.ui.TitledSeparator
+import com.intellij.ui.components.{JBLabel, JBList}
+import com.intellij.uiDesigner.core
+import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import javax.swing.{DefaultListModel, JComponent, JPanel, ListSelectionModel}
 import org.jetbrains.bsp.BspUtil
 import org.jetbrains.bsp.project.importing.BspSetupConfigStep.ConfigSetupTask
@@ -84,7 +87,7 @@ object bspConfigSteps {
       val sbtVersion = Version(detectSbtVersion(workspace, getDefaultLauncher))
       if (sbtVersion.major(2) >= Version("1.4")) {
         // sbt >= 1.4 : user choose: bloop or sbt
-        List(BloopSbtSetup, SbtSetup)
+        List(SbtSetup, BloopSbtSetup)
       } else {
         List(BloopSbtSetup)
       }
@@ -109,7 +112,6 @@ class BspSetupConfigStep(context: WizardContext, builder: BspProjectImportBuilde
   private var runSetupTask: BspConfigSetup = new NoConfigSetup
 
   private val workspace = context.getProjectDirectory.toFile
-
   private val workspaceBspConfigs = BspConnectionConfig.workspaceBspConfigs(workspace)
   private lazy val workspaceSetupConfigs: List[ConfigSetup] = workspaceSetupChoices(workspace)
 
@@ -119,16 +121,36 @@ class BspSetupConfigStep(context: WizardContext, builder: BspProjectImportBuilde
     else List(NoSetup)
   }
 
-  private val myComponent = new JPanel(new BorderLayout)
-  private val chooseBspSetup = new JBList[String]()
+  private val myComponent = new JPanel()
   private val chooseBspSetupModel = new DefaultListModel[String]
+  private val chooseBspSetup = new JBList[String](chooseBspSetupModel)
 
-  myComponent.add(chooseBspSetup)
-  chooseBspSetup.setModel(chooseBspSetupModel)
-  chooseBspSetup.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
+  {
+    val manager = new GridLayoutManager(3,1)
+    manager.setSameSizeVertically(false)
+    myComponent.setLayout(manager)
+    val chooseSetupTitle = new TitledSeparator("choose bsp config")
+    val titleConstraints = new GridConstraints()
+    titleConstraints.setRow(0)
+    titleConstraints.setFill(GridConstraints.FILL_HORIZONTAL)
+    myComponent.add(chooseSetupTitle, titleConstraints)
+    val listConstraints = new GridConstraints()
+    listConstraints.setRow(1)
+    listConstraints.setFill(GridConstraints.FILL_BOTH)
+    listConstraints.setIndent(1)
+    myComponent.add(chooseBspSetup, listConstraints)
+    chooseBspSetup.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
 
+    val spacer = new Spacer()
+    val spacerConstraints = new GridConstraints()
+    spacerConstraints.setRow(2)
+    spacerConstraints.setVSizePolicy(GridConstraints.SIZEPOLICY_WANT_GROW | GridConstraints.SIZEPOLICY_CAN_GROW)
+    myComponent.add(spacer, spacerConstraints)
+  }
 
   override def getComponent: JComponent = myComponent
+
+  override def getPreferredFocusedComponent: JComponent = chooseBspSetup
 
   override def validate(): Boolean = {
     workspaceBspConfigs.nonEmpty ||
@@ -138,9 +160,13 @@ class BspSetupConfigStep(context: WizardContext, builder: BspProjectImportBuilde
 
   override def updateStep(): Unit = {
     chooseBspSetupModel.clear()
-    configSetupChoices
-      .map(configChoiceName)
-      .foreach(choice => chooseBspSetupModel.addElement(choice))
+    val choiceStrings = configSetupChoices
+      .map(configChoiceName) match {
+      case h :: t => h + " (recommended)" :: t
+      case Nil => Nil
+    }
+    choiceStrings.foreach(choice => chooseBspSetupModel.addElement(choice))
+    chooseBspSetup.setSelectedIndex(0)
   }
 
   override def updateDataModel(): Unit = {
@@ -185,16 +211,37 @@ object BspSetupConfigStep {
 class BspChooseConfigStep(context: WizardContext, builder: BspProjectImportBuilder)
   extends ModuleWizardStep {
 
-  private val workspace = context.getProjectDirectory.toFile
   private val myComponent = new JPanel(new BorderLayout)
   private val chooseBspConfig = new JBList[String]()
   private val chooseBspSetupModel = new DefaultListModel[String]
 
-  private def bspConfigs = BspConnectionConfig.allBspConfigs(workspace)
+  private def bspConfigs = BspConnectionConfig.allBspConfigs(context.getProjectDirectory.toFile)
 
-  myComponent.add(chooseBspConfig)
-  chooseBspConfig.setModel(chooseBspSetupModel)
-  chooseBspConfig.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
+  {
+    chooseBspConfig.setModel(chooseBspSetupModel)
+    chooseBspConfig.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
+
+    val manager = new GridLayoutManager(3,1)
+    manager.setSameSizeVertically(false)
+    myComponent.setLayout(manager)
+    val chooseSetupTitle = new TitledSeparator("choose bsp config")
+    val titleConstraints = new GridConstraints()
+    titleConstraints.setRow(0)
+    titleConstraints.setFill(GridConstraints.FILL_HORIZONTAL)
+    myComponent.add(chooseSetupTitle, titleConstraints)
+    val listConstraints = new GridConstraints()
+    listConstraints.setRow(1)
+    listConstraints.setFill(GridConstraints.FILL_BOTH)
+    listConstraints.setIndent(1)
+    myComponent.add(chooseBspConfig, listConstraints)
+    chooseBspConfig.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
+
+    val spacer = new Spacer()
+    val spacerConstraints = new GridConstraints()
+    spacerConstraints.setRow(2)
+    spacerConstraints.setVSizePolicy(GridConstraints.SIZEPOLICY_WANT_GROW | GridConstraints.SIZEPOLICY_CAN_GROW)
+    myComponent.add(spacer, spacerConstraints)
+  }
 
   override def getComponent: JComponent = myComponent
 
