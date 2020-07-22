@@ -4,6 +4,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.AuxiliaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -76,6 +77,12 @@ object UsageTracker {
       holder.registerValueUsed(value)
       // For use of unapply method, see SCL-3463
       resolveResult.parentElement.foreach(parent => holder.registerValueUsed(ReadValueUsed(parent)))
+
+      // For use of secondary constructors, see SCL-17662
+      resolveResult.element match {
+        case AuxiliaryConstructor(constr) => holder.registerValueUsed(ReadValueUsed(constr))
+        case _ =>
+      }
     }
   }
 
