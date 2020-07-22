@@ -275,7 +275,7 @@ object ScalaPsiElementFactory {
                         (implicit ctx: ProjectContext): ScAnnotation = {
     val text =
       s"""@$name
-          |def foo""".stripMargin
+         |def foo""".stripMargin
     createElementFromText(text).getFirstChild.getFirstChild.asInstanceOf[ScAnnotation]
   }
 
@@ -490,7 +490,7 @@ object ScalaPsiElementFactory {
                                 (implicit ctx: ProjectContext): (PsiElement, ScTemplateParents) = {
     val text =
       s"""class a extends $superName {
-          |}""".stripMargin
+         |}""".stripMargin
     val extendsBlock = createScalaFileFromText(text).typeDefinitions.head.extendsBlock
     (extendsBlock.findFirstChildByType(kEXTENDS), extendsBlock.templateParents.get)
   }
@@ -783,6 +783,7 @@ object ScalaPsiElementFactory {
     createElementWithContext[ScStableCodeReference](text, context, child) {
       types.StableId.parse(_, parser.ScalaElementType.REFERENCE)
     }
+
   def createDocReferenceFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScStableCodeReference =
     createElementWithContext[ScDocResolvableCodeReference](text, context, child) {
       types.StableId.parse(_, parser.ScalaElementType.DOC_REFERENCE)
@@ -815,14 +816,16 @@ object ScalaPsiElementFactory {
                                                              context: PsiElement,
                                                              child: PsiElement)
                                                             (parse: builder.ScalaPsiBuilder => AnyVal)
-                                                            (implicit tag: ClassTag[E]): E =
-    createElement(text, context, checkLength = true)(parse)(context.getProject) match {
+                                                            (implicit tag: ClassTag[E]): E = {
+    implicit val project: Project = (if (context == null) child else context).getProject
+    createElement(text, context, checkLength = true)(parse) match {
       case element: E =>
         element.context = context
         element.child = child
         element
       case element => throw elementCreationException(tag.getClass.getSimpleName, text + "; actual: " + element.getText, context)
     }
+  }
 
   def createEmptyModifierList(context: PsiElement): ScModifierList =
     createElementWithContext[ScModifierList]("", context, context.getFirstChild) {
@@ -964,7 +967,7 @@ object ScalaPsiElementFactory {
                        (implicit ctx: ProjectContext): PsiElement =
     createClassWithBody(
       s"""/**@param $text
-          |*/""".stripMargin).docComment.orNull
+         |*/""".stripMargin).docComment.orNull
       .getNode.getChildren(null)(1).getChildren(null)(2).getPsi
 
   def createDocTagName(@NonNls name: String)
@@ -1061,4 +1064,5 @@ object ScalaPsiElementFactory {
       new ScalaPsiElementCreationException(s"Cannot create $kind from text: $text$contextSuffix", cause)
     }
   }
+
 }
