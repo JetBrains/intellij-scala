@@ -6,6 +6,7 @@ package toplevel
 package typedef
 
 import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
 
 /**
@@ -40,5 +41,11 @@ trait ScObject extends ScTypeDefinition
     case obj: ScObject => obj.isStatic
     case null => true
     case _ => false
+  }
+}
+
+object ScObject {
+  object withModifierList {
+    def unapply(obj: ScObject): Some[ScModifierList] = Some(obj.getModifierList)
   }
 }
