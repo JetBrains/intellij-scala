@@ -6,7 +6,6 @@ package global
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementPresentation, LookupElementRenderer}
 import com.intellij.psi.PsiElement
-import com.intellij.util.ThreeState
 import org.jetbrains.plugins.scala.autoImport.GlobalImplicitConversion
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ContainingClass}
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaImportingInsertHandler
@@ -69,7 +68,7 @@ private[completion] final class ExtensionMethodsFinder(private val originalType:
                                                     elementToImport: ScFunction)
     extends GlobalMemberResult(resolveResult, classToImport) {
 
-    override protected def createInsertHandler(shouldImport: ThreeState): ScalaImportingInsertHandler = new ScalaImportingInsertHandler(classToImport) {
+    override protected def createInsertHandler(state: NameAvailabilityState): ScalaImportingInsertHandler = new ScalaImportingInsertHandler(classToImport) {
 
       override protected def qualifyAndImport(reference: ScReferenceExpression): Unit = for {
         ContainingClass(ClassQualifiedName(_)) <- Option(elementToImport.nameContext)
@@ -87,13 +86,13 @@ private[completion] final class ExtensionMethodsFinder(private val originalType:
     extends GlobalMemberResult(resolveResult, classToImport, Some(classToImport)) {
 
     override protected def buildItem(lookupItem: ScalaLookupItem,
-                                     shouldImport: ThreeState): LookupElement =
+                                     state: NameAvailabilityState): LookupElement =
       LookupElementBuilder
         .create(resolveResult.getElement)
-        .withInsertHandler(createInsertHandler(shouldImport))
+        .withInsertHandler(createInsertHandler(state))
         .withRenderer(createRenderer(lookupItem))
 
-    override protected def createInsertHandler(shouldImport: ThreeState): InsertHandler[LookupElement] =
+    override protected def createInsertHandler(state: NameAvailabilityState): InsertHandler[LookupElement] =
       (context: InsertionContext, _: LookupElement) => {
         val reference@ScReferenceExpression.withQualifier(qualifier) = context
           .getFile

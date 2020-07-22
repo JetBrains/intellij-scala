@@ -9,7 +9,6 @@ import com.intellij.codeInsight.completion.JavaCompletionUtil.putAllMethods
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiMethod, PsiNamedElement}
-import com.intellij.util.ThreeState
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.findInheritorObjectsForOwner
@@ -66,9 +65,9 @@ private[completion] final class StaticMembersFinder(override protected val place
     ) {
 
     override protected def buildItem(lookupItem: ScalaLookupItem,
-                                     shouldImport: ThreeState): LookupElement = {
+                                     state: NameAvailabilityState): LookupElement = {
       putAllMethods(lookupItem, asList(overloadsToImport: _*))
-      super.buildItem(lookupItem, shouldImport)
+      super.buildItem(lookupItem, state)
     }
   }
 

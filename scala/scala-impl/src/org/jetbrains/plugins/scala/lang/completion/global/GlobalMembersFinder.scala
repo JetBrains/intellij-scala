@@ -8,7 +8,6 @@ import com.intellij.codeInsight.completion.{InsertHandler, JavaCompletionFeature
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.featureStatistics.FeatureUsageTracker
 import com.intellij.psi.{PsiClass, PsiMember, PsiNamedElement}
-import com.intellij.util.ThreeState
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -35,9 +34,9 @@ abstract class GlobalMembersFinder protected(protected val place: ScalaPsiElemen
       completion.isAccessible(member)(place)
 
   final def lookupItems(reference: ScReferenceExpression): Iterable[LookupElement] = {
-    val shouldImport = new ShouldImportPredicate(reference)
+    val nameAvailability = new NameAvailabilityPredicate(reference)
     candidates
-      .map(_.createLookupItem(shouldImport))
+      .map(_.createLookupItem(nameAvailability))
       .filterNot(_ == null)
   }
 
@@ -47,7 +46,7 @@ abstract class GlobalMembersFinder protected(protected val place: ScalaPsiElemen
                                               protected val classToImport: PsiClass,
                                               containingClass: Option[PsiClass] = None) {
 
-    final def createLookupItem(shouldImport: PsiNamedElement => ThreeState): LookupElement =
+    final def createLookupItem(nameAvailability: PsiNamedElement => NameAvailabilityState): LookupElement =
       if (isApplicable)
         resolveResult.getLookupElement(
           isClassName = true,
@@ -56,7 +55,7 @@ abstract class GlobalMembersFinder protected(protected val place: ScalaPsiElemen
           case Some(lookupItem) =>
             buildItem(
               lookupItem,
-              shouldImport(lookupItem.getPsiElement)
+              nameAvailability(lookupItem.getPsiElement)
             )
           case _ => null
         }
@@ -64,13 +63,13 @@ abstract class GlobalMembersFinder protected(protected val place: ScalaPsiElemen
         null
 
     protected def buildItem(lookupItem: ScalaLookupItem,
-                            shouldImport: ThreeState): LookupElement = {
-      lookupItem.shouldImport = shouldImport != ThreeState.NO
-      lookupItem.setInsertHandler(createInsertHandler(shouldImport))
+                            state: NameAvailabilityState): LookupElement = {
+      lookupItem.shouldImport = state != NameAvailabilityState.AVAILABLE
+      lookupItem.setInsertHandler(createInsertHandler(state))
       lookupItem.withBooleanUserData(JavaCompletionUtil.FORCE_SHOW_SIGNATURE_ATTR)
     }
 
-    protected def createInsertHandler(shouldImport: ThreeState): InsertHandler[LookupElement]
+    protected def createInsertHandler(state: NameAvailabilityState): InsertHandler[LookupElement]
 
     private def isApplicable: Boolean = Option(classToImport.qualifiedName).forall(isNotExcluded)
   }
@@ -78,20 +77,20 @@ abstract class GlobalMembersFinder protected(protected val place: ScalaPsiElemen
 
 object GlobalMembersFinder {
 
-  private final class ShouldImportPredicate(reference: ScReferenceExpression)
-    extends (PsiNamedElement => ThreeState) {
+  private final class NameAvailabilityPredicate(reference: ScReferenceExpression)
+    extends (PsiNamedElement => NameAvailabilityState) {
 
-    import ThreeState._
+    import NameAvailabilityState._
 
     private lazy val elements = reference
       .completionVariants()
       .toSet[ScalaLookupItem]
       .map(_.getPsiElement)
 
-    override def apply(element: PsiNamedElement): ThreeState =
-      if (elements.contains(element)) NO
-      else if (elements.exists(_.name == element.name)) YES
-      else UNSURE
+    override def apply(element: PsiNamedElement): NameAvailabilityState =
+      if (elements.contains(element)) AVAILABLE
+      else if (elements.exists(_.name == element.name)) CONFLICT
+      else NO_CONFLICT
   }
 
   private def isNotExcluded(qualifiedName: String): Boolean = {

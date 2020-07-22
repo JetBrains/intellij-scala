@@ -295,7 +295,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |  u$CARET
          |}
          |""".stripMargin,
-    item = "foo",
+    item = "update",
     invocationCount = 2
   )
 
