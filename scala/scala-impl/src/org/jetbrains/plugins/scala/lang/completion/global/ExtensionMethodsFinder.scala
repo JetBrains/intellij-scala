@@ -121,9 +121,17 @@ private[completion] final class ExtensionMethodsFinder(private val originalType:
       (_: LookupElement, presentation: LookupElementPresentation) => {
         val delegate = new LookupElementPresentation
         lookupItem.renderElement(delegate)
-
         presentation.copyFrom(delegate)
-        presentation.setTailText(null)
+
+        // todo could be improved, requires ScalaLookupItem.tailText being decomposed
+        //  see com.intellij.codeInsight.lookup.LookupElementPresentation#getTailFragments
+        val newTailText = presentation.getTailText match {
+          case null => null
+          case tailText =>
+            // contains at least one space character
+            tailText.substring(tailText.lastIndexOf(' '))
+        }
+        presentation.setTailText(newTailText)
       }
   }
 
