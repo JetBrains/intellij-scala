@@ -535,4 +535,37 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
       |}
       |""".stripMargin
   )
+
+  def test_private_auxiliary_constructor_is_not_used(): Unit = checkTextHasError(
+    s"""
+       |class Test(val s: Int) {
+       |  private def ${START}this$END() = this(3)
+       |}
+       |object Test {
+       |  def foo() = new Test(3)
+       |}
+       |""".stripMargin
+  )
+
+  // SCL-17662
+  def test_private_auxiliary_constructor_is_used_by_companion_object(): Unit = checkTextHasNoErrors(
+    s"""
+       |class Test(val s: Int) {
+       |  private def this() = this(3)
+       |}
+       |object Test {
+       |  def foo() = new Test()
+       |}
+       |""".stripMargin
+  )
+
+  // SCL-17662
+  def test_private_auxiliary_constructor_is_used_by_other_constructor(): Unit = checkTextHasNoErrors(
+    s"""
+       |class Test(val s: String, val i: Int) {
+       |  private def this(s: String) = this(s, 42)
+       |  def this(i: Int) = this(i.toString)
+       |}
+       |""".stripMargin
+  )
 }
