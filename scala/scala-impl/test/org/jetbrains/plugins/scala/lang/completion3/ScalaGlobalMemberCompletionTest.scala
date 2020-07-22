@@ -551,7 +551,10 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |""".stripMargin
   ) {
-    hasItemText(_, "foo")(typeText = "Unit")
+    hasItemText(_, "foo")(
+      tailText = " (Foo)",
+      typeText = "Unit",
+    )
   }
 
   def testCompanionObjectExtensionLikeMethod2(): Unit = checkNoBasicCompletion(
