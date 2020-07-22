@@ -16,7 +16,7 @@ import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 package object macroAnnotations {
   def incModCount(project: Project): Unit = {
     val manager = PsiManager.getInstance(project)
-    manager.getModificationTracker.asInstanceOf[PsiModificationTrackerImpl].incCounter()
+    manager.dropPsiCaches()
   }
 
   def checkTracer(name: String, totalCount: Int, actualCount: Int)(body: => Unit): Unit = {

@@ -24,7 +24,7 @@ class CachedTest extends CachedTestBase {
     Thread.sleep(1)
     val tracker = foo.getModTracker
     val oldModCount = tracker.getModificationCount
-    tracker.incCounter()
+    foo.dropCaches()
     val newModCount = tracker.getModificationCount
     assertTrue(oldModCount < newModCount)
     val secondRes: Long = foo.currentTime()
@@ -42,7 +42,7 @@ class CachedTest extends CachedTestBase {
     val firstRes = Foo.currentTime
     Thread.sleep(1)
     assertEquals(firstRes, Foo.currentTime)
-    Foo.getModTracker.incCounter()
+    Foo.dropCaches()
     assertTrue(firstRes < Foo.currentTime)
   }
 
@@ -57,7 +57,7 @@ class CachedTest extends CachedTestBase {
     assertEquals(firstRes, Foo.currentTime(0, 0))
     assertTrue(firstRes < Foo.currentTime(1, 0))
     assertTrue(firstRes < Foo.currentTime(0, 1))
-    Foo.getModTracker.incCounter()
+    Foo.dropCaches()
     val secondRes = Foo.currentTime(0, 0)
     assertTrue(firstRes < secondRes)
     Thread.sleep(1)
@@ -75,7 +75,7 @@ class CachedTest extends CachedTestBase {
     checkTracer("Foo.currentTime", totalCount = 3, actualCount = 2) {
       Foo.currentTime
       Foo.currentTime
-      Foo.getModTracker.incCounter()
+      Foo.dropCaches()
       Foo.currentTime
     }
   }
