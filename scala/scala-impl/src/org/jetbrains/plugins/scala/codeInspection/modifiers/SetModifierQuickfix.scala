@@ -15,12 +15,14 @@ class SetModifierQuickfix(_modifierListOwner: ScModifierListOwner, modifierText:
     val ml = modifierListOwner.getModifierList
     ml.setModifierProperty(modifierText, set)
 
-    val textRange = ml.getTextRange
-    CodeStyleManager.getInstance(project).reformatText(
-      modifierListOwner.getContainingFile,
-      textRange.getStartOffset,
-      textRange.getEndOffset + 1
-    )
+    if (!set) {
+      val textRange = ml.getTextRange
+      CodeStyleManager.getInstance(project).reformatText(
+        modifierListOwner.getContainingFile,
+        textRange.getStartOffset,
+        textRange.getEndOffset + 1
+      )
+    }
   }
 }
 
