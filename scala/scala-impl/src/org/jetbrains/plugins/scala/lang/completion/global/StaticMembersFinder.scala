@@ -20,42 +20,57 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 private[completion] final class StaticMembersFinder(override protected val place: ScReferenceExpression,
                                                     accessAll: Boolean)
                                                    (private val namePredicate: String => Boolean)
-  extends GlobalMembersFinder(place, accessAll)
-    with ImportableMembersFinder {
+  extends GlobalMembersFinder(place, accessAll) {
 
-  override protected def candidates: Iterable[GlobalMemberResult] = {
+  import StaticMembersFinder._
+
+  override protected[global] def candidates: Iterable[GlobalMemberResult] = {
     implicit val scope: GlobalSearchScope = place.resolveScope
     val cacheManager = ScalaShortNamesCacheManager.getInstance(place.getProject)
 
-    findFunctions(cacheManager.allFunctions(namePredicate))(findInheritorObjectsForOwner) ++
-      findProperties(cacheManager.allProperties(namePredicate))(findInheritorObjectsForOwner) ++
-      findStaticMethods(cacheManager.allMethods(namePredicate)) ++
-      findStaticFields(cacheManager.allFields(namePredicate))
+    findStableScalaFunctions(cacheManager.allFunctions(namePredicate))(findInheritorObjectsForOwner) {
+      StaticMethodResult(_, _)
+    } ++ findStableScalaProperties(cacheManager.allProperties(namePredicate))(findInheritorObjectsForOwner) {
+      StaticFieldResult(_, _)
+    } ++ findStaticJavaMembers(cacheManager.allMethods(namePredicate)) {
+      StaticMethodResult(_, _)
+    } ++ findStaticJavaMembers(cacheManager.allFields(namePredicate)) {
+      StaticFieldResult(_, _)
+    }
   }
+}
 
-  //noinspection ScalaWrongPlatformMethodsUsage
-  override protected def createMethodResult(methodToImport: PsiMethod,
-                                            classToImport: PsiClass): ImportableMemberResult = {
-    val overloadsToImport = methodToImport match {
-      case methodToImport: ScFunction =>
-        val `object` = classToImport.asInstanceOf[ScObject]
-        val name = methodToImport.name
+private object StaticMembersFinder {
 
-        `object`.allFunctionsByName(name).toArray match {
-          case Array() if methodToImport.isParameterless =>
-            // todo to be investigated
-            return StaticFieldResult(`object`.allTermsByName(name).head, classToImport)
-          case functions => functions
-        }
-      case _ => classToImport.findMethodsByName(methodToImport.getName, true)
+  object StaticMethodResult {
+
+    def apply(methodToImport: ScFunction,
+              classToImport: ScObject): GlobalMemberResult = {
+      val name = methodToImport.name
+
+      classToImport.allFunctionsByName(name).toArray match {
+        case Array() if methodToImport.isParameterless =>
+          // todo to be investigated
+          StaticFieldResult(
+            classToImport.allTermsByName(name).head,
+            classToImport
+          )
+        case overloadsToImport => StaticMethodResult(overloadsToImport, classToImport)
+      }
     }
 
-    StaticMethodResult(overloadsToImport, classToImport)
+    def apply(methodToImport: PsiMethod,
+              classToImport: PsiClass): StaticMethodResult =
+      StaticMethodResult(
+        //noinspection ScalaWrongPlatformMethodsUsage
+        classToImport.findMethodsByName(methodToImport.getName, true),
+        classToImport
+      )
   }
 
-  private final case class StaticMethodResult(overloadsToImport: Array[PsiMethod],
-                                              override val classToImport: PsiClass)
-    extends ImportableMemberResult(
+  final case class StaticMethodResult(overloadsToImport: Array[PsiMethod],
+                                      override val classToImport: PsiClass)
+    extends GlobalMemberResult(
       overloadsToImport match {
         case Array() => throw new IllegalArgumentException(s"$classToImport doesn't contain corresponding members")
         case Array(first) => first
@@ -71,11 +86,8 @@ private[completion] final class StaticMembersFinder(override protected val place
     }
   }
 
-  override protected def createFieldResult(elementToImport: PsiNamedElement,
-                                           classToImport: PsiClass): ImportableMemberResult =
-    StaticFieldResult(elementToImport, classToImport)
+  final case class StaticFieldResult(elementToImport: PsiNamedElement,
+                                     override val classToImport: PsiClass)
+    extends GlobalMemberResult(elementToImport, classToImport)
 
-  private final case class StaticFieldResult(elementToImport: PsiNamedElement,
-                                             override val classToImport: PsiClass)
-    extends ImportableMemberResult(elementToImport, classToImport)
 }
