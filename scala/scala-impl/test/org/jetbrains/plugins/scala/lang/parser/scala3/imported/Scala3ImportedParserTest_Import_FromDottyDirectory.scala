@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package scala3
-package imported
+package org.jetbrains.plugins.scala.lang.parser.scala3.imported
 
 import java.io.{File, PrintWriter}
 
@@ -34,12 +30,14 @@ object Scala3ImportedParserTest_Import_FromDottyDirectory {
     new File(succDir).mkdirs()
     new File(failDir).mkdirs()
 
-    var count = 0
     for (file <- allFilesIn(srcDir) if file.toString.toLowerCase.endsWith(".scala")) {
       val target = failDir + file.toString.substring(srcDir.length).replace(".scala", "++++test")
       val content = {
         val src = Source.fromFile(file)
-        try src.mkString finally src.close()
+        try {
+          val content = src.mkString
+          content.replaceAll("[-]{5,}", "+") // <- some test files have comment lines with dashes which confuse junit
+        } finally src.close()
       }
 
       val targetFile = new File(target)
