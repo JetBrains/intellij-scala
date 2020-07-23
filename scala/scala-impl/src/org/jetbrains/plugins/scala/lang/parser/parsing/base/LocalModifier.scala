@@ -24,6 +24,7 @@ object LocalModifier extends ParsingRule {
   private val localSoftModifierTexts = Array(
     ScalaTokenType.InlineKeyword,
     ScalaTokenType.TransparentKeyword,
+    ScalaTokenType.OpenKeyword
   ).map(_.text)
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
