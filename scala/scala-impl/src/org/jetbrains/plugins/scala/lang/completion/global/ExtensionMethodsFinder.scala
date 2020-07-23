@@ -5,17 +5,14 @@ package global
 
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementPresentation, LookupElementRenderer}
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.autoImport.GlobalImplicitConversion
-import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ContainingClass}
-import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaImportingInsertHandler
+import org.jetbrains.plugins.scala.extensions.TraversableExt
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
-import org.jetbrains.plugins.scala.lang.psi.implicits._
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitConversionData
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -24,29 +21,30 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 private[completion] final class ExtensionMethodsFinder(private val originalType: ScType,
                                                        override protected val place: ScExpression,
                                                        override protected val accessAll: Boolean)
-  extends GlobalMembersFinder(place, accessAll)
-    with CompanionObjectMembersFinder[ScFunction] {
+  extends GlobalMembersFinder(place, accessAll) {
+
+  import ExtensionMethodsFinder._
 
   private val valueType = toValueType(originalType)
 
-  override protected def candidates: Iterable[GlobalMemberResult] =
-    super.candidates ++
-      (if (accessAll) globalCandidates(new ApplicabilityPredicate) else Iterable.empty)
+  override protected[global] def candidates: Iterable[GlobalMemberResult] =
+    localCandidates ++
+      (if (accessAll) globalCandidates(ApplicabilityPredicate) else Iterable.empty)
 
   private def globalCandidates(predicate: ScalaResolveResult => Boolean) = for {
-    (GlobalImplicitConversion(owner: ScObject, _, function), application) <- ImplicitConversionData.getPossibleConversions(place)
+    (GlobalImplicitConversion(classToImport: ScObject, _, elementToImport), application) <- ImplicitConversionData.getPossibleConversions(place)
     resolveResult <- candidatesForType(application.resultType)
     if predicate(resolveResult)
-  } yield ExtensionMethodCandidate(resolveResult, owner, function)
+  } yield ExtensionMethodCandidate(resolveResult, classToImport, elementToImport)
 
-  override protected def findTargets: Seq[PsiElement] = valueType match {
+  private def targetTypeDefinitions: Seq[ScTypeDefinition] = valueType match {
     case ExtractClass(definition: ScTypeDefinition) =>
-      (definition +: definition.supers) ++
-        super.findTargets
+      (definition +: definition.supers.filterByType[ScTypeDefinition]) ++
+        contextsOfType[ScTypeDefinition]
     case _ => Seq.empty
   }
 
-  override protected def namedElementsIn(member: ScMember): Seq[ScFunction] = member match {
+  private def localCandidates = objectCandidates(targetTypeDefinitions) {
     case function: ScFunction =>
       function.parameters match {
         case Seq(head) if head.getRealParameterType.exists(valueType.conforms) =>
@@ -54,41 +52,41 @@ private[completion] final class ExtensionMethodsFinder(private val originalType:
         case _ => Seq.empty
       }
     case _ => Seq.empty
-  }
-
-  override protected def createResult(resolveResult: ScalaResolveResult,
-                                      classToImport: ScObject): GlobalMemberResult =
-    ExtensionLikeCandidate(resolveResult, classToImport)
+  }(ExtensionLikeCandidate)
 
   private def candidatesForType(`type`: ScType) =
     CompletionProcessor.variants(`type`, place)
 
-  private final case class ExtensionMethodCandidate(override val resolveResult: ScalaResolveResult,
-                                                    override val classToImport: ScObject,
-                                                    elementToImport: ScFunction)
-    extends GlobalMemberResult(resolveResult, classToImport) {
+  private object ApplicabilityPredicate extends (ScalaResolveResult => Boolean) {
 
-    override protected def createInsertHandler(state: NameAvailabilityState): ScalaImportingInsertHandler = new ScalaImportingInsertHandler(classToImport) {
+    private lazy val originalTypeMemberNames = candidatesForType(originalType)
+      .map(_.name)
 
-      override protected def qualifyAndImport(reference: ScReferenceExpression): Unit = for {
-        ContainingClass(ClassQualifiedName(_)) <- Option(elementToImport.nameContext)
-        holder = ScImportsHolder(reference)
-      } holder.addImportForPsiNamedElement(
-        elementToImport,
-        null,
-        Some(containingClass)
-      )
-    }
+    override def apply(resolveResult: ScalaResolveResult): Boolean =
+      !originalTypeMemberNames.contains(resolveResult.name)
   }
 
-  private final case class ExtensionLikeCandidate(override val resolveResult: ScalaResolveResult,
-                                                  override val classToImport: ScObject)
-    extends GlobalMemberResult(resolveResult, classToImport, Some(classToImport)) {
+}
+
+private object ExtensionMethodsFinder {
+
+  final case class ExtensionMethodCandidate(override val resolveResult: ScalaResolveResult,
+                                            override val classToImport: ScObject,
+                                            elementToImport: ScFunction)
+    extends GlobalMemberResult(resolveResult, classToImport) {
+
+    override protected def createInsertHandler(state: NameAvailabilityState): InsertHandler[LookupElement] =
+      createGlobalMemberInsertHandler(elementToImport, classToImport)
+  }
+
+  final case class ExtensionLikeCandidate(elementToImport: ScFunction,
+                                          override val classToImport: ScObject)
+    extends GlobalMemberResult(elementToImport, classToImport) {
 
     override protected def buildItem(lookupItem: ScalaLookupItem,
                                      state: NameAvailabilityState): LookupElement =
       LookupElementBuilder
-        .create(resolveResult.getElement)
+        .create(elementToImport)
         .withInsertHandler(createInsertHandler(state))
         .withRenderer(createRenderer(lookupItem))
 
@@ -98,10 +96,8 @@ private[completion] final class ExtensionMethodsFinder(private val originalType:
           .getFile
           .findReferenceAt(context.getStartOffset)
 
-        val ScalaResolveResult(function: ScFunction, _) = resolveResult
-
         val replacement = createExpressionWithContextFromText(
-          function.name + "(" + qualifier.getText + ")",
+          elementToImport.name + "(" + qualifier.getText + ")",
           reference.getContext,
           reference
         )
@@ -112,7 +108,7 @@ private[completion] final class ExtensionMethodsFinder(private val originalType:
         )
 
         methodReference.bindToElement(
-          function,
+          elementToImport,
           Some(classToImport)
         )
       }
@@ -133,15 +129,6 @@ private[completion] final class ExtensionMethodsFinder(private val originalType:
         }
         presentation.setTailText(newTailText)
       }
-  }
-
-  private class ApplicabilityPredicate extends (ScalaResolveResult => Boolean) {
-
-    private lazy val originalTypeMemberNames = candidatesForType(originalType)
-      .map(_.name)
-
-    override def apply(resolveResult: ScalaResolveResult): Boolean =
-      !originalTypeMemberNames.contains(resolveResult.name)
   }
 
 }
