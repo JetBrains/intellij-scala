@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.testingSupport.test.sbt
 import java.io.OutputStream
 
 import com.intellij.execution.process.{OSProcessHandler, ProcessEvent, ProcessHandler, ProcessListener}
+import org.jetbrains.annotations.ApiStatus
 
 import scala.collection.mutable
 
@@ -11,7 +12,7 @@ import scala.collection.mutable
   * @author Roman.Shein
   *         Date: 16.02.2017
   */
-private[test]
+@ApiStatus.Internal
 case class SbtProcessHandlerWrapper(inner: OSProcessHandler) extends ProcessHandler() {
 
   private val myListeners: mutable.ListBuffer[ProcessListener] = mutable.ListBuffer()
