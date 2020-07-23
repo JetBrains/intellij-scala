@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.scala3
 
-class InlineParserTest extends SimpleScala3ParserTestBase {
+class ModifierParserTest extends SimpleScala3ParserTestBase {
   def test_inline_if(): Unit = checkParseErrors(
     "inline if (a > b) 1 else 2"
   )
@@ -152,6 +152,12 @@ class InlineParserTest extends SimpleScala3ParserTestBase {
     """
       |transparent inline def choose(b: Boolean): A =
       |  if b then new A() else new B()
+      |""".stripMargin
+  )
+
+  def test_open(): Unit = checkParseErrors(
+    """
+      |open class Test
       |""".stripMargin
   )
 }
