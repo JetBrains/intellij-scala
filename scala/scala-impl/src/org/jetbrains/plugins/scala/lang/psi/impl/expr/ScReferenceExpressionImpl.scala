@@ -10,7 +10,6 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScSimpleTypeElement, ScTypeElement}
@@ -140,11 +139,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case _ => throw new IncorrectOperationException("Cannot bind to element: " + element)
     }
   }
-
-  override def getVariants: Array[Object] = completionVariants(implicits = true).toArray
-
-  override def completionVariants(implicits: Boolean): Seq[ScalaLookupItem] =
-    getSimpleVariants(incomplete = true, completion = false, implicits).map(toLookupItem)
 
   override def getSameNameVariants: Array[ScalaResolveResult] = this.doResolve(
     new CompletionProcessor(getKinds(incomplete = true), this, withImplicitConversions = true) {

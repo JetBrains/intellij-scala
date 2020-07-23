@@ -8,7 +8,6 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScReferenceExpression}
@@ -193,7 +192,7 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
   //provides the set of possible namespace alternatives based on syntactic position
   def getKinds(incomplete: Boolean, completion: Boolean = false): Set[ResolveTargets.Value]
 
-  def completionVariants(implicits: Boolean = false): Seq[ScalaLookupItem]
+  def completionVariants(withImplicitConversions: Boolean = false): Array[ScalaResolveResult]
 
   def getSameNameVariants: Array[ScalaResolveResult]
 

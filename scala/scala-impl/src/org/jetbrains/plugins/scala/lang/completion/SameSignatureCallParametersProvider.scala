@@ -79,7 +79,7 @@ object SameSignatureCallParametersProvider {
                                                 argumentToStart: ArgumentToStart,
                                                 hasSuperQualifier: Boolean,
                                                 invocationCount: Int) = for {
-      ScalaResolveResult(method: ScMethodLike, substitutor) <- reference.getSimpleVariants(completion = true)
+      ScalaResolveResult(method: ScMethodLike, substitutor) <- reference.completionVariants()
       if method.name == reference.refName
 
       lookupElement <- createLookupElement(method, argumentToStart, substitutor) {

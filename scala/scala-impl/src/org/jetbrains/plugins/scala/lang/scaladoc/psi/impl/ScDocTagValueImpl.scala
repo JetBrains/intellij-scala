@@ -7,7 +7,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, ResolveState}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, ScTypeParamClause}
@@ -84,9 +83,9 @@ final class ScDocTagValueImpl(node: ASTNode) extends ScReferenceImpl(node) with 
     getElement
   }
 
-  override def completionVariants(implicits: Boolean): Seq[ScalaLookupItem] =
+  override def completionVariants(withImplicitConversions: Boolean): Array[ScalaResolveResult] =
     getParametersVariants.map { element =>
-      new ScalaLookupItem(element, element.name)
+      new ScalaResolveResult(element)
     }
 
   override def isSoft: Boolean = !isParamTag
