@@ -111,7 +111,7 @@ public interface ScalaTokenTypes {
     ScalaModifierTokenType kPROTECTED = ScalaModifierTokenType.of(ScalaModifier.Protected);
     ScalaModifierTokenType kSEALED = ScalaModifierTokenType.of(ScalaModifier.Sealed);
     ScalaModifierTokenType kINLINE = ScalaModifierTokenType.of(ScalaModifier.Inline);
-    ScalaModifierTokenType kTRANSPARENT = ScalaModifierTokenType.of(ScalaModifier.Inline);
+    ScalaModifierTokenType kTRANSPARENT = ScalaModifierTokenType.of(ScalaModifier.Transparent);
 
 
     IElementType kCATCH = new ScalaTokenType("catch");
