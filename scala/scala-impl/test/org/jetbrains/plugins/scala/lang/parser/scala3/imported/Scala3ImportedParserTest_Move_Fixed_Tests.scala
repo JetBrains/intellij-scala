@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.parser
+package org.jetbrains.plugins.scala.lang.parser.scala3.imported
 
 import java.nio.file.{Files, Paths, StandardCopyOption}
 
@@ -52,4 +52,3 @@ object Scala3ImportedParserTest_Move_Fixed_Tests {
     }
   }
 }
-

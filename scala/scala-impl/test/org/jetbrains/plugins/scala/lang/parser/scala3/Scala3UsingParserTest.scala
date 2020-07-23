@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.parser
+package org.jetbrains.plugins.scala.lang.parser.scala3
 
 class Scala3UsingParserTest extends SimpleScala3ParserTestBase {
 

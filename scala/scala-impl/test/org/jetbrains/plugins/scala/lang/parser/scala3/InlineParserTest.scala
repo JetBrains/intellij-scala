@@ -1,8 +1,6 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
+package org.jetbrains.plugins.scala.lang.parser.scala3
 
-class Scala3InlineParserTest extends SimpleScala3ParserTestBase {
+class InlineParserTest extends SimpleScala3ParserTestBase {
   def test_inline_if(): Unit = checkParseErrors(
     "inline if (a > b) 1 else 2"
   )

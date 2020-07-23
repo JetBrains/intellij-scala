@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
+package org.jetbrains.plugins.scala.lang.parser.scala3.imported
 
 import com.intellij.lang.Language
 import com.intellij.openapi.project.Project
@@ -8,6 +6,7 @@ import com.intellij.psi.impl.DebugUtil.psiToString
 import com.intellij.psi.{PsiErrorElement, PsiFile}
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.{PerfCycleTests, Scala3Language}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
