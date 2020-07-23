@@ -5,7 +5,7 @@ package parsing
 package base
 
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.{InlineKeyword, OpaqueKeyword}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.{InlineKeyword, OpaqueKeyword, TransparentKeyword}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
@@ -35,6 +35,7 @@ object SoftModifier extends ParsingRule{
   private val softModifiers = Map(
     OpaqueKeyword.text -> OpaqueKeyword,
     InlineKeyword.text -> InlineKeyword,
+    TransparentKeyword.text -> TransparentKeyword
   )
 
   private def checkFollowCondition()(implicit builder: ScalaPsiBuilder): Boolean = {

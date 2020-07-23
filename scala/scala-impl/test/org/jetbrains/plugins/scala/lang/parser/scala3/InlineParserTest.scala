@@ -147,4 +147,11 @@ class InlineParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_transparent(): Unit = checkParseErrors(
+    """
+      |transparent inline def choose(b: Boolean): A =
+      |  if b then new A() else new B()
+      |""".stripMargin
+  )
 }
