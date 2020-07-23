@@ -1,6 +1,6 @@
-package org.jetbrains.plugins.scala.lang.parser
+package org.jetbrains.plugins.scala.lang.parser.scala3
 
-class Scala3GivenInstancesParserTest extends SimpleScala3ParserTestBase {
+class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
 
   def test_full(): Unit = checkTree(
     """

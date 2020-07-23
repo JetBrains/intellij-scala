@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.parser
+package org.jetbrains.plugins.scala.lang.parser.scala3
 
 class TraitParameterParserTest extends SimpleScala3ParserTestBase {
   def test_without_params(): Unit = checkParseErrors(

@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala
 package lang
 package parser
+package scala3
+package imported
 
-import java.io.{File, FilenameFilter, PrintWriter}
+import java.io.{File, PrintWriter}
 
 import org.jetbrains.plugins.scala.util.TestUtils
 
@@ -11,7 +13,7 @@ import scala.io.Source
 object Scala3ImportedParserTest_Import_FromDottyDirectory {
 
   /**
-   *  Imports Tests from the dotty repositiory
+   * Imports Tests from the dotty repositiory
    */
   def main(args: Array[String]): Unit = {
     val dottyDirectory = args.headOption.getOrElse {
@@ -32,6 +34,7 @@ object Scala3ImportedParserTest_Import_FromDottyDirectory {
     new File(succDir).mkdirs()
     new File(failDir).mkdirs()
 
+    var count = 0
     for (file <- allFilesIn(srcDir) if file.toString.toLowerCase.endsWith(".scala")) {
       val target = failDir + file.toString.substring(srcDir.length).replace(".scala", "++++test")
       val content = {

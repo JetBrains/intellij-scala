@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.parser;
+package org.jetbrains.plugins.scala.lang.parser.scala3;
 
 import com.intellij.lang.Language;
 import junit.framework.Test;

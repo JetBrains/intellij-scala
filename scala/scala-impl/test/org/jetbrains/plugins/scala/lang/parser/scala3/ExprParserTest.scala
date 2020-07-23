@@ -1,6 +1,6 @@
-package org.jetbrains.plugins.scala.lang.parser
+package org.jetbrains.plugins.scala.lang.parser.scala3
 
-class Scala3ExprParserTest extends SimpleScala3ParserTestBase {
+class ExprParserTest extends SimpleScala3ParserTestBase {
 
   def test_if_then_else(): Unit = checkTree(
     """
