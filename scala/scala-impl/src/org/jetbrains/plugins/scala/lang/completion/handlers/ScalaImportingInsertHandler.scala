@@ -5,7 +5,7 @@ package handlers
 
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.LookupElement
-import com.intellij.psi.{PsiClass, PsiNamedElement}
+import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
@@ -26,7 +26,7 @@ abstract class ScalaImportingInsertHandler(protected val containingClass: PsiCla
           qualifyOnly(reference)
         case _ =>
       }
-    case _ => throw new IllegalArgumentException(s"$item has unexpected type ${item.getClass}")
+    case _ => item.handleInsert(context)
   }
 
   protected def qualifyAndImport(reference: ScReferenceExpression): Unit
@@ -41,21 +41,4 @@ abstract class ScalaImportingInsertHandler(protected val containingClass: PsiCla
     )(containingClass) {
       case ScReferenceExpression.withQualifier(qualifier: ScReferenceExpression) => qualifier
     }
-}
-
-object ScalaImportingInsertHandler {
-
-  class WithBinding(private val targetElement: PsiNamedElement,
-                    override protected val containingClass: PsiClass)
-    extends ScalaImportingInsertHandler(containingClass) {
-
-    override protected def qualifyAndImport(reference: ScReferenceExpression): Unit =
-      bindToTargetElement(reference)
-
-    private /*final*/ def bindToTargetElement(reference: ScReferenceExpression): Unit =
-      reference.bindToElement(
-        targetElement,
-        Some(containingClass)
-      )
-  }
 }
