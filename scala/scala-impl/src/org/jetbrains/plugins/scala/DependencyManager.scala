@@ -28,7 +28,7 @@ abstract class DependencyManagerBase {
     MavenResolver("central", "https://repo1.maven.org/maven2"),
     MavenResolver("scalaz-releases", "https://dl.bintray.com/scalaz/releases"),
     IvyResolver("typesafe-releases",
-      "https://repo.typesafe.com/typesafe/ivy-releases/[organisation]/[module]/[revision]/[type]s/[artifact](-[classifier]).jar")
+      "https://repo.typesafe.com/typesafe/ivy-releases/[organisation]/[module]/[revision]/[type]s/[artifact](-[classifier]).[ext]")
   )
 
   private def mkIvyXml(deps: Seq[DependencyDescription]): String = {
@@ -78,6 +78,7 @@ abstract class DependencyManagerBase {
       case IvyResolver(name, pattern) =>
         val urlResolver = new URLResolver
         urlResolver.addArtifactPattern(pattern)
+        urlResolver.addIvyPattern(pattern)
         urlResolver.setName(name)
         urlResolver
     }
@@ -136,13 +137,12 @@ abstract class DependencyManagerBase {
   def resolve(dependencies: DependencyDescription*): Seq[ResolvedDependency] = {
     val (resolved, unresolved) = dependencies.map {
       case info@DependencyDescription(org, artId, version, _, kind, false, _) =>
-        new File(
-          ivyHome,
-          s"cache/$org/$artId/${kind}s/$artId-$version${info.classifierBare.fold("")("-" + _)}.jar"
-        ) match {
-          case file if file.exists() => Right(ResolvedDependency(info, file))
-          case _ => Left(info)
-        }
+        val relativePath = s"cache/$org/$artId/${kind}s/$artId-$version${info.classifierBare.fold("")("-" + _)}.jar"
+        val file = new File(ivyHome, relativePath)
+        if (file.exists())
+          Right(ResolvedDependency(info, file))
+        else
+          Left(info)
       case info => Left(info)
     }.partition(_.isRight)
 
@@ -186,6 +186,11 @@ object DependencyManagerBase {
 
   sealed trait Resolver
   case class MavenResolver(name: String, root: String) extends Resolver
+
+  /** @param pattern same generic pattern for both artifact & ivy files e.g. <br>
+   *                 for artifact: https://dl.bintray.com/typesafe/ivy-releases/org.scala-sbt/sbt/0.12.4/jars/sbt.jar<br>
+   *                 for ivy file: https://dl.bintray.com/typesafe/ivy-releases/org.scala-sbt/sbt/0.12.4/ivys/ivy.xml<br>
+   */
   case class IvyResolver(name: String, pattern: String) extends Resolver
 
   private def scalaDependency(kind: String)
