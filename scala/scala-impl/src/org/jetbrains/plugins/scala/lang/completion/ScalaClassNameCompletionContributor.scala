@@ -96,16 +96,20 @@ object ScalaClassNameCompletionContributor {
       createLookupItemImpl(alias)
 
     private[this] def createLookupItemImpl(element: PsiNamedElement): ScalaLookupItem = {
-      val renamed = renamesMap.get(element.name).collect {
-        case (`element`, name) => name
+      val renamed = renamesMap.get(element.name) match {
+        case Some((`element`, name)) => Some(name)
+        case _ => None
       }
 
-      new ScalaResolveResult(element, renamed = renamed).getLookupElement(
+      new ScalaResolveResult(
+        element,
+        renamed = renamed
+      ).createLookupElement(
         isClassName = true,
         isInImport = isInImport,
         isInStableCodeReference = isInStableCodeReference,
         isInSimpleString = isInSimpleString
-      ).get
+      )
     }
 
     private[this] def isValidAndAccessible(member: PsiMember): Boolean =

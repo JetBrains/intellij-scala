@@ -9,11 +9,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.patterns.{ElementPattern, PlatformPatterns, StandardPatterns}
 import com.intellij.psi.util.PsiTreeUtil.{getContextOfType, getParentOfType}
-import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember}
+import com.intellij.psi._
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker.hasStableType
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
@@ -27,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 package object completion {
@@ -93,6 +94,20 @@ package object completion {
     isInSimpleString ||
       isInInterpolatedString ||
       getContextOfType(place, classOf[ScalaFile]) != null
+
+  def createLookupElementWithPrefix(namedElement: PsiNamedElement,
+                                    containingClass: PsiClass): ScalaLookupItem = {
+    val resolveResult = new ScalaResolveResult(namedElement)
+
+    val result = resolveResult.createLookupElement(
+      isClassName = true,
+      shouldImport = true,
+      containingClass = Some(containingClass)
+    )
+
+    result.addLookupStrings(result.containingClassName + "." + result.getPsiElement.name)
+    result
+  }
 
   implicit class CaptureExt(private val pattern: ElementPattern[_ <: PsiElement]) extends AnyVal {
 

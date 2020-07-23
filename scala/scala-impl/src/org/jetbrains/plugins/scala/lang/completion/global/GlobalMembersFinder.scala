@@ -47,20 +47,19 @@ abstract class GlobalMembersFinder protected(protected val place: ScalaPsiElemen
                                               containingClass: Option[PsiClass] = None) {
 
     final def createLookupItem(nameAvailability: PsiNamedElement => NameAvailabilityState): LookupElement =
-      if (isApplicable)
-        resolveResult.getLookupElement(
+      if (isApplicable) {
+        val lookupItem = resolveResult.createLookupElement(
           isClassName = true,
           containingClass = containingClass
-        ) match {
-          case Some(lookupItem) =>
-            buildItem(
-              lookupItem,
-              nameAvailability(lookupItem.getPsiElement)
-            )
-          case _ => null
-        }
-      else
+        )
+
+        buildItem(
+          lookupItem,
+          nameAvailability(lookupItem.getPsiElement)
+        )
+      } else {
         null
+      }
 
     protected def buildItem(lookupItem: ScalaLookupItem,
                             state: NameAvailabilityState): LookupElement = {

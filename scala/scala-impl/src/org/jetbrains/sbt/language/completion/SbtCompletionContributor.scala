@@ -8,9 +8,9 @@ import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion._
 import org.jetbrains.plugins.scala.lang.completion.lookups.{ScalaChainLookupElement, ScalaLookupItem}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{getCompanionModule, hasStablePath}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
@@ -88,20 +88,16 @@ final class SbtCompletionContributor extends ScalaCompletionContributor {
       def isAccessible(cls: PsiMember): Boolean = ResolveUtils.isAccessible(cls, place, forCompletion = true)
 
       // Collect all values, variables and inner objects from given object amd apply them
-      def collectAndApplyVariants(obj: PsiClass): Unit = obj match {
-        case obj: ScObject if isAccessible(obj) && ScalaPsiUtil.hasStablePath(obj) =>
-          def fetchAndApply(element: ScTypedDefinition): Unit = {
-            val lookup = new ScalaResolveResult(element)
-              .getLookupElement(isClassName = true, shouldImport = true)
-              .head
-            lookup.addLookupStrings(obj.name + "." + element.name)
-            applyVariant(lookup)
-          }
-          obj.membersWithSynthetic.foreach {
-            case v: ScValue    => v.declaredElements foreach fetchAndApply
-            case v: ScVariable => v.declaredElements foreach fetchAndApply
-            case obj: ScObject => fetchAndApply(obj)
-            case _ => // do nothing
+      def collectAndApplyVariants(containingClass: PsiClass): Unit = containingClass match {
+        case containingClass: ScObject if isAccessible(containingClass) && hasStablePath(containingClass) =>
+          containingClass.membersWithSynthetic.flatMap {
+            case v: ScValueOrVariable => v.declaredElements
+            case o: ScObject => Seq(o)
+            case _ => Seq.empty
+          }.map {
+            createLookupElementWithPrefix(_, containingClass)
+          }.foreach {
+            applyVariant(_)
           }
         case _ => // do nothing
       }
@@ -134,20 +130,18 @@ final class SbtCompletionContributor extends ScalaCompletionContributor {
         case Some(clazz: ScTypeDefinition) =>
           expectedType match {
             case ScProjectionType(proj, _: ScTypeAlias | _: ScClass | _: ScTrait) =>
-              proj.extractClass foreach collectAndApplyVariants
+              proj.extractClass.foreach(collectAndApplyVariants)
             case _ => // do nothing
           }
-          ScalaPsiUtil.getCompanionModule(clazz) foreach collectAndApplyVariants
-        case Some(p: PsiClass) if isAccessible(p) =>
-          p.getFields.foreach (field => {
-            if (field.hasModifierProperty("static") && isAccessible(field)) {
-              val lookup = new ScalaResolveResult(field)
-                .getLookupElement(isClassName = true, shouldImport = true)
-                .head
-              lookup.addLookupStrings(p.getName + "." + field.getName)
-              applyVariant(lookup)
-            }
-          })
+          getCompanionModule(clazz).foreach(collectAndApplyVariants)
+        case Some(containingClass: PsiClass) if isAccessible(containingClass) =>
+          for {
+            field <- containingClass.getFields
+            if field.hasModifierProperty(PsiModifier.STATIC) &&
+              isAccessible(field)
+
+            variant = createLookupElementWithPrefix(field, containingClass)
+          } applyVariant(variant)
         case _ => // do nothing
       }
 

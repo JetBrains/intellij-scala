@@ -5,37 +5,45 @@ package completion
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.completion._
 import com.intellij.openapi.project.Project
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{JavaPsiFacade, PsiElement, PsiPackage}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, ResolvesTo, inReadAction}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
-  * @author Nikolay.Tropin
-  */
+ * @author Nikolay.Tropin
+ */
+final class ScalaPrefixPackageCompletionContributor extends ScalaCompletionContributor {
 
-class ScalaPrefixPackageCompletionContributor extends ScalaCompletionContributor {
+  import ScalaPrefixPackageCompletionContributor._
 
   extend(
     CompletionType.BASIC,
     identifierWithParentPattern(classOf[ScReference]),
-    new CompletionProvider[CompletionParameters]() {
+    new CompletionProvider[CompletionParameters] {
+
       override def addCompletions(parameters: CompletionParameters,
                                   context: ProcessingContext,
                                   result: CompletionResultSet): Unit = {
-        implicit val p: CompletionParameters = parameters
-        implicit val c: ProcessingContext = context
+        val prefixMatcher = result.getPrefixMatcher
+        if (parameters.getInvocationCount == 0 ||
+          prefixMatcher.getPrefix.isEmpty) return
 
-        val element = positionFromParameters
-        if (!shouldRunClassNameCompletion(element, result.getPrefixMatcher)) {
-          ScalaPrefixPackageCompletionContributor.completePrefixPackageNames(element, result)
-        }
+        val dummyPosition = positionFromParameters(parameters)
+        if (!isInImport(dummyPosition) ||
+          shouldRunClassNameCompletion(dummyPosition, prefixMatcher)(parameters)) return
+
+        for {
+          resolveResult <- findApplicablePackages(dummyPosition) {
+            prefixMatcher.prefixMatches
+          }(dummyPosition.getProject)
+
+          lookupElement = resolveResult.createLookupElement(isInImport = true)
+        } result.addElement(lookupElement)
       }
     }
   )
@@ -43,50 +51,47 @@ class ScalaPrefixPackageCompletionContributor extends ScalaCompletionContributor
 
 object ScalaPrefixPackageCompletionContributor {
 
-  private def completePrefixPackageNames(dummyPosition: PsiElement, result: CompletionResultSet)
-                                        (implicit parameters: CompletionParameters, context: ProcessingContext): Unit = {
-    val project = dummyPosition.getProject
+  private def findApplicablePackages(dummyPosition: PsiElement)
+                                    (namePredicate: String => Boolean)
+                                    (implicit project: Project): Seq[ScalaResolveResult] = for {
+    fqn <- prefixPackages
 
-    def addPackageForCompletion(packageFqn: String): Unit = {
-      val isExcluded: Boolean = CodeInsightSettings.getInstance.EXCLUDED_PACKAGES.contains(packageFqn.startsWith(_: String))
-      if (isExcluded) return
-
-      if (parameters.getInvocationCount == 0) return
-
-      if (PsiTreeUtil.getContextOfType(dummyPosition, classOf[ScImportStmt]) != null) return
-
-      if (result.getPrefixMatcher.getPrefix == "") return
-
-      val pckg = inReadAction(JavaPsiFacade.getInstance(project).findPackage(packageFqn))
-      if (pckg == null) return
-
-      ScalaPsiElementFactory.createExpressionWithContextFromText(pckg.name, dummyPosition.getContext, dummyPosition) match {
-        case ResolvesTo(pack: PsiPackage) if pack.getQualifiedName == pckg.getQualifiedName => return
-        case _ =>
-      }
-
-      new ScalaResolveResult(pckg, prefixCompletion = true)
-        .getLookupElement(shouldImport = true)
-        .foreach(result.addElement)
+    name = fqn.lastIndexOf('.') match {
+      case -1 => fqn
+      case dotIndex => fqn.substring(dotIndex)
     }
+    if namePredicate(name)
 
-    val prefixMatcher = result.getPrefixMatcher
-    for {
-      fqn <- prefixPackages(project)
-      dotIdx = fqn.lastIndexOf('.')
-      name = if (dotIdx < 0) fqn else fqn.substring(dotIdx)
-      if prefixMatcher.prefixMatches(name)
-    } {
-      addPackageForCompletion(fqn)
+    packageElement <- findPackage(fqn, dummyPosition)
+  } yield new ScalaResolveResult(
+    packageElement,
+    prefixCompletion = true
+  )
+
+  private[this] def prefixPackages(implicit project: Project): Seq[String] =
+    ScalaCodeStyleSettings
+      .getInstance(project)
+      .getImportsWithPrefix
+      .filterNot(_.startsWith(ScalaCodeStyleSettings.EXCLUDE_PREFIX))
+      .toSeq
+      .map(_.split('.').dropRight(1).mkString("."))
+      .filterNot(_.isEmpty)
+      .filterNot(fqn => CodeInsightSettings.getInstance.EXCLUDED_PACKAGES.exists(fqn.startsWith))
+      .distinct
+
+  private[this] def findPackage(packageFqn: String,
+                                dummyPosition: PsiElement)
+                               (implicit project: Project): Option[PsiPackage] =
+    inReadAction(JavaPsiFacade.getInstance(project).findPackage(packageFqn)) match {
+      case null => None
+      case psiPackage =>
+        createExpressionWithContextFromText(
+          psiPackage.name,
+          dummyPosition.getContext,
+          dummyPosition
+        ) match {
+          case ResolvesTo(targetPackage: PsiPackage) if targetPackage.getQualifiedName == psiPackage.getQualifiedName => None
+          case _ => Some(psiPackage)
+        }
     }
-
-  }
-
-  private[this] def prefixPackages(project: Project): Seq[String] = {
-    def stripLastWord(pattern: String) = pattern.split('.').dropRight(1).mkString(".")
-
-    val settings = ScalaCodeStyleSettings.getInstance(project)
-    val patterns = settings.getImportsWithPrefix.filter(!_.startsWith(ScalaCodeStyleSettings.EXCLUDE_PREFIX))
-    patterns.toSeq.map(stripLastWord).filter(!_.isEmpty).distinct
-  }
 }

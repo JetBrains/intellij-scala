@@ -379,10 +379,12 @@ object ScalaSmartCompletionContributor {
 
                 override protected def postProcess(result: ScalaResolveResult): Unit = {
                   if (!result.isNamedParameter) {
-                    for {
-                      delegate <- result.getLookupElement()
-                      variant = new ScalaChainLookupElement(delegate, scalaLookupItem)
-                    } applyVariant(variant)
+                    val variant = new ScalaChainLookupElement(
+                      result.createLookupElement(),
+                      scalaLookupItem
+                    )
+
+                    applyVariant(variant)
                   }
                 }
               }
@@ -439,16 +441,6 @@ object ScalaSmartCompletionContributor {
       }
     }
 
-    def createLookup(namedElement: PsiNamedElement,
-                     owner: PsiClass): Unit = {
-      val lookup = new ScalaResolveResult(namedElement)
-        .getLookupElement(isClassName = true, shouldImport = true)
-        .head
-      lookup.addLookupStrings(s"${owner.name}.${namedElement.name}")
-      applyVariant(lookup)
-    }
-
-
     place.getContext match {
       case ref: ScReferenceExpression if ref.smartQualifier.isEmpty =>
         //enum and factory methods
@@ -456,16 +448,20 @@ object ScalaSmartCompletionContributor {
         while (iterator.hasNext) {
           val tp = iterator.next()
 
-          def checkObject(o: ScObject): Unit = if (isAccessible(o) && ScalaPsiUtil.hasStablePath(o)) {
-            o.membersWithSynthetic.flatMap {
-              case function: ScFunction => Seq(function)
-              case v: ScValueOrVariable => v.declaredElements
-              case obj: ScObject => Seq(obj)
-              case _ => Seq.empty
-            }.foreach {
-              createLookup(_, o)
+          // todo unify with SbtCompletionContributor.collectAndApplyVariants
+          def checkObject(containingClass: ScObject): Unit =
+            if (isAccessible(containingClass) && ScalaPsiUtil.hasStablePath(containingClass)) {
+              containingClass.membersWithSynthetic.flatMap {
+                case function: ScFunction => Seq(function)
+                case v: ScValueOrVariable => v.declaredElements
+                case obj: ScObject => Seq(obj)
+                case _ => Seq.empty
+              }.map {
+                createLookupElementWithPrefix(_, containingClass)
+              }.foreach {
+                applyVariant(_)
+              }
             }
-          }
 
           def checkTypeProjection(tp: ScType): Unit = {
             tp match {
@@ -480,9 +476,6 @@ object ScalaSmartCompletionContributor {
 
           @tailrec
           def checkType(tp: ScType): Unit = {
-            def isValid(member: PsiMember) =
-              member.hasModifierProperty("static") && isAccessible(member)
-
             tp.extractClass match {
               case Some(c: ScClass) if c.qualifiedName == "scala.Option" || c.qualifiedName == "scala.Some" =>
                 tp match {
@@ -496,9 +489,15 @@ object ScalaSmartCompletionContributor {
                   case Some(o: ScObject) => checkObject(o)
                   case _ => //do nothing
                 }
-              case Some(p: PsiClass) if isAccessible(p) =>
-                (p.getAllMethods ++ p.getFields).filter(isValid)
-                  .foreach(createLookup(_, p))
+              case Some(containingClass: PsiClass) if isAccessible(containingClass) =>
+                // todo unify with SbtCompletionContributor
+                for {
+                  member <- containingClass.getAllMethods ++ containingClass.getFields
+                  if member.hasModifierProperty(PsiModifier.STATIC) &&
+                    isAccessible(member)
+
+                  variant = createLookupElementWithPrefix(member, containingClass)
+                } applyVariant(variant)
               case _ => checkTypeProjection(tp)
             }
           }

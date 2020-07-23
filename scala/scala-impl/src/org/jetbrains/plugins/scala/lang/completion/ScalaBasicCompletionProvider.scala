@@ -169,20 +169,22 @@ object ScalaBasicCompletionProvider {
       lookupElements_ ++= validLookupElement(resolveResult)
     }
 
-    protected def validLookupElement(result: ScalaResolveResult): Option[LookupElement] = result.element match {
-      case element if element.isValid && isAccessible(element, result.isNamedParameter) =>
-        isApplicable(element, result.isNamedParameter).map { isLocalVariable =>
-          result.getLookupElement(
-            qualifierType = qualifierType,
-            isInImport = isInImport,
-            containingClass = containingClass,
-            isInStableCodeReference = isInStableCodeReference,
-            isLocalVariable = isLocalVariable,
-            isInSimpleString = isInSimpleString,
-            isInInterpolatedString = isInInterpolatedString
-          ).get
-        }
-      case _ => None
+    protected def validLookupElement(result: ScalaResolveResult): Option[LookupElement] = {
+      val element = result.getElement
+      val isNamedParameter = result.isNamedParameter
+
+      for {
+        isLocalVariable <- isApplicable(element, isNamedParameter)
+        if isAccessible(element, isNamedParameter)
+      } yield result.createLookupElement(
+        qualifierType = qualifierType,
+        isInImport = isInImport,
+        containingClass = containingClass,
+        isInStableCodeReference = isInStableCodeReference,
+        isLocalVariable = isLocalVariable,
+        isInSimpleString = isInSimpleString,
+        isInInterpolatedString = isInInterpolatedString
+      )
     }
 
     private def isApplicable(element: PsiNamedElement,

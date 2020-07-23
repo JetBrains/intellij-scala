@@ -7,10 +7,8 @@ package expr
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor}
 
@@ -32,11 +30,12 @@ abstract class ScReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) 
 
   override def completionVariants(implicits: Boolean): Seq[ScalaLookupItem] = {
     val processor = new CompletionProcessor(getKinds(incomplete = true, completion = false), this)
-    doResolve(processor).flatMap(toLookupItem)
+    doResolve(processor).map(toLookupItem)
   }
 
-  protected def toLookupItem(result: ScalaResolveResult): Option[ScalaLookupItem] =
-    result.getLookupElement(isInImport = PsiTreeUtil.getContextOfType(this, classOf[ScImportStmt]) != null)
+  // todo to be removed
+  protected final def toLookupItem(result: ScalaResolveResult): ScalaLookupItem =
+    result.createLookupElement(isInImport = completion.isInImport(this))
 
   override final def bind(): Option[ScalaResolveResult] = {
     ProgressManager.checkCanceled()
