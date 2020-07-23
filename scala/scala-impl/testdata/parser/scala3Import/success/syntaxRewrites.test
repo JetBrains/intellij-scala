@@ -26,7 +26,7 @@ object Test {
   for { x <- xs }
   yield x * 2
 
-// -----------------------------------------------
+// +
 
   for (x <- xs) println(x)
 

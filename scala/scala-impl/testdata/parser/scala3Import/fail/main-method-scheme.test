@@ -124,7 +124,7 @@ object add:
     if cmd.done() then myProgram.add(arg1(), arg2())
 end add
 
-/** --- Some scenarios ----------------------------------------
+/** --- Some scenarios +
 
 > java add 2 3
 2 + 3 = 5
