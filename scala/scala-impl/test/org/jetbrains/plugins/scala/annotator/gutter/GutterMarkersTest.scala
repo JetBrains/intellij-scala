@@ -69,7 +69,7 @@ class GutterMarkersTest extends ScalaFixtureTestCase {
        |}
        """.stripMargin,
 
-    "Implements value from", refToElement("Foo", "x", refText = "Foo")
+    "Implements member from", refToElement("Foo", "x", refText = "Foo")
   )
 
   @Test
@@ -81,7 +81,7 @@ class GutterMarkersTest extends ScalaFixtureTestCase {
        |}
      """.stripMargin,
 
-    "Overrides method from", refToElement("Foo", "x", refText = "Foo")
+    "Overrides member from", refToElement("Foo", "x", refText = "Foo")
   )
 
   @Test
@@ -100,7 +100,7 @@ class GutterMarkersTest extends ScalaFixtureTestCase {
        |}
      """.stripMargin,
 
-    "Overrides methods from 7 classes"
+    "Overrides members from 7 classes"
   )
 
   @Test
@@ -148,7 +148,7 @@ class GutterMarkersTest extends ScalaFixtureTestCase {
        |class Bar(override val x: Double) extends Foo$caret
     """.stripMargin,
 
-    "Implements value from", refToElement("Foo", "x", refText = "Foo")
+    "Implements member from", refToElement("Foo", "x", refText = "Foo")
   )
 
   @Test
@@ -251,7 +251,7 @@ class GutterMarkersTest extends ScalaFixtureTestCase {
        |
      """.stripMargin,
 
-    "Implements method", refToElement("SAM", "f", "f in SAM")
+    "Implements member", refToElement("SAM", "f", "f in SAM")
   )
 
   @Test

@@ -8,14 +8,11 @@ import java.util.Collections.emptyList
 
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
 import com.intellij.codeInsight.daemon.impl.{GutterTooltipHelper, PsiElementListNavigator}
-import com.intellij.codeInsight.hint.HintUtil
 import com.intellij.ide.util.{PsiClassListCellRenderer, PsiElementListCellRenderer}
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.psi._
 import com.intellij.psi.presentation.java.ClassPresentationUtil
 import com.intellij.psi.search.searches.ClassInheritorsSearch
-import com.intellij.ui.ColorUtil.toHex
-import com.intellij.ui.JBColor
 import javax.swing.{Icon, ListCellRenderer}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.gutter.GutterUtil.namedParent
@@ -49,15 +46,25 @@ object ScalaMarkerType {
     renderer:             ListCellRenderer[T] = newCellRenderer.asInstanceOf[ListCellRenderer[T]]
   ): Unit = PsiElementListNavigator.openTargets(event, members, title, findUsagesTitle, renderer)
 
+  private[this] def navigateToSuperType[T <: NavigatablePsiElement](event: MouseEvent, members: Array[T], name: String): Unit = {
+    val title           = ScalaBundle.message("navigation.title.super.types", name)
+    val findUsagesTitle = ScalaBundle.message("navigation.findUsages.title.super.types", name)
+    navigateToSuperMember(event, members, title, findUsagesTitle)
+  }
+
+  private[this] def navigateToSuperMember[T <: NavigatablePsiElement](event: MouseEvent, members: Array[T], name: String): Unit = {
+    val title           = ScalaBundle.message("navigation.title.super.members", name)
+    val findUsagesTitle = ScalaBundle.message("navigation.findUsages.title.super.members", name)
+    navigateToSuperMember(event, members, title, findUsagesTitle)
+  }
+
   private[this] def navigateToSuperMethod(
     event:       MouseEvent,
     method:      PsiMethod,
     includeSelf: Boolean
   ): Unit = {
     val superMethods = superMethodsOf(method, includeSelf)
-    val title           = ScalaBundle.message("navigation.title.super.methods", method.name)
-    val findUsagesTitle = ScalaBundle.message("navigation.findUsages.title.super.methods", method.name)
-    navigateToSuperMember(event, superMethods, title, findUsagesTitle)
+    navigateToSuperMember(event, superMethods, method.name)
   }
 
   private def superMethodsOf(method: PsiMethod, includeSelf: Boolean): Array[NavigatablePsiElement] = {
@@ -119,23 +126,16 @@ object ScalaMarkerType {
         case param: ScClassParameter =>
           val signatures      = ScalaPsiUtil.superValsSignatures(param, withSelfType = true)
           val superMembers    = signatures.flatMap(sigToNavigatableElement).toArray
-          val title           = ScalaBundle.message("navigation.title.super.vals", element.getText)
-          val findUsagesTitle = ScalaBundle.message("navigation.findUsages.title.super.vals", element.getText)
-          navigateToSuperMember(event, superMembers, title, findUsagesTitle)
+          navigateToSuperMember(event, superMembers, param.name)
         case v: ScValueOrVariable =>
           val bindings        = v.declaredElements.filter(e => element.textMatches(e.name))
           val signatures      = bindings.flatMap(ScalaPsiUtil.superValsSignatures(_, withSelfType = true))
           val superMembers    = signatures.flatMap(sigToNavigatableElement).toArray
-          val title           = ScalaBundle.message("navigation.title.super.vals", element.getText)
-          val findUsagesTitle = ScalaBundle.message("navigation.findUsages.title.super.vals", element.getText)
-          navigateToSuperMember(event, superMembers, title, findUsagesTitle)
+          navigateToSuperMember(event, superMembers, element.getText)
         case ta: ScTypeAlias =>
           val superElements = ScalaPsiUtil.superTypeMembers(ta, withSelfType = true)
-          val navigatable: Array[NavigatablePsiElement] =
-            superElements.collect { case ne: NavigatablePsiElement => ne }.toArray
-          val title           = ScalaBundle.message("navigation.title.super.types", ta.name)
-          val findUsagesTitle = ScalaBundle.message("navigation.findUsages.title.super.types", ta.name)
-          navigateToSuperMember(event, navigatable, title, findUsagesTitle)
+          val navigatables = superElements.filterByType[NavigatablePsiElement].toArray
+          navigateToSuperType(event, navigatables, ta.name)
     }
   )
 
@@ -232,7 +232,7 @@ object ScalaMarkerType {
   def samTypeImplementation(aClass: PsiClass): ScalaMarkerType = {
     val tooltipProvider = (_: PsiElement) => {
       val psiElements = SAMUtil.singleAbstractMethod(aClass).toSeq.flatMap(superMethodsOf(_, includeSelf = true))
-      val prefix = ScalaBundle.message("implements.method.prefix")
+      val prefix = ScalaBundle.message("implements.member.prefix")
       GutterTooltipHelper.getTooltipText(psiElements.asJava,
         prefix,
         false,
@@ -247,19 +247,12 @@ object ScalaMarkerType {
     val isTooMany = supers.size > maxNumberOfElements
     val isOverrides = GutterUtil.isOverrides(member, supers)
     member match {
-      case _: ScFunction =>
+      case _: ScFunction | _: ScValueOrVariable | _: ScClassParameter =>
         (isOverrides, isTooMany) match {
-          case (true, true)   => ScalaBundle.message("overrides.method.from.several.classes", supers.size)
-          case (true, false)  => ScalaBundle.message("overrides.method.from.prefix")
-          case (false, true)  => ScalaBundle.message("implements.method.from.several.classes", supers.size)
-          case (false, false) => ScalaBundle.message("implements.method.from.prefix")
-        }
-      case _: ScValueOrVariable | _: ScClassParameter =>
-        (isOverrides, isTooMany) match {
-          case (true, true)   => ScalaBundle.message("overrides.val.in.several.classes", supers.size)
-          case (true, false)  => ScalaBundle.message("overrides.val.from.prefix")
-          case (false, true)  => ScalaBundle.message("implements.val.from.several.classes", supers.size)
-          case (false, false) => ScalaBundle.message("implements.val.from.prefix")
+          case (true, true)   => ScalaBundle.message("overrides.member.from.several.classes", supers.size)
+          case (true, false)  => ScalaBundle.message("overrides.member.from.prefix")
+          case (false, true)  => ScalaBundle.message("implements.member.from.several.classes", supers.size)
+          case (false, false) => ScalaBundle.message("implements.member.from.prefix")
         }
       case _: ScTypeAlias =>
         if (isTooMany) ScalaBundle.message("overrides.type.from.super.several.classes", supers.size)
