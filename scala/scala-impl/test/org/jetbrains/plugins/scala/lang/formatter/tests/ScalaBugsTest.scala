@@ -3913,4 +3913,48 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
       |}
       |""".stripMargin
   )
+
+  def test_SCL_17708(): Unit = {
+    scalaSettings.ALIGN_IF_ELSE = true
+    commonSettings.BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE
+    doTextTest(
+      """def test = {
+        |  if (true)
+        |  {}
+        |  else if (true)
+        |       {}
+        |       else if (true)
+        |            {}
+        |            else
+        |            {}
+        |}
+        |""".stripMargin
+    )
+
+    doTextTest(
+      """def test = {
+        |  if (true) // comment
+        |  {}
+        |  else if (true) // comment
+        |       {}
+        |       else if (true) // comment
+        |            {}
+        |            else // comment
+        |            {}
+        |}
+        |""".stripMargin
+    )
+  }
+
+  def test_SCL_17907(): Unit =
+    doTextTest(
+      """ val (sampledHashedIp, _) = hashedIps.foldLeft((null: HIP, 0)) { case ((accIp, count), deviceHashedIp) =>
+        |  if (count == 0) // Most of devices will have one IP, hence small optimisation.
+        |    (deviceHashedIp, 1)
+        |  else if (scala.util.Random.nextInt(count + 1) == count)
+        |    (deviceHashedIp, count + 1)
+        |  else
+        |    (accIp, count + 1)
+        |}""".stripMargin
+    )
 }
