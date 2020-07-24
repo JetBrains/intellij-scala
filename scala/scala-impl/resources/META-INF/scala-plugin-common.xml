@@ -997,7 +997,7 @@
                          bundle="messages.ScalaInspectionBundle"
                          key="mark.inner.case.objects.as.final"
                          groupPath="Scala" groupName="General" shortName="MarkInnerCaseObjectsAsFinal"
-                         level="WARNING" enabledByDefault="true" language="Scala"/>
+                         level="WARNING" enabledByDefault="false" language="Scala"/>
         <!--suppress PluginXmlCapitalization -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection"
                          bundle="messages.ScalaInspectionBundle"
