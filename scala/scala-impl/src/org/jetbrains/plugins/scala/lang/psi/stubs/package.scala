@@ -2,10 +2,12 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
+import com.intellij.psi.CommonClassNames.JAVA_LANG_OBJECT
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScDesugarizableTypeElement, ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement, ScTypeProjection}
+import org.jetbrains.plugins.scala.util.CommonQualifiedNames.AnyRefFqn
 
 package object stubs {
 
@@ -28,10 +30,10 @@ package object stubs {
       case _ => EMPTY_STRING_ARRAY
     }
 
-    allNames.filterNot(defaultBaseClasses.contains)
+    allNames.filter {
+      case JAVA_LANG_OBJECT | AnyRefFqn => false
+      case _ => true
+    }
   }
-
-  private val defaultBaseClasses = Array("scala.AnyRef", "java.lang.Object")
-
 
 }
