@@ -14,7 +14,7 @@ object StableValIndex {
       .forClassFqn(qualifiedName, scope)
       .filterByType[ScValue]
 
-  def findValuesOfClass(c: PsiClass, scope: GlobalSearchScope): collection.Set[ScValue] = {
+  def findValuesOfClassType(c: PsiClass, scope: GlobalSearchScope): collection.Set[ScValue] = {
     val className = c.qualifiedName
     forClassFqn(className, scope)(c.getProject)
       .filter {

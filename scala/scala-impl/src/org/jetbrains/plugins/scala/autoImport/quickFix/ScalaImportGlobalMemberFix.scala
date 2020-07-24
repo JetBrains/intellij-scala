@@ -133,7 +133,7 @@ object ScalaImportGlobalMemberFix {
         case (td: ScTypedDefinition) && inNameContext(m: ScMember)
           if isAccessible(m, ref) && !hasImplicitModifier(m) =>
 
-          findGlobalMembers(m, ref.resolveScope)(new GlobalMember(_, _, _))
+          findGlobalMembers(m, ref.resolveScope)(GlobalMember(_, _, _))
             .map(gm => MemberToImport(gm.named, gm.owner, gm.pathToOwner))
         case _ => None
       }
