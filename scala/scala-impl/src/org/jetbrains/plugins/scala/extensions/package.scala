@@ -742,7 +742,7 @@ package object extensions {
         case _: PsiComment if ignoreComments =>
           inner(PsiTreeUtil.nextLeaf(el))
         case _ if el.getTextLength == 0 => // empty annotations, modifiers, parse errors, etc...
-          inner(PsiTreeUtil.prevLeaf(el))
+          inner(PsiTreeUtil.nextLeaf(el))
         case _ => false
       }
       inner(PsiTreeUtil.nextLeaf(element))
