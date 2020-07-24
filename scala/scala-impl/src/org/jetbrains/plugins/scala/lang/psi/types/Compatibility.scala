@@ -51,6 +51,14 @@ object Compatibility {
      *
      * @param ignoreBaseTypes parameter to avoid value discarding, literal narrowing/widening,
      *                        useful for refactorings (introduce variable)
+     * @param isShape         used during [[https://scala-lang.org/files/archive/spec/2.13/06-expressions.html#overloading-resolution overloading-resolution]]:<br>
+     *                        The shape of an argument expression e, written shape(e), is a type that is defined as follows:
+     *                        - For a function expression `(p1: T1,…,pn: Tn) => b`: `(Any ,…, Any) => shape(b)`,<br>
+     *                          where Any occurs n times in the argument type.
+     *                        - For a pattern-matching anonymous function definition `{ case ... }`: `PartialFunction[Any, Nothing]`
+     *                        - For a named argument `n = e`: `shape(e)`
+     *                        - For all other expressions: `Nothing`
+     *
      */
     def getTypeAfterImplicitConversion(
       checkImplicits:  Boolean,
