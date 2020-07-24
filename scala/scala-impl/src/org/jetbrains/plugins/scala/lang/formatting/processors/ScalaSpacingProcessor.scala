@@ -307,7 +307,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_START_DELIMITER, _, _, _) => Spacing.getReadOnlySpacing
       case (_, ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_END_DELIMITER, _, _) => Spacing.getReadOnlySpacing
     } match {
-      case Some(result) => return result
+      case Some(result) =>
+        return result
       case _ =>
     }
 
@@ -795,6 +796,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       val spacing =
         if (lastNode == null) WITH_SPACING_DEPENDENT(rightNode.getTreeParent.getTextRange)
         else if (settings.ELSE_ON_NEW_LINE) ON_NEW_LINE
+        else if (COMMENTS_TOKEN_SET.contains(lastNode.getElementType)) ON_NEW_LINE // SCL-16831
         else WITH_SPACING
       return spacing
     }
