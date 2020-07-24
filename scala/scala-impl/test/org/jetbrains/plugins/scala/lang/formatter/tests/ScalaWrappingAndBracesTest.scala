@@ -1276,4 +1276,50 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
       |  2 // comment 2
       |""".stripMargin
   )
+
+  def testIfElseWithoutBraces_WithComment_4(): Unit = doTextTest(
+    """if (false) // comment
+      |  1
+      |else if (false) // comment
+      |  2
+      |else // comment
+      |  3
+      |""".stripMargin
+  )
+
+  def testIfElseWithoutBraces_WithComment_5(): Unit = doTextTest(
+    """// comment
+      |if (false)
+      |  1
+      |// comment
+      |else if (false)
+      |  2
+      |// comment
+      |else
+      |  3
+      |""".stripMargin
+  )
+
+  def testIfElseWithoutBraces_WithComment_6(): Unit = doTextTest(
+    """// comment
+      |if (false) // comment
+      |  1
+      |// comment
+      |else if (false) // comment
+      |  2
+      |// comment
+      |else // comment
+      |  3
+      |""".stripMargin
+  )
+
+  def testIfElseWithoutBraces_WithComment_7(): Unit = doTextTest(
+    """if (false) // comment
+      |  1 // comment
+      |else if (false) // comment
+      |  2 // comment
+      |else // comment
+      |  3 // comment
+      |""".stripMargin
+  )
 }

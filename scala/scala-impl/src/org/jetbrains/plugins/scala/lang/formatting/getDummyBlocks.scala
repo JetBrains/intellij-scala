@@ -542,10 +542,10 @@ class getDummyBlocks(private val block: ScalaBlock) {
   private def getIfSubBlocks(node: ASTNode, alignment: Alignment): util.ArrayList[Block] = {
     val subBlocks = new util.ArrayList[Block]
 
-    val firstChildFirstNode = node.getFirstChildNode
+    val firstChildFirstNode = node.getFirstChildNode // `if`
     val firstChildLastNode = firstChildFirstNode
       .treeNextNodes
-      .takeWhile(e => e.getElementType != kELSE && !isComment(e))
+      .takeWhile(_.getElementType != kELSE)
       .lastOption
       .getOrElse(firstChildFirstNode)
 
