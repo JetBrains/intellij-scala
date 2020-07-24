@@ -5,7 +5,7 @@ import java.io.File
 
 import com.intellij.diagnostic.PluginException
 import com.intellij.execution.configurations.SimpleJavaParameters
-import com.intellij.openapi.application.PathManager
+import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.externalSystem.model.{ExternalSystemException, ProjectSystemId}
 import com.intellij.openapi.externalSystem.util._
 import com.intellij.openapi.externalSystem.{ExternalSystemConfigurableAware, ExternalSystemManager}
@@ -102,6 +102,9 @@ object SbtExternalSystemManager {
   }
 
   private def getVmExecutable(projectJdkName: Option[String], settings: SbtSettings.State): File = {
+    val jdkTable = ProjectJdkTable.getInstance()
+    // automatically detect JDK if none is defined
+    ApplicationManager.getApplication.invokeAndWait(() => jdkTable.preconfigure())
 
     val customPath = settings.getCustomVMPath
     val customVmExecutable =
@@ -112,7 +115,7 @@ object SbtExternalSystemManager {
 
     val realExe = customVmExecutable.orElse {
       projectJdkName
-        .flatMap(name => Option(ProjectJdkTable.getInstance().findJdk(name)))
+        .flatMap(name => Option(jdkTable.findJdk(name)))
         .map { sdk =>
           sdk.getSdkType match {
             case sdkType: JavaSdkType =>
@@ -125,7 +128,7 @@ object SbtExternalSystemManager {
     }
     .orElse {
       val jdkType = JavaSdk.getInstance()
-      Option(ProjectJdkTable.getInstance().findMostRecentSdkOfType(jdkType))
+      Option(jdkTable.findMostRecentSdkOfType(jdkType))
         .map { sdk =>
           new File(jdkType.getVMExecutablePath(sdk))
         }
