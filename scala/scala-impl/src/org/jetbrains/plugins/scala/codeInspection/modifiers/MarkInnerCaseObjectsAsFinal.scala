@@ -16,7 +16,7 @@ class MarkInnerCaseObjectsAsFinal extends AbstractRegisteredInspection {
                                            isOnTheFly: Boolean): Option[ProblemDescriptor] =
     element match {
       case obj@ScObject.withModifierList(ml) if !obj.isTopLevel && !ml.isFinal && ml.isCase =>
-        val quickFix = new SetModifierQuickfix(obj, ScalaModifier.FINAL, set = true)
+        val quickFix = new SetModifierQuickfix(obj, ScalaModifier.Final, set = true)
         super.problemDescriptor(obj.targetToken, Some(quickFix), descriptionTemplate, highlightType)
       case _ => None
     }
