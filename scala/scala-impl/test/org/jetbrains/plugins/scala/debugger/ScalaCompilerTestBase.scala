@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{IncrementalityType, ProjectExt}
 import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
-import org.jetbrains.plugins.scala.util.matchers.HamcrestMatchers.emptyCollection
+import org.junit.Assert
 import org.junit.Assert._
 
 import scala.collection.JavaConverters._
@@ -201,14 +201,22 @@ object ScalaCompilerTestBase {
         Set(CompilerMessageCategory.ERROR)
       else
         Set(CompilerMessageCategory.ERROR, CompilerMessageCategory.WARNING)
-      assertNoMessages(categories)
-    }
 
-    private def assertNoMessages(categories: Set[CompilerMessageCategory]): Unit = {
       val problems = messages.asScala.filter { message =>
         categories.contains(message.getCategory)
       }
-      assertThat(problems, emptyCollection)
+      if (problems.nonEmpty) {
+        val otherMessages = messages.asScala -- problems
+        Assert.fail(
+          s"""No compiler errors expected, but got:
+            |${messagesText(problems)}
+            |Other compiler messages:
+            |${messagesText(otherMessages)}""".stripMargin
+        )
+      }
     }
+
+    private def messagesText(messages: Seq[CompilerMessage]): String =
+      messages.zipWithIndex.map { case (message, idx) => s"[$idx] [${message.getCategory}] : ${message.getMessage.trim}"}.mkString("\n")
   }
 }

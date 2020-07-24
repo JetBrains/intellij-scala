@@ -21,6 +21,14 @@ class ScalaExpressionsEvaluator_212 extends ScalaExpressionsEvaluatorBase {
 @Category(Array(classOf[DebuggerTests]))
 class ScalaExpressionsEvaluator_213 extends ScalaExpressionsEvaluatorBase {
   override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_2_13
+
+  override def testSymbolLiteral(): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("'aaa", "Symbol(aaa)")
+      evalEquals("'aaa.name", "aaa")
+    }
+  }
 }
 
 abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
@@ -236,9 +244,22 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("Array(1F, 2.0F)", "[1.0,2.0]")
       evalEquals("123.charAt(3)", "1")
       evalEquals(""""a".concat(123)""", "a123123")
+      evalEquals("intToString(123)", "123123")
+    }
+  }
+
+  addFileWithBreakpoints("SymbolLiteral.scala",
+    s"""object SymbolLiteral {
+       |  def main(args: Array[String]): Unit =
+       |    ""$bp
+       |}
+       |""".stripMargin.trim()
+  )
+  def testSymbolLiteral(): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
       evalEquals("'aaa", "'aaa")
       evalEquals("'aaa.name", "aaa")
-      evalEquals("intToString(123)", "123123")
     }
   }
 
