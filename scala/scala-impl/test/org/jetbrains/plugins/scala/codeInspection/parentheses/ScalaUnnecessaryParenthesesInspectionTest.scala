@@ -492,4 +492,14 @@ class ScalaUnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     val hint = hintBeginning + " (123123)"
     testQuickFix(text, result, hint)
   }
+
+  // SCL-17859
+  def testInfixType(): Unit = checkTextHasNoErrors(
+    """
+      |class Plus[Lhs, Rhs]
+      |class Implies[Lhs, Rhs]
+      |
+      |type X = (Int Plus Int) Implies Double
+      |""".stripMargin
+  )
 }
