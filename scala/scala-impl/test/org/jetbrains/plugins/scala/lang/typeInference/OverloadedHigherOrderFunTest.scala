@@ -200,4 +200,18 @@ class OverloadedHigherOrderFunTest extends ScalaLightCodeInsightFixtureTestAdapt
       |  (null: Z[Int]).map(x => x.toString) // didn't compile
       |}
       |""".stripMargin)
+
+  def testEA232097(): Unit = checkTextHasNoErrors(
+    """
+      |import java.io.File
+      |import java.io.FilenameFilter
+      |case class ExactMatchFilter(fileName: String) extends FilenameFilter {
+      |  override def accept(dir: File, name: String): Boolean = name == fileName
+      |}
+      |
+      |def postProcessDownload(extractedDownloadable: File): Unit = {
+      |  val files = extractedDownloadable.listFiles(ExactMatchFilter(if (true) "play.bat" else "play"))
+      |  ???
+      |}""".stripMargin
+  )
 }

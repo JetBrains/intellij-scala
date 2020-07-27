@@ -200,13 +200,19 @@ class ExpectedTypesImpl extends ExpectedTypes {
     /** Produce expected type by lub-ing parameter types of alternatives
      * Do nothing if [[e]] is a method reference or function literal with
      * explicit type ascriptions. */
-    def lubParamTpes(altParams: List[FunctionLikeTpe]): Option[ScType] =
+    def lubParamTpes(alts: List[FunctionLikeTpe]): Option[ScType] =
       e match {
         case ref: ScReferenceExpression if !ScUnderScoreSectionUtil.isUnderscoreFunction(ref) => None
         case fn: ScFunctionExpr if fn.parameters.forall(_.typeElement.isDefined)              => None
         case _ =>
-          val paramLubs = altParams.map(_.paramTpes).transpose.map(_.lub())
-          FunctionType((Any, paramLubs)).toOption
+          val expectedSize = alts.head.paramTpes.size
+          val altParams    = alts.map(_.paramTpes)
+
+          if (altParams.exists(_.size != expectedSize)) None
+          else {
+            val paramLubs = altParams.transpose.map(_.lub())
+            FunctionType((Any, paramLubs)).toOption
+          }
       }
 
     /** Filter expected type alternatives by arity,
