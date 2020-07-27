@@ -164,6 +164,6 @@ class VarianceTest extends VarianceTestBase {
   }
 
   def testPrivateThisClassParams(): Unit = {
-    assertNothing(messages("class A[+T, -S](private[this] var leading: T, private[this] var trailing: S)"))
+    assertNothing(messages("class AA[+T, -S](private[this] var leading: T, private[this] var trailing: S)"))
   }
 }
