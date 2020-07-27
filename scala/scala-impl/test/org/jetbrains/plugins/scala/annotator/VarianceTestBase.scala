@@ -12,7 +12,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 abstract class VarianceTestBase extends SimpleTestCase {
-  final val Header = "class A; class B\n"
+  // needs to be constant :( .stripMargin is not constant
+  final val Header = """
+trait Fun1[-T, +R]    // T => R syntax doesn't work here because _root_.scala.Function1 is not loaded
+
+class A;
+class B;
+"""
 
   protected def annotateFun(element: PsiElement, annotator: ScalaAnnotator, mock: AnnotatorHolderMock): Unit = {
     implicit val implicitMock: AnnotatorHolderMock = mock
