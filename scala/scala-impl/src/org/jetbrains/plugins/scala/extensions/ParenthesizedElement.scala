@@ -135,7 +135,8 @@ object ParenthesizedElement {
   //infix operation priority is not included to precedence of type elements,
   //but we use it to determine whether parentheses are clarifying
   private def obviouslySamePriority(parent: ScParenthesizedElement#Kind, child: ScParenthesizedElement#Kind): Boolean = {
-    getPrecedence(parent) == getPrecedence(child) && infixOperationPriority(parent) == infixOperationPriority(child)
+    getPrecedence(parent) == getPrecedence(child) &&
+      infixOperation(parent) == infixOperation(child)
   }
 
   // varies from 1 to 10
@@ -143,6 +144,9 @@ object ParenthesizedElement {
     case infix: ScInfixElement => ParserUtils.priority(infix.operation.getText)
     case _ => 0
   }
+
+  private def infixOperation(element: PsiElement): Option[String] =
+    element.asOptionOf[ScInfixElement].map(_.operation.refName)
 
   private def typeElementPrecedence(te: ScTypeElement): Int = te match {
     case _: ScParameterizedTypeElement |
