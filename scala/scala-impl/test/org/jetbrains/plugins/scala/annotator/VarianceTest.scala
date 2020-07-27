@@ -163,6 +163,15 @@ class VarianceTest extends VarianceTestBase {
     }
   }
 
+
+  def testPublicVarClassParams(): Unit = {
+    assertMatches(messages("class AA[+T, -S](var leading: T, var trailing: S)")) {
+      case Error("leading", ContravariantPosition()) ::
+        Error("trailing", CovariantPosition()) ::
+        Nil =>
+    }
+  }
+
   def testPrivateThisClassParams(): Unit = {
     assertNothing(messages("class AA[+T, -S](private[this] var leading: T, private[this] var trailing: S)"))
   }

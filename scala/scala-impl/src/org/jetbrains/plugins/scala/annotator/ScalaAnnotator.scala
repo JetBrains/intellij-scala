@@ -299,8 +299,13 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
   def checkClassParameterVariance(toCheck: ScClassParameter)
                                  (implicit holder: ScalaAnnotationHolder): Unit = {
     if (!modifierIsThis(toCheck) && !childHasAnnotation(Some(toCheck), "uncheckedVariance")) {
-      if (toCheck.isVar) checkTypeVariance(toCheck, Contravariant, toCheck.nameId, toCheck)
-      else if (toCheck.isVal || toCheck.isCaseClassVal) checkTypeVariance(toCheck, Covariant, toCheck.nameId, toCheck)
+      if (toCheck.isVar) {
+        checkTypeVariance(toCheck, Contravariant, toCheck.nameId, toCheck)
+        checkTypeVariance(toCheck, Covariant, toCheck.nameId, toCheck)
+      }
+      else if (toCheck.isVal || toCheck.isCaseClassVal) {
+        checkTypeVariance(toCheck, Covariant, toCheck.nameId, toCheck)
+      }
     }
   }
 
