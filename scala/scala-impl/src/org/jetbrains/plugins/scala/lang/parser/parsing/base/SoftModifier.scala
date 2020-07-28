@@ -12,6 +12,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 // See https://dotty.epfl.ch/docs/reference/soft-modifier.html
 object SoftModifier extends ParsingRule{
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    if (!builder.isScala3) {
+      return false
+    }
+
     softModifiers.get(builder.getTokenText) match {
       case Some(tokenType) =>
         val marker = builder.mark()
