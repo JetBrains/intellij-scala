@@ -94,7 +94,6 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
       ju.Collections.singletonList(sourceRoot)
     )
 
-    Disposer.register(module, library)
     inWriteAction {
       val version = Artifact.ScalaCompiler.versionOf(compilerFile)
       val properties = ScalaLibraryProperties(version, compilerClasspath)
