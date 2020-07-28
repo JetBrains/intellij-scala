@@ -357,16 +357,7 @@ class ScalaPsiManager(implicit val project: Project) {
     STABLE_ALIAS_NAME_KEY.allKeys
   }
 
-  val TopLevelModificationTracker: SimpleModificationTracker = new SimpleModificationTracker {
-    private val psiModTracker =
-      PsiManager.getInstance(project).getModificationTracker.asInstanceOf[PsiModificationTrackerImpl]
-
-    override def incModificationCount(): Unit = {
-      psiModTracker.incCounter() //update javaStructureModCount on top-level scala change
-      clearOnTopLevelChange()
-      super.incModificationCount()
-    }
-  }
+  val TopLevelModificationTracker: SimpleModificationTracker = new SimpleModificationTracker
 
   private def clearOnScalaElementChange(psiElement: PsiElement): Unit = {
     clearOnChange()
@@ -374,13 +365,15 @@ class ScalaPsiManager(implicit val project: Project) {
   }
 
   private def clearOnNonScalaChange(): Unit = {
-    clearOnChange()
+    clearOnTopLevelChange()
     TopLevelModificationTracker.incModificationCount()
   }
 
   @tailrec
   private def updateScalaModificationCount(element: PsiElement): Unit = element match {
-    case null => TopLevelModificationTracker.incModificationCount()
+    case null =>
+      TopLevelModificationTracker.incModificationCount()
+      clearOnTopLevelChange()
     case owner: ScExpression if BlockModificationTracker.hasStableType(owner) =>
       BlockModificationTracker.incrementLocalCounter(owner)
     case _ => updateScalaModificationCount(element.getContext)
