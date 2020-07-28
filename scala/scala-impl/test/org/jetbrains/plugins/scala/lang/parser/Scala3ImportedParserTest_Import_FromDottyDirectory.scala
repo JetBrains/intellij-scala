@@ -3,6 +3,8 @@ package lang
 package parser
 
 import java.io.{File, FilenameFilter, PrintWriter}
+import java.nio.file.{Files, Path, Paths}
+import java.util.function.Consumer
 
 import org.jetbrains.plugins.scala.util.TestUtils
 
@@ -18,7 +20,12 @@ object Scala3ImportedParserTest_Import_FromDottyDirectory {
       println("no dotty directory specified")
       return
     }
+    val succDir = TestUtils.getTestDataPath + Scala3ImportedParserTest.directory
     val failDir = TestUtils.getTestDataPath +  Scala3ImportedParserTest_Fail.directory
+
+    clearDirectory(succDir)
+    clearDirectory(failDir)
+
     val srcDir = dottyDirectory + "tests/pos"
 
     println("srcdir =  " + srcDir)
@@ -60,4 +67,7 @@ object Scala3ImportedParserTest_Import_FromDottyDirectory {
     else if (!path.isDirectory) Iterator(path)
     else path.listFiles.iterator.flatMap(allFilesIn)
   }
+
+  private def clearDirectory(path: String): Unit =
+    new File(path).listFiles().foreach(_.delete())
 }
