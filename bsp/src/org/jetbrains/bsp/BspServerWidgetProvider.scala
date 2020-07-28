@@ -95,7 +95,7 @@ class BspServerWidgetProvider extends StatusBarWidgetProvider {
       }
     }
 
-    class TerminateServer(uri: URI, config: BspServerConfig) extends AnAction(BspBundle.message("bsp.widget.bsp.terminate.server", uri), BspBundle.message("bsp.widget.bsp.terminate.server"), AllIcons.Actions.Exit) with DumbAware {
+    class TerminateServer(uri: URI, config: BspServerConfig) extends AnAction(BspBundle.message("bsp.widget.bsp.terminate.server", uri), BspBundle.message("bsp.widget.bsp.terminate.server", uri), AllIcons.Actions.Exit) with DumbAware {
       override def update(e: AnActionEvent): Unit = {
         val exitCommandDefined  = BspCommunicationService.getInstance.exitCommands(uri, config).toOption.exists(_.nonEmpty)
         e.getPresentation.setVisible(exitCommandDefined)
