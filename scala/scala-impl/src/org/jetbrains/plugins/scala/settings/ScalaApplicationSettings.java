@@ -75,6 +75,8 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
 
   public boolean SUGGEST_IN_EDITOR_DOC_RENDERING = true;
 
+  public boolean SUGGEST_AUTOBRACE_INSERTION = true;
+
   public ScalaApplicationSettings getState() {
     return this;
   }

@@ -271,6 +271,8 @@ object AutoBraceInsertionTools {
   }
 
   def insertAutoBraces(info: AutoBraceInsertionInfo)(implicit project: Project, file: PsiFile, editor: Editor): Unit = {
+    AutoBraceAdvertiser.disableNotification()
+
     // ========= Insert braces =========
     // Start with the opening brace, then the fake input, and finally the closing brace.
     // Also remember brace ranges for later reformatting
