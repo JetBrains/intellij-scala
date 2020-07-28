@@ -6,12 +6,13 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
 import com.intellij.psi.search.{GlobalSearchScope, searches}
 import org.jetbrains.annotations.NonNls
+import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl._
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
 import org.jetbrains.sbt.project.data.SbtModuleData
 import org.jetbrains.sbt.project.module.SbtModule.{Build, Imports}
 
@@ -40,7 +41,7 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
         file.processDeclarations(processor, state, file.getLastChild, place)
       }
 
-  @Cached(ModCount.getModificationCount, this)
+  @Cached(ModTracker.physicalPsiChange(getProject), this)
   private def syntheticFile: Option[ScalaFile] = {
     implicit val manager: ScalaPsiManager = ScalaPsiManager.instance(getProject)
     @NonNls val imports = importsFor(targetModule).map {

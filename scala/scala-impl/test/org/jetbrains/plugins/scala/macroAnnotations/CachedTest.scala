@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.macroAnnotations
 
+import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.caches.stats.Tracer
 import org.junit.Assert._
-
-import scala.collection.JavaConverters._
 
 
 /**
@@ -13,7 +12,7 @@ import scala.collection.JavaConverters._
 class CachedTest extends CachedTestBase {
   def testNoParametersSingleThread(): Unit = {
     class Foo extends Managed {
-      @Cached(ModCount.getModificationCount, this)
+      @Cached(ModTracker.physicalPsiChange(getProject), this)
       def currentTime(): Long = System.currentTimeMillis()
     }
 
@@ -35,7 +34,7 @@ class CachedTest extends CachedTestBase {
 
   def testModificationTrackers(): Unit = {
     object Foo extends Managed {
-      @Cached(ModCount.getModificationCount, this)
+      @Cached(ModTracker.physicalPsiChange(getProject), this)
       def currentTime: Long = System.currentTimeMillis()
     }
 
@@ -48,7 +47,7 @@ class CachedTest extends CachedTestBase {
 
   def testWithParameters(): Unit = {
     object Foo extends Managed {
-      @Cached(ModCount.getModificationCount, this)
+      @Cached(ModTracker.physicalPsiChange(getProject), this)
       def currentTime(a: Int, b: Int): Long = System.currentTimeMillis()
     }
 
@@ -66,7 +65,7 @@ class CachedTest extends CachedTestBase {
 
   def testTracer(): Unit = {
     object Foo extends Managed {
-      @Cached(ModCount.getModificationCount, this)
+      @Cached(ModTracker.physicalPsiChange(getProject), this)
       def currentTime: Long = System.currentTimeMillis()
     }
 
@@ -83,7 +82,7 @@ class CachedTest extends CachedTestBase {
   def testTracerWithExpr(): Unit = {
     class Foo extends Managed {
       var myVar = 0
-      @Cached(ModCount.getModificationCount, this, myVar)
+      @Cached(ModTracker.physicalPsiChange(getProject), this, myVar)
       def bar: Int = myVar
     }
 

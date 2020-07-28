@@ -4,7 +4,7 @@ package caches
 import com.intellij.mock.MockPsiElement
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount, incModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, incModCount}
 
 class CacheModeTest extends ScalaLightCodeInsightFixtureTestAdapter with AssertionMatchers {
   sealed trait TestResult
@@ -32,10 +32,10 @@ class CacheModeTest extends ScalaLightCodeInsightFixtureTestAdapter with Asserti
   }
 
   class TestCachedMacroElement extends TestPsiElement {
-    @Cached(ModCount.getModificationCount, this)
+    @Cached(ModTracker.physicalPsiChange(getProject), this)
     override def test(cacheMode: CacheMode[TestResult]): TestResult = compute()
 
-    @Cached(ModCount.getModificationCount, this)
+    @Cached(ModTracker.physicalPsiChange(getProject), this)
     override def test(arg: Boolean, cacheMode: CacheMode[TestResult]): TestResult = {
       assert(arg == arg)
       compute()
@@ -44,10 +44,10 @@ class CacheModeTest extends ScalaLightCodeInsightFixtureTestAdapter with Asserti
 
   /*
     class TestCacheInUserdataMacroElement extends TestPsiElement {
-      @CachedInUserData(this, ModCount.getModificationCount)
+      @CachedInUserData(this, ModTracker.physicalPsiChange)
       override def test(cacheMode: CacheMode[TestResult]): TestResult = compute()
 
-      @CachedInUserData(this, ModCount.getModificationCount)
+      @CachedInUserData(this, ModTracker.physicalPsiChange)
       override def test(arg: Boolean, cacheMode: CacheMode[TestResult]): TestResult = compute()
     }
   */

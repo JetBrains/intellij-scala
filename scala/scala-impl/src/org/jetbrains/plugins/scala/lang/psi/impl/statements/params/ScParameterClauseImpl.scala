@@ -8,6 +8,7 @@ package params
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.PsiImplUtil
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -18,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClauseStub
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
 
 /**
   * @author Alexander Podkhalyuzin
@@ -33,12 +34,12 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
 
   override def toString: String = "ParametersClause"
 
-  @Cached(ModCount.anyScalaPsiModificationCount, this)
+  @Cached(ModTracker.anyScalaPsiChange, this)
   override def parameters: Seq[ScParameter] = {
     getStubOrPsiChildren[ScParameter](TokenSets.PARAMETERS, JavaArrayFactoryUtil.ScParameterFactory).toSeq
   }
 
-  @CachedInUserData(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, BlockModificationTracker(this))
   override def effectiveParameters: Seq[ScParameter] = {
     if (!isImplicit) return parameters
 
@@ -74,7 +75,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
     getFirstChild.elementType == ScalaTokenTypes.tLPARENTHESIS &&
       getLastChild.elementType == ScalaTokenTypes.tRPARENTHESIS
 
-  @Cached(ModCount.anyScalaPsiModificationCount, this)
+  @Cached(ModTracker.anyScalaPsiChange, this)
   override def isImplicit: Boolean = {
     import ScModifierList._
 
@@ -86,7 +87,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
     byStubOrPsi(_.isImplicit)(hasImplicitKeyword)
   }
 
-  @Cached(ModCount.anyScalaPsiModificationCount, this)
+  @Cached(ModTracker.anyScalaPsiChange, this)
   override def isUsing: Boolean = {
     def hasUsingKeyword =
       findChildByType(ScalaTokenType.UsingKeyword) != null

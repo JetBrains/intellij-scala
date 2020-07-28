@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.util
 
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
@@ -13,13 +14,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScExistentialArgument, ScExistentialType, ScParameterizedType, ScType}
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project._
 
 
 object SAMUtil {
   implicit class ScExpressionExt(private val expr: ScExpression) extends AnyVal {
-    @CachedInUserData(expr, ModCount.getModificationCount)
+    @CachedInUserData(expr, ModTracker.physicalPsiChange(expr.getProject))
     def samTypeParent: Option[PsiClass] =
       if (expr.isSAMEnabled && isFunctionalExpression(expr)) {
         for {

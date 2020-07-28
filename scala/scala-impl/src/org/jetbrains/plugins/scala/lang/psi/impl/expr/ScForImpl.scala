@@ -8,18 +8,19 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.scope._
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions.{Model, PsiElementExt, StringsExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScForImpl._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
 
 import scala.annotation.tailrec
@@ -83,7 +84,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
   private def compilerRewritesWithFilterToFilter: Boolean = this.scalaLanguageLevel.exists(_ < ScalaLanguageLevel.Scala_2_12)
 
   // we only really need to cache the version that is used by type inference
-  @Cached(ModCount.getBlockModificationCount, this)
+  @Cached(BlockModificationTracker(this), this)
   private def getDesugaredExprWithMappings: Option[(ScExpression, Map[ScPattern, ScPattern], Map[ScEnumerator, ScEnumerator.DesugaredEnumerator])] = {
     visitWithFilterExprs(this)(e => e.putUserData(explicitWithFilterKey, ()))
 

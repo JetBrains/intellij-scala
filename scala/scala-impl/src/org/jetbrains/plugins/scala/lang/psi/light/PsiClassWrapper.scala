@@ -16,6 +16,7 @@ import com.intellij.psi.scope.processor.MethodsProcessor
 import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiUtil
 import javax.swing._
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
@@ -25,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 import _root_.scala.collection.mutable.ArrayBuffer
 
@@ -121,7 +122,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
     }
   }
 
-  @Cached(ModCount.getBlockModificationCount, this)
+  @Cached(BlockModificationTracker(this), this)
   private def getEmptyConstructor: PsiMethod = new EmptyPrivateConstructor(this)
 
   override def getConstructors: Array[PsiMethod] = {

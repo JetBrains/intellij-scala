@@ -1,25 +1,20 @@
 package org.jetbrains.plugins.scala.lang.psi.implicits
 
-import com.intellij.psi.{PsiFile, PsiElement}
-import org.jetbrains.plugins.scala.extensions.{childOf, PsiElementExt}
-import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, childOf}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScMethodLike}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenerator, ScFunctionExpr, ScForBinding}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScFunctionExpr, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
-import org.jetbrains.plugins.scala.macroAnnotations.ModCount
 import org.jetbrains.plugins.scala.project._
 
 import scala.collection.Set
@@ -29,13 +24,13 @@ import scala.collection.Set
   */
 case class ImplicitSearchScope(representative: PsiElement) {
 
-  @CachedWithRecursionGuard(representative, Set.empty, ModCount.getBlockModificationCount)
+  @CachedWithRecursionGuard(representative, Set.empty, BlockModificationTracker(representative))
   def cachedVisibleImplicits: Set[ScalaResolveResult] = {
     new ImplicitParametersProcessor(representative, withoutPrecedence = false)
       .candidatesByPlace
   }
 
-  @CachedWithRecursionGuard(representative, Set.empty, ModCount.getBlockModificationCount)
+  @CachedWithRecursionGuard(representative, Set.empty, BlockModificationTracker(representative))
   def cachedImplicitsByType(scType: ScType): Set[ScalaResolveResult] =
     new ImplicitParametersProcessor(representative, withoutPrecedence = true)
       .candidatesByType(scType)

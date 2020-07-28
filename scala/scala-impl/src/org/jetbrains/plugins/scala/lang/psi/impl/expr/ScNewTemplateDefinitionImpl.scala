@@ -11,7 +11,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.annotator.OverridingAnnotator
-import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionE
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.AnyRef
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 /**
 * @author Alexander Podkhalyuzin
@@ -146,7 +146,7 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
   }
 
   //It's very rare case, when we need to desugar `.apply` first.
-  @CachedInUserData(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, BlockModificationTracker(this))
   private def cachedDesugaredApply: Option[ScExpression] = {
     val resolvedConstructor = constructorInvocation.flatMap(_.reference).flatMap(_.resolve().toOption)
     val constrParamLength = resolvedConstructor.map {
@@ -219,6 +219,6 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
 
   override protected def isInterface(namedElement: PsiNamedElement): Boolean = false
 
-  @CachedInUserData(this, CachesUtil.libraryAwareModTracker(this))
+  @CachedInUserData(this, ModTracker.libraryAware(this))
   override def psiMethods: Array[PsiMethod] = getAllMethods.filter(_.containingClass == this)
 }

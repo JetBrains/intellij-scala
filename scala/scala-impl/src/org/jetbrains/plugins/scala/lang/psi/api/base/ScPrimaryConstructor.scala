@@ -4,6 +4,7 @@ package psi
 package api
 package base
 
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -12,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
 
 import scala.collection.mutable
 
@@ -47,7 +48,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
    *
    * In addition, view and context bounds generate an additional implicit parameter section.
    */
-  @CachedInUserData(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, BlockModificationTracker(this))
   override def effectiveParameterClauses: Seq[ScParameterClause] = {
     def emptyParameterList: ScParameterClause =
       ScalaPsiElementFactory.createEmptyClassParamClauseWithContext(parameterList)
@@ -86,7 +87,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
     res.asInstanceOf[ScMethodType]
   }
 
-  @Cached(ModCount.getBlockModificationCount, this)
+  @Cached(BlockModificationTracker(this), this)
   def getFunctionWrappers: Seq[ScPrimaryConstructorWrapper] = {
     val buffer = mutable.ArrayBuffer.empty[ScPrimaryConstructorWrapper]
 

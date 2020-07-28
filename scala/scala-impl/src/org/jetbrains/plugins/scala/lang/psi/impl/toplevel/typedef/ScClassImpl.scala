@@ -11,7 +11,7 @@ import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import javax.swing.Icon
-import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
@@ -138,7 +138,7 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
     else None
   }
 
-  @CachedInUserData(this, CachesUtil.libraryAwareModTracker(this))
+  @CachedInUserData(this, ModTracker.libraryAware(this))
   private def syntheticImplicitMethod: Option[ScFunction] = {
     try {
       val method = ScalaPsiElementFactory.createMethodWithContext(implicitMethodText, this.getContext, this)

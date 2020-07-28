@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, MacroInvocationContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
@@ -22,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 
 /**
@@ -64,7 +65,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
     case _ => None
   }
 
-  @Cached(ModCount.getBlockModificationCount, this)
+  @Cached(BlockModificationTracker(this), this)
   private def innerTypeExt: InvocationData = try {
     tryToGetInnerTypeExt(useExpectedType = true)
   } catch {

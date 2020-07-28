@@ -5,9 +5,10 @@ package api
 package statements
 
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, StaticTraitScFunctionWrapper}
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 /**
  * @author Alexander Podkhalyuzin
@@ -26,7 +27,7 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
 
   override def controlFlowScope: Option[ScalaPsiElement] = body
 
-  @Cached(ModCount.getBlockModificationCount, this)
+  @Cached(BlockModificationTracker(this), this)
   def getStaticTraitFunctionWrapper(cClass: PsiClassWrapper): StaticTraitScFunctionWrapper =
     new StaticTraitScFunctionWrapper(this, cClass)
 }

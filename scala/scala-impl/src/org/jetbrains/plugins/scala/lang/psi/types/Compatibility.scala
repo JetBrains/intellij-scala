@@ -9,6 +9,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsParameterImpl
 import org.jetbrains.annotations.TestOnly
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.extractImplicitParameterType
@@ -25,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.SAMUtil
 
@@ -94,7 +95,7 @@ object Compatibility {
       @CachedWithRecursionGuard(
         e,
         ExpressionTypeResult(Right(tpe)),
-        ModCount.getBlockModificationCount
+        BlockModificationTracker(e)
       )
       private def typeAfterConversion(
         e:            PsiElement,

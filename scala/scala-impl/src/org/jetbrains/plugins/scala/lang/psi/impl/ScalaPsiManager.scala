@@ -18,7 +18,7 @@ import com.intellij.util.ObjectUtils
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.{CalledInAwt, TestOnly}
 import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker}
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CachesUtil, CleanupScheduler, ScalaShortNamesCacheManager}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CleanupScheduler, ModTracker, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -396,7 +396,7 @@ class ScalaPsiManager(implicit val project: Project) {
       forTopLevelMap.computeIfAbsent((clazz, withSupers), { case (cls, supers) => nodes.build(cls, supers) })
 
     def cachedMap(clazz: PsiClass, withSupers: Boolean): nodes.Map = {
-      CachesUtil.libraryAwareModTracker(clazz) match {
+      ModTracker.libraryAware(clazz) match {
         case `rootManager`               => forLibraryClasses(clazz, withSupers)
         case TopLevelModificationTracker => forTopLevelClasses(clazz, withSupers)
         case tracker =>
@@ -451,8 +451,6 @@ object ScalaPsiManager {
       manager.clearOnLowMemory()
     }, project.unloadAwareDisposable)
   }
-
-  object AnyScalaPsiModificationTracker extends SimpleModificationTracker
 
   implicit val ImplicitCollectorCacheCapabilities: CacheCapabilities[ImplicitCollectorCache] =
     new CacheCapabilities[ImplicitCollectorCache] {

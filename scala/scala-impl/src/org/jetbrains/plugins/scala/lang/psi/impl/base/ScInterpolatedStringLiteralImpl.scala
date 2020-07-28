@@ -5,11 +5,12 @@ package impl
 package base
 
 import com.intellij.lang.{ASTNode, LanguageNamesValidation}
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.StringContextCanonical
 
 import scala.meta.intellij.QuasiquoteInferUtil._
@@ -60,7 +61,7 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
 
   override protected def endQuote: String = super.startQuote
 
-  @CachedInUserData(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, BlockModificationTracker(this))
   override def desugaredExpression: Option[(ScReferenceExpression, ScMethodCall)] = (referenceText, getContext) match {
     case (methodName, context) if context != null &&
       isString &&

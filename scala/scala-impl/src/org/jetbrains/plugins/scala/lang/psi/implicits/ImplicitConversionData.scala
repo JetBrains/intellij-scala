@@ -5,7 +5,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.autoImport.GlobalImplicitConversion
 import org.jetbrains.plugins.scala.autoImport.GlobalMember.findGlobalMembers
-import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.findImplicits
@@ -163,7 +163,7 @@ object ImplicitConversionData {
     }
 
 
-  @CachedInUserData(function, CachesUtil.libraryAwareModTracker(function))
+  @CachedInUserData(function, ModTracker.libraryAware(function))
   private def rawCheck(function: ScFunction): Option[ImplicitConversionData] = {
     for {
       retType   <- function.returnType.toOption
@@ -174,7 +174,7 @@ object ImplicitConversionData {
     }
   }
 
-  @CachedInUserData(named, CachesUtil.libraryAwareModTracker(named))
+  @CachedInUserData(named, ModTracker.libraryAware(named))
   private def rawElementWithFunctionTypeCheck(named: PsiNamedElement with Typeable): Option[ImplicitConversionData] = {
     for {
       function1Type <- named.elementScope.cachedFunction1Type

@@ -4,15 +4,16 @@ package psi
 package implicits
 
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, TraversableExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 
-import scala.collection.{Set, mutable}
+import scala.collection.Set
 
 /**
   * Utility class for implicit conversions.
@@ -51,7 +52,7 @@ object ScImplicitlyConvertible {
       if !application.implicitParameters.exists(_.isNotFoundImplicitParameter)
     } yield f(resolveResult, application.resultType, substitutor)
 
-  @CachedWithRecursionGuard(place, Set.empty, ModCount.getBlockModificationCount)
+  @CachedWithRecursionGuard(place, Set.empty, BlockModificationTracker(place))
   private def collectRegulars(place: ScExpression, placeType: ScType): Set[RegularImplicitResolveResult] = {
     placeType match {
       case _: UndefinedType => Set.empty
@@ -66,7 +67,7 @@ object ScImplicitlyConvertible {
     }
   }
 
-  @CachedWithRecursionGuard(place, Set.empty, ModCount.getBlockModificationCount)
+  @CachedWithRecursionGuard(place, Set.empty, BlockModificationTracker(place))
   private def collectCompanions(placeType: ScType, argumentTypes: Seq[ScType], place: PsiElement): Set[CompanionImplicitResolveResult] = {
     val expandedType = argumentTypes match {
       case Seq() => placeType

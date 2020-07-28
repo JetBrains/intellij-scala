@@ -6,11 +6,14 @@ package base
 package patterns
 
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.FakeCompanionClassOrCompanionClass
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeVariableTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
@@ -25,9 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ExpandedExtractorResolveProcessor}
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -58,7 +59,7 @@ object ScPattern {
 
     import pattern.{elementScope, projectContext}
 
-    @CachedInUserData(pattern, ModCount.getBlockModificationCount)
+    @CachedInUserData(pattern, BlockModificationTracker(pattern))
     def expectedType: Option[ScType] = {
       val psiManager = ScalaPsiManager.instance
 

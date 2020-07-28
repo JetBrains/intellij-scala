@@ -14,7 +14,7 @@ import scala.reflect.macros.whitebox
   * Author: Svyatoslav Ilinskiy, Nikolay.Tropin
   * Date: 9/25/15.
   */
-class CachedInUserData(userDataHolder: Any, dependencyItem: Object, tracked: Any*) extends StaticAnnotation {
+class CachedInUserData(userDataHolder: Any, modificationTracker: Object, tracked: Any*) extends StaticAnnotation {
   def macroTransform(annottees: Any*) = macro CachedInUserData.cachedInsideUserDataImpl
 }
 
@@ -26,7 +26,7 @@ object CachedInUserData {
     def parameters: (Tree, Tree, Seq[Tree]) = {
       c.prefix.tree match {
         case q"new CachedInUserData(..$params)" if params.length >= 2 =>
-          (params.head, modCountParamToModTracker(c)(params(1), params.head), params.drop(2))
+          (params.head, params(1), params.drop(2))
         case _ => abort(MacrosBundle.message("macros.cached.wrong.annotation.parameters"))
       }
     }

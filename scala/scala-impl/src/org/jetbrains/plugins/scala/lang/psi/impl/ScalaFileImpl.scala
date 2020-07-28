@@ -19,6 +19,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiUtilCore
 import com.intellij.util.indexing.FileBasedIndex
+import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.{ResolveFilterScope, WorksheetResolveFilterScope}
 import org.jetbrains.plugins.scala.lang.TokenSets._
@@ -31,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.annotation.tailrec
 import scala.collection.{JavaConverters, mutable}
@@ -102,7 +103,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     false
   }
 
-  @CachedInUserData(this, ModCount.anyScalaPsiModificationCount)
+  @CachedInUserData(this, ModTracker.anyScalaPsiChange)
   override def isScriptFile: Boolean = getViewProvider match {
     case _: ScFileViewProvider =>
       foldStub(isScriptFileImpl)(Function.const(false))
@@ -344,7 +345,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   }
 
   override def subtreeChanged(): Unit = {
-    ScalaPsiManager.AnyScalaPsiModificationTracker.incModificationCount()
+    ModTracker.anyScalaPsiChange.incModificationCount()
     super.subtreeChanged()
   }
 

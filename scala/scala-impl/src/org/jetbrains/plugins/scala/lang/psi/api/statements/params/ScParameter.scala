@@ -8,6 +8,7 @@ package params
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import javax.swing.Icon
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiParameterAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
@@ -17,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMem
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 import scala.annotation.tailrec
 
@@ -103,7 +104,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
 
   def getTypeNoResolve: PsiType = PsiType.VOID
 
-  @Cached(ModCount.getBlockModificationCount, this)
+  @Cached(BlockModificationTracker(this), this)
   def isDefaultParam: Boolean = calcIsDefaultParam(this, Set.empty)
 
 

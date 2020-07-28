@@ -5,13 +5,14 @@ package api
 package base
 package types
 
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 
 /**
 * @author Alexander Podkhalyuzin
@@ -28,7 +29,7 @@ trait ScTypeElement extends ScalaPsiElement with Typeable {
   override def `type`(): TypeResult = getType
 
   @CachedWithRecursionGuard(this, Failure(ScalaBundle.message("recursive.type.of.type.element")),
-    ModCount.getBlockModificationCount)
+    BlockModificationTracker(this))
   private[types] def getType: TypeResult = innerType
 
   def getTypeNoConstructor: TypeResult = getType

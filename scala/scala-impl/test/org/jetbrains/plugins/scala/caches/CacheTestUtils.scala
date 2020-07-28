@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.caches
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.TestFixtureProvider
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.PsiSelectionUtil
 
@@ -49,7 +49,7 @@ trait CacheTestUtils { testFixtureProvider: TestFixtureProvider =>
       innerCall
     }
 
-    @CachedWithRecursionGuard(psi, "#" + name, ModCount.getModificationCount)
+    @CachedWithRecursionGuard(psi, "#" + name, ModTracker.physicalPsiChange(psi.getProject))
     private[this] def internal_cached_call(): String = {
       calcCounter += 1
       innerCalls.map(_.apply()).mkString(name + "(", "+", ")")

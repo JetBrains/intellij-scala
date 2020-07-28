@@ -6,14 +6,15 @@ package toplevel
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 trait ScTypeParametersOwner extends ScalaPsiElement {
 
-  @Cached(ModCount.anyScalaPsiModificationCount, this)
+  @Cached(ModTracker.anyScalaPsiChange, this)
   def typeParameters: Seq[ScTypeParam] = {
     typeParametersClause match {
       case Some(clause) => clause.typeParameters

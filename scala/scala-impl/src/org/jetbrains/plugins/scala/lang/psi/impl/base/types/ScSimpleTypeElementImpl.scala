@@ -9,6 +9,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.getContextOfType
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
@@ -31,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 
 /**
  * @author Alexander Podkhalyuzin
@@ -45,7 +46,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
   override def getTypeNoConstructor: TypeResult = innerNonValueType(inferValueType = true, noConstructor = true)
 
   @CachedWithRecursionGuard(this, Failure(ScalaBundle.message("recursive.non.value.type.of.type.element")),
-    ModCount.getBlockModificationCount)
+    BlockModificationTracker(this))
   override def getNonValueType(withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult =
     innerNonValueType(inferValueType = false, withUnnecessaryImplicitsUpdate = withUnnecessaryImplicitsUpdate)
 

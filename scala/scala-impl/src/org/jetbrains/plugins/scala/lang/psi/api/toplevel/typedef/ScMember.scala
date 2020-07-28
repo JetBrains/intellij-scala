@@ -10,6 +10,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.util._
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, StubBasedExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameterClause}
@@ -18,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScMemberOrLocal
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.util.BaseIconProvider
 
 import scala.collection.mutable.ArrayBuffer
@@ -48,7 +49,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     *
     * `object a { def foo { def bar = 0 }}`
     */
-  @Cached(ModCount.anyScalaPsiModificationCount, this)
+  @Cached(ModTracker.anyScalaPsiChange, this)
   @Nullable
   def containingClass: ScTemplateDefinition = {
     this match {
@@ -198,6 +199,7 @@ object ScMember {
   }
 
   implicit class ScMemberExt(private val member: ScMember) extends AnyVal {
+
     def isSynthetic: Boolean = member.syntheticNavigationElement != null
 
     def isPrivate: Boolean = member.hasModifierPropertyScala(PsiModifier.PRIVATE)

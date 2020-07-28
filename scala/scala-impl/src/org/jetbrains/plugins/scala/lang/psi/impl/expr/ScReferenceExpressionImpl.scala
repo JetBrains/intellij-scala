@@ -9,6 +9,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -32,7 +33,7 @@ import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.ScTypeForDynamicProcessorEx
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 
 import scala.collection.mutable
 
@@ -541,11 +542,11 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
 
   private def resolveFailure = Failure(ScalaBundle.message("cannot.resolve.expression"))
 
-  @CachedWithRecursionGuard(this, ScalaResolveResult.EMPTY_ARRAY, ModCount.getBlockModificationCount)
+  @CachedWithRecursionGuard(this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this))
   private[this] def multiResolveImpl(incomplete: Boolean): Array[ScalaResolveResult] =
     new ReferenceExpressionResolver().resolve(this, shapesOnly = false, incomplete)
 
-  @CachedWithRecursionGuard(this, ScalaResolveResult.EMPTY_ARRAY, ModCount.getBlockModificationCount)
+  @CachedWithRecursionGuard(this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this))
   private[this] def shapeResolveImpl: Array[ScalaResolveResult] =
     new ReferenceExpressionResolver().resolve(this, shapesOnly = true, incomplete = false)
 }

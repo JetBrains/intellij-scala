@@ -6,6 +6,7 @@ package toplevel
 package templates
 
 import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -15,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembe
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateParentsStub
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 import scala.collection.mutable
 
@@ -57,7 +58,7 @@ final class ScTemplateParentsImpl private(stub: ScTemplateParentsStub, node: AST
     result
   }
 
-  @Cached(ModCount.getBlockModificationCount, this)
+  @Cached(BlockModificationTracker(this), this)
   private def syntheticTypeElements: Seq[ScTypeElement] = getContext.getContext match {
     case td: ScTypeDefinition => SyntheticMembersInjector.injectSupers(td)
     case _ => Seq.empty

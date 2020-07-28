@@ -11,7 +11,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.GlobalSearchScope.notScope
-import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 /**
 * User: Alexander Podkhalyuzin
@@ -267,13 +267,13 @@ object ScalaCompletionUtil {
   def isInExcludedPackage(qualifiedName: String, project: Project): Boolean =
     JavaProjectCodeInsightSettings.getSettings(project).isExcluded(qualifiedName)
 
-  @CachedInUserData(clazz, ModCount.getBlockModificationCount)
+  @CachedInUserData(clazz, BlockModificationTracker(clazz))
   private def inheritorObjectsInProject(clazz: ScTemplateDefinition): Set[ScObject] = {
     val scope = projectScope(clazz).intersectWith(clazz.resolveScope)
     ScalaInheritors.allInheritorObjects(clazz, scope)
   }
 
-  @CachedInUserData(clazz, CachesUtil.libraryAwareModTracker(clazz))
+  @CachedInUserData(clazz, ModTracker.libraryAware(clazz))
   private def inheritorObjectsInLibraries(clazz: ScTemplateDefinition): Set[ScObject] = {
     val notProjectScope = notScope(projectScope(clazz)).intersectWith(clazz.resolveScope)
     ScalaInheritors.allInheritorObjects(clazz, notProjectScope)

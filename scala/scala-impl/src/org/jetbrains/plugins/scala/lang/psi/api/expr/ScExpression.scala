@@ -6,6 +6,7 @@ package expr
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, isAnonymousExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
@@ -13,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScIntegerLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import org.jetbrains.plugins.scala.lang.psi.impl
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -21,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_11, Scala_2_13}
 import org.jetbrains.plugins.scala.util.SAMUtil
@@ -61,7 +62,7 @@ trait ScExpression extends ScBlockStatement
       return oldParent.asInstanceOf[ScExpression].replaceExpression(expr, removeParenthesis = true)
     }
     val newExpr = if (ScalaPsiUtil.needParentheses(this, expr)) {
-      impl.ScalaPsiElementFactory.createExpressionFromText(expr.getText.parenthesize())
+      ScalaPsiElementFactory.createExpressionFromText(expr.getText.parenthesize())
     } else expr
     val parentNode = oldParent.getNode
     val newNode = newExpr.copy.getNode
@@ -119,7 +120,7 @@ trait ScExpression extends ScBlockStatement
   @CachedWithRecursionGuard(
     this,
     ExpressionTypeResult(Failure("Recursive getTypeAfterImplicitConversion")),
-    ModCount.getBlockModificationCount
+    BlockModificationTracker(this)
   )
   override def getTypeAfterImplicitConversion(
     checkImplicits:  Boolean        = true,
@@ -177,17 +178,17 @@ object ScExpression {
 
     def expectedTypes(fromUnderscore: Boolean = true): Seq[ScType] = expectedTypesEx(fromUnderscore).map(_._1)
 
-    @CachedWithRecursionGuard(expr, Array.empty[ParameterType], ModCount.getBlockModificationCount)
+    @CachedWithRecursionGuard(expr, Array.empty[ParameterType], BlockModificationTracker(expr))
     def expectedTypesEx(fromUnderscore: Boolean = true): Array[ParameterType] = {
       ExpectedTypes.instance().expectedExprTypes(expr, fromUnderscore = fromUnderscore)
     }
 
-    @CachedWithRecursionGuard(expr, None, ModCount.getBlockModificationCount)
+    @CachedWithRecursionGuard(expr, None, BlockModificationTracker(expr))
     def smartExpectedType(fromUnderscore: Boolean = true): Option[ScType] = ExpectedTypes.instance().smartExpectedType(expr, fromUnderscore)
 
     def getTypeIgnoreBaseType: TypeResult = expr.getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
 
-    @CachedWithRecursionGuard(expr, Failure("Recursive getNonValueType"), ModCount.getBlockModificationCount)
+    @CachedWithRecursionGuard(expr, Failure("Recursive getNonValueType"), BlockModificationTracker(expr))
     def getNonValueType(ignoreBaseType: Boolean = false,
                         fromUnderscore: Boolean = false): TypeResult = {
       ProgressManager.checkCanceled()
@@ -219,7 +220,7 @@ object ScExpression {
     }
 
     @CachedWithRecursionGuard(expr, Failure("Recursive getTypeWithoutImplicits"),
-      ModCount.getBlockModificationCount)
+      BlockModificationTracker(expr))
     def getTypeWithoutImplicits(
       ignoreBaseType: Boolean = false,
       fromUnderscore: Boolean = false

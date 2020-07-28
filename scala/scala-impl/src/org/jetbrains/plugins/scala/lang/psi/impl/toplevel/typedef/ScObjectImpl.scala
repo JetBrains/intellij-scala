@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedWithRecursionGuard}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -109,7 +109,7 @@ class ScObjectImpl(
     place:      PsiElement
   ): Boolean = processDeclarationsImpl(processor, state, lastParent, place)
 
-  @Cached(ModCount.getBlockModificationCount, this)
+  @Cached(BlockModificationTracker(this), this)
   override def fakeCompanionClass: Option[PsiClass] = getCompanionModule(this) match {
     case Some(_) => None
     case None =>
@@ -123,7 +123,7 @@ class ScObjectImpl(
     case _ => getCompanionModule(this).get
   }
 
-  @Cached(ModCount.getBlockModificationCount, this)
+  @Cached(BlockModificationTracker(this), this)
   private def getModuleField: Option[PsiField] = {
     def hasJavaKeywords(qName: String) =
       qName.split('.').exists(JavaLexer.isKeyword(_, PsiUtil.getLanguageLevel(this.getProject)))
@@ -147,7 +147,7 @@ class ScObjectImpl(
 
   override def psiInnerClasses: Array[PsiClass] = Array.empty
 
-  @Cached(ModCount.getBlockModificationCount, this)
+  @Cached(BlockModificationTracker(this), this)
   override def getConstructors: Array[PsiMethod] = Array(new EmptyPrivateConstructor(this))
 
   override def isPhysical: Boolean = {

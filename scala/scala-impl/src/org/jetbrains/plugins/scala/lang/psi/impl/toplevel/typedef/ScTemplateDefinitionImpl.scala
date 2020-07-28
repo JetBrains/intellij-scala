@@ -19,7 +19,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.scope.processor.MethodsProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
-import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
+import org.jetbrains.plugins.scala.caches.{ModTracker, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -40,7 +40,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScalaType, TermSignature, TypeSignature}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.{JavaConverters, mutable}
@@ -220,7 +220,7 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
   override final def findInnerClassByName(name: String, checkBases: Boolean): PsiClass =
     PsiClassImplUtil.findInnerByName(this, name, checkBases)
 
-  @CachedInUserData(this, CachesUtil.libraryAwareModTracker(this))
+  @CachedInUserData(this, ModTracker.libraryAware(this))
   override final def getVisibleSignatures: ju.Collection[HierarchicalMethodSignature] =
     PsiSuperMethodImplUtil.getVisibleSignatures(this)
 
@@ -232,11 +232,11 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
       case path => (if (checkDeep) superPathsDeep else superPaths).contains(path)
     }
 
-  @Cached(ModCount.getModificationCount, this)
+  @Cached(ModTracker.physicalPsiChange(getProject), this)
   private def superPaths: Set[Path] =
     supers.map(Path.apply).toSet
 
-  @Cached(ModCount.getModificationCount, this)
+  @Cached(ModTracker.physicalPsiChange(getProject), this)
   private def superPathsDeep: Set[Path] = {
     val collected = mutable.Set.empty[Path]
 

@@ -42,7 +42,7 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
 
   override def bind: Option[PsiElement] = bindInternal(shapeResolve = false)
 
-  //@Cached(ModCount.getBlockModificationCount, this)
+  //@Cached(BlockModificationTracker(this), this)
   override def multiResolve: Seq[ScalaResolveResult] = {
     multiResolveInternal(shapeResolve = false)
   }

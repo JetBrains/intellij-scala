@@ -11,6 +11,7 @@ import com.intellij.psi.impl.source.JavaDummyHolder
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.autoImport.quickFix.{ClassToImport, ElementToImport, MemberToImport}
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -37,7 +38,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcesso
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ExtractorResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{StableCodeReferenceResolver, _}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocSyntaxElement}
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 
 
@@ -260,7 +261,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     }
   }
 
-  @CachedWithRecursionGuard(this, ScalaResolveResult.EMPTY_ARRAY, ModCount.getBlockModificationCount)
+  @CachedWithRecursionGuard(this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this))
   override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] = {
     val resolver = new StableCodeReferenceResolver(ScStableCodeReferenceImpl.this, false, false, false)
     resolver.resolve(ScStableCodeReferenceImpl.this, incomplete)

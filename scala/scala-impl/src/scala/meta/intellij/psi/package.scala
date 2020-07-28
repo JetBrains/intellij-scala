@@ -1,12 +1,13 @@
 package scala.meta
 package intellij
 
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationsHolder, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, CachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 package object psi {
@@ -15,7 +16,7 @@ package object psi {
 
     def isMetaMacro: Boolean = repr.isMetaEnabled && cached
 
-    @CachedInUserData(repr, ModCount.getBlockModificationCount)
+    @CachedInUserData(repr, BlockModificationTracker(repr))
     private def cached: Boolean = repr.constructorInvocation.reference.exists {
       case reference: ScStableCodeReferenceImpl =>
         val processor = new ResolveProcessor(reference.getKinds(incomplete = false), reference, reference.refName)
@@ -33,7 +34,7 @@ package object psi {
       if (repr.isMetaEnabled) cached
       else Left("")
 
-    @CachedWithRecursionGuard(repr, Left("Recursive meta expansion"), ModCount.getBlockModificationCount)
+    @CachedWithRecursionGuard(repr, Left("Recursive meta expansion"), BlockModificationTracker(repr))
     private def cached: Either[String, Tree] = {
       import ScalaProjectSettings.ScalaMetaMode.Enabled
       ScalaProjectSettings.getInstance(repr.getProject).getScalaMetaMode match {

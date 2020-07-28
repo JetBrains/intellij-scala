@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
+import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -23,7 +24,7 @@ object MethodRepr {
     }
 
   //it is invoked very often in inspection, so BlockModificationTracker would be to heavy
-  @CachedInUserData(expr, ModCount.anyScalaPsiModificationCount)
+  @CachedInUserData(expr, ModTracker.anyScalaPsiChange)
   private def unapplyInner(expr: ScExpression): Option[(ScExpression, Option[ScExpression], Option[ScReferenceExpression], Seq[ScExpression])] = {
     expr match {
       case call: ScMethodCall =>

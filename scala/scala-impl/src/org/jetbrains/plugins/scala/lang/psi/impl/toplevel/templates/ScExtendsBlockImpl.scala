@@ -8,7 +8,7 @@ package templates
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTemplateParentsFactory
-import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.{result, _}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.Seq
@@ -44,7 +44,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
   override def toString: String = "ExtendsBlock"
 
-  @Cached(ModCount.anyScalaPsiModificationCount, this)
+  @Cached(ModTracker.anyScalaPsiChange, this)
   override def templateBody: Option[ScTemplateBody] = {
     def childStubTemplate(stub: ScExtendsBlockStub) =
       Option(stub.findChildStubByType(TEMPLATE_BODY))
@@ -67,7 +67,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
       _.`type`().toOption
     }
 
-  @CachedInUserData(this, CachesUtil.libraryAwareModTracker(this))
+  @CachedInUserData(this, ModTracker.libraryAware(this))
   override def superTypes: List[ScType] = {
     val buffer = ArrayBuffer.empty[ScType]
 
@@ -147,7 +147,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
       case _ => false
     }
 
-  @Cached(ModCount.getBlockModificationCount, this)
+  @Cached(BlockModificationTracker(this), this)
   def syntheticTypeElements: Seq[ScTypeElement] = {
     if (templateParents.nonEmpty) return Seq.empty //will be handled separately
     getContext match {
@@ -156,7 +156,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     }
   }
 
-  @CachedInUserData(this, CachesUtil.libraryAwareModTracker(this))
+  @CachedInUserData(this, ModTracker.libraryAware(this))
   override def supers: Seq[PsiClass] = {
     val typeElements = templateParents.fold(syntheticTypeElements) {
       _.allTypeElements

@@ -22,7 +22,7 @@ import scala.reflect.macros.whitebox
  * Author: Svyatoslav Ilinskiy
  * Date: 9/18/15.
  */
-class Cached(dependencyItem: Object, psiElement: Any, trackedExpressions: Any*) extends StaticAnnotation {
+class Cached(modificationTracker: Object, psiElement: Any, trackedExpressions: Any*) extends StaticAnnotation {
   def macroTransform(annottees: Any*) = macro Cached.cachedImpl
 }
 
@@ -37,9 +37,8 @@ object Cached {
     def parameters: (Tree, Tree, Seq[Tree]) = {
       c.prefix.tree match {
         case q"new Cached(..$params)" if params.length >= 2 =>
-          val Seq(depItem, psiElement, tracked @ _*) = params.map(_.asInstanceOf[c.universe.Tree])
-          val modTracker = modCountParamToModTracker(c)(depItem, psiElement)
-          (modTracker, psiElement, tracked)
+          val Seq(modificationTracker, psiElement, tracked @ _*) = params.map(_.asInstanceOf[c.universe.Tree])
+          (modificationTracker, psiElement, tracked)
         case _ => abort(MacrosBundle.message("macros.cached.wrong.parameters"))
       }
     }

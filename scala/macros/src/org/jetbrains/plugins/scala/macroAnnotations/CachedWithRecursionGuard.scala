@@ -28,7 +28,7 @@ object CachedWithRecursionGuard {
 
     def parameters: (Tree, Tree, Tree, Seq[Tree]) = c.prefix.tree match {
       case q"new CachedWithRecursionGuard(..$params)" if params.length >= 3 =>
-        (params.head, params(1), modCountParamToModTracker(c)(params(2), params.head), params.drop(3))
+        (params.head, params(1), params(2), params.drop(3))
       case _ => abort(MacrosBundle.message("macros.cached.wrong.annotation.parameters"))
     }
 

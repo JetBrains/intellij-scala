@@ -16,6 +16,7 @@ import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
 import com.intellij.util.PlatformIcons
 import com.intellij.util.containers.ContainerUtil
 import javax.swing.Icon
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiModifierListOwnerExt, PsiTypeExt, TraversableExt}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer._
@@ -41,7 +42,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScType, TermSignature}
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
 
 import scala.annotation.tailrec
 import scala.collection.Seq
@@ -76,7 +77,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     n.getPsi
   }
 
-  @Cached(ModCount.anyScalaPsiModificationCount, this)
+  @Cached(ModTracker.anyScalaPsiChange, this)
   override def paramClauses: ScParameters = getStubOrPsiChild(ScalaElementType.PARAM_CLAUSES)
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
@@ -116,7 +117,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     !lastParent.isPhysical || isFromTypeParams || isReturnTypeElement
   }
 
-  @Cached(ModCount.anyScalaPsiModificationCount, this)
+  @Cached(ModTracker.anyScalaPsiChange, this)
   override def returnTypeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 
   // TODO unify with ScValue and ScVariable
@@ -149,7 +150,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     }
   }
 
-  @CachedInUserData(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, BlockModificationTracker(this))
   private def getReturnTypeImpl: PsiType = {
     val resultType = `type`().getOrAny match {
       case FunctionType(rt, _) => rt
@@ -190,7 +191,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
 
   override def extensionMethodClause: Option[ScParameterClause] = Option(getStubOrPsiChild(ScalaElementType.PARAM_CLAUSE))
 
-  @CachedInUserData(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, BlockModificationTracker(this))
   override def effectiveParameterClauses: Seq[ScParameterClause] = {
     val maybeOwner = if (isConstructor) {
       containingClass match {
@@ -207,7 +208,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   /**
     * @return Empty array, if containing class is null.
     */
-  @Cached(ModCount.getBlockModificationCount, this)
+  @Cached(BlockModificationTracker(this), this)
   override def getFunctionWrappers(isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper] = {
     val buffer = new ArrayBuffer[ScFunctionWrapper]
     if (cClass.isDefined || containingClass != null) {

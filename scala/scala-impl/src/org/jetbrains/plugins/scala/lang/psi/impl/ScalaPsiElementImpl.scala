@@ -4,15 +4,15 @@ package psi
 package impl
 
 import com.intellij.extapi.psi.{ASTWrapperPsiElement, StubBasedPsiElementBase}
-import com.intellij.ide.scratch.ScratchUtil
 import com.intellij.lang.{ASTNode, Language}
 import com.intellij.openapi.util.UserDataHolderBase
 import com.intellij.psi.impl.CheckUtil
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
-import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
+import com.intellij.psi.search.SearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, StubBasedPsiElement}
+import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(node)
@@ -59,7 +59,7 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
   }
 
   override def subtreeChanged(): Unit = {
-    ScalaPsiManager.AnyScalaPsiModificationTracker.incModificationCount()
+    ModTracker.anyScalaPsiChange.incModificationCount()
     super.subtreeChanged()
   }
 
@@ -124,7 +124,7 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](s
   }
 
   override def subtreeChanged(): Unit = {
-    ScalaPsiManager.AnyScalaPsiModificationTracker.incModificationCount()
+    ModTracker.anyScalaPsiChange.incModificationCount()
     super.subtreeChanged()
   }
 

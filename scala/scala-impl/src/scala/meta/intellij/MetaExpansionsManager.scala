@@ -11,12 +11,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.{ModuleRootManager, OrderEnumerator}
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationsHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
 
 import scala.collection.JavaConverters._
@@ -134,7 +135,7 @@ object MetaExpansionsManager {
   def runMetaAnnotation(annot: ScAnnotation): Either[String, Tree] = {
     val holder = annot.parentOfType(classOf[ScAnnotationsHolder], strict = false).orNull
 
-    @CachedInUserData(annot, ModCount.getBlockModificationCount)
+    @CachedInUserData(annot, BlockModificationTracker(annot))
     def runMetaAnnotationsImpl(annot: ScAnnotation): Either[String, Tree] = {
 
       val converter = new TreeConverter {

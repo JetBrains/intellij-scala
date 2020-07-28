@@ -24,9 +24,9 @@ object CachedMacroUtil {
     q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil"
   }
 
-  def blockModificationTrackerFQN(implicit c: whitebox.Context): c.universe.Tree = {
+  def modTrackerFQN(implicit c: whitebox.Context): c.universe.Tree = {
     import c.universe.Quasiquote
-    q"_root_.org.jetbrains.plugins.scala.caches.BlockModificationTracker"
+    q"_root_.org.jetbrains.plugins.scala.caches.ModTracker"
   }
 
   def timestampedFQN(implicit c: whitebox.Context): c.universe.Tree = {
@@ -141,20 +141,9 @@ object CachedMacroUtil {
     q"org.jetbrains.plugins.scala.caches.RecursionManager"
   }
 
-
-  def psiModificationTrackerFQN(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    q"_root_.com.intellij.psi.util.PsiModificationTracker"
-  }
-
   def psiElementType(implicit c: whitebox.Context): c.universe.Tree = {
     import c.universe.Quasiquote
     tq"_root_.com.intellij.psi.PsiElement"
-  }
-
-  def scalaPsiManagerFQN(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    q"_root_.org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager"
   }
 
   def concurrentMapTypeFqn(implicit c: whitebox.Context): c.universe.Tree = {
@@ -214,27 +203,6 @@ object CachedMacroUtil {
       case tq"Int" => tq"java.lang.Integer"
       case tq"Long" => tq"java.lang.Long"
       case _ => tp
-    }
-  }
-
-  @tailrec
-  def modCountParamToModTracker(c: whitebox.Context)(tree: c.universe.Tree, psiElement: c.universe.Tree): c.universe.Tree = {
-    implicit val x: c.type = c
-    import c.universe._
-    tree match {
-      case q"modificationCount = $v" =>
-        modCountParamToModTracker(x)(v, psiElement)
-      case q"ModCount.$v" =>
-        modCountParamToModTracker(x)(q"$v", psiElement)
-      case q"$v" =>
-        ModCount.values.find(_.toString == v.toString) match {
-          case Some(ModCount.getBlockModificationCount) =>
-            q"$blockModificationTrackerFQN($psiElement)"
-          case Some(ModCount.getModificationCount) => q"$psiModificationTrackerFQN.SERVICE.getInstance($psiElement.getProject)"
-          case Some(ModCount.`anyScalaPsiModificationCount`) =>
-            q"$scalaPsiManagerFQN.AnyScalaPsiModificationTracker"
-          case _ => tree
-        }
     }
   }
 
@@ -366,16 +334,5 @@ object CachedMacroUtil {
 
 object ModCount extends Enumeration {
   type ModCount = Value
-  //any physical psi change
-  val getModificationCount: ModCount = Value("getModificationCount")
-
   //only changes that may affect return type of a current block
-  val getBlockModificationCount: ModCount = Value("getBlockModificationCount")
-
-  //Use for hot methods: it has minimal overhead, but updates on each change
-  //
-  // PsiModificationTracker is not an option, because it
-  // - requires calling getProject first
-  // - doesn't work for non-physical elements
-  val anyScalaPsiModificationCount: ModCount = Value("anyScalaPsiModificationCount")
 }

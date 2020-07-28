@@ -11,7 +11,6 @@ package typedef
 
 import com.intellij.lang.ASTNode
 import com.intellij.navigation._
-import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.javadoc.PsiDocComment
@@ -19,8 +18,7 @@ import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTypeDefinitionFactory
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CachesUtil}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets.TYPE_DEFINITIONS
 import org.jetbrains.plugins.scala.lang.lexer._
@@ -42,7 +40,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, CachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.projectView.FileKind
 
 import scala.annotation.tailrec
@@ -239,7 +237,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     }
   }
 
-  @Cached(CachesUtil.libraryAwareModTracker(this), this)
+  @Cached(ModTracker.libraryAware(this), this)
   private def calcFakeCompanionModule(): Option[ScObject] = {
     val accessModifier = getModifierList.accessModifier match {
       case None => ""
@@ -266,7 +264,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
 
   import ScTypeDefinitionImpl._
 
-  @Cached(ModCount.anyScalaPsiModificationCount, this)
+  @Cached(ModTracker.anyScalaPsiChange, this)
   override final def getQualifiedName: String = {
     if (hasNoJavaFQName(this))
       return null
@@ -288,7 +286,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     }
   }
 
-  @Cached(ModCount.anyScalaPsiModificationCount, this)
+  @Cached(ModTracker.anyScalaPsiChange, this)
   override def qualifiedName: String = {
     if (isLocalOrInsideAnonymous(this))
       return name
@@ -385,16 +383,16 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   override def getOriginalElement: PsiElement =
     ScalaPsiImplementationHelper.getOriginalClass(this)
 
-  @CachedInUserData(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, BlockModificationTracker(this))
   override def syntheticTypeDefinitions: Seq[ScTypeDefinition] = SyntheticMembersInjector.injectInners(this)
 
-  @CachedInUserData(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, BlockModificationTracker(this))
   override def syntheticMembers: Seq[ScMember] = SyntheticMembersInjector.injectMembers(this)
 
-  @CachedInUserData(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, BlockModificationTracker(this))
   override def syntheticMethods: Seq[ScFunction] = SyntheticMembersInjector.inject(this)
 
-  @CachedInUserData(this, CachesUtil.libraryAwareModTracker(this))
+  @CachedInUserData(this, ModTracker.libraryAware(this))
   override def psiMethods: Array[PsiMethod] = getAllMethods.filter(_.containingClass == this)
 
   @CachedWithRecursionGuard(this, None, BlockModificationTracker(this))

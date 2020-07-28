@@ -6,6 +6,7 @@ package expr
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -17,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.util.KindProjectorUtil.{PolymorphicLambda, kindProjectorPolymorphicLambdaType}
 
 import scala.collection.Seq
@@ -69,8 +70,8 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
   private def substPolymorphicType: ScType => ScType = {
     case ScTypePolymorphicType(internal, tps) =>
       //type parameters of a method are appended to the right of ScTypePolymorphicType parameters
-      val tpSubst = ScSubstitutor.bind(tps.takeRight(arguments.length), arguments)(_.calcType)
-      tpSubst(internal)
+      ScSubstitutor.bind(tps.takeRight(arguments.length), arguments)(_.calcType)
+        .apply(internal)
     case t => t
   }
 
@@ -85,7 +86,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
       .map(substPolymorphicType)
   }
 
-  @Cached(ModCount.getModificationCount, this)
+  @Cached(ModTracker.physicalPsiChange(getProject), this)
   private def polymorphicLambdaType: TypeResult = this match {
     case PolymorphicLambda(des, lhs, rhs) => kindProjectorPolymorphicLambdaType(des, lhs, rhs, this).asTypeResult
     case _                                => Failure(ScalaBundle.message("not.a.polymorphic.lambda"))
