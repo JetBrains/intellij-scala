@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.editor.AutoBraceAdvertiser
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
@@ -69,6 +70,8 @@ class AddBracesIntention extends PsiElementBaseIntentionAction {
       expr => () => {
         CodeEditUtil.replaceChild(expr.getParent.getNode, expr.getNode,
           createExpressionFromText("{\n%s}".format(expr.getText))(expr.getManager).getNode)
+
+        AutoBraceAdvertiser.advertiseAutoBraces(project)
       }
     }
   }
