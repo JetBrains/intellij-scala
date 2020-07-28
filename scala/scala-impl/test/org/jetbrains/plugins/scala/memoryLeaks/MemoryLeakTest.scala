@@ -19,7 +19,7 @@ import com.intellij.openapi.startup.StartupManager
 import com.intellij.openapi.util.Condition
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import com.intellij.psi.{PsiFile, PsiManager}
-import com.intellij.testFramework.{LeakHunter, PlatformTestCase}
+import com.intellij.testFramework.{LeakHunter, PlatformTestCase, ThreadTracker}
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
 import org.jetbrains.plugins.scala.base.libraryLoaders._
@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TestUtils.getTestDataPath
+import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
@@ -46,7 +47,10 @@ class MemoryLeakTest extends PlatformTestCase {
   override protected def setUpProject(): Unit = {}
 
   override def tearDown(): Unit = {
-
+    ThreadTracker.longRunningThreadCreated(
+      UnloadAwareDisposable.scalaPluginDisposable,
+      "SbtCompilationSupervisor server connection thread"
+    )
     super.tearDown()
   }
 

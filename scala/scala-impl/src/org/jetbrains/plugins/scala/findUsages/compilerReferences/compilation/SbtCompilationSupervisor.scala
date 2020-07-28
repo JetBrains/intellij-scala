@@ -54,16 +54,18 @@ class SbtCompilationSupervisor {
       actualPort = Option(server.getLocalPort)
       logger.info(s"Listening to incoming sbt compilation events on port $port.")
       executeOnPooledThread {
-        while (server != null && !server.isClosed) {
-          try {
-            val client = server.accept()
-            executeOnPooledThread(handleConnection(client))
-          } catch {
-            case e: IOException =>
-              if (!server.isClosed) {
-                logger.error(e)
-                onConnectionFailure(Unidentified, None)
-              }
+        withCustomThreadName {
+          while (server != null && !server.isClosed) {
+            try {
+              val client = server.accept()
+              executeOnPooledThread(handleConnection(client))
+            } catch {
+              case e: IOException =>
+                if (!server.isClosed) {
+                  logger.error(e)
+                  onConnectionFailure(Unidentified, None)
+                }
+            }
           }
         }
       }
@@ -125,6 +127,18 @@ class SbtCompilationSupervisor {
 }
 
 object SbtCompilationSupervisor {
+  private val connectionThreadName = "SbtCompilationSupervisor server connection thread"
+
+  private def withCustomThreadName(action: => Unit): Unit = {
+    val thread = Thread.currentThread()
+    val oldName = thread.getName
+    thread.setName(connectionThreadName)
+    try
+      action
+    finally
+      thread.setName(oldName)
+  }
+
   private val logger = Logger.getInstance(classOf[SbtCompilationSupervisor])
 
   def apply(): SbtCompilationSupervisor =
