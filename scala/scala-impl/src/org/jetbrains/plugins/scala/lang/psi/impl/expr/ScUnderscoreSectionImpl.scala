@@ -6,7 +6,6 @@ package expr
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -16,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ParameterExpectedTypesUtil._
 
 /**
  * @author Alexander Podkhalyuzin, ilyas
@@ -85,10 +85,20 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) 
                     val param               = params.lift(i)
                     val failure: TypeResult = Failure(ScalaBundle.message("could.not.infer.type.of.underscore.section"))
 
-                    param.fold(failure) {
-                      case FullyAbstractType() => failure
-                      case tpe                 => Right(tpe.removeAbstracts)
-                    }
+                    param.fold(failure)(tpe =>
+                      if (!isFullyDefined(tpe)) {
+                        var i = 0
+                        val ithUnderscore: Seq[ScExpression] => Option[ScExpression] = _.find {
+                          case _: ScUnderscoreSection =>
+                            if (i == idx) true
+                            else { i += 1; false }
+                          case _ => false
+                        }
+
+                        val maybeFromUndoingEtaExp = inferExpectedParamTypeUndoingEtaExpansion(expr, ithUnderscore)
+                        maybeFromUndoingEtaExp.asTypeResult
+                      } else Right(tpe.removeAbstracts)
+                    )
                   case _ => this.expectedType(false).asTypeResult
                 }
             }

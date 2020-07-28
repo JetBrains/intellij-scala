@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
-import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
 /**
  * Nikolay.Tropin
  * 5/30/13
@@ -27,10 +25,10 @@ class FilterSizeTest extends OperationsOnCollectionInspectionTest {
   }
 
   def test_3(): Unit = {
-    val selected = s"Map() ${START}filter (x => true) size$END"
+    val selected = s"Map(1 -> 2) ${START}filter (x => true) size$END"
     checkTextHasError(selected)
-    val text = "Map() filter (x => true) size"
-    val result = "Map() count (x => true)"
+    val text = "Map(1 -> 2) filter (x => true) size"
+    val result = "Map(1 -> 2) count (x => true)"
     testQuickFix(text, result, hint)
   }
 

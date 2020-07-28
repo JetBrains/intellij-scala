@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
-import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
 /**
  * Nikolay.Tropin
  * 2014-05-07
@@ -16,10 +14,10 @@ class FilterIsEmptyCheckTest extends OperationsOnCollectionInspectionTest {
   override protected val hint: String = ScalaInspectionBundle.message("filter.empty.check.hint")
 
   def test_1(): Unit = {
-    val selected = s"(Map()$START filter (x => true)).size == 0$END"
+    val selected = s"(Map(1 -> 2)$START filter (x => true)).size == 0$END"
     checkTextHasError(selected)
-    val text = "(Map() filter (x => true)).size == 0"
-    val result = "!(Map() exists (x => true))"
+    val text = "(Map(1 -> 2) filter (x => true)).size == 0"
+    val result = "!(Map(1 -> 2) exists (x => true))"
     testQuickFix(text, result, hint)
   }
 
