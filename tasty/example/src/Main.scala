@@ -22,8 +22,8 @@ object Main {
   def main(args: Array[String]): Unit = {
     val home = System.getProperty("user.home")
 
-    val Version = "0.25"
-    val FullVersion = s"$Version.0-RC2"
+    val Version = "0.26"
+    val FullVersion = s"$Version.0-RC1"
 
     val files = Seq(
       home + "/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.13.1.jar",
