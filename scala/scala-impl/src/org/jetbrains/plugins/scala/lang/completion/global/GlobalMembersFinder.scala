@@ -92,8 +92,8 @@ object GlobalMembersFinder {
 
     private lazy val elements = reference
       .completionVariants()
-      .toSet[ScalaLookupItem]
-      .map(_.getPsiElement)
+      .map(_.element)
+      .toSet
 
     override def apply(element: PsiNamedElement): NameAvailabilityState =
       if (elements.contains(element)) AVAILABLE

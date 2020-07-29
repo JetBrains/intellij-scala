@@ -26,10 +26,10 @@ private abstract class GlobalMemberResult protected(protected val resolveResult:
 
   final def createLookupItem(nameAvailability: PsiNamedElement => NameAvailabilityState): LookupElement =
     if (isApplicable) {
-      val lookupItem = resolveResult.getLookupElement(
+      val lookupItem = resolveResult.createLookupElement(
         isClassName = true,
         containingClass = containingClass
-      ).get
+      )
 
       buildItem(
         lookupItem,
