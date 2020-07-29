@@ -3,32 +3,29 @@ package lang
 package completion
 package global
 
+import com.intellij.codeInsight.completion.PrefixMatcher
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.{PsiClass, PsiElement, PsiMember, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, isStatic}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
-abstract class GlobalMembersFinder protected(protected val place: ScalaPsiElement,
-                                             protected val accessAll: Boolean) {
-
-  import GlobalMembersFinder._
+sealed abstract class GlobalMembersFinder protected(protected val place: ScExpression,
+                                                    protected val accessAll: Boolean) {
 
   protected final def isAccessible(member: PsiMember): Boolean =
     accessAll ||
       completion.isAccessible(member)(place)
 
-  final def lookupItems(reference: ScReferenceExpression): Iterable[LookupElement] = {
-    val nameAvailability = new NameAvailabilityPredicate(reference)
+  final def lookupItems: Iterable[LookupElement] =
     candidates
-      .map(_.createLookupItem(nameAvailability))
-      .filterNot(_ == null)
-  }
+      .filter(_.isApplicable)
+      .map(_.createLookupItem)
 
   protected[global] def candidates: Iterable[GlobalMemberResult]
 
@@ -83,14 +80,34 @@ abstract class GlobalMembersFinder protected(protected val place: ScalaPsiElemen
   } yield constructor(namedElement, targetObject)
 }
 
-object GlobalMembersFinder {
+private[completion] abstract class ByTypeGlobalMembersFinder protected(protected val originalType: ScType,
+                                                                       place: ScExpression,
+                                                                       accessAll: Boolean)
+  extends GlobalMembersFinder(place, accessAll)
 
-  private final class NameAvailabilityPredicate(reference: ScReferenceExpression)
-    extends (PsiNamedElement => NameAvailabilityState) {
+private[completion] object ByTypeGlobalMembersFinder {
+
+  def apply(originalType: ScType,
+            place: ScExpression,
+            invocationCount: Int): Seq[ByTypeGlobalMembersFinder] = {
+    val accessAll = regardlessAccessibility(invocationCount)
+
+    Seq(
+      new ExtensionMethodsFinder(originalType, place, accessAll),
+      new HoogleFinder(originalType, place, accessAll),
+    )
+  }
+}
+
+private[completion] abstract class ByPlaceGlobalMembersFinder protected(override protected val place: ScReferenceExpression,
+                                                                        accessAll: Boolean)
+  extends GlobalMembersFinder(place, accessAll) {
+
+  protected object NameAvailability extends global.NameAvailability {
 
     import NameAvailabilityState._
 
-    private lazy val elements = reference
+    private lazy val elements = place
       .completionVariants()
       .map(_.element)
       .toSet
@@ -100,5 +117,20 @@ object GlobalMembersFinder {
       else if (elements.exists(_.name == element.name)) CONFLICT
       else NO_CONFLICT
   }
+}
 
+private[completion] object ByPlaceGlobalMembersFinder {
+
+  def apply(place: ScReferenceExpression,
+            matcher: PrefixMatcher,
+            invocationCount: Int): Seq[ByPlaceGlobalMembersFinder] = {
+    val accessAll = regardlessAccessibility(invocationCount)
+
+    val finder = if (accessAll && matcher.getPrefix.nonEmpty)
+      new StaticMembersFinder(place, completion.accessAll(invocationCount))(matcher.prefixMatches)
+    else
+      new LocallyImportableMembersFinder(place, accessAll)
+
+    Seq(finder)
+  }
 }

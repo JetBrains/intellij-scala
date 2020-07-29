@@ -32,31 +32,31 @@ final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContr
           .asInstanceOf[ScReferenceExpression]
 
         val invocationCount = parameters.getInvocationCount
-        val requiresAdvertisement = regardlessAccessibility(invocationCount)
 
-        val maybeFinder = reference match {
+        val finders = reference match {
           case Qualifier(place) =>
             place
               .getTypeWithoutImplicits()
-              .toOption
-              .map {
-                new ExtensionMethodsFinder(_, place, requiresAdvertisement)
+              .toSeq
+              .flatMap { originalType =>
+                ByTypeGlobalMembersFinder(
+                  originalType,
+                  place,
+                  invocationCount,
+                )
               }
-          case _ =>
-            val matcher = resultSet.getPrefixMatcher
-            val finder = if (requiresAdvertisement && matcher.getPrefix.nonEmpty)
-              new StaticMembersFinder(reference, accessAll(invocationCount))(matcher.prefixMatches)
-            else
-              new LocallyImportableMembersFinder(reference, requiresAdvertisement)
-
-            Some(finder)
+          case place =>
+            ByPlaceGlobalMembersFinder(
+              place,
+              resultSet.getPrefixMatcher,
+              invocationCount,
+            )
         }
 
-        val items = maybeFinder
-          .toIterable
-          .flatMap(_.lookupItems(reference))
+        val items = finders
+          .flatMap(_.lookupItems)
 
-        if (requiresAdvertisement && !items.forall {
+        if (regardlessAccessibility(invocationCount) && !items.forall {
           case item: ScalaLookupItem => item.shouldImport
           case _ => false
         }) {

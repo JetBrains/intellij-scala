@@ -17,32 +17,27 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
-private[completion] final class StaticMembersFinder(override protected val place: ScReferenceExpression,
-                                                    accessAll: Boolean)
-                                                   (private val namePredicate: String => Boolean)
-  extends GlobalMembersFinder(place, accessAll) {
-
-  import StaticMembersFinder._
+private final class StaticMembersFinder(place: ScReferenceExpression,
+                                        accessAll: Boolean)
+                                       (private val namePredicate: String => Boolean)
+  extends ByPlaceGlobalMembersFinder(place, accessAll) {
 
   override protected[global] def candidates: Iterable[GlobalMemberResult] = {
     implicit val scope: GlobalSearchScope = place.resolveScope
     val cacheManager = ScalaShortNamesCacheManager.getInstance(place.getProject)
 
     findStableScalaFunctions(cacheManager.allFunctions(namePredicate))(findInheritorObjectsForOwner) {
-      StaticMethodResult(_, _)
+      StaticMemberResult(_, _)
     } ++ findStableScalaProperties(cacheManager.allProperties(namePredicate))(findInheritorObjectsForOwner) {
       StaticFieldResult(_, _)
     } ++ findStaticJavaMembers(cacheManager.allMethods(namePredicate)) {
-      StaticMethodResult(_, _)
+      StaticMemberResult(_, _)
     } ++ findStaticJavaMembers(cacheManager.allFields(namePredicate)) {
       StaticFieldResult(_, _)
     }
   }
-}
 
-private object StaticMembersFinder {
-
-  object StaticMethodResult {
+  private object StaticMemberResult {
 
     def apply(methodToImport: ScFunction,
               classToImport: ScObject): GlobalMemberResult = {
@@ -60,7 +55,7 @@ private object StaticMembersFinder {
     }
 
     def apply(methodToImport: PsiMethod,
-              classToImport: PsiClass): StaticMethodResult =
+              classToImport: PsiClass): GlobalMemberResult =
       StaticMethodResult(
         //noinspection ScalaWrongPlatformMethodsUsage
         classToImport.findMethodsByName(methodToImport.getName, true),
@@ -68,8 +63,8 @@ private object StaticMembersFinder {
       )
   }
 
-  final case class StaticMethodResult(overloadsToImport: Array[PsiMethod],
-                                      override val classToImport: PsiClass)
+  private final case class StaticMethodResult(overloadsToImport: Array[PsiMethod],
+                                              override val classToImport: PsiClass)
     extends GlobalMemberResult(
       overloadsToImport match {
         case Array() => throw new IllegalArgumentException(s"$classToImport doesn't contain corresponding members")
@@ -77,17 +72,16 @@ private object StaticMembersFinder {
         case Array(first, second, _*) => if (first.isParameterless) second else first
       },
       classToImport
-    ) {
+    )(NameAvailability) {
 
-    override protected def buildItem(lookupItem: ScalaLookupItem,
-                                     state: NameAvailabilityState): LookupElement = {
+    override protected def buildItem(lookupItem: ScalaLookupItem): LookupElement = {
       putAllMethods(lookupItem, asList(overloadsToImport: _*))
-      super.buildItem(lookupItem, state)
+      super.buildItem(lookupItem)
     }
   }
 
-  final case class StaticFieldResult(elementToImport: PsiNamedElement,
-                                     override val classToImport: PsiClass)
-    extends GlobalMemberResult(elementToImport, classToImport)
+  private final case class StaticFieldResult(elementToImport: PsiNamedElement,
+                                             override val classToImport: PsiClass)
+    extends GlobalMemberResult(elementToImport, classToImport)(NameAvailability)
 
 }

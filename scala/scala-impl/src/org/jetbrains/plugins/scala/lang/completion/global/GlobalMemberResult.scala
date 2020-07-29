@@ -13,43 +13,42 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 private abstract class GlobalMemberResult protected(protected val resolveResult: ScalaResolveResult,
                                                     protected val classToImport: PsiClass,
-                                                    containingClass: Option[PsiClass] = None) {
+                                                    containingClass: Option[PsiClass] = None)
+                                                   (nameAvailability: NameAvailability) {
 
   import GlobalMemberResult._
 
   protected def this(elementToImport: PsiNamedElement,
-                     classToImport: PsiClass) = this(
+                     classToImport: PsiClass)
+                    (nameAvailability: NameAvailability) = this(
     new ScalaResolveResult(elementToImport),
     classToImport,
     Some(classToImport)
-  )
+  )(nameAvailability)
 
-  final def createLookupItem(nameAvailability: PsiNamedElement => NameAvailabilityState): LookupElement =
-    if (isApplicable) {
-      val lookupItem = resolveResult.createLookupElement(
-        isClassName = true,
-        containingClass = containingClass
-      )
+  private[global] def isApplicable: Boolean = Option(classToImport.qualifiedName).forall(isNotExcluded)
 
-      buildItem(
-        lookupItem,
-        nameAvailability(lookupItem.getPsiElement)
-      )
-    } else {
-      null
-    }
+  final def createLookupItem: LookupElement = {
+    val lookupItem = resolveResult.getLookupElement(
+      isClassName = true,
+      containingClass = containingClass,
+      shouldImport = nameAvailabilityState != NameAvailabilityState.AVAILABLE,
+    ).get
 
-  protected def buildItem(lookupItem: ScalaLookupItem,
-                          state: NameAvailabilityState): LookupElement = {
-    lookupItem.shouldImport = state != NameAvailabilityState.AVAILABLE
-    lookupItem.setInsertHandler(createInsertHandler(state))
-    lookupItem.withBooleanUserData(JavaCompletionUtil.FORCE_SHOW_SIGNATURE_ATTR)
+    buildItem(lookupItem)
   }
 
-  protected def createInsertHandler(state: NameAvailabilityState): InsertHandler[LookupElement] =
+  protected def buildItem(lookupItem: ScalaLookupItem): LookupElement = {
+    lookupItem
+      .setInsertHandler(createInsertHandler)
+      .withBooleanUserData(JavaCompletionUtil.FORCE_SHOW_SIGNATURE_ATTR)
+  }
+
+  protected def createInsertHandler: InsertHandler[LookupElement] =
     createGlobalMemberInsertHandler(classToImport)
 
-  private def isApplicable: Boolean = Option(classToImport.qualifiedName).forall(isNotExcluded)
+  protected final def nameAvailabilityState: NameAvailabilityState =
+    nameAvailability(resolveResult.getElement)
 }
 
 private object GlobalMemberResult {
