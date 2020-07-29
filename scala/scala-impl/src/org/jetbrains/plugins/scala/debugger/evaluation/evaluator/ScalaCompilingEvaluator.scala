@@ -240,7 +240,7 @@ private object GeneratedClass {
   private def findElement[T <: PsiElement](file: PsiFile, range: TextRange, elementClass: Class[T]): T =
     findElementInRange(file, range.getStartOffset, range.getEndOffset, elementClass, file.getLanguage)
 
-  private def addLocalClassAndConstructor(context: PsiElement,
+  private def addLocalClassAndConstructor(contextCopy: PsiElement,
                                           fragment: ScalaCodeFragment,
                                           generatedClassName: String): (ScClass, ScNewTemplateDefinition) = {
     @tailrec
@@ -255,7 +255,7 @@ private object GeneratedClass {
         }
     }
 
-    var (prevParent, parent) = findAnchorAndParent(context)
+    var (prevParent, parent) = findAnchorAndParent(contextCopy)
 
     val needBraces = parent match {
       case _: ScBlock | _: ScTemplateBody => false
@@ -280,7 +280,7 @@ private object GeneratedClass {
     implicit val ctx: ProjectContext = fragment.getProject
 
     val classText = localClassText(fragment, generatedClassName)
-    val classToInsert = createTemplateDefinitionFromText(classText, context.getContext, context).asInstanceOf[ScClass]
+    val classToInsert = createTemplateDefinitionFromText(classText, anchor.getContext, anchor).asInstanceOf[ScClass]
 
     val insertedClass = parent.addBefore(classToInsert, anchor)
     parent.addBefore(createNewLine(), anchor)
