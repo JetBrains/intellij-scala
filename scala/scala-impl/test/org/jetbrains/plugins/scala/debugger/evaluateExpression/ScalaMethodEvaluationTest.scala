@@ -12,6 +12,25 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[DebuggerTests]))
 class ScalaMethodEvaluationTest_2_11 extends ScalaMethodEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion) = version  == LatestScalaVersions.Scala_2_11
+
+  //todo move to ScalaMethodEvaluationTestBase when SCL-17927 is fixed
+  override def testInForStmt(): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("getX", "1")
+      evalEquals("getX1", "2")
+      evalEquals("getY()", "3")
+      evalEquals("getY1", "4")
+      evalEquals("new Inner().foo", "1")
+      atNextBreakpoint {
+        evalEquals("getX", "1")
+        evalEquals("getX1", "2")
+        evalEquals("getY()", "3")
+        evalEquals("getY1", "4")
+        evalEquals("new Inner().foo", "1")
+      }
+    }
+  }
 }
 
 @Category(Array(classOf[DebuggerTests]))
@@ -911,14 +930,15 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       waitForBreakpoint()
       evalEquals("getX", "1")
       evalEquals("getX1", "2")
-      evalEquals("getY()", "3")
-      evalEquals("getY1", "4")
+      //SCL-17927
+      //evalEquals("getY()", "3")
+      //evalEquals("getY1", "4")
       evalEquals("new Inner().foo", "1")
       atNextBreakpoint {
         evalEquals("getX", "1")
         evalEquals("getX1", "2")
-        evalEquals("getY()", "3")
-        evalEquals("getY1", "4")
+        //evalEquals("getY()", "3")
+        //evalEquals("getY1", "4")
         evalEquals("new Inner().foo", "1")
       }
     }
