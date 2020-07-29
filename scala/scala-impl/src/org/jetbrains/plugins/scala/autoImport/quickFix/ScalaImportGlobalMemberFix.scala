@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.StubIndexKeyExt
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -144,10 +145,12 @@ object ScalaImportGlobalMemberFix {
 
   private def isCompatible(originalRef: ScReferenceExpression, candidate: MemberToImport): Boolean = {
     val fixedQualifiedName = ScalaNamesUtil.escapeKeywordsFqn(candidate.qualifiedName)
-    val qualifiedRef =
-      ScalaPsiElementFactory.createExpressionWithContextFromText(fixedQualifiedName, originalRef.getContext, originalRef)
-        .asInstanceOf[ScReferenceExpression]
 
-    qualifiedRef.multiResolveScala(false).exists(_.problems.isEmpty)
+    createExpressionWithContextFromText(fixedQualifiedName, originalRef.getContext, originalRef) match {
+      case qualifiedRef: ScReferenceExpression =>
+        qualifiedRef.multiResolveScala(false).exists(_.problems.isEmpty)
+      case _ =>
+        throw new IllegalStateException(s"Reference is expected to be created from text $fixedQualifiedName")
+    }
   }
 }
