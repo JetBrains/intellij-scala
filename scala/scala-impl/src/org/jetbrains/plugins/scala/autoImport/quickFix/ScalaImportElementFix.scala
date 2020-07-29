@@ -47,7 +47,7 @@ abstract class ScalaImportElementFix(val place: PsiElement) extends HintAction w
       true
     else {
       invokeLater {
-        showHintWithAction(editor)
+        if (!editor.isDisposed) showHintWithAction(editor)
       }
       true
     }
