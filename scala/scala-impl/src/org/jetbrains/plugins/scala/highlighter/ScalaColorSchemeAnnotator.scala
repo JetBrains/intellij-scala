@@ -339,7 +339,13 @@ object ScalaColorSchemeAnnotator {
   }
 
   private def visitParameter(param: ScParameter, holder: ScalaAnnotationHolder): Unit = {
-    val annotation = holder.createInfoAnnotation(param.nameId, null)
+    val nameId = param.nameId
+
+    //in scala 3 parameters may be anonymous and we create synthetic name id for them
+    if (!nameId.isPhysical)
+      return
+
+    val annotation = holder.createInfoAnnotation(nameId, null)
     val attributesKey =
       if (param.isAnonymousParameter) DefaultHighlighter.ANONYMOUS_PARAMETER
       else DefaultHighlighter.PARAMETER
