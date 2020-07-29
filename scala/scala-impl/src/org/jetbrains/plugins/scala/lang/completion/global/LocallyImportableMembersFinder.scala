@@ -14,9 +14,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 
-private[completion] final class LocallyImportableMembersFinder(override protected val place: ScReferenceExpression,
-                                                               accessAll: Boolean)
-  extends GlobalMembersFinder(place, accessAll) {
+private final class LocallyImportableMembersFinder(place: ScReferenceExpression,
+                                                   accessAll: Boolean)
+  extends ByPlaceGlobalMembersFinder(place, accessAll) {
 
   import LocallyImportableMembersFinder._
 
@@ -50,29 +50,31 @@ private[completion] final class LocallyImportableMembersFinder(override protecte
     case function: ScFunction if !(function.isConstructor || function.isSpecial) => Seq(function)
     case _ => Seq.empty
   }(LocallyImportableMemberResult)
-}
 
-private object LocallyImportableMembersFinder {
-
-  final case class LocallyImportableMemberResult(elementToImport: PsiNamedElement,
-                                                 override val classToImport: PsiClass)
-    extends GlobalMemberResult(elementToImport, classToImport) {
+  private final case class LocallyImportableMemberResult(elementToImport: PsiNamedElement,
+                                                         override val classToImport: PsiClass)
+    extends GlobalMemberResult(elementToImport, classToImport)(NameAvailability) {
 
     import NameAvailabilityState._
 
-    override protected def buildItem(lookupItem: ScalaLookupItem,
-                                     state: NameAvailabilityState): LookupElement = state match {
-      case AVAILABLE => null
-      case CONFLICT => super.buildItem(lookupItem, CONFLICT)
-      case NO_CONFLICT => super.buildItem(lookupItem, AVAILABLE)
+    private[global] override def isApplicable: Boolean =
+      super.isApplicable &&
+        nameAvailabilityState != AVAILABLE
+
+    override protected def buildItem(lookupItem: ScalaLookupItem): LookupElement = {
+      lookupItem.shouldImport = nameAvailabilityState == CONFLICT
+      super.buildItem(lookupItem)
     }
 
-    override protected def createInsertHandler(state: NameAvailabilityState): InsertHandler[LookupElement] =
-      state match {
-        case AVAILABLE => createGlobalMemberInsertHandler(resolveResult.getElement, classToImport)
-        case _ => super.createInsertHandler(state)
+    override protected def createInsertHandler: InsertHandler[LookupElement] =
+      nameAvailabilityState match {
+        case NO_CONFLICT => createGlobalMemberInsertHandler(resolveResult.getElement, classToImport)
+        case _ => super.createInsertHandler
       }
   }
+}
+
+private object LocallyImportableMembersFinder {
 
   object ScalaObject {
 
