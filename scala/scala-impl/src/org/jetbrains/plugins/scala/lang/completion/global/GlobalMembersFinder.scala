@@ -74,7 +74,7 @@ abstract class GlobalMembersFinder protected(protected val place: ScalaPsiElemen
   protected[global] final def objectCandidates[T <: ScTypedDefinition](typeDefinitions: Iterable[ScTypeDefinition])
                                                                       (namedElements: ScMember => Seq[T])
                                                                       (constructor: (T, ScObject) => GlobalMemberResult): Iterable[GlobalMemberResult] = for {
-    CompanionObject(targetObject) <- typeDefinitions
+    ThisOrCompanionObject(targetObject) <- typeDefinitions
 
     member <- targetObject.members
     if isAccessible(member)

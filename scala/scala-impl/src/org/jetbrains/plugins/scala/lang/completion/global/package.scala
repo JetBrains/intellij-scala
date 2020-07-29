@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 
 package object global {
 
-  private[global] object CompanionObject {
+  private[global] object ThisOrCompanionObject {
 
     def unapply(definition: ScTypeDefinition): Option[ScObject] = definition match {
       case targetObject: ScObject => Some(targetObject)
