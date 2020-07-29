@@ -53,6 +53,10 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
 
   override def runInDispatchThread(): Boolean = false
 
+  override protected def useCompileServer: Boolean = true
+
+  override protected def reuseCompileServerProcessBetweenTests: Boolean = true
+
   protected def getRunProfile(module: Module, className: String) = {
     val configuration: ApplicationConfiguration = new ApplicationConfiguration("app", module.getProject, ApplicationConfigurationType.getInstance)
     configuration.setModule(module)
