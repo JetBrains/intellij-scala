@@ -114,6 +114,7 @@ object SameSignatureCallParametersProvider {
       ).asInstanceOf[ScReferenceExpression]
 
       iconable <- expression.resolve match {
+        case null => None
         case method: PsiMethod if method.isConstructor || !method.isParameterless => None
         case member: PsiMember if !isAccessible(member, invocationCount)(reference) => None
         case iconable => Some(iconable)
