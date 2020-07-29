@@ -4,7 +4,7 @@ package projectHighlighting
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
-import com.intellij.psi.PsiManager
+import com.intellij.psi.{PsiClass, PsiManager}
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
@@ -53,7 +53,7 @@ class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixtureTestAdapt
     implicit val project: Project = getProject
     val classFilesFromScalaLibrary = for {
       className <- ScalaIndexKeys.ALL_CLASS_NAMES.allKeys
-      psiClass  <- ScalaIndexKeys.ALL_CLASS_NAMES.elements(className, GlobalSearchScope.allScope(getProject))
+      psiClass  <- ScalaIndexKeys.ALL_CLASS_NAMES.elements(className, GlobalSearchScope.allScope(getProject), classOf[PsiClass])
       file      <- psiClass.getContainingFile.asOptionOf[ScClsFileImpl]
       if file.getVirtualFile.getPath.contains("scala-library")
     } yield file
