@@ -5,12 +5,13 @@ package parsing
 package base
 
 import com.intellij.psi.tree.{IElementType, TokenSet}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType._
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaModifierTokenType, ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 // See https://dotty.epfl.ch/docs/reference/soft-modifier.html
-sealed abstract class SoftModifier(tokenTypes: ScalaTokenType*) extends ParsingRule {
+sealed abstract class SoftModifier(modifiers: ScalaModifier*) extends ParsingRule {
 
   import ScalaTokenTypes._
 
@@ -42,13 +43,11 @@ sealed abstract class SoftModifier(tokenTypes: ScalaTokenType*) extends ParsingR
 
   private object IsSoftModifier {
 
-    private val softModifiers = tokenTypes.map { keywordTokenType =>
-      keywordTokenType.text -> keywordTokenType
-    }.toMap
-
     def unapply(tokenType: IElementType)
                (implicit builder: ScalaPsiBuilder): Option[ScalaTokenType] =
-      softModifiers.get(builder.getTokenText)
+      Option(ScalaModifier.byText(builder.getTokenText))
+        .filter(modifiers.contains)
+        .map(ScalaModifierTokenType(_))
   }
 
   private def isFollowedBySoftModifier()(implicit builder: ScalaPsiBuilder): Boolean = {
@@ -95,14 +94,14 @@ sealed abstract class SoftModifier(tokenTypes: ScalaTokenType*) extends ParsingR
  * * | 'open'
  */
 object LocalSoftModifier extends SoftModifier(
-  InlineKeyword,
-  TransparentKeyword,
-  OpenKeyword,
+  Inline,
+  Transparent,
+  Open,
 )
 
 /**
  * [[OpaqueModifier]] ::= 'opaque'
  */
 object OpaqueModifier extends SoftModifier(
-  OpaqueKeyword
+  Opaque
 )

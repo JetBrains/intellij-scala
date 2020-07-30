@@ -203,8 +203,8 @@ object AutoBraceInsertionTools {
       kLAZY,
       kOVERRIDE,
       kSEALED,
-      //kINLINE,    // can be used with if and match in scala 3
-      kTRANSPARENT,
+      //      InlineKeyword,    // can be used with if and match in scala 3
+      TransparentKeyword,
       OpaqueKeyword,
 
       kVAL,

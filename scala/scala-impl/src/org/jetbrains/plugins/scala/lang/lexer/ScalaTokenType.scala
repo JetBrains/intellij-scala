@@ -13,7 +13,11 @@ class ScalaTokenType(debugName: String) extends IElementType(debugName, ScalaLan
   override final def isLeftBound: Boolean = true
 }
 
+//noinspection TypeAnnotation
 object ScalaTokenType {
+
+  import ScalaModifier._
+
   val ClassKeyword     = new ScalaTokenType("class")
   val TraitKeyword     = new ScalaTokenType("trait")
   val EnumKeyword      = new ScalaTokenType("enum")
@@ -33,12 +37,13 @@ object ScalaTokenType {
   val ThenKeyword   = new ScalaTokenType("then")
   val EndKeyword    = new ScalaTokenType("end")
 
-  val AsKeyword                                  = new ScalaTokenType("as")
-  val DerivesKeyword                             = new ScalaTokenType("derives")
-  val InlineKeyword: ScalaModifierTokenType      = ScalaTokenTypes.kINLINE
-  val TransparentKeyword: ScalaModifierTokenType = ScalaTokenTypes.kTRANSPARENT
-  val OpaqueKeyword                              = new ScalaTokenType("opaque")
-  val OpenKeyword: ScalaModifierTokenType        = ScalaTokenTypes.kOPEN
+  val AsKeyword      = new ScalaTokenType("as")
+  val DerivesKeyword = new ScalaTokenType("derives")
+
+  val InlineKeyword      = ScalaModifierTokenType(Inline)
+  val TransparentKeyword = ScalaModifierTokenType(Transparent)
+  val OpaqueKeyword      = ScalaModifierTokenType(Opaque)
+  val OpenKeyword        = ScalaModifierTokenType(Open)
 
   val SpliceStart = new ScalaTokenType("$")
   val QuoteStart  = new ScalaTokenType("'")
