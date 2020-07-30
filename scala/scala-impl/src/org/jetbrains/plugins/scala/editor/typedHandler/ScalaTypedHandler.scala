@@ -520,6 +520,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
         CodeStyleManager.getInstance(project).reformatText(file, ranges)
       }
 
+      AutoBraceAdvertiser.advertiseAutoBraces(project)
       Result.STOP
     } else {
       Result.CONTINUE
