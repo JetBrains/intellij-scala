@@ -4,90 +4,105 @@ package parser
 package parsing
 package base
 
-import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.{InlineKeyword, OpaqueKeyword, OpenKeyword, TransparentKeyword}
+import com.intellij.psi.tree.{IElementType, TokenSet}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 // See https://dotty.epfl.ch/docs/reference/soft-modifier.html
-object SoftModifier extends ParsingRule{
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    if (!builder.isScala3) {
-      return false
-    }
+sealed abstract class SoftModifier(tokenTypes: ScalaTokenType*) extends ParsingRule {
 
-    softModifiers.get(builder.getTokenText) match {
-      case Some(tokenType) =>
-        val marker = builder.mark()
+  import ScalaTokenTypes._
 
-        builder.remapCurrentToken(tokenType)
-        builder.advanceLexer() // ate soft modifier
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
+    case IsSoftModifier(tokenType) if builder.isScala3 =>
+      val marker = builder.mark()
 
-        // soft modifiers must me followed by a hard modifier, a definition start or another soft modifier
-        if (checkFollowCondition()) {
-          marker.drop()
-          true
-        } else {
-          marker.rollbackTo()
-          false
-        }
-      case None =>
-        false
-    }
+      builder.remapCurrentToken(tokenType)
+      builder.advanceLexer() // ate soft modifier
+
+      // soft modifiers must me followed either by:
+      // * a hard modifier;
+      // * a definition start;
+      // * another soft modifier;
+      val result = builder.getTokenType match {
+        case `kCASE` => isCaseDefinition.contains(builder.lookAhead(0))
+        case tokenType if isDefinitionStart.contains(tokenType) ||
+          isHardModifier.contains(tokenType) => true
+        case IsSoftModifier(_) => isFollowedBySoftModifier()
+        case _ => false
+      }
+
+      if (result) marker.drop()
+      else marker.rollbackTo()
+
+      result
+    case _ => false
   }
 
-  private val softModifiers = Seq(
-    OpaqueKeyword,
-    InlineKeyword,
-    TransparentKeyword,
-    OpenKeyword,
-  ).map(kw => kw.text -> kw).toMap
+  private object IsSoftModifier {
 
-  private def checkFollowCondition()(implicit builder: ScalaPsiBuilder): Boolean = {
-    if (isDefinitionStartOrHardModifier(builder.getTokenType)) {
-      return true
-    }
+    private val softModifiers = tokenTypes.map { keywordTokenType =>
+      keywordTokenType.text -> keywordTokenType
+    }.toMap
 
-    if (builder.getTokenType == ScalaTokenTypes.kCASE) {
-      return isCaseDefinition(builder.lookAhead(0))
-    }
+    def unapply(tokenType: IElementType)
+               (implicit builder: ScalaPsiBuilder): Option[ScalaTokenType] =
+      softModifiers.get(builder.getTokenText)
+  }
 
+  private def isFollowedBySoftModifier()(implicit builder: ScalaPsiBuilder): Boolean = {
     // check if there is another soft modifier
-    if (softModifiers.contains(builder.getTokenText)) {
-      val lookAheadMarker = builder.mark()
-
-      try SoftModifier()
-      finally lookAheadMarker.rollbackTo()
-    } else {
-      false
-    }
+    val lookAheadMarker = builder.mark()
+    try this ()
+    finally lookAheadMarker.rollbackTo()
   }
 
-  private val isDefinitionStartOrHardModifier = Set(
-    ScalaTokenTypes.kDEF,
-    ScalaTokenTypes.kVAL,
-    ScalaTokenTypes.kVAR,
-    ScalaTokenTypes.kTYPE,
+  private val isDefinitionStart = TokenSet.create(
+    kDEF,
+    kVAL,
+    kVAR,
+    kTYPE,
 
-    ScalaTokenType.ClassKeyword,
-    ScalaTokenType.TraitKeyword,
-    ScalaTokenType.ObjectKeyword,
-    ScalaTokenType.EnumKeyword,
-    ScalaTokenType.GivenKeyword,
-
-    ScalaTokenTypes.kPRIVATE,
-    ScalaTokenTypes.kPROTECTED,
-    ScalaTokenTypes.kFINAL,
-    ScalaTokenTypes.kABSTRACT,
-    ScalaTokenTypes.kOVERRIDE,
-    ScalaTokenTypes.kIMPLICIT,
-    ScalaTokenTypes.kSEALED,
-    ScalaTokenTypes.kLAZY,
+    ClassKeyword,
+    TraitKeyword,
+    ObjectKeyword,
+    EnumKeyword,
+    GivenKeyword,
   )
 
-  private val isCaseDefinition = Set[IElementType](
-    ScalaTokenType.ClassKeyword,
-    //ScalaTokenType.TraitKeyword,
-    ScalaTokenType.ObjectKeyword,
+  private val isHardModifier = TokenSet.create(
+    kPRIVATE,
+    kPROTECTED,
+    kFINAL,
+    kABSTRACT,
+    kOVERRIDE,
+    kIMPLICIT,
+    kSEALED,
+    kLAZY,
+  )
+
+  private val isCaseDefinition = TokenSet.create(
+    ClassKeyword,
+    //TraitKeyword,
+    ObjectKeyword,
   )
 }
+
+/**
+ * [[LocalSoftModifier]] ::= 'inline'
+ * * | 'transparent'
+ * * | 'open'
+ */
+object LocalSoftModifier extends SoftModifier(
+  InlineKeyword,
+  TransparentKeyword,
+  OpenKeyword,
+)
+
+/**
+ * [[OpaqueModifier]] ::= 'opaque'
+ */
+object OpaqueModifier extends SoftModifier(
+  OpaqueKeyword
+)
