@@ -1,9 +1,8 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
+package org.jetbrains.plugins.scala.lang.parser.scala3
 
 import com.intellij.psi.PsiErrorElement
 import com.intellij.psi.impl.DebugUtil.psiToString
+import org.jetbrains.plugins.scala.Scala3Language
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -13,12 +12,13 @@ trait SimpleScala3ParserTestBase extends SimpleTestCase {
   def err(err: String): String = {
     s"[[Err($err)]]"
   }
+
   private val errRegex = raw"\[\[Err\((.+)\)\]\]".r
 
   private def extractExpectedErrors(text: String): (String, Set[(Int, String)]) = {
     var code = text
     val errorsBuilder = Set.newBuilder[(Int, String)]
-    while(true) {
+    while (true) {
       errRegex.findFirstMatchIn(code) match {
         case Some(matc) =>
           code = code.substring(0, matc.start) + code.substring(matc.end)

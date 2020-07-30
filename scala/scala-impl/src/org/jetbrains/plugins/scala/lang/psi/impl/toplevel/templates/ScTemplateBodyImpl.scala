@@ -10,7 +10,9 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil._
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.TokenSets._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.{SELF_TYPE, TEMPLATE_BODY}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
@@ -95,4 +97,7 @@ class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
   override protected def childBeforeFirstImport: Option[PsiElement] = {
     selfTypeElement.orElse(super.childBeforeFirstImport)
   }
+
+  override def isBraceless: Boolean =
+    this.firstChild.exists(_.elementType == ScalaTokenTypes.tCOLON)
 }

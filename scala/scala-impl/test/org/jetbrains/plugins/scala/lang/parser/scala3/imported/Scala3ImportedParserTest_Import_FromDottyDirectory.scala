@@ -1,10 +1,6 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
+package org.jetbrains.plugins.scala.lang.parser.scala3.imported
 
-import java.io.{File, FilenameFilter, PrintWriter}
-import java.nio.file.{Files, Path, Paths}
-import java.util.function.Consumer
+import java.io.{File, PrintWriter}
 
 import org.jetbrains.plugins.scala.util.TestUtils
 
@@ -13,29 +9,35 @@ import scala.io.Source
 object Scala3ImportedParserTest_Import_FromDottyDirectory {
 
   /**
-   *  Imports Tests from the dotty repositiory
+   * Imports Tests from the dotty repositiory
    */
   def main(args: Array[String]): Unit = {
     val dottyDirectory = args.headOption.getOrElse {
       println("no dotty directory specified")
       return
     }
+    val srcDir = normalizeToAbsolutePath(dottyDirectory + "/tests/pos")
+
     val succDir = TestUtils.getTestDataPath + Scala3ImportedParserTest.directory
     val failDir = TestUtils.getTestDataPath +  Scala3ImportedParserTest_Fail.directory
 
     clearDirectory(succDir)
     clearDirectory(failDir)
 
-    val srcDir = dottyDirectory + "tests/pos"
-
     println("srcdir =  " + srcDir)
     println("faildir = " + failDir)
+
+    new File(succDir).mkdirs()
+    new File(failDir).mkdirs()
 
     for (file <- allFilesIn(srcDir) if file.toString.toLowerCase.endsWith(".scala")) {
       val target = failDir + file.toString.substring(srcDir.length).replace(".scala", "++++test")
       val content = {
         val src = Source.fromFile(file)
-        try src.mkString finally src.close()
+        try {
+          val content = src.mkString
+          content.replaceAll("[-]{5,}", "+") // <- some test files have comment lines with dashes which confuse junit
+        } finally src.close()
       }
 
       val targetFile = new File(target)
@@ -70,4 +72,7 @@ object Scala3ImportedParserTest_Import_FromDottyDirectory {
 
   private def clearDirectory(path: String): Unit =
     new File(path).listFiles().foreach(_.delete())
+
+  private def normalizeToAbsolutePath(path: String): String =
+    new File(path.replace("~", System.getProperty("user.home")) + "tests/pos").getAbsolutePath
 }

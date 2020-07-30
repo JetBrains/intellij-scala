@@ -4,7 +4,7 @@ package parser
 package parsing
 package params
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Annotations, Expr}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.ParamType
@@ -25,6 +25,8 @@ object Param {
     //empty modifiers
     val modifiersMarker = builder.mark()
     modifiersMarker.done(ScalaElementType.MODIFIERS)
+
+    builder.tryParseSoftKeyword(ScalaTokenType.InlineKeyword)
 
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>

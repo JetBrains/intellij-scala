@@ -1,6 +1,6 @@
-package org.jetbrains.plugins.scala.lang.parser
+package org.jetbrains.plugins.scala.lang.parser.scala3
 
-class Scala3ExtensionMethodsParserTest extends SimpleScala3ParserTestBase {
+class ExtensionMethodsParserTest extends SimpleScala3ParserTestBase {
   def test_parameterless_with_period(): Unit = checkTree(
     """
       |def (c: Circle).circumference: Double = 0.0

@@ -166,7 +166,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         }
       case _: ScEarlyDefinitions | _: ScTemplateBody =>
         childElementType match {
-          case ScalaTokenTypes.tLBRACE | ScalaTokenTypes.tRBRACE => Indent.getNoneIndent
+          case ScalaTokenTypes.tLBRACE | ScalaTokenTypes.tRBRACE | ScalaElementType.END_STMT => Indent.getNoneIndent
           case _ if settings.CLASS_BRACE_STYLE == NEXT_LINE_SHIFTED => Indent.getNoneIndent
           case _ => Indent.getNormalIndent
         }

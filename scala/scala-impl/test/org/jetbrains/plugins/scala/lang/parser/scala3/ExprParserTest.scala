@@ -1,6 +1,6 @@
-package org.jetbrains.plugins.scala.lang.parser
+package org.jetbrains.plugins.scala.lang.parser.scala3
 
-class Scala3ExprParserTest extends SimpleScala3ParserTestBase {
+class ExprParserTest extends SimpleScala3ParserTestBase {
 
   def test_if_then_else(): Unit = checkTree(
     """
@@ -44,8 +44,8 @@ class Scala3ExprParserTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    ReferenceExpression: a
       |      PsiElement(identifier)('a')
-      |    PsiWhiteSpace('\n  ')
       |    BlockOfExpressions
+      |      PsiWhiteSpace('\n  ')
       |      ReferenceExpression: b
       |        PsiElement(identifier)('b')
       |      PsiWhiteSpace('\n  ')
@@ -78,8 +78,8 @@ class Scala3ExprParserTest extends SimpleScala3ParserTestBase {
       |      PsiElement(identifier)('a')
       |    PsiWhiteSpace(' ')
       |    PsiElement(then)('then')
-      |    PsiWhiteSpace('\n  ')
       |    BlockOfExpressions
+      |      PsiWhiteSpace('\n  ')
       |      ReferenceExpression: b
       |        PsiElement(identifier)('b')
       |      PsiWhiteSpace('\n  ')
@@ -150,8 +150,8 @@ class Scala3ExprParserTest extends SimpleScala3ParserTestBase {
       |    ReferenceExpression: a
       |      PsiElement(identifier)('a')
       |    PsiElement())(')')
-      |    PsiWhiteSpace('\n  ')
       |    BlockOfExpressions
+      |      PsiWhiteSpace('\n  ')
       |      ReferenceExpression: b
       |        PsiElement(identifier)('b')
       |      PsiWhiteSpace('\n  ')
@@ -175,8 +175,8 @@ class Scala3ExprParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |  WhileStatement
       |    PsiElement(while)('while')
-      |    PsiWhiteSpace('\n  ')
       |    BlockOfExpressions
+      |      PsiWhiteSpace('\n  ')
       |      ReferenceExpression: a
       |        PsiElement(identifier)('a')
       |      PsiWhiteSpace('\n  ')
@@ -184,8 +184,8 @@ class Scala3ExprParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(identifier)('b')
       |    PsiWhiteSpace('\n')
       |    PsiElement(do)('do')
-      |    PsiWhiteSpace('\n  ')
       |    BlockOfExpressions
+      |      PsiWhiteSpace('\n  ')
       |      ReferenceExpression: c
       |        PsiElement(identifier)('c')
       |      PsiWhiteSpace('\n  ')

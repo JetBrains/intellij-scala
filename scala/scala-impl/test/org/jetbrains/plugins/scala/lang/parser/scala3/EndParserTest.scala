@@ -1,8 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
+package org.jetbrains.plugins.scala.lang.parser.scala3
 
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScEnd
 import org.jetbrains.plugins.scala.util.PsiSelectionUtil

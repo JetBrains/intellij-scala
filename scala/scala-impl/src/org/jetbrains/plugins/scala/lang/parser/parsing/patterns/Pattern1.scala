@@ -4,7 +4,7 @@ package parser
 package parsing
 package patterns
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
@@ -13,53 +13,34 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 */
 
 /*
- * Pattern1 ::= varid ':' TypePat
- *            | '_' ':' TypePat
+ * Scala 2
+ * Pattern1 ::= PatVar ':' TypePat
  *            | Pattern2
+ *
+ * Scala 3
+ * Pattern1 ::= PatVar [‘:’ RefinedType]
+ *            | ‘given’ PatVar ‘:’ RefinedType
  */
-object Pattern1 {
+object Pattern1 extends ParsingRule {
 
-  //TODO: refactor!
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val pattern1Marker = builder.mark
-    val backupMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER =>
-        if (builder.isIdBinding) {
-          builder.advanceLexer() //Ate id
-          builder.getTokenType match {
-            case ScalaTokenTypes.tCOLON =>
-              builder.advanceLexer() //Ate :
-              backupMarker.drop()
-              if (!TypePattern.parse(builder)) {
-                builder error ScalaBundle.message("wrong.type")
-              }
-              pattern1Marker.done(ScalaElementType.TYPED_PATTERN)
-              return true
-            case _ =>
-              backupMarker.rollbackTo()
-          }
-        } else {
-          backupMarker.rollbackTo()
-        }
-      case ScalaTokenTypes.tUNDER =>
-        builder.advanceLexer() //Ate _
+      case _ if PatVar() =>
         builder.getTokenType match {
           case ScalaTokenTypes.tCOLON =>
             builder.advanceLexer() //Ate :
-            backupMarker.drop()
             if (!TypePattern.parse(builder)) {
               builder error ScalaBundle.message("wrong.type")
             }
             pattern1Marker.done(ScalaElementType.TYPED_PATTERN)
             return true
           case _ =>
-            backupMarker.rollbackTo()
+            pattern1Marker.rollbackTo()
         }
       case _ =>
-        backupMarker.drop()
+        pattern1Marker.drop()
     }
-    pattern1Marker.drop()
     Pattern2.parse(builder, forDef = false)
   }
 }

@@ -5,7 +5,7 @@ package parsing
 package top
 package params
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Annotations, Expr}
@@ -31,6 +31,10 @@ object ClassParam {
       isModifier = true
     }
     modifierMarker.done(ScalaElementType.MODIFIERS)
+
+    // It's syntactically allowed by the parser, though it is semantically not allowed
+    builder.tryParseSoftKeyword(ScalaTokenType.InlineKeyword)
+
     //Look for var or val
     builder.getTokenType match {
       case ScalaTokenTypes.kVAR |

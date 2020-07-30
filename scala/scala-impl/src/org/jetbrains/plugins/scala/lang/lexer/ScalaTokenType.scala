@@ -38,6 +38,7 @@ object ScalaTokenType {
   val InlineKeyword: ScalaModifierTokenType      = ScalaTokenTypes.kINLINE
   val TransparentKeyword: ScalaModifierTokenType = ScalaTokenTypes.kTRANSPARENT
   val OpaqueKeyword                              = new ScalaTokenType("opaque")
+  val OpenKeyword: ScalaModifierTokenType        = ScalaTokenTypes.kOPEN
 
   val SpliceStart = new ScalaTokenType("$")
   val QuoteStart  = new ScalaTokenType("'")

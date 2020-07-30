@@ -5,13 +5,17 @@ package parsing
 package base
 
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.{InlineKeyword, OpaqueKeyword}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.{InlineKeyword, OpaqueKeyword, OpenKeyword, TransparentKeyword}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 // See https://dotty.epfl.ch/docs/reference/soft-modifier.html
 object SoftModifier extends ParsingRule{
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    if (!builder.isScala3) {
+      return false
+    }
+
     softModifiers.get(builder.getTokenText) match {
       case Some(tokenType) =>
         val marker = builder.mark()
@@ -32,10 +36,12 @@ object SoftModifier extends ParsingRule{
     }
   }
 
-  private val softModifiers = Map(
-    OpaqueKeyword.text -> OpaqueKeyword,
-    InlineKeyword.text -> InlineKeyword,
-  )
+  private val softModifiers = Seq(
+    OpaqueKeyword,
+    InlineKeyword,
+    TransparentKeyword,
+    OpenKeyword,
+  ).map(kw => kw.text -> kw).toMap
 
   private def checkFollowCondition()(implicit builder: ScalaPsiBuilder): Boolean = {
     if (isDefinitionStartOrHardModifier(builder.getTokenType)) {

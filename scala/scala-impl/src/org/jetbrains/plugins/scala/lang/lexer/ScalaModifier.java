@@ -13,7 +13,9 @@ public enum ScalaModifier {
     Sealed(ScalaModifier.SEALED),
     Lazy(ScalaModifier.LAZY),
     Case(ScalaModifier.CASE),
-    Inline(ScalaModifier.INLINE);
+    Inline(ScalaModifier.INLINE),
+    Transparent(ScalaModifier.TRANSPARENT),
+    Open(ScalaModifier.OPEN);;
 
     private final String text;
 
@@ -44,4 +46,6 @@ public enum ScalaModifier {
     public static final String OVERRIDE = "override";
     public static final String SEALED = "sealed";
     public static final String INLINE = "inline";
+    public static final String TRANSPARENT = "transparent";
+    public static final String OPEN = "open";
 }

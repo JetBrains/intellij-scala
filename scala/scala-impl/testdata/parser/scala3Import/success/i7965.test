@@ -11,7 +11,7 @@ abstract class Test {
   foo(x)
 }
 
-// -------------------------------------------
+// +
 
 trait ZLayer[-RIn, +E, +ROut <: Has[_]] {
   def >>>[E1 >: E, ROut2 <: Has[_]](that: ZLayer[ROut, E1, ROut2]): ZLayer[RIn, E1, ROut2]
@@ -49,7 +49,7 @@ val combined =
     ServiceA.live >>>
       (ServiceB.live ++ (ServiceC.live >>> ServiceD.live))
 
-// -------------------------------------------
+// +
 
 class Outer {
   class Elem
