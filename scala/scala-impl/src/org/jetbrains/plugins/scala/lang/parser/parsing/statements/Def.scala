@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 object Def extends ParsingRule {
 
   import lexer.ScalaTokenType._
-  import lexer.ScalaTokenTypes
+  import lexer.ScalaTokenTypes._
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val defMarker = builder.mark
@@ -32,13 +32,14 @@ object Def extends ParsingRule {
     Annotations.parseAndBindToLeft()(builder)
 
     val modifierMarker = builder.mark
-    def parseScalaMetaInline(): Boolean = builder.isMetaEnabled && builder.tryParseSoftKeyword(ScalaTokenTypes.kINLINE)
+
+    def parseScalaMetaInline(): Boolean = builder.isMetaEnabled && builder.tryParseSoftKeyword(InlineKeyword)
     while (Modifier() || parseScalaMetaInline()) {}
     modifierMarker.done(ScalaElementType.MODIFIERS)
 
     //Look for val,var,def or type
     builder.getTokenType match {
-      case ScalaTokenTypes.kVAL =>
+      case `kVAL` =>
         builder.advanceLexer() //Ate val
         if (PatDef.parse(builder)) {
           defMarker.done(ScalaElementType.PATTERN_DEFINITION)
@@ -48,7 +49,7 @@ object Def extends ParsingRule {
           defMarker.rollbackTo()
           false
         }
-      case ScalaTokenTypes.kVAR =>
+      case `kVAR` =>
         builder.advanceLexer() //Ate var
         if (VarDef.parse(builder)) {
           defMarker.done(ScalaElementType.VARIABLE_DEFINITION)
@@ -58,7 +59,7 @@ object Def extends ParsingRule {
           defMarker.rollbackTo()
           false
         }
-      case ScalaTokenTypes.kDEF =>
+      case `kDEF` =>
         if (MacroDef.parse(builder)) {
           defMarker.done(ScalaElementType.MACRO_DEFINITION)
           true
@@ -69,7 +70,7 @@ object Def extends ParsingRule {
           defMarker.rollbackTo()
           false
         }
-      case ScalaTokenTypes.kTYPE =>
+      case `kTYPE` =>
         if (TypeDef.parse(builder)) {
           defMarker.done(ScalaElementType.TYPE_DEFINITION)
           true
@@ -78,7 +79,7 @@ object Def extends ParsingRule {
           defMarker.rollbackTo()
           false
         }
-      case ScalaTokenTypes.kCASE | IsTemplateDefinition() =>
+      case `kCASE` | IsTemplateDefinition() =>
         defMarker.rollbackTo()
         TmplDef()
       case _ =>

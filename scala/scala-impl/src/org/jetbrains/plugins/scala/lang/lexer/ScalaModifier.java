@@ -15,7 +15,8 @@ public enum ScalaModifier {
     Case(ScalaModifier.CASE),
     Inline(ScalaModifier.INLINE),
     Transparent(ScalaModifier.TRANSPARENT),
-    Open(ScalaModifier.OPEN);;
+    Open(ScalaModifier.OPEN),
+    Opaque(ScalaModifier.OPAQUE);
 
     private final String text;
 
@@ -48,4 +49,5 @@ public enum ScalaModifier {
     public static final String INLINE = "inline";
     public static final String TRANSPARENT = "transparent";
     public static final String OPEN = "open";
+    public static final String OPAQUE = "opaque";
 }
