@@ -122,15 +122,10 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
           tpe match {
             case functionLikeType(_, retTpe, _) if checkDeep => extractFromFunctionType(retTpe)
             case functionLikeType(_, _, paramTpes) =>
-              paramTpes.lift(idx).flatMap { tpe =>
-                val isFullyDefined = !tpe.subtypeExists {
-                  case FullyAbstractType() => true
-                  case _                   => false
-                }
-
-                if (isFullyDefined) tpe.removeAbstracts.toOption
-                else                None
-              }
+              paramTpes.lift(idx).flatMap(tpe =>
+                if (isFullyDefined(tpe)) tpe.removeAbstracts.toOption
+                else                     None
+              )
             case _ => None
           }
 

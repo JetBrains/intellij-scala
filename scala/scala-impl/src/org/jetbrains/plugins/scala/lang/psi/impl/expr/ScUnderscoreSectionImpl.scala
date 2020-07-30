@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ParameterExpectedTypesUtil._
+import org.jetbrains.plugins.scala.extensions.TraversableExt
 
 /**
  * @author Alexander Podkhalyuzin, ilyas
@@ -87,13 +88,8 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) 
 
                     param.fold(failure)(tpe =>
                       if (!isFullyDefined(tpe)) {
-                        var i = 0
-                        val ithUnderscore: Seq[ScExpression] => Option[ScExpression] = _.find {
-                          case _: ScUnderscoreSection =>
-                            if (i == idx) true
-                            else { i += 1; false }
-                          case _ => false
-                        }
+                        val ithUnderscore: Seq[ScExpression] => Option[ScExpression] =
+                          _.filterByType[ScUnderscoreSection].lift(idx)
 
                         val maybeFromUndoingEtaExp = inferExpectedParamTypeUndoingEtaExpansion(expr, ithUnderscore)
                         maybeFromUndoingEtaExp.asTypeResult

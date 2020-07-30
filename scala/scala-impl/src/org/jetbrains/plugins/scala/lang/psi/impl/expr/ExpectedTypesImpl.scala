@@ -205,14 +205,8 @@ class ExpectedTypesImpl extends ExpectedTypes {
         case ref: ScReferenceExpression if !ScUnderScoreSectionUtil.isUnderscoreFunction(ref) => None
         case fn: ScFunctionExpr if fn.parameters.forall(_.typeElement.isDefined)              => None
         case _ =>
-          val expectedSize = alts.head.paramTpes.size
-          val altParams    = alts.map(_.paramTpes)
-
-          if (altParams.exists(_.size != expectedSize)) None
-          else {
-            val paramLubs = altParams.transpose.map(_.lub())
-            FunctionType((Any, paramLubs)).toOption
-          }
+          val paramLubs = alts.map(_.paramTpes).transpose.map(_.lub())
+          FunctionType((Any, paramLubs)).toOption
       }
 
     /** Filter expected type alternatives by arity,
@@ -223,8 +217,11 @@ class ExpectedTypesImpl extends ExpectedTypes {
       else tpes.next() match {
         case t @ functionLikeType(marker, resTpe, ptpes) =>
           if (expectedArity.matches(ptpes.size)) {
-            val ftpe = FunctionLikeTpe(marker, resTpe, ptpes, t)
-            filterByArity(tpes, ftpe :: acc)
+            if (acc.headOption.exists(_.paramTpes.size != ptpes.size)) List.empty
+            else {
+              val ftpe = FunctionLikeTpe(marker, resTpe, ptpes, t)
+              filterByArity(tpes, ftpe :: acc)
+            }
           } else filterByArity(tpes, acc)
         case _ => List.empty
       }
