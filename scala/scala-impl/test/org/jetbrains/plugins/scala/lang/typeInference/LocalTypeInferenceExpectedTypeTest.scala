@@ -112,4 +112,20 @@ class LocalTypeInferenceExpectedTypeTest extends ScalaLightCodeInsightFixtureTes
       |val f: Int => Int = f1 foo
       |""".stripMargin
   )
+
+  def testSCL17945(): Unit = checkTextHasNoErrors(
+    """
+      |object Error {
+      |  trait State[G] {
+      |    class SomeContext
+      |    def m[T](action: => G => T)(implicit ev: SomeContext): G => T = ???
+      |    def moveGeneration(g: SomeContext => G => Unit): Unit = ???
+      |  }
+      |  class Test extends State[Int] {
+      |    moveGeneration { implicit context =>
+      |      m(_ + 1)
+      |    }
+      |  }
+      |}""".stripMargin
+  )
 }

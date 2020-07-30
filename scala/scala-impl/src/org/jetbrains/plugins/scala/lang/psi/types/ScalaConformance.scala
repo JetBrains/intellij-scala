@@ -920,7 +920,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
                 if (args1.length != args2.length) ConstraintsResult.Left
                 else extractParams(des1) match {
                   case Some(params) => checkParameterizedType(params, args1, args2, constraints, visited, checkWeak)
-                  case _ => ConstraintsResult.Left
+                  case _            => ConstraintsResult.Left
                 }
             case (_, t: TypeParameterType) if t.typeParameters.length == p2.typeArguments.length =>
               val subst = ScSubstitutor.bind(t.typeParameters, p.typeArguments)
