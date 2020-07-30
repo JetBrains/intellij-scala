@@ -4,7 +4,6 @@ package lang.refactoring.rename.inplace
 import java.util
 
 import com.intellij.lang.Language
-import com.intellij.notebook.editor.BackedVirtualFile
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Pair, TextRange}
@@ -12,8 +11,8 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiNamedElemen
 import com.intellij.refactoring.RefactoringActionHandler
 import com.intellij.refactoring.rename.inplace.VariableInplaceRenamer
 import com.intellij.refactoring.util.TextOccurrencesUtil
-import com.intellij.util.PairProcessor
 import org.jetbrains.annotations.NotNull
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -33,10 +32,9 @@ class ScalaLocalInplaceRenamer(elementToRename: PsiNamedElement, editor: Editor,
 
   override def collectAdditionalElementsToRename(stringUsages: util.List[Pair[PsiElement, TextRange]]): Unit = {
     val stringToSearch: String = ScalaNamesUtil.scalaName(elementToRename)
-    val currentFile: PsiFile = PsiDocumentManager.getInstance(myProject).getPsiFile(myEditor.getDocument)
     if (stringToSearch != null) {
       TextOccurrencesUtil.processUsagesInStringsAndComments(elementToRename, stringToSearch, true, (psiElement: PsiElement, textRange: TextRange) => {
-        if (psiElement.getContainingFile == currentFile) {
+        if (currentFile.contains(psiElement.getContainingFile)) {
           stringUsages.add(Pair.create(psiElement, textRange))
         }
         true
@@ -54,8 +52,9 @@ class ScalaLocalInplaceRenamer(elementToRename: PsiNamedElement, editor: Editor,
     }
   }
 
-  override def checkLocalScope(): PsiElement = Option(super.checkLocalScope()).getOrElse {
-    Option(myElementToRename.getContainingFile.getVirtualFile).filter(_.isInstanceOf[BackedVirtualFile]).map(
-      _ => myElementToRename.getContainingFile).orNull
-  }
+  override def checkLocalScope(): PsiElement =
+    currentFile.getOrElse(super.checkLocalScope())
+
+  private def currentFile: Option[PsiFile] =
+    PsiDocumentManager.getInstance(myProject).getPsiFile(myEditor.getDocument).toOption
 }
