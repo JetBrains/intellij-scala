@@ -12,11 +12,15 @@ import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerList
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.jetbrains.bsp.settings.BspProjectSettings.BspServerConfig
+import org.jetbrains.bsp.project.BspExternalSystemManager
+import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 
 import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
+import scala.collection.JavaConverters._
+import scala.util.{Success, Try}
 
 class BspCommunicationService extends Disposable {
 
@@ -70,6 +74,13 @@ class BspCommunicationService extends Disposable {
 
     Future.fromTry(tryComm)
       .flatMap(_.closeSession())(ExecutionContext.global)
+  }
+
+  def exitCommands(base: URI, config: BspServerConfig): Try[List[List[String]]] = {
+    comms.get(base, config)
+      .toRight(new NoSuchElementException)
+      .toTry
+      .map(_.exitCommands)
   }
 
   def closeAll: Future[Unit] = {

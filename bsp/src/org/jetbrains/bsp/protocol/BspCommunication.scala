@@ -12,6 +12,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.bsp._
+import org.jetbrains.bsp.project.BspExternalSystemManager
 import org.jetbrains.bsp.protocol.BspCommunication._
 import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
 import org.jetbrains.bsp.protocol.session.BspServerConnector._
@@ -22,9 +23,10 @@ import org.jetbrains.bsp.settings.BspProjectSettings.BspServerConfig
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, BspSettings}
 import org.jetbrains.plugins.scala.build.BuildReporter
 
+import scala.collection.JavaConverters._
 import scala.concurrent.Future
 import scala.concurrent.duration._
-
+import scala.util.Try
 
 class BspCommunication private[protocol](base: File, config: BspServerConfig) extends Disposable {
 
@@ -32,6 +34,17 @@ class BspCommunication private[protocol](base: File, config: BspServerConfig) ex
 
   private val session: AtomicReference[Option[BspSession]] = new AtomicReference[Option[BspSession]](None)
 
+  val exitCommands: List[List[String]] = {
+    val workspace = new File(base.getAbsolutePath)
+    val files = BspConnectionConfig.workspaceBspConfigs(workspace)
+    val argvExitCommands = files.flatMap { file =>
+      val bspConnectionDetails = BspExternalSystemManager.parseAsMap(file._1)
+      bspConnectionDetails.get(argvExit).flatMap{comand =>
+        Try {comand.asInstanceOf[java.util.List[String]]}.toOption.map(_.asScala.toList)
+      }
+    }
+    argvExitCommands
+  }
   private def acquireSessionAndRun(job: BspSessionJob[_,_])(implicit reporter: BuildReporter):
   Either[BspError, BspSession] = session.synchronized {
     session.get() match {
@@ -133,6 +146,8 @@ class BspCommunication private[protocol](base: File, config: BspServerConfig) ex
 
 
 object BspCommunication {
+
+  val argvExit = "argvExit"
 
   def forWorkspace(baseDir: File, config: BspServerConfig): BspCommunication = {
     if (!baseDir.isDirectory)
