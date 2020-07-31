@@ -44,7 +44,7 @@ final class ScalaLibraryProperties private(private[this] var _languageLevel: Sca
   override def equals(obj: Any): Boolean = obj match {
     case properties: ScalaLibraryProperties =>
       languageLevel == properties.languageLevel &&
-        compilerClasspath == properties.compilerClasspath
+        compilerClasspath.map(_.getAbsolutePath) == properties.compilerClasspath.map(_.getAbsolutePath)
     case _ => false
   }
 
