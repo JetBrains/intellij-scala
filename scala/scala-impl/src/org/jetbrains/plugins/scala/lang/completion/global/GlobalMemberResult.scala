@@ -29,11 +29,11 @@ private abstract class GlobalMemberResult protected(protected val resolveResult:
   private[global] def isApplicable: Boolean = Option(classToImport.qualifiedName).forall(isNotExcluded)
 
   final def createLookupItem: LookupElement = {
-    val lookupItem = resolveResult.getLookupElement(
+    val lookupItem = resolveResult.createLookupElement(
       isClassName = true,
       containingClass = containingClass,
       shouldImport = nameAvailabilityState != NameAvailabilityState.AVAILABLE,
-    ).get
+    )
 
     buildItem(lookupItem)
   }
