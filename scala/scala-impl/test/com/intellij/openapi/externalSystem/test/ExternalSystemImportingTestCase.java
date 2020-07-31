@@ -449,30 +449,6 @@ public abstract class ExternalSystemImportingTestCase extends ExternalSystemTest
     return IdeaTestUtil.getMockJdk17(versionName);
   }
 
-  protected static AtomicInteger configConfirmationForYesAnswer() {
-    final AtomicInteger counter = new AtomicInteger();
-    Messages.setTestDialog(new TestDialog() {
-      @Override
-      public int show(String message) {
-        counter.set(counter.get() + 1);
-        return 0;
-      }
-    });
-    return counter;
-  }
-
-  protected static AtomicInteger configConfirmationForNoAnswer() {
-    final AtomicInteger counter = new AtomicInteger();
-    Messages.setTestDialog(new TestDialog() {
-      @Override
-      public int show(String message) {
-        counter.set(counter.get() + 1);
-        return 1;
-      }
-    });
-    return counter;
-  }
-
   //protected void assertProblems(String... expectedProblems) {
   //  final List<String> actualProblems = new ArrayList<String>();
   //  UIUtil.invokeAndWaitIfNeeded(new Runnable() {
