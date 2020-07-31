@@ -84,12 +84,11 @@ abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatfor
 
   protected def executeActionAdapter(actionId: String): Unit = executeAction(actionId)
 
-  protected def configureFromFileTextAdapter(fileName: String, fileText: String): Unit = configureFromFileText(fileName, StringUtil.convertLineSeparators(fileText))
+  protected def configureFromFileTextAdapter(fileName: String, fileText: String): Unit =
+    configureFromFileText(fileName, StringUtil.convertLineSeparators(fileText))
 
   @throws(classOf[Exception])
   override protected def tearDown(): Unit = try {
     disposeLibraries(getModule)
-    val allJdks = ProjectJdkTable.getInstance.getAllJdks
-    WriteAction.run(() => allJdks.foreach(ProjectJdkTable.getInstance.removeJdk))
   } finally super.tearDown()
 }
