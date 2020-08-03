@@ -171,6 +171,22 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
     }
   }
 
+  // SCL-17962
+  def testIllegalAssignments(): Unit = {
+    def assertIllegalAssignment(code: String): Unit =
+      assertMatches(messages("class C; val a,b = 0; def f() = ();" + code)) {
+        case Error("=", IllegalAssignmentTarget()) :: Nil =>
+      }
+
+    assertIllegalAssignment("5 = 4")
+    assertIllegalAssignment("{ } = 8")
+    assertIllegalAssignment("() = 4")
+    assertIllegalAssignment("(5) = 4")
+    assertIllegalAssignment("(a, b) = (1, 2)")
+    assertIllegalAssignment("new C = 3")
+    assertIllegalAssignment("1 + 2 = 3")
+  }
+
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val file = (Header + code).parse
     val assignment = file.depthFirst().findByType[ScAssignment].get
@@ -180,9 +196,10 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
     ScAssignmentAnnotator.annotate(assignment)
     mock.annotations
   }
-  
+
   val TypeMismatch = StartWith("Type mismatch")
   val ReassignmentToVal = StartWith("Reassignment to val")
+  val IllegalAssignmentTarget = StartWith(ScalaBundle.message("illegal.assignment.target"))
 
   case class StartWith(fragment: String) {
     def unapply(s: String): Boolean = s.startsWith(fragment)
