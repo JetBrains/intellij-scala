@@ -3,7 +3,7 @@ package scala.tasty
 import scala.quoted.show.SyntaxHighlight
 import scala.tasty.reflect._
 
-// Reproduces the ABI of https://github.com/lampepfl/dotty/blob/0.25.0-RC2/library/src/scala/tasty/Reflection.scala
+// Reproduces the ABI of https://github.com/lampepfl/dotty/blob/0.26.0-RC1/library/src/scala/tasty/Reflection.scala
 // Requires the corresponding "compat" class to reproduce the API.
 class Reflection(private[scala] val internal: CompilerInterface) { self =>
 
