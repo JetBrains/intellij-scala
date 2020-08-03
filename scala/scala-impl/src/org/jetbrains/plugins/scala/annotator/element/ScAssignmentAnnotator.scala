@@ -26,12 +26,6 @@ object ScAssignmentAnnotator extends ElementAnnotator[ScAssignment] {
 
     element.leftExpression match {
       case _: ScMethodCall =>
-        if (!element.mirrorMethodCall.forall(_.applyOrUpdateElement.isDefined)) {
-          element.assignmentToken.foreach(token =>
-            holder.createErrorAnnotation(token, ScalaBundle.message("cannot.resolve.left.hand.side.call.to.an.update.method"))
-          )
-        }
-
       case ref: ScReferenceExpression =>
         ref.bind() match {
           case Some(r) if r.isDynamic && r.name == DynamicResolveProcessor.UPDATE_DYNAMIC => //ignore
