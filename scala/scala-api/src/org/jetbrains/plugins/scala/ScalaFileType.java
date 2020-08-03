@@ -24,6 +24,8 @@ import javax.swing.*;
  */
 final public class ScalaFileType extends LanguageFileTypeBase {
 
+    private static final Icon myIcon = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/file_scala.svg");
+
     public static final ScalaFileType INSTANCE = new ScalaFileType();
 
     private ScalaFileType() {
@@ -35,6 +37,6 @@ final public class ScalaFileType extends LanguageFileTypeBase {
     }
 
     public Icon getIcon() {
-        return IconLoader.getIcon("/org/jetbrains/plugins/scala/images/file_scala.svg");
+        return myIcon;
     }
 }
