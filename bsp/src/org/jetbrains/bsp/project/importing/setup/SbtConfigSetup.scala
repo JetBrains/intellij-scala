@@ -4,6 +4,7 @@ import java.io.File
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
 import org.jetbrains.bsp.BspBundle
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
+import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.SbtUtil.{detectSbtVersion, getDefaultLauncher, sbtVersionParam, upgradedSbtVersion}
@@ -23,9 +24,10 @@ object SbtConfigSetup {
 
   /** Runs sbt with a dummy command so that the project is initialized and .bsp/sbt.json is created. */
   def apply(baseDir: File): SbtConfigSetup = {
+    invokeAndWait(ProjectJdkTable.getInstance.preconfigure())
     val jdkType = JavaSdk.getInstance()
     val jdk = ProjectJdkTable.getInstance().findMostRecentSdkOfType(jdkType)
-    val jdkExe = new File(jdkType.getVMExecutablePath(jdk)) // TODO error when none, offer jdk config
+    val jdkExe = new File(jdkType.getVMExecutablePath(jdk))
     val jdkHome = Option(jdk.getHomePath).map(new File(_))
     val sbtLauncher = SbtUtil.getDefaultLauncher
 
@@ -44,10 +46,10 @@ object SbtConfigSetup {
 
     val dumper = new SbtStructureDump()
     val runInit = (reporter: BuildReporter) => dumper.runSbt(
-        baseDir, jdkExe, vmArgs,
-        Map.empty, sbtLauncher, sbtCommandLineArgs, sbtCommands,
-        BspBundle.message("bsp.resolver.creating.sbt.configuration"),
-      )(reporter)
+      baseDir, jdkExe, vmArgs,
+      Map.empty, sbtLauncher, sbtCommandLineArgs, sbtCommands,
+      BspBundle.message("bsp.resolver.creating.sbt.configuration"),
+    )(reporter)
     new SbtConfigSetup(dumper, runInit)
   }
 }

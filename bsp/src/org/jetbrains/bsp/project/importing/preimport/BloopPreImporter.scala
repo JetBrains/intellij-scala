@@ -7,6 +7,7 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.bsp.BspBundle
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
+import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil.{detectSbtVersion, getDefaultLauncher, sbtVersionParam, upgradedSbtVersion}
 import org.jetbrains.sbt.project.SbtExternalSystemManager
@@ -23,9 +24,10 @@ class BloopPreImporter(dumper: SbtStructureDump, runDump: SbtStructureDump => Tr
 }
 object BloopPreImporter {
   def apply(baseDir: File)(implicit reporter: BuildReporter): BloopPreImporter = {
+    invokeAndWait(ProjectJdkTable.getInstance.preconfigure())
     val jdkType = JavaSdk.getInstance()
     val jdk = ProjectJdkTable.getInstance().findMostRecentSdkOfType(jdkType)
-    val jdkExe = new File(jdkType.getVMExecutablePath(jdk)) // TODO error when none, offer jdk config
+    val jdkExe = new File(jdkType.getVMExecutablePath(jdk))
     val jdkHome = Option(jdk.getHomePath).map(new File(_))
     val sbtLauncher = SbtUtil.getDefaultLauncher
 
