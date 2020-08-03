@@ -82,6 +82,9 @@ object ScAssignmentAnnotator extends ElementAnnotator[ScAssignment] {
           case _ =>
         }
       case _ =>
+        element.assignmentToken.foreach(token =>
+          holder.createErrorAnnotation(token, ScalaBundle.message("illegal.assignment.target"))
+        )
     }
   }
 

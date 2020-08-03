@@ -5,6 +5,8 @@ package api
 package expr
 
 import com.intellij.psi.{PsiElement, PsiField}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -110,5 +112,9 @@ object ScAssignment {
 
   object Named {
     def unapply(st: ScAssignment): Option[String] = st.referenceName
+  }
+
+  implicit class ScAssignmentExt(private val target: ScAssignment) extends AnyVal {
+    def assignmentToken: Option[PsiElement] = target.findFirstChildByType(ScalaTokenTypes.tASSIGN).toOption
   }
 }
