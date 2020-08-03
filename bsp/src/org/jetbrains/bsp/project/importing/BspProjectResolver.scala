@@ -154,17 +154,18 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
   // special handling for sbt projects: run bloopInstall first
   // TODO support other bloop-enabled build tools as well
-  private def preImport(executionSettings: BspExecutionSettings, workspace: File)(implicit reporter: BuildReporter) = {
+  private def preImport(executionSettings: BspExecutionSettings, workspace: File)(implicit reporter: BuildReporter): Try[BuildMessages] = {
     import BspProjectSettings._
 
     val emptySuccess = Success(BuildMessages.empty.status(BuildMessages.OK))
+    def isSbtProject = new File(workspace, "build.sbt").exists()
 
     if (executionSettings.runPreImportTask) {
       executionSettings.preImportTask match {
         case BspProjectSettings.NoPreImport =>
           emptySuccess
         case BspProjectSettings.AutoPreImport =>
-          if (executionSettings.config == AutoConfig && bloopConfigDir(workspace).isDefined)
+          if (executionSettings.config == AutoConfig && bloopConfigDir(workspace).isDefined && isSbtProject)
             runBloopInstall(workspace)
           else emptySuccess
         case BspProjectSettings.BloopSbtPreImport =>
