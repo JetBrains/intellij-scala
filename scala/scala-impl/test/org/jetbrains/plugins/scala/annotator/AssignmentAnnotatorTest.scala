@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.annotator.element.{ElementAnnotator, ScAssignmentAnnotator}
+import org.jetbrains.plugins.scala.annotator.element.ScAssignmentAnnotator
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
 
@@ -185,19 +185,6 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
     assertIllegalAssignment("(a, b) = (1, 2)")
     assertIllegalAssignment("new C = 3")
     assertIllegalAssignment("1 + 2 = 3")
-  }
-
-  def testAssignmentToNonUpdateCall(): Unit = {
-    val UnresolvedUpdateCall = ScalaBundle.message("cannot.resolve.left.hand.side.call.to.an.update.method")
-    val code =
-      """
-        |def f(i: Int): Unit = ()
-        |
-        |f(3) = 8
-        |""".stripMargin
-    assertMatches(messages(code)) {
-      case Error("=", UnresolvedUpdateCall) :: Nil =>
-    }
   }
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
