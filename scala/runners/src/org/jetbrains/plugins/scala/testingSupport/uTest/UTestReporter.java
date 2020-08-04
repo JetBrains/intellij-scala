@@ -70,14 +70,12 @@ public final class UTestReporter {
       return;
 
     UTestPath parent = scopePath.parent();
-    if (parent != null) {
-      reportScopeStarted(parent);
-    }
-
-    if (parent == null)
+    if (parent == null) {
       reportClassSuiteStarted(scopePath);
-    else
+    } else {
+      reportScopeStarted(parent);
       reportScopeStarted(scopePath, getScopeLocationHint(scopePath));
+    }
   }
 
   public void reportClassSuiteStarted(UTestPath suitePath) {
