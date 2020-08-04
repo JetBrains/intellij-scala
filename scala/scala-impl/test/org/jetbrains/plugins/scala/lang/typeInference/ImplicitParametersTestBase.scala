@@ -1,10 +1,9 @@
-package org.jetbrains.plugins.scala.failed.typeInference
+package org.jetbrains.plugins.scala.lang.typeInference
 
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 import org.junit.Assert
 import org.junit.experimental.categories.Category
 
