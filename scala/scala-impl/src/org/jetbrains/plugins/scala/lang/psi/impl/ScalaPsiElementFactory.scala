@@ -44,7 +44,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeParamsRen
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocResolvableCodeReference, ScDocSyntaxElement}
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocParagraph, ScDocResolvableCodeReference, ScDocSyntaxElement}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
@@ -940,8 +940,12 @@ object ScalaPsiElementFactory {
     createDocComment(s"/**\n$text\n*/")
 
   def createMonospaceSyntaxFromText(@NonNls text: String)
-                                   (implicit ctx: ProjectContext): ScDocSyntaxElement =
-    createDocCommentFromText(s"`$text`").getChildren()(2).asInstanceOf[ScDocSyntaxElement]
+                                   (implicit ctx: ProjectContext): ScDocSyntaxElement = {
+    val comment = createDocCommentFromText(s"`$text`")
+    val paragraph = PsiTreeUtil.findChildOfType(comment, classOf[ScDocParagraph])
+    val result = PsiTreeUtil.findChildOfType(paragraph, classOf[ScDocSyntaxElement])
+    result
+  }
 
   def createDocHeaderElement(length: Int)
                             (implicit ctx: ProjectContext): PsiElement = {
