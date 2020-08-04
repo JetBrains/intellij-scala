@@ -7,10 +7,11 @@ trait FlatSpecSingleTestTest extends FlatSpecSingleTestTestBase with FlatSpecGen
   val flatSpecTestPath = List("[root]", flatSpecClassName, "A FlatSpecTest", "should be able to run single test")
 
   def testFlatSpec_StringScope(): Unit = {
-    def test(lineNumber: Int, offset: Int): Unit = doTest(flatSpecFileName, flatSpecClassName)(lineNumber, offset)(
-      "A FlatSpecTest should be able to run single test",
-      flatSpecTestPath
-    )
+    def test(lineNumber: Int, offset: Int): Unit =
+      doTest(flatSpecFileName, flatSpecClassName)(lineNumber, offset)(
+        "A FlatSpecTest should be able to run single test",
+        flatSpecTestPath
+      )
 
     test(4, 3)
     test(4, 30)
@@ -21,7 +22,10 @@ trait FlatSpecSingleTestTest extends FlatSpecSingleTestTestBase with FlatSpecGen
 
   def testFlatSpec_ItWithoutExplicitScope(): Unit = {
     def test(lineNumber: Int, offset: Int)(expectedTestName: String, expectedTestPath: List[String]): Unit =
-      doTest(testItFlatFileName, testItFlatClassName)(lineNumber, offset)(expectedTestName, expectedTestPath)
+      doTest(testItFlatFileName, testItFlatClassName)(lineNumber, offset)(
+        expectedTestName,
+        expectedTestPath
+      )
 
     def test1(lineNumber: Int, offset: Int): Unit =
       test(lineNumber, offset)(
@@ -38,5 +42,21 @@ trait FlatSpecSingleTestTest extends FlatSpecSingleTestTestBase with FlatSpecGen
     test(6, 5)("should tag", List("[root]", testItFlatClassName, "should tag"))
     test(9, 10)("Test should be fine", List("[root]", testItFlatClassName, "Test", "should be fine"))
     test(11, 10)("Test should change name", List("[root]", testItFlatClassName, "Test", "should change name"))
+  }
+
+  def testSelectTestAfterIgnore(): Unit = {
+    val fileName = testWithIgnoreFileName
+    val className = testWithIgnoreClassName
+
+    val baseName = "SomeService should "
+    val basePath = List("[root]", "SomeServiceTest", "SomeService")
+
+    // before ignore
+    doTest(fileName, className)(5, 3)(baseName + "do something1", basePath :+ "should do something1")
+    doTest(fileName, className)(6, 3)(baseName + "do something2", basePath :+ "should do something2")
+    doTest(fileName, className)(7, 3)(baseName + "do something3", basePath :+ "should do something3")
+    // after ignore
+    doTest(fileName, className)(11, 3)(baseName + "do something5", basePath :+ "should do something5")
+    doTest(fileName, className)(12, 3)(baseName + "do something6", basePath :+ "should do something6")
   }
 }

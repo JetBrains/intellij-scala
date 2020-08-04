@@ -7,10 +7,12 @@ trait FlatSpecGenerator extends ScalaTestTestCase {
   val flatSpecClassName = "FlatSpecTest"
   val behaviourFlatClassName = "BehaviorFlatSpec"
   val testItFlatClassName = "TestItFlatSpec"
+  val testWithIgnoreClassName = "SomeServiceTest"
 
   val flatSpecFileName = flatSpecClassName + ".scala"
   val behaviourFlatFileName = behaviourFlatClassName + ".scala"
   val testItFlatFileName = testItFlatClassName + ".scala"
+  val testWithIgnoreFileName = testWithIgnoreClassName + ".scala"
 
   addSourceFile(flatSpecFileName,
     s"""import org.scalatest._
@@ -95,4 +97,20 @@ trait FlatSpecGenerator extends ScalaTestTestCase {
        |""".stripMargin.trim()
   )
 
+  addSourceFile(testWithIgnoreFileName,
+    s"""import org.scalatest.FlatSpec
+       |
+       |class $testWithIgnoreClassName extends FlatSpec {
+       |  behavior of "SomeService"
+       |
+       |  it should "do something1" in {}
+       |  it should "do something2" in {}
+       |  it should "do something3" in {}
+       |
+       |  ignore should "do something4" in {} // ignore test!
+       |
+       |  it should "do something5" in {} // cannot run single test under "ignored" test
+       |  it should "do something6" in {} // cannot run single test under "ignored" test
+       |}""".stripMargin
+  )
 }
