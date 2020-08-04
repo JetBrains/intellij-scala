@@ -56,7 +56,7 @@ object SbtShellParserDefinition {
 
     override def getDefaultExtension = "sbts"
 
-    override def getIcon: Icon = language.SbtFileType.getIcon
+    override val getIcon: Icon = language.SbtFileType.getIcon
   }
 
   private final class SbtShellLexerAdapter extends FlexAdapter(new grammar._SbtShellLexer)
