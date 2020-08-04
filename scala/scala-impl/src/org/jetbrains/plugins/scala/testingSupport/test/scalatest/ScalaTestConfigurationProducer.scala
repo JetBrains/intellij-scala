@@ -56,7 +56,8 @@ final class ScalaTestConfigurationProducer extends AbstractTestConfigurationProd
       case _ => return None
     }
 
-    ScalaTestAstTransformer.testSelection(location) match {
+    val maybeSelection = ScalaTestAstTransformer.testSelection(location)
+    maybeSelection match {
       case Some(selection) =>
         val result1 = testClassWithTestNameForSelection(clazz, selection).map(t => ClassWithTestName(t._1, Option(t._2)))
         val result2 = result1.orElse(testClassWithTestNameForParent(location))
