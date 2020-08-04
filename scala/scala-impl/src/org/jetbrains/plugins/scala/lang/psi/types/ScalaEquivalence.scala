@@ -37,19 +37,20 @@ trait ScalaEquivalence extends api.Equivalence {
         case _ =>
       }
 
+      def containsUndefinedTypes(tpe: ScType): Boolean = tpe.subtypeExists {
+        case UndefinedType(_, _) => true
+        case _                   => false
+      }
+
+      if (right.isAliasType && containsUndefinedTypes(left)) {
+        val t = left.equivInner(right, empty, falseUndef)
+        if (t.isRight) return t
+      } else if (left.isAliasType && containsUndefinedTypes(right)) {
+        val t = right.equivInner(left, empty, falseUndef)
+        if (t.isRight) return t
+      }
+
       (left, right) match {
-        case (UndefinedType(_, _), _) if right.isAliasType =>
-          val t = left.equivInner(right, empty, falseUndef)
-          if (t.isRight) return t
-        case (_, UndefinedType(_, _)) if left.isAliasType =>
-          val t = left.equivInner(right, empty, falseUndef)
-          if (t.isRight) return t
-        case (ParameterizedType(UndefinedType(_, _), _), _) if right.isAliasType =>
-          val t = left.equivInner(right, empty, falseUndef)
-          if (t.isRight) return t
-        case (_, ParameterizedType(UndefinedType(_, _), _)) if left.isAliasType =>
-          val t = right.equivInner(left, empty, falseUndef)
-          if (t.isRight) return t
         /** It is important to handle the following cases here, because
          * dealising type might be the wrong thing to do in a higher-kinded
          * scenario, e.g. for `type F[A] = A` type `F` in `Functor[F]` is not equivalent

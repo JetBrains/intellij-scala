@@ -62,14 +62,13 @@ object ScEquivalenceUtil {
     else ta1 == ta2
   }
 
-  def smartEquivalence(elem1: PsiElement, elem2: PsiElement): Boolean = {
+  def smartEquivalence(elem1: PsiElement, elem2: PsiElement): Boolean =
     (elem1, elem2) match {
       case (clazz1: PsiClass, clazz2: PsiClass) => areClassesEquivalent(clazz1, clazz2)
-      case (p1: PsiPackage, p2: PsiPackage) => arePackagesEquivalent(p1, p2)
+      case (p1: PsiPackage, p2: PsiPackage)     => arePackagesEquivalent(p1, p2)
       case (ta1: ScTypeAlias, ta2: ScTypeAlias) => areTypeAliasesEquivalent(ta1, ta2)
-      case _ => elem1 == elem2
+      case _                                    => elem1 == elem2
     }
-  }
 
   /**
    * Checks if provided [[DesignatorOwner]] references class/type alias
