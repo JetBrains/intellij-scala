@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.testingSupport.specs2;
 import org.specs2.runner.ClassRunner$;
 import org.specs2.runner.NotifierRunner;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -16,7 +15,7 @@ import java.util.stream.Collectors;
  */
 public class Specs2Runner {
 
-  private static final String REPORTER_FQN = Specs2Notifier.class.getName();
+  private static final String REPORTER_FQN = JavaSpecs2Notifier.class.getName();
 
   public static void main(String[] argsRaw) throws NoSuchMethodException, IllegalAccessException {
     final boolean isSpecs2_3;
@@ -30,9 +29,9 @@ public class Specs2Runner {
     Spec2RunnerArgs args = Spec2RunnerArgs.parse(argsRaw);
     List<List<String>> runnerArgsList = toSpec2LibArgsList(args);
 
-    Specs2Notifier.myShowProgressMessages = args.showProgressMessages;
+    JavaSpecs2Notifier.myShowProgressMessages = args.showProgressMessages;
 
-    final Specs2Notifier notifier = new Specs2Notifier();
+    final JavaSpecs2Notifier notifier = new JavaSpecs2Notifier();
 
     for (List<String> runnerArgs : runnerArgsList) {
       String[] runnerArgsArray = runnerArgs.toArray(new String[0]);
@@ -81,7 +80,7 @@ public class Specs2Runner {
             .collect(Collectors.toList());
   }
 
-  private static void runSpecs2_old(String[] runnerArgsArray, Specs2Notifier notifier) throws NoSuchMethodException, IllegalAccessException {
+  private static void runSpecs2_old(String[] runnerArgsArray, JavaSpecs2Notifier notifier) throws NoSuchMethodException, IllegalAccessException {
     boolean hasNoStartMethod = false;
     boolean startNotFound = false;
 
