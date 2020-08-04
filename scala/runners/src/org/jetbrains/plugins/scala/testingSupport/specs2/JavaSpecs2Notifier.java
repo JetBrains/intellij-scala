@@ -14,9 +14,18 @@ import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeSt
 import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.formatCurrentTimestamp;
 
 /**
- * @author Alexander Podkhalyuzin
+ * !!! ATTENTION: don't rename this class until to-do below are fixed
+ *
+ * TODO: actually `org.specs2.reporter.Notifier` interface is different for different major versions
+ *  e.g. 2.x and 3.x/4.x, but we implement a single trait here (version 2.x) and pass it to all other spec2 versions.
+ *  This leads to some issues at runtime, which are Hacky-worked-around-ed in spec2 itself (for some reason)
+ *  (e.g. see https://github.com/etorreborre/specs2/commit/7d89a6aa33714ba14b7bf70d9520648b113e7ce8)
+ *  We should implement at least two different notifiers implementations:
+ *  for <=2.x and >=3.x (in separate modules) and instantiate it via notifier
+ *
+ * TODO: after fixing ^ review other reflection-related issues with spec2
  */
-public class Specs2Notifier implements Notifier {
+public class JavaSpecs2Notifier implements Notifier {
   public static boolean myShowProgressMessages = true;
 
   private static final AtomicInteger id = new AtomicInteger(0);
