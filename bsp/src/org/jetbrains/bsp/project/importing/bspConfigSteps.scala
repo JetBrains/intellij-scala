@@ -74,8 +74,7 @@ object bspConfigSteps {
 
   def configSetupChoices(workspace: File): List[ConfigSetup] = {
     val workspaceConfigs = workspaceSetupChoices(workspace)
-    if (workspaceConfigs.size == 1) List(NoSetup)
-    else if (workspaceConfigs.nonEmpty) workspaceConfigs
+    if (workspaceConfigs.nonEmpty) workspaceConfigs
     else List(NoSetup)
   }
 
