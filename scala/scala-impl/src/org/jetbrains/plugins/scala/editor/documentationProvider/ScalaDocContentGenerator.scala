@@ -35,6 +35,8 @@ private class ScalaDocContentGenerator(
   import ApplicationManager.{getApplication => application}
 
   private val resolveContext: PsiElement = originalComment
+  private var wikiSyntaxNestingLevel = 0
+  private def isInWikiSyntaxElement = wikiSyntaxNestingLevel > 0
 
   def appendTagDescriptionText(
     buffer: StringBuilder,
@@ -200,7 +202,9 @@ private class ScalaDocContentGenerator(
       markupTag.flatMap(markupTagToHtmlTag) match {
         case Some(htmlTag) =>
           buffer.append(s"<$htmlTag>")
+          wikiSyntaxNestingLevel += 1
           visitNodes(buffer, syntax.children.filter(isMarkupInner))
+          wikiSyntaxNestingLevel -= 1
           buffer.append(s"</$htmlTag>")
         case None          =>
           visitNodes(buffer, syntax.children)
@@ -260,7 +264,11 @@ private class ScalaDocContentGenerator(
       case ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG      => result.append("""</code></pre>""")
       case ScalaDocTokenType.DOC_MACROS                    => appendMacroValue(result, element)
       case _ if isDocLineBreak(element)                    => result.append("\n") // ignore other spaces except line break
-      case _                                               => result.append(unescape(element.getText))
+      case _                                               =>
+        val text0: String = element.getText
+        val text1: String = unescape(text0)
+        val text2: String = if (isInWikiSyntaxElement) escapeHtml(text1) else text1
+        result.append(text2)
     }
   }
 
@@ -392,12 +400,12 @@ object ScalaDocContentGenerator {
     else s"""<code>$text</code>"""
 
   private def markupTagToHtmlTag(markupTag: String): Option[String] = markupTag match {
-    case "__"  => Some("u")
-    case "'''" => Some("b")
-    case "''"  => Some("i")
-    case "`"   => Some("tt")
-    case ",,"  => Some("sub")
-    case "^"   => Some("sup")
+    case "__"  => Some("u") // underline
+    case "'''" => Some("b") // bold
+    case "''"  => Some("i") // italic
+    case "`"   => Some("tt") // monospace
+    case ",,"  => Some("sub") // lower index
+    case "^"   => Some("sup") // upper index
     case h if h.nonEmpty && h.forall(_ == '=') =>
       // NOTE: currently there is a bug in the IDEA Light Theme
       // in which html <h> tags are not rendered properly: IDEA-243159
@@ -406,7 +414,7 @@ object ScalaDocContentGenerator {
   }
 
   import DocListType._
-  /** @see [[scala.tools.nsc.doc.base.CommentFactoryBase.WikiParser#listStyles]] */
+  /** @see [[scala.tools.nsc.doc.base.CommentFactoryBase.WikiParser.listStyles]] */
   private val listStyles: Map[String, DocListType] = Map(
     "-"  -> UnorderedList,
     "1." -> OrderedList("decimal"),
