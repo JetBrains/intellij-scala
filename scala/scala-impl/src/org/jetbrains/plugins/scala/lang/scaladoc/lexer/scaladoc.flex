@@ -45,7 +45,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 %{ // User code
 
   private boolean isOddItalicBold = false;;
-  private int braceCount = 0;
+  private int braceCount = 0; // tracks deepness of nested doc comments (/** and */)
 
   public _ScalaDocLexer() {
     this((java.io.Reader)null);
@@ -173,6 +173,12 @@ plainid = {varid} | {op}
 
 
 <COMMENT_DATA_START> {WHITE_DOC_SPACE_CHAR}+ { return DOC_WHITESPACE; }
+<COMMENT_DATA> {WHITE_DOC_SPACE_NO_NL}+ / ({COMMENT_END}) {
+  boolean isFinalEndToken = braceCount == 1;
+  return isFinalEndToken
+    ? DOC_WHITESPACE
+    : DOC_COMMENT_DATA;
+}
 <COMMENT_DATA>  {WHITE_DOC_SPACE_NO_NL}+ { return DOC_COMMENT_DATA; }
 <COMMENT_DATA, COMMENT_INNER_CODE>  [\n\r]+{WHITE_DOC_SPACE_CHAR}* { return DOC_WHITESPACE; }
 
@@ -184,8 +190,13 @@ plainid = {varid} | {op}
 <COMMENT_DATA, COMMENT_DATA_START> ("^"|"\u005e") { return DOC_SUPERSCRIPT_TAG; }
 <COMMENT_DATA, COMMENT_DATA_START> (",,"|"\u002c\u002c") { return DOC_SUBSCRIPT_TAG; }
 <COMMENT_DATA, COMMENT_DATA_START> ("`"|"\u0060") { return DOC_MONOSPACE_TAG; }
-<COMMENT_DATA> ("="|"\u003d")+ { return DOC_HEADER; }
-<COMMENT_DATA_START> ("="|"\u003d")+ { return VALID_DOC_HEADER; }
+<COMMENT_DATA> ("="|"\u003d")+ {
+  return DOC_HEADER;
+}
+<COMMENT_DATA_START> ("="|"\u003d")+ {
+  yybegin(COMMENT_DATA);
+  return VALID_DOC_HEADER;
+}
 <COMMENT_DATA, COMMENT_DATA_START> ("''"|"\u0027\u0027") { return DOC_ITALIC_TAG; }
 <COMMENT_DATA, COMMENT_DATA_START> "'''" / ("''"[^"'"]) {
   if (isOddItalicBold) {

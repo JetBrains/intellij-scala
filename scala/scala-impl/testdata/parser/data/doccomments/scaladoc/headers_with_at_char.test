@@ -1,0 +1,81 @@
+/**
+ * =@=
+ * ==@==
+ * ===@===
+ * =@header=
+ * ==@header==
+ * ===@header===
+ * =header@=
+ * ==header@==
+ * ===header@===
+ */
+-----
+ScalaFile
+  DocComment
+    ScPsiDocToken(DOC_COMMENT_START)('/**')
+    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    ScDocParagraph
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocSyntaxElement 256
+        ScPsiDocToken(VALID_DOC_HEADER 256)('=')
+        ScPsiDocToken(DOC_COMMENT_DATA)('@')
+        ScPsiDocToken(DOC_HEADER 256)('=')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocSyntaxElement 256
+        ScPsiDocToken(VALID_DOC_HEADER 256)('==')
+        ScPsiDocToken(DOC_COMMENT_DATA)('@')
+        ScPsiDocToken(DOC_HEADER 256)('==')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocSyntaxElement 256
+        ScPsiDocToken(VALID_DOC_HEADER 256)('===')
+        ScPsiDocToken(DOC_COMMENT_DATA)('@')
+        ScPsiDocToken(DOC_HEADER 256)('===')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocSyntaxElement 256
+        ScPsiDocToken(VALID_DOC_HEADER 256)('=')
+        ScPsiDocToken(DOC_COMMENT_DATA)('@header')
+        ScPsiDocToken(DOC_HEADER 256)('=')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocSyntaxElement 256
+        ScPsiDocToken(VALID_DOC_HEADER 256)('==')
+        ScPsiDocToken(DOC_COMMENT_DATA)('@header')
+        ScPsiDocToken(DOC_HEADER 256)('==')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocSyntaxElement 256
+        ScPsiDocToken(VALID_DOC_HEADER 256)('===')
+        ScPsiDocToken(DOC_COMMENT_DATA)('@header')
+        ScPsiDocToken(DOC_HEADER 256)('===')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocSyntaxElement 256
+        ScPsiDocToken(VALID_DOC_HEADER 256)('=')
+        ScPsiDocToken(DOC_COMMENT_DATA)('header@')
+        ScPsiDocToken(DOC_HEADER 256)('=')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocSyntaxElement 256
+        ScPsiDocToken(VALID_DOC_HEADER 256)('==')
+        ScPsiDocToken(DOC_COMMENT_DATA)('header@')
+        ScPsiDocToken(DOC_HEADER 256)('==')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocSyntaxElement 256
+        ScPsiDocToken(VALID_DOC_HEADER 256)('===')
+        ScPsiDocToken(DOC_COMMENT_DATA)('header@')
+        ScPsiDocToken(DOC_HEADER 256)('===')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_END)('*/')

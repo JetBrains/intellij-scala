@@ -5,8 +5,6 @@ import com.intellij.psi.javadoc.{PsiDocComment, PsiDocTag}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 trait ScDocComment extends PsiDocComment with ScalaPsiElement {
-  def version: Int
-
   def tags: Seq[ScDocTag]
 
   override def findTagsByName(name: String): Array[PsiDocTag]

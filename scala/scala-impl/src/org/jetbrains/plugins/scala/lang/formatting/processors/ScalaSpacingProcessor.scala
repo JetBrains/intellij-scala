@@ -190,14 +190,16 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val scaladocSpacing = elementTypesWithParents match {
       case (_, ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, _, _) => NO_SPACING_WITH_NEWLINE
       case (_, ScalaDocTokenType.DOC_COMMENT_END, _, _) =>
-        if (docCommentOf(rightNode).version == 1) NO_SPACING_WITH_NEWLINE
-        else if (leftBlockString(leftBlockString.length() - 1) != ' ') WITH_SPACING
-        else WITHOUT_SPACING
+        //val version = docCommentOf(rightNode).version
+        if (false /*version == 1*/)
+          NO_SPACING_WITH_NEWLINE
+        else
+          WITH_SPACING
       case (ScalaDocTokenType.DOC_COMMENT_START, rightType, _, _) =>
         if (isScalaDocListStart(rightType)) Spacing.getReadOnlySpacing
-        else if (docCommentOf(leftNode).version == 1) NO_SPACING_WITH_NEWLINE
-        else if (rightType == ScalaDocTokenType.DOC_WHITESPACE/*getText(rightNode, fileText)(0) == ' '*/)WITHOUT_SPACING
-          else WITH_SPACING
+        //else if (docCommentOf(leftNode).version == 1) NO_SPACING_WITH_NEWLINE
+        else if (rightType == ScalaDocTokenType.DOC_WHITESPACE/*getText(rightNode, fileText)(0) == ' '*/) WITHOUT_SPACING
+        else WITH_SPACING
       case (x, y, _, _) if !scalaSettings.ENABLE_SCALADOC_FORMATTING &&
         ScalaDocElementTypes.AllElementAndTokenTypes.contains(x) &&
         ScalaDocElementTypes.AllElementAndTokenTypes.contains(y) =>

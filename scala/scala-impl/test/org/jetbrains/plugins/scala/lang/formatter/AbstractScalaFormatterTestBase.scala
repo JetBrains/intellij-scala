@@ -80,8 +80,8 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
   def doTextTest(text: String, textAfter: String): Unit =
     doTextTest(text, textAfter, 1)
 
-  def doTextTest(text: String, textAfter: String, repeats: Int): Unit =
-    doTextTest(TestData.reformat(text, textAfter, tempFileName, repeats))
+  def doTextTest(text: String, textAfter: String, repeats: Int, checkAfterEachIteration: Boolean = false): Unit =
+    doTextTest(TestData.reformat(text, textAfter, tempFileName, repeats, checkAfterEachIteration))
 
   def doTextTest(text: String, textAfter: String, fileName: String): Unit =
     doTextTest(TestData.reformat(text, textAfter, fileName))
@@ -93,7 +93,7 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     doTextTest(value, value, actionRepeats)
 
   private def doTextTest(action: Action, text: String, textAfter: String): Unit =
-    doTextTest(TestData(text, textAfter, tempFileName, action, 1))
+    doTextTest(TestData(text, textAfter, tempFileName, action, 1, false))
 
   private def initFile(fileName: String, text: String): PsiFile = {
     PsiFileFactory.getInstance(project)
@@ -171,7 +171,8 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
   }
 
   private def doTextTest(testData: TestData): Unit = {
-    val TestData(textBefore, textAfter, fileName, action, selectedRanges, actionRepeats) = testData
+    val TestData(textBefore, textAfter, fileName, action, selectedRanges, actionRepeats, checkAfterEachIteration) =
+      testData
 
     assertTrue("action should be applied at least once", actionRepeats >= 1)
     if (actionRepeats > 1 && selectedRanges.nonEmpty)
@@ -185,6 +186,11 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
       for (_ <- 0 until actionRepeats) {
         val ranges = if (selectedRanges.nonEmpty) selectedRanges else Seq(file.getTextRange)
         Actions(action).run(file, ranges)
+        if (checkAfterEachIteration) {
+          assertEquals(prepareText(textAfter), prepareText(document.getText))
+          manager.commitDocument(document)
+          assertEquals(prepareText(textAfter), prepareText(file.getText))
+        }
       }
     } catch {
       case e: IncorrectOperationException =>
@@ -229,17 +235,26 @@ private object AbstractScalaFormatterTestBase {
     fileName: String,
     action: Action,
     ranges: Seq[TextRange],
-    actionRepeats: Int
+    actionRepeats: Int,
+    checkAfterEachIteration: Boolean
   )
 
   object TestData {
-    def apply(before: String, after: String, fileName: String, action: Action, actionRepeats: Int): TestData = {
+
+    def apply(textBefore: String, textAfter: String, fileName: String, action: Action, ranges: Seq[TextRange], actionRepeats: Int): TestData =
+      new TestData(textBefore, textAfter, fileName, action, ranges, actionRepeats, checkAfterEachIteration = false)
+
+    def apply(before: String, after: String, fileName: String, action: Action, actionRepeats: Int, checkAfterEachIteration: Boolean): TestData = {
       val (beforeWithoutMarkers, selectedTextRanges) = MarkersUtils.extractMarkers(before.withNormalizedSeparator)
       val (afterWithoutMarkers, _) = MarkersUtils.extractMarkers(after.withNormalizedSeparator)
-      TestData(beforeWithoutMarkers, afterWithoutMarkers, fileName, action, selectedTextRanges, actionRepeats)
+      TestData(beforeWithoutMarkers, afterWithoutMarkers, fileName, action, selectedTextRanges, actionRepeats, checkAfterEachIteration)
     }
-    def reformat(before: String, after: String, fileName: String, repeats: Int): TestData = TestData(before, after, fileName, Action.Reformat, repeats)
-    def reformat(before: String, after: String, fileName: String): TestData = TestData(before, after, fileName, Action.Reformat, 1)
+
+    def reformat(before: String, after: String, fileName: String, repeats: Int, checkAfterEachIteration: Boolean): TestData =
+      TestData(before, after, fileName, Action.Reformat, repeats, checkAfterEachIteration)
+
+    def reformat(before: String, after: String, fileName: String): TestData =
+      TestData(before, after, fileName, Action.Reformat, 1, checkAfterEachIteration = false)
   }
 
   private trait TestFormatAction {
