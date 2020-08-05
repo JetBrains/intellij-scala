@@ -23,7 +23,6 @@ import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
 
 @RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_10,
   TestScalaVersion.Scala_2_11,
   TestScalaVersion.Scala_2_12
 ))
@@ -31,10 +30,8 @@ import scala.language.postfixOps
 class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
   with WorksheetRuntimeExceptionsTests {
 
-  // fixme (minor) : fails for scala 2.10:
-  //  sbt.internal.inc.CompileFailed: Error compiling the sbt component 'repl-wrapper-2.10.7-55.0-2-ILoopWrapperImpl.jar'
-  //  https://youtrack.jetbrains.com/issue/SCL-16175
-  override protected def supportedIn(version: ScalaVersion): Boolean = version > LatestScalaVersions.Scala_2_10
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_2_11
 
   // with some health check runs
   @RunWithScalaVersions(extra = Array(

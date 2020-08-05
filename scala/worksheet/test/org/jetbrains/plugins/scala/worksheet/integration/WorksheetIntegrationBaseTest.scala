@@ -32,7 +32,6 @@ import scala.language.postfixOps
   TODO 6: make tests methods more composible, there are just too many methods in this class now
 */
 @RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_10,
   TestScalaVersion.Scala_2_11,
   TestScalaVersion.Scala_2_12,
   TestScalaVersion.Scala_2_13,
