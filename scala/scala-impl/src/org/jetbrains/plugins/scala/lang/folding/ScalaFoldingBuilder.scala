@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScBraceless, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScBraceOwner, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScParenthesisedTypeElement, ScTypeElement, ScTypeProjection}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -477,7 +477,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
     isBraceless(node.getPsi)
 
   private def isBraceless(element: PsiElement): Boolean =
-    element.asOptionOf[ScBraceless].exists(_.isBraceless)
+    element.asOptionOf[ScBraceOwner].exists(_.isEnclosedByBraces)
 
   override def isDumbAware: Boolean = true
 }

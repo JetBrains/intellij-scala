@@ -10,7 +10,7 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.{PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScBraceless
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScBraceOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createNewLineNode
@@ -29,7 +29,7 @@ import scala.collection.mutable.ArrayBuffer
 trait ScBlock extends ScExpression
   with ScDeclarationSequenceHolder
   with ScImportsHolder
-  with ScBraceless
+  with ScBraceOwner
 {
   protected override def innerType: TypeResult = {
     if (hasCaseClauses) {
@@ -119,7 +119,7 @@ trait ScBlock extends ScExpression
 
   def needCheckExpectedType = true
 
-  override def isBraceless: Boolean = false
+  override def isEnclosedByBraces: Boolean = false
 }
 
 object ScBlock {
