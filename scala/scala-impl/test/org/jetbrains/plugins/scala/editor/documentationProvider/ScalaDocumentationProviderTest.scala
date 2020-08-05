@@ -1935,11 +1935,33 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
   def testEscapeHtmlInCodeExampleContent(): Unit =
     doGenerateDocContentTest(
       s"""/**
-         | * text before {{{<head><style>...</style><head>}}} text after
+         | * text before {{{<head><style>...</style></head>}}} text after
          | */
          |class ${|}A""".stripMargin,
       """text before
-        |<pre><code>&lt;head&gt;&lt;style&gt;...&lt;/style&gt;&lt;head&gt;</code></pre>
+        |<pre><code>&lt;head&gt;&lt;style&gt;...&lt;/style&gt;&lt;/head&gt;</code></pre>
         |text after""".stripMargin
     )
+
+  def testEscapeHtmlInWikiSyntaxElements(): Unit = {
+    doGenerateDocContentTest(
+      s"""/**
+         | * text before `<head><style>...</style></head>` text after
+         | */
+         |class ${|}A""".stripMargin,
+      """text before
+        |<tt>&lt;head&gt;&lt;style&gt;...&lt;/style&gt;&lt;/head&gt;</tt>
+        |text after""".stripMargin
+    )
+
+    doGenerateDocContentTest(
+      s"""/**
+         | * text before '''<head><style>...</style></head>''' text after
+         | */
+         |class ${|}A""".stripMargin,
+      """text before
+        |<b>&lt;head&gt;&lt;style&gt;...&lt;/style&gt;&lt;/head&gt;</b>
+        |text after""".stripMargin
+    )
+  }
 }
