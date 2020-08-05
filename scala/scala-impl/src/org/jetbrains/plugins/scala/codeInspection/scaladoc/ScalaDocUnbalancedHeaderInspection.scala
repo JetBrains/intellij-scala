@@ -4,49 +4,61 @@ package scaladoc
 
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiElementVisitor}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocSyntaxElement
 
 class ScalaDocUnbalancedHeaderInspection extends LocalInspectionTool {
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
-    new ScalaElementVisitor {
-      override def visitWikiSyntax(s: ScDocSyntaxElement): Unit = {
-        import ScalaDocTokenType._
 
-        val firstChild = s.getFirstChild
-        val lastChild = s.getLastChild
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor =
+    new ScalaElementVisitor {
+      override def visitWikiSyntax(syntaxElement: ScDocSyntaxElement): Unit = {
+
+        val firstChild = syntaxElement.getFirstChild
+        val lastChild = syntaxElement.getLastChild
 
         if (!ScalaDocUnbalancedHeaderInspection.isApplicable(firstChild, lastChild))
           return
 
-        if (s.getFirstChild.getTextLength != lastChild.getTextLength) {
-          holder.registerProblem(holder.getManager.createProblemDescriptor(
-            lastChild, getDisplayName, true,
+        val isUnbalanced = syntaxElement.getFirstChild.getTextLength != lastChild.getTextLength
+        if (isUnbalanced) {
+          val description = getDisplayName
+          val problem = holder.getManager.createProblemDescriptor(
+            lastChild, description, true,
             ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
             isOnTheFly,
-            new ScalaDocHeaderBalanceQuickFix(s.getFirstChild, lastChild)
-          ))
+            new ScalaDocHeaderBalanceQuickFix(syntaxElement.getFirstChild, lastChild)
+          )
+          holder.registerProblem(problem)
         }
 
-        var sibl = s.getNextSibling
-        val firstSibl = sibl
-        while (sibl != null && sibl.getNode.getElementType != DOC_COMMENT_END &&
-          sibl.getNode.getElementType != DOC_WHITESPACE) {
-          val highlightedElement = if (s.getNextSibling != null) s.getNextSibling else s
-          holder.registerProblem(holder.getManager.createProblemDescriptor(
-            highlightedElement, highlightedElement,
-            ScalaInspectionBundle.message("all.text.from.header.closing.tag.to.end.of.line.will.be.lost"),
-            ProblemHighlightType.WEAK_WARNING, isOnTheFly,
-            new ScalaDocMoveTextToNewLineQuickFix(firstSibl)
-          ))
-          sibl = sibl.getNextSibling
+        val siblingElementsOnSameLine = syntaxElement.nextSiblings.takeWhile(!isDocLineBreak(_)).toSeq
+        if (siblingElementsOnSameLine.nonEmpty) {
+          val isJustAWhitespace =
+            siblingElementsOnSameLine.size == 1 &&
+              siblingElementsOnSameLine.head.elementType == ScalaDocTokenType.DOC_WHITESPACE
+
+          if (!isJustAWhitespace) {
+            val description = ScalaInspectionBundle.message("all.text.from.header.closing.tag.to.end.of.line.will.be.lost")
+            val first       = siblingElementsOnSameLine.head
+            val last        = siblingElementsOnSameLine.last
+            val problem     = holder.getManager.createProblemDescriptor(
+              first, last, description,
+              ProblemHighlightType.WEAK_WARNING, isOnTheFly,
+              new ScalaDocMoveTextToNewLineQuickFix(first, last)
+            )
+            holder.registerProblem(problem)
+          }
         }
       }
     }
-  }
+
+  private def isDocLineBreak(el: PsiElement): Boolean =
+    el.elementType == ScalaDocTokenType.DOC_WHITESPACE && el.textContains('\n')
 }
 
 object ScalaDocUnbalancedHeaderInspection {
@@ -74,15 +86,19 @@ class ScalaDocHeaderBalanceQuickFix(opening: PsiElement, closing: PsiElement)
   }
 }
 
-class ScalaDocMoveTextToNewLineQuickFix(textData: PsiElement)
-  extends AbstractFixOnPsiElement(ScalaBundle.message("move.text.after.header.to.new.line"), textData) {
+class ScalaDocMoveTextToNewLineQuickFix(
+  startElement: PsiElement,
+  endElement: PsiElement
+) extends AbstractFixOnTwoPsiElements(ScalaBundle.message("move.text.after.header.to.new.line"), startElement, endElement) {
 
   override def getFamilyName: String = FamilyName
 
-  override protected def doApplyFix(data: PsiElement)
-                                   (implicit project: Project): Unit = {
-    val parent = data.getParent
-    parent.addBefore(createDocWhiteSpaceWithNewLine, data)
-    parent.addBefore(createLeadingAsterisk, data)
+  override protected def doApplyFix(first: PsiElement, second: PsiElement)(implicit project: Project): Unit = {
+    val parent = first.getParent
+    parent.addBefore(createDocWhiteSpaceWithNewLine, first)
+    val addedAst = parent.addBefore(createLeadingAsterisk, first)
+
+    CodeStyleManager.getInstance(project)
+      .reformatText(parent.getContainingFile, addedAst.startOffset, first.endOffset)
   }
 }
