@@ -98,6 +98,6 @@ class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
     selfTypeElement.orElse(super.childBeforeFirstImport)
   }
 
-  override def isBraceless: Boolean =
+  override def isEnclosedByBraces: Boolean =
     this.firstChild.exists(_.elementType == ScalaTokenTypes.tCOLON)
 }

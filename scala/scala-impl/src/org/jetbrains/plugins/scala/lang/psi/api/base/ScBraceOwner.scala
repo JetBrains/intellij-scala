@@ -4,6 +4,6 @@ package psi
 package api
 package base
 
-trait ScBraceless extends ScalaPsiElement {
-  def isBraceless: Boolean
+trait ScBraceOwner extends ScalaPsiElement {
+  def isEnclosedByBraces: Boolean
 }
