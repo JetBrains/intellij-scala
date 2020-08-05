@@ -951,8 +951,10 @@ object ScalaPsiElementFactory {
                             (implicit ctx: ProjectContext): PsiElement = {
     val text = s"/**=header${StringUtils.repeat("=", length)}*/"
     val comment = createDocComment(text)
-    val children = comment.getNode.getChildren(null)
-    children(1).getLastChildNode.getPsi
+    val paragraph = PsiTreeUtil.findChildOfType(comment, classOf[ScDocParagraph])
+    val headerElement = paragraph.getFirstChild
+    val result = headerElement.getLastChild
+    result
   }
 
   def createDocWhiteSpaceWithNewLine(implicit ctx: ProjectContext): PsiElement = {
