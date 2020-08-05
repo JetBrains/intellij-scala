@@ -21,13 +21,6 @@ final class ScDocCommentImpl(buffer: CharSequence,
   extends LazyParseablePsiElement(getTokenType, buffer)
     with ScDocComment {
 
-  override def version: Int = {
-    val firstLineIsEmpty = getNode.getChildren(null).lift(2).exists(
-      _.getElementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS)
-
-    if (firstLineIsEmpty) 1 else 2
-  }
-
   override def getOwner: PsiDocCommentOwner = getParent match {
     case owner: PsiDocCommentOwner if owner.getDocComment eq this => owner
     case _ => null

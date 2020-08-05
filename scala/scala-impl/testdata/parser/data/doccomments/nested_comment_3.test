@@ -5,5 +5,6 @@ ScalaFile
     ScPsiDocToken(DOC_COMMENT_START)('/**')
     ScDocParagraph
       ScPsiDocToken(DOC_WHITESPACE)(' ')
-      ScPsiDocToken(DOC_COMMENT_DATA)('/* /* */*/ ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('/* /* */*/')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
     ScPsiDocToken(DOC_COMMENT_END)('*/')

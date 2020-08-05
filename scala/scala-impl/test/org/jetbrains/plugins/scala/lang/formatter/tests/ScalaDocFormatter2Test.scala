@@ -368,4 +368,91 @@ class ScalaDocFormatter2Test extends AbstractScalaFormatterTestBase {
       | * $ {not macro}
       | */""".stripMargin
   )
+
+  def testSingleLineDocComment(): Unit = {
+    val before =
+      """/** description text*/
+        |class A
+        |""".stripMargin
+    val after =
+      """/** description text */
+        |class A
+        |""".stripMargin
+
+    scalaSettings.USE_SCALADOC2_FORMATTING = false
+    doTextTest(before, after, repeats = 3, checkAfterEachIteration = true)
+
+    scalaSettings.USE_SCALADOC2_FORMATTING = true
+    doTextTest(before, after, repeats = 3, checkAfterEachIteration = true)
+  }
+
+  def testSingleLineDocComment_WithHeader(): Unit = {
+    val before =
+      """/** ==header==*/
+        |class A
+        |""".stripMargin
+    val after =
+      """/** ==header== */
+        |class A
+        |""".stripMargin
+
+    scalaSettings.USE_SCALADOC2_FORMATTING = false
+    doTextTest(before, after, repeats = 3, checkAfterEachIteration = true)
+
+    scalaSettings.USE_SCALADOC2_FORMATTING = true
+    doTextTest(before, after, repeats = 3, checkAfterEachIteration = true)
+  }
+
+  def testSingleLineDocComment_WithHeader_1(): Unit = {
+    val before =
+      """/**
+        | * ==header==*/
+        |class A
+        |""".stripMargin
+
+    scalaSettings.USE_SCALADOC2_FORMATTING = false
+    doTextTest(before,
+      """/**
+        | * ==header== */
+        |class A
+        |""".stripMargin, repeats = 3, checkAfterEachIteration = true)
+
+    scalaSettings.USE_SCALADOC2_FORMATTING = true
+    doTextTest(before,
+      """/**
+        |  * ==header== */
+        |class A
+        |""".stripMargin, repeats = 3, checkAfterEachIteration = true)
+  }
+
+  def testTagWithEndCommentOnSameLine(): Unit = {
+    doTextTest(
+      """/** @note description*/""".stripMargin,
+      """/** @note description */""".stripMargin,
+      repeats = 3,
+      checkAfterEachIteration = true
+    )
+
+    doTextTest(
+      """/** @note description `with wiki syntax`*/""".stripMargin,
+      """/** @note description `with wiki syntax` */""".stripMargin,
+      repeats = 3,
+      checkAfterEachIteration = true
+    )
+
+    doTextTest(
+      """/** @note description `with wiki syntax`*/""".stripMargin,
+      """/** @note description `with wiki syntax` */""".stripMargin,
+      repeats = 3,
+      checkAfterEachIteration = true
+    )
+  }
+
+  def testTagWithEndCommentOnSameLine_IncompleteTagWithValue(): Unit =
+    doTextTest(
+      """/** @param name*/""".stripMargin,
+      """/** @param name */""".stripMargin,
+      repeats = 3,
+      checkAfterEachIteration = true
+    )
 }
