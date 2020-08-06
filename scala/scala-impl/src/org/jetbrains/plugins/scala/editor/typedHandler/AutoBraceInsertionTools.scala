@@ -11,12 +11,15 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.editor.AutoBraceUtils.{continuesConstructAfterIndentationContext, isBeforeIndentationContext}
+import org.jetbrains.plugins.scala.editor.AutoBraceUtils.{continuesConstructAfterIndentationContext, isBeforeIndentationContext, isIndentationContext, nextExpressionInIndentationContext}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScPostfixExpr
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScPostfixExpr}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.IndentUtil.calcIndent
+
+import scala.annotation.tailrec
 
 object AutoBraceInsertionTools {
   def autoBraceInsertionActivated: Boolean =
@@ -191,6 +194,14 @@ object AutoBraceInsertionTools {
       case _ => None
     }
 
+  @tailrec
+  def isPrecededByNewline(element: PsiElement): Boolean = PsiTreeUtil.prevLeaf(element) match {
+    case ws: PsiWhiteSpace => ws.textContains('\n')
+    case null => false
+    case prev if prev.getTextLength == 0 => isPrecededByNewline(prev)
+    case _ => false
+  }
+
   private val startsStatement = {
     import ScalaTokenType._
     import ScalaTokenTypes._
@@ -221,12 +232,68 @@ object AutoBraceInsertionTools {
     )
   }
 
+  private val startsStatementTexts = startsStatement.map(_.toString)
+
+  private def startsStatementBeforeCaret(element: PsiElement, caret: Int): Boolean = {
+    val caretInElement = caret - element.startOffset
+    caretInElement > 0 && startsStatementTexts(element.getText.substring(0, caretInElement))
+  }
+
+  /**
+   * This finds the last token of an expression that was in indentation position,
+   * when the user already entered a statement start in front of it.
+   *
+   * For example:
+   *
+   * {{{
+   *  def test =
+   *    val<caret>-lhs operation
+   *      rhs
+   * }}}
+   *
+   * Because this completely destroys the parsing of the code,
+   * this methods constructs a file without the statement-start part and looks
+   * for the last token of the remaining token
+   */
+  private def findLastTokenOfExpressionAfterStatementStart(element: PsiElement, file: PsiFile, statementStart: Int, caretOffset: Int): Option[PsiElement] =
+    for {
+      // find an element that certainly encloses everything
+      enclosement <- element.parents.findByType[PsiFile, ScBlock]
+      enclosementStart = enclosement.startOffset
+      statementStartInEnclosement = statementStart - enclosementStart
+      caretInEnclosement = caretOffset - enclosementStart
+
+      // build a file without the statement start part
+      enclosementText = enclosement.getText
+      enclosementTextWithoutStatement =
+        enclosementText.substring(0, statementStartInEnclosement) +
+          enclosementText.substring(caretInEnclosement)
+      probeFile = ScalaPsiElementFactory.createScalaFileFromText(enclosementTextWithoutStatement)(element.getProject)
+
+      // find the expression that comes after the statement start (which is parsed corretly now in the dummy file)
+      probeExprBeginOrWs = probeFile.findElementAt(statementStartInEnclosement)
+      probeExprBegin = if (probeExprBeginOrWs.isWhitespace) probeExprBeginOrWs.nextVisibleLeaf.get else probeExprBeginOrWs
+      probeExpr <- probeExprBegin.withParents.takeWhile(_.startOffset == statementStartInEnclosement).lastOption
+
+      // translate the expression's position back into the real file and get the last token of the expression
+      lastTokenOfExpr <- file.findElementAt(probeExpr.endOffset + enclosementStart - 1).toOption
+    } yield lastTokenOfExpr
+
   /**
    * Finds autobrace info for when the user types a statement where an expression is expected
    * For example
+   *
+   * {{{
    *   def test =
    *     val<caret>   // now pressing space should insert braces, because it cannot be an expression
+   * }}}
    *
+   * Also works in case there already was an expression
+   *
+   * {{{
+   *   def test =
+   *     val<caret> 5 + calc()    // now pressing space should insert braces, because it cannot be an expression anymore
+   * }}}
    */
   def findAutoBraceInsertionOpportunityWhenStartingStatement(c: Char, caretOffset: Int, element: PsiElement)
                                                             (implicit project: Project, file: PsiFile, editor: Editor): Option[AutoBraceInsertionInfo] = {
@@ -235,38 +302,56 @@ object AutoBraceInsertionTools {
       return None
     }
 
-    // check if the element before the caret certainly starts a statement
-    val keyword = element.prevVisibleLeaf match {
-      case Some(kw) if startsStatement(kw.elementType) => kw
+    // check if the element or its prefix before the caret certainly starts a statement
+    val (tokenBeginningWithStatement, tokenEndingFutureStatementF) = (element, element.prevVisibleLeaf) match {
+      case (ws: PsiWhiteSpace, Some(kw)) if startsStatement(kw.elementType) =>
+        // this is for when the statement-start is followed directly by a whitespace
+        val tokenEndingFutureStatementF =
+          if (ws.textContains('\n')) () => Some(kw)
+          else () => findLastTokenOfExpressionAfterStatementStart(element, file, kw.startOffset, caretOffset)
+        (kw, tokenEndingFutureStatementF)
+      case (_, Some(kw)) if startsStatement(kw.elementType) =>
+        // this is for when the statement-start is followed by something that does not continue an identifier, like
+        // def test =
+        //   val<caret>-5 + 5
+        (kw, () => findLastTokenOfExpressionAfterStatementStart(element, file, kw.startOffset, caretOffset))
+      case _ if startsStatementBeforeCaret(element, caretOffset) =>
+        // this is for when the statement-start is immediately followed by something that continues an identifier, like
+        // def test =
+        //   val<caret>5 + 5
+        (element, () => findLastTokenOfExpressionAfterStatementStart(element, file, element.startOffset, caretOffset))
       case _ => return None
     }
 
     // find out if this new statement is where an expression should be
-    val elementWhereExprShouldBe = keyword.prevLeafNotWhitespaceComment match {
-      case Some(last) if isBeforeIndentationContext(last) => last
+    val elementWhereExprShouldBe = tokenBeginningWithStatement.prevVisibleLeaf(skipComments = true) match {
+      case Some(last) if isBeforeIndentationContext(last) || nextExpressionInIndentationContext(last).isDefined => last
       case _ => return None
     }
 
     val elementWithIndentationContext = elementWhereExprShouldBe.getParent
-    val newlineBeforeKeyword = keyword.prevLeaf.exists(_.textContains('\n'))
+    val newlineBeforeKeyword = isPrecededByNewline(tokenBeginningWithStatement)
     val tabSize = CodeStyle.getSettings(project).getTabSize(ScalaFileType.INSTANCE)
 
     //check indentation
-    if (newlineBeforeKeyword && calcIndent(keyword, tabSize) > calcIndent(elementWithIndentationContext, tabSize)) {
+    if (newlineBeforeKeyword && calcIndent(tokenBeginningWithStatement, tabSize) > calcIndent(elementWithIndentationContext, tabSize)) {
       val document = editor.getDocument
 
-      // find correct positions for braces when the current construct is
-      // has a continuation
-      val closingBraceOffsetBeforeContinuation =
-        findClosingBraceOffsetBeforeContinuation(element)
+      for {
+        // this operation might be quite expensive, so do it as late as possible
+        lastToken <- tokenEndingFutureStatementF()
 
-      Some(AutoBraceInsertionInfo(
-        openBraceOffset = elementWhereExprShouldBe.endOffset,
-        inputOffset = caretOffset,
-        closingBraceOffset = closingBraceOffsetBeforeContinuation.getOrElse(document.lineEndOffset(caretOffset)),
-        needsFakeInput = false,
-        isBeforeContinuation = closingBraceOffsetBeforeContinuation.isDefined
-      ))
+        // find correct positions for braces when the current construct is
+        // has a continuation
+        closingBraceOffsetBeforeContinuation = findClosingBraceOffsetBeforeContinuation(lastToken)
+      } yield
+        AutoBraceInsertionInfo(
+          openBraceOffset = elementWhereExprShouldBe.endOffset,
+          inputOffset = caretOffset,
+          closingBraceOffset = closingBraceOffsetBeforeContinuation.getOrElse(document.lineEndOffset(lastToken.endOffset)),
+          needsFakeInput = false,
+          isBeforeContinuation = closingBraceOffsetBeforeContinuation.isDefined
+        )
     } else None
   }
 
