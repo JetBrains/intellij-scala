@@ -28,7 +28,7 @@ class AutoBraceAdvertisementEnterHandler extends EnterHandlerDelegateAdapter {
       document.getLineNumber(range.getStartOffset) == document.getLineNumber(range.getEndOffset)
     }
 
-    elem.toOption.flatMap(_.prevLeafNotWhitespaceComment).foreach {
+    elem.toOption.flatMap(_.prevVisibleLeaf(skipComments = true)).foreach {
       case elem@Parent(block: ScBlockExpr) =>
         if (elem.elementType == ScalaTokenTypes.tLBRACE && bracesAreOnSameLine(block)) {
           AutoBraceAdvertiser.advertiseAutoBraces(file.getProject)
