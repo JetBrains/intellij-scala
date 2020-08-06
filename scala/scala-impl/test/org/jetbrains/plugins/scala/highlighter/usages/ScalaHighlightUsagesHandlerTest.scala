@@ -11,14 +11,15 @@ import scala.collection.JavaConverters._
   * Created by Svyatoslav Ilinskiy on 13.07.16.
   */
 class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestAdapter {
+  val | = "<caret>"
 
   def testReturn(): Unit = {
     val code =
-      """
+      s"""
         |object AAA {
         |  def foo(): Int = {
         |    if (true) {
-        |      retu<caret>rn 1
+        |      retu${|}rn 1
         |    }
         |    2
         |  }
@@ -29,172 +30,172 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestAd
 
   def testDef(): Unit = {
     val code =
-      """
-        |object AAA {
-        |  de<caret>f foo(): Int = {
-        |    if (true) {
-        |      return 1
-        |    }
-        |    2
-        |  }
-        |}
-      """.stripMargin
+      s"""
+         |object AAA {
+         |  de${|}f foo(): Int = {
+         |    if (true) {
+         |      return 1
+         |    }
+         |    2
+         |  }
+         |}
+       """.stripMargin
     doTest(code, Seq("return 1", "2", "def"))
   }
 
   def testVal(): Unit = {
     val code =
-      """
-        |object AAA {
-        |  va<caret>l foo: Int = {
-        |    if (true) 1
-        |    else 2
-        |  }
-        |}
-      """.stripMargin
+      s"""
+         |object AAA {
+         |  va${|}l foo: Int = {
+         |    if (true) 1
+         |    else 2
+         |  }
+         |}
+       """.stripMargin
     doTest(code, Seq("2", "1", "val"))
   }
 
   def testMutiValDeclaration(): Unit = {
     val code =
-      """
-        |object AAA {
-        |  va<caret>l (i, j) = (1, 2)
-        |}
-      """.stripMargin
+      s"""
+         |object AAA {
+         |  va${|}l (i, j) = (1, 2)
+         |}
+       """.stripMargin
     assertHandlerIsNull(code)
   }
 
 
   def testVar(): Unit = {
     val code =
-      """
-        |object Zoo {
-        |  va<caret>r x = 10
-        |}
-      """.stripMargin
+      s"""
+         |object Zoo {
+         |  va${|}r x = 10
+         |}
+       """.stripMargin
     doTest(code, Seq("10", "var"))
   }
 
   def testVarMultiDeclaration(): Unit = {
     val code =
-      """
-        |object Zoo {
-        |  v<caret>ar (x, y) = (1, 2)
-        |}
-      """.stripMargin
+      s"""
+         |object Zoo {
+         |  v${|}ar (x, y) = (1, 2)
+         |}
+       """.stripMargin
     assertHandlerIsNull(code)
   }
 
   def testCase(): Unit = {
     val code =
-      """
-        |object Koo {
-        |  def foo(s: Any): Unit = s match {
-        |    ca<caret>se _ =>
-        |      println(1)
-        |      println(s)
-        |    case _ => ()
-        |  }
-        |}
-      """.stripMargin
+      s"""
+         |object Koo {
+         |  def foo(s: Any): Unit = s match {
+         |    ca${|}se _ =>
+         |      println(1)
+         |      println(s)
+         |    case _ => ()
+         |  }
+         |}
+       """.stripMargin
     doTest(code, Seq("println(s)", "case"))
   }
 
   def testMatch(): Unit = {
     val code =
-      """
-        |object Koo {
-        |  def foo(s: Any): Unit = s m<caret>atch {
-        |    case _ =>
-        |      println(1)
-        |      println(s)
-        |    case _ => ()
-        |  }
-        |}
-      """.stripMargin
+      s"""
+         |object Koo {
+         |  def foo(s: Any): Unit = s m${|}atch {
+         |    case _ =>
+         |      println(1)
+         |      println(s)
+         |    case _ => ()
+         |  }
+         |}
+       """.stripMargin
     doTest(code, Seq("println(s)", "()", "match"))
   }
 
   def testTry(): Unit = {
     val code =
-      """
-        |object Zoo {
-        |  def foo(r: () => Unit): Unit = {
-        |    t<caret>ry {
-        |      r()
-        |    } catch {
-        |      case _: IndexOutOfBoundsException => println(":(")
-        |    }
-        |  }
-        |}
-      """.stripMargin
+      s"""
+         |object Zoo {
+         |  def foo(r: () => Unit): Unit = {
+         |    t${|}ry {
+         |      r()
+         |    } catch {
+         |      case _: IndexOutOfBoundsException => println(":(")
+         |    }
+         |  }
+         |}
+       """.stripMargin
     doTest(code, Seq("r()", "println(\":(\")", "try"))
   }
 
   def testFor(): Unit = {
     val code =
-      """
-        |object Zoo {
-        |  def foo(s: Seq[String]): Unit = {
-        |    fo<caret>r (a <- s) yield a
-        |  }
-        |}
-      """.stripMargin
+      s"""
+         |object Zoo {
+         |  def foo(s: Seq[String]): Unit = {
+         |    fo${|}r (a <- s) yield a
+         |  }
+         |}
+       """.stripMargin
     doTest(code, Seq("a", "for"))
   }
 
   def testIf(): Unit = {
     val code =
-      """
-        |object Zoo {
-        |  def foo(s: Seq[String]): Unit = {
-        |    i<caret>f (s.isEmpty) println("empty")
-        |    else println(s)
-        |  }
-        |}
-      """.stripMargin
+      s"""
+         |object Zoo {
+         |  def foo(s: Seq[String]): Unit = {
+         |    i${|}f (s.isEmpty) println("empty")
+         |    else println(s)
+         |  }
+         |}
+       """.stripMargin
     doTest(code, Seq("println(s)", "println(\"empty\")", "if"))
   }
 
   def testAnonymousFunction(): Unit = {
     val code =
-      """
-        |object Zoo {
-        |  () =<caret>> {
-        |    println("A")
-        |    1
-        |  }
-        |}
-      """.stripMargin
+      s"""
+         |object Zoo {
+         |  () =${|}> {
+         |    println("A")
+         |    1
+         |  }
+         |}
+       """.stripMargin
     doTest(code, Seq("1", "=>"))
   }
 
   def testCompanionObject(): Unit = {
     val code =
-      """
-        |o<caret>bject Zoo
-        |class Zoo
-      """.stripMargin
+      s"""
+         |o${|}bject Zoo
+         |class Zoo
+       """.stripMargin
     doTest(code, Seq("object", "class"))
   }
 
   def testCompanionClass(): Unit = {
     val code =
-      """
-        |c<caret>lass Zoo
-        |object Zoo
-      """.stripMargin
+      s"""
+         |c${|}lass Zoo
+         |object Zoo
+       """.stripMargin
     doTest(code, Seq("class", "object"))
   }
 
   def testCompanionTrait(): Unit = {
     val code =
-      """
-        |tra<caret>it Zoo
-        |object Zoo
-        |}
-      """.stripMargin
+      s"""
+         |tra${|}it Zoo
+         |object Zoo
+         |}
+       """.stripMargin
     doTest(code, Seq("trait", "object"))
   }
 
