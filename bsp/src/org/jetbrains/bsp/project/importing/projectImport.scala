@@ -47,12 +47,12 @@ class BspProjectImportBuilder
   /** The wizard system reuses the builder between different runs of the wizard (IDEA-246371),
    * so we need to manually reset on every run. On this occasion, we can preconfigure any
    * data that can be autodetected before running the wizard. */
-  def reset(): Unit = {
+  private[importing] def reset(): Unit = {
     preImportConfig = AutoPreImport
     serverConfig = AutoConfig
   }
 
-  def autoConfigure(workspace: File): Unit = {
+  private[importing] def autoConfigure(workspace: File): Unit = {
 
     val configSetups = bspConfigSteps.configSetupChoices(workspace)
     if (configSetups.size == 1)
@@ -60,9 +60,10 @@ class BspProjectImportBuilder
     else ()
   }
 
-  def applyBspSetupSettings(project: Project): Unit = {
+  private def applyBspSetupSettings(project: Project): Unit = {
     val bspSettings = BspUtil.bspSettings(project)
-    val projectSettings = bspSettings.getLinkedProjectSettings(getFileToImport)
+    val systemProjectPath = FileUtil.toSystemDependentName(getFileToImport)
+    val projectSettings = bspSettings.getLinkedProjectSettings(systemProjectPath)
     projectSettings.setPreImportConfig(preImportConfig)
     projectSettings.setServerConfig(serverConfig)
   }
