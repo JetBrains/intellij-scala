@@ -785,34 +785,31 @@ package object extensions {
     def prevLeaf: Option[PsiElement] =
       PsiTreeUtil.prevLeaf(element).toOption
 
-    def nextVisibleLeaf: Option[PsiElement] =
-      PsiTreeUtil.nextVisibleLeaf(element).toOption
+    final def nextVisibleLeaf: Option[PsiElement] =
+      nextVisibleLeaf(skipComments = false)
 
-    def prevVisibleLeaf: Option[PsiElement] =
-      PsiTreeUtil.prevVisibleLeaf(element).toOption
-
-    def nextLeafNotWhitespaceComment: Option[PsiElement] = {
-      var next = PsiTreeUtil.nextLeaf(element)
-      while (
-        next != null && (next.isInstanceOf[PsiWhiteSpace] ||
-        next.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)
-      ) {
-        next = PsiTreeUtil.nextLeaf(next)
+    @tailrec
+    final def nextVisibleLeaf(skipComments: Boolean): Option[PsiElement] =
+      PsiTreeUtil.nextVisibleLeaf(element) match {
+        case comment: PsiComment if skipComments => comment.nextVisibleLeaf(skipComments)
+        case next => next.toOption
       }
-      next.toOption
-    }
 
-    def prevLeafNotWhitespaceComment: Option[PsiElement] = {
-      var prev = PsiTreeUtil.prevLeaf(element)
-      while (
-        prev != null && (prev.isInstanceOf[PsiWhiteSpace] ||
-          prev.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)
-      ) {
-        prev = PsiTreeUtil.prevLeaf(prev)
+    final def prevVisibleLeaf: Option[PsiElement] =
+      prevVisibleLeaf(skipComments = false)
+
+    @tailrec
+    final def prevVisibleLeaf(skipComments: Boolean): Option[PsiElement] =
+      PsiTreeUtil.prevVisibleLeaf(element) match {
+        case comment: PsiComment if skipComments => comment.prevVisibleLeaf(skipComments)
+        case next => next.toOption
       }
-      prev.toOption
-    }
 
+    def firstLeaf: PsiElement =
+      PsiTreeUtil.getDeepestFirst(element)
+
+    def lastLeaf: PsiElement =
+      PsiTreeUtil.getDeepestLast(element)
 
     def getFirstChildNotWhitespace: PsiElement =
       element.getFirstChild match {
@@ -1136,6 +1133,10 @@ package object extensions {
     def findByType[T: ClassTag]: Option[T] = {
       val aClass = implicitly[ClassTag[T]].runtimeClass
       delegate.find(aClass.isInstance).asInstanceOf[Option[T]]
+    }
+
+    def findByType[T1 <: A: ClassTag, T2 <: A: ClassTag]: Option[A] = {
+      delegate.find(_.is[T1, T2])
     }
 
     def filterByType[T: ClassTag]: Iterator[T] = {
