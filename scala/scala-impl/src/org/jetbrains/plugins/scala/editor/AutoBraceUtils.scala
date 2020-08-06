@@ -13,7 +13,7 @@ import scala.util.matching.Regex
 
 object AutoBraceUtils {
   def nextExpressionInIndentationContext(element: PsiElement): Option[ScExpression] = {
-    element.nextSibling match {
+    element.nextSiblingNotWhitespaceComment match {
       case Some(e) => toIndentedExpression(e)
       case _ => None
     }
@@ -36,7 +36,7 @@ object AutoBraceUtils {
 
 
   private def toIndentedExpression(element: PsiElement): Option[ScExpression] = element match {
-    case expr: ScExpression if AutoBraceUtils.isIndentationContext(element) && isPrecededByIndent(element) =>
+    case expr: ScExpression if isIndentationContext(element) && isPrecededByIndent(element) =>
       Some(expr)
     case _ =>
       None
@@ -61,8 +61,9 @@ object AutoBraceUtils {
 
   def isBeforeIndentationContext(element: PsiElement): Boolean = {
     val parent = element.getParent
-    parent.getLastChild == element && (
-      element.getParent match {
+    val isLastInParent = element.endOffset == parent.endOffset
+    isLastInParent && (
+      parent match {
         case _: ScReturn |
              _: ScIf |
              _: ScWhile |

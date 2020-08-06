@@ -459,8 +459,7 @@ class AutoBracesTypingTest extends AutoBraceTestBase {
     ' '
   )
 
-  // todo: also allow something behind the caret when typing the beginning of a statement
-  /*def testFinishingValWithSomethingBehind(): Unit = checkTypingInAllContexts(
+  def testFinishingValWithSomethingBehind(): Unit = checkTypingInAllContexts(
     s"""
        |def test =
        |  val${CARET}expr
@@ -475,5 +474,87 @@ class AutoBracesTypingTest extends AutoBraceTestBase {
        |  val ${CARET}expr
        |""".stripMargin -> ContinuationOnNewline,
     ' '
-  )*/
+  )
+
+  def testFinishingValWithDirectMultilineInfixBehind(): Unit = checkTypingInAllContexts(
+    s"""
+       |def test =
+       |  val${CARET}expr +
+       |    otherExpr
+       |""".stripMargin -> ContinuationOnNewline,
+    s"""
+       |def test = {
+       |  val ${CARET}expr +
+       |    otherExpr
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+    s"""
+       |def test =
+       |  val ${CARET}expr +
+       |    otherExpr
+       |""".stripMargin -> ContinuationOnNewline,
+    ' '
+  )
+
+  def testFinishingValWithMultilineInfixBehind(): Unit = checkTypingInAllContexts(
+    s"""
+       |def test =
+       |  val${CARET}-expr +
+       |    otherExpr
+       |""".stripMargin -> ContinuationOnNewline,
+    s"""
+       |def test = {
+       |  val ${CARET}-expr +
+       |    otherExpr
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+    s"""
+       |def test =
+       |  val ${CARET}-expr +
+       |    otherExpr
+       |""".stripMargin -> ContinuationOnNewline,
+    ' '
+  )
+
+
+  def testFinishingValWithPrecedingComment(): Unit = checkTypingInAllContexts(
+    s"""
+       |def test =
+       |  // test
+       |  val${CARET}
+       |""".stripMargin -> ContinuationOnNewline,
+    s"""
+       |def test = {
+       |  // test
+       |  val ${CARET}
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+    s"""
+       |def test =
+       |  // test
+       |  val ${CARET}
+       |""".stripMargin -> ContinuationOnNewline,
+    ' '
+  )
+
+
+  def testFinishingValAfterDirectWithPrecedingComment(): Unit = checkTypingInAllContexts(
+    s"""
+       |def test =
+       |  // test
+       |  val${CARET}x
+       |""".stripMargin -> ContinuationOnNewline,
+    s"""
+       |def test = {
+       |  // test
+       |  val ${CARET}x
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+    s"""
+       |def test =
+       |  // test
+       |  val ${CARET}x
+       |""".stripMargin -> ContinuationOnNewline,
+    ' '
+  )
 }
