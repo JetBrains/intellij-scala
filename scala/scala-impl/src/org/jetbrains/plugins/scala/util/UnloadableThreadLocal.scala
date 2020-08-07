@@ -3,7 +3,7 @@ package util
 
 import com.intellij.util.containers.ContainerUtil
 
-final class UnloadableThreadLocal[T >: Null](init: => T) {
+final class UnloadableThreadLocal[T](init: => T) {
   // Every thread has a single Thread-instance associated with them,
   // so we can safely use them directly as keys in a map
   // (and don't have to resort to their id, for example).
@@ -26,5 +26,5 @@ final class UnloadableThreadLocal[T >: Null](init: => T) {
 }
 
 object UnloadableThreadLocal {
-  def apply[T >: Null](init: => T): UnloadableThreadLocal[T] = new UnloadableThreadLocal(init)
+  def apply[T](init: => T): UnloadableThreadLocal[T] = new UnloadableThreadLocal(init)
 }

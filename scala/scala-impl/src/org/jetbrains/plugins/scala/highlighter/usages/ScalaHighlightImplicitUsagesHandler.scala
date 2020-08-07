@@ -53,14 +53,10 @@ class ScalaHighlightImplicitUsagesHandler[T](editor: Editor, file: PsiFile, data
 
   //we want to avoid resolve in ScalaHighlightUsagesHandlerFactory, but also not to use ScalaHighlightImplicitUsagesHandler
   //for non-implicit elements
-  private def invokeDefaultHandler(): Unit = {
-    ScalaHighlightUsagesHandlerFactory.implicitHighlightingEnabled.set(false)
-    try {
+  private def invokeDefaultHandler(): Unit =
+    ScalaHighlightUsagesHandlerFactory.implicitHighlightingEnabled.withValue(false) {
       HighlightUsagesHandler.invoke(editor.getProject, editor, file)
-    } finally {
-      ScalaHighlightUsagesHandlerFactory.implicitHighlightingEnabled.set(true)
     }
-  }
 
   private def nameId(target: PsiElement): Option[TextRange] = target match {
     case named: ScNamedElement if named.getContainingFile == file => named.nameId.toOption.map(_.getTextRange)

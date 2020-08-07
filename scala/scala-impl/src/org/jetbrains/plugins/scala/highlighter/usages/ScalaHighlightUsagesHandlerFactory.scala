@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 /**
  * User: Alexander Podkhalyuzin
@@ -128,13 +129,11 @@ final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFac
   private def implicitHighlighter[T: TargetKind](editor: Editor,
                                                  file: PsiFile,
                                                  data: T): ScalaHighlightImplicitUsagesHandler[T] =
-    if (implicitHighlightingEnabled.get()) new ScalaHighlightImplicitUsagesHandler(editor, file, data)
+    if (implicitHighlightingEnabled.value) new ScalaHighlightImplicitUsagesHandler(editor, file, data)
     else null
 
 }
 
 object ScalaHighlightUsagesHandlerFactory {
-  val implicitHighlightingEnabled: ThreadLocal[Boolean] = new ThreadLocal[Boolean]() {
-    override def initialValue() = true
-  }
+  val implicitHighlightingEnabled: UnloadableThreadLocal[Boolean] = new UnloadableThreadLocal(true)
 }
