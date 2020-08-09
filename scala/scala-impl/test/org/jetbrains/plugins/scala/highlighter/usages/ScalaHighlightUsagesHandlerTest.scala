@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.highlighter.usages
+package org.jetbrains.plugins.scala
+package highlighter
+package usages
 
 import com.intellij.codeInsight.highlighting.{HighlightUsagesHandler, HighlightUsagesHandlerBase}
 import com.intellij.psi.PsiElement
@@ -11,7 +13,7 @@ import scala.collection.JavaConverters._
   * Created by Svyatoslav Ilinskiy on 13.07.16.
   */
 class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestAdapter {
-  val | = "<caret>"
+  val | = CARET
 
   def testReturn(): Unit = {
     val code =

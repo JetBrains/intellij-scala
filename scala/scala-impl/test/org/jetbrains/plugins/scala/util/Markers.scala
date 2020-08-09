@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.util
 
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert._
 
 import scala.annotation.tailrec
@@ -60,9 +61,6 @@ trait Markers {
     input -> textRanges
   }
 
-  def extractSequentialMarkers(inputText: String): (String, Seq[TextRange]) =
-    extractSequentialMarkers(inputText, startMarker, endMarker)
-
   private def sortMarkers(sorted: List[(String, Int)], offset: Int = 0): List[(String, Int)] = {
     sorted match {
       case (marker, position) :: tail => (marker, position - offset) :: sortMarkers(tail, offset + marker.length)
@@ -73,7 +71,7 @@ trait Markers {
 
 
   /**
-   * Used to extract ranges that do not do not intersect
+   * Used to extract ranges that do not intersect
    *
    * @example
    * line /start/ 1 content /end/
@@ -81,13 +79,20 @@ trait Markers {
    *
    * TODO: reuse extractSequentialMarkers generic implementation
    */
-  def extractSequentialMarkers(inputText: String, startMarker: String, endMarker: String): (String, Seq[TextRange]) = {
+  def extractSequentialMarkers(inputText: String,
+                               startMarker: String = this.startMarker,
+                               endMarker: String = this.endMarker,
+                               considerCaret: Boolean = false,
+                               caretText: String = this.caretText): (String, Seq[TextRange]) = {
     val ranges = findRanges(inputText, startMarker, endMarker)
+    val caret = considerCaret.option(inputText.indexOf(caretText)).filter(_ >= 0)
+    def adjustIndexForCaret(i: Int): Int =
+      caret.fold(i)(caret => if (i > caret) i - caretText.length else i)
 
     val rangesFixed = ranges.zipWithIndex.map { case (range, idx) =>
       val alreadyRemovedChars = idx * (endMarker.length + startMarker.length)
-      val start = range.getStartOffset - alreadyRemovedChars
-      val end = range.getEndOffset - alreadyRemovedChars - startMarker.length // plus first start marker
+      val start = adjustIndexForCaret(range.getStartOffset) - alreadyRemovedChars
+      val end = adjustIndexForCaret(range.getEndOffset) - alreadyRemovedChars - startMarker.length // plus first start marker
       TextRange.create(start, end)
     }
 
