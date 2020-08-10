@@ -29,7 +29,7 @@ object Versions {
     val latest_2_9 = "2.9.3"
     val latest_2_10 = "2.10.7"
     val latest_2_11 = "2.11.12"
-    val latest_2_12 = "2.12.10"
+    val latest_2_12 = "2.12.12"
     val latest_2_13 = "2.13.1"
     val latest_3_0 = "0.26.0-RC1"
     val latest_dotty = latest_3_0
@@ -80,7 +80,7 @@ object Dependencies {
   val scalaLibrary: ModuleID = "org.scala-lang" % "scala-library" % scalaVersion
   val scalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
   val scalaCompiler: ModuleID = "org.scala-lang" % "scala-compiler" % scalaVersion
-  val scalaXml: ModuleID = "org.scala-lang.modules" %% "scala-xml" % "1.0.6"
+  val scalaXml: ModuleID = "org.scala-lang.modules" %% "scala-xml" % "1.2.0"
 //  val scalaParserCombinators: ModuleID = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
   // this actually needs the explicit version because something in packager breaks otherwise (???)
   val sbtStructureCore: ModuleID = "org.jetbrains" %% "sbt-structure-core" % sbtStructureVersion
