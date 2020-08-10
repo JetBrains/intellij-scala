@@ -510,7 +510,11 @@ object ScalaPsiUtil {
     }
   }
 
-  def getStubOrPsiSibling(element: PsiElement, next: Boolean = false): PsiElement = {
+  def stubOrPsiNextSibling(element: PsiElement) = getStubOrPsiSibling(element, next = true)
+
+  def stubOrPsiPrevSibling(element: PsiElement) = getStubOrPsiSibling(element, next = false)
+
+  private def getStubOrPsiSibling(element: PsiElement, next: Boolean): PsiElement = {
     val container = for {
       stub <- stub(element)
       parent <- stub.getParentStub.nullSafe

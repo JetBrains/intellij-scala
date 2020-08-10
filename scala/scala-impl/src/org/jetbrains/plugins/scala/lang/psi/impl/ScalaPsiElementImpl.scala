@@ -13,6 +13,7 @@ import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, StubBasedPsiElement}
 import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{stubOrPsiNextSibling, stubOrPsiPrevSibling}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(node)
@@ -85,12 +86,12 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](s
 
   override def getPrevSibling: PsiElement = this.child match {
     case null => super.getPrevSibling
-    case element => ScalaPsiUtil.getStubOrPsiSibling(element)
+    case element => stubOrPsiPrevSibling(element)
   }
 
   override def getNextSibling: PsiElement = this.child match {
     case null => super.getNextSibling
-    case element => ScalaPsiUtil.getStubOrPsiSibling(element, next = true)
+    case element => stubOrPsiNextSibling(element)
   }
 
   override def findLastChildByType[T <: PsiElement](t: IElementType): T = {
