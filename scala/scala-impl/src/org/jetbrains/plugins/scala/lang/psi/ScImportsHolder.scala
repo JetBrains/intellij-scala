@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.stubOrPsiPrevSibling
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
@@ -52,13 +53,13 @@ trait ScImportsHolder extends ScalaPsiElement {
       lastParent: PsiElement,
       place: PsiElement): Boolean = {
     if (lastParent != null) {
-      var run = ScalaPsiUtil.getStubOrPsiSibling(lastParent)
+      var run = stubOrPsiPrevSibling(lastParent)
 //      updateResolveCaches()
       while (run != null) {
         ProgressManager.checkCanceled()
         if (run.isInstanceOf[ScImportStmt] &&
             !run.processDeclarations(processor, state, lastParent, place)) return false
-        run = ScalaPsiUtil.getStubOrPsiSibling(run)
+        run = stubOrPsiPrevSibling(run)
       }
     }
     true
@@ -67,14 +68,14 @@ trait ScImportsHolder extends ScalaPsiElement {
   def getImportsForLastParent(lastParent: PsiElement): Seq[ScImportStmt] = {
     val buffer = mutable.ArrayBuffer.empty[ScImportStmt]
     if (lastParent != null) {
-      var run = ScalaPsiUtil.getStubOrPsiSibling(lastParent)
+      var run = stubOrPsiPrevSibling(lastParent)
       while (run != null) {
         ProgressManager.checkCanceled()
         run match {
           case importStmt: ScImportStmt => buffer += importStmt
           case _ =>
         }
-        run = ScalaPsiUtil.getStubOrPsiSibling(run)
+        run = stubOrPsiPrevSibling(run)
       }
     }
     buffer.toVector

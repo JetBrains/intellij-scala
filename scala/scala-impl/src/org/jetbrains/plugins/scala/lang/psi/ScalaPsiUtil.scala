@@ -9,7 +9,6 @@ import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.extapi.psi.{ASTDelegatePsiElement, StubBasedPsiElementBase}
 import com.intellij.lang.ASTNode
 import com.intellij.lang.java.JavaLanguage
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
@@ -510,7 +509,11 @@ object ScalaPsiUtil {
     }
   }
 
-  def getStubOrPsiSibling(element: PsiElement, next: Boolean = false): PsiElement = {
+  def stubOrPsiNextSibling(element: PsiElement) = getStubOrPsiSibling(element, next = true)
+
+  def stubOrPsiPrevSibling(element: PsiElement) = getStubOrPsiSibling(element, next = false)
+
+  private def getStubOrPsiSibling(element: PsiElement, next: Boolean): PsiElement = {
     val container = for {
       stub <- stub(element)
       parent <- stub.getParentStub.nullSafe

@@ -10,6 +10,7 @@ import com.intellij.psi.{PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScMemberFactory
 import org.jetbrains.plugins.scala.lang.TokenSets.MEMBERS
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.EARLY_DEFINITIONS
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.stubOrPsiPrevSibling
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
@@ -45,7 +46,7 @@ class ScEarlyDefinitionsImpl private(stub: ScEarlyDefinitionsStub, node: ASTNode
       if (!processed) return false
 
       maybeElement = maybeElement.flatMap {
-        element => Option(ScalaPsiUtil.getStubOrPsiSibling(element))
+        element => Option(stubOrPsiPrevSibling(element))
       }
     }
     true
