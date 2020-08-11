@@ -1,1 +1,11 @@
-<html><body>Using _ instead of null is more concise and portable.</body></html>
+<html><body>
+There are 3 different cases of <code>var v: T = null</code>:
+<ol>
+    <li><code>v</code> is an <em>optional</em> value<br>
+        - use <code>Option[T]</code> type, which is idiomatic and type safe,</li>
+    <li><code>v</code> is an <em>uninitialized</em> value (a value must be assigned)<br>
+        - use <code>_</code> as initializer, which is clear, concise, and platform-independent,</li>
+    <li>it's a performance <em>optimization</em> (you actually use <code>null</code> value)<br>
+        - explicitly suppressed the inspection for the unsafe code.</li>
+</ol>
+</body></html>
