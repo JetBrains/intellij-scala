@@ -1,12 +1,16 @@
 package org.jetbrains.plugins.scala.codeInspection.syntacticClarification
 
 import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
 
 class VariableNullInitializerInspectionTest extends ScalaQuickFixTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[VariableNullInitializerInspection]
 
-  override protected val description: String = VariableNullInitializerInspection.Name
+  override protected val description = ScalaInspectionBundle.message("variable.with.null.initializer")
+
+  private val UserUnderscoreInitializer = ScalaInspectionBundle.message("use.underscore.initializer")
+
+  private val UseOptionType = ScalaInspectionBundle.message("use.option.type")
 
   def testSimpleCase(): Unit = {
     def testType(typeName: String): Unit = {
@@ -24,7 +28,7 @@ class VariableNullInitializerInspectionTest extends ScalaQuickFixTestBase {
           |  var x: $typeName = _
           |}
         """.stripMargin
-      testQuickFix(declaration, result, description)
+      testQuickFix(declaration, result, UserUnderscoreInitializer)
     }
     testType("String")
     testType("Unit")
@@ -61,7 +65,7 @@ class VariableNullInitializerInspectionTest extends ScalaQuickFixTestBase {
          |object Moo {
          |  var a, b, c: String = _
          |}
-       """.stripMargin, description)
+       """.stripMargin, UserUnderscoreInitializer)
   }
 
   def testDeclarationWithUnderscore(): Unit = {
@@ -83,8 +87,17 @@ class VariableNullInitializerInspectionTest extends ScalaQuickFixTestBase {
   def testDoesNotRemoveModifiers(): Unit = {
     val code = wrapInObject(s"private var x: String = ${START}null$END")
     checkTextHasError(code)
-    testQuickFix(code, wrapInObject(s"private var x: String = _"), description)
+    testQuickFix(code, wrapInObject(s"private var x: String = _"), UserUnderscoreInitializer)
   }
+
+  def testOptionTypeQuickFix(): Unit = testQuickFix(
+    s"""class Foo {
+       |  var v: String = null
+       |}""".stripMargin,
+    s"""class Foo {
+       |  var v: Option[String] = None
+       |}""".stripMargin,
+    UseOptionType)
 
   private def wrapInObject(code: String): String =
     s"""
