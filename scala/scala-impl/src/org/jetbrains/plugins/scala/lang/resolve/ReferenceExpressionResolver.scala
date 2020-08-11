@@ -516,26 +516,26 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     def processType(aType: ScType, qualifier: ScExpression, processor: BaseProcessor): BaseProcessor = {
       val shape = processor match {
         case m: MethodResolveProcessor => m.isShapeResolve
-        case _ => false
+        case _                         => false
       }
 
       val fromType = qualifier match {
-        case ref: ScReferenceExpression => ref.bind() match {
-          case Some(ScalaResolveResult(_: ScSelfTypeElement, _)) => aType
-          case Some(r@ScalaResolveResult(b: ScTypedDefinition, _)) if b.isStable =>
-            r.fromType match {
-              case Some(fT) => ScProjectionType(fT, b)
-              case None => ScalaType.designator(b)
-            }
-          case _ => aType
-        }
+        case ref: ScReferenceExpression =>
+          ref.bind() match {
+            case Some(ScalaResolveResult(_: ScSelfTypeElement, _)) => aType
+            case Some(r @ ScalaResolveResult(b: ScTypedDefinition, _)) if b.isStable =>
+              r.fromType match {
+                case Some(fT) => ScProjectionType(fT, b)
+                case None     => ScalaType.designator(b)
+              }
+            case _ => aType
+          }
         case _ => aType
       }
 
-
       val state = fromType match {
         case ScDesignatorType(_: PsiPackage) => ScalaResolveState.empty
-        case _ => ScalaResolveState.withFromType(fromType)
+        case _                               => ScalaResolveState.withFromType(fromType)
       }
       processor.processType(aType, qualifier, state)
 
@@ -543,8 +543,8 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
       aType match {
         case d: ScDesignatorType if d.isStatic => return processor
-        case ScDesignatorType(_: PsiPackage) => return processor
-        case _ =>
+        case ScDesignatorType(_: PsiPackage)   => return processor
+        case _                                 =>
       }
 
       if (candidates.isEmpty || (!shape && candidates.forall(!_.isApplicable())) || (processor match {

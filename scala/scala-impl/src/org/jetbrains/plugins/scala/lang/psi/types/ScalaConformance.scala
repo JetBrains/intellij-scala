@@ -801,7 +801,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         case JavaArrayType(arg2) =>
           result = checkArrayArgs(arg1, arg2)
           return
-        case ScalaArray(arg2) =>
+        case ScalaArrayType(arg2) =>
           result = checkArrayArgs(arg1, arg2)
           return
         case _ =>
@@ -882,11 +882,10 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       if (result != null) return
 
       r match {
-        case ScalaArray(rightArg) =>
+        case ScalaArrayType(rightArg) =>
           p match {
-            case ScalaArray(leftArg) =>
-              result = checkArrayArgs(leftArg, rightArg)
-            case _ =>
+            case ScalaArrayType(leftArg) => result = checkArrayArgs(leftArg, rightArg)
+            case _                       =>
           }
         case p2: ScParameterizedType =>
           val des1 = p.designator
@@ -967,7 +966,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       r match {
         case JavaArrayType(rightArg) =>
           p match {
-            case ScalaArray(leftArg) =>
+            case ScalaArrayType(leftArg) =>
               result = checkArrayArgs(leftArg, rightArg)
             case _ =>
           }
@@ -1444,9 +1443,10 @@ private object ScalaConformance {
     }
   }
 
-  private object ScalaArray {
+  private object ScalaArrayType {
     def unapply(p: ParameterizedType): Option[ScType] = p match {
-      case ParameterizedType(ExtractClass(ClassQualifiedName("scala.Array")), Seq(arg)) => Some(arg)
+      case ParameterizedType(ScDesignatorType(ClassQualifiedName("scala.Array")), Seq(arg)) =>
+        Some(arg)
       case _ => None
     }
   }

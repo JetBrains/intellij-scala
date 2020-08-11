@@ -119,13 +119,8 @@ trait PsiTypeBridge {
 }
 
 object ExtractClass {
-  def unapply(`type`: ScType): Option[PsiClass] = {
+  def unapply(`type`: ScType): Option[PsiClass] =
     `type`.extractClass
-  }
-
-  def unapply(`type`: ScType, project: Project): Option[PsiClass] = {
-    `type`.extractClass
-  }
 }
 
 object arrayType {

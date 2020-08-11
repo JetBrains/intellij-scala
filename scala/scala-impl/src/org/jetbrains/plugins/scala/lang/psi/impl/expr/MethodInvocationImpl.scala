@@ -83,7 +83,8 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
     }
 
     def updateType(`type`: ScType, canThrowSCE: Boolean = false): ScType =
-      if (useExpectedType) updateAccordingToExpectedType(`type`, filterTypeParams = false, this.expectedType(), this, canThrowSCE)
+      if (useExpectedType)
+        updateAccordingToExpectedType(`type`, filterTypeParams = false, this.expectedType(), this, canThrowSCE)
       else `type`
 
     getEffectiveInvokedExpr.getNonValueType() match {
