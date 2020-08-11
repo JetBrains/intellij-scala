@@ -1,10 +1,11 @@
-package org.jetbrains.plugins.scala.codeInspection
-package syntacticClarification
+package org.jetbrains.plugins.scala.codeInspection.syntacticClarification
 
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.syntacticClarification.VariableNullInitializerInspection._
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
@@ -12,30 +13,19 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 
-/**
-  * Created by a.tsukanov on 26.05.2016.
-  */
-class VariableNullInitializerInspection extends AbstractInspection(inspectionName) {
-
+class VariableNullInitializerInspection extends AbstractInspection(Name) {
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case definition: ScVariableDefinition if !definition.isLocal =>
-      val maybeDeclaredType = definition.declaredType
-        .filter(isApplicable)
-
-      val maybeExpression = definition.expr
-        .filter(_.isValid)
-        .filter(isNull)
-
-      maybeExpression.zip(maybeDeclaredType).foreach {
-        case (expression, _) =>
-          holder.registerProblem(expression, inspectionName, new NullToUnderscoreQuickFix(definition))
+      if (definition.declaredType.exists(isApplicable)) {
+        definition.expr.filter(e => e.isValid && isNull(e)).foreach { expression =>
+          holder.registerProblem(expression, Name, new NullToUnderscoreQuickFix(definition))
+        }
       }
   }
 }
 
-object VariableNullInitializerInspection {
-  val inspectionName: String = ScalaInspectionBundle.message("convert.null.initializer.to.underscore")
-  val inspectionId = "ScalaConvertNullInitializerToUnderscore"
+private object VariableNullInitializerInspection {
+  private[syntacticClarification] val Name = ScalaInspectionBundle.message("convert.null.initializer.to.underscore")
 
   private def isApplicable(`type`: ScType): Boolean = {
     `type` match {
@@ -45,26 +35,20 @@ object VariableNullInitializerInspection {
     }
   }
 
-  def isNull(expr: ScExpression): Boolean =
-    Option(expr).flatMap { expression =>
-      Option(expression.getFirstChild)
-    }.flatMap { element =>
-      Option(element.getNode)
-    }.map {
-      _.getElementType
-    }.exists {
-      case ScalaTokenTypes.kNULL => true
-      case _ => false
-    }
-}
+  private def isNull(expr: ScExpression): Boolean =
+    Option(expr)
+      .flatMap(_.firstChild)
+      .flatMap(element => Option(element.getNode))
+      .map(_.getElementType)
+      .exists {
+        case ScalaTokenTypes.kNULL => true
+        case _ => false
+      }
 
-class NullToUnderscoreQuickFix(definition: ScVariableDefinition)
-  extends AbstractFixOnPsiElement(inspectionName, definition) {
-
-  override protected def doApplyFix(element: ScVariableDefinition)
-                                   (implicit project: Project): Unit = {
-    element.expr
-      .filter(isNull)
-      .foreach(_.replace(createExpressionFromText("_")))
+  private class NullToUnderscoreQuickFix(definition: ScVariableDefinition) extends AbstractFixOnPsiElement(Name, definition) {
+    override protected def doApplyFix(element: ScVariableDefinition)(implicit project: Project): Unit =
+      element.expr
+        .filter(isNull)
+        .foreach(_.replace(createExpressionFromText("_")))
   }
 }

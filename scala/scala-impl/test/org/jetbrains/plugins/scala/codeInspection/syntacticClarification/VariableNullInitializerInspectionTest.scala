@@ -1,18 +1,12 @@
-package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
+package org.jetbrains.plugins.scala.codeInspection.syntacticClarification
 
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
-import org.jetbrains.plugins.scala.codeInspection.syntacticClarification.VariableNullInitializerInspection
 
-/**
-  * Created by a.tsukanov on 27.05.2016.
-  */
 class VariableNullInitializerInspectionTest extends ScalaQuickFixTestBase {
-
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[VariableNullInitializerInspection]
 
-  override protected val description: String = VariableNullInitializerInspection.inspectionName
+  override protected val description: String = VariableNullInitializerInspection.Name
 
   def testSimpleCase(): Unit = {
     def testType(typeName: String): Unit = {
@@ -98,5 +92,4 @@ class VariableNullInitializerInspectionTest extends ScalaQuickFixTestBase {
       |  $code
       |}
     """.stripMargin
-
 }
