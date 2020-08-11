@@ -9,30 +9,27 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createTypeElementFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 
-class VariableNullInitializerInspection extends AbstractInspection(Name) {
+class VariableNullInitializerInspection extends AbstractInspection(Message) {
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case definition: ScVariableDefinition if !definition.isLocal =>
       if (definition.declaredType.exists(isApplicable)) {
         definition.expr.filter(e => e.isValid && isNull(e)).foreach { expression =>
-          holder.registerProblem(expression, Name, new NullToUnderscoreQuickFix(definition))
+          holder.registerProblem(expression, Message, new UseUnderscoreInitializerQuickFix(definition), new UseOptionTypeQuickFix(definition))
         }
       }
   }
 }
 
 private object VariableNullInitializerInspection {
-  private[syntacticClarification] val Name = ScalaInspectionBundle.message("convert.null.initializer.to.underscore")
+  private val Message = ScalaInspectionBundle.message("variable.with.null.initializer")
 
-  private def isApplicable(`type`: ScType): Boolean = {
-    `type` match {
-      case t if t.isUnit => true
-      case _: ValType => false
-      case _ => true
-    }
+  private def isApplicable(tpe: ScType): Boolean = tpe match {
+    case t: ValType if !t.isUnit => false
+    case _ => true
   }
 
   private def isNull(expr: ScExpression): Boolean =
@@ -45,10 +42,15 @@ private object VariableNullInitializerInspection {
         case _ => false
       }
 
-  private class NullToUnderscoreQuickFix(definition: ScVariableDefinition) extends AbstractFixOnPsiElement(Name, definition) {
+  private class UseUnderscoreInitializerQuickFix(definition: ScVariableDefinition) extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("use.underscore.initializer"), definition) {
     override protected def doApplyFix(element: ScVariableDefinition)(implicit project: Project): Unit =
-      element.expr
-        .filter(isNull)
-        .foreach(_.replace(createExpressionFromText("_")))
+      element.expr.filter(isNull).foreach(_.replace(createExpressionFromText("_")))
+  }
+
+  private class UseOptionTypeQuickFix(definition: ScVariableDefinition) extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("use.option.type"), definition) {
+    override protected def doApplyFix(element: ScVariableDefinition)(implicit project: Project): Unit = {
+      element.expr.filter(isNull).foreach(_.replace(createExpressionFromText("None")))
+      element.typeElement.foreach(typeElement => typeElement.replace(createTypeElementFromText(s"Option[${typeElement.getText}]")))
+    }
   }
 }
