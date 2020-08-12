@@ -95,6 +95,10 @@ object Dependencies {
   val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
   val fastparse: ModuleID = "com.lihaoyi" %% s"fastparse" % "2.3.0" // transitive dependency of scalaMeta, needs explicit versioning
 
+  val scalaTestNotSpecified: ModuleID = "org.scalatest" %% "scalatest" % "3.2.0"
+  val scalaTest: ModuleID = scalaTestNotSpecified % "test"
+  val scalaCheck: ModuleID = "org.scalatestplus" %% "scalacheck-1-14" % "3.2.1.0" % "test"
+
   val bcel: ModuleID = "org.apache.bcel" % "bcel" % "6.0"
 
   // has to be in the compiler process classpath along with spray-json
@@ -115,10 +119,12 @@ object Dependencies {
 
   // "provided" danger: we statically depend on a single version, but need to support all the version
   // some part of our code is now statically dependent on lib classes, another part uses reflections for other versions
-  val scalaTest = "org.scalatest" %% "scalatest" % "3.1.2" % "provided"
-  val utest = "com.lihaoyi" %% "utest" % "0.7.4" % "provided"
-  val specs2_2x = "org.specs2" %% "specs2-core" % "2.4.17" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
-  val specs2_4x = "org.specs2" %% "specs2-core" % "4.8.3" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
+  object provided {
+    val scalaTest = scalaTestNotSpecified % "provided"
+    val utest = "com.lihaoyi" %% "utest" % "0.7.4" % "provided"
+    val specs2_2x = "org.specs2" %% "specs2-core" % "2.4.17" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
+    val specs2_4x = "org.specs2" %% "specs2-core" % "4.8.3" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
+  }
 
   /** The filtering function returns true for jars to be removed.
    * It's purpose is to exclude platform jars that may conflict with plugin dependencies. */
@@ -163,10 +169,14 @@ object DependencyGroups {
       .exclude("com.google.guava", "guava") // included in IDEA platform
     ,
     "ch.epfl.scala" %% "bsp-testkit" % bspVersion % "test",
-    "org.scalatest" %% "scalatest" % "3.1.2" % "test",
-    "org.scalatestplus" %% "scalacheck-1-14" % "3.1.2.0" % "test",
+    scalaTest,
+    scalaCheck,
     "org.scalatestplus" %% "junit-4-12" % "3.1.2.0" % "test",
     "com.propensive" %% "mercator" % "0.3.0"
+  )
+
+  val dfa: Seq[ModuleID] = Seq(
+    scalaTest
   )
 
   val decompiler: Seq[ModuleID] = Seq(
@@ -179,9 +189,9 @@ object DependencyGroups {
 
   val runners: Seq[ModuleID] = Seq(
     scalaCompiler,
-    scalaTest,
-    utest,
-    specs2_4x
+    provided.scalaTest,
+    provided.utest,
+    provided.specs2_4x
   )
 
   val runtime: Seq[ModuleID] = Seq(

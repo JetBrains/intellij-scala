@@ -64,7 +64,7 @@ lazy val dfa = newProject(
   "dfa",
   file("scala/dfa")
 ).settings(
-  libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.0" % "test",
+  libraryDependencies ++= DependencyGroups.dfa,
 )
 
 lazy val conversion = newProject(

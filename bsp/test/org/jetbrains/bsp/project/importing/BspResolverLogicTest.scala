@@ -9,7 +9,8 @@ import scala.jdk.CollectionConverters._
 class BspResolverLogicTest {
 
   /** When base dir is empty, only root module is created */
-  @Test def testCalculateModuleDescriptionsEmptyBaseDir(): Unit = {
+  @Test
+  def testCalculateModuleDescriptionsEmptyBaseDir(): Unit = {
 
     val target = new BuildTarget(
       new BuildTargetIdentifier("ePzqj://jqke:540/n/ius7/jDa/t/z78"),
