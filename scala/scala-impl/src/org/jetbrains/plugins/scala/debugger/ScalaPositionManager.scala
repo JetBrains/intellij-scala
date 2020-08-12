@@ -9,6 +9,7 @@ import com.intellij.debugger.jdi.VirtualMachineProxyImpl
 import com.intellij.debugger.requests.ClassPrepareRequestor
 import com.intellij.debugger.{MultiRequestPositionManager, NoDataException, PositionManager, SourcePosition}
 import com.intellij.openapi.editor.Document
+import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.Ref
 import com.intellij.psi._
@@ -58,6 +59,9 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   private val debugProcessScope: ElementScope = ElementScope(debugProcess.getProject, debugProcess.getSearchScope)
 
   ScalaPositionManager.cacheInstance(this)
+
+  override def getAcceptedFileTypes: ju.Set[_ <: FileType] =
+    ju.Collections.singleton(ScalaFileType.INSTANCE)
 
   @Nullable
   override def getSourcePosition(@Nullable location: Location): SourcePosition = {
