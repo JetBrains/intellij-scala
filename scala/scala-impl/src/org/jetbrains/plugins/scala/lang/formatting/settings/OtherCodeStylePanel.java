@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.formatting.settings;
 import com.intellij.application.options.codeStyle.CommenterForm;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
-import com.intellij.ui.IdeBorderFactory;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -185,7 +184,7 @@ public final class OtherCodeStylePanel extends ScalaCodeStylePanelBase {
         implicitValueClassPrefix = new JTextField();
         panel2.add(implicitValueClassPrefix, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
-        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "other.panel.implicit.value.class.prefix.suffux"));
+        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "other.panel.implicit.value.class.prefix.suffix"));
         label1.setToolTipText("");
         panel2.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         implicitValueClassSuffix = new JTextField();
