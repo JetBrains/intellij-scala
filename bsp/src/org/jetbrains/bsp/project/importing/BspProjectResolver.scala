@@ -131,7 +131,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
             data
           case Failure(BspTaskCancelled) =>
             reporter.finishCanceled()
-            null
+            throw BspErrorMessage(BspBundle.message("bsp.resolver.refresh.canceled"))
           case Failure(Bsp4JJobFailure(err, messages: BuildMessages)) =>
             val newLine = System.lineSeparator()
             val joinedMessage = err.getMessage + newLine + newLine + messages.messages.mkString(newLine)
@@ -145,7 +145,10 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         }
       case Success(messages) =>
         reporter.finish(messages)
-        throw BspErrorMessage(BspBundle.message("bsp.resolver.import.failed"))
+        if (messages.status == BuildMessages.Canceled)
+          throw BspErrorMessage(BspBundle.message("bsp.resolver.refresh.canceled"))
+        else
+          throw BspErrorMessage(BspBundle.message("bsp.resolver.import.failed"))
       case Failure(x) =>
         reporter.finishWithFailure(x)
         throw x
@@ -200,26 +203,26 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     }
 
   override def cancelTask(taskId: ExternalSystemTaskId,
-                          listener: ExternalSystemTaskNotificationListener): Boolean =
+                          listener: ExternalSystemTaskNotificationListener): Boolean = {
+    def doCancel(f: =>Unit) = {
+      listener.beforeCancel(taskId)
+      f
+      importState = Inactive
+      listener.onCancel(taskId)
+      true
+    }
+
     importState match {
-      case PreImportTask(dumper) =>
-        listener.beforeCancel(taskId)
-        dumper.cancel()
-        importState = Inactive
-        listener.onCancel(taskId)
-        true
+      case PreImportTask(preImporter) =>
+        doCancel { preImporter.cancel() }
       case BspTask(_) =>
-        listener.beforeCancel(taskId)
-        importState = Inactive
-        listener.onCancel(taskId)
-        true
+        doCancel()
       case Active =>
-        importState = Inactive
-        listener.onCancel(taskId)
-        true
+        doCancel()
       case Inactive =>
         false
     }
+  }
 
   private def runBloopInstall(baseDir: File)(implicit reporter: BuildReporter) = {
     val preImporter = BloopPreImporter(baseDir)
