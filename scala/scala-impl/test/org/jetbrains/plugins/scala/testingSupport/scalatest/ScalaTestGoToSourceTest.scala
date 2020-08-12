@@ -3,11 +3,12 @@ package org.jetbrains.plugins.scala.testingSupport.scalatest
 trait ScalaTestGoToSourceTest extends ScalaTestTestCase {
 
   val goToSourceClassName = "GoToSourceTest"
+  val goToSourceTemplateClassName = "GoToSourceTestTemplate"
 
   addSourceFile(goToSourceClassName + ".scala",
     s"""import org.scalatest._
        |
-       |class $goToSourceClassName extends FlatSpec with GivenWhenThen {
+       |class $goToSourceClassName extends $goToSourceTemplateClassName {
        | "Successful test" should "run fine" in {
        | }
        |
@@ -21,7 +22,18 @@ trait ScalaTestGoToSourceTest extends ScalaTestTestCase {
        | "failed test" should "fail" in {
        |   fail
        | }
-       |}""".stripMargin
+       |}
+       |""".stripMargin
+  )
+
+  addSourceFile(goToSourceTemplateClassName + ".scala",
+    s"""import org.scalatest._
+       |
+       |trait $goToSourceTemplateClassName extends FlatSpec with GivenWhenThen {
+       |  "Successful in template" should "run fine" in {
+       |  }
+       |}
+       |""".stripMargin
   )
 
 
@@ -33,6 +45,8 @@ trait ScalaTestGoToSourceTest extends ScalaTestTestCase {
 
   def getFailedTestPath: List[String]
 
+  def getTemplateTestPath: List[String]
+
   def getSuccessfulLocationLine: Int
 
   def getPendingLocationLine: Int
@@ -40,6 +54,8 @@ trait ScalaTestGoToSourceTest extends ScalaTestTestCase {
   def getIgnoredLocationLine: Int
 
   def getFailedLocationLine: Int
+
+  def getTemplateLocationLine: Int
 
   def testGoToSuccessfulLocation(): Unit = {
     runGoToSourceTest(3, 5, goToSourceClassName + ".scala",
@@ -66,5 +82,12 @@ trait ScalaTestGoToSourceTest extends ScalaTestTestCase {
     runGoToSourceTest(13, 5, goToSourceClassName + ".scala",
       assertConfigAndSettings(_, goToSourceClassName, "failed test should fail"),
       getFailedTestPath, getFailedLocationLine)
+  }
+
+  def testGoToTemplateTest(): Unit = {
+    runGoToSourceTest(2, 5, goToSourceClassName + ".scala",
+      assertConfigAndSettings(_, goToSourceClassName),
+      getTemplateTestPath, getTemplateLocationLine, Some(goToSourceTemplateClassName + ".scala")
+    )
   }
 }
