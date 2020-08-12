@@ -26,6 +26,7 @@ lazy val scalaCommunity: sbt.Project =
     .dependsOn(
       bsp % "test->test;compile->compile",
       codeInsight % "test->test;compile->compile",
+      dfa % "test->test;compile->compile",
       conversion % "test->test;compile->compile",
       uast % "test->test;compile->compile",
       worksheet % "test->test;compile->compile",
@@ -57,6 +58,13 @@ lazy val codeInsight = newProject(
   file("scala/codeInsight")
 ).dependsOn(
   scalaImpl % "test->test;compile->compile"
+)
+
+lazy val dfa = newProject(
+  "dfa",
+  file("scala/dfa")
+).settings(
+  libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.0" % "test",
 )
 
 lazy val conversion = newProject(
