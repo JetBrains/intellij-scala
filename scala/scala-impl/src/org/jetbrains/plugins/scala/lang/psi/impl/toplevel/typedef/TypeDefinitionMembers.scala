@@ -94,21 +94,23 @@ object TypeDefinitionMembers {
   }
 
   def getSelfTypeSignatures(clazz: PsiClass): TermNodes.Map = {
+    @annotation.tailrec
+    def extractFromThisType(clsType: ScType, thisType: ScType): TermNodes.Map = thisType match {
+      case c: ScCompoundType       => getSignatures(c, Option(clsType))
+      case ScExistentialType(q, _) => extractFromThisType(clsType, q)
+      case tp =>
+        val cls = tp.extractClass.getOrElse(clazz)
+        getSignatures(cls)
+    }
 
     clazz match {
       case td: ScTypeDefinition =>
         td.selfType match {
           case Some(selfType) =>
-            val clazzType = td.getTypeWithProjections().getOrAny
-            selfType.glb(clazzType) match {
-              case c: ScCompoundType =>
-                getSignatures(c, Some(clazzType))
-              case tp =>
-                val cl = tp.extractClass.getOrElse(clazz)
-                getSignatures(cl)
-            }
-          case _ =>
-            getSignatures(clazz)
+            val clsType  = td.getTypeWithProjections().getOrAny
+            val thisType = selfType.glb(clsType)
+            extractFromThisType(clsType, thisType)
+          case None => getSignatures(clazz)
         }
       case _ => getSignatures(clazz)
     }

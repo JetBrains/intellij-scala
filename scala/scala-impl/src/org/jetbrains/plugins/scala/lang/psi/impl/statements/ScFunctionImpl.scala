@@ -382,15 +382,18 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     if (clazz == null) return Seq.empty
 
     if (clazz.selfType.isDefined) {
-      val signs = TypeDefinitionMembers.getSelfTypeSignatures(clazz).forName(name)
-      signs.findNode(this) match {
+      val signs   = TypeDefinitionMembers.getSelfTypeSignatures(clazz)
+      val forName = signs.forName(name)
+
+      forName.findNode(this) match {
         case Some(x) if x.info.namedElement == this => x.supers.map(_.info)
-        case Some(x) => x.supers.filter(_.info.namedElement != this).map(_.info) :+ x.info
-        case None => signs.get(new PhysicalMethodSignature(this, ScSubstitutor.empty)) match {
-          case Some(x) if x.info.namedElement == this => x.supers.map(_.info)
-          case Some(x) => x.supers.filter(_.info.namedElement != this).map(_.info) :+ x.info
-          case None => Seq.empty
-        }
+        case Some(x)                                => x.supers.filter(_.info.namedElement != this).map(_.info) :+ x.info
+        case None =>
+          forName.get(new PhysicalMethodSignature(this, ScSubstitutor.empty)) match {
+            case Some(x) if x.info.namedElement == this => x.supers.map(_.info)
+            case Some(x)                                => x.supers.filter(_.info.namedElement != this).map(_.info) :+ x.info
+            case None                                   => Seq.empty
+          }
       }
     } else superSignatures
   }
