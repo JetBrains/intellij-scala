@@ -102,14 +102,17 @@ object TypeDiff {
         else Node(aMismatch(tpe2.presentableText))
 
       case (FunctionType(r1, p1), FunctionType(r2, p2)) =>
+        val needsParens = (t: ScType) => FunctionType.isFunctionType(t) || TupleType.isTupleType(t)
         val left = {
           if (p1.length == p2.length) {
             val parameters = (p1, p2).zipped.map(diff(_, _)(reversed, context)).intersperse(aMatch(", "))
             if (p2.isEmpty) Seq(aMatch("()"))
-            else if (p2.length > 1 || p2.exists(FunctionType.isFunctionType)) Seq(aMatch("("), Node(parameters: _*), aMatch(")"))
+            else if (p2.length > 1) Seq(aMatch("("), Node(parameters: _*), aMatch(")"))
+            else if (p2.exists(needsParens)) Seq(aMatch("("), parameters.head, aMatch(")"))
+            else if (p1.exists(needsParens)) Seq(aMatch(""), parameters.head, aMatch(""))
             else parameters
           } else {
-            Seq(aMismatch(if (p2.length == 1) p2.head.presentableText else p2.map(_.presentableText).mkString("(", ", ", ")")))
+            Seq(aMismatch(if (p2.length == 1 && !p2.exists(needsParens)) p2.head.presentableText else p2.map(_.presentableText).mkString("(", ", ", ")")))
           }
         }
         val right = diff(r1, r2)
