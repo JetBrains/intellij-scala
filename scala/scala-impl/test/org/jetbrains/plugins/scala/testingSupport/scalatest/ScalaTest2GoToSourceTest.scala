@@ -5,9 +5,12 @@ trait ScalaTest2GoToSourceTest extends ScalaTestGoToSourceTest {
   override def getPendingTestPath: List[String] = List("[root]", goToSourceClassName, "pending test", "should be pending")
   override def getIgnoredTestPath: List[String] = List("[root]", goToSourceClassName, "pending test", "should be ignored !!! IGNORED !!!")
   override def getFailedTestPath: List[String] = List("[root]", goToSourceClassName, "failed test", "should fail")
+  override def getTemplateTestPath: List[String] = List("[root]", goToSourceClassName, "Successful in template", "should run fine")
+
 
   override def getSuccessfulLocationLine: Int = 3
   override def getPendingLocationLine: Int = 6
   override def getIgnoredLocationLine: Int = 10
   override def getFailedLocationLine: Int = 13
+  override def getTemplateLocationLine: Int = 3
 }
