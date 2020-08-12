@@ -101,6 +101,8 @@ object TupleType extends FunctionTypeFactory[ScClass, Seq[ScType]] {
                     (implicit scope: ElementScope): ValueType =
     apply(types, types.length.toString)
 
+  def isTupleType(`type`: ScType): Boolean = unapply(`type`).isDefined
+
   override protected def unapplyCollector: PartialFunction[Seq[ScType], Seq[ScType]] = {
     case types => types
   }

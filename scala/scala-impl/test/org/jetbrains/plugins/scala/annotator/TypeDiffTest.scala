@@ -400,6 +400,12 @@ class TypeDiffTest extends ScalaFixtureTestCase {
     assertParsedAs(
       "class P1; class P2; class R",
       "(P1, P2) => R", "<(<<P1>, <P2>>) => <R>>")
+    assertParsedAs(
+      "class P; class R1; class R2",
+      "(P => R1) => R2", "<(<<P> => <R1>>) => <R2>>")
+    assertParsedAs(
+      "class P1; class P2; class R",
+      "((P1, P2)) => R", "<(<(<<P1>, <P2>>)>) => <R>>")
   }
 
   def testFunction(): Unit = {
@@ -497,6 +503,20 @@ class TypeDiffTest extends ScalaFixtureTestCase {
     assertDiffsAre(
       "class P1; class P2; class R1; class R2",
       "(P1 => P2) => ~R1~", "(P1 => P2) => ~R2~"
+    )
+
+    // Tuple parameter type
+    assertDiffsAre(
+      "class P1; class P2; class P3; class R",
+      "(~(P1, P2)~) => R", "~P3~ => R"
+    )
+    assertDiffsAre(
+      "class P1; class P2; class P3; class R",
+      "~((P1, P2))~ => R", "~(P1, P2)~ => R"
+    )
+    assertDiffsAre(
+      "class P1; class P2; class P3; class R",
+      "((~P1~, ~P2~)) => R", "((~P2~, ~P1~)) => R"
     )
 
     // Non-function type
