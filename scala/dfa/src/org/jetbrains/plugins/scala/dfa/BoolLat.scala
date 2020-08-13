@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.dfa
 
 import org.jetbrains.plugins.scala.dfa.BoolLat.SemiLatticeImpl
+import org.jetbrains.plugins.scala.dfa.lattice.FlatLattice
 
 import scala.annotation.tailrec
 
@@ -69,57 +70,7 @@ object BoolLat {
       lhs.canBeFalse && rhs.canBeFalse || lhs.canBeTrue && rhs.canBeTrue
   }
 
-  implicit val lattice: Lattice[BoolLat] =
-    new SemiLatticeImpl[BoolLat] with JoinSemiLattice[BoolLat] with MeetSemiLattice[BoolLat] {
-      override def top: BoolLat = Top
-      override def bottom: BoolLat = Bottom
-
-      override def join(lhs: BoolLat, rhs: BoolLat): BoolLat =
-        (lhs, rhs) match {
-          case (Bottom, a) => a
-          case (a, Bottom) => a
-          case (a, b) if a == b => a
-          case _ => Top
-        }
-
-      @tailrec
-      override def joinAll(first: BoolLat, others: TraversableOnce[BoolLat]): BoolLat = {
-        first match {
-          case Top => Top
-          case Bottom =>
-            val it = others.toIterator
-            if (it.hasNext) joinAll(it.next(), it)
-            else Bottom
-          case concrete =>
-            val allTheSame = others.forall(b => b == concrete || b == Bottom)
-            if (allTheSame) concrete
-            else Top
-        }
-      }
-
-      override def meet(lhs: BoolLat, rhs: BoolLat): BoolLat =
-        (lhs, rhs) match {
-          case (Top, a) => a
-          case (a, Top) => a
-          case (a, b) if a == b => a
-          case _ => Bottom
-        }
-
-      @tailrec
-      override def meetAll(first: BoolLat, others: TraversableOnce[BoolLat]): BoolLat = {
-        first match {
-          case Bottom => Bottom
-          case Top =>
-            val it = others.toIterator
-            if (it.hasNext) meetAll(it.next(), it)
-            else Top
-          case concrete =>
-            val allTheSame = others.forall(b => b == concrete || b == Top)
-            if (allTheSame) concrete
-            else Bottom
-        }
-      }
-    }
+  implicit val lattice: Lattice[BoolLat] = new FlatLattice[BoolLat](Top, Bottom)
 }
 
 /**
