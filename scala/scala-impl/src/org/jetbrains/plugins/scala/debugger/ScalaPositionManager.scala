@@ -11,7 +11,7 @@ import com.intellij.debugger.requests.ClassPrepareRequestor
 import com.intellij.debugger.{MultiRequestPositionManager, NoDataException, PositionManager, SourcePosition}
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.FileType
-import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.CachedValueProvider.Result
@@ -42,7 +42,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.annotation.tailrec
-import scala.collection.{JavaConverters, mutable}
+import scala.collection.mutable
+import scala.jdk.CollectionConverters.{asScalaBufferConverter, seqAsJavaListConverter}
 import scala.reflect.NameTransformer
 import scala.util.Try
 
@@ -69,7 +70,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     val position =
       for {
         loc <- location.toOption
-        psiFile <- getPsiFileByReferenceType(debugProcess.getProject, loc.declaringType).toOption
+        psiFile <- getPsiFileByReferenceType(loc.declaringType).toOption
         lineNumber = exactLineNumber(location)
         if lineNumber >= 0
       } yield {
@@ -82,8 +83,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
   @NotNull
   override def getAllClasses(@NotNull position: SourcePosition): ju.List[ReferenceType] = {
-    import JavaConverters._
-
     val file = position.getFile
     throwIfNotScalaFile(file)
 
@@ -92,7 +91,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     def hasLocations(refType: ReferenceType, position: SourcePosition): Boolean = {
       try {
         val generated = isGeneratedClass(generatedClassName, refType)
-        lazy val sameFile = getPsiFileByReferenceType(file.getProject, refType) == file
+        lazy val sameFile = getPsiFileByReferenceType(refType) == file
 
         generated || sameFile && locationsOfLine(refType, position).size > 0
       } catch {
@@ -161,7 +160,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     try {
       inReadAction {
         val line: Int = position.getLine
-        import JavaConverters._
         locationsOfLine(refType, line).asJava
       }
     }
@@ -215,7 +213,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       Try(samePackage(refType) && refType.isInitialized && condition(refType)).getOrElse(false)
     }
 
-    import scala.collection.JavaConverters._
     for {
       refType <- debugProcess.getVirtualMachineProxy.allClasses.asScala
       if isAppropriate(refType)
@@ -325,11 +322,12 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   }
 
   @Nullable
-  private def getPsiFileByReferenceType(project: Project, refType: ReferenceType): PsiFile = {
-    if (refType == null) return null
-    if (refTypeToFileCache.contains(refType)) return refTypeToFileCache(refType)
+  private def getPsiFileByReferenceType(refType: ReferenceType): PsiFile = {
+    if (refType == null)
+      return null
 
-    import JavaConverters._
+    if (refTypeToFileCache.contains(refType))
+      return refTypeToFileCache(refType)
 
     def findFile() = {
       def withDollarTestName(originalQName: String): Option[String] = {
@@ -337,7 +335,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         if (originalQName.endsWith(dollarTestSuffix)) Some(originalQName)
         else if (originalQName.contains(dollarTestSuffix + "$")) {
           val index = originalQName.indexOf(dollarTestSuffix) + dollarTestSuffix.length
-          Some(originalQName.take(index))
+          Some(originalQName.substring(0, index))
         }
         else None
       }
@@ -376,7 +374,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
   private def checkForIndyLambdas(refType: ReferenceType) = {
     if (!refTypeToFileCache.contains(refType)) {
-      getPsiFileByReferenceType(debugProcess.getProject, refType)
+      getPsiFileByReferenceType(refType)
     }
   }
 
@@ -395,8 +393,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   }
 
   private def findElementByReferenceTypeInner(refType: ReferenceType): Option[PsiElement] = {
-    import JavaConverters._
-
     val byName = findPsiClassByQName(refType, debugProcessScope) orElse findByShortName(refType)
     if (byName.isDefined) return byName
 
@@ -411,7 +407,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     val lastRefTypeLine = refTypeLineNumbers.max
     val refTypeLines = firstRefTypeLine to lastRefTypeLine
 
-    val file = getPsiFileByReferenceType(project, refType)
+    val file = getPsiFileByReferenceType(refType)
     if (!checkScalaFile(file)) return None
 
     val document = PsiDocumentManager.getInstance(project).getDocument(file)
@@ -538,8 +534,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         else Some(NameTransformer.encode(decoded.substring(0, index)))
     }
 
-    import JavaConverters._
-
     for {
       name  <- containingClassName
       clazz <- classesByName(name).asScala.headOption
@@ -562,7 +556,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
    * the name mangling - instead of using VirtualMachineProxy's nestedTypes method (with caches etc.).
    */
   private def getNestedClasses(outerClasses: Seq[ReferenceType]) = {
-    import JavaConverters._
     for {
       outer <- outerClasses
       nested <- debugProcess.getVirtualMachineProxy.allClasses().asScala
@@ -717,7 +710,6 @@ object ScalaPositionManager {
       Try(name.substring(lastDollar + 1).toInt).getOrElse(-1)
     }
 
-    import JavaConverters._
     val all = refType.methods().asScala.filter(isIndyLambda)
     val onLine = all.filter(m => Try(!m.locationsOfLine(lineNumber + 1).isEmpty).getOrElse(false))
     onLine.sortBy(ordinal)
