@@ -149,9 +149,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       if (namePatterns.isEmpty) Nil
       else filterAllClasses(c => hasLocations(c, position) && namePatterns.exists(_.matches(c)), packageName)
     val distinctExactClasses = exactClasses.distinct
-    val loadedNestedClasses = if (ScalaDebuggerSettings.getInstance().FORCE_POSITION_LOOKUP_IN_NESTED_TYPES)
-      getNestedClasses(distinctExactClasses).filter(hasLocations(_, position))
-    else Nil
+    val loadedNestedClasses = getNestedClasses(distinctExactClasses).filter(hasLocations(_, position))
 
     (distinctExactClasses ++ foundWithPattern ++ loadedNestedClasses).distinct.asJava
   }

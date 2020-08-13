@@ -25,8 +25,6 @@ public class ScalaDebuggerSettings extends XDebuggerSettings<ScalaDebuggerSettin
   public Integer COLLECTION_START_INDEX = 0;
   public Integer COLLECTION_END_INDEX = 49;
   public Boolean SHOW_VARIABLES_FROM_OUTER_SCOPES = true;
-  public Boolean FORCE_CLASS_PREPARE_REQUESTS_FOR_NESTED_TYPES = true;
-  public Boolean FORCE_POSITION_LOOKUP_IN_NESTED_TYPES = true;
   public Boolean ALWAYS_SMART_STEP_INTO = true;
 
   public ScalaDebuggerSettings() {
