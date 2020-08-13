@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package debugger
 
+import java.util.Collections.singletonList
 import java.{util => ju}
 
 import com.intellij.debugger.engine._
@@ -11,7 +12,6 @@ import com.intellij.debugger.{MultiRequestPositionManager, NoDataException, Posi
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.{DumbService, Project}
-import com.intellij.openapi.util.Ref
 import com.intellij.psi._
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.psi.util.CachedValueProvider.Result
@@ -178,76 +178,13 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   }
 
   override def createPrepareRequests(requestor: ClassPrepareRequestor, position: SourcePosition): ju.List[ClassPrepareRequest] = {
-    def isLocalOrUnderDelayedInit(definition: PsiClass): Boolean = {
-      isLocalClass(definition) || isDelayedInit(definition)
-    }
-
-    def findEnclosingTypeDefinition: Option[ScTypeDefinition] = {
-      @tailrec
-      def notLocalEnclosingTypeDefinition(element: PsiElement): Option[ScTypeDefinition] = {
-        PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition]) match {
-          case null => None
-          case td if isLocalClass(td) => notLocalEnclosingTypeDefinition(td.getParent)
-          case td => Some(td)
-        }
-      }
-      val element = nonWhitespaceElement(position)
-      notLocalEnclosingTypeDefinition(element)
-    }
-
-    val forceForNestedTypes = ScalaDebuggerSettings.getInstance().FORCE_CLASS_PREPARE_REQUESTS_FOR_NESTED_TYPES
-    def createClassPrepareRequests(classPrepareRequestor: ClassPrepareRequestor,
-                                   classPreparePattern: String): Seq[ClassPrepareRequest] = {
-      val reqManager = debugProcess.getRequestsManager
-      val patternCoversNestedTypes = classPreparePattern.endsWith("*")
-      if (patternCoversNestedTypes || !forceForNestedTypes) {
-        List(reqManager.createClassPrepareRequest(classPrepareRequestor, classPreparePattern))
-      } else {
-        val nestedTypesSuffix = if (classPreparePattern.endsWith("$")) "*" else "$*"
-        val nestedTypesPattern = classPreparePattern + nestedTypesSuffix
-        List(reqManager.createClassPrepareRequest(classPrepareRequestor, classPreparePattern),
-          reqManager.createClassPrepareRequest(classPrepareRequestor, nestedTypesPattern))
-      }
-    }
-
-    def createPrepareRequests(position: SourcePosition): Seq[ClassPrepareRequest] = {
-      val qName = new Ref[String](null)
-      val waitRequestor = new Ref[ClassPrepareRequestor](null)
-      inReadAction {
-        val sourceImage = findReferenceTypeSourceImage(position)
-        val insideMacro: Boolean = isInsideMacro(nonWhitespaceElement(position))
-        sourceImage match {
-          case cl: ScClass if ValueClassType.isValueClass(cl) =>
-            //there are no instances of value classes, methods from companion object are used
-            qName.set(getSpecificNameForDebugger(cl) + "$")
-          case tr: ScTrait if !isLocalClass(tr) =>
-            //to handle both trait methods encoding
-            qName.set(tr.getQualifiedNameForDebugger + "*")
-          case typeDef: ScTypeDefinition if !isLocalOrUnderDelayedInit(typeDef) =>
-            val specificName = getSpecificNameForDebugger(typeDef)
-            qName.set(if (insideMacro) specificName + "*" else specificName)
-          case _ =>
-            findEnclosingTypeDefinition.foreach(typeDef => qName.set(typeDef.getQualifiedNameForDebugger + "*"))
-        }
-        // Enclosing type definition is not found
-        if (qName.get == null) {
-          qName.set(SCRIPT_HOLDER_CLASS_NAME + "*")
-        }
-        waitRequestor.set(new ScalaPositionManager.MyClassPrepareRequestor(position, requestor))
-      }
-
-      createClassPrepareRequests(waitRequestor.get, qName.get)
-    }
-
     val file = position.getFile
     throwIfNotScalaFile(file)
 
-    val possiblePositions = inReadAction {
-      positionsOnLine(file, position.getLine).map(SourcePosition.createFromElement)
-    }
+    val request = debugProcess.getRequestsManager.createClassPrepareRequest(requestor, "")
+    request.addSourceNameFilter(file.name)
 
-    import JavaConverters._
-    possiblePositions.flatMap(createPrepareRequests).asJava
+    singletonList(request)
   }
 
   private def throwIfNotScalaFile(file: PsiFile): Unit = {
@@ -288,12 +225,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     } yield {
       refType
     }
-  }
-
-  @Nullable
-  private def findReferenceTypeSourceImage(@NotNull position: SourcePosition): PsiElement = {
-    val element = nonWhitespaceElement(position)
-    findGeneratingClassOrMethodParent(element)
   }
 
   protected def nonWhitespaceElement(@NotNull position: SourcePosition): PsiElement = {
@@ -897,8 +828,7 @@ object ScalaPositionManager {
   }
 
   private class MyClassPrepareRequestor(position: SourcePosition, requestor: ClassPrepareRequestor) extends ClassPrepareRequestor {
-    private val sourceFile = position.getFile
-    private val sourceName = sourceFile.getName
+    private val sourceName = position.getFile.name
     private def sourceNameOf(refType: ReferenceType): Option[String] = ScalaPositionManager.cachedSourceName(refType)
 
     override def processClassPrepare(debuggerProcess: DebugProcess, referenceType: ReferenceType): Unit = {
