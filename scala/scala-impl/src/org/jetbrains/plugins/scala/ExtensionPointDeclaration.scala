@@ -9,7 +9,7 @@ abstract class ExtensionPointDeclaration[T](private val name: String) {
   private val extensionPointName = ExtensionPointName.create[T](name)
 
   def implementations: Seq[T] = {
-    import scala.jdk.CollectionConverters.asScalaBufferConverter
+    import collection.JavaConverters._
     extensionPointName.getExtensionList.asScala
   }
 }

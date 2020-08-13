@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.components.InvalidRepoException;
 import org.jetbrains.plugins.scala.components.ScalaPluginUpdater;
 import org.jetbrains.plugins.scala.components.libextensions.ui.LibExtensionsSettingsPanelWrapper;
 import org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings;
+import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner$;
 
 import javax.swing.*;
 import java.awt.*;
@@ -159,11 +160,8 @@ public class ScalaProjectSettingsPanel {
             }
         });
 
-        // TODO: Extract to a more proper place?
-        int RUN_DELAY_MS_MAXIMUM = 3000;
-        int RUN_DELAY_MS_MINIMUM = 700;
-        autoRunDelaySlider.setMaximum(RUN_DELAY_MS_MAXIMUM);
-        autoRunDelaySlider.setMinimum(RUN_DELAY_MS_MINIMUM);
+        autoRunDelaySlider.setMaximum(WorksheetAutoRunner$.MODULE$.RUN_DELAY_MS_MAXIMUM());
+        autoRunDelaySlider.setMinimum(WorksheetAutoRunner$.MODULE$.RUN_DELAY_MS_MINIMUM());
 
         extensionsPanel = new LibExtensionsSettingsPanelWrapper((JPanel) librariesPanel.getParent(), project);
         extensionsPanel.build();

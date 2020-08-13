@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.worksheet.ui
+package org.jetbrains.plugins.scala
+package worksheet.ui
 
 import java.awt.event.{MouseAdapter, MouseEvent}
 import java.awt.{Color, Graphics, Graphics2D, RenderingHints}
@@ -78,6 +79,7 @@ object WorksheetDiffSplitters {
 
     private class SimpleWorksheetDivider extends DividerImpl {
 
+      @Measure
       override def paint(g: Graphics): Unit = {
         super.paint(g)
         if (mappings.isEmpty) return
@@ -172,7 +174,7 @@ object WorksheetDiffSplitters {
 
   /**
    * @param start (inclusive)
-   * @param end   (inclusive)
+   * @param end (inclusive)
    */
   private case class Segment(start: Int, end: Int) {
     def contains(point: Int): Boolean = start <= point && point <= end

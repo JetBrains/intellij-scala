@@ -27,8 +27,7 @@ trait WorksheetAction {
 
     val presentation = e.getPresentation
     inReadAction {
-      val file = getSelectedFile(project)
-      file match {
+      getSelectedFile(project) match {
         case Some(sf: ScalaFile) if sf.isWorksheetFile && acceptFile(sf) =>
           ScalaActionUtil.enablePresentation(presentation)
         case _ =>

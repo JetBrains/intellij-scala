@@ -2,31 +2,14 @@
 
 <idea-plugin>
 
-    <extensionPoints>
-        <extensionPoint name="worksheetCompilerExtension" interface="org.jetbrains.plugins.scala.worksheet.WorksheetCompilerExtension" dynamic="true"/>
-    </extensionPoints>
-
     <extensions defaultExtensionNs="com.intellij">
-
-        <internalFileTemplate name="Scala Worksheet"/>
-
-        <fileType name="Scala Worksheet"
-                  language="Scala Worksheet"
-                  extensions="sc"
+        <fileType name="Scala Worksheet" language="Scala Worksheet" extensions="sc"
                   implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetFileType$" fieldName="MODULE$"/>
-
-        <todoIndexer filetype="Scala Worksheet" implementationClass="org.jetbrains.plugins.scala.editor.todo.ScalaTodoIndexer"/>
-
-        <stubElementTypeHolder class="org.jetbrains.plugins.scala.worksheet.WorksheetParserDefinition$"/>
-
         <lang.parserDefinition language="Scala Worksheet"
                                implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetParserDefinition"/>
         <lang.fileViewProviderFactory language="Scala Worksheet"
                                       implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetFileViewProviderFactory"/>
         <lang.substitutor language="Scala Worksheet" implementationClass="org.jetbrains.plugins.scala.worksheet.ScalaWorksheetLanguageSubstitutor"/>
-        <lang.substitutor language="Scala" implementationClass="org.jetbrains.plugins.scala.worksheet.ScalaScratchFileLanguageSubstitutor"/>
-
-        <scratch.creationHelper language="Scala" implementationClass="org.jetbrains.plugins.scala.worksheet.ScalaScratchFileCreationHelper"/>
 
         <localInspection implementationClass="org.jetbrains.plugins.scala.worksheet.inspections.WorksheetPackageDeclarationInspection"
                          bundle="messages.ScalaWorksheetBundle"
@@ -41,60 +24,25 @@
                          groupPath="Scala" shortName="AmmoniteUnresolvedLibrary"
                          level="WARNING" enabledByDefault="true" language="Scala" groupName="Other"/>
 
+        <stubElementTypeHolder class="org.jetbrains.plugins.scala.worksheet.WorksheetParserDefinition$"/>
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteGotoHandler" order="first"/>
-        <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.worksheet.actions.repl.WorksheetResNGotoHandler" order="first"/>
-
+        <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunMarkerContributor" language="Scala"/>
         <configurationType implementation="org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunConfigurationType"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder$Startup"/>
-
         <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteFileDeclarationsContributor"/>
         <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.WorksheetFileDeclarationsContributor"/>
-
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner"/>
-
-        <registryKey key="scala.worksheet.continue.evalutaion.on.first.expression.failure" defaultValue="false" restartRequired="false"
-                     description="Allow to continue worksheet expressions evaluation even if some expression failed in REPL mode"/>
-
-        <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunMarkerContributor" language="Scala"/>
-        <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetLineMarkerProvider"/>
-
-        <highlightUsagesHandlerFactory implementation="org.jetbrains.plugins.scala.worksheet.actions.repl.WorksheetResNHighlightFactory"/>
-
-        <actionPromoter implementation="org.jetbrains.plugins.scala.worksheet.actions.repl.WorksheetReplRunActionPromoter"/>
-        <actionPromoter implementation="org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetActionPromoter"/>
-
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.settings.WorksheetDefaultSettings"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala">
         <importUsedProvider implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteImportInfoProvider"/>
         <importOptimizerHelper implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteImportOptimizerHelper"/>
         <referenceExtraResolver implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScStableCodeReferenceExtraResolver"/>
-        <compilerSettingsProfileProvider implementation="org.jetbrains.plugins.scala.worksheet.WorksheetScalaCompilerSettingsProfileProvider"/>
     </extensions>
-
-    <projectListeners>
-        <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
-                  class="org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook$WorksheetEditorListener"/>
-        <listener topic="com.intellij.openapi.project.DumbService$DumbModeListener"
-                  class="org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook$WorksheetDumbModeListener"/>
-    </projectListeners>
 
     <actions>
         <action id="Scala.NewScalaWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.NewScalaWorksheetAction">
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
         </action>
-        <action id="Scala.CreateLightWorksheetAction" class="org.jetbrains.plugins.scala.worksheet.actions.CreateLightWorksheetAction">
-            <keyboard-shortcut first-keystroke="control alt shift X" keymap="$default"/>
-            <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl shift M"/>
-        </action>
-        <action id="Scala.RunWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction">
-            <keyboard-shortcut first-keystroke="control alt W" keymap="$default"/>
-            <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
-        </action>
-        <action id="Scala.CleanWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.topmenu.CleanWorksheetAction" />
-        <action id="Scala.CopyWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.topmenu.CopyWorksheetAction" />
     </actions>
 </idea-plugin>

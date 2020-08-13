@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.editor.importOptimizer
 
 import com.intellij.openapi.extensions.ExtensionPointName
-import org.jetbrains.annotations.ApiStatus
+import com.intellij.psi.PsiFile
+import org.jetbrains.annotations.ApiStatus.Experimental
 import org.jetbrains.plugins.scala.extensions.{OptionExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
@@ -9,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportE
 
 import scala.jdk.CollectionConverters.collectionAsScalaIterableConverter
 
-@ApiStatus.Internal
+@Experimental
 trait ImportInfoProvider {
 
   def acceptsFile(file: ScalaFile): Boolean
