@@ -11,14 +11,16 @@ sealed trait DfAny extends Any with Product with Serializable {
 object DfAny {
   case object Top extends DfAny
   sealed trait Concrete extends DfAny
-  final val Bottom: DfNothing.type = DfNothing
+  val Bottom: DfNothing.type = DfNothing
 }
 
 
 /**************************** AnyRef ****************************/
 sealed trait DfAnyVal extends DfAny
 object DfAnyVal {
+  //val Top = join[DfAny](DfBool.Top, DfInt.Top, ...)
   sealed trait Concrete extends DfAnyVal with DfAny.Concrete
+  val Bottom: DfNothing = DfNothing
 }
 
 
