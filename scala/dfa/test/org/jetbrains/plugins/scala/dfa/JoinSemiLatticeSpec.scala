@@ -3,11 +3,11 @@ package org.jetbrains.plugins.scala.dfa
 import org.scalatest.prop._
 
 trait JoinSemiLatticeSpec[L] extends SemiLatticeSpec[L] with TableDrivenPropertyChecks {
-  override protected val lattice: JoinSemiLattice[L]
-  protected val latticeHasBottom: Option[HasBottom[L]]
-  protected val latticeJoinSamples: TableFor3[L, L, L]
+  override protected def lattice: JoinSemiLattice[L]
+  protected def latticeHasBottom: Option[HasBottom[L]]
+  protected def latticeJoinSamples: TableFor3[L, L, L] = Table(("A", "B", "A join B"))
 
-  private implicit val _lattice: JoinSemiLattice[L] = lattice
+  private implicit lazy val _lattice: JoinSemiLattice[L] = lattice
 
   property("Join of two elements should be correct") {
     forAll(latticeJoinSamples) { (arg1, arg2, result) =>

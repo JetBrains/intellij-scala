@@ -3,11 +3,11 @@ package org.jetbrains.plugins.scala.dfa
 import org.scalatest.prop.{TableDrivenPropertyChecks, TableFor3, TableFor4}
 
 trait MeetSemiLatticeSpec[L] extends SemiLatticeSpec[L] with TableDrivenPropertyChecks {
-  override protected val lattice: MeetSemiLattice[L]
-  protected val latticeHasTop: Option[HasTop[L]]
-  protected val latticeMeetSamples: TableFor3[L, L, L]
+  override protected def lattice: MeetSemiLattice[L]
+  protected def latticeHasTop: Option[HasTop[L]]
+  protected def latticeMeetSamples: TableFor3[L, L, L] = Table(("A", "B", "A meet B"))
 
-  private implicit val _lattice: MeetSemiLattice[L] = lattice
+  private implicit lazy val _lattice: MeetSemiLattice[L] = lattice
 
   property("Meet of two elements should be correct") {
     forAll(latticeMeetSamples) { (arg1, arg2, result) =>

@@ -6,12 +6,12 @@ import org.scalatest.prop.Whenever
 import org.scalatest.propspec.AnyPropSpec
 
 trait SemiLatticeSpec[L] extends AnyPropSpec with Whenever with ForAllChecker with should.Matchers {
-  protected val lattice: SemiLattice[L]
-  protected val latticeElementSamples: Seq[L]
+  protected def lattice: SemiLattice[L]
+  protected def latticeElementSamples: Seq[L]
   protected implicit lazy val latticeElementSamplesGenerator: ForAllGenerator[L] =
     ForAllGenerator.from(latticeElementSamples)
 
-  private implicit val _lattice: SemiLattice[L] = lattice
+  private implicit lazy val _lattice: SemiLattice[L] = lattice
 
   /*
     // Not true! Bottom does not intersect with Bottom

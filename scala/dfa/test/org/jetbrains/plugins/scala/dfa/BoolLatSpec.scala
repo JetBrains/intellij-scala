@@ -6,10 +6,10 @@ import org.scalatest.prop.TableFor3
 class BoolLatSpec extends LatticeSpec[BoolLat] {
   override protected lazy val lattice: Lattice[BoolLat] = BoolLat.lattice
 
-  override protected val latticeElementSamples: Seq[BoolLat] =
+  override protected lazy val latticeElementSamples: Seq[BoolLat] =
     BoolSemiLatSpec.latticeElementSamples :+ Bottom
 
-  override protected val latticeJoinSamples: TableFor3[BoolLat, BoolLat, BoolLat] =
+  override protected lazy val latticeJoinSamples: TableFor3[BoolLat, BoolLat, BoolLat] =
     Table(
       ("A", "B", "A join B"),
       BoolSemiLatSpec.latticeJoinSamples ++ (
@@ -24,7 +24,7 @@ class BoolLatSpec extends LatticeSpec[BoolLat] {
     )
 
 
-  override protected val latticeMeetSamples: TableFor3[BoolLat, BoolLat, BoolLat] =
+  override protected lazy val latticeMeetSamples: TableFor3[BoolLat, BoolLat, BoolLat] =
     Table(
       ("A", "B", "A meet B"),
 
