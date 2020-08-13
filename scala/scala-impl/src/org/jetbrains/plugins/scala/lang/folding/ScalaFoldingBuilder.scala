@@ -24,17 +24,17 @@ import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScTypeAliasDefinitio
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubFileElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings
+import org.jetbrains.plugins.scala.worksheet.WorksheetFoldingBuilder
 
 import scala.collection.JavaConverters._
 import scala.collection._
 
 class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
+
   import ScalaElementType._
   import ScalaFoldingUtil._
 
   private val foldingSettings = ScalaCodeFoldingSettings.getInstance()
-
-  override def isDumbAware: Boolean = true
 
   private def appendDescriptors(node: ASTNode,
                                 document: Document,
@@ -49,7 +49,8 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tSH_COMMENT | TEMPLATE_BODY |
              ScalaDocElementTypes.SCALA_DOC_COMMENT =>
-          descriptors add new FoldingDescriptor(node, nodeTextRange)
+          if (!isWorksheetResults(node))
+            descriptors add new FoldingDescriptor(node, nodeTextRange)
         case ImportStatement if isGoodImport(node) =>
           descriptors add new FoldingDescriptor(node,
             new TextRange(nodeTextRange.getStartOffset + IMPORT_KEYWORD.length + 1, getImportEnd(node)))
@@ -123,7 +124,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
           descriptors addAll Seq(d1, d2).asJavaCollection
         case _ =>
       }
-    } else if (node.getElementType == ScalaTokenTypes.tLINE_COMMENT) {
+    } else if (node.getElementType == ScalaTokenTypes.tLINE_COMMENT && !isWorksheetResults(node)) {
       val stack = new mutable.Stack[PsiElement]
       if (!isCustomRegionStart(node.getText) && !isCustomRegionEnd(node.getText)) {
         addCommentFolds(node.getPsi.asInstanceOf[PsiComment], processedComments, descriptors)
@@ -171,7 +172,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
   }
 
   override def getLanguagePlaceholderText(node: ASTNode, textRange: TextRange): String = {
-    if (isMultiline(node) || isMultilineImport(node)) {
+    if (isMultiline(node) || isMultilineImport(node) && !isWorksheetResults(node)) {
       node.getElementType match {
         case BLOCK => return if (isBraceless(node)) "..." else "{...}"
         case ScCodeBlockElementType.BlockExpression => return "{...}"
@@ -209,15 +210,17 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
     }
     node.getElementType match {
       case ScalaTokenTypes.tLINE_COMMENT =>
-        if (!isCustomRegionStart(node.getText))
-          return "/.../"
-        else {
-          if (isTagRegionStart(node.getText)) {
-            val customText: String = node.getText.replaceFirst(".*desc\\s*=\\s*\"(.*)\".*", "$1").trim
-            return if (customText.isEmpty) "..." else customText
-          } else if (isSimpleRegionStart(node.getText)) {
-            val customText: String = node.getText.replaceFirst("..?\\s*region(.*)", "$1").trim
-            return if (customText.isEmpty) "..." else customText
+        if (!isWorksheetResults(node)) {
+          if (!isCustomRegionStart(node.getText))
+            return "/.../"
+          else {
+            if (isTagRegionStart(node.getText)) {
+              val customText: String = node.getText.replaceFirst(".*desc\\s*=\\s*\"(.*)\".*", "$1").trim
+              return if (customText.isEmpty) "..." else customText
+            } else if (isSimpleRegionStart(node.getText)) {
+              val customText: String = node.getText.replaceFirst("..?\\s*region(.*)", "$1").trim
+              return if (customText.isEmpty) "..." else customText
+            }
           }
         }
       case SIMPLE_TYPE => return " "
@@ -251,15 +254,15 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
     else {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT
-          if foldingSettings.isCollapseBlockComments => true
+          if foldingSettings.isCollapseBlockComments && !isWorksheetResults(node) => true
         case ScalaTokenTypes.tLINE_COMMENT
           if !isCustomRegionStart(node.getText) &&
-                  foldingSettings.isCollapseLineComments => true
+                  foldingSettings.isCollapseLineComments && !isWorksheetResults(node) => true
         case ScalaTokenTypes.tLINE_COMMENT
           if isCustomRegionStart(node.getText) &&
                   foldingSettings.isCollapseCustomRegions => true
         case ScalaDocElementTypes.SCALA_DOC_COMMENT
-          if foldingSettings.isCollapseScalaDocComments => true
+          if foldingSettings.isCollapseScalaDocComments && !isWorksheetResults(node) => true
         case TEMPLATE_BODY
           if foldingSettings.isCollapseTemplateBodies => true
         case PACKAGING
@@ -267,7 +270,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
         case ImportStatement
           if foldingSettings.isCollapseImports => true
         case ScalaTokenTypes.tSH_COMMENT
-          if foldingSettings.isCollapseShellComments => true
+          if foldingSettings.isCollapseShellComments && !isWorksheetResults(node) => true
         case MATCH_STMT
           if foldingSettings.isCollapseMultilineBlocks => true
         case ScCodeBlockElementType.BlockExpression
@@ -387,7 +390,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
       val node: ASTNode = current.getNode
       if (node != null) {
         val elementType: IElementType = node.getElementType
-        if (elementType == ScalaTokenTypes.tLINE_COMMENT ) {
+        if (elementType == ScalaTokenTypes.tLINE_COMMENT  && !isWorksheetResults(node)) {
           end = current
           processedComments.add(current)
         }
@@ -418,7 +421,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
       val node: ASTNode = current.getNode
       if (node != null) {
         val elementType: IElementType = node.getElementType
-        if (elementType == ScalaTokenTypes.tLINE_COMMENT && isCustomRegionEnd(node.getText)) {
+        if (elementType == ScalaTokenTypes.tLINE_COMMENT && isCustomRegionEnd(node.getText)  && !isWorksheetResults(node)) {
           if ((isTagRegion && isTagRegionEnd(node.getText)) || (!isTagRegion && isSimpleRegionEnd(node.getText))) {
             if (!processedRegions.contains(current) && stack.isEmpty) {
               end = current
@@ -428,7 +431,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
           }
           if (stack.nonEmpty) stack.pop()
         }
-        if (elementType == ScalaTokenTypes.tLINE_COMMENT && isCustomRegionStart(node.getText)) {
+        if (elementType == ScalaTokenTypes.tLINE_COMMENT && isCustomRegionStart(node.getText)  && !isWorksheetResults(node)) {
             stack.push(node.getPsi)
         }
       }
@@ -457,18 +460,26 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
     isTagRegionEnd(elementText) || isSimpleRegionEnd(elementText)
   }
 
-  private def isTagRegionEnd(elementText: String): Boolean =
+  private def isTagRegionEnd(elementText: String): Boolean = {
     elementText.contains("</editor-fold")
+  }
 
-  private def isSimpleRegionEnd(elementText: String): Boolean =
+  private def isSimpleRegionEnd(elementText: String): Boolean = {
     elementText.contains("endregion")
+  }
 
+  private def isWorksheetResults(node: ASTNode): Boolean = {
+    node.getPsi.isInstanceOf[PsiComment] && (node.getText.startsWith(WorksheetFoldingBuilder.FIRST_LINE_PREFIX) ||
+      node.getText.startsWith(WorksheetFoldingBuilder.LINE_PREFIX))
+  }
 
   private def isBraceless(node: ASTNode): Boolean =
     isBraceless(node.getPsi)
 
   private def isBraceless(element: PsiElement): Boolean =
     element.asOptionOf[ScBraceOwner].exists(_.isEnclosedByBraces)
+
+  override def isDumbAware: Boolean = true
 }
 
 private[folding] object ScalaFoldingUtil {
