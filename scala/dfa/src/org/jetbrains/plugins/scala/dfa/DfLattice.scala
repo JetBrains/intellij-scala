@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package dfa
 
-import org.jetbrains.plugins.scala.dfa.lattice.FlatLattice
+import org.jetbrains.plugins.scala.dfa.lattice.{BinaryLattice, FlatLattice}
 
 
 /*************************** Any (Top) **************************/
@@ -104,9 +104,22 @@ object DfNumeric {
 object DfInt extends DfNumeric.KindFactory[Int](DfNumeric.IntKind) { protected[this] override def initialBottom: Abstract = DfNothing }
 
 
+/****************************** Unit ****************************/
+sealed trait DfUnit extends DfAnyVal
+case object DfUnit  {
+  val Top: Concrete = Concrete
+  type Concrete = Concrete.type
+  case object Concrete extends DfUnit with DfAnyVal.Concrete
+  val Bottom: DfUnit = DfNothing
+
+  implicit val lattice: Lattice[DfUnit] = new BinaryLattice(Top, Bottom)
+}
+
+
 /************************* Nothing (Bottom) **********************/
 sealed trait DfNothing
   extends DfAny
+    with DfUnit
     with DfBool
     with DfInt.Abstract
 case object DfNothing extends DfNothing
