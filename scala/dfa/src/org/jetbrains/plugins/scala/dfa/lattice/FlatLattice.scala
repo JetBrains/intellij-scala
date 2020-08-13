@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.dfa
 package lattice
 
+import scala.annotation.tailrec
+
 /**
  * Lattice type class implementation for flat lattices
  *
  * A flat lattice has a Top, a Bottom, and possibly infinitely many unrelated other elements in between.
  */
-class FlatLattice[T](override val top: T, override val bottom: T)
+final class FlatLattice[T](override val top: T, override val bottom: T)
   extends JoinSemiLattice[T] with MeetSemiLattice[T]
 {
   override def <=(subSet: T, superSet: T): Boolean = (subSet, superSet) match {
@@ -32,10 +34,40 @@ class FlatLattice[T](override val top: T, override val bottom: T)
     case _ => top
   }
 
+  @tailrec
+  override def joinAll(first: T, others: TraversableOnce[T]): T = {
+    first match {
+      case `top` => top
+      case `bottom` =>
+        val it = others.toIterator
+        if (it.hasNext) joinAll(it.next(), it)
+        else bottom
+      case concrete =>
+        val allTheSame = others.forall(b => b == concrete || b == bottom)
+        if (allTheSame) concrete
+        else top
+    }
+  }
+
   override def meet(lhs: T, rhs: T): T = (lhs, rhs) match {
     case (a, b) if a == b => a
     case (`top`, a) => a
     case (a, `top`) => a
     case _ => bottom
+  }
+
+  @tailrec
+  override def meetAll(first: T, others: TraversableOnce[T]): T = {
+    first match {
+      case `bottom` => bottom
+      case `top` =>
+        val it = others.toIterator
+        if (it.hasNext) meetAll(it.next(), it)
+        else top
+      case concrete =>
+        val allTheSame = others.forall(b => b == concrete || b == top)
+        if (allTheSame) concrete
+        else bottom
+    }
   }
 }
