@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.psi.api
+package org.jetbrains.plugins.scala.worksheet
 
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.{PsiElement, ResolveState}
