@@ -4,7 +4,7 @@ import org.scalatest.prop._
 
 trait JoinSemiLatticeSpec[L] extends SemiLatticeSpec[L] with TableDrivenPropertyChecks {
   override protected def lattice: JoinSemiLattice[L]
-  protected def latticeHasBottom: Option[HasBottom[L]]
+  override protected lazy val latticeHasTop: Option[HasTop[L]] = Some(lattice)
   protected def latticeJoinSamples: TableFor3[L, L, L] = Table(("A", "B", "A join B"))
 
   private implicit lazy val _lattice: JoinSemiLattice[L] = lattice

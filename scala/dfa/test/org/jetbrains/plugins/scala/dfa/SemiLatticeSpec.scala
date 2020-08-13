@@ -7,20 +7,29 @@ import org.scalatest.propspec.AnyPropSpec
 
 trait SemiLatticeSpec[L] extends AnyPropSpec with Whenever with ForAllChecker with should.Matchers {
   protected def lattice: SemiLattice[L]
+  protected def latticeHasTop: Option[HasTop[L]]
+  protected def latticeHasBottom: Option[HasBottom[L]]
+
   protected def latticeElementSamples: Seq[L]
   protected implicit lazy val latticeElementSamplesGenerator: ForAllGenerator[L] =
     ForAllGenerator.from(latticeElementSamples)
 
   private implicit lazy val _lattice: SemiLattice[L] = lattice
 
-  /*
-    // Not true! Bottom does not intersect with Bottom
-    property("intersects is reflexive (X intersects X)") {
+  /*********************************** intersects ***********************************/
+  latticeHasBottom.foreach { implicit latticeHasBottom =>
+    property("intersects is reflexive without bottom (X != Bottom => X intersects X)") {
       forAll { (x: L) =>
-        assert(x intersects x)
+        whenever(x != latticeBottom) {
+          assert(x intersects x)
+        }
       }
     }
-  */
+
+    property("intersects is not reflexive in bottom") {
+      (latticeBottom intersects latticeBottom) should not be true
+    }
+  }
 
   property("intersects is symmetric (X intersects Y <=> Y intersects X)") {
     forAll { (x: L, y: L) =>
@@ -28,6 +37,7 @@ trait SemiLatticeSpec[L] extends AnyPropSpec with Whenever with ForAllChecker wi
     }
   }
 
+  /*********************************** <= ***********************************/
   property("<= is reflexive (X <= X)") {
     forAll { (x: L) =>
       assert(x <= x)
@@ -48,6 +58,7 @@ trait SemiLatticeSpec[L] extends AnyPropSpec with Whenever with ForAllChecker wi
     }
   }
 
+  /************************ additional constraints ************************/
   property("(X intersects Y) => (X <= Y || Y <= X)") {
     forAll { (x: L, y: L) =>
       whenever(x intersects y) {
