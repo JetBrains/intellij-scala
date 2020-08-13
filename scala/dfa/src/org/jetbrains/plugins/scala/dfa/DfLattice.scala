@@ -15,12 +15,12 @@ object DfAny {
 }
 
 
-
 /**************************** AnyRef ****************************/
 sealed trait DfAnyVal extends DfAny
 object DfAnyVal {
   sealed trait Concrete extends DfAnyVal with DfAny.Concrete
 }
+
 
 /**************************** Boolean ****************************/
 trait DfBool extends DfAnyVal
@@ -61,8 +61,6 @@ object DfBool {
 }
 
 
-
-
 /***************************** Numerics **************************/
 sealed trait DfAbstractNumeric extends DfAnyVal {
   def kind: DfNumeric.Kind
@@ -83,9 +81,9 @@ object DfNumeric {
   final object FloatKind extends FloatingPointKind(java.lang.Float.BYTES)
   final object DoubleKind extends FloatingPointKind(java.lang.Double.BYTES)
 
-  abstract class FactoryBase[@specialized(Byte, Char, Short, Int, Long, Float, Double) T <: AnyVal](val kind: Kind) {
+  abstract class KindFactory[@specialized(Byte, Char, Short, Int, Long, Float, Double) T <: AnyVal](val kind: Kind) {
     sealed trait Abstract extends DfAbstractNumeric {
-      override def kind: Kind = FactoryBase.this.kind
+      override def kind: Kind = KindFactory.this.kind
     }
 
     final case object Top extends Abstract
@@ -101,7 +99,7 @@ object DfNumeric {
   }
 }
 
-object DfInt extends DfNumeric.FactoryBase[Int](DfNumeric.IntKind) { protected[this] override def initialBottom: Abstract = DfNothing }
+object DfInt extends DfNumeric.KindFactory[Int](DfNumeric.IntKind) { protected[this] override def initialBottom: Abstract = DfNothing }
 
 
 /************************* Nothing (Bottom) **********************/
