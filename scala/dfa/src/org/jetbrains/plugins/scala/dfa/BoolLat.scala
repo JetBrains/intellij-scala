@@ -15,7 +15,9 @@ import scala.annotation.tailrec
  *     \    /
  *     Bottom
  */
-sealed abstract class BoolLat(final val canBeTrue: Boolean, final val canBeFalse: Boolean) {
+sealed abstract class BoolLat(final val canBeTrue: Boolean, final val canBeFalse: Boolean)
+  extends Product with Serializable
+{
   final val isConcrete: Boolean = canBeTrue != canBeFalse
 
   final def asConcrete: Option[Boolean] =
