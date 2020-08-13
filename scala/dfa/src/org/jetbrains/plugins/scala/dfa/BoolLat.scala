@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala.dfa
 
-import org.jetbrains.plugins.scala.dfa.BoolLat.SemiLatticeImpl
-import org.jetbrains.plugins.scala.dfa.lattice.FlatLattice
-
-import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.dfa.lattice.{FlatJoinSemiLattice, FlatLattice}
 
 /**
  * A complete bool lattice
@@ -62,14 +59,6 @@ object BoolLat {
     canBeFalse = false,
   )
 
-  class SemiLatticeImpl[Lat <: BoolLat] extends SemiLattice[Lat] {
-    override def <=(subSet: Lat, superSet: Lat): Boolean =
-      subSet.canBeFalse <= superSet.canBeFalse && subSet.canBeTrue <= superSet.canBeTrue
-
-    override def intersects(lhs: Lat, rhs: Lat): Boolean =
-      lhs.canBeFalse && rhs.canBeFalse || lhs.canBeTrue && rhs.canBeTrue
-  }
-
   implicit val lattice: Lattice[BoolLat] = new FlatLattice[BoolLat](Top, Bottom)
 }
 
@@ -88,23 +77,5 @@ object BoolSemiLat {
   val True: BoolLat.True.type = BoolLat.True
   val False: BoolLat.False.type = BoolLat.False
 
-  implicit val semiLattice: SemiLattice[BoolSemiLat] = new SemiLatticeImpl
-
-  implicit val joinSemiLattice: JoinSemiLattice[BoolSemiLat] =
-    new SemiLatticeImpl[BoolSemiLat] with JoinSemiLattice[BoolSemiLat] {
-      override def top: BoolSemiLat = Top
-
-      override def join(lhs: BoolSemiLat, rhs: BoolSemiLat): BoolSemiLat =
-        if (lhs == rhs) lhs else Top
-
-      override def joinAll(first: BoolSemiLat, others: TraversableOnce[BoolSemiLat]): BoolSemiLat = {
-        first match {
-          case Top => Top
-          case concrete =>
-            val allTheSame = others.forall(b => b == concrete)
-            if (allTheSame) concrete
-            else Top
-        }
-      }
-    }
+  implicit val joinSemiLattice: JoinSemiLattice[BoolSemiLat] = new FlatJoinSemiLattice[BoolSemiLat](Top)
 }
