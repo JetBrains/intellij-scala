@@ -13,7 +13,7 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi._
-import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.CachedValueProvider.Result
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
 import com.intellij.util.containers.{ConcurrentIntObjectMap, ContainerUtil}
@@ -25,7 +25,6 @@ import org.jetbrains.plugins.scala.debugger.ScalaPositionManager._
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaCompilingEvaluator
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil._
-import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
@@ -325,24 +324,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     calcElement().filter(_.isValid).map(SourcePosition.createFromElement)
   }
 
-  private def findScriptFile(refType: ReferenceType): Option[PsiFile] = {
-    try {
-      val name = refType.name()
-      if (name.startsWith(SCRIPT_HOLDER_CLASS_NAME)) {
-        cachedSourceName(refType) match {
-          case Some(srcName) =>
-            val files = FilenameIndex.getFilesByName(debugProcess.getProject, srcName, debugProcess.getSearchScope)
-            files.headOption
-          case _ => None
-        }
-      }
-      else None
-    }
-    catch {
-      case _: AbsentInformationException => None
-    }
-  }
-
   @Nullable
   private def getPsiFileByReferenceType(project: Project, refType: ReferenceType): PsiFile = {
     if (refType == null) return null
@@ -371,17 +352,13 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
           .orElse(classes.headOption)
       }
 
-      val scriptFile = findScriptFile(refType)
-      val file = scriptFile.getOrElse {
-        val originalQName = NameTransformer.decode(nonLambdaName(refType))
+      val originalQName = NameTransformer.decode(nonLambdaName(refType))
 
-        val clazz = withDollarTestName(originalQName)
-          .flatMap(tryToFindClass)
-          .orElse(tryToFindClass(topLevelClassName(originalQName)))
+      val clazz = withDollarTestName(originalQName)
+        .flatMap(tryToFindClass)
+        .orElse(tryToFindClass(topLevelClassName(originalQName)))
 
-        clazz.map(_.getNavigationElement.getContainingFile).orNull
-      }
-      file
+      clazz.map(_.getNavigationElement.getContainingFile).orNull
     }
 
     val file = inReadAction(findFile())
@@ -599,7 +576,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 }
 
 object ScalaPositionManager {
-  private val SCRIPT_HOLDER_CLASS_NAME: String = "Main$$anon$1"
   private val delayedInitBody = "delayedInit$body"
 
   private val isCompiledWithIndyLambdasCache = mutable.HashMap[PsiFile, Boolean]()
