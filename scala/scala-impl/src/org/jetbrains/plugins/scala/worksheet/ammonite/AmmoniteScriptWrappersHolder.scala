@@ -136,9 +136,9 @@ class AmmoniteScriptWrappersHolder(project: Project) {
     
     NotificationUtil.showMessage (
       project = project,
-      title = WorksheetBundle.message("notification.title.ammonite.imports.found"),
+      title = ScalaBundle.message("notification.title.ammonite.imports.found"),
       message =
-        WorksheetBundle.message("ammonite.import.ivy.dependencies.message", vFile.getName),
+        ScalaBundle.message("ammonite.import.ivy.dependencies.message", vFile.getName),
       handler = {
         case "run" => getFile(vFile) foreach {
           ammFile =>

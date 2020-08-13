@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.editor.importOptimizer
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer._root_prefix
-import org.jetbrains.plugins.scala.extensions.implementation.iterator.ContextsIterator
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiModifierListOwnerExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -18,6 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.worksheet.ScalaScriptImportsUtil
+import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -192,12 +193,9 @@ object ImportInfo {
         hasNonUsedImplicits = (implicitNames -- singleNames).nonEmpty
       }
     }
-
-    if (ImportInfoProvider.providers.exists(_.isImportUsedWithFileCheck(imp)))
-      importsUsed += ImportExprUsed(imp)
-
-    if (importsUsed.isEmpty)
-      return None //all imports are empty
+    
+    AmmoniteUtil.processAmmoniteImportUsed(imp, importsUsed) 
+    if (importsUsed.isEmpty) return None //all imports are empty
 
     allNames --= hiddenNames
 
@@ -276,8 +274,7 @@ object ImportInfo {
   }
 
   private def qualifiedRef(ref: ScStableCodeReference): String = {
-    if (ref.textMatches(_root_prefix))
-      return _root_prefix
+    if (ref.textMatches(_root_prefix)) return _root_prefix
 
     val refName = ref.refName
     ref.bind() match {
@@ -302,24 +299,13 @@ object ImportInfo {
         }
       case Some(ScalaResolveResult(f: PsiField, _)) =>
         val clazzFqn = f.containingClass match {
-          case null => throw new IllegalStateException() //something is wrong
+          case null => throw new IllegalStateException() //somehting is wrong
           case clazz => clazz.qualifiedName.split('.').map(fixName).mkString(".")
         }
         clazzFqn + withDot(refName)
-      case _ =>
-        if (isScriptRef(ref))
-          refName
-        else
-          throw new IllegalStateException() //do not process invalid import
+      case _ if ScalaScriptImportsUtil.isScriptRef(ref) => refName
+      case _ => throw new IllegalStateException() //do not process invalid import
     }
-  }
-
-  private def isScriptRef(ref: ScStableCodeReference): Boolean = {
-    // TODO: maybe we should create a separate extension point with a dedicated purpose?
-    //  Currently ImportInfoProvider is reused just because it's only implementation (for ammonite) was equal to
-    //  internal implementation isScriptRef
-    val importExpr = new ContextsIterator(ref).findByType[ScImportExpr]
-    importExpr.exists(imp => ImportInfoProvider.providers.exists(_.isImportUsedWithFileCheck(imp)))
   }
 
   private def collectAllNamesAndImplicitsFromWildcard(qualifier: String, place: PsiElement): (Set[String], Set[String]) = {

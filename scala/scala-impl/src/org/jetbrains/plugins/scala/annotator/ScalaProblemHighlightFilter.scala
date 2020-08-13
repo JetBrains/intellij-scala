@@ -7,6 +7,7 @@ import com.intellij.openapi.roots.{JavaProjectRootsUtil, ProjectRootManager}
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.console.ScalaConsoleInfo
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 
 /**
  * @author Alefas
@@ -29,9 +30,7 @@ final class ScalaProblemHighlightFilter extends ProblemHighlightFilter {
 
   private def isSpecialFile(file: ScalaFile): Boolean = {
     file.getFileType != ScalaFileType.INSTANCE ||
-      // looks like outdated check, ammonite files should have ".sc" extension,
-      // so file.getFileType != ScalaFileType.INSTANCE should be true in this case
-      //AmmoniteUtil.isAmmoniteFile(file) ||
+      AmmoniteUtil.isAmmoniteFile(file) ||
       ScratchUtil.isScratch(file.getVirtualFile) ||
       file.isScriptFile ||
       ScalaConsoleInfo.isConsole(file)
