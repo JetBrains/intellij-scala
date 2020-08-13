@@ -14,6 +14,7 @@ trait SemiLatticeSpec[L] extends AnyPropSpec with Whenever with ForAllChecker wi
   protected implicit lazy val latticeElementSamplesGenerator: ForAllGenerator[L] = {
     assert(latticeHasTop.forall { implicit hasTop => latticeElementSamples.contains(latticeTop) })
     assert(latticeHasBottom.forall { implicit hasBottom => latticeElementSamples.contains(latticeBottom) })
+    assert(latticeElementSamples.distinct == latticeElementSamples)
     ForAllGenerator.from(latticeElementSamples)
   }
 
