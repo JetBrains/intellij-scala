@@ -6,6 +6,7 @@ package impl
 import java.{util => ju}
 
 import com.intellij.extapi.psi.PsiFileBase
+import com.intellij.lang.Language
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.LanguageFileType
@@ -38,14 +39,19 @@ import scala.annotation.{nowarn, tailrec}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
-class ScalaFileImpl(viewProvider: FileViewProvider,
-                    override val getFileType: LanguageFileType = ScalaFileType.INSTANCE)
-  extends PsiFileBase(viewProvider, getFileType.getLanguage)
+class ScalaFileImpl(
+  viewProvider: FileViewProvider,
+  override val getFileType: LanguageFileType,
+  language: Language
+) extends PsiFileBase(viewProvider, language)
     with ScalaFile
     with FileDeclarationsHolder
     with ScDeclarationSequenceHolder
     with ScControlFlowOwner
     with FileResolveScopeProvider {
+
+  def this(viewProvider: FileViewProvider, fileType: LanguageFileType = ScalaFileType.INSTANCE) =
+    this(viewProvider, fileType, fileType.getLanguage)
 
   import ScalaFileImpl._
   import psi.stubs.ScFileStub
@@ -113,11 +119,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
 
   override def isMultipleDeclarationsAllowed: Boolean = false
 
-  override def isWorksheetFile: Boolean = {
-    false
-//     TODO
-    //ScFile.VirtualFile.unapply(this).exists(worksheet.WorksheetFileType.isWorksheetFile(_)(getProject))
-  }
+  override def isWorksheetFile: Boolean = false
 
   override def setPackageName(inName: String): Unit = {
     // TODO support multiple base packages simultaneously

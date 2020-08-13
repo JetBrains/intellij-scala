@@ -12,13 +12,13 @@ import org.apache.commons.lang.SystemUtils
 import org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfo
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.ParentsIterator
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportUsed}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportSelectors, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.util.ScalaUtil
-import org.jetbrains.plugins.scala.worksheet.WorksheetFileType
+import org.jetbrains.plugins.scala.worksheet.{WorksheetFileType, WorksheetUtils}
 import org.jetbrains.sbt.project.SbtProjectSystem
 
 import scala.annotation.tailrec
@@ -44,7 +44,7 @@ object AmmoniteUtil {
   def isAmmoniteFile(file: ScFile): Boolean =
     ScFile.VirtualFile.unapply(file).exists { virtualFile =>
       WorksheetFileType.isMyFileType(virtualFile) &&
-        WorksheetFileType.isAmmoniteEnabled(virtualFile)(file.getProject)
+        WorksheetUtils.isAmmoniteEnabled(file.getProject, virtualFile)
     }
 
   def findAllIvyImports(file: ScalaFile): Seq[LibInfo] = {

@@ -19,12 +19,16 @@
 
         <stubElementTypeHolder class="org.jetbrains.plugins.scala.worksheet.WorksheetParserDefinition$"/>
 
-        <lang.parserDefinition language="Scala Worksheet"
-                               implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetParserDefinition"/>
-        <lang.fileViewProviderFactory language="Scala Worksheet"
-                                      implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetFileViewProviderFactory"/>
-        <lang.substitutor language="Scala Worksheet" implementationClass="org.jetbrains.plugins.scala.worksheet.ScalaWorksheetLanguageSubstitutor"/>
-        <lang.substitutor language="Scala" implementationClass="org.jetbrains.plugins.scala.worksheet.ScalaScratchFileLanguageSubstitutor"/>
+        <lang.parserDefinition language="Scala Worksheet" implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetParserDefinition"/>
+        <lang.parserDefinition language="Scala 3 Worksheet" implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetParserDefinition3"/>
+
+        <lang.fileViewProviderFactory language="Scala Worksheet" implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetFileViewProviderFactory"/>
+        <lang.fileViewProviderFactory language="Scala 3 Worksheet" implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetFileViewProviderFactory"/>
+
+        <lang.syntaxHighlighterFactory language="Scala Worksheet" implementationClass="org.jetbrains.plugins.scala.worksheet.highlighter.WorksheetSyntaxHighlighterFactory"/>
+        <lang.syntaxHighlighterFactory language="Scala 3 Worksheet" implementationClass="org.jetbrains.plugins.scala.worksheet.highlighter.WorksheetSyntaxHighlighterFactory"/>
+
+        <lang.substitutor language="Scala Worksheet" implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetLanguageSubstitutor"/>
 
         <scratch.creationHelper language="Scala" implementationClass="org.jetbrains.plugins.scala.worksheet.ScalaScratchFileCreationHelper"/>
 

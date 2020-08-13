@@ -74,7 +74,7 @@ object WorksheetFileHook {
   private class WorksheetEditorListener(project: Project) extends FileEditorManagerListener {
 
     private def isPluggable(file: VirtualFile): Boolean = file.isValid &&
-      WorksheetFileType.isWorksheetFile(file)(project)
+      WorksheetUtils.isWorksheetFile(project, file)
 
     override def selectionChanged(event: FileEditorManagerEvent): Unit = {}
 

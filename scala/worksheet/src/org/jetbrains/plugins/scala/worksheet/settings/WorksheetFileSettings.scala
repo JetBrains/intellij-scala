@@ -2,17 +2,21 @@ package org.jetbrains.plugins.scala.worksheet.settings
 
 import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerEx
 import com.intellij.ide.scratch.ScratchUtil
+import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
+import com.intellij.openapi.fileEditor.{FileEditorManager, TextEditor}
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.extensions.TraversableExt
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.util.ScalaUtil
-import org.jetbrains.plugins.scala.worksheet.WorksheetFileType
+import org.jetbrains.plugins.scala.worksheet.WorksheetUtils
 import org.jetbrains.plugins.scala.worksheet.processor.{FileAttributeUtilCache, WorksheetPerFileConfig}
 
 import scala.ref.WeakReference
@@ -83,6 +87,8 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
     for {
       module <- Option(getModuleFor)
     } file.putUserData(UserDataKeys.SCALA_ATTACHED_MODULE, new WeakReference(module))
+
+    updateEditorsHighlighters(project, file.getVirtualFile)
     DaemonCodeAnalyzerEx.getInstanceEx(project).restart(file)
   }
 
@@ -120,7 +126,7 @@ object WorksheetFileSettings extends WorksheetPerFileConfig {
 
   def isScratchWorksheet(file: VirtualFile)
                         (implicit project: Project): Boolean =
-    ScratchUtil.isScratch(file) && WorksheetFileType.treatScratchFileAsWorksheet
+    ScratchUtil.isScratch(file) && WorksheetUtils.treatScratchFileAsWorksheet(project)
 
   private def getSetting[T](vFile: VirtualFile, attr: FileAttribute)
                            (implicit ev: SerializableInFileAttribute[T]): Option[T] =
@@ -148,4 +154,11 @@ object WorksheetFileSettings extends WorksheetPerFileConfig {
       case _ =>
         None
     }
+
+  private def updateEditorsHighlighters(project: Project, vFile: VirtualFile): Unit = {
+    val highlighter = EditorHighlighterFactory.getInstance.createEditorHighlighter(project, vFile)
+    val fileEditors = FileEditorManager.getInstance(project).getAllEditors(vFile).toSeq
+    val editors = fileEditors.filterByType[TextEditor].map(_.getEditor).filterByType[EditorEx]
+    editors.foreach(_.setHighlighter(highlighter))
+  }
 }

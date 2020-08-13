@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package worksheet
+package org.jetbrains.plugins.scala.worksheet
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.FileViewProvider
@@ -8,23 +7,26 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.lang.parser.{ScalaParser, ScalaParserDefinitionBase}
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubFileElementType
 
-final class WorksheetParserDefinition extends ScalaParserDefinitionBase {
+final class WorksheetParserDefinition3 extends ScalaParserDefinitionBase {
 
   override def createLexer(project: Project) =
-    new ScalaLexer(/*isScala3 =*/ false, project)
+    new ScalaLexer(/*isScala3 =*/ true, project)
 
   override def createParser(project: Project): ScalaParser =
-    new ScalaParser(isScala3 = false)
-
+    new ScalaParser(isScala3 = true)
+  
   override def getFileNodeType: IFileElementType =
-    WorksheetParserDefinition.FileNodeType
+    WorksheetParserDefinition3.FileNodeType
 
   override def createFile(viewProvider: FileViewProvider) =
-    new WorksheetFile(viewProvider, WorksheetLanguage.INSTANCE)
+    new WorksheetFile(viewProvider, WorksheetLanguage3.INSTANCE)
 }
 
-object WorksheetParserDefinition {
+object WorksheetParserDefinition3 {
 
   //noinspection TypeAnnotation
-  val FileNodeType = ScStubFileElementType(WorksheetLanguage.INSTANCE)
+  val FileNodeType = ScStubFileElementType(WorksheetLanguage3.INSTANCE)
 }
+
+
+
