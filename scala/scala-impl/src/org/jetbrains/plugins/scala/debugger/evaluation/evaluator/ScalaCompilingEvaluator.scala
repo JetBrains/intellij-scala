@@ -18,7 +18,7 @@ import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi.{PsiElement, PsiFile, PsiFileFactory}
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation._
-import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.GeneratedClass.generatedMethodName
+import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil.filterAllClasses
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
@@ -132,8 +132,39 @@ class ScalaCompilingEvaluator(psiContext: PsiElement, fragment: ScalaCodeFragmen
 
 object ScalaCompilingEvaluator {
 
-  val classNameKey: Key[String] = Key.create[String]("generated.class.name")
-  val originalFileKey: Key[PsiFile] = Key.create[PsiFile]("compiling.evaluator.original.file")
+  private val classNameKey: Key[String] = Key.create[String]("generated.class.name")
+  private val originalFileKey: Key[PsiFile] = Key.create[PsiFile]("compiling.evaluator.original.file")
+
+  val generatedMethodName: String = "invoke"
+
+  def isGenerated(file: PsiFile): Boolean = file.getUserData(classNameKey) != null
+
+  def findGeneratedClass(debugProcess: DebugProcess, sourcePosition: SourcePosition): Option[ReferenceType] = {
+    if (sourcePosition.getFile.getFileType != ScalaFileType.INSTANCE)
+      return None
+
+    val generatedClassName = sourcePosition.getFile.getUserData(ScalaCompilingEvaluator.classNameKey)
+
+    def isGeneratedClass(generatedClassName: String, refType: ReferenceType): Boolean = {
+      if (generatedClassName == null)
+        return false
+
+      val name = refType.name()
+      val index = name.lastIndexOf(generatedClassName)
+
+      index >= 0 && {
+        val suffix = name.substring(index + generatedClassName.length)
+        //we need exact class, not possible lambdas inside
+        //but local classes may have suffices like $1
+        !suffix.exists(_.isLetter)
+      }
+    }
+
+    filterAllClasses(debugProcess)(isGeneratedClass(generatedClassName, _)).asScala.headOption
+  }
+
+  def originalFile(file: PsiFile): PsiFile =
+    Option(file.getUserData(ScalaCompilingEvaluator.originalFileKey)).getOrElse(file)
 
   private def keep(reference: ObjectReference, context: EvaluationContext): Unit = {
     context.getSuspendContext.asInstanceOf[SuspendContextImpl].keep(reference)
@@ -166,143 +197,143 @@ object ScalaCompilingEvaluator {
     }
     reference
   }
-}
 
-class OutputFileObject(file: File, val origName: String) {
-  private def getUri(name: String): URI = {
-    URI.create("memo:///" + name.replace('.', '/') + ".class")
-  }
-
-  def getName: String = getUri(origName).getPath
-  def toByteArray: Array[Byte] = FileUtil.loadFileBytes(file)
-}
-
-private case class GeneratedClass(syntheticFile: PsiFile, newContext: PsiElement, generatedClassName: String) {
-
-  private val module: Module = inReadAction {
-    val originalFile = syntheticFile.getUserData(ScalaCompilingEvaluator.originalFileKey)
-    Option(originalFile).map(findModuleForPsiElement).orNull
-  }
-
-  val callText = s"new $generatedClassName().$generatedMethodName()"
-
-  def compiledClasses: Seq[OutputFileObject] = compileGeneratedClass(syntheticFile.getText)
-
-  private def compileGeneratedClass(fileText: String): Seq[OutputFileObject] = {
-    if (module == null) throw EvaluationException("Module for compilation is not found")
-
-    val helper = EvaluatorCompileHelper.implementations.headOption.getOrElse {
-      ScalaEvaluatorCompileHelper.instance(module.getProject)
-    }
-    val compiled = helper.compile(fileText, module)
-    compiled.collect {
-      case (f, name) if name.contains(generatedClassName) => new OutputFileObject(f, name)
-    }
-  }
-}
-
-private object GeneratedClass {
-  var counter = 0
-  val generatedMethodName: String = "invoke"
-
-  def apply(fragment: ScalaCodeFragment, context: PsiElement): GeneratedClass = {
-    counter += 1
-
-    val generatedClassName = "GeneratedEvaluatorClass$" + counter
-    val file = context.getContainingFile
-
-    //create and modify non-physical copy first to avoid write action
-    val nonPhysicalCopy = copy(file, physical = false)
-    val range = context.getTextRange
-    val contextCopy = findElement(nonPhysicalCopy, range, context.getClass)
-
-    if (contextCopy == null) throw EvaluationException("Could not evaluate due to a change in a source file")
-
-    val (scClass, constructor) = addLocalClassAndConstructor(contextCopy, fragment, generatedClassName)
-    val newContextRange = constructor.getTextRange
-
-    //create physical file to work with source positions
-    val physicalCopy = copy(nonPhysicalCopy, physical = true)
-    val newContext = findElement(physicalCopy, newContextRange, classOf[ScNewTemplateDefinition])
-
-    physicalCopy.putUserData(ScalaCompilingEvaluator.classNameKey, generatedClassName)
-    physicalCopy.putUserData(ScalaCompilingEvaluator.originalFileKey, file)
-
-    GeneratedClass(physicalCopy, newContext, generatedClassName)
-  }
-
-  private def copy(file: PsiFile, physical: Boolean): PsiFile = {
-    val fileFactory = PsiFileFactory.getInstance(file.getProject)
-
-    fileFactory.createFileFromText(file.getName, file.getFileType, file.getText, file.getModificationStamp, physical)
-  }
-
-  private def findElement[T <: PsiElement](file: PsiFile, range: TextRange, elementClass: Class[T]): T =
-    findElementInRange(file, range.getStartOffset, range.getEndOffset, elementClass, file.getLanguage)
-
-  private def addLocalClassAndConstructor(contextCopy: PsiElement,
-                                          fragment: ScalaCodeFragment,
-                                          generatedClassName: String): (ScClass, ScNewTemplateDefinition) = {
-    @tailrec
-    def findAnchorAndParent(elem: PsiElement): (ScBlockStatement, PsiElement) = elem match {
-      case (stmt: ScBlockStatement) childOf (b: ScBlock) => (stmt, b)
-      case (stmt: ScBlockStatement) childOf (funDef: ScFunctionDefinition) if funDef.body.contains(stmt) => (stmt, funDef)
-      case (stmt: ScBlockStatement) childOf (nonExpr: PsiElement) => (stmt, nonExpr)
-      case _ =>
-        elem.parentOfType(classOf[ScBlockStatement]) match {
-          case Some(blockStatement) => findAnchorAndParent(blockStatement)
-          case _ => throw EvaluationException("Could not compile local class in this context")
-        }
+  class OutputFileObject(file: File, val origName: String) {
+    private def getUri(name: String): URI = {
+      URI.create("memo:///" + name.replace('.', '/') + ".class")
     }
 
-    var (prevParent, parent) = findAnchorAndParent(contextCopy)
+    def getName: String = getUri(origName).getPath
+    def toByteArray: Array[Byte] = FileUtil.loadFileBytes(file)
+  }
 
-    val needBraces = parent match {
-      case _: ScBlock | _: ScTemplateBody => false
-      case _ => true
+  private case class GeneratedClass(syntheticFile: PsiFile, newContext: PsiElement, generatedClassName: String) {
+
+    private val module: Module = inReadAction {
+      val originalFile = syntheticFile.getUserData(ScalaCompilingEvaluator.originalFileKey)
+      Option(originalFile).map(findModuleForPsiElement).orNull
     }
 
-    val anchor =
-      if (needBraces) {
-        val newBlock = createExpressionWithContextFromText(s"{\n${prevParent.getText}\n}", prevParent.getContext, prevParent)
-        parent = prevParent.replace(newBlock)
-        parent match {
-          case bl: ScBlock =>
-            bl.statements.head
-          case _ => throw EvaluationException("Could not compile local class in this context")
-        }
+    val callText = s"new $generatedClassName().$generatedMethodName()"
+
+    def compiledClasses: Seq[OutputFileObject] = compileGeneratedClass(syntheticFile.getText)
+
+    private def compileGeneratedClass(fileText: String): Seq[OutputFileObject] = {
+      if (module == null) throw EvaluationException("Module for compilation is not found")
+
+      val helper = EvaluatorCompileHelper.implementations.headOption.getOrElse {
+        ScalaEvaluatorCompileHelper.instance(module.getProject)
       }
-      else prevParent
-
-    val constructorInvocation =
-      createExpressionWithContextFromText(s"new $generatedClassName()", anchor.getContext, anchor)
-
-    implicit val ctx: ProjectContext = fragment.getProject
-
-    val classText = localClassText(fragment, generatedClassName)
-    val classToInsert = createTemplateDefinitionFromText(classText, anchor.getContext, anchor).asInstanceOf[ScClass]
-
-    val insertedClass = parent.addBefore(classToInsert, anchor)
-    parent.addBefore(createNewLine(), anchor)
-
-    //add constructor to synthetic file to avoid compiler optimizations
-    val insertedConstructor = parent.addBefore(constructorInvocation, anchor)
-    parent.addBefore(createNewLine(), anchor)
-
-    (insertedClass.asInstanceOf[ScClass], insertedConstructor.asInstanceOf[ScNewTemplateDefinition])
+      val compiled = helper.compile(fileText, module)
+      compiled.collect {
+        case (f, name) if name.contains(generatedClassName) => new OutputFileObject(f, name)
+      }
+    }
   }
 
-  private def localClassText(fragment: ScalaCodeFragment, generatedClassName: String): String = {
-    val fragmentImports = fragment.importsToString().split(",").filter(!_.isEmpty).map("import _root_." + _)
-    val importsText = fragmentImports.mkString("\n")
+  private object GeneratedClass {
+    var counter = 0
 
-    //todo type parameters?
-    s"""|class $generatedClassName {
-        |  def $generatedMethodName() = {
-        |    $importsText
-        |
-        |    ${fragment.getText}
-        |  }
-        |}""".stripMargin
+    def apply(fragment: ScalaCodeFragment, context: PsiElement): GeneratedClass = {
+      counter += 1
+
+      val generatedClassName = "GeneratedEvaluatorClass$" + counter
+      val file = context.getContainingFile
+
+      //create and modify non-physical copy first to avoid write action
+      val nonPhysicalCopy = copy(file, physical = false)
+      val range = context.getTextRange
+      val contextCopy = findElement(nonPhysicalCopy, range, context.getClass)
+
+      if (contextCopy == null) throw EvaluationException("Could not evaluate due to a change in a source file")
+
+      val (scClass, constructor) = addLocalClassAndConstructor(contextCopy, fragment, generatedClassName)
+      val newContextRange = constructor.getTextRange
+
+      //create physical file to work with source positions
+      val physicalCopy = copy(nonPhysicalCopy, physical = true)
+      val newContext = findElement(physicalCopy, newContextRange, classOf[ScNewTemplateDefinition])
+
+      physicalCopy.putUserData(ScalaCompilingEvaluator.classNameKey, generatedClassName)
+      physicalCopy.putUserData(ScalaCompilingEvaluator.originalFileKey, file)
+
+      GeneratedClass(physicalCopy, newContext, generatedClassName)
+    }
+
+    private def copy(file: PsiFile, physical: Boolean): PsiFile = {
+      val fileFactory = PsiFileFactory.getInstance(file.getProject)
+
+      fileFactory.createFileFromText(file.getName, file.getFileType, file.getText, file.getModificationStamp, physical)
+    }
+
+    private def findElement[T <: PsiElement](file: PsiFile, range: TextRange, elementClass: Class[T]): T =
+      findElementInRange(file, range.getStartOffset, range.getEndOffset, elementClass, file.getLanguage)
+
+    private def addLocalClassAndConstructor(contextCopy: PsiElement,
+                                            fragment: ScalaCodeFragment,
+                                            generatedClassName: String): (ScClass, ScNewTemplateDefinition) = {
+      @tailrec
+      def findAnchorAndParent(elem: PsiElement): (ScBlockStatement, PsiElement) = elem match {
+        case (stmt: ScBlockStatement) childOf (b: ScBlock) => (stmt, b)
+        case (stmt: ScBlockStatement) childOf (funDef: ScFunctionDefinition) if funDef.body.contains(stmt) => (stmt, funDef)
+        case (stmt: ScBlockStatement) childOf (nonExpr: PsiElement) => (stmt, nonExpr)
+        case _ =>
+          elem.parentOfType(classOf[ScBlockStatement]) match {
+            case Some(blockStatement) => findAnchorAndParent(blockStatement)
+            case _ => throw EvaluationException("Could not compile local class in this context")
+          }
+      }
+
+      var (prevParent, parent) = findAnchorAndParent(contextCopy)
+
+      val needBraces = parent match {
+        case _: ScBlock | _: ScTemplateBody => false
+        case _ => true
+      }
+
+      val anchor =
+        if (needBraces) {
+          val newBlock = createExpressionWithContextFromText(s"{\n${prevParent.getText}\n}", prevParent.getContext, prevParent)
+          parent = prevParent.replace(newBlock)
+          parent match {
+            case bl: ScBlock =>
+              bl.statements.head
+            case _ => throw EvaluationException("Could not compile local class in this context")
+          }
+        }
+        else prevParent
+
+      val constructorInvocation =
+        createExpressionWithContextFromText(s"new $generatedClassName()", anchor.getContext, anchor)
+
+      implicit val ctx: ProjectContext = fragment.getProject
+
+      val classText = localClassText(fragment, generatedClassName)
+      val classToInsert = createTemplateDefinitionFromText(classText, anchor.getContext, anchor).asInstanceOf[ScClass]
+
+      val insertedClass = parent.addBefore(classToInsert, anchor)
+      parent.addBefore(createNewLine(), anchor)
+
+      //add constructor to synthetic file to avoid compiler optimizations
+      val insertedConstructor = parent.addBefore(constructorInvocation, anchor)
+      parent.addBefore(createNewLine(), anchor)
+
+      (insertedClass.asInstanceOf[ScClass], insertedConstructor.asInstanceOf[ScNewTemplateDefinition])
+    }
+
+    private def localClassText(fragment: ScalaCodeFragment, generatedClassName: String): String = {
+      val fragmentImports = fragment.importsToString().split(",").filter(!_.isEmpty).map("import _root_." + _)
+      val importsText = fragmentImports.mkString("\n")
+
+      //todo type parameters?
+      s"""|class $generatedClassName {
+          |  def $generatedMethodName() = {
+          |    $importsText
+          |
+          |    ${fragment.getText}
+          |  }
+          |}""".stripMargin
+    }
   }
 }
+
