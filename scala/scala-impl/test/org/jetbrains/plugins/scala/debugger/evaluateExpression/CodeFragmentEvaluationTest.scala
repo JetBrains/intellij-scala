@@ -18,8 +18,9 @@ class CodeFragmentEvaluationTest_2_12 extends CodeFragmentEvaluationTestBase {
 @Category(Array(classOf[DebuggerTests]))
 abstract class CodeFragmentEvaluationTestBase extends ScalaDebuggerTestCase with ScalaSdkOwner {
 
-  addFileWithBreakpoints ( "CodeFragments.scala",
-    s"""
+  addFileWithBreakpoints ("CodeFragments.scala",
+    s"""package test
+       |
        |object CodeFragments {
        |  var n = 0
        |  def main(args: Array[String]) {
@@ -31,7 +32,7 @@ abstract class CodeFragmentEvaluationTestBase extends ScalaDebuggerTestCase with
   )
 
   def testCodeFragments(): Unit = {
-    evaluateCodeFragments(
+    evaluateCodeFragments("test.CodeFragments",
       """1 + 1
         |2 + 2
         |3 + 3""" -> "6",

@@ -149,7 +149,8 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
   }
 
   setupFile("LocalClassInAnonClass.scala",
-    s"""
+    s"""package test
+       |
        |object LocalClassInAnonClass {
        |  def main(args: Array[String]) {
        |    val r = new Runnable() {
@@ -167,7 +168,9 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
        |}
     """.stripMargin.trim)
   def testLocalClassInAnonClass(): Unit = {
-    checkGetAllClasses("LocalClassInAnonClass$$anon$1$A", "LocalClassInAnonClass$$anon$1")
+    checkGetAllClassesRunning("test.LocalClassInAnonClass")(
+      "test.LocalClassInAnonClass$$anon$1$A", "test.LocalClassInAnonClass$$anon$1"
+    )
   }
 
   setupFile("LocalObject.scala",

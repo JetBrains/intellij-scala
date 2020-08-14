@@ -19,10 +19,10 @@ abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
   protected val offsetMarker = "<offset>"
   protected val sourcePositionsOffsets = mutable.HashMap[String, Seq[Int]]()
 
-  protected def checkGetAllClassesInFile(fileName: String)(expectedClassNames: String*): Unit = {
+  protected def checkGetAllClassesInFile(fileName: String, mainClass: String = mainClassName)(expectedClassNames: String*): Unit = {
     val sourcePositions = sourcePositionsInFile(fileName)
 
-    runDebugger() {
+    runDebugger(mainClass) {
       waitForBreakpoint()
       for ((position, className) <- sourcePositions.zip(expectedClassNames)) {
         val classes = managed {
@@ -37,13 +37,20 @@ abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
     }
   }
 
-  protected def checkGetAllClasses(expectedClassNames: String*): Unit = checkGetAllClassesInFile(mainFileName)(expectedClassNames: _*)
+  protected def checkGetAllClassesRunning(mainClass: String)(expectedClassNames: String*): Unit =
+    checkGetAllClassesInFile(mainFileName, mainClass)(expectedClassNames: _*)
 
-  protected def checkLocationsOfLine(expectedLocations: Set[Loc]*): Unit = {
+  protected def checkGetAllClasses(expectedClassNames: String*): Unit =
+    checkGetAllClassesRunning(mainClassName)(expectedClassNames: _*)
+
+  protected def checkLocationsOfLine(expectedLocations: Set[Loc]*): Unit =
+    checkLocationsOfLine(mainClassName, expectedLocations: _*)
+
+  protected def checkLocationsOfLine(mainClass: String, expectedLocations: Set[Loc]*): Unit = {
     val sourcePositions = sourcePositionsInFile(mainFileName)
     Assert.assertEquals("Wrong number of expected locations sets: ", sourcePositions.size, expectedLocations.size)
 
-    runDebugger() {
+    runDebugger(mainClass) {
       waitForBreakpoint()
 
       def checkSourcePosition(initialPosition: SourcePosition, location: Location): Unit = {
