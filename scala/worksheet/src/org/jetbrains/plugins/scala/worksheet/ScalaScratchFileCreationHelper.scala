@@ -20,12 +20,15 @@ final class ScalaScratchFileCreationHelper extends ScratchFileCreationHelper {
       context.language = WorksheetLanguage.INSTANCE
       true
     } else if (StringUtils.isBlank(context.text)) {
-      val caretMarker = "CARET_MARKER"
-      val textOneLine = s"object Scratch {def main(args: Array[String]): Unit = {$caretMarker}}"
-      val text = ScratchFileCreationHelper.reformat(project, context.language, textOneLine)
-      context.caretOffset = text.indexOf(caretMarker)
-      context.text = text.replace(caretMarker, "")
-      true
+      // TODO (minor): Running of scala scratch files in non-worksheet mode doesn't work now
+      //  (and didn't work before)
+      //val caretMarker = "CARET_MARKER"
+      //val textOneLine = s"object Scratch {def main(args: Array[String]): Unit = {$caretMarker}}"
+      //val text = ScratchFileCreationHelper.reformat(project, context.language, textOneLine)
+      //context.caretOffset = text.indexOf(caretMarker)
+      //context.text = text.replace(caretMarker, "")
+      //true
+      false
     } else {
       super.prepareText(project, context, dataContext)
     }
