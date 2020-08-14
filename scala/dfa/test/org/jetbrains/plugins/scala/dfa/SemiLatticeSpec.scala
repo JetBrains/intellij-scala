@@ -63,13 +63,14 @@ trait SemiLatticeSpec[L] extends AnyPropSpec with Whenever with ForAllChecker wi
   }
 
   /************************ additional constraints ************************/
-  property("(X intersects Y) => (X <= Y || Y <= X)") {
-    forAll { (x: L, y: L) =>
-      whenever(x intersects y) {
-        assert(x <= y || y <= x)
-      }
-    }
-  }
+  // this is wrong in product- or powerset-lattices, because they can have things in common while not being ordered
+  //property("(X intersects Y) => (X <= Y || Y <= X)") {
+  //  forAll { (x: L, y: L) =>
+  //    whenever(x intersects y) {
+  //      assert(x <= y || y <= x)
+  //    }
+  //  }
+  //}
 
   property("(X < Y) <=> (X <= Y and X != Y)") {
     forAll { (x: L, y: L) =>
@@ -86,6 +87,14 @@ trait SemiLatticeSpec[L] extends AnyPropSpec with Whenever with ForAllChecker wi
   property("(X > Y) <=> (Y < X)") {
     forAll { (x: L, y: L) =>
       (x > y) shouldBe (y < x)
+    }
+  }
+
+  property("Equal elements have equal hash") {
+    forAll { (x: L, y: L) =>
+      whenever(x == y) {
+        x.hashCode() shouldBe y.hashCode()
+      }
     }
   }
 }
