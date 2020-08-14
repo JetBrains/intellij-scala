@@ -145,7 +145,8 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
   }
 
   addFileWithBreakpoints("InArguments.scala",
-    s"""
+    s"""package test
+       |
        |object InArguments {
        |
        |  def foo(a: B, a1: B) = {}
@@ -167,14 +168,14 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
        |}""".stripMargin.trim()
   )
   def testInArguments(): Unit = {
-    runDebugger() {
+    runDebugger("test.InArguments") {
       waitForBreakpoint()
       checkSmartStepTargets("foo(B, B)", "new B(int)", "id()")
-      checkSmartStepInto("new B(int)", "InArguments.scala", "<init>", 11)
+      checkSmartStepInto("new B(int)", "InArguments.scala", "<init>", 13)
     }
-    runDebugger() {
+    runDebugger("test.InArguments") {
       waitForBreakpoint()
-      checkSmartStepInto("id()", "InArguments.scala", "id", 14)
+      checkSmartStepInto("id()", "InArguments.scala", "id", 16)
     }
   }
 

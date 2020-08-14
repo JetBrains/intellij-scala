@@ -384,14 +384,18 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
       result.startsWith(startsWith))
   }
 
-  protected def evaluateCodeFragments(fragmentsWithResults: (String, String)*): Unit = {
-    runDebugger() {
+  protected def evaluateCodeFragments(mainClass: String, fragmentsWithResults: (String, String)*): Unit = {
+    runDebugger(mainClass) {
       waitForBreakpoint()
       fragmentsWithResults.foreach {
         case (fragment, result) => evalEquals(fragment.stripMargin.trim().replace("\r", ""), result)
       }
     }
   }
+
+  protected def evaluateCodeFragments(fragmentsWithResults: (String, String)*): Unit =
+    evaluateCodeFragments(mainClassName, fragmentsWithResults: _*)
+
 
   def atNextBreakpoint(action: => Unit): Unit = {
     resume()

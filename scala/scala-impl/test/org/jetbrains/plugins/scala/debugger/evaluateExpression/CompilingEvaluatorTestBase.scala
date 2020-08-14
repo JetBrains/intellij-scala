@@ -131,7 +131,8 @@ abstract class CompilingEvaluatorTestBase extends ScalaDebuggerTestCase {
   }
 
   addFileWithBreakpoints("AddBraces.scala",
- s"""
+ s"""package test
+    |
     |object AddBraces {
     |  def main(args: Array[String]) {
     |    foo()
@@ -141,7 +142,7 @@ abstract class CompilingEvaluatorTestBase extends ScalaDebuggerTestCase {
     |}
   """.stripMargin.trim)
   def testAddBraces(): Unit = {
-    evaluateCodeFragments(
+    evaluateCodeFragments("test.AddBraces",
       "None.getOrElse(foo())" -> "foo",
 
       """def bar = "bar"

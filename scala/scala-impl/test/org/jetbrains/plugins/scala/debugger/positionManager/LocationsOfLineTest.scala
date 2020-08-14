@@ -20,15 +20,15 @@ class LocationOfLineTest_since_2_12 extends LocationsOfLineTestBase {
   }
 
   override def testMultilevel(): Unit = {
-    checkLocationsOfLine(
-      Set(Loc("Multilevel$This$1", "<init>", 18)),  //location for constructor is customized
-      Set(Loc("Multilevel$This$1", "<init>", 4)),
-      Set(Loc("Multilevel$This$1", "foo", 6)),
-      Set(Loc("Multilevel$This$1$$anon$1", "<init>", 6)),
-      Set(Loc("Multilevel$This$1$$anon$1", "run", 8)),
-      Set(Loc("Multilevel$This$1$$anon$1", "run", 8)),
-      Set(Loc("Multilevel$This$1$$anon$1", "$anonfun$run$1", 9)),
-      Set(Loc("Multilevel$", "main", 18))
+    checkLocationsOfLine("test.Multilevel",
+      Set(Loc("test.Multilevel$This$1", "<init>", 20)),  //location for constructor is customized
+      Set(Loc("test.Multilevel$This$1", "<init>", 6)),
+      Set(Loc("test.Multilevel$This$1", "foo", 8)),
+      Set(Loc("test.Multilevel$This$1$$anon$1", "<init>", 8)),
+      Set(Loc("test.Multilevel$This$1$$anon$1", "run", 10)),
+      Set(Loc("test.Multilevel$This$1$$anon$1", "run", 10)),
+      Set(Loc("test.Multilevel$This$1$$anon$1", "$anonfun$run$1", 11)),
+      Set(Loc("test.Multilevel$", "main", 20))
     )
   }
 }
@@ -142,7 +142,8 @@ abstract class LocationsOfLineTestBase extends PositionManagerTestBase {
   }
 
   setupFile("Multilevel.scala",
-    s"""
+     s"""package test
+        |
         |object Multilevel {
         |  def main(args: Array[String]) {
         |    ${offsetMarker}class This {
@@ -164,15 +165,15 @@ abstract class LocationsOfLineTestBase extends PositionManagerTestBase {
         |  }
         |}""".stripMargin.trim)
   def testMultilevel(): Unit = {
-    checkLocationsOfLine(
-      Set(Loc("Multilevel$This$1", "<init>", 18)),  //location for constructor is customized
-      Set(Loc("Multilevel$This$1", "<init>", 4)),
-      Set(Loc("Multilevel$This$1", "foo", 6)),
-      Set(Loc("Multilevel$This$1$$anon$1", "<init>", 6)),
-      Set(Loc("Multilevel$This$1$$anon$1", "run", 8)),
-      Set(Loc("Multilevel$This$1$$anon$1", "run", 8)),
-      Set(Loc("Multilevel$This$1$$anon$1$$anonfun$1", "apply", 9)),
-      Set(Loc("Multilevel$", "main", 18))
+    checkLocationsOfLine("test.Multilevel",
+      Set(Loc("test.Multilevel$This$1", "<init>", 20)),  //location for constructor is customized
+      Set(Loc("test.Multilevel$This$1", "<init>", 6)),
+      Set(Loc("test.Multilevel$This$1", "foo", 8)),
+      Set(Loc("test.Multilevel$This$1$$anon$1", "<init>", 8)),
+      Set(Loc("test.Multilevel$This$1$$anon$1", "run", 10)),
+      Set(Loc("test.Multilevel$This$1$$anon$1", "run", 10)),
+      Set(Loc("test.Multilevel$This$1$$anon$1$$anonfun$1", "apply", 11)),
+      Set(Loc("test.Multilevel$", "main", 20))
     )
   }
 
