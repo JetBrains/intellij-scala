@@ -94,8 +94,6 @@ private case class Feature(@Nls name: String,
     e.getContainingFile match {
       case null => None
       case file =>
-        // TODO: maybe cache the profile for file
-        //  investigate the performance for this method
         val provided = ScalaCompilerSettingsProfileProvider.settingsFor(file)
         provided.orElse(file.module.map(_.scalaCompilerSettingsProfile))
     }
