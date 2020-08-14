@@ -102,25 +102,6 @@ trait TypePresentation {
   }
 }
 
-// TODO: remove, this is left to minimize change diff
-@deprecated("use TypePresentation instead")
-object ScTypePresentation {
-
-  val ABSTRACT_TYPE_POSTFIX: String =
-    TypePresentation.ABSTRACT_TYPE_POSTFIX
-
-  def different(t1: ScType, t2: ScType)
-               (implicit context: TypePresentationContext): (String, String) =
-    TypePresentation.different(t1, t2)
-
-  def shouldExpand(typeAlias: ScTypeAliasDefinition): Boolean =
-    TypePresentation.shouldExpand(typeAlias)
-
-  def withoutAliases(`type`: ScType)
-                    (implicit context: TypePresentationContext): String =
-    TypePresentation.withoutAliases(`type`)
-}
-
 object TypePresentation {
 
   val ABSTRACT_TYPE_POSTFIX = "_"
