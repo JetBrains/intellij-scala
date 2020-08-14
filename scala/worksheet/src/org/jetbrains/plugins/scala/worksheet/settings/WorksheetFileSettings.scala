@@ -11,7 +11,7 @@ import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.extensions.TraversableExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, TraversableExt}
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
@@ -141,7 +141,7 @@ object WorksheetFileSettings extends WorksheetPerFileConfig {
 
   def getModuleForScratchFile(file: VirtualFile, project: Project): Option[Module] = {
     val moduleName = getModuleName(file)
-    val module1 = moduleName.map(ModuleManager.getInstance(project).findModuleByName)
+    val module1 = moduleName.flatMap(ModuleManager.getInstance(project).findModuleByName(_).toOption)
     val module2 = module1.orElse(Option(WorksheetProjectSettings(project).getModuleFor))
     module2
   }
