@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.util
 
+import java.util.stream.Collectors
+import java.util
+
 import com.intellij.debugger.engine.{DebugProcess, DebugProcessImpl, JVMName, JVMNameUtil}
 import com.intellij.debugger.{JavaDebuggerBundle, NoDataException, SourcePosition}
 import com.intellij.lang.ASTNode
@@ -11,6 +14,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.sun.jdi.{Field, ObjectReference, ReferenceType}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
+import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaCompilingEvaluator
 import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, ScalaEvaluatorBuilderUtil}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
@@ -276,15 +280,33 @@ object DebuggerUtil {
   }
 
   def jvmClassAtPosition(sourcePosition: SourcePosition, debugProcess: DebugProcess): Option[ReferenceType] = {
-    val allClasses = try {
-      debugProcess.getPositionManager.getAllClasses(sourcePosition)
-    } catch {
-      case _: NoDataException => return None
-    }
+    ScalaCompilingEvaluator.findGeneratedClass(debugProcess, sourcePosition) match {
+      case None =>
+        val allClasses = try {
+          debugProcess.getPositionManager.getAllClasses(sourcePosition)
+        } catch {
+          case _: NoDataException => return None
+        }
 
-    if (!allClasses.isEmpty) Some(allClasses.get(0))
-    else None
+        if (!allClasses.isEmpty) Some(allClasses.get(0))
+        else None
+      case generated => generated
+    }
   }
+
+  def filterAllClasses(debugProcess: DebugProcess)(condition: ReferenceType => Boolean): util.List[ReferenceType] = {
+    def isAppropriate(refType: ReferenceType) =
+      try refType.isInitialized && condition(refType)
+      catch {
+        case _: Exception => false // todo: better exception handling
+      }
+
+    debugProcess.getVirtualMachineProxy.allClasses
+      .stream()
+      .filter(isAppropriate)
+      .collect(Collectors.toList[ReferenceType])
+  }
+
 
   def withoutBackticks(name: String): String = {
     val backticked = """\$u0060(.+)\$u0060""".r

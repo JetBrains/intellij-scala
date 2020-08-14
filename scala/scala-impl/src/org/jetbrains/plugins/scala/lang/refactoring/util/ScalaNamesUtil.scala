@@ -91,6 +91,9 @@ object ScalaNamesUtil {
   def cleanFqn(fqn: String): String =
     fqnWithTransformation(fqn)(clean)
 
+  def toJavaFqn(fqn: String): String =
+    fqnWithTransformation(fqn)(toJavaName)
+
   def equivalentFqn(l: String, r: String): Boolean =
     l == r || cleanFqn(l) == cleanFqn(r)
 
