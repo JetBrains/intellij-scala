@@ -5,5 +5,10 @@ class DfUnitLatticeSpec extends LatticeSpec[DfUnit] {
   override protected def lattice: Lattice[DfUnit] = DfUnit.lattice
 
   override protected def latticeElementSamples: Seq[DfUnit] =
+    DfUnitLatticeSpec.latticeElementSamples
+}
+
+object DfUnitLatticeSpec {
+  val latticeElementSamples: Seq[DfUnit] =
     Seq(DfUnit.Top, DfUnit.Bottom)
 }

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package dfa
 
-import org.jetbrains.plugins.scala.dfa.lattice.{BinaryLattice, FlatLattice}
+import org.jetbrains.plugins.scala.dfa.lattice.{BinaryLattice, FlatLattice, ProductLattice}
 
 
 /*************************** Any (Top) **************************/
@@ -9,18 +9,44 @@ sealed trait DfAny extends Any with Product with Serializable {
   def toBoolLat: BoolLat = BoolLat.Bottom
 }
 object DfAny {
-  case object Top extends DfAny
+  case object Top extends DfAny {
+    override def toString: String = "DfAny.Top"
+  }
   sealed trait Concrete extends DfAny
   val Bottom: DfNothing.type = DfNothing
 }
 
 
-/**************************** AnyRef ****************************/
+/**************************** AnyVal ****************************/
 sealed trait DfAnyVal extends DfAny
 object DfAnyVal {
-  //val Top = join[DfAny](DfBool.Top, DfInt.Top, ...)
+  lazy val Top: DfAnyVal = join[DfAnyVal](DfUnit.Top, DfBool.Top, DfInt.Top)
   sealed trait Concrete extends DfAnyVal with DfAny.Concrete
-  val Bottom: DfNothing = DfNothing
+  val Bottom: DfAnyVal = DfNothing
+
+  implicit val lattice: Lattice[DfAnyVal] = new ProductLattice[DfAnyVal](Top, Bottom, Array(DfUnit.lattice, DfBool.lattice, DfInt.lattice)) {
+    override protected def createTuple(elements: Array[DfAnyVal]): DfAnyVal = {
+      if (elements.forall(_ == DfNothing)) DfNothing
+      else {
+        case class DfAnyValProductTuple(override val elements: Array[DfAnyVal]) extends ProductTupleBase with DfAnyVal {
+          override def toString: String = elements.mkString(" | ")
+          override def hashCode(): Int = elements.deep.hashCode() + 333
+          override def equals(o: Any): Boolean = o match {
+            case o: DfAnyValProductTuple => elements.sameElements(o.elements)
+            case _ => false
+          }
+        }
+        DfAnyValProductTuple(elements)
+      }
+    }
+
+    override protected def indexOf(element: DfAnyVal): Option[Int] = element match {
+      case DfNothing => None
+      case _: DfUnit => Some(0)
+      case _: DfBool => Some(1)
+      case _: DfInt.Abstract => Some(2)
+    }
+  }
 }
 
 
@@ -29,6 +55,7 @@ trait DfBool extends DfAnyVal
 object DfBool {
   case object Top extends DfBool {
     override def toBoolLat: BoolLat = BoolLat.Top
+    override def toString: String = "DfBool.Top"
   }
   sealed trait Concrete extends DfBool with DfAnyVal.Concrete
   object Concrete {
@@ -40,9 +67,11 @@ object DfBool {
 
   case object True extends Concrete {
     override def toBoolLat: BoolLat = BoolLat.True
+    override def toString: String = "DfTrue"
   }
   case object False extends Concrete {
     override def toBoolLat: BoolLat = BoolLat.False
+    override def toString: String = "DfFalse"
   }
 
   final val Bottom: DfNothing.type = DfNothing
@@ -83,13 +112,17 @@ object DfNumeric {
   final object FloatKind extends FloatingPointKind(java.lang.Float.BYTES)
   final object DoubleKind extends FloatingPointKind(java.lang.Double.BYTES)
 
-  abstract class KindFactory[@specialized(Byte, Char, Short, Int, Long, Float, Double) T <: AnyVal](val kind: Kind) {
+  abstract class KindFactory[@specialized(Byte, Char, Short, Int, Long, Float, Double) T <: AnyVal](val kind: Kind, name: String) {
     sealed trait Abstract extends DfAbstractNumeric {
       override def kind: Kind = KindFactory.this.kind
     }
 
-    final case object Top extends Abstract
-    final case class Concrete(value: T) extends Abstract
+    final case object Top extends Abstract {
+      override def toString: String = s"$name.Top"
+    }
+    final case class Concrete(value: T) extends Abstract {
+      override def toString: String = s"$name[$value]"
+    }
     final val Bottom: Abstract = initialBottom
 
     implicit final val lattice: Lattice[Abstract] = new FlatLattice[Abstract](Top, Bottom)
@@ -101,7 +134,7 @@ object DfNumeric {
   }
 }
 
-object DfInt extends DfNumeric.KindFactory[Int](DfNumeric.IntKind) { protected[this] override def initialBottom: Abstract = DfNothing }
+object DfInt extends DfNumeric.KindFactory[Int](DfNumeric.IntKind, "DfInt") { protected[this] override def initialBottom: Abstract = DfNothing }
 
 
 /****************************** Unit ****************************/
@@ -109,7 +142,9 @@ sealed trait DfUnit extends DfAnyVal
 case object DfUnit  {
   val Top: Concrete = Concrete
   type Concrete = Concrete.type
-  case object Concrete extends DfUnit with DfAnyVal.Concrete
+  case object Concrete extends DfUnit with DfAnyVal.Concrete {
+    override def toString: String = "DfUnit.Top"
+  }
   val Bottom: DfUnit = DfNothing
 
   implicit val lattice: Lattice[DfUnit] = new BinaryLattice(Top, Bottom)

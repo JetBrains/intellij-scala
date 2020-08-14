@@ -70,7 +70,9 @@ trait MeetSemiLatticeSpec[L] extends SemiLatticeSpec[L] with TableDrivenProperty
 
   property("meet is associative") {
     forAll { (x: L, y: L, z: L) =>
-      ((x meet y) meet z) shouldBe (x meet (y meet z))
+      withClue(s"With [(x meet y) = ${x meet y}] and [(y meet z) = ${y meet z}]:") {
+        ((x meet y) meet z) shouldBe (x meet (y meet z))
+      }
     }
   }
 
