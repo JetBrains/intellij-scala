@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala
 package debugger
 
-import java.util.Collections.singletonList
+import java.io.File
+import java.util.Collections.{emptyList, singletonList}
 import java.{util => ju}
 
 import com.intellij.debugger.engine._
@@ -34,11 +35,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern,
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.toJavaFqn
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.annotation.tailrec
@@ -53,7 +53,6 @@ import scala.util.Try
 class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManager with MultiRequestPositionManager with LocationLineManager {
 
   protected[debugger] val caches = new ScalaPositionManagerCaches(debugProcess)
-  private val outerAndNestedTypePartsPattern = """([^\$]*)(\$.*)?""".r
   import caches._
 
   private val debugProcessScope: ElementScope = ElementScope(debugProcess.getProject, debugProcess.getSearchScope)
@@ -84,77 +83,29 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   @NotNull
   override def getAllClasses(@NotNull position: SourcePosition): ju.List[ReferenceType] = {
     val file = position.getFile
-    throwIfNotScalaFile(file)
+    val sourceName = file.name
 
-    val generatedClassName = file.getUserData(ScalaCompilingEvaluator.classNameKey)
-
-    def hasLocations(refType: ReferenceType, position: SourcePosition): Boolean = {
-      try {
-        val generated = isGeneratedClass(generatedClassName, refType)
-        lazy val sameFile = getPsiFileByReferenceType(refType) == file
-
-        generated || sameFile && locationsOfLine(refType, position).size > 0
-      } catch {
-        case _: NoDataException | _: AbsentInformationException | _: ClassNotPreparedException | _: ObjectCollectedException => false
-      }
+    val topLevelClassNames = inReadAction {
+      positionsOnLine(file, position.getLine)
+        .flatMap(_.withParents.filterByType[ScTypeDefinition].lastOption)
+        .map(_.qualifiedName)
+        .distinct
     }
 
-    val exactClasses = mutable.ArrayBuffer.empty[ReferenceType]
-    val namePatterns = mutable.Set[NamePattern]()
-    var packageName: Option[String] = None
+    if (topLevelClassNames.isEmpty) emptyList()
+    else {
+      val pckgName = toJavaFqn(packageName(topLevelClassNames.head))
 
-    inReadAction {
-      val possiblePositions = positionsOnLine(file, position.getLine)
-
-      packageName = possiblePositions.headOption.flatMap(findPackageName)
-
-      val onTheLine = possiblePositions.map(findGeneratingClassOrMethodParent)
-      if (onTheLine.isEmpty) return ju.Collections.emptyList()
-      val nonLambdaParent =
-        if (isCompiledWithIndyLambdas(file)) {
-          val nonStrictParents = onTheLine.head.withParentsInFile
-          nonStrictParents.find(p => ScalaEvaluatorBuilderUtil.isGenerateNonAnonfunClass(p))
-        } else None
-
-      def addExactClasses(td: ScTypeDefinition): Unit = {
-        val qName = getSpecificNameForDebugger(td)
-        val additional = td match {
-          case _: ScTrait =>
-            qName.stripSuffix("$class") :: Nil
-          case c: ScClass if ValueClassType.isValueClass(c) =>
-            s"$qName$$" :: Nil
-          case c if isDelayedInit(c) =>
-            s"$qName$delayedInitBody" :: Nil
-          case _ => Nil
-        }
-        (qName :: additional).foreach { name =>
-          exactClasses ++= debugProcess.getVirtualMachineProxy.classesByName(name).asScala
-        }
-      }
-
-      val sourceImages = onTheLine ++ nonLambdaParent
-      sourceImages.foreach {
-        case null =>
-        case td: ScTypeDefinition if !isLocalClass(td) =>
-          addExactClasses(td)
-        case elem =>
-          val namePattern = NamePattern.forElement(elem)
-          namePatterns ++= Option(namePattern)
+      filterAllClasses(debugProcess) { refType =>
+        refType.name().startsWith(pckgName) &&
+          cachedSourceName(refType).contains(sourceName) &&
+          locationsOfLine(refType, position).size > 0
       }
     }
-
-    val foundWithPattern =
-      if (namePatterns.isEmpty) Nil
-      else filterAllClasses(c => hasLocations(c, position) && namePatterns.exists(_.matches(c)), packageName)
-    val distinctExactClasses = exactClasses.distinct
-    val loadedNestedClasses = getNestedClasses(distinctExactClasses).filter(hasLocations(_, position))
-
-    (distinctExactClasses ++ foundWithPattern ++ loadedNestedClasses).distinct.asJava
   }
 
   @NotNull
   override def locationsOfLine(@NotNull refType: ReferenceType, @NotNull position: SourcePosition): ju.List[Location] = {
-    throwIfNotScalaFile(position.getFile)
     checkForIndyLambdas(refType)
 
     try {
@@ -191,34 +142,11 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     case _ => false
   }
 
-  private def findPackageName(position: PsiElement): Option[String] = {
-    def packageWithName(e: PsiElement): Option[String] = e match {
-      case p: ScPackaging => Some(p.fullPackageName)
-      case obj: ScObject if obj.isPackageObject => Some(obj.qualifiedName.stripSuffix("package$"))
-      case _ => None
-    }
+  private def packageName(qName: String): String = {
+    val lastDot = qName.lastIndexOf('.')
 
-    position.parentsInFile.flatMap(packageWithName).headOption
-  }
-
-  private def filterAllClasses(condition: ReferenceType => Boolean, packageName: Option[String]): Seq[ReferenceType] = {
-    def samePackage(refType: ReferenceType) = {
-      val name = nonLambdaName(refType)
-      val lastDot = name.lastIndexOf('.')
-      val refTypePackageName = if (lastDot < 0) "" else name.substring(0, lastDot)
-      packageName.isEmpty || packageName.contains(refTypePackageName)
-    }
-
-    def isAppropriate(refType: ReferenceType) = {
-      Try(samePackage(refType) && refType.isInitialized && condition(refType)).getOrElse(false)
-    }
-
-    for {
-      refType <- debugProcess.getVirtualMachineProxy.allClasses.asScala
-      if isAppropriate(refType)
-    } yield {
-      refType
-    }
+    if (lastDot < 0) qName
+    else qName.substring(0, lastDot)
   }
 
   protected def nonWhitespaceElement(@NotNull position: SourcePosition): PsiElement = {
@@ -550,26 +478,9 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       case name => name
     }
   }
-
-  /**
-   * Retrieve potentially nested classes currently loaded to VM just by iterating all classes and taking into account
-   * the name mangling - instead of using VirtualMachineProxy's nestedTypes method (with caches etc.).
-   */
-  private def getNestedClasses(outerClasses: Seq[ReferenceType]) = {
-    for {
-      outer <- outerClasses
-      nested <- debugProcess.getVirtualMachineProxy.allClasses().asScala
-      if outer != nested && extractOuterTypeName(nested.name) == outer.name
-    } yield nested
-  }
-
-  private def extractOuterTypeName(typeName: String) = typeName match {
-    case outerAndNestedTypePartsPattern(outerTypeName, _) => outerTypeName
-  }
 }
 
 object ScalaPositionManager {
-  private val delayedInitBody = "delayedInit$body"
 
   private val isCompiledWithIndyLambdasCache = mutable.HashMap[PsiFile, Boolean]()
 
@@ -716,11 +627,11 @@ object ScalaPositionManager {
   }
 
   def isCompiledWithIndyLambdas(file: PsiFile): Boolean = {
-    if (file == null) false
-    else {
-      val originalFile = Option(file.getUserData(ScalaCompilingEvaluator.originalFileKey)).getOrElse(file)
-      isCompiledWithIndyLambdasCache.getOrElse(originalFile, false)
-    }
+    if (file == null)
+      return false
+
+    val originalFile = ScalaCompilingEvaluator.originalFile(file)
+    isCompiledWithIndyLambdasCache.getOrElse(originalFile, false)
   }
 
   @tailrec
@@ -816,8 +727,8 @@ object ScalaPositionManager {
 
   private class NamePattern(elem: PsiElement) {
     private val containingFile = elem.getContainingFile
-    private val sourceName = containingFile.getName
-    private val isGeneratedForCompilingEvaluator = containingFile.getUserData(ScalaCompilingEvaluator.classNameKey) != null
+    private val sourceName = containingFile.name
+    private val isGeneratedForCompilingEvaluator = ScalaCompilingEvaluator.isGenerated(containingFile)
     private var compiledWithIndyLambdas = isCompiledWithIndyLambdas(containingFile)
     private val exactName: Option[String] = {
       elem match {
