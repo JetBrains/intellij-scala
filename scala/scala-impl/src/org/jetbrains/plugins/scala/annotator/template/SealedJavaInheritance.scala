@@ -29,7 +29,7 @@ object SealedJavaInheritance {
                                       (implicit holder: ScalaAnnotationHolder): Unit =
     references.foreach {
       case reference@ResolvesTo(ErrorAnnotationMessage(message)) =>
-        holder.createErrorAnnotation(reference, message)
+        holder.createErrorAnnotation(reference, message.nls)
       case _ =>
     }
 }

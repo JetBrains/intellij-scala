@@ -5,7 +5,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiReference}
 import com.intellij.refactoring.move.MoveHandlerDelegate
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -19,7 +19,7 @@ class ScalaMoveMembersHandler extends MoveHandlerDelegate {
       case _: ScTypeDefinition | _: ScClassParameter => false
       case NotSupportedMember(message) =>
         val refactoringName = ScalaBundle.message("move.members")
-        ScalaRefactoringUtil.showErrorHint(message, refactoringName, null)(project, editor)
+        ScalaRefactoringUtil.showErrorHint(message.nls, refactoringName, null)(project, editor)
         true
       case objectMember(obj, member) =>
         val dialog = new ScalaMoveMembersDialog(project, true, obj, member)
@@ -35,15 +35,15 @@ class ScalaMoveMembersHandler extends MoveHandlerDelegate {
   }
 
   private object NotSupportedMember {
-    def unapply(member: ScMember): Option[String] = {
+    def unapply(member: ScMember): Option[NlsString] = {
       if (ScalaPsiUtil.hasImplicitModifier(member))
-        Some(ScalaBundle.message("move.members.not.supported.implicits"))
+        Some(ScalaBundle.nls("move.members.not.supported.implicits"))
 
       else if (!hasStablePath(member))
-        Some(ScalaBundle.message("move.members.supported.only.stable.objects"))
+        Some(ScalaBundle.nls("move.members.supported.only.stable.objects"))
 
       else if (member.hasModifierProperty("override"))
-        Some(ScalaBundle.message("move.members.not.supported.overridden"))
+        Some(ScalaBundle.nls("move.members.not.supported.overridden"))
 
       else None
     }

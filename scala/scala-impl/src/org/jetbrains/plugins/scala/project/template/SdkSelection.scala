@@ -13,13 +13,13 @@ object SdkSelection {
   def chooseScalaSdkFiles(parentComponent: JComponent): Option[ScalaSdkDescriptor] = {
     SdkSelection.browse(parentComponent).flatMap {
       case Left(message) =>
-        Messages.showErrorDialog(parentComponent, message)
+        Messages.showErrorDialog(parentComponent, message.nls)
         None
       case Right(sdk) => Some(sdk)
     }
   }
 
-  def browse(parent: JComponent): Option[Either[String, ScalaSdkDescriptor]] = {
+  def browse(parent: JComponent): Option[Either[NlsString, ScalaSdkDescriptor]] = {
     val virtualFiles = FileChooser.chooseFiles(new ScalaFilesChooserDescriptor(), parent, null, null).toSeq
 
     val files = virtualFiles.map(VfsUtilCore.virtualToIoFile)

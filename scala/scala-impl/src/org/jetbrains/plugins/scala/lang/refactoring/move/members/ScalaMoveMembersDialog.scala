@@ -31,17 +31,19 @@ class ScalaMoveMembersDialog(project: Project, canBeParent: Boolean, sourceObjec
   override def doAction(): Unit = {
     val reference =
       PsiTreeUtil.getChildOfType(targetObjectFragment, classOf[ScReference])
-        .toOption.toRight(ScalaBundle.message("move.members.object.name.or.qualified.name.expected"))
+        .toOption.toRight(ScalaBundle.nls("move.members.object.name.or.qualified.name.expected"))
 
-    val maybeObj = reference.flatMap(_.resolve()
-      .asOptionOf[ScObject].toRight(ScalaBundle.message("move.members.cannot.find.object")))
+    val maybeObj = reference.flatMap(
+      _.resolve().asOptionOf[ScObject]
+        .toRight(ScalaBundle.nls("move.members.cannot.find.object"))
+    )
 
     maybeObj match {
       case Right(obj) =>
         val processor = ScalaMoveMembersDialog.createProcessor(obj, memberToMove)
         invokeRefactoring(processor)
       case Left(message) =>
-        Messages.showErrorDialog(message, RefactoringBundle.message("error.title"))
+        Messages.showErrorDialog(message.nls, RefactoringBundle.message("error.title"))
     }
   }
 

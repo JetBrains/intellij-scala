@@ -78,7 +78,7 @@ object TypeParam {
     val errors = errorMessageBuilder.result()
 
     if (errors.isEmpty) paramMarker.done(ScalaElementType.TYPE_PARAM)
-    else                paramMarker.error(errors.mkString(";"))
+    else                paramMarker.error(NlsString.force(errors.mkString(";")))
 
     true
   }

@@ -47,12 +47,12 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
 
     superRefs(element).collect {
       case (range, clazz) if clazz.hasFinalModifier =>
-        (range, ScalaBundle.message("illegal.inheritance.from.final.kind", kindOf(clazz, toLowerCase = true), clazz.name))
+        (range, ScalaBundle.nls("illegal.inheritance.from.final.kind", kindOf(clazz, toLowerCase = true), clazz.name))
       case (range, clazz) if ValueClassType.extendsAnyVal(clazz) =>
-        (range, ScalaBundle.message("illegal.inheritance.from.value.class", clazz.name))
+        (range, ScalaBundle.nls("illegal.inheritance.from.value.class", clazz.name))
     }.foreach {
       case (range, message) =>
-        holder.createErrorAnnotation(range, message)
+        holder.createErrorAnnotation(range, message.nls)
     }
   }
 
@@ -124,12 +124,12 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
                                  (implicit holder: ScalaAnnotationHolder): Unit = {
     superRefs(element).groupBy(_._2).flatMap {
       case (clazz, entries) if isMixable(clazz) && entries.size > 1 => entries.map {
-        case (range, _) => (range, ScalaBundle.message("illegal.inheritance.multiple", kindOf(clazz), clazz.name))
+        case (range, _) => (range, ScalaBundle.nls("illegal.inheritance.multiple", kindOf(clazz), clazz.name))
       }
       case _ => Seq.empty
     }.foreach {
       case (range, message) =>
-        holder.createErrorAnnotation(range, message)
+        holder.createErrorAnnotation(range, message.nls)
     }
   }
 
@@ -138,11 +138,11 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     case _ :: tail =>
       tail.collect {
         case (range, clazz) if !isMixable(clazz) =>
-          (range, ScalaBundle.message("illegal.mixin", kindOf(clazz), clazz.name))
+          (range, ScalaBundle.nls("illegal.mixin", kindOf(clazz), clazz.name))
       }.foreach {
         case (range, message) =>
           //noinspection ReferencePassedToNls
-          holder.createErrorAnnotation(range, message)
+          holder.createErrorAnnotation(range, message.nls)
       }
     case _ =>
   }
@@ -183,7 +183,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
           (range, message)
       }.foreach {
         case (range, message) =>
-          holder.createErrorAnnotation(range, message)
+          holder.createErrorAnnotation(range, message.nls)
       }
     case _ =>
   }
@@ -196,7 +196,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     case _ =>
       ScalaOIUtil.getMembersToImplement(element, withOwn = true).collectFirst {
         case member: ScalaTypedMember /* SCL-2887 */ =>
-          ScalaBundle.message(
+          ScalaBundle.nls(
             "member.implementation.required",
             kindOf(element),
             element.name,
@@ -216,7 +216,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
           maybeModifierFix ++ maybeImplementFix
 
         }
-        val annotation = holder.createErrorAnnotation(nameId, message)
+        val annotation = holder.createErrorAnnotation(nameId, message.nls)
         fixes.foreach(annotation.registerFix)
       }
   }

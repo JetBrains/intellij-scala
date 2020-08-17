@@ -1,8 +1,10 @@
-package org.jetbrains.plugins.scala.project.template
+package org.jetbrains.plugins.scala
+package project
+package template
 
 import java.io.File
 
-import org.jetbrains.plugins.scala.project.Version
+import org.jetbrains.plugins.scala.ScalaBundle
 
 /**
  * @author Pavel Fatin
@@ -24,7 +26,7 @@ object ScalaSdkDescriptor {
   import Artifact._
   import Kind._
 
-  def buildFromComponents(components: Seq[ScalaSdkComponent]): Either[String, ScalaSdkDescriptor] = {
+  def buildFromComponents(components: Seq[ScalaSdkComponent]): Either[NlsString, ScalaSdkDescriptor] = {
     val componentsByKind = components.groupBy(_.kind)
       .withDefault(Function.const(Seq.empty))
 
@@ -35,7 +37,7 @@ object ScalaSdkDescriptor {
 
     requiredBinaryArtifacts -- binaryComponents.map(_.artifact) match {
       case missingBinaryArtifacts if missingBinaryArtifacts.nonEmpty =>
-        Left("Not found: " + missingBinaryArtifacts.map(_.prefix + "*.jar").mkString(", "))
+        Left(ScalaBundle.nls("not.found.missing.artifacts", missingBinaryArtifacts.map(_.prefix + "*.jar").mkString(", ")))
       case _ =>
         val libraryVersion = binaryComponents.collectFirst {
           case ScalaSdkComponent(ScalaLibrary, _, Some(version), _) => version

@@ -18,7 +18,7 @@ final class ScalaFrameworkType extends FrameworkTypeEx(ScalaLanguage.INSTANCE.ge
 
   override def getIcon = icons.Icons.SCALA_SMALL_LOGO
 
-  override def getPresentableName = getId
+  override def getPresentableName = NlsString.force(getId)
 
   override def createProvider = new FrameworkSupportInModuleProvider {
 

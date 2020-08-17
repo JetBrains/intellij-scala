@@ -90,7 +90,7 @@ sealed class ScSyntheticClass(val className: String, val stdType: StdType)
 
       def getTextAttributesKey: TextAttributesKey = null
 
-      override def getPresentableText: String = This.className
+      override def getPresentableText: String = NlsString.force(This.className)
 
       override def getIcon(open: Boolean): Icon = This.getIcon(0)
     }
