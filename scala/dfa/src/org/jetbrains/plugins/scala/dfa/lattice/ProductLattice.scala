@@ -27,6 +27,9 @@ abstract class ProductLattice[T <: AnyRef: ClassTag](_top: => T, override val bo
 
   protected trait ProductTupleBase  {
     def elements: Array[T]
+
+    // this is needed so the unapply check in `ProductTuple` works only for instances of only this lattice
+    private[ProductLattice] def _lattice: ProductLattice[T] = ProductLattice.this
   }
 
   private final object ProductTuple {
