@@ -5,12 +5,13 @@ import com.intellij.build.events.impl.AbstractBuildEvent
 import com.intellij.build.{FileNavigatable, FilePosition}
 import com.intellij.openapi.project.Project
 import com.intellij.pom.Navigatable
+import org.jetbrains.annotations.Nls
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellRunner}
 
 
 // extensions to com.intellij.build.events for convenience use in sbt shell
 
-abstract class SbtBuildEvent(parentId: Any, kind: MessageEvent.Kind, group: String, message: String)
+abstract class SbtBuildEvent(parentId: Any, kind: MessageEvent.Kind, @Nls group: String, @Nls message: String)
   extends AbstractBuildEvent(new Object, parentId, System.currentTimeMillis(), message) with MessageEvent {
 
   override def getKind: MessageEvent.Kind = kind

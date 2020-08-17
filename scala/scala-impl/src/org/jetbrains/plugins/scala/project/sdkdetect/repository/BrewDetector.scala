@@ -6,11 +6,12 @@ import java.util.stream.{Stream => JStream}
 
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.SystemInfo
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.template.{PathExt, _}
 
 private[repository] object BrewDetector extends ScalaSdkDetector {
   override def buildSdkChoice(descriptor: ScalaSdkDescriptor): SdkChoice = BrewSdkChoice(descriptor)
-  override def friendlyName: String = "Brew packages"
+  override def friendlyName: String = ScalaBundle.message("brew.packages")
 
   override def buildJarStream(implicit indicator: ProgressIndicator): JStream[Path] = {
     val scalaRoot = Paths.get("/") / "usr" / "local" / "Cellar" / "scala"

@@ -4,17 +4,18 @@ package debugger.ui
 import java.lang
 import java.util.concurrent.CompletableFuture
 
-import com.intellij.debugger.engine.evaluation.{EvaluationContext, EvaluateException, EvaluationContextImpl}
-import com.intellij.debugger.engine.{DebugProcessImpl, DebugProcess}
+import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContext, EvaluationContextImpl}
+import com.intellij.debugger.engine.{DebugProcess, DebugProcessImpl}
 import com.intellij.debugger.ui.impl.watch.ValueDescriptorImpl
 import com.intellij.debugger.ui.tree.render._
-import com.intellij.debugger.ui.tree.{DebuggerTreeNode, ValueDescriptor, NodeDescriptor}
-import com.intellij.debugger.{JavaDebuggerBundle, DebuggerContext}
+import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptor, ValueDescriptor}
+import com.intellij.debugger.{DebuggerContext, JavaDebuggerBundle}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiElement, PsiExpression}
 import com.intellij.xdebugger.impl.ui.XDebuggerUIConstants
 import com.sun.jdi.{ObjectReference, Type, Value}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 
@@ -26,7 +27,7 @@ class RuntimeRefRenderer extends NodeRendererImpl {
 
   setIsApplicableChecker(t => CompletableFuture.completedFuture(isApplicableFor(t)))
 
-  override def getName = "Scala runtime references renderer"
+  override def getName = ScalaBundle.message("scala.runtime.references.renderer")
   override def setName(name: String): Unit = { }
   override def isEnabled: Boolean = ScalaDebuggerSettings.getInstance().DONT_SHOW_RUNTIME_REFS
   override def setEnabled(enabled: Boolean): Unit = {/*see ScalaDebuggerSettingsConfigurable */}

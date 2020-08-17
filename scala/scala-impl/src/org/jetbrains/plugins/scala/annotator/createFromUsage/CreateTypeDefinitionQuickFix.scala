@@ -13,6 +13,8 @@ import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import javax.swing.Icon
+import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil._
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
 import org.jetbrains.plugins.scala.extensions._
@@ -100,13 +102,14 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
 
   private def createClassWithLevelChoosing(editor: Editor, siblings: Seq[PsiElement]): Unit = {
     val renderer: PsiElementListCellRenderer[PsiElement] = new PsiElementListCellRenderer[PsiElement] {
+      @Nls
       override def getElementText(element: PsiElement): String = element match {
-        case _: PsiFile => "New file"
-        case td: ScTypeDefinition if td.isTopLevel => "Top level in this file"
+        case _: PsiFile => ScalaBundle.message("new.class.location.new.file")
+        case td: ScTypeDefinition if td.isTopLevel => ScalaBundle.message("new.class.location.top.level.in.this.file")
         case _ childOf (tb: ScTemplateBody) =>
           val containingClass = PsiTreeUtil.getParentOfType(tb, classOf[ScTemplateDefinition])
-          s"Inner in ${containingClass.name}"
-        case _ => "Local scope"
+          ScalaBundle.message("new.class.location.inner.in.class", containingClass.name)
+        case _ => ScalaBundle.message("new.class.location.local.scope")
       }
 
       override def getContainerText(element: PsiElement, name: String): String = null

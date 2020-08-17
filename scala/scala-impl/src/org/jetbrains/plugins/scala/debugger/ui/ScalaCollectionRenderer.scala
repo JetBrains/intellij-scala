@@ -16,6 +16,7 @@ import com.intellij.debugger.{DebuggerContext, JavaDebuggerBundle}
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.psi.PsiElement
 import com.sun.jdi._
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.{ScalaDuplexEvaluator, ScalaFieldEvaluator, ScalaMethodEvaluator, ScalaThisEvaluator}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
@@ -29,7 +30,7 @@ import scala.reflect.NameTransformer
 /**
  * @author Nikolay.Tropin
  */
-class ScalaCollectionRenderer extends CompoundReferenceRenderer(NodeRendererSettings.getInstance(), "Scala collection", sizeLabelRenderer, ScalaToArrayRenderer) {
+class ScalaCollectionRenderer extends CompoundReferenceRenderer(NodeRendererSettings.getInstance(), ScalaBundle.message("scala.collection"), sizeLabelRenderer, ScalaToArrayRenderer) {
 
   setIsApplicableChecker {
     case ct: ClassType => forallAsync(instanceOfAsync(ct, collectionClassName), notStreamAsync(ct), notViewAsync(ct))

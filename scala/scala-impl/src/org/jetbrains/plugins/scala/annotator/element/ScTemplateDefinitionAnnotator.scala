@@ -141,6 +141,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
           (range, ScalaBundle.message("illegal.mixin", kindOf(clazz), clazz.name))
       }.foreach {
         case (range, message) =>
+          //noinspection ReferencePassedToNls
           holder.createErrorAnnotation(range, message)
       }
     case _ =>

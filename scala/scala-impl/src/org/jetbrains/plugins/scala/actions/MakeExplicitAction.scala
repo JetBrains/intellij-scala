@@ -57,8 +57,8 @@ object MakeExplicitAction {
   import JBPopupFactory.{getInstance => PopupFactory}
   import ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
 
-  private val MakeExplicit = "Make explicit"
-  private val MakeExplicitStatically = MakeExplicit + " (Import method)"
+  private val MakeExplicit = ScalaBundle.message("make.explicit")
+  private val MakeExplicitStatically = ScalaBundle.message("make.explicit.and.import.method")
 
   private[this] var popup: JBPopup = _
 

@@ -21,7 +21,7 @@ class TypeMismatchTooltipsHandler extends ProjectManagerListener {
 }
 
 private object TypeMismatchTooltipsHandler {
-  private val TypeMismatchTooltipPrefix = "<html><body>Type mismatch"
+  private def TypeMismatchTooltipPrefix = "<html><body>Type mismatch"
 
   private class Listener(project: Project) extends EditorMouseMotionListener {
     // See com.intellij.openapi.editor.impl.EditorMouseHoverPopupControl

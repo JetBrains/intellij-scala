@@ -129,6 +129,7 @@ abstract class AbstractCompiler extends Compiler {
         column = pos.pointer.toOption.map(_.toLong + 1L),
         offset = pos.offset.toOption.map(_.toLong)
       )
+      //noinspection ReferencePassedToNls
       client.message(kind, msg, source, fromPosInfo)
     }
   }

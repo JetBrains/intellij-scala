@@ -5,11 +5,13 @@ import java.util.stream.{Stream => JStream}
 
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.project.template._
 
 trait ScalaSdkDetector {
   def buildJarStream(implicit indicator: ProgressIndicator): JStream[Path]
   def buildSdkChoice(descriptor: ScalaSdkDescriptor): SdkChoice
+  @Nls
   def friendlyName: String
 
   protected def collectJarFiles(path: Path)(implicit indicator: ProgressIndicator): JStream[Path] =

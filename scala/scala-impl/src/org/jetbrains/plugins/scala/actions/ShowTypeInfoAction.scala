@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtilBase}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -66,15 +67,15 @@ class ShowTypeInfoAction extends AnAction(
             val mainText = Seq("Type: " + tpeText)
             def additionalTypeText(typeText: Option[String], label: String) = typeText.filter(_ != tpeText).map(s"$label: " + _)
 
-            val nonSingleton = additionalTypeText(nonSingletonTypeText, "Non-singleton")
-            val simplified = additionalTypeText(withoutAliases, "Simplified")
-            val orig = additionalTypeText(tpeWithoutImplicitsText, "Original")
-            val expected = additionalTypeText(expectedTypeText, "Expected")
+            val nonSingleton = additionalTypeText(nonSingletonTypeText, ScalaBundle.message("hint.label.non.singleton"))
+            val simplified = additionalTypeText(withoutAliases, ScalaBundle.message("hint.label.simplified"))
+            val orig = additionalTypeText(tpeWithoutImplicitsText, ScalaBundle.message("hint.label.original"))
+            val expected = additionalTypeText(expectedTypeText, ScalaBundle.message("hint.label.expected"))
             val types = mainText ++ simplified.orElse(nonSingleton) ++ orig ++ expected
 
             if (types.size == 1) tpeText
             else types.mkString("\n")
-          case _ => "Could not find type for selection"
+          case _ => ScalaBundle.message("could.not.find.type.for.selection")
         }
       }
       val hint = (hintForPattern orElse hintForExpression).map(StringUtil.escapeXmlEntities)
@@ -90,7 +91,7 @@ class ShowTypeInfoAction extends AnAction(
              tastyFile <- TastyReader.read(outputDirectory, className);
              presentation <- typeAt(editor.getCaretModel.getLogicalPosition, tastyFile)) {
 
-          showTastyNotification("Type Info")
+          showTastyNotification(ScalaBundle.message("notification.title.type.info"))
           ScalaActionUtil.showHint(editor, presentation)
           return
         }

@@ -4,11 +4,12 @@ import java.nio.file.{Path, Paths}
 import java.util.stream.{Stream => JStream}
 
 import com.intellij.openapi.progress.ProgressIndicator
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.template.{PathExt, _}
 
 private[repository] object IvyDetector extends ScalaSdkDetector {
   override def buildSdkChoice(descriptor: ScalaSdkDescriptor): SdkChoice = IvySdkChoice(descriptor)
-  override def friendlyName: String = "Ivy2 cache"
+  override def friendlyName: String = ScalaBundle.message("ivy2.cache")
 
   override def buildJarStream(implicit indicator: ProgressIndicator): JStream[Path] = {
     val homePrefix = Paths.get(sys.props("user.home"))

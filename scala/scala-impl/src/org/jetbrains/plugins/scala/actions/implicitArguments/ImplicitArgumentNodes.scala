@@ -62,10 +62,10 @@ private class ImplicitArgumentWithReason(value: ScalaResolveResult, reason: Full
   override protected def infoPrefix: Option[String] = Some(reasonPrefix)
 
   private def reasonPrefix: String = reason match {
-    case OkResult                        => "Applicable: "
-    case DivergedImplicitResult          => "Diverged: "
-    case CantInferTypeParameterResult    => "Can't infer type: "
-    case ImplicitParameterNotFoundResult => "Candidate: "
+    case OkResult                        => ScalaBundle.message("reason.prefix.applicable")
+    case DivergedImplicitResult          => ScalaBundle.message("reason.prefix.diverged")
+    case CantInferTypeParameterResult    => ScalaBundle.message("reason.prefix.cannot.infer.type")
+    case ImplicitParameterNotFoundResult => ScalaBundle.message("reason.prefix.candidate")
   }
 }
 
@@ -100,10 +100,10 @@ private class ImplicitParameterProblemNode(value: ScalaResolveResult)
 
   private def problemPrefix: String = {
     if (value.isAmbiguousImplicitParameter)
-      s"(Ambiguous) "
+      ScalaBundle.message("problem.prefix.ambiguous")
     else
-      s"(Not found) "
-  }
+      ScalaBundle.message("problem.prefix.not.found")
+  } + " "
 }
 
 private abstract class ImplicitParametersNodeBase(value: ScalaResolveResult)
@@ -172,8 +172,8 @@ private object ImplicitArgumentNodes {
     val description = value.element.nameContext match {
       case p: ScParameter =>
         p.owner match {
-          case f: ScFunctionDefinition => s"parameter of ${f.name}"
-          case c: ScPrimaryConstructor => s"parameter of ${c.getClassNameText}"
+          case f: ScFunctionDefinition => ScalaBundle.message("location.description.parameter.of.name", f.name)
+          case c: ScPrimaryConstructor => ScalaBundle.message("location.description.parameter.of.getclassnametext", c.getClassNameText)
           case _                       => ""
         }
       case ContainingClass(c) =>
@@ -182,14 +182,16 @@ private object ImplicitArgumentNodes {
           case _: ScClass => "class " + className
           case _: ScTrait => "trait " + className
           case o: ScObject => if (o.isPackageObject) "package object " + className else "object " + className
-          case _ => "anonymous class"
+          case _ => ScalaBundle.message("location.description.anonymous.class")
         }
       case m: ScMember if m.isLocal =>
         val owner = m.contexts.take(2).collectFirst {
           case named: ScNamedElement => named.name
           case d: ScDeclaredElementsHolder => d.declaredNames.headOption.getOrElse("")
         }
-        owner.map(name => s"body of $name").getOrElse("containing block")
+        owner
+          .map(name => ScalaBundle.message("location.description.body.of.name", name))
+          .getOrElse(ScalaBundle.message("location.description.containing.block"))
       case _ => ""
     }
     if (description != "") Some("  " + description.parenthesize())

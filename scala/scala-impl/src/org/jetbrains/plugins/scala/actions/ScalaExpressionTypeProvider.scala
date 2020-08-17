@@ -47,14 +47,14 @@ class ScalaExpressionTypeProvider extends ExpressionTypeProvider[PsiElement] {
 
   override def getInformationHint(element: PsiElement): String =
     extractType(element).fold(unknownType) { (t: ScType) =>
-      val original  = "Type"      -> t
-      val dealiased = "Dealiased" -> t.removeAliasDefinitions()
-      val widened   = "Widened"   -> t.tryExtractDesignatorSingleton
+      val original  = ScalaBundle.message("type.hint.table.title.type")      -> t
+      val dealiased = ScalaBundle.message("type.hint.table.title.dealiased") -> t.removeAliasDefinitions()
+      val widened   = ScalaBundle.message("type.hint.table.title.widened")   -> t.tryExtractDesignatorSingleton
 
       val (expected, withoutImplicits) = element match {
         case expr: ScExpression =>
-          val expected         = expr.expectedType().map("Expected" -> _)
-          val withoutImplicits = expr.getTypeWithoutImplicits().toOption.map("Without implicits" -> _)
+          val expected         = expr.expectedType().map(ScalaBundle.message("type.hint.table.title.expected") -> _)
+          val withoutImplicits = expr.getTypeWithoutImplicits().toOption.map(ScalaBundle.message("type.hint.table.title.without.implicits") -> _)
           (expected, withoutImplicits)
         case _                  => (None, None)
       }
@@ -70,7 +70,7 @@ class ScalaExpressionTypeProvider extends ExpressionTypeProvider[PsiElement] {
 }
 
 object ScalaExpressionTypeProvider {
-  private val unknownType = "<unknown>"
+  private def unknownType = ScalaBundle.message("unknown.type")
 
   private def extractType: PsiElement => Option[ScType] = {
     case element @ ResolvedWithSubst(target, subst) =>

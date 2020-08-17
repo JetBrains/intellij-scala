@@ -21,6 +21,7 @@ import com.intellij.psi.PsiExpression
 import com.intellij.util.IncorrectOperationException
 import com.sun.jdi._
 import com.sun.tools.jdi.ObjectReferenceImpl
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.debugger.ui.NonStrictCollectionsRenderer._
 import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer._
@@ -43,7 +44,7 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
 
   override def getUniqueId = "NonStrictCollectionsRenderer"
 
-  override def getName = "Scala streams as collections"
+  override def getName = ScalaBundle.message("scala.streams.as.collections")
 
   override def setName(text: String): Unit = {/*do nothing*/}
 

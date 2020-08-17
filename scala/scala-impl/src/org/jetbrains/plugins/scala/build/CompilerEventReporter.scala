@@ -6,6 +6,7 @@ import com.intellij.build.FilePosition
 import com.intellij.build.events.EventResult
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.project.Project
+import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
@@ -21,7 +22,7 @@ class CompilerEventReporter(project: Project, compilationId: CompilationId) exte
 
   private val files = mutable.Set[File]()
 
-  private def publish(kind: Kind, text: String, position: Option[FilePosition]) =
+  private def publish(kind: Kind, @Nls text: String, position: Option[FilePosition]): Unit =
     position.foreach { pos =>
       val from = PosInfo(
         line = Some(pos.getStartLine),
@@ -61,13 +62,13 @@ class CompilerEventReporter(project: Project, compilationId: CompilationId) exte
   override def finishWithFailure(err: Throwable): Unit = finishFiles()
   override def finishCanceled(): Unit = finishFiles()
 
-  override def warning(message: String, position: Option[FilePosition]): Unit =
+  override def warning(@Nls message: String, position: Option[FilePosition]): Unit =
     publish(Kind.WARNING, message, position)
 
-  override def error(message: String, position: Option[FilePosition]): Unit =
+  override def error(@Nls message: String, position: Option[FilePosition]): Unit =
     publish(Kind.ERROR, message, position)
 
-  override def info(message: String, position: Option[FilePosition]): Unit =
+  override def info(@Nls message: String, position: Option[FilePosition]): Unit =
     publish(Kind.INFO, message, position)
 
   override def log(message: String): Unit = ()

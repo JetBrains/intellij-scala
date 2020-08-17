@@ -6,13 +6,14 @@ import java.util.stream.{Stream => JStream}
 
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.SystemInfo
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project.template._
 
 
 private[repository] object SystemDetector extends ScalaSdkDetector {
   override def buildSdkChoice(descriptor: ScalaSdkDescriptor): SdkChoice = SystemSdkChoice(descriptor)
-  override def friendlyName: String = "System-wide Scala"
+  override def friendlyName: String = ScalaBundle.message("system.wide.scala")
 
   private def env(name: String): Option[String] = Option(System.getenv(name))
 
