@@ -329,7 +329,7 @@ private[importing] object BspResolverLogic {
     val (head, tail) = groups.partition(_.forall(_.nonEmpty))
     def combine(parts: Seq[String]) = {
       val nonEmptyParts = parts.filter(_.nonEmpty)
-      if (nonEmptyParts.size > 1) nonEmptyParts.mkString("(", "|", ")") else nonEmptyParts.mkString
+      if (nonEmptyParts.size > 1) nonEmptyParts.mkString("(", "+", ")") else nonEmptyParts.mkString
     }
     head.map(combine).mkString +
       (if (tail.nonEmpty) tail.map(combine).mkString("(", "", ")") else tail.mkString)
@@ -426,7 +426,7 @@ private[importing] object BspResolverLogic {
                                    ): DataNode[ProjectData] = {
 
     val projectRootPath = workspace.getCanonicalPath
-    val moduleFilesDirectoryPath = moduleFilesDirectory(workspace).getCanonicalPath
+    val moduleFileDirectoryPath = moduleFilesDirectory(workspace).getCanonicalPath
     val projectRoot = new File(projectRootPath)
     val projectData = new ProjectData(BSP.ProjectSystemId, projectRoot.getName, projectRootPath, projectRootPath)
     val projectNode = new DataNode[ProjectData](ProjectKeys.PROJECT, projectData, null)
@@ -436,7 +436,7 @@ private[importing] object BspResolverLogic {
       if (projectModules.modules.exists (_.data.basePath.exists(_ == projectRoot))) None
       else {
         val name = projectRoot.getName + "-root"
-        val moduleData = new ModuleData(name, BSP.ProjectSystemId, BspSyntheticModuleType.Id, name, moduleFilesDirectoryPath, projectRootPath)
+        val moduleData = new ModuleData(name, BSP.ProjectSystemId, BspSyntheticModuleType.Id, name, moduleFileDirectoryPath, projectRootPath)
         val moduleNode = new DataNode[ModuleData](ProjectKeys.MODULE, moduleData, projectNode)
         val contentRootData = new ContentRootData(BSP.ProjectSystemId, projectRoot.getCanonicalPath)
         val contentRootDataNode = new DataNode[ContentRootData](ProjectKeys.CONTENT_ROOT, contentRootData, moduleNode)
@@ -446,7 +446,7 @@ private[importing] object BspResolverLogic {
       }
 
     def toModuleNode(moduleDescription: ModuleDescription) =
-      createModuleNode(projectRootPath, moduleFilesDirectoryPath, moduleDescription, projectNode)
+      createModuleNode(projectRootPath, moduleFileDirectoryPath, moduleDescription, projectNode)
 
     val idsToTargetModule: Seq[(Seq[TargetId], DataNode[ModuleData])] =
       projectModules.modules.map { m =>
@@ -511,7 +511,7 @@ private[importing] object BspResolverLogic {
   private[importing] def moduleFilesDirectory(workspace: File) = new File(workspace, ".idea/modules")
 
   private[importing] def createModuleNode(projectRootPath: String,
-                                          moduleFilesDirectoryPath: String,
+                                          moduleFileDirectoryPath: String,
                                           moduleDescription: ModuleDescription,
                                           projectNode: DataNode[ProjectData]): DataNode[ModuleData] = {
     import ExternalSystemSourceType._
@@ -543,7 +543,7 @@ private[importing] object BspResolverLogic {
     val allSourceRoots = sourceRoots ++ testRoots ++ resourceRoots ++ testResourceRoots
 
     val moduleName = moduleDescriptionData.name
-    val moduleData = new ModuleData(moduleDescriptionData.id, BSP.ProjectSystemId, StdModuleTypes.JAVA.getId, moduleName, moduleFilesDirectoryPath, projectRootPath)
+    val moduleData = new ModuleData(moduleDescriptionData.id, BSP.ProjectSystemId, StdModuleTypes.JAVA.getId, moduleName, moduleFileDirectoryPath, projectRootPath)
 
     moduleDescriptionData.output.foreach { outputPath =>
       moduleData.setCompileOutputPath(SOURCE, outputPath.getCanonicalPath)
