@@ -23,6 +23,17 @@ abstract class WorksheetCommonSettings extends WorksheetPerFileConfig {
 
   def getModuleName: String
 
+  protected final def findModuleByName: Module =
+    getModuleName match {
+      case null => null
+      case moduleName =>
+        inReadAction {
+          ModuleManager.getInstance(project).findModuleByName(moduleName)
+        }
+    }
+
+  def getModuleFor: Module
+
   def getCompilerProfileName: String
 
   def setRunType(runType: WorksheetExternalRunType): Unit
@@ -34,14 +45,6 @@ abstract class WorksheetCommonSettings extends WorksheetPerFileConfig {
   def setModuleName(value: String): Unit
 
   def setCompilerProfileName(value: String): Unit
-
-  def getModuleFor: Module = getModuleName match {
-    case null => null
-    case moduleName =>
-      inReadAction {
-        ModuleManager.getInstance(project).findModuleByName(moduleName)
-      }
-  }
 
   def getCompilerProfile: ScalaCompilerSettingsProfile
 }

@@ -30,7 +30,7 @@ class WorksheetFileSettingsDialog(worksheetFile: PsiFile) extends DialogWrapper(
   private def getSettingsData(settings: WorksheetCommonSettings): WorksheetSettingsData = {
     val (selectedProfile, profiles) = WorksheetFileSettingsDialog.createCompilerProfileOptions(settings)
 
-    new WorksheetSettingsData(settings.isInteractive, settings.isMakeBeforeRun, settings.getRunType, null, selectedProfile, profiles)
+    WorksheetSettingsData(settings.isInteractive, settings.isMakeBeforeRun, settings.getRunType, null, selectedProfile, profiles)
   }
   
   private def applySettingsData(settingsData: WorksheetSettingsData, settings: WorksheetCommonSettings): Unit = {

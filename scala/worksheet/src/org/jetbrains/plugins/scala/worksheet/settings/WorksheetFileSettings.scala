@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet.settings
 
 import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerEx
-import com.intellij.ide.scratch.ScratchUtil
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
 import com.intellij.openapi.fileEditor.{FileEditorManager, TextEditor}
@@ -60,27 +59,30 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
 
   override def setCompilerProfileName(value: String): Unit = setSetting(COMPILER_PROFILE, value)
 
+  private def isScratchFile: Boolean =
+    WorksheetUtils.isScratchWorksheet(project, file.getVirtualFile)
+
   override def getCompilerProfile: ScalaCompilerSettingsProfile = {
-    implicit val fileProject: Project = file.getProject
     val configuration = ScalaCompilerConfiguration.instanceIn(project)
 
     val customProfiles = configuration.customProfiles
-    val maybeCustomProfile = if (isScratchWorksheet(file.getVirtualFile)) {
+    val maybeCustomProfile = if (isScratchFile) {
       val name = getCompilerProfileName
       customProfiles.find(_.getName == name)
     } else {
       for {
         ScFile.VirtualFile(virtualFile) <- Some(file)
-        module <- ScalaUtil.getModuleForFile(virtualFile)
+        module <- ScalaUtil.getModuleForFile(virtualFile)(project)
         profile <- customProfiles.find(_.moduleNames.contains(module.getName))
       } yield profile
     }
     maybeCustomProfile.getOrElse(configuration.defaultProfile)
   }
 
-  override def getModuleName: String =
-    WorksheetFileSettings.getModuleName(file.getVirtualFile)
-      .getOrElse(WorksheetProjectSettings(project).getModuleName)
+  override def getModuleName: String = {
+    val savedModuleForFile = WorksheetFileSettings.getModuleName(file.getVirtualFile)
+    savedModuleForFile.getOrElse(getDefaultSettings.getModuleName)
+  }
 
   override def setModuleName(value: String): Unit = {
     setSetting(CP_MODULE_NAME, value)
@@ -93,11 +95,11 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
   }
 
   override def getModuleFor: Module =
-    super.getModuleFor match {
-      case null =>
-        val fromIndex = moduleFromIndex(file.getVirtualFile, project)
-        fromIndex.orElse(project.anyScalaModule).orNull
-      case module => module
+    if (isScratchFile) {
+      findModuleByName
+    } else {
+      val fromIndex = moduleFromIndex(file.getVirtualFile, project)
+      fromIndex.orElse(project.anyScalaModule).orNull
     }
 }
 
@@ -123,10 +125,6 @@ object WorksheetFileSettings extends WorksheetPerFileConfig {
   def isRepl(file: PsiFile): Boolean = getRunType(file).isReplRunType
 
   def getRunType(file: PsiFile): WorksheetExternalRunType = new WorksheetFileSettings(file).getRunType
-
-  def isScratchWorksheet(file: VirtualFile)
-                        (implicit project: Project): Boolean =
-    ScratchUtil.isScratch(file) && WorksheetUtils.treatScratchFileAsWorksheet(project)
 
   private def getSetting[T](vFile: VirtualFile, attr: FileAttribute)
                            (implicit ev: SerializableInFileAttribute[T]): Option[T] =

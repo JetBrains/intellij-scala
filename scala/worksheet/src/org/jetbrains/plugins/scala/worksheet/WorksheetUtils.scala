@@ -15,17 +15,11 @@ object WorksheetUtils {
   def isWorksheetFile(project: Project, file: VirtualFile): Boolean = {
     val isExplicitWorksheet = WorksheetFileType.isMyFileType(file) && !isAmmoniteEnabled(project, file)
     isExplicitWorksheet ||
-      ScratchUtil.isScratch(file) && canBeTreatedAsWorksheet(project, file)
+      isScratchWorksheet(project, file)
   }
 
-  private def canBeTreatedAsWorksheet(project: Project, vFile: VirtualFile): Boolean = {
-    val psiFile = PsiManager.getInstance(project).findFile(vFile)
-    if (psiFile != null && psiFile.getViewProvider.isInstanceOf[ScFileViewProvider]) {
-      treatScratchFileAsWorksheet(project)
-    } else {
-      false
-    }
-  }
+  def isScratchWorksheet(project: Project, file: VirtualFile): Boolean =
+    ScratchUtil.isScratch(file) && WorksheetUtils.treatScratchFileAsWorksheet(project)
 
   def treatScratchFileAsWorksheet(project: Project): Boolean =
     settings(project).isTreatScratchFilesAsWorksheet

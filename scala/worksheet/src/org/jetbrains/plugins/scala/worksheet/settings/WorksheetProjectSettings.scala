@@ -40,10 +40,7 @@ class WorksheetProjectSettings(override val project: Project) extends WorksheetC
     compilerConfiguration.customProfiles.find(_.getName == compilerName).getOrElse(compilerConfiguration.defaultProfile)
   }
 
-  override def getModuleFor: Module = super.getModuleFor match {
-    case null => project.anyScalaModule.orNull
-    case module => module
-  }
+  override def getModuleFor: Module = findModuleByName
 }
 
 object WorksheetProjectSettings {

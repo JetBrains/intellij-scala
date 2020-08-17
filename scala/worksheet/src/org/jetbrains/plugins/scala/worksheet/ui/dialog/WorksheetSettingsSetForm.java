@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.ui.dialog;
 
 import com.intellij.application.options.ModulesComboBox;
+import com.intellij.execution.ui.ConfigurationModuleSelector;
 import com.intellij.openapi.actionSystem.impl.ActionButton;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -8,8 +9,10 @@ import com.intellij.psi.PsiFile;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsProfile;
+import org.jetbrains.plugins.scala.worksheet.WorksheetUtils;
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings;
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType;
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings;
@@ -49,15 +52,29 @@ public class WorksheetSettingsSetForm {
 
     private void init(WorksheetSettingsData settingsData) {
         moduleComboBox.fillModules(myProject);
+        // NOTE: this allows the selection to be empty only after combo box initialization
+        // You can't unselect selected module, see:
+        // TODO: SCL-18054, IDEA-239791
+        moduleComboBox.allowEmptySelection(ConfigurationModuleSelector.NO_MODULE_TEXT);
 
-        WorksheetCommonSettings settings = myFile != null ?
-                WorksheetFileSettings.apply(myFile) :
-                WorksheetProjectSettings.apply(myProject);
+        boolean isDefaultSettings = myFile == null;
+        String tooltip = ScalaBundle.message("worksheet.settings.panel.using.class.path.of.the.module");
+        if (isDefaultSettings) {
+            String note = ScalaBundle.message("worksheet.settings.panel.using.class.path.of.the.module.for.default.settings.note");
+            //noinspection HardCodedStringLiteral (using html tag)
+            moduleComboBox.setToolTipText(tooltip + "<br>" + note);
+        } else {
+            moduleComboBox.setToolTipText(tooltip);
+        }
+
+        WorksheetCommonSettings settings = !isDefaultSettings
+                ? WorksheetFileSettings.apply(myFile)
+                : WorksheetProjectSettings.apply(myProject);
 
         Module defaultModule = settings.getModuleFor();
         if (defaultModule != null) {
             moduleComboBox.setSelectedModule(defaultModule);
-            boolean enabled = myFile == null || WorksheetFileSettings.isScratchWorksheet(myFile.getVirtualFile(), myFile.getProject());
+            boolean enabled = isDefaultSettings || WorksheetUtils.isScratchWorksheet(myFile.getProject(), myFile.getVirtualFile());
             moduleComboBox.setEnabled(enabled);
         }
 
@@ -115,8 +132,6 @@ public class WorksheetSettingsSetForm {
 
     private void createUIComponents() {
         moduleComboBox = new ModulesComboBox();
-        moduleComboBox.setToolTipText(ScalaBundle.message("worksheet.settings.panel.using.class.path.of.the.module"));
-
         openCompilerProfileSettingsButton = new ShowCompilerProfileSettingsButton(this).getActionButton();
     }
 
