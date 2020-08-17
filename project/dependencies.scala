@@ -1,7 +1,7 @@
 import sbt._
 
 object Versions {
-  val scalaVersion: String = Scala.project
+  val scalaVersion: String = "2.12.7"
   val scalaBinaryVersion: String = Scala.binary_2_12
   // ATTENTION: when updating sbtVersion also update versions in MockSbt_1_0
   // NOTE: sbt-launch / bloop-launcher won't be fetched on refresh.
@@ -24,18 +24,7 @@ object Versions {
     val binary_2_12 = "2.12"
     val binary_2_13 = "2.13"
 
-    // ATTENTION: When changing any of these versions,
-    // they currently need to be updated in org.jetbrains.plugins.scala.debugger.ScalaVersion
-    val latest_2_9 = "2.9.3"
-    val latest_2_10 = "2.10.7"
-    val latest_2_11 = "2.11.12"
-    val latest_2_12 = "2.12.12"
-    val latest_2_13 = "2.13.1"
-    val latest_3_0 = "0.26.0-RC1"
-    val latest_dotty = latest_3_0
-    val latest: String = latest_2_12
-    /** Version used to build this project. Prefer latest_2_12 unless it causes problems. */
-    val project = "2.12.7"
+    val latest_dotty = "0.26.0-RC1"
 
     def binaryVersion(v: String): String =
       if (v.startsWith("2.9")) binary_2_9
@@ -126,7 +115,7 @@ object Dependencies {
   /** The filtering function returns true for jars to be removed.
    * It's purpose is to exclude platform jars that may conflict with plugin dependencies. */
   val excludeJarsFromPlatformDependencies: File => Boolean = { file =>
-    file.getName.contains("lsp4j") // version conflict with bsp4j in ultimate platform
+    file.getName.contains("lsp4j") // version conflict with lsp4j in ultimate platform
   }
 
   private def sbtPluginDependency(module: ModuleID, sbtVersion: String): ModuleID =
