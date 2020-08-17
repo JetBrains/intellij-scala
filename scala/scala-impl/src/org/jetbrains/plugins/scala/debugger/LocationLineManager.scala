@@ -3,12 +3,14 @@ package org.jetbrains.plugins.scala.debugger
 import java.util
 
 import com.intellij.debugger.SourcePosition
-import com.intellij.debugger.engine.{DebugProcess, SyntheticTypeComponentProvider}
+import com.intellij.debugger.engine.DebugProcess.JAVA_STRATUM
+import com.intellij.debugger.engine.SyntheticTypeComponentProvider
 import com.intellij.debugger.jdi.GeneratedLocation
 import com.intellij.debugger.settings.DebuggerSettings
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.sun.jdi.{AbsentInformationException, Location, Method, ReferenceType}
+import org.jetbrains.plugins.scala.debugger.ScalaPositionManager.SCALA_STRATUM
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
@@ -50,12 +52,14 @@ trait LocationLineManager {
     synth || exactLineNumber(location) < 0
   }
 
-  def locationsOfLine(refType: ReferenceType, line: Int): Seq[Location] = {
+  def locationsOfLine(refType: ReferenceType, line: Int, sourceName: String): Seq[Location] = {
     val jvmLocations: util.List[Location] =
       try {
-        if (debugProcess.getVirtualMachineProxy.versionHigher("1.4"))
-          refType.locationsOfLine(DebugProcess.JAVA_STRATUM, null, line + 1)
-        else refType.locationsOfLine(line + 1)
+        val stratum =
+          if (refType.availableStrata().contains(SCALA_STRATUM)) SCALA_STRATUM
+          else JAVA_STRATUM
+
+        refType.locationsOfLine(stratum, sourceName, line + 1)
       } catch {
         case _: AbsentInformationException => return Seq.empty
       }
