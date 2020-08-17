@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package dfa
 
-import org.jetbrains.plugins.scala.dfa.lattice.{BinaryLattice, FlatLattice, ProductLattice}
+import org.jetbrains.plugins.scala.dfa.lattice.{BinaryLattice, FlatLattice, PowerSetLattice, ProductLattice}
 
 
 /*************************** Any (Top) **************************/
@@ -14,6 +14,37 @@ object DfAny {
   }
   sealed trait Concrete extends DfAny
   val Bottom: DfNothing.type = DfNothing
+}
+
+
+/**************************** AnyRef ****************************/
+sealed trait DfAnyRef extends DfAny
+object DfAnyRef {
+  case object Top extends DfAnyRef
+  sealed class Concrete extends DfAnyRef with DfAny.Concrete {
+    override def productElement(n: Int): Any = throw new IndexOutOfBoundsException(n.toString)
+    override def productArity: Int = 0
+    override def canEqual(that: Any): Boolean = this == that
+  }
+  val Bottom: DfAnyRef = DfNothing
+
+  implicit val lattice: Lattice[DfAnyRef] = new PowerSetLattice[DfAnyRef](Top, Bottom) {
+    override protected def createSet(elements: Set[DfAnyRef]): DfAnyRef = elements.size match {
+      case 0 => DfNothing
+      case 1 => elements.head
+      case _ =>
+        case class DfAnyRefPowerSet(override val elements: Set[DfAnyRef]) extends PowerSetBase with DfAnyRef {
+          override def toString: String = elements.mkString(" | ")
+        }
+        DfAnyRefPowerSet(elements)
+    }
+  }
+}
+
+
+/*********************** Special AnyRefs ************************/
+class DfStringRef(val text: String) extends DfAnyRef.Concrete {
+  override def toString: String = "\"" + text + "\""
 }
 
 
@@ -154,6 +185,7 @@ case object DfUnit  {
 /************************* Nothing (Bottom) **********************/
 sealed trait DfNothing
   extends DfAny
+    with DfAnyRef
     with DfUnit
     with DfBool
     with DfInt.Abstract
