@@ -4,6 +4,7 @@ package codeInsight.generation.ui
 import java.{util => ju}
 
 import com.intellij.refactoring.classMembers.AbstractMemberInfoModel
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.ui._
 
@@ -13,7 +14,7 @@ import scala.collection.JavaConverters._
   * Nikolay.Tropin
   * 2014-05-28
   */
-class ScalaMemberSelectionPanel(title: String, infos: ju.List[ScalaMemberInfo])
+class ScalaMemberSelectionPanel(@Nls title: String, infos: ju.List[ScalaMemberInfo])
                                (model: AbstractMemberInfoModel[ScNamedElement, ScalaMemberInfo])
   extends ScalaMemberSelectionPanelBase[ScNamedElement, ScalaMemberInfo](title, infos, null) {
 

@@ -90,7 +90,7 @@ object CompilationMetadata {
             notUseCache(JpsBundle.message("no.cache") + s" badFormat ($cacheResultClass): $description")
 
           case _ =>
-            notUseCache(JpsBundle.message("no.cache") +s" $description")
+            notUseCache(JpsBundle.message("no.cache") + s" $description")
         }
       case _ =>
         notUseCache(JpsBundle.message("no.cache.found"))

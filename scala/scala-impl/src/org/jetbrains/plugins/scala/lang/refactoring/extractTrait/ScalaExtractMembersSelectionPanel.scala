@@ -4,6 +4,7 @@ package lang.refactoring.extractTrait
 import java.util
 
 import com.intellij.refactoring.classMembers.MemberInfoModel
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.refactoring.ui.{ScalaMemberSelectionPanelBase, ScalaMemberSelectionTableBase}
 
@@ -11,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.ui.{ScalaMemberSelectionPane
  * Nikolay.Tropin
  * 2014-05-23
  */
-class ScalaExtractMembersSelectionPanel(title: String,
+class ScalaExtractMembersSelectionPanel(@Nls title: String,
                                         memberInfo: util.List[ScalaExtractMemberInfo],
                                         abstractColumnHeader: String)
         extends ScalaMemberSelectionPanelBase[ScMember, ScalaExtractMemberInfo](title, memberInfo, abstractColumnHeader) {

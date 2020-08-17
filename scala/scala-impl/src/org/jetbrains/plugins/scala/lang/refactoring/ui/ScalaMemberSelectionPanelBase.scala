@@ -3,17 +3,18 @@ package lang.refactoring.ui
 
 import java.awt.BorderLayout
 import java.util
-import javax.swing.JScrollPane
 
+import javax.swing.JScrollPane
 import com.intellij.psi.PsiElement
 import com.intellij.refactoring.ui.AbstractMemberSelectionPanel
 import com.intellij.ui.{ScrollPaneFactory, SeparatorFactory}
+import org.jetbrains.annotations.Nls
 
 /**
  * Nikolay.Tropin
  * 8/20/13
  */
-abstract class ScalaMemberSelectionPanelBase[M <: PsiElement, I <: ScalaMemberInfoBase[M]](title: String,
+abstract class ScalaMemberSelectionPanelBase[M <: PsiElement, I <: ScalaMemberInfoBase[M]](@Nls title: String,
                                                                                            memberInfo: util.List[I],
                                                                                            abstractColumnHeader: String)
         extends AbstractMemberSelectionPanel[M, I] {
