@@ -17,16 +17,9 @@ import scala.annotation.{switch, tailrec}
 import scala.collection.mutable
 import scala.reflect.NameTransformer
 
-sealed abstract class Verbosity
-case object ShowAll extends Verbosity
-case object HideClassPrivate extends Verbosity
-case object HideInstancePrivate extends Verbosity
-
 //This class is from scalap, refactored to work with new types
-class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
+class ScalaSigPrinter(builder: StringBuilder) {
   import ScalaSigPrinter._
-
-  def this(builder: StringBuilder, printPrivates: Boolean) = this(builder: StringBuilder, if (printPrivates) ShowAll else HideClassPrivate)
 
   def print(s: String): Unit = builder.append(s)
 
@@ -81,19 +74,11 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
   def printSymbol(level: Int, symbol: Symbol): Unit = {
     def isSynthetic: Boolean = symbol.isSynthetic || symbol.isCaseAccessor || symbol.isParamAccessor
 
-    def isClassPrivate: Boolean = symbol match {
-      case _ if level == 0 => false
-      case _: AliasSymbol  => false
-      case o: ObjectSymbol => o.isPrivate && o.companionClass.forall(_.isPrivate)
-      case _               => symbol.isPrivate
-    }
-
-    def isInstancePrivate = symbol.isLocal && !symbol.isInstanceOf[AliasSymbol]
-
-    val accessibilityOk = verbosity match {
-      case ShowAll             => true
-      case HideClassPrivate    => !isClassPrivate
-      case HideInstancePrivate => !isInstancePrivate
+    val accessibilityOk = symbol match {
+      case _ if level == 0 => true
+      case _: AliasSymbol  => true
+      case _: ObjectSymbol => true // non-private members of private objects may leak to the outer scope
+      case _               => !symbol.isPrivate
     }
 
     def indent(): Unit = {for (_ <- 1 to level) print("  ")}
@@ -254,7 +239,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
   }
 
   def getClassString(level: Int, c: ClassSymbol): String = {
-    val printer = new ScalaSigPrinter(new StringBuilder(), verbosity)
+    val printer = new ScalaSigPrinter(new StringBuilder())
     printer.printClass(level, c)
     printer.result
   }
@@ -265,7 +250,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
       case _ => false
     } match {
       case Some(m: MethodSymbol) =>
-        val printer = new ScalaSigPrinter(new StringBuilder(), verbosity)
+        val printer = new ScalaSigPrinter(new StringBuilder())
         printer.printPrimaryConstructor(m, c)
         val res = printer.result
         if (res.length() > 0 && res.charAt(0) != '(') " " + res
@@ -311,7 +296,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
   }
 
   private def methodSymbolAsClassParam(msymb: MethodSymbol, c: ClassSymbol): String = {
-    val printer = new ScalaSigPrinter(new StringBuilder(), verbosity)
+    val printer = new ScalaSigPrinter(new StringBuilder())
     val methodName = msymb.name
     val paramAccessors = c.children.filter {
       case ms: MethodSymbol if ms.isParamAccessor && ms.name.startsWith(methodName) => true
