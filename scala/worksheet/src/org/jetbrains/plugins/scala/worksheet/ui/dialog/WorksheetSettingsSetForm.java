@@ -71,12 +71,12 @@ public class WorksheetSettingsSetForm {
                 return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             }
         });
-        runTypeComboBox.setSelectedItem(settingsData.runType);
+        runTypeComboBox.setSelectedItem(settingsData.runType());
 
-        interactiveModeCheckBox.setSelected(settingsData.isInteractive);
-        makeProjectBeforeRunCheckBox.setSelected(settingsData.isMakeBeforeRun);
-        compilerProfileComboBox.setModel(new DefaultComboBoxModel<>(settingsData.profiles));
-        compilerProfileComboBox.setSelectedItem(settingsData.compilerProfile);
+        interactiveModeCheckBox.setSelected(settingsData.isInteractive());
+        makeProjectBeforeRunCheckBox.setSelected(settingsData.isMakeBeforeRun());
+        compilerProfileComboBox.setModel(new DefaultComboBoxModel<>(settingsData.profiles()));
+        compilerProfileComboBox.setSelectedItem(settingsData.compilerProfile());
     }
 
     public JPanel getMainPanel() {
