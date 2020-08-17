@@ -153,4 +153,26 @@ class ReferencePassedToNlsInspectionTest extends ScalaInspectionTestBase {
            |toSpecificNls(${START}ref$END)
            |""".stripMargin
     )
+
+  def test_unapply_with_nls(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |case class Test(@Nls text: String)
+         |
+         |(null: Any) match {
+         |  case Test(ref) => toNls(ref)
+         |}
+         |""".stripMargin
+    )
+
+  def test_unapply_without_nls(): Unit =
+    checkTextHasError(
+      s"""
+         |case class Test(text: String)
+         |
+         |(null: Any) match {
+         |  case Test(ref) => toNls(${START}ref$END)
+         |}
+         |""".stripMargin
+    )
 }
