@@ -14,7 +14,7 @@ import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
-import org.jetbrains.plugins.scala.debugger.ScalaPositionManager.InsideAsync
+import org.jetbrains.plugins.scala.debugger.ScalaPositionManager.InsideMacro
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil.isAtLeast212
@@ -1663,6 +1663,13 @@ object ScalaEvaluatorBuilderUtil {
         }
       }
       inner(elem)
+    }
+  }
+
+  object InsideAsync {
+    def unapply(elem: PsiElement): Option[ScMethodCall] = elem match {
+      case InsideMacro(call @ ScMethodCall(ref: ScReferenceExpression, _)) if ref.refName == "async" => Some(call)
+      case _ => None
     }
   }
 

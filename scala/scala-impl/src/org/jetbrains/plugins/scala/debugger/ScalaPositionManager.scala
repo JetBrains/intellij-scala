@@ -652,7 +652,7 @@ object ScalaPositionManager {
     }
   }
 
-  private object InsideMacro {
+  object InsideMacro {
     def unapply(elem: PsiElement): Option[ScMethodCall] = {
       elem.parentsInFile.collectFirst {
         case mc: ScMethodCall if isMacroCall(mc) => mc
@@ -665,13 +665,6 @@ object ScalaPositionManager {
   private def isMacroCall(elem: PsiElement): Boolean = elem match {
     case ScMethodCall(ResolvesTo(MacroDef(_)), _) => true
     case _ => false
-  }
-
-  object InsideAsync {
-    def unapply(elem: PsiElement): Option[ScMethodCall] = elem match {
-      case InsideMacro(call @ ScMethodCall(ref: ScReferenceExpression, _)) if ref.refName == "async" => Some(call)
-      case _ => None
-    }
   }
 
   def shouldSkip(location: Location, debugProcess: DebugProcess): Boolean = {
