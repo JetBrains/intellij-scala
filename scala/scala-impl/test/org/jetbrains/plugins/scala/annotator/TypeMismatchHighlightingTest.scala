@@ -335,4 +335,29 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
   def testTypeMismatchEmptyNew(): Unit = assertErrors(
     "val v: String = new")
 
+  // Don't show type mismatch when the expression is of a singleton type that has an apply method, while a non-singleton type is expected, SCL-17669
+
+  def testSingletonTypeHasApply(): Unit = assertErrors(
+    "object O { def apply(p: Int) = 1 }; val v: Int = O",
+    Error("O", "Unspecified value parameters: p: Int"))
+
+  def testCaseClass(): Unit = assertErrors(
+    "case class C(p: Int); val v: C = C",
+    Error("C", "Unspecified value parameters: p: Int"))
+
+  def testSingletonTypeExpected(): Unit = assertErrors(
+    "object A { def apply(p: Int) = 1 }; object B; val v: B.type = A",
+    Hint("A", ": A.type"),
+    Error("A", "Expression of type A.type doesn't conform to expected type B.type"))
+
+  def testSingletonTypeHasNoApply(): Unit = assertErrors(
+    "object O; val v: Int = O",
+    Hint("O", ": O.type"),
+    Error("O", "Expression of type O.type doesn't conform to expected type Int"))
+
+  // Can we extrapolate that to FunctionN types?
+  def testNonSingletonTypeHasApply(): Unit = assertErrors(
+    "val x = (p: Int) => 1; val v: Int = x",
+    Hint("x", ": Int => Int"),
+    Error("x", "Expression of type Int => Int doesn't conform to expected type Int"))
 }
