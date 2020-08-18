@@ -14,6 +14,7 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.vfs.LocalFileSystem
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data._
 import org.jetbrains.bsp.project.BspSyntheticModuleType
@@ -21,6 +22,7 @@ import org.jetbrains.bsp.project.importing.BspResolverDescriptors._
 import org.jetbrains.bsp.{BSP, BspBundle}
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByVersion}
+import org.jetbrains.sbt.project.FastpassProjectImportProvider
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
