@@ -8,11 +8,13 @@ import javax.swing.tree.{DefaultTreeCellRenderer, TreeNode}
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.profile.codeInspection.ui.table.ThreeStateCheckBoxRenderer
+import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.treeStructure.treetable.{ListTreeTableModel, TreeColumnInfo, TreeTable}
 import com.intellij.util.ui.ColumnInfo
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.extensions.BooleanExt
 import org.jetbrains.plugins.scala.lang.transformation.annotations._
 import org.jetbrains.plugins.scala.lang.transformation.calls._
 import org.jetbrains.plugins.scala.lang.transformation.conversions.MakeBoxingExplicit
@@ -25,76 +27,76 @@ import org.jetbrains.plugins.scala.lang.transformation.types._
 
 class SelectionDialog {
   private val RootGroup = Group("root",
-    Group("Method invocations",
-      Entry("Expand \"apply\" call", new ExpandApplyCall()),
-      Entry("Expand \"update\" call", new ExpandUpdateCall()),
-      Entry("Expand unary call", new ExpandUpdateCall()),
-      Entry("Expand property setter call", new ExpandSetterCall()),
-      Entry("Expand assignment call", new ExpandAssignmentCall()),
-      Entry("Expand dynamic call", new ExpandDynamicCall()),
-      Entry("Canonize infix call", new CanonizeInfixCall()),
-      Entry("Canonize postfix call", new CanonizePostifxCall()),
-      Entry("Canonize arity-0 call", new CanonizeZeroArityCall()),
-      Entry("Canonize block argument", new CanonizeBlockArgument()),
-      Entry("Expand auto-tupling", new ExpandAutoTupling()),
-      Entry("Expand vararg argument", new ExpandVarargArgument(), enabled = false),
-      Entry("Inscribe default arguments", enabled = false),
-      Entry("Expand \"==\" to \"equals\" call")
+    Group(ScalaBundle.message("desugar.group.method.invocations"),
+      Entry(ScalaBundle.message("desugar.expand.apply.call"), new ExpandApplyCall()),
+      Entry(ScalaBundle.message("desugar.expand.update.call"), new ExpandUpdateCall()),
+      Entry(ScalaBundle.message("desugar.expand.unary.call"), new ExpandUpdateCall()),
+      Entry(ScalaBundle.message("desugar.expand.property.setter.call"), new ExpandSetterCall()),
+      Entry(ScalaBundle.message("desugar.expand.assignment.call"), new ExpandAssignmentCall()),
+      Entry(ScalaBundle.message("desugar.expand.dynamic.call"), new ExpandDynamicCall()),
+      Entry(ScalaBundle.message("desugar.canonize.infix.call"), new CanonizeInfixCall()),
+      Entry(ScalaBundle.message("desugar.canonize.postfix.call"), new CanonizePostifxCall()),
+      Entry(ScalaBundle.message("desugar.canonize.arity.0.call"), new CanonizeZeroArityCall()),
+      Entry(ScalaBundle.message("desugar.canonize.block.argument"), new CanonizeBlockArgument()),
+      Entry(ScalaBundle.message("desugar.expand.auto.tupling"), new ExpandAutoTupling()),
+      Entry(ScalaBundle.message("desugar.expand.vararg.argument"), new ExpandVarargArgument(), enabled = false),
+      Entry(ScalaBundle.message("desugar.inscribe.default.arguments"), enabled = false),
+      Entry(ScalaBundle.message("desugar.expand.to.equals.call"))
     ),
-    Group("Type annotations",
-      Entry("Value definition", new AddTypeToValueDefinition()),
-      Entry("Variable definition", new AddTypeToVariableDefinition()),
-      Entry("Method definition", new AddTypeToMethodDefinition()),
-      Entry("Function parameter", new AddTypeToFunctionParameter()),
-      Entry("Underscore parameter", new AddTypeToUnderscoreParameter()),
-      Entry("Reference pattern", new AddTypeToReferencePattern()),
-      Entry("Type parameters")
+    Group(ScalaBundle.message("desugar.group.type.annotations"),
+      Entry(ScalaBundle.message("desugar.value.definition"), new AddTypeToValueDefinition()),
+      Entry(ScalaBundle.message("desugar.variable.definition"), new AddTypeToVariableDefinition()),
+      Entry(ScalaBundle.message("desugar.method.definition"), new AddTypeToMethodDefinition()),
+      Entry(ScalaBundle.message("desugar.function.parameter"), new AddTypeToFunctionParameter()),
+      Entry(ScalaBundle.message("desugar.underscore.parameter"), new AddTypeToUnderscoreParameter()),
+      Entry(ScalaBundle.message("desugar.reference.pattern"), new AddTypeToReferencePattern()),
+      Entry(ScalaBundle.message("desugar.type.parameters"))
     ),
-    Group("Types",
-      Entry("Expand function type", new ExpandFunctionType()),
-      Entry("Expand tuple type", new ExpandTupleType()),
-      Entry("Expand type alias"),
-      Entry("Expand context bound"),
-      Entry("Expand view bound"),
-      Entry("Substitute AnyRef")
+    Group(ScalaBundle.message("desugar.group.types"),
+      Entry(ScalaBundle.message("desugar.expand.function.type"), new ExpandFunctionType()),
+      Entry(ScalaBundle.message("desugar.expand.tuple.type"), new ExpandTupleType()),
+      Entry(ScalaBundle.message("desugar.expand.type.alias")),
+      Entry(ScalaBundle.message("desugar.expand.context.bound")),
+      Entry(ScalaBundle.message("desugar.expand.view.bound")),
+      Entry(ScalaBundle.message("desugar.substitute.anyref"))
     ),
-    Group("Implicits",
-      Entry("Expand implicit conversion", new ExpandImplicitConversion()),
-      Entry("Inscribe implicit parameters", new InscribeImplicitParameters())
+    Group(ScalaBundle.message("desugar.group.implicits"),
+      Entry(ScalaBundle.message("desugar.expand.implicit.conversion"), new ExpandImplicitConversion()),
+      Entry(ScalaBundle.message("desugar.inscribe.implicit.parameters"), new InscribeImplicitParameters())
     ),
-    Group("Functions",
-      Entry("Expand placeholder syntax", new ExpandPlaceholderSyntax()),
-      Entry("Expand eta expansion", new ExpandEtaExpansion()),
-      Entry("Make eta-expansion explicit", new MakeEtaExpansionExplicit()),
-      Entry("Expand single abstract methods", enabled = false),
-      Entry("Expand function instantiation", enabled = false)
+    Group(ScalaBundle.message("desugar.group.functions"),
+      Entry(ScalaBundle.message("desugar.expand.placeholder.syntax"), new ExpandPlaceholderSyntax()),
+      Entry(ScalaBundle.message("desugar.expand.eta.expansion"), new ExpandEtaExpansion()),
+      Entry(ScalaBundle.message("desugar.make.eta.expansion.explicit"), new MakeEtaExpansionExplicit()),
+      Entry(ScalaBundle.message("desugar.expand.single.abstract.methods"), enabled = false),
+      Entry(ScalaBundle.message("desugar.expand.function.instantiation"), enabled = false)
     ),
-    Group("Expressions",
-      Entry("Expand for comprehensions", new ExpandForComprehension()),
-      Entry("Expand string interpolation", new ExpandStringInterpolation()),
-      Entry("Expand tuple instantiation", new ExpandTupleInstantiation())
+    Group(ScalaBundle.message("desugar.group.expressions"),
+      Entry(ScalaBundle.message("desugar.expand.for.comprehensions"), new ExpandForComprehension()),
+      Entry(ScalaBundle.message("desugar.expand.string.interpolation"), new ExpandStringInterpolation()),
+      Entry(ScalaBundle.message("desugar.expand.tuple.instantiation"), new ExpandTupleInstantiation())
     ),
-    Group("Declarations",
-      Entry("Expand procedure syntax", new ExpandProcedureSyntax()),
-      Entry("Make method return expressions explicit", new MakeResultExpressionExplicit()),
-      Entry("Add explicit \"override\" modifier"),
-      Entry("Replace underscore section with default value"),
-      Entry("Expand property declaration", enabled = false),
-      Entry("Expand property definition", enabled = false),
-      Entry("Convert implicit class to class and function")
+    Group(ScalaBundle.message("desugar.group.declarations"),
+      Entry(ScalaBundle.message("desugar.expand.procedure.syntax"), new ExpandProcedureSyntax()),
+      Entry(ScalaBundle.message("desugar.make.method.return.expressions.explicit"), new MakeResultExpressionExplicit()),
+      Entry(ScalaBundle.message("desugar.add.explicit.override.modifier")),
+      Entry(ScalaBundle.message("desugar.replace.underscore.section.with.default.value")),
+      Entry(ScalaBundle.message("desugar.expand.property.declaration"), enabled = false),
+      Entry(ScalaBundle.message("desugar.expand.property.definition"), enabled = false),
+      Entry(ScalaBundle.message("desugar.convert.implicit.class.to.class.and.function"))
     ),
-    Group("References",
-      Entry("Expand wildcard import"),
-      Entry("Fully qualify import expression"),
-      Entry("Partially qualify simple reference", new PartiallyQualifySimpleReference()),
-      Entry("Fully qualify reference", enabled = false)
+    Group(ScalaBundle.message("desugar.group.references"),
+      Entry(ScalaBundle.message("desugar.expand.wildcard.import")),
+      Entry(ScalaBundle.message("desugar.fully.qualify.import.expression")),
+      Entry(ScalaBundle.message("desugar.partially.qualify.simple.reference"), new PartiallyQualifySimpleReference()),
+      Entry(ScalaBundle.message("desugar.fully.qualify.reference"), enabled = false)
     ),
-    Group("General",
-      Entry("Append semicolon", new AppendSemicolon(), enabled = false),
-      Entry("Inscribe explicit braces", enabled = false),
-      Entry("Enforce parentheses in constructor invocation"),
-      Entry("Convert parentheses to braces in for comprehensions"),
-      Entry("Expand macro", enabled = false)
+    Group(ScalaBundle.message("desugar.group.general"),
+      Entry(ScalaBundle.message("desugar.append.semicolon"), new AppendSemicolon(), enabled = false),
+      Entry(ScalaBundle.message("desugar.inscribe.explicit.braces"), enabled = false),
+      Entry(ScalaBundle.message("desugar.enforce.parentheses.in.constructor.invocation")),
+      Entry(ScalaBundle.message("desugar.convert.parentheses.to.braces.in.for.comprehensions")),
+      Entry(ScalaBundle.message("desugar.expand.macro"), enabled = false)
     )
   )
 
@@ -102,7 +104,7 @@ class SelectionDialog {
     val dialog = new MyDialog(RootGroup)
     dialog.setTitle(title)
 
-    if (dialog.showAndGet()) Some(RootGroup.transformers.filterNot(_ == null).toSet) else None
+    dialog.showAndGet().option(RootGroup.transformers.filterNot(_ == null).toSet)
   }
 
   private class MyDialog(root: Group) extends DialogWrapper(false) {
@@ -148,7 +150,7 @@ class SelectionDialog {
 
       table.getColumnModel.getColumn(1).setMaxWidth(20 + padding)
 
-      val result = new JScrollPane(table)
+      val result = new JBScrollPane(table)
       result.setPreferredSize(new Dimension(350, 450))
 
       result
@@ -158,13 +160,13 @@ class SelectionDialog {
   private def padding = if (SystemInfo.isMac) 10 else 0
 }
 
-private abstract class Node(name: String) extends DefaultMutableTreeTableNode(name) {
+private abstract class Node(@Nls name: String) extends DefaultMutableTreeTableNode(name) {
   var value: Option[Boolean]
 
   def transformers: Seq[Transformer]
 }
 
-private case class Group(name: String, nodes: Node*) extends Node(name) {
+private case class Group(@Nls name: String, nodes: Node*) extends Node(name) {
   nodes.foreach(add)
 
   override def value: Option[Boolean] =
@@ -180,7 +182,7 @@ private case class Group(name: String, nodes: Node*) extends Node(name) {
 }
 
 // TODO remove the default argument when all transformers are implemented
-private case class Entry(name: String, private val transformer: Transformer = null, private val enabled: Boolean = true) extends Node(name) {
+private case class Entry(@Nls name: String, private val transformer: Transformer = null, private val enabled: Boolean = true) extends Node(name) {
   var value: Option[Boolean] = Some(enabled)
 
   override def transformers: Seq[Transformer] = if (value.contains(true)) Seq(transformer) else Seq.empty
