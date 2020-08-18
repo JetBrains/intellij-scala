@@ -88,9 +88,10 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
             val depSources = data.dependencySources.map(_.getItems.asScala).getOrElse {List.empty[DependencySourcesItem]}
             val resources = data.resources.map(_.getItems.asScala).getOrElse {List.empty[ResourcesItem]}
             val scalacOptions = data.scalacOptions.map(_.getItems.asScala).getOrElse {List.empty[ScalacOptionsItem]}
+            val javacOptions = data.javacOptions.map(_.getItems.asScala).getOrElse {List.empty[JavacOptionsItem]}
 
             val descriptions = calculateModuleDescriptions(
-              targets, scalacOptions, sources, resources, depSources
+              targets, scalacOptions, javacOptions, sources, resources, depSources
             )
             projectNode(workspace, descriptions, rootExclusions(workspace))
           }
@@ -216,9 +217,9 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       case PreImportTask(preImporter) =>
         doCancel { preImporter.cancel() }
       case BspTask(_) =>
-        doCancel()
+        doCancel {}
       case Active =>
-        doCancel()
+        doCancel {}
       case Inactive =>
         false
     }
@@ -280,11 +281,21 @@ object BspProjectResolver {
       CompletableFuture.completedFuture[Try[ResourcesResult]](Success(emptyResult))
     }
 
+    val scalacOptions = fetchScalacOptions(targets, parentId)
+    val javacOptions = fetchJavacOptions(targets, parentId)
+
+    CompletableFuture
+      .allOf(sources, depSources, resources, scalacOptions, javacOptions)
+      .thenApply(_ => TargetData(sources.get, depSources.get, resources.get, scalacOptions.get, javacOptions.get))
+  }
+
+  //noinspection ReferencePassedToNls
+  private def fetchScalacOptions(targets: List[BuildTarget], parentId: EventId)(implicit bsp: BspServer, reporter: BuildReporter) = {
     val scalaTargetIds = targets
-      .filter(_.getLanguageIds.contains("scala"))
+      .filter(t => t.getLanguageIds.contains("scala") && t.getDataKind == BuildTargetDataKind.SCALA)
       .map(_.getId).asJava
 
-    val scalacOptions = if (!scalaTargetIds.isEmpty) {
+    if (! scalaTargetIds.isEmpty) {
       val eventId = BuildMessages.randomEventId
       val message = "scalac options"
       reporter.startTask(eventId, Some(parentId), message)
@@ -298,13 +309,29 @@ object BspProjectResolver {
       val emptyResult = new ScalacOptionsResult(Collections.emptyList())
       CompletableFuture.completedFuture[Try[ScalacOptionsResult]](Success(emptyResult))
     }
-
-
-    CompletableFuture
-      .allOf(sources, depSources, resources, scalacOptions)
-      .thenApply(_ => TargetData(sources.get, depSources.get, resources.get, scalacOptions.get))
   }
 
+  //noinspection ReferencePassedToNls
+  private def fetchJavacOptions(targets: List[BuildTarget], parentId: EventId)(implicit bsp: BspServer, reporter: BuildReporter) = {
+    val javaTargetIds = targets
+      .filter(t => t.getLanguageIds.contains("java") && t.getDataKind == BuildTargetDataKind.JVM)
+      .map(_.getId).asJava
+
+    if (! javaTargetIds.isEmpty) {
+      val eventId = BuildMessages.randomEventId
+      val message = "javac options"
+      reporter.startTask(eventId, Some(parentId), message)
+
+      val javacOptionsParams = new JavacOptionsParams(javaTargetIds)
+      bsp.buildTargetJavacOptions(javacOptionsParams)
+        .catchBspErrors
+        .reportFinished(reporter, eventId, message, BspBundle.message("bsp.resolver.request.failed.buildtarget.javacoptions"))
+
+    } else {
+      val emptyResult = new JavacOptionsResult(Collections.emptyList())
+      CompletableFuture.completedFuture[Try[JavacOptionsResult]](Success(emptyResult))
+    }
+  }
 
   private def isDependencySourcesProvider(implicit capabilities: BuildServerCapabilities) =
     Option(capabilities.getDependencySourcesProvider).exists(_.booleanValue())

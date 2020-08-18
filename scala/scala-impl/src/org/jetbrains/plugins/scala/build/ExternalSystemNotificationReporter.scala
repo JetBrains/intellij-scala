@@ -121,12 +121,12 @@ class ExternalSystemNotificationReporter(workingDir: String,
         val startTime = taskDescriptor.descriptor.getEventTime
 
         val resultObject = result match {
-          case result: SuccessResult =>
+          case _: SuccessResult =>
             new SuccessResultImpl(startTime, time, true)
           case result: FailureResult =>
             val fails = result.getFailures.asScala.map(convertFailure).asJava
             new FailureResultImpl(startTime, time, fails)
-          case result: SkippedResult =>
+          case _: SkippedResult =>
             new SkippedResultImpl(startTime, time)
           case _ => // unknown or unhandled result type
             new SkippedResultImpl(startTime, time)
