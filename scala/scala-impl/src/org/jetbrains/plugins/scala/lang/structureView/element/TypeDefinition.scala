@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.structureView.element
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
@@ -8,10 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.structureView.element.TypeDefinition.childrenOf
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 04.05.2008
-*/
 class TypeDefinition(definition: ScTypeDefinition) extends AbstractTreeElement(definition) {
 
   override def getPresentableText: String = {
@@ -25,7 +22,7 @@ class TypeDefinition(definition: ScTypeDefinition) extends AbstractTreeElement(d
       }
     }
 
-    name.getOrElse("") + typeParameters.getOrElse("") + valueParameters.getOrElse("")
+    NlsString.force(name.getOrElse("") + typeParameters.getOrElse("") + valueParameters.getOrElse(""))
   }
 
   override def children: Seq[PsiElement] = childrenOf(definition)

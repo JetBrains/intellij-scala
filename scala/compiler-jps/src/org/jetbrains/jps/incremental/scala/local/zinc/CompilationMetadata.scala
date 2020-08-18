@@ -87,10 +87,10 @@ object CompilationMetadata {
           case Some(badFormat: AnyRef) =>
             val cacheResultClass = badFormat.getClass.getName
             client.warning(JpsBundle.message("unrecognized.cache.format", badFormat, cacheResultClass))
-            notUseCache(JpsBundle.message("no.cache") + s" badFormat ($cacheResultClass): $description")
+            notUseCache(JpsBundle.message("no.cache", s"badFormat ($cacheResultClass): $description)"))
 
           case _ =>
-            notUseCache(JpsBundle.message("no.cache") + s" $description")
+            notUseCache(JpsBundle.message("no.cache", description))
         }
       case _ =>
         notUseCache(JpsBundle.message("no.cache.found"))
