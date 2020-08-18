@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.meta.Dialect
+import scala.meta.{Dialect, ScalaMetaBundle}
 import scala.meta.inputs.Input
 import scala.meta.parsers.{ParseException, Parsed}
 
@@ -77,7 +77,7 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
       scala.meta.dialects.QuasiquoteTerm(m.Dialect.standards("Scala211"), multiline = true)
     else
       scala.meta.dialects.QuasiquoteTerm(m.Dialect.standards("Scala211"), multiline = false)
-    val prefix = pat.reference.fold(throw new ParseException(null, s"Failed to get QQ ref in ${pat.getText}"))(_.getText)
+    val prefix = pat.reference.fold(throw new ParseException(null, ScalaMetaBundle.message("failed.to.get.qq.ref.in.pattern", pat.getText)))(_.getText)
     try {
       val parsed = parseQQExpr(prefix, patternText, qqdialect)
       parsed match {
@@ -132,7 +132,7 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
       case "importer"   => p.parse[m.Importer]
       case "importee"   => p.parse[m.Importee]
       case "enumerator" => p.parse[m.Enumerator]
-      case _ => Parsed.Error(null, s"Unknown Quasiquote kind - $prefix", new MatchError(prefix))
+      case _ => Parsed.Error(null, ScalaMetaBundle.message("unknown.quasiquote.kind.prefix", prefix), new MatchError(prefix))
     }
   }
 

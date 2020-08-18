@@ -12,7 +12,7 @@ import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.{ModuleRootManager, OrderEnumerator}
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
-import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.{NlsString, extensions}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationsHolder}
@@ -24,7 +24,7 @@ import scala.collection.JavaConverters._
 import scala.collection.immutable
 import scala.meta.parsers.Parse
 import scala.meta.trees.{AbortException, ScalaMetaException, TreeConverter}
-import scala.meta.{Dialect, Tree}
+import scala.meta.{Dialect, ScalaMetaBundle, Tree}
 import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
 
 /**
@@ -132,11 +132,11 @@ object MetaExpansionsManager {
   }
 
 
-  def runMetaAnnotation(annot: ScAnnotation): Either[String, Tree] = {
+  def runMetaAnnotation(annot: ScAnnotation): Either[NlsString, Tree] = {
     val holder = annot.parentOfType(classOf[ScAnnotationsHolder], strict = false).orNull
 
     @CachedInUserData(annot, BlockModificationTracker(annot))
-    def runMetaAnnotationsImpl(annot: ScAnnotation): Either[String, Tree] = {
+    def runMetaAnnotationsImpl(annot: ScAnnotation): Either[NlsString, Tree] = {
 
       val converter = new TreeConverter {
         override def getCurrentProject: Project = annot.getProject
@@ -157,17 +157,17 @@ object MetaExpansionsManager {
         val errorOrTree = (maybeClass, maybeClass.map(_.getClassLoader)) match {
           case (Some(clazz), Some(_: MetaClassLoader)) => Right(runAdapterString(clazz, compiledArgs))
           case (Some(clazz), _) => Right(runDirect(clazz, compiledArgs))
-          case (None, _)        => Left("Meta annotation class could not be found")
+          case (None, _)        => Left(ScalaMetaBundle.nls("meta.annotation.class.could.not.be.found"))
         }
         errorOrTree.right.map(fixTree)
       } catch {
         case pc: ProcessCanceledException => throw pc
-        case me: AbortException           => Left(s"Tree conversion error: ${me.getMessage}")
-        case sm: ScalaMetaException       => Left(s"Semantic error: ${sm.getMessage}")
-        case so: StackOverflowError       => Left(s"Stack overflow during expansion ${holder.getText}")
-        case mw: MetaWrappedException     => Left(mw.target.toString)
-        case e: Exception                 => Left(e.getMessage)
-        case e: Error                     => Left("Internal error: "+e.getMessage) // class loading issues?
+        case me: AbortException           => Left(ScalaMetaBundle.nls("tree.conversion.error", me.getMessage))
+        case sm: ScalaMetaException       => Left(ScalaMetaBundle.nls("semantic.error", sm.getMessage))
+        case so: StackOverflowError       => Left(ScalaMetaBundle.nls("stack.overflow.during.expansion", holder.getText))
+        case mw: MetaWrappedException     => Left(NlsString.force(mw.target.toString))
+        case e: Exception                 => Left(NlsString.force(e.getMessage))
+        case e: Error                     => Left(ScalaMetaBundle.nls("internal.error.getmessage", e.getMessage)) // class loading issues?
       }
     }
 

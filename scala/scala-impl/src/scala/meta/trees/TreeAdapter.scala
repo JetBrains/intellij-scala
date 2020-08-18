@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
 import scala.collection.immutable.Seq
 import scala.language.postfixOps
-import scala.meta.Defn
+import scala.meta.{Defn, ScalaMetaBundle}
 import scala.meta.trees.error._
 import scala.{meta => m}
 
@@ -62,7 +62,7 @@ trait TreeAdapter {
           Option(toType(value)),
           t.macroImplReference.map(getQualifiedReference).get
         )
-      case _ => unreachable("Macro definition must have return type defined")
+      case _ => unreachable(ScalaMetaBundle.message("macro.definition.must.have.return.type.defined"))
     }
 
   def toFunDefn(t: ScFunctionDefinition): m.Defn.Def = {
@@ -150,7 +150,7 @@ trait TreeAdapter {
   def ctor(pc: Option[ScPrimaryConstructor]): m.Ctor.Primary = {
     pc match {
       case Some(ctor) => m.Ctor.Primary(convertMods(ctor), toPrimaryCtorName(ctor), Seq(ctor.parameterList.clauses.map(convertParamClause):_*))
-      case None => unreachable("no primary constructor in class")
+      case None => unreachable(ScalaMetaBundle.message("no.primary.constructor.in.class"))
     }
   }
 
@@ -229,9 +229,9 @@ trait TreeAdapter {
       case Some(parents) =>
         parents.constructorInvocation match {
           case Some(constrInvocation) => toCtor(constrInvocation)
-          case None => unreachable(s"no constructor found in class ${t.qualifiedName}")
+          case None => unreachable(ScalaMetaBundle.message("no.constructor.found.in.class", t.qualifiedName))
         }
-      case None => unreachable(s"Class ${t.qualifiedName} has no parents")
+      case None => unreachable(ScalaMetaBundle.message("class.has.no.parents", t.qualifiedName))
     }
     val self    = t.selfType match {
       case Some(tpe: ptype.ScType) =>
@@ -262,7 +262,7 @@ trait TreeAdapter {
       case m.Type.Select(qual, name) => m.Ctor.Ref.Select(qual, m.Ctor.Ref.Name(name.value))
       case m.Type.Project(qual, name) => m.Ctor.Ref.Project(qual, m.Ctor.Ref.Name(name.value))
       case m.Type.Apply(tpe, args) => m.Term.ApplyType(toCtorRef(tpe), args)
-      case other => unreachable(s"Unexpected type in constructor type element - $other")
+      case other => unreachable(ScalaMetaBundle.message("unexpected.type.in.constructor.type.element", other))
     }
   }
 
@@ -316,7 +316,7 @@ trait TreeAdapter {
         m.Term.Do(t.body.map(expression).getOrElse(m.Term.Placeholder()),
             t.condition.map(expression).getOrElse(m.Term.Placeholder()))
       case t: ScWhile =>
-        m.Term.While(t.condition.map(expression).getOrElse(throw new AbortException(Some(t), "Empty while condition")),
+        m.Term.While(t.condition.map(expression).getOrElse(throw new AbortException(Some(t), ScalaMetaBundle.message("empty.while.condition"))),
             t.expression.map(expression).getOrElse(m.Term.Block(Seq.empty)))
       case t: ScFor =>
         m.Term.For(t.enumerators.map(enumerators).getOrElse(Seq.empty),
@@ -338,7 +338,7 @@ trait TreeAdapter {
       case t: ScTuple =>
         m.Term.Tuple(Seq(t.exprs.map(expression): _*))
       case t: ScThrow =>
-        m.Term.Throw(expression(t.expression).getOrElse(throw new AbortException(t, "Empty throw expression")))
+        m.Term.Throw(expression(t.expression).getOrElse(throw new AbortException(t, ScalaMetaBundle.message("empty.throw.expression"))))
       case t@ScTry(tryBlock, catchBlock, finallyBlock) =>
         val fblk = finallyBlock.collect  {
           case ScFinallyBlock(expr) => expression(expr)
@@ -385,13 +385,13 @@ trait TreeAdapter {
     def toEnumerator(nm: ScEnumerator): m.Enumerator = {
       nm match {
         case e: ScGenerator =>
-          val expr = e.expr.getOrElse(unreachable("generator has no expression"))
+          val expr = e.expr.getOrElse(unreachable(ScalaMetaBundle.message("generator.has.no.expression")))
           m.Enumerator.Generator(pattern(e.pattern), expression(expr))
         case e: ScGuard =>
-          val expr = e.expr.getOrElse(unreachable("guard has no condition"))
+          val expr = e.expr.getOrElse(unreachable(ScalaMetaBundle.message("guard.has.no.condition")))
           m.Enumerator.Guard(expression(expr))
         case e: ScForBinding =>
-          val expr = e.expr.getOrElse(unreachable("forBinding has no expression"))
+          val expr = e.expr.getOrElse(unreachable(ScalaMetaBundle.message("forbinding.has.no.expression")))
           m.Enumerator.Val(pattern(e.pattern), expression(expr))
         case _ => unreachable
       }
@@ -452,10 +452,10 @@ trait TreeAdapter {
   def imports(t: p.toplevel.imports.ScImportExpr):m.Importer = {
     def selector(sel: p.toplevel.imports.ScImportSelector): m.Importee = {
       val importedName = sel.importedName.getOrElse {
-        throw new AbortException("Imported name is null")
+        throw new AbortException(ScalaMetaBundle.message("imported.name.is.null"))
       }
       val reference = sel.reference.getOrElse {
-        throw new AbortException("Reference is null")
+        throw new AbortException(ScalaMetaBundle.message("reference.is.null"))
       }
 
       if (sel.isAliasedImport && importedName == "_")

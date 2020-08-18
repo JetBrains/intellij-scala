@@ -1,6 +1,7 @@
 package scala.meta
 package intellij
 
+import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationsHolder, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTypeDefinition}
@@ -30,19 +31,19 @@ package object psi {
 
   implicit class AnnotationHolderExt(private val repr: ScAnnotationsHolder) extends AnyVal {
 
-    def metaExpand: Either[String, Tree] =
+    def metaExpand: Either[NlsString, Tree] =
       if (repr.isMetaEnabled) cached
-      else Left("")
+      else Left(NlsString.force(""))
 
-    @CachedWithRecursionGuard(repr, Left("Recursive meta expansion"), BlockModificationTracker(repr))
-    private def cached: Either[String, Tree] = {
+    @CachedWithRecursionGuard(repr, Left(ScalaMetaBundle.nls("recursive.meta.expansion")), BlockModificationTracker(repr))
+    private def cached: Either[NlsString, Tree] = {
       import ScalaProjectSettings.ScalaMetaMode.Enabled
       ScalaProjectSettings.getInstance(repr.getProject).getScalaMetaMode match {
         case Enabled =>
           repr.annotations.find(_.isMetaMacro)
-            .toRight("No meta annotation")
+            .toRight(ScalaMetaBundle.nls("no.meta.annotation"))
             .flatMap(MetaExpansionsManager.runMetaAnnotation)
-        case _ => Left("Meta expansions disabled in settings")
+        case _ => Left(ScalaMetaBundle.nls("meta.expansions.disabled.in.settings"))
       }
     }
   }

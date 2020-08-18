@@ -1,25 +1,26 @@
 package scala.meta.trees
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.annotations.Nls
 
-import scala.meta.internal.{ast => m, semantic => h}
+import scala.meta.ScalaMetaBundle
 
-class AbortException(reason: String) extends RuntimeException(reason) {
-  def this(place: Any, mess: String) = this(mess + s"[$place]")
+class AbortException(@Nls reason: String) extends RuntimeException(reason) {
+  def this(place: Any, @Nls mess: String) = this(mess + s"[$place]")
 }
 
 class UnimplementedException(what: Any) extends
-  AbortException(what, s"This code path is not implemented yet[${Thread.currentThread().getStackTrace.drop(3).head}]")
+  AbortException(what, ScalaMetaBundle.message("this.code.path.is.not.implemented.yet.head", Thread.currentThread().getStackTrace.drop(3).head))
 
-class ScalaMetaException(message: String) extends Exception(message)
+class ScalaMetaException(@Nls message: String) extends Exception(message)
 
-class ScalaMetaResolveError(elem: PsiElement) extends ScalaMetaException(s"Cannot resolve ${elem.getClass} at ${elem.toString}")
+class ScalaMetaResolveError(elem: PsiElement) extends ScalaMetaException(ScalaMetaBundle.message("cannot.resolve.class.at.element", elem.getClass, elem.toString))
 
-class ScalaMetaTypeResultFailure(cause: String) extends ScalaMetaException(s"Cannot calculate type: $cause")
+class ScalaMetaTypeResultFailure(@Nls cause: String) extends ScalaMetaException(ScalaMetaBundle.message("cannot.calculate.type", cause))
 
 package object error {
-  def unreachable = throw new AbortException("This code should be unreachable")
-  def unreachable(reason: String) = throw new AbortException(s"This code should be unreachable: $reason")
-  def unresolved(cause: String) = throw new AbortException(s"Failed to typecheck: $cause")
-  def die(reason: String = "unknown") = throw new AbortException(reason)
+  def unreachable = throw new AbortException(ScalaMetaBundle.message("this.code.should.be.unreachable"))
+  def unreachable(@Nls reason: String) = throw new AbortException(ScalaMetaBundle.message("this.code.should.be.unreachable.reason", reason))
+  def unresolved(@Nls cause: String) = throw new AbortException(ScalaMetaBundle.message("failed.to.typecheck", cause))
+  def die(@Nls reason: String = "unknown") = throw new AbortException(reason)
 }

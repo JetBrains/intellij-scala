@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{types => ptype}
 
 import scala.collection.immutable.LongMap
-import scala.meta.{Term, Type}
+import scala.meta.{ScalaMetaBundle, Term, Type}
 import scala.meta.trees.error._
 import scala.{meta => m, Seq => _}
 
@@ -97,7 +97,7 @@ trait Utils {
   }
 
   implicit class RichPSI(psi: PsiElement) {
-    def ?! = throw new AbortException(psi, s"Unexpected psi(${psi.getClass}): ${psi.getText}")
+    def ?! = throw new AbortException(psi, ScalaMetaBundle.message("unexpected.psi", psi.getClass, psi.getText))
     def ??? = throw new UnimplementedException(psi)
     def isSingletonType: Boolean = psi match {
       case _: PsiPackage => true

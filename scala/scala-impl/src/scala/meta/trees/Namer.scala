@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.{impl, api => p, types => ptype}
 import scala.annotation.tailrec
 import scala.language.postfixOps
 import scala.meta.Ctor.Ref
+import scala.meta.ScalaMetaBundle
 //import scala.meta.internal.ast.Type
 import scala.meta.internal.{semantic => h}
 import scala.meta.trees.error._
@@ -78,9 +79,9 @@ trait Namer {
     case sc: impl.toplevel.synthetic.ScSyntheticClass =>
       m.Type.Name(sc.className)
     case se: impl.toplevel.synthetic.SyntheticNamedElement =>
-      die(s"Synthetic elements not implemented") // FIXME: find a way to resolve synthetic elements
+      die(ScalaMetaBundle.message("synthetic.elements.not.implemented")) // FIXME: find a way to resolve synthetic elements
     case _: PsiPackage | _: ScObject =>
-      unreachable(s"Package and Object types shoud be Singleton, not Name: ${elem.getText}")
+      unreachable(ScalaMetaBundle.message("package.and.object.types.shoud.be.singleton.not.name...", elem.getText))
     // Java stuff starts here
     case pc: PsiClass =>
       m.Type.Name(pc.getName)
@@ -119,7 +120,7 @@ trait Namer {
       }
     }
     tp.visitType(visitor)
-    if (res != null) res else die(s"failed to convert type $tp")
+    if (res != null) res else die(ScalaMetaBundle.message("failed.to.convert.type.tp", tp))
   }
 
   def toCtorName(c: ScStableCodeReference): m.Ctor.Ref.Name = {
@@ -157,7 +158,7 @@ trait Namer {
         case n@m.Type.Name(value) => m.Name.Indeterminate(value)
         case _: m.Type.Select => loop(mtp.stripped)
         case _: m.Type.Project => loop(mtp.stripped)
-        case other => throw new AbortException(other, "Super selector cannot be non-name type")
+        case other => throw new AbortException(other, ScalaMetaBundle.message("super.selector.cannot.be.non.name.type"))
       }
     }
     tp.staticSuper.map(t=>loop(toType(t))).getOrElse(m.Name.Anonymous())
@@ -169,7 +170,7 @@ trait Namer {
     raw.stripped match {
       case n@m.Type.Name(value) =>
         m.Ctor.Ref.Name(value)
-      case other => die(s"Unexpected type in parents: $other")
+      case other => die(ScalaMetaBundle.message("unexpected.type.in.parents.other", other))
     }
   }
 

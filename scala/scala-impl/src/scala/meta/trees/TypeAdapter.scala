@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
 import scala.collection.immutable.Seq
 import scala.language.postfixOps
+import scala.meta.ScalaMetaBundle
 import scala.meta.collections._
 import scala.meta.trees.error._
 import scala.{meta => m, Seq => _}
@@ -67,7 +68,7 @@ trait TypeAdapter {
             case Some(t: ScInfixTypeElement) => m.Type.ApplyInfix(toType(t.left), toTypeName(t.operation), toType(t.rightOption.get))
             case _ => unreachable
           }
-        case t: ScTypeVariableTypeElement => die("i cannot into type variables")
+        case t: ScTypeVariableTypeElement => die(ScalaMetaBundle.message("cannot.convert.into.type.variables"))
         case t: ScExistentialTypeElement =>
           val clauses = Seq(t.clause.declarations map {
             case tp: ScTypeAliasDeclaration => toTypeDecl(tp)
@@ -182,7 +183,7 @@ trait TypeAdapter {
           else
             toTypeName(t.element)
         case t: ptype.ScCompoundType if t.components.size < 2 =>
-          unreachable("Number of parts in compound type must be >= 2")
+          unreachable(ScalaMetaBundle.message("number.of.parts.in.compound.type.must.be.greater.than.2"))
         case t: ptype.ScCompoundType =>
           t.components
             .dropRight(1)
