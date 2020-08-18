@@ -5,6 +5,7 @@ package impl
 package base
 
 import com.intellij.lang.{ASTNode, LanguageNamesValidation}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
@@ -32,7 +33,7 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
   }
 
   protected override def innerType: TypeResult =
-    desugaredExpression.fold(Failure(s"Cannot find method $referenceText of StringContext"): TypeResult) {
+    desugaredExpression.fold(Failure(ScalaBundle.message("cannot.find.method.of.stringcontext", referenceText)): TypeResult) {
       case (reference, _) if isMetaQQ(reference) =>
         getMetaQQExprType(this)
       case (reference, call) =>

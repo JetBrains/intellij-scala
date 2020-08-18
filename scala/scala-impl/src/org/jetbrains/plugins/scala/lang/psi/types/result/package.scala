@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang
 package psi
 package types
 
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -17,7 +17,7 @@ package object result {
 
     def asTypeResult(implicit context: ProjectContext): TypeResult = maybeRight match {
       case Some(result) => Right(result)
-      case None => Failure("")
+      case None => Failure(NlsString.force(""))
     }
   }
 

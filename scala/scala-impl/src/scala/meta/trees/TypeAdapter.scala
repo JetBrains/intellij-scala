@@ -98,7 +98,7 @@ trait TypeAdapter {
     import org.jetbrains.plugins.scala.lang.psi.types.result._
     tr match {
       case Right(res) => toType(res)
-      case Failure(cause) => throw new ScalaMetaTypeResultFailure(cause)
+      case Failure(cause) => throw new ScalaMetaTypeResultFailure(cause.nls)
     }
   }
 
@@ -131,7 +131,7 @@ trait TypeAdapter {
         case t: ScTypedDefinition =>
           t.getTypeWithCachedSubst match {
             case Right(res) => toType(res)
-            case Failure(cause) => unresolved(cause)
+            case Failure(cause) => unresolved(cause.nls)
           }
         case t: ScReference if dumbMode =>
           m.Type.Name(t.refName)

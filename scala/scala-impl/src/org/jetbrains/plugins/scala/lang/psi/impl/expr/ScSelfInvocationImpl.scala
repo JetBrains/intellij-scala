@@ -8,6 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -86,9 +87,9 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
   private def workWithBindInternal(bindInternal: Option[PsiElement], i: Int): TypeResult = {
     val (res: ScType, clazz: ScTemplateDefinition) = bindInternal match {
       case Some(c: ScMethodLike) =>
-        val methodType = c.nestedMethodType(i).getOrElse(return Failure("Not enough parameter sections"))
+        val methodType = c.nestedMethodType(i).getOrElse(return Failure(ScalaBundle.message("not.enough.parameter.sections")))
         (methodType, c.containingClass)
-      case _ => return Failure("Cannot shape resolve self invocation")
+      case _ => return Failure(ScalaBundle.message("cannot.shape.resolve.self.invocation"))
     }
     clazz match {
       case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>

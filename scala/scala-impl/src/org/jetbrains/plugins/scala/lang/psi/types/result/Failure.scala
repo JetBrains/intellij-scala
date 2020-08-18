@@ -2,10 +2,12 @@ package org.jetbrains.plugins.scala.lang.psi
 package types
 package result
 
+import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
-final class Failure(private[result] val cause: String)
+final class Failure(private[result] val cause: NlsString)
                    (private[result] implicit val context: ProjectContext) {
 
   override def toString = s"Failure($cause)"
@@ -15,18 +17,18 @@ final class Failure(private[result] val cause: String)
     case _ => false
   }
 
-  override def hashCode(): Int = cause #+ context
+  override def hashCode(): Int = cause.## #+ context
 }
 
 object Failure {
 
   import scala.util.{Either, Left}
 
-  def apply(cause: String)
+  def apply(@Nls cause: String)
            (implicit context: ProjectContext): Left[Failure, ScType] =
-    Left(new Failure(cause))
+    Left(new Failure(NlsString(cause)))
 
-  def unapply(result: Either[Failure, ScType]): Option[String] = result match {
+  def unapply(result: Either[Failure, ScType]): Option[NlsString] = result match {
     case Left(failure) => Some(failure.cause)
     case _ => None
   }

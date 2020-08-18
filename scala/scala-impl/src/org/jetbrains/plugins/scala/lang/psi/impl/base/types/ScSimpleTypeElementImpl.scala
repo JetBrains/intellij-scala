@@ -9,6 +9,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.getContextOfType
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
@@ -408,7 +409,7 @@ object ScSimpleTypeElementImpl {
   }
 
   private def fromTemplate(maybeTemplate: Option[ScTemplateDefinition],
-                           message: String,
+                           @Nls message: String,
                            path: ScPathElement,
                            function: ScTemplateDefinition => ScType) = {
     import path.projectContext

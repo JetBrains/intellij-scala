@@ -119,7 +119,7 @@ trait ScExpression extends ScBlockStatement
 
   @CachedWithRecursionGuard(
     this,
-    ExpressionTypeResult(Failure("Recursive getTypeAfterImplicitConversion")),
+    ExpressionTypeResult(Failure(NlsString.force("Recursive getTypeAfterImplicitConversion"))),
     BlockModificationTracker(this)
   )
   override def getTypeAfterImplicitConversion(
@@ -188,7 +188,7 @@ object ScExpression {
 
     def getTypeIgnoreBaseType: TypeResult = expr.getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
 
-    @CachedWithRecursionGuard(expr, Failure("Recursive getNonValueType"), BlockModificationTracker(expr))
+    @CachedWithRecursionGuard(expr, Failure(NlsString.force("Recursive getNonValueType")), BlockModificationTracker(expr))
     def getNonValueType(ignoreBaseType: Boolean = false,
                         fromUnderscore: Boolean = false): TypeResult = {
       ProgressManager.checkCanceled()
@@ -219,7 +219,7 @@ object ScExpression {
       }
     }
 
-    @CachedWithRecursionGuard(expr, Failure("Recursive getTypeWithoutImplicits"),
+    @CachedWithRecursionGuard(expr, Failure(NlsString.force("Recursive getTypeWithoutImplicits")),
       BlockModificationTracker(expr))
     def getTypeWithoutImplicits(
       ignoreBaseType: Boolean = false,

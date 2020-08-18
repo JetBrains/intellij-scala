@@ -11,7 +11,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{CompilerTester, PsiTestUtil}
-import org.jetbrains.plugins.scala.DependencyManager
+import org.jetbrains.plugins.scala.{DependencyManager, NlsString}
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.debugger.{CompilationCache, ScalaCompilerTestBase}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -90,9 +90,9 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     myFixture.configureByText(s"Usage${getTestName(false)}.scala", code)
     val holder = elementAtCaret.parentOfType(classOf[ScAnnotationsHolder], strict = false).orNull
     holder.metaExpand match {
-      case Right(tree) => assertEquals(expectedExpansion, tree.toString())
-      case Left(reason) if reason.nonEmpty => fail(reason)
-      case Left("") => fail("Expansion was empty - did annotation even run?")
+      case Right(tree)         => assertEquals(expectedExpansion, tree.toString())
+      case Left(NlsString("")) => fail("Expansion was empty - did annotation even run?")
+      case Left(reason)        => fail(reason)
     }
   }
 

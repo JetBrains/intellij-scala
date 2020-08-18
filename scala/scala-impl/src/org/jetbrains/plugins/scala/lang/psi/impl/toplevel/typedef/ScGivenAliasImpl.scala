@@ -6,6 +6,7 @@ package toplevel
 package typedef
 
 import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ifReadAllowed, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
@@ -23,7 +24,7 @@ class ScGivenAliasImpl(stub: ScFunctionStub[ScGivenAlias],
     with ScGivenAlias
 {
   override def toString: String = "ScGivenAlias: " + ifReadAllowed(name)("")
-  override def returnType: TypeResult = Failure("ScGivenAliasImpl.returnType: not yet implemented")
+  override def returnType: TypeResult = Failure(ScalaBundle.message("scgivenaliasimpl.returntype.not.yet.implemented"))
 
   override protected def typeElementForAnonymousName: Option[ScTypeElement] =
     byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)

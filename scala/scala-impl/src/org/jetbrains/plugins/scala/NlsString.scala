@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala
 
 import org.jetbrains.annotations.Nls
 
+import scala.collection.immutable.StringOps
+
 /**
  * Marks a string as containing a natural language string
  *
@@ -31,4 +33,10 @@ object NlsString {
   @Nls
   implicit def toNormalString(nlsString: NlsString): String =
     nlsString.nls
+
+  /**
+   * Allow normal string operations
+   */
+  implicit def toStringOps(nlsString: NlsString): StringOps =
+    new StringOps(nlsString.nls)
 }

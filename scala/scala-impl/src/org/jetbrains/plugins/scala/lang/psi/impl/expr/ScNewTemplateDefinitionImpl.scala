@@ -10,6 +10,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import javax.swing.Icon
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.OverridingAnnotator
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
 import org.jetbrains.plugins.scala.extensions._
@@ -99,7 +100,7 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
 
     // Reliably prevent cases like SCL-17168
     if (extendsBlock.getTextLength == 0) {
-      return Failure("Empty new expression")
+      return Failure(ScalaBundle.message("empty.new.expression"))
     }
 
     desugaredApply match {

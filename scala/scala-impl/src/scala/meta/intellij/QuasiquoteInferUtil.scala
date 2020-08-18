@@ -2,6 +2,7 @@ package scala.meta.intellij
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiManager
+import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpolatedStringLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -86,7 +87,7 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
             .createTypeElementFromText(s"scala.meta.${qq.productPrefix}")(PsiManager.getInstance(pat.getProject))
             .`type`()
         case Parsed.Error(_, message, _) =>
-          Failure(message)
+          Failure(NlsString.force(message))
       }
     } catch {
       case _: ArrayIndexOutOfBoundsException =>  // workaround for meta parser failure on malformed quasiquotes

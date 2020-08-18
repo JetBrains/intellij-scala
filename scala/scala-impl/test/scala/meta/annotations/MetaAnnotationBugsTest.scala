@@ -2,7 +2,7 @@ package scala.meta
 package annotations
 
 import com.intellij.lang.annotation.HighlightSeverity
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.junit.Assert
@@ -37,9 +37,9 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
         |  }
         |}""".stripMargin
     myFixture.findClass("FooOp").asInstanceOf[ScTypeDefinition].metaExpand match {
-      case Right(tree)                      => assertEquals(expectedExpansion, tree.toString())
-      case Left(reason) if reason.nonEmpty  => fail(reason)
-      case Left("")                         => fail("Expansion was empty - did annotation even run?")
+      case Right(tree)         => assertEquals(expectedExpansion, tree.toString())
+      case Left(NlsString("")) => fail("Expansion was empty - did annotation even run?")
+      case Left(reason)        => fail(reason)
     }
   }
 

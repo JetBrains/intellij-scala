@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiMethod
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, MacroInvocationContext, ScalaMacroEvaluator}
@@ -238,7 +238,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 }
 
 object MethodInvocationImpl {
-  private val noSuitableMethodFoundError: String = ScalaBundle.message("suitable.method.not.found")
+  private val noSuitableMethodFoundError: NlsString = ScalaBundle.nls("suitable.method.not.found")
 
   private object FunctionTypeParameters {
 
