@@ -2,7 +2,7 @@ package org.jetbrains.bsp.project.importing
 
 import java.awt.BorderLayout
 import java.io.File
-
+import java.nio.file.{Path, Paths}
 import ch.epfl.scala.bsp4j.BspConnectionDetails
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, WizardContext}
 import com.intellij.openapi.progress.{ProgressIndicator, Task}
@@ -16,13 +16,13 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.bsp.{BspBundle, BspUtil}
 import org.jetbrains.bsp.project.importing.BspSetupConfigStep.ConfigSetupTask
 import org.jetbrains.bsp.project.importing.bspConfigSteps._
-import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, MillConfigSetup, NoConfigSetup, SbtConfigSetup}
+import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, FastpassConfigSetup, MillConfigSetup, NoConfigSetup, SbtConfigSetup}
 import org.jetbrains.bsp.protocol.BspConnectionConfig
 import org.jetbrains.bsp.settings.BspProjectSettings._
 import org.jetbrains.plugins.scala.build.IndicatorReporter
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil._
-import org.jetbrains.sbt.project.{MillProjectImportProvider, SbtProjectImportProvider}
+import org.jetbrains.sbt.project.{FastpassProjectImportProvider, MillProjectImportProvider, SbtProjectImportProvider}
 
 object bspConfigSteps {
 
@@ -32,6 +32,7 @@ object bspConfigSteps {
   case object BloopSetup extends ConfigSetup
   case object BloopSbtSetup extends ConfigSetup
   case object MillSetup extends ConfigSetup
+  case object FastpassSetup extends ConfigSetup
 
   private[importing] def configChoiceName(configs: ConfigSetup) = configs match {
     case NoSetup => BspBundle.message("bsp.config.steps.choice.no.setup")
@@ -39,6 +40,7 @@ object bspConfigSteps {
     case BloopSetup => BspBundle.message("bsp.config.steps.choice.bloop")
     case BloopSbtSetup => BspBundle.message("bsp.config.steps.choice.sbt.with.bloop")
     case MillSetup => BspBundle.message("bsp.config.steps.choice.mill")
+    case FastpassSetup => BspBundle.message("bsp.config.steps.choice.fastpass")
   }
 
   private[importing] def configName(config: BspConnectionDetails) =
@@ -104,6 +106,11 @@ object bspConfigSteps {
         case bspConfigSteps.MillSetup =>
           builder.setPreImportConfig(NoPreImport)
           MillConfigSetup(workspace)
+        case bspConfigSteps.FastpassSetup =>
+          builder.setPreImportConfig(NoPreImport)
+          val bspWorkspace = FastpassConfigSetup.computeBspWorkspace(workspace)
+          builder.setExternalBspWorkspace(bspWorkspace)
+          FastpassConfigSetup.create(workspace).fold(throw _, identity)
       }
   }
 
@@ -129,19 +136,23 @@ object bspConfigSteps {
       if (BspUtil.bloopConfigDir(workspace).isDefined) List(BloopSetup)
       else Nil
 
+    val fastpassChoice = if(FastpassProjectImportProvider.canImport(vfile))
+      List(FastpassSetup)
+    else
+      Nil
 
-    (sbtChoice ++ millChoice ++ bloopChoice).distinct
+
+    (sbtChoice ++ millChoice ++ bloopChoice ++ fastpassChoice).distinct
   }
 }
 
-class BspSetupConfigStep(context: WizardContext, builder: BspProjectImportBuilder)
+class BspSetupConfigStep(builder: BspProjectImportBuilder, setupTaskWorkspace: File)
   extends ModuleWizardStep {
 
   private var runSetupTask: BspConfigSetup = new NoConfigSetup
 
-  private val workspace = context.getProjectDirectory.toFile
-  private val workspaceBspConfigs = BspConnectionConfig.workspaceBspConfigs(workspace)
-  private lazy val workspaceSetupConfigs: List[ConfigSetup] = workspaceSetupChoices(workspace)
+  private val workspaceBspConfigs = BspConnectionConfig.workspaceBspConfigs(setupTaskWorkspace)
+  private lazy val workspaceSetupConfigs: List[ConfigSetup] = workspaceSetupChoices(setupTaskWorkspace)
 
   private val configSetupChoices = {
     if (workspaceBspConfigs.size == 1) List(NoSetup)
@@ -187,7 +198,7 @@ class BspSetupConfigStep(context: WizardContext, builder: BspProjectImportBuilde
       if (configSetupChoices.size == 1) 0
       else chooseBspSetup.getSelectedIndex
 
-    runSetupTask = configureBuilder(builder, workspace, configSetupChoices(configIndex))
+    runSetupTask = configureBuilder(builder, setupTaskWorkspace, configSetupChoices(configIndex))
   }
 
   override def isStepVisible: Boolean = {
@@ -199,6 +210,8 @@ class BspSetupConfigStep(context: WizardContext, builder: BspProjectImportBuilde
   override def onWizardFinished(): Unit = {
     // TODO this spawns an indicator window which is not nice.
     // show a live log in the window or something?
+    updateDataModel() // without it runSetupTask is null
+
     val task = new ConfigSetupTask(runSetupTask)
     task.queue()
   }
