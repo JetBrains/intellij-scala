@@ -13,11 +13,12 @@ import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.wm._
 import com.intellij.openapi.wm.impl.ToolWindowImpl
 import javax.swing.{Icon, KeyStroke}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.{invokeLater, schedulePeriodicTask}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.macroAnnotations.TraceWithLogger
 import org.jetbrains.sbt.shell.SbtShellToolWindowFactory.scheduleIconUpdate
-import org.jetbrains.sbt.{SbtUtil, shell}
+import org.jetbrains.sbt.{SbtBundle, SbtUtil, shell}
 
 /**
   * Creates the sbt shell toolwindow, which is docked at the bottom of sbt projects.
@@ -77,7 +78,8 @@ object SbtShellToolWindowFactory {
 
   private val Log = Logger.getInstance(getClass)
 
-  val Title = "sbt shell"
+  @Nls
+  def Title: String = SbtBundle.message("sbt.shell.title")
   val ID = "sbt-shell-toolwindow"
 
   // TODO: we could pass ToolWindow directly to ProcessManager ans SbtShellRunner

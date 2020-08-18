@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.macroAnnotations.TraceWithLogger
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.shell.SbtShellRunner._
 
 import scala.collection.JavaConverters._
@@ -62,7 +63,7 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
   private def showInitializingPlaceholder(): Unit = {
     SbtShellToolWindowFactory.instance(project).foreach { toolWindow =>
       invokeLater {
-        val label = new JLabel(s"Initializing ${SbtShellToolWindowFactory.Title}...", SwingConstants.CENTER)
+        val label = new JLabel(SbtBundle.message("initializing.sbt.shell.message"), SwingConstants.CENTER)
         label.setOpaque(true)
         //noinspection ScalaExtractStringToBundle
         toolWindow.setContent(new ContentImpl(label, "", false))

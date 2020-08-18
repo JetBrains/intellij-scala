@@ -18,7 +18,9 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.psi.{PsiManager, PsiTreeChangeAdapter, PsiTreeChangeEvent}
 import com.intellij.util.Consumer
 import javax.swing.event.HyperlinkEvent
+import org.jetbrains.annotations.Nls
 import org.jetbrains.idea.maven.indices.{MavenIndex, MavenProjectIndicesManager}
+import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.resolvers.indexes.IvyIndex
@@ -95,17 +97,13 @@ final class SbtProjectService(project: Project) extends Disposable {
       }
 
     if (outdatedIvyIndexes.isEmpty) return
-    val title = s"<b>${outdatedIvyIndexes.size} Unindexed Ivy repositories found</b>"
-    val message =
-      s"""
-         |Update repositories <b><a href="#open">here</a></b> to use dependency completion.
-         |Enable Maven plugin to use extra indexes.<a href="#disable">Disable...</a>
-          """.stripMargin
+    val title = SbtBundle.message("unindexed.ivy.repositories.found", outdatedIvyIndexes.size)
+    val message = SbtBundle.message("update.repositories.to.use.dependency.completion").stripMargin
     val notificationData = createIndexerNotification(title, message)
     ExternalSystemNotificationManager.getInstance(project).showNotification(SbtProjectSystem.Id, notificationData)
   }
 
-  def createIndexerNotification(title: String, message: String): NotificationData = {
+  def createIndexerNotification(@Nls title: String, @Nls message: String): NotificationData = {
     val notificationData = new NotificationData(
       title,
       message,
