@@ -110,21 +110,21 @@ object ArgumentsParser
       Right(Arguments(sbtData, compilerData, compilationData, worksheetArgs))
   }
 
-  private val PathToFile = extractor[String, File] { path: String =>
+  private val PathToFile = extractor[String, File] { (path: String) =>
     new File(path)
   }
 
-  private val PathsToFiles = extractor[String, Seq[File]] { paths: String =>
+  private val PathsToFiles = extractor[String, Seq[File]] { (paths: String) =>
     if (paths.isEmpty) Seq.empty else paths.split(SerializationUtils.Delimiter).map(new File(_)).toSeq
   }
 
-  private val StringToOption = extractor[String, Option[String]] { s: String =>
+  private val StringToOption = extractor[String, Option[String]] { (s: String) =>
     if (s.isEmpty) None else Some(s)
   }
 
   private val StringToSequence = extractor[String, Seq[String]](SerializationUtils.stringToSequence)
 
-  private val StringToBoolean = extractor[String, Boolean] { s: String =>
+  private val StringToBoolean = extractor[String, Boolean] { (s: String) =>
     s.toBoolean
   }
 }

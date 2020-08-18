@@ -121,7 +121,7 @@ object SbtBuilder {
     val excludeIndex = project.getModuleExcludeIndex
     val outputRoot: File = chunk.representativeTarget().getOutputDir
 
-    resourceRoots.foreach { root: ResourceRootDescriptor =>
+    resourceRoots.foreach { (root: ResourceRootDescriptor) =>
       val filter = root.createFileFilter()
 
       FileUtil.processFilesRecursively(root.getRootFile, file => {
