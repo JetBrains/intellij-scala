@@ -9,7 +9,6 @@ import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.extapi.psi.{ASTDelegatePsiElement, StubBasedPsiElementBase}
 import com.intellij.lang.ASTNode
 import com.intellij.lang.java.JavaLanguage
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
@@ -25,6 +24,7 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util._
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt, _}
+import org.jetbrains.plugins.scala.externalLibraries.bm4.BetterMonadicForSupport
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
@@ -56,7 +56,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
-import org.jetbrains.plugins.scala.util.BetterMonadicForSupport.Implicit0Binding
+import org.jetbrains.plugins.scala.externalLibraries.bm4.Implicit0Binding
 import org.jetbrains.plugins.scala.util.{SAMUtil, ScEquivalenceUtil}
 import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetExternalRunType, WorksheetFileSettings}
 
@@ -1326,43 +1326,13 @@ object ScalaPsiUtil {
         s"${contextBoundParameterName(typeParameter, typeElement, index)} : (${typeElement.getText})[$name]"
     }
 
-    // if the context-applied compiler plugin is active, generate additional implicits params with default values
-    // which are named by the type params with context bounds and combine all bounds as a compound type
-    // to mimick context-applied's behavior
-    val (contextAppliedVirtualBounds, contextAppliedVirtualBoundsTexts) =
-      if (parameterOwner.contextAppliedEnabled &&
-        // context-applied doesn't work inside classes extending AnyVal
-        !paramClauses.parentOfType[PsiClass].exists(ValueClassType.extendsAnyVal)) {
-
-        val paramNames = paramClauses.getParameters.map(_.getName)
-
-        val caBounds = for {
-          (typeParameter, name) <- namedTypeParameters
-          if typeParameter.contextBoundTypeElement.nonEmpty
-          // if there's already a param with the name of type param, then skip this type param
-          if !paramNames.contains(name)
-          // reverse is necessary for bounds with common ancestors, resolving ancestor methods to the first bound
-          boundTypes   = typeParameter.contextBoundTypeElement.reverse
-          compoundText = boundTypes.map(_.getText + s"[$name]").mkString(" with ")
-          compound     = createTypeElementFromText(compoundText)(typeParameter.projectContext)
-        } yield ParameterDescriptor(typeParameter, name, compound, 0)
-
-        val caBoundsTexts = caBounds.map {
-          case ParameterDescriptor(_, name, typeElement, _) =>
-            // default value avoids red squiggles at call site
-            s"$name : ${typeElement.getText} = ???"
-        }
-
-        (caBounds, caBoundsTexts)
-      } else (Nil, Nil)
-
-    val clausesTexts = viewsTexts ++ boundsTexts ++ contextAppliedVirtualBoundsTexts
+    val clausesTexts = viewsTexts ++ boundsTexts
     if (clausesTexts.isEmpty) return None
 
     val result = createImplicitClauseFromTextWithContext(clausesTexts, paramClauses, isClassParameter)
     result.parameters
       .flatMap(_.typeElement)
-      .zip(views ++ bounds ++ contextAppliedVirtualBounds)
+      .zip(views ++ bounds)
       .foreach {
         case (typeElement, ParameterDescriptor(_, _, context, _)) => context.analog = typeElement
       }
@@ -1512,7 +1482,7 @@ object ScalaPsiUtil {
 
   def isImplicit(namedElement: PsiNamedElement): Boolean = {
     namedElement match {
-      case Implicit0Binding()                        => true /** See [[org.jetbrains.plugins.scala.util.BetterMonadicForSupport]] */
+      case Implicit0Binding()                        => true /** See [[BetterMonadicForSupport]] */
       case owner: ScModifierListOwner                => hasImplicitModifier(owner)
       case inNameContext(owner: ScModifierListOwner) => hasImplicitModifier(owner)
       case _                                         => false

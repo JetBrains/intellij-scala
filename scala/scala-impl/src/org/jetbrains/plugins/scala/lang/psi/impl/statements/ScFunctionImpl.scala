@@ -18,10 +18,11 @@ import com.intellij.util.containers.ContainerUtil
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiModifierListOwnerExt, PsiTypeExt, TraversableExt}
+import org.jetbrains.plugins.scala.externalLibraries.contextApplied.{ContextApplied, ContextAppliedUtil}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -57,7 +58,8 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   extends ScalaStubBasedElementImpl(stub, nodeType, node)
     with ScMember
     with ScFunction
-    with ScTypeParametersOwner {
+    with ScTypeParametersOwner
+    with ContextApplied.SyntheticElementsOwner {
 
   override def isStable = false
 
@@ -80,12 +82,25 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   @Cached(ModTracker.anyScalaPsiChange, this)
   override def paramClauses: ScParameters = getStubOrPsiChild(ScalaElementType.PARAM_CLAUSES)
 
-  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
-                                   lastParent: PsiElement, place: PsiElement): Boolean = {
+  @CachedInUserData(this, BlockModificationTracker(this))
+  override def syntheticContextAppliedDefs: Seq[ScalaPsiElement] =
+    ContextAppliedUtil.createSyntheticElementsFor(this, this.containingClass, parameters, typeParameters)
+
+  override def processDeclarations(
+    processor:  PsiScopeProcessor,
+    state:      ResolveState,
+    lastParent: PsiElement,
+    place:      PsiElement
+  ): Boolean = {
     if (lastParent == null) return true
 
     // process function's type parameters
-    if (!super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)) return false
+    if (!super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place))
+      return false
+
+    // process synthetic context-applied decls
+    if (!super[SyntheticElementsOwner].processDeclarations(processor, state, lastParent, place))
+      return false
 
     processParameters(processor, state, lastParent)
   }
@@ -132,7 +147,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
       parent match {
         case _: ScExtendsBlock =>
           return if (isAbstractMember) PlatformIcons.ABSTRACT_METHOD_ICON else PlatformIcons.METHOD_ICON
-        case (_: ScBlock | _: ScalaFile) => return Icons.FUNCTION
+        case _: ScBlock | _: ScalaFile => return Icons.FUNCTION
         case _ => parent = parent.getParent
       }
     }

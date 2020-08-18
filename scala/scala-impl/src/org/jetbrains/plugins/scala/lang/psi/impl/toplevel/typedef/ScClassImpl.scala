@@ -11,14 +11,17 @@ import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import javax.swing.Icon
-import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.externalLibraries.contextApplied.{ContextApplied, ContextAppliedUtil}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.light.ScLightField
@@ -38,7 +41,8 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
                   debugName: String)
   extends ScTypeDefinitionImpl(stub, nodeType, node, debugName)
     with ScClass
-    with ScTypeParametersOwner {
+    with ScTypeParametersOwner
+    with ContextApplied.SyntheticElementsOwner {
 
   override protected def targetTokenType: ScalaTokenType = ScalaTokenType.ClassKeyword
 
@@ -57,6 +61,15 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
 
   import com.intellij.psi.scope.PsiScopeProcessor
   import com.intellij.psi.{PsiElement, ResolveState}
+
+  @CachedInUserData(this, BlockModificationTracker(this))
+  override def syntheticContextAppliedDefs: Seq[ScalaPsiElement] =
+    ContextAppliedUtil.createSyntheticElementsFor(
+      this,
+      this,
+      this.constructor.fold(Seq.empty[ScParameter])(_.parameters),
+      this.typeParameters
+    )
 
   override def processDeclarationsForTemplateBody(processor: PsiScopeProcessor,
                                                   state: ResolveState,
@@ -83,6 +96,9 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
           }
         }
     }
+
+    //process context-applied synthetic elements
+    if (!super[SyntheticElementsOwner].processDeclarations(processor, state, lastParent, place)) return false
 
     super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)
   }
