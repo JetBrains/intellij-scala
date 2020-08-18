@@ -7,6 +7,7 @@ import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKey
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.util.text.StringUtil.notNullize
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil.enableAndShowIfInScalaFile
+import org.jetbrains.plugins.scala.worksheet.ScalaScratchFileCreationHelper.worksheetScratchFileType
 
 /**
  * User: Dmitry.Naydanov
@@ -25,14 +26,15 @@ final class CreateLightWorksheetAction extends AnAction(
       case editor => editor.getSelectionModel.getSelectedText
     }
 
-    ScratchRootType.getInstance.createScratchFile(
+    val fileType = worksheetScratchFileType
+    val file = ScratchRootType.getInstance.createScratchFile(
       project,
-      "scratch" + ScalaFileType.INSTANCE.getExtensionWithDot,
-      ScalaLanguage.INSTANCE,
+      s"scratch.${fileType.getDefaultExtension}",
+      fileType.getLanguage,
       notNullize(text)
-    ) match {
-      case null =>
-      case file => FileEditorManager.getInstance(project).openFile(file, true)
+    )
+    if (file != null) {
+      FileEditorManager.getInstance(project).openFile(file, true)
     }
   }
 

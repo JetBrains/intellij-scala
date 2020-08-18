@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.project.Project
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.worksheet.ScalaScratchFileCreationHelper.worksheetScratchFileType
 
 final class ScalaScratchFileCreationHelper extends ScratchFileCreationHelper {
 
@@ -16,8 +17,9 @@ final class ScalaScratchFileCreationHelper extends ScratchFileCreationHelper {
     if (ScalaProjectSettings.getInstance(project).isTreatScratchFilesAsWorksheet) {
       // ATTENTION: DIRTY HACK USED: modifying of parameter state can be unexpected to the caller
       // TODO: create a proper, clean API for this in IDEA platform
-      context.fileExtension = WorksheetFileType.getDefaultExtension
-      context.language = WorksheetLanguage.INSTANCE
+      val fileType = worksheetScratchFileType
+      context.fileExtension = fileType.getDefaultExtension
+      context.language = fileType.getLanguage
       true
     } else if (StringUtils.isBlank(context.text)) {
       // TODO (minor): Running of scala scratch files in non-worksheet mode doesn't work now
@@ -36,4 +38,8 @@ final class ScalaScratchFileCreationHelper extends ScratchFileCreationHelper {
 
   override def beforeCreate(project: Project, context: ScratchFileCreationHelper.Context): Unit =
     super.beforeCreate(project, context)
+}
+
+object ScalaScratchFileCreationHelper {
+  val worksheetScratchFileType = WorksheetFileType
 }
