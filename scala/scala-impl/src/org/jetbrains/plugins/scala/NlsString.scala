@@ -11,7 +11,9 @@ import scala.collection.immutable.StringOps
  *
  * @param nls the content
  */
-case class NlsString(@Nls nls: String) extends AnyVal
+case class NlsString(@Nls nls: String) extends AnyVal {
+  override def toString: String = nls
+}
 
 object NlsString {
   // this makes the creation of an NlsString @Nls
