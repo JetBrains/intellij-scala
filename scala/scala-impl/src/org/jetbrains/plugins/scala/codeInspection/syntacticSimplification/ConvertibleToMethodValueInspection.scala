@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
-import org.jetbrains.plugins.scala.util.KindProjectorUtil.PolymorphicLambda
+import org.jetbrains.plugins.scala.externalLibraries.kindProjector.PolymorphicLambda
 
 /**
  * Nikolay.Tropin

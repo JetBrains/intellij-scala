@@ -9,6 +9,8 @@ import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.externalLibraries.bm4.BetterMonadicForSupport
+import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -18,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateEx
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{PrecedenceTypes, SubstitutablePrecedenceHelper}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
-import org.jetbrains.plugins.scala.util.{BetterMonadicForSupport, KindProjectorUtil}
 import org.jetbrains.plugins.scala.worksheet.FileDeclarationsContributor
 
 /**

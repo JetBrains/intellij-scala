@@ -7,6 +7,7 @@ package expr
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil.kindProjectorPolymorphicLambdaType
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -19,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
-import org.jetbrains.plugins.scala.util.KindProjectorUtil.{PolymorphicLambda, kindProjectorPolymorphicLambdaType}
+import org.jetbrains.plugins.scala.externalLibraries.kindProjector.PolymorphicLambda
 
 import scala.collection.Seq
 
@@ -88,7 +89,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
 
   @Cached(ModTracker.physicalPsiChange(getProject), this)
   private def polymorphicLambdaType: TypeResult = this match {
-    case PolymorphicLambda(des, lhs, rhs) => kindProjectorPolymorphicLambdaType(des, lhs, rhs, this).asTypeResult
+    case PolymorphicLambda(des, lhs, rhs) => kindProjectorPolymorphicLambdaType(des, lhs, rhs).asTypeResult
     case _                                => Failure(ScalaBundle.message("not.a.polymorphic.lambda"))
   }
 

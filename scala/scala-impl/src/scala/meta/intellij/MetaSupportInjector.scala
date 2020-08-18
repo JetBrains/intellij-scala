@@ -37,7 +37,7 @@ class MetaSupportInjector extends SyntheticMembersInjector {
     */
   override def needsCompanionObject(source: ScTypeDefinition): Boolean =
     source.metaExpand.exists {
-      case Term.Block(Seq(_: Defn, obj: Defn.Object)) => true
+      case Term.Block(Seq(_: Defn, _: Defn.Object)) => true
       case _ => false
     }
 }

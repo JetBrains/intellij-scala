@@ -27,13 +27,13 @@
     <extensions defaultExtensionNs="org.intellij.scala">
         <!--<syntheticMemberInjector implementation="scala.meta.MetaAnnotationInjector"/>-->
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.CaseClassAndCompanionMembersInjector"/>
-        <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MonocleInjector"/>
-        <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScalazDerivingInjector"/>
-        <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.CirceCodecInjector"/>
+        <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.externalLibraries.monocle.MonocleInjector"/>
+        <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.externalLibraries.scalazDeriving.ScalazDerivingInjector"/>
+        <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.externalLibraries.circe.CirceCodecInjector"/>
         <syntheticMemberInjector implementation="scala.meta.intellij.MetaSupportInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.QuasiQuotesInjector"/>
-        <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.NewTypeInjector"/>
-        <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.simulacrum.SimulacrumInjector"/>
+        <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.externalLibraries.estaticoNewtype.NewTypeInjector"/>
+        <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.externalLibraries.simulacrum.SimulacrumInjector"/>
 
         <genericTypeNamesProvider
                 implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.TypePluralNamesProvider"/>
@@ -495,8 +495,8 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.testDiscovery.ScalaAffectedTestsInChangeListPainter"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.util.BetterMonadicForSupport"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.util.KindProjectorUtil"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.externalLibraries.bm4.BetterMonadicForSupport"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache"/>
@@ -762,7 +762,7 @@
                          key="displayname.deprecated.identifier"
                          groupPath="Scala" groupKey="group.general" shortName="ScalaDeprecatedIdentifier"
                          id="ScalaDeprecatedIdentifier" level="WARNING" enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.deprecation.DeprecatedKindProjectorSyntaxInspection"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.DeprecatedKindProjectorSyntaxInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.deprecated.kind.projector.syntax"
                          groupPath="Scala" groupKey="group.general" shortName="DeprecatedKindProjectorSyntax"
@@ -787,13 +787,13 @@
                          key="displayname.default.file.template.inspection"
                          groupPath="Scala" groupKey="group.general" shortName="ScalaDefaultFileTemplateUsage"
                          id="ScalaDefaultFileTemplateUsage" level="WARNING" enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.KindProjectorUseCorrectLambdaKeywordInspection"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.KindProjectorUseCorrectLambdaKeywordInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.in.kind.projector.use.correct.lambda.keyword"
                          groupPath="Scala" groupKey="group.general"
                          shortName="KindProjectorUseCorrectLambdaKeyword" id="KindProjectorUseCorrectLambdaKeyword"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.KindProjectorSimplifyTypeProjectionInspection"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.KindProjectorSimplifyTypeProjectionInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.in.kind.projector.simplify.type"
                          groupPath="Scala" groupKey="group.general"
@@ -1078,7 +1078,7 @@
                          groupPath="Scala" groupKey="group.syntactic.simplification"
                          shortName="ConvertibleToMethodValue" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.AppliedTypeLambdaCanBeSimplifiedInspection"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.AppliedTypeLambdaCanBeSimplifiedInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.applied.type.lambda.can.be.simplified"
                          groupPath="Scala" groupKey="group.syntactic.simplification"

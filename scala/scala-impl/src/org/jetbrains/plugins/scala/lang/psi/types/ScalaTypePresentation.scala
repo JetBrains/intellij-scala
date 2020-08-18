@@ -4,8 +4,8 @@ package psi
 package types
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.KindProjectorSimplifyTypeProjectionInspection
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.KindProjectorSimplifyTypeProjectionInspection
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixExpr
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}

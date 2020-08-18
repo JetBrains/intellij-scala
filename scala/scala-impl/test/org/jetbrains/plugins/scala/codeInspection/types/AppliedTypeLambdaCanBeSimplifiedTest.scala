@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.codeInspection.types
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.AppliedTypeLambdaCanBeSimplifiedInspection
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.AppliedTypeLambdaCanBeSimplifiedInspection
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
 /**
