@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.server
 
 import com.intellij.compiler.CompilerMessageImpl
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
@@ -10,6 +11,7 @@ import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
+import org.jetbrains.plugins.scala.util.ScalaPluginUtils
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor
 import org.jetbrains.plugins.scala.worksheet.server.MyTranslatingClient.Log
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.CompilerInterface
@@ -30,8 +32,11 @@ private class MyTranslatingClient(
   override def trace(exception: Throwable): Unit =
     consumer.trace(exception)
 
-  override def internalDebug(text: String): Unit =
+  override def internalDebug(text: String): Unit = {
     Log.debugSafe(text)
+    if (ApplicationManager.getApplication.isInternal || ScalaPluginUtils.isRunningFromSources)
+      progress(s"internal message: $text", None)
+  }
 
   override def message(msg: Client.ClientMsg): Unit = {
     val Client.ClientMsg(kind, text, _, PosInfo(line, column, _), _) = msg

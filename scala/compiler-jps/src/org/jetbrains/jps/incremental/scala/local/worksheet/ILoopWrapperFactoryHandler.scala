@@ -18,7 +18,7 @@ import xsbti.compile.{ClasspathOptionsUtil, ScalaInstance}
 class ILoopWrapperFactoryHandler {
   import ILoopWrapperFactoryHandler._
 
-  private var cachedReplFactory: (ClassLoader, ILoopWrapperFactory, ScalaVersion) = _
+  private var cachedReplFactory: Option[CachedReplFactory] = None
 
   def loadReplWrapperAndRun(
     args: WorksheetArgs.RunRepl,
@@ -31,23 +31,25 @@ class ILoopWrapperFactoryHandler {
     val replWrapper  = getOrCompileReplWrapper(replContext, scalaVersion, client)
 
     // TODO: improve caching, for now we can have only 1 instance with 1 version of scala
-    cachedReplFactory match {
-      case (_, _, oldVersion) if oldVersion == scalaVersion =>
+    val cachedFactory = cachedReplFactory match {
+      case Some(cached@CachedReplFactory(_, _, oldVersion)) if oldVersion == scalaVersion =>
+        client.internalDebug("using cached cachedReplFactory")
+        cached
       case _ =>
+        client.internalDebug("creating new cachedReplFactory")
         val loader = createIsolatingClassLoader(compilerJars)
         val iLoopWrapper = new ILoopWrapperFactory
-        if (cachedReplFactory != null) {
-          cachedReplFactory._2.clearCaches()
-        }
-        cachedReplFactory = (loader, iLoopWrapper, scalaVersion)
+        cachedReplFactory.foreach(_.replFactory.clearCaches())
+        val cached = CachedReplFactory(loader, iLoopWrapper, scalaVersion)
+        cached
     }
 
+    cachedReplFactory = Some(cachedFactory)
+
     client.progress("Running REPL...")
-
-    val (classLoader, replFactory, _) = cachedReplFactory
-
     IOUtils.patchSystemOut(out)
-    replFactory.loadReplWrapperAndRun(args, replContext, out, replWrapper, client, classLoader)
+    val factory = cachedFactory.replFactory
+    factory.loadReplWrapperAndRun(args, replContext, out, replWrapper, client, cachedFactory.classLoader)
   } catch {
     case e: InvocationTargetException =>
       throw e.getTargetException
@@ -117,6 +119,12 @@ class ILoopWrapperFactoryHandler {
 
 //noinspection TypeAnnotation
 object ILoopWrapperFactoryHandler {
+
+  private case class CachedReplFactory(
+    classLoader: ClassLoader,
+    replFactory: ILoopWrapperFactory,
+    scalaVersion: ScalaVersion
+  )
 
   // ATTENTION: when editing ILoopWrapper213Impl.scala or ILoopWrapperImpl.scala ensure to increase the version
   case class WrapperVersion(value: Int)
