@@ -9,9 +9,8 @@ import com.intellij.psi.PsiFile;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsProfile;
+import org.jetbrains.plugins.scala.worksheet.WorksheetBundle;
 import org.jetbrains.plugins.scala.worksheet.WorksheetUtils;
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings;
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType;
@@ -58,9 +57,9 @@ public class WorksheetSettingsSetForm {
         moduleComboBox.allowEmptySelection(ConfigurationModuleSelector.NO_MODULE_TEXT);
 
         boolean isDefaultSettings = myFile == null;
-        String tooltip = ScalaBundle.message("worksheet.settings.panel.using.class.path.of.the.module");
+        String tooltip = WorksheetBundle.message("worksheet.settings.panel.using.class.path.of.the.module");
         if (isDefaultSettings) {
-            String note = ScalaBundle.message("worksheet.settings.panel.using.class.path.of.the.module.for.default.settings.note");
+            String note = WorksheetBundle.message("worksheet.settings.panel.using.class.path.of.the.module.for.default.settings.note");
             //noinspection HardCodedStringLiteral (using html tag)
             moduleComboBox.setToolTipText(tooltip + "<br>" + note);
         } else {
@@ -149,25 +148,25 @@ public class WorksheetSettingsSetForm {
         final Spacer spacer1 = new Spacer();
         mainPanel.add(spacer1, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         interactiveModeCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(interactiveModeCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "worksheet.settings.panel.interactive.mode"));
+        this.$$$loadButtonText$$$(interactiveModeCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaWorksheetBundle", "worksheet.settings.panel.interactive.mode"));
         mainPanel.add(interactiveModeCheckBox, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         makeProjectBeforeRunCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(makeProjectBeforeRunCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "worksheet.settings.panel.change.make.button"));
+        this.$$$loadButtonText$$$(makeProjectBeforeRunCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaWorksheetBundle", "worksheet.settings.panel.change.make.button"));
         mainPanel.add(makeProjectBeforeRunCheckBox, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         mainPanel.add(moduleComboBox, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
-        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "worksheet.settings.panel.use.class.path.of.module"));
+        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("messages/ScalaWorksheetBundle", "worksheet.settings.panel.use.class.path.of.module"));
         mainPanel.add(label1, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         compilerProfileComboBox = new JComboBox();
         mainPanel.add(compilerProfileComboBox, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label2 = new JLabel();
-        this.$$$loadLabelText$$$(label2, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "worksheet.settings.panel.compiler.profile"));
+        this.$$$loadLabelText$$$(label2, this.$$$getMessageFromBundle$$$("messages/ScalaWorksheetBundle", "worksheet.settings.panel.compiler.profile"));
         mainPanel.add(label2, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         mainPanel.add(openCompilerProfileSettingsButton, new GridConstraints(4, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         runTypeComboBox = new JComboBox();
         mainPanel.add(runTypeComboBox, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label3 = new JLabel();
-        this.$$$loadLabelText$$$(label3, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "worksheet.settings.panel.run.type"));
+        this.$$$loadLabelText$$$(label3, this.$$$getMessageFromBundle$$$("messages/ScalaWorksheetBundle", "worksheet.settings.panel.run.type"));
         mainPanel.add(label3, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 

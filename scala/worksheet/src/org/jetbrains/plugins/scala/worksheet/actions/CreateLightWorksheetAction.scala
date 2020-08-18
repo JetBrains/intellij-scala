@@ -13,8 +13,8 @@ import org.jetbrains.plugins.scala.actions.ScalaActionUtil.enableAndShowIfInScal
  * Date: 26.05.14.
  */
 final class CreateLightWorksheetAction extends AnAction(
-  ScalaBundle.message("create.light.scala.worksheet.menu.action.text"),
-  ScalaBundle.message("create.light.scala.worksheet.menu.action.description"),
+  WorksheetBundle.message("create.light.scala.worksheet.menu.action.text"),
+  WorksheetBundle.message("create.light.scala.worksheet.menu.action.description"),
   /*icon = */ null
 ) {
 

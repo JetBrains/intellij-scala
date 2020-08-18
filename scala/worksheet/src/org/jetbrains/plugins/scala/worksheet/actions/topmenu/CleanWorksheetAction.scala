@@ -15,20 +15,20 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import javax.swing.{DefaultBoundedRangeModel, Icon}
 import org.jetbrains.annotations.{CalledInAwt, TestOnly}
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
 
 class CleanWorksheetAction extends AnAction(
-  ScalaBundle.message("clean.scala.worksheet.action.text"),
-  ScalaBundle.message("clean.scala.worksheet.action.description"),
+  WorksheetBundle.message("clean.scala.worksheet.action.text"),
+  WorksheetBundle.message("clean.scala.worksheet.action.description"),
   AllIcons.Actions.GC
 ) with TopComponentAction {
 
-  override def genericText: String = ScalaBundle.message("worksheet.clear.button")
+  override def genericText: String = WorksheetBundle.message("worksheet.clear.button")
 
   override def actionIcon: Icon = AllIcons.Actions.GC
 

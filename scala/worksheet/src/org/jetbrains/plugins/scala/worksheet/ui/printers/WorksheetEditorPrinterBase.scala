@@ -5,9 +5,9 @@ import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiDocumentManager
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ThrowableExt, _}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWorksheetSplitter
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.InputOutputFoldingInfo
@@ -43,7 +43,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
     }
 
   protected final def internalErrorPrefix: String =
-    ScalaBundle.message("worksheet.internal.error")
+    WorksheetBundle.message("worksheet.internal.error")
 
   protected final def alreadyContainsInternalErrors(document: Document): Boolean =
     document.getCharsSequence.startsWith(internalErrorPrefix)

@@ -8,7 +8,7 @@ import javax.swing._
 import java.awt._
 
 import com.intellij.ui.components.JBTabbedPane
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 
 class WorksheetAllSettingsPanel(
   myFile: PsiFile,
@@ -26,8 +26,8 @@ class WorksheetAllSettingsPanel(
     this.setPreferredSize(new Dimension(200, 200))
 
     val tabbedPane = new JBTabbedPane
-    tabbedPane.addTab(ScalaBundle.message("worksheet.settings.panel.settings.for.module", myFile.getName), currentFileSettingsForm.getMainPanel)
-    tabbedPane.addTab(ScalaBundle.message("worksheet.settings.panel.default.settings"), defaultSettingsForm.getMainPanel)
+    tabbedPane.addTab(WorksheetBundle.message("worksheet.settings.panel.settings.for.module", myFile.getName), currentFileSettingsForm.getMainPanel)
+    tabbedPane.addTab(WorksheetBundle.message("worksheet.settings.panel.default.settings"), defaultSettingsForm.getMainPanel)
 
     val constraints = new GridConstraints
     constraints.setFill(GridConstraints.FILL_BOTH)

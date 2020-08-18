@@ -11,18 +11,18 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import javax.swing.Icon
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.StringExt
+import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup
 
 class CopyWorksheetAction extends AnAction(
-  ScalaBundle.message("copy.scala.worksheet.action.text"),
-  ScalaBundle.message("copy.scala.worksheet.action.description"),
+  WorksheetBundle.message("copy.scala.worksheet.action.text"),
+  WorksheetBundle.message("copy.scala.worksheet.action.description"),
   AllIcons.Actions.Copy
 ) with TopComponentAction {
 
-  override def genericText: String = ScalaBundle.message("worksheet.copy.button")
+  override def genericText: String = WorksheetBundle.message("worksheet.copy.button")
 
   override def actionIcon: Icon = AllIcons.Actions.Copy
 

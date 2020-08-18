@@ -7,15 +7,15 @@ import com.intellij.openapi.actionSystem.impl.ActionButton
 import com.intellij.openapi.actionSystem.{ActionPlaces, ActionToolbar, AnAction, AnActionEvent}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfigurable
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerProfilesPanel
+import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 
 import scala.jdk.CollectionConverters._
 
 class ShowCompilerProfileSettingsButton(form: WorksheetSettingsSetForm)
-  extends AnAction(ScalaBundle.message("worksheet.show.compiler.profiles.settings"), null, AllIcons.General.Settings) {
+  extends AnAction(WorksheetBundle.message("worksheet.show.compiler.profiles.settings"), null, AllIcons.General.Settings) {
 
   override def actionPerformed(anActionEvent: AnActionEvent): Unit = {
     val project = anActionEvent.getProject

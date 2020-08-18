@@ -17,9 +17,9 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.ui.JBSplitter
 import javax.swing.{JComponent, JLayeredPane}
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, StringExt, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.processor.FileAttributeUtilCache
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWorksheetSplitter
@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetDiffSplitters, Workshe
 //noinspection TypeAnnotation
 object WorksheetEditorPrinterFactory {
 
-  val END_MESSAGE = ScalaBundle.message("worksheet.printers.output.exceeds.cutoff.limit") + "\n"
+  val END_MESSAGE = WorksheetBundle.message("worksheet.printers.output.exceeds.cutoff.limit") + "\n"
   val BULK_COUNT = 15
   val IDLE_TIME_MLS = 1000
   val DEFAULT_WORKSHEET_VIEWERS_RATIO = 0.5f

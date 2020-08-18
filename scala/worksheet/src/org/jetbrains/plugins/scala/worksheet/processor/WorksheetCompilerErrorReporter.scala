@@ -7,9 +7,9 @@ import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compiler.{CompileServerManager, ScalaCompileServerForm}
 import org.jetbrains.plugins.scala.util.NotificationUtil
+import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.{Precondition, WorksheetCompilerError}
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.RemoteServerConnectorResult
@@ -21,19 +21,19 @@ class WorksheetCompilerErrorReporter(
   log: Logger
 ) {
 
-  private val ConfigErrorHeader = ScalaBundle.message("worksheet.configuration.errors.base")
+  private val ConfigErrorHeader = WorksheetBundle.message("worksheet.configuration.errors.base")
 
   def reportError(error: WorksheetCompilerError): Unit = error match {
     case WorksheetCompilerResult.PreprocessError(error)            => showCompilationError(error.message, error.position)
     case WorksheetCompilerResult.PreconditionError(precondition)   =>
       precondition match {
         case Precondition.ReplRequiresCompileServerProcess => showReplRequiresCompileServerNotification()
-        case Precondition.ProjectShouldBeInSmartState      => warningNotification(ScalaBundle.message("worksheet.configuration.errors.project.indexing.not.finished")).show()
+        case Precondition.ProjectShouldBeInSmartState      => warningNotification(WorksheetBundle.message("worksheet.configuration.errors.project.indexing.not.finished")).show()
       }
     case WorksheetCompilerResult.UnknownError(exception)           => reportUnexpectedError(exception)
     case WorksheetCompilerResult.CompilationError                  => // assuming that compilation errors are already reported by CompilerTask in WorksheetCompiler
     case WorksheetCompilerResult.ProcessTerminatedError(_, _)      => // not handled, used to cancel evaluation
-    case WorksheetCompilerResult.CompileServerIsNotRunningError    => configErrorNotification(ScalaBundle.message("compile.server.is.not.running")) // TODO: i18
+    case WorksheetCompilerResult.CompileServerIsNotRunningError    => configErrorNotification(WorksheetBundle.message("compile.server.is.not.running")) // TODO: i18
     case WorksheetCompilerResult.RemoteServerConnectorError(error) =>
       error match {
         case RemoteServerConnectorResult.ExpectedError(exception)   =>
@@ -54,15 +54,15 @@ class WorksheetCompilerErrorReporter(
   }
 
   private def showReplRequiresCompileServerNotification(): Unit =
-    configErrorNotification(ScalaBundle.message("worksheet.configuration.errors.repl.is.available.only.in.compile.server.process"))
+    configErrorNotification(WorksheetBundle.message("worksheet.configuration.errors.repl.is.available.only.in.compile.server.process"))
       .removeTitle()
-      .addAction(new NotificationAction(ScalaBundle.message("worksheet.configuration.errors.enable.compile.server")) {
+      .addAction(new NotificationAction(WorksheetBundle.message("worksheet.configuration.errors.enable.compile.server")) {
         override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
           notification.expire()
           CompileServerManager.enableCompileServer(project)
         }
       })
-      .addAction(new NotificationAction((ScalaBundle.message("worksheet.configuration.errors.configure.compile.server"))) {
+      .addAction(new NotificationAction((WorksheetBundle.message("worksheet.configuration.errors.configure.compile.server"))) {
         override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
           notification.expire()
           val filter = ScalaCompileServerForm.SearchFilter.USE_COMPILE_SERVER_FOR_SCALA

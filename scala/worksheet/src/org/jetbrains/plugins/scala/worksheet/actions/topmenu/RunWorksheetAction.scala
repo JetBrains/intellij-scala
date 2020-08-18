@@ -15,10 +15,10 @@ import com.intellij.task.ProjectTaskContext
 import com.intellij.task.ProjectTaskManager
 import javax.swing.Icon
 import org.jetbrains.annotations.NonNls
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{LoggerExt, inWriteAction, invokeAndWait, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.WorksheetCompilerError
@@ -30,12 +30,12 @@ import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.control.NonFatal
 
 class RunWorksheetAction extends AnAction(
-  ScalaBundle.message("run.scala.worksheet.action.text"),
-  ScalaBundle.message("run.scala.worksheet.action.description"),
+  WorksheetBundle.message("run.scala.worksheet.action.text"),
+  WorksheetBundle.message("run.scala.worksheet.action.description"),
   AllIcons.Actions.Execute
 ) with TopComponentAction {
 
-  override def genericText: String = ScalaBundle.message("worksheet.execute.button")
+  override def genericText: String = WorksheetBundle.message("worksheet.execute.button")
 
   override def actionIcon: Icon = AllIcons.Actions.Execute
 

@@ -3,12 +3,12 @@ package org.jetbrains.plugins.scala.worksheet.actions.topmenu
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import javax.swing.Icon
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.StopWorksheetAction.StoppableProcess
 
 class StopWorksheetAction(private var process: Option[StoppableProcess]) extends AnAction with TopComponentAction {
 
-  override def genericText: String = ScalaBundle.message("worksheet.stop.button")
+  override def genericText: String = WorksheetBundle.message("worksheet.stop.button")
 
   override def actionIcon: Icon = AllIcons.Actions.Suspend
 

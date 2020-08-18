@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration
 import javax.swing.Icon
 import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType}
 import com.intellij.openapi.project.DumbAware
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 

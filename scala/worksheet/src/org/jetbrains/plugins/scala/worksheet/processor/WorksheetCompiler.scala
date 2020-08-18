@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.extensions.{LoggerExt, using}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaSdkNotConfiguredException}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.{CompileServerIsNotRunningError, Precondition, PreconditionError}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil.WorksheetCompileRunRequest
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil.WorksheetCompileRunRequest._
@@ -113,7 +114,7 @@ class WorksheetCompiler(
   private def createCompilerTask: CompilerTask = {
     val waitForPreviousSession = true
     new CompilerTask(
-      project, ScalaBundle.message("worksheet.compilation", worksheetFile.getName),
+      project, WorksheetBundle.message("worksheet.compilation", worksheetFile.getName),
       false,
       false,
       waitForPreviousSession,
