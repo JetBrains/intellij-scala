@@ -5,12 +5,10 @@ import java.nio.charset.Charset
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
 
-import com.intellij.build.events.MessageEvent
 import com.intellij.build.events.impl.{FailureResultImpl, SkippedResultImpl, SuccessResultImpl}
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.project.Project
-import com.intellij.pom.Navigatable
 import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, ExternalSystemNotificationReporter}
@@ -21,7 +19,6 @@ import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
 import org.jetbrains.sbt.project.structure.SbtStructureDump._
 import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.shell.SbtShellCommunication._
-import org.jetbrains.sbt.shell.event.SbtBuildEvent
 import org.jetbrains.sbt.{SbtBundle, using}
 
 import scala.collection.JavaConverters._
@@ -296,16 +293,4 @@ object SbtStructureDump {
   sealed trait ImportType
   case object ShellImport extends ImportType
   case object ProcessImport extends ImportType
-
-  trait SbtProcessBuildEvent extends MessageEvent {
-    // TODO open log or something?
-    override def getNavigatable(project: Project): Navigatable = null
-  }
-
-  case class SbtProcessBuildWarning(parentId: Any, message: String)
-    extends SbtBuildEvent(parentId, MessageEvent.Kind.WARNING, "warnings", message) with SbtProcessBuildEvent
-
-  case class SbtProcessBuildError(parentId: Any, message: String)
-    extends SbtBuildEvent(parentId, MessageEvent.Kind.ERROR, "errors", message) with SbtProcessBuildEvent
-
 }
