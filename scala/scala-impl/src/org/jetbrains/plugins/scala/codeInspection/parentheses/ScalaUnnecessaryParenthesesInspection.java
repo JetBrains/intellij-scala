@@ -36,7 +36,7 @@ public class ScalaUnnecessaryParenthesesInspection extends ScalaUnnecessaryParen
   @Override
   public JComponent createOptionsPanel() {
     MultipleCheckboxOptionsPanel panel = new MultipleCheckboxOptionsPanel(new OptionAccessor.Default(this));
-    panel.add(new JBLabel("Ignore"));
+    panel.add(new JBLabel(ScalaInspectionBundle.message("unnecessary.parentheses.ignore")));
     panel.addCheckbox(ScalaInspectionBundle.message("clarifying.parentheses"), "ignoreClarifying");
     panel.addCheckbox(ScalaInspectionBundle.message("around.function.type"), "ignoreAroundFunctionType");
     panel.addCheckbox(ScalaInspectionBundle.message("around.function.type.parameter"), "ignoreAroundFunctionTypeParam");
