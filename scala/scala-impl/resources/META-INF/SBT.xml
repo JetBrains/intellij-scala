@@ -87,7 +87,7 @@
         <localInspection implementationClass="org.jetbrains.sbt.codeInspection.SbtReplaceProjectWithProjectInInspection"
                          bundle="messages.ScalaSbtBundle"
                          key="displayname.replace.project.with.project.in"
-                         groupName="sbt"
+                         groupKey="group.sbt"
                          shortName="SbtReplaceProjectWithProjectIn"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
 

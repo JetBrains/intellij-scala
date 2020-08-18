@@ -139,7 +139,7 @@ object ScalaBundleSorting {
 
   class Searcher {
     val pattern: Pattern =
-      """(?:(?:message|ErrMsg)\s*\(\s*|key=)"(.+?)"""".r.pattern
+      """(?:(?:message|ErrMsg)\s*\(\s*|groupKey=|key=)"(.+?)"""".r.pattern
 
     def search(file: File): Seq[String] = {
       val result = Seq.newBuilder[String]

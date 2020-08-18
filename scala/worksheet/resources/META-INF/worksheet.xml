@@ -14,7 +14,7 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.worksheet.inspections.WorksheetPackageDeclarationInspection"
                          bundle="messages.ScalaWorksheetBundle"
                          key="displayname.worksheet.package.declaration"
-                         groupPath="Scala" groupName="Worksheet"
+                         groupPath="Scala" groupKey="group.worksheet"
                          level="ERROR" enabledByDefault="true" language="Scala"/>
 
         <stubElementTypeHolder class="org.jetbrains.plugins.scala.worksheet.WorksheetParserDefinition$"/>

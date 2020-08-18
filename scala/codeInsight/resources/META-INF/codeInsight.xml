@@ -67,7 +67,7 @@
                 implementationClass="org.jetbrains.plugins.scala.codeInspection.recursion.NoTailRecursionAnnotationInspection"
                 bundle="messages.ScalaCodeInsightBundle"
                 key="no.tailrec.annotation.title"
-                groupPath="Scala" groupName="General"
+                groupPath="Scala" groupKey="group.general"
                 shortName="NoTailRecursionAnnotation"
                 language="Scala" level="WARNING"
                 enabledByDefault="true"/>
