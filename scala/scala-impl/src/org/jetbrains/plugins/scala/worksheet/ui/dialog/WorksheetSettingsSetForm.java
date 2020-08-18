@@ -62,6 +62,15 @@ public class WorksheetSettingsSetForm {
         }
 
         runTypeComboBox.setModel(new DefaultComboBoxModel<>(WorksheetExternalRunType.getAllRunTypes()));
+        runTypeComboBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                if (value instanceof WorksheetExternalRunType) {
+                    value = ((WorksheetExternalRunType) value).getMenuText();
+                }
+                return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            }
+        });
         runTypeComboBox.setSelectedItem(settingsData.runType);
 
         interactiveModeCheckBox.setSelected(settingsData.isInteractive);
