@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocAction.Scalado
  * User: Dmitry Naidanov
  * Date: 01.10.11
  */
-class ScaladocAction extends BaseAnalysisAction(ScalaBundle.message("generate.scaladoc"), "Scaladoc": @NonNls) {
+class ScaladocAction extends BaseAnalysisAction(ScalaBundle.message("generate.scaladoc"), ScalaBundle.message("scaladoc.noon")) {
   private var configurationDialog: ScaladocConsoleRunConfigurationForm = _
 
   locally {

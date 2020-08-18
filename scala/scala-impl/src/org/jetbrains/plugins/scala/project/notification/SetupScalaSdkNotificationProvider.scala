@@ -9,6 +9,7 @@ import com.intellij.openapi.module.{JavaModuleType, Module, ModuleType, ModuleUt
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.EditorNotificationPanel
+import org.jetbrains.plugins.scala.ScalaBundle
 
 /**
  * @author Pavel Fatin
@@ -16,7 +17,7 @@ import com.intellij.ui.EditorNotificationPanel
 final class SetupScalaSdkNotificationProvider(project: Project)
   extends AbstractNotificationProvider(ScalaBundle.message("sdk.title"), project) {
 
-  override protected def panelText(kitTitle: String): String = s"No $kitTitle in module"
+  override protected def panelText(kitTitle: String): String = ScalaBundle.message("no.kittitle.in.module", kitTitle)
 
   override protected def hasDeveloperKit(file: VirtualFile): Boolean =
     findModule(file).forall { module =>

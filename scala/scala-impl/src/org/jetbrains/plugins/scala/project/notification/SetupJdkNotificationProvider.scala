@@ -10,12 +10,13 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.roots.ui.configuration.SdkPopupFactory
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.EditorNotificationPanel
+import org.jetbrains.plugins.scala.ScalaBundle
 
 /**
  * @author Pavel Fatin
  */
 final class SetupJdkNotificationProvider(project: Project)
-  extends AbstractNotificationProvider("JDK", project) {
+  extends AbstractNotificationProvider(ScalaBundle.message("kit.title.jdk"), project) {
 
   override protected def panelText(kitTitle: String): String =
     ScalaBundle.message("project.jdk.is.not.defined")

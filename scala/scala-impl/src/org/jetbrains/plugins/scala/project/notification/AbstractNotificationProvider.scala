@@ -14,7 +14,7 @@ import org.jetbrains.sbt.Sbt
 /**
  * @author adkozlov
  */
-abstract class AbstractNotificationProvider(kitTitle: String,
+abstract class AbstractNotificationProvider(@Nls kitTitle: String,
                                             project: Project)
   extends EditorNotifications.Provider[EditorNotificationPanel] {
 

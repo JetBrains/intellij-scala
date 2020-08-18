@@ -2,6 +2,7 @@ package org.jetbrains.sbt.annotator.dependency.ui
 
 import com.intellij.ide.wizard.{AbstractWizard, Step}
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.sbt.annotator.dependency.DependencyPlaceInfo
 import org.jetbrains.sbt.resolvers.ArtifactInfo
 
@@ -9,7 +10,7 @@ import org.jetbrains.sbt.resolvers.ArtifactInfo
   * Created by afonichkin on 7/18/17.
   */
 class SbtArtifactSearchWizard(project: Project, artifactInfoSet: Set[ArtifactInfo], fileLines: Seq[DependencyPlaceInfo])
-  extends AbstractWizard[Step]("", project) {
+  extends AbstractWizard[Step](NlsString.force(""), project) {
 
   private val sbtArtifactSearchStep = new SbtArtifactChooseDependencyStep(this, artifactInfoSet)
   private val sbtPossiblePlacesStep = new SbtPossiblePlacesStep(this, project, fileLines)

@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.IsTemplateDefinition
@@ -49,7 +50,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
            psiFile <- Option(PsiManager.getInstance(element.getProject).findFile(virtualFile));
            targetElement <- Option(psiFile.findElementAt(offset))) {
 
-        showTastyNotification("Navigation")
+        showTastyNotification(ScalaBundle.message("tasty.notification.navigation"))
 
         return Array(targetElement)
       }
