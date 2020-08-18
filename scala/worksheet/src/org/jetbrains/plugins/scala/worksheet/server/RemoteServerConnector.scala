@@ -54,10 +54,11 @@ final class RemoteServerConnector(
               sourceFile.getName,
               outputDir +: outputDirs,
             ))
-          case Args.ReplModeArgs(path, codeChunk) =>
+          case Args.ReplModeArgs(path, dropCachedReplInstance, codeChunk) =>
             Some(WorksheetArgs.RunRepl(
               sessionId = path,
               codeChunk,
+              dropCachedReplInstance,
               continueOnChunkError = Registry.is(WorksheetContinueOnFirstFailure),
               outputDirs
             ))
@@ -157,7 +158,7 @@ object RemoteServerConnector {
     final def compiledFile: Option[File] = this match {
       case Args.PlainModeArgs(sourceFile, _, _) => Some(sourceFile)
       case Args.CompileOnly(sourceFile, _)      => Some(sourceFile)
-      case Args.ReplModeArgs(_, _)              => None
+      case Args.ReplModeArgs(_, _, _)              => None
     }
     final def compilationOutputDir: Option[File] = this match {
       case Args.PlainModeArgs(_, outputDir, _) => Some(outputDir)
@@ -167,7 +168,7 @@ object RemoteServerConnector {
   }
   object Args {
     final case class PlainModeArgs(sourceFile: File, outputDir: File, className: String) extends Args
-    final case class ReplModeArgs(path: String, codeChunk: String) extends Args
+    final case class ReplModeArgs(path: String, dropCachedReplInstance: Boolean, codeChunk: String) extends Args
     final case class CompileOnly(sourceFile: File, outputDir: File) extends Args
   }
 

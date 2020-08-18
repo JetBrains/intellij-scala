@@ -59,19 +59,22 @@ object WorksheetArgsReplSerializer extends ArgListSerializer[WorksheetArgs.RunRe
   override def serialize(value: WorksheetArgs.RunRepl): ArgList = Seq(
     value.sessionId,
     value.codeChunk,
+    value.dropCachedReplInstance.toString,
     value.continueOnChunkError.toString,
     SerializationUtils.filesToPaths(value.outputDirs)
   )
 
   override def deserialize(args: ArgList): Either[DeserializationError, WorksheetArgs.RunRepl] =
     for {
-      sessionId  <- notNull(args.head, "repl session id").lift
-      codeChunk  <- notNull(args(1), "codeChunk").lift
-      continueOnChunkError <- boolean(args(2), "continueOnChunkError").lift
-      outputDirs = args.drop(3).flatMap(SerializationUtils.pathToFile(_, "outputDirs"))
+      sessionId            <- notNull(args.head, "repl session id").lift
+      codeChunk            <- notNull(args(1), "codeChunk").lift
+      dropReplInstance     <- boolean(args(2), "dropCachedReplInstance").lift
+      continueOnChunkError <- boolean(args(3), "continueOnChunkError").lift
+      outputDirs           = args.drop(4).flatMap(SerializationUtils.pathToFile(_, "outputDirs"))
     } yield WorksheetArgs.RunRepl(
       sessionId,
       codeChunk,
+      dropReplInstance,
       continueOnChunkError,
       outputDirs
     )

@@ -27,6 +27,8 @@ class ILoopWrapperFactory {
 
   def clearCaches(): Unit = cache.clear()
 
+  def clearSession(sessionId: String): Unit = cache.clear(sessionId)
+
   def loadReplWrapperAndRun(
     args: WorksheetArgs.RunRepl,
     replContext: ReplContext,
@@ -57,11 +59,13 @@ class ILoopWrapperFactory {
     }
     client.progress("Worksheet execution started", Some(0))
     printService(out, ReplStart)
+
     try out.flush()
     catch {
       case e: IOException =>
         e.printStackTrace()
     }
+
     val code = new String(Base64.getDecoder.decode(args.codeChunk), StandardCharsets.UTF_8)
     // note: do not remove String generic parameter, it will fail in JVM 11
     val statements = if (code.isEmpty) Array.empty[String] else code.split(Pattern.quote(ReplDelimiter))
@@ -90,6 +94,8 @@ class ILoopWrapperFactory {
           }
       }
     }
+
+    client.progress("Worksheet execution finished", Some(1))
     printService(out, ReplEnd)
   }
 
@@ -183,6 +189,14 @@ private object ILoopWrapperFactory {
 
     private def findById(id: String): Option[ReplSession] =
       sessionsQueue.asScala.find(session => session != null && session.id == id)
+
+    def clear(sessionId: String): Unit = {
+      val session = findById(sessionId)
+      session.foreach { sess =>
+        sess.wrapper.shutdown()
+        sessionsQueue.remove(sess)
+      }
+    }
 
     def clear(): Unit = {
       sessionsQueue.asScala.foreach(_.wrapper.shutdown())

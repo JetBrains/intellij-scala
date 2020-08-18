@@ -30,6 +30,10 @@ class ILoopWrapperFactoryHandler {
     val scalaVersion = compilerVersion(compilerJars.compiler).map(ScalaVersion).getOrElse(FallBackScalaVersion)
     val replWrapper  = getOrCompileReplWrapper(replContext, scalaVersion, client)
 
+    if (args.dropCachedReplInstance) {
+      cachedReplFactory.foreach(_.replFactory.clearSession(args.sessionId))
+    }
+
     // TODO: improve caching, for now we can have only 1 instance with 1 version of scala
     val cachedFactory = cachedReplFactory match {
       case Some(cached@CachedReplFactory(_, _, oldVersion)) if oldVersion == scalaVersion =>

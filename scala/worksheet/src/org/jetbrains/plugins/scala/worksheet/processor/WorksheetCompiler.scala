@@ -10,7 +10,6 @@ import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
@@ -147,7 +146,7 @@ class WorksheetCompiler(
       case _: RunCompile => autoTriggered
     }
     val logUnexpectedException: Throwable => Unit = ex => {
-      val message = (Seq("Unexpected exc exception occurred during worksheet execution") ++ errorDetails(module) :+ runType.getName :+ makeType).mkString(", ")
+      val message = s"Unexpected exc exception occurred during worksheet execution, ${errorDetails(module)}, ${runType.getName}, $makeType"
       Log.error(message, ex)
     }
     val consumer = new CompilerInterfaceImpl(logUnexpectedException, compilerTask, printer, ignoreCompilerMessages)
@@ -172,7 +171,9 @@ class WorksheetCompiler(
         replPrinter.updateMessagesConsumer(consumer)
         replPrinter.updateEvaluatedElements(evaluatedElements)
 
-        ReplModeArgs(virtualFile.getCanonicalPath, code)
+        val lastProcessedLine = WorksheetCache.getInstance(project).getLastProcessedIncremental(editor)
+        val dropCachedReplInstance = lastProcessedLine.isEmpty
+        ReplModeArgs(virtualFile.getCanonicalPath, dropCachedReplInstance, code)
       case RunCompile(code, className) =>
         val (_, tempFile, outputDir) = cache.updateOrCreateCompilationInfo(virtualFile.getCanonicalPath, worksheetFile.getName)
         FileUtil.writeToFile(tempFile, code)
