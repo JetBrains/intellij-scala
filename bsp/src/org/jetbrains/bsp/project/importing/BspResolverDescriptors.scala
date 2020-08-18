@@ -51,7 +51,8 @@ object BspResolverDescriptors {
   case class TargetData(sources: Try[SourcesResult],
                         dependencySources: Try[DependencySourcesResult],
                         resources: Try[ResourcesResult],
-                        scalacOptions: Try[ScalacOptionsResult] // TODO should be optional
+                        scalacOptions: Try[ScalacOptionsResult], // TODO should be optional
+                        javacOptions: Try[JavacOptionsResult]
                        )
 
   case class SourceDirectory(directory: File, generated: Boolean, packagePrefix: Option[String])

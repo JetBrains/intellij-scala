@@ -101,7 +101,7 @@ object BspUtil {
         case Success(_) =>
           reporter.finishTask(eventId, successMsg, new SuccessResultImpl(true))
         case Failure(x)  =>
-          reporter.finishTask(eventId, failMsg, new FailureResultImpl(x))
+          reporter.finishTask(eventId, failMsg, new FailureResultImpl(failMsg, x))
         case _ =>
           reporter.finishTask(eventId, successMsg, new SuccessResultImpl(true))
       }

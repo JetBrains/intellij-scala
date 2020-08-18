@@ -384,7 +384,10 @@ object BspSession {
   type NotificationCallback = BspNotification => Unit
   type BspSessionTask[T] = (BspServer, BuildServerCapabilities) => CompletableFuture[T]
 
-  trait BspServer extends bsp4j.BuildServer with bsp4j.ScalaBuildServer with bsp4j.JvmBuildServer
+  trait BspServer extends bsp4j.BuildServer
+    with bsp4j.ScalaBuildServer
+    with bsp4j.JavaBuildServer
+    with bsp4j.JvmBuildServer
   trait BspClient extends bsp4j.BuildClient
 
   private[protocol] def builder(

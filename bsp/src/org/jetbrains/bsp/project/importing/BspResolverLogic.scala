@@ -67,18 +67,22 @@ private[importing] object BspResolverLogic {
 
   private[importing] def calculateModuleDescriptions(buildTargets: Seq[BuildTarget],
                                                      scalacOptionsItems: Seq[ScalacOptionsItem],
+                                                     javacOptionsItems: Seq[JavacOptionsItem],
                                                      sourcesItems: Seq[SourcesItem],
                                                      resourcesItems: Seq[ResourcesItem],
                                                      dependencySourcesItems: Seq[DependencySourcesItem]): ProjectModules = {
 
     val idToTarget = buildTargets.map(t => (t.getId, t)).toMap
     val idToScalacOptions = scalacOptionsItems.map(item => (item.getTarget, item)).toMap
+    val idToJavacOptions = javacOptionsItems.map(item => (item.getTarget, item)).toMap
 
     val transitiveDepComputed: mutable.Map[BuildTarget, Set[BuildTarget]] = mutable.Map.empty
 
     def transitiveDependencyOutputs(start: BuildTarget): Seq[File] = {
       val transitiveDeps = transitiveDependencies(start).map(_.getId)
-      transitiveDeps.flatMap(idToScalacOptions.get).map(_.getClassDirectory.toURI.toFile).toSeq
+      val scalaDeps = transitiveDeps.flatMap(idToScalacOptions.get).map(_.getClassDirectory.toURI.toFile).toSeq
+      val javaDeps = transitiveDeps.flatMap(idToJavacOptions.get).map(_.getClassDirectory.toURI.toFile).toSeq
+      (scalaDeps ++ javaDeps).sorted.distinct
     }
 
     def transitiveDependencies(start: BuildTarget): Set[BuildTarget] =
@@ -108,6 +112,7 @@ private[importing] object BspResolverLogic {
     val moduleDescriptions = buildTargets.flatMap { target: BuildTarget =>
       val id = target.getId
       val scalacOptions = idToScalacOptions.get(id)
+      val javacOptions = idToJavacOptions.get(id)
       val depSources = idToDepSources.getOrElse(id, Seq.empty)
       val sharedSourcesAndGenerated = (sharedSources.keys ++ sharedGeneratedSources.values.flatten).toSeq
       val sources = idToSources.getOrElse(id, Seq.empty).filterNot(sharedSourcesAndGenerated.contains)
@@ -115,7 +120,7 @@ private[importing] object BspResolverLogic {
       val dependencyOutputs = transitiveDependencyOutputs(target)
 
       implicit val gson: Gson = new Gson()
-      moduleDescriptionForTarget(target, scalacOptions, depSources, sources, resources, dependencyOutputs)
+      moduleDescriptionForTarget(target, scalacOptions, javacOptions, depSources, sources, resources, dependencyOutputs)
     }
 
     val idToModule = (for {
@@ -214,6 +219,7 @@ private[importing] object BspResolverLogic {
 
   private[importing] def moduleDescriptionForTarget(target: BuildTarget,
                                                     scalacOptions: Option[ScalacOptionsItem],
+                                                    javacOptions: Option[JavacOptionsItem],
                                                     dependencySourceDirs: Seq[File],
                                                     sourceDirs: Seq[SourceDirectory],
                                                     resourceDirs: Seq[SourceDirectory],
@@ -225,10 +231,14 @@ private[importing] object BspResolverLogic {
     val resourceRoots = filterRoots(resourceDirs)
 
     val moduleBase = Option(target.getBaseDirectory).map(_.toURI.toFile)
-    val outputPath = scalacOptions.map(_.getClassDirectory.toURI.toFile)
+    val outputPath =
+      scalacOptions.map(_.getClassDirectory.toURI.toFile)
+        .orElse(javacOptions.map(_.getClassDirectory.toURI.toFile))
 
     // classpath needs to be filtered for module dependency output paths since they are handled by IDEA module dep mechanism
-    val classPath = scalacOptions.map(_.getClasspath.asScala.map(_.toURI.toFile))
+    val classPath =
+      scalacOptions.map(_.getClasspath.asScala.map(_.toURI.toFile))
+        .orElse(javacOptions.map(_.getClasspath.asScala.map(_.toURI.toFile)))
 
     val classPathWithoutDependencyOutputs = classPath.getOrElse(Seq.empty).filterNot(dependencyOutputs.contains)
 
@@ -246,9 +256,6 @@ private[importing] object BspResolverLogic {
             .map(target => getScalaSdkData(target, scalacOptions))
             .map((ScalaModule.apply _).tupled)
         case BuildTargetDataKind.SBT =>
-          // TODO there's some disagreement on responsibility of handling sbt build data.
-          //  specifically with bloop, the main workspace is not sbt-aware, and IntelliJ would need to start separate bloop
-          //  servers for the build modules.
           targetData.flatMap(extractSbtData)
             .map(target => getSbtData(target, scalacOptions))
             .map((SbtModule.apply _).tupled)
