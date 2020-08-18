@@ -10,7 +10,10 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -131,6 +134,23 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
                     typedExpression.typeElement.getOrElse(element)
                   case _ => element
                 }
+
+                // Don't show type mismatch when the expression is of a singleton type that has an apply method, while a non-singleton type is expected, SCL-17669
+                tp match {
+                  case t: DesignatorOwner if t.isSingleton => () // Expected type is a singleton type
+                  case _ => exprType match {
+                    case Right(t: DesignatorOwner) if t.isSingleton =>
+                      t.element.asOptionOf[ScTypeDefinition].flatMap(_.methodsByName("apply").headOption).map(_.method) match {
+                      case Some(method: ScFunctionDefinition) =>
+                        val missingParameters = method.parameters.map(p => p.getName + ": " + p.`type`().getOrNothing.presentableText(target)).mkString(", ")
+                        holder.createErrorAnnotation(target, ScalaBundle.message("annotator.error.unspecified.value.parameters", missingParameters))
+                        return
+                      case None => () // The type has no apply method
+                    }
+                    case _ => () // The expression is not of a singleton type
+                  }
+                }
+
                 TypeMismatchError.register(target, tp, exprType.getOrNothing, blockLevel = 2, canBeHint = !element.is[ScTypedExpression]) { (expected, actual) =>
                   ScalaBundle.message("expr.type.does.not.conform.expected.type", actual, expected)
                 }
