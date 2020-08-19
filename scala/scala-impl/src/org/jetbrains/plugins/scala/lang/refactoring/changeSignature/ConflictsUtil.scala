@@ -36,17 +36,15 @@ private[changeSignature] object ConflictsUtil {
                                          result: ConflictsMap): Unit = {
 
     if (change.getNewParameters.nonEmpty) {
-      val (member: ScMember, kind, isSimple) = bp match {
-        case ScalaPsiUtil.inNameContext(pd: ScPatternDefinition) => (pd, "pattern definition", pd.isSimple)
-        case ScalaPsiUtil.inNameContext(vd: ScVariableDefinition) => (vd, "variable definition", vd.isSimple)
+      val (member: ScMember, msg, isSimple) = bp match {
+        case ScalaPsiUtil.inNameContext(pd: ScPatternDefinition) => (pd, (s: String) => ScalaBundle.message("method.is.overridden.in.a.composite.pattern.definition", s), pd.isSimple)
+        case ScalaPsiUtil.inNameContext(vd: ScVariableDefinition) => (vd, (s: String) => ScalaBundle.message("method.is.overridden.in.a.composite.variable.definition", s), vd.isSimple)
         case _ => return
       }
 
       if (!isSimple) {
         val className = member.containingClass.qualifiedName
-        val message = ScalaBundle.message("method.is.overridden.in.composite.kind.in.class", kind, className)
-
-        result.putValue(bp, message)
+        result.putValue(bp, msg(className))
       }
     }
   }
