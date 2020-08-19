@@ -4,7 +4,7 @@ import java.io.File
 
 import com.intellij.build._
 import com.intellij.build.events._
-import org.jetbrains.annotations.Nls
+import org.jetbrains.annotations.{Nls, NotNull}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 
 trait BuildReporter {
@@ -37,12 +37,12 @@ trait BuildReporter {
   def log(@Nls message: String): Unit
 
   /** Start a subtask. */
-  def startTask(eventId: EventId, parent: Option[EventId], @Nls message: String, time: Long = System.currentTimeMillis()): Unit
+  def startTask(eventId: EventId, parent: Option[EventId], @NotNull @Nls message: String, time: Long = System.currentTimeMillis()): Unit
 
   /** Show progress on a subtask. */
-  def progressTask(eventId: EventId, total: Long, progress: Long, unit: String, @Nls message: String, time: Long = System.currentTimeMillis()): Unit
+  def progressTask(eventId: EventId, total: Long, progress: Long, unit: String, @NotNull @Nls message: String, time: Long = System.currentTimeMillis()): Unit
 
   /** Show completion of a subtask. */
-  def finishTask(eventId: EventId, @Nls message: String, result: EventResult, time: Long = System.currentTimeMillis()): Unit
+  def finishTask(eventId: EventId, @NotNull @Nls message: String, result: EventResult, time: Long = System.currentTimeMillis()): Unit
 }
 
