@@ -56,14 +56,16 @@ object BspProjectDataService {
     val detectedRoots = {
       val detector = ServiceManager.getService(project, classOf[VcsRootDetector])
       val detected = mutable.Set[VcsRoot](currentVcsRoots: _*)
-      vcsRootsCandidates.foreach { candidate =>
-        val virtualFile = LocalFileSystem.getInstance.findFileByIoFile(candidate)
-        val isUnderDetectedVcsRoot = VfsUtilCore.isUnder(virtualFile, detected.map(_.getPath).asJava)
-        if (!isUnderDetectedVcsRoot) {
-          val roots = detector.detect(virtualFile).asScala
-          detected ++= roots
+      vcsRootsCandidates
+        .map(LocalFileSystem.getInstance.findFileByIoFile)
+        .filter(_ != null)
+        .foreach { virtualFile =>
+          val isUnderDetectedVcsRoot = VfsUtilCore.isUnder(virtualFile, detected.map(_.getPath).asJava)
+          if (!isUnderDetectedVcsRoot) {
+            val roots = detector.detect(virtualFile).asScala
+            detected ++= roots
+          }
         }
-      }
       detected
     }
 
