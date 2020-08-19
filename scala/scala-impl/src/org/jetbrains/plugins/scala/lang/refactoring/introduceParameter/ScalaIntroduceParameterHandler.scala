@@ -51,7 +51,7 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
     val scalaFile = maybeWritableScalaFile(file, REFACTORING_NAME)
       .getOrElse(return)
 
-    afterExpressionChoosing(file, "Introduce Parameter") {
+    afterExpressionChoosing(file, REFACTORING_NAME) {
       invoke(scalaFile)
     }
   }

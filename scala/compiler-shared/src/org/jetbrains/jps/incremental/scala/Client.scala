@@ -73,7 +73,7 @@ trait Client {
 object Client {
 
   final case class ClientMsg(kind: Kind,
-                             text: String,
+                             @Nls text: String,
                              source: Option[File],
                              from: PosInfo,
                              to: PosInfo)

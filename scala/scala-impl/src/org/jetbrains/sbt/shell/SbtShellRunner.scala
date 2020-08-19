@@ -95,7 +95,8 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
       return
     }
 
-    consoleView.setPrompt("(initializing) >")
+    val status = SbtBundle.message("sbt.shell.status.initializing")
+    consoleView.setPrompt(s"($status) >")
 
     myProcessHandler.addProcessListener(shellPromptChanger(consoleView))
 
@@ -118,7 +119,8 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
         scrollToEnd()
       },
       whenWorking = if (notInTest) {
-        consoleView.setPrompt("(busy) >")
+        val status = SbtBundle.message("sbt.shell.status.busy")
+        consoleView.setPrompt(s"($status) >")
         scrollToEnd()
       }
     )

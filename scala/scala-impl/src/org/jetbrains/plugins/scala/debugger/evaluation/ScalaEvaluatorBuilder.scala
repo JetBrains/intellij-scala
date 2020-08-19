@@ -5,7 +5,8 @@ import com.intellij.debugger.engine.evaluation._
 import com.intellij.debugger.engine.evaluation.expression._
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions.{&&, LazyVal, PsiElementExt, ResolvesTo}
@@ -74,7 +75,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
   }
 }
 
-private[evaluation] class NeedCompilationException(message: String) extends EvaluateException(message)
+private[evaluation] class NeedCompilationException(@Nls message: String) extends EvaluateException(message)
 
 private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragment,
                                                 val position: SourcePosition)
@@ -162,33 +163,31 @@ private[evaluation] trait SyntheticVariablesHelper {
 }
 
 private object needsCompilation {
-  def message(kind: String): Some[String] = Some(s"Evaluation of $kind needs compilation")
-
-  def unapply(elem: PsiElement): Option[String] = elem match {
+  def unapply(elem: PsiElement): Option[NlsString] = elem match {
     case m: ScMember => m match {
       case td: ScTemplateDefinition =>
         td match {
-          case _: ScObject => message("object")
-          case _: ScClass => message("class")
-          case _: ScTrait => message("trait")
+          case _: ScObject => Some(ScalaBundle.nls("evaluation.of.object.needs.compilation"))
+          case _: ScClass => Some(ScalaBundle.nls("evaluation.of.class.needs.compilation"))
+          case _: ScTrait => Some(ScalaBundle.nls("evaluation.of.trait.needs.compilation"))
           case newTd: ScNewTemplateDefinition if DebuggerUtil.generatesAnonClass(newTd) =>
-            message("anonymous class")
+            Some(ScalaBundle.nls("evaluation.of.anonymous.class.needs.compilation"))
           case _ => None
         }
-      case _: ScTypeAlias => message("type alias")
-      case _: ScFunction => message("function definition")
-      case _: ScVariableDeclaration | _: ScValueDeclaration => message("variable declaration")
-      case LazyVal(_) => message("lazy val definition")
+      case _: ScTypeAlias => Some(ScalaBundle.nls("evaluation.of.type.alias.needs.compilation"))
+      case _: ScFunction => Some(ScalaBundle.nls("evaluation.of.function.definition.needs.compilation"))
+      case _: ScVariableDeclaration | _: ScValueDeclaration => Some(ScalaBundle.nls("evaluation.of.variable.declaration.needs.compilation"))
+      case LazyVal(_) => Some(ScalaBundle.nls("evaluation.of.lazy.val.definition.needs.compilation"))
       case _ => None
     }
-    case expr if ScalaEvaluatorBuilderUtil.isGenerateAnonfun(expr) => message("anonymous function")
-    case _: ScFor => message("for expression")
-    case _: ScTry => message("try statement")
-    case _: ScReturn => message("return statement")
-    case _: ScMatch => message("match statement")
-    case _: ScThrow => message("throw statement")
-    case _: ScXmlExpr => message("xml expression")
-    case _: ScInterpolatedStringLiteral => message("interpolated string")
+    case expr if ScalaEvaluatorBuilderUtil.isGenerateAnonfun(expr) => Some(ScalaBundle.nls("evaluation.of.anonymous.function.needs.compilation"))
+    case _: ScFor => Some(ScalaBundle.nls("evaluation.of.for.expression.needs.compilation"))
+    case _: ScTry => Some(ScalaBundle.nls("evaluation.of.try.statement.needs.compilation"))
+    case _: ScReturn => Some(ScalaBundle.nls("evaluation.of.return.statement.needs.compilation"))
+    case _: ScMatch => Some(ScalaBundle.nls("evaluation.of.match.statement.needs.compilation"))
+    case _: ScThrow => Some(ScalaBundle.nls("evaluation.of.throw.statement.needs.compilation"))
+    case _: ScXmlExpr => Some(ScalaBundle.nls("evaluation.of.xml.expression.needs.compilation"))
+    case _: ScInterpolatedStringLiteral => Some(ScalaBundle.nls("evaluation.of.interpolated.string.needs.compilation"))
     case _ => None
   }
 }
@@ -204,7 +203,7 @@ private object byNameParameterFunction {
         val paramName = refText.stripSuffix(byNameFunctionSuffix)
         createExpressionWithContextFromText(paramName, ref.getContext, ref) match {
           case (ref: ScReferenceExpression) && ResolvesTo(p: ScParameter) if p.isCallByNameParameter => Some((p, ref))
-          case _ => throw EvaluationException(s"Cannot find by-name parameter with such name: $paramName")
+          case _ => throw EvaluationException(ScalaBundle.message("cannot.find.by.name.parameter.with.such.name", paramName))
         }
       }
       else None

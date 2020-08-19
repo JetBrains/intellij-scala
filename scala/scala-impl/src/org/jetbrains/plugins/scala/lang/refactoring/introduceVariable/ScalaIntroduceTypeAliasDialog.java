@@ -171,14 +171,14 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         myCbReplaceAllOccurences.setSelected(false);
         if (item instanceof PackageScopeItem) {
             myCbReplaceAllOccurences.setEnabled(true);
-            myCbReplaceAllOccurences.setText("Replace all occurrences");
+            myCbReplaceAllOccurences.setText(ScalaBundle.message("replace.all.occurrences"));
         } else if (item instanceof SimpleScopeItem) {
             SimpleScopeItem simpleScopeItem = (SimpleScopeItem) item;
             int occurrencesCount = simpleScopeItem.usualOccurrences().length;
             if (occurrencesCount > 1) {
                 myCbReplaceAllOccurences.setEnabled(true);
                 myCbReplaceAllOccurences.setSelected(true);
-                myCbReplaceAllOccurences.setText("Replace all " + occurrencesCount + " occurrences");
+                myCbReplaceAllOccurences.setText(ScalaBundle.message("replace.all.x.occurrences", occurrencesCount));
             } else {
                 myCbReplaceAllOccurences.setEnabled(false);
             }
@@ -192,8 +192,8 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
             int companionObjOccCount = simpleScopeItem.occurrencesInCompanion().length;
             if (companionObjOccCount > 0) {
                 myReplaceCompanionObjectOcc.setEnabled(true);
-                String compObjectOccurrences = companionObjOccCount == 1 ? "(1 occurrence)" : "(" + companionObjOccCount + " occurrences)";
-                myReplaceCompanionObjectOcc.setText("Replace occurrences available from companion class " + compObjectOccurrences);
+                String compObjectOccurrences = companionObjOccCount == 1 ? ScalaBundle.message("1.occurrence") : ScalaBundle.message("multi.occurrences", companionObjOccCount);
+                myReplaceCompanionObjectOcc.setText(ScalaBundle.message("replace.occurrences.available.from.companion.class", compObjectOccurrences));
             } else {
                 myReplaceCompanionObjectOcc.setEnabled(false);
             }

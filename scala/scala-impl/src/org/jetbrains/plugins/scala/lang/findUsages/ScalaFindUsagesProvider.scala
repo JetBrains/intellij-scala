@@ -7,6 +7,7 @@ import com.intellij.lang.findUsages.FindUsagesProvider
 import com.intellij.psi._
 import com.intellij.psi.util.{PsiFormatUtil, PsiFormatUtilBase}
 import org.jetbrains.annotations.{NotNull, Nullable}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -37,7 +38,7 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
         var res = PsiFormatUtil.formatMethod(x, PsiSubstitutor.EMPTY,
         PsiFormatUtilBase.SHOW_NAME | PsiFormatUtilBase.SHOW_PARAMETERS,
         PsiFormatUtilBase.SHOW_TYPE)
-        if (x.containingClass != null) res = res + " of " + getDescriptiveName(x.containingClass)
+        if (x.containingClass != null) res = ScalaBundle.message("method.of.containingclass", res, getDescriptiveName(x.containingClass))
         res
       case x: PsiVariable => x.name
       case x: PsiFile => x.name
@@ -47,7 +48,7 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
       case _ => element.getText
     }
     //noinspection ReferencePassedToNls
-    Option(name) getOrElse "anonymous"
+    Option(name) getOrElse ScalaBundle.message("descritive.name.anonymous")
   }
 
   @NotNull
@@ -64,6 +65,6 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
       case _ => element.getText
     }
     //noinspection ReferencePassedToNls
-    Option(name) getOrElse "anonymous"
+    Option(name) getOrElse ScalaBundle.message("descritive.name.anonymous")
   }
 }

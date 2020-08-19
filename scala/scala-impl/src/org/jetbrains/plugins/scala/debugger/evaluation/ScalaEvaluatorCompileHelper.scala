@@ -13,6 +13,7 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.remote.CommandIds
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerConnectorBase, RemoteServerRunner, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.project.ProjectExt
 
@@ -78,12 +79,12 @@ class ScalaEvaluatorCompileHelper(project: Project) extends Disposable with Eval
     val connector = new ServerConnector(module, files, outputDir)
     try {
       connector.compile() match {
-        case Left(output) => output
-        case Right(errors) => throw EvaluationException(errors.mkString("\n"))
+        case Right(output) => output
+        case Left(errors) => throw EvaluationException(NlsString.force(errors.mkString("\n")))
       }
     }
     catch {
-      case e: Exception => throw EvaluationException("Could not compile:\n" + e.getMessage)
+      case e: Exception => throw EvaluationException(ScalaBundle.message("could.not.compile", e.getMessage))
     }
   }
 
@@ -107,11 +108,11 @@ object ScalaEvaluatorCompileHelper {
 private class ServerConnector(module: Module, filesToCompile: Seq[File], outputDir: File)
   extends RemoteServerConnectorBase(module, Some(filesToCompile), outputDir) {
 
-  private val errors: ListBuffer[String] = ListBuffer[String]()
+  private val errors = Seq.newBuilder[NlsString]
 
   private val client: Client = new DummyClient {
     override def message(msg: Client.ClientMsg): Unit =
-      if (msg.kind == Kind.ERROR) errors += msg.text
+      if (msg.kind == Kind.ERROR) errors += NlsString(msg.text)
   }
 
   @tailrec
@@ -120,13 +121,15 @@ private class ServerConnector(module: Module, filesToCompile: Seq[File], outputD
     case files => files.map(f => (f, s"$namePrefix${f.getName}".stripSuffix(".class")))
   }
 
-  def compile(): Either[Array[(File, String)], collection.Seq[String]] = {
+  type CompileResult = Either[collection.Seq[NlsString], Array[(File, String)]]
+  def compile(): CompileResult = {
     val project = module.getProject
 
     val compilationProcess = new RemoteServerRunner(project).buildProcess(CommandIds.Compile, arguments.asStrings, client)
-    var result: Either[Array[(File, String)], collection.Seq[String]] = Right(Seq("Compilation failed"))
-    compilationProcess.addTerminationCallback { exception => // TODO: do not ignore possible exception
-      result = if (errors.nonEmpty) Right(errors) else Left(classfiles(outputDir))
+    var result: CompileResult = Left(Seq(ScalaBundle.nls("compilation.failed")))
+    compilationProcess.addTerminationCallback { _ => // TODO: do not ignore possible exception
+      val foundErrors = errors.result()
+      result = if (foundErrors.nonEmpty) Left(foundErrors) else Right(classfiles(outputDir))
     }
     compilationProcess.run()
     result

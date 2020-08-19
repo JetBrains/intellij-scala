@@ -6,6 +6,7 @@ import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
+import org.jetbrains.plugins.scala.ScalaBundle;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,13 +28,13 @@ public class ScaladocConsoleRunConfigurationForm {
 
   public ScaladocConsoleRunConfigurationForm(Project project) {
     this.project = project;
-    addFileChooser("Output dir", destDirChooser, project);
+    addFileChooser(ScalaBundle.message("output.dir"), destDirChooser, project);
 
     ScaladocSettings settings = ScaladocSettings.getInstance(project);
     if (settings.docTitle != null) {
       docTitle.setText(settings.docTitle);
     } else {
-      docTitle.setText(project.getName() + " documentation");
+      docTitle.setText(ScalaBundle.message("documentation.for.project", project.getName()));
     }
 
     if (settings.additionalFlags != null) {

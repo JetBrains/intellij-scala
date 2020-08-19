@@ -13,6 +13,8 @@ import com.intellij.psi._
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager.InsideAsync
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
@@ -332,9 +334,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case "toLong" => unaryEvalForBoxes(name, "toLong")
       case "toFloat" => unaryEvalForBoxes(name, "toFloat")
       case "synchronized" =>
-        throw EvaluationException("synchronized statement is not supported")
+        throw EvaluationException(ScalaBundle.message("synchronized.statement.is.not.supported"))
       case _ =>
-        throw EvaluationException("Cannot evaluate synthetic method: " + name)
+        throw EvaluationException(ScalaBundle.message("cannot.evaluate.synthetic.method", name))
     }
   }
 
@@ -696,13 +698,13 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         ScalaFieldEvaluator(qualEval, name, classPrivateThisField = true)
       case _: ScParameter if p.isCallByNameParameter =>
         calcLocal(p)
-      case _ => throw EvaluationException("By-name parameter expected")
+      case _ => throw EvaluationException(ScalaBundle.message("by.name.parameter.expected"))
     }
     if (computeValue) ScalaMethodEvaluator(paramEval, "apply", null, Nil)
     else paramEval
   }
 
-  private def withOuterFieldEvaluator(containingClass: PsiElement, name: String, message: String) = {
+  private def withOuterFieldEvaluator(containingClass: PsiElement, name: String, @Nls message: String) = {
     val (innerClass, iterationCount) = findContextClass { e =>
       e == null || {val nextClass = getContextClass(e); nextClass == null || nextClass == containingClass}
     }
@@ -974,7 +976,6 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         }
         parents.constructorInvocation match {
           case Some(constrInvocation) =>
-            val project = templ.getProject
             constrInvocation.typeElement.calcType.extractClass match {
               case Some(clazz) if clazz.qualifiedName == "scala.Array" =>
                 val typeArgs = constrInvocation.typeArgList.fold("")(_.getText)
@@ -1148,7 +1149,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           return evaluatorFor(expr)
         } else {
           //should be handled on assignment
-          throw new NeedCompilationException("Update method is not supported")
+          throw new NeedCompilationException(ScalaBundle.message("update.method.is.not.supported"))
         }
       }
       val message = ScalaBundle.message("cannot.evaluate.method", call.getText)
@@ -1272,7 +1273,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def variableDefinitionEvaluator(vd: ScVariableDefinition): Evaluator = {
     vd.expr match {
-      case None => throw EvaluationException(s"Variable definition needs right hand side: ${vd.getText}")
+      case None => throw EvaluationException(ScalaBundle.message("variable.definition.needs.right.hand.side", vd.getText))
       case Some(e) => valOrVarDefinitionEvaluator(vd.pList, e)
     }
   }
@@ -1280,7 +1281,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   def patternDefinitionEvaluator(pd: ScPatternDefinition)
                                 : Evaluator = {
     pd.expr match {
-      case None => throw EvaluationException(s"Value definition needs right hand side: ${pd.getText}")
+      case None => throw EvaluationException(ScalaBundle.message("value.definition.needs.right.hand.side", pd.getText))
       case Some(e) => valOrVarDefinitionEvaluator(pd.pList, e)
     }
   }

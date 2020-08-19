@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
 import com.sun.jdi.BooleanValue
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 
 /**
@@ -16,13 +17,13 @@ class ScalaDoStmtEvaluator(cond: Evaluator, expr: Evaluator) extends Evaluator {
     expr.evaluate(context)
     var condition: Boolean = cond.evaluate(context) match {
       case b: BooleanValue => b.value()
-      case _ => throw EvaluationException("condition has wrong type")
+      case _ => throw EvaluationException(ScalaBundle.message("condition.has.wrong.type"))
     }
     while (condition) {
       expr.evaluate(context)
       condition = cond.evaluate(context) match {
         case b: BooleanValue => b.value()
-        case _ => throw EvaluationException("condition has wrong type")
+        case _ => throw EvaluationException(ScalaBundle.message("condition.has.wrong.type"))
       }
     }
     context.getDebugProcess.getVirtualMachineProxy.mirrorOfVoid()

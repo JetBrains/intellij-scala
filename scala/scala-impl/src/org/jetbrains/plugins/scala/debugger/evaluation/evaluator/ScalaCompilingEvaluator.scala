@@ -17,6 +17,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi.{PsiElement, PsiFile, PsiFileFactory}
 import com.sun.jdi._
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation._
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.GeneratedClass.generatedMethodName
 import org.jetbrains.plugins.scala.extensions._
@@ -63,7 +64,7 @@ class ScalaCompilingEvaluator(psiContext: PsiElement, fragment: ScalaCodeFragmen
     }
     catch {
       case e: Exception =>
-        throw new EvaluateException("Error creating evaluation class loader:\n " + e, e)
+        throw EvaluationException(ScalaBundle.message("error.creating.evaluation.class.loader", e), e)
     }
 
     try {
@@ -71,7 +72,7 @@ class ScalaCompilingEvaluator(psiContext: PsiElement, fragment: ScalaCodeFragmen
     }
     catch {
       case e: Exception =>
-        throw new EvaluateException("Error during classes definition:\n " + e, e)
+        throw EvaluationException(ScalaBundle.message("error.during.classes.definition", e), e)
     }
 
     try {
@@ -81,7 +82,7 @@ class ScalaCompilingEvaluator(psiContext: PsiElement, fragment: ScalaCodeFragmen
     }
     catch {
       case e: Exception =>
-        throw new EvaluateException("Error during generated code invocation:\n " + e, e)
+        throw EvaluationException(ScalaBundle.message("error.during.generated.code.invocation", e), e)
     }
   }
 
@@ -94,7 +95,7 @@ class ScalaCompilingEvaluator(psiContext: PsiElement, fragment: ScalaCodeFragmen
 
   private def defineClasses(classes: Seq[OutputFileObject], context: EvaluationContext,
                             process: DebugProcess, classLoader: ClassLoaderReference): Unit = {
-    if (classes.isEmpty) throw EvaluationException("Could not compile generated class")
+    if (classes.isEmpty) throw EvaluationException(ScalaBundle.message("could.not.compile.generated.class"))
     val proxy: VirtualMachineProxyImpl = process.getVirtualMachineProxy.asInstanceOf[VirtualMachineProxyImpl]
     def alreadyDefined(clsName: String) = {
       proxy.classesByName(clsName).asScala.exists(refType => refType.isPrepared)
@@ -189,7 +190,7 @@ private case class GeneratedClass(syntheticFile: PsiFile, newContext: PsiElement
   def compiledClasses: Seq[OutputFileObject] = compileGeneratedClass(syntheticFile.getText)
 
   private def compileGeneratedClass(fileText: String): Seq[OutputFileObject] = {
-    if (module == null) throw EvaluationException("Module for compilation is not found")
+    if (module == null) throw EvaluationException(ScalaBundle.message("module.for.compilation.is.not.found"))
 
     val helper = EvaluatorCompileHelper.implementations.headOption.getOrElse {
       ScalaEvaluatorCompileHelper.instance(module.getProject)
@@ -216,7 +217,7 @@ private object GeneratedClass {
     val range = context.getTextRange
     val contextCopy = findElement(nonPhysicalCopy, range, context.getClass)
 
-    if (contextCopy == null) throw EvaluationException("Could not evaluate due to a change in a source file")
+    if (contextCopy == null) throw EvaluationException(ScalaBundle.message("could.not.evaluate.due.to.a.change.in.a.source.file"))
 
     val (scClass, constructor) = addLocalClassAndConstructor(contextCopy, fragment, generatedClassName)
     val newContextRange = constructor.getTextRange
@@ -251,7 +252,7 @@ private object GeneratedClass {
       case _ =>
         elem.parentOfType(classOf[ScBlockStatement]) match {
           case Some(blockStatement) => findAnchorAndParent(blockStatement)
-          case _ => throw EvaluationException("Could not compile local class in this context")
+          case _ => throw EvaluationException(ScalaBundle.message("could.not.compile.local.class.in.this.context"))
         }
     }
 
@@ -269,7 +270,7 @@ private object GeneratedClass {
         parent match {
           case bl: ScBlock =>
             bl.statements.head
-          case _ => throw EvaluationException("Could not compile local class in this context")
+          case _ => throw EvaluationException(ScalaBundle.message("could.not.compile.local.class.in.this.context"))
         }
       }
       else prevParent

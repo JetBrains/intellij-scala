@@ -9,7 +9,7 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.annotations.TestOnly
+import org.jetbrains.annotations.{Nls, TestOnly}
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentGenerator._
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiClassExt, PsiElementExt, PsiMemberExt, TraversableExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
@@ -46,6 +46,7 @@ private class ScalaDocContentGenerator(
     appendDescriptionParts(buffer, descriptionParts)
   }
 
+  @Nls
   def tagDescriptionText(
     tag: ScDocTag
   ): String = {
@@ -106,7 +107,7 @@ private class ScalaDocContentGenerator(
   ): String = {
     val resolved = resolvePsiElementLink(ref, resolveContext)
     resolved
-      .map { res: PsiElementResolveResult =>
+      .map { (res: PsiElementResolveResult) =>
         val label = labelFromSiblings(ref, isContentChild).getOrElse(escapeHtml(res.label))
         hyperLinkToPsi(res.refText, label, plainLink)
       }

@@ -4,6 +4,7 @@ package element
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.annotator.createFromUsage.{CreateApplyQuickFix, InstanceOfClass}
 import org.jetbrains.plugins.scala.extensions._
@@ -90,7 +91,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
       case DoesNotTakeParameters() =>
         val targetName = call.getInvokedExpr.`type`().toOption
           .map("'" + _.presentableText + "'")
-          .getOrElse("Application")
+          .getOrElse(ScalaBundle.message("does.not.take.parameter.default.target"))
         val message = ScalaBundle.message("annotator.error.target.does.not.take.parameters", targetName)
         val annotation = holder.createErrorAnnotation(call.argsElement, message)
         (call, call.getInvokedExpr) match {

@@ -171,12 +171,9 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
       visibilityComboBox.addItem(v);
     }
 
-    visibilityComboBox.addItemListener(new ItemListener() {
-      @Override
-      public void itemStateChanged(ItemEvent e) {
-        visibiltyTextField.setEnabled(!isPublic());
-        updateSignature();
-      }
+    visibilityComboBox.addItemListener(e -> {
+      visibiltyTextField.setEnabled(!isPublic());
+      updateSignature();
     });
 
     visibiltyTextField.getDocument().addDocumentListener(new DocumentAdapter() {

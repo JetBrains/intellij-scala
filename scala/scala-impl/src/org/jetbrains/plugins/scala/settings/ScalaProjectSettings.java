@@ -8,6 +8,7 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.OptionTag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.statistics.FeatureKey;
 import org.jetbrains.plugins.scala.statistics.Stats;
 
@@ -158,7 +159,7 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
 
   @NotNull
   public String getPresentableName() {
-    return "Scala Project Settings";
+    return ScalaBundle.message("scala.project.settings");
   }
 
   public int getImplicitParametersSearchDepth() {

@@ -19,6 +19,7 @@ import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.EdtInvocationManager;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember;
 import org.jetbrains.plugins.scala.testDiscovery.actions.ScalaShowAffectedTestsAction;
 
@@ -100,7 +101,7 @@ final public class ScalaAffectedTestsInChangeListPainter implements ChangeListDe
     if (!myChangeListsToShow.get().contains(changeList.getId())) return;
 
     renderer.append(", ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
-    renderer.append("show affected tests (scala)", new SimpleTextAttributes(STYLE_UNDERLINE, UIUtil.getInactiveTextColor()), (Runnable) () -> {
+    renderer.append(ScalaBundle.message("show.affected.tests.scala"), new SimpleTextAttributes(STYLE_UNDERLINE, UIUtil.getInactiveTextColor()), (Runnable) () -> {
       DataContext dataContext = DataManager.getInstance().getDataContext(renderer.getTree());
       Change[] changes = changeList.getChanges().toArray(new Change[0]);
       ScalaShowAffectedTestsAction.showDiscoveredTestsByChanges(myProject, changes, changeList.getName(), dataContext);

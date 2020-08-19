@@ -161,7 +161,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
         if (occurrencesCount > 1) {
             myCbReplaceAllOccurences.setSelected(false);
             myCbReplaceAllOccurences.setEnabled(true);
-            myCbReplaceAllOccurences.setText(myCbReplaceAllOccurences.getText() + " (" + occurrencesCount + " occurrences)");
+            myCbReplaceAllOccurences.setText(myCbReplaceAllOccurences.getText() + ScalaBundle.message("multi.occurrences", occurrencesCount));
         } else {
             myCbReplaceAllOccurences.setSelected(false);
             myCbReplaceAllOccurences.setEnabled(false);

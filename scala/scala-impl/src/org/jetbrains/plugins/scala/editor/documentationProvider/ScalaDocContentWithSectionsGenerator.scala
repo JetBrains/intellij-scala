@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.lang.documentation.DocumentationMarkup
 import com.intellij.psi.{PsiDocCommentOwner, PsiElement}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentWithSectionsGenerator.{ParamInfo, Section}
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt, PsiNamedElementExt}
@@ -169,7 +170,7 @@ private class ScalaDocContentWithSectionsGenerator(
 
   private def prepareSimpleSections(tags: Seq[ScDocTag], tagName: String, sectionTitle: String): Seq[Section] = {
     val matchingTags = tags.filter(_.name == tagName)
-    val result = matchingTags.map { tag: ScDocTag =>
+    val result = matchingTags.map { (tag: ScDocTag) =>
       val sectionContent = newContentGenerator.tagDescriptionText(tag)
       Section(sectionTitle, sectionContent.trim)
     }
@@ -182,7 +183,7 @@ private class ScalaDocContentWithSectionsGenerator(
     val paramTagsInfo = paramTags.flatMap(parameterInfo)
     if (paramTagsInfo.nonEmpty) {
       val content = parameterInfosText(paramTagsInfo)
-      Some(Section("Params:", content))
+      Some(Section(ScalaEditorBundle.message("section.title.params"), content))
     } else None
   }
 
@@ -191,14 +192,14 @@ private class ScalaDocContentWithSectionsGenerator(
     val typeParamTagsInfo = typeParamTags.flatMap(parameterInfo)
     if (typeParamTagsInfo.nonEmpty) {
       val content = parameterInfosText(typeParamTagsInfo)
-      Some(Section("Type parameters:", content))
+      Some(Section(ScalaEditorBundle.message("section.title.type.parameters"), content))
     } else None
   }
 
   private def prepareReturnsSection(tags: Seq[ScDocTag]): Option[Section] = {
     // TODO: if there is inherited doc, get return description from there
     val returnTag = tags.find(_.name == MyScaladocParsing.RETURN_TAG)
-    returnTag.map(newContentGenerator.tagDescriptionText).map(Section("Returns:", _))
+    returnTag.map(newContentGenerator.tagDescriptionText).map(Section(ScalaEditorBundle.message("section.title.returns"), _))
   }
 
   private def prepareThrowsSection(tags: Seq[ScDocTag]): Option[Section] = {
@@ -206,7 +207,7 @@ private class ScalaDocContentWithSectionsGenerator(
     val throwTagsInfos = throwTags.flatMap(throwsInfo)
     if (throwTagsInfos.nonEmpty) {
       val content = parameterInfosText(throwTagsInfos)
-      Some(Section("Throws:", content))
+      Some(Section(ScalaEditorBundle.message("section.title.throws"), content))
     } else None
   }
 
@@ -266,8 +267,7 @@ private class ScalaDocContentWithSectionsGenerator(
 }
 
 object ScalaDocContentWithSectionsGenerator {
-
-  private case class Section(title: String, content: String)
+  private case class Section(@Nls title: String, content: String)
   // e.g. @throws Exception(value) condition(description)
-  private case class ParamInfo(value: String, description: String)
+  private case class ParamInfo(value: String, @Nls description: String)
 }

@@ -3,6 +3,7 @@ package annotator
 package element
 
 import com.intellij.psi.{PsiMethod, PsiModifier}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.ErrorAnnotationMessage
 import org.jetbrains.plugins.scala.annotator.quickfix.{ImplementMethodsQuickFix, ModifierQuickFix}
 import org.jetbrains.plugins.scala.annotator.template._
@@ -112,7 +113,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
               case scalaObject: ScObject => scalaObject.nameId.getTextRange
             }
 
-            val annotation = holder.createErrorAnnotation(range, objectCreationImpossibleMessage(undefined.toSeq: _*))
+            val annotation = holder.createErrorAnnotation(range, objectCreationImpossibleMessage(undefined: _*))
             annotation.registerFix(new ImplementMethodsQuickFix(element))
           }
         case _ =>
@@ -264,8 +265,11 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     }
   }
 
-  def objectCreationImpossibleMessage(members: (String, String)*): String =
-    s"Object creation impossible, since " + members.map {
-      case (first, second) => s" member $first in $second is not defined"
+  @Nls
+  def objectCreationImpossibleMessage(members: (String, String)*): String = {
+    val reasons = members.map {
+      case (first, second) => ScalaBundle.message("member.is.not.defined", first, second)
     }.mkString("; ")
+    ScalaBundle.message("object.creation.impossible.since", reasons)
+  }
 }

@@ -172,14 +172,14 @@ object ScalaCollectionRenderer {
   private def evaluateBoolean(value: Value, context: EvaluationContext, evaluator: Evaluator): Boolean = {
     evaluate(value, context, evaluator) match {
       case b: BooleanValue => b.booleanValue()
-      case x => throw EvaluationException(s"$x is not a boolean")
+      case x => throw EvaluationException(ScalaBundle.message("value.is.not.a.boolean", x))
     }
   }
 
   private def evaluateInt(value: Value, context: EvaluationContext, evaluator: Evaluator): Int = {
     evaluate(value, context, evaluator) match {
       case i: IntegerValue => i.intValue()
-      case x => throw EvaluationException(s"$x is not an integer")
+      case x => throw EvaluationException(ScalaBundle.message("value.is.not.an.integer", x))
     }
   }
 
@@ -192,10 +192,10 @@ object ScalaCollectionRenderer {
       val newContext = context.createEvaluationContext(value)
       evaluator.exprEval.evaluate(newContext) match {
         case b: BooleanValue => b.booleanValue()
-        case _ => throw EvaluationException("Cannot evaluate expression")
+        case _ => throw EvaluationException(ScalaBundle.message("cannot.evaluate.expression"))
       }
     }
-    else throw EvaluationException("Cannot evaluate expression")
+    else throw EvaluationException(ScalaBundle.message("cannot.evaluate.expression"))
   }
 
   object ScalaToArrayRenderer extends ReferenceRenderer(collectionClassName) with ChildrenRenderer {

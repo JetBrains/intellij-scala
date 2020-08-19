@@ -19,7 +19,7 @@ import scala.jdk.CollectionConverters._
 class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCategory.CLASS_POST_PROCESSOR) {
 
   override def getPresentableName: String =
-    "scala compiler-reference indexer"
+    JpsBundle.message("scala.compiler.reference.indexer")
 
   override def getCompilableFileExtensions: jutil.List[String] =
     List("scala", "java").asJava

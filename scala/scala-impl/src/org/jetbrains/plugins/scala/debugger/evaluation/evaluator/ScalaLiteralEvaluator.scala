@@ -6,6 +6,7 @@ package evaluator
 import java.{lang => jl}
 
 import com.intellij.debugger.engine.evaluation.{EvaluationContextImpl, expression}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, api}
 
@@ -86,7 +87,7 @@ final class ScalaLiteralEvaluator private(value: AnyRef,
             case Unit => vm.mirrorOfVoid()
             case _ => null
           }
-        case _ => throw EvaluationException("unknown type of literal")
+        case _ => throw EvaluationException(ScalaBundle.message("unknown.type.of.literal"))
       }
   }
 }
@@ -105,7 +106,7 @@ object ScalaLiteralEvaluator {
 
     value match {
       case null if !`type`.isNull =>
-        throw EvaluationException(s"Literal ${literal.getText} has null value")
+        throw EvaluationException(ScalaBundle.message("literal.has.null.value", literal.getText))
       case _ => new ScalaLiteralEvaluator(value, `type`)
     }
   }

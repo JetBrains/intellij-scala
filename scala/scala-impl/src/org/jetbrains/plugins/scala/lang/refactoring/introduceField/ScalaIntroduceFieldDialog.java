@@ -233,7 +233,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
         }
 
         if (occurrencesCount > 1) {
-            myReplaceAllChb.setText(myReplaceAllChb.getText() + " (" + occurrencesCount + " occurrences)");
+            myReplaceAllChb.setText(myReplaceAllChb.getText() + " (" + ScalaBundle.message("field.occurrences", occurrencesCount) + ")");
         }
 
         contentPane.registerKeyboardAction(e -> myTypeComboBox.requestFocus(), KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.ALT_MASK), JComponent.WHEN_IN_FOCUSED_WINDOW);

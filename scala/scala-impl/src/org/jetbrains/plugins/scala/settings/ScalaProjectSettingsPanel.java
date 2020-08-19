@@ -156,7 +156,7 @@ public class ScalaProjectSettingsPanel {
                 ScalaPluginUpdater.doUpdatePluginHosts((pluginBranch) updateChannel.getModel().getSelectedItem());
                 UpdateChecker.updateAndShowResult(myProject, UpdateSettings.getInstance());
             } catch (InvalidRepoException ex) {
-                Messages.showErrorDialog(ex.getMessage(), "Invalid Update Channel");
+                Messages.showErrorDialog(ex.getMessage(), ScalaBundle.message("invalid.update.channel"));
             }
         });
 
@@ -819,8 +819,7 @@ public class ScalaProjectSettingsPanel {
         @Override
         protected JComponent createCenterPanel() {
             JComponent res = new JPanel();
-            res.add(new JLabel("Changes in ScalaTest highlighting will be processed correctly only on freshly highlighted files." +
-                    "For best experience please restart Intellij IDEA"));
+            res.add(new JLabel(ScalaBundle.message("changes.in.scalatest.highlighting.will.be.processed...")));
             return res;
         }
 

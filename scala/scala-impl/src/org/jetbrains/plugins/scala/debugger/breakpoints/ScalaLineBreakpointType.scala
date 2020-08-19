@@ -18,7 +18,7 @@ import com.intellij.xdebugger.impl.XSourcePositionImpl
 import com.intellij.xdebugger.impl.breakpoints.XLineBreakpointImpl
 import com.intellij.xdebugger.{XDebuggerUtil, XSourcePosition}
 import javax.swing.Icon
-import org.jetbrains.annotations.{NotNull, Nullable}
+import org.jetbrains.annotations.{Nls, NotNull, Nullable}
 import org.jetbrains.concurrency.{AsyncPromise, Promise}
 import org.jetbrains.java.debugger.breakpoints.properties.JavaLineBreakpointProperties
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
@@ -205,18 +205,19 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
 
     }
 
+    @Nls
     override def getText: String = {
       if (isLambda) super.getText
       else {
         element match {
-          case c: ScClass => s"constructor of ${c.name}"
+          case c: ScClass => ScalaBundle.message("breakpoint.location.constructor.of", c.name)
           case ed: ScEarlyDefinitions =>
             val clazz = PsiTreeUtil.getParentOfType(ed, classOf[ScTypeDefinition])
-            if (clazz != null) s"early definitions of ${clazz.name}"
-            else "line in containing block"
-          case (_: ScFunction) && (named: ScNamedElement) => s"line in function ${named.name}"
-          case _: ScalaFile => "line in containing file"
-          case _ => "line in containing block"
+            if (clazz != null) ScalaBundle.message("breakpoint.location.early.definitions.of", clazz.name)
+            else ScalaBundle.message("breakpoint.location.line.in.containing.block")
+          case (_: ScFunction) && (named: ScNamedElement) => ScalaBundle.message("breakpoint.location.line.in.function", named.name)
+          case _: ScalaFile => ScalaBundle.message("breakpoint.location.line.in.containing.file")
+          case _ => ScalaBundle.message("breakpoint.location.line.in.containing.block")
         }
       }
     }

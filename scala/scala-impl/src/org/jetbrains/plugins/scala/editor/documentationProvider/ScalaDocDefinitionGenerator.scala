@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 import com.intellij.lang.documentation.DocumentationMarkup
 import com.intellij.psi._
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
+import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationUtils.EmptyDoc
 import org.jetbrains.plugins.scala.extensions.{&&, PsiClassExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi
@@ -183,7 +184,8 @@ private class ScalaDocDefinitionGenerator private(
         }
       case _  =>
         appendDefinitionSection {
-          builder.append("Pattern: ")
+          builder.append(ScalaEditorBundle.message("section.pattern"))
+          builder.append(' ')
           appendDeclMainSection(pattern)
         }
     }

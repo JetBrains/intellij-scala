@@ -3,6 +3,7 @@ package annotator
 package element
 
 import com.intellij.codeInspection.ProblemHighlightType
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
@@ -18,7 +19,7 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
       val typeParametersLength = t.typeParameters.length
       val argsLength = element.typeArgList.typeArgs.length
       if (typeParametersLength != argsLength) {
-        val error = "Wrong number of type parameters. Expected: " + typeParametersLength + ", actual: " + argsLength
+        val error = ScalaBundle.message("wrong.number.of.type.parameters", typeParametersLength, argsLength)
         val leftBracket = element.typeArgList.getNode.findChildByType(ScalaTokenTypes.tLSQBRACKET)
         if (leftBracket != null) {
           val annotation = holder.createErrorAnnotation(leftBracket, error)

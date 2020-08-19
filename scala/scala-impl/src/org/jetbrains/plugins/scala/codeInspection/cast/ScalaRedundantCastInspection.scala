@@ -29,7 +29,7 @@ class ScalaRedundantCastInspection extends AbstractInspection(ScalaInspectionBun
             val descriptor = {
               val range = new TextRange(left.getTextLength, call.getTextLength)
 
-              val message = "Casting '%s' to '%s' is redundant".format(left.getText, castType.presentableText)
+              val message = ScalaInspectionBundle.message("casting.left.to.right.is.redundant", left.getText, castType.presentableText)
 
               new ProblemDescriptorImpl(call, call, message, Array(new RemoveCastQuickFix(call, left)),
                 ProblemHighlightType.LIKE_UNUSED_SYMBOL, false, range, null, false)

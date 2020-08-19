@@ -10,6 +10,7 @@ import com.intellij.openapi.roots.ui.configuration._
 import com.intellij.openapi.roots.{JavadocOrderRootType, OrderRootType}
 import com.intellij.openapi.vfs.VirtualFile
 import javax.swing.{Icon, JComponent}
+import org.jetbrains.plugins.scala.ScalaBundle
 
 /**
  * @author Pavel Fatin
@@ -18,8 +19,7 @@ final class ScalaLibraryType extends LibraryType[ScalaLibraryProperties](ScalaLi
 
   override def getIcon: Icon = icons.Icons.SCALA_SDK
 
-  //noinspection ScalaExtractStringToBundle
-  override def getCreateActionName = "Scala SDK"
+  override def getCreateActionName = ScalaBundle.message("library.type.scala.sdk")
 
   override def createNewLibrary(parent: JComponent,
                                 contextDirectory: VirtualFile,

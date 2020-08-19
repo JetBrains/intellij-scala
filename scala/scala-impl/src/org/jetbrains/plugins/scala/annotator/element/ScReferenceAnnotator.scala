@@ -8,6 +8,7 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.{findCommonContext, findFirstContext}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.{highlightImplicitView, registerTypeMismatchError}
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
@@ -566,7 +567,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     if (resolve.length != 1 || refElement.isSoft || refElement.isInstanceOf[ScDocResolvableCodeReference]) return
     resolve(0) match {
       case r if !r.isAccessible =>
-        val error = "Symbol %s is inaccessible from this place".format(r.element.name)
+        val error = ScalaBundle.message("symbol.is.inaccessible.from.this.place", r.element.name)
         holder.createErrorAnnotation(refElement.nameId, error)
       //todo: add fixes
       case _ =>

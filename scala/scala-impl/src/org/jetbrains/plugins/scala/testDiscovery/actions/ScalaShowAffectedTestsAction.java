@@ -80,7 +80,7 @@ import static com.intellij.openapi.util.Pair.pair;
 import static org.jetbrains.plugins.scala.testDiscovery.actions.ScalaShowAffectedTestsActionCompanion.*;
 
 public class ScalaShowAffectedTestsAction extends AnAction {
-  private static final String RUN_ALL_ACTION_TEXT = "Run All Affected Tests (Scala)";
+  private static final String RUN_ALL_ACTION_TEXT = ScalaBundle.message("run.all.affected.tests.scala");
 
   public ScalaShowAffectedTestsAction() {
     super(ScalaBundle.message("show.affected.tests.action.text"),
@@ -150,11 +150,11 @@ public class ScalaShowAffectedTestsAction extends AnAction {
 
   @NotNull
   private static String createTitle(@NotNull List<VirtualFile> files) {
-    if (files.isEmpty()) return "Empty Selection";
+    if (files.isEmpty()) return ScalaBundle.message("affected.tests.title.empty.selection");
     String firstName = files.get(0).getName();
     if (files.size() == 1) return firstName;
-    if (files.size() == 2) return firstName + " and " + files.get(1).getName();
-    return firstName + " et al.";
+    if (files.size() == 2) return ScalaBundle.message("affected.tests.title.two.tests", firstName, files.get(1).getName());
+    return ScalaBundle.message("affected.tests.title.more.than.two", firstName);
   }
 
   private static void showDiscoveredTestsByPsiClass(@NotNull Project project, @NotNull PsiClass psiClass, @NotNull AnActionEvent e) {
@@ -195,7 +195,7 @@ public class ScalaShowAffectedTestsAction extends AnAction {
     Change[] changes = e.getRequiredData(VcsDataKeys.CHANGES);
     Project project = e.getProject();
     assert project != null;
-    showDiscoveredTestsByChanges(project, changes, "Selected Changes", e.getDataContext());
+    showDiscoveredTestsByChanges(project, changes, ScalaBundle.message("selected.changes"), e.getDataContext());
   }
 
   public static void showDiscoveredTestsByChanges(@NotNull Project project,
@@ -306,7 +306,7 @@ public class ScalaShowAffectedTestsAction extends AnAction {
                                               @NotNull DataContext dataContext,
                                               @NotNull String title) {
     DiscoveredTestsTree tree = new DiscoveredTestsTree(title);
-    String initTitle = "Tests for " + title;
+    String initTitle = ScalaBundle.message("tests.for.title", title);
 
     Ref<JBPopup> ref = new Ref<>();
 
@@ -339,7 +339,7 @@ public class ScalaShowAffectedTestsAction extends AnAction {
 
     KeyStroke findUsageKeyStroke = findUsagesKeyStroke();
     String pinTooltip =
-      "Open Find Usages Tool window" + (findUsageKeyStroke == null ? "" : " " + KeymapUtil.getKeystrokeText(findUsageKeyStroke));
+            ScalaBundle.message("open.find.usages.tool.window", (findUsageKeyStroke == null ? "" : " " + KeymapUtil.getKeystrokeText(findUsageKeyStroke)));
     ActiveComponent pinButton = createButton(pinTooltip, AllIcons.General.Pin_tab, pinActionListener, tree);
 
     PopupChooserBuilder builder =
