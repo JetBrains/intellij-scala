@@ -37,7 +37,9 @@ private[importing] object BspResolverLogic {
     Option(gson.fromJson[SbtBuildTarget](data, classOf[SbtBuildTarget]))
 
   private[importing] def getJdkData(target: JvmBuildTarget): JdkData = {
-    JdkData(new URI(target.getJavaHome), target.getJavaVersion)
+    val javaHome = Option(target.getJavaHome).map(new URI(_))
+
+    JdkData(javaHome.orNull, target.getJavaVersion)
   }
 
   private[importing] def getScalaSdkData(target: ScalaBuildTarget, scalacOptionsItem: Option[ScalacOptionsItem]): (JdkData, ScalaSdkData) = {
@@ -236,11 +238,11 @@ private[importing] object BspResolverLogic {
         .orElse(javacOptions.map(_.getClassDirectory.toURI.toFile))
 
     // classpath needs to be filtered for module dependency output paths since they are handled by IDEA module dep mechanism
-    val classPath =
-      scalacOptions.map(_.getClasspath.asScala.map(_.toURI.toFile))
-        .orElse(javacOptions.map(_.getClasspath.asScala.map(_.toURI.toFile)))
+    val scalaClassPath = scalacOptions.map(_.getClasspath.asScala.map(_.toURI.toFile)).getOrElse(Seq.empty)
+    val javaClassPath = javacOptions.map(_.getClasspath.asScala.map(_.toURI.toFile)).getOrElse(Seq.empty)
+    val classPath = (scalaClassPath ++ javaClassPath).sorted.distinct
 
-    val classPathWithoutDependencyOutputs = classPath.getOrElse(Seq.empty).filterNot(dependencyOutputs.contains)
+    val classPathWithoutDependencyOutputs = classPath.filterNot(dependencyOutputs.contains)
 
     val tags = target.getTags.asScala
 
@@ -730,6 +732,9 @@ private[importing] object BspResolverLogic {
         val sbtNode = new DataNode[SbtBuildModuleDataBsp](SbtBuildModuleDataBsp.Key, sbtData, moduleNode)
         moduleNode.addChild(scalaSdkNode)
         moduleNode.addChild(sbtNode)
+
+      case JvmModule(JdkData(javaHome, javaVersion)) =>
+        // FIXME set jdk form home or version
 
       case UnspecifiedModule() =>
     }
