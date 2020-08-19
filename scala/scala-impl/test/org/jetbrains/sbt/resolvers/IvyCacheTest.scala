@@ -15,7 +15,7 @@ class IvyCacheTest extends IndexingTestCase with UsefulTestCaseHelper {
   private val root = s"/${TestUtils.getTestDataPath + "/"}/sbt/resolvers/testIvyCache"
 
   def testIndexUpdate(): Unit = {
-    val resolver = new SbtIvyResolver("Test repo", root)
+    val resolver = new SbtIvyResolver("Test repo", root, isLocal = false)
     val index = resolver.getIndex(getProject).get
     index.doUpdate()
     assertIndexContentsEquals(index, Set("org.jetbrains"), Set("test-one", "test-two"), Set("0.0.1", "0.0.2"))

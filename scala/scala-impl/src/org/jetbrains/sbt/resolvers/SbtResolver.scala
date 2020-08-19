@@ -6,7 +6,9 @@ import java.util.regex.Pattern
 import com.intellij.diagnostic.PluginException
 import com.intellij.openapi.project.Project
 import com.intellij.serialization.PropertyMapping
+import org.jetbrains.annotations.Nls
 import org.jetbrains.idea.maven.indices.MavenIndicesManager
+import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.resolvers.indexes.{FakeMavenIndex, MavenProxyIndex, ResolverIndex}
 
@@ -17,6 +19,8 @@ import org.jetbrains.sbt.resolvers.indexes.{FakeMavenIndex, MavenProxyIndex, Res
 sealed trait SbtResolver extends Serializable {
   def name: String
   def root: String
+  @Nls
+  def presentableName: String
   def getIndex(project: Project): Option[ResolverIndex]
   override def hashCode(): Int = toString.hashCode
   override def equals(o: scala.Any): Boolean = toString == o.toString
@@ -25,23 +29,28 @@ sealed trait SbtResolver extends Serializable {
 object SbtResolver {
   def localCacheResolver(localCachePath: Option[String]): SbtResolver = {
     val defaultPath = System.getProperty("user.home") + "/.ivy2/cache".replace('/', File.separatorChar)
-    new SbtIvyResolver(SbtBundle.message("sbt.local.cache"), localCachePath getOrElse defaultPath)
+    new SbtIvyResolver("Local cache", localCachePath getOrElse defaultPath, isLocal = true, SbtBundle.message("sbt.local.cache"))
   }
 
   private val DELIMITER = "|"
   def fromString(str: String): Option[SbtResolver] = {
     str.split(Pattern.quote(DELIMITER), 3).toSeq match {
       case Seq(root, "maven", name) => Some(new SbtMavenResolver(name, root))
-      case Seq(root, "ivy", name) => Some(new SbtIvyResolver(name, root))
+      case Seq(root, "ivy", name) => Some(new SbtIvyResolver(name, root, isLocal = false))
       case _ => None
     }
   }
 }
 
-class SbtMavenResolver @PropertyMapping(Array("name", "root")) (
-                                                                 override val name: String,
-                                                                 override val root: String
+class SbtMavenResolver @PropertyMapping(Array("name", "root", "presentableName"))
+(
+  override val name: String,
+  override val root: String,
+  @Nls _presentableName: String = null
 ) extends SbtResolver {
+
+  override val presentableName: String =
+    if (_presentableName != null) _presentableName else NlsString.force(name)
 
   override def getIndex(project: Project): Option[ResolverIndex] = try {
       MavenIndicesManager.getInstance()
@@ -56,10 +65,16 @@ class SbtMavenResolver @PropertyMapping(Array("name", "root")) (
   override def toString = s"$root|maven|$name"
 }
 
-class SbtIvyResolver @PropertyMapping(Array("name", "root")) (
-                                                               override val name: String,
-                                                               override val root: String
+class SbtIvyResolver @PropertyMapping(Array("name", "root", "isLocal", "presentableName"))
+(
+  override val name: String,
+  override val root: String,
+  val isLocal: Boolean,
+  @Nls _presentableName: String = null
 ) extends SbtResolver {
+
+  override val presentableName: String =
+    if (_presentableName != null) _presentableName else NlsString.force(name)
 
   override def getIndex(project: Project): Option[ResolverIndex] =
     SbtIndexesManager.getInstance(project).map(_.getIvyIndex(name, root))

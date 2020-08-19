@@ -53,7 +53,7 @@ class DependencyAnnotatorTest extends org.jetbrains.sbt.annotator.AnnotatorTestB
       modules(0)
     }
 
-    val testResolver = new SbtIvyResolver("Test repo", root)
+    val testResolver = new SbtIvyResolver("Test repo", root, isLocal = false)
     SbtModule.Resolvers(module) = Set(testResolver)
 
     val index = testResolver.getIndex(myProject).get

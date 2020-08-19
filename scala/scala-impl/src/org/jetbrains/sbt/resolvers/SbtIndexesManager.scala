@@ -34,7 +34,7 @@ final class SbtIndexesManager(val project: Project) extends Disposable {
 
   private val indexes = new mutable.HashMap[String, ResolverIndex]()
 
-  def doUpdateResolverIndexWithProgress(name: String, index: ResolverIndex): Unit = {
+  def doUpdateResolverIndexWithProgress(@Nls name: String, index: ResolverIndex): Unit = {
     if (ApplicationManager.getApplication.isUnitTestMode && sys.props.get(FORCE_UPDATE_KEY).isEmpty)
       return
 
@@ -76,7 +76,7 @@ final class SbtIndexesManager(val project: Project) extends Disposable {
     for {
       resolver <- resolvers
       index <- resolver.getIndex(project)
-    } doUpdateResolverIndexWithProgress(resolver.name, index)
+    } doUpdateResolverIndexWithProgress(resolver.presentableName, index)
 
   def getIvyIndex(name: String, root: String): ResolverIndex = {
     indexes.getOrElseUpdate(root, createNewIvyIndex(name, root))

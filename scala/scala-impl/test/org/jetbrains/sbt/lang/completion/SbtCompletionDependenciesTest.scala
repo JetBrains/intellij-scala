@@ -21,7 +21,7 @@ class SbtCompletionDependenciesTest extends SbtCompletionTestBase {
 
     sys.props += FORCE_UPDATE_KEY -> "true"
 
-    val testResolver = new SbtIvyResolver("Test repo", root)
+    val testResolver = new SbtIvyResolver("Test repo", root, isLocal = false)
 
     testResolver.getIndex(getProjectAdapter).get.doUpdate()
 

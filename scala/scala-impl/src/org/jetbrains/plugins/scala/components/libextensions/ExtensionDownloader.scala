@@ -85,7 +85,7 @@ class ExtensionDownloader(private val progress: ProgressIndicator, private val s
   private def downloadViaIvy(props: Seq[ExtensionProps]): Seq[File] = {
     val ivyResolvers = sbtResolvers.toSeq.collect {
       case r: SbtMavenResolver => MavenResolver(r.name, r.root)
-      case r: SbtIvyResolver if r.name != "Local cache" => IvyResolver(r.name, r.root)
+      case r: SbtIvyResolver if !r.isLocal => IvyResolver(r.name, r.root)
     }
     val deps = props.map(_.artifact.toDepDescription)
     val resolver = new IvyExtensionsResolver(ivyResolvers, progress)
