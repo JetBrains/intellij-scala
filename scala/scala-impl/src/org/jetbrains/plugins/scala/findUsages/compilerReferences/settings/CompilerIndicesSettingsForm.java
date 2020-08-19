@@ -48,8 +48,8 @@ public class CompilerIndicesSettingsForm {
         enableIndexingCB.addItemListener(changeEvent -> updateAllPanels());
         deleteButton.setEnabled(package$.MODULE$.upToDateCompilerIndexExists(project, ScalaCompilerIndices.version()));
         deleteButton.addActionListener(e -> {
-            final int answer = Messages.showYesNoDialog(project, "Are you sure you want to delete the bytecode indices?",
-                    "Delete Bytecode Indices", Messages.getQuestionIcon());
+            final int answer = Messages.showYesNoDialog(project, ScalaBundle.message("are.you.sure.you.want.to.delete.the.bytecode.indices"),
+                    ScalaBundle.message("delete.bytecode.indices"), Messages.getQuestionIcon());
             if (answer == Messages.YES) {
                 invalidateIndices();
                 deleteButton.setEnabled(false);

@@ -26,6 +26,7 @@ import com.intellij.util.ui.tree.TreeModelAdapter;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.ScalaBundle;
 
 import javax.swing.*;
 import javax.swing.event.TreeModelEvent;
@@ -33,6 +34,7 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -51,7 +53,7 @@ class DiscoveredTestsTree extends Tree implements DataProvider, Disposable {
       return component instanceof PsiMember ? ((PsiMember)component).getName() : null;
     }, true);
     getSelectionModel().setSelectionMode(TreeSelectionModel.CONTIGUOUS_TREE_SELECTION);
-    getEmptyText().setText("No tests captured for " + title);
+    getEmptyText().setText(ScalaBundle.message("no.tests.captured", title));
     setPaintBusy(true);
     setRootVisible(false);
     setCellRenderer(new ColoredTreeCellRenderer() {
@@ -123,7 +125,7 @@ class DiscoveredTestsTree extends Tree implements DataProvider, Disposable {
                     SmartPsiElementPointer<PsiClass> pointer = element.getPointer();
                     return ModuleUtilCore.findModuleForFile(pointer.getVirtualFile(), pointer.getProject());
                   })
-                  .filter(module -> module != null)
+                  .filter(Objects::nonNull)
                   .collect(Collectors.toSet());
   }
 
@@ -141,8 +143,8 @@ class DiscoveredTestsTree extends Tree implements DataProvider, Disposable {
   @Nullable
   private static PsiElement obj2psi(@Nullable Object obj) {
     return Optional.ofNullable(ObjectUtils.tryCast(obj, DiscoveredTestsTreeModel.Node.class))
-                   .map(n -> n.getPointer())
-                   .map(p -> p.getElement())
+                   .map(DiscoveredTestsTreeModel.Node::getPointer)
+                   .map(SmartPsiElementPointer::getElement)
                    .orElse(null);
   }
 

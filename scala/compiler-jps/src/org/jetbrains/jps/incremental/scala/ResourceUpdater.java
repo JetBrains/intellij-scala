@@ -29,7 +29,7 @@ public class ResourceUpdater {
     final File targetFile = new File(outputPath);
 
     if (file.lastModified() > targetFile.lastModified()) {
-      context.processMessage(new ProgressMessage("Copying resources... [" + rd.getTarget().getModule().getName() + "]"));
+      context.processMessage(new ProgressMessage(JpsBundle.message("copying.resources", rd.getTarget().getModule().getName())));
       FileUtil.copyContent(file, targetFile);
     }
   }

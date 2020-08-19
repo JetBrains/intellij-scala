@@ -59,6 +59,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.actions.ScalaExpressionTypeProvider;
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings;
+import org.jetbrains.plugins.scala.editor.ScalaEditorBundle;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.util.UnloadAwareDisposable;
@@ -280,7 +281,7 @@ public class MouseHoverHandler implements ProjectManagerListener {
     }
 
     private static void showDumbModeNotification(final Project project) {
-      DumbService.getInstance(project).showDumbModeNotification("Element information is not available during index update");
+      DumbService.getInstance(project).showDumbModeNotification(ScalaEditorBundle.message("element.information.is.not.available.during.index.update"));
     }
 
     private static class InfoSingle extends Info {
@@ -364,7 +365,7 @@ public class MouseHoverHandler implements ProjectManagerListener {
             fullTextRef.set(provider.generateDoc(anchorElement, originalElement));
           }
           catch (IndexNotReadyException e) {
-            fullTextRef.set("Documentation is not available while indexing is in progress");
+            fullTextRef.set(ScalaEditorBundle.message("documentation.is.not.available.while.indexing"));
           }
           if (anchorElement instanceof PsiQualifiedNamedElement) {
             qualifiedNameRef.set(((PsiQualifiedNamedElement)anchorElement).getQualifiedName());

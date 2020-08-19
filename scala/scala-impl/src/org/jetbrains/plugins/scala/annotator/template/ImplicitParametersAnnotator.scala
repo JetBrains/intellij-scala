@@ -5,6 +5,7 @@ package template
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.autoImport.quickFix.ImportImplicitInstanceFix
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
@@ -41,7 +42,7 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
       case collection.Seq() =>
       case params =>
         val presentableTypes = params
-          .map(_.implicitSearchState.map(_.presentableTypeText).getOrElse("unknown type"))
+          .map(_.implicitSearchState.map(_.presentableTypeText).getOrElse(ScalaBundle.message("unknown.type")))
 
         val annotation = holder.createErrorAnnotation(lastLineRange(element), message(presentableTypes))
 
@@ -83,5 +84,5 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
   }
 
   def message(types: collection.Seq[String]): String =
-    types.mkString("No implicit arguments of type: ", ", ", "")
+    ScalaBundle.message("no.implicit.arguments.of.type", types.mkString(", "))
 }

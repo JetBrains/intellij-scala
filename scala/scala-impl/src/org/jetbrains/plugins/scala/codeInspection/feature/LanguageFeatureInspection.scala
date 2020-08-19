@@ -5,6 +5,8 @@ package feature
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ReferenceTarget, _}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
@@ -26,33 +28,33 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 class LanguageFeatureInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.advanced.language.features")) {
 
   private val Features = Seq(
-    Feature("postfix operator notation", "scala.language", "postfixOps", _.postfixOps, _.copy(postfixOps = true)) {
+    Feature(ScalaInspectionBundle.message("language.feature.postfix.operator.notation"), "scala.language", "postfixOps", _.postfixOps, _.copy(postfixOps = true)) {
       // TODO if !e.applicationProblems.exists(_.isInstanceOf[MissedValueParameter]), see TypeMismatchHighlightingTest
       case e: ScPostfixExpr => e.operation
     },
-    Feature("reflective call", "scala.language", "reflectiveCalls", _.reflectiveCalls, _.copy(reflectiveCalls = true)) {
+    Feature(ScalaInspectionBundle.message("language.feature.reflective.call"), "scala.language", "reflectiveCalls", _.reflectiveCalls, _.copy(reflectiveCalls = true)) {
       case e @ ReferenceTarget(decl@Parent(_: ScRefinement)) if !decl.isInstanceOf[ScTypeAlias] => e.getLastChild match {
         case id @ ElementType(ScalaTokenTypes.tIDENTIFIER) => id
         case _ => e
       }
     },
-    Feature("dynamic member selection", "scala.language", "dynamics", _.dynamics, _.copy(dynamics = true)) {
+    Feature(ScalaInspectionBundle.message("language.feature.dynamic.member.selection"), "scala.language", "dynamics", _.dynamics, _.copy(dynamics = true)) {
       case e@ReferenceTarget(ClassQualifiedName("scala.Dynamic")) && Parent(Parent(Parent(_: ScTemplateParents))) => e
     },
-    Feature("implicit conversion", "scala.language", "implicitConversions", _.implicitConversions, _.copy(implicitConversions = true)) {
+    Feature(ScalaInspectionBundle.message("language.feature.implicit.conversion"), "scala.language", "implicitConversions", _.implicitConversions, _.copy(implicitConversions = true)) {
       case e: ScFunctionDefinition if e.getModifierList.isImplicit &&
               e.parameters.size == 1 &&
               !e.parameterList.clauses.exists(_.isImplicit) =>
         Option(e.getModifierList.findFirstChildByType(ScalaTokenTypes.kIMPLICIT)).getOrElse(e)
     },
-    Feature("higher-kinded type", "scala.language", "higherKinds", _.higherKinds, _.copy(higherKinds = true)) {
+    Feature(ScalaInspectionBundle.message("language.feature.higher.kinded.type"), "scala.language", "higherKinds", _.higherKinds, _.copy(higherKinds = true)) {
       case (e: ScTypeParamClause) && Parent(Parent(_: ScTypeParamClause)) => e
       case (e: ScTypeParamClause) && Parent(_: ScTypeAliasDeclaration) => e
     },
-    Feature("existential type", "scala.language", "existentials", _.existentials, _.copy(existentials = true)) {
+    Feature(ScalaInspectionBundle.message("language.feature.existential.type"), "scala.language", "existentials", _.existentials, _.copy(existentials = true)) {
       case e: ScExistentialClause => e.firstChild.getOrElse(e) // TODO Exclude reducible existential types
     },
-    Feature("macro definition", "scala.language.experimental", "macros", _.macros, _.copy(macros = true)) {
+    Feature(ScalaInspectionBundle.message("language.feature.macro.definition"), "scala.language.experimental", "macros", _.macros, _.copy(macros = true)) {
       case e: ScMacroDefinition => e.children.find(it => it.textMatches("macro")).getOrElse(e)
     }
   )
@@ -65,7 +67,7 @@ class LanguageFeatureInspection extends AbstractInspection(ScalaInspectionBundle
   }
 }
 
-private case class Feature(name: String,
+private case class Feature(@Nls name: String,
                            flagQualifier: String,
                            flagName: String,
                            isEnabled: ScalaCompilerSettings => Boolean,

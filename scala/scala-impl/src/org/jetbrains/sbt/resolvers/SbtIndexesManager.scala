@@ -104,7 +104,7 @@ final class SbtIndexesManager(val project: Project) extends Disposable {
       updateScheduled = true
       extensions.invokeLater {
         val idx = getIvyIndex(resolver.name, resolver.root)
-        doUpdateResolverIndexWithProgress("Local Ivy cache", idx)
+        doUpdateResolverIndexWithProgress(SbtBundle.message("local.ivy.cache"), idx)
         updateScheduled = false
       }
     }

@@ -22,7 +22,7 @@ class InitialScalaBuilder extends ModuleLevelBuilder(BuilderCategory.SOURCE_INST
 
   import InitialScalaBuilder._
 
-  override def getPresentableName = "Collect modules with scala"
+  override def getPresentableName: String = JpsBundle.message("collect.modules.with.scala")
 
   override def buildStarted(context: CompileContext): Unit = collectAndStoreScalaModules(context) match {
     case modules if modules.isEmpty =>

@@ -4,6 +4,7 @@ package local
 import java.io.File
 import java.util.Optional
 
+import org.jetbrains.jps.incremental.scala.JpsBundle
 import org.jetbrains.jps.incremental.scala.local.zinc.Utils._
 import org.jetbrains.jps.incremental.scala.local.zinc.{BinaryToSource, _}
 import org.jetbrains.plugins.scala.compiler.CompileOrder
@@ -20,11 +21,11 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
   override def compile(compilationData: CompilationData, client: Client): Unit = optScalac match {
     case Some(scalac) => doCompile(compilationData, client, scalac)
     case _ =>
-      client.error(s"No scalac found to compile scala sources: ${compilationData.sources.take(10).mkString("\n")}...")
+      client.error(JpsBundle.message("no.scalac.found.to.compile.scala.sources", compilationData.sources.take(10).mkString("\n")))
   }
 
   private def doCompile(compilationData: CompilationData, client: Client, scalac: ScalaCompiler): Unit = {
-    client.progress("Loading cached results...")
+    client.progress(JpsBundle.message("loading.cached.results"))
 
     val incrementalCompiler = new IncrementalCompilerImpl
 
@@ -38,7 +39,7 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
     val zincMetadata = CompilationMetadata.load(analysisStore, client, compilationData)
     import zincMetadata._
 
-    client.progress("Searching for changed files...")
+    client.progress(JpsBundle.message("searching.for.changed.files"))
 
     val progress = getProgress(client, compilationData.sources.size)
     val reporter = getReporter(client)
@@ -81,7 +82,7 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
     )
 
     val compilationResult = Try {
-      client.progress("Collecting incremental compiler data...")
+      client.progress(JpsBundle.message("collecting.incremental.compiler.data"))
       val result: CompileResult = incrementalCompiler.compile(inputs, logger)
 
       if (result.hasModified || cacheDetails.isCached) {
@@ -121,12 +122,7 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
         // Keep files dirty
         compilationData.zincData.allSources.foreach(source => client.sourceStarted(source.getAbsolutePath))
 
-        val msg =
-          s"""Compilation faild when compiling to: ${compilationData.output}
-              |  ${e.getMessage}
-              |  ${e.getStackTrace.mkString("\n  ")}
-          """.stripMargin
-
+        val msg = JpsBundle.message("compilation.faild.when.compiling", compilationData.output, e.getMessage, e.getStackTrace.mkString("\n  "))
         client.error(msg, None)
     }
 

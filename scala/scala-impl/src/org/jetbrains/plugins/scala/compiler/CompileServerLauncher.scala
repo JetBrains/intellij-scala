@@ -19,6 +19,7 @@ import com.intellij.openapi.util.{ShutDownTracker, SimpleModificationTracker}
 import com.intellij.util.net.NetUtils
 import javax.swing.event.HyperlinkEvent
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -95,7 +96,7 @@ object CompileServerLauncher {
 
   private def start(project: Project): Boolean = {
     val result = for {
-      jdk     <- compileServerJdk(project).left.map(m => s"JDK for compiler process not found: $m")
+      jdk     <- compileServerJdk(project).left.map(m => ScalaBundle.nls("jdk.for.compiler.process.not.found", m))
       process <- start(project, jdk)
     } yield process
 
@@ -108,8 +109,8 @@ object CompileServerLauncher {
         true
       case Left(error)  =>
         val title = ScalaBundle.message("cannot.start.scala.compile.server")
-        Notifications.Bus.notify(new Notification("scala", title, error, NotificationType.ERROR))
-        LOG.error(title, error)
+        Notifications.Bus.notify(new Notification("scala", title, error.nls, NotificationType.ERROR))
+        LOG.error(title, error.nls)
         false
     }
   }
@@ -121,7 +122,7 @@ object CompileServerLauncher {
     filesPath        <- extension.classpathSeq
   } yield new File(pluginsLibs, filesPath)
 
-  private def start(project: Project, jdk: JDK): Either[String, Process] = {
+  private def start(project: Project, jdk: JDK): Either[NlsString, Process] = {
     LOG.traceSafe(s"starting server")
 
     val settings = ScalaCompileServerSettings.getInstance
@@ -142,8 +143,9 @@ object CompileServerLauncher {
           val applicationClasspath = ClasspathBootstrap.getBuildProcessApplicationClasspath.asScala
           pluginsClasspath ++ applicationClasspath
         }
-        val classpath = ((jdk.tools ++ (classpathFiles ++ compilerServerAdditionalCP()))
-          .map(_.canonicalPath) ++ buildProcessClasspath)
+        val classpath =
+          (jdk.tools ++ (classpathFiles ++ compilerServerAdditionalCP()))
+            .map(_.canonicalPath) ++ buildProcessClasspath
 
         val freePort = CompileServerLauncher.findFreePort
         if (settings.COMPILE_SERVER_PORT != freePort) {
@@ -189,7 +191,7 @@ object CompileServerLauncher {
 
         catching(classOf[IOException])
           .either(builder.start())
-          .left.map(_.getMessage)
+          .left.map(e => NlsString.force(e.getMessage))
           .map { process =>
             val watcher = new ProcessWatcher(process, "scalaCompileServer")
             val instance = ServerInstance(watcher, freePort, builder.directory(), jdk)
@@ -200,7 +202,7 @@ object CompileServerLauncher {
           }
       case (_, absentFiles) =>
         val paths = absentFiles.map(_.getPath).mkString(", ")
-        Left("Required file(s) not found: " + paths)
+        Left(ScalaBundle.nls("required.file.not.found.paths", paths))
     }
   }
 
@@ -245,17 +247,17 @@ object CompileServerLauncher {
     BuildManager.getBuildProcessRuntimeSdk(project).first
   }
 
-  def compileServerSdk(project: Project): Either[String, Sdk] = {
+  def compileServerSdk(project: Project): Either[NlsString, Sdk] = {
     val settings = ScalaCompileServerSettings.getInstance()
 
     val sdk =
-      if (settings.USE_DEFAULT_SDK) Option(defaultSdk(project)).toRight("can't find default jdk")
-      else Option(ProjectJdkTable.getInstance().findJdk(settings.COMPILE_SERVER_SDK)).toRight(s"can't find jdk: ${settings.COMPILE_SERVER_SDK}")
+      if (settings.USE_DEFAULT_SDK) Option(defaultSdk(project)).toRight(ScalaBundle.nls("can.t.find.default.jdk"))
+      else Option(ProjectJdkTable.getInstance().findJdk(settings.COMPILE_SERVER_SDK)).toRight(ScalaBundle.nls("cant.find.jdk", settings.COMPILE_SERVER_SDK))
 
     sdk
   }
 
-  def compileServerJdk(project: Project): Either[String, JDK] = {
+  def compileServerJdk(project: Project): Either[NlsString, JDK] = {
     val sdk = compileServerSdk(project)
     sdk.flatMap(toJdk)
   }

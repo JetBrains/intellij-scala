@@ -35,7 +35,7 @@ sealed class InstructionImpl(override val num: Int,
     val builder = new StringBuilder
     builder.append(num)
     builder.append("(")
-    for (i <- 0 until mySucc.size) {
+    for (i <- mySucc.indices) {
       if (i > 0) builder.append(",")
       builder.append(mySucc(i).num)
     }

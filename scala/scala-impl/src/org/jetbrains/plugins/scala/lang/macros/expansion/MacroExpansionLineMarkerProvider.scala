@@ -103,7 +103,7 @@ abstract class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerPro
 
     }
     val UndoExpansionData(original, savedCompanion) = parent.getCopyableUserData(EXPANDED_KEY)
-    createMarker(element, AllIcons.Actions.Undo, "Undo macro expansion") { _ =>
+    createMarker(element, AllIcons.Actions.Undo, ScalaBundle.message("undo.macro.expansion")) { _ =>
       inWriteCommandAction(undoExpansion(original, savedCompanion))(element.getProject)
     }
   }

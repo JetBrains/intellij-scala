@@ -6,6 +6,7 @@ import java.net.{ConnectException, InetAddress, UnknownHostException}
 import com.intellij.openapi.project.Project
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.{CompileServerCommand, RemoteResourceOwner}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compiler.RemoteServerRunner._
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
@@ -55,7 +56,7 @@ class RemoteServerRunner(project: Project)
         send(command, token +: arguments, client)
       } catch {
         case e: ConnectException =>
-          val message = "Cannot connect to compile server at %s:%s".format(address.toString, port)
+          val message = ScalaBundle.message("cannot.connect.to.compile.server", address.toString, port)
           client.error(message)
           reportException(message, e, client)
         case e: UnknownHostException =>
