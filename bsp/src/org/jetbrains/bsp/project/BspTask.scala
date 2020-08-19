@@ -286,10 +286,11 @@ class BspTask[T](project: Project,
   //noinspection ReferencePassedToNls
   private def reportTaskStart(params: TaskStartParams)(implicit reporter: BuildReporter): Unit = {
     val taskId = params.getTaskId
-    val id = EventId(taskId.getId)
     val parent = Option(taskId.getParents).flatMap(_.asScala.headOption).map(EventId).orElse(Option(bspTaskId))
+    val id = EventId(taskId.getId)
     val time = Option(params.getEventTime.longValue()).getOrElse(System.currentTimeMillis())
-    reporter.startTask(id, parent, params.getMessage, time)
+    val msg = Option(params.getMessage).getOrElse("")
+    reporter.startTask(id, parent, msg, time)
   }
 
   //noinspection ReferencePassedToNls
@@ -297,7 +298,8 @@ class BspTask[T](project: Project,
     val taskId = params.getTaskId
     val id = EventId(taskId.getId)
     val time = Option(params.getEventTime.longValue()).getOrElse(System.currentTimeMillis())
-    reporter.progressTask(id, params.getTotal, params.getProgress, params.getUnit, params.getMessage, time)
+    val msg = Option(params.getMessage).getOrElse("")
+    reporter.progressTask(id, params.getTotal, params.getProgress, params.getUnit, msg, time)
   }
 
   //noinspection ReferencePassedToNls
@@ -305,6 +307,8 @@ class BspTask[T](project: Project,
     val taskId = params.getTaskId
     val id = EventId(taskId.getId)
     val time = Option(params.getEventTime.longValue()).getOrElse(System.currentTimeMillis())
+    val msg = Option(params.getMessage).getOrElse("")
+
     val result = params.getStatus match {
       case StatusCode.OK =>
         new SuccessResultImpl()
@@ -316,7 +320,7 @@ class BspTask[T](project: Project,
         new FailureResultImpl(BspBundle.message("bsp.task.unknown.status.code", otherCode), null)
     }
 
-    reporter.finishTask(id, params.getMessage, result, time)
+    reporter.finishTask(id, msg, result, time)
   }
 }
 

@@ -747,4 +747,3 @@ private[importing] object BspResolverLogic {
   private[importing] case class ModuleDep(parent: DependencyId, child: DependencyId, scope: DependencyScope, export: Boolean)
 
 }
-
