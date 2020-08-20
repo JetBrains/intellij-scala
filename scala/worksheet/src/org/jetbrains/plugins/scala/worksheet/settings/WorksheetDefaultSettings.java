@@ -2,7 +2,9 @@ package org.jetbrains.plugins.scala.worksheet.settings;
 
 import com.intellij.openapi.components.*;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.xmlb.Converter;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import com.intellij.util.xmlb.annotations.OptionTag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -77,6 +79,7 @@ public class WorksheetDefaultSettings implements PersistentStateComponent<Worksh
     return project.getService(WorksheetDefaultSettings.class);
   }
 
+  @OptionTag(converter = WorksheetExternalRunTypeConverter.class)
   @ReportValue
   public WorksheetExternalRunType getRunType() {
     return runType;
