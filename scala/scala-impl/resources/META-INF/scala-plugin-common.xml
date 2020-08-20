@@ -1052,6 +1052,11 @@
                          key="internal.getText.equals.shouldBe.textMatches"
                          language="Scala" groupPath="Scala" groupKey="group.internal"
                          isInternal="true" level="WARNING" enabledByDefault="true"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.internal.ApiStatusInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="internal.api.status.of.symbols"
+                         language="Scala" groupPath="Scala" groupKey="group.internal"
+                         isInternal="true" level="WARNING" enabledByDefault="true"/>
 
         <!--Syntactic simplification inspections (including syntactic sugaring), see SCL-10327-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.FunctionTupleSyntacticSugarInspection"

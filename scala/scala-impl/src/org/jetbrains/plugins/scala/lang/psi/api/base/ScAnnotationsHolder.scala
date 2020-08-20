@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeE
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createAnAnnotation, createNewLine}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ScType}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
@@ -40,6 +40,8 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotatedAdapter {
         clazz.qualifiedName == qualifiedName
       case ParameterizedType(designator@ScDesignatorType(_: PsiClass), _) =>
         acceptType(designator)
+      case ScProjectionType(_, clazz: PsiClass) =>
+        clazz.qualifiedName == qualifiedName
       case tp =>
         tp match {
           case AliasType(definition: ScTypeAliasDefinition, _, _) =>

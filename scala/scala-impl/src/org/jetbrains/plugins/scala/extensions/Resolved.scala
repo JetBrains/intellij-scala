@@ -19,17 +19,9 @@ object ResolvedWithSubst {
 }
 
 object ResolvesTo {
-
-  def unapply(reference: PsiReference): Option[PsiElement] = reference match {
-    case null => None
-    case _ => Option(reference.resolve())
-  }
+  def unapply(reference: PsiReference): Option[PsiElement] = Option(reference.resolve())
 }
 
 object Resolved {
-
-  def unapply(reference: ScReference): Option[ScalaResolveResult] = reference match {
-    case null => None
-    case _ => reference.bind()
-  }
+  def unapply(reference: ScReference): Option[ScalaResolveResult] = reference.bind()
 }
