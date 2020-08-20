@@ -188,6 +188,9 @@ object ScalaI18nUtil {
       case param: PsiParameter =>
         isDirectAnnotated(param) || {
           param.getDeclarationScope match {
+            case apply: ScFunction if apply.isSynthetic && apply.isApplyMethod =>
+              originalCaseClassParameter(apply, param.index)
+                .exists(isAnnotated(_, checker))
             case method: PsiMethod =>
               val pIndex = param.index
               method

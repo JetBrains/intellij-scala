@@ -180,12 +180,11 @@ class ScalaExtractStringToBundleInspectionTest extends ScalaInspectionTestBase{
            |X.test = $START"blub"$END
            |""".stripMargin)
 
-  def test_specific_annotation(): Unit =
+  def test_case_class_with_nls(): Unit =
     checkTextHasError(
-      raw"""
-           |def test(@SpecificNls arg: String): Unit = ()
-           |test($START"blub"$END)
-           |""".stripMargin
+      s"""
+         |case class Test(@Nls text: String)
+         |Test(${START}"blub"$END)
+         |""".stripMargin
     )
-
 }

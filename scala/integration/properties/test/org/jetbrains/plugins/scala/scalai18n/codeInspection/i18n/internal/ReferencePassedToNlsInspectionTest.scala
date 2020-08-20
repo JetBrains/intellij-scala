@@ -29,6 +29,7 @@ class ReferencePassedToNlsInspectionTest extends ScalaInspectionTestBase {
        |
        |@Nls
        |val nls: String = null
+       |val nonnls: String = null
        |def toNls(@Nls arg: String): Unit = ()
        |
        |$text
@@ -173,6 +174,22 @@ class ReferencePassedToNlsInspectionTest extends ScalaInspectionTestBase {
          |(null: Any) match {
          |  case Test(ref) => toNls(${START}ref$END)
          |}
+         |""".stripMargin
+    )
+
+  def test_case_class_without_nls(): Unit =
+    checkTextHasError(
+      s"""
+         |case class Test(@Nls text: String)
+         |Test(${START}nonnls$END)
+         |""".stripMargin
+    )
+
+  def test_case_class_with_nls(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |case class Test(@Nls text: String)
+         |Test(${START}nls$END)
          |""".stripMargin
     )
 }

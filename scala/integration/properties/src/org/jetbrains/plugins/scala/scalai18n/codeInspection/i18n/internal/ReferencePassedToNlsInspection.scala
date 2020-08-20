@@ -11,12 +11,10 @@ import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.psi.{PsiElement, PsiReference}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractRegisteredInspection}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScPatternArgumentList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.MethodInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.ScalaI18nUtil._
 import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.ReferencePassedToNlsInspection._
 
@@ -93,15 +91,7 @@ object ReferencePassedToNlsInspection {
       case _ if isAnnotatedWithNls(ref) => false
       case _: PsiReference | _: MethodInvocation => resolveToNotNlsAnnotated(ref, found).isDefined
       case (pattern: ScBindingPattern) && Parent(Parent(ScConstructorPattern(ResolvesTo(unapply: ScFunctionDefinition), ScPatternArgumentList(args@_*)))) if unapply.isSynthetic && args.contains(pattern) =>
-        val caseClassParam = for {
-          obj <- unapply.containingClass.toOption
-          td <- ScalaPsiUtil.getCompanionModule(obj)
-          clazz <- td.asOptionOf[ScClass]
-          if clazz.isCase
-          constructor <- clazz.constructor
-          paramIdx = args.indexOf(pattern)
-          param <- constructor.parameters.lift(paramIdx)
-        } yield param
+        val caseClassParam = originalCaseClassParameter(unapply, args.indexOf(pattern))
         !caseClassParam.exists(isAnnotatedWithNls)
       case pattern: ScBindingPattern => evaluatesNotToNls(pattern.nameContext, found)
       case pd: ScPatternDefinition => pd.expr.exists(_.calculateTailReturns.exists(evaluatesNotToNls(_, found)))
