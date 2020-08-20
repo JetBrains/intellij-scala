@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.worksheet.WorksheetUtils
-import org.jetbrains.plugins.scala.worksheet.processor.{FileAttributeUtilCache, WorksheetPerFileConfig}
+import org.jetbrains.plugins.scala.worksheet.processor.FileAttributeUtilCache
 
 import scala.ref.WeakReference
 
@@ -103,7 +103,7 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
     }
 }
 
-object WorksheetFileSettings extends WorksheetPerFileConfig {
+object WorksheetFileSettings {
 
   private val IS_MAKE_BEFORE_RUN = new FileAttribute("ScalaWorksheetMakeBeforeRun", 1, true)
   private val CP_MODULE_NAME = new FileAttribute("ScalaWorksheetModuleForCp", 1, false)

@@ -15,11 +15,10 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetPerFileConfig
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
-object WorksheetAutoRunner extends WorksheetPerFileConfig {
+object WorksheetAutoRunner {
 
   def getInstance(project: Project): WorksheetAutoRunner = project.getService(classOf[WorksheetAutoRunner])
 }

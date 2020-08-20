@@ -6,13 +6,12 @@ import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsProfile
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetPerFileConfig
 
 /**
   * User: Dmitry.Naydanov
   * Date: 14.03.18.
   */
-abstract class WorksheetCommonSettings extends WorksheetPerFileConfig {
+abstract class WorksheetCommonSettings {
   def project: Project
   
   def getRunType: WorksheetExternalRunType

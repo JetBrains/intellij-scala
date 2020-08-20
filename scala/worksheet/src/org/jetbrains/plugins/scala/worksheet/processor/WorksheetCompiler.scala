@@ -231,7 +231,7 @@ class WorksheetCompiler(
 }
 
 //private[worksheet]
-object WorksheetCompiler extends WorksheetPerFileConfig {
+object WorksheetCompiler {
 
   private val EmptyRunnable: Runnable = () => {}
 

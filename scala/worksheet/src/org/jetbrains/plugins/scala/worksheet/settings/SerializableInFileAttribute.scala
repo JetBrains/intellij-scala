@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.worksheet.settings
 
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.FileAttribute
-import org.jetbrains.plugins.scala.worksheet.processor.{FileAttributeUtilCache, WorksheetPerFileConfig}
+import org.jetbrains.plugins.scala.worksheet.processor.FileAttributeUtilCache
 
 private trait SerializableInFileAttribute[T] {
   def readAttribute(attr: FileAttribute, file: VirtualFile): Option[T] =
@@ -22,12 +22,12 @@ private object SerializableInFileAttribute {
     override def convertTo(s: String): String = s
   }
 
-  implicit val BooleanFileAttribute: SerializableInFileAttribute[Boolean] with WorksheetPerFileConfig = new SerializableInFileAttribute[Boolean] with WorksheetPerFileConfig {
-    override def convertFrom(t: Boolean): String = getStringRepresent(t)
-    override def convertTo(s: String): Boolean = s match {
-      case `enabled` => true
-      case _ => false
-    }
+  private val EnabledValue = "enabled"
+  private val DisabledValue = "disabled"
+
+  implicit val BooleanFileAttribute: SerializableInFileAttribute[Boolean] = new SerializableInFileAttribute[Boolean] {
+    override def convertFrom(t: Boolean): String = if (t) EnabledValue else DisabledValue
+    override def convertTo(s: String): Boolean = s == EnabledValue
   }
 
   implicit val ExternalRunTypeAttribute: SerializableInFileAttribute[WorksheetExternalRunType] = new SerializableInFileAttribute[WorksheetExternalRunType] {
