@@ -103,6 +103,11 @@ class InlayTypeHintsTest extends InlayHintsTestBase {
     options = settings.showMemberVariableSetter, settings.preserveIndentsSetter, settings.showObviousTypeSetter
   )
 
+  def testPreserveIndentNewLine(): Unit = doTest(
+    s"  val b$S: Int$E =\n    1",
+    options = settings.showMemberVariableSetter, settings.preserveIndentsSetter, settings.showObviousTypeSetter
+  )
+
   def testPreserveIndentEmptyLineBefore(): Unit = doTest(
     s"  val a =  1\n\n  val b$S: Int$E = 2",
     options = settings.showMemberVariableSetter, settings.preserveIndentsSetter, settings.showObviousTypeSetter

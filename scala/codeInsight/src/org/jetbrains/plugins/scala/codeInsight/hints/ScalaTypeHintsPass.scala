@@ -32,7 +32,7 @@ private[codeInsight] trait ScalaTypeHintsPass {
         element <- root.elements
         definition = Definition(element) // NB: "definition" might be in fact _any_ PsiElement (e.g. ScalaFile)
         (tpe, body) <- typeAndBodyOf(definition)
-        if !(settings.preserveIndents && (definition.hasCustomIndents || adjacentDefinitionsHaveCustomIndent(element)))
+        if !(settings.preserveIndents && (!element.textContains('\n') && definition.hasCustomIndents || adjacentDefinitionsHaveCustomIndent(element)))
         if !ScMethodType.hasMethodType(body)
         if settings.showObviousType || !(definition.hasStableType || isTypeObvious(definition.name, tpe, body))
         info <- hintFor(definition, tpe)(editor.getColorsScheme, TypePresentationContext(element), settings)
