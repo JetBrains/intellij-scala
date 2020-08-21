@@ -50,18 +50,28 @@ class FastpassConfigSetup(processBuilder: ProcessBuilder) extends BspConfigSetup
   private def waitFinish(process: Process, reporter: BuildReporter): Try[BuildMessages] = {
     val stdoutReader = new BufferedReader(new InputStreamReader(process.getInputStream))
     val stderrReader = new BufferedReader(new InputStreamReader(process.getErrorStream))
+    var buildMessages = BuildMessages.empty
     while(!process.waitFor(FastpassProcessCheckTimeout.length, FastpassProcessCheckTimeout.unit)){
-      stdoutReader.lines().forEach(reporter.info(_, None))
-      stderrReader.lines().forEach(reporter.error(_, None))
+      val stderrLines = stderrReader.lines()
+      stderrLines.forEach{ line =>
+        buildMessages = buildMessages.addError(line)
+        reporter.error(line, None)
+      }
+      stdoutReader.lines().forEach{ line =>
+        buildMessages = buildMessages.message(line)
+        reporter.info(line, None)
+      }
       if(cancellationFlag.get()){
         process.destroy()
       }
     }
 
     if(process.exitValue() == 1) {
-      Success(BuildMessages.empty.status(BuildMessages.OK))
+      Success(buildMessages.status(BuildMessages.OK))
     } else {
-      Failure(BspErrorMessage(s"Command ${processBuilder.command.asScala}"))
+      Failure(BspErrorMessage(
+        s"""Command ${processBuilder.command.asScala} failed with:
+           |${buildMessages.errors.mkString("\n")}""".stripMargin))
     }
   }
 
