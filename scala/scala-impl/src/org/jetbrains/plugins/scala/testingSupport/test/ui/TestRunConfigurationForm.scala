@@ -4,9 +4,9 @@ import java.awt._
 import java.util
 
 import com.intellij.application.options.ModuleDescriptionsComboBox
-import com.intellij.execution.{ExecutionBundle, ShortenCommandLine}
 import com.intellij.execution.configuration.BrowseModuleValueActionListener
-import com.intellij.execution.ui.{ClassBrowser, ConfigurationModuleSelector, DefaultJreSelector, JrePathEditor, ShortenCommandLineModeCombo}
+import com.intellij.execution.ui._
+import com.intellij.execution.{ExecutionBundle, ShortenCommandLine}
 import com.intellij.ide.util.{ClassFilter, PackageChooserDialog}
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.module.Module
@@ -16,7 +16,7 @@ import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.{EditorTextField, EditorTextFieldWithBrowseButton, EnumComboBoxModel, IdeBorderFactory}
 import com.intellij.uiDesigner.core.{GridConstraints, Spacer}
-import com.intellij.util.ui.{JBUI, UIUtil}
+import com.intellij.util.ui.JBUI
 import javax.swing._
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -26,8 +26,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.settings.SimpleMappingListCellRenderer
 import org.jetbrains.plugins.scala.testingSupport.test._
 import org.jetbrains.plugins.scala.testingSupport.test.testdata._
-import org.jetbrains.plugins.scala.testingSupport.test.ui.TestRunConfigurationForm.TextWithMnemonic.Mnemonic
 import org.jetbrains.plugins.scala.testingSupport.test.ui.TestRunConfigurationForm.{PackageChooserActionListener, _}
+import org.jetbrains.plugins.scala.util.ui.TextWithMnemonic
+import org.jetbrains.plugins.scala.util.ui.TextWithMnemonic.AbstractButtonExt
 import org.jetbrains.sbt.settings.SbtSettings
 
 import scala.jdk.CollectionConverters._
@@ -381,37 +382,6 @@ private object TestRunConfigurationForm {
     override protected def updateBorder(editor: EditorEx): Unit = setupBorder(editor) // in base class border isn't set in multiline mode
   }
 
-  /** based on [[LabeledComponent.TextWithMnemonic]] */
-  case class TextWithMnemonic(text: String, mnemonic: Option[Mnemonic]) {
-    def setTo(button: AbstractButton): Unit = {
-      button.setText(text)
-      mnemonic match {
-        case Some(Mnemonic(char, index)) =>
-          button.setMnemonic(char)
-          button.setDisplayedMnemonicIndex(index)
-        case _ =>
-      }
-    }
-  }
-
-  object TextWithMnemonic {
-    case class Mnemonic(char: Char, index: Int)
-
-    def apply(text: String): TextWithMnemonic = {
-      val idx = UIUtil.getDisplayMnemonicIndex(text)
-      if (idx != -1)
-        new TextWithMnemonic(new StringBuilder(text).deleteCharAt(idx).toString, Some(Mnemonic(text.charAt(idx), idx)))
-      else
-        new TextWithMnemonic(text, None)
-    }
-  }
-
-  implicit class AbstractButtonOps[T <: AbstractButton](private val button: T) extends AnyVal {
-    def setTextWithMnemonic(text: String): T = {
-      TextWithMnemonic(text).setTo(button)
-      button
-    }
-  }
   implicit class EditorTextFieldWithBrowseButtonOps[C <: JComponent](private val target: EditorTextFieldWithBrowseButton) extends AnyVal {
     def setBrowser[B](browser: B)(implicit ev: B <:< BrowseModuleValueActionListener[C]): Unit =
       browser.setField(target.asInstanceOf[ComponentWithBrowseButton[C]])
