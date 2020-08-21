@@ -5,7 +5,6 @@ import java.io.File
 import java.net.URI
 import java.nio.file.Paths
 import java.util.Collections
-
 import ch.epfl.scala.bsp4j._
 import com.google.gson.{Gson, JsonElement}
 import com.intellij.openapi.externalSystem.model.project._
@@ -22,8 +21,6 @@ import org.jetbrains.bsp.project.importing.BspResolverDescriptors._
 import org.jetbrains.bsp.{BSP, BspBundle}
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByVersion}
-import org.jetbrains.sbt.project.FastpassProjectImportProvider
-
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 

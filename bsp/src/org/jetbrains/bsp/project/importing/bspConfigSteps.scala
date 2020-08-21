@@ -22,7 +22,7 @@ import org.jetbrains.bsp.settings.BspProjectSettings._
 import org.jetbrains.plugins.scala.build.IndicatorReporter
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil._
-import org.jetbrains.sbt.project.{FastpassProjectImportProvider, MillProjectImportProvider, SbtProjectImportProvider}
+import org.jetbrains.sbt.project.{MillProjectImportProvider, SbtProjectImportProvider}
 
 object bspConfigSteps {
 
