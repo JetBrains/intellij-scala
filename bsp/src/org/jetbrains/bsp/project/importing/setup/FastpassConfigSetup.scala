@@ -1,13 +1,13 @@
 package org.jetbrains.bsp.project.importing.setup
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.LocalFileSystem
-import java.io.File
+import java.io.{BufferedReader, File, InputStreamReader}
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicBoolean
 import org.jetbrains.bsp.BspErrorMessage
+import org.jetbrains.bsp.project.importing.FastpassProjectImportProvider
 import org.jetbrains.bsp.project.importing.setup.FastpassConfigSetup.FastpassProcessCheckTimeout
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
-import org.jetbrains.sbt.project.FastpassProjectImportProvider
 import scala.concurrent.duration.DurationInt
 import scala.jdk.CollectionConverters.iterableAsScalaIterableConverter
 import scala.util.{Failure, Success, Try}
@@ -47,14 +47,17 @@ class FastpassConfigSetup(processBuilder: ProcessBuilder) extends BspConfigSetup
 
   private val cancellationFlag: AtomicBoolean = new AtomicBoolean(false)
 
-  private def waitFinish(process: Process): Try[BuildMessages] = {
+  private def waitFinish(process: Process, reporter: BuildReporter): Try[BuildMessages] = {
+    val stdoutReader = new BufferedReader(new InputStreamReader(process.getInputStream))
+    val stderrReader = new BufferedReader(new InputStreamReader(process.getErrorStream))
     while(!process.waitFor(FastpassProcessCheckTimeout.length, FastpassProcessCheckTimeout.unit)){
+      stdoutReader.lines().forEach(reporter.info(_, None))
+      stderrReader.lines().forEach(reporter.error(_, None))
       if(cancellationFlag.get()){
         process.destroy()
       }
     }
 
-    // TODO build messages
     if(process.exitValue() == 1) {
       Success(BuildMessages.empty.status(BuildMessages.OK))
     } else {
@@ -65,7 +68,7 @@ class FastpassConfigSetup(processBuilder: ProcessBuilder) extends BspConfigSetup
   override def run(implicit reporter: BuildReporter): Try[BuildMessages] = {
     reporter.start()
     val process = processBuilder.start()
-    val result = waitFinish(process)
+    val result = waitFinish(process, reporter)
     result match {
       case Failure(err) => reporter.finishWithFailure(err)
       case Success(bm) => reporter.finish(bm)
