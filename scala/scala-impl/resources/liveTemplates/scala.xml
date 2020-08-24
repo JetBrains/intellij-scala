@@ -5,14 +5,15 @@ TODO: review macros expresisons, looks like most of them do not work now
 -->
 <templateSet group="scala">
   <template name="main" value="def main(args: Array[String]): Unit = {&#13;&#10;  $END$&#13;&#10;}"
-            description="Template for main method"
+            resource-bundle="messages.ScalaEditorBundle" key="template.for.main.method"
             toReformat="true" toShortenFQNames="true">
     <context>
       <option name="SCALA_CODE" value="true"/>
     </context>
   </template>
   <template name="opt" value="$OPTION$ match {&#13;&#10;  case Some($NAME$) => $END$&#13;&#10;  case None =>&#13;&#10;}"
-      description="Template for matching Option type" toReformat="false" toShortenFQNames="true">
+            resource-bundle="messages.ScalaEditorBundle" key="template.for.matching.option.type"
+            toReformat="false" toShortenFQNames="true">
     <variable name="OPTION" expression="scalaVariableOfType(&quot;scala.Option&quot;)" defaultValue="option" alwaysStopAt="true"/>
     <variable name="NAME" expression="suggestScalaVariableName(&quot;option&quot;, OPTION)" defaultValue="x" alwaysStopAt="true"/>
     <context>
@@ -20,7 +21,8 @@ TODO: review macros expresisons, looks like most of them do not work now
     </context>
   </template>
   <template name="itr" value="for ($NAME$ &lt;- $FOR$ $GUARD$) {&#13;&#10;  $END$&#13;&#10;  }"
-      description="Template for scala foreach" toReformat="true" toShortenFQNames="true">
+            resource-bundle="messages.ScalaEditorBundle" key="template.for.scala.for"
+            toReformat="true" toShortenFQNames="true">
     <variable name="FOR" expression="scalaVariableOfType(&quot;foreach&quot;)" defaultValue="option" alwaysStopAt="true"/>
     <variable name="NAME" expression="suggestScalaVariableName(&quot;foreach&quot;, FOR)" defaultValue="x" alwaysStopAt="true"/>
     <variable name="GUARD" expression="" defaultValue="" alwaysStopAt="true"/>
@@ -29,7 +31,8 @@ TODO: review macros expresisons, looks like most of them do not work now
     </context>
   </template>
   <template name="itry" value="for ($NAME$ &lt;- $FOR$ $GUARD$) yield {&#13;&#10;  $END$&#13;&#10;  }"
-      description="Template for scala foreach" toReformat="true" toShortenFQNames="true">
+            resource-bundle="messages.ScalaEditorBundle" key="template.for.scala.for.yield"
+            toReformat="true" toShortenFQNames="true">
     <variable name="FOR" expression="scalaVariableOfType(&quot;foreach&quot;)" defaultValue="option" alwaysStopAt="true"/>
     <variable name="NAME" expression="suggestScalaVariableName(&quot;foreach&quot;, FOR)" defaultValue="x" alwaysStopAt="true"/>
     <variable name="GUARD" expression="" defaultValue="" alwaysStopAt="true"/>
@@ -37,7 +40,8 @@ TODO: review macros expresisons, looks like most of them do not work now
       <option name="SCALA_CODE" value="true"/>
     </context>
   </template>
-  <template name="priv" value="println(s&quot;$EXPR_COPY$ = $${$EXPR$}&quot;)" description="Template for expressions output"
+  <template name="priv" value="println(s&quot;$EXPR_COPY$ = $${$EXPR$}&quot;)"
+            resource-bundle="messages.ScalaEditorBundle" key="template.for.expressions.output"
             toReformat="true" toShortenFQNames="true">
     <variable alwaysStopAt="true" defaultValue="false" name="EXPR" expression="scalaVariableOfType(&quot;&quot;)"/>
     <variable alwaysStopAt="false" defaultValue="" name="EXPR_COPY" expression="EXPR"/>
@@ -46,7 +50,7 @@ TODO: review macros expresisons, looks like most of them do not work now
     </context>
   </template>
   <template name="T" value="&lt;$TAG$&gt;$SELECTION$&lt;/$TAGNAME$&gt;&#13;&#10;"
-            description="Surround with &lt;tag&gt;&lt;/tag&gt;"
+            resource-bundle="messages.ScalaEditorBundle" key="surround.with.xml"
             toReformat="true" toShortenFQNames="true" >
     <variable name="TAG" expression="" defaultValue="" alwaysStopAt="true" />
     <variable name="SELECTION" expression="" defaultValue="" alwaysStopAt="false" />
@@ -56,7 +60,8 @@ TODO: review macros expresisons, looks like most of them do not work now
     </context>
   </template>
   <template name="unapply" value="def unapply$TYPE_ARGS$(arg: $CLASS_NAME$$TYPE_ARGS_SHORT$): Option[$RET_TYPE$] = $BODY$$END$"
-            description="Template for unapply" toReformat="true" toShortenFQNames="true">
+            resource-bundle="messages.ScalaEditorBundle" key="template.for.unapply"
+            toReformat="true" toShortenFQNames="true">
     <variable name="TYPE_ARGS"       alwaysStopAt="false" expression="scala_typeParams(scala_companionClass())" defaultValue=""/>
     <variable name="TYPE_ARGS_SHORT" alwaysStopAt="false" expression="scala_typeParamsWithoutBounds(scala_companionClass())" defaultValue=""/>
 	<variable name="CLASS_NAME"      alwaysStopAt="false" expression="scala_className" defaultValue="X" />
@@ -67,7 +72,8 @@ TODO: review macros expresisons, looks like most of them do not work now
 	</context>
   </template>
   <template name="apply" value="def apply $TYPE_ARGS$($ARGS$): $CLASS_NAME$$TYPE_ARGS_SHORT$ = new $CLASS_NAME$($ARGS_NO_TYPES$)"
-            description="Template for apply" toReformat="true" toShortenFQNames="true">
+            resource-bundle="messages.ScalaEditorBundle" key="template.for.apply"
+            toReformat="true" toShortenFQNames="true">
     <variable name="TYPE_ARGS"       alwaysStopAt="false" expression="scala_typeParams(scala_companionClass())" defaultValue=""/>
     <variable name="TYPE_ARGS_SHORT" alwaysStopAt="false" expression="scala_typeParamsWithoutBounds(scala_companionClass())" defaultValue=""/>
     <variable name="ARGS"            alwaysStopAt="true"  expression="scala_primaryConstructorParams" defaultValue="x"/>
@@ -84,7 +90,8 @@ TODO: review macros expresisons, looks like most of them do not work now
     </context>
   </template>
   <template name="imc" value="implicit class $CLASS_NAME$$SUFFIX$(private val $RECEIVER_NAME$: $TYPE_NAME$) extends AnyVal {&#13;$END$&#13;}"
-            description="Template for extension methods container" toReformat="true" toShortenFQNames="true">
+            resource-bundle="messages.ScalaEditorBundle" key="template.for.extension.methods.container"
+            toReformat="true" toShortenFQNames="true">
     <variable name="TYPE_NAME" defaultValue="&quot;Any&quot;" alwaysStopAt="true"/>
     <variable name="RECEIVER_NAME" expression="scala_suggestVariableNameByTypeText(TYPE_NAME)" defaultValue="&quot;target&quot;" alwaysStopAt="true"/>
     <variable name="CLASS_NAME" expression="scala_implicitValueClassName(TYPE_NAME)" alwaysStopAt="false" />
