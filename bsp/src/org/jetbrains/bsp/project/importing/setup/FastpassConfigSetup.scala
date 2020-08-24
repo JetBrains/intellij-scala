@@ -55,11 +55,11 @@ class FastpassConfigSetup(processBuilder: ProcessBuilder) extends BspConfigSetup
       val stderrLines = stderrReader.lines()
       stderrLines.forEach{ line =>
         buildMessages = buildMessages.addError(line)
-        reporter.error(line, None)
+        reporter.log(line)
       }
       stdoutReader.lines().forEach{ line =>
         buildMessages = buildMessages.message(line)
-        reporter.info(line, None)
+        reporter.log(line)
       }
       if(cancellationFlag.get()){
         process.destroy()
