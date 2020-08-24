@@ -66,7 +66,7 @@ class FastpassConfigSetup(processBuilder: ProcessBuilder) extends BspConfigSetup
       }
     }
 
-    if(process.exitValue() == 1) {
+    if(process.exitValue() == 0) {
       Success(buildMessages.status(BuildMessages.OK))
     } else {
       Failure(BspErrorMessage(
