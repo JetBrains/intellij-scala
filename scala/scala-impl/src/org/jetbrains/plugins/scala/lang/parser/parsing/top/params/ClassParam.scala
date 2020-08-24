@@ -32,8 +32,10 @@ object ClassParam {
     }
     modifierMarker.done(ScalaElementType.MODIFIERS)
 
-    // It's syntactically allowed by the parser, though it is semantically not allowed
-    builder.tryParseSoftKeyword(ScalaTokenType.InlineKeyword)
+    if (builder.isScala3) {
+      // It's syntactically allowed by the parser, though it is semantically not allowed
+      builder.tryParseSoftKeyword(ScalaTokenType.InlineKeyword)
+    }
 
     //Look for var or val
     builder.getTokenType match {

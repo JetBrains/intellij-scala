@@ -26,7 +26,9 @@ object Param {
     val modifiersMarker = builder.mark()
     modifiersMarker.done(ScalaElementType.MODIFIERS)
 
-    builder.tryParseSoftKeyword(ScalaTokenType.InlineKeyword)
+    if (builder.isScala3) {
+      builder.tryParseSoftKeyword(ScalaTokenType.InlineKeyword)
+    }
 
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
