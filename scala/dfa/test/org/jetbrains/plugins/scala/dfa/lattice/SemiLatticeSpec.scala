@@ -1,4 +1,5 @@
 package org.jetbrains.plugins.scala.dfa
+package lattice
 
 import org.jetbrains.plugins.scala.dfa.testutils.{ForAllChecker, ForAllGenerator}
 import org.scalatest.matchers.should
@@ -7,10 +8,13 @@ import org.scalatest.propspec.AnyPropSpec
 
 trait SemiLatticeSpec[L] extends AnyPropSpec with Whenever with ForAllChecker with should.Matchers {
   protected def lattice: SemiLattice[L]
+
   protected def latticeHasTop: Option[HasTop[L]]
+
   protected def latticeHasBottom: Option[HasBottom[L]]
 
   protected def latticeElementSamples: Seq[L]
+
   protected implicit lazy val latticeElementSamplesGenerator: ForAllGenerator[L] = {
     assert(latticeHasTop.forall { implicit hasTop => latticeElementSamples.contains(latticeTop) })
     assert(latticeHasBottom.forall { implicit hasBottom => latticeElementSamples.contains(latticeBottom) })
@@ -20,7 +24,7 @@ trait SemiLatticeSpec[L] extends AnyPropSpec with Whenever with ForAllChecker wi
 
   private implicit lazy val _lattice: SemiLattice[L] = lattice
 
-  /*********************************** intersects ***********************************/
+  /** ********************************* intersects ********************************** */
   latticeHasBottom.foreach { implicit latticeHasBottom =>
     property("intersects is reflexive without bottom (X != Bottom => X intersects X)") {
       forAll { (x: L) =>
@@ -41,7 +45,7 @@ trait SemiLatticeSpec[L] extends AnyPropSpec with Whenever with ForAllChecker wi
     }
   }
 
-  /*********************************** <= ***********************************/
+  /** ********************************* <= ********************************** */
   property("<= is reflexive (X <= X)") {
     forAll { (x: L) =>
       assert(x <= x)
@@ -62,7 +66,7 @@ trait SemiLatticeSpec[L] extends AnyPropSpec with Whenever with ForAllChecker wi
     }
   }
 
-  /************************ additional constraints ************************/
+  /** ********************** additional constraints *********************** */
   // this is wrong in product- or powerset-lattices, because they can have things in common while not being ordered
   //property("(X intersects Y) => (X <= Y || Y <= X)") {
   //  forAll { (x: L, y: L) =>

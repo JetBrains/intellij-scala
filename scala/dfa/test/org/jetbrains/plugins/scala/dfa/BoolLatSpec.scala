@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.dfa
 
 import org.jetbrains.plugins.scala.dfa.BoolLat._
+import org.jetbrains.plugins.scala.dfa.lattice.LatticeSpec
 import org.scalatest.prop.TableFor3
 
 class BoolLatSpec extends LatticeSpec[BoolLat] {

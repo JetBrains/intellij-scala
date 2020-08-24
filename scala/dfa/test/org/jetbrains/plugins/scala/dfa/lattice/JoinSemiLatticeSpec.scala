@@ -1,10 +1,13 @@
 package org.jetbrains.plugins.scala.dfa
+package lattice
 
-import org.scalatest.prop._
+import org.scalatest.prop.{TableDrivenPropertyChecks, TableFor3, TableFor4}
 
 trait JoinSemiLatticeSpec[L] extends SemiLatticeSpec[L] with TableDrivenPropertyChecks {
   override protected def lattice: JoinSemiLattice[L]
+
   override protected lazy val latticeHasTop: Option[HasTop[L]] = Some(lattice)
+
   protected def latticeJoinSamples: TableFor3[L, L, L] = Table(("A", "B", "A join B"))
 
   private implicit lazy val _lattice: JoinSemiLattice[L] = lattice
@@ -24,7 +27,7 @@ trait JoinSemiLatticeSpec[L] extends SemiLatticeSpec[L] with TableDrivenProperty
           b <- latticeElementSamples
           c <- latticeElementSamples
         } yield (a, b, c, a join b join c)
-      ):_*
+        ): _*
     )
 
   property("join(...) should work for multiple arguments") {

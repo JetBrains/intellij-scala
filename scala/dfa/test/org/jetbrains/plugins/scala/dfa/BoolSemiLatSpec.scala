@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.dfa
 
 import org.jetbrains.plugins.scala.dfa.BoolSemiLat.{False, Top, True}
+import org.jetbrains.plugins.scala.dfa.lattice.JoinSemiLatticeSpec
 import org.scalatest.prop.TableFor3
 
 class BoolSemiLatSpec extends JoinSemiLatticeSpec[BoolSemiLat] {

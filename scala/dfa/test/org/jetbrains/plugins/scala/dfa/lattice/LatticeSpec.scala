@@ -1,4 +1,5 @@
 package org.jetbrains.plugins.scala.dfa
+package lattice
 
 trait LatticeSpec[L] extends JoinSemiLatticeSpec[L] with MeetSemiLatticeSpec[L] {
   override protected def lattice: Lattice[L]

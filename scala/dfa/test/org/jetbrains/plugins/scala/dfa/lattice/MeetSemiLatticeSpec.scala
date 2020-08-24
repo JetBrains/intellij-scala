@@ -1,10 +1,13 @@
 package org.jetbrains.plugins.scala.dfa
+package lattice
 
 import org.scalatest.prop.{TableDrivenPropertyChecks, TableFor3, TableFor4}
 
 trait MeetSemiLatticeSpec[L] extends SemiLatticeSpec[L] with TableDrivenPropertyChecks {
   override protected def lattice: MeetSemiLattice[L]
+
   override protected lazy val latticeHasBottom: Option[HasBottom[L]] = Some(lattice)
+
   protected def latticeMeetSamples: TableFor3[L, L, L] = Table(("A", "B", "A meet B"))
 
   private implicit lazy val _lattice: MeetSemiLattice[L] = lattice
@@ -24,7 +27,7 @@ trait MeetSemiLatticeSpec[L] extends SemiLatticeSpec[L] with TableDrivenProperty
           b <- latticeElementSamples
           c <- latticeElementSamples
         } yield (a, b, c, a meet b meet c)
-      ):_*
+        ): _*
     )
 
   property("meet(...) should work for multiple arguments") {
