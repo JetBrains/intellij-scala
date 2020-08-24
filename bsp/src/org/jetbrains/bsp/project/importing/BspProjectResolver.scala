@@ -43,8 +43,8 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     implicit val reporter: BuildReporter = new ExternalSystemNotificationReporter(workspaceCreationPath, id, listener)
     val workspaceCreationFile = new File(workspaceCreationPath)
     val workspace =
-      if (workspaceCreationFile.isDirectory) workspaceCreationFile
-      else workspaceCreationFile.getParentFile
+      if (!workspaceCreationFile.isDirectory) workspaceCreationFile.getParentFile
+      else workspaceCreationFile
 
     importState = Active
 
