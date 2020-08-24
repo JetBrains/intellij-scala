@@ -74,7 +74,7 @@ class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings,
 
   private def detectExternalProjectFiles(project: Project): Boolean = {
     cached(DetectExternalProjectFiles, project) {
-      if (BspUtil.isBspProject(project)) {
+      if (BspUtil.isBspProject(project) && project.getBasePath != null) {
         val workspace = new File(project.getBasePath)
         val files = BspConnectionConfig.workspaceConfigurationFiles(workspace)
         files
