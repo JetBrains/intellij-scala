@@ -4,7 +4,7 @@ import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.annotator.Tree.{Leaf, Node}
 import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, SeqExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, ScTypePresentation, TupleType, Variance}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TypePresentation, TupleType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScExistentialArgument, ScExistentialType, ScParameterizedType, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -131,7 +131,7 @@ object TypeDiff {
         Node(diff(d1, d2), aMatch("["), Node(inner: _*), aMatch("]"))
 
       case (t1, t2) =>
-        val text2 = if (t1 == t2) t2.presentableText else ScTypePresentation.different(t1, t2)._2
+        val text2 = if (t1 == t2) t2.presentableText else TypePresentation.different(t1, t2)._2
         Node(if (conformance(t1, t2)) aMatch(text2, Some(t2)) else aMismatch(text2, Some(t2)))
     }
   }
