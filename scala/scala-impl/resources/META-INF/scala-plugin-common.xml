@@ -1545,6 +1545,12 @@
                          groupPath="Scala,Collections" groupKey="group.maps"
                          shortName="MapGetEmptinessCheck" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.UnitInMapInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.unit.return.type.in.the.argument.of.map"
+                         groupPath="Scala,Collections" groupKey="group.maps"
+                         shortName="UnitInMap" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
 
         <!--options-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantHeadOrLastOptionInspection"
@@ -1604,24 +1610,6 @@
                          groupPath="Scala,Collections" groupKey="group.other"
                          shortName="SortFilter" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantCollectionConversionInspection"
-                         bundle="messages.ScalaInspectionBundle"
-                         key="displayname.redundant.collection.conversion"
-                         groupPath="Scala,Collections" groupKey="group.other"
-                         shortName="RedundantCollectionConversion" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SideEffectsInMonadicTransformationInspection"
-                         bundle="messages.ScalaInspectionBundle"
-                         key="displayname.side.effects.in.a.monadic.transformation"
-                         groupPath="Scala,Collections" groupKey="group.other"
-                         shortName="SideEffectsInMonadicTransformation" level="WARNING"
-                         enabledByDefault="false" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.UnitInMapInspection"
-                         bundle="messages.ScalaInspectionBundle"
-                         key="displayname.unit.return.type.in.the.argument.of.map"
-                         groupPath="Scala,Collections" groupKey="group.other"
-                         shortName="UnitInMap" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.annotations.MultipleArgLists"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.multiple.arg.lists.in.annotation.constructor"
@@ -1634,6 +1622,20 @@
                          groupPath="Scala,Collections" groupKey="group.other"
                          shortName="UnzipSingleElement" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+
+        <!--Collections-->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantCollectionConversionInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.redundant.collection.conversion"
+                         groupPath="Scala" groupKey="group.collections"
+                         shortName="RedundantCollectionConversion" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SideEffectsInMonadicTransformationInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.side.effects.in.a.monadic.transformation"
+                         groupPath="Scala" groupKey="group.collections"
+                         shortName="SideEffectsInMonadicTransformation" level="WARNING"
+                         enabledByDefault="false" language="Scala"/>
 
         <!-- scaladoc inspections -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnclosedTagWithoutParserInspection"
