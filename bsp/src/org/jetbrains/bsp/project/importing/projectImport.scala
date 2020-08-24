@@ -1,9 +1,5 @@
 package org.jetbrains.bsp.project.importing
 
-import java.io.File
-import java.nio.file.{Path, Paths}
-import java.util
-import java.util.Collections
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, WizardContext}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
@@ -26,6 +22,10 @@ import com.intellij.openapi.util.{Disposer, NotNullFactory}
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.packaging.artifacts.ModifiableArtifactModel
 import com.intellij.projectImport.{ProjectImportBuilder, ProjectImportProvider, ProjectOpenProcessor}
+import java.io.File
+import java.nio.file.{Path, Paths}
+import java.util
+import java.util.Collections
 import javax.swing._
 import org.jetbrains.bsp._
 import org.jetbrains.bsp.protocol.BspConnectionConfig
@@ -219,11 +219,8 @@ class BspProjectImportProvider(builder: BspProjectImportBuilder)
     builder.reset()
     builder.autoConfigure(context.getProjectDirectory.toFile)
     builder.setFileToImport(context.getProjectDirectory.toString)
-
-    // Calling super.createSteps here is essential to ensure that
-    // the `NewProjectUtil.doCreate` is called *after* resolveProjectInfo(isPreview=true)
-    super.createSteps(context) ++ Array(
-      new BspSetupConfigStep(builder, context.getProjectDirectory.toFile),
+    Array(
+      new BspSetupConfigStep(context, builder, context.getProjectDirectory.toFile),
       new BspChooseConfigStep(context, builder)
     )
   }
