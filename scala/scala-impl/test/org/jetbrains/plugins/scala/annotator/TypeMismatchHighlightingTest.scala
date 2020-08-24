@@ -133,6 +133,18 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     Hint("1", "("), Hint("1", ": Int)"),
     Error("1", "Type mismatch, expected: String, actual: Int"))
 
+  // Qualifier, SCL-16961
+
+  def testUnqualifiedName(): Unit = assertErrors(
+    "object O { class C[T]; val v: C[String] = new C[Int] }",
+    Hint("new C[Int]", ": C[Int]"),
+    Error("new C[Int]", "Expression of type C[Int] doesn't conform to expected type C[String]"))
+
+  def testQualifiedName(): Unit = assertErrors(
+    "object A { class C[T] }; object B { class C[T]; val v: C[Int] = new A.C[Int] }",
+    Hint("new A.C[Int]", ": A.C[Int]"),
+    Error("new A.C[Int]", "Expression of type A.C[Int] doesn't conform to expected type C[Int]"))
+
   // TODO test fine-grained errors
   // TODO test error tooltips
 
