@@ -1,10 +1,5 @@
 package org.jetbrains.bsp.project.importing
 
-import java.io.File
-import java.nio.file.Path
-import java.util
-import java.util.Collections
-
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, WizardContext}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
@@ -27,6 +22,10 @@ import com.intellij.openapi.util.{Disposer, NotNullFactory}
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.packaging.artifacts.ModifiableArtifactModel
 import com.intellij.projectImport.{ProjectImportBuilder, ProjectImportProvider, ProjectOpenProcessor}
+import java.io.File
+import java.nio.file.{Path, Paths}
+import java.util
+import java.util.Collections
 import javax.swing._
 import org.jetbrains.bsp._
 import org.jetbrains.bsp.protocol.BspConnectionConfig
@@ -39,8 +38,7 @@ class BspProjectImportBuilder
     ProjectDataManager.getInstance(),
     BspImportControlFactory,
     BSP.ProjectSystemId) {
-
-
+  private[importing] var externalBspWorkspace: Option[Path] = None
   private[importing] var preImportConfig: PreImportConfig = AutoPreImport
   private[importing] var serverConfig: BspServerConfig = AutoConfig
 
@@ -62,10 +60,17 @@ class BspProjectImportBuilder
 
   private def applyBspSetupSettings(project: Project): Unit = {
     val bspSettings = BspUtil.bspSettings(project)
-    val systemProjectPath = FileUtil.toSystemDependentName(getFileToImport)
-    val projectSettings = bspSettings.getLinkedProjectSettings(systemProjectPath)
+    val projectSettings = bspSettings.getLinkedProjectSettings(getBspWorkspace.toString)
     projectSettings.setPreImportConfig(preImportConfig)
     projectSettings.setServerConfig(serverConfig)
+  }
+
+  def setExternalBspWorkspace(str: Path): Unit = {
+    this.externalBspWorkspace = Some(str)
+  }
+
+  def getBspWorkspace: Path = {
+    externalBspWorkspace.getOrElse(Paths.get(getFileToImport))
   }
 
   def setPreImportConfig(preImportConfig: PreImportConfig): Unit =
@@ -82,12 +87,16 @@ class BspProjectImportBuilder
   override def getIcon: Icon = BSP.Icon
 
   override def setFileToImport(path: String): Unit = {
-    val localForImport = LocalFileSystem.getInstance()
-    val file = localForImport.refreshAndFindFileByPath(path)
+    if(externalBspWorkspace.isDefined) {
+      super.setFileToImport(externalBspWorkspace.get.toString)
+    } else {
+      val localForImport = LocalFileSystem.getInstance()
+      val file = localForImport.refreshAndFindFileByPath(path)
 
-    Option(file).foreach { f =>
-      val path = ProjectImportProvider.getDefaultPath(f)
-      super.setFileToImport(path)
+      Option(file).foreach { f =>
+        val path = ProjectImportProvider.getDefaultPath(f)
+        super.setFileToImport(path)
+      }
     }
   }
 
@@ -95,7 +104,7 @@ class BspProjectImportBuilder
                       model: ModifiableModuleModel,
                       modulesProvider: ModulesProvider,
                       artifactModel: ModifiableArtifactModel): util.List[Module] = {
-    linkAndRefreshProject(getFileToImport, project)
+    linkAndRefreshProject(getBspWorkspace.toString, project)
     applyBspSetupSettings(project)
     Collections.emptyList()
   }
@@ -203,14 +212,15 @@ class BspProjectImportProvider(builder: BspProjectImportBuilder)
 
   override def canImport(fileOrDirectory: VirtualFile, project: Project): Boolean =
     BspProjectOpenProcessor.canOpenProject(fileOrDirectory) ||
-      SbtProjectImportProvider.canImport(fileOrDirectory)
+      SbtProjectImportProvider.canImport(fileOrDirectory) ||
+      FastpassProjectImportProvider.canImport(fileOrDirectory)
 
   override def createSteps(context: WizardContext): Array[ModuleWizardStep] = {
     builder.reset()
     builder.autoConfigure(context.getProjectDirectory.toFile)
-
+    builder.setFileToImport(context.getProjectDirectory.toString)
     Array(
-      new BspSetupConfigStep(context, builder),
+      new BspSetupConfigStep(context, builder, context.getProjectDirectory.toFile),
       new BspChooseConfigStep(context, builder)
     )
   }

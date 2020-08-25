@@ -1,12 +1,6 @@
 package org.jetbrains.bsp.project.importing
 
-import ch.epfl.scala.bsp4j.BuildTargetTag
-import java.io.File
-import java.net.URI
-import java.nio.file.Paths
-import java.util.Collections
-
-import ch.epfl.scala.bsp4j._
+import ch.epfl.scala.bsp4j.{BuildTargetTag, _}
 import com.google.gson.{Gson, JsonElement}
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
@@ -14,6 +8,10 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
+import java.io.File
+import java.net.URI
+import java.nio.file.Paths
+import java.util.Collections
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data._
 import org.jetbrains.bsp.project.BspSyntheticModuleType
@@ -21,7 +19,6 @@ import org.jetbrains.bsp.project.importing.BspResolverDescriptors._
 import org.jetbrains.bsp.{BSP, BspBundle}
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByVersion}
-
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 

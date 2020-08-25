@@ -1,9 +1,5 @@
 package org.jetbrains.bsp.settings
 
-import java.io.File
-import java.nio.file.{Path, Paths}
-import java.util
-
 import com.intellij.openapi.components._
 import com.intellij.openapi.externalSystem.model.settings.ExternalSystemExecutionSettings
 import com.intellij.openapi.externalSystem.service.settings.AbstractExternalProjectSettingsControl
@@ -14,11 +10,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.messages.Topic
 import com.intellij.util.xmlb.Converter
 import com.intellij.util.xmlb.annotations.{OptionTag, XCollection}
+import java.io.File
+import java.nio.file.{Path, Paths}
+import java.util
 import javax.swing.JCheckBox
 import org.jetbrains.bsp.settings.BspProjectSettings.{AutoConfig, AutoPreImport, BspServerConfig, BspServerConfigConverter, PreImportConfig, PreImportConfigConverter}
 import org.jetbrains.bsp.{BspBundle, _}
 import org.jetbrains.plugins.scala.project.ProjectExt
-
 import scala.beans.BeanProperty
 
 class BspProjectSettings extends ExternalProjectSettings {
@@ -142,7 +140,6 @@ class BspProjectSettingsControl(settings: BspProjectSettings)
   override def applyExtraSettings(settings: BspProjectSettings): Unit = {
     settings.buildOnSave = buildOnSaveCheckBox.isSelected
     settings.runPreImportTask = runPreImportTaskCheckBox.isSelected
-
   }
 
   override def validate(settings: BspProjectSettings): Boolean = true
