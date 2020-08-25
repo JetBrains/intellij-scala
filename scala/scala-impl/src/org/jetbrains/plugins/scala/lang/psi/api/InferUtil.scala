@@ -312,7 +312,7 @@ object InferUtil {
       val expressionToUpdate = Expression(ScSubstitutor.bind(typeParams)(UndefinedType(_)).apply(valueType))
 
       val inferredWithExpected =
-        localTypeInference(internal, Seq(expectedParam), Seq(expressionToUpdate), typeParams,
+        localTypeInference(sameDepth, Seq(expectedParam), Seq(expressionToUpdate), typeParams,
           shouldUndefineParameters = false,
           canThrowSCE = canThrowSCE,
           filterTypeParams = filterTypeParams)
