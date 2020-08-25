@@ -6,7 +6,7 @@ import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicBoolean
 import org.jetbrains.bsp.BspErrorMessage
 import org.jetbrains.bsp.project.importing.FastpassProjectImportProvider
-import org.jetbrains.bsp.project.importing.setup.FastpassConfigSetup.FastpassProcessCheckTimeout
+import org.jetbrains.bsp.project.importing.setup.FastpassConfigSetup.{FastpassProcessCheckTimeout, logger}
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import scala.concurrent.duration.DurationInt
 import scala.jdk.CollectionConverters.iterableAsScalaIterableConverter
@@ -14,6 +14,8 @@ import scala.util.{Failure, Success, Try}
 
 object FastpassConfigSetup {
   private val FastpassProcessCheckTimeout = 100.millis
+
+  val logger = Logger.getInstance(classOf[FastpassConfigSetup])
 
   def computeBspWorkspace(file: File): Path = {
     val pantsRoot = FastpassProjectImportProvider.pantsRoot(LocalFileSystem.getInstance().findFileByIoFile(file))
@@ -27,6 +29,10 @@ object FastpassConfigSetup {
     val bspWorkspace = FastpassConfigSetup.computeBspWorkspace(baseDir)
     val baseDirVFile = LocalFileSystem.getInstance().findFileByIoFile(baseDir)
     FastpassProjectImportProvider.pantsRoot(baseDirVFile) match {
+      case Some(_) if bspWorkspace.resolve(".bloop").toFile.exists()=> {
+        logger.info(s"BSP configuration already found in $bspWorkspace")
+        Success(new FastpassConfigSetup(new ProcessBuilder("true")))
+      }
       case Some(pantsRoot) =>
         val relativeDir = pantsRoot.toNioPath.relativize(baseDirVFile.toNioPath)
         val processBuilder = new ProcessBuilder(
@@ -36,6 +42,7 @@ object FastpassConfigSetup {
           relativeDir.toString + "::"
         )
         processBuilder.directory(new File(pantsRoot.toNioPath.toString))
+        logger.info(s"Creating BSP configuration with '${processBuilder.command().asScala.mkString(" ")}'")
         Success(new FastpassConfigSetup(processBuilder))
       case None => Failure(new IllegalArgumentException(s"'$baseDir is not a pants directory'"))
     }
@@ -77,10 +84,16 @@ class FastpassConfigSetup(processBuilder: ProcessBuilder) extends BspConfigSetup
 
   override def run(implicit reporter: BuildReporter): Try[BuildMessages] = {
     reporter.start()
+    logger.info(s"Running '${processBuilder.command().asScala.mkString(" ")}' in ${processBuilder.directory()}")
     val process = processBuilder.start()
     val result = waitFinish(process, reporter)
     result match {
-      case Failure(err) => reporter.finishWithFailure(err)
+      case Failure(err) => {
+        // Log to ensure the error message is not lost. Current implementation of
+        // reporter.finishWithFailure ignores errors
+        logger.info(err)
+        reporter.finishWithFailure(err)
+      }
       case Success(bm) => reporter.finish(bm)
     }
     result
