@@ -61,4 +61,28 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
 
     assertNothing(errorsFromScalaCode(scala, java))
   }
+
+  def testSCL18045(): Unit = {
+    val java =
+      """
+        |import java.util.List;
+        |
+        |public class Foo<T> implements List<T> {
+        | public static class Bar<A, B> {}
+        |
+        | public Foo<Bar<T, ?>> foo() { return null; };
+        |}
+        |""".stripMargin
+
+    val scala =
+      """
+        |object U {
+        |  val foo = new Foo[String]
+        |  val bar = new Foo.Bar[String, Int]
+        |  foo.foo().add(bar)
+        |}
+        |""".stripMargin
+
+    assertNothing(errorsFromScalaCode(scala, java))
+  }
 }

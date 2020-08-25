@@ -31,30 +31,34 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
       val result = classType.resolveGenerics
 
       if (PsiClassType.isRaw(result))
-        return convertJavaRawType(result, paramTopLevel, treatJavaObjectAsAny)(rawExistentialArguments)
+        return convertJavaRawType(result, paramTopLevel)(rawExistentialArguments)
 
       result.getElement match {
         case null => Nothing
         case psiTypeParameter: PsiTypeParameter => typeParamType(psiTypeParameter, rawExistentialArguments)
         case clazz if clazz.qualifiedName == "java.lang.Object" =>
           if (paramTopLevel && treatJavaObjectAsAny) Any
-          else AnyRef
+          else                                       AnyRef
         case c =>
           val clazz = c match {
             case o: ScObject => ScalaPsiUtil.getCompanionModule(o).getOrElse(o)
-            case _ => c
+            case _           => c
           }
 
           val substitutor = result.getSubstitutor
 
-          constructTypeForClass(clazz) { (typeParam, idx) =>
-            substitutor.substitute(typeParam) match {
-              case null                              => typeParamType(typeParam, rawExistentialArguments)
-              case wildcardType: PsiWildcardType     => existentialArg(s"_$$${idx + 1}", wildcardType, paramTopLevel = true)
-              case captured: PsiCapturedWildcardType => existentialArg(s"_$$${idx + 1}", captured.getWildcard, paramTopLevel = true)
-              case substed                           => toScTypeInner(substed, paramTopLevel = false, treatJavaObjectAsAny = true, rawExistentialArguments)
+          val classTpe =
+            constructTypeForClass(clazz) { (typeParam, idx) =>
+              substitutor.substitute(typeParam) match {
+                case null                              => typeParamType(typeParam, rawExistentialArguments)
+                case wildcardType: PsiWildcardType     => existentialArg(s"_$$${idx + 1}", wildcardType, paramTopLevel = true)
+                case captured: PsiCapturedWildcardType => existentialArg(s"_$$${idx + 1}", captured.getWildcard, paramTopLevel = true)
+                case substed                           => toScTypeInner(substed, paramTopLevel = false, treatJavaObjectAsAny = true, rawExistentialArguments)
+              }
             }
-          }
+
+          if (rawExistentialArguments.isEmpty) classTpe.unpackedType
+          else                                 classTpe
       }
     case wildcardType: PsiWildcardType =>
       existentialArg("_$1", wildcardType, paramTopLevel = false)
@@ -62,35 +66,34 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
     case _ => super.toScTypeInner(psiType, paramTopLevel, treatJavaObjectAsAny, rawExistentialArguments)
   }
 
-  private def convertJavaRawType(rawClassResult: ClassResolveResult,
-                                 paramTopLevel: Boolean,
-                                 treatJavaObjectAsAny: Boolean)
-                                (rawExistentialArgs: Option[RawExistentialArgs]): ScType = {
-
+  private def convertJavaRawType(
+    rawClassResult:     ClassResolveResult,
+    paramTopLevel:      Boolean
+  )(rawExistentialArgs: Option[RawExistentialArgs]): ScType =
     try {
       val clazz = rawClassResult.getElement
 
       val quantified = rawExistentialArgs match {
         case None =>
           val map = new RawTypeParamToExistentialMapBuilder(rawClassResult, paramTopLevel).buildMap
-          val quantified = constructTypeForClass(clazz) { (tp, idx) =>
+          val quantified = constructTypeForClass(clazz) { (tp, _) =>
             map.getOrElse(tp, TypeParameterType(tp))
           }
           map.values.foreach(_.initialize())
           quantified
-        case Some(map) =>
-          constructTypeForClass(clazz) { (tp, idx) =>
+        case Some(_) =>
+          constructTypeForClass(clazz) { (tp, _) =>
             ScExistentialArgument(tp.name, Seq.empty, Nothing, AnyRef)
           }
-
       }
       quantified.unpackedType
-
     } catch {
       case e: IllegalStateException =>
-        throw new IllegalStateException(s"Wrong conversion of java raw type ${rawClassResult.getElement.qualifiedName}", e)
+        throw new IllegalStateException(
+          s"Wrong conversion of java raw type ${rawClassResult.getElement.qualifiedName}",
+          e
+        )
     }
-  }
 
   def typeParamType(psiTypeParameter: PsiTypeParameter, rawExistentialArgs: Option[RawExistentialArgs]): ScType =
     rawExistentialArgs.flatMap(_.get(psiTypeParameter))
@@ -126,7 +129,10 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
         }
 
         if (withTypeParameters && clazz.hasTypeParameters)
-          ScParameterizedType(designator, clazz.getTypeParameters.toSeq.zipWithIndex.map(typeArgFun.tupled))
+          ScParameterizedType(
+            designator,
+            clazz.getTypeParameters.toSeq.zipWithIndex.map(typeArgFun.tupled)
+          )
         else designator
     }
 

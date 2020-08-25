@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
-import java.util.{Map => JMap}
-
-import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.extensions.PsiTypeExt
@@ -22,12 +19,8 @@ trait PsiTypeBridge {
     * @param treatJavaObjectAsAny if true, and paramTopLevel is true, java.lang.Object is treated as scala.Any
     *                             See SCL-3036 and SCL-2375
     */
-  def toScType(psiType: PsiType,
-               treatJavaObjectAsAny: Boolean,
-               paramTopLevel: Boolean): ScType = {
+  def toScType(psiType: PsiType, treatJavaObjectAsAny: Boolean, paramTopLevel: Boolean): ScType =
     toScTypeInner(psiType, treatJavaObjectAsAny, paramTopLevel, rawExistentialArguments = None)
-      .unpackedType
-  }
 
   protected type RawExistentialArgs = Map[PsiTypeParameter, ScExistentialArgument]
 

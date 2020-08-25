@@ -291,7 +291,7 @@ object Compatibility {
 
     val clashedAssignments = clashedAssignmentsIn(exprs)
 
-    if(clashedAssignments.nonEmpty) {
+    if (clashedAssignments.nonEmpty) {
       val problems = clashedAssignments.map(ParameterSpecifiedMultipleTimes)
       return ConformanceExtResult(problems, constraintAccumulator)
     }
