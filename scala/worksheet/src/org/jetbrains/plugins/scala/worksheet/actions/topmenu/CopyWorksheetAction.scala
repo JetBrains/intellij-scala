@@ -61,7 +61,7 @@ object CopyWorksheetAction {
     val fullShift = StringUtil.repeat(" ", COPY_BORDER)
     val lineSeparator = "\n"
 
-    val mappings = WorksheetFoldGroup.computeMappings(viewer, editor, psiFile)
+    val mappings = WorksheetFoldGroup.computeMappings(viewer, editor, psiFile.getVirtualFile)
 
     def getFromDoc(lineNumber: Int, document: Document): CharSequence =
       if (lineNumber >= document.getLineCount) "" else {

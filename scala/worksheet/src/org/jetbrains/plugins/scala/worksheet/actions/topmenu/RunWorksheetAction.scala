@@ -165,12 +165,11 @@ object RunWorksheetAction {
     }
 
     val fileSettings = WorksheetFileSettings(psiFile)
-
-    val module: Module = fileSettings.getModuleFor
-    if (module == null) {
-      promise.success(RunWorksheetActionResult.NoModuleError)
-    } else {
-      doRunCompiler(project, editor, auto, psiFile.getVirtualFile, psiFile, fileSettings.isMakeBeforeRun, module)(promise)
+    fileSettings.getModule match {
+      case Some(module) =>
+        doRunCompiler(project, editor, auto, psiFile.getVirtualFile, psiFile, fileSettings.isMakeBeforeRun, module)(promise)
+      case None        =>
+        promise.success(RunWorksheetActionResult.NoModuleError)
     }
   }
 
@@ -189,12 +188,12 @@ object RunWorksheetAction {
 
     val viewer = WorksheetCache.getInstance(project).getViewer(editor)
 
-    if (viewer != null && !WorksheetFileSettings.isRepl(file)) {
+    if (viewer != null && !WorksheetFileSettings(file).isRepl) {
       invokeAndWait(ModalityState.any()) {
         inWriteAction {
           CleanWorksheetAction.resetScrollModel(viewer)
           if (!auto) {
-            CleanWorksheetAction.cleanWorksheet(file.getNode, editor, viewer, project)
+            CleanWorksheetAction.cleanWorksheet(file.getVirtualFile, viewer, project)
           }
         }
       }

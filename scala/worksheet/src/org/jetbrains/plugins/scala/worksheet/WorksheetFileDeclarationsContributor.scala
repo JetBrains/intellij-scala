@@ -8,17 +8,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.FileDeclarationsContributor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory}
-import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
 import scala.collection.mutable.ArrayBuffer
 
 final class WorksheetFileDeclarationsContributor extends FileDeclarationsContributor {
 
-  override def accept(holder: PsiElement): Boolean = holder match {
-    case scalaFile: ScalaFileImpl if scalaFile.isWorksheetFile => 
-      WorksheetFileSettings.isReplLight(scalaFile) || WorksheetFileSettings.isRepl(scalaFile)
-    case _ => false
-  }
+  override def accept(holder: PsiElement): Boolean =
+    holder match {
+      case file: WorksheetFile => file.isRepl
+      case _ => false
+    }
 
   override def processAdditionalDeclarations(processor: PsiScopeProcessor, holder: PsiElement, state: ResolveState): Unit = {
     var ind = 0

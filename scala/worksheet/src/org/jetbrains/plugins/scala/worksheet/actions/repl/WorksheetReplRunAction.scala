@@ -18,5 +18,5 @@ final class WorksheetReplRunAction extends AnAction with WorksheetAction {
     RunWorksheetAction.runCompilerForSelectedEditor(e, auto = false)
 
   override def acceptFile(file: ScalaFile): Boolean =
-    WorksheetFileSettings.getRunType(file).isReplRunType
+    WorksheetFileSettings(file).isRepl
 }

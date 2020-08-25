@@ -69,7 +69,7 @@
         <actionPromoter implementation="org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetActionPromoter"/>
 
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.settings.WorksheetDefaultSettings"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.settings.persistent.WorksheetProjectDefaultPersistentSettings"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala">

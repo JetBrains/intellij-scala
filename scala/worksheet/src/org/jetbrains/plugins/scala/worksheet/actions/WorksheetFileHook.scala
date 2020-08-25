@@ -4,9 +4,11 @@ package actions
 
 import java.{util => ju}
 
+import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerEx
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.impl.ActionButton
 import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.fileEditor._
 import com.intellij.openapi.project.DumbService.DumbModeListener
@@ -17,7 +19,6 @@ import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.annotations.CalledInAwt
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.{UserDataHolderExt, UserDataKeys}
 import org.jetbrains.plugins.scala.worksheet.actions.repl.WorksheetReplRunAction
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.StopWorksheetAction.StoppableProcess
@@ -26,7 +27,6 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetControlPanel, WorksheetFoldGroup}
 
-import scala.ref.WeakReference
 import scala.util.control.NonFatal
 
 object WorksheetFileHook {
@@ -71,6 +71,30 @@ object WorksheetFileHook {
   def isRunning(file: VirtualFile): Boolean =
     WorksheetFileHook.getPanel(file).exists(!_.isRunEnabled)
 
+  def moduleUpdated(project: Project, file: VirtualFile): Unit = {
+    for {
+      module <- WorksheetFileSettings(project, file).getModule
+    } file.putUserData(UserDataKeys.SCALA_ATTACHED_MODULE, new scala.ref.WeakReference(module))
+
+    updateEditorsHighlighters(project, file)
+    val psiFile = PsiManager.getInstance(project).findFile(file)
+    if (psiFile != null) {
+      DaemonCodeAnalyzerEx.getInstanceEx(project).restart(psiFile)
+    }
+  }
+
+  private def updateEditorsHighlighters(project: Project, vFile: VirtualFile): Unit = {
+    val highlighter = EditorHighlighterFactory.getInstance.createEditorHighlighter(project, vFile)
+    val fileEditors = FileEditorManager.getInstance(project).getAllEditors(vFile).toSeq
+    val editors = fileEditors.filterByType[TextEditor].map(_.getEditor).filterByType[EditorEx]
+    editors.foreach(_.setHighlighter(highlighter))
+  }
+
+  private def ensureWorksheetModuleAttachedToPsiFile(project: Project, file: VirtualFile): Unit =
+    for {
+      module <- WorksheetFileSettings(project, file).getModule
+    } file.getOrUpdateUserData(UserDataKeys.SCALA_ATTACHED_MODULE, new scala.ref.WeakReference(module))
+
   private class WorksheetEditorListener(project: Project) extends FileEditorManagerListener {
 
     private def isPluggable(file: VirtualFile): Boolean = file.isValid &&
@@ -81,40 +105,37 @@ object WorksheetFileHook {
     override def fileClosed(source: FileEditorManager, file: VirtualFile): Unit = {
       if (!isPluggable(file)) return
 
-      val document = WorksheetFileHook.getDocumentFrom(source.getProject, file)
-      document.foreach(WorksheetAutoRunner.getInstance(source.getProject).removeListener(_))
+      val project = source.getProject
+      val document = WorksheetFileHook.getDocumentFrom(project, file)
+      document.foreach(WorksheetAutoRunner.getInstance(project).removeListener(_))
     }
 
     override def fileOpened(source: FileEditorManager, file: VirtualFile): Unit = {
       if (!isPluggable(file)) return
 
-      initWorksheetComponents(file)
-      loadEvaluationResult(source, file)
-      val document = WorksheetFileHook.getDocumentFrom(source.getProject, file)
-      document.foreach(WorksheetAutoRunner.getInstance(source.getProject).addListener(_))
+      val project = source.getProject
+
+      WorksheetFileSettings(project, file).ensureSettingsArePersisted()
+      initWorksheetUiComponents(file)
+      ensureWorksheetModuleAttachedToPsiFile(project, file)
+      loadEvaluationResult(project, source, file)
+
+      val document = WorksheetFileHook.getDocumentFrom(project, file)
+      document.foreach(WorksheetAutoRunner.getInstance(project).addListener(_))
     }
 
-    private def ensureWorksheetModuleAttachedToPsiFile(file: ScalaFile): Unit =
+    private def loadEvaluationResult(project: Project, source: FileEditorManager, file: VirtualFile): Unit =
       for {
-        module <- Option(WorksheetFileSettings(file).getModuleFor)
-      } file.getOrUpdateUserData(UserDataKeys.SCALA_ATTACHED_MODULE, new WeakReference(module))
-
-    private def loadEvaluationResult(source: FileEditorManager, vFile: VirtualFile): Unit =
-      for {
-        editor    <- editorWithFile(source, vFile)
-        manager   = PsiDocumentManager.getInstance(project)
-        scalaFile <- Option(manager.getPsiFile(editor.getDocument)).filterByType[ScalaFile]
-      } loadEvaluationResult(scalaFile, vFile, editor)
+        editor <- editorWithFile(source, file)
+      } loadEvaluationResult(project, file, editor)
 
     private def editorWithFile(source: FileEditorManager, file: VirtualFile): Option[EditorEx] =
       Option(source.getSelectedEditor(file))
         .collect { case te: TextEditor => te.getEditor }
         .collect { case e: EditorEx => e }
 
-    private def loadEvaluationResult(scalaFile: ScalaFile, vFile: VirtualFile, editor: EditorEx): Unit = {
-      ensureWorksheetModuleAttachedToPsiFile(scalaFile)
-
-      val evaluationResultOpt = WorksheetEditorPrinterFactory.loadWorksheetEvaluation(scalaFile)
+    private def loadEvaluationResult(project: Project, file: VirtualFile, editor: EditorEx): Unit = {
+      val evaluationResultOpt = WorksheetEditorPrinterFactory.loadWorksheetEvaluation(file)
       evaluationResultOpt.foreach {
         case (result, ratio) if !result.isEmpty =>
           val viewer = WorksheetEditorPrinterFactory.createViewer(editor)
@@ -129,7 +150,7 @@ object WorksheetFileHook {
             if (splitter != null) {
               try {
                 splitter.setProportion(ratio)
-                val group = WorksheetFoldGroup.load(viewer, editor, project, splitter, scalaFile)
+                val group = WorksheetFoldGroup.load(viewer, editor, project, splitter, file)
                 WorksheetEditorPrinterFactory.synch(editor, viewer, Some(splitter), Some(group))
               } catch {
                 case NonFatal(_) => //ignored; if we are trying to load code stored in "plain" mode while in REPL mode
@@ -140,7 +161,7 @@ object WorksheetFileHook {
       }
     }
 
-    private def initWorksheetComponents(file: VirtualFile): Unit = {
+    private def initWorksheetUiComponents(file: VirtualFile): Unit = {
       if (project.isDisposed) return
 
       val myFileEditorManager = FileEditorManager.getInstance(project)
@@ -160,7 +181,6 @@ object WorksheetFileHook {
         myFileEditorManager.addTopComponent(editor, controlPanel)
       }
     }
-
   }
 
   private class WorksheetDumbModeListener(project: Project) extends DumbModeListener {

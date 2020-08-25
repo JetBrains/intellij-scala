@@ -8,7 +8,7 @@ import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.testFramework.EdtTestUtil
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions.StringExt
-import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
+import org.jetbrains.plugins.scala.worksheet.settings.persistent.WorksheetFilePersistentSettings
 import org.junit.Assert.{assertNotNull, fail}
 
 trait WorksheetItEditorPreparations {
@@ -17,7 +17,7 @@ trait WorksheetItEditorPreparations {
   protected def prepareWorksheetEditor(before: String, scratchFile: Boolean = false): Editor = {
     val (vFile, psiFile) = createWorksheetFile(before.withNormalizedSeparator, scratchFile)
 
-    val settings = WorksheetFileSettings(psiFile)
+    val settings = WorksheetFilePersistentSettings(psiFile.getVirtualFile)
     setupWorksheetSettings(settings)
 
     val worksheetEditor = openEditor(vFile)

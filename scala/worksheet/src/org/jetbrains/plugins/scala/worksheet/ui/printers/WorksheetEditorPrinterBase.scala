@@ -4,6 +4,7 @@ import com.intellij.openapi.editor.ex.FoldingModelEx
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.extensions.{ThrowableExt, _}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -66,9 +67,12 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
     getWorksheetSplitter.foreach(_.redrawDiffs())
 
   protected def saveEvaluationResult(result: String): Unit = {
-    WorksheetEditorPrinterFactory.saveWorksheetEvaluation(getScalaFile, result, getWorksheetViewersRation)
+    WorksheetEditorPrinterFactory.saveWorksheetEvaluation(getVirtualFile, result, getWorksheetViewersRation)
     redrawViewerDiffs()
   }
+
+  private def getVirtualFile: VirtualFile =
+    getScalaFile.getVirtualFile
 
   protected def cleanFoldingsLater(): Unit = invokeLater {
     cleanFoldings()
@@ -114,7 +118,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
 
     viewerFolding.runBatchFoldingOperation(() => {
       foldings.foreach(addRegion)
-      WorksheetFoldGroup.save(getScalaFile, foldGroup)
+      WorksheetFoldGroup.save(getVirtualFile, foldGroup)
     })
   }
 

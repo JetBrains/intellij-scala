@@ -1,162 +1,132 @@
 package org.jetbrains.plugins.scala.worksheet.settings
 
-import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerEx
-import com.intellij.openapi.editor.ex.EditorEx
-import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
-import com.intellij.openapi.fileEditor.{FileEditorManager, TextEditor}
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectFileIndex
-import com.intellij.openapi.vfs.newvfs.FileAttribute
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, TraversableExt}
-import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScFile, ScalaFile}
-import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.worksheet.WorksheetUtils
-import org.jetbrains.plugins.scala.worksheet.processor.FileAttributeUtilCache
-
-import scala.ref.WeakReference
+import org.jetbrains.plugins.scala.worksheet.settings.persistent.{WorksheetFilePersistentSettings, WorksheetProjectDefaultPersistentSettings}
 
 /**
-  * User: Dmitry.Naydanov
-  * Date: 14.03.18.
-  */
-class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
+ * The class represent worksheet settings which are actually used by the worksheet
+ * (when evaluating worksheet, when highlighting, inspecting, etc...).<br>
+ * Unlike [[WorksheetFilePersistentSettings]], settings returned value types represent actual types that are
+ * used in other subsystems. For simple primitive types (e.g. for Boolean) there is no any difference.
+ * But it matters for business entities, for example:
+ *
+ *  - `getModule` returns the actual module of type Module, not just saved module name.<br>
+ *    Returned module can have a different name from the saved module name.<br>
+ *    For example, if a worksheet is physically in some module,
+ *    it ignores saved module name and returns module to which the file belongs).
+ *    This can be helpful: if some module was renamed, we don't use old saved module name.
+ *    Practically it means that saved module name by scratch files worksheets.
+ *
+ *  - `getCompilerProfile` returns the actual compiler profile, not saved profile name<br>
+ *
+ * @see [[WorksheetFileSettings]]
+ * @see [[persistent.WorksheetPersistentSettings]]
+ */
+final class WorksheetFileSettings private(
+  project: Project,
+  file: VirtualFile
+) {
 
-  import WorksheetFileSettings._
+  private def filePersistentSettings =
+    WorksheetFilePersistentSettings(file)
+  private def defaultPersistentSettings =
+    WorksheetProjectDefaultPersistentSettings(project)
 
-  override def project: Project = file.getProject
-
-  private def getDefaultSettings = WorksheetProjectSettings(project)
-
-  private def getSetting[T](attr: FileAttribute, orDefault: => T)
-                           (implicit ev: SerializableInFileAttribute[T]): T =
-    WorksheetFileSettings.getSetting(file.getVirtualFile, attr).getOrElse(orDefault)
-
-  private def setSetting[T](attr: FileAttribute, value: T)
-                           (implicit ev: SerializableInFileAttribute[T]): Unit =
-    WorksheetFileSettings.setSetting(file.getVirtualFile, attr, value)
-
-  override def getRunType: WorksheetExternalRunType = getSetting(WORKSHEET_RUN_TYPE, getDefaultSettings.getRunType)
-
-  // TODO: not this method should be optional but WorksheetFileSettings.apply
-  def getRunTypeOpt: Option[WorksheetExternalRunType] = Option(getSetting(WORKSHEET_RUN_TYPE, null: WorksheetExternalRunType))
-
-  override def setRunType(runType: WorksheetExternalRunType): Unit = setSetting(WORKSHEET_RUN_TYPE, runType)
-
-  override def isInteractive: Boolean = getSetting(IS_AUTORUN, getDefaultSettings.isInteractive)
-
-  override def isMakeBeforeRun: Boolean = getSetting(IS_MAKE_BEFORE_RUN, getDefaultSettings.isMakeBeforeRun)
-
-  override def getCompilerProfileName: String = getSetting(COMPILER_PROFILE, getDefaultSettings.getCompilerProfileName)
-
-  override def setInteractive(value: Boolean): Unit = setSetting(IS_AUTORUN, value)
-
-  override def setMakeBeforeRun(value: Boolean): Unit = setSetting(IS_MAKE_BEFORE_RUN, value)
-
-  override def setCompilerProfileName(value: String): Unit = setSetting(COMPILER_PROFILE, value)
-
-  private def isScratchFile: Boolean =
-    WorksheetUtils.isScratchWorksheet(project, file.getVirtualFile)
-
-  override def getCompilerProfile: ScalaCompilerSettingsProfile = {
-    val configuration = ScalaCompilerConfiguration.instanceIn(project)
-
-    val customProfiles = configuration.customProfiles
-    val maybeCustomProfile = if (isScratchFile) {
-      val name = getCompilerProfileName
-      customProfiles.find(_.getName == name)
-    } else {
-      for {
-        ScFile.VirtualFile(virtualFile) <- Some(file)
-        module <- ScalaUtil.getModuleForFile(virtualFile)(project)
-        profile <- customProfiles.find(_.moduleNames.contains(module.getName))
-      } yield profile
-    }
-    maybeCustomProfile.getOrElse(configuration.defaultProfile)
+  private def persistedSetting[T](
+    getForFile: WorksheetFilePersistentSettings => Option[T],
+    getForProjectDefault: WorksheetProjectDefaultPersistentSettings => T
+  ): T = {
+    val res1 = getForFile(filePersistentSettings)
+    val res2 = res1.getOrElse(getForProjectDefault(defaultPersistentSettings))
+    res2
   }
 
-  override def getModuleName: String = {
-    val savedModuleForFile = WorksheetFileSettings.getModuleName(file.getVirtualFile)
-    savedModuleForFile.getOrElse(getDefaultSettings.getModuleName)
+  private def persistedSetting[T](
+    getForFile: WorksheetFilePersistentSettings => Option[T],
+    getProjectDefault: WorksheetProjectDefaultPersistentSettings => Option[T]
+  ): Option[T] = {
+    val res1 = getForFile(filePersistentSettings)
+    val res2 = res1.orElse(getProjectDefault(defaultPersistentSettings))
+    res2
   }
 
-  override def setModuleName(value: String): Unit = {
-    setSetting(CP_MODULE_NAME, value)
+  def isRepl: Boolean = getRunType.isReplRunType
+
+  def getRunType: WorksheetExternalRunType = persistedSetting(_.getRunType, _.getRunType)
+  def isInteractive: Boolean = persistedSetting(_.isInteractive, _.isInteractive)
+  def isMakeBeforeRun: Boolean = persistedSetting(_.isMakeBeforeRun, _.isMakeBeforeRun)
+
+  def getModuleName: Option[String] = getModule.map(_.getName)
+
+  def getModule: Option[Module] = {
+    // We don't allow changing worksheet module if it is already located in some module (non-scratch-files)
+    val fixedModule =
+      if (!WorksheetUtils.isScratchWorksheet(project, file)) {
+        val fromIndex = ScalaUtil.getModuleForFile(file)(project)
+        fromIndex
+      } else {
+        None
+      }
+    val maybeModule1 = fixedModule.orElse(moduleFromPersistedSettings)
+    val maybeModule2 = maybeModule1.orElse(project.anyScalaModule)
+    maybeModule2
+  }
+
+  private def moduleFromPersistedSettings: Option[Module] = {
+    val moduleName = persistedSetting(_.getModuleName, _.getModuleName)
+    moduleName.flatMap(findModule)
+  }
+
+  private def findModule(moduleName: String): Option[Module] =
+    Option(ModuleManager.getInstance(project).findModuleByName(moduleName))
+
+  def getCompilerProfileName: String = getCompilerProfile.getName
+
+  def getCompilerProfile: ScalaCompilerSettingsProfile = {
+    val profile1 = profileFromPersistedSettings
+    val profile2 = profile1.orElse(profileFromModule)
+    val profile3 = profile2.getOrElse(ScalaCompilerConfiguration(project).defaultProfile)
+    profile3
+  }
+
+  private def profileFromModule: Option[ScalaCompilerSettingsProfile] = {
+    val maybeModule = getModule
     for {
-      module <- Option(getModuleFor)
-    } file.putUserData(UserDataKeys.SCALA_ATTACHED_MODULE, new WeakReference(module))
-
-    updateEditorsHighlighters(project, file.getVirtualFile)
-    DaemonCodeAnalyzerEx.getInstanceEx(project).restart(file)
+      module  <- maybeModule
+      profile = ScalaCompilerConfiguration(project).getProfileForModule(module)
+    } yield profile
   }
 
-  override def getModuleFor: Module =
-    if (isScratchFile) {
-      findModuleByName
-    } else {
-      val fromIndex = moduleFromIndex(file.getVirtualFile, project)
-      fromIndex.orElse(project.anyScalaModule).orNull
-    }
+  private def profileFromPersistedSettings: Option[ScalaCompilerSettingsProfile] = {
+    val maybeProfileName = persistedSetting(_.getCompilerProfileName, _.getCompilerProfileName)
+    for {
+      profileName <- maybeProfileName
+      profile     <- ScalaCompilerConfiguration(project).findByProfileName(profileName)
+    } yield profile
+  }
+
+  /**
+   * Ensures that current effective settings are persisted.<br>
+   * Because of this, changes in project default settings don't change already-created worksheets settings.<br>
+   * (This works exactly the same way as in Run Configuration templates)
+   */
+  def ensureSettingsArePersisted(): Unit = {
+    filePersistentSettings.setRunType(getRunType)
+    filePersistentSettings.setInteractive(isInteractive)
+    filePersistentSettings.setMakeBeforeRun(isMakeBeforeRun)
+    getModuleName.foreach(filePersistentSettings.setModuleName)
+    filePersistentSettings.setCompilerProfileName(getCompilerProfileName)
+  }
 }
 
 object WorksheetFileSettings {
-
-  private val IS_MAKE_BEFORE_RUN = new FileAttribute("ScalaWorksheetMakeBeforeRun", 1, true)
-  private val CP_MODULE_NAME = new FileAttribute("ScalaWorksheetModuleForCp", 1, false)
-  private val COMPILER_PROFILE = new FileAttribute("ScalaWorksheetCompilerProfile", 1, false)
-  private val IS_AUTORUN = new FileAttribute("ScalaWorksheetAutoRun", 1, true)
-  private val WORKSHEET_RUN_TYPE = new FileAttribute("ScalaWorksheetRunType", 1, false)
-
-  def apply(file: PsiFile): WorksheetFileSettings = new WorksheetFileSettings(file)
-
-  def isReplLight(file: FileDeclarationsHolder): Boolean = {
-    file match {
-      case scalaFile: ScalaFile =>
-        val attrValue = FileAttributeUtilCache.readAttributeLight(WORKSHEET_RUN_TYPE, scalaFile)
-        attrValue.flatMap(WorksheetExternalRunType.findRunTypeByName).exists(_.isReplRunType)
-      case _ => false
-    }
-  }
-
-  def isRepl(file: PsiFile): Boolean = getRunType(file).isReplRunType
-
-  def getRunType(file: PsiFile): WorksheetExternalRunType = new WorksheetFileSettings(file).getRunType
-
-  private def getSetting[T](vFile: VirtualFile, attr: FileAttribute)
-                           (implicit ev: SerializableInFileAttribute[T]): Option[T] =
-    ev.readAttribute(attr, vFile)
-
-  private def setSetting[T](vFile: VirtualFile, attr: FileAttribute, value: T)
-                           (implicit ev: SerializableInFileAttribute[T]): Unit =
-    ev.writeAttribute(attr, vFile, value)
-
-  def getModuleName(file: VirtualFile): Option[String] =
-    getSetting[String](file, CP_MODULE_NAME)
-
-  def getModuleForScratchFile(file: VirtualFile, project: Project): Option[Module] = {
-    val moduleName = getModuleName(file)
-    val module1 = moduleName.flatMap(ModuleManager.getInstance(project).findModuleByName(_).toOption)
-    val module2 = module1.orElse(Option(WorksheetProjectSettings(project).getModuleFor))
-    module2
-  }
-
-  private def moduleFromIndex(virtualFile: VirtualFile, project: Project): Option[Module] =
-    virtualFile match {
-      case virtualFile: VirtualFileWithId =>
-        val fileIndex = ProjectFileIndex.SERVICE.getInstance(project)
-        Option(fileIndex.getModuleForFile(virtualFile))
-      case _ =>
-        None
-    }
-
-  private def updateEditorsHighlighters(project: Project, vFile: VirtualFile): Unit = {
-    val highlighter = EditorHighlighterFactory.getInstance.createEditorHighlighter(project, vFile)
-    val fileEditors = FileEditorManager.getInstance(project).getAllEditors(vFile).toSeq
-    val editors = fileEditors.filterByType[TextEditor].map(_.getEditor).filterByType[EditorEx]
-    editors.foreach(_.setHighlighter(highlighter))
-  }
+  def apply(project: Project, file: VirtualFile): WorksheetFileSettings = new WorksheetFileSettings(project, file)
+  def apply(psiFile: PsiFile): WorksheetFileSettings = new WorksheetFileSettings(psiFile.getProject, psiFile.getVirtualFile)
 }

@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.Args.{
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.{CompilerInterface, CompilerMessagesConsumer, RemoteServerConnectorResult}
 import org.jetbrains.plugins.scala.worksheet.server._
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType.WorksheetPreprocessError
-import org.jetbrains.plugins.scala.worksheet.settings._
+import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetFileSettings, _}
 import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter, WorksheetEditorPrinterRepl}
 
 import scala.collection.mutable
@@ -50,7 +50,7 @@ class WorksheetCompiler(
 
   private implicit val project: Project = worksheetFile.getProject
 
-  private val runType : WorksheetExternalRunType = WorksheetFileSettings.getRunType(worksheetFile)
+  private val runType : WorksheetExternalRunType = WorksheetFileSettings(worksheetFile).getRunType
   private val makeType: WorksheetMakeType        = WorksheetCompiler.getMakeType(project, runType)
 
   private val virtualFile = worksheetFile.getVirtualFile

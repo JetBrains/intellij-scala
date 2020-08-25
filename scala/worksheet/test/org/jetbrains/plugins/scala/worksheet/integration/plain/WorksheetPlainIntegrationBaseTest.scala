@@ -14,7 +14,8 @@ import org.jetbrains.plugins.scala.worksheet.integration.util.{EditorRobot, MyUi
 import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRunTestSettings, WorksheetRuntimeExceptionsTests}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
-import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetExternalRunType, WorksheetFileSettings}
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
+import org.jetbrains.plugins.scala.worksheet.settings.persistent.WorksheetFilePersistentSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain.{FoldingDataForTests, ViewerEditorState}
 import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinterFactory, WorksheetEditorPrinterPlain}
 import org.junit.Assert._
@@ -370,7 +371,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
     )
     val viewer = WorksheetCache.getInstance(project).getViewer(editor)
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
-    WorksheetFileSettings(file).setInteractive(true)
+    WorksheetFilePersistentSettings(file.getVirtualFile).setInteractive(true)
 
     val robot = new EditorRobot(editor)
     robot.moveToEnd()
@@ -396,7 +397,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
       """res0: Int = 42""".stripMargin
     )
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
-    WorksheetFileSettings(file).setInteractive(true)
+    WorksheetFilePersistentSettings(file.getVirtualFile).setInteractive(true)
 
     val robot = new EditorRobot(editor)
     robot.moveToEnd()

@@ -11,7 +11,6 @@ import com.intellij.openapi.ui.{Divider, Splitter}
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
 
 object WorksheetDiffSplitters {
@@ -50,7 +49,7 @@ object WorksheetDiffSplitters {
           val file = documentManager.getCachedPsiFile(editor1.getDocument)
           file match {
             case file: ScalaFile =>
-              WorksheetEditorPrinterFactory.saveOnlyRatio(file, getProportion)
+              WorksheetEditorPrinterFactory.saveOnlyRatio(file.getVirtualFile, getProportion)
             case _ =>
           }
         }

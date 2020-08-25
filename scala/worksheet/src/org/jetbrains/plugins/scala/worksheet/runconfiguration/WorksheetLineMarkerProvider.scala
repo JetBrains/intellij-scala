@@ -11,7 +11,7 @@ import com.intellij.psi.{PsiComment, PsiDocumentManager, PsiElement, PsiWhiteSpa
 import com.intellij.util.FunctionUtil
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
+import org.jetbrains.plugins.scala.worksheet.WorksheetFile
 
 import scala.jdk.CollectionConverters._
 
@@ -28,12 +28,13 @@ class WorksheetLineMarkerProvider extends LineMarkerProvider {
       marker       <- lineMarkerInfo(elements, scalaFile)
     } result.add(marker)
 
-  private def worksheetFile(element: PsiElement): Option[ScalaFile] = element.getContainingFile match {
-    case file: ScalaFile if file.isWorksheetFile && WorksheetFileSettings.isRepl(file) =>
-      Some(file)
-    case _ =>
-      None
-  }
+  private def worksheetFile(element: PsiElement): Option[WorksheetFile] =
+    element.getContainingFile match {
+      case file: WorksheetFile if file.isRepl =>
+        Some(file)
+      case _ =>
+        None
+    }
 
   private def lineMarkerInfo(elements: ju.List[_ <: PsiElement], scalaFile: ScalaFile): Option[LineMarkerInfo[PsiElement]] = {
     val project = scalaFile.getProject

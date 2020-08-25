@@ -64,7 +64,7 @@ class WorksheetAutoRunner(project: Project) {
       
       val psiFile = documentManager.getPsiFile(document)
       val offset = e.getOffset
-      val isRepl = WorksheetFileSettings.getRunType(psiFile).isReplRunType
+      val isRepl = WorksheetFileSettings(psiFile).isRepl
 
       def needToResetLastLine: Boolean = offset < lastProcessedOffset || {
         val line1 = document.getLineNumber(lastProcessedOffset)

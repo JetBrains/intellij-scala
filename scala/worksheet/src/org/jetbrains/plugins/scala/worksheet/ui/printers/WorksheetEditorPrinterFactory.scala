@@ -14,17 +14,18 @@ import com.intellij.openapi.editor.{Editor, EditorFactory, VisualPosition}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Splitter
 import com.intellij.openapi.util.Key
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.ui.JBSplitter
 import javax.swing.{JComponent, JLayeredPane}
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, StringExt, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.util.ui.extensions.JComponentExt
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
-import org.jetbrains.plugins.scala.worksheet.processor.FileAttributeUtilCache
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWorksheetSplitter
-import org.jetbrains.plugins.scala.worksheet.ui.extensions.JComponentExt
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetDiffSplitters, WorksheetFoldGroup}
+import org.jetbrains.plugins.scala.worksheet.utils.FileAttributeUtilCache
 
 //noinspection TypeAnnotation
 object WorksheetEditorPrinterFactory {
@@ -119,21 +120,21 @@ object WorksheetEditorPrinterFactory {
     override def isSyncScrollEnabled: Boolean = true
   }
 
-  def saveWorksheetEvaluation(file: ScalaFile, result: String, ratio: Float): Unit = {
+  def saveWorksheetEvaluation(file: VirtualFile, result: String, ratio: Float): Unit = {
     FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RESULT, file, result)
     FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RATIO, file, ratio.toString)
   }
 
-  def saveOnlyRatio(file: ScalaFile, ratio: Float): Unit =
+  def saveOnlyRatio(file: VirtualFile, ratio: Float): Unit =
     FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RATIO, file, ratio.toString)
 
-  def loadWorksheetEvaluation(file: ScalaFile): Option[(String, Float)] = {
+  def loadWorksheetEvaluation(file: VirtualFile): Option[(String, Float)] = {
     val ratioAttribute = FileAttributeUtilCache.readAttribute(LAST_WORKSHEET_RUN_RATIO, file)
     val ratio = ratioAttribute.flatMap(_.toFloatOpt).getOrElse(DEFAULT_WORKSHEET_VIEWERS_RATIO)
     FileAttributeUtilCache.readAttribute(LAST_WORKSHEET_RUN_RESULT, file).map(s => (s, ratio))
   }
 
-  def deleteWorksheetEvaluation(file: ScalaFile): Unit = {
+  def deleteWorksheetEvaluation(file: VirtualFile): Unit = {
     FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RESULT, file, "")
     FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RATIO, file, DEFAULT_WORKSHEET_VIEWERS_RATIO.toString)
   }

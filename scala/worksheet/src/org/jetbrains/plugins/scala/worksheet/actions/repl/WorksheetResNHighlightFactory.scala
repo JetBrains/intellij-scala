@@ -4,15 +4,14 @@ import com.intellij.codeInsight.TargetElementUtil
 import com.intellij.codeInsight.highlighting.{HighlightUsagesHandlerBase, HighlightUsagesHandlerFactory}
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
-import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
+import org.jetbrains.plugins.scala.worksheet.WorksheetFile
 
 final class WorksheetResNHighlightFactory extends HighlightUsagesHandlerFactory {
 
   override def createHighlightUsagesHandler(editor: Editor, file: PsiFile): HighlightUsagesHandlerBase[PsiElement] =
     file match {
-      case scalaFile: ScalaFile if scalaFile.isWorksheetFile && WorksheetFileSettings.isRepl(scalaFile) =>
+      case file: WorksheetFile if file.isRepl =>
         doCreateHighlightUsagesHandler(editor, file)
       case _ =>
         null

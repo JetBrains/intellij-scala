@@ -5,7 +5,7 @@ import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
-import org.jetbrains.plugins.scala.worksheet.ui.dialog.WorksheetFileSettingsDialog
+import org.jetbrains.plugins.scala.worksheet.settings.ui.WorksheetSettingsDialog
 
 class ShowWorksheetSettingsAction extends AnAction with TopComponentAction {
 
@@ -15,6 +15,9 @@ class ShowWorksheetSettingsAction extends AnAction with TopComponentAction {
 
   override def actionPerformed(e: AnActionEvent): Unit = {
     val fileOpt = ScalaActionUtil.getFileFrom(e).orElse(getSelectedFile(e.getProject))
-    fileOpt.foreach(new WorksheetFileSettingsDialog(_).show())
+    fileOpt.foreach { file =>
+      val dialog = new WorksheetSettingsDialog(file)
+      dialog.show()
+    }
   }
 }

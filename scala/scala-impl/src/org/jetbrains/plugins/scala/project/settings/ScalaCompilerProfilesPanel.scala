@@ -332,9 +332,9 @@ object ScalaCompilerProfilesPanel {
   private def getTemporarySelectProfile(project: Project): Option[String] =
     Option(project.getUserData(ScalaCompilerProfilesPanel.SELECTED_PROFILE_NAME))
 
-  def withTemporarySelectedProfile[T](project: Project, profileName: String)(body: => T): T =
+  def withTemporarySelectedProfile[T](project: Project, profileName: Option[String])(body: => T): T =
     try {
-      project.putUserData(SELECTED_PROFILE_NAME, profileName)
+      profileName.foreach(project.putUserData(SELECTED_PROFILE_NAME, _))
       body
     } finally {
       project.putUserData(SELECTED_PROFILE_NAME, null)

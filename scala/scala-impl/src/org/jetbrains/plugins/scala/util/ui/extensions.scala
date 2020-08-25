@@ -1,10 +1,10 @@
-package org.jetbrains.plugins.scala.worksheet.ui
+package org.jetbrains.plugins.scala.util.ui
 
 import java.awt.Component
 
 import javax.swing.JComponent
 
-package object extensions {
+object extensions {
 
   implicit class JComponentExt(private val target: JComponent) extends AnyVal {
 

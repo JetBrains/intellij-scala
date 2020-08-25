@@ -4,7 +4,6 @@ import java.awt.BorderLayout
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.icons.AllIcons
-import com.intellij.lang.ASTNode
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
@@ -17,7 +16,6 @@ import javax.swing.{DefaultBoundedRangeModel, Icon}
 import org.jetbrains.annotations.{CalledInAwt, TestOnly}
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
@@ -67,7 +65,7 @@ object CleanWorksheetAction {
       inWriteAction {
         resetScrollModel(viewer)
         WorksheetCache.getInstance(project).removePrinter(editor)
-        cleanWorksheet(psiFile.getNode, editor, viewer, project)
+        cleanWorksheet(psiFile.getVirtualFile, viewer, project)
 
         if (!ApplicationManager.getApplication.isUnitTestMode) {
           parent.remove(splitPane)
@@ -98,10 +96,10 @@ object CleanWorksheetAction {
   }
 
   @CalledInAwt
-  def cleanWorksheet(node: ASTNode, leftEditor: Editor, rightEditor: Editor, project: Project): Unit = {
+  def cleanWorksheet(file: VirtualFile, rightEditor: Editor, project: Project): Unit = {
     val rightDocument = rightEditor.getDocument
 
-    WorksheetEditorPrinterFactory.deleteWorksheetEvaluation(node.getPsi.asInstanceOf[ScalaFile])
+    WorksheetEditorPrinterFactory.deleteWorksheetEvaluation(file)
 
     if (rightDocument != null && !project.isDisposed) {
       inWriteAction {

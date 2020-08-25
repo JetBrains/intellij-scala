@@ -1,8 +1,9 @@
-package org.jetbrains.plugins.scala.worksheet.settings
+package org.jetbrains.plugins.scala.worksheet.settings.persistent
 
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.FileAttribute
-import org.jetbrains.plugins.scala.worksheet.processor.FileAttributeUtilCache
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
+import org.jetbrains.plugins.scala.worksheet.utils.FileAttributeUtilCache
 
 private trait SerializableInFileAttribute[T] {
   def readAttribute(attr: FileAttribute, file: VirtualFile): Option[T] =

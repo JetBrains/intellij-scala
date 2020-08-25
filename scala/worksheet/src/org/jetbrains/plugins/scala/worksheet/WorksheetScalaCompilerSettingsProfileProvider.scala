@@ -11,7 +11,7 @@ final class WorksheetScalaCompilerSettingsProfileProvider extends ScalaCompilerS
   override def provide(file: PsiFile): Option[ScalaCompilerSettingsProfile] =
     file match {
       case scalaFile: ScalaFile if scalaFile.isWorksheetFile =>
-        Option(WorksheetFileSettings(scalaFile).getCompilerProfile)
+        Some(WorksheetFileSettings(file).getCompilerProfile)
       case _ =>
         None
     }

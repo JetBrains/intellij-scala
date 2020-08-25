@@ -96,7 +96,7 @@ object WorksheetDefaultSourcePreprocessor {
   }
 
   private def languageLevelForFile(srcFile: ScalaFile) = {
-    val moduleOpt  = Option(WorksheetFileSettings(srcFile).getModuleFor)
+    val moduleOpt  = WorksheetFileSettings(srcFile).getModule
     val maybeLevel = moduleOpt.flatMap(_.scalaLanguageLevel)
     maybeLevel.getOrElse(ScalaLanguageLevel.getDefault)
   }

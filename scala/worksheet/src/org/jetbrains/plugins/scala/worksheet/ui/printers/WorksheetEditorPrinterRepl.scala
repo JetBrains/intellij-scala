@@ -290,8 +290,8 @@ final class WorksheetEditorPrinterRepl private[printers](
 
     val ReplMessageInfo(message, lineContent, lineOffset, columnOffset, severity) = replMessageInfo
 
-    val module = WorksheetFileSettings(getScalaFile).getModuleFor
-    val sdk = module.scalaSdk
+    val module = WorksheetFileSettings(getScalaFile).getModule
+    val sdk = module.flatMap(_.scalaSdk)
     val (hOffset, vOffset) = sdk.map(extraOffset(_, chunk)).getOrElse((0, 0))
 
     val columnOffsetFixed  = columnOffset - vOffset

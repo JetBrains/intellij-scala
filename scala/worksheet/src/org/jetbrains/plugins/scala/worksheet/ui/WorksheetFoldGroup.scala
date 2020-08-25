@@ -7,14 +7,13 @@ import com.intellij.openapi.editor.ex.{FoldingListener, FoldingModelEx}
 import com.intellij.openapi.editor.{Document, Editor, FoldRegion}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.FileAttribute
-import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.worksheet.processor.FileAttributeUtilCache
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.{DiffMapping, SimpleWorksheetSplitter}
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup._
+import org.jetbrains.plugins.scala.worksheet.utils.FileAttributeUtilCache
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -280,17 +279,20 @@ object WorksheetFoldGroup {
       document.getLineNumber(offset.min(document.getTextLength))
   }
 
-  def save(file: ScalaFile, group: WorksheetFoldGroup): Unit = {
-    val virtualFile = file.getVirtualFile
-    if (!virtualFile.isValid) return
+  def save(file: VirtualFile, group: WorksheetFoldGroup): Unit = {
+    if (!file.isValid) return
 
     val regionsSerialized = serializeFoldRegions(group._regions)
     FileAttributeUtilCache.writeAttribute(WORKSHEET_PERSISTENT_FOLD_KEY, file, regionsSerialized)
   }
 
-  def load(viewerEditor: Editor, originalEditor: Editor, project: Project,
-           splitter: SimpleWorksheetSplitter,
-           file: PsiFile): WorksheetFoldGroup = {
+  def load(
+    viewerEditor: Editor,
+    originalEditor: Editor,
+    project: Project,
+    splitter: SimpleWorksheetSplitter,
+    file: VirtualFile
+  ): WorksheetFoldGroup = {
     val group = new WorksheetFoldGroup(viewerEditor, originalEditor, project, Some(splitter))
 
     val parsedRegions = extractRegions(file)
@@ -299,7 +301,7 @@ object WorksheetFoldGroup {
     group
   }
   
-  def computeMappings(viewerEditor: Editor, originalEditor: Editor, file: PsiFile): collection.Seq[(Int, Int)] = {
+  def computeMappings(viewerEditor: Editor, originalEditor: Editor, file: VirtualFile): collection.Seq[(Int, Int)] = {
     val parsedRegions = extractRegions(file).getOrElse(Seq())
     val mappings = extractMappings(parsedRegions, originalEditor.getDocument, viewerEditor.getDocument)
     mappings.headOption match {
@@ -308,7 +310,7 @@ object WorksheetFoldGroup {
     }
   }
 
-  private def extractRegions(file: PsiFile): Option[collection.Seq[ParsedRegion]] = {
+  private def extractRegions(file: VirtualFile): Option[collection.Seq[ParsedRegion]] = {
     val regionsSerialized = FileAttributeUtilCache.readAttribute(WORKSHEET_PERSISTENT_FOLD_KEY, file).filter(_.nonEmpty)
     regionsSerialized.map(deserializeFoldRegions)
   }
