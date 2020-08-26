@@ -7,6 +7,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.worksheet.WorksheetFile
 
 trait WorksheetAction {
   this: AnAction => 
@@ -18,22 +19,26 @@ trait WorksheetAction {
       editor <- Option(FileEditorManager.getInstance(project).getSelectedTextEditor)
       file   <- Option(PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument))
     } yield file
+
+  protected def getSelectedFile(e: AnActionEvent): Option[PsiFile] =
+    Option(e.getProject).flatMap(getSelectedFile)
   
   def updateInner(e: AnActionEvent): Unit = {
-    if (e == null) return
-
-    val project = e.getProject
-    if (project == null) return
-
     val presentation = e.getPresentation
+    if (isActionEnabled(e))
+      ScalaActionUtil.enablePresentation(presentation)
+    else
+      ScalaActionUtil.disablePresentation(presentation)
+  }
+
+  private def isActionEnabled(e: AnActionEvent): Boolean =
     inReadAction {
-      val file = getSelectedFile(project)
+      val file = getSelectedFile(e)
       file match {
-        case Some(sf: ScalaFile) if sf.isWorksheetFile && acceptFile(sf) =>
-          ScalaActionUtil.enablePresentation(presentation)
+        case Some(sf: WorksheetFile) =>
+          acceptFile(sf)
         case _ =>
-          ScalaActionUtil.disablePresentation(presentation)
+          false
       }
     }
-  }
 }
