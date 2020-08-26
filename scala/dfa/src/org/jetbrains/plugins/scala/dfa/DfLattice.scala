@@ -132,14 +132,14 @@ object DfBool {
     override def toString: String = "DfFalse"
   }
 
-  final val Bottom: DfNothing.type = DfNothing
+  final val Bottom: DfBool = DfNothing
 
   implicit val lattice: Lattice[DfBool] = new FlatLattice[DfBool](Top, Bottom)
 
   def apply(bool: Boolean): Concrete = Concrete(bool)
 
   def apply(maybeBool: Option[Boolean]): DfBool =
-    maybeBool.fold(DfNothing: DfBool)(Concrete(_))
+    maybeBool.fold(Bottom)(Concrete(_))
 
   def apply(boolLat: BoolLat): DfBool = boolLat match {
     case BoolLat.Top => Top
