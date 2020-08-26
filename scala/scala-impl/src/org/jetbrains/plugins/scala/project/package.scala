@@ -97,7 +97,7 @@ package object project {
       ScalaModuleSettings(module)
 
     def isBuildModule: Boolean =
-      module.getName.endsWith("-build")
+      module.getName.endsWith(org.jetbrains.sbt.Sbt.BuildModuleSuffix)
 
     def isSourceModule: Boolean = SbtModuleType.unapply(module).isEmpty
 
