@@ -11,7 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 final class WorksheetResNGotoHandler extends GotoDeclarationHandler {
 
   override def getGotoDeclarationTargets(sourceElement: PsiElement, offset: Int, editor: Editor): Array[PsiElement] =
-    if (sourceElement == null) null else {
+    if (sourceElement == null)
+      null
+    else {
       val referenced = WorksheetResNGotoHandler.findReferencedPsi(sourceElement.getParent)
       referenced.map(Array(_)).orNull
     }

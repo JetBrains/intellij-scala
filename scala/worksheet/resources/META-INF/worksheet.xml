@@ -63,7 +63,8 @@
         <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunMarkerContributor" language="Scala"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetLineMarkerProvider"/>
 
-        <highlightUsagesHandlerFactory implementation="org.jetbrains.plugins.scala.worksheet.actions.repl.WorksheetResNHighlightFactory"/>
+        <highlightUsagesHandlerFactory implementation="org.jetbrains.plugins.scala.worksheet.actions.repl.WorksheetResNHighlightFactory"
+                                       order="before ScalaHighlightUsagesHandlerFactory"/>
 
         <actionPromoter implementation="org.jetbrains.plugins.scala.worksheet.actions.repl.WorksheetReplRunActionPromoter"/>
         <actionPromoter implementation="org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetActionPromoter"/>
@@ -78,6 +79,9 @@
         <referenceExtraResolver implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScStableCodeReferenceExtraResolver"/>
         <compilerSettingsProfileProvider implementation="org.jetbrains.plugins.scala.worksheet.WorksheetScalaCompilerSettingsProfileProvider"/>
         <highlightingCompilerHelper implementation="org.jetbrains.plugins.scala.worksheet.processor.WorksheetHighlightingCompiler"/>
+
+        <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteFileDeclarationsContributor"/>
+        <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.WorksheetFileDeclarationsContributor"/>
     </extensions>
 
     <projectListeners>
