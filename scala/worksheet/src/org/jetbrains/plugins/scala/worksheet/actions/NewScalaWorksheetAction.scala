@@ -6,7 +6,7 @@ import com.intellij.ide.fileTemplates.actions.AttributesDefaults
 import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys, DataContext, LangDataKeys}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiDirectory
+import com.intellij.psi.{PsiDirectory, PsiFile}
 import org.jetbrains.plugins.scala.actions.LazyFileTemplateAction
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.worksheet.actions.NewScalaWorksheetAction._
@@ -23,10 +23,15 @@ final class NewScalaWorksheetAction extends LazyFileTemplateAction(
 ) {
 
   override def getAttributesDefaults(dataContext: DataContext): AttributesDefaults = {
-    val element = CommonDataKeys.PSI_ELEMENT.getData(dataContext)
-    val attributes = element match {
-      case directory: PsiDirectory => suggestIndex(directory.getVirtualFile).headOption
-      case _                       => None
+    val selectedElement = CommonDataKeys.PSI_ELEMENT.getData(dataContext)
+    val attributes = selectedElement match {
+      case directory: PsiDirectory =>
+        suggestIndex(directory.getVirtualFile).headOption
+      case file: PsiFile =>
+        val parent = Option(file.getVirtualFile.getParent)
+        parent.flatMap(suggestIndex(_).headOption)
+      case _ =>
+        None
     }
     attributes.orNull
   }
