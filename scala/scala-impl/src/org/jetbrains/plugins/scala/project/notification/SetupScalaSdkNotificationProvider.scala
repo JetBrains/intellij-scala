@@ -22,7 +22,7 @@ final class SetupScalaSdkNotificationProvider(project: Project)
   override protected def hasDeveloperKit(file: VirtualFile): Boolean =
     findModule(file).forall { module =>
       ModuleType.get(module) != JavaModuleType.getModuleType ||
-        module.getName.endsWith("-build") || // gen-idea doesn't use the sbt module type
+        module.isBuildModule || // gen-idea doesn't use the sbt module type
         module.hasScala
     }
 
