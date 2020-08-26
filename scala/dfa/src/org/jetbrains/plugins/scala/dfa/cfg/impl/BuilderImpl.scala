@@ -2,9 +2,11 @@ package org.jetbrains.plugins.scala.dfa
 package cfg
 package impl
 
+import org.jetbrains.plugins.scala.dfa.cfg.Builder.{Property, Variable}
+
 import scala.collection.mutable
 
-private[cfg] class BuilderImpl[Info, V, P] extends Builder[Info, V, P] {
+private[cfg] class BuilderImpl[Info] extends Builder[Info] {
   override type Value = cfg.Value
   override type UnlinkedJump = UnlinkedJumpImpl
   override type LoopLabel = LoopLabelImpl
@@ -63,11 +65,11 @@ private[cfg] class BuilderImpl[Info, V, P] extends Builder[Info, V, P] {
   override def constant(const: DfAny): Value =
     addNode(new ConstantImpl(const))
 
-  override def readVariable(variable: V): Unit = ???
-  override def writeVariable(variable: V, value: Value): Unit = ???
+  override def readVariable(variable: Variable): Unit = ???
+  override def writeVariable(variable: Variable, value: Value): Unit = ???
 
-  override def readProperty(base: Value, property: P): Value = ???
-  override def writeProperty(base: Value, property: P, value: Value): Unit = ???
+  override def readProperty(base: Value, property: Property): Value = ???
+  override def writeProperty(base: Value, property: Property, value: Value): Unit = ???
 
   /***** Forward jumps ****/
   private val unlinkedJumps = mutable.Set.empty[UnlinkedJump]

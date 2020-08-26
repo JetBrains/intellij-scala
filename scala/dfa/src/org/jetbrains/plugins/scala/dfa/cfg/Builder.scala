@@ -1,18 +1,20 @@
 package org.jetbrains.plugins.scala.dfa
 package cfg
 
-trait Builder[Info, V, P] {
+import org.jetbrains.plugins.scala.dfa.cfg.Builder.{Property, Variable}
+
+trait Builder[Info] {
   type Value
   type UnlinkedJump
   type LoopLabel
 
   def constant(const: DfAny): Value
 
-  def readVariable(variable: V): Unit
-  def writeVariable(variable: V, value: Value): Unit
+  def readVariable(variable: Variable): Unit
+  def writeVariable(variable: Variable, value: Value): Unit
 
-  def readProperty(base: Value, property: P): Value
-  def writeProperty(base: Value, property: P, value: Value): Unit
+  def readProperty(base: Value, property: Property): Value
+  def writeProperty(base: Value, property: Property, value: Value): Unit
 
   def jumpToFuture(): UnlinkedJump
   def jumpToFutureIfNot(cond: Value): UnlinkedJump
@@ -28,6 +30,9 @@ trait Builder[Info, V, P] {
 }
 
 object Builder {
-  def newBuilder[Info, V, P](): Builder[Info, V, P] =
+  case class Variable(anchor: Any)
+  case class Property(anchor: Any)
+
+  def newBuilder[Info](): Builder[Info] =
     new impl.BuilderImpl
 }

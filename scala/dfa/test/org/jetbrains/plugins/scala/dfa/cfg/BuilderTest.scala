@@ -5,7 +5,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
 class BuilderTest extends AnyFunSuite with Matchers with BuilderMatchers {
-  def newBuilder: Builder[Unit, String, String] = Builder.newBuilder()
+  def newBuilder: Builder[Unit] = Builder.newBuilder()
 
   test("single const") {
     val builder = newBuilder
