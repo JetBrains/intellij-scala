@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 object ContextApplied {
   trait SyntheticElementsOwner extends ScalaPsiElement {
-    def syntheticContextAppliedDefs: Seq[ScalaPsiElement]
+    def syntheticContextAppliedDefs: collection.Seq[ScalaPsiElement]
 
     override def processDeclarations(
       processor:  PsiScopeProcessor,

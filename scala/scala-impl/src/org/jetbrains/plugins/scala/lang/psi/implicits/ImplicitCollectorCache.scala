@@ -13,8 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.util.HashBuilder.toHashBuilder
 
-import scala.collection.Seq
-
 /**
   * @author Nikolay.Tropin
   */

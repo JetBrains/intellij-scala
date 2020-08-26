@@ -10,7 +10,7 @@ import com.intellij.ui.{ChooserInterceptor, UiInterceptors}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.assertions.ExceptionAssertions
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 abstract class ChangeAccessModifierIntentionTestBase extends intentions.ScalaIntentionTestBase with ExceptionAssertions {
 

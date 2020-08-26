@@ -6,7 +6,7 @@ import org.jetbrains.uast.java.internal.JavaUElementWithComments
 import org.jetbrains.uast.{UComment, UElement, UExpression}
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * Default implementation of the [[UElement]]#getComments

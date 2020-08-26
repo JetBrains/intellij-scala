@@ -16,12 +16,12 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 // TODO Implement selectively, not by ScExpression
 trait ImplicitArgumentsOwner extends ScalaPsiElement {
 
-  private[psi] final def setImplicitArguments(results: Option[Seq[ScalaResolveResult]]): Unit = {
+  private[psi] final def setImplicitArguments(results: Option[collection.Seq[ScalaResolveResult]]): Unit = {
     putUserData(IMPLICIT_ARGS_KEY, results.orNull)
   }
 
   //todo: get rid of side-effect-driven logic
-  def findImplicitArguments: Option[Seq[ScalaResolveResult]] = {
+  def findImplicitArguments: Option[collection.Seq[ScalaResolveResult]] = {
     ProgressManager.checkCanceled()
 
     updateImplicitArguments()
@@ -32,7 +32,7 @@ trait ImplicitArgumentsOwner extends ScalaPsiElement {
   //calculation which may set implicit arguments as a side effect, typically computation of a type
   protected def updateImplicitArguments(): Unit
 
-  def matchedParameters: Seq[(ScExpression, Parameter)] = Seq.empty
+  def matchedParameters: collection.Seq[(ScExpression, Parameter)] = Seq.empty
 
   def explicitImplicitArgList: Option[ScArgumentExprList] = {
     val implicitArg = matchedParameters.collectFirst {
@@ -46,7 +46,7 @@ trait ImplicitArgumentsOwner extends ScalaPsiElement {
 }
 
 object ImplicitArgumentsOwner {
-  private val IMPLICIT_ARGS_KEY = Key.create[Seq[ScalaResolveResult]]("scala.implicit.arguments")
+  private val IMPLICIT_ARGS_KEY: Key[collection.Seq[ScalaResolveResult]] = Key.create[collection.Seq[ScalaResolveResult]]("scala.implicit.arguments")
 
-  def unapply(e: ImplicitArgumentsOwner): Option[Seq[ScalaResolveResult]] = e.findImplicitArguments
+  def unapply(e: ImplicitArgumentsOwner): Option[collection.Seq[ScalaResolveResult]] = e.findImplicitArguments
 }

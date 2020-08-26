@@ -8,7 +8,7 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-import scala.collection.JavaConverters
+import scala.jdk.CollectionConverters._
 
 class ChainedPackageInspection extends LocalInspectionTool {
 
@@ -61,7 +61,6 @@ object ChainedPackageInspection {
 
   private def findBasePackageByName(packageName: String)
                                    (implicit project: Project) = {
-    import JavaConverters._
     val packages = ScalaProjectSettings.getInstance(project).getBasePackages.asScala
     packages.find { basePackage =>
       basePackage != packageName && packageName.startsWith(basePackage)

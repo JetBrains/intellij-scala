@@ -26,7 +26,7 @@ object FormattedStringParser extends StringParser {
       .map(p => parseFormatCall(p._1, p._2))
   }
 
-  def extractFormatCall(element: PsiElement): Option[(ScLiteral, Seq[ScExpression])] = Some(element) collect {
+  def extractFormatCall(element: PsiElement): Option[(ScLiteral, collection.Seq[ScExpression])] = Some(element) collect {
     // "%d".format(1)
     case ScMethodCall(ScReferenceExpression.withQualifier(literal: ScLiteral) &&
             PsiReferenceEx.resolve((f: ScFunction) && ContainingClass(owner: ScTrait)), args)
@@ -72,7 +72,7 @@ object FormattedStringParser extends StringParser {
     holder == "java.lang.String" && method == "format"
 
   private[format]
-  def parseFormatCall(literal: ScLiteral, arguments: Seq[ScExpression]): Seq[StringPart] = {
+  def parseFormatCall(literal: ScLiteral, arguments: collection.Seq[ScExpression]): Seq[StringPart] = {
     val remainingArguments = arguments.toIterator
     val shift = if (literal.isMultiLineString) 3 else 1
     val formatString = literal.getText.drop(shift).dropRight(shift)

@@ -8,5 +8,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 trait ScTypedDeclaration extends ScDeclaration with Typeable {
-  override def declaredElements: Seq[ScTypedDefinition]
+  override def declaredElements: collection.Seq[ScTypedDefinition]
 }

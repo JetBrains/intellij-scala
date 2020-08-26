@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.expressions.ScUImplicitBlockExp
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.uast.{UAnchorOwner, UExpression, UIdentifier, UMethod, UMethodAdapter, UParameter}
 
-import scala.collection.JavaConverters.seqAsJavaList
+import scala.jdk.CollectionConverters._
 
 /**
   * [[ScMethodLike]] adapter for the [[UMethod]]
@@ -50,7 +50,7 @@ final class ScUMethod(override protected val scElement: ScMethodLike,
   }
 
   override def getUastParameters: util.List[UParameter] =
-    seqAsJavaList(scElement.parameters.flatMap(_.convertTo[UParameter](this)))
+    scElement.parameters.flatMap(_.convertTo[UParameter](this)).asJava
 
   @Nullable
   override def getBody: PsiCodeBlock = scElement.getBody

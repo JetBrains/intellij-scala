@@ -33,7 +33,7 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
         result.append((warningTest, scalaVersion, jdkVersion))
     }
 
-    result.map(t => (t._1.asInstanceOf[TestCase], t._2, t._3))
+    result.map(t => (t._1.asInstanceOf[TestCase], t._2, t._3)).toSeq
   }
 
   private def isScalaVersionSupported(test: ScalaSdkOwner, method: Method, scalaVersion: TestScalaVersion): Boolean = {

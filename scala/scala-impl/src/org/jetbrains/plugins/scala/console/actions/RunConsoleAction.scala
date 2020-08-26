@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project.ProjectExt
 
-import scala.collection.JavaConverters.collectionAsScalaIterableConverter
+import scala.jdk.CollectionConverters._
 
 class RunConsoleAction extends AnAction(
   ScalaBundle.message("scalarepl.menu.action.text"),

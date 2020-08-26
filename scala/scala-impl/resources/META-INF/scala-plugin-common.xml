@@ -77,7 +77,7 @@
         <exceptionFilter implementation="org.jetbrains.plugins.scala.testingSupport.util.scalatest.ScalaTestFailureLocationFilterFactory"/>
         <exceptionFilter implementation="org.jetbrains.plugins.scala.stacktrace.ScalaPackageObjectFilterFactory" order="first"/>
         <consoleFilterProvider implementation="org.jetbrains.plugins.scala.stacktrace.ScalaPackageObjectConsoleFilterProvider" order="first"/>
-        <compileServer.plugin classpath="scala-library.jar;compiler-shared.jar;jps/nailgun.jar;jps/compiler-jps.jar;jps/sbt-interface.jar;jps/incremental-compiler.jar;spray-json_2.12-1.3.4.jar;scala-compiler-indices-protocol_2.12-0.1.1.jar"/>
+        <compileServer.plugin classpath="scala-library.jar;compiler-shared.jar;jps/nailgun.jar;jps/compiler-jps.jar;jps/sbt-interface.jar;jps/incremental-compiler.jar;jps/scala-parallel-collections.jar;spray-json_2.13-1.3.5.jar;scala-compiler-indices-protocol_2.12-0.1.1.jar"/>
         <buildProcess.parametersProvider implementation="org.jetbrains.plugins.scala.compiler.ScalaBuildProcessParametersProvider"/>
         <buildProcess.parametersProvider implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.CompilerIndicesBuildProcessParametersProvider"/>
         <projectTemplatesFactory implementation="org.jetbrains.plugins.scala.project.template.ScalaProjectTemplatesFactory"/>

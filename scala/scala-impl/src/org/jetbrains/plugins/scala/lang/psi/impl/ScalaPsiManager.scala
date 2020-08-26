@@ -46,7 +46,7 @@ import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.annotation.tailrec
-import scala.collection.{Seq, mutable}
+import scala.collection.mutable
 
 class ScalaPsiManager(implicit val project: Project) {
 
@@ -168,7 +168,7 @@ class ScalaPsiManager(implicit val project: Project) {
       .elementsByHash(fqn, scope)
       .filter(_.qualifiedNameOpt.contains(fqn))
 
-  def getClassesByName(name: String, scope: GlobalSearchScope): Seq[PsiClass] = {
+  def getClassesByName(name: String, scope: GlobalSearchScope): collection.Seq[PsiClass] = {
     val scalaClasses = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(name, scope)
     val buffer: mutable.Buffer[PsiClass] = PsiShortNamesCache.getInstance(project).getClassesByName(name, scope).filterNot(p =>
       p.isInstanceOf[ScTemplateDefinition] || p.isInstanceOf[PsiClassWrapper]
@@ -348,7 +348,7 @@ class ScalaPsiManager(implicit val project: Project) {
     else andType(types)
   }
 
-  private def andType(psiTypes: Seq[PsiType]): ScType = {
+  private def andType(psiTypes: collection.Seq[PsiType]): ScType = {
     new ProjectContext(project).typeSystem.andType(psiTypes.map(_.toScType()))
   }
 
@@ -445,11 +445,11 @@ object ScalaPsiManager {
     ctx.getService(classOf[ScalaPsiManagerHolder]).get
 
   private def registerLowMemoryWatcher(project: Project): Unit = {
-    LowMemoryWatcher.register(() => {
+    LowMemoryWatcher.register((() => {
       LOG.debug("Clear caches on low memory")
       val manager = ScalaPsiManager.instance(project)
       manager.clearOnLowMemory()
-    }, project.unloadAwareDisposable)
+    }): Runnable, project.unloadAwareDisposable)
   }
 
   implicit val ImplicitCollectorCacheCapabilities: CacheCapabilities[ImplicitCollectorCache] =

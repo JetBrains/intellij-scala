@@ -9,14 +9,14 @@ class TreeConverterDeclTest extends TreeConverterTestBaseNoLibrary {
   def testVal(): Unit = {
     doTest(
       "val x,y: Int",
-      Decl.Val(Nil, List(Pat.Var.Term(Term.Name("x")), Pat.Var.Term(Term.Name("y"))), Type.Name("Int"))
+      Decl.Val(Nil, List(Pat.Var(Term.Name("x")), Pat.Var(Term.Name("y"))), Type.Name("Int"))
     )
   }
 
   def testVar(): Unit = {
     doTest(
       "var x: Int",
-      Decl.Var(Nil, List(Pat.Var.Term(Term.Name("x"))), Type.Name("Int"))
+      Decl.Var(Nil, List(Pat.Var(Term.Name("x"))), Type.Name("Int"))
     )
   }
 
@@ -24,14 +24,14 @@ class TreeConverterDeclTest extends TreeConverterTestBaseNoLibrary {
   def testMultiVal(): Unit = {
     doTest(
       "val x, y: Int",
-      Decl.Val(Nil, List(Pat.Var.Term(Term.Name("x")), Pat.Var.Term(Term.Name("y"))), Type.Name("Int"))
+      Decl.Val(Nil, List(Pat.Var(Term.Name("x")), Pat.Var(Term.Name("y"))), Type.Name("Int"))
     )
   }
 
   def testMultiVar(): Unit = {
     doTest(
       "var x, y: Int",
-      Decl.Var(Nil, List(Pat.Var.Term(Term.Name("x")), Pat.Var.Term(Term.Name("y"))), Type.Name("Int"))
+      Decl.Var(Nil, List(Pat.Var(Term.Name("x")), Pat.Var(Term.Name("y"))), Type.Name("Int"))
     )
   }
 
@@ -154,7 +154,7 @@ class TreeConverterDeclTest extends TreeConverterTestBaseNoLibrary {
   def testDefVararg(): Unit = {
     doTest(
       "def f (a: Int*)",
-      Decl.Def(Nil, Term.Name("f"), Nil, List(List(Term.Param(Nil, Term.Name("a"), Some(Type.Arg.Repeated(Type.Name("Int"))), None))), Type.Name("Unit"))
+      Decl.Def(Nil, Term.Name("f"), Nil, List(List(Term.Param(Nil, Term.Name("a"), Some(Type.Repeated(Type.Name("Int"))), None))), Type.Name("Unit"))
     )
   }
 
@@ -179,8 +179,7 @@ class TreeConverterDeclTest extends TreeConverterTestBaseNoLibrary {
   def testLocalDeclarations(): Unit = {
     doTest(
       "def f = { val x = 42 }",
-      Defn.Def(Nil, Term.Name("f"), Nil, Nil, None, Term.Block(List(Defn.Val(Nil, List(Pat.Var.Term(Term.Name("x"))), None, Lit.Int(42)))))
+      Defn.Def(Nil, Term.Name("f"), Nil, Nil, None, Term.Block(List(Defn.Val(Nil, List(Pat.Var(Term.Name("x"))), None, Lit.Int(42)))))
     )
   }
-  
 }

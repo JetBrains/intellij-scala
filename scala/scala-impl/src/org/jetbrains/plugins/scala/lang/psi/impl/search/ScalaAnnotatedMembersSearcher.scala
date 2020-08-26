@@ -50,7 +50,7 @@ class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedEl
         anchor.name,
         anchor.`type`().getOrAny,
         containingTypeDef,
-        javaModifiers: _*
+        javaModifiers.toSeq: _*
       )
     }
 

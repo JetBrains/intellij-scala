@@ -172,7 +172,7 @@ object ScalaClassNameCompletionContributor {
     implicit val state: CompletionState = CompletionState(position, invocationCount, isInSimpleString)(context)
     val maybeConstructor = expectedTypeAfterNew(dummyPosition, context)
 
-    import collection.JavaConverters._
+    import scala.jdk.CollectionConverters._
 
     val QualNameToType = StdTypes.instance.QualNameToType
     val syntheticLookupElements = for {

@@ -17,7 +17,7 @@ import org.jetbrains.bsp.protocol.{BspCommunication, BspJob}
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, BuildToolWindowReporter}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.Promise
 import scala.util.{Failure, Success, Try}
 
@@ -44,6 +44,7 @@ class FetchScalaTestClassesTask(project: Project,
         targets.map(t => (workspacePath, new BuildTargetIdentifier(t.toString)))
       }
       .groupBy(_._1)
+      .view
       .mapValues(_.map(_._2))
       .mapValues { targets =>
         val p = new ScalaTestClassesParams(targets.asJava)

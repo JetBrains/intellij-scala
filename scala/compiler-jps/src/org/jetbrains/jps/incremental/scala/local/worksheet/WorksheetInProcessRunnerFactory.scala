@@ -20,7 +20,7 @@ class WorksheetInProcessRunnerFactory {
     loader
   }
 
-  private def getClassLoader(compilerUrls: Seq[URL], classpathUrls: Seq[URL]) = {
+  private def getClassLoader(compilerUrls: collection.Seq[URL], classpathUrls: collection.Seq[URL]) = {
     val compilerSet = compilerUrls.toSet
     val classpathSet = classpathUrls.toSet
 

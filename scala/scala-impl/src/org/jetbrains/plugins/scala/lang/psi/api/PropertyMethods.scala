@@ -17,8 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.isBacktickedName.withoutBackticks
 
-import scala.collection.Seq
-
 object PropertyMethods extends Enumeration {
   type DefinitionRole = Value
 

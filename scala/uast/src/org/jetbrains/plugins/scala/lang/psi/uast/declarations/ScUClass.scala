@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.uast._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ArrayBuffer
 
 trait ScUClassCommon extends UClass with ScUAnnotated {
@@ -22,9 +22,7 @@ trait ScUClassCommon extends UClass with ScUAnnotated {
   protected val scTemplate: ScTemplateDefinition
 
   override def getUastDeclarations: ju.List[UDeclaration] =
-    seqAsJavaList(
-      Seq.concat(getUFields, getUInitializers, getUMethods, getUInnerClasses)
-    )
+    Seq.concat[UDeclaration](getUFields, getUInitializers, getUMethods, getUInnerClasses).asJava
 
   override def getUastSuperTypes: ju.List[UTypeReferenceExpression] =
     scTemplate.extendsBlock.templateParents

@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestUtil
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestFramework, TestConfigurationUtil}
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class ScalaTestGenerator extends TestGenerator {
 

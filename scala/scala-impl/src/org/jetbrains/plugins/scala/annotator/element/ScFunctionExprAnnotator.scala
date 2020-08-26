@@ -48,8 +48,9 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
     case _ => None
   }
 
-  private def missingParametersIn(literal: ScFunctionExpr, parameters: Seq[ScParameter], expectedTypes: Seq[ScType])(implicit holder: ScalaAnnotationHolder): Boolean = {
-    val missing = parameters.length < expectedTypes.length
+  private def missingParametersIn(literal: ScFunctionExpr, parameters: Iterable[ScParameter], expectedTypes: Iterable[ScType])
+                                 (implicit holder: ScalaAnnotationHolder): Boolean = {
+    val missing = parameters.size < expectedTypes.size
     if (missing) {
       val startElement = if (parameters.isEmpty) literal.leftParen.getOrElse(literal.params) else parameters.last
 
@@ -57,22 +58,23 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
         .map(nextElement => new TextRange(startElement.getTextRange.getEndOffset - 1, nextElement.getTextOffset + 1))
         .getOrElse(startElement.getTextRange)
 
-      val message = (if (expectedTypes.length - parameters.length == 1) "Missing parameter: " else "Missing parameters: ") +
-        expectedTypes.drop(parameters.length).map(_.presentableText(literal)).mkString(", ")
+      val message = (if (expectedTypes.size - parameters.size == 1) "Missing parameter: " else "Missing parameters: ") +
+        expectedTypes.drop(parameters.size).map(_.presentableText(literal)).mkString(", ")
 
       holder.createErrorAnnotation(errorRange, message)
     }
     missing
   }
 
-  private def tooManyParametersIn(literal: ScFunctionExpr, parameters: Seq[ScParameter], expectedTypes: Seq[ScType])(implicit holder: ScalaAnnotationHolder): Boolean = {
-    val tooMany = parameters.length > expectedTypes.length
+  private def tooManyParametersIn(literal: ScFunctionExpr, parameters: collection.Seq[ScParameter], expectedTypes: Iterable[ScType])
+                                 (implicit holder: ScalaAnnotationHolder): Boolean = {
+    val tooMany = parameters.size > expectedTypes.size
     if (tooMany) {
       val message = ScalaBundle.message("annotator.error.too.many.parameters")
       if (!literal.hasParentheses) {
         holder.createErrorAnnotation(parameters.head, message)
       } else {
-        val firstExcessiveParameter = parameters(expectedTypes.length)
+        val firstExcessiveParameter = parameters(expectedTypes.size)
 
         val range = new TextRange(
           firstExcessiveParameter.prevElementNotWhitespace.getOrElse(literal.params).getTextRange.getEndOffset - 1,
@@ -84,7 +86,7 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
     tooMany
   }
 
-  private def parameterTypeMismatchIn(parameters: Seq[ScParameter], expectedTypes: Seq[ScType])(implicit holder: ScalaAnnotationHolder): Boolean = {
+  private def parameterTypeMismatchIn(parameters: Iterable[ScParameter], expectedTypes: Iterable[ScType])(implicit holder: ScalaAnnotationHolder): Boolean = {
     var typeMismatch = false
     parameters.zip(expectedTypes).iterator.takeWhile(_ => !typeMismatch).foreach { case (parameter, expectedType) =>
       parameter.typeElement.flatMap(_.`type`().toOption).filter(!expectedType.conforms(_)).foreach { _ =>
@@ -97,7 +99,8 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
     typeMismatch
   }
 
-  private def missingParameterTypeIn(parameters: Seq[ScParameter])(implicit holder: ScalaAnnotationHolder): Boolean = {
+  private def missingParameterTypeIn(parameters: collection.Seq[ScParameter])
+                                    (implicit holder: ScalaAnnotationHolder): Boolean = {
     var missing = false
     parameters.iterator.takeWhile(_ => !missing).foreach { parameter =>
       if (parameter.typeElement.isEmpty && parameter.expectedParamType.isEmpty) {

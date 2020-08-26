@@ -8,7 +8,7 @@ import org.jetbrains.jps.incremental.{CompileContext, ModuleBuildTarget}
 import org.jetbrains.jps.incremental.scala.SettingsManager
 import org.jetbrains.jps.incremental.scala.data.CompilerDataFactory
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * Cache and check scala, java, etc., options for changes across build runs

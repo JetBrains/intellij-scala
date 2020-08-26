@@ -6,4 +6,4 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 case class ImplicitConversionApplication(resultType: ScType,
                                          substitutor: ScSubstitutor = ScSubstitutor.empty,
-                                         implicitParameters: Seq[ScalaResolveResult] = Seq.empty)
+                                         implicitParameters: collection.Seq[ScalaResolveResult] = Seq.empty)

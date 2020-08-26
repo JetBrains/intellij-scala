@@ -5,7 +5,7 @@ import com.intellij.psi.stubs.StubElement
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.TraversableExt
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 
 abstract class ScalaStubTestBase extends SimpleTestCase {

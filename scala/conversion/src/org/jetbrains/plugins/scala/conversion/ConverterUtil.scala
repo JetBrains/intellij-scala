@@ -29,7 +29,7 @@ import scala.collection.mutable
   * on 12/8/15
   */
 object ConverterUtil {
-  def getTopElements(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int]): (Seq[Part], mutable.HashSet[PsiElement]) = {
+  def getTopElements(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int]): (collection.Seq[Part], mutable.HashSet[PsiElement]) = {
 
     def buildTextPart(offset1: Int, offset2: Int, dropElements: mutable.HashSet[PsiElement]): TextPart = {
       val possibleComment = file.findElementAt(offset1)

@@ -22,8 +22,6 @@ import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolv
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.PolymorphicLambda
 
-import scala.collection.Seq
-
 
 /**
   * @author Alexander Podkhalyuzin
@@ -42,7 +40,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
     val isUpdate = curr.getContext.isInstanceOf[ScAssignment] &&
       curr.getContext.asInstanceOf[ScAssignment].leftExpression == curr
     val methodName = if (isUpdate) "update" else "apply"
-    val args: List[Seq[ScExpression]] =
+    val args: List[collection.Seq[ScExpression]] =
       if (curr == this && !isUpdate) List.empty
       else {
         (curr match {

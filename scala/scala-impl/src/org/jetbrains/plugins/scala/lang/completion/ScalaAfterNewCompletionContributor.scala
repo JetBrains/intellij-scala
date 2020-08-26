@@ -22,7 +22,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 
-import scala.collection.{JavaConverters, mutable}
+import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 final class ScalaAfterNewCompletionContributor extends ScalaCompletionContributor {
 
@@ -209,7 +210,6 @@ object ScalaAfterNewCompletionContributor {
       case useScope => useScope
     }
 
-    import JavaConverters._
     ClassInheritorsSearch.search(clazz, searchScope, true).asScala
   }
 

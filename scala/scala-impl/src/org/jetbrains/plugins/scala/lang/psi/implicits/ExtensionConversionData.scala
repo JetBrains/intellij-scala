@@ -12,8 +12,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, Method
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult, ScalaResolveState}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.collection.{Seq, Set}
-
 /**
   * @author Nikolay.Tropin
   */
@@ -29,7 +27,7 @@ case class ExtensionConversionData(place: ScExpression,
     place.getTypeWithoutImplicits().exists {
       _.isInstanceOf[ValType]
     }
-  val kinds: Set[ResolveTargets.Value] = processor.kinds
+  val kinds: collection.Set[ResolveTargets.Value] = processor.kinds
 }
 
 object ExtensionConversionHelper {
@@ -71,7 +69,7 @@ object ExtensionConversionHelper {
 
         findInType(tp, data, typeParams).map { tp =>
           typeParams match {
-            case Seq() => candidate
+            case collection.Seq() => candidate
             case _     => update(candidate, tp)
           }
         }
@@ -96,7 +94,7 @@ object ExtensionConversionHelper {
     }
   }
 
-  private def findInType(tp: ScType, data: ExtensionConversionData, typeParams: Seq[TypeParameter]): Option[ScalaResolveResult] = {
+  private def findInType(tp: ScType, data: ExtensionConversionData, typeParams: collection.Seq[TypeParameter]): Option[ScalaResolveResult] = {
     import data._
 
     Option(processor).collect {

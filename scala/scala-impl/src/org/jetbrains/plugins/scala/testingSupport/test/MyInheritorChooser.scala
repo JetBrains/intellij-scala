@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.testingSupport.test.testdata._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 private class MyInheritorChooser(
   config: AbstractTestRunConfiguration,

@@ -10,7 +10,7 @@ import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.SbtViewContributor._
 import org.jetbrains.sbt.project.data.{SbtCommandData, SbtSettingData, SbtTaskData}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * Created by jast on 2017-02-07.

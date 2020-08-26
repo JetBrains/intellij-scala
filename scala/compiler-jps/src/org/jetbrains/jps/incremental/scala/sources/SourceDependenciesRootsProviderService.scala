@@ -11,7 +11,7 @@ import org.jetbrains.jps.incremental.scala.SourceDependenciesProviderService
 import org.jetbrains.jps.model.java.{JavaSourceRootProperties, JavaSourceRootType}
 import org.jetbrains.jps.model.module.JpsModuleSourceRoot
 
-import scala.collection.JavaConverters.{iterableAsScalaIterableConverter, seqAsJavaListConverter}
+import scala.jdk.CollectionConverters._
 
 class SourceDependenciesRootsProviderService
   extends AdditionalRootsProviderService[JavaSourceRootDescriptor](JavaModuleBuildTargetType.ALL_TYPES) {

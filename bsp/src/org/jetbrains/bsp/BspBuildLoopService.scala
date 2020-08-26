@@ -96,13 +96,12 @@ final class BspBuildLoopService(project: Project) {
           modulesToCompile.clear()
         }
 
-      ApplicationManager.getApplication.invokeLater(
-        () => taskManager
+      val runnable: Runnable = { () =>
+        taskManager
           .build(modulesToCompile.toArray: _*)
-          .onSuccess(clearOnSuccess(_)) : Unit
-        ,
-        ModalityState.NON_MODAL
-      )
+          .onSuccess(clearOnSuccess(_)): Unit
+      }
+      ApplicationManager.getApplication.invokeLater(runnable, ModalityState.NON_MODAL)
     }
 
     // TODO should allow all bsp-compiled types, depending on build server compatibility

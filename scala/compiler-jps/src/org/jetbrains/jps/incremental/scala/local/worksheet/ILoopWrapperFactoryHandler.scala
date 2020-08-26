@@ -158,7 +158,7 @@ object ILoopWrapperFactoryHandler {
   private def createIsolatingClassLoader(compilerJars: CompilerJars): URLClassLoader = {
     val jars = compilerJars.allJars
     val parent = IsolatingClassLoader.scalaStdLibIsolatingLoader(this.getClass.getClassLoader)
-    new URLClassLoader(Path.toURLs(jars), parent)
+    new URLClassLoader(Path.toURLs(jars.toSeq), parent)
   }
 
   // use for debugging
@@ -177,6 +177,6 @@ object ILoopWrapperFactoryHandler {
 
   case class ReplContext(sbtData: SbtData,
                          compilerJars: CompilerJars,
-                         classpath: Seq[File],
-                         scalacOptions: Seq[String])
+                         classpath: collection.Seq[File],
+                         scalacOptions: collection.Seq[String])
 }

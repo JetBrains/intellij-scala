@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.compilerReferences.Messages._
 import org.jetbrains.plugins.scala.indices.protocol.CompiledClass
 import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCategory.CLASS_POST_PROCESSOR) {
 

@@ -12,7 +12,7 @@ sealed abstract class ParameterlessOverrideInspection extends AbstractMethodSign
   override protected def isApplicable(function: ScFunction): Boolean =
     function.isParameterless && superMethodsAreValid(function.superMethods)
 
-  protected def superMethodsAreValid(methods: Seq[PsiMethod]): Boolean
+  protected def superMethodsAreValid(methods: Iterable[PsiMethod]): Boolean
 
   override protected def createQuickFix(function: ScFunction): Option[LocalQuickFix] =
     Some(new quickfix.AddEmptyParentheses(function))
@@ -24,7 +24,7 @@ object ParameterlessOverrideInspection {
 
   final class EmptyParenMethod extends ParameterlessOverrideInspection {
 
-    override protected def superMethodsAreValid(methods: Seq[PsiMethod]): Boolean =
+    override protected def superMethodsAreValid(methods: Iterable[PsiMethod]): Boolean =
       methods.headOption.exists {
         case function: ScFunction if !function.isInCompiledFile => function.isEmptyParen
         case _ => false
@@ -33,7 +33,7 @@ object ParameterlessOverrideInspection {
 
   final class JavaMutator extends ParameterlessOverrideInspection {
 
-    override protected def superMethodsAreValid(methods: Seq[PsiMethod]): Boolean =
+    override protected def superMethodsAreValid(methods: Iterable[PsiMethod]): Boolean =
       methods.headOption.exists(isMutator)
   }
 
@@ -45,7 +45,7 @@ object ParameterlessOverrideInspection {
         hasMutatorLikeName(function) &&
         !isUnderscoreFunction(function)
 
-    override protected def superMethodsAreValid(methods: Seq[PsiMethod]): Boolean = methods.isEmpty
+    override protected def superMethodsAreValid(methods: Iterable[PsiMethod]): Boolean = methods.isEmpty
 
     private def isUnderscoreFunction(function: ScFunction): Boolean = function match {
       case ScFunctionDefinition.withBody(body) => ScUnderScoreSectionUtil.isUnderscoreFunction(body)

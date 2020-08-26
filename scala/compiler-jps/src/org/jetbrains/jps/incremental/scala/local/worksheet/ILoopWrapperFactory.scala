@@ -12,7 +12,7 @@ import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactory._
 import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactoryHandler.{ReplContext, ReplWrapperCompiled}
 import org.jetbrains.plugins.scala.compiler.data.worksheet.{ReplMessages, WorksheetArgs}
 
-import scala.collection.JavaConverters.{collectionAsScalaIterableConverter, seqAsJavaListConverter}
+import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 class ILoopWrapperFactory {

@@ -19,12 +19,13 @@ private object UnzipSingleElementInspection {
     override def hint: String = ScalaInspectionBundle.message("replace.with.map")
 
     override def getSimplification(e: ScExpression): Option[Simplification] = Some(e).collect {
-      case q `.unzip` () `._1` () => (q, 1)
-      case q `.unzip` () `._2` () => (q, 2)
-      case q `.unzip3` () `._1` () => (q, 1)
-      case q `.unzip3` () `._2` () => (q, 2)
-      case q `.unzip3` () `._3` () => (q, 3)
-    } map { case (q, index) =>
+      // TODO infix notation?
+      case `._1`(`.unzip`(q)) => (q, 1)
+      case `._2`(`.unzip`(q)) => (q, 2)
+      case `._1`(`.unzip3`(q) ) => (q, 1)
+      case `._2`(`.unzip3`(q)) => (q, 2)
+      case `._3`(`.unzip3`(q)) => (q, 3)
+    }.map { case (q, index) =>
       val args = createExpressionFromText(s"_._$index")(q.getContext)
       val text = invocationText(q, "map", args)
       replace(e).withText(text).highlightFrom(q)

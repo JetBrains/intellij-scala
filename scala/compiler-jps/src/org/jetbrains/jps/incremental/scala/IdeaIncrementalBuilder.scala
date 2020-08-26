@@ -11,7 +11,7 @@ import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, Pr
 import org.jetbrains.jps.incremental.{BuilderCategory, CompileContext, FSOperations, ModuleBuildTarget, ModuleLevelBuilder}
 import org.jetbrains.plugins.scala.compiler.{CompileOrder, IncrementalityType}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 /**
@@ -117,7 +117,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
   private def collectSources(context: CompileContext,
                              chunk: ModuleChunk,
-                             dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]): Seq[File] = {
+                             dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]): collection.Seq[File] = {
 
     val result = mutable.ListBuffer.empty[File]
 

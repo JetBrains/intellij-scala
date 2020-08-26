@@ -65,14 +65,14 @@ package object generation {
     case _ => false
   }
 
-  def fields(definition: ScTypeDefinition): Seq[ScNamedElement] =
+  def fields(definition: ScTypeDefinition): collection.Seq[ScNamedElement] =
     members(definition).flatMap {
       case classParam: ScClassParameter if classParam.isVal || classParam.isVar => Seq(classParam)
       case property: ScValueOrVariable => property.declaredElements
       case _ => Seq.empty
     }
 
-  def parameterlessMethods(definition: ScTypeDefinition): Seq[ScNamedElement] =
+  def parameterlessMethods(definition: ScTypeDefinition): collection.Seq[ScNamedElement] =
     members(definition).flatMap {
       case method: ScFunction if method.parameters.isEmpty => method.declaredElements
       case _ => Seq.empty
@@ -84,7 +84,7 @@ package object generation {
     Option(PsiTreeUtil.getParentOfType(element, types: _*))
   }
 
-  private def members(definition: ScTypeDefinition): Seq[ScMember] = {
+  private def members(definition: ScTypeDefinition): collection.Seq[ScMember] = {
     val constructorParameters = definition match {
       case scClass: ScClass => scClass.constructor.toSeq.flatMap(_.parameters)
       case _ => Seq.empty

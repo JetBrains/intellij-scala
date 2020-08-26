@@ -17,7 +17,7 @@ private class ScalaModuleSettings(module: Module, val scalaSdk: LibraryEx) {
 
   val scalaLanguageLevel: ScalaLanguageLevel = scalaSdk.properties.languageLevel
 
-  val settingsForHighlighting: Seq[ScalaCompilerSettings] =
+  val settingsForHighlighting: collection.Seq[ScalaCompilerSettings] =
     ScalaCompilerConfiguration.instanceIn(module.getProject).settingsForHighlighting(module)
 
   val compilerPlugins: Set[String] = settingsForHighlighting.flatMap(_.plugins).toSet

@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.lang.psi.uast.kinds.ScalaSpecialExpressionKinds
 import org.jetbrains.uast._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * [[ScMatch]] adapter for the [[USwitchExpression]]

@@ -12,7 +12,7 @@ package object api {
     def depth: Int = typeParameters.toSeq.depth
   }
 
-  implicit class TypeParametersSeqExt(private val typeParameters: Seq[TypeParameter]) extends AnyVal {
+  implicit class TypeParametersSeqExt(private val typeParameters: collection.Seq[TypeParameter]) extends AnyVal {
     def depth: Int = {
       def depth(tp: TypeParameter): Int = Seq(tp.lowerType.typeDepth, tp.upperType.typeDepth, tp.typeParameters.depth).max
 

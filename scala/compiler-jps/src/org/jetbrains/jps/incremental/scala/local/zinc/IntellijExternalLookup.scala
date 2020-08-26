@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.compiler.data.CompilationData
 import sbt.internal.inc._
 import xsbti.compile._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 case class IntellijExternalLookup(compilationData: CompilationData, client: Client, isCached: Boolean)
   extends ExternalLookup {

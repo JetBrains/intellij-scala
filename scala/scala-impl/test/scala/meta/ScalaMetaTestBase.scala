@@ -15,6 +15,6 @@ trait ScalaMetaTestBase extends ScalaSdkOwner { this: Test =>
 
   override def librariesLoaders: Seq[LibraryLoader] = Seq(
     ScalaSDKLoader(includeScalaReflect = true),
-    IvyManagedLoader("org.scalameta" %% "scalameta" % META_MINOR_VERSION transitive() exclude "com.google.protobuf:protobuf-java")
+    IvyManagedLoader(("org.scalameta" %% "scalameta" % META_MINOR_VERSION).transitive().exclude("com.google.protobuf:protobuf-java"))
   )
 }

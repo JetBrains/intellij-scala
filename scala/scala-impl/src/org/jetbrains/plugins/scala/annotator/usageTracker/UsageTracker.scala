@@ -18,7 +18,7 @@ import scala.collection.mutable.ArrayBuffer
   */
 object UsageTracker {
 
-  def registerUsedElementsAndImports(element: PsiElement, results: Seq[ScalaResolveResult], checkWrite: Boolean): Unit = {
+  def registerUsedElementsAndImports(element: PsiElement, results: Iterable[ScalaResolveResult], checkWrite: Boolean): Unit = {
     for (resolveResult <- results if resolveResult != null) {
       registerUsedImports(element, resolveResult)
       registerUsedElement(element, resolveResult, checkWrite)
@@ -40,7 +40,7 @@ object UsageTracker {
     registerUsedImports(element, resolveResult.importsUsed)
   }
 
-  def getUnusedImports(file: ScalaFile): Seq[ImportUsed] = {
+  def getUnusedImports(file: ScalaFile): collection.Seq[ImportUsed] = {
     val redundant = ArrayBuffer.empty[ImportUsed]
     val imports = file.getAllImportUsed
     val refHolder = ScalaRefCountHolder.getInstance(file)

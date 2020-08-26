@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.imports.unused
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * Created by Svyatoslav Ilinskiy on 24.07.16.

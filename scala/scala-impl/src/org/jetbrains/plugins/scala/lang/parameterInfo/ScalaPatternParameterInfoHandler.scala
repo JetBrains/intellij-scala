@@ -150,7 +150,7 @@ class ScalaPatternParameterInfoHandler extends ScalaParameterInfoHandler[ScPatte
           // Look for a corresponding apply method beside the unapply method.
           // TODO also check types correspond, allowing for overloading
           val applyParam: Option[PsiParameter] = ScalaPsiUtil.getApplyMethods(fun.containingClass) match {
-            case Seq(sig) => sig.method.parameters.lift(o)
+            case collection.Seq(sig) => sig.method.parameters.lift(o)
             case _ => None
           }
           applyParam match {

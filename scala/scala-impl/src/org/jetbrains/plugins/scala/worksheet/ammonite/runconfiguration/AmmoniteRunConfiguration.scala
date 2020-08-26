@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteR
 class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) extends
   RunConfigurationBase[Element](project, factory, AmmoniteRunConfiguration.AMMONITE_RUN_NAME) {
 
-  def this(project: Project, factory: ConfigurationFactory, name: String) {
+  def this(project: Project, factory: ConfigurationFactory, name: String) = {
     this(project, factory)
     setFilePath(name)
   }

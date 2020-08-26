@@ -58,7 +58,7 @@ trait Markers {
       addRange(startMarker, endMarker)
     for (i <- 0 until index) addRange(startMarker(i), endMarker(i))
 
-    input -> textRanges
+    input -> textRanges.toSeq
   }
 
   private def sortMarkers(sorted: List[(String, Int)], offset: Int = 0): List[(String, Int)] = {

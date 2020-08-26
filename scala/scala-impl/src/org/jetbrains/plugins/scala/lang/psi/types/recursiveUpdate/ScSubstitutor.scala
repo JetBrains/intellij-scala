@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 
 import scala.annotation.tailrec
-import scala.collection.Seq
 import scala.collection.immutable.LongMap
 import scala.util.hashing.MurmurHash3
 
@@ -125,7 +124,7 @@ final class ScSubstitutor private(_substitutions: Array[Update],   //Array is us
     ScSubstitutor(tp).followed(this)
   }
 
-  def withBindings(from: Seq[TypeParameter], target: Seq[TypeParameter]): ScSubstitutor = {
+  def withBindings(from: Iterable[TypeParameter], target: Iterable[TypeParameter]): ScSubstitutor = {
     assertFullSubstitutor()
 
     def simple: ScSubstitutor = bind(from, target)(TypeParameterType(_))
@@ -198,26 +197,26 @@ object ScSubstitutor {
   def apply(updateThisType: ScType): ScSubstitutor =
     ScSubstitutor(ThisTypeSubstitution(updateThisType))
 
-  def paramToExprType(parameters: Seq[Parameter], expressions: Seq[Expression], useExpected: Boolean = true): ScSubstitutor =
+  def paramToExprType(parameters: collection.Seq[Parameter], expressions: collection.Seq[Expression], useExpected: Boolean = true): ScSubstitutor =
     ScSubstitutor(ParamsToExprs(parameters, expressions, useExpected))
 
-  def paramToParam(fromParams: Seq[ScParameter], toParams: Seq[ScParameter]): ScSubstitutor =
+  def paramToParam(fromParams: collection.Seq[ScParameter], toParams: collection.Seq[ScParameter]): ScSubstitutor =
     ScSubstitutor(ParamToParam(fromParams, toParams))
 
-  def paramToType(fromParams: Seq[Parameter], types: Seq[ScType]): ScSubstitutor =
+  def paramToType(fromParams: collection.Seq[Parameter], types: collection.Seq[ScType]): ScSubstitutor =
     ScSubstitutor(ParamToType(fromParams, types))
 
-  def bind[T: TypeParamId](typeParamsLike: Seq[T])(toScType: T => ScType): ScSubstitutor = {
+  def bind[T: TypeParamId](typeParamsLike: Iterable[T])(toScType: T => ScType): ScSubstitutor = {
     val tvMap = TypeParamSubstitution.buildMap(typeParamsLike, typeParamsLike)(toScType)
     ScSubstitutor(tvMap)
   }
 
-  def bind[T: TypeParamId, S](typeParamsLike: Seq[T], targets: Seq[S])(toScType: S => ScType): ScSubstitutor = {
+  def bind[T: TypeParamId, S](typeParamsLike: Iterable[T], targets: Iterable[S])(toScType: S => ScType): ScSubstitutor = {
     val tvMap = TypeParamSubstitution.buildMap(typeParamsLike, targets)(toScType)
     ScSubstitutor(tvMap)
   }
 
-  def bind[T: TypeParamId](typeParamsLike: Seq[T], types: Seq[ScType]): ScSubstitutor = {
+  def bind[T: TypeParamId](typeParamsLike: Iterable[T], types: Iterable[ScType]): ScSubstitutor = {
     val tvMap = TypeParamSubstitution.buildMap(typeParamsLike, types)(identity)
     ScSubstitutor(tvMap)
   }

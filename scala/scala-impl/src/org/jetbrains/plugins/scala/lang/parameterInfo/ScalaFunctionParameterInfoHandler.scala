@@ -36,7 +36,6 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResul
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
-import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -145,8 +144,8 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
 
                   val multipleLists = preceedingClauses.nonEmpty || remainingClauses.nonEmpty
 
-                  def parametersOf(clause: ScParameterClause): Seq[(Parameter, String)] = {
-                    val parameters: Seq[ScParameter] = if (i != -1) clause.effectiveParameters else clause.effectiveParameters.take(length - 1)
+                  def parametersOf(clause: ScParameterClause): collection.Seq[(Parameter, String)] = {
+                    val parameters: collection.Seq[ScParameter] = if (i != -1) clause.effectiveParameters else clause.effectiveParameters.take(length - 1)
                     parameters.map(param => (Parameter(param), paramText(param, subst)))
                   }
 
@@ -291,7 +290,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
     }
   }
 
-  private def applyToParameters(parameters: Seq[(Parameter, String)],
+  private def applyToParameters(parameters: collection.Seq[(Parameter, String)],
                                 subst: ScSubstitutor,
                                 canBeNaming: Boolean,
                                 isImplicit: Boolean = false)(args: PsiElement, buffer: StringBuilder, index: Int): Boolean = {
@@ -418,7 +417,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
     def invocationCount: Int
     def callGeneric: Option[ScGenericCall] = None
     def callReference: Option[ScReferenceExpression]
-    def arguments: Seq[ScExpression]
+    def arguments: collection.Seq[ScExpression]
   }
 
   object Invocation {
@@ -431,7 +430,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
 
       override def callReference: Option[ScReferenceExpression] = args.callReference
 
-      override def arguments: Seq[ScExpression] = args.exprs
+      override def arguments: collection.Seq[ScExpression] = args.exprs
     }
     private trait InfixInvocation extends Invocation {
       override def invocationCount: Int = 1
@@ -497,7 +496,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
     }
   }
 
-  def elementsForParameterInfo(args: Invocation): Seq[Object] = {
+  def elementsForParameterInfo(args: Invocation): collection.Seq[Object] = {
     implicit val project: ProjectContext = args.element.projectContext
     args.parent match {
       case call @ (_: MethodInvocation | _: ScReferenceExpression) =>
@@ -731,7 +730,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
     args.element
   }
 
-  private def equivalent(seq1: Seq[AnyRef], seq2: Seq[AnyRef]): Boolean = {
+  private def equivalent(seq1: collection.Seq[AnyRef], seq2: collection.Seq[AnyRef]): Boolean = {
     seq1.size == seq2.size && seq1.zip(seq2).forall(equivObjectsToView)
   }
 

@@ -29,7 +29,7 @@ package object intention {
       case _ =>
     }
 
-    def matchedParamsAfter(): Seq[(ScExpression, Parameter)] = {
+    def matchedParamsAfter(): collection.Seq[(ScExpression, Parameter)] = {
       val sortedMatchedArgs = argList.matchedParameters
         .filter(pair => argList.isAncestorOf(pair._1))
         .sortBy(_._1.getTextOffset)

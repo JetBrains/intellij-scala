@@ -135,21 +135,38 @@ public class JavaSpecs2Notifier implements Notifier {
     exampleFailureOrError(name, message, f, true, actualExpectedAttrs);
   }
 
-  @Override
+  // @Override (in specs 2.x)
   public void exampleSkipped(@NonNls String name, @NonNls String message, long duration) {
     String tsMessage = String.format("testIgnored name='%s' message='%s' nodeId='%d'", escapeString(name), escapeString(message), getCurrentId());
     report(tsMessage);
     ascend();
   }
 
+  @Override
   public void exampleSkipped(@NonNls String name, @NonNls String message, @NonNls String location, long duration) {
     String tsMessage = String.format("testIgnored name='%s' message='%s' nodeId='%d'", escapeString(name), escapeString(message), getCurrentId());
     report(tsMessage);
     ascend();
   }
 
+  @Override
   public void examplePending(@NonNls String name, @NonNls String message, @NonNls String location, long duration) {
     ascend();
+  }
+
+  @Override
+  public void stepStarted(String location) {
+    // TODO
+  }
+
+  @Override
+  public void stepSuccess(long duration) {
+    // TODO
+  }
+
+  @Override
+  public void stepError(String message, String location, Throwable f, long duration) {
+    // TODO
   }
 
   public void examplePending(@NonNls String name, @NonNls String message, long duration) {

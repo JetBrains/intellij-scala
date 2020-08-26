@@ -16,7 +16,7 @@ import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.shell.action.SbtNodeAction
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class SbtRunAnythingProvider extends RunAnythingProviderBase[SbtRunItem] {
 

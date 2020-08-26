@@ -7,7 +7,7 @@ import com.intellij.testFramework.{EditorTestUtil, UsefulTestCase}
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil
 import org.jetbrains.plugins.scala.lang.completion
 
-import scala.collection.JavaConverters
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Nikolay Obedin
@@ -51,7 +51,6 @@ abstract class SbtCompletionTestBase extends {
   }
 
   private def asSet(strings: Array[String]) = {
-    import JavaConverters._
     strings.toSeq.distinct.asJava
   }
 

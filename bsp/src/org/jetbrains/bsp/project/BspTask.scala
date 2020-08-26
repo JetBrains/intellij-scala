@@ -25,9 +25,10 @@ import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildActi
 import org.jetbrains.plugins.scala.build._
 import org.jetbrains.plugins.scala.util.CompilationId
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.concurrent.{Future, Promise}
+import scala.util.Try
 import scala.util.control.NonFatal
 
 class BspTask[T](project: Project,
@@ -87,6 +88,11 @@ class BspTask[T](project: Project,
       new CompilerEventReporter(project, CompilationId.generate()),
       new IndicatorReporter(indicator)
     )
+    implicit val monadicTry: Monadic[Try] = new Monadic[Try] {
+      override def flatMap[A, B](from: Try[A])(fn: A => Try[B]): Try[B] = from.flatMap(fn)
+      override def point[A](value: A): Try[A] = Try(value)
+      override def map[A, B](from: Try[A])(fn: A => B): Try[B] = from.map(fn)
+    }
 
     val targetByWorkspace = targets.groupBy(_.workspace)
     val targetToCleanByWorkspace = targetsToClean.groupBy(_.workspace)
@@ -105,7 +111,7 @@ class BspTask[T](project: Project,
 
     val cancelToken = new CancelCheck(resultPromise, indicator)
 
-    val combinedMessages = buildJobs
+    val combinedMessages = new TraversableOps(buildJobs)
       .traverse(BspJob.waitForJobCancelable(_, cancelToken))
       .map { compileResults =>
         val updatedMessages = compileResults.map(r => messagesWithStatus(reporter, r._1, r._2))
@@ -327,7 +333,7 @@ class BspTask[T](project: Project,
 object BspTask {
 
   private class TextCollector extends ColoredTextAcceptor {
-    private val builder = StringBuilder.newBuilder
+    private val builder = new StringBuilder()
 
     override def coloredTextAvailable(text: String, attributes: Key[_]): Unit =
       builder.append(text)

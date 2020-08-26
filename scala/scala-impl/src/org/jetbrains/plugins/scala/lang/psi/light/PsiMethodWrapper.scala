@@ -37,7 +37,7 @@ abstract class PsiMethodWrapper[T <: ScalaPsiElement with PsiNamedElement with N
 
   protected def returnScType: ScType
 
-  protected def parameters: Seq[PsiParameter]
+  protected def parameters: collection.Seq[PsiParameter]
 
   protected def typeParameters: Seq[PsiTypeParameter]
 

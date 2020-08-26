@@ -7,8 +7,9 @@ import java.util.concurrent.ConcurrentHashMap
 import com.intellij.util.containers.WeakList
 import org.jetbrains.plugins.scala.extensions._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
+import scala.collection
 
 
 object CacheTracker {
@@ -21,7 +22,7 @@ object CacheTracker {
     private val trackedCaches: WeakList[Cache] = new WeakList[Cache]
     def add(cache: Cache): Unit = trackedCaches.add(cache)
 
-    override def tracked: Seq[Cache] = trackedCaches.toStrongList.asScala
+    override def tracked: collection.Seq[Cache] = trackedCaches.toStrongList.asScala
     override def cachedEntityCount: Int = tracked.foldLeft(0)(_ + capabilities.cachedEntitiesCount(_))
     override def clear(): Unit = tracked.foreach(capabilities.clear)
   }

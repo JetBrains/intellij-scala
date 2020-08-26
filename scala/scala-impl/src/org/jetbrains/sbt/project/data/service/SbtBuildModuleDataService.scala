@@ -11,7 +11,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.project.external.{AbstractDataService, AbstractImporter}
 import org.jetbrains.sbt.resolvers.{SbtIndexesManager, SbtResolver}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * @author Pavel Fatin

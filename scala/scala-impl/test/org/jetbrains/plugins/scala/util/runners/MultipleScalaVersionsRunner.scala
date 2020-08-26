@@ -106,8 +106,10 @@ private object MultipleScalaVersionsRunner {
 
   private def childTestsByScalaVersion(testCases: Seq[(TestCase, ScalaVersion, JdkVersion)]): Seq[Test] = {
     val scalaVersionToTests: Map[ScalaVersion, Seq[Test]] =
-      testCases.groupBy(_._2).mapValues(_.map(t => (t._1, t._3)))
+      testCases.groupBy(_._2)
+        .mapValues(_.map(t => (t._1, t._3)))
         .mapValues(childTestsByJdkVersion)
+        .toMap
 
     if (scalaVersionToTests.size == 1) {
       scalaVersionToTests.head._2
@@ -132,7 +134,7 @@ private object MultipleScalaVersionsRunner {
 
   private def childTestsByJdkVersion(testCases: Seq[(TestCase, JdkVersion)]): Seq[Test] = {
     val jdkVersionToTests: Map[JdkVersion, Seq[TestCase]] =
-      testCases.groupBy(_._2).mapValues(_.map(_._1))
+      testCases.groupBy(_._2).mapValues(_.map(_._1)).toMap
 
     if (jdkVersionToTests.size == 1) jdkVersionToTests.head._2 else {
       for {

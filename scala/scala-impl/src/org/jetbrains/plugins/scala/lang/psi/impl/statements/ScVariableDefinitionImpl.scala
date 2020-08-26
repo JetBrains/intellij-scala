@@ -32,9 +32,9 @@ final class ScVariableDefinitionImpl private[psi](stub: ScPropertyStub[ScVariabl
 
   override def expr: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
 
-  override def bindings: Seq[ScBindingPattern] = pList match {
+  override def bindings: collection.Seq[ScBindingPattern] = pList match {
     case null => Seq.empty
-    case ScPatternList(Seq(pattern)) => pattern.bindings
+    case ScPatternList(collection.Seq(pattern)) => pattern.bindings
     case ScPatternList(patterns) => patterns.flatMap(_.bindings)
   }
 

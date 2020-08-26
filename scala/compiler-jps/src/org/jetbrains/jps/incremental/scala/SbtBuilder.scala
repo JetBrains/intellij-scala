@@ -18,7 +18,7 @@ import org.jetbrains.jps.incremental.scala.sbtzinc.{CompilerOptionsStore, Module
 import org.jetbrains.plugins.scala.compiler.IncrementalityType
 
 import _root_.java.{util => jutil}
-import _root_.scala.collection.JavaConverters._
+import _root_.scala.jdk.CollectionConverters._
 import _root_.scala.collection.mutable
 
 /**
@@ -134,7 +134,7 @@ object SbtBuilder {
   }
 
   //in current chunk only
-  private def collectDirtyFiles(dirtyFilesHolder: DirtyFilesHolder): Seq[File] = {
+  private def collectDirtyFiles(dirtyFilesHolder: DirtyFilesHolder): mutable.Seq[File] = {
     val result = collection.mutable.Buffer.empty[File]
     dirtyFilesHolder.processDirtyFiles((_, file, _) => {
       result += file
@@ -143,7 +143,7 @@ object SbtBuilder {
     result
   }
 
-  private def compilableFiles(context: CompileContext, target: ModuleBuildTarget): Seq[File] = {
+  private def compilableFiles(context: CompileContext, target: ModuleBuildTarget): mutable.Seq[File] = {
     val result = mutable.ArrayBuffer.empty[File]
 
     val rootIndex = context.getProjectDescriptor.getBuildRootIndex

@@ -127,7 +127,7 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
       }
 
     val superTypes = extendsBlock.superTypes
-    val superTypeElements = extendsBlock.templateParents.fold(Seq.empty[ScTypeElement])(_.allTypeElements)
+    val superTypeElements = extendsBlock.templateParents.fold(collection.Seq.empty[ScTypeElement])(_.allTypeElements)
 
     if (superTypeElements.length > 1 || termSignatures.nonEmpty || typeSignatures.nonEmpty) {
       Right(ScCompoundType(superTypes, termSignatures, typeSignatures))

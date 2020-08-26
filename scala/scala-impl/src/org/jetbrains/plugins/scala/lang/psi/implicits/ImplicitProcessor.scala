@@ -68,7 +68,7 @@ abstract class ImplicitProcessor(override val getPlace: PsiElement,
     levelSet
   }
 
-  override protected def addResults(results: Seq[ScalaResolveResult]): Boolean = {
+  override protected def addResults(results: Iterable[ScalaResolveResult]): Boolean = {
     if (withoutPrecedence) {
       candidatesSet ++= results
       true
@@ -164,7 +164,7 @@ object ImplicitProcessor {
 
 
   private def findImplicitObjects(`type`: ScType, scope: GlobalSearchScope)
-                                 (implicit context: ProjectContext): Seq[ScType] = {
+                                 (implicit context: ProjectContext): collection.Seq[ScType] = {
     val implicitObjectsCache = ScalaPsiManager.instance.collectImplicitObjectsCache
     val cacheKey = (`type`, scope)
 
@@ -182,8 +182,8 @@ object ImplicitProcessor {
     val visited = mutable.HashSet.empty[ScType]
     val parts = mutable.Queue.empty[ScType]
 
-    def collectPartsIter(iterable: TraversableOnce[ScType]): Unit = {
-      val iterator = iterable.toIterator
+    def collectPartsIter(iterable: IterableOnce[ScType]): Unit = {
+      val iterator = iterable.iterator
       while (iterator.hasNext) {
         collectParts(iterator.next())
       }

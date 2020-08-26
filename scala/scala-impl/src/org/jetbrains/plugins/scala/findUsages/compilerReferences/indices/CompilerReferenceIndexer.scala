@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.findUsages.compilerReferences.indices.Indexin
 import org.jetbrains.plugins.scala.indices.protocol.{CompilationInfo, CompiledClass}
 import org.jetbrains.plugins.scala.project.ProjectExt
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: Int) {

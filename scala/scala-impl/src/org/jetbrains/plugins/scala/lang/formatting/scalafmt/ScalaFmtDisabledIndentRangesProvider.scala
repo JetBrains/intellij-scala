@@ -12,7 +12,7 @@ class ScalaFmtDisabledIndentRangesProvider extends DisabledIndentRangesProvider 
   override def getDisabledIndentRanges(element: PsiElement): util.Collection[TextRange] = {
     val project = element.getProject
     //Do not try to fix indents after formatting - ScalaFmtPreformatProcessor delegates all the work to scalafmt
-    import collection.JavaConverters._
+    import scala.jdk.CollectionConverters._
     if (ScalaCodeStyleSettings.getInstance(project).USE_SCALAFMT_FORMATTER()) Seq(element.getTextRange).asJava
     else Seq().asJava
   }

@@ -12,8 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.probable
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-import scala.collection.Seq
-
 /**
   * Nikolay.Tropin
   * 16-Feb-18
@@ -35,12 +33,12 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
     }
   }
 
-  private def highlightNotFound(element: ImplicitArgumentsOwner, parameters: Seq[ScalaResolveResult])
+  private def highlightNotFound(element: ImplicitArgumentsOwner, parameters: collection.Seq[ScalaResolveResult])
                                (implicit holder: ScalaAnnotationHolder): Unit = {
     val settings = ScalaProjectSettings.getInstance(element.getProject)
 
     parameters.filter(hasProblemToHighlight(_, settings)) match {
-      case Seq() =>
+      case collection.Seq() =>
       case params =>
         val presentableTypes = params
           .map(_.implicitSearchState.map(_.presentableTypeText).getOrElse("unknown type"))
@@ -84,6 +82,6 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
     annotation.setEnforcedTextAttributes(attributes)
   }
 
-  def message(types: Seq[String]): String =
+  def message(types: collection.Seq[String]): String =
     types.mkString("No implicit arguments of type: ", ", ", "")
 }

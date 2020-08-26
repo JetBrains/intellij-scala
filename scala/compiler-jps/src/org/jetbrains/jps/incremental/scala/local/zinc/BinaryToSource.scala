@@ -10,11 +10,14 @@ case class BinaryToSource(compileAnalysis: CompileAnalysis, compilationData: Com
   private val analysis = compileAnalysis.asInstanceOf[Analysis]
   private val binaryToSource = analysis.relations.srcProd.reverseMap
 
-  def classfileToSources(file: File): Set[File] = binaryToSource.getOrElse(file, Set.empty)
+  def classfileToSources(file: File): Set[File] =
+    binaryToSource.getOrElse(file, Set.empty)
+
   def classfilesToSources(classfiles: Array[File]): Set[File] =
-    classfiles.flatMap(classfileToSources)(collection.breakOut)
+    classfiles.flatMap(classfileToSources).toSet
 
   private val ouputPath = compilationData.output.toPath
+  
   private val extensionLenght = ".class".length
 
   def className(classFile: File): String =

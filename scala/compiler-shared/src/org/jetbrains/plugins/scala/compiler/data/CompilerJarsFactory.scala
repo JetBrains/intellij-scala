@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.util.JarUtil.JarFileWithName
 
 trait CompilerJarsFactory {
 
-  def fromFiles(files: Seq[File]): Either[CompilerJarsResolveError, CompilerJars]
+  def fromFiles(files: collection.Seq[File]): Either[CompilerJarsResolveError, CompilerJars]
 }
 
 object CompilerJarsFactory
@@ -19,16 +19,16 @@ object CompilerJarsFactory
 
   object CompilerJarsResolveError {
     case class NotFound(kind: String) extends CompilerJarsResolveError
-    case class DuplicatesFound(kind: String, duplicates: Seq[JarFileWithName]) extends CompilerJarsResolveError
-    case class FilesDoNotExist(files: Seq[File]) extends CompilerJarsResolveError
+    case class DuplicatesFound(kind: String, duplicates: collection.Seq[JarFileWithName]) extends CompilerJarsResolveError
+    case class FilesDoNotExist(files: collection.Seq[File]) extends CompilerJarsResolveError
   }
 
-  override def fromFiles(files: Seq[File]): Either[CompilerJarsResolveError, CompilerJars] = {
+  override def fromFiles(files: collection.Seq[File]): Either[CompilerJarsResolveError, CompilerJars] = {
     val jarFiles = JarUtil.collectJars(files)
     fromJarFiles(jarFiles)
   }
 
-  def fromJarFiles(files: Seq[JarFileWithName]): Either[CompilerJarsResolveError, CompilerJars] = {
+  def fromJarFiles(files: collection.Seq[JarFileWithName]): Either[CompilerJarsResolveError, CompilerJars] = {
     val compilerPrefix = if (containsDotty(files.map(_.file))) "dotty" else "scala"
     for {
       library <- find(files, s"$compilerPrefix-library")
@@ -47,16 +47,16 @@ object CompilerJarsFactory
     )
   }
 
-  private def find(files: Seq[JarFileWithName], kind: String): Either[CompilerJarsResolveError, JarFileWithName] = {
+  private def find(files: collection.Seq[JarFileWithName], kind: String): Either[CompilerJarsResolveError, JarFileWithName] = {
     val filesOfKind = files.filter(_.name.startsWith(kind)).distinct
     filesOfKind match {
-      case Seq(file) => Right(file)
-      case Seq() => Left(CompilerJarsResolveError.NotFound(kind))
+      case collection.Seq(file) => Right(file)
+      case collection.Seq() => Left(CompilerJarsResolveError.NotFound(kind))
       case duplicates => Left(CompilerJarsResolveError.DuplicatesFound(kind, duplicates))
     }
   }
 
-  private def scalaReflect(compiler: JarFileWithName, extra: Seq[JarFileWithName]): Either[CompilerJarsResolveError, Unit] =
+  private def scalaReflect(compiler: JarFileWithName, extra: collection.Seq[JarFileWithName]): Either[CompilerJarsResolveError, Unit] =
     if (compilerVersionIn(compiler.file, "2.10")) find(extra, "scala-reflect").map(_ => ())
     else Right(())
 }

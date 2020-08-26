@@ -54,7 +54,7 @@ class ScalaReferenceContributorTest extends ScalaLightCodeInsightFixtureTestAdap
     }
     visitor.visitFile(file)
 
-    found
+    found.toSeq
   }
 
 }

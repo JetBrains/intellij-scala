@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 trait ScExistentialArgument extends NamedType with ValueType {
   override implicit def projectContext: ProjectContext = lower.projectContext
 
-  def typeParameters: Seq[TypeParameter]
+  def typeParameters: collection.Seq[TypeParameter]
   def lower: ScType
   def upper: ScType
 
@@ -56,7 +56,7 @@ object ScExistentialArgument {
   //used for representing type parameters of a java raw class type
   //it may have a reference to itself in it's bounds, so it cannot be fully initialized in constructor
   private class Deferred(override val name: String,
-                         override val typeParameters: Seq[TypeParameter],
+                         override val typeParameters: collection.Seq[TypeParameter],
                          var lowerBound: () => ScType,
                          var upperBound: () => ScType) extends ScExistentialArgument {
     @volatile
@@ -118,7 +118,7 @@ object ScExistentialArgument {
   }
 
   private case class Complete(override val name: String,
-                              override val typeParameters: Seq[TypeParameter],
+                              override val typeParameters: collection.Seq[TypeParameter],
                               override val lower: ScType,
                               override val upper: ScType)
 
@@ -132,15 +132,15 @@ object ScExistentialArgument {
 
   def apply(ta: ScTypeAlias): ScExistentialArgument = FromTypeAlias(ta)
 
-  def apply(name: String, typeParameters: Seq[TypeParameter], lower: ScType, upper: ScType): ScExistentialArgument =
+  def apply(name: String, typeParameters: collection.Seq[TypeParameter], lower: ScType, upper: ScType): ScExistentialArgument =
     Complete(name, typeParameters, lower, upper)
 
   def deferred(name: String,
-               typeParameters: Seq[TypeParameter],
+               typeParameters: collection.Seq[TypeParameter],
                lower: () => ScType,
                upper: () => ScType): ScExistentialArgument = new Deferred(name, typeParameters, lower, upper)
 
-  def unapply(arg: ScExistentialArgument): Option[(String, Seq[TypeParameter], ScType, ScType)] =
+  def unapply(arg: ScExistentialArgument): Option[(String, collection.Seq[TypeParameter], ScType, ScType)] =
     Some((arg.name, arg.typeParameters, arg.lower, arg.upper))
 
   def usedMoreThanOnce(tp: ScType): Set[ScExistentialArgument] = {

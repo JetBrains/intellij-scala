@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.uast.{UAnnotation, UDeclaration, UDeclarationsExpression, UDeclarationsExpressionAdapter}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * [[ScValueOrVariable]] adapter for the [[UDeclarationsExpression]]

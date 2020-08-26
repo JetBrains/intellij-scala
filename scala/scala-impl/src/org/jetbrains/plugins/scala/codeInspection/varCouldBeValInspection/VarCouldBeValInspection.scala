@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createValFromVarDefinition
 
-import scala.collection.JavaConverters
+import scala.jdk.CollectionConverters._
 
 class VarCouldBeValInspection extends HighlightingPassInspection {
 
@@ -57,7 +57,6 @@ object VarCouldBeValInspection {
   }
 
   def findReferences(element: PsiElement): (Iterable[PsiElement], Iterable[PsiElement]) = {
-    import JavaConverters._
     val references = ReferencesSearch.search(element, element.getUseScope)
       .findAll().asScala
       .map(_.getElement)

@@ -1,16 +1,34 @@
 package org.jetbrains.plugins.scala.annotator
 
-import fastparse.all._
 import junit.framework.TestCase
 import org.jetbrains.plugins.scala.annotator.Tree._
 import org.jetbrains.plugins.scala.annotator.TypeDiff._
 import org.junit.Assert.assertEquals
 
-class TreeTest extends TestCase {
-  private val element = P(CharPred(_.isLetterOrDigit).rep(1)).!.map(s => Leaf(Match(s)))
-  private val comma = P(", ".rep(0))
-  private val group = P("(" ~ parser.rep(0) ~ ")").map(Node(_: _*))
-  private val parser: Parser[Tree[TypeDiff]] = P((group | element) ~ comma)
+class TreeTest
+  extends TestCase {
+
+  import fastparse._
+  import NoWhitespace._
+
+  private def letterOrDigit[_: P]: P[Unit] = P {
+    CharPred(_.isLetterOrDigit)
+  }
+
+  private def comma[_: P]: P[Unit] =
+    P(", ").rep(0)
+
+  private def element[_: P]: P[Leaf[TypeDiff]] = P {
+    letterOrDigit.rep(1).!.map(s => Leaf(Match(s)))
+  }
+
+  private def group[_: P]: P[Node[TypeDiff]] = P {
+    "(" ~~ parser.rep(0) ~~ ")"
+  }.map(Node(_: _*))
+
+  private def parser[_: P]: P[Tree[TypeDiff]] = P {
+    (group | element) ~ comma
+  }
 
   def testFlatten(): Unit = {
     assertFlattenedTo(100, "", "")
@@ -72,7 +90,8 @@ class TreeTest extends TestCase {
   }
 
   private def assertFlattenedTo(maxChars: Int, elements: String, expectedElements: String, nodeLength: Int = 0): Unit = {
-    val result = group.parse("(" + elements + ")").get.value.flattenTo(lengthOf(nodeLength), maxChars)
+    val result = fastparse.parse("(" + elements + ")", group(_)).get.value.flattenTo(lengthOf(nodeLength), maxChars)
+//    val result = group.parse("(" + elements + ")").get.value.flattenTo(lengthOf(nodeLength), maxChars)
     assertEquals(expectedElements, result.map(asString).mkString(", "))
   }
 

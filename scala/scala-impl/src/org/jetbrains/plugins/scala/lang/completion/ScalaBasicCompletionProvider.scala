@@ -27,7 +27,8 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType.DOC_TAG_VALUE_TOKEN
 
 import scala.annotation.tailrec
-import scala.collection.{JavaConverters, mutable}
+import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 private class ScalaBasicCompletionProvider extends CompletionProvider[CompletionParameters] {
   import ScalaBasicCompletionProvider._
@@ -93,7 +94,6 @@ private class ScalaBasicCompletionProvider extends CompletionProvider[Completion
           case item => item
         }
 
-        import JavaConverters._
         result.addAllElements(defaultLookupElements.asJava)
 
         ProgressManager.checkCanceled()
@@ -120,7 +120,8 @@ private class ScalaBasicCompletionProvider extends CompletionProvider[Completion
             qualifierType = Some(qualifierCastType)
           ) {
 
-            private val lookupStrings = mutable.Set(defaultLookupElements.map(_.getLookupString): _*)
+            private val lookupStrings =
+              mutable.Set(defaultLookupElements.map(_.getLookupString).toSeq: _*)
             private val decorator = insertHandlerDecorator(canonicalText)
 
             override protected def validLookupElement(result: ScalaResolveResult): Option[LookupElement] = for {
@@ -157,7 +158,7 @@ object ScalaBasicCompletionProvider {
     private val isInTypeElement = completion.isInTypeElement(getPlace)
     private val isInStableCodeReference = getPlace.isInstanceOf[ScStableCodeReference]
 
-    final def lookupElements: Seq[LookupElement] = {
+    final def lookupElements: collection.Seq[LookupElement] = {
       ProgressManager.checkCanceled()
       getPlace.doResolve(this)
 

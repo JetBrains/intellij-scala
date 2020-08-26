@@ -8,10 +8,10 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.actions.implicitArguments.ImplicitArgumentNodes.resolveResultNode
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-import scala.collection.JavaConverters.asJavaCollectionConverter
+import scala.jdk.CollectionConverters._
 
 class ImplicitArgumentsTreeStructure(project: Project,
-                                     results: Seq[ScalaResolveResult])
+                                     results: Iterable[ScalaResolveResult])
   extends AbstractTreeStructure {
 
   override def getRootElement: AnyRef = new RootNode

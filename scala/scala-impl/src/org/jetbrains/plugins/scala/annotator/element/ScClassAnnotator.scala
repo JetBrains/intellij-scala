@@ -78,8 +78,8 @@ object ScClassAnnotator extends ElementAnnotator[ScClass] {
     valueClass.constructor match {
       case Some(c) =>
         c.parameters match {
-          case Seq(param) if !param.isPrivateThis && (param.isVal || param.isCaseClassVal) =>
-          case Seq(param) => holder.createErrorAnnotation(param, ScalaBundle.message("value.class.can.have.only.val.parameter"))
+          case collection.Seq(param) if !param.isPrivateThis && (param.isVal || param.isCaseClassVal) =>
+          case collection.Seq(param) => holder.createErrorAnnotation(param, ScalaBundle.message("value.class.can.have.only.val.parameter"))
           case _ =>
             holder.createErrorAnnotation(valueClass.nameId, ScalaBundle.message("value.class.can.have.only.one.parameter"))
         }

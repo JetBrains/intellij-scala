@@ -167,7 +167,7 @@ private[light] class ScLightModifierList(scalaElement: ScalaPsiElement,
     }
   }
 
-  private def convertArgs(args: Seq[ScExpression]): String = {
+  private def convertArgs(args: collection.Seq[ScExpression]): String = {
     if (args.isEmpty) ""
     else args.map(convertExpression).mkString("(", ", ", ")")
   }

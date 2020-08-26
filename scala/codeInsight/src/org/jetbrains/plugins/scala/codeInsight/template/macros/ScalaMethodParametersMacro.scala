@@ -8,7 +8,7 @@ import com.intellij.codeInsight.template._
 import com.intellij.psi.util.PsiTreeUtil.getParentOfType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
-import scala.collection.JavaConverters
+import scala.jdk.CollectionConverters._
 
 /**
   * @author Roman.Shein
@@ -29,7 +29,6 @@ final class ScalaMethodParametersMacro extends ScalaMacro {
       case Seq() => null
       case seq =>
         // ListResult won't accept seq.asJava because invariance
-        import JavaConverters._
         new ListResult(seq.asInstanceOf[Seq[Result]].asJava)
     }
   }

@@ -109,13 +109,13 @@ object ParenthesizedElement {
       * - If they have the same associativity, then right- or left- associativity applies depending on the operator
       * */
     private def innerFirstAssociativity(parent: PsiElement, inner: PsiElement): Boolean = (parent, inner) match {
-      case (p: ScInfixElement, c: ScInfixElement) if p.isLeftAssoc != c.isLeftAssoc        => false
+      case (p: ScInfixElement, c: ScInfixElement) if p.isLeftAssoc != c.isLeftAssoc              => false
 
-      case (ifx@ScInfixElement(_, _, Some(`parenthesized`)), _: ScInfixElement)            => ifx.isRightAssoc
-      case (ifx@ScInfixElement(`parenthesized`, _, _), _: ScInfixElement)                  => ifx.isLeftAssoc
+      case (ifx@ScInfixElement(_, _, right), _: ScInfixElement) if right.contains(parenthesized) => ifx.isRightAssoc
+      case (ifx@ScInfixElement(`parenthesized`, _, _), _: ScInfixElement)                        => ifx.isLeftAssoc
 
-      case (ScFunctionalTypeElement(_, Some(`parenthesized`)), _: ScFunctionalTypeElement) => true
-      case _                                                                               => false
+      case (ScFunctionalTypeElement(_, Some(`parenthesized`)), _: ScFunctionalTypeElement)       => true
+      case _                                                                                     => false
     }
   }
 

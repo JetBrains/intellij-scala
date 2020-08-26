@@ -46,7 +46,7 @@ trait ScalaBounds extends api.Bounds {
     }
   }
 
-  override def glb(typez: Seq[ScType], checkWeak: Boolean): ScType = {
+  override def glb(typez: collection.Seq[ScType], checkWeak: Boolean): ScType = {
     if (typez.length == 1) typez.head
     var res = typez.head
     for (i <- 1 until typez.length) {
@@ -55,12 +55,12 @@ trait ScalaBounds extends api.Bounds {
     res
   }
 
-  def typeParametersBound(
-    lhsParams: Seq[TypeParameter],
-    rhsParams: Seq[TypeParameter],
+  private def typeParametersBound(
+    lhsParams: collection.Seq[TypeParameter],
+    rhsParams: collection.Seq[TypeParameter],
     boundKind: BoundKind,
     checkWeak: Boolean
-  ): Seq[TypeParameter] =
+  ): collection.Seq[TypeParameter] =
     lhsParams.zip(rhsParams).map {
       case (p1, p2) =>
         val (lower, upper) = boundKind match {
@@ -97,7 +97,7 @@ trait ScalaBounds extends api.Bounds {
     lubInner(t1, t2, lubDepth(Seq(t1, t2)), checkWeak)(stopAddingUpperBound = false)
   }
 
-  override def lub(seq: Seq[ScType], checkWeak: Boolean): ScType = {
+  override def lub(seq: Iterable[ScType], checkWeak: Boolean): ScType = {
     seq.reduce((l: ScType, r: ScType) => lub(l, r, checkWeak))
   }
 
@@ -172,7 +172,7 @@ trait ScalaBounds extends api.Bounds {
       case _ => None
     }
 
-    def getSuperClasses: Seq[ClassLike] = {
+    def getSuperClasses: collection.Seq[ClassLike] = {
       val subst = this.projectionOption match {
         case Some(proj) => ScSubstitutor(proj)
         case None => ScSubstitutor.empty
@@ -182,7 +182,7 @@ trait ScalaBounds extends api.Bounds {
         case p: PsiClass => p.getSupers.toSeq.map(cl => new ClassLike(ScalaType.designator(cl))).filter(!_.isEmpty)
         case _: ScTypeAlias =>
           val upperType: ScType = tp.aliasType.map(_.upper.getOrAny).getOrElse(Any)
-          val classes: Seq[ClassLike] = {
+          val classes: collection.Seq[ClassLike] = {
             upperType match {
               case ScCompoundType(comps1, _, _) => comps1.map(new ClassLike(_))
               case _ => Seq(new ClassLike(upperType))
@@ -345,13 +345,13 @@ trait ScalaBounds extends api.Bounds {
           case (lhs: ScTypePolymorphicType, rhs: ScTypePolymorphicType) =>
             polymorphicTypesBound(lhs, rhs, BoundKind.Lub, checkWeak)
           case _ =>
-            val leftClasses: Seq[ClassLike] = {
+            val leftClasses: collection.Seq[ClassLike] = {
               t1 match {
                 case ScCompoundType(comps1, _, _) => comps1.map(new ClassLike(_))
                 case _ => Seq(new ClassLike(t1))
               }
             }
-            val rightClasses: Seq[ClassLike] = {
+            val rightClasses: collection.Seq[ClassLike] = {
               t2 match {
                 case ScCompoundType(comps1, _, _) => comps1.map(new ClassLike(_))
                 case _ => Seq(new ClassLike(t2))
@@ -439,13 +439,13 @@ trait ScalaBounds extends api.Bounds {
               v
           })
         }
-        if (wildcards.isEmpty) ScParameterizedType(baseClassDesignator, resTypeArgs)
-        else ScExistentialType(ScParameterizedType(baseClassDesignator, resTypeArgs))
+        if (wildcards.isEmpty) ScParameterizedType(baseClassDesignator, resTypeArgs.toSeq)
+        else ScExistentialType(ScParameterizedType(baseClassDesignator, resTypeArgs.toSeq))
       case _ => Any
     }
   }
 
-  private def getLeastUpperClasses(leftClasses: Seq[ClassLike], rightClasses: Seq[ClassLike]): Array[(ClassLike, Int, Int)] = {
+  private def getLeastUpperClasses(leftClasses: collection.Seq[ClassLike], rightClasses: collection.Seq[ClassLike]): Array[(ClassLike, Int, Int)] = {
     val res = new ArrayBuffer[(ClassLike, Int, Int)]
     def addClass(baseClassToAdd: ClassLike, x: Int, y: Int): Unit = {
       var i = 0
@@ -464,7 +464,7 @@ trait ScalaBounds extends api.Bounds {
         res += ((baseClassToAdd, x, y))
       }
     }
-    def checkClasses(leftClasses: Seq[ClassLike], baseIndex: Int = -1, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty): Unit = {
+    def checkClasses(leftClasses: collection.Seq[ClassLike], baseIndex: Int = -1, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty): Unit = {
       ProgressManager.checkCanceled()
 
       if (leftClasses.isEmpty) return

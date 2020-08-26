@@ -103,7 +103,7 @@ object SameSignatureCallParametersProvider {
 
     private def findResolvableParameters(reference: PsiElement,
                                          invocationCount: Int)
-                                        (parameters: Seq[ScParameter]) = for {
+                                        (parameters: collection.Seq[ScParameter]) = for {
       parameter <- parameters
       name = parameter.name
 
@@ -166,7 +166,7 @@ object SameSignatureCallParametersProvider {
       /** empty expressions cannot be handled via [[ScArgumentExprList.exprs]] */
     )
 
-    def parametersNames(method: ScMethodLike): Seq[ScParameter] = method
+    def parametersNames(method: ScMethodLike): collection.Seq[ScParameter] = method
       .parametersInClause(clauseIndex)
       .drop(argumentsToDrop)
   }
@@ -190,7 +190,7 @@ object SameSignatureCallParametersProvider {
   private[this] final case class ParameterArgument(override protected val typeable: ScParameter)
     extends Argument(typeable, typeable)
 
-  private[this] def findMethodParameters(method: ScMethodLike) = { _: Seq[ScParameter] =>
+  private[this] def findMethodParameters(method: ScMethodLike) = { _: collection.Seq[ScParameter] =>
     method
       .parameterList
       .params
@@ -202,7 +202,7 @@ object SameSignatureCallParametersProvider {
   private[this] def createLookupElement(method: ScMethodLike,
                                         argumentToStart: ArgumentToStart,
                                         substitutor: ScSubstitutor)
-                                       (argumentsWithNames: Seq[ScParameter] => Seq[(String, Argument)]) = {
+                                       (argumentsWithNames: collection.Seq[ScParameter] => collection.Seq[(String, Argument)]) = {
     val parameters = argumentToStart.parametersNames(method)
 
     parameters.length match {
@@ -227,7 +227,7 @@ object SameSignatureCallParametersProvider {
     }
   }
 
-  private[this] def applicableNames(parameters: Seq[ScParameter],
+  private[this] def applicableNames(parameters: collection.Seq[ScParameter],
                                     substitutor: ScSubstitutor,
                                     nameToArgument: Map[String, Argument]) = for {
     parameter <- parameters

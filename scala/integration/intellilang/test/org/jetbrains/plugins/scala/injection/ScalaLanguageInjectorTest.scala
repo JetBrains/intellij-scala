@@ -7,7 +7,7 @@ import org.intellij.plugins.intelliLang.inject.config.{BaseInjection, InjectionP
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.junit.Assert._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class ScalaLanguageInjectorTest extends AbstractLanguageInjectionTestCase {
 
@@ -379,7 +379,7 @@ class ScalaLanguageInjectorTest extends AbstractLanguageInjectionTestCase {
   ////////////////////////////////////////
 
   def testThatAllInjectionPatternsAreCompiled(): Unit = {
-    val injections: Seq[BaseInjection] = intelliLangConfig.getInjections("scala").asScala
+    val injections: Seq[BaseInjection] = intelliLangConfig.getInjections("scala").asScala.toSeq
     for {
       injection <- injections
       place: InjectionPlace <- injection.getInjectionPlaces

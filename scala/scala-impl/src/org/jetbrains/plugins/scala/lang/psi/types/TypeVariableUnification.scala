@@ -81,7 +81,7 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
           ScTypePolymorphicType(
             ScParameterizedType(
               des,
-              captured ++ abstractedTypeParams.map(TypeParameterType(_))
+              captured.toSeq ++ abstractedTypeParams.map(TypeParameterType(_))
             ),
             abstractedTypeParams
           )
@@ -151,7 +151,7 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
 
 object TypeVariableUnification {
   @scala.annotation.tailrec
-  private final def extractTypeParameters(tpe: ScType): Seq[TypeParameter] = tpe match {
+  private final def extractTypeParameters(tpe: ScType): collection.Seq[TypeParameter] = tpe match {
     case ParameterizedType(des, _)         => extractTypeParameters(des)
     case AliasType(alias, _, _)            => alias.typeParameters.map(TypeParameter(_))
     case ScAbstractType(tp, _, _)          => tp.typeParameters
@@ -168,7 +168,7 @@ object TypeVariableUnification {
     unifiableKinds(lhsParams, rhsParams)
   }
 
-  private[psi] def unifiableKinds(lhsParams: Seq[TypeParameter], rhsParams: Seq[TypeParameter]): Boolean = {
+  private[psi] def unifiableKinds(lhsParams: Iterable[TypeParameter], rhsParams: Iterable[TypeParameter]): Boolean = {
     lhsParams.size == rhsParams.size && lhsParams.zip(rhsParams).forall {
       case (l, r) => unifiableKinds(l.typeParameters, r.typeParameters)
     }

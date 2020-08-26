@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.util.Metering._
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersionsFilter, TestScalaVersion}
 import org.junit.Ignore
 
-import scala.collection.JavaConverters.seqAsJavaListConverter
+import scala.jdk.CollectionConverters._
 import scala.concurrent.duration.FiniteDuration
 import scala.util.{Failure, Success, Try}
 

@@ -122,7 +122,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
             val numPatterns: Int = infix.rightOption match {
               case Some(_: ScInfixPattern | _: ScConstructorPattern) => 2
               case Some(right) => right.subpatterns match {
-                case Seq() => 2
+                case collection.Seq() => 2
                 case s => s.length + 1
               }
               case _ => 1
@@ -170,7 +170,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
       }
   }
 
-  private def freeTypeParamsOfTerms(tp: ScType): Seq[ScType] = {
+  private def freeTypeParamsOfTerms(tp: ScType): collection.Seq[ScType] = {
     val buffer = ArrayBuffer[ScType]()
     tp.visitRecursively {
       case tp: TypeParameterType => buffer += tp

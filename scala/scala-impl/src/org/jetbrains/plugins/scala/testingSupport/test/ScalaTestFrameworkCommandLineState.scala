@@ -35,7 +35,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.testdata.TestConfiguratio
 import org.jetbrains.plugins.scala.testingSupport.test.utils.JavaParametersModified
 import org.jetbrains.sbt.shell.SbtProcessManager
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
  /** for ScalaTest, Spec2, uTest */
 class ScalaTestFrameworkCommandLineState(

@@ -231,7 +231,7 @@ object ScalaRefCountHolderService {
         case diff if diff > 0 =>
           val timeDiff = System.currentTimeMillis() - storageTime
 
-          import collection.JavaConverters._
+          import scala.jdk.CollectionConverters._
           innerMap.entrySet
             .iterator
             .asScala

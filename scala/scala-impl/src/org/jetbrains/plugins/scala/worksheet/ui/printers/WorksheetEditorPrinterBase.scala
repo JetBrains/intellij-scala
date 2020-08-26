@@ -84,7 +84,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
   protected final def updateFoldings(folding: InputOutputFoldingInfo): Unit =
     updateFoldings(Seq(folding))
 
-  protected final def updateFoldings(foldings: Seq[InputOutputFoldingInfo]): Unit = startCommand() {
+  protected final def updateFoldings(foldings: Iterable[InputOutputFoldingInfo]): Unit = startCommand() {
     //debug(s"foldings: $foldings")
 
     def addRegion(fo: InputOutputFoldingInfo): Unit = {

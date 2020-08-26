@@ -11,7 +11,7 @@ object Common {
     taskKey[Classpath]("scalaCommunity module's fullClasspath in Compile and Test scopes")
 
   val globalJavacOptions = Seq("-source", "1.8","-target","1.8")
-  val globalScalacOptions = Seq("-target:jvm-1.8", "-deprecation")
+  val globalScalacOptions = Seq("-target:jvm-1.8", "-deprecation", "-Ymacro-annotations")
 
   def newProject(projectName: String, base: File): Project =
     Project(projectName, base).settings(

@@ -63,7 +63,7 @@ trait CacheTestUtils { testFixtureProvider: TestFixtureProvider =>
 
       if (wasCached) {
         import RecursionManager.RecursionGuard
-        val Seq(id) = RecursionGuard.allGuardNames.filter(_.startsWith("internal_cached_call")).toSeq
+        val Seq(id) = RecursionGuard.allGuardNames.filter(_.contains("internal_cached_call")).toSeq
         val localResult = RecursionGuard[PsiElement, String](id).getFromLocalCache(psi)
         if (localResult == null) {
           "@" + result

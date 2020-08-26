@@ -45,8 +45,8 @@ trait TreeConverterBuilder {
         fun.body.get.accept(this)
         val body = ret.asInstanceOf[m.Term]
         ret = m.Defn.Def(convertMods(fun), toTermName(fun),
-          Seq(fun.typeParameters map toTypeParams:_*),
-          Seq(fun.paramClauses.clauses.map(convertParamClause):_*),
+          fun.typeParameters.map(toTypeParams).toList,
+          fun.paramClauses.clauses.map(convertParamClause).toList,
           fun.definedReturnType.toOption.map(toType(_)),
           body
         )

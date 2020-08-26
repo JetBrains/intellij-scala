@@ -18,7 +18,7 @@ import org.jetbrains.sbt.resolvers.indexes.ResolverIndex.FORCE_UPDATE_KEY
  * @author Nikolay Obedin
  * @since 8/4/14.
  */
-class DependencyAnnotatorTest extends AnnotatorTestBase {
+class DependencyAnnotatorTest extends org.jetbrains.sbt.annotator.AnnotatorTestBase {
   private val root = s"/${TestUtils.getTestDataPath}/sbt/resolvers/testIvyCache"
 
   def testDoNotAnnotateIndexedDep(): Unit =

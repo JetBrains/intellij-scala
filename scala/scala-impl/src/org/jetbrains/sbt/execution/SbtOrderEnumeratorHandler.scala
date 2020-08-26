@@ -30,7 +30,7 @@ class SbtOrderEnumeratorHandler extends OrderEnumerationHandler {
     // This method assumes that `processRootModules` in `ModuleOrderEnumerator` calls
     // given processor only on module extracted from its underlying `ModuleRootModel`.
     // If this behaviour is subject to change, it's better to roll back to reflection calls to inner fields.
-    import scala.collection.JavaConverters._
+    import scala.jdk.CollectionConverters._
     val modules = new util.ArrayList[Module]()
     enumerator.processRootModules(new CommonProcessors.CollectProcessor[Module](modules))
     modules.asScala.headOption

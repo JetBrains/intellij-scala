@@ -175,7 +175,7 @@ object CaseClauseCompletionContributor {
       replaceText(components.canonicalClauseText)
 
       onTargetElement { clause =>
-        adjustTypesOnClauses(addImports = true, (clause, components))
+        adjustTypesOnClauses(addImports = true, List((clause, components)))
 
         clause.getParent match {
           case clauses: ScCaseClauses =>
@@ -198,7 +198,7 @@ object CaseClauseCompletionContributor {
       replaceText(patternText)
 
       onTargetElement { pattern =>
-        adjustTypes(false, (pattern, components)) {
+        adjustTypes(false, List((pattern, components))) {
           case pattern@ScParenthesisedPattern(ScTypedPattern(typeElement)) => pattern -> typeElement
         }
       }

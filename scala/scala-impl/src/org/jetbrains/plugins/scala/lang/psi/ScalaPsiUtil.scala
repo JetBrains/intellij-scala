@@ -61,7 +61,7 @@ import org.jetbrains.plugins.scala.util.{SAMUtil, ScEquivalenceUtil}
 import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetExternalRunType, WorksheetFileSettings}
 
 import scala.annotation.tailrec
-import scala.collection.{Seq, Set, mutable}
+import scala.collection.{Set, mutable}
 import scala.reflect.{ClassTag, NameTransformer}
 
 /**
@@ -185,11 +185,11 @@ object ScalaPsiUtil {
     *
     * See SCL-2001, SCL-3485
     */
-  def tupled(s: Seq[Expression], context: PsiElement): Option[Seq[Expression]] = {
+  def tupled(s: collection.Seq[Expression], context: PsiElement): Option[collection.Seq[Expression]] = {
     implicit val scope: ElementScope = context.elementScope
 
     val maybeType = s match {
-      case Seq() => Some(Unit)
+      case collection.Seq() => Some(Unit)
       // object A { def foo(a: Any) = ()}; A foo () ==>> A.foo(()), or A.foo() ==>> A.foo( () )
       case _ =>
         def getType(expression: Expression): ScType =
@@ -297,7 +297,7 @@ object ScalaPsiUtil {
           res
         }
 
-        def clearBadLinks(tps: Seq[TypeParameter]): Seq[TypeParameter] = tps.map {
+        def clearBadLinks(tps: collection.Seq[TypeParameter]): collection.Seq[TypeParameter] = tps.map {
           case TypeParameter(psiTypeParameter, parameters, lowerType, upperType) =>
             TypeParameter(
               psiTypeParameter,
@@ -399,7 +399,7 @@ object ScalaPsiUtil {
     CodeStyle.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
   }
 
-  def getElementsRange(start: PsiElement, end: PsiElement): Seq[PsiElement] = {
+  def getElementsRange(start: PsiElement, end: PsiElement): collection.Seq[PsiElement] = {
     if (start == null || end == null) return Nil
     val file = start.getContainingFile
     if (file == null || file != end.getContainingFile) return Nil
@@ -532,7 +532,7 @@ object ScalaPsiUtil {
 
   def stub(element: PsiElement): NullSafe[StubElement[_]] = NullSafe {
     element match {
-      case stubbed: StubBasedPsiElementBase[_] => stubbed.getStub
+      case stubbed: StubBasedPsiElementBase[_] => stubbed.getStub.asInstanceOf[StubElement[_]]
       case file: PsiFileImpl => file.getStub
       case _ => null
     }
@@ -570,7 +570,7 @@ object ScalaPsiUtil {
   def namedElementSig(x: PsiNamedElement): TermSignature =
     TermSignature(x.name, Seq.empty, ScSubstitutor.empty, x)
 
-  def superValsSignatures(x: PsiNamedElement, withSelfType: Boolean = false): Seq[TermSignature] = {
+  def superValsSignatures(x: PsiNamedElement, withSelfType: Boolean = false): collection.Seq[TermSignature] = {
     val empty = Seq.empty
     val typed: ScTypedDefinition = x match {
       case x: ScTypedDefinition => x
@@ -589,7 +589,7 @@ object ScalaPsiUtil {
       if (withSelfType) TypeDefinitionMembers.getSelfTypeSignatures(clazz)
       else TypeDefinitionMembers.getSignatures(clazz)
     val sigs = signatures.forName(x.name)
-    var res: Seq[TermSignature] = sigs.get(s) match {
+    var res: collection.Seq[TermSignature] = sigs.get(s) match {
       case Some(node) if !withSelfType || node.info.namedElement == x =>
         node.supers.map(_.info)
       case Some(node) =>
@@ -618,11 +618,11 @@ object ScalaPsiUtil {
   }
 
   def superTypeMembers(element: PsiNamedElement,
-                       withSelfType: Boolean = false): Seq[PsiNamedElement] =
+                       withSelfType: Boolean = false): collection.Seq[PsiNamedElement] =
     superTypeSignatures(element, withSelfType).map(_.namedElement)
 
   def superTypeSignatures(element: PsiNamedElement,
-                          withSelfType: Boolean = false): Seq[TypeSignature] = {
+                          withSelfType: Boolean = false): collection.Seq[TypeSignature] = {
 
     val clazz: ScTemplateDefinition = element.nameContext match {
       case e@(_: ScTypeAlias | _: ScTrait | _: ScClass) if e.getParent.isInstanceOf[ScTemplateBody] => e.asInstanceOf[ScMember].containingClass
@@ -1031,7 +1031,7 @@ object ScalaPsiUtil {
     */
   @tailrec
   def parameterOf(exp: ScExpression): Option[Parameter] = {
-    def fromMatchedParams(matched: Seq[(ScExpression, Parameter)]) = {
+    def fromMatchedParams(matched: collection.Seq[(ScExpression, Parameter)]) = {
       matched.collectFirst {
         case (e, p) if e == exp => p
       }

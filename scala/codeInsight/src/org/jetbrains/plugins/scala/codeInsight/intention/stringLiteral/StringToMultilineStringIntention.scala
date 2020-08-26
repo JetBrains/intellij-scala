@@ -172,7 +172,7 @@ object StringToMultilineStringIntention {
         fixCaretPosition(prefix.length)
 
       case _ =>
-        val (toReplace, parts) = literal match {
+        val (toReplace, parts: Seq[StringPart]) = literal match {
           case WithStrippedMargin(expr, _) =>
             (expr, StripMarginParser.parse(literal).getOrElse(Nil))
           case LiteralValue(s: String) =>

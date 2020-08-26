@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.util.TestUtils
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ListBuffer
 
 /**
@@ -80,11 +80,11 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
 
   case class CaretPosition(file: VirtualFile, offset: Int)
 
-  private def findCaretsAndRemoveMarkers(files: Array[VirtualFile]): Seq[CaretPosition] = {
-    val caretsInFile: VirtualFile => Seq[CaretPosition] = { file =>
+  private def findCaretsAndRemoveMarkers(files: Array[VirtualFile]): collection.Seq[CaretPosition] = {
+    val caretsInFile: VirtualFile => collection.Seq[CaretPosition] = { file =>
       var text = fileText(file)
       val fileLength = text.length
-      def findOffsets(s: String): Seq[Int] = {
+      def findOffsets(s: String): collection.Seq[Int] = {
         val result = ListBuffer[Int]()
         val length = caretMarker.length
         var occ = text.indexOf(caretMarker)

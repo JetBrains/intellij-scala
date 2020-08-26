@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.compiler.data.{CompilationData, CompilerData,
 import sbt.internal.inc.FileAnalysisStore
 import xsbti.compile.AnalysisStore
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Pavel Fatin

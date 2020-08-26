@@ -18,7 +18,7 @@ class StaticTraitScFunctionWrapper(override val delegate: ScFunction, containing
     else null
   }
 
-  override protected def parameters: Seq[PsiParameter] = {
+  override protected def parameters: collection.Seq[PsiParameter] = {
     val thisParam = ScLightParameter.fromThis(containingClass, delegate)
     thisParam +: delegate.effectiveParameterClauses.flatMap(_.effectiveParameters)
   }

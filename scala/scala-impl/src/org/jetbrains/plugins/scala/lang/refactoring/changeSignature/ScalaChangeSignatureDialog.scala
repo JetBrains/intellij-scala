@@ -40,7 +40,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.ui.ScalaComboBoxVisibilityPa
 import org.jetbrains.plugins.scala.settings.annotations._
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 /**
@@ -317,14 +317,14 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
 
   def getTypesMaxLength: Int = {
     parameterItems.map(_.typeText.length) match {
-      case Seq() => 0
+      case collection.Seq() => 0
       case seq => seq.max
     }
   }
 
   def getNamesMaxLength: Int = {
     parameterItems.map(_.parameter.getName.length) match {
-      case Seq() => 0
+      case collection.Seq() => 0
       case seq => seq.max
     }
   }
@@ -342,8 +342,8 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
       createTypeFromText(fragment.getText, fragment.getContext, fragment)
     }.getOrElse(api.Any)
 
-  protected def splittedItems: Seq[Seq[ScalaParameterTableModelItem]] = {
-    def inner(items: Seq[ScalaParameterTableModelItem]): Seq[Seq[ScalaParameterTableModelItem]] = {
+  protected def splittedItems: collection.Seq[collection.Seq[ScalaParameterTableModelItem]] = {
+    def inner(items: collection.Seq[ScalaParameterTableModelItem]): collection.Seq[collection.Seq[ScalaParameterTableModelItem]] = {
       if (items.isEmpty) return Seq(items)
 
       val index = items.tail.indexWhere(_.startsNewClause)
@@ -356,7 +356,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
     inner(parameterItems)
   }
 
-  protected def parameterItems: Seq[ScalaParameterTableModelItem] = {
+  protected def parameterItems: collection.Seq[ScalaParameterTableModelItem] = {
     myParametersTableModel.getItems.asScala
   }
 
@@ -574,7 +574,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
 
     protected def nameText(item: ScalaParameterTableModelItem): String = {
       val maxLength = parameterItems.map(_.parameter.getName.length) match {
-        case Seq() => 0
+        case collection.Seq() => 0
         case seq => seq.max
       }
       val name = item.parameter.getName
@@ -583,7 +583,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
 
     protected def typeText(item: ScalaParameterTableModelItem): String = {
       val maxLength = parameterItems.map(_.typeText.length) match {
-        case Seq() => 0
+        case collection.Seq() => 0
         case seq => seq.max
       }
       val typeText = item.typeText

@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * @author Nikolay.Tropin
@@ -177,6 +177,7 @@ object MemoryLeakTest {
     createInspectionProfile.getAllEnabledInspectionTools(project).asScala
       .flatMap(_.getTools.asScala)
       .map(_.getTool)
+      .toSeq
   }
 
   private[this] def createInspectionProfile(implicit project: ProjectContext): InspectionProfile = {

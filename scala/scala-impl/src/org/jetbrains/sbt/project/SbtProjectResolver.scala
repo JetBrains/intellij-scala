@@ -31,7 +31,7 @@ import org.jetbrains.sbt.structure.XmlSerializer._
 import org.jetbrains.sbt.structure.{BuildData, ConfigurationData, DependencyData, DirectoryData, JavaData, ProjectData}
 import org.jetbrains.sbt.{structure => sbtStructure}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Random, Success, Try}

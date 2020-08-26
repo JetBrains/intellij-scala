@@ -69,7 +69,7 @@ private[codeInsight] class ImplicitHintsPass(private val editor: Editor, private
       val shouldSearch = (ImplicitHints.enabled || showShowImplicitErrors) &&
         !(compilerErrorsEnabled && rootElement.isInScala3Module)
 
-      def shouldShow(arguments: Seq[ScalaResolveResult]) =
+      def shouldShow(arguments: collection.Seq[ScalaResolveResult]) =
         ImplicitHints.enabled || (showShowImplicitErrors && arguments.exists(it =>
           it.isImplicitParameterProblem &&
             (if (probableArgumentsFor(it).size > 1) settings.isShowAmbiguousImplicitArguments
@@ -122,7 +122,8 @@ private[codeInsight] class ImplicitHintsPass(private val editor: Editor, private
   }
 
   override def doApplyInformationToEditor(): Unit = {
-    EditorScrollingPositionKeeper.perform(myEditor, false, () => regenerateHints())
+    val runnable: Runnable = () => regenerateHints()
+    EditorScrollingPositionKeeper.perform(myEditor, false, runnable)
 
     if (rootElement == myFile) {
       ImplicitHints.setUpToDate(myEditor, myFile)
@@ -130,6 +131,7 @@ private[codeInsight] class ImplicitHintsPass(private val editor: Editor, private
   }
 
   private def regenerateHints(): Unit = {
+    import org.jetbrains.plugins.scala.codeInsight.implicits.Model
     val inlayModel = myEditor.getInlayModel
     val existingInlays = inlayModel.inlaysIn(rootElement.getTextRange)
 
@@ -149,20 +151,20 @@ private object ImplicitHintsPass {
   private final val BulkChangeThreshold = 1000
 
   private def implicitConversionHint(e: ScExpression, conversion: ScalaResolveResult)
-                                    (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Hint] =
+                                    (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): collection.Seq[Hint] =
     Seq(Hint(namedBasicPresentation(conversion) :+ Text("("), e, suffix = false, menu = Some(menu.ImplicitConversion)),
-      Hint(Text(")") +: collapsedPresentationOf(conversion.implicitParameters), e, suffix = true, menu = Some(menu.ImplicitArguments)))
+      Hint(Text(")") +: collapsedPresentationOf(conversion.implicitParameters).toSeq, e, suffix = true, menu = Some(menu.ImplicitArguments)))
 
-  private def implicitArgumentsHint(e: ImplicitArgumentsOwner, arguments: Seq[ScalaResolveResult])
-                                   (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Hint] = {
-    Seq(Hint(presentationOf(arguments), e, suffix = true, menu = Some(menu.ImplicitArguments)))
+  private def implicitArgumentsHint(e: ImplicitArgumentsOwner, arguments: collection.Seq[ScalaResolveResult])
+                                   (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): collection.Seq[Hint] = {
+    Seq(Hint(presentationOf(arguments).toSeq, e, suffix = true, menu = Some(menu.ImplicitArguments)))
   }
 
   private def explicitImplicitArgumentsHint(args: ScArgumentExprList): Seq[Hint] =
     Seq(Hint(Seq(Text(".explicitly")), args, suffix = false, menu = Some(menu.ExplicitArguments)))
 
-  private def presentationOf(arguments: Seq[ScalaResolveResult])
-                            (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Text] = {
+  private def presentationOf(arguments: collection.Seq[ScalaResolveResult])
+                            (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): collection.Seq[Text] = {
 
     if (!ImplicitHints.enabled)
       collapsedPresentationOf(arguments)
@@ -170,14 +172,14 @@ private object ImplicitHintsPass {
       expandedPresentationOf(arguments)
   }
 
-  private def collapsedPresentationOf(arguments: Seq[ScalaResolveResult])
-                                     (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Text] =
+  private def collapsedPresentationOf(arguments: collection.Seq[ScalaResolveResult])
+                                     (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): collection.Seq[Text] =
     if (arguments.isEmpty) Seq.empty
     else {
       val problems = arguments.filter(_.isImplicitParameterProblem)
       val folding = Text(foldedString,
         attributes = foldedAttributes(error = problems.nonEmpty),
-        expansion = Some(() => expandedPresentationOf(arguments).drop(1).dropRight(1))
+        expansion = Some(() => expandedPresentationOf(arguments).drop(1).dropRight(1).toSeq)
       )
 
       Seq(
@@ -187,8 +189,8 @@ private object ImplicitHintsPass {
       ).withErrorTooltipIfEmpty(notFoundTooltip(problems))
     }
 
-  private def expandedPresentationOf(arguments: Seq[ScalaResolveResult])
-                                    (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Text] =
+  private def expandedPresentationOf(arguments: collection.Seq[ScalaResolveResult])
+                                    (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): collection.Seq[Text] =
     if (arguments.isEmpty) Seq.empty
     else {
       arguments.join(
@@ -199,10 +201,12 @@ private object ImplicitHintsPass {
     }
 
   private def presentationOf(argument: ScalaResolveResult)
-                            (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Text] =
-    argument.isImplicitParameterProblem
+                            (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Text] = {
+    val result = argument.isImplicitParameterProblem
       .option(problemPresentation(parameter = argument))
       .getOrElse(namedBasicPresentation(argument) ++ collapsedPresentationOf(argument.implicitParameters))
+    result.toSeq
+  }
 
   private def namedBasicPresentation(result: ScalaResolveResult): Seq[Text] = {
     val delegate = result.element match {
@@ -217,8 +221,8 @@ private object ImplicitHintsPass {
   }
 
   private def problemPresentation(parameter: ScalaResolveResult)
-                                 (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Text] = {
-    probableArgumentsFor(parameter) match {
+                                 (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): collection.Seq[Text] = {
+    probableArgumentsFor(parameter).toSeq match {
       case Seq()                                                => noApplicableExpandedPresentation(parameter)
       case Seq((arg, result)) if arg.implicitParameters.isEmpty => presentationOfProbable(arg, result)
       case args                                                 => collapsedProblemPresentation(parameter, args)
@@ -312,16 +316,15 @@ private object ImplicitHintsPass {
     notFoundErrorTooltip(message, Seq(parameter))
   }
 
-  private def notFoundTooltip(parameters: Seq[ScalaResolveResult])
-                             (implicit owner: ImplicitArgumentsOwner): Option[ErrorTooltip] = {
-    parameters match {
+  private def notFoundTooltip(parameters: collection.Seq[ScalaResolveResult])
+                             (implicit owner: ImplicitArgumentsOwner): Option[ErrorTooltip] =
+    parameters.toSeq match {
       case Seq()  => None
       case Seq(p) => Some(notFoundTooltip(p))
       case ps     =>
         val message = ScalaCodeInsightBundle.message("no.implicits.found.for.parameters", ps.map(paramWithType).mkString(", "))
         Some(notFoundErrorTooltip(message, ps))
     }
-  }
 
   private def notFoundErrorTooltip(@Nls message: String, notFoundArgs: Seq[ScalaResolveResult])
                                   (implicit owner: ImplicitArgumentsOwner): ErrorTooltip = {

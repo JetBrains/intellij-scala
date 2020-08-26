@@ -27,7 +27,7 @@ import org.jetbrains.sbt.shell.action.CopyFromHistoryViewerAction._
 import org.jetbrains.sbt.shell.action.SbtShellActionUtil._
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellConsoleView, SbtShellToolWindowFactory}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class SbtShellScrollToTheEndToolbarAction(editor: Editor) extends ScrollToTheEndToolbarAction(editor) {
 
@@ -223,7 +223,7 @@ class DebugShellAction(project: Project, remoteConnection: Option[RemoteConnecti
     } ExecutionManagerImpl.stopProcess(proc)
   }
 
-  private def findProcessHandlerByNameAndType(descriptors: Seq[RunContentDescriptor]): Option[ProcessHandler] =
+  private def findProcessHandlerByNameAndType(descriptors: Iterable[RunContentDescriptor]): Option[ProcessHandler] =
     for {
       desc <- descriptors.find(_.getDisplayName == configName)
       proc <- Option(desc.getProcessHandler)

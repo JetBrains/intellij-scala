@@ -22,7 +22,7 @@ package object hints {
           maybeExpression.collect {
             case reference: ScReferenceExpression => reference
           }
-        }.map(_.refName -> arguments)
+        }.map(_.refName -> arguments.toSeq)
       case _ => None
     }
   }

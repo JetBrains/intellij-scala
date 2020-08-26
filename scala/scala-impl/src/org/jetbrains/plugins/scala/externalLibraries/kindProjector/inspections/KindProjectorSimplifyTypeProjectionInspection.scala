@@ -86,7 +86,9 @@ object KindProjectorSimplifyTypeProjectionInspection {
     def simpleTypeArgumentOccurences(tpe: ScParameterizedType): Map[String, Int] =
       tpe.typeArguments.collect { case tpt: TypeParameterType => tpt.name }
         .groupBy(identity)
+        .view
         .mapValues(_.size)
+        .toMap
 
     alias.aliasedType match {
       case Right(paramType: ScParameterizedType) =>

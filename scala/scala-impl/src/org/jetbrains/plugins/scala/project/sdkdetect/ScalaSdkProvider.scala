@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.ScalaBundle.message
 import org.jetbrains.plugins.scala.project.template.{ScalaSdkComponent, ScalaSdkDescriptor, SdkChoice}
 import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetector
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 // TODO: use Java -> Scala stream converters from Scala 2.13
 class ScalaSdkProvider(implicit indicator: ProgressIndicator, contextDirectory: VirtualFile) {
@@ -37,6 +37,7 @@ class ScalaSdkProvider(implicit indicator: ProgressIndicator, contextDirectory: 
 
     val componentsByVersion = components.groupBy(_.version)
     componentsByVersion
+      .view
       .mapValues(ScalaSdkDescriptor.buildFromComponents)
       .toSeq
       .collect { case (Some(_), Right(descriptor)) => detector.buildSdkChoice(descriptor) }

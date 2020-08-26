@@ -63,17 +63,15 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 import org.jetbrains.plugins.scala.util.ScalaPluginUtils
 
 import scala.annotation.tailrec
-import scala.collection.generic.CanBuildFrom
-import scala.collection.mutable.{ArrayBuffer, ListBuffer}
-import scala.collection.{JavaConverters, Seq}
+import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Future, Promise}
 import scala.io.Source
-import scala.language.higherKinds
 import scala.math.Ordering
 import scala.reflect.{ClassTag, classTag}
 import scala.runtime.NonLocalReturnControl
 import scala.util.control.Exception.catching
 import scala.util.{Failure, Success, Try}
+import scala.jdk.CollectionConverters._
 
 /**
   * Pavel Fatin
@@ -108,7 +106,7 @@ package object extensions {
     def parameters: Seq[PsiParameter] =
       repr.getParameterList.getParameters
 
-    def parametersTypes: Seq[ScType] = repr match {
+    def parametersTypes: collection.Seq[ScType] = repr match {
       case scalaFunction: ScFunction =>
         scalaFunction.parameters
           .map(_.`type`().getOrNothing)
@@ -165,14 +163,14 @@ package object extensions {
   }
 
   implicit class TraversableExt[CC[X] <: Traversable[X], A](private val value: CC[A]) extends AnyVal {
-    private type CanBuildTo[Elem, C[X]] = CanBuildFrom[Nothing, Elem, C[Elem]]
 
     def foreachDefined(pf: PartialFunction[A, Unit]): Unit =
-      value.foreach(pf.applyOrElse(_, (_: A) => Unit))
+      value.foreach(pf.applyOrElse(_, (_: A) => ()))
 
-    def filterByType[T: ClassTag](implicit cbf: CanBuildTo[T, CC]): CC[T] = {
+    def filterByType[T: ClassTag](implicit factory: scala.collection.Factory[T, CC[T]]): CC[T] = {
       val clazz = implicitly[ClassTag[T]].runtimeClass
-      value.filter(clazz.isInstance).asInstanceOf[CC[T]]
+      val mapped = value.filter(clazz.isInstance).map(_.asInstanceOf[T])
+      factory.fromSpecific(mapped)
     }
 
     def findByType[T: ClassTag]: Option[T] = {
@@ -189,7 +187,7 @@ package object extensions {
       result.asInstanceOf[Option[T]]
     }
 
-    def distinctBy[K](f: A => K): Seq[A] = {
+    def distinctBy[K](f: A => K): collection.Seq[A] = {
       val buffer = new ArrayBuffer[A](value.size)
       var seen = Set[K]()
       for (x <- value) {
@@ -205,7 +203,7 @@ package object extensions {
     def mkParenString(implicit ev: A <:< String): String = value.mkString("(", ", ", ")")
   }
 
-  implicit class SeqExt[CC[X] <: Seq[X], A <: AnyRef](private val value: CC[A]) extends AnyVal {
+  implicit class SeqExt[CC[X] <: collection.Seq[X], A <: AnyRef](private val value: CC[A]) extends AnyVal {
 
     def firstBy[B](f: A => B)(implicit ord: Ordering[B]): Option[A] =
       if (value.isEmpty) None else Some(value.minBy(f))
@@ -213,7 +211,7 @@ package object extensions {
     def lastBy[B](f: A => B)(implicit ord: Ordering[B]): Option[A] =
       if (value.isEmpty) None else Some(value.maxBy(f))
 
-    def mapWithIndex[B](f: (A, Int) => B): Seq[B] = {
+    def mapWithIndex[B](f: (A, Int) => B): collection.Seq[B] = {
       val buffer = new ArrayBuffer[B](value.size)
       var i = 0
       for (x <- value) {
@@ -224,7 +222,7 @@ package object extensions {
     }
 
     //may return same instance if no element was changed
-    def smartMapWithIndex(f: (A, Int) => A): Seq[A] = {
+    def smartMapWithIndex(f: (A, Int) => A): collection.Seq[A] = {
       val buffer = new ArrayBuffer[A](value.size)
       val iterator = value.iterator
       var i = 0
@@ -243,7 +241,7 @@ package object extensions {
     }
 
     //may return same instance if no element was changed
-    def smartMap(f: A => A): Seq[A] = {
+    def smartMap(f: A => A): collection.Seq[A] = {
       val buffer = new ArrayBuffer[A](value.size)
       val iterator = value.iterator
       var updated = false
@@ -259,7 +257,7 @@ package object extensions {
       else value
     }
 
-    def zipMapped[B](f: A => B): Seq[(A, B)] = {
+    def zipMapped[B](f: A => B): collection.Seq[(A, B)] = {
       val b = new ArrayBuffer[(A, B)](value.size)
       val it = value.iterator
       while (it.hasNext) {
@@ -295,7 +293,7 @@ package object extensions {
           } else result
         }
 
-      join(ListBuffer.empty[B])
+      join(List.empty[B])
     }
 
     def join[B](start: B,
@@ -548,7 +546,7 @@ package object extensions {
     def indexWhere(pred: Char => Boolean): Int = iterator.indexWhere(pred)
   }
 
-  implicit class StringsExt(private val strings: Seq[String]) extends AnyVal {
+  implicit class StringsExt(private val strings: Iterable[String]) extends AnyVal {
     def commaSeparated(model: Model.Val = Model.None): String =
       strings.mkString(model.start, ", ", model.end)
   }
@@ -896,7 +894,7 @@ package object extensions {
       }
     }
 
-    def names: Seq[String] = {
+    def names: collection.Seq[String] = {
       member match {
         case decls: ScDeclaredElementsHolder => decls.declaredNames
         case named: PsiNamedElement          => Seq(named.name)
@@ -935,7 +933,7 @@ package object extensions {
       }
     }
 
-    def constructors: Seq[PsiMethod] =
+    def constructors: collection.Seq[PsiMethod] =
       clazz match {
         case c: ScConstructorOwner => c.constructors
         case _ => clazz.getConstructors
@@ -948,7 +946,7 @@ package object extensions {
       case _ => clazz.hasModifierProperty(PsiModifier.FINAL)
     }
 
-    def allSupers: Seq[PsiClass] = {
+    def allSupers: collection.Seq[PsiClass] = {
       val res = ArrayBuffer[PsiClass]()
 
       def addWithSupers(c: PsiClass): Unit = {
@@ -1030,7 +1028,7 @@ package object extensions {
     def isJavaLangObject: Boolean =
       clazz.qualifiedName == "java.lang.Object"
 
-    def namedElements: Seq[PsiNamedElement] = {
+    def namedElements: collection.Seq[PsiNamedElement] = {
       clazz match {
         case td: ScTemplateDefinition =>
           td.membersWithSynthetic.flatMap {
@@ -1231,7 +1229,7 @@ package object extensions {
                                (implicit project: Project): Unit =
     CommandProcessor.getInstance().executeCommand(
       project,
-      () => inWriteAction(body),
+      (() => inWriteAction(body)) : Runnable,
       commandName,
       null,
       policy
@@ -1243,7 +1241,7 @@ package object extensions {
                                (implicit project: Project): Unit =
     CommandProcessor.getInstance().executeCommand(
       project,
-      () => WriteCommandAction.runWriteCommandAction(project, runnable),
+      (() => WriteCommandAction.runWriteCommandAction(project, runnable)): Runnable,
       commandName,
       null,
       policy
@@ -1339,7 +1337,7 @@ package object extensions {
 
   def invokeAndWait[T](modalityState: ModalityState)(body: => T): Unit =
     preservingControlFlow {
-      ApplicationManager.getApplication.invokeAndWait(() => body, modalityState)
+      ApplicationManager.getApplication.invokeAndWait((() => body): Runnable, modalityState)
     }
 
   def invokeLaterInTransaction(disposable: Disposable)(body: => Unit): Unit =
@@ -1527,7 +1525,6 @@ package object extensions {
   final class CollectUniquesProcessorEx[T] extends CollectUniquesProcessor[T] {
 
     def results = {
-      import JavaConverters._
       getResults.asScala
     }
 

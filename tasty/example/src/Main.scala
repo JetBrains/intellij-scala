@@ -26,7 +26,7 @@ object Main {
     val FullVersion = s"$Version.0-RC1"
 
     val files = Seq(
-      home + "/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.13.1.jar",
+      home + "/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.13.2.jar",
       s"$home/.ivy2/cache/ch.epfl.lamp/dotty-interfaces/jars/dotty-interfaces-$FullVersion.jar",
       s"$home/.ivy2/cache/ch.epfl.lamp/dotty-library_$Version/jars/dotty-library_$Version-$FullVersion.jar",
       s"$home/.ivy2/cache/ch.epfl.lamp/dotty-compiler_$Version/jars/dotty-compiler_$Version-$FullVersion.jar",

@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalMethodSignature
 
 abstract class ScalaParameterInfoEnhancer {
-  def enhance(signature: PhysicalMethodSignature, arguments: Seq[ScExpression]): Seq[PhysicalMethodSignature]
+  def enhance(signature: PhysicalMethodSignature, arguments: collection.Seq[ScExpression]): collection.Seq[PhysicalMethodSignature]
 }
 
 object ScalaParameterInfoEnhancer
@@ -13,6 +13,6 @@ object ScalaParameterInfoEnhancer
     "org.intellij.scala.parameterInfoEnhancer"
   ) {
 
-  def enhance(signature: PhysicalMethodSignature, arguments: Seq[ScExpression]): Seq[PhysicalMethodSignature] =
+  def enhance(signature: PhysicalMethodSignature, arguments: collection.Seq[ScExpression]): collection.Seq[PhysicalMethodSignature] =
     implementations.flatMap(_.enhance(signature, arguments))
 }

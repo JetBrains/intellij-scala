@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalMethodSignature
 import org.jetbrains.plugins.scala.lang.structureView.element.Element
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Alefas

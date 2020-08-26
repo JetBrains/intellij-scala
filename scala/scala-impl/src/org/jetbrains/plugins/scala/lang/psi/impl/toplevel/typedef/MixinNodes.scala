@@ -34,7 +34,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
@@ -81,7 +81,7 @@ abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor
 
 object MixinNodes {
 
-  private case class SuperTypesData(substitutors: collection.Map[PsiClass, ScSubstitutor], refinements: Seq[ScCompoundType])
+  private case class SuperTypesData(substitutors: collection.Map[PsiClass, ScSubstitutor], refinements: collection.Seq[ScCompoundType])
 
   private object SuperTypesData {
 
@@ -105,7 +105,7 @@ object MixinNodes {
       SuperTypesData(superTypes, thisTypeSubst)
     }
 
-    private def apply(superTypes: Seq[ScType], thisTypeSubst: ScSubstitutor): SuperTypesData = {
+    private def apply(superTypes: collection.Seq[ScType], thisTypeSubst: ScSubstitutor): SuperTypesData = {
       val substitutors = new util.LinkedHashMap[PsiClass, ScSubstitutor]
       val refinements = new SmartList[ScCompoundType]
 
@@ -158,7 +158,7 @@ object MixinNodes {
 
     private[MixinNodes] def concreteSuper: Option[Node[T]] = Option(_concreteSuper)
 
-    def supers: Seq[Node[T]] = _supers.asScala
+    def supers: collection.Seq[Node[T]] = _supers.asScala
     def primarySuper: Option[Node[T]] = concreteSuper.orElse(supers.headOption)
   }
 
@@ -172,7 +172,7 @@ object MixinNodes {
 
     private val forNameCache = new ConcurrentHashMap[String, AllNodes[T]]()
 
-    private lazy val implicitNodes: Seq[Node[T]] = {
+    private lazy val implicitNodes: collection.Seq[Node[T]] = {
       val res = new ArrayBuffer[Node[T]](implicitNames.size)
       val iterator = implicitNames.iterator()
       while (iterator.hasNext) {
@@ -366,9 +366,9 @@ object MixinNodes {
     def empty[T <: Signature]: NodesMap[T] = new THashMap[T, Node[T]](2, hashingStrategy[T])
   }
 
-  def linearization(clazz: PsiClass): Seq[ScType] = {
+  def linearization(clazz: PsiClass): collection.Seq[ScType] = {
     @CachedWithRecursionGuard(clazz, Seq.empty, ModTracker.libraryAware(clazz))
-    def inner(): Seq[ScType] = {
+    def inner(): collection.Seq[ScType] = {
       implicit val ctx: ProjectContext = clazz
 
       clazz match {
@@ -411,14 +411,14 @@ object MixinNodes {
   }
 
 
-  def linearization(compound: ScCompoundType, addTp: Boolean = false): Seq[ScType] = {
+  def linearization(compound: ScCompoundType, addTp: Boolean = false): collection.Seq[ScType] = {
     val comps = compound.components
     val classType = if (addTp) Some(compound) else None
     generalLinearization(classType, comps)
   }
 
 
-  private def generalLinearization(classType: Option[ScType], supers: Seq[ScType]): Seq[ScType] = {
+  private def generalLinearization(classType: Option[ScType], supers: Iterable[ScType]): collection.Seq[ScType] = {
     val buffer = new ListBuffer[ScType]
     val set: mutable.HashSet[String] = new mutable.HashSet //to add here qualified names of classes
     def classString(clazz: PsiClass): String = {

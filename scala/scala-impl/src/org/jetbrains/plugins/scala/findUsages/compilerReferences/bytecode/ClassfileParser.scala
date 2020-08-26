@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.extensions.using
 
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.reflect.NameTransformer
 import scala.reflect.internal.pickling.ByteCodecs
 
@@ -80,7 +80,7 @@ private[compilerReferences] object ClassfileParser {
     }
 
     val synthetics: Set[String] = scalaSig.fold(Set.empty[String])(
-      _.syntheticSymbols().map(_.qualifiedName)(collection.breakOut)
+      _.syntheticSymbols().map(_.qualifiedName).to(Set)
     )
 
     classFiles.map(parse(_, synthetics))
@@ -198,10 +198,10 @@ private[compilerReferences] object ClassfileParser {
 
     def result: ParsedClass = {
       val classInfo = ClassInfo(isAnon, className, superNames.result())
-      val refs      = innerRefs.asScala
+      val refs      = innerRefs.asScala.toSeq
 
       if (isFunExprClassname(className)) FunExprClass(classInfo, refs, earliestSeen.getOrElse(-1))
-      else                               RegularClass(classInfo, refs, funExprs.asScala)
+      else                               RegularClass(classInfo, refs, funExprs.asScala.toSeq)
     }
   }
 

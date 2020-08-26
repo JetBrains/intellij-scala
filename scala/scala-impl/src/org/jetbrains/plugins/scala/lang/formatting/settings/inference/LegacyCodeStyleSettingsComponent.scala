@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.components.RunOnceStartupActivity
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * @author Roman.Shein
@@ -16,7 +16,7 @@ import scala.collection.JavaConverters._
 final class LegacyCodeStyleSettingsComponent extends RunOnceStartupActivity {
 
   override def doRunActivity(): Unit = {
-    val codeStyleSchemes: Seq[CodeStyleScheme] = CodeStyleSchemesImpl.getSchemeManager.getAllSchemes.asScala
+    val codeStyleSchemes = CodeStyleSchemesImpl.getSchemeManager.getAllSchemes.asScala
     codeStyleSchemes.foreach { scheme =>
       val scalaSettings = scheme.getCodeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
       val commonSettings = scheme.getCodeStyleSettings.getCommonSettings(ScalaLanguage.INSTANCE)

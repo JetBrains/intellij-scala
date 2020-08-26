@@ -53,10 +53,10 @@ class TypeParamsRenderer(
     )
   }
 
-  private def renderParams[T](parameters: Seq[T])
+  private def renderParams[T](parameters: collection.Seq[T])
                              (renderParam: T => String): String =
     if (parameters.isEmpty) "" else {
-      val buffer = StringBuilder.newBuilder
+      val buffer = new StringBuilder
 
       if (parameters.nonEmpty) {
         buffer.append("[")

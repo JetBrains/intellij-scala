@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.Pr
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-final case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeParameter]) extends NonValueType {
+final case class ScTypePolymorphicType(internalType: ScType, typeParameters: collection.Seq[TypeParameter]) extends NonValueType {
 
   if (internalType.isInstanceOf[ScTypePolymorphicType]) {
     throw new IllegalArgumentException("Polymorphic type can't have wrong internal type")

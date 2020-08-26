@@ -23,7 +23,7 @@ import org.apache.commons.io.IOUtils
 import org.jetbrains.bsp.protocol.{BspCommunication, BspCommunicationService}
 import org.jetbrains.bsp.settings.BspProjectSettings.BspServerConfig
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class BspServerWidgetProvider extends StatusBarWidgetProvider {
 

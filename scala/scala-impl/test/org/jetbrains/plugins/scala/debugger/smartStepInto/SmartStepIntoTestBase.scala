@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert
 import org.junit.experimental.categories.Category
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Nikolay.Tropin
@@ -41,7 +41,7 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
   protected def handler = new ScalaSmartStepIntoHandler
 
   def availableSmartStepTargets(): Seq[SmartStepTarget] =
-    handler.findSmartStepTargets(currentSourcePosition).asScala
+    handler.findSmartStepTargets(currentSourcePosition).asScala.toSeq
 
   def checkSmartStepTargets(expected: String*): Unit = {
     val targets = inReadAction {

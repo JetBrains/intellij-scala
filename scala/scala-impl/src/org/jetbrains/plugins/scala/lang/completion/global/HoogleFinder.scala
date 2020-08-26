@@ -27,14 +27,14 @@ private final class HoogleFinder(originalType: ScType,
     objectCandidates(targetTypeDefinitions) {
       case function: ScFunction =>
         function.parameters match {
-          case Seq(head) if head.getRealParameterType.exists(valueType.conforms) =>
+          case collection.Seq(head) if head.getRealParameterType.exists(valueType.conforms) =>
             Seq(function)
           case _ => Seq.empty
         }
       case _ => Seq.empty
     }(PostfixCandidate)
 
-  private def targetTypeDefinitions: Seq[ScTypeDefinition] = valueType match {
+  private def targetTypeDefinitions: collection.Seq[ScTypeDefinition] = valueType match {
     case ExtractClass(definition: ScTypeDefinition) =>
       (definition +: definition.supers.filterByType[ScTypeDefinition]) ++
         contextsOfType[ScTypeDefinition]

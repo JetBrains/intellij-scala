@@ -10,7 +10,7 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 
-import scala.collection.JavaConverters
+import scala.jdk.CollectionConverters._
 
 /**
   * @author Roman.Shein
@@ -30,7 +30,6 @@ final class ScalaSubtypesMacro extends ScalaMacro {
   override def calculateLookupItems(expressions: Array[Expression], context: ExpressionContext): Array[LookupElement] =
     calculateResult(expressions, context) match {
       case ScalaTypeResult(ExtractClass(typeDefinition: ScTypeDefinition)) =>
-        import JavaConverters._
         val inheritors = ClassInheritorsSearch.search(
           typeDefinition,
           GlobalSearchScope.projectScope(context.getProject),

@@ -36,7 +36,7 @@ final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
       //noinspection TypeAnnotation
       override protected def createConsumer(resultSet: CompletionResultSet, position: PsiElement) = new TypedConsumer(resultSet) {
 
-        override protected def createInsertHandler(itemText: String): InsertHandler = new InsertHandler(itemText) {
+        override protected def createInsertHandler(itemText: String): aot.InsertHandler = new aot.InsertHandler(itemText) {
 
           override def handleInsert(decorator: Decorator)
                                    (implicit context: InsertionContext): Unit = {
@@ -130,7 +130,7 @@ final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
 
 object ScalaAotCompletionContributor {
 
-  private trait ParameterCompletionProvider extends CompletionProvider[ScParameter] {
+  private trait ParameterCompletionProvider extends aot.CompletionProvider[ScParameter] {
 
     override protected def createElement(text: String,
                                          context: PsiElement,
@@ -143,7 +143,7 @@ object ScalaAotCompletionContributor {
   }
 
   private abstract class DeclarationCompletionProvider[D <: ScMember with ScDeclaration](keyword: String,
-                                                                                         classes: Class[_ <: ScMember]*) extends CompletionProvider[D] {
+                                                                                         classes: Class[_ <: ScMember]*) extends aot.CompletionProvider[D] {
 
     override protected def addCompletions(resultSet: CompletionResultSet, prefix: String)
                                          (implicit parameters: CompletionParameters, context: ProcessingContext): Unit =

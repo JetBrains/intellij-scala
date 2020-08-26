@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.Ivy2IndexingMod
 import org.jetbrains.sbt._
 import org.jetbrains.sbt.resolvers._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.xml.XML
 

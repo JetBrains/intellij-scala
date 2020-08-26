@@ -58,7 +58,7 @@ object ScalaIndexKeys {
 
   implicit class StubIndexKeyExt[Key, Psi <: PsiElement : ClassTag](private val indexKey: StubIndexKey[Key, Psi]) {
 
-    import collection.JavaConverters._
+    import scala.jdk.CollectionConverters._
 
     def elements(key: Key, scope: GlobalSearchScope)
                 (implicit project: Project): Iterable[Psi] =

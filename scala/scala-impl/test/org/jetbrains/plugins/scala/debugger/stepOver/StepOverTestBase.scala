@@ -34,7 +34,7 @@ abstract class StepOverTestBase extends ScalaDebuggerTestCase {
       }
     }
 
-    val expectedNumbers = expectedLineNumbers.toIterator
+    val expectedNumbers = expectedLineNumbers.iterator
     runDebugger(mainClassName) {
       while (!processTerminatedNoBreakpoints()) {
         if (expectedNumbers.hasNext) checkLine(expectedNumbers.next())

@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class ScalaBlock(val parentBlock: ScalaBlock,
                  val node: ASTNode,
@@ -362,7 +362,10 @@ object SubBlocksContext {
     new SubBlocksContext(
       additionalNodes = Seq(),
       alignment = None,
-      childrenAdditionalContexts = childNodesAlignment.mapValues(a => new SubBlocksContext(Seq(), Some(a), Map()))
+      childrenAdditionalContexts = childNodesAlignment
+        .view
+        .mapValues(a => new SubBlocksContext(Seq(), Some(a), Map()))
+        .toMap
     )
   }
 }

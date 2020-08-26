@@ -9,7 +9,7 @@ import com.intellij.spellchecker.SpellCheckerManager
 import com.intellij.spellchecker.quickfixes.DictionarySuggestionProvider
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /*
   This class is hacky!

@@ -77,7 +77,7 @@ object ScalaGenerateEqualsAction {
       }
 
       fields(aClass) match {
-        case Seq() =>
+        case collection.Seq() =>
           HintManager.getInstance.showErrorHint(editor, ScalaCodeInsightBundle.message("no.fields.to.include.in.equals.hashcode.have.been.found"))
           false
         case fields if ApplicationManager.getApplication.isUnitTestMode =>
@@ -106,7 +106,7 @@ object ScalaGenerateEqualsAction {
         createMethodWithContext(declText + " = 0", aClass, aClass.extendsBlock),
         ScSubstitutor.empty)
       val superCall = Option(if (!overridesFromJavaObject(aClass, signature)) "super.hashCode()" else null)
-      val usedFields = superCall ++: myHashCodeFields.map(_.name)
+      val usedFields = superCall ++ myHashCodeFields.map(_.name)
       val stateText = usedFields.mkString("Seq(", ", ", ")")
       val firstStmtText = s"val state = $stateText"
       val arrow = ScalaPsiUtil.functionArrow(aClass.getProject)
@@ -139,7 +139,7 @@ object ScalaGenerateEqualsAction {
         ScSubstitutor.empty)
       val superCheck = Option(if (!overridesFromJavaObject(aClass, signature)) "super.equals(that)" else null)
       val canEqualCheck = Option(if (aClass.hasFinalModifier) null else "(that canEqual this)")
-      val allChecks = superCheck ++: canEqualCheck ++: fieldComparisons
+      val allChecks = superCheck ++ canEqualCheck ++ fieldComparisons
       val checksText = allChecks.mkString(" &&\n")
       val arrow = ScalaPsiUtil.functionArrow(project)
       val text =

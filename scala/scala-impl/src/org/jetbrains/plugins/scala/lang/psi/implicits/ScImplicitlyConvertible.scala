@@ -22,7 +22,7 @@ import scala.collection.Set
   */
 object ScImplicitlyConvertible {
 
-  def applicableImplicitConversions(place: ScExpression): Seq[ImplicitResolveResult] =
+  def applicableImplicitConversions(place: ScExpression): collection.Seq[ImplicitResolveResult] =
     findPlaceType(place, fromUnderscore = false) match {
       case None => Seq.empty
       case Some(placeType) =>

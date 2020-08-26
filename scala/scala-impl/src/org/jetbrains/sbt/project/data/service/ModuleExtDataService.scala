@@ -19,8 +19,7 @@ import com.intellij.util.CommonProcessors.{CollectProcessor, UniqueProcessor}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.external._
 
-import scala.collection.JavaConverters
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Pavel Fatin
@@ -55,10 +54,9 @@ object ModuleExtDataService {
 
     private def configureScalaSdk(module: Module,
                                   compilerVersion: String,
-                                  scalacClasspath: Seq[File]): Unit = getScalaLibraries(module) match {
+                                  scalacClasspath: collection.Seq[File]): Unit = getScalaLibraries(module) match {
       case libraries if libraries.isEmpty =>
       case libraries =>
-        import JavaConverters._
         val maybeLibrary = libraries.asScala.find { library =>
           library.compilerVersion.exists { version =>
             version == compilerVersion ||
@@ -93,7 +91,7 @@ object ModuleExtDataService {
       sdk.flatMap(SdkUtils.findProjectSdk).foreach(model.setSdk)
     }
 
-    private def configureLanguageLevel(module: Module, javacOptions: Seq[String]): Unit = {
+    private def configureLanguageLevel(module: Module, javacOptions: collection.Seq[String]): Unit = {
       val model = getModifiableRootModel(module)
       val moduleSdk = Option(model.getSdk)
       val languageLevel = SdkUtils.javaLanguageLevelFrom(javacOptions)
@@ -104,7 +102,7 @@ object ModuleExtDataService {
       }
     }
 
-    private def configureJavacOptions(module: Module, javacOptions: Seq[String]): Unit = {
+    private def configureJavacOptions(module: Module, javacOptions: collection.Seq[String]): Unit = {
       for {
         targetPos <- Option(javacOptions.indexOf("-target")).filterNot(_ == -1)
         targetValue <- javacOptions.lift(targetPos + 1)

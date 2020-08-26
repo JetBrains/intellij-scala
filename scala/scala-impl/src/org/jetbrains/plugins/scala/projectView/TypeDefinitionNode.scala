@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Pavel Fatin
@@ -31,7 +32,7 @@ private[projectView] class TypeDefinitionNode(definition: ScTypeDefinition)
       super.getChildrenImpl
 
   private def childrenOf(value: ScTypeDefinition): util.List[Node] = {
-    val result: Seq[Node] = value.membersWithSynthetic.flatMap {
+    val result: collection.Seq[Node] = value.membersWithSynthetic.flatMap {
       case definition: ScTypeDefinition =>
         Seq(new TypeDefinitionNode(definition))
       case element: ScNamedElement =>
@@ -41,7 +42,6 @@ private[projectView] class TypeDefinitionNode(definition: ScTypeDefinition)
       case _ => Seq.empty
     }
 
-    import collection.JavaConverters._
     result.asJava
   }
 

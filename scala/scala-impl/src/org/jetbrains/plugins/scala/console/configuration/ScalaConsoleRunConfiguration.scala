@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.util.{JdomExternalizerMigrationHelper, Notifi
 import org.jetbrains.sbt.{RichFile, RichOption}
 
 import scala.beans.BeanProperty
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * Run configuration with a single purpose: run Scala REPL instance in a internal IDEA console.

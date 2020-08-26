@@ -14,7 +14,7 @@ import com.intellij.xdebugger.frame.{XDebuggerTreeNodeHyperlink, XValueChildrenL
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.duration.DurationDouble
 import scala.concurrent.{Await, Promise}
 

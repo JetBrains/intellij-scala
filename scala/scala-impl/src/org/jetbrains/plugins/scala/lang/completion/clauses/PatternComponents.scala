@@ -76,7 +76,7 @@ sealed abstract class ClassPatternComponents(`class`: PsiClass,
     reference.fold(identity, _.getText)
 }
 
-sealed abstract class SequenceBasedPatternComponents[T](`class`: ScTypeDefinition, components: Seq[T])
+sealed abstract class SequenceBasedPatternComponents[T](`class`: ScTypeDefinition, components: Iterable[T])
                                                        (function: T => String)
   extends ClassPatternComponents(`class`) {
 
@@ -107,7 +107,7 @@ object CaseClassPatternComponents {
 }
 
 sealed abstract class PhysicalExtractorPatternComponents protected(`class`: ScTypeDefinition,
-                                                                   types: Seq[ScType])
+                                                                   types: Iterable[ScType])
   extends SequenceBasedPatternComponents(`class`, types)(new UniqueNameSuggester())
 
 object PhysicalExtractorPatternComponents {
@@ -128,7 +128,7 @@ object PhysicalExtractorPatternComponents {
     } yield new PhysicalExtractorPatternComponents(`class`, types) {}
 }
 
-final class TuplePatternComponents(tupleClass: ScClass, types: Seq[ScType])
+final class TuplePatternComponents(tupleClass: ScClass, types: Iterable[ScType])
   extends PhysicalExtractorPatternComponents(tupleClass, types) {
 
   override def presentablePatternText(reference: Either[String, ScStableCodeReference]): String =

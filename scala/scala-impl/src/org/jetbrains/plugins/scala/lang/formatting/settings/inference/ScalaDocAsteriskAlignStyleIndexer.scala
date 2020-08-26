@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.inference.ScalaDocAs
 import org.jetbrains.plugins.scala.lang.formatting.settings.inference.ScalaDocAsteriskAlignStyleIndexer.{AsteriskAlignStyle, _}
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 // NOTE: low-level imperative style is intentionally used to avoid unnecessary allocations
 // and not to explode indexing time for such a tiny feature

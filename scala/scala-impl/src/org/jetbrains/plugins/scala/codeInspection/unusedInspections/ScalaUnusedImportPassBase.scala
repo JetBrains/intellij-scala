@@ -23,7 +23,7 @@ trait ScalaUnusedImportPassBase { self: TextEditorHighlightingPass =>
   def file: PsiFile
   def document: Document
 
-  def collectAnnotations(unusedImports: Seq[ImportUsed], annotationHolder: AnnotationHolder): Seq[Annotation] = {
+  def collectAnnotations(unusedImports: Iterable[ImportUsed], annotationHolder: AnnotationHolder): Iterable[Annotation] = {
     unusedImports.filterNot(_.isAlwaysUsed).flatMap {
       (imp: ImportUsed) => {
         val psiOption: Option[PsiElement] = imp match {

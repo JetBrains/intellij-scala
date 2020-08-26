@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.sbt.SbtUtil
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class BloopLauncherConnector(base: File, compilerOutput: File, capabilities: BspCapabilities) extends BspServerConnector {
 

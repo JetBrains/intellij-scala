@@ -52,7 +52,7 @@ private[clauses] abstract class ClauseInsertHandler[
                                           (implicit context: InsertionContext): Unit = {
     val InsertionContextExt(editor, doc, file, project) = context
 
-    import collection.JavaConverters._
+    import scala.jdk.CollectionConverters._
     CodeStyleManager.getInstance(project)
       .reformatText(file, rangesToReformat.asJava)
 

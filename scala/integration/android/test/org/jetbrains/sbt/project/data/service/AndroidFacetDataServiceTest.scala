@@ -74,7 +74,7 @@ class AndroidFacetDataServiceTest extends ProjectDataServiceTestCase {
     assertEquals(proguardConfig.nonEmpty, properties.RUN_PROGUARD)
 
     if (proguardConfig.nonEmpty) {
-      import scala.collection.JavaConverters._
+      import scala.jdk.CollectionConverters._
       val proguardConfigPath = FileUtil.toSystemDependentName(getProject.getBasePath + "/proguard-sbt.txt")
       assertEquals(Seq(proguardConfigPath), properties.myProGuardCfgFiles.asScala)
       val actualProguardConfig = using(Source.fromFile(proguardConfigPath))(_.getLines().toVector)

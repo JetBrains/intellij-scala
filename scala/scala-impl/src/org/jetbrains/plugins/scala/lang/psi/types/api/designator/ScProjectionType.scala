@@ -143,7 +143,7 @@ final class ScProjectionType private(val projected: ScType,
       val processor = new ResolveProcessor(kinds, resolvePlace, element.name) {
         doNotCheckAccessibility()
 
-        override protected def addResults(results: Seq[ScalaResolveResult]): Boolean = {
+        override protected def addResults(results: Iterable[ScalaResolveResult]): Boolean = {
           candidatesSet ++= results
           true
         }

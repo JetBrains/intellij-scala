@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.format
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.findCaretOffset
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
-import scala.collection.JavaConverters
+import scala.jdk.CollectionConverters._
 import scala.util.Try
 
 class ScalaMalformedStringInspectionTest extends ScalaInspectionTestBase {
@@ -59,11 +59,11 @@ class ScalaMalformedStringInspectionTest extends ScalaInspectionTestBase {
     val fixture = getFixture
     fixture.configureByText("dummy.scala", normalizedText)
 
-    import JavaConverters._
     fixture.doHighlighting()
       .asScala
       .flatMap(info => Option(info.getDescription))
       .filter(_.contains(" cannot be used for a"))
+      .toSeq
   }
 
   def build_test(): (String, Seq[String]) = {

@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.kinds.ScalaSpecialExpressionKin
 import org.jetbrains.plugins.scala.uast.ReferenceExt
 import org.jetbrains.uast._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * [[ScImportStmt]] adapter for the [[UImportStatement]]

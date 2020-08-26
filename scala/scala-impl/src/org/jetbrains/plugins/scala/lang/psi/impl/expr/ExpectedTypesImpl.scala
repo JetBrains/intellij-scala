@@ -129,7 +129,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
   case class FunctionLikeTpe(
     marker:    FunctionTypeMarker,
     resTpe:    ScType,
-    paramTpes: Seq[ScType],
+    paramTpes: collection.Seq[ScType],
     fromTpe:   ScType
   ) {
     def instantiate(implicit scope: ElementScope): ScType = marker match {
@@ -158,7 +158,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     lazy val expectedArity    = aritiesOf(e)
     lazy val functionLikeType = FunctionLikeType(e)
 
-    def paramTpesMatch(lhs: Seq[ScType], rhs: Seq[ScType]): Boolean =
+    def paramTpesMatch(lhs: collection.Seq[ScType], rhs: collection.Seq[ScType]): Boolean =
       lhs.isEmpty || lhs.corresponds(rhs)(equiv)
 
     @tailrec
@@ -275,7 +275,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
         case (r, tp) => (tp, isApplyDynamicNamed(r))
       }
 
-    def argIndex(argExprs: Seq[ScExpression]) =
+    def argIndex(argExprs: collection.Seq[ScExpression]) =
       if (sameInContext == null) 0
       else argExprs.indexWhere(_ == sameInContext).max(0)
 
@@ -507,13 +507,13 @@ class ExpectedTypesImpl extends ExpectedTypes {
   @tailrec
   private def computeExpectedParamType(expr: ScExpression,
                                        invokedExprType: TypeResult,
-                                       argExprs: Seq[ScExpression],
+                                       argExprs: collection.Seq[ScExpression],
                                        idx: Int,
                                        call: Option[MethodInvocation] = None,
                                        forApply: Boolean = false,
                                        isDynamicNamed: Boolean = false): Option[ParameterType] = {
 
-    def fromMethodTypeParams(params: Seq[Parameter], subst: ScSubstitutor = ScSubstitutor.empty): Option[ParameterType] = {
+    def fromMethodTypeParams(params: collection.Seq[Parameter], subst: ScSubstitutor = ScSubstitutor.empty): Option[ParameterType] = {
       val newParams =
         if (subst.isEmpty) params
         else
@@ -537,7 +537,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     }
 
     //returns properly substituted method type of `apply` method invocation and whether it's apply dynamic named
-    def tryApplyMethod(internalType: ScType, typeParams: Seq[TypeParameter]): Option[(TypeResult, Boolean)] = {
+    def tryApplyMethod(internalType: ScType, typeParams: collection.Seq[TypeParameter]): Option[(TypeResult, Boolean)] = {
       call.getOrElse(expr).shapeResolveApplyMethod(internalType, argExprs, call) match {
         case Array(r@ScalaResolveResult(fun: ScFunction, s)) =>
 
@@ -580,10 +580,10 @@ class ExpectedTypesImpl extends ExpectedTypes {
     }
   }
 
-  private def paramTypeFromExpr(expr: ScExpression, params: Seq[Parameter], idx: Int, isDynamicNamed: Boolean): Option[ParameterType] = {
+  private def paramTypeFromExpr(expr: ScExpression, params: collection.Seq[Parameter], idx: Int, isDynamicNamed: Boolean): Option[ParameterType] = {
     import expr.elementScope
 
-    def findByIdx(params: Seq[Parameter]): ParameterType = {
+    def findByIdx(params: collection.Seq[Parameter]): ParameterType = {
       def simple = (params(idx).paramType, typeElem(params(idx)))
       def repeated = (params.last.paramType, typeElem(params.last))
 
@@ -620,7 +620,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     }
   }
 
-  private def paramTypeForNamed(assign: ScAssignment, params: Seq[Parameter]): Option[ParameterType] = {
+  private def paramTypeForNamed(assign: ScAssignment, params: Iterable[Parameter]): Option[ParameterType] = {
     val lE = assign.leftExpression
     lE match {
       case ref: ScReferenceExpression if ref.qualifier.isEmpty =>
@@ -631,7 +631,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     }
   }
 
-  private def paramsFromTuple(tupleArgs: Seq[ScType]): Seq[Parameter] = tupleArgs.zipWithIndex.map {
+  private def paramsFromTuple(tupleArgs: collection.Seq[ScType]): collection.Seq[Parameter] = tupleArgs.zipWithIndex.map {
     case (tpe, index) => Parameter(tpe, isRepeated = false, index = index)
   }
 
@@ -747,7 +747,7 @@ private object ExpectedTypesImpl {
 
   implicit class ScExpressionForExpectedTypesEx(private val expr: ScExpression) extends AnyVal {
     @CachedWithRecursionGuard(expr, Array.empty[ScalaResolveResult], BlockModificationTracker(expr))
-    def shapeResolveApplyMethod(tp: ScType, exprs: Seq[ScExpression], call: Option[MethodInvocation]): Array[ScalaResolveResult] = {
+    def shapeResolveApplyMethod(tp: ScType, exprs: collection.Seq[ScExpression], call: Option[MethodInvocation]): Array[ScalaResolveResult] = {
       val applyProc =
         new MethodResolveProcessor(expr, "apply", List(exprs), Seq.empty, Seq.empty /* todo: ? */ ,
           StdKinds.methodsOnly, isShapeResolve = true)

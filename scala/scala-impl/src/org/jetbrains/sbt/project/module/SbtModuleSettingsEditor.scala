@@ -16,7 +16,7 @@ import org.jetbrains.sbt.resolvers.indexes.ResolverIndex
 import org.jetbrains.sbt.resolvers.{SbtIndexesManager, SbtResolver}
 import org.jetbrains.sbt.settings.SbtSettings
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Nikolay Obedin

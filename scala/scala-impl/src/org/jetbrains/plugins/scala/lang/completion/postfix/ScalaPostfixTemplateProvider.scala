@@ -8,7 +8,7 @@ import com.intellij.codeInsight.template.postfix.templates._
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
 
-import scala.collection.JavaConverters
+import scala.jdk.CollectionConverters._
 
 /**
   * @author Roman.Shein
@@ -17,7 +17,6 @@ import scala.collection.JavaConverters
 final class ScalaPostfixTemplateProvider extends PostfixTemplateProvider {
 
   override def getTemplates: ju.Set[PostfixTemplate] = {
-    import JavaConverters._
     ScalaPostfixTemplateProvider.Templates.asJava
   }
 

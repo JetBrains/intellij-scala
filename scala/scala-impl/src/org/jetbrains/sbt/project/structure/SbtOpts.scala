@@ -3,7 +3,7 @@ package project.structure
 
 import java.io.File
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.annotations.NonNls
 
@@ -14,7 +14,7 @@ object SbtOpts {
 
   val SbtOptsFile: String = ".sbtopts"
 
-  def loadFrom(directory: File): Seq[String] = {
+  def loadFrom(directory: File): collection.Seq[String] = {
     val sbtOptsFile = directory / SbtOptsFile
     if (sbtOptsFile.exists && sbtOptsFile.isFile && sbtOptsFile.canRead)
       process(FileUtil.loadLines(sbtOptsFile).asScala.map(_.trim))
@@ -33,7 +33,7 @@ object SbtOpts {
     "-jvm-debug" -> debuggerOpts
   )
 
-  private def process(opts: Seq[String]): Seq[String] = {
+  private def process(opts: collection.Seq[String]): collection.Seq[String] = {
     opts.flatMap { opt =>
       if (opt.startsWith("-no-share"))
         Some(noShareOpts)

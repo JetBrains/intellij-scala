@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 trait ScPatternArgumentList extends ScArguments {
 
-  def patterns: Seq[ScPattern]
+  def patterns: collection.Seq[ScPattern]
 
   def missedLastExpr: Boolean = {
     var child = getLastChild
@@ -31,5 +31,5 @@ trait ScPatternArgumentList extends ScArguments {
 }
 
 object ScPatternArgumentList {
-  def unapplySeq(spl: ScPatternArgumentList): Option[Seq[ScPattern]] = Option(spl.patterns)
+  def unapplySeq(spl: ScPatternArgumentList): Option[Seq[ScPattern]] = Option(spl.patterns.toSeq)
 }

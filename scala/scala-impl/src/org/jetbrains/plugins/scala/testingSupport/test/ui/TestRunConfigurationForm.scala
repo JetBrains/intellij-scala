@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.ui.TestRunConfigurationFo
 import org.jetbrains.plugins.scala.testingSupport.test.ui.TestRunConfigurationForm.{PackageChooserActionListener, _}
 import org.jetbrains.sbt.settings.SbtSettings
 
-import scala.collection.JavaConverters.asScalaBufferConverter
+import scala.jdk.CollectionConverters._
 
 //noinspection ConvertNullInitializerToUnderscore
 final class TestRunConfigurationForm(val myProject: Project) {
@@ -38,7 +38,7 @@ final class TestRunConfigurationForm(val myProject: Project) {
   private var myWholePanel: JPanel                      = null
   def getPanel: JPanel = myWholePanel
 
-  private var mySuitePaths    : Seq[String]                 = null
+  private var mySuitePaths    : collection.Seq[String]                 = null
   private var myModuleSelector: ConfigurationModuleSelector = null
 
   // TOP PANEL: TestKind-specific

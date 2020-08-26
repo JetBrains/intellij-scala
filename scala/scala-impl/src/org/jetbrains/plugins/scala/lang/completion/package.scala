@@ -313,7 +313,7 @@ package object completion {
   private[completion] implicit class CompletionResultSetExt(private val set: CompletionResultSet) extends AnyVal {
 
     def addAllElements(lookupElements: Iterable[_ <: LookupElement]): Unit = {
-      import collection.JavaConverters._
+      import scala.jdk.CollectionConverters._
       set.addAllElements(lookupElements.asJava)
     }
   }

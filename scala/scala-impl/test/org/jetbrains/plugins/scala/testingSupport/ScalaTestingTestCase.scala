@@ -42,7 +42,7 @@ import org.jetbrains.plugins.scala.util.assertions.failWithCause
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.util.{Failure, Success, Try}

@@ -86,7 +86,7 @@ private[findUsages] class ScalaCompilerReferenceReader private[compilerReference
 
   private[this] def searchInBackwardUsagesIndex(
     ref:    CompilerRef
-  )(action: ContainerAction[Seq[Int]]): Unit = {
+  )(action: ContainerAction[collection.Seq[Int]]): Unit = {
     val hierarchy = ref match {
       case classRef: CompilerRef.CompilerClassHierarchyElementDef => Array(classRef)
       case member: CompilerRef.CompilerMember =>

@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.extensions.startCommand
 import org.jetbrains.plugins.scala.util.ShortCaretMarker
 import org.junit.Assert._
 
-import scala.collection.JavaConverters
+import scala.jdk.CollectionConverters._
 
 /**
   * @author adkozlov
@@ -36,7 +36,7 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdap
     val editor = getFixture.getEditor
     editor.getCaretModel.moveToOffset(caretOffsets.head)
     val caretStates = caretOffsets.map { offset => new CaretState(editor.offsetToLogicalPosition(offset), null, null) }
-    editor.getCaretModel.setCaretsAndSelections(JavaConverters.seqAsJavaList(caretStates))
+    editor.getCaretModel.setCaretsAndSelections(caretStates.asJava)
   }
 
   protected def performTest(textBefore: String, textAfter: String,

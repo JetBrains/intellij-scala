@@ -22,7 +22,7 @@ abstract class ScalaImportElementFix(val place: PsiElement) extends HintAction w
 
   private val modificationCount = currentModCount()
 
-  val elements: Seq[ElementToImport]
+  val elements: collection.Seq[ElementToImport]
 
   def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _]
 

@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class ScalaExpressionTypeProvider extends ExpressionTypeProvider[PsiElement] {
 

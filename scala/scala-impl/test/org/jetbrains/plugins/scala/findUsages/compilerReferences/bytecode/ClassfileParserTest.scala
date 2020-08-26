@@ -3,12 +3,12 @@ package bytecode
 
 import java.io.InputStream
 
-import scala.collection.MapLike
+import org.hamcrest.CoreMatchers.hasItems
+
 import scala.collection.immutable.StringOps
 import scala.reflect.ClassTag
 import org.junit.Assert._
 import org.junit.Test
-import org.hamcrest.CoreMatchers._
 
 class ClassfileParserTest {
   private def loadClass[A](implicit tag: ClassTag[A]): InputStream = {
@@ -56,14 +56,13 @@ class ClassfileParserTest {
     )
 
     val expectedRefs: Seq[MemberReference] = Seq(
-      methodRefOf[Predef.type]("Map", 88, 0),
-      fieldRefOf[WithRefs]("noGetter", 96),
-      methodRefOf[MapLike[_, _, _]]("contains", 88, 1),
-      methodRefOf[WithRefs]("s", 92, 0),
-      methodRefOf[Predef.type]("augmentString", 98, 1),
-      methodRefOf[Map.type]("apply", 88, 1),
-      methodRefOf[Predef.type]("println", 90, 1),
-      methodRefOf[StringOps]("toInt", 98, 0)
+      methodRefOf[Predef.type]("Map", 87, 0),
+      fieldRefOf[WithRefs]("noGetter", 93),
+      methodRefOf[WithRefs]("s", 91, 0),
+      methodRefOf[Predef.type]("augmentString", 97, 1),
+      methodRefOf[Map.type]("apply", 87, 1),
+      methodRefOf[Predef.type]("println", 89, 1),
+      methodRefOf[StringOps.type]("toInt$extension", 97, 1)
     )
 
     assertThat(
@@ -74,7 +73,7 @@ class ClassfileParserTest {
 
   @Test
   def testSAMInheritor(): Unit = doTest[SAM] { parsed =>
-    assertEquals(parsed.funExprs, Seq(FunExprInheritor("org.jetbrains.plugins.scala.findUsages.compilerReferences.bytecode.Foo", 108)))
+    assertEquals(parsed.funExprs, Seq(FunExprInheritor("org.jetbrains.plugins.scala.findUsages.compilerReferences.bytecode.Foo", 107)))
   }
 }
 

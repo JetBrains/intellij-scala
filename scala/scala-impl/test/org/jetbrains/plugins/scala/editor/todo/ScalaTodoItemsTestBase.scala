@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.util.Markers
 import org.junit.Assert._
 
-import scala.collection.JavaConverters.collectionAsScalaIterableConverter
+import scala.jdk.CollectionConverters._
 import scala.math.Ordering.comparatorToOrdering
 
 /** see analogue class from platform: [[com.intellij.editor.TodoItemsTestCase]] */

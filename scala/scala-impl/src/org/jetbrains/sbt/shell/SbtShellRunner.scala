@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.shell.SbtShellRunner._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 final class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Option[RemoteConnection])
   extends AbstractConsoleRunnerWithHistory[SbtShellConsoleView](project, consoleTitle, project.baseDir.getCanonicalPath) {

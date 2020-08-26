@@ -18,7 +18,7 @@ trait ScAnnotationExpr extends ScalaPsiElement {
     case stmt: ScAssignment => new ScNameValueAssignment(stmt)
   }
 
-  def getAnnotationParameters: Seq[ScExpression] = findArgExprs.map(_.exprs).getOrElse(Seq.empty)
+  def getAnnotationParameters: collection.Seq[ScExpression] = findArgExprs.map(_.exprs).getOrElse(Seq.empty)
 
   private def findArgExprs: Option[ScArgumentExprList] = {
     val constrInvocation = findChildByClassScala(classOf[ScConstructorInvocation])

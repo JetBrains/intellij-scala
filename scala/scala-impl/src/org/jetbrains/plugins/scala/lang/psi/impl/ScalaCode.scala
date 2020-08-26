@@ -34,7 +34,7 @@ object ScalaCode {
   private val Placeholder = "placeholder$0"
 
   // "unquote-splicing"
-  case class @@(es: Seq[PsiElement], separator: String = ", ")
+  case class @@(es: collection.Seq[PsiElement], separator: String = ", ")
 
   def parseElement(s: String)(implicit project: ProjectContext): PsiElement = parse(s).getFirstChild
 
@@ -57,7 +57,7 @@ object ScalaCode {
       case (placeholder, element) => element match {
         case e: PsiElement =>
           placeholder.replace(e)
-        case Seq(es @ _*) =>
+        case collection.Seq(es @ _*) =>
           // simplified implementation of "unquote-splicing" (via replacing the parent element)
           placeholder.getParent.replace(es.head.asInstanceOf[PsiElement].getParent)
       }

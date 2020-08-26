@@ -11,7 +11,7 @@ import org.jetbrains.sbt.shell.SbtShellCommunication
 import SbtNodeAction._
 import org.jetbrains.annotations.NonNls
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 abstract class SbtNodeAction[T <: SbtNamedKey](c: Class[T]) extends ExternalSystemNodeAction[T](c) {
 

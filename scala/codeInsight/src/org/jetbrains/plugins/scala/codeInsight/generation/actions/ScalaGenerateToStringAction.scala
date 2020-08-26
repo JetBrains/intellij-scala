@@ -85,9 +85,9 @@ object ScalaGenerateToStringAction {
       * Get class fields using wizard dialog.
       */
     private def showWizard(definition: ScTypeDefinition)
-                          (implicit project: Project): Option[(Seq[ScNamedElement], Boolean)] =
+                          (implicit project: Project): Option[(collection.Seq[ScNamedElement], Boolean)] =
       fields(definition) ++ parameterlessMethods(definition) match {
-        case members if ApplicationManager.getApplication.isUnitTestMode => Some(members, true)
+        case members if ApplicationManager.getApplication.isUnitTestMode => Some((members, true))
         case members =>
           new ui.ScalaGenerateToStringWizard(members) match {
             case wizard if wizard.showAndGet() => Some(wizard.membersWithSelection)

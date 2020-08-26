@@ -9,7 +9,7 @@ import scala.collection.mutable
 trait LibrariesOwner {
   self: Test with ScalaVersionProvider =>
 
-  protected def librariesLoaders: Seq[LibraryLoader]
+  protected def librariesLoaders: collection.Seq[LibraryLoader]
 
   private lazy val myLoaders = mutable.ListBuffer.empty[LibraryLoader]
 

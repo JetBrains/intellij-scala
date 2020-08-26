@@ -17,11 +17,12 @@ object FilterSize extends SimplificationType {
 
   override def hint: String = ScalaInspectionBundle.message("filter.size.hint")
 
-  override def getSimplification(expr: ScExpression): Option[Simplification] = {
-   expr match {
-      case qual`.filter`(cond)`.sizeOrLength`() =>
+  override def getSimplification(expr: ScExpression): Option[Simplification] =
+    expr match {
+      // TODO infix notation?
+      case `.sizeOrLength`(qual`.filter`(cond)) =>
         Some(replace(expr).withText(invocationText(qual, "count", cond)).highlightFrom(qual))
-      case _ => None
+      case _ =>
+        None
     }
-  }
 }

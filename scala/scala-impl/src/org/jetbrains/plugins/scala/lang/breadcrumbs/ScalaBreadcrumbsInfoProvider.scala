@@ -82,7 +82,7 @@ object ScalaBreadcrumbsInfoProvider {
       if (txt == null) "" else if (txt.length < MAX_TEXT_LENGTH) txt else txt.substring(0, MAX_TEXT_LENGTH - 1 - stub.length) + stub
     }
     
-    def getSignature(el: Option[ScNamedElement], parameters: Seq[ScParameter], tpe: Option[ScType], needTpe: Boolean = false)(implicit tpc: TypePresentationContext): String =
+    def getSignature(el: Option[ScNamedElement], parameters: Iterable[ScParameter], tpe: Option[ScType], needTpe: Boolean = false)(implicit tpc: TypePresentationContext): String =
       el.map(_.name).getOrElse("") + 
         limitString(parameters.map(p => p.name + ": " +  p.typeElement.map(_.getText).getOrElse("Any")).mkString("(", ", ", ")")) + 
         (if (needTpe && el.exists(e => !DumbService.isDumb(e.getProject))) ": " + tpe.map(_.presentableText).getOrElse("") else "")

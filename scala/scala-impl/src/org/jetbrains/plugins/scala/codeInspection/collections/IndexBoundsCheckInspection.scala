@@ -37,16 +37,18 @@ private object IndexBoundsCheckInspection {
 
     private object IndexLessThanLengthCondition {
       def unapply(expr: ScExpression): Option[(ScExpression, ScExpression)] = expr match {
-        case index `<` seq `.sizeOrLength` () if isSeq(seq) => Some(seq, index)
-        case seq `.sizeOrLength` () `>` index if isSeq(seq) => Some(seq, index)
+        // TODO infix notation?
+        case index `<` `.sizeOrLength`(seq) if isSeq(seq) => Some(seq, index)
+        case `.sizeOrLength`(seq) `>` index if isSeq(seq) => Some(seq, index)
         case _ => None
       }
     }
 
     private object IndexGreaterEqualsLengthCondition {
       def unapply(expr: ScExpression): Option[(ScExpression, ScExpression)] = expr match {
-        case index `>=` seq `.sizeOrLength` () if isSeq(seq) => Some(seq, index)
-        case seq `.sizeOrLength` () `<=` index if isSeq(seq) => Some(seq, index)
+        // TODO infix notation?
+        case index `>=` `.sizeOrLength`(seq) if isSeq(seq) => Some(seq, index)
+        case `.sizeOrLength`(seq) `<=` index if isSeq(seq) => Some(seq, index)
         case _ => None
       }
     }

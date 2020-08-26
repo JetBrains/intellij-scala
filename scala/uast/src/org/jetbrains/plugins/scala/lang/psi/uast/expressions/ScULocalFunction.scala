@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.uast._
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * Local [[ScFunctionDefinition]] adapter for the [[UDeclarationsExpression]]

@@ -10,8 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.resolve.{DynamicTypeReferenceResolver, ScalaResolveResult}
 
-import scala.collection.JavaConverters
-
 object DynamicResolveProcessor {
 
   val APPLY_DYNAMIC_NAMED = "applyDynamicNamed"
@@ -20,7 +18,7 @@ object DynamicResolveProcessor {
   val UPDATE_DYNAMIC = "updateDynamic"
   val NAMED = "Named"
 
-  def getDynamicNameForMethodInvocation(expressions: Seq[ScExpression]): String = {
+  def getDynamicNameForMethodInvocation(expressions: Iterable[ScExpression]): String = {
     val qualifiers = expressions.collect {
       case ScAssignment(reference: ScReferenceExpression, _) => reference.qualifier
     }
@@ -31,7 +29,7 @@ object DynamicResolveProcessor {
 
   object DynamicReference {
 
-    def unapply(reference: PsiReference): Option[Seq[ResolveResult]] = reference match {
+    def unapply(reference: PsiReference): Option[collection.Seq[ResolveResult]] = reference match {
       case expression: ScReferenceExpression if hasValidType(expression) =>
         val results = DynamicTypeReferenceResolver.getAllResolveResult(expression)
         Some(results)

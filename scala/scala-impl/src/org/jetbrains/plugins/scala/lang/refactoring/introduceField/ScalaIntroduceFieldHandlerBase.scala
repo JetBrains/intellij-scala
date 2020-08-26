@@ -58,7 +58,7 @@ abstract class ScalaIntroduceFieldHandlerBase extends ScalaRefactoringActionHand
     }
   }
 
-  protected def anchorForNewDeclaration(expr: ScExpression, occurrences: Seq[TextRange], aClass: ScTemplateDefinition): PsiElement = {
+  protected def anchorForNewDeclaration(expr: ScExpression, occurrences: collection.Seq[TextRange], aClass: ScTemplateDefinition): PsiElement = {
     val firstOccOffset = occurrences.map(_.getStartOffset).min
     val anchor = statementsAndMembersInClass(aClass).find(_.getTextRange.getEndOffset >= firstOccOffset)
     anchor.getOrElse {
@@ -99,7 +99,7 @@ object ScalaIntroduceFieldHandlerBase {
     }
   }
 
-  def anchorForInitializer(occurrences: Seq[TextRange], file: PsiFile): Option[PsiElement] = {
+  def anchorForInitializer(occurrences: collection.Seq[TextRange], file: PsiFile): Option[PsiElement] = {
     var firstRange = occurrences.head
 
     val parExpr = findParentExpr(commonParent(file, occurrences))

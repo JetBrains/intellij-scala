@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
 import org.jetbrains.sbt.project.data.SbtModuleData
 import org.jetbrains.sbt.project.module.SbtModule.{Build, Imports}
 
-import scala.collection.JavaConverters
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Pavel Fatin
@@ -108,8 +108,6 @@ object SbtFileImpl {
     case ModuleLess => Seq.empty
     case DefinitionModule(module) => Imports(module)
     case SbtModuleWithScope(module, moduleWithDependenciesAndLibrariesScope) =>
-      import JavaConverters._
-
       val moduleScope = module.getModuleScope
       val localObjectsWithDefinitions = for {
         fqn <- Sbt.DefinitionHolderClasses

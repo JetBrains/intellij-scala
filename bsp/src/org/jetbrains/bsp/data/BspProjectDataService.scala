@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.project.external.AbstractImporter
 import org.jetbrains.plugins.scala.project.external.Importer
 import org.jetbrains.plugins.scala.project.external.SdkUtils
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 
@@ -48,7 +48,7 @@ class BspProjectDataService extends AbstractDataService[BspProjectData, Project]
 
 object BspProjectDataService {
 
-  private def configureVcs(vcsRootsCandidates: Seq[File], project: Project): Unit = {
+  private def configureVcs(vcsRootsCandidates: collection.Seq[File], project: Project): Unit = {
     val vcsManager = ProjectLevelVcsManager.getInstance(project)
     val currentVcsRoots = vcsManager.getAllVcsRoots
     val currentMappings = vcsManager.getDirectoryMappings

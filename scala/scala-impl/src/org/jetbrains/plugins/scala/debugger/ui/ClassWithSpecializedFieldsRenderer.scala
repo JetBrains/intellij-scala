@@ -12,7 +12,7 @@ import com.sun.jdi.Type
 import org.jetbrains.plugins.scala.debugger.ScalaSyntheticProvider.hasSpecialization
 import org.jetbrains.plugins.scala.debugger.ScalaSyntheticProvider.isSpecialization
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * Nikolay.Tropin

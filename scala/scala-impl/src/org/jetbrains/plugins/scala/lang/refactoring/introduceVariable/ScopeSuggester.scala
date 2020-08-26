@@ -25,7 +25,8 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.ScalaUtil
 
 import scala.annotation.tailrec
-import scala.collection.{JavaConverters, mutable}
+import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 /**
  * Created by Kate Ustyuzhanina
@@ -45,7 +46,7 @@ object ScopeSuggester {
       if (isScriptFile) getParentOfType(element, classOf[ScTemplateBody], classOf[ScalaFile])
       else getParentOfType(element, classOf[ScTemplateBody])
 
-    def isSuitableParent(owners: Seq[ScTypeParametersOwner], parent: PsiElement): Boolean = {
+    def isSuitableParent(owners: collection.Seq[ScTypeParametersOwner], parent: PsiElement): Boolean = {
       var result = true
       for (elementOwner <- owners) {
         val pparent = getParentOfType(parent, classOf[ScTemplateDefinition])
@@ -100,7 +101,6 @@ object ScopeSuggester {
       val possibleNames = NameSuggester.suggestNamesByType(currentElement.calcType, validator)
 
       containerName.foreach { name =>
-        import JavaConverters._
         result += SimpleScopeItem(name, parent, occurrences, occInCompanionObj, validator, possibleNames.toSet.asJava)
       }
       parent = getParent(parent, isScriptFile)
@@ -211,7 +211,6 @@ object ScopeSuggester {
           bufResult += buffer
         }
 
-        import JavaConverters._
         val typeName = typeElement.calcType.codeText(typeElement)
         val words = StringUtil.getWordsIn(typeName).asScala
 
@@ -237,8 +236,8 @@ object ScopeSuggester {
       getChildOfType(getChildOfType(packageObject, classOf[ScExtendsBlock]), classOf[ScTemplateBody])
     }
 
-    val allOccurrences = mutable.MutableList.empty[Array[ScTypeElement]]
-    val allValidators = mutable.MutableList.empty[ScalaTypeValidator]
+    val allOccurrences = mutable.ListBuffer.empty[Array[ScTypeElement]]
+    val allValidators = mutable.ListBuffer.empty[ScalaTypeValidator]
 
     def handleOneFile(file: ScalaFile): Unit =
       if (!maybePackageObject.exists(_.getContainingFile == file)) {
@@ -309,7 +308,6 @@ case class SimpleScopeItem(override val name: String,
   }
 
   def revalidate(newName: String): ScopeItem = {
-    import JavaConverters._
 
     val revalidatedOccurrences = usualOccurrencesRanges.map {
       case (range, containingFile) =>

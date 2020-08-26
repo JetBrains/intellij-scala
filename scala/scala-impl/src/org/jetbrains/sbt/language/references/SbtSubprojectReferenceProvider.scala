@@ -85,11 +85,11 @@ class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
 
   private def extractPathFromFileCtor(constrInvocation: ScConstructorInvocation): Option[String] = {
     constrInvocation.args.map(_.exprs).flatMap {
-      case Seq(ScStringLiteral(path)) =>
+      case collection.Seq(ScStringLiteral(path)) =>
         Some(path)
-      case Seq(ScStringLiteral(parent), ScStringLiteral(child)) =>
+      case collection.Seq(ScStringLiteral(parent), ScStringLiteral(child)) =>
         Some(parent + File.separator + child)
-      case Seq(parentElt, ScStringLiteral(child)) =>
+      case collection.Seq(parentElt, ScStringLiteral(child)) =>
         extractPathFromFileParam(parentElt).map(_ + File.separator + child)
       case _ => None
     }

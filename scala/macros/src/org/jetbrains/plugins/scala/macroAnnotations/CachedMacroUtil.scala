@@ -179,6 +179,11 @@ object CachedMacroUtil {
     q"${enclosingName + "." + name.toString}"
   }
 
+  def qualifiedTernName(termName: String)
+                       (implicit c: whitebox.Context): String = {
+    c.enclosingClass.symbol.fullName.replace('.', '$') + '$' + termName
+  }
+
   def abort(@Nls s: String)(implicit c: whitebox.Context): Nothing = c.abort(c.enclosingPosition, s)
 
   def extractCacheModeParameter(c: whitebox.Context)(paramClauses: List[List[c.universe.ValDef]]): (List[c.universe.ValDef], Boolean) = {

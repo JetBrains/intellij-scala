@@ -6,7 +6,7 @@ import com.intellij.execution.runners.JavaProgramPatcher
 import com.intellij.openapi.util.UserDataHolderBase
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class BspJvmEnvironmentProgramPatcher extends JavaProgramPatcher {
 

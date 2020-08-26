@@ -39,9 +39,9 @@ object TypeConstruction {
 
     result match {
       case parametrized: ParametrizedConstruction =>
-        parametrized.associationMap = buffer
+        parametrized.associationMap = buffer.toSeq
       case array: ArrayConstruction =>
-        array.associationMap = buffer
+        array.associationMap = buffer.toSeq
       case _ =>
     }
 
@@ -58,7 +58,7 @@ object TypeConstruction {
         val typeConstruction: IntermediateNode = TypeConstruction(ctx.typeSystem.presentableText(des, withPrefix = textMode))
         buffer += ((typeConstruction, p.extractClass.flatMap(el => Option(el.getQualifiedName))))
         val argsOnLevel = args.map(getParts(_, buffer))
-        ParametrizedConstruction(typeConstruction, argsOnLevel)
+        ParametrizedConstruction(typeConstruction, argsOnLevel.toSeq)
       case JavaArrayType(argument) => ArrayConstruction(getParts(argument, buffer))
       case otherType =>
         val typeConstruction: IntermediateNode = TypeConstruction(ctx.typeSystem.presentableText(otherType, withPrefix = textMode))

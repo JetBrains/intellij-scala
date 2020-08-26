@@ -63,11 +63,11 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
   import com.intellij.psi.{PsiElement, ResolveState}
 
   @CachedInUserData(this, BlockModificationTracker(this))
-  override def syntheticContextAppliedDefs: Seq[ScalaPsiElement] =
+  override def syntheticContextAppliedDefs: collection.Seq[ScalaPsiElement] =
     ContextAppliedUtil.createSyntheticElementsFor(
       this,
       this,
-      this.constructor.fold(Seq.empty[ScParameter])(_.parameters),
+      this.constructor.fold(collection.Seq.empty[ScParameter])(_.parameters),
       this.typeParameters
     )
 

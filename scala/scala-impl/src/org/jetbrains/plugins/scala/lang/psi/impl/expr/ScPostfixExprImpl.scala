@@ -7,7 +7,6 @@ package expr
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import scala.collection.Seq
 
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
@@ -17,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
   */
 class ScPostfixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScPostfixExpr {
 
-  override def argumentExpressions: Seq[ScExpression] = Seq.empty
+  override def argumentExpressions: collection.Seq[ScExpression] = Seq.empty
 
   override def getInvokedExpr: ScExpression = operation
 

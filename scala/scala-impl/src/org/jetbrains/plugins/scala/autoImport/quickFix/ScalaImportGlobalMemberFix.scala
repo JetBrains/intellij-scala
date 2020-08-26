@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.isAccessible
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.OrderingUtil.orderingByRelevantImports
 
-import scala.collection.JavaConverters.iterableAsScalaIterableConverter
+import scala.jdk.CollectionConverters._
 
 private class ScalaImportGlobalMemberFix(override val elements: Seq[MemberToImport],
                                          ref: ScReferenceExpression,

@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters
+import scala.jdk.CollectionConverters._
 
 final class ScalaInlayParameterHintsProvider extends hints.InlayParameterHintsProvider {
 
@@ -35,9 +35,8 @@ final class ScalaInlayParameterHintsProvider extends hints.InlayParameterHintsPr
     }
 
     matchedParameters match {
-      case Seq() => ju.Collections.emptyList()
+      case collection.Seq() => ju.Collections.emptyList()
       case _ =>
-        import JavaConverters._
         parameterHints(matchedParameters).asJava
     }
   }
@@ -81,7 +80,7 @@ object ScalaInlayParameterHintsProvider {
       new hints.Option(id, s"<html><body>$nameBody</body></html>", false)
   }
 
-  private def parameterHints(matchedParameters: Seq[(ScExpression, Parameter)]) = {
+  private def parameterHints(matchedParameters: collection.Seq[(ScExpression, Parameter)]) = {
     val (varargs, regular) = matchedParameters.partition {
       case (_, parameter) => parameter.isRepeated
     }
@@ -92,7 +91,8 @@ object ScalaInlayParameterHintsProvider {
       case (_: ScUnderscoreSection, _) => false
       case (_, name) if name.length <= 1 => false
       case (argument, _) if !referenceParameterNames.isEnabled => isUnclear(argument)
-      case (ReferenceName(name, Seq()), parameterName) => name.mismatchesCamelCase(parameterName)
+      case (ReferenceName(name, Seq()), parameterName) =>
+        name.mismatchesCamelCase(parameterName)
       case _ => true
     }.map {
       case (argument, name) =>
@@ -113,7 +113,6 @@ object ScalaInlayParameterHintsProvider {
 
       val names = method.parameters.map(_.name)
 
-      import JavaConverters._
       Some(new MethodInfo(classFqn + method.name, names.asJava))
     }
   }

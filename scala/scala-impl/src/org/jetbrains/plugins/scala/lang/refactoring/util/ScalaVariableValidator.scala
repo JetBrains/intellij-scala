@@ -25,7 +25,7 @@ object ScalaVariableValidator {
 
   def empty = new ScalaVariableValidator(null, true, null, null)
 
-  def apply(file: PsiFile, element: PsiElement, occurrences: Seq[TextRange]): ScalaVariableValidator = {
+  def apply(file: PsiFile, element: PsiElement, occurrences: collection.Seq[TextRange]): ScalaVariableValidator = {
     val container = enclosingContainer(commonParent(file, occurrences))
     val containerOne = enclosingContainer(element)
 
@@ -36,7 +36,7 @@ object ScalaVariableValidator {
 class ScalaVariableValidator(selectedElement: PsiElement, noOccurrences: Boolean, enclosingContainerAll: PsiElement, enclosingOne: PsiElement)
   extends ScalaValidator(selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
 
-  protected override def findConflictsImpl(name: String, allOcc: Boolean): Seq[(PsiNamedElement, String)] = { //returns declaration and message
+  protected override def findConflictsImpl(name: String, allOcc: Boolean): collection.Seq[(PsiNamedElement, String)] = { //returns declaration and message
     val container = enclosingContainer(allOcc)
     if (container == null) return Seq.empty
     val buf = new ArrayBuffer[(PsiNamedElement, String)]
@@ -94,7 +94,7 @@ class ScalaVariableValidator(selectedElement: PsiElement, noOccurrences: Boolean
     }
   }
 
-  private def validateDown(element: PsiElement, name: String, allOcc: Boolean): Seq[(PsiNamedElement, String)] = {
+  private def validateDown(element: PsiElement, name: String, allOcc: Boolean): collection.Seq[(PsiNamedElement, String)] = {
     val container = enclosingContainer(allOcc)
     val buf = new ArrayBuffer[(PsiNamedElement, String)]
     for (child <- element.getChildren) {

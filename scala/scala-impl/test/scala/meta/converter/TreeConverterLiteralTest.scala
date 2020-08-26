@@ -66,21 +66,21 @@ class TreeConverterLiteralTest extends  TreeConverterTestBaseNoLibrary {
   def testSymbol(): Unit = {
     doTest(
       "'foo'",
-      Term.Apply(Term.Select(Term.Name("scala"), Term.Name("Symbol")), Seq(Lit.String("'foo")))
+      Term.Apply(Term.Select(Term.Name("scala"), Term.Name("Symbol")), List(Lit.String("'foo")))
     )
   }
   
   def testNull(): Unit = {
     doTest(
       "null",
-      Lit.Null(null)
+      Lit.Null()
     )
   }
 
   def testUnit(): Unit = {
     doTest(
       "()",
-      Lit.Unit(())
+      Lit.Unit()
     )
   }
 

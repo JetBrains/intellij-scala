@@ -51,7 +51,7 @@ trait ScMethodCall extends ScExpression with MethodInvocation {
 }
 
 object ScMethodCall {
-  def unapply(call: ScMethodCall): Option[(ScExpression, Seq[ScExpression])] =
+  def unapply(call: ScMethodCall): Option[(ScExpression, collection.Seq[ScExpression])] =
     Some(call.getInvokedExpr, call.argumentExpressions)
 
   object withDeepestInvoked {

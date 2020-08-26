@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 private[codeInsight] trait ScalaMethodChainInlayHintsPass {
   private var collectedHintTemplates = Seq.empty[(Seq[AlignedHintTemplate], ScExpression)]

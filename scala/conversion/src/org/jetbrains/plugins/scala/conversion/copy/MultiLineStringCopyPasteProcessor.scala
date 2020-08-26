@@ -61,7 +61,7 @@ class MultiLineStringCopyPasteProcessor extends CopyPastePreProcessor {
         val startsFromNewLine = StringUtil.isEmptyOrSpaces(linePrefix(editor.getDocument, offset))
         val needMargin = marginIsMissing && startsFromNewLine
         val marginPrefix = if (needMargin) marginChar else ""
-        marginPrefix + addMargins(text, marginChar)
+        marginPrefix.toString + addMargins(text, marginChar)
       } else {
         text
       }

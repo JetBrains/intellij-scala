@@ -14,11 +14,11 @@ import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.S
  */
 case class ScalaIntroduceParameterData(methodLike: ScMethodLike,
                                        methodToSearchFor: ScMethodLike,
-                                       elems: Seq[PsiElement],
+                                       elems: Iterable[PsiElement],
                                        paramName: String,
                                        possibleTypes: Array[ScType],
                                        tp: ScType,
-                                       occurrences: Seq[TextRange],
+                                       occurrences: collection.Seq[TextRange],
                                        mainOcc: TextRange,
                                        replaceAll: Boolean,
                                        defaultArg: String,

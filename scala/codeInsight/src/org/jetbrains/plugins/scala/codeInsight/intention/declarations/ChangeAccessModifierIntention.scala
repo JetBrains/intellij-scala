@@ -40,7 +40,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.S
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChangeSignatureProcessor, ScalaParameterInfo}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class ChangeAccessModifierIntention extends BaseElementAtCaretIntentionAction {
   private def getMemberDescription(member: ScMember): Option[String] = member match {
@@ -267,7 +267,7 @@ class ChangeAccessModifierIntention extends BaseElementAtCaretIntentionAction {
       .createScalaFileFromText(s"$modifier class a").typeDefinitions.head.getModifierList
     val useScope = member.getUseScope
 
-    def getElementsToSearch(member: ScMember): Seq[PsiElement] = member match {
+    def getElementsToSearch(member: ScMember): collection.Seq[PsiElement] = member match {
       case holder: ScDeclaredElementsHolder => holder.declaredElements
       case _ => Seq(member)
     }

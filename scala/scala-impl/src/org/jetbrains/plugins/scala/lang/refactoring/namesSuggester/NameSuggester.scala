@@ -26,10 +26,10 @@ object NameSuggester {
 
   private val DefaultName = "value"
 
-  def suggestNames(expression: ScExpression, validator: ScalaVariableValidator = ScalaVariableValidator.empty): Seq[String] =
+  def suggestNames(expression: ScExpression, validator: ScalaVariableValidator = ScalaVariableValidator.empty): collection.Seq[String] =
     suggestNames(expression, validator, collectTypes(expression))
 
-  def suggestNames(expression: ScExpression, validator: ScalaVariableValidator, types: Seq[ScType]): Seq[String] =
+  def suggestNames(expression: ScExpression, validator: ScalaVariableValidator, types: collection.Seq[ScType]): collection.Seq[String] =
     collectNames(namesByExpression(expression, types), validator)
 
   private def collectTypes(expression: ScExpression): Seq[ScType] = {
@@ -43,14 +43,13 @@ object NameSuggester {
     }.reverse
   }
 
-  private def namesByTypes(types: Seq[ScType]): Seq[String] = {
+  private def namesByTypes(types: collection.Seq[ScType]): collection.Seq[String] = {
     types.flatMap(namesByType(_))
   }
 
-  private def collectNames(names: Seq[String], validator: ScalaValidator): Seq[String] = {
-    import scala.collection.mutable
+  private def collectNames(names: collection.Seq[String], validator: ScalaValidator): Seq[String] = {
 
-    val filteredNames = mutable.LinkedHashSet(names: _*).map {
+    val filteredNames = mutable.LinkedHashSet.newBuilder.addAll(names).result().map {
       case "class" => "clazz"
       case name => name
     }.filter(isIdentifier)
@@ -75,7 +74,7 @@ object NameSuggester {
     override def apply(`type`: ScType): String =
       this (suggestNamesByType(`type`))
 
-    def apply(names: Traversable[String]): String = {
+    def apply(names: Iterable[String]): String = {
       val name = names.headOption.getOrElse(defaultName)
       counter(name) += 1
 
@@ -87,7 +86,7 @@ object NameSuggester {
   }
 
   @tailrec
-  private[namesSuggester] def namesByType(`type`: ScType, withPlurals: Boolean = true, shortVersion: Boolean = true): Seq[String] = {
+  private[namesSuggester] def namesByType(`type`: ScType, withPlurals: Boolean = true, shortVersion: Boolean = true): collection.Seq[String] = {
     def toLowerCase(name: String, length: Int): String = {
       val lowerCased = name.toLowerCase
       if (shortVersion) lowerCased.substring(0, length) else lowerCased
@@ -119,7 +118,7 @@ object NameSuggester {
       case ScDesignatorType(e) => byName(e.name)
       case parameterType: TypeParameterType => byName(parameterType.name)
       case ScProjectionType(_, e) => byName(e.name)
-      case ScCompoundType(Seq(head, _*), _, _) => namesByType(head, withPlurals)
+      case ScCompoundType(collection.Seq(head, _*), _, _) => namesByType(head, withPlurals)
       case JavaArrayType(argument) =>
         TypePluralNamesProvider.pluralizeNames(argument)
       case genericType: ScParameterizedType =>
@@ -129,10 +128,10 @@ object NameSuggester {
     }
   }
 
-  private def namesByExpression(expression: ScExpression): Seq[String] =
+  private def namesByExpression(expression: ScExpression): collection.Seq[String] =
     namesByExpression(expression, collectTypes(expression))
 
-  private def namesByExpression(expression: ScExpression, types: Seq[ScType]): Seq[String] = expression match {
+  private def namesByExpression(expression: ScExpression, types: collection.Seq[ScType]): collection.Seq[String] = expression match {
     case _: ScThisReference => Seq("thisInstance")
     case _: ScSuperReference => Seq("superInstance")
     case reference: ScReference if reference.refName != null =>
@@ -141,9 +140,9 @@ object NameSuggester {
       val parameters = definition.constructorInvocation.toSeq
         .flatMap(_.matchedParameters)
 
-      enhancedNames(definition, parameters, types)
+      enhancedNames(parameters, types)
     case invocation: MethodInvocation =>
-      enhancedNames(invocation, invocation.matchedParameters, types)
+      enhancedNames(invocation.matchedParameters, types)
     case literal: ScLiteral if literal.isString =>
       Option(literal.getValue).collect {
         case string: String if isIdentifier(string.toLowerCase) => string
@@ -159,9 +158,8 @@ object NameSuggester {
       maybeName.toSeq ++ namesByTypes(types)
   }
 
-  private def enhancedNames(invocation: ScExpression,
-                            parameters: Seq[(ScExpression, Parameter)],
-                            types: Seq[ScType]): Seq[String] = {
+  private def enhancedNames(parameters: collection.Seq[(ScExpression, Parameter)],
+                            types: collection.Seq[ScType]): collection.Seq[String] = {
     val namesByParameters = parameters.collect {
       case (expression, parameter) if parameter.name == "name" => expression
     }.flatMap(namesByExpression)
@@ -171,9 +169,9 @@ object NameSuggester {
     names ++ compoundNames(namesByParameters, names) ++ namesByParameters
   }
 
-  private[namesSuggester] def compoundNames(firstNames: Seq[String],
-                                            lastNames: Seq[String],
-                                            separator: String = ""): Seq[String] =
+  private[namesSuggester] def compoundNames(firstNames: collection.Seq[String],
+                                            lastNames: collection.Seq[String],
+                                            separator: String = ""): collection.Seq[String] =
     for {
       firstName <- firstNames
       lastName <- lastNames

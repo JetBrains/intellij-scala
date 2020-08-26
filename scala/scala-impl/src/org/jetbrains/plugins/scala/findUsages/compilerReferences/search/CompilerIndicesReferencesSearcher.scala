@@ -31,7 +31,7 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
 import org.jetbrains.sbt.shell.SbtShellCommunication
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 private class CompilerIndicesReferencesSearcher
   extends CompilerIndicesSearcher[

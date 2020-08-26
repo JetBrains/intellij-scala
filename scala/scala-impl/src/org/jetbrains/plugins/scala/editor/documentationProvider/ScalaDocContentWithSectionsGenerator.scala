@@ -110,7 +110,7 @@ private class ScalaDocContentWithSectionsGenerator(
       buffer.append(DocumentationMarkup.CONTENT_END)
   }
 
-  private def appendSections(sections: Seq[Section], result: StringBuilder): Unit =
+  private def appendSections(sections: collection.Seq[Section], result: StringBuilder): Unit =
     sections.foreach { section =>
       import DocumentationMarkup._
       result
@@ -122,7 +122,7 @@ private class ScalaDocContentWithSectionsGenerator(
     }
 
 
-  private def buildSections(tags: Seq[ScDocTag]): Seq[Section] = {
+  private def buildSections(tags: Seq[ScDocTag]): collection.Seq[Section] = {
     val sections = ArrayBuffer.empty[Section]
 
     sections ++=

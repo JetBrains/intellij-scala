@@ -17,7 +17,7 @@ import com.intellij.util.{PathUtil, Function => IdeaFunction}
 import annotations.NonNls
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 

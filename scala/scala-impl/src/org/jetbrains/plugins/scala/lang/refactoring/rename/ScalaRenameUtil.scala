@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object ScalaRenameUtil {
   def filterAliasedReferences(allReferences: util.Collection[PsiReference]): util.Collection[PsiReference] = {

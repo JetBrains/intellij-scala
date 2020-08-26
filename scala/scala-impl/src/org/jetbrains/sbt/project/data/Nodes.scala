@@ -12,7 +12,7 @@ import org.jetbrains.sbt.project.SbtProjectSystem
   */
 class ProjectNode(override val data: ProjectData)
   extends Node[ProjectData] {
-  def this(name: String, ideProjectFileDirectoryPath: String, linkedExternalProjectPath: String) {
+  def this(name: String, ideProjectFileDirectoryPath: String, linkedExternalProjectPath: String) = {
     this(new ProjectData(SbtProjectSystem.Id, name, ideProjectFileDirectoryPath, linkedExternalProjectPath))
   }
 
@@ -21,7 +21,7 @@ class ProjectNode(override val data: ProjectData)
 
 class ModuleNode(override val data: ModuleData)
   extends Node[ModuleData] {
-  def this(typeId: String, projectId: String, projectURI: URI, name: String, moduleFileDirectoryPath: String, externalConfigPath: String) {
+  def this(typeId: String, projectId: String, projectURI: URI, name: String, moduleFileDirectoryPath: String, externalConfigPath: String) = {
     this(new ModuleData(projectId, SbtProjectSystem.Id, typeId, name, moduleFileDirectoryPath, externalConfigPath))
   }
 
@@ -45,7 +45,7 @@ object ModuleNode {
 
 class LibraryNode(override val data: LibraryData)
   extends Node[LibraryData] {
-  def this(name: String, resolved: Boolean) {
+  def this(name: String, resolved: Boolean) = {
     this(new LibraryData(SbtProjectSystem.Id, name, !resolved))
   }
 
@@ -68,7 +68,7 @@ object ModuleSdkNode {
 
 class ContentRootNode(override val data: ContentRootData)
   extends Node[ContentRootData] {
-  def this(path: String) {
+  def this(path: String) = {
     this(new ContentRootData(SbtProjectSystem.Id, path))
   }
 
@@ -81,7 +81,7 @@ class ContentRootNode(override val data: ContentRootData)
 
 class ModuleDependencyNode(override val data: ModuleDependencyData)
   extends Node[ModuleDependencyData] {
-  def this(ownerModule: ModuleData, module: ModuleData) {
+  def this(ownerModule: ModuleData, module: ModuleData) = {
     this(new ModuleDependencyData(ownerModule, module))
   }
 
@@ -90,7 +90,7 @@ class ModuleDependencyNode(override val data: ModuleDependencyData)
 
 class LibraryDependencyNode(override val data: LibraryDependencyData)
   extends Node[LibraryDependencyData] {
-  def this(ownerModule: ModuleData, library: LibraryData, level: LibraryLevel) {
+  def this(ownerModule: ModuleData, library: LibraryData, level: LibraryLevel) = {
     this(new LibraryDependencyData(ownerModule, library, level))
   }
 

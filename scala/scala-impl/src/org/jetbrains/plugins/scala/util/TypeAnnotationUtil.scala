@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.ReturnTypeL
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.settings.annotations._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * Created by kate on 7/14/16.

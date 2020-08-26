@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.MultilineQuotes
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class ScalaStringLiteralSelectioner extends ExtendWordSelectionHandlerBase {
 

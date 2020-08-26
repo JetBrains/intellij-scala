@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
+import org.junit.Ignore
 
 import scala.meta.intellij.MetaExpansionsManager.PARADISE_VERSION
 
@@ -22,6 +23,7 @@ import scala.meta.intellij.MetaExpansionsManager.PARADISE_VERSION
   * @since 14.03.17.
   */
 
+@Ignore("Deprecated logic") // TODO remove deprecated logic and test
 class MetaAnnotationJarTest extends JavaCodeInsightFixtureTestCase with ScalaMetaTestBase {
   override protected def getTestDataPath: String = TestUtils.getTestDataPath + "/scalameta"
 

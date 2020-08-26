@@ -8,9 +8,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 trait Bounds {
   def glb(first: ScType, second: ScType, checkWeak: Boolean = false): ScType
 
-  def glb(types: Seq[ScType], checkWeak: Boolean): ScType
+  def glb(types: collection.Seq[ScType], checkWeak: Boolean): ScType
 
   def lub(first: ScType, second: ScType, checkWeak: Boolean = true): ScType
 
-  def lub(types: Seq[ScType], checkWeak: Boolean): ScType
+  def lub(types: Iterable[ScType], checkWeak: Boolean): ScType
 }

@@ -141,7 +141,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
       }
     }
 
-    def superSignatures(member: ScMember): Seq[TermSignature] = {
+    def superSignatures(member: ScMember): collection.Seq[TermSignature] = {
       val named = member match {
         case n: ScNamedElement => n
         case v: ScValueOrVariable if v.declaredElements.size == 1 => v.declaredElements.head

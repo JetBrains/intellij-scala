@@ -31,14 +31,14 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.worksheet.ScalaScriptImportsUtil
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.{immutable, mutable}
+import scala.jdk.CollectionConverters._
 
 /**
   * User: Alexander Podkhalyuzin
@@ -176,7 +176,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
   override def supports(file: PsiFile): Boolean = file.isInstanceOf[ScalaFile]
 
-  def replaceWithNewImportInfos(range: RangeInfo, importInfos: Seq[ImportInfo], settings: OptimizeImportSettings, file: PsiFile): Unit = {
+  def replaceWithNewImportInfos(range: RangeInfo, importInfos: Iterable[ImportInfo], settings: OptimizeImportSettings, file: PsiFile): Unit = {
     val firstPsi = range.firstPsi.retrieve()
     val lastPsi = range.lastPsi.retrieve()
 
@@ -424,10 +424,10 @@ object ScalaImportOptimizer {
     updateToWildcardImports(result, firstPsi, usedImportedNames, settings)
     updateRootPrefix(result)
 
-    result.to[immutable.Seq]
+    result.toSeq
   }
 
-  def updateRootPrefix(importInfos: ArrayBuffer[ImportInfo]): Unit = {
+  def updateRootPrefix(importInfos: mutable.Buffer[ImportInfo]): Unit = {
     val importedNames = new mutable.HashSet[String]()
 
     for (i <- importInfos.indices) {
@@ -439,7 +439,7 @@ object ScalaImportOptimizer {
     }
   }
 
-  def sortImportInfos(buffer: ArrayBuffer[ImportInfo], settings: OptimizeImportSettings): Unit = {
+  def sortImportInfos(buffer: mutable.Buffer[ImportInfo], settings: OptimizeImportSettings): Unit = {
     @tailrec
     def iteration(): Unit = {
       var i = 0
@@ -455,9 +455,9 @@ object ScalaImportOptimizer {
     iteration()
   }
 
-  def updateToWildcardImports(infos: ArrayBuffer[ImportInfo],
+  def updateToWildcardImports(infos: mutable.Buffer[ImportInfo],
                               startPsi: PsiAnchor,
-                              usedImportedNames: Set[String],
+                              usedImportedNames: collection.Set[String],
                               settings: OptimizeImportSettings): Unit = {
 
     val rangeStartPsi = startPsi.retrieve()
@@ -483,7 +483,7 @@ object ScalaImportOptimizer {
       }
     }
 
-    def updateWithWildcardNames(buffer: ArrayBuffer[ImportInfo]): Unit = {
+    def updateWithWildcardNames(buffer: mutable.Buffer[ImportInfo]): Unit = {
       for ((info, idx) <- buffer.zipWithIndex) {
         val withWildcardNames = info.withAllNamesForWildcard(rangeStartPsi)
         if (info != withWildcardNames) {
@@ -531,10 +531,10 @@ object ScalaImportOptimizer {
     }
   }
 
-  def insertImportInfos(infosToAdd: Seq[ImportInfo], infos: Seq[ImportInfo], rangeStart: PsiAnchor, settings: OptimizeImportSettings): Seq[ImportInfo] = {
+  def insertImportInfos(infosToAdd: collection.Seq[ImportInfo], infos: collection.Seq[ImportInfo], rangeStart: PsiAnchor, settings: OptimizeImportSettings): collection.Seq[ImportInfo] = {
     import settings._
 
-    def addLastAndMoveUpwards(newInfo: ImportInfo, buffer: ArrayBuffer[ImportInfo]): Unit = {
+    def addLastAndMoveUpwards(newInfo: ImportInfo, buffer: mutable.Buffer[ImportInfo]): Unit = {
       var i = buffer.size
       buffer.insert(i, newInfo)
       while(i > 0 && greater(buffer(i - 1), buffer(i), settings) && swapWithNext(buffer, i - 1)) {
@@ -542,12 +542,12 @@ object ScalaImportOptimizer {
       }
     }
 
-    def replace(oldInfos: Seq[ImportInfo], newInfos: Seq[ImportInfo], buffer: ArrayBuffer[ImportInfo]): Unit = {
+    def replace(oldInfos: collection.Seq[ImportInfo], newInfos: collection.Seq[ImportInfo], buffer: mutable.Buffer[ImportInfo]): Unit = {
       val oldIndices = oldInfos.map(buffer.indexOf).filter(_ >= 0).sorted(Ordering[Int].reverse)
       if (oldIndices.nonEmpty) {
         val minIndex = oldIndices.last
         oldIndices.foreach(buffer.remove)
-        buffer.insert(minIndex, newInfos: _*)
+        buffer.insertAll(minIndex, newInfos)
       }
       else {
         newInfos.foreach(addLastAndMoveUpwards(_, buffer))
@@ -584,7 +584,7 @@ object ScalaImportOptimizer {
       prefix -> (singleNamesCount >= classCountToUseImportOnDemand)
     }.toMap
 
-    def insertSimpleInfo(info: ImportInfo, buffer: ArrayBuffer[ImportInfo]): Unit = {
+    def insertSimpleInfo(info: ImportInfo, buffer: mutable.Buffer[ImportInfo]): Unit = {
       val samePrefixInfos = buffer.filter(_.prefixQualifier == info.prefixQualifier)
       if (collectImports) {
         val merged = ImportInfo.merge(samePrefixInfos :+ info)
@@ -593,7 +593,7 @@ object ScalaImportOptimizer {
       else addLastAndMoveUpwards(info, buffer)
     }
 
-    def insertInfoWithWildcard(info: ImportInfo, buffer: ArrayBuffer[ImportInfo], usedNames: Set[String]): Unit = {
+    def insertInfoWithWildcard(info: ImportInfo, buffer: mutable.Buffer[ImportInfo], usedNames: Set[String]): Unit = {
       val (samePrefixInfos, otherInfos) = buffer.partition(_.prefixQualifier == info.prefixQualifier)
       val samePrefixWithNewSplitted = samePrefixInfos.flatMap(_.split) ++ info.split
 
@@ -623,7 +623,7 @@ object ScalaImportOptimizer {
     }
 
     val needAdditionalInfo = infosToAdd.exists(_.hasWildcard) || addedPrefixes.exists(tooManySingleNames)
-    val buffer = infos.to[ArrayBuffer]
+    val buffer = infos.toBuffer
 
     if (needAdditionalInfo) {
       val rangeStartPsi = rangeStart.retrieve()
@@ -648,7 +648,7 @@ object ScalaImportOptimizer {
     buffer.toVector
   }
 
-  private def swapWithNext(buffer: ArrayBuffer[ImportInfo], i: Int): Boolean = {
+  private def swapWithNext(buffer: mutable.Buffer[ImportInfo], i: Int): Boolean = {
     val first: ImportInfo = buffer(i)
     val second: ImportInfo = buffer(i + 1)
     val firstPrefix: String = first.relative.getOrElse(first.prefixQualifier)
@@ -665,7 +665,7 @@ object ScalaImportOptimizer {
     } else false
   }
 
-  private def mergeImportInfos(buffer: ArrayBuffer[ImportInfo]): ArrayBuffer[ImportInfo] = {
+  private def mergeImportInfos(buffer: mutable.Buffer[ImportInfo]): mutable.Buffer[ImportInfo] = {
     def canBeMergedAt(i: Int): Boolean =
       i > -1 && i < buffer.length && !ScalaScriptImportsUtil.preventMerging(buffer(i))
 
@@ -737,7 +737,7 @@ object ScalaImportOptimizer {
           .lastOption
 
         mostSpecific
-          .map(groups.indexOf)
+          .map(groups.indexOf(_))
           .getOrElse {
             0 max groups.indexOf(ALL_OTHER_IMPORTS)
           }
@@ -796,7 +796,7 @@ object ScalaImportOptimizer {
       withImplicits(srr).foreach(addResult(_, fromElem))
     }
 
-    def withImplicits(srr: ScalaResolveResult): Seq[ScalaResolveResult] = {
+    def withImplicits(srr: ScalaResolveResult): collection.Seq[ScalaResolveResult] = {
       srr +:
         srr.implicitConversion.toSeq.flatMap(withImplicits) ++:
         srr.implicitParameters.flatMap(withImplicits)

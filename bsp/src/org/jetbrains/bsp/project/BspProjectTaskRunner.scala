@@ -25,7 +25,7 @@ import org.jetbrains.concurrency.{AsyncPromise, Promise}
 import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.plugins.scala.extensions
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 

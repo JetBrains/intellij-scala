@@ -20,8 +20,7 @@ import org.jetbrains.plugins.scala.testingSupport.locationProvider.PsiLocationWi
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{PropertiesExtension, TestCommandLinePatcher}
 
-import scala.collection.JavaConverters._
-import scala.collection.Seq
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ArrayBuffer
 
 class ScalaRerunFailedTestsAction(consoleView: ConsoleView)
@@ -55,7 +54,7 @@ class ScalaRerunFailedTestsAction(consoleView: ConsoleView)
     propertiesExtension: PropertiesExtension
   ) extends MyRunProfile(configuration) {
 
-    private var previouslyFailed: Option[Seq[Tuple2[String, String]]] = None
+    private var previouslyFailed: Option[collection.Seq[Tuple2[String, String]]] = None
 
     override def getModules: Array[Module] = configuration.getModules
 

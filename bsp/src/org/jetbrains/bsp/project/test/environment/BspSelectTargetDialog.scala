@@ -13,7 +13,7 @@ import org.jetbrains.bsp.BspBundle
 object BspSelectTargetDialog {
   def promptForBspTarget(
     project: Project,
-    targetIds: Seq[BuildTargetIdentifier],
+    targetIds: collection.Seq[BuildTargetIdentifier],
     selected: Option[BuildTargetIdentifier]
   ): Option[BuildTargetIdentifier] = {
     var result: Option[BuildTargetIdentifier] = None
@@ -24,7 +24,7 @@ object BspSelectTargetDialog {
     result
   }
 
-  private[environment] def visibleNames(targetIds: Seq[BuildTargetIdentifier]): Seq[String] = {
+  private[environment] def visibleNames(targetIds: collection.Seq[BuildTargetIdentifier]): collection.Seq[String] = {
     targetIds.map(visibleName)
   }
 
@@ -41,7 +41,7 @@ object BspSelectTargetDialog {
 
 class BspSelectTargetDialog(
   project: Project,
-  targetIds: Seq[BuildTargetIdentifier],
+  targetIds: collection.Seq[BuildTargetIdentifier],
   selected: Option[BuildTargetIdentifier]
 ) extends DialogWrapper(project, true) {
   setTitle(BspBundle.message("bsp.task.choose.target.title"))

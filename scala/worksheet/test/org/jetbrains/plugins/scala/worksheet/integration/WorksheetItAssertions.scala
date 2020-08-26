@@ -110,6 +110,6 @@ trait WorksheetItAssertions {
   protected def collectedCompilerMessages(editor: Editor): Seq[CompilerMessageImpl] = {
     val collector = worksheetCache.getCompilerMessagesCollector(editor).orNull
     assertNotNull(collector)
-    collector.collectedMessages.map(_.asInstanceOf[CompilerMessageImpl])
+    collector.collectedMessages.map(_.asInstanceOf[CompilerMessageImpl]).toSeq
   }
 }

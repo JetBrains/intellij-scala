@@ -16,7 +16,7 @@ class TypePluralNamesProvider extends GenericTypeNamesProvider {
 
   import TypePluralNamesProvider._
 
-  override def names(`type`: ScParameterizedType): Seq[String] = `type` match {
+  override def names(`type`: ScParameterizedType): collection.Seq[String] = `type` match {
     case IsTraversable(designator, argument) =>
       val argumentNames = argument match {
         case IsTraversable(_, _) => Seq.empty
@@ -31,7 +31,7 @@ class TypePluralNamesProvider extends GenericTypeNamesProvider {
 
 object TypePluralNamesProvider {
 
-  private[namesSuggester] def pluralizeNames(`type`: ScType): Seq[String] =
+  private[namesSuggester] def pluralizeNames(`type`: ScType): collection.Seq[String] =
     namesByType(`type`, withPlurals = false, shortVersion = false).map {
       case letter@IsLetter() => letter + "s"
       case string => English.plural(string)

@@ -9,7 +9,7 @@ import com.intellij.util.PathUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object TastyReader {
   // TODO Remove when the project use Scala 2.13

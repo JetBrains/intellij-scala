@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings, hints}
 import org.jetbrains.plugins.scala.extensions.StringExt
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayProviderSettingsModel(true, "Scala.ScalaMethodChainInlayHintsSettingsModel") {
   // have a temporary version of the settings, so apply/cancel mechanism works
@@ -43,7 +43,7 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
         global.uniqueTypesToShowMethodChains != uniqueTypesToShowMethodChains
   }
 
-  override def getCases: util.List[ImmediateConfigurable.Case] = Seq(
+  override def getCases: util.List[ImmediateConfigurable.Case] = SeqHasAsJava(Seq(
     new ImmediateConfigurable.Case(
       ScalaCodeInsightBundle.message("in.a.separate.column"),
       "Scala.ScalaMethodChainInlayHintsSettingsModel.alignMethodChainInlayHints",
@@ -53,7 +53,7 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
         kUnit
       },
       null)
-  ).asJava
+  )).asJava
 
   private val settingsPanel = new ScalaMethodChainInlaySettingsPanel(
     () => settings.uniqueTypesToShowMethodChains,

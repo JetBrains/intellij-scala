@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 

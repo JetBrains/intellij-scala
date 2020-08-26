@@ -63,7 +63,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
       .getOrElse(return)
 
     if (!editor.getSelectionModel.hasSelection) return
-    val elements: Seq[PsiElement] = selectedElements(editor, scalaFile, trimComments = false)
+    val elements = selectedElements(editor, scalaFile, trimComments = false)
 
     if (showNotPossibleWarnings(elements, REFACTORING_NAME)) return
 
@@ -168,8 +168,8 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
     res.toArray.reverse
   }
 
-  private def findScopeBound(elements: Seq[PsiElement]): Option[PsiElement] = {
-    val commonParent = PsiTreeUtil.findCommonParent(elements: _*)
+  private def findScopeBound(elements: collection.Seq[PsiElement]): Option[PsiElement] = {
+    val commonParent = PsiTreeUtil.findCommonParent(elements.toSeq: _*)
 
     def scopeBound(ref: ScReference): Option[PsiElement] = {
       val fromThisRef: Option[ScTemplateDefinition] = ref.qualifier match {

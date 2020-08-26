@@ -15,7 +15,8 @@ object MapGetNonEmpty extends SimplificationType() {
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
-      case map`.getOnMap`(key)`.isDefined`() =>
+      // TODO infix notation?
+      case `.isDefined`(map`.getOnMap`(key)) =>
         Some(replace(expr)
           .withText(invocationText(negation = false, map, "contains", key))
           .highlightFrom(map))
@@ -30,7 +31,8 @@ object MapGetIsEmpty extends SimplificationType() {
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
-      case map`.getOnMap`(key)`.isEmpty`() =>
+      // TODO infix notation?
+      case `.isEmpty`(map`.getOnMap`(key)) =>
         Some(replace(expr)
           .withText(invocationText(negation = true, map, "contains", key))
           .highlightFrom(map))

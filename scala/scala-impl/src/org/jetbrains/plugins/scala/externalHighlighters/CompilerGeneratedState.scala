@@ -12,5 +12,5 @@ case class CompilerGeneratedState(files: Map[VirtualFile, FileCompilerGeneratedS
                                   highlightOnCompilationFinished: Set[VirtualFile]) {
 
   def toHighlightingState: HighlightingState =
-    files.mapValues(_.highlightings)
+    files.view.mapValues(_.highlightings).toMap
 }

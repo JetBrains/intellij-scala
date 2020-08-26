@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.light._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 
 import _root_.scala.annotation.tailrec
-import _root_.scala.collection.JavaConverters._
+import _root_.scala.jdk.CollectionConverters._
 import _root_.scala.collection.mutable.ArrayBuffer
 
 /**

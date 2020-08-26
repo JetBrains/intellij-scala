@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.injection.AbstractLanguageInjectionTestCase._
 import org.junit.Assert._
 
-import scala.collection.JavaConverters.collectionAsScalaIterableConverter
+import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
 
 /** @see AbstractLanguageInjectionTestCase.kt in main IntelliJ repository */

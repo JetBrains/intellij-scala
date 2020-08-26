@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.formatting.settings.migration.CodeStyleSettingsMigrationServiceBase.MigrationItem
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
-import scala.collection.JavaConverters.iterableAsScalaIterableConverter
+import scala.jdk.CollectionConverters._
 
 @State(
   name = "ApplicationCodeStyleSettingsMigration",

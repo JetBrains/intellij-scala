@@ -10,7 +10,7 @@ import com.intellij.openapi.util.{RecursionManager => PlatformRM}
 import org.jetbrains.plugins.scala.util.HashBuilder._
 import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * Nikolay.Tropin

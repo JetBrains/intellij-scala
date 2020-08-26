@@ -6,7 +6,7 @@ import org.jetbrains.android.sdk.{AndroidPlatform, AndroidSdkType}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.external.{AndroidJdk, SdkReference, SdkResolver}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class AndroidSdkResolver extends SdkResolver {
   override def findSdk(reference: SdkReference): Option[Sdk] = reference match {
@@ -36,7 +36,7 @@ private object AndroidSdkResolver {
     matchingSdks.headOption
   }
 
-  private def allAndroidSdks: Seq[Sdk] = inReadAction {
+  private def allAndroidSdks: collection.Seq[Sdk] = inReadAction {
     ProjectJdkTable.getInstance().getSdksOfType(AndroidSdkType.getInstance()).asScala
   }
 }

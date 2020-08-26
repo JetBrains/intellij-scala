@@ -7,13 +7,13 @@ import org.jetbrains.plugins.scala.compiler.CompileOrder
 /**
  * @author Pavel Fatin
  */
-case class CompilationData(sources: Seq[File],
-                           classpath: Seq[File],
+case class CompilationData(sources: collection.Seq[File],
+                           classpath: collection.Seq[File],
                            output: File,
-                           scalaOptions: Seq[String],
-                           javaOptions: Seq[String],
+                           scalaOptions: collection.Seq[String],
+                           javaOptions: collection.Seq[String],
                            order: CompileOrder,
                            cacheFile: File,
-                           outputToCacheMap: Map[File, File],
-                           outputGroups: Seq[(File, File)],
+                           outputToCacheMap: collection.Map[File, File],
+                           outputGroups: collection.Seq[(File, File)],
                            zincData: ZincData)

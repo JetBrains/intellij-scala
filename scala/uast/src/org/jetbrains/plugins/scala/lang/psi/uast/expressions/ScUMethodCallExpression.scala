@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.uast.ReferenceExt
 import org.jetbrains.uast.{UCallExpression, UCallExpressionAdapter, UExpression, UIdentifier, UReferenceExpression, UastCallKind}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait ScUMethodCallCommon
   extends UCallExpression

@@ -26,7 +26,7 @@ import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.resolvers.indexes.IvyIndex
 import org.jetbrains.sbt.resolvers.{SbtMavenRepositoryProvider, SbtResolverUtils}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Pavel Fatin

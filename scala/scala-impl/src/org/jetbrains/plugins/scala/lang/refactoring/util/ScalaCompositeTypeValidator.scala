@@ -33,7 +33,7 @@ class ScalaCompositeTypeValidator(conflictsReporter: ConflictsReporter,
                                   validators: List[ScalaValidator])
   extends ScalaTypeValidator(selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
 
-  protected override def findConflictsImpl(name: String, allOcc: Boolean): Seq[(PsiNamedElement, String)] = {
+  protected override def findConflictsImpl(name: String, allOcc: Boolean): collection.Seq[(PsiNamedElement, String)] = {
     //returns declaration and message
     val buf = new ArrayBuffer[(PsiNamedElement, String)]
 
@@ -59,8 +59,8 @@ class ScalaCompositeTypeValidator(conflictsReporter: ConflictsReporter,
     buf
   }
 
-  //TODO iliminate duplication
-  private def findFilesForDownConflictFindings(directory: PsiDirectory, name: String): Seq[PsiFile] = {
+  //TODO eliminate duplication
+  private def findFilesForDownConflictFindings(directory: PsiDirectory, name: String): collection.Seq[PsiFile] = {
     val buffer = new ArrayBuffer[PsiFile]()
 
     val processor = new Processor[PsiFile] {

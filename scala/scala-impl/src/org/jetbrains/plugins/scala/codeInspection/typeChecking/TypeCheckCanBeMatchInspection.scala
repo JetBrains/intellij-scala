@@ -81,7 +81,7 @@ object TypeCheckCanBeMatchInspection {
   @Nls
   val inspectionName: String = ScalaInspectionBundle.message("type.check.can.be.replaced.by.pattern.matching")
 
-  private type RenameData = mutable.ArrayBuffer[(Int, Seq[String])]
+  private type RenameData = mutable.ArrayBuffer[(Int, collection.Seq[String])]
 
   def buildMatchStmt(ifStmt: ScIf, isInstOfUnderFix: ScGenericCall, onlyFirst: Boolean)
                     (implicit project: Project): (Option[ScMatch], RenameData) =
@@ -139,7 +139,7 @@ object TypeCheckCanBeMatchInspection {
       implicit val project: Project = ifStmt.getProject
       val name = if (asInstOfInBody.count(checkAndStoreNameAndDef) == 0) {
         //no usage of asInstanceOf
-        asInstOfEverywhere match {
+        asInstOfEverywhere.toSeq match {
           case Seq() => "_"
           case _ =>
             //no named usage
@@ -159,7 +159,7 @@ object TypeCheckCanBeMatchInspection {
               expression.replaceExpression(newExpr, removeParenthesis = true)
             }
 
-            renameData += ((caseClauseIndex, suggestedNames))
+            renameData.addOne((caseClauseIndex, suggestedNames))
             text
         }
       } else {
@@ -258,7 +258,7 @@ object TypeCheckCanBeMatchInspection {
   }
 
   private def findAsInstanceOfCalls(maybeBody: Option[ScExpression],
-                                    isInstOfCall: ScGenericCall): Seq[ScGenericCall] = maybeBody match {
+                                    isInstOfCall: ScGenericCall): Iterable[ScGenericCall] = maybeBody match {
     case Some(body) =>
       def baseAndType(call: ScGenericCall) = for {
         base <- baseExpr(call)

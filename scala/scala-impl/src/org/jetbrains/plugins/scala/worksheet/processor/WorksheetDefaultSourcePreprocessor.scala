@@ -115,7 +115,7 @@ object WorksheetDefaultSourcePreprocessor {
       if !packageName.trim.isEmpty
     } yield packageName
 
-  private def rootForObject(srcFile: ScalaFile, sourceBuilder: ScalaSourceBuilderBase): (PsiElement, Seq[PsiElement], Seq[PsiElement]) = {
+  private def rootForObject(srcFile: ScalaFile, sourceBuilder: ScalaSourceBuilderBase): (PsiElement, collection.Seq[PsiElement], collection.Seq[PsiElement]) = {
     val preDeclarations  = mutable.ListBuffer.empty[PsiElement]
     val postDeclarations = mutable.ListBuffer.empty[PsiElement]
     var root: PsiElement = null
@@ -345,9 +345,9 @@ object WorksheetDefaultSourcePreprocessor {
         case other => Seq(other)
       }
 
-      def withOptionalBraces(s: Seq[String]): Option[String] = s match {
-        case Seq()     => None
-        case Seq(head) => Some(head)
+      def withOptionalBraces(s: collection.Seq[String]): Option[String] = s match {
+        case collection.Seq()     => None
+        case collection.Seq(head) => Some(head)
         case seq       => Some(seq.mkString("(", ",", ")"))
       }
 

@@ -31,14 +31,14 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
 
   private def this(t: (PsiNamedElement, PsiElement, Editor, String, String)) = this(t._1, t._2, t._3, t._4, t._5)
 
-  def this(elementToRename: PsiNamedElement, substituted: PsiElement, editor: Editor) {
+  def this(elementToRename: PsiNamedElement, substituted: PsiElement, editor: Editor) = {
     this {
       val name = ScalaNamesUtil.scalaName(substituted)
       (elementToRename, substituted, editor, name, name)
     }
   }
 
-  def this(elementToRename: PsiNamedElement, substituted: PsiNamedElement, editor: Editor, additionalToRename: Seq[PsiElement]) {
+  def this(elementToRename: PsiNamedElement, substituted: PsiNamedElement, editor: Editor, additionalToRename: Seq[PsiElement]) = {
     this(elementToRename, substituted, editor)
   }
 

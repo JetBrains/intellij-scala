@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.
 import org.jetbrains.plugins.scala.extensions.PsiMemberExt
 import org.junit.Assert
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * Nikolay.Tropin

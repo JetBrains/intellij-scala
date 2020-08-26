@@ -14,7 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 
-import scala.collection.{JavaConverters, mutable}
+import scala.collection.mutable
+import scala.jdk.CollectionConverters
 
 final class Associations private(override val associations: Array[Association])
   extends AssociationsData(associations, Associations)
@@ -40,7 +41,7 @@ final class Associations private(override val associations: Array[Association])
             (binding.element, binding.path)
           }
 
-          import JavaConverters._
+          import CollectionConverters._
           val commonParent = PsiTreeUtil.findCommonParent(elements.asJava)
           val importsHolder = ScImportsHolder(commonParent)(project)
 

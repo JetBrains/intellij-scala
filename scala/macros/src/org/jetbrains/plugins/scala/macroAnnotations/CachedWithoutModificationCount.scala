@@ -58,14 +58,14 @@ object CachedWithoutModificationCount {
           abort(MacrosBundle.message("macros.cached.specify.return.type"))
         }
         //generated names
-        val name = c.freshName(termName)
+        val name = qualifiedTernName(termName.toString)
         val cacheName = withClassName(termName)
-        val cacheVarName = name
-        val mapName = generateTermName(name.toString, "map")
-        val computedValue = generateTermName(name.toString, "computedValue")
-        val tracerName = generateTermName(name.toString, "$tracer")
+        val cacheVarName = TermName(name)
+        val mapName = generateTermName(name, "map")
+        val computedValue = generateTermName(name, "computedValue")
+        val tracerName = generateTermName(name, "$tracer")
 
-        val keyId = stringLiteral(name + "cacheKey")
+        val keyId = stringLiteral(name + "$cacheKey")
 
         //DefDef parameters
         val flatParams = paramss.flatten

@@ -11,7 +11,7 @@ import com.intellij.ui.components.JBList
 import org.jetbrains.sbt.annotator.dependency.ui.SbtArtifactSearchPanel._
 import org.jetbrains.sbt.resolvers.ArtifactInfo
 
-import scala.collection.JavaConverters.asJavaCollectionConverter
+import scala.jdk.CollectionConverters._
 
 /**
   * Created by afonichkin on 7/13/17.

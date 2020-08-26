@@ -38,7 +38,7 @@ import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner,
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-import scala.collection.{Seq, mutable}
+import scala.collection.mutable
 
 /**
  * User: Alexander Podkhalyuzin
@@ -318,7 +318,7 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
   }
 
   def checkValueAndVariableVariance(toCheck: ScDeclaredElementsHolder, variance: Variance,
-                                    declaredElements: Seq[Typeable with ScNamedElement])
+                                    declaredElements: collection.Seq[Typeable with ScNamedElement])
                                    (implicit holder: ScalaAnnotationHolder): Unit = {
     if (!modifierIsThis(toCheck)) {
       for (element <- declaredElements) {

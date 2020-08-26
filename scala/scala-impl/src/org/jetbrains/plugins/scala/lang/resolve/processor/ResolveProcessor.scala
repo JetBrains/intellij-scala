@@ -151,7 +151,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     }
   }
 
-  override def candidatesS: Set[ScalaResolveResult] = {
+  override def candidatesS: collection.Set[ScalaResolveResult] = {
     var res = candidatesSet
     val iterator = levelSet.iterator()
     while (iterator.hasNext) {

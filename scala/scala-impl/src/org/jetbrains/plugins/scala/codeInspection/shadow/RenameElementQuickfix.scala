@@ -15,7 +15,8 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
 import org.jetbrains.plugins.scala.extensions._
 
-import scala.collection.{JavaConverters, mutable}
+import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 /**
  * User: Alefas
@@ -46,7 +47,6 @@ class RenameElementQuickfix(myRef: PsiElement, @Nls name: String) extends Abstra
       map.put(CommonDataKeys.PSI_ELEMENT.getName, element)
     }
 
-    import JavaConverters._
     val dataContext = SimpleDataContext.getSimpleContext(map.asJava, DataManager.getInstance.getDataContext(editor.getComponent))
     new AnActionEvent(null, dataContext, "", action.getTemplatePresentation, ActionManager.getInstance, 0)
   }

@@ -18,7 +18,7 @@ object ValueClassType {
       case _: ValType => None
       case ExtractClass(cl: ScClass) if isValueClass(cl) =>
         cl.constructors match {
-          case Seq(pc: ScPrimaryConstructor) =>
+          case collection.Seq(pc: ScPrimaryConstructor) =>
             pc.parameters.headOption.map(_.paramType())
           case _ => None
         }

@@ -5,12 +5,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
-import org.junit.Assert
+import org.junit.{Assert, Ignore}
 
 /**
   * @author mutcianm
   * @since 31.10.16.
   */
+@Ignore("Deprecated logic") // TODO remove deprecated logic and test
 class MetaAnnotationsTest extends MetaAnnotationTestBase {
 
   def testAddMethodToObject(): Unit = {

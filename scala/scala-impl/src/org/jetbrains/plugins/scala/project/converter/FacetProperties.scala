@@ -3,7 +3,7 @@ package project.converter
 
 import org.jdom.{Attribute, Element}
 import org.jdom.xpath.XPath
-import collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Pavel Fatin
@@ -21,6 +21,6 @@ private class FacetProperties(element: Element) {
 
   def int(key: String, default: Int): Int = option(key).map(_.toInt).getOrElse(default)
 
-  def array(key: String): Seq[String] = XPath.selectNodes(element,
+  def array(key: String): collection.Seq[String] = XPath.selectNodes(element,
     s"configuration/option[@name='$key']/array/option/@value").asScala.map(_.asInstanceOf[Attribute].getValue)
 }

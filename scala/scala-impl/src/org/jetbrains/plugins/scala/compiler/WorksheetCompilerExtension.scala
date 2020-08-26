@@ -25,6 +25,6 @@ object WorksheetCompilerExtension
   def worksheetClasspath(module: Module): Option[Seq[File]] =
     implementations.iterator.map(_.worksheetClasspath(module)).collectFirst { case Some(cp) => cp }
 
-  def extraWorksheetActions(): Seq[TopComponentAction] =
+  def extraWorksheetActions(): collection.Seq[TopComponentAction] =
     implementations.flatMap(_.extraWorksheetActions())
 }

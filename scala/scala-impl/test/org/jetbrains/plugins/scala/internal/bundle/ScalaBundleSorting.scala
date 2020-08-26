@@ -108,7 +108,7 @@ object ScalaBundleSorting {
 
     println(s"Read bundle $bundlePath")
     val I18nBundleContent(entries) = read(bundlePath)
-    val keyToAmountOfEntries = entries.groupBy(_.key).mapValues(_.size)
+    val keyToAmountOfEntries = entries.groupBy(_.key).view.mapValues(_.size)
 
     def isEntryInInvalidPath(entry: Entry): Boolean =
       !keyToFinding.getOrElse(entry.key, Nil).exists(_.relativeFilepath == entry.path)

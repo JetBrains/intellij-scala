@@ -15,7 +15,8 @@ object RedundantHeadOption extends SimplificationType {
   override def hint: String = ScalaInspectionBundle.message("remove.redundant.headOption")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
-    case qual`.headOption`() if isOption(qual) =>
+    // TODO infix notation?
+    case `.headOption`(qual) if isOption(qual) =>
       Some(replace(expr).withText(qual.getText).highlightFrom(qual))
     case _ => None
   }
@@ -25,7 +26,8 @@ object RedundantLastOption extends SimplificationType {
   override def hint: String = ScalaInspectionBundle.message("remove.redundant.lastOption")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
-    case qual`.lastOption`() if isOption(qual) =>
+    // TODO infix notation?
+    case `.lastOption`(qual) if isOption(qual) =>
       Some(replace(expr).withText(qual.getText).highlightFrom(qual))
     case _ => None
   }

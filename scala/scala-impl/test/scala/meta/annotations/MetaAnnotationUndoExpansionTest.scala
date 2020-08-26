@@ -1,5 +1,8 @@
 package scala.meta.annotations
 
+import org.junit.Ignore
+
+@Ignore("Deprecated logic") // TODO remove deprecated logic and test
 class MetaAnnotationUndoExpansionTest extends MetaAnnotationUndoExpansionTestBase {
 
   def testUndoSingleClass(): Unit = {

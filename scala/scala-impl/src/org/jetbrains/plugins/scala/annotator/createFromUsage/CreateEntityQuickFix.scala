@@ -70,7 +70,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
 
     val placeholder = if (entityType.isDefined) "%s %s%s: Int" else "%s %s%s"
     val unimplementedBody = " = ???"
-    val params = (genericParams ++: parameters).mkString
+    val params = (genericParams ++ parameters).mkString
     val text = placeholder.format(keyword, ref.nameId.getText, params) + unimplementedBody
 
     val block = ref match {

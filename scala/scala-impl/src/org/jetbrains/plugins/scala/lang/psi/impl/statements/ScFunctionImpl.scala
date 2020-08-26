@@ -46,7 +46,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScTy
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
 
 import scala.annotation.tailrec
-import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -83,7 +82,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   override def paramClauses: ScParameters = getStubOrPsiChild(ScalaElementType.PARAM_CLAUSES)
 
   @CachedInUserData(this, BlockModificationTracker(this))
-  override def syntheticContextAppliedDefs: Seq[ScalaPsiElement] =
+  override def syntheticContextAppliedDefs: collection.Seq[ScalaPsiElement] =
     ContextAppliedUtil.createSyntheticElementsFor(this, this.containingClass, parameters, typeParameters)
 
   override def processDeclarations(
@@ -207,7 +206,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   override def extensionMethodClause: Option[ScParameterClause] = Option(getStubOrPsiChild(ScalaElementType.PARAM_CLAUSE))
 
   @CachedInUserData(this, BlockModificationTracker(this))
-  override def effectiveParameterClauses: Seq[ScParameterClause] = {
+  override def effectiveParameterClauses: collection.Seq[ScParameterClause] = {
     val maybeOwner = if (isConstructor) {
       containingClass match {
         case owner: ScTypeParametersOwner => Some(owner)
@@ -224,7 +223,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     * @return Empty array, if containing class is null.
     */
   @Cached(BlockModificationTracker(this), this)
-  override def getFunctionWrappers(isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper] = {
+  override def getFunctionWrappers(isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass] = None): collection.Seq[ScFunctionWrapper] = {
     val buffer = new ArrayBuffer[ScFunctionWrapper]
     if (cClass.isDefined || containingClass != null) {
       for {
@@ -372,7 +371,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     }
   }
 
-  override def superMethods: Seq[PsiMethod] = superSignatures.map(_.namedElement).filterByType[PsiMethod]
+  override def superMethods: collection.Seq[PsiMethod] = superSignatures.map(_.namedElement).filterByType[PsiMethod]
 
   override def superMethod: Option[PsiMethod] = superMethodAndSubstitutor.map(_._1)
 
@@ -386,13 +385,13 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
       }
   }
 
-  override def superSignatures: Seq[TermSignature] =
+  override def superSignatures: collection.Seq[TermSignature] =
     TypeDefinitionMembers.getSignatures(containingClass).forName(name).findNode(this) match {
       case Some(x) => x.supers.map { _.info }
       case None    => Seq.empty
     }
 
-  override def superSignaturesIncludingSelfType: Seq[TermSignature] = {
+  override def superSignaturesIncludingSelfType: collection.Seq[TermSignature] = {
     val clazz = containingClass
     if (clazz == null) return Seq.empty
 

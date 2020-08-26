@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.meta.{Dialect, ScalaMetaBundle}
+import scala.meta._
 import scala.meta.inputs.Input
 import scala.meta.parsers.{ParseException, Parsed}
 
@@ -23,7 +24,7 @@ import scala.meta.parsers.{ParseException, Parsed}
   * @author Mikhail Mutcianko
   * @since 11.09.16
   */
-object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
+object QuasiquoteInferUtil {
 
   import scala.{meta => m}
 
@@ -120,12 +121,9 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
       case "q"          => p.parse[m.Stat].orElse(p.parse[m.Source])
       case "t"          => p.parse[m.Type]
       case "p"          => p.parse[m.Case].orElse(p.parse[m.Pat])
-      case "pt"         => p.parse[m.Pat.Type]
-      case "arg"        => p.parse[m.Term.Arg]
+      case "arg"        => p.parse[m.Term]
       case "mod"        => p.parse[m.Mod]
-      case "targ"       => p.parse[m.Type.Arg]
-      case "parg"       => p.parse[m.Pat.Arg]
-      case "ctor"       => p.parse[m.Ctor.Call]
+      case "ctor"       => p.parse[m.Init]
       case "param"      => p.parse[m.Term.Param]
       case "tparam"     => p.parse[m.Type.Param]
       case "source"     => p.parse[m.Source]
@@ -137,12 +135,12 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
     }
   }
 
-  // max(rank) for filtering out nested quasi types(we only need top level parts for conformance checks)
-  private def collectQQParts(t: scala.meta.Tree, maxParentRank: Int = -1): Seq[m.internal.ast.Quasi] = {
-    import m.internal.ast.Quasi
+//   max(rank) for filtering out nested quasi types(we only need top level parts for conformance checks)
+  private def collectQQParts(t: scala.meta.Tree, maxParentRank: Int = -1): Seq[m.internal.trees.Quasi] = {
+    import m.internal.trees.Quasi
     t match {
-      case tt: Quasi if tt.rank > maxParentRank => Seq(tt) ++ tt.children.flatMap(c=>collectQQParts(c, tt.rank))
-      case _ => t.children.flatMap(c=>collectQQParts(c, maxParentRank))
+      case tt: Quasi if tt.rank > maxParentRank => Seq(tt) ++ tt.children.flatMap(c => collectQQParts(c, tt.rank))
+      case _ => t.children.flatMap(c => collectQQParts(c, maxParentRank))
     }
   }
 

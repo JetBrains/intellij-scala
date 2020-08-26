@@ -72,7 +72,7 @@ object CompilerFactoryImpl {
   private val Log: JpsLogger = JpsLogger.getInstance(CompilerFactoryImpl.getClass.getName)
   private val scalaInstanceCache = new Cache[CompilerJars, ScalaInstance](3)
 
-  private var classLoadersMap = Map[Seq[File], ClassLoader]()
+  private var classLoadersMap = Map[collection.Seq[File], ClassLoader]()
 
   def getOrCreateScalaInstance(jars: CompilerJars): ScalaInstance =
     scalaInstanceCache.getOrUpdate(jars)(createScalaInstance(jars))
@@ -81,7 +81,7 @@ object CompilerFactoryImpl {
     val paths = jars.allJars
 
     def createClassLoader() = {
-      val urls = Path.toURLs(paths)
+      val urls = Path.toURLs(paths.toSeq)
       val newClassloader = new URLClassLoader(urls, sbt.internal.inc.classpath.ClasspathUtilities.rootLoader)
 
       classLoadersMap += paths -> newClassloader

@@ -21,8 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-import scala.collection.Seq
-
 /**
  * @author Aleksander Podkhalyuzin
  * Date: 25.03.2009

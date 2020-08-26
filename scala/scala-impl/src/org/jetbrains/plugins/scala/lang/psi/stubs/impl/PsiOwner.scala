@@ -22,7 +22,7 @@ trait PsiOwner[T <: PsiElement] {
   protected def getFromReferenceWithFilter[E <: PsiElement, C](reference: SofterReference[C],
                                                                elementConstructor: (PsiElement, PsiElement) => C,
                                                                refUpdate: SofterReference[C] => Unit)
-                                                              (implicit evidence: C => Seq[E]): C = {
+                                                              (implicit evidence: C => collection.Seq[E]): C = {
     def updateAndGetNewValue(): C = {
       val result = elementConstructor(getPsi, null)
 

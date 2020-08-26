@@ -3,7 +3,7 @@ package org.jetbrains.sbt.project
 import java.util
 import java.util.Optional
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 package object data {
   private[data] def toJavaSet[A](set: Set[A]): java.util.Set[A] = new util.HashSet[A](set.asJava)

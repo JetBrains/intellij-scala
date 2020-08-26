@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.testingSupport.MyJavaConverters;
 import org.jetbrains.plugins.scala.testingSupport.uTest.utils.UTestTreeUtils;
 import org.jetbrains.plugins.scala.testingSupport.uTest.utils.UTestUtils;
 import scala.Function2;
-import scala.collection.Seq;
+import scala.collection.immutable.Seq;
 import scala.runtime.BoxedUnit;
 import utest.TestRunner;
 import utest.TestRunner$;
@@ -187,14 +187,14 @@ public final class UTestSuiteRunner  {
           final Object testObject,
           final Tests testsHolder,
           final List<Tree<String>> treeList,
-          final Function2<scala.collection.Seq<String>, Result, BoxedUnit> reportFunction
+          final Function2<Seq<String>, Result, BoxedUnit> reportFunction
   ) throws UTestRunExpectedError {
     try {
       Class<? extends TestRunner$> runnerClazz = TestRunner$.MODULE$.getClass();
       Class<?>[] paramTypes = {
               Tests.class,
               Function2.class,
-              scala.collection.immutable.Seq.class,
+              scala.collection.Seq.class,
               Executor.class,
               scala.concurrent.ExecutionContext.class
       };

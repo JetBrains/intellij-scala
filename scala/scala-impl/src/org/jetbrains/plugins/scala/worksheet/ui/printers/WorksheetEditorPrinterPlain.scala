@@ -177,7 +177,7 @@ final class WorksheetEditorPrinterPlain private[printers](
     line.startsWith(ServiceMarkers.CHUNK_OUTPUT_END_MARKER)
 
   @CalledInAwt
-  private def updateWithPersistentScroll(document: Document, text: CharSequence, foldings: Seq[InputOutputFoldingInfo]): Unit = {
+  private def updateWithPersistentScroll(document: Document, text: CharSequence, foldings: Iterable[InputOutputFoldingInfo]): Unit = {
     val editorScroll = originalEditor.getScrollingModel.getVerticalScrollOffset
     val viewerScroll = worksheetViewer.getScrollingModel.getVerticalScrollOffset
 
@@ -225,11 +225,13 @@ object WorksheetEditorPrinterPlain {
    *          input: Seq((1, 1), (1, 1), (1, 2), (2, 2), (3, 4), (4, 5)) <br>
    *          output: Seq(Seq((1, 1), (1, 1), (1, 2), (2, 2)), Seq((3, 4), (4, 5))) <br>
    */
-  private def groupChunks(chunks: Seq[EvaluationChunk]): Seq[Seq[EvaluationChunk]] = if (chunks.isEmpty) Seq() else {
-    val result = ArrayBuffer(ArrayBuffer(chunks.head))
+  private def groupChunks(chunks: collection.Seq[EvaluationChunk]): collection.Seq[collection.Seq[EvaluationChunk]] =
+    if (chunks.isEmpty) Seq()
+    else {
+      val result = ArrayBuffer(ArrayBuffer(chunks.head))
 
     chunks.sliding(2).foreach {
-      case Seq(prev, curr) =>
+      case collection.Seq(prev, curr) =>
         def logExtraDebugInfo = {
           val application = ApplicationManager.getApplication
           application.isUnitTestMode || application.isInternal
@@ -259,12 +261,12 @@ object WorksheetEditorPrinterPlain {
 
   // TODO: unify with REPL printer, reuse concepts
   @Measure
-  private def renderText(chunks: Seq[EvaluationChunk]): (CharSequence, Seq[InputOutputFoldingInfo]) = {
-    val resultText = StringBuilder.newBuilder
+  private def renderText(chunks: collection.Seq[EvaluationChunk]): (CharSequence, collection.Seq[InputOutputFoldingInfo]) = {
+    val resultText = new StringBuilder()
     val resultFoldings = ArrayBuffer.empty[InputOutputFoldingInfo]
     var foldedLines = 0
 
-    val chunksGrouped: Seq[Seq[EvaluationChunk]] = WorksheetEditorPrinterPlain.groupChunks(chunks)
+    val chunksGrouped: Iterable[Iterable[EvaluationChunk]] = WorksheetEditorPrinterPlain.groupChunks(chunks)
 
     for { group <- chunksGrouped.iterator } {
       val inputStartLine   = group.head.inputStartLine

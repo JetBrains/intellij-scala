@@ -11,7 +11,7 @@ import com.intellij.psi.{PsiClass, PsiMember}
 import com.intellij.util.{EmptyQuery, Query}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Roman.Shein

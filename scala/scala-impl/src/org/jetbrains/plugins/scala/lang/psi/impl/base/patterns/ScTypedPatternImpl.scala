@@ -70,7 +70,7 @@ class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], nod
                             else arg.upper //todo: glb?
                           ScExistentialArgument(arg.name, arg.typeParameters, lowerBound, upperBound)
                         case (tp: ScType, _: ScTypeParam) => tp
-                      }).unpackedType
+                      }.toSeq).unpackedType
                     case _ => tp
                   }
                 case Some((clazz: PsiClass, subst)) =>
@@ -88,7 +88,7 @@ class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], nod
                             } else arg.upper //todo: glb?
                           ScExistentialArgument(arg.name, arg.typeParameters, lowerBound, upperBound)
                         case (tp: ScType, _) => tp
-                      }).unpackedType
+                      }.toSeq).unpackedType
                     case _ => tp
                   }
                 case _ => tp

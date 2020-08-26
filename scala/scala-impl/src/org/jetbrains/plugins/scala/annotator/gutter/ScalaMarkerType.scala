@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSea
 import org.jetbrains.plugins.scala.lang.psi.types.TermSignature
 import org.jetbrains.plugins.scala.util.SAMUtil
 
-import scala.collection.JavaConverters.seqAsJavaListConverter
+import scala.jdk.CollectionConverters._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -77,9 +77,9 @@ object ScalaMarkerType {
     superMethods
   }
 
-  def findOverrides(member: ScMember, deep: Boolean): Seq[PsiNamedElement] = {
+  def findOverrides(member: ScMember, deep: Boolean): collection.Seq[PsiNamedElement] = {
 
-    val namedElems: Seq[ScNamedElement] = member match {
+    val namedElems = member match {
       case d: ScDeclaredElementsHolder => d.declaredElements.filterByType[ScNamedElement]
       case param: ScClassParameter => Seq(param)
       case ta: ScTypeAlias => Seq(ta)
@@ -243,7 +243,7 @@ object ScalaMarkerType {
 
   private val maxNumberOfElements = 5
 
-  private def overridesImplementsPrefix(member: ScMember, supers: Seq[PsiNamedElement]): String = {
+  private def overridesImplementsPrefix(member: ScMember, supers: collection.Seq[PsiNamedElement]): String = {
     val isTooMany = supers.size > maxNumberOfElements
     val isOverrides = GutterUtil.isOverrides(member, supers)
     member match {

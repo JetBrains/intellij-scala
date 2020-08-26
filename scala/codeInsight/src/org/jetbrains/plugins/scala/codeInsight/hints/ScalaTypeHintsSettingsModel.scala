@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCod
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSettingsModel(true, "Scala.ScalaTypeHintsSettingsModel") {
   // have a temporary version of the settings, so apply/cancel mechanism works

@@ -13,7 +13,7 @@ trait ScPatternImpl extends ScPattern {
 
   override def `type`(): TypeResult = Failure(ScalaBundle.message("cannot.type.pattern"))
 
-  override def bindings: Seq[ScBindingPattern] = {
+  override def bindings: collection.Seq[ScBindingPattern] = {
     val b = mutable.ArrayBuffer.empty[ScBindingPattern]
 
     def inner(p: ScPattern): Unit = {
@@ -31,7 +31,7 @@ trait ScPatternImpl extends ScPattern {
     b
   }
 
-  override def typeVariables: Seq[ScTypeVariableTypeElement] = {
+  override def typeVariables: collection.Seq[ScTypeVariableTypeElement] = {
     val b = mutable.ArrayBuffer.empty[ScTypeVariableTypeElement]
 
     def inner(p: ScPattern): Unit = {
@@ -58,7 +58,7 @@ trait ScPatternImpl extends ScPattern {
     visitor.visitPattern(this)
   }
 
-  override def subpatterns: Seq[ScPattern] = this match {
+  override def subpatterns: collection.Seq[ScPattern] = this match {
     case _: ScReferencePattern => Seq.empty
     case _ => findChildrenByClassScala[ScPattern](classOf[ScPattern])
   }

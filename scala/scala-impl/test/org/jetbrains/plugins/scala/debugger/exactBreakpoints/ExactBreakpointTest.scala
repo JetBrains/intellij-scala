@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert
 import org.junit.experimental.categories.Category
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 abstract class ExactBreakpointTestBase extends ScalaDebuggerTestCase {
   case class Breakpoint(line: Int, ordinal: Integer) {

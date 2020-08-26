@@ -15,7 +15,7 @@ import org.jetbrains.plugins.gradle.util.GradleConstants
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.external.{AbstractDataService, AbstractImporter, Importer}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Pavel Fatin

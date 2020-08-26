@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.implicits.{ImplicitHint, MouseHandler}
 import org.jetbrains.plugins.scala.codeInsight.intention.expression.MakeImplicitConversionExplicit
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class MakeConversionExplicit extends AnAction(
   ScalaCodeInsightBundle.message("make.conversion.explicit.action.text"),
@@ -23,7 +23,7 @@ class MakeConversionExplicit extends AnAction(
 
     new MakeImplicitConversionExplicit().invoke(e.getData(CommonDataKeys.PROJECT), editor, element)
 
-    val prefixAndSuffixInlays: Seq[Inlay[_]] = if(inlay == null) Seq() else {
+    val prefixAndSuffixInlays: collection.Seq[Inlay[_]] = if(inlay == null) Seq() else {
       val startOffset = inlay.getOffset
       val endOffset = {
         val inlayText = inlay.getRenderer.asInstanceOf[HintRenderer].getText

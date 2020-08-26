@@ -24,7 +24,6 @@ import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestUtil.{
 import org.scalatest.finders.{MethodInvocation => _, _}
 
 import scala.annotation.tailrec
-import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
 import scala.util.{Failure, Success, Try}
 
@@ -204,7 +203,7 @@ object ScalaTestAstTransformer {
   @tailrec
   private def getScalaTestMethodInvocation(selected: MethodInvocation,
                                            current: MethodInvocation,
-                                           previousArgs: Seq[ScExpression],
+                                           previousArgs: collection.Seq[ScExpression],
                                            className: String): Option[StMethodInvocation] = {
     val arguments = current.argumentExpressions ++ previousArgs
 
@@ -262,7 +261,7 @@ object ScalaTestAstTransformer {
     element match {
       case _: ScBlockExpr | _: ScTemplateBody => element.getChildren
       case _ =>
-        element.getChildren.flatMap {
+        element.getChildren.toSeq.flatMap {
           case argExprList: ScArgumentExprList =>
             argExprList.getChildren.headOption match {
               case Some(block: ScBlockExpr) => block.getChildren

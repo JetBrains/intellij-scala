@@ -18,7 +18,7 @@ class SimplePrintVisitor protected() {
   import ModifierType._
   import lang.refactoring.util.ScalaNamesUtil.escapeKeyword
 
-  private val printer = mutable.StringBuilder.newBuilder
+  private val printer = new mutable.StringBuilder()
 
   private val nodesToRanges: mutable.Map[IntermediateNode, TextRange] =
     mutable.HashMap.empty.withDefaultValue(TextRange.create(0, 0))
@@ -150,7 +150,7 @@ class SimplePrintVisitor protected() {
   }
 
   protected def visitBlock(node: BlockConstruction, statements: Seq[IntermediateNode]): Unit = {
-    printWithSeparator(node.beforeStatements ++ statements, "\n", "", "\n")
+    printWithSeparator((node.beforeStatements ++ statements).toSeq, "\n", "", "\n")
   }
 
   protected def visitClass(c: ClassConstruction, name: IntermediateNode, primaryConstructor: Option[IntermediateNode],
@@ -886,7 +886,7 @@ class SimplePrintVisitor protected() {
     printWithSeparator(parts, ", ", "[", "]", parts.nonEmpty)
   }
 
-  protected def printWithSeparator(seq: Seq[IntermediateNode], separator: String): Unit = {
+  protected def printWithSeparator(seq: collection.Seq[IntermediateNode], separator: String): Unit = {
     if (seq != null && seq.nonEmpty) {
       val it = seq.iterator
       while (it.hasNext) {

@@ -27,11 +27,11 @@ import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
 import scala.annotation.tailrec
-import scala.collection.{Seq, mutable}
+import scala.collection.mutable
 
 class TermSignature(_name: String,
-                    private val typesEval: Seq[Seq[() => ScType]],
-                    private val tParams: Seq[TypeParameter],
+                    private val typesEval: collection.Seq[collection.Seq[() => ScType]],
+                    private val tParams: collection.Seq[TypeParameter],
                     override val substitutor: ScSubstitutor,
                     override val namedElement: PsiNamedElement,
                     val hasRepeatedParam: Array[Int] = Array.empty) extends Signature with ProjectContextOwner {
@@ -43,9 +43,9 @@ class TermSignature(_name: String,
   val paramClauseSizes: Array[Int] = typesEval.map(_.length).toArray
   val paramLength: Int = paramClauseSizes.arraySum
 
-  def substitutedTypes: Seq[Seq[() => ScType]] = typesEval.map(_.map(f => () => substitutor(f()).unpackedType))
+  def substitutedTypes: collection.Seq[collection.Seq[() => ScType]] = typesEval.map(_.map(f => () => substitutor(f()).unpackedType))
 
-  def typeParams: Seq[TypeParameter] = tParams.map(_.update(substitutor))
+  def typeParams: collection.Seq[TypeParameter] = tParams.map(_.update(substitutor))
 
   def typeParamsLength: Int = tParams.length
 
@@ -206,7 +206,7 @@ object TermSignature {
 
   def apply(
     name:         String,
-    paramTypes:   Seq[() => ScType],
+    paramTypes:   collection.Seq[() => ScType],
     substitutor:  ScSubstitutor,
     namedElement: PsiNamedElement
   ): TermSignature =
@@ -268,7 +268,7 @@ object TermSignature {
 
 object PhysicalMethodSignature {
   @tailrec
-  def typesEval(method: PsiMethod): List[Seq[() => ScType]] = method match {
+  def typesEval(method: PsiMethod): List[collection.Seq[() => ScType]] = method match {
     case fun: ScFunction =>
       fun.effectiveParameterClauses.toList
         .map(_.effectiveParameters.map(p => () => scalaParamType(p)))

@@ -11,7 +11,7 @@ import xsbti._
 import xsbti.compile._
 import org.jetbrains.jps.incremental.scala.local.zinc.Utils._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * Nikolay.Tropin

@@ -44,7 +44,7 @@ package object elements {
     }
   }
 
-  implicit class PsiElementsExt(private val elements: Seq[PsiElement]) extends AnyVal {
+  implicit class PsiElementsExt(private val elements: Iterable[PsiElement]) extends AnyVal {
     implicit def stringFactory: ArrayFactory[String] = ArrayUtil.STRING_ARRAY_FACTORY
 
     def asStrings(transformText: String => String = identity): Array[String] =

@@ -8,7 +8,7 @@ object JarUtil {
 
   final val JarExtension = ".jar"
 
-  def collectJars(files: Seq[File]): Seq[JarFileWithName] =
+  def collectJars(files: collection.Seq[File]): collection.Seq[JarFileWithName] =
     for {
       file <- files
       name = file.getName

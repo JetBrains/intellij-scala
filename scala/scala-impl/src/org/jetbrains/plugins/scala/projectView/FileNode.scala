@@ -17,7 +17,7 @@ private[projectView] sealed abstract class FileNode(protected val file: ScalaFil
                                                    (implicit project: Project, settings: ViewSettings)
   extends PsiFileNode(project, file, settings) with IconableNode {
 
-  import collection.JavaConverters._
+  import scala.jdk.CollectionConverters._
 
   override def getChildrenImpl: ju.Collection[Node] =
     if (settings.isShowMembers)

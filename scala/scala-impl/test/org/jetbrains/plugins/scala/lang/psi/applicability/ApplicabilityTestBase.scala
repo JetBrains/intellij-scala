@@ -135,7 +135,7 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
     val types = for(Parameter(_, t) <- Parameter.findAllIn(definition).toList) yield t
     val ids = (1 to types.size).map("T" + _)
 
-    val id = ids.toIterator
+    val id = ids.iterator
     val typedDefinition = Parameter.replaceAllIn(definition, _ match {
       case Parameter(n, t) => n + ": " + id.next
     })

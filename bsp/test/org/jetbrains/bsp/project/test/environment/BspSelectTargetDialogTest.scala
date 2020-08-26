@@ -2,9 +2,9 @@ package org.jetbrains.bsp.project.test.environment
 
 import ch.epfl.scala.bsp4j.BuildTargetIdentifier
 import org.junit.Test
-import org.scalatest.junit.AssertionsForJUnit
+import org.scalatestplus.junit.AssertionsForJUnit
 
-class BspSelectTargetDialogTest extends AssertionsForJUnit{
+class BspSelectTargetDialogTest extends AssertionsForJUnit {
 
   @Test
   def visibleNamesForValidUris: Unit = {

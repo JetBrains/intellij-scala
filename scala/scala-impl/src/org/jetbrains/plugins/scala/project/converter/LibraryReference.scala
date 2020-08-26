@@ -13,7 +13,7 @@ import org.jdom.Element
 import org.jdom.xpath.XPath
 import org.jetbrains.plugins.scala.extensions._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Pavel Fatin
@@ -107,7 +107,7 @@ private case class LibraryReference(level: Level, name: String) {
 }
 
 private object LibraryReference {
-  def findAllIn(module: ModuleSettings): Seq[LibraryReference] = {
+  def findAllIn(module: ModuleSettings): collection.Seq[LibraryReference] = {
     val libraryEntries = module.getOrderEntries.asScala.filter(_.getAttributeValue("type") == "library")
     libraryEntries.map(LibraryReference(_))
   }

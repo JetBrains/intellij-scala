@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.debugger.{Loc, ScalaDebuggerTestCase, ScalaPo
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -80,7 +80,7 @@ abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
     }
 
     assert(!hasOffsets || offsets.nonEmpty, s"Not specified offset marker in test case. Use $offsetMarker in provided text of the file.")
-    sourcePositionsOffsets += (fileName -> offsets)
+    sourcePositionsOffsets += (fileName -> offsets.toSeq)
     addSourceFile(fileName, cleanedText)
 
     if (breakpointLine >= 0)

@@ -24,7 +24,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{CompoundTypeCheckSign
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil._
 
-import scala.collection.Seq
 import scala.collection.immutable.HashSet
 
 trait ScalaConformance extends api.Conformance with TypeVariableUnification {
@@ -94,8 +93,8 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
   protected def checkParameterizedType(
     parametersIterator: Iterator[PsiTypeParameter],
-    args1:              scala.Seq[ScType],
-    args2:              scala.Seq[ScType],
+    args1:              Iterable[ScType],
+    args2:              Iterable[ScType],
     _constraints:       ConstraintSystem,
     visited:            Set[PsiClass],
     checkWeak:          Boolean,
@@ -268,8 +267,8 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
             val subst = ScSubstitutor.bind(typeParameter.typeParameters, p.typeArguments)
             val lower: ScType =
               subst(lowerBound) match {
-                case ParameterizedType(lower, _) => ScParameterizedType(lower, p.typeArguments)
-                case lower => ScParameterizedType(lower, p.typeArguments)
+                case ParameterizedType(lower, _) => ScParameterizedType(lower, p.typeArguments.toSeq)
+                case lower => ScParameterizedType(lower, p.typeArguments.toSeq)
               }
             if (!lower.equiv(Nothing)) {
               result = conformsInner(l, lower, visited, constraints, checkWeak)
@@ -827,9 +826,9 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           val subst = ScSubstitutor.bind(a.typeParameter.typeParameters, p.typeArguments)
           val upper: ScType =
             subst(a.upper) match {
-              case up if up.equiv(Any)      => ScParameterizedType(WildcardType(a.typeParameter), p.typeArguments)
-              case ParameterizedType(up, _) => ScParameterizedType(up, p.typeArguments)
-              case up                       => ScParameterizedType(up, p.typeArguments)
+              case up if up.equiv(Any)      => ScParameterizedType(WildcardType(a.typeParameter), p.typeArguments.toSeq)
+              case ParameterizedType(up, _) => ScParameterizedType(up, p.typeArguments.toSeq)
+              case up                       => ScParameterizedType(up, p.typeArguments.toSeq)
             }
           if (!upper.equiv(Any)) {
             result = conformsInner(upper, r, visited, constraints, checkWeak)
@@ -839,9 +838,9 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           if (result.isRight) {
             val lower: ScType =
               subst(a.lower) match {
-                case low if low.equiv(Nothing) => ScParameterizedType(WildcardType(a.typeParameter), p.typeArguments)
-                case ParameterizedType(low, _) => ScParameterizedType(low, p.typeArguments)
-                case low                       => ScParameterizedType(low, p.typeArguments)
+                case low if low.equiv(Nothing) => ScParameterizedType(WildcardType(a.typeParameter), p.typeArguments.toSeq)
+                case ParameterizedType(low, _) => ScParameterizedType(low, p.typeArguments.toSeq)
+                case low                       => ScParameterizedType(low, p.typeArguments.toSeq)
               }
             if (!lower.equiv(Nothing)) {
               val t = conformsInner(r, lower, visited, result.constraints, checkWeak)
@@ -1473,7 +1472,7 @@ private object ScalaConformance {
               () => remapExistentials(ex.upper)
             )
           )
-      )(collection.breakOut)
+      ).to(Map)
 
     def remapExistentials(tpe: ScType): ScType =
       tpe.recursiveUpdate {

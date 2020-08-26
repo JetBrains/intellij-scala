@@ -14,7 +14,7 @@ import org.jetbrains.bsp.project.importing.BspResolverDescriptors.{ModuleDescrip
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import org.jetbrains.sbt.RichOption
 
 object Generators {

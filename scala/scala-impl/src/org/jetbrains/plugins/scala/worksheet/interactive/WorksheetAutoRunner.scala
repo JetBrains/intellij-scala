@@ -133,11 +133,11 @@ class WorksheetAutoRunner(project: Project) {
         }
       }
 
-      myAlarm.addRequest(() => {
+      myAlarm.addRequest((() => {
         if (needToRunWorksheet) {
           RunWorksheetAction.runCompilerForSelectedEditor(project, auto = true)
         }
-      }, requestDelay, true)
+      }): Runnable, requestDelay, true)
     }
   }
 }

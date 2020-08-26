@@ -3,7 +3,7 @@ package org.jetbrains.jps.incremental.scala
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.service.JpsServiceManager
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Pavel Fatin

@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.meta.intellij.MetaExpansionsManager.{META_MINOR_VERSION, PARADISE_VERSION}
 
 abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase with ScalaMetaTestBase {

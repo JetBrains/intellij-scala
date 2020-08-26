@@ -21,7 +21,7 @@ trait HighlightingPassInspection extends LocalInspectionTool {
     }
   }
 
-  def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo]
+  def invoke(element: PsiElement, isOnTheFly: Boolean): collection.Seq[ProblemInfo]
 
   def shouldProcessElement(elem: PsiElement): Boolean
 }

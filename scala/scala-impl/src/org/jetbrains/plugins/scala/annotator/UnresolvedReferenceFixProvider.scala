@@ -11,7 +11,7 @@ abstract class UnresolvedReferenceFixProvider {
 object UnresolvedReferenceFixProvider
   extends ExtensionPointDeclaration[UnresolvedReferenceFixProvider]("org.intellij.scala.unresolvedReferenceFixProvider") {
 
-  def fixesFor(reference: ScReference): Seq[IntentionAction] =
+  def fixesFor(reference: ScReference): collection.Seq[IntentionAction] =
     implementations.flatMap {
       _.fixesFor(reference)
     }

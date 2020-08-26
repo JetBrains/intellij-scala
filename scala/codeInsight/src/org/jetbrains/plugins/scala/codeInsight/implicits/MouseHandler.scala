@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class MouseHandler extends ProjectManagerListener {
 

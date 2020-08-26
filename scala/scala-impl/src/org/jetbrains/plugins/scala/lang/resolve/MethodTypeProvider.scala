@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 
 import scala.annotation.tailrec
-import scala.collection.Seq
 import scala.language.implicitConversions
 
 /**

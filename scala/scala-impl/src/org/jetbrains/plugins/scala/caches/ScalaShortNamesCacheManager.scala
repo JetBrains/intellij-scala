@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 
 import scala.util.Try
+import scala.collection.immutable.ArraySeq.unsafeWrapArray
 
 final class ScalaShortNamesCacheManager(implicit project: Project) {
 
@@ -108,7 +109,7 @@ final class ScalaShortNamesCacheManager(implicit project: Project) {
     val namesCache = psiNamesCache
 
     for {
-      fieldName <- namesCache.getAllFieldNames
+      fieldName <- unsafeWrapArray(namesCache.getAllFieldNames)
       if predicate(fieldName)
 
       field <- namesCache.getFieldsByName(fieldName, scope)
@@ -120,7 +121,7 @@ final class ScalaShortNamesCacheManager(implicit project: Project) {
     val namesCache = psiNamesCache
 
     for {
-      methodName <- namesCache.getAllMethodNames
+      methodName <- unsafeWrapArray(namesCache.getAllMethodNames)
       if predicate(methodName)
 
       method <- allMethodsByName(cleanFqn(methodName), namesCache)

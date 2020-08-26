@@ -23,7 +23,7 @@ case class OptimizeImportSettings(addFullQualifiedImports: Boolean,
   def scalastyleGroups: Option[Seq[Pattern]] = scalastyleSettings.groups
   def scalastyleOrder: Boolean = scalastyleSettings.scalastyleOrder
 
-  private def this(s: ScalaCodeStyleSettings, scalastyleSettings: ScalastyleSettings) {
+  private def this(s: ScalaCodeStyleSettings, scalastyleSettings: ScalastyleSettings) = {
 
     this(
       s.isAddFullQualifiedImports,

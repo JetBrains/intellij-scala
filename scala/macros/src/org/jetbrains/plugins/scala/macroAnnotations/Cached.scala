@@ -23,7 +23,7 @@ import scala.reflect.macros.whitebox
  * Date: 9/18/15.
  */
 class Cached(modificationTracker: Object, psiElement: Any, trackedExpressions: Any*) extends StaticAnnotation {
-  def macroTransform(annottees: Any*) = macro Cached.cachedImpl
+  def macroTransform(annottees: Any*): Any = macro Cached.cachedImpl
 }
 
 object Cached {
@@ -51,7 +51,7 @@ object Cached {
         if (retTp.isEmpty) {
           abort(MacrosBundle.message("macros.cached.specify.return.type"))
         }
-        val name = c.freshName(nameTerm.toString)
+        val name = qualifiedTernName(nameTerm.toString)
         //generated names
         val cachedFunName = generateTermName(name, "$cachedFun")
         val tracerName = generateTermName(name, "$tracer")

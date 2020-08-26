@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
-import scala.collection.Seq
-
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -11,5 +9,5 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 trait ScFun extends ScTypeParametersOwner {
   def retType: ScType
 
-  def paramClauses: Seq[Seq[Parameter]]
+  def paramClauses: collection.Seq[collection.Seq[Parameter]]
 }

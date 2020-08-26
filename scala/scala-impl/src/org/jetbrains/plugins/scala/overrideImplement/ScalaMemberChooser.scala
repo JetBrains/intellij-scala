@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.annotations.{Declaration, Location, ScalaTypeAnnotationSettings}
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 /**
@@ -133,7 +133,7 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
 }
 
 object ScalaMemberChooser {
-  def sorted[T <: ClassMember](members: Seq[T], targetClass: ScTemplateDefinition): Seq[T] = {
+  def sorted[T <: ClassMember](members: collection.Seq[T], targetClass: ScTemplateDefinition): Seq[T] = {
     val groupedMembers = members.groupBy(cm => cm.getElement.getContainingClass)
     val sortedClasses = mutable.LinkedHashSet[PsiClass]()
     if (targetClass != null) {

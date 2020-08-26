@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.sbt.editor.documentationProvider.SbtDocumentationProvider._
 import org.jetbrains.sbt.language.SbtFileType
 
-import scala.collection.JavaConverters.collectionAsScalaIterableConverter
+import scala.jdk.CollectionConverters._
 
 /**
  * Generates documentation from sbt key description.<br>
@@ -88,7 +88,7 @@ class SbtDocumentationProvider extends AbstractDocumentationProvider {
       .map(_.referencedExpr.getText.toLowerCase)
       .exists(SbtKeyTypes.contains)
 
-  private def descriptionArgument(args: Seq[ScExpression]): Option[ScExpression] =
+  private def descriptionArgument(args: Iterable[ScExpression]): Option[ScExpression] =
     Some(args.toList).collect {
       case (_: ScLiteral) :: description :: _ => description //e.g. SettingKey[Unit]("some-key", "Here goes description for some-key", ...)
       case (ref: ScReferenceExpression) :: _  => ref // e.g. SettingKey(BasicKeys.watch)

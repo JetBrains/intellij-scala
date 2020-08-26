@@ -20,7 +20,7 @@ trait ScBlockExpr extends ScExpression with ScBlock with ScControlFlowOwner {
 
   def caseClauses: Option[ScCaseClauses] = findChild(classOf[ScCaseClauses])
 
-  override def getControlFlow: Seq[Instruction] = {
+  override def getControlFlow: collection.Seq[Instruction] = {
     if (isAnonymousFunction) super.getControlFlow
     else {
       val parent = PsiTreeUtil.getParentOfType(this, classOf[ScControlFlowOwner])

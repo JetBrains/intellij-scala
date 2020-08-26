@@ -113,7 +113,7 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
   }
 
   //strips keywords and modifiers from class parameters
-  private def asFunctionParameters(effectiveClauses: Seq[ScParameterClause], defaultParamString: ScParameter => String): String = {
+  private def asFunctionParameters(effectiveClauses: collection.Seq[ScParameterClause], defaultParamString: ScParameter => String): String = {
 
     def paramText(p: ScParameter) = {
       val paramType = p.typeElement.fold("Any")(_.getText)

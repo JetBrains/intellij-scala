@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
   */
 class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with DialogConflictsReporter with IntroduceExpressions with IntroduceTypeAlias {
 
-  private var occurrenceHighlighters = Seq.empty[RangeHighlighter]
+  private var occurrenceHighlighters: collection.Seq[RangeHighlighter] = Seq.empty
 
   override def invoke(file: PsiFile)
                      (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {

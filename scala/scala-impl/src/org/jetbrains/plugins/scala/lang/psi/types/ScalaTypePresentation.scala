@@ -37,7 +37,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
     val textEscaper: TextEscaper = nameRenderer
     val boundsRenderer = new TypeBoundsRenderer(textEscaper)
 
-    def typesText(types: Seq[ScType]): String = types
+    def typesText(types: Iterable[ScType]): String = types
       .map(innerTypeText(_))
       .commaSeparated(model = Model.Parentheses)
 
@@ -294,9 +294,9 @@ trait ScalaTypePresentation extends api.TypePresentation {
       case TypeLambda(text)          => text
       case FunctionType(ret, params) if !t.isAliasType =>
         val paramsText = params match {
-          case Seq(fun@FunctionType(_, _)) => innerTypeText(fun).parenthesize()
-          case Seq(tup@TupleType(tps))     => innerTypeText(tup).parenthesize()
-          case Seq(head)                   => innerTypeText(head)
+          case collection.Seq(fun@FunctionType(_, _)) => innerTypeText(fun).parenthesize()
+          case collection.Seq(tup@TupleType(tps))     => innerTypeText(tup).parenthesize()
+          case collection.Seq(head)                   => innerTypeText(head)
           case _                           => typesText(params)
         }
         s"$paramsText ${ScalaPsiUtil.functionArrow} ${innerTypeText(ret)}"
@@ -309,7 +309,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
         prefix + "this" + typeTail(needDotType)
       case TupleType(comps) =>
         comps match {
-          case Seq(head) => s"Tuple1[${innerTypeText(head)}]"
+          case collection.Seq(head) => s"Tuple1[${innerTypeText(head)}]"
           case _ => typesText(comps)
         }
       case ScDesignatorType(element) =>

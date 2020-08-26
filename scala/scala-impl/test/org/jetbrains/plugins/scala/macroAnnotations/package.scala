@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.caches.stats.Tracer
 import org.junit.Assert
 import org.junit.Assert._
 
-import scala.collection.JavaConverters.iterableAsScalaIterableConverter
+import scala.jdk.CollectionConverters._
 
 /**
   * Nikolay.Tropin

@@ -7,7 +7,8 @@ import com.intellij.util.containers.ContainerUtil
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
+import scala.collection.mutable
 import scala.util.Try
 
 /**
@@ -171,7 +172,7 @@ object ScalaSyntheticProvider {
         ct.superclass() match {
           case sp: ReferenceType =>
             sp.methods().asScala.filter(_.isAbstract) match {
-              case Seq(sam) => sam.name == m.name
+              case mutable.Buffer(sam) => sam.name == m.name
               case _ => false
             }
           case _ => false

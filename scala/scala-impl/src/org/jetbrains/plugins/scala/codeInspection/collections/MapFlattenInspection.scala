@@ -18,7 +18,8 @@ object MapFlatten extends SimplificationType {
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
-      case qual`.map`(f)`.flatten`() =>
+      // TODO infix notation?
+      case `.flatten`(qual`.map`(f)) =>
         val newText = invocationText(qual, "flatMap", f)
         sameType(expr, newText).option {
           replace(expr).withText(newText).highlightFrom(qual)

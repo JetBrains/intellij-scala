@@ -20,7 +20,7 @@ import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, Promise}
 import scala.util.{Success, Try}
@@ -170,7 +170,7 @@ class ScalaCompilerHighlightingTest
     def rec(attemptsLeft: Int): Unit = {
       val actualResult = invokeAndWait {
         val document = virtualFile.findDocument.get
-        DaemonCodeAnalyzerImpl.getHighlights(document, null, getProject).asScala
+        DaemonCodeAnalyzerImpl.getHighlights(document, null, getProject).asScala.toSeq
       }
       try {
         assertThat(actualResult, expectedResult)
@@ -254,7 +254,7 @@ object ScalaCompilerHighlightingTest {
 
     override def describeMismatch(item: Any, description: Description): Unit =
       item match {
-        case seq: Seq[HighlightInfo] =>
+        case seq: collection.Seq[HighlightInfo] =>
           val itemFixed = descriptionFor(seq.map(toExpectedHighlighting))
           super.describeMismatch(itemFixed, description)
         case _ =>
@@ -264,7 +264,7 @@ object ScalaCompilerHighlightingTest {
     private def toExpectedHighlighting(info: HighlightInfo): ExpectedHighlighting =
       ExpectedHighlighting(info.getSeverity, Some(info.range), info.getDescription)
 
-    private def descriptionFor(highlightings: Seq[ExpectedHighlighting]): String =
+    private def descriptionFor(highlightings: collection.Seq[ExpectedHighlighting]): String =
       highlightings.map(descriptionFor).mkString("\n")
 
     private def descriptionFor(highlighting: ExpectedHighlighting): String = {

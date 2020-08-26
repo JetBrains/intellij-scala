@@ -5,7 +5,7 @@ import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
 
 class Measure(params: Any*) extends StaticAnnotation {
-  def macroTransform(annottees: Any*) = macro Measure.measureImpl
+  def macroTransform(annottees: Any*): Any = macro Measure.measureImpl
 }
 
 object Measure {
@@ -24,7 +24,7 @@ object Measure {
     annottees.toList match {
       case DefDef(mods, termName, tpParams, paramss, retTp, rhs) :: Nil =>
 
-        val freshName = c.freshName(termName)
+        val freshName = qualifiedTernName(termName.toString)
         val uniqueId = stringLiteral(freshName)
         val cacheName = withClassName(termName)
         val updatedBody =

@@ -32,7 +32,7 @@ class RelativeImportInspection extends AbstractInspection(ScalaInspectionBundle.
             fixes += new EnableFullQualifiedImports()
           }
           fixes += new MakeFullQualifiedImportFix(q, qualifiedName)
-          holder.registerProblem(q, ScalaInspectionBundle.message("relative.import.detected"), fixes: _*)
+          holder.registerProblem(q, ScalaInspectionBundle.message("relative.import.detected"), fixes.toSeq: _*)
         }
         result.element match {
           case p: PsiPackage if p.getQualifiedName.contains(".") =>

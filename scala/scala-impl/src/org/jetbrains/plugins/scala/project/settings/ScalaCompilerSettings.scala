@@ -117,7 +117,7 @@ object ScalaCompilerSettings {
       plugins = state.plugins.toSeq
     )
 
-  def fromOptions(options: Seq[String]): ScalaCompilerSettings = {
+  def fromOptions(options: collection.Seq[String]): ScalaCompilerSettings = {
     val state = new ScalaCompilerSettingsState
     val normalizedOptions = normalized(options)
     val optionToSetter = ToggleOptions.map(it => (it._1, it._3)).toMap
@@ -144,7 +144,7 @@ object ScalaCompilerSettings {
     fromState(state)
   }
 
-  private def normalized(options: Seq[String]): Seq[String] = options.flatMap {
+  private def normalized(options: collection.Seq[String]): collection.Seq[String] = options.flatMap {
     case "-language:macros" =>
       Seq("-language:experimental.macros")
 

@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-import scala.collection.JavaConverters.asJavaCollectionConverter
+import scala.jdk.CollectionConverters._
 
 private abstract class ImplicitParameterErrorNodeBase(value: ScalaResolveResult) extends ImplicitParametersNodeBase(value) {
   private def errorWave: SimpleTextAttributes = {
@@ -76,7 +76,7 @@ private class ImplicitParameterProblemNode(value: ScalaResolveResult)
 
   override def getChildrenImpl: util.Collection[AbstractTreeNode[_]] = {
     val arguments = ImplicitCollector.probableArgumentsFor(value)
-    val nodes: Seq[AbstractTreeNode[_]] = arguments.map {
+    val nodes: collection.Seq[AbstractTreeNode[_]] = arguments.map {
       case (resolveResult, fullInfo) => new ImplicitArgumentWithReason(resolveResult, fullInfo)
     }
     if (nodes.nonEmpty) nodes.asJavaCollection

@@ -13,7 +13,7 @@ import org.jetbrains.jps.incremental.ModuleLevelBuilder.OutputConsumer
 import org.jetbrains.jps.incremental.scala.remote.CompileServerMeteringInfo
 import org.jetbrains.plugins.scala.compiler.CompilerEvent
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.control.Exception._
 
 

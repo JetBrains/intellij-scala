@@ -6,7 +6,7 @@ import com.intellij.openapi.vcs.changes.Change
 import com.intellij.openapi.vcs.changes.actions.diff.{ShowDiffAction, ShowDiffContext}
 import com.intellij.openapi.vcs.changes.ui.ChangesBrowser
 import com.intellij.openapi.vfs.VirtualFile
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 /**

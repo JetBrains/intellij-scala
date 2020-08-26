@@ -35,7 +35,7 @@ import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.shell.SbtShellCommunication._
 import org.jetbrains.sbt.{Sbt, SbtBundle, SbtUtil}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success}
@@ -91,7 +91,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
       notification.addAction(
         NotificationAction.createSimple(
           SbtBundle.message("sbt.shell.refresh.sbt.project"),
-          () => ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, SbtProjectSystem.Id))
+          (() => ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, SbtProjectSystem.Id))): Runnable
         )
       )
 

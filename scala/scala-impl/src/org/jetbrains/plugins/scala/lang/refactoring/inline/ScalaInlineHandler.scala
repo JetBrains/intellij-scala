@@ -36,7 +36,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.hi
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-import scala.collection.JavaConverters.iterableAsScalaIterableConverter
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ArrayBuffer
 
 /**

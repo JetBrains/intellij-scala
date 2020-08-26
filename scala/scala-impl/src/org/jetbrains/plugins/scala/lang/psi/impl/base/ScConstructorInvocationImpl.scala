@@ -27,7 +27,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -50,7 +49,7 @@ class ScConstructorInvocationImpl(node: ASTNode)
   override def args: Option[ScArgumentExprList] =
     findChild(classOf[ScArgumentExprList])
 
-  override def arguments: Seq[ScArgumentExprList] =
+  override def arguments: collection.Seq[ScArgumentExprList] =
     Seq(findChildrenByClassScala(classOf[ScArgumentExprList]): _*)
 
   override protected def updateImplicitArguments(): Unit =
@@ -127,7 +126,7 @@ class ScConstructorInvocationImpl(node: ASTNode)
           val methodType = method.methodTypeProvider(elementScope).methodType(Some(tp))
           subst(methodType)
       }
-      val typeParameters: Seq[TypeParameter] = r.getActualElement match {
+      val typeParameters: collection.Seq[TypeParameter] = r.getActualElement match {
         case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>
           tp.typeParameters.map(TypeParameter(_))
         case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.nonEmpty =>

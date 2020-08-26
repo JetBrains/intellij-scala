@@ -49,14 +49,14 @@ trait TypeAdapter {
         case t: ScFunctionalTypeElement =>
           toType(t.paramTypeElement) match {
             case m.Type.Tuple(elements) => m.Type.Function(elements, toType(t.returnTypeElement.get))
-            case param => m.Type.Function(Seq(param), toType(t.returnTypeElement.get))
+            case param => m.Type.Function(List(param), toType(t.returnTypeElement.get))
           }
         case t: ScParameterizedTypeElement =>
-          m.Type.Apply(toType(t.typeElement), t.typeArgList.typeArgs.toStream.map(toType))
+          m.Type.Apply(toType(t.typeElement), t.typeArgList.typeArgs.map(toType).toList)
         case t: ScInfixTypeElementImpl =>
           m.Type.ApplyInfix(toType(t.left), m.Type.Name(t.operation.refName), toType(t.rightOption.get))
         case t: ScTupleTypeElement =>
-          m.Type.Tuple(Seq(t.components.map(toType): _*))
+          m.Type.Tuple(t.components.map(toType).toList)
         case t: ScWildcardTypeElement =>
           m.Type.Placeholder(typeBounds(t))
         case t: ScCompoundTypeElement =>
@@ -70,10 +70,10 @@ trait TypeAdapter {
           }
         case t: ScTypeVariableTypeElement => die(ScalaMetaBundle.message("cannot.convert.into.type.variables"))
         case t: ScExistentialTypeElement =>
-          val clauses = Seq(t.clause.declarations map {
+          val clauses = t.clause.declarations.map {
             case tp: ScTypeAliasDeclaration => toTypeDecl(tp)
             case other => other ?!
-          }: _*)
+          }.toList
           val quantified = toType(t.quantified)
           m.Type.Existential(quantified, clauses)
         case other: ScTypeElement if dumbMode =>
@@ -120,7 +120,7 @@ trait TypeAdapter {
         case t: ScFunctionDefinition => ???
 //          m.Type.Method(Seq(t.parameterList.clauses.map(convertParamClause):_*), toType(t.getTypeWithCachedSubst)).setTypechecked
         case t: ScFunction =>
-          m.Type.Function(Seq(t.parametersTypes.map(toType(_, t).asInstanceOf[m.Type.Arg]): _*), toType(t.returnType)) //.setTypechecked
+          m.Type.Function(t.parametersTypes.map(toType(_, t)).toList, toType(t.returnType)) //.setTypechecked
         case t: ScParameter if dumbMode =>
           m.Type.Name(t.getText)
         case t: ScParameter =>
@@ -167,7 +167,7 @@ trait TypeAdapter {
 
       tp match {
         case t: ptype.ScParameterizedType =>
-          m.Type.Apply(toType(t.designator), Seq(t.typeArguments.map(toType(_)): _*))//.setTypechecked
+          m.Type.Apply(toType(t.designator), t.typeArguments.map(toType(_)).toList)//.setTypechecked
         case t: ptype.api.designator.ScThisType =>
           toTypeName(t.element)//.setTypechecked
         case t: ptype.api.designator.ScProjectionType =>
@@ -221,7 +221,7 @@ trait TypeAdapter {
     m.Type.Param(
       if(tp.isCovariant) m.Mod.Covariant() :: Nil else if(tp.isContravariant) m.Mod.Contravariant() :: Nil else Nil,
       if (tp.name != "_") m.Type.Name(tp.name) else m.Name.Anonymous(),//.withAttrs(h.Denotation.None).setTypechecked,
-      Seq(tp.arguments.map(toTypeParams):_*),
+      tp.arguments.map(toTypeParams).toList,
       m.Type.Bounds(lbound, ubound), Nil, Nil
     )
   }
@@ -230,7 +230,7 @@ trait TypeAdapter {
     m.Type.Param(
       if(tp.isCovariant) m.Mod.Covariant() :: Nil else if(tp.isContravariant) m.Mod.Contravariant() :: Nil else Nil,
       if (tp.name != "_") toTypeName(tp) else m.Name.Anonymous(),//.withAttrsFor(tp),
-      Seq(tp.typeParameters.map(toTypeParams):_*),
+      tp.typeParameters.map(toTypeParams).toList,
       typeBounds(tp),
       viewBounds(tp),
       contextBounds(tp)
@@ -241,18 +241,19 @@ trait TypeAdapter {
     m.Type.Param(
       m.Mod.Covariant() :: Nil,
       toTypeName(tp),
-      Seq(tp.getTypeParameters.map(toTypeParams):_*),
+      tp.getTypeParameters.map(toTypeParams).toList,
       m.Type.Bounds(None, None),
-      Seq.empty, Seq.empty
+      Nil,
+      Nil
     )//.setTypechecked
   }
 
-  def viewBounds(tp: ScTypeBoundsOwner): Seq[m.Type] = {
-    Seq(tp.viewTypeElement.map(toType):_*)
+  def viewBounds(tp: ScTypeBoundsOwner): List[m.Type] = {
+    tp.viewTypeElement.map(toType).toList
   }
 
-  def contextBounds(tp: ScTypeBoundsOwner): Seq[m.Type] = {
-    Seq(tp.contextBoundTypeElement.map(toType):_*)
+  def contextBounds(tp: ScTypeBoundsOwner): List[m.Type] = {
+    tp.contextBoundTypeElement.map(toType).toList
   }
 
   def typeBounds(tp: ScTypeBoundsOwner): m.Type.Bounds = {

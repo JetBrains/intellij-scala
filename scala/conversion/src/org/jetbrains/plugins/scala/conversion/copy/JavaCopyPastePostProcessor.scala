@@ -94,7 +94,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
         val charSequence = file.charSequence
         val selections = (startOffsets, endOffsets).zipped.map((a, b) => charSequence.substring(a, b))
         val attachments = selections.zipWithIndex.map(p => new Attachment("Selection-%d.java".format(p._2 + 1), p._1))
-        Log.error(e.getMessage, e, attachments: _*)
+        Log.error(e.getMessage, e, attachments.toSeq: _*)
         None
     }
   }

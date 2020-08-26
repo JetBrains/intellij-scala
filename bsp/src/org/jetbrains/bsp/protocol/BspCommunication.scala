@@ -23,7 +23,7 @@ import org.jetbrains.bsp.settings.BspProjectSettings.BspServerConfig
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, BspSettings}
 import org.jetbrains.plugins.scala.build.BuildReporter
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.Try

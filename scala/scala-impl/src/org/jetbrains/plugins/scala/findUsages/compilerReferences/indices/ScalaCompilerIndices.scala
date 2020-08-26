@@ -10,11 +10,11 @@ import org.jetbrains.jps.backwardRefs.CompilerRef
 import org.jetbrains.jps.backwardRefs.CompilerRef._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.bytecode.CompiledScalaFile
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 private[findUsages] object ScalaCompilerIndices {
-  val backwardUsages: IndexId[CompilerRef, Seq[Int]]            = IndexId.create("sc.back.refs")
-  val backwardHierarchy: IndexId[CompilerRef, Seq[CompilerRef]] = IndexId.create("sc.back.hierarchy")
+  val backwardUsages: IndexId[CompilerRef, collection.Seq[Int]]            = IndexId.create("sc.back.refs")
+  val backwardHierarchy: IndexId[CompilerRef, collection.Seq[CompilerRef]] = IndexId.create("sc.back.hierarchy")
   val version                                                   = 0
 
   val getIndices: util.Collection[_ <: IndexExtension[_, _, _ >: CompiledScalaFile]] = util.Arrays.asList(
@@ -37,30 +37,34 @@ private[findUsages] object ScalaCompilerIndices {
     }
   }
 
-  private[this] def backUsagesExtension: IndexExtension[CompilerRef, Seq[Int], CompiledScalaFile] =
-    new IndexExtension[CompilerRef, Seq[Int], CompiledScalaFile] {
-      override def getVersion: Int                                                   = version
-      override def getName: IndexId[CompilerRef, Seq[Int]]                           = backwardUsages
-      override def getIndexer: DataIndexer[CompilerRef, Seq[Int], CompiledScalaFile] = _.refs
-      override def getKeyDescriptor: KeyDescriptor[CompilerRef]                      = refDescriptor
-      override def getValueExternalizer: DataExternalizer[Seq[Int]]                  = seqExternalizer(ioutil.readINT, ioutil.writeINT)
+  private[this] def backUsagesExtension: IndexExtension[CompilerRef, collection.Seq[Int], CompiledScalaFile] =
+    new IndexExtension[CompilerRef, collection.Seq[Int], CompiledScalaFile] {
+      override def getVersion: Int = version
+      override def getName: IndexId[CompilerRef, collection.Seq[Int]] = backwardUsages
+      override def getKeyDescriptor: KeyDescriptor[CompilerRef] = refDescriptor
+      override def getValueExternalizer: DataExternalizer[collection.Seq[Int]] = seqExternalizer(ioutil.readINT, ioutil.writeINT)
+      override def getIndexer: DataIndexer[CompilerRef, collection.Seq[Int], CompiledScalaFile] = _.refs
     }
 
-  private[this] def backHierarchyExtension: IndexExtension[CompilerRef, Seq[CompilerRef], CompiledScalaFile] =
-    new IndexExtension[CompilerRef, Seq[CompilerRef], CompiledScalaFile] {
-      override def getVersion: Int                                                           = version
-      override def getName: IndexId[CompilerRef, Seq[CompilerRef]]                           = backwardHierarchy
-      override def getIndexer: DataIndexer[CompilerRef, Seq[CompilerRef], CompiledScalaFile] = _.backwardHierarchy
-      override def getKeyDescriptor: KeyDescriptor[CompilerRef]                              = refDescriptor
-      override def getValueExternalizer: DataExternalizer[Seq[CompilerRef]] =
+  private[this] def backHierarchyExtension: IndexExtension[CompilerRef, collection.Seq[CompilerRef], CompiledScalaFile] =
+    new IndexExtension[CompilerRef, collection.Seq[CompilerRef], CompiledScalaFile] {
+      override def getVersion: Int =
+        version
+      override def getName: IndexId[CompilerRef, collection.Seq[CompilerRef]] =
+        backwardHierarchy
+      override def getIndexer: DataIndexer[CompilerRef, collection.Seq[CompilerRef], CompiledScalaFile] =
+        _.backwardHierarchy
+      override def getKeyDescriptor: KeyDescriptor[CompilerRef] =
+        refDescriptor
+      override def getValueExternalizer: DataExternalizer[collection.Seq[CompilerRef]] =
         seqExternalizer(refDescriptor.read, refDescriptor.save)
     }
 
   private[this] def seqExternalizer[T](
                                         reader: DataInput => T,
                                         writer: (DataOutput, T) => Unit
-                                      ): DataExternalizer[Seq[T]] = new DataExternalizer[Seq[T]] {
-    override def read(in:  DataInput): Seq[T] = ioutil.readSeq[T](in, () => reader(in)).asScala
-    override def save(out: DataOutput, xs: Seq[T]): Unit = ioutil.writeSeq(out, xs.asJava, writer(out, _: T))
+                                      ): DataExternalizer[collection.Seq[T]] = new DataExternalizer[collection.Seq[T]] {
+    override def read(in:  DataInput): collection.Seq[T] = ioutil.readSeq[T](in, () => reader(in)).asScala
+    override def save(out: DataOutput, xs: collection.Seq[T]): Unit = ioutil.writeSeq(out, xs.asJava, writer(out, _: T))
   }
 }

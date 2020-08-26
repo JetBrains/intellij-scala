@@ -11,6 +11,6 @@ trait ScSugarCallExpr extends ScExpression with MethodInvocation {
 }
 
 object ScSugarCallExpr {
-  def unapply(sugarCall: ScSugarCallExpr): Option[(ScExpression, ScReferenceExpression, Seq[ScExpression])] =
+  def unapply(sugarCall: ScSugarCallExpr): Option[(ScExpression, ScReferenceExpression, collection.Seq[ScExpression])] =
     Some(sugarCall.getBaseExpr, sugarCall.operation, sugarCall.argumentExpressions)
 }

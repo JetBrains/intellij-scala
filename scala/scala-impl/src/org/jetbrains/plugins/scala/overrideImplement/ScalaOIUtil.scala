@@ -22,7 +22,8 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-import scala.collection.{JavaConverters, mutable}
+import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -85,7 +86,6 @@ object ScalaOIUtil {
       if (isImplement) chooser.selectElements(classMembers.toArray[JClassMember])
       chooser.show()
 
-      import JavaConverters._
       val elements = chooser.getSelectedElements
       if (elements != null) selectedMembers ++= elements.asScala
       if (selectedMembers.isEmpty) return
@@ -100,7 +100,7 @@ object ScalaOIUtil {
   }
 
 
-  def runAction(selectedMembers: Seq[ClassMember],
+  def runAction(selectedMembers: collection.Seq[ClassMember],
                 isImplement: Boolean,
                 clazz: ScTemplateDefinition)
                (implicit project: Project, editor: Editor): Unit =
@@ -109,25 +109,24 @@ object ScalaOIUtil {
       val genInfos = sortedMembers.map(new ScalaGenerationInfo(_))
       val anchor = getAnchor(editor.getCaretModel.getOffset, clazz)
 
-      import JavaConverters._
       val inserted = GenerateMembersUtil.insertMembersBeforeAnchor(clazz, anchor.orNull, genInfos.reverse.asJava).asScala
       inserted.lastOption.foreach(_.positionCaret(editor, toEditMethodBody = true))
     }
 
-  def getMembersToImplement(clazz: ScTemplateDefinition, withOwn: Boolean = false, withSelfType: Boolean = false): Seq[ClassMember] =
+  def getMembersToImplement(clazz: ScTemplateDefinition, withOwn: Boolean = false, withSelfType: Boolean = false): collection.Seq[ClassMember] =
     classMembersWithFilter(clazz, withSelfType, isOverride = false)(needImplement(_, clazz, withOwn), needImplement(_, clazz, withOwn))
 
-  def getAllMembersToOverride(clazz: ScTemplateDefinition): Seq[ClassMember] =
+  def getAllMembersToOverride(clazz: ScTemplateDefinition): collection.Seq[ClassMember] =
     classMembersWithFilter(clazz, withSelfType = true)(Function.const(true), Function.const(true))
 
-  def getMembersToOverride(clazz: ScTemplateDefinition): Seq[ClassMember] =
+  def getMembersToOverride(clazz: ScTemplateDefinition): collection.Seq[ClassMember] =
     classMembersWithFilter(clazz, withSelfType = true)(needOverride(_, clazz), needOverride(_, clazz))
 
   private[this] def classMembersWithFilter(definition: ScTemplateDefinition,
                                            withSelfType: Boolean,
                                            isOverride: Boolean = true)
                                           (f1: PhysicalMethodSignature => Boolean,
-                                           f2: PsiNamedElement => Boolean): Seq[ClassMember] = {
+                                           f2: PsiNamedElement => Boolean): collection.Seq[ClassMember] = {
     val maybeThisType = if (withSelfType)
       for {
         selfType <- definition.selfType
@@ -165,7 +164,7 @@ object ScalaOIUtil {
       toClassMember(_, isOverride)
     }
 
-    (methods ++ aliasesAndValues).toBuffer
+    (methods ++ aliasesAndValues).toSeq
   }
 
   def isProductAbstractMethod(m: PsiMethod, clazz: PsiClass,

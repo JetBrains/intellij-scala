@@ -252,9 +252,9 @@ class BspSession private(bspIn: InputStream,
   }
 
   private[protocol] def isAlive: Boolean = {
-    ! serverConnection.listening.isDone &&
-      ! sessionShutdown.isCompleted &&
-      ! queueProcessor.isDone
+    !serverConnection.listening.isDone &&
+      !sessionShutdown.isCompleted &&
+      !queueProcessor.isDone
   }
 
   private def deathReason = {

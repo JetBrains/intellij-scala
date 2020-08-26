@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.sbt.SbtBundle
 
-import scala.collection.JavaConverters.asJavaCollectionConverter
+import scala.jdk.CollectionConverters._
 
 /**
   * Created by afonichkin on 7/19/17.

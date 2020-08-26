@@ -16,7 +16,7 @@ import org.jetbrains.bsp.{BspBundle, Icons}
 import org.jetbrains.bsp.project.test.BspTestConfigurationForm._
 
 import scala.beans.BeanProperty
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class BspTestRunType extends ConfigurationType {
   override def getDisplayName: String = BspBundle.message("bsp.test")

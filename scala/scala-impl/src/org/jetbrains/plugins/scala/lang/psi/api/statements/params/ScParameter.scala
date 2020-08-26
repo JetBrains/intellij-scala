@@ -174,7 +174,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
               case fun: ScFunction =>
                 fun.superMethod match {
                   case Some(method: ScFunction) =>
-                    val clauses: Seq[ScParameterClause] = method.paramClauses.clauses
+                    val clauses: collection.Seq[ScParameterClause] = method.paramClauses.clauses
                     if (j >= clauses.length) return None
                     val parameters: Seq[ScParameter] = clauses.apply(j).parameters
                     if (i >= parameters.length) return None

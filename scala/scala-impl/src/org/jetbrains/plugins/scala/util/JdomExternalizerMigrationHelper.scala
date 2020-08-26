@@ -5,7 +5,7 @@ import java.util
 import org.jdom.Element
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class JdomExternalizerMigrationHelper private (element: org.jdom.Element) {
 

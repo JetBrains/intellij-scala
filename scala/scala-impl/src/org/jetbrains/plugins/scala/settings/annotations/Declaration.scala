@@ -97,7 +97,7 @@ object Declaration {
     }
 
     override def hasAccidentalStructuralType: Boolean = {
-      def effectivelyEmpty(comps: Seq[ScType]): Boolean =
+      def effectivelyEmpty(comps: Iterable[ScType]): Boolean =
         comps.isEmpty || (comps.size == 1 && comps.head.canonicalText == "_root_.java.lang.Object")
       
       element match {

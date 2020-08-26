@@ -14,6 +14,6 @@ object FileDeclarationsContributor
     "org.intellij.scala.fileDeclarationsContributor"
   ) {
   
-  def getAllFor(holder: PsiElement): Seq[FileDeclarationsContributor] =
+  def getAllFor(holder: PsiElement): collection.Seq[FileDeclarationsContributor] =
     implementations.filter(_.accept(holder))
 }

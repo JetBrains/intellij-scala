@@ -5,7 +5,7 @@ import org.jetbrains.idea.maven.indices.{MavenIndex, MavenProjectIndicesManager}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.sbt.resolvers.ArtifactInfo
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * @author Mikhail Mutcianko

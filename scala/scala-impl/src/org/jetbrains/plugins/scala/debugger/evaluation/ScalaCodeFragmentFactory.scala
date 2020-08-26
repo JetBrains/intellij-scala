@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 /**
@@ -104,7 +104,7 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
     var context: PsiElement = originalContext
     val session: XDebugSession = XDebuggerManager.getInstance(project).getCurrentSession
     if (session != null) {
-      val markers: XValueMarkers[_, _] = session.asInstanceOf[XDebugSessionImpl].getValueMarkers
+      val markers = session.asInstanceOf[XDebugSessionImpl].getValueMarkers
       val markupMap = if (markers != null) markers.getAllMarkers.asScala.toMap else null
       if (markupMap != null && markupMap.nonEmpty) {
         val (variablesText, reverseMap): (String, Map[String, Value]) = markupVariablesText(markupMap)
@@ -127,7 +127,7 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
     context
   }
 
-  private def markupVariablesText(markupMap: Map[_ <: Any, ValueMarkup]): (String, Map[String, Value]) = {
+  private def markupVariablesText[T](markupMap: Map[T, ValueMarkup]): (String, Map[String, Value]) = {
     val reverseMap = mutable.Map[String, Value]()
     val names = markupMap.collect {
       case (obj: ObjectReference, markup: ValueMarkup) if StringUtil.isJavaIdentifier(markup.getText) =>

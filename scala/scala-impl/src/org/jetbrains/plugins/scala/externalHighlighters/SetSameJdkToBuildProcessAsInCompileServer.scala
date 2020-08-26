@@ -45,26 +45,28 @@ final class TempCompilerProcessJdkService
 
   def overrideBuildProcessJdk(project: Project): Unit =
     if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
-      setTempCompilerProcessJdk(getCompileServerJdkHome(project))
+      getCompileServerJdkHome(project).foreach { jdkHome =>
+        setTempCompilerProcessJdk(jdkHome)
+      }
 
   def eraseBuildProcessJdk(): Unit =
     registryValue.setValue("")
 
-  def overrideOrEraseBuildProcessJdk(project: Project): Unit = if (project.hasScala)
-    overrideBuildProcessJdk(project)
-  else
-    eraseBuildProcessJdk()
+  def overrideOrEraseBuildProcessJdk(project: Project): Unit = {
+    if (project.hasScala)
+      overrideBuildProcessJdk(project)
+    else
+      eraseBuildProcessJdk()
+  }
 
   private def setTempCompilerProcessJdk(tempJdkHome: => String): Unit =
     registryValue.setValue(tempJdkHome)
 
-  private def getCompileServerJdkHome(project: Project): String = {
-    val compileServerJdkHome = for {
+  private def getCompileServerJdkHome(project: Project): Option[String] =
+    for {
       jdk <- getCompileServerSdk(project)
       jdkHome <- Option(jdk.getHomePath)
     } yield jdkHome
-    compileServerJdkHome.getOrElse("")
-  }
 
   private def getCompileServerSdk(project: Project): Option[Sdk] = {
     val settings = ScalaCompileServerSettings.getInstance

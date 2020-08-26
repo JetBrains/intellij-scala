@@ -82,7 +82,7 @@ object CommentsCollector {
   def getAllBeforeComments(element: PsiElement)
                           (implicit usedComments:
                           mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): ArrayBuffer[LiteralExpression] = {
-    def collectedCommentsUsedInParent(comments: Seq[PsiElement]): Boolean = {
+    def collectedCommentsUsedInParent(comments: collection.Seq[PsiElement]): Boolean = {
       comments.size match {
         case 0 => false
         case _ => Option(comments.head.getParent) match {

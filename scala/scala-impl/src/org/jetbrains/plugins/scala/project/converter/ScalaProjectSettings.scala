@@ -13,7 +13,7 @@ import scala.xml.Elem
 /**
  * @author Pavel Fatin
  */
-class ScalaProjectSettings(basePackages: Seq[String]) extends XmlConversion {
+class ScalaProjectSettings(basePackages: collection.Seq[String]) extends XmlConversion {
   def createOrUpdateIn(context: ConversionContext): Option[Path] = {
     if (basePackages.isEmpty) return None
 
@@ -81,7 +81,7 @@ class ScalaProjectSettings(basePackages: Seq[String]) extends XmlConversion {
     </project>
   }
 
-  private def createOptionsElement(basePackages: Seq[String]): Elem = {
+  private def createOptionsElement(basePackages: Iterable[String]): Elem = {
     <option name="basePackages">
       <list>
         {basePackages.map(name => <option value={name} />)}

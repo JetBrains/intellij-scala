@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.settings.ShowSettingsUtilImplExt
 import org.jetbrains.plugins.scala.util.ScalaCollectionsUtil
 import org.jetbrains.sbt.language.SbtFileImpl
 
-import scala.collection.JavaConverters.mapAsJavaMapConverter
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.util.Try
 

@@ -9,7 +9,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * Nikolay.Tropin

@@ -53,17 +53,17 @@ object CachedWithRecursionGuard {
         val elementType = psiElementType
 
         //generated names
-        val name = c.freshName(termName)
+        val name = qualifiedTernName(termName.toString)
         val keyId = stringLiteral(name + "$cacheKey")
-        val tracerName = generateTermName(name.toString, "$tracer")
+        val tracerName = generateTermName(name, "$tracer")
         val cacheName = withClassName(termName)
-        val guard = generateTermName(name.toString, "guard")
-        val defValueName = generateTermName(name.toString, "defaultValue")
-        val elemName = generateTermName(name.toString, "element")
-        val dataName = generateTermName(name.toString, "data")
-        val keyVarName = generateTermName(name.toString, "key")
-        val holderName = generateTermName(name.toString, "holder")
-        val dataForGuardName = generateTermName(name.toString, "dataForGuard")
+        val guard = generateTermName(name, "guard")
+        val defValueName = generateTermName(name, "defaultValue")
+        val elemName = generateTermName(name, "element")
+        val dataName = generateTermName(name, "data")
+        val keyVarName = generateTermName(name, "key")
+        val holderName = generateTermName(name, "holder")
+        val dataForGuardName = generateTermName(name, "dataForGuard")
 
         val dataValue = if (hasParams) q"(..$parameterNames)" else q"()"
         val getOrCreateCachedHolder =

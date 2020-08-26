@@ -59,7 +59,7 @@ object ScalaNamesUtil {
 
     def unapply(name: String): Option[String] =
       withoutBackticks(name) match {
-        case scalaName: String if name.lengthCompare(scalaName.length) == 2 => Some(scalaName)
+        case scalaName: String if name.lengthCompare(scalaName.length) > 0 => Some(scalaName)
         case _ => None
       }
 

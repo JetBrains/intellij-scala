@@ -58,7 +58,7 @@ object TypeAdjuster extends ApplicationListener {
     if (element != null) markedElements.contains(element.createSmartPointer)
     else                 false
 
-  def adjustFor(elements: Seq[PsiElement],
+  def adjustFor(elements: collection.Seq[PsiElement],
                 addImports: Boolean = true,
                 useTypeAliases: Boolean = true): Unit = {
     val infos = for {
@@ -264,7 +264,7 @@ object TypeAdjuster extends ApplicationListener {
     }
   }
 
-  private def rewriteInfosAsInfix(infos: Seq[ReplacementInfo]): Seq[ReplacementInfo] = {
+  private def rewriteInfosAsInfix(infos: collection.Seq[ReplacementInfo]): collection.Seq[ReplacementInfo] = {
     def infoToMappings(info: ReplacementInfo): List[(String, PsiElement)] = info match {
       case SimpleInfo(place, replacement, _, _) =>
         val maybePair = for {
@@ -344,7 +344,7 @@ object TypeAdjuster extends ApplicationListener {
       }.toMap
   }
 
-  private def replaceAndAddImports(infos: Seq[ReplacementInfo],
+  private def replaceAndAddImports(infos: Iterable[ReplacementInfo],
                                    addImports: Boolean) = {
     assert(infos.forall(_.place.isValid), "Psi shouldn't be modified before this stage!")
 

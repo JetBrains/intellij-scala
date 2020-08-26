@@ -10,7 +10,7 @@ import com.intellij.psi.ResolveResult
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.uast.{UMultiResolvable, UResolvable}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * Scala adapter of the [[UMultiResolvable]] with [[UResolvable]].

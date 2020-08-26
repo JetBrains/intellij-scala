@@ -22,7 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-import scala.collection.Seq
 import scala.collection.immutable.Set
 
 /**
@@ -86,7 +85,7 @@ trait ScFunction extends ScalaPsiElement with ScMember.WithBaseIconProvider with
 
   override def clauses: Option[ScParameters] = Some(paramClauses)
 
-  override def declaredElements: Seq[ScFunction] = Seq(this)
+  override def declaredElements: collection.Seq[ScFunction] = collection.Seq(this)
 
   def isExtensionMethod: Boolean
 
@@ -107,19 +106,19 @@ trait ScFunction extends ScalaPsiElement with ScMember.WithBaseIconProvider with
   /** PsiMethod wrappers for java compatibility
     * @return Empty array, if containing class is null.
     */
-  def getFunctionWrappers(isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper]
+  def getFunctionWrappers(isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass] = None): collection.Seq[ScFunctionWrapper]
 
-  override def parameters: Seq[ScParameter] = paramClauses.params
+  override def parameters: collection.Seq[ScParameter] = paramClauses.params
 
-  def superMethods: Seq[PsiMethod]
+  def superMethods: collection.Seq[PsiMethod]
 
   def superMethod: Option[PsiMethod]
 
   def superMethodAndSubstitutor: Option[(PsiMethod, ScSubstitutor)]
 
-  def superSignatures: Seq[TermSignature]
+  def superSignatures: collection.Seq[TermSignature]
 
-  def superSignaturesIncludingSelfType: Seq[TermSignature]
+  def superSignaturesIncludingSelfType: collection.Seq[TermSignature]
 
   def hasAssign: Boolean
 

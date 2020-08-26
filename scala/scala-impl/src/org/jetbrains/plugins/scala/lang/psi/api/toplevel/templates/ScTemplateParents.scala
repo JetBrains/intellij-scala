@@ -16,14 +16,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
   */
 trait ScTemplateParents extends ScalaPsiElement {
 
-  def typeElements: Seq[ScTypeElement]
+  def typeElements: collection.Seq[ScTypeElement]
 
-  def superTypes: Seq[ScType]
+  def superTypes: collection.Seq[ScType]
 
-  def allTypeElements: Seq[ScTypeElement]
+  def allTypeElements: collection.Seq[ScTypeElement]
 
   final def constructorInvocation: Option[ScConstructorInvocation] = findChild(classOf[ScConstructorInvocation])
 
-  final def typeElementsWithoutConstructor: Seq[ScTypeElement] =
+  final def typeElementsWithoutConstructor: collection.Seq[ScTypeElement] =
     findChildrenByClassScala(classOf[ScTypeElement])
 }

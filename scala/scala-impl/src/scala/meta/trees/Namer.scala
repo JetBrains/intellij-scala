@@ -17,10 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.{impl, api => p, types => ptype}
 
 import scala.annotation.tailrec
 import scala.language.postfixOps
-import scala.meta.Ctor.Ref
 import scala.meta.ScalaMetaBundle
-//import scala.meta.internal.ast.Type
-import scala.meta.internal.{semantic => h}
 import scala.meta.trees.error._
 import scala.{meta => m, Seq => _}
 
@@ -123,23 +120,21 @@ trait Namer {
     if (res != null) res else die(ScalaMetaBundle.message("failed.to.convert.type.tp", tp))
   }
 
-  def toCtorName(c: ScStableCodeReference): m.Ctor.Ref.Name = {
-    // FIXME: what about other cases of m.Ctor ?
+  def toCtorName(c: ScStableCodeReference): m.Term.Name = {
+//     FIXME: what about other cases of m.Ctor ?
     val resolved = toTermName(c)
     resolved match {
-      case n@m.Term.Name(value) =>
-        m.Ctor.Ref.Name(value)
-      case other => unreachable
+      case termName: m.Term.Name => termName
+      case _ => unreachable
     }
   }
 
-  def toParamName(param: Parameter): m.Term.Param.Name = {
-    m.Term.Name(param.name) // TODO: param denotation
+  def toParamName(param: Parameter): m.Term.Name = {
+    m.Term.Name(param.name)
   }
 
-  def toPrimaryCtorName(t: ScPrimaryConstructor): Ref.Name = {
-    m.Ctor.Ref.Name("this")
-  }
+  def toPrimaryCtorName(t: ScPrimaryConstructor): m.Name =
+    m.Name.Anonymous()
 
   def ind(cr: ScStableCodeReference): m.Name.Indeterminate = {
     m.Name.Indeterminate(cr.qualName)
@@ -151,9 +146,9 @@ trait Namer {
   }
 
   // only raw type names can be used as super selector
-  def getSuperName(tp: ScSuperReference): m.Name.Qualifier = {
+  def getSuperName(tp: ScSuperReference): m.Name = {
     @tailrec
-    def loop(mtp: m.Type): m.Name.Qualifier = {
+    def loop(mtp: m.Type): m.Name = {
       mtp match {
         case n@m.Type.Name(value) => m.Name.Indeterminate(value)
         case _: m.Type.Select => loop(mtp.stripped)
@@ -165,13 +160,11 @@ trait Namer {
   }
 
   // FIXME: everything
-  def ctorParentName(tpe: types.ScTypeElement): Ref.Name = {
+  def ctorParentName(tpe: types.ScTypeElement): m.Name = {
     val raw = toType(tpe)
     raw.stripped match {
-      case n@m.Type.Name(value) =>
-        m.Ctor.Ref.Name(value)
+      case name: m.Type.Name => name
       case other => die(ScalaMetaBundle.message("unexpected.type.in.parents.other", other))
     }
   }
-
 }

@@ -80,7 +80,7 @@ trait PrecedenceHelper {
     */
   protected def addResult(result: ScalaResolveResult): Boolean = addResults(Seq(result))
 
-  protected def addResults(results: Seq[ScalaResolveResult]): Boolean = {
+  protected def addResults(results: Iterable[ScalaResolveResult]): Boolean = {
     if (results.isEmpty) return true
     val result: ScalaResolveResult = results.head
 

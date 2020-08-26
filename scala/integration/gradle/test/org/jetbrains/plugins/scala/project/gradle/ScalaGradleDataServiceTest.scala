@@ -17,7 +17,7 @@ import org.jetbrains.sbt.project.data.service.ExternalSystemDataDsl._
 import org.jetbrains.sbt.project.data.service.ProjectDataServiceTestCase
 import org.junit.Assert._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 
 /**

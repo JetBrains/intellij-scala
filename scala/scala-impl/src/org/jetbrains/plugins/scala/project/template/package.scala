@@ -12,7 +12,7 @@ import com.intellij.openapi.util.{Key, io}
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile, VirtualFileManager}
 import com.intellij.util.{PathUtil, net}
 
-import scala.collection.JavaConverters
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Pavel Fatin
@@ -158,7 +158,7 @@ package object template {
     }
 
   private[this] def vmOptions = {
-    import JavaConverters._
+    import scala.jdk.CollectionConverters._
     val proxyOpts = net.HttpConfigurable.getInstance
       .getJvmProperties(false, null)
       .asScala

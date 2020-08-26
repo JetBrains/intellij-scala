@@ -192,8 +192,8 @@ final class LibraryExtensionsManager(project: Project) {
     }
   }
 
-  def getExtensions[T](iface: Class[T]): Seq[T] = {
-    myExtensionInstances.getOrElse(iface, Seq.empty).asInstanceOf[Seq[T]]
+  def getExtensions[T](iface: Class[T]): collection.Seq[T] = {
+    myExtensionInstances.getOrElse(iface, collection.Seq.empty).asInstanceOf[collection.Seq[T]]
   }
 
   def removeExtension(jarData: ExtensionJarData): Unit = {
@@ -212,7 +212,7 @@ final class LibraryExtensionsManager(project: Project) {
     saveCachedExtensions()
   }
 
-  def getAvailableLibraries: Seq[ExtensionJarData] = myLoadedLibraries
+  def getAvailableLibraries: collection.Seq[ExtensionJarData] = myLoadedLibraries
 
   def addExtension(file: File): Unit = {
     processResolvedExtension(file)

@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, ToNullSafe, inWriteCom
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ModuleExt
 
-import scala.collection.JavaConverters.asScalaBufferConverter
+import scala.jdk.CollectionConverters._
 import scala.util.Try
 
 final class ScalaFilePasteProvider extends PasteProvider {
@@ -90,7 +90,10 @@ private object ScalaFilePasteProvider {
   }
 
   implicit class CopyPasteManagerExt(private val manager: CopyPasteManager) extends AnyVal {
-    def copiedText: Option[String] = Option(manager.getContents[String](DataFlavor.stringFlavor))
-    def copiedFiles: Option[Seq[File]] = Option(manager.getContents[ju.List[File]](DataFlavor.javaFileListFlavor)).map(_.asScala)
+    def copiedText: Option[String] =
+      Option(manager.getContents[String](DataFlavor.stringFlavor))
+
+    def copiedFiles: Option[collection.Seq[File]] =
+      Option(manager.getContents[ju.List[File]](DataFlavor.javaFileListFlavor)).map(_.asScala)
   }
 }

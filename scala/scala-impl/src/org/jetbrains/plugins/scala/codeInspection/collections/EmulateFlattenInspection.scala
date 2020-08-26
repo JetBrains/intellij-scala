@@ -18,13 +18,15 @@ object FlattenSimplification extends SimplificationType {
 
   override def hint: String = ScalaInspectionBundle.message("replace.with.flatten")
 
-  override def getSimplification(expr: ScExpression): Option[Simplification] =
+  override def getSimplification(expr: ScExpression): Option[Simplification] = {
+    // TODO infix notation?
     expr match {
       case seqOfSeqs `.flatMap` (identityOperation()) => toSimplification(expr, seqOfSeqs)
       case qual `.getOrElse` (scalaNone()) if isNestedOption(qual) => toSimplification(expr, qual)
-      case qual `.map` (underscore() `.get` ()) if isNestedOption(qual) => toSimplification(expr, qual)
+      case qual `.map` (`.get`(underscore())) if isNestedOption(qual) => toSimplification(expr, qual)
       case _ => None
     }
+  }
 
   private def toSimplification(expr: ScExpression, qual: ScExpression): Some[Simplification] =
     Some(replace(expr).withText(invocationText(qual, "flatten")))
@@ -38,8 +40,8 @@ object FlattenSimplification extends SimplificationType {
           case Some(identity()) => true
           case _ => false
         }
-      case ScFunctionExpr(Seq(x), Some(ResolvesTo(param))) if x == param => true
-      case ScFunctionExpr(Seq(x), Some(identity(ResolvesTo(param)))) if x == param => true
+      case ScFunctionExpr(collection.Seq(x), Some(ResolvesTo(param))) if x == param => true
+      case ScFunctionExpr(collection.Seq(x), Some(identity(ResolvesTo(param)))) if x == param => true
       case _ => false
     }
   }
@@ -49,8 +51,9 @@ object FlattenSimplification extends SimplificationType {
     private val unqualIdentity = unqualifed("identity").from(Array("scala.Predef"))
 
     def unapplySeq(expr: ScExpression): Option[Seq[ScExpression]] = expr match {
+      // TODO infix notation?
       case _ qualIdentity(arg) => Some(Seq(arg))
-      case _ qualIdentity() => Some(Nil)
+      case qualIdentity(_) => Some(Nil)
       case unqualIdentity(arg) => Some(Seq(arg))
       case unqualIdentity() => Some(Nil)
       case _ => None

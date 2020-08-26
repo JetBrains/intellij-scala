@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala.editor.importOptimizer
 
 import com.intellij.util.diff.Diff
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
+import scala.reflect.ClassTag
 
 object BufferUpdate {
 
-  def updateIncrementally[B, Elem, T <: AnyRef](buffer: B, finalResult: Array[Elem])
-                                               (compareBy: Elem => T)
-                                               (implicit operations: BufferOperations[B, Elem]): Unit = {
+  def updateIncrementally[B, Elem, T <: AnyRef : ClassTag](buffer: B, finalResult: Array[Elem])
+                                                (compareBy: Elem => T)
+                                                (implicit operations: BufferOperations[B, Elem]): Unit = {
 
     val changes = Diff.buildChanges[T](operations.asArray(buffer).map(compareBy), finalResult.map(compareBy))
     if (changes == null) {

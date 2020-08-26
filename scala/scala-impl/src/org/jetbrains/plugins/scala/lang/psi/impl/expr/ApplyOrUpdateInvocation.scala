@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcesso
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
 
-import scala.collection.{Seq, Set}
+import scala.collection.Set
 
 /**
   * Nikolay.Tropin
@@ -22,11 +22,11 @@ import scala.collection.{Seq, Set}
 
 //data collected to resolve update/apply/dynamic calls
 case class ApplyOrUpdateInvocation(call: MethodInvocation,
-                                   argClauses: List[Seq[Expression]],
+                                   argClauses: List[collection.Seq[Expression]],
                                    baseExpr: ScExpression,
                                    baseExprType: ScType,
-                                   typeArgs: Seq[ScTypeElement],
-                                   typeParams: Seq[TypeParameter],
+                                   typeArgs: collection.Seq[ScTypeElement],
+                                   typeParams: collection.Seq[TypeParameter],
                                    isDynamic: Boolean) {
 
   def collectCandidates(isShape: Boolean): Array[ScalaResolveResult] = {
@@ -114,7 +114,7 @@ object ApplyOrUpdateInvocation {
     ApplyOrUpdateInvocation(call, argClauses, baseExpr, baseExprType, typeArgs, typeParams, isDynamic)
   }
 
-  private def argumentClauses(call: MethodInvocation, isDynamic: Boolean): List[Seq[Expression]] = {
+  private def argumentClauses(call: MethodInvocation, isDynamic: Boolean): List[collection.Seq[Expression]] = {
     import call.projectContext
 
     val newValueForUpdate = call.getContext match {
@@ -125,7 +125,7 @@ object ApplyOrUpdateInvocation {
       case _ =>
         Seq.empty
     }
-    val arguments: Seq[Expression] = call.argumentExpressions ++ newValueForUpdate
+    val arguments: collection.Seq[Expression] = call.argumentExpressions ++ newValueForUpdate
 
     if (!isDynamic) List(arguments)
     else {

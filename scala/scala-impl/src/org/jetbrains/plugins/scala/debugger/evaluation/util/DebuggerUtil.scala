@@ -182,7 +182,7 @@ object DebuggerUtil {
     val valueClassParameter = function.containingClass match {
       case cl: ScClass if ValueClassType.isValueClass(cl) =>
         cl.constructors match {
-          case Seq(pc: ScPrimaryConstructor) => pc.parameters.headOption
+          case collection.Seq(pc: ScPrimaryConstructor) => pc.parameters.headOption
           case _ => None
         }
       case _ => None
@@ -362,7 +362,7 @@ object DebuggerUtil {
       .orElse(refType.fieldByName("_value").toOption)
   }
 
-  def localParamsForFunDef(fun: ScFunctionDefinition, visited: mutable.Set[PsiElement] = mutable.Set.empty): Seq[ScTypedDefinition] = {
+  def localParamsForFunDef(fun: ScFunctionDefinition, visited: mutable.Set[PsiElement] = mutable.Set.empty): collection.Seq[ScTypedDefinition] = {
     val container = ScalaEvaluatorBuilderUtil.getContextClass(fun)
     fun.body match { //to exclude references from default parameters
       case Some(b) => localParams(b, fun, container, visited)
@@ -370,13 +370,13 @@ object DebuggerUtil {
     } 
   }
 
-  def localParamsForConstructor(cl: ScClass, visited: mutable.Set[PsiElement] = mutable.Set.empty): Seq[ScTypedDefinition] = {
+  def localParamsForConstructor(cl: ScClass, visited: mutable.Set[PsiElement] = mutable.Set.empty): collection.Seq[ScTypedDefinition] = {
     val container = ScalaEvaluatorBuilderUtil.getContextClass(cl)
     val extendsBlock = cl.extendsBlock //to exclude references from default parameters
     localParams(extendsBlock, cl, container, visited)
   }
 
-  def localParamsForDefaultParam(param: ScParameter, visited: mutable.Set[PsiElement] = mutable.Set.empty): Seq[ScTypedDefinition] = {
+  def localParamsForDefaultParam(param: ScParameter, visited: mutable.Set[PsiElement] = mutable.Set.empty): collection.Seq[ScTypedDefinition] = {
     val owner = param.owner
     val container = ScalaEvaluatorBuilderUtil.getContextClass {
       owner match {
@@ -391,7 +391,7 @@ object DebuggerUtil {
   }
 
   private def localParams(block: PsiElement, excludeContext: PsiElement, contextClass: PsiElement,
-                          visited: mutable.Set[PsiElement] = mutable.Set.empty): Seq[ScTypedDefinition] = {
+                          visited: mutable.Set[PsiElement] = mutable.Set.empty): collection.Seq[ScTypedDefinition] = {
     def atRightPlace(elem: PsiElement): Boolean = {
       if (PsiTreeUtil.isContextAncestor(excludeContext, elem, false)) return false
 
@@ -439,10 +439,10 @@ object DebuggerUtil {
       }
     })
 
-    if (isAtLeast212(block))
-      buf.distinct.sortBy(e => e.isInstanceOf[ScObject])
-    else
-      buf.distinct.sortBy(e => (e.isInstanceOf[ScObject], e.startOffset))
+      if (isAtLeast212(block))
+        buf.distinct.sortBy(e => e.isInstanceOf[ScObject])
+      else
+        buf.distinct.sortBy(e => (e.isInstanceOf[ScObject], e.startOffset))
   }
 
   def isAtLeast212(element: PsiElement): Boolean =

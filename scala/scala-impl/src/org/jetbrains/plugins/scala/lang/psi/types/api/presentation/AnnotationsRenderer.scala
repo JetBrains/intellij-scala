@@ -38,6 +38,6 @@ class AnnotationsRenderer(
     buffer.toString
   }
 
-  protected def shouldSkipArguments(annotationType: ScType, arguments: Seq[ScExpression]): Boolean =
+  protected def shouldSkipArguments(annotationType: ScType, arguments: collection.Seq[ScExpression]): Boolean =
     arguments.isEmpty
 }

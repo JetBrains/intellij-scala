@@ -20,9 +20,9 @@ trait TypeSystem extends ProjectContextOwner
 
   val name: String
 
-  def andType(types: Seq[ScType]): ScType
+  def andType(types: collection.Seq[ScType]): ScType
 
-  def parameterizedType(designator: ScType, typeArguments: Seq[ScType]): ValueType
+  def parameterizedType(designator: ScType, typeArguments: collection.Seq[ScType]): ValueType
 
   override final def clearCache(): Unit = {
     super[Equivalence].clearCache()

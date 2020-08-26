@@ -40,7 +40,7 @@ final class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) 
           override def createLogger: MessageLogger = new ProgressIndicatorLogger(manager.getProgressIndicator)
           override val artifactBlackList: Set[String] = Set.empty
         }
-        val compiler        = "org.scala-lang" % "scala-compiler" % version transitive()
+        val compiler        = ("org.scala-lang" % "scala-compiler" % version).transitive()
         val librarySources  = "org.scala-lang" % "scala-library" % version % Types.SRC
         dependencyManager.resolve(compiler)
         dependencyManager.resolveSingle(librarySources)

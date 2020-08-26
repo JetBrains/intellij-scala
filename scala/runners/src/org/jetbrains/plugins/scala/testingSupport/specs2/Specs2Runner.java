@@ -17,10 +17,10 @@ public class Specs2Runner {
 
   private static final String REPORTER_FQN = JavaSpecs2Notifier.class.getName();
 
-  public static void main(String[] argsRaw) throws NoSuchMethodException, IllegalAccessException {
-    final boolean isSpecs2_3;
+  public static void main(String[] argsRaw) throws IllegalAccessException {
+    final boolean isSpecs2_3x_4x;
     try {
-      isSpecs2_3 = Spec2VersionUtils.isSpecs2_3();
+      isSpecs2_3x_4x = Specs2VersionUtils.isSpecs2_3x_4x();
     } catch (Spec2RunExpectedError spec2RunExpectedError) {
       System.out.println(spec2RunExpectedError.getMessage());
       return;
@@ -29,16 +29,14 @@ public class Specs2Runner {
     Spec2RunnerArgs args = Spec2RunnerArgs.parse(argsRaw);
     List<List<String>> runnerArgsList = toSpec2LibArgsList(args);
 
-    JavaSpecs2Notifier.myShowProgressMessages = args.showProgressMessages;
-
-    final JavaSpecs2Notifier notifier = new JavaSpecs2Notifier();
-
     for (List<String> runnerArgs : runnerArgsList) {
       String[] runnerArgsArray = runnerArgs.toArray(new String[0]);
-      if (isSpecs2_3) {
-        runSpecs2_new(runnerArgsArray);
+      if (isSpecs2_3x_4x) {
+        runSpecs2_3x4x(runnerArgsArray);
       } else {
-        runSpecs2_old(runnerArgsArray, notifier);
+        JavaSpecs2Notifier.myShowProgressMessages = args.showProgressMessages;
+        final JavaSpecs2Notifier notifier = new JavaSpecs2Notifier();
+        runSpecs2_2x(runnerArgsArray, notifier);
       }
     }
     System.exit(0);
@@ -80,66 +78,24 @@ public class Specs2Runner {
             .collect(Collectors.toList());
   }
 
-  private static void runSpecs2_old(String[] runnerArgsArray, JavaSpecs2Notifier notifier) throws NoSuchMethodException, IllegalAccessException {
-    boolean hasNoStartMethod = false;
-    boolean startNotFound = false;
-
-    NotifierRunner runner = new NotifierRunner(notifier);
+  private static void runSpecs2_2x(String[] runnerArgsArray, JavaSpecs2Notifier notifier) throws IllegalAccessException {
 
     try {
+      NotifierRunner runner = new NotifierRunner(notifier);
       Method method = runner.getClass().getMethod("start", String[].class);
       method.invoke(runner, (Object) runnerArgsArray);
-    } catch (NoSuchMethodException | IllegalAccessException e) {
-      hasNoStartMethod = true;
-    } catch (InvocationTargetException e) {
+    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
       Throwable cause = e.getCause();
       String message = cause.getMessage();
       if (message != null && message.startsWith(specInstantiationMessage)) {
         System.out.println(message);
-        return;
-      }
-      hasNoStartMethod = true;
-    }
-
-    if (hasNoStartMethod) {
-      try {
-        MyNotifierRunner myNotifierRunner = new MyNotifierRunner(notifier);
-        Method method = myNotifierRunner.getClass().getMethod("start", String[].class);
-        method.invoke(myNotifierRunner, (Object) runnerArgsArray);
-      } catch (NoClassDefFoundError | NoSuchMethodException | IllegalAccessException e) {
-        String className = e.getClass().getSimpleName();
-        String message = "\n" + className + " for 'Start' in MyNotifierRunner " + e.getMessage() + "\n";
-        System.out.println(message);
-        startNotFound = true;
-      } catch (InvocationTargetException e) {
-        Throwable cause = e.getCause();
-        String message = cause.getMessage();
-        if (message != null && message.startsWith(specInstantiationMessage)) {
-          System.out.println(message);
-          return;
-        }
-        System.out.println("\nInvocationTargetException for 'Start' in MyNotifierRunner; cause: " + message + "\n");
-        startNotFound = true;
-      }
-    }
-
-    if (startNotFound) {
-      try {
-        Method method = runner.getClass().getMethod("main", String[].class);
-        method.invoke(runner, (Object) runnerArgsArray);
-      } catch (InvocationTargetException e) {
-        Throwable cause = e.getCause();
-        String message = cause.getMessage();
-        if (message != null && message.startsWith(specInstantiationMessage)) {
-          System.out.println(message);
-        }
       }
     }
   }
 
   private final static String specInstantiationMessage = "can not create specification";
 
-  private static void runSpecs2_new(String[] runnerArgsArray) {
+  private static void runSpecs2_3x4x(String[] runnerArgsArray) {
     runWithNotifierRunner(runnerArgsArray, true);
   }
 
@@ -148,7 +104,6 @@ public class Specs2Runner {
 
     try {
       ClassRunner$ runner = ClassRunner$.MODULE$;
-//      NotifierRunner runner = new NotifierRunner(notifier);
       Method method = runner.getClass().getMethod("run", String[].class);
       method.invoke(runner, (Object) runnerArgsArray);
     } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {

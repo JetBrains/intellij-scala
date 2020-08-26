@@ -7,7 +7,7 @@ import java.util
 
 import com.intellij.conversion._
 
-import collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import ScalaProjectConverter._
 
 /**
@@ -65,13 +65,13 @@ private object ScalaProjectConverter {
     modulesIn(context).flatMap(module => ScalaFacetData.findIn(module).toSeq
             .map(facet => (module.getModuleName, facet.compilerSettings)).toSeq).toMap
 
-  private def basePackagesIn(context: ConversionContext): Seq[String] =
+  private def basePackagesIn(context: ConversionContext): collection.Seq[String] =
     scalaFacetsIn(context).flatMap(_.basePackage.toSeq)
 
-  private def scalaFacetsIn(context: ConversionContext): Seq[ScalaFacetData] =
+  private def scalaFacetsIn(context: ConversionContext): collection.Seq[ScalaFacetData] =
     modulesIn(context).flatMap(module => ScalaFacetData.findIn(module).toSeq)
 
-  private def modulesIn(context: ConversionContext): Seq[ModuleSettings] =
+  private def modulesIn(context: ConversionContext): collection.Seq[ModuleSettings] =
     context.getModulePaths.asScala.map(context.getModuleSettings)
 
   private def obsoleteLibrariesIn(context: ConversionContext): Set[LibraryReference] = {

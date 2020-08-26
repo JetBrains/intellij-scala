@@ -5,7 +5,7 @@ import java.io.File
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.service.JpsServiceManager
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 abstract class LogFilterService {
   def shouldLog(kind: Kind,

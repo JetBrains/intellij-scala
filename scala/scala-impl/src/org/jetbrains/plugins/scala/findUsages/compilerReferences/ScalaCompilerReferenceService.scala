@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.indices.protocol.CompilationInfo
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.project.ProjectExt
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 final private[findUsages] class ScalaCompilerReferenceService(project: Project) extends ModificationTracker {
   import ScalaCompilerReferenceService._

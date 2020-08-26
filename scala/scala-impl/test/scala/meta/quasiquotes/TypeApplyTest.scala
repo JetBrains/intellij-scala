@@ -50,7 +50,7 @@ class TypeApplyTest extends QuasiQuoteTypeInferenceTestBase {
 
   def testFunctionType(): Unit = doTest(
     s"""
-       |val atpes: List[Type.Arg] = List(t"X", t"Y")
+       |val atpes: List[Type] = List(t"X", t"Y")
        |val tpe = t"Z"
        |${START}t"(..$$atpes) => $$tpe"$END
        |//Type.Function
@@ -78,19 +78,4 @@ class TypeApplyTest extends QuasiQuoteTypeInferenceTestBase {
        |//Type.Placeholder
      """.stripMargin
   )
-
-  def testTypeArgByName(): Unit = doTest(
-    s"""
-       |${START}targ"=> X"$END
-       |//Type.Arg.ByName
-     """.stripMargin
-  )
-
-  def testTypeArgRepeated(): Unit = doTest(
-    s"""
-       |${START}targ"X*"$END
-       |//Type.Arg.Repeated
-     """.stripMargin
-  )
-
 }

@@ -11,8 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
-import scala.collection.Seq
-
 /**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
@@ -27,7 +25,7 @@ trait ScConstructorInvocation extends ScalaPsiElement with ConstructorInvocation
 
   def args: Option[ScArgumentExprList]
 
-  override def arguments: Seq[ScArgumentExprList]
+  override def arguments: collection.Seq[ScArgumentExprList]
 
   def expectedType: Option[ScType]
 
@@ -41,11 +39,11 @@ trait ScConstructorInvocation extends ScalaPsiElement with ConstructorInvocation
 
   def reference: Option[ScStableCodeReference]
 
-  def matchedParameters: Seq[(ScExpression, Parameter)]
+  def matchedParameters: collection.Seq[(ScExpression, Parameter)]
 }
 
 object ScConstructorInvocation {
-  def unapply(c: ScConstructorInvocation): Option[(ScTypeElement, Seq[ScArgumentExprList])] = {
+  def unapply(c: ScConstructorInvocation): Option[(ScTypeElement, collection.Seq[ScArgumentExprList])] = {
     Option(c).map(it => (it.typeElement, it.arguments))
   }
 

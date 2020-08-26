@@ -50,7 +50,7 @@ object Scala3ImportedParserTest_Import_FromDottyDirectory {
         .toSeq
         .reverse
         .mkString("_")
-      println(file + " -> " + targetWithDirs)
+      println(file.toString + " -> " + targetWithDirs)
 
       val pw = new PrintWriter(targetWithDirs)
       pw.write(content)

@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfigura
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
 import scala.beans.BeanProperty
-import scala.collection.JavaConverters.{collectionAsScalaIterableConverter, mapAsScalaMapConverter}
+import scala.jdk.CollectionConverters._
 
 /**
  * NOTE: when changing constructor params do not forget to edit TestConfigurationData.serializeIntoSkippingDefaults

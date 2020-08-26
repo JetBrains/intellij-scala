@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.rearranger.RearrangerUtils._
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.immutable.HashSet
 import scala.collection.mutable
 
@@ -95,12 +95,12 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
   override def getSerializer: ArrangementSettingsSerializer = ScalaRearranger.SETTINGS_SERIALIZER
 
   override def getSupportedGroupingTokens: util.List[CompositeArrangementSettingsToken] =
-    seqAsJavaList(List(new CompositeArrangementSettingsToken(DEPENDENT_METHODS, BREADTH_FIRST, DEPTH_FIRST),
+    List(new CompositeArrangementSettingsToken(DEPENDENT_METHODS, BREADTH_FIRST, DEPTH_FIRST),
       new CompositeArrangementSettingsToken(JAVA_GETTERS_AND_SETTERS),
       new CompositeArrangementSettingsToken(SCALA_GETTERS_AND_SETTERS),
       new CompositeArrangementSettingsToken(SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_EXPRESSIONS),
       new CompositeArrangementSettingsToken(SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_IMPLICITS)
-    ))
+    ).asJava
 
   override def getSupportedMatchingTokens: util.List[CompositeArrangementSettingsToken] =
     List(

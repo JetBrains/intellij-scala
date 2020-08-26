@@ -168,7 +168,7 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
                 else          names.contains(name)
 
               val newImportsUsed = importsUsed ++ tryMarkImportExprUsed(processor, qualifierFqn, importExpr)
-              val newState       = state.withPrefixCompletion.withImportsUsed(newImportsUsed)
+              val newState       = state.withPrefixCompletion.withImportsUsed(newImportsUsed.toSet)
 
               val importsProcessor = new BaseProcessor(StdKinds.stableImportSelector) {
 
@@ -193,7 +193,7 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
               val refType        = qualifierType(isInPackageObject(next.element))
 
               val newState: ResolveState = state
-                .withImportsUsed(newImportsUsed)
+                .withImportsUsed(newImportsUsed.toSet)
                 .withSubstitutor(subst)
                 .withFromType(refType)
 
@@ -241,7 +241,7 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
                           val newState =
                             state
                               .withRename(importedName)
-                              .withImportsUsed(newImportsUsed)
+                              .withImportsUsed(newImportsUsed.toSet)
                               .withSubstitutor(subst.followed(result.substitutor))
                               .withFromType(refType)
 
@@ -292,7 +292,7 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
 
                     val newState =
                       state
-                        .withImportsUsed(newImportsUsed)
+                        .withImportsUsed(newImportsUsed.toSet)
                         .withSubstitutor(subst)
 
                     (elem, processor) match {
@@ -325,7 +325,7 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
 
                     val newState =
                       state
-                        .withImportsUsed(newImportsUsed)
+                        .withImportsUsed(newImportsUsed.toSet)
                         .withSubstitutor(subst.followed(rSubst))
                         .withFromType(qualifierType(isInPackageObject(result.element)))
 

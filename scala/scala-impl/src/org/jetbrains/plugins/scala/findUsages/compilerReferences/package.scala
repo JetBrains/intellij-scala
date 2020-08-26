@@ -24,7 +24,7 @@ package object compilerReferences {
   def indexDir(project: Project): Option[File] = buildDir(project).map(new File(_, "scala-compiler-references"))
   def removeIndexFiles(project: Project): Unit = indexDir(project).foreach(CompilerReferenceIndex.removeIndexFiles)
 
-  final case class UsagesInFile(file: VirtualFile, lines: Seq[Int]) {
+  final case class UsagesInFile(file: VirtualFile, lines: collection.Seq[Int]) {
     override def equals(that: scala.Any): Boolean = that match {
       case other: UsagesInFile =>
         file.getPath == other.file.getPath &&

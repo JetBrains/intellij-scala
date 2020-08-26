@@ -27,7 +27,7 @@ trait DecompilerTestBase extends TestCase {
   protected def getClassFilePath(fileName: String, testName: String = "") = {
     val name = if (testName.isEmpty) "" else {
       assert(testName.startsWith("test") && testName.length > 4)
-      testName(4).toLower + testName.substring(5)
+      testName(4).toLower.toString + testName.substring(5)
     }
     val dirPath: String = s"$basePath/$name"
     s"$dirPath/$fileName"

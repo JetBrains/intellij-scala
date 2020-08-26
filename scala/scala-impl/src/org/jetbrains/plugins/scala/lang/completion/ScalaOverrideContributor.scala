@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.overrideImplement._
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
-import scala.collection.JavaConverters
+import scala.jdk.CollectionConverters._
 
 /**
   * Created by kate
@@ -54,7 +54,6 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
             createLookupElement(member, createText(member, clazz, full = true), hasOverride = false)
           }
 
-          import JavaConverters._
           resultSet.addAllElements(lookupElements.toSeq.asJava)
         }
       }
@@ -81,7 +80,6 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
             createLookupElement(member, createText(member, clazz, full = !hasOverride, withBody = false), hasOverride)
         }
 
-        import JavaConverters._
         completionResultSet.addAllElements(lookupElements.asJava)
       }
     })
@@ -119,7 +117,6 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
             createLookupElement(member, createText(member, clazz), hasOverride)
           }
 
-          import JavaConverters._
           resultSet.addAllElements(lookupElements.toSeq.asJava)
         }
       }

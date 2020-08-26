@@ -16,10 +16,10 @@ import org.junit.experimental.categories.Category
 import org.junit.{Ignore, Test}
 import org.scalacheck.Prop.{BooleanOperators, forAll}
 import org.scalacheck._
-import org.scalatest.junit.AssertionsForJUnit
-import org.scalatest.prop.Checkers
+import org.scalatestplus.junit.AssertionsForJUnit
+import org.scalatestplus.scalacheck.Checkers
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[SlowTests]))
 class BspResolverLogicProperties extends AssertionsForJUnit with Checkers {

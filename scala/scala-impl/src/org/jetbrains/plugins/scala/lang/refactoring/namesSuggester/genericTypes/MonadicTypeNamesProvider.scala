@@ -18,10 +18,10 @@ class MonadicTypeNamesProvider extends GenericTypeNamesProviderBase {
     `type`.typeArguments.length == 1 &&
       findPrefix(`type`.designator).isDefined
 
-  override protected def firstNames(designator: ScType, arguments: Seq[ScType]): Seq[String] =
+  override protected def firstNames(designator: ScType, arguments: collection.Seq[ScType]): collection.Seq[String] =
     findPrefix(designator).toSeq
 
-  override protected def secondNames(designator: ScType, arguments: Seq[ScType]): Seq[String] =
+  override protected def secondNames(designator: ScType, arguments: collection.Seq[ScType]): collection.Seq[String] =
     argumentNames(arguments)
 }
 

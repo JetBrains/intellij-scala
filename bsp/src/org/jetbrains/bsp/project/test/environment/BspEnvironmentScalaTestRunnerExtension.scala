@@ -4,7 +4,7 @@ import com.intellij.execution.configurations.RunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class BspEnvironmentScalaTestRunnerExtension extends BspEnvironmentRunnerExtension {
   override def runConfigurationSupported(config: RunConfiguration): Boolean =

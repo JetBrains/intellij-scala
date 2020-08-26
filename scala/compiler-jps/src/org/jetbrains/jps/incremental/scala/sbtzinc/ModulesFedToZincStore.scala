@@ -5,7 +5,7 @@ import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.incremental.CompileContext
 import org.jetbrains.jps.model.module.{JpsDependencyElement, JpsModule, JpsModuleDependency, JpsModuleSourceDependency}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * Keep track of dirty modules and dirty dependant modules for a single build

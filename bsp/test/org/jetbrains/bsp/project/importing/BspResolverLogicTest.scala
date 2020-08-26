@@ -4,7 +4,7 @@ import ch.epfl.scala.bsp4j.{BuildTarget, BuildTargetCapabilities, BuildTargetIde
 import org.jetbrains.bsp.project.importing.BspResolverDescriptors.UnspecifiedModule
 import org.junit.Test
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class BspResolverLogicTest {
 

@@ -43,7 +43,8 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.collection.{JavaConverters, mutable}
+import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl](stub: ScTemplateDefinitionStub[T],
                                                                                  nodeType: ScTemplateDefinitionElementType[T],
@@ -96,11 +97,11 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
         signature,
         isStatic = false,
         isInterface = isInterface(signature.namedElement)
-      )(result.+=, names.+=)
+      )(result.+=(_), names.+=(_))
     }
 
     for {
-      companion <- ScalaPsiUtil.getCompanionModule(this).toIterator
+      companion <- ScalaPsiUtil.getCompanionModule(this).iterator
       if addFromCompanion(companion)
 
       signature <- companion.allSignatures
@@ -178,7 +179,6 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
 
       val inThisClass = allFunctionsByName(name)
 
-      import JavaConverters._
       val files = this.allSupers.flatMap {
         _.containingVirtualFile
       }.asJava
@@ -197,7 +197,6 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
   }
 
   override final def findMethodsAndTheirSubstitutorsByName(name: String, checkBases: Boolean): ju.List[JBPair[PsiMethod, PsiSubstitutor]] = {
-    import JavaConverters._
 
     //the reordering is a hack to enable 'go to test location' for junit test methods defined in traits
     PsiClassImplUtil.findMethodsAndTheirSubstitutorsByName(this, name, checkBases)

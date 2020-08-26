@@ -3,7 +3,7 @@ package lang.refactoring.changeSignature
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import com.intellij.refactoring.changeSignature._
+import com.intellij.refactoring.changeSignature.{ChangeInfo, JavaChangeInfo, JavaParameterInfo, ParameterInfo}
 import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.codeInsight.intention.types.{AddOnlyStrategy, AddOrRemoveStrategy}
 import org.jetbrains.plugins.scala.extensions.{ChildOf, ElementText, PsiElementExt, PsiTypeExt}
@@ -246,8 +246,8 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       }
     } else {
       val argText = arguments(change, usage).headOption match {
-        case Some(Seq(text)) if text.trim.isEmpty => "()"
-        case Some(Seq(text)) => text
+        case Some(collection.Seq(text)) if text.trim.isEmpty => "()"
+        case Some(collection.Seq(text)) => text
         case _ => "()"
       }
       val expr = createExpressionWithContextFromText(argText, infix, argument)
@@ -290,7 +290,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     call.replace(newCall)
   }
 
-  private def arguments(change: ChangeInfo, methodUsage: MethodUsageInfo): Seq[Seq[String]] = {
+  private def arguments(change: ChangeInfo, methodUsage: MethodUsageInfo): collection.Seq[collection.Seq[String]] = {
     if (change.getNewParameters.isEmpty) return Seq.empty
     val isAddDefault = change match {
       case c: ScalaChangeInfo => c.isAddDefaultArgs
@@ -300,7 +300,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     val manager = change.getMethod.getManager
     val oldArgsInfo = methodUsage.argsInfo
 
-    def nonVarargArgs(clause: Seq[ParameterInfo]) = {
+    def nonVarargArgs(clause: collection.Seq[ParameterInfo]): collection.Seq[String] = {
       var needNamed = false
       val buffer = new ListBuffer[String]
       for {
@@ -317,7 +317,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       buffer
     }
 
-    def varargsExprs(clause: Seq[ParameterInfo]): Seq[String] = {
+    def varargsExprs(clause: collection.Seq[ParameterInfo]): collection.Seq[String] = {
       val param = clause.last
       param match {
         case s: ScalaParameterInfo if s.isRepeatedParameter =>
@@ -334,14 +334,14 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
           }
           else {
             val (argExprs, wasNamed) = oldArgsInfo.byOldParameterIndex.get(oldIndex) match {
-              case Some(Seq(ScAssignment(_, Some(expr)))) => (Seq(expr), true)
+              case Some(collection.Seq(ScAssignment(_, Some(expr)))) => (Seq(expr), true)
               case Some(seq) => (seq, false)
               case _ => return Seq.empty
             }
             if (jChangeInfo.isArrayToVarargs) {
               argExprs match {
-                case Seq(ScMethodCall(ElementText("Array"), arrayArgs)) => arrayArgs.map(_.getText)
-                case Seq(expr) =>
+                case collection.Seq(ScMethodCall(ElementText("Array"), arrayArgs)) => arrayArgs.map(_.getText)
+                case collection.Seq(expr) =>
                   val typedText = ScalaExtractMethodUtils.typedName(expr.getText, "_*")(expr.getProject)
                   val naming = if (wasNamed) param.getName + " = " else ""
                   val text = naming + typedText
@@ -354,14 +354,12 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       }
     }
 
-    def toArgs(clause: Seq[ParameterInfo]) = nonVarargArgs(clause) ++: varargsExprs(clause)
+    def toArgs(clause: collection.Seq[ParameterInfo]): collection.Seq[String] = nonVarargArgs(clause) ++: varargsExprs(clause)
 
-    val clauses = change match {
-      case sc: ScalaChangeInfo => sc.newParams.filter(_.nonEmpty)
-      case _ => Seq(change.getNewParameters.toSeq)
+    change match {
+      case sc: ScalaChangeInfo => sc.newParams.filter(_.nonEmpty).map(toArgs)
+      case _ => Seq(change.getNewParameters.toSeq).map(toArgs)
     }
-
-    clauses.map(toArgs)
   }
 
   def argsText(change: ChangeInfo, methodUsage: MethodUsageInfo): String = {
@@ -392,8 +390,8 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
         argsInfo.byOldParameterIndex.get(oldIdx) match {
           case None => return None
           case Some(seq) if seq.size > 1 => return None
-          case Some(Seq(assignStmt: ScAssignment)) => return Some(assignStmt.getText)
-          case Some(Seq(expr)) => expr.getText
+          case Some(collection.Seq(assignStmt: ScAssignment)) => return Some(assignStmt.getText)
+          case Some(collection.Seq(expr)) => expr.getText
         }
       }
     val argText = if (named) s"${newParam.getName} = $withoutName" else withoutName

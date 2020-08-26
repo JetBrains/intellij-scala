@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.sbt._
 import org.jetbrains.sbt.project.AutoImportAwareness._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * @author Pavel Fatin

@@ -85,8 +85,8 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
   def setSimplificationTypesEnabled(values: Array[java.lang.Boolean]): Unit
 
   private val patternLists = Map(
-    likeCollectionKey -> getLikeCollectionClasses _,
-    likeOptionKey -> getLikeOptionClasses _
+    likeCollectionKey -> (() => getLikeCollectionClasses),
+    likeOptionKey -> (() => getLikeOptionClasses)
   )
 
   private val setPatternLists = {

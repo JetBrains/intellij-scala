@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.uast.ScalaUastLanguagePlugin
 import org.jetbrains.uast._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ArrayBuffer
 
 /**

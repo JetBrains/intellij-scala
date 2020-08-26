@@ -30,16 +30,15 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateEx
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.SAMUtil
 
-import scala.collection.Set
 import scala.collection.mutable.ArrayBuffer
 
 //todo: remove all argumentClauses, we need just one of them
 class MethodResolveProcessor(override val ref: PsiElement,
                              val refName: String,
-                             var argumentClauses: List[Seq[Expression]],
-                             val typeArgElements: Seq[ScTypeElement],
-                             val prevTypeInfo: Seq[TypeParameter],
-                             override val kinds: Set[ResolveTargets.Value] = StdKinds.methodRef,
+                             var argumentClauses: List[collection.Seq[Expression]],
+                             val typeArgElements: collection.Seq[ScTypeElement],
+                             val prevTypeInfo: collection.Seq[TypeParameter],
+                             override val kinds: collection.Set[ResolveTargets.Value] = StdKinds.methodRef,
                              val expectedOption: () => Option[ScType] = () => None,
                              val isUnderscore: Boolean = false,
                              var isShapeResolve: Boolean = false,
@@ -131,7 +130,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
     true
   }
 
-  override def candidatesS: Set[ScalaResolveResult] = {
+  override def candidatesS: collection.Set[ScalaResolveResult] = {
     if (isDynamic) {
       collectCandidates(super.candidatesS.map(_.copy(nameArgForDynamic = nameArgForDynamic))).filter(_.isApplicable())
     } else {
@@ -139,7 +138,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
     }
   }
 
-  private def collectCandidates(input: Set[ScalaResolveResult]): Set[ScalaResolveResult] = {
+  private def collectCandidates(input: collection.Set[ScalaResolveResult]): collection.Set[ScalaResolveResult] = {
     if (input.isEmpty) return input
     if (!isShapeResolve && enableTupling && argumentClauses.nonEmpty) {
       isShapeResolve = true
@@ -176,10 +175,10 @@ object MethodResolveProcessor {
     c:                      ScalaResolveResult,
     checkWithImplicits:     Boolean,
     ref:                    PsiElement,
-    argumentClauses:        List[Seq[Expression]],
-    typeArgElements:        Seq[ScTypeElement],
+    argumentClauses:        List[collection.Seq[Expression]],
+    typeArgElements:        collection.Seq[ScTypeElement],
     selfConstructorResolve: Boolean,
-    prevTypeInfo:           Seq[TypeParameter],
+    prevTypeInfo:           collection.Seq[TypeParameter],
     expectedOption:         () => Option[ScType],
     isUnderscore:           Boolean,
     isShapeResolve:         Boolean
@@ -216,7 +215,7 @@ object MethodResolveProcessor {
     val substitutor =
       tempSubstitutor.followed(ScSubstitutor.bind(prevTypeInfo ++ unresovledTps)(UndefinedType(_)))
 
-    val typeParameters: Seq[TypeParameter] = prevTypeInfo ++ (element match {
+    val typeParameters: collection.Seq[TypeParameter] = prevTypeInfo ++ (element match {
       case fun: ScFunction => fun.typeParameters.map(TypeParameter(_))
       case fun: PsiMethod  => fun.getTypeParameters.map(TypeParameter(_)).toSeq
       case _               => Seq.empty
@@ -517,7 +516,7 @@ object MethodResolveProcessor {
 
   // TODO clean this up
   def undefinedSubstitutor(element: PsiNamedElement, s: ScSubstitutor, selfConstructorResolve: Boolean,
-                           typeArgElements: Seq[ScTypeElement]): ScSubstitutor = {
+                           typeArgElements: collection.Seq[ScTypeElement]): ScSubstitutor = {
     if (selfConstructorResolve) return ScSubstitutor.empty
 
     implicit val ctx: ProjectContext = element
@@ -543,14 +542,14 @@ object MethodResolveProcessor {
   @scala.annotation.tailrec
   def candidates(
     proc:            MethodResolveProcessor,
-    _input:          Set[ScalaResolveResult],
+    _input:          collection.Set[ScalaResolveResult],
     useExpectedType: Boolean = true
-  ): Set[ScalaResolveResult] = {
+  ): collection.Set[ScalaResolveResult] = {
     import proc.{candidates => _, _}
 
     //We want to leave only fields and properties from inherited classes, this is important, because
     //field in base class is shadowed by private field from inherited class
-    val input: Set[ScalaResolveResult] = _input.filter { r =>
+    val input: collection.Set[ScalaResolveResult] = _input.filter { r =>
         r.element match {
           case f: ScFunction if f.hasParameterClause => true
           case b: ScTypedDefinition =>
@@ -687,10 +686,10 @@ object MethodResolveProcessor {
   private def expandApplyOrUpdateMethod(
     r:    ScalaResolveResult,
     proc: MethodResolveProcessor
-  ): Set[(ScalaResolveResult, Boolean)] = {
+  ): collection.Set[(ScalaResolveResult, Boolean)] = {
     import proc._
 
-    def applyMethodsFor(tp: ScType): Set[(ScalaResolveResult, Boolean)] = {
+    def applyMethodsFor(tp: ScType): collection.Set[(ScalaResolveResult, Boolean)] = {
       val (substitutor, cleanTypeArguments) =
         r.element match {
           case owner: ScTypeParametersOwner if owner.typeParameters.nonEmpty =>
@@ -726,10 +725,10 @@ object MethodResolveProcessor {
 
   private def checkResultsApplicability(
     proc:               MethodResolveProcessor,
-    input:              Set[ScalaResolveResult],
+    input:              collection.Set[ScalaResolveResult],
     checkWithImplicits: Boolean,
     useExpectedType:    Boolean
-  ): Set[ScalaResolveResult] = {
+  ): collection.Set[ScalaResolveResult] = {
     import proc._
 
     val expanded = input.flatMap(expandApplyOrUpdateMethod(_, proc)).iterator

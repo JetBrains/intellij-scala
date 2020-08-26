@@ -14,8 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalMethodSignature
 
-import scala.collection.Seq
-
 /**
  * @author AlexanderPodkhalyuzin
  */
@@ -58,7 +56,7 @@ trait ScTypeDefinition extends ScTemplateDefinition
     PsiClassImplUtil.isClassEquivalentTo(this, another)
   }
 
-  def allInnerTypeDefinitions: Seq[ScTypeDefinition] = this.membersWithSynthetic.filterByType[ScTypeDefinition]
+  def allInnerTypeDefinitions: collection.Seq[ScTypeDefinition] = this.membersWithSynthetic.filterByType[ScTypeDefinition]
 
   def typeParameters: Seq[ScTypeParam]
 

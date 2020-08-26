@@ -29,7 +29,6 @@ import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaVariableValidator, ValidationReporter}
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
@@ -305,7 +304,7 @@ object IntroduceExpressions {
       } else {
         replacedOccurrences.map(findParentExpr(file, _))
       }
-    val commonParent: PsiElement = PsiTreeUtil.findCommonParent(parentExprs: _*)
+    val commonParent: PsiElement = PsiTreeUtil.findCommonParent(parentExprs.toSeq: _*)
 
     val nextParentInFile = nextParent(commonParent, file)
 

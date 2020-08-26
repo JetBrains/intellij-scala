@@ -17,10 +17,10 @@ abstract class TwoTypesNamesProvider extends GenericTypeNamesProviderBase {
   override protected def isValid(`type`: ScParameterizedType): Boolean =
     `type`.typeArguments.length == 2
 
-  override protected def firstNames(designator: ScType, arguments: Seq[ScType]): Seq[String] =
+  override protected def firstNames(designator: ScType, arguments: collection.Seq[ScType]): collection.Seq[String] =
     argumentNames(arguments)
 
-  override protected def secondNames(designator: ScType, arguments: Seq[ScType]): Seq[String] =
+  override protected def secondNames(designator: ScType, arguments: collection.Seq[ScType]): collection.Seq[String] =
     argumentNames(arguments, 1)
 }
 

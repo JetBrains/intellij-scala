@@ -8,7 +8,7 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.serialization.PropertyMapping
 import org.jetbrains.plugins.scala.extensions.inReadAction
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
 
 
@@ -59,7 +59,7 @@ object SdkUtils {
   def defaultJavaLanguageLevelIn(jdk: Sdk): Option[LanguageLevel] =
     Option(LanguageLevel.parse(jdk.getVersionString))
 
-  def javaLanguageLevelFrom(javacOptions: Seq[String]): Option[LanguageLevel] = {
+  def javaLanguageLevelFrom(javacOptions: collection.Seq[String]): Option[LanguageLevel] = {
     for {
       sourcePos <- Option(javacOptions.indexOf("-source")).filterNot(_ == -1)
       sourceValue <- javacOptions.lift(sourcePos + 1)

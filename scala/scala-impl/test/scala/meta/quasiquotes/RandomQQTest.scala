@@ -9,7 +9,7 @@ class RandomQQTest extends QuasiQuoteTypeInferenceTestBase {
   def testPatVarTermApply(): Unit = doTest(
     s"""
        |${START}p"Foo"$END
-       |//Pat.Var.Term
+       |//Pat.Var
      """.stripMargin
   )
 
@@ -29,15 +29,15 @@ class RandomQQTest extends QuasiQuoteTypeInferenceTestBase {
 
   def testPatTypeVarApply(): Unit = doTest(
     s"""
-       |${START}pt"foo"$END
-       |//Pat.Var.Type
+       |${START}t"foo"$END
+       |//Type.Name
      """.stripMargin
   )
 
   def testPatTypeWildcardApply(): Unit = doTest(
     s"""
-       |${START}pt"_"$END
-       |//Pat.Type.Wildcard
+       |${START}t"_"$END
+       |//Type.Placeholder
      """.stripMargin
   )
 
@@ -57,32 +57,31 @@ class RandomQQTest extends QuasiQuoteTypeInferenceTestBase {
 
   def testTypeArgInfixApply(): Unit = doTest(
     s"""
-       |${START}targ"T ^ U"$END
+       |${START}t"T ^ U"$END
        |//Type.ApplyInfix
      """.stripMargin
   )
 
   def testPatArgTypedApply(): Unit = doTest(
     s"""
-       |${START}parg"a:Int"$END
+       |${START}p"a:Int"$END
        |//Pat.Typed
      """.stripMargin
   )
 
   def testCtorApplyApply(): Unit = doTest(
     s"""
-       |${START}ctor"A(b)"$END
+       |${START}q"A(b)"$END
        |//Term.Apply
      """.stripMargin
   )
 
   def testCtorRefNameApply(): Unit = doTest(
     s"""
-       |${START}ctor"A"$END
-       |//Ctor.Ref.Name
+       |${START}q"A"$END
+       |//Term.Name
      """.stripMargin
   )
-
 
   def testTermParamApply(): Unit = doTest(
     s"""

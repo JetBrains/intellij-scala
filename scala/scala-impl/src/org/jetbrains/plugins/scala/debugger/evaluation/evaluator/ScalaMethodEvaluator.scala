@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions.inReadAction
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.util.{Success, Try}
 
@@ -23,7 +23,7 @@ import scala.util.{Success, Try}
 case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
                                 _methodName: String,
                                 signature: JVMName,
-                                argumentEvaluators: Seq[Evaluator],
+                                argumentEvaluators: collection.Seq[Evaluator],
                                 traitImplementation: Option[JVMName] = None,
                                 methodPosition: Set[SourcePosition] = Set.empty,
                                 localMethodIndex: Int = -1) extends Evaluator {
@@ -62,7 +62,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
     if (obj == null) {
       throw EvaluationException(new NullPointerException)
     }
-    val args: Seq[Value] = argumentEvaluators.flatMap { ev =>
+    val args: collection.Seq[Value] = argumentEvaluators.flatMap { ev =>
       ev.evaluate(context) match {
         case Some(res) => Some(res.asInstanceOf[Value])
         case None => None
@@ -142,7 +142,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
       }
 
       def invokeStaticMethod(referenceType: ReferenceType, jdiMethod: Method): AnyRef = {
-        def fixArguments(): Seq[Value] = {
+        def fixArguments(): collection.Seq[Value] = {
           def correctArgType(arg: AnyRef, typeName: String) = arg match {
             case objRef: ObjectReference => DebuggerUtilsEx.isAssignableFrom(typeName, objRef.referenceType())
             case primValue: PrimitiveValue => primValue.`type`().name() == typeName
@@ -267,7 +267,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
     }
   }
 
-  private def unwrappedArgs(args: Seq[AnyRef], jdiMethod: Method): Seq[Value] = {
+  private def unwrappedArgs(args: collection.Seq[AnyRef], jdiMethod: Method): collection.Seq[Value] = {
     val argTypeNames = jdiMethod.argumentTypeNames()
     args.zipWithIndex.map {
       case (DebuggerUtil.scalaRuntimeRefTo(value), idx) if !DebuggerUtil.isScalaRuntimeRef(argTypeNames.get(idx)) => value.asInstanceOf[Value]

@@ -13,7 +13,7 @@ import org.apache.ivy.util.{DefaultMessageLogger, MessageLogger}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.project.template._
 
-import scala.collection.JavaConverters
+import scala.jdk.CollectionConverters._
 
 abstract class DependencyManagerBase {
   import DependencyManagerBase._
@@ -129,7 +129,6 @@ abstract class DependencyManagerBase {
         .filter(r => !artifactBlackList.contains(stripScalaVersion(r.getName)))
         .map(a => ResolvedDependency(artToDep(a.getArtifact.getModuleRevisionId), a.getLocalFile))
     } else {
-      import JavaConverters._
       throw new RuntimeException(report.getAllProblemMessages.asScala.mkString("\n"))
     }
   }

@@ -33,14 +33,14 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
 
   override def parameterList: ScParameters
 
-  override def parameters : Seq[ScClassParameter] = parameterList.clauses.flatMap(_.unsafeClassParameters)
+  override def parameters : collection.Seq[ScClassParameter] = parameterList.clauses.flatMap(_.unsafeClassParameters)
 
   override def containingClass: ScTypeDefinition = getParent.asInstanceOf[ScTypeDefinition]
 
   /**
    * return only parameters, which are additionally members.
    */
-  def valueParameters: Seq[ScClassParameter] = parameters.filter((p: ScClassParameter) => p.isVal || p.isVar)
+  def valueParameters: collection.Seq[ScClassParameter] = parameters.filter((p: ScClassParameter) => p.isVal || p.isVar)
 
   /**
    * All classes must have one non-implicit parameter list. If this is not declared in in the code,
@@ -49,13 +49,13 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
    * In addition, view and context bounds generate an additional implicit parameter section.
    */
   @CachedInUserData(this, BlockModificationTracker(this))
-  override def effectiveParameterClauses: Seq[ScParameterClause] = {
+  override def effectiveParameterClauses: collection.Seq[ScParameterClause] = {
     def emptyParameterList: ScParameterClause =
       ScalaPsiElementFactory.createEmptyClassParamClauseWithContext(parameterList)
 
     val clausesWithInitialEmpty = parameterList.clauses match {
-      case Seq() => Seq(emptyParameterList)
-      case Seq(clause) if clause.isImplicit => Seq(emptyParameterList, clause)
+      case collection.Seq() => Seq(emptyParameterList)
+      case collection.Seq(clause) if clause.isImplicit => Seq(emptyParameterList, clause)
       case clauses => clauses
     }
 
@@ -88,7 +88,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
   }
 
   @Cached(BlockModificationTracker(this), this)
-  def getFunctionWrappers: Seq[ScPrimaryConstructorWrapper] = {
+  def getFunctionWrappers: collection.Seq[ScPrimaryConstructorWrapper] = {
     val buffer = mutable.ArrayBuffer.empty[ScPrimaryConstructorWrapper]
 
     for {

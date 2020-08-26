@@ -5,13 +5,13 @@ import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.{JavadocOrderRootType, OrderRootType}
 import org.jdom.{Attribute, Element}
 import org.jdom.xpath.XPath
-import collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Pavel Fatin
  */
-private case class LibraryData(name: String, classes: Seq[String], sources: Seq[String], docs: Seq[String]) {
-  def classesAsFileUrls: Seq[String] =
+private case class LibraryData(name: String, classes: collection.Seq[String], sources: collection.Seq[String], docs: collection.Seq[String]) {
+  def classesAsFileUrls: collection.Seq[String] =
     classes.map(url => "file" + url.substring(3, url.length - 2))
 }
 

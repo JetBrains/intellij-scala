@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.memberPullUp.ScalaPullUpProc
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 /**
@@ -168,9 +168,9 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
     ScalaDirectoryService.createClassFromTemplate(dir, name, "Scala Trait", askToDefineVariables = false).asInstanceOf[ScTrait]
   }
 
-  private class ExtractInfo(val clazz: ScTemplateDefinition, val memberInfos: Seq[ScalaExtractMemberInfo]) {
+  private class ExtractInfo(val clazz: ScTemplateDefinition, val memberInfos: collection.Seq[ScalaExtractMemberInfo]) {
 
-    private val classesForSelfType = mutable.Set[PsiClass]()
+    private val classesForSelfType = mutable.Buffer[PsiClass]()
     private val selected = memberInfos.map(_.getMember)
     private var currentMemberName: String = null
     private val typeParams = mutable.Set[ScTypeParam]()
@@ -298,7 +298,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
     def selfTypeText: Option[String] = {
       val alias = clazz.extendsBlock.selfTypeElement.fold("this")(_.name)
 
-      val typeText = classesForSelfType.map {
+      val typeText = classesForSelfType.reverseIterator.map {
         case obj: ScObject => s"${obj.qualifiedName}.type"
         case cl: ScTypeDefinition => cl.qualifiedName
         case cl: PsiClass => cl.getQualifiedName

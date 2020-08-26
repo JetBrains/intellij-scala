@@ -27,8 +27,8 @@ import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters.asScalaIteratorConverter
-import scala.collection.{JavaConverters, immutable, mutable}
+import scala.jdk.CollectionConverters._
+import scala.collection.{immutable, mutable}
 
 final class ScalaLanguageInjector extends MultiHostInjector {
 
@@ -344,20 +344,20 @@ object ScalaLanguageInjector {
     case _                                              => None
   }
 
-  private def extractMultiLineStringRanges(literal: ScLiteral): Seq[TextRange] = {
+  private def extractMultiLineStringRanges(literal: ScLiteral): collection.Seq[TextRange] = {
     val range = getRangeInElement(literal)
     val rangeStartOffset = range.getStartOffset
 
-    val rangesCollected = mutable.MutableList[TextRange]()
+    val rangesCollected = mutable.ListBuffer[TextRange]()
     val extractedText = range.substring(literal.getText)
     val marginChar = MultilineStringUtil.getMarginChar(literal)
 
     var count = 0
-    val lines = new immutable.WrappedString(extractedText).lines
+    val lines = extractedText.linesIterator
 
     for (line <- lines) {
       val lineLength = line.length
-      val wsPrefixLength = line.prefixLength(_.isWhitespace)
+      val wsPrefixLength = line.segmentLength(_.isWhitespace)
 
       val lineHasMargin = wsPrefixLength < line.length && line.charAt(wsPrefixLength) == marginChar
 
@@ -384,8 +384,6 @@ object ScalaLanguageInjector {
   private def performSimpleInjection(literals: Seq[StringLiteral], injectedLanguage: InjectedLanguage,
                                      injection: BaseInjection, host: PsiElement, registrar: MultiHostRegistrar,
                                      support: LanguageInjectionSupport): Unit = {
-    import JavaConverters._
-
     val trinities = for {
       literal <- literals
       range <- literal match {

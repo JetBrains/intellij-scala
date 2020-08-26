@@ -85,7 +85,7 @@ object SyntheticMembersInjector {
   private val LOG: Logger = Logger.getInstance(getClass)
 
 
-  def inject(source: ScTypeDefinition): Seq[ScFunction] = {
+  def inject(source: ScTypeDefinition): collection.Seq[ScFunction] = {
     if (!source.isValid) return Seq.empty
 
     implicit val ctx: Project = source.getProject
@@ -113,7 +113,7 @@ object SyntheticMembersInjector {
     buffer
   }
 
-  def injectInners(source: ScTypeDefinition): Seq[ScTypeDefinition] = {
+  def injectInners(source: ScTypeDefinition): collection.Seq[ScTypeDefinition] = {
     if (!source.isValid) return Seq.empty
 
     val buffer = new ArrayBuffer[ScTypeDefinition]()
@@ -146,7 +146,7 @@ object SyntheticMembersInjector {
     (EP_NAME.getExtensions ++ DYN_EP.getExtensions).exists(_.needsCompanionObject(source))
   }
 
-  def injectSupers(source: ScTypeDefinition): Seq[ScTypeElement] = {
+  def injectSupers(source: ScTypeDefinition): collection.Seq[ScTypeElement] = {
     if (!source.isValid) return Seq.empty
 
     val buffer = new ArrayBuffer[ScTypeElement]()
@@ -168,7 +168,7 @@ object SyntheticMembersInjector {
     buffer
   }
 
-  def injectMembers(source: ScTypeDefinition): Seq[ScMember] = {
+  def injectMembers(source: ScTypeDefinition): collection.Seq[ScMember] = {
     if (!source.isValid) return Seq.empty
 
     val buffer = new ArrayBuffer[ScMember]()

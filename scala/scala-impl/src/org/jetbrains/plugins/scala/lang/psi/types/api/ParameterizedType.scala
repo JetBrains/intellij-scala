@@ -17,7 +17,7 @@ trait ParameterizedType extends ValueType {
   override implicit def projectContext: ProjectContext = designator.projectContext
 
   val designator: ScType
-  val typeArguments: Seq[ScType]
+  val typeArguments: collection.Seq[ScType]
 
   def substitutor: ScSubstitutor =
     substitutorCache.computeIfAbsent(this, _ => substitutorInner)
@@ -27,7 +27,7 @@ trait ParameterizedType extends ValueType {
   override def typeDepth: Int = {
     val result = designator.typeDepth
     typeArguments.map(_.typeDepth) match {
-      case Seq() => result //todo: shouldn't be possible
+      case collection.Seq() => result //todo: shouldn't be possible
       case seq => result.max(seq.max + 1)
     }
   }
@@ -40,14 +40,14 @@ trait ParameterizedType extends ValueType {
   final def isEmpty: Boolean = false
   final def get: ParameterizedType = this
   final def _1: ScType = designator
-  final def _2: Seq[ScType] = typeArguments
+  final def _2: collection.Seq[ScType] = typeArguments
 }
 
 object ParameterizedType {
   val substitutorCache: ConcurrentMap[ParameterizedType, ScSubstitutor] =
     new ConcurrentHashMap[ParameterizedType, ScSubstitutor]()
 
-  def apply(designator: ScType, typeArguments: Seq[ScType]): ValueType =
+  def apply(designator: ScType, typeArguments: collection.Seq[ScType]): ValueType =
     designator.typeSystem.parameterizedType(designator, typeArguments)
 
   //designator and type arguments

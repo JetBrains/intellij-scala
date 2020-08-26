@@ -46,7 +46,7 @@ final class ScalaImplicitValueClassNameMacro extends ScalaMacro {
     val (prefix, suffix) = prefixAndSuffix
     val withSuffix = typeElement
       .map(appendSuffixToType(_, suffix))
-      .getOrElse(targetTypeName.calculateResult(context) + suffix)
+      .getOrElse(targetTypeName.calculateResult(context).toString + suffix)
     prefix + withSuffix
   }
 

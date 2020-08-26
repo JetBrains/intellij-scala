@@ -5,11 +5,12 @@ import com.intellij.lang.annotation.HighlightSeverity
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
-import org.junit.Assert
+import org.junit.{Assert, Ignore}
 import org.junit.Assert.{assertEquals, assertFalse, assertTrue, fail}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
+@Ignore("Deprecated logic") // TODO remove deprecated logic and test
 class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
 
   def testSCL10965(): Unit = {

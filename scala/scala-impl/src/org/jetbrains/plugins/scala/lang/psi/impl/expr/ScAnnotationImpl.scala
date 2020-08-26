@@ -131,11 +131,11 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
         existing.replace(value)
       }
       else {
-        val args: Seq[ScArgumentExprList] = annotationExpr.constructorInvocation.arguments
+        val args = annotationExpr.constructorInvocation.arguments
         if (args.isEmpty) {
           return null.asInstanceOf[T] //todo: ?
         }
-        val params: Seq[ScExpression] = args.flatMap(arg => arg.exprs)
+        val params = args.flatMap(arg => arg.exprs)
         if (params.length == 1 && !params.head.isInstanceOf[ScAssignment]) {
           params.head.replace(
             createExpressionFromText

@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.uast.ScalaUastLanguagePlugin
 import org.jetbrains.plugins.scala.util.SAMUtil
 import org.jetbrains.uast._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 
 /**

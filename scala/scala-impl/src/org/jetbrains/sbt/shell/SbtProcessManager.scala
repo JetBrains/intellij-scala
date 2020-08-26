@@ -42,7 +42,7 @@ import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver, 
 import org.jetbrains.sbt.shell.SbtProcessManager._
 import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtUtil}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * Manages the sbt shell process instance for the project.

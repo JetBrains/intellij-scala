@@ -4,7 +4,6 @@ import java.io.IOException
 import java.lang.Double.longBitsToDouble
 import java.lang.Float.intBitsToFloat
 
-import org.jetbrains.plugins.scala.decompiler.scalasig.PickleFormat._
 import org.jetbrains.plugins.scala.decompiler.scalasig.TagGroups._
 
 import scala.annotation.switch

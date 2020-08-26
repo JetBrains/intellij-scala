@@ -13,7 +13,7 @@ import xsbti._
 import xsbti.api.{ClassLike, DependencyContext}
 import xsbti.compile.{CompilerCache, DependencyChanges}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * Nikolay.Tropin
@@ -34,9 +34,9 @@ class IdeaIncrementalCompiler(scalac: AnalyzingCompiler)
     val outputDirsCount = compilationData.outputGroups.map(_._2).distinct.size
     val out =
       if (outputDirsCount <= 1) CompileOutput(compilationData.output)
-      else CompileOutput(compilationData.outputGroups: _*)
+      else CompileOutput(compilationData.outputGroups.toSeq: _*)
     val cArgs = new CompilerArguments(scalac.scalaInstance, scalac.classpathOptions)
-    val options = cArgs(Nil, compilationData.classpath, None, compilationData.scalaOptions)
+    val options = cArgs(Nil, compilationData.classpath.toSeq, None, compilationData.scalaOptions.toSeq)
 
     try {
       scalac.compile(compilationData.sources.toArray, emptyChanges, options.toArray, out, clientCallback, reporter, CompilerCache.fresh, logger, Optional.of(progress))
@@ -75,6 +75,9 @@ abstract class ClientCallbackBase extends xsbti.AnalysisCallback {
   override def binaryDependency(onBinary: File, onBinaryClassName: String, fromClassName: String, fromSourceFile: File, context: DependencyContext): Unit = {}
 
   override def classDependency(onClassName: String, sourceClassName: String, context: DependencyContext): Unit = {}
+
+  override def classesInOutputJar(): util.Set[String] =
+    Set.empty[String].asJava
 
   override def generatedLocalClass(source: File, classFile: File): Unit = {}
 

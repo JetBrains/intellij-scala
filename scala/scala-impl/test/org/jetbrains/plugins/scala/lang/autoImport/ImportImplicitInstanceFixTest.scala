@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 class ImportImplicitInstanceFixTest extends ImportElementFixTestBase[ImplicitArgumentsOwner] {
-  private def findImplicitArgs(owner: ImplicitArgumentsOwner): Option[Seq[ScalaResolveResult]] =
+  private def findImplicitArgs(owner: ImplicitArgumentsOwner): Option[collection.Seq[ScalaResolveResult]] =
     owner.findImplicitArguments match {
       case None => owner.parentOfType[ImplicitArgumentsOwner].flatMap(findImplicitArgs)
       case args => args

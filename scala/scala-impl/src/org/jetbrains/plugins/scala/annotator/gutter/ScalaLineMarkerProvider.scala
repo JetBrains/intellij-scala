@@ -188,7 +188,7 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor with Sc
 
   override def collectSlowLineMarkers(elements: ju.List[_ <: PsiElement],
                                       result: ju.Collection[_ >: LineMarkerInfo[_]]): Unit = {
-    import scala.collection.JavaConverters._
+    import scala.jdk.CollectionConverters._
 
     if (!OverriddenOption.isEnabled && !ImplementedOption.isEnabled) {
       return
@@ -283,7 +283,7 @@ private object GutterUtil {
       )
   }
 
-  def getOverridesOrImplementsIcon(element: PsiElement, signatures: Seq[TermSignature]): Icon =
+  def getOverridesOrImplementsIcon(element: PsiElement, signatures: collection.Seq[TermSignature]): Icon =
     if (isOverrides(element, signatures.map(_.namedElement))) OverridingMethod else ImplementingMethod
 
   def namedParent(e: PsiElement): Option[PsiElement] =
@@ -337,7 +337,7 @@ private object GutterUtil {
         }
     }
 
-  def isOverrides(element: PsiElement, supers: Seq[PsiNamedElement]): Boolean =
+  def isOverrides(element: PsiElement, supers: collection.Seq[PsiNamedElement]): Boolean =
     element match {
       case _: ScFunctionDeclaration  => true
       case _: ScValueDeclaration     => true

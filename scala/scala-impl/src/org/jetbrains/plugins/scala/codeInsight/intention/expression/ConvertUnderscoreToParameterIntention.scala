@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -74,7 +74,7 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
       if (needComma) buf.append(",")
       if (underscores.size > 1) needComma = true
 
-      val names: Seq[String] = NameSuggester.suggestNames(u,
+      val names: collection.Seq[String] = NameSuggester.suggestNames(u,
         new ScalaVariableValidator(u, false, expr.getContext, expr.getContext) {
           override def validateName(name: String): String = {
             var res = super.validateName(name)

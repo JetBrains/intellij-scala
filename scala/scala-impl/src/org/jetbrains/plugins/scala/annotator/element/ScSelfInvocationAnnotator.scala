@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScSelfInvocation
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 object ScSelfInvocationAnnotator extends ElementAnnotator[ScSelfInvocation] {
@@ -20,7 +21,7 @@ object ScSelfInvocationAnnotator extends ElementAnnotator[ScSelfInvocation] {
     if (!typeAware)
       return
 
-    val resolved = element.multiResolve
+    val resolved: Seq[ScalaResolveResult] = element.multiResolve
 
     UsageTracker.registerUsedElementsAndImports(element, results = resolved, checkWrite = false)
 

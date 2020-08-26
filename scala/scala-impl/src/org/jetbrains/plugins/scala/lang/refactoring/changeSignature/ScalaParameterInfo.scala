@@ -32,7 +32,7 @@ class ScalaParameterInfo(@BeanProperty var name: String,
                          val isIntroducedParameter: Boolean = false)
         extends JavaParameterInfo {
 
-  def this(p: ScParameter) {
+  def this(p: ScParameter) = {
     this(p.name, p.index, p.`type`().getOrAny, p.getProject, p.isRepeatedParameter, p.isCallByNameParameter,
       keywordsAndAnnotations = ScalaParameterInfo.keywordsAndAnnotations(p))
   }
@@ -110,8 +110,8 @@ object ScalaParameterInfo {
     elems.map(_.getText).mkString
   }
 
-  def allForMethod(methodLike: ScMethodLike): Seq[Seq[ScalaParameterInfo]] = {
-    def infos(clause: ScParameterClause): Seq[ScalaParameterInfo] = clause.parameters.map(new ScalaParameterInfo(_))
+  def allForMethod(methodLike: ScMethodLike): collection.Seq[collection.Seq[ScalaParameterInfo]] = {
+    def infos(clause: ScParameterClause): collection.Seq[ScalaParameterInfo] = clause.parameters.map(new ScalaParameterInfo(_))
     methodLike.parameterList.clauses.map(infos)
   }
 }

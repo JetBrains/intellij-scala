@@ -44,9 +44,9 @@ object WithStrippedMargin {
 
   private[format] object StripMarginCall {
 
-    def unapply(expression: ScExpression): Option[(ScExpression, ScLiteral, Seq[ScExpression])] = expression match {
+    def unapply(expression: ScExpression): Option[(ScExpression, ScLiteral, collection.Seq[ScExpression])] = expression match {
       case MethodRepr(itself, Some(literal: ScLiteral), Some(ref), args) if literal.isMultiLineString && ref.refName == "stripMargin" =>
-        Some(itself, literal, args)
+        Some((itself, literal, args))
       case _ => None
     }
   }

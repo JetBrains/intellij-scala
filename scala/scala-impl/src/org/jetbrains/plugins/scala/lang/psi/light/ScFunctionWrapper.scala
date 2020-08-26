@@ -31,7 +31,7 @@ class ScFunctionWrapper(override val delegate: ScFunction,
     ScLightModifierList(delegate, isStatic, isAbstract, getContainingClass.isInstanceOf[ScTrait], isOverride)
   }
 
-  override protected def parameters: Seq[PsiParameter] =
+  override protected def parameters: collection.Seq[PsiParameter] =
     delegate.effectiveParameterClauses
       .flatMap(_.effectiveParameters)
       .map(ScLightParameter.from(_, superSubstitutor.followed(methodTypeParamsSubstitutor), isJavaVarargs))

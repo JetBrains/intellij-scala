@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.external.Importer
 import org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Pavel Fatin
@@ -180,7 +180,7 @@ private object ScalaMavenImporter {
     private def elements(root: String, name: String): Seq[Element] =
       element(root).toSeq.flatMap(elements(_, name))
 
-    private def elements(root: Element, name: String): Seq[Element] =
+    private def elements(root: Element, name: String): collection.Seq[Element] =
       root.getChildren(name).asScala
 
     private def element(name: String): Option[Element] =

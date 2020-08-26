@@ -18,7 +18,7 @@ trait ScParameterClause extends ScalaPsiElement {
 
   def parameters: Seq[ScParameter]
 
-  def effectiveParameters: Seq[ScParameter]
+  def effectiveParameters: collection.Seq[ScParameter]
 
   def hasParenthesis: Boolean
 
@@ -33,7 +33,7 @@ trait ScParameterClause extends ScalaPsiElement {
 
   def hasRepeatedParam: Boolean = parameters.lastOption.exists(_.isRepeatedParameter)
 
-  def getSmartParameters: Seq[Parameter] = effectiveParameters.map(Parameter(_))
+  def getSmartParameters: collection.Seq[Parameter] = effectiveParameters.map(Parameter(_))
 
   /**
     * add parameter as last parameter in clause

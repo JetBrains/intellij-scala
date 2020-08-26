@@ -265,7 +265,7 @@ object ScExpression {
       newType
     }
 
-    def updatedWithImplicitParameters(tpe: ScType, checkExpectedType: Boolean): (ScType, Option[Seq[ScalaResolveResult]]) = {
+    def updatedWithImplicitParameters(tpe: ScType, checkExpectedType: Boolean): (ScType, Option[collection.Seq[ScalaResolveResult]]) = {
       val checkImplicitParameters = ScalaPsiUtil.withEtaExpansion(expr)
       if (checkImplicitParameters)
         InferUtil.updateTypeWithImplicitParameters(tpe, expr, None, checkExpectedType, fullInfo = false)
@@ -403,18 +403,18 @@ object ScExpression {
     ): ScType = {
       implicit val scope: ElementScope = expr.elementScope
 
-      def flattenParamTypes(t: ScType): Seq[ScType] = t match {
+      def flattenParamTypes(t: ScType): collection.Seq[ScType] = t match {
         case TupleType(comps) => comps
         case _                => Seq(t)
       }
 
-      def parameterTypesMatch(ptParams: ScType, paramTpes: Seq[ScType]): Boolean =
+      def parameterTypesMatch(ptParams: ScType, paramTpes: Iterable[ScType]): Boolean =
         paramTpes.corresponds(flattenParamTypes(ptParams))(_.conforms(_)) ||
           paramTpes.corresponds(Seq(ptParams))(_.conforms(_))
 
       def checkExpectedPartialFunctionType(
         resTpe:    ScType,
-        paramTpes: Seq[ScType]
+        paramTpes: collection.Seq[ScType]
       ): ScType = expectedTpe match {
         case Some(PartialFunctionType(ptRes, ptParams))
             if resTpe.conforms(ptRes) && parameterTypesMatch(ptParams, paramTpes) &&

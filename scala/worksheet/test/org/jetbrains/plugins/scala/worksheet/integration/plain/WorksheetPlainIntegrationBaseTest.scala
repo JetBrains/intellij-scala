@@ -513,7 +513,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
           Folding(start, end, expanded)
         }
         ViewerEditorData(viewer, text, foldingsConverted)
-      }
+      }.toSeq
 
     viewerStates
   }

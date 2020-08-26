@@ -36,7 +36,7 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
           element.foreach(duplicatingParams +=(_, duplicateElement))
         }
 
-        def paramsDif(paramList: scala.Seq[ScParameter], tagParamList: scala.Seq[ScTypeParam]): Unit = {
+        def paramsDif(paramList: Iterable[ScParameter], tagParamList: Iterable[ScTypeParam]): Unit = {
           if (paramList != null) {
             for (funcParam <- paramList) {
               tagParams -= ScalaNamesUtil.clean(funcParam.name)
@@ -83,7 +83,7 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
           }
         }
 
-        def doInspection(paramList: scala.Seq[ScParameter], tagParamList: scala.Seq[ScTypeParam]): Unit = {
+        def doInspection(paramList: Iterable[ScParameter], tagParamList: Iterable[ScTypeParam]): Unit = {
           collectDocParams()
           paramsDif(paramList, tagParamList)
           registerBadParams()

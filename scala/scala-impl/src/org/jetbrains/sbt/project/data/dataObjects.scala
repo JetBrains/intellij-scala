@@ -15,7 +15,7 @@ import org.jetbrains.sbt.project.data.SbtEntityData._
 import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys.{ParsedValue, SeqStringParsedValue, StringParsedValue}
 import org.jetbrains.sbt.resolvers.SbtResolver
 
-import scala.collection.JavaConverters.mapAsScalaMapConverter
+import scala.jdk.CollectionConverters._
 
 abstract class SbtEntityData extends AbstractExternalEntityData(SbtProjectSystem.Id) with Product {
 

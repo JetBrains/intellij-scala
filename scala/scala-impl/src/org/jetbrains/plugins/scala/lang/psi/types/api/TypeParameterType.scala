@@ -13,9 +13,9 @@ class TypeParameterType private (val typeParameter: TypeParameter)
 
   override implicit def projectContext: ProjectContext = psiTypeParameter
 
-  def typeParameters: Seq[TypeParameter] = typeParameter.typeParameters
+  def typeParameters: collection.Seq[TypeParameter] = typeParameter.typeParameters
 
-  val arguments: Seq[TypeParameterType] = typeParameters.map(new TypeParameterType(_))
+  val arguments: collection.Seq[TypeParameterType] = typeParameters.map(new TypeParameterType(_))
 
   def lowerType: ScType = typeParameter.lowerType
 

@@ -6,6 +6,8 @@ import com.intellij.testFramework.EditorTestUtil.{CARET_TAG => CARET}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.junit.Assert
 
+import scala.jdk.CollectionConverters.ListHasAsScala
+
 /**
   * Created by Ignat Loskutov on 10.07.17.
   */
@@ -351,13 +353,12 @@ class ScalaHighlightImplicitUsagesHandlerTest extends ScalaLightCodeInsightFixtu
   }
 
   def doTest(fileText: String, expected: Seq[String]): Unit = {
-    import scala.collection.JavaConversions._
     myFixture.configureByText("dummy.scala", fileText)
     val handler = createHandler
     val targets = handler.getTargets
     Assert.assertEquals(1, targets.size())
     handler.computeUsages(targets)
-    val actualUsages: Seq[String] = handler.getReadUsages.map(_.substring(getFile.getText))
+    val actualUsages: Seq[String] = handler.getReadUsages.asScala.map(_.substring(getFile.getText)).toSeq
     Assert.assertEquals(s"actual: $actualUsages, expected: $expected", expected, actualUsages)
   }
 

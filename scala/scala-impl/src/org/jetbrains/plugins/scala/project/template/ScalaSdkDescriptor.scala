@@ -10,10 +10,10 @@ import org.jetbrains.plugins.scala.ScalaBundle
  * @author Pavel Fatin
  */
 final case class ScalaSdkDescriptor(version: Option[String],
-                                    compilerClasspath: Seq[File],
-                                    libraryFiles: Seq[File],
-                                    sourceFiles: Seq[File],
-                                    docFiles: Seq[File])
+                                    compilerClasspath: collection.Seq[File],
+                                    libraryFiles: collection.Seq[File],
+                                    sourceFiles: collection.Seq[File],
+                                    docFiles: collection.Seq[File])
   extends Ordered[ScalaSdkDescriptor] {
 
   private val comparableVersion = version.map(Version(_))
@@ -26,7 +26,7 @@ object ScalaSdkDescriptor {
   import Artifact._
   import Kind._
 
-  def buildFromComponents(components: Seq[ScalaSdkComponent]): Either[NlsString, ScalaSdkDescriptor] = {
+  def buildFromComponents(components: collection.Seq[ScalaSdkComponent]): Either[NlsString, ScalaSdkDescriptor] = {
     val componentsByKind = components.groupBy(_.kind)
       .withDefault(Function.const(Seq.empty))
 
@@ -61,8 +61,8 @@ object ScalaSdkDescriptor {
     ScalaReflect
   )
 
-  private[this] def files(components: Seq[ScalaSdkComponent])
-                         (predicate: Artifact => Boolean = ScalaArtifacts - ScalaCompiler) =
+  private[this] def files(components: collection.Seq[ScalaSdkComponent])
+                         (predicate: Artifact => Boolean = ScalaArtifacts - ScalaCompiler): collection.Seq[File] =
     for {
       ScalaSdkComponent(artifact, _, _, file) <- components
       if predicate(artifact)

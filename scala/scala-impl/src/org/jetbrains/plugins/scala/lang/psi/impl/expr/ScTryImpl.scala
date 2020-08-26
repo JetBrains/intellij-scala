@@ -31,13 +31,14 @@ class ScTryImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTry {
     expression.map(_.`type`().flatMap { tryBlockType =>
       val maybeExpression = catchBlock.flatMap(_.expression)
 
-      val candidates = maybeExpression.toSeq.flatMap { expr =>
-        expr.`type`().toOption.zip(createProcessor(expr)).flatMap {
-          case (tp, processor) =>
-            processor.processType(tp, expr)
-            processor.candidates
+      val candidates = for {
+        expr <- maybeExpression.toSeq
+        (tp, processor) <- expr.`type`().toOption.zip(createProcessor(expr)).toSeq
+        candidate <- {
+          processor.processType(tp, expr)
+          processor.candidates
         }
-      }
+      } yield candidate
 
       candidates match {
         case Seq(ScalaResolveResult(function: ScFunction, substitutor)) =>

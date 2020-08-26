@@ -28,7 +28,7 @@ trait OverridingAnnotator {
   import OverridingAnnotator._
   import lang.psi.ScalaPsiUtil._
 
-  def checkStructural(element: PsiElement, supers: Seq[Any], isInSources: Boolean): Unit = {
+  def checkStructural(element: PsiElement, supers: collection.Seq[Any], isInSources: Boolean): Unit = {
     if (!isInSources) return
     element.getParent match {
       case _: ScRefinement =>
@@ -91,8 +91,8 @@ trait OverridingAnnotator {
 
   private def checkOverrideMembers[Res](namedElement: ScNamedElement,
                                         member: ScMember,
-                                        superSignaturesWithSelfType: Seq[Res],
-                                        superSignatures: Seq[Res],
+                                        superSignaturesWithSelfType: collection.Seq[Res],
+                                        superSignatures: collection.Seq[Res],
                                         isConcrete: Res => Boolean,
                                         memberType: String)
                                        (implicit holder: ScalaAnnotationHolder): Unit = {

@@ -12,7 +12,7 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.CompilerMessagesCollector
 import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter, WorksheetEditorPrinterRepl}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.util.{Failure, Try}
 

@@ -13,13 +13,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 
 trait ScEnumerators extends ScalaPsiElement {
 
-  def forBindings: Seq[ScForBinding]
+  def forBindings: collection.Seq[ScForBinding]
 
-  def generators: Seq[ScGenerator]
+  def generators: collection.Seq[ScGenerator]
 
-  def guards: Seq[ScGuard]
+  def guards: collection.Seq[ScGuard]
 
-  def namings: Seq[ScPatterned]
+  def namings: collection.Seq[ScPatterned]
 
-  def patterns: Seq[ScPattern]
+  def patterns: collection.Seq[ScPattern]
 }

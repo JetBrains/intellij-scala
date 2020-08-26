@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.extensions.using
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
@@ -77,7 +77,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
   }
 
   private def visitAll(file: VirtualFile, scope: AnalysisScope): List[VirtualFile] = {
-    val acc = mutable.MutableList[VirtualFile]()
+    val acc = mutable.ListBuffer[VirtualFile]()
 
     def visitInner(
       file: VirtualFile,

@@ -28,7 +28,7 @@ private class AlignedInlayGroup(hints: Seq[AlignedHintTemplate],
   private val maxMarginInPixel = maxMargin * charWidthInPixel
 
   private val alignmentLines: Seq[AlignmentLine] = {
-    val lineToHintMapping = hints.groupBy(_.line(document)).mapValues(_.head)
+    val lineToHintMapping = hints.groupBy(_.line(document)).view.mapValues(_.head)
     val lineHasHint = lineToHintMapping.contains _
 
     val firstLine = 0 max (hints.head.line(document) - 1)

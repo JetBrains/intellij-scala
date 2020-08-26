@@ -54,7 +54,7 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
       .withRecompileOnMacroDef(Optional.of(false))
       .withTransitiveStep(5) // Default 3 was not enough for us
 
-    val cs = incrementalCompiler.compilers(javaTools, scalac)
+    val compilers = incrementalCompiler.compilers(javaTools, scalac)
     val setup = incrementalCompiler.setup(
       IntellijEntryLookup(compilationData, fileToStore),
       skip = false,
@@ -74,9 +74,11 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
       100,
       Array(),
       order,
-      cs,
+      compilers,
       setup,
-      previousResult)
+      previousResult,
+      Optional.empty()
+    )
 
     val compilationResult = Try {
       client.progress("Collecting incremental compiler data...")

@@ -81,9 +81,11 @@ object ScalaUnreachableCodeInspection {
   /**
     * Detects connected components in a control-flow graph
     */
-  def unreachableComponents(cfg: Seq[Instruction]): List[collection.Set[Instruction]] = {
-    val queue = mutable.ListBuffer(cfg: _*)
-    queue.sortBy(_.num)
+  def unreachableComponents(cfg: Iterable[Instruction]): List[collection.Set[Instruction]] = {
+    val queue = mutable.ListBuffer.newBuilder
+      .addAll(cfg)
+      .result()
+      .sortBy(_.num)
 
     val buffer = mutable.ListBuffer.empty[collection.Set[Instruction]]
 
@@ -91,7 +93,7 @@ object ScalaUnreachableCodeInspection {
       val currentSet = mutable.HashSet.empty[Instruction]
 
       @tailrec
-      def inner(instructions: Instruction*): Unit = {
+      def inner_(instructions: Iterable[Instruction]): Unit = {
         if (instructions.isEmpty) {
           buffer += currentSet
           queue --= currentSet
@@ -103,11 +105,11 @@ object ScalaUnreachableCodeInspection {
             if currentSet.add(n)
           } currentSucc ++= n.succ
 
-          inner(currentSucc: _*)
+          inner_(currentSucc)
         }
       }
 
-      inner(instruction)
+      inner_(List(instruction))
     }
 
     while (queue.nonEmpty) {

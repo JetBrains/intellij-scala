@@ -8,7 +8,7 @@ import com.intellij.openapi.roots.OrderEnumerator
 import org.jetbrains.plugins.scala.compiler.data._
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.{ModuleExt,ProjectContext,VirtualFileExt}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
 
@@ -39,9 +39,9 @@ abstract class RemoteServerConnectorBase(
 
   private val javaParameters = Seq.empty[String]
 
-  private val compilerClasspath: Seq[File] = module.scalaCompilerClasspath
+  private val compilerClasspath: collection.Seq[File] = module.scalaCompilerClasspath
 
-  private val additionalCp: Seq[File] = compilerClasspath :+ ScalaPluginJars.runnersJar :+ ScalaPluginJars.compilerSharedJar :+ outputDir
+  private val additionalCp: collection.Seq[File] = compilerClasspath :+ ScalaPluginJars.runnersJar :+ ScalaPluginJars.compilerSharedJar :+ outputDir
 
   protected def additionalScalaParameters: Seq[String] = Seq.empty
 

@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.sbt.resolvers.SbtResolver
 
 import scala.beans.BeanProperty
-import scala.collection.JavaConverters.collectionAsScalaIterableConverter
+import scala.jdk.CollectionConverters._
 
 /**
   * @author Pavel Fatin

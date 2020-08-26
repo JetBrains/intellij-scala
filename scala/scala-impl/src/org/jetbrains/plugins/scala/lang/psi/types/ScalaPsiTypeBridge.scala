@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
@@ -154,7 +154,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
     val qualNameToType = projectContext.stdTypes.QualNameToType
 
     t match {
-      case ScCompoundType(Seq(typez, _*), _, _) => toPsiTypeInner(typez)
+      case ScCompoundType(collection.Seq(typez, _*), _, _) => toPsiTypeInner(typez)
       case ScDesignatorType(c: ScTypeDefinition) if qualNameToType.contains(c.qualifiedName) =>
         toPsiTypeInner(qualNameToType(c.qualifiedName), noPrimitives)
       case ScDesignatorType(valClass: ScClass) if ValueClassType.isValueClass(valClass) =>
@@ -182,7 +182,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
         case typeAlias: ScTypeAlias if !visitedAliases.contains(typeAlias.physical) =>
           typeAlias.upperBound match {
             case Right(c: ScParameterizedType) =>
-              toPsiTypeInner(ScParameterizedType(c.designator, args), noPrimitives)(visitedAliases + typeAlias.physical, visitedExistentialArgs)
+              toPsiTypeInner(ScParameterizedType(c.designator, args.toSeq), noPrimitives)(visitedAliases + typeAlias.physical, visitedExistentialArgs)
             case _ => javaObject
           }
         case _ => javaObject

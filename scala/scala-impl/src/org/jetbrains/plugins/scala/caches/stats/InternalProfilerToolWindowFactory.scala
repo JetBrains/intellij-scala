@@ -15,7 +15,7 @@ import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.content.{Content, ContentFactory}
 import javax.swing.{Icon, JPanel, JScrollPane}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class InternalProfilerToolWindowFactory extends ToolWindowFactory with DumbAware {
 
@@ -192,7 +192,7 @@ object InternalProfilerToolWindowFactory {
       def toMB(bytes: Double) = bytes / (1024.0 * 1024.0)
       def toPercent(d: Double) = d * 100.0
       val runtime = Runtime.getRuntime
-      def usedMemory() = toMB(runtime.totalMemory - runtime.freeMemory)
+      def usedMemory() = toMB((runtime.totalMemory - runtime.freeMemory).toDouble)
 
       val memoryBeforePrepare = usedMemory()
       System.gc()
@@ -205,7 +205,7 @@ object InternalProfilerToolWindowFactory {
       val preFreed = memoryBeforePrepare - memoryBeforeCacheFreeing
       val cacheFreed = memoryBeforeCacheFreeing - memoryAfter
       val totalFreed = preFreed + cacheFreed
-      val total = toMB(runtime.totalMemory)
+      val total = toMB(runtime.totalMemory.toDouble)
 
       notificationGroup.createNotification(
         s"Cache cleared ($cacheEntityCount entities)",

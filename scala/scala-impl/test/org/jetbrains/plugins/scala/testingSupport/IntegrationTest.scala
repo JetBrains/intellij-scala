@@ -13,7 +13,7 @@ import org.junit.Assert
 import org.junit.Assert._
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.Try
 
 /**
@@ -135,7 +135,7 @@ trait IntegrationTest {
       if (node.isLeaf)
         path :: Nil
       else
-        node.getChildren.asScala.flatMap(inner(_, path))
+        node.getChildren.asScala.flatMap(inner(_, path)).toSeq
     }
     val result = inner(root, Nil)
     result.map(_.reverse).sortBy(_.mkString)

@@ -12,7 +12,7 @@ object ReverseIterator extends SimplificationType {
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
-      case qual`.reverse`()`.iterator`() =>
+      case qual`.reverse`Seq()`.iterator`Seq() =>
         Some(replace(expr).withText(invocationText(qual, "reverseIterator")).highlightFrom(qual))
       case _ => None
     }

@@ -90,7 +90,7 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
         onDefinition(file, endOffset - 1) {
           newTemplateDefinition =>
             newTemplateDefinition.extendsBlock.templateParents.toSeq.flatMap(_.typeElements) match {
-              case Seq(ScSimpleTypeElement.unwrapped(reference)) if !isRenamed =>
+              case collection.Seq(ScSimpleTypeElement.unwrapped(reference)) if !isRenamed =>
                 simplifyReference(clazz, reference).bindToElement(clazz)
               case _ =>
             }

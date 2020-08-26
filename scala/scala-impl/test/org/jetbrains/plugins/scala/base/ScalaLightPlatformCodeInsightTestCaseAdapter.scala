@@ -15,8 +15,7 @@ import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.testFramework.{LightPlatformCodeInsightTestCase, LightPlatformTestCase, LightProjectDescriptor}
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.util.TestUtils
-
-import scala.collection.Seq
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -34,16 +33,16 @@ abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatfor
 
   override protected def getProjectJDK: Sdk = SmartJDKLoader.getOrCreateJDK()
 
-  override protected def librariesLoaders: Seq[LibraryLoader] = {
+  override protected def librariesLoaders: collection.Seq[LibraryLoader] = {
     val back = new util.ArrayList[LibraryLoader]
     val scalaLoader = new ScalaSDKLoader(isIncludeReflectLibrary)
     back.add(scalaLoader)
     val path = sourceRootPath
     if (path != null) back.add(SourcesLoader(path))
-    val result = scala.collection.JavaConverters.asScalaBuffer(back)
+    val result = back.asScala
     val addLibs = additionalLibraries
     //noinspection unchecked (because variance)
-    result.$plus$plus$eq(addLibs)
+    result ++= addLibs
     result
   }
 

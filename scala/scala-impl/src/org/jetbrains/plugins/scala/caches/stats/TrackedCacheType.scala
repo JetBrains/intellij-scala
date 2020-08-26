@@ -7,7 +7,7 @@ trait TrackedCacheType {
   def name: String
   def alwaysTrack: Boolean
   def capabilities: CacheCapabilities[Cache]
-  def tracked: Seq[Cache]
+  def tracked: collection.Seq[Cache]
   def cachedEntityCount: Int
   def clear(): Unit
 }

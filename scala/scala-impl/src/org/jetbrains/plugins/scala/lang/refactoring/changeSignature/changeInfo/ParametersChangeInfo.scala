@@ -42,7 +42,7 @@ private[changeInfo] trait ParametersChangeInfo {
   val isRetainsVarargs: Boolean = false
   val isArrayToVarargs: Boolean = false
 
-  def newParameters: Seq[ScalaParameterInfo] = newParams.flatten
+  def newParameters: collection.Seq[ScalaParameterInfo] = newParams.flatten
 
   override def getOldParameterNames: Array[String] = oldParameterNames
 

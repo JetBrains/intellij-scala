@@ -25,19 +25,19 @@ sealed trait FunctionTypeFactory[D <: ScTypeDefinition, T] {
       case _ => None
     }
 
-  protected final def apply(parameters: Seq[ScType], suffix: String)
+  protected final def apply(parameters: collection.Seq[ScType], suffix: String)
                            (implicit scope: ElementScope, tag: ClassTag[D]): ValueType =
     scope.getCachedClass(TypeName + suffix).collect {
-      case definition: D => ScParameterizedType(ScalaType.designator(definition), parameters)
+      case definition: D => ScParameterizedType(ScalaType.designator(definition), parameters.toSeq)
     }.getOrElse(api.Nothing)
 
-  protected def unapplyCollector: PartialFunction[Seq[ScType], T]
+  protected def unapplyCollector: PartialFunction[collection.Seq[ScType], T]
 }
 
 object FunctionTypeFactory {
 
   @tailrec
-  private def extractForPrefix(`type`: ScType, prefix: String, depth: Int = 100): Seq[ScType] = `type` match {
+  private def extractForPrefix(`type`: ScType, prefix: String, depth: Int = 100): collection.Seq[ScType] = `type` match {
     case _ if depth == 0 => Seq.empty //hack for https://youtrack.jetbrains.com/issue/SCL-6880 to avoid infinite loop.
     case AliasLowerBound(lower) => extractForPrefix(lower, prefix, depth - 1)
     case ParameterizedType(designator, arguments) if extractQualifiedName(designator).exists(_.startsWith(prefix)) => arguments
@@ -59,13 +59,13 @@ object FunctionTypeFactory {
 
 }
 
-object FunctionType extends FunctionTypeFactory[ScTrait, (ScType, Seq[ScType])] {
+object FunctionType extends FunctionTypeFactory[ScTrait, (ScType, collection.Seq[ScType])] {
 
   override val TypeName = "scala.Function"
 
   def traitsNames: Seq[String] = (0 to 22).map(TypeName + _)
 
-  override def apply(pair: (ScType, Seq[ScType]))
+  override def apply(pair: (ScType, collection.Seq[ScType]))
                     (implicit scope: ElementScope): ValueType = {
     val (returnType, parameters) = pair
     apply(parameters :+ returnType, parameters.length.toString)
@@ -73,7 +73,7 @@ object FunctionType extends FunctionTypeFactory[ScTrait, (ScType, Seq[ScType])] 
 
   def isFunctionType(`type`: ScType): Boolean = unapply(`type`).isDefined
 
-  override protected def unapplyCollector: PartialFunction[Seq[ScType], (ScType, Seq[ScType])] = {
+  override protected def unapplyCollector: PartialFunction[collection.Seq[ScType], (ScType, collection.Seq[ScType])] = {
     case types => (types.last, types.dropRight(1))
   }
 }
@@ -88,22 +88,22 @@ object PartialFunctionType extends FunctionTypeFactory[ScTrait, (ScType, ScType)
     apply(Seq(parameter, returnType), "")
   }
 
-  override protected def unapplyCollector: PartialFunction[Seq[ScType], (ScType, ScType)] = {
-    case Seq(returnType, parameter) => (parameter, returnType)
+  override protected def unapplyCollector: PartialFunction[collection.Seq[ScType], (ScType, ScType)] = {
+    case collection.Seq(returnType, parameter) => (parameter, returnType)
   }
 }
 
-object TupleType extends FunctionTypeFactory[ScClass, Seq[ScType]] {
+object TupleType extends FunctionTypeFactory[ScClass, collection.Seq[ScType]] {
 
   override val TypeName = "scala.Tuple"
 
-  override def apply(types: Seq[ScType])
+  override def apply(types: collection.Seq[ScType])
                     (implicit scope: ElementScope): ValueType =
     apply(types, types.length.toString)
 
   def isTupleType(`type`: ScType): Boolean = unapply(`type`).isDefined
 
-  override protected def unapplyCollector: PartialFunction[Seq[ScType], Seq[ScType]] = {
+  override protected def unapplyCollector: PartialFunction[collection.Seq[ScType], collection.Seq[ScType]] = {
     case types => types
   }
 }

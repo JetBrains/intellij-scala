@@ -9,7 +9,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.jrt.JrtFileSystem
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
 
-import scala.collection.JavaConverters.asJavaCollectionConverter
+import scala.jdk.CollectionConverters._
 
 /**
  * (Hacky) Helper class needed to skip build-modules classpath during tests run.

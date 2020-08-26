@@ -68,7 +68,7 @@ class ScalaPlainTextSymbolCompletionContributorTest
     assertNotNull(contributor)
 
     val matcher = new PlainPrefixMatcher(prefix)
-    import collection.JavaConverters._
+    import scala.jdk.CollectionConverters._
     val actual = contributor
       .getLookupElements(file, invocationCount, prefix)
       .asScala

@@ -10,8 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
-import scala.collection.Seq
-
 trait Element extends StructureViewTreeElement with ColoredItemPresentation {
   def element: PsiElement
 
@@ -24,7 +22,7 @@ trait Element extends StructureViewTreeElement with ColoredItemPresentation {
 
 object Element {
 
-  def apply(element: PsiElement, inherited: Boolean = false): Seq[Element] = element match {
+  def apply(element: PsiElement, inherited: Boolean = false): collection.Seq[Element] = element match {
     case packaging: ScPackaging => packaging.typeDefinitions.map(new TypeDefinition(_))
     // TODO Type definition can be inherited
     case definition: ScTypeDefinition => Seq(new TypeDefinition(definition))

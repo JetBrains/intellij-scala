@@ -19,7 +19,8 @@ import org.jetbrains.bsp.project.importing.BspResolverDescriptors._
 import org.jetbrains.bsp.{BSP, BspBundle}
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByVersion}
-import scala.collection.JavaConverters._
+
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 private[importing] object BspResolverLogic {
@@ -64,12 +65,12 @@ private[importing] object BspResolverLogic {
     (jdkData, scalaSdkData, sbtBuildModuleData)
   }
 
-  private[importing] def calculateModuleDescriptions(buildTargets: Seq[BuildTarget],
-                                                     scalacOptionsItems: Seq[ScalacOptionsItem],
-                                                     javacOptionsItems: Seq[JavacOptionsItem],
-                                                     sourcesItems: Seq[SourcesItem],
-                                                     resourcesItems: Seq[ResourcesItem],
-                                                     dependencySourcesItems: Seq[DependencySourcesItem]): ProjectModules = {
+  private[importing] def calculateModuleDescriptions(buildTargets: collection.Seq[BuildTarget],
+                                                     scalacOptionsItems: collection.Seq[ScalacOptionsItem],
+                                                     javacOptionsItems: collection.Seq[JavacOptionsItem],
+                                                     sourcesItems: collection.Seq[SourcesItem],
+                                                     resourcesItems: collection.Seq[ResourcesItem],
+                                                     dependencySourcesItems: collection.Seq[DependencySourcesItem]): ProjectModules = {
 
     val idToTarget = buildTargets.map(t => (t.getId, t)).toMap
     val idToScalacOptions = scalacOptionsItems.map(item => (item.getTarget, item)).toMap
@@ -103,8 +104,9 @@ private[importing] object BspResolverLogic {
       .toMap
 
     val sharedResources = sharedSourceDirs(idToResources)
-    val sharedSources = sharedSourceDirs(idToSources.mapValues(_.filterNot(_.generated)))
+    val sharedSources = sharedSourceDirs(idToSources.view.mapValues(_.filterNot(_.generated)).toMap)
     val sharedGeneratedSources = idToSources
+      .view
       .mapValues(_.filter(_.generated))
       .filter { case (id, src) => sharedSources.values.flatten.toSeq.contains(id) && src.nonEmpty }
 
@@ -129,6 +131,7 @@ private[importing] object BspResolverLogic {
 
     val targetIdsResources = sharedResources.toSeq
       .groupBy(_._2.sortBy(_.getUri))
+      .view
       .mapValues(_.map(_._1))
       .toSeq
       .sortBy(_._1.size)
@@ -140,19 +143,20 @@ private[importing] object BspResolverLogic {
           val sharedGeneratedSourcesForIds = sharedGeneratedSources.filterKeys(ids.contains)
           (
             sharedGeneratedSources.filterKeys(!sharedGeneratedSourcesForIds.keySet.contains(_)),
-            result + (ids.sortBy(_.getUri) -> sharedGeneratedSourcesForIds.values.flatten.toSeq)
+            result + (ids.sortBy(_.getUri).toSeq -> sharedGeneratedSourcesForIds.values.flatten.toSeq)
           )
       }._2
 
     val syntheticSourceModules = sharedSources.toSeq
       .groupBy(_._2.sortBy(_.getUri))
+      .view
       .mapValues(_.map(_._1))
       .toSeq
       .map { case (targetIds, sources) =>
         val targets = targetIds.map(idToTarget)
         val sharingModules = targetIds.map(idToModule)
         val resources = targetIdsResources.find(_._1.diff(targetIds).isEmpty).toSeq.flatMap(_._2)
-        val genSources = idsGeneratedSources.get(targetIds).toSeq.flatten
+        val genSources = idsGeneratedSources.get(targetIds.toSeq).toSeq.flatten
         createSyntheticModuleDescription(targets, resources, sources, genSources, sharingModules)
       }
 
@@ -164,7 +168,7 @@ private[importing] object BspResolverLogic {
     ProjectModules(modules, syntheticSourceModules)
   }
 
-  private def sharedSourceDirs(idToSources: Map[BuildTargetIdentifier, Seq[SourceDirectory]]): Map[SourceDirectory, Seq[BuildTargetIdentifier]] = {
+  private def sharedSourceDirs(idToSources: Map[BuildTargetIdentifier, collection.Seq[SourceDirectory]]): Map[SourceDirectory, collection.Seq[BuildTargetIdentifier]] = {
     val idToSrc = for {
       (id, sources) <- idToSources.toSeq
       dir <- sources
@@ -176,8 +180,8 @@ private[importing] object BspResolverLogic {
       .filter(_._2.size > 1)
   }
 
-  private def sourceDirectories(sourcesItem: SourcesItem): Seq[SourceDirectory] = {
-    val sourceItems: Seq[SourceItem] = sourcesItem.getSources.asScala.distinct
+  private def sourceDirectories(sourcesItem: SourcesItem): collection.Seq[SourceDirectory] = {
+    val sourceItems: collection.Seq[SourceItem] = sourcesItem.getSources.asScala.distinct
 
     sourceItems
       .map { item =>
@@ -212,17 +216,17 @@ private[importing] object BspResolverLogic {
     else SourceDirectory(file.getParentFile, generated, None)
   }
 
-  private def filterRoots(dirs: Seq[SourceDirectory]) = dirs.filter { dir =>
+  private def filterRoots(dirs: collection.Seq[SourceDirectory]) = dirs.filter { dir =>
     ! dirs.exists(a => FileUtil.isAncestor(a.directory, dir.directory, true))
   }
 
   private[importing] def moduleDescriptionForTarget(target: BuildTarget,
                                                     scalacOptions: Option[ScalacOptionsItem],
                                                     javacOptions: Option[JavacOptionsItem],
-                                                    dependencySourceDirs: Seq[File],
-                                                    sourceDirs: Seq[SourceDirectory],
-                                                    resourceDirs: Seq[SourceDirectory],
-                                                    dependencyOutputs: Seq[File]
+                                                    dependencySourceDirs: collection.Seq[File],
+                                                    sourceDirs: collection.Seq[SourceDirectory],
+                                                    resourceDirs: collection.Seq[SourceDirectory],
+                                                    dependencyOutputs: collection.Seq[File]
                                                   )(implicit gson: Gson): Option[ModuleDescription] = {
 
     // all subdirectories of a source dir are automatically source dirs
@@ -264,7 +268,7 @@ private[importing] object BspResolverLogic {
     }
 
     val moduleDescriptionData = createModuleDescriptionData(
-      target, tags, moduleBase, outputPath, sourceRoots, resourceRoots,
+      target, tags.toSeq, moduleBase, outputPath, sourceRoots, resourceRoots,
       classPathWithoutDependencyOutputs, dependencySourceDirs)
 
     if (tags.contains(BuildTargetTag.NO_IDE)) None
@@ -272,13 +276,13 @@ private[importing] object BspResolverLogic {
   }
 
   private[importing] def createModuleDescriptionData(target: BuildTarget,
-                                                     tags: Seq[String],
+                                                     tags: collection.Seq[String],
                                                      moduleBase: Option[File],
                                                      outputPath: Option[File],
-                                                     sourceRoots: Seq[SourceDirectory],
-                                                     resourceRoots: Seq[SourceDirectory],
-                                                     classPath: Seq[File],
-                                                     dependencySources: Seq[File]
+                                                     sourceRoots: collection.Seq[SourceDirectory],
+                                                     resourceRoots: collection.Seq[SourceDirectory],
+                                                     classPath: collection.Seq[File],
+                                                     dependencySources: collection.Seq[File]
                                                ): ModuleDescriptionData = {
     import BuildTargetTag._
 
@@ -297,7 +301,7 @@ private[importing] object BspResolverLogic {
       Seq.empty, Seq.empty,
       Seq.empty, Seq.empty)
 
-    val targetDeps = target.getDependencies.asScala
+    val targetDeps = target.getDependencies.asScala.toSeq
 
     val data = if(tags.contains(TEST))
       dataBasic.copy(
@@ -320,7 +324,7 @@ private[importing] object BspResolverLogic {
     data
   }
 
-  private[importing] def sharedModuleId(targets: Seq[BuildTarget]): String = {
+  private[importing] def sharedModuleId(targets: collection.Seq[BuildTarget]): String = {
     val upperCaseWords = """(?<!(^|[A-Z]))(?=[A-Z])""".r
     val pascalCaseWords = """(?<!^)(?=[A-Z][a-z])""".r
     val underscores = """(?<=[^\w.]|_)|(?=[^\w.]|_)""".r
@@ -333,7 +337,7 @@ private[importing] object BspResolverLogic {
       .transpose
       .map(_.distinct)
     val (head, tail) = groups.partition(_.forall(_.nonEmpty))
-    def combine(parts: Seq[String]) = {
+    def combine(parts: collection.Seq[String]) = {
       val nonEmptyParts = parts.filter(_.nonEmpty)
       if (nonEmptyParts.size > 1) nonEmptyParts.mkString("(", "+", ")") else nonEmptyParts.mkString
     }
@@ -345,11 +349,11 @@ private[importing] object BspResolverLogic {
    * This is a heuristic to for sharing source directories between modules. If those modules have conflicting dependencies,
    * this mapping may break in unspecified ways.
    */
-  private[importing] def createSyntheticModuleDescription(targets: Seq[BuildTarget],
-                                                          resources: Seq[SourceDirectory],
-                                                          sourceRoots: Seq[SourceDirectory],
-                                                          generatedSourceRoots: Seq[SourceDirectory],
-                                                          ancestors: Seq[ModuleDescription]): ModuleDescription = {
+  private[importing] def createSyntheticModuleDescription(targets: collection.Seq[BuildTarget],
+                                                          resources: collection.Seq[SourceDirectory],
+                                                          sourceRoots: collection.Seq[SourceDirectory],
+                                                          generatedSourceRoots: collection.Seq[SourceDirectory],
+                                                          ancestors: collection.Seq[ModuleDescription]): ModuleDescription = {
     // the synthetic module "inherits" most of the "ancestors" data
     val merged = mergeModules(ancestors)
     val id = sharedModuleId(targets)
@@ -370,7 +374,7 @@ private[importing] object BspResolverLogic {
 
 
   /** Merge modules assuming they have the same base path. */
-  private[importing] def mergeModules(descriptions: Seq[ModuleDescription]): ModuleDescription = {
+  private[importing] def mergeModules(descriptions: collection.Seq[ModuleDescription]): ModuleDescription = {
     descriptions
       .sortBy(_.data.id)
       .reduce { (combined, next) =>
@@ -405,13 +409,13 @@ private[importing] object BspResolverLogic {
       }
   }
 
-  private def mergeBTIs(a: Seq[BuildTargetIdentifier], b: Seq[BuildTargetIdentifier]) =
+  private def mergeBTIs(a: collection.Seq[BuildTargetIdentifier], b: collection.Seq[BuildTargetIdentifier]) =
     (a++b).sortBy(_.getUri).distinct
 
-  private def mergeSourceDirs(a: Seq[SourceDirectory], b: Seq[SourceDirectory]) =
+  private def mergeSourceDirs(a: collection.Seq[SourceDirectory], b: collection.Seq[SourceDirectory]) =
     (a++b).sortBy(_.directory.getAbsolutePath).distinct
 
-  private def mergeFiles(a: Seq[File], b: Seq[File]) =
+  private def mergeFiles(a: collection.Seq[File], b: collection.Seq[File]) =
     (a++b).sortBy(_.getAbsolutePath).distinct
 
   private def mergeModuleKind(a: ModuleKind, b: ModuleKind) =
@@ -454,7 +458,7 @@ private[importing] object BspResolverLogic {
     def toModuleNode(moduleDescription: ModuleDescription) =
       createModuleNode(projectRootPath, moduleFileDirectoryPath, moduleDescription, projectNode)
 
-    val idsToTargetModule: Seq[(Seq[TargetId], DataNode[ModuleData])] =
+    val idsToTargetModule: collection.Seq[(collection.Seq[TargetId], DataNode[ModuleData])] =
       projectModules.modules.map { m =>
         val targetIds = m.data.targets.map(t => TargetId(t.getId.getUri))
         val node = toModuleNode(m)
@@ -503,7 +507,7 @@ private[importing] object BspResolverLogic {
       .flatMap(m => Option(ExternalSystemApiUtil.find(m, BspMetadata.Key)))
       .map(m => (m.getData.javaHome, m.getData.javaVersion))
       .filter { case (home, version) => home != null || version != null }
-      .groupBy(identity).mapValues(_.size)
+      .groupBy(identity).view.mapValues(_.size)
 
     val jdkReference = if (groupedJdks.isEmpty) {
       None
@@ -639,7 +643,7 @@ private[importing] object BspResolverLogic {
   }
 
 
-  private[importing] def calculateModuleDependencies(projectModules: ProjectModules): Seq[ModuleDep] = for {
+  private[importing] def calculateModuleDependencies(projectModules: ProjectModules): collection.Seq[ModuleDep] = for {
     moduleDescription <- projectModules.modules
     moduleTargets = moduleDescription.data.targets
     aTarget <- moduleTargets.headOption.toSeq // any id will resolve the module in idToModule
@@ -656,7 +660,7 @@ private[importing] object BspResolverLogic {
     }
   } yield d
 
-  private[importing] def calculateSyntheticDependencies(moduleDependencies: Seq[ModuleDep], projectModules: ProjectModules) = {
+  private[importing] def calculateSyntheticDependencies(moduleDependencies: collection.Seq[ModuleDep], projectModules: ProjectModules) = {
     // 1. synthetic module is depended on by all its parent targets
     // 2. synthetic module depends on all parent target's dependencies
     val dependencyByParent = moduleDependencies.groupBy(_.parent)
@@ -677,8 +681,8 @@ private[importing] object BspResolverLogic {
     } yield dep
   }
 
-  private[importing] def addModuleDependencies(dependencies: Seq[ModuleDep],
-                                               idToModules: Map[DependencyId, DataNode[ModuleData]]): Seq[DataNode[ModuleData]] = {
+  private[importing] def addModuleDependencies(dependencies: collection.Seq[ModuleDep],
+                                               idToModules: Map[DependencyId, DataNode[ModuleData]]): collection.Seq[DataNode[ModuleData]] = {
     dependencies.flatMap { dep =>
       for {
         parent <- idToModules.get(dep.parent)

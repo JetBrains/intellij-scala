@@ -8,7 +8,6 @@ import com.intellij.psi.{PsiElement, PsiMethod}
 import com.intellij.rt.coverage.testDiscovery.instrumentation.TestDiscoveryInstrumentationUtils
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
-import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil.getJVMStringForType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -16,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition,
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
-import scala.collection.JavaConverters.seqAsJavaListConverter
+import scala.jdk.CollectionConverters._
 
 private[testDiscovery]
 object ScalaShowAffectedTestsActionCompanion {
@@ -70,7 +69,7 @@ object ScalaShowAffectedTestsActionCompanion {
     (if (method.isConstructor) "<init>" else method.getName) + tail
   }
 
-  private def getValOrVarKeys(element: ScValueOrVariable): Seq[Couple[String]] = {
+  private def getValOrVarKeys(element: ScValueOrVariable): collection.Seq[Couple[String]] = {
     (for {
       clazz <- (if (element.isValid) element.getContainingClass else null).nullSafe
       className <- DiscoveredTestsTreeModel.getClassName(clazz).nullSafe

@@ -9,8 +9,8 @@ import org.jetbrains.plugins.scala.findUsages.compilerReferences.indices.{ScFunE
 
 private[findUsages] final case class CompiledScalaFile private (
   file:              File,
-  backwardHierarchy: ju.Map[CompilerRef, Seq[CompilerRef]],
-  refs:              ju.Map[CompilerRef, Seq[Int]]
+  backwardHierarchy: ju.Map[CompilerRef, collection.Seq[CompilerRef]],
+  refs:              ju.Map[CompilerRef, collection.Seq[Int]]
 )
 
 private[compilerReferences] object CompiledScalaFile {
@@ -19,8 +19,8 @@ private[compilerReferences] object CompiledScalaFile {
     classes: Set[ParsedClass],
     writer:  ScalaCompilerReferenceWriter
   ): CompiledScalaFile = {
-    val backwardHierarchy = new ju.HashMap[CompilerRef, Seq[CompilerRef]]()
-    val refs              = new ju.HashMap[CompilerRef, Seq[Int]]()
+    val backwardHierarchy = new ju.HashMap[CompilerRef, collection.Seq[CompilerRef]]()
+    val refs              = new ju.HashMap[CompilerRef, collection.Seq[Int]]()
     val refProvider       = new BytecodeReferenceCompilerRefProvider(writer)
 
     classes.foreach { parsed =>
@@ -53,7 +53,7 @@ private[compilerReferences] object CompiledScalaFile {
       .foreach {
         case (_, rs) =>
           val compilerRef     = refProvider.toCompilerRef(rs.head)
-          val lines: Seq[Int] = rs.map(_.line)(collection.breakOut)
+          val lines: Seq[Int] = rs.map(_.line).toSeq
           refs.put(compilerRef, lines)
       }
 

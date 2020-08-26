@@ -42,7 +42,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.annotation.tailrec
-import scala.collection.{JavaConverters, mutable}
+import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 import scala.reflect.NameTransformer
 import scala.util.Try
 
@@ -79,7 +80,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
   @NotNull
   override def getAllClasses(@NotNull position: SourcePosition): ju.List[ReferenceType] = {
-    import JavaConverters._
 
     val file = position.getFile
     throwIfNotScalaFile(file)
@@ -160,7 +160,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     try {
       inReadAction {
         val line: Int = position.getLine
-        import JavaConverters._
         locationsOfLine(refType, line).asJava
       }
     }
@@ -242,7 +241,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       positionsOnLine(file, position.getLine).map(SourcePosition.createFromElement)
     }
 
-    import JavaConverters._
     possiblePositions.flatMap(createPrepareRequests).asJava
   }
 
@@ -265,7 +263,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     position.parentsInFile.flatMap(packageWithName).headOption
   }
 
-  private def filterAllClasses(condition: ReferenceType => Boolean, packageName: Option[String]): Seq[ReferenceType] = {
+  private def filterAllClasses(condition: ReferenceType => Boolean, packageName: Option[String]): collection.Seq[ReferenceType] = {
     def samePackage(refType: ReferenceType) = {
       val name = nonLambdaName(refType)
       val lastDot = name.lastIndexOf('.')
@@ -277,7 +275,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       Try(samePackage(refType) && refType.isInitialized && condition(refType)).getOrElse(false)
     }
 
-    import scala.collection.JavaConverters._
     for {
       refType <- debugProcess.getVirtualMachineProxy.allClasses.asScala
       if isAppropriate(refType)
@@ -330,7 +327,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       else (false, "")
     }
 
-    def findDefaultArg(possiblePositions: Seq[PsiElement], defaultArgIndex: String) : Option[PsiElement] = {
+    def findDefaultArg(possiblePositions: collection.Seq[PsiElement], defaultArgIndex: String) : Option[PsiElement] = {
       try {
         val paramNumber = defaultArgIndex.toInt - 1
         possiblePositions.find {
@@ -415,8 +412,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     if (refType == null) return null
     if (refTypeToFileCache.contains(refType)) return refTypeToFileCache(refType)
 
-    import JavaConverters._
-
     def findFile() = {
       def withDollarTestName(originalQName: String): Option[String] = {
         val dollarTestSuffix = "$Test" //See SCL-9340
@@ -485,7 +480,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   }
 
   private def findElementByReferenceTypeInner(refType: ReferenceType): Option[PsiElement] = {
-    import JavaConverters._
 
     val byName = findPsiClassByQName(refType, debugProcessScope) orElse findByShortName(refType)
     if (byName.isDefined) return byName
@@ -523,7 +517,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       checkLines(elem, document) && ScalaEvaluatorBuilderUtil.isGenerateClass(elem) && nameMatches(elem, refType)
     }
 
-    def findCandidates(): Seq[PsiElement] = {
+    def findCandidates(): collection.Seq[PsiElement] = {
       def findAt(offset: Int): Option[PsiElement] = {
         val startElem = file.findElementAt(offset)
         startElem.parentsInFile.find(isAppropriateCandidate)
@@ -544,7 +538,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       }
     }
 
-    def filterWithSignature(candidates: Seq[PsiElement]) = {
+    def filterWithSignature(candidates: collection.Seq[PsiElement]): collection.Seq[PsiElement] = {
       val applySignature = refType.methodsByName("apply").asScala.find(m => !m.isSynthetic).map(_.signature())
       if (applySignature.isEmpty) candidates
       else {
@@ -628,8 +622,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         else Some(NameTransformer.encode(decoded.substring(0, index)))
     }
 
-    import JavaConverters._
-
     for {
       name  <- containingClassName
       clazz <- classesByName(name).asScala.headOption
@@ -651,8 +643,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
    * Retrieve potentially nested classes currently loaded to VM just by iterating all classes and taking into account
    * the name mangling - instead of using VirtualMachineProxy's nestedTypes method (with caches etc.).
    */
-  private def getNestedClasses(outerClasses: Seq[ReferenceType]) = {
-    import JavaConverters._
+  private def getNestedClasses(outerClasses: collection.Seq[ReferenceType]) = {
     for {
       outer <- outerClasses
       nested <- debugProcess.getVirtualMachineProxy.allClasses().asScala
@@ -702,10 +693,10 @@ object ScalaPositionManager {
     }
   }
 
-  def positionsOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {
+  def positionsOnLine(file: PsiFile, lineNumber: Int): collection.Seq[PsiElement] = {
     //stored in `file`, invalidated on `file` change
     @CachedInUserData(file, file)
-    def cachedMap: ConcurrentIntObjectMap[Seq[PsiElement]] = ContainerUtil.createConcurrentIntObjectMap()
+    def cachedMap: ConcurrentIntObjectMap[collection.Seq[PsiElement]] = ContainerUtil.createConcurrentIntObjectMap()
 
     if (lineNumber < 0) return Seq.empty
 
@@ -728,14 +719,14 @@ object ScalaPositionManager {
     ScalaPositionManager.instance(refType).map(_.caches).flatMap(_.cachedSourceName(refType))
   }
 
-  private def positionsOnLineInner(file: ScalaFile, lineNumber: Int): Seq[PsiElement] = {
+  private def positionsOnLineInner(file: ScalaFile, lineNumber: Int): collection.Seq[PsiElement] = {
     inReadAction {
       val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
       if (document == null || lineNumber >= document.getLineCount) return Seq.empty
       val startLine = document.getLineStartOffset(lineNumber)
       val endLine = document.getLineEndOffset(lineNumber)
 
-      def elementsOnTheLine(file: ScalaFile, lineNumber: Int): Seq[PsiElement] = {
+      def elementsOnTheLine(file: ScalaFile, lineNumber: Int): collection.Seq[PsiElement] = {
         val result = mutable.ArrayBuffer.empty[PsiElement]
         var elem = file.findElementAt(startLine)
 
@@ -779,7 +770,7 @@ object ScalaPositionManager {
     ScalaEvaluatorBuilderUtil.isGenerateAnonfun(element) && !isInsideMacro(element)
   }
 
-  def lambdasOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {
+  def lambdasOnLine(file: PsiFile, lineNumber: Int): collection.Seq[PsiElement] = {
     positionsOnLine(file, lineNumber).filter(isLambda)
   }
 
@@ -801,14 +792,13 @@ object ScalaPositionManager {
     isIndyLambda(m) || m.name.startsWith("apply") && isAnonfunType(m.declaringType())
   }
 
-  def indyLambdaMethodsOnLine(refType: ReferenceType, lineNumber: Int): Seq[Method] = {
+  def indyLambdaMethodsOnLine(refType: ReferenceType, lineNumber: Int): collection.Seq[Method] = {
     def ordinal(m: Method) = {
       val name = m.name()
       val lastDollar = name.lastIndexOf('$')
       Try(name.substring(lastDollar + 1).toInt).getOrElse(-1)
     }
 
-    import JavaConverters._
     val all = refType.methods().asScala.filter(isIndyLambda)
     val onLine = all.filter(m => Try(!m.locationsOfLine(lineNumber + 1).isEmpty).getOrElse(false))
     onLine.sortBy(ordinal)

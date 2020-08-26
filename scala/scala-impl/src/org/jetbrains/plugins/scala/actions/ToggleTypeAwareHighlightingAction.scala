@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction.tog
 import org.jetbrains.plugins.scala.extensions.{TraversableExt, invokeLater}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * User: Alexander Podkhalyuzin

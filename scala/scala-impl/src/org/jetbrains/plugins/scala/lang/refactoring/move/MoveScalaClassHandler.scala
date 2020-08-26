@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-import scala.collection.JavaConverters
+import scala.jdk.CollectionConverters._
 
 final class MoveScalaClassHandler extends MoveClassHandler {
 
@@ -117,8 +117,6 @@ object MoveScalaClassHandler {
   }
 
   private def classCanBeAdded(file: PsiFile, clazz: PsiClass): Boolean = {
-    import JavaConverters._
-
     val allClasses = PsiTreeUtil.findChildrenOfType(file, classOf[ScTypeDefinition])
     val className = util.ScalaNamesUtil.scalaName(clazz)
     val withSameName = allClasses.asScala.filter {

@@ -28,7 +28,7 @@ import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.settings.SbtSettings
 
 import scala.beans.BeanProperty
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * Run configuration of sbt tasks.

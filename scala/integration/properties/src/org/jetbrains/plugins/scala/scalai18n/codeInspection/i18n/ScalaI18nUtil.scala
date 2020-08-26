@@ -106,7 +106,7 @@ object ScalaI18nUtil {
   @tailrec
   def isPassedToAnnotated(@NotNull element: PsiElement, checker: AnnotationChecker): Boolean = {
     def isAnnotated(member: PsiElement): Boolean = ScalaI18nUtil.isAnnotated(member, checker)
-    def checkParam(matchedParameters: Seq[(ScExpression, Parameter)]): Boolean =
+    def checkParam(matchedParameters: collection.Seq[(ScExpression, Parameter)]): Boolean =
       matchedParameters
         .find(_._1 == element)
         .flatMap { case (_, param) => param.psiParam }

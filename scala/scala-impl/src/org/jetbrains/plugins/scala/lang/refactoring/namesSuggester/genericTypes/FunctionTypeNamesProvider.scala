@@ -14,7 +14,7 @@ class FunctionTypeNamesProvider extends GenericTypeNamesProvider {
 
   import FunctionTypeNamesProvider.default
 
-  override def names(`type`: ScParameterizedType): Seq[String] = {
+  override def names(`type`: ScParameterizedType): collection.Seq[String] = {
     `type` match {
       case FunctionType(returnType, Seq()) =>
         default +: NameSuggester.namesByType(returnType)

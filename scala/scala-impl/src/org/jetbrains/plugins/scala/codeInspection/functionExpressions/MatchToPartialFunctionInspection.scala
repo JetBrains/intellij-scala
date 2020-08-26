@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.collection.JavaConverters
+import scala.jdk.CollectionConverters._
 
 /**
   * Nikolay.Tropin
@@ -31,10 +31,10 @@ class MatchToPartialFunctionInspection extends AbstractInspection(MatchToPartial
   import MatchToPartialFunctionInspection._
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
-    case function@ScFunctionExpr(Seq(param), Some(statement@ScMatch(ScReferenceExpression(resolved), _)))
+    case function@ScFunctionExpr(collection.Seq(param), Some(statement@ScMatch(ScReferenceExpression(resolved), _)))
       if resolved == param && isValid(function) =>
       registerProblem(statement, function)
-    case function@ScFunctionExpr(Seq(param), Some(ScBlock(statement@ScMatch(ScReferenceExpression(resolved), _))))
+    case function@ScFunctionExpr(collection.Seq(param), Some(ScBlock(statement@ScMatch(ScReferenceExpression(resolved), _))))
       if resolved == param && isValid(function) =>
       registerProblem(statement, function) //if fun is last statement in block, result can be block without braces
     case statement@ScMatch(_: ScUnderscoreSection, _) if checkSameResolve(statement) =>
@@ -164,7 +164,6 @@ object MatchToPartialFunctionInspection {
 
     private[this] def findReferences(element: PsiElement)
                                     (scope: LocalSearchScope) = {
-      import JavaConverters._
       ReferencesSearch.search(element, scope)
         .findAll().asScala
         .map(_.getElement)

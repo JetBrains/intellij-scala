@@ -5,7 +5,7 @@ import com.intellij.openapi.extensions.ExtensionPointName
 import org.jetbrains.bsp.BspUtil
 import org.jetbrains.plugins.scala.ExtensionPointDeclaration
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 sealed trait ExecutionEnvironmentType
 

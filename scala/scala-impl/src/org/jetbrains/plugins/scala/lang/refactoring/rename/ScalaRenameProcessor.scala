@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil.isAliased
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
-import scala.collection.JavaConverters.{asJavaCollectionConverter, iterableAsScalaIterableConverter}
+import scala.jdk.CollectionConverters._
 
 /**
  * Nikolay.Tropin

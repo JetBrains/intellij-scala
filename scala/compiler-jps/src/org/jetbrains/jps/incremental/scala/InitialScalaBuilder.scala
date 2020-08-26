@@ -12,7 +12,7 @@ import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescripto
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage}
 import org.jetbrains.jps.model.module.JpsModule
 
-import _root_.scala.collection.JavaConverters
+import _root_.scala.jdk.CollectionConverters._
 
 
 /**
@@ -42,8 +42,6 @@ class InitialScalaBuilder extends ModuleLevelBuilder(BuilderCategory.SOURCE_INST
 object InitialScalaBuilder {
 
   import org.jetbrains.plugins.scala.compiler.IncrementalityType
-
-  import JavaConverters._
 
   private val scalaModulesKey: Key[Set[JpsModule]] =
     Key.create[Set[JpsModule]]("jps.scala.modules")

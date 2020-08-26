@@ -24,7 +24,7 @@ sealed trait ElementToImport {
 
 object ElementToImport {
   @Nls
-  def messageByType(toImport: Seq[ElementToImport])
+  def messageByType(toImport: collection.Seq[ElementToImport])
                    (@Nls classes: String,
                     @Nls packages: String,
                     @Nls mixed: String): String =

@@ -31,7 +31,7 @@ sealed abstract class ScalaPrimaryConstructorMacro(override final val getPresent
 object ScalaPrimaryConstructorMacro {
   final class Params extends ScalaPrimaryConstructorMacro(ScalaCodeInsightBundle.message("macro.primaryConstructor.param.instances")) {
     override protected def parametersText(parameters: ScParameters): Option[String] = {
-      val clauses: Seq[ScParameterClause] = parameters.clauses
+      val clauses: collection.Seq[ScParameterClause] = parameters.clauses
       if (clauses.nonEmpty) {
         val clausesStrings = clauses.map(clauseText)
         Some(clausesStrings.mkString(")("))
@@ -80,7 +80,7 @@ object ScalaPrimaryConstructorMacro {
     }
 
     override protected def parametersText(parameters: ScParameters): Option[String] = {
-      val clauses: Seq[ScParameterClause] = parameters.clauses
+      val clauses: collection.Seq[ScParameterClause] = parameters.clauses
       if (clauses.nonEmpty) {
         val clausesStrings = clauses.map(clauseText)
         Some(clausesStrings.mkString(")("))

@@ -230,7 +230,7 @@ object ScalaSyntaxHighlighter {
       val message = s"Tree element types were registered multiple times with different attributes:\n${nonUniqueTexts.mkString("\n")}}"
       throw new AssertionError(message)
     }
-    unique.mapValues(_.head)
+    unique.mapValues(_.head).toMap
   }
 
   private class CompoundLexer(

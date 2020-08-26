@@ -14,7 +14,7 @@ import com.intellij.util.containers.HashMap
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 
-import scala.collection.JavaConverters
+import scala.jdk.CollectionConverters._
 
 /**
   * Nikolay.Tropin
@@ -41,7 +41,6 @@ object ScalaGenerateEqualsWizard {
     import Builder._
 
     override protected val getClassFields: util.List[ScalaMemberInfo] = {
-      import JavaConverters._
       extractFields(!isVar(_)).map(_._1).asJava
     }
 
@@ -91,7 +90,6 @@ object ScalaGenerateEqualsWizard {
       }
 
     private def updateInfos(infos: util.Collection[_ <: ScalaMemberInfo]) = {
-      import JavaConverters._
       infos.asScala.toList.map { info =>
         getFieldsToHashCode.get(info.getMember)
       }.asJava

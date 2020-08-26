@@ -9,7 +9,7 @@ import com.intellij.openapi.externalSystem.service.settings.ExternalSystemConfig
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Nikolay Obedin

@@ -7,7 +7,7 @@ import com.intellij.serialization.PropertyMapping
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys.{ParsedValue, SeqStringParsedValue, StringParsedValue}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.xml.Text
 
@@ -84,7 +84,7 @@ object Play2Keys {
         allIn(allKeys).find(_._1 == projectName).map(_._2)
       }
 
-      def allIn(allKeys: Map[String, Map[String, ParsedValue[_]]]): Seq[(String, T)]
+      def allIn(allKeys: Map[String, Map[String, ParsedValue[_]]]): collection.Seq[(String, T)]
 
       override def toString: String = name + "_KEY"
     }
@@ -100,8 +100,8 @@ object Play2Keys {
       }
     }
 
-    class SeqStringParsedKey(@NonNls name: String) extends ParsedKey[Seq[String]](name) {
-      override def allIn(allKeys: Map[String, Map[String, ParsedValue[_]]]): Seq[(String, Seq[String])] = {
+    class SeqStringParsedKey(@NonNls name: String) extends ParsedKey[collection.Seq[String]](name) {
+      override def allIn(allKeys: Map[String, Map[String, ParsedValue[_]]]): collection.Seq[(String, collection.Seq[String])] = {
         in(allKeys) map { vs =>
             vs.toSeq flatMap {
               case (projectName, projectValue: SeqStringParsedValue) => Some((projectName, projectValue.parsed.asScala))

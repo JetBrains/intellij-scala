@@ -16,15 +16,15 @@ import org.jetbrains.plugins.scala.extensions.invokeLater
   * @author Alexander Podkhalyuzin
   */
 trait ConflictsReporter {
-  def reportConflicts(project: Project, conflicts: Seq[(PsiElement, String)]): Boolean
+  def reportConflicts(project: Project, conflicts: collection.Seq[(PsiElement, String)]): Boolean
 }
 
 trait EmptyConflictsReporter extends ConflictsReporter {
-  override def reportConflicts(project: Project, conflicts: Seq[(PsiElement, String)]) = false
+  override def reportConflicts(project: Project, conflicts: collection.Seq[(PsiElement, String)]) = false
 }
 
 trait DialogConflictsReporter extends ConflictsReporter {
-  override def reportConflicts(project: Project, conflicts: Seq[(PsiElement, String)]): Boolean = {
+  override def reportConflicts(project: Project, conflicts: collection.Seq[(PsiElement, String)]): Boolean = {
     val result = MultiMap.createSet[PsiElement, String]()
     conflicts.foreach {
       case (element, message) => result.putValue(element, message)
@@ -38,7 +38,7 @@ trait DialogConflictsReporter extends ConflictsReporter {
 
 class BalloonConflictsReporter(editor: Editor) extends ConflictsReporter {
 
-  override def reportConflicts(project: Project, conflicts: Seq[(PsiElement, String)]): Boolean = {
+  override def reportConflicts(project: Project, conflicts: collection.Seq[(PsiElement, String)]): Boolean = {
     val messages = conflicts.map(_._2).toSet
     createWarningBalloon(messages.mkString("\n"))
     true //this means that we do nothing, only show balloon

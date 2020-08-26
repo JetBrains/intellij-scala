@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert._
 
-import scala.collection.JavaConverters
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -49,7 +49,6 @@ abstract class KeywordCompletionTestBase extends ScalaLightPlatformCodeInsightTe
 
     val items = LookupManager.getActiveLookup(editor) match {
       case impl: LookupImpl =>
-        import JavaConverters._
         impl.getItems.asScala.filter {
           case item: LookupElementBuilder => item.getInsertHandler.isInstanceOf[KeywordInsertHandler]
           case _ => false

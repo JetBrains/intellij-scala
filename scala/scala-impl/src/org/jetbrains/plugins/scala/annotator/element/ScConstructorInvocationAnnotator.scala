@@ -95,7 +95,7 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
     }
   }
 
-  def annotateProblems(problems: Seq[ApplicabilityProblem], r: ScalaResolveResult, constrInvocation: ConstructorInvocationLike)
+  def annotateProblems(problems: collection.Seq[ApplicabilityProblem], r: ScalaResolveResult, constrInvocation: ConstructorInvocationLike)
                       (implicit holder: ScalaAnnotationHolder): Unit = {
     val element = r.element
     def argsElements = argsElementsTextRange(constrInvocation)
@@ -195,7 +195,7 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
     }
   }
 
-  def parameterToArgClause(p: Parameter, constr: ScMethodLike, argClauses: Seq[ScArgumentExprList]): Option[ScArgumentExprList] = {
+  def parameterToArgClause(p: Parameter, constr: ScMethodLike, argClauses: collection.Seq[ScArgumentExprList]): Option[ScArgumentExprList] = {
     p.psiParam.flatMap { param =>
       // look into every parameter list and find param
       val idx = constr.parameterList.clauses.indexWhere( clause =>

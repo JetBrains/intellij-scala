@@ -54,11 +54,11 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     TestUtils.disableTimerThread()
   }
 
-  import scala.collection.JavaConverters.seqAsJavaList
+  import scala.jdk.CollectionConverters._
 
   private val Actions: Map[Action, TestFormatAction] = Map(
     Action.Reformat -> ((file, ranges) => {
-      codeStyleManager.reformatText(file, seqAsJavaList(ranges))
+      codeStyleManager.reformatText(file, ranges.asJava)
     }),
     Action.Indent -> ((file, ranges) => {
       ranges match {

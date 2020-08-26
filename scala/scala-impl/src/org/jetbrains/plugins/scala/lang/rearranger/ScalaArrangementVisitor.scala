@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiEl
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 private class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo,

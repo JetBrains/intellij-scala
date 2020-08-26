@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
   */
 trait ScFunctionExpr extends ScExpression with ScControlFlowOwner {
 
-  def parameters: Seq[ScParameter]
+  def parameters: collection.Seq[ScParameter]
 
   def params: ScParameters
 
@@ -30,6 +30,6 @@ trait ScFunctionExpr extends ScExpression with ScControlFlowOwner {
 }
 
 object ScFunctionExpr {
-  def unapply(it: ScFunctionExpr): Some[(Seq[ScParameter], Option[ScExpression])] =
+  def unapply(it: ScFunctionExpr): Some[(collection.Seq[ScParameter], Option[ScExpression])] =
     Some(it.parameters, it.result)
 }

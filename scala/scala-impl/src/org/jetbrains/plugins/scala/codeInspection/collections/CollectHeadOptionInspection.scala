@@ -15,7 +15,8 @@ object CollectHeadOption extends SimplificationType {
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
-      case qual `.collect` (f) `.headOption` () =>
+      // TODO infix notation?
+      case `.headOption`(qual `.collect` (f)) =>
         Some(replace(expr).withText(invocationText(qual, "collectFirst", f)).highlightFrom(qual))
       case _ => None
     }

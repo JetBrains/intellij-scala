@@ -29,7 +29,7 @@ object LibraryDescriptor {
   def parse(data: Elem):  Either[String, LibraryDescriptor] = {
     import scala.xml._
 
-    def verifyDescriptor(libraryDescriptor: LibraryDescriptor): Seq[String] = {
+    def verifyDescriptor(libraryDescriptor: LibraryDescriptor): collection.Seq[String] = {
       val errors = ArrayBuffer[String]()
       if (libraryDescriptor.name.isEmpty) errors += "Descriptor name is empty"
       if (libraryDescriptor.pluginVersions.isEmpty) errors += "Descriptor version is empty"
@@ -68,7 +68,7 @@ object LibraryDescriptor {
     val descriptor = LibraryDescriptor(name, id, descr, vendor, version, descriptors)
 
     verifyDescriptor(descriptor) match {
-      case Seq(errors)  => Left(errors)
+      case collection.Seq(errors)  => Left(errors)
       case Nil          => Right(descriptor)
     }
   }

@@ -8,13 +8,13 @@ import scala.collection.mutable
  * @author ilyas
  */
 
-final class DfaEngine[E](cfg: Seq[Instruction],
-                   dfa: DfaInstance[E],
-                   l: Semilattice[E]) {
+final class DfaEngine[E](cfg: collection.Seq[Instruction],
+                         dfa: DfaInstance[E],
+                         l: Semilattice[E]) {
 
   def performDFA: collection.mutable.Map[Instruction, E] = {
-    val initial: Seq[(Instruction, E)] = for (v <- cfg) yield (v, l.bottom) // (vertex, after)
-    val after = mutable.HashMap(initial: _*)
+    val initial: collection.Seq[(Instruction, E)] = for (v <- cfg) yield (v, l.bottom) // (vertex, after)
+    val after = mutable.HashMap.newBuilder.addAll(initial).result()
     val forward = dfa.isForward
 
     val workList: java.util.Set[Instruction] = new java.util.HashSet[Instruction](java.util.Arrays.asList(cfg.toArray : _*))

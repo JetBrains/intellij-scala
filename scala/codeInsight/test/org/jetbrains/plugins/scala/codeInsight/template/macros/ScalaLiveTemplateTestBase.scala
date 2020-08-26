@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.util.TemplateTesting
 import org.junit.Assert._
 
-import scala.collection.JavaConverters.mapAsJavaMapConverter
+import scala.jdk.CollectionConverters._
 
 abstract class ScalaLiveTemplateTestBase extends ScalaLightCodeInsightFixtureTestAdapter with TemplateTesting {
 

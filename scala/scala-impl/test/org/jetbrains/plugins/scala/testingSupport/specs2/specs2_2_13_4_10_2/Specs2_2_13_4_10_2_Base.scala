@@ -17,6 +17,6 @@ trait Specs2_2_13_4_10_2_Base extends Specs2TestCase {
   private val specsVersion: String = "4.10.2"
 
   override protected def additionalLibraries: Seq[LibraryLoader] = IvyManagedLoader(
-    "org.specs2" %% "specs2-core" % specsVersion transitive()
+    ("org.specs2" %% "specs2-core" % specsVersion).transitive()
   ) :: Nil
 }

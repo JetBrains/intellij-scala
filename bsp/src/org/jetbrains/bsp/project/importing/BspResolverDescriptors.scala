@@ -18,22 +18,22 @@ object BspResolverDescriptors {
 
   case class ModuleDescriptionData(id: String,
                                    name: String,
-                                   targets: Seq[BuildTarget],
-                                   targetDependencies: Seq[BuildTargetIdentifier],
-                                   targetTestDependencies: Seq[BuildTargetIdentifier],
+                                   targets: collection.Seq[BuildTarget],
+                                   targetDependencies: collection.Seq[BuildTargetIdentifier],
+                                   targetTestDependencies: collection.Seq[BuildTargetIdentifier],
                                    basePath: Option[File],
                                    output: Option[File],
                                    testOutput: Option[File],
-                                   sourceDirs: Seq[SourceDirectory],
-                                   testSourceDirs: Seq[SourceDirectory],
-                                   resourceDirs: Seq[SourceDirectory],
-                                   testResourceDirs: Seq[SourceDirectory],
-                                   classpath: Seq[File],
-                                   classpathSources: Seq[File],
-                                   testClasspath: Seq[File],
-                                   testClasspathSources: Seq[File])
+                                   sourceDirs: collection.Seq[SourceDirectory],
+                                   testSourceDirs: collection.Seq[SourceDirectory],
+                                   resourceDirs: collection.Seq[SourceDirectory],
+                                   testResourceDirs: collection.Seq[SourceDirectory],
+                                   classpath: collection.Seq[File],
+                                   classpathSources: collection.Seq[File],
+                                   testClasspath: collection.Seq[File],
+                                   testClasspathSources: collection.Seq[File])
 
-  case class ProjectModules(modules: Seq[ModuleDescription], synthetic: Seq[ModuleDescription])
+  case class ProjectModules(modules: collection.Seq[ModuleDescription], synthetic: collection.Seq[ModuleDescription])
 
   sealed abstract class ModuleKind
 

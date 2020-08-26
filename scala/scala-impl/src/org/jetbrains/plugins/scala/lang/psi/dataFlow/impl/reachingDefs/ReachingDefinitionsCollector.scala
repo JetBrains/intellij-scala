@@ -18,12 +18,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticNam
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.jdk.CollectionConverters._
 
 object ReachingDefinitionsCollector {
 
-  def collectVariableInfo(fragment: Seq[PsiElement], place: PsiElement): FragmentVariableInfos = {
+  def collectVariableInfo(fragment: collection.Seq[PsiElement], place: PsiElement): FragmentVariableInfos = {
     // CFG -> DFA
-    val commonParent = findCommonParent(fragment: _*)
+    val commonParent = findCommonParent(fragment.asJava)
     val cfowner = getParentOfType (
       if (commonParent.getContext != null) commonParent.getContext else commonParent,
       classOf[ScControlFlowOwner], false
@@ -82,14 +83,14 @@ object ReachingDefinitionsCollector {
     isInstanceMethod || isSynthetic || resolvesAtNewPlace
   }
 
-  private def isInFragment(element: PsiElement, fragment: Seq[PsiElement]) =
+  private def isInFragment(element: PsiElement, fragment: collection.Seq[PsiElement]) =
     fragment.exists(PsiTreeUtil.isAncestor(_, element, false))
 
-  private def filterByFragment(cfg: Seq[Instruction], fragment: Seq[PsiElement]) = cfg.filter {
+  private def filterByFragment(cfg: collection.Seq[Instruction], fragment: collection.Seq[PsiElement]) = cfg.filter {
     i => i.element.exists(isInFragment(_, fragment))
   }
 
-  private def computeOutputVariables(innerInstructions: Seq[Instruction],
+  private def computeOutputVariables(innerInstructions: collection.Seq[Instruction],
                                      dfaResult: mutable.Map[Instruction, RDSet]): Iterable[VariableInfo] = {
     val buffer = new ArrayBuffer[PsiNamedElement]
     for {
@@ -107,7 +108,7 @@ object ReachingDefinitionsCollector {
     buffer.sortBy(_.getTextRange.getStartOffset).map(VariableInfo)
   }
 
-  private def computeInputVariables(innerInstructions: Seq[Instruction]): Iterable[VariableInfo] = {
+  private def computeInputVariables(innerInstructions: collection.Seq[Instruction]): Iterable[VariableInfo] = {
     val buffer = mutable.Set[PsiNamedElement]()
     val definedHere = innerInstructions.collect {
       case DefinitionInstruction(_, named, _) => named

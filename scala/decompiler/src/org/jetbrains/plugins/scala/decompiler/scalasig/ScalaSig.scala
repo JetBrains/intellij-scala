@@ -20,8 +20,8 @@ class ScalaSig(val entries: Array[Entry]) {
   private val symAnnots = ArrayBuffer.empty[SymAnnot]
   private val parentToChildren = mutable.HashMap.empty[Int, ArrayBuffer[Symbol]]
 
-  def topLevelClasses: Seq[ClassSymbol] = classes.filter(isTopLevelClass)
-  def topLevelObjects: Seq[ObjectSymbol] = objects.filter(isTopLevel)
+  def topLevelClasses: mutable.Seq[ClassSymbol] = classes.filter(isTopLevelClass)
+  def topLevelObjects: mutable.Seq[ObjectSymbol] = objects.filter(isTopLevel)
 
   def findCompanionClass(objectSymbol: ObjectSymbol): Option[ClassSymbol] = {
     val owner: Symbol = objectSymbol.symbolInfo.owner.get
@@ -29,7 +29,7 @@ class ScalaSig(val entries: Array[Entry]) {
     classes.find(c => c.info.owner.get.eq(owner) && c.name == objectSymbol.name)
   }
 
-  def children(symbol: ScalaSigSymbol): Seq[Symbol] = {
+  def children(symbol: ScalaSigSymbol): collection.Seq[Symbol] = {
     parentToChildren.keysIterator.find(get(_) eq symbol) match {
       case None => Seq.empty
       case Some(i) => parentToChildren(i)

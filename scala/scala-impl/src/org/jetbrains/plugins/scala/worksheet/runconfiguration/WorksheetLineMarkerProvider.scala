@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
-import scala.collection.JavaConverters.asScalaIteratorConverter
+import scala.jdk.CollectionConverters._
 
 class WorksheetLineMarkerProvider extends LineMarkerProvider {
 

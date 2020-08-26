@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.projectHighlighting.AllProjectHighlightingTest.relativePathOf
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.Random
 import scala.util.control.NonFatal
 import scala.util.matching.Regex
@@ -75,7 +75,7 @@ trait AllProjectHighlightingTest {
     codeInsightFixture.openFileInEditor(psiFile.getVirtualFile)
     val allInfo = codeInsightFixture.doHighlighting()
 
-    import scala.collection.JavaConverters._
+    import scala.jdk.CollectionConverters._
     allInfo.asScala.toList.collect {
       case highlightInfo if highlightInfo.`type`.getSeverity(null) == HighlightSeverity.ERROR =>
         val range = TextRange.create(highlightInfo.getStartOffset, highlightInfo.getEndOffset)

@@ -22,19 +22,19 @@ sealed trait ImplicitResolveResult {
 
   protected val resolveResult: ScalaResolveResult
 
-  protected val unresolvedTypeParameters: Seq[TypeParameter]
+  protected val unresolvedTypeParameters: collection.Seq[TypeParameter]
 }
 
 final case class CompanionImplicitResolveResult(override val resolveResult: ScalaResolveResult,
                                                 override val `type`: ScType,
                                                 override val implicitDependentSubstitutor: ScSubstitutor) extends ImplicitResolveResult {
-  override val unresolvedTypeParameters: Seq[TypeParameter] = Seq.empty
+  override val unresolvedTypeParameters: collection.Seq[TypeParameter] = Seq.empty
 }
 
 final case class RegularImplicitResolveResult(override val resolveResult: ScalaResolveResult,
                                               override val `type`: ScType,
                                               override val implicitDependentSubstitutor: ScSubstitutor = ScSubstitutor.empty,
-                                              override val unresolvedTypeParameters: Seq[TypeParameter] = Seq.empty) extends ImplicitResolveResult
+                                              override val unresolvedTypeParameters: collection.Seq[TypeParameter] = Seq.empty) extends ImplicitResolveResult
 
 object ImplicitResolveResult {
 
@@ -54,12 +54,12 @@ object ImplicitResolveResult {
 
     def withType: ResolverStateBuilder = {
       innerState = innerState.withFromType(result.`type`)
-      innerState = innerState.withUnresolvedTypeParams(result.unresolvedTypeParameters)
+      innerState = innerState.withUnresolvedTypeParams(result.unresolvedTypeParameters.toSeq)
       this
     }
 
     def withImports: ResolverStateBuilder = {
-      innerState = innerState.withImportsUsed(result.resolveResult.importsUsed)
+      innerState = innerState.withImportsUsed(result.resolveResult.importsUsed.toSet)
       this
     }
 
@@ -82,7 +82,8 @@ object ImplicitResolveResult {
     resolveResult <- findImplicitConversion(expressionType, refName, ref, processor, noImplicitsForArgs)
     resultType <- ExtensionConversionHelper.specialExtractParameterType(resolveResult)
 
-    result = RegularImplicitResolveResult(resolveResult, resultType, unresolvedTypeParameters = resolveResult.unresolvedTypeParameters.getOrElse(Seq.empty)) //todo: from companion parameter
+    unresolvedTypeParameters = resolveResult.unresolvedTypeParameters.getOrElse(Seq.empty)
+    result = RegularImplicitResolveResult(resolveResult, resultType, unresolvedTypeParameters = unresolvedTypeParameters) //todo: from companion parameter
 
     builder = build(result.builder)
 
@@ -98,7 +99,7 @@ object ImplicitResolveResult {
     val functionType = FunctionType(Any(place.projectContext), Seq(expressionType))
     val expandedFunctionType = FunctionType(expressionType, arguments(processor, noImplicitsForArgs))
 
-    def checkImplicits(noApplicability: Boolean = false, withoutImplicitsForArgs: Boolean = noImplicitsForArgs): Seq[ScalaResolveResult] = {
+    def checkImplicits(noApplicability: Boolean = false, withoutImplicitsForArgs: Boolean = noImplicitsForArgs): collection.Seq[ScalaResolveResult] = {
       val data = ExtensionConversionData(place, ref, refName, processor, noApplicability, withoutImplicitsForArgs)
 
       new ImplicitCollector(
@@ -114,13 +115,13 @@ object ImplicitResolveResult {
     //This logic is important to have to navigate to problematic method, in case of failed resolve.
     //That's why we need to have noApplicability parameter
     val foundImplicits = checkImplicits() match {
-      case Seq() => checkImplicits(noApplicability = true)
-      case seq@Seq(_) => seq
+      case collection.Seq() => checkImplicits(noApplicability = true)
+      case seq@collection.Seq(_) => seq
       case _ => checkImplicits(withoutImplicitsForArgs = true)
     }
 
     foundImplicits match {
-      case Seq(resolveResult) => Some(resolveResult)
+      case collection.Seq(resolveResult) => Some(resolveResult)
       case _ => None
     }
   }

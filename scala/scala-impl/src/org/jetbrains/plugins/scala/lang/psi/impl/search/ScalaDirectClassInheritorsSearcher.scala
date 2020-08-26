@@ -54,7 +54,7 @@ class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectC
       val buffer = map.getOrElseUpdate(id, new ArrayBuffer[PsiClass]())
       buffer += clazz
     }
-    val candidates: Seq[ScTemplateDefinition] = inReadAction {
+    val candidates: collection.Seq[ScTemplateDefinition] = inReadAction {
       if (!clazz.isValid) return true
 
       ScalaInheritors.directInheritorCandidates(clazz, scope)

@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.compiler.data.CompilationData
 import sbt.internal.inc.Analysis
 import xsbti.compile.{AnalysisContents, AnalysisStore, CompileResult, MiniSetup}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.Try
 import scala.util.control.NonFatal
 

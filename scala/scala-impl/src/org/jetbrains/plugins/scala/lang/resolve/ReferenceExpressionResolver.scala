@@ -39,9 +39,9 @@ import scala.language.implicitConversions
 
 class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
-  private case class ContextInfo(arguments: Option[Seq[Expression]], expectedType: () => Option[ScType], isUnderscore: Boolean)
+  private case class ContextInfo(arguments: Option[collection.Seq[Expression]], expectedType: () => Option[ScType], isUnderscore: Boolean)
 
-  private def argumentsOf(ref: PsiElement): Seq[Expression] = {
+  private def argumentsOf(ref: PsiElement): collection.Seq[Expression] = {
     ref.getContext match {
       case infixExpr: ScInfixExpr =>
         //TODO should right expression really be parsed as Tuple (not as argument list)?
@@ -298,7 +298,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         )
       }
 
-    def processAnyAssignment(exprs: Seq[ScExpression],
+    def processAnyAssignment(exprs: collection.Seq[ScExpression],
                              call: MethodInvocation,
                              callReference: ScReferenceExpression,
                              processor: BaseProcessor,
@@ -642,7 +642,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
   private def collectNamedCompletions(parameters: ScParameters,
                                       processor: CompletionProcessor,
                                       substitutor: ScSubstitutor,
-                                      expressions: Seq[ScExpression],
+                                      expressions: collection.Seq[ScExpression],
                                       index: Int): Unit = {
     val clauses = parameters.clauses
     if (0 <= index && index < clauses.length) {

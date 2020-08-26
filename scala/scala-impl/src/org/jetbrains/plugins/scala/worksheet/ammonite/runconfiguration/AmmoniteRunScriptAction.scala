@@ -9,14 +9,14 @@ import org.jetbrains.plugins.scala.console.actions.RunConsoleAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * User: Dmitry.Naydanov
   * Date: 13.09.17.
   */
 class AmmoniteRunScriptAction extends AnAction(ScalaBundle.message("ammonite.run.script")) {
-  def this(target: ScalaFile) {
+  def this(target: ScalaFile) = {
     this()
     file = Option(target)
   }

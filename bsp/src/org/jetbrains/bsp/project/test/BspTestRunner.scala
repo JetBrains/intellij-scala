@@ -27,7 +27,7 @@ import org.jetbrains.bsp.settings.BspProjectSettings.AutoConfig
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, BuildToolWindowReporter}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Promise
@@ -92,7 +92,7 @@ class BspTestRunner(
 
 
   def printProc(str: MessageWithAttributes)(implicit proc: ProcessHandler): Unit = {
-    proc.notifyTextAvailable(str + System.lineSeparator(), ProcessOutputType.STDOUT)
+    proc.notifyTextAvailable(str.toString + System.lineSeparator(), ProcessOutputType.STDOUT)
   }
 
   class ServiceMsg(val name: String, val map: Map[String, String]) extends MessageWithAttributes(name, map.asJava) {

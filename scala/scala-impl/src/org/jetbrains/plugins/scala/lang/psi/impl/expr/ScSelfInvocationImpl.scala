@@ -25,7 +25,6 @@ import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
 
-import scala.collection.Seq
 
 /**
   * @author Alexander Podkhalyuzin
@@ -62,7 +61,7 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
     val method = PsiTreeUtil.getContextOfType(this, classOf[ScFunction])
     if (method == null) return Array.empty
 
-    val expressions: Seq[Expression] = args match {
+    val expressions: collection.Seq[Expression] = args match {
       case Some(arguments) => arguments.exprs
       case None            => Seq.empty
     }

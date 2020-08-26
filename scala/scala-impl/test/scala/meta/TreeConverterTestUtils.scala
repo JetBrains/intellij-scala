@@ -47,7 +47,7 @@ trait TreeConverterTestUtils {
     def loop(x1: Any, x2: Any): Boolean = (x1, x2) match {
       case (x1: Tree, x2: Tree) => structuralEquals(x1, x2)
       case (Some(x1), Some(x2)) => loop(x1, x2)
-      case (Seq(xs1@_*), Seq(xs2@_*)) => xs1.zip(xs2).forall { case (x1, x2) => loop(x1, x2)}
+      case (collection.Seq(xs1@_*), collection.Seq(xs2@_*)) => xs1.zip(xs2).forall { case (x1, x2) => loop(x1, x2)}
       case (x1, x2) => x1 == x2
     }
     def tagsEqual = true

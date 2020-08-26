@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.util.HashBuilder._
 import org.jetbrains.uast.{UBlockExpression, UBlockExpressionAdapter, UElement, UExpression, ULambdaExpression, UMethod, UVariable}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait ScUBlockCommon
     extends UBlockExpressionAdapter
@@ -115,7 +115,7 @@ object ScUBlockExpression {
 
     case localFunDecl: ScULocalFunctionDeclarationExpression =>
       localFunDecl.getDeclarations.asScala match {
-        case Seq(variable: UVariable) =>
+        case collection.Seq(variable: UVariable) =>
           variable.getUastInitializer match {
             case lambda: ULambdaExpression =>
               Option(lambda.getBody).exists(_.getExpressionType != PsiType.VOID)

@@ -168,7 +168,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     (current, iterations)
   }
 
-  def localMethodEvaluator(fun: ScFunctionDefinition, argEvaluators: Seq[Evaluator]): Evaluator = {
+  def localMethodEvaluator(fun: ScFunctionDefinition, argEvaluators: collection.Seq[Evaluator]): Evaluator = {
     def localFunName() = {
       val transformed = NameTransformer.encode(fun.name)
       fun match {
@@ -233,8 +233,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   def syntheticFunctionEvaluator(synth: ScSyntheticFunction,
                                  qualOpt: Option[ScExpression],
                                  ref: ScReferenceExpression,
-                                 arguments: Seq[ScExpression]): Evaluator = {
-    if (synth.isStringPlusMethod && arguments.length == 1) {
+                                 arguments: Iterable[ScExpression]): Evaluator = {
+    if (synth.isStringPlusMethod && arguments.size == 1) {
       val qualText = qualOpt.fold("this")(_.getText)
       val exprText = s"($qualText).concat(_root_.java.lang.String.valueOf(${arguments.head.getText}))"
       val expr = createExpressionWithContextFromText(exprText, ref.getContext, ref)
@@ -257,7 +257,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       unaryEval(operatorName, unaryEvaluator(_, boxesName))
     }
     def binaryEval(operatorName: String, function: (Evaluator, Evaluator) => Evaluator): Evaluator = {
-      if (argEvaluators.length == 1) {
+      if (argEvaluators.size == 1) {
         val eval = qualOpt match {
           case None => new ScalaThisEvaluator()
           case Some(qual) => evaluatorFor(qual)
@@ -338,7 +338,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def arrayMethodEvaluator(name: String, qual: Option[ScExpression], argEvaluators: Seq[Evaluator]): Evaluator = {
+  def arrayMethodEvaluator(name: String, qual: Option[ScExpression], argEvaluators: collection.Seq[Evaluator]): Evaluator = {
     val qualEval = qual match {
       case Some(q) => evaluatorFor(q)
       case None => throw EvaluationException(ScalaBundle.message("array.instance.is.not.found", name))
@@ -412,7 +412,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     ScalaDuplexEvaluator(new ScalaNewClassInstanceEvaluator(valueClassType, signature, Array(value)), value)
   }
 
-  def repeatedArgEvaluator(exprsForP: Seq[ScExpression], expectedType: ScType, context: PsiElement): Evaluator = {
+  def repeatedArgEvaluator(exprsForP: collection.Seq[ScExpression], expectedType: ScType, context: PsiElement): Evaluator = {
     def seqEvaluator: Evaluator = {
       val argTypes = exprsForP.map(_.`type`().getOrAny)
       val argType =
@@ -525,9 +525,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def javaMethodEvaluator(method: PsiMethod, ref: ScReferenceExpression, arguments: Seq[ScExpression]): Evaluator = {
+  def javaMethodEvaluator(method: PsiMethod, ref: ScReferenceExpression, arguments: collection.Seq[ScExpression]): Evaluator = {
 
-    def boxArguments(arguments: Seq[Evaluator], method: PsiElement): Seq[Evaluator] = {
+    def boxArguments(arguments: collection.Seq[Evaluator], method: PsiElement): collection.Seq[Evaluator] = {
       val params = method match {
         case fun: ScMethodLike => fun.effectiveParameterClauses.flatMap(_.parameters)
         case m: PsiMethod => m.parameters
@@ -562,7 +562,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def unresolvedMethodEvaluator(ref: ScReferenceExpression, args: Seq[ScExpression]): Evaluator = {
+  def unresolvedMethodEvaluator(ref: ScReferenceExpression, args: collection.Seq[ScExpression]): Evaluator = {
     val argEvals = args.map(evaluatorFor(_))
     val name = NameTransformer.encode(ref.refName)
     ref.qualifier match {
@@ -571,8 +571,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def argumentEvaluators(fun: ScMethodLike, matchedParameters: Map[Parameter, Seq[ScExpression]],
-                         call: ScExpression, ref: ScReferenceExpression, arguments: Seq[ScExpression]): Seq[Evaluator] = {
+  def argumentEvaluators(fun: ScMethodLike, matchedParameters: Map[Parameter, collection.Seq[ScExpression]],
+                         call: ScExpression, ref: ScReferenceExpression, arguments: collection.Seq[ScExpression]): collection.Seq[Evaluator] = {
 
     val clauses = fun.effectiveParameterClauses
     val parameters = clauses.flatMap(_.effectiveParameters).map(Parameter(_))
@@ -616,13 +616,13 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   }
 
   def functionEvaluator(qualOption: Option[ScExpression], ref: ScReferenceExpression,
-                        funName: String, argEvaluators: Seq[Evaluator], isDefaultArg: Boolean = false): Evaluator = {
+                        funName: String, argEvaluators: collection.Seq[Evaluator], isDefaultArg: Boolean = false): Evaluator = {
 
     def qualEvaluator(r: ScalaResolveResult) = {
       def defaultQualEvaluator = qualifierEvaluator(qualOption, ref)
 
       r.getActualElement match {
-        case o: ScObject if funName == "apply" => objectEvaluator(o, defaultQualEvaluator _)
+        case o: ScObject if funName == "apply" => objectEvaluator(o, () => defaultQualEvaluator)
         case _ => defaultQualEvaluator
       }
     }
@@ -649,7 +649,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def methodCallEvaluator(call: ScExpression, arguments: Seq[ScExpression], matchedParameters: Map[Parameter, Seq[ScExpression]]): Evaluator = {
+  def methodCallEvaluator(call: ScExpression, arguments: collection.Seq[ScExpression], matchedParameters: Map[Parameter, collection.Seq[ScExpression]]): Evaluator = {
     val ref = call match {
       case hasDeepestInvokedReference(r) => r
       case _ => throw EvaluationException(ScalaBundle.message("cannot.evaluate.method", call.getText))
@@ -678,7 +678,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             val expr = createExpressionFromText(text, call.getContext)
             evaluatorFor(expr)
           case _ =>
-            val args: Seq[Evaluator] = argumentEvaluators(fun, matchedParameters, call, ref, arguments)
+            val args = argumentEvaluators(fun, matchedParameters, call, ref, arguments)
             functionEvaluator(qualOption, ref, fun.name, args)
         }
       case method: PsiMethod =>
@@ -1004,7 +1004,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def constructorArgumentsEvaluators(newTd: ScNewTemplateDefinition,
                                      constrInvocation: ScConstructorInvocation,
-                                     clazz: PsiClass): Seq[Evaluator] = {
+                                     clazz: PsiClass): collection.Seq[Evaluator] = {
     val constrDef = constrInvocation.reference match {
       case Some(ResolvesTo(elem)) => elem
       case _ => throw EvaluationException(ScalaBundle.message("could.not.resolve.constructor"))
@@ -1139,9 +1139,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
     @tailrec
     def collectArgumentsAndBuildEvaluator(call: ScMethodCall,
-                                          collected: Seq[ScExpression] = Seq.empty,
+                                          collected: collection.Seq[ScExpression] = Seq.empty,
                                           tailString: String = "",
-                                          matchedParameters: Map[Parameter, Seq[ScExpression]] = Map.empty): Evaluator = {
+                                          matchedParameters: Map[Parameter, collection.Seq[ScExpression]] = Map.empty): Evaluator = {
       if (call.isApplyOrUpdateCall) {
         if (!call.isUpdateCall) {
           val expr = applyCall(call.getInvokedExpr.getText, call.args.getText + tailString)
@@ -1625,7 +1625,7 @@ object ScalaEvaluatorBuilderUtil {
         enum.getParent.getParent match {
           case ScFor(enums, body) =>
             enums.namings.map(_.pattern) match {
-              case Seq(_: ScReferencePattern) => return false //can always evaluate from single simple generator
+              case collection.Seq(_: ScReferencePattern) => return false //can always evaluate from single simple generator
               case _ =>
             }
 

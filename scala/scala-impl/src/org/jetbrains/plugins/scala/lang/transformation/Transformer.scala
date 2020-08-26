@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.transformation.implicits._
 import org.jetbrains.plugins.scala.lang.transformation.references._
 import org.jetbrains.plugins.scala.lang.transformation.types._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * @author Pavel Fatin

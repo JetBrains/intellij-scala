@@ -12,7 +12,7 @@ import org.jetbrains.java.decompiler.main.decompiler.BaseDecompiler
 import org.jetbrains.java.decompiler.main.extern.{IBytecodeProvider, IFernflowerPreferences, IResultSaver}
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 
-import scala.collection.{JavaConverters, mutable}
+import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 
 private class ScalaDecompilerServiceImpl extends ScalaDecompilerService {
@@ -24,7 +24,7 @@ private class ScalaDecompilerServiceImpl extends ScalaDecompilerService {
       val mappings = inReadAction { mappingsForClassfile(file.getVirtualFile) }
       val saver    = new ScalaResultSaver
 
-      import JavaConverters._
+      import scala.jdk.CollectionConverters._
       val options = Map(
         IFernflowerPreferences.REMOVE_BRIDGE -> 0.asInstanceOf[AnyRef]
       ).asJava

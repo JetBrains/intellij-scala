@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * User: Alexander Podkhalyuzin
@@ -26,7 +26,7 @@ class ScalaNameSuggestionProvider extends AbstractNameSuggestionProvider {
   import NameSuggester.suggestNames
   import ScalaNameSuggestionProvider._
 
-  override protected def suggestedNames(element: PsiElement): Seq[String] = element match {
+  override protected def suggestedNames(element: PsiElement): collection.Seq[String] = element match {
     case definition: ScNewTemplateDefinition => suggestNames(definition)
     case definition: ScTemplateDefinition => Seq(definition.name)
     case typed: ScTypedDefinition =>
@@ -58,5 +58,5 @@ abstract class AbstractNameSuggestionProvider extends NameSuggestionProvider {
     new SuggestedNameInfo(names.toArray) {}
   }
 
-  protected def suggestedNames(element: PsiElement): Seq[String]
+  protected def suggestedNames(element: PsiElement): collection.Seq[String]
 }

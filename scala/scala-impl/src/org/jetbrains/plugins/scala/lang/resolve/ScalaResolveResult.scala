@@ -32,9 +32,9 @@ import org.jetbrains.plugins.scala.util.HashBuilder._
 class ScalaResolveResult(
   val element:                  PsiNamedElement,
   val substitutor:              ScSubstitutor = ScSubstitutor.empty,
-  val importsUsed:              Set[ImportUsed] = Set.empty,
+  val importsUsed:              collection.Set[ImportUsed] = Set.empty,
   val renamed:                  Option[String] = None,
-  val problems:                 Seq[ApplicabilityProblem] = Seq.empty,
+  val problems:                 collection.Seq[ApplicabilityProblem] = Seq.empty,
   val implicitConversion:       Option[ScalaResolveResult] = None,
   val implicitType:             Option[ScType] = None,
   val defaultParameterUsed:     Boolean = false,
@@ -51,10 +51,10 @@ class ScalaResolveResult(
   val nameArgForDynamic:        Option[String] = None, //argument to a dynamic call
   val isForwardReference:       Boolean = false,
   val implicitParameterType:    Option[ScType] = None,
-  val implicitParameters:       Seq[ScalaResolveResult] = Seq.empty, // TODO Arguments and parameters should not be used inerchangeably
+  val implicitParameters:       collection.Seq[ScalaResolveResult] = Seq.empty, // TODO Arguments and parameters should not be used inerchangeably
   val implicitReason:           ImplicitResult = NoResult,
   val implicitSearchState:      Option[ImplicitState] = None,
-  val unresolvedTypeParameters: Option[Seq[TypeParameter]] = None,
+  val unresolvedTypeParameters: Option[collection.Seq[TypeParameter]] = None,
   val implicitScopeObject:      Option[ScType] = None
 ) extends ResolveResult
     with ProjectContextOwner {
@@ -101,24 +101,24 @@ class ScalaResolveResult(
   def isImplicitParameterProblem: Boolean = isNotFoundImplicitParameter || isAmbiguousImplicitParameter
 
   def copy(
-    subst:                    ScSubstitutor              = substitutor,
-    problems:                 Seq[ApplicabilityProblem]  = problems,
-    defaultParameterUsed:     Boolean                    = defaultParameterUsed,
-    innerResolveResult:       Option[ScalaResolveResult] = innerResolveResult,
-    tuplingUsed:              Boolean                    = tuplingUsed,
-    isAssignment:             Boolean                    = isAssignment,
-    notCheckedResolveResult:  Boolean                    = notCheckedResolveResult,
-    isAccessible:             Boolean                    = isAccessible,
-    resultUndef:              Option[ConstraintSystem]   = None,
-    nameArgForDynamic:        Option[String]             = nameArgForDynamic,
-    isForwardReference:       Boolean                    = isForwardReference,
-    implicitParameterType:    Option[ScType]             = implicitParameterType,
-    importsUsed:              Set[ImportUsed]            = importsUsed,
-    implicitParameters:       Seq[ScalaResolveResult]    = implicitParameters,
-    implicitReason:           ImplicitResult             = implicitReason,
-    implicitSearchState:      Option[ImplicitState]      = implicitSearchState,
-    unresolvedTypeParameters: Option[Seq[TypeParameter]] = unresolvedTypeParameters,
-    implicitScopeObject:      Option[ScType]             = implicitScopeObject
+    subst:                    ScSubstitutor                         = substitutor,
+    problems:                 collection.Seq[ApplicabilityProblem]  = problems,
+    defaultParameterUsed:     Boolean                               = defaultParameterUsed,
+    innerResolveResult:       Option[ScalaResolveResult]            = innerResolveResult,
+    tuplingUsed:              Boolean                               = tuplingUsed,
+    isAssignment:             Boolean                               = isAssignment,
+    notCheckedResolveResult:  Boolean                               = notCheckedResolveResult,
+    isAccessible:             Boolean                               = isAccessible,
+    resultUndef:              Option[ConstraintSystem]              = None,
+    nameArgForDynamic:        Option[String]                        = nameArgForDynamic,
+    isForwardReference:       Boolean                               = isForwardReference,
+    implicitParameterType:    Option[ScType]                        = implicitParameterType,
+    importsUsed:              collection.Set[ImportUsed]            = importsUsed,
+    implicitParameters:       collection.Seq[ScalaResolveResult]    = implicitParameters,
+    implicitReason:           ImplicitResult                        = implicitReason,
+    implicitSearchState:      Option[ImplicitState]                 = implicitSearchState,
+    unresolvedTypeParameters: Option[collection.Seq[TypeParameter]] = unresolvedTypeParameters,
+    implicitScopeObject:      Option[ScType]                        = implicitScopeObject
   ): ScalaResolveResult =
     new ScalaResolveResult(
       element,

@@ -24,7 +24,7 @@ import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.data.service.ModuleExtDataService.NotificationException
 import org.junit.Assert._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Try}
 
 

@@ -42,7 +42,7 @@ case class ImportInfo(prefixQualifier: String,
   def withoutRelative: ImportInfo =
     if (relative.isDefined || rootUsed) copy(relative = None) else this
 
-  def split: Seq[ImportInfo] = {
+  def split: collection.Seq[ImportInfo] = {
     val result = new ArrayBuffer[ImportInfo]()
     result ++= singleNames.toSeq.sorted.map { name =>
       template.copy(singleNames = Set(name))
@@ -227,7 +227,7 @@ object ImportInfo {
     )
   }
 
-  def merge(infos: Seq[ImportInfo]): Option[ImportInfo] = infos.reduceOption(_ merge _)
+  def merge(infos: collection.Seq[ImportInfo]): Option[ImportInfo] = infos.reduceOption(_ merge _)
 
   private def withDot(s: String): String = {
     if (s.isEmpty) "" else "." + s

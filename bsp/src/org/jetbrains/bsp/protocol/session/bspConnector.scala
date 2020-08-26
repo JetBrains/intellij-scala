@@ -10,8 +10,7 @@ import org.jetbrains.bsp.{BspBundle, BspError, BspErrorMessage}
 import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 
-import scala.collection.JavaConverters._
-
+import scala.jdk.CollectionConverters._
 
 object BspServerConnector {
   sealed abstract class BspConnectionMethod

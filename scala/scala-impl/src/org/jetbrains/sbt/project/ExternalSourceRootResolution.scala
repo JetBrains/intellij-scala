@@ -192,7 +192,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     def base: File = commonBase(roots)
 
     private def commonBase(roots: Seq[Root]) = {
-      import scala.collection.JavaConverters._
+      import scala.jdk.CollectionConverters._
       val paths = roots.map { root =>
         root.base.getOrElse(root.directory)
           .getCanonicalFile.toPath.normalize

@@ -62,7 +62,7 @@ abstract class ScalaEditorFoldingTestBase extends ScalaLightCodeInsightFixtureTe
             expectedRegions += (TextRange.create(regionBegin, regionEnd) -> replacementText)
           }
           true
-        case Seq() =>
+        case collection.Seq() =>
           false
       }
     }) ()

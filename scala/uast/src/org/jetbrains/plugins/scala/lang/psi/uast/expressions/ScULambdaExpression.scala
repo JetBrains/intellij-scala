@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.util.SAMUtil
 import org.jetbrains.uast.{UExpression, ULambdaExpression, ULambdaExpressionAdapter, UParameter}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait ScUGenLambda
     extends ULambdaExpressionAdapter

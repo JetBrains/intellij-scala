@@ -88,7 +88,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) 
 
                     param.fold(failure)(tpe =>
                       if (!isFullyDefined(tpe)) {
-                        val ithUnderscore: Seq[ScExpression] => Option[ScExpression] =
+                        val ithUnderscore: collection.Seq[ScExpression] => Option[ScExpression] =
                           _.filterByType[ScUnderscoreSection].lift(idx)
 
                         val maybeFromUndoingEtaExp = inferExpectedParamTypeUndoingEtaExpansion(expr, ithUnderscore)

@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.uast.ReferenceExt
 import org.jetbrains.uast.{UCallExpression, UCallExpressionAdapter, UExpression, UIdentifier, UReferenceExpression, UastCallKind}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * [[ScConstructorInvocation]] adapter for the [[UCallExpression]]
@@ -77,12 +77,12 @@ final class ScUConstructorCallExpression(
   override def getValueArgumentCount: Int =
     scElement.arguments.map(_.exprs.size).sum
 
-  override def getValueArguments: util.List[UExpression] = seqAsJavaList(
+  override def getValueArguments: util.List[UExpression] = {
     Seq.concat(
       scElement.arguments
-        .map(_.exprs.map(_.convertToUExpressionOrEmpty(this))): _*
-    )
-  )
+        .map(_.exprs.map(_.convertToUExpressionOrEmpty(this))).toSeq: _*
+    ).asJava
+  }
 
   @Nullable
   override def getArgumentForParameter(i: Int): UExpression = {

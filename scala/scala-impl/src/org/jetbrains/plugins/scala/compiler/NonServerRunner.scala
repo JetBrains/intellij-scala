@@ -16,7 +16,7 @@ import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.{ClientEventProcessor, Event, TraceEvent}
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
 
-import _root_.scala.collection.JavaConverters._
+import _root_.scala.jdk.CollectionConverters._
 
 /**
  * @see [[RemoteServerRunner]]

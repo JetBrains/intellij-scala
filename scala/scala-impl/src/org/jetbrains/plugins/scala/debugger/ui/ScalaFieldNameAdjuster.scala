@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.debugger.ScalaSyntheticProvider
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.debugger.ui.ScalaFieldNameAdjuster.objectSuffix
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Nikolay.Tropin

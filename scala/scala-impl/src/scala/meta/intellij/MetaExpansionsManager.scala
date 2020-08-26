@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTyp
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.immutable
 import scala.meta.parsers.Parse
 import scala.meta.trees.{AbortException, ScalaMetaException, TreeConverter}
@@ -107,6 +107,7 @@ class ClearMetaExpansionManagerListener extends CompilationStatusListener {
 
 object MetaExpansionsManager {
 
+  // TODO 2.13 Need update to 4.3.12?
   val META_MAJOR_VERSION  = "1.8"
   val META_MINOR_VERSION  = "1.8.0"
   val PARADISE_VERSION    = "3.0.0-M10"
@@ -236,11 +237,14 @@ object MetaExpansionsManager {
   // TODO: undo other paradise compatibility hacks
   def fixTree(tree: Tree): Tree = {
     import scala.meta._
-    def fixParents(parents: immutable.Seq[Ctor.Call]) = parents.map({case Term.Apply(ctor: Ctor.Call, Nil) => ctor; case x=>x})
+    def fixParents(parents: List[Init]): List[Init] = parents.map {
+      case Term.Apply(ctor: Init, Nil) => ctor;
+      case x => x
+    }
     tree transform {
-      case c@Defn.Trait(_, _, _, _, t)  => c.copy(templ = t.copy(parents = fixParents(t.parents)))
-      case c@Defn.Class(_, _, _, _, t)  => c.copy(templ = t.copy(parents = fixParents(t.parents)))
-      case c@Defn.Object(_, _, t)       => c.copy(templ = t.copy(parents = fixParents(t.parents)))
+      case c@Defn.Trait(_, _, _, _, t)  => c.copy(templ = t.copy(inits = fixParents(t.inits)))
+      case c@Defn.Class(_, _, _, _, t)  => c.copy(templ = t.copy(inits = fixParents(t.inits)))
+      case c@Defn.Object(_, _, t)       => c.copy(templ = t.copy(inits = fixParents(t.inits)))
     }
   }
 }

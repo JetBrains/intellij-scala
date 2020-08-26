@@ -5,6 +5,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.element.ElementAnnotator
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScFor, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -12,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParame
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType, StdTypes, TypeParameterType, arrayType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -41,8 +41,8 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
                    (implicit holder: ScalaAnnotationHolder): Unit = {
     if (!ScalaPsiUtil.isScope(element)) return
 
-    def checkScope(elements: PsiElement*): Unit = {
-      val Definitions(types, functions, parameterless, fieldLikes, classParameters) = definitionsIn(elements: _*)
+    def checkScope(elements: Iterable[PsiElement]): Unit = {
+      val Definitions(types, functions, parameterless, fieldLikes, classParameters) = definitionsIn(elements)
 
       val clashes =
         clashesOf(functions) :::
@@ -67,18 +67,18 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
             val elements = new ArrayBuffer[PsiElement]()
             enumerator.children.foreach {
               case generator: ScGenerator =>
-                checkScope(elements: _*)
+                checkScope(elements)
                 elements.clear()
                 elements += generator
               case child => elements += child
             }
-            checkScope(elements: _*)
+            checkScope(elements)
         }
-      case _ => checkScope(element)
+      case _ => checkScope(List(element))
     }
   }
 
-  private def definitionsIn(elements: PsiElement*) = {
+  private def definitionsIn(elements: Iterable[PsiElement]) = {
     var types: List[ScNamedElement] = Nil
     var functions: List[ScFunction] = Nil
     var parameterless: List[ScNamedElement] = Nil

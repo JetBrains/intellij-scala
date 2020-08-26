@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert.{assertFalse, assertTrue}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 abstract class ScalaIntentionTestBase  extends ScalaLightCodeInsightFixtureTestAdapter {
 

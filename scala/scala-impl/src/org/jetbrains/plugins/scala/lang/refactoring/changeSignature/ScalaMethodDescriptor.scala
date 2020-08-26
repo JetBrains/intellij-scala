@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * Nikolay.Tropin
@@ -28,7 +28,7 @@ class ScalaMethodDescriptor(val fun: ScMethodLike) extends MethodDescriptor[Scal
 
   override def canChangeVisibility: Boolean = !fun.isLocal
 
-  val parameters: Seq[Seq[ScalaParameterInfo]] = parametersInner
+  val parameters: collection.Seq[collection.Seq[ScalaParameterInfo]] = parametersInner
 
   override def getParameters: util.List[ScalaParameterInfo] = parameters.flatten.asJava
 
@@ -48,5 +48,5 @@ class ScalaMethodDescriptor(val fun: ScMethodLike) extends MethodDescriptor[Scal
     case _ => ""
   }
 
-  protected def parametersInner: Seq[Seq[ScalaParameterInfo]] = ScalaParameterInfo.allForMethod(fun)
+  protected def parametersInner: collection.Seq[collection.Seq[ScalaParameterInfo]] = ScalaParameterInfo.allForMethod(fun)
 }

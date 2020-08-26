@@ -94,7 +94,7 @@ private[changeSignature] case class MethodCallUsageInfo(override val ref: ScRefe
   override val expr: ScExpression = call
   override val argsInfo: OldArgsInfo = OldArgsInfo(allArgs(call), method)
 
-  private def allArgs(call: ScMethodCall): Seq[ScExpression] = {
+  private def allArgs(call: ScMethodCall): collection.Seq[ScExpression] = {
     call.getInvokedExpr match {
       case mc: ScMethodCall => allArgs(mc) ++ call.argumentExpressions
       case _ => call.argumentExpressions
@@ -200,9 +200,9 @@ private[changeSignature] object UsageUtil {
 
 }
 
-private[changeSignature] case class OldArgsInfo(args: Seq[ScExpression], namedElement: PsiNamedElement) {
+private[changeSignature] case class OldArgsInfo(args: collection.Seq[ScExpression], namedElement: PsiNamedElement) {
 
-  val byOldParameterIndex: Map[Int, Seq[ScExpression]] = {
+  val byOldParameterIndex: Map[Int, collection.Seq[ScExpression]] = {
     args.groupBy(a => ScalaPsiUtil.parameterOf(a).fold(-1)(_.index))
             .updated(-1, Seq.empty)
   }

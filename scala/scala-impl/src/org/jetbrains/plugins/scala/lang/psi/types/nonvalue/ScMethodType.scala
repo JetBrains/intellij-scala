@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 import scala.annotation.tailrec
 
-final case class ScMethodType(result: ScType, params: Seq[Parameter], isImplicit: Boolean)
+final case class ScMethodType(result: ScType, params: collection.Seq[Parameter], isImplicit: Boolean)
                              (implicit val elementScope: ElementScope) extends NonValueType {
 
   override implicit def projectContext: project.ProjectContext = elementScope.projectContext

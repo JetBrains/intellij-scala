@@ -24,11 +24,11 @@ class ScalaParameterTableModel(typeContext: PsiElement,
         extends ParameterTableModelBase[ScalaParameterInfo, ScalaParameterTableModelItem](typeContext, defaultValueContext, columnInfos: _*) {
 
   private implicit val project: Project = defaultValueContext.getProject
-  val initialParams: Seq[Seq[ScalaParameterInfo]] = methodDescriptor.parameters
+  val initialParams: collection.Seq[collection.Seq[ScalaParameterInfo]] = methodDescriptor.parameters
 
   private val codeFragments = ArrayBuffer[PsiElement]()
 
-  def this(typeContext: PsiElement, defaultValueContext: PsiElement, methodDescriptor: ScalaMethodDescriptor) {
+  def this(typeContext: PsiElement, defaultValueContext: PsiElement, methodDescriptor: ScalaMethodDescriptor) = {
     this(typeContext, defaultValueContext, methodDescriptor,
       new ScalaNameColumn(typeContext.getProject),
       new ScalaTypeColumn(typeContext.getProject),

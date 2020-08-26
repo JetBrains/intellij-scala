@@ -14,8 +14,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
-import scala.collection.Seq
-
 trait ScDeclarationSequenceHolder extends ScalaPsiElement {
   override def processDeclarations(processor: PsiScopeProcessor,
       state : ResolveState,
@@ -53,7 +51,7 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
           true
         case named: ScNamedElement => processor.execute(named, state)
         case holder: ScDeclaredElementsHolder =>
-          val elements: Seq[PsiNamedElement] = holder.declaredElements
+          val elements: collection.Seq[PsiNamedElement] = holder.declaredElements
           var i = 0
           while (i < elements.length) {
             ProgressManager.checkCanceled()

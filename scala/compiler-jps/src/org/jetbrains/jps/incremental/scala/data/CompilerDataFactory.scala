@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.compiler.data.{CompilerData, CompilerJars, Co
 import org.jetbrains.plugins.scala.util.JarUtil
 import org.jetbrains.plugins.scala.util.JarUtil.JarFileWithName
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait CompilerDataFactory {
 
@@ -77,7 +77,6 @@ object CompilerDataFactory
         val jvmSdk = if (isCompileServerEnabled) {
           val global = model.getGlobal
           Option(SettingsManager.getGlobalSettings(global).getCompileServerSdk).flatMap { sdkName =>
-            import collection.JavaConverters._
             global.getLibraryCollection
               .getLibraries(JpsJavaSdkType.INSTANCE)
               .asScala
@@ -170,7 +169,7 @@ object CompilerDataFactory
 
     JavaBuilder.addCompilationOptions(options, context, chunk, annotationProcessingProfile)
 
-    options.asScala
+    options.asScala.toSeq
   }
 
   // TODO JavaBuilder.loadCommonJavacOptions should be public
@@ -213,8 +212,8 @@ object CompilerDataFactory
     import CompilerJarsResolveError._
 
     def inScalaCompiler = s"in Scala compiler classpath in Scala SDK ${scalaSdk.getName}"
-    def filesNames(files: Seq[JarFileWithName]) = files.map(_.name).mkString(", ")
-    def filePaths(absentJars: Seq[File]) = absentJars.map(_.getPath).mkString(", ")
+    def filesNames(files: Iterable[JarFileWithName]) = files.map(_.name).mkString(", ")
+    def filePaths(absentJars: Iterable[File]) = absentJars.map(_.getPath).mkString(", ")
 
     import JarUtil.JarExtension
 

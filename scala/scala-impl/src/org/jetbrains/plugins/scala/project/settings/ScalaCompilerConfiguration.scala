@@ -12,6 +12,7 @@ import org.jdom.Element
 import org.jetbrains.annotations.TestOnly
 
 import scala.annotation.tailrec
+import scala.jdk.CollectionConverters._
 
 /**
   * @author Pavel Fatin
@@ -23,13 +24,11 @@ import scala.annotation.tailrec
 )
 class ScalaCompilerConfiguration(project: Project) extends PersistentStateComponent[Element] with ModificationTracker {
 
-  import collection.JavaConverters._
-
   var incrementalityType: IncrementalityType = IncrementalityType.IDEA
 
   var defaultProfile: ScalaCompilerSettingsProfile = new ScalaCompilerSettingsProfile("Default")
 
-  var customProfiles: Seq[ScalaCompilerSettingsProfile] = Seq.empty
+  var customProfiles: collection.Seq[ScalaCompilerSettingsProfile] = Seq.empty
 
   @TestOnly
   def createCustomProfileForModule(profileName: String, module: Module): ScalaCompilerSettingsProfile = {
@@ -49,16 +48,16 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
   def getSettingsForModule(module: Module): ScalaCompilerSettings =
     getProfileForModule(module).getSettings
 
-  def allCompilerPlugins: Seq[String] = (allProfiles).map(_.getSettings).flatMap(_.plugins)
+  def allCompilerPlugins: collection.Seq[String] = (allProfiles).map(_.getSettings).flatMap(_.plugins)
 
-  private def allProfiles: Seq[ScalaCompilerSettingsProfile] = defaultProfile +: customProfiles
+  private def allProfiles: collection.Seq[ScalaCompilerSettingsProfile] = defaultProfile +: customProfiles
 
   def hasSettingForHighlighting(module: Module)
                                (hasSetting: ScalaCompilerSettings => Boolean): Boolean =
     settingsForHighlighting(module).exists(hasSetting)
 
   //currently we cannot rely on compiler options for shared source modules
-  def settingsForHighlighting(module: Module): Seq[ScalaCompilerSettings] = {
+  def settingsForHighlighting(module: Module): collection.Seq[ScalaCompilerSettings] = {
     val modules = module.getModuleTypeName match{
       case "SHARED_SOURCES_MODULE" =>
         ModuleManager.getInstance(module.getProject).getModuleDependentModules(module).asScala

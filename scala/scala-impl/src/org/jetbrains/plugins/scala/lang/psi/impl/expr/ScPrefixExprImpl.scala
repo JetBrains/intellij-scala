@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
-import scala.collection.Seq
 
 /**
   * @author Alexander Podkhalyuzin

@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.junit.Assert._
 
-import scala.collection.JavaConverters
+import scala.jdk.CollectionConverters._
 
 abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
   self: ScalaLightCodeInsightFixtureTestAdapter =>
@@ -134,13 +134,12 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
     }
     onFileCreated(fixture.getFile)
 
-    import JavaConverters._
     val actualHighlights =
       fixture.doHighlighting().asScala
         .filter(it => descriptionMatches(it.getDescription))
         .filter(checkOffset(_, offset))
 
-    TestPrepareResult(fixture.getFile.getText, expectedHighlights, actualHighlights)
+    TestPrepareResult(fixture.getFile.getText, expectedHighlights, actualHighlights.toSeq)
   }
 
   private def createScratchFile(normalizedText: String) = {
@@ -208,7 +207,6 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaHighlightsTestBase {
 
 object ScalaAnnotatorQuickFixTestBase {
   private def quickFixes(info: HighlightInfo): Seq[IntentionAction] = {
-    import JavaConverters._
     Option(info.quickFixActionRanges).toSeq
       .flatMap(_.asScala)
       .flatMap(pair => Option(pair))

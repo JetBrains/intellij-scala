@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.Singleton
   */
 class ScFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFunctionExpr {
 
-  override def parameters: Seq[ScParameter] = params.params
+  override def parameters: collection.Seq[ScParameter] = params.params
 
   override def params: ScParameters = findChildByClass(classOf[ScParameters])
 

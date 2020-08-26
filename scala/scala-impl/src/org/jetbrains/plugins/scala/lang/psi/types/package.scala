@@ -258,7 +258,7 @@ package object types {
       else                                 "scala.collection.Seq"
   }
 
-  implicit class ScTypesExt(private val types: Seq[ScType]) extends AnyVal {
+  implicit class ScTypesExt(private val types: collection.Seq[ScType]) extends AnyVal {
     def glb(checkWeak: Boolean = false)(implicit project: ProjectContext): ScType = {
       project.typeSystem.glb(types, checkWeak)
     }
@@ -349,7 +349,7 @@ package object types {
   final case class FunctionLikeType(place: PsiElement) {
     import FunctionTypeMarker._
 
-    def unapply(tpe: ScType): Option[(FunctionTypeMarker, ScType, Seq[ScType])] = tpe match {
+    def unapply(tpe: ScType): Option[(FunctionTypeMarker, ScType, collection.Seq[ScType])] = tpe match {
       case FunctionType(retTpe, paramTpes)       => (FunctionN, retTpe, paramTpes).toOption
       case PartialFunctionType(retTpe, paramTpe) => (PF, retTpe, Seq(paramTpe)).toOption
       case ScAbstractType(_, _, upper)           => unapply(upper)

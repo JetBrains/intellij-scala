@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.uast.ReferenceExt
 import org.jetbrains.uast.{UAnchorOwner, UAnnotation, UAnnotationAdapter, UAnnotationEx, UCallExpression, UExpression, UIdentifier, UNamedExpression}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * [[ScAnnotation]] adapter for the [[UAnnotation]]
@@ -34,16 +34,16 @@ final class ScUAnnotation(override protected val scElement: ScAnnotation,
   @Nullable
   override def getQualifiedName: String = scElement.getQualifiedName
 
-  override def getAttributeValues: util.List[UNamedExpression] =
-    seqAsJavaList(
-      scElement.annotationExpr.getAnnotationParameters
-        .map {
-          case namedArg: ScAssignment =>
-            new ScUNamedExpression(namedArg, LazyUElement.just(this))
-          case unnamedArg =>
-            new ScUUnnamedExpression(unnamedArg, LazyUElement.just(this))
-        }
-    )
+  override def getAttributeValues: util.List[UNamedExpression] = {
+    val result: collection.Seq[UNamedExpression] = scElement.annotationExpr.getAnnotationParameters
+      .map {
+        case namedArg: ScAssignment =>
+          new ScUNamedExpression(namedArg, LazyUElement.just(this))
+        case unnamedArg =>
+          new ScUUnnamedExpression(unnamedArg, LazyUElement.just(this))
+      }
+    result.asJava
+  }
 
   def constructorInvocation: Option[UCallExpression] =
     scElement.constructorInvocation.convertTo[UCallExpression](this)

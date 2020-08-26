@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer._
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{SingleTestData, _}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfiguration]
   extends LazyRunConfigurationProducer[T] {

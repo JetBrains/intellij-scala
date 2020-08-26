@@ -36,24 +36,24 @@ class Qualified(nameCondition: String => Boolean) extends InvocationTemplate(nam
     stripped(expr) match {
       case (_: ScMethodCall) childOf (parentCall: ScMethodCall) if !parentCall.isApplyOrUpdateCall => None
       case MethodRepr(_, Some(qual), Some(ref), args) if nameCondition(ref.refName) && refCondition(ref) =>
-        Some(qual, args)
+        Some((qual, args.toSeq))
       case MethodRepr(call: ScMethodCall, Some(qual), None, args) if nameCondition("apply") && call.isApplyOrUpdateCall && !call.isUpdateCall =>
         val text = qual match {
           case _: ScReferenceExpression | _: ScMethodCall | _: ScGenericCall => s"${qual.getText}.apply"
           case _ => s"(${qual.getText}).apply"
         }
         val ref = Try(ScalaPsiElementFactory.createExpressionFromText(text, call).asInstanceOf[ScReferenceExpression]).toOption
-        if (ref.isDefined && refCondition(ref.get)) Some(qual, args)
+        if (ref.isDefined && refCondition(ref.get)) Some(qual, args.toSeq)
         else None
       case MethodRepr(_, Some(MethodRepr(_, Some(qual), Some(ref), firstArgs)), None, secondArgs) if nameCondition(ref.refName) && refCondition(ref) =>
-        Some(qual, firstArgs ++ secondArgs)
+        Some(qual, (firstArgs ++ secondArgs).toSeq)
       case _ => None
     }
   }
 }
 
 class Unqualified(nameCondition: String => Boolean) extends InvocationTemplate(nameCondition) {
-  def unapplySeq(expr: ScExpression): Option[Seq[ScExpression]] = {
+  def unapplySeq(expr: ScExpression): Option[collection.Seq[ScExpression]] = {
     stripped(expr) match {
       case (_: ScMethodCall) childOf (parentCall: ScMethodCall) => None
       case MethodRepr(_, None, Some(ref), args) if nameCondition(ref.refName) && refCondition(ref) =>

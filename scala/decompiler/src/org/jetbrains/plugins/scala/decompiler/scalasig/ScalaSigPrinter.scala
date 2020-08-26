@@ -725,8 +725,8 @@ class ScalaSigPrinter(builder: StringBuilder) {
       case value: String                           => quote(value, canUseMultiline = false)
       case Ref(Name(value))                        => quote(value, canUseMultiline = false)
       case value: Char                             => "\'" + value + "\'"
-      case value: Long                             => value + "L"
-      case value: Float                            => value + "f"
+      case value: Long                             => value.toString + "L"
+      case value: Float                            => value.toString + "f"
       case value@(_: Boolean | _: Int | _: Double) => value.toString
     }
   }

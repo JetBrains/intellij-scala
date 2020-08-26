@@ -14,7 +14,7 @@ object ZipWithIndex extends SimplificationType() {
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
-      case (ref @ ResolvesTo(x))`.zip`((ResolvesTo(y))`.indices`()) if x == y && !x.isInstanceOf[PsiMethod] =>
+      case (ref @ ResolvesTo(x))`.zip`((ResolvesTo(y))`.indices`Seq()) if x == y && !x.isInstanceOf[PsiMethod] =>
         Some(replace(expr).withText(invocationText(ref, "zipWithIndex")))
       case _ => None
     }

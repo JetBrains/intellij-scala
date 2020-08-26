@@ -21,7 +21,7 @@ import org.jetbrains.bsp.settings._
 import org.jetbrains.bsp.project.BspExternalSystemManager.DetectExternalProjectFiles
 import org.jetbrains.bsp.protocol.BspConnectionConfig
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.Try
 
 class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings, BspProjectSettingsListener, BspSettings, BspLocalSettings, BspExecutionSettings]

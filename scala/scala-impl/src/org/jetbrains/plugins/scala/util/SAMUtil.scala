@@ -168,7 +168,7 @@ object SAMUtil {
                                        (implicit elementScope: ElementScope): Option[ScType] = {
     def convertParameter(tpArg: ScType, wildcards: Seq[ScExistentialArgument], variance: Variance): ScType = {
       tpArg match {
-        case ParameterizedType(des, tpArgs) => ScParameterizedType(des, tpArgs.map(convertParameter(_, wildcards, variance)))
+        case ParameterizedType(des, tpArgs) => ScParameterizedType(des, tpArgs.map(convertParameter(_, wildcards, variance)).toSeq)
         case ScExistentialType(parameterized: ScParameterizedType, _) if scalaVersion == ScalaLanguageLevel.Scala_2_11 =>
           ScExistentialType(convertParameter(parameterized, wildcards, variance)).simplify()
         case arg: ScExistentialArgument if wildcards.contains(arg) =>

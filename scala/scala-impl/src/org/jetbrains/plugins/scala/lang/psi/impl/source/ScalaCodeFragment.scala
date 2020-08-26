@@ -105,7 +105,7 @@ final class ScalaCodeFragment private(private var viewProvider: SingleRootFileVi
     }
   }
 
-  override def addImportsForPaths(paths: Seq[String], refsContainer: PsiElement): Unit = {
+  override def addImportsForPaths(paths: collection.Seq[String], refsContainer: PsiElement): Unit = {
     paths.foreach(addImportForPath(_, refsContainer))
   }
 

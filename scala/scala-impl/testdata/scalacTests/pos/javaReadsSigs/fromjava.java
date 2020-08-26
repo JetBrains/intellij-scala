@@ -1,9 +1,6 @@
 import scala.*;
 import scala.math.Ordering;
 import scala.math.Numeric;
-import scala.collection.Seq;
-import scala.collection.Traversable;
-import scala.collection.Traversable$;
 import scala.collection.immutable.Set;
 import scala.collection.immutable.HashSet;
 import scala.collection.immutable.Map;

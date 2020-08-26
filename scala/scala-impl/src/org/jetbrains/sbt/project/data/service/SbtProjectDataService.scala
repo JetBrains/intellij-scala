@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.settings.SbtSettings
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Pavel Fatin
@@ -91,7 +91,7 @@ object SbtProjectDataService {
         ScalaCompilerConfiguration.instanceIn(project).incrementalityType = IncrementalityType.SBT
     }
 
-    private def updateJavaCompilerOptionsIn(project: Project, options: Seq[String]): Unit = executeProjectChangeAction {
+    private def updateJavaCompilerOptionsIn(project: Project, options: collection.Seq[String]): Unit = executeProjectChangeAction {
       val settings = JavacConfiguration.getOptions(project, classOf[JavacConfiguration])
 
       def contains(values: String*) = values.exists(options.contains)
@@ -121,10 +121,10 @@ object SbtProjectDataService {
       settings.ADDITIONAL_OPTIONS_STRING = customOptions.mkString(" ")
     }
 
-    private def additionalOptionsFrom(options: Seq[String]): Seq[String] = {
+    private def additionalOptionsFrom(options: collection.Seq[String]): collection.Seq[String] = {
       @NonNls val handledOptions = Set("-g:none", "-nowarn", "-Xlint:none", "-deprecation", "-Xlint:deprecation")
 
-      def removePair(name: String, options: Seq[String]): Seq[String] = {
+      def removePair(name: String, options: collection.Seq[String]): collection.Seq[String] = {
         val index = options.indexOf(name)
 
         if (index == -1) options

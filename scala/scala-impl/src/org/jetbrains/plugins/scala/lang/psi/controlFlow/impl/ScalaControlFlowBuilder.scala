@@ -32,7 +32,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   private var myHead: InstructionImpl = _
 
 
-  def buildControlflow(scope: ScalaPsiElement): Seq[Instruction] = {
+  def buildControlflow(scope: ScalaPsiElement): collection.Seq[Instruction] = {
     // initial node
     val instr = new InstructionImpl(inc, None)
     addNode(instr)

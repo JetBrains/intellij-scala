@@ -14,7 +14,7 @@ import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.plugins.scala.compiler.data.{CompilationData, SbtData}
 import org.jetbrains.plugins.scala.server.CompileServerProperties
 
-import _root_.scala.collection.JavaConverters._
+import _root_.scala.jdk.CollectionConverters._
 
 /**
  * Nikolay.Tropin
@@ -27,8 +27,8 @@ object ScalaBuilder {
 
   def compile(context: CompileContext,
               chunk: ModuleChunk,
-              sources: Seq[File],
-              allSources: Seq[File],
+              sources: collection.Seq[File],
+              allSources: collection.Seq[File],
               modules: Set[JpsModule],
               client: Client): Either[String, ModuleLevelBuilder.ExitCode] = {
 

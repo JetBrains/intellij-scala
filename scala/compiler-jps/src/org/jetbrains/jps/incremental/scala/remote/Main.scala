@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.compiler.data.Arguments
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
-import scala.collection.JavaConverters.seqAsJavaListConverter
+import scala.jdk.CollectionConverters._
 import scala.concurrent.duration.FiniteDuration
 import scala.util.{Failure, Success, Try}
 

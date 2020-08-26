@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
-import scala.collection.JavaConverters
+import scala.jdk.CollectionConverters._
 
 /**
   * Created by kate
@@ -53,7 +53,7 @@ class CaseClassParametersCompletionContributor extends ScalaCompletionContributo
           case pattern: ScPattern =>
             for {
               (parameter, expectedType) <- caseClassParameters.lift(myPosition).zip(pattern.expectedType)
-              name <- NameSuggester.suggestNamesByType(expectedType)
+              name <- NameSuggester.suggestNamesByType(expectedType).headOption
             } yield (parameter, name)
           case _ => Iterable.empty
         }
@@ -65,8 +65,7 @@ class CaseClassParametersCompletionContributor extends ScalaCompletionContributo
         result.withRelevanceSorter(sorter).addAllElements(elements)
       }
 
-      private def createItems(pairs: Seq[(ScParameter, String)]) = {
-        import JavaConverters._
+      private def createItems(pairs: collection.Seq[(ScParameter, String)]) = {
         pairs.map {
           case (parameter, name) =>
             val result = new ScalaLookupItem(parameter, name)

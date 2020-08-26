@@ -38,7 +38,7 @@ final class ScalaMemberNameCompletionContributor extends ScalaCompletionContribu
       }
 
       private def objectsAndClassesIn(parent: PsiElement) = {
-        import collection.JavaConverters._
+        import scala.jdk.CollectionConverters._
         getChildrenOfTypeAsList(parent, classOf[ScTypeDefinition])
           .asScala
           .toSet

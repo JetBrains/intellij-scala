@@ -10,7 +10,7 @@ class ScPrimaryConstructorWrapper(override val delegate: ScPrimaryConstructor, i
 
   override protected def returnScType: ScType = null
 
-  override protected def parameters: Seq[PsiParameter] =
+  override protected def parameters: collection.Seq[PsiParameter] =
     delegate.effectiveParameterClauses
       .flatMap(_.effectiveParameters)
       .map(ScLightParameter.from(_, ScSubstitutor.empty, isJavaVarargs))

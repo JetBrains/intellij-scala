@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
 import scala.annotation.tailrec
 import scala.beans.BeanProperty
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigurationData(config) {

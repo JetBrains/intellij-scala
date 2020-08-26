@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters.iterableAsScalaIterableConverter
+import scala.jdk.CollectionConverters._
 
 final class ScClsFileViewProvider(decompilationResult: ScalaDecompilationResult)
                                  (manager: PsiManager, file: VirtualFile, eventSystemEnabled: Boolean, language: Language)

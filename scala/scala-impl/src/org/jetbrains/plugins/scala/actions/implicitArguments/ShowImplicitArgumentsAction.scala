@@ -166,7 +166,7 @@ object ShowImplicitArgumentsAction {
     succeeded.get
   }
 
-  def showPopup(editor: Editor, results: Seq[ScalaResolveResult], isConversion: Boolean): JBPopup = {
+  def showPopup(editor: Editor, results: Iterable[ScalaResolveResult], isConversion: Boolean): JBPopup = {
     val project = editor.getProject
 
     val jTree = new Tree()

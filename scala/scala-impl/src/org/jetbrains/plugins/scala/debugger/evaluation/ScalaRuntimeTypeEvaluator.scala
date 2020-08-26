@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package debugger.evaluation
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import com.intellij.debugger.JavaDebuggerBundle
 import com.intellij.debugger.codeinsight.RuntimeTypeEvaluator

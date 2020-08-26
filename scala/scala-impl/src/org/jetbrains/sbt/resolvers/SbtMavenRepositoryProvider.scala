@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.idea.maven.indices.{MavenIndex, MavenRepositoryProvider}
 import org.jetbrains.idea.maven.model.MavenRemoteRepository
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 final class SbtMavenRepositoryProvider extends MavenRepositoryProvider {
 

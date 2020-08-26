@@ -52,7 +52,7 @@ class ScalaUnusedImportPass(override val file: PsiFile, editor: Editor, override
           val unusedImports = UsageTracker.getUnusedImports(scalaFile)
           val annotations = collectAnnotations(unusedImports, new AnnotationHolderImpl(new AnnotationSession(scalaFile)))
 
-          val list = new ju.ArrayList[HighlightInfo](annotations.length)
+          val list = new ju.ArrayList[HighlightInfo](annotations.size)
           annotations foreach (annotation => list add (HighlightInfo fromAnnotation annotation))
 
           if (ScalaApplicationSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY) {

@@ -37,7 +37,7 @@ final class ScTemplateParentsStubImpl(parent: StubElement[_ <: PsiElement],
     }, constructorAndParentTypeElementsReference = _)
   }
 
-  override def parentTypeElements: Seq[ScTypeElement] = {
+  override def parentTypeElements: collection.Seq[ScTypeElement] = {
     constructorAndParentTypeElements match {
       case (Some(constr), typeElems) => constr.typeElement +: typeElems
       case (_, typeElems) => typeElems
@@ -46,9 +46,9 @@ final class ScTemplateParentsStubImpl(parent: StubElement[_ <: PsiElement],
 }
 
 private object ScTemplateParentsStubImpl {
-  type Data = (Option[ScConstructorInvocation], Seq[ScTypeElement])
+  type Data = (Option[ScConstructorInvocation], collection.Seq[ScTypeElement])
 
-  implicit def flatten: Data => Seq[PsiElement] = {
+  implicit def flatten: Data => collection.Seq[PsiElement] = {
     case (opt, seq) => opt.toSeq ++ seq
   }
 }

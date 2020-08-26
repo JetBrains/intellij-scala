@@ -36,15 +36,15 @@ class ExpandEtaExpansion extends AbstractTransformer {
       e.replace(code"() => $r")
   }
 
-  private def clausesOf(m: ScFunction): Seq[ScParameterClause] =
-    m.clauses.map(_.clauses).getOrElse(Seq.empty)
+  private def clausesOf(m: ScFunction): collection.Seq[ScParameterClause] =
+    m.clauses.map(_.clauses).getOrElse(collection.Seq.empty)
 
   private def nestingLevelOf(call: ScMethodCall): Int = call.getFirstChild match {
     case it: ScMethodCall => 1 + nestingLevelOf(it)
     case _ => 1
   }
 
-  private def process(e: ScExpression, target: PsiElement, clauses: Seq[ScParameterClause], typed: Boolean)(implicit project: ProjectContext): Unit = {
+  private def process(e: ScExpression, target: PsiElement, clauses: collection.Seq[ScParameterClause], typed: Boolean)(implicit project: ProjectContext): Unit = {
     def formatParameters(clause: ScParameterClause) = {
       val list = clause.parameters
         .map(p => p.typeElement.filter(const(typed)).map(t => p.name + ": " + t.getText).getOrElse(p.name))

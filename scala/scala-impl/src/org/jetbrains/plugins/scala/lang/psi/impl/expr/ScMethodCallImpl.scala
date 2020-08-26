@@ -15,7 +15,7 @@ class ScMethodCallImpl(node: ASTNode) extends MethodInvocationImpl(node) with Sc
 
   override def getInvokedExpr: ScExpression = findChildByClassScala(classOf[ScExpression])
 
-  override def argumentExpressions: Seq[ScExpression] = if (args != null) args.exprs else Nil
+  override def argumentExpressions: collection.Seq[ScExpression] = if (args != null) args.exprs else Nil
 
   override def getEffectiveInvokedExpr: ScExpression =
     findChildByClassScala(classOf[ScExpression]) match {

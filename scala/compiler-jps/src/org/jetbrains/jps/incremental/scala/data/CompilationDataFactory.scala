@@ -10,12 +10,12 @@ import org.jetbrains.jps.incremental.scala.{ChunkExclusionService, JpsBundle, Se
 import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.plugins.scala.compiler.data.{CompilationData, ZincData}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait CompilationDataFactory {
 
-  def from(sources: Seq[File],
-           allSources: Seq[File],
+  def from(sources: collection.Seq[File],
+           allSources: collection.Seq[File],
            context: CompileContext,
            chunk: ModuleChunk): Either[String, CompilationData]
 }
@@ -25,8 +25,8 @@ object CompilationDataFactory
 
   private val compilationStamp = System.nanoTime()
 
-  override def from(sources: Seq[File],
-                    allSources: Seq[File],
+  override def from(sources: collection.Seq[File],
+                    allSources: collection.Seq[File],
                     context: CompileContext,
                     chunk: ModuleChunk): Either[String, CompilationData] = {
     val target = chunk.representativeTarget
@@ -39,7 +39,7 @@ object CompilationDataFactory
     val output = target.getOutputDir.getCanonicalFile
     checkOrCreate(output)
 
-    val classpath = ProjectPaths.getCompilationClasspathFiles(chunk, chunk.containsTests, false, true).asScala.toSeq
+    val classpath = ProjectPaths.getCompilationClasspathFiles(chunk, chunk.containsTests, false, true).asScala
     val compilerSettings = SettingsManager.getProjectSettings(module.getProject).getCompilerSettings(chunk)
     val scalaOptions = CompilerDataFactory.scalaOptionsFor(compilerSettings, chunk)
     val order = compilerSettings.getCompileOrder
@@ -73,7 +73,7 @@ object CompilationDataFactory
         !JavaBuilderUtil.isCompileJavaIncrementally(context) &&
           !JavaBuilderUtil.isForcedRecompilationAllJavaModules(context)
 
-      CompilationData(canonicalSources, classpath, output, commonOptions ++ scalaOptions, commonOptions ++ javaOptions,
+      CompilationData(canonicalSources, classpath.toSeq, output, commonOptions ++ scalaOptions, commonOptions ++ javaOptions,
         order, cacheFile, relevantOutputToCacheMap, outputGroups,
         ZincData(allSources, compilationStamp, isCompile))
     }
@@ -129,7 +129,7 @@ object CompilationDataFactory
       if sourceRootFile.exists
     } yield (sourceRootFile, output)
   
-  private def targetsIn(context: CompileContext): Seq[ModuleBuildTarget] = {
+  private def targetsIn(context: CompileContext): collection.Seq[ModuleBuildTarget] = {
     def isExcluded(target: ModuleBuildTarget): Boolean =
       ChunkExclusionService.isExcluded(chunk(target))
 
@@ -149,8 +149,8 @@ object CompilationDataFactory
   private def chunk(target: ModuleBuildTarget): ModuleChunk =
     new ModuleChunk(Collections.singleton(target))
 
-  private def outputClashesIn(targetToOutput: Seq[(ModuleBuildTarget, File)]): Option[String] = {
-    val outputToTargetsMap = targetToOutput.groupBy(_._2).mapValues(_.map(_._1))
+  private def outputClashesIn(targetToOutput: collection.Seq[(ModuleBuildTarget, File)]): Option[String] = {
+    val outputToTargetsMap = targetToOutput.groupBy(_._2).view.mapValues(_.map(_._1))
 
     val errors = outputToTargetsMap.collect {
       case (output, targets) if output != null && targets.length > 1 =>

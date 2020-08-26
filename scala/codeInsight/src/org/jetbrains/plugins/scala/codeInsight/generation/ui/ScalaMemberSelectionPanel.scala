@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.ui._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * Nikolay.Tropin
@@ -19,7 +19,7 @@ class ScalaMemberSelectionPanel(@Nls title: String, infos: ju.List[ScalaMemberIn
   extends ScalaMemberSelectionPanelBase[ScNamedElement, ScalaMemberInfo](title, infos, null) {
 
   protected def this(title: String,
-                     members: Seq[ScNamedElement],
+                     members: collection.Seq[ScNamedElement],
                      model: AbstractMemberInfoModel[ScNamedElement, ScalaMemberInfo]) =
     this(title, members.map(new ScalaMemberInfo(_)).asJava)(model)
 

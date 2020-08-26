@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfigurable
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerProfilesPanel
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class ShowCompilerProfileSettingsButton(form: WorksheetSettingsSetForm)
   extends AnAction(ScalaBundle.message("worksheet.show.compiler.profiles.settings"), null, AllIcons.General.Settings) {

@@ -15,6 +15,8 @@ import javax.swing.event.{TableModelEvent, TableModelListener}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
+import scala.jdk.CollectionConverters.SeqHasAsJava
+
 /**
   * Wizard dialog to select class members for generation of toString method.
   *
@@ -22,7 +24,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
   * @param classMembers Class members to choose from.
   * @author Rado Buransky (buransky.com)
   */
-final class ScalaGenerateToStringWizard(classMembers: Seq[ScNamedElement])
+final class ScalaGenerateToStringWizard(classMembers: collection.Seq[ScNamedElement])
                                        (implicit project: Project)
   extends AbstractWizard[Step](
     ScalaCodeInsightBundle.message("generate.ui.toString.title"),
@@ -67,7 +69,7 @@ final class ScalaGenerateToStringWizard(classMembers: Seq[ScNamedElement])
 
 object ScalaGenerateToStringWizard {
 
-  private final class Panel(members: Seq[ScNamedElement])
+  private final class Panel(members: collection.Seq[ScNamedElement])
                            (listener: TableModelListener)
     extends ScalaMemberSelectionPanel(
       ScalaCodeInsightBundle.message("generate.ui.toString.properties"),

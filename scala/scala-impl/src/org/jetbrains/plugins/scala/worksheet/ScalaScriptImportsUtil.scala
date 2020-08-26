@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
   * Date: 20.10.17.
   */
 object ScalaScriptImportsUtil {
-  def filterScriptImportsInUnused(file: ScalaFile, unused: Seq[ImportUsed]): Seq[ImportUsed] = {
+  def filterScriptImportsInUnused(file: ScalaFile, unused: collection.Seq[ImportUsed]): collection.Seq[ImportUsed] = {
     file match {
       case ammoniteFile if AmmoniteUtil.isAmmoniteFile(ammoniteFile) =>
         unused.filterNot {

@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.junit.Assert._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -182,7 +182,7 @@ object ScalaCodeInsightTestBase {
   }
 
   private def allItems(impl: LookupImpl) = {
-    import collection.JavaConverters._
+    import scala.jdk.CollectionConverters._
     impl.getItems.asScala
   }
 }

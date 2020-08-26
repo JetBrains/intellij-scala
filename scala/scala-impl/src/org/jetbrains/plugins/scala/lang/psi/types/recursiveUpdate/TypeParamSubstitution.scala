@@ -5,7 +5,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{TypeParamId, 
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameter, TypeParameterType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.{LeafType, ScAbstractType, ScLiteralType, ScType}
 
-import scala.collection.Seq
 import scala.collection.immutable.LongMap
 
 /**
@@ -64,8 +63,8 @@ private case class TypeParamSubstitution(tvMap: LongMap[ScType]) extends LeafSub
 }
 
 private object TypeParamSubstitution {
-  def buildMap[T, S](typeParamsLike: Seq[T],
-                     types: Seq[S],
+  def buildMap[T, S](typeParamsLike: Iterable[T],
+                     types: Iterable[S],
                      initial: LongMap[ScType] = LongMap.empty)
                     (toScType: S => ScType)
                     (implicit ev: TypeParamId[T]): LongMap[ScType] = {

@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
   */
 sealed trait TypeParameter {
   val psiTypeParameter: PsiTypeParameter
-  val typeParameters: Seq[TypeParameter]
+  val typeParameters: collection.Seq[TypeParameter]
 
   def lowerType: ScType
   def upperType: ScType
@@ -54,13 +54,13 @@ object TypeParameter {
   }
 
   def apply(psiTypeParameter: PsiTypeParameter,
-            typeParameters: Seq[TypeParameter],
+            typeParameters: collection.Seq[TypeParameter],
             lType: ScType,
             uType: ScType): TypeParameter = StrictTp(psiTypeParameter, typeParameters, lType, uType)
 
   def light(
     name:           String,
-    typeParameters: Seq[TypeParameter],
+    typeParameters: collection.Seq[TypeParameter],
     lower:          ScType,
     upper:          ScType
   ): TypeParameter =
@@ -68,13 +68,13 @@ object TypeParameter {
 
   def deferred(
     name:           String,
-    typeParameters: Seq[TypeParameter],
+    typeParameters: collection.Seq[TypeParameter],
     lower:          () => ScType,
     upper:          () => ScType
   ): TypeParameter =
     LightTypeParameter(name, typeParameters, lower, upper)
 
-  def unapply(tp: TypeParameter): Option[(PsiTypeParameter, Seq[TypeParameter], ScType, ScType)] =
+  def unapply(tp: TypeParameter): Option[(PsiTypeParameter, collection.Seq[TypeParameter], ScType, ScType)] =
     Some(tp.psiTypeParameter, tp.typeParameters, tp.lowerType, tp.upperType)
 
   def javaPsiTypeParameterUpperType(typeParameter: PsiTypeParameter): ScType = {
@@ -83,7 +83,7 @@ object TypeParameter {
   }
 
   private case class StrictTp(override val psiTypeParameter: PsiTypeParameter,
-                              override val typeParameters: Seq[TypeParameter],
+                              override val typeParameters: collection.Seq[TypeParameter],
                               override val lowerType: ScType,
                               override val upperType: ScType) extends TypeParameter
 
@@ -105,7 +105,7 @@ object TypeParameter {
 
   private case class LightTypeParameter(
     override val name:           String,
-    override val typeParameters: Seq[TypeParameter],
+    override val typeParameters: collection.Seq[TypeParameter],
     lower:                       () => ScType,
     upper:                       () => ScType
   ) extends TypeParameter {

@@ -28,7 +28,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -148,7 +147,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     }
 
   @Cached(BlockModificationTracker(this), this)
-  def syntheticTypeElements: Seq[ScTypeElement] = {
+  def syntheticTypeElements: collection.Seq[ScTypeElement] = {
     if (templateParents.nonEmpty) return Seq.empty //will be handled separately
     getContext match {
       case td: ScTypeDefinition => SyntheticMembersInjector.injectSupers(td)
@@ -157,7 +156,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
   }
 
   @CachedInUserData(this, ModTracker.libraryAware(this))
-  override def supers: Seq[PsiClass] = {
+  override def supers: collection.Seq[PsiClass] = {
     val typeElements = templateParents.fold(syntheticTypeElements) {
       _.allTypeElements
     }
@@ -189,7 +188,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     buffer
   }
 
-  override def members: Seq[ScMember] = {
+  override def members: collection.Seq[ScMember] = {
     templateBodies.flatMap {
       _.members
     } ++ earlyDefinitions.toSeq.flatMap {
@@ -204,12 +203,12 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
   def nameId: Null = null
 
-  override def aliases: Seq[ScTypeAlias] =
+  override def aliases: collection.Seq[ScTypeAlias] =
     templateBodies.flatMap {
       _.aliases
     }
 
-  override def functions: Seq[ScFunction] =
+  override def functions: collection.Seq[ScFunction] =
     templateBodies.flatMap {
       _.functions
     }
@@ -261,8 +260,8 @@ object ScExtendsBlockImpl {
       buffer += t
   }
 
-  private def extractSupers(typeElements: Seq[ScTypeElement])
-                           (implicit project: ProjectContext): Seq[PsiClass] =
+  private def extractSupers(typeElements: collection.Seq[ScTypeElement])
+                           (implicit project: ProjectContext): collection.Seq[PsiClass] =
     typeElements.flatMap {
       case typeElement@ScSimpleTypeElement.unwrapped(reference) =>
         reference.resolveNoConstructor match {

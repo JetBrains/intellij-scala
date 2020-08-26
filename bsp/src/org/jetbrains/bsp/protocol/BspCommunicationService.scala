@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
-import scala.collection.JavaConverters._
 import scala.util.{Success, Try}
 
 class BspCommunicationService extends Disposable {
@@ -97,7 +96,7 @@ class BspCommunicationService extends Disposable {
     override def projectClosed(project: Project): Unit = for {
       path <- projectPath(project)
       uri = Paths.get(path).toUri
-      session <- comms.filterKeys(_._1 == uri).values
+      session <- comms.view.filterKeys(_._1 == uri).values
     } session.closeSession()
   }
 }

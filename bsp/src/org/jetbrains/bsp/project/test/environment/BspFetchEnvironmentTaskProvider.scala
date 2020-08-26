@@ -77,7 +77,7 @@ class BspFetchEnvironmentTaskProvider extends BeforeRunTaskProvider[BspFetchEnvi
 
   private object BspSupportedConfiguration {
     def unapply(configuration: RunConfiguration): Option[(ModuleBasedConfiguration[_, _], Module)] = {
-      ModuleBasedConfiguration.unapply(configuration)
+      org.jetbrains.bsp.project.test.environment.ModuleBasedConfiguration.unapply(configuration)
         .filter(_ => BspEnvironmentRunnerExtension.isSupported(configuration))
     }
   }

@@ -28,7 +28,6 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.SAMUtil
 
 import scala.annotation.tailrec
-import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
 import scala.util.control.ControlThrowable
 
@@ -73,11 +72,11 @@ object InferUtil {
     * @return updated type and sequence of implicit parameters
     */
   def updateTypeWithImplicitParameters(res: ScType, element: PsiElement, coreElement: Option[ScNamedElement], canThrowSCE: Boolean,
-                                       searchImplicitsRecursively: Int = 0, fullInfo: Boolean): (ScType, Option[Seq[ScalaResolveResult]]) = {
+                                       searchImplicitsRecursively: Int = 0, fullInfo: Boolean): (ScType, Option[collection.Seq[ScalaResolveResult]]) = {
     implicit val ctx: ProjectContext = element
 
     var resInner = res
-    var implicitParameters: Option[Seq[ScalaResolveResult]] = None
+    var implicitParameters: Option[collection.Seq[ScalaResolveResult]] = None
     res match {
       case t@ScTypePolymorphicType(mt@ScMethodType(retType, _, isImplicit), _) if !isImplicit =>
         // See SCL-3516
@@ -154,13 +153,13 @@ object InferUtil {
 
 
   def findImplicits(
-    params:                     Seq[Parameter],
+    params:                     collection.Seq[Parameter],
     coreElement:                Option[ScNamedElement],
     place:                      PsiElement,
     canThrowSCE:                Boolean,
     searchImplicitsRecursively: Int = 0,
     abstractSubstitutor:        ScSubstitutor = ScSubstitutor.empty
-  ): (Seq[Parameter], Seq[Compatibility.Expression], Seq[ScalaResolveResult]) = {
+  ): (collection.Seq[Parameter], collection.Seq[Compatibility.Expression], collection.Seq[ScalaResolveResult]) = {
 
     implicit val project: ProjectContext = place.getProject
 
@@ -229,7 +228,7 @@ object InferUtil {
   }
 
 
-  private def areEligible(params: Seq[ScType], typeFqn: String): Boolean =
+  private def areEligible(params: collection.Seq[ScType], typeFqn: String): Boolean =
     (typeFqn, params) match {
       case (ValueOf, Seq(t))              => eligibleForValueOf(t)
       case (ConformsWitness, Seq(t1, t2)) => t1.conforms(t2)
@@ -463,9 +462,9 @@ object InferUtil {
 
   def localTypeInference(
     retType:                  ScType,
-    params:                   Seq[Parameter],
-    exprs:                    Seq[Expression],
-    typeParams:               Seq[TypeParameter],
+    params:                   collection.Seq[Parameter],
+    exprs:                    collection.Seq[Expression],
+    typeParams:               collection.Seq[TypeParameter],
     shouldUndefineParameters: Boolean = true,
     canThrowSCE:              Boolean = false,
     filterTypeParams:         Boolean = true
@@ -484,9 +483,9 @@ object InferUtil {
 
   def localTypeInferenceWithApplicabilityExt(
     retType:                  ScType,
-    params:                   Seq[Parameter],
-    exprs:                    Seq[Expression],
-    typeParams:               Seq[TypeParameter],
+    params:                   collection.Seq[Parameter],
+    exprs:                    collection.Seq[Expression],
+    typeParams:               collection.Seq[TypeParameter],
     shouldUndefineParameters: Boolean = true,
     canThrowSCE:              Boolean = false,
     filterTypeParams:         Boolean = true,
@@ -653,7 +652,7 @@ object InferUtil {
     }
   }
 
-  private def collectReverseParamTypesNoImplicits(function: ScFunction): Option[Seq[Seq[ScType]]] = {
+  private def collectReverseParamTypesNoImplicits(function: ScFunction): Option[collection.Seq[collection.Seq[ScType]]] = {
     val buffer = ArrayBuffer.empty[Seq[ScType]]
     val clauses = function.paramClauses.clauses
 

@@ -120,11 +120,11 @@ private class ServerConnector(module: Module, filesToCompile: Seq[File], outputD
     case files => files.map(f => (f, s"$namePrefix${f.getName}".stripSuffix(".class")))
   }
 
-  def compile(): Either[Array[(File, String)], Seq[String]] = {
+  def compile(): Either[Array[(File, String)], collection.Seq[String]] = {
     val project = module.getProject
 
     val compilationProcess = new RemoteServerRunner(project).buildProcess(CommandIds.Compile, arguments.asStrings, client)
-    var result: Either[Array[(File, String)], Seq[String]] = Right(Seq("Compilation failed"))
+    var result: Either[Array[(File, String)], collection.Seq[String]] = Right(Seq("Compilation failed"))
     compilationProcess.addTerminationCallback { exception => // TODO: do not ignore possible exception
       result = if (errors.nonEmpty) Right(errors) else Left(classfiles(outputDir))
     }

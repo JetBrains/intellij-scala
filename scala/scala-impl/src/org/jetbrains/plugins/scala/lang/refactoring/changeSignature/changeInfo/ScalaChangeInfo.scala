@@ -22,7 +22,7 @@ case class ScalaChangeInfo(newVisibility: String,
                            function: ScMethodLike,
                            @BeanProperty newName: String,
                            newType: ScType,
-                           newParams: Seq[Seq[ScalaParameterInfo]],
+                           newParams: collection.Seq[collection.Seq[ScalaParameterInfo]],
                            isAddDefaultArgs: Boolean,
                            addTypeAnnotation: Option[Boolean] = None)
         extends ScalaChangeInfoBase(newParams.flatten.toArray)

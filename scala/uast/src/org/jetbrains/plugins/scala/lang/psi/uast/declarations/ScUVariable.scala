@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.lang.psi.uast.psi.LightVariableWithGivenAnnotationsBuilder
 import org.jetbrains.uast._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 trait ScUVariableCommon extends ScUElement with UAnchorOwner with UAnnotated {

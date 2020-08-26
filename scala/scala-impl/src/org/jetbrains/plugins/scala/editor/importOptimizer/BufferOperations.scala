@@ -32,7 +32,7 @@ object BufferOperations {
     new BufferOperations[B, E] {
       override def remove(buffer: B, startIdx: Int, count: Int): Unit = buffer.remove(startIdx, count)
 
-      override def insert(buffer: B, idx: Int, toInsert: Seq[E]): Unit = buffer.insert(idx, toInsert: _*)
+      override def insert(buffer: B, idx: Int, toInsert: Seq[E]): Unit = buffer.insertAll(idx, toInsert)
 
       override def asArray(buffer: B): Array[E] = buffer.toArray
     }

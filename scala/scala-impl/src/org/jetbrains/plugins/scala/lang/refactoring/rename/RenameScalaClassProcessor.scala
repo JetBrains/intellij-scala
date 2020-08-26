@@ -92,7 +92,7 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
       }
     }
 
-    import scala.collection.JavaConverters.asScalaSetConverter
+    import scala.jdk.CollectionConverters._
     val elems = allRenames.keySet().asScala.clone()
     elems.foreach(addLightClasses)
 

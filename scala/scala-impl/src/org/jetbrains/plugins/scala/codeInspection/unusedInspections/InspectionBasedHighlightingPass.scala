@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.codeInspection.suppression.ScalaInspectionSup
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option[Document], inspection: HighlightingPassInspection)

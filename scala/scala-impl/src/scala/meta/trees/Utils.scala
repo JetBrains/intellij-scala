@@ -58,28 +58,6 @@ trait Utils {
   }
 
   implicit class RichPatTpeTree(ptpe: m.Type) {
-    def patTpe: m.Pat.Type = {
-      def loop(ptpe: m.Type): m.Pat.Type = {
-        ptpe match {
-          case ptpe: m.Type.Name => ptpe
-          case ptpe: m.Type.Select => ptpe
-          case m.Type.Project(pqual, pname) => m.Pat.Type.Project(loop(pqual), pname)
-          case ptpe: m.Type.Singleton => ptpe
-          case m.Type.Apply(ptpe, args) => m.Pat.Type.Apply(loop(ptpe), args.map(loop))
-          case m.Type.ApplyInfix(plhs, pop, prhs) => m.Pat.Type.ApplyInfix(loop(plhs), pop, loop(prhs))
-          case m.Type.Function(pparams, pres) => m.Pat.Type.Function(pparams.map(param => loop(param.asInstanceOf[m.Type])), loop(pres))
-          case m.Type.Tuple(pelements) => m.Pat.Type.Tuple(pelements.map(loop))
-          case m.Type.With(rhs, lhs) => m.Pat.Type.With(loop(rhs), loop(lhs))
-          case m.Type.Existential(ptpe, pquants) => m.Pat.Type.Existential(loop(ptpe), pquants)
-          case m.Type.Annotate(ptpe, pannots) => m.Pat.Type.Annotate(loop(ptpe), pannots)
-          case m.Type.Placeholder(_) => m.Pat.Type.Wildcard() // FIXME: wtf? is it supposed to convert this way?
-          case ptpe: m.Pat.Type.Placeholder => ptpe
-          case ptpe: m.Lit => ptpe
-        }
-      }
-      loop(ptpe)
-    }
-
     def stripped: Type = ptpe match {
       case m.Type.Select(_, n:m.Type.Name) => n
       case m.Type.Project(_, n:m.Type.Name) => n

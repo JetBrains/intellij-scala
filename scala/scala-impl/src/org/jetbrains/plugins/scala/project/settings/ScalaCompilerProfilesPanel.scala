@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.OptionExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerProfilesPanel._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * NOTE: This was initially almost the exact clone of [[com.intellij.compiler.options.AnnotationProcessorsPanel]]
@@ -33,7 +33,7 @@ import scala.collection.JavaConverters._
 class ScalaCompilerProfilesPanel(val myProject: Project) extends JPanel(new BorderLayout) {
 
   private val myDefaultProfile = new ScalaCompilerSettingsProfile("") // TODO: make immutable?
-  private var myModuleProfiles = Seq.empty[ScalaCompilerSettingsProfile]
+  private var myModuleProfiles: collection.Seq[ScalaCompilerSettingsProfile] = Seq.empty
 
   private val myAllModulesMap  = ModuleManager.getInstance(myProject).getModules.groupBy(_.getName).mapValues(_.head)
 
@@ -93,14 +93,14 @@ class ScalaCompilerProfilesPanel(val myProject: Project) extends JPanel(new Bord
     myDefaultProfile
   }
 
-  def getModuleProfiles: Seq[ScalaCompilerSettingsProfile] = {
+  def getModuleProfiles: collection.Seq[ScalaCompilerSettingsProfile] = {
     val selectedProfile = mySelectedProfile
     if (myDefaultProfile != selectedProfile)
       mySettingsPanel.saveTo(selectedProfile)
     myModuleProfiles
   }
 
-  def initProfiles(defaultProfile: ScalaCompilerSettingsProfile, moduleProfiles: Seq[ScalaCompilerSettingsProfile]): Unit = {
+  def initProfiles(defaultProfile: ScalaCompilerSettingsProfile, moduleProfiles: collection.Seq[ScalaCompilerSettingsProfile]): Unit = {
     myDefaultProfile.initFrom(defaultProfile)
     myModuleProfiles = moduleProfiles.map { profile =>
       val copy = new ScalaCompilerSettingsProfile("") // TODO: make immutable

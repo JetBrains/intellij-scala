@@ -461,7 +461,7 @@ object TypeDefinitionMembers {
     ScalaNamesUtil.clean(if (name != null) name else "")
   }
 
-  private def syntheticPropertyMethods(nameHint: String, signature: TermSignature): Seq[TermSignature] = {
+  private def syntheticPropertyMethods(nameHint: String, signature: TermSignature): collection.Seq[TermSignature] = {
     val sigName = signature.name
 
     val syntheticMethods = signature.namedElement match {

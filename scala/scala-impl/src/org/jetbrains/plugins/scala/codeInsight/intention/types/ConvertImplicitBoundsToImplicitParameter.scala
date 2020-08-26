@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeBoundsOwner, ScT
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createClauseFromText, createParameterFromText}
 import org.jetbrains.plugins.scala.lang.refactoring.util.InplaceRenameHelper
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class ConvertImplicitBoundsToImplicitParameter extends PsiElementBaseIntentionAction {
   override def getFamilyName: String = ScalaBundle.message("family.name.convert.implicit.bounds")

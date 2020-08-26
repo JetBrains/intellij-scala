@@ -4,7 +4,7 @@ import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.incremental.scala.SourceDependenciesProviderService
 import org.jetbrains.jps.model.module.{JpsModule, JpsModuleDependency}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Pavel Fatin

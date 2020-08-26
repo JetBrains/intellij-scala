@@ -13,13 +13,13 @@ import com.intellij.openapi.roots.libraries.Library
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.external.AbstractImporter
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 
 class ScalaSdkService extends AbstractProjectDataService[ScalaSdkData, Library] {
   override def getTargetDataKey: Key[ScalaSdkData] = ScalaSdkData.Key
 
-  import scala.collection.JavaConverters._
+  import scala.jdk.CollectionConverters._
 
   override final def importData(toImport: java.util.Collection[DataNode[ScalaSdkData]],
                                 projectData: ProjectData,
@@ -56,7 +56,7 @@ object ScalaSdkService {
 
     private def configureScalaSdk(module: Module,
                                   maybeVersion: Option[String],
-                                  compilerClasspath: Seq[File]): Unit = for {
+                                  compilerClasspath: collection.Seq[File]): Unit = for {
       presentation <- maybeVersion
       if ScalaLanguageLevel.findByVersion(presentation).isDefined
 

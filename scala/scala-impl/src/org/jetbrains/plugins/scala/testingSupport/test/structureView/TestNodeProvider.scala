@@ -219,7 +219,7 @@ object TestNodeProvider {
     }
   }
 
-  private def checkClauses(clauses: Seq[ScParameterClause], paramNames: List[String]*): Boolean = {
+  private def checkClauses(clauses: collection.Seq[ScParameterClause], paramNames: List[String]*): Boolean = {
     val filteredClauses = clauses.filterNot(_.parameters.forall(_.isImplicitParameter))
     filteredClauses.length == paramNames.length && (filteredClauses zip paramNames).forall {
       case (clause, names) =>
@@ -458,7 +458,7 @@ object TestNodeProvider {
       } else None
     }
     if (isUTestSuiteApplyCall(expr) || isUTestTestsCall(expr)) {
-      import scala.collection.JavaConverters._
+      import scala.jdk.CollectionConverters._
       expr.args.findFirstChildByType(ScCodeBlockElementType.BlockExpression) match {
         case blockExpr: ScBlockExpr => (for (methodExpr <- blockExpr.children if methodExpr.isInstanceOf[ScInfixExpr] || methodExpr.isInstanceOf[ScMethodCall])
           yield extractUTestInner(methodExpr, project)).filter(_.isDefined).map(_.get).toList.asJava
@@ -567,7 +567,7 @@ object TestNodeProvider {
       }
     }
     val suiteName = aSuite.getQualifiedName
-    import scala.collection.JavaConverters._
+    import scala.jdk.CollectionConverters._
     val nodeProvider = new TestNodeProvider
 
     val elements: Iterable[TreeElement] = configurationProducer match {

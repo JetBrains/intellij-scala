@@ -15,7 +15,7 @@ final class ScalaTreeStructureProvider extends TreeStructureProvider with DumbAw
 
   import ScalaTreeStructureProvider._
 
-  import collection.JavaConverters._
+  import scala.jdk.CollectionConverters._
 
   override def modify(parent: Node, children: util.Collection[Node], settings: ViewSettings): util.Collection[Node] =
     children.asScala.map { it =>

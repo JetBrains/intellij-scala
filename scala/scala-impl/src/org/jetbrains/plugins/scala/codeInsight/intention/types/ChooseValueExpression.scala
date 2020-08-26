@@ -56,7 +56,7 @@ abstract class ChooseValueExpression[T](lookupItems: Seq[T], defaultItem: T) ext
 
 class ChooseTypeTextExpression(lookupItems: Seq[ScTypeText], default: ScTypeText) extends
   ChooseValueExpression[ScTypeText](lookupItems, default) {
-  def this(lookupItems: Seq[ScTypeText]) {
+  def this(lookupItems: Seq[ScTypeText]) = {
     this(lookupItems, lookupItems.head)
   }
 

@@ -105,14 +105,14 @@ final class ScDocTagValueImpl(node: ASTNode) extends ScReferenceImpl(node) with 
     if (scalaDocParent == null || !isParamTag)
       return Array.empty[ScNamedElement]
 
-    def filterParamsByName(tagName: String, params: Seq[ScNamedElement]): Array[ScNamedElement] = {
+    def filterParamsByName(tagName: String, params: Iterable[ScNamedElement]): Array[ScNamedElement] = {
       val paramsSet =
         (for {
           tag <- scalaDocParent.asInstanceOf[ScDocComment].findTagsByName(tagName)
           if tag.getValueElement != null && tag != getParent
         } yield tag.getValueElement.getText).toSet
 
-      val result = mutable.ArrayBuilder.make[ScNamedElement]()
+      val result = mutable.ArrayBuilder.make[ScNamedElement]
       params.filter(param => !paramsSet.contains(param.name)).foreach(result += _)
       result.result()
     }

@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.inference.ScalaDocAs
 import org.jetbrains.plugins.scala.lang.formatting.settings.inference.ScalaDocAsteriskAlignStyleIndexer.AsteriskAlignStyle.AlignByColumnThree
 
 import scala.beans.BeanProperty
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 @State(
   name = "CodeStyleSettingsInfer",

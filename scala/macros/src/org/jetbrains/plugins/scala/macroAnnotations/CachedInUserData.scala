@@ -15,7 +15,7 @@ import scala.reflect.macros.whitebox
   * Date: 9/25/15.
   */
 class CachedInUserData(userDataHolder: Any, modificationTracker: Object, tracked: Any*) extends StaticAnnotation {
-  def macroTransform(annottees: Any*) = macro CachedInUserData.cachedInsideUserDataImpl
+  def macroTransform(annottees: Any*): Any = macro CachedInUserData.cachedInsideUserDataImpl
 }
 
 object CachedInUserData {
@@ -51,16 +51,16 @@ object CachedInUserData {
         val resultType = box(c)(retTp)
 
         //generated names
-        val name = c.freshName(termName)
+        val name = qualifiedTernName(termName.toString)
         val cacheName = withClassName(termName)
-        val keyId = stringLiteral(name + "cacheKey")
-        val tracerName = generateTermName(name.toString, "$tracer")
-        val elemName = generateTermName(name.toString, "element")
-        val dataName = generateTermName(name.toString, "data")
-        val keyVarName = generateTermName(name.toString, "key")
-        val holderName = generateTermName(name.toString, "holder")
-        val resultName = generateTermName(name.toString, "result")
-        val cachedFunName = generateTermName(name.toString, "cachedFun")
+        val keyId = stringLiteral(name + "$cacheKey")
+        val tracerName = generateTermName(name, "$tracer")
+        val elemName = generateTermName(name, "element")
+        val dataName = generateTermName(name, "data")
+        val keyVarName = generateTermName(name, "key")
+        val holderName = generateTermName(name, "holder")
+        val resultName = generateTermName(name, "result")
+        val cachedFunName = generateTermName(name, "cachedFun")
 
         val dataValue = if (hasParams) q"(..$parameterNames)" else q"()"
         val getOrCreateCachedHolder =

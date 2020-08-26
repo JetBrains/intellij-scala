@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElemen
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ArrayBuffer
 
 /**

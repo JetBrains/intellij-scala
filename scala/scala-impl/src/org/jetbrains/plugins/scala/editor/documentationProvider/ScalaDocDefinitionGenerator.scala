@@ -207,11 +207,11 @@ private class ScalaDocDefinitionGenerator private(
 
   private def annotationsRenderer(implicit typeRenderer: TypeRenderer): AnnotationsRendererLike =
     new AnnotationsRenderer(typeRenderer, "\n", TextEscaper.Html) {
-      override def shouldSkipArguments(annotationType: ScType, arguments: Seq[ScExpression]): Boolean =
+      override def shouldSkipArguments(annotationType: ScType, arguments: collection.Seq[ScExpression]): Boolean =
         arguments.isEmpty || isThrowsAnnotationConstructor(annotationType, arguments)
 
       // see SCL-17608
-      private def isThrowsAnnotationConstructor(annotationType: ScType, arguments: Seq[ScExpression]): Boolean =
+      private def isThrowsAnnotationConstructor(annotationType: ScType, arguments: collection.Seq[ScExpression]): Boolean =
         if (arguments.size == 1) {
           //assuming that @throws annotation has single constructor with parametrized type which accepts java.lang.Class
           annotationType.extractClass.exists { clazz =>

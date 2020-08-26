@@ -59,7 +59,7 @@ trait HamcrestMatchers {
   }
 
   def everyValueGreaterThanIn[K, V: Ordering](value: Map[K, V]): Matcher[Map[K, V]] =
-    everyValue(value.mapValues(greaterThan(_)))
+    everyValue(value.view.mapValues(greaterThan(_)).toMap)
 }
 
 object HamcrestMatchers extends HamcrestMatchers

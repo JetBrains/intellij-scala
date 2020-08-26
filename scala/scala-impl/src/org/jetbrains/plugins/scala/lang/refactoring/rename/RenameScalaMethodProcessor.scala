@@ -103,7 +103,7 @@ class PrepareRenameScalaMethodProcessor extends RenamePsiElementProcessor {
           else if (newSuffix != "" && oldSuffix == "") newName.stripSuffix(newSuffix) //for renaming getters
           else newName
         }
-        import scala.collection.JavaConverters.asScalaSetConverter
+        import scala.jdk.CollectionConverters._
         for (elem <- allRenames.keySet.asScala ++ buff) {
           val oldName = ScalaNamesUtil.scalaName(elem)
           allRenames.put(elem, nameWithSetterSuffix(oldName, newName))

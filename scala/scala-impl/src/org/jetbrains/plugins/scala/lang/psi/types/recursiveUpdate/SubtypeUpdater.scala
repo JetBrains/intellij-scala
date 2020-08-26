@@ -81,7 +81,7 @@ private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean
     }
 
     if (!needUpdate || (newDesignator eq designator) && (newTypeArgs eq typeArguments)) pt
-    else ScParameterizedType(newDesignator, newTypeArgs)
+    else ScParameterizedType(newDesignator, newTypeArgs.toSeq)
   }
 
 

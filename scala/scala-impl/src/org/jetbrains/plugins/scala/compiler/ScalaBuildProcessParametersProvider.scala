@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.compiler.data.SbtData
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * @author Nikolay.Tropin

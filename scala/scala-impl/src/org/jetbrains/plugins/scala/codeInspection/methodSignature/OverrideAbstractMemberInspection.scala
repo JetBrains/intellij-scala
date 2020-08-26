@@ -53,7 +53,7 @@ class OverrideAbstractMemberInspection extends AbstractRegisteredInspection {
       !PropertyMethods.isBeanProperty(param) && isApplicable(superValsSignatures(param))
   }
 
-  private def isApplicable(superSignatures: Seq[TermSignature]): Boolean =
+  private def isApplicable(superSignatures: Iterable[TermSignature]): Boolean =
     superSignatures.nonEmpty && superSignatures.forall(!isConcreteTermSignature(_))
 
   private def isApplicable(function: ScFunction): Boolean =

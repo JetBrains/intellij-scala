@@ -13,7 +13,7 @@ trait MockSbtBase extends ScalaSdkOwner { this: Test =>
 
   override def librariesLoaders: Seq[LibraryLoader] = Seq(
     IvyManagedLoader(
-      scalaJars :+ ("org.scala-sbt" % "sbt" % sbtVersion.presentation transitive()): _*
+      (scalaJars :+ ("org.scala-sbt" % "sbt" % sbtVersion.presentation).transitive()): _*
     )
   )
 

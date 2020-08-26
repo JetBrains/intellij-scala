@@ -149,7 +149,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     }
   }
 
-  def addImportsForPaths(paths: Seq[String], refsContainer: PsiElement = null): Unit = {
+  def addImportsForPaths(paths: collection.Seq[String], refsContainer: PsiElement = null): Unit = {
     import ScalaImportOptimizer._
 
     implicit val manager: PsiManager = getManager

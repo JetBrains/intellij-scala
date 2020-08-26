@@ -21,7 +21,7 @@ private abstract class DepMethodParamSubstitution extends LeafSubstitution {
   }
 }
 
-private case class ParamsToExprs(params: Seq[Parameter], exprs: Seq[Expression], useExpected: Boolean)
+private case class ParamsToExprs(params: collection.Seq[Parameter], exprs: collection.Seq[Expression], useExpected: Boolean)
   extends DepMethodParamSubstitution {
 
   override def substitutedType(parameter: ScParameter): Option[ScType] = {
@@ -33,14 +33,14 @@ private case class ParamsToExprs(params: Seq[Parameter], exprs: Seq[Expression],
   }
 }
 
-private case class ParamToParam(fromParams: Seq[ScParameter], toParams: Seq[ScParameter]) extends DepMethodParamSubstitution {
+private case class ParamToParam(fromParams: collection.Seq[ScParameter], toParams: collection.Seq[ScParameter]) extends DepMethodParamSubstitution {
   override def substitutedType(parameter: ScParameter): Option[ScType] = {
     val idx = fromParams.indexOf(parameter)
     toParams.lift(idx).map(ScDesignatorType(_))
   }
 }
 
-private case class ParamToType(params: Seq[Parameter], types: Seq[ScType]) extends DepMethodParamSubstitution {
+private case class ParamToType(params: collection.Seq[Parameter], types: collection.Seq[ScType]) extends DepMethodParamSubstitution {
   override def substitutedType(parameter: ScParameter): Option[ScType] = {
     val idx = params.indexWhere(_.paramInCode.contains(parameter))
     types.lift(idx)

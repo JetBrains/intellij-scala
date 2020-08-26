@@ -10,7 +10,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import javax.swing.{JComponent, JPanel}
 import org.jetbrains.sbt.SbtBundle
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 

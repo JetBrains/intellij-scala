@@ -46,8 +46,8 @@ object PrintChunk {
     Seq(PrintChunk(0, output))
 
   private def oneLinePerElement(
-    elements: Seq[PsiElement],
-    outputLines: scala.Seq[String],
+    elements: Iterable[PsiElement],
+    outputLines: Iterable[String],
     originalDocumentLineFromOffset: Int => Option[Int],
   ): Seq[PrintChunk] = {
     val offsets = elements.map(QueuedPsi.psiContentOffset)
@@ -56,6 +56,6 @@ object PrintChunk {
       case Seq(Some(prev), Some(curr)) => curr - prev // original content hasn't changed
       case _                           => 1 // some chunk was e.g. removed
     }
-    linesOffsets.zip(outputLines.toIterator).map((PrintChunk.apply _).tupled).to[Seq]
+    linesOffsets.zip(outputLines.iterator).map((PrintChunk.apply _).tupled).toSeq
   }
 }

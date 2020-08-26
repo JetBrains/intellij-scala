@@ -14,6 +14,6 @@ object DynamicTypeReferenceResolver
     "org.intellij.scala.scalaDynamicTypeResolver"
   ) {
 
-  def getAllResolveResult(expression: ScReferenceExpression): Seq[ResolveResult] =
+  def getAllResolveResult(expression: ScReferenceExpression): collection.Seq[ResolveResult] =
     implementations.flatMap(_.resolve(expression))
 }

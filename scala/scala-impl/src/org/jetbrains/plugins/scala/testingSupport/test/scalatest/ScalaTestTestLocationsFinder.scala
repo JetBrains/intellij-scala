@@ -20,7 +20,7 @@ import org.scalatest.finders._
 // }
 object ScalaTestTestLocationsFinder {
 
-  type TestLocations = Seq[PsiElement]
+  type TestLocations = collection.Seq[PsiElement]
 
   @CalledWithReadLock
   @CachedInUserData(definition, CachesUtil.fileModTracker(definition.getContainingFile))
@@ -87,29 +87,30 @@ object ScalaTestTestLocationsFinder {
     leafMethodNames: Set[String]
   ): TestLocations = {
 
-    def inner(expressions: Seq[ScExpression]): Seq[ScReferenceExpression] = expressions.flatMap { expr =>
-      ProgressManager.checkCanceled()
+    def inner(expressions: collection.Seq[ScExpression]): collection.Seq[ScReferenceExpression] =
+      expressions.flatMap { expr =>
+        ProgressManager.checkCanceled()
 
-      val (methodCall, target) = expr match {
-        case call: ScMethodInvocation if infixStyle => (call, call.getInvokedExpr)
-        case call: ScMethodCall                     => (call, call.deepestInvokedExpr)
-        case _                                      => return Seq.empty
-      }
+        val (methodCall, target) = expr match {
+          case call: ScMethodInvocation if infixStyle => (call, call.getInvokedExpr)
+          case call: ScMethodCall                     => (call, call.deepestInvokedExpr)
+          case _                                      => return Seq.empty
+        }
 
-      target match {
-        case ref: ScReferenceExpression =>
-          if (intermediateMethodNames.contains(ref.refName)) {
-            val childExpressions = methodCall.argumentExpressions.collect { case block: ScBlockExpr => block.exprs }
-            Seq(ref) ++ inner(childExpressions.flatten)
-          } else if (leafMethodNames.contains(ref.refName)) {
-            Seq(ref)
-          } else {
+        target match {
+          case ref: ScReferenceExpression =>
+            if (intermediateMethodNames.contains(ref.refName)) {
+              val childExpressions = methodCall.argumentExpressions.collect { case block: ScBlockExpr => block.exprs }
+              Seq(ref) ++ inner(childExpressions.flatten)
+            } else if (leafMethodNames.contains(ref.refName)) {
+              Seq(ref)
+            } else {
+              Seq.empty
+            }
+          case _ =>
             Seq.empty
-          }
-        case _ =>
-          Seq.empty
+        }
       }
-    }
 
     val constructorExpressions = body.exprs
     inner(constructorExpressions)

@@ -13,10 +13,9 @@ import org.jetbrains.jps.incremental.scala.local.PackageObjectsData.packageObjec
 import org.jetbrains.jps.incremental.scala.remote.CompileServerMeteringInfo
 import org.jetbrains.jps.incremental.{CompileContext, Utils}
 import org.jetbrains.org.objectweb.asm.ClassReader
-import org.jetbrains.plugins.scala.compiler.CompilerEvent
 
-import scala.collection.JavaConverters.iterableAsScalaIterableConverter
-import scala.collection._
+import scala.jdk.CollectionConverters._
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 /**

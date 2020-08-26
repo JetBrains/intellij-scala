@@ -35,7 +35,7 @@ class GeneralInspectionSanityTest extends SimpleTestCase {
   }
 
   def test_all_shortNames_are_unique(): Unit = {
-    val allShortNames = acquireAllInspectionEPs().map(_.getShortName).groupBy(identity).mapValues(_.length)
+    val allShortNames = acquireAllInspectionEPs().map(_.getShortName).groupBy(identity).view.mapValues(_.length)
     val scalaShortNames = acquireAllScalaInspectionEPs().map(_.getShortName)
 
     scalaShortNames.foreach { scalaShortName =>

@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfigura
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
 import scala.beans.BeanProperty
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ArrayBuffer
 
 class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestConfigurationData(config) {
@@ -57,12 +57,12 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
     classFqns.map(_ -> Set[String]()).toMap
   }
 
-  private def findTestSuites(scope: GlobalSearchScope): Seq[String] = {
+  private def findTestSuites(scope: GlobalSearchScope): collection.Seq[String] = {
     val pack = ScPackageImpl(getPackage(getTestPackagePath))
 
     if (pack == null) throw executionException(ScalaBundle.message("test.run.config.test.package.not.found", testPackagePath))
 
-    def collectClasses(pack: ScPackage, acc: ArrayBuffer[PsiClass] = ArrayBuffer.empty): Seq[PsiClass] = {
+    def collectClasses(pack: ScPackage, acc: ArrayBuffer[PsiClass] = ArrayBuffer.empty): collection.Seq[PsiClass] = {
       acc ++= pack.getClasses(scope)
       for (p <- pack.getSubPackages(scope))
         collectClasses(ScPackageImpl(p), acc)

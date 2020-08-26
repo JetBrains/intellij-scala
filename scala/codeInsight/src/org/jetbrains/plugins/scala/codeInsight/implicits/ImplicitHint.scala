@@ -10,7 +10,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.hints.Hint
 
-import scala.collection.JavaConverters.collectionAsScalaIterableConverter
+import scala.jdk.CollectionConverters._
 
 object ImplicitHint {
   private val EmptyInsets = new Insets(0, 0, 0, 0)

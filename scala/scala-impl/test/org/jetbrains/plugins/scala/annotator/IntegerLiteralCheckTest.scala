@@ -117,10 +117,10 @@ private object IntegerLiteralCheckTest {
   )
 
   val PredefinedLongs = Set(
-    1l + IntMaxValue,
-    12345l + IntMaxValue,
-    -1l + IntMinValue,
-    -1234l + IntMinValue,
+    1L + IntMaxValue,
+    12345L + IntMaxValue,
+    -1L + IntMinValue,
+    -1234L + IntMinValue,
     LongMinValue,
     LongMaxValue
   )

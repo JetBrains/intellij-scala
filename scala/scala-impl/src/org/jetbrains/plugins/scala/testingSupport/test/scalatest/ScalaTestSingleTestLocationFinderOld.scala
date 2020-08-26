@@ -175,7 +175,7 @@ class ScalaTestSingleTestLocationFinderOld(
   }
 
   private def checkCall(call: MethodInvocation, namesSet: Map[String, String])(implicit d: DummyImplicit): ReturnResult =
-    checkCall(call, namesSet.mapValues(Set(_)))
+    checkCall(call, namesSet.view.mapValues(Set(_)).toMap)
 
   private def checkCall(call: MethodInvocation, namesSet: Map[String, Set[String]]): ReturnResult = {
     val inv: MethodInvocation => Option[String] = call => {

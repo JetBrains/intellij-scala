@@ -31,7 +31,7 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
  */
 class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandlerBase {
 
-  private var occurrenceHighlighters = Seq.empty[RangeHighlighter]
+  private var occurrenceHighlighters: Iterable[RangeHighlighter] = Seq.empty[RangeHighlighter]
 
   def invoke(file: PsiFile, startOffset: Int, endOffset: Int)
             (implicit project: Project, editor: Editor): Unit = {

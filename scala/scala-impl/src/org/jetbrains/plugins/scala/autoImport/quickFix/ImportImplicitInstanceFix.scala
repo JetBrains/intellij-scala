@@ -19,14 +19,12 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.{AnyFqn, AnyRefFqn, JavaObjectFqn}
 
-import scala.collection.Seq
-
-final class ImportImplicitInstanceFix private (found: Seq[FoundImplicit],
+final class ImportImplicitInstanceFix private (found: collection.Seq[FoundImplicit],
                                                owner: ImplicitArgumentsOwner,
                                                popupPosition: PopupPosition)
   extends ScalaImportElementFix(owner) {
 
-  override val elements: Seq[ImplicitToImport] = found.map(ImplicitToImport)
+  override val elements: collection.Seq[ImplicitToImport] = found.map(ImplicitToImport)
 
   override def shouldShowHint(): Boolean =
     super.shouldShowHint() && ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_IMPLICITS
@@ -57,7 +55,7 @@ case class FoundImplicit(instance: GlobalImplicitInstance, path: Seq[ScalaResolv
 object ImportImplicitInstanceFix {
   private case class TypeToSearch(path: Seq[ScalaResolveResult], scType: ScType)
 
-  def apply(notFoundImplicitParams: Seq[ScalaResolveResult],
+  def apply(notFoundImplicitParams: collection.Seq[ScalaResolveResult],
             owner: ImplicitArgumentsOwner,
             popupPosition: PopupPosition = PopupPosition.best): Option[ImportImplicitInstanceFix] = {
 
@@ -84,7 +82,7 @@ object ImportImplicitInstanceFix {
 
   private def withProbableArguments(prefix: Seq[ScalaResolveResult],
                                     parameter: ScalaResolveResult,
-                                    visited: Set[PsiNamedElement] = Set.empty): Seq[TypeToSearch] = {
+                                    visited: Set[PsiNamedElement] = Set.empty): collection.Seq[TypeToSearch] = {
     if (visited(parameter.element))
       return Seq.empty
 

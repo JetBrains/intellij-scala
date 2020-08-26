@@ -5,7 +5,7 @@ import java.util
 import com.intellij.codeInsight.hint.actions.ShowExpressionTypeAction
 import com.intellij.openapi.actionSystem.{ActionPromoter, AnAction, DataContext}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class ShowImplicitArgumentsActionPromoter extends ActionPromoter {
   override def promote(actions: util.List[AnAction], context: DataContext): util.List[AnAction] =

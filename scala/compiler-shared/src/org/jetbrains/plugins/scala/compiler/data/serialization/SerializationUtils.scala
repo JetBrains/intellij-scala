@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.compiler.data.serialization
 
 import java.io.File
+import java.nio.file.Path
 
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.util.PathUtil
 
 import scala.util.Try
 
@@ -13,8 +15,10 @@ import scala.util.Try
   // serializing
   def fileToPath(file: File): String = FileUtil.toCanonicalPath(file.getPath)
   def filesToPaths(files: Iterable[File]): String = sequenceToString(files.map(fileToPath))
+  def pathToPathString(path: Path): String = FileUtil.toCanonicalPath(path.toAbsolutePath.toString)
+  def pathsToPathStrings(paths: Iterable[Path]): String = sequenceToString(paths.map(pathToPathString))
   def optionToString(s: Option[String]): String = s.getOrElse("")
-  
+
   def sequenceToString(strings: Iterable[String]): String =
     strings.mkString(Delimiter)
   def stringToSequence(string: String): Seq[String] =
