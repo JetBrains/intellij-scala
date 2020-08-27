@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.dfa
 package cfg
 
+import scala.collection.immutable.ArraySeq
 
-class Graph[+Info](final val nodes: IndexedSeq[Node]) {
+
+class Graph[+Info](final val nodes: ArraySeq[Node], final val blocks: ArraySeq[Block]) {
   final def apply(index: Int): Node = nodes(index)
 
   final lazy val hasIncomingJump: Set[Node] =

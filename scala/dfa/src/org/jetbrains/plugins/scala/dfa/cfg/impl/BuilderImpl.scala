@@ -3,7 +3,9 @@ package cfg
 package impl
 
 import org.jetbrains.plugins.scala.dfa.cfg.Builder.{Property, Variable}
+import org.jetbrains.plugins.scala.dfa.utils.BuilderWithSize
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 private[cfg] class BuilderImpl[Info] extends Builder[Info] {
@@ -17,8 +19,8 @@ private[cfg] class BuilderImpl[Info] extends Builder[Info] {
 
   private var nextValueId = 0
   private var curSourceInfo = Option.empty[Info]
-  private val nodes = mutable.ArrayBuffer.empty[NodeImpl]
-  private val blocks = mutable.ArrayBuffer.empty[Block]
+  private val nodesBuilder = BuilderWithSize.newBuilder[NodeImpl](ArraySeq)
+  private val blocksBuilder = BuilderWithSize.newBuilder[Block](ArraySeq)
 
   private def newValueId(): Int = {
     val next = nextValueId
@@ -27,7 +29,7 @@ private[cfg] class BuilderImpl[Info] extends Builder[Info] {
   }
 
   private def addNode(node: NodeImpl): node.type = {
-    node._index = nodes.size
+    node._index = nodesBuilder.elementsAdded
     node._sourceInfo = curSourceInfo
     node._block = currentBlock
 
@@ -37,22 +39,21 @@ private[cfg] class BuilderImpl[Info] extends Builder[Info] {
       case _ =>
     }
 
-    nodes += node
+    nodesBuilder += node
     node
   }
 
   private def startBlock(): Block = {
     assert(_currentBlock.isEmpty)
-    val block = new Block(blockIndex = blocks.size, nodeBegin = nodes.size)
-    assert(blocks.lastOption.forall(_.nodeEnd == block.nodeBegin))
-    blocks += block
+    val block = new Block(blockIndex = blocksBuilder.elementsAdded, nodeBegin = nodesBuilder.elementsAdded)
+    blocksBuilder += block
     _currentBlock = Some(block)
     block
   }
 
   private def endBlock(): Unit = {
     val Some(cur) = _currentBlock.ensuring(_.nonEmpty)
-    cur._endIndex = nodes.size
+    cur._endIndex = nodesBuilder.elementsAdded
     _currentBlock = None
   }
 
@@ -84,7 +85,7 @@ private[cfg] class BuilderImpl[Info] extends Builder[Info] {
   override def jumpToFutureIfNot(cond: Value): UnlinkedJump = addForwardJump(new JumpIfNotImpl(cond))
   override def jumpHere(labels: Seq[UnlinkedJump]): Unit = {
     endBlock()
-    val targetIndex = nodes.size
+    val targetIndex = nodesBuilder.elementsAdded
     labels.foreach(_.finish(targetIndex))
   }
 
@@ -108,7 +109,7 @@ private[cfg] class BuilderImpl[Info] extends Builder[Info] {
   override def finish(): Graph[Info] = {
     addNode(new EndImpl)
 
-    val graph = new Graph[Info](nodes.toArray[Node])
+    val graph = new Graph[Info](nodesBuilder.result(), blocksBuilder.result())
 
     assert(unlinkedJumps.isEmpty, "Unlinked labels: " + unlinkedJumps.iterator.map(_.jumping.index).mkString(", "))
 
