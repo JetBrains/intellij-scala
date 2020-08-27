@@ -3,6 +3,8 @@ package dfa
 
 import org.jetbrains.plugins.scala.dfa.lattice.{BinaryLattice, FlatLattice, PowerSetLattice, ProductLattice}
 
+import scala.util.hashing.MurmurHash3
+
 
 /*************************** Any (Top) **************************/
 sealed trait DfAny extends Product with Serializable {
@@ -21,7 +23,7 @@ object DfAny {
           override def toString: String =
             if (this == Top) "DfAny.Top"
             else elements.filterNot(_ == DfNothing).mkString(" | ")
-          override def hashCode(): Int = elements.deep.hashCode() + 2212
+          override def hashCode(): Int = elements.hashCode() + 2212
           override def equals(o: Any): Boolean = o match {
             case o: DfAnyProductTuple => elements.sameElements(o.elements)
             case _ => false
@@ -88,7 +90,7 @@ object DfAnyVal {
           override def toString: String =
             if (this == Top) "DfAnyVal.Top"
             else elements.filterNot(_ == DfNothing).mkString(" | ")
-          override def hashCode(): Int = elements.deep.hashCode() + 333
+          override def hashCode(): Int = MurmurHash3.arrayHash(elements) + 333
           override def equals(o: Any): Boolean = o match {
             case o: DfAnyValProductTuple => elements.sameElements(o.elements)
             case _ => false

@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.dfa.cfg
 
+import scala.collection.SeqView
+
 trait Block {
   type SourceInfo
 
@@ -10,7 +12,7 @@ trait Block {
   def nodeBegin: Int
   def nodeEnd: Int
 
-  def nodes: Seq[Node]
+  def nodes: SeqView[Node]
   def nodeIndices: Range
 
   final def headNode: Option[Node] = nodes.headOption

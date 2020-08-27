@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.dfa
 package cfg
 package impl
 
+import scala.collection.SeqView
+
 private final class BlockImpl[Info](override val blockIndex: Int, override val nodeBegin: Int) extends Block {
   override type SourceInfo = Info
 
@@ -12,7 +14,7 @@ private final class BlockImpl[Info](override val blockIndex: Int, override val n
 
   override def nodeEnd: Int = _endIndex.ensuring(_ >= 0)
 
-  override def nodes: Seq[Node] = graph.nodes.view(nodeBegin, nodeEnd)
+  override def nodes: SeqView[Node] = graph.nodes.view.slice(nodeBegin, nodeEnd)
 
   override def nodeIndices: Range = nodeBegin until nodeEnd
 }
