@@ -12,8 +12,8 @@ private abstract class NodeImpl[Info] { this: cfg.Node =>
   override final def sourceInfo: Option[SourceInfo] = _sourceInfo
   override final def index: Int = _index.ensuring(_ >= 0)
 
-  override final def block: Block = _block.ensuring(_ != null)
-  override final def graph: Graph[Info] = _block.ensuring(_ != null).graph
+  override final def block: Block = _block
+  override final def graph: Graph[Info] = _block.graph
 
   override final def labelString: String = s".L$index"
 
@@ -36,4 +36,9 @@ private abstract class NodeImpl[Info] { this: cfg.Node =>
   }
 
   protected def asmString: String
+
+  def sanityCheck(): Unit = {
+    assert(_block != null)
+    assert(_index >= 0)
+  }
 }

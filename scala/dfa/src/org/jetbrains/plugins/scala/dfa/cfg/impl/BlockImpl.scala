@@ -10,11 +10,16 @@ private final class BlockImpl[Info](override val blockIndex: Int, override val n
   var _graph: Graph[Info] = _
   var _endIndex: Int = -1
 
-  override def graph: Graph[Info] = _graph.ensuring(_ != null)
+  override def graph: Graph[Info] = _graph
 
-  override def nodeEnd: Int = _endIndex.ensuring(_ >= 0)
+  override def nodeEnd: Int = _endIndex
 
   override def nodes: SeqView[Node] = graph.nodes.view.slice(nodeBegin, nodeEnd)
 
   override def nodeIndices: Range = nodeBegin until nodeEnd
+
+  def sanityCheck(): Unit = {
+    assert(_graph != null)
+    assert(_endIndex >= 0)
+  }
 }

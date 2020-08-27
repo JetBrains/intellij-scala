@@ -31,7 +31,7 @@ trait Constant extends Value {
   def constant: DfAny
 }
 
-trait UnifyValue extends Value {
+trait PhiValue extends Value {
 
 }
 
