@@ -35,15 +35,15 @@ final class FlatLattice[T](override val top: T, override val bottom: T)
   }
 
   @tailrec
-  override def joinAll(first: T, others: TraversableOnce[T]): T = {
+  override def joinAll(first: T, others: IterableOnce[T]): T = {
     first match {
       case `top` => top
       case `bottom` =>
-        val it = others.toIterator
+        val it = others.iterator
         if (it.hasNext) joinAll(it.next(), it)
         else bottom
       case concrete =>
-        val allTheSame = others.forall(b => b == concrete || b == bottom)
+        val allTheSame = others.iterator.forall(b => b == concrete || b == bottom)
         if (allTheSame) concrete
         else top
     }
@@ -57,15 +57,15 @@ final class FlatLattice[T](override val top: T, override val bottom: T)
   }
 
   @tailrec
-  override def meetAll(first: T, others: TraversableOnce[T]): T = {
+  override def meetAll(first: T, others: IterableOnce[T]): T = {
     first match {
       case `bottom` => bottom
       case `top` =>
-        val it = others.toIterator
+        val it = others.iterator
         if (it.hasNext) meetAll(it.next(), it)
         else top
       case concrete =>
-        val allTheSame = others.forall(b => b == concrete || b == top)
+        val allTheSame = others.iterator.forall(b => b == concrete || b == top)
         if (allTheSame) concrete
         else bottom
     }

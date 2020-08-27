@@ -68,8 +68,8 @@ package object dfa {
   trait JoinSemiLattice[L] extends SemiLattice[L] with HasTop[L] {
     def join(lhs: L, rhs: L): L
 
-    def joinAll(first: L, others: TraversableOnce[L]): L =
-      others.foldLeft(first)(join)
+    def joinAll(first: L, others: IterableOnce[L]): L =
+      others.iterator.foldLeft(first)(join)
   }
 
   implicit final class JoinSemiLatticeOps[L](private val element: L) extends AnyVal {
@@ -79,15 +79,15 @@ package object dfa {
     def | [LL >: L](other: LL)(implicit lattice: JoinSemiLattice[LL]): LL =
       lattice.join(element, other)
 
-    def joinAll[LL >: L](others: TraversableOnce[LL])(implicit lattice: JoinSemiLattice[LL]): LL =
+    def joinAll[LL >: L](others: IterableOnce[LL])(implicit lattice: JoinSemiLattice[LL]): LL =
       lattice.joinAll(element, others)
   }
 
   def join[L: JoinSemiLattice](first: L, others: L*): L =
     first.joinAll(others)
 
-  def join[L: JoinSemiLattice: HasBottom](elements: TraversableOnce[L]): L = {
-    val it = elements.toIterator
+  def join[L: JoinSemiLattice: HasBottom](elements: IterableOnce[L]): L = {
+    val it = elements.iterator
     if (it.hasNext) it.next().joinAll(it)
     else latticeBottom
   }
@@ -114,8 +114,8 @@ package object dfa {
   trait MeetSemiLattice[L] extends SemiLattice[L] with HasBottom[L] {
     def meet(lhs: L, rhs: L): L
 
-    def meetAll(first: L, others: TraversableOnce[L]): L =
-      others.foldLeft(first)(meet)
+    def meetAll(first: L, others: IterableOnce[L]): L =
+      others.iterator.foldLeft(first)(meet)
   }
 
   implicit final class MeetSemiLatticeOps[L](private val element: L) extends AnyVal {
@@ -125,15 +125,15 @@ package object dfa {
     def & [LL >: L](other: LL)(implicit lattice: MeetSemiLattice[LL]): LL =
       lattice.meet(element, other)
 
-    def meetAll[LL >: L](others: TraversableOnce[LL])(implicit lattice: MeetSemiLattice[LL]): LL =
+    def meetAll[LL >: L](others: IterableOnce[LL])(implicit lattice: MeetSemiLattice[LL]): LL =
       lattice.meetAll(element, others)
   }
 
   def meet[L: MeetSemiLattice](first: L, others: L*): L =
     first.meetAll(others)
 
-  def meet[L: MeetSemiLattice: HasTop](elements: TraversableOnce[L]): L = {
-    val it = elements.toIterator
+  def meet[L: MeetSemiLattice: HasTop](elements: IterableOnce[L]): L = {
+    val it = elements.iterator
     if (it.hasNext) it.next().meetAll(it)
     else latticeTop
   }

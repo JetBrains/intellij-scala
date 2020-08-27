@@ -21,10 +21,10 @@ final class FlatJoinSemiLattice[T](override val top: T)
   override def join(lhs: T, rhs: T): T =
     if (lhs == rhs) lhs else top
 
-  override def joinAll(first: T, others: TraversableOnce[T]): T = {
+  override def joinAll(first: T, others: IterableOnce[T]): T = {
     if (first == top) top
     else {
-      val allTheSame = others.forall(_ == first)
+      val allTheSame = others.iterator.forall(_ == first)
       if (allTheSame) first
       else top
     }

@@ -28,12 +28,12 @@ final class BinaryLattice[T](override val top: T, override val bottom: T)
   override def join(lhs: T, rhs: T): T =
     if (lhs == rhs) lhs else top
 
-  override def joinAll(first: T, others: TraversableOnce[T]): T =
-    if (first == top || others.exists(_ == top)) top else bottom
+  override def joinAll(first: T, others: IterableOnce[T]): T =
+    if (first == top || others.iterator.contains(top)) top else bottom
 
   override def meet(lhs: T, rhs: T): T =
     if (lhs == rhs) lhs else bottom
 
-  override def meetAll(first: T, others: TraversableOnce[T]): T =
-    if (first == top && others.forall(_ == top)) top else bottom
+  override def meetAll(first: T, others: IterableOnce[T]): T =
+    if (first == bottom || others.iterator.contains(bottom)) bottom else top
 }
