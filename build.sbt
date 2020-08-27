@@ -66,6 +66,15 @@ lazy val dfa = newProject(
 ).settings(
   testFrameworks in Test += TestFrameworks.ScalaTest,
   libraryDependencies ++= DependencyGroups.dfa,
+  scalacOptions ++= Seq(
+    "-deprecation",
+    "-unchecked",
+  //  "-Xlint",
+    "-Xfatal-warnings"
+  ),
+  //scalacOptions in (Compile, console) ~= {
+  //  _.filterNot(Set("-Xlint"))
+  //}
 )
 
 lazy val conversion = newProject(
