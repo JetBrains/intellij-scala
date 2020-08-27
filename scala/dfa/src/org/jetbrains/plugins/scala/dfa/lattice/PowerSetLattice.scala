@@ -55,6 +55,9 @@ abstract class PowerSetLattice[T](override val top: T, override val bottom: T)
 
   protected trait PowerSetBase {
     def elements: Set[T]
+
+    // we need this to have a reference to outer which can be checked in pattern matching
+    def _lattice: PowerSetLattice[T] = PowerSetLattice.this
   }
 
   private final object PowerSetBase {

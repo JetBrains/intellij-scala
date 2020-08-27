@@ -19,16 +19,7 @@ object DfAny {
     override protected def createTuple(elements: Array[DfAny]): DfAny = {
       if (elements.forall(_ == DfNothing)) DfNothing
       else {
-        case class DfAnyProductTuple(override val elements: Array[DfAny]) extends ProductTupleBase with DfAny {
-          override def toString: String =
-            if (this == Top) "DfAny.Top"
-            else elements.filterNot(_ == DfNothing).mkString(" | ")
-          override def hashCode(): Int = elements.hashCode() + 2212
-          override def equals(o: Any): Boolean = o match {
-            case o: DfAnyProductTuple => elements.sameElements(o.elements)
-            case _ => false
-          }
-        }
+
         DfAnyProductTuple(elements)
       }
     }
@@ -37,6 +28,18 @@ object DfAny {
       case DfNothing => None
       case _: DfAnyVal => Some(0)
       case _: DfAnyRef => Some(1)
+      case _ => throw new RuntimeException("Unreachable Code")
+    }
+
+    private case class DfAnyProductTuple(override val elements: Array[DfAny]) extends ProductTupleBase with DfAny {
+      override def toString: String =
+        if (this == Top) "DfAny.Top"
+        else elements.filterNot(_ == DfNothing).mkString(" | ")
+      override def hashCode(): Int = elements.hashCode() + 2212
+      override def equals(o: Any): Boolean = o match {
+        case o: DfAnyProductTuple => elements.sameElements(o.elements)
+        case _ => false
+      }
     }
   }
 }
@@ -86,16 +89,6 @@ object DfAnyVal {
     override protected def createTuple(elements: Array[DfAnyVal]): DfAnyVal = {
       if (elements.forall(_ == DfNothing)) DfNothing
       else {
-        case class DfAnyValProductTuple(override val elements: Array[DfAnyVal]) extends ProductTupleBase with DfAnyVal {
-          override def toString: String =
-            if (this == Top) "DfAnyVal.Top"
-            else elements.filterNot(_ == DfNothing).mkString(" | ")
-          override def hashCode(): Int = MurmurHash3.arrayHash(elements) + 333
-          override def equals(o: Any): Boolean = o match {
-            case o: DfAnyValProductTuple => elements.sameElements(o.elements)
-            case _ => false
-          }
-        }
         DfAnyValProductTuple(elements)
       }
     }
@@ -105,6 +98,18 @@ object DfAnyVal {
       case _: DfUnit => Some(0)
       case _: DfBool => Some(1)
       case _: DfInt.Abstract => Some(2)
+      case _ =>  throw new RuntimeException("Unreachable Code")
+    }
+
+    private case class DfAnyValProductTuple(override val elements: Array[DfAnyVal]) extends ProductTupleBase with DfAnyVal {
+      override def toString: String =
+        if (this == Top) "DfAnyVal.Top"
+        else elements.filterNot(_ == DfNothing).mkString(" | ")
+      override def hashCode(): Int = MurmurHash3.arrayHash(elements) + 333
+      override def equals(o: Any): Boolean = o match {
+        case o: DfAnyValProductTuple => elements.sameElements(o.elements)
+        case _ => false
+      }
     }
   }
 }
@@ -177,10 +182,10 @@ object DfNumeric {
       override def kind: Kind = KindFactory.this.kind
     }
 
-    final case object Top extends Abstract {
+    case object Top extends Abstract {
       override def toString: String = s"$name.Top"
     }
-    final case class Concrete(value: T) extends Abstract {
+    case class Concrete(value: T) extends Abstract {
       override def toString: String = s"$name[$value]"
     }
     final val Bottom: Abstract = initialBottom
