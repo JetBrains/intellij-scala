@@ -282,6 +282,7 @@ package object project {
 
     def baseDir: VirtualFile = PlatformTestUtil.getOrCreateProjectBaseDir(project)
 
+    // TODO: SCL-18097: it should be per-module, like for all other compiler flags (e.g. for isSAMEnabled)
     def isPartialUnificationEnabled: Boolean = modulesWithScala.exists(_.isPartialUnificationEnabled)
 
     def selectedDocument: Option[Document] =
