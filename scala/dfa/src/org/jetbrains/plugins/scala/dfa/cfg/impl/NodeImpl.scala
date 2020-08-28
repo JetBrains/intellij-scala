@@ -15,7 +15,7 @@ private abstract class NodeImpl[Info] { this: cfg.Node =>
   override final def block: Block = _block
   override final def graph: Graph[Info] = _block.graph
 
-  override final def labelString: String = s".L$index"
+  override final def labelString: String = s".${block.name}[${block.index}]"
 
   override def toString: String = asmString()
 

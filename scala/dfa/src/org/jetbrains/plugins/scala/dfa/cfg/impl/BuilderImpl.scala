@@ -32,17 +32,17 @@ private[cfg] class BuilderImpl[SourceInfo] extends Builder[SourceInfo] {
   private var curMaybeScope = Option.empty[Scope]
 
   locally {
-    startBlock(Seq.empty)
+    startBlock("<main>", Seq.empty)
   }
 
   private def currentBlock: Block = curMaybeBlock.get
   private def currentScope: Scope =
     curMaybeScope.get.ensuring(curMaybeScope.nonEmpty, "Whenever there is a scope, there should be a block")
 
-  private def startBlock(incomingScopes: Seq[Scope]): Unit = {
+  private def startBlock(name: String, incomingScopes: Seq[Scope]): Unit = {
     assert(curMaybeBlock.isEmpty)
     assert(curMaybeScope.isEmpty)
-    val block = new Block(blockIndex = blocksBuilder.elementsAdded, nodeBegin = nodesBuilder.elementsAdded)
+    val block = new Block(name, index = blocksBuilder.elementsAdded, nodeBegin = nodesBuilder.elementsAdded)
     curMaybeBlock = Some(block)
 
     // build scope
@@ -56,7 +56,8 @@ private[cfg] class BuilderImpl[SourceInfo] extends Builder[SourceInfo] {
 
     val lifeVariables = incomingScope
       .map(_.variables.keySet)
-      .foldLeft(Set.empty[Variable]) { _ & _ }
+      .reduceOption(_ & _)
+      .getOrElse(Set.empty)
 
     for (variable <- lifeVariables) {
       val incomingValues = incomingScope.groupMap(_.variables(variable))(_.block)
@@ -67,8 +68,6 @@ private[cfg] class BuilderImpl[SourceInfo] extends Builder[SourceInfo] {
 
     builder.result()
   }
-
-
 
   private def closeBlock(): Scope = {
     val scope = currentScope
@@ -118,23 +117,28 @@ private[cfg] class BuilderImpl[SourceInfo] extends Builder[SourceInfo] {
 
   /***** Forward jumps ****/
   private val unlinkedJumps = mutable.Set.empty[UnlinkedJump]
-  private def addForwardJump(jump: JumpingImpl): UnlinkedJump = {
+  private def addForwardJump(jump: JumpingImpl, nameAfterBlock: Option[String] = None): UnlinkedJump = {
     addNode(jump)
     val prevBlockInfo = closeBlock()
     val unlinkedJump = new UnlinkedJumpImpl(jump, prevBlockInfo)
     unlinkedJumps += unlinkedJump
+
+    nameAfterBlock.foreach(startBlock(_, Seq(prevBlockInfo)))
+
     unlinkedJump
   }
 
   override def jumpToFuture(): UnlinkedJump = addForwardJump(new JumpImpl)
-  override def jumpToFutureIfNot(cond: Value): UnlinkedJump = addForwardJump(new JumpIfNotImpl(cond))
-  override def jumpHere(labels: Seq[UnlinkedJump]): Unit = {
+  override def jumpToFutureIfNot(cond: Value, afterBlockName: String): UnlinkedJump =
+    addForwardJump(new JumpIfNotImpl(cond), Some(afterBlockName))
+
+  override def jumpHere(blockName: String, labels: Seq[UnlinkedJump]): Unit = {
     val prevBlockInfo = closeBlockIfNeeded()
     val targetIndex = nodesBuilder.elementsAdded
 
     labels.foreach(_.finish(targetIndex))
 
-    startBlock(prevBlockInfo.toSeq ++ labels.map(_.blockInfo))
+    startBlock(blockName, prevBlockInfo.toSeq ++ labels.map(_.blockInfo))
   }
 
   class UnlinkedJumpImpl(private[BuilderImpl] val jumping: JumpingImpl,
@@ -154,6 +158,19 @@ private[cfg] class BuilderImpl[SourceInfo] extends Builder[SourceInfo] {
 
   }
 
+  /***** Additional stuff *****/
+  override def withSourceInfo[R](sourceInfo: SourceInfo)(body: => R): R = {
+    val old = curSourceInfo
+    curSourceInfo = Some(sourceInfo)
+    try body
+    finally curSourceInfo = old
+  }
+
+  private var nextFreshVarId = 0
+  override def freshVariable(): Variable =
+    try Variable(new AnyRef)("freshVar#" + nextFreshVarId)
+    finally nextFreshVarId += 1
+
   /***** Create Graph *****/
   override def finish(): Graph[SourceInfo] = {
     addNode(new EndImpl)
@@ -172,18 +189,15 @@ private[cfg] class BuilderImpl[SourceInfo] extends Builder[SourceInfo] {
       assert(blocks.size == 1 || blocks.sliding(2).forall { case ArraySeq(a, b) => a.nodeEnd == b.nodeBegin })
       assert(blocks.last.nodeEnd == graph.nodes.size)
 
+      // check indices
+      nodes.zipWithIndex.foreach { case (node, idx) => assert(node.index == idx) }
+      blocks.zipWithIndex.foreach { case (block, idx) => assert(block.index == idx) }
+
       // sanity checks
       nodes.foreach(_.sanityCheck())
       blocks.foreach(_.sanityCheck())
     }
 
     graph
-  }
-
-  override def withSourceInfo[R](sourceInfo: SourceInfo)(body: => R): R = {
-    val old = curSourceInfo
-    curSourceInfo = Some(sourceInfo)
-    try body
-    finally curSourceInfo = old
   }
 }

@@ -17,16 +17,17 @@ trait Builder[SourceInfo] {
   def writeProperty(base: Value, property: Property, value: Value): Unit
 
   def jumpToFuture(): UnlinkedJump
-  def jumpToFutureIfNot(cond: Value): UnlinkedJump
-  def jumpHere(label: Seq[UnlinkedJump]): Unit
+  def jumpToFutureIfNot(cond: Value, afterBlockName: String): UnlinkedJump
+  def jumpHere(blockName: String, label: Seq[UnlinkedJump]): Unit
 
-  final def jumpHere(first: UnlinkedJump, rest: UnlinkedJump*): Unit =
-    jumpHere(first +: rest)
+  final def jumpHere(blockName: String, first: UnlinkedJump, rest: UnlinkedJump*): Unit =
+    jumpHere(blockName, first +: rest)
 
   def loopJumpHere(): LoopLabel
   def jumpBack(loop: LoopLabel): Unit
 
   def withSourceInfo[R](sourceInfo: SourceInfo)(body: => R): R
+  def freshVariable(): Variable
 
   def finish(): Graph[SourceInfo]
 }

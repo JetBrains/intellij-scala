@@ -4,7 +4,9 @@ package impl
 
 import scala.collection.SeqView
 
-private final class BlockImpl[Info](override val blockIndex: Int, override val nodeBegin: Int) extends Block {
+private final class BlockImpl[Info](override val name: String,
+                                    override val index: Int,
+                                    override val nodeBegin: Int) extends Block {
   override type SourceInfo = Info
 
   var _graph: Graph[Info] = _

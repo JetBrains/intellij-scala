@@ -187,7 +187,7 @@ object DfNumeric {
       override def toString: String = s"$name.Top"
     }
     case class Concrete(value: T) extends Abstract {
-      override def toString: String = s"$name[$value]"
+      override def toString: String = s"$name($value)"
     }
     final val Bottom: Abstract = initialBottom
 

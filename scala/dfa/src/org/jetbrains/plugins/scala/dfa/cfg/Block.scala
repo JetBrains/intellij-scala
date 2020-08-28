@@ -7,7 +7,8 @@ trait Block {
 
   def graph: Graph[SourceInfo]
 
-  def blockIndex: Int
+  def name: String
+  def index: Int
 
   def nodeBegin: Int
   def nodeEnd: Int
