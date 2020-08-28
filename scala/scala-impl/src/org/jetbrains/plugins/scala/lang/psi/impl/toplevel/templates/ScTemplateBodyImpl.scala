@@ -100,5 +100,5 @@ class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
   }
 
   override def isEnclosedByBraces: Boolean =
-    this.firstChild.exists(_.elementType == ScalaTokenTypes.tCOLON)
+    this.firstChild.forall(_.elementType != ScalaTokenTypes.tCOLON)
 }

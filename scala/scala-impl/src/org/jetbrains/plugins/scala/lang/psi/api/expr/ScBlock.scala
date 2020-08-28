@@ -119,7 +119,7 @@ trait ScBlock extends ScExpression
 
   def needCheckExpectedType = true
 
-  override def isEnclosedByBraces: Boolean = false
+  override def isEnclosedByBraces: Boolean = true
 }
 
 object ScBlock {

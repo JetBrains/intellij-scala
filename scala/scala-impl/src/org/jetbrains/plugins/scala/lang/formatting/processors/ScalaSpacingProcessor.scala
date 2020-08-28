@@ -519,7 +519,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     //
     // TODO: settings?
     rightPsi match {
-      case ScExtendsBlock.TemplateBody(body) if body.isEnclosedByBraces =>
+      case ScExtendsBlock.TemplateBody(body) if !body.isEnclosedByBraces =>
         return WITHOUT_SPACING
       case _ =>
     }
