@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala.dfa.lattice
 import org.jetbrains.plugins.scala.dfa.lattice.MeetSemiLatticeOps.MeetSemiLatticeExt
 import org.jetbrains.plugins.scala.dfa.latticeTop
 
+import scala.language.implicitConversions
+
 /**
  * A meet-semi-lattice is a [[SemiLattice]] with a reflexive `meet` operation
  * where every pair of elements has exactly one infimum.

@@ -69,6 +69,7 @@ lazy val dfa = newProject(
   scalacOptions ++= Seq(
     "-deprecation",
     "-unchecked",
+    "-feature",
     "-Xlint",
     "-Xfatal-warnings"
   ),

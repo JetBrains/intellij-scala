@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.dfa.lattice
 
 import org.jetbrains.plugins.scala.dfa.lattice.SemiLatticeOps.SemiLatticeExt
 
+import scala.language.implicitConversions
+
 /**
  * Type class to make [[L]] a semi-lattice
  *
