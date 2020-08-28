@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.worksheet.settings
 import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.psi.PsiErrorElement
 import org.jetbrains.annotations.{Nls, NonNls, NotNull}
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil.WorksheetCompileRunRequest
 import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetDefaultSourcePreprocessor, WorksheetIncrementalSourcePreprocessor}
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType.WorksheetPreprocessError
@@ -50,7 +50,7 @@ object WorksheetExternalRunType {
   object PlainRunType extends WorksheetExternalRunType {
     override def getName: String = "Plain"
 
-    override def getMenuText: String = ScalaBundle.message("worksheet.runtype.plain")
+    override def getMenuText: String = WorksheetBundle.message("worksheet.runtype.plain")
 
     override def isReplRunType: Boolean = false
 
@@ -70,7 +70,7 @@ object WorksheetExternalRunType {
   object ReplRunType extends WorksheetExternalRunType {
     override def getName: String = "REPL"
 
-    override def getMenuText: String = ScalaBundle.message("worksheet.runtype.repl")
+    override def getMenuText: String = WorksheetBundle.message("worksheet.runtype.repl")
 
     override def isReplRunType: Boolean = true
 

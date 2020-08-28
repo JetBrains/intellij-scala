@@ -5,6 +5,7 @@ import com.intellij.execution.ui.ConfigurationModuleSelector
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.ui.SimpleListCellRenderer
 import com.intellij.ui.components.JBCheckBox
 import javax.swing._
 import net.miginfocom.layout.CC
@@ -86,6 +87,9 @@ private final class WorksheetSettingsPanel(
     }
 
     runTypeComboBox.setModel(new DefaultComboBoxModel(WorksheetExternalRunType.getAllRunTypes))
+    runTypeComboBox.setRenderer(SimpleListCellRenderer.create((label, runType, _: Int) => {
+      label.setText(runType.getMenuText)
+    }))
     runTypeComboBox.setSelectedItem(settingsData.runType)
     interactiveModeCheckBox.setSelected(settingsData.isInteractive)
     makeProjectBeforeRunCheckBox.setSelected(settingsData.isMakeBeforeRun)
