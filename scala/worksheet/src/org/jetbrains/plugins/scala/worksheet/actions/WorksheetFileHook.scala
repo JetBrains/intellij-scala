@@ -18,6 +18,7 @@ import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.annotations.CalledInAwt
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.worksheet.actions.repl.WorksheetReplRunAction
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.StopWorksheetAction.StoppableProcess
@@ -78,7 +79,11 @@ object WorksheetFileHook {
   private def restartFileAnalyzing(project: Project, virtualFile: VirtualFile): Unit = {
     val psiFile = PsiManager.getInstance(project).findFile(virtualFile)
     if (psiFile != null) {
-      psiFile.clearCaches()
+      psiFile match {
+        case scalaFile: ScalaFile =>
+          scalaFile.incContextModificationStamp()
+        case _ =>
+      }
       DaemonCodeAnalyzerEx.getInstanceEx(project).restart(psiFile)
     }
   }

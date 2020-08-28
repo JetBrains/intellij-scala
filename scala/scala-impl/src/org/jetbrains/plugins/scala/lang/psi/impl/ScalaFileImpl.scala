@@ -361,6 +361,14 @@ class ScalaFileImpl(
       case Seq(head) => head.qualifiedName == fqn
       case _         => false
     }
+
+  private var myContextModificationStamp: Long = 0
+
+  override def getContextModificationStamp: Long =
+    myContextModificationStamp
+
+  override def incContextModificationStamp(): Unit =
+    myContextModificationStamp += 1
 }
 
 object ScalaFileImpl {

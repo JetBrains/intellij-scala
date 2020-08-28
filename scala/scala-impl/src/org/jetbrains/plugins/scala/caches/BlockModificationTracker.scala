@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.caches
 
-import com.intellij.openapi.util.{Key, SimpleModificationTracker, ModificationTracker}
+import com.intellij.openapi.util.{Key, ModificationTracker, SimpleModificationTracker}
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.caches.CachesUtil.scalaTopLevelModTracker
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValueOrVariable, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 
 import scala.annotation.tailrec
 
@@ -62,8 +62,15 @@ object BlockModificationTracker {
       ModificationTracker.NEVER_CHANGED
     else
       contextWithStableType(element) match {
-        case Some(expr) => ExpressionModificationTracker(expr)
-        case None       => scalaTopLevelModTracker(element.getProject)
+        case Some(expr) =>
+          ExpressionModificationTracker(expr)
+        case _ =>
+          element.getContainingFile match {
+            case file: ScalaFileImpl =>
+              CachesUtil.fileContextModTracker(file)
+            case _ =>
+              CachesUtil.scalaTopLevelModTracker(element.getProject)
+          }
       }
 
   def contextWithStableType(element: PsiElement): Option[ScExpression] =
