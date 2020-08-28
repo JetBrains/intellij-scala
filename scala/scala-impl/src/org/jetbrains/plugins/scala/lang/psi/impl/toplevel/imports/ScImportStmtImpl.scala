@@ -57,8 +57,6 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
     place:      PsiElement
   ): Boolean = {
 
-    prepopulateResolveCaches()
-
     val importsIterator = importExprs.takeWhile(_ != lastParent).reverseIterator
     while (importsIterator.hasNext) {
       val importExpr = importsIterator.next()
@@ -346,14 +344,6 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
     }
     true
   }
-
-  /** Resolve all references in previous import expressions in direct order to avoid SOE */
-  private def prepopulateResolveCaches(): Unit =
-    for {
-      expr <- importExprs
-      ref <- expr.reference
-    } ref.multiResolveScala(false)
-
 }
 
 object ScImportStmtImpl {
