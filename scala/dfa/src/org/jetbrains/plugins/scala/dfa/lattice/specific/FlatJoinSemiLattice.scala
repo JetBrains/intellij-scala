@@ -1,6 +1,9 @@
 package org.jetbrains.plugins.scala.dfa.lattice
 package specific
 
+/**
+ * See [[FlatLattice]]
+ */
 final class FlatJoinSemiLattice[T](override val top: T)
   extends JoinSemiLattice[T]
 {

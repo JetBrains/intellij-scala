@@ -1,6 +1,32 @@
 package org.jetbrains.plugins.scala.dfa.lattice
 package specific
 
+/**
+ * Lattice type class implementation for powersets
+ *
+ * In this lattice every element can be combined with all other elements.
+ * Bottom is then the empty set, namely no element at all.
+ * Because the height of the lattice is proportional to the amount of possible elements,
+ * it is important to keep the amount of possible elements finite.
+ * Otherwise the data flow analysis might not hal!.
+ *
+ * Here a lattice on 4 elements (many lattice elements are omitted)
+ *
+ *                    Top
+ *                   /  \
+ *                  /    \
+ *          [A, B, C]   [B, C, D]
+ *           /   \       /  \
+ *         /      \     /    \
+ *     [A, B]     [B, C]   [B, D]
+ *      |   \    /         /
+ *      |    \  /         /
+ *     [A]    [B]        /
+ *      \      |        /
+ *       \     |       /
+ *        \    |      /
+ *        [] (= Bottom)
+ */
 abstract class PowerSetLattice[T](override val top: T, override val bottom: T)
   extends JoinSemiLattice[T] with MeetSemiLattice[T] {
 
