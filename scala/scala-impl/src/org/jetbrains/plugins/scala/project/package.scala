@@ -14,7 +14,7 @@ import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
-import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{LanguageSubstitutors, PsiElement, PsiFile}
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.util.PathsList
@@ -30,7 +30,7 @@ import org.jetbrains.sbt.project.module.SbtModuleType
 
 import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
-import scala.ref.WeakReference
+import scala.ref.Reference
 
 /**
  * @author Pavel Fatin
@@ -41,7 +41,7 @@ package object project {
 
     // used to "attach" a module to some scala file, which is out of any module for some reason
     // the primary purpose is to attach a module for a scala scratch file
-    val SCALA_ATTACHED_MODULE = new Key[WeakReference[Module]]("ScalaAttachedModule")
+    val SCALA_ATTACHED_MODULE = new Key[Reference[Module]]("ScalaAttachedModule")
   }
 
   implicit class LibraryExt(private val library: Library) extends AnyVal {
@@ -180,6 +180,9 @@ package object project {
     def configureScalaCompilerSettingsFrom(source: String, options: collection.Seq[String]): Unit =
       compilerConfiguration.configureSettingsForModule(module, source, ScalaCompilerSettings.fromOptions(options))
 
+    private def compilerConfiguration =
+      ScalaCompilerConfiguration.instanceIn(module.getProject)
+
     def scalaLanguageLevel: Option[ScalaLanguageLevel] =
       scalaModuleSettings.map(_.scalaLanguageLevel)
 
@@ -230,9 +233,6 @@ package object project {
 
     def customDefaultImports: Option[Seq[String]] =
       scalaModuleSettings.flatMap(_.customDefaultImports)
-
-    private def compilerConfiguration =
-      ScalaCompilerConfiguration.instanceIn(module.getProject)
   }
 
   class ScalaSdkNotConfiguredException(module: Module) extends IllegalArgumentException(s"No Scala SDK configured for module: ${module.getName}")
@@ -322,7 +322,11 @@ package object project {
 
   implicit class ProjectPsiFileExt(private val file: PsiFile) extends AnyVal {
 
-    def module: Option[Module] = projectModule.orElse(file.scratchFileModule)
+    def module: Option[Module] = {
+      val module1 = attachedFileModule
+      val module2 = module1.orElse(projectModule)
+      module2
+    }
 
     @CachedInUserData(file, ProjectRootManager.getInstance(file.getProject))
     private def projectModule: Option[Module] =
@@ -331,6 +335,9 @@ package object project {
       }
 
     def scratchFileModule: Option[Module] =
+      attachedFileModule
+
+    private def attachedFileModule: Option[Module] =
       Option(file.getUserData(UserDataKeys.SCALA_ATTACHED_MODULE)).flatMap(_.get)
 
     def isMetaEnabled: Boolean =

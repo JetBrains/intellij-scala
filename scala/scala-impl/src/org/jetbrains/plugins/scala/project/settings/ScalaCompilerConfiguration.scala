@@ -44,7 +44,13 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
   }
 
   def getProfileForModule(module: Module): ScalaCompilerSettingsProfile =
-    customProfiles.find(_.moduleNames.contains(module.getName)).getOrElse(defaultProfile)
+    module match {
+      case profileAware: CompilerProfileAwareModule =>
+        val profileName = profileAware.compilerProfileName
+        customProfiles.find(_.getName == profileName).getOrElse(defaultProfile)
+      case _                  =>
+        customProfiles.find(_.moduleNames.contains(module.getName)).getOrElse(defaultProfile)
+    }
 
   def findByProfileName(profileName: String): Option[ScalaCompilerSettingsProfile] =
     allProfiles.find(_.getName == profileName)
@@ -160,4 +166,10 @@ object ScalaCompilerConfiguration extends SimpleModificationTracker {
     val settings = config.getSettingsForModule(module)
     settings.plugins.exists(_.contains(pattern))
   }
+}
+
+trait CompilerProfileAwareModule {
+  this: Module =>
+
+  def compilerProfileName: String
 }

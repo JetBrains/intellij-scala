@@ -85,6 +85,10 @@ final class WorksheetSettingsDialog(worksheetFile: PsiFile)
         super.setModuleName(value)
         WorksheetFileHook.moduleUpdated(project, virtualFile)
       }
+      override def setCompilerProfileName(value: String): Unit = {
+        super.setCompilerProfileName(value)
+        WorksheetFileHook.profileUpdated(project, virtualFile)
+      }
     }
     applySettingsData(settingsData, getFileSettingsData, fileSettingsUpdater)
   }

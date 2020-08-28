@@ -8,7 +8,6 @@ import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerEx
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.impl.ActionButton
 import com.intellij.openapi.editor.ex.EditorEx
-import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.fileEditor._
 import com.intellij.openapi.project.DumbService.DumbModeListener
@@ -19,7 +18,7 @@ import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.annotations.CalledInAwt
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project.{UserDataHolderExt, UserDataKeys}
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.worksheet.actions.repl.WorksheetReplRunAction
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.StopWorksheetAction.StoppableProcess
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
@@ -71,29 +70,33 @@ object WorksheetFileHook {
   def isRunning(file: VirtualFile): Boolean =
     WorksheetFileHook.getPanel(file).exists(!_.isRunEnabled)
 
-  def moduleUpdated(project: Project, file: VirtualFile): Unit = {
-    for {
-      module <- WorksheetFileSettings(project, file).getModule
-    } file.putUserData(UserDataKeys.SCALA_ATTACHED_MODULE, new scala.ref.WeakReference(module))
+  def moduleUpdated(project: Project, virtualFile: VirtualFile): Unit = {
+    WorksheetSyntheticModuleService(project).moduleUpdated(virtualFile)
+    restartFileAnalyzing(project, virtualFile)
+  }
 
-    updateEditorsHighlighters(project, file)
-    val psiFile = PsiManager.getInstance(project).findFile(file)
+  private def restartFileAnalyzing(project: Project, virtualFile: VirtualFile): Unit = {
+    val psiFile = PsiManager.getInstance(project).findFile(virtualFile)
     if (psiFile != null) {
+      psiFile.clearCaches()
       DaemonCodeAnalyzerEx.getInstanceEx(project).restart(psiFile)
     }
   }
 
-  private def updateEditorsHighlighters(project: Project, vFile: VirtualFile): Unit = {
-    val highlighter = EditorHighlighterFactory.getInstance.createEditorHighlighter(project, vFile)
-    val fileEditors = FileEditorManager.getInstance(project).getAllEditors(vFile).toSeq
-    val editors = fileEditors.filterByType[TextEditor].map(_.getEditor).filterByType[EditorEx]
-    editors.foreach(_.setHighlighter(highlighter))
+  def profileUpdated(project: Project, virtualFile: VirtualFile): Unit = {
+    /**
+     * Currently we have only module/project-level caching for profiles
+     * (see caching in [[org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes.forModule]])
+     * (see caching in [[org.jetbrains.plugins.scala.project.ModuleExt.scalaModuleSettings]])
+     *
+     * If project compiler profiles configuration is not changed it means that no changes were made in any module profile.
+     * Worksheet profile "lives" out of scope of [[org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration]]
+     * (see [[org.jetbrains.plugins.scala.worksheet.actions.WorksheetSyntheticModule.compilerProfileName]])
+     * So to trigger correct file re-highlighting we need to invalidate some compiler-options-specific caches.
+     */
+    ScalaCompilerConfiguration.incModificationCount()
+    restartFileAnalyzing(project, virtualFile)
   }
-
-  private def ensureWorksheetModuleAttachedToPsiFile(project: Project, file: VirtualFile): Unit =
-    for {
-      module <- WorksheetFileSettings(project, file).getModule
-    } file.getOrUpdateUserData(UserDataKeys.SCALA_ATTACHED_MODULE, new scala.ref.WeakReference(module))
 
   private class WorksheetEditorListener(project: Project) extends FileEditorManagerListener {
 
@@ -116,8 +119,8 @@ object WorksheetFileHook {
       val project = source.getProject
 
       WorksheetFileSettings(project, file).ensureSettingsArePersisted()
+      WorksheetSyntheticModuleService(project).ensureWorksheetModuleAttachedToPsiFile(file)
       initWorksheetUiComponents(file)
-      ensureWorksheetModuleAttachedToPsiFile(project, file)
       loadEvaluationResult(project, source, file)
 
       val document = WorksheetFileHook.getDocumentFrom(project, file)
