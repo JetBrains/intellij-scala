@@ -10,10 +10,15 @@ class Graph[+Info](final val nodes: ArraySeq[Node], final val blocks: ArraySeq[B
   final lazy val hasIncomingJump: Set[Node] =
     nodes.collect { case jump: Jumping => jump.target }.toSet
 
-  final def asmText(showIndices: Boolean = false): String = {
+  final def asmText(showIndices: Boolean = false, indent: Boolean = false): String = {
     val builder = new StringBuilder
     for (node <- nodes) {
-      builder ++= node.asmString(showIndex = showIndices, showLabel = hasIncomingJump(node))
+      builder ++= node.asmString(
+        showIndex = showIndices,
+        showLabel = hasIncomingJump(node),
+        indent = indent,
+        maxIndexHint = nodes.size
+      )
       builder += '\n'
     }
 

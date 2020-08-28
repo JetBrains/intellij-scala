@@ -9,7 +9,7 @@ sealed trait Node {
   def sourceInfo: Option[SourceInfo]
   def index: Int
 
-  def asmString(showIndex: Boolean = false, showLabel: Boolean = false, maxIndexHint: Int = 99): String
+  def asmString(showIndex: Boolean = false, showLabel: Boolean = false, indent: Boolean = false, maxIndexHint: Int = 99): String
   def labelString: String
 }
 

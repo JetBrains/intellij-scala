@@ -19,17 +19,25 @@ private abstract class NodeImpl[Info] { this: cfg.Node =>
 
   override def toString: String = asmString()
 
-  override def asmString(showIndex: Boolean = false, showLabel: Boolean = false, maxIndexHint: Int = 99): String = {
+  override def asmString(showIndex: Boolean = false, showLabel: Boolean = false, indent: Boolean = false, maxIndexHint: Int = 99): String = {
     val builder = new StringBuilder
 
+    val indexPrefix =
+      if (showIndex) s"%0${maxIndexHint.toString.length}d ".format(index)
+      else ""
+
     if (showLabel) {
+      builder ++= indexPrefix.map(_ => ' ')
       builder ++= labelString
       builder ++= ":\n"
     }
 
-    if (showIndex) {
-      builder ++= s"%0${maxIndexHint}d ".format(index)
+    builder ++= indexPrefix
+
+    if (indent) {
+      builder ++= "  "
     }
+
     builder ++= asmString
 
     builder.result()

@@ -13,8 +13,8 @@ class BuilderTest extends AnyFunSuite with Matchers with BuilderMatchers {
 
     builder.finish() should disassembleTo(
       """
-        |%0 <- DfTrue
-        |end
+        |  %0 <- DfTrue
+        |  end
         |""".stripMargin
     )
   }
@@ -26,9 +26,9 @@ class BuilderTest extends AnyFunSuite with Matchers with BuilderMatchers {
 
     builder.finish() should disassembleTo(
       """
-        |jump .label[1]
+        |  jump .label[1]
         |.label[1]:
-        |end
+        |  end
         |""".stripMargin
     )
   }
@@ -41,10 +41,10 @@ class BuilderTest extends AnyFunSuite with Matchers with BuilderMatchers {
 
     builder.finish() should disassembleTo(
       """
-        |%0 <- DfBool.Top
-        |if not %0 jump .end[2]
+        |  %0 <- DfBool.Top
+        |  if not %0 jump .end[2]
         |.end[2]:
-        |end
+        |  end
         |""".stripMargin
     )
   }
@@ -71,15 +71,15 @@ class BuilderTest extends AnyFunSuite with Matchers with BuilderMatchers {
 
     builder.finish() should disassembleTo(
       """
-        |%0 <- DfBool.Top
-        |if not %0 jump .else[2]
-        |%1 <- DfInt(3)
-        |jump .after[3]
+        |  %0 <- DfBool.Top
+        |  if not %0 jump .else[2]
+        |  %1 <- DfInt(3)
+        |  jump .after[3]
         |.else[2]:
-        |%2 <- DfInt(10)
+        |  %2 <- DfInt(10)
         |.after[3]:
-        |phi %3 <- %1 | %2
-        |end
+        |  phi %3 <- %1 | %2
+        |  end
         |""".stripMargin
     )
   }
