@@ -32,6 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 
 trait ScImportsHolder extends ScalaPsiElement {
@@ -53,17 +54,36 @@ trait ScImportsHolder extends ScalaPsiElement {
       lastParent: PsiElement,
       place: PsiElement): Boolean = {
     if (lastParent != null) {
-      var run = stubOrPsiPrevSibling(lastParent)
-//      updateResolveCaches()
-      while (run != null) {
-        ProgressManager.checkCanceled()
-        if (run.isInstanceOf[ScImportStmt] &&
-            !run.processDeclarations(processor, state, lastParent, place)) return false
-        run = stubOrPsiPrevSibling(run)
-      }
+      val prevImports = previousImports(lastParent)
+
+      //Resolve all references in previous import expressions in direct order to avoid SOE
+      prevImports.foreach(updateResolveCaches)
+
+      val shouldStop =
+        prevImports.reverse
+          .find(!_.processDeclarations(processor, state, lastParent, place))
+
+      if (shouldStop.nonEmpty)
+        return false
     }
     true
   }
+
+  @tailrec
+  private def previousImports(lastParent: PsiElement, acc: List[ScImportStmt] = Nil): List[ScImportStmt] = {
+    stubOrPsiPrevSibling(lastParent) match {
+      case null              => acc
+      case imp: ScImportStmt => previousImports(imp, imp :: acc)
+      case other             => previousImports(other, acc)
+    }
+  }
+
+  private def updateResolveCaches(importStmt: ScImportStmt): Unit =
+    for {
+      expr <- importStmt.importExprs
+      ref  <- expr.reference
+    } ref.multiResolveScala(false)
+
 
   def getImportsForLastParent(lastParent: PsiElement): Seq[ScImportStmt] = {
     val buffer = mutable.ArrayBuffer.empty[ScImportStmt]
