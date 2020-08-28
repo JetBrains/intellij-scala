@@ -7,5 +7,5 @@ final class ScConstrBlockImpl(node: ASTNode) extends ScExpressionImplBase(node) 
 
   override def toString: String = "ConstructorBlock"
 
-  override def isEnclosedByBraces: Boolean = false
+  override def isEnclosedByBraces: Boolean = true
 }
