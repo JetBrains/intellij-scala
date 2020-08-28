@@ -29,7 +29,7 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
 
   var defaultProfile: ScalaCompilerSettingsProfile = new ScalaCompilerSettingsProfile(DefaultProfileName)
 
-  var customProfiles: collection.Seq[ScalaCompilerSettingsProfile] = Seq.empty
+  var customProfiles: Seq[ScalaCompilerSettingsProfile] = Seq.empty
 
   @TestOnly
   def createCustomProfileForModule(profileName: String, module: Module): ScalaCompilerSettingsProfile = {
@@ -58,9 +58,9 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
   def getSettingsForModule(module: Module): ScalaCompilerSettings =
     getProfileForModule(module).getSettings
 
-  def allCompilerPlugins: collection.Seq[String] = (allProfiles).map(_.getSettings).flatMap(_.plugins)
+  def allCompilerPlugins: collection.Seq[String] = allProfiles.map(_.getSettings).flatMap(_.plugins)
 
-  def allProfiles: collection.Seq[ScalaCompilerSettingsProfile] = defaultProfile +: customProfiles
+  def allProfiles: Seq[ScalaCompilerSettingsProfile] = defaultProfile +: customProfiles
 
   def hasSettingForHighlighting(module: Module)
                                (hasSetting: ScalaCompilerSettings => Boolean): Boolean =
@@ -140,7 +140,7 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
       moduleNames.foreach(profile.addModuleName)
 
       profile
-    }
+    }.toSeq
   }
 
   override def getModificationCount: Long =
