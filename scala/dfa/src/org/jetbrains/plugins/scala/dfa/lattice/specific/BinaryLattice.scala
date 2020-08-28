@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.dfa.lattice
-
-import org.jetbrains.plugins.scala.dfa.{JoinSemiLattice, MeetSemiLattice}
-
-import scala.annotation.tailrec
-
+package specific
 
 /**
  * Lattice type class implementation for binary lattices

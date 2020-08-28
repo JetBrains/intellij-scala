@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.dfa
 
-import org.jetbrains.plugins.scala.dfa.lattice.{FlatJoinSemiLattice, FlatLattice}
+import org.jetbrains.plugins.scala.dfa.lattice.{JoinSemiLattice, Lattice}
+import org.jetbrains.plugins.scala.dfa.lattice.specific.{FlatJoinSemiLattice, FlatLattice}
 
 /**
  * A complete bool lattice

@@ -1,5 +1,5 @@
-package org.jetbrains.plugins.scala.dfa
-package lattice
+package org.jetbrains.plugins.scala.dfa.lattice
+package specific
 
 abstract class PowerSetLattice[T](override val top: T, override val bottom: T)
   extends JoinSemiLattice[T] with MeetSemiLattice[T] {

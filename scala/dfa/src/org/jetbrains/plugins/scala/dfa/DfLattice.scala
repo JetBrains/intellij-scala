@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala
 package dfa
 
-import org.jetbrains.plugins.scala.dfa.lattice.{BinaryLattice, FlatLattice, PowerSetLattice, ProductLattice}
+import org.jetbrains.plugins.scala.dfa.lattice.Lattice
+import org.jetbrains.plugins.scala.dfa.lattice.specific.{BinaryLattice, FlatLattice, PowerSetLattice, ProductLattice}
 
 import scala.util.hashing.MurmurHash3
 

@@ -1,5 +1,5 @@
-package org.jetbrains.plugins.scala.dfa
-package lattice
+package org.jetbrains.plugins.scala.dfa.lattice
+package specific
 
 import scala.annotation.tailrec
 
