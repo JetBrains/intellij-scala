@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 import scala.collection.mutable
 
 object BaseTypes {
@@ -24,6 +24,7 @@ object BaseTypes {
 
   private def reduce(types: Seq[ScType]): Seq[ScType] = {
     val res = new mutable.HashMap[PsiClass, ScType]
+    @nowarn("cat=deprecation")
     object all extends mutable.HashMap[PsiClass, mutable.Set[ScType]] with mutable.MultiMap[PsiClass, ScType]
     val iterator = types.iterator
     while (iterator.hasNext) {

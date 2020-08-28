@@ -58,7 +58,7 @@ private[codeInsight] object ImplicitHints {
 
     inlaysIn(model).forEach { inlay =>
       inlay.getRenderer.asOptionOfUnsafe[TextPartsHintRenderer].foreach(_.expand())
-      inlay.updateSize()
+      inlay.update()
     }
   }
 
@@ -67,7 +67,7 @@ private[codeInsight] object ImplicitHints {
 
     inlaysIn(model).forEach { inlay =>
       inlay.getRenderer.asOptionOfUnsafe[TextPartsHintRenderer].filter(_.expanded).foreach(_.collapse())
-      inlay.updateSize()
+      inlay.update()
     }
   }
 

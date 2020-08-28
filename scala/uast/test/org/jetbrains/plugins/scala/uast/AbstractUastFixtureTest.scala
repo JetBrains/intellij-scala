@@ -83,7 +83,7 @@ object AbstractUastFixtureTest {
         s"requested text '$refText' was not found in $psiElem"
       )
 
-    val nonStrictParentElements = Stream
+    val nonStrictParentElements = LazyList
       .iterate(elementAtStart)(
         it =>
           if (it.isInstanceOf[PsiFile]) null

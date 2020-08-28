@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.declarations.{ScUVariable, ScUV
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.uast._
 
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 import scala.jdk.CollectionConverters._
 
 /**
@@ -74,6 +74,7 @@ final class ScULocalFunctionDeclarationExpression(
   *
   * @param funDef Scala PSI element representing local function definition
   */
+@nowarn("msg=early initializers")
 final class ScULocalFunction(funDef: ScFunctionDefinition,
                        containingTypeDef: ScTemplateDefinition,
                        override protected val parent: LazyUElement)

@@ -21,9 +21,12 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
+import scala.annotation.nowarn
+
 /**
  * User: Alexander Podkhalyuzin
  */
+@nowarn("msg=early initializers")
 abstract class FakePsiMethod(navElement: PsiElement,
                              psiMember: Option[PsiMember],
                              name: String) extends {

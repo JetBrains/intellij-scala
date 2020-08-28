@@ -109,7 +109,7 @@ object BundleExtraction {
     override def getErrorText(inputString: String): String = inputString match {
       case "" => "Cannot be empty"
       case key if key.contains(" ") || key.contains("\t") => "Key cannot contain spaces"
-      case key if wrongRegex.findAllMatchIn(key).nonEmpty => "Invalid characters: " + wrongRegex.findAllMatchIn(key).flatMap(_.toString()).toSet.mkString.sorted
+      case key if wrongRegex.findAllMatchIn(key).nonEmpty => "Invalid characters: " + wrongRegex.findAllMatchIn(key).flatMap(_.toString()).toSet.mkString.toSeq.sorted.unwrap
       case key if bundle.hasKey(key) => "Key already in bundle: " + key
       case _ => null
     }

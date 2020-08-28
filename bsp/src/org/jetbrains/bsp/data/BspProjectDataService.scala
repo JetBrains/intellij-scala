@@ -55,7 +55,7 @@ object BspProjectDataService {
 
     val detectedRoots = {
       val detector = ServiceManager.getService(project, classOf[VcsRootDetector])
-      val detected = mutable.Set[VcsRoot](currentVcsRoots: _*)
+      val detected = mutable.Set[VcsRoot](currentVcsRoots.toIndexedSeq: _*)
       vcsRootsCandidates
         .map(LocalFileSystem.getInstance.findFileByIoFile)
         .filter(_ != null)

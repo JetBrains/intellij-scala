@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsin
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -116,6 +116,7 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
   }
 }
 
+@nowarn("msg=early initializers")
 class ScalaClassRenameDialog(project: Project, psiElement: PsiElement, nameSuggestionContext: PsiElement, editor: Editor)
         extends {
           private val chbRenameCompanion: JCheckBox = new JCheckBox("", true)

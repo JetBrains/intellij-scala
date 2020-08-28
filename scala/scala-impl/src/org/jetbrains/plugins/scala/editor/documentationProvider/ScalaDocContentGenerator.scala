@@ -55,14 +55,14 @@ private class ScalaDocContentGenerator(
     buffer.result
   }
 
-  private def tagDescriptionParts(tag: ScDocTag): Traversable[ScDocDescriptionPart] = {
+  private def tagDescriptionParts(tag: ScDocTag): Iterable[ScDocDescriptionPart] = {
     val descriptionElements = Option(tag.getValueElement)
       .orElse(tag.children.findByType[ScStableCodeReference]) // for @throws tag
       .getOrElse(tag.getNameElement).nextSiblings
-    descriptionElements.toTraversable.filterByType[ScDocDescriptionPart]
+    descriptionElements.iterator.to(Iterable).filterByType[ScDocDescriptionPart]
   }
 
-  private def nodesText(elements: TraversableOnce[PsiElement]): String = {
+  private def nodesText(elements: Iterable[PsiElement]): String = {
     val buffer = newStringBuilder
     elements.foreach(visitNode(buffer, _))
     buffer.result
@@ -70,10 +70,10 @@ private class ScalaDocContentGenerator(
 
   def appendDescriptionParts(
     buffer: StringBuilder,
-    parts: TraversableOnce[ScDocDescriptionPart]
+    parts: IterableOnce[ScDocDescriptionPart]
   ): Unit = {
     var isFirst = true
-    parts.foreach { part =>
+    parts.iterator.foreach { part =>
       visitDescriptionPartNode(buffer, part, isFirst)
       isFirst = false
     }
@@ -86,7 +86,7 @@ private class ScalaDocContentGenerator(
   ): String = {
     val result = for {
       ref <- element.children.findByType[ScStableCodeReference].toRight {
-        unresolvedReference(nodesText(element.children.filter(isContentChild)))
+        unresolvedReference(nodesText(element.children.filter(isContentChild).to(Iterable)))
       }
     } yield generatePsiElementLinkWithLabel(ref, plainLink, isContentChild)
     result.merge
@@ -118,11 +118,11 @@ private class ScalaDocContentGenerator(
 
   private def labelFromSiblings(element: PsiElement, siblingFilter: PsiElement => Boolean): Option[String] = {
     val labelElements = element.nextSiblings.dropWhile(_.elementType == ScalaDocTokenType.DOC_WHITESPACE).filter(siblingFilter)
-    if (labelElements.nonEmpty) Some(nodesText(labelElements)) else None
+    if (labelElements.nonEmpty) Some(nodesText(labelElements.to(Iterable))) else None
   }
 
-  private def visitNodes(buffer: StringBuilder, elements: TraversableOnce[PsiElement]): Unit =
-    elements.foreach(visitNode(buffer, _))
+  private def visitNodes(buffer: StringBuilder, elements: IterableOnce[PsiElement]): Unit =
+    elements.iterator.foreach(visitNode(buffer, _))
 
   private def visitNode(buffer: StringBuilder, element: PsiElement): Unit = {
     val isLeafNode = element.getFirstChild == null
@@ -244,7 +244,7 @@ private class ScalaDocContentGenerator(
     val href = linkValue.getText
     val labelNodes = linkValue.nextSiblings.dropWhile(_.elementType == ScalaDocTokenType.DOC_WHITESPACE).filter(isMarkupInner)
     val label = if (labelNodes.nonEmpty)
-      nodesText(labelNodes)
+      nodesText(labelNodes.to(Iterable))
     else
       href
     Some(hyperLink(href, label))

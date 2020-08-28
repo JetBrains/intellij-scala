@@ -30,6 +30,7 @@ class ReferenceMustBePrefixedInspection extends AbstractInspection(ScalaInspecti
       reference.bind().collect {
         case result@withActual(clazz: PsiClass) if result.renamed.isEmpty && isValid(clazz, reference) => clazz
       }.flatMap(validFqnSegments)
+        .map(_.toIndexedSeq)
         .map(new AddPrefixQuickFix(reference, _))
         .foreach(registerProblem(reference, _))
   }

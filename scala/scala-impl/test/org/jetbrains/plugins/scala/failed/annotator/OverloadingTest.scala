@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElement, ScTyp
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
-import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TypePresentation}
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 import org.jetbrains.plugins.scala.{PerfCycleTests, ScalaBundle}
 import org.junit.Assert._
@@ -65,7 +65,7 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter with Match
           case b: ScBlockExpr => b.getRBrace.getOrElse(b)
           case _ => expression
         }
-        val (actualText, expText) = ScTypePresentation.different(actual, expected)(expr)
+        val (actualText, expText) = TypePresentation.different(actual, expected)(expr)
         val annotation = holder.createErrorAnnotation(expr,
           ScalaBundle.message("type.mismatch.found.required", actualText, expText))
         annotation.registerFix(ReportHighlightingErrorQuickFix)

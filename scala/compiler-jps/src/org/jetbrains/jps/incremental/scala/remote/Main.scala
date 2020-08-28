@@ -68,7 +68,7 @@ object Main {
   }
 
   def main(args: Array[String]): Unit = {
-    serverLogic(CommandIds.Compile, args, System.out, -1, standalone = true)
+    serverLogic(CommandIds.Compile, args.toIndexedSeq, System.out, -1, standalone = true)
   }
 
   private def serverLogic(commandId: String,

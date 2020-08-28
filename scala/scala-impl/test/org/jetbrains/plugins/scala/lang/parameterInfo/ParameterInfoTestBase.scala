@@ -52,7 +52,7 @@ abstract class ParameterInfoTestBase[Owner <: PsiElement] extends ScalaLightCode
   private def handleUI(handler: ParameterInfoHandler[Owner, Any],
                        context: CreateParameterInfoContext): Seq[String] = {
     val parameterOwner = handler.findElementForParameterInfo(context)
-    val items = Option(context.getItemsToShow).getOrElse(Array.empty)
+    val items = Option(context.getItemsToShow).getOrElse(Array.empty).toIndexedSeq
     uiStrings(items, handler, parameterOwner)
   }
 
@@ -64,7 +64,7 @@ abstract class ParameterInfoTestBase[Owner <: PsiElement] extends ScalaLightCode
     updatedContext.setParameterOwner(parameterOwner)
     handler.updateParameterInfo(parameterOwner, updatedContext)
 
-    uiStrings(updatedContext.getObjectsToView, handler, parameterOwner)
+    uiStrings(updatedContext.getObjectsToView.toIndexedSeq, handler, parameterOwner)
   }
 
   private def updateContext(context: CreateParameterInfoContext): UpdateParameterInfoContext = {
@@ -138,6 +138,7 @@ object ParameterInfoTestBase {
     text.substring(2, text.length - dropRight)
       .split("<--->")
       .map(normalize)
+      .toIndexedSeq
   }
 
   private[this] def normalize(string: String) =

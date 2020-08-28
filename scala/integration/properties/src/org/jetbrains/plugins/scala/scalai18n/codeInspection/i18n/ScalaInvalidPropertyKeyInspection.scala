@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n
 
 import java.util
+import java.util.Objects
 
 import com.intellij.codeHighlighting.HighlightDisplayLevel
 import com.intellij.codeInsight.daemon.GroupNames
@@ -98,7 +99,7 @@ class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
       } else {
         expression.getParent match {
           case nvp: ScNameValuePair =>
-            if (Comparing.equal(nvp.getName, AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER)) {
+            if (Objects.equals(nvp.getName, AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER)) {
               val manager: PropertiesReferenceManager = PropertiesReferenceManager.getInstance(expression.getProject)
               val module: Module = ModuleUtilCore.findModuleForPsiElement(expression)
               if (module != null) {

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.scalastyle
 
 import com.intellij.codeInspection._
+import com.intellij.openapi.project.ProjectUtil
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
@@ -39,7 +40,7 @@ object ScalastyleCodeInspection {
   def configurationFor(file: ScalaFile): Option[ScalastyleConfiguration] = {
     val virtualFile = file.getVirtualFile
     val project = file.getProject
-    val baseDir = Option(project.getBaseDir)
+    val baseDir = Option(ProjectUtil.guessProjectDir(project))
     val fileIndex = ProjectFileIndex.getInstance(project)
     val contentRoot = Option(fileIndex.getContentRootForFile(virtualFile))
     val isTest = fileIndex.isInTestSourceContent(virtualFile)
@@ -115,7 +116,7 @@ object ScalastyleCodeInspection {
     }
 
     private def findPsiElement(line: Int, column: Option[Int]): Option[PsiElement] =
-      file.depthFirst().filter(e => e != file && isAtPosition(e, line, column)).toStream.headOption
+      file.depthFirst().filter(e => e != file && isAtPosition(e, line, column)).to(LazyList).headOption
   }
 
   private def checkWithScalastyle(file: PsiFile, config: ScalastyleConfiguration): List[Message[SourceSpec]] = {

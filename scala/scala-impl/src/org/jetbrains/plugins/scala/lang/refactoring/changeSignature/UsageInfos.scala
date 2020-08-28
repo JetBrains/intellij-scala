@@ -20,6 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 
+import scala.annotation.nowarn
+
 /**
  * Nikolay.Tropin
  * 2014-08-12
@@ -65,6 +67,7 @@ private[changeSignature] object ScalaNamedElementUsageInfo {
 private[changeSignature] case class FunUsageInfo(override val namedElement: ScFunction)
         extends UsageInfo(namedElement) with ScalaNamedElementUsageInfo
 
+@nowarn("msg=early initializers")
 private[changeSignature] case class PrimaryConstructorUsageInfo(pc: ScPrimaryConstructor)
         extends {
           override val namedElement = pc.containingClass.asInstanceOf[ScClass]

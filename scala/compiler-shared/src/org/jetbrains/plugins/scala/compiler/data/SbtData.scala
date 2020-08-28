@@ -47,7 +47,7 @@ object SbtData {
     for {
       sbtHome  <- Either.cond(pluginJpsRoot.exists, pluginJpsRoot, "sbt home directory does not exist: " + pluginJpsRoot)
       sbtFiles <- Option(sbtHome.listFiles).toRight("Invalid sbt home directory: " + sbtHome.getPath)
-      sbtData  <- from(sbtFiles, javaClassVersion)
+      sbtData  <- from(sbtFiles.toIndexedSeq, javaClassVersion)
     } yield sbtData
 
   private def from(sbtFiles: Seq[File], javaClassVersion: String): Either[String, SbtData] = {

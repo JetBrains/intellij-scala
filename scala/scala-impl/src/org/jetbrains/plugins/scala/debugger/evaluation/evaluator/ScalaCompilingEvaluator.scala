@@ -228,7 +228,7 @@ object ScalaCompilingEvaluator {
       val compiled = helper.compile(fileText, module)
       compiled.collect {
         case (f, name) if name.contains(generatedClassName) => new OutputFileObject(f, name)
-      }
+      }.toSeq
     }
   }
 

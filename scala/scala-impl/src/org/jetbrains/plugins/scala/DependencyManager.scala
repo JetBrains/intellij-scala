@@ -10,6 +10,7 @@ import org.apache.ivy.core.resolve.ResolveOptions
 import org.apache.ivy.core.settings.IvySettings
 import org.apache.ivy.plugins.resolver.{ChainResolver, IBiblioResolver, RepositoryResolver, URLResolver}
 import org.apache.ivy.util.{DefaultMessageLogger, MessageLogger}
+import org.jetbrains.plugins.scala.compiler.data.serialization.extensions.EitherExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.project.template._
 
@@ -128,6 +129,7 @@ abstract class DependencyManagerBase {
         .getAllArtifactsReports
         .filter(r => !artifactBlackList.contains(stripScalaVersion(r.getName)))
         .map(a => ResolvedDependency(artToDep(a.getArtifact.getModuleRevisionId), a.getLocalFile))
+        .toIndexedSeq
     } else {
       throw new RuntimeException(report.getAllProblemMessages.asScala.mkString("\n"))
     }
@@ -145,7 +147,7 @@ abstract class DependencyManagerBase {
       case info => Left(info)
     }.partition(_.isRight)
 
-    resolved.map(_.right.get) ++ resolveIvy(unresolved.map(_.left.get))
+    resolved.map(_.getRight) ++ resolveIvy(unresolved.map(_.getLeft))
   }
 
   def resolveSingle(dependency: DependencyDescription): ResolvedDependency = resolve(dependency).head

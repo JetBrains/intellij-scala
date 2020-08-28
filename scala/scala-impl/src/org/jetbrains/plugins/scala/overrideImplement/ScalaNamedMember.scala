@@ -12,6 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
+import scala.annotation.nowarn
+
 trait Ttt {
   type Alias
   def foo(p1: Int, p2: => String = "qwe"): (String, Long)
@@ -68,6 +70,7 @@ object ScMethodMember {
 
 sealed trait ScalaFieldMember extends ScalaTypedMember
 
+@nowarn("msg=early initializers")
 class ScValueMember(member: ScValue, val element: ScTypedDefinition, override val substitutor: ScSubstitutor, val isOverride: Boolean)
         extends {
           override val name = element.getName
@@ -75,6 +78,7 @@ class ScValueMember(member: ScValue, val element: ScTypedDefinition, override va
           val text = element.name + ": " + scType.presentableText(element)
         } with PsiElementClassMember[ScValue](member, text) with ScalaFieldMember
 
+@nowarn("msg=early initializers")
 class ScVariableMember(member: ScVariable, val element: ScTypedDefinition, override val substitutor: ScSubstitutor, val isOverride: Boolean)
         extends {
           override val name = element.getName

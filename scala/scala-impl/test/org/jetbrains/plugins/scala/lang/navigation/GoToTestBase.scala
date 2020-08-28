@@ -20,7 +20,7 @@ abstract class GoToTestBase extends base.ScalaLightCodeInsightFixtureTestAdapter
     case _                             => actual.toString
   }
 
-  protected final def is[T: ClassTag](any: Any) = any.isInstanceOf[T]
+  protected final def is[T: ClassTag](any: Any) = any.isInstanceOf[T @unchecked]
 
   protected final def isPackageObject(any: Any) = any match {
     case scObject: ScObject => scObject.isPackageObject

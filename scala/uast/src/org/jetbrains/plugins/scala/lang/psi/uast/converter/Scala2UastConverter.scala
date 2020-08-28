@@ -341,7 +341,7 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
   }
 
   private def firstConvertibleAncestor(element: PsiElement): Option[UElement] =
-    Stream
+    LazyList
       .iterate(element.getParent)(_.getParent)
       .takeWhile(_ != null)
       .flatMap(e => convertWithParent(e))

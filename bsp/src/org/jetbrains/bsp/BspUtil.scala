@@ -51,7 +51,7 @@ object BspUtil {
 
   def isBspProject(project: Project): Boolean = {
     val settings = bspSettings(project).getLinkedProjectsSettings
-    ! settings.isEmpty
+    !settings.isEmpty
   }
 
   def bspSettings(project: Project): BspSettings =

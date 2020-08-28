@@ -55,6 +55,7 @@ import com.intellij.usages.UsageView;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.PsiNavigateUtil;
+import com.intellij.util.SmartList;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.containers.JBIterable;
 import com.intellij.util.ui.EdtInvocationManager;
@@ -167,7 +168,7 @@ public class ScalaShowAffectedTestsAction extends AnAction {
       if (DumbService.isDumb(project)) return;
       String className = ReadAction.compute(() -> DiscoveredTestsTreeModel.getClassName(psiClass));
       if (className == null) return;
-      List<Couple<String>> classesAndMethods = ContainerUtil.newSmartList(Couple.of(className, null));
+      List<Couple<String>> classesAndMethods = new SmartList<>(Couple.of(className, null));
       processTestDiscovery(project, createTreeProcessor(tree), classesAndMethods, Collections.emptyList());
       EdtInvocationManager.getInstance().invokeLater(() -> tree.setPaintBusy(false));
     });
@@ -243,7 +244,7 @@ public class ScalaShowAffectedTestsAction extends AnAction {
     Document document = FileDocumentManager.getInstance().getDocument(file);
     if (document == null) return Collections.emptyList();
 
-    List<PsiElement> physicalMethods = ContainerUtil.newSmartList();
+    List<PsiElement> physicalMethods = new SmartList<>();
     psiFile.accept(new PsiRecursiveElementWalkingVisitor() {
       @Override
       public void visitElement(PsiElement element) {

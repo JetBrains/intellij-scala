@@ -6,7 +6,7 @@ import com.intellij.codeInsight.template.impl.TemplateManagerImpl
 import com.intellij.codeInsight.template.{Expression, ExpressionContext, Result, TextResult}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiDocumentManager
-import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
+import com.intellij.psi.impl.source.tree.injected.{InjectedLanguageEditorUtil, InjectedLanguageUtil}
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.ScTypeText
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
@@ -24,7 +24,7 @@ abstract class ChooseValueExpression[T](lookupItems: Seq[T], defaultItem: T) ext
 
   def calcLookupElements(): Seq[LookupElementBuilder] = lookupItems.map { elem =>
     LookupElementBuilder.create(elem, lookupString(elem)).withInsertHandler((context: InsertionContext, item: LookupElement) => {
-      val topLevelEditor = InjectedLanguageUtil.getTopLevelEditor(context.getEditor)
+      val topLevelEditor = InjectedLanguageEditorUtil.getTopLevelEditor(context.getEditor)
       val templateState = TemplateManagerImpl.getTemplateState(topLevelEditor)
       if (templateState != null) {
         val range = templateState.getCurrentVariableRange

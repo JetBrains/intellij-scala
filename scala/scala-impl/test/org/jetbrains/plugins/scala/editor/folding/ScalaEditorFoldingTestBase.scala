@@ -69,7 +69,7 @@ abstract class ScalaEditorFoldingTestBase extends ScalaLightCodeInsightFixtureTe
 
     assert(openMarkers.isEmpty, s"Unbalanced fold markers #3: ${openMarkers.mkString}")
 
-    val assumedRegionRanges = expectedRegions.result().sortBy(_._1.getStartOffset)
+    val assumedRegionRanges = expectedRegions.sortBy(_._1.getStartOffset)
 
     myFixture.configureByText("dummy.scala", textWithoutMarkers.result())
 

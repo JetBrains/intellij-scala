@@ -28,6 +28,8 @@ import scala.concurrent.{Await, Promise}
 import scala.util.Try
 import org.jetbrains.plugins.scala.util.FutureUtil.sameThreadExecutionContext
 
+import scala.annotation.nowarn
+
 trait JpsCompiler {
   def rescheduleCompilation(testScopeOnly: Boolean,
                             delayedProgressShow: Boolean,
@@ -55,6 +57,7 @@ class JpsCompilerImpl(project: Project)
   private val modTracker = new SimpleModificationTracker
 
   // SCL-17295
+  @nowarn("msg=pure expression")
   @Cached(modTracker, null)
   private def saveProjectOnce(): Unit =
     if (!project.isDisposed || project.isDefault) project.save()

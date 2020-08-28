@@ -27,6 +27,7 @@ class AdditionalImportsResolver(javaFile: PsiJavaFile, scope: GlobalSearchScope)
           case _ => false
         }
       }).collect { case javaRef: PsiJavaCodeReferenceElement => javaRef }
+        .toIndexedSeq
     }
 
     val failedToResolveNames = new ArrayBuffer[String]

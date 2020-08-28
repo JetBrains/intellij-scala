@@ -16,6 +16,7 @@
 package org.jetbrains.plugins.scala.highlighter;
 
 import com.intellij.lang.StdLanguages;
+import com.intellij.lang.xml.XMLLanguage;
 import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.ex.util.LayerDescriptor;
@@ -43,7 +44,7 @@ public final class ScalaEditorHighlighterProvider implements EditorHighlighterPr
                                                        @NotNull EditorColorsScheme colors) {
         return new ScalaEditorHighlighter(
                 getSyntaxHighlighter(ScalaLanguage.INSTANCE, project, virtualFile),
-                getSyntaxHighlighter(StdLanguages.XML, project, virtualFile),
+                getSyntaxHighlighter(XMLLanguage.INSTANCE, project, virtualFile),
                 getSyntaxHighlighter(ScalaDocLanguage.INSTANCE, project, virtualFile),
                 colors
         );

@@ -7,7 +7,6 @@ import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
@@ -43,7 +42,7 @@ class ExtensionDownloader(private val progress: ProgressIndicator, private val s
           None
       }
     }
-    descriptions.flatMap(BundledExtensionIndex.INDEX.get)
+    descriptions.flatMap(BundledExtensionIndex.INDEX.get).toSeq
   }
 
   private def getRemoteExtensions(props: Seq[ExtensionProps]): Seq[File] = {
@@ -52,7 +51,7 @@ class ExtensionDownloader(private val progress: ProgressIndicator, private val s
   }
 
   private def downloadDirect(props: ExtensionProps): Option[File] = {
-    import scala.collection.convert.ImplicitConversionsToScala._
+    import scala.jdk.CollectionConverters._
 
     val downloadRoot = new File(PathManager.getSystemPath, "scala/extensionsCache")
     val fileName     = s"${Math.abs(props.hashCode())}.jar"
@@ -72,6 +71,7 @@ class ExtensionDownloader(private val progress: ProgressIndicator, private val s
       None
     } else {
       files
+        .asScala
         .headOption
         .map { result =>
           val partFile = result.first
@@ -102,7 +102,7 @@ class ExtensionDownloader(private val progress: ProgressIndicator, private val s
         jarFS.getJarRootForLocalFile(jarFS.getVirtualFileForJar(f.getVirtualFile))
     }
     val props = containingJars.map(extractPropsFromJar)
-    containingJars.zip(props).collect { case (file, Some(p)) => file -> p }
+    containingJars.zip(props).collect { case (file, Some(p)) => file -> p }.toSeq
   }
 
   private def extractPropsFromJar(jarFile: VirtualFile): Option[ExtensionProps] = {

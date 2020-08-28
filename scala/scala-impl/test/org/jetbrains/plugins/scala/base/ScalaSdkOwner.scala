@@ -73,7 +73,7 @@ object ScalaSdkOwner {
   }
 
   private def selectVersion(wantedVersion: ScalaVersion, possibleVersions: SortedSet[ScalaVersion]): ScalaVersion =
-    possibleVersions.iteratorFrom(wantedVersion).toStream.headOption.getOrElse(possibleVersions.last)
+    possibleVersions.iteratorFrom(wantedVersion).to(LazyList).headOption.getOrElse(possibleVersions.last)
 
   lazy val globalConfiguredScalaVersion: Option[ScalaVersion] = {
     val property = scala.util.Properties.propOrNone("scala.sdk.test.version")

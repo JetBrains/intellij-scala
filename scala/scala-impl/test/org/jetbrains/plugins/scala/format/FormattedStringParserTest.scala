@@ -126,7 +126,7 @@ class FormattedStringParserTest extends SimpleTestCase {
 
   private def parse(formatString: String, arguments: Int*): List[StringPart] = {
     val expressions = arguments.map(it => createExpressionFromText(it.toString))
-    val literal = createScalaElementFromText[ScLiteral]('"' + formatString + '"')
+    val literal = createScalaElementFromText[ScLiteral]("\"" + formatString + "\"")
     FormattedStringParser.parseFormatCall(literal, expressions).toList
   }
 }

@@ -18,7 +18,7 @@ final class IsolatingClassLoader(parent: ClassLoader, filter: String => Boolean)
   override def loadClass(name: String, resolve: Boolean): Class[_] =
     apply(name)(super.loadClass(name, resolve)).orNull
 
-  @deprecated(since = "9")
+  @deprecated("", since = "9")
   override def getPackage(name: String): Package =
     apply(name)(super.getPackage(name)).orNull
 

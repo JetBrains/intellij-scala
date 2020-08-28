@@ -33,7 +33,7 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
         val duplicatingParams = mutable.HashSet[ScDocTag]()
 
         def insertDuplicating(element: Option[ScDocTag], duplicateElement: ScDocTag): Unit = {
-          element.foreach(duplicatingParams +=(_, duplicateElement))
+          element.foreach(duplicatingParams ++= Set(_, duplicateElement))
         }
 
         def paramsDif(paramList: Iterable[ScParameter], tagParamList: Iterable[ScTypeParam]): Unit = {

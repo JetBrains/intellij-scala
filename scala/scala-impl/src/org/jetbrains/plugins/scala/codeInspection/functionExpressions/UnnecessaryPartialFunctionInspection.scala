@@ -58,7 +58,7 @@ class UnnecessaryPartialFunctionInspection
     findType(file, PartialFunctionClassName, undefinedTypeParameters)
 
   private def undefinedTypeParameters(clazz: PsiClass): Seq[UndefinedType] =
-    clazz.getTypeParameters.map(UndefinedType(_))
+    clazz.getTypeParameters.map(UndefinedType(_)).toIndexedSeq
 
   private def canBeConvertedToFunction(
     caseClause:             ScCaseClause,

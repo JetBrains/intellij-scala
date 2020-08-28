@@ -92,7 +92,7 @@ class FormattedStringFormatterTest extends SimpleTestCase {
   }
 
   def testLiterals(): Unit = {
-    assertEquals(call("foo", ""), format(Injection(exp('"' + "foo" + '"'), None)))
+    assertEquals(call("foo", ""), format(Injection(exp("\"" + "foo" + "\""), None)))
     assertEquals(call("123", ""), format(Injection(exp("123L"), None)))
     assertEquals(call("true", ""), format(Injection(exp("true"), None)))
   }
@@ -106,7 +106,7 @@ class FormattedStringFormatterTest extends SimpleTestCase {
   }
 
   private def call(formatter: String, arguments: String) =
-    '"' + formatter + '"' + ".format(%s)".format(arguments)
+    "\"" + formatter + "\"" + ".format(%s)".format(arguments)
 
   private def exp(s: String): ScExpression = {
     createExpressionFromText(s)

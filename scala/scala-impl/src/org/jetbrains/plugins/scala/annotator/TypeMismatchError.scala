@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.annotationHolder.DelegateAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.quickfix.{EnableTypeMismatchHints, ReportHighlightingErrorQuickFix}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
-import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TypePresentation}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -28,7 +28,7 @@ private object TypeMismatchError {
     }
 
     val message = {
-      val (actualTypeText, expectedTypeText) = ScTypePresentation.different(adjustedActualType, expectedType)
+      val (actualTypeText, expectedTypeText) = TypePresentation.different(adjustedActualType, expectedType)
 
       if (ApplicationManager.getApplication.isUnitTestMode) formatMessage(expectedTypeText, actualTypeText)
       else ScalaBundle.message("type.mismatch.message", expectedTypeText, actualTypeText)

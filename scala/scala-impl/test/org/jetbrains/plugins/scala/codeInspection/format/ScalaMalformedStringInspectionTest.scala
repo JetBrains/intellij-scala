@@ -35,7 +35,7 @@ class ScalaMalformedStringInspectionTest extends ScalaInspectionTestBase {
     "0D" -> 0D,
     "\"\"" -> "",
     "\"\".asInstanceOf[CharSequence]" -> "".asInstanceOf[CharSequence],
-    "StringBuilder.newBuilder" -> StringBuilder.newBuilder,
+    "StringBuilder.newBuilder" -> new StringBuilder(),
     "new java.lang.StringBuilder()" -> new java.lang.StringBuilder(),
     "BigInt(0)" -> BigInt(0),
     "BigDecimal(0)" -> BigDecimal(0),
@@ -67,7 +67,7 @@ class ScalaMalformedStringInspectionTest extends ScalaInspectionTestBase {
   }
 
   def build_test(): (String, Seq[String]) = {
-    val codeBuilder = StringBuilder.newBuilder
+    val codeBuilder = new StringBuilder()
     val testBuilder = Seq.newBuilder[String]
 
     for (specifier <- formatSpecifiers; (arg, repr) <- arguments) {

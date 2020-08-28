@@ -17,6 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.DefaultListCellRendererAdapter
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
+import scala.annotation.nowarn
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 15.06.2010
@@ -45,7 +47,7 @@ private class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement)
         }
 
         val color = if (firstPart.contains(item)) {
-          if (isSelected) UIUtil.getListSelectionBackground else foregroundColor
+          if (isSelected) UIUtil.getListSelectionBackground(true) else foregroundColor
         } else {
           throw new RuntimeException("Implicit conversions list contains unknown value: " + item)
         }
@@ -73,6 +75,7 @@ private class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement)
     comp
   }
 
+  @nowarn("cat=deprecation")
   override def getElementText(element: PsiNamedElement): String = {
     element match {
       case method: ScFunction =>

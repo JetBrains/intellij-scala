@@ -104,9 +104,9 @@ object TastyReader {
         case it: ReferenceData => it.position.start
         case it: TypeData => it.position.start
       }.foreach {
-        case it: ReferenceData if it.getClass.getName.endsWith("ReferenceData") =>
+        case it: ReferenceData @unchecked if it.getClass.getName.endsWith("ReferenceData") =>
           println("REF: " + textAt(it.position) + ", " + it)
-        case it: TypeData =>
+        case it: TypeData @unchecked =>
           println("TPE: " + textAt(it.position) + ": " + it.presentation + ", " + it)
       }
     }

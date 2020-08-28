@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
-import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TypePresentation}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 
 class ChangeTypeFix(typeElement: ScTypeElement, newType: ScType) extends IntentionAction {
@@ -20,7 +20,7 @@ class ChangeTypeFix(typeElement: ScTypeElement, newType: ScType) extends Intenti
   override val getText: String = {
     implicit val tpc: TypePresentationContext = TypePresentationContext(typeElement)
     val (oldTypeDescripton, newTypeDescription) = typeElement.`type`() match {
-      case Right(oldType) => ScTypePresentation.different(oldType, newType)
+      case Right(oldType) => TypePresentation.different(oldType, newType)
       case _ => (typeElement.getText, newType.presentableText)
     }
     ScalaBundle.message("change.type.to", oldTypeDescripton, newTypeDescription)

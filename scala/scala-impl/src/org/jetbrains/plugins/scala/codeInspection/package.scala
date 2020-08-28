@@ -79,7 +79,7 @@ package object codeInspection {
     val designatorType = ScDesignatorType(clazz)
     clazz.getTypeParameters match {
       case Array() => designatorType
-      case parameters => ScParameterizedType(designatorType, parameters.map(UndefinedType(_)))
+      case parameters => ScParameterizedType(designatorType, parameters.map(UndefinedType(_)).toIndexedSeq)
     }
   }
 

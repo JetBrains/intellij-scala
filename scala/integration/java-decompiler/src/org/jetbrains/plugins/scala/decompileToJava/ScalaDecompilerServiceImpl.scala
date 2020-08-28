@@ -4,6 +4,7 @@ package decompileToJava
 import java.io.File
 import java.util.jar.Manifest
 
+import com.intellij.ide.highlighter.JavaClassFileType
 import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
@@ -44,7 +45,7 @@ private class ScalaDecompilerServiceImpl extends ScalaDecompilerService {
   } else Failure(new RuntimeException(s"Unable to decompile ${file.getName}"))
 
   private[this] def isClassGeneratedFrom(sourceName: String, classfile: VirtualFile): Boolean =
-    classfile.getFileType == StdFileTypes.CLASS && {
+    classfile.getFileType == JavaClassFileType.INSTANCE && {
       val name = classfile.getNameWithoutExtension
       name == sourceName || name.startsWith(sourceName + "$")
     }

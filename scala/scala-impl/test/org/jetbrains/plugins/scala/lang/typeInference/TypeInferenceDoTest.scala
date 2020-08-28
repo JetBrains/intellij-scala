@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
-import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TypePresentation}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.junit.Assert._
 
@@ -58,7 +58,7 @@ trait TypeInferenceDoTest extends FailableTest with ScalaSdkOwner {
             val actualExpectedTypeText = expr.expectedType().map(_.presentableText).getOrElse("<none>")
             assertEqualsFailable(expectedExpectedTypeText, actualExpectedTypeText)
           case SimplifiedPattern(expectedText) =>
-            assertEqualsFailable(expectedText, ScTypePresentation.withoutAliases(ttypez))
+            assertEqualsFailable(expectedText, TypePresentation.withoutAliases(ttypez))
           case JavaTypePattern(expectedText) =>
             assertEqualsFailable(expectedText, expr.`type`().map(_.toPsiType.getPresentableText()).getOrElse("<none>"))
           case _ => assertEqualsFailable(output, res)

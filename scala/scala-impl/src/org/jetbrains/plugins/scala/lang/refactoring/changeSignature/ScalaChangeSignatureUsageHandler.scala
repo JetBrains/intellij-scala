@@ -427,7 +427,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
           val text = UsageUtil.substitutor(usage)(sInfo.scType).canonicalCodeText
           val `=> ` = if (sInfo.isByName) ScalaPsiUtil.functionArrow + " " else ""
           val `*` = if (sInfo.isRepeatedParameter) "*" else ""
-          `=> ` + text + `*`
+          `=> `+ text + `*`
         case jInfo: JavaParameterInfo =>
           val javaType = jInfo.createType(method, method.getManager)
           val scType = UsageUtil.substitutor(usage)(javaType.toScType())

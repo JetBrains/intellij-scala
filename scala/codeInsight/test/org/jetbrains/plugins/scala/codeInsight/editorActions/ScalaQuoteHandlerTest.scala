@@ -151,5 +151,5 @@ object ScalaQuoteHandlerTest {
   private val QuoteCharacter = '\"'
   private val PatternCharacter = '`'
   private val CharCharacter = '\''
-  private val QuotedCaret = QuoteCharacter + (QuoteCharacter + Caret + QuoteCharacter) + QuoteCharacter
+  private val QuotedCaret = QuoteCharacter.toString + (QuoteCharacter.toString + Caret + QuoteCharacter.toString) + QuoteCharacter.toString
 }

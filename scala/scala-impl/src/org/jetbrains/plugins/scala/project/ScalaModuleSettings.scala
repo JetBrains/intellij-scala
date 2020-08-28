@@ -55,7 +55,7 @@ private class ScalaModuleSettings(module: Module, val scalaSdk: LibraryEx) {
     val `is sbt 1.0` = sbtVersion.exists {
       _ >= Version("1.0")
     }
-    `is scala 2.12.2` || `is sbt 1.0`
+    `is scala 2.12.2`|| `is sbt 1.0`
   }
 
   val literalTypesEnabled: Boolean = scalaLanguageLevel >= ScalaLanguageLevel.Scala_2_13 ||

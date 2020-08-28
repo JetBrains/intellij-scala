@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
+import scala.annotation.nowarn
 import scala.concurrent.duration.DurationLong
 
 @Service
@@ -22,7 +23,8 @@ final class CompileServerNotificationsService(project: Project) {
   
   def resetNotifications(): Unit =
     modificationTracker.incModificationCount()
-  
+
+  @nowarn("msg=pure expression")
   @Cached(modificationTracker, null)
   def warnIfCompileServerJdkVersionTooOld(): Unit =
     for {

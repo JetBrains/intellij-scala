@@ -36,7 +36,7 @@ class BlockModCountTest extends ScalaLightCodeInsightFixtureTestAdapter {
     } {
 
       val (countsToChangeBefore, countsToStayBefore) =
-        (computeModCounts(offsetsToChange), computeModCounts(offsetsToStay))
+        (computeModCounts(offsetsToChange.toIndexedSeq), computeModCounts(offsetsToStay.toIndexedSeq))
 
       val lengthBefore = document.getTextLength
       changeAtOffset(caretOffset)
@@ -47,7 +47,7 @@ class BlockModCountTest extends ScalaLightCodeInsightFixtureTestAdapter {
       }
 
       val (countsToChangeAfter, countsToStayAfter) =
-        (computeModCounts(offsetsToChange), computeModCounts(offsetsToStay))
+        (computeModCounts(offsetsToChange.toIndexedSeq), computeModCounts(offsetsToStay.toIndexedSeq))
 
       countsToChangeBefore.zip(countsToChangeAfter).zip(offsetsToChange).foreach {
         case ((before, after), offset) =>

@@ -11,6 +11,7 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiPackage}
 import org.jetbrains.plugins.scala.annotator.hints.{AnnotatorHints, Text}
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsPass._
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer
+import org.jetbrains.plugins.scala.compiler.data.serialization.extensions.EitherExt
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -60,7 +61,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
         methodAndTypes = methodsAtLineEnd
           .map(m => m -> m.`type`())
           .takeWhile(_._2.isRight)
-          .map { case (m, ty) => m -> ty.right.get.tryExtractDesignatorSingleton }
+          .map { case (m, ty) => m -> ty.getRight.tryExtractDesignatorSingleton }
 
         withoutPackagesAndSingletons = dropPackagesAndSingletons(methodAndTypes)
 
@@ -82,7 +83,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
         val all = if (settings.alignMethodChainInlayHints) {
           val begin = document.getLineNumber(group.head.endOffset)
           val end = document.getLineNumber(group.last.endOffset)
-          val grouped = group.groupBy(tmpl => tmpl.line(document)).mapValues(_.head)
+          val grouped = group.groupBy(tmpl => tmpl.line(document)).view.mapValues(_.head).toMap
           occupiedLines ++= begin to end
           for (curLine <- begin to end if !isAlreadyOccupied(curLine)) yield
             grouped.getOrElse(

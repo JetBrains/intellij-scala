@@ -122,7 +122,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionNam
   private def generateComparingUnrelatedTypesMsg(firstType: ScType, secondType: ScType)(implicit tpc: TypePresentationContext): String = {
     val nonSingleton1 = firstType.widen
     val nonSingleton2 = secondType.widen
-    val (firstTypeText, secondTypeText) = ScTypePresentation.different(nonSingleton1, nonSingleton2)
+    val (firstTypeText, secondTypeText) = TypePresentation.different(nonSingleton1, nonSingleton2)
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", firstTypeText, secondTypeText)
   }
 

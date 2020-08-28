@@ -44,7 +44,7 @@ class ScalaEvaluatorCache(project: Project) extends Disposable {
     val offset = position.getOffset
     if (!cachedStamp.get(file).contains(file.getModificationStamp)) {
       cachedStamp(file) = file.getModificationStamp
-      cachedEvaluators.filterKeys(_._1 == file).foreach {
+      cachedEvaluators.view.filterKeys(_._1 == file).toMap.foreach {
         case (pos, map) =>
           map.clear()
           cachedEvaluators.remove(pos)

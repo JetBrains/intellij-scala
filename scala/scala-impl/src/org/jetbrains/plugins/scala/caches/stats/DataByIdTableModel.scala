@@ -12,7 +12,7 @@ import javax.swing.JTable
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.invokeLater
 
-import scala.collection.JavaConverters.enumerationAsScalaIteratorConverter
+import scala.jdk.CollectionConverters._
 
 class DataById[Data](id: Data => String) {
   private val dataBuffer: ConcurrentMap[String, Data] = new ConcurrentHashMap()

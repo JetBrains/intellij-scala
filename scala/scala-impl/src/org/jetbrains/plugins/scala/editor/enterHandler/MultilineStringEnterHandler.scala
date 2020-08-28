@@ -133,7 +133,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
       val nextLine = if (document.getLineCount > nextLineNumber) getLineByNumber(prevLineNumber + 2) else ""
 
       def prevLinePrefixAfterDelimiter(offsetInLine: Int): Int =
-        StringUtils.substring(prevLine, offsetInLine).prefixLength(c => c == ' ' || c == '\t')
+        StringUtils.substring(prevLine, offsetInLine).segmentLength(c => c == ' ' || c == '\t')
 
       val literalText = literal.getText
       val lines = literalText.split("\n")
@@ -215,7 +215,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
         val prevLineTrimmed = prevLine.trim
         val isPrevLineFirst = prevLineTrimmed.startsWith(firstMLQuote)
 
-        val wsPrefixLength: Int = prevLine.prefixLength(c => c == ' ' || c == '\t')
+        val wsPrefixLength: Int = prevLine.segmentLength(c => c == ' ' || c == '\t')
 
         val quotesOptLength = if (isPrevLineFirst) firstMLQuoteLength else 0
         val prevLineStriped: String = {
@@ -252,7 +252,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
           if (inBraces) {
             val nextLineOffset = document.getLineStartOffset(prevLineNumber + 2)
             forceIndent(nextLineOffset, 0, None)
-            document.insertString(nextLineOffset, marginChar + getSpaces(indentSizeAfterMargin))
+            document.insertString(nextLineOffset, marginChar.toString + getSpaces(indentSizeAfterMargin))
             forceIndent(nextLineOffset, getSmartLength(prefix), None)
           }
         }

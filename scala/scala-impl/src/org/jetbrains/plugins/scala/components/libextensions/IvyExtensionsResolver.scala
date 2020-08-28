@@ -15,6 +15,7 @@ class IvyExtensionsResolver(projectResolvers: Seq[Resolver], private val indicat
       .getAllArtifactsReports
       .filter(r => !artifactBlackList.contains(stripScalaVersion(r.getName)))
       .map(a => ResolvedDependency(artToDep(a.getArtifact.getModuleRevisionId), a.getLocalFile))
+      .toSeq
   }
 
   override def createLogger: ProgressIndicatorLogger = new ProgressIndicatorLogger(indicator)

@@ -92,7 +92,7 @@ class StringConcatenationFormatterTest extends SimpleTestCase {
   }
 
   def testStringLiteral(): Unit = {
-    assertEquals("\"foo\"", format(Injection(exp('"' + "foo" + '"'), None)))
+    assertEquals("\"foo\"", format(Injection(exp("\"" + "foo" + "\""), None)))
     assertEquals("123L", format(Injection(exp("123L"), None)))
     assertEquals("true", format(Injection(exp("true"), None)))
   }

@@ -205,7 +205,7 @@ private class CollectingProcessor(element: PsiElement)
   override protected def execute(namedElement: PsiNamedElement)
                                 (implicit state: ResolveState): Boolean = {
     val result = super.execute(namedElement)
-    candidatesSet.foreach(rr => if (!shouldShow(rr)) candidatesSet -= rr)
+    candidatesSet.foreach(rr => if (!shouldShow(rr)) candidatesSet = candidatesSet diff Set(rr))
     result
   }
 

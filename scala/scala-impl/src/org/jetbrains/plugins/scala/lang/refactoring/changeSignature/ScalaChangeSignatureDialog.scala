@@ -40,6 +40,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.ui.ScalaComboBoxVisibilityPa
 import org.jetbrains.plugins.scala.settings.annotations._
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
@@ -48,6 +49,7 @@ import scala.collection.mutable
 * 2014-08-29
 */
 //noinspection ConvertNullInitializerToUnderscore
+@nowarn("msg=early initializers")
 class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
                                  val needSpecifyTypeChb: Boolean)
                                 (implicit val project: Project)

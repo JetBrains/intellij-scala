@@ -109,8 +109,8 @@ class CreateScalaDocStubAction extends AnAction(
       val tags = oldComment.getTags
       val firstAnchor = if (tags.nonEmpty) tags(tags.length - 1) else oldComment.getLastChild.getPrevSibling
 
-      (firstAnchor.getTextRange.getEndOffset /: (groupNames zip paramMaps)) {
-        case (anchor, (name, paramMap)) => (anchor /: paramMap) {
+      (groupNames zip paramMaps).foldLeft(firstAnchor.getTextRange.getEndOffset) {
+        case (anchor, (name, paramMap)) => paramMap.foldLeft(anchor) {
           case (currentAnchor, param) => 
             val newTagText = 
               if (psiDocument.getText(new TextRange(currentAnchor - 1, currentAnchor)) == "*") s"$name ${param._2.getName} \n"

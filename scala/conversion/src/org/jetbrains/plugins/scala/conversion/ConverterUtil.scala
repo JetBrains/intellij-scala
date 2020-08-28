@@ -166,7 +166,7 @@ object ConverterUtil {
     runInspections(file, project, offset, endOffset, editor)
 
     TypeAnnotationUtil.removeAllTypeAnnotationsIfNeeded(
-      ConverterUtil.collectTopElements(offset, endOffset, file)
+      ConverterUtil.collectTopElements(offset, endOffset, file).toIndexedSeq
     )
   }
 

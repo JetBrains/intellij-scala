@@ -23,7 +23,9 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     getFixture.configureByText("dummy.scala", normalizedText)
 
     val selectionModel = getEditor.getSelectionModel
-    descriptor.getElementsToSurround(getFile, selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
+    descriptor
+      .getElementsToSurround(getFile, selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
+      .toIndexedSeq
   }
 
   private def performTest(text: String, surrounder: ScalaDocWithSyntaxSurrounder): Unit = {
@@ -176,5 +178,5 @@ object SurroundWithWikiSyntaxTest {
   private val surrounders: Seq[ScalaDocWithSyntaxSurrounder] = descriptor.getSurrounders
     .collect {
       case surrounder: ScalaDocWithSyntaxSurrounder => surrounder
-    }
+    }.toIndexedSeq
 }

@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateEx
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
+import scala.annotation.nowarn
 import scala.collection.mutable
 
 abstract class SyntheticNamedElement(name: String)
@@ -103,7 +104,9 @@ sealed class ScSyntheticClass(val className: String, val stdType: StdType)
   def syntheticMethods(scope: GlobalSearchScope): List[ScSyntheticFunction] = methods.values.flatten.toList ++
           specialMethods.values.flatMap(s => s.map(_(scope))).toList
 
+  @nowarn("cat=deprecation")
   protected object methods extends mutable.HashMap[String, mutable.Set[ScSyntheticFunction]] with mutable.MultiMap[String, ScSyntheticFunction]
+  @nowarn("cat=deprecation")
   protected object specialMethods extends mutable.HashMap[String, mutable.Set[GlobalSearchScope => ScSyntheticFunction]] with
           mutable.MultiMap[String, GlobalSearchScope => ScSyntheticFunction]
 

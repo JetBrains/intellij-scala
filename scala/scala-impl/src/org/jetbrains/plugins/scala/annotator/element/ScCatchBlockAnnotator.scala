@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScCatchBlock, ScTry}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Boolean, ScTypePresentation}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Boolean, ScTypePresentation, TypePresentation}
 import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ScType, api}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
@@ -61,7 +61,7 @@ object ScCatchBlockAnnotator extends ElementAnnotator[ScCatchBlock] {
                     val conformance = smartCheckConformance(Right(tp), returnType)
                     if (!conformance) {
                       if (typeAware) {
-                        val (retTypeText, expectedTypeText) = ScTypePresentation.different(returnType.getOrNothing, tp)(t)
+                        val (retTypeText, expectedTypeText) = TypePresentation.different(returnType.getOrNothing, tp)(t)
                         val error = ScalaBundle.message("expr.type.does.not.conform.expected.type", retTypeText, expectedTypeText)
                         val annotation = holder.createErrorAnnotation(expr, error)
                         typeElement match {

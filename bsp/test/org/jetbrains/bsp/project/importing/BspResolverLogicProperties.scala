@@ -14,7 +14,7 @@ import org.jetbrains.bsp.project.importing.Generators._
 import org.jetbrains.plugins.scala.SlowTests
 import org.junit.experimental.categories.Category
 import org.junit.{Ignore, Test}
-import org.scalacheck.Prop.{BooleanOperators, forAll}
+import org.scalacheck.Prop.{propBoolean, forAll}
 import org.scalacheck._
 import org.scalatestplus.junit.AssertionsForJUnit
 import org.scalatestplus.scalacheck.Checkers

@@ -65,7 +65,7 @@ object TypeDiff {
     (tpe1, tpe2) match {
       // TODO Comparison (now, it's just "parsing" for the type annotation hints)
       case (_: ScCompoundType, ScCompoundType(cs2, tms2, tps2)) if tpe1 == tpe2 =>
-        val components = (cs2, cs2).zipped.map(diff).intersperse(aMatch(" with "))
+        val components = (cs2 lazyZip cs2).map(diff).intersperse(aMatch(" with "))
         if (tms2.isEmpty && tps2.isEmpty) Node(components: _*) else {
           val declarations = {
             val members = (tms2.keys.map(_.namedElement) ++ tps2.values.map(_.typeAlias)).toSeq
@@ -76,7 +76,7 @@ object TypeDiff {
 
       // TODO More flexible comparison, unify with the clause above
       case (ScCompoundType(cs1, EmptyMap(), EmptyMap()), ScCompoundType(cs2, EmptyMap(), EmptyMap())) if cs1.length == cs2.length =>
-        Node((cs1, cs2).zipped.map(diff).intersperse(aMatch(" with ")): _*)
+        Node((cs1 lazyZip cs2).map(diff).intersperse(aMatch(" with ")): _*)
 
       // TODO Comparison (now, it's just "parsing" for the type annotation hints)
       case (_: ScExistentialType, ScExistentialType(q2: ScParameterizedType, ws2)) if tpe1 == tpe2 =>
@@ -98,14 +98,14 @@ object TypeDiff {
         Node(diff(l1, l2)(conformanceFor(v1), context), aMatch(" "), diff(d1, d2), aMatch(" "), diff(r1, r2)(conformanceFor(v2), context))
 
       case (TupleType(ts1), TupleType(ts2)) =>
-        if (ts1.length == ts2.length) Node(aMatch("("), Node((ts1, ts2).zipped.map(diff).intersperse(aMatch(", ")): _*), aMatch(")"))
+        if (ts1.length == ts2.length) Node(aMatch("("), Node((ts1 lazyZip ts2).map(diff).intersperse(aMatch(", ")): _*), aMatch(")"))
         else Node(aMismatch(tpe2.presentableText))
 
       case (FunctionType(r1, p1), FunctionType(r2, p2)) =>
         val needsParens = (t: ScType) => FunctionType.isFunctionType(t) || TupleType.isTupleType(t)
         val left = {
           if (p1.length == p2.length) {
-            val parameters = (p1, p2).zipped.map(diff(_, _)(reversed, context)).intersperse(aMatch(", "))
+            val parameters = (p1 lazyZip p2).map(diff(_, _)(reversed, context)).intersperse(aMatch(", "))
             if (p2.isEmpty) Seq(aMatch("()"))
             else if (p2.length > 1) Seq(aMatch("("), Node(parameters: _*), aMatch(")"))
             else if (p2.exists(needsParens)) Seq(aMatch("("), parameters.head, aMatch(")"))
@@ -124,7 +124,7 @@ object TypeDiff {
           case _ => Seq.fill(args2.length)((t1: ScType, t2: ScType) => t1.equiv(t2))
         }
         val inner = if (args1.length == args2.length)
-          (args1, args2, conformances).zipped.map(diff(_, _)(_, context)).intersperse(aMatch(", "))
+          (args1 lazyZip args2 lazyZip conformances).map(diff(_, _)(_, context)).intersperse(aMatch(", "))
         else
           Seq(aMismatch(args2.map(_.presentableText).mkString(", ")))
 

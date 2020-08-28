@@ -146,13 +146,13 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
 
       val isInvalid = e == null || (eNonOK && nonOk) || e.getChildren.isEmpty
       if (!isInvalid) {
-        buffer ++= e.getChildren.zip(Stream.continually(eNonOK && nonOk))
+        buffer ++= e.getChildren.zip(LazyList.continually(eNonOK && nonOk))
       }
 
       idx += 1
     }
 
-    buffer.result.map(_._1)
+    buffer.map(_._1)
   }
 
   protected override def getStatementAtCaret(editor: Editor, psiFile: PsiFile): PsiElement = {

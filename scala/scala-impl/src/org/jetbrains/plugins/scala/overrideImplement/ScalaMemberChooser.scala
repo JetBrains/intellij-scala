@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.annotations.{Declaration, Location, ScalaTypeAnnotationSettings}
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil._
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
@@ -22,6 +23,7 @@ import scala.collection.mutable
  * Nikolay.Tropin
  * 2014-03-25
  */
+@nowarn("msg=early initializers")
 class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Array[T],
                          allowEmptySelection: Boolean,
                          allowMultiSelection: Boolean,

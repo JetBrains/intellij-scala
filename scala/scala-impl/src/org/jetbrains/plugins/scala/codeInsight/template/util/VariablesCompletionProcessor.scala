@@ -15,7 +15,7 @@ class VariablesCompletionProcessor(override val kinds: Set[ResolveTargets.Value]
 
   override protected def execute(namedElement: PsiNamedElement)
                                 (implicit state: ResolveState): Boolean = {
-    candidatesSet += new ScalaResolveResult(namedElement)
+    candidatesSet = candidatesSet union Set(new ScalaResolveResult(namedElement))
     true
   }
 }

@@ -183,7 +183,7 @@ object TypeCheckCanBeMatchInspection {
                                   guardCondition: Option[ScExpression],
                                   body: Option[ScExpression])
                                  (implicit project: Project): String = {
-    val builder = mutable.StringBuilder.newBuilder
+    val builder = new mutable.StringBuilder()
       .append("case ")
       .append(patternText)
     guardCondition
@@ -229,7 +229,7 @@ object TypeCheckCanBeMatchInspection {
   }
 
   private def buildCaseClausesText(ifStmt: ScIf, isInstOfUnderFix: ScGenericCall, onlyFirst: Boolean): (String, RenameData) = {
-    val builder = mutable.StringBuilder.newBuilder
+    val builder = new mutable.StringBuilder()
     val (ifStmts, isInstOf) = listOfIfAndIsInstOf(ifStmt, isInstOfUnderFix, onlyFirst).unzip
 
     val renameData = new RenameData()

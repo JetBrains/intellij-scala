@@ -189,7 +189,7 @@ object ScalaGoToDeclarationHandler {
   private[this] def isReferencedFrom(reference: ScReference): Option[IsReferenced] =
     reference.multiResolveScala(false) match {
       case Array() => None
-      case results => Some(new IsReferenced(results.map(_.element)))
+      case results => Some(new IsReferenced(results.map(_.element).toIndexedSeq))
     }
 
   private[this] def isRequired(set: Set[IsReferenced])

@@ -21,6 +21,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.{HtmlPsiUtils, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
+import scala.collection.mutable
+
 // TODO 1: analyze performance and whether rendered info is cached?
 // TODO 2:  (!) quick info on the element itself should lead to "Show find usages" tooltip, no to quick info tooltip
 //  (unify with Java behaviour)
@@ -69,7 +71,7 @@ object ScalaDocQuickInfoGenerator {
   }
 
   private def renderClassHeader(clazz: ScTypeDefinition): String = {
-    val buffer = StringBuilder.newBuilder
+    val buffer = new mutable.StringBuilder()
 
     val module = ModuleUtilCore.findModuleForPsiElement(clazz)
     if (module != null)
@@ -94,7 +96,7 @@ object ScalaDocQuickInfoGenerator {
   // TODO: for case classes Product is displayed but Serializable is not, UNIFY1
   private def renderSuperTypes(clazz: ScTypeDefinition)
                               (implicit typeRenderer: TypeRenderer): String = {
-    val buffer = StringBuilder.newBuilder
+    val buffer = new StringBuilder()
 
     val superTypes = clazz.superTypes
 
@@ -278,7 +280,7 @@ object ScalaDocQuickInfoGenerator {
   }
 
   private def modifiersRenderer: ModifiersRendererLike = modList => {
-    val buffer = StringBuilder.newBuilder
+    val buffer = new StringBuilder()
     import org.jetbrains.plugins.scala.util.EnumSet.EnumSetOps
     modList.modifiers.foreach { m =>
       buffer.append(m.text).append(" ")

@@ -69,7 +69,7 @@ final class ScalaImportTypeFix private (override val elements: Seq[ElementToImpo
 object ScalaImportTypeFix {
 
   def apply(reference: ScReference) = new ScalaImportTypeFix(
-    getTypesToImport(reference),
+    getTypesToImport(reference).toIndexedSeq,
     reference
   )
 

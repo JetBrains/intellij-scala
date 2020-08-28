@@ -69,7 +69,7 @@ private class MacroFinderImpl(
 
   private def findDefineTags(comment: ScDocComment): Seq[(String, ScDocTag)] =
     for {
-      tag <- comment.getTags
+      tag <- comment.getTags.toSeq
       if tag.name == MyScaladocParsing.DEFINE_TAG
       defineTag = tag.asInstanceOf[ScDocTag]
       key <- defineTagKey(defineTag)

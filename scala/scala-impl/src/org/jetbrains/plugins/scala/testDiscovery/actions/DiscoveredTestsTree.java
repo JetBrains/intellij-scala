@@ -20,6 +20,7 @@ import com.intellij.ui.tree.AsyncTreeModel;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.FontUtil;
 import com.intellij.util.ObjectUtils;
+import com.intellij.util.SmartList;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.EdtInvocationManager;
 import com.intellij.util.ui.tree.TreeModelAdapter;
@@ -161,7 +162,7 @@ class DiscoveredTestsTree extends Tree implements DataProvider, Disposable {
   public Object getData(@NotNull String dataId) {
     if (LangDataKeys.PSI_ELEMENT_ARRAY.is(dataId)) {
       TreePath[] paths = getSelectionModel().getSelectionPaths();
-      List<PsiElement> result = ContainerUtil.newSmartList();
+      List<PsiElement> result = new SmartList<>();
       TreeModel model = getModel();
       for (TreePath p : paths) {
         Object o = p.getLastPathComponent();

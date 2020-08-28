@@ -119,7 +119,7 @@ object CompilerDataFactory
     val hasDotty = CompilerDataFactory.hasDotty(modules)
 
     val bootCpArgs = CompilerDataFactory.bootCpArgs(hasDotty, hasOldScala(modules))
-    val implicitlyAddedArgs = CompilerDataFactory.implicitlyAddedArgs(options, plugins, chunk)
+    val implicitlyAddedArgs = CompilerDataFactory.implicitlyAddedArgs(options.toIndexedSeq, plugins.toIndexedSeq, chunk)
     val otherArgs = options.filterNot(_.startsWith("-g:") && hasDotty) // TODO SCL-16881
     bootCpArgs ++ implicitlyAddedArgs ++ otherArgs 
   }

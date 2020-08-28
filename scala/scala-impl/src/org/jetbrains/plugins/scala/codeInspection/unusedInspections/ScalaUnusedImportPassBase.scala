@@ -15,6 +15,8 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
 
+import scala.annotation.nowarn
+
 /**
  * User: Dmitry Naydanov
  * Date: 3/2/13
@@ -41,7 +43,7 @@ trait ScalaUnusedImportPassBase { self: TextEditorHighlightingPass =>
         val qName = imp.qualName
 
         psiOption.toSeq.flatMap { psi =>
-          val annotation = annotationHolder.createWarningAnnotation(psi, ScalaInspectionBundle.message("unused.import.statement"))
+          val annotation = annotationHolder.createWarningAnnotation(psi, ScalaInspectionBundle.message("unused.import.statement")): @nowarn("cat=deprecation")
           annotation setHighlightType ProblemHighlightType.LIKE_UNUSED_SYMBOL
           getFixes.foreach(annotation.registerFix)
           qName.foreach(name => annotation.registerFix(new MarkImportAsAlwaysUsed(name)))

@@ -9,7 +9,7 @@ import java.util.Collections
 private class IsolatingClassLoader(parent: ClassLoader, filter: String => Boolean) extends ClassLoader(parent) {
   override def loadClass(name: String, resolve: Boolean): Class[_] = apply(name)(super.loadClass(name, resolve)).orNull
 
-  @deprecated(since = "9")
+  @deprecated("", since = "9")
   override def getPackage(name: String): Package = apply(name)(super.getPackage(name)).orNull
 
   override def getPackages: Array[Package] = super.getPackages.filter(p => filter(p.getName))

@@ -125,9 +125,9 @@ private object IntegerLiteralCheckTest {
     LongMaxValue
   )
 
-  def randomInts: Stream[Int] = randomValues(nextInt)()
+  def randomInts: LazyList[Int] = randomValues(nextInt)()
 
-  def randomLongs: Stream[Long] = randomValues(nextLong) {
+  def randomLongs: LazyList[Long] = randomValues(nextLong) {
     _.toHexString.length > 8
   }
 
@@ -146,7 +146,7 @@ private object IntegerLiteralCheckTest {
 
   private[this] def randomValues[T](generator: => T)
                                    (predicate: T => Boolean = Function.const(true)(_: T)) =
-    Stream
+    LazyList
       .continually(generator)
       .filter(predicate)
       .take(10)

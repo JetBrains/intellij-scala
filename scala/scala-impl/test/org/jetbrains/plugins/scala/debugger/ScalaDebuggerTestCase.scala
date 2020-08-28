@@ -136,13 +136,15 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
     val semaphore: Semaphore = new Semaphore
     semaphore.down()
     val processHandler: AtomicReference[ProcessHandler] = new AtomicReference[ProcessHandler]
-    runner.execute(executionEnvironmentBuilder.build, (descriptor: RunContentDescriptor) => {
+    val environment = executionEnvironmentBuilder.build
+    environment.setCallback { (descriptor: RunContentDescriptor) =>
       val handler: ProcessHandler = descriptor.getProcessHandler
       assert(handler != null)
       handler.addProcessListener(listener)
       processHandler.set(handler)
       semaphore.up()
-    })
+    }
+    runner.execute(environment)
     semaphore.waitFor()
     processHandler.get
   }

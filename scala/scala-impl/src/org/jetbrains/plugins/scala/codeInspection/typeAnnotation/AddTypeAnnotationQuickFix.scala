@@ -38,7 +38,7 @@ class AddTypeAnnotationQuickFix(element: PsiElement)
     val strategy = new CollectTypesToAddStrategy
 
     ApplicationManagerEx.getApplicationEx
-      .runProcessWithProgressSynchronously(new ComputeTypesTask(quickFixes, strategy), getFamilyName, true, project)
+      .runProcessWithProgressSynchronously(new ComputeTypesTask(quickFixes.toSeq, strategy), getFamilyName, true, project)
 
     inWriteCommandAction {
       strategy.addActualTypes(refreshViews)

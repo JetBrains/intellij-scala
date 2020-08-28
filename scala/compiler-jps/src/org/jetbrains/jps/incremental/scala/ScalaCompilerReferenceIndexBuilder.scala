@@ -44,7 +44,7 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
     context.processMessage(CompilationFinished)
   }
 
-  private[this] def getTargetTimestamps(targets: Traversable[BuildTarget[_]], context: CompileContext): Long =
+  private[this] def getTargetTimestamps(targets: Iterable[BuildTarget[_]], context: CompileContext): Long =
     targets.collect { case target: ModuleBuildTarget =>
       val stamp = context.getCompilationStartStamp(target)
 

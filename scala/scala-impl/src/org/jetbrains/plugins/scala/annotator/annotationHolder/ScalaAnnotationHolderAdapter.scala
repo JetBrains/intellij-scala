@@ -9,8 +9,10 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 
+import scala.annotation.nowarn
 import scala.language.implicitConversions
 
+@nowarn("cat=deprecation")
 class ScalaAnnotationHolderAdapter(innerHolder: AnnotationHolder) extends ScalaAnnotationHolder {
 
   private val showCompilerErrors =

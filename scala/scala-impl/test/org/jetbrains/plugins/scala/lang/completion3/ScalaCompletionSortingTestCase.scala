@@ -27,7 +27,7 @@ abstract class ScalaCompletionSortingTestCase extends LightFixtureCompletionTest
   override def tearDown(): Unit = try {
     LookupManager.getInstance(getProject).hideActiveLookup()
     UISettings.getInstance.setSortLookupElementsLexicographically(false)
-    CodeInsightSettings.getInstance.COMPLETION_CASE_SENSITIVE = CodeInsightSettings.FIRST_LETTER
+    CodeInsightSettings.getInstance.setCompletionCaseSensitive(CodeInsightSettings.FIRST_LETTER)
 
   } finally {
     super.tearDown()

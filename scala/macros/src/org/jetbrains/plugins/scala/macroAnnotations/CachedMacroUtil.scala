@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.macroAnnotations
 
 import org.jetbrains.annotations.Nls
 
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
 
@@ -59,6 +59,7 @@ object CachedMacroUtil {
     tq"_root_.org.jetbrains.plugins.scala.caches.CleanupScheduler"
   }
 
+  @nowarn("msg=checked")
   def defaultValue(c: whitebox.Context)(tp: c.universe.Tree): c.universe.Tree = {
     import c.universe.Quasiquote
     tp match {
@@ -172,6 +173,7 @@ object CachedMacroUtil {
 
   def withClassName(name: AnyRef)(implicit c: whitebox.Context): c.universe.Tree = {
     import c.universe.Quasiquote
+    @nowarn("cat=deprecation")
     val enclosingName = c.enclosingClass match {
       case df: c.universe.DefTreeApi => df.name.toString
       case _ => "________"
@@ -179,6 +181,7 @@ object CachedMacroUtil {
     q"${enclosingName + "." + name.toString}"
   }
 
+  @nowarn("cat=deprecation")
   def qualifiedTernName(termName: String)
                        (implicit c: whitebox.Context): String = {
     c.enclosingClass.symbol.fullName.replace('.', '$') + '$' + termName
@@ -201,6 +204,7 @@ object CachedMacroUtil {
     }
   }
 
+  @nowarn("cat=unchecked")
   def box(c: whitebox.Context)(tp: c.universe.Tree): c.universe.Tree = {
     import c.universe.Quasiquote
     tp match {
@@ -278,11 +282,11 @@ object CachedMacroUtil {
     var result = false
     val traverser = new c.universe.Traverser {
       override def traverse(tree: c.universe.Tree): Unit = tree match {
-        case c.universe.Return(_) => result = true
+        case _: c.universe.Return @unchecked => result = true
         //skip local functions and classes
-        case c.universe.DefDef(_, _, _, _, _, _) =>
-        case c.universe.ClassDef(_, _, _, _) =>
-        case c.universe.ModuleDef(_, _, _) =>
+        case _: c.universe.DefDef @unchecked =>
+        case _: c.universe.ClassDef @unchecked =>
+        case _: c.universe.ModuleDef @unchecked =>
         case _ => super.traverse(tree)
       }
     }

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScDo}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 import scala.collection.mutable
 
 final class ScalaUnreachableCodeInspection extends LocalInspectionTool {
@@ -116,10 +116,10 @@ object ScalaUnreachableCodeInspection {
       inner(queue.head)
     }
 
-    buffer.toList match {
+    (buffer.toList match {
       case head :: tail => tail.map(_ -- head)
       case _ => Nil
-    }
+    }): @nowarn("cat=deprecation")
   }
 
   private def createQuickFix(head: PsiElement, last: PsiElement) = head.getParent match {

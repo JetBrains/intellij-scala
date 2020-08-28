@@ -239,7 +239,7 @@ abstract class WorksheetIntegrationBaseTest
     val renderedText = viewer.getDocument.getText
     val foldRegions = viewer.getFoldingModel.getAllFoldRegions
     val foldings = foldRegions.map(Folding.apply)
-    ViewerEditorData(viewer, renderedText, foldings)
+    ViewerEditorData(viewer, renderedText, foldings.toIndexedSeq)
   }
 }
 

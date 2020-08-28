@@ -27,6 +27,7 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesUtil;
 import com.intellij.refactoring.move.moveFilesOrDirectories.MoveFileHandler;
 import com.intellij.refactoring.util.MoveRenameUsageInfo;
@@ -74,8 +75,16 @@ public class MoveScalaFileHandler extends MoveFileHandler {
       final PsiPackage newParentPackage = JavaDirectoryService.getInstance().getPackage(newParent);
       final String qualifiedName = newParentPackage == null ? "" : newParentPackage.getQualifiedName();
       for (PsiClass aClass : ((ScalaFile)psiFile).getClasses()) {
-        Collections.addAll(result, MoveClassesOrPackagesUtil.findUsages(aClass, searchInComments, searchInNonJavaFiles,
-            StringUtil.getQualifiedName(qualifiedName, aClass.getName())));
+        Collections.addAll(
+                result,
+                MoveClassesOrPackagesUtil.findUsages(
+                        aClass,
+                        GlobalSearchScope.projectScope(aClass.getProject()),
+                        searchInComments,
+                        searchInNonJavaFiles,
+                        StringUtil.getQualifiedName(qualifiedName, aClass.getName())
+                )
+        );
       }
     }
     return result.isEmpty() ? null : result;

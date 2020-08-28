@@ -50,6 +50,8 @@ package object hints {
         Text(text,
           tooltip = tpe.map(_.canonicalText.replaceFirst("_root_.", "")),
           navigatable = tpe.flatMap(_.extractClass))
+      case _ =>
+        ???
     }
     TypeDiff.parse(tpe)
       .flattenTo(TypeDiff.lengthOf(nodeLength = foldedString.length), maxChars)

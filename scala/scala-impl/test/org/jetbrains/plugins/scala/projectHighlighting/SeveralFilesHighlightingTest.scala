@@ -63,7 +63,7 @@ trait SeveralFilesHighlightingTest {
 
   private def annotateFiles(files: Array[File], reporter: ProgressReporter): Unit = {
     def allFiles(f: File): Seq[File] =
-      if (f.isDirectory) f.listFiles.flatMap(allFiles)
+      if (f.isDirectory) f.listFiles.toIndexedSeq.flatMap(allFiles)
       else               Seq(f)
 
     def parseScalacFlags(f: File): Seq[String] =
@@ -80,7 +80,7 @@ trait SeveralFilesHighlightingTest {
     val profile = getModule.scalaCompilerSettingsProfile
     try {
       val newSettings = profile.getSettings.copy(
-        additionalCompilerOptions = flagFiles.flatMap(parseScalacFlags)
+        additionalCompilerOptions = flagFiles.flatMap(parseScalacFlags).toIndexedSeq
       )
       profile.setSettings(newSettings)
       ScalaCompilerConfiguration.incModificationCount()

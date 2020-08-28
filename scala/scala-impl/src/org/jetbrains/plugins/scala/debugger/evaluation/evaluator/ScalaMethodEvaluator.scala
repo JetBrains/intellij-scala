@@ -101,7 +101,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
           else {
             if (!localMethod) concreteMethodByName(methodName, signature)
             else {
-              sortedMethodCandidates.toStream
+              sortedMethodCandidates.to(LazyList)
                 .flatMap(m => concreteMethodByName(m.name(), signature))
                 .headOption
             }

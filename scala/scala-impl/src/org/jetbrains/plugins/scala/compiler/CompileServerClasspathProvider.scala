@@ -20,7 +20,7 @@ class CompileServerClasspathProvider extends PluginAware {
   @Transient
   def getPluginDescriptor: PluginDescriptor = myPluginDescriptor
   @Transient
-  final def classpathSeq: Seq[String] = getClasspath.split(";").filter(StringUtils.isNotBlank)
+  final def classpathSeq: Seq[String] = getClasspath.split(";").filter(StringUtils.isNotBlank).toSeq
 
   override def setPluginDescriptor(pluginDescriptor: PluginDescriptor): Unit =
     myPluginDescriptor = pluginDescriptor

@@ -38,6 +38,7 @@ import com.intellij.openapi.roots.*;
 import com.intellij.openapi.roots.ex.ProjectRootManagerEx;
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable;
 import com.intellij.openapi.roots.libraries.Library;
+import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.TestDialog;
 import com.intellij.openapi.util.Couple;
@@ -174,7 +175,7 @@ public abstract class ExternalSystemImportingTestCase extends ExternalSystemTest
 
   private static String getAbsolutePath(String path) {
     path = VfsUtil.urlToPath(path);
-    path = PathUtil.getCanonicalPath(path);
+    path = FileUtil.toCanonicalPath(path);
     return FileUtil.toSystemIndependentName(path);
   }
 
@@ -297,7 +298,7 @@ public abstract class ExternalSystemImportingTestCase extends ExternalSystemTest
 
   @NotNull
   private <T> List<T> getModuleDep(@NotNull String moduleName, @NotNull String depName, @NotNull Class<T> clazz) {
-    List<T> deps = ContainerUtil.newArrayList();
+    List<T> deps = new ArrayList<>();
 
     for (OrderEntry e : getRootManager(moduleName).getOrderEntries()) {
       if (clazz.isInstance(e) && e.getPresentableName().equals(depName)) {
@@ -310,7 +311,7 @@ public abstract class ExternalSystemImportingTestCase extends ExternalSystemTest
 
   public void assertProjectLibraries(String... expectedNames) {
     List<String> actualNames = new ArrayList<String>();
-    for (Library each : ProjectLibraryTable.getInstance(myProject).getLibraries()) {
+    for (Library each : LibraryTablesRegistrar.getInstance().getLibraryTable(myProject).getLibraries()) {
       String name = each.getName();
       actualNames.add(name == null ? "<unnamed>" : name);
     }
