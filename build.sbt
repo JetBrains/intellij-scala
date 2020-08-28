@@ -69,12 +69,13 @@ lazy val dfa = newProject(
   scalacOptions ++= Seq(
     "-deprecation",
     "-unchecked",
-  //  "-Xlint",
+    "-Xlint",
     "-Xfatal-warnings"
   ),
-  //scalacOptions in (Compile, console) ~= {
-  //  _.filterNot(Set("-Xlint"))
-  //}
+  // the internet says this is smart thing to do
+  scalacOptions in (Compile, console) ~= {
+    _.filterNot(Set("-Xlint"))
+  }
 )
 
 lazy val conversion = newProject(
