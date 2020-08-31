@@ -31,57 +31,11 @@ final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
 
   //noinspection ConvertExpressionToSAM
   registerParameterProvider[ScFunction](
-    new ParameterCompletionProvider {
-
-      //noinspection TypeAnnotation
-      override protected def createConsumer(resultSet: CompletionResultSet, position: PsiElement) = new TypedConsumer(resultSet) {
-
-        override protected def createInsertHandler(itemText: String): InsertHandler = new InsertHandler(itemText) {
-
-          override def handleInsert(decorator: Decorator)
-                                   (implicit context: InsertionContext): Unit = {
-            super.handleInsert(decorator)
-            inReplaceMode { context =>
-              context.getEditor.getCaretModel.moveToOffset(context.getTailOffset)
-            }
-          }
-
-          override protected def handleReplace(implicit context: InsertionContext): Unit = {
-            inReplaceMode { context =>
-              for {
-                parameter <- position.parentOfType(classOf[ScParameter])
-
-                typeElement <- findTypeElement(parameter)
-                bound = typeElement.getTextRange.getEndOffset
-
-                identifier <- findIdentifier(parameter)
-                origin = identifier.getTextRange.getEndOffset
-
-                length = bound - origin
-              } context.offsetMap(InsertionContext.TAIL_OFFSET) += length
-            }
-
-            super.handleReplace
-
-            val delta = itemText.indexOf(Delimiter) + Delimiter.length
-            context.offsetMap(CompletionInitializationContext.START_OFFSET) += delta
-          }
-
-          private def inReplaceMode(action: InsertionContext => Unit)
-                                   (implicit context: InsertionContext): Unit =
-            context.getCompletionChar match {
-              case Lookup.REPLACE_SELECT_CHAR => action(context)
-              case _ =>
-            }
-        }
-      }
-    }
+    new ParameterCompletionProvider {}
   )
 
   registerParameterProvider[ScPrimaryConstructor](
     new ParameterCompletionProvider {
-
-      override protected def createConsumer(resultSet: CompletionResultSet, position: PsiElement) = new TypedConsumer(resultSet)
 
       override protected def createElement(text: String,
                                            context: PsiElement,
@@ -92,7 +46,11 @@ final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
   )
 
   registerParameterProvider[ScFunctionExpr](
-    (resultSet: CompletionResultSet, _: PsiElement) => new UntypedConsumer(resultSet)
+    new ParameterCompletionProvider {
+
+      override protected def createConsumer(resultSet: CompletionResultSet, position: PsiElement) =
+        new UntypedConsumer(resultSet)
+    }
   )
 
   registerDeclarationProvider[ScFieldId](
@@ -140,6 +98,49 @@ object ScalaAotCompletionContributor {
 
     override protected def findTypeElement(parameter: ScParameter): Option[ScTypeElement] =
       parameter.paramType.map(_.typeElement)
+
+    override protected def createConsumer(resultSet: CompletionResultSet, position: PsiElement): Consumer =
+      new TypedConsumer(resultSet) {
+
+        override protected def createInsertHandler(itemText: String): InsertHandler = new InsertHandler(itemText) {
+
+          override def handleInsert(decorator: Decorator)
+                                   (implicit context: InsertionContext): Unit = {
+            super.handleInsert(decorator)
+            inReplaceMode { context =>
+              context.getEditor.getCaretModel.moveToOffset(context.getTailOffset)
+            }
+          }
+
+          override protected def handleReplace(implicit context: InsertionContext): Unit = {
+            inReplaceMode { context =>
+              for {
+                parameter <- position.parentOfType(classOf[ScParameter])
+
+                typeElement <- findTypeElement(parameter)
+                bound = typeElement.getTextRange.getEndOffset
+
+                identifier <- findIdentifier(parameter)
+                origin = identifier.getTextRange.getEndOffset
+
+                length = bound - origin
+              } context.offsetMap(InsertionContext.TAIL_OFFSET) += length
+            }
+
+            super.handleReplace
+
+            val delta = itemText.indexOf(Delimiter) + Delimiter.length
+            context.offsetMap(CompletionInitializationContext.START_OFFSET) += delta
+          }
+
+          private def inReplaceMode(action: InsertionContext => Unit)
+                                   (implicit context: InsertionContext): Unit =
+            context.getCompletionChar match {
+              case Lookup.REPLACE_SELECT_CHAR => action(context)
+              case _ =>
+            }
+        }
+      }
   }
 
   private abstract class DeclarationCompletionProvider[D <: ScMember with ScDeclaration](keyword: String,
