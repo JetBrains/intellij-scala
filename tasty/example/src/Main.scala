@@ -22,7 +22,7 @@ object Main {
   def main(args: Array[String]): Unit = {
     val home = System.getProperty("user.home")
 
-    val Version = "0.26"
+    val Version = "0.23"
     val FullVersion = s"$Version.0-RC1"
 
     val files = Seq(
