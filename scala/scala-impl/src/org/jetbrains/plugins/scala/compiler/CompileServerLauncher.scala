@@ -15,6 +15,7 @@ import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.impl.OrderEntryUtil
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
+import com.intellij.openapi.util.ShutDownTracker
 import com.intellij.util.net.NetUtils
 import javax.swing.event.HyperlinkEvent
 import org.jetbrains.jps.api.GlobalOptions
