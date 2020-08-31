@@ -61,5 +61,5 @@ class ScalaCompilerConfigurable(project: Project)
 }
 
 object ScalaCompilerConfigurable {
-  val Name: String = ScalaBundle.message("scala.compiler")
+  def Name: String = ScalaBundle.message("scala.compiler")
 }
