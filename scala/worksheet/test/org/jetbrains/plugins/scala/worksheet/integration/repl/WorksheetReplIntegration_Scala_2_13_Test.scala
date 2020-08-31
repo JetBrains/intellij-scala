@@ -38,8 +38,8 @@ class WorksheetReplIntegration_Scala_2_13_Test extends WorksheetReplIntegrationB
         |""".stripMargin
 
     val right =
-      """val a: Int = 1
-        |var b: Int = 2""".stripMargin
+      """a: Int = 1
+        |b: Int = 2""".stripMargin
 
     doRenderTest(left, right)
   }
