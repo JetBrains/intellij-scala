@@ -98,6 +98,20 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
     tailText = "(java.awt)"
   )
 
+  def testImport2(): Unit = doAotCompletionTest(
+    fileText =
+      s"""class Foo(rectangle$CARET)
+       """.stripMargin,
+    resultText =
+      s"""import java.awt.Rectangle
+         |
+         |class Foo(rectangle: Rectangle$CARET)
+      """.stripMargin,
+    lookupString = "Rectangle",
+    itemText = "rectangle: Rectangle",
+    tailText = "(java.awt)"
+  )
+
   def testErasure(): Unit = doAotCompletionTest(
     fileText =
       s"""class Foo
