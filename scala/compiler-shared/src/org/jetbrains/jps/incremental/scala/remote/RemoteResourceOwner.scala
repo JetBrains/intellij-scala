@@ -41,7 +41,8 @@ trait RemoteResourceOwner {
     val processor = new ClientEventProcessor(client)
 
     while (!client.isCanceled) {
-      Chunk.readFrom(input) match {
+      val chunk = Chunk.readFrom(input)
+      chunk match {
         case Chunk(NGConstants.CHUNKTYPE_EXIT, code) =>
           return
         case Chunk(NGConstants.CHUNKTYPE_STDOUT, data) =>

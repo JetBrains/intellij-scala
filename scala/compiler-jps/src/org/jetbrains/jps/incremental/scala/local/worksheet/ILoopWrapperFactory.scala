@@ -11,6 +11,7 @@ import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactory._
 import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactoryHandler.{ReplContext, ReplWrapperCompiled}
 import org.jetbrains.plugins.scala.compiler.data.worksheet.{ReplMessages, WorksheetArgs}
+import org.jetbrains.plugins.scala.worksheet.reporters.{ILoopWrapperReporter, NoopReporter, PrintWriterReporter}
 
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
@@ -161,12 +162,15 @@ class ILoopWrapperFactory {
     try {
       val inst = if (!version.isScala3) {
         val printWriter = new MyUpdatePrintWriter(out)
-        val reporter    = new PrintWriterReporter(printWriter, client)
+        val reporter = new PrintWriterReporter(printWriter) {
+          override def internalDebug(message: String): Unit =
+            client.internalDebug(message)
+        }
         val constructor = clazz.getConstructor(classOf[PrintWriter], classOf[ILoopWrapperReporter], classOf[ju.List[_]], classOf[ju.List[_]])
         constructor.newInstance(printWriter, reporter, classpathStrings, scalaOptions).asInstanceOf[ILoopWrapper]
       } else {
         val printStream = new MyUpdatePrintStream(out)
-        val reporter    = new DebugLoggingReporter(client)
+        val reporter = new NoopReporter
         val constructor = clazz.getConstructor(classOf[PrintStream], classOf[ILoopWrapperReporter], classOf[ju.List[_]], classOf[ju.List[_]])
         constructor.newInstance(printStream, reporter, classpathStrings, scalaOptions).asInstanceOf[ILoopWrapper]
       }

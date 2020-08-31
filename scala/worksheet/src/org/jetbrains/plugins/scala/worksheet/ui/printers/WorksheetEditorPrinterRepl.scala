@@ -8,8 +8,6 @@ import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.annotations.{CalledInAwt, CalledWithWriteLock}
-import org.jetbrains.jps.incremental.scala.local.worksheet.PrintWriterReporter
-import org.jetbrains.jps.incremental.scala.local.worksheet.PrintWriterReporter.MessageLineParsed
 import org.jetbrains.plugins.scala.compiler.data.worksheet.ReplMessages
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -19,6 +17,7 @@ import org.jetbrains.plugins.scala.project
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.{NotificationUtil, ScalaPluginUtils}
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
+import org.jetbrains.plugins.scala.worksheet.reporters.PrintWriterReporter
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.CompilerMessagesConsumer
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.InputOutputFoldingInfo
@@ -324,7 +323,7 @@ final class WorksheetEditorPrinterRepl private[printers](
 
   private def extractReplMessage(messageLine: String): Option[ReplMessageInfo] =
     PrintWriterReporter.parse(messageLine).map {
-      case MessageLineParsed(severity, line, column, lineContent, message) =>
+      case PrintWriterReporter.MessageLineParsed(severity, line, column, lineContent, message) =>
         val messageCategory = severity match {
           case "INFO"    => CompilerMessageCategory.INFORMATION
           case "ERROR"   => CompilerMessageCategory.ERROR

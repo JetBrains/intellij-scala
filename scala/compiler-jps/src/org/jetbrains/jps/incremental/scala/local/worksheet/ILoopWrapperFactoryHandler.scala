@@ -11,6 +11,7 @@ import org.jetbrains.jps.incremental.scala.local.{CompilerFactoryImpl, NullLogge
 import org.jetbrains.jps.incremental.scala.{Client, compilerVersion}
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.compiler.data.{CompilerJars, SbtData}
+import org.jetbrains.plugins.scala.worksheet.reporters._
 import sbt.internal.inc.{AnalyzingCompiler, RawCompiler}
 import sbt.util.{Level, Logger}
 import xsbti.compile.{ClasspathOptionsUtil, ScalaInstance}
@@ -27,8 +28,9 @@ class ILoopWrapperFactoryHandler {
     client: Client
   ): Unit = try {
     val compilerJars = replContext.compilerJars
-    val scalaVersion = compilerVersion(compilerJars.compiler).map(ScalaVersion).getOrElse(FallBackScalaVersion)
-    val replWrapper  = getOrCompileReplWrapper(replContext, scalaVersion, client)
+    val compilerVersionFromProperties  = compilerVersion(compilerJars.compiler)
+    val scalaVersion = compilerVersionFromProperties.fold(FallBackScalaVersion)(ScalaVersion)
+    val replWrapper = getOrCompileReplWrapper(replContext, scalaVersion, client)
 
     if (args.dropCachedReplInstance) {
       cachedReplFactory.foreach(_.replFactory.clearSession(args.sessionId))
@@ -61,7 +63,7 @@ class ILoopWrapperFactoryHandler {
 
   protected def getOrCompileReplWrapper(replContext: ReplContext, scalaVersion: ScalaVersion, client: Client): ReplWrapperCompiled = {
     val ReplContext(sbtData, compilerJars, _, _) = replContext
-    val (wrapperClassName, WrapperVersion(wrapperVersion)) = wrapperClassNameFor(scalaVersion)
+    val ILoopWrapperDescriptor(wrapperClassName, wrapperVersion) = wrapperClassNameFor(scalaVersion)
     val replLabel = s"repl-wrapper-${scalaVersion.value}-${sbtData.javaClassVersion}-$wrapperVersion-$wrapperClassName.jar"
     val targetFile = new File(sbtData.interfacesHome, replLabel)
 
@@ -110,14 +112,27 @@ class ILoopWrapperFactoryHandler {
         super.apply(sourcesFiltered, classpath, outputDirectory, options)
       }
     }
-    AnalyzingCompiler.compileSources(
-      Seq(sourceJar.toPath),
-      targetJar.toPath,
-      xsbtiJars = Seq(interfaceJar, containingJar, reporterJar).distinct.map(_.toPath),
-      id = replLabel,
-      compiler = rawCompiler,
-      log = logger
-    )
+    try
+      AnalyzingCompiler.compileSources(
+        Seq(sourceJar.toPath),
+        targetJar.toPath,
+        xsbtiJars = Seq(interfaceJar, containingJar, reporterJar).distinct,
+        id = replLabel,
+        compiler = rawCompiler,
+        log = logger
+      )
+    catch {
+      case compilationFailed: sbt.internal.inc.CompileFailed =>
+        val indent = "  "
+        val message =
+          s"""Repl wrapper compilation failed: $compilationFailed
+             |Arguments:
+             |${compilationFailed.arguments.map(indent + _.trim).mkString("\n")}
+             |Problems:
+             |${compilationFailed.problems.map(indent + _.toString).mkString("\n")}""".stripMargin
+        client.error(message)
+        throw compilationFailed
+    }
   }
 }
 
@@ -130,20 +145,22 @@ object ILoopWrapperFactoryHandler {
     scalaVersion: ScalaVersion
   )
 
-  // ATTENTION: when editing ILoopWrapper213Impl.scala or ILoopWrapperImpl.scala ensure to increase the version
-  case class WrapperVersion(value: Int)
-  private val Scala2ILoopWrapperVersion = 5
-  val ILoopWrapperImpl      = ("ILoopWrapperImpl", WrapperVersion(Scala2ILoopWrapperVersion))
-  val ILoopWrapper213_0Impl = ("ILoopWrapper213_0Impl", WrapperVersion(Scala2ILoopWrapperVersion))
-  val ILoopWrapper213Impl   = ("ILoopWrapper213Impl", WrapperVersion(Scala2ILoopWrapperVersion))
-  val ILoopWrapper3Impl     = ("ILoopWrapper3Impl", WrapperVersion(9))
+  // ATTENTION: when editing ILoopWrapperXXXImpl.scala ensure to increase the version
+  private case class ILoopWrapperDescriptor(className: String, version: Int)
+  private def Scala2ILoopWrapperVersion = 6
+  private def Scala3ILoopWrapperVersion = 10
+  // 2.12 works OK for 2.11 as well
+  private def ILoopWrapper212Impl   = ILoopWrapperDescriptor("ILoopWrapper212Impl", Scala2ILoopWrapperVersion)
+  private def ILoopWrapper213_0Impl = ILoopWrapperDescriptor("ILoopWrapper213_0Impl", Scala2ILoopWrapperVersion)
+  private def ILoopWrapper213Impl   = ILoopWrapperDescriptor("ILoopWrapper213Impl", Scala2ILoopWrapperVersion)
+  private def ILoopWrapper3Impl     = ILoopWrapperDescriptor("ILoopWrapper3Impl", Scala3ILoopWrapperVersion)
 
-  private def wrapperClassNameFor(version: ScalaVersion): (String, WrapperVersion) = {
+  private def wrapperClassNameFor(version: ScalaVersion): ILoopWrapperDescriptor = {
     val v = version.value
     if (v.startsWith("2.13.0")) ILoopWrapper213_0Impl
     else if (v.startsWith("2.13")) ILoopWrapper213Impl
     else if (version.isScala3) ILoopWrapper3Impl
-    else ILoopWrapperImpl
+    else ILoopWrapper212Impl
   }
 
   private[worksheet] case class ReplWrapperCompiled(file: File, className: String, version: ScalaVersion)

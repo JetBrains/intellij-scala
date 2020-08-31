@@ -1,20 +1,22 @@
 package org.jetbrains.jps.incremental.scala.local.worksheet
 
-import java.io.{File, PrintWriter, Flushable}
+import java.io.{File, Flushable, PrintWriter}
 
 import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapper
+import org.jetbrains.plugins.scala.worksheet.reporters.ILoopWrapperReporter
 
 import scala.reflect.classTag
 import scala.reflect.internal.util.Position
 import scala.tools.nsc.Settings
 import scala.tools.nsc.interpreter.StdReplTags.tagOfIMain
 import scala.tools.nsc.interpreter.{ILoop, IMain, NamedParam, ReplReporter, Results}
-import scala.jdk.CollectionConverters._
+
+import scala.collection.JavaConverters._
 
 /**
  * ATTENTION: when editing ensure to increase the version in ILoopWrapperFactoryHandler
  */
-class ILoopWrapperImpl(
+class ILoopWrapper212Impl(
   myOut: PrintWriter,
   wrapperReporter: ILoopWrapperReporter,
   projectFullCp: java.util.List[String],

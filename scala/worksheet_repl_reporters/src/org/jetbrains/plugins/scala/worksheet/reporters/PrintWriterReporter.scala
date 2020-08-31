@@ -1,27 +1,24 @@
-package org.jetbrains.jps.incremental.scala.local.worksheet
+package org.jetbrains.plugins.scala.worksheet.reporters
 
 import java.io.PrintWriter
 import java.nio.charset.StandardCharsets
 import java.util.Base64
 
-import org.jetbrains.jps.incremental.scala.Client
-
-class PrintWriterReporter(printWriter: PrintWriter, client: Client) extends ILoopWrapperReporter {
+class PrintWriterReporter(printWriter: PrintWriter) extends ILoopWrapperReporter {
 
   import PrintWriterReporter._
 
-  override def report(severity: String,
-                      line: Integer,
-                      column: Integer,
-                      lineContent: String,
-                      message: String): Unit = {
+  override def report(
+    severity: String,
+    line: Integer,
+    column: Integer,
+    lineContent: String,
+    message: String
+  ): Unit = {
     val reportLine = s"$IJReportPrefix$severity:$line:$column:${encode(lineContent)}:${encode(message)}\n"
     printWriter.print(reportLine)
     printWriter.flush()
   }
-
-  override def internalDebug(message: String): Unit =
-    client.internalDebug(message)
 }
 
 object PrintWriterReporter {
@@ -30,13 +27,15 @@ object PrintWriterReporter {
   private val IJReportRegexp= "(\\w+):(\\d+):(\\d+):(.*?):(.*)"
     .r("severity", "line", "column", "lineContentEncoded", "messageEncoded")
 
-  case class MessageLineParsed(severity: String,
-                               line: Integer,
-                               column: Integer,
-                               lineContent: String,
-                               message: String)
+  case class MessageLineParsed(
+    severity: String,
+    line: Integer,
+    column: Integer,
+    lineContent: String,
+    message: String
+  )
 
-  def parse(messageLine: String): Option[MessageLineParsed] = {
+  def parse(messageLine: String): Option[MessageLineParsed] =
     messageLine match {
       case IJReportRegexp(severity, lineStr, columnStr, lineContentEncoded, messageEncoded) =>
         try {
@@ -50,7 +49,6 @@ object PrintWriterReporter {
         }
       case _=> None
     }
-  }
 
   private def encode(text: String): String = {
     val bytes = text.getBytes(StandardCharsets.UTF_8)
