@@ -36,8 +36,8 @@ final class ScalaImportTypeFix private (override val elements: Seq[ElementToImpo
       ScalaBundle.message("import.with", head.qualifiedName)
     case _ =>
       ElementToImport.messageByType(elements)(
-        ScalaBundle.message("import.class"),
-        ScalaBundle.message("import.package"),
+        ScalaBundle.message("import.class.ellipsis"),
+        ScalaBundle.message("import.package.ellipsis"),
         ScalaBundle.message("import.something")
       )
   }
