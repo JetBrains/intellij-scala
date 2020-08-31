@@ -22,16 +22,16 @@ object Main {
   def main(args: Array[String]): Unit = {
     val home = System.getProperty("user.home")
 
-    val Version = "0.23"
-    val FullVersion = s"$Version.0-RC1"
+    val Version = "0.23.0-RC1"
+    val MajorVersion = Version.split('.').take(2).mkString(".")
 
     val files = Seq(
-      home + "/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.13.2.jar",
-      s"$home/.ivy2/cache/ch.epfl.lamp/dotty-interfaces/jars/dotty-interfaces-$FullVersion.jar",
-      s"$home/.ivy2/cache/ch.epfl.lamp/dotty-library_$Version/jars/dotty-library_$Version-$FullVersion.jar",
-      s"$home/.ivy2/cache/ch.epfl.lamp/dotty-compiler_$Version/jars/dotty-compiler_$Version-$FullVersion.jar",
-      s"$home/.ivy2/cache/ch.epfl.lamp/dotty-tasty-inspector_$Version/jars/dotty-tasty-inspector_$Version-$FullVersion.jar",
-      s"$home/.ivy2/cache/ch.epfl.lamp/tasty-core_$Version/jars/tasty-core_$Version-$FullVersion.jar",
+      home + "/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.1/scala-library-2.13.1.jar",
+      s"$home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/dotty-interfaces/$Version/dotty-interfaces-$Version.jar",
+      s"$home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/dotty-library_$MajorVersion//$Version/dotty-library_$MajorVersion-$Version.jar",
+      s"$home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/dotty-compiler_$MajorVersion//$Version/dotty-compiler_$MajorVersion-$Version.jar",
+      s"$home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/dotty-tasty-inspector_$MajorVersion//$Version/dotty-tasty-inspector_$MajorVersion-$Version.jar",
+      s"$home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/tasty-core_$MajorVersion//$Version/tasty-core_$MajorVersion-$Version.jar",
       "target/plugin/Scala/lib/tasty/tasty-runtime.jar",
     )
 
@@ -76,7 +76,7 @@ object Main {
 
     exampleClasses.foreach { fqn =>
       println(fqn)
-      consumeTasty.apply(home + "/IdeaProjects/dotty-example-project/target/scala-" + Version + "/classes", List(fqn), tastyConsumer)
+      consumeTasty.apply(home + "/IdeaProjects/dotty-example-project/target/scala-" + MajorVersion + "/classes", List(fqn), tastyConsumer)
     }
   }
 }
