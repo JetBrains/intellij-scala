@@ -6,7 +6,9 @@ import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi._
 import com.intellij.psi.impl.source.resolve.JavaResolveUtil
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement, ScTypeVariableTypeElement}
@@ -21,13 +23,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticValue}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
-import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.conformsToDynamic
+import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
 import _root_.scala.collection.Set
@@ -433,5 +438,49 @@ object ResolveUtils {
 
     if (isInTemplateParents != null) enclosingTdef(enclosingTdef(isInTemplateParents)).toOption
     else                             enclosingTdef(e).toOption
+  }
+
+  implicit class ScExpressionForExpectedTypesEx(private val expr: ScExpression) extends AnyVal {
+    @CachedWithRecursionGuard(expr, Array.empty[ScalaResolveResult], BlockModificationTracker(expr))
+    def shapeResolveApplyMethod(
+      tp:    ScType,
+      exprs: collection.Seq[ScExpression],
+      call:  Option[MethodInvocation]
+    ): Array[ScalaResolveResult] = {
+      val applyProc =
+        new MethodResolveProcessor(
+          expr,
+          "apply",
+          List(exprs),
+          Seq.empty,
+          Seq.empty /* todo: ? */,
+          StdKinds.methodsOnly,
+          isShapeResolve = true
+        )
+
+      applyProc.processType(tp, expr, ScalaResolveState.withFromType(tp))
+      var cand = applyProc.candidates
+      if (cand.isEmpty && call.isDefined) {
+        val expr = call.get.getEffectiveInvokedExpr
+
+        ImplicitResolveResult.processImplicitConversions(
+          "apply",
+          expr,
+          applyProc,
+          precalculatedType = Some(tp)
+        )(identity)(expr)
+
+        cand = applyProc.candidates
+      }
+      if (cand.isEmpty && conformsToDynamic(tp, expr.resolveScope) && call.isDefined) {
+        cand = ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(
+          call.get,
+          tp,
+          isShape   = true,
+          isDynamic = true
+        )
+      }
+      cand
+    }
   }
 }

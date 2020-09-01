@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.resolve
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
 /**
-  * @author mucianm 
+  * @author mucianm
   * @since 05.04.16.
   */
 class NamedArgsTest extends ScalaLightCodeInsightFixtureTestAdapter with SimpleResolveTestBase {
@@ -43,5 +43,28 @@ class NamedArgsTest extends ScalaLightCodeInsightFixtureTestAdapter with SimpleR
       """.stripMargin)
   }
 
+  def testSCL17892(): Unit = doResolveTest(
+    s"""
+       |object A { def apply(${REFTGT}g: Int): Int = 123 }
+       |def foo(f: Int, g: Int): A.type = A
+       |foo(f = 123, g = 123)(${REFSRC}g = 123)
+       |""".stripMargin
+  )
 
+  def testSCL17892_2(): Unit = doResolveTest(
+    s"""
+       |object A { def apply(g: Int)(g${REFTGT}g: Int): Int = 123 }
+       |def foo(f: Int, g: Int): A.type = A
+       |foo(f = 123, g = 123)(g = 123)(g${REFSRC}g = 123)
+       |""".stripMargin
+  )
+
+  def testSCL18052(): Unit = doResolveTest(
+    s"""
+       |def compose[A,B,C](f: B => C, g: A => B): A => C = ???
+       |val addOne: Int => Int = _ + 1
+       |val toStr: Int => String = s => s.toString
+       |compose(toStr, addOne)(v${REFSRC}1 = 42)
+       |""".stripMargin
+  )
 }

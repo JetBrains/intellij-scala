@@ -4,8 +4,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiTypeExt, TraversableExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
@@ -21,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
@@ -31,10 +29,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScExpressionForExpectedTypesEx
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
-import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
-import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_12, Scala_2_13}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
@@ -738,34 +735,14 @@ private object ExpectedTypesImpl {
     case object NotAFunction extends Arity { override def matches(arity: Int): Boolean = true }
   }
 
-
   implicit class ScMethodCallEx(private val invocation: MethodInvocation) extends AnyVal {
-
     def updateAccordingToExpectedType(`type`: ScType): ScType =
-      InferUtil.updateAccordingToExpectedType(`type`, filterTypeParams = false, invocation.expectedType(), invocation, canThrowSCE = false)
+      InferUtil.updateAccordingToExpectedType(
+        `type`,
+        filterTypeParams = false,
+        invocation.expectedType(),
+        invocation,
+        canThrowSCE = false
+      )
   }
-
-  implicit class ScExpressionForExpectedTypesEx(private val expr: ScExpression) extends AnyVal {
-    @CachedWithRecursionGuard(expr, Array.empty[ScalaResolveResult], BlockModificationTracker(expr))
-    def shapeResolveApplyMethod(tp: ScType, exprs: collection.Seq[ScExpression], call: Option[MethodInvocation]): Array[ScalaResolveResult] = {
-      val applyProc =
-        new MethodResolveProcessor(expr, "apply", List(exprs), Seq.empty, Seq.empty /* todo: ? */ ,
-          StdKinds.methodsOnly, isShapeResolve = true)
-      applyProc.processType(tp, expr, ScalaResolveState.withFromType(tp))
-      var cand = applyProc.candidates
-      if (cand.length == 0 && call.isDefined) {
-        val expr = call.get.getEffectiveInvokedExpr
-
-        ImplicitResolveResult.processImplicitConversions("apply", expr, applyProc, precalculatedType = Some(tp)) {
-          identity
-        }(expr)
-        cand = applyProc.candidates
-      }
-      if (cand.length == 0 && conformsToDynamic(tp, expr.resolveScope) && call.isDefined) {
-        cand = ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(call.get, tp, isShape = true, isDynamic = true)
-      }
-      cand
-    }
-  }
-
 }

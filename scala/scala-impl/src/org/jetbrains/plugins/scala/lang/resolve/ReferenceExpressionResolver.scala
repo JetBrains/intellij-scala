@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScExpressionForExpectedTypesEx
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -285,7 +286,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       args.callReference.foreach { reference =>
         val isNamedParametersEnabled = call match {
           case call: ScMethodCall => call.isNamedParametersEnabledEverywhere
-          case _ => false
+          case _                  => false
         }
 
         processAnyAssignment(
@@ -315,7 +316,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           )
       }
 
-      def processResult(result: ScalaResolveResult) = result.element match {
+      def processResult(result: ScalaResolveResult, index: Int): Unit = result.element match {
         case _: ScFunction if isApplyDynamicNamed(result) =>
           addParamForApplyDynamicNamed()
         case _ if call.applyOrUpdateElement.exists(isApplyDynamicNamed) =>
@@ -331,7 +332,8 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
                 case Some(param) =>
                   val rename =
                     if (!equivalent(param.name, refName)) param.deprecatedName
-                    else None
+                    else                                  None
+
                   val state = ScalaResolveState
                     .withSubstitutor(substitutor)
                     .withNamedParam
@@ -353,10 +355,26 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         case _ =>
       }
 
+      def tryProcessApplyMethodArgs(): Unit = {
+        @tailrec
+        def traverseInvokedExprs(call: ScExpression, dropped: Int): Unit = call match {
+          case mc: MethodInvocation =>
+            val tp            = mc.`type`().getOrAny
+            val applyResolves = mc.shapeResolveApplyMethod(tp, mc.argumentExpressions, mc.toOption)
+
+            applyResolves.foreach(processResult(_, dropped))
+            if (processor.candidates.isEmpty) traverseInvokedExprs(mc.getEffectiveInvokedExpr, dropped + 1)
+          case _ => ()
+        }
+        traverseInvokedExprs(call.getEffectiveInvokedExpr, 0)
+      }
+
       for (variant <- callReference.multiResolveScala(false)) {
-        processResult(variant)
+        processResult(variant, index)
         // Consider named parameters of apply method; see SCL-2407
-        variant.innerResolveResult.foreach(processResult)
+        variant.innerResolveResult.foreach(processResult(_, index))
+        // Check if argument clause is actuall an apply method invocation SCL-17892
+        if (processor.candidates.isEmpty) tryProcessApplyMethodArgs()
       }
     }
 
@@ -631,7 +649,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
                              clauseIndex: Int = -1): Option[ScParameter] = {
     val parameters = clauseIndex match {
       case -1 => ml.parameters
-      case _ => ml.parametersInClause(clauseIndex)
+      case _  => ml.parametersInClause(clauseIndex)
     }
 
     parameters.find { parameter =>
