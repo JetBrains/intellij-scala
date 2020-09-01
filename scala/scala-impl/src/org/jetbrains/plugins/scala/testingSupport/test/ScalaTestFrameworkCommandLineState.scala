@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.test
 
-import java.io.{File, FileOutputStream, IOException, PrintStream}
 import java.{util => ju}
 
 import com.intellij.execution.configurations.{JavaCommandLineState, JavaParameters, ParametersList, RunConfigurationBase}
@@ -14,7 +13,7 @@ import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
 import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
 import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
 import com.intellij.execution.ui.ConsoleView
-import com.intellij.execution.{DefaultExecutionResult, ExecutionException, ExecutionResult, Executor, JavaRunConfigurationExtensionManager, RunConfigurationExtension}
+import com.intellij.execution.{DefaultExecutionResult, ExecutionResult, Executor, JavaRunConfigurationExtensionManager, RunConfigurationExtension, ShortenCommandLine}
 import com.intellij.openapi.components.PathMacroManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -23,7 +22,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.newvfs.ManagingFS
 import com.intellij.openapi.vfs.newvfs.persistent.PersistentFSImpl
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, using}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt}
 import org.jetbrains.plugins.scala.project.{ModuleExt, PathsListExt, ProjectExt}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider
@@ -121,10 +120,17 @@ class ScalaTestFrameworkCommandLineState(
     params.getProgramParametersList.addAll(programParameters: _*)
     params.setShortenCommandLine(configuration.getShortenCommandLine, project)
 
+    if (configuration.getShortenCommandLine == ShortenCommandLine.ARGS_FILE) {
+      // + 1 for each test class
+      val testsCount = suitesToTestsMap.values.map(_.size + 1).sum
+      val hasMultipleTests = testsCount > 1
+      params.setUseDynamicParameters(hasMultipleTests)
+    }
+
     params
   }
 
-  private def buildProgramParameters(suitesToTests: Map[String, Set[String]]) = {
+  private def buildProgramParameters(suitesToTests: Map[String, Set[String]]): Seq[String] = {
     val classesAndTests = buildClassesAndTestsParameters(suitesToTests)
     val progress = Seq("-showProgressMessages", testConfigurationData.showProgressMessages.toString)
     val other = ParametersList.parse(testConfigurationData.getTestArgs)
@@ -195,8 +201,7 @@ class ScalaTestFrameworkCommandLineState(
   }
 
   private def addDebugOutputListener(processHandler: ProcessHandler): Unit = {
-    import com.intellij.execution.process.ProcessAdapter
-    import com.intellij.execution.process.ProcessEvent
+    import com.intellij.execution.process.{ProcessAdapter, ProcessEvent}
     import com.intellij.openapi.util.Key
 
     processHandler.addProcessListener(new ProcessAdapter {
@@ -232,19 +237,6 @@ object ScalaTestFrameworkCommandLineState {
     envs.foldLeft(text) { case (text, (key, value)) =>
       StringUtil.replace(text, "$" + key + "$", value, false)
     }
-
-  private def prepareDynamicClasspathFile(
-    programParameters: Seq[String]
-  ): File = try {
-    val fileWithParams: File = File.createTempFile("abstracttest", ".tmp")
-    using(new PrintStream(new FileOutputStream(fileWithParams))) { printer =>
-      programParameters.foreach(printer.println)
-    }
-    fileWithParams
-  } catch {
-    case e: IOException =>
-      throw new ExecutionException("Failed to create dynamic classpath file with command-line args.", e)
-  }
 
   private def createExecutionResult(consoleView: ConsoleView, processHandler: ProcessHandler): DefaultExecutionResult = {
     val result = new DefaultExecutionResult(consoleView, processHandler)
