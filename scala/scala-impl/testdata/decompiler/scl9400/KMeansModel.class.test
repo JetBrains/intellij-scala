@@ -21,6 +21,9 @@ class KMeansModel(@org.apache.spark.annotation.Since("1.0.0") val clusterCenters
 object KMeansModel extends scala.AnyRef with org.apache.spark.mllib.util.Loader[org.apache.spark.mllib.clustering.KMeansModel] with scala.Serializable {
   @org.apache.spark.annotation.Since("1.4.0")
   override def load(sc : org.apache.spark.SparkContext, path : scala.Predef.String) : org.apache.spark.mllib.clustering.KMeansModel = { /* compiled code */ }
+  private object Cluster extends scala.AnyRef with scala.Serializable {
+    def apply(r : org.apache.spark.sql.Row) : KMeansModel.Cluster = { /* compiled code */ }
+  }
   private[clustering] object SaveLoadV1_0 extends scala.AnyRef {
     private[clustering] val thisClassName : java.lang.String = { /* compiled code */ }
     def save(sc : org.apache.spark.SparkContext, model : org.apache.spark.mllib.clustering.KMeansModel, path : scala.Predef.String) : scala.Unit = { /* compiled code */ }
