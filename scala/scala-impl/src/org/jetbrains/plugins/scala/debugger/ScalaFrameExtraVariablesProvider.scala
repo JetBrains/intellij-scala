@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
+import org.jetbrains.plugins.scala.util.SideEffectsUtil
 
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
@@ -78,7 +79,7 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
     TextWithImportsImpl.fromXExpression(xExpr)
   }
 
-  private def canEvaluate(srr: ScalaResolveResult, place: PsiElement) = {
+  private def canEvaluate(srr: ScalaResolveResult, place: PsiElement) =
     srr.getElement match {
       case _: ScWildcardPattern => false
       case tp: ScTypedPattern if tp.name == "_" => false
@@ -94,11 +95,15 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
         }
         notInThisClass(funDef) || notInThisClass(lazyVal)
       case named if ScalaEvaluatorBuilderUtil.isNotUsedEnumerator(named, place) => false
-      case inNameContext(cc: ScCaseClause) if isInCatchBlock(cc) => false //cannot evaluate catched exceptions in scala
+      case inNameContext(cc: ScCaseClause)  =>
+        if (isInCatchBlock(cc)) false //cannot evaluate catched exceptions in scala
+        else cc.getParent.getParent match {
+          case m: ScMatch => m.expression.exists(SideEffectsUtil.mayOnlyThrow) //no side effects
+          case _          => true
+        }
       case inNameContext(LazyVal(_)) => false //don't add lazy vals as they can be computed too early
       case _ => true
     }
-  }
 
   private def canEvaluateLong(srr: ScalaResolveResult, place: PsiElement, evaluationContext: EvaluationContext) = {
     def tryEvaluate(name: String, place: PsiElement, evaluationContext: EvaluationContext): Try[AnyRef] = {
