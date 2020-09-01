@@ -7,6 +7,7 @@ import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.debugger.{JavaDebuggerBundle, SourcePosition}
 import com.sun.jdi._
 import com.sun.tools.jdi.{ConcreteMethodImpl, TypeComponentImpl}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
@@ -169,7 +170,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
         referenceType match {
           case ct: ClassType if methodName == "<init>" =>
             debugProcess.newInstance(context, ct, method, unwrappedArgs(args, method).asJava)
-          case _ => throw EvaluationException(s"Couldn't found appropriate constructor for ${referenceType.name()}")
+          case _ => throw EvaluationException(ScalaBundle.message("could.not.find.appropriate.constructor.for.name", referenceType.name()))
         }
       }
 
@@ -197,7 +198,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
           }
         }
 
-        if (jdiMethod.isAbstract) throw EvaluationException(s"Cannot invoke abstract interface method ${jdiMethod.name()}")
+        if (jdiMethod.isAbstract) throw EvaluationException(ScalaBundle.message("cannot.invoke.abstract.interface.method.name", jdiMethod.name()))
 
         //see SCL-10132
         if (!jdiMethod.isDefault && jdiMethod.isPrivate) {
@@ -232,7 +233,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
       val typeAndMethod: Option[(ReferenceType, Method)] = obj match {
         case objRef: ObjectReference =>
           val objType = findClass(objRef.referenceType().name())
-          if (objType.isInstanceOf[ArrayType]) throw EvaluationException(s"Method $methodName cannot be invoked on array")
+          if (objType.isInstanceOf[ArrayType]) throw EvaluationException(ScalaBundle.message("method.methodname.cannot.be.invoked.on.array", methodName))
           val classType = objType.asInstanceOf[ClassType]
 
           if (requiresSuperObject) findInSuperClass(classType)

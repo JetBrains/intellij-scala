@@ -11,7 +11,7 @@ import com.intellij.psi.search.{LocalSearchScope, TextOccurenceProcessor, UsageS
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement, ResolveState}
 import com.intellij.xdebugger.impl.breakpoints.XExpressionImpl
-import org.jetbrains.plugins.scala.ScalaLanguage
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 import org.jetbrains.plugins.scala.codeInsight.template.util.VariablesCompletionProcessor
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaCompilingExpressionEvaluator
 import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, ScalaCodeFragmentFactory, ScalaEvaluatorBuilder, ScalaEvaluatorBuilderUtil}
@@ -108,9 +108,9 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
           val codeFragment = new ScalaCodeFragmentFactory().createCodeFragment(twi, place, evaluationContext.getProject)
           val location = evaluationContext.getFrameProxy.location()
           val sourcePosition = ScalaPositionManager.instance(evaluationContext.getDebugProcess).map(_.getSourcePosition(location))
-          if (sourcePosition.isEmpty) throw EvaluationException("Debug process is detached.")
+          if (sourcePosition.isEmpty) throw EvaluationException(ScalaBundle.message("debug.process.is.detached"))
           ScalaEvaluatorBuilder.build(codeFragment, sourcePosition.get) match {
-            case _: ScalaCompilingExpressionEvaluator => throw EvaluationException("Don't use compiling evaluator here")
+            case _: ScalaCompilingExpressionEvaluator => throw new RuntimeException("Don't use compiling evaluator here")
             case e => e
           }
         }

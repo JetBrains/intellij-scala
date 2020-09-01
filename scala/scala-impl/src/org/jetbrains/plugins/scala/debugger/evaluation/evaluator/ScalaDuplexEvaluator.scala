@@ -30,7 +30,9 @@ case class ScalaDuplexEvaluator(first: Evaluator, second: Evaluator) extends Eva
           myModifier = second.getModifier
         }
         catch {
-          case e2: Exception => throw EvaluationException(e1.getMessage + "\n " + e2.getMessage)
+          case e2: Exception =>
+            val message = e1.getMessage + "\n " + e2.getMessage
+            throw EvaluationException(message)
         }
       case e: Exception => throw EvaluationException(e)
     }
