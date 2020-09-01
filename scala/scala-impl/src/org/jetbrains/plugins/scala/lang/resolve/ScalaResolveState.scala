@@ -66,6 +66,9 @@ trait ResolveStateOps extends Any {
   def withImplicitScopeObject(tpe: ScType): ResolveState =
     resolveState.put(IMPLICIT_SCOPE_OBJECT, tpe)
 
+  def withMatchClauseSubstitutor(subst: ScSubstitutor): ResolveState =
+    resolveState.put(MATCH_SUBSTITUTOR, subst)
+
   def substitutor: ScSubstitutor =
     option(SUBSTITUTOR_KEY).getOrElse(ScSubstitutor.empty)
 
@@ -104,6 +107,10 @@ trait ResolveStateOps extends Any {
 
   def implicitScopeObject: Option[ScType] =
     option(IMPLICIT_SCOPE_OBJECT)
+
+  def matchClauseSubstitutor: ScSubstitutor =
+    option(MATCH_SUBSTITUTOR).getOrElse(ScSubstitutor.empty)
+
 }
 
 private object ResolveStateOps {
@@ -134,4 +141,6 @@ private object ResolveStateOps {
 
   // specifies the designator type of an object in an implicit scope, which provided this resolve result
   private val IMPLICIT_SCOPE_OBJECT: Key[ScType] = Key.create("scala.implicit.scope.object")
+
+  private val MATCH_SUBSTITUTOR: Key[ScSubstitutor] = Key.create("scala.match.subsitutor")
 }

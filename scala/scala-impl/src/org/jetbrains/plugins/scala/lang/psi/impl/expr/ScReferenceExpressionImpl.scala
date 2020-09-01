@@ -266,8 +266,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
   }
 
   protected def convertBindToType(bind: ScalaResolveResult): TypeResult = {
-    val fromType: Option[ScType] = bind.fromType
+    val fromType                 = bind.fromType
     val unresolvedTypeParameters = bind.unresolvedTypeParameters.getOrElse(Seq.empty)
+    val matchClauseSubst         = bind.matchClauseSubstitutor
 
     val inner: ScType = bind match {
       case ScalaResolveResult(fun: ScFun, s) =>
@@ -522,7 +523,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           case _ =>
         }
     }
-    Right(inner)
+    Right(matchClauseSubst(inner))
   }
 
   override def getPrevTypeInfoParams: Seq[TypeParameter] = {

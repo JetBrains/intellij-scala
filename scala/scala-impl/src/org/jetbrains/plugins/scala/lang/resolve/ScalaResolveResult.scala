@@ -55,7 +55,8 @@ class ScalaResolveResult(
   val implicitReason:           ImplicitResult = NoResult,
   val implicitSearchState:      Option[ImplicitState] = None,
   val unresolvedTypeParameters: Option[Seq[TypeParameter]] = None,
-  val implicitScopeObject:      Option[ScType] = None
+  val implicitScopeObject:      Option[ScType] = None,
+  val matchClauseSubstitutor:   ScSubstitutor = ScSubstitutor.empty
 ) extends ResolveResult
     with ProjectContextOwner {
   if (element == null) throw new NullPointerException("element is null")
@@ -118,7 +119,8 @@ class ScalaResolveResult(
     implicitReason:           ImplicitResult             = implicitReason,
     implicitSearchState:      Option[ImplicitState]      = implicitSearchState,
     unresolvedTypeParameters: Option[Seq[TypeParameter]] = unresolvedTypeParameters,
-    implicitScopeObject:      Option[ScType]             = implicitScopeObject
+    implicitScopeObject:      Option[ScType]             = implicitScopeObject,
+    matchClauseSubstitutor:   ScSubstitutor              = matchClauseSubstitutor
   ): ScalaResolveResult =
     new ScalaResolveResult(
       element,
@@ -145,7 +147,8 @@ class ScalaResolveResult(
       implicitReason           = implicitReason,
       implicitSearchState      = implicitSearchState,
       unresolvedTypeParameters = unresolvedTypeParameters,
-      implicitScopeObject      = implicitScopeObject
+      implicitScopeObject      = implicitScopeObject,
+      matchClauseSubstitutor   = matchClauseSubstitutor
     )
 
   override def equals(other: Any): Boolean = other match {

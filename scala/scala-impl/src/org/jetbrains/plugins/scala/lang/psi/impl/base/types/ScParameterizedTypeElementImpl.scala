@@ -153,7 +153,13 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
     case _ => None
   }
 
-  override protected def innerType: TypeResult = {
+  override protected def innerType: TypeResult =
+    calculateInnerType(substituteTypeVariables = true)
+
+  override def unsubstitutedType: TypeResult =
+    calculateInnerType(substituteTypeVariables = false)
+
+  private def calculateInnerType(substituteTypeVariables: Boolean): TypeResult = {
     computeDesugarizedType match {
       case Some(typeElement) =>
         return typeElement.`type`()
@@ -191,7 +197,11 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
     typeArgList.typeArgs match {
       case Seq() => tr
       case args =>
-        val result = ScParameterizedType(res, args.map(_.`type`().getOrAny))
+        val argTpes =
+          if (substituteTypeVariables) args.map(_.calcType)
+          else                         args.map(_. unsubstitutedType.getOrAny)
+
+        val result = ScParameterizedType(res, argTpes)
         Right(result)
     }
   }

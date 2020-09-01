@@ -127,8 +127,17 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
         case _: PsiClass => //do nothing, it's wrong class or object
         case _ if isThisOrSuperResolve => //do nothing for type alias
         case _ =>
-          addResult(new ScalaResolveResult(namedElement, state.substitutor,
-            state.importsUsed, renamed, fromType = state.fromType, isAccessible = accessible))
+          addResult(
+            new ScalaResolveResult(
+              namedElement,
+              state.substitutor,
+              state.importsUsed,
+              renamed,
+              fromType               = state.fromType,
+              isAccessible           = accessible,
+              matchClauseSubstitutor = state.matchClauseSubstitutor
+            )
+          )
       }
     }
 

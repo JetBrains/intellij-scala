@@ -10,6 +10,4 @@ package patterns
 * Date: 28.02.2008
 */
 
-trait ScReferencePattern extends ScBindingPattern {
-
-}
+trait ScReferencePattern extends ScBindingPattern

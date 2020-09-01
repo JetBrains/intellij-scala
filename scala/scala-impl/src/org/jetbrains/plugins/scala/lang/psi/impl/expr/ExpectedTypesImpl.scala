@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl._
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -333,7 +332,14 @@ class ExpectedTypesImpl extends ExpectedTypes {
         Array((throwableType, None))
       //see SLS[8.4]
       case c: ScCaseClause => c.getContext.getContext match {
-        case m: ScMatch => m.expectedTypesEx(fromUnderscore = true)
+        case m: ScMatch =>
+          val expectedForMatch = m.expectedTypesEx()
+
+          if (expectedForMatch.isEmpty) Array.empty
+          else {
+            val matchSubst = PatternTypeInferenceUtil.doForMatchClause(m, c).getOrElse(ScSubstitutor.empty)
+            expectedForMatch.map { case (tpe, elem) => (matchSubst(tpe), elem) }
+          }
         case b: ScBlockExpr if b.isInCatchBlock =>
           b.getContext.getContext.asInstanceOf[ScTry].expectedTypesEx(fromUnderscore = true)
         case b: ScBlockExpr if b.isAnonymousFunction =>
