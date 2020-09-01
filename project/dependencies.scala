@@ -64,13 +64,14 @@ object Dependencies {
   val sbtStructureExtractor_100: ModuleID = sbtPluginDependency(sbtStructureExtractor, Sbt.binary_1_0)
 
   val sbtLaunch: ModuleID = "org.scala-sbt" % "sbt-launch" % sbtVersion intransitive()
-  val bloopLauncher: ModuleID = "ch.epfl.scala" % s"bloop-launcher_$scalaBinaryVersion" % bloopVersion
+//  val bloopLauncher: ModuleID = "ch.epfl.scala" % s"bloop-launcher_$scalaBinaryVersion" % bloopVersion
   val jamm: ModuleID = "com.github.jbellis" % "jamm" % "0.3.1"
   val scalaLibrary: ModuleID = "org.scala-lang" % "scala-library" % scalaVersion
   val scalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
   val scalaCompiler: ModuleID = "org.scala-lang" % "scala-compiler" % scalaVersion
   val scalaXml: ModuleID = "org.scala-lang.modules" %% "scala-xml" % "1.3.0"
   val scalaParallelCollections: ModuleID = "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
+  val jnaPlatform: ModuleID = "net.java.dev.jna" % "jna-platform" % "5.3.1"
 //  val scalaParserCombinators: ModuleID = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2"
   // this actually needs the explicit version because something in packager breaks otherwise (???)
   val sbtStructureCore: ModuleID = "org.jetbrains" %% "sbt-structure-core" % sbtStructureVersion
@@ -193,7 +194,8 @@ object DependencyGroups {
   )
 
   val runtime: Seq[ModuleID] = Seq(
-    bloopLauncher,
+//    bloopLauncher,
+    jnaPlatform,
     sbtLaunch,
     compilerBridgeSources_2_10,
     compilerBridgeSources_2_11,

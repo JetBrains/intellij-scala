@@ -184,7 +184,9 @@ lazy val compilerJps =
     .dependsOn(compilerShared, repackagedZinc)
     .settings(
       packageMethod           :=  PackagingMethod.Standalone("lib/jps/compiler-jps.jar", static = true),
-      libraryDependencies     ++= Dependencies.nailgun :: Dependencies.zincInterface :: Dependencies.scalaParallelCollections :: Nil,
+      libraryDependencies     ++= Seq(Dependencies.nailgun,
+                                      Dependencies.zincInterface,
+                                      Dependencies.scalaParallelCollections),
       packageLibraryMappings  ++= Dependencies.nailgun       -> Some("lib/jps/nailgun.jar") ::
                                   Dependencies.zincInterface -> Some("lib/jps/compiler-interface.jar") ::
                                   Dependencies.scalaParallelCollections -> Some("lib/jps/scala-parallel-collections.jar") :: Nil
@@ -340,8 +342,9 @@ lazy val runtimeDependencies =
       resolvers += sbt.Classpaths.sbtPluginReleases,
       ideSkipProject := true,
       packageMethod := PackagingMethod.DepsOnly(),
-      packageLibraryMappings ++= Seq(
-        Dependencies.bloopLauncher -> Some("launcher/bloop-launcher.jar"),
+      packageLibraryMappings := Seq(
+        "org.scala-lang.modules" % "scala-.*" % ".*" -> None,
+//        Dependencies.bloopLauncher -> Some("launcher/bloop-launcher.jar"),
         Dependencies.sbtLaunch -> Some("launcher/sbt-launch.jar"),
         Dependencies.sbtInterface -> Some("lib/jps/sbt-interface.jar"),
         Dependencies.zincInterface -> Some("lib/jps/compiler-interface.jar"),
