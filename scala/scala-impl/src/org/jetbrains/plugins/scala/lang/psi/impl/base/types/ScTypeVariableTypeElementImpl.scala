@@ -2,99 +2,44 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base.types
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScTypePattern, ScTypedPatternLike}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParameterizedTypeElement, ScParenthesisedTypeElement, ScTypeArgs, ScTypeVariableTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeVariableTypeElement
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiElementImpl}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.PatternTypeInferenceUtil
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, TypeParameter, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types._
 
 class ScTypeVariableTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeVariableTypeElement {
-  override protected def innerType: TypeResult =
-    Right(ScExistentialArgument(name, List.empty, Nothing, Any))
+  override protected def innerType: TypeResult = {
+    var resTpe: Option[ScType] = None
 
-  // https://www.scala-lang.org/files/archive/spec/2.13/08-pattern-matching.html#type-parameter-inference-in-patterns
-  override def inferredType: TypeResult = cachedWithRecursionGuard("ScTypeVariableTypeElementImpl.inferredType", this, Failure(ScalaBundle.message("recursive.type.of.type.element")), BlockModificationTracker(this)) {
-    inferredType0
-  }
-
-  private def inferredType0: TypeResult = getParent match {
-    case (_: ScTypeArgs) &
-      Parent((_: ScParameterizedTypeElement) &
-        Parent((_: ScTypePattern) &
-          Parent(typedPattern: ScTypedPatternLike))) => inferredType1(typedPattern)
-
-    case (_: ScInfixTypeElement) &
-      Parent((_: ScParenthesisedTypeElement) &
-        Parent((_: ScTypePattern) &
-          Parent(typedPattern: ScTypedPatternLike))) => inferredType1(typedPattern)
-
-    case _ => Right(existentialArgumentWith(None))
-  }
-
-  private def inferredType1(typedPattern: ScTypedPatternLike): TypeResult = {
-    def patternConformsTo(t: ScParameterizedType) = getParent.getParent match {
-      case e: ScParameterizedTypeElement => e.typeElement.`type`().exists(t.designator.conforms)
-      case _ => typedPattern.`type`() match {
-        case Right(ct: ScCompoundType) => ct.components.headOption.exists(t.conforms) // See ScTypedPatternImpl.type
-        case _ => false
+    for {
+      pat         <- this.parentOfType[ScTypedPattern]
+      typePattern <- pat.typePattern
+      te          = typePattern.typeElement
+      newTe       = ScalaPsiElementFactory.createTypedPatternFromText(te.getText, te, null)
+      tpe         = newTe.unsubstitutedType.getOrAny
+      expected    <- pat.expectedType
+      subst = PatternTypeInferenceUtil
+        .doTypeInference(pat, expected, tpe.toOption)
+        .getOrElse(ScSubstitutor.empty)
+    } {
+      tpe.visitRecursively {
+        case tpt: TypeParameterType if tpt.name == this.name => resTpe = Option(subst(tpt))
+        case _                                               => ()
       }
     }
 
-    typedPattern.expectedType match {
-      case Some(existentialType: ScExistentialType) =>
-        existentialType.quantified match {
-          case expected: ScParameterizedType if patternConformsTo(expected) => Right(existentialArgumentWith(boundsGiven(expected)))
-          case _ => Failure("Fruitless type test")
-        }
-      case Some(expected: ScParameterizedType) if patternConformsTo(expected) => Right(existentialArgumentWith(boundsGiven(expected)))
-      case _ => typedPattern.typePattern.map(_.typeElement).flatMap(_.`type`().toOption) match {
-        case Some(actual: ScParameterizedType) => Right(existentialArgumentWith(boundsGiven(actual)))
-        case _ => Failure("Fruitless type test")
-      }
-    }
+    Right(resTpe.getOrElse(tvType))
   }
 
-  private def existentialArgumentWith(bounds: Option[(ScType, ScType)]): ScExistentialArgument = bounds match {
-    case Some((lower, upper)) => ScExistentialArgument(name, List.empty, lower, upper)
-    case None => ScExistentialArgument(name, List.empty, Nothing, Any)
-  }
+  private[this] val tvType = TypeParameterType(TypeParameter.light(name, List.empty, Nothing, Any))
 
-  private def boundsGiven(expected: ScParameterizedType): Option[(ScType, ScType)] = {
-    val typeParameters = expected.designator match {
-      case dt: DesignatorOwner => dt.element match {
-        case tpo: ScTypeParametersOwner => tpo.typeParameters
-        case _ => Seq.empty
-      }
-      case _ => Seq.empty
-    }
-    val typeVariableArgumentPosition = getParent match {
-      case e: ScTypeArgs => e.typeArgs.indexOf(this)
-      case e: ScInfixTypeElement => if (e.left == this) 0 else 1
-    }
-    (typeParameters.lift(typeVariableArgumentPosition), expected.typeArguments.lift(typeVariableArgumentPosition)) match {
-      case (Some(parameter), Some(argument)) =>
-        val variance = parameter.variance
-        val (pLower, pUpper) = (parameter.lowerBound.getOrNothing, parameter.upperBound.getOrAny)
-        val (aLower, aUpper) = argument match {
-          case ea: ScExistentialArgument => (ea.lower, ea.upper)
-          case t => (t, t)
-        }
-        val (lower, upper): (ScType, ScType) =
-          if (variance.isInvariant) (aLower.lub(pLower), aUpper.glb(pUpper))
-          else if (variance.isCovariant) (pLower.glb(pUpper), aUpper.glb(pUpper))
-          else if (variance.isContravariant) (aLower.lub(pLower), pLower.lub(pUpper))
-          else throw new RuntimeException()
-        Some((lower, upper))
-      case _ => None
-    }
-  }
+  override val unsubstitutedType: TypeResult = Right(tvType)
 
   override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
 

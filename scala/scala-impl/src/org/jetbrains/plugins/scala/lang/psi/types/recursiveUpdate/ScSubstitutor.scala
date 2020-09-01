@@ -4,6 +4,7 @@ import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.plugins.scala.extensions.ArrayExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, TypeParamId}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, TypeParameter, TypeParameterType, UndefinedType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, TypeParameter, TypeParameterType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -215,4 +216,6 @@ object ScSubstitutor {
   def updateThisTypeDeep(subst: ScSubstitutor): Option[ScType] = {
     subst.substitutions.collectFirstByType[ThisTypeSubstitution, ScType](_.target)
   }
+
+  def undefineTypeParams(tps: Seq[TypeParameter]): ScSubstitutor = bind(tps)(UndefinedType(_))
 }

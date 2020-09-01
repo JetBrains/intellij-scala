@@ -39,6 +39,11 @@ trait ScTypeElement extends ScalaPsiElement with Typeable {
 
   protected def innerType: TypeResult
 
+  /** The same as [[getType]], but does not calculate substituted types
+   * for type variable type elements.
+   * */
+  def unsubstitutedType: TypeResult = getType
+
   /** Link from a view or context bound to the type element of the corresponding synthetic parameter. */
   def analog: Option[ScTypeElement] = {
     refreshAnalog()

@@ -5,6 +5,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dependency.Dependency.DependencyProcessor
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, ScConstructorInvocation, ScMethodLike}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -19,6 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createParameterFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScForImpl
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitConversionResolveResult
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.{PatternTypeInferenceUtil, ScForImpl}
+import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitResolveResult, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
@@ -296,15 +299,12 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     def resolveUnqualifiedExpression(processor: BaseProcessor): Unit = {
       @tailrec
       def treeWalkUp(place: PsiElement, lastParent: PsiElement, state: ResolveState): Unit = {
-        if (place == null)
-          return
-        if (!place.processDeclarations(processor, state, lastParent, ref))
-          return
+        if (place == null) return
+        if (!place.processDeclarations(processor, state, lastParent, ref)) return
+
         place match {
           case _: ScTemplateBody | _: ScExtendsBlock => //template body and inherited members are at the same level
-          case _ =>
-            if (!processor.changedLevel)
-              return
+          case _                                     => if (!processor.changedLevel) return
         }
 
         val newState = place match {
@@ -313,8 +313,16 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
            * To support resolve of such cases we store information about enclosing extension in the resolve state.
            */
           case fdef @ ExtensionMethod() => fdef.extensionMethodOwner.fold(state)(state.withExtensionContext)
-          case _                        => state
+          case (cc: ScCaseClause) && Parent(Parent(m: ScMatch)) =>
+            val maybeSubst = PatternTypeInferenceUtil.doForMatchClause(m, cc)
+            val oldSubst   = state.matchClauseSubstitutor
+
+            maybeSubst.fold(state)(
+              s => state.withMatchClauseSubstitutor(oldSubst.followed(s))
+            )
+          case _ => state
         }
+
 
         treeWalkUp(place.getContext, place, newState)
       }
@@ -612,9 +620,12 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         case _                         => false
       }
 
-      val fromType = qualifier match {
+      val (fromType, matchSubst) = qualifier match {
         case ref: ScReferenceExpression =>
-          ref.bind() match {
+          val srr = ref.bind()
+          val subst = srr.fold(ScSubstitutor.empty)(_.matchClauseSubstitutor)
+
+          val tpe = srr match {
             case Some(ScalaResolveResult(_: ScSelfTypeElement, _)) => aType
             case Some(r @ ScalaResolveResult(b: ScTypedDefinition, _)) if b.isStable =>
               r.fromType match {
@@ -623,14 +634,15 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
               }
             case _ => aType
           }
-        case _ => aType
+          (tpe, subst)
+        case _ => (aType, ScSubstitutor.empty)
       }
 
       val state = fromType match {
         case ScDesignatorType(_: PsiPackage) => ScalaResolveState.empty
         case _                               => ScalaResolveState.withFromType(fromType)
       }
-      processor.processType(aType, qualifier, state)
+      processor.processType(aType, qualifier, state.withSubstitutor(matchSubst))
 
       val candidates = processor.candidatesS
 

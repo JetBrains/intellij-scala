@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue,
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScInterpolationPatternImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.PatternTypeInferenceUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScThisType}
@@ -170,37 +171,54 @@ object ScPattern {
         case Some(ScalaResolveResult(_: ScBindingPattern | _: ScParameter, _)) =>
           val resolve = ref match {
             case refImpl: ScStableCodeReferenceImpl =>
-              refImpl.doResolve(new ExpandedExtractorResolveProcessor(ref, ref.refName, ref.getKinds(incomplete = false), ref.getContext match {
-                case inf: ScInfixPattern => inf.expectedType
-                case constr: ScConstructorPattern => constr.expectedType
-                case _ => None
-              }))
+              refImpl.doResolve(
+                new ExpandedExtractorResolveProcessor(
+                  ref,
+                  ref.refName,
+                  ref.getKinds(incomplete = false),
+                  ref.getContext match {
+                    case inf: ScInfixPattern          => inf.expectedType
+                    case constr: ScConstructorPattern => constr.expectedType
+                    case _                            => None
+                  }
+                )
+              )
           }
+
           resolve match {
             case Array(r) => Some(r)
-            case _ => None
+            case _        => None
           }
         case m => m
       }
 
-      def calculateSubstitutor(`type`: ScType, functionType: ScType,
-                               substitutor: ScSubstitutor): ScSubstitutor = {
-        val tp = `type` match {
+      def calculateSubstitutor(
+        tpe:          ScType,
+        functionType: ScType,
+        substitutor:  ScSubstitutor,
+        typeParams:   Seq[ScTypeParam]
+      ): ScSubstitutor = {
+        val tp = tpe match {
           case ScExistentialType(quantified, _) => quantified
-          case _ => `type`
+          case _                                => tpe
         }
 
         val substitutedFunctionType = substitutor(functionType)
 
-        tp.conformanceSubstitutor(substitutedFunctionType).orElse {
-          substitutedFunctionType.conformanceSubstitutor(tp)
-        }.fold(substitutor) {
-          _.followed(substitutor)
-        }
+        val maybeSubst =
+          PatternTypeInferenceUtil.doTypeInference(
+            pattern,
+            tp,
+            substitutedFunctionType.toOption,
+            typeParams.map(TypeParameter(_)).toOption
+          )
+
+        maybeSubst.fold(substitutor)(_.followed(substitutor))
       }
 
       bind match {
-        case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" && ScPattern.isQuasiquote(fun) =>
+        case Some(ScalaResolveResult(fun: ScFunction, _))
+          if fun.name == CommonNames.Unapply && ScPattern.isQuasiquote(fun) =>
           val tpe = pattern.getContext.getContext match {
             case _: ScInterpolationPattern =>
               val parts = pattern.getParent.asInstanceOf[ScalaPsiElement]
@@ -214,7 +232,8 @@ object ScPattern {
                 ScalaPsiElementFactory.createTypeElementFromText("scala.reflect.api.Trees#Tree", fun)
           }
           tpe.`type`().toOption
-        case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" && QuasiquoteInferUtil.isMetaQQ(fun) =>
+        case Some(ScalaResolveResult(fun: ScFunction, _))
+          if fun.name == CommonNames.Unapply && QuasiquoteInferUtil.isMetaQQ(fun) =>
           try {
             val interpolationPattern = pattern.getParent.getParent.asInstanceOf[ScInterpolationPatternImpl]
             val patterns = QuasiquoteInferUtil.getMetaQQPatternTypes(interpolationPattern)
@@ -222,51 +241,53 @@ object ScPattern {
               val clazz = patterns(argIndex)
               val tpe = ScalaPsiElementFactory.createTypeElementFromText(clazz, fun)
               tpe.`type`().toOption
-            } else { None }
+            } else None
           } catch {
             case _: ArrayIndexOutOfBoundsException => None // workaround for meta parser failure on malformed quasiquotes
           }
         case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor))
           if fun.name == CommonNames.Unapply && fun.parameters.count(!_.isImplicitParameter) == 1 =>
-          val funTypeParams: Seq[ScTypeParam] = fun.typeParameters
+          val funTypeParams = fun.typeParameters
 
           val subst =
             if (funTypeParams.isEmpty) substitutor
             else {
-              val undefSubst = ScSubstitutor.bind(funTypeParams)(UndefinedType(_))
               val clazz = PsiTreeUtil.getContextOfType(pattern, true, classOf[ScTemplateDefinition])
+
               val withThisType = clazz match {
-                case clazz: ScTemplateDefinition =>
-                  undefSubst.followed(ScSubstitutor(ScThisType(clazz)))
-                case _ => undefSubst
+                case clazz: ScTemplateDefinition => ScSubstitutor(ScThisType(clazz))
+                case _                           => ScSubstitutor.empty
               }
+
               val firstParameterType = fun.parameters.head.`type`() match {
                 case Right(tp) => tp
-                case _ => return None
+                case _         => return None
               }
+
               val funType = withThisType(firstParameterType)
               expected match {
-                case Some(tp) => calculateSubstitutor(tp, funType, substitutor)
-                case _ => substitutor
+                case Some(tp) => calculateSubstitutor(tp, funType, substitutor, funTypeParams)
+                case _        => substitutor
               }
             }
           fun.returnType match {
             case Right(rt) =>
-              def updateRes(tp: ScType): ScType = {
-                tp.recursiveVarianceUpdate() {
-                  case (tp: TypeParameterType, variance: Variance) if funTypeParams.contains(tp.psiTypeParameter) =>
-                    val result =
-                      if (variance == Contravariant) substitutor(tp.lowerType)
-                      else substitutor(tp.upperType)
-                    ReplaceWith(result)
-                  case (_, _) => ProcessSubtypes
-                }
-              }
+//              def updateRes(tp: ScType): ScType = {
+//                tp.recursiveVarianceUpdate() {
+//                  case (tp: TypeParameterType, variance: Variance) if funTypeParams.contains(tp.psiTypeParameter) =>
+//                    val result =
+//                      if (variance == Contravariant) substitutor(tp.lowerType)
+//                      else                           substitutor(tp.upperType)
+//                    ReplaceWith(result)
+//                  case (_, _) => ProcessSubtypes
+//                }
+//              }
 
               val args = ScPattern.unapplySubpatternTypes(subst(rt), pattern, fun)
+
               if (totalNumberOfPatterns == 1 && args.length > 1) Some(TupleType(args))
-              else if (argIndex < args.length) Some(updateRes(subst(args(argIndex)).unpackedType))
-              else None
+              else if (argIndex < args.length)                   Some(subst(args(argIndex)).unpackedType)
+              else                                               None
             case _ => None
           }
         case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor))
@@ -275,14 +296,14 @@ object ScPattern {
           val subst =
             if (typeParameters.isEmpty) substitutor
             else {
-              val undefSubst = substitutor followed ScSubstitutor.bind(typeParameters)(UndefinedType(_))
               val firstParameterRetTp = fun.parameters.head.`type`() match {
                 case Right(tp) => tp
                 case _         => return None
               }
-              val funType = undefSubst(firstParameterRetTp)
+
+              val funType = substitutor(firstParameterRetTp)
               expected match {
-                case Some(tp) => calculateSubstitutor(tp, funType, substitutor)
+                case Some(tp) => calculateSubstitutor(tp, funType, substitutor, typeParameters)
                 case _        => substitutor
               }
             }

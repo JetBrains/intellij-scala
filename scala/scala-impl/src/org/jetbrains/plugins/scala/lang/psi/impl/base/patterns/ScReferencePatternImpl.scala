@@ -35,12 +35,11 @@ class ScReferencePatternImpl private(stub: ScBindingPatternStub[ScReferencePatte
 
   override def toString: String = "ReferencePattern: " + ifReadAllowed(name)("")
 
-  override def `type`(): TypeResult = {
+  override def `type`(): TypeResult =
     this.expectedType match {
       case Some(x) => Right(x)
-      case _ => Failure(ScalaBundle.message("cannot.define.expected.type"))
+      case _       => Failure(ScalaBundle.message("cannot.define.expected.type"))
     }
-  }
 
   override def getReferences: Array[PsiReference] = {
     PsiReferenceService.getService.getContributedReferences(this)

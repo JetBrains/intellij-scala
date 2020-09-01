@@ -67,6 +67,9 @@ trait ResolveStateOps extends Any {
   def withImplicitScopeObject(tpe: ScType): ResolveState =
     resolveState.put(IMPLICIT_SCOPE_OBJECT, tpe)
 
+  def withMatchClauseSubstitutor(subst: ScSubstitutor): ResolveState =
+    resolveState.put(MATCH_SUBSTITUTOR, subst)
+
   def withExtensionMethodMarker: ResolveState =
     resolveState.put(EXTENSION_METHOD, TRUE)
 
@@ -122,6 +125,9 @@ trait ResolveStateOps extends Any {
   def implicitScopeObject: Option[ScType] =
     option(IMPLICIT_SCOPE_OBJECT)
 
+  def matchClauseSubstitutor: ScSubstitutor =
+    option(MATCH_SUBSTITUTOR).getOrElse(ScSubstitutor.empty)
+
   def isExtensionMethod: Boolean =
     boolean(EXTENSION_METHOD)
 
@@ -163,6 +169,8 @@ private object ResolveStateOps {
 
   //specifies the designator type of an object in an implicit scope, which provided this resolve result
   private val IMPLICIT_SCOPE_OBJECT: Key[ScType] = Key.create("scala.implicit.scope.object")
+
+  private val MATCH_SUBSTITUTOR: Key[ScSubstitutor] = Key.create("scala.match.subsitutor")
 
   private val EXTENSION_METHOD: Key[TRUE.type] = Key.create("scala.extension.method.marker")
 

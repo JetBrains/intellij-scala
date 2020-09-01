@@ -143,9 +143,10 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
             state.substitutor,
             state.importsUsed,
             renamed,
-            problems = problems,
-            fromType = state.fromType,
-            isAccessible = accessible
+            problems               = problems,
+            fromType               = state.fromType,
+            isAccessible           = accessible,
+            matchClauseSubstitutor = state.matchClauseSubstitutor
           )
           addResult(result)
       }

@@ -1300,6 +1300,9 @@ object ScalaPsiElementFactory {
   def createTypeElementFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScTypeElement =
     createElementWithContext[ScTypeElement](text, context, child)(types.ParamType.parseWithoutScParamTypeCreation()(_))
 
+  def createTypedPatternFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScTypeElement =
+    createElementWithContext[ScTypeElement](text, context, child)(types.Type.parse(_, isPattern = true))
+
   def createTypeParameterClauseFromTextWithContext(
     @NonNls text: String,
     context:      PsiElement,

@@ -109,7 +109,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
     }
 
     val kindProjectorEnabled = this.kindProjectorEnabled
-    val isKindProjectorFunctionSyntax: Boolean =
+    val isKindProjectorFunctionSyntax =
       typeElement.getText match {
         case "Lambda" | "λ" if kindProjectorEnabled => true
         case _                                      => false
@@ -148,7 +148,13 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
     }
   })
 
-  override protected def innerType: TypeResult = {
+  override protected def innerType: TypeResult =
+    calculateInnerType(substituteTypeVariables = true)
+
+  override def unsubstitutedType: TypeResult =
+    calculateInnerType(substituteTypeVariables = false)
+
+  private def calculateInnerType(substituteTypeVariables: Boolean): TypeResult = {
     computeDesugarizedType match {
       case Some(typeElement) =>
         return typeElement.`type`()
@@ -183,10 +189,17 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
       case _ =>
     }
 
-    val typeArgs = typeArgList.typeArgs.map(_.`type`().getOrAny)
+    val typeArgs = typeArgList.typeArgs
 
     if (typeArgs.isEmpty) tr
-    else                  Right(ScParameterizedType(res, typeArgs))
+    else {
+      val argTpes =
+        if (substituteTypeVariables) typeArgs.map(_.calcType)
+        else                         typeArgs.map(_.unsubstitutedType.getOrAny)
+
+      val result = ScParameterizedType(res, argTpes)
+      Right(result)
+    }
   }
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {

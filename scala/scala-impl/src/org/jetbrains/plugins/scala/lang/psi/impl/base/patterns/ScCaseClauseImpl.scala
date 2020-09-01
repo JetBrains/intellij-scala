@@ -13,10 +13,12 @@ class ScCaseClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
 
   override def toString: String = "CaseClause"
 
-  override def processDeclarations(processor: PsiScopeProcessor,
-      state : ResolveState,
-      lastParent: PsiElement,
-      place: PsiElement): Boolean = {
+  override def processDeclarations(
+    processor:  PsiScopeProcessor,
+    state:      ResolveState,
+    lastParent: PsiElement,
+    place:      PsiElement
+  ): Boolean = {
 
     pattern match {
       case Some(p) =>

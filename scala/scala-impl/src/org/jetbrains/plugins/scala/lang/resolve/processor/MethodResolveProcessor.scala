@@ -167,10 +167,23 @@ class MethodResolveProcessor(override val ref: PsiElement,
             implicitConversion = implFunction, implicitType = implType, fromType = fromType, isAccessible = accessible,
             isForwardReference = forwardReference, unresolvedTypeParameters = unresolvedTypeParameters))
         case _ =>
-          addResult(new ScalaResolveResult(namedElement, s, importsUsed, renamed,
-            implicitConversion = implFunction, implicitType = implType, isNamedParameter = isNamedParameter,
-            fromType = fromType, isAccessible = accessible, isForwardReference = forwardReference,
-            unresolvedTypeParameters = unresolvedTypeParameters, intersectedReturnType = intersectedReturnType))
+          addResult(
+            new ScalaResolveResult(
+              namedElement,
+              s,
+              importsUsed,
+              renamed,
+              implicitConversion       = implFunction,
+              implicitType             = implType,
+              isNamedParameter         = isNamedParameter,
+              fromType                 = fromType,
+              isAccessible             = accessible,
+              isForwardReference       = forwardReference,
+              unresolvedTypeParameters = unresolvedTypeParameters,
+              matchClauseSubstitutor   = state.matchClauseSubstitutor,
+              intersectedReturnType    = intersectedReturnType
+            )
+          )
       }
     }
     true

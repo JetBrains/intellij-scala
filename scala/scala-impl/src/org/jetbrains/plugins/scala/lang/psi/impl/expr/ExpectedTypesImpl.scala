@@ -334,7 +334,14 @@ class ExpectedTypesImpl extends ExpectedTypes {
         Array((throwableType, None))
       //see SLS[8.4]
       case c: ScCaseClause => c.getContext.getContext match {
-        case m: ScMatch => m.expectedTypesEx(fromUnderscore = true)
+        case m: ScMatch =>
+          val expectedForMatch = m.expectedTypesEx()
+
+          if (expectedForMatch.isEmpty) Array.empty
+          else {
+            val matchSubst = PatternTypeInferenceUtil.doForMatchClause(m, c).getOrElse(ScSubstitutor.empty)
+            expectedForMatch.map { case (tpe, elem) => (matchSubst(tpe), elem) }
+          }
         case b: ScBlockExpr if b.isInCatchBlock =>
           b.getContext.getContext.asInstanceOf[ScTry].expectedTypesEx(fromUnderscore = true)
         case b: ScBlockExpr if b.isPartialFunction =>

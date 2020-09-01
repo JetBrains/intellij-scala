@@ -27,6 +27,11 @@ object ConstraintsResult {
       case constraints: ConstraintSystem => constraints
       case _                             => ConstraintSystem.empty
     }
+
+    def toSubst(implicit ctx: ProjectContext): Option[ScSubstitutor] = result match {
+      case ConstraintSystem(subst) => subst.toOption
+      case _                       => None
+    }
   }
 
   case object Left extends ConstraintsResult

@@ -3,10 +3,10 @@ package patterns
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types._
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
@@ -46,7 +46,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
             Right(ScParameterizedType(refType, td.getTypeParameters.map(tp => newSubst(TypeParameterType(tp))).toSeq))
           case td: ScClass => Right(ScalaType.designator(td))
           case obj: ScObject => Right(ScalaType.designator(obj))
-          case fun: ScFunction /*It's unapply method*/ if (fun.name == "unapply" || fun.name == "unapplySeq") &&
+          case fun: ScFunction if (fun.name == CommonNames.Unapply || fun.name == CommonNames.UnapplySeq) &&
                   fun.parameters.count(!_.isImplicitParameter) == 1 =>
             val substitutor = r.substitutor
             val typeParams = fun.typeParameters
