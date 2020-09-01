@@ -5,6 +5,7 @@ package usages
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandler
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.util.Markers
 
 class ScalaHighlightConstructorInvocationUsagesTest extends ScalaLightCodeInsightFixtureTestAdapter with AssertionMatchers with Markers {
@@ -76,7 +77,7 @@ class ScalaHighlightConstructorInvocationUsagesTest extends ScalaLightCodeInsigh
   }
 
   def doTest(fileText: String): Unit = {
-    val (fileTextWithoutMarkers, expectedRanges) = extractSequentialMarkers(fileText, considerCaret = true)
+    val (fileTextWithoutMarkers, expectedRanges) = extractSequentialMarkers(fileText.withNormalizedSeparator, considerCaret = true)
     val file = myFixture.configureByText("dummy.scala", fileTextWithoutMarkers)
     val finalFileText = file.getText
 
