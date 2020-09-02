@@ -182,13 +182,11 @@ object DependencyGroups {
   val decompiler: Seq[ModuleID] = Seq(
     scalaLibrary,
     scalaReflect,
-    scalaCompiler,
     commonsLang,
     bcel
   )
 
   val runners: Seq[ModuleID] = Seq(
-    scalaCompiler,
     provided.scalaTest,
     provided.utest,
     provided.specs2_4x
