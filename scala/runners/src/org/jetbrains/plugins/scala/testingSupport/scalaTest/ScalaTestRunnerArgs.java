@@ -18,19 +18,19 @@ public class ScalaTestRunnerArgs {
         this.otherArgs = otherArgs;
     }
 
-    public static ScalaTestRunnerArgs parse(String[] args) {
-        HashMap<String, Set<String>> classesToTests = new HashMap<>();
+    public static ScalaTestRunnerArgs parse(List<String> args) {
+        Map<String, Set<String>> classesToTests = new HashMap<>();
         boolean showProgressMessages = true;
-        ArrayList<String> otherArgs = new ArrayList<>();
+        List<String> otherArgs = new ArrayList<>();
 
         int argIdx = 0;
         String currentClass = null;
-        while (argIdx < args.length) {
-            switch (args[argIdx]) {
+        while (argIdx < args.size()) {
+            switch (args.get(argIdx)) {
                 case "-s":
                     ++argIdx;
-                    while (argIdx < args.length && !args[argIdx].startsWith("-")) {
-                        String className = args[argIdx];
+                    while (argIdx < args.size() && !args.get(argIdx).startsWith("-")) {
+                        String className = args.get(argIdx);
                         classesToTests.put(className, new HashSet<>());
                         currentClass = className;
                         ++argIdx;
@@ -38,20 +38,20 @@ public class ScalaTestRunnerArgs {
                     break;
                 case "-testName":
                     if (currentClass == null)
-                        throw new RuntimeException("Failed to run tests: no suite class specified for test " + args[argIdx]);
+                        throw new RuntimeException("Failed to run tests: no suite class specified for test " + args.get(argIdx));
                     ++argIdx;
-                    String testNames = args[argIdx];
+                    String testNames = args.get(argIdx);
                     String testNamesUnescaped = TestRunnerUtil.unescapeTestName(testNames);
                     classesToTests.get(currentClass).add(testNamesUnescaped);
                     ++argIdx;
                     break;
                 case "-showProgressMessages":
                     ++argIdx;
-                    showProgressMessages = Boolean.parseBoolean(args[argIdx]);
+                    showProgressMessages = Boolean.parseBoolean(args.get(argIdx));
                     ++argIdx;
                     break;
                 default:
-                    otherArgs.add(args[argIdx]);
+                    otherArgs.add(args.get(argIdx));
                     ++argIdx;
                     break;
             }

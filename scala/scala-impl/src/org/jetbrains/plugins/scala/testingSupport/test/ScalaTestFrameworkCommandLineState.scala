@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.test
 
+import java.io.{File, FileOutputStream, IOException, PrintStream}
 import java.{util => ju}
 
 import com.intellij.execution.configurations.{JavaCommandLineState, JavaParameters, ParametersList, RunConfigurationBase}
@@ -22,13 +23,14 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.newvfs.ManagingFS
 import com.intellij.openapi.vfs.newvfs.persistent.PersistentFSImpl
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, using}
 import org.jetbrains.plugins.scala.project.{ModuleExt, PathsListExt, ProjectExt}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{PropertiesExtension, TestFrameworkRunnerInfo}
 import org.jetbrains.plugins.scala.testingSupport.test.ScalaTestFrameworkCommandLineState._
 import org.jetbrains.plugins.scala.testingSupport.test.actions.ScalaRerunFailedTestsAction
+import org.jetbrains.plugins.scala.testingSupport.test.exceptions.executionException
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.{ReportingSbtTestEventHandler, SbtProcessHandlerWrapper, SbtShellTestsRunner, SbtTestRunningSupport}
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.TestConfigurationData
 import org.jetbrains.plugins.scala.testingSupport.test.utils.JavaParametersModified
@@ -36,7 +38,7 @@ import org.jetbrains.sbt.shell.SbtProcessManager
 
 import scala.jdk.CollectionConverters._
 
- /** for ScalaTest, Spec2, uTest */
+/** for ScalaTest, Spec2, uTest */
 class ScalaTestFrameworkCommandLineState(
   configuration: AbstractTestRunConfiguration,
   env: ExecutionEnvironment,
@@ -117,24 +119,57 @@ class ScalaTestFrameworkCommandLineState(
     }
 
     val programParameters = buildProgramParameters(suitesToTestsMap)
-    params.getProgramParametersList.addAll(programParameters: _*)
-    params.setShortenCommandLine(configuration.getShortenCommandLine, project)
-
-    if (configuration.getShortenCommandLine == ShortenCommandLine.ARGS_FILE) {
-      // + 1 for each test class
-      val testsCount = suitesToTestsMap.values.map(_.size + 1).sum
-      val hasMultipleTests = testsCount > 1
-      params.setUseDynamicParameters(hasMultipleTests)
+    val useTestsArgsFile = {
+      // multiple test classes can blow command line length
+      // it can be observed when running tests in "all in package", "all in project" mode
+      val hasMultipleTestsClasses = suitesToTestsMap.size > 1
+      hasMultipleTestsClasses
     }
+    if (useTestsArgsFile) {
+      val argsFile = prepareTempArgsFile(programParameters.testsArgs)
+      params.getProgramParametersList.add(s"@${argsFile.getAbsolutePath}")
+      params.getProgramParametersList.addAll(programParameters.otherArgs: _*)
+    } else {
+      params.getProgramParametersList.addAll(programParameters.allArgs: _*)
+    }
+
+    params.setShortenCommandLine(configuration.getShortenCommandLine, project)
 
     params
   }
 
-  private def buildProgramParameters(suitesToTests: Map[String, Set[String]]): Seq[String] = {
+
+  /**
+   * Process command line has length limitation (on windows it's max 32768 characters).
+   * When we run many tests (e.g. in "all in package", "all in project" mode) we can potentially pass a lot of
+   * command line parameters to test runners which will lead to exception during process creation.
+   *
+   * We could use [[ShortenCommandLine]] to solve the issue, but it only focuses on shortening of a classpath.<br>
+   * Even [[ShortenCommandLine.ARGS_FILE @argfile]] only shortens classpath (IDEA-249722). Besides, it works with Java 9+ only.
+   *
+   * To support running many tests with any JDK and with any shortening mode we use custom arg file feature.
+   */
+  private def prepareTempArgsFile(
+    programParameters: Seq[String]
+  ): File = try {
+    val tempFile: File = File.createTempFile("idea_scala_test_runner", ".tmp")
+    using(new PrintStream(new FileOutputStream(tempFile))) { printer =>
+      programParameters.foreach(printer.println)
+    }
+    tempFile
+  } catch {
+    case e: IOException =>
+      throw executionException("Failed to create temporary tests args file", e)
+  }
+
+  private def buildProgramParameters(suitesToTests: Map[String, Set[String]]): ScalaTestRunnerProgramArgs = {
     val classesAndTests = buildClassesAndTestsParameters(suitesToTests)
     val progress = Seq("-showProgressMessages", testConfigurationData.showProgressMessages.toString)
     val other = ParametersList.parse(testConfigurationData.getTestArgs)
-    classesAndTests ++ progress ++ other
+    ScalaTestRunnerProgramArgs(
+      classesAndTests,
+      progress ++ other
+    )
   }
 
   private def buildClassesAndTestsParameters(suitesToTests: Map[String, Set[String]]): Seq[String] = {
@@ -265,4 +300,11 @@ object ScalaTestFrameworkCommandLineState {
 
   // ScalaTest does not understand backticks in class/package qualified names, it will fail to run
   private def sanitize(qualifiedName: String): String = qualifiedName.replace("`", "")
+
+  private case class ScalaTestRunnerProgramArgs(
+    testsArgs: Seq[String],
+    otherArgs: Seq[String]
+  ) {
+    def allArgs: Seq[String] = testsArgs ++ otherArgs
+  }
 }

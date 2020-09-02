@@ -4,15 +4,16 @@ import org.jetbrains.annotations.NotNull;
 import org.specs2.execute.Details;
 import org.specs2.execute.FailureDetails;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SuppressWarnings("WeakerAccess")
 public class TestRunnerUtil {
@@ -136,43 +137,40 @@ public class TestRunnerUtil {
     }
   }
 
-  /**
-   * @return
-   * 1. new arguments read from file with name `args[0]` if it starts with `@` char <br>
-   * 2. original arguments otherwise
-   * @deprecated no need in this custom logic args pargins, test configurations now have explicit "shorten command line" option
-   */
-  @Deprecated
-  static String[] getNewArgs(String[] args) throws IOException {
-    String[] newArgs;
-    boolean readArgsFromfile = args.length == 1 && args[0].startsWith("@");
-    if (readArgsFromfile) {
-      String arg = args[0];
-      File file = new File(arg.substring(1));
-      if (!file.exists())
-        throw new FileNotFoundException(String.format("argument file %s could not be found", file.getName()));
-      newArgs = readLines(file);
-    } else {
-      newArgs = args;
-    }
-    return newArgs;
+  public static List<String> preprocessArgsFiles(String[] args) throws UncheckedIOException {
+    return preprocessArgsFiles(Stream.of(args));
   }
 
-  @NotNull
-  private static String[] readLines(File file) throws IOException {
-    String[] newArgs;
-    FileReader fileReader = new FileReader(file);
-    StringBuilder buffer = new StringBuilder();
-    while (true) {
-      int ind = fileReader.read();
-      if (ind == -1) break;
-      char c = (char) ind;
-      if (c != '\r') {
-        buffer.append(c);
-      }
+  /**
+   * Preprocess all argfile parameters (example: @C:/my_folder/my_file.txt) by replacing them with their contents (inlines them).
+   * See {@link org.jetbrains.plugins.scala.testingSupport.test.ScalaTestFrameworkCommandLineState#prepareTempArgsFile(scala.collection.Seq)}
+   */
+  @SuppressWarnings("JavadocReference")
+  public static List<String> preprocessArgsFiles(Stream<String> args) throws UncheckedIOException {
+    @SuppressWarnings("UnnecessaryLocalVariable")
+    List<String> result = args
+            .flatMap(arg -> arg.startsWith("@")
+                    ? readLinesUnchecked(arg.substring(1))
+                    : Stream.of(arg)
+            )
+            .collect(Collectors.toList());
+    return result;
+  }
+
+  private static Stream<String> readLinesUnchecked(String fileName) throws UncheckedIOException {
+    try {
+      return readLines(fileName);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
     }
-    newArgs = buffer.toString().split("[\n]");
-    return newArgs;
+  }
+
+  private static Stream<String> readLines(String fileName) throws IOException {
+    File file = new File(fileName);
+    if (!file.exists())
+      throw new FileNotFoundException(String.format("argument file %s could not be found", file.getName()));
+    else
+      return Files.lines(file.toPath()).map(String::trim).filter(x -> !x.isEmpty());
   }
 
   public static String unescapeTestName(String testName) {

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.specs2;
 
+import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil;
 import org.specs2.runner.ClassRunner$;
 import org.specs2.runner.NotifierRunner;
 
@@ -26,7 +27,7 @@ public class Specs2Runner {
       return;
     }
 
-    Spec2RunnerArgs args = Spec2RunnerArgs.parse(argsRaw);
+    Spec2RunnerArgs args = Spec2RunnerArgs.parse(TestRunnerUtil.preprocessArgsFiles(argsRaw));
     List<List<String>> runnerArgsList = toSpec2LibArgsList(args);
 
     for (List<String> runnerArgs : runnerArgsList) {

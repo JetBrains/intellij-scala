@@ -16,17 +16,17 @@ public final class UTestRunnerArgs {
     private static final String TEST_SUITE_KEY = "-s";
     private static final String TEST_NAME_KEY = "-testName";
 
-    public static UTestRunnerArgs parse(String[] args) {
+    public static UTestRunnerArgs parse(List<String> args) {
         Map<String, Set<UTestPath>> classesToTests = new HashMap<>();
 
         String currentClass = null;
         int argIdx = 0;
-        while (argIdx < args.length) {
-            switch (args[argIdx]) {
+        while (argIdx < args.size()) {
+            switch (args.get(argIdx)) {
                 case TEST_SUITE_KEY:
                     ++argIdx;
-                    while (argIdx < args.length && !args[argIdx].startsWith("-")) {
-                        String className = args[argIdx];
+                    while (argIdx < args.size() && !args.get(argIdx).startsWith("-")) {
+                        String className = args.get(argIdx);
                         classesToTests.put(className, new HashSet<>());
                         currentClass = className;
                         ++argIdx;
@@ -35,9 +35,9 @@ public final class UTestRunnerArgs {
                 case TEST_NAME_KEY:
                     ++argIdx;
                     if (currentClass == null)
-                        throw new RuntimeException("Failed to run tests: no suite class specified for test " + args[argIdx]);
-                    while (!args[argIdx].startsWith("-")) {
-                        String testName = args[argIdx];
+                        throw new RuntimeException("Failed to run tests: no suite class specified for test " + args.get(argIdx));
+                    while (!args.get(argIdx).startsWith("-")) {
+                        String testName = args.get(argIdx);
                         UTestPath testPath = parseTestPathSafe(currentClass, testName);
                         if (testPath != null)
                             classesToTests.get(currentClass).add(testPath);
