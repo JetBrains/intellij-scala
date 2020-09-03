@@ -36,7 +36,7 @@ object FastpassConfigSetup {
       case Some(pantsRoot) =>
         val relativeDir = pantsRoot.toNioPath.relativize(baseDirVFile.toNioPath)
         val processBuilder = new ProcessBuilder(
-          "fastpass",
+          "./fastpass/bin/fastpass",
           "create",
           s"--name=${bspWorkspace.getFileName}",
           relativeDir.toString + "::"
