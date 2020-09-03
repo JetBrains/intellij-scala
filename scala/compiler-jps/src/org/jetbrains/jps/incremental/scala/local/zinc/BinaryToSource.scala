@@ -11,7 +11,9 @@ case class BinaryToSource(compileAnalysis: CompileAnalysis, compilationData: Com
   private val binaryToSource = analysis.relations.srcProd.reverseMap
 
   def classfileToSources(file: File): Set[File] =
-    binaryToSource.getOrElse(file, Set.empty)
+    binaryToSource
+      .getOrElse(Utils.virtualFileConverter.toVirtualFile(file.toPath), Set.empty)
+      .map(Utils.virtualFileConverter.toPath(_).toFile)
 
   def classfilesToSources(classfiles: Array[File]): Set[File] =
     classfiles.flatMap(classfileToSources).toSet

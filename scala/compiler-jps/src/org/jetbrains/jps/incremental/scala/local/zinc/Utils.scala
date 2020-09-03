@@ -2,7 +2,12 @@ package org.jetbrains.jps.incremental.scala.local.zinc
 
 import java.util.Optional
 
+import sbt.internal.inc.PlainVirtualFileConverter
+
 object Utils {
+
+  val virtualFileConverter = new PlainVirtualFileConverter
+
   implicit class EnrichOption[T](option: Option[T]) {
     def toOptional: Optional[T] = option match {
       case Some(value) => Optional.of(value)

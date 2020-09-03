@@ -8,13 +8,15 @@ import sbt.internal.inc.Analysis
 import xsbti.compile.{AnalysisStore, CompileAnalysis, DefinesClass, PerClasspathEntryLookup}
 import Utils._
 import org.jetbrains.plugins.scala.compiler.data.CompilationData
+import xsbti.VirtualFile
 
 
 case class IntellijEntryLookup(compilationData: CompilationData, fileToStore: File => AnalysisStore)
   extends PerClasspathEntryLookup {
 
-  def loadAnalysis(forCpEntry: File): Option[Analysis] = {
-    val cache = compilationData.outputToCacheMap.get(forCpEntry)
+  private def loadAnalysis(forCpEntry: VirtualFile): Option[Analysis] = {
+    val file = Utils.virtualFileConverter.toPath(forCpEntry).toFile
+    val cache = compilationData.outputToCacheMap.get(file)
     val anaysisStore = cache.map(fileToStore)
 
     def readFromStore(store: AnalysisStore) = {
@@ -29,12 +31,12 @@ case class IntellijEntryLookup(compilationData: CompilationData, fileToStore: Fi
     override def apply(s: String): Boolean = analysis.relations.productClassName.reverse(s).nonEmpty
   }
 
-  override def analysis(classpathEntry: File): Optional[CompileAnalysis] = {
+  override def analysis(classpathEntry: VirtualFile): Optional[CompileAnalysis] = {
     val loaded: Option[CompileAnalysis] = loadAnalysis(classpathEntry)
     loaded.toOptional
   }
 
-  override def definesClass(classpathEntry: File): DefinesClass = {
+  override def definesClass(classpathEntry: VirtualFile): DefinesClass = {
     val analysisBasedDefine = loadAnalysis(classpathEntry).map(AnalysisBaseDefinesClass)
     analysisBasedDefine.getOrElse(DefinesClassCache.definesClassFor(classpathEntry))
   }

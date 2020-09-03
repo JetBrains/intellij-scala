@@ -8,7 +8,7 @@ object Versions {
   // run runtimeDependencies/update manually
   val sbtVersion: String = Sbt.latest
   val bloopVersion = "1.4.3"
-  val zincVersion = "1.4.0-M1"
+  val zincVersion = "1.4.0-M10"
   val intellijVersion = "203.2010"
   val bspVersion = "2.0.0-M12+27-4994bd9d-SNAPSHOT"
   val sbtStructureVersion: String = "2020.2+3-3aa02a32"
@@ -71,7 +71,6 @@ object Dependencies {
   val scalaCompiler: ModuleID = "org.scala-lang" % "scala-compiler" % scalaVersion
   val scalaXml: ModuleID = "org.scala-lang.modules" %% "scala-xml" % "1.3.0"
   val scalaParallelCollections: ModuleID = "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
-  val jnaPlatform: ModuleID = "net.java.dev.jna" % "jna-platform" % "5.3.1"
 //  val scalaParserCombinators: ModuleID = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2"
   // this actually needs the explicit version because something in packager breaks otherwise (???)
   val sbtStructureCore: ModuleID = "org.jetbrains" %% "sbt-structure-core" % sbtStructureVersion
@@ -195,7 +194,6 @@ object DependencyGroups {
 
   val runtime: Seq[ModuleID] = Seq(
 //    bloopLauncher,
-    jnaPlatform,
     sbtLaunch,
     compilerBridgeSources_2_10,
     compilerBridgeSources_2_11,

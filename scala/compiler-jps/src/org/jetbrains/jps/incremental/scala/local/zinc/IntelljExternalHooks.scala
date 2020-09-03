@@ -6,6 +6,7 @@ import java.util.Optional
 
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.scala.local.ClassFileUtils
+import xsbti.VirtualFile
 import xsbti.compile.ExternalHooks.Lookup
 import xsbti.compile.{ClassFileManager, ExternalHooks}
 
@@ -25,15 +26,21 @@ class IntellijClassfileManager extends ClassFileManager with ClassfilesChanges {
   private var _deleted: Seq[Array[File]] = Nil
   private var _generated: Seq[Array[File]] = Nil
 
-  override def delete(classes: Array[File]): Unit = {
-    val tastyFiles = classes.flatMap(ClassFileUtils.correspondingTastyFile)
+  override def delete(classes: Array[VirtualFile]): Unit = {
+    val tastyFiles = classes.flatMap { virtualFile =>
+      ClassFileUtils.correspondingTastyFile(Utils.virtualFileConverter.toPath(virtualFile).toFile)
+    }
     tastyFiles.foreach(FileUtil.delete)
-    _deleted :+= classes
+    _deleted :+= classes.map { virtualFile =>
+      Utils.virtualFileConverter.toPath(virtualFile).toFile
+    }
   }
 
   override def complete(success: Boolean): Unit = {}
 
-  override def generated(classes: Array[File]): Unit = _generated :+= classes
+  override def generated(classes: Array[VirtualFile]): Unit = _generated :+= classes.map { virtualFile =>
+    Utils.virtualFileConverter.toPath(virtualFile).toFile
+  }
 
   override def deletedDuringCompilation(): Seq[Array[File]] = _deleted
 

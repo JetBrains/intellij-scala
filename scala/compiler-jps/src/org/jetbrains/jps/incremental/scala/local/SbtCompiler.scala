@@ -10,6 +10,7 @@ import org.jetbrains.jps.incremental.scala.local.zinc.{BinaryToSource, _}
 import org.jetbrains.plugins.scala.compiler.CompileOrder
 import org.jetbrains.plugins.scala.compiler.data.CompilationData
 import sbt.internal.inc._
+import xsbti.VirtualFile
 import xsbti.compile._
 
 import scala.util.Try
@@ -18,6 +19,7 @@ import scala.util.Try
   * @author Pavel Fatin
   */
 class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileToStore: File => AnalysisStore) extends AbstractCompiler {
+
   override def compile(compilationData: CompilationData, client: Client): Unit = optScalac match {
     case Some(scalac) => doCompile(compilationData, client, scalac)
     case _ =>
@@ -52,33 +54,40 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
 
     val incOptions = IncOptions.of()
       .withExternalHooks(IntelljExternalHooks(intellijLookup, intellijClassfileManager))
-      .withRecompileOnMacroDef(Optional.of(false))
+      .withRecompileOnMacroDef(Optional.of(boolean2Boolean(false)))
       .withTransitiveStep(5) // Default 3 was not enough for us
 
     val compilers = incrementalCompiler.compilers(javaTools, scalac)
     val setup = incrementalCompiler.setup(
       IntellijEntryLookup(compilationData, fileToStore),
       skip = false,
-      compilationData.cacheFile,
+      compilationData.cacheFile.toPath,
       CompilerCache.fresh,
       incOptions,
       reporter,
       Option(progress),
+      None,
       Array.empty)
-    val previousResult = PreviousResult.create(Optional.of(previousAnalysis), previousSetup.toOptional)
+    val previousResult = PreviousResult.create(
+      Optional.of(previousAnalysis: CompileAnalysis),
+      previousSetup.toOptional
+    )
     val inputs = incrementalCompiler.inputs(
-      compilationData.classpath.toArray,
-      compilationData.zincData.allSources.toArray,
-      compilationData.output,
+      compilationData.classpath.toArray.map(file => Utils.virtualFileConverter.toVirtualFile(file.toPath)),
+      compilationData.zincData.allSources.toArray.map(file => Utils.virtualFileConverter.toVirtualFile(file.toPath)),
+      compilationData.output.toPath,
+      None,
       compilationData.scalaOptions.toArray,
       compilationData.javaOptions.toArray,
       100,
-      Array(),
+      Array.empty,
       order,
       compilers,
       setup,
       previousResult,
-      Optional.empty()
+      Optional.empty(),
+      virtualFileConverter,
+      null
     )
 
     val compilationResult = Try {
@@ -100,7 +109,9 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
         intellijClassfileManager.generatedDuringCompilation().flatten.foreach(processGeneratedFile)
 
         if (cacheDetails.isCached)
-          previousAnalysis.stamps.allProducts.foreach(processGeneratedFile)
+          previousAnalysis.stamps.allProducts.foreach { virtualFileRef =>
+            processGeneratedFile(virtualFileConverter.toPath(virtualFileRef).toFile)
+          }
       }
       result
     }

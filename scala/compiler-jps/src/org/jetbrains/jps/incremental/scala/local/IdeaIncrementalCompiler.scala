@@ -6,12 +6,13 @@ import java.util
 import java.util.Optional
 
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
+import org.jetbrains.jps.incremental.scala.local.zinc.Utils
 import org.jetbrains.jps.incremental.scala.{Client, ZincLogFilter}
 import org.jetbrains.plugins.scala.compiler.data.CompilationData
 import sbt.internal.inc.{AnalyzingCompiler, CompileOutput, CompilerArguments}
 import xsbti._
 import xsbti.api.{ClassLike, DependencyContext}
-import xsbti.compile.{CompilerCache, DependencyChanges}
+import xsbti.compile.DependencyChanges
 
 import scala.jdk.CollectionConverters._
 
@@ -33,13 +34,30 @@ class IdeaIncrementalCompiler(scalac: AnalyzingCompiler)
 
     val outputDirsCount = compilationData.outputGroups.map(_._2).distinct.size
     val out =
-      if (outputDirsCount <= 1) CompileOutput(compilationData.output)
-      else CompileOutput(compilationData.outputGroups.toSeq: _*)
+      if (outputDirsCount <= 1) {
+        CompileOutput(compilationData.output.toPath)
+      } else {
+        val groups = compilationData.outputGroups.map {
+          case (source, target) => (source.toPath, target.toPath)
+        }.toSeq
+        CompileOutput(groups: _*)
+      }
     val cArgs = new CompilerArguments(scalac.scalaInstance, scalac.classpathOptions)
-    val options = cArgs(Nil, compilationData.classpath.toSeq, None, compilationData.scalaOptions.toSeq)
+    val options = cArgs.makeArguments(Nil, compilationData.classpath.map(_.toPath).toSeq, None, compilationData.scalaOptions.toSeq)
 
     try {
-      scalac.compile(compilationData.sources.toArray, emptyChanges, options.toArray, out, clientCallback, reporter, CompilerCache.fresh, logger, Optional.of(progress))
+      scalac.compile(
+        compilationData.sources.toArray.map(file => Utils.virtualFileConverter.toVirtualFile(file.toPath)),
+        Array.empty,
+        Utils.virtualFileConverter,
+        emptyChanges,
+        options.toArray,
+        out,
+        clientCallback,
+        reporter,
+        Optional.of(progress),
+        logger
+      )
     }
     catch {
       case _: xsbti.CompileFailed => // the error should be already handled via the `reporter`
@@ -70,9 +88,16 @@ private class ClientCallback(client: Client, output: Path) extends ClientCallbac
 }
 
 abstract class ClientCallbackBase extends xsbti.AnalysisCallback {
+
+  override def isPickleJava: Boolean = false
+
+  override def getPickleJarPair: Optional[T2[Path, Path]] = Optional.empty()
+
   override def api(sourceFile: File, classApi: ClassLike): Unit = {}
+  override def api(sourceFile: VirtualFileRef, classApi: ClassLike): Unit = {}
 
   override def binaryDependency(onBinary: File, onBinaryClassName: String, fromClassName: String, fromSourceFile: File, context: DependencyContext): Unit = {}
+  override def binaryDependency(onBinaryEntry: Path, onBinaryClassName: String, fromClassName: String, fromSourceFile: VirtualFileRef, context: DependencyContext): Unit = {}
 
   override def classDependency(onClassName: String, sourceClassName: String, context: DependencyContext): Unit = {}
 
@@ -80,12 +105,15 @@ abstract class ClientCallbackBase extends xsbti.AnalysisCallback {
     Set.empty[String].asJava
 
   override def generatedLocalClass(source: File, classFile: File): Unit = {}
+  override def generatedLocalClass(source: VirtualFileRef, classFile: Path): Unit = {}
 
   override def generatedNonLocalClass(source: File, classFile: File, binaryClassName: String, srcClassName: String): Unit = {}
+  override def generatedNonLocalClass(source: VirtualFileRef, classFile: Path, binaryClassName: String, srcClassName: String): Unit = {}
 
   override def problem(what: String, position: Position, x$3: String, msg: Severity, reported: Boolean): Unit = {}
 
   override def startSource(source: File): Unit = {}
+  override def startSource(source: VirtualFile): Unit = {}
 
   override def usedName(className: String, name: String, useScopes: util.EnumSet[xsbti.UseScope]): Unit = {}
 
@@ -96,11 +124,13 @@ abstract class ClientCallbackBase extends xsbti.AnalysisCallback {
   override def enabled(): Boolean = false
 
   override def mainClass(sourceFile: File, className: String): Unit = {}
+  override def mainClass(sourceFile: VirtualFileRef, className: String): Unit = {}
 }
 
 private object emptyChanges extends DependencyChanges {
-  override val modifiedBinaries = new Array[File](0)
-  override val modifiedClasses = new Array[String](0)
+  override val modifiedBinaries: Array[File] = Array.empty
+  override val modifiedClasses: Array[String] = Array.empty
+  override val modifiedLibraries: Array[VirtualFileRef] = Array.empty
 
   override def isEmpty = true
 }

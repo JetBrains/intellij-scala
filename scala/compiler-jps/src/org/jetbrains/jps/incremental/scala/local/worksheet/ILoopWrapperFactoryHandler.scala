@@ -3,6 +3,7 @@ package org.jetbrains.jps.incremental.scala.local.worksheet
 import java.io.{File, PrintStream}
 import java.lang.reflect.InvocationTargetException
 import java.net.{URLClassLoader, URLDecoder}
+import java.nio.file.Path
 
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.local.worksheet.util.{IOUtils, IsolatingClassLoader}
@@ -11,7 +12,6 @@ import org.jetbrains.jps.incremental.scala.{Client, compilerVersion}
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.compiler.data.{CompilerJars, SbtData}
 import sbt.internal.inc.{AnalyzingCompiler, RawCompiler}
-import sbt.io.Path
 import sbt.util.{Level, Logger}
 import xsbti.compile.{ClasspathOptionsUtil, ScalaInstance}
 
@@ -99,15 +99,15 @@ class ILoopWrapperFactoryHandler {
       file.getName.endsWith(s"$iLoopWrapperClass.scala")
 
     val rawCompiler = new RawCompiler(scalaInstance, ClasspathOptionsUtil.auto(), logger) {
-      override def apply(sources: Seq[File], classpath: Seq[File], outputDirectory: File, options: Seq[String]): Unit = {
-        val sourcesFiltered = sources.filter(filter)
+      override def apply(sources: Seq[Path], classpath: Seq[Path], outputDirectory: Path, options: Seq[String]): Unit = {
+        val sourcesFiltered = sources.filter(path => filter(path.toFile))
         super.apply(sourcesFiltered, classpath, outputDirectory, options)
       }
     }
     AnalyzingCompiler.compileSources(
-      Seq(sourceJar),
-      targetJar,
-      xsbtiJars = Seq(interfaceJar, containingJar, reporterJar).distinct,
+      Seq(sourceJar.toPath),
+      targetJar.toPath,
+      xsbtiJars = Seq(interfaceJar, containingJar, reporterJar).distinct.map(_.toPath),
       id = replLabel,
       compiler = rawCompiler,
       log = logger
@@ -158,7 +158,7 @@ object ILoopWrapperFactoryHandler {
   private def createIsolatingClassLoader(compilerJars: CompilerJars): URLClassLoader = {
     val jars = compilerJars.allJars
     val parent = IsolatingClassLoader.scalaStdLibIsolatingLoader(this.getClass.getClassLoader)
-    new URLClassLoader(Path.toURLs(jars.toSeq), parent)
+    new URLClassLoader(sbt.io.Path.toURLs(jars.toSeq), parent)
   }
 
   // use for debugging

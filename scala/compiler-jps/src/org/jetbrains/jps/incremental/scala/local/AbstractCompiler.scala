@@ -1,7 +1,6 @@
 package org.jetbrains.jps.incremental.scala
 package local
 
-import java.io.File
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.function.Supplier
 
@@ -59,7 +58,7 @@ abstract class AbstractCompiler extends Compiler {
 
     override def startUnit(phase: String, unitPath: String): Unit = ()
 
-    override def advance(current: Int, total: Int): Boolean = {
+    override def advance(current: Int, total: Int, prevPhase: String, nextPhase: String): Boolean = {
       val done = Some(current.toFloat / total.toFloat)
       val doneString = done
         .filter(_ > 0)

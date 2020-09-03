@@ -30,7 +30,7 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
           val scala = getScalaInstance(compilerData.compilerJars)
             .getOrElse(new ScalaInstance("stub", null, new File(""), new File(""), Array.empty, None))
           val classpathOptions = ClasspathOptionsUtil.javac(false)
-          JavaTools.directOrFork(scala, classpathOptions, compilerData.javaHome)
+          JavaTools.directOrFork(scala, classpathOptions, compilerData.javaHome.map(_.toPath))
         }
         new SbtCompiler(javac, scalac, fileToStore)
 
@@ -120,7 +120,14 @@ object CompilerFactoryImpl {
         client.foreach(_.progress("Compiling Scalac " + scalaVersion + " interface"))
         home.mkdirs()
         val raw = new RawCompiler(scalaInstance, ClasspathOptionsUtil.auto, NullLogger)
-        AnalyzingCompiler.compileSources(sourceJar :: Nil, targetJar, interfaceJars, interfaceId, raw, NullLogger)
+        AnalyzingCompiler.compileSources(
+          Seq(sourceJar.toPath),
+          targetJar.toPath,
+          interfaceJars.map(_.toPath),
+          interfaceId,
+          raw,
+          NullLogger
+        )
       }
 
       targetJar
