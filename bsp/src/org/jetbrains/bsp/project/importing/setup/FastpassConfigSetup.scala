@@ -91,7 +91,7 @@ class FastpassConfigSetup(processBuilder: ProcessBuilder) extends BspConfigSetup
       case Failure(err) => {
         // Log to ensure the error message is not lost. Current implementation of
         // reporter.finishWithFailure ignores errors
-        logger.info(err)
+        logger.error(err)
         reporter.finishWithFailure(err)
       }
       case Success(bm) => reporter.finish(bm)
