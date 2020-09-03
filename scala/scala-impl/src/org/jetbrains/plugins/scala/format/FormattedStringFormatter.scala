@@ -33,7 +33,7 @@ object FormattedStringFormatter extends StringFormatter {
   }
 
   private def format(formatter: String, arguments: String) = {
-    '"' + formatter + '"' + ".format(%s)".format(arguments)
+    "\"" + formatter + "\"" + ".format(%s)".format(arguments)
   }
 
   private def letterFor(aType: ScType): Char = {

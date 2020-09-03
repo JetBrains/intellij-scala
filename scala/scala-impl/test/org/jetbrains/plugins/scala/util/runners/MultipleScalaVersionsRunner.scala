@@ -12,7 +12,7 @@ import org.junit.internal.runners.JUnit38ClassRunner
 import org.junit.runner.{Describable, Description}
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters.{collectionAsScalaIterableConverter, enumerationAsScalaIteratorConverter}
+import scala.jdk.CollectionConverters._
 
 class MultipleScalaVersionsRunner(myTest: Test, klass: Class[_]) extends JUnit38ClassRunner(myTest) {
 
@@ -107,6 +107,7 @@ private object MultipleScalaVersionsRunner {
   private def childTestsByScalaVersion(testCases: Seq[(TestCase, ScalaVersion, JdkVersion)]): Seq[Test] = {
     val scalaVersionToTests: Map[ScalaVersion, Seq[Test]] =
       testCases.groupBy(_._2)
+        .view
         .mapValues(_.map(t => (t._1, t._3)))
         .mapValues(childTestsByJdkVersion)
         .toMap
@@ -134,7 +135,7 @@ private object MultipleScalaVersionsRunner {
 
   private def childTestsByJdkVersion(testCases: Seq[(TestCase, JdkVersion)]): Seq[Test] = {
     val jdkVersionToTests: Map[JdkVersion, Seq[TestCase]] =
-      testCases.groupBy(_._2).mapValues(_.map(_._1)).toMap
+      testCases.groupBy(_._2).view.mapValues(_.map(_._1)).toMap
 
     if (jdkVersionToTests.size == 1) jdkVersionToTests.head._2 else {
       for {

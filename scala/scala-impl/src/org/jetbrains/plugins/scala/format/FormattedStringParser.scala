@@ -73,7 +73,7 @@ object FormattedStringParser extends StringParser {
 
   private[format]
   def parseFormatCall(literal: ScLiteral, arguments: collection.Seq[ScExpression]): Seq[StringPart] = {
-    val remainingArguments = arguments.toIterator
+    val remainingArguments = arguments.iterator
     val shift = if (literal.isMultiLineString) 3 else 1
     val formatString = literal.getText.drop(shift).dropRight(shift)
 

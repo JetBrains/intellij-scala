@@ -573,6 +573,7 @@ class TypeDiffTest extends ScalaFixtureTestCase {
     def asString(diff: Tree[TypeDiff]): String = diff match {
       case Leaf(Match(text, _)) => text
       case Node(diffs @_*) => "<" + diffs.map(asString).mkString + ">"
+      case _ => ???
     }
     assertEquals(structure, asString(TypeDiff.parse(typesIn(context, tpe).head)(TypePresentationContext.emptyContext)))
   }
@@ -623,6 +624,7 @@ class TypeDiffTest extends ScalaFixtureTestCase {
     val parts = diff.flatten.map {
       case Leaf(Match(text, _)) => text
       case Leaf(Mismatch(text, _)) => s"~$text~"
+      case _ => ???
     }
     parts.mkString
   }

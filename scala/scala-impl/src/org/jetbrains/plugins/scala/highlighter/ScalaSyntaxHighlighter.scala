@@ -224,7 +224,7 @@ object ScalaSyntaxHighlighter {
       typ  <- tokenSet.getTypes
     } yield typ -> key
 
-    val (unique, nonUnique) = elementTypesAttributes.groupBy(_._1).mapValues(_.map(_._2).distinct).partition(_._2.size == 1)
+    val (unique, nonUnique) = elementTypesAttributes.groupBy(_._1).view.mapValues(_.map(_._2).distinct).toMap.partition(_._2.size == 1)
     if (nonUnique.nonEmpty) {
       val nonUniqueTexts = nonUnique.map { case (token, attributes) => s"element type: $token, attributes: ${attributes.mkString(", ")}"}
       val message = s"Tree element types were registered multiple times with different attributes:\n${nonUniqueTexts.mkString("\n")}}"

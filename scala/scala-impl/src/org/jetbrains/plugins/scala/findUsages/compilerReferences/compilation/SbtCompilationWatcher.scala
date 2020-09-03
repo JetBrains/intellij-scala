@@ -36,7 +36,7 @@ private[compilerReferences] class SbtCompilationWatcher(
   private[this] def parseCompilationInfo(infoFile: File): Try[SbtCompilationInfo] = {
     val result = Try {
       val br      = Files.newBufferedReader(infoFile.toPath, StandardCharsets.UTF_8)
-      val builder = StringBuilder.newBuilder
+      val builder = new StringBuilder()
 
       using(br) { in =>
         var line = in.readLine()
@@ -144,7 +144,7 @@ private[compilerReferences] class SbtCompilationWatcher(
             s"Processing ${offlineInfos.length} compilation analysis files, " +
               s"from unsupervised sbt compilations: ${offlineInfos.map(_.getPath).mkString("[\n\t", ",\n\t", "\n]")}"
           )
-          processOfflineInfos(offlineInfos)
+          processOfflineInfos(offlineInfos.toSeq)
         } else offlineInfos.foreach(_.delete())
 
       } finally moduleInfoDirs.foreach(_.unlock(log = logger.info))

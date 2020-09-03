@@ -78,7 +78,7 @@ abstract class SbtProjectPlatformTestCase extends PlatformTestCase {
     while (!handler.isProcessTerminated || handler.isProcessTerminating) {
       Thread.sleep(100)
     }
-    ProjectManager.getInstance().closeProject(myProject)
+    ProjectManager.getInstance().closeAndDispose(myProject)
   } finally {
     super.tearDown()
     //remove links so that we don't leak the project

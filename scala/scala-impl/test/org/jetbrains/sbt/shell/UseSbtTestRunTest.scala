@@ -171,7 +171,8 @@ abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
         }
       }
 
-      executionEnvironment.getRunner.execute(executionEnvironment, callback)
+      executionEnvironment.setCallback(callback)
+      executionEnvironment.getRunner.execute(executionEnvironment)
       runner.getConsoleView.flushDeferredText()
     }
 

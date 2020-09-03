@@ -22,5 +22,5 @@ object StringConcatenationFormatter extends StringFormatter {
     }
   }
 
-  private def quoted(s: String) = '"' + s + '"'
+  private def quoted(s: String) = "\"" + s + "\""
 }

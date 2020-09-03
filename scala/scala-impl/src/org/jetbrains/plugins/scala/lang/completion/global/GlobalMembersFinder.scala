@@ -32,7 +32,7 @@ sealed abstract class GlobalMembersFinder protected(protected val place: ScExpre
   protected final def contextsOfType[E <: PsiElement : reflect.ClassTag]: Iterable[E] = place
     .contexts
     .filterByType[E]
-    .toIterable
+    .iterator.to(Iterable)
 
   protected[global] final def findStableScalaFunctions(functions: Iterable[ScFunction])
                                                       (classesToImport: ScFunction => Set[ScObject])

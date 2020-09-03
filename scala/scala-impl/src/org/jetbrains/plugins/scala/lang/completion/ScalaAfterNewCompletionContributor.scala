@@ -234,11 +234,11 @@ object ScalaAfterNewCompletionContributor {
   }
 
   private[this] def classComponents(clazz: PsiClass): (ScDesignatorType, Seq[PsiTypeParameter]) =
-    (ScDesignatorType(clazz), clazz.getTypeParameters)
+    (ScDesignatorType(clazz), clazz.getTypeParameters.toSeq)
 
   private[this] def findAppropriateType(types: Seq[ScType],
                                         designatorType: ScDesignatorType,
-                                        parameters: Traversable[PsiTypeParameter]): Option[(ScType, Boolean)] = {
+                                        parameters: Iterable[PsiTypeParameter]): Option[(ScType, Boolean)] = {
     if (types.isEmpty) return None
 
     val undefinedTypes = parameters.map(UndefinedType(_))
@@ -256,9 +256,9 @@ object ScalaAfterNewCompletionContributor {
     None
   }
 
-  private[this] def fromParameters(designatorType: ScDesignatorType, parameters: Traversable[PsiTypeParameter]): ValueType =
+  private[this] def fromParameters(designatorType: ScDesignatorType, parameters: Iterable[PsiTypeParameter]): ValueType =
     fromParametersTypes(designatorType, parameters.map(TypeParameterType(_)))
 
-  private[this] def fromParametersTypes(designatorType: ScDesignatorType, types: Traversable[ScType]): ValueType =
+  private[this] def fromParametersTypes(designatorType: ScDesignatorType, types: Iterable[ScType]): ValueType =
     if (types.isEmpty) designatorType else ScParameterizedType(designatorType, types.toSeq)
 }

@@ -39,6 +39,6 @@ class BspFetchTestEnvironmentTaskInstaller(project: Project) extends RunManagerL
     }
   
   private def runManagerEx: Option[RunManagerEx] =
-    Option(ServiceManager.getServiceIfCreated(project, classOf[RunManager]))
+    Option(project.getServiceIfCreated(classOf[RunManager]))
       .map(_.asInstanceOf[RunManagerEx])
 }

@@ -9,7 +9,7 @@ import org.jetbrains.jps.incremental.scala.local.CompilerFactoryImpl._
 import org.jetbrains.plugins.scala.compiler.IncrementalityType
 import org.jetbrains.plugins.scala.compiler.data.{CompilerData, CompilerJars, SbtData}
 import sbt.internal.inc._
-import sbt.internal.inc.classpath.ClassLoaderCache
+import sbt.internal.inc.classpath.{ClassLoaderCache, ClasspathUtil}
 import sbt.internal.inc.javac.JavaTools
 import sbt.io.Path
 import sbt.util.Logger
@@ -82,7 +82,7 @@ object CompilerFactoryImpl {
 
     def createClassLoader() = {
       val urls = Path.toURLs(paths.toSeq)
-      val newClassloader = new URLClassLoader(urls, sbt.internal.inc.classpath.ClasspathUtilities.rootLoader)
+      val newClassloader = new URLClassLoader(urls, ClasspathUtil.rootLoader)
 
       classLoadersMap += paths -> newClassloader
 

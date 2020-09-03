@@ -141,6 +141,6 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
   // duplicate from `org.junit.framework.TestSuite.warning`
   // the method is public in junit 4.12 in but private in `junit.jar` in IDEA jars which leads to a compilation error on TeamCity
   private def warning(message: String) = new TestCase("warning") {
-    override protected def runTest(): Unit = junit.framework.Assert.fail(message)
+    override protected def runTest(): Unit = org.junit.Assert.fail(message)
   }
 }

@@ -77,7 +77,7 @@ object ScalaInlayParameterHintsProvider {
   private[this] object HintOption {
 
     def apply(id: String, @Nls nameBody: String): hints.Option =
-      new hints.Option(id, s"<html><body>$nameBody</body></html>", false)
+      new hints.Option(id, () => s"<html><body>$nameBody</body></html>", false)
   }
 
   private def parameterHints(matchedParameters: collection.Seq[(ScExpression, Parameter)]) = {

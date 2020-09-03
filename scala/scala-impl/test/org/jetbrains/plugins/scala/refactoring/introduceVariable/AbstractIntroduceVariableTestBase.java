@@ -67,7 +67,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
 
   private String getName(String fileText) {
     if (!(fileText.indexOf("//") == 0)) {
-      junit.framework.Assert.assertTrue("Typename to validator should be in first comment statement.", false);
+      org.junit.Assert.assertTrue("Typename to validator should be in first comment statement.", false);
     }
     return fileText.substring(2, fileText.indexOf("\n")).replaceAll("\\W", "");
   }

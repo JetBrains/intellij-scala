@@ -797,7 +797,7 @@ private object ScalaStructureViewTest {
 
     def apply(element: StructureViewTreeElement, sorter: Seq[TreeElement] => Seq[TreeElement]): Node = {
       val presentation = element.getPresentation
-      val children = sorter(element.getChildren).map { case element: StructureViewTreeElement => Node(element, sorter) }
+      val children = sorter(element.getChildren.toSeq).map { case element: StructureViewTreeElement => Node(element, sorter) }
       new Node(presentation.getIcon(false), presentation.getPresentableText, children: _*)
     }
   }

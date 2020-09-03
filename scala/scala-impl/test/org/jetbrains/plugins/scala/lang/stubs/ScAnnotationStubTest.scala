@@ -19,6 +19,8 @@ class ScAnnotationStubTest extends ScalaStubTestBase {
         case Some(expr) =>
           Assert.assertTrue("Annotation expression should always have PsiAnnotation as a parent",
             expr.getParent.isInstanceOf[ScAnnotation])
+        case None =>
+          ???
       }
 
     }

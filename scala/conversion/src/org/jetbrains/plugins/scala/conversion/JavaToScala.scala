@@ -101,7 +101,9 @@ object JavaToScala {
       case _: PsiDisjunctionType =>
         DisjunctionTypeConstructions(
           PsiTreeUtil.getChildrenOfType(psiElement, classOf[PsiTypeElement])
-            .map(t => convertTypePsiToIntermediate(t.getType, t, project)))
+            .map(t => convertTypePsiToIntermediate(t.getType, t, project))
+            .toIndexedSeq
+        )
       case t =>
         val iNode = TypeConstruction.createIntermediateTypePresentation(t, project)
         handleAssociations(psiElement, iNode)
@@ -379,7 +381,7 @@ object JavaToScala {
           else None
 
         if (m.isConstructor) {
-          ConstructorSimply(handleModifierList(m), m.getTypeParameters.map(convertPsiToIntermediate(_, externalProperties)),
+          ConstructorSimply(handleModifierList(m), m.getTypeParameters.map(convertPsiToIntermediate(_, externalProperties)).toIndexedSeq,
             m.parameters.map(convertPsiToIntermediate(_, externalProperties)), body)
         } else {
           val name = convertPsiToIntermediate(m.getNameIdentifier, externalProperties)
@@ -475,9 +477,10 @@ object JavaToScala {
         val tryBlock = Option(t.getTryBlock)
           .map((f: PsiCodeBlock) => f.getStatements.map(convertPsiToIntermediate(_, externalProperties)).toSeq)
           .getOrElse(Seq.empty)
-        val catches = t.getCatchSections.map((cb: PsiCatchSection) =>
+        val catches = t.getCatchSections.map { (cb: PsiCatchSection) =>
           (convertPsiToIntermediate(cb.getParameter, externalProperties),
-            convertPsiToIntermediate(cb.getCatchBlock, externalProperties)))
+            convertPsiToIntermediate(cb.getCatchBlock, externalProperties))
+        }.toIndexedSeq
         val finallys = Option(t.getFinallyBlock).map((f: PsiCodeBlock) => f.getStatements.map(convertPsiToIntermediate(_, externalProperties)).toSeq)
         TryCatchStatement(resourcesVariables.toSeq, tryBlock, catches, finallys, ScalaPsiUtil.functionArrow(t.getProject))
       case p: PsiPrefixExpression =>
@@ -850,9 +853,15 @@ object JavaToScala {
 
         getStatements(constructor).map {
           statements =>
-            PrimaryConstruction(updatedParams.toSeq, superCall,
+            PrimaryConstruction(
+              updatedParams.toSeq,
+              superCall,
               Option(statements.filter(notContains(_, dropStatements.toSeq))
-                .map(convertPsiToIntermediate(_, WithReferenceExpression(true)))), handleModifierList(constructor))
+                .map(convertPsiToIntermediate(_, WithReferenceExpression(true)))
+                .toIndexedSeq
+              ),
+              handleModifierList(constructor)
+            )
         }.orNull
       }
 

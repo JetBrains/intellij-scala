@@ -121,7 +121,7 @@ object KindProjectorSimplifyTypeProjectionInspection {
   }
 
   private[this] def convertToFunctionSyntax(alias: ScTypeAliasDefinition): String = {
-    val builder = StringBuilder.newBuilder
+    val builder = new StringBuilder()
     val styleSettings = ScalaCodeStyleSettings.getInstance(alias.getProject)
 
     if (styleSettings.REPLACE_LAMBDA_WITH_GREEK_LETTER) builder ++= "λ"

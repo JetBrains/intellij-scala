@@ -27,9 +27,9 @@ trait PsiSelectionUtil {
           }
           Left(s"Couldn't find path ${path.mkString("/")}")
         case _ if searchElement =>
-          val foundElements = elem.depthFirst().collect { case e: R => e }.toStream
+          val foundElements = elem.depthFirst().collect { case e: R => e }.to(LazyList)
           foundElements match {
-            case Stream(foundElement) => Right(foundElement)
+            case LazyList(foundElement) => Right(foundElement)
             case _ => Left(s"Found no element of type $pathString in ${path.mkString("/")}")
           }
         case _ =>

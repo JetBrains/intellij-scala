@@ -29,7 +29,7 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
             case (startOffset, endOffset) => TextRange.create(startOffset, endOffset)
           }
 
-          Option(Associations.collectAssociations(ranges: _*)(scalaFile))
+          Option(Associations.collectAssociations(ranges.toSeq: _*)(scalaFile))
       }
     case _ => None
   }

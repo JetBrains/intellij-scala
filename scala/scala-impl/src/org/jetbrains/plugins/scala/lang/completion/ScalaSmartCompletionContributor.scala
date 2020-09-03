@@ -664,7 +664,7 @@ object ScalaSmartCompletionContributor {
 
       val abstractNames = abstracts.map { `type` =>
         val name = `type`.typeParameter.name
-        name + ScTypePresentation.ABSTRACT_TYPE_POSTFIX -> (`type`, name)
+        name + TypePresentation.ABSTRACT_TYPE_POSTFIX -> (`type`, name)
       }.toMap
 
       def seekAbstracts(te: ScTypeElement)(implicit tpc: TypePresentationContext): Unit = {
@@ -738,7 +738,7 @@ object ScalaSmartCompletionContributor {
         .append(NotImplementedError)
         .toString
 
-    private def createBuffer = StringBuilder.newBuilder match {
+    private def createBuffer = new StringBuilder() match {
       case buffer if braceArgs => buffer.append(ScalaKeyword.CASE).append(" ")
       case buffer => buffer
     }

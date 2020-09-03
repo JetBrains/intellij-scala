@@ -269,7 +269,7 @@ trait IntegrationTest {
   }
 
   protected def parseTestName(testName: String): Seq[String] = {
-    testName.split("\n").map(unescapeTestName)
+    testName.split("\n").map(unescapeTestName).toIndexedSeq
   }
 
   protected def unescapeTestName(str: String): String = {

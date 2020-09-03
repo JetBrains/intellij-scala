@@ -12,7 +12,7 @@ abstract class SpellCorrectionTestBase extends ScalaLightCodeInsightFixtureTestA
 
   def doTest(context: String, originalWord: String, fileExt: String = "scala")(expectedWords: String*): Unit = {
 
-    val original = context.replace(NAME, originalWord.head + CARET + originalWord.tail)
+    val original = context.replace(NAME, originalWord.head.toString + CARET + originalWord.tail)
     val expected = context.replace(NAME, expectedWords.head)
 
     myFixture.configureByText("dummy." + fileExt, original)

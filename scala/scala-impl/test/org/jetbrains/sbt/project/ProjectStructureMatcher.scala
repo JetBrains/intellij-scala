@@ -78,7 +78,7 @@ trait ProjectStructureMatcher {
 
   private def assertModuleContentRootsEqual(module: Module)(expected: Seq[String]): Unit = {
     val expectedRoots = expected.map(VfsUtilCore.pathToUrl)
-    val actualRoots = roots.ModuleRootManager.getInstance(module).getContentEntries.map(_.getUrl)
+    val actualRoots = roots.ModuleRootManager.getInstance(module).getContentEntries.map(_.getUrl).toSeq
     assertMatch("Content root", expectedRoots, actualRoots)
   }
 
@@ -89,7 +89,7 @@ trait ProjectStructureMatcher {
 
   private def assertModuleExcludedFoldersEqual(module: Module)(expected: Seq[String]): Unit = {
     val contentRoot = getSingleContentRoot(module)
-    assertContentRootFoldersEqual(contentRoot, contentRoot.getExcludeFolders, expected)
+    assertContentRootFoldersEqual(contentRoot, contentRoot.getExcludeFolders.toSeq, expected)
   }
 
   private def assertContentRootFoldersEqual(contentRoot: roots.ContentEntry, actual: Seq[roots.ContentFolder], expected: Seq[String]): Unit = {
@@ -143,7 +143,7 @@ trait ProjectStructureMatcher {
   // TODO: support non-local library contents (if necessary)
   // This implementation works well only for local files; *.zip and other archives are not supported
   // @dancingrobot84
-    assertMatch("Library file", expectedFiles, lib.getFiles(fileType).flatMap(f => Option(PathUtil.getLocalPath(f))))
+    assertMatch("Library file", expectedFiles, lib.getFiles(fileType).flatMap(f => Option(PathUtil.getLocalPath(f))).toSeq)
 
   private def assertModuleLibrariesEqual(module: Module)(expectedLibraries: Seq[library]): Unit = {
     val actualLibraries = roots.OrderEnumerator.orderEntries(module).libraryEntries.filter(_.isModuleLevel).map(_.getLibrary)

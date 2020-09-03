@@ -1,7 +1,7 @@
 package org.jetbrains.sbt
 package annotator
 
-import _root_.junit.framework.Assert._
+import _root_.org.junit.Assert._
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.annotator._

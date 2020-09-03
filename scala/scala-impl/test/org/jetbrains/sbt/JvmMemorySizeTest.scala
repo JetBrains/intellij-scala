@@ -26,6 +26,8 @@ class JvmMemorySizeTest extends TestCase {
         assertEquals(size, pSize)
         assertEquals(str, pSize.toString)
         assertEquals(size.toString, pSize.toString.toUpperCase)
+      case None =>
+        ???
     }
 
     import JvmMemorySize._
@@ -50,7 +52,7 @@ class JvmMemorySizeTest extends TestCase {
       size <- Seq(0, 1, 10, 1024)
     } {
       val sizeInByte = unit.byteMultiplier * size
-      val testString = size + unit.unitSuffix
+      val testString = size.toString + unit.unitSuffix
 
       val parsedOpt = JvmMemorySize.parse(testString)
       assert(parsedOpt.isDefined)

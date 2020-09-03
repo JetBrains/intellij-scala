@@ -104,7 +104,7 @@ package object extensions {
     }
 
     def parameters: Seq[PsiParameter] =
-      repr.getParameterList.getParameters
+      repr.getParameterList.getParameters.toSeq
 
     def parametersTypes: collection.Seq[ScType] = repr match {
       case scalaFunction: ScFunction =>
@@ -162,7 +162,7 @@ package object extensions {
     def hasScalaPsi: Boolean = viewProvider.getBaseLanguage.isKindOf(ScalaLanguage.INSTANCE) || viewProvider.getPsi(ScalaLanguage.INSTANCE) != null
   }
 
-  implicit class TraversableExt[CC[X] <: Traversable[X], A](private val value: CC[A]) extends AnyVal {
+  implicit class TraversableExt[CC[X] <: Iterable[X], A](private val value: CC[A]) extends AnyVal {
 
     def foreachDefined(pf: PartialFunction[A, Unit]): Unit =
       value.foreach(pf.applyOrElse(_, (_: A) => ()))
