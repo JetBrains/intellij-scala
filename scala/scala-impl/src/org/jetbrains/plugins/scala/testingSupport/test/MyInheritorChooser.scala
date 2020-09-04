@@ -29,7 +29,7 @@ private class MyInheritorChooser(
     performRunnable: Runnable,
     psiMethod: PsiMethod,
     containingClass: PsiClass,
-    acceptAbstractCondition: Condition[PsiClass]
+    acceptAbstractCondition: Condition[_ >: PsiClass]
   ): Boolean = {
     //TODO: SCL-10530 this is mostly copy-paste from InheritorChooser; get rid of this once we support pattern test runs
     if (containingClass == null) return false
