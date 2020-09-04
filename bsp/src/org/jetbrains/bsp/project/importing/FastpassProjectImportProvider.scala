@@ -1,8 +1,13 @@
 package org.jetbrains.bsp.project.importing
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.bsp.project.importing.setup.FastpassConfigSetup
 import scala.Iterator.iterate
+
+class FastpassProjectImportProvider {
+
+}
 
 object FastpassProjectImportProvider {
   def folderContainsPantsExec(virtualFile: VirtualFile): Boolean = {
@@ -21,6 +26,13 @@ object FastpassProjectImportProvider {
   def pantsRoot(vFile: VirtualFile): Option[VirtualFile] =
     iterate(vFile)(_.getParent).takeWhile(_ != null).find(isFastpassCompatibleProjectRoot)
 
-  def canImport(vFile: VirtualFile): Boolean =
+  private val logger = Logger.getInstance(classOf[FastpassProjectImportProvider])
+
+  def canImport(vFile: VirtualFile): Boolean = try {
     pantsRoot(vFile).isDefined
+  } catch {
+    case e: Throwable =>
+      logger.error(e)
+      false
+  }
 }
