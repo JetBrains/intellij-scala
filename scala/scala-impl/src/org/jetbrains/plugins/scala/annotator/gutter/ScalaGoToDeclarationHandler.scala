@@ -50,7 +50,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
            psiFile <- Option(PsiManager.getInstance(element.getProject).findFile(virtualFile));
            targetElement <- Option(psiFile.findElementAt(offset))) {
 
-        showTastyNotification(ScalaBundle.message("tasty.notification.navigation"))
+        showTastyNotification("Navigation") // Internal mode
 
         return Array(targetElement)
       }

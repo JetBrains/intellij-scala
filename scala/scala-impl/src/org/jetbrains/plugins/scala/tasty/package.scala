@@ -100,7 +100,7 @@ package object tasty {
     invokeLater {
       val notification = new Notification(tastyName, tastyName, message, NotificationType.INFORMATION)
       Notifications.Bus.notify(notification)
-      AlarmFactory.getInstance.create.addRequest((() => notification.expire()): Runnable, TimeUnit.SECONDS.toMillis(1))
+      AlarmFactory.getInstance.create.addRequest((() => notification.expire()): Runnable, TimeUnit.SECONDS.toMillis(2))
     }
   }
 }

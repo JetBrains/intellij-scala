@@ -91,7 +91,7 @@ class ShowTypeInfoAction extends AnAction(
              tastyFile <- TastyReader.read(outputDirectory, className);
              presentation <- typeAt(editor.getCaretModel.getLogicalPosition, tastyFile)) {
 
-          showTastyNotification(ScalaBundle.message("notification.title.type.info"))
+          showTastyNotification("Type Info") // Internal mode
           ScalaActionUtil.showHint(editor, presentation)
           return
         }
