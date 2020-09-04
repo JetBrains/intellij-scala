@@ -15,7 +15,9 @@ import scala.util.{Failure, Success, Try}
 object FastpassConfigSetup {
   private val FastpassProcessCheckTimeout = 100.millis
 
-  val logger = Logger.getInstance(classOf[FastpassConfigSetup])
+  private val logger = Logger.getInstance(classOf[FastpassConfigSetup])
+
+  val fastpassRelativePath = "fastpass/bin/fastpass"
 
   def computeBspWorkspace(file: File): Path = {
     val pantsRoot = FastpassProjectImportProvider.pantsRoot(LocalFileSystem.getInstance().findFileByIoFile(file))
@@ -36,7 +38,7 @@ object FastpassConfigSetup {
       case Some(pantsRoot) =>
         val relativeDir = pantsRoot.toNioPath.relativize(baseDirVFile.toNioPath)
         val processBuilder = new ProcessBuilder(
-          "./fastpass/bin/fastpass",
+          fastpassRelativePath,
           "create",
           s"--name=${bspWorkspace.getFileName}",
           relativeDir.toString + "::"
