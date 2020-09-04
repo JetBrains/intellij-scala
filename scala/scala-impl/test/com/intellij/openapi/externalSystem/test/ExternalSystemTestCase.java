@@ -139,13 +139,10 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
         newRoots.removeAll(myAllowedRoots);
 
         final String[] newRootsArray = ArrayUtil.toStringArray(newRoots);
-        VfsRootAccess.allowRootAccess(newRootsArray);
+        VfsRootAccess.allowRootAccess(disposable, newRootsArray);
         myAllowedRoots.addAll(newRoots);
 
-        Disposer.register(disposable, () -> {
-            VfsRootAccess.disallowRootAccess(newRootsArray);
-            myAllowedRoots.removeAll(newRoots);
-        });
+        Disposer.register(disposable, () -> myAllowedRoots.removeAll(newRoots));
     }
 
     private void ensureTempDirCreated() throws IOException {

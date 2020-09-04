@@ -117,7 +117,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
       case _ => super.generateRenderedDoc(comment)
     }
 
-  override final def collectDocComments(file: PsiFile, sink: Consumer[PsiDocCommentBase]): Unit = {
+  override final def collectDocComments(file: PsiFile, sink: Consumer[_ >: PsiDocCommentBase]): Unit = {
     val scalaFile: ScalaFile = file match {
       case sf: ScalaFile => sf
       case _             => return
