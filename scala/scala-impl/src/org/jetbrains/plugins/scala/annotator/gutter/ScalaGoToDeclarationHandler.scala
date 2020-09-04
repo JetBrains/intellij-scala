@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala
 package annotator
 package gutter
 
+import java.io.File
+
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
@@ -44,8 +46,8 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     if (isTastyEnabledFor(element)) {
       for (Location(outputDirectory, className) <- compiledLocationOf(sourceElement);
            tastyFile <- TastyReader.read(outputDirectory, className);  // IDEA shows "Resolving Reference..." modal progress
-           (file, offset) <- referenceTargetAt(editor.getCaretModel.getLogicalPosition, tastyFile);
-           virtualFile <- Option(VfsUtil.findFileByIoFile(file, false));
+           (file, offset) <- referenceTargetAt(editor.getCaretModel.getOffset, tastyFile);
+           virtualFile <- Option(VfsUtil.findFileByIoFile(new File(element.getProject.getBasePath, file), false));
            psiFile <- Option(PsiManager.getInstance(element.getProject).findFile(virtualFile));
            targetElement <- Option(psiFile.findElementAt(offset))) {
 

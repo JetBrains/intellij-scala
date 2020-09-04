@@ -81,23 +81,23 @@ lazy val worksheet = newProject(
 )
 
 lazy val tastyProvided = newProject("tasty-provided", file("tasty/provided"))
-  .settings(scalaVersion := "2.13.1", packageMethod := PackagingMethod.Skip())
+  .settings(scalaVersion := "2.13.3", packageMethod := PackagingMethod.Skip())
 
 lazy val tastyCompile = newProject("tasty-compile", file("tasty/compile"))
   .dependsOn(tastyProvided % Provided)
-  .settings(scalaVersion := "2.13.1", packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-compile.jar"))
+  .settings(scalaVersion := "2.13.3", packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-compile.jar"))
 
 lazy val tastyRuntime = newProject("tasty-runtime", file("tasty/runtime"))
   .dependsOn(tastyCompile % "compile-internal", tastyProvided % Provided)
-  .settings(scalaVersion := "2.13.1", packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-runtime.jar"))
+  .settings(scalaVersion := "2.13.3", packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-runtime.jar"))
 
 lazy val tastyExample = newProject("tasty-example", file("tasty/example"))
   .dependsOn(tastyCompile, tastyProvided % Provided)
-  .settings(scalaVersion := "2.13.1", libraryDependencies += "ch.epfl.lamp" % "dotty-library_0.23" % "0.23.0-RC1" % Runtime)
+  .settings(scalaVersion := "2.13.3", libraryDependencies += "ch.epfl.lamp" % "dotty-library_0.27" % "0.27.0-RC1" % Runtime)
 
 lazy val tastyReader = newProject("tasty-reader", file("tasty/reader"))
   .dependsOn(tastyCompile, tastyProvided % Provided)
-  .settings(scalaVersion := "2.13.1", packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-reader.jar"))
+  .settings(scalaVersion := "2.13.3", packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-reader.jar"))
 
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))

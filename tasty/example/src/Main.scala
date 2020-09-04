@@ -6,27 +6,31 @@ import scala.tasty.compat.{ConsumeTasty, Reflection, TastyConsumer}
 
 object Main {
   val tastyConsumer: TastyConsumer = new TastyConsumer {
-    override def apply(reflect: Reflection)(tree: reflect.Tree): Unit = {
-      val codePrinter = new SourceCodePrinter[reflect.type](reflect)(SyntaxHighlight.plain)
-      val customOutput = codePrinter.showTree(tree)(reflect.rootContext)
-//      println(customOutput)
-
+    override def apply(reflect: Reflection)(tree: reflect.delegate.Tree): Unit = {
       import reflect._
-      val originalOutput = tree.show(reflect.rootContext)
-//      println(originalOutput)
 
-      assert(customOutput == originalOutput)
+      val customExtractorsOutput = new ExtractorsPrinter[reflect.type](reflect).showTree(tree)(reflect.delegate.rootContext)
+//      println(customExtractorsOutput)
+
+      val originalExtractorsOutput = tree.showExtractors(reflect.delegate.rootContext)
+      assert(customExtractorsOutput == originalExtractorsOutput)
+
+      val customSourceCodeOutput = new SourceCodePrinter[reflect.type](reflect)(SyntaxHighlight.plain).showTree(tree)(reflect.delegate.rootContext)
+//      println(customSourceCodeOutput)
+
+      val originalSourceCodeOutput = tree.show(reflect.delegate.rootContext)
+      assert(customSourceCodeOutput == originalSourceCodeOutput)
     }
   }
 
   def main(args: Array[String]): Unit = {
     val home = System.getProperty("user.home")
 
-    val Version = "0.23.0-RC1"
+    val Version = "0.27.0-RC1"
     val MajorVersion = Version.split('.').take(2).mkString(".")
 
     val files = Seq(
-      home + "/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.1/scala-library-2.13.1.jar",
+      home + "/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.3/scala-library-2.13.3.jar",
       s"$home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/dotty-interfaces/$Version/dotty-interfaces-$Version.jar",
       s"$home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/dotty-library_$MajorVersion//$Version/dotty-library_$MajorVersion-$Version.jar",
       s"$home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/dotty-compiler_$MajorVersion//$Version/dotty-compiler_$MajorVersion-$Version.jar",
@@ -62,12 +66,13 @@ object Main {
       "AutoParamTupling",
       "ContextQueries",
       "Conversion",
-      "Conversion",
+      "EnumTypes",
       "ImpliedInstances",
       "IntersectionTypes",
+      "Main",
       "MultiversalEquality",
       "NamedTypeArguments",
-      "PatternMatching",
+//      "PatternMatching",
       "StructuralTypes",
       "TraitParams",
       "TypeLambdas",

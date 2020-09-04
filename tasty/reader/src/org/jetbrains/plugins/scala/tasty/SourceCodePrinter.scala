@@ -5,9 +5,10 @@ import scala.quoted.show.SyntaxHighlight
 import scala.tasty.compat._
 import scala.tasty.reflect._
 
-// Copy of https://github.com/lampepfl/dotty/blob/master/library/src/scala/tasty/reflect/SourceCodePrinter.scala with cosmetic Scala 2.x updates.
-class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHighlight: SyntaxHighlight) extends Printer[R] {
+// Copy of https://github.com/lampepfl/dotty/blob/0.27.0-RC1/library/src/scala/tasty/reflect/SourceCodePrinter.scala with cosmetic Scala 2.x updates.
+class SourceCodePrinter[R <: Reflection](val tasty: R)(syntaxHighlight: SyntaxHighlight) {
   import tasty._
+  import tasty.delegate._
   import syntaxHighlight._
 
   var references: Seq[ReferenceData] = Vector.empty
@@ -28,39 +29,40 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
 
   def showFlags(flags: Flags)(implicit ctx: Context): String = {
     val flagList = List.newBuilder[String]
-    if (flags.is(Flags.Private)) flagList += "private"
-    if (flags.is(Flags.Protected)) flagList += "protected"
     if (flags.is(Flags.Abstract)) flagList += "abstract"
-    if (flags.is(Flags.Final)) flagList += "final"
-    if (flags.is(Flags.Sealed)) flagList += "sealed"
-    if (flags.is(Flags.Case)) flagList += "case"
-    if (flags.is(Flags.Implicit)) flagList += "implicit"
-    if (flags.is(Flags.Erased)) flagList += "erased"
-    if (flags.is(Flags.Lazy)) flagList += "lazy"
-    if (flags.is(Flags.Override)) flagList += "override"
-    if (flags.is(Flags.Inline)) flagList += "inline"
-    if (flags.is(Flags.Macro)) flagList += "macro"
-    if (flags.is(Flags.JavaDefined)) flagList += "javaDefined"
-    if (flags.is(Flags.Static)) flagList += "javaStatic"
-    if (flags.is(Flags.Object)) flagList += "object"
-    if (flags.is(Flags.Trait)) flagList += "trait"
-    if (flags.is(Flags.Local)) flagList += "local"
-    if (flags.is(Flags.Synthetic)) flagList += "synthetic"
     if (flags.is(Flags.Artifact)) flagList += "artifact"
-    if (flags.is(Flags.Mutable)) flagList += "mutable"
-    if (flags.is(Flags.FieldAccessor)) flagList += "accessor"
+    if (flags.is(Flags.Case)) flagList += "case"
     if (flags.is(Flags.CaseAcessor)) flagList += "caseAccessor"
-    if (flags.is(Flags.Covariant)) flagList += "covariant"
     if (flags.is(Flags.Contravariant)) flagList += "contravariant"
-    if (flags.is(Flags.Scala2X)) flagList += "scala2x"
-    if (flags.is(Flags.DefaultParameterized)) flagList += "defaultParameterized"
-    if (flags.is(Flags.StableRealizable)) flagList += "stableRealizable"
+    if (flags.is(Flags.Covariant)) flagList += "covariant"
+    if (flags.is(Flags.Enum)) flagList += "enum"
+    if (flags.is(Flags.Erased)) flagList += "erased"
+    if (flags.is(Flags.ExtensionMethod)) flagList += "extension"
+    if (flags.is(Flags.FieldAccessor)) flagList += "accessor"
+    if (flags.is(Flags.Final)) flagList += "final"
+    if (flags.is(Flags.HasDefault)) flagList += "hasDefault"
+    if (flags.is(Flags.Implicit)) flagList += "implicit"
+    if (flags.is(Flags.Inline)) flagList += "inline"
+    if (flags.is(Flags.JavaDefined)) flagList += "javaDefined"
+    if (flags.is(Flags.Lazy)) flagList += "lazy"
+    if (flags.is(Flags.Local)) flagList += "local"
+    if (flags.is(Flags.Macro)) flagList += "macro"
+    if (flags.is(Flags.ModuleClass)) flagList += "moduleClass"
+    if (flags.is(Flags.Mutable)) flagList += "mutable"
+    if (flags.is(Flags.Object)) flagList += "object"
+    if (flags.is(Flags.Override)) flagList += "override"
+    if (flags.is(Flags.Package)) flagList += "package"
     if (flags.is(Flags.Param)) flagList += "param"
     if (flags.is(Flags.ParamAccessor)) flagList += "paramAccessor"
-    if (flags.is(Flags.Enum)) flagList += "enum"
-    if (flags.is(Flags.ModuleClass)) flagList += "moduleClass"
+    if (flags.is(Flags.Private)) flagList += "private"
     if (flags.is(Flags.PrivateLocal)) flagList += "private[this]"
-    if (flags.is(Flags.Package)) flagList += "package"
+    if (flags.is(Flags.Protected)) flagList += "protected"
+    if (flags.is(Flags.Scala2X)) flagList += "scala2x"
+    if (flags.is(Flags.Sealed)) flagList += "sealed"
+    if (flags.is(Flags.StableRealizable)) flagList += "stableRealizable"
+    if (flags.is(Flags.Static)) flagList += "javaStatic"
+    if (flags.is(Flags.Synthetic)) flagList += "synthetic"
+    if (flags.is(Flags.Trait)) flagList += "trait"
     flagList.result().mkString("/*", " ", "*/")
   }
 
@@ -70,16 +72,13 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
 
     private def collectReference(position: Position, target: Position): Unit = {
       // Skip references that are absent in original source file
-      if (position.exists && (position.startLine < position.endLine || position.startColumn < position.endColumn)) {
+      if (position.exists && (position.start < position.end)) {
         if (target.exists) {
           val targetFile = target.sourceFile.jpath.toFile
-          if (targetFile.exists) { // TODO Scalac attempts to read the file to compute offsetToLine (we need to report the bug)
-            references :+= ReferenceData(
-              Position(position.sourceFile.jpath.toFile.getPath, position.startLine,
-                position.endLine, position.startColumn, position.endColumn),
-              Position(targetFile.getPath, target.startLine, target.endLine,
-                target.startColumn, target.endColumn))
-          }
+          import org.jetbrains.plugins.scala.tasty.Position
+          references :+= ReferenceData(
+            Position(position.sourceFile.jpath.toFile.getPath, position.start, position.end),
+            Position(targetFile.getPath, target.start, target.end))
         }
       }
     }
@@ -87,15 +86,14 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
     private def collectType(position: Position, length: Int, doPrintType: => Unit): Unit = {
       // TODO Why do positions of val and def symbols have zero length?
       // Skip types that are absent in original source file
-      if (position.exists && (position.startLine < position.endLine || position.startColumn < position.endColumn + length)) {
+      if (position.exists && (position.start < position.end + length)) {
         val previousLength = sb.length()
         doPrintType
         val presentation = sb.substring(previousLength, sb.length())
         sb.delete(previousLength, sb.length())
+        import org.jetbrains.plugins.scala.tasty.Position
         types :+= TypeData(
-          Position(position.sourceFile.jpath.toFile.getPath,
-            position.startLine, position.endLine,
-            position.startColumn, position.endColumn + length),
+          Position(position.sourceFile.jpath.toFile.getPath, position.start, position.end + length),
           presentation)
       }
     }
@@ -188,7 +186,7 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
         }
 
         val parents1 = parents.filter {
-          case Apply(Select(New(tpt), _), _) => tpt.tpe.typeSymbol != ctx.requiredClass("java.lang.Object")
+          case Apply(Select(New(tpt), _), _) => tpt.tpe.typeSymbol != Symbol.requiredClass("java.lang.Object")
           case TypeSelect(Select(Ident("_root_"), "scala"), "Product") => false
           case TypeSelect(Select(Ident("_root_"), "scala"), "Serializable") => false
           case _ => true
@@ -368,7 +366,7 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
         collectType(tree.pos, 0, printType(tree.tpe.widen))
 
         splicedName(tree.symbol) match {
-          case Some(name) => this += name
+          case Some(name) => this += highlightTypeDef(name)
           case _ => printType(tree.tpe)
         }
 
@@ -403,7 +401,7 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
         this += "throw "
         printTree(expr)
 
-      case Apply(fn, args) if fn.symbol == ctx.requiredMethod("scala.internal.Quoted.exprQuote") =>
+      case Apply(fn, args) if fn.symbol == Symbol.requiredMethod("scala.internal.Quoted.exprQuote") =>
         args.head match {
           case Block(stats, expr) =>
             this += "'{"
@@ -418,12 +416,12 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
             this += "}"
         }
 
-      case TypeApply(fn, args) if fn.symbol == ctx.requiredMethod("scala.internal.Quoted.typeQuote") =>
+      case TypeApply(fn, args) if fn.symbol == Symbol.requiredMethod("scala.internal.Quoted.typeQuote") =>
         this += "'["
         printTypeTree(args.head)
         this += "]"
 
-      case Apply(fn, arg :: Nil) if fn.symbol == ctx.requiredMethod("scala.internal.Quoted.exprSplice") =>
+      case Apply(fn, arg :: Nil) if fn.symbol == Symbol.requiredMethod("scala.internal.Quoted.exprSplice") =>
         this += "${"
         printTree(arg)
         this += "}"
@@ -628,7 +626,7 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
     def printFlatBlock(stats: List[Statement], expr: Term)(implicit elideThis: Option[Symbol]): Buffer = {
       val (stats1, expr1) = flatBlock(stats, expr)
       val stats2 = stats1.filter {
-        case tree: TypeDef => !tree.symbol.annots.exists(_.symbol.owner == ctx.requiredClass("scala.internal.Quoted.quoteTypeTag"))
+        case tree: TypeDef => !tree.symbol.annots.exists(_.symbol.owner == Symbol.requiredClass("scala.internal.Quoted.quoteTypeTag"))
         case _ => true
       }
       if (stats2.isEmpty) {
@@ -803,7 +801,7 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
 
       this += argCons.name
       argCons.rhs match {
-        case rhs: TypeBoundsTree =>  this //printBoundsTree(rhs) TODO
+        case rhs: TypeBoundsTree => this //printBoundsTree(rhs) TODO
         case rhs: WildcardTypeTree =>
           printTypeOrBound(rhs.tpe)
         case rhs @ LambdaTypeTree(tparams, body) =>
@@ -880,7 +878,7 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
     }
 
     def printParamDef(arg: ValDef)(implicit elideThis: Option[Symbol]): Unit = {
-      val name = arg.name
+      val name = splicedName(arg.symbol).getOrElse(arg.symbol.name)
       val sym = arg.symbol.owner
       if (sym.isDefDef && sym.name == "<init>") {
         val ClassDef(_, _, _, _, _, body) = sym.owner.tree
@@ -1026,7 +1024,7 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
             printTypeAndAnnots(tp)
             this += " "
             printAnnotation(annot)
-          case tpe: TypeRef if tpe.typeSymbol == ctx.requiredClass("scala.runtime.Null$") || tpe.typeSymbol == ctx.requiredClass("scala.runtime.Nothing$") =>
+          case tpe: TypeRef if tpe.typeSymbol == Symbol.requiredClass("scala.runtime.Null$") || tpe.typeSymbol == Symbol.requiredClass("scala.runtime.Nothing$") =>
             // scala.runtime.Null$ and scala.runtime.Nothing$ are not modules, those are their actual names
             printType(tpe)
           case tpe: TermRef if tpe.termSymbol.isClassDef && tpe.termSymbol.name.endsWith("$") =>
@@ -1069,7 +1067,7 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
       case Annotated(tpt, annot) =>
         val Annotation(ref, args) = annot
         ref.tpe match {
-          case tpe: TypeRef if tpe.typeSymbol == ctx.requiredClass("scala.annotation.internal.Repeated") =>
+          case tpe: TypeRef if tpe.typeSymbol == Symbol.requiredClass("scala.annotation.internal.Repeated") =>
             val Types.Sequence(tp) = tpt.tpe
             printType(tp)
             this += highlightTypeDef("*")
@@ -1169,8 +1167,11 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
       case AppliedType(tp, args) =>
         tp match {
           case tp: TypeLambda =>
-            printType(tpe.dealias)
-          case tp: TypeRef if tp.typeSymbol == ctx.requiredClass("scala.<repeated>") =>
+            this += "("
+            printType(tp)
+            this += ")"
+            inSquare(printTypesOrBounds(args, ", "))
+          case tp: TypeRef if tp.typeSymbol == Symbol.requiredClass("scala.<repeated>") =>
             this += "_*"
           case _ =>
             printType(tp)
@@ -1283,7 +1284,7 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
 
     def printAnnotation(annot: Term)(implicit elideThis: Option[Symbol]): Buffer = {
       val Annotation(ref, args) = annot
-      if (annot.symbol.maybeOwner == ctx.requiredClass("scala.internal.quoted.showName")) this
+      if (annot.symbol.maybeOwner == Symbol.requiredClass("scala.internal.quoted.showName")) this
       else {
         this += "@"
         printTypeTree(ref)
@@ -1298,8 +1299,8 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
       val annots = definition.symbol.annots.filter {
         case Annotation(annot, _) =>
           val sym = annot.tpe.typeSymbol
-          sym != ctx.requiredClass("scala.forceInline") &&
-          sym.maybeOwner != ctx.requiredPackage("scala.annotation.internal")
+          sym != Symbol.requiredClass("scala.forceInline") &&
+          sym.maybeOwner != Symbol.requiredPackage("scala.annotation.internal")
         case x => throw new MatchError(x.showExtractors)
       }
       printAnnotations(annots)
@@ -1455,11 +1456,26 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
     private def escapedString(str: String): String = str flatMap escapedChar
   }
 
+  private[this] val names = collection.mutable.Map.empty[Symbol, String]
+  private[this] val namesIndex = collection.mutable.Map.empty[String, Int]
+
   private def splicedName(sym: Symbol)(implicit ctx: Context): Option[String] = {
-    sym.annots.find(_.symbol.owner == ctx.requiredClass("scala.internal.quoted.showName")).flatMap {
+    sym.annots.find(_.symbol.owner == Symbol.requiredClass("scala.internal.quoted.showName")).flatMap {
       case Apply(_, Literal(Constant(c: String)) :: Nil) => Some(c)
       case Apply(_, Inlined(_, _, Literal(Constant(c: String))) :: Nil) => Some(c)
       case annot => None
+    }.orElse {
+      if (sym.owner.isClassDef) None
+      else names.get(sym).orElse {
+        val name0 = sym.name
+        val index = namesIndex.getOrElse(name0, 1)
+        namesIndex(name0) = index + 1
+        val name =
+          if (index == 1) name0
+          else s"`$name0${index.toString.toCharArray.map {x => (x - '0' + '₀').toChar}.mkString}`"
+        names(sym) = name
+        Some(name)
+      }
     }
   }
 
@@ -1490,7 +1506,7 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
     object Sequence {
       def unapply(tpe: Type)(implicit ctx: Context): Option[Type] = tpe match {
         case AppliedType(seq, (tp: Type) :: Nil)
-            if seq.typeSymbol == ctx.requiredClass("scala.collection.Seq") || seq.typeSymbol == ctx.requiredClass("scala.collection.immutable.Seq") =>
+            if seq.typeSymbol == Symbol.requiredClass("scala.collection.Seq") || seq.typeSymbol == Symbol.requiredClass("scala.collection.immutable.Seq") =>
           Some(tp)
         case _ => None
       }
@@ -1498,7 +1514,7 @@ class SourceCodePrinter[R <: Reflection with Singleton](val tasty: R)(syntaxHigh
 
     object Repeated {
       def unapply(tpe: Type)(implicit ctx: Context): Option[Type] = tpe match {
-        case AppliedType(rep, (tp: Type) :: Nil) if rep.typeSymbol == ctx.requiredClass("scala.<repeated>") => Some(tp)
+        case AppliedType(rep, (tp: Type) :: Nil) if rep.typeSymbol == Symbol.requiredClass("scala.<repeated>") => Some(tp)
         case _ => None
       }
     }

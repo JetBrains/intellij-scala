@@ -1,13 +1,10 @@
 package org.jetbrains.plugins.scala
 
-import java.io.File
-import java.nio.file.{Files, Paths}
 import java.util.concurrent.TimeUnit
 
 import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.CompilerPaths
-import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
@@ -16,8 +13,6 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.project._
-
-import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 
 package object tasty {
   //noinspection ScalaExtractStringToBundle
@@ -34,10 +29,8 @@ package object tasty {
   }
   type Position = {
     def file: String
-    def startLine: Int
-    def endLine: Int
-    def startColumn: Int
-    def endColumn: Int
+    def start: Int
+    def end: Int
   }
   type ReferenceData = {
     def position: Position
@@ -79,22 +72,16 @@ package object tasty {
     case _ => None
   }
 
-  def typeAt(position: LogicalPosition, tastyFile: TastyFile): Option[String] = {
-    tastyFile.types.find(it => it.position.startLine <= position.line && position.line <= it.position.endLine &&
-      it.position.startColumn <= position.column && position.column <= it.position.endColumn).map(_.presentation)
-  }
+  def typeAt(offset: Int, tastyFile: TastyFile): Option[String] =
+    tastyFile.types
+      .find(it => it.position.start <= offset && offset <= it.position.end)
+      .map(_.presentation)
 
-  def referenceTargetAt(position: LogicalPosition, tastyFile: TastyFile): Option[(File, Int)] = {
-    val reference = tastyFile.references.find(it => it.position.startLine <= position.line && position.line <= it.position.endLine &&
-      it.position.startColumn <= position.column && position.column <= it.position.endColumn).map(_.target)
-
-    reference.map(position => (new File(position.file), offsetOf(position)))
-  }
-
-  private def offsetOf(position: Position): Int = {
-    val lines = Files.readAllLines(Paths.get(position.file)).asScala
-    lines.take(position.startLine).map(_.length + 1).sum + position.startColumn
-  }
+  def referenceTargetAt(offset: Int, tastyFile: TastyFile): Option[(String, Int)] =
+    tastyFile.references
+      .find(it => it.position.start <= offset && offset <= it.position.end)
+      .map(_.target)
+      .map(position => (position.file, position.start))
 
   def showTastyNotification(@Nls message: String): Unit = if (ApplicationManager.getApplication.isInternal) {
     invokeLater {
