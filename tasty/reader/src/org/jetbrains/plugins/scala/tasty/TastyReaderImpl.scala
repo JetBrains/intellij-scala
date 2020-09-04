@@ -12,9 +12,9 @@ class TastyReaderImpl {
     var result: TastyFile = null
 
     val tastyConsumer = new TastyConsumer {
-      override def apply(reflect: Reflection)(tree: reflect.Tree): Unit = {
+      override def apply(reflect: Reflection)(tree: reflect.delegate.Tree): Unit = {
         val printer = new SourceCodePrinter[reflect.type](reflect)(SyntaxHighlight.plain)
-        result = TastyFile(printer.showTree(tree)(reflect.rootContext), printer.references.toArray, printer.types.toArray)
+        result = TastyFile(printer.showTree(tree)(reflect.delegate.rootContext), printer.references.toArray, printer.types.toArray)
       }
     }
     val implementationClass = Class.forName("scala.tasty.compat.ConsumeTastyImpl")

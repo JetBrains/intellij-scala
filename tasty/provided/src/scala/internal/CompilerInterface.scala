@@ -1,4 +1,4 @@
-package scala.tasty.reflect
+package scala.internal
 
 trait CompilerInterface {
   type Context <: AnyRef

@@ -35,7 +35,7 @@ object TastyReader {
         // TODO TASTy inspect: an ability to detect .tasty file version, https://github.com/lampepfl/dotty-feature-requests/issues/99
         // TODO TASTy inspect: make dotty-compiler depend on tasty-inspector https://github.com/lampepfl/dotty-feature-requests/issues/100
         // TODO Introduce the version variable
-        val tastyInspectorDependency = DependencyDescription("ch.epfl.lamp", "dotty-tasty-inspector_0.23", "0.23.0-RC1", isTransitive = true)
+        val tastyInspectorDependency = DependencyDescription("ch.epfl.lamp", "dotty-tasty-inspector_0.27", "0.27.0-RC1", isTransitive = true)
         Resolver.resolve(tastyInspectorDependency).map(_.file)
       }
 
@@ -72,23 +72,23 @@ object TastyReader {
   // TODO Remove (convenience for debugging purposes)
   // NB: The plugin artifact must be build before running.
   def main(args: Array[String]): Unit = {
-    def textAt(position: Position): String = {
-      val line = Files.readAllLines(Paths.get(position.file)).asScala(position.startLine)
-      line.substring(position.startColumn, position.endColumn)
-    }
+    val basePath = System.getProperty("user.home") + "/IdeaProjects/dotty-example-project/"
 
-    val home = System.getProperty("user.home")
+    def textAt(position: Position): String =
+      if (position.start == -1) "<undefined>"
+      else new String(Files.readAllBytes(Paths.get(basePath + position.file))).substring(position.start, position.end)
 
     val exampleClasses = Seq(
       "AutoParamTupling",
       "ContextQueries",
       "Conversion",
-      "Conversion",
+      "EnumTypes",
       "ImpliedInstances",
       "IntersectionTypes",
+      "Main",
       "MultiversalEquality",
       "NamedTypeArguments",
-      "PatternMatching",
+//      "PatternMatching",
       "StructuralTypes",
       "TraitParams",
       "TypeLambdas",
@@ -97,12 +97,12 @@ object TastyReader {
 
     exampleClasses.foreach { fqn =>
       println(fqn)
-      val file = read(home + "/IdeaProjects/dotty-example-project/target/scala-0.23/classes", fqn).get
+      val file = read(basePath + "target/scala-0.27/classes", fqn).get
       println(file.text)
 
       (file.references ++ file.types).sortBy {
-        case it: ReferenceData => (it.position.startLine, it.position.startColumn)
-        case it: TypeData => (it.position.startLine, it.position.startColumn)
+        case it: ReferenceData => it.position.start
+        case it: TypeData => it.position.start
       }.foreach {
         case it: ReferenceData if it.getClass.getName.endsWith("ReferenceData") =>
           println("REF: " + textAt(it.position) + ", " + it)
