@@ -19,9 +19,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * implicit closures are actually implemented in other parts of the parser, not here! The grammar
  * from the Scala Reference does not match the implementation in Parsers.scala.
  */
-object Expr {
-
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+object Expr extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val exprMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
@@ -45,7 +44,7 @@ object Expr {
         }
 
       case ScalaTokenTypes.tLPARENTHESIS =>
-        if (Bindings.parse(builder)) {
+        if (Bindings()) {
           builder.getTokenType match {
             case ScalaTokenTypes.tFUNTYPE =>
               builder.advanceLexer() //Ate =>
@@ -60,6 +59,6 @@ object Expr {
         }
       case _ => exprMarker.drop()
     }
-    Expr1.parse(builder)
+    Expr1()
   }
 }

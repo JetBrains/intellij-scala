@@ -39,4 +39,31 @@ class ScalaCompletionAfterTypingTest extends ScalaCodeInsightTestBase {
       item = "CCC"
     )
   }
+
+  def testCompletionBeforeLastRefInBlock(): Unit = {
+    myTextToType = "."
+
+    doCompletionTest(
+      fileText =
+        s"""
+          |object Test {
+          |  def foo: String = {
+          |    val t: String = ???
+          |    t$CARET
+          |    ???
+          |  }
+          |}""".stripMargin,
+
+      resultText =
+        s"""object Test {
+           |  def foo: String = {
+           |    val t: String = ???
+           |    t.length
+           |    ???
+           |  }
+           |}""".stripMargin,
+
+      item = "length"
+    )
+  }
 }

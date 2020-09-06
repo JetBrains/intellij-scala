@@ -19,7 +19,8 @@ sealed abstract class Template extends ParsingRule {
   May be hard to read. Because written before understanding that before TemplateBody could be nl token
   So there are fixed it, but may be should be some rewrite.
    */
-  protected def check(implicit builder: ScalaPsiBuilder): Boolean = true
+  protected def endedByMultipleNewlines(implicit builder: ScalaPsiBuilder): Boolean =
+    builder.twoNewlinesBeforeCurrentToken
 
   override final def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
@@ -34,11 +35,13 @@ sealed abstract class Template extends ParsingRule {
             parentsRule()
 
             builder.getTokenType match {
-              case `tLBRACE` if !builder.twoNewlinesBeforeCurrentToken => bodyRule()
+              case `tCOLON` => bodyRule()
+              case `tLBRACE` if !endedByMultipleNewlines => bodyRule()
               case _ =>
             }
         }
-      case `tLBRACE` if check => bodyRule()
+      case `tCOLON` => bodyRule()
+      case `tLBRACE` if !endedByMultipleNewlines => bodyRule()
       case _ =>
     }
 
@@ -58,9 +61,6 @@ object ClassTemplate extends Template
 object TraitTemplate extends Template {
 
   override protected def parentsRule: MixinParents.type = MixinParents
-
-  override protected def check(implicit builder: ScalaPsiBuilder): Boolean =
-    !builder.twoNewlinesBeforeCurrentToken
 }
 
 /**
@@ -69,4 +69,7 @@ object TraitTemplate extends Template {
 object EnumTemplate extends Template {
 
   override protected def bodyRule: EnumBody.type = EnumBody
+
+  override protected def endedByMultipleNewlines(implicit builder: ScalaPsiBuilder): Boolean =
+    false
 }

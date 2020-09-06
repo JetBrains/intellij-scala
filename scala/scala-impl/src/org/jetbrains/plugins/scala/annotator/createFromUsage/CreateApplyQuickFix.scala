@@ -31,7 +31,7 @@ class CreateApplyQuickFix(td: ScTypeDefinition, call: ScMethodCall)
 
   override protected def addElementsToTemplate(method: ScFunction, builder: TemplateBuilder): Unit = {
     for (aType <- methodType;
-         typeElement <- method.children.instanceOf[ScSimpleTypeElement]) {
+         typeElement <- method.children.findByType[ScSimpleTypeElement]) {
       builder.replaceElement(typeElement, aType)
     }
 

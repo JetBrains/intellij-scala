@@ -47,7 +47,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
         return
       }
 
-      afterClassChoosing[ScExpression](expr, types, project, editor, file, "Choose class for Introduce Field") {
+      afterClassChoosing[ScExpression](expr, types, project, editor, file, ScalaBundle.message("choose.class.for.introduce.field")) {
         convertExpressionToField
       }
     }
@@ -72,7 +72,9 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     implicit val editor: Editor = ifc.editor
 
     cannotBeIntroducedReason(ifc.element) match {
-      case Some(message) => showErrorHint(message)
+      case Some(message) =>
+        //noinspection ReferencePassedToNls
+        showErrorHint(message)
       case _ =>
         val settings = new IntroduceFieldSettings(ifc)
         if (settings.canBeInitInDeclaration || settings.canBeInitLocally) {

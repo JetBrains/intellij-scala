@@ -4,6 +4,7 @@ package highlighter
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi._
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.annotationHolder.ScalaAnnotationHolderAdapter
 import org.jetbrains.plugins.scala.extensions._
@@ -86,7 +87,7 @@ object ScalaColorSchemeAnnotator {
           tp.conforms
         }
 
-      def simpleAnnotate(annotationText: String, annotationAttributes: TextAttributesKey): Unit = {
+      def simpleAnnotate(@Nls annotationText: String, annotationAttributes: TextAttributesKey): Unit = {
         if (SCALA_FACTORY_METHODS_NAMES.contains(refElement.nameId.getText)) {
           return
         }
@@ -258,65 +259,69 @@ object ScalaColorSchemeAnnotator {
       case x: ScGenerator => visitGenerator(x, holder)
       case x: ScForBinding => visitForBinding(x, holder)
       case x: ScTypeAlias => visitTypeAlias(x, holder)
-      case _ if element.getNode.getElementType == ScalaTokenTypes.kINLINE =>
-        val annotation = holder.createInfoAnnotation(element, null)
-        annotation.setTextAttributes(DefaultHighlighter.KEYWORD)
-      case _ if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER =>
-        getParentByStub(element) match {
-          case _: ScNameValuePair =>
-            val annotation = holder.createInfoAnnotation(element, null)
-            annotation.setTextAttributes(DefaultHighlighter.ANNOTATION_ATTRIBUTE)
-          case _: ScTypeParam =>
-            val annotation = holder.createInfoAnnotation(element, null)
-            annotation.setTextAttributes(DefaultHighlighter.TYPEPARAM)
-          case clazz: ScClass =>
-            val annotation = holder.createInfoAnnotation(clazz.nameId, null)
-            val attributes = if (clazz.getModifierList.isAbstract) DefaultHighlighter.ABSTRACT_CLASS
-            else DefaultHighlighter.CLASS
-            annotation.setTextAttributes(attributes)
-          case _: ScObject =>
-            val annotation = holder.createInfoAnnotation(element, null)
-            annotation.setTextAttributes(DefaultHighlighter.OBJECT)
-          case _: ScTrait =>
-            val annotation = holder.createInfoAnnotation(element, null)
-            annotation.setTextAttributes(DefaultHighlighter.TRAIT)
-          case x: ScBindingPattern =>
-            x.nameContext match {
-              case r@(_: ScValue | _: ScVariable) =>
-                getParentByStub(r) match {
-                  case _: ScTemplateBody | _: ScEarlyDefinitions =>
-                    val annotation = holder.createInfoAnnotation(element, null)
-                    r match {
-                      case mod: ScModifierListOwner if mod.hasModifierProperty("lazy") =>
-                        annotation.setTextAttributes(DefaultHighlighter.LAZY)
-                      case _: ScValue => annotation.setTextAttributes(DefaultHighlighter.VALUES)
-                      case _: ScVariable => annotation.setTextAttributes(DefaultHighlighter.VARIABLES)
-                      case _ =>
-                    }
-                  case _ =>
-                    val annotation = holder.createInfoAnnotation(element, null)
-                    r match {
-                      case mod: ScModifierListOwner if mod.hasModifierProperty("lazy") =>
-                        annotation.setTextAttributes(DefaultHighlighter.LOCAL_LAZY)
-                      case _: ScValue => annotation.setTextAttributes(DefaultHighlighter.LOCAL_VALUES)
-                      case _: ScVariable => annotation.setTextAttributes(DefaultHighlighter.LOCAL_VARIABLES)
-                      case _ =>
-                    }
-                }
-              case _: ScCaseClause =>
-                val annotation = holder.createInfoAnnotation(element, null)
-                annotation.setTextAttributes(DefaultHighlighter.PATTERN)
-              case _: ScGenerator | _: ScForBinding =>
-                val annotation = holder.createInfoAnnotation(element, null)
-                annotation.setTextAttributes(DefaultHighlighter.GENERATOR)
-              case _ =>
-            }
-          case _: ScFunctionDefinition | _: ScFunctionDeclaration =>
-            val annotation = holder.createInfoAnnotation(element, null)
-            annotation.setTextAttributes(DefaultHighlighter.METHOD_DECLARATION)
-          case _ =>
-        }
       case _ =>
+        import ScalaTokenTypes.SOFT_KEYWORDS
+        val elementType = element.getNode.getElementType
+        if (SOFT_KEYWORDS.contains(elementType)) {
+          // TODO: investigate ways to highlight soft keywords in another way
+          val annotation = holder.createInfoAnnotation(element, null)
+          annotation.setTextAttributes(DefaultHighlighter.KEYWORD)
+        } else if (elementType == ScalaTokenTypes.tIDENTIFIER) {
+          getParentByStub(element) match {
+            case _: ScNameValuePair =>
+              val annotation = holder.createInfoAnnotation(element, null)
+              annotation.setTextAttributes(DefaultHighlighter.ANNOTATION_ATTRIBUTE)
+            case _: ScTypeParam =>
+              val annotation = holder.createInfoAnnotation(element, null)
+              annotation.setTextAttributes(DefaultHighlighter.TYPEPARAM)
+            case clazz: ScClass =>
+              val annotation = holder.createInfoAnnotation(clazz.nameId, null)
+              val attributes = if (clazz.getModifierList.isAbstract) DefaultHighlighter.ABSTRACT_CLASS
+              else DefaultHighlighter.CLASS
+              annotation.setTextAttributes(attributes)
+            case _: ScObject =>
+              val annotation = holder.createInfoAnnotation(element, null)
+              annotation.setTextAttributes(DefaultHighlighter.OBJECT)
+            case _: ScTrait =>
+              val annotation = holder.createInfoAnnotation(element, null)
+              annotation.setTextAttributes(DefaultHighlighter.TRAIT)
+            case x: ScBindingPattern =>
+              x.nameContext match {
+                case r@(_: ScValue | _: ScVariable) =>
+                  getParentByStub(r) match {
+                    case _: ScTemplateBody | _: ScEarlyDefinitions =>
+                      val annotation = holder.createInfoAnnotation(element, null)
+                      r match {
+                        case mod: ScModifierListOwner if mod.hasModifierProperty("lazy") =>
+                          annotation.setTextAttributes(DefaultHighlighter.LAZY)
+                        case _: ScValue => annotation.setTextAttributes(DefaultHighlighter.VALUES)
+                        case _: ScVariable => annotation.setTextAttributes(DefaultHighlighter.VARIABLES)
+                        case _ =>
+                      }
+                    case _ =>
+                      val annotation = holder.createInfoAnnotation(element, null)
+                      r match {
+                        case mod: ScModifierListOwner if mod.hasModifierProperty("lazy") =>
+                          annotation.setTextAttributes(DefaultHighlighter.LOCAL_LAZY)
+                        case _: ScValue => annotation.setTextAttributes(DefaultHighlighter.LOCAL_VALUES)
+                        case _: ScVariable => annotation.setTextAttributes(DefaultHighlighter.LOCAL_VARIABLES)
+                        case _ =>
+                      }
+                  }
+                case _: ScCaseClause =>
+                  val annotation = holder.createInfoAnnotation(element, null)
+                  annotation.setTextAttributes(DefaultHighlighter.PATTERN)
+                case _: ScGenerator | _: ScForBinding =>
+                  val annotation = holder.createInfoAnnotation(element, null)
+                  annotation.setTextAttributes(DefaultHighlighter.GENERATOR)
+                case _ =>
+              }
+            case _: ScFunctionDefinition | _: ScFunctionDeclaration =>
+              val annotation = holder.createInfoAnnotation(element, null)
+              annotation.setTextAttributes(DefaultHighlighter.METHOD_DECLARATION)
+            case _ =>
+          }
+        }
     }
   }
 

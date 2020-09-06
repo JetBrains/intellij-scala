@@ -16,6 +16,7 @@
                 order="first"/>
 
         <filePasteProvider implementation="org.jetbrains.plugins.scala.conversion.copy.plainText.ScalaFilePasteProvider"
+                           id="scalaFilePasteProvider"
                            order="first"/>
     </extensions>
 

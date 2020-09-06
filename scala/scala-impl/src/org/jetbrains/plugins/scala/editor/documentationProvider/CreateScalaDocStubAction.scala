@@ -2,11 +2,12 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.command.CommandProcessor
-import com.intellij.openapi.editor.Document
+import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiUtilBase
-import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
@@ -37,29 +38,33 @@ class CreateScalaDocStubAction extends AnAction(
     val context = e.getDataContext
     val editor = CommonDataKeys.EDITOR.getData(context)
 
-    if(editor == null) return
+    if (editor == null) return
     val file = PsiUtilBase.getPsiFileInEditor(editor, CommonDataKeys.PROJECT.getData(context))
     if (!file.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return
-    
-    file findElementAt editor.getCaretModel.getOffset match {
+
+    actionPerformedImpl(file, editor)
+  }
+
+  @TestOnly
+  def actionPerformedImpl(file: PsiFile, editor: Editor): Unit =
+    file.findElementAt(editor.getCaretModel.getOffset) match {
       case id: PsiElement if id.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER =>
         id.getParent match {
           case docOwner: ScDocCommentOwner =>
             docOwner.docComment match {
               case Some(_) => recreateStub(docOwner, editor.getDocument)
-              case None => createStub(docOwner, editor.getDocument) 
+              case None => createStub(docOwner, editor.getDocument)
             }
           case _ =>
         }
-      case _ => 
+      case _ =>
     }
-  }
   
   private def createStub(docOwner: ScDocCommentOwner, psiDocument: Document): Unit = {
     val stubText = ScalaDocStubGenerator.createScalaDocStub(docOwner).trim()
     val newComment = createDocCommentFromText(stubText)(docOwner.getManager)
     val project = docOwner.getProject
-    val docCommentEnd = docOwner.getTextRange.getStartOffset - 1
+    val docCommentEnd = docOwner.getTextRange.getStartOffset
     
     CommandProcessor.getInstance().executeCommand(project, new Runnable {
       override def run(): Unit = {

@@ -47,8 +47,13 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdap
 
     testBody()
 
-    val (expected, _) = findCaretOffsets(textAfter, stripTrailingSpaces)
+    val (expected, expectedCarets) = findCaretOffsets(textAfter, stripTrailingSpaces)
+
+    // check if the text is correct
     getFixture.checkResult(expected, stripTrailingSpaces)
+
+    // check if the carets are positioned correctly
+    checkCaretOffsets(expectedCarets)
   }
 
   protected def performTypingAction(charTyped: Char): Unit =

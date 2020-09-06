@@ -5,7 +5,11 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, Whitespace}
 
 object IndentUtil {
-  private def calcIndent(text: CharSequence, offset: Int, tabSize: Int): Int = {
+
+  def calcIndent(text: CharSequence, tabSize: Int): Int =
+    calcIndent(text, 0, tabSize)
+
+  def calcIndent(text: CharSequence, offset: Int, tabSize: Int): Int = {
     var result = 0
 
     var idx = offset

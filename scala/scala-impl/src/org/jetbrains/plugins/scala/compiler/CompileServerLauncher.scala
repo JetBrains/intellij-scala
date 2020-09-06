@@ -15,13 +15,14 @@ import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.impl.OrderEntryUtil
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
-import com.intellij.openapi.util.ShutDownTracker
+import com.intellij.openapi.util.{ShutDownTracker, SimpleModificationTracker}
 import com.intellij.util.net.NetUtils
 import javax.swing.event.HyperlinkEvent
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.server.CompileServerToken
+import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServerToken}
 import org.jetbrains.plugins.scala.util.{IntellijPlatformJars, LibraryJars, ScalaPluginJars}
 
 import scala.collection.JavaConverters._
@@ -44,7 +45,7 @@ object CompileServerLauncher {
     override def beforeBuildProcessStarted(project: Project, sessionId: UUID): Unit = {
       ensureCompileServerRunning(project)
       if (ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED)
-        CompileServerNotifications.warnIfCompileServerJdkVersionTooOld(project)
+        CompileServerNotificationsService.get(project).warnIfCompileServerJdkVersionTooOld()
     }
 
     override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit =
@@ -103,6 +104,7 @@ object CompileServerLauncher {
         invokeLater {
           CompileServerManager.configureWidget(project)
         }
+        CompileServerNotificationsService.get(project).resetNotifications()
         true
       case Left(error)  =>
         val title = ScalaBundle.message("cannot.start.scala.compile.server")
@@ -156,7 +158,7 @@ object CompileServerLauncher {
         val shutdownDelayArg = if (settings.COMPILE_SERVER_SHUTDOWN_IDLE && shutdownDelay >= 0) {
           Seq(s"-Dshutdown.delay=$shutdownDelay")
         } else Nil
-        val isScalaCompileServer = "-Dij.scala.compile.server=true"
+        val isScalaCompileServer = s"-D${CompileServerProperties.IsScalaCompileServer}=true"
 
         val vmOptions: Seq[String] = if (isUnitTestMode && project == null) Seq() else {
           val buildProcessParameters = BuildProcessParametersProvider.EP_NAME.getExtensions(project).asScala
@@ -232,7 +234,16 @@ object CompileServerLauncher {
   
   def defaultSdk(project: Project): Sdk =
     CompileServerJdkManager.recommendedSdk(project)
-      .getOrElse(BuildManager.getBuildProcessRuntimeSdk(project).first)
+      .getOrElse(getBuildProcessRuntimeSdk(project))
+
+  /**
+   * Returns the Build Process runtime SDK.
+   * The method isn't thread-safe, so the synchronized is used.
+   * @see SCL-17710
+   */
+  private def getBuildProcessRuntimeSdk(project: Project): Sdk = synchronized {
+    BuildManager.getBuildProcessRuntimeSdk(project).first
+  }
 
   def compileServerSdk(project: Project): Either[String, Sdk] = {
     val settings = ScalaCompileServerSettings.getInstance()

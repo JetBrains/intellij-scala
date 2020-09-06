@@ -9,7 +9,9 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScMacroDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenAlias
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScFunctionDeclarationImpl, ScFunctionDefinitionImpl, ScMacroDefinitionImpl}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScGivenAliasImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFunctionStubImpl
 
 /**
@@ -27,7 +29,7 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     dataStream.writeOptionName(stub.typeText)
     dataStream.writeOptionName(stub.bodyText)
     dataStream.writeBoolean(stub.hasAssign)
-    dataStream.writeBoolean(stub.isImplicitConversion)
+    dataStream.writeOptionName(stub.implicitConversionParameterClass)
     dataStream.writeBoolean(stub.isLocal)
     dataStream.writeNames(stub.implicitClassNames)
   }
@@ -42,7 +44,7 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     typeText = dataStream.readOptionName,
     bodyText = dataStream.readOptionName,
     hasAssign = dataStream.readBoolean,
-    isImplicitConversion = dataStream.readBoolean,
+    implicitConversionParameterClass = dataStream.readOptionName,
     isLocal = dataStream.readBoolean,
     implicitClassNames = dataStream.readNames
   )
@@ -69,6 +71,10 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
         text.substring(text.lastIndexOf('.') + 1)
       }
 
+    val implicitConversionParamClass =
+      if (function.isImplicitConversion) ScImplicitStub.conversionParamClass(function)
+      else None
+
     new ScFunctionStubImpl(parentStub, this,
       name = function.name,
       isDeclaration = function.isInstanceOf[ScFunctionDeclaration],
@@ -76,9 +82,9 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
       typeText = returnTypeText,
       bodyText = bodyText,
       hasAssign = maybeDefinition.exists(_.hasAssign),
-      isImplicitConversion = function.isImplicitConversion,
+      implicitConversionParameterClass = implicitConversionParamClass,
       isLocal = function.containingClass == null,
-      implicitClassNames = ScImplicitInstanceStub.implicitClassNames(function, function.returnTypeElement))
+      implicitClassNames = ScImplicitStub.implicitClassNames(function, function.returnTypeElement))
   }
 
   override def indexStub(stub: ScFunctionStub[Fun], sink: IndexSink): Unit = {
@@ -107,4 +113,10 @@ object MacroDefinition extends ScFunctionElementType[ScMacroDefinition]("macro d
   override def createElement(node: ASTNode) = new ScMacroDefinitionImpl(null, null, node)
 
   override def createPsi(stub: ScFunctionStub[ScMacroDefinition]) = new ScMacroDefinitionImpl(stub, this, null)
+}
+
+object GivenAlias extends ScFunctionElementType[ScGivenAlias]("given alias") {
+  override def createElement(node: ASTNode): ScGivenAlias = new ScGivenAliasImpl(null, null, node)
+
+  override def createPsi(stub: ScFunctionStub[ScGivenAlias]): ScGivenAlias = new ScGivenAliasImpl(stub, this, null)
 }

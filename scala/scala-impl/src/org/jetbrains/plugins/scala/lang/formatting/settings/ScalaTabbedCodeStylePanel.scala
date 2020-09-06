@@ -13,8 +13,8 @@ import com.intellij.ui.components.JBLabel
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import javax.swing._
 import org.jetbrains.annotations.NonNls
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 import org.jetbrains.plugins.scala.lang.rearranger.ScalaArrangementPanel
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
 /**
  * User: Alefas

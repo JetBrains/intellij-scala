@@ -370,11 +370,11 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
-    val seq = file.depthFirst().instanceOf[ScClass]
+    val seq = file.depthFirst().findByType[ScClass]
     Compatibility.seqClass = seq
 
     try {
-      file.depthFirst().instancesOf[ScConstructorInvocation].foreach {
+      file.depthFirst().filterByType[ScConstructorInvocation].foreach {
         ScConstructorInvocationAnnotator.annotate(_)
       }
 

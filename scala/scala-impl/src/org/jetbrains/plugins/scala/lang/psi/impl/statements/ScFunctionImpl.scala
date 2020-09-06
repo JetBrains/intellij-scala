@@ -16,7 +16,6 @@ import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
 import com.intellij.util.PlatformIcons
 import com.intellij.util.containers.ContainerUtil
 import javax.swing.Icon
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiModifierListOwnerExt, PsiTypeExt, TraversableExt}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer._
@@ -122,6 +121,11 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
 
   // TODO unify with ScValue and ScVariable
   protected override final def baseIcon: Icon = {
+    syntheticNavigationElement match {
+      case c: ScClass if ScalaPsiUtil.hasImplicitModifier(c) => return c.getIcon(flags = 0)
+      case _ =>
+    }
+
     var parent = getParent
     while (parent != null) {
       parent match {
@@ -181,6 +185,10 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   override def hasParameterClause: Boolean = ScFunctionImpl.hasParameterClauseImpl(this)
 
   override def parameterListCount: Int = paramClauses.clauses.length
+
+  override def isExtensionMethod: Boolean = extensionMethodClause.isDefined
+
+  override def extensionMethodClause: Option[ScParameterClause] = Option(getStubOrPsiChild(ScalaElementType.PARAM_CLAUSE))
 
   @CachedInUserData(this, ModCount.getBlockModificationCount)
   override def effectiveParameterClauses: Seq[ScParameterClause] = {
@@ -348,7 +356,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     }
   }
 
-  override def superMethods: Seq[PsiMethod] = superSignatures.map(_.namedElement).filterBy[PsiMethod]
+  override def superMethods: Seq[PsiMethod] = superSignatures.map(_.namedElement).filterByType[PsiMethod]
 
   override def superMethod: Option[PsiMethod] = superMethodAndSubstitutor.map(_._1)
 

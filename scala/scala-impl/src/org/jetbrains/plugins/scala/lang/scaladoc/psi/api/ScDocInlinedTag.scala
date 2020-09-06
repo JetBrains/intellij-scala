@@ -1,18 +1,10 @@
-package org.jetbrains.plugins.scala
-package lang
-package scaladoc
-package psi
-package api
+package org.jetbrains.plugins.scala.lang.scaladoc.psi.api
 
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import com.intellij.psi.javadoc.PsiDocTagValue
-
-/**
- * User: Alexander Podkhalyuzin
- * Date: 22.07.2008
- */
- 
 trait ScDocInlinedTag extends ScalaPsiElement {
-  def getValueElement: PsiDocTagValue
+  def name: String
+  def nameElement: ScPsiDocToken
+  def valueElement: Option[PsiElement]
 }

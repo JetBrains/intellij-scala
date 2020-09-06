@@ -17,14 +17,9 @@ class AutoImportAllTest extends AutoImportTestBase {
 
   def testNoPlaceHolder(): Unit = doTest()
 
-  def testCompanionObjectMethod(): Unit = doTest()
+  def testInheritedTypeAlias(): Unit = doTest()
 
-  def testCompanionObjectValue(): Unit = doTest()
+  def testTypeAliasFromVal(): Unit = doTest()
 
-  def testCompanionObjectMemberNotFound(): Unit = try {
-    doTest()
-  } catch {
-        // todo decompose doTest
-    case e: AssertionError if e.getMessage == "Element to import not found" =>
-  }
+  def testTypeAliasFromValInheritor(): Unit = doTest()
 }

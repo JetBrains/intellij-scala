@@ -1,6 +1,4 @@
-package org.jetbrains.bsp
-package protocol
-package session
+package org.jetbrains.bsp.protocol.session
 
 import java.io._
 import java.lang.reflect.{InvocationHandler, Method}
@@ -16,9 +14,11 @@ import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.eclipse.lsp4j.jsonrpc.{Launcher, ResponseErrorException}
+import org.jetbrains.bsp.{BspBundle, _}
 import org.jetbrains.bsp.protocol.BspNotifications._
 import org.jetbrains.bsp.protocol.session.BspSession._
 import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
+import org.jetbrains.bsp.protocol.{BspCommunication, BspJob}
 
 import scala.annotation.tailrec
 import scala.concurrent._
@@ -198,7 +198,7 @@ class BspSession private(bspIn: InputStream,
         val resultFromBsp = method.invoke(bspServer, args:_*)
         // Some BSP endpoints return CompletableFutures, but other return void
         resultFromBsp match {
-          case future: CompletableFuture[_] => new CancellableFuture(future)
+          case future: CompletableFuture[_] => CancellableFuture.from(future)
           case x => x
         }
       }
@@ -270,7 +270,9 @@ class BspSession private(bspIn: InputStream,
     sessionError.orElse(queueError)
   }
 
-  private[protocol] def shutdown(error: Option[BspError] = None): Try[Unit] = {
+  private[protocol] def shutdown(error: Option[BspError] = None): Future[Unit] = {
+    import org.jetbrains.plugins.scala.extensions.executionContext.appExecutionContext
+
     def whenDone: CompletableFuture[Unit] = {
       serverConnection.server.buildShutdown()
         .thenApply[Unit](_=> serverConnection.server.onBuildExit())
@@ -298,9 +300,10 @@ class BspSession private(bspIn: InputStream,
     }
     queueProcessor.cancel(false)
     sessionInitialized.cancel(false)
-    val result = Try(whenDone.get(sessionTimeout.toMillis, TimeUnit.MILLISECONDS))
-    serverConnection.cancelable.cancel()
-    result
+
+    // ensure connection-related stuff is canceled after a timeout
+    Future(whenDone.get(sessionTimeout.toMillis, TimeUnit.MILLISECONDS))
+      .andThen { case _ => serverConnection.cancelable.cancel() }
   }
 
   private[protocol] def getLastActivity: Long = lastActivity
@@ -381,7 +384,10 @@ object BspSession {
   type NotificationCallback = BspNotification => Unit
   type BspSessionTask[T] = (BspServer, BuildServerCapabilities) => CompletableFuture[T]
 
-  trait BspServer extends bsp4j.BuildServer with bsp4j.ScalaBuildServer with bsp4j.JvmBuildServer
+  trait BspServer extends bsp4j.BuildServer
+    with bsp4j.ScalaBuildServer
+    with bsp4j.JavaBuildServer
+    with bsp4j.JvmBuildServer
   trait BspClient extends bsp4j.BuildClient
 
   private[protocol] def builder(

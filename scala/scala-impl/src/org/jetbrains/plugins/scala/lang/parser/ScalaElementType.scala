@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.{ScExportStmtI
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScImportStmtStub, ScTemplateDefinitionStub}
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 
 sealed abstract class ScalaElementType(debugName: String,
                                        override val isLeftBound: Boolean = true)
@@ -69,6 +70,7 @@ object ScalaElementType {
   val FUNCTION_DECLARATION: ScFunctionElementType[ScFunctionDeclaration] = FunctionDeclaration
   val FUNCTION_DEFINITION: ScFunctionElementType[ScFunctionDefinition] = FunctionDefinition
   val MACRO_DEFINITION: ScFunctionElementType[ScMacroDefinition] = MacroDefinition
+  val GIVEN_ALIAS: ScFunctionElementType[ScGivenAlias] = GivenAlias
   val TYPE_DECLARATION = new ScTypeAliasDeclarationElementType
   val PATTERN_LIST = new ScPatternListElementType
   val TYPE_DEFINITION = new ScTypeAliasDefinitionElementType
@@ -148,6 +150,15 @@ object ScalaElementType {
       new ScNewTemplateDefinitionImpl(stub, nodeType, node, debugName)
   }
 
+  val GivenDefinition = new ScTemplateDefinitionElementType[ScGivenDefinition]("ScGivenDefinition") {
+    override protected def createPsi(stub: ScTemplateDefinitionStub[ScGivenDefinition],
+                                     nodeType: this.type,
+                                     node: ASTNode,
+                                     debugName: String): ScGivenDefinition = {
+      new ScGivenDefinitionImpl(stub, nodeType, node, debugName)
+    }
+  }
+
   val REFERENCE_PATTERN: ScBindingPatternElementType[ScReferencePattern] = ScReferencePatternElementType
   val TYPED_PATTERN: ScBindingPatternElementType[ScTypedPattern] = ScTypedPatternElementType
   val NAMING_PATTERN: ScBindingPatternElementType[ScNamingPattern] = ScNamingPatternElementType
@@ -167,11 +178,21 @@ object ScalaElementType {
   val REFERENCE: ScalaElementType = new ScalaElementType("reference") {
     override def createElement(node: ASTNode) = new ScStableCodeReferenceImpl(node)
   }
+  /** NOTE: only created to be used from
+   *  [[org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory#createDocReferenceFromText]]
+   *  to create a syntetic reference from doc
+   */
+  val DOC_REFERENCE: ScalaElementType = new ScalaElementType("doc reference") {
+    override def createElement(node: ASTNode) = new ScDocResolvableCodeReferenceImpl(node)
+  }
   val NAME_VALUE_PAIR: ScalaElementType = new ScalaElementType("name value pair") {
     override def createElement(node: ASTNode) = new ScNameValuePairImpl(node)
   }
   val ANNOTATION_EXPR: ScalaElementType = new ScalaElementType("annotation expression") {
     override def createElement(node: ASTNode) = new ScAnnotationExprImpl(node)
+  }
+  val END_STMT: ScalaElementType = new ScalaElementType("end") {
+    override def createElement(node: ASTNode): ScalaPsiElement = new ScEndImpl(node)
   }
 
   /** ***********************************************************************************/

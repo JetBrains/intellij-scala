@@ -100,6 +100,20 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
        |""".stripMargin
   )
 
+  def testPositionInConstructor(): Unit = doCompletionTest(
+    fileText =
+      s"""class A(x: Int, y: Int, z: Int)
+         |
+         |class B(y: Int, z: Int) extends A(, $CARET)
+         |""".stripMargin,
+    resultText =
+      s"""class A(x: Int, y: Int, z: Int)
+         |
+         |class B(y: Int, z: Int) extends A(, y, z)$CARET
+         |""".stripMargin,
+    item = "y, z"
+  )
+
   def testEmptyConstructor(): Unit = checkNoCompletion(
     s"""class A()
        |
@@ -236,6 +250,30 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
        |    super.foo($CARET, y)
        |}
        |""".stripMargin
+  )
+
+  def testPositionInSuperMethod(): Unit = doCompletionTest(
+    fileText =
+      s"""class A {
+         |  def foo(x: Int, y: Int, z: Int) = 42
+         |}
+         |
+         |class B extends A {
+         |  override def foo(x: Int, y: Int, z: Int) =
+         |    super.foo(, $CARET)
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""class A {
+         |  def foo(x: Int, y: Int, z: Int) = 42
+         |}
+         |
+         |class B extends A {
+         |  override def foo(x: Int, y: Int, z: Int) =
+         |    super.foo(, y, z)$CARET
+         |}
+         |""".stripMargin,
+    item = "y, z"
   )
 
   def testEmptySuperMethod(): Unit = checkNoCompletion(
@@ -411,6 +449,30 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
        |    foo($CARET, y)
        |}
        |""".stripMargin
+  )
+
+  def testPositionInMethodCall(): Unit = doCompletionTest(
+    fileText =
+      s"""class A {
+         |  def foo(x: Int, y: Int, z: Int) = 42
+         |}
+         |
+         |class B extends A {
+         |  def bar(y: Int, z: Int) =
+         |    foo(, $CARET)
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""class A {
+         |  def foo(x: Int, y: Int, z: Int) = 42
+         |}
+         |
+         |class B extends A {
+         |  def bar(y: Int, z: Int) =
+         |    foo(, y, z)$CARET
+         |}
+         |""".stripMargin,
+    item = "y, z"
   )
 
   def testEmptyMethod(): Unit = checkNoCompletion(
@@ -609,6 +671,20 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
        |""".stripMargin
   )
 
+  def testPositionInApplyCall(): Unit = doCompletionTest(
+    fileText =
+      s"""final case class Foo(foo: Int, bar: Int, baz: Int)
+         |
+         |Foo(, $CARET)
+         |""".stripMargin,
+    resultText =
+      s"""final case class Foo(foo: Int, bar: Int, baz: Int)
+         |
+         |Foo(, bar = ???, baz = ???)$CARET
+         |""".stripMargin,
+    item = "bar, baz"
+  )
+
   def testEmptyCaseClass(): Unit = checkNoCompletion(
     s"""final case class Foo()
        |
@@ -652,6 +728,91 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
     item = "bar, baz",
     isSuper = false,
     icons = PARAMETER, PATTERN_VAL
+  )
+
+  def testClauseLookupElement2(): Unit = checkLookupElement(
+    fileText =
+      s"""def foo(bar: Int,
+         |        baz: String): Unit = {}
+         |
+         |var bar = 42
+         |"" match {
+         |  case baz => foo(b$CARET)
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""def foo(bar: Int,
+         |        baz: String): Unit = {}
+         |
+         |var bar = 42
+         |"" match {
+         |  case baz => foo(bar, baz)$CARET
+         |}
+         |""".stripMargin,
+    item = "bar, baz",
+    isSuper = false,
+    icons = PATTERN_VAL, PATTERN_VAL
+  )
+
+  def testClauseLookupElement3(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""import java.util.{Collections, List}
+         |import Thread._
+         |
+         |def emptyList = Collections.emptyList[String]
+         |
+         |def foo(emptyList: List[String],
+         |        currentThread: Thread,
+         |        defaultUncaughtExceptionHandler: UncaughtExceptionHandler): Unit = {}
+         |
+         |foo(e$CARET)
+         |""".stripMargin,
+    item = "emptyList, currentThread, defaultUncaughtExceptionHandler",
+  )
+
+  def testClauseLookupElementAccessAll(): Unit = doCompletionTest(
+    fileText =
+      s"""import java.util.{Collections, List}
+         |import Thread._
+         |
+         |def emptyList = Collections.emptyList[String]
+         |
+         |def foo(emptyList: List[String],
+         |        currentThread: Thread,
+         |        defaultUncaughtExceptionHandler: UncaughtExceptionHandler): Unit = {}
+         |
+         |foo(e$CARET)
+         |""".stripMargin,
+    resultText =
+      s"""import java.util.{Collections, List}
+         |import Thread._
+         |
+         |def emptyList = Collections.emptyList[String]
+         |
+         |def foo(emptyList: List[String],
+         |        currentThread: Thread,
+         |        defaultUncaughtExceptionHandler: UncaughtExceptionHandler): Unit = {}
+         |
+         |foo(emptyList, currentThread, defaultUncaughtExceptionHandler)$CARET
+         |""".stripMargin,
+    item = "emptyList, currentThread, defaultUncaughtExceptionHandler",
+    time = 2
+  )
+
+  def testPositionInClause(): Unit = doCompletionTest(
+    fileText =
+      s"""def foo(bar: Int,
+         |        baz: String,
+         |        barBaz: Boolean): Unit =
+         |  foo(, $CARET)
+         |""".stripMargin,
+    resultText =
+      s"""def foo(bar: Int,
+         |        baz: String,
+         |        barBaz: Boolean): Unit =
+         |  foo(, baz, barBaz)$CARET
+         |""".stripMargin,
+    item = "baz, barBaz"
   )
 
   def testEmptyClause(): Unit = checkNoCompletion(

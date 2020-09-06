@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package refactoring.move
 
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.junit.Ignore
 
 class ScalaMoveClassTest extends ScalaMoveClassTestBase {
 
@@ -35,10 +36,6 @@ class ScalaMoveClassTest extends ScalaMoveClassTestBase {
     doTest(Array("moveRefactoring.foo.B"), "moveRefactoring.bar")
   }
 
-  def testScl4613(): Unit = {
-    doTest(Array("moveRefactoring.foo.B"), "moveRefactoring.bar")
-  }
-
   def testScl4621(): Unit = {
     doTest(Array("moveRefactoring.foo.O"), "moveRefactoring.bar")
   }
@@ -49,10 +46,6 @@ class ScalaMoveClassTest extends ScalaMoveClassTestBase {
 
   def testScl4875(): Unit = {
     doTest(Array("com.A"), "org")
-  }
-
-  def testScl4878(): Unit = {
-    doTest(Array("org.B"), "com")
   }
 
   def testScl4894(): Unit = {
@@ -67,22 +60,39 @@ class ScalaMoveClassTest extends ScalaMoveClassTestBase {
     doTest(Array("com.A"), "org", Kinds.onlyClasses)
   }
 
-  def testWithCompanion(): Unit = {
-    doTest(Array("source.A"), "target", Kinds.onlyClasses)
-  }
 
-
-  def testBothJavaAndScala(): Unit = {
-    doTest(Array("org.A", "org.J"), "com")
-  }
 
   def testRemoveImport(): Unit = {
     doTest(Array("my.pkg.two.OtherThing"), "my.pkg.one")
   }
 
 
-//  wait for fix Scl-6316
-//  def testWithoutCompanion() {
-//    doTest("withoutCompanion", Array("source.A"), "target", Kinds.onlyObjects, moveCompanion = false)
-//  }
+
+}
+
+@Ignore("flaky tests")
+class ScalaMoveClassTestIgnored extends ScalaMoveClassTestBase {
+
+  override protected def testDataRoot = TestUtils.getTestDataPath + "/move/"
+
+  def testScl4613(): Unit = {
+    doTest(Array("moveRefactoring.foo.B"), "moveRefactoring.bar")
+  }
+
+  def testScl4878(): Unit = {
+    doTest(Array("org.B"), "com")
+  }
+
+  def testWithCompanion(): Unit = {
+    doTest(Array("source.A"), "target", Kinds.onlyClasses)
+  }
+
+  def testBothJavaAndScala(): Unit = {
+    doTest(Array("org.A", "org.J"), "com")
+  }
+
+  // wait for fix Scl-6316
+  def testWithoutCompanion() {
+    doTest(Array("source.A"), "target", Kinds.onlyObjects, moveCompanion = false)
+  }
 }

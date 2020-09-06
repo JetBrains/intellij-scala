@@ -6,7 +6,6 @@ import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.ui.Messages
 import javax.swing.JComponent
 import org.apache.ivy.util.MessageLogger
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.components.libextensions.ProgressIndicatorLogger
 
 /**
@@ -47,11 +46,13 @@ final class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) 
         dependencyManager.resolveSingle(librarySources)
       }.recover {
         case _: ProcessCanceledException => // downloading aborted by user
-        case exception => Messages.showErrorDialog(
-          parent,
-          exception.getMessage,
-          ScalaBundle.message("error.downloading.scala.version", version)
-        )
+        case exception =>
+          //noinspection ReferencePassedToNls
+          Messages.showErrorDialog(
+            parent,
+            exception.getMessage,
+            ScalaBundle.message("error.downloading.scala.version", version)
+          )
       }.map { _ =>
         version
       }.toOption

@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 
 class ImplicitValueClassLiveTemplateTest extends ScalaLiveTemplateTestBase {
 
-  override protected def templateName = "imvc"
+  override protected def templateName = "imc"
 
   // easier to test in worksheets due to the allow top level implicit classes
   override protected def fileExtension = "sc"

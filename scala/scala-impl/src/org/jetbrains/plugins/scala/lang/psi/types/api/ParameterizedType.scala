@@ -33,7 +33,7 @@ trait ParameterizedType extends ValueType {
   }
 
   override def isFinalType: Boolean =
-    designator.isFinalType && typeArguments.filterBy[TypeParameterType].forall(_.isInvariant)
+    designator.isFinalType && typeArguments.filterByType[TypeParameterType].forall(_.isInvariant)
 
 
   //for name-based extractor

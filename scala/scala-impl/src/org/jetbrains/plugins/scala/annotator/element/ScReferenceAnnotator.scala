@@ -10,9 +10,9 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.{findCommonContext, findFirstContext}
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.{highlightImplicitView, registerTypeMismatchError}
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
+import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -34,7 +34,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocTag}
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 
 import scala.collection.Seq
 
@@ -133,7 +132,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                 var typeMismatchShown = false
 
                 if (!inDesugaring) {
-                  val firstExcessiveArgument = problems.filterBy[ExcessArgument].map(_.argument).filter(inSameFile(_, holder)).firstBy(_.getTextOffset)
+                  val firstExcessiveArgument = problems.filterByType[ExcessArgument].map(_.argument).filter(inSameFile(_, holder)).firstBy(_.getTextOffset)
                   firstExcessiveArgument.foreach { argument =>
                     val opening = argument.prevSiblings.takeWhile(e => e.is[PsiWhiteSpace] || e.is[PsiComment] || e.textMatches(",") || e.textMatches("(")).toSeq.lastOption
                     val range = opening.map(e => new TextRange(e.getTextOffset, argument.getTextOffset + 1)).getOrElse(argument.getTextRange)
@@ -565,7 +564,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
   private def checkAccessForReference(resolve: Array[ScalaResolveResult], refElement: ScReference)
                                      (implicit holder: ScalaAnnotationHolder): Unit = {
-    if (resolve.length != 1 || refElement.isSoft || refElement.isInstanceOf[ScDocResolvableCodeReferenceImpl]) return
+    if (resolve.length != 1 || refElement.isSoft || refElement.isInstanceOf[ScDocResolvableCodeReference]) return
     resolve(0) match {
       case r if !r.isAccessible =>
         val error = "Symbol %s is inaccessible from this place".format(r.element.name)

@@ -37,7 +37,6 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
       val module = task.getModule
       val moduleType = ModuleType.get(module)
       moduleType match {
-        case _ : BspSyntheticModuleType => false
         case _ => BspUtil.isBspModule(module)
       }
     case t: ExecuteRunConfigurationTask => t.getRunProfile match {

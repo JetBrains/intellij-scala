@@ -6,11 +6,11 @@ import javax.swing.Icon
 import org.jetbrains.plugins.scala.icons.Icons
 
 object TastyFileType extends FileType {
-  override def getName = "TASTY"
+  override def getName: String = tastyName
 
-  override def getDescription = "TASTY"
+  override def getDescription: String = tastyName
 
-  override def getDefaultExtension = "tasty"
+  override def getDefaultExtension: String = "tasty"
 
   override def getIcon: Icon = Icons.SCALA_SMALL_LOGO
 

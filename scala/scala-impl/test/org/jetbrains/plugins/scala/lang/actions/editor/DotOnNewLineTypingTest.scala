@@ -57,6 +57,35 @@ class DotOnNewLineTypingTest extends EditorTypeActionTestBase {
          |}""".stripMargin,
     )
 
+  // SCL-17860
+  def testIndentAfterNestedExpr(): Unit =
+    doTest(
+      s"""def test =
+         |  value
+         |  ${|}
+       """.stripMargin,
+        s"""def test =
+           |  value
+           |    .${|}
+       """.stripMargin
+    )
+
+  def testIndentAfterNestedExpr2(): Unit =
+    doTest(
+      s"""def test =
+         |  value
+         |    .expr
+         |  ${|}
+       """.stripMargin,
+      s"""def test =
+         |  value
+         |    .expr
+         |    .${|}
+       """.stripMargin
+    )
+
+
+
   def testIndent_NonDefaultSettings(): Unit = {
     indentOptions.CONTINUATION_INDENT_SIZE = 4
     indentOptions.INDENT_SIZE = indentOptions.CONTINUATION_INDENT_SIZE

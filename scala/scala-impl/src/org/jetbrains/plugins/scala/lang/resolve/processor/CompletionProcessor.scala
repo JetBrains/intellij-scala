@@ -10,13 +10,24 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.AuxiliaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, TermSignature}
+import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScType, TermSignature}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{MappedTopPrecedenceHolder, PrecedenceHelper, TopPrecedenceHolder}
 
 import scala.collection.{Set, mutable}
 
 object CompletionProcessor {
+
+  def variants(scType: ScType, place: PsiElement, nameHint: Option[String] = None): Set[ScalaResolveResult] = {
+    val processor = new CompletionProcessor(StdKinds.methodRef, place, withImplicitConversions = true) {
+      override protected val forName: Option[String] = nameHint
+    }
+    processor.processType(scType, place)
+    processor.candidatesS
+  }
+
+  def variantsWithName(scType: ScType, place: PsiElement, name: String): Set[ScalaResolveResult] =
+    variants(scType, place, Some(name))
 
   private def findCandidates(element: PsiNamedElement) = element match {
     case AuxiliaryConstructor(_) => Nil // do not add constructor
@@ -47,7 +58,7 @@ object CompletionProcessor {
 
 class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
                           override val getPlace: PsiElement,
-                          val isImplicit: Boolean = false)
+                          val withImplicitConversions: Boolean = false)
   extends BaseProcessor(kinds)(getPlace) with PrecedenceHelper {
 
   private object CompletionStrategy extends NameUniquenessStrategy {

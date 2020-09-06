@@ -32,7 +32,6 @@ import scala.language.postfixOps
   TODO 6: make tests methods more composible, there are just too many methods in this class now
 */
 @RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_10,
   TestScalaVersion.Scala_2_11,
   TestScalaVersion.Scala_2_12,
   TestScalaVersion.Scala_2_13,
@@ -81,8 +80,8 @@ abstract class WorksheetIntegrationBaseTest
   protected def createCompilerProfileForCurrentModule(profileName: String): ScalaCompilerSettingsProfile =
     ScalaCompilerConfiguration.instanceIn(project).createCustomProfileForModule(profileName, myModule)
 
-  override def initApplication(): Unit = {
-    super.initApplication()
+  override def setUpProject(): Unit = {
+    super.setUpProject()
 
     if (useCompileServer) {
       val result = CompileServerLauncher.ensureServerRunning(getProject)

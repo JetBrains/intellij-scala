@@ -20,21 +20,21 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
  *             | {LocalModifier} TmplDef
  *             | Expr1
  */
-object BlockStat {
+object BlockStat extends ParsingRule {
 
   import lexer.ScalaTokenType._
   import lexer.ScalaTokenTypes
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.kIMPORT =>
-        Import parse builder
+        Import()
         return true
       case ScalaTokenTypes.tSEMICOLON =>
         builder.advanceLexer()
         return true
       case ScalaTokenTypes.kDEF | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR | ScalaTokenTypes.kTYPE =>
-        if (!Def.parse(builder, isMod = false, isImplicit = true)) {
+        if (!Def()) {
           if (Dcl.parse(builder)) {
             builder error ErrMsg("wrong.declaration.in.block")
             return true
@@ -45,12 +45,12 @@ object BlockStat {
           }
         }
       case IsTemplateDefinition() =>
-        return TmplDef.parse(builder)
-      case _ if builder.skipExternalToken() => parse(builder)
+        return TmplDef()
+      case _ if builder.skipExternalToken() => BlockStat()
       case _ =>
-        if (!Expr1.parse(builder)) {
-          if (!Def.parse(builder, isMod = false, isImplicit = true)) {
-            if (!TmplDef.parse(builder)) {
+        if (!Expr1()) {
+          if (!Def()) {
+            if (!TmplDef()) {
               if (Dcl.parse(builder)) {
                 builder error ErrMsg("wrong.declaration.in.block")
                 return true

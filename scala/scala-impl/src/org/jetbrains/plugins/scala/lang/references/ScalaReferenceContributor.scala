@@ -3,11 +3,11 @@ package lang
 package references
 
 import com.intellij.openapi.util.TextRange
-import com.intellij.patterns.PsiJavaElementPattern
 import com.intellij.patterns.PsiJavaPatterns.psiElement
+import com.intellij.patterns.{PlatformPatterns, PsiJavaElementPattern}
 import com.intellij.psi._
-import com.intellij.psi.impl.source.resolve.reference.ArbitraryPlaceUrlReferenceProvider
 import com.intellij.psi.impl.source.resolve.reference.impl.providers.FilePathReferenceProvider
+import com.intellij.psi.impl.source.resolve.reference.{ArbitraryPlaceUrlReferenceProvider, CommentsReferenceContributor}
 import com.intellij.psi.tree.TokenSet
 import com.intellij.util.{IncorrectOperationException, ProcessingContext}
 import org.jetbrains.plugins.scala.extensions._
@@ -17,18 +17,26 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPat
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScPsiDocToken
 
 import scala.collection.mutable.ListBuffer
 
+/**
+ * @see [[com.intellij.psi.impl.source.resolve.reference.impl.providers.JavaReferenceContributor]]
+ */
 final class ScalaReferenceContributor extends PsiReferenceContributor {
 
   override def registerReferenceProviders(registrar: PsiReferenceRegistrar): Unit = {
-
     def literalCapture: PsiJavaElementPattern.Capture[ScStringLiteral] = psiElement(classOf[ScStringLiteral])
 
     registrar.registerReferenceProvider(literalCapture, new ScalaFilePathReferenceProvider(false), PsiReferenceRegistrar.LOWER_PRIORITY)
     registrar.registerReferenceProvider(literalCapture, new InterpolatedStringReferenceProvider())
     registrar.registerReferenceProvider(literalCapture, new ArbitraryPlaceUrlReferenceProvider())
+
+    registrar.registerReferenceProvider(
+      PlatformPatterns.psiElement(classOf[ScPsiDocToken]),
+      CommentsReferenceContributor.COMMENTS_REFERENCE_PROVIDER_TYPE.getProvider
+    )
   }
 }
 

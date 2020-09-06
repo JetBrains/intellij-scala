@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.editor.typedHandler
+package org.jetbrains.plugins.scala
+package editor
+package typedHandler
 
 import java.{util => ju}
 
@@ -11,14 +13,12 @@ import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
-import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettings}
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceInsertionTools._
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler._
-import org.jetbrains.plugins.scala.editor.{DocumentExt, EditorExt}
 import org.jetbrains.plugins.scala.extensions.{CharSeqExt, PsiFileExt, _}
 import org.jetbrains.plugins.scala.highlighter.ScalaCommenter
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence
@@ -36,20 +36,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterCla
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
-import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.IndentUtil
-import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 import scala.annotation.tailrec
 import scala.language.implicitConversions
 
 //noinspection HardCodedStringLiteral
-final class ScalaTypedHandler extends TypedHandlerDelegate {
+final class ScalaTypedHandler extends TypedHandlerDelegate
+  with IndentAdjustor
+{
 
-  @Measure
   override def charTyped(c: Char, project: Project, editor: Editor, file: PsiFile): Result = {
     if (!file.isInstanceOf[ScalaFile]) return Result.CONTINUE
 
@@ -80,9 +79,13 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     val myTask: Task = if (element != null && isInDocComment(element)) { //we don't have to check offset >= 3 because "/**" is already has 3 characters
       getScaladocTask(text, offset)
     } else if (c == ' ' && hasPrefix(" case ")) {
-      indentCase(file)
+      indentKeyword[ScCaseClause](ScalaTokenTypes.kCASE, file)
     } else if (c == ' ' && hasPrefix("else ")) {
-      indentElse(file)
+      indentKeyword[ScIf](ScalaTokenTypes.kELSE, file)
+    } else if (c == ' ' && hasPrefix("catch ")) {
+      indentKeyword[ScCatchBlock](ScalaTokenTypes.kCATCH, file)
+    } else if (c == ' ' && hasPrefix("finally ")) {
+      indentKeyword[ScFinallyBlock](ScalaTokenTypes.kFINALLY, file)
     } else if (c == '{' && hasPrefix(" {")) {
       indentValBraceStyle(file)
     } else if (element != null && isInPlace(element, classOf[ScXmlExpr], classOf[ScXmlPattern])) {
@@ -111,8 +114,11 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
       startAutoPopupCompletion(file, editor)
     } else if (c == '{') {
       convertToInterpolated(file, editor)
-    } else if (c == '.' && isSingleCharOnLine(editor)) {
-      addContinuationIndentBeforeDot(CodeStyle.getLanguageSettings(file, ScalaLanguage.INSTANCE).getIndentOptions)
+    } else if (c == '.' && shouldAdjustIndentAfterDot(editor)) {
+      prepareIndentAdjustmentBeforeDot(document, offset)
+      adjustIndentBeforeDot(editor)
+    } else if (c != '.' && element != null && shouldAdjustIndentBecauseOfPostfix(offset, element, document, editor)) {
+      adjustIndent
     } else if (c == '.') {
       startAutoPopupCompletionInInterpolatedString(file, editor)
     } else if (offset > 1) {
@@ -138,7 +144,6 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     }
   }
 
-  @Measure
   override def beforeCharTyped(c: Char, project: Project, editor: Editor, file: PsiFile, fileType: FileType): Result = {
     if (!file.isInstanceOf[ScalaFile]) return Result.CONTINUE
 
@@ -155,13 +160,14 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     implicit val f: PsiFile = file
     implicit val settings: CodeStyleSettings = CodeStyle.getSettings(project)
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    lazy val smartKeySettings = ScalaApplicationSettings.getInstance
 
     def moveCaret(): Unit = {
       editor.getCaretModel.moveCaretRelatively(1, 0, false, false, false)
     }
 
     if (c == ' ' && prevElement != null && needClosingScaladocTag(element, prevElement)) {
-      insertClosingScaladocTag(offset, element)
+      insertClosingScaladocTag(offset)
       moveCaret()
       Result.STOP
     } else if (isClosingScaladocTagOrMarkup(c, element, elementType)) {
@@ -181,8 +187,23 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
     } else if (c == '>' && scalaSettings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR && prevElement != null &&
       prevElement.getNode.getElementType == ScalaTokenTypes.tFUNTYPE) {
       Result.STOP
-    } else if (c == '{' && ScalaApplicationSettings.getInstance.WRAP_SINGLE_EXPRESSION_BODY) {
-      handleLeftBrace(offset, element)
+    } else if (c == '{' && smartKeySettings.WRAP_SINGLE_EXPRESSION_BODY) {
+      handleLeftBraceWrap(offset, element)
+    } else if (shouldHandleAutoBracesBeforeTyped(c)) {
+      findAutoBraceInsertionOpportunity(Some(c), offset, element)
+        .fold(Result.CONTINUE) { info =>
+          insertAutoBraces(info)
+          // prevent other beforeTyped-handlers from being executed because psi tree is out of sync now
+          Result.DEFAULT
+        }
+
+    } else if (c.isWhitespace) {
+      findAutoBraceInsertionOpportunityWhenStartingStatement(c, offset, element)
+        .fold(Result.CONTINUE) { info =>
+          insertAutoBraces(info)
+          // prevent other beforeTyped-handlers from being executed because psi tree is out of sync now
+          Result.DEFAULT
+        }
     } else {
       Result.CONTINUE
     }
@@ -190,7 +211,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
 
   @inline
   private def isClosingScaladocTagOrMarkup(c: Char, element: PsiElement, elementType: IElementType) = {
-    (elementType.isInstanceOf[ScaladocSyntaxElementType] || elementType == ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG) &&
+    (elementType.isInstanceOf[ScalaDocSyntaxElementType] || elementType == ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG) &&
       isInDocComment(element) &&
       element.getParent.getLastChild == element && element.getText.startsWith("" + c) &&
       // handling case when '`' was type right after second '`' inside "````" to enable bold syntax ("```bold text```)"
@@ -213,7 +234,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
         false
     })
 
-  private def insertClosingScaladocTag(offset: Int, element: PsiElement)(implicit editor: Editor): Unit = {
+  private def insertClosingScaladocTag(offset: Int)(implicit editor: Editor): Unit = {
     val docEnd = ScalaCommenter.getDocumentationCommentSuffix
     insertAndCommit(offset, "  " + docEnd, editor.getDocument, editor.getProject)
   }
@@ -230,12 +251,12 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
   }
 
   private def completeScalaDocWikiSyntax(tagToInsert: String)(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
-    if (element.getNode.getElementType.isInstanceOf[ScaladocSyntaxElementType] || tagToInsert == "}}}") {
+    if (element.getNode.getElementType.isInstanceOf[ScalaDocSyntaxElementType] || tagToInsert == "}}}") {
       insertAndCommit(offset, tagToInsert, document, project)
     }
 
   private def completeScalaDocBoldSyntaxElement(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
-    if (element.getNode.getElementType.isInstanceOf[ScaladocSyntaxElementType]) {
+    if (element.getNode.getElementType.isInstanceOf[ScalaDocSyntaxElementType]) {
       insertAndCommit(offset, "'", document, project)
     }
 
@@ -309,16 +330,6 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
 
   private val NoMatter: PsiElement => Boolean = _ => true
 
-  private def indentCase(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
-    indentElement(file)(document, project, element, offset)(
-      elem => elem.getNode.getElementType == ScalaTokenTypes.kCASE && elem.getParent.isInstanceOf[ScCaseClause]
-    )
-
-  private def indentElse(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
-    indentElement(file)(document, project, element, offset)(
-      elem => elem.getNode.getElementType == ScalaTokenTypes.kELSE && elem.getParent.isInstanceOf[ScIf]
-    )
-
   private def indentRefExprDot(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
     indentElement(file)(document, project, element, offset)(
       NoMatter,
@@ -354,58 +365,6 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
       ScalaPsiUtil.isLineTerminator,
       ScalaPsiUtil.getParent(_, 2).exists(_.isInstanceOf[ScValue])
     )
-
-  private def indentElement(
-    file: PsiFile
-  )(
-    document: Document,
-    project: Project,
-    element: PsiElement,
-    offset: Int
-  )(
-    prevCondition: PsiElement => Boolean,
-    condition: PsiElement => Boolean = _.isInstanceOf[PsiWhiteSpace]
-  ): Unit =
-    if (condition(element)) {
-      val anotherElement = file.findElementAt(offset - 2)
-      if (prevCondition(anotherElement)) {
-        document.commit(project)
-        CodeStyleManager.getInstance(project).adjustLineIndent(file, anotherElement.getTextRange)
-      }
-    }
-
-  private def addContinuationIndentBeforeDot(indentOptions: IndentOptions)
-                                            (document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
-    val file = element.getContainingFile
-
-    val dotOffset = offset - 1
-    val baseIndent = CodeStyleManager.getInstance(project).getLineIndent(file, dotOffset)
-
-    val extraIndentSize = indentOptions.CONTINUATION_INDENT_SIZE
-    val indentString =
-      if (indentOptions.USE_TAB_CHARACTER)
-        IndentUtil.appendSpacesToIndentString(baseIndent, extraIndentSize, indentOptions.TAB_SIZE)
-      else
-        baseIndent + StringUtil.repeatSymbol(' ', extraIndentSize)
-
-    val lineStartOffset = document.lineStartOffset(dotOffset)
-    document.replaceString(lineStartOffset, dotOffset, indentString)
-    document.commit(project)
-  }
-
-  private def isSingleCharOnLine(editor: Editor): Boolean = {
-    val document = editor.getDocument
-    val offset = editor.offset
-    val lineStart = document.lineStartOffset(offset)
-
-    val prefix =
-      if (lineStart < offset)
-        document.getImmutableCharSequence.substring(lineStart, offset - 1)
-      else ""
-    val suffix = document.getImmutableCharSequence.substring(offset, document.lineEndOffset(offset))
-
-    (prefix + suffix).forall(_.isWhitespace)
-  }
 
   private def replaceArrowTask(file: PsiFile, editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
     @inline def replaceElement(replaceWith: String): Unit = {
@@ -501,11 +460,13 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
       document.commit(project)
     }
 
-  private def handleLeftBrace(caretOffset: Int, element: PsiElement)
-                             (implicit project: Project, file: PsiFile, editor: Editor, settings: CodeStyleSettings): Result =
+  private def handleLeftBraceWrap(caretOffset: Int, element: PsiElement)
+                                 (implicit project: Project, file: PsiFile, editor: Editor, settings: CodeStyleSettings): Result =
     findElementToWrap(element) match {
-      case Some(wrapInfo) if !wrapInfo.wrapElement.isInstanceOf[ScBlockExpr] =>
-        wrapWithBraces(caretOffset, wrapInfo)
+      case Some(wrapInfo) =>
+        if (!wrapInfo.wrapElement.isInstanceOf[ScBlockExpr])
+          wrapWithBraces(caretOffset, wrapInfo)
+        else Result.CONTINUE
       case _ => Result.CONTINUE
     }
 
@@ -513,18 +474,21 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
                             (implicit project: Project, file: PsiFile, editor: Editor, settings: CodeStyleSettings): Result = {
     val document = editor.getDocument
 
-    val BraceWrapInfo(element, prev, parent, canShareLine) = wrap
+    val BraceWrapInfo(wrapElement, beforeCaret, parent, canShareLine) = wrap
 
-    val elementStartOffset = element.startOffset
+    val elementStartOffset = wrapElement.startOffset
     val elementLine = document.getLineNumber(elementStartOffset)
-    val prevElementLine = document.getLineNumber(prev.startOffset)
+    val prevElementLine = document.getLineNumber(beforeCaret.startOffset)
     val caretLine = document.getLineNumber(caretOffset)
 
     val caretIsBeforeElement = caretOffset <= elementStartOffset
     val caretAndPrevElementOnSameLine = caretLine == prevElementLine
     val singleLineDefinition = prevElementLine == elementLine
 
-    val needToHandle = caretIsBeforeElement && caretAndPrevElementOnSameLine && isElementIndented(parent, element)
+    val needToHandle = caretIsBeforeElement &&
+      caretAndPrevElementOnSameLine &&
+      isElementIndented(parent, wrapElement) &&
+      !followedByBrokenClosingBrace(wrapElement)
     if (needToHandle) {
       document.insertString(caretOffset, "{")
 
@@ -533,7 +497,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
         // in this case we rely that EnterAfterUnmatchedBraceHandler will insert missing closing brace
         editor.getCaretModel.moveToOffset(caretOffset + 1)
       } else {
-        val endElement = advanceElementToLineComment(element)
+        val endElement = advanceElementToLineComment(wrapElement)
         val elementActualStartOffset = elementStartOffset + 1
         val elementActualEndOffset = endElement.endOffset + 1
         editor.getCaretModel.moveToOffset(elementActualStartOffset)
@@ -556,6 +520,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
         CodeStyleManager.getInstance(project).reformatText(file, ranges)
       }
 
+      AutoBraceAdvertiser.advertiseAutoBraces(project)
       Result.STOP
     } else {
       Result.CONTINUE
@@ -579,6 +544,12 @@ final class ScalaTypedHandler extends TypedHandlerDelegate {
   private def isElementIndented(parent: PsiElement, child: PsiElement)(implicit settings: CodeStyleSettings): Boolean = {
     val tabSize = settings.getTabSize(ScalaFileType.INSTANCE)
     IndentUtil.compare(child, parent, tabSize) > 0
+  }
+
+  private def followedByBrokenClosingBrace(element: PsiElement): Boolean = {
+    val next = element.getNextNonWhitespaceAndNonEmptyLeaf
+    val isClosingBrace = next != null && next.elementType == ScalaTokenTypes.tRBRACE
+    isClosingBrace && PsiTreeUtil.nextLeaf(next).isInstanceOf[PsiErrorElement]
   }
 }
 
@@ -605,7 +576,7 @@ object ScalaTypedHandler {
 
   /**
    * @param wrapElement  element after  which closing brace should be inserted (or removed)
-   * @param prev         element prior to the caret position just after typing or removing brace
+   * @param beforeCaret  element prior to the caret position just after typing or removing brace
    * @param parent       element against which we should check that `wrap` element is indented
    * @param canShareLine whether closing brace can be inserted just before some other element with the same parent
    *                     for example in:
@@ -615,7 +586,7 @@ object ScalaTypedHandler {
    *                     closing brace for if is inserted just right before else
    * @see [[org.jetbrains.plugins.scala.editor.backspaceHandler.ScalaBackspaceHandler.handleLeftBrace]]
    */
-  case class BraceWrapInfo(wrapElement: PsiElement, prev: PsiElement, parent: PsiElement, canShareLine: Boolean = false)
+  case class BraceWrapInfo(wrapElement: PsiElement, beforeCaret: PsiElement, parent: PsiElement, canShareLine: Boolean = false)
 
   /**
    * @param element element at caret position
@@ -645,10 +616,11 @@ object ScalaTypedHandler {
       case w: ScWhile                   => (w.rightParen.contains, w.expression, wrap(_))
       case t: ScTry                     => (t.getFirstChild.eq, t.expression, wrap(_, true))
       case f: ScFor                     => ((if (f.isYield) f.getYield else f.getRightBracket).contains, f.body, wrap(_))
-      case ifExpr: ScIf if ifExpr.rightParen.contains(prevElement) =>
-        (_ => true, ifExpr.thenExpression, wrap(_, ifExpr.elseKeyword.isDefined))
       case ifExpr: ScIf =>
-        (ifExpr.elseKeyword.contains, ifExpr.elseExpression, wrap(_))
+        if (ifExpr.rightParen.contains(prevElement))
+          (_ => true, ifExpr.thenExpression, wrap(_, ifExpr.elseKeyword.isDefined))
+        else
+          (ifExpr.elseKeyword.contains, ifExpr.elseExpression, wrap(_))
       case f: ScFinallyBlock => (
         f.getFirstChild.eq,
         f.getFirstChild.getNextSiblingNotWhitespace.toOption,
@@ -659,7 +631,8 @@ object ScalaTypedHandler {
 
     val (prevElementChecker, elementToWrap, wrapper) = tuple
     if (prevElementChecker(prevElement)) {
-      elementToWrap().map(wrapper)
+      val toWrap = elementToWrap()
+      toWrap.map(wrapper)
     } else {
       None
     }

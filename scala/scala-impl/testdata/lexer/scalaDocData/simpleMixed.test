@@ -54,7 +54,9 @@ DOC_WHITESPACE { }
 DOC_TAG_NAME {@see}
 DOC_WHITESPACE { }
 DOC_HTTP_LINK_TAG 128 {[[}
-DOC_COMMENT_DATA {http://scala-lang.org see this site}
+DOC_HTTP_LINK_VALUE {http://scala-lang.org}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {see this site}
 DOC_LINK_CLOSE_TAG 0 {]]}
 DOC_WHITESPACE {
   }

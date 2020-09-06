@@ -4,8 +4,9 @@ package parser
 package parsing
 package top.params
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypesAsClassParams
 
 /**
 * @author Alexander Podkhalyuzin
@@ -35,14 +36,25 @@ object ClassParamClause {
             return false
           case _ =>
         }
-        //ok, let's parse parameters
-        if (ClassParam parse builder) {
-          while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !builder.consumeTrailingComma(ScalaTokenTypes.tRPARENTHESIS)) {
-            builder.advanceLexer() //Ate ,
-            if (!(ClassParam parse builder)) {
-              builder error ErrMsg("wrong.parameter")
+
+        def parseNormalClassParams(): Unit = {
+          //ok, let's parse parameters
+          if (ClassParam parse builder) {
+            while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !builder.consumeTrailingComma(ScalaTokenTypes.tRPARENTHESIS)) {
+              builder.advanceLexer() //Ate ,
+              if (!(ClassParam parse builder)) {
+                builder error ErrMsg("wrong.parameter")
+              }
             }
           }
+        }
+
+        if (builder.isScala3 && builder.tryParseSoftKeyword(ScalaTokenType.UsingKeyword)) {
+          if (!TypesAsClassParams.parse(builder)) {
+            parseNormalClassParams()
+          }
+        } else {
+          parseNormalClassParams()
         }
       case _ =>
         classParamMarker.rollbackTo()

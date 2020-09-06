@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ErrMsg
+import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
@@ -11,8 +12,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /*
  * AccessModifier ::= '[' (id | 'this') ']'
  */
-object AccessQualifier {
-  def parse(builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
+object AccessQualifier extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
     case ScalaTokenTypes.tLSQBRACKET =>
       builder.advanceLexer() // Ate [
       builder.disableNewlines()

@@ -121,6 +121,7 @@ private class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearch
 
   private class PlacesCellRenderer extends ColoredListCellRenderer[DependencyPlaceInfo] {
 
+    //noinspection ReferencePassedToNls,ScalaExtractStringToBundle
     override def customizeCellRenderer(list: JList[_ <: DependencyPlaceInfo],
                                        info: DependencyPlaceInfo,
                                        index: Int,
@@ -130,7 +131,7 @@ private class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearch
       append(info.path + ":")
       append(info.line.toString, SimpleTextAttributes.GRAY_ATTRIBUTES)
       if (info.affectedProjects.nonEmpty)
-        append(" (" + info.affectedProjects.map(_.toString).mkString(", ") + ")")
+        append(" (" + info.affectedProjects.mkString(", ") + ")")
     }
   }
 }

@@ -89,7 +89,7 @@ object Decompiler {
                              className: String,
                              isPackageObject: Boolean) =
     try {
-      val printer = new ScalaSigPrinter(new StringBuilder, false)
+      val printer = new ScalaSigPrinter(new StringBuilder)
 
       def findPath(symbol: Symbol) = symbol.name match {
         case "<empty>" => None

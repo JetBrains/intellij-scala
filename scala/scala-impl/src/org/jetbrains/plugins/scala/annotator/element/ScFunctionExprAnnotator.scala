@@ -88,7 +88,7 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
     var typeMismatch = false
     parameters.zip(expectedTypes).iterator.takeWhile(_ => !typeMismatch).foreach { case (parameter, expectedType) =>
       parameter.typeElement.flatMap(_.`type`().toOption).filter(!expectedType.conforms(_)).foreach { _ =>
-        val message = s"Type mismatch, expected: ${expectedType.presentableText(parameter)}, actual: ${parameter.typeElement.get.getText}"
+        val message = ScalaBundle.message("type.mismatch.expected", expectedType.presentableText(parameter), parameter.typeElement.get.getText)
         val ranges = mismatchRangesIn(parameter.typeElement.get, expectedType)(parameter)
         ranges.foreach(holder.createErrorAnnotation(_, message).registerFix(ReportHighlightingErrorQuickFix))
         typeMismatch = true

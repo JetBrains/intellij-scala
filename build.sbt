@@ -93,7 +93,7 @@ lazy val tastyRuntime = newProject("tasty-runtime", file("tasty/runtime"))
 
 lazy val tastyExample = newProject("tasty-example", file("tasty/example"))
   .dependsOn(tastyCompile, tastyProvided % Provided)
-  .settings(scalaVersion := "2.13.1", libraryDependencies += "ch.epfl.lamp" % "dotty-library_0.25" % "0.25.0-RC2" % Runtime)
+  .settings(scalaVersion := "2.13.1", libraryDependencies += "ch.epfl.lamp" % "dotty-library_0.26" % "0.26.0-RC1" % Runtime)
 
 lazy val tastyReader = newProject("tasty-reader", file("tasty/reader"))
   .dependsOn(tastyCompile, tastyProvided % Provided)
@@ -193,9 +193,9 @@ lazy val runners =
   newProject("runners", file("scala/runners"))
     .settings(
       packageMethod := PackagingMethod.Standalone(static = true),
-      libraryDependencies ++= DependencyGroups.runners,
+      libraryDependencies ++= DependencyGroups.runners
       // WORKAROUND fixes build error in sbt 0.13.12+ analogously to https://github.com/scala/scala/pull/5386/
-      ivyScala ~= (_ map (_ copy (overrideScalaVersion = false)))
+//      ivyScala ~= (_ map (_ copy (overrideScalaVersion = false)))
     )
 
 lazy val nailgunRunners =

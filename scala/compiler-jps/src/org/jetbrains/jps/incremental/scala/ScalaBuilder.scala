@@ -12,6 +12,7 @@ import org.jetbrains.jps.builders.java.JavaBuilderUtil
 import org.jetbrains.jps.incremental.messages.ProgressMessage
 import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.plugins.scala.compiler.data.{CompilationData, SbtData}
+import org.jetbrains.plugins.scala.server.CompileServerProperties
 
 import _root_.scala.collection.JavaConverters._
 
@@ -96,12 +97,12 @@ object ScalaBuilder {
 
     if (hasScalaFacet && !hasScalaLibrary && hasScalaSources) {
       val names = modules.map(_.getName).mkString(", ")
-      client.warning("No 'scala-library*.jar' in module dependencies [%s]".format(names))
+      client.warning(JpsBundle.message("no.scala.library.jar.in.module.dependencies", names))
     }
   }
 
   private def getServer(implicit context: CompileContext): Server = {
-    if (isCompileServerEnabled) {
+    if (isCompileServerEnabled && !CompileServerProperties.isScalaCompileServer) {
       cleanLocalServerCache()
       val port = globalSettings.getCompileServerPort
       Log.info(s"using remote server with port: $port")

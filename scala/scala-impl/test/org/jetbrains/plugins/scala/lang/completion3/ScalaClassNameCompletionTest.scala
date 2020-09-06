@@ -187,7 +187,7 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
       fileText = s"val foo: $CARET = null",
       resultText = s"val foo: Foo$CARET = null"
     ) {
-      ScalaCodeInsightTestBase.hasItemText(_, "Foo")()
+      ScalaCodeInsightTestBase.hasItemText(_, "Foo")(typeText = "")
     }
   }
 }

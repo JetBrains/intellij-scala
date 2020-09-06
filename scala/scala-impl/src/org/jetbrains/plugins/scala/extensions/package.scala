@@ -66,7 +66,7 @@ import scala.annotation.tailrec
 import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.collection.{JavaConverters, Seq}
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Future, Promise}
 import scala.io.Source
 import scala.language.higherKinds
 import scala.math.Ordering
@@ -170,12 +170,12 @@ package object extensions {
     def foreachDefined(pf: PartialFunction[A, Unit]): Unit =
       value.foreach(pf.applyOrElse(_, (_: A) => Unit))
 
-    def filterBy[T: ClassTag](implicit cbf: CanBuildTo[T, CC]): CC[T] = {
+    def filterByType[T: ClassTag](implicit cbf: CanBuildTo[T, CC]): CC[T] = {
       val clazz = implicitly[ClassTag[T]].runtimeClass
-      value.filter(clazz.isInstance).map[T, CC[T]](_.asInstanceOf[T])(collection.breakOut)
+      value.filter(clazz.isInstance).asInstanceOf[CC[T]]
     }
 
-    def findBy[T: ClassTag]: Option[T] = {
+    def findByType[T: ClassTag]: Option[T] = {
       val clazz = implicitly[ClassTag[T]].runtimeClass
       value.find(clazz.isInstance).asInstanceOf[Option[T]]
     }
@@ -189,11 +189,6 @@ package object extensions {
       result.asInstanceOf[Option[T]]
     }
 
-    def mkParenString(implicit ev: A <:< String): String = value.mkString("(", ", ", ")")
-  }
-
-  implicit class SeqExt[CC[X] <: Seq[X], A <: AnyRef](private val value: CC[A]) extends AnyVal {
-
     def distinctBy[K](f: A => K): Seq[A] = {
       val buffer = new ArrayBuffer[A](value.size)
       var seen = Set[K]()
@@ -206,6 +201,11 @@ package object extensions {
       }
       buffer
     }
+
+    def mkParenString(implicit ev: A <:< String): String = value.mkString("(", ", ", ")")
+  }
+
+  implicit class SeqExt[CC[X] <: Seq[X], A <: AnyRef](private val value: CC[A]) extends AnyVal {
 
     def firstBy[B](f: A => B)(implicit ord: Ordering[B]): Option[A] =
       if (value.isEmpty) None else Some(value.minBy(f))
@@ -412,9 +412,11 @@ package object extensions {
     def asOptionOf[E <: T : ClassTag]: Option[E] = asOptionOfUnsafe[E]
 
     // For `is` there's "unsafe" `isInstanceOf`, but for `asOption` there's only `match` (which is verbose).
-    def asOptionOfUnsafe[E : ClassTag]: Option[E] = Some(v).collect {
-      case e: E => e
-    }
+    def asOptionOfUnsafe[E : ClassTag]: Option[E] =
+      v match {
+        case e: E => Some(e)
+        case _    => None
+      }
   }
 
   implicit class ReferenceExt[T](private val target: Reference[T]) extends AnyVal {
@@ -522,6 +524,10 @@ package object extensions {
 
     def count(pred: Char => Boolean): Int = iterator.count(pred)
 
+    def exists(pred: Char => Boolean): Boolean = iterator.exists(pred)
+
+    def forall(pred: Char => Boolean): Boolean = iterator.forall(pred)
+
     def prefixLength(pred: Char => Boolean): Int = iterator.takeWhile(pred).size
 
     def startsWith(prefix: String): Boolean =
@@ -538,6 +544,8 @@ package object extensions {
 
     def indexOf(pattern: CharSequence, fromIndex: Int = 0): Int =
       CharArrayUtil.indexOf(cs, pattern, fromIndex)
+
+    def indexWhere(pred: Char => Boolean): Int = iterator.indexWhere(pred)
   }
 
   implicit class StringsExt(private val strings: Seq[String]) extends AnyVal {
@@ -635,9 +643,15 @@ package object extensions {
     def parentOfType(classes: Seq[Class[_ <: PsiElement]]): Option[PsiElement] =
       Option(getParentOfType(element, classes: _*))
 
+    def nonStrictParentOfType[Psi <: PsiElement: ClassTag]: Option[Psi] =
+      nonStrictParentOfType(implicitly[ClassTag[Psi]].runtimeClass.asInstanceOf[Class[Psi]])
+
+    def nonStrictParentOfType[Psi <: PsiElement](clazz: Class[Psi]): Option[Psi] =
+      Option(getNonStrictParentOfType(element, clazz))
 
     def nonStrictParentOfType(classes: Seq[Class[_ <: PsiElement]]): Option[PsiElement] =
       Option(getNonStrictParentOfType(element, classes: _*))
+
 
     def findContextOfType[Psi <: PsiElement](clazz: Class[Psi]): Option[Psi] =
       Option(getContextOfType(element, clazz))
@@ -711,7 +725,7 @@ package object extensions {
           else inner(PsiTreeUtil.prevLeaf(el))
         case _: PsiComment if ignoreComments =>
           inner(PsiTreeUtil.prevLeaf(el))
-        case _ if el.getTextLength == 0 => // empty annotations, modifiers, etc...
+        case _ if el.getTextLength == 0 => // empty annotations, modifiers, parse errors, etc...
           inner(PsiTreeUtil.prevLeaf(el))
         case _ => false
       }
@@ -726,6 +740,8 @@ package object extensions {
           if (ws.textContains('\n')) true
           else inner(PsiTreeUtil.nextLeaf(el))
         case _: PsiComment if ignoreComments =>
+          inner(PsiTreeUtil.nextLeaf(el))
+        case _ if el.getTextLength == 0 => // empty annotations, modifiers, parse errors, etc...
           inner(PsiTreeUtil.nextLeaf(el))
         case _ => false
       }
@@ -763,6 +779,38 @@ package object extensions {
     def nextSiblingNotWhitespace: Option[PsiElement] =
       Option(getNextSiblingNotWhitespace)
 
+    def nextLeaf: Option[PsiElement] =
+      PsiTreeUtil.nextLeaf(element).toOption
+
+    def prevLeaf: Option[PsiElement] =
+      PsiTreeUtil.prevLeaf(element).toOption
+
+    final def nextVisibleLeaf: Option[PsiElement] =
+      nextVisibleLeaf(skipComments = false)
+
+    @tailrec
+    final def nextVisibleLeaf(skipComments: Boolean): Option[PsiElement] =
+      PsiTreeUtil.nextVisibleLeaf(element) match {
+        case comment: PsiComment if skipComments => comment.nextVisibleLeaf(skipComments)
+        case next => next.toOption
+      }
+
+    final def prevVisibleLeaf: Option[PsiElement] =
+      prevVisibleLeaf(skipComments = false)
+
+    @tailrec
+    final def prevVisibleLeaf(skipComments: Boolean): Option[PsiElement] =
+      PsiTreeUtil.prevVisibleLeaf(element) match {
+        case comment: PsiComment if skipComments => comment.prevVisibleLeaf(skipComments)
+        case next => next.toOption
+      }
+
+    def firstLeaf: PsiElement =
+      PsiTreeUtil.getDeepestFirst(element)
+
+    def lastLeaf: PsiElement =
+      PsiTreeUtil.getDeepestLast(element)
+
     def getFirstChildNotWhitespace: PsiElement =
       element.getFirstChild match {
         case ws: PsiWhiteSpace => ws.getNextSiblingNotWhitespace
@@ -795,10 +843,16 @@ package object extensions {
     /** skips empty annotations, modifiers, etc.. */
     def getPrevNonEmptyLeaf: PsiElement = {
       var prev = PsiTreeUtil.prevLeaf(element)
-      while (prev != null && prev.getTextLength == 0) {
+      while (prev != null && prev.getTextLength == 0)
         prev = PsiTreeUtil.prevLeaf(prev)
-      }
       prev
+    }
+
+    def getNextNonWhitespaceAndNonEmptyLeaf: PsiElement = {
+      var next = PsiTreeUtil.nextLeaf(element)
+      while (next != null && (next.getTextLength == 0 || next.isInstanceOf[PsiWhiteSpace]))
+        next = PsiTreeUtil.nextLeaf(next)
+      next
     }
 
     def resolveScope: GlobalSearchScope =
@@ -991,7 +1045,14 @@ package object extensions {
     def sameOrInheritor(other: PsiClass): Boolean = areClassesEquivalent(clazz, other) || isInheritorDeep(clazz, other)
   }
 
-  implicit class PsiNamedElementExt(val named: PsiNamedElement) extends AnyVal {
+//  implicit class NavigationItemExt(private val item: NavigationItem) extends AnyVal {
+//    def name: String = item match {
+//      case scItem: ScNamedElement => scItem.name
+//      case _ => item.getName
+//    }
+//  }
+
+  implicit class PsiNamedElementExt(private val named: PsiNamedElement) extends AnyVal {
     /**
       * Second match branch is for Java only.
       */
@@ -1047,7 +1108,9 @@ package object extensions {
 
   implicit class ASTNodeExt(private val node: ASTNode) extends AnyVal {
     def treeNextNodes: Iterator[ASTNode] = new ASTNodeTreeNextIterator(node)
+    def withTreeNextNodes: Iterator[ASTNode] = Iterator(node) ++ new ASTNodeTreeNextIterator(node)
     def treePrevNodes: Iterator[ASTNode] = new ASTNodeTreePrevIterator(node)
+    def withTreePrevNodes: Iterator[ASTNode] = Iterator(node) ++ new ASTNodeTreePrevIterator(node)
 
     def hasElementType(elementType: IElementType): Boolean =
       node.nullSafe.exists(_.getElementType == elementType)
@@ -1067,14 +1130,18 @@ package object extensions {
   }
 
   implicit class IteratorExt[A](private val delegate: Iterator[A]) extends AnyVal {
-    def instanceOf[T: ClassTag]: Option[T] = {
+    def findByType[T: ClassTag]: Option[T] = {
       val aClass = implicitly[ClassTag[T]].runtimeClass
-      delegate.find(aClass.isInstance).map(_.asInstanceOf[T])
+      delegate.find(aClass.isInstance).asInstanceOf[Option[T]]
     }
 
-    def instancesOf[T: ClassTag]: Iterator[T] = {
+    def findByType[T1 <: A: ClassTag, T2 <: A: ClassTag]: Option[A] = {
+      delegate.find(_.is[T1, T2])
+    }
+
+    def filterByType[T: ClassTag]: Iterator[T] = {
       val aClass = implicitly[ClassTag[T]].runtimeClass
-      delegate.filter(aClass.isInstance).map(_.asInstanceOf[T])
+      delegate.filter(aClass.isInstance).asInstanceOf[Iterator[T]]
     }
 
     def containsInstanceOf[T: ClassTag]: Boolean = {
@@ -1115,11 +1182,6 @@ package object extensions {
 
     def intersperse[B >: A](start: B, sep: B, end: B): Iterator[B] =
       Iterator(start) ++ delegate.intersperse(sep) ++ Iterator(end)
-
-    def findByType[B](implicit classTag: ClassTag[B]): Option[B] = {
-      val runtimeClass = classTag.runtimeClass
-      delegate.find(runtimeClass.isInstance).map(_.asInstanceOf[B])
-    }
   }
 
   implicit class ConcurrentMapExt[K, V](private val map: JConcurrentMap[K, V]) extends AnyVal {
@@ -1499,5 +1561,10 @@ package object extensions {
       withParents.drop(1)
     def withParents: Iterator[Path] =
       Iterator.iterate(path)(_.getParent).takeWhile(_ != null)
+  }
+
+  object executionContext {
+    private val appExecutorService = AppExecutorUtil.getAppExecutorService
+    implicit val appExecutionContext: ExecutionContextExecutorService = ExecutionContext.fromExecutorService(appExecutorService)
   }
 }

@@ -46,14 +46,14 @@ final class Specs2ConfigurationProducer extends AbstractTestConfigurationProduce
 
   private def extractStaticTestName(testDefExpr: ScInfixExpr): Option[String] =
     testDefExpr.getChildren.toSeq
-      .filterBy[ScExpression]
+      .filterByType[ScExpression]
       .headOption
       .flatMap(TestConfigurationUtil.getStaticTestName(_))
 
   override def getTestClassWithTestName(location: PsiElementLocation): Option[ClassWithTestName] = {
     val element = location.getPsiElement
     val testClassDef: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
-    if (testClassDef == null) None
+    if (testClassDef == null) return None
 
     val suiteClasses = suitePaths.flatMap {
       element.elementScope.getCachedClass(_)

@@ -405,7 +405,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
               }
             case _ =>
               for {
-                method <- clazz.getMethods.toSeq.filterBy[PsiAnnotationMethod]
+                method <- clazz.getMethods.toSeq.filterByType[PsiAnnotationMethod]
                 if equivalent(method.name, ref.refName)
               } baseProcessor.execute(method, ScalaResolveState.empty)
           }
@@ -546,7 +546,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       }
 
       if (candidates.isEmpty || (!shape && candidates.forall(!_.isApplicable())) || (processor match {
-        case cp: CompletionProcessor => cp.isImplicit
+        case cp: CompletionProcessor => cp.withImplicitConversions
         case _ => false
       })) {
         processor match {
@@ -574,7 +574,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
     def completeImplicits(qualifier: ScExpression,
                           processor: CompletionProcessor): Unit = for {
-      result <- ScImplicitlyConvertible.implicitMap(qualifier) // todo: args?
+      result <- ScImplicitlyConvertible.applicableImplicitConversions(qualifier)
       builder = result.builder.withImports.withImplicitType
     } processor.processType(result.`type`, qualifier, builder.state)
 

@@ -35,6 +35,7 @@ class ScalaDocParserErrorInspection extends LocalInspectionTool {
               } else {
                 a.getParent
               }
+              //noinspection ReferencePassedToNls
               holder.registerProblem(holder.getManager.createProblemDescriptor(startElement, endElement,
                 a.getErrorDescription, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly));
             case b: ScalaPsiElement if b.getChildren.nonEmpty => visitScaladocElement(b)

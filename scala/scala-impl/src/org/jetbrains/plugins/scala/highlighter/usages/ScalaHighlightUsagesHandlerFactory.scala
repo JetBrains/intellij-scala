@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
  * User: Alexander Podkhalyuzin
@@ -103,9 +103,9 @@ final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFac
           }
         }
       case IsTemplateDefinition() =>
-        val templateDef = PsiTreeUtil.getParentOfType(element, classOf[ScTemplateDefinition])
-        if (templateDef != null) {
-          return new ScalaHighlightPrimaryConstructorExpressionsHandler(templateDef, editor, file, element)
+        val typeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition])
+        if (typeDefinition != null) {
+          return new CompanionHighlightHandler(element, typeDefinition, editor, file)
         }
       case `tIDENTIFIER` =>
         element.getParent match {

@@ -1,9 +1,20 @@
 package org.jetbrains.plugins.scala
 package projectHighlighting
 
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.psi.PsiManager
+import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, ScalaSDKLoader}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.compiled.ScClsFileViewProvider.ScClsFileImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.StubIndexKeyExt
+import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
+import org.junit.Assert
 import org.junit.experimental.categories.Category
 
 /**
@@ -11,13 +22,9 @@ import org.junit.experimental.categories.Category
  * 27-Sep-17
  */
 @Category(Array(classOf[HighlightingTests]))
-class ScalaLibraryHighlightingTest extends base.ScalaLightCodeInsightFixtureTestAdapter {
+class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  import base.libraryLoaders._
-  import util.reporter.ProgressReporter
-
-  private val filesWithProblems = Map[String, Set[TextRange]](
-  )
+  private val filesWithProblems = Map.empty[String, Set[TextRange]]
 
   override def librariesLoaders = Seq(
     CustomSDKLoader,
@@ -42,6 +49,25 @@ class ScalaLibraryHighlightingTest extends base.ScalaLightCodeInsightFixtureTest
     reporter.reportResults()
   }
 
+  def testAllSourcesAreFoundByRelativeFile(): Unit = {
+    implicit val project: Project = getProject
+    val classFilesFromScalaLibrary = for {
+      className <- ScalaIndexKeys.ALL_CLASS_NAMES.allKeys
+      psiClass  <- ScalaIndexKeys.ALL_CLASS_NAMES.elements(className, GlobalSearchScope.allScope(getProject))
+      file      <- psiClass.getContainingFile.asOptionOf[ScClsFileImpl]
+      if file.getVirtualFile.getPath.contains("scala-library")
+    } yield file
+
+    Assert.assertTrue("Too few class files found in scala-library", classFilesFromScalaLibrary.size > 1000)
+
+    classFilesFromScalaLibrary.foreach { file =>
+      Assert.assertTrue(
+        s"Source file for ${file.getVirtualFile.getPath} was not found by relative path",
+        file.findSourceByRelativePath.nonEmpty
+      )
+    }
+  }
+
   private def annotateFile(file: VirtualFile,
                            ancestor: VirtualFile)
                           (implicit reporter: ProgressReporter): Unit =
@@ -59,8 +85,6 @@ class ScalaLibraryHighlightingTest extends base.ScalaLightCodeInsightFixtureTest
     }
 
   private object CustomSDKLoader extends ScalaSDKLoader {
-
-    import DependencyManagerBase.DependencyDescription
 
     override protected def binaryDependencies(implicit version: ScalaVersion): List[DependencyDescription] =
       super.binaryDependencies.map(setCustomMinor)

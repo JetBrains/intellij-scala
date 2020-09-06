@@ -3,6 +3,7 @@ package worksheet.processor
 
 import java.io.{File, FileWriter}
 
+import com.intellij.compiler.impl.ExitStatus
 import com.intellij.compiler.progress.CompilerTask
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
@@ -138,7 +139,7 @@ class WorksheetCompiler(
       case NonServer =>
     }
 
-    val task = createCompilerTask
+    val compilerTask = createCompilerTask
     val printer = runType.createPrinter(editor, worksheetFile)
     // do not show error messages in Plain mode on auto-run
     val ignoreCompilerMessages = request match {
@@ -149,7 +150,7 @@ class WorksheetCompiler(
       val message = (Seq("Unexpected exc exception occurred during worksheet execution") ++ errorDetails(module) :+ runType.getName :+ makeType).mkString(", ")
       Log.error(message, ex)
     }
-    val consumer = new CompilerInterfaceImpl(logUnexpectedException, task, printer, ignoreCompilerMessages)
+    val consumer = new CompilerInterfaceImpl(logUnexpectedException, compilerTask, printer, ignoreCompilerMessages)
 
     // this is needed to close the timer of printer in one place
     val callback: EvaluationCallback = result => {
@@ -193,13 +194,16 @@ class WorksheetCompiler(
       case error: RemoteServerConnectorResult.UnhandledError          =>
         callback(WorksheetCompilerResult.RemoteServerConnectorError(error))
     }
-    task.startWork {
+    compilerTask.startWork {
       try {
         val connector = new RemoteServerConnector(module, worksheetFile, args, makeType)
         connector.compileAndRun(virtualFile, consumer)(afterCompileCallback)
       } catch {
         case NonFatal(ex) =>
           afterCompileCallback(toError(ex))
+      } finally {
+        val exitStatus = if (consumer.isCompiledWithErrors) ExitStatus.ERRORS else ExitStatus.SUCCESS
+        compilerTask.setEndCompilationStamp(exitStatus, System.currentTimeMillis)
       }
     }
   }
@@ -261,7 +265,7 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
 
   private class CompilerInterfaceImpl(
     logUnexpectedException: Throwable => Unit,
-    task: CompilerTask,
+    compilerTask: CompilerTask,
     worksheetPrinter: WorksheetEditorPrinter,
     ignoreCompilerMessages: Boolean
   ) extends CompilerInterface
@@ -283,7 +287,7 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
         hasCompilationErrors = true
       }
       if (!ignoreCompilerMessages) {
-        task.addMessage(message)
+        compilerTask.addMessage(message)
         if (isUnitTestMode) {
           messages += message
         }
@@ -292,8 +296,8 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
 
     override def progress(text: String, done: Option[Float]): Unit = {
       if (ignoreCompilerMessages) return
-      val taskIndicator = ProgressManager.getInstance.getProgressIndicator
 
+      val taskIndicator = compilerTask.getIndicator
       if (taskIndicator != null) {
         taskIndicator.setText(text)
         done.foreach(d => taskIndicator.setFraction(d.toDouble))

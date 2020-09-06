@@ -101,7 +101,7 @@ object PatternGenerationStrategy {
 
     def unapply(enumClass: ScObject): Option[Seq[ScValue]] =
       if (enumClass.supers.map(_.qualifiedName).contains(EnumerationFQN))
-        Some(enumClass.members.filterBy[ScValue])
+        Some(enumClass.members.filterByType[ScValue])
       else
         None
   }
@@ -110,7 +110,7 @@ object PatternGenerationStrategy {
 
     def unapply(enumClass: PsiClass): Option[Seq[PsiEnumConstant]] =
       if (enumClass.isEnum)
-        Some(enumClass.getFields.toSeq.filterBy[PsiEnumConstant])
+        Some(enumClass.getFields.toSeq.filterByType[PsiEnumConstant])
       else
         None
   }

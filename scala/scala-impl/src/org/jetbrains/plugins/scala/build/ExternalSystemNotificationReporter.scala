@@ -7,6 +7,8 @@ import com.intellij.build.events._
 import com.intellij.build.{FilePosition, SyncViewManager}
 import com.intellij.openapi.externalSystem.model.task.event.{FailureResult => _, SkippedResult => _, SuccessResult => _, _}
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
+import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.ExternalSystemNotificationReporter._
 
@@ -55,8 +57,12 @@ class ExternalSystemNotificationReporter(workingDir: String,
   }
 
   override def finishCanceled(): Unit = {
+    val time = System.currentTimeMillis()
+    descriptors.foreach { case (id,task) =>
+      val result = new com.intellij.build.events.impl.SkippedResultImpl
+      finishTask(id, ScalaBundle.message("report.build.task.canceled"), result, time)
+    }
     notifications.onCancel(taskId)
-    notifications.onEnd(taskId)
   }
 
   override def warning(message: String, position: Option[FilePosition]): Unit =
@@ -109,31 +115,33 @@ class ExternalSystemNotificationReporter(workingDir: String,
 
   override def finishTask(eventId: EventId, message: String, result: EventResult, time: Long = System.currentTimeMillis()): Unit = {
 
-    descriptors.get(eventId).foreach { taskDescriptor =>
-      val startTime = taskDescriptor.descriptor.getEventTime
+    descriptors
+      .remove(eventId)
+      .foreach { taskDescriptor =>
+        val startTime = taskDescriptor.descriptor.getEventTime
 
-      val resultObject = result match {
-        case result: SuccessResult =>
-          new SuccessResultImpl(startTime, time, true)
-        case result: FailureResult =>
-          val fails = result.getFailures.asScala.map(convertFailure).asJava
-          new FailureResultImpl(startTime, time, fails)
-        case result: SkippedResult =>
-          new SkippedResultImpl(startTime, time)
-        case _ => // unknown or unhandled result type
-          new SkippedResultImpl(startTime, time)
+        val resultObject = result match {
+          case _: SuccessResult =>
+            new SuccessResultImpl(startTime, time, true)
+          case result: FailureResult =>
+            val fails = result.getFailures.asScala.map(convertFailure).asJava
+            new FailureResultImpl(startTime, time, fails)
+          case _: SkippedResult =>
+            new SkippedResultImpl(startTime, time)
+          case _ => // unknown or unhandled result type
+            new SkippedResultImpl(startTime, time)
+        }
+
+        val finishEvent = new ExternalSystemFinishEventImpl[TaskOperationDescriptor](
+          eventId.id, taskDescriptor.parent.map(_.id).orNull, taskDescriptor.descriptor, resultObject)
+        val statusEvent = new ExternalSystemTaskExecutionEvent(taskId, finishEvent)
+        notifications.onStatusChange(statusEvent)
       }
-
-      val finishEvent = new ExternalSystemFinishEventImpl[TaskOperationDescriptor](
-        eventId.id, taskDescriptor.parent.map(_.id).orNull, taskDescriptor.descriptor, resultObject)
-      val statusEvent = new ExternalSystemTaskExecutionEvent(taskId, finishEvent)
-      notifications.onStatusChange(statusEvent)
-    }
   }
 
   override def clear(file: File): Unit = ()
 
-  private def event(message: String, kind: MessageEvent.Kind, position: Option[FilePosition])=
+  private def event(@Nls message: String, kind: MessageEvent.Kind, position: Option[FilePosition])=
     BuildMessages.message(taskId, message, kind, position)
 }
 

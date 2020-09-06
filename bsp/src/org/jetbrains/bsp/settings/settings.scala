@@ -1,8 +1,5 @@
 package org.jetbrains.bsp.settings
 
-import java.io.File
-import java.util
-
 import com.intellij.openapi.components._
 import com.intellij.openapi.externalSystem.model.settings.ExternalSystemExecutionSettings
 import com.intellij.openapi.externalSystem.service.settings.AbstractExternalProjectSettingsControl
@@ -11,11 +8,15 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
 import com.intellij.openapi.externalSystem.util.{ExternalSystemSettingsControl, ExternalSystemUiUtil, PaintAwarePanel}
 import com.intellij.openapi.project.Project
 import com.intellij.util.messages.Topic
-import com.intellij.util.xmlb.annotations.XCollection
+import com.intellij.util.xmlb.Converter
+import com.intellij.util.xmlb.annotations.{OptionTag, XCollection}
+import java.io.File
+import java.nio.file.{Path, Paths}
+import java.util
 import javax.swing.JCheckBox
+import org.jetbrains.bsp.settings.BspProjectSettings.{AutoConfig, AutoPreImport, BspServerConfig, BspServerConfigConverter, PreImportConfig, PreImportConfigConverter}
 import org.jetbrains.bsp.{BspBundle, _}
 import org.jetbrains.plugins.scala.project.ProjectExt
-
 import scala.beans.BeanProperty
 
 class BspProjectSettings extends ExternalProjectSettings {
@@ -26,12 +27,77 @@ class BspProjectSettings extends ExternalProjectSettings {
   @BeanProperty
   var runPreImportTask = true
 
+  @BeanProperty
+  @OptionTag(converter = classOf[BspServerConfigConverter])
+  var serverConfig: BspServerConfig = AutoConfig
+
+  @BeanProperty
+  @OptionTag(converter = classOf[PreImportConfigConverter])
+  var preImportConfig: PreImportConfig = AutoPreImport
+
   override def clone(): BspProjectSettings = {
     val result = new BspProjectSettings
     copyTo(result)
     result.buildOnSave = buildOnSave
     result.runPreImportTask = runPreImportTask
+    result.serverConfig = serverConfig
+    result.preImportConfig = preImportConfig
     result
+  }
+}
+
+object BspProjectSettings {
+
+  /** A specific configuration to start and connect to a BSP server. */
+  sealed abstract class BspServerConfig
+  /** Choose BSP config automatically */
+  case object AutoConfig extends BspServerConfig
+  /** Bloop without preimport */
+  case object BloopConfig extends BspServerConfig
+  /** Use BSP config file to specify connection */
+  case class BspConfigFile(path: Path) extends BspServerConfig
+
+  /** A Task to run before connecting to BSP server and importing project.  */
+  sealed abstract class PreImportConfig
+  /** Do not run any PreImporter */
+  case object NoPreImport extends PreImportConfig
+  /** Attempt to choose pre-importer automatically */
+  case object AutoPreImport extends PreImportConfig
+  /** Preimport with Bloop from sbt project */
+  case object BloopSbtPreImport extends PreImportConfig
+
+  class PreImportConfigConverter extends Converter[PreImportConfig] {
+    override def fromString(value: String): PreImportConfig =
+      value match {
+        case "NoPreImport" => NoPreImport
+        case "AutoPreImport" => AutoPreImport
+        case "BloopBspPreImport" => BloopSbtPreImport
+      }
+
+    override def toString(value: PreImportConfig): String =
+      value match {
+        case NoPreImport => "NoPreImport"
+        case AutoPreImport => "AutoPreImport"
+        case BloopSbtPreImport => "BloopBspPreImport"
+      }
+  }
+
+  class BspServerConfigConverter extends Converter[BspServerConfig] {
+    private val configFile = "BspConfigFile:(.*)".r("path")
+    override def fromString(value: String): BspServerConfig = {
+      value match {
+        case "AutoConfig" => AutoConfig
+        case "BloopConfig" => BloopConfig
+        case configFile(path) => BspConfigFile(Paths.get(path))
+      }
+    }
+
+    override def toString(value: BspServerConfig): String =
+      value match {
+        case AutoConfig => "AutoConfig"
+        case BloopConfig =>"BloopConfig"
+        case BspConfigFile(path) => s"BspConfigFile:$path"
+      }
   }
 }
 
@@ -43,6 +109,12 @@ class BspProjectSettingsControl(settings: BspProjectSettings)
 
   @BeanProperty
   var runPreImportTask = true
+
+  @BeanProperty
+  var preImportConfig: PreImportConfig = AutoPreImport
+
+  @BeanProperty
+  var serverConfig: BspServerConfig = AutoConfig
 
   private val buildOnSaveCheckBox = new JCheckBox(BspBundle.message("bsp.protocol.build.automatically.on.file.save"))
   private val runPreImportTaskCheckBox = new JCheckBox(BspBundle.message("bsp.protocol.export.sbt.projects.to.bloop.before.import"))
@@ -83,12 +155,16 @@ class BspProjectSettingsControl(settings: BspProjectSettings)
 trait BspProjectSettingsListener extends ExternalSystemSettingsListener[BspProjectSettings] {
   def onBuildOnSaveChanged(buildOnSave: Boolean): Unit
   def onRunPreImportTaskChanged(runBloopInstall: Boolean): Unit
+  def onPreImportConfigChanged(preImportConfig: PreImportConfig): Unit
+  def onServerConfigChanged(serverConfig: BspServerConfig): Unit
 }
 
 class BspProjectSettingsListenerAdapter(listener: ExternalSystemSettingsListener[BspProjectSettings])
   extends DelegatingExternalSystemSettingsListener[BspProjectSettings](listener) with BspProjectSettingsListener {
   override def onBuildOnSaveChanged(buildOnSave: Boolean): Unit = {}
   override def onRunPreImportTaskChanged(runBloopInstall: Boolean): Unit = {}
+  override def onPreImportConfigChanged(preImportConfig: PreImportConfig): Unit = {}
+  override def onServerConfigChanged(serverConfig: BspServerConfig): Unit = {}
 }
 
 
@@ -113,10 +189,14 @@ class BspSettings(project: Project)
   override def copyExtraSettingsFrom(settings: BspSettings): Unit = {}
 
   override def checkSettings(old: BspProjectSettings, current: BspProjectSettings): Unit = {
-    if(old.buildOnSave != current.buildOnSave)
+    if (old.buildOnSave != current.buildOnSave)
       getPublisher.onBuildOnSaveChanged(current.buildOnSave)
-    if(old.runPreImportTask != current.runPreImportTask)
+    if (old.runPreImportTask != current.runPreImportTask)
       getPublisher.onRunPreImportTaskChanged(current.runPreImportTask)
+    if (old.preImportConfig != current.preImportConfig)
+      getPublisher.onPreImportConfigChanged(current.preImportConfig)
+    if (old.serverConfig != current.serverConfig)
+      getPublisher.onServerConfigChanged(current.serverConfig)
   }
 
   override def getState: BspSettings.State = {
@@ -193,7 +273,9 @@ class BspLocalSettingsState extends AbstractExternalSystemLocalSettings.State
 
 class BspExecutionSettings(val basePath: File,
                            val traceBsp: Boolean,
-                           val runPreImportTask: Boolean
+                           val runPreImportTask: Boolean,
+                           val preImportTask: PreImportConfig,
+                           val config: BspServerConfig
                           ) extends ExternalSystemExecutionSettings
 
 object BspExecutionSettings {
@@ -202,15 +284,19 @@ object BspExecutionSettings {
     if (project == null) executionSettingsFor(basePath)
     val bspSettings = BspSettings.getInstance(project)
     val bspTraceLog = BspSystemSettings.getInstance.getState.traceBsp
-    val runPreImportTask = Option(bspSettings.getLinkedProjectSettings(basePath.getAbsolutePath)).forall(_.runPreImportTask)
+    val linkedSettings = Option(bspSettings.getLinkedProjectSettings(basePath.getAbsolutePath))
+    val runPreImportTask = linkedSettings.forall(_.runPreImportTask)
+    val preImportConfig = linkedSettings.map(_.preImportConfig).getOrElse(AutoPreImport)
+    val serverConfig = linkedSettings.map(_.serverConfig).getOrElse(AutoConfig)
 
-    new BspExecutionSettings(basePath, bspTraceLog, runPreImportTask)
+    new BspExecutionSettings(basePath, bspTraceLog, runPreImportTask, preImportConfig, serverConfig)
   }
 
   def executionSettingsFor(basePath: File): BspExecutionSettings = {
     val systemSettings = BspSystemSettings.getInstance
     val defaultProjectSettings = new BspProjectSettings
-    new BspExecutionSettings(basePath, systemSettings.getState.traceBsp, defaultProjectSettings.runPreImportTask)
+    new BspExecutionSettings(
+      basePath, systemSettings.getState.traceBsp, defaultProjectSettings.runPreImportTask, AutoPreImport, AutoConfig)
   }
 }
 

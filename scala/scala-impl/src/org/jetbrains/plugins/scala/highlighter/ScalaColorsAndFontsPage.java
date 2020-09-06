@@ -197,7 +197,6 @@ public class ScalaColorsAndFontsPage implements RainbowColorSettingsPage {
     map.put("par", PARENTHESES);
     map.put("brace", BRACES);
     map.put("colon", COLON);
-    map.put("scaladoc", DOC_COMMENT);
     map.put("string", STRING);
     map.put("validescape", VALID_STRING_ESCAPE);
     map.put("invalidescape", INVALID_STRING_ESCAPE);
@@ -220,8 +219,6 @@ public class ScalaColorsAndFontsPage implements RainbowColorSettingsPage {
     map.put("trait", TRAIT);
     map.put("annotation", ANNOTATION);
     map.put("attribute", ANNOTATION_ATTRIBUTE);
-    map.put("markup", SCALA_DOC_MARKUP);
-    map.put("tag", SCALA_DOC_TAG);
     map.put("abstract", ABSTRACT_CLASS);
     map.put("local", LOCAL_VALUES);
     map.put("val", VALUES);
@@ -234,10 +231,6 @@ public class ScalaColorsAndFontsPage implements RainbowColorSettingsPage {
     map.put("pattern", PATTERN);
     map.put("generator", GENERATOR);
     map.put("typeAlias", TYPE_ALIAS);
-    map.put("wikiElement", SCALA_DOC_WIKI_SYNTAX);
-    map.put("scaladocHtml", SCALA_DOC_HTML_TAG);
-    map.put("htmlDocEscape", SCALA_DOC_HTML_ESCAPE);
-    map.put("paramtagval", SCALA_DOC_TAG_PARAM_VALUE);
     map.put("xmltag", XML_TAG);
     map.put("xmltagname", XML_TAG_NAME);
     map.put("xmltagdata", XML_TAG_DATA);
@@ -245,6 +238,15 @@ public class ScalaColorsAndFontsPage implements RainbowColorSettingsPage {
     map.put("xmlattributevalue", XML_ATTRIBUTE_VALUE);
     map.put("xmlcomment", XML_COMMENT);
     map.put("implicit", IMPLICIT_CONVERSIONS);
+
+    map.put("scaladoc", DOC_COMMENT);
+    map.put("markup", SCALA_DOC_MARKUP);
+    map.put("tag", SCALA_DOC_TAG);
+    map.put("wikiElement", SCALA_DOC_WIKI_SYNTAX);
+    map.put("scaladocHtml", SCALA_DOC_HTML_TAG);
+    map.put("htmlDocEscape", SCALA_DOC_HTML_ESCAPE);
+    map.put("paramtagval", SCALA_DOC_TAG_PARAM_VALUE);
+
     return map;
   }
 

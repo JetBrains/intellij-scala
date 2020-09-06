@@ -12,6 +12,7 @@ import org.jetbrains.android.facet.AndroidFacet
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.sbt.project.data.{AndroidFacetData, AndroidFacetNode, ModuleNode}
 import org.junit.Assert._
+import org.junit.Ignore
 
 import scala.io.Source
 
@@ -19,6 +20,7 @@ import scala.io.Source
  * @author Nikolay Obedin
  * @since 6/15/15.
  */
+@Ignore
 class AndroidFacetDataServiceTest extends ProjectDataServiceTestCase {
 
   import ExternalSystemDataDsl._

@@ -499,7 +499,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 "return"                                {   return process(kRETURN); }
 "sealed"                                {   return process(kSEALED); }
 "super"                                 {   return process(kSUPER); }
-"then"                                  {   return processScala3(Then()); }
+"then"                                  {   return processScala3(ThenKeyword()); }
 "this"                                  {   return process(kTHIS); }
 "throw"                                 {   return process(kTHROW); }
 "trait"                                 {   return process(TraitKeyword()); }

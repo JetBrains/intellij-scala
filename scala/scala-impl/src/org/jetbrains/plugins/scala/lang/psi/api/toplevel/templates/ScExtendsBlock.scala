@@ -7,7 +7,7 @@ package templates
 
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
@@ -19,8 +19,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 trait ScExtendsBlock extends ScalaPsiElement {
 
   def members : Seq[ScMember]
-  def functions : Seq[ScFunction]
-  def aliases : Seq[ScTypeAlias]
+
+  def functions: Seq[ScFunction]
+
+  def properties: Seq[ScValueOrVariable]
+
+  def aliases: Seq[ScTypeAlias]
 
   def templateBody: Option[ScTemplateBody]
 

@@ -8,11 +8,11 @@ import com.intellij.openapi.util._
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScBraceOwner, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScParenthesisedTypeElement, ScTypeElement, ScTypeProjection}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -174,9 +174,11 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
   override def getLanguagePlaceholderText(node: ASTNode, textRange: TextRange): String = {
     if (isMultiline(node) || isMultilineImport(node) && !isWorksheetResults(node)) {
       node.getElementType match {
+        case BLOCK => return if (isBracelessBlock(node)) "..." else "{...}"
         case ScCodeBlockElementType.BlockExpression => return "{...}"
         case ScalaTokenTypes.tBLOCK_COMMENT => return "/.../"
         case ScalaDocElementTypes.SCALA_DOC_COMMENT => return "/**...*/"
+        case TEMPLATE_BODY if isBracelessBlock(node) => return ":..."
         case TEMPLATE_BODY => return "{...}"
         case PACKAGING => return "{...}"
         case ImportStatement => return "..."
@@ -346,9 +348,9 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
     if (body == null) return (false, null, "")
     val range = body.getTextRange
     body match {
-      case _: ScBlockExpr =>
+      case _: ScBlock =>
         val isCorrectRange = range.getStartOffset + 1 < range.getEndOffset
-        return (isCorrectRange, range, "{...}")
+        return (isCorrectRange, range, if (isBracelessBlock(body)) " ..." else "{...}")
       case _ =>
         val isMultilineBody = (body.getText.indexOf("\n") != -1) && (range.getStartOffset + 1 < range.getEndOffset)
         val textRange = if (isMultilineBody) range else null
@@ -470,6 +472,12 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
     node.getPsi.isInstanceOf[PsiComment] && (node.getText.startsWith(WorksheetFoldingBuilder.FIRST_LINE_PREFIX) ||
       node.getText.startsWith(WorksheetFoldingBuilder.LINE_PREFIX))
   }
+
+  private def isBracelessBlock(node: ASTNode): Boolean =
+    isBracelessBlock(node.getPsi)
+
+  private def isBracelessBlock(element: PsiElement): Boolean =
+    element.asOptionOf[ScBraceOwner].exists(!_.isEnclosedByBraces)
 
   override def isDumbAware: Boolean = true
 }

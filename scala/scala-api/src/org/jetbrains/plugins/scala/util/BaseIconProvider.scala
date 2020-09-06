@@ -31,7 +31,7 @@ trait BaseIconProvider extends Iconable {
    * @see [[getFlags]], [[FLAGS_ABSTRACT]], [[FLAGS_FINAL]]
    */
   private[this] def layerFlags(flags: Int): Int =
-    (if (delegate.hasModifierProperty(PsiModifier.FINAL)) 0x400 else 0) |
+    (if (Option(delegate.getModifierList).exists(_.hasExplicitModifier(PsiModifier.FINAL))) 0x400 else 0) |
       (if (delegate.hasModifierProperty(PsiModifier.ABSTRACT)) 0x100 else 0) |
       (if ((flags & Iconable.ICON_FLAG_READ_STATUS) == 0 || delegate.isWritable) 0 else ElementBase.FLAGS_LOCKED)
 }

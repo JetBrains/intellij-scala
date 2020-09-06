@@ -32,11 +32,11 @@ object B extends B
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
-    val seq = file.depthFirst().instanceOf[ScClass]
+    val seq = file.depthFirst().findByType[ScClass]
     Compatibility.seqClass = seq
     try {
       // TODO use the general annotate() method
-      file.depthFirst().instancesOf[ScalaPsiElement].foreach {
+      file.depthFirst().filterByType[ScalaPsiElement].foreach {
         ElementAnnotator.annotate(_)
       }
 

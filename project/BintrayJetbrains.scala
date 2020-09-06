@@ -14,6 +14,7 @@ object BintrayJetbrains {
     val scalaPluginDeps  = jbBintrayResolver("scala-plugin-deps", "scala-plugin-deps", Resolver.ivyStylePatterns)
     val sonatypeReleases = Resolver.sonatypeRepo("releases")
     val sonatypeStaging = Resolver.sonatypeRepo("staging")
+    val sonatypeSnapshots = Resolver.sonatypeRepo("snapshots")
     val metaBintray = Resolver.url("scalameta-bintray", url("https://dl.bintray.com/scalameta/maven"))(Resolver.ivyStylePatterns)
     val macrosMaven = Resolver.bintrayRepo("scalamacros", "maven")
     val jbSbtPlugins = jbSbtResolver("jetbrains-sbt", Resolver.ivyStylePatterns)
@@ -22,5 +23,5 @@ object BintrayJetbrains {
 
   val allResolvers = Seq(Resolvers.mavenPatched, Resolvers.metaBintray, Resolvers.jbSbtPlugins,
                          Resolvers.scalaTestFindersPatched, Resolvers.scalaPluginDeps, Resolvers.sonatypeReleases,
-                         Resolvers.macrosMaven, Resolvers.scalaCenter, Resolvers.sonatypeStaging)
+                         Resolvers.macrosMaven, Resolvers.scalaCenter, Resolvers.sonatypeStaging, Resolvers.sonatypeSnapshots)
 }

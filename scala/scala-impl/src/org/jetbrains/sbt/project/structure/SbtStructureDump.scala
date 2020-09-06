@@ -28,7 +28,7 @@ import scala.collection.JavaConverters._
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
-class SbtStructureDump extends Cancellable {
+class SbtStructureDump {
 
   private val cancellationFlag: AtomicBoolean = new AtomicBoolean(false)
 
@@ -67,8 +67,9 @@ class SbtStructureDump extends Cancellable {
                       environment: Map[String, String],
                       sbtLauncher: File,
                       sbtStructureJar: File,
-                      reporter: BuildReporter
-                     ): Try[BuildMessages] = {
+                     )
+                     (implicit reporter: BuildReporter)
+  : Try[BuildMessages] = {
 
     val optString = options.mkString(", ")
 
@@ -90,7 +91,7 @@ class SbtStructureDump extends Cancellable {
 
     runSbt(
       directory, vmExecutable, vmOptions, environment,
-      sbtLauncher, sbtCommandArgs, sbtCommands, reporter,
+      sbtLauncher, sbtCommandArgs, sbtCommands,
       SbtBundle.message("sbt.extracting.project.structure.from.sbt")
     )
   }
@@ -103,9 +104,10 @@ class SbtStructureDump extends Cancellable {
              sbtLauncher: File,
              sbtCommandLineArgs: List[String],
              @NonNls sbtCommands: String,
-             reporter: BuildReporter,
              @Nls reportMessage: String,
-            ): Try[BuildMessages] = {
+            )
+            (implicit reporter: BuildReporter)
+  : Try[BuildMessages] = {
 
     val startTime = System.currentTimeMillis()
     // assuming here that this method might still be called without valid project
@@ -134,19 +136,23 @@ class SbtStructureDump extends Cancellable {
       val procString = processBuilder.command().asScala.mkString(" ")
       reporter.log(procString)
 
-      val process = processBuilder.start()
-      val result = using(new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream, "UTF-8")))) { writer =>
-        writer.println(sbtCommands)
-        // exit needs to be in a separate command, otherwise it will never execute when a previous command in the chain errors
-        writer.println("exit")
-        writer.flush()
-        handle(process, dumpTaskId, reporter)
+      processBuilder.start()
+    }
+      .flatMap { process =>
+        using(new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream, "UTF-8")))) { writer =>
+          writer.println(sbtCommands)
+          // exit needs to be in a separate command, otherwise it will never execute when a previous command in the chain errors
+          writer.println("exit")
+          writer.flush()
+          handle(process, dumpTaskId, reporter)
+        }
       }
-      result.getOrElse(BuildMessages.empty.addError("no output from sbt shell process available"))
-    }
-    .recoverWith {
-      case fail => Failure(ImportCancelledException(fail))
-    }
+      .recoverWith {
+        case _: ImportCancelledException =>
+          Success(BuildMessages.empty.status(BuildMessages.Canceled))
+        case fail =>
+          Failure(ImportCancelledException(fail))
+      }
 
     val eventResult = resultMessages match {
       case Success(messages) =>
@@ -215,7 +221,7 @@ class SbtStructureDump extends Cancellable {
         // task was cancelled
         handler.setShouldDestroyProcessRecursively(false)
         handler.destroyProcess()
-        throw ImportCancelledException(new Exception("task canceled"))
+        throw ImportCancelledException(new Exception(SbtBundle.message("sbt.task.canceled")))
       } else if (handler.getExitCode != 0)
           messages.status(BuildMessages.Error)
       else if (messages.status == BuildMessages.Indeterminate)

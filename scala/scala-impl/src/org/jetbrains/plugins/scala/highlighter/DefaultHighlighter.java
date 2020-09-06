@@ -20,11 +20,16 @@ import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
 import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.XmlHighlighterColors;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
+import com.intellij.openapi.editor.markup.EffectType;
+import org.intellij.lang.annotations.JdkConstants;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
+
 public class DefaultHighlighter {
 
+  // TODO: can we inline all these ids?
   static final String LINE_COMMENT_ID = "Scala Line comment";
   static final String BLOCK_COMMENT_ID = "Scala Block comment";
   static final String KEYWORD_ID = "Scala Keyword";
@@ -50,13 +55,17 @@ public class DefaultHighlighter {
   static final String OBJECT_ID = "Scala Object";
   static final String CLASS_ID = "Scala Class";
   static final String BAD_CHARACTER_ID = "Scala Bad character";
+
+  // ScalaDoc
   static final String DOC_COMMENT_ID = "ScalaDoc comment";
   static final String SCALA_DOC_TAG_ID = "ScalaDoc comment tag";
   static final String SCALA_DOC_HTML_TAG_ID = "ScalaDoc html tag";
   static final String SCALA_DOC_WIKI_SYNTAX_ID = "ScalaDoc wiki syntax elements";
+  static final String SCALA_DOC_LIST_ITEM_HEAD_ID = "ScalaDoc list item head";
   static final String SCALA_DOC_HTML_ESCAPE_ID = "ScalaDoc html escape sequences";
   static final String SCALA_DOC_MARKUP_ID = "ScalaDoc comment markup";
   static final String SCALA_DOC_TAG_PARAM_VALUE_ID = "ScalaDoc @param value";
+
   static final String IMPLICIT_CONVERSIONS_ID = "Implicit conversion";
   static final String ABSTRACT_CLASS_ID = "Scala Abstract class";
   static final String TRAIT_ID = "Scala Trait";
@@ -107,12 +116,21 @@ public class DefaultHighlighter {
   public static TextAttributesKey TYPEPARAM = createKey(TYPEPARAM_ID, JavaHighlightInfoTypes.TYPE_PARAMETER_NAME.getAttributesKey());
   public static TextAttributesKey OBJECT = createKey(OBJECT_ID, JavaHighlightInfoTypes.CLASS_NAME.getAttributesKey());
   public static TextAttributesKey CLASS = createKey(CLASS_ID, JavaHighlightInfoTypes.CLASS_NAME.getAttributesKey());
+
+  // ScalaDoc
+  private static final TextAttributesKey SCALA_DOC_COMMENT_MARKUP = DefaultLanguageHighlighterColors.DOC_COMMENT_MARKUP;
+
+  public static TextAttributesKey DOC_COMMENT = createKey(DOC_COMMENT_ID, DefaultLanguageHighlighterColors.DOC_COMMENT);
   public static TextAttributesKey SCALA_DOC_TAG = createKey(SCALA_DOC_TAG_ID, DefaultLanguageHighlighterColors.DOC_COMMENT_TAG);
-  public static TextAttributesKey SCALA_DOC_HTML_TAG = createKey(SCALA_DOC_HTML_TAG_ID, DefaultLanguageHighlighterColors.DOC_COMMENT_MARKUP);
-  public static TextAttributesKey SCALA_DOC_WIKI_SYNTAX = createKey(SCALA_DOC_WIKI_SYNTAX_ID,DefaultLanguageHighlighterColors.DOC_COMMENT_MARKUP);
-  public static TextAttributesKey SCALA_DOC_HTML_ESCAPE = createKey(SCALA_DOC_HTML_ESCAPE_ID, DefaultLanguageHighlighterColors.DOC_COMMENT_MARKUP);
-  public static TextAttributesKey SCALA_DOC_MARKUP = createKey(SCALA_DOC_MARKUP_ID, DefaultLanguageHighlighterColors.DOC_COMMENT_MARKUP);
   public static TextAttributesKey SCALA_DOC_TAG_PARAM_VALUE = createKey(SCALA_DOC_TAG_PARAM_VALUE_ID, DefaultLanguageHighlighterColors.DOC_COMMENT_TAG);
+
+  public static TextAttributesKey SCALA_DOC_HTML_TAG = createKey(SCALA_DOC_HTML_TAG_ID, SCALA_DOC_COMMENT_MARKUP);
+  public static TextAttributesKey SCALA_DOC_WIKI_SYNTAX = createKey(SCALA_DOC_WIKI_SYNTAX_ID, SCALA_DOC_COMMENT_MARKUP);
+  public static TextAttributesKey SCALA_DOC_HTML_ESCAPE = createKey(SCALA_DOC_HTML_ESCAPE_ID, SCALA_DOC_COMMENT_MARKUP);
+  public static TextAttributesKey SCALA_DOC_MARKUP = createKey(SCALA_DOC_MARKUP_ID, SCALA_DOC_COMMENT_MARKUP);
+  public static TextAttributesKey SCALA_DOC_LIST_ITEM_HEAD = createKey(SCALA_DOC_LIST_ITEM_HEAD_ID, SCALA_DOC_COMMENT_MARKUP);
+
+
   public static TextAttributesKey IMPLICIT_CONVERSIONS = createKey(IMPLICIT_CONVERSIONS_ID, DefaultLanguageHighlighterColors.IDENTIFIER);
   public static TextAttributesKey ABSTRACT_CLASS = createKey(ABSTRACT_CLASS_ID, JavaHighlightInfoTypes.ABSTRACT_CLASS_NAME.getAttributesKey());
   public static TextAttributesKey TRAIT = createKey(TRAIT_ID, JavaHighlightInfoTypes.INTERFACE_NAME.getAttributesKey());
@@ -137,7 +155,6 @@ public class DefaultHighlighter {
   // TODO Inherit Java's arrow attributes when Java will support them
   public static TextAttributesKey ARROW = createKey(ARROW_ID, DefaultLanguageHighlighterColors.OPERATION_SIGN);
   public static TextAttributesKey BAD_CHARACTER = createKey(BAD_CHARACTER_ID, HighlighterColors.BAD_CHARACTER);
-  public static TextAttributesKey DOC_COMMENT = createKey(DOC_COMMENT_ID, DefaultLanguageHighlighterColors.DOC_COMMENT);
 
   public static TextAttributesKey XML_TAG = createKey(XML_TAG_ID, XmlHighlighterColors.XML_TAG);
   public static TextAttributesKey XML_TAG_NAME = createKey(XML_TAG_NAME_ID, XmlHighlighterColors.XML_TAG_NAME);

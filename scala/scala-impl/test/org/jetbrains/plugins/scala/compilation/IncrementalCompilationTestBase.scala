@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.compilation
 
+import java.io.File
+
 import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.testFramework.VfsTestUtil
@@ -67,7 +69,6 @@ abstract class IncrementalCompilationTestBase(override protected val incremental
           |""".stripMargin,
     )
     compiler.make().assertNoProblems()
-    refreshVfs()
     val Seq(firstTsAfter, secondTsAfter, thirdTsAfter) = sources.map(_.targetTimestamps)
 
     assertThat("First recompiled", firstTsAfter, everyValueGreaterThanIn(firstTsBefore))
@@ -105,7 +106,6 @@ abstract class IncrementalCompilationTestBase(override protected val incremental
     )
     second.removeSourceFile()
     compiler.make().assertNoProblems()
-    refreshVfs()
 
     val actualTargetFileNames = targetFileNames
     val expectedTargetFileNames = all.flatMap(_.expectedTargetFileNames).toSet
@@ -140,7 +140,6 @@ abstract class IncrementalCompilationTestBase(override protected val incremental
           |""".stripMargin
     )
     compiler.make()
-    refreshVfs()
 
     val actualTargetFileNames = targetFileNames
     val expectedTargetFileNames = all.flatMap(_.expectedTargetFileNames).toSet
@@ -164,14 +163,11 @@ abstract class IncrementalCompilationTestBase(override protected val incremental
     sourceFiles
   }
 
-  protected def refreshVfs(): Unit =
-    VfsUtil.markDirtyAndRefresh(false, true, true, targetDir)
-
-  private def targetDir: VirtualFile =
-    CompilerModuleExtension.getInstance(getModule).getCompilerOutputPath
+  private def targetDir: File =
+    new File(CompilerModuleExtension.getInstance(getModule).getCompilerOutputPath.getCanonicalPath)
 
   private def targetFileNames: Set[String] =
-    targetDir.getChildren.map(_.getName).toSet
+    targetDir.listFiles().map(_.getName).toSet
 
   protected def classFileNames(className: String)
                             (implicit version: ScalaVersion): Set[String] = {
@@ -211,16 +207,16 @@ abstract class IncrementalCompilationTestBase(override protected val incremental
     def expectedTargetFileNames: Set[String] =
       classes.flatMap(classFileNames)
 
-    private def targetFiles: Set[VirtualFile] = {
+    private def targetFiles: Set[File] = {
       val targetFileNames = expectedTargetFileNames
-      targetDir.getChildren.filter { targetFile =>
-        targetFileNames contains targetFile.getName
+      targetDir.listFiles { (_, fileName) =>
+        targetFileNames contains fileName
       }.toSet
     }
 
     def targetTimestamps: Map[String, Long] =
       targetFiles.map { targetFile =>
-        targetFile.getName -> targetFile.getTimeStamp
+        targetFile.getName -> targetFile.lastModified()
       }.toMap
   }
 }
@@ -269,7 +265,6 @@ class IncrementalSbtCompilationTest
           |""".stripMargin
     )
     compiler.make().assertNoProblems()
-    refreshVfs()
     val Seq(sealedTsAfter, appTsAfter) = sources.map(_.targetTimestamps)
 
     val sealedTsBeforeWithoutB = sealedTsBefore -- classFileNames("MyClassB")

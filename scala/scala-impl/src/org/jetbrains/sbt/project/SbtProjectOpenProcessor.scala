@@ -11,6 +11,7 @@ import javax.swing.Icon
  */
 class SbtProjectOpenProcessor extends ProjectOpenProcessor {
 
+  //noinspection ReferencePassedToNls
   override def getName: String = Sbt.Name
   override def getIcon: Icon = Sbt.Icon
 

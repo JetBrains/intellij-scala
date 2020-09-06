@@ -62,7 +62,7 @@ object ScalaProjectSettingsUtil {
     }
   }
 
-  def getPatternListPanel(parent: JComponent, patternJBList: JListCompatibility.JListContainer, inputMessage: String, @Nls inputTitle: String): JPanel = {
+  def getPatternListPanel(parent: JComponent, patternJBList: JListCompatibility.JListContainer, @Nls inputMessage: String, @Nls inputTitle: String): JPanel = {
     def addPattern(pattern: String, patternJBList: JListCompatibility.JListContainer): Unit = {
       if (pattern == null) return
       val listModel = JListCompatibility.getDefaultListModel(patternJBList.getList.getModel) match {
@@ -84,7 +84,7 @@ object ScalaProjectSettingsUtil {
     }).disableUpDownActions.createPanel
   }
 
-  def getUnsortedPatternListPanel(parent: JComponent, patternJBList: JListCompatibility.JListContainer, inputMessage: String, @Nls inputTitle: String): JPanel = {
+  def getUnsortedPatternListPanel(parent: JComponent, patternJBList: JListCompatibility.JListContainer, @Nls inputMessage: String, @Nls inputTitle: String): JPanel = {
     def addPattern(pattern: String, patternJBList: JListCompatibility.JListContainer): Unit = {
       if (pattern == null) return
       val listModel = JListCompatibility.getDefaultListModel(patternJBList.getList.getModel) match {

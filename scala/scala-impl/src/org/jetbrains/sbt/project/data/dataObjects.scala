@@ -2,12 +2,12 @@ package org.jetbrains.sbt.project.data
 
 import java.io.File
 import java.net.URI
-import java.util.{List => JList, Map => JMap, Set => JSet, HashMap => JHashMap}
+import java.util.{HashMap => JHashMap, List => JList, Map => JMap, Set => JSet}
 
 import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
 import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys}
 import com.intellij.serialization.PropertyMapping
-import org.jetbrains.annotations.Nullable
+import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.plugins.scala.project.external.SdkReference
 import org.jetbrains.sbt.RichSeq
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -101,11 +101,10 @@ sealed trait SbtRankedKey {
 }
 
 @SerialVersionUID(1)
-case class SbtSettingData @PropertyMapping(Array("name", "description", "rank", "value"))(
-                                                                                           override val name: String,
-                                                                                           description: String,
-                                                                                           override val rank: Int,
-                                                                                           value: String
+case class SbtSettingData @PropertyMapping(Array("name", "description", "rank", "value"))(override val name: String,
+                                                                                          @Nls description: String,
+                                                                                          override val rank: Int,
+                                                                                          value: String
 )  extends SbtEntityData with SbtNamedKey with SbtRankedKey
 
 object SbtSettingData {
@@ -113,19 +112,17 @@ object SbtSettingData {
 }
 
 @SerialVersionUID(1)
-case class SbtTaskData @PropertyMapping(Array("name", "description", "rank")) (
-                                                                                override val name: String,
-                                                                                description: String,
-                                                                                override val rank: Int) extends SbtEntityData with SbtNamedKey with SbtRankedKey
+case class SbtTaskData @PropertyMapping(Array("name", "description", "rank")) (override val name: String,
+                                                                               @Nls description: String,
+                                                                               override val rank: Int) extends SbtEntityData with SbtNamedKey with SbtRankedKey
 
 object SbtTaskData {
   val Key: Key[SbtTaskData] = datakey(classOf[SbtTaskData])
 }
 
 @SerialVersionUID(1)
-case class SbtCommandData @PropertyMapping(Array("name", "help")) (
-                                                                    override val name: String,
-                                                                    help: JMap[String, String]
+case class SbtCommandData @PropertyMapping(Array("name", "help")) (override val name: String,
+                                                                   help: JMap[String, String]
 ) extends SbtEntityData with SbtNamedKey
 
 object SbtCommandData {

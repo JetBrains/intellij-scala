@@ -11,11 +11,15 @@ import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerListener, ProjectUtil}
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.concurrency.AppExecutorUtil
+import org.jetbrains.bsp.settings.BspProjectSettings.BspServerConfig
+import org.jetbrains.bsp.project.BspExternalSystemManager
 import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 
 import scala.collection.mutable
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
+import scala.collection.JavaConverters._
 import scala.util.{Success, Try}
 
 class BspCommunicationService extends Disposable {
@@ -32,7 +36,7 @@ class BspCommunicationService extends Disposable {
   private val timeout = 10.minutes
   private val cleanerPause = 10.seconds
 
-  private val comms = mutable.Map[URI, BspCommunication]()
+  private val comms = mutable.Map[(URI, BspServerConfig), BspCommunication]()
 
   private val executorService = AppExecutorUtil.getAppScheduledExecutorService
 
@@ -47,42 +51,42 @@ class BspCommunicationService extends Disposable {
     }
   }
 
-  private[protocol] def communicate(base: File): BspCommunication =
+  private[protocol] def communicate(base: File, config: BspServerConfig): BspCommunication =
     comms.getOrElseUpdate(
-      base.getCanonicalFile.toURI,
+      (base.getCanonicalFile.toURI, config),
       {
-        val comm = new BspCommunication(base)
+        val comm = new BspCommunication(base, config)
         Disposer.register(this, comm)
         comm
       }
     )
 
-  @deprecated("Multiple BSP servers per IDEA project are possible. use communicate(File) instead", "2020.1")
-  private[protocol] def communicate(implicit project: Project): BspCommunication =
-    projectPath.map(new File(_))
-      .map(communicate)
-      .orNull // TODO
+  def listOpenComms: Iterable[(URI, BspServerConfig)] = comms.keys
 
-  def listOpenComms: Iterable[URI] = comms.keys
+  def isAlive(base: URI, config: BspServerConfig): Boolean =
+    comms.get((base,config)).exists(_.alive)
 
-  def isAlive(base: URI): Boolean = communicate(new File(base)).alive
-
-  def closeCommunication(base: File): Try[Unit] =
-    closeCommunication(base.getCanonicalFile.toURI)
-
-  def closeCommunication(base: URI): Try[Unit] =
-    comms.get(base)
+  /** Close BSP connection if there is an open one associated with `base`. */
+  def closeCommunication(base: URI, config: BspServerConfig): Future[Unit] = {
+    val tryComm = comms.get(base, config)
       .toRight(new NoSuchElementException)
       .toTry
-      .flatMap(_.closeSession())
 
-  def closeAll: Try[Unit] =
-    comms.values
-      .map(_.closeSession())
-      .foldLeft(Success(Unit): Try[Unit])(_.orElse(_))
+    Future.fromTry(tryComm)
+      .flatMap(_.closeSession())(ExecutionContext.global)
+  }
 
-  private def executionSettings(base: File): BspExecutionSettings =
-    BspExecutionSettings.executionSettingsFor(base)
+  def exitCommands(base: URI, config: BspServerConfig): Try[List[List[String]]] = {
+    comms.get(base, config)
+      .toRight(new NoSuchElementException)
+      .toTry
+      .map(_.exitCommands)
+  }
+
+  def closeAll: Future[Unit] = {
+    import ExecutionContext.Implicits.global
+    Future.traverse(comms.values)(_.closeSession()).map(_ => ())
+  }
 
   override def dispose(): Unit = {
     comms.values.foreach(_.closeSession())
@@ -90,11 +94,10 @@ class BspCommunicationService extends Disposable {
   }
 
   private object MyProjectListener extends ProjectManagerListener {
-
     override def projectClosed(project: Project): Unit = for {
       path <- projectPath(project)
       uri = Paths.get(path).toUri
-      session <- comms.get(uri)
+      session <- comms.filterKeys(_._1 == uri).values
     } session.closeSession()
   }
 }

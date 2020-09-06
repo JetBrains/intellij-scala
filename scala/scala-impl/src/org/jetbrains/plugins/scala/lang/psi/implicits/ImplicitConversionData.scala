@@ -3,50 +3,62 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiNamedElement}
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.autoImport.GlobalImplicitConversion
+import org.jetbrains.plugins.scala.autoImport.GlobalMember.findGlobalMembers
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.findImplicits
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitConversionIndex
+import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
 import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.util.CommonQualifiedNames.AnyFqn
 
-class ImplicitConversionData private (element: PsiNamedElement,
-                                      substitutor: ScSubstitutor,
-                                      paramType: ScType,
-                                      returnType: ScType) {
+abstract class ImplicitConversionData {
+  def element: PsiNamedElement
+
+  protected def paramType: ScType
+  protected def returnType: ScType
+  protected def substitutor: ScSubstitutor
+
+  def withSubstitutor(s: ScSubstitutor): ImplicitConversionData
 
   override def toString: String = element.name
 
-  def isCompatible(fromType: ScType, place: PsiElement): Either[String, (ScType, ScSubstitutor)] = {
+  def isApplicable(fromType: ScType, place: PsiElement): Option[ImplicitConversionApplication] = {
     // to prevent infinite recursion
     if (PsiTreeUtil.isContextAncestor(element.nameContext, place, false))
-      return Left(ScalaBundle.message("conversion.is.not.available.in.it.s.own.definition"))
+      return None
 
     ProgressManager.checkCanceled()
 
     fromType.conforms(paramType, ConstraintSystem.empty, checkWeak = true) match {
-      case ConstraintsResult.Left => conformanceFailure(fromType, paramType)
+      case ConstraintsResult.Left => None
       case system: ConstraintSystem =>
         element match {
           case f: ScFunction if f.hasTypeParameters =>
             returnTypeWithLocalTypeInference(f, fromType, place, system)
           case _ =>
-            Right((returnType, ScSubstitutor.empty))
+            Some(ImplicitConversionApplication(returnType))
         }
     }
   }
 
+  def resultType(from: ScType, place: PsiElement): Option[ScType] =
+    isApplicable(from: ScType, place: PsiElement).map(_.resultType)
+
   private def returnTypeWithLocalTypeInference(function: ScFunction,
                                                fromType: ScType,
                                                place: PsiElement,
-                                               constraints: ConstraintSystem): Either[String, (ScType, ScSubstitutor)] = {
+                                               constraints: ConstraintSystem): Option[ImplicitConversionApplication] = {
 
     implicit val projectContext: ProjectContext = function.projectContext
 
@@ -81,58 +93,41 @@ class ImplicitConversionData private (element: PsiNamedElement,
 
         lastConstraints match {
           case ConstraintSystem(lastSubstitutor) =>
-            val clauses = function.paramClauses.clauses
 
-            val parameters = clauses.headOption.toSeq.flatMap(_.parameters).map(Parameter(_))
+            val firstParameter = function.parameters.headOption.map(Parameter(_))
 
-            val dependentSubstitutor = ScSubstitutor.paramToType(parameters, Seq.fill(parameters.length)(fromType))
+            val firstParamSubstitutor = ScSubstitutor.paramToType(firstParameter.toSeq, Seq(fromType))
 
-            def dependentMethodTypes: Option[ScParameterClause] =
-              function.returnType.toOption.flatMap { functionType =>
-                clauses match {
-                  case Seq(_, last) if last.isImplicit =>
-                    var result: Option[ScParameterClause] = None
-                    functionType.recursiveUpdate { t =>
-                      t match {
-                        case ScDesignatorType(p: ScParameter) if last.parameters.contains(p) =>
-                          result = Some(last)
-                        case _ =>
-                      }
-                      if (result.isDefined) Stop
-                      else ProcessSubtypes
-                    }
+            val implicitParameters =
+              function.parameters
+                .filter(_.isImplicitParameter)
+                .map(Parameter(_))
 
-                    result
-                  case _ => None
-                }
-              }
+            val (inferredParameters, expressions, found) =
+              findImplicits(implicitParameters,
+                None,
+                place,
+                canThrowSCE = false,
+                abstractSubstitutor = lastSubstitutor.followed(firstParamSubstitutor).followed(unSubst)
+              )
 
-            val effectiveParameters = dependentMethodTypes.toSeq
-              .flatMap(_.effectiveParameters)
-              .map(Parameter(_))
+            val resultType = lastSubstitutor(firstParamSubstitutor(returnType))
 
-            val (inferredParameters, expressions, _) = findImplicits(effectiveParameters, None, place, canThrowSCE = false,
-              abstractSubstitutor = substitutor.followed(dependentSubstitutor).followed(unSubst))
-
-            Right(
-              lastSubstitutor(dependentSubstitutor(returnType)),
+            val resultSubstitutor =
               ScSubstitutor.paramToExprType(inferredParameters, expressions, useExpected = false)
-            )
-          case _ => problematicBounds(fromType)
+
+            Some(ImplicitConversionApplication(resultType, resultSubstitutor, found))
+          case _ => None
         }
-      case _ => problematicBounds(fromType)
+      case _ => None
     }
   }
-
-  private def problematicBounds(fromType: ScType) =
-    Left(ScalaBundle.message("element.has.incompatible.type.parameter.bounds.for.type", element.name, fromType))
-
-  private def conformanceFailure(fromType: ScType, paramType: ScType) =
-    Left(ScalaBundle.message("type.does.not.conform.to.type", fromType, paramType))
-
 }
 
 object ImplicitConversionData {
+
+  def apply(globalConversion: GlobalImplicitConversion): Option[ImplicitConversionData] =
+    ImplicitConversionData(globalConversion.function, globalConversion.substitutor)
 
   def apply(element: PsiNamedElement, substitutor: ScSubstitutor): Option[ImplicitConversionData] = {
     ProgressManager.checkCanceled()
@@ -145,45 +140,119 @@ object ImplicitConversionData {
     }
   }
 
+  def getPossibleConversions(expr: ScExpression): Map[GlobalImplicitConversion, ImplicitConversionApplication] =
+    expr.getTypeWithoutImplicits().toOption match {
+      case None => Map.empty
+      case Some(originalType) =>
+        val withSuperClasses = originalType.widen.extractClass match {
+          case Some(clazz) => MixinNodes.allSuperClasses(clazz).map(_.qualifiedName) + clazz.qualifiedName + AnyFqn
+          case _ => Set.empty
+        }
+        val scope = expr.resolveScope
+        (for {
+          qName    <- withSuperClasses
+          function <- ImplicitConversionIndex.conversionCandidatesForFqn(qName, scope)(expr.getProject)
+
+          if ImplicitConversionProcessor.applicable(function, expr)
+
+          conversion  <- findGlobalMembers(function, scope)(GlobalImplicitConversion)
+          data        <- ImplicitConversionData(conversion)
+          application <- data.isApplicable(originalType, expr)
+        } yield (conversion, application))
+          .toMap
+    }
+
+
+  @CachedInUserData(function, CachesUtil.libraryAwareModTracker(function))
+  private def rawCheck(function: ScFunction): Option[ImplicitConversionData] = {
+    for {
+      retType   <- function.returnType.toOption
+      param <- function.parameters.headOption
+      paramType <- param.`type`().toOption
+    } yield {
+      new RegularImplicitConversionData(function, paramType, retType, ScSubstitutor.empty)
+    }
+  }
+
+  @CachedInUserData(named, CachesUtil.libraryAwareModTracker(named))
+  private def rawElementWithFunctionTypeCheck(named: PsiNamedElement with Typeable): Option[ImplicitConversionData] = {
+    for {
+      function1Type <- named.elementScope.cachedFunction1Type
+      elementType   <- named.`type`().toOption
+      if elementType.conforms(function1Type)
+    } yield {
+      new ElementWithFunctionTypeData(named, elementType, ScSubstitutor.empty)
+    }
+  }
+
   private def fromRegularImplicitConversion(function: ScFunction,
                                             substitutor: ScSubstitutor): Option[ImplicitConversionData] = {
-    val returnType      = function.returnType.map(substitutor).toOption
-    val rawParamType    = function.parameters.headOption.flatMap(_.`type`().toOption)
-    val undefiningSubst = ScalaPsiUtil.undefineMethodTypeParams(function)
-    for {
-      retType   <- returnType
-      paramType <- rawParamType.map(substitutor.followed(undefiningSubst))
-    } yield {
-      new ImplicitConversionData(function, substitutor, paramType, retType)
-    }
+    rawCheck(function).map(_.withSubstitutor(substitutor))
   }
 
   private def fromElementWithFunctionType(named: PsiNamedElement with Typeable,
                                           substitutor: ScSubstitutor): Option[ImplicitConversionData] = {
-    val undefiningSubst = named match {
-      case fun: ScFunction => ScalaPsiUtil.undefineMethodTypeParams(fun)
-      case _               => ScSubstitutor.empty
+    rawElementWithFunctionTypeCheck(named).map(_.withSubstitutor(substitutor))
+  }
+
+
+  private class RegularImplicitConversionData(override val element: PsiNamedElement,
+                                              rawParamType: ScType,
+                                              rawReturnType: ScType,
+                                              override val substitutor: ScSubstitutor) extends ImplicitConversionData {
+
+    protected override lazy val paramType: ScType = {
+      val undefiningSubst = element match {
+        case fun: ScFunction => ScalaPsiUtil.undefineMethodTypeParams(fun)
+        case _               => ScSubstitutor.empty
+      }
+      substitutor.followed(undefiningSubst)(rawParamType)
     }
-    for {
-      functionType         <- named.elementScope.cachedFunction1Type
-      elementType          <- named.`type`().toOption.map(substitutor.followed(undefiningSubst))
-      (paramType, retType) <- extractFunctionTypeParameters(elementType, functionType)
-    } yield {
-      new ImplicitConversionData(named, substitutor, paramType, retType)
+
+    protected override lazy val returnType: ScType = substitutor(rawReturnType)
+
+    override def withSubstitutor(s: ScSubstitutor): ImplicitConversionData =
+      new RegularImplicitConversionData(element, rawParamType, rawReturnType, substitutor)
+  }
+
+  private class ElementWithFunctionTypeData(override val element: PsiNamedElement with Typeable,
+                                            rawElementType: ScType,
+                                            override val substitutor: ScSubstitutor = ScSubstitutor.empty)
+    extends ImplicitConversionData {
+    private def stdTypes = StdTypes.instance(element.getProject)
+
+    private lazy val functionTypeParams: Option[(ScType, ScType)] = {
+      val undefiningSubst = element match {
+        case fun: ScFunction => ScalaPsiUtil.undefineMethodTypeParams(fun)
+        case _               => ScSubstitutor.empty
+      }
+      for {
+        functionType <- element.elementScope.cachedFunction1Type
+        elementType <- element.`type`().toOption.map(substitutor.followed(undefiningSubst))
+        (paramType, retType) <- extractFunctionTypeParameters(elementType, functionType)
+      } yield (paramType, retType)
+    }
+
+    override protected def paramType: ScType = functionTypeParams.map(_._1).getOrElse(stdTypes.Nothing)
+
+    override protected def returnType: ScType = functionTypeParams.map(_._2).getOrElse(stdTypes.Any)
+
+    override def withSubstitutor(s: ScSubstitutor): ImplicitConversionData =
+      new ElementWithFunctionTypeData(element, rawElementType, substitutor)
+
+    private def extractFunctionTypeParameters(functionTypeCandidate: ScType,
+                                              functionType: ScParameterizedType): Option[(ScType, ScType)] = {
+      implicit val projectContext: ProjectContext = functionType.projectContext
+
+      functionTypeCandidate.conforms(functionType, ConstraintSystem.empty) match {
+        case ConstraintSystem(newSubstitutor) =>
+          functionType.typeArguments.map(newSubstitutor) match {
+            case Seq(argType, retType) => Some((argType, retType))
+            case _                     => None
+          }
+        case _ => None
+      }
     }
   }
 
-  private def extractFunctionTypeParameters(functionTypeCandidate: ScType,
-                                            functionType: ScParameterizedType): Option[(ScType, ScType)] = {
-    implicit val projectContext: ProjectContext = functionType.projectContext
-
-    functionTypeCandidate.conforms(functionType, ConstraintSystem.empty) match {
-      case ConstraintSystem(newSubstitutor) =>
-        functionType.typeArguments.map(newSubstitutor) match {
-          case Seq(argType, retType) => Some((argType, retType))
-          case _                     => None
-        }
-      case _ => None
-    }
-  }
 }

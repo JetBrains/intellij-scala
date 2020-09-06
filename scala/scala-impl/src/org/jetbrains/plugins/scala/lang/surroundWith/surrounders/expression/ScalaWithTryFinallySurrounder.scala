@@ -17,6 +17,7 @@ class ScalaWithTryFinallySurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String =
     "try {\n" + super.getTemplateAsString(elements) + "\n} finally a"
 
+  //noinspection ScalaExtractStringToBundle
   override def getTemplateDescription = "try / finally"
 
   override def getSurroundSelectionRange(withTryCatchNode: ASTNode): TextRange = {

@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package lang.refactoring.rename
 
 import java.util
-import javax.swing.Icon
 
 import com.intellij.codeInsight.navigation.NavigationUtil
 import com.intellij.ide.util.PsiClassListCellRenderer
@@ -12,8 +11,9 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
-import org.jetbrains.annotations.NotNull
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import javax.swing.Icon
+import org.jetbrains.annotations.{Nls, NotNull}
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -114,17 +114,15 @@ object RenameSuperMembersUtil {
     val renameBase = ScalaBundle.message("rename.base.member")
     val renameOnlyCurrent = ScalaBundle.message("rename.only.current.member")
     val name = ScalaNamesUtil.scalaName(superMembers.last)
+    @Nls
     val title =
       if (oneSuperClass) {
-        val overimpl = ScalaPsiUtil.nameContext(superMembers(0)) match {
-          case _: ScDeclaration => "implements"
-          case _ => "overrides"
+        val qualName = classes.head.qualifiedName
+
+        ScalaPsiUtil.nameContext(superMembers.head) match {
+          case _: ScDeclaration => ScalaBundle.message("name.implements.member.of.qualname", name, qualName)
+          case _ => ScalaBundle.message("name.overrides.member.of.qualname", name, qualName)
         }
-        val qualName = classes(0) match {
-          case td: ScTypeDefinition => td.qualifiedName
-          case cl => cl.getQualifiedName
-        }
-        s"$name $overimpl member of $qualName"
       }
       else ScalaBundle.message("rename.has.multiple.base.members", name)
 

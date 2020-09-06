@@ -6,12 +6,15 @@ trait SbtDocumentationProviderCommonTests {
   def testSbtDescriptionShouldBeWrappedInDefaultScaladocTemplate(): Unit =
     doGenerateDocTest(
       s"""val ${CARET}someKey = SettingKey[Int]("some-key", "This is description for some-key")""",
-      s"""$DocStart
+      s"""<html>
+         |${DocHtmlHead(self.getFixture.getFile)}
+         |$BodyStart
          |${DefinitionStart}val <b>someKey</b>: <a href="psi_element://sbt.SettingKey"><code>SettingKey</code></a>[<a href="psi_element://scala.Int"><code>Int</code></a>]$DefinitionEnd
          |$ContentStart
          |This is description for some-key
          |$ContentEnd
-         |$DocEnd
+         |$BodyEnd
+         |</html>
          |""".stripMargin
     )
 

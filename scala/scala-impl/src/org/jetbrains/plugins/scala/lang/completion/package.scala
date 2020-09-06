@@ -6,18 +6,19 @@ import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup._
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Key
 import com.intellij.patterns.{ElementPattern, PlatformPatterns, StandardPatterns}
 import com.intellij.psi.util.PsiTreeUtil.{getContextOfType, getParentOfType}
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember}
 import com.intellij.util.{Consumer, ProcessingContext}
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker.parentWithStableType
+import org.jetbrains.plugins.scala.caches.BlockModificationTracker.hasStableType
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr, ScExpression, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
@@ -28,8 +29,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
-
-import scala.collection.JavaConverters
 
 package object completion {
 
@@ -104,6 +103,14 @@ package object completion {
     def ||(pattern: ElementPattern[_ <: PsiElement]): ElementPattern[_ <: PsiElement] = or(this.pattern, pattern)
   }
 
+  private[completion] implicit class LookupElementExt[E <: LookupElement](private val lookupElement: E) extends AnyVal {
+
+    def withBooleanUserData(key: Key[java.lang.Boolean]): E = {
+      lookupElement.putUserData(key, java.lang.Boolean.TRUE)
+      lookupElement
+    }
+  }
+
   private[completion] implicit class OffsetMapExt(private val offsetMap: OffsetMap) extends AnyVal {
 
     def apply(key: OffsetKey): Int = offsetMap.getOffset(key)
@@ -157,6 +164,15 @@ package object completion {
   }
 
   private def mirrorPosition(originalFile: PsiFile, positionInCompletionFile: PsiElement): Option[PsiElement] = {
+    //similar to BlockModificationTracker.parentWithStableType, but may return last expression in block without explicit type
+    @annotation.tailrec
+    def locallyStableParent(element: PsiElement): Option[ScExpression] =
+      element match {
+        case null | _: ScalaFile => None
+        case (expr: ScExpression) childOf (_: ScBlock) => Some(expr)
+        case expr: ScExpression if hasStableType(expr) => Some(expr)
+        case element => locallyStableParent(element.getParent)
+      }
 
     @CachedInUserData(originalFile, CachesUtil.fileModTracker(originalFile))
     def cachedFor(positionInCompletionFile: PsiElement): Option[PsiElement] = {
@@ -168,8 +184,8 @@ package object completion {
 
       //todo: we may probably choose a smaller fragment to copy in many cases SCL-17106
       for {
-        anchor           <- parentWithStableType(placeInOriginalFile)
-        expressionToCopy <- parentWithStableType(positionInCompletionFile)
+        anchor           <- locallyStableParent(placeInOriginalFile)
+        expressionToCopy <- locallyStableParent(positionInCompletionFile)
       } yield {
 
         val copy = expressionToCopy.copy().asInstanceOf[ScExpression]
@@ -266,15 +282,24 @@ package object completion {
   abstract class ScalaCompletionProvider extends CompletionProvider[CompletionParameters] {
 
     protected def completionsFor(position: PsiElement)
-                                (implicit parameters: CompletionParameters, context: ProcessingContext): Iterable[LookupElement]
+                                (implicit parameters: CompletionParameters,
+                                 context: ProcessingContext): Iterable[LookupElement]
 
-    override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
+    override def addCompletions(parameters: CompletionParameters,
+                                context: ProcessingContext,
+                                result: CompletionResultSet): Unit = {
       implicit val p: CompletionParameters = parameters
       implicit val c: ProcessingContext = context
       val lookupElements = completionsFor(positionFromParameters)
+      result.addAllElements(lookupElements)
+    }
+  }
 
-      import JavaConverters._
-      result.addAllElements(lookupElements.asJava)
+  private[completion] implicit class CompletionResultSetExt(private val set: CompletionResultSet) extends AnyVal {
+
+    def addAllElements(lookupElements: Iterable[_ <: LookupElement]): Unit = {
+      import collection.JavaConverters._
+      set.addAllElements(lookupElements.asJava)
     }
   }
 

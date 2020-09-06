@@ -75,7 +75,6 @@ private[completion] final class UntypedConsumer(originalResultSet: CompletionRes
       super.renderElement(decorator, presentation)
 
       presentation.setIcon(null)
-      presentation.setTypeText(null)
       presentation.setTailText(null)
       presentation.setStrikeout(false)
     }

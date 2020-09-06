@@ -160,6 +160,7 @@ final class CompileServerManager(project: Project) extends Disposable {
       val errors = launcher.errors()
 
       if (errors.nonEmpty) {
+        //noinspection ReferencePassedToNls
         Notifications.Bus.notify(new Notification(title, title, errors.mkString, NotificationType.ERROR), project)
       }
     }

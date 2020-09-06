@@ -35,13 +35,15 @@ private object ScalaTestMigrationUtils {
     }
 
     implicit class ListOps(private val fqns: List[String]) extends AnyVal {
-      def withMigrated: List[String] = {
-        val migrated = for {
+      def migrated: List[String] = {
+        val result = for {
           fqn <- fqns
           (oldstyle, newStyle) <- selectMigration(fqn)
         } yield (fqn, fqn.replace(oldstyle, newStyle))
-        fqns ++ migrated.map(_._2)
+        result.map(_._2)
       }
+      def withMigrated: List[String] =
+        fqns ++ migrated
     }
   }
 

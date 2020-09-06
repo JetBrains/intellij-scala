@@ -13,7 +13,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     ListOfPatterns
       InterpolationPattern
-        CodeReferenceElement: q
+        CodeReferenceElement (string interpolator): q
           PsiElement(interpolated string id)('q')
         Pattern Argument List
           PsiElement(interpolated string)('"(..')
@@ -44,7 +44,7 @@ ScalaFile
         PsiElement(case)('case')
         PsiWhiteSpace(' ')
         InterpolationPattern
-          CodeReferenceElement: r
+          CodeReferenceElement (string interpolator): r
             PsiElement(interpolated string id)('r')
           Pattern Argument List
             PsiElement(interpolated string)('"')

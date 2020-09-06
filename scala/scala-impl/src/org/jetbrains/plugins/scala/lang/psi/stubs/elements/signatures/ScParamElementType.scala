@@ -51,7 +51,7 @@ abstract class ScParamElementType[P <: ScParameter](debugName: String) extends S
     }
     val (isVal, isVar, implicitClassNames) = parameter match {
       case parameter: ScClassParameter =>
-        (parameter.isVal, parameter.isVar, ScImplicitInstanceStub.implicitClassNames(parameter, parameter.typeElement))
+        (parameter.isVal, parameter.isVar, ScImplicitStub.implicitClassNames(parameter, parameter.typeElement))
       case _ => (false, false, EMPTY_STRING_ARRAY)
     }
     val defaultExprText = parameter.getActualDefaultExpression.map {

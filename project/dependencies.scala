@@ -1,16 +1,16 @@
 import sbt._
 
 object Versions {
-  val scalaVersion: String = Scala.project
+  val scalaVersion: String = "2.12.7"
   val scalaBinaryVersion: String = Scala.binary_2_12
   // ATTENTION: when updating sbtVersion also update versions in MockSbt_1_0
   // NOTE: sbt-launch / bloop-launcher won't be fetched on refresh.
   // run runtimeDependencies/update manually
   val sbtVersion: String = Sbt.latest
-  val bloopVersion = "1.4.1"
+  val bloopVersion = "1.4.3"
   val zincVersion = "1.1.1"
-  val intellijVersion = "202.5792.28"
-  val bspVersion = "2.0.0-M11"
+  val intellijVersion = "202.6948.5"
+  val bspVersion = "2.0.0-M12+27-4994bd9d-SNAPSHOT"
   val sbtStructureVersion: String = "2018.2.1+4-88400d3f"
   val sbtIdeaShellVersion: String = "2018.3"
   val sbtIdeaCompilerIndicesVersion = "0.1.3"
@@ -24,18 +24,7 @@ object Versions {
     val binary_2_12 = "2.12"
     val binary_2_13 = "2.13"
 
-    // ATTENTION: When changing any of these versions,
-    // they currently need to be updated in org.jetbrains.plugins.scala.debugger.ScalaVersion
-    val latest_2_9 = "2.9.3"
-    val latest_2_10 = "2.10.7"
-    val latest_2_11 = "2.11.12"
-    val latest_2_12 = "2.12.10"
-    val latest_2_13 = "2.13.1"
-    val latest_3_0 = "0.25.0-RC2"
-    val latest_dotty = latest_3_0
-    val latest: String = latest_2_12
-    /** Version used to build this project. Prefer latest_2_12 unless it causes problems. */
-    val project = "2.12.7"
+    val latest_dotty = "0.26.0-RC1"
 
     def binaryVersion(v: String): String =
       if (v.startsWith("2.9")) binary_2_9
@@ -53,7 +42,7 @@ object Versions {
 
     val latest_0_12 = "0.12.4"
     val latest_0_13 = "0.13.18"
-    val latest_1_0 = "1.3.8"
+    val latest_1_0 = "1.3.13"
     val latest: String = latest_1_0
     // ATTENTION: after adding sbt major version, also update:
     // buildInfoKeys, Sbt.scala and SbtUtil.latestCompatibleVersion
@@ -80,18 +69,19 @@ object Dependencies {
   val scalaLibrary: ModuleID = "org.scala-lang" % "scala-library" % scalaVersion
   val scalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
   val scalaCompiler: ModuleID = "org.scala-lang" % "scala-compiler" % scalaVersion
-  val scalaXml: ModuleID = "org.scala-lang.modules" %% "scala-xml" % "1.0.6"
-  val scalaParserCombinators: ModuleID = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
+  val scalaXml: ModuleID = "org.scala-lang.modules" %% "scala-xml" % "1.2.0"
+//  val scalaParserCombinators: ModuleID = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
   // this actually needs the explicit version because something in packager breaks otherwise (???)
   val sbtStructureCore: ModuleID = "org.jetbrains" %% "sbt-structure-core" % sbtStructureVersion
   val evoInflector: ModuleID = "org.atteo" % "evo-inflector" % "1.2"
-  val scalatestFindersPatched: ModuleID = "org.scalatest" % "scalatest-finders-patched" % "0.9.11"
+  // NOTE: current latest version is in https://github.com/unkarjedy/scalatest-finders.git repository
+  val scalatestFindersPatched: ModuleID = "org.scalatest" % "scalatest-finders-patched" % "0.9.12"
 
   val commonsLang: ModuleID = "commons-lang" % "commons-lang" % "2.6"
   val junitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11" % "test"
   val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.4.0"
 
-  val scalastyle: ModuleID = "org.scalastyle" %% "scalastyle" % "1.0.0"
+  val scalastyle: ModuleID = "com.beautiful-scala" %% "scalastyle" % "1.4.0"
   val scalariform: ModuleID = "org.scalariform" %% "scalariform" % "0.2.2"
   val scalafmt: Seq[ModuleID] = Seq(
     "com.geirsson" %% "scalafmt-core" % "1.5.1",
@@ -125,7 +115,7 @@ object Dependencies {
   /** The filtering function returns true for jars to be removed.
    * It's purpose is to exclude platform jars that may conflict with plugin dependencies. */
   val excludeJarsFromPlatformDependencies: File => Boolean = { file =>
-    file.getName.contains("lsp4j") // version conflict with bsp4j in ultimate platform
+    file.getName.contains("lsp4j") // version conflict with lsp4j in ultimate platform
   }
 
   private def sbtPluginDependency(module: ModuleID, sbtVersion: String): ModuleID =
@@ -147,7 +137,7 @@ object DependencyGroups {
     scalaReflect,
     scalaXml,
     scalaMetaCore,
-    scalaParserCombinators,
+//    scalaParserCombinators,
     sbtStructureCore,
     evoInflector,
     "io.github.soc" % "directories" % "11",

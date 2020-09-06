@@ -6,6 +6,9 @@
   * @see another method
   * @param a first param
   * @param b second param
+  * @tparam T type param
+  * @throws my.Exception some description
+  * @define macro macro value
   * @return a+b
   */
 -----
@@ -46,7 +49,7 @@ DOC_WHITESPACE {
 DOC_COMMENT_LEADING_ASTERISKS {*}
 DOC_WHITESPACE { }
 DOC_TAG_NAME {@param}
-DOC_COMMENT_DATA { }
+DOC_WHITESPACE { }
 DOC_TAG_VALUE_TOKEN {a}
 DOC_WHITESPACE { }
 DOC_COMMENT_DATA {first param}
@@ -55,10 +58,39 @@ DOC_WHITESPACE {
 DOC_COMMENT_LEADING_ASTERISKS {*}
 DOC_WHITESPACE { }
 DOC_TAG_NAME {@param}
-DOC_COMMENT_DATA { }
+DOC_WHITESPACE { }
 DOC_TAG_VALUE_TOKEN {b}
 DOC_WHITESPACE { }
 DOC_COMMENT_DATA {second param}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_TAG_NAME {@tparam}
+DOC_WHITESPACE { }
+DOC_TAG_VALUE_TOKEN {T}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {type param}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_TAG_NAME {@throws}
+DOC_WHITESPACE { }
+identifier {my}
+. {.}
+identifier {Exception}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {some description}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_TAG_NAME {@define}
+DOC_WHITESPACE { }
+DOC_TAG_VALUE_TOKEN {macro}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {macro value}
 DOC_WHITESPACE {
   }
 DOC_COMMENT_LEADING_ASTERISKS {*}

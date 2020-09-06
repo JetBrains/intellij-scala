@@ -322,6 +322,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       opt("SD_ALIGN_EXCEPTION_COMMENTS", ScalaBundle.message("scaladoc.panel.align.throws.exception.descriptions"), ScalaDocFormattingPanel.ALIGNMENT_GROUP)
       opt("SD_ALIGN_RETURN_COMMENTS", ScalaBundle.message("scaladoc.panel.align.return.value.description"), ScalaDocFormattingPanel.ALIGNMENT_GROUP)
       opt("SD_ALIGN_OTHER_TAGS_COMMENTS", ScalaBundle.message("scaladoc.panel.align.other.tags.descriptions"), ScalaDocFormattingPanel.ALIGNMENT_GROUP)
+      opt("SD_ALIGN_LIST_ITEM_CONTENT", "Align list items content", ScalaDocFormattingPanel.ALIGNMENT_GROUP)
 
       opt("SD_KEEP_BLANK_LINES_BETWEEN_TAGS", ScalaBundle.message("scaladoc.panel.blank.lines.keep"), ScalaDocFormattingPanel.BLANK_LINES_GROUP)
       opt("SD_BLANK_LINE_BEFORE_TAGS", appMessage("checkbox.after.description"), ScalaDocFormattingPanel.BLANK_LINES_GROUP)

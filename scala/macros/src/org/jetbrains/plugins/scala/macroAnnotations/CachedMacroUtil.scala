@@ -263,7 +263,7 @@ object CachedMacroUtil {
 
     val needLocalFunction = hasReturnStatements(c)(computation)
     if (needLocalFunction) {
-      abort("Annotated function has explicit return statements, function body can't be inlined")(c)
+      abort(MacrosBundle.message("annotated.function.cannot.be.inlined.because.of.return"))(c)
     }
 
     val resultName = c.universe.TermName("result")

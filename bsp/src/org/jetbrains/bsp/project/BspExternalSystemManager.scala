@@ -1,6 +1,6 @@
 package org.jetbrains.bsp.project
 
-import java.io.File
+import java.io.{File, FileReader}
 import java.util.{Collections, List => JList, Map => JMap}
 
 import com.google.gson.Gson
@@ -16,12 +16,13 @@ import com.intellij.openapi.util.UserDataHolder
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.util.Function
 import org.jetbrains.bsp._
-import org.jetbrains.bsp.project.resolver.BspProjectResolver
+import org.jetbrains.bsp.project.importing.BspProjectResolver
 import org.jetbrains.bsp.settings._
 import org.jetbrains.bsp.project.BspExternalSystemManager.DetectExternalProjectFiles
 import org.jetbrains.bsp.protocol.BspConnectionConfig
 
 import scala.collection.JavaConverters._
+import scala.util.Try
 
 class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings, BspProjectSettingsListener, BspSettings, BspLocalSettings, BspExecutionSettings]
   with ExternalSystemConfigurableAware
@@ -61,7 +62,7 @@ class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings,
   override def getAffectedExternalProjectFiles(projectPath: String, project: Project): JList[File] = {
     if (detectExternalProjectFiles(project)) {
       val workspace = new File(projectPath)
-      val bspConfigs = BspConnectionConfig.workspaceConfigurations(workspace)
+      val bspConfigs = BspConnectionConfig.workspaceConfigurationFiles(workspace)
       val bloopConfigs = BspUtil.bloopConfigDir(workspace).toList
         .flatMap(_.listFiles(file => file.getName.endsWith(".json")).toList)
 
@@ -73,21 +74,24 @@ class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings,
 
   private def detectExternalProjectFiles(project: Project): Boolean = {
     cached(DetectExternalProjectFiles, project) {
-      if (BspUtil.isBspProject(project)) {
+      if (BspUtil.isBspProject(project) && project.getBasePath != null) {
         val workspace = new File(project.getBasePath)
-        val files = BspConnectionConfig.workspaceConfigurations(workspace)
-        files.forall { file =>
-          val bspConnectionDetails = parseAsMap(file)
-          !bspConnectionDetails.get("X-detectExternalProjectFiles").contains(false)
-        }
+        val files = BspConnectionConfig.workspaceConfigurationFiles(workspace)
+        files
+          .flatMap(parseAsMap(_).toOption)
+          .forall { details =>
+            ! details.get("X-detectExternalProjectFiles")
+              .contains(false)
+          }
       } else true
     }
   }
 
-  private def parseAsMap(file: File): Map[String, Any] = {
-    val virtualFile = LocalFileSystem.getInstance.findFileByIoFile(file)
-    val content = new String(virtualFile.contentsToByteArray())
-    new Gson().fromJson(content, classOf[JMap[String, _]]).asScala.toMap
+  private def parseAsMap(file: File): Try[Map[String, Any]] = Try {
+    new Gson()
+      .fromJson(new FileReader(file), classOf[JMap[String, _]])
+      .asScala
+      .toMap
   }
 
   private def cached[A](key: Key[A], holder: UserDataHolder)(compute: => A): A = {
@@ -102,4 +106,10 @@ class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings,
 
 object BspExternalSystemManager {
   val DetectExternalProjectFiles: Key[Boolean] = Key.create[Boolean]("BSP.detectExternalProjectFiles")
+
+  def parseAsMap(file: File): Map[String, Any] = {
+    val virtualFile = LocalFileSystem.getInstance.findFileByIoFile(file)
+    val content = new String(virtualFile.contentsToByteArray())
+    new Gson().fromJson(content, classOf[JMap[String, _]]).asScala.toMap
+  }
 }

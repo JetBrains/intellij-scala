@@ -71,7 +71,7 @@ class ArgumentTypeMismatchTest extends SimpleTestCase {
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
     // TODO use the general annotate() method
-    file.depthFirst().instancesOf[ScReference].foreach {
+    file.depthFirst().filterByType[ScReference].foreach {
       ScReferenceAnnotator.annotateReference(_)
     }
     mock.annotations

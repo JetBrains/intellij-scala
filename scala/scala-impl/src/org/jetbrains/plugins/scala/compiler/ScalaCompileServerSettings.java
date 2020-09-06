@@ -16,6 +16,7 @@ import java.util.UUID;
 )
 public class ScalaCompileServerSettings implements PersistentStateComponent<ScalaCompileServerSettings> {
   public boolean SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER = false;
+  @ReportValue
   public int SHOW_TYPE_TOOLTIP_DELAY = 500;
 
   public boolean COMPILE_SERVER_ENABLED = true;
@@ -31,6 +32,7 @@ public class ScalaCompileServerSettings implements PersistentStateComponent<Scal
   public String COMPILE_SERVER_JVM_PARAMETERS = "-server -Xss1m";
 
   //in minutes
+  @ReportValue
   public int COMPILE_SERVER_SHUTDOWN_DELAY = 120;
   public boolean COMPILE_SERVER_SHUTDOWN_IDLE = true;
 

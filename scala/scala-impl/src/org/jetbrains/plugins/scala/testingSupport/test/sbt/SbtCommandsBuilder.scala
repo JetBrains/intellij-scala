@@ -1,13 +1,15 @@
 package org.jetbrains.plugins.scala.testingSupport.test.sbt
 
-private[test]
+import org.jetbrains.annotations.ApiStatus
+
+@ApiStatus.Internal
 trait SbtCommandsBuilder {
 
   def buildTestOnly(classToTests: Map[String, Set[String]]): Seq[String]
 }
 
 // TODO: test all inheritors
-private[test]
+@ApiStatus.Internal
 abstract class SbtCommandsBuilderBase extends SbtCommandsBuilder {
 
   protected def classKey: Option[String] = None

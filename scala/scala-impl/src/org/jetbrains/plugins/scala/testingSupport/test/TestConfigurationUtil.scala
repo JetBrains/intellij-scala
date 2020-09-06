@@ -46,6 +46,9 @@ object TestConfigurationUtil {
   def isInheritor(clazz: ScTemplateDefinition, fqn: String, otherFqns: String*): Boolean =
     isInheritor(clazz, fqn) || otherFqns.exists(isInheritor(clazz, _))
 
+  def isInheritor(clazz: ScTemplateDefinition, fqns: TraversableOnce[String]): Boolean =
+    fqns.exists(isInheritor(clazz, _))
+
   //noinspection TypeAnnotation
   private object StringMethodNames {
     val ToLowerCase = "toLowerCase"

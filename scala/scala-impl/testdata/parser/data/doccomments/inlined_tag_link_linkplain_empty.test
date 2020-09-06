@@ -1,0 +1,51 @@
+/**
+ * {@link}
+ * {@link  }
+ * {@linkplain}
+ * {@linkplain  }
+ */
+-----
+ScalaFile
+  DocComment
+    ScPsiDocToken(DOC_COMMENT_START)('/**')
+    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    ScDocParagraph
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocInlinedTag
+        ScPsiDocToken(DOC_INLINE_TAG_START)('{')
+        ScPsiDocToken(DOC_TAG_NAME)('@link')
+        PsiErrorElement:Inline tag
+          <empty list>
+        ScPsiDocToken(DOC_INLINE_TAG_END)('}')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocInlinedTag
+        ScPsiDocToken(DOC_INLINE_TAG_START)('{')
+        ScPsiDocToken(DOC_TAG_NAME)('@link')
+        PsiErrorElement:Inline tag
+          <empty list>
+        ScPsiDocToken(DOC_WHITESPACE)('  ')
+        ScPsiDocToken(DOC_INLINE_TAG_END)('}')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocInlinedTag
+        ScPsiDocToken(DOC_INLINE_TAG_START)('{')
+        ScPsiDocToken(DOC_TAG_NAME)('@linkplain')
+        PsiErrorElement:Inline tag
+          <empty list>
+        ScPsiDocToken(DOC_INLINE_TAG_END)('}')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocInlinedTag
+        ScPsiDocToken(DOC_INLINE_TAG_START)('{')
+        ScPsiDocToken(DOC_TAG_NAME)('@linkplain')
+        PsiErrorElement:Inline tag
+          <empty list>
+        ScPsiDocToken(DOC_WHITESPACE)('  ')
+        ScPsiDocToken(DOC_INLINE_TAG_END)('}')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_END)('*/')

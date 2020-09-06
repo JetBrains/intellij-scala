@@ -20,12 +20,14 @@ class BspFetchTestEnvironmentTaskInstaller(project: Project) extends RunManagerL
   private def installFetchEnvironmentTask(settings: RunnerAndConfigurationSettings, runManager: RunManagerEx): Unit = {
     val runConfiguration = settings.getConfiguration
     if (BspEnvironmentRunnerExtension.isSupported(runConfiguration)) {
-      val tasks = runManager.getBeforeRunTasks(BspFetchEnvironmentTask.runTaskKey)
+      val tasks = runManager.getBeforeRunTasks(runConfiguration, BspFetchEnvironmentTask.runTaskKey)
       if (tasks.isEmpty) {
-        val beforeRunTasks = runManager.getBeforeRunTasks(runConfiguration)
         val task = new BspFetchEnvironmentTask
         task.setEnabled(true)
-        beforeRunTasks.add(task)
+
+        val mutableRunTasks = new java.util.ArrayList(runManager.getBeforeRunTasks(runConfiguration))
+        mutableRunTasks.add(task)
+        runManager.setBeforeRunTasks(runConfiguration, mutableRunTasks)
       }
     }
   }

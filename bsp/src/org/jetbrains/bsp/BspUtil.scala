@@ -13,6 +13,7 @@ import com.intellij.openapi.roots.CompilerProjectExtension
 import com.intellij.openapi.vfs.VirtualFileManager
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import org.jetbrains.annotations.Nls
+import org.jetbrains.bsp.settings.BspSettings
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.BuildReporter
 
@@ -49,12 +50,14 @@ object BspUtil {
     ExternalSystemApiUtil.isExternalSystemAwareModule(BSP.ProjectSystemId, module)
 
   def isBspProject(project: Project): Boolean = {
-    val settings = ExternalSystemApiUtil
-      .getSettings(project, BSP.ProjectSystemId)
-      .getLinkedProjectsSettings
-
+    val settings = bspSettings(project).getLinkedProjectsSettings
     ! settings.isEmpty
   }
+
+  def bspSettings(project: Project): BspSettings =
+    ExternalSystemApiUtil
+      .getSettings(project, BSP.ProjectSystemId)
+      .asInstanceOf[BspSettings]
 
   def compilerOutputDirFromConfig(base: File): Option[File] = {
     val vfm = VirtualFileManager.getInstance()
@@ -98,7 +101,7 @@ object BspUtil {
         case Success(_) =>
           reporter.finishTask(eventId, successMsg, new SuccessResultImpl(true))
         case Failure(x)  =>
-          reporter.finishTask(eventId, failMsg, new FailureResultImpl(x))
+          reporter.finishTask(eventId, failMsg, new FailureResultImpl(failMsg, x))
         case _ =>
           reporter.finishTask(eventId, successMsg, new SuccessResultImpl(true))
       }

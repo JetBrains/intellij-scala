@@ -666,7 +666,7 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
       ElementFeatureProvider.EP_NAME.addExplicitExtension(ScalaLanguage.INSTANCE, provider)
 
       configureFromFileText(fileText)
-      changePsiAt(getEditor.getCaretModel.getOffset)
+      changePsiAt(getEditorOffset)
       getFixture.complete(CompletionType.BASIC, 1)
 
       val handler = new CodeCompletionHandlerBase(CompletionType.BASIC, false, false, true)

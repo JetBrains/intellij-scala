@@ -19,6 +19,7 @@ class ScalaWithIfElseConditionSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String =
     "if (" + super.getTemplateAsString(elements) + ") {}\nelse {}"
 
+  //noinspection ScalaExtractStringToBundle
   override def getTemplateDescription: String = "if (expr) {...} else {...}"
 
   override def isApplicable(elements: Array[PsiElement]): Boolean = {

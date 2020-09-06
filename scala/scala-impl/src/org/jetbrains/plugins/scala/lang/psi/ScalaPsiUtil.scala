@@ -9,7 +9,6 @@ import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.extapi.psi.{ASTDelegatePsiElement, StubBasedPsiElementBase}
 import com.intellij.lang.ASTNode
 import com.intellij.lang.java.JavaLanguage
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
@@ -114,12 +113,6 @@ object ScalaPsiUtil {
     }
 
     paramText
-  }
-
-  def debug(message: => String, logger: Logger): Unit = {
-    if (logger.isDebugEnabled) {
-      logger.debug(message)
-    }
   }
 
   def functionArrow(implicit project: ProjectContext): String = {
@@ -451,7 +444,7 @@ object ScalaPsiUtil {
       e != null && e.startOffset == startOffset && e.endOffset <= endOffset
 
     val startElem = file.findElementAt(startOffset)
-    val allInRange = startElem.withParentsInFile.takeWhile(fit).toList.filterBy[T]
+    val allInRange = startElem.withParentsInFile.takeWhile(fit).toList.filterByType[T]
     if (allInRange.isEmpty) Seq.empty
     else {
       val maxEndOffset = allInRange.map(_.endOffset).max
@@ -516,7 +509,11 @@ object ScalaPsiUtil {
     }
   }
 
-  def getStubOrPsiSibling(element: PsiElement, next: Boolean = false): PsiElement = {
+  def stubOrPsiNextSibling(element: PsiElement) = getStubOrPsiSibling(element, next = true)
+
+  def stubOrPsiPrevSibling(element: PsiElement) = getStubOrPsiSibling(element, next = false)
+
+  private def getStubOrPsiSibling(element: PsiElement, next: Boolean): PsiElement = {
     val container = for {
       stub <- stub(element)
       parent <- stub.getParentStub.nullSafe
@@ -1519,13 +1516,13 @@ object ScalaPsiUtil {
   def isImplicit(namedElement: PsiNamedElement): Boolean = {
     namedElement match {
       case Implicit0Binding()                        => true /** See [[org.jetbrains.plugins.scala.util.BetterMonadicForSupport]] */
-      case owner: ScModifierListOwner                => isImplicit(owner: ScModifierListOwner)
-      case inNameContext(owner: ScModifierListOwner) => isImplicit(owner)
+      case owner: ScModifierListOwner                => hasImplicitModifier(owner)
+      case inNameContext(owner: ScModifierListOwner) => hasImplicitModifier(owner)
       case _                                         => false
     }
   }
 
-  def isImplicit(modifierListOwner: ScModifierListOwner): Boolean = modifierListOwner match {
+  def hasImplicitModifier(modifierListOwner: ScModifierListOwner): Boolean = modifierListOwner match {
     case p: ScParameter => p.isImplicitParameter
     case _              => modifierListOwner.hasModifierProperty("implicit")
   }

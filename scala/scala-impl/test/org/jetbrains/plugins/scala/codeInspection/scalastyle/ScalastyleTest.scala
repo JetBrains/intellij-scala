@@ -4,11 +4,8 @@ import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
-import org.jetbrains.plugins.scala.extensions._
 
 class ScalastyleTest extends ScalaInspectionTestBase {
-
-  import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
   val config =
     <scalastyle commentFilter="enabled">
@@ -25,19 +22,11 @@ class ScalastyleTest extends ScalaInspectionTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ScalastyleCodeInspection]
 
-  override protected val description = "Class name does not match the regular expression '[A-Z][A-Za-z]*'"
+  override protected val description = "Class name does not match the regular expression '[A-Z][A-Za-z]*'."
 
   private def setup(): Unit = {
-    def getOrCreateFile(dir: VirtualFile, file: String): VirtualFile =
-      dir.findChild(file).toOption.getOrElse(dir.createChildData(this, file))
-
-    WriteAction.runAndWait { () =>
-      val baseDir = VfsUtil.createDirectoryIfMissing(getProject.getBasePath)
-      val file = getOrCreateFile(baseDir, "scalastyle-config.xml")
-      VfsUtil.saveText(file, configString)
-    }
+    getFixture.addFileToProject("scalastyle-config.xml", configString)
   }
-
 
   def test_ok(): Unit = {
     setup()
@@ -51,6 +40,23 @@ class ScalastyleTest extends ScalaInspectionTestBase {
 
   def test(): Unit = {
     setup()
+
+    checkTextHasError(
+      s"""
+         |${START}class test$END
+      """.stripMargin
+    )
+  }
+
+  def testFallback(): Unit = {
+    def getOrCreateFile(dir: VirtualFile, file: String): VirtualFile =
+      Option(dir.findChild(file)).getOrElse(dir.createChildData(this, file))
+
+    WriteAction.runAndWait { () =>
+      val baseDir = VfsUtil.createDirectoryIfMissing(getProject.getBasePath)
+      val file = getOrCreateFile(baseDir, "scalastyle-config.xml")
+      VfsUtil.saveText(file, configString)
+    }
 
     checkTextHasError(
       s"""

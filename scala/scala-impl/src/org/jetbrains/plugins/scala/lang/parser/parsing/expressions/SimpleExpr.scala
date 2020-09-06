@@ -34,12 +34,12 @@ import scala.annotation.tailrec
  *               | SimpleExpr1 ArgumentExprs
  *               | XmlExpr
  */
-object SimpleExpr {
+object SimpleExpr extends ParsingRule {
 
   import lexer.ScalaTokenType._
   import lexer.ScalaTokenTypes._
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val simpleMarker = builder.mark
     var newMarker: PsiBuilder.Marker = null
     var state: Boolean = false //false means SimpleExpr, true SimpleExpr1
@@ -84,7 +84,7 @@ object SimpleExpr {
             newMarker = simpleMarker.precede
             simpleMarker.done(ScalaElementType.UNIT_EXPR)
           case _ =>
-            if (!Expr.parse(builder)) {
+            if (!Expr()) {
               builder error ErrMsg("rparenthesis.expected")
               builder.restoreNewlinesState()
               newMarker = simpleMarker.precede
@@ -95,7 +95,7 @@ object SimpleExpr {
                 !builder.lookAhead(tCOMMA, tRPARENTHESIS)) {
                 isTuple = true
                 builder.advanceLexer()
-                if (!Expr.parse(builder)) {
+                if (!Expr()) {
                   builder error ErrMsg("wrong.expression")
                 }
               }

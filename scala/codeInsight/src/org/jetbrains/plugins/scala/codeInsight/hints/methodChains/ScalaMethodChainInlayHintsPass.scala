@@ -3,10 +3,9 @@ package methodChains
 
 import java.awt.Insets
 
-import com.intellij.codeInsight.daemon.impl.HintRenderer
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor._
-import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColorsManager, EditorColorsScheme, EditorFontType}
+import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme, EditorFontType}
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.{PsiElement, PsiFile, PsiPackage}
 import org.jetbrains.plugins.scala.annotator.hints.{AnnotatorHints, Text}
@@ -74,21 +73,10 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
         uniqueTypeCount = filteredMethodAndTypes.map { case (m, ty) => ty.presentableText(m) }.toSet.size
         if uniqueTypeCount >= settings.uniqueTypesToShowMethodChains
       } {
-        val finalSelection =
-          if (settings.alignMethodChainInlayHints) withoutPackagesAndSingletons
-          else filteredMethodAndTypes
-        val differentiateLessImportant = settings.alignMethodChainInlayHints
-        val group =
-          for (sel@(expr, ty) <- finalSelection) yield {
-            val isLessImportant = differentiateLessImportant && (
-              sel.eq(finalSelection.last) ||
-              hasObviousReturnType(sel) ||
-              expr.isInstanceOf[ScReferenceExpression]
-            )
-
-            new AlignedHintTemplate(textFor(expr, ty, editor, isLessImportant)) {
-              override def endOffset: Int = expr.endOffset
-            }
+        val finalSelection = if (settings.alignMethodChainInlayHints) withoutPackagesAndSingletons else filteredMethodAndTypes
+        val group = for ((expr, ty) <- finalSelection)
+          yield new AlignedHintTemplate(textFor(expr, ty, editor)) {
+            override def endOffset: Int = expr.endOffset
           }
 
         val all = if (settings.alignMethodChainInlayHints) {
@@ -198,17 +186,11 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
       inlay.putUserData(ScalaMethodChainKey, true)
     }
 
-  private def textFor(expr: ScExpression, ty: ScType, editor: Editor, isLessImportant: Boolean): Seq[Text] = {
+  private def textFor(expr: ScExpression, ty: ScType, editor: Editor): Seq[Text] = {
     implicit val scheme: EditorColorsScheme = editor.getColorsScheme
     implicit val tpc: TypePresentationContext = TypePresentationContext(expr)
 
-    val texts = Text(": ") +: textPartsOf(ty, settings.presentationLength)
-    if (!isLessImportant) texts
-    else {
-      val attr = scheme.getAttributes(DefaultLanguageHighlighterColors.INLINE_PARAMETER_HINT).clone()
-      attr.setForegroundColor(attr.getForegroundColor.darker())
-      texts.map(_.withAttributes(attr))
-    }
+    Text(": ") +: textPartsOf(ty, settings.presentationLength)
   }
 }
 

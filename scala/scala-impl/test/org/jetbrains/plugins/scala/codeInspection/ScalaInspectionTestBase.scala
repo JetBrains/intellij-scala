@@ -189,21 +189,20 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaHighlightsTestBase {
   }
 
   protected def checkNotFixable(text: String, hint: String): Unit = {
-    val maybeAction = findQuickFix(text, hint)
+    val maybeAction = findQuickFix(text, hint, failOnEmptyErrors = false)
     assertTrue("Quick fix found.", maybeAction.isEmpty)
   }
 
-  //noinspection SameParameterValue
   protected def checkIsNotAvailable(text: String, hint: String): Unit = {
     val maybeAction = findQuickFix(text, hint)
     assertTrue("Quick fix not found.", maybeAction.nonEmpty)
     assertTrue("Quick fix is available", maybeAction.forall(action => !action.isAvailable(getProject, getEditor, getFile)))
   }
 
-  private def findQuickFix(text: String, hint: String): Option[IntentionAction] =
+  private def findQuickFix(text: String, hint: String, failOnEmptyErrors: Boolean = true): Option[IntentionAction] =
     configureByText(text).actualHighlights match {
-      case Seq() => fail("Errors not found.").asInstanceOf[Nothing]
-      case seq   => seq.flatMap(quickFixes).find(_.getText == hint)
+      case Seq() if failOnEmptyErrors => fail("Errors not found.").asInstanceOf[Nothing]
+      case seq                        => seq.flatMap(quickFixes).find(_.getText == hint)
     }
 }
 

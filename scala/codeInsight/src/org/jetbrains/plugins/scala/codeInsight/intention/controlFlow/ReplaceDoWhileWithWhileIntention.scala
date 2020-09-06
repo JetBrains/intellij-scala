@@ -3,6 +3,7 @@ package codeInsight
 package intention
 package controlFlow
 
+import com.intellij.CommonBundle
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Editor
@@ -11,6 +12,7 @@ import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -58,18 +60,17 @@ final class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionActi
     } {
       val nameConflict = declaredNames(body).intersect(declaredNames(doStmtParent)).nonEmpty
       if (nameConflict) {
-        val message = "This action will cause name conflict."
-        showNotification(message)
+        showNotification(ScalaCodeInsightBundle.message("this.action.will.cause.name.conflict"))
         return
       }
     }
 
     doReplacement()
 
-    def showNotification(text: String): Unit = {
+    def showNotification(@Nls text: String): Unit = {
 
       val popupFactory = JBPopupFactory.getInstance
-      popupFactory.createConfirmation(text, "Continue", "Cancel", () => {
+      popupFactory.createConfirmation(text, CommonBundle.getContinueButtonText, CommonBundle.getCancelButtonText, () => {
         //to make action Undoable
         CommandProcessor.getInstance().executeCommand(project, () => doReplacement(), null, null)
       }, 0).showInBestPositionFor(editor)
@@ -137,7 +138,7 @@ object ReplaceDoWhileWithWhileIntention {
     implicit val ctx: ProjectContext = element
 
     val firstChild: PsiElement = element.getFirstChild
-    val processor = new CompletionProcessor(StdKinds.refExprLastRef, firstChild, isImplicit = true)
+    val processor = new CompletionProcessor(StdKinds.refExprLastRef, firstChild, withImplicitConversions = true)
     element.processDeclarations(processor, ScalaResolveState.empty, firstChild, firstChild)
     val candidates: Set[ScalaResolveResult] = processor.candidatesS
 

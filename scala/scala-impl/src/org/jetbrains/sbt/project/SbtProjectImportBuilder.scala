@@ -26,8 +26,6 @@ class SbtProjectImportBuilder
 
   override def beforeCommit(dataNode: DataNode[ProjectData], project: Project): Unit = {}
 
-  def onProjectInit(project: Project): Unit = {}
-
   override def getExternalProjectConfigToUse(file: File): File = file
 
   override def applyExtraSettings(context: WizardContext): Unit = {}

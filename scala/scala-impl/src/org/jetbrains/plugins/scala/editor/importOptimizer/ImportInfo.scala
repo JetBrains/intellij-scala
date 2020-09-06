@@ -314,7 +314,7 @@ object ImportInfo {
     val refText = qualifier + ".someIdentifier"
     val reference = ScalaPsiElementFactory.createReferenceFromText(refText, place.getContext, place)
       .asInstanceOf[ScStableCodeReferenceImpl]
-    val processor = new CompletionProcessor(StdKinds.stableImportSelector, reference, isImplicit = true) {
+    val processor = new CompletionProcessor(StdKinds.stableImportSelector, reference, withImplicitConversions = true) {
       override val includePrefixImports = false
     }
 

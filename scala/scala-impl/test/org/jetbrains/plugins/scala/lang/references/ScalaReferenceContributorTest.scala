@@ -1,16 +1,15 @@
 package org.jetbrains.plugins.scala.lang.references
 
 
-import com.intellij.model.psi.{PsiSymbolReference, PsiSymbolReferenceService}
-import com.intellij.openapi.paths.{UrlReference, WebReference}
-import com.intellij.psi.PsiFile
+import com.intellij.openapi.paths.WebReference
+import com.intellij.psi.{PsiFile, PsiReference}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.extensions.TraversableExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotes => quotes}
 import org.junit.Assert._
 
-import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection.mutable
 
 class ScalaReferenceContributorTest extends ScalaLightCodeInsightFixtureTestAdapter {
@@ -23,10 +22,7 @@ class ScalaReferenceContributorTest extends ScalaLightCodeInsightFixtureTestAdap
       val psiFile = configureFromFileText(text)
 
       val urlReferenceExpected = testUrl
-      val urlReferencesActual  = extractReferences(psiFile).collect {
-        case w: WebReference => w.getUrl
-        case u: UrlReference => u.getUrl
-      }
+      val urlReferencesActual  = extractReferences(psiFile).filterByType[WebReference].map(_.getUrl)
 
       assertEquals(1, urlReferencesActual.size)
       assertEquals(
@@ -45,14 +41,13 @@ class ScalaReferenceContributorTest extends ScalaLightCodeInsightFixtureTestAdap
     assertUrlReference("in multiline interpolated string literal")(s"""s$quotes$testUrl$quotes""")
   }
 
-  //noinspection UnstableApiUsage
-  private def extractReferences(file: PsiFile): Seq[PsiSymbolReference] = {
-    val found: mutable.Buffer[PsiSymbolReference] = mutable.Buffer()
+  private def extractReferences(file: PsiFile): Seq[PsiReference] = {
+    val found: mutable.Buffer[PsiReference] = mutable.Buffer()
 
     val visitor = new ScalaRecursiveElementVisitor {
       override def visitLiteral(literal: ScLiteral): Unit = {
         if (literal.isString) {
-          found ++= PsiSymbolReferenceService.getService.getReferences(literal).asScala
+          found ++= literal.getReferences
         }
         super.visitLiteral(literal)
       }

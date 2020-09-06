@@ -52,6 +52,12 @@ object ScCodeBlockElementType {
     override def createNode(text: CharSequence): ASTNode = new psi.impl.expr.ScBlockExprImpl(this, text)
 
     override def createElement(node: ASTNode): PsiElement = PsiUtilCore.NULL_PSI_ELEMENT
+
+    override def getLanguageForParser(psi: PsiElement): Language =
+      Option(psi).map(_.getLanguage) match {
+        case Some(Scala3Language.INSTANCE) => Scala3Language.INSTANCE
+        case _ => super.getLanguageForParser(psi)
+      }
   }
 
 }

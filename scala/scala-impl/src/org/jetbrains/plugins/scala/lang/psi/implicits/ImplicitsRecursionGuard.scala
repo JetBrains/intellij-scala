@@ -50,11 +50,11 @@ object ImplicitsRecursionGuard {
     rmap.get(element) match {
       case Some(list) =>
         recursionMap.value =
+          //empty lists should not be stored in the map
           list match {
+            case _ :: Nil => rmap - element
             case _ :: tl => rmap.updated(element, tl)
-            case _ => rmap - element
           }
-      case _ => throw new RuntimeException("Match is not exhaustive")
     }
   }
 }

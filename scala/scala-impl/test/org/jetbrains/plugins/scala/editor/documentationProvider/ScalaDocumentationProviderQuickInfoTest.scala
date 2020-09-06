@@ -1,18 +1,12 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
-import com.intellij.openapi.editor.Editor
-import com.intellij.psi.PsiFile
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions._
 
 class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProviderTestBase {
 
-  override protected def generateDoc(editor: Editor, file: PsiFile): String =
-    generateQuickInfo(editor, file)
-
-  protected def generateQuickInfo(editor: Editor, file: PsiFile): String = {
-    val (referredElement, elementAtCaret) = extractReferredAndOriginalElements(editor, file)
+  override protected def generateDoc(referredElement: PsiElement, elementAtCaret: PsiElement): String =
     documentationProvider.getQuickNavigateInfo(referredElement, elementAtCaret)
-  }
 
   private def moduleName: String = getModule.getName
 

@@ -25,18 +25,20 @@ import com.intellij.openapi.ui.popup.{Balloon, JBPopupFactory}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.ui.awt.RelativePoint
+import com.intellij.ui.components.panels.HorizontalLayout
 import com.intellij.ui.components.{JBCheckBox, JBTextField}
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import javax.swing._
 import javax.swing.event.ChangeEvent
 import org.apache.commons.lang.StringUtils
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveError
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveError.{ConfigError, ConfigScalafmtResolveError}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{DefaultVersion, ScalafmtVersion}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.utils.ScalafmtConfigUtils
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigService, ScalafmtDynamicService}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigService, ScalafmtDynamicConfigServiceImpl, ScalafmtDynamicService}
 
 final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCodeStylePanelBase(settings, "Scalafmt") {
 
@@ -66,9 +68,10 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     scalaSettings.SCALAFMT_SHOW_INVALID_CODE_WARNINGS = showScalaFmtInvalidCodeWarnings.isSelected
     scalaSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = useIntellijFormatterForRangeFormat.isSelected
     scalaSettings.SCALAFMT_REFORMAT_ON_FILES_SAVE = reformatOnFileSaveCheckBox.isSelected
+    scalaSettings.SCALAFMT_FALLBACK_TO_DEFAULT_SETTINGS = fallBackToDefaultSettings.isSelected
 
     val configPath = scalaSettings.SCALAFMT_CONFIG_PATH.trim
-    val configPathNew = externalFormatterSettingsPath.getText.trim
+    val configPathNew = configPathFromUi
     val configPathChanged = configPath != configPathNew
 
     projectConfigFile(configPathNew) match {
@@ -99,6 +102,9 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     updateUseIntellijWarningVisibility(scalaSettings)
   }
 
+  private def configPathFromUi: ScalafmtVersion =
+    externalFormatterSettingsPath.getText.trim
+
   //noinspection HardCodedStringLiteral
   private def updateScalafmtVersionLabel(version: String, isDefault: Boolean = false): Unit = {
     if (scalafmtVersionLabel == null) return
@@ -111,7 +117,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
       case None => return
     }
 
-    val versionOpt = ScalafmtDynamicConfigService.readVersion(configFile) match {
+    val versionOpt = ScalafmtDynamicConfigServiceImpl.readVersion(project, configFile) match {
       case Right(v) => v
       case Left(ex) =>
         reportConfigParseError(ex.getMessage)
@@ -152,10 +158,11 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
   private def reportConfigResolveError(configResolveError: ConfigResolveError): Unit = {
     import ConfigResolveError._
     configResolveError match {
-      case ConfigFileNotFound(configPath)    => reportConfigFileNotFound(configPath)
-      case ConfigParseError(_, errorMessage) => reportConfigParseError(errorMessage.getMessage)
-      case UnknownError(message, _)          => reportConfigParseError(message)
-      case ConfigScalafmtResolveError(error) => reportCantResolveVersion(error.version)
+      case ConfigFileNotFound(configPath)      => reportConfigFileNotFound(configPath)
+      case ConfigParseError(_, exception)      => reportConfigParseError(exception.getMessage)
+      case ConfigCyclicDependenciesError(_, _) => reportConfigParseError(ScalaBundle.message("scalafmt.config.load.errors.cyclic.includes.detected"))
+      case UnknownError(message, _)            => reportConfigParseError(message)
+      case ConfigScalafmtResolveError(error)   => reportCantResolveVersion(error.version)
     }
   }
 
@@ -186,7 +193,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     )
   }
 
-  private def displayMessage(text: String, relativeTo: JComponent,
+  private def displayMessage(@Nls text: String, relativeTo: JComponent,
                              xPosition: Int, yPosition: Int,
                              direction: Balloon.Position,
                              messageType: MessageType): Unit = {
@@ -215,10 +222,11 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
 
   override def isModified(settings: CodeStyleSettings): Boolean = {
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    scalaSettings.SCALAFMT_CONFIG_PATH.trim != externalFormatterSettingsPath.getText.trim ||
+    scalaSettings.SCALAFMT_CONFIG_PATH.trim != configPathFromUi ||
       scalaSettings.SCALAFMT_SHOW_INVALID_CODE_WARNINGS != showScalaFmtInvalidCodeWarnings.isSelected ||
       scalaSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT != useIntellijFormatterForRangeFormat.isSelected ||
       scalaSettings.SCALAFMT_REFORMAT_ON_FILES_SAVE != reformatOnFileSaveCheckBox.isSelected ||
+      scalaSettings.SCALAFMT_FALLBACK_TO_DEFAULT_SETTINGS != fallBackToDefaultSettings.isSelected ||
       configText.exists(_ != getEditor.getDocument.getText)
   }
 
@@ -230,6 +238,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     showScalaFmtInvalidCodeWarnings.setSelected(scalaSettings.SCALAFMT_SHOW_INVALID_CODE_WARNINGS)
     useIntellijFormatterForRangeFormat.setSelected(scalaSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT)
     reformatOnFileSaveCheckBox.setSelected(scalaSettings.SCALAFMT_REFORMAT_ON_FILES_SAVE)
+    fallBackToDefaultSettings.setSelected(scalaSettings.SCALAFMT_FALLBACK_TO_DEFAULT_SETTINGS)
     externalFormatterSettingsPath.getButton.grabFocus()
 
     isPanelEnabled = scalaSettings.USE_SCALAFMT_FORMATTER
@@ -255,13 +264,28 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     myPanel
   }
 
+  private def createNewConfigFileAndUpdate(): Unit =
+    projectOpt match {
+      case Some(project) =>
+        val configPath = ScalafmtConfigUtils.actualConfigPath(configPathFromUi)
+        ScalafmtDynamicConfigServiceImpl.createConfigurationFile(project, configPath, openInEditor = true) match {
+          case Left(None) =>
+          case Left(Some(ex)) =>
+            Log.warn("Couldn't create configuration file: " + ex)
+          case Right(vFile) =>
+            updateConfigTextFromFile(vFile)
+            updateConfigVisibility()
+        }
+      case None =>
+    }
+
   private def buildInnerPanel: JPanel = {
     import GridConstraints._
 
     def constraint(row: Int, column: Int, rowSpan: Int, colSpan: Int, anchor: Int, fill: Int, HSizePolicy: Int, VSizePolicy: Int) =
       new GridConstraints(row, column, rowSpan, colSpan, anchor, fill, HSizePolicy, VSizePolicy, null, null, null, 0, false)
 
-    val inner = new JPanel(new GridLayoutManager(6, 3, new Insets(10, 15, 10, 15), -1, -1))
+    val inner = new JPanel(new GridLayoutManager(7, 3, new Insets(10, 15, 10, 15), -1, -1))
 
     showScalaFmtInvalidCodeWarnings = new JBCheckBox(ScalaBundle.message("scalafmt.settings.panel.show.warnings.when.formatting.invalid.code"))
     useIntellijFormatterForRangeFormat = new JBCheckBox(ScalaBundle.message("scalafmt.settings.panel.use.intellij.formatter.for.code.range.formatting"))
@@ -277,6 +301,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
       w
     }
     reformatOnFileSaveCheckBox = new JBCheckBox(ScalaBundle.message("scalafmt.settings.panel.reformat.on.file.save"))
+    fallBackToDefaultSettings = new JBCheckBox(ScalaBundle.message("scalafmt.settings.panel.fallback.to.default.settings"))
 
     inner.add(showScalaFmtInvalidCodeWarnings,
       constraint(0, 0, 1, 3, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
@@ -284,6 +309,8 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
       constraint(1, 0, 1, 3, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
     inner.add(reformatOnFileSaveCheckBox,
       constraint(2, 0, 1, 3, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
+    inner.add(fallBackToDefaultSettings,
+      constraint(3, 0, 1, 3, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
 
     val configPathTextField = new JBTextField
     //noinspection HardCodedStringLiteral
@@ -293,30 +320,39 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
 
     //noinspection HardCodedStringLiteral
     inner.add(new JLabel(ScalaBundle.message("scalafmt.settings.panel.configuration.label") + ":"),
-      constraint(3, 0, 1, 1, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
-    inner.add(externalFormatterSettingsPath,
-      constraint(3, 1, 1, 1, ANCHOR_NORTHWEST, FILL_HORIZONTAL, SIZEPOLICY_CAN_GROW | SIZEPOLICY_WANT_GROW, SIZEPOLICY_FIXED))
-    inner.add(new Spacer,
-      constraint(3, 2, 1, 1, ANCHOR_CENTER, FILL_HORIZONTAL, SIZEPOLICY_WANT_GROW, SIZEPOLICY_CAN_SHRINK))
-
-    scalafmtVersionLabel = new JLabel()
-    inner.add(new JLabel(ScalaBundle.message("scalafmt.settings.panel.scalafmt.version.label") + ":"),
       constraint(4, 0, 1, 1, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
-    inner.add(scalafmtVersionLabel,
+    inner.add(externalFormatterSettingsPath,
       constraint(4, 1, 1, 1, ANCHOR_NORTHWEST, FILL_HORIZONTAL, SIZEPOLICY_CAN_GROW | SIZEPOLICY_WANT_GROW, SIZEPOLICY_FIXED))
     inner.add(new Spacer,
       constraint(4, 2, 1, 1, ANCHOR_CENTER, FILL_HORIZONTAL, SIZEPOLICY_WANT_GROW, SIZEPOLICY_CAN_SHRINK))
 
+    scalafmtVersionLabel = new JLabel()
+    inner.add(new JLabel(ScalaBundle.message("scalafmt.settings.panel.scalafmt.version.label") + ":"),
+      constraint(5, 0, 1, 1, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
+    inner.add(scalafmtVersionLabel,
+      constraint(5, 1, 1, 1, ANCHOR_NORTHWEST, FILL_HORIZONTAL, SIZEPOLICY_CAN_GROW | SIZEPOLICY_WANT_GROW, SIZEPOLICY_FIXED))
+    inner.add(new Spacer,
+      constraint(5, 2, 1, 1, ANCHOR_CENTER, FILL_HORIZONTAL, SIZEPOLICY_WANT_GROW, SIZEPOLICY_CAN_SHRINK))
+
     val configEditorPanel = new JPanel(new VerticalFlowLayout(VerticalFlowLayout.TOP, 0, 10, true, true))
-    noConfigLabel = new JLabel(NoConfigSpecifiedText)
-    configEditorPanel.add(noConfigLabel)
-    noConfigLabel.setVisible(false)
+
+    noConfigGroup = new JPanel(new HorizontalLayout(10, SwingConstants.CENTER))
+    noConfigLabel = new JLabel(ScalaBundle.message("scalafmt.settings.panel.no.config.found.under.path.using.default"))
+    noConfigGroup.add(noConfigLabel)
+    createConfigButton = new JButton(ScalaBundle.message("scalafmt.can.not.find.config.file.create.new"))
+    createConfigButton.addActionListener(_ => createNewConfigFileAndUpdate())
+    noConfigGroup.add(createConfigButton)
+
+    configEditorPanel.add(noConfigGroup)
+
     previewPanel = new JPanel()
     configEditorPanel.add(previewPanel)
     installPreviewPanel(previewPanel)
     getEditor.getComponent.setPreferredSize(configEditorPanel.getPreferredSize)
     inner.add(configEditorPanel,
-      constraint(5, 0, 1, 3, ANCHOR_NORTH, FILL_BOTH, SIZEPOLICY_CAN_GROW, SIZEPOLICY_CAN_SHRINK | SIZEPOLICY_CAN_GROW))
+      constraint(6, 0, 1, 3, ANCHOR_NORTH, FILL_BOTH, SIZEPOLICY_CAN_GROW, SIZEPOLICY_CAN_SHRINK | SIZEPOLICY_CAN_GROW))
+
+    updateConfigVisibility(configVisible = true)
 
     inner
   }
@@ -344,7 +380,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
         updateConfigPath(text)
       }
       override def getText(textField: JTextField): String = {
-        val path = textField.getText.toOption.filter(StringUtils.isNotBlank).getOrElse(DefaultConfigFilePath)
+        val path = ScalafmtConfigUtils.actualConfigPath(textField.getText)
         val absolutePath = projectOpt.flatMap(ScalafmtConfigUtils.projectConfigFileAbsolutePath(_, path))
         absolutePath.getOrElse(DefaultConfigFilePath)
       }
@@ -354,7 +390,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     val focusListener = new FocusListener {
       override def focusGained(e: FocusEvent): Unit = {}
       override def focusLost(e: FocusEvent): Unit = {
-        val configPath = externalFormatterSettingsPath.getText
+        val configPath = configPathFromUi
         if (StringUtils.isBlank(configPath)) {
           externalFormatterSettingsPath.setText(null)
           updateConfigPath(DefaultConfigFilePath)
@@ -383,9 +419,12 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     useIntellijWarning.setVisible(!settings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT)
   }
 
-  private def updateConfigVisibility(): Unit = {
-    previewPanel.setVisible(configText.isDefined)
-    noConfigLabel.setVisible(configText.isEmpty)
+  private def updateConfigVisibility(): Unit =
+    updateConfigVisibility(configText.isDefined)
+
+  private def updateConfigVisibility(configVisible: Boolean): Unit = {
+    previewPanel.setVisible(configVisible)
+    noConfigGroup.setVisible(!configVisible)
   }
 
   private def projectConfigFile(configPath: String): Option[VirtualFile] =
@@ -395,7 +434,9 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
   private var projectOpt: Option[Project] = None
   private var configText: Option[CharSequence] = None
   private var scalafmtVersionLabel: JLabel = _
+  private var noConfigGroup: JComponent = _
   private var noConfigLabel: JLabel = _
+  private var createConfigButton: JButton = _
   private var previewPanel: JPanel = _
   private var myPanel: JPanel = _
   private var externalFormatterSettingsPath: TextFieldWithBrowseButton = _
@@ -403,6 +444,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
   private var useIntellijFormatterForRangeFormat: JBCheckBox = _
   private var useIntellijWarning: JLabel = _
   private var reformatOnFileSaveCheckBox: JBCheckBox = _
+  private var fallBackToDefaultSettings: JBCheckBox = _
   private val customSettingsTitle   = ScalaBundle.message("scalafmt.settings.panel.select.custom.scalafmt.configuration.file")
   //noinspection HardCodedStringLiteral
   private val DefaultConfigFilePath = s".${File.separatorChar}${ScalafmtDynamicConfigService.DefaultConfigurationFileName}"
@@ -410,7 +452,12 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
 
 object ScalaFmtSettingsPanel {
 
-  private val NoConfigSpecifiedText = ScalaBundle.message("scalafmt.settings.panel.no.config.found.under.path.using.default")
+  private val Log = Logger.getInstance(classOf[ScalaFmtSettingsPanel])
+
+  object SearchFilter {
+    // TODO: will not work in non-english localization, also see ScalaCompileServerForm
+    def ScalafmtConfiguration = "Scalafmt Configuration"
+  }
 
   //copied from CodeStyleAbstractPanel
   //using non-null getPreviewText breaks setting saving (!!!)

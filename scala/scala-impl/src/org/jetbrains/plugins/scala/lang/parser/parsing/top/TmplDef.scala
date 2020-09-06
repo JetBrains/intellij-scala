@@ -4,10 +4,12 @@ package parser
 package parsing
 package top
 
+import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.GivenDef
 
 /**
  * [[TmplDef]] ::= [[Annotations]] { [[Modifier]] }
@@ -38,19 +40,37 @@ object TmplDef extends ParsingRule {
     val caseState = isCaseState
     modifierMarker.done(MODIFIERS)
 
-    templateParser(caseState) match {
-      case Some((parse, elementType)) =>
-        builder.advanceLexer()
-        if (parse()) {
-          templateMarker.done(elementType)
-        } else {
-          templateMarker.drop()
-        }
-
+    builder.getTokenType match {
+      case ClassKeyword =>
+        parseTmplRest(ClassDef, templateMarker, ClassDefinition)
+        true
+      case ObjectKeyword =>
+        parseTmplRest(ObjectDef, templateMarker, ObjectDefinition)
+        true
+      case TraitKeyword if caseState && !builder.isScala3 =>
+        templateMarker.drop()
+        true
+      case TraitKeyword =>
+        parseTmplRest(TraitDef, templateMarker, TraitDefinition)
+        true
+      case EnumKeyword =>
+        parseTmplRest(EnumDef, templateMarker, EnumDefinition)
+        true
+      case GivenKeyword =>
+        GivenDef.parse(templateMarker)
         true
       case _ =>
         templateMarker.rollbackTo()
         false
+    }
+  }
+
+  private def parseTmplRest(rule: ParsingRule, templateMarker: PsiBuilder.Marker, elementType: IElementType)(implicit builder: ScalaPsiBuilder): Unit = {
+    builder.advanceLexer() // ate class
+    if (rule()) {
+      templateMarker.done(elementType)
+    } else {
+      templateMarker.drop()
     }
   }
 
@@ -75,19 +95,5 @@ object TmplDef extends ParsingRule {
         false
     }
   }
-
-  private def templateParser(caseState: Boolean)
-                            (implicit builder: ScalaPsiBuilder): Option[(ParsingRule, IElementType)] =
-    builder.getTokenType match {
-      case ClassKeyword => Some(ClassDef, ClassDefinition)
-      case ObjectKeyword => Some(ObjectDef, ObjectDefinition)
-      case TraitKeyword => Some(
-        if (caseState) ParsingRule.AlwaysTrue else TraitDef,
-        TraitDefinition
-      )
-      case EnumKeyword => Some(EnumDef, EnumDefinition)
-      case GivenKeyword => None // TODO
-      case _ => None
-    }
 }
 

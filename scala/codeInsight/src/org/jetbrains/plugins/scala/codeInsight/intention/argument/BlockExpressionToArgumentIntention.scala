@@ -43,7 +43,7 @@ final class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAc
     for {
       statement <- singleExpressionStatement(block)
       newArgumentsText <- buildNewArgumentsText(statement)
-      newArguments <- createExpressionFromText(newArgumentsText).children.instanceOf[ScArgumentExprList]
+      newArguments <- createExpressionFromText(newArgumentsText).children.findByType[ScArgumentExprList]
       replacement = block.getParent.replace(newArguments)
     } replacement.getPrevSibling match {
       case ws: PsiWhiteSpace => ws.delete()

@@ -18,8 +18,8 @@ import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, LightJav
 import com.intellij.testFramework.{EditorTestUtil, LightPlatformTestCase, LightProjectDescriptor}
 import org.jetbrains.plugins.scala.extensions.{inWriteCommandAction, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.util.ShortCaretMarker
-import org.junit.Assert.{assertNotNull, fail}
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.junit.Assert.{assertEquals, assertNotNull, fail}
 
 import scala.collection.JavaConverters._
 
@@ -83,6 +83,8 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     file
   }
 
+  protected def getEditorOffset: Int = getEditor.getCaretModel.getOffset
+
   protected def checkTextHasNoErrors(text: String): Unit = {
     getFixture.configureByText(
       ScalaFileType.INSTANCE,
@@ -119,6 +121,21 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     }
   }
 
+  protected def checkCaretOffsets(expectedCarets: Seq[Int],
+                                  actualCarets: Seq[Int] = this.allCaretOffsets,
+                                  inText: String = getFile.getText): Unit = {
+    if (expectedCarets.nonEmpty) {
+      def patchTextWithCarets(text: String, caretOffsets: Seq[Int]): String =
+        caretOffsets
+          .sorted(Ordering.Int.reverse)
+          .foldLeft(text)(_.patch(_, "<caret>", 0))
+
+      assertEquals(
+        patchTextWithCarets(inText, expectedCarets),
+        patchTextWithCarets(inText, actualCarets),
+      )
+    }
+  }
 
   protected def failingTestPassed(): Unit = throw new RuntimeException(failingPassed)
 
@@ -135,8 +152,14 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     virtualFile
   )
 
-  protected def changePsiAt(offset: Int): Unit =
-    typeAndRemoveChar(offset, 'a')
+  protected def changePsiAt(offset: Int): Unit = {
+    val settings = ScalaApplicationSettings.getInstance()
+    val oldAutoBraceSettings = settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY
+    settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY = false
+    try {
+      typeAndRemoveChar(offset, 'a')
+    } finally settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY = oldAutoBraceSettings
+  }
 
   protected def typeAndRemoveChar(offset: Int, charToTypeAndRemove: Char): Unit = invokeAndWait {
     getEditor.getCaretModel.moveToOffset(offset)
@@ -209,6 +232,14 @@ object ScalaLightCodeInsightFixtureTestAdapter {
 
       val file = root.createChildData(null, className + ".java")
       VfsUtil.saveText(file, normalize(fileText))
+    }
+
+    def allCaretOffsets: Seq[Int] = {
+      adapter.getFixture
+        .getEditor
+        .getCaretModel
+        .getAllCarets.asScala
+        .map(_.getOffset)
     }
   }
 }

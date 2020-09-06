@@ -97,7 +97,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         val kinds = getKinds(incomplete = false)
         if (!ResolveUtils.kindMatches(element, kinds))
           throw new IncorrectOperationException(s"class $c does not match expected kind,\nexpected: ${kinds.mkString(", ")}")
-        if (!ScalaNamesUtil.equivalent(refName, c.name))
+        if (!ScalaNamesUtil.equivalent(refName, c.name) &&
+          refName != ScFunction.CommonNames.Apply)
           throw new IncorrectOperationException(s"class $c does not match expected name $refName")
         val qualName = c.qualifiedName
         if (qualName != null) {
@@ -112,7 +113,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         this
       case _: ScTypeAlias =>
         throw new IncorrectOperationException("type does not match expected kind")
-      case fun: ScFunction if ScalaPsiUtil.hasStablePath(fun) && fun.name == "apply" =>
+      case fun: ScFunction if ScalaPsiUtil.hasStablePath(fun) && fun.isApplyMethod =>
         bindToElement(fun.containingClass)
       case pack: ScPackage =>
         val qualName = pack.getQualifiedName
@@ -146,7 +147,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     getSimpleVariants(incomplete = true, completion = false, implicits).flatMap(toLookupItem)
 
   override def getSameNameVariants: Array[ScalaResolveResult] = this.doResolve(
-    new CompletionProcessor(getKinds(incomplete = true), this, isImplicit = true) {
+    new CompletionProcessor(getKinds(incomplete = true), this, withImplicitConversions = true) {
 
       override protected val forName: Option[String] = Some(refName)
     })
@@ -233,7 +234,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     val isParamToDepMethod = this.expectedTypeEx().collect {
       case (_, Some(te)) =>
         (for {
-          param     <- te.contexts.take(2).instanceOf[ScParameter] //parameter is first context for stub elements and second context for ast
+          param     <- te.contexts.take(2).findByType[ScParameter] //parameter is first context for stub elements and second context for ast
           if !param.getDefaultExpression.contains(this)
           method     <- param.owner.asOptionOf[ScFunction]
         } yield isReferencedInReturnType(method, param)).getOrElse(false)

@@ -4,11 +4,11 @@ import com.intellij.codeInsight.daemon.impl.{DaemonCodeAnalyzerImpl, HighlightIn
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.testFramework.EdtTestUtil
 import org.hamcrest.{Description, Matcher}
 import org.jetbrains.plugins.scala.HighlightingTests
+import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.withErrorsFromCompiler
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, invokeAndWait}
@@ -19,10 +19,11 @@ import org.junit.Assert.assertThat
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
+import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, Promise}
-import scala.util.Success
+import scala.util.{Success, Try}
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @Category(Array(classOf[HighlightingTests]))
@@ -159,16 +160,32 @@ class ScalaCompilerHighlightingTest
     waitUntilFileIsHighlighted: VirtualFile => Unit
   ): Unit = withErrorsFromCompiler {
     val virtualFile = addFileToProjectSources(fileName, content)
-
     waitUntilFileIsHighlighted(virtualFile)
-
-    val actualResult = invokeAndWait {
-      val document = virtualFile.findDocument.get
-      DaemonCodeAnalyzerImpl.getHighlights(document, null, getProject).asScala
-    }
-    assertThat(actualResult, expectedResult)
+    doAssertion(virtualFile, expectedResult)
   }
 
+  private def doAssertion(virtualFile: VirtualFile,
+                          expectedResult: ExpectedResult): Unit = {
+    @tailrec
+    def rec(attemptsLeft: Int): Unit = {
+      val actualResult = invokeAndWait {
+        val document = virtualFile.findDocument.get
+        DaemonCodeAnalyzerImpl.getHighlights(document, null, getProject).asScala
+      }
+      try {
+        assertThat(actualResult, expectedResult)
+      } catch {
+        case error: AssertionError =>
+          if (attemptsLeft > 0) {
+            Thread.sleep(2000)
+            rec(attemptsLeft - 1)
+          } else {
+            throw error
+          }
+      }
+    }
+    rec(2)
+  }
 
   private def runTestCase(fileName: String,
                           content: String,
@@ -261,14 +278,5 @@ object ScalaCompilerHighlightingTest {
       }.mkString(",")
       s"HighlightInfo($values)"
     }
-  }
-
-  private def withErrorsFromCompiler(body: => Unit): Unit = {
-    val registry = Registry.get(ScalaHighlightingMode.ShowScalacErrorsKey)
-
-    registry.setValue(true)
-
-    try body
-    finally registry.setValue(false)
   }
 }

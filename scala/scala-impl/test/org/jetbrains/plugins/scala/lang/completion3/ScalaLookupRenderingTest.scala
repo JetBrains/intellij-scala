@@ -32,7 +32,13 @@ class ScalaLookupRenderingTest extends ScalaCodeInsightTestBase {
            |}""".stripMargin
     )()
 
-    val condition = items.exists(hasItemText(_, "foo")(itemTextBold = true, tailText = "(x: Int*)"))
+    val condition = items.exists {
+      hasItemText(_, "foo")(
+        itemTextBold = true,
+        tailText = "(x: Int*)",
+        typeText = "Unit"
+      )
+    }
     assertTrue(condition)
   }
 }

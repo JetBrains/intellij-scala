@@ -159,7 +159,7 @@ class SelfInvocationAnnotatorTest extends SimpleTestCase {
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
-    file.depthFirst().instancesOf[ScSelfInvocation].foreach { constr =>
+    file.depthFirst().filterByType[ScSelfInvocation].foreach { constr =>
       ScSelfInvocationAnnotator.annotate(constr)
     }
 

@@ -5,6 +5,8 @@ package modifiers
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -116,16 +118,7 @@ private[annotator] object ModifierChecker {
                       Final
                     )
                   case _: ScClass => checkDuplicates(modifierPsi, Final)
-                  case e: ScObject =>
-                    if (checkDuplicates(modifierPsi, Final) && e.isTopLevel) {
-                      registerQuickFix(
-                        ScalaBundle.message("final.modifier.is.redundant.with.object"),
-                        modifierPsi,
-                        owner,
-                        Final,
-                        WARNING
-                      )
-                    }
+                  case _: ScObject => checkDuplicates(modifierPsi, Final)
                   case e: ScMember if e.getParent.isInstanceOf[ScTemplateBody] || e.getParent.isInstanceOf[ScEarlyDefinitions] =>
                     val redundant = (e.containingClass, e) match {
                       case (_, valMember: ScPatternDefinition) if valMember.typeElement.isEmpty &&
@@ -245,7 +238,7 @@ private[annotator] object ModifierChecker {
                     }
                     if (onTopLevel) {
                       registerQuickFix(
-                        "'implicit' modifier cannot be used for top-level objects",
+                        ScalaBundle.message("implicit.modifier.cannot.be.used.for.top.level.objects"),
                         modifierPsi,
                         owner,
                         Implicit
@@ -255,7 +248,7 @@ private[annotator] object ModifierChecker {
                         case clazz: ScClass =>
 
                           def errorResult(): Unit = registerQuickFix(
-                            "implicit class must have a primary constructor with exactly one argument in first parameter list",
+                            ScalaBundle.message("implicit.class.must.have.a.primary.constructor.with.one.argument"),
                             modifierPsi,
                             owner,
                             Implicit
@@ -277,7 +270,7 @@ private[annotator] object ModifierChecker {
                       }
                   case _: ScTrait | _: ScTypeAlias =>
                     registerQuickFix(
-                      "'implicit' modifier can be used only for values, variables, methods and classes",
+                      ScalaBundle.message("implicit.modifier.can.be.used.only.for"),
                       modifierPsi,
                       owner,
                       Implicit
@@ -291,7 +284,7 @@ private[annotator] object ModifierChecker {
     case _ =>
   }
 
-  private def registerQuickFix(message: String, element: PsiElement,
+  private def registerQuickFix(@Nls message: String, element: PsiElement,
                                owner: ScModifierListOwner, modifier: ScalaModifier,
                                severity: HighlightSeverity = ERROR)
                               (implicit holder: ScalaAnnotationHolder): Unit = {

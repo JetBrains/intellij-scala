@@ -2,10 +2,16 @@ package org.jetbrains.plugins.scala
 package annotator
 package gutter
 
+import java.awt.event.MouseEvent
+import java.util.Collections.singletonList
 import java.{util => ju}
 
 import com.intellij.codeInsight.daemon._
+import com.intellij.codeInsight.daemon.impl.GutterTooltipHelper
+import com.intellij.icons.AllIcons
 import com.intellij.icons.AllIcons.Gutter
+import com.intellij.ide.util.PsiNavigationSupport
+import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColorsManager}
 import com.intellij.openapi.editor.markup.{GutterIconRenderer, SeparatorPlacement}
@@ -17,6 +23,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.{Function => IJFunction}
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClauses, ScPattern}
@@ -25,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types.TermSignature
 import org.jetbrains.plugins.scala.util.SAMUtil._
 
@@ -33,7 +40,7 @@ import org.jetbrains.plugins.scala.util.SAMUtil._
  * User: Alexander Podkhalyuzin
  * Date: 31.10.2008
  */
-final class ScalaLineMarkerProvider extends LineMarkerProvider with ScalaSeparatorProvider {
+final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor with ScalaSeparatorProvider {
 
   import Gutter._
   import GutterIconRenderer.Alignment
@@ -45,6 +52,7 @@ final class ScalaLineMarkerProvider extends LineMarkerProvider with ScalaSeparat
       val lineMarkerInfo =
         getOverridesImplementsMarkers(element)
           .orElse(getImplementsSAMTypeMarker(element))
+          .orElse(companionMarker(element))
           .orNull
 
       if (DaemonCodeAnalyzerSettings.getInstance().SHOW_METHOD_SEPARATORS && isSeparatorNeeded(element)) {
@@ -75,19 +83,14 @@ final class ScalaLineMarkerProvider extends LineMarkerProvider with ScalaSeparat
     info
   }
 
-  private[this] def arrowUpLineMarker(
-    element:            PsiElement,
-    icon:               Icon,
-    markerType:         ScalaMarkerType,
-    presentationParent: Option[PsiElement] = None
-  ): LineMarkerInfo[PsiElement] =
-    ArrowUpOrDownLineMarkerInfo(
-      element,
-      icon,
-      markerType,
-      Alignment.LEFT,
-      presentationParent
-    )
+  private[this] def arrowUpLineMarker(element: PsiElement,
+                                      icon: Icon,
+                                      markerType: ScalaMarkerType,
+                                      presentationParent: Option[PsiElement] = None): LineMarkerInfo[PsiElement] = {
+
+    val info = ArrowUpOrDownLineMarkerInfo(element, icon, markerType, Alignment.LEFT, presentationParent)
+    NavigateAction.setNavigateAction(info, ScalaBundle.message("go.to.super.method"), IdeActions.ACTION_GOTO_SUPER)
+  }
 
   /* Validates that this psi element can be the first one in a lambda */
   private[this] def canBeFunctionalExpressionAnchor(e: PsiElement): Boolean =
@@ -107,7 +110,11 @@ final class ScalaLineMarkerProvider extends LineMarkerProvider with ScalaSeparat
   private[this] val trivialSAMs: Set[String] = Set("scala.Function", "scala.PartialFunction", "java.util.function")
   private[this] def isInterestingSAM(sam: PsiClass): Boolean = !trivialSAMs.exists(sam.qualifiedName.startsWith)
 
-  private[this] def getImplementsSAMTypeMarker(element: PsiElement): Option[LineMarkerInfo[_ <: PsiElement]] =
+  private[this] def getImplementsSAMTypeMarker(element: PsiElement): Option[LineMarkerInfo[_ <: PsiElement]] = {
+    if (!SamOption.isEnabled) {
+      return None
+    }
+
     if (canBeFunctionalExpressionAnchor(element)) for {
       (parent, sam) <- funExprParent(element)
       if isInterestingSAM(sam) &&
@@ -116,8 +123,13 @@ final class ScalaLineMarkerProvider extends LineMarkerProvider with ScalaSeparat
       markerType = samTypeImplementation(sam)
     } yield arrowUpLineMarker(element, icon, markerType, Option(parent))
     else None
+  }
 
   private[this] def getOverridesImplementsMarkers(element: PsiElement): Option[LineMarkerInfo[_ <: PsiElement]] = {
+    if (!OverridingOption.isEnabled && !ImplementingOption.isEnabled) {
+      return None
+    }
+
     val isIdentifier = element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER
     val notReference = element.parent.exists {
       case _: ScReference => false
@@ -134,12 +146,18 @@ final class ScalaLineMarkerProvider extends LineMarkerProvider with ScalaSeparat
         case method: ScFunction if !method.isLocal && method.name == text =>
           val signatures = method.superSignaturesIncludingSelfType
           val icon       = getOverridesOrImplementsIcon(method, signatures)
+          if (!isEnabled(icon)) {
+            return None
+          }
           val markerType = overridingMember
           if (signatures.nonEmpty) arrowUpLineMarker(element, icon, markerType).toOption
           else None
         case cParam: ScClassParameter if cParam.name == text =>
           val signatures = ScalaPsiUtil.superValsSignatures(cParam, withSelfType = true)
           val icon       = getOverridesOrImplementsIcon(cParam, signatures)
+          if (!isEnabled(icon)) {
+            return None
+          }
           val markerType = overridingMember
           if (signatures.nonEmpty) arrowUpLineMarker(element, icon, markerType).toOption
           else None
@@ -147,12 +165,18 @@ final class ScalaLineMarkerProvider extends LineMarkerProvider with ScalaSeparat
           val bindings   = v.declaredElements.filter(e => element.textMatches(e.name))
           val signatures = bindings.flatMap(ScalaPsiUtil.superValsSignatures(_, withSelfType = true))
           val icon       = getOverridesOrImplementsIcon(v, signatures)
+          if (!isEnabled(icon)) {
+            return None
+          }
           val markerType = overridingMember
           if (signatures.nonEmpty) arrowUpLineMarker(element, icon, markerType).toOption
           else None
         case ta: ScTypeAlias if !ta.isLocal && ta.name == text =>
           val elements = ScalaPsiUtil.superTypeMembers(ta, withSelfType = true)
           val icon = ImplementingMethod
+          if (!isEnabled(icon)) {
+            return None
+          }
           val typez = overridingMember
           if (elements.nonEmpty) arrowUpLineMarker(element, icon, typez).toOption
           else None
@@ -165,6 +189,10 @@ final class ScalaLineMarkerProvider extends LineMarkerProvider with ScalaSeparat
   override def collectSlowLineMarkers(elements: ju.List[_ <: PsiElement],
                                       result: ju.Collection[_ >: LineMarkerInfo[_]]): Unit = {
     import scala.collection.JavaConverters._
+
+    if (!OverriddenOption.isEnabled && !ImplementedOption.isEnabled) {
+      return
+    }
 
     ApplicationManager.getApplication.assertReadAccessAllowed()
     elements.asScala.collect {
@@ -183,9 +211,38 @@ final class ScalaLineMarkerProvider extends LineMarkerProvider with ScalaSeparat
       }
     }.foreach(result.add)
   }
+
+  override def getName: String = ScalaBundle.message("scala.line.markers")
+
+  override def getOptions: Array[GutterIconDescriptor.Option] = Options
 }
 
+// TODO Split methods between a companion object and packet object (so that methods can be more private)
 private object GutterUtil {
+  private[gutter] val CompanionOption = new GutterIconDescriptor.Option("scala.companion", ScalaBundle.message("gutter.companion"), Icons.CLASS_COMPANION)
+  private[gutter] val ImplementedOption = new GutterIconDescriptor.Option("scala.implemented", ScalaBundle.message("gutter.implemented"), AllIcons.Gutter.ImplementedMethod)
+  private[gutter] val ImplementingOption = new GutterIconDescriptor.Option("scala.implementing", ScalaBundle.message("gutter.implementing"), AllIcons.Gutter.ImplementingMethod)
+  private[gutter] val SamOption = new GutterIconDescriptor.Option("scala.sam", ScalaBundle.message("gutter.sam"), AllIcons.Gutter.ImplementingFunctionalInterface)
+  private[gutter] val OverriddenOption = new GutterIconDescriptor.Option("scala.overridden", ScalaBundle.message("gutter.overridden"), AllIcons.Gutter.OverridenMethod)
+  private[gutter] val OverridingOption = new GutterIconDescriptor.Option("scala.overriding", ScalaBundle.message("gutter.overriding"), AllIcons.Gutter.OverridingMethod)
+  private[gutter] val RecursionOption = new GutterIconDescriptor.Option("scala.recursion", ScalaBundle.message("gutter.recursion"), Icons.TAIL_RECURSION)
+
+  private[gutter] val Options = Array(
+    CompanionOption,
+    ImplementedOption,
+    ImplementingOption,
+    SamOption,
+    OverriddenOption,
+    OverridingOption,
+    RecursionOption,
+  )
+
+  // Only for overrid* / implement* icons
+  private[gutter] def isEnabled(icon: Icon): Boolean =
+    OverridingOption.isEnabled && icon == AllIcons.Gutter.OverridingMethod ||
+      ImplementingOption.isEnabled && icon == AllIcons.Gutter.ImplementingMethod ||
+      OverriddenOption.isEnabled && icon == AllIcons.Gutter.OverridenMethod ||
+      ImplementedOption.isEnabled && icon == AllIcons.Gutter.ImplementedMethod
 
   import Gutter._
   import GutterIconRenderer.Alignment
@@ -227,7 +284,7 @@ private object GutterUtil {
   }
 
   def getOverridesOrImplementsIcon(element: PsiElement, signatures: Seq[TermSignature]): Icon =
-    if (isOverrides(element, signatures)) OverridingMethod else ImplementingMethod
+    if (isOverrides(element, signatures.map(_.namedElement))) OverridingMethod else ImplementingMethod
 
   def namedParent(e: PsiElement): Option[PsiElement] =
     e.withParentsInFile.find(ScalaPsiUtil.isNameContext)
@@ -242,7 +299,11 @@ private object GutterUtil {
         case _ => OverridenMethod
       }
 
-      new LineMarkerInfo(
+      if (!isEnabled(icon)) {
+        return None
+      }
+
+      val info = new LineMarkerInfo(
         aClass.nameId,
         range,
         icon,
@@ -250,6 +311,7 @@ private object GutterUtil {
         subclassedClass.navigationHandler,
         Alignment.RIGHT
       )
+      NavigateAction.setNavigateAction(info, ScalaBundle.message("go.to.implementation"), IdeActions.ACTION_GOTO_IMPLEMENTATION)
     }
   }
 
@@ -258,17 +320,24 @@ private object GutterUtil {
       case Constructor(_) => None
       case _ =>
 
+        val icon = if (isAbstract(member)) ImplementedMethod else OverridenMethod
+
+        if (!isEnabled(icon)) {
+          return None
+        }
+
         ScalaMarkerType.findOverrides(member, deep = false).nonEmpty.option {
-          ArrowUpOrDownLineMarkerInfo(
+          val info = ArrowUpOrDownLineMarkerInfo(
             anchor,
-            if (isAbstract(member)) ImplementedMethod else OverridenMethod,
+            icon,
             overriddenMember,
             Alignment.RIGHT
           )
+          NavigateAction.setNavigateAction(info, ScalaBundle.message("go.to.super.method"), IdeActions.ACTION_GOTO_SUPER)
         }
     }
 
-  def isOverrides(element: PsiElement, supers: Seq[TermSignature]): Boolean =
+  def isOverrides(element: PsiElement, supers: Seq[PsiNamedElement]): Boolean =
     element match {
       case _: ScFunctionDeclaration  => true
       case _: ScValueDeclaration     => true
@@ -277,8 +346,8 @@ private object GutterUtil {
       case _ =>
         val iter = supers.iterator
         while (iter.hasNext) {
-          val s = iter.next()
-          ScalaPsiUtil.nameContext(s.namedElement) match {
+          val named = iter.next()
+          ScalaPsiUtil.nameContext(named) match {
             case _: ScFunctionDefinition                          => return true
             case _: ScFunction                                    =>
             case method: PsiMethod if !method.hasAbstractModifier => return true
@@ -302,5 +371,50 @@ private object GutterUtil {
     case _: ScVariableDeclaration  => true
     case _: ScTypeAliasDeclaration => true
     case _                         => false
+  }
+
+  // Show companion for class / trait / object in the gutter, https://youtrack.jetbrains.com/issue/SCL-17697
+  private[gutter] def companionMarker(element: PsiElement): Option[LineMarkerInfo[_ <: PsiElement]] = {
+    if (!CompanionOption.isEnabled) {
+      return None
+    }
+
+    // TODO Enable in tests when GutterMarkersTest will be able to separate different maker providers
+    if (ApplicationManager.getApplication.isUnitTestMode) None else element match {
+      case identifier @ ElementType(ScalaTokenTypes.tIDENTIFIER) && Parent(_: ScClass | _: ScTrait | _: ScObject) =>
+        val typeDefinition = identifier.getParent.asInstanceOf[ScTypeDefinition]
+
+        typeDefinition.baseCompanionModule.map { companion =>
+          val swapped = typeDefinition.startOffset > companion.startOffset ^ typeDefinition.is[ScObject]
+
+          val info = new LineMarkerInfo(identifier,
+            identifier.getTextRange,
+            iconFor(typeDefinition, swapped),
+            (_: PsiElement) =>
+              GutterTooltipHelper.getTooltipText(singletonList(companion.nameId.getPrevSiblingNotWhitespace), ScalaBundle.message("has.companion", nameOf(companion)), false, IdeActions.ACTION_GOTO_DECLARATION)
+                .replace("to navigate", "on the keyword to navigate"), // Not internationalizable (which is somewhat OK).
+            (_: MouseEvent, _: PsiElement) =>
+              Option(PsiNavigationSupport.getInstance.createNavigatable(companion.getProject,
+                companion.getContainingFile.getVirtualFile, companion.nameId.getPrevSiblingNotWhitespace.startOffset)).foreach(_.navigate(true)),
+            Alignment.LEFT)
+          NavigateAction.setNavigateAction(info, ScalaBundle.message("go.to.companion", nameOf(companion)), IdeActions.ACTION_GOTO_DECLARATION)
+        }
+
+      case _ => None
+    }
+  }
+
+  private[this] def nameOf(definition: ScTypeDefinition) = definition match {
+    case _: ScClass => ScalaBundle.message("companion.class")
+    case _: ScTrait => ScalaBundle.message("companion.trait")
+    case _: ScObject => ScalaBundle.message("companion.object")
+    case _ => "" // Just "Has a companion" is OK.
+  }
+
+  private[this] def iconFor(definition: ScTypeDefinition, swapped: Boolean): Icon = definition match {
+    case _: ScClass => if (swapped) Icons.CLASS_COMPANION_SWAPPED else Icons.CLASS_COMPANION
+    case _: ScTrait => if (swapped) Icons.TRAIT_COMPANION_SWAPPED else Icons.TRAIT_COMPANION
+    case _: ScObject => if (swapped) Icons.OBECT_COMPANION_SWAPPED else Icons.OBECT_COMPANION
+    case _ => null
   }
 }

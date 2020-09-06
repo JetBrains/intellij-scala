@@ -13,6 +13,19 @@ class CompilingEvaluatorTest_2_11 extends CompilingEvaluatorTestBase {
 @Category(Array(classOf[DebuggerTests]))
 class CompilingEvaluatorTest_2_12 extends CompilingEvaluatorTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_12
+
+  // from scala 2.12.12 (or maybe from 2.12.11) ++ calls `List.:::`, not `TraversableLike.++`
+  override def testFromLibrary(): Unit = {
+    setupLibraryBreakpoint("scala.collection.immutable.List", ":::")
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("prefix", "List(1, 2, 3, 4, 5)")
+      evalEquals("prefix.exists(_ => true)", "true")
+      evalEquals("prefix.exists(_ => false)", "false")
+      evalEquals("prefix.exists(_ => false)", "false")
+      evalEquals("None.getOrElse(1)", "1")
+    }
+  }
 }
 
 @Category(Array(classOf[DebuggerTests]))

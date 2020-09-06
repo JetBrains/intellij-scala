@@ -18,11 +18,12 @@ import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.{NoOpRevertableChange, RevertableChange}
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
-import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.ListCompilerMessageExt
+import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.{ListCompilerMessageExt, markCompileServerThreadsLongRunning}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{IncrementalityType, ProjectExt}
-import org.jetbrains.plugins.scala.util.matchers.HamcrestMatchers.emptyCollection
+import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
+import org.junit.Assert
 import org.junit.Assert._
 
 import scala.collection.JavaConverters._
@@ -44,13 +45,17 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
    * Needed to avoid ThreadLeaked exceptions after each test run,
    * cause we want compile server to be reused in all tests.
    */
-  override def initApplication(): Unit = {
-    super.initApplication()
+  override def setUpProject(): Unit = {
+    super.setUpProject()
+
+    if (useCompileServer && reuseCompileServerProcessBetweenTests) {
+      markCompileServerThreadsLongRunning()
+    }
 
     revertable =
       CompilerTestUtil.withEnabledCompileServer(useCompileServer) |+|
-        CompilerTestUtil.withCompileServerJdk(getTestProjectJdk) |+|
-        CompilerTestUtil.withForcedJdkForBuildProcess(getTestProjectJdk)
+        CompilerTestUtil.withCompileServerJdk(compileServerJdk) |+|
+        CompilerTestUtil.withForcedJdkForBuildProcess(buildProcessJdk)
     revertable.apply()
   }
 
@@ -106,6 +111,10 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
     else super.defaultJdkVersion
 
   override protected def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK(testProjectJdkVersion)
+
+  protected def compileServerJdk: Sdk = getTestProjectJdk
+
+  protected def buildProcessJdk: Sdk = getTestProjectJdk
 
   protected def additionalLibraries: Seq[LibraryLoader] = Seq.empty
 
@@ -170,6 +179,15 @@ object ScalaCompilerTestBase {
     CompileServerLauncher.stop(timeout.toMillis)
   )
 
+  private def markCompileServerThreadsLongRunning(): Unit = {
+    ThreadTracker.longRunningThreadCreated(
+      UnloadAwareDisposable.scalaPluginDisposable,
+      "scalaCompileServer",
+      "BaseDataReader: output stream of scalaCompileServer",
+      "BaseDataReader: error stream of scalaCompileServer"
+    )
+  }
+
   implicit class ListCompilerMessageExt(val messages: JList[CompilerMessage])
     extends AnyVal {
 
@@ -183,14 +201,22 @@ object ScalaCompilerTestBase {
         Set(CompilerMessageCategory.ERROR)
       else
         Set(CompilerMessageCategory.ERROR, CompilerMessageCategory.WARNING)
-      assertNoMessages(categories)
-    }
 
-    private def assertNoMessages(categories: Set[CompilerMessageCategory]): Unit = {
       val problems = messages.asScala.filter { message =>
         categories.contains(message.getCategory)
       }
-      assertThat(problems, emptyCollection)
+      if (problems.nonEmpty) {
+        val otherMessages = messages.asScala -- problems
+        Assert.fail(
+          s"""No compiler errors expected, but got:
+            |${messagesText(problems)}
+            |Other compiler messages:
+            |${messagesText(otherMessages)}""".stripMargin
+        )
+      }
     }
+
+    private def messagesText(messages: Seq[CompilerMessage]): String =
+      messages.zipWithIndex.map { case (message, idx) => s"[$idx] [${message.getCategory}] : ${message.getMessage.trim}"}.mkString("\n")
   }
 }

@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScSymbolLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createWildcardPattern
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs._
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures.ScParamElementType
@@ -23,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ParameterExpectedTypesUtil._
 
 import scala.annotation.tailrec
 
@@ -56,9 +58,20 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
     } yield symbol.name
   }
 
+  // in Scala 3 in a using clause you can have parameter without a name
+  // Example:
+  //   def test(normalParam: Int)(using Ordering[Int]) = ???
+  //                                    ^^^^^^^^^^^^^ <- parameter without name
+  private lazy val syntheticWildcardIdForTypeOnlyUsingParameter: PsiElement = createWildcardPattern
+
   override def nameId: PsiElement = {
     val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
-    if (id == null) findChildByType[PsiElement](ScalaTokenTypes.tUNDER) else id
+    if (id != null) id
+    else {
+      val under = findChildByType[PsiElement](ScalaTokenTypes.tUNDER)
+      if (under != null) under
+      else syntheticWildcardIdForTypeOnlyUsingParameter
+    }
   }
 
   override def getTypeElement: PsiTypeElement = null
@@ -109,43 +122,24 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
           tpe match {
             case functionLikeType(_, retTpe, _) if checkDeep => extractFromFunctionType(retTpe)
             case functionLikeType(_, _, paramTpes) =>
-              paramTpes.lift(idx).flatMap {
-                case FullyAbstractType() => None
-                case tpe                 => Option(tpe.removeAbstracts)
+              paramTpes.lift(idx).flatMap { tpe =>
+                val isFullyDefined = !tpe.subtypeExists {
+                  case FullyAbstractType() => true
+                  case _                   => false
+                }
+
+                if (isFullyDefined) tpe.removeAbstracts.toOption
+                else                None
               }
             case _ => None
           }
 
         val maybeExpectedParamTpe = eTpe.flatMap(extractFromFunctionType(_, isUnderscoreFn))
-        maybeExpectedParamTpe.orElse(inferExpectedParamTypeUndoingEtaExpansion(fn))
+        maybeExpectedParamTpe.orElse {
+          val findArg: Seq[ScExpression] => Option[ScExpression] = _.find(_.textMatches(name))
+          fn.result.flatMap(inferExpectedParamTypeUndoingEtaExpansion(_, findArg))
+        }
       case _ => None
-    }
-  }
-
-  /**
-   * When typing a parameter of function literal of shape `(a1, ... aN) => f(a1, ...., aN)`,
-   * if we failed to find an expected type from an expected type of a corresponding function literal
-   * (e.g. because there were multiple overloaded alternatives for `f` w/o matching parameter types)
-   * try inferring it from the usage of this parameter in the (non-polymorphic) function call.
-   */
-  private[this] def inferExpectedParamTypeUndoingEtaExpansion(fn: ScFunctionExpr): Option[ScType] =
-    fn.result.collect { case ResultOfEtaExpansion(tpe) => tpe }
-
-  private object ResultOfEtaExpansion {
-    def unapply(invocation: ScExpression): Option[ScType] = {
-      val maybeInvokedAndArgs = invocation match {
-        case MethodInvocation(inv: ScReferenceExpression, args)          => (inv, args).toOption
-        case ScBlock(MethodInvocation(inv: ScReferenceExpression, args)) => (inv, args).toOption
-        case _                                                           => None
-      }
-
-      for {
-        (inv, args)  <- maybeInvokedAndArgs
-        targetMethod <- inv.bind().collect { case ScalaResolveResult(m: PsiMethod, _) => m }
-        if !targetMethod.hasTypeParameters // if the function is polymorphic -- bail out
-        targetArg <- args.find(_.textMatches(name))
-        eTpe      <- targetArg.expectedType(false)
-      } yield eTpe
     }
   }
 
@@ -176,5 +170,37 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitParameter(this)
+  }
+}
+
+object ParameterExpectedTypesUtil {
+  def isFullyDefined(tpe: ScType): Boolean = !tpe.subtypeExists {
+    case FullyAbstractType() => true
+    case _                   => false
+  }
+
+  /**
+   * When typing a parameter of function literal of if we failed to infer an expected type
+   * from an expected type of a corresponding function literal
+   * (e.g. because there were multiple overloaded alternatives for `f` w/o matching parameter types)
+   * try inferring it from the usage of this parameter in the (non-polymorphic) function call.
+   */
+  def inferExpectedParamTypeUndoingEtaExpansion(
+    resultExpr: ScExpression,
+    findArg:    Seq[ScExpression] => Option[ScExpression]
+  ): Option[ScType] = {
+    val maybeInvokedAndArgs = resultExpr match {
+      case MethodInvocation(inv: ScReferenceExpression, args)          => (inv, args).toOption
+      case ScBlock(MethodInvocation(inv: ScReferenceExpression, args)) => (inv, args).toOption
+      case _                                                           => None
+    }
+
+    for {
+      (inv, args)  <- maybeInvokedAndArgs
+      targetMethod <- inv.bind().collect { case ScalaResolveResult(m: PsiMethod, _) => m }
+      if !targetMethod.hasTypeParameters // if the function is polymorphic -- bail out
+      targetArg <- findArg(args)
+      eTpe      <- targetArg.expectedType(false)
+    } yield eTpe
   }
 }

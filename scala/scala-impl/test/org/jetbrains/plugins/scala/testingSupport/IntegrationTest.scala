@@ -2,13 +2,10 @@ package org.jetbrains.plugins.scala.testingSupport
 
 import com.intellij.execution.testframework.AbstractTestProxy
 import com.intellij.execution.{PsiLocation, RunnerAndConfigurationSettings}
-import com.intellij.ide.util.treeView.AbstractTreeNode
-import com.intellij.ide.util.treeView.smartTree.{TreeElement, TreeElementWrapper}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.testFramework.EdtTestUtil
-import org.jetbrains.plugins.scala.lang.structureView.element.Test
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, SingleTestData}
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, SearchForTest}
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions._
@@ -17,7 +14,6 @@ import org.junit.Assert._
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 import scala.util.Try
 
 /**
@@ -242,14 +238,15 @@ trait IntegrationTest {
                         fileName: String,
                         assertConfiguration: RunnerAndConfigurationSettings => Unit,
                         testNames: Iterable[String],
-                        sourceLine: Int): Unit = {
+                        sourceLine: Int,
+                        sourceFile: Option[String] = None): Unit = {
     val runConfig = createTestFromLocation(lineNumber, offset, fileName)
 
     val (_, testTreeRoot) = runTestFromConfig(assertConfiguration, runConfig)
 
     assertTrue("testTreeRoot not defined", testTreeRoot.isDefined)
     EdtTestUtil.runInEdtAndWait(() => {
-      assertGoToSourceTest(testTreeRoot.get, testNames, fileName, sourceLine)
+      assertGoToSourceTest(testTreeRoot.get, testNames, sourceFile.getOrElse(fileName), sourceLine)
     })
   }
 

@@ -181,7 +181,7 @@ trait ScalaBounds extends api.Bounds {
         case t: ScTemplateDefinition => t.superTypes.map(tp => new ClassLike(subst(tp))).filter(!_.isEmpty)
         case p: PsiClass => p.getSupers.toSeq.map(cl => new ClassLike(ScalaType.designator(cl))).filter(!_.isEmpty)
         case _: ScTypeAlias =>
-          val upperType: ScType = tp.aliasType.get.upper.getOrAny
+          val upperType: ScType = tp.aliasType.map(_.upper.getOrAny).getOrElse(Any)
           val classes: Seq[ClassLike] = {
             upperType match {
               case ScCompoundType(comps1, _, _) => comps1.map(new ClassLike(_))

@@ -3,8 +3,6 @@ package lang
 package formatting
 package processors
 
-import java.util.regex.Pattern
-
 import com.intellij.formatting.Spacing
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.diagnostic.Logger
@@ -34,6 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubFileElementType
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.{isIdentifier, isKeyword}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
@@ -101,6 +100,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
     val scalaSettings: ScalaCodeStyleSettings =
       left.settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+
     def getDependentLFSpacing(x: Int, y: Int, range: TextRange) = {
       if (keepLineBreaks) Spacing.createDependentLFSpacing(y, y, range, true, x)
       else Spacing.createDependentLFSpacing(y, y, range, false, 0)
@@ -108,13 +108,19 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
     //new formatter spacing
 
-    val leftNode = left.getNode
-    val rightNode = right.getNode
-    val leftElementType = leftNode.getElementType
-    val rightElementType = rightNode.getElementType
-    val leftPsi = leftNode.getPsi
-    val rightPsi = rightNode.getPsi
-    val leftPsiParent = leftNode.getPsi.getParent
+    val leftNode        = left.getNode
+    val rightNode       = right.getNode
+    val leftNodeParent  = leftNode.getTreeParent
+    val rightNodeParent = rightNode.getTreeParent
+
+    val leftElementType            = leftNode.getElementType
+    val rightElementType           = rightNode.getElementType
+    val leftNodeParentElementType  = leftNodeParent.getElementType
+    val rightNodeParentElementType = rightNodeParent.getElementType
+
+    val leftPsi        = leftNode.getPsi
+    val rightPsi       = rightNode.getPsi
+    val leftPsiParent  = leftNode.getPsi.getParent
     val rightPsiParent = rightNode.getPsi.getParent
 
     val fileText = PsiDocumentManager.getInstance(leftPsi.getProject).nullSafe
@@ -160,51 +166,68 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       return ON_NEW_LINE
     }
 
-
+    val elementTypesWithParents  = (leftElementType, rightElementType, leftNodeParentElementType, rightNodeParentElementType)
     def processElementTypes(pf: PartialFunction[(IElementType, IElementType, IElementType, IElementType), Spacing]): Option[Spacing] =
-      pf.lift((leftElementType, rightElementType, leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType))
+      pf.lift(elementTypesWithParents)
 
     //ScalaDoc
-    def docCommentOf(node: ASTNode) = node.getPsi.parentsInFile.instanceOf[ScDocComment].getOrElse {
-      throw new RuntimeException("Unable to find parent doc comment")
-    }
+    def docCommentOf(node: ASTNode) = node.getPsi.parentsInFile.findByType[ScDocComment]
+      .getOrElse(throw new RuntimeException("Unable to find parent doc comment"))
 
-    def isScalaDocList(str: String) = str.startsWith("- ") || Pattern.matches("^([MDCLXVI]+|[a-zA-Z]+|\\d+)\\..+", str)
+    def isScalaDocListStart(typ: IElementType): Boolean =
+      typ match {
+        case ScalaDocTokenType.DOC_LIST_ITEM_HEAD |
+             ScalaDocElementTypes.DOC_LIST_ITEM |
+             ScalaDocElementTypes.DOC_LIST => true
+        case _ => false
+      }
 
     val tagSpacing =
       if (scalaSettings.SD_PRESERVE_SPACES_IN_TAGS)
         Spacing.createSpacing(0, Int.MaxValue, 0, false, 0)
       else WITH_SPACING
 
-    processElementTypes {
+    val scaladocSpacing = elementTypesWithParents match {
       case (_, ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, _, _) => NO_SPACING_WITH_NEWLINE
       case (_, ScalaDocTokenType.DOC_COMMENT_END, _, _) =>
-        if (docCommentOf(rightNode).version == 1) NO_SPACING_WITH_NEWLINE
-        else if (leftBlockString(leftBlockString.length() - 1) != ' ') WITH_SPACING
-        else WITHOUT_SPACING
-      case (ScalaDocTokenType.DOC_COMMENT_START, _, _, _) =>
-        if (docCommentOf(leftNode).version == 1) NO_SPACING_WITH_NEWLINE
-        else if (getText(rightNode, fileText)(0) != ' ') WITH_SPACING
-        else WITHOUT_SPACING
-      case (x, y, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) &&
-        ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(y) && !scalaSettings.ENABLE_SCALADOC_FORMATTING =>
-        Spacing.getReadOnlySpacing
-      case (ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, _, _, _) =>
-        if (isScalaDocList(getText(rightNode, fileText))) Spacing.getReadOnlySpacing
-        else if (getText(rightNode, fileText).apply(0) == ' ') WITHOUT_SPACING
+        //val version = docCommentOf(rightNode).version
+        if (false /*version == 1*/)
+          NO_SPACING_WITH_NEWLINE
+        else
+          WITH_SPACING
+      case (ScalaDocTokenType.DOC_COMMENT_START, rightType, _, _) =>
+        if (isScalaDocListStart(rightType)) Spacing.getReadOnlySpacing
+        //else if (docCommentOf(leftNode).version == 1) NO_SPACING_WITH_NEWLINE
+        else if (rightType == ScalaDocTokenType.DOC_WHITESPACE/*getText(rightNode, fileText)(0) == ' '*/) WITHOUT_SPACING
         else WITH_SPACING
-      case (ScalaDocTokenType.DOC_TAG_NAME, _, _, _) =>
+      case (x, y, _, _) if !scalaSettings.ENABLE_SCALADOC_FORMATTING &&
+        ScalaDocElementTypes.AllElementAndTokenTypes.contains(x) &&
+        ScalaDocElementTypes.AllElementAndTokenTypes.contains(y) =>
+        Spacing.getReadOnlySpacing
+      case (ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, rightType, _, _)              =>
+        rightType match {
+          case t if isScalaDocListStart(t)      => Spacing.getReadOnlySpacing
+          case ScalaDocTokenType.DOC_INNER_CODE => Spacing.getReadOnlySpacing
+          case ScalaDocTokenType.DOC_WHITESPACE => WITHOUT_SPACING
+          case _                                => WITH_SPACING
+        }
+      case (_, ScalaDocElementTypes.DOC_LIST_ITEM | ScalaDocElementTypes.DOC_LIST, _, _) =>
+        Spacing.getReadOnlySpacing
+      case (ScalaDocTokenType.DOC_LIST_ITEM_HEAD, _, _, _) if scalaSettings.SD_ALIGN_LIST_ITEM_CONTENT =>
+        WITH_SPACING
+      case (ScalaDocTokenType.DOC_TAG_NAME, _, _, _)                                                   =>
         val rightText = getText(rightNode, fileText) //rightString is not semantically equal for PsiError nodes
-        if (rightText.nonEmpty && rightText.apply(0) == ' ') Spacing.getReadOnlySpacing
+        if (rightText.nonEmpty && rightText.apply(0) == ' ') WITH_SPACING
         else tagSpacing
       case (ScalaDocTokenType.DOC_TAG_VALUE_TOKEN, _, ScalaDocElementTypes.DOC_TAG, _) => tagSpacing
       case (_, x, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) => Spacing.getReadOnlySpacing
       case (x, TokenType.ERROR_ELEMENT, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) => WITH_SPACING
       case (x, _, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) => Spacing.getReadOnlySpacing
-    } match {
-      case Some(result) => return result
-      case _ =>
+      case _ => null
     }
+
+    if (scaladocSpacing != null)
+      return scaladocSpacing
 
     //Xml
     processElementTypes {
@@ -286,7 +309,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_START_DELIMITER, _, _, _) => Spacing.getReadOnlySpacing
       case (_, ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_END_DELIMITER, _, _) => Spacing.getReadOnlySpacing
     } match {
-      case Some(result) => return result
+      case Some(result) =>
+        return result
       case _ =>
     }
 
@@ -490,6 +514,16 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       return result
     }
 
+    // no spaces before braceless template body
+    //   class Test:
+    //
+    // TODO: settings?
+    rightPsi match {
+      case ScExtendsBlock.TemplateBody(body) if !body.isEnclosedByBraces =>
+        return WITHOUT_SPACING
+      case _ =>
+    }
+
     //this is a dirty hack for SCL-9264. It looks bad, but seems to be the only fast way to make this work.
     (leftElementType, leftPsi.getPrevSiblingNotWhitespace) match {
       case (ScalaTokenTypes.tLBRACE | ScalaTokenTypes.tLPARENTHESIS, forNode: LeafPsiElement) if !left.isLeaf() &&
@@ -575,7 +609,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       }
     }
 
-    if (rightElementType == ScalaTokenTypes.tRBRACE) {
+    if (rightElementType == ScalaTokenTypes.tRBRACE || rightElementType == END_STMT) {
       val rightTreeParent = rightNode.getTreeParent
       return rightTreeParent.getPsi match {
         case block@(_: ScEarlyDefinitions | _: ScTemplateBody | _: ScPackaging |
@@ -615,7 +649,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       }
     }
 
-    if (leftElementType == ScalaTokenTypes.tLBRACE) {
+    // TODO: do we need separate settings for : block syntax
+    if (leftElementType == ScalaTokenTypes.tLBRACE || (leftElementType == tCOLON && leftNodeParentElementType == TEMPLATE_BODY)) {
       if (!scalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE) {
         val b = leftNode.getTreeParent.getPsi
         val spaceInsideOneLineBlock = scalaSettings.SPACES_IN_ONE_LINE_BLOCKS && !getText(b.getNode, fileText).contains('\n')
@@ -719,8 +754,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       }
     }
 
-    // TODO: how to name it normally?
-    def spacingMagicProcessor(psi: PsiElement): Option[Spacing] = {
+    def spacingForTemplateBodyMember(psi: PsiElement): Option[Spacing] = {
       psi.getParent match {
         case b@(_: ScEarlyDefinitions | _: ScTemplateBody) =>
           val p = PsiTreeUtil.getParentOfType(b, classOf[ScTemplateDefinition])
@@ -739,7 +773,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (rightPsi.isInstanceOf[PsiComment]) {
       val pseudoRightPsi = rightPsi.getNextSiblingNotWhitespaceComment
       if (pseudoRightPsi.is[ScFunction, ScValueOrVariable, ScTypeAlias]) {
-        spacingMagicProcessor(pseudoRightPsi) match {
+        spacingForTemplateBodyMember(pseudoRightPsi) match {
           case Some(spacing) => return spacing
           case _ =>
         }
@@ -749,7 +783,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       if (leftPsi.isInstanceOf[PsiComment]) {
         return ON_NEW_LINE
       }
-      spacingMagicProcessor(rightPsi) match {
+      spacingForTemplateBodyMember(rightPsi) match {
         case Some(spacing) => return spacing
         case _ =>
       }
@@ -774,6 +808,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       val spacing =
         if (lastNode == null) WITH_SPACING_DEPENDENT(rightNode.getTreeParent.getTextRange)
         else if (settings.ELSE_ON_NEW_LINE) ON_NEW_LINE
+        else if (COMMENTS_TOKEN_SET.contains(lastNode.getElementType)) ON_NEW_LINE // SCL-16831
         else WITH_SPACING
       return spacing
     }
@@ -816,12 +851,17 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case _ =>
     }
 
-    if (leftElementType == ScalaDocTokenType.DOC_COMMENT_BAD_CHARACTER ||
-      rightElementType == ScalaDocTokenType.DOC_COMMENT_BAD_CHARACTER) {
-      //FIXME: this is a quick hack to stop method signature in scalaDoc from getting disrupted. (#SCL-4280)
-      //actually the DOC_COMMENT_BAD_CHARACTER elements seem out of place in here
-      return Spacing.getReadOnlySpacing
-    }
+    //FIXME: this is a quick hack to stop method signature in scalaDoc from getting disrupted. (#SCL-4280)
+    // actually the DOC_COMMENT_BAD_CHARACTER elements seem out of place in here
+    // also method references are now parsed incorrectly, e.g. Class#method() will contain normal reference for `Class`
+    // and dangling identifiers `#` and `method` and bad characters for '(' and ')'
+    if (leftNodeParentElementType.isInstanceOf[ScalaDocSyntaxElementType] && (
+      leftElementType == ScalaDocTokenType.DOC_COMMENT_BAD_CHARACTER |
+        rightElementType == ScalaDocTokenType.DOC_COMMENT_BAD_CHARACTER |
+        leftElementType == ScalaTokenTypes.tIDENTIFIER |
+        rightElementType == ScalaTokenTypes.tIDENTIFIER
+      ))
+    return Spacing.getReadOnlySpacing
 
     //old formatter spacing
 

@@ -3,87 +3,134 @@ package lang
 package completion
 package global
 
-import com.intellij.codeInsight.CodeInsightSettings
-import com.intellij.codeInsight.completion.{JavaCompletionFeatures, JavaCompletionUtil}
-import com.intellij.featureStatistics.FeatureUsageTracker
-import com.intellij.psi.{PsiClass, PsiFile, PsiNamedElement}
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt}
+import com.intellij.codeInsight.completion.PrefixMatcher
+import com.intellij.codeInsight.lookup.LookupElement
+import com.intellij.psi.{PsiClass, PsiElement, PsiMember, PsiNamedElement}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, isStatic}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
-abstract class GlobalMembersFinder {
+sealed abstract class GlobalMembersFinder protected(protected val place: ScExpression,
+                                                    protected val accessAll: Boolean) {
 
-  import GlobalMembersFinder._
+  protected final def isAccessible(member: PsiMember): Boolean =
+    accessAll ||
+      completion.isAccessible(member)(place)
 
-  FeatureUsageTracker.getInstance.triggerFeatureUsed(JavaCompletionFeatures.GLOBAL_MEMBER_NAME)
+  final def lookupItems: Iterable[LookupElement] =
+    candidates
+      .filter(_.isApplicable)
+      .map(_.createLookupItem)
 
-  final def lookupItems(reference: ScReferenceExpression, originalFile: PsiFile): Seq[ScalaLookupItem] = {
-    val shouldImport = new ShouldImportPredicate(reference, originalFile)
+  protected[global] def candidates: Iterable[GlobalMemberResult]
 
-    candidates.flatMap(_.createLookupItem(shouldImport)).toSeq
-  }
+  protected final def contextsOfType[E <: PsiElement : reflect.ClassTag]: Iterable[E] = place
+    .contexts
+    .filterByType[E]
+    .toIterable
 
-  protected def candidates: Iterable[GlobalMemberResult]
+  protected[global] final def findStableScalaFunctions(functions: Iterable[ScFunction])
+                                                      (classesToImport: ScFunction => Set[ScObject])
+                                                      (constructor: (ScFunction, ScObject) => GlobalMemberResult): Iterable[GlobalMemberResult] = for {
+    function <- functions
+    if !function.isSpecial &&
+      isAccessible(function)
 
-  protected abstract class GlobalMemberResult(resolveResult: ScalaResolveResult,
-                                              classToImport: PsiClass,
-                                              containingClass: Option[PsiClass] = None) {
+    classToImport <- classesToImport(function)
+    if !isImplicit(classToImport) // filter out type class instances, such as scala.math.Numeric.String, to avoid too many results.
+  } yield constructor(function, classToImport)
 
-    final def createLookupItem(shouldImport: PsiNamedElement => Boolean): Option[ScalaLookupItem] =
-      if (isApplicable)
-        resolveResult.getLookupElement(
-          isClassName = true,
-          containingClass = containingClass
-        ).map { lookupItem =>
-          lookupItem.shouldImport = shouldImport(lookupItem.getPsiElement)
-          patchItem(lookupItem)
-          lookupItem.putUserData(JavaCompletionUtil.FORCE_SHOW_SIGNATURE_ATTR, Boolean.box(true))
-          lookupItem
-        }
-      else
-        None
+  protected[global] final def findStableScalaProperties(properties: Iterable[ScValueOrVariable])
+                                                       (classesToImport: ScValueOrVariable => Set[ScObject])
+                                                       (constructor: (ScTypedDefinition, ScObject) => GlobalMemberResult): Iterable[GlobalMemberResult] = for {
+    property <- properties
+    if isAccessible(property)
 
-    protected def patchItem(lookupItem: ScalaLookupItem): Unit = {
-    }
+    classToImport <- classesToImport(property)
+    elementToImport <- property.declaredElements
+  } yield constructor(elementToImport, classToImport)
 
-    private def isApplicable: Boolean = Option(classToImport.qualifiedName).forall(isNotExcluded)
+  protected[global] final def findStaticJavaMembers[M <: PsiMember](members: Iterable[M])
+                                                                   (constructor: (M, PsiClass) => GlobalMemberResult): Iterable[GlobalMemberResult] = for {
+    member <- members
+    if isStatic(member) &&
+      isAccessible(member)
+
+    //noinspection ScalaWrongPlatformMethodsUsage
+    classToImport = member.getContainingClass
+    if classToImport != null &&
+      isAccessible(classToImport)
+  } yield constructor(member, classToImport)
+
+  // todo import setting reconsider
+  protected[global] final def objectCandidates[T <: ScTypedDefinition](typeDefinitions: Iterable[ScTypeDefinition])
+                                                                      (namedElements: ScMember => Seq[T])
+                                                                      (constructor: (T, ScObject) => GlobalMemberResult): Iterable[GlobalMemberResult] = for {
+    ThisOrCompanionObject(targetObject) <- typeDefinitions
+
+    member <- targetObject.members
+    if isAccessible(member)
+
+    namedElement <- namedElements(member)
+  } yield constructor(namedElement, targetObject)
+}
+
+private[completion] abstract class ByTypeGlobalMembersFinder protected(protected val originalType: ScType,
+                                                                       place: ScExpression,
+                                                                       accessAll: Boolean)
+  extends GlobalMembersFinder(place, accessAll)
+
+private[completion] object ByTypeGlobalMembersFinder {
+
+  def apply(originalType: ScType,
+            place: ScExpression,
+            invocationCount: Int): Seq[ByTypeGlobalMembersFinder] = {
+    val accessAll = regardlessAccessibility(invocationCount)
+
+    Seq(
+      new ExtensionMethodsFinder(originalType, place, accessAll),
+      new HoogleFinder(originalType, place, accessAll),
+    )
   }
 }
 
-object GlobalMembersFinder {
+private[completion] abstract class ByPlaceGlobalMembersFinder protected(override protected val place: ScReferenceExpression,
+                                                                        accessAll: Boolean)
+  extends GlobalMembersFinder(place, accessAll) {
 
-  private final class ShouldImportPredicate(reference: ScReferenceExpression,
-                                            originalFile: PsiFile) extends (PsiNamedElement => Boolean) {
+  protected object NameAvailability extends global.NameAvailability {
 
-    private lazy val elements = reference
+    import NameAvailabilityState._
+
+    private lazy val elements = place
       .completionVariants()
       .toSet[ScalaLookupItem]
       .map(_.getPsiElement)
 
-    override def apply(element: PsiNamedElement): Boolean = element.getContainingFile match {
-      case `originalFile` =>
-        contextContainingClassName(element).forall { className =>
-          //complex logic to detect static methods in the same file, which we shouldn't import
-          val name = element.name
-          !elements
-            .filter(_.getContainingFile == originalFile)
-            .filter(_.name == name)
-            .flatMap(contextContainingClassName)
-            .contains(className)
-        }
-      case _ => !elements.contains(element)
-    }
-
-    private def contextContainingClassName(element: PsiNamedElement) =
-      element.containingClassOfNameContext.flatMap { clazz =>
-        Option(clazz.qualifiedName)
-      }
+    override def apply(element: PsiNamedElement): NameAvailabilityState =
+      if (elements.contains(element)) AVAILABLE
+      else if (elements.exists(_.name == element.name)) CONFLICT
+      else NO_CONFLICT
   }
+}
 
-  private def isNotExcluded(qualifiedName: String): Boolean = {
-    CodeInsightSettings.getInstance.EXCLUDED_PACKAGES.forall { excludedPackage =>
-      qualifiedName != excludedPackage && !qualifiedName.startsWith(excludedPackage + ".")
-    }
+private[completion] object ByPlaceGlobalMembersFinder {
+
+  def apply(place: ScReferenceExpression,
+            matcher: PrefixMatcher,
+            invocationCount: Int): Seq[ByPlaceGlobalMembersFinder] = {
+    val accessAll = regardlessAccessibility(invocationCount)
+
+    val finder = if (accessAll && matcher.getPrefix.nonEmpty)
+      new StaticMembersFinder(place, completion.accessAll(invocationCount))(matcher.prefixMatches)
+    else
+      new LocallyImportableMembersFinder(place, accessAll)
+
+    Seq(finder)
   }
 }

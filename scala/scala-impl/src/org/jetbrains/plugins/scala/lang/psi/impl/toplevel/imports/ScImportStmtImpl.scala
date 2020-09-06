@@ -56,6 +56,7 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
     lastParent: PsiElement,
     place:      PsiElement
   ): Boolean = {
+
     val importsIterator = importExprs.takeWhile(_ != lastParent).reverseIterator
     while (importsIterator.hasNext) {
       val importExpr = importsIterator.next()
@@ -385,4 +386,3 @@ object ScImportStmtImpl {
     case _ => importUsed.toOption
   }
 }
-

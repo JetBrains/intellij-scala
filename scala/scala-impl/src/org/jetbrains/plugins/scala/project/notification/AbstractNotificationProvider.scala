@@ -8,6 +8,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.ui.{EditorNotificationPanel, EditorNotifications}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.sbt.Sbt
 
 /**
@@ -28,6 +29,7 @@ abstract class AbstractNotificationProvider(kitTitle: String,
     }
   }
 
+  @Nls
   protected def panelText(kitTitle: String): String
 
   protected def hasDeveloperKit(file: VirtualFile): Boolean

@@ -11,27 +11,32 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScIf
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 05.10.2008
+ *
+ * @todo consider unifying with [[org.jetbrains.plugins.scala.util.IndentUtil]]
  */
-
 object FormatterUtil {
-  def calcIndent(node: ASTNode): Int = {
+
+  def calcIndent(node: ASTNode): Int =
     node.getTreeParent.getPsi match {
       case ifStmt: ScIf =>
         ifStmt.getParent match {
-          case parent: ScIf if parent.getLastChild == ifStmt && parent.elseExpression != None => calcIndent(node.getTreeParent)
-          case parent => calcAbsolutePosition(node) - calcAbsolutePosition(parent.getNode) match {
-            case i if i >= 0 => i + calcIndent(parent.getNode)
-            case _ => calcIndent(parent.getNode)
-          }
+          case parent: ScIf if parent.getLastChild == ifStmt && parent.elseExpression.isDefined =>
+            calcIndent(node.getTreeParent)
+          case parent =>
+            calcAbsolutePosition(node) - calcAbsolutePosition(parent.getNode) match {
+              case i if i >= 0 => i + calcIndent(parent.getNode)
+              case _ => calcIndent(parent.getNode)
+            }
         }
       case _: ScalaFile => 0
       case _ => calcIndent(node.getTreeParent)
     }
-  }
+
   def calcAbsolutePosition(node: ASTNode): Int = {
     val text = node.getPsi.getContainingFile.charSequence
     var offset = node.getTextRange.getStartOffset - 1
@@ -53,4 +58,7 @@ object FormatterUtil {
     case _: ScValue | _: ScVariable | _: ScFunction | _: ScTypeDefinition | _: ScTypeAlias => true
     case _ => false
   }
+
+  def isDocWhiteSpace(element: PsiElement): Boolean = isDocWhiteSpace(element.getNode)
+  def isDocWhiteSpace(node: ASTNode): Boolean = node.getElementType == ScalaDocTokenType.DOC_WHITESPACE
 }

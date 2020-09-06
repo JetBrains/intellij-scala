@@ -1,14 +1,11 @@
-package org.jetbrains.plugins.scala
-package lang
-package scaladoc
-package psi
-package impl
+package org.jetbrains.plugins.scala.lang.scaladoc.psi.impl
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, ResolveState}
+import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -26,10 +23,6 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocRef
 
 import scala.collection.{Set, mutable}
 
-/**
- * User: Dmitry Naydanov
- * Date: 11/23/11
- */
 final class ScDocTagValueImpl(node: ASTNode) extends ScReferenceImpl(node) with ScDocTagValue with ScDocReference {
 
   import ResolveTargets._
@@ -65,7 +58,7 @@ final class ScDocTagValueImpl(node: ASTNode) extends ScReferenceImpl(node) with 
 
   override def toString: String = "ScalaDocTagValue: " + getText
 
-  override def bindToElement(element: PsiElement): PsiElement = {
+  override def bindToElement(element: PsiElement): PsiElement =
     element match {
       case _: ScParameter => this
       case _: ScTypeParam =>
@@ -73,16 +66,15 @@ final class ScDocTagValueImpl(node: ASTNode) extends ScReferenceImpl(node) with 
         this
       case _ => throw new UnsupportedOperationException("Can't bind to this element")
     }
-  }
 
   override def getCanonicalText: String = if (getFirstChild == null) null else getFirstChild.getText
 
-  override def isReferenceTo(element: PsiElement): Boolean = {
-    if (resolve() == null || resolve() != element) false else true
-  }
+  override def isReferenceTo(@NotNull element: PsiElement): Boolean =
+    resolve() == element
 
   override def handleElementRename(newElementName: String): PsiElement = {
     if (!isIdentifier(newElementName)) return this
+
     val doc = FileDocumentManager.getInstance().getDocument(getContainingFile.getVirtualFile)
     PsiDocumentManager.getInstance(getProject).doPostponedOperationsAndUnblockDocument(doc)
     val range: TextRange = getFirstChild.getTextRange
@@ -116,9 +108,10 @@ final class ScDocTagValueImpl(node: ASTNode) extends ScReferenceImpl(node) with 
 
     def filterParamsByName(tagName: String, params: Seq[ScNamedElement]): Array[ScNamedElement] = {
       val paramsSet =
-        (for (tag <- scalaDocParent.asInstanceOf[ScDocComment].findTagsByName(tagName) if tag.getValueElement != null &&
-                tag != getParent)
-        yield tag.getValueElement.getText).toSet
+        (for {
+          tag <- scalaDocParent.asInstanceOf[ScDocComment].findTagsByName(tagName)
+          if tag.getValueElement != null && tag != getParent
+        } yield tag.getValueElement.getText).toSet
 
       val result = mutable.ArrayBuilder.make[ScNamedElement]()
       params.filter(param => !paramsSet.contains(param.name)).foreach(result += _)

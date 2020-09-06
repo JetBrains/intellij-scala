@@ -1,119 +1,144 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.javadoc.PsiDocComment
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocTag}
+import org.jetbrains.plugins.scala.macroAnnotations.Measure
 
 import scala.collection.mutable
 
-
+/**
+ * TODO: write a test for std lib like org.jetbrains.plugins.scala.projectHighlighting.ScalaLibraryHighlightingTest
+ */
 private trait MacroFinder {
   def getMacroBody(name: String): Option[String]
 }
 
-private class MacroFinderDummy extends MacroFinder {
-  override def getMacroBody(name: String): Option[String] = None
+private object MacroFinderDummy extends MacroFinder {
+  override def getMacroBody(name: String): Option[String] = Some("")
 }
 
-private class MacroFinderImpl(comment: ScDocComment, handler: PsiElement => String) extends MacroFinder {
+private class MacroFinderImpl(
+  commentOwner: ScDocCommentOwner,
+  rendered: Boolean
+) extends MacroFinder {
   private val myCache = mutable.HashMap[String, String]()
-  private var lastProcessedComment: Option[PsiDocComment] = None
 
-  private val processingQueue = mutable.Queue.apply[ScDocCommentOwner]()
+  private var resolvableCommentOwners: Seq[ScDocCommentOwner] = Seq.empty
   private var init = false
 
-  override def getMacroBody(name: String): Option[String] = {
-    if (!init) fillQueue()
-    if (myCache contains name) return myCache get name
-
-    var commentToProcess = selectComment2()
-
-    while (commentToProcess.isDefined) {
-      for {
-        comment <- commentToProcess
-        tag <- comment.getTags
-        if tag.getName == MyScaladocParsing.DEFINE_TAG
-        (tagName, tagValue) = tagNameAndValue(tag.asInstanceOf[ScDocTag])
-        if tagName == name
-      } return Option(tagValue)
-
-      lastProcessedComment = commentToProcess
-      commentToProcess = selectComment2()
+  override def getMacroBody(macroName: String): Option[String] = {
+    if (!init) {
+      resolvableCommentOwners = findCommentOwnersWithResolvableMacroDefinitions(commentOwner)
+      init = true
     }
 
-    None
+    myCache.get(macroName) match {
+      case macroValue: Some[_] =>
+        return macroValue
+      case None             =>
+    }
+
+    findMacroValue(macroName)
   }
 
-  private def tagNameAndValue(tag: ScDocTag): (String, String) = {
+  @Measure
+  private def findMacroValue(macroName: String): Option[String] = {
+    val comments: Iterator[ScDocComment] = for {
+      owner       <- resolvableCommentOwners.iterator
+      actualOwner <- owner.getNavigationElement.asOptionOf[ScDocCommentOwner]
+      comment     <- actualOwner.docComment
+    } yield comment
+
+    val macroValues: Iterator[String] = for {
+      comment <- comments
+      (defineKey, defineTag) <- findDefineTags(comment)
+      if defineKey.nonEmpty && defineKey == macroName
+    } yield defineTagValue(comment, defineTag)
+
+    val macroValue = macroValues.headOption
+    macroValue.foreach { value =>
+      myCache.put(macroName, value)
+    }
+    macroValue
+  }
+
+  private def findDefineTags(comment: ScDocComment): Seq[(String, ScDocTag)] =
+    for {
+      tag <- comment.getTags
+      if tag.name == MyScaladocParsing.DEFINE_TAG
+      defineTag = tag.asInstanceOf[ScDocTag]
+      key <- defineTagKey(defineTag)
+    } yield (key, defineTag)
+
+  private def defineTagKey(tag: ScDocTag): Option[String] = {
     val valueElement = Option(tag.getValueElement)
-    val tagText = valueElement.map(_.getText).mkString
-    val tagValue = tag.getAllText(handler).trim
-    val result = (tagText, tagValue)
-    if (tagText.nonEmpty)
-      myCache += result
-    result
+    valueElement.map(_.getText)
   }
 
-  private def fillQueue(): Unit = {
-    def fillInner(from: Iterable[ScDocCommentOwner]): Unit = {
-      if (from.isEmpty) return
-      val tc = mutable.ArrayBuffer.apply[ScDocCommentOwner]()
+  private def defineTagValue(comment: ScDocComment, tag: ScDocTag): String = {
+    val macroFinder = MacroFinderDummy // TODO: for now we do not support recursive macros, only 1 level
+    val generator = new ScalaDocContentGenerator(comment, macroFinder, rendered)
+    generator.tagDescriptionText(tag)
+  }
 
-      from foreach {
-        case clazz: ScTemplateDefinition =>
-          processingQueue enqueue clazz
+  private def findCommentOwnersWithResolvableMacroDefinitions(commentOwner: ScDocCommentOwner): Seq[ScDocCommentOwner] = {
+    // NOTE: the order is important so using LinkedHashSet here!
+    // we want the first macro definition to be used, not arbitrary macro from the hierarchy
+    val result = mutable.LinkedHashSet.empty[ScDocCommentOwner]
 
-          clazz.supers foreach {
-            case cz: ScDocCommentOwner => tc += cz
-            case _ =>
-          }
-        case member: ScMember if member.hasModifierProperty("override") =>
-          processingQueue enqueue member
+    val queue = mutable.Queue[ScDocCommentOwner](commentOwner)
 
-          member match {
-            case named: ScNamedElement =>
-              ScalaPsiUtil.superValsSignatures(named) map (sig => sig.namedElement) foreach {
-                case od: ScDocCommentOwner => tc += od
-                case _ =>
-              }
-            case _ =>
-          }
-
-          member.containingClass match {
-            case od: ScDocCommentOwner => tc += od
-            case _ =>
-          }
-        case member: ScMember if member.getContainingClass != null =>
-          processingQueue enqueue member
-
-          member.containingClass match {
-            case od: ScDocCommentOwner => tc += od
-            case _ =>
-          }
-        case _ => return
-      }
-
-      fillInner(tc)
-    }
-
-    init = true
-    comment.getOwner match {
-      case od: ScDocCommentOwner => fillInner(Option(od))
+    def enqueue(el: PsiElement): Unit = el  match {
+      case od: ScDocCommentOwner =>
+        /**
+         * Even though there should not be class inheritor cycles in valid programs, it is still possible to write them
+         * by accident. For example, generating scala doc here could start an infinite cycle:
+         * {{{
+         * /** @define bar bar */
+         * class A extends B
+         *
+         * /** $bar
+         *  * @define foo foo */
+         * class B extends A
+         * }}}
+         */
+        if (!result.contains(od))
+          queue += od
       case _ =>
     }
-  }
 
-  private def selectComment2(): Option[ScDocComment] = {
-    while (processingQueue.nonEmpty) {
-      val next = processingQueue.dequeue()
+    var continue = true
+    while (queue.nonEmpty && continue) {
+      val next = queue.dequeue()
+      next match {
+        case clazz: ScTemplateDefinition =>
+          result += clazz
 
-      if (next.docComment.isDefined) return next.docComment
+          val supers = clazz.supers
+          supers.foreach(enqueue)
+
+          Option(clazz.containingClass).foreach(enqueue)
+        case member: ScMember =>
+          result += member
+
+          if (member.hasModifierPropertyScala("override")){
+            val fromSuper = member match {
+              case named: ScNamedElement => ScalaPsiUtil.superValsSignatures(named).map(_.namedElement)
+              case _ => Seq()
+            }
+            fromSuper.foreach(enqueue)
+          }
+          Option(member.containingClass).foreach(enqueue)
+        case _ =>
+          continue = false
+      }
     }
 
-    None
+    result.toSeq
   }
 }

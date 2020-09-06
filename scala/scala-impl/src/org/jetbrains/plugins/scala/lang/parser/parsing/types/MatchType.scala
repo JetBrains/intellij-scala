@@ -14,14 +14,16 @@ object MatchType {
     if (!InfixType.parse(builder)) {
       marker.rollbackTo()
       false
-    } else
+    } else // todo: handle indention
       builder.getTokenType match {
         case ScalaTokenTypes.kMATCH =>
           builder.advanceLexer()
           MatchTypeSuffix.parse(builder)
           marker.done(ScalaElementType.MATCH_TYPE)
           true
-        case _ => false
+        case _ =>
+          marker.rollbackTo()
+          false
       }
   }
 }

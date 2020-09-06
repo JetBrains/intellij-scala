@@ -33,6 +33,8 @@ class ScalaVersion(
 //noinspection TypeAnnotation
 object ScalaVersion {
 
+  def Latest = LatestScalaVersions
+
   def default: ScalaVersion =
     LatestScalaVersions.all.find(_.languageLevel == ScalaLanguageLevel.getDefault).get
 
@@ -56,9 +58,9 @@ object LatestScalaVersions {
   val Scala_2_9  = new ScalaVersion(ScalaLanguageLevel.Scala_2_9, "3")
   val Scala_2_10 = new ScalaVersion(ScalaLanguageLevel.Scala_2_10, "7")
   val Scala_2_11 = new ScalaVersion(ScalaLanguageLevel.Scala_2_11, "12")
-  val Scala_2_12 = new ScalaVersion(ScalaLanguageLevel.Scala_2_12, "10")
-  val Scala_2_13 = new ScalaVersion(ScalaLanguageLevel.Scala_2_13, "1")
-  val Scala_3_0 = new ScalaVersion(ScalaLanguageLevel.Scala_3_0, "0-RC2")
+  val Scala_2_12 = new ScalaVersion(ScalaLanguageLevel.Scala_2_12, "12")
+  val Scala_2_13 = new ScalaVersion(ScalaLanguageLevel.Scala_2_13, "3")
+  val Scala_3_0 = new ScalaVersion(ScalaLanguageLevel.Scala_3_0, "0-RC1")
   final val Dotty = Scala_3_0
   
   val all: Seq[ScalaVersion] = Seq(

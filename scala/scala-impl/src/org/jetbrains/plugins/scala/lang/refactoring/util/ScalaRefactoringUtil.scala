@@ -729,7 +729,7 @@ object ScalaRefactoringUtil {
     selectedElement.withParentsInFile
       .takeWhile(e => !isBlockLike(e))
       .toSeq
-      .filterBy[ScExpression]
+      .filterByType[ScExpression]
 
   def isBlockLike(e: PsiElement): Boolean = e match {
     case null => true
@@ -1157,6 +1157,7 @@ object ScalaRefactoringUtil {
 
     val messages = elements.flatMap(errors).distinct
     if (messages.nonEmpty) {
+      //noinspection ReferencePassedToNls
       showErrorHint(messages.mkString("\n"), refactoringName)
       return true
     }

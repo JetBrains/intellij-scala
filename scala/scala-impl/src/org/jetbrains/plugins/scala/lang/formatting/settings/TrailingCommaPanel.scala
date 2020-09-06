@@ -99,8 +99,6 @@ final class TrailingCommaPanel(settings: CodeStyleSettings) extends ScalaCodeSty
     panel.add(trailingCommaScopePanel, new GridConstraints(1, 0, 1, 2, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_CAN_SHRINK, SIZEPOLICY_FIXED, null, null, null, 0, false))
     panel.add(new Spacer, new GridConstraints(1, 2, 1, 1, ANCHOR_CENTER, FILL_HORIZONTAL, SIZEPOLICY_WANT_GROW, SIZEPOLICY_WANT_GROW, null, null, null, 0, false))
 
-    assert(scopeFields.values.toSet.size == scopeFields.size)
-
     val styleClass = classOf[ScalaCodeStyleSettings]
     scopeCheckboxes = scopeFields.toSeq.map { case (fieldName, title) =>
       val cb = new JCheckBox

@@ -5,6 +5,7 @@ package element
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationSession
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.autoImport.quickFix.ImportImplicitConversionFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpolatedStringLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
@@ -31,10 +32,12 @@ object ScInterpolatedStringLiteralAnnotator extends ElementAnnotator[ScInterpola
             new AnnotationSession(call.getContainingFile)
           )
         case _ =>
-          holder.createErrorAnnotation(
+          val annotation = holder.createErrorAnnotation(
             partReference.getTextRange,
             ScalaBundle.message("cannot.resolve.in.StringContext", partReference.refName)
-          ).setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+          )
+          annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+          ImportImplicitConversionFix(partReference).foreach(annotation.registerFix)
       }
     case _ =>
   }

@@ -1,10 +1,7 @@
 package org.jetbrains.plugins.scala.settings;
 
 import com.intellij.codeInsight.CodeInsightSettings;
-import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.components.State;
-import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.components.*;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspectionBase;
@@ -33,8 +30,15 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
 
   public boolean INTRODUCE_PARAMETER_CREATE_DEFAULT = true;
   public boolean ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY = false;
+  public boolean ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY_METHODS = false;
   public boolean OPTIMIZE_IMPORTS_ON_THE_FLY = false;
 
+  public boolean SHOW_IMPORT_POPUP_CLASSES = true;
+  public boolean SHOW_IMPORT_POPUP_STATIC_METHODS = true;
+  public boolean SHOW_IMPORT_POPUP_CONVERSIONS = true;
+  public boolean SHOW_IMPORT_POPUP_IMPLICITS = true;
+
+  @ReportValue
   public int ADD_IMPORTS_ON_PASTE = CodeInsightSettings.ASK;
   public boolean RENAME_SEARCH_IN_COMMENTS_AND_STRINGS = false;
   public boolean RENAME_SEARCH_IN_NON_CODE_FILES = false;
@@ -51,6 +55,10 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
 
   public boolean WRAP_SINGLE_EXPRESSION_BODY = true;
 
+  public boolean HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY = true;
+
+  public boolean HANDLE_BLOCK_BRACES_REMOVAL_AUTOMATICALLY = false;
+
   public boolean MOVE_COMPANION = true;
 
   public boolean UPGRADE_TO_INTERPOLATED = true;
@@ -65,7 +73,9 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   private String[] INSPECTION_LIKE_OPTION_CLASSES = OperationOnCollectionInspectionBase.likeOptionClassesDefault();
   private String[] INSPECTION_LIKE_COLLECTION_CLASSES = OperationOnCollectionInspectionBase.likeCollectionClassesDefault();
 
-  public boolean SUGGEST_IMPLICIT_HINTS = true;
+  public boolean SUGGEST_IN_EDITOR_DOC_RENDERING = true;
+
+  public boolean SUGGEST_AUTOBRACE_INSERTION = true;
 
   public ScalaApplicationSettings getState() {
     return this;

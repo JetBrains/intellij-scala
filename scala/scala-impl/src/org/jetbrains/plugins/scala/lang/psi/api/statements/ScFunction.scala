@@ -88,6 +88,10 @@ trait ScFunction extends ScalaPsiElement with ScMember.WithBaseIconProvider with
 
   override def declaredElements: Seq[ScFunction] = Seq(this)
 
+  def isExtensionMethod: Boolean
+
+  def extensionMethodClause: Option[ScParameterClause]
+
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitFunction(this)
   }

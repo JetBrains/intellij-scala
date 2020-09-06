@@ -43,6 +43,8 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
 
   def functions: Seq[ScFunction] = extendsBlock.functions
 
+  def properties: Seq[ScValueOrVariable] = extendsBlock.properties
+
   def aliases: Seq[ScTypeAlias] = extendsBlock.aliases
 
   def members: Seq[ScMember] = extendsBlock.members
@@ -78,6 +80,8 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   def deleteMember(member: ScMember): Unit
 
   def allFunctionsByName(name: String): Iterator[PsiMethod]
+
+  def allTermsByName(name: String): Seq[PsiNamedElement]
 }
 
 object ScTemplateDefinition {

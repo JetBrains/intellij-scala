@@ -4,36 +4,30 @@ package autoImport
 
 import java.io.File
 
-import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
-import com.intellij.psi.SmartPointerManager
 import com.intellij.psi.util.PsiTreeUtil.getParentOfType
-import com.intellij.testFramework.UsefulTestCase
-import org.jetbrains.plugins.scala.annotator.intention.{ClassToImport, ScalaImportTypeFix}
+import com.intellij.psi.{PsiClass, PsiPackage, SmartPointerManager}
+import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.junit.Assert._
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 15.03.2009
  */
-abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter with ScalaFiles {
   private val refMarker = "/*ref*/" // todo to be replaced with <caret>
 
   protected def folderPath = baseRootPath + "autoImport/"
 
   protected override def sourceRootPath: String = folderPath
-
-  // file type to run the test with (to be able to run same tests as Worksheet files)
-  protected def fileType: FileType = ScalaFileType.INSTANCE
 
   // todo configureBy* should be called instead
   protected def doTest(): Unit = {
@@ -58,20 +52,20 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
     implicit val project: Project = getProjectAdapter
     val refPointer = SmartPointerManager.getInstance(project).createSmartPsiElementPointer(ref)
 
-    val classes = ScalaImportTypeFix.getTypesToImport(ref)
+    val fix = ScalaImportTypeFix(ref)
+    val classes = fix.elements
     assertFalse("Element to import not found", classes.isEmpty)
+
+    classes.map(_.element).foreach {
+      case _: PsiClass | _: ScTypeAlias | _: PsiPackage =>
+      case element => fail(s"Class, alias or package is expected, found: $element")
+    }
 
     var res: String = null
     val lastPsi = scalaFile.findElementAt(scalaFile.getTextLength - 1)
     try {
-      executeWriteActionCommand("Test") {
-        val holder = ScImportsHolder(ref)(project)
-        classes(0) match {
-          case ClassToImport(clazz) => holder.addImportForClass(clazz)
-          case ta => holder.addImportForPath(ta.qualifiedName, ref)
-        }
-        UsefulTestCase.doPostponedFormatting(project)
-      }
+      val action = fix.createAddImportAction(getEditorAdapter)
+      action.addImportTestOnly(classes.head)
 
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")
       assertNotNull("reference is unresolved after import action", refPointer.getElement.resolve)

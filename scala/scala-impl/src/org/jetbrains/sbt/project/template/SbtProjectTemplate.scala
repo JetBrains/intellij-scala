@@ -11,6 +11,7 @@ import org.jetbrains.sbt.SbtBundle
  * Date: 11.03.14.
  */
 class SbtProjectTemplate extends ProjectTemplate {
+  //noinspection ReferencePassedToNls
   override def getName: String = Sbt.Name
 
   override def getDescription: String = SbtBundle.message("sbt.based.scala.project.recommended")

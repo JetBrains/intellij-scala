@@ -9,6 +9,7 @@ import com.intellij.execution.impl.DefaultJavaProgramRunner
 import com.intellij.execution.process.{ProcessAdapter, ProcessEvent, ProcessHandler, ProcessListener}
 import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
 import com.intellij.execution.testframework.AbstractTestProxy
+import com.intellij.execution.testframework.sm.runner.SMTRunnerEventsListener
 import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.{Executor, PsiLocation, RunnerAndConfigurationSettings}
@@ -16,7 +17,7 @@ import com.intellij.ide.structureView.newStructureView.StructureViewComponent
 import com.intellij.ide.util.treeView.smartTree.{NodeProvider, TreeElement, TreeElementWrapper}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.module.{Module, ModuleManager}
+import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.Key
@@ -37,10 +38,14 @@ import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2RunConfigura
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestRunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, AbstractTestRunConfiguration}
+import org.jetbrains.plugins.scala.util.assertions.failWithCause
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
 import scala.collection.JavaConverters._
+import scala.concurrent.Await
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
+import scala.util.{Failure, Success, Try}
 
 /**
   * @author Roman.Shein
@@ -57,7 +62,7 @@ abstract class ScalaTestingTestCase
 
   override def runInDispatchThread(): Boolean = false
 
-  def debugProcessOutput = false
+  final def debugProcessOutput = false
 
   override protected def addFileToProjectSources(fileName: String, fileText: String): VirtualFile =
     EdtTestUtil.runInEdtAndGet { () =>
@@ -167,11 +172,18 @@ abstract class ScalaTestingTestCase
                                            duration: Int = 3000
                                           ): (String, Option[AbstractTestProxy]) = {
     configurationAssert(runConfig)
+
     assertTrue("runConfig not instance of AbstractRunConfiguration", runConfig.getConfiguration.isInstanceOf[AbstractTestRunConfiguration])
-    val testResultListener = new TestResultListener(runConfig.getName)
+    val testResultListener = new TestResultListener
+    val testStatusListener = new TestStatusListener
     var testTreeRoot: Option[AbstractTestProxy] = None
 
-    EdtTestUtil.runInEdtAndGet(() => {
+    runConfig.getConfiguration.getProject
+      .getMessageBus
+      .connect(getTestRootDisposable)
+      .subscribe(SMTRunnerEventsListener.TEST_STATUS, testStatusListener)
+
+    val (handler, _) = EdtTestUtil.runInEdtAndGet(() => {
       if (needMake) {
         compiler.rebuild().assertNoProblems(allowWarnings = true)
         saveChecksums()
@@ -194,9 +206,56 @@ abstract class ScalaTestingTestCase
       (handler, runContentDescriptor)
     })
 
-    val outputText = testResultListener.waitForTestEnd(duration)
+    val outputText = waitForTestEnd(
+      runConfig.getName,
+      handler,
+      testResultListener,
+      testStatusListener,
+      duration.milliseconds
+    )
+
     (outputText, testTreeRoot)
   }
+
+  private def waitForTestEnd(
+    testConfigurationName: String,
+    handler: ProcessHandler,
+    resultListener: TestResultListener,
+    statusListener: TestStatusListener,
+    duration: FiniteDuration
+  ): String = {
+    val exitCode = Try(Await.result(resultListener.exitCodePromise.future, duration))
+
+    // in case of unprocessed output we want to wait for the process end until the project is disposed
+    handler.getProcessInput.flush()
+    handler.destroyProcess()
+
+    def outputDetails: String = {
+      s"""captured outputs:
+         |${resultListener.outputText}
+         |uncaptured outputs:
+         |${statusListener.uncapturedOutput}
+         |""".stripMargin
+    }
+
+    exitCode match {
+      case Success(0) =>
+      case Success(code) =>
+        fail(
+          s"""test `$testConfigurationName` terminated with error exit code: $code;
+             |$outputDetails
+             |""".stripMargin
+        )
+      case Failure(exception) =>
+        failWithCause(
+          s"""test `$testConfigurationName` did not terminate correctly after ${duration.toMillis} ms;
+             |$outputDetails""".stripMargin,
+          exception
+        )
+    }
+    resultListener.outputTextProgress
+  }
+
 
   private def runProcess(
     runConfiguration: RunnerAndConfigurationSettings,

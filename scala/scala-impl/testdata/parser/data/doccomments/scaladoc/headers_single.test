@@ -1,0 +1,13 @@
+/** =header= */
+-----
+ScalaFile
+  DocComment
+    ScPsiDocToken(DOC_COMMENT_START)('/**')
+    ScDocParagraph
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocSyntaxElement 256
+        ScPsiDocToken(VALID_DOC_HEADER 256)('=')
+        ScPsiDocToken(DOC_COMMENT_DATA)('header')
+        ScPsiDocToken(DOC_HEADER 256)('=')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+    ScPsiDocToken(DOC_COMMENT_END)('*/')

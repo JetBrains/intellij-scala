@@ -41,4 +41,35 @@ class UndoingEtaExpansionTest extends ScalaLightCodeInsightFixtureTestAdapter {
       |foo((x, y) => { bar(x, y) })
       |""".stripMargin
   )
+
+  def testSCL17899(): Unit = checkTextHasNoErrors(
+    """
+      |def foo(f: Int => Int): Int = 1
+      |def foo(f: String => String): String = "2"
+      |def bar(s: String, s2: Int): String = "3"
+      |def bar2(s: String): String = "3"
+      |
+      |foo(a => bar(a, a))
+      |foo(a => bar2(a))
+      |foo(bar2(_))
+      |""".stripMargin
+  )
+
+  def testSCL17899_2(): Unit = checkTextHasNoErrors(
+    """
+      |trait Command
+      |trait User
+      |case class CreateUser(user: User, value: ARef[User]) extends Command
+      |
+      |trait ARef[A] {
+      |  def ask[Res](replyTo: ARef[Res] => A): Res = ???
+      |}
+      |
+      |def createUser(user: User): User = {
+      |  val ref: ARef[Command] = ???
+      |  ref.ask(a => CreateUser(user, a))
+      |  ref.ask(CreateUser(user, _))
+      |  ???
+      |}""".stripMargin
+  )
 }

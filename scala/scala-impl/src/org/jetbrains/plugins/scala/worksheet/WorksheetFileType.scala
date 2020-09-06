@@ -17,7 +17,7 @@ object WorksheetFileType extends LanguageFileTypeBase(WorksheetLanguage.INSTANCE
   override def getDefaultExtension = "sc"
 
   // TODO worksheet logo
-  override def getIcon = ScalaFileType.INSTANCE.getIcon
+  override val getIcon = ScalaFileType.INSTANCE.getIcon
 
   def isWorksheetFile(file: VirtualFile)
                      (implicit project: Project): Boolean = {

@@ -3,9 +3,9 @@ package org.jetbrains.plugins.scala.uast
 import java.io.File
 
 import com.intellij.psi.PsiElement
+import com.intellij.testFramework.EqualsToFile
 import org.jetbrains.uast._
 import org.jetbrains.uast.test.common.RenderLogTestBase
-import org.jetbrains.uast.test.env.AbstractTestWithCoreEnvironmentKt
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 import org.junit.Assert
 
@@ -78,12 +78,12 @@ class SimpleScalaRenderingLogTest
     val renderFile = getTestFile(testName, "render.txt")
     val logFile = getTestFile(testName, "log.txt")
 
-    AbstractTestWithCoreEnvironmentKt.assertEqualsToFile(
+    EqualsToFile.assertEqualsToFile(
       "Render string",
       renderFile,
       file.asRenderString()
     )
-    AbstractTestWithCoreEnvironmentKt.assertEqualsToFile(
+    EqualsToFile.assertEqualsToFile(
       "Log string",
       logFile,
       UastUtils.asRecursiveLogString(file)

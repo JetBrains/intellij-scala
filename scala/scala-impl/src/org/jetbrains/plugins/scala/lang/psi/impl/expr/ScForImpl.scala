@@ -482,7 +482,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
 
   private def hasMethod(ty: ScType, methodName: String): Boolean = {
     var found = false
-    val processor: CompletionProcessor = new CompletionProcessor(StdKinds.methodRef, this, isImplicit = true) {
+    val processor: CompletionProcessor = new CompletionProcessor(StdKinds.methodRef, this, withImplicitConversions = true) {
       override protected def execute(namedElement: PsiNamedElement)
                                     (implicit state: ResolveState): Boolean = {
         super.execute(namedElement)

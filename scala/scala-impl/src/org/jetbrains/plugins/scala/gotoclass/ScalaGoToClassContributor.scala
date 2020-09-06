@@ -28,8 +28,8 @@ class ScalaGoToClassContributor extends GotoClassContributor {
 
     implicit val projectCopy: Project = project
 
-    val classes = NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY.elements(cleanName, scope, classOf[PsiClass])
-    val packageObjects = PACKAGE_OBJECT_SHORT_NAME_KEY.elements(cleanName, scope, classOf[PsiClass])
+    val classes = NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY.elements(cleanName, scope)
+    val packageObjects = PACKAGE_OBJECT_SHORT_NAME_KEY.elements(cleanName, scope)
     (classes ++ packageObjects).toArray
   }
 

@@ -69,7 +69,7 @@ trait ScReferenceExpression extends ScExpression
   def getSimpleVariants(incomplete: Boolean = true,
                         completion: Boolean = false,
                         implicits: Boolean = false): Seq[ScalaResolveResult] =
-    doResolve(new CompletionProcessor(getKinds(incomplete, completion), this, isImplicit = implicits))
+    doResolve(new CompletionProcessor(getKinds(incomplete, completion), this, withImplicitConversions = implicits))
 }
 
 object ScReferenceExpression {

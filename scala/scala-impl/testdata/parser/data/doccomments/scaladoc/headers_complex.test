@@ -1,0 +1,69 @@
+/**
+ * ==header=1= == =notaheader 2====== bfejwhbfiewfh upw
+ * ==closed by paragraph header 3
+ *
+ * ===closed by another header 4=
+ * ==header 5==
+ *=loooooooooooooooooooooooooooooooooooooooooooong
+ * header 6=
+ */
+-----
+ScalaFile
+  DocComment
+    ScPsiDocToken(DOC_COMMENT_START)('/**')
+    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    ScDocParagraph
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocSyntaxElement 256
+        ScPsiDocToken(VALID_DOC_HEADER 256)('==')
+        ScPsiDocToken(DOC_COMMENT_DATA)('header')
+        ScPsiDocToken(DOC_HEADER 256)('=')
+        ScPsiDocToken(DOC_COMMENT_DATA)('1')
+        ScPsiDocToken(DOC_HEADER 256)('=')
+        ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+        ScPsiDocToken(DOC_HEADER 256)('==')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      ScPsiDocToken(DOC_HEADER 256)('=')
+      ScPsiDocToken(DOC_COMMENT_DATA)('notaheader 2')
+      ScPsiDocToken(DOC_HEADER 256)('======')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' bfejwhbfiewfh upw')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocSyntaxElement 256
+        ScPsiDocToken(VALID_DOC_HEADER 256)('==')
+        ScPsiDocToken(DOC_COMMENT_DATA)('closed by paragraph header 3')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      PsiErrorElement:Wiki syntax element closed by new paragraph
+        <empty list>
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    ScDocParagraph
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocSyntaxElement 256
+        ScPsiDocToken(VALID_DOC_HEADER 256)('===')
+        ScPsiDocToken(DOC_COMMENT_DATA)('closed by another header 4')
+        ScPsiDocToken(DOC_HEADER 256)('=')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        PsiErrorElement:Header closed by opening new one
+          <empty list>
+      DocSyntaxElement 256
+        ScPsiDocToken(VALID_DOC_HEADER 256)('==')
+        ScPsiDocToken(DOC_COMMENT_DATA)('header 5')
+        ScPsiDocToken(DOC_HEADER 256)('==')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocSyntaxElement 256
+        ScPsiDocToken(VALID_DOC_HEADER 256)('=')
+        ScPsiDocToken(DOC_COMMENT_DATA)('loooooooooooooooooooooooooooooooooooooooooooong')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('header 6')
+        ScPsiDocToken(DOC_HEADER 256)('=')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_END)('*/')

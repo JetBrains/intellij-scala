@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang
-package parser.parsing
+package parser
+package parsing
 package builder
 
 import com.intellij.lang.PsiBuilder
@@ -118,4 +119,18 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) 
   override def error(messageText: String): Unit =
     if (!ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(getProject))
       super.error(messageText)
+
+  private var indentationStack = List(IndentationWidth.initial)
+
+  override def currentIndentationWidth: IndentationWidth =
+    indentationStack.head
+
+  override def pushIndentationWidth(width: IndentationWidth): Unit =
+    indentationStack ::= width
+
+  override def popIndentationWidth(): IndentationWidth = {
+    val top :: rest = indentationStack
+    indentationStack = rest
+    top
+  }
 }

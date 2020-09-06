@@ -77,14 +77,8 @@ object ScalaTestAstTransformer {
   }
 
   private def getSelectedAstNode(className: String, element: PsiElement): Option[AstNode] = {
-    @tailrec
-    def inner(el: PsiElement): Option[AstNode] =
-      transformNode(className, el) match {
-        case None => inner(el.getParent)
-        case some => some
-      }
-
-    val astNode = inner(element)
+    val withParentsNodes = element.withParents.flatMap(transformNode(className, _))
+    val astNode = withParentsNodes.headOption
     astNode
   }
 

@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala.testingSupport.test.sbt
 
 import com.intellij.openapi.module.Module
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.SettingMap
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.shell.{SbtShellCommunication, SettingQueryHandler}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-private[test]
+@ApiStatus.Internal
 object SbtShellTestsRunner {
 
   def runTestsInSbtShell(

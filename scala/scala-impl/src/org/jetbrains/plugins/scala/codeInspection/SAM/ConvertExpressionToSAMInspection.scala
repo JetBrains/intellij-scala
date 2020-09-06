@@ -1,14 +1,14 @@
-package org.jetbrains.plugins.scala.codeInspection.SAM
+package org.jetbrains.plugins.scala
+package codeInspection
+package SAM
 
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
@@ -26,7 +26,7 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionName
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case definition: ScNewTemplateDefinition
-      if definition.isSAMEnabled && containsSingleFunction(definition) =>
+      if definition.isSAMEnabled && containsSingleFunction(definition) && !hasConstructorArgs(definition)  =>
       definition.expectedTypes().flatMap {
         SAMUtil.toSAMType(_, definition)
       } match {
@@ -44,6 +44,12 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionName
 
     newTd.extendsBlock.templateBody
       .exists(hasSingleFunction)
+  }
+
+  private def hasConstructorArgs(newTd: ScNewTemplateDefinition): Boolean = {
+    // this is for arguments passed to java constructors or secondary constructors
+    // we don't have to check for implicits or desugared stuff because SAMUtil.toSAMType will take care of that
+    newTd.constructorInvocation.exists(_.arguments.nonEmpty)
   }
 
   private def inspectAccordingToExpectedType(expected: ScType, definition: ScNewTemplateDefinition, holder: ProblemsHolder): Unit = {

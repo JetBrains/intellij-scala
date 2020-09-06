@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScPackaging}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocTag}
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocListItem, ScDocTag}
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.MultilineQuotes
@@ -120,10 +120,10 @@ class getDummyBlocks(private val block: ScalaBlock) {
     }
 
   private def applyInner(node: ASTNode): util.ArrayList[Block] = {
-    val children = node.getChildren(null)
     val subBlocks = new util.ArrayList[Block]
 
-    node.getPsi match {
+    val nodePsi = node.getPsi
+    nodePsi match {
       case _: ScValue | _: ScVariable if cs.ALIGN_GROUP_FIELD_DECLARATIONS =>
         subBlocks.addAll(getFieldGroupSubBlocks(node))
         return subBlocks
@@ -142,7 +142,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
         subBlocks.addAll(getExtendsSubBlocks(node, extendsBlock))
         return subBlocks
       case _: ScFor =>
-        subBlocks.addAll(getForSubBlocks(node, children))
+        subBlocks.addAll(getForSubBlocks(node, node.getChildren(null)))
         return subBlocks
       case _: ScReferenceExpression | _: ScThisReference | _: ScSuperReference =>
         subBlocks.addAll(getMethodCallOrRefExprSubBlocks(node))
@@ -155,7 +155,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
         subBlocks.addAll(getMultilineStringBlocks(node))
         return subBlocks
       case pack: ScPackaging if pack.isExplicit =>
-        val correctChildren = children.filter(isCorrectBlock)
+        val correctChildren = node.getChildren(null).filter(isCorrectBlock)
         val (beforeOpenBrace, afterOpenBrace) = correctChildren.span(_.getElementType != tLBRACE)
         val hasValidTail = afterOpenBrace.nonEmpty && afterOpenBrace.head.getElementType == tLBRACE &&
           afterOpenBrace.last.getElementType == tRBRACE
@@ -167,67 +167,18 @@ class getDummyBlocks(private val block: ScalaBlock) {
         }
         return subBlocks
       case _: ScDocComment =>
-        var scalaDocPrevChildTag: Option[String] = None
-        var contextAlignment: Alignment = Alignment.createAlignment(true)
-        val alignment = createAlignment(node)
-        for (child <- children if isCorrectBlock(child)) {
-          val context = (child.getElementType match {
-            case ScalaDocElementTypes.DOC_TAG =>
-              val currentTag = Option(child.getFirstChildNode).filter(_.getElementType == ScalaDocTokenType.DOC_TAG_NAME).map(_.getText)
-              if (scalaDocPrevChildTag.isEmpty || scalaDocPrevChildTag != currentTag) {
-                contextAlignment = Alignment.createAlignment(true)
-              }
-              scalaDocPrevChildTag = currentTag
-              Some(contextAlignment)
-            case _ => None
-          }).map(a => new SubBlocksContext(alignment = Some(a)))
-          subBlocks.add(subBlock(child, null, alignment, context = context))
-        }
+        addScalaDocCommentSubBlocks(node, subBlocks)
         return subBlocks
-      case _ if node.getElementType == ScalaDocElementTypes.DOC_TAG =>
-        val docTag = node.getPsi.asInstanceOf[ScDocTag]
 
-        @tailrec
-        def getNonWsSiblings(firstNode: ASTNode, acc: List[ASTNode] = List()): List[ASTNode] =
-          if (firstNode == null) {
-            acc.reverse
-          } else if (ScalaDocNewlinedPreFormatProcessor.isWhiteSpace(firstNode)) {
-            getNonWsSiblings(firstNode.getTreeNext, acc)
-          } else {
-            getNonWsSiblings(firstNode.getTreeNext, firstNode :: acc)
-          }
-
-        val childBlocks = getNonWsSiblings(docTag.getFirstChild.getNode)
-        //TODO whitespace between tag name and tag parameter (like in @param x) has type "DOC_COMMENT_DATA"
-        //while it should be DOC_WHITESPACE
-        childBlocks match {
-          case tagName :: space :: tagParameter :: tail
-            if Option(docTag.getValueElement).map(_.getNode).contains(tagParameter) =>
-
-            subBlocks.add(subBlock(tagName))
-            subBlocks.add(subBlock(space))
-            subBlocks.add(subBlock(tagParameter, tail.lastOption.orNull))
-          case tagName :: tail
-            if Option(docTag.getNameElement).map(_.getNode).contains(tagName) =>
-
-            subBlocks.add(subBlock(tagName))
-            if (tail.nonEmpty) {
-              val (leadingAsterisks, other) = tail.span(_.getElementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS)
-              leadingAsterisks.foreach { a =>
-                subBlocks.add(subBlock(a))
-              }
-              if (other.nonEmpty) {
-                subBlocks.add(subBlock(other.head, other.last))
-              }
-            }
-          case _ =>
-        }
+      case docTag: ScDocTag =>
+        addScalaDocTagSubBlocks(docTag, subBlocks)
         return subBlocks
+
       case interpolated: ScInterpolatedStringLiteral =>
         //create and store alignment; required for support of multi-line interpolated strings (SCL-8665)
         alignmentsMap(interpolated.getProject).put(interpolated.createSmartPointer, buildQuotesAndMarginAlignments)
       case psi@(_: ScValueOrVariable | _: ScFunction) if node.getFirstChildNode.getPsi.isInstanceOf[PsiComment] =>
-        val childrenFiltered: Array[ASTNode] = children.filter(isCorrectBlock)
+        val childrenFiltered: Array[ASTNode] = node.getChildren(null).filter(isCorrectBlock)
         val childHead :: childTail = childrenFiltered.toList
         subBlocks.add(subBlock(childHead))
         val indent: Indent = {
@@ -250,75 +201,11 @@ class getDummyBlocks(private val block: ScalaBlock) {
       case _ =>
     }
 
-    val alignment: Alignment = createAlignment(node)
+    val sharedAlignment: Alignment = createAlignment(node)
+
+    val children = node.getChildren(null)
     for (child <- children if isCorrectBlock(child)) {
-      val childAlignment: Alignment = {
-        node.getPsi match {
-          case params: ScParameters =>
-            val firstParameterStartsFromNewLine =
-              commonSettings.METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE ||
-                params.clauses.headOption.flatMap(_.parameters.headOption).forall(_.startsFromNewLine())
-            if (firstParameterStartsFromNewLine && !scalaSettings.INDENT_FIRST_PARAMETER) null
-            else alignment
-          case _: ScParameterClause =>
-            child.getElementType match {
-              case `tRPARENTHESIS` | `tLPARENTHESIS` => null
-              case _ => alignment
-            }
-          case _: ScArgumentExprList =>
-            child.getElementType match {
-              case `tRPARENTHESIS` if cs.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => alignment
-              case `tRPARENTHESIS` | `tLPARENTHESIS` => null
-              case ScCodeBlockElementType.BlockExpression if ss.DO_NOT_ALIGN_BLOCK_EXPR_PARAMS => null
-              case _ if cs.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => alignment
-              case _ => null
-            }
-          case patt: ScPatternArgumentList =>
-            child.getElementType match {
-              case `tRPARENTHESIS` if cs.ALIGN_MULTILINE_PARAMETERS_IN_CALLS && patt.missedLastExpr => alignment
-              case `tRPARENTHESIS` | `tLPARENTHESIS` => null
-              case ScCodeBlockElementType.BlockExpression if ss.DO_NOT_ALIGN_BLOCK_EXPR_PARAMS => null
-              case _ if cs.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => alignment
-              case _ => null
-            }
-          case _: ScMethodCall | _: ScReferenceExpression =>
-            if (child.getElementType == tIDENTIFIER &&
-              child.getPsi.getParent.isInstanceOf[ScReferenceExpression] &&
-              child.getPsi.getParent.asInstanceOf[ScReferenceExpression].qualifier.isEmpty) null
-            else if (child.getPsi.isInstanceOf[ScExpression]) null
-            else alignment
-          case _: ScXmlStartTag | _: ScXmlEmptyTag =>
-            child.getElementType match {
-              case ScalaElementType.XML_ATTRIBUTE => alignment
-              case _ => null
-            }
-          case _: ScXmlElement =>
-            child.getElementType match {
-              case ScalaElementType.XML_START_TAG | ScalaElementType.XML_END_TAG => alignment
-              case _ => null
-            }
-          case _: ScParameter =>
-            child.getElementType match {
-              case `tCOLON` if ss.ALIGN_TYPES_IN_MULTILINE_DECLARATIONS =>
-                child.getPsi.nullSafe.map(_.getParent).map(_.getParent).map { rootPsi =>
-                  val map = multiLevelAlignmentMap(rootPsi.getProject)
-                  map.get(tCOLON).flatMap(_.find(_.shouldAlign(child))) match {
-                    case Some(multiAlignment) => multiAlignment.getAlignment
-                    case None =>
-                      val multiAlignment = ElementPointerAlignmentStrategy.typeMultiLevelAlignment(rootPsi)
-                      assert(multiAlignment.shouldAlign(child))
-                      map.update(tCOLON, multiAlignment :: map.getOrElse(tCOLON, List()))
-                      multiAlignment.getAlignment
-                  }
-                }.getOrElse(alignment)
-              case _ => alignment
-            }
-          case literal: ScInterpolatedStringLiteral if child.getElementType == tINTERPOLATED_STRING_END =>
-            cachedAlignment(literal).map(_._1).orNull
-          case _ =>
-            alignment
-        }
-      }
+      val childAlignment: Alignment = calcChildAlignment(node, child, sharedAlignment)
 
       val needFlattenInterpolatedStrings = child.getFirstChildNode == null &&
         child.getElementType == tINTERPOLATED_MULTILINE_STRING &&
@@ -332,6 +219,148 @@ class getDummyBlocks(private val block: ScalaBlock) {
 
     subBlocks
   }
+
+  private def calcChildAlignment(parent: ASTNode, child: ASTNode, sharedAlignment: Alignment): Alignment =
+    parent.getPsi match {
+      case _: ScDocListItem if scalaSettings.SD_ALIGN_LIST_ITEM_CONTENT =>
+        val doNotAlignInListItem = child.getElementType match {
+          case ScalaDocTokenType.DOC_LIST_ITEM_HEAD |
+               ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS |
+               ScalaDocTokenType.DOC_WHITESPACE |
+               ScalaDocTokenType.DOC_INNER_CODE_TAG |
+               ScalaDocElementTypes.DOC_LIST => true
+          case _ => false
+        }
+        if (doNotAlignInListItem) null
+        else sharedAlignment
+      case params: ScParameters                                         =>
+        val firstParameterStartsFromNewLine =
+          commonSettings.METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE ||
+            params.clauses.headOption.flatMap(_.parameters.headOption).forall(_.startsFromNewLine())
+        if (firstParameterStartsFromNewLine && !scalaSettings.INDENT_FIRST_PARAMETER) null
+        else sharedAlignment
+      case _: ScParameterClause =>
+        child.getElementType match {
+          case `tRPARENTHESIS` | `tLPARENTHESIS` => null
+          case _ => sharedAlignment
+        }
+      case _: ScArgumentExprList =>
+        child.getElementType match {
+          case `tRPARENTHESIS` if cs.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => sharedAlignment
+          case `tRPARENTHESIS` | `tLPARENTHESIS` => null
+          case ScCodeBlockElementType.BlockExpression if ss.DO_NOT_ALIGN_BLOCK_EXPR_PARAMS => null
+          case _ if cs.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => sharedAlignment
+          case _ => null
+        }
+      case patt: ScPatternArgumentList =>
+        child.getElementType match {
+          case `tRPARENTHESIS` if cs.ALIGN_MULTILINE_PARAMETERS_IN_CALLS && patt.missedLastExpr => sharedAlignment
+          case `tRPARENTHESIS` | `tLPARENTHESIS` => null
+          case ScCodeBlockElementType.BlockExpression if ss.DO_NOT_ALIGN_BLOCK_EXPR_PARAMS => null
+          case _ if cs.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => sharedAlignment
+          case _ => null
+        }
+      case _: ScMethodCall | _: ScReferenceExpression =>
+        if (child.getElementType == tIDENTIFIER &&
+          child.getPsi.getParent.isInstanceOf[ScReferenceExpression] &&
+          child.getPsi.getParent.asInstanceOf[ScReferenceExpression].qualifier.isEmpty) null
+        else if (child.getPsi.isInstanceOf[ScExpression]) null
+        else sharedAlignment
+      case _: ScXmlStartTag | _: ScXmlEmptyTag =>
+        child.getElementType match {
+          case ScalaElementType.XML_ATTRIBUTE => sharedAlignment
+          case _ => null
+        }
+      case _: ScXmlElement =>
+        child.getElementType match {
+          case ScalaElementType.XML_START_TAG | ScalaElementType.XML_END_TAG => sharedAlignment
+          case _ => null
+        }
+      case _: ScParameter =>
+        child.getElementType match {
+          case `tCOLON` if ss.ALIGN_TYPES_IN_MULTILINE_DECLARATIONS =>
+            child.getPsi.nullSafe.map(_.getParent).map(_.getParent).map { rootPsi =>
+              val map = multiLevelAlignmentMap(rootPsi.getProject)
+              map.get(tCOLON).flatMap(_.find(_.shouldAlign(child))) match {
+                case Some(multiAlignment) => multiAlignment.getAlignment
+                case None =>
+                  val multiAlignment = ElementPointerAlignmentStrategy.typeMultiLevelAlignment(rootPsi)
+                  assert(multiAlignment.shouldAlign(child))
+                  map.update(tCOLON, multiAlignment :: map.getOrElse(tCOLON, List()))
+                  multiAlignment.getAlignment
+              }
+            }.getOrElse(sharedAlignment)
+          case _ => sharedAlignment
+        }
+      case literal: ScInterpolatedStringLiteral if child.getElementType == tINTERPOLATED_STRING_END =>
+        cachedAlignment(literal).map(_._1).orNull
+      case _ =>
+        sharedAlignment
+    }
+
+  private def addScalaDocCommentSubBlocks(docCommentNode: ASTNode, subBlocks: util.ArrayList[Block]): Unit = {
+    val node = docCommentNode
+    val alignment = createAlignment(node)
+
+    var prevTagName            : Option[String] = None
+    var lastTagContextAlignment: Alignment      = Alignment.createAlignment(true)
+    for (child <- node.getChildren(null) if isCorrectBlock(child)) {
+      val tagContextAlignment = child.getElementType match {
+        case ScalaDocElementTypes.DOC_TAG =>
+          val tagName = child.getFirstChildNode.withTreeNextNodes.find(_.getElementType == ScalaDocTokenType.DOC_TAG_NAME).map(_.getText)
+          if (prevTagName.isEmpty || prevTagName != tagName)
+            lastTagContextAlignment = Alignment.createAlignment(true)
+          prevTagName = tagName
+          Some(lastTagContextAlignment)
+        case _                            => None
+      }
+
+      val context = tagContextAlignment.map(a => new SubBlocksContext(alignment = Some(a)))
+      subBlocks.add(subBlock(child, null, alignment, context = context))
+    }
+  }
+
+
+  private def addScalaDocTagSubBlocks(docTag: ScDocTag, subBlocks: util.ArrayList[Block]): Unit = {
+    import ScalaDocTokenType._
+
+    val children = docTag.getNode.getFirstChildNode.withTreeNextNodes.toList
+    val (childrenLeading, childrenFromNameElement) =
+      children.span(_.getElementType != ScalaDocTokenType.DOC_TAG_NAME)
+
+    /**
+     * tag can start not from name element, this can happen e.g. when asterisks
+     * is added in [[org.jetbrains.plugins.scala.lang.formatting.processors.ScalaDocNewlinedPreFormatProcessor]]
+     * also it can contain leading white space
+     */
+    childrenLeading.foreach { c =>
+      if (!FormatterUtil.isDocWhiteSpace(c))
+        subBlocks.add(subBlock(c))
+    }
+
+    childrenFromNameElement match {
+      case tagName :: space :: tagParameter :: tail
+        if Option(docTag.getValueElement).exists(_.getNode == tagParameter) =>
+
+        subBlocks.add(subBlock(tagName))
+        subBlocks.add(subBlock(tagParameter, tail.lastOption.orNull))
+      case tagName :: tail =>
+        subBlocks.add(subBlock(tagName))
+
+        if (tail.nonEmpty) {
+          val (leadingAsterisks, other) = tail
+            .filterNot(FormatterUtil.isDocWhiteSpace)
+            .span(_.getElementType == DOC_COMMENT_LEADING_ASTERISKS)
+          leadingAsterisks.foreach { c =>
+            subBlocks.add(subBlock(c))
+          }
+          if (other.nonEmpty)
+            subBlocks.add(subBlock(other.head, other.last))
+        }
+      case _ =>
+    }
+  }
+
 
   private def getCaseClauseGroupSubBlocks(node: ASTNode): util.ArrayList[Block] = {
     val children = node.getChildren(null).filter(isCorrectBlock)
@@ -361,7 +390,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
 
     var prevChild: ASTNode = null
     for (child <- children) {
-      val childAlignment = getChildAlignment(node, child)(getPrevGroupNode)(FunctionTypeTokenSet)
+      val childAlignment = calcGtoupChildAlignment(node, child)(getPrevGroupNode)(FunctionTypeTokenSet)
       subBlocks.add(subBlock(child, null, childAlignment))
       prevChild = child
     }
@@ -418,7 +447,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
     var prevChild: ASTNode = null
     for (child <- children) {
       //TODO process rare case of first-line comment before one of the fields  for SCL-10000 here
-      val childAlignment = getChildAlignment(node, child)(getPrevGroupNode)(FieldGroupSubBlocksTokenSet)
+      val childAlignment = calcGtoupChildAlignment(node, child)(getPrevGroupNode)(FieldGroupSubBlocksTokenSet)
       subBlocks.add(subBlock(child, null, childAlignment))
       prevChild = child
     }
@@ -426,9 +455,9 @@ class getDummyBlocks(private val block: ScalaBlock) {
   }
 
   @tailrec
-  private def getChildAlignment(node: ASTNode, child: ASTNode)
-                               (getPrevGroupNode: PsiElement => ASTNode)
-                               (implicit tokenSet: TokenSet): Alignment = {
+  private def calcGtoupChildAlignment(node: ASTNode, child: ASTNode)
+                                     (getPrevGroupNode: PsiElement => ASTNode)
+                                     (implicit tokenSet: TokenSet): Alignment = {
     def createNewAlignment: Alignment = {
       val alignment = Alignment.createAlignment(true)
       child.getPsi.putUserData(fieldGroupAlignmentKey, alignment)
@@ -442,7 +471,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
           case null => createNewAlignment
           case _ =>
             prev.findChildByType(elementType) match {
-              case null => getChildAlignment(prev, child)(getPrevGroupNode)
+              case null => calcGtoupChildAlignment(prev, child)(getPrevGroupNode)
               case prevChild =>
                 val newAlignment = prevChild.getPsi.getUserData(fieldGroupAlignmentKey) match {
                   case null => createNewAlignment
@@ -534,10 +563,10 @@ class getDummyBlocks(private val block: ScalaBlock) {
   private def getIfSubBlocks(node: ASTNode, alignment: Alignment): util.ArrayList[Block] = {
     val subBlocks = new util.ArrayList[Block]
 
-    val firstChildFirstNode = node.getFirstChildNode
+    val firstChildFirstNode = node.getFirstChildNode // `if`
     val firstChildLastNode = firstChildFirstNode
       .treeNextNodes
-      .takeWhile(e => e.getElementType != kELSE && !isComment(e))
+      .takeWhile(_.getElementType != kELSE)
       .lastOption
       .getOrElse(firstChildFirstNode)
 
@@ -769,29 +798,29 @@ class getDummyBlocks(private val block: ScalaBlock) {
   private def isComment(node: ASTNode) = COMMENTS_TOKEN_SET.contains(node.getElementType)
 
   private def createAlignment(node: ASTNode): Alignment = {
-    if (mustAlignment(node)) Alignment.createAlignment
-    else null
-  }
-
-  private def mustAlignment(node: ASTNode): Boolean = {
     import commonSettings._
+    import Alignment.{createAlignment => create}
     node.getPsi match {
-      case _: ScXmlStartTag => true //todo:
-      case _: ScXmlEmptyTag => true //todo:
-      case _: ScParameters if ALIGN_MULTILINE_PARAMETERS => true
-      case _: ScParameterClause if ALIGN_MULTILINE_PARAMETERS => true
-      case _: ScArgumentExprList if ALIGN_MULTILINE_PARAMETERS_IN_CALLS => true
-      case _: ScPatternArgumentList if ALIGN_MULTILINE_PARAMETERS_IN_CALLS => true
-      case _: ScEnumerators if ALIGN_MULTILINE_FOR => true
-      case _: ScParenthesisedExpr if ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true
-      case _: ScParenthesisedTypeElement if ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true
-      case _: ScParenthesisedPattern if ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true
-      case _: ScInfixExpr if ALIGN_MULTILINE_BINARY_OPERATION => true
-      case _: ScInfixPattern if ALIGN_MULTILINE_BINARY_OPERATION => true
-      case _: ScInfixTypeElement if ALIGN_MULTILINE_BINARY_OPERATION => true
-      case _: ScCompositePattern if ss.ALIGN_COMPOSITE_PATTERN => true
-      case _: ScMethodCall | _: ScReferenceExpression | _: ScThisReference | _: ScSuperReference if ALIGN_MULTILINE_CHAINED_METHODS => true
-      case _ => false
+      case _: ScXmlStartTag                                                          => create //todo:
+      case _: ScXmlEmptyTag                                                          => create //todo:
+      case _: ScParameters if ALIGN_MULTILINE_PARAMETERS                             => create
+      case _: ScParameterClause if ALIGN_MULTILINE_PARAMETERS                        => create
+      case _: ScArgumentExprList if ALIGN_MULTILINE_PARAMETERS_IN_CALLS              => create
+      case _: ScPatternArgumentList if ALIGN_MULTILINE_PARAMETERS_IN_CALLS           => create
+      case _: ScEnumerators if ALIGN_MULTILINE_FOR                                   => create
+      case _: ScParenthesisedExpr if ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION        => create
+      case _: ScParenthesisedTypeElement if ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => create
+      case _: ScParenthesisedPattern if ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION     => create
+      case _: ScInfixExpr if ALIGN_MULTILINE_BINARY_OPERATION                        => create
+      case _: ScInfixPattern if ALIGN_MULTILINE_BINARY_OPERATION                     => create
+      case _: ScInfixTypeElement if ALIGN_MULTILINE_BINARY_OPERATION                 => create
+      case _: ScCompositePattern if ss.ALIGN_COMPOSITE_PATTERN                       => create
+      case _: ScMethodCall |
+           _: ScReferenceExpression |
+           _: ScThisReference |
+           _: ScSuperReference if ALIGN_MULTILINE_CHAINED_METHODS => create
+      case _: ScDocListItem if ss.SD_ALIGN_LIST_ITEM_CONTENT      => create(true)
+      case _                                                      => null
     }
   }
 
@@ -835,14 +864,17 @@ class getDummyBlocks(private val block: ScalaBlock) {
   }
 
   private def insideScalaDocComment(node: ASTNode): Boolean = {
-    val insideIncompleteScalaDocTag =
-      node.getTreeParent.nullSafe.exists(_.getElementType == ScalaDocElementTypes.DOC_TAG) &&
+    val insideIncompleteScalaDocTag = {
+      val parent = node.getTreeParent
+      parent!= null && parent.getElementType == ScalaDocElementTypes.DOC_TAG &&
         node.getPsi.isInstanceOf[PsiErrorElement]
-    ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(node.getElementType) || insideIncompleteScalaDocTag
+    }
+    ScalaDocElementTypes.AllElementAndTokenTypes.contains(node.getElementType) || insideIncompleteScalaDocTag
   }
 
   private def applyInnerScaladoc(node: ASTNode, lastNode: ASTNode, subBlocks: util.List[Block]): Unit = {
-    val children = ArrayBuffer[ASTNode]()
+    val parent = node.getTreeParent
+
     var scaladocNode = node.getElementType match {
       case ScalaDocTokenType.DOC_TAG_VALUE_TOKEN =>
         subBlocks.add(subBlock(node, indent = Some(Indent.getNoneIndent)))
@@ -851,55 +883,71 @@ class getDummyBlocks(private val block: ScalaBlock) {
         node
     }
 
+    val children = ArrayBuffer[ASTNode]()
     do {
-      if (scaladocNode.getText.contains("\n")) {
+      if (needFlattenDocElementChildren(scaladocNode)) {
         flattenChildren(scaladocNode, children)
       } else {
         children += scaladocNode
       }
-    } while (scaladocNode != lastNode && (scaladocNode = scaladocNode.getTreeNext, true)._2)
+    } while (scaladocNode != lastNode && { scaladocNode = scaladocNode.getTreeNext; true })
 
     val normalAlignment =
       block.parentBlock.subBlocksContext.flatMap(_.alignment)
         .getOrElse(Alignment.createAlignment(true))
 
     children.view.filter(isCorrectBlock).foreach { child =>
-      val firstSibling = node.getTreeParent.getFirstChildNode
+      import ScalaDocTokenType._
+
       val childType = child.getElementType
 
-      val isDataInsideDocTag =
-        node.getTreeParent.getElementType == ScalaDocElementTypes.DOC_TAG &&
-          childType != ScalaDocTokenType.DOC_WHITESPACE &&
-          childType != ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS &&
-          child != firstSibling &&
-          firstSibling.getElementType == ScalaDocTokenType.DOC_TAG_NAME &&
-          child.getText.trim.length > 0
+      val isDataInsideDocTag: Boolean =
+        parent.getElementType == ScalaDocElementTypes.DOC_TAG && (childType match {
+          case DOC_WHITESPACE | DOC_COMMENT_LEADING_ASTERISKS | DOC_TAG_NAME => false
+          case _ => true
+        })
 
       val (childAlignment, childWrap) =
         if (isDataInsideDocTag) {
-          val docTagName = firstSibling.getText
+          val tagElement = parent.getPsi.asInstanceOf[ScDocTag]
+          val tagNameElement = tagElement.getNameElement
+          val tagName = tagNameElement.getText
 
-          val alignment = docTagName match {
-            case _ if childType == ScalaDocTokenType.DOC_INNER_CODE => null
-            case _ if childType == ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG => null
-            case _ if childType == ScalaDocTokenType.DOC_INNER_CODE_TAG => null
-            case "@param" | "@tparam" => if (ss.SD_ALIGN_PARAMETERS_COMMENTS) normalAlignment else null
-            case "@return" => if (ss.SD_ALIGN_RETURN_COMMENTS) normalAlignment else null
-            case "@throws" => if (ss.SD_ALIGN_EXCEPTION_COMMENTS) normalAlignment else null
-            case _ => if (ss.SD_ALIGN_OTHER_TAGS_COMMENTS) normalAlignment else null
+          val alignment = childType match {
+            case DOC_INNER_CODE |
+                 DOC_INNER_CLOSE_CODE_TAG |
+                 DOC_INNER_CODE_TAG |
+                 ScalaDocElementTypes.DOC_LIST => null
+            case _ =>
+              tagName match {
+                case "@param" | "@tparam" => if (ss.SD_ALIGN_PARAMETERS_COMMENTS) normalAlignment else null
+                case "@return"            => if (ss.SD_ALIGN_RETURN_COMMENTS) normalAlignment else null
+                case "@throws"            => if (ss.SD_ALIGN_EXCEPTION_COMMENTS) normalAlignment else null
+                case _                    => if (ss.SD_ALIGN_OTHER_TAGS_COMMENTS) normalAlignment else null
+              }
           }
           val noWrap = Wrap.createWrap(WrapType.NONE, false)
           (alignment, noWrap)
         } else {
           (null, arrangeSuggestedWrapForChild(block, child, block.suggestedWrap))
         }
+
       subBlocks.add(subBlock(child, null, childAlignment, wrap = Some(childWrap)))
     }
   }
 
+  private def needFlattenDocElementChildren(node: ASTNode): Boolean = {
+    val check1 = node.getElementType match {
+      case ScalaDocElementTypes.DOC_PARAGRAPH => true
+      case ScalaDocElementTypes.DOC_LIST      => false
+      case _                                  => node.textContains('\n')
+    }
+    check1 && node.getFirstChildNode != null
+  }
+
   private def flattenChildren(multilineNode: ASTNode, buffer: ArrayBuffer[ASTNode]): Unit =
     for (nodeChild <- multilineNode.getChildren(null))
-      if (nodeChild.textContains('\n') && nodeChild.getFirstChildNode != null)
+      if (needFlattenDocElementChildren(nodeChild))
         flattenChildren(nodeChild, buffer)
       else
         buffer += nodeChild

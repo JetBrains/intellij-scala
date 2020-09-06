@@ -4,7 +4,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiTypeExt, SeqExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiTypeExt, TraversableExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
@@ -35,7 +35,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_13, Scala_2_12}
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_12, Scala_2_13}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
@@ -199,13 +199,19 @@ class ExpectedTypesImpl extends ExpectedTypes {
     /** Produce expected type by lub-ing parameter types of alternatives
      * Do nothing if [[e]] is a method reference or function literal with
      * explicit type ascriptions. */
-    def lubParamTpes(altParams: List[FunctionLikeTpe]): Option[ScType] =
+    def lubParamTpes(alts: List[FunctionLikeTpe]): Option[ScType] =
       e match {
         case ref: ScReferenceExpression if !ScUnderScoreSectionUtil.isUnderscoreFunction(ref) => None
         case fn: ScFunctionExpr if fn.parameters.forall(_.typeElement.isDefined)              => None
         case _ =>
-          val paramLubs = altParams.map(_.paramTpes).transpose.map(_.lub())
-          FunctionType((Any, paramLubs)).toOption
+          val expectedSize = alts.head.paramTpes.size
+          val altParams    = alts.map(_.paramTpes)
+
+          if (altParams.exists(_.size != expectedSize)) None
+          else {
+            val paramLubs = altParams.transpose.map(_.lub())
+            FunctionType((Any, paramLubs)).toOption
+          }
       }
 
     /** Filter expected type alternatives by arity,

@@ -6,14 +6,14 @@ package elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParameterizedTypeElement, ScParenthesisedTypeElement, ScSimpleTypeElement, ScTypeElement}
+import com.intellij.psi.stubs.IndexSink
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.stubs.StubInputStream
+import com.intellij.psi.stubs.StubOutputStream
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScExtendsBlockStubImpl
-
-import scala.annotation.tailrec
-import scala.collection.Seq
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
 
 /**
   * @author ilyas
@@ -35,7 +35,7 @@ class ScExtendsBlockElementType extends ScStubElementType[ScExtendsBlockStub, Sc
                               parentStub: StubElement[_ <: PsiElement]) = new ScExtendsBlockStubImpl(
     parentStub,
     this,
-    baseClasses = ScExtendsBlockElementType.directSupersNames(block)
+    baseClasses = ScalaInheritors.directSupersNames(block)
   )
 
   override def indexStub(stub: ScExtendsBlockStub, sink: IndexSink): Unit = {
@@ -45,37 +45,4 @@ class ScExtendsBlockElementType extends ScStubElementType[ScExtendsBlockStub, Sc
   override def createElement(node: ASTNode) = new ScExtendsBlockImpl(node)
 
   override def createPsi(stub: ScExtendsBlockStub) = new ScExtendsBlockImpl(stub)
-}
-
-private object ScExtendsBlockElementType {
-
-  private def directSupersNames(extBlock: ScExtendsBlock): Array[String] = {
-    @tailrec
-    def refName(te: ScTypeElement): Option[String] = {
-      te match {
-        case simpleType: ScSimpleTypeElement => simpleType.reference.map(_.refName)
-        case infixType: ScInfixTypeElement => Option(infixType.operation).map(_.refName)
-        case x: ScParameterizedTypeElement => refName(x.typeElement)
-        case x: ScParenthesisedTypeElement =>
-          x.innerElement match {
-            case Some(e) => refName(e)
-            case _ => None
-          }
-        case _ => None
-      }
-    }
-
-    def default = if (extBlock.isUnderCaseClass) caseClassDefaults else defaultParents
-
-    extBlock.templateParents match {
-      case None => Array.empty
-      case Some(parents) =>
-        val parentElements = parents.typeElements
-        parentElements.flatMap(refName).toArray ++ default
-    }
-  }
-
-  private val defaultParents   : Array[String] = Array("Object")
-  private val caseClassDefaults: Array[String] = defaultParents :+ "Product" :+ "Serializable"
-
 }

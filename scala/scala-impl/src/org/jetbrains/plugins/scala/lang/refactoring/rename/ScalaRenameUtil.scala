@@ -5,8 +5,6 @@ import java.util
 
 import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
-import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference}
 import com.intellij.refactoring.listeners.RefactoringElementListener
 import com.intellij.refactoring.rename.RenameUtil

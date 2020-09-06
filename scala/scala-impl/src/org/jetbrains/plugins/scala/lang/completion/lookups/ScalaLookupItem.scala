@@ -3,12 +3,12 @@ package lang
 package completion
 package lookups
 
-import com.intellij.codeInsight.completion.InsertionContext
+import com.intellij.codeInsight.completion.{InsertionContext, JavaCompletionUtil}
 import com.intellij.codeInsight.lookup._
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil._
-import org.jetbrains.plugins.scala.annotator.intention._
+import org.jetbrains.plugins.scala.autoImport.quickFix._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.handlers.{ScalaImportingInsertHandler, ScalaInsertHandler}
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
@@ -60,7 +60,6 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
   var isAssignment: Boolean = false
   var substitutor: ScSubstitutor = ScSubstitutor.empty
   var shouldImport: Boolean = false
-  var isOverloadedForClassName: Boolean = false
   var isNamedParameter: Boolean = false
   var isUnderlined: Boolean = false
   var isInImport: Boolean = false
@@ -109,7 +108,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
     val itemText =
       if (isRenamed.nonEmpty)
         s"$getLookupString <= ${getPsiElement.name}"
-      else if (isClassName && !shouldImport && containingClassName != null)
+      else if (isClassName && shouldImport && containingClassName != null)
         s"$containingClassName.$getLookupString"
       else getLookupString
 
@@ -171,7 +170,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
       getPsiElement match {
         //scala
         case _: ScReferencePattern => // todo should be a ScValueOrVariable instance
-          containingClassText
+          locationText
         case fun: ScFunction =>
           if (etaExpanded)
             " _"
@@ -181,7 +180,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
           else
             typeParametersText(fun) +
               parametersText(fun.parameterList) +
-              containingClassText
+              locationText
         case fun: ScFun =>
           val paramClausesText = fun.paramClauses.map { clause =>
             clause.map {
@@ -196,7 +195,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
         case method: PsiMethod =>
           typeParametersText(method) +
             (if (isParameterless(method)) "" else parametersText(method.getParameterList)) +
-            containingClassText
+            locationText
         case p: PsiPackage =>
           s"    (${p.getQualifiedName})"
         case _ => ""
@@ -232,15 +231,15 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
   private def parametersText(parametersList: PsiParameterList)
                             (implicit project: Project,
                              context: TypePresentationContext) =
-    if (isOverloadedForClassName)
+    if (Option(JavaCompletionUtil.getAllMethods(this)).exists(_.size > 1))
       "(...)"
     else
       PresentationUtil.presentationStringForPsiElement(parametersList, substitutor)
 
-  private def containingClassText =
-    if (isClassName && containingClassName != null)
-      (if (shouldImport) " in " + containingClassName else "") +
-        classLocationSuffix(containingClass)
+  private def locationText: String =
+    if (isClassName && containingClass != null)
+      if (shouldImport) classLocationSuffix(containingClass)
+      else s" (${containingClass.qualifiedName})" // todo unify location abstraction
     else
       ""
 
@@ -271,9 +270,9 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
           ref = findQualifier(ref)
 
           val cl = element match {
-            case clazz: PsiClass => ClassToImport(clazz)
-            case ta: ScTypeAlias => TypeAliasToImport(ta)
-            case pack: ScPackage => PrefixPackageToImport(pack)
+            case clazz: PsiClass                             => ClassToImport(clazz)
+            case (ta: ScTypeAlias) && ContainingClass(clazz) => MemberToImport(ta, clazz)
+            case pack: ScPackage                             => PrefixPackageToImport(pack)
           }
 
           def nameToUse(qualifiedName: String = cl.qualifiedName) = ref match {
@@ -311,7 +310,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
           new ScalaImportingInsertHandler(containingClass) {
 
             override protected def qualifyAndImport(reference: ScReferenceExpression): Unit =
-              replaceReference(reference)
+              super.qualifyOnly(reference)
 
             override protected def qualifyOnly(reference: ScReferenceExpression): Unit = {}
           }.handleInsert(context, this)

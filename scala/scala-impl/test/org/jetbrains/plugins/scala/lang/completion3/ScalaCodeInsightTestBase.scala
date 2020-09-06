@@ -39,7 +39,7 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
                                            (items: LookupImpl => Iterable[LookupElement] = allItems) = {
     configureFromFileText(normalize(fileText))
 
-    changePsiAt(getEditor.getCaretModel.getOffset)
+    changePsiAt(getEditorOffset)
 
     invokeAndWait {
       createSynchronousCompletionHandler(completionType)
@@ -87,8 +87,10 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
     }
   }
 
-  protected final def checkNoBasicCompletion(fileText: String, item: String): Unit =
-    checkNoCompletion(fileText) {
+  protected final def checkNoBasicCompletion(fileText: String,
+                                             item: String,
+                                             invocationCount: Int = DEFAULT_TIME): Unit =
+    checkNoCompletion(fileText, invocationCount = invocationCount) {
       hasLookupString(_, item)
     }
 
@@ -100,6 +102,29 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
 
     val lookups = getFixture.complete(`type`, invocationCount)
     assertFalse(lookups != null && lookups.exists(predicate))
+  }
+
+  protected final def checkNonEmptyCompletionWithKeyAbortion(fileText: String,
+                                                             resultText: String,
+                                                             char: Char,
+                                                             invocationCount: Int = DEFAULT_TIME,
+                                                             completionType: CompletionType = BASIC): Unit = {
+    val (_, items) = activeLookupWithItems(fileText, completionType, invocationCount)()
+    assertTrue(items.nonEmpty)
+
+    getFixture.`type`(char)
+    checkResultByText(resultText)
+  }
+
+  protected final def checkEmptyCompletionAbortion(fileText: String,
+                                                   resultText: String,
+                                                   char: Char = REPLACE_SELECT_CHAR,
+                                                   invocationCount: Int = DEFAULT_TIME,
+                                                   completionType: CompletionType = BASIC): Unit = {
+    val (lookup, items) = activeLookupWithItems(fileText, completionType, invocationCount)()
+    assertTrue(items.nonEmpty)
+    lookup.finishLookup(char, null)
+    checkResultByText(resultText)
   }
 
   protected final def completeBasic(invocationCount: Int) = {
@@ -139,6 +164,7 @@ object ScalaCodeInsightTestBase {
                   itemTextItalic: Boolean = false,
                   itemTextBold: Boolean = false,
                   tailText: String = null,
+                  typeText: String = null,
                   grayed: Boolean = false): Boolean = lookup match {
     case LookupString(`lookupString`) =>
       val presentation = createPresentation(lookup)
@@ -146,6 +172,7 @@ object ScalaCodeInsightTestBase {
         presentation.isItemTextItalic == itemTextItalic &&
         presentation.isItemTextBold == itemTextBold &&
         presentation.getTailText == tailText &&
+        presentation.getTypeText == typeText &&
         isTailGrayed(presentation) == grayed
     case _ => false
   }

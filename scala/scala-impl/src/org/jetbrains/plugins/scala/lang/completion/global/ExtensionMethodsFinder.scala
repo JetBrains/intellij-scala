@@ -3,63 +3,57 @@ package lang
 package completion
 package global
 
-import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ContainingClass, PsiElementExt}
-import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaImportingInsertHandler
-import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
+import com.intellij.codeInsight.completion.InsertHandler
+import com.intellij.codeInsight.lookup.LookupElement
+import com.intellij.psi.PsiNamedElement
+import org.jetbrains.plugins.scala.autoImport.GlobalImplicitConversion
+import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.implicits._
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitConversionData
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
-private[completion] final class ExtensionMethodsFinder(originalType: ScType, place: ScExpression)
-  extends GlobalMembersFinder {
+private final class ExtensionMethodsFinder(originalType: ScType,
+                                           place: ScExpression,
+                                           accessAll: Boolean)
+  extends ByTypeGlobalMembersFinder(originalType, place, accessAll) {
 
-  private lazy val originalTypeMemberNames: collection.Set[String] = candidatesForType(originalType).map(_.name)
+  override protected[global] def candidates: Iterable[GlobalMemberResult] =
+    if (accessAll) extensionMethodCandidates else Iterable.empty
 
-  override protected def candidates: Iterable[GlobalMemberResult] = for {
-    (GlobalImplicitConversion(classToImport, elementToImport), conversionData) <- ImplicitConversionCache.getOrScheduleUpdate(place.resolveScope)(place.getProject)
-    if ImplicitConversionProcessor.applicable(elementToImport, place)
+  private def extensionMethodCandidates = for {
+    (GlobalImplicitConversion(classToImport: ScObject, _, elementToImport), application) <- ImplicitConversionData.getPossibleConversions(place)
+    resolveResult <- candidatesForType(application.resultType)
+  } yield ExtensionMethodCandidate(resolveResult, classToImport, elementToImport)
 
-    (resultType, _) <- ScImplicitlyConvertible.targetTypeAndSubstitutor(
-      conversionData,
-      originalType,
-      place
-    ).toIterable
+  private def candidatesForType(`type`: ScType) =
+    CompletionProcessor.variants(`type`, place)
 
-    resolveResult <- candidatesForType(resultType)
-    if !originalTypeMemberNames.contains(resolveResult.name)
-  } yield ExtensionMethodCandidate(resolveResult, elementToImport, classToImport)
+  import NameAvailabilityState._
 
-  private def candidatesForType(`type`: ScType): collection.Set[ScalaResolveResult] = {
-    val processor = new CompletionProcessor(StdKinds.methodRef, place)
-    processor.processType(`type`, place)
-    processor.candidatesS
+  private object NameAvailability extends global.NameAvailability {
+
+    private lazy val originalTypeMemberNames = candidatesForType(originalType)
+      .map(_.name)
+
+    override def apply(element: PsiNamedElement): NameAvailabilityState =
+      if (originalTypeMemberNames.contains(element.name)) CONFLICT
+      else NO_CONFLICT
   }
 
-  private final case class ExtensionMethodCandidate(resolveResult: ScalaResolveResult,
-                                                    private val elementToImport: ScFunction,
-                                                    private val classToImport: ScObject)
-    extends GlobalMemberResult(resolveResult, classToImport) {
+  private final case class ExtensionMethodCandidate(override val resolveResult: ScalaResolveResult,
+                                                    override val classToImport: ScObject,
+                                                    elementToImport: ScFunction)
+    extends GlobalMemberResult(resolveResult, classToImport)(NameAvailability) {
 
-    override protected def patchItem(lookupItem: ScalaLookupItem): Unit = {
-      lookupItem.setInsertHandler(new ExtensionMethodInsertHandler)
-    }
+    override private[global] def isApplicable =
+      super.isApplicable &&
+        nameAvailabilityState == NO_CONFLICT
 
-    private final class ExtensionMethodInsertHandler extends ScalaImportingInsertHandler(classToImport) {
-
-      override protected def qualifyAndImport(reference: ScReferenceExpression): Unit = for {
-        ContainingClass(ClassQualifiedName(_)) <- Option(elementToImport.nameContext)
-        holder = ScImportsHolder(reference)
-      } holder.addImportForPsiNamedElement(
-        elementToImport,
-        null,
-        Some(containingClass)
-      )
-    }
+    override protected def createInsertHandler: InsertHandler[LookupElement] =
+      createGlobalMemberInsertHandler(elementToImport, classToImport)
   }
 }
-

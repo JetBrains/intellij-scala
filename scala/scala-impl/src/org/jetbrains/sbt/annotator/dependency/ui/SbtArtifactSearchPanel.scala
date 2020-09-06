@@ -47,6 +47,7 @@ private object SbtArtifactSearchPanel {
   class DependencyListModel(elems: Seq[ArtifactInfo]) extends CollectionListModel[ArtifactInfo](elems.asJavaCollection)
 
   class DependencyListCellRenderer extends ColoredListCellRenderer[ArtifactInfo] {
+    //noinspection ScalaExtractStringToBundle,ReferencePassedToNls
     override def customizeCellRenderer(list: JList[_ <: ArtifactInfo], value: ArtifactInfo, index: Int, selected: Boolean, hasFocus: Boolean): Unit = {
       setIcon(AllIcons.Nodes.PpLib)
       append(s"${value.groupId}:", SimpleTextAttributes.GRAY_ATTRIBUTES)

@@ -13,7 +13,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt, IteratorExt}
 import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScReferencePattern, ScTuplePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScPatternList}
@@ -402,10 +402,18 @@ object TestNodeProvider {
 
   private def extractFeatureSpec(expr: ScMethodCall, project: Project): Option[Test] = {
     lazy val children = processChildren(getInnerMethodCalls(expr), extractFeatureSpec, project)
-    extractScMethodCall(expr, ExtractEntry("feature", true, false, _ => children, List("java.lang.String"), List("void")), project).
-      orElse(extractScMethodCall(expr, ExtractEntry("scenario", true, true, scMethodCallDefaultArg:_*), project)).
-      orElse(extractScMethodCall(expr, ExtractEntry("scenario", true, true, scMethodCallDefaultArgScalaTest3_v1:_*), project)).
-      orElse(extractScMethodCall(expr, ExtractEntry("scenario", true, true, scMethodCallDefaultArgScalaTest3_v2:_*), project))
+    val entries = Seq(
+      ExtractEntry("feature", true, false, _ => children, List("java.lang.String"), List("void")),
+      ExtractEntry("scenario", true, true, scMethodCallDefaultArg: _*),
+      ExtractEntry("scenario", true, true, scMethodCallDefaultArgScalaTest3_v1: _*),
+      ExtractEntry("scenario", true, true, scMethodCallDefaultArgScalaTest3_v2: _*),
+      //scalatest 3.1.0
+      ExtractEntry("Feature", true, false, _ => children, List("java.lang.String"), List("void")),
+      ExtractEntry("Scenario", true, true, scMethodCallDefaultArg: _*),
+      ExtractEntry("Scenario", true, true, scMethodCallDefaultArgScalaTest3_v1: _*),
+      ExtractEntry("Scenario", true, true, scMethodCallDefaultArgScalaTest3_v2: _*),
+    )
+    entries.iterator.flatMap(extractScMethodCall(expr, _, project)).headOption
   }
 
   private def extractPropSpec(expr: ScMethodCall, project: Project): Option[Test] = {

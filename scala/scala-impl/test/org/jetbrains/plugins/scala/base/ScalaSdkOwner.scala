@@ -12,7 +12,11 @@ trait ScalaSdkOwner extends Test
 
   import ScalaSdkOwner._
 
-  override implicit final def version: ScalaVersion = {
+  @deprecatedOverriding(
+    """Consider using supportedIn instead to run with the latest possible scala version.
+      |Override this method only if you want to run test with a specific version which is for some reason not listed in ScalaSdkOwner.allTestVersion""".stripMargin
+  )
+  override implicit def version: ScalaVersion = {
     val supportedVersions = allTestVersions.filter(supportedIn)
     val configuredVersion = configuredScalaVersion.getOrElse(defaultSdkVersion)
     selectVersion(configuredVersion, supportedVersions)

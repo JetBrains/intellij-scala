@@ -21,7 +21,9 @@ abstract class DownloadingAndImportingTestCase extends ImportingProjectTestCase 
 
   override def projectName: String = githubRepoName
 
-  def downloadURL: String = s"https://github.com/$githubUsername/$githubRepoName/archive/$revision.zip"
+  final protected def githubRepoUrl: String = s"https://github.com/$githubUsername/$githubRepoName"
+
+  def downloadURL: String = s"$githubRepoUrl/archive/$revision.zip"
 
   def outputZipFileName = s"$rootDirPath/zipFiles/$githubRepoName-$githubUsername-$revision"
 

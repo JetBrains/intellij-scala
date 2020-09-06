@@ -21,21 +21,36 @@ class ScalaAutoImportOptionsProvider extends AutoImportOptionsProvider {
 
   override def isModified: Boolean = {
     if (ScalaApplicationSettings.getInstance().ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY != form.isAddUnambiguous) return true
+    if (ScalaApplicationSettings.getInstance().ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY_METHODS != form.isAddUnambiguousMethods) return true
     if (ScalaApplicationSettings.getInstance().ADD_IMPORTS_ON_PASTE != form.getImportOnPasteOption) return true
     if (ScalaApplicationSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY != form.isOptimizeImports) return true
+    if (ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_CLASSES != form.isShowPopupClasses) return true
+    if (ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_STATIC_METHODS != form.isShowPopupMethods) return true
+    if (ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_CONVERSIONS != form.isShowPopupConversions) return true
+    if (ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_IMPLICITS != form.isShowPopupImplicits) return true
     false
   }
 
   override def apply(): Unit = {
     ScalaApplicationSettings.getInstance().ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY = form.isAddUnambiguous
+    ScalaApplicationSettings.getInstance().ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY_METHODS = form.isAddUnambiguousMethods
     ScalaApplicationSettings.getInstance().ADD_IMPORTS_ON_PASTE = form.getImportOnPasteOption
     ScalaApplicationSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY = form.isOptimizeImports
+    ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_CLASSES = form.isShowPopupClasses
+    ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_STATIC_METHODS = form.isShowPopupMethods
+    ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_CONVERSIONS = form.isShowPopupConversions
+    ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_IMPLICITS = form.isShowPopupImplicits
   }
 
   override def reset(): Unit = {
     form.setAddUnambiguous(ScalaApplicationSettings.getInstance().ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY)
+    form.setAddUnambiguousMethods(ScalaApplicationSettings.getInstance().ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY_METHODS)
     form.setImportOnPasteOption(ScalaApplicationSettings.getInstance().ADD_IMPORTS_ON_PASTE)
     form.setOptimizeImports(ScalaApplicationSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY)
+    form.setShowPopupClasses(ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_CLASSES)
+    form.setShowPopupMethods(ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_STATIC_METHODS)
+    form.setShowPopupConversions(ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_CONVERSIONS)
+    form.setShowPopupImplicits(ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_IMPLICITS)
   }
 
   override def disposeUIResources(): Unit = {}

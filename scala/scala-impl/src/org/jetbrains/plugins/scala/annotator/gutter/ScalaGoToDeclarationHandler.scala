@@ -7,8 +7,10 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.IsTemplateDefinition
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
@@ -55,6 +57,10 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
 
     val maybeParent = sourceElement.parent
     sourceElement.getNode.getElementType match {
+      case IsTemplateDefinition() =>
+        val typeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition])
+        typeDefinition.baseCompanionModule.map(_.nameId.getPrevSiblingNotWhitespace).toArray
+
       case ScalaTokenTypes.tASSIGN =>
         maybeParent
           .collect { case assign: ScAssignment => assign }

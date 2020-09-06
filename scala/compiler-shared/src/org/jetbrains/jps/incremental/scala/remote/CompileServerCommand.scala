@@ -2,6 +2,8 @@ package org.jetbrains.jps.incremental.scala.remote
 
 import org.jetbrains.plugins.scala.compiler.data.Arguments
 
+import scala.concurrent.duration.FiniteDuration
+
 sealed trait CompileServerCommand {
 
   def token: String
@@ -9,6 +11,8 @@ sealed trait CompileServerCommand {
   def asArgs: Seq[String]
 
   def id: String
+
+  def isCompileCommand: Boolean
 
   final def asArgsWithoutToken: Seq[String] =
     asArgs.tail // token must be the first argument
@@ -24,6 +28,8 @@ object CompileServerCommand {
     override def id: String = CommandIds.Compile
 
     override def asArgs: Seq[String] = arguments.asStrings
+
+    override def isCompileCommand: Boolean = true
   }
 
   case class CompileJps(token: String,
@@ -44,6 +50,28 @@ object CompileServerCommand {
       testScopeOnly.toString,
       forceCompileModule.getOrElse(""),
     )
+
+    override def isCompileCommand: Boolean = true
+  }
+
+  case class StartMetering(token: String, meteringInterval: FiniteDuration)
+    extends CompileServerCommand {
+
+    override def asArgs: Seq[String] = Seq(token, meteringInterval.toSeconds.toString)
+
+    override def id: String = CommandIds.StartMetering
+
+    override def isCompileCommand: Boolean = false
+  }
+
+  case class EndMetering(token: String)
+    extends CompileServerCommand {
+
+    override def asArgs: Seq[String] = Seq(token)
+
+    override def id: String = CommandIds.EndMetering
+
+    override def isCompileCommand: Boolean = false
   }
 }
 

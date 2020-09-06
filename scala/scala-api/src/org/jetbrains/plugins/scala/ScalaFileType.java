@@ -16,6 +16,7 @@
 package org.jetbrains.plugins.scala;
 
 import com.intellij.openapi.util.IconLoader;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
@@ -23,6 +24,8 @@ import javax.swing.*;
  * @author ilyas
  */
 final public class ScalaFileType extends LanguageFileTypeBase {
+
+    private static final Icon myIcon = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/file_scala.svg");
 
     public static final ScalaFileType INSTANCE = new ScalaFileType();
 
@@ -34,7 +37,8 @@ final public class ScalaFileType extends LanguageFileTypeBase {
         return "." + getDefaultExtension();
     }
 
+    @NotNull
     public Icon getIcon() {
-        return IconLoader.getIcon("/org/jetbrains/plugins/scala/images/file_scala.svg");
+        return myIcon;
     }
 }

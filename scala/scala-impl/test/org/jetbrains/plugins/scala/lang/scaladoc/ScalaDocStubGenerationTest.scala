@@ -108,7 +108,7 @@ class ScalaDocStubGenerationTest extends ScalaDocEnterActionTestBase {
     doTest(
       s"""trait Holder {
          |  /**
-         |  * @tparam T qwerty
+         |  *@tparam T qwerty
          | * @param a ytrewq
          |* @tparam E 12345
          |    * @param b 54321
@@ -120,7 +120,7 @@ class ScalaDocStubGenerationTest extends ScalaDocEnterActionTestBase {
          |}""".stripMargin,
       s"""trait Holder {
          |  /**
-         |  * @tparam T qwerty
+         |  *@tparam T qwerty
          | * @param a ytrewq
          |* @tparam E 12345
          |    * @param b 54321
@@ -144,8 +144,8 @@ class ScalaDocStubGenerationTest extends ScalaDocEnterActionTestBase {
     doTest(
       s"""class A {
          | /**
-         |  * @tparam T lkjh
-         | * @param i 777
+         |  *   @tparam T lkjh
+         | *@param i 777
          |*/
          |  def f[T](i: Int) {}
          |}
@@ -156,8 +156,8 @@ class ScalaDocStubGenerationTest extends ScalaDocEnterActionTestBase {
          |}""".stripMargin,
       s"""class A {
          | /**
-         |  * @tparam T lkjh
-         | * @param i 777
+         |  *   @tparam T lkjh
+         | *@param i 777
          |*/
          |  def f[T](i: Int) {}
          |}

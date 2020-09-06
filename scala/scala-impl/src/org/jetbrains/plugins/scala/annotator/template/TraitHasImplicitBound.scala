@@ -10,12 +10,12 @@ object TraitHasImplicitBound extends AnnotatorPart[ScTrait] {
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     val contextBoundElements = definition.typeParameters.flatMap(p => p.contextBoundTypeElement)
     for (te <- contextBoundElements) {
-      val message = "Traits cannot have type parameters with context bounds"
+      val message = ScalaBundle.message("traits.cannot.have.type.parameters.with.context.bounds")
       holder.createErrorAnnotation(te, message)
     }
     val viewBoundElements = definition.typeParameters.flatMap(p => p.viewTypeElement)
     for (te <- viewBoundElements) {
-      val message = "Traits cannot have type parameters with view bounds"
+      val message = ScalaBundle.message("traits.cannot.have.type.parameters.with.view.bounds")
       holder.createErrorAnnotation(te, message)
     }
   }

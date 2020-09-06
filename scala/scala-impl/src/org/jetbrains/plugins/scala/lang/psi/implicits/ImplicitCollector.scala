@@ -138,7 +138,8 @@ class ImplicitCollector(place: PsiElement,
         val allCandidates =
           if (fromNameCandidates.exists(_.implicitReason == OkResult)) fromNameCandidates
           else {
-            fromNameCandidates ++ collectFullInfo(fromTypeCandidates.diff(visible))
+            val fromTypeNotVisible = fromTypeCandidates.filterNot(c => visible.exists(_.element == c.element))
+            fromNameCandidates ++ collectFullInfo(fromTypeNotVisible)
           }
 
         //todo: should we also compare types like in MostSpecificUtil.isAsSpecificAs ?

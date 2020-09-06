@@ -13,12 +13,18 @@ class ScalaTokenType(debugName: String) extends IElementType(debugName, ScalaLan
   override final def isLeftBound: Boolean = true
 }
 
+//noinspection TypeAnnotation
 object ScalaTokenType {
-  val ClassKeyword  = new ScalaTokenType("class")
-  val TraitKeyword  = new ScalaTokenType("trait")
-  val EnumKeyword   = new ScalaTokenType("enum")
-  val ObjectKeyword = new ScalaTokenType("object")
-  val GivenKeyword  = new ScalaTokenType("given")
+
+  import ScalaModifier._
+
+  val ClassKeyword     = new ScalaTokenType("class")
+  val TraitKeyword     = new ScalaTokenType("trait")
+  val EnumKeyword      = new ScalaTokenType("enum")
+  val ObjectKeyword    = new ScalaTokenType("object")
+  val GivenKeyword     = new ScalaTokenType("given")
+  val UsingKeyword     = new ScalaTokenType("using")
+  val ExtensionKeyword = new ScalaTokenType("extension")
 
   val NewKeyword = new ScalaTokenType("new")
 
@@ -28,12 +34,16 @@ object ScalaTokenType {
   val Float   = new ScalaTokenType("float")
 
   val ExportKeyword = new ScalaTokenType("export")
-  val Then          = new ScalaTokenType("then")
+  val ThenKeyword   = new ScalaTokenType("then")
+  val EndKeyword    = new ScalaTokenType("end")
 
-  val As                             = new ScalaTokenType("as")
-  val Derives                        = new ScalaTokenType("derives")
-  val Inline: ScalaModifierTokenType = ScalaTokenTypes.kINLINE
-  val Opaque                         = new ScalaTokenType("opaque")
+  val AsKeyword      = new ScalaTokenType("as")
+  val DerivesKeyword = new ScalaTokenType("derives")
+
+  val InlineKeyword      = ScalaModifierTokenType(Inline)
+  val TransparentKeyword = ScalaModifierTokenType(Transparent)
+  val OpaqueKeyword      = ScalaModifierTokenType(Opaque)
+  val OpenKeyword        = ScalaModifierTokenType(Open)
 
   val SpliceStart = new ScalaTokenType("$")
   val QuoteStart  = new ScalaTokenType("'")
@@ -47,7 +57,8 @@ object ScalaTokenType {
       ClassKeyword,
       TraitKeyword,
       EnumKeyword,
-      ObjectKeyword
+      ObjectKeyword,
+      GivenKeyword,
     )
 
     def unapply(elementType: IElementType): Boolean =

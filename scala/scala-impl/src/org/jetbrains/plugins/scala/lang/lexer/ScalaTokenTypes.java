@@ -110,8 +110,6 @@ public interface ScalaTokenTypes {
     ScalaModifierTokenType kPRIVATE = ScalaModifierTokenType.of(ScalaModifier.Private);
     ScalaModifierTokenType kPROTECTED = ScalaModifierTokenType.of(ScalaModifier.Protected);
     ScalaModifierTokenType kSEALED = ScalaModifierTokenType.of(ScalaModifier.Sealed);
-    ScalaModifierTokenType kINLINE = ScalaModifierTokenType.of(ScalaModifier.Inline);
-
 
     IElementType kCATCH = new ScalaTokenType("catch");
     IElementType kDEF = new ScalaTokenType("def");
@@ -210,9 +208,11 @@ public interface ScalaTokenTypes {
             kDEF,
             kDO,
             kELSE,
+            EndKeyword(),
             EnumKeyword(),
             ExportKeyword(),
             kEXTENDS,
+            ExtensionKeyword(),
             kFALSE,
             kFINAL,
             kFINALLY,
@@ -234,7 +234,7 @@ public interface ScalaTokenTypes {
             kRETURN,
             kSEALED,
             kSUPER,
-            Then(),
+            ThenKeyword(),
             kTHIS, // scala 2 only
             kTHROW,
             TraitKeyword(),
@@ -247,6 +247,18 @@ public interface ScalaTokenTypes {
             kWITH,
             kYIELD,
             kMACRO // scala 2 only
+    );
+
+    // Soft keywords are highlighted by `ScalaColorSchemeAnnotator`
+    TokenSet SOFT_KEYWORDS = TokenSet.create(
+            AsKeyword(),
+            DerivesKeyword(),
+            EndKeyword(),
+            ExtensionKeyword(),
+            OpaqueKeyword(),
+            InlineKeyword(),
+            TransparentKeyword(),
+            UsingKeyword()
     );
 
     TokenSet IDENTIFIER_TOKEN_SET = TokenSet.create(tIDENTIFIER, tINTERPOLATED_STRING_ID);

@@ -15,7 +15,7 @@ class RescheduledExecutor(val name: String,
   import RescheduledExecutor.IgnoreKey
 
   Disposer.register(parentDisposable, this)
-  
+
   private val scheduler = AppExecutorUtil.createBoundedScheduledExecutorService(name, 1)
 
   private val lastScheduledTask = new AtomicReference[(ScheduledFuture[_], String)]
@@ -42,7 +42,7 @@ class RescheduledExecutor(val name: String,
     }
     lastScheduledTask.set(null)
   }
-  
+
   /**
    * @param key this allows us to queue several worksheets compilation (on project opening, for example)
    *            while disallowing several compilation requests for a single worksheet
@@ -65,6 +65,6 @@ class RescheduledExecutor(val name: String,
 }
 
 object RescheduledExecutor {
-  
+
   private final val IgnoreKey = "ignore_key"
 }

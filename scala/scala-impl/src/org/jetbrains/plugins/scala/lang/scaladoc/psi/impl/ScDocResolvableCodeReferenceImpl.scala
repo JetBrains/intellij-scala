@@ -1,29 +1,23 @@
-package org.jetbrains.plugins.scala
-package lang
-package scaladoc
-package psi
-package impl
+package org.jetbrains.plugins.scala.lang.scaladoc.psi.impl
 
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.annotator.intention.ElementToImport
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 
-/**
- * User: Dmitry Naydanov
- * Date: 11/30/11
- */
-
 class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeReferenceImpl(node) with ScDocResolvableCodeReference {
-  override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] = {
-    super.multiResolveScala(incomplete).map {
-      case ScalaResolveResult(cstr: ScPrimaryConstructor, _) if cstr.containingClass != null => new ScalaResolveResult(cstr.containingClass)
-      case rr => rr
-    }
-  }
 
-  override def getKinds(incomplete: Boolean, completion: Boolean): ResolveTargets.ValueSet = stableImportSelector
+  override protected def debugKind: Option[String] = Some("scalaDoc")
+
+  override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] =
+    super.multiResolveScala(incomplete).map {
+      case ScalaResolveResult(cstr: ScPrimaryConstructor, _) if cstr.containingClass != null =>
+        new ScalaResolveResult(cstr.containingClass)
+      case result => result
+    }
+
+  override def getKinds(incomplete: Boolean, completion: Boolean): ResolveTargets.ValueSet =
+    stableImportSelector
 }

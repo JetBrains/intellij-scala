@@ -83,7 +83,7 @@ TODO: review macros expresisons, looks like most of them do not work now
       <option name="SCALA_CODE" value="true"/>
     </context>
   </template>
-  <template name="imvc" value="implicit class $CLASS_NAME$$SUFFIX$(private val $RECEIVER_NAME$: $TYPE_NAME$) extends AnyVal {&#13;$END$&#13;}"
+  <template name="imc" value="implicit class $CLASS_NAME$$SUFFIX$(private val $RECEIVER_NAME$: $TYPE_NAME$) extends AnyVal {&#13;$END$&#13;}"
             description="Template for extension methods container" toReformat="true" toShortenFQNames="true">
     <variable name="TYPE_NAME" defaultValue="&quot;Any&quot;" alwaysStopAt="true"/>
     <variable name="RECEIVER_NAME" expression="scala_suggestVariableNameByTypeText(TYPE_NAME)" defaultValue="&quot;target&quot;" alwaysStopAt="true"/>

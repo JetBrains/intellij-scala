@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBloc
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys._
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.{ImplicitConversionIndex, ImplicitInstanceIndex}
+import org.jetbrains.plugins.scala.util.CommonQualifiedNames.AnyFqn
 import org.junit.Assert._
 
 import scala.language.implicitConversions
@@ -25,8 +26,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
   private def moduleWithLibraries: GlobalSearchScope = GlobalSearchScope.moduleWithLibrariesScope(getModule)
 
   private def elementsInScalaLibrary[Key, Psi <: PsiElement : ClassTag](key: Key, indexKey: StubIndexKey[Key, Psi]): Seq[Psi] = {
-    val classOfPsi = implicitly[ClassTag[Psi]].runtimeClass.asInstanceOf[Class[Psi]]
-    indexKey.elements(key, moduleWithLibraries, classOfPsi)(getProject).toList
+    indexKey.elements(key, moduleWithLibraries)(getProject).toList
   }
 
   private def fqnsInScalaLibrary[Key, Psi <: PsiMember : ClassTag](key: Key, indexKey: StubIndexKey[Key, Psi]): Seq[String] = {
@@ -212,8 +212,8 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
   }
 
   def testImplicitConversion(): Unit = {
-    val all = ImplicitConversionIndex.allElements(moduleWithLibraries)(getProject).flatMap(_.qualifiedNameOpt).toSet
-    assertEquals(285, all.size)
+    val all = ImplicitConversionIndex.allConversions(moduleWithLibraries)(getProject).flatMap(_.qualifiedNameOpt).toSet
+    assertEquals(281, all.size)
     assertContains(all, "scala.math.Ordering.mkOrderingOps")
     assertContains(all, "scala.math.Ordering.ExtraImplicits.infixOrderingOps")
     assertContains(all, "scala.Predef.augmentString")
@@ -222,13 +222,24 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
     def forClassFqn(fqn: String) =
       ImplicitConversionIndex.forClassFqn(fqn, moduleWithLibraries)(getProject).flatMap(_.qualifiedNameOpt)
 
-    assertEquals(forClassFqn("scala.math.Ordering.Ops"),
-      Set(
-        "scala.math.Ordering.ExtraImplicits.infixOrderingOps",
-        "scala.math.Numeric.ExtraImplicits.infixNumericOps"
-      )
-    )
-    assertEquals(forClassFqn("scala.Predef.ArrowAssoc"), Set("scala.Predef.ArrowAssoc"))
+    val forScalaAny = forClassFqn(AnyFqn)
+    assertContains(forScalaAny, "scala.math.Ordering.mkOrderingOps")
+    assertContains(forScalaAny, "scala.math.Ordering.ExtraImplicits.infixOrderingOps")
+    assertContains(forScalaAny, "scala.Predef.ArrowAssoc")
+    assertContains(forScalaAny, "scala.Predef.StringFormat")
+
+    val forJavaLangString = forClassFqn("java.lang.String")
+    assertContains(forJavaLangString, "scala.LowPriorityImplicits.wrapString")
+
+    //todo: aliased types should be found with original class names
+    val forPredefString = forClassFqn("scala.Predef.String")
+    assertContains(forPredefString, "scala.Predef.augmentString")
+
+    val forMutableSeq = forClassFqn("scala.collection.mutable.Seq")
+    assertContains(forMutableSeq, "scala.collection.convert.DecorateAsJava.mutableSeqAsJavaListConverter")
+
+    val forJavaList = forClassFqn("java.util.List")
+    assertContains(forJavaList, "scala.collection.convert.DecorateAsScala.asScalaBufferConverter")
   }
 
   def testImplicitInstance(): Unit = {

@@ -30,7 +30,6 @@ private object MultipleScalaVersionsRunner {
 
   private val DefaultScalaVersionsToRun: Seq[TestScalaVersion] =
     Seq(
-      TestScalaVersion.Scala_2_10,
       TestScalaVersion.Scala_2_11,
       TestScalaVersion.Scala_2_12,
       TestScalaVersion.Scala_2_13,

@@ -133,6 +133,18 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     Hint("1", "("), Hint("1", ": Int)"),
     Error("1", "Type mismatch, expected: String, actual: Int"))
 
+  // Qualifier, SCL-16961
+
+  def testUnqualifiedName(): Unit = assertErrors(
+    "object O { class C[T]; val v: C[String] = new C[Int] }",
+    Hint("new C[Int]", ": C[Int]"),
+    Error("new C[Int]", "Expression of type C[Int] doesn't conform to expected type C[String]"))
+
+  def testQualifiedName(): Unit = assertErrors(
+    "object A { class C[T] }; object B { class C[T]; val v: C[Int] = new A.C[Int] }",
+    Hint("new A.C[Int]", ": A.C[Int]"),
+    Error("new A.C[Int]", "Expression of type A.C[Int] doesn't conform to expected type C[Int]"))
+
   // TODO test fine-grained errors
   // TODO test error tooltips
 
@@ -279,12 +291,12 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
 
   def testTypeMismatchUnappliedCurrying(): Unit = assertErrors(
     "def f(i: Int)(s: String): Unit = (); val v: Int = f(1)",
-    Error(")", "Missing argument list (s: String) for Method f(Int)(String)")
+    Error(")", "Missing argument list (s: String) for method f(Int)(String)")
   )
 
   def testTypeMismatchUnappliedNoExpectedType(): Unit = assertErrors(
     "def f(i: Int)(s: String): Unit = (); val v = f(1)",
-    Error(")", "Missing argument list (s: String) for Method f(Int)(String)")
+    Error(")", "Missing argument list (s: String) for method f(Int)(String)")
   )
 
   def testTypeMismatchUnappliedEtaExpansion(): Unit = assertErrors(
@@ -335,4 +347,29 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
   def testTypeMismatchEmptyNew(): Unit = assertErrors(
     "val v: String = new")
 
+  // Don't show type mismatch when the expression is of a singleton type that has an apply method, while a non-singleton type is expected, SCL-17669
+
+  def testSingletonTypeHasApply(): Unit = assertErrors(
+    "object O { def apply(p: Int) = 1 }; val v: Int = O",
+    Error("O", "Unspecified value parameters: p: Int"))
+
+  def testCaseClass(): Unit = assertErrors(
+    "case class C(p: Int); val v: C = C",
+    Error("C", "Unspecified value parameters: p: Int"))
+
+  def testSingletonTypeExpected(): Unit = assertErrors(
+    "object A { def apply(p: Int) = 1 }; object B; val v: B.type = A",
+    Hint("A", ": A.type"),
+    Error("A", "Expression of type A.type doesn't conform to expected type B.type"))
+
+  def testSingletonTypeHasNoApply(): Unit = assertErrors(
+    "object O; val v: Int = O",
+    Hint("O", ": O.type"),
+    Error("O", "Expression of type O.type doesn't conform to expected type Int"))
+
+  // Can we extrapolate that to FunctionN types?
+  def testNonSingletonTypeHasApply(): Unit = assertErrors(
+    "val x = (p: Int) => 1; val v: Int = x",
+    Hint("x", ": Int => Int"),
+    Error("x", "Expression of type Int => Int doesn't conform to expected type Int"))
 }

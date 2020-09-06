@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.stubOrPsiPrevSibling
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
@@ -31,6 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 
 trait ScImportsHolder extends ScalaPsiElement {
@@ -52,29 +54,48 @@ trait ScImportsHolder extends ScalaPsiElement {
       lastParent: PsiElement,
       place: PsiElement): Boolean = {
     if (lastParent != null) {
-      var run = ScalaPsiUtil.getStubOrPsiSibling(lastParent)
-//      updateResolveCaches()
-      while (run != null) {
-        ProgressManager.checkCanceled()
-        if (run.isInstanceOf[ScImportStmt] &&
-            !run.processDeclarations(processor, state, lastParent, place)) return false
-        run = ScalaPsiUtil.getStubOrPsiSibling(run)
-      }
+      val prevImports = previousImports(lastParent)
+
+      //Resolve all references in previous import expressions in direct order to avoid SOE
+      prevImports.foreach(updateResolveCaches)
+
+      val shouldStop =
+        prevImports.reverse
+          .find(!_.processDeclarations(processor, state, lastParent, place))
+
+      if (shouldStop.nonEmpty)
+        return false
     }
     true
   }
 
+  @tailrec
+  private def previousImports(lastParent: PsiElement, acc: List[ScImportStmt] = Nil): List[ScImportStmt] = {
+    stubOrPsiPrevSibling(lastParent) match {
+      case null              => acc
+      case imp: ScImportStmt => previousImports(imp, imp :: acc)
+      case other             => previousImports(other, acc)
+    }
+  }
+
+  private def updateResolveCaches(importStmt: ScImportStmt): Unit =
+    for {
+      expr <- importStmt.importExprs
+      ref  <- expr.reference
+    } ref.multiResolveScala(false)
+
+
   def getImportsForLastParent(lastParent: PsiElement): Seq[ScImportStmt] = {
     val buffer = mutable.ArrayBuffer.empty[ScImportStmt]
     if (lastParent != null) {
-      var run = ScalaPsiUtil.getStubOrPsiSibling(lastParent)
+      var run = stubOrPsiPrevSibling(lastParent)
       while (run != null) {
         ProgressManager.checkCanceled()
         run match {
           case importStmt: ScImportStmt => buffer += importStmt
           case _ =>
         }
-        run = ScalaPsiUtil.getStubOrPsiSibling(run)
+        run = stubOrPsiPrevSibling(run)
       }
     }
     buffer.toVector
@@ -165,7 +186,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       this.children.dropWhile(el => el.isInstanceOf[PsiComment] || el.isInstanceOf[PsiWhiteSpace]).headOption
 
     firstChildNotCommentWhitespace.foreach {
-      case pack: ScPackaging if !pack.isExplicit && this.children.instancesOf[ScImportStmt].isEmpty =>
+      case pack: ScPackaging if !pack.isExplicit && this.children.filterByType[ScImportStmt].isEmpty =>
         pack.addImportsForPaths(paths, refsContainer)
         return
       case _ =>

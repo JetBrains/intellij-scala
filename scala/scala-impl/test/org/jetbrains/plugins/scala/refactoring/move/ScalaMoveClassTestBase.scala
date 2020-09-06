@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.refactoring.move
 
 import java.io.File
+import java.nio.file.Path
 import java.util
 
 import com.intellij.openapi.module.Module
@@ -38,7 +39,7 @@ abstract class ScalaMoveClassTestBase extends ScalaLightPlatformCodeInsightTestC
     val rootBefore = root + "/before"
     val rootAfter  = root + "/after"
     findAndRefreshVFile(rootBefore)
-    rootDirBefore = PsiTestUtil.createTestProjectStructure(getProjectAdapter, getModuleAdapter, rootBefore, new util.HashSet[File]())
+    rootDirBefore = PsiTestUtil.createTestProjectStructure(getProjectAdapter, getModuleAdapter, rootBefore, new util.HashSet[Path]())
     rootDirAfter = findAndRefreshVFile(rootAfter)
   }
 

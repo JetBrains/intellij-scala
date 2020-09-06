@@ -87,7 +87,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
     try {
       callback
     } finally {
-      // TODO: rethink: ALL exceptions throughn from callback are overriten by exceptions from Assert.assertTrue
+      // TODO: rethink: ALL exceptions thrown from callback are overwritten by exceptions from Assert.assertTrue
       Assert.assertTrue("Stop at breakpoint expected", breakpointTracker.wasAtBreakpoint || !shouldStopAtBreakpoint)
 
       EdtTestUtil.runInEdtAndWait(() => {
@@ -198,7 +198,8 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
       val file = method.get.getContainingFile
       val document = PsiDocumentManager.getInstance(getProject).getDocument(file)
       val vFile = file.getVirtualFile
-      val methodLine = document.getLineNumber(method.get.getTextRange.getStartOffset)
+      val methodDefLine = method.get.nameId.getTextRange.getStartOffset // method element can contain doc comment
+      val methodLine = document.getLineNumber(methodDefLine)
       val lineNumber = methodLine + relativeLineNumber
       val lineText = document.getImmutableCharSequence.subSequence(document.getLineStartOffset(lineNumber), document.getLineEndOffset(lineNumber))
 
@@ -206,7 +207,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
       val properties = new JavaLineBreakpointProperties
       inWriteAction {
         xBreakpointManager.addLineBreakpoint(scalaLineBreakpointType, vFile.getUrl, methodLine + relativeLineNumber, properties)
-//        println(s"Breakpoint set on line $lineText in $classQName")
+        //println(s"Breakpoint set on line $lineNumber: `$lineText` in `$classQName``")
       }
     }
   }

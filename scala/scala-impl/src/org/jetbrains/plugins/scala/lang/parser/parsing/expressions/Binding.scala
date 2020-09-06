@@ -17,9 +17,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.ParamType
 /**
  * Binding ::= (id | '_') [':' Type]
  */
-object Binding {
-
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+object Binding extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val paramMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>

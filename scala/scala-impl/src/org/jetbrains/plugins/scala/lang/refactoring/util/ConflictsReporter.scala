@@ -50,6 +50,7 @@ class BalloonConflictsReporter(editor: Editor) extends ConflictsReporter {
       val bestLocation = popupFactory.guessBestPopupLocation(editor)
       val screenPoint: Point = bestLocation.getScreenPoint
       val y: Int = screenPoint.y - editor.getLineHeight * 2
+      //noinspection ReferencePassedToNls
       val builder = popupFactory.createHtmlTextBalloonBuilder(message, null, MessageType.WARNING.getPopupBackground, null)
       val balloon: Balloon = builder.setFadeoutTime(-1).setShowCallout(false).createBalloon
       balloon.show(new RelativePoint(new Point(screenPoint.x, y)), Balloon.Position.above)

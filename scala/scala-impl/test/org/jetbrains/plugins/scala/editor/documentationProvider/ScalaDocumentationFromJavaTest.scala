@@ -34,20 +34,27 @@ class ScalaDocumentationFromJavaTest extends DocumentationProviderTestBase
          |}""".stripMargin
     )
 
-    doGenerateDocBodyTest(
+    doGenerateDocTest(
       s"""class JavaClass {
          |    public static void main(String[] args) {
          |        ScalaObject.${|}scalaMethod("dummy1", "dummy1");
          |    }
          |}""".stripMargin,
-      s"""$DefinitionStart<a href="psi_element://ScalaObject"><code>ScalaObject</code></a>
+      s"""<html>
+         |${DocHtmlHead(myFixture.getFile)}
+         |$BodyStart
+         |$DefinitionStart<a href="psi_element://ScalaObject"><code>ScalaObject</code></a>
          |def <b>scalaMethod</b>(s: <a href="psi_element://scala.Predef.String"><code>String</code></a>, t: <a href="psi_element://scala.Predef.String"><code>String</code></a>): <a href="psi_element://scala.Unit"><code>Unit</code></a>$DefinitionEnd
-         |$ContentStart   Some description   <p>$ContentEnd
+         |$ContentStart
+         |Some description
+         |$ContentEnd
          |$SectionsStart
-         |<p><tr>
-         |<td valign='top' class='section'><p>Params:</td>
+         |<tr><td valign='top' class='section'><p>Params:</td>
          |<td valign='top'>s &ndash; some parameter  <p>t &ndash; another parameter (indented)</td>
-         |$SectionsEnd""".stripMargin
+         |$SectionsEnd
+         |$BodyEnd
+         |</html>
+         |""".stripMargin
     )
   }
 }

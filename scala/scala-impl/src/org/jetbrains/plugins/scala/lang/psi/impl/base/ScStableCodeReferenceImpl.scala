@@ -10,7 +10,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.JavaDummyHolder
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.annotator.intention.{ClassToImport, ElementToImport, TypeAliasToImport}
+import org.jetbrains.plugins.scala.autoImport.quickFix.{ClassToImport, ElementToImport, MemberToImport}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -48,6 +48,9 @@ import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 
 class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) with ScStableCodeReference {
 
+  override def toString: String = s"CodeReferenceElement${debugKind.fold("")(" (" + _ + ")")}: ${ifReadAllowed(getText)("")}"
+  protected def debugKind: Option[String] = None
+
   override def getResolveResultVariants: Array[ScalaResolveResult] =
     doResolve(new CompletionProcessor(getKinds(incomplete = true), this))
 
@@ -56,8 +59,6 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       .flatMap(_.findConstructorInvocation)
 
   override def isConstructorReference: Boolean = getConstructorInvocation.nonEmpty
-
-  override def toString: String = "CodeReferenceElement: " + ifReadAllowed(getText)("")
 
   override def getKinds(incomplete: Boolean, completion: Boolean): Set[ResolveTargets.Value] = {
     import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
@@ -204,7 +205,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             else bindToType(ClassToImport(c))
           case ta: ScTypeAlias =>
             if (ta.containingClass != null && ScalaPsiUtil.hasStablePath(ta)) {
-              bindToType(TypeAliasToImport(ta))
+              bindToType(MemberToImport(ta, ta.containingClass))
             } else {
               //todo: nothing to do yet, probably in future it would be great to implement something context-specific
               this

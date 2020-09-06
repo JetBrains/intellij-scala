@@ -18,12 +18,13 @@ import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
+import org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaVariableProcessor.SyntheticCopyParameter
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
@@ -92,6 +93,7 @@ class RenameScalaVariableProcessor extends RenameJavaMemberProcessor with ScalaR
   override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = {
     element match {
       case FakePsiMethod(method) => substituteElementToRename(method, editor)
+      case SyntheticCopyParameter(p) => p
       case named: ScNamedElement => RenameSuperMembersUtil.chooseSuper(named)
       case _ => element
     }
@@ -107,5 +109,15 @@ class RenameScalaVariableProcessor extends RenameJavaMemberProcessor with ScalaR
 
   override def renameElement(element: PsiElement, newName: String, usages: Array[UsageInfo], listener: RefactoringElementListener): Unit = {
     ScalaRenameUtil.doRenameGenericNamedElement(element, newName, usages, listener)
+  }
+}
+
+object RenameScalaVariableProcessor {
+  private object SyntheticCopyParameter {
+    def unapply(p: ScParameter): Option[ScClassParameter] = p.owner match {
+      case (f: ScFunctionDefinition) && ContainingClass(c: ScClass) if c.isCase && f.isCopyMethod && f.isSynthetic =>
+        c.parameters.find(_.name == p.name)
+      case _ => None
+    }
   }
 }

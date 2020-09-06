@@ -284,9 +284,10 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
         item <- parameterItems
         if item.parameter.oldIndex < 0 && StringUtil.isEmpty(item.defaultValueCodeFragment.getText)
       } {
-        val stuff = if (isAddDefaultArgs) "Default arguments" else "Method calls"
-        val message = s"Default value is missing. $stuff will contain blanks instead of the new parameter value."
-        return new ValidationInfo(message)
+        return new ValidationInfo(
+          if (isAddDefaultArgs) ScalaBundle.message("default.value.is.missing.default.arguments")
+          else ScalaBundle.message("default.value.is.missing.method.calls")
+        )
       }
     }
     super.doValidate()

@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ExtractSuperUtil
+import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestUtil
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestFramework, TestConfigurationUtil}
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
@@ -32,16 +33,18 @@ import scala.collection.JavaConverters._
 
 class ScalaTestGenerator extends TestGenerator {
 
-  override def generateTest(project: Project, d: CreateTestDialog): PsiElement = {
+  import ScalaTestGenerator._
+
+  override def generateTest(project: Project, dialog: CreateTestDialog): PsiElement = {
     postponeFormattingWithin(project) {
       inWriteAction {
         try {
-          val file: PsiFile = generateTestInternal(project, d)
+          val file: PsiFile = generateTestInternal(project, dialog)
           file
         } catch {
           case _: IncorrectOperationException =>
             invokeLater {
-              val message = CodeInsightBundle.message("intention.error.cannot.create.class.message", d.getClassName)
+              val message = CodeInsightBundle.message("intention.error.cannot.create.class.message", dialog.getClassName)
               val title = CodeInsightBundle.message("intention.error.cannot.create.class.title")
               Messages.showErrorDialog(project, message, title)
             }
@@ -82,7 +85,7 @@ class ScalaTestGenerator extends TestGenerator {
 
     val file = createTestFileFromTemplate(dialog, project)
     if (file == null) return file
-    val typeDefinition = file.depthFirst().instancesOf[ScTypeDefinition].next()
+    val typeDefinition = file.depthFirst().filterByType[ScTypeDefinition].next()
     val fqName = dialog.getSuperClassName
     if (fqName != null) {
       val psiClass = ElementScope(project).getCachedClass(fqName)
@@ -116,7 +119,7 @@ class ScalaTestGenerator extends TestGenerator {
     psiClass match {
       case Some(cls) =>
         val classParents = addExtendsRef(cls.name)
-        classParents.depthFirst().instancesOf[ScStableCodeReference].next().bindToElement(cls)
+        classParents.depthFirst().filterByType[ScStableCodeReference].next().bindToElement(cls)
       case None =>
         addExtendsRef(fqName)
     }
@@ -134,28 +137,31 @@ class ScalaTestGenerator extends TestGenerator {
   ): Unit = {
     val body = typeDef.extendsBlock.templateBody.getOrElse(return)
 
-    import ScalaTestGenerator._
+    import ScalaTestUtil._
     import TestConfigurationUtil.isInheritor
 
-    if (isInheritor(typeDef, "org.scalatest.FeatureSpecLike", "org.scalatest.fixture.FeatureSpecLike")) {
+    if (isFeatureSpecOld(typeDef)) {
       generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
       addScalaTestFeatureSpecMethods(methods, body)
-    } else if (isInheritor(typeDef, "org.scalatest.FlatSpecLike", "org.scalatest.fixture.FlatSpecLike")) {
+    } else if (isFeatureSpecNew(typeDef)) {
+      generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
+      addScalaTestFeatureSpecMethods(methods, body, useUpperCase = true)
+    } else if (isFlatSpec(typeDef)) {
       generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
       addScalaTestFlatSpecMethods(methods, body, className)
-    } else if (isInheritor(typeDef, "org.scalatest.FreeSpecLike", "org.scalatest.fixture.FreeSpecLike", "org.scalatest.path.FreeSpecLike")) {
+    } else if (isFreeSpec(typeDef)) {
       generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
       addScalaTestFreeSpecMethods(methods, body)
-    } else if (isInheritor(typeDef, "org.scalatest.FunSpecLike", "org.scalatest.fixture.FunSpecLike")) {
+    } else if (isFunSpec(typeDef)) {
       generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
       addScalaTestFunSpecMethods(methods, body, className)
-    } else if (isInheritor(typeDef, "org.scalatest.FunSuiteLike", "org.scalatest.fixture.FunSuiteLike")) {
+    } else if (isFunSuite(typeDef)) {
       generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
       addScalaTestFunSuiteMethods(methods, body)
-    } else if (isInheritor(typeDef, "org.scalatest.PropSpecLike", "org.scalatest.fixture.PropSpecLike")) {
+    } else if (isPropSpec(typeDef)) {
       generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
       addScalaTestPropSpecMethods(methods, body)
-    } else if (isInheritor(typeDef, "org.scalatest.WordSpecLike", "org.scalatest.fixture.WordSpecLike")) {
+    } else if (isWorldSpec(typeDef)) {
       generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, body)
       addScalaTestWordSpecMethods(methods, body, className)
     } else if (isInheritor(typeDef, "org.specs2.specification.script.SpecificationLike")) {
@@ -224,14 +230,19 @@ object ScalaTestGenerator {
     }
   }
 
-  private def addScalaTestFeatureSpecMethods(methods: Seq[MemberInfo], templateBody: ScTemplateBody): Unit = {
+  /** @param useUpperCase from ScalaTest 3.1.0 changelog:<br>
+   *                     `Changed feature to Feature and scenario to Scenario in FeatureSpec.` */
+  private def addScalaTestFeatureSpecMethods(methods: Seq[MemberInfo], templateBody: ScTemplateBody, useUpperCase: Boolean = false): Unit = {
     import templateBody.projectContext
 
+    val scenario = if (useUpperCase) "Scenario" else "scenario"
+    val feature = if (useUpperCase) "Feature" else "feature"
+
     if (methods.nonEmpty) {
-      val methodStrings = methods.map(m => s"scenario (${m.nameQuoted}){\n\n}\n")
+      val methodStrings = methods.map(m => s"$scenario (${m.nameQuoted}){\n\n}\n")
       val methodsConcat = methodStrings.mkString("\n")
       val result = 
-        s"""feature("Methods tests") {
+        s"""$feature("Methods tests") {
            |$methodsConcat}""".stripMargin
       templateBody.addBefore(createExpressionFromText(result), templateBody.getLastChild)
       templateBody.addBefore(createNewLine(), templateBody.getLastChild)
@@ -395,7 +406,7 @@ object ScalaTestGenerator {
   }
 
   private implicit class MemberInfoOps(private val info: MemberInfo) extends AnyVal {
-    def name: String = info.name
+    def name: String = info.getMember.getName
     def nameQuoted: String = info.name.quoted
   }
 }

@@ -39,7 +39,7 @@ object TypeDefinition {
    def childrenOf(definition: ScTypeDefinition): Seq[PsiElement] = {
      val blocks = definition.extendsBlock.templateBody.toSeq
        .flatMap(_.getChildren)
-       .filterBy[ScBlockExpr]
+       .filterByType[ScBlockExpr]
 
      val members = definition.membersWithSynthetic.flatMap {
        case constructor: ScPrimaryConstructor => definition match {

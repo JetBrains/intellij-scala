@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala
+package annotator
 
 import com.intellij.psi.PsiElement
 
@@ -81,7 +82,44 @@ class ScalaLibVarianceTest extends VarianceTestBase {
       case Error("thing", ContravariantPosition()) :: Nil =>
     }
 
-  def testSCL4391_1(): Unit = assertNothing(messages("class Thing[-A](val thing: A)"))
+  def testSCL4391_1(): Unit = assertNothing(messages("class Thing[+A](val thing: A)"))
+
+  //
+  def testCovariantFuncClassParam(): Unit = {
+    assertMatches(messages("class AA[+T](val f: Fun1[T, Int])")) {
+      case Error("f", ContravariantPosition()) :: Nil =>
+    }
+  }
+
+  def testCovariantFuncCaseClassParam(): Unit = {
+    assertMatches(messages("case class BB[+T](f: Fun1[T, Int])")) {
+      case Error("f", ContravariantPosition()) :: Nil =>
+    }
+  }
+
+  def testContraVariantValClassParam(): Unit = {
+    assertMatches(messages("class CC[-T](val t: T)")) {
+      case Error("t", CovariantPosition()) :: Nil =>
+    }
+  }
+
+  def testContraVariantCaseClassParam(): Unit = {
+    assertMatches(messages("case class DD[-T](t: T)")) {
+      case Error("t", CovariantPosition()) :: Nil =>
+    }
+  }
+
+  def testContravariantFuncClassParam(): Unit = {
+    assertMatches(messages("class EE[-T](val f: Fun1[Int, T])")) {
+      case Error("f", CovariantPosition()) :: Nil =>
+    }
+  }
+
+  def testContravariantFuncCaseClassParam(): Unit = {
+    assertMatches(messages("case class FF[-T](f: Fun1[Int, T])")) {
+      case Error("f", CovariantPosition()) :: Nil =>
+    }
+  }
 }
 
 

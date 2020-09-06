@@ -758,7 +758,7 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
     doTest(before, after)
   }
 
-  def test(): Unit = {
+  def testNotInsert_FinallyBlock_NonIntended(): Unit = {
     val before =
       s"""class A {
          |  try {
@@ -1010,8 +1010,8 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
          |  42
          |""".stripMargin
     val afterWithEnabled =
-      s"""def foo = {$CARET
-         |  42
+      s"""def foo = {
+         |  ${CARET}42
          |}
          |""".stripMargin
     // TODO: change after fixing SCL-14330
@@ -1029,5 +1029,290 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
     } finally {
       settings.WRAP_SINGLE_EXPRESSION_BODY = settingBefore
     }
+  }
+
+  //
+  // if-else with nested if-else
+  //
+
+  /**
+   * NOTE: we do not remove such brace on BACKSPACE cause it can break the code semantics
+   * (see [[org.jetbrains.plugins.scala.lang.actions.editor.backspace.ClosingBraceRemoveTest#testNotRemove_IfElse_WithNestedIfWithoutElse]]
+   * but we insert such brace though it also breaks the semantics.
+   * We do so considering that bad-formatted code (in this case, non-intended else, which belongs to the inner if block)
+   * is a rare case during code editing
+   */
+  def testNotInsert_IfElse_WithNestedIfWithoutElse(): Unit = {
+    val before =
+      s"""if (true) ${|}
+         |  if (false)
+         |    println("Smiling")
+         |else {
+         |  println("Launching the rocket!")
+         |}""".stripMargin
+    // NOT strong requirement!
+    val after =
+      s"""if (true) {
+         |  ${|}if (false)
+         |    println("Smiling")
+         |else {
+         |  println("Launching the rocket!")
+         |}
+         |}""".stripMargin
+    doTest(before, after)
+  }
+
+  def testInsert_IfElse_WithNestedIfWithElse(): Unit = {
+    val before =
+      s"""if (true) ${|}
+         |  if (false)
+         |    println("Smiling")
+         |  else {}
+         |else {
+         |  println("Launching the rocket!")
+         |}""".stripMargin
+    val after =
+      s"""if (true) {
+         |  ${|}if (false)
+         |    println("Smiling")
+         |  else {}
+         |} else {
+         |  println("Launching the rocket!")
+         |}""".stripMargin
+    doTest(before, after)
+  }
+
+  def testNotInsert_If_Else_WIthBrokenBraceAfterInnerStatement(): Unit = {
+    // NOTE: this code can occur, for example, when a user removes opening brace
+    // and sees that the closing brace wasn't removed (cause in the example "if" contains inner "if" without else statement)
+    val before =
+      s"""if (true) ${|}
+         |  if (false)
+         |    println("Smiling")
+         |}
+         |else {
+         |  println("Launching the rocket!")
+         |}""".stripMargin
+    val after =
+      s"""if (true) {${|}
+         |  if (false)
+         |    println("Smiling")
+         |}
+         |else {
+         |  println("Launching the rocket!")
+         |}""".stripMargin
+    doTest(before, after)
+
+  }
+
+  def testNotInsert_If_Else_WIthBrokenBraceAfterInnerStatement_1(): Unit = {
+    // NOTE: this code can occur, for example, when a user removes opening brace
+    // and sees that the closing brace wasn't removed (cause in the example "if" contains inner "if" without else statement)
+    val before =
+      s"""object X {
+         |  if (true) ${|}
+         |    if (false)
+         |      println("Smiling")
+         |  }
+         |  else {
+         |    println("Launching the rocket!")
+         |  }
+         |}""".stripMargin
+    val after =
+      s"""object X {
+         |  if (true) {${|}
+         |    if (false)
+         |      println("Smiling")
+         |  }
+         |  else {
+         |    println("Launching the rocket!")
+         |  }
+         |}""".stripMargin
+    doTest(before, after)
+
+  }
+
+  //
+  // try-finally-catch with nested try-finally-catch
+  //
+  def testNotInsert_TryFinallyBlock_WithInnerTryWithoutFinallyBlock(): Unit = {
+    val before =
+      s"""try ${|}
+         |  try
+         |    println("1")
+         |finally {
+         |  println("in finally")
+         |}
+         |""".stripMargin
+
+    // NOT strong requirement!
+    val after =
+      s"""try {
+         |  ${|}try
+         |    println("1")
+         |finally {
+         |  println("in finally")
+         |}
+         |}
+         |""".stripMargin
+
+    doTest(before, after)
+  }
+
+  def testNotInsert_TryFinallyBlock_WithInnerTryWithoutFinallyBlock_1(): Unit = {
+    val before =
+      s"""try ${|}
+         |  try
+         |    println("1")
+         |  catch { case _ => }
+         |finally {
+         |  println("in finally")
+         |}
+         |""".stripMargin
+
+    // NOT strong requirement!
+    val after =
+      s"""try {
+         |  ${|}try
+         |    println("1")
+         |  catch { case _ => }
+         |finally {
+         |  println("in finally")
+         |}
+         |}
+         |""".stripMargin
+
+    doTest(before, after)
+  }
+
+  def testInsert_TryFinallyBlock_WithInnerTryWithFinallyBlock(): Unit = {
+    val before =
+      s"""try ${|}
+         |  try
+         |    println("1")
+         |  finally
+         |    println("in inner finally")
+         |finally {
+         |  println("in finally")
+         |}
+         |""".stripMargin
+    val after =
+      s"""try {
+         |  ${|}try
+         |    println("1")
+         |  finally
+         |    println("in inner finally")
+         |} finally {
+         |  println("in finally")
+         |}
+         |""".stripMargin
+
+    doTest(before, after)
+  }
+
+  def testInsert_TryFinallyBlock_WithInnerTryWithFinallyBlock_1(): Unit = {
+    val before =
+      s"""try ${|}
+         |  try
+         |    println("1")
+         |  catch { case _ => }
+         |  finally
+         |    println("in inner finally")
+         |finally {
+         |  println("in finally")
+         |}
+         |""".stripMargin
+    val after =
+      s"""try {
+         |  ${|}try
+         |    println("1")
+         |  catch { case _ => }
+         |  finally
+         |    println("in inner finally")
+         |} finally {
+         |  println("in finally")
+         |}
+         |""".stripMargin
+
+    doTest(before, after)
+  }
+
+  def testInsert_TryCatchBlock_WithInnerTryWithoutCatchBlock(): Unit = {
+    val before =
+      s"""try ${|}
+         |  try
+         |    println("1")
+         |catch { case _: Exception42 => }
+         |""".stripMargin
+
+    // NOT strong requirement!
+    val after =
+      s"""try {
+         |  ${|}try
+         |    println("1")
+         |catch { case _: Exception42 => }
+         |}
+         |""".stripMargin
+
+    doTest(before, after)
+  }
+
+  def testInsert_TryCatchBlock_WithInnerTryWithoutCatchBlockButWithFinallyBlock(): Unit = {
+    val before =
+      s"""try ${|}
+         |  try
+         |    println("1")
+         |  finally {}
+         |catch { case _: Exception42 => }
+         |""".stripMargin
+    val after =
+      s"""try {
+         |  ${|}try
+         |    println("1")
+         |  finally {}
+         |} catch { case _: Exception42 => }
+         |""".stripMargin
+
+    doTest(before, after)
+  }
+
+  def testInsert_TryCatchBlock_WithInnerTryWithCatchBlock(): Unit = {
+    val before =
+      s"""try ${|}
+         |  try
+         |    println("1")
+         |  catch { case _: Exception23: => }
+         |catch { case _: Exception42 => }
+         |""".stripMargin
+    val after =
+      s"""try {
+         |  ${|}try
+         |    println("1")
+         |  catch { case _: Exception23: => }
+         |} catch { case _: Exception42 => }
+         |""".stripMargin
+
+    doTest(before, after)
+  }
+
+  def testInsert_TryCatchBlock_WithInnerTryWithCatchBlock_1(): Unit = {
+    val before =
+      s"""try ${|}
+         |  try
+         |    println("1")
+         |  catch { case _: Exception23: => }
+         |  finally {}
+         |catch { case _: Exception42 => }
+         |""".stripMargin
+    val after =
+      s"""try {
+         |  ${|}try
+         |    println("1")
+         |  catch { case _: Exception23: => }
+         |  finally {}
+         |} catch { case _: Exception42 => }
+         |""".stripMargin
+
+    doTest(before, after)
   }
 }

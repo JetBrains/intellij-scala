@@ -12,6 +12,7 @@ import com.intellij.psi.PsiElement
  */
 
 class IgnoreErrorHighlightingSurrounder extends Surrounder {
+  //noinspection ScalaExtractStringToBundle
   override def getTemplateDescription: String = "/*_*/.../*_*/"
 
   override def isApplicable(elements: Array[PsiElement]): Boolean = true

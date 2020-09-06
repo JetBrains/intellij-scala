@@ -147,7 +147,7 @@ object ScalaBasicCompletionProvider {
     extends CompletionProcessor(
       getPlace.getKinds(incomplete = false, completion = true),
       getPlace,
-      isImplicit = getPlace.isInstanceOf[ScReferenceExpression]
+      withImplicitConversions = getPlace.isInstanceOf[ScReferenceExpression]
     ) {
 
     private val lookupElements_ = mutable.ArrayBuffer.empty[LookupElement]
@@ -341,7 +341,7 @@ object ScalaBasicCompletionProvider {
 
   private def prefixedThisAndSupers(reference: ScReference): List[ScalaLookupItem] = reference match {
     case expression: ScReferenceExpression if ScalaCompletionUtil.completeThis(expression) =>
-      val notInsideSeveralClasses = expression.contexts.instancesOf[ScTemplateDefinition].size <= 1
+      val notInsideSeveralClasses = expression.contexts.filterByType[ScTemplateDefinition].size <= 1
 
       @tailrec
       def syntheticItems(element: PsiElement, result: List[ScalaLookupItem] = Nil): List[ScalaLookupItem] = element match {
