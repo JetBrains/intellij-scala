@@ -24,7 +24,7 @@ object Versions {
     val binary_2_12 = "2.12"
     val binary_2_13 = "2.13"
 
-    val latest_dotty = "0.26.0-RC1"
+    val latest_dotty = "0.27.0-RC1"
 
     def binaryVersion(v: String): String =
       if (v.startsWith("2.9")) binary_2_9
