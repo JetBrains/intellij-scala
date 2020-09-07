@@ -32,7 +32,7 @@ class AfterUpdateDottyVersionScript
   def testRunAllStuffNeededAfterUpdateDottyVersion(): Unit = {
     downloadLatestDottyProjectTemplate()
     recompileMacroPrinter3()
-    replaceDottyVersionInTastyReadmeFiles()
+//    replaceDottyVersionInTastyReadmeFiles()
   }
 
   /**
