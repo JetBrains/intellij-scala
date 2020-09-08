@@ -42,16 +42,14 @@ class IdeaIncrementalCompiler(scalac: AnalyzingCompiler)
         }.toSeq
         CompileOutput(groups: _*)
       }
-    val cArgs = new CompilerArguments(scalac.scalaInstance, scalac.classpathOptions)
-    val options = cArgs.makeArguments(Nil, compilationData.classpath.map(_.toPath).toSeq, None, compilationData.scalaOptions.toSeq)
 
     try {
       scalac.compile(
         compilationData.sources.toArray.map(file => Utils.virtualFileConverter.toVirtualFile(file.toPath)),
-        Array.empty,
+        compilationData.classpath.map(file => Utils.virtualFileConverter.toVirtualFile(file.toPath)).toArray,
         Utils.virtualFileConverter,
         emptyChanges,
-        options.toArray,
+        compilationData.scalaOptions.toArray,
         out,
         clientCallback,
         reporter,
@@ -70,19 +68,18 @@ class IdeaIncrementalCompiler(scalac: AnalyzingCompiler)
 
 private class ClientCallback(client: Client, output: Path) extends ClientCallbackBase {
 
-  override def generatedNonLocalClass(source: File, classFile: File, binaryClassName: String, srcClassName: String): Unit = {
-    client.generated(source, classFile, binaryClassName)
-  }
+  override def generatedNonLocalClass(source: VirtualFileRef,
+                                      classFile: Path,
+                                      binaryClassName: String,
+                                      srcClassName: String): Unit =
+    client.generated(Utils.virtualFileConverter.toPath(source).toFile, classFile.toFile, binaryClassName)
 
-  override def generatedLocalClass(source: File, classFile: File): Unit = {
-    val classFilePath = classFile.toPath
-    if(classFilePath.startsWith(output)){
-      val relative = output.relativize(classFilePath)
-
+  override def generatedLocalClass(source: VirtualFileRef, classFile: Path): Unit =
+    if (classFile.startsWith(output)) {
+      val relative = output.relativize(classFile)
       val binaryClassName = relative.iterator().asScala.mkString(".").dropRight(".class".length)
-      client.generated(source, classFile, binaryClassName)
+      client.generated(Utils.virtualFileConverter.toPath(source).toFile, classFile.toFile, binaryClassName)
     }
-  }
 
   override def enabled(): Boolean = false
 }
@@ -93,27 +90,55 @@ abstract class ClientCallbackBase extends xsbti.AnalysisCallback {
 
   override def getPickleJarPair: Optional[T2[Path, Path]] = Optional.empty()
 
-  override def api(sourceFile: File, classApi: ClassLike): Unit = {}
   override def api(sourceFile: VirtualFileRef, classApi: ClassLike): Unit = {}
 
-  override def binaryDependency(onBinary: File, onBinaryClassName: String, fromClassName: String, fromSourceFile: File, context: DependencyContext): Unit = {}
-  override def binaryDependency(onBinaryEntry: Path, onBinaryClassName: String, fromClassName: String, fromSourceFile: VirtualFileRef, context: DependencyContext): Unit = {}
+  final override def api(sourceFile: File, classApi: ClassLike): Unit =
+    api(Utils.virtualFileConverter.toVirtualFile(sourceFile.toPath), classApi)
+
+  override def binaryDependency(onBinaryEntry: Path,
+                                onBinaryClassName: String,
+                                fromClassName: String,
+                                fromSourceFile: VirtualFileRef,
+                                context: DependencyContext): Unit = {}
+
+  final override def binaryDependency(onBinary: File,
+                                      onBinaryClassName: String,
+                                      fromClassName: String,
+                                      fromSourceFile: File,
+                                      context: DependencyContext): Unit =
+    binaryDependency(
+      onBinary.toPath,
+      onBinaryClassName,
+      fromClassName,
+      Utils.virtualFileConverter.toVirtualFile(fromSourceFile.toPath),
+      context
+    )
 
   override def classDependency(onClassName: String, sourceClassName: String, context: DependencyContext): Unit = {}
 
   override def classesInOutputJar(): util.Set[String] =
     Set.empty[String].asJava
 
-  override def generatedLocalClass(source: File, classFile: File): Unit = {}
-  override def generatedLocalClass(source: VirtualFileRef, classFile: Path): Unit = {}
+  override def generatedLocalClass(source: File, classFile: File): Unit =
+    generatedLocalClass(Utils.virtualFileConverter.toVirtualFile(source.toPath), classFile.toPath)
 
-  override def generatedNonLocalClass(source: File, classFile: File, binaryClassName: String, srcClassName: String): Unit = {}
-  override def generatedNonLocalClass(source: VirtualFileRef, classFile: Path, binaryClassName: String, srcClassName: String): Unit = {}
+  final override def generatedNonLocalClass(source: File,
+                                            classFile: File,
+                                            binaryClassName: String,
+                                            srcClassName: String): Unit =
+    generatedNonLocalClass(
+      Utils.virtualFileConverter.toVirtualFile(source.toPath),
+      classFile.toPath,
+      binaryClassName,
+      srcClassName
+    )
 
   override def problem(what: String, position: Position, x$3: String, msg: Severity, reported: Boolean): Unit = {}
 
-  override def startSource(source: File): Unit = {}
   override def startSource(source: VirtualFile): Unit = {}
+
+  final override def startSource(source: File): Unit =
+    startSource(Utils.virtualFileConverter.toVirtualFile(source.toPath))
 
   override def usedName(className: String, name: String, useScopes: util.EnumSet[xsbti.UseScope]): Unit = {}
 
@@ -123,8 +148,10 @@ abstract class ClientCallbackBase extends xsbti.AnalysisCallback {
 
   override def enabled(): Boolean = false
 
-  override def mainClass(sourceFile: File, className: String): Unit = {}
   override def mainClass(sourceFile: VirtualFileRef, className: String): Unit = {}
+
+  final override def mainClass(sourceFile: File, className: String): Unit =
+    mainClass(Utils.virtualFileConverter.toVirtualFile(sourceFile.toPath), className)
 }
 
 private object emptyChanges extends DependencyChanges {
