@@ -9,6 +9,7 @@ import com.intellij.execution.configurations._
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.testframework.sm.runner.{SMRunnerConsolePropertiesProvider, SMTRunnerConsoleProperties}
 import com.intellij.openapi.components.PathMacroManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.options.{SettingsEditor, SettingsEditorGroup}
 import com.intellij.openapi.project.Project
@@ -19,6 +20,7 @@ import com.intellij.util.xmlb.XmlSerializer
 import com.intellij.util.xmlb.annotations.Transient
 import org.jdom.Element
 import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
@@ -161,7 +163,13 @@ abstract class AbstractTestRunConfiguration(
   private def thisConfiguration: RunConfigurationBase[_] = this
 
   protected[test] final def isValidSuite(clazz: PsiClass): Boolean =
-    getSuiteClass.fold(_ => false, validityChecker.isValidSuite(clazz, _))
+    getSuiteClass.fold(
+      exception => {
+        Log.traceSafe(s"isValidSuite: false (${exception.getMessage})")
+        false
+      },
+      validityChecker.isValidSuite(clazz, _)
+    )
 
   /** @return whether `clazz` can be discovered when run indirectly, e.g. using "All in package" test kind */
   protected[test] def canBeDiscovered(clazz: PsiClass): Boolean = true
@@ -221,6 +229,8 @@ abstract class AbstractTestRunConfiguration(
 }
 
 object AbstractTestRunConfiguration {
+
+  private val Log = Logger.getInstance(getClass)
 
   case class SettingEntry(settingName: String, task: Option[String], sbtProjectUri: Option[String], sbtProjectId: Option[String])
 

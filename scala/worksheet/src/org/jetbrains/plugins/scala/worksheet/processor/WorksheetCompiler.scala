@@ -66,7 +66,7 @@ class WorksheetCompiler(
   }
 
   def compileOnly(document: Document, client: Client)(originalCallback: EvaluationCallback): Unit = try {
-    Log.traceSafe(s"compileOnly: $document")
+    Log.traceWithDebugInDev(s"compileOnly: $document")
     val headlessMode = {
       val application = ApplicationManager.getApplication
       !application.isInternal || application.isUnitTestMode
@@ -87,7 +87,7 @@ class WorksheetCompiler(
 
     compilerTask.startWork {
       val callback: RemoteServerConnectorResult => Unit = result => {
-        Log.traceSafe(s"compileOnly result: $result")
+        Log.traceWithDebugInDev(s"compileOnly result: $result")
         originalCallback(WorksheetCompilerResult.Compiled)
       }
       try {

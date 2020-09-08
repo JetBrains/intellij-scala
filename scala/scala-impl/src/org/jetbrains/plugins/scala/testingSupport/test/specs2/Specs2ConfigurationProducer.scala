@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test.specs2
 
+import com.intellij.execution.actions.RunConfigurationProducer
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, TraversableExt}
@@ -68,4 +69,10 @@ final class Specs2ConfigurationProducer extends AbstractTestConfigurationProduce
     }
     Some(ClassWithTestName(testClassDef, testName))
   }
+}
+
+object Specs2ConfigurationProducer {
+
+  def instance: Specs2ConfigurationProducer =
+    RunConfigurationProducer.EP_NAME.findExtensionOrFail(classOf[Specs2ConfigurationProducer])
 }

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test.utest
 
+import com.intellij.execution.actions.RunConfigurationProducer
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
@@ -131,4 +132,10 @@ final class UTestConfigurationProducer extends AbstractTestConfigurationProducer
     val testName = testNameOpt.orElse(TestNodeProvider.getUTestLeftHandTestDefinition(element).flatMap(getTestSuiteName))
     Some(ClassWithTestName(containingObject, testName))
   }
+}
+
+object UTestConfigurationProducer {
+
+  def instance: UTestConfigurationProducer =
+    RunConfigurationProducer.EP_NAME.findExtensionOrFail(classOf[UTestConfigurationProducer])
 }

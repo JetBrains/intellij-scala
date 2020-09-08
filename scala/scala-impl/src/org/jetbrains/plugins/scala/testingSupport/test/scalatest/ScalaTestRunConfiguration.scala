@@ -34,7 +34,7 @@ class ScalaTestRunConfiguration(
 
   override val testFramework: TestFramework = TestFramework.EXTENSION_NAME.findExtension(classOf[ScalaTestTestFramework])
 
-  override val configurationProducer: ScalaTestConfigurationProducer = TestConfigurationUtil.scalaTestConfigurationProducer
+  override val configurationProducer: ScalaTestConfigurationProducer = ScalaTestConfigurationProducer.instance
 
   override protected def validityChecker: SuiteValidityChecker = ScalaTestRunConfiguration.validityChecker
 

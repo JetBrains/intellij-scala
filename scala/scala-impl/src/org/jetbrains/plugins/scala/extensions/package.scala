@@ -1529,11 +1529,14 @@ package object extensions {
       }
 
     def traceSafe(@NonNls message: => String): Unit =
-      if (logger.isTraceEnabled) {
+      if (logger.isTraceEnabled)
         logger.trace(message)
-      } else if (ApplicationManager.getApplication.isUnitTestMode || ScalaPluginUtils.isRunningFromSources) {
+
+    def traceWithDebugInDev(@NonNls message: => String): Unit =
+      if (logger.isTraceEnabled)
+        logger.trace(message)
+      else if (ApplicationManager.getApplication.isUnitTestMode || ScalaPluginUtils.isRunningFromSources)
         logger.debugSafe(message)
-      }
   }
 
   implicit class HighlightInfoExt(private val info: HighlightInfo) extends AnyVal {

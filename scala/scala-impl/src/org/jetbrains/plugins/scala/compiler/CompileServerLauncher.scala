@@ -55,7 +55,7 @@ object CompileServerLauncher {
       val settings = ScalaCompileServerSettings.getInstance
 
       val compileServerRequired = settings.COMPILE_SERVER_ENABLED && project.hasScala
-      LOG.traceSafe(s"Listener.compileServerRequired: $compileServerRequired")
+      LOG.traceWithDebugInDev(s"Listener.compileServerRequired: $compileServerRequired")
       if (compileServerRequired) {
         invokeAndWait {
           CompileServerManager.configureWidget(project)
@@ -85,7 +85,7 @@ object CompileServerLauncher {
     Try {
       new RemoteServerRunner(project).send("addDisconnectListener", Seq.empty, null)
     }.recoverWith { case _: Exception if isUnitTestMode && waitUntilDebuggerAttached =>
-      LOG.traceSafe("waiting for compile server initialization...")
+      LOG.traceWithDebugInDev("waiting for compile server initialization...")
       sendDummyRequest(project)
     }
 
@@ -122,7 +122,7 @@ object CompileServerLauncher {
   } yield new File(pluginsLibs, filesPath)
 
   private def start(project: Project, jdk: JDK): Either[NlsString, Process] = {
-    LOG.traceSafe(s"starting server")
+    LOG.traceWithDebugInDev(s"starting server")
 
     val settings = ScalaCompileServerSettings.getInstance
 
@@ -215,7 +215,7 @@ object CompileServerLauncher {
 
   // TODO stop server more gracefully
   def stop(timeoutMs: Long = 0): Boolean = {
-    LOG.traceSafe(s"stop: ${serverInstance.map(_.summary)}")
+    LOG.traceWithDebugInDev(s"stop: ${serverInstance.map(_.summary)}")
     serverInstance.forall { it =>
       it.destroyAndWait(timeoutMs)
     }
@@ -293,9 +293,9 @@ object CompileServerLauncher {
   // TODO: make it thread safe, call from a single thread OR use some locking mechanism
 
   def ensureServerRunning(project: Project): Boolean = serverStartLock.synchronized {
-    LOG.traceSafe(s"ensureServerRunning [thread:${Thread.currentThread.getId}]")
+    LOG.traceWithDebugInDev(s"ensureServerRunning [thread:${Thread.currentThread.getId}]")
     if (needRestart(project)) {
-      LOG.traceSafe("ensureServerRunning: need to restart, stopping")
+      LOG.traceWithDebugInDev("ensureServerRunning: need to restart, stopping")
       stop()
     }
 

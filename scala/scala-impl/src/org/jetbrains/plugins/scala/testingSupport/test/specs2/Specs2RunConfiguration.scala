@@ -31,7 +31,7 @@ class Specs2RunConfiguration(
 
   override val testFramework: TestFramework = TestFramework.EXTENSION_NAME.findExtension(classOf[Specs2TestFramework])
 
-  override val configurationProducer: Specs2ConfigurationProducer = TestConfigurationUtil.specs2ConfigurationProducer
+  override val configurationProducer: Specs2ConfigurationProducer = Specs2ConfigurationProducer.instance
 
   override protected val validityChecker: SuiteValidityChecker = Specs2RunConfiguration.validityChecker
 

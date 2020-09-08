@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package testingSupport.test.scalatest
 
 import com.intellij.execution._
+import com.intellij.execution.actions.RunConfigurationProducer
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
@@ -86,4 +87,10 @@ final class ScalaTestConfigurationProducer extends AbstractTestConfigurationProd
       newLocation = new PsiLocation(location.getProject, location.getModule, parent)
       result      <- getTestClassWithTestName(newLocation)
     } yield result
+}
+
+object ScalaTestConfigurationProducer {
+
+  def instance: ScalaTestConfigurationProducer =
+    RunConfigurationProducer.EP_NAME.findExtensionOrFail(classOf[ScalaTestConfigurationProducer])
 }

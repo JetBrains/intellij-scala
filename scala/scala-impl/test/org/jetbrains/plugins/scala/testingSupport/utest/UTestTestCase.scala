@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.testingSupport.utest
 
+import com.intellij.execution.actions.RunConfigurationProducer
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingTestCase
+import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationProducer
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, TestConfigurationUtil}
 
 /**
@@ -9,7 +11,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfiguratio
   */
 abstract class UTestTestCase extends ScalaTestingTestCase {
   override protected val configurationProducer: AbstractTestConfigurationProducer[_] =
-    TestConfigurationUtil.uTestConfigurationProducer
+    RunConfigurationProducer.getInstance(classOf[UTestConfigurationProducer])
 
   protected val testSuiteSecondPrefix = "import utest.framework.TestSuite"
 

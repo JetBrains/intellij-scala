@@ -122,10 +122,11 @@ abstract class ScalaTestingTestCase
     new PsiLocation(project, myModule, psiElement)
   }
 
-  private def failedConfigMessage(fileName: String, lineNumber: Int, offset: Int) =
-    "Failed to create run configuration for test from file " + fileName + " from line " + lineNumber + " at offset " + offset
+  private def failedConfigMessage(fileName: String, lineNumber: Int, offset: Int, reason: String) =
+    s"Failed to create run configuration for test from file $fileName from line $lineNumber at offset $offset\nReason: $reason"
 
-  private def failedConfigMessage(packageName: String) = "Failed to create run configuration for test from package " + packageName
+  private def failedConfigMessage(packageName: String, reason: String = "<no reason>") =
+    s"Failed to create run configuration for test from package $packageName\nReason: $reason"
 
   override protected def createTestFromLocation(lineNumber: Int, offset: Int, fileName: String): RunnerAndConfigurationSettings = {
     var config: RunnerAndConfigurationSettings = null
@@ -133,8 +134,8 @@ abstract class ScalaTestingTestCase
       val location = createLocation(lineNumber, offset, fileName)
       val config1 = configurationProducer.createConfigurationFromContextLocation(location)
       config = config1.map(_._2) match {
-        case Some(testConfig) => testConfig
-        case _ => throw new RuntimeException(failedConfigMessage(fileName, lineNumber, offset))
+        case Right(testConfig) => testConfig
+        case Left(error) => throw new RuntimeException(failedConfigMessage(fileName, lineNumber, offset, error))
       }
     })
     config
@@ -158,10 +159,10 @@ abstract class ScalaTestingTestCase
     createTestFromDirectory(directory)
   }
 
-  private def createTestFromDirectory(directory: PsiDirectory) =
+  private def createTestFromDirectory(directory: PsiDirectory): RunnerAndConfigurationSettings =
     configurationProducer.createConfigurationFromContextLocation(new PsiLocation(getProject, directory)).map(_._2) match {
-      case Some(testConfig) => testConfig
-      case _ => throw new RuntimeException(failedConfigMessage(directory.getName))
+      case Right(testConfig) => testConfig
+      case Left(error) => throw new RuntimeException(failedConfigMessage(directory.getName, error))
     }
 
   override protected def runTestFromConfig(configurationAssert: RunnerAndConfigurationSettings => Unit,
