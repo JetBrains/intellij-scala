@@ -40,7 +40,7 @@ object ScalastyleCodeInspection {
   def configurationFor(file: ScalaFile): Option[ScalastyleConfiguration] = {
     val virtualFile = file.getVirtualFile
     val project = file.getProject
-    val baseDir = Option(ProjectUtil.guessProjectDir(project))
+    val baseDir = Option(project.getBaseDir)
     val fileIndex = ProjectFileIndex.getInstance(project)
     val contentRoot = Option(fileIndex.getContentRootForFile(virtualFile))
     val isTest = fileIndex.isInTestSourceContent(virtualFile)
