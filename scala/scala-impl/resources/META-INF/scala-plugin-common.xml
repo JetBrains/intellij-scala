@@ -508,8 +508,8 @@
         <projectService serviceImplementation="scala.meta.intellij.MetaExpansionsManager"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"/>
-        <projectService serviceInterface="org.jetbrains.plugins.scala.externalHighlighters.JpsCompiler"
-                        serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.JpsCompilerImpl"/>
+        <projectService serviceInterface="org.jetbrains.plugins.scala.externalHighlighters.HighlightingCompiler"
+                        serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.HighlightingCompilerImpl"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.CompileServerClient"
                         serviceImplementation="org.jetbrains.plugins.scala.compiler.CompileServerClientImpl"/>
 

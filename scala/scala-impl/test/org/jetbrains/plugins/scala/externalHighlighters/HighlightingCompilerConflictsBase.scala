@@ -28,8 +28,8 @@ import scala.concurrent.{Await, Promise}
   TestScalaVersion.Scala_3_0
 ))
 @RunWith(classOf[MultipleScalaVersionsRunner])
-abstract class JpsCompilerConflictsBase(compileServerLanguageLevel: LanguageLevel,
-                                        buildProcessLanguageLevel: LanguageLevel)
+abstract class HighlightingCompilerConflictsBase(compileServerLanguageLevel: LanguageLevel,
+                                                 buildProcessLanguageLevel: LanguageLevel)
   extends ScalaCompilerTestBase {
 
   override protected def useCompileServer: Boolean = true
@@ -87,21 +87,17 @@ abstract class JpsCompilerConflictsBase(compileServerLanguageLevel: LanguageLeve
         case _ => ()
       }
     })
-    JpsCompiler.get(getProject).rescheduleCompilation(
-      testScopeOnly = false,
-      delayedProgressShow = false,
-      forceCompileModule = None
-    )
+    HighlightingCompiler.get(getProject).rescheduleCompilation(delayedProgressShow = false)
     Await.result(promise.future, 60.seconds)
   }
 }
 
-class JpsCompilerConflictsDifferentJdksTest extends JpsCompilerConflictsBase(
+class HighlightingCompilerConflictsDifferentJdksTest extends HighlightingCompilerConflictsBase(
   compileServerLanguageLevel = LanguageLevel.JDK_1_8,
   buildProcessLanguageLevel = LanguageLevel.JDK_11,
 )
 
-class JpsCompilerConflictsSameJdksTest extends JpsCompilerConflictsBase(
+class HighlightingCompilerConflictsSameJdksTest extends HighlightingCompilerConflictsBase(
   compileServerLanguageLevel = LanguageLevel.JDK_11,
   buildProcessLanguageLevel = LanguageLevel.JDK_11,
 )

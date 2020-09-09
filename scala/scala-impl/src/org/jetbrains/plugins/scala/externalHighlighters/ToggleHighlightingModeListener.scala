@@ -28,11 +28,7 @@ class ToggleHighlightingModeListener
   private def compileOrEraseHighlightings(project: Project): Unit =
     DumbService.getInstance(project).runWhenSmart { () =>
       if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
-        JpsCompiler.get(project).rescheduleCompilation(
-          testScopeOnly = false,
-          delayedProgressShow = false,
-          forceCompileModule = None
-        )
+        HighlightingCompiler.get(project).rescheduleCompilation(delayedProgressShow = false)
         AnnotatorHints.clearIn(project)
       } else {
         ExternalHighlighters.eraseAllHighlightings(project)

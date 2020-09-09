@@ -156,7 +156,7 @@ object Main {
   }
 
   private def compileJpsLogic(command: CompileServerCommand.CompileJps, client: Client): Unit = {
-    val CompileServerCommand.CompileJps(projectPath, globalOptionsPath, dataStorageRootPath, testScopeOnly, forceCompileModule) = command
+    val CompileServerCommand.CompileJps(projectPath, globalOptionsPath, dataStorageRootPath) = command
     val dataStorageRoot = new File(dataStorageRootPath)
     val loader = new JpsModelLoaderImpl(projectPath, globalOptionsPath, false, null)
     val buildRunner = new BuildRunner(loader)
@@ -179,11 +179,7 @@ object Main {
     }
     val descriptor = buildRunner.load(messageHandler, dataStorageRoot, new BuildFSState(true))
     val forceBuild = false
-    val scopeTypes = if (testScopeOnly)
-      Seq(JavaModuleBuildTargetType.TEST)
-    else
-      Seq(JavaModuleBuildTargetType.TEST, JavaModuleBuildTargetType.PRODUCTION)
-    val scopes = scopeTypes.map(CmdlineProtoUtil.createAllTargetsScope(_, forceBuild)).asJava
+    val scopes = CmdlineProtoUtil.createAllModulesScopes(forceBuild)
 
     client.compilationStart()
     try {
@@ -196,21 +192,6 @@ object Main {
         scopes,
         true
       )
-      // TODO improve. Force compile only one file. And only if it wasn't compiled in previous compilation.
-      forceCompileModule.foreach { module =>
-        val scopes = scopeTypes.map { scopeType =>
-          CmdlineProtoUtil.createTargetsScope(scopeType.getTypeId, util.Arrays.asList(module), forceBuild)
-        }.asJava
-        buildRunner.runBuild(
-          descriptor,
-          () => client.isCanceled,
-          null,
-          messageHandler,
-          BuildType.BUILD,
-          scopes,
-          false
-        )
-      }
     } finally {
       client.compilationEnd(compiledFiles)
       descriptor.release()

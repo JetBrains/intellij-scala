@@ -73,7 +73,7 @@ object RegisterCompilationListener {
   private final class HighlightingScheduler(project: Project) extends Disposable {
     private val worksheetExecutor = new RescheduledExecutor("CompileWorksheetExecutor", this)
 
-    protected def compiler: JpsCompiler = JpsCompiler.get(project)
+    protected def compiler: HighlightingCompiler = HighlightingCompiler.get(project)
 
     def tryHighlight(file: PsiFile): Unit =
       file.getVirtualFile match {
@@ -100,14 +100,7 @@ object RegisterCompilationListener {
           }
         case _: ScalaFile | _: PsiJavaFile =>
           document.syncToDisk(project)
-          val projectFileIndex = ProjectFileIndex.getInstance(project)
-          val testScopeOnly = projectFileIndex.isInTestSourceContent(virtualFile)
-          val forceCompileModule = Option(projectFileIndex.getModuleForFile(virtualFile)).map(_.getName)
-          compiler.rescheduleCompilation(
-            testScopeOnly = testScopeOnly,
-            delayedProgressShow = true,
-            forceCompileModule = forceCompileModule
-          )
+          compiler.rescheduleCompilation(delayedProgressShow = true, forceCompileFile = Some(virtualFile))
         case _ =>
       }
     }

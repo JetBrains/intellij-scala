@@ -9,7 +9,7 @@ class CompilerLockBuildManagerListener
   extends BuildManagerListener {
 
   override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit = {
-    JpsCompiler.get(project).cancel()
+    HighlightingCompiler.get(project).cancel()
     CompilerLock.get(project).lock(sessionId.toString)
   }
 

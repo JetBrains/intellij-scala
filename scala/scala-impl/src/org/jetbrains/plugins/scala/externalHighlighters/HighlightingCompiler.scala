@@ -9,18 +9,20 @@ import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
 import com.intellij.openapi.util.SimpleModificationTracker
-import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.openapi.wm.ex.{StatusBarEx, WindowManagerEx}
 import com.intellij.util.io.PathKt
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.jps.incremental.Utils
+import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.CompileServerCommand
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.compiler.{CompileServerClient, CompileServerLauncher, RemoteServerRunner}
+import org.jetbrains.plugins.scala.compiler.{CompileServerClient, CompileServerLauncher}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.util.RescheduledExecutor
 
 import scala.concurrent.duration._
@@ -30,24 +32,26 @@ import org.jetbrains.plugins.scala.util.FutureUtil.sameThreadExecutionContext
 
 import scala.annotation.nowarn
 
-trait JpsCompiler {
-  def rescheduleCompilation(testScopeOnly: Boolean,
-                            delayedProgressShow: Boolean,
-                            forceCompileModule: Option[String]): Unit
+/**
+ * For compiler-based-highlighting
+ */
+trait HighlightingCompiler {
+  def rescheduleCompilation(delayedProgressShow: Boolean,
+                            forceCompileFile: Option[VirtualFile] = None): Unit
   
   def cancel(): Unit
   
   def isRunning: Boolean
 }
 
-object JpsCompiler {
+object HighlightingCompiler {
 
-  def get(project: Project): JpsCompiler =
-    ServiceManager.getService(project, classOf[JpsCompiler])
+  def get(project: Project): HighlightingCompiler =
+    ServiceManager.getService(project, classOf[HighlightingCompiler])
 }
 
-class JpsCompilerImpl(project: Project)
-  extends JpsCompiler
+class HighlightingCompilerImpl(project: Project)
+  extends HighlightingCompiler
     with Disposable {
 
   private val executor = new RescheduledExecutor("CompileJpsExecutor", this)
@@ -62,20 +66,14 @@ class JpsCompilerImpl(project: Project)
   private def saveProjectOnce(): Unit =
     if (!project.isDisposed || project.isDefault) project.save()
 
-  override def rescheduleCompilation(testScopeOnly: Boolean,
-                                     delayedProgressShow: Boolean,
-                                     forceCompileModule: Option[String]): Unit =
+  override def rescheduleCompilation(delayedProgressShow: Boolean,
+                                     forceCompileFile: Option[VirtualFile]): Unit =
     executor.schedule(ScalaHighlightingMode.compilationDelay) {
-      compile(
-        testScopeOnly = testScopeOnly,
-        delayedProgressShow = delayedProgressShow,
-        forceCompileModule = forceCompileModule
-      )
+      compile(delayedProgressShow, forceCompileFile)
     }
 
-  private def compile(testScopeOnly: Boolean,
-                      delayedProgressShow: Boolean,
-                      forceCompileModule: Option[String]): Unit = {
+  private def compile(delayedProgressShow: Boolean,
+                      forceCompileFile: Option[VirtualFile]): Unit = {
     saveProjectOnce()
     CompileServerLauncher.ensureServerRunning(project)
 
@@ -90,20 +88,20 @@ class JpsCompilerImpl(project: Project)
     val command = CompileServerCommand.CompileJps(
       projectPath = projectPath,
       globalOptionsPath = globalOptionsPath,
-      dataStorageRootPath = dataStorageRootPath,
-      testScopeOnly = testScopeOnly,
-      forceCompileModule = forceCompileModule
+      dataStorageRootPath = dataStorageRootPath
     )
 
     val promise = Promise[Unit]
-    val future = promise.future
     val taskMsg = ScalaBundle.message("highlighting.compilation")
     val task: Task.Backgroundable = new Task.Backgroundable(project, taskMsg, true) {
       override def run(indicator: ProgressIndicator): Unit = CompilerLock.get(project).withLock {
         progressIndicator = Some(indicator)
-        val client = new CompilerEventGeneratingClient(project, indicator)
-        val compileServerClient = CompileServerClient.get(project)
-        val result = Try(compileServerClient.execCommand(command, client))
+        val result = Try {
+          val client = new CompilerEventGeneratingClient(project, indicator)
+          val compileServerClient = CompileServerClient.get(project)
+          compileServerClient.execCommand(command, client)
+          doForceCompileFile(forceCompileFile, client)
+        }
         progressIndicator = None
         promise.complete(result)
       }
@@ -118,12 +116,23 @@ class JpsCompilerImpl(project: Project)
     showIndicatorExecutor.schedule(showProgressDelay) {
       indicator.show()
     }
+
+    val future = promise.future
     future.onComplete { _ =>
       showIndicatorExecutor.cancelLast()
     }
     Await.result(future, Duration.Inf)
   }
   
+  private def doForceCompileFile(fileOption: Option[VirtualFile],
+                                 client: Client): Unit = {
+    val projectFileIndex = ProjectFileIndex.getInstance(project)
+    for {
+      file <- fileOption
+      module <- Option(projectFileIndex.getModuleForFile(file))
+    } OneFileCompiler.compile(file.toFile, module, client)
+  }
+
   override def cancel(): Unit =
     progressIndicator.foreach(_.cancel())
 
