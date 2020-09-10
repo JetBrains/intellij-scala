@@ -21,7 +21,8 @@ case class IntellijExternalLookup(compilationData: CompilationData, client: Clie
     .map(file => Utils.virtualFileConverter.toVirtualFile(file.toPath))
     .toSet
 
-  override def lookupAnalyzedClass(binaryClassName: String): Option[AnalyzedClass] = None
+  override def lookupAnalyzedClass(binaryClassName: String, file: Option[VirtualFileRef]): Option[AnalyzedClass] =
+    None
 
   override def changedSources(previousAnalysis: CompileAnalysis): Option[Changes[VirtualFileRef]] =
     if (isCached) None else {

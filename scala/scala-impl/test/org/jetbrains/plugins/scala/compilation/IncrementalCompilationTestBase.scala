@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.compilation
 import java.io.File
 
 import com.intellij.openapi.roots.CompilerModuleExtension
-import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.testFramework.VfsTestUtil
 import org.hamcrest.CoreMatchers.equalTo
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.util.matchers.HamcrestMatchers.everyValueGrea
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
 import org.junit.Assert.assertThat
-import org.junit.Ignore
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
@@ -229,7 +228,6 @@ class IncrementalOnServerCompilationTest
 class IncrementalIdeaCompilationTest
   extends IncrementalCompilationTestBase(IncrementalityType.IDEA)
 
-@Ignore("SCL-18087")
 class IncrementalSbtCompilationTest
   extends IncrementalCompilationTestBase(IncrementalityType.SBT) {
 

@@ -36,11 +36,21 @@ class IntellijClassfileManager extends ClassFileManager with ClassfilesChanges {
     }
   }
 
+  final override def delete(classes: Array[File]): Unit =
+    delete(classes.map { file =>
+      Utils.virtualFileConverter.toVirtualFile(file.toPath)
+    })
+
   override def complete(success: Boolean): Unit = {}
 
   override def generated(classes: Array[VirtualFile]): Unit = _generated :+= classes.map { virtualFile =>
     Utils.virtualFileConverter.toPath(virtualFile).toFile
   }
+
+  final override def generated(classes: Array[File]): Unit =
+    generated(classes.map { file =>
+      Utils.virtualFileConverter.toVirtualFile(file.toPath)
+    })
 
   override def deletedDuringCompilation(): Seq[Array[File]] = _deleted
 
