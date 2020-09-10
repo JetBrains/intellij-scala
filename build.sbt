@@ -39,10 +39,9 @@ lazy val scalaCommunity: sbt.Project =
       mavenIntegration % "test->test;compile->compile",
       propertiesIntegration % "test->test;compile->compile",
       javaDecompilerIntegration)
-    .aggregate(tastyProvided, tastyCompile, tastyRuntime, tastyReader)
     .settings(
       ideExcludedDirectories    := Seq(baseDirectory.value / "target"),
-      packageAdditionalProjects := Seq(scalaApi, compilerJps, repackagedZinc, decompiler, compilerShared, nailgunRunners, runners, runtimeDependencies, tastyCompile, tastyRuntime, tastyReader),
+      packageAdditionalProjects := Seq(scalaApi, compilerJps, repackagedZinc, decompiler, compilerShared, nailgunRunners, runners, runtimeDependencies),
       packageLibraryMappings    := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
       definedTests in Test := { // all sub-project tests need to be run within main project's classpath
         definedTests.all(ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))).value.flatten }
@@ -101,23 +100,23 @@ lazy val worksheet = newProject(
 )
 
 lazy val tastyProvided = newProject("tasty-provided", file("tasty/provided"))
-  .settings(scalaVersion := "2.13.3", packageMethod := PackagingMethod.Skip())
+  .settings(scalaVersion := Versions.scalaVersion, packageMethod := PackagingMethod.Skip())
 
 lazy val tastyCompile = newProject("tasty-compile", file("tasty/compile"))
   .dependsOn(tastyProvided % Provided)
-  .settings(scalaVersion := "2.13.3", packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-compile.jar"))
+  .settings(scalaVersion := Versions.scalaVersion, packageMethod := PackagingMethod.Standalone("lib/tasty-compile.jar"))
 
 lazy val tastyRuntime = newProject("tasty-runtime", file("tasty/runtime"))
   .dependsOn(tastyCompile % "compile-internal", tastyProvided % Provided)
-  .settings(scalaVersion := "2.13.3", packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-runtime.jar"))
+  .settings(scalaVersion := Versions.scalaVersion, packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-runtime.jar"))
 
 lazy val tastyExample = newProject("tasty-example", file("tasty/example"))
   .dependsOn(tastyCompile, tastyProvided % Provided)
-  .settings(scalaVersion := "2.13.3", libraryDependencies += "ch.epfl.lamp" % "dotty-library_0.27" % "0.27.0-RC1" % Runtime)
+  .settings(scalaVersion := Versions.scalaVersion, libraryDependencies += "ch.epfl.lamp" % "dotty-library_0.27" % "0.27.0-RC1" % Runtime)
 
-lazy val tastyReader = newProject("tasty-reader", file("tasty/reader"))
-  .dependsOn(tastyCompile, tastyProvided % Provided)
-  .settings(scalaVersion := "2.13.3", packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-reader.jar"))
+// TODO Remove this synthetic module, package the Runtime dependency automatically.
+lazy val dottyLibraryJar = newProject("dotty-library-jar", file("target/tools/dotty-library-jar"))
+  .settings(libraryDependencies += "ch.epfl.lamp" % "dotty-library_0.27" % "0.27.0-RC1", packageMethod := PackagingMethod.DepsOnly("lib"))
 
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
@@ -126,12 +125,16 @@ lazy val scalaImpl: sbt.Project =
       scalaApi,
       macroAnnotations,
       decompiler % "test->test;compile->compile",
-      runners    % "test->test;compile->compile")
+      runners    % "test->test;compile->compile",
+      tastyCompile,
+      tastyProvided % Provided)
+    .aggregate(tastyRuntime)
     .enablePlugins(BuildInfoPlugin)
     .settings(
       ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
       //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
-      libraryDependencies ++= DependencyGroups.scalaCommunity,
+      libraryDependencies ++= DependencyGroups.scalaCommunity :+
+        "ch.epfl.lamp" % "dotty-library_0.27" % "0.27.0-RC1" % Runtime, // TODO Runtime dependencies must be packaged automatically.
 //      addCompilerPlugin(Dependencies.macroParadise),
       intellijPlugins := Seq(
         "org.intellij.intelliLang",
@@ -147,6 +150,7 @@ lazy val scalaImpl: sbt.Project =
       intellijPluginJars :=
         intellijPluginJars.value.filterNot(cp => cp.data.getName.contains("junit-jupiter-api")),
       packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity),
+      packageAdditionalProjects := Seq(tastyRuntime, dottyLibraryJar),
       packageLibraryMappings ++= Seq(
         "org.scalameta" %% ".*" % ".*"                        -> Some("lib/scalameta.jar"),
         "com.thesamet.scalapb" %% "scalapb-runtime" % ".*"  -> None,

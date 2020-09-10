@@ -9,14 +9,12 @@ import com.intellij.util.PathUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
 
-import scala.jdk.CollectionConverters._
+import scala.quoted.show.SyntaxHighlight
+import scala.tasty.compat.{ConsumeTasty, Reflection, TastyConsumer}
 
 object TastyReader {
-  // TODO Remove when the project use Scala 2.13
-  import scala.language.reflectiveCalls
-
   def read(classpath: String, className: String): Option[TastyFile] =
-    Option(reader.read(classpath, className))
+    read(api, classpath, className)
 
   def read(containingFile: PsiFile): Option[TastyFile] =
     for {
@@ -27,35 +25,58 @@ object TastyReader {
   def readText(classpath: String, className: String): Option[String] =
     read(classpath, className).map(_.text)
 
+  // The "dotty-tasty-inspector" transitively depends on many unnecessary libraries.
+  private val RequiredLibraries = Seq(
+    "dotty-interfaces",
+    "dotty-compiler",
+    "dotty-tasty-inspector",
+    "tasty-core",
+    // TODO Why do we also need those libraries in the URL classloader? (tasty-example works fine without them)
+    "scala-library",
+    "dotty-library",
+  )
+
   // TODO Async, Progress, GC, error handling
-  private lazy val reader: TastyReader = {
-    val jarFiles = {
+  private lazy val api: ConsumeTasty = {
+    var jarFiles = {
       val resolvedJars = {
         val Resolver = new DependencyManagerBase {override protected val artifactBlackList = Set.empty[String] }
         // TODO TASTy inspect: an ability to detect .tasty file version, https://github.com/lampepfl/dotty-feature-requests/issues/99
         // TODO TASTy inspect: make dotty-compiler depend on tasty-inspector https://github.com/lampepfl/dotty-feature-requests/issues/100
         // TODO Introduce the version variable
         val tastyInspectorDependency = DependencyDescription("ch.epfl.lamp", "dotty-tasty-inspector_0.27", "0.27.0-RC1", isTransitive = true)
-        Resolver.resolve(tastyInspectorDependency).map(_.file)
+        Resolver.resolve(tastyInspectorDependency).map(_.file).filter(jar => RequiredLibraries.exists(jar.getPath.contains))
       }
 
-      val bundledJars = {
-        val base = tastyDirectoryFor(getClass)
-        Seq("tasty-compile.jar", "tasty-runtime.jar", "tasty-reader.jar").map(new File(base, _))
-      }
+      val bundledJar = new File(tastyDirectoryFor(getClass), "tasty-runtime.jar")
 
-      resolvedJars ++ bundledJars
+      resolvedJars :+ bundledJar
     }
 
-    jarFiles.foreach(file => assert(file.exists(), file.toString))
-
-    val tastyReaderImplClass = {
+    val consumeTastyImplClass = {
       val urls = jarFiles.map(file => file.toURI.toURL).toArray
-      val loader = new URLClassLoader(urls, IsolatingClassLoader.scalaStdLibIsolatingLoader(getClass.getClassLoader))
-      loader.loadClass("org.jetbrains.plugins.scala.tasty.TastyReaderImpl")
+      val loader = new URLClassLoader(urls, getClass.getClassLoader)
+      loader.loadClass("scala.tasty.compat.ConsumeTastyImpl")
     }
 
-    tastyReaderImplClass.newInstance().asInstanceOf[TastyReader]
+    consumeTastyImplClass.newInstance().asInstanceOf[ConsumeTasty]
+  }
+
+  private def read(consumeTasty: ConsumeTasty, classpath: String, className: String): Option[TastyFile] = {
+    // TODO An ability to detect errors, https://github.com/lampepfl/dotty-feature-requests/issues/101
+    var result = Option.empty[TastyFile]
+
+    val tastyConsumer = new TastyConsumer {
+      override def apply(reflect: Reflection)(tree: reflect.delegate.Tree): Unit = {
+        val printer = new SourceCodePrinter[reflect.type](reflect)(SyntaxHighlight.plain)
+        val text = printer.showTree(tree)(reflect.delegate.rootContext)
+        result = Some(TastyFile(text, printer.references, printer.types))
+      }
+    }
+
+    consumeTasty.apply(classpath, List(className), tastyConsumer)
+
+    result
   }
 
   private def tastyDirectoryFor(aClass: Class[_]): File = {

@@ -30,9 +30,7 @@ object Main {
     val MajorVersion = Version.split('.').take(2).mkString(".")
 
     val files = Seq(
-      home + "/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.3/scala-library-2.13.3.jar",
       s"$home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/dotty-interfaces/$Version/dotty-interfaces-$Version.jar",
-      s"$home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/dotty-library_$MajorVersion//$Version/dotty-library_$MajorVersion-$Version.jar",
       s"$home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/dotty-compiler_$MajorVersion//$Version/dotty-compiler_$MajorVersion-$Version.jar",
       s"$home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/dotty-tasty-inspector_$MajorVersion//$Version/dotty-tasty-inspector_$MajorVersion-$Version.jar",
       s"$home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/tasty-core_$MajorVersion//$Version/tasty-core_$MajorVersion-$Version.jar",

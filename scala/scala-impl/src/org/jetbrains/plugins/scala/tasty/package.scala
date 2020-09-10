@@ -19,30 +19,13 @@ package object tasty {
   @Nls
   val tastyName = "TASTy"
 
-  // TODO Remove the structural types when the project use Scala 2.13
-  import scala.language.reflectiveCalls
+  case class TastyFile(text: String, references: Seq[ReferenceData], types: Seq[TypeData])
 
-  type TastyFile = {
-    def text: String
-    def references: Array[ReferenceData]
-    def types: Array[TypeData]
-  }
-  type Position = {
-    def file: String
-    def start: Int
-    def end: Int
-  }
-  type ReferenceData = {
-    def position: Position
-    def target: Position
-  }
-  type TypeData = {
-    def position: Position
-    def presentation: String
-  }
-  private[tasty] type TastyReader = {
-    def read(classpath: String, className: String): TastyFile
-  }
+  case class Position(file: String, start: Int,  end: Int)
+
+  case class ReferenceData(position: Position, target: Position)
+
+  case class TypeData(position: Position, presentation: String)
 
   def isTastyEnabledFor(element: PsiElement): Boolean = element.isInScala3Module
 //    element.getLanguage.is(Scala3Language.INSTANCE) // TODO SCL-17237
