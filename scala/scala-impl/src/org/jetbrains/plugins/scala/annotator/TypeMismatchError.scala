@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.annotationHolder.DelegateAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.quickfix.{EnableTypeMismatchHints, ReportHighlightingErrorQuickFix}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TypePresentation}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 

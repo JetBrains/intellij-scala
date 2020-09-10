@@ -116,7 +116,7 @@ class ILoopWrapperFactoryHandler {
       AnalyzingCompiler.compileSources(
         Seq(sourceJar.toPath),
         targetJar.toPath,
-        xsbtiJars = Seq(interfaceJar, containingJar, reporterJar).distinct,
+        xsbtiJars = Seq(interfaceJar, containingJar, reporterJar).distinct.map(_.toPath),
         id = replLabel,
         compiler = rawCompiler,
         log = logger
