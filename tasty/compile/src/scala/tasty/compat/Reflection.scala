@@ -2,7 +2,7 @@ package scala.tasty.compat
 
 import scala.quoted.show.SyntaxHighlight
 
-// Reproduces the API of https://github.com/lampepfl/dotty/blob/0.23.0-RC1/library/src/scala/tasty/Reflection.scala on top of the Scala 2.x ABI.
+// Reproduces the API of https://github.com/lampepfl/dotty/blob/0.27.0-RC1/library/src/scala/tasty/Reflection.scala on top of the Scala 2.x ABI.
 // Is required because Scala 2.x doesn't support extension methods (and implicit AnyVal classes in a class):
 // https://dotty.epfl.ch/docs/reference/contextual/relationship-implicits.html
 class Reflection(val delegate: scala.tasty.Reflection) {
