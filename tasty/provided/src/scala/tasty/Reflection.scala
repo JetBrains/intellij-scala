@@ -4,7 +4,7 @@ import scala.internal.CompilerInterface
 import scala.quoted.show.SyntaxHighlight
 import scala.tasty.reflect._
 
-// Reproduces the ABI of https://github.com/lampepfl/dotty/blob/0.23.0-RC1/library/src/scala/tasty/Reflection.scala
+// Reproduces the ABI of https://github.com/lampepfl/dotty/blob/0.27.0-RC1/library/src/scala/tasty/Reflection.scala
 // Requires the corresponding "compat" class to reproduce the API.
 trait Reflection extends CompilerInterface { reflectSelf =>
 
