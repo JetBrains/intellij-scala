@@ -210,11 +210,13 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
   override def onWizardFinished(): Unit = {
     // TODO this spawns an indicator window which is not nice.
     // show a live log in the window or something?
-    updateDataModel() // without it runSetupTask is null
-    builder.prepare(wizardContext)
-    builder.ensureProjectIsDefined(wizardContext)
-    val task = new ConfigSetupTask(runSetupTask)
-    task.queue()
+    if(wizardContext.getProjectBuilder.isInstanceOf[BspProjectImportBuilder]) {
+      updateDataModel() // without it runSetupTask is null
+      builder.prepare(wizardContext)
+      builder.ensureProjectIsDefined(wizardContext)
+      val task = new ConfigSetupTask(runSetupTask)
+      task.queue()
+    }
   }
 
 }
