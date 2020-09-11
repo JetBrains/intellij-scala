@@ -20,9 +20,16 @@ import scala.util.Try
   def optionToString(s: Option[String]): String = s.getOrElse("")
 
   def sequenceToString(strings: Iterable[String]): String =
-    strings.mkString(Delimiter)
+    if (strings.isEmpty)
+      Delimiter
+    else
+      strings.mkString(Delimiter)
+
   def stringToSequence(string: String): Seq[String] =
-    if (string.isEmpty) Seq.empty else string.split(SerializationUtils.Delimiter).toSeq
+    if (string == Delimiter)
+      Seq.empty
+    else
+      string.split(Delimiter).toSeq
 
   // deserializing
   // probably better separate parsing from validation (nullability, file existence, etc...), but nit critical now
