@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet.integration
 
+import com.intellij.openapi.compiler.CompilerMessage
 import com.intellij.openapi.editor.{Editor, FoldRegion}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
@@ -97,10 +98,12 @@ abstract class WorksheetIntegrationBaseTest
     settings.setAutoRunDelay(300)
   }
 
-  protected def doRenderTest(before: String, afterWithFoldings: String): Editor = {
+  protected def doRenderTest(before: String,
+                             afterWithFoldings: String,
+                             isCompilerMessageAllowed: CompilerMessage => Boolean = _ => false): Editor = {
     val beforeFixed = before
     val (afterFixed, foldings) = preprocessViewerText(afterWithFoldings)
-    doRenderTest(beforeFixed, afterFixed, foldings)
+    doRenderTest(beforeFixed, afterFixed, foldings, isCompilerMessageAllowed)
   }
 
   protected def doRenderTestWithoutCompilationWarningsChecks(before: String, afterWithFoldings: String): Editor = {
@@ -128,14 +131,15 @@ abstract class WorksheetIntegrationBaseTest
   private def doRenderTest(
     before: String,
     after: String,
-    foldings: Seq[Folding]
+    foldings: Seq[Folding],
+    isCompilerMessageAllowed: CompilerMessage => Boolean
   ): Editor = {
     val TestRunResult(editor, evaluationResult) = doRenderTestWithoutCompilationChecks(before, after, foldings)
 
     evaluationResult shouldBe RunWorksheetActionResult.Done
 
-    assertNoErrorMessages(editor)
-    assertNoWarningMessages(editor)
+    assertNoErrorMessages(editor, isCompilerMessageAllowed)
+    assertNoWarningMessages(editor, isCompilerMessageAllowed)
 
     editor
   }
