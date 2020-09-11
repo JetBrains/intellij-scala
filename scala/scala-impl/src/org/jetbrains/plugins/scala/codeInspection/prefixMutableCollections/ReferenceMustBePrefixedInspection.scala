@@ -17,10 +17,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createE
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult.withActual
 
+import scala.annotation.nowarn
+
 /**
   * @author Alefas
   * @since 26.05.12
   */
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class ReferenceMustBePrefixedInspection extends AbstractInspection(ScalaInspectionBundle.message("reference.must.be.prefixed")) {
 
   import ReferenceMustBePrefixedInspection._

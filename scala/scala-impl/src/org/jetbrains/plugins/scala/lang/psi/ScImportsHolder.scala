@@ -44,7 +44,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       case _ => null
     }
     if (stub != null)
-      stub.getChildrenByType(ScalaElementType.ImportStatement, ScImportStmtFactory)
+      stub.getChildrenByType(ScalaElementType.ImportStatement, ScImportStmtFactory).toSeq
     else
       findChildrenByClassScala(classOf[ScImportStmt]).toSeq
   }

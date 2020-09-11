@@ -35,7 +35,7 @@ object ScalaSourceRootFinder {
     implicit val lexer: ScalaLexer = new ScalaLexer
     lexer.start(buf)
 
-    val builder = StringBuilder.newBuilder
+    val builder = new StringBuilder()
 
     readPackage(firstTime = true) { isDot =>
       builder.append(if (isDot) "." else lexer.getTokenText)

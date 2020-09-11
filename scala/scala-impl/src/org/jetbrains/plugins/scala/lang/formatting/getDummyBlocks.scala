@@ -652,10 +652,10 @@ class getDummyBlocks(private val block: ScalaBlock) {
       val trimmedLine = line.trim()
       val lineLength = line.length
       val linePrefixLength = if (settings.useTabCharacter(ScalaFileType.INSTANCE)) {
-        val tabsCount = line.prefixLength(_ == '\t')
-        tabsCount + line.substring(tabsCount).prefixLength(_ == ' ')
+        val tabsCount = line.segmentLength(_ == '\t')
+        tabsCount + line.substring(tabsCount).segmentLength(_ == ' ')
       } else {
-        line.prefixLength(_ == ' ')
+        line.segmentLength(_ == ' ')
       }
 
       if (trimmedLine.startsWith(marginChar)) {

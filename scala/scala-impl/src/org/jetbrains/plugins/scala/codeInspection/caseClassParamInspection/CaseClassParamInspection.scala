@@ -12,7 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.util.EnumSet._
 
+import scala.annotation.nowarn
 
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class CaseClassParamInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.case.class.parameter")) {
 
   override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {

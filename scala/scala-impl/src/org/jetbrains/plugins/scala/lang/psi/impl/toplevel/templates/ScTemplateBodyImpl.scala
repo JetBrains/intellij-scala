@@ -42,7 +42,7 @@ class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
   override def toString: String = "ScTemplateBody"
 
   override def aliases: Seq[ScTypeAlias] =
-    getStubOrPsiChildren(ALIASES_SET, ScTypeAliasFactory)
+    getStubOrPsiChildren(ALIASES_SET, ScTypeAliasFactory).toSeq
 
   override def functions: Seq[ScFunction] =
     getStubOrPsiChildren(FUNCTIONS, ScFunctionFactory).toSeq.filterNot(_.isLocal)
@@ -67,7 +67,7 @@ class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
 
   override def exprs: Seq[ScExpression] =
     if (this.getStub != null) Seq.empty //we don't have stubbed expressions
-    else findChildrenByClassScala(classOf[ScExpression])
+    else findChildrenByClassScala(classOf[ScExpression]).toSeq
 
   @Cached(ModTracker.anyScalaPsiChange, this)
   override def selfTypeElement: Option[ScSelfTypeElement] =

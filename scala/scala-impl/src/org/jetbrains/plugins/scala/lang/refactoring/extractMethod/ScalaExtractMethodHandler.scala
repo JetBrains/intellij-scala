@@ -341,7 +341,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
       val method = insertMethod()
       insertInnerClassBefore(method)
 
-      ScalaExtractMethodUtils.replaceWithMethodCall(settings, settings.elements, param => param.oldName, output => output.paramName)
+      ScalaExtractMethodUtils.replaceWithMethodCall(settings, settings.elements.toSeq, param => param.oldName, output => output.paramName)
 
       CodeStyleManager.getInstance(project).reformat(method)
       editor.getSelectionModel.removeSelection()

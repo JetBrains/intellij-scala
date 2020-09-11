@@ -74,8 +74,8 @@ object ScalaExtractMethodUtils {
     val notPassedParamsText = notPassedParams.mkString
 
     val elementsToAdd: Iterator[PsiElement] = settings.elements.toSeq match {
-      case Seq(x: ScBlockExpr) => x.children.toSeq.drop(1).dropRight(1).toIterator // drop '{' and '}'
-      case x => x.toIterator
+      case Seq(x: ScBlockExpr) => x.children.toSeq.drop(1).dropRight(1).iterator // drop '{' and '}'
+      case x => x.iterator
     }
     val elementsText = elementsToAdd.map(_.getText).mkString("")
 

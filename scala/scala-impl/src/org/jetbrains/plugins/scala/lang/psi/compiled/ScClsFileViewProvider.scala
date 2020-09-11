@@ -94,7 +94,7 @@ object ScClsFileViewProvider {
     }
 
     private def relativePath(typeDefinitions: Seq[ScTypeDefinition]) = {
-      val builder = StringBuilder.newBuilder
+      val builder = new StringBuilder()
 
       buildPackagePath(firstPackaging, builder)
 
@@ -114,7 +114,7 @@ object ScClsFileViewProvider {
         case Some(packaging) if !packaging.isExplicit =>
           buildPackagePath(
             packaging.packagings.headOption,
-            builder.appendSegments(packaging.packageName.split('.'))
+            builder.appendSegments(packaging.packageName.split('.').toSeq)
           )
         case _ => builder
       }

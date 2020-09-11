@@ -95,7 +95,7 @@ object CopyWorksheetAction {
     if (mappings.length < 2) {
       append2Result(getLines(leftDocument), getLines(rightDocument))
     } else {
-      (mappings.head /: (mappings.tail :+ (leftDocument.getLineCount, rightDocument.getLineCount))) {
+      (mappings.tail :+ (leftDocument.getLineCount, rightDocument.getLineCount)).foldLeft(mappings.head) {
         case ((pl, pr), (l, r)) =>
           append2Result(getLinesFrom(pl, l, leftDocument), getLinesFrom(pr, r, rightDocument))
           (l, r)

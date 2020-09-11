@@ -11,7 +11,7 @@ import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Key
-import com.intellij.testFramework.{PlatformTestCase, ThreadTracker}
+import com.intellij.testFramework.{HeavyPlatformTestCase, ThreadTracker}
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions._
@@ -24,7 +24,7 @@ import scala.concurrent.{Future, Promise}
 /**
   * Created by Roman.Shein on 27.03.2017.
   */
-abstract class SbtProjectPlatformTestCase extends PlatformTestCase {
+abstract class SbtProjectPlatformTestCase extends HeavyPlatformTestCase {
 
   override def setUpProject(): Unit = {
     //projectFile is the sbt file for the root project

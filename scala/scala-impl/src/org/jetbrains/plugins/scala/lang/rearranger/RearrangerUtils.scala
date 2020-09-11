@@ -95,7 +95,7 @@ object RearrangerUtils {
     OBJECT      -> commonModifiers
   )
 
-  private implicit class CollectionExt[A](private val collection: Traversable[A]) extends AnyVal {
+  private implicit class CollectionExt[A](private val collection: Iterable[A]) extends AnyVal {
 
     def groupBySingle[T](f: A => T): Map[T, A] = collection.map(x => f(x) -> x).toMap
   }

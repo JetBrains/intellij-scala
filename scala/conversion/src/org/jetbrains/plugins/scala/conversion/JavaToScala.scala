@@ -724,7 +724,7 @@ object JavaToScala {
                 comments <- getDropComments(dropMembers)
               } constructor.comments.afterComments ++= comments
 
-              ClassConstruction(name, primaryConstructor, members.toSeq, modifiers, Some(typeParams),
+              ClassConstruction(name, primaryConstructor, members.toSeq, modifiers, Some(typeParams.toSeq),
                 None, classType, companionObject, Some(convertExtendList().toSeq))
           }
         } finally {

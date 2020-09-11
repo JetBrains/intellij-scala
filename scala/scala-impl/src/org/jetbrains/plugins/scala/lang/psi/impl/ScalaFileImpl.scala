@@ -241,7 +241,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
         case _ => null
       }
 
-    inner(packagings, StringBuilder.newBuilder)
+    inner(packagings.toSeq, new StringBuilder())
   }
 
   override def getClasses: Array[PsiClass] =
@@ -333,10 +333,10 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
       _.getChildrenByType(TYPE_DEFINITIONS, JavaArrayFactoryUtil.ScTypeDefinitionFactory)
     }
 
-    typeDefinitions ++ indirectTypeDefinitions
+    typeDefinitions.toSeq ++ indirectTypeDefinitions
   }
 
-  protected final def indirectTypeDefinitions: Seq[ScTypeDefinition] = packagings.flatMap(_.typeDefinitions)
+  protected final def indirectTypeDefinitions: Seq[ScTypeDefinition] = packagings.flatMap(_.typeDefinitions).toSeq
 
   private def foldStub[R](byPsi: => R)(byStub: ScFileStub => R): R = getStub match {
     case null => byPsi

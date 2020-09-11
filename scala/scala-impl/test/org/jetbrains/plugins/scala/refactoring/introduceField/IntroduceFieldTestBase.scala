@@ -21,10 +21,13 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceField.{IntroduceFie
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getExpressionWithTypes
 import org.junit.Assert._
 
+import scala.annotation.nowarn
+
 /**
  * Nikolay.Tropin
  * 7/17/13
  */
+@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class IntroduceFieldTestBase() extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   private val startMarker = "/*start*/"
   private val endMarker = "/*end*/"

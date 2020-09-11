@@ -65,7 +65,7 @@ class ScalaRerunFailedTestsAction(consoleView: ConsoleView)
 
       val extensionConfiguration = propertiesExtension.getRunConfigurationBase
       val patcher = state.asInstanceOf[TestCommandLinePatcher]
-      val classNames = patcher.getClasses.groupBy(fqnToSimpleName).mapValues(_.head)
+      val classNames = patcher.getClasses.groupBy(fqnToSimpleName).view.mapValues(_.head).toMap
 
       val failedTests = getFailedTests(configuration.getProject).asScala
       for (failedTest <- failedTests) { //todo: fix after adding location API

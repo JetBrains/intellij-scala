@@ -379,9 +379,10 @@ object MixinNodes {
         case _ =>
           ProgressManager.checkCanceled()
           def default =
-            if (clazz.getTypeParameters.isEmpty) ScalaType.designator(clazz)
-            else ScParameterizedType(ScalaType.designator(clazz),
-              clazz.getTypeParameters.map(TypeParameterType(_)))
+            if (clazz.getTypeParameters.isEmpty)
+              ScalaType.designator(clazz)
+            else
+              ScParameterizedType(ScalaType.designator(clazz), clazz.getTypeParameters.map(TypeParameterType(_)).toSeq)
 
           val classType = clazz match {
             case td: ScTypeDefinition => td.`type`().getOrElse(default)

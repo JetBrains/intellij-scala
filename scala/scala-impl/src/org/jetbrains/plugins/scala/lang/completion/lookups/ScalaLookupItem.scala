@@ -225,7 +225,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
         PresentationUtil.presentationStringForPsiElement(_, substitutor)
       }
     case owner =>
-      typeParametersText(owner.getTypeParameters)
+      typeParametersText(owner.getTypeParameters.toSeq)
   }
 
   private def parametersText(parametersList: PsiParameterList)

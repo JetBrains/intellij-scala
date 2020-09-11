@@ -9,7 +9,7 @@ import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerImpl
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.markup.SeparatorPlacement
 import com.intellij.psi.PsiElement
-import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
+import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.fixtures.impl.JavaCodeInsightTestFixtureImpl
 import org.jetbrains.plugins.scala.extensions.using
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -23,7 +23,7 @@ import scala.io.Source
  * Pavel.Fatin, 14.01.2010
  */
 @Category(Array(classOf[TypecheckerTests]))
-abstract class LineMarkerTestBase extends LightCodeInsightFixtureTestCase {
+abstract class LineMarkerTestBase extends LightJavaCodeInsightFixtureTestCase {
   val marker = "// -"
 
   protected override def getBasePath = TestUtils.getTestDataPath + "/methodSeparator/"

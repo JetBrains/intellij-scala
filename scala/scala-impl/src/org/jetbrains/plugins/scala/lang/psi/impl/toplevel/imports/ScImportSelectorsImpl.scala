@@ -31,5 +31,5 @@ class ScImportSelectorsImpl private (stub: ScImportSelectorsStub, node: ASTNode)
   override def wildcardElement: Option[PsiElement] = Option(findChildByType(ScalaTokenTypes.tUNDER))
 
   override def selectors: Seq[ScImportSelector] =
-    getStubOrPsiChildren(ScalaElementType.IMPORT_SELECTOR, JavaArrayFactoryUtil.ScImportSelectorFactory)
+    getStubOrPsiChildren(ScalaElementType.IMPORT_SELECTOR, JavaArrayFactoryUtil.ScImportSelectorFactory).toSeq
 }

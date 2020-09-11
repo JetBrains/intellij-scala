@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement, ScTypeProjection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TypePresentation}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScalaTypePresentation, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
@@ -378,7 +378,7 @@ object TypeAdjuster extends ApplicationListener {
         override protected def execute(namedElement: PsiNamedElement)
                                       (implicit state: ResolveState): Boolean = namedElement match {
           case ta: ScTypeAliasDefinition if ta.isAliasFor(clazz) &&
-            !ScTypePresentation.shouldExpand(ta) && !ta.isDeprecated =>
+            !TypePresentation.shouldExpand(ta) && !ta.isDeprecated =>
 
             collected = Some(ta)
             false
@@ -516,7 +516,7 @@ object TypeAdjuster extends ApplicationListener {
     def map(function: ReplacementInfo => ReplacementInfo): CompoundInfo =
       CompoundInfo(children.map(function))(place, typeElement)
 
-    def flatMap(function: ReplacementInfo => Traversable[ReplacementInfo]): CompoundInfo =
+    def flatMap(function: ReplacementInfo => Iterable[ReplacementInfo]): CompoundInfo =
       CompoundInfo(children.flatMap(function))(place, typeElement)
   }
 

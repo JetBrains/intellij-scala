@@ -159,7 +159,7 @@ object TypeVariableUnification {
     case UndefinedOrWildcard(tparam, _)    => tparam.typeParameters
     case tpt: TypeParameterType            => tpt.typeParameters
     case other =>
-      other.extractClass.fold(Seq.empty[TypeParameter])(_.getTypeParameters.map(TypeParameter(_)))
+      other.extractClass.fold(Seq.empty[TypeParameter])(_.getTypeParameters.map(TypeParameter(_)).toSeq)
   }
 
   private[psi] def unifiableKinds(lhs: ScType, rhs: ScType): Boolean =  {

@@ -3,6 +3,9 @@ package org.jetbrains.plugins.scala.testingSupport.test.scalatest
 import org.jetbrains.plugins.scala.base.{ScalaLightPlatformCodeInsightTestCaseAdapter, TestScalaProjectSettings}
 import org.junit.Assert
 
+import scala.annotation.nowarn
+
+@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 class ScalaTestTestFrameworkTest extends ScalaLightPlatformCodeInsightTestCaseAdapter with TestScalaProjectSettings {
 
   val scalaTestFramework = new ScalaTestTestFramework

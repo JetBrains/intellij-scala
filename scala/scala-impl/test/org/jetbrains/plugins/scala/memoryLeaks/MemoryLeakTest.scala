@@ -19,7 +19,7 @@ import com.intellij.openapi.startup.StartupManager
 import com.intellij.openapi.util.Condition
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import com.intellij.psi.{PsiFile, PsiManager}
-import com.intellij.testFramework.{LeakHunter, PlatformTestCase, ThreadTracker}
+import com.intellij.testFramework.{HeavyPlatformTestCase, LeakHunter, ThreadTracker}
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
 import org.jetbrains.plugins.scala.base.libraryLoaders._
@@ -38,7 +38,7 @@ import scala.jdk.CollectionConverters._
   * @author Nikolay.Tropin
   */
 @Category(Array(classOf[SlowTests]))
-class MemoryLeakTest extends PlatformTestCase {
+class MemoryLeakTest extends HeavyPlatformTestCase {
 
   import MemoryLeakTest._
 

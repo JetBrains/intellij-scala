@@ -18,10 +18,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.util.SAMUtil
 
+import scala.annotation.nowarn
+
 /**
  * Author: Svyatoslav Ilinskiy
  * Date: 6/29/15
  */
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionName) {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {

@@ -118,7 +118,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
                 val problems = applyOrUpdateCandidates
                   .getOrElse(Array.empty)
                   .flatMap(_.problems)
-                FailureCase(Failure(noSuitableMethodFoundError), problems)
+                FailureCase(Failure(noSuitableMethodFoundError), problems.toSeq)
             }
         }
       case left@Left(_) => FailureCase(left)

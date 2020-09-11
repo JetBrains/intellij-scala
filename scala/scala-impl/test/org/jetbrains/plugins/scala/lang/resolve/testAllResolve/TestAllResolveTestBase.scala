@@ -9,11 +9,13 @@ import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 
+import scala.annotation.nowarn
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 24.11.2009
  */
-
+@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class TestAllResolveTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   def folderPath: String = baseRootPath + "resolve/testAllResolve/"
 

@@ -84,7 +84,7 @@ object OrderingUtil {
       val candidateQualifier = fullQualifedName.split('.').init
       assert(candidateQualifier.nonEmpty)
 
-      val (dist, prefixLen, bestIdx) = minPackageDistance(candidateQualifier, ctxImportQualifiers)
+      val (dist, prefixLen, bestIdx) = minPackageDistance(candidateQualifier.toSeq, ctxImportQualifiers.toSeq)
 
 
       if (prefixLen >= 2) {
@@ -119,7 +119,7 @@ object OrderingUtil {
   private def minPackageDistance(qualifier: Seq[String], qualifiers: Seq[Array[String]]): (Int, Int, Int) =
     if (qualifiers.isEmpty) (Int.MaxValue, 0, -1)
     else (for ((t, idx) <- qualifiers.iterator.zipWithIndex) yield {
-      val prefixLen = seqCommonPrefixSize(qualifier, t)
+      val prefixLen = seqCommonPrefixSize(qualifier, t.toSeq)
       val dist =
         if (prefixLen >= 2) qualifier.length + t.length - 2 * prefixLen
         else Int.MaxValue

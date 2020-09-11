@@ -300,7 +300,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
 
     if (parameters.nonEmpty) {
       var k = 0
-      val exprs: Seq[ScExpression] = getActualParameters(args)
+      val exprs: Seq[ScExpression] = getActualParameters(args).toSeq
       if (isImplicit) buffer.append("implicit ")
       val used = new Array[Boolean](parameters.length)
       while (k < parameters.length) {

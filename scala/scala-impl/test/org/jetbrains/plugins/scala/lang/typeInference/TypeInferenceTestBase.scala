@@ -15,11 +15,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembe
 import org.jetbrains.plugins.scala.util.{PsiFileTestUtil, TestUtils}
 import org.junit.experimental.categories.Category
 
+import scala.annotation.nowarn
+
 /**
   * User: Alexander Podkhalyuzin
   * Date: 10.03.2009
   */
-
+@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 @Category(Array(classOf[TypecheckerTests]))
 abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter with TypeInferenceDoTest {
   protected def folderPath: String = TestUtils.getTestDataPath + "/typeInference/"

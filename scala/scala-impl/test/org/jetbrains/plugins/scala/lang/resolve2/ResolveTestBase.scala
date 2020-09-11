@@ -80,7 +80,7 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
       (it: String) =>
         val parts = it.split("""\s*:\s*""")
         (parts(0), parts(1))
-    }: _*)
+    }.toSeq: _*)
   }
 
   def doTest(): Unit =

@@ -81,7 +81,7 @@ abstract class ImplicitProcessor(override val getPlace: PsiElement,
     while (iterator.hasNext) {
       val setIterator = iterator.next().iterator()
       while (setIterator.hasNext) {
-        candidatesSet += setIterator.next
+        candidatesSet = candidatesSet union Set(setIterator.next)
       }
     }
     uniqueNamesSet.addAll(levelUniqueNamesSet)
@@ -96,7 +96,7 @@ abstract class ImplicitProcessor(override val getPlace: PsiElement,
     while (iterator.hasNext) {
       val setIterator = iterator.next().iterator()
       while (setIterator.hasNext) {
-        candidatesSet += setIterator.next
+        candidatesSet = candidatesSet union Set(setIterator.next)
       }
     }
     res

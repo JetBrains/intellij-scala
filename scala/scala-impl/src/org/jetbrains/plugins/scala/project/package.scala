@@ -147,7 +147,7 @@ package object project {
 
     def dependencyModules: Seq[Module] = {
       val manager = ModuleManager.getInstance(module.getProject)
-      manager.getModules.filter(manager.isModuleDependent(module, _))
+      manager.getModules.filter(manager.isModuleDependent(module, _)).toSeq
     }
 
     def withDependencyModules: Seq[Module] =
@@ -256,7 +256,7 @@ package object project {
     def modules: Seq[Module] =
       manager.getModules.toSeq
 
-    def sourceModules: Seq[Module] = manager.getModules.filter(_.isSourceModule)
+    def sourceModules: Seq[Module] = manager.getModules.filter(_.isSourceModule).toSeq
 
     def modifiableModel: ModifiableModuleModel =
       manager.getModifiableModel

@@ -306,7 +306,7 @@ object ScalaFmtPreFormatProcessor {
     elements.headOption match {
       case Some(p: ScPackaging) =>
         val children = p.getChildren.drop(1) // drop package reference
-        areAllUpperElementTypeDefinitions(children)
+        areAllUpperElementTypeDefinitions(children.toSeq)
       case _ =>
         val elementsToConsider = elements.filter {
           case _: ScImportStmt | _: ScDocComment | _: PsiComment | _: PsiDocComment | _: PsiWhiteSpace => false

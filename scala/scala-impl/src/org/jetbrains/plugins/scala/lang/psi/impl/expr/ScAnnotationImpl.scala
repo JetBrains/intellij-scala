@@ -4,6 +4,8 @@ package psi
 package impl
 package expr
 
+import java.util.Objects
+
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.Comparing
 import com.intellij.psi._
@@ -77,7 +79,7 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
         while (iterator.nonEmpty) {
           val method = iterator.next()
           method match {
-            case annotMethod: PsiAnnotationMethod if Comparing.equal(method.name, attributeName) =>
+            case annotMethod: PsiAnnotationMethod if Objects.equals(method.name, attributeName) =>
               return annotMethod.getDefaultValue
             case _ =>
           }

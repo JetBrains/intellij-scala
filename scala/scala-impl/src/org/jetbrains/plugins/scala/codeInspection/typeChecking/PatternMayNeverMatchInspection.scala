@@ -10,10 +10,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TypePresentation}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
 
+import scala.annotation.nowarn
+
 /**
   * Author: Svyatoslav Ilinskiy
   * Date: 21.12.15.
   */
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class PatternMayNeverMatchInspection extends AbstractInspection(inspectionName) {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {

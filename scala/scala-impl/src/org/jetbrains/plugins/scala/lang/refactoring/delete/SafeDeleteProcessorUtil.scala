@@ -349,7 +349,7 @@ object SafeDeleteProcessorUtil {
 
     invocation match {
       case Some(call: ScMethodCall) => call.withParents.takeWhile(_.is[ScMethodCall]).map(_.asInstanceOf[ScMethodCall])
-      case _ => invocation.toIterator
+      case _ => invocation.iterator
     }
   }
 

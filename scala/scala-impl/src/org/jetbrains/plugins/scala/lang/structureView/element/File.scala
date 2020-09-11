@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 private class File(file: () => ScalaFile) extends AbstractTreeElement(file()) {
   override def getPresentableText: String = file().name
 
-  override def children: Seq[PsiElement] = file().getChildren
+  override def children: Seq[PsiElement] = file().getChildren.toSeq
 
   override def isAlwaysLeaf: Boolean = false
 

@@ -32,7 +32,7 @@ class ScTypeParamClauseImpl private (stub: ScTypeParamClauseStub, node: ASTNode)
 
   override def getTextByStub: String = byStubOrPsi(_.typeParameterClauseText)(getText)
 
-  override def typeParameters: Seq[ScTypeParam] = getStubOrPsiChildren(TYPE_PARAM, ScTypeParamFactory)
+  override def typeParameters: Seq[ScTypeParam] = getStubOrPsiChildren(TYPE_PARAM, ScTypeParamFactory).toSeq
 
   override def getTypeParameters: Array[PsiTypeParameter] = getStubOrPsiChildren(TYPE_PARAM, PsiTypeParameter.ARRAY_FACTORY)
 

@@ -9,10 +9,13 @@ import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAda
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 
+import scala.annotation.nowarn
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 15.11.2008
  */
+@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 class SuperMemberTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   val CARET_MARKER = "<caret>"
 

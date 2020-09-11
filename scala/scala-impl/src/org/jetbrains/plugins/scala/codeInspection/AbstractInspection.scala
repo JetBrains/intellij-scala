@@ -9,7 +9,7 @@ import org.jetbrains.annotations.{Nls, Nullable}
   * @author Pavel Fatin
   *         use [[org.jetbrains.plugins.scala.codeInspection.AbstractRegisteredInspection]] instead
   */
-@deprecated("use org.jetbrains.plugins.scala.codeInspection.AbstractRegisteredInspection instead")
+@deprecated(AbstractInspection.DeprecationText)
 abstract class AbstractInspection protected(@Nullable @Nls customDisplayName: String = null) extends LocalInspectionTool {
 
   override final def getDisplayName: String =
@@ -29,6 +29,8 @@ abstract class AbstractInspection protected(@Nullable @Nls customDisplayName: St
 }
 
 object AbstractInspection {
+
+  final val DeprecationText = "use org.jetbrains.plugins.scala.codeInspection.AbstractRegisteredInspection instead"
 
   private[this] val CapitalLetterPattern = "(?<!=.)\\p{Lu}".r
   private[this] val InspectionSuffix = "Inspection"

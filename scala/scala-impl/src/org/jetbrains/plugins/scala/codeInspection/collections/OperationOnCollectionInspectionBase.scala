@@ -17,6 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProjectSettingsUtil}
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
+import scala.annotation.nowarn
+
 /**
  * Nikolay.Tropin
  * 5/17/13
@@ -53,6 +55,7 @@ object OperationOnCollectionInspectionBase {
   }
 }
 
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 abstract class OperationOnCollectionInspectionBase extends AbstractInspection(inspectionName) {
   private val settings = ScalaApplicationSettings.getInstance()
 

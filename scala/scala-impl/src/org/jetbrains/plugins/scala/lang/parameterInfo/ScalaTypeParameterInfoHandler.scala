@@ -122,7 +122,7 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
           //todo: check type
           false
         }
-        val paramText = StringBuilder.newBuilder ++= param.name
+        val paramText = new StringBuilder() ++= param.name
 
         def appendPresentableText(prefix: String, tp: ScType): Unit =
           paramText.append(prefix).append(substitutor(tp).presentableText)

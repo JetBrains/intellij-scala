@@ -22,9 +22,12 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerSettings, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
+import scala.annotation.nowarn
+
 /**
  * @author Pavel Fatin
  */
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class LanguageFeatureInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.advanced.language.features")) {
 
   private val Features = Seq(

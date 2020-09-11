@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.util.TestUtils
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ListBuffer
 
@@ -28,6 +29,7 @@ import scala.collection.mutable.ListBuffer
  * Nikolay.Tropin
  * 9/6/13
  */
+@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   val caretMarker = "/*caret*/"
   private var myEditors: Map[VirtualFile, Editor] = _

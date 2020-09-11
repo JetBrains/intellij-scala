@@ -7,9 +7,12 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
 import org.jetbrains.plugins.scala.lang.transformation.{AbstractTransformer, Transformer}
 
+import scala.annotation.nowarn
+
 /**
   * @author Pavel Fatin
   */
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class TransformerBasedInspection(@Nls name: String, @Nls solution: String, transformer: AbstractTransformer) extends AbstractInspection(name) {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = new PartialFunction[PsiElement, Any] {

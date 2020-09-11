@@ -8,6 +8,9 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
+import scala.annotation.nowarn
+
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class FloatLiteralEndingWithDecimalPointInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.floating.point.literal.ending.with.dot")) {
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case lit: ScLiteral if lit.getText.endsWith(".") =>

@@ -11,6 +11,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
+import scala.annotation.nowarn
+
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class PostfixMethodCallInspection extends AbstractInspection(ScalaInspectionBundle.message("use.of.postfix.method.call")) {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {

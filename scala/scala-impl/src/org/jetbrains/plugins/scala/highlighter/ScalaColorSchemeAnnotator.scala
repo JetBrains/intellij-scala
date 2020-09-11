@@ -62,7 +62,7 @@ object ScalaColorSchemeAnnotator {
     def annotateCollectionByType(resolvedType: ScType): Unit = {
       val resolvedTypeName = resolvedType.presentableText(TypePresentationContext.emptyContext)
       if (ScalaNamesUtil.isOperatorName(
-        resolvedTypeName.substring(0, resolvedTypeName.prefixLength(_ != '.')))) return
+        resolvedTypeName.substring(0, resolvedTypeName.segmentLength(_ != '.')))) return
 
       val scalaProjectSettings: ScalaProjectSettings = ScalaProjectSettings.getInstance(project)
 

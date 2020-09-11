@@ -376,7 +376,7 @@ object MethodResolveProcessor {
 
     def javaConstructorCompatibility(constr: PsiMethod): ConformanceExtResult = {
       val classTypeParmeters = constr.containingClass.getTypeParameters
-      constructorCompatibility(constr, classTypeParmeters)
+      constructorCompatibility(constr, classTypeParmeters.toSeq)
     }
 
     def checkSimpleApplication(
@@ -464,7 +464,7 @@ object MethodResolveProcessor {
         checkFunction(fun, fun.getTypeParameters.nonEmpty)
       //simple application including empty application
       case tpOwner: ScTypeParametersOwner with PsiNamedElement     => checkSimpleApplication(tpOwner, tpOwner.typeParameters)
-      case tpOwner: PsiTypeParameterListOwner with PsiNamedElement => checkSimpleApplication(tpOwner, tpOwner.getTypeParameters)
+      case tpOwner: PsiTypeParameterListOwner with PsiNamedElement => checkSimpleApplication(tpOwner, tpOwner.getTypeParameters.toSeq)
       case _ =>
         if (typeArgElements.nonEmpty) problems += DoesNotTakeTypeParameters
         if (argumentClauses.nonEmpty) problems += new DoesNotTakeParameters
@@ -523,7 +523,7 @@ object MethodResolveProcessor {
 
     val maybeTypeParameters: Option[Seq[PsiTypeParameter]] = element match {
       case t: ScTypeParametersOwner => Some(t.typeParameters)
-      case p: PsiTypeParameterListOwner => Some(p.getTypeParameters)
+      case p: PsiTypeParameterListOwner => Some(p.getTypeParameters.toSeq)
       case _ => None
     }
     maybeTypeParameters match {

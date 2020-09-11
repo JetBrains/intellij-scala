@@ -257,7 +257,7 @@ class ImplicitCollector(place: PsiElement,
       val next = mostSpecificUtil.nextMostSpecific(filteredCandidates)
       next match {
         case Some(c) =>
-          filteredCandidates = filteredCandidates - c
+          filteredCandidates = filteredCandidates diff Set(c)
           val compatible = checkCompatible(c, withLocalTypeInference)
           val afterExtensionPredicate = compatible.flatMap(applyExtensionPredicate)
           afterExtensionPredicate.foreach { r =>
@@ -266,7 +266,7 @@ class ImplicitCollector(place: PsiElement,
               filteredCandidates = filteredCandidates.filter(notMoreSpecific)
               //this filter was added to make result deterministic
               results = results.filter(c => notMoreSpecific(c))
-              results += r
+              results = results union Set(r)
             }
           }
         case None => filteredCandidates = Set.empty

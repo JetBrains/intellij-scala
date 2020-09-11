@@ -9,5 +9,5 @@ class ScDocListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDocL
   override def toString: String = "ScDocList"
 
   override def items: Seq[ScDocListItem] =
-    findChildrenByClass(classOf[ScDocListItem])
+    findChildrenByClass(classOf[ScDocListItem]).toSeq
 }

@@ -4,12 +4,14 @@ package worksheet
 import org.jetbrains.plugins.scala.project.Version
 import org.junit.Assert.fail
 
+import scala.annotation.nowarn
 import scala.util.Success
 
 /**
  * User: Dmitry.Naydanov
  * Date: 26.01.18.
  */
+@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 class AmmoniteVersionDownloaderTest extends base.ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   import ammonite.ImportAmmoniteDependenciesFix._

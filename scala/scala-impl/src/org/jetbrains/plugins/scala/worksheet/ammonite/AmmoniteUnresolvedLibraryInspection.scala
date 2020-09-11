@@ -10,6 +10,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 
+import scala.annotation.nowarn
+
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class AmmoniteUnresolvedLibraryInspection extends AbstractInspection(ScalaBundle.message("display.name.unresolved.ivy.import")) {
   override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case stableRef: ScStableCodeReference => stableRef.qualifier.foreach(processExpr(stableRef, _, holder))

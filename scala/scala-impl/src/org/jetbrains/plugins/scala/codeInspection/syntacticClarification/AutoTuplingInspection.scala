@@ -8,10 +8,13 @@ import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, Abst
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
+import scala.annotation.nowarn
+
 /**
  * Nikolay.Tropin
  * 2014-09-26
  */
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class AutoTuplingInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.auto.tupling")) {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {

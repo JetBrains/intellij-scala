@@ -20,12 +20,14 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.project.ProjectContext
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 /**
   * Nikolay.Tropin
   * 9/26/13
   */
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class MatchToPartialFunctionInspection extends AbstractInspection(MatchToPartialFunctionInspection.ID) {
 
   import MatchToPartialFunctionInspection._

@@ -52,7 +52,7 @@ object AmmoniteUtil {
       case imp: ScImportStmt =>
         imp.importExprs.filter(expr => expr.getText.startsWith(ROOT_IVY) || expr.getText.startsWith(ROOT_PLUGIN)).flatMap(_.reference.flatMap(extractLibInfo))
       case _ => Seq.empty
-    }
+    }.toSeq
   }
 
   def file2Object(file: PsiFileSystemItem): Option[ScObject] = file match {

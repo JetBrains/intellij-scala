@@ -157,7 +157,7 @@ object MethodTypeProvider {
   private case class JavaMethodProvider(override val element: PsiMethod)
                                        (override implicit val scope: ElementScope)
     extends MethodTypeProvider[PsiMethod] {
-    override def typeParameters: Seq[PsiTypeParameter] = element.getTypeParameters
+    override def typeParameters: Seq[PsiTypeParameter] = element.getTypeParameters.toSeq
 
     override def methodType(returnType: Option[ScType] = None): ScType = {
       val retType = returnType.getOrElse(computeReturnType)

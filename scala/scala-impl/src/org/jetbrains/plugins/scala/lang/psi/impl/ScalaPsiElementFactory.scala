@@ -265,7 +265,7 @@ object ScalaPsiElementFactory {
       }
 
   def createPatternFromTextWithContext(@NonNls patternText: String, context: PsiElement, child: PsiElement): ScPattern =
-    createElementWithContext[ScCaseClause](kCASE + " " + patternText, context, child)(patterns.CaseClause.parse(_))
+    createElementWithContext[ScCaseClause](kCASE.toString + " " + patternText, context, child)(patterns.CaseClause.parse(_))
       .pattern
       .getOrElse {
         throw elementCreationException("pattern", patternText, context)
@@ -498,7 +498,7 @@ object ScalaPsiElementFactory {
   def createMethodFromSignature(signature: PhysicalMethodSignature, @NonNls body: String,
                                 withComment: Boolean = true, withAnnotation: Boolean = true)
                                (implicit projectContext: ProjectContext): ScFunction = {
-    val builder = StringBuilder.newBuilder
+    val builder = new StringBuilder()
 
     val PhysicalMethodSignature(method, substitutor) = signature
 

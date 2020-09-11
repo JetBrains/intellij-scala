@@ -15,7 +15,7 @@ class ScPrimaryConstructorWrapper(override val delegate: ScPrimaryConstructor, i
       .flatMap(_.effectiveParameters)
       .map(ScLightParameter.from(_, ScSubstitutor.empty, isJavaVarargs))
 
-  override protected def typeParameters: Seq[PsiTypeParameter] = delegate.getTypeParameters
+  override protected def typeParameters: Seq[PsiTypeParameter] = delegate.getTypeParameters.toSeq
 
   override def isWritable: Boolean = getContainingFile.isWritable
 

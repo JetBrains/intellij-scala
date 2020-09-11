@@ -14,11 +14,13 @@ import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert._
 
+import scala.annotation.nowarn
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 23.09.2009
  */
-
+@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class CompletionTestBase extends base.ScalaLightPlatformCodeInsightTestCaseAdapter {
   protected val caretMarker = "/*caret*/"
 

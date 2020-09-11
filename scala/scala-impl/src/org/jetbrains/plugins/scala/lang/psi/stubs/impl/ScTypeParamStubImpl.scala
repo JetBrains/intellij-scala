@@ -38,7 +38,7 @@ class ScTypeParamStubImpl(parent: StubElement[_ <: PsiElement],
       case (context, child) =>
         viewBoundsTexts.map {
           createTypeElementFromText(_, context, child)
-        }
+        }.toSeq
     } (viewElementsReferences = _)
   }
 
@@ -47,7 +47,7 @@ class ScTypeParamStubImpl(parent: StubElement[_ <: PsiElement],
       case (context, child) =>
         contextBoundsTexts.map {
           createTypeElementFromText(_, context, child)
-        }
+        }.toSeq
     } (contextElementsReferences = _)
   }
 }

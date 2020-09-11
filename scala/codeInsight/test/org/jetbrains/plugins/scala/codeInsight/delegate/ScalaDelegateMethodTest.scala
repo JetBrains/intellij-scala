@@ -8,10 +8,13 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
+import scala.annotation.nowarn
+
 /**
   * Nikolay.Tropin
   * 2014-03-26
   */
+@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 class ScalaDelegateMethodTest extends base.ScalaLightPlatformCodeInsightTestCaseAdapter
   with ScalaDelegateMethodTestBase {
 

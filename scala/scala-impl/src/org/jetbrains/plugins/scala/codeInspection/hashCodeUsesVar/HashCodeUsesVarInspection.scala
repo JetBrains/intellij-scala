@@ -9,10 +9,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 
+import scala.annotation.nowarn
+
 /**
   * Daniyar Itegulov
   * 2016-02-08
   */
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class HashCodeUsesVarInspection extends AbstractInspection {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {

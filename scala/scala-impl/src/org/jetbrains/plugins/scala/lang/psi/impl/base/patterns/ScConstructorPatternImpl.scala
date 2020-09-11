@@ -42,7 +42,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
             val refType: ScType = ScSimpleTypeElementImpl.
               calculateReferenceType(ref).getOrElse(ScalaType.designator(td))
             val newSubst = {
-              val clazzType = ScParameterizedType(refType, td.getTypeParameters.map(UndefinedType(_)))
+              val clazzType = ScParameterizedType(refType, td.getTypeParameters.map(UndefinedType(_)).toSeq)
               val toAnySubst = bind(td.typeParameters)(Function.const(Any))
 
               this.expectedType.flatMap {
@@ -51,7 +51,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
                 _.followed(toAnySubst)
               }
             }
-            Right(ScParameterizedType(refType, td.getTypeParameters.map(tp => newSubst(TypeParameterType(tp)))))
+            Right(ScParameterizedType(refType, td.getTypeParameters.map(tp => newSubst(TypeParameterType(tp))).toSeq))
           case td: ScClass => Right(ScalaType.designator(td))
           case obj: ScObject => Right(ScalaType.designator(obj))
           case fun: ScFunction /*It's unapply method*/ if (fun.name == "unapply" || fun.name == "unapplySeq") &&

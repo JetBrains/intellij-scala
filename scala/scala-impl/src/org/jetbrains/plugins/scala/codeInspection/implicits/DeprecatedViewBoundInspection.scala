@@ -9,10 +9,13 @@ import org.jetbrains.plugins.scala.codeInspection.implicits.DeprecatedViewBoundI
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 
+import scala.annotation.nowarn
+
 /**
 * Nikolay.Tropin
 * 2014-11-18
 */
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class DeprecatedViewBoundInspection extends AbstractInspection(description) {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {

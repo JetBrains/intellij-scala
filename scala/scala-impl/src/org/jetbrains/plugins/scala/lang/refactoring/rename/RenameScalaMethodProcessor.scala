@@ -51,7 +51,7 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor with ScalaRen
     }, editor)
   }
 
-  def capitalize(text: String): String = Character.toUpperCase(text.charAt(0)) + text.substring(1)
+  def capitalize(text: String): String = Character.toUpperCase(text.charAt(0)).toString + text.substring(1)
 
   override def renameElement(psiElement: PsiElement, newName: String, usages: Array[UsageInfo], listener: RefactoringElementListener): Unit = {
     ScalaRenameUtil.doRenameGenericNamedElement(psiElement, newName, usages, listener)

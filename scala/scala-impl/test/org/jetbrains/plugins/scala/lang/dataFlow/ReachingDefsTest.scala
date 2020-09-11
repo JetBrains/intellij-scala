@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.dataFlow
 import com.intellij.openapi.editor.SelectionModel
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
+import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
@@ -19,7 +19,7 @@ import scala.collection.mutable
  * @author ilyas
  */
 
-class ReachingDefsTest extends LightCodeInsightFixtureTestCase {
+class ReachingDefsTest extends LightJavaCodeInsightFixtureTestCase {
   protected override def getBasePath = TestUtils.getTestDataPath + "/dataFlow/reachingDefs/"
 
   override def setUp(): Unit = {

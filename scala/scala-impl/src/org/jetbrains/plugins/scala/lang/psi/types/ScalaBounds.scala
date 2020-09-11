@@ -240,7 +240,7 @@ trait ScalaBounds extends api.Bounds {
               case td: ScTemplateDefinition => td.superTypes
               case _ => drv.getSuperTypes.map {
                 _.toScType()
-              }
+              }.toSeq
             }
             val iterator = superTypes.iterator
             while(iterator.hasNext) {
@@ -422,7 +422,7 @@ trait ScalaBounds extends api.Bounds {
     (baseClass.superSubstitutor(clazz1), baseClass.superSubstitutor(clazz2)) match {
       case (Some(superSubst1), Some(superSubst2)) =>
         val tp = ScParameterizedType(baseClassDesignator,
-          baseClass.getTypeParameters.map(TypeParameterType(_)))
+          baseClass.getTypeParameters.map(TypeParameterType(_)).toSeq)
         val tp1 = superSubst1(tp).asInstanceOf[ScParameterizedType]
         val tp2 = superSubst2(tp).asInstanceOf[ScParameterizedType]
         val resTypeArgs = new ArrayBuffer[ScType]
@@ -483,7 +483,7 @@ trait ScalaBounds extends api.Bounds {
           } else {
             val element = leftClass.getNamedElement
             if (!visited.contains(element)) {
-              checkClasses(leftClass.getSuperClasses, if (baseIndex == -1) i else baseIndex, visited + element)
+              checkClasses(leftClass.getSuperClasses, if (baseIndex == -1) i else baseIndex, visited union Set(element))
             }
           }
           j += 1

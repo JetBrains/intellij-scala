@@ -13,10 +13,12 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, TypePresentationContext}
 
+import scala.annotation.nowarn
+
 /**
  * Pavel Fatin
  */
-
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class ScalaRedundantConversionInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.redundant.conversion")) {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {

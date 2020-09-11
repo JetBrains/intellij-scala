@@ -19,12 +19,13 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert._
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 /**
  * @author Alexander Podkhalyuzin
  */
-
+@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class KeywordCompletionTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   def folderPath: String = baseRootPath + "keywordCompletion/"

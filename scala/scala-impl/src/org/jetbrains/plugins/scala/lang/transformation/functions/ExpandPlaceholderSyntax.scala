@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 class ExpandPlaceholderSyntax extends AbstractTransformer {
   override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case (e: ScUnderscoreSection) && Parent(_: ScExpression | _: ScArgumentExprList) =>
-      val enclosure = e.parents.toStream.takeWhile(e => e.isInstanceOf[ScExpression] || e.isInstanceOf[ScArgumentExprList]).last
+      val enclosure = e.parents.to(LazyList).takeWhile(e => e.isInstanceOf[ScExpression] || e.isInstanceOf[ScArgumentExprList]).last
 
       val (placeholders, typeElements) = enclosure.depthFirst().collect {
         case (_: ScUnderscoreSection) && Parent((typed: ScTypedExpression) && Parent(it: ScParenthesisedExpr)) => (it, typed.typeElement)

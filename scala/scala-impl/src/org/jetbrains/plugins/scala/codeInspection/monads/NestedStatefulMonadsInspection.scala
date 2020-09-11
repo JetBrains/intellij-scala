@@ -11,11 +11,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
+import scala.annotation.nowarn
+
 
 /**
   * @author Sergey Tolmachev (tolsi.ru@gmail.com)
   * @since 29.09.15
   */
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 final class NestedStatefulMonadsInspection extends AbstractInspection(NestedStatefulMonadsInspection.Description) {
 
   import NestedStatefulMonadsInspection._

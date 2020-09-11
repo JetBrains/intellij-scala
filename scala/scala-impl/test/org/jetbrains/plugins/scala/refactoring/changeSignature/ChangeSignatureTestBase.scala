@@ -21,10 +21,13 @@ import org.jetbrains.plugins.scala.settings.annotations._
 import org.jetbrains.plugins.scala.util._
 import org.junit.Assert._
 
+import scala.annotation.nowarn
+
 /**
  * Nikolay.Tropin
  * 2014-08-14
  */
+@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   var targetMethod: PsiMember = null
   protected var isAddDefaultValue = false

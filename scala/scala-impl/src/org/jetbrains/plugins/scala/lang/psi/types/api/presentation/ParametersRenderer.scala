@@ -18,7 +18,7 @@ class ParametersRenderer(
     renderClauses(parametersOwner.allClauses)
 
   def renderClauses(clauses: collection.Seq[ScParameterClause]): String = {
-    val buffer = StringBuilder.newBuilder
+    val buffer = new StringBuilder()
     for (child <- clauses) {
       renderClause(child, buffer)
       buffer.append(clausesSeparator)
@@ -27,7 +27,7 @@ class ParametersRenderer(
   }
 
   def renderClause(clause: ScParameterClause): String = {
-    val buffer = StringBuilder.newBuilder
+    val buffer = new StringBuilder()
     renderClause(clause, buffer)
     buffer.result
   }

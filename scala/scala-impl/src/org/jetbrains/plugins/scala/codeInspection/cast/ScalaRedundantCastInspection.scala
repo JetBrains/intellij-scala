@@ -11,9 +11,12 @@ import org.jetbrains.plugins.scala.extensions.{ElementText, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScGenericCall}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, TypePresentationContext}
 
+import scala.annotation.nowarn
+
 /**
  * Pavel Fatin
  */
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class ScalaRedundantCastInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.redundant.cast")) {
 
   override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {

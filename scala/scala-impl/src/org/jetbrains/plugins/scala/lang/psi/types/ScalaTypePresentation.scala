@@ -290,7 +290,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
         }
       case namedType: NamedType => namedType.name
       case _: WildcardType => "?"
-      case ScAbstractType(tpt, _, _) => tpt.name.capitalize + api.ScTypePresentation.ABSTRACT_TYPE_POSTFIX
+      case ScAbstractType(tpt, _, _) => tpt.name.capitalize + api.TypePresentation.ABSTRACT_TYPE_POSTFIX
       case TypeLambda(text)          => text
       case FunctionType(ret, params) if !t.isAliasType =>
         val paramsText = params match {

@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, Abst
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScParenthesisedExpr, ScPrefixExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 import scala.collection.mutable
 
 
@@ -16,6 +16,7 @@ import scala.collection.mutable
  * Nikolay.Tropin
  * 4/23/13
  */
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class DoubleNegationInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.double.negation")) {
 
   override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {

@@ -54,7 +54,7 @@ class TypeAnnotationRenderer(
     }
 
   private def decoratedParameterType(param: ScParameter, typeText: String): String = {
-    val buffer = StringBuilder.newBuilder
+    val buffer = new StringBuilder()
 
     if (parameterTypeDecorateOptions.showByNameArrow && param.isCallByNameParameter) {
       buffer.append(ScalaPsiUtil.functionArrow(param.getProject))

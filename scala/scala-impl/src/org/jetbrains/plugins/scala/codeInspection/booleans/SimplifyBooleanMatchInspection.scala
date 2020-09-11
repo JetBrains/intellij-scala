@@ -13,8 +13,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
+import scala.annotation.nowarn
 import scala.language.implicitConversions
 
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class SimplifyBooleanMatchInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.trivial.match.can.be.simplified")) {
 
   override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {

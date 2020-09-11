@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.ParameterRend
 trait ParameterRendererLike {
 
   final def render(param: ScParameter): String = {
-    val builder = StringBuilder.newBuilder
+    val builder = new StringBuilder()
     render(param, builder)
     builder.result
   }

@@ -10,7 +10,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.lang.refactoring.move.members.ScalaMoveMembersDialog
 import org.junit.Assert
 
+import scala.annotation.nowarn
 
+@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class BaseScalaMoveMemberTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   def doTest(fromObject: String, toObject: String, memberName: String, fileText: String, expectedText: String): Unit = {

@@ -83,7 +83,7 @@ class ScalaPatternParameterInfoHandler extends ScalaParameterInfoHandler[ScPatte
             else {
               buffer.append(params.map {
                 case (param, i) =>
-                  val sb = StringBuilder.newBuilder
+                  val sb = new StringBuilder()
                   sb.append(param.presentableText(method))
 
                   val isSeq = isUnapplySeq && i == args.getArgsCount - 1

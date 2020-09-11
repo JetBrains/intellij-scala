@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.project.settings
 import java.awt._
 import java.awt.event.MouseEvent
 import java.util
+import java.util.Objects
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{ActionManager, AnActionEvent, ShortcutSet}
@@ -35,7 +36,9 @@ class ScalaCompilerProfilesPanel(val myProject: Project) extends JPanel(new Bord
   private val myDefaultProfile = new ScalaCompilerSettingsProfile("") // TODO: make immutable?
   private var myModuleProfiles: collection.Seq[ScalaCompilerSettingsProfile] = Seq.empty
 
-  private val myAllModulesMap  = ModuleManager.getInstance(myProject).getModules.groupBy(_.getName).mapValues(_.head)
+  private val myAllModulesMap  = ModuleManager.getInstance(myProject).getModules
+    .groupBy(_.getName)
+    .view.mapValues(_.head).toMap
 
   private val myTree          = new Tree(new MyTreeModel)
   private val mySettingsPanel = new ScalaCompilerSettingsPanel // right panel
@@ -157,8 +160,8 @@ class ScalaCompilerProfilesPanel(val myProject: Project) extends JPanel(new Bord
     private class ProfileNameValidator extends InputValidatorEx {
       override def checkInput(inputString: String): Boolean = {
         if (StringUtil.isEmpty(inputString)) return false
-        if (Comparing.equal(inputString, myDefaultProfile.getName)) return false
-        !myModuleProfiles.exists(p => Comparing.equal(inputString, p.getName))
+        if (Objects.equals(inputString, myDefaultProfile.getName)) return false
+        !myModuleProfiles.exists(p => Objects.equals(inputString, p.getName))
       }
 
       override def canClose(inputString: String): Boolean = checkInput(inputString)

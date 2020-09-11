@@ -16,11 +16,13 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.{ScopeItem
 import org.jetbrains.plugins.scala.lang.refactoring.util.EmptyConflictsReporter
 import org.junit.Assert
 
+import scala.annotation.nowarn
+
 /**
  * Created by user 
  * on 10/15/15
  */
-
+@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class AbstractScopeSuggesterTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   val BEGIN_MARKER: String = "/*begin*/"
   val END_MARKER: String = "/*end*/"

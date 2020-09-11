@@ -9,6 +9,9 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReturn
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExpressionExt, ScFunction, ScFunctionDefinition}
 
+import scala.annotation.nowarn
+
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class RemoveRedundantReturnInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.redundant.return")) {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {

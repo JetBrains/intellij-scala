@@ -48,10 +48,10 @@ object ScalaShowAffectedTestsActionCompanion {
 
   private def buildRawClassesAndMethodsScala(members: Array[ScMember]): Seq[Couple[String]] = {
     inReadAction {
-      members.flatMap {
+      members.toSeq.flatMap {
         case m: ScMethodLike => Option(getMethodKey(m)).toSeq
         case v: ScValueOrVariable => getValOrVarKeys(v)
-        case _ => Seq()
+        case _ => Seq.empty
       }
     }
   }

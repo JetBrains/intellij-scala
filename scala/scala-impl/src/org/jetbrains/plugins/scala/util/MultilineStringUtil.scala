@@ -159,7 +159,7 @@ object MultilineStringUtil {
   def findParentMLString(element: PsiElement): Option[ScLiteral] = {
     element.withParentsInFile.collect {
       case lit: ScLiteral if lit.isMultiLineString => lit
-    }.toStream.headOption
+    }.to(LazyList).headOption
   }
 
   def isMLString(element: PsiElement): Boolean = element match {

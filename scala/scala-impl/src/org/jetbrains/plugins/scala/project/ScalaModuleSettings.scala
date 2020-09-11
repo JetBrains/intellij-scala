@@ -131,7 +131,7 @@ private object ScalaModuleSettings {
 
     def unapply(setting: String): Option[Seq[String]] =
       if (setting.startsWith(YimportsPrefix))
-        Option(setting.substring(YimportsPrefix.length).split(",").map(_.trim))
+        Option(setting.substring(YimportsPrefix.length).split(",").map(_.trim).toSeq)
       else None
   }
 

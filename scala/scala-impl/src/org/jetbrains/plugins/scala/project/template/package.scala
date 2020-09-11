@@ -27,7 +27,7 @@ package object template {
 
   private abstract class SBTProcessListener extends ProcessAdapter {
 
-    private val builder: StringBuilder = StringBuilder.newBuilder
+    private val builder: StringBuilder = new StringBuilder()
 
     final def text: String = builder.toString
 
@@ -138,8 +138,8 @@ package object template {
 
     def childExists(name: String): Boolean = new File(delegate, name).exists()
 
-    def allFiles: Stream[File] = {
-      val (files, directories) = children.toStream.span(_.isFile)
+    def allFiles: LazyList[File] = {
+      val (files, directories) = children.to(LazyList).span(_.isFile)
       files #::: directories.flatMap(_.allFiles)
     }
 

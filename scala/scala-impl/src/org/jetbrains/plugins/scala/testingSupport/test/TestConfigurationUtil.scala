@@ -46,8 +46,8 @@ object TestConfigurationUtil {
   def isInheritor(clazz: ScTemplateDefinition, fqn: String, otherFqns: String*): Boolean =
     isInheritor(clazz, fqn) || otherFqns.exists(isInheritor(clazz, _))
 
-  def isInheritor(clazz: ScTemplateDefinition, fqns: TraversableOnce[String]): Boolean =
-    fqns.exists(isInheritor(clazz, _))
+  def isInheritor(clazz: ScTemplateDefinition, fqns: IterableOnce[String]): Boolean =
+    fqns.iterator.exists(isInheritor(clazz, _))
 
   //noinspection TypeAnnotation
   private object StringMethodNames {
@@ -158,7 +158,7 @@ object TestConfigurationUtil {
             for {
               left <- getStaticTestNameElement(infixExpr.left, allowSymbolLiterals)
               right <- getStaticTestNameElement(infixExpr.right, allowSymbolLiterals)
-            } yield left + right.toString
+            } yield left.toString + right.toString
           case _ => None
         }
       case methodCall: ScMethodCall =>

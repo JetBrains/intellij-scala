@@ -33,7 +33,7 @@ final class ScalaLibraryProperties private(private[this] var _languageLevel: Sca
 
   override def loadState(state: ScalaLibraryPropertiesState): Unit = {
     languageLevel = state.getLanguageLevel
-    compilerClasspath = state.getCompilerClasspath.map(pathToFile)
+    compilerClasspath = state.getCompilerClasspath.map(pathToFile).toSeq
   }
 
   override def getState: ScalaLibraryPropertiesState = new ScalaLibraryPropertiesState(

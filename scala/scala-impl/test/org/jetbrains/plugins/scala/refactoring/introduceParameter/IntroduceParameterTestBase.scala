@@ -24,10 +24,12 @@ import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChange
 import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterHandler
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{afterExpressionChoosing, trimSpacesAndComments}
 
+import scala.annotation.nowarn
+
 /**
  * @author Alexander Podkhalyuzin
  */
-
+@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   protected def folderPath = baseRootPath + "introduceParameter/"
   private val startMarker = "/*start*/"

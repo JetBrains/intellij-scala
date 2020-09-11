@@ -19,6 +19,9 @@ import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMe
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 import org.junit.Assert._
 
+import scala.annotation.nowarn
+
+@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class ScalaExtractMethodTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   private val startMarker = "/*start*/"
   private val endMarker = "/*end*/"

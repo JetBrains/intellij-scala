@@ -13,10 +13,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
+import scala.annotation.nowarn
+
 /**
  * Pavel Fatin
  */
-
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class RedundantBlockInspection extends AbstractInspection {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {

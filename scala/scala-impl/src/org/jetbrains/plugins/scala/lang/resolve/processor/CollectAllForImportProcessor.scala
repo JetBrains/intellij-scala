@@ -24,7 +24,9 @@ class CollectAllForImportProcessor(override val kinds: Set[ResolveTargets.Value]
         case _ => (namedElement, state.fromType)
       }
 
-      candidatesSet += new ScalaResolveResult(target, state.substitutor, state.importsUsed, fromType = fromType, isAccessible = true)
+      candidatesSet = candidatesSet union Set(
+        new ScalaResolveResult(target, state.substitutor, state.importsUsed, fromType = fromType, isAccessible = true)
+      )
     }
 
     true

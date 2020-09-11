@@ -17,8 +17,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
+import scala.annotation.nowarn
 import scala.collection.mutable.ArrayBuffer
 
+@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class ScalaMoveClassTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   protected def testDataRoot: String

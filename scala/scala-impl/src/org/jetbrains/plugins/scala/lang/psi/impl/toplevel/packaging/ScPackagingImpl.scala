@@ -51,7 +51,7 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
     }
 
   override def packagings: Seq[ScPackaging] =
-    getStubOrPsiChildren(ScalaElementType.PACKAGING, JavaArrayFactoryUtil.ScPackagingFactory)
+    getStubOrPsiChildren(ScalaElementType.PACKAGING, JavaArrayFactoryUtil.ScPackagingFactory).toSeq
 
   override def isExplicit: Boolean = byStubOrPsi(_.isExplicit)(findLeftBrace.isDefined)
 
@@ -137,7 +137,8 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
     }
   }
 
-  override def immediateTypeDefinitions: Seq[ScTypeDefinition] = getStubOrPsiChildren(TYPE_DEFINITIONS, JavaArrayFactoryUtil.ScTypeDefinitionFactory)
+  override def immediateTypeDefinitions: Seq[ScTypeDefinition] =
+    getStubOrPsiChildren(TYPE_DEFINITIONS, JavaArrayFactoryUtil.ScTypeDefinitionFactory).toSeq
 
   private def findLeftBrace = Option(findChildByType[PsiElement](ScalaTokenTypes.tLBRACE))
 

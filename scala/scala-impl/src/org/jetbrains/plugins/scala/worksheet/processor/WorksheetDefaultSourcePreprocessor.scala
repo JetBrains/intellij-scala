@@ -551,7 +551,7 @@ object WorksheetDefaultSourcePreprocessor {
         .append(insertNlsFromWs(psi))
     }
 
-    @inline final def quoted(s: String): String = '"' + s + '"'
+    @inline final def quoted(s: String): String = "\"" + s + "\""
 
     @inline final def accessModifierText(fun: ScFunction): String =
       fun.getModifierList.accessModifier.map(PresentationUtil.accessModifierText).mkString

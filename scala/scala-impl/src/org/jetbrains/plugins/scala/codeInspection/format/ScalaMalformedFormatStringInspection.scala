@@ -9,6 +9,8 @@ import org.jetbrains.plugins.scala.format.Injection._
 import org.jetbrains.plugins.scala.format.{Injection, Span, _}
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 
+import scala.annotation.nowarn
+
 /**
   * // Acceptance test
 
@@ -44,6 +46,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 /**
  * Pavel Fatin
  */
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class ScalaMalformedFormatStringInspection extends AbstractInspection {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {

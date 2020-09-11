@@ -77,7 +77,7 @@ object Transformer {
   def applyTransformersAndReformat(e: PsiElement,
                                    file: PsiFile,
                                    range: Option[RangeMarker] = None,
-                                   transformers: Traversable[Transformer] = createFullSet,
+                                   transformers: Iterable[Transformer] = createFullSet,
                                    reformat: ReformatAction = defaultReformat): Unit = {
     var markers = List.empty[RangeMarker]
 

@@ -9,6 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 
+import scala.annotation.nowarn
+
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class RedundantDefaultArgumentInspection
   extends AbstractInspection(ScalaInspectionBundle.message("argument.duplicates.corresponding.parameter.default.value")) {
 

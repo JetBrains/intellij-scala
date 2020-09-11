@@ -26,6 +26,8 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.PolymorphicLambda
 
+import scala.annotation.nowarn
+
 /**
  * Nikolay.Tropin
  * 5/30/13
@@ -51,6 +53,7 @@ object ConvertibleToMethodValueInspection {
   }
 }
 
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionName) {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {

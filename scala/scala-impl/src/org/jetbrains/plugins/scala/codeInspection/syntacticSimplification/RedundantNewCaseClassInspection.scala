@@ -13,10 +13,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
+import scala.annotation.nowarn
+
 /**
   * mattfowler
   * 5/7/2016
   */
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class RedundantNewCaseClassInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.redundant.new.on.case.class")) {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {

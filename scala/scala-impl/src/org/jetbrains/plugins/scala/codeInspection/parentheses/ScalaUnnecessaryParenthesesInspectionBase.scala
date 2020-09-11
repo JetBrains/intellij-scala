@@ -16,10 +16,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterCla
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getShortText
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker.checkInspection
 
+import scala.annotation.nowarn
+
 /**
  * Nikolay.Tropin
  * 4/25/13
  */
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 abstract class ScalaUnnecessaryParenthesesInspectionBase
   extends AbstractInspection(ScalaBundle.message("remove.unnecessary.parentheses")) {
 

@@ -5,7 +5,7 @@ import java.io.File
 
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiManager
-import com.intellij.testFramework.PlatformTestCase
+import com.intellij.testFramework.HeavyPlatformTestCase
 import org.jetbrains.plugins.scala.util.TestUtils.getTestDataPath
 import org.junit.Assert._
 
@@ -13,7 +13,7 @@ import org.junit.Assert._
  * @author Nikolay Obedin
  * @since 8/4/14.
  */
-abstract class AnnotatorTestBase extends PlatformTestCase {
+abstract class AnnotatorTestBase extends HeavyPlatformTestCase {
 
   protected def testdataPath: String = s"$getTestDataPath/annotator/Sbt"
 

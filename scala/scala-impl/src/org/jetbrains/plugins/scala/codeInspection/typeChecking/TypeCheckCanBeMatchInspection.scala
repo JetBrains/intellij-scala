@@ -25,13 +25,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.{InplaceRenameHelper, ScalaVariableValidator}
 
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 import scala.collection.mutable
 
 /**
  * Nikolay.Tropin
  * 5/6/13
  */
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 final class TypeCheckCanBeMatchInspection extends AbstractInspection(TypeCheckCanBeMatchInspection.inspectionName) {
 
   import TypeCheckCanBeMatchInspection._

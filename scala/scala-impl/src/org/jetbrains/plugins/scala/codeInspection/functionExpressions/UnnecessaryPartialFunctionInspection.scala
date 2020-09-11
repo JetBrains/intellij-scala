@@ -14,12 +14,15 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.api.{UndefinedType, ValueType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
+import scala.annotation.nowarn
+
 object UnnecessaryPartialFunctionInspection {
   private val PartialFunctionClassName = classOf[PartialFunction[_, _]].getCanonicalName
   private val Function1ClassName       = classOf[(_) => _].getCanonicalName
   val inspectionName: String           = ScalaInspectionBundle.message("unnecessary.partial.function")
 }
 
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class UnnecessaryPartialFunctionInspection
   extends AbstractInspection(inspectionName) {
 

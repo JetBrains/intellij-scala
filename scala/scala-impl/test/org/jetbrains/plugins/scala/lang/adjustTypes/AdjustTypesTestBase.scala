@@ -15,10 +15,13 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
+import scala.annotation.nowarn
+
 /**
  * Nikolay.Tropin
  * 7/11/13
  */
+@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class AdjustTypesTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   private val startMarker = "/*start*/"
   private val endMarker = "/*end*/"

@@ -11,9 +11,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition,
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
+import scala.annotation.nowarn
+
 /**
   * @author Nikolay.Tropin
   */
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 final class FieldFromDelayedInitInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.field.from.delayedinit")) {
 
   import FieldFromDelayedInitInspection._

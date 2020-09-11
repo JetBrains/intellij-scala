@@ -9,6 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.ScalaCollectionHighlightingLevel
 
+import scala.annotation.nowarn
+
+@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 class TypeCollectionAnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter with TestScalaProjectSettings {
   private val immutableCollectionMessage = ScalaBundle.message("scala.immutable.collection")
   private val mutableCollectionMessage = ScalaBundle.message("scala.mutable.collection")

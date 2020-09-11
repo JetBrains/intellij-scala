@@ -4,6 +4,9 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.psi.util.ScalaConstantExpressionEvaluator
 
+import scala.annotation.nowarn
+
+@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 class ScalaConstantExpressionEvaluatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter{
 
   val pattern = "/*fold after this comment*/"

@@ -29,7 +29,7 @@ trait ScTypeBoundsOwner extends ScalaPsiElement {
   def removeImplicitBounds(): Unit = {}
 
   def boundsText: String = {
-    def toString(bounds: Traversable[ScTypeElement], elementType: IElementType) =
+    def toString(bounds: Iterable[ScTypeElement], elementType: IElementType) =
       bounds.map(e => s"${elementType.toString} ${e.getText}")
 
     (toString(lowerTypeElement, tLOWER_BOUND) ++

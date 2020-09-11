@@ -25,9 +25,12 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.experimental.categories.Category
 import java.io.File
 
+import scala.annotation.nowarn
+
 /**
  * @author ilyas
  */
+@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 @Category(Array(classOf[TypecheckerTests]))
 abstract class ScalaResolveTestCase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   def folderPath: String = {

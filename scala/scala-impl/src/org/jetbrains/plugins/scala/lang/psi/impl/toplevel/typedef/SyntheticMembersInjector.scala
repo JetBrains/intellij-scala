@@ -80,7 +80,7 @@ object SyntheticMembersInjector {
   val DYN_EP: DynamicExtensionPoint[SyntheticMembersInjector] = new DynamicExtensionPoint[SyntheticMembersInjector]
 
   private def implementations(implicit p: Project): Seq[SyntheticMembersInjector] =
-    EP_NAME.getExtensions ++ DYN_EP.getExtensions
+    EP_NAME.getExtensions.toSeq ++ DYN_EP.getExtensions
 
   private val LOG: Logger = Logger.getInstance(getClass)
 

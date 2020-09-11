@@ -71,7 +71,7 @@ final class ScalafmtDynamicServiceImpl
       case _ =>
         if (state.resolvedVersions.containsKey(version)) {
           val jarUrls = state.resolvedVersions.get(version).map(new URL(_))
-          resolveClassPath(version, jarUrls)
+          resolveClassPath(version, jarUrls.toSeq)
         } else if (downloadIfMissing) {
           downloadAndResolve(version, progressListener)
         } else {

@@ -31,7 +31,7 @@ final class WorksheetEditorPrinterPlain private[printers](
 
   private val evaluatedChunks = ArrayBuffer[EvaluationChunk]()
 
-  private val currentOutputBuffer = StringBuilder.newBuilder
+  private val currentOutputBuffer = new StringBuilder()
   private var currentOutputNewLinesCount = 0
   private var currentResultStartLine: Option[String] = None
 
@@ -196,7 +196,7 @@ final class WorksheetEditorPrinterPlain private[printers](
       val actualFoldings = viewer.getFoldingModel.getAllFoldRegions.map { f =>
         FoldingDataForTests(f.getStartOffset, f.getEndOffset, f.getPlaceholderText, f.isExpanded)
       }
-      viewerEditorStates += ViewerEditorState(document.getText, actualFoldings)
+      viewerEditorStates += ViewerEditorState(document.getText, actualFoldings.toSeq)
     }
   }
 }

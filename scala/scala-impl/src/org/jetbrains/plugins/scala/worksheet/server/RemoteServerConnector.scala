@@ -138,7 +138,7 @@ final class RemoteServerConnector(
   private def outputDirs: Seq[File] = {
     val modules = ModuleRootManager.getInstance(module).getDependencies :+ module
     val strings = modules.map(CompilerPaths.getModuleOutputPath(_, false))
-    strings.map(new File(_))
+    strings.map(new File(_)).toSeq
   }
 }
 

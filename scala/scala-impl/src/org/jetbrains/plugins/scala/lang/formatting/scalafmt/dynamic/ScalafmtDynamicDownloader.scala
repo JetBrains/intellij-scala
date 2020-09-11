@@ -21,7 +21,7 @@ class ScalafmtDynamicDownloader(
       val resolver = new ScalafmtDependencyResolver(progressListener)
       val resolvedDependencies = resolver.resolve(dependencies(version): _*)
       val jars: Seq[Path] = resolvedDependencies.map(_.file.toPath)
-      val urls = jars.map(_.toUri.toURL).toArray
+      val urls = jars.map(_.toUri.toURL)
       Right(DownloadSuccess(version, urls))
     }catch {
       case e: ProcessCanceledException => throw e

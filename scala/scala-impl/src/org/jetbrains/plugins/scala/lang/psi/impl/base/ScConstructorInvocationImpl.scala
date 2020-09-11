@@ -92,7 +92,7 @@ class ScConstructorInvocationImpl(node: ASTNode)
     if (clazz.getTypeParameters.isEmpty) {
       tp
     } else {
-      ScParameterizedType(tp, clazz.getTypeParameters.map(TypeParameterType(_)))
+      ScParameterizedType(tp, clazz.getTypeParameters.map(TypeParameterType(_)).toSeq)
     }
   }
 

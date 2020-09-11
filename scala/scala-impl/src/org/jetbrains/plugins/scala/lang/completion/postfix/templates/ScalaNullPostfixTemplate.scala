@@ -29,7 +29,7 @@ sealed abstract class ScalaNullPostfixTemplate(name: String, character: Char) ex
     myPsiInfo.createExpression(expression, prefix + getHead, suffix + getTail)
   }
 
-  override final def getTail: String = character + "= null"
+  override final def getTail: String = character.toString + "= null"
 
   override final def getSurrounder: ScalaWithIfConditionSurrounder.type = ScalaWithIfConditionSurrounder
 }

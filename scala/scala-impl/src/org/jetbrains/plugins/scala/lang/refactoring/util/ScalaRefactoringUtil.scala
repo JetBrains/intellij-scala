@@ -829,7 +829,7 @@ object ScalaRefactoringUtil {
   def enclosingContainer(parent: PsiElement): PsiElement = {
     Option(parent)
             .map(elem => elem.firstChild.getOrElse(elem)) //to make enclosing container non-strict
-            .flatMap(_.scopes.toStream.headOption).orNull
+            .flatMap(_.scopes.to(LazyList).headOption).orNull
   }
 
   def commonParent(file: PsiFile, textRange: TextRange): PsiElement =
@@ -1015,8 +1015,8 @@ object ScalaRefactoringUtil {
   }
 
   def replaceOccurrences(occurrences: collection.Seq[TextRange], newString: String, file: PsiFile): collection.Seq[TextRange] = {
-    val reversedRangeMarkers = occurrences.reverseMap(replaceOccurrence(_, newString, file))
-    reversedRangeMarkers.reverseMap(rm => new TextRange(rm.getStartOffset, rm.getEndOffset))
+    val reversedRangeMarkers = occurrences.reverseIterator.map(replaceOccurrence(_, newString, file)).to(Seq)
+    reversedRangeMarkers.reverseIterator.map(rm => new TextRange(rm.getStartOffset, rm.getEndOffset)).to(Seq)
   }
 
   def statementsAndMembersInClass(aClass: ScTemplateDefinition): Seq[PsiElement] = {

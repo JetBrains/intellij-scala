@@ -12,6 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 
+import scala.annotation.nowarn
+
+@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   protected val (monocleOrg, monocleVer) = ("com.github.julien-truffaut", "1.5.0")

@@ -8,10 +8,12 @@ import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, Abst
 import org.jetbrains.plugins.scala.format._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
+import scala.annotation.nowarn
+
 /**
  * Pavel Fatin
  */
-
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class LegacyStringFormattingInspection extends AbstractInspection {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {

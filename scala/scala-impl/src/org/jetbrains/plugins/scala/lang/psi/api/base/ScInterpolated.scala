@@ -28,7 +28,7 @@ trait ScInterpolated extends ScalaPsiElement {
     }.asInstanceOf[Seq[ScExpression]]
 
   def getStringParts: Seq[String] = for {
-    child <- getNode.getChildren(null)
+    child <- getNode.getChildren(null).toSeq
 
     part = child.getElementType match {
       case `tINTERPOLATED_STRING` => child.getText.stripPrefix(SingleLineQuote)

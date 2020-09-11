@@ -20,5 +20,5 @@ private class Block(block: ScBlock) extends AbstractTreeElement(block) {
 private object Block {
   def childrenOf(block: ScBlock): Seq[PsiElement] = block.getChildren.collect {
     case element @ (_: ScFunction | _: ScTypeDefinition | _: ScBlockExpr) => element
-  }
+  }.toSeq
 }

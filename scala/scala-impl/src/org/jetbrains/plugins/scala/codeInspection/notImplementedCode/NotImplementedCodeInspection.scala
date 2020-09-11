@@ -11,10 +11,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions._
 
+import scala.annotation.nowarn
+
 /**
  * Pavel Fatin
  */
-
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class NotImplementedCodeInspection extends AbstractInspection {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {

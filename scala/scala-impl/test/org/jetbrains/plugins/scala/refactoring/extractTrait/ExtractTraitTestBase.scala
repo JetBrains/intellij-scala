@@ -7,10 +7,13 @@ import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractTraitHandler
 
+import scala.annotation.nowarn
+
 /**
  * Nikolay.Tropin
  * 2014-06-02
  */
+@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class ExtractTraitTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   def checkResult(fileText: String, expectedText: String, onlyDeclarations: Boolean, onlyFirstMember: Boolean = false): Unit = {

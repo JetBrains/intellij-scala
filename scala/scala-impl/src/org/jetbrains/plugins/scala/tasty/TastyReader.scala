@@ -122,8 +122,8 @@ object TastyReader {
       println(file.text)
 
       (file.references ++ file.types).sortBy {
-        case it: ReferenceData => it.position.start
-        case it: TypeData => it.position.start
+        case it: ReferenceData @unchecked => it.position.start
+        case it: TypeData @unchecked => it.position.start
       }.foreach {
         case it: ReferenceData @unchecked if it.getClass.getName.endsWith("ReferenceData") =>
           println("REF: " + textAt(it.position) + ", " + it)

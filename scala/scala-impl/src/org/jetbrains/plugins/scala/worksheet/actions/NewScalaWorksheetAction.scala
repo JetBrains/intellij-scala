@@ -49,7 +49,7 @@ final class NewScalaWorksheetAction extends LazyFileTemplateAction(
 object NewScalaWorksheetAction {
 
   private def suggestIndex(file: VirtualFile) = for {
-    index <- "" #:: Stream.tabulate(1000)(index => (index + 1).toString)
+    index <- "" #:: LazyList.tabulate(1000)(index => (index + 1).toString)
     defaultName = "untitled" + index
 
     if file.findChild(defaultName + "." + WorksheetFileType.getDefaultExtension) == null

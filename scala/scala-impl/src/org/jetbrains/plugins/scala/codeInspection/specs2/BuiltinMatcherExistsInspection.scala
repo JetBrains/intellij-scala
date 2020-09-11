@@ -8,6 +8,9 @@ import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 
+import scala.annotation.nowarn
+
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class BuiltinMatcherExistsInspection
   extends AbstractInspection(ScalaInspectionBundle.message("specs2.builtin.matcher.alternative.exists")) {
 

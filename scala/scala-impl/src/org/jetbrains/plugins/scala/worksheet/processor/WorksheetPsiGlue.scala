@@ -19,7 +19,7 @@ private final class WorksheetPsiGlue {
   private var afterSemicolon = false
   private var sealedTypeDef: Option[ScTypeDefinition] = None
 
-  def prepareEvaluatedElements(elements: Traversable[PsiElement]): immutable.Seq[QueuedPsi] = {
+  def prepareEvaluatedElements(elements: Iterable[PsiElement]): immutable.Seq[QueuedPsi] = {
     elements.foreach(this.process)
     flushCurrentBuffer()
     ///println(result)

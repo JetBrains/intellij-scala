@@ -154,7 +154,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
   private def superTypes: Option[Seq[ScType]] = reference match {
     case Some(q) =>
       q.resolve() match {
-        case clazz: PsiClass => Some(clazz.getSuperTypes.map(_.toScType()))
+        case clazz: PsiClass => Some(clazz.getSuperTypes.map(_.toScType()).toSeq)
         case _               => None
       }
     case None => ResolveUtils.enclosingTypeDef(this).map(_.extendsBlock.superTypes)

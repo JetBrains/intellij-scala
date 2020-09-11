@@ -196,7 +196,7 @@ object NameSuggester {
 
     val names = actualName.zipWithIndex.collect {
       case (char, index) if index == 0 || char.isLetter && char.isUpper =>
-        Character.toLowerCase(char) + actualName.substring(index + 1)
+        Character.toLowerCase(char).toString + actualName.substring(index + 1)
     }
 
     names.map(_.replaceFirst(isNotLetter + "$", ""))

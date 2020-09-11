@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.adjustTypes
 
 import com.intellij.psi.PsiNamedElement
-import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
+import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.junit.Assert
@@ -9,7 +9,7 @@ import org.junit.Assert
 /**
   * @author Nikolay.Tropin
   */
-class StaticJavaTest extends LightCodeInsightFixtureTestCase {
+class StaticJavaTest extends LightJavaCodeInsightFixtureTestCase {
 
   def testStaticJava(): Unit = {
     val file = myFixture.addFileToProject("TestStatic.java",

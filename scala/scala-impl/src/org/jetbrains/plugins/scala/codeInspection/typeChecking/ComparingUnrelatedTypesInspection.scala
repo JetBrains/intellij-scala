@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, _}
 
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 
 /**
   * Nikolay.Tropin
@@ -77,6 +77,7 @@ object ComparingUnrelatedTypesInspection {
   }
 }
 
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionName) {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {

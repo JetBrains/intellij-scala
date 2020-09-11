@@ -56,13 +56,13 @@ class ExpectedTypesImpl extends ExpectedTypes {
   def smartExpectedTypeEx(expr: ScExpression, fromUnderscore: Boolean = true): Option[ParameterType] = {
     val types = expectedExprTypes(expr, withResolvedFunction = true, fromUnderscore = fromUnderscore)
 
-    filterAlternatives(types, expr)
+    filterAlternatives(types.toSeq, expr)
   }
 
   override def expectedExprType(expr: ScExpression, fromUnderscore: Boolean = true): Option[ParameterType] = {
     val types = expr.expectedTypesEx(fromUnderscore)
 
-    filterAlternatives(types, expr)
+    filterAlternatives(types.toSeq, expr)
   }
 
   private[this] def filterAlternatives(

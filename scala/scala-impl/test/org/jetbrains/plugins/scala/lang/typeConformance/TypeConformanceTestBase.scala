@@ -20,11 +20,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresen
 import org.junit.Assert.fail
 import org.junit.experimental.categories.Category
 
+import scala.annotation.nowarn
+
 /**
   * User: Alexander Podkhalyuzin
   * Date: 10.03.2009
   */
-
+@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 @Category(Array(classOf[TypecheckerTests]))
 abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter with FailableTest {
   protected val caretMarker = "/*caret*/"

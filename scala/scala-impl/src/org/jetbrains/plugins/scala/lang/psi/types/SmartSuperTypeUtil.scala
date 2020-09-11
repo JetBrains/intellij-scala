@@ -54,13 +54,12 @@ object SmartSuperTypeUtil {
     val supers: Seq[ScType] = cls match {
       case td: ScTypeDefinition => td.superTypes.map(subst)
       case _ =>
-        cls.getSuperTypes.map(
-          tpe =>
-            subst(tpe.toScType()(cls)) match {
-              case exist: ScExistentialType => exist.quantified
-              case other                    => other
-        }
-      )
+        cls.getSuperTypes.map { tpe =>
+          subst(tpe.toScType()(cls)) match {
+            case exist: ScExistentialType => exist.quantified
+            case other => other
+          }
+        }.toSeq
     }
 
     val toBeProcessed = ArrayBuffer.empty[(PsiClass, ScSubstitutor)]

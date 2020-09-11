@@ -29,7 +29,7 @@ class ScPatternListImpl private(stub: ScPatternListStub, node: ASTNode)
   override def patterns: Seq[ScPattern] = {
     if (simplePatternsByStub) getStubOrPsiChildren(REFERENCE_PATTERN, ScReferencePatternFactory)
     else findChildrenByClass(classOf[ScPattern])
-  }
+  }.toSeq
 
   override def bindings: Seq[ScBindingPattern] =
     byStubOrPsi(_.getChildrenByType(BINDING_PATTERNS, ScBindingPatternFactory).toSeq) {

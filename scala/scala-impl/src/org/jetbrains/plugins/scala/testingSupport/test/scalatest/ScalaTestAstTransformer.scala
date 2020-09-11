@@ -259,7 +259,7 @@ object ScalaTestAstTransformer {
 
   private def getElementNestedBlockChildren(element: PsiElement): Seq[PsiElement] = {
     element match {
-      case _: ScBlockExpr | _: ScTemplateBody => element.getChildren
+      case _: ScBlockExpr | _: ScTemplateBody => element.getChildren.toSeq
       case _ =>
         element.getChildren.toSeq.flatMap {
           case argExprList: ScArgumentExprList =>
@@ -306,7 +306,7 @@ object ScalaTestAstTransformer {
     if (containingClass != null) { // For inner method, this will be null
       val className = containingClass.qualifiedName
       val paramTypes = methodDef.parameters.flatMap(_.typeElement.map(_.getText)).toArray
-      Some(new StMethodDefinition(methodDef, className, paramTypes))
+      Some(new StMethodDefinition(methodDef, className, paramTypes.toSeq))
     } else {
       None // May be to build the nested AST nodes too
     }

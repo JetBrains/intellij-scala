@@ -78,7 +78,7 @@ object ScalaNamesUtil {
 
   def splitName(name: String): Seq[String] = name match {
     case null | "" => Seq.empty
-    case _ if name.contains(".") => name.split("\\.")
+    case _ if name.contains(".") => name.split("\\.").toSeq
     case _ => Seq(name)
   }
 

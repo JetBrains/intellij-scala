@@ -148,7 +148,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
     def allUnderscores(expr: PsiElement): Seq[ScUnderscoreSection] = {
       expr match {
         case underscore: ScUnderscoreSection => Seq(underscore)
-        case _ => expr.getChildren.flatMap(allUnderscores)
+        case _ => expr.getChildren.flatMap(allUnderscores).toSeq
       }
     }
 
@@ -187,7 +187,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
     def needsPatternMatchFilter(pattern: ScPattern): Boolean =
       !pattern.isIrrefutableFor(if (forDisplay) pattern.expectedType else None)
 
-    val resultText = mutable.StringBuilder.newBuilder
+    val resultText = new mutable.StringBuilder()
     val patternMappings = mutable.Map.empty[ScPattern, Int]
     val enumMappings = mutable.Map.empty[ScEnumerator, Int]
 
