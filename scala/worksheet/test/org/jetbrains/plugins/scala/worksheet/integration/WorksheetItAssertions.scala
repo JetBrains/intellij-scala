@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.integration
 
 import com.intellij.compiler.CompilerMessageImpl
-import com.intellij.openapi.compiler.CompilerMessageCategory
+import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.{Folding, ViewerEditorData}
@@ -85,14 +85,20 @@ trait WorksheetItAssertions {
     )
   }
 
-  def assertNoErrorMessages(editor: Editor): Unit =
-    assertNoMessages(editor, CompilerMessageCategory.ERROR)
+  def assertNoErrorMessages(editor: Editor,
+                            isCompilerMessageAllowed: CompilerMessage => Boolean = _ => false): Unit =
+    assertNoMessages(editor, CompilerMessageCategory.ERROR, isCompilerMessageAllowed)
 
-  def assertNoWarningMessages(editor: Editor): Unit =
-    assertNoMessages(editor, CompilerMessageCategory.WARNING)
+  def assertNoWarningMessages(editor: Editor,
+                              isCompilerMessageAllowed: CompilerMessage => Boolean = _ => false): Unit =
+    assertNoMessages(editor, CompilerMessageCategory.WARNING, isCompilerMessageAllowed)
 
-  def assertNoMessages(editor: Editor, category: CompilerMessageCategory): Unit = {
-    val messages = collectedCompilerMessages(editor).filter(_.getCategory == category)
+  private def assertNoMessages(editor: Editor,
+                               category: CompilerMessageCategory,
+                               isCompilerMessageAllowed: CompilerMessage => Boolean): Unit = {
+    val messages = collectedCompilerMessages(editor)
+      .filter(_.getCategory == category)
+      .filterNot(isCompilerMessageAllowed)
     if (messages.nonEmpty) {
       val messagesRenders = messages.map { err =>
         s"${err.getCategory} (${err.getLine}, ${err.getColumn}) ${err.getMessage}}"
