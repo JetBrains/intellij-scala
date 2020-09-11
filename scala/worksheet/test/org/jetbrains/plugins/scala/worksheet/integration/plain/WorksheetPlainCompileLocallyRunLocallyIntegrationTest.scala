@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.integration.plain
 
-import org.jetbrains.plugins.scala.WorksheetEvaluationTests
+import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, WorksheetEvaluationTests}
 import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRunTestSettings}
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
 import org.junit.experimental.categories.Category
@@ -105,7 +106,12 @@ class WorksheetPlainCompileLocallyRunLocallyIntegrationTest  extends WorksheetIn
         |
         |defined class A
         |defined trait B
-        |defined object B""".stripMargin
+        |defined object B""".stripMargin,
+      isCompilerMessageAllowed = { msg: CompilerMessage =>
+        version == LatestScalaVersions.Scala_2_13 &&
+          msg.getCategory == CompilerMessageCategory.WARNING &&
+          msg.getMessage.startsWith("Pattern definition introduces Unit-valued")
+      }
     )
   }
 }
