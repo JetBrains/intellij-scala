@@ -62,7 +62,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 import org.jetbrains.plugins.scala.util.ScalaPluginUtils
 
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Future, Promise}
 import scala.io.Source
@@ -553,6 +553,7 @@ package object extensions {
 
   object Model extends Enumeration {
 
+    @nowarn("msg=shadowing a nested class of a parent is deprecated")
     class Val(val start: String, val end: String) extends super.Val()
 
     val None = new Val("", "")

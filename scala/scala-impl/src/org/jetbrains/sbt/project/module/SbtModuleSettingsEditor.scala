@@ -39,7 +39,7 @@ class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleEl
     JListCompatibility.setModel(myForm.sbtImportsList, modelWrapper.getModelRaw)
 
     myForm.updateButton.addActionListener((e: ActionEvent) => {
-      val resolversToUpdate: Seq[SbtResolver] = myForm.resolversTable.getSelectedRows.map(resolvers(_))
+      val resolversToUpdate: Seq[SbtResolver] = myForm.resolversTable.getSelectedRows.map(resolvers(_)).toSeq
       SbtIndexesManager.getInstance(state.getProject).foreach(_.updateWithProgress(resolversToUpdate))
     })
 

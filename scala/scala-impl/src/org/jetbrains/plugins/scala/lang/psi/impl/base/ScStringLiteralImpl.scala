@@ -37,7 +37,7 @@ class ScStringLiteralImpl(node: ASTNode,
   override protected final def toValue(text: String): String = literalElementType match {
     case `tSTRING` =>
       try {
-        StringContext.treatEscapes(text) // for octal escape sequences
+        StringContext.processEscapes(text) // for octal escape sequences
       } catch {
         case _: StringContext.InvalidEscapeException => StringUtil.unescapeStringCharacters(getText)
       }

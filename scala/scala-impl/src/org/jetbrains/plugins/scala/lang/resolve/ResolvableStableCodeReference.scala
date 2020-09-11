@@ -19,7 +19,7 @@ object ResolvableStableCodeReference {
     def resolveTypesOnly(incomplete: Boolean): Array[ScalaResolveResult] = {
       val importResolverNoMethods = new StableCodeReferenceResolver(stableRef, false, false, false) {
         override protected def getKindsFor(ref: ScStableCodeReference): Set[ResolveTargets.Value] = {
-          ref.getKinds(incomplete = false) -- StdKinds.methodRef
+          ref.getKinds(incomplete = false) diff StdKinds.methodRef
         }
       }
       importResolverNoMethods.resolve(stableRef, incomplete)
@@ -29,7 +29,7 @@ object ResolvableStableCodeReference {
     def resolveMethodsOnly(incomplete: Boolean): Array[ScalaResolveResult] = {
       val importResolverNoTypes = new StableCodeReferenceResolver(stableRef, false, false, false) {
         override protected def getKindsFor(ref: ScStableCodeReference): Set[ResolveTargets.Value] = {
-          ref.getKinds(incomplete = false) -- StdKinds.stableClass
+          ref.getKinds(incomplete = false) diff StdKinds.stableClass
         }
       }
 

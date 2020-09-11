@@ -60,7 +60,7 @@ final class WorksheetEditorPrinterRepl private[printers](
     psiToProcess ++= evaluatedElements
   }
 
-  private val chunkOutputBuffer = StringBuilder.newBuilder
+  private val chunkOutputBuffer = new StringBuilder()
   private var chunkIsBeingProcessed = false
 
   // FIXME: now all return boolean values are not processed anywhere and do not mean anything, remove or handle

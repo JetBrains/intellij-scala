@@ -39,10 +39,10 @@ class SimpleBuildFileModifier(val libDependencies: Seq[String],
 
   protected def addElements(module: Module, elementType: BuildFileElementType,
                             fileToWorkingCopy: mutable.Map[VirtualFile, LightVirtualFile]): Option[VirtualFile] = {
-    val locationProvidersStream = buildFileLocationProviders.toStream
+    val locationProvidersStream = buildFileLocationProviders.to(LazyList)
     //TODO: rewrite this?
     buildFileProviders.map(fileProvider =>
-      fileProvider.findBuildFile(module, elementType, fileToWorkingCopy)).toStream.map(_.map(buildFileEntry =>
+      fileProvider.findBuildFile(module, elementType, fileToWorkingCopy)).to(LazyList).map(_.map(buildFileEntry =>
       locationProvidersStream.map(locationProvider => buildPsiElement(module.getProject,
         Option(if (buildFileEntry.isModuleLocal) null else module.getName), elementType).map(
             SimpleBuildFileModifier.addElementsToBuildFile(module, locationProvider,elementType, buildFileEntry.file,

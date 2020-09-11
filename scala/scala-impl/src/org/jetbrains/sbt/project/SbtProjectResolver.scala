@@ -18,6 +18,7 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.annotations.{NonNls, Nullable}
 import org.jetbrains.plugins.scala._
 import org.jetbrains.plugins.scala.build._
+import org.jetbrains.plugins.scala.compiler.data.serialization.extensions.EitherExt
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{AndroidJdk, JdkByHome, JdkByName, SdkReference}
 import org.jetbrains.sbt.SbtUtil._
@@ -94,7 +95,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val conversionResult = structureDump
       .map { case (elem, _) =>
-        val data = elem.deserialize[sbtStructure.StructureData].right.get
+        val data = elem.deserialize[sbtStructure.StructureData].getRight
         convert(normalizePath(projectRoot), data, settings.jdk).toDataNode
       }
       .recoverWith {

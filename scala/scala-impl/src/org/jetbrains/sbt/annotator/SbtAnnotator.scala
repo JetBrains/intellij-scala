@@ -74,7 +74,7 @@ final class SbtAnnotator extends Annotator {
 
       if (sbtVersion < Version("0.13.7")) {
         for {
-          expression <- missingBlankLines(children)
+          expression <- missingBlankLines(children.toSeq)
           message = SbtBundle.message("sbt.annotation.blankLineRequired", sbtVersion)
         } holder.createErrorAnnotation(expression, message)
       }

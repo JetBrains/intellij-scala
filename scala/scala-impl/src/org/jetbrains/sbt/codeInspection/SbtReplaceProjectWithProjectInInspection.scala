@@ -12,10 +12,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
+import scala.annotation.nowarn
+
 /**
  * @author Nikolay Obedin
  * @since 8/5/14.
  */
+@nowarn("msg=" + AbstractInspection.DeprecationText)
 class SbtReplaceProjectWithProjectInInspection extends AbstractInspection {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {

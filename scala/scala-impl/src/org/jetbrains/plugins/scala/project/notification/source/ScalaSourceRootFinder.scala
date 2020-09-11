@@ -32,7 +32,7 @@ object ScalaSourceRootFinder {
   import ScalaTokenTypes._
 
   def packageStatement(buf: CharSequence): String = {
-    implicit val lexer: ScalaLexer = new ScalaLexer
+    implicit val lexer: ScalaLexer = new ScalaLexer(false, null)
     lexer.start(buf)
 
     val builder = new StringBuilder()

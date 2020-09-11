@@ -21,7 +21,7 @@ object ScalaTodoIndexer {
    * see [[idCache.JavaFilterLexer]]
    */
   private final class ScalaFilterLexer(consumer: OccurrenceConsumer)
-    extends BaseFilterLexer(new ScalaLexer, consumer) {
+    extends BaseFilterLexer(new ScalaLexer(false, null), consumer) {
 
     override def advance(): Unit = {
       val tokenType = getDelegate.getTokenType

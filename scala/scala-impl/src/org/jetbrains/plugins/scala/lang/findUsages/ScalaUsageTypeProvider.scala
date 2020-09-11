@@ -107,7 +107,7 @@ object ScalaUsageTypeProvider {
     }
   }
 
-  implicit def stringToUsageType(@Nls name: String): UsageType = new UsageType(name)
+  implicit def stringToUsageType(@Nls name: String): UsageType = new UsageType(() => name)
   val Extractor: UsageType                 = ScalaBundle.message("usage.extractor")
   val ClassTypedPattern: UsageType         = ScalaBundle.message("usage.typed.pattern")
   val TypedStatement: UsageType            = ScalaBundle.message("usage.typed.statement")

@@ -15,7 +15,7 @@ object JvmMemorySize {
   abstract class Factory(powK: Int, val unitSuffix: String) {
     val byteMultiplier: Long = Iterator.fill(powK)(1024L).product
 
-    def apply(size: Long): JvmMemorySize =JvmMemorySize(size * byteMultiplier)(size + unitSuffix)
+    def apply(size: Long): JvmMemorySize =JvmMemorySize(size * byteMultiplier)(size.toString + unitSuffix)
   }
 
   object Bytes extends Factory(0, "")

@@ -65,11 +65,6 @@ public final class ScalaLexer extends Lexer {
    */
   private IElementType previousToken = null;
 
-  @Deprecated
-  public ScalaLexer() {
-    this(false, null);
-  }
-
   public ScalaLexer(boolean isScala3,
                     @Nullable Project project) {
     myScalaPlainLexer = new ScalaPlainLexer(

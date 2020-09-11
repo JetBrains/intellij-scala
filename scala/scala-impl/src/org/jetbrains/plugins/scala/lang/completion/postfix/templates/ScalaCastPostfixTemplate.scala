@@ -16,9 +16,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
  * @since 08.09.2015.
  */
 final class ScalaCastPostfixTemplate extends PostfixTemplateWithExpressionSelector(
+  null,
   "cast",
   "expr.asInstanceOf[SomeType]",
-  SelectAllAncestors()
+  SelectAllAncestors(),
+  null
 ) {
 
   def getTemplateString(expression: PsiElement): String = "$expr$.asInstanceOf[$END$]"

@@ -155,7 +155,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     projectRoots
       .filter(it => it.isExternal && !internalSourceDirectories.contains(it.root.directory))
       .groupBy(_.root)
-      .mapValues(_.map(_.project).toSet)
+      .view.mapValues(_.map(_.project).toSet).toMap
       .map(p => SharedRoot(p._1, p._2.toSeq))
       .toSeq
   }

@@ -43,7 +43,7 @@ object Play2OldStructureAdapter {
 
   //SCL-7005
   @inline private def avoidSL7005Bug[K, A, B](m: Map[K, Seq[(A, B)]]): Map[K, Map[A, B]] = {
-    val withMapsValues = m.mapValues(_.toMap)
+    val withMapsValues = m.view.mapValues(_.toMap).toMap
     HashMap(withMapsValues.toSeq:_*)
   }
 }

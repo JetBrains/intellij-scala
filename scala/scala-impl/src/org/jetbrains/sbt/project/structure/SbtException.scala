@@ -27,7 +27,7 @@ object SbtException {
   }
 
   private[this] def handleUnresolvedDeps(log: Seq[String]) =
-    log.foldLeft(StringBuilder.newBuilder) {
+    log.foldLeft(new StringBuilder()) {
       case (accumulator, WarnRegexp(group)) => accumulator.append("<li>").append(group).append("</li>")
       case (accumulator, _) => accumulator
     }.toString

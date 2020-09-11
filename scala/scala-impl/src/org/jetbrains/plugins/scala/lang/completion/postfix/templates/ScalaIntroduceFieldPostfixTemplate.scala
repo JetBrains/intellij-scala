@@ -14,9 +14,11 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceField.ScalaIntroduc
  * @since 10.09.2015.
  */
 final class ScalaIntroduceFieldPostfixTemplate extends PostfixTemplateWithExpressionSelector(
+  null,
   "field",
   "field = expr",
-  SelectAllAncestors()
+  SelectAllAncestors(),
+  null
 ) {
 
   override def expandForChooseExpression(expression: PsiElement, editor: Editor): Unit = {
