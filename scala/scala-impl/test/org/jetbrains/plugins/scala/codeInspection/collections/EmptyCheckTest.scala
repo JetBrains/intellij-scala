@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
-import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
 /**
   * @author Nikolay.Tropin
   */
@@ -173,4 +171,13 @@ class ReplaceWithNonEmptyTest extends CheckEmptinessTest {
     testQuickFix(text, result, hint)
   }
 
+  // SCL-18080
+  def testNonEmptyString(): Unit = {
+    val string = "\"blub\""
+    val selected = s"$START!$string.isEmpty$END"
+    checkTextHasError(selected)
+    val text = s"!$string.isEmpty"
+    val result = s"$string.nonEmpty"
+    testQuickFix(text, result, hint)
+  }
 }
