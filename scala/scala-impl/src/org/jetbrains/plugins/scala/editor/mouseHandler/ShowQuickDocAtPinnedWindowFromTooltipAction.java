@@ -32,11 +32,11 @@ import org.jetbrains.annotations.NotNull;
 public class ShowQuickDocAtPinnedWindowFromTooltipAction extends AbstractDocumentationTooltipAction {
 
   ShowQuickDocAtPinnedWindowFromTooltipAction() {
-    String className = getClass().getSimpleName();
-    String actionId = className.substring(0, className.lastIndexOf("Action"));
-    getTemplatePresentation().setText(ActionsBundle.actionText(actionId));
-    getTemplatePresentation().setDescription(ActionsBundle.actionDescription(actionId));
-    getTemplatePresentation().setIcon(AllIcons.General.Pin_tab);
+//    String className = getClass().getSimpleName();
+//    String actionId = className.substring(0, className.lastIndexOf("Action"));
+//    getTemplatePresentation().setText(ActionsBundle.actionText(actionId));
+//    getTemplatePresentation().setDescription(ActionsBundle.actionDescription(actionId));
+//    getTemplatePresentation().setIcon(AllIcons.General.Pin_tab);
   }
 
   @Override
