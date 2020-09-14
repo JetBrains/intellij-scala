@@ -205,6 +205,8 @@ lazy val compilerJps =
   newProject("compiler-jps", file("scala/compiler-jps"))
     .dependsOn(compilerShared, repackagedZinc, worksheetReplReporters)
     .settings(
+      javacOptions in Compile := jpsJavacOptions,
+      scalacOptions in Compile := jpsScalacOptions,
       packageMethod           :=  PackagingMethod.Standalone("lib/jps/compiler-jps.jar", static = true),
       libraryDependencies     ++= Seq(Dependencies.nailgun,
                                       Dependencies.zincInterface,
@@ -226,6 +228,8 @@ lazy val repackagedZinc =
 lazy val compilerShared =
   newProject("compiler-shared", file("scala/compiler-shared"))
     .settings(
+      javacOptions in Compile := jpsJavacOptions,
+      scalacOptions in Compile := jpsScalacOptions,
       libraryDependencies ++= Seq(Dependencies.nailgun, Dependencies.compilerIndicesProtocol, Dependencies.zincInterface),
       packageLibraryMappings ++= Seq(
         Dependencies.nailgun                 -> Some("lib/jps/nailgun.jar"),
@@ -246,6 +250,8 @@ lazy val runners =
 lazy val nailgunRunners =
   newProject("nailgun", file("scala/nailgun"))
     .settings(
+      javacOptions in Compile := jpsJavacOptions,
+      scalacOptions in Compile := jpsScalacOptions,
       libraryDependencies += Dependencies.nailgun,
       packageLibraryMappings += Dependencies.nailgun -> Some("lib/jps/nailgun.jar"),
       packageMethod := PackagingMethod.Standalone("lib/scala-nailgun-runner.jar", static = true)
