@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListene
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.junit.Assert.{assertEquals, assertTrue}
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.junit.Ignore
 import org.junit.runner.RunWith
 
 import scala.concurrent.duration.DurationInt
@@ -92,6 +93,7 @@ abstract class HighlightingCompilerConflictsBase(compileServerLanguageLevel: Lan
   }
 }
 
+@Ignore
 class HighlightingCompilerConflictsDifferentJdksTest extends HighlightingCompilerConflictsBase(
   compileServerLanguageLevel = LanguageLevel.JDK_1_8,
   buildProcessLanguageLevel = LanguageLevel.JDK_11,

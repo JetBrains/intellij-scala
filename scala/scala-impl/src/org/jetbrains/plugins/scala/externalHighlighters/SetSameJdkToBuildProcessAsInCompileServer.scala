@@ -44,16 +44,15 @@ final class TempCompilerProcessJdkService
     Registry.get("compiler.process.jdk")
 
   def overrideBuildProcessJdk(project: Project): Unit =
-    if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
-      getCompileServerJdkHome(project).foreach { jdkHome =>
-        setTempCompilerProcessJdk(jdkHome)
-      }
+    getCompileServerJdkHome(project).foreach { jdkHome =>
+      setTempCompilerProcessJdk(jdkHome)
+    }
 
   def eraseBuildProcessJdk(): Unit =
     registryValue.setValue("")
 
   def overrideOrEraseBuildProcessJdk(project: Project): Unit = {
-    if (project.hasScala)
+    if (project.hasScala && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
       overrideBuildProcessJdk(project)
     else
       eraseBuildProcessJdk()
