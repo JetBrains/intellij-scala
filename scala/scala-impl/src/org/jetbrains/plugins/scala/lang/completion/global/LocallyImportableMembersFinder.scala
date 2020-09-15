@@ -14,6 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 
+import scala.annotation.nowarn
+
 private final class LocallyImportableMembersFinder(place: ScReferenceExpression,
                                                    accessAll: Boolean)
   extends ByPlaceGlobalMembersFinder(place, accessAll) {
@@ -51,6 +53,7 @@ private final class LocallyImportableMembersFinder(place: ScReferenceExpression,
     case _ => Seq.empty
   }(LocallyImportableMemberResult)
 
+  @nowarn("msg=The outer reference in this type test cannot be checked at run time")
   private final case class LocallyImportableMemberResult(elementToImport: PsiNamedElement,
                                                          override val classToImport: PsiClass)
     extends GlobalMemberResult(elementToImport, classToImport)(NameAvailability) {

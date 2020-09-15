@@ -355,6 +355,7 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
         return LocalFileSystem.getInstance().refreshAndFindFileByIoFile(f);
     }
 
+    @SuppressWarnings("unchecked")
     @NotNull
     protected VirtualFile createProjectJarSubFile(String relativePath, Pair<ByteSequence, String>... contentEntries) throws IOException {
         assertTrue("Use 'jar' extension for JAR files: '" + relativePath + "'", FileUtilRt.extensionEquals(relativePath, "jar"));
@@ -519,14 +520,17 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
                 new SetWithToString<String>(new THashSet<String>(actual, FileUtil.PATH_HASHING_STRATEGY)));
     }
 
+    @SuppressWarnings("unchecked")
     protected static <T> void assertUnorderedElementsAreEqual(T[] actual, T... expected) {
         assertUnorderedElementsAreEqual(Arrays.asList(actual), expected);
     }
 
+    @SuppressWarnings("unchecked")
     protected static <T> void assertUnorderedElementsAreEqual(Collection<T> actual, T... expected) {
         assertUnorderedElementsAreEqual(actual, Arrays.asList(expected));
     }
 
+    @SuppressWarnings("unchecked")
     protected static <T, U> void assertOrderedElementsAreEqual(Collection<U> actual, T... expected) {
         String s = "\nexpected: " + Arrays.asList(expected) + "\nactual: " + new ArrayList<U>(actual);
         assertEquals(s, expected.length, actual.size());
@@ -539,11 +543,13 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
         }
     }
 
+    @SuppressWarnings("unchecked")
     protected static <T> void assertContain(java.util.List<? extends T> actual, T... expected) {
         java.util.List<T> expectedList = Arrays.asList(expected);
         assertTrue("expected: " + expectedList + "\n" + "actual: " + actual.toString(), actual.containsAll(expectedList));
     }
 
+    @SuppressWarnings("unchecked")
     protected static <T> void assertDoNotContain(java.util.List<T> actual, T... expected) {
         java.util.List<T> actualCopy = new ArrayList<T>(actual);
         actualCopy.removeAll(Arrays.asList(expected));

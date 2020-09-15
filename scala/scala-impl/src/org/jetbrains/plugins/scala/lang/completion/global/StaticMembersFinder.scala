@@ -17,6 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
+import scala.annotation.nowarn
+
 private final class StaticMembersFinder(place: ScReferenceExpression,
                                         accessAll: Boolean)
                                        (private val namePredicate: String => Boolean)
@@ -63,6 +65,7 @@ private final class StaticMembersFinder(place: ScReferenceExpression,
       )
   }
 
+  @nowarn("msg=The outer reference in this type test cannot be checked at run time")
   private final case class StaticMethodResult(overloadsToImport: Array[PsiMethod],
                                               override val classToImport: PsiClass)
     extends GlobalMemberResult(
@@ -80,6 +83,7 @@ private final class StaticMembersFinder(place: ScReferenceExpression,
     }
   }
 
+  @nowarn("msg=The outer reference in this type test cannot be checked at run time")
   private final case class StaticFieldResult(elementToImport: PsiNamedElement,
                                              override val classToImport: PsiClass)
     extends GlobalMemberResult(elementToImport, classToImport)(NameAvailability)

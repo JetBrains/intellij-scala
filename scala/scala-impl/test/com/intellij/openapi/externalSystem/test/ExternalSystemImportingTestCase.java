@@ -296,6 +296,7 @@ public abstract class ExternalSystemImportingTestCase extends ExternalSystemTest
   }
 
   @NotNull
+  @SuppressWarnings("unchecked")
   private <T> List<T> getModuleDep(@NotNull String moduleName, @NotNull String depName, @NotNull Class<T> clazz) {
     List<T> deps = new ArrayList<>();
 
@@ -378,6 +379,7 @@ public abstract class ExternalSystemImportingTestCase extends ExternalSystemTest
     doImportProject();
   }
 
+  @SuppressWarnings("unchecked")
   private void doImportProject() {
     AbstractExternalSystemSettings systemSettings = ExternalSystemApiUtil.getSettings(myProject, getExternalSystemId());
     final ExternalProjectSettings projectSettings = getCurrentExternalProjectSettings();

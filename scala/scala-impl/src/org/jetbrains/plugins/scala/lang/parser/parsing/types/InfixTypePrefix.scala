@@ -47,10 +47,6 @@ object InfixTypePrefix {
             builder.advanceLexer() //Ate => or ?=>
             if (!Type.parse(builder, star, isPattern)) builder.error(ScalaBundle.message("wrong.type"))
             marker.done(ScalaElementType.TYPE)
-          case ScalaTokenType.ImplicitFunctionArrow if builder.isScala3 =>
-            builder.advanceLexer() //Ate ?=>
-            if (!Type.parse(builder, star, isPattern)) builder.error(ScalaBundle.message("wrong.type"))
-            marker.done(ScalaElementType.TYPE)
           case ScalaTokenTypes.kFOR_SOME =>
             ExistentialClause.parse(builder)
             marker.done(ScalaElementType.EXISTENTIAL_TYPE)

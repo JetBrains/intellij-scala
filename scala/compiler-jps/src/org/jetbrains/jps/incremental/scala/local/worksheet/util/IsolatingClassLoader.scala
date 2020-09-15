@@ -5,6 +5,8 @@ import java.net.URL
 import java.util
 import java.util.Collections
 
+import scala.annotation.nowarn
+
 /**
  * Hides classes that satisfy `filter` from parent class-loader.
  * Force some classes to be resolved in current classloader, instead of searching in parent.
@@ -18,6 +20,7 @@ final class IsolatingClassLoader(parent: ClassLoader, filter: String => Boolean)
   override def loadClass(name: String, resolve: Boolean): Class[_] =
     apply(name)(super.loadClass(name, resolve)).orNull
 
+  @nowarn("msg=overrides concrete")
   @deprecated("", since = "9")
   override def getPackage(name: String): Package =
     apply(name)(super.getPackage(name)).orNull

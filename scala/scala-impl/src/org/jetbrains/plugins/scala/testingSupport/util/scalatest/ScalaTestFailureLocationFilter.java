@@ -130,7 +130,7 @@ public class ScalaTestFailureLocationFilter implements Filter {
    * public.
    */
   private static class ExceptionInfoCache {
-    private final ConcurrentMap<String, SoftReference<Pair<PsiClass[], PsiFile[]>>> myCache = new ConcurrentHashMap();
+    private final ConcurrentMap<String, SoftReference<Pair<PsiClass[], PsiFile[]>>> myCache = new ConcurrentHashMap<>();
     private final Project myProject;
     private final GlobalSearchScope mySearchScope;
 

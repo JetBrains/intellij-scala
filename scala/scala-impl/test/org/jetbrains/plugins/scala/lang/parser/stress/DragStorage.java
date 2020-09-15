@@ -22,6 +22,7 @@ public class DragStorage {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public Pair<TextRange, Integer>[] getRangeInfo(){
     List<Pair<TextRange, Integer>> list = new ArrayList<Pair<TextRange, Integer>>();
     for (Map.Entry<TextRange, Integer> entry : myRanges.entrySet()) {

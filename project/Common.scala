@@ -10,7 +10,11 @@ object Common {
   lazy val communityFullClasspath: TaskKey[Classpath] =
     taskKey[Classpath]("scalaCommunity module's fullClasspath in Compile and Test scopes")
 
-  val globalJavacOptions = Seq("-source", "1.8","-target","1.8")
+  val globalJavacOptions = Seq(
+    "-source", "1.8",
+    "-target", "1.8",
+    "-Xlint:unchecked"
+  )
   val globalScalacOptions = Seq(
     "-target:jvm-1.8",
     "-deprecation",

@@ -135,7 +135,7 @@ public class FileHeaderChecker {
 
   private static String templateToRegex(FileTemplateManager fileTemplateManager, final String text, TIntObjectHashMap<String> offsetToProperty) {
     String regex = text;
-    @NonNls Collection<String> properties = new ArrayList<String>((Collection) fileTemplateManager.getDefaultProperties().keySet());
+    @SuppressWarnings("unchecked") @NonNls Collection<String> properties = new ArrayList<String>((Collection) fileTemplateManager.getDefaultProperties().keySet());
     properties.add("PACKAGE_NAME");
 
     regex = escapeRegexChars(regex);

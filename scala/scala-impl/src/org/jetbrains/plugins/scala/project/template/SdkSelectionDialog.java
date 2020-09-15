@@ -24,6 +24,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+@SuppressWarnings("unchecked")
 public class SdkSelectionDialog extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;

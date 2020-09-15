@@ -16,6 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 
+import scala.annotation.nowarn
+
 private final class ExtensionMethodsFinder(originalType: ScType,
                                            place: ScExpression,
                                            accessAll: Boolean)
@@ -44,6 +46,7 @@ private final class ExtensionMethodsFinder(originalType: ScType,
       else NO_CONFLICT
   }
 
+  @nowarn("msg=The outer reference in this type test cannot be checked at run time")
   private final case class ExtensionMethodCandidate(override val resolveResult: ScalaResolveResult,
                                                     override val classToImport: ScObject,
                                                     elementToImport: ScFunction)
