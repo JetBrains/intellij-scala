@@ -85,7 +85,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     val compilerIndicesEnabled = CompilerIndicesSettings(project).isBytecodeIndexingActive
     val compilerIndicesPlugin  = compilerIndicesEnabled.seq {
       val pluginVersion = BuildInfo.sbtIdeaCompilerIndicesVersion
-      s"""addSbtPlugin("org.jetbrains" % "sbt-idea-compiler-indices" % "$pluginVersion")"""
+      s"""addSbtPlugin("org.jetbrains.scala" % "sbt-idea-compiler-indices" % "$pluginVersion")"""
     }
 
 
