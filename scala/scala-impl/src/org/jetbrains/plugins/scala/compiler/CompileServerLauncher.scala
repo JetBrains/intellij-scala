@@ -15,7 +15,6 @@ import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.impl.OrderEntryUtil
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
-import com.intellij.openapi.util.ShutDownTracker
 import com.intellij.util.net.NetUtils
 import javax.swing.event.HyperlinkEvent
 import org.jetbrains.jps.api.GlobalOptions
@@ -23,7 +22,7 @@ import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServerToken}
-import org.jetbrains.plugins.scala.util.{IntellijPlatformJars, LibraryJars, ScalaPluginJars}
+import org.jetbrains.plugins.scala.util.{IntellijPlatformJars, LibraryJars, ScalaPluginJars, UnloadAwareDisposable}
 
 import scala.jdk.CollectionConverters._
 import scala.util.Try
@@ -65,7 +64,7 @@ object CompileServerLauncher {
     }
   }
 
-  ShutDownTracker.getInstance().registerShutdownTask { () =>
+  invokeOnDispose(UnloadAwareDisposable.scalaPluginDisposable) {
     ensureServerNotRunning()
   }
 
