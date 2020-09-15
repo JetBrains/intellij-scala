@@ -21,6 +21,10 @@ Plugin that implements Scala, sbt, Play 2, SSP and Hocon support in IntelliJ IDE
 - If you want to contribute, please see our [intro to the Scala plugin
   internals](https://blog.jetbrains.com/scala/2016/04/21/how-to-contribute-to-intellij-scala-plugin/).
 
+### Running Nightly builds
+
+To run the latest Nightly build, setup auto-update of Scala plugin Nightly builds in IntelliJ IDEA in the under **Preferences | Languages & Frameworks | Scala | Updates**. To download individual Nightly builds, check the [Scala Plugin Nightly Confluence page](https://confluence.jetbrains.com/display/SCA/Scala+Plugin+Nightly).
+
 ## Setting up the project
 
 ### Prerequisites
