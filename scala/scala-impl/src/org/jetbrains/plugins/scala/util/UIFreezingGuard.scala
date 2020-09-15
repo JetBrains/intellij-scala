@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.components.RunOnceStartupActivity
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.UIFreezingGuard._
 
+import scala.annotation.nowarn
 import scala.util.control.NoStackTrace
 
 /**
@@ -89,7 +90,9 @@ object UIFreezingGuard {
   def isAlreadyGuarded: Boolean = isEdt && isGuarded || !isEdt
 
   private def isWriteAction: Boolean = ApplicationManager.getApplication.isWriteAccessAllowed
-  private def isTransaction: Boolean = TransactionGuard.getInstance().getContextTransaction != null
+  private def isTransaction: Boolean = {
+    (TransactionGuard.getInstance().getContextTransaction != null): @nowarn("cat=deprecation")
+  }
 
   private def isUnderProgress: Boolean = {
     val indicator = ProgressManager.getInstance().getProgressIndicator

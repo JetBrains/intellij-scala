@@ -2,10 +2,12 @@ package org.jetbrains.plugins.scala.lang.formatter.tests
 
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 
+import scala.annotation.nowarn
+
 class RightMarginWrapTest extends AbstractScalaFormatterTestBase {
   def testSCL12314(): Unit = {
     getCommonSettings.WRAP_LONG_LINES = true
-    getSettings.WRAP_LONG_LINES = true
+    (getSettings.WRAP_LONG_LINES = true): @nowarn("cat=deprecation")
     val before =
       """
         |class Test {

@@ -27,6 +27,7 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.junit.experimental.categories.Category
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 /**
@@ -41,11 +42,11 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
   override protected def getCurrentExternalProjectSettings: ExternalProjectSettings = {
     val settings = new SbtProjectSettings
     //noinspection ScalaDeprecation
-    val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
+    val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk: @nowarn("cat=deprecation")
     val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk17
     else internalSdk
     settings.jdk = sdk.getName
-    settings.setCreateEmptyContentRootDirectories(true)
+    settings.setCreateEmptyContentRootDirectories(true): @nowarn("cat=deprecation")
     settings
   }
 
@@ -72,7 +73,7 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
 
     extensions.inWriteAction {
       //noinspection ScalaDeprecation
-      val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
+      val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk: @nowarn("cat=deprecation")
       val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk17
       else internalSdk
 

@@ -84,6 +84,7 @@ public class ArtifactsTestUtil {
     assertEquals(expected, findArtifact(project, artifactName).getRootElement().getName());
   }
 
+  @SuppressWarnings("deprecation")
   public static void setOutput(final Project project, final String artifactName, final String outputPath) {
     new WriteAction() {
       @Override
@@ -95,6 +96,7 @@ public class ArtifactsTestUtil {
     }.execute();
   }
 
+  @SuppressWarnings("deprecation")
   public static void addArtifactToLayout(final Project project, final Artifact parent, final Artifact toAdd) {
     new WriteAction() {
       @Override

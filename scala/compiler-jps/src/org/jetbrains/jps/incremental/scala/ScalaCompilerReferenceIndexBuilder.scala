@@ -3,6 +3,7 @@ package org.jetbrains.jps.incremental.scala
 import java.io.File
 import java.{util => jutil}
 
+import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.java.{JavaModuleBuildTargetType, JavaSourceRootDescriptor}
 import org.jetbrains.jps.builders.{BuildTarget, DirtyFilesHolder}
@@ -68,7 +69,7 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
         .values()
         .iterator()
         .asScala
-        .map(cc => CompiledClass(cc.getSourceFile, cc.getOutputFile))
+        .map(cc => CompiledClass(ContainerUtil.getFirstItem(cc.getSourceFiles), cc.getOutputFile))
         .toSet
 
     val timestamp = getTargetTimestamps(chunk.getTargets.asScala, context)

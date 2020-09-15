@@ -15,6 +15,7 @@ import javax.swing.event.{TableModelEvent, TableModelListener}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
 /**
@@ -38,8 +39,8 @@ final class ScalaGenerateToStringWizard(classMembers: collection.Seq[ScNamedElem
   def membersWithSelection: (Seq[ScNamedElement], Boolean) =
     (toStringPanel.members.toSeq, toStringPanel.isSelected)
 
-  override def showAndGetOk(): AsyncResult[java.lang.Boolean] = {
-    val result = super.showAndGetOk()
+  override def showAndGetOk(): AsyncResult[java.lang.Boolean] @nowarn("cat=deprecation") = {
+    @nowarn("cat=deprecation") val result = super.showAndGetOk()
 
     if (isOK) settings.setGenerateToStringWithPropertiesNames(toStringPanel.isSelected)
 

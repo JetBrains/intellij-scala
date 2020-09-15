@@ -274,6 +274,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
     }
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public void writeExternal(Element parentElement, @NotNull CustomCodeStyleSettings parentSettings) throws WriteExternalException {
     Element scalaCodeStyleSettings = new Element(getTagName());

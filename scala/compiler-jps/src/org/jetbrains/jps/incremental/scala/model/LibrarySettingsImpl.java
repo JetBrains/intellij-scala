@@ -1,8 +1,7 @@
 package org.jetbrains.jps.incremental.scala.model;
 
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import com.intellij.util.xmlb.annotations.AbstractCollection;
-import com.intellij.util.xmlb.annotations.Tag;
+import com.intellij.util.xmlb.annotations.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.model.ex.JpsElementBase;
 import org.jetbrains.jps.util.JpsPathUtil;
@@ -46,6 +45,7 @@ public class LibrarySettingsImpl extends JpsElementBase<LibrarySettingsImpl> imp
   }
 
   public static class State {
+    @SuppressWarnings("deprecation")
     @Tag("compiler-classpath")
     @AbstractCollection(surroundWithTag = false, elementTag = "root", elementValueAttribute = "url")
     public String[] compilerClasspath;

@@ -22,6 +22,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.{ScalaExtractMethodSettings, ScalaExtractMethodUtils}
 
+import scala.annotation.nowarn
+
 /**
  * Nikolay.Tropin
  * 2014-05-15
@@ -156,7 +158,9 @@ object DuplicatesUtil {
     val colorsManager: EditorColorsManager = EditorColorsManager.getInstance
     val attributes: TextAttributes = colorsManager.getGlobalScheme.getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES)
     val range = duplicate.textRange
-    HighlightManager.getInstance(project).addRangeHighlight(editor, range.getStartOffset, range.getEndOffset, attributes, true, highlighters)
+    HighlightManager.getInstance(project).addRangeHighlight(
+      editor, range.getStartOffset, range.getEndOffset, attributes, true, highlighters
+    ): @nowarn("cat=deprecation")
   }
 
 }

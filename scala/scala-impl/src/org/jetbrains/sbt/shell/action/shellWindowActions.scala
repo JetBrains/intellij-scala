@@ -12,7 +12,7 @@ import com.intellij.execution.impl.ExecutionManagerImpl
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.remote.{RemoteConfiguration, RemoteConfigurationType}
 import com.intellij.execution.runners.ExecutionEnvironmentBuilder
-import com.intellij.execution.ui.RunContentDescriptor
+import com.intellij.execution.ui.{RunContentDescriptor, RunContentManager}
 import com.intellij.execution.{ExecutionManager, ProgramRunnerUtil, RunManager, RunnerAndConfigurationSettings}
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem._
@@ -214,8 +214,7 @@ class DebugShellAction(project: Project, remoteConnection: Option[RemoteConnecti
   }
 
   private def detach(): Unit = {
-    val executionManager = ExecutionManager.getInstance(project)
-    val descriptors = executionManager.getContentManager.getAllDescriptors
+    val descriptors = RunContentManager.getInstance(project).getAllDescriptors
 
     // This is pretty hacky, is there a cleaner way to handle the detaching?
     for {

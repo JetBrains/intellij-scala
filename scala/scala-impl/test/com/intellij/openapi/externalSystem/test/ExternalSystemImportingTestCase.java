@@ -24,7 +24,6 @@ import com.intellij.openapi.externalSystem.model.ProjectSystemId;
 import com.intellij.openapi.externalSystem.model.project.ProjectData;
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode;
 import com.intellij.openapi.externalSystem.service.project.ExternalProjectRefreshCallback;
-import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataManager;
 import com.intellij.openapi.externalSystem.settings.AbstractExternalSystemSettings;
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings;
 import com.intellij.openapi.externalSystem.util.DisposeAwareProjectChange;
@@ -331,7 +330,7 @@ public abstract class ExternalSystemImportingTestCase extends ExternalSystemTest
   }
 
   protected Module getModule(final String name) {
-    AccessToken accessToken = ApplicationManager.getApplication().acquireReadActionLock();
+    @SuppressWarnings("deprecation") AccessToken accessToken = ApplicationManager.getApplication().acquireReadActionLock();
     try {
       Module m = ModuleManager.getInstance(myProject).findModuleByName(name);
       assertNotNull("Module " + name + " not found", m);
@@ -441,7 +440,7 @@ public abstract class ExternalSystemImportingTestCase extends ExternalSystemTest
   }
 
   protected Sdk setupJdkForModule(final String moduleName) {
-    final Sdk sdk = JavaAwareProjectJdkTableImpl.getInstanceEx().getInternalJdk();
+    @SuppressWarnings("deprecation") final Sdk sdk = JavaAwareProjectJdkTableImpl.getInstanceEx().getInternalJdk();
     ModuleRootModificationUtil.setModuleSdk(getModule(moduleName), sdk);
     return sdk;
   }

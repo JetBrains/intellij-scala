@@ -36,7 +36,7 @@ class SettingQueryHandler private (settingName: String, taskName: Option[String]
 
   private val settingIn: String = (sbtProjectUri, sbtProjectName) match {
     case (Some(uri), Some(project)) =>
-      def quoted(s: String): String = '"' + s + '"'
+      def quoted(s: String): String = "\"" + s + "\""
       s"$settingName.in(ProjectRef(uri(${quoted(uri)}), ${quoted(project)}))${taskName.map(" in " + _).getOrElse("")}"
     case (None, Some(project)) =>
       s"$settingName in $project${taskName.map(" in " + _).getOrElse("")}"

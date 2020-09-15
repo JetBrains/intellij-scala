@@ -5,6 +5,8 @@ import com.intellij.lang.annotation.{AnnotationSession, HighlightSeverity}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiFile}
 
+import scala.annotation.nowarn
+
 /**
  * Pavel.Fatin, 18.05.2010
  */
@@ -68,13 +70,15 @@ class AnnotatorHolderMock(file: PsiFile) extends ScalaAnnotationHolder {
   override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String, htmlTooltip: String): ScalaAnnotation =
     createAnnotation(severity, range, message)
 
-  private val severityMapping: Map[HighlightSeverity, (String, String) => Message] = Map(
-    HighlightSeverity.ERROR -> Error.apply,
-    HighlightSeverity.WARNING -> Warning.apply,
-    HighlightSeverity.WEAK_WARNING -> Warning.apply,
-    HighlightSeverity.INFORMATION -> Info.apply,
-    HighlightSeverity.INFO -> Info.apply
-  )
+  private val severityMapping: Map[HighlightSeverity, (String, String) => Message] = {
+    Map(
+      HighlightSeverity.ERROR -> Error.apply,
+      HighlightSeverity.WARNING -> Warning.apply,
+      HighlightSeverity.WEAK_WARNING -> Warning.apply,
+      HighlightSeverity.INFORMATION -> Info.apply,
+      HighlightSeverity.INFO -> Info.apply
+    ): @nowarn("cat=deprecation")
+  }
 
   override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String): ScalaAnnotation = {
     severityMapping.get(severity) match {

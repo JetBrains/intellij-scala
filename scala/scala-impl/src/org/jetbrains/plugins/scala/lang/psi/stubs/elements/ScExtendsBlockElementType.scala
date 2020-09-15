@@ -39,7 +39,7 @@ class ScExtendsBlockElementType extends ScStubElementType[ScExtendsBlockStub, Sc
   )
 
   override def indexStub(stub: ScExtendsBlockStub, sink: IndexSink): Unit = {
-    sink.occurrences(index.ScalaIndexKeys.SUPER_CLASS_NAME_KEY, stub.baseClasses: _*)
+    sink.occurrences(index.ScalaIndexKeys.SUPER_CLASS_NAME_KEY, stub.baseClasses.toSeq: _*)
   }
 
   override def createElement(node: ASTNode) = new ScExtendsBlockImpl(node)

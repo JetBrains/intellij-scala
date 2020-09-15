@@ -302,6 +302,7 @@ public class ScalaShowAffectedTestsAction extends AnAction {
     return at;
   }
 
+  @SuppressWarnings("deprecation")
   @NotNull
   private static DiscoveredTestsTree showTree(@NotNull Project project,
                                               @NotNull DataContext dataContext,

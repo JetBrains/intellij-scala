@@ -6,6 +6,8 @@ import com.intellij.openapi.vcs.changes.Change
 import com.intellij.openapi.vcs.changes.actions.diff.{ShowDiffAction, ShowDiffContext}
 import com.intellij.openapi.vcs.changes.ui.ChangesBrowser
 import com.intellij.openapi.vfs.VirtualFile
+
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
@@ -13,6 +15,7 @@ import scala.collection.mutable
  * @author Roman.Shein
  * @since 20.03.2015.
  */
+@nowarn("msg=ChangesBrowser in package ui is deprecated")
 class BuildFileChangeBrowser(val project: Project, val changes: java.util.List[Change], val canExcludeChanges: Boolean,
                              val fileChangesMap: mutable.Map[VirtualFile, (BuildFileModifiedStatus, Long)]) extends
 ChangesBrowser(project, null, changes, null, canExcludeChanges, true, null, ChangesBrowser.MyUseCase.LOCAL_CHANGES,

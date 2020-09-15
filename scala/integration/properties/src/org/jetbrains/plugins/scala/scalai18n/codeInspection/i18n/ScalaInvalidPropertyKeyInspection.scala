@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
+import scala.annotation.nowarn
 import scala.collection.mutable
 
 /**
@@ -29,7 +30,7 @@ import scala.collection.mutable
 
 class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
   @NotNull override def getGroupDisplayName: String = {
-    GroupNames.INTERNATIONALIZATION_GROUP_NAME
+    GroupNames.INTERNATIONALIZATION_GROUP_NAME: @nowarn("cat=deprecation")
   }
 
   @NotNull override def getDisplayName: String = {

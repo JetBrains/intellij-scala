@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
 import org.jetbrains.plugins.scala.extensions._
 
+import scala.annotation.nowarn
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
@@ -37,7 +38,7 @@ class RenameElementQuickfix(myRef: PsiElement, @Nls name: String) extends Abstra
                                    (implicit project: Project): AnActionEvent = {
     val map = mutable.Map.empty[String, AnyRef]
     val containingFile = ref.getContainingFile
-    val editor: Editor = InjectedLanguageUtil.openEditorFor(containingFile, project)
+    @nowarn("cat=deprecation") val editor: Editor = InjectedLanguageUtil.openEditorFor(containingFile, project)
     if (editor.isInstanceOf[EditorWindow]) {
       map.put(CommonDataKeys.EDITOR.getName, editor)
       map.put(CommonDataKeys.PSI_ELEMENT.getName, ref)

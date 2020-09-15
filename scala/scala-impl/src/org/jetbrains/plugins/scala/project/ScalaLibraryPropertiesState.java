@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.project;
 
 import com.intellij.util.ArrayUtil;
-import com.intellij.util.xmlb.annotations.AbstractCollection;
-import com.intellij.util.xmlb.annotations.Tag;
+import com.intellij.util.xmlb.annotations.*;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -16,6 +15,7 @@ public final class ScalaLibraryPropertiesState {
     @Tag("language-level")
     private final ScalaLanguageLevel languageLevel;
 
+    @SuppressWarnings("deprecation")
     @Tag("compiler-classpath")
     @AbstractCollection(
             surroundWithTag = false,

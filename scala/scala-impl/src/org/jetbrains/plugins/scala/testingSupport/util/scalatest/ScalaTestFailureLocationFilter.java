@@ -25,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -134,7 +135,7 @@ public class ScalaTestFailureLocationFilter implements Filter {
     private final GlobalSearchScope mySearchScope;
 
     public ExceptionInfoCache(GlobalSearchScope searchScope) {
-      myProject = ObjectUtils.assertNotNull(searchScope.getProject());
+      myProject = Objects.requireNonNull(searchScope.getProject());
       mySearchScope = searchScope;
     }
 

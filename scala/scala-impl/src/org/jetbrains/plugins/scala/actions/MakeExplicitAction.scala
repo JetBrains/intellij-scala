@@ -21,6 +21,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.JListCompatibility.GoToImplicitConversionAction
 
+import scala.annotation.nowarn
+
 /**
   * @author Ksenia.Sautina
   * @since 6/20/12
@@ -87,7 +89,7 @@ object MakeExplicitAction {
       }
   }
 
-  private[this] def createPopupBuilder(list: JList[_]) =
+  private[this] def createPopupBuilder(list: JList[_]) = {
     PopupFactory.createListPopupBuilder(list)
       .setTitle(ScalaBundle.message("title.choose.implicit.conversion.method"))
       .setAdText(ScalaBundle.message("press.alt.enter"))
@@ -107,7 +109,8 @@ object MakeExplicitAction {
 
           maybeSynthetic.getOrElse(navigable).navigate(true)
         case _ =>
-      })
+      }): @nowarn("cat=deprecation")
+  }
 
   private class ActionPopupStep(expression: ScExpression, function: ScFunction,
                                 importStatically: Boolean)

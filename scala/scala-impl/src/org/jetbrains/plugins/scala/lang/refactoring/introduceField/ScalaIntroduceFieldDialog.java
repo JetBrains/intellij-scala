@@ -48,7 +48,7 @@ import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$.
  * User: Alexander Podkhalyuzin
  * Date: 01.07.2008
  */
-@SuppressWarnings(value = "unchecked")
+@SuppressWarnings({"unchecked", "deprecation"})
 public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDialog {
     private JCheckBox myReplaceAllChb;
     private JComboBox myTypeComboBox;

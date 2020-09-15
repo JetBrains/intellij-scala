@@ -29,6 +29,7 @@ public class ScalaConsoleRunConfigurationForm {
 
     private final ConfigurationModuleSelector myModuleSelector;
 
+    @SuppressWarnings("deprecation")
     public ScalaConsoleRunConfigurationForm(final Project project,
                                             final ScalaConsoleRunConfiguration configuration) {
         myModuleSelector = new ConfigurationModuleSelector(project, moduleComboBox);

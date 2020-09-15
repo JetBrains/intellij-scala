@@ -169,6 +169,7 @@ trait TreeAdapter {
     def compose(lst: List[ScPattern]): m.Pat = lst match {
       case x :: Nil => pattern(x)
       case x :: xs  => Alternative(pattern(x), compose(xs))
+      case _ => ???
     }
     // WHY??(((
     def arg(pt: patterns.ScPattern): m.Pat = pt match {

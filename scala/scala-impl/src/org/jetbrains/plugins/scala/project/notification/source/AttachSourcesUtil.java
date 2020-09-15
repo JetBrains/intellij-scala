@@ -56,6 +56,7 @@ public class AttachSourcesUtil {
             return ProjectBundle.message("library.attach.sources.action.busy.text");
         }
 
+        @SuppressWarnings("deprecation")
         public ActionCallback perform(List<LibraryOrderEntry> orderEntriesContainingFile) {
             final List<Library.ModifiableModel> modelsToCommit = new ArrayList<>();
             for (LibraryOrderEntry orderEntry : orderEntriesContainingFile) {

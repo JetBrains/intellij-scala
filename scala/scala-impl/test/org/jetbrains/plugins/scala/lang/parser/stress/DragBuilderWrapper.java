@@ -143,10 +143,12 @@ public class DragBuilderWrapper implements PsiBuilder {
     return myBuilder.getLatestDoneMarker();
   }
 
+  @SuppressWarnings("deprecation")
   public <T> T getUserDataUnprotected(@NotNull Key<T> key) {
     return myBuilder.getUserDataUnprotected(key);
   }
 
+  @SuppressWarnings("deprecation")
   public <T> void putUserDataUnprotected(@NotNull Key<T> key, @Nullable T value) {
     myBuilder.putUserDataUnprotected(key, value);
   }

@@ -42,11 +42,13 @@ abstract class AbstractScopeSuggesterTest extends ScalaLightPlatformCodeInsightT
 
     assert(startOffset != -1, "Not specified caret marker in test case. Use /*caret*/ in scala file for this.")
 
+    @nowarn("cat=deprecation")
     val editor = CommonDataKeys.EDITOR.getData(DataManager.getInstance().getDataContextFromFocus.getResult)
 
     editor.getSelectionModel.setSelection(startOffset, endOffset)
 
     val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
+    @nowarn("cat=deprecation")
     var element = CommonDataKeys.PSI_ELEMENT.getData(DataManager.getInstance().getDataContextFromFocus.getResult)
     if (element == null) {
       element = PsiTreeUtil.findElementOfClassAtRange(scalaFile, startOffset, endOffset, classOf[PsiElement])

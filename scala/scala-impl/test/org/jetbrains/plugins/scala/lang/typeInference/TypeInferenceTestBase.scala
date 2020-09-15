@@ -27,12 +27,12 @@ abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCa
   protected def folderPath: String = TestUtils.getTestDataPath + "/typeInference/"
 
   protected def doInjectorTest(injector: SyntheticMembersInjector): Unit = {
-    val extensionPoint = Extensions.getRootArea.getExtensionPoint(SyntheticMembersInjector.EP_NAME)
-    extensionPoint.registerExtension(injector)
+    val extensionPoint = Extensions.getRootArea.getExtensionPoint(SyntheticMembersInjector.EP_NAME): @nowarn("cat=deprecation")
+    extensionPoint.registerExtension(injector): @nowarn("cat=deprecation")
     try {
       doTest()
     } finally {
-      extensionPoint.unregisterExtension(injector)
+      extensionPoint.unregisterExtension(injector): @nowarn("cat=deprecation")
     }
   }
 

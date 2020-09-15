@@ -23,8 +23,10 @@ import org.apache.commons.io.IOUtils
 import org.jetbrains.bsp.protocol.{BspCommunication, BspCommunicationService}
 import org.jetbrains.bsp.settings.BspProjectSettings.BspServerConfig
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
+@nowarn("msg=StatusBarWidgetProvider")
 class BspServerWidgetProvider extends StatusBarWidgetProvider {
 
   private val IconRunning = org.jetbrains.bsp.Icons.BSP

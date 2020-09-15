@@ -133,6 +133,7 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
     protected void collectAllowedRoots(List<String> roots) throws IOException {
     }
 
+    @SuppressWarnings("deprecation")
     public void registerAllowedRoots(List<String> roots, @NotNull Disposable disposable) {
         final List<String> newRoots = new ArrayList<String>(roots);
         newRoots.removeAll(myAllowedRoots);
@@ -287,6 +288,7 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
         return createModule(name, StdModuleTypes.JAVA);
     }
 
+    @SuppressWarnings("deprecation")
     protected Module createModule(final String name, final ModuleType type) throws IOException {
         return new WriteCommandAction<Module>(myProject) {
             @Override
@@ -303,6 +305,7 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
         return myProjectConfig = createConfigFile(myProjectRoot, config);
     }
 
+    @SuppressWarnings("deprecation")
     protected VirtualFile createConfigFile(final VirtualFile dir, String config) throws IOException {
         final String configFileName = getExternalSystemConfigFileName();
         VirtualFile f = dir.findChild(configFileName);
@@ -446,6 +449,7 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
         return ArtifactCompileScope.createArtifactsScope(myProject, artifacts);
     }
 
+    @SuppressWarnings("deprecation")
     protected Sdk setupJdkForModule(final String moduleName) {
         final Sdk sdk = JavaAwareProjectJdkTableImpl.getInstanceEx().getInternalJdk();
         ModuleRootModificationUtil.setModuleSdk(getModule(moduleName), sdk);
@@ -488,6 +492,7 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
         fs.assertFileEqual(file);
     }
 
+    @SuppressWarnings("deprecation")
     private static void setFileContent(final VirtualFile file, final String content, final boolean advanceStamps) throws IOException {
         new WriteAction<VirtualFile>() {
             @Override

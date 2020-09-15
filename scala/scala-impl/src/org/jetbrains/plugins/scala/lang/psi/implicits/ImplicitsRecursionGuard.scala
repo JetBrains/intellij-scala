@@ -54,7 +54,10 @@ object ImplicitsRecursionGuard {
           list match {
             case _ :: Nil => rmap - element
             case _ :: tl => rmap.updated(element, tl)
+            case _ => ???
           }
+      case _ =>
+        ???
     }
   }
 }

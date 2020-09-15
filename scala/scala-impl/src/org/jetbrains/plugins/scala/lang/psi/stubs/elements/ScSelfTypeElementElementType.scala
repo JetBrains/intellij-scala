@@ -46,7 +46,7 @@ class ScSelfTypeElementElementType extends ScStubElementType[ScSelfTypeElementSt
   }
 
   override def indexStub(stub: ScSelfTypeElementStub, sink: IndexSink): Unit = {
-    sink.occurrences(index.ScalaIndexKeys.SELF_TYPE_CLASS_NAME_KEY, stub.classNames: _*)
+    sink.occurrences(index.ScalaIndexKeys.SELF_TYPE_CLASS_NAME_KEY, stub.classNames.toSeq: _*)
   }
 
   override def createElement(node: ASTNode) = new ScSelfTypeElementImpl(node)

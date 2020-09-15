@@ -27,7 +27,7 @@ trait SbtProgramRunnerBase {
           }
         }
         
-        sc.command(commands, StringBuilder.newBuilder, agg)
+        sc.command(commands, new StringBuilder(), agg)
       case _ => 
         sc.command(commands)
     }

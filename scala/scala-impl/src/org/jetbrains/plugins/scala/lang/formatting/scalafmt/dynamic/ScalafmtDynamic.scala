@@ -88,6 +88,8 @@ final case class ScalafmtDynamic(
       reporter.error(file, cause)
     case ScalafmtDynamicError.UnknownError(message, _) =>
       reporter.error(file, message)
+    case _ =>
+      ???
   }
 
   def formatDetailed(configPath: Path, file: Path, code: String): FormatResult = {

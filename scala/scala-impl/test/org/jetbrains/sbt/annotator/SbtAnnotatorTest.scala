@@ -16,6 +16,7 @@ import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.experimental.categories.Category
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 abstract class SbtAnnotatorTestBase extends org.jetbrains.sbt.annotator.AnnotatorTestBase with MockSbtBase {
@@ -77,7 +78,7 @@ abstract class SbtAnnotatorTestBase extends org.jetbrains.sbt.annotator.Annotato
     projectSettings.setExternalProjectPath(getProject.getBasePath)
     projectSettings.setModules(java.util.Collections.singleton(getModule.getModuleFilePath))
     SbtSettings.getInstance(getProject).linkProject(projectSettings)
-    getModule.setOption("external.root.project.path", getProject.getBasePath) // TODO get rid of the deprecated method call
+    getModule.setOption("external.root.project.path", getProject.getBasePath): @nowarn("cat=deprecation")
   }
 
   private def addTestFileToModuleSources(): Unit = {

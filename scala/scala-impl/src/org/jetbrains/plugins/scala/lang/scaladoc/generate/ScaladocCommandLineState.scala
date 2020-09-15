@@ -173,7 +173,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
 
     val sourcePath = OrderEnumerator.orderEntries(project).withoutLibraries().withoutSdk().getAllSourceRoots
     val documentableFilesList = mutable.ListBuffer.empty[String]
-    val allModules = mutable.HashSet(modules: _*)
+    val allModules = mutable.HashSet(modules.toSeq: _*)
     val modulesNeeded = mutable.HashSet.empty[Module]
 
     def filterModulesList(files: VirtualFile*): Unit = {

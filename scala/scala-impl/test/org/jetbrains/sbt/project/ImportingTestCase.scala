@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
+import scala.annotation.nowarn
+
 /**
  * @author Nikolay Obedin
  * @since 8/4/15.
@@ -39,7 +41,7 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase with Pr
 
   override protected def getCurrentExternalProjectSettings: ExternalProjectSettings = {
     val settings = new SbtProjectSettings
-    val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
+    val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk: @nowarn("cat=deprecation")
     settings.jdk = internalSdk.getName
     settings
   }

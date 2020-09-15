@@ -28,7 +28,7 @@ final class SbtShellCommunication(project: Project) {
 
   /** Queue an sbt command for execution in the sbt shell, returning a Future[String] containing the entire shell output. */
   def command(cmd: String): Future[String] =
-    command(cmd, StringBuilder.newBuilder, messageAggregator).map(_.toString())
+    command(cmd, new StringBuilder(), messageAggregator).map(_.toString())
 
   /** Queue an sbt command for execution in the sbt shell. */
   def command[A](@NonNls cmd: String, default: A, eventHandler: EventAggregator[A]): Future[A] = {

@@ -13,17 +13,17 @@ import scala.xml.XML
  */
 class SbtIvyCacheIndexer(val cacheDir: File) {
 
-  def artifacts: Stream[ArtifactInfo] = listArtifacts(cacheDir)
+  def artifacts: LazyList[ArtifactInfo] = listArtifacts(cacheDir)
 
   private val ivyFileFilter = new FilenameFilter {
     override def accept(dir: File, @NonNls name: String): Boolean = name.endsWith(".xml")
   }
 
-  private def listArtifacts(dir: File): Stream[ArtifactInfo] = {
+  private def listArtifacts(dir: File): LazyList[ArtifactInfo] = {
     if (!dir.isDirectory)
       throw InvalidRepository(dir.getAbsolutePath)
-    val artifactsHere = dir.listFiles(ivyFileFilter).flatMap(extractArtifact).toStream
-    artifactsHere ++ dir.listFiles.toStream.filter(_.isDirectory).flatMap(listArtifacts)
+    val artifactsHere = dir.listFiles(ivyFileFilter).flatMap(extractArtifact).to(LazyList)
+    artifactsHere ++ dir.listFiles.to(LazyList).filter(_.isDirectory).flatMap(listArtifacts)
   }
 
   private def extractArtifact(ivyFile: File): Option[ArtifactInfo] = {

@@ -13,11 +13,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaVersion, base}
 
+import scala.annotation.nowarn
 import scala.util.Try
 
 class ScalaLibraryQuickDocGenerationHealthCheckTest extends base.ScalaLightCodeInsightFixtureTestAdapter {
 
+  @nowarn("msg=overriding method version in trait ScalaSdkOwner is deprecated")
   override def version: ScalaVersion = supportedScalaLib
+
   private implicit val supportedScalaLib: ScalaVersion = ScalaVersion.Latest.Scala_2_13.withMinor("3")
 
   // should be fixed in 2.13.4: https://github.com/scala/scala/pull/9099

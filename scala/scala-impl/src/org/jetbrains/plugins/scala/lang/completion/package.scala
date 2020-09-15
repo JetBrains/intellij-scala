@@ -395,7 +395,6 @@ package object completion {
         case _: ScTypeAlias |
              _: PsiClass => 2 // typeDefinition
         case _ => 3 // normal
-        case _ => null
       }
 
     private def isLocal(typeDefinition: ScTypeDefinition) = typeDefinition match {

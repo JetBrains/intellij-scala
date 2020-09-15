@@ -235,7 +235,7 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
       override def accept(file: File): Boolean = file.name.endsWith(".xml")
     }
 
-    def artifacts: Stream[ArtifactInfo] = listArtifacts(cacheDir)
+    def artifacts: LazyList[ArtifactInfo] = listArtifacts(cacheDir)
 
     private def fqNamesFromJarFile(file: File): Set[String] = {
       //noinspection ReferencePassedToNls
@@ -257,7 +257,7 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
       }
     }
 
-    private def listFqNames(dir: File, artifacts: Stream[ArtifactInfo]): mutable.Map[ArtifactInfo, Set[String]] = {
+    private def listFqNames(dir: File, artifacts: LazyList[ArtifactInfo]): mutable.Map[ArtifactInfo, Set[String]] = {
       val artifactToFqNames = mutable.HashMap.empty[ArtifactInfo, Set[String]]
 
       var jarsDir = new File(dir, "jars")
@@ -278,14 +278,14 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
       artifactToFqNames
     }
 
-    private def listArtifacts(dir: File): Stream[ArtifactInfo] = {
+    private def listArtifacts(dir: File): LazyList[ArtifactInfo] = {
       if (!dir.isDirectory)
-        return Stream.empty
+        return LazyList.empty
 
       val artifactsHere = dir.listFiles(ivyFileFilter)
           .flatMap(extractArtifact)
           .filterNot(artifact => searchVersion(artifact.groupId, artifact.artifactId).contains(artifact.version))
-          .toStream
+          .to(LazyList)
 
       if (artifactsHere.nonEmpty && enableFQNameIndex) {
         val artifactToFqNames = listFqNames(dir, artifactsHere)
@@ -296,7 +296,7 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
           fqNameToArtifacts.getOrElseUpdate(fqName, mutable.Set.empty) += artifact
         }
       }
-      artifactsHere ++ dir.listFiles.toStream.filter(_.isDirectory).flatMap(listArtifacts)
+      artifactsHere ++ dir.listFiles.to(LazyList).filter(_.isDirectory).flatMap(listArtifacts)
     }
 
 

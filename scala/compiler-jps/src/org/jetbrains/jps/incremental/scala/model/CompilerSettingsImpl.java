@@ -2,8 +2,7 @@ package org.jetbrains.jps.incremental.scala.model;
 
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import com.intellij.util.xmlb.annotations.AbstractCollection;
-import com.intellij.util.xmlb.annotations.Tag;
+import com.intellij.util.xmlb.annotations.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.compiler.CompileOrder;
 import org.jetbrains.plugins.scala.compiler.IncrementalityType;
@@ -206,10 +205,12 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
     public DebuggingInfoLevel debuggingInfoLevel = DebuggingInfoLevel.Vars;
 
     // Why serialization doesn't work when elementTag is "option"?
+    @SuppressWarnings("deprecation")
     @Tag("parameters")
     @AbstractCollection(surroundWithTag = false, elementTag = "parameter")
     public String[] additionalCompilerOptions = new String[] {};
 
+    @SuppressWarnings("deprecation")
     @Tag("plugins")
     @AbstractCollection(surroundWithTag = false, elementTag = "plugin", elementValueAttribute = "path")
     public String[] plugins = new String[] {};

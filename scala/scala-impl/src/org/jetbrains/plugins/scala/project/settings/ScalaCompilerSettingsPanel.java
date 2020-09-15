@@ -21,7 +21,7 @@ import java.util.ResourceBundle;
 /**
  * @author Pavel Fatin
  */
-@SuppressWarnings(value = "unchecked")
+@SuppressWarnings({"unchecked", "deprecation"})
 public class ScalaCompilerSettingsPanel {
     private JPanel myContentPanel;
     private JPanel myPluginsPanel;

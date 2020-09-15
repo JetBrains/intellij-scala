@@ -394,6 +394,8 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
             }
 
             (Seq.empty, argsWithBindings)
+          case _ =>
+            ???
         }
       }
 

@@ -19,7 +19,7 @@ class ArchivedSbtProjectBuilder(archiveTemplate: ArchivedSbtProjectTemplate) ext
       case root if root.exists() =>
 
         using(new ZipInputStream(archiveTemplate.url.openStream)) { stream =>
-          ZipUtil.unzip(null, root, stream, null, null, false)
+          ZipUtil.unzip(null, root.toPath, stream, null, null, false)
         }
 
         setModuleFilePath(updateModuleFilePath(getModuleFilePath))

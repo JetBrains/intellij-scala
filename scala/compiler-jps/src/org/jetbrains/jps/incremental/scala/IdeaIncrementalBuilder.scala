@@ -11,6 +11,7 @@ import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, Pr
 import org.jetbrains.jps.incremental.{BuilderCategory, CompileContext, FSOperations, ModuleBuildTarget, ModuleLevelBuilder}
 import org.jetbrains.plugins.scala.compiler.{CompileOrder, IncrementalityType}
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
@@ -87,7 +88,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
         ExitCode.ABORT
       case _ if client.hasReportedErrors || client.isCanceled => ExitCode.ABORT
       case Right(code) =>
-        if (delta != null && JavaBuilderUtil.updateMappings(context, delta, dirtyFilesHolder, chunk, scalaSources, successfullyCompiled.asJava))
+        if (delta != null && JavaBuilderUtil.updateMappings(context, delta, dirtyFilesHolder, chunk, scalaSources, successfullyCompiled.asJava): @nowarn("cat=deprecation"))
           ExitCode.ADDITIONAL_PASS_REQUIRED
         else {
           client.progress("Compilation completed", Some(1.0F))

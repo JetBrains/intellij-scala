@@ -174,6 +174,8 @@ object RunWorksheetAction {
             val reporter = new WorksheetCompilerErrorReporter(project, vFile, editor, Log)
             reporter.reportError(error)
             RunWorksheetActionResult.WorksheetRunError(error)
+          case _ =>
+            ???
         }
         promise.success(resultTransformed)
 

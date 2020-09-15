@@ -26,6 +26,7 @@ import java.util.ResourceBundle;
 /**
  * @author Pavel Fatin
  */
+@SuppressWarnings("deprecation")
 public class SbtSettingsPane {
     private JRadioButton myBundledButton;
     private JRadioButton myCustomButton;

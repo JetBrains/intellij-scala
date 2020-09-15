@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
 import org.jetbrains.plugins.scala.project.ProjectContext
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -195,7 +196,7 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
           for ((range, attributes) <- ranges) {
             highlightManager.addOccurrenceHighlight(
               editor, range.getStartOffset, range.getEndOffset,
-              attributes, 0, highlighters.asJava, null)
+              attributes, 0, highlighters.asJava, null): @nowarn("cat=deprecation")
           }
           for (highlighter <- highlighters) {
             highlighter.setGreedyToLeft(true)

@@ -5,6 +5,7 @@ import org.jetbrains.idea.maven.indices.{MavenIndex, MavenProjectIndicesManager}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.sbt.resolvers.ArtifactInfo
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 /**
@@ -52,7 +53,7 @@ class MavenProxyIndex(val root: String, val name: String, implicit val project: 
     MavenProjectIndicesManager.getInstance(project)
       .getIndices
       .asScala
-      .find(_.getRepositoryPathOrUrl == MavenIndex.normalizePathOrUrl(root))
+      .find(_.getRepositoryPathOrUrl == MavenIndex.normalizePathOrUrl(root)): @nowarn("cat=deprecation")
   }
 
   override def searchArtifactInfo(fqName: String)(implicit project: ProjectContext): Set[ArtifactInfo] = Set.empty

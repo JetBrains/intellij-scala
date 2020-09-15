@@ -369,6 +369,7 @@ abstract class ScalaAnnotator protected()(implicit val project: Project) extends
           case ("contravariant", "invariant", false) => ScalaBundle.message("contravariant.type.invariant.position.of.value", name, typePName, pos)
           case ("contravariant", "covariant", true)  => ScalaBundle.message("contravariant.type.covariant.position.of.method", name, typePName, pos)
           case ("contravariant", "covariant", false) => ScalaBundle.message("contravariant.type.covariant.position.of.value", name, typePName, pos)
+          case _ => ???
         }
 
         val annotation = holder.createErrorAnnotation(toHighlight, message)

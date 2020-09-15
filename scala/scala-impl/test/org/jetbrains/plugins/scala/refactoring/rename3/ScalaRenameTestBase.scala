@@ -127,7 +127,7 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
     FileDocumentManager.getInstance.saveAllDocuments()
 
     val element = TargetElementUtil.findTargetElement(
-      InjectedLanguageUtil.getEditorForInjectedLanguageNoCommit(editor, file),
+      InjectedLanguageUtil.getEditorForInjectedLanguageNoCommit(editor, file): @nowarn("cat=deprecation"),
       TargetElementUtil.REFERENCED_ELEMENT_ACCEPTED | TargetElementUtil.ELEMENT_NAME_ACCEPTED)
     assert(element != null, "Reference is not specified.")
     val searchInComments = element.getText != null && element.getText.contains("Comments")

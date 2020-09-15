@@ -13,6 +13,8 @@ import org.jetbrains.plugins.gradle.service.project.AbstractProjectResolverExten
 import org.jetbrains.plugins.gradle.util.GradleConstants
 import org.jetbrains.plugins.scala.project.gradle.ScalaGradleProjectResolverExtension._
 
+import scala.annotation.nowarn
+
 @Order(ExternalSystemConstants.UNORDERED)
 class ScalaGradleProjectResolverExtension extends AbstractProjectResolverExtension {
   override def populateModuleExtraModels(gradleModule: IdeaModule, ideModule: DataNode[ModuleData]): Unit = {
@@ -40,21 +42,21 @@ private object ScalaGradleProjectResolverExtension {
   private[this] def dataOf(options: ScalaCompileOptions): ScalaCompileOptionsData = {
     val data = new ScalaCompileOptionsData;
     data.setAdditionalParameters(options.getAdditionalParameters)
-    data.setDaemonServer(options.getDaemonServer)
+    data.setDaemonServer(options.getDaemonServer: @nowarn("cat=deprecation"))
     data.setDebugLevel(options.getDebugLevel)
     data.setDeprecation(options.isDeprecation)
     data.setEncoding(options.getEncoding)
     data.setFailOnError(options.isFailOnError)
     data.setForce(options.getForce)
-    data.setFork(options.isFork)
+    data.setFork(options.isFork: @nowarn("cat=deprecation"))
     data.setListFiles(options.isListFiles)
     data.setLoggingLevel(options.getLoggingLevel)
     data.setDebugLevel(options.getDebugLevel)
     data.setLoggingPhases(options.getLoggingPhases)
     data.setOptimize(options.isOptimize)
     data.setUnchecked(options.isUnchecked)
-    data.setUseAnt(options.isUseAnt)
-    data.setUseCompileDaemon(options.isUseCompileDaemon)
+    data.setUseAnt(options.isUseAnt: @nowarn("cat=deprecation"))
+    data.setUseCompileDaemon(options.isUseCompileDaemon: @nowarn("cat=deprecation"))
     data.setForkOptions(Option(options.getForkOptions).map(dataOf).orNull)
     data
   }

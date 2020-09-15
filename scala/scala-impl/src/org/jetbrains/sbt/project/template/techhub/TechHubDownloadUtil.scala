@@ -13,6 +13,7 @@ import com.intellij.util.net.{HttpConfigurable, NetUtils}
 import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.sbt.SbtBundle
 
+import scala.annotation.nowarn
 import scala.util.{Failure, Try}
 
 /**
@@ -71,7 +72,7 @@ object TechHubDownloadUtil {
       if (status == null)
         Failure(new IOException(SbtBundle.message("sbt.techhub.no.response.status.from.connection.to.url", url)))
       else if (status.trim.startsWith("OK"))
-        Try(StreamUtil.readText(connection.getInputStream, StandardCharsets.UTF_8))
+        Try(StreamUtil.readText(connection.getInputStream, StandardCharsets.UTF_8): @nowarn("cat=deprecation"))
       else
         Failure(new IOException(SbtBundle.message("sbt.techhub.response.to.connection.to.url.was.status", url, status)))
 

@@ -93,7 +93,8 @@ object TypeMismatchHints {
       val parts = diff.flatten.map {
         case Leaf(Match(text, _)) => text
         case Leaf(Mismatch(text, _)) => f(text)
-      } map {
+        case _ => ???
+      }.map {
         "<td style=\"text-align:center\">" + _ + "</td>"
       }
       parts.mkString

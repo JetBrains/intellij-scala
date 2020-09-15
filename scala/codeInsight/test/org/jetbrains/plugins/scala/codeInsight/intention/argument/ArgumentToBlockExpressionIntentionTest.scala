@@ -7,6 +7,8 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
+import scala.annotation.nowarn
+
 /**
   * @author Roman.Shein
   * @since 21.03.2016.
@@ -36,7 +38,7 @@ class ArgumentToBlockExpressionIntentionTest extends intentions.ScalaIntentionTe
   }
 
   def testParameterOnNewLine(): Unit = {
-    val settings = CodeStyleSettingsManager.getSettings(getProject)
+    val settings = CodeStyleSettingsManager.getSettings(getProject): @nowarn("cat=deprecation")
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     scalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE = true
 

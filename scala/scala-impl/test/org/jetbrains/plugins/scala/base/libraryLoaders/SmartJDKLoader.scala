@@ -14,9 +14,13 @@ import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.junit.Assert
 
+import scala.annotation.nowarn
+
 case class InternalJDKLoader() extends SmartJDKLoader() {
   //noinspection ScalaDeprecation
-  override protected def createSdkInstance(): Sdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
+  override protected def createSdkInstance(): Sdk = {
+    JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk: @nowarn("cat=deprecation")
+  }
 }
 
 /**
@@ -63,7 +67,7 @@ object SmartJDKLoader {
     Option(jdkTable.findJdk(jdkName)).getOrElse {
       val pathOption = SmartJDKLoader.discoverJDK(jdkVersion).map(_.getAbsolutePath)
       Assert.assertTrue(s"Couldn't find $jdkVersion", pathOption.isDefined)
-      VfsRootAccess.allowRootAccess(pathOption.get)
+      VfsRootAccess.allowRootAccess(pathOption.get): @nowarn("cat=deprecation")
       val jdk = JavaSdk.getInstance.createJdk(jdkName, pathOption.get, false)
       inWriteAction { jdkTable.addJdk(jdk) }
       jdk

@@ -8,6 +8,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.typeInference.testInjectors.{SCL9446Injector, SCL9446InjectorNoOverride}
 
+import scala.annotation.nowarn
+
 
 class NeedsToBeAbstractBugsTest extends AnnotatorTestBase[ScTemplateDefinition] {
 
@@ -99,13 +101,14 @@ class B extends A {
     ScTemplateDefinitionAnnotator.annotateNeedsToBeAbstract(element)
 
   private def doInjectorTest(injector: SyntheticMembersInjector)(body: => Unit): Unit = {
-    val extensionPoint = Extensions.getRootArea.getExtensionPoint(SyntheticMembersInjector.EP_NAME)
-    extensionPoint.registerExtension(injector)
+    val extensionPoint = Extensions.getRootArea
+      .getExtensionPoint(SyntheticMembersInjector.EP_NAME): @nowarn("cat=deprecation")
+    extensionPoint.registerExtension(injector): @nowarn("cat=deprecation")
     try {
       body
     }
     finally {
-      extensionPoint.unregisterExtension(injector)
+      extensionPoint.unregisterExtension(injector): @nowarn("cat=deprecation")
     }
   }
 }

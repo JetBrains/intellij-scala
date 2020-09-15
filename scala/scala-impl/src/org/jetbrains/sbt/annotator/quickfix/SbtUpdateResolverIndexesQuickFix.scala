@@ -10,6 +10,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
 import com.intellij.psi.PsiFile
 
+import scala.annotation.nowarn
+
 /**
  * @author Nikolay Obedin
  * @since 8/5/14.
@@ -23,6 +25,6 @@ class SbtUpdateResolverIndexesQuickFix(module: Module) extends AbstractIntention
     val editor = new SingleConfigurableEditor(project, ui)
     ui.select(module.getName, "sbt", false)
     //Project Structure should be shown in a transaction
-    TransactionGuard.getInstance().submitTransactionAndWait(() => editor.show())
+    TransactionGuard.getInstance().submitTransactionAndWait(() => editor.show()): @nowarn("cat=deprecation")
   }
 }

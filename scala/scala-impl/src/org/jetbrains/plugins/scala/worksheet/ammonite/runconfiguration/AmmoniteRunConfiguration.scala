@@ -25,6 +25,8 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder
 import org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunConfiguration.{AmmNotFoundException, MyEditor}
 
+import scala.annotation.nowarn
+
 class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) extends
   RunConfigurationBase[Element](project, factory, AmmoniteRunConfiguration.AMMONITE_RUN_NAME) {
 
@@ -125,7 +127,7 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
     super.writeExternal(element)
 
     def saveFileElement(name: String, maybeString: Option[String]): Unit = {
-      JDOMExternalizer.write(element, name, maybeString.getOrElse(""))
+      JDOMExternalizer.write(element, name, maybeString.getOrElse("")): @nowarn("cat=deprecation")
     }
 
     saveFileElement("execName", execName)
@@ -137,7 +139,7 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
     super.readExternal(element)
 
     def retrieveFileElement(name: String): Option[String] = {
-      JDOMExternalizer.readString(element, name) match {
+      (JDOMExternalizer.readString(element, name): @nowarn("cat=deprecation")) match {
         case "" | null => None
         case other => Option(other)
       }

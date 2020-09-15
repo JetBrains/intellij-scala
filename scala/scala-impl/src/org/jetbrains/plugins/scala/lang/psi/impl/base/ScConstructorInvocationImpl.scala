@@ -50,7 +50,7 @@ class ScConstructorInvocationImpl(node: ASTNode)
     findChild(classOf[ScArgumentExprList])
 
   override def arguments: collection.Seq[ScArgumentExprList] =
-    Seq(findChildrenByClassScala(classOf[ScArgumentExprList]): _*)
+    Seq(findChildrenByClassScala(classOf[ScArgumentExprList]).toSeq: _*)
 
   override protected def updateImplicitArguments(): Unit =
     simpleTypeElement.foreach(_.getNonValueType(withUnnecessaryImplicitsUpdate = true))

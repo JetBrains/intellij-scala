@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.template.macros
 
 import com.intellij.codeInsight.template.TemplateManager
-import com.intellij.codeInsight.template.impl.{TemplateSettings, TemplateManagerImpl, TemplateImpl}
+import com.intellij.codeInsight.template.impl.{TemplateImpl, TemplateManagerImpl, TemplateSettings}
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.util.ui.UIUtil
 import org.intellij.lang.annotations.Language
@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.util.TemplateTesting
 import org.junit.Assert._
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 abstract class ScalaLiveTemplateTestBase extends ScalaLightCodeInsightFixtureTestAdapter with TemplateTesting {
@@ -64,8 +65,9 @@ abstract class ScalaLiveTemplateTestBase extends ScalaLightCodeInsightFixtureTes
     template
   }
 
-  private def isApplicable(template: TemplateImpl): Boolean =
-    TemplateManagerImpl.isApplicable(myFixture.getFile, myFixture.getCaretOffset, template)
+  private def isApplicable(template: TemplateImpl): Boolean = {
+    TemplateManagerImpl.isApplicable(myFixture.getFile, myFixture.getCaretOffset, template): @nowarn("cat=deprecation")
+  }
 
   protected def assertIsApplicable(code: String): Unit =
     assertIsApplicable(code, fileExtension)

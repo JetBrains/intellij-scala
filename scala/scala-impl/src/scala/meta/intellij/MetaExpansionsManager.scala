@@ -160,7 +160,7 @@ object MetaExpansionsManager {
           case (Some(clazz), _) => Right(runDirect(clazz, compiledArgs))
           case (None, _)        => Left(ScalaMetaBundle.nls("meta.annotation.class.could.not.be.found"))
         }
-        errorOrTree.right.map(fixTree)
+        errorOrTree.map(fixTree)
       } catch {
         case pc: ProcessCanceledException => throw pc
         case me: AbortException           => Left(ScalaMetaBundle.nls("tree.conversion.error", me.getMessage))

@@ -7,6 +7,7 @@ import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase.{DependencyDescription, ResolvedDependency}
 
+import scala.annotation.nowarn
 import scala.collection.mutable
 
 case class IvyManagedLoader(dependencies: DependencyDescription*) extends LibraryLoader {
@@ -18,7 +19,7 @@ case class IvyManagedLoader(dependencies: DependencyDescription*) extends Librar
       dependencyManager.resolve(dependencies: _*)
     )
     resolved.foreach { resolved =>
-      VfsRootAccess.allowRootAccess(resolved.file.getCanonicalPath)
+      VfsRootAccess.allowRootAccess(resolved.file.getCanonicalPath): @nowarn("cat=deprecation")
       PsiTestUtil.addLibrary(module, resolved.info.toString, resolved.file.getParent, resolved.file.getName)
     }
   }

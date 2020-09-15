@@ -207,10 +207,12 @@ object ScalaGenerationInfo {
     val value = classMember match {
       case x: ScValueMember => x.element
       case x: ScVariableMember => x.element
+      case _ => ???
     }
     val (substitutor, needsOverride) = classMember match {
       case x: ScValueMember => (x.substitutor, x.isOverride)
       case x: ScVariableMember => (x.substitutor, x.isOverride)
+      case _ => ???
     }
     val addOverride = needsOverride || toAddOverrideToImplemented
     val m = createOverrideImplementVariable(value, substitutor, addOverride, isVal, comment)(value.getManager)

@@ -123,7 +123,7 @@ class TechHubModuleBuilder extends
 
     TechHubStarterProjects.downloadTemplate(template, contentFile, name, onError = error(_))
 
-    ZipUtil.extract(contentFile, contentDir, null)
+    ZipUtil.extract(contentFile.toPath, contentDir.toPath, null)
 
     // there should be just the one directory that contains the prepared project
     val dirs = contentDir.listFiles(f => f.isDirectory)

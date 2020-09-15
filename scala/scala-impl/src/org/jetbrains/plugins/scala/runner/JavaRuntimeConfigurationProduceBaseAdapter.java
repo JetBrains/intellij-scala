@@ -9,6 +9,7 @@ import com.intellij.execution.junit.JavaRunConfigurationProducerBase;
  * @since 02.03.12
  */
 public abstract class JavaRuntimeConfigurationProduceBaseAdapter<T extends ModuleBasedConfiguration> extends JavaRunConfigurationProducerBase<T> {
+  @SuppressWarnings("deprecation")
   protected JavaRuntimeConfigurationProduceBaseAdapter(ConfigurationType configurationType) {
     super(configurationType);
   }

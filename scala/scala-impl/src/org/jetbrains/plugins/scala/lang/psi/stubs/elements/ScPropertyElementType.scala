@@ -58,8 +58,8 @@ sealed abstract class ScPropertyElementType[P <: ScValueOrVariable](debugName: S
 
   override final def indexStub(stub: ScPropertyStub[P], sink: IndexSink): Unit = {
     import index.ScalaIndexKeys._
-    sink.occurrences(PROPERTY_NAME_KEY, stub.names: _*)
-    sink.occurrences(PROPERTY_CLASS_NAME_KEY, stub.classNames: _*)
+    sink.occurrences(PROPERTY_NAME_KEY, stub.names.toSeq: _*)
+    sink.occurrences(PROPERTY_CLASS_NAME_KEY, stub.classNames.toSeq: _*)
     stub.indexImplicits(sink)
   }
 

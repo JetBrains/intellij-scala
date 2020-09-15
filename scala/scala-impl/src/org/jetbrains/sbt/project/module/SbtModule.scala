@@ -8,6 +8,7 @@ import com.intellij.openapi.module.Module
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.sbt.resolvers.SbtResolver
 
+import scala.annotation.nowarn
 import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters._
 
@@ -45,7 +46,7 @@ object SbtModule {
 
   object Imports {
 
-    def apply(module: Module): Seq[String] =
+    def apply(module: Module): Seq[String] = {
       Option(getState(module).imports)
         .filter(_.nonEmpty)
         .orElse(Option(module.getOptionValue(ImportsKey))) // TODO remove in 2018.3+
@@ -56,14 +57,17 @@ object SbtModule {
             .replace(SubstitutePrefix + SubstituteDollar, "$")
             .split(Delimiter)
             .toSeq
-        }
+        }: @nowarn("cat=deprecation")
+    }
 
     def update(module: Module, imports: java.util.List[String]): Unit = {
-      val newImports = imports.asScala.mkString(Delimiter)
+      @nowarn("cat=deprecation") val newImports = imports.asScala.mkString(Delimiter)
         .replace(SubstitutePrefix, SubstitutePrefix + SubstitutePrefix)
         .replace("$", SubstitutePrefix + SubstituteDollar)
 
-      module.setOption(ImportsKey, newImports) // TODO remove in 2018.3+
+      {
+        module.setOption(ImportsKey, newImports): @nowarn("cat=deprecation") // TODO remove in 2018.3+
+      }
 
       getState(module).imports = newImports
     }
@@ -71,7 +75,7 @@ object SbtModule {
 
   object Resolvers {
 
-    def apply(module: Module): Set[SbtResolver] =
+    def apply(module: Module): Set[SbtResolver] = {
       Option(getState(module).resolvers)
         .filter(_.nonEmpty)
         .orElse(Option(module.getOptionValue(ResolversKey))) // TODO remove in 2018.3+
@@ -79,8 +83,10 @@ object SbtModule {
         str.split(Delimiter)
           .flatMap(SbtResolver.fromString)
           .toSet
-      }
+        }: @nowarn("cat=deprecation")
+    }
 
+    @nowarn("cat=deprecation")
     def update(module: Module, resolvers: collection.Set[SbtResolver]): Unit = {
       val newResolvers = resolvers.map(_.toString)
         .mkString(Delimiter)

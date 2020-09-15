@@ -6,6 +6,8 @@ import com.intellij.openapi.util.Key
 import org.jdom.Element
 import org.jetbrains.bsp.project.test.environment.BspJvmEnvironment.BspTargetIdHolder
 
+import scala.annotation.nowarn
+
 object BspFetchEnvironmentTask {
   val runTaskKey: Key[BspFetchEnvironmentTask] = Key.create("BSP.BeforeRunTask")
 
@@ -25,6 +27,7 @@ class BspFetchEnvironmentTask
 
   override def update(value: BuildTargetIdentifier): Unit = selected = Some(value)
 
+  @nowarn("cat=deprecation")
   override def writeExternal(element: Element): Unit = {
     super.writeExternal(element)
     selected match {
@@ -33,6 +36,7 @@ class BspFetchEnvironmentTask
     }
   }
 
+  @nowarn("cat=deprecation")
   override def readExternal(element: Element): Unit = {
     super.readExternal(element)
     selected = Option(element.getAttributeValue(CHOSEN_TARGET)).map(new BuildTargetIdentifier(_))

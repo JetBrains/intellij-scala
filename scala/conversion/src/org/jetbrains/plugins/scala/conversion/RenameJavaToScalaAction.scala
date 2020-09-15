@@ -11,6 +11,8 @@ import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.NotificationUtil
 
+import scala.annotation.nowarn
+
 /**
  * @author Alexander Podkhalyuzin
  */
@@ -80,7 +82,7 @@ class RenameJavaToScalaAction extends AnAction(
                   setNotificationType(NotificationType.ERROR).
                   setGroup("rename.java.to.scala").
                   setTitle(ScalaConversionBundle.message("cannot.create.file")).
-                  show()
+                  show(): @nowarn("cat=deprecation")
                 return
               }
               val file = directory.createFile(name + ".scala")

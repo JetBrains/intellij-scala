@@ -20,7 +20,7 @@ object SealedJavaInheritance {
       role == PsiReferenceList.Role.IMPLEMENTS_LIST
 
   private def annotate(element: PsiElement)(implicit holder: ScalaAnnotationHolder): Unit = element match {
-    case list: PsiReferenceList if isValidRole(list.getRole) => annotateReferences(list.getReferenceElements: _*)
+    case list: PsiReferenceList if isValidRole(list.getRole) => annotateReferences(list.getReferenceElements.toSeq: _*)
     case clazz: PsiAnonymousClass                            => annotateReferences(clazz.getBaseClassReference)
     case _                                                   => ()
   }

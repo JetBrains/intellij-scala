@@ -20,6 +20,7 @@ import java.util.ResourceBundle;
 /**
  * Form with configuration of sbt runner.
  */
+@SuppressWarnings("deprecation")
 public class SbtRunConfigurationForm {
     private JPanel mainPanel;
     private RawCommandLineEditor tasksEditor;

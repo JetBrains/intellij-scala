@@ -4,18 +4,21 @@ import com.intellij.openapi.extensions.Extensions
 import org.jetbrains.plugins.scala.lang.psi.impl.base.InterpolatedStringMacroTypeProvider
 import org.jetbrains.plugins.scala.lang.typeInference.testInjectors.SCL12987Injector
 
+import scala.annotation.nowarn
+
 /**
   * @author Jan Lindemann
   * @since  23.11.17.
   */
 class InterpolatedStringMacroTypeProviderTest extends TypeInferenceTestBase {
   protected def doTypeProviderTest(text: String, extension: InterpolatedStringMacroTypeProvider): Unit = {
-    val extensionPoint = Extensions.getRootArea.getExtensionPoint(InterpolatedStringMacroTypeProvider.EP_NAME)
-    extensionPoint.registerExtension(extension)
+    val extensionPoint = Extensions.getRootArea
+      .getExtensionPoint(InterpolatedStringMacroTypeProvider.EP_NAME): @nowarn("cat=deprecation")
+    extensionPoint.registerExtension(extension): @nowarn("cat=deprecation")
     try {
       doTest(text)
     } finally {
-      extensionPoint.unregisterExtension(extension)
+      extensionPoint.unregisterExtension(extension): @nowarn("cat=deprecation")
     }
   }
 

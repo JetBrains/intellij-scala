@@ -26,6 +26,7 @@ import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.resolvers.indexes.IvyIndex
 import org.jetbrains.sbt.resolvers.{SbtMavenRepositoryProvider, SbtResolverUtils}
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 /**
@@ -38,7 +39,8 @@ final class SbtProjectService(project: Project) extends Disposable {
   setupMavenIndexes()
 
   private def manager = PsiManager.getInstance(project)
-  manager.addPsiTreeChangeListener(TreeListener)
+
+  (manager.addPsiTreeChangeListener(TreeListener): @nowarn("cat=deprecation"))
 
   private def analyzer = DaemonCodeAnalyzer.getInstance(project)
 
@@ -118,7 +120,7 @@ final class SbtProjectService(project: Project) extends Disposable {
         val module = ui.getModulesConfig.getModules.find(ModuleType.get(_).isInstanceOf[SbtModuleType])
         ui.select(module.get.getName, "sbt", false)
         //Project Structure should be shown in a transaction
-        TransactionGuard.getInstance().submitTransactionAndWait(() => editor.show())
+        TransactionGuard.getInstance().submitTransactionAndWait(() => editor.show()): @nowarn("cat=deprecation")
       })
     notificationData.setListener(
       "#disable", (notification: Notification, e: HyperlinkEvent) => {
