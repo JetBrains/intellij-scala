@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.overrideImplement._
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 /**
@@ -36,7 +37,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
   import ScalaOverrideContributor._
 
   extend(CompletionType.BASIC,
-    identifierPattern.and(new FilterPattern(new AndFilter(new NotFilter(new LeftNeighbour(new TextContainFilter("override"))), new AndFilter(new NotFilter(new LeftNeighbour(new TextFilter("."))), new ModifiersFilter)))),
+    identifierPattern.and(new FilterPattern(new AndFilter(new NotFilter(new LeftNeighbour(new TextContainFilter("override"))), new AndFilter(new NotFilter(new LeftNeighbour(new TextFilter("."))), new ModifiersFilter)))): @nowarn("cat=deprecation"),
     new CompletionProvider[CompletionParameters] {
 
       override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet): Unit = {
@@ -88,7 +89,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
     * handle only declarations here
     */
   extend(CompletionType.BASIC,
-    identifierPattern.and(new FilterPattern(new AndFilter(new NotFilter(new OrFilter(new LeftNeighbour(new TextContainFilter(".")), new LeftNeighbour(new TextContainFilter(":"))))))),
+    identifierPattern.and(new FilterPattern(new AndFilter(new NotFilter(new OrFilter(new LeftNeighbour(new TextContainFilter(".")), new LeftNeighbour(new TextContainFilter(":"))))))): @nowarn("cat=deprecation"),
     new CompletionProvider[CompletionParameters] {
 
     override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet): Unit = {

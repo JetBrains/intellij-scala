@@ -14,6 +14,8 @@ import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
+import scala.annotation.nowarn
+
 /**
 * Pavel Fatin
 */
@@ -48,7 +50,11 @@ object ScalaDirectoryService {
   }
 
   private def getIncorrectTemplateMessage(templateName: String): String = {
-    PsiBundle.message("psi.error.incorrect.class.template.message", FileTemplateManager.getDefaultInstance.internalTemplateToSubject(templateName), templateName)
+    PsiBundle.message(
+      "psi.error.incorrect.class.template.message",
+      FileTemplateManager.getDefaultInstance.internalTemplateToSubject(templateName),
+      templateName
+    ): @nowarn("cat=deprecation")
   }
 
   private def templateForUnitTest(templateName: String, name: String): FileTemplate = {

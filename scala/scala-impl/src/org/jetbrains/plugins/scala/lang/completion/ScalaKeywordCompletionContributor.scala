@@ -8,6 +8,8 @@ import com.intellij.psi.filters.position.{FilterPattern, LeftNeighbour}
 import com.intellij.psi.filters.{AndFilter, ElementFilter, NotFilter, TextFilter}
 import com.intellij.util.ProcessingContext
 
+import scala.annotation.nowarn
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 17.09.2009
@@ -67,5 +69,5 @@ final class ScalaKeywordCompletionContributor extends ScalaCompletionContributor
 
 object ScalaKeywordCompletionContributor {
 
-  private def afterDotPattern = new LeftNeighbour(new TextFilter("."))
+  private def afterDotPattern = new LeftNeighbour(new TextFilter(".")): @nowarn("cat=deprecation")
 }

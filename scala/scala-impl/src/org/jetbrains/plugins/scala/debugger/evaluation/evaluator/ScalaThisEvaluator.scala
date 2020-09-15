@@ -9,6 +9,7 @@ import com.sun.jdi._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 /**
@@ -35,7 +36,7 @@ class ScalaThisEvaluator(iterations: Int = 0) extends Evaluator {
 
   override def evaluate(context: EvaluationContextImpl): AnyRef = {
     lazy val frameProxy: StackFrameProxyImpl = context.getFrameProxy
-    var objRef: Value = context.getThisObject match {
+    var objRef: Value = (context.getThisObject: @nowarn("cat=deprecation")) match {
       case null => //so we possibly in trait $class
         try {
           val variable: LocalVariableProxyImpl = frameProxy.visibleVariableByName("$this")

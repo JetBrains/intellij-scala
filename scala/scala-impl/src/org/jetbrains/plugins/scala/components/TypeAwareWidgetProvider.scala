@@ -17,6 +17,9 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
+import scala.annotation.nowarn
+
+@nowarn("cat=deprecation")
 class TypeAwareWidgetProvider extends StatusBarWidgetProvider {
   override def getWidget(project: Project): StatusBarWidget = new TypeAwareWidgetProvider.Widget(project)
 }

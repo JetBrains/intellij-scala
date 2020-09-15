@@ -10,7 +10,7 @@ import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsScheme}
 import com.intellij.openapi.editor.markup._
 import com.intellij.openapi.editor.{Editor, SelectionModel}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.popup.{JBPopupAdapter, JBPopupFactory, LightweightWindowEvent}
+import com.intellij.openapi.ui.popup.{JBPopupAdapter, JBPopupFactory, JBPopupListener, LightweightWindowEvent}
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
@@ -31,6 +31,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{DefaultListCellRendererAdapter, ScalaDirectoryService, ScalaRefactoringUtil}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.util.JListCompatibility
+
+import scala.annotation.nowarn
 
 /**
   * Created by Kate Ustyuzhanina
@@ -136,7 +138,9 @@ trait IntroduceTypeAlias {
         //need open modal dialog in inplace mode
         if ((StartMarkAction.canStart(project) != null) && (currentScope != null)) {
           currentDataObject.isCallModalDialogInProgress = true
-          val templateState: TemplateState = TemplateManagerImpl.getTemplateState(InjectedLanguageUtil.getTopLevelEditor(editor))
+          val templateState: TemplateState = TemplateManagerImpl.getTemplateState(
+            InjectedLanguageUtil.getTopLevelEditor(editor): @nowarn("cat=deprecation")
+          )
 
           if (templateState != null) {
             templateState.gotoEnd()
@@ -322,7 +326,7 @@ trait IntroduceTypeAlias {
       }
     })
 
-    val highlightingListener = new JBPopupAdapter {
+    val highlightingListener = new JBPopupListener {
       override def beforeShown(event: LightweightWindowEvent): Unit = {
         selection.addHighlighter()
       }
@@ -345,7 +349,7 @@ trait IntroduceTypeAlias {
       .setItemChoosenCallback(callback)
       .addListener(highlightingListener)
       .createPopup
-      .showInBestPositionFor(editor)
+      .showInBestPositionFor(editor): @nowarn("cat=deprecation")
   }
 
   protected def createAndGetPackageObjectBody(typeElement: ScTypeElement,

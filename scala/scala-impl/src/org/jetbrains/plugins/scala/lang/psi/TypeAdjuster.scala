@@ -24,14 +24,16 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
 
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 import scala.collection.mutable
 
 object TypeAdjuster extends ApplicationListener {
 
   private val LOG = Logger.getInstance(getClass)
 
-  ApplicationManager.getApplication.addApplicationListener(this)
+  {
+    ApplicationManager.getApplication.addApplicationListener(this): @nowarn("cat=deprecation")
+  }
 
   private val markedElements = mutable.ArrayBuffer.empty[SmartPsiElementPointer[PsiElement]]
 

@@ -9,6 +9,7 @@ import javax.swing.event.HyperlinkEvent
 import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.ScalaBundle
 
+import scala.annotation.nowarn
 import scala.collection.mutable
 
 /**
@@ -59,7 +60,7 @@ object NotificationUtil  {
       setTitle(title).
       setNotificationType(notificationType).
       setDisplayType(displayType).
-      setHandler(handler).show()
+      setHandler(handler).show(): @nowarn("cat=deprecation")
   }
 
   type Handler = (String) => (Unit)

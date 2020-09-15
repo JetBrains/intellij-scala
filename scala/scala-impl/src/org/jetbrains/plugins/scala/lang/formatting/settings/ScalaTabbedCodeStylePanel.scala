@@ -16,6 +16,8 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.rearranger.ScalaArrangementPanel
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
+import scala.annotation.nowarn
+
 /**
  * User: Alefas
  * Date: 23.09.11
@@ -133,7 +135,7 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
   def onModelSet(model: CodeStyleSchemesModel): Unit = shortenedPanel.setModel(model)
 
   private def syncPanels(useExternalFormatter: Boolean): Unit = {
-    val tempSettings = settings.clone()
+    val tempSettings = settings.clone(): @nowarn("cat=deprecation")
     if (useExternalFormatter) {
       shortenedPanel.exposeApply(tempSettings)
       // we need to invoke applySettingsToModel, which is done inside onSomethingChanged

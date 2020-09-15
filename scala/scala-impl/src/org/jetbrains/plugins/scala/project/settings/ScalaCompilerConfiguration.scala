@@ -11,7 +11,7 @@ import com.intellij.util.xmlb.{SkipDefaultValuesSerializationFilters, XmlSeriali
 import org.jdom.Element
 import org.jetbrains.annotations.TestOnly
 
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 import scala.jdk.CollectionConverters._
 
 /**
@@ -90,7 +90,7 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
   }
 
   override def getState: Element = {
-    val configurationElement = XmlSerializer.serialize(defaultProfile.getSettings.toState, new SkipDefaultValuesSerializationFilters())
+    val configurationElement = XmlSerializer.serialize(defaultProfile.getSettings.toState, new SkipDefaultValuesSerializationFilters(): @nowarn("cat=deprecation"))
 
     if (incrementalityType != IncrementalityType.IDEA) {
       val incrementalityTypeElement = new Element("option")
@@ -100,7 +100,7 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
     }
 
     customProfiles.foreach { profile =>
-      val profileElement = XmlSerializer.serialize(profile.getSettings.toState, new SkipDefaultValuesSerializationFilters())
+      val profileElement = XmlSerializer.serialize(profile.getSettings.toState, new SkipDefaultValuesSerializationFilters(): @nowarn("cat=deprecation"))
       profileElement.setName("profile")
       profileElement.setAttribute("name", profile.getName)
       profileElement.setAttribute("modules", profile.moduleNames.sorted.mkString(","))

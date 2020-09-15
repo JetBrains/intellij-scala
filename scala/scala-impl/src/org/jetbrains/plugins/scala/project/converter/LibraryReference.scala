@@ -13,6 +13,7 @@ import org.jdom.Element
 import org.jdom.xpath.XPath
 import org.jetbrains.plugins.scala.extensions._
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 /**
@@ -42,6 +43,7 @@ private case class LibraryReference(level: Level, name: String) {
   }
 
   private def findOrderEntryIn(module: ModuleSettings): Option[Element] = {
+    @nowarn("cat=deprecation")
     val node = XPath.selectSingleNode(rootManagerElementIn(module),
       s"orderEntry[@type='library' and @name='$name' and @level='${level.title}']")
 
@@ -97,7 +99,7 @@ private case class LibraryReference(level: Level, name: String) {
     val libraryElement = {
       val rootElement = context.getProjectSettings.getRootElement
       XPath.selectSingleNode(rootElement,
-        s"component[@name='libraryTable']/library[@name='$name']").asInstanceOf[Element]
+        s"component[@name='libraryTable']/library[@name='$name']").asInstanceOf[Element]: @nowarn("cat=deprecation")
     }
     if (libraryElement == null) {
       throw new IllegalArgumentException(s"Cannot delete project library: $name")

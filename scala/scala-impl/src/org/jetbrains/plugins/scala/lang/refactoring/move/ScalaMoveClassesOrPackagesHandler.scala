@@ -19,6 +19,8 @@ import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 
+import scala.annotation.nowarn
+
 /**
  * @author Alefas
  * @since 02.11.12
@@ -51,7 +53,7 @@ final class ScalaMoveClassesOrPackagesHandler extends JavaMoveClassesOrPackagesH
       case dir: PsiDirectory => scalaElements.foreach(saveMoveDestination(_, dir))
       case _ =>
     }
-    elements.length == scalaElements.length && super.canMove(elements, targetContainer)
+    elements.length == scalaElements.length && (super.canMove(elements, targetContainer): @nowarn("cat=deprecation"))
   }
 
   protected override def doMoveWithMoveClassesDialog(project: Project,

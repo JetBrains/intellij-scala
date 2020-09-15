@@ -44,7 +44,7 @@ abstract class ScalaMemberSelectionTableBase[M <: PsiElement, I <: ScalaMemberIn
     memberInfo.getMember match {
       case owner: PsiModifierListOwner =>
         owner.getModifierList match {
-          case mods: PsiModifierList => VisibilityIcons.setVisibilityIcon(mods, icon)
+          case mods: PsiModifierList => VisibilityIcons.setVisibilityIcon(mods, icon.asInstanceOf[com.intellij.ui.icons.RowIcon])
           case _ => icon.setIcon(IconUtil.getEmptyIcon(true), AbstractMemberSelectionTable.VISIBILITY_ICON_POSITION)
         }
       case _ =>

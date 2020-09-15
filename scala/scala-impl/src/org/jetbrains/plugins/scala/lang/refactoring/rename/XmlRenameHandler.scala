@@ -21,6 +21,8 @@ import com.intellij.refactoring.rename.RenameHandler
 import com.intellij.util.PairProcessor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPairedTag
 
+import scala.annotation.nowarn
+
 /**
  * User: Dmitry Naydanov
  * Date: 4/8/12
@@ -70,8 +72,9 @@ class XmlRenameHandler extends RenameHandler with ScalaRefactoringActionHandler 
       val colorsManager = EditorColorsManager.getInstance()
       val attributes = colorsManager.getGlobalScheme.getAttributes(EditorColors.WRITE_SEARCH_RESULT_ATTRIBUTES)
 
-      HighlightManager.getInstance(editor.getProject).addOccurrenceHighlight(editor, matchedRange.getStartOffset,
-        matchedRange.getEndOffset, attributes, 0, rangeHighlighters, null)
+      HighlightManager.getInstance(editor.getProject).addOccurrenceHighlight(
+        editor, matchedRange.getStartOffset, matchedRange.getEndOffset, attributes, 0, rangeHighlighters, null
+      ): @nowarn("cat=deprecation")
 
       rangeHighlighters.forEach { a =>
         a.setGreedyToLeft(true)

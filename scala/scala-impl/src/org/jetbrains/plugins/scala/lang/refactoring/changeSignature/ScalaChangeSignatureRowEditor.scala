@@ -14,6 +14,7 @@ import com.intellij.util.ui.table.JBTableRowEditor._
 import com.intellij.util.ui.table.{JBTableRow, JBTableRowEditor}
 import org.jetbrains.plugins.scala.ScalaBundle
 
+import scala.annotation.nowarn
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -71,7 +72,7 @@ class ScalaChangeSignatureRowEditor(item: ScalaParameterTableModelItem, dialog: 
   def getColumnWidth(letters: Int): Int = {
     val editorFont: Font = EditorColorsManager.getInstance.getGlobalScheme.getFont(EditorFontType.PLAIN)
     val font = new Font(editorFont.getFontName, editorFont.getStyle, 12)
-    letters * Toolkit.getDefaultToolkit.getFontMetrics(font).stringWidth("W")
+    letters * (Toolkit.getDefaultToolkit.getFontMetrics(font).stringWidth("W"): @nowarn("cat=deprecation"))
   }
 
   def getTypesColumnWidth: Int = getColumnWidth(dialog.getNamesMaxLength + 2 + dialog.getTypesMaxLength)

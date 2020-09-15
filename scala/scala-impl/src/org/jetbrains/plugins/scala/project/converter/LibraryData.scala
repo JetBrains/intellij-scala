@@ -5,6 +5,8 @@ import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.{JavadocOrderRootType, OrderRootType}
 import org.jdom.{Attribute, Element}
 import org.jdom.xpath.XPath
+
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 /**
@@ -24,8 +26,9 @@ private object LibraryData {
   }
 
   def apply(element: Element): LibraryData = {
-    def urls(kind: String) = XPath.selectNodes(element, kind + "/root/@url").asScala
-            .map(_.asInstanceOf[Attribute].getValue)
+    def urls(kind: String) = {
+      XPath.selectNodes(element, kind + "/root/@url").asScala.map(_.asInstanceOf[Attribute].getValue): @nowarn("cat=deprecation")
+    }
 
     LibraryData(element.getAttributeValue("name"), urls("CLASSES"), urls("SOURCES"), urls("JAVADOC"))
   }

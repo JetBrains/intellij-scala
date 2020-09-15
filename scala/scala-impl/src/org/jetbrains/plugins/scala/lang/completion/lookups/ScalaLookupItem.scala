@@ -30,12 +30,13 @@ import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.util.HashBuilder._
 import org.jetbrains.plugins.scala.util.UIFreezingGuard
 
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 
 /**
  * @author Alefas
  * @since 22.03.12
  */
+@nowarn("msg=LookupItem is deprecated")
 final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
                                     override val getLookupString: String,
                                     private[completion] val containingClass: PsiClass)

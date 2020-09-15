@@ -14,6 +14,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiNamedElemen
 import com.intellij.refactoring.rename.inplace.MyLookupExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -100,7 +101,7 @@ class InplaceRenameHelper(parent: PsiElement) {
                         highlighters: ArrayBuffer[RangeHighlighter], highlightManager: HighlightManager): Unit = {
         for ((range, attributes) <- ranges) {
           highlightManager.addOccurrenceHighlight(editor, range.getStartOffset, range.getEndOffset,
-            attributes, 0, highlighters.asJava, null)
+            attributes, 0, highlighters.asJava, null): @nowarn("cat=deprecation")
         }
         for (highlighter <- highlighters) {
           highlighter.setGreedyToLeft(true)

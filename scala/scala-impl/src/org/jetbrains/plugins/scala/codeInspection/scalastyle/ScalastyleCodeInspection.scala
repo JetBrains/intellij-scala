@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.scalastyle
 
+import java.io.File
+
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.ProjectUtil
 import com.intellij.openapi.roots.ProjectFileIndex
@@ -8,6 +10,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.project.template.FileExt
 import org.scalastyle._
 
 import scala.collection.mutable
@@ -40,7 +43,10 @@ object ScalastyleCodeInspection {
   def configurationFor(file: ScalaFile): Option[ScalastyleConfiguration] = {
     val virtualFile = file.getVirtualFile
     val project = file.getProject
-    val baseDir = Option(project.getBaseDir)
+    val baseDir = for {
+      basePath <- Option(project.getBasePath)
+      dir <- new File(basePath).toVirtualFile
+    } yield dir
     val fileIndex = ProjectFileIndex.getInstance(project)
     val contentRoot = Option(fileIndex.getContentRootForFile(virtualFile))
     val isTest = fileIndex.isInTestSourceContent(virtualFile)

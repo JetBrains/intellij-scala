@@ -73,11 +73,13 @@ object TypeAnnotationInspection {
     }
   }
 
+  @nowarn("cat=deprecation")
   private class LearnWhyQuickFix extends LocalQuickFixBase(ScalaInspectionBundle.message("learn.why")) {
     override def applyFix(project: Project, problemDescriptor: ProblemDescriptor): Unit =
       DesktopUtils.browse("https://blog.jetbrains.com/scala/2016/10/05/beyond-code-style/")
   }
 
+  @nowarn("cat=deprecation")
   private class ModifyCodeStyleQuickFix extends LocalQuickFixBase(ScalaInspectionBundle.message("quickfix.modify.code.style")) {
     override def applyFix(project: Project, problemDescriptor: ProblemDescriptor): Unit =
       TypeAnnotationUtil.showTypeAnnotationsSettings(project)

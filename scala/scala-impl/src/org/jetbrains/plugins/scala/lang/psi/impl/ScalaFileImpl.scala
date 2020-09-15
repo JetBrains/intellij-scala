@@ -34,7 +34,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
@@ -184,11 +184,11 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
         new Runnable {
           override def run(): Unit = {
             try {
-              DebugUtil.startPsiModification(null)
+              DebugUtil.startPsiModification(null): @nowarn("cat=deprecation")
               aClass.getNode.getTreeParent.replaceChild(aClass.getNode, oldClass.getNode)
             }
             finally {
-              DebugUtil.finishPsiModification()
+              DebugUtil.finishPsiModification(): @nowarn("cat=deprecation")
             }
           }
         }

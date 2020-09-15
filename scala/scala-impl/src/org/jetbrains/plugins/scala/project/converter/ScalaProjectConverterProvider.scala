@@ -6,7 +6,7 @@ import com.intellij.conversion.{ConversionContext, ConverterProvider}
 /**
  * @author Pavel Fatin
  */
-class ScalaProjectConverterProvider extends ConverterProvider("scala-facets-to-sdks") {
+class ScalaProjectConverterProvider extends ConverterProvider {
   override def getConversionDescription = ScalaBundle.message("scala.facets.will.be.converted.to.scala.sdks")
 
   override def createConverter(context: ConversionContext) = new ScalaProjectConverter(context)

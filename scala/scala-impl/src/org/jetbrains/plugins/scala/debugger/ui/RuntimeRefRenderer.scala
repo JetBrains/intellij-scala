@@ -19,6 +19,8 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 
+import scala.annotation.nowarn
+
 /**
  * Nikolay.Tropin
  * 2014-10-22
@@ -75,7 +77,7 @@ class RuntimeRefRenderer extends NodeRendererImpl {
     if (isApplicableFor(unwrappedType))
       DebugProcessImpl.getDefaultRenderer(unwrappedType).asInstanceOf[NodeRendererImpl]
     else
-      debugProcess.asInstanceOf[DebugProcessImpl].getAutoRenderer(valueDescriptor).asInstanceOf[NodeRendererImpl]
+      debugProcess.asInstanceOf[DebugProcessImpl].getAutoRenderer(valueDescriptor).asInstanceOf[NodeRendererImpl]: @nowarn("cat=deprecation")
   }
   
   private def unwrappedDescriptor(ref: Value, project: Project) = {

@@ -1341,11 +1341,13 @@ package object extensions {
       ApplicationManager.getApplication.invokeAndWait((() => body): Runnable, modalityState)
     }
 
-  def invokeLaterInTransaction(disposable: Disposable)(body: => Unit): Unit =
-    TransactionGuard.getInstance().submitTransactionLater(disposable, () => body)
+  def invokeLaterInTransaction(disposable: Disposable)(body: => Unit): Unit = {
+    TransactionGuard.getInstance().submitTransactionLater(disposable, () => body): @nowarn("cat=deprecation")
+  }
 
-  def invokeAndWaitInTransaction(body: => Unit): Unit =
-    TransactionGuard.getInstance().submitTransactionAndWait(() => body)
+  def invokeAndWaitInTransaction(body: => Unit): Unit = {
+    TransactionGuard.getInstance().submitTransactionAndWait(() => body): @nowarn("cat=deprecation")
+  }
 
   def registerDynamicPluginListener(listener: DynamicPluginListener, parentDisposable: Disposable): Unit = {
     val connection = ApplicationManager.getApplication.getMessageBus.connect(parentDisposable)

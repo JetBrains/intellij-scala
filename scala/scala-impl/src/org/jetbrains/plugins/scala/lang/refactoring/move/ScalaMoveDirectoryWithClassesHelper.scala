@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 /**
@@ -44,7 +45,7 @@ class ScalaMoveDirectoryWithClassesHelper extends MoveDirectoryWithClassesHelper
 
         for {
           aClass <- classes
-          usage <- MoveClassesOrPackagesUtil.findUsages(aClass, searchInComments, searchInNonJavaFiles, aClass.name)
+          usage <- MoveClassesOrPackagesUtil.findUsages(aClass, searchInComments, searchInNonJavaFiles, aClass.name): @nowarn("cat=deprecation")
         } {
           usages.add(usage)
         }

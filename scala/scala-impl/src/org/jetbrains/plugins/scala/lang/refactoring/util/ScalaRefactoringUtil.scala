@@ -15,7 +15,7 @@ import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager, Ed
 import com.intellij.openapi.editor.markup._
 import com.intellij.openapi.editor.{Editor, RangeMarker, SelectionModel, VisualPosition}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.popup.{JBPopupAdapter, JBPopupFactory, LightweightWindowEvent}
+import com.intellij.openapi.ui.popup.{JBPopupAdapter, JBPopupFactory, JBPopupListener, LightweightWindowEvent}
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.ReadonlyStatusHandler
 import com.intellij.psi._
@@ -50,7 +50,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdenti
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -469,7 +469,7 @@ object ScalaRefactoringUtil {
       val attributes = colorsScheme.getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES)
 
       occurrences.foreach { occurrence =>
-        highlightManager.addRangeHighlight(editor, occurrence.getStartOffset, occurrence.getEndOffset, attributes, true, highlighters)
+        highlightManager.addRangeHighlight(editor, occurrence.getStartOffset, occurrence.getEndOffset, attributes, true, highlighters): @nowarn("cat=deprecation")
       }
     }
 
@@ -539,7 +539,7 @@ object ScalaRefactoringUtil {
       onChosen(list.getSelectedValue.asInstanceOf[T])
     }
 
-    val highlighterAdapter = new JBPopupAdapter {
+    val highlighterAdapter = new JBPopupListener {
       override def beforeShown(event: LightweightWindowEvent): Unit = {
         selection.addHighlighter()
       }
@@ -557,7 +557,7 @@ object ScalaRefactoringUtil {
       .setItemChoosenCallback(callback)
       .addListener(highlighterAdapter)
       .createPopup
-      .showInBestPositionFor(editor)
+      .showInBestPositionFor(editor): @nowarn("cat=deprecation")
   }
 
 

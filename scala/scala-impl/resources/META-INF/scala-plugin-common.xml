@@ -70,7 +70,8 @@
         <breadcrumbsPresentationProvider
                 implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsPresentationProvider"/>
         <project.converterProvider
-                implementation="org.jetbrains.plugins.scala.project.converter.ScalaProjectConverterProvider"/>
+                implementation="org.jetbrains.plugins.scala.project.converter.ScalaProjectConverterProvider"
+                id="scala-facets-to-sdks"/>
         <codeStyle.ReferenceAdjuster language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.template.ScalaReferenceAdjuster"/>
         <lang.rearranger language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger"/>
         <testFinder implementation="org.jetbrains.plugins.scala.testingSupport.ScalaTestFinder"/>
@@ -1772,6 +1773,8 @@
                   class="org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook$WorksheetDumbModeListener"/>
         <listener topic="org.jetbrains.sbt.project.settings.SbtProjectSettingsListener"
                   class="org.jetbrains.plugins.scala.components.Scala3Disclaimer$SbtProjectListener"/>
+        <listener topic="com.intellij.debugger.impl.DebuggerManagerListener"
+                  class="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCache"/>
 
         <listener topic="com.intellij.compiler.server.CustomBuilderMessageHandler"
                   class="org.jetbrains.plugins.scala.compiler.CompilerEventFromCustomBuilderMessageListener"/>

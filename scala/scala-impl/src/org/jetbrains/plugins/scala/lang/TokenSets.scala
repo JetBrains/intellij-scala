@@ -51,7 +51,7 @@ object TokenSets {
       MemberElementTypesExtension.getExtraMemberTypes
   }
 
-  MemberElementTypesExtension.EP_NAME.addExtensionPointListener(() => _MEMBERS = computeMemberTypes(), null)
+  MemberElementTypesExtension.EP_NAME.addChangeListener(() => _MEMBERS = computeMemberTypes(), null)
 
   val DECLARED_ELEMENTS_HOLDER: TokenSet = TokenSet.orSet(FUNCTIONS, PROPERTIES)
 

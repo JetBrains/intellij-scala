@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
 
+import scala.annotation.nowarn
+
 
 class ScalaAliasedImportedElementSearcher extends QueryExecutorBase[PsiReference, ReferencesSearch.SearchParameters](true) {
 
@@ -34,7 +36,9 @@ class ScalaAliasedImportedElementSearcher extends QueryExecutorBase[PsiReference
       case Some((named, name, scope)) =>
         val collector: SearchRequestCollector = parameters.getOptimizer
         val session: SearchSession = collector.getSearchSession
-        collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, new MyProcessor(named, null, session))
+        collector.searchWord(
+          name, scope, UsageSearchContext.IN_CODE, true, new MyProcessor(named, null, session)
+        ): @nowarn("cat=deprecation")
       case _ =>
     }
   }

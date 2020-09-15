@@ -12,6 +12,7 @@ import org.jdom.xpath.XPath
 import org.jdom.{Attribute, Element}
 import org.jetbrains.plugins.scala.project.converter.ScalaSdkData._
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 import scala.xml.{Elem, PrettyPrinter}
 
@@ -52,7 +53,7 @@ private case class ScalaSdkData(name: String, standardLibrary: LibraryData, lang
   private def addProjectBasedLibrary(library: Elem, context: ConversionContext): Unit = {
     val libraryTableElement = {
       val rootElement = context.getProjectSettings.getRootElement
-      XPath.selectSingleNode(rootElement, "component[@name='libraryTable']").asInstanceOf[Element]
+      XPath.selectSingleNode(rootElement, "component[@name='libraryTable']").asInstanceOf[Element]: @nowarn("cat=deprecation")
     }
     val libraryElement = parseXml(formatXml(library))
     libraryTableElement.addContent(libraryElement)
@@ -98,6 +99,7 @@ private object ScalaSdkData {
   def apply(element: Element): ScalaSdkData = {
     val standardLibrary = LibraryData(element)
 
+    @nowarn("cat=deprecation")
     val compilerClasspath = XPath.selectNodes(element, "properties/compiler-classpath/root/@url").asScala
             .map(_.asInstanceOf[Attribute].getValue)
 

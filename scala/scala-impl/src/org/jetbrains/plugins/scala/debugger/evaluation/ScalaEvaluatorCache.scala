@@ -15,21 +15,18 @@ import scala.collection.mutable
  * Nikolay.Tropin
  * 2014-06-03
  */
-class ScalaEvaluatorCache(project: Project) extends Disposable {
+class ScalaEvaluatorCache
+  extends Disposable
+    with DebuggerManagerListener {
 
   private val cachedEvaluators = mutable.HashMap[(PsiFile, Int), mutable.HashMap[PsiElement, Evaluator]]()
   private val cachedStamp = mutable.HashMap[PsiFile, Long]()
 
-  private val listener = new DebuggerManagerListener {
-    override def sessionDetached(session: DebuggerSession): Unit = clear()
-  }
-
-  DebuggerManagerEx.getInstanceEx(project).addDebuggerManagerListener(listener)
-
-  override def dispose(): Unit = {
+  override def sessionDetached(session: DebuggerSession): Unit = {
     clear()
-    DebuggerManagerEx.getInstanceEx(project).removeDebuggerManagerListener(listener)
   }
+
+  override def dispose(): Unit = clear()
 
   def clear(): Unit = {
     cachedEvaluators.values.foreach(_.clear())

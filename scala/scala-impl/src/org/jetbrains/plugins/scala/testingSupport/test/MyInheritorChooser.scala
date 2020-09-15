@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.testingSupport.test.testdata._
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 private class MyInheritorChooser(
@@ -67,6 +68,7 @@ private class MyInheritorChooser(
     //scala type system gets confused because someone forgot generics in PsiElementListCellRenderer definition
     jbList.setCellRenderer(renderer.asInstanceOf[ListCellRenderer[PsiClass]])
     val testName = if (psiMethod != null) psiMethod.getName else containingClass.getName
+    @nowarn("cat=deprecation")
     val pupupFactory = JBPopupFactory.getInstance().createListPopupBuilder(jbList)
     pupupFactory
       .setTitle(ScalaBundle.message("test.config.choose.executable.classes.to.run.test", testName))

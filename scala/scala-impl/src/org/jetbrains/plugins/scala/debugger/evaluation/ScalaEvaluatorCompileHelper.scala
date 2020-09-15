@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerConnectorBase, RemoteServerRunner, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.project.ProjectExt
 
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
@@ -46,11 +46,11 @@ class ScalaEvaluatorCompileHelper(project: Project) extends Disposable with Eval
   }
 
   if (!ApplicationManager.getApplication.isUnitTestMode) {
-    DebuggerManagerEx.getInstanceEx(project).addDebuggerManagerListener(listener)
+    DebuggerManagerEx.getInstanceEx(project).addDebuggerManagerListener(listener): @nowarn("cat=deprecation")
   }
 
   override def dispose(): Unit = {
-    DebuggerManagerEx.getInstanceEx(project).removeDebuggerManagerListener(listener)
+    DebuggerManagerEx.getInstanceEx(project).removeDebuggerManagerListener(listener): @nowarn("cat=deprecation")
   }
 
   private def clearTempFiles(): Unit = {

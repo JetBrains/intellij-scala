@@ -22,6 +22,8 @@ import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiMethodWra
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
+import scala.annotation.nowarn
+
 /**
  * Nikolay.Tropin
  * 1/20/14
@@ -73,7 +75,7 @@ trait ScalaInplaceRenameHandler {
         .setResizable(false)
         .setRequestFocus(true)
         .setItemChoosenCallback(callback)
-        .createPopup.showInBestPositionFor(editor)
+        .createPopup.showInBestPositionFor(editor): @nowarn("cat=deprecation")
     }
 
     def specialMethodPopup(fun: ScFunction): Unit = {

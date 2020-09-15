@@ -35,6 +35,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaVariableValidator}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
+import scala.annotation.nowarn
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -163,7 +164,7 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
       }
       else (exprWithTypes.get._2, exprWithTypes.get._1.getText, "")
 
-    val superMethod = methodLike.findDeepestSuperMethod() match {
+    val superMethod = (methodLike.findDeepestSuperMethod(): @nowarn("cat=deprecation")) match {
       case null => methodLike
       case _: ScMethodLike => SuperMethodWarningUtil.checkSuperMethod(methodLike, RefactoringBundle.message("to.refactor"))
       case _ => methodLike

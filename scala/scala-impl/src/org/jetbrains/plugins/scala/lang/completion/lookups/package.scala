@@ -27,6 +27,6 @@ package object lookups {
         presentation.appendTailText(text, true)
       }
 
-    private def isReal = presentation.isReal
+    private def isReal = true
   }
 }

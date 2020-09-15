@@ -14,6 +14,8 @@ import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerRe
 import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
 
+import scala.annotation.nowarn
+
 private[compilerReferences] class JpsCompilationWatcher(
   override val project:          Project,
   override val transactionGuard: TransactionGuard[CompilerIndicesState]
@@ -83,7 +85,7 @@ private[compilerReferences] class JpsCompilationWatcher(
 
         // noinspection ScalaDeprecation
         // this key is declared private in CompileDriver
-        val key         = Option(Key.findKeyByName("COMPILE_SERVER_BUILD_STATUS"))
+        val key         = Option(Key.findKeyByName("COMPILE_SERVER_BUILD_STATUS"): @nowarn("cat=deprecation"))
         val status      = key.flatMap(k => Option(compileContext.getUserData(k)))
         val wasUpToDate = status.contains(ExitStatus.UP_TO_DATE)
 

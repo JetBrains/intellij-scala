@@ -108,12 +108,12 @@ private[findUsages] class ScalaCompilerReferenceReader private[compilerReference
     interruptNumber:         Int
   ): Array[CompilerRef.CompilerClassHierarchyElementDef] = rethrowStorageExceptionIn {
     val res   = new THashSet[CompilerRef.CompilerClassHierarchyElementDef]()
-    val queue = new Queue[CompilerRef.CompilerClassHierarchyElementDef](10)
+    val queue = new util.ArrayDeque[CompilerRef.CompilerClassHierarchyElementDef](10)
 
     @tailrec
-    def drain(q: Queue[CompilerRef.CompilerClassHierarchyElementDef]): Unit = if (!queue.isEmpty) {
+    def drain(q: util.ArrayDeque[CompilerRef.CompilerClassHierarchyElementDef]): Unit = if (!queue.isEmpty) {
       if (interruptNumber == -1 || res.size() <= interruptNumber) {
-        val currentClass = q.pullFirst()
+        val currentClass = q.poll()
         if (res.add(currentClass)) {
 
           if (res.size() % 100 == 0) {

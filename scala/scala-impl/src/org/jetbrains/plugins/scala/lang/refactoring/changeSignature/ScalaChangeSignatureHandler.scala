@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 
 /**
  * Nikolay.Tropin
@@ -42,7 +42,7 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefac
                              (implicit project: Project, editor: Editor): Unit = {
     //noinspection ReferencePassedToNls
     def showErrorHint =
-      ScalaRefactoringUtil.showErrorHint(_: String, ChangeSignatureHandler.REFACTORING_NAME, HelpID.CHANGE_SIGNATURE)
+      ScalaRefactoringUtil.showErrorHint(_: String, ChangeSignatureHandler.REFACTORING_NAME: @nowarn("cat=deprecation"), HelpID.CHANGE_SIGNATURE)
 
     def isSupportedFor(fun: ScMethodLike): Boolean = {
       fun match {
