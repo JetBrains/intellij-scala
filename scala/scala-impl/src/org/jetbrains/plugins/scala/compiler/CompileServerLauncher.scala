@@ -18,6 +18,7 @@ import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
 import com.intellij.openapi.util.{ShutDownTracker, SimpleModificationTracker}
 import com.intellij.util.net.NetUtils
 import javax.swing.event.HyperlinkEvent
+import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
@@ -161,6 +162,7 @@ object CompileServerLauncher {
           Seq(s"-Dshutdown.delay=$shutdownDelay")
         } else Nil
         val isScalaCompileServer = s"-D${CompileServerProperties.IsScalaCompileServer}=true"
+        val parallelCompilation = s"-D${GlobalOptions.COMPILE_PARALLEL_OPTION}=${settings.COMPILE_SERVER_PARALLEL_COMPILATION}"
 
         val vmOptions: collection.Seq[String] = if (isUnitTestMode && project == null) Seq() else {
           val buildProcessParameters = BuildProcessParametersProvider.EP_NAME.getExtensions(project).asScala
@@ -176,6 +178,7 @@ object CompileServerLauncher {
             jvmParameters ++:
             shutdownDelayArg ++:
             isScalaCompileServer +:
+            parallelCompilation +:
             vmOptions ++:
             NailgunRunnerFQN +:
             freePort.toString +:
