@@ -7,7 +7,7 @@ import org.jetbrains.jps.incremental.scala.containsDotty
 /**
  * @author Pavel Fatin
  */
-case class CompilerJars(library: File,
+case class CompilerJars(libraries: Seq[File],
                         compiler: File,
                         extra: collection.Seq[File]) {
 
@@ -15,5 +15,5 @@ case class CompilerJars(library: File,
     containsDotty(extra)
 
   def allJars: collection.Seq[File] =
-    library +: compiler +: extra
+    libraries ++ extra :+ compiler
 }

@@ -30,20 +30,25 @@ object CompilerJarsFactory
 
   def fromJarFiles(files: collection.Seq[JarFileWithName]): Either[CompilerJarsResolveError, CompilerJars] = {
     val compilerPrefix = if (containsDotty(files.map(_.file))) "dotty" else "scala"
+
+    val init: Either[CompilerJarsResolveError, Seq[JarFileWithName]] = Right(Seq.empty)
+    val libraryJars = Set("scala-library", s"$compilerPrefix-library").foldLeft(init) { (acc, kind) =>
+      for {
+        jars <- acc
+        jar <- find(files, kind)
+      } yield jars :+ jar
+    }
     for {
-      library <- find(files, s"$compilerPrefix-library")
+      libraries <- libraryJars
       compiler <- find(files, s"$compilerPrefix-compiler")
-
-      extra = files.filter {
-        case `library` | `compiler` => false
-        case _ => true
+      extra = files.filterNot { file =>
+        file == compiler || libraries.contains(file)
       }
-
       _ <- scalaReflect(compiler, extra)
     } yield CompilerJars(
-      library.file,
-      compiler.file,
-      extra.map(_.file)
+      libraries = libraries.map(_.file),
+      compiler = compiler.file,
+      extra = extra.map(_.file)
     )
   }
 
