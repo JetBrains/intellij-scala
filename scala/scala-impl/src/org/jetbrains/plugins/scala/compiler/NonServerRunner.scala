@@ -14,6 +14,7 @@ import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.io.BaseDataReader
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.{ClientEventProcessor, Event, TraceEvent}
+import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
 
 import _root_.scala.jdk.CollectionConverters._
@@ -42,7 +43,10 @@ class NonServerRunner(project: Project) {
       case Right(jdk) =>
         // in non-server mode token is ignored, but is required in order args are parsed correctly
         val argsEncoded = ("IGNORED_TOKEN" +: args).map { arg =>
-          Base64.getEncoder.encodeToString(arg.getBytes(StandardCharsets.UTF_8))
+          // When we call main method starting new process we have to use some stub for empty argument, otherwise the argument will be skipped
+          // (when sending arguments via socket, Nailgun automatically recognises empty argument and processes them correctly)
+          val argFixed = if (arg.isEmpty) SerializationUtils.EmptyArgumentStub else arg
+          Base64.getEncoder.encodeToString(argFixed.getBytes(StandardCharsets.UTF_8))
         }
         val commands: Seq[String] = {
           val jdkPath = FileUtil.toCanonicalPath(jdk.executable.getPath)

@@ -22,6 +22,7 @@ import org.jetbrains.jps.incremental.scala.local.worksheet.WorksheetServer
 import org.jetbrains.jps.incremental.scala.remote.MeteringScheduler.ArgsParsed
 import org.jetbrains.plugins.scala.compiler.CompilerEvent
 import org.jetbrains.plugins.scala.compiler.data.Arguments
+import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
@@ -219,7 +220,7 @@ object Main {
   private def decodeArgument(argEncoded: String): String = {
     val decoded = Base64.getDecoder.decode(argEncoded.getBytes)
     val str = new String(decoded, StandardCharsets.UTF_8)
-    if (str == "#STUB#") "" else str
+    if (str == SerializationUtils.EmptyArgumentStub) "" else str
   }
 
   @throws(classOf[TokenVerificationException])
