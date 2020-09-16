@@ -4,6 +4,8 @@ import org.jetbrains.annotations.NotNull;
 import scala.Option;
 import scala.math.Ordered;
 
+import java.util.regex.Pattern;
+
 public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel>, Named {
 
     Scala_2_9("2.9"),
@@ -11,20 +13,23 @@ public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel>, Named {
     Scala_2_11("2.11"),
     Scala_2_12("2.12"),
     Scala_2_13("2.13"),
-    Scala_3_0("0.27", "3.0");
+    Scala_3_0("0.27", "3.0", "0\\.\\d\\d.*");
 
     @NotNull
     private final String myVersion;
     @NotNull
     private final String myName;
+    @NotNull
+    private final String myPattern;
 
     ScalaLanguageLevel(@NotNull String version) {
-        this(version, version);
+        this(version, version, Pattern.quote(version) + ".*");
     }
 
-    ScalaLanguageLevel(@NotNull String version, @NotNull String name) {
+    ScalaLanguageLevel(@NotNull String version, @NotNull String name, @NotNull String pattern) {
         myVersion = version;
         myName = name;
+        myPattern = pattern;
     }
 
     @NotNull
@@ -51,7 +56,7 @@ public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel>, Named {
     @NotNull
     public static Option<ScalaLanguageLevel> findByVersion(@NotNull String version) {
         for (ScalaLanguageLevel languageLevel : values()) {
-            if (version.startsWith(languageLevel.myVersion)) {
+            if (version.matches(languageLevel.myPattern)) {
                 return Option.apply(languageLevel);
             }
         }
