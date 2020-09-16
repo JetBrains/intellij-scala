@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.actions.editor
 
-class DotOnNewLineTypingTest extends EditorTypeActionTestBase {
+class AutoIndentDotOnNewLineTypingTest extends EditorTypeActionTestBase {
 
   private val Tab = "\t"
 
