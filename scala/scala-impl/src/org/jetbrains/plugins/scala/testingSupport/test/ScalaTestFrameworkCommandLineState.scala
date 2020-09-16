@@ -23,7 +23,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.newvfs.ManagingFS
 import com.intellij.openapi.vfs.newvfs.persistent.PersistentFSImpl
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, using}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt}
 import org.jetbrains.plugins.scala.project.{ModuleExt, PathsListExt, ProjectExt}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider
@@ -37,6 +37,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.utils.JavaParametersModif
 import org.jetbrains.sbt.shell.SbtProcessManager
 
 import scala.jdk.CollectionConverters._
+import scala.util.Using
 
 /** for ScalaTest, Spec2, uTest */
 class ScalaTestFrameworkCommandLineState(
@@ -153,7 +154,7 @@ class ScalaTestFrameworkCommandLineState(
     programParameters: Seq[String]
   ): File = try {
     val tempFile: File = File.createTempFile("idea_scala_test_runner", ".tmp")
-    using(new PrintStream(new FileOutputStream(tempFile))) { printer =>
+    Using.resource(new PrintStream(new FileOutputStream(tempFile))) { printer =>
       programParameters.foreach(printer.println)
     }
     tempFile

@@ -10,6 +10,8 @@ import org.apache.commons.lang3.StringUtils
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala._
 
+import scala.util.Using
+
 /**
  * @author Pavel Fatin
  * @author Dmitry Naydanov
@@ -24,12 +26,12 @@ trait RemoteResourceOwner {
   def send(command: String, arguments: Seq[String], client: Client): Unit = {
     val encodedArgs = arguments.map(s =>
       Base64.getEncoder.encodeToString(s.getBytes(StandardCharsets.UTF_8)))
-    using(new Socket(address, port)) { socket =>
-      using(new DataOutputStream(new BufferedOutputStream(socket.getOutputStream))) { output =>
+    Using.resource(new Socket(address, port)) { socket =>
+      Using.resource(new DataOutputStream(new BufferedOutputStream(socket.getOutputStream))) { output =>
         createChunks(command, encodedArgs).foreach(_.writeTo(output))
         output.flush()
         if (client != null) {
-          using(new DataInputStream(new BufferedInputStream(socket.getInputStream))) { input =>
+          Using.resource(new DataInputStream(new BufferedInputStream(socket.getInputStream))) { input =>
             handle(input, client)
           }
         }

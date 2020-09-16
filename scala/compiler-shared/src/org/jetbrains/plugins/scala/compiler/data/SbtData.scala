@@ -5,10 +5,9 @@ import java.security.MessageDigest
 import java.util.jar.JarFile
 
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.jps.incremental.scala.using
 
 import scala.io.Source
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success, Try, Using}
 
 /**
  * @author Pavel Fatin
@@ -79,27 +78,24 @@ object SbtData {
     }
   }
 
-  private def readSbtVersionFrom(sbtInterfaceJar: File): Either[String, String] = {
-    Try {
-      using(new JarFile(sbtInterfaceJar)) {
-        _.getManifest.getMainAttributes.getValue("Implementation-Version")
-      }
+  private def readSbtVersionFrom(sbtInterfaceJar: File): Either[String, String] =
+    Using(new JarFile(sbtInterfaceJar)) {
+      _.getManifest.getMainAttributes.getValue("Implementation-Version")
     } match {
       case Success(version) => Right(version)
       case Failure(t) => Left(s"Unable to read sbt version from JVM classpath:\n$t")
     }
-  }
 
   private def md5(file: File): Array[Byte] = {
     val md = MessageDigest.getInstance("MD5")
     val isSource = file.getName.endsWith(".java") || file.getName.endsWith(".scala")
     if (isSource) {
-      using(Source.fromFile(file, "UTF-8")) { source =>
+      Using.resource(Source.fromFile(file, "UTF-8")) { source =>
         val text = source.mkString.replace("\r", "")
         md.digest(text.getBytes("UTF8"))
       }
     } else {
-      using(new FileInputStream(file)) { input =>
+      Using.resource(new FileInputStream(file)) { input =>
         md.digest(FileUtil.loadBytes(input))
       }
     }

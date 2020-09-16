@@ -15,7 +15,7 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.{Client, DelegateClient}
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, JDK, ScalaCompileServerSettings}
-import org.jetbrains.plugins.scala.extensions.{LoggerExt, using}
+import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaSdkNotConfiguredException}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -35,7 +35,7 @@ import scala.collection.mutable
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Promise, TimeoutException}
 import scala.util.control.NonFatal
-import scala.util.{Success, Try}
+import scala.util.{Success, Try, Using}
 
 //noinspection ScalaWrongPlatformMethodsUsage
 // TODO 1: rename/refactor, the class has more responsibilities then to "Compile"
@@ -359,7 +359,7 @@ object WorksheetCompiler {
     private val footer = "\n}"
     val headerLines: Int = header.linesIterator.size
     def writeWrappedToFile(worksheetCode: String, file: File): Unit =
-      using(new FileWriter(file)) { writer =>
+      Using.resource(new FileWriter(file)) { writer =>
         writer.write(header)
         writer.write(worksheetCode)
         writer.write(footer)

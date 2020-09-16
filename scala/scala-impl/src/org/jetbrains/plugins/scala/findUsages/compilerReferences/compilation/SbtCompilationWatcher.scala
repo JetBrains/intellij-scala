@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.indices.protocol.sbt._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import spray.json._
 
-import scala.util.Try
+import scala.util.{Try, Using}
 import scala.util.control.NonFatal
 
 private[compilerReferences] class SbtCompilationWatcher(
@@ -38,7 +38,7 @@ private[compilerReferences] class SbtCompilationWatcher(
       val br      = Files.newBufferedReader(infoFile.toPath, StandardCharsets.UTF_8)
       val builder = new StringBuilder()
 
-      using(br) { in =>
+      Using.resource(br) { in =>
         var line = in.readLine()
         while (line != null) {
           builder ++= line

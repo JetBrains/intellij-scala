@@ -8,11 +8,12 @@ import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.platform.templates.github.{DownloadUtil, ZipUtil => GithubZipUtil}
 import org.apache.ivy.osgi.util.ZipUtil
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, extensions}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.junit.Ignore
 
 import scala.io.Source
+import scala.util.Using
 
 /**
  * You should run this script after updating the version of Dotty.
@@ -101,7 +102,7 @@ class AfterUpdateDottyVersionScript
   }
 
   private def readFile(path: Path): String =
-    extensions.using(Source.fromFile(path.toFile))(_.mkString)
+    Using.resource(Source.fromFile(path.toFile))(_.mkString)
 
   private def newTempFile(): File =
     FileUtilRt.createTempFile(getClass.getName, "", true)

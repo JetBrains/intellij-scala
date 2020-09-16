@@ -12,13 +12,13 @@ import org.jetbrains.org.objectweb.asm.Opcodes._
 import org.jetbrains.org.objectweb.asm._
 import org.jetbrains.plugins.scala.decompiler.Decompiler.{BYTES_VALUE, SCALA_LONG_SIG_ANNOTATION, SCALA_SIG_ANNOTATION}
 import org.jetbrains.plugins.scala.decompiler.scalasig._
-import org.jetbrains.plugins.scala.extensions.using
 
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.reflect.NameTransformer
 import scala.reflect.internal.pickling.ByteCodecs
+import scala.util.Using
 
 private[compilerReferences] object ClassfileParser {
   private[this] implicit class RichScalaSigSymbol(private val sym: Symbol) extends AnyVal {
@@ -72,7 +72,7 @@ private[compilerReferences] object ClassfileParser {
   def parse(classFiles: Set[File]): Set[ParsedClass] = {
     val outer = classFiles.minBy(_.getPath.length)
 
-    val scalaSig = using(new FileInputStream(outer)) { in =>
+    val scalaSig = Using.resource(new FileInputStream(outer)) { in =>
       val reader  = new ClassReader(in)
       val visitor = new ScalaSigVisitor(outer.getPath)
       reader.accept(visitor, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES)
@@ -103,7 +103,7 @@ private[compilerReferences] object ClassfileParser {
     }
   }
 
-  def parse(is: InputStream, synthetics: Set[String] = Set.empty): ParsedClass = using(is) { in =>
+  def parse(is: InputStream, synthetics: Set[String] = Set.empty): ParsedClass = Using.resource(is) { in =>
     val reader  = new ClassReader(in)
     val visitor = new ParsingVisitor(synthetics)
     reader.accept(visitor, ClassReader.SKIP_FRAMES)

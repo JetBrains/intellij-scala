@@ -12,7 +12,7 @@ import com.intellij.openapi.util.{Key, io}
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile, VirtualFileManager}
 import com.intellij.util.{PathUtil, net}
 
-import scala.jdk.CollectionConverters._
+import scala.util.Using
 
 /**
  * @author Pavel Fatin
@@ -72,15 +72,6 @@ package object template {
       }
     }
 
-
-  def using[A <: Closeable, B](resource: A)(block: A => B): B = {
-    try {
-      block(resource)
-    } finally {
-      resource.close()
-    }
-  }
-
   import io.FileUtil._
 
   def usingTempFile[T](prefix: String, suffix: String = null)(block: File => T): T = {
@@ -103,7 +94,7 @@ package object template {
 
   def writeLinesTo(file: File)
                   (lines: String*): Unit = {
-    using(new PrintWriter(new FileWriter(file))) { writer =>
+    Using.resource(new PrintWriter(new FileWriter(file))) { writer =>
       lines.foreach(writer.println)
       writer.flush()
     }

@@ -1498,22 +1498,6 @@ package object extensions {
 
   }
 
-  def using[A <: Closeable, R](resource: A)(block: A => R): R = {
-    try {
-      block(resource)
-    } finally {
-      if (resource != null) resource.close()
-    }
-  }
-
-  def using[B](source: Source)(block: Source => B): B = {
-    try {
-      block(source)
-    } finally {
-      source.close()
-    }
-  }
-
   /* Calls each funtion with `v` as an argument, returns `v` (replicates Kotlin's "apply").
      Useful to avoid defining a temporary variable and then repeating its name.
      See also: |>

@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.sbt.SbtUtil._
 import org.junit.Assert._
 
+import scala.util.Using
+
 /**
  * @author Nikolay Obedin
  * @since 8/18/15.
@@ -75,7 +77,7 @@ class SbtRunnerTest extends UsefulTestCase {
 
   private def generateJarFileWithEntries(entries: (String, String)*): File = {
     val launcherFile = FileUtil.createTempFile("mockLauncher", ".jar", true)
-    using(new JarOutputStream(new BufferedOutputStream(new FileOutputStream(launcherFile)))) { out =>
+    Using.resource(new JarOutputStream(new BufferedOutputStream(new FileOutputStream(launcherFile)))) { out =>
       entries.foreach { case (name, contents) =>
         out.putNextEntry(new ZipEntry(name))
         out.write(contents.getBytes)

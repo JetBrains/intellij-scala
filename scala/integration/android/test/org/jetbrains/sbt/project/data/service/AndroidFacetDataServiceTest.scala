@@ -15,6 +15,7 @@ import org.junit.Assert._
 import org.junit.Ignore
 
 import scala.io.Source
+import scala.util.Using
 
 /**
  * @author Nikolay Obedin
@@ -77,7 +78,7 @@ class AndroidFacetDataServiceTest extends ProjectDataServiceTestCase {
       import scala.jdk.CollectionConverters._
       val proguardConfigPath = FileUtil.toSystemDependentName(getProject.getBasePath + "/proguard-sbt.txt")
       assertEquals(Seq(proguardConfigPath), properties.myProGuardCfgFiles.asScala)
-      val actualProguardConfig = using(Source.fromFile(proguardConfigPath))(_.getLines().toVector)
+      val actualProguardConfig = Using.resource(Source.fromFile(proguardConfigPath))(_.getLines().toVector)
       assertEquals(proguardConfig, actualProguardConfig)
     }
   }

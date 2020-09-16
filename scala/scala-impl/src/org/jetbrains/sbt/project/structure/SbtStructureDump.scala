@@ -19,11 +19,11 @@ import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
 import org.jetbrains.sbt.project.structure.SbtStructureDump._
 import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.shell.SbtShellCommunication._
-import org.jetbrains.sbt.{SbtBundle, using}
+import org.jetbrains.sbt.SbtBundle
 
 import scala.jdk.CollectionConverters._
 import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success, Try, Using}
 
 class SbtStructureDump {
 
@@ -136,7 +136,7 @@ class SbtStructureDump {
       processBuilder.start()
     }
       .flatMap { process =>
-        using(new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream, "UTF-8")))) { writer =>
+        Using.resource(new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream, "UTF-8")))) { writer =>
           writer.println(sbtCommands)
           // exit needs to be in a separate command, otherwise it will never execute when a previous command in the chain errors
           writer.println("exit")

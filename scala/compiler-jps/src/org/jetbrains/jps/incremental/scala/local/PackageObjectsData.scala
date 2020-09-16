@@ -7,6 +7,7 @@ import org.jetbrains.jps.incremental.CompileContext
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage}
 
 import scala.collection.mutable
+import scala.util.Using
 
 /**
   * @author Nikolay.Tropin
@@ -33,7 +34,7 @@ class PackageObjectsData extends Serializable {
   def save(context: CompileContext): Unit = {
     val file = PackageObjectsData.storageFile(context)
     PackageObjectsData.synchronized {
-      using(new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) { stream =>
+      Using.resource(new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) { stream =>
         stream.writeObject(this)
         stream.flush()
       }
@@ -59,22 +60,20 @@ object PackageObjectsData {
       context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.WARNING, message))
     }
 
-    def tryToReadData(file: File) = {
+    def tryToReadData(file: File): PackageObjectsData =
       synchronized {
-        try {
-          using(new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)))) { stream =>
-            stream.readObject().asInstanceOf[PackageObjectsData]
-          }
-        } catch {
+        Using(new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)))) { stream =>
+          stream.readObject().asInstanceOf[PackageObjectsData]
+        }.recover {
           case e: Exception =>
             warning(s"Could not read data about package objects dependencies: \n${e.getMessage}")
             file.delete()
             new PackageObjectsData()
-        }
+        }.get
       }
-    }
 
-    def getOrLoadInstance(file: File) = instances.getOrElseUpdate(file, tryToReadData(file))
+    def getOrLoadInstance(file: File): PackageObjectsData =
+      instances.getOrElseUpdate(file, tryToReadData(file))
 
     Option(storageFile(context))
       .filter(_.exists)

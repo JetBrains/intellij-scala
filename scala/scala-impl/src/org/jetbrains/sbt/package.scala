@@ -20,6 +20,7 @@ import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
+import scala.util.Using
 
 /**
  * @author Pavel Fatin
@@ -154,17 +155,9 @@ package object sbt {
     }
   }
 
-  def using[A <: Closeable, B](resource: A)(block: A => B): B = {
-    try {
-      block(resource)
-    } finally {
-      resource.close()
-    }
-  }
-
   def copy(source: File, destination: File): Unit = {
-    using(new BufferedInputStream(new FileInputStream(source))) { in =>
-      using(new BufferedOutputStream(new FileOutputStream(destination))) { out =>
+    Using.resource(new BufferedInputStream(new FileInputStream(source))) { in =>
+      Using.resource(new BufferedOutputStream(new FileOutputStream(destination))) { out =>
         var eof = false
         while (!eof) {
           val b = in.read()

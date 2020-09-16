@@ -7,14 +7,15 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import org.apache.commons.io.FilenameUtils
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.extensions.{inWriteAction, using}
-import org.jetbrains.plugins.scala.util.PsiFileTestUtil
-import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.projectHighlighting.AllProjectHighlightingTest.originalDirNameKey
+import org.jetbrains.plugins.scala.util.PsiFileTestUtil
+import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 
 import scala.io.Source
+import scala.util.Using
 
 /**
   * Nikolay.Tropin
@@ -55,7 +56,8 @@ trait SeveralFilesHighlightingTest {
     psiFile
   }
 
-  private def content(file: File) = using(Source.fromFile(file))(_.getLines.mkString("\n"))
+  private def content(file: File): String =
+    Using.resource(Source.fromFile(file))(_.getLines.mkString("\n"))
 
   private def removeFile(psiFile: PsiFile): Unit = {
     inWriteAction(psiFile.delete())
@@ -67,7 +69,7 @@ trait SeveralFilesHighlightingTest {
       else               Seq(f)
 
     def parseScalacFlags(f: File): Seq[String] =
-      using(Source.fromFile(f, "UTF-8"))(_.getLines().map(_.trim).filter(_.nonEmpty).toList)
+      Using.resource(Source.fromFile(f, "UTF-8"))(_.getLines().map(_.trim).filter(_.nonEmpty).toList)
 
     val root = files match {
       case Array(file) if file.isDirectory => file

@@ -14,6 +14,7 @@ import org.jetbrains.sbt.resolvers._
 
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
+import scala.util.Using
 import scala.xml.XML
 
 /**
@@ -165,7 +166,7 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
     val props = new Properties()
 
     try {
-      using(new FileInputStream(propFile)) { inputStream =>
+      Using.resource(new FileInputStream(propFile)) { inputStream =>
         props.load(inputStream)
       }
     } catch {
@@ -194,7 +195,7 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
     mode = newMode
 
     val propFile = indexDir / Paths.PROPERTIES_FILE
-    using(new FileOutputStream(propFile)) { outputStream =>
+    Using.resource(new FileOutputStream(propFile)) { outputStream =>
       props.store(outputStream, null)
     }
   }
@@ -241,7 +242,7 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
       //noinspection ReferencePassedToNls
       progressIndicator.foreach(_.setText2(file.getAbsolutePath))
 
-      using(new JarFile(file)) { jarFile =>
+      Using.resource(new JarFile(file)) { jarFile =>
 
         val classExt = ".class"
 

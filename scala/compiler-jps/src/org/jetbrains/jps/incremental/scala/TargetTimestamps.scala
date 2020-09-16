@@ -4,6 +4,8 @@ import java.io._
 
 import org.jetbrains.jps.incremental.{CompileContext, ModuleBuildTarget}
 
+import scala.util.Using
+
 /**
  * @author Pavel Fatin
  */
@@ -12,11 +14,12 @@ class TargetTimestamps(context: CompileContext) {
 
   def get(target: ModuleBuildTarget): Option[Long] = {
     Some(timestampFile(target)).filter(_.exists).flatMap { file =>
-      using(new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) { in =>
+      Using.resource(new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) { in =>
         try {
           Some(in.readLong())
         } catch {
-          case _: IOException => None
+          case _: IOException =>
+            None
         }
       }
     }
@@ -25,7 +28,7 @@ class TargetTimestamps(context: CompileContext) {
   def set(target: ModuleBuildTarget, timestamp: Long): Unit = {
     val file = timestampFile(target)
 
-    using(new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) { out =>
+    Using.resource(new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) { out =>
       out.writeLong(timestamp)
     }
   }

@@ -21,7 +21,6 @@ import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 import org.jetbrains.plugins.scala.components.libextensions.ui._
-import org.jetbrains.plugins.scala.extensions.using
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.project.module.SbtModule
@@ -29,7 +28,7 @@ import org.jetbrains.sbt.resolvers.SbtResolver
 
 import scala.collection.mutable
 import scala.util.control.NonFatal
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success, Try, Using}
 import scala.xml.factory.XMLLoader
 import scala.xml.{Elem, SAXParser}
 
@@ -130,7 +129,7 @@ final class LibraryExtensionsManager(project: Project) {
       throw new ExtensionAlreadyLoadedException(resolved)
     val vFile = JarFileSystem.getInstance().findLocalVirtualFileByPath(resolved.getAbsolutePath)
     val manifest = Option(vFile.findFileByRelativePath(MANIFEST_PATH))
-      .map(vFile => Try(using(vFile.getInputStream)(XMLNoDTD.load)))
+      .map(vFile => Using(vFile.getInputStream)(XMLNoDTD.load))
 
     manifest match {
       case Some(Success(xml))       => loadJarWithManifest(xml, resolved)
