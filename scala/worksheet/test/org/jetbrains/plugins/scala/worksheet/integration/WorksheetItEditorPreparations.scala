@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet.integration
 
-import com.intellij.ide.scratch.ScratchRootType
+import com.intellij.ide.scratch.{ScratchFileService, ScratchRootType}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.{FileEditor, FileEditorManager, TextEditor}
 import com.intellij.openapi.vfs.VirtualFile
@@ -8,6 +8,7 @@ import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.testFramework.EdtTestUtil
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions.StringExt
+import org.jetbrains.plugins.scala.worksheet.WorksheetLanguage
 import org.jetbrains.plugins.scala.worksheet.settings.persistent.WorksheetFilePersistentSettings
 import org.junit.Assert.{assertNotNull, fail}
 
@@ -28,7 +29,16 @@ trait WorksheetItEditorPreparations {
     val fileName = worksheetFileName
 
     val vFile = if (scratchFile) {
-      ScratchRootType.getInstance.createScratchFile(project, fileName, ScalaLanguage.INSTANCE, before)
+      val file = ScratchRootType.getInstance.createScratchFile(project, fileName, ScalaLanguage.INSTANCE, before)
+      /**
+       * Hack to inject a proper language into a newly-created scratch file.
+       * Scratch file creation is hacky, couldn't find any nicer solution.
+       *
+       * @see [[org.jetbrains.plugins.scala.worksheet.ScalaScratchFileCreationHelper]])
+       * @see [[com.intellij.ide.scratch.ScratchFileActions.doCreateNewScratch]]
+       */
+      ScratchFileService.getInstance.getScratchesMapping.setMapping(file, WorksheetLanguage.INSTANCE)
+      file
     } else {
       addFileToProjectSources(fileName, before)
     }
