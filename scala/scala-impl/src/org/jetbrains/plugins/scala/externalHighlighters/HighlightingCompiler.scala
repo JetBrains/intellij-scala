@@ -9,7 +9,7 @@ import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
+import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.util.SimpleModificationTracker
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.openapi.wm.ex.{StatusBarEx, WindowManagerEx}
@@ -20,17 +20,16 @@ import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.CompileServerCommand
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compiler.{CompileServerClient, CompileServerLauncher}
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.project.VirtualFileExt
+import org.jetbrains.plugins.scala.util.FutureUtil.sameThreadExecutionContext
 import org.jetbrains.plugins.scala.util.RescheduledExecutor
 
+import scala.annotation.nowarn
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Promise}
 import scala.util.Try
-import org.jetbrains.plugins.scala.util.FutureUtil.sameThreadExecutionContext
-
-import scala.annotation.nowarn
 
 /**
  * For compiler-based-highlighting

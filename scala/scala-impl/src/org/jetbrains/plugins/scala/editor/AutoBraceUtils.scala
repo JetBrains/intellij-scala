@@ -24,14 +24,18 @@ object AutoBraceUtils {
     val orgStartOffset = element.endOffset
     val lastRealElement = PsiTreeUtil.prevLeaf(element)
 
-    if (lastRealElement.is[PsiErrorElement]) {
+    // can be null e.g. if typing in the beginning of worksheet file
+    if (lastRealElement == null)
       None
-    } else
+    else if (lastRealElement.is[PsiErrorElement])
+      None
+    else {
       lastRealElement
         .withParentsInFile
         .takeWhile(_.endOffset <= orgStartOffset)
         .flatMap(toIndentedExpression)
         .headOption
+    }
   }
 
 

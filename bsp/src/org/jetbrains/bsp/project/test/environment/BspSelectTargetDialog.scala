@@ -44,11 +44,14 @@ class BspSelectTargetDialog(
   targetIds: collection.Seq[BuildTargetIdentifier],
   selected: Option[BuildTargetIdentifier]
 ) extends DialogWrapper(project, true) {
-  setTitle(BspBundle.message("bsp.task.choose.target.title"))
-  setButtonsAlignment(SwingConstants.CENTER)
-  setOKButtonText(CommonBundle.getOkButtonText)
-  var combo: ComboBox[String] = new ComboBox[String]()
-  init()
+  private val combo: ComboBox[String] = new ComboBox[String]()
+
+  locally {
+    setTitle(BspBundle.message("bsp.task.choose.target.title"))
+    setButtonsAlignment(SwingConstants.CENTER)
+    setOKButtonText(CommonBundle.getOkButtonText)
+    init()
+  }
 
   def selectedItem: Option[BuildTargetIdentifier] = targetIds.lift(combo.getSelectedIndex)
 

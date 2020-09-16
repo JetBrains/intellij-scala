@@ -11,6 +11,7 @@ import scala.util.Try
 /*private[data]*/ object SerializationUtils {
 
   final val Delimiter = "\n"
+  final val EmptyArgumentStub = "#STUB#"
 
   // serializing
   def fileToPath(file: File): String = FileUtil.toCanonicalPath(file.getPath)

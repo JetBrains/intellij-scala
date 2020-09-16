@@ -4,6 +4,7 @@ package caches
 
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
+
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util._
@@ -15,7 +16,7 @@ import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiManager}
 
 import scala.util.control.ControlThrowable
 
@@ -133,14 +134,26 @@ object CachesUtil {
 
   def fileModCount(file: PsiFile): Long = fileModTracker(file).getModificationCount
 
-  def fileModTracker(file: PsiFile): ModificationTracker = {
-    if (file == null) ModificationTracker.NEVER_CHANGED
-    else new ModificationTracker {
-      private val topLevel = scalaTopLevelModTracker(file.getProject)
-
-      override def getModificationCount: Long = topLevel.getModificationCount + file.getModificationStamp
+  def fileModTracker(file: PsiFile): ModificationTracker =
+    if (file == null)
+      ModificationTracker.NEVER_CHANGED
+    else
+      new ModificationTracker {
+        private val topLevel = scalaTopLevelModTracker(file.getProject)
+        override def getModificationCount: Long = topLevel.getModificationCount + file.getModificationStamp
     }
-  }
+
+  /**
+   * see [[org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl.getContextModificationStamp]]
+   */
+  def fileContextModTracker(file: ScalaFileImpl): ModificationTracker =
+    if (file == null)
+      ModificationTracker.NEVER_CHANGED
+    else
+      new ModificationTracker {
+        private val topLevel = scalaTopLevelModTracker(file.getProject)
+        override def getModificationCount: Long = topLevel.getModificationCount + file.getContextModificationStamp
+      }
 
   def scalaTopLevelModTracker(project: Project): ModificationTracker =
     ScalaPsiManager.instance(project).TopLevelModificationTracker

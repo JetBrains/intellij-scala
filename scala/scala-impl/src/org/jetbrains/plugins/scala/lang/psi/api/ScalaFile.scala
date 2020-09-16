@@ -25,4 +25,13 @@ trait ScalaFile extends ScalaPsiElement
   def isWorksheetFile: Boolean
 
   def allowsForwardReferences: Boolean
+
+  /**
+   * Context is any kind of information required for the file analyzing, different from the file contents itself.<br>
+   * It allows us to force-invalidate psi elements caches without changing file contents<br>
+   * @see [[org.jetbrains.plugins.scala.caches.BlockModificationTracker.apply]]<br>
+   * @see [[org.jetbrains.plugins.scala.caches.CachesUtil.fileContextModTracker]]
+   */
+  def getContextModificationStamp: Long
+  def incContextModificationStamp(): Unit
 }

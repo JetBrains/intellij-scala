@@ -2,13 +2,13 @@ package org.jetbrains.plugins.scala.annotator.usageTracker
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfoProvider
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.AuxiliaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.worksheet.ScalaScriptImportsUtil
 
 import scala.collection.Set
 import scala.collection.mutable.ArrayBuffer
@@ -58,7 +58,8 @@ object UsageTracker {
         case _ =>
       }
     }
-    ScalaScriptImportsUtil.filterScriptImportsInUnused(file, redundant)
+
+    ImportInfoProvider.filterOutUsedImports(file, redundant)
   }
 
   private def registerUsedElement(element: PsiElement,

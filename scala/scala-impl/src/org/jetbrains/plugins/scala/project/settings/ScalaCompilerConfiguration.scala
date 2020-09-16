@@ -10,6 +10,7 @@ import com.intellij.openapi.util.{ModificationTracker, SimpleModificationTracker
 import com.intellij.util.xmlb.{SkipDefaultValuesSerializationFilters, XmlSerializer}
 import org.jdom.Element
 import org.jetbrains.annotations.TestOnly
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration.DefaultProfileName
 
 import scala.annotation.{nowarn, tailrec}
 import scala.jdk.CollectionConverters._
@@ -26,9 +27,9 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
 
   var incrementalityType: IncrementalityType = IncrementalityType.IDEA
 
-  var defaultProfile: ScalaCompilerSettingsProfile = new ScalaCompilerSettingsProfile("Default")
+  var defaultProfile: ScalaCompilerSettingsProfile = new ScalaCompilerSettingsProfile(DefaultProfileName)
 
-  var customProfiles: collection.Seq[ScalaCompilerSettingsProfile] = Seq.empty
+  var customProfiles: Seq[ScalaCompilerSettingsProfile] = Seq.empty
 
   @TestOnly
   def createCustomProfileForModule(profileName: String, module: Module): ScalaCompilerSettingsProfile = {
@@ -43,14 +44,23 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
   }
 
   def getProfileForModule(module: Module): ScalaCompilerSettingsProfile =
-    customProfiles.find(_.moduleNames.contains(module.getName)).getOrElse(defaultProfile)
+    module match {
+      case profileAware: CompilerProfileAwareModule =>
+        val profileName = profileAware.compilerProfileName
+        customProfiles.find(_.getName == profileName).getOrElse(defaultProfile)
+      case _                  =>
+        customProfiles.find(_.moduleNames.contains(module.getName)).getOrElse(defaultProfile)
+    }
+
+  def findByProfileName(profileName: String): Option[ScalaCompilerSettingsProfile] =
+    allProfiles.find(_.getName == profileName)
 
   def getSettingsForModule(module: Module): ScalaCompilerSettings =
     getProfileForModule(module).getSettings
 
-  def allCompilerPlugins: collection.Seq[String] = (allProfiles).map(_.getSettings).flatMap(_.plugins)
+  def allCompilerPlugins: collection.Seq[String] = allProfiles.map(_.getSettings).flatMap(_.plugins)
 
-  private def allProfiles: collection.Seq[ScalaCompilerSettingsProfile] = defaultProfile +: customProfiles
+  def allProfiles: Seq[ScalaCompilerSettingsProfile] = defaultProfile +: customProfiles
 
   def hasSettingForHighlighting(module: Module)
                                (hasSetting: ScalaCompilerSettings => Boolean): Boolean =
@@ -90,6 +100,7 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
   }
 
   override def getState: Element = {
+    // yes, default profile options are currently serialized as root options of element node
     val configurationElement = XmlSerializer.serialize(defaultProfile.getSettings.toState, new SkipDefaultValuesSerializationFilters(): @nowarn("cat=deprecation"))
 
     if (incrementalityType != IncrementalityType.IDEA) {
@@ -129,7 +140,7 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
       moduleNames.foreach(profile.addModuleName)
 
       profile
-    }
+    }.toSeq
   }
 
   override def getModificationCount: Long =
@@ -137,8 +148,13 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
 }
 
 object ScalaCompilerConfiguration extends SimpleModificationTracker {
+
+  val DefaultProfileName = "Default"
+
   def instanceIn(project: Project): ScalaCompilerConfiguration =
     project.getService(classOf[ScalaCompilerConfiguration])
+  def apply(project: Project): ScalaCompilerConfiguration =
+    instanceIn(project)
 
   def modTracker(project: Project): ModificationTracker = instanceIn(project)
 
@@ -150,4 +166,10 @@ object ScalaCompilerConfiguration extends SimpleModificationTracker {
     val settings = config.getSettingsForModule(module)
     settings.plugins.exists(_.contains(pattern))
   }
+}
+
+trait CompilerProfileAwareModule {
+  this: Module =>
+
+  def compilerProfileName: String
 }

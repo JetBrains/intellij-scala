@@ -25,13 +25,19 @@ class ScalaCompilerConfigurable(project: Project)
   override def isModified: Boolean = {
     if (form.getIncrementalityType != configuration.incrementalityType)
       return true
-    if (profilesPanel.getDefaultProfile.getSettings.toState != configuration.defaultProfile.getSettings.toState)
+    if (!equalSettings(profilesPanel.getDefaultProfile, configuration.defaultProfile))
       return true
-    if (!profilesPanel.getModuleProfiles.corresponds(configuration.customProfiles)(_.getSettings.toState == _.getSettings.toState))
+    if (!profilesPanel.getModuleProfiles.corresponds(configuration.customProfiles)(equalSettings))
       return true
 
     false
   }
+
+  private def equalSettings(profile1: ScalaCompilerSettingsProfile, profile2: ScalaCompilerSettingsProfile): Boolean =
+    settingsState(profile1) == settingsState(profile2)
+
+  private def settingsState(profile: ScalaCompilerSettingsProfile): ScalaCompilerSettingsState =
+    profile.getSettings.toState
 
   override def reset(): Unit = {
     form.setIncrementalityType(configuration.incrementalityType)
@@ -55,5 +61,5 @@ class ScalaCompilerConfigurable(project: Project)
 }
 
 object ScalaCompilerConfigurable {
-  val Name: String = ScalaBundle.message("scala.compiler")
+  def Name: String = ScalaBundle.message("scala.compiler")
 }

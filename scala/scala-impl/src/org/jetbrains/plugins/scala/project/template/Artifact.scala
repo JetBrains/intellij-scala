@@ -6,6 +6,8 @@ import java.io.{BufferedInputStream, File, IOException}
 import java.net.URL
 import java.util.Properties
 
+import scala.util.Using
+
 /**
  * @author Pavel Fatin
  */
@@ -45,7 +47,7 @@ object Artifact {
     try {
       val url = new URL(s"jar:$jarFileUri!/$resource")
       Option(url.openStream).flatMap { in =>
-        using(new BufferedInputStream(in)) { inStream =>
+        Using.resource(new BufferedInputStream(in)) { inStream =>
           val properties = new Properties()
           properties.load(inStream)
           Option(properties.getProperty(property))

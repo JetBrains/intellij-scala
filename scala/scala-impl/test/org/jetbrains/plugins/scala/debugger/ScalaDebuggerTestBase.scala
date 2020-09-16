@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
 
 import scala.collection.mutable
-import scala.util.Try
+import scala.util.{Try, Using}
 
 /**
   * @author Roman.Shein
@@ -135,7 +135,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
       val text = FileUtil.loadFile(file, "UTF-8").replace("\r", "")
       md.digest(text.getBytes("UTF8"))
     } else {
-      using(new FileInputStream(file)) { s =>
+      Using.resource(new FileInputStream(file)) { s =>
         md.digest(FileUtil.loadBytes(s))
       }
     }

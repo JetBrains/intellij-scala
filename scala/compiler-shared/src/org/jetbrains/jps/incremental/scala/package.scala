@@ -6,24 +6,12 @@ import _root_.java.util.Properties
 import _root_.java.net.URLClassLoader
 
 import _root_.scala.language.implicitConversions
+import _root_.scala.util.Using
 
 /**
  * @author Pavel Fatin
  */
 package object scala {
-  type Closeable = {
-    def close(): Unit
-  }
-
-  def using[A <: Closeable, B](resource: A)(block: A => B): B = {
-    import _root_.scala.language.reflectiveCalls
-
-    try {
-      block(resource)
-    } finally {
-      resource.close()
-    }
-  }
 
   def extractor[A, B](f: A => B) = new Extractor[A, B](f)
 
@@ -55,13 +43,13 @@ package object scala {
 
   def readProperty(classLoader: ClassLoader, resource: String, name: String): Option[String] = {
     Option(classLoader.getResourceAsStream(resource))
-      .flatMap(it => using(new BufferedInputStream(it))(readProperty(_, name)))
+      .flatMap(it => Using.resource(new BufferedInputStream(it))(readProperty(_, name)))
   }
 
   def readProperty(file: File, resource: String, name: String): Option[String] = {
     try {
       val url = new URL("jar:%s!/%s".format(file.toURI.toString, resource))
-      Option(url.openStream).flatMap(it => using(new BufferedInputStream(it))(readProperty(_, name)))
+      Option(url.openStream).flatMap(it => Using.resource(new BufferedInputStream(it))(readProperty(_, name)))
     } catch {
       case _: IOException => None
     }

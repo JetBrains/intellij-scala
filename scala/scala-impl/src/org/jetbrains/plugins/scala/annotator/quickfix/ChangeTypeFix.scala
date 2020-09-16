@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TypePresentation}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 
 class ChangeTypeFix(typeElement: ScTypeElement, newType: ScType) extends IntentionAction {

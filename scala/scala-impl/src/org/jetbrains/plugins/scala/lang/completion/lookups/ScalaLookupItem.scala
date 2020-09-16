@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTe
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.{PresentationUtil, ScImportsHolder}
+import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.escapeKeyword
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.settings._
@@ -136,7 +136,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
     UIFreezingGuard.withDefaultValue("") {
       implicit val pc: Project = getPsiElement.getProject
       implicit val tpc: TypePresentationContext = TypePresentationContext(getPsiElement)
-      import PresentationUtil.{presentationStringForJavaType, presentationStringForScalaType}
+      import LookupItemPresentationUtil.{presentationStringForJavaType, presentationStringForScalaType}
       getPsiElement match {
         case fun: ScFunction =>
           val scType = if (!etaExpanded) fun.returnType.getOrAny else fun.`type`().getOrAny
@@ -177,7 +177,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
             " _"
           else if (isAssignment)
             AssignmentText +
-              PresentationUtil.presentationStringForPsiElement(fun.parameterList, substitutor)
+              LookupItemPresentationUtil.presentationStringForPsiElement(fun.parameterList, substitutor)
           else
             typeParametersText(fun) +
               parametersText(fun.parameterList) +
@@ -185,7 +185,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
         case fun: ScFun =>
           val paramClausesText = fun.paramClauses.map { clause =>
             clause.map {
-              PresentationUtil.presentationStringForParameter(_, substitutor)
+              LookupItemPresentationUtil.presentationStringForParameter(_, substitutor)
             }.commaSeparated(Model.Parentheses)
           }.mkString
 
@@ -215,7 +215,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
           case _: ScTypeParam => this.substitutor
           case _ => ScSubstitutor.empty
         }
-        PresentationUtil.presentationStringForPsiElement(typeParameter, substitutor)
+        LookupItemPresentationUtil.presentationStringForPsiElement(typeParameter, substitutor)
       }.commaSeparated(Model.SquareBrackets)
 
   private def typeParametersText(owner: PsiTypeParameterListOwner)
@@ -223,7 +223,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
                                  context: TypePresentationContext): String = owner match {
     case owner: ScTypeParametersOwner =>
       owner.typeParametersClause.fold("") {
-        PresentationUtil.presentationStringForPsiElement(_, substitutor)
+        LookupItemPresentationUtil.presentationStringForPsiElement(_, substitutor)
       }
     case owner =>
       typeParametersText(owner.getTypeParameters.toSeq)
@@ -235,7 +235,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
     if (Option(JavaCompletionUtil.getAllMethods(this)).exists(_.size > 1))
       "(...)"
     else
-      PresentationUtil.presentationStringForPsiElement(parametersList, substitutor)
+      LookupItemPresentationUtil.presentationStringForPsiElement(parametersList, substitutor)
 
   private def locationText: String =
     if (isClassName && containingClass != null)

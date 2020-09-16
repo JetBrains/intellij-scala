@@ -4,6 +4,7 @@ package scala
 
 import _root_.java.io._
 import _root_.java.{util => ju}
+import _root_.scala.util.Using
 
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.io.FileUtil
@@ -80,11 +81,12 @@ object InitialScalaBuilder {
 
     def getPreviousIncrementalType: Option[IncrementalityType] = {
       storageFile.filter(_.exists).flatMap { file =>
-        val result = using(new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) { in =>
+        val result = Using.resource(new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) { in =>
           try {
             Some(IncrementalityType.valueOf(in.readUTF()))
           } catch {
-            case _: IOException | _: IllegalArgumentException | _: NullPointerException => None
+            case _: IOException | _: IllegalArgumentException | _: NullPointerException =>
+              None
           }
         }
         if (result.isEmpty) file.delete()
@@ -96,7 +98,7 @@ object InitialScalaBuilder {
       storageFile.foreach { file =>
         val parentDir = file.getParentFile
         if (!parentDir.exists()) parentDir.mkdirs()
-        using(new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
+        Using.resource(new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
           _.writeUTF(incrType.name)
         }
       }

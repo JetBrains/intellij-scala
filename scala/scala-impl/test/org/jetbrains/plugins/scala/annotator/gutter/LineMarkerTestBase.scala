@@ -11,13 +11,13 @@ import com.intellij.openapi.editor.markup.SeparatorPlacement
 import com.intellij.psi.PsiElement
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.fixtures.impl.JavaCodeInsightTestFixtureImpl
-import org.jetbrains.plugins.scala.extensions.using
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
 import scala.jdk.CollectionConverters._
 import scala.io.Source
+import scala.util.Using
 
 /**
  * Pavel.Fatin, 14.01.2010
@@ -36,7 +36,7 @@ abstract class LineMarkerTestBase extends LightJavaCodeInsightFixtureTestCase {
 
   def doTest(): Unit = {
     val path = getBasePath + getTestName(false) + ".test"
-    val input = using(Source.fromFile(new File(path)))(_.getLines().mkString("\n"))
+    val input = Using.resource(Source.fromFile(new File(path)))(_.getLines().mkString("\n"))
     myFixture.configureByText(ScalaFileType.INSTANCE, input.replaceAll(marker, ""))
 
     DaemonCodeAnalyzerSettings.getInstance.SHOW_METHOD_SEPARATORS = true

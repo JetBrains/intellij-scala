@@ -21,7 +21,6 @@ import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.xmlb.XmlSerializer
 import org.jdom.Element
 import org.jetbrains.android.sdk.AndroidSdkType
-import org.jetbrains.plugins.scala.extensions.using
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 import org.jetbrains.sbt.SbtUtil
@@ -29,6 +28,7 @@ import org.jetbrains.sbt.settings.SbtSettings
 
 import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters._
+import scala.util.Using
 
 /**
  * Run configuration of sbt tasks.
@@ -92,12 +92,11 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
     useSbtShell = params.isUseSbtShell
   }
 
-  def determineMainClass(launcherPath: String): String = {
-    using(new JarFile(new File(launcherPath))) { jf =>
+  def determineMainClass(launcherPath: String): String =
+    Using.resource(new JarFile(new File(launcherPath))) { jf =>
       val attributes = jf.getManifest.getMainAttributes
       Option(attributes.getValue("Main-Class")).getOrElse("xsbt.boot.Boot")
     }
-  }
 
   protected def preprocessTasks(): String = if (!getUseSbtShell || getTasks.trim.startsWith(";")) getTasks else {
     val commands = ParametersListUtil.parse(getTasks, false).asScala
@@ -119,12 +118,11 @@ class SbtCommandLineState(val processedCommands: String, val configuration: SbtR
     r
   }
 
-  def determineMainClass(launcherPath: String): String = {
-    using(new JarFile(new File(launcherPath))) { jf =>
+  def determineMainClass(launcherPath: String): String =
+    Using.resource(new JarFile(new File(launcherPath))) { jf =>
       val attributes = jf.getManifest.getMainAttributes
       Option(attributes.getValue("Main-Class")).getOrElse("xsbt.boot.Boot")
     }
-  }
   
   override def createJavaParameters(): JavaParameters = {
     val environmentVariables = configuration.environmentVariables

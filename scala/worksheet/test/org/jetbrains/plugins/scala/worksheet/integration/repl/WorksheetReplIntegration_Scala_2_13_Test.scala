@@ -27,9 +27,6 @@ import scala.language.postfixOps
 class WorksheetReplIntegration_Scala_2_13_Test extends WorksheetReplIntegrationBaseTest
   with WorksheetRuntimeExceptionsTests {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version == LatestScalaVersions.Scala_2_13
-
   // with some health check runs
   @RunWithScalaVersions(extra = Array(
     TestScalaVersion.Scala_2_13_0,
@@ -41,8 +38,8 @@ class WorksheetReplIntegration_Scala_2_13_Test extends WorksheetReplIntegrationB
         |""".stripMargin
 
     val right =
-      """val a: Int = 1
-        |var b: Int = 2""".stripMargin
+      """a: Int = 1
+        |b: Int = 2""".stripMargin
 
     doRenderTest(left, right)
   }

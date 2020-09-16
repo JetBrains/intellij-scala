@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.util.runners._
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest._
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
-import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
+import org.jetbrains.plugins.scala.worksheet.settings.persistent.WorksheetFilePersistentSettings
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, WorksheetEvaluationTests}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
@@ -67,15 +67,15 @@ abstract class WorksheetIntegrationBaseTest
 
   override protected def reuseCompileServerProcessBetweenTests: Boolean = true
 
-  protected def setupWorksheetSettings(settings: WorksheetCommonSettings): Unit = {
+  protected def setupWorksheetSettings(settings: WorksheetFilePersistentSettings): Unit = {
     settings.setRunType(self.runType)
     settings.setInteractive(false) // TODO: test these values?
     settings.setMakeBeforeRun(false)
   }
 
-  protected final def worksheetSettings(worksheetEditor: Editor): WorksheetFileSettings = {
+  protected final def worksheetSettings(worksheetEditor: Editor): WorksheetFilePersistentSettings = {
     val file = PsiDocumentManager.getInstance(project).getPsiFile(worksheetEditor.getDocument)
-    WorksheetFileSettings(file)
+    WorksheetFilePersistentSettings(file.getVirtualFile)
   }
 
   protected def createCompilerProfileForCurrentModule(profileName: String): ScalaCompilerSettingsProfile =

@@ -376,7 +376,8 @@ class ScalaPsiManager(implicit val project: Project) {
       clearOnTopLevelChange()
     case owner: ScExpression if BlockModificationTracker.hasStableType(owner) =>
       BlockModificationTracker.incrementLocalCounter(owner)
-    case _ => updateScalaModificationCount(element.getContext)
+    case _ =>
+      updateScalaModificationCount(element.getContext)
   }
 
   val rootManager: ModificationTracker = ProjectRootManager.getInstance(project)

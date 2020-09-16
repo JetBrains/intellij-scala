@@ -11,6 +11,7 @@ import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactory._
 import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactoryHandler.{ReplContext, ReplWrapperCompiled}
 import org.jetbrains.plugins.scala.compiler.data.worksheet.{ReplMessages, WorksheetArgs}
+import org.jetbrains.plugins.scala.worksheet.reporters.{ILoopWrapperReporter, NoopReporter, PrintWriterReporter}
 
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
@@ -26,6 +27,8 @@ class ILoopWrapperFactory {
   import ReplMessages._
 
   def clearCaches(): Unit = cache.clear()
+
+  def clearSession(sessionId: String): Unit = cache.clear(sessionId)
 
   def loadReplWrapperAndRun(
     args: WorksheetArgs.RunRepl,
@@ -57,11 +60,13 @@ class ILoopWrapperFactory {
     }
     client.progress("Worksheet execution started", Some(0))
     printService(out, ReplStart)
+
     try out.flush()
     catch {
       case e: IOException =>
         e.printStackTrace()
     }
+
     val code = new String(Base64.getDecoder.decode(args.codeChunk), StandardCharsets.UTF_8)
     // note: do not remove String generic parameter, it will fail in JVM 11
     val statements = if (code.isEmpty) Array.empty[String] else code.split(Pattern.quote(ReplDelimiter))
@@ -90,6 +95,8 @@ class ILoopWrapperFactory {
           }
       }
     }
+
+    client.progress("Worksheet execution finished", Some(1))
     printService(out, ReplEnd)
   }
 
@@ -155,12 +162,15 @@ class ILoopWrapperFactory {
     try {
       val inst = if (!version.isScala3) {
         val printWriter = new MyUpdatePrintWriter(out)
-        val reporter    = new PrintWriterReporter(printWriter, client)
+        val reporter = new PrintWriterReporter(printWriter) {
+          override def internalDebug(message: String): Unit =
+            client.internalDebug(message)
+        }
         val constructor = clazz.getConstructor(classOf[PrintWriter], classOf[ILoopWrapperReporter], classOf[ju.List[_]], classOf[ju.List[_]])
         constructor.newInstance(printWriter, reporter, classpathStrings, scalaOptions).asInstanceOf[ILoopWrapper]
       } else {
         val printStream = new MyUpdatePrintStream(out)
-        val reporter    = new DebugLoggingReporter(client)
+        val reporter = new NoopReporter
         val constructor = clazz.getConstructor(classOf[PrintStream], classOf[ILoopWrapperReporter], classOf[ju.List[_]], classOf[ju.List[_]])
         constructor.newInstance(printStream, reporter, classpathStrings, scalaOptions).asInstanceOf[ILoopWrapper]
       }
@@ -183,6 +193,14 @@ private object ILoopWrapperFactory {
 
     private def findById(id: String): Option[ReplSession] =
       sessionsQueue.asScala.find(session => session != null && session.id == id)
+
+    def clear(sessionId: String): Unit = {
+      val session = findById(sessionId)
+      session.foreach { sess =>
+        sess.wrapper.shutdown()
+        sessionsQueue.remove(sess)
+      }
+    }
 
     def clear(): Unit = {
       sessionsQueue.asScala.foreach(_.wrapper.shutdown())

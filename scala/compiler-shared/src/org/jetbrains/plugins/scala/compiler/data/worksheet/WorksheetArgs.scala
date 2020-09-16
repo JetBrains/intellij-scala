@@ -21,10 +21,15 @@ object WorksheetArgs {
     outputDirs: Seq[File],
   ) extends WorksheetArgs
 
+  /**
+   * @param continueOnChunkError true if continue evaluating chunks if an error occurred after some chunk evaluation
+   *                             (NOTE: this is currently only used for testing purposes)
+   */
   final case class RunRepl(
     sessionId: String,
     codeChunk: String,
-    continueOnChunkError: Boolean, // NOTE: this is currently only used for testing purposes
+    dropCachedReplInstance: Boolean,
+    continueOnChunkError: Boolean,
     outputDirs: Seq[File]
   ) extends WorksheetArgs
 }

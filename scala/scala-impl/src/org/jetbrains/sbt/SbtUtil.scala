@@ -20,6 +20,7 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.SbtModuleData
 
 import scala.jdk.CollectionConverters._
+import scala.util.Using
 /**
   * Created by jast on 2017-02-20.
   */
@@ -151,13 +152,12 @@ object SbtUtil {
       case _ => None
     }
 
-  private def readPropertyFrom(file: File, name: String): Option[String] = {
-    using(new BufferedInputStream(new FileInputStream(file))) { input =>
+  private def readPropertyFrom(file: File, name: String): Option[String] =
+    Using.resource(new BufferedInputStream(new FileInputStream(file))) { input =>
       val properties = new Properties()
       properties.load(input)
       Option(properties.getProperty(name))
     }
-  }
 
   def getSbtModuleData(module: Module): Option[SbtModuleData] = {
     val project = module.getProject

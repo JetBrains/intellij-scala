@@ -107,14 +107,15 @@ package object editor {
     )
   }
 
-  private[editor] def indentElement(file: PsiFile)
+  private[editor] def indentElement(file: PsiFile, checkVisibleOnly: Boolean = true)
                                    (document: Document, project: Project, element: PsiElement, offset: Int)
-                                   (prevCondition: PsiElement => Boolean, condition: PsiElement => Boolean = _.isInstanceOf[PsiWhiteSpace]): Unit = {
+                                   (prevCondition: PsiElement => Boolean,
+                                    condition: PsiElement => Boolean = _.isInstanceOf[PsiWhiteSpace]): Unit = {
     if (condition(element)) {
-      val anotherElement = PsiTreeUtil.prevVisibleLeaf(element)
-      if (prevCondition(anotherElement)) {
+      val prev = if (checkVisibleOnly) PsiTreeUtil.prevVisibleLeaf(element) else PsiTreeUtil.prevLeaf(element)
+      if (prevCondition(prev)) {
         document.commit(project)
-        CodeStyleManager.getInstance(project).adjustLineIndent(file, anotherElement.getTextRange)
+        CodeStyleManager.getInstance(project).adjustLineIndent(file, prev.getTextRange)
       }
     }
   }

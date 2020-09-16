@@ -1,14 +1,16 @@
 package org.jetbrains.plugins.scala.util
 
+import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.atomic.AtomicReference
-import java.util.concurrent.{ScheduledFuture, ScheduledThreadPoolExecutor}
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.concurrency.AppExecutorUtil
+import org.jetbrains.annotations.ApiStatus
 
 import scala.concurrent.duration.FiniteDuration
 
+@ApiStatus.Internal
 class RescheduledExecutor(val name: String,
                           parentDisposable: Disposable) extends Disposable {
 

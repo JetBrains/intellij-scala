@@ -7,8 +7,8 @@ import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SdkSettingsStep, S
 import com.intellij.openapi.module.{ModifiableModuleModel, Module}
 import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
 import com.intellij.platform.templates.github.ZipUtil
-import org.jetbrains.plugins.scala.extensions.using
 
+import scala.util.Using
 class ArchivedSbtProjectBuilder(archiveTemplate: ArchivedSbtProjectTemplate) extends SbtModuleBuilder {
 
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep =
@@ -18,7 +18,7 @@ class ArchivedSbtProjectBuilder(archiveTemplate: ArchivedSbtProjectTemplate) ext
     new File(getModuleFileDirectory) match {
       case root if root.exists() =>
 
-        using(new ZipInputStream(archiveTemplate.url.openStream)) { stream =>
+        Using.resource(new ZipInputStream(archiveTemplate.url.openStream)) { stream =>
           ZipUtil.unzip(null, root.toPath, stream, null, null, false)
         }
 

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.util
 
 import java.util.jar.{JarFile, Manifest}
 
-import org.jetbrains.jps.incremental.scala.using
+import scala.util.Using
 
 /**
   * User: Dmitry.Naydanov
@@ -17,7 +17,7 @@ case class ManifestHandler(jarFile: java.io.File) {
   private val CLASS_PATH_ENTRY_NAME = "Class-Path"
 
   private[this] val manifest = {
-    using(new JarFile(jarFile)) { handler =>
+    Using.resource(new JarFile(jarFile)) { handler =>
       Option(handler.getEntry(MANIFEST_ENTRY_NAME)) map (e => new Manifest(handler.getInputStream(e)))
     }
   }

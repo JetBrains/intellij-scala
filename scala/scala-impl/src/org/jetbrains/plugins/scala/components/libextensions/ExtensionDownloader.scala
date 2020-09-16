@@ -14,8 +14,9 @@ import com.intellij.util.download.DownloadableFileService
 import org.jetbrains.plugins.scala.DependencyManagerBase.{DependencyDescription, IvyResolver, MavenResolver}
 import org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager._
 import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
-import org.jetbrains.plugins.scala.extensions.using
 import org.jetbrains.sbt.resolvers.{SbtIvyResolver, SbtMavenResolver, SbtResolver}
+
+import scala.util.Using
 
 class ExtensionDownloader(private val progress: ProgressIndicator, private val sbtResolvers: Set[SbtResolver])(implicit project: Project) {
 
@@ -110,7 +111,7 @@ class ExtensionDownloader(private val progress: ProgressIndicator, private val s
     val propsVF = jarFile.findFileByRelativePath(s"META-INF/$PROPS_NAME")
     Option(propsVF)
       .flatMap(x =>
-        using(new InputStreamReader(x.getInputStream)) { reader =>
+        Using.resource(new InputStreamReader(x.getInputStream)) { reader =>
           val props = new Gson().fromJson(reader, classOf[ExtensionProps])
           validateProps(props) match {
             case Left(error)   =>

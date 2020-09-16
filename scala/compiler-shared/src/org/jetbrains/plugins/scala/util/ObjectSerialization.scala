@@ -4,21 +4,21 @@ import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, 
 import java.util.Base64
 
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.jps.incremental.scala.using
 
+import scala.util.Using
 object ObjectSerialization {
 
   def toBytes(obj: Any): Array[Byte] =
-    using(new ByteArrayOutputStream()) { buffer =>
-      using(new ObjectOutputStream(buffer)) { stream =>
+    Using.resource(new ByteArrayOutputStream()) { buffer =>
+      Using.resource(new ObjectOutputStream(buffer)) { stream =>
         stream.writeObject(obj)
         buffer.toByteArray
       }
     }
 
   def fromBytes[A](bytes: Array[Byte]): A =
-    using(new ByteArrayInputStream(bytes)) { buffer =>
-      using(new ObjectInputStream(buffer)) { stream =>
+    Using.resource(new ByteArrayInputStream(bytes)) { buffer =>
+      Using.resource(new ObjectInputStream(buffer)) { stream =>
         val obj = stream.readObject().asInstanceOf[A]
         if (stream.available > 0) {
           val excess = FileUtil.loadTextAndClose(stream)

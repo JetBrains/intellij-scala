@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.externalLibraries.contextApplied.{ContextAppl
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -29,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
@@ -144,7 +144,7 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
         }
       }.mkString(if (clause.isImplicit) "(implicit " else "(", ", ", ")")
     }.mkString
-    val accessModifier = getModifierList.accessModifier.map(am => accessModifierText(am) + " ").getOrElse("")
+    val accessModifier = getModifierList.accessModifier.map(am => AccessModifierRenderer.simpleTextHtmlEscaped(am) + " ").getOrElse("")
     s"${accessModifier}implicit def $name$typeParametersText$parametersText : $returnType = throw new Error()"
   }
 

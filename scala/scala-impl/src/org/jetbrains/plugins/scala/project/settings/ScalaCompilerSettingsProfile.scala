@@ -51,5 +51,6 @@ class ScalaCompilerSettingsProfile(name: String) {
     mySettings = settings
   }
 
+  // BAD! don't rely on toString for user presentation
   override def toString: String = myName
 }

@@ -14,14 +14,17 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
+// TODO: choose better naming, import used sounds like the import is actually used in the file
+//  but in practice it's just a pointer to a import psi element, it can be practically unused in the file
 /**
  * Base class to store import-provided reference elements
  *
  * @author ilyas
  */
-abstract sealed class ImportUsed(e: PsiElement) {
-  private val pointer: SmartPsiElementPointer[PsiElement] =
-    SmartPointerManager.createPointer(e)
+sealed abstract class ImportUsed(private val pointer: SmartPsiElementPointer[PsiElement]) {
+
+  def this(e: PsiElement) =
+   this(SmartPointerManager.createPointer(e))
 
   def element: PsiElement = pointer.getElement
 

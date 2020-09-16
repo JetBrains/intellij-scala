@@ -34,7 +34,7 @@ import scala.jdk.CollectionConverters._
 class ScalaCompilerProfilesPanel(val myProject: Project) extends JPanel(new BorderLayout) {
 
   private val myDefaultProfile = new ScalaCompilerSettingsProfile("") // TODO: make immutable?
-  private var myModuleProfiles: collection.Seq[ScalaCompilerSettingsProfile] = Seq.empty
+  private var myModuleProfiles: Seq[ScalaCompilerSettingsProfile] = Seq.empty
 
   private val myAllModulesMap  = ModuleManager.getInstance(myProject).getModules
     .groupBy(_.getName)
@@ -96,14 +96,14 @@ class ScalaCompilerProfilesPanel(val myProject: Project) extends JPanel(new Bord
     myDefaultProfile
   }
 
-  def getModuleProfiles: collection.Seq[ScalaCompilerSettingsProfile] = {
+  def getModuleProfiles: Seq[ScalaCompilerSettingsProfile] = {
     val selectedProfile = mySelectedProfile
     if (myDefaultProfile != selectedProfile)
       mySettingsPanel.saveTo(selectedProfile)
     myModuleProfiles
   }
 
-  def initProfiles(defaultProfile: ScalaCompilerSettingsProfile, moduleProfiles: collection.Seq[ScalaCompilerSettingsProfile]): Unit = {
+  def initProfiles(defaultProfile: ScalaCompilerSettingsProfile, moduleProfiles: Seq[ScalaCompilerSettingsProfile]): Unit = {
     myDefaultProfile.initFrom(defaultProfile)
     myModuleProfiles = moduleProfiles.map { profile =>
       val copy = new ScalaCompilerSettingsProfile("") // TODO: make immutable
@@ -332,9 +332,9 @@ object ScalaCompilerProfilesPanel {
   private def getTemporarySelectProfile(project: Project): Option[String] =
     Option(project.getUserData(ScalaCompilerProfilesPanel.SELECTED_PROFILE_NAME))
 
-  def withTemporarySelectedProfile[T](project: Project, profileName: String)(body: => T): T =
+  def withTemporarySelectedProfile[T](project: Project, profileName: Option[String])(body: => T): T =
     try {
-      project.putUserData(SELECTED_PROFILE_NAME, profileName)
+      profileName.foreach(project.putUserData(SELECTED_PROFILE_NAME, _))
       body
     } finally {
       project.putUserData(SELECTED_PROFILE_NAME, null)

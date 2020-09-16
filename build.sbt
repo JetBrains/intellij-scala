@@ -41,7 +41,17 @@ lazy val scalaCommunity: sbt.Project =
       javaDecompilerIntegration)
     .settings(
       ideExcludedDirectories    := Seq(baseDirectory.value / "target"),
-      packageAdditionalProjects := Seq(scalaApi, compilerJps, repackagedZinc, decompiler, compilerShared, nailgunRunners, runners, runtimeDependencies),
+      packageAdditionalProjects := Seq(
+        scalaApi,
+        compilerJps,
+        /*worksheetReplReporters,*/
+        repackagedZinc,
+        decompiler,
+        compilerShared,
+        nailgunRunners,
+        runners,
+        runtimeDependencies,
+      ),
       packageLibraryMappings    := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
       definedTests in Test := { // all sub-project tests need to be run within main project's classpath
         definedTests.all(ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))).value.flatten }
@@ -92,12 +102,18 @@ lazy val uast = newProject(
   scalaImpl % "test->test;compile->compile"
 )
 
-lazy val worksheet = newProject(
-  "worksheet",
-  file("scala/worksheet")
-).dependsOn(
-  scalaImpl % "test->test;compile->compile"
-)
+lazy val worksheet =
+  newProject("worksheet", file("scala/worksheet"))
+    .dependsOn(
+      scalaImpl % "test->test;compile->compile",
+      worksheetReplReporters % "test->test;compile->compile"
+    )
+
+lazy val worksheetReplReporters =
+  newProject("worksheet_repl_reporters", file("scala/worksheet_repl_reporters"))
+    .settings(
+      packageMethod :=  PackagingMethod.Standalone("lib/repl-reporters.jar", static = true)
+    )
 
 lazy val tastyProvided = newProject("tasty-provided", file("tasty/provided"))
   .settings(scalaVersion := Versions.scalaVersion, packageMethod := PackagingMethod.Skip())
@@ -122,12 +138,14 @@ lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
     .dependsOn(
       compilerShared,
+      worksheetReplReporters,
       scalaApi,
       macroAnnotations,
       decompiler % "test->test;compile->compile",
       runners    % "test->test;compile->compile",
       tastyCompile,
-      tastyProvided % Provided)
+      tastyProvided % Provided
+    )
     .aggregate(tastyRuntime)
     .enablePlugins(BuildInfoPlugin)
     .settings(
@@ -160,7 +178,7 @@ lazy val scalaImpl: sbt.Project =
         Dependencies.scalaLibrary                             -> None
       ),
       packageFileMappings ++= Seq(
-        baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapperImpl.scala"      -> "lib/jps/repl-interface-sources.jar",
+        baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapper212Impl.scala"   -> "lib/jps/repl-interface-sources.jar",
         baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapper213_0Impl.scala" -> "lib/jps/repl-interface-sources.jar",
         baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapper213Impl.scala"   -> "lib/jps/repl-interface-sources.jar",
         baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapper3Impl.scala"     -> "lib/jps/repl-interface-sources.jar"
@@ -185,7 +203,7 @@ lazy val scalaImpl: sbt.Project =
 
 lazy val compilerJps =
   newProject("compiler-jps", file("scala/compiler-jps"))
-    .dependsOn(compilerShared, repackagedZinc)
+    .dependsOn(compilerShared, repackagedZinc, worksheetReplReporters)
     .settings(
       packageMethod           :=  PackagingMethod.Standalone("lib/jps/compiler-jps.jar", static = true),
       libraryDependencies     ++= Seq(Dependencies.nailgun,
@@ -250,7 +268,10 @@ lazy val macroAnnotations =
 
 lazy val bsp =
   newProject("bsp", file("bsp"))
-    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .dependsOn(
+      scalaImpl % "test->test;compile->compile",
+      worksheet % "test->test;compile->compile"
+    )
     .settings(
       libraryDependencies ++= DependencyGroups.bsp,
       intellijMainJars := Seq.empty

@@ -6,6 +6,8 @@ import org.jetbrains.plugins.scala.extensions
 import org.junit.Assert._
 import org.junit.Test
 
+import scala.util.Using
+
 /**
   * @author Pavel Fatin
   */
@@ -134,8 +136,8 @@ class VersionTest {
   }
 
   @Test
-  def serialization(): Unit = {
-    extensions.using(new ObjectOutputStream(new ByteArrayOutputStream(1024)))(
-      _.writeObject(Version("1.2.3")))
-  }
+  def serialization(): Unit =
+    Using.resource(new ObjectOutputStream(new ByteArrayOutputStream(1024))) { out =>
+      out.writeObject(Version("1.2.3"))
+    }
 }

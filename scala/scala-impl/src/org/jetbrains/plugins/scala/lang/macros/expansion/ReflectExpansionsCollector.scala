@@ -10,10 +10,11 @@ import com.intellij.psi.{PsiElement, PsiManager}
 import org.jetbrains.plugins.scala.extensions
 
 import scala.collection.mutable
-import org.jetbrains.plugins.scala
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.util.{MacroExpansion, Place}
+
+import scala.util.Using
 
 /**
   * @author Mikhail Mutcianko
@@ -60,14 +61,14 @@ class ReflectExpansionsCollector(project: Project) {
     if (!file.exists())
       return
 
-    extensions.using(new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)))) { os =>
+    Using.resource(new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)))) { os =>
       collectedExpansions ++= os.readObject().asInstanceOf[collectedExpansions.type]
     }
   }
 
   def serializeExpansions(): Unit = {
     val file = new File(System.getProperty("java.io.tmpdir") + s"/expansion-${project.getName}")
-    scala.extensions.using(new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
+    Using.resource(new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
       _.writeObject(collectedExpansions)
     }
   }

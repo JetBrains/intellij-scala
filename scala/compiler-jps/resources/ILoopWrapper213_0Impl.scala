@@ -1,9 +1,10 @@
 package org.jetbrains.jps.incremental.scala.local.worksheet
 
-import java.io.{File, PrintWriter, Flushable}
+import java.io.{File, Flushable, PrintWriter}
 
 import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapper
 import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapper213_0Impl.DummyConfig
+import org.jetbrains.plugins.scala.worksheet.reporters.ILoopWrapperReporter
 
 import scala.reflect.classTag
 import scala.reflect.internal.util.Position
@@ -12,7 +13,6 @@ import scala.tools.nsc.interpreter.NamedParam.Typed
 import scala.tools.nsc.interpreter.StdReplTags.tagOfIMain
 import scala.tools.nsc.interpreter.shell.{ILoop, ReplReporterImpl, ShellConfig}
 import scala.tools.nsc.interpreter.{IMain, Results}
-
 import scala.jdk.CollectionConverters._
 
 /**

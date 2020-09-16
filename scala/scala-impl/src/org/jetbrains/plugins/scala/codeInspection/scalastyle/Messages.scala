@@ -3,21 +3,16 @@ package org.jetbrains.plugins.scala.codeInspection.scalastyle
 import java.text.MessageFormat
 import java.util.Properties
 
-import org.jetbrains.plugins.scala.extensions.using
+import scala.util.Using
 
 object Messages {
 
-  private lazy val messages = {
-    try {
+  private lazy val messages =
+    Using(getClass.getResourceAsStream("/reference.conf")) { conf =>
       val props = new Properties()
-      using(getClass.getResourceAsStream("/reference.conf")) {
-        props.load
-      }
+      props.load(conf)
       props
-    } catch {
-      case _: Throwable => new Properties()
-    }
-  }
+    }.getOrElse(new Properties())
 
   def format(key: String, args: List[String], customMessage: Option[String]): String = {
     try {

@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.codeInspection.typeChecking.PatternMayNeverMa
 import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TypePresentation}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
 
 import scala.annotation.nowarn

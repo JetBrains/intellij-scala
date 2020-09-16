@@ -18,12 +18,12 @@ import com.intellij.openapi.projectRoots.{JdkUtil, Sdk}
 import com.intellij.openapi.roots._
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
-import org.jetbrains.plugins.scala.extensions.using
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project._
 
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
+import scala.util.Using
 
 class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
   extends JavaCommandLineState(env) {
@@ -271,7 +271,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     if (JdkUtil.useDynamicClasspath(project)) {
       try {
         val tempParamsFile: File = File.createTempFile("scaladocfileargs", ".tmp")
-        using(new PrintStream(new FileOutputStream(tempParamsFile))) { pw =>
+        Using.resource(new PrintStream(new FileOutputStream(tempParamsFile))) { pw =>
           paramListSimple.map(escapeParam).foreach(pw.println)
         }
         paramList.add("@" + tempParamsFile.getAbsolutePath)

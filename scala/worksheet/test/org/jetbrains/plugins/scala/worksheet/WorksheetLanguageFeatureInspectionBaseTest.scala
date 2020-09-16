@@ -6,7 +6,7 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.codeInspection.feature.{LanguageFeatureInspection, LanguageFeatureInspectionTestBase}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
-import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
+import org.jetbrains.plugins.scala.worksheet.settings.persistent.WorksheetFilePersistentSettings
 
 abstract class WorksheetLanguageFeatureInspectionBaseTest extends LanguageFeatureInspectionTestBase {
 
@@ -45,7 +45,7 @@ class WorksheetScratchFileLanguageFeatureInspection extends WorksheetLanguageFea
   protected val TestCompilerProfile = "TestCompilerProfile"
 
   override protected def onFileCreated(file: PsiFile): Unit =
-    WorksheetFileSettings(file).setCompilerProfileName(TestCompilerProfile)
+    WorksheetFilePersistentSettings(file.getVirtualFile).setCompilerProfileName(TestCompilerProfile)
 
   def testThatSpecifiedCompilerProfileSettingsAreUsedInScratchFile_NoError(): Unit = {
     val profile = createCompilerProfile(TestCompilerProfile)

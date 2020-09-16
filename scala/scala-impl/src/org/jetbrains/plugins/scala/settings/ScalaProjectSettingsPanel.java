@@ -26,7 +26,6 @@ import org.jetbrains.plugins.scala.components.InvalidRepoException;
 import org.jetbrains.plugins.scala.components.ScalaPluginUpdater;
 import org.jetbrains.plugins.scala.components.libextensions.ui.LibExtensionsSettingsPanelWrapper;
 import org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings;
-import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner$;
 
 import javax.swing.*;
 import java.awt.*;
@@ -46,12 +45,14 @@ import static org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInj
  */
 // TODO: cleanup
 //  1) split this panel into multiple per-tab
-//  2) worksheet slider indicator SCL-16341
-//  3) use bundles SCL-16963
 @SuppressWarnings(value = "unchecked")
 public class ScalaProjectSettingsPanel {
 
     private static final String LAST_SELECTED_TAB_INDEX = "scala_project_settings_configurable.last_selected_tab_index";
+
+    private static final int WORKSHEET_RUN_DELAY_MS_MINIMUM = 500;
+    private static final int WORKSHEET_RUN_DELAY_MS_MAXIMUM = 5000;
+    private static final int WORKSHEET_RUN_DELAY_SPINNER_STEP_SIZE = 10;
 
     private final LibExtensionsSettingsPanelWrapper extensionsPanel;
 
@@ -75,13 +76,13 @@ public class ScalaProjectSettingsPanel {
     private JCheckBox runWorksheetInTheCheckBox;
     private JTextArea myBasePackages;
     private JCheckBox showTypeInfoOnCheckBox;
-    private JSpinner delaySpinner;
+    private JSpinner showTypeTooltipDelaySpinner;
     private JComboBox<pluginBranch> updateChannel;
     private JCheckBox myAotCompletion;
     private JCheckBox useEclipseCompatibilityModeCheckBox;
     private JTextField scalaTestDefaultSuperClass;
     private JCheckBox treatScalaScratchFilesCheckBox;
-    private JSlider autoRunDelaySlider;
+    private JSpinner worksheetAutoRunDelaySpinner;
     private JCheckBox customScalatestSyntaxHighlightingCheckbox;
     private JPanel librariesPanel;
     private JButton updateNowButton;
@@ -100,6 +101,7 @@ public class ScalaProjectSettingsPanel {
 
     private JTabbedPane tabbedPane;
 
+
     private final List<ComponentWithSettings> extraSettings = new ArrayList<>();
 
     public ScalaProjectSettingsPanel(Project project) {
@@ -114,7 +116,13 @@ public class ScalaProjectSettingsPanel {
                 Pair.create(ScalaCollectionHighlightingLevel.All, ScalaBundle.message("scala.collection.highlighting.type.all"))
         ));
 
-        outputSpinner.setModel(new SpinnerNumberModel(35, 1, null, 1));
+        outputSpinner.setModel(spinnerModel(1, null, 1));
+
+        worksheetAutoRunDelaySpinner.setModel(spinnerModel(
+                WORKSHEET_RUN_DELAY_MS_MINIMUM,
+                WORKSHEET_RUN_DELAY_MS_MAXIMUM,
+                WORKSHEET_RUN_DELAY_SPINNER_STEP_SIZE
+        ));
 
         updateChannel.setModel(new EnumComboBoxModel<>(pluginBranch.class));
         updateChannel.setRenderer(SimpleMappingListCellRenderer.create(
@@ -153,15 +161,13 @@ public class ScalaProjectSettingsPanel {
 
         updateNowButton.addActionListener(e -> {
             try {
-                ScalaPluginUpdater.doUpdatePluginHosts((pluginBranch) updateChannel.getModel().getSelectedItem());
+                pluginBranch chanel = (pluginBranch) updateChannel.getModel().getSelectedItem();
+                ScalaPluginUpdater.doUpdatePluginHosts(chanel);
                 UpdateChecker.updateAndShowResult(myProject, UpdateSettings.getInstance());
             } catch (InvalidRepoException ex) {
                 Messages.showErrorDialog(ex.getMessage(), ScalaBundle.message("invalid.update.channel"));
             }
         });
-
-        autoRunDelaySlider.setMaximum(WorksheetAutoRunner$.MODULE$.RUN_DELAY_MS_MAXIMUM());
-        autoRunDelaySlider.setMinimum(WorksheetAutoRunner$.MODULE$.RUN_DELAY_MS_MINIMUM());
 
         extensionsPanel = new LibExtensionsSettingsPanelWrapper((JPanel) librariesPanel.getParent(), project);
         extensionsPanel.build();
@@ -173,6 +179,13 @@ public class ScalaProjectSettingsPanel {
         setSettings();
 
         initSelectedTab();
+    }
+
+    private static SpinnerNumberModel spinnerModel(Integer min, Integer max, Integer stepSize) {
+        // assuming will be changed in setSettings method
+        //noinspection UnnecessaryLocalVariable
+        Number value = min;
+        return new SpinnerNumberModel(value, min, max, stepSize);
     }
 
     @NotNull
@@ -191,7 +204,7 @@ public class ScalaProjectSettingsPanel {
         final ScalaCompileServerSettings compileServerSettings = ScalaCompileServerSettings.getInstance();
 
         compileServerSettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER = showTypeInfoOnCheckBox.isSelected();
-        compileServerSettings.SHOW_TYPE_TOOLTIP_DELAY = (Integer) delaySpinner.getValue();
+        compileServerSettings.SHOW_TYPE_TOOLTIP_DELAY = (Integer) showTypeTooltipDelaySpinner.getValue();
 
         try {
             ScalaPluginUpdater.doUpdatePluginHostsAndCheck((pluginBranch) updateChannel.getModel().getSelectedItem());
@@ -285,7 +298,8 @@ public class ScalaProjectSettingsPanel {
         final ScalaCompileServerSettings compileServerSettings = ScalaCompileServerSettings.getInstance();
 
         if (compileServerSettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER != showTypeInfoOnCheckBox.isSelected()) return true;
-        if (compileServerSettings.SHOW_TYPE_TOOLTIP_DELAY != (Integer) delaySpinner.getValue()) return true;
+        if (compileServerSettings.SHOW_TYPE_TOOLTIP_DELAY != (Integer) showTypeTooltipDelaySpinner.getValue())
+            return true;
 
         if (!ScalaPluginUpdater.getScalaPluginBranch().equals(updateChannel.getModel().getSelectedItem())) return true;
 
@@ -405,7 +419,7 @@ public class ScalaProjectSettingsPanel {
         final ScalaCompileServerSettings compileServerSettings = ScalaCompileServerSettings.getInstance();
 
         setValue(showTypeInfoOnCheckBox, compileServerSettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER);
-        setValue(delaySpinner, compileServerSettings.SHOW_TYPE_TOOLTIP_DELAY);
+        setValue(showTypeTooltipDelaySpinner, compileServerSettings.SHOW_TYPE_TOOLTIP_DELAY);
 
         updateChannel.getModel().setSelectedItem(ScalaPluginUpdater.getScalaPluginBranch());
 
@@ -460,11 +474,11 @@ public class ScalaProjectSettingsPanel {
     }
 
     private int getWorksheetDelay() {
-        return autoRunDelaySlider.getValue();
+        return (int) worksheetAutoRunDelaySpinner.getValue();
     }
 
     private void setWorksheetDelay(int delay) {
-        autoRunDelaySlider.setValue(delay);
+        worksheetAutoRunDelaySpinner.setValue(delay);
     }
 
     private static void setValue(JSpinner spinner, int value) {
@@ -550,8 +564,8 @@ public class ScalaProjectSettingsPanel {
         showTypeInfoOnCheckBox = new JCheckBox();
         this.$$$loadButtonText$$$(showTypeInfoOnCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.show.type.info.on.mouse.hover"));
         panel2.add(showTypeInfoOnCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        delaySpinner = new JSpinner();
-        panel2.add(delaySpinner, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        showTypeTooltipDelaySpinner = new JSpinner();
+        panel2.add(showTypeTooltipDelaySpinner, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         customScalatestSyntaxHighlightingCheckbox = new JCheckBox();
         this.$$$loadButtonText$$$(customScalatestSyntaxHighlightingCheckbox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.custom.scalatest.keywords.highlighting"));
         panel1.add(customScalatestSyntaxHighlightingCheckbox, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -630,98 +644,102 @@ public class ScalaProjectSettingsPanel {
         label4.setToolTipText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.sbt.index.ivy2.mode.hint"));
         panel5.add(label4, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel6 = new JPanel();
-        panel6.setLayout(new GridLayoutManager(8, 6, new Insets(9, 9, 0, 0), -1, -1));
+        panel6.setLayout(new GridLayoutManager(8, 4, new Insets(9, 9, 0, 0), -1, -1));
         tabbedPane.addTab(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.tabs.worksheet"), panel6);
         final Spacer spacer4 = new Spacer();
-        panel6.add(spacer4, new GridConstraints(7, 0, 1, 6, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        panel6.add(spacer4, new GridConstraints(7, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        final JLabel label5 = new JLabel();
+        this.$$$loadLabelText$$$(label5, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.output.cutoff.limit"));
+        panel6.add(label5, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label6 = new JLabel();
+        this.$$$loadLabelText$$$(label6, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.treat.sc.files.as"));
+        panel6.add(label6, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        scTypeSelectionCombobox = new JComboBox();
+        panel6.add(scTypeSelectionCombobox, new GridConstraints(0, 1, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label7 = new JLabel();
+        this.$$$loadLabelText$$$(label7, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.delay.before.auto.run"));
+        panel6.add(label7, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        outputSpinner = new JSpinner();
+        panel6.add(outputSpinner, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label8 = new JLabel();
+        this.$$$loadLabelText$$$(label8, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.output.cutoff.limit.units"));
+        panel6.add(label8, new GridConstraints(5, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer5 = new Spacer();
+        panel6.add(spacer5, new GridConstraints(5, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        final Spacer spacer6 = new Spacer();
+        panel6.add(spacer6, new GridConstraints(6, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        final JLabel label9 = new JLabel();
+        this.$$$loadLabelText$$$(label9, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.delay.before.auto.run.units"));
+        panel6.add(label9, new GridConstraints(6, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        worksheetAutoRunDelaySpinner = new JSpinner();
+        panel6.add(worksheetAutoRunDelaySpinner, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         runWorksheetInTheCheckBox = new JCheckBox();
         runWorksheetInTheCheckBox.setSelected(true);
         this.$$$loadButtonText$$$(runWorksheetInTheCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.run.worksheet.in.the.compiler.process"));
-        panel6.add(runWorksheetInTheCheckBox, new GridConstraints(2, 0, 1, 6, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label5 = new JLabel();
-        this.$$$loadLabelText$$$(label5, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.output.cutoff.limit"));
-        panel6.add(label5, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel6.add(runWorksheetInTheCheckBox, new GridConstraints(1, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         useEclipseCompatibilityModeCheckBox = new JCheckBox();
         this.$$$loadButtonText$$$(useEclipseCompatibilityModeCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.use.eclipse.compatibility.mode"));
-        panel6.add(useEclipseCompatibilityModeCheckBox, new GridConstraints(3, 0, 1, 6, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel6.add(useEclipseCompatibilityModeCheckBox, new GridConstraints(2, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         treatScalaScratchFilesCheckBox = new JCheckBox();
         this.$$$loadButtonText$$$(treatScalaScratchFilesCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.treat.scala.scratch.files.as.worksheet.files"));
-        panel6.add(treatScalaScratchFilesCheckBox, new GridConstraints(4, 0, 1, 5, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label6 = new JLabel();
-        this.$$$loadLabelText$$$(label6, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.delay.before.auto.run"));
-        panel6.add(label6, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        autoRunDelaySlider = new JSlider();
-        autoRunDelaySlider.setExtent(0);
-        autoRunDelaySlider.setMaximum(3000);
-        autoRunDelaySlider.setMinimum(700);
-        autoRunDelaySlider.setValue(700);
-        panel6.add(autoRunDelaySlider, new GridConstraints(6, 1, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        scTypeSelectionCombobox = new JComboBox();
-        panel6.add(scTypeSelectionCombobox, new GridConstraints(0, 1, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label7 = new JLabel();
-        this.$$$loadLabelText$$$(label7, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.treat.sc.files.as"));
-        panel6.add(label7, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel6.add(treatScalaScratchFilesCheckBox, new GridConstraints(3, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         collapseWorksheetFoldByCheckBox = new JCheckBox();
         this.$$$loadButtonText$$$(collapseWorksheetFoldByCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.collapse.long.output.by.default"));
-        panel6.add(collapseWorksheetFoldByCheckBox, new GridConstraints(5, 0, 1, 5, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer5 = new Spacer();
-        panel6.add(spacer5, new GridConstraints(0, 5, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        outputSpinner = new JSpinner();
-        panel6.add(outputSpinner, new GridConstraints(1, 4, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, new Dimension(50, -1), null, null, 0, false));
+        panel6.add(collapseWorksheetFoldByCheckBox, new GridConstraints(4, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel7 = new JPanel();
         panel7.setLayout(new GridLayoutManager(2, 2, new Insets(9, 9, 0, 0), -1, -1));
         tabbedPane.addTab(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.tabs.base.packages"), panel7);
-        final Spacer spacer6 = new Spacer();
-        panel7.add(spacer6, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        final Spacer spacer7 = new Spacer();
+        panel7.add(spacer7, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final JScrollPane scrollPane1 = new JScrollPane();
         panel7.add(scrollPane1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_NORTHWEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         myBasePackages = new JTextArea();
         myBasePackages.setColumns(50);
         myBasePackages.setRows(10);
         scrollPane1.setViewportView(myBasePackages);
-        final Spacer spacer7 = new Spacer();
-        panel7.add(spacer7, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        final Spacer spacer8 = new Spacer();
+        panel7.add(spacer8, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final JPanel panel8 = new JPanel();
         panel8.setLayout(new GridLayoutManager(4, 3, new Insets(9, 9, 0, 0), -1, -1));
         tabbedPane.addTab(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.tabs.misc"), panel8);
         panel8.add(injectionJPanel, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        final JLabel label8 = new JLabel();
-        this.$$$loadLabelText$$$(label8, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.scalatest.default.super.class"));
-        panel8.add(label8, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer8 = new Spacer();
-        panel8.add(spacer8, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        final JLabel label10 = new JLabel();
+        this.$$$loadLabelText$$$(label10, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.scalatest.default.super.class"));
+        panel8.add(label10, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer9 = new Spacer();
+        panel8.add(spacer9, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         scalaTestDefaultSuperClass = new JTextField();
         scalaTestDefaultSuperClass.setColumns(25);
         panel8.add(scalaTestDefaultSuperClass, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-        final JLabel label9 = new JLabel();
-        this.$$$loadLabelText$$$(label9, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.trailing.commas"));
-        panel8.add(label9, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label11 = new JLabel();
+        this.$$$loadLabelText$$$(label11, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.trailing.commas"));
+        panel8.add(label11, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         trailingCommasComboBox = new JComboBox();
         panel8.add(trailingCommasComboBox, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer9 = new Spacer();
-        panel8.add(spacer9, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        final Spacer spacer10 = new Spacer();
+        panel8.add(spacer10, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final JPanel panel9 = new JPanel();
         panel9.setLayout(new GridLayoutManager(4, 4, new Insets(9, 9, 0, 0), -1, -1));
         tabbedPane.addTab(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.tabs.updates"), panel9);
-        final Spacer spacer10 = new Spacer();
-        panel9.add(spacer10, new GridConstraints(3, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        final JLabel label10 = new JLabel();
-        this.$$$loadLabelText$$$(label10, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.plugin.update.channel"));
-        panel9.add(label10, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer11 = new Spacer();
+        panel9.add(spacer11, new GridConstraints(3, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        final JLabel label12 = new JLabel();
+        this.$$$loadLabelText$$$(label12, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.plugin.update.channel"));
+        panel9.add(label12, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         updateChannel = new JComboBox();
         updateChannel.setEditable(false);
         panel9.add(updateChannel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         updateNowButton = new JButton();
         this.$$$loadButtonText$$$(updateNowButton, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.check.for.updates"));
         panel9.add(updateNowButton, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer11 = new Spacer();
-        panel9.add(spacer11, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        final JLabel label11 = new JLabel();
-        this.$$$loadLabelText$$$(label11, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.info"));
-        panel9.add(label11, new GridConstraints(2, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label12 = new JLabel();
-        label12.setText("");
-        panel9.add(label12, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer12 = new Spacer();
+        panel9.add(spacer12, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        final JLabel label13 = new JLabel();
+        this.$$$loadLabelText$$$(label13, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.info"));
+        panel9.add(label13, new GridConstraints(2, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label14 = new JLabel();
+        label14.setText("");
+        panel9.add(label14, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel10 = new JPanel();
         panel10.setLayout(new GridLayoutManager(1, 1, new Insets(9, 9, 0, 0), -1, -1));
         tabbedPane.addTab(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.tabs.extensions"), panel10);
