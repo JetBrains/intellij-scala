@@ -28,7 +28,7 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
       case IncrementalityType.SBT =>
         val javac = {
           val scala = getScalaInstance(compilerData.compilerJars)
-            .getOrElse(new ScalaInstance("stub", null, new File(""), new File(""), Array.empty, None))
+            .getOrElse(new ScalaInstance("stub", null, null, new File(""), new File(""), Array.empty, None))
           val classpathOptions = ClasspathOptionsUtil.javac(false)
           JavaTools.directOrFork(scala, classpathOptions, compilerData.javaHome.map(_.toPath))
         }
@@ -78,10 +78,8 @@ object CompilerFactoryImpl {
     scalaInstanceCache.getOrUpdate(jars)(createScalaInstance(jars))
 
   private def createScalaInstance(jars: CompilerJars) = {
-    val paths = jars.allJars
-
-    def createClassLoader() = {
-      val urls = Path.toURLs(paths.toSeq)
+    def createClassLoader(paths: Seq[File]) = {
+      val urls = Path.toURLs(paths)
       val newClassloader = new URLClassLoader(urls, ClasspathUtil.rootLoader)
 
       classLoadersMap += paths -> newClassloader
@@ -89,11 +87,24 @@ object CompilerFactoryImpl {
       newClassloader
     }
 
-    val classLoader = synchronized(classLoadersMap.getOrElse(paths, createClassLoader()))
+    def getOrCreateClassLoader(paths: Seq[File]) = synchronized {
+      classLoadersMap.getOrElse(paths, createClassLoader(paths))
+    }
+
+    val classLoader = getOrCreateClassLoader(jars.allJars.toSeq)
+    val loaderLibraryOnly = getOrCreateClassLoader(jars.libraries)
 
     val version = compilerVersion(classLoader)
 
-    new ScalaInstance(version.getOrElse("unknown"), classLoader, jars.library, jars.compiler, jars.extra.toArray, version)
+    new ScalaInstance(
+      version.getOrElse("unknown"),
+      classLoader,
+      loaderLibraryOnly,
+      jars.libraries.toArray,
+      jars.compiler,
+      jars.allJars.toArray,
+      version
+    )
   }
 
   private def getOrCompileInterfaceJar(home: File,
