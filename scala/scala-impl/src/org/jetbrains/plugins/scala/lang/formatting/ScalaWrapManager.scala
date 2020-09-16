@@ -110,11 +110,12 @@ object ScalaWrapManager {
       return Wrap.createWrap(settings.EXTENDS_KEYWORD_WRAP, true)
 
     def arrangeBinary(elementCollect: PartialFunction[PsiElement, (() => PsiElement, PsiElement, () => PsiElement)]): Wrap = {
-      elementCollect.lift(childPsi.getParent).map { case (left, operation, right) =>
+      val parent = childPsi.getParent
+      elementCollect.lift(parent).map { case (left, operation, right) =>
         if (operation == childPsi) null
         else if (parent != parentPsi) suggestedWrap
-        else if (left == childPsi) suggestedWrap
-        else if (right == childPsi) suggestedWrap
+        else if (left() == childPsi) suggestedWrap
+        else if (right() == childPsi) suggestedWrap
         else null
       }.orNull
     }
