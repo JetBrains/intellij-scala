@@ -1,28 +1,21 @@
-package org.jetbrains.plugins.scala.lang
-package psi
+package org.jetbrains.plugins.scala.lang.completion.lookups
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{PsiTypeExt, _}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters, ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer.AccessQualifierRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
-import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{TextEscaper, _}
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-@deprecated(
-  """Do not use this generic class!
-    |It has unclear purpose and used in a lot of different subsystems.
-    |All these subsystems can have different requirements and bounding them all to this single utility class is fragile.
-    |Use more specific renderers from org.jetbrains.plugins.scala.lang.psi.types.api.presentation package""".stripMargin
-)
-object PresentationUtil {
+private object LookupItemPresentationUtil {
 
   def presentationStringForParameter(param: Parameter, substitutor: ScSubstitutor): String = {
     val builder = new StringBuilder
@@ -37,7 +30,6 @@ object PresentationUtil {
     presentationStringForScalaType(scType, ScSubstitutor.empty)
 
   def presentationStringForScalaType(scType: ScType, substitutor: ScSubstitutor): String =
-  // empty context is used just because it was so before refactoring
     substitutor(scType).presentableText(TypePresentationContext.emptyContext)
 
   def presentationStringForJavaType(psiType: PsiType, substitutor: ScSubstitutor)
@@ -45,9 +37,10 @@ object PresentationUtil {
     psiType match {
       case tp: PsiEllipsisType =>
         presentationStringForJavaType(tp.getComponentType, substitutor) + "*"
-      case _         =>
+      case _ =>
         presentationStringForScalaType(psiType.toScType(), substitutor)
     }
+
 
   def presentationStringForPsiElement(element: ScalaPsiElement): String = {
     val substitutor = ScSubstitutor.empty
@@ -95,6 +88,9 @@ object PresentationUtil {
         }
       }
 
+    def renderPsiParameterList(substitutor: ScSubstitutor, params: PsiParameterList): String =
+      params.getParameters.map(presentationStringForPsiElement(_, substitutor)).mkString("(", ", ", ")")
+
     element match {
       case fun: ScFunction             => functionRenderer().render(fun)
       case parameters: ScParameters    => paramsRenderer.renderClauses(parameters)
@@ -103,32 +99,39 @@ object PresentationUtil {
       case tpClause: ScTypeParamClause => typeParamsRenderer().render(tpClause)
       case param: ScTypeParam          => typeParamsRenderer().render(param)
       case param: PsiTypeParameter     => param.name
-      case params: PsiParameterList =>
-        params.getParameters.map(presentationStringForPsiElement(_, substitutor)).mkString("(", ", ", ")")
-      case param: PsiParameter =>
-        val buffer: StringBuilder = new StringBuilder("")
-        val list = param.getModifierList
-        if (list == null) return ""
-        val lastSize = buffer.length
-        for (a <- list.getAnnotations) {
-          if (lastSize != buffer.length) buffer.append(" ")
-          val element = a.getNameReferenceElement
-          if (element != null) buffer.append("@").append(element.getText)
-        }
-        if (lastSize != buffer.length) buffer.append(" ")
-        val name = param.name
-        if (name != null) {
-          buffer.append(name)
-        }
-        buffer.append(": ")
-        buffer.append(presentationStringForJavaType(param.getType, substitutor)) //todo: create param type, java.lang.Object => Any
-        buffer.toString()
-      case _ =>
-        element.getText
+      case params: PsiParameterList    => renderPsiParameterList(substitutor, params)
+      case param: PsiParameter         => renderPsiParameter(substitutor, param)
+      case _                           => element.getText
     }
   }
 
-  def accessModifierText(modifier: ScAccessModifier): String =
+  private def renderPsiParameter(substitutor: ScSubstitutor, param: PsiParameter)
+                                (implicit project: ProjectContext): String = {
+    val buffer: StringBuilder = new StringBuilder("")
+    val list = param.getModifierList
+    if (list == null)
+      return ""
+    val lastSize = buffer.length
+    for (a <- list.getAnnotations) {
+      if (lastSize != buffer.length) buffer.append(" ")
+      val element = a.getNameReferenceElement
+      if (element != null)
+        buffer.append("@").append(element.getText)
+    }
+    if (lastSize != buffer.length)
+      buffer.append(" ")
+    val name = param.name
+    if (name != null) {
+      buffer.append(name)
+    }
+    buffer.append(": ")
+    //todo: create param type, java.lang.Object => Any
+    // (note from 2020: the comment is from 2010, it was left during refactorings, not sure what exactly is expected...)
+    buffer.append(presentationStringForJavaType(param.getType, substitutor))
+    buffer.toString
+  }
+
+  private def accessModifierText(modifier: ScAccessModifier): String =
     new AccessModifierRenderer(new AccessQualifierRenderer.SimpleText(textEscaper)).render(modifier)
 
   private def textEscaper: TextEscaper = TextEscaper.Html

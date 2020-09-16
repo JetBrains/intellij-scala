@@ -5,7 +5,6 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{JavaDirectoryService, PsiElement, PsiErrorElement, PsiFile, _}
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.PresentationUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTupleTypeElement, ScTypeElement}
@@ -15,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, _}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer
 import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, _}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
@@ -554,7 +554,7 @@ object WorksheetDefaultSourcePreprocessor {
     @inline final def quoted(s: String): String = "\"" + s + "\""
 
     @inline final def accessModifierText(fun: ScFunction): String =
-      fun.getModifierList.accessModifier.map(PresentationUtil.accessModifierText).mkString
+      fun.getModifierList.accessModifier.map(AccessModifierRenderer.simpleTextHtmlEscaped).mkString
   }
 
   private class Scala2SourceBuilder(iterNumber: Int,

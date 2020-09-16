@@ -53,4 +53,7 @@ object AccessModifierRenderer {
         }
     }
   }
+
+  def simpleTextHtmlEscaped(modifier: ScAccessModifier): String =
+    new AccessModifierRenderer(new AccessQualifierRenderer.SimpleText(TextEscaper.Html)).render(modifier)
 }

@@ -10,9 +10,11 @@ import javax.swing._
 import org.jetbrains.plugins.scala.actions.Parameters
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
-import org.jetbrains.plugins.scala.lang.psi.PresentationUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.DefaultListCellRendererAdapter
 import org.jetbrains.plugins.scala.util.JListCompatibility
@@ -76,17 +78,44 @@ private class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement)
   }
 
   @nowarn("cat=deprecation")
-  override def getElementText(element: PsiNamedElement): String = {
+  override def getElementText(element: PsiNamedElement): String =
     element match {
-      case method: ScFunction =>
-        method.name + PresentationUtil.presentationStringForPsiElement(method.paramClauses) + ": " +
-          PresentationUtil.presentationStringForScalaType(method.returnType.getOrAny)
-      case b: ScBindingPattern => b.name + ": " +
-        PresentationUtil.presentationStringForScalaType(b.`type`().getOrAny)
-      case _ =>
-        element.name
+      case method: ScFunction  => functionRenderer.render(method)
+      case b: ScBindingPattern => b.name + ": " + typeRenderer.render(b.`type`().getOrAny)
+      case _                   => element.name
     }
-  }
+
+  private def functionRenderer = new FunctionRenderer(
+    typeParamsRenderer = None,
+    paramsRenderer,
+    typeAnnotationRenderer,
+    renderDefKeyword = false
+  )
+
+  private def typeAnnotationRenderer = new TypeAnnotationRenderer(
+    typeRenderer,
+    ParameterTypeDecorateOptions.DecorateAll
+  )
+
+  private def typeRenderer: TypeRenderer =
+    _.presentableText(TypePresentationContext.emptyContext)
+
+  private def paramRenderer = new ParameterRenderer(
+    typeRenderer,
+    ModifiersRenderer.SimpleText(TextEscaper.Html),
+    typeAnnotationRenderer,
+    textEscaper,
+    withMemberModifiers = true,
+    withAnnotations = true
+  )
+
+  private def paramsRenderer: ParametersRenderer = new ParametersRenderer(
+    paramRenderer,
+    renderImplicitModifier = true,
+    clausesSeparator = ""
+  )
+
+  private def textEscaper: TextEscaper = TextEscaper.Html
 
   override def getIconFlags: Int = 0
 
