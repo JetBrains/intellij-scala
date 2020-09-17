@@ -15,6 +15,8 @@ import org.jetbrains.plugins.scala.worksheet.actions.WorksheetSyntheticModule.Lo
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import org.picocontainer.PicoContainer
 
+import scala.annotation.nowarn
+
 /**
  * Lightweight module meant to be attached to a PsiFile via [[org.jetbrains.plugins.scala.project.UserDataKeys.SCALA_ATTACHED_MODULE]].
  *
@@ -72,8 +74,10 @@ final class WorksheetSyntheticModule(
   override def putUserData[T](key: Key[T], value: T): Unit = cpModule.putUserData(key, value)
 
   //noinspection ScalaDeprecation
+  @nowarn("cat=deprecation")
   override def setOption(key: String, value: String): Unit = cpModule.setOption(key, value)
   //noinspection ScalaDeprecation
+  @nowarn("cat=deprecation")
   override def getOptionValue(key: String): String = cpModule.getOptionValue(key)
 
   private def worksheetFileScope: GlobalSearchScope =

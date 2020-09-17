@@ -16,7 +16,7 @@ import scala.jdk.CollectionConverters._
   * Date: 13.09.17.
   */
 class AmmoniteRunScriptAction extends AnAction(WorksheetBundle.message("ammonite.run.script")) {
-  def this(target: ScalaFile) {
+  def this(target: ScalaFile) = {
     this()
     file = Option(target)
   }

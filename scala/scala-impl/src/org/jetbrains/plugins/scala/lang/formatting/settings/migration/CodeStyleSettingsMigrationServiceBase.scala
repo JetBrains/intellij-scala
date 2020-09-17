@@ -6,6 +6,7 @@ import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.formatting.settings.migration.CodeStyleSettingsMigrationServiceBase._
 
+import scala.annotation.nowarn
 import scala.beans.BeanProperty
 
 /**
@@ -51,6 +52,7 @@ object CodeStyleSettingsMigrationServiceBase {
   //noinspection ScalaDeprecation
   private[migration]
   object Migrations {
+    @nowarn("cat=deprecation")
     val DecomposeMultilineStringSupportSettings: MigrationItem = MigrationItem(1, scalaSettings => {
       import ScalaCodeStyleSettings._
       import scalaSettings._

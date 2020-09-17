@@ -59,7 +59,7 @@ object TastyReader {
       loader.loadClass("scala.tasty.compat.ConsumeTastyImpl")
     }
 
-    consumeTastyImplClass.newInstance().asInstanceOf[ConsumeTasty]
+    consumeTastyImplClass.getDeclaredConstructor().newInstance().asInstanceOf[ConsumeTasty]
   }
 
   private def read(consumeTasty: ConsumeTasty, classpath: String, className: String): Option[TastyFile] = {

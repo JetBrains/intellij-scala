@@ -17,9 +17,13 @@ object Common {
   )
   val globalScalacOptions = Seq(
     "-target:jvm-1.8",
+    "-explaintypes",
     "-deprecation",
-    "-Ymacro-annotations",
+    "-unchecked",
     "-feature",
+    "-Xlint:serial",
+    "-Ymacro-annotations",
+    "-Xfatal-warnings",
     "-language:implicitConversions",
     "-language:reflectiveCalls",
     "-language:existentials"

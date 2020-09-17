@@ -30,7 +30,7 @@ private final class WorksheetSettingsPanel(
   private val runTypeComboBox              = new ComboBox[WorksheetExternalRunType]
 
   private val openCompilerProfileSettingsButton = new ShowCompilerProfileSettingsButton(
-    selectedProfile _,
+    () => selectedProfile,
     () => updateProfiles(selectedProfile, listOfProfiles)
   ).getActionButton
 

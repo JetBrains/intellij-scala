@@ -63,7 +63,7 @@ object ScalaTestAstTransformer {
           val finderFqn: String = getFinderClassFqn(td, module, "org.scalatest.Style", "org.scalatest.Finders")
           if (finderFqn != null) try {
             val finderClass: Class[_] = Class.forName(finderFqn)
-            return Option(finderClass.newInstance.asInstanceOf[Finder])
+            return Option(finderClass.getDeclaredConstructor().newInstance().asInstanceOf[Finder])
           } catch {
             case _: ClassNotFoundException =>
               LOG.debug("Failed to load finders API class " + finderFqn)

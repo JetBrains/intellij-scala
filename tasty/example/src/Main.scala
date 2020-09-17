@@ -55,7 +55,7 @@ object Main {
 
     val aClass = loader.loadClass("scala.tasty.compat.ConsumeTastyImpl")
 
-    val consumeTasty = aClass.newInstance().asInstanceOf[ConsumeTasty]
+    val consumeTasty = aClass.getDeclaredConstructor().newInstance().asInstanceOf[ConsumeTasty]
 
 //    consumeTasty.apply(s"$home/.ivy2/cache/ch.epfl.lamp/dotty-library_$Version/jars/dotty-library_$Version-$Version.0-RC1.jar",
 //      List("scala.tasty.reflect.SourceCodePrinter"), tastyConsumer)

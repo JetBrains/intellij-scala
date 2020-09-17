@@ -29,7 +29,7 @@ final class WorksheetSettingsDialog(worksheetFile: PsiFile)
     worksheetFile,
     getFileSettingsData,
     getProjectDefaultSettingsData,
-    listOfProfiles _
+    () => listOfProfiles
   )
 
   locally {

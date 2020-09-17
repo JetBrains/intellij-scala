@@ -28,4 +28,4 @@ package org.jetbrains.plugins.scala.codeInspection.typeChecking
 //    checkTextHasError(code)
 //  }
 //}
-
+class PatternMayNeverMatchInspectionTest

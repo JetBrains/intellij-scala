@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
 
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -177,7 +177,7 @@ trait ScalaBounds extends api.Bounds {
         case Some(proj) => ScSubstitutor(proj)
         case None => ScSubstitutor.empty
       }
-      getNamedElement match {
+      (getNamedElement match {
         case t: ScTemplateDefinition => t.superTypes.map(tp => new ClassLike(subst(tp))).filter(!_.isEmpty)
         case p: PsiClass => p.getSupers.toSeq.map(cl => new ClassLike(ScalaType.designator(cl))).filter(!_.isEmpty)
         case _: ScTypeAlias =>
@@ -195,7 +195,7 @@ trait ScalaBounds extends api.Bounds {
             case ScCompoundType(comps, _, _) => comps.map(new ClassLike(_))
             case t                           => Seq(new ClassLike(t))
           }
-      }
+      }): @nowarn("msg=unreachable code")
     }
 
     def isSameOrBaseClass(other: ClassLike): Boolean =
