@@ -39,9 +39,6 @@ object RegisterCompilationListener {
       PsiManager.getInstance(project).findFile(file) match {
         case psiFile: ScalaFile if psiFile.isWorksheetFile =>
           scheduler(project).tryHighlight(psiFile, file)
-        case psiFile: PsiFile =>
-          HighlightingCompilerHelper.implementations.find(_.canHighlight(psiFile))
-          scheduler(project).tryHighlight(psiFile, file)
         case _ =>
       }
     }
