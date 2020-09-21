@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, TypeParameter, TypeParameterType, Unit, Variance}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Covariant, TypeParameter, TypeParameterType, Unit, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -106,7 +106,7 @@ class CompoundTypeCheckSignatureProcessor(s: TermSignature,
       case _ => if (s.typeParamsLength > 0) return true
     }
 
-    def checkSignature(sign1: TermSignature, typeParams: Array[PsiTypeParameter], returnType: ScType): Boolean = {
+    def checkSignature(sign1: TermSignature, returnType: ScType): Boolean = {
 
       val sign2 = s
 
@@ -143,13 +143,11 @@ class CompoundTypeCheckSignatureProcessor(s: TermSignature,
         })
         val dcl: ScTypedDefinition = namedElement.asInstanceOf[ScTypedDefinition]
         val isVar = dcl.isVar
-        if (!checkSignature(TermSignature(dcl, subst), Array.empty, rt))
-          return false
-        if (isVar && !checkSignature(TermSignature.scalaSetter(dcl, subst), Array.empty, Unit))
-          return false
+        if (!checkSignature(TermSignature(dcl, subst), rt)) return false
+        if (isVar && !checkSignature(TermSignature.scalaSetter(dcl, subst), Unit)) return false
       case method: PsiMethod =>
         val sign1 = new PhysicalMethodSignature(method, subst)
-        if (!checkSignature(sign1, method.getTypeParameters, method match {
+        if (!checkSignature(sign1, method match {
           case fun: ScFunction => fun.returnType.getOrNothing
           case method: PsiMethod => method.getReturnType.toScType()
         })) return false
@@ -159,8 +157,11 @@ class CompoundTypeCheckSignatureProcessor(s: TermSignature,
   }
 }
 
-class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, constraints: ConstraintSystem, substitutor: ScSubstitutor)
-  extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS)(sign.typeAlias.projectContext) {
+class CompoundTypeCheckTypeAliasProcessor(
+  sign:        TypeAliasSignature,
+  constraints: ConstraintSystem,
+  substitutor: ScSubstitutor
+) extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS)(sign.typeAlias.projectContext) {
   private val name = sign.name
 
   private var trueResult = false
@@ -174,7 +175,7 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, constraints:
 
   override protected def execute(namedElement: PsiNamedElement)
                                 (implicit state: ResolveState): Boolean = {
-    val subst = state.substitutor
+    val subst = state.substitutor.followed(substitutor)
     if (namedElement.name != name) return true
 
     var undef = constraints
@@ -190,19 +191,19 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, constraints:
           }
           //lower type
           val lower1 = tp1.lowerBound.getOrNothing
-          val lower2 = substitutor(tp2.lowerType)
+          val lower2 = subst(tp2.lowerType)
           val lowerConformance =
             if (v == Covariant) lower1.conforms(lower2, undef)
-            else lower2.conforms(lower1, undef)
+            else                lower2.conforms(lower1, undef)
 
           if (lowerConformance.isLeft) return false
           undef = lowerConformance.constraints
 
           val upper1 = tp1.upperBound.getOrAny
-          val upper2 = substitutor(tp2.upperType)
+          val upper2 = subst(tp2.upperType)
           val upperConformance =
             if (v == Covariant) upper2.conforms(upper1, undef)
-            else upper1.conforms(upper2, undef)
+            else                upper1.conforms(upper2, undef)
 
           if (upperConformance.isLeft) return false
           undef = upperConformance.constraints
@@ -238,27 +239,25 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, constraints:
     def checkDeclarationForTypeAlias(tp: ScTypeAlias): Boolean = {
       sign.typeAlias match {
         case _: ScTypeAliasDeclaration =>
-          var conformance = substitutor(sign.lowerBound).conforms(subst(tp.lowerBound.getOrNothing), undef)
+          var conformance = subst(sign.lowerBound).conforms(subst(tp.lowerBound.getOrNothing), undef)
           if (conformance.isRight) {
-            conformance = subst(tp.upperBound.getOrAny).conforms(substitutor(sign.upperBound), conformance.constraints)
+            conformance = subst(tp.upperBound.getOrAny).conforms(subst(sign.upperBound), conformance.constraints)
             if (conformance.isRight) {
               trueResult = true
-              undef = conformance.constraints
-              innerConstraints = undef
+              innerConstraints = conformance.constraints
               return true
             }
           }
         case tdef: ScTypeAliasDefinition =>
-          val enclosingClass = namedElement.parentOfType(classOf[ScTemplateDefinition])
+          val enclosingClass = tp.parentOfType(classOf[ScTemplateDefinition])
           val thisType       = enclosingClass.map(ScThisType).getOrElse(tdef.projectContext.stdTypes.Any)
-          val asSeenFrom     = substitutor(ScProjectionType(thisType, namedElement))
-          val aliased        = substitutor(sign.upperBound)
+          val asSeenFrom     = subst(ScProjectionType(thisType, tp))
+          val aliased        = subst(sign.upperBound)
           val conforms       = aliased.equiv(asSeenFrom, constraints)
 
           if (conforms.isRight) {
             trueResult       = true
-            undef            = conforms.constraints
-            innerConstraints = undef
+            innerConstraints = conforms.constraints
             return true
           }
         case _ =>
@@ -269,19 +268,23 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, constraints:
     namedElement match {
       case tp: ScTypeAliasDefinition =>
         sign.typeAlias match {
-          case _: ScTypeAliasDefinition =>
-            val t = subst(tp.aliasedType.getOrNothing).equiv(substitutor(sign.lowerBound), undef, falseUndef = false)
-            if (t.isRight) {
-              undef = t.constraints
+          case adef: ScTypeAliasDefinition =>
+            val tpts             = tp.typeParameters.map(TypeParameterType(_))
+            val renameTypeParams = ScSubstitutor.bind(adef.typeParameters, tpts)
+            val lhs              = subst(tp.aliasedType.getOrNothing)
+            val rhs              = renameTypeParams(subst(sign.lowerBound))
+            val conforms         = lhs.equiv(rhs, undef, falseUndef = false)
+
+            if (conforms.isRight) {
               trueResult = true
-              innerConstraints = undef
+              innerConstraints = conforms.constraints
               return false
             }
           case _: ScTypeAliasDeclaration => if (checkDeclarationForTypeAlias(tp)) return false
-          case _ =>
+          case _ => throw new IllegalArgumentException("Type alias must be either a declaration of definition.")
         }
       case tp: ScTypeAliasDeclaration => if (checkDeclarationForTypeAlias(tp)) return false
-      case _ =>
+      case _ => throw new IllegalArgumentException("Type alias must be either a declaration of definition.")
     }
     true
   }
