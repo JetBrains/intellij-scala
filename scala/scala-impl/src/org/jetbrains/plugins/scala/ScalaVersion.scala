@@ -33,7 +33,7 @@ class ScalaVersion(
 //noinspection TypeAnnotation
 object ScalaVersion {
 
-  def Latest = LatestScalaVersions
+  def Latest: LatestScalaVersions.type = LatestScalaVersions
 
   def default: ScalaVersion =
     LatestScalaVersions.all.find(_.languageLevel == ScalaLanguageLevel.getDefault).get

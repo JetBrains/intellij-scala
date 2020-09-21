@@ -6,7 +6,6 @@ import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ReferenceTarget, _}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
@@ -19,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.scalaVersionSinceWhichHigherKindsAreAlwaysEnabled
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerSettings, ScalaCompilerSettingsProfile}
 
 import scala.annotation.nowarn
@@ -30,7 +30,8 @@ import scala.annotation.nowarn
 class LanguageFeatureInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.advanced.language.features")) {
 
   private val Features = Seq(
-    Feature(ScalaInspectionBundle.message("language.feature.postfix.operator.notation"), "scala.language", "postfixOps", _.postfixOps, _.copy(postfixOps = true), isErrorOn = _.scalaLanguageLevelOrDefault >= ScalaLanguageLevel.Scala_2_13) {
+    Feature(ScalaInspectionBundle.message("language.feature.postfix.operator.notation"), "scala.language", "postfixOps", _.postfixOps, _.copy(postfixOps = true),
+      isErrorOn = _.scalaLanguageLevelOrDefault >= ScalaLanguageLevel.Scala_2_13) {
       // TODO if !e.applicationProblems.exists(_.isInstanceOf[MissedValueParameter]), see TypeMismatchHighlightingTest
       case e: ScPostfixExpr => e.operation
     },
@@ -49,7 +50,8 @@ class LanguageFeatureInspection extends AbstractInspection(ScalaInspectionBundle
               !e.parameterList.clauses.exists(_.isImplicit) =>
         Option(e.getModifierList.findFirstChildByType(ScalaTokenTypes.kIMPLICIT)).getOrElse(e)
     },
-    Feature(ScalaInspectionBundle.message("language.feature.higher.kinded.type"), "scala.language", "higherKinds", _.higherKinds, _.copy(higherKinds = true)) {
+    Feature(ScalaInspectionBundle.message("language.feature.higher.kinded.type"), "scala.language", "higherKinds", _.higherKinds, _.copy(higherKinds = true),
+      isEnabledOn = _.scalaMinorVersionOrDefault < scalaVersionSinceWhichHigherKindsAreAlwaysEnabled) {
       case (e: ScTypeParamClause) && Parent(Parent(_: ScTypeParamClause)) => e
       case (e: ScTypeParamClause) && Parent(_: ScTypeAliasDeclaration) => e
     },
@@ -74,12 +76,13 @@ private case class Feature(@Nls name: String,
                            flagName: String,
                            isEnabled: ScalaCompilerSettings => Boolean,
                            enable: ScalaCompilerSettings => ScalaCompilerSettings,
+                           isEnabledOn: PsiElement => Boolean = _ => true,
                            isErrorOn: PsiElement => Boolean = _ => false)
                           (findIn: PartialFunction[PsiElement, PsiElement]) {
 
   def process(e: PsiElement, holder: ProblemsHolder): Unit = {
     compilerProfile(e).foreach { profile =>
-      if (!isEnabled(profile.getSettings)) {
+      if (!isEnabled(profile.getSettings) && isEnabledOn(e)) {
         findIn.lift(e).foreach { it =>
           if (!isFlagImportedFor(it)) {
             holder.registerProblem(

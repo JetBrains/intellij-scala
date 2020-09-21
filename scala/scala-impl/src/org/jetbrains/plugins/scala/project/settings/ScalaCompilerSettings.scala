@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.project.settings
 
 import org.jetbrains.plugins.scala.compiler.data.SbtIncrementalOptions
 import org.jetbrains.plugins.scala.project.{CompileOrder, DebuggingInfoLevel}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 /**
  * @author Pavel Fatin
@@ -86,6 +87,8 @@ case class ScalaCompilerSettings(compileOrder: CompileOrder,
 }
 
 object ScalaCompilerSettings {
+  def scalaVersionSinceWhichHigherKindsAreAlwaysEnabled: ScalaVersion =
+    LatestScalaVersions.Scala_2_13.withMinor(1)
 
   def fromState(state: ScalaCompilerSettingsState): ScalaCompilerSettings =
     ScalaCompilerSettings(

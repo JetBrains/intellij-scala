@@ -69,7 +69,7 @@ package object project {
 
   object LibraryExt {
 
-    private val LibraryVersion = "(?<=:|-)\\d+\\.\\d+\\.\\d+[^:\\s]*".r
+    private val LibraryVersion = "(?<=[:\\-])\\d+\\.\\d+\\.\\d+[^:\\s]*".r
 
     private[this] val RuntimeLibrary = "((?:scala|dotty)-library).+".r
 
@@ -188,6 +188,9 @@ package object project {
 
     def scalaMinorVersion: Option[ScalaVersion] =
       scalaSdk.flatMap(_.compilerVersion).flatMap(ScalaVersion.fromString)
+
+    def scalaMinorVersionOrDefault: ScalaVersion =
+      scalaMinorVersion.getOrElse(ScalaVersion.default)
 
     def isCompilerStrictMode: Boolean =
       scalaModuleSettings.exists(_.isCompilerStrictMode)
@@ -375,6 +378,10 @@ package object project {
 
     def scalaLanguageLevelOrDefault: ScalaLanguageLevel = scalaLanguageLevel.getOrElse(ScalaLanguageLevel.getDefault)
 
+    def scalaMinorVersion: Option[ScalaVersion] = module.flatMap(_.scalaMinorVersion)
+
+    def scalaMinorVersionOrDefault: ScalaVersion = scalaMinorVersion.getOrElse(ScalaVersion.default)
+
     def kindProjectorPluginEnabled: Boolean = isDefinedInModuleOrProject(_.kindProjectorPluginEnabled)
 
     def kindProjectorPlugin: Option[String] = inThisModuleOrProject(_.kindProjectorPlugin).flatten
@@ -415,7 +422,8 @@ package object project {
         val files = module.scalaCompilerClasspath.asJava
         list.addAllFiles(files)
       } catch {
-        case e: IllegalArgumentException => throw new ExecutionException(e.getMessage.replace("SDK", "facet"))
+        case e: IllegalArgumentException => //noinspection ReferencePassedToNls
+          throw new ExecutionException(e.getMessage.replace("SDK", "facet"))
       }
 
     def addRunners(): Unit = list.add(ScalaPluginJars.runnersJar)
