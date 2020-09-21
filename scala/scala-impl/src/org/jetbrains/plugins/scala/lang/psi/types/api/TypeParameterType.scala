@@ -5,7 +5,6 @@ package types
 package api
 
 import com.intellij.psi.PsiTypeParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 class TypeParameterType private (val typeParameter: TypeParameter)
@@ -25,32 +24,25 @@ class TypeParameterType private (val typeParameter: TypeParameter)
 
   override val name: String = typeParameter.name
 
-  def isInvariant: Boolean = typeParameter.isInvariant
-  def isCovariant: Boolean = typeParameter.isCovariant
+  def isInvariant: Boolean     = typeParameter.isInvariant
+  def isCovariant: Boolean     = typeParameter.isCovariant
   def isContravariant: Boolean = typeParameter.isContravariant
+
   final def variance: Variance =
     if (isCovariant) Covariant
     else if (isContravariant) Contravariant
     else if (isInvariant) Invariant
     else Bivariant
 
-  override def equivInner(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
-    val success = `type` match {
-      case that: TypeParameterType => (that.psiTypeParameter eq psiTypeParameter) || {
-        (psiTypeParameter, that.psiTypeParameter) match {
-          case (myBound: ScTypeParam, thatBound: ScTypeParam) =>
-            //TODO this is a temporary hack, so ignore substitutor for now
-            myBound.lowerBound.exists(_.equiv(thatBound.lowerBound.getOrNothing)) &&
-              myBound.upperBound.exists(_.equiv(thatBound.upperBound.getOrNothing)) &&
-              (myBound.name == thatBound.name || thatBound.isHigherKindedTypeParameter || myBound.isHigherKindedTypeParameter)
-          case _ => false
-        }
-      }
-      case _ => false
+  override def equivInner(
+    `type`:      ScType,
+    constraints: ConstraintSystem,
+    falseUndef:  Boolean
+  ): ConstraintsResult =
+    `type` match {
+      case that: TypeParameterType if that.psiTypeParameter eq psiTypeParameter => constraints
+      case _                                                                    => ConstraintsResult.Left
     }
-    if (success) constraints
-    else ConstraintsResult.Left
-  }
 
   override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitTypeParameterType(this)
 

@@ -34,6 +34,8 @@ class TypeConformanceBugTest extends TypeConformanceTestBase {
 
   def testSCL10237_3(): Unit = {doTest()}
 
+  def testSCL10237_Renamed(): Unit = {doTest()}
+
   def testSCL10432_1(): Unit = {doTest()}
 
   def testSCL10432_2(): Unit = {doTest()}
