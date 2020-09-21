@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.settings.ui
 
 import com.intellij.application.options.ModulesComboBox
+import com.intellij.core.JavaPsiBundle
 import com.intellij.execution.ui.ConfigurationModuleSelector
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ComboBox
@@ -62,7 +63,7 @@ private final class WorksheetSettingsPanel(
     // NOTE: this allows the selection to be empty only after combo box initialization
     // FIXME: Currently you can't unselect selected module, see: SCL-18054, IDEA-239791
     if (tabTypeData.is[DefaultProjectSettingsTab]) {
-      moduleComboBox.allowEmptySelection(ConfigurationModuleSelector.NO_MODULE_TEXT)
+      moduleComboBox.allowEmptySelection(JavaPsiBundle.message("list.item.no.module"))
     }
 
     val module = Option(settingsData.cpModule)

@@ -3,7 +3,8 @@ package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.annotations.{CalledInAwt, NonNls}
+import com.intellij.util.concurrency.annotations.RequiresEdt
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveResult
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{ScalafmtResolveError, ScalafmtVersion}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
@@ -32,7 +33,7 @@ trait ScalafmtDynamicConfigService {
     configFile: VirtualFile,
     version: ScalafmtVersion,
     verbosity: FmtVerbosity,
-    @CalledInAwt
+    @RequiresEdt
     onResolveFinished: ConfigResolveResult => Unit
   ): Unit
 

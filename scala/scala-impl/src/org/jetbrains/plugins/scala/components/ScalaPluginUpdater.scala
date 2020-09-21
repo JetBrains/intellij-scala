@@ -25,7 +25,7 @@ import org.jdom.JDOMException
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch._
-import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
+import org.jetbrains.plugins.scala.util.{ScalaNotificationGroups, UnloadAwareDisposable}
 import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
 
 import scala.xml.transform.{RewriteRule, RuleTransformer}
@@ -70,7 +70,7 @@ object ScalaPluginUpdater {
 
   private val updGroupId = "Scala Plugin Update"
   private val title = updGroupId
-  private val GROUP = new NotificationGroup(updGroupId, NotificationDisplayType.STICKY_BALLOON, true)
+  private lazy val GROUP = ScalaNotificationGroups.stickyBalloonGroup
 
   // save plugin version before patching to restore it when switching back
   private var savedPluginVersion = ""
@@ -319,16 +319,21 @@ object ScalaPluginUpdater {
         """Please select Scala plugin update channel:<p/>
           |<a href="Release">Stable Releases</a> | <a href="EAP">Early Access Program</a> | <a href="Nightly">Nightly Bulds</a>""".stripMargin
 
-      val notification = new Notification(updGroupId, title, message, NotificationType.INFORMATION, (notification: Notification, event: HyperlinkEvent) => {
-        notification.expire()
-        applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS = false
-        event.getDescription match {
-          case "Release" => doUpdatePluginHostsAndCheck(Release)
-          case "EAP" => doUpdatePluginHostsAndCheck(EAP)
-          case "Nightly" => doUpdatePluginHostsAndCheck(Nightly)
-          case _ => applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS = true
+
+      val listener = new NotificationListener {
+        override def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent): Unit = {
+          notification.expire()
+          applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS = false
+          event.getDescription match {
+            case "Release" => doUpdatePluginHostsAndCheck(Release)
+            case "EAP" => doUpdatePluginHostsAndCheck(EAP)
+            case "Nightly" => doUpdatePluginHostsAndCheck(Nightly)
+            case _ => applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS = true
+          }
         }
-      })
+      }
+
+      val notification = GROUP.createNotification(title, message, NotificationType.INFORMATION, listener, "")
       val project = ProjectManager.getInstance().getOpenProjects.headOption.orNull
       Notifications.Bus.notify(notification, project)
     }

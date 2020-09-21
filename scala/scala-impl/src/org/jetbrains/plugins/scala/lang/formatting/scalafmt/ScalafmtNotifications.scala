@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
 import com.intellij.notification._
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.util.ScalaCollectionsUtil
+import org.jetbrains.plugins.scala.util.{ScalaCollectionsUtil, ScalaNotificationGroups}
 
 import scala.collection.mutable
 import scala.ref.WeakReference
@@ -11,9 +11,9 @@ private[formatting]
 object ScalafmtNotifications {
 
   private val notificationGroup =
-    new NotificationGroup("Scalafmt (Scala plugin)", NotificationDisplayType.BALLOON, true)
+    ScalaNotificationGroups.balloonGroup
   private val notificationErrorGroup =
-    new NotificationGroup("Scalafmt errors (Scala plugin)", NotificationDisplayType.STICKY_BALLOON, true)
+    ScalaNotificationGroups.stickyBalloonGroup
 
   // do not display notification with same content several times
   private val messagesShown: mutable.Map[String, WeakReference[Notification]] = ScalaCollectionsUtil.newConcurrentMap

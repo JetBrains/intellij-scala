@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.worksheet.ui.printers.repl
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import org.jetbrains.annotations.CalledWithReadLock
+import com.intellij.util.concurrency.annotations.RequiresReadLock
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
@@ -33,7 +33,7 @@ object QueuedPsi {
     }
 
     /** @return underlying psi(-s) is valid */
-    @CalledWithReadLock
+    @RequiresReadLock
     def isValid: Boolean =
       getElements.forall(_.isValid)
 

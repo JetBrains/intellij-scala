@@ -4,7 +4,7 @@ import java.net.URL
 
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
-import org.jetbrains.annotations.CalledInAwt
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{ResolveResult, ScalafmtResolveError, ScalafmtVersion}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader.DownloadProgressListener.NoopProgressListener
@@ -25,7 +25,7 @@ trait ScalafmtDynamicService {
   def resolveAsync(
     version: ScalafmtVersion,
     project: Project,
-    @CalledInAwt
+    @RequiresEdt
     onResolved: Either[ScalafmtResolveError, ScalafmtReflect] => Unit = _ => ()
   ): Unit
 

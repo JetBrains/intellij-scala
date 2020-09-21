@@ -6,6 +6,7 @@ import com.intellij.notification._
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaEditorSmartKeysConfigurable, ShowSettingsUtilImplExt}
+import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 
 object AutoBraceAdvertiser {
   def advertiseAutoBraces(project: Project): Unit = {
@@ -29,7 +30,7 @@ object AutoBraceAdvertiser {
 
   private def suggestAutoBraces(project: Project): Unit = {
     val notification = {
-      val group = new NotificationGroup("Autobrace advertiser", NotificationDisplayType.STICKY_BALLOON, true)
+      val group = ScalaNotificationGroups.stickyBalloonGroup
       group.createNotification(ScalaEditorBundle.message("the.curly.braces.can.be.added.or.removed.automatically"), null, null, NotificationType.INFORMATION)
     }
 

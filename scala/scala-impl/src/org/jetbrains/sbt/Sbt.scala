@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project.Version
+import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 
 /**
  * @author Pavel Fatin
@@ -57,5 +58,5 @@ object Sbt {
 
   val FolderIcon: Icon = Icons.SBT_FOLDER
 
-  val balloonNotification: NotificationGroup = NotificationGroup.balloonGroup(Name)
+  val balloonNotification: NotificationGroup = ScalaNotificationGroups.balloonGroup
 }

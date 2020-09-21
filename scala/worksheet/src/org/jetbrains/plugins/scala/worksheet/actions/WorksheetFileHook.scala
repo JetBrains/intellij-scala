@@ -14,6 +14,7 @@ import com.intellij.openapi.project.DumbService.DumbModeListener
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiManager}
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.annotations.CalledInAwt
@@ -55,11 +56,11 @@ object WorksheetFileHook {
     }
   }
 
-  @CalledInAwt()
+  @RequiresEdt()
   def disableRun(file: VirtualFile, exec: Option[StoppableProcess]): Unit =
     WorksheetFileHook.getPanel(file).foreach(_.disableRun(exec))
 
-  @CalledInAwt()
+  @RequiresEdt()
   def enableRun(file: VirtualFile, hasErrors: Boolean): Unit =
     WorksheetFileHook.getPanel(file).foreach(_.enableRun(hasErrors))
 

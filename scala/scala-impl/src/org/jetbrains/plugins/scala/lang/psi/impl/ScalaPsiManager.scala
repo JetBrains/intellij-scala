@@ -12,11 +12,12 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util._
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
-import com.intellij.psi.impl.{JavaPsiFacadeImpl, PsiModificationTrackerImpl}
+import com.intellij.psi.impl.JavaPsiFacadeImpl
 import com.intellij.psi.search.{DelegatingGlobalSearchScope, GlobalSearchScope, PsiShortNamesCache}
 import com.intellij.util.ObjectUtils
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.annotations.{CalledInAwt, TestOnly}
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CleanupScheduler, ModTracker, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
@@ -423,7 +424,7 @@ class ScalaPsiManager(implicit val project: Project) {
     doClearAllCaches()
   }
 
-  @CalledInAwt()
+  @RequiresEdt()
   private def doClearAllCaches(): Unit = {
     if (!project.isDisposed) {
       clearOnRootsChange()

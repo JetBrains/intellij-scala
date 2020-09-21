@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.testingSupport.test.scalatest
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiElement
+import com.intellij.util.concurrency.annotations.RequiresReadLock
 import org.jetbrains.annotations.CalledWithReadLock
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation => ScMethodInvocation, _}
@@ -22,7 +23,7 @@ object ScalaTestTestLocationsFinder {
 
   type TestLocations = collection.Seq[PsiElement]
 
-  @CalledWithReadLock
+  @RequiresReadLock
   @CachedInUserData(definition, CachesUtil.fileModTracker(definition.getContainingFile))
   def calculateTestLocations(definition: ScTypeDefinition): Option[TestLocations] = {
     //Thread.sleep(5000) // uncomment to test long resolve

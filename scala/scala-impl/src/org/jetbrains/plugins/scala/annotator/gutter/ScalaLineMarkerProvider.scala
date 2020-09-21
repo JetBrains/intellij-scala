@@ -68,11 +68,7 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor with Sc
     val leaf = PsiTreeUtil.firstChild(element).toOption.getOrElse(element)
     new LineMarkerInfo[PsiElement](
       leaf,
-      leaf.getTextRange,
-      null: Icon,
-      Function.const(null)(_),
-      null: GutterIconNavigationHandler[PsiElement],
-      Alignment.RIGHT
+      leaf.getTextRange
     )
   }
 
@@ -260,14 +256,15 @@ private object GutterUtil {
         icon,
         markerType.tooltipProvider,
         markerType.navigationHandler,
-        alignment
+        alignment,
+        () => markerType.tooltipProvider.fun(element)
       ) {
     override def canMergeWith(other: MergeableLineMarkerInfo[_]): Boolean = other match {
       case that: ArrowUpOrDownLineMarkerInfo => icon == that.icon
       case _                                 => false
     }
 
-    override def getCommonIcon(infos: ju.List[_ <: MergeableLineMarkerInfo[_]]): Icon = icon
+    def getCommonIcon(infos: ju.List[_ <: MergeableLineMarkerInfo[_]]): Icon = icon
 
 
     override def getCommonTooltip(infos: ju.List[_ <: MergeableLineMarkerInfo[_]]): IJFunction[_ >: PsiElement, String] =
@@ -309,7 +306,8 @@ private object GutterUtil {
         icon,
         subclassedClass.tooltipProvider,
         subclassedClass.navigationHandler,
-        Alignment.RIGHT
+        Alignment.RIGHT,
+        () => subclassedClass.tooltipProvider.fun(aClass)
       )
       NavigateAction.setNavigateAction(info, ScalaBundle.message("go.to.implementation"), IdeActions.ACTION_GOTO_IMPLEMENTATION)
     }
@@ -396,8 +394,10 @@ private object GutterUtil {
             (_: MouseEvent, _: PsiElement) =>
               Option(PsiNavigationSupport.getInstance.createNavigatable(companion.getProject,
                 companion.getContainingFile.getVirtualFile, companion.nameId.getPrevSiblingNotWhitespace.startOffset)).foreach(_.navigate(true)),
-            Alignment.LEFT)
+            Alignment.LEFT,
+            ScalaBundle.message("go.to.companion", nameOf(companion))          )
           NavigateAction.setNavigateAction(info, ScalaBundle.message("go.to.companion", nameOf(companion)), IdeActions.ACTION_GOTO_DECLARATION)
+
         }
 
       case _ => None

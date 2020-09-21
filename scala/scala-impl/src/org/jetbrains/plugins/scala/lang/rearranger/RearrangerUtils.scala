@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.rearranger
 
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.EntryType._
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Modifier._
 import com.intellij.psi.codeStyle.arrangement.std.{ArrangementSettingsToken, StdArrangementSettingsToken, StdArrangementTokenType, StdArrangementTokens}
@@ -17,7 +18,7 @@ object RearrangerUtils {
     StdArrangementSettingsToken.token(id, name, tokenType)
 
   private def tokenById(@NonNls id: String, tokenType: StdArrangementTokenType): StdArrangementSettingsToken =
-    StdArrangementSettingsToken.tokenById(id, tokenType)
+    StdArrangementSettingsToken.token(id, StringUtil.toLowerCase(id).replace("_", " "), tokenType)
 
 
   val SCALA_GETTERS_AND_SETTERS: ArrangementSettingsToken = token(

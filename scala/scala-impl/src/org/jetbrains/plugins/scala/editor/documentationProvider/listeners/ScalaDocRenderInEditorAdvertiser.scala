@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScTypeDefinition}
 import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ShowSettingsUtilImplExt}
+import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 
 final class ScalaDocRenderInEditorAdvertiser(project: Project) extends FileEditorManagerListener {
 
@@ -63,8 +64,9 @@ object ScalaDocRenderInEditorAdvertiser {
 
   private def suggestInEditorDocRendering(project: Project): Unit = {
     val notification = {
-      val group = new NotificationGroup("Scaladoc rendering advertiser", NotificationDisplayType.STICKY_BALLOON, true)
-      group.createNotification(ScalaEditorBundle.message("doc.rendering.advertiser.title"), null, null, NotificationType.INFORMATION)
+      ScalaNotificationGroups
+        .stickyBalloonGroup
+        .createNotification(ScalaEditorBundle.message("doc.rendering.advertiser.title"), null, null, NotificationType.INFORMATION)
     }
 
     notification.setCollapseActionsDirection(Notification.CollapseActionsDirection.KEEP_LEFTMOST)

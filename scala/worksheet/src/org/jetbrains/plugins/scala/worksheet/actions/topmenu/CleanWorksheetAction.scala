@@ -12,6 +12,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import javax.swing.{DefaultBoundedRangeModel, Icon}
 import org.jetbrains.annotations.{CalledInAwt, TestOnly}
 import org.jetbrains.plugins.scala.editor.DocumentExt
@@ -79,7 +80,7 @@ object CleanWorksheetAction {
     }
   }
 
-  @CalledInAwt
+  @RequiresEdt
   def resetScrollModel(viewer: Editor): Unit = {
     viewer match {
       case viewerEx: EditorImpl =>
@@ -95,7 +96,7 @@ object CleanWorksheetAction {
     }
   }
 
-  @CalledInAwt
+  @RequiresEdt
   def cleanWorksheet(file: VirtualFile, rightEditor: Editor, project: Project): Unit = {
     val rightDocument = rightEditor.getDocument
 
