@@ -180,7 +180,7 @@ class Test13 extends ComparingUnrelatedTypesInspectionTest {
        |final class B extends A(1)
        |val a: A = A(0)
        |val b: B = new B
-       |${START}a == b$END
+       |a == b
        """.stripMargin
   )
 
@@ -201,12 +201,20 @@ class Test13 extends ComparingUnrelatedTypesInspectionTest {
       """
   )
 
-  def testTraits(): Unit = checkTextHasNoErrors(
+  def testTraits(): Unit = checkTextHasError(
     s"""trait A
        |trait B
        |val a: A = _
        |val b: B = _
        |${START}a == b$END
+      """.stripMargin
+  )
+
+  def testInstanceOfTrait(): Unit = checkTextHasNoErrors(
+    s"""trait A
+       |trait B
+       |val a: A = _
+       |a.isInstanceOf[B]
       """.stripMargin
   )
 }
@@ -233,7 +241,7 @@ class Test15 extends ComparingUnrelatedTypesInspectionTest {
     s"""trait A
        |object B extends A
        |val a: A = _
-       |${START}a == B$END
+       |a == B
       """.stripMargin
   )
 
@@ -242,7 +250,7 @@ class Test15 extends ComparingUnrelatedTypesInspectionTest {
        |object B extends A
        |class C extends A
        |val c: A = new C
-       |${START}c != B$END
+       |c != B
       """.stripMargin
   )
 }
@@ -674,5 +682,32 @@ class TestLiteralTypes extends ComparingUnrelatedTypesInspectionTest {
        |val a: 3 = 3
        |println(${START}a.isInstanceOf[4]$END)
        |""".stripMargin
+  )
+}
+
+// SCL-18167
+class TestLambda extends ComparingUnrelatedTypesInspectionTest {
+
+  override protected val description: String =
+    ScalaInspectionBundle.message("comparing.unrelated.types.hint", "() => A", "A")
+
+  def testLambda_with_unrelated_class(): Unit = checkTextHasError(
+    s"""
+       |object Test {
+       |  final class A
+       |  def test(f: () => A, a: A): Boolean =
+       |    ${START}f == a$END
+       |}
+      """.stripMargin
+  )
+
+  def testLambda_with_likely_unrelated_Trait(): Unit = checkTextHasError(
+    s"""
+       |object Test {
+       |  trait A
+       |  def test(f: () => A, a: A): Boolean =
+       |    ${START}f == a$END
+       |}
+      """.stripMargin
   )
 }

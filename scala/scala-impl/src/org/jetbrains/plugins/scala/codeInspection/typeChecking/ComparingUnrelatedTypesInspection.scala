@@ -4,6 +4,7 @@ package codeInspection.typeChecking
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.{PsiElement, PsiMethod}
 import com.siyeh.ig.psiutils.MethodUtils
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.codeInspection.typeChecking.ComparingUnrelatedTypesInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
@@ -13,10 +14,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypePresentation, _}
 
 import scala.annotation.{nowarn, tailrec}
+import scala.collection.compat.immutable.ArraySeq
 
 /**
   * Nikolay.Tropin
@@ -27,31 +29,44 @@ object ComparingUnrelatedTypesInspection {
   val inspectionName: String = ScalaInspectionBundle.message("comparing.unrelated.types.name")
   val inspectionId = "ComparingUnrelatedTypes"
 
-  private val seqFunctions = Seq("contains", "indexOf", "lastIndexOf")
+  sealed abstract class Comparability(val shouldNotBeCompared: Boolean)
+  object Comparability {
+    case object Comparable extends Comparability(false)
+    case object Incomparable extends Comparability(true)
+    case object LikelyIncomparable extends Comparability(true)
+  }
+  private val comparingFunctions = ArraySeq("==", "!=", "ne", "eq", "equals")
+  private val seqFunctions = ArraySeq("contains", "indexOf", "lastIndexOf")
 
-  private def cannotBeCompared(type1: ScType, type2: ScType): Boolean = {
+  private def checkComparability(type1: ScType, type2: ScType): Comparability = {
     val stdTypes = type1.projectContext.stdTypes
     import stdTypes._
 
     var types = Seq(type1, type2)
-    if (types.exists(undefinedTypeAlias)) return false
+    if (types.exists(undefinedTypeAlias)) return Comparability.Comparable
 
     // a comparison with AnyRef is always ok, because of autoboxing
     // i.e:
     //   val anyRef: AnyRef = new Integer(4)
     //   anyRef == 4                 <- true
     //   anyRef.isInstanceOf[Int]    <- true
-    if (types.contains(AnyRef)) return false
+    if (types.contains(AnyRef)) return Comparability.Comparable
 
     types = types.map(extractActualType)
     if (!types.contains(Null)) {
       types = types.map(tp => fqnBoxedToScType.getOrElse(tp.canonicalText.stripPrefix("_root_."), tp))
     }
 
-    if (types.forall(isNumericType)) return false
+    if (types.forall(isNumericType)) return Comparability.Comparable
 
     val Seq(unboxed1, unboxed2) = types
-    ComparingUtil.isNeverSubType(unboxed1, unboxed2) && ComparingUtil.isNeverSubType(unboxed2, unboxed1)
+    if (ComparingUtil.isNeverSubType(unboxed1, unboxed2) && ComparingUtil.isNeverSubType(unboxed2, unboxed1))
+      return Comparability.Incomparable
+
+    if (!unboxed1.weakConforms(unboxed2) && !unboxed2.weakConforms(unboxed1))
+      return Comparability.LikelyIncomparable
+
+    Comparability.Comparable
   }
 
   private def isNumericType(`type`: ScType): Boolean = {
@@ -81,7 +96,8 @@ object ComparingUnrelatedTypesInspection {
 class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionName) {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
-    case MethodRepr(expr, Some(left), Some(oper), Seq(right)) if Seq("==", "!=", "ne", "eq", "equals") contains oper.refName =>
+    case MethodRepr(expr, Some(left), Some(oper), Seq(right)) if comparingFunctions contains oper.refName =>
+      // "blub" == 3
       val needHighlighting = oper.resolve() match {
         case _: ScSyntheticFunction => true
         case m: PsiMethod if MethodUtils.isEquals(m) => true
@@ -89,22 +105,28 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionNam
       }
       if (needHighlighting) {
         Seq(left, right).map(_.`type`().map(_.tryExtractDesignatorSingleton)) match {
-          case Seq(Right(leftType), Right(rightType)) if cannotBeCompared(leftType, rightType) =>
-            val message = generateComparingUnrelatedTypesMsg(leftType, rightType)(expr)
-            holder.registerProblem(expr, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+          case Seq(Right(leftType), Right(rightType)) =>
+            val comparability = checkComparability(leftType, rightType)
+            if (comparability.shouldNotBeCompared) {
+              val message = generateComparingUnrelatedTypesMsg(leftType, rightType)(expr)
+              holder.registerProblem(expr, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+            }
           case _ =>
         }
       }
     case MethodRepr(_, Some(baseExpr), Some(ResolvesTo(fun: ScFunction)), Seq(arg, _*)) if mayNeedHighlighting(fun) =>
+      // Seq("blub").contains(3)
       for {
         ParameterizedType(_, Seq(elemType)) <- baseExpr.`type`().toOption.map(_.tryExtractDesignatorSingleton)
         argType <- arg.`type`().toOption
-        if cannotBeCompared(elemType, argType)
+        comparability = checkComparability(elemType, argType)
+        if comparability.shouldNotBeCompared
       } {
         val message = generateComparingUnrelatedTypesMsg(elemType, argType)(arg)
         holder.registerProblem(arg, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
     case IsInstanceOfCall(call) =>
+      // "blub".isInstanceOf[Integer]
       val qualType = call.referencedExpr match {
         case ScReferenceExpression.withQualifier(q) => q.`type`().map(_.tryExtractDesignatorSingleton).toOption
         case _ => None
@@ -113,14 +135,17 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionNam
       for {
         t1 <- qualType
         t2 <- argType
-        if cannotBeCompared(t1, t2)
+        comparability = checkComparability(t1, t2)
+        if comparability == Comparability.Incomparable
       } {
         val message = generateComparingUnrelatedTypesMsg(t1, t2)(call)
         holder.registerProblem(call, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
   }
 
-  private def generateComparingUnrelatedTypesMsg(firstType: ScType, secondType: ScType)(implicit tpc: TypePresentationContext): String = {
+  @Nls
+  private def generateComparingUnrelatedTypesMsg(firstType: ScType, secondType: ScType)
+                                                (implicit tpc: TypePresentationContext): String = {
     val nonSingleton1 = firstType.widen
     val nonSingleton2 = secondType.widen
     val (firstTypeText, secondTypeText) = TypePresentation.different(nonSingleton1, nonSingleton2)
