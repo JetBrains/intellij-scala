@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package feature
 
-import com.intellij.codeInspection.ProblemsHolder
+import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nls
@@ -30,7 +30,7 @@ import scala.annotation.nowarn
 class LanguageFeatureInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.advanced.language.features")) {
 
   private val Features = Seq(
-    Feature(ScalaInspectionBundle.message("language.feature.postfix.operator.notation"), "scala.language", "postfixOps", _.postfixOps, _.copy(postfixOps = true)) {
+    Feature(ScalaInspectionBundle.message("language.feature.postfix.operator.notation"), "scala.language", "postfixOps", _.postfixOps, _.copy(postfixOps = true), isErrorOn = _.scalaLanguageLevelOrDefault >= ScalaLanguageLevel.Scala_2_13) {
       // TODO if !e.applicationProblems.exists(_.isInstanceOf[MissedValueParameter]), see TypeMismatchHighlightingTest
       case e: ScPostfixExpr => e.operation
     },
@@ -73,7 +73,8 @@ private case class Feature(@Nls name: String,
                            flagQualifier: String,
                            flagName: String,
                            isEnabled: ScalaCompilerSettings => Boolean,
-                           enable: ScalaCompilerSettings => ScalaCompilerSettings)
+                           enable: ScalaCompilerSettings => ScalaCompilerSettings,
+                           isErrorOn: PsiElement => Boolean = _ => false)
                           (findIn: PartialFunction[PsiElement, PsiElement]) {
 
   def process(e: PsiElement, holder: ProblemsHolder): Unit = {
@@ -81,7 +82,10 @@ private case class Feature(@Nls name: String,
       if (!isEnabled(profile.getSettings)) {
         findIn.lift(e).foreach { it =>
           if (!isFlagImportedFor(it)) {
-            holder.registerProblem(it, ScalaInspectionBundle.message("advanced.language.feature", name),
+            holder.registerProblem(
+              it,
+              ScalaInspectionBundle.message("advanced.language.feature", name),
+              if (isErrorOn(e)) ProblemHighlightType.ERROR else ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
               new ImportFeatureFlagFix(it, name, s"$flagQualifier.$flagName"),
               new EnableFeatureFix(profile, it, name, enable))
           }
