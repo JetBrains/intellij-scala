@@ -11,7 +11,7 @@ object Common {
     taskKey[Classpath]("scalaCommunity module's fullClasspath in Compile and Test scopes")
 
   val globalJavacOptions = Seq(
-    "-source", "11",
+    "-source", "1.8",
     "-target", "1.8",
     "-Xlint:unchecked"
   )
