@@ -2,8 +2,10 @@ package org.jetbrains.plugins.scala
 package annotator
 package gutter
 
+import java.util.function.Supplier
 import java.{util => ju}
 
+import com.android.tools.idea.rendering.GutterIconRenderer
 import com.intellij.codeInsight.daemon.{LineMarkerInfo, LineMarkerProvider}
 import com.intellij.openapi.editor.markup.GutterIconRenderer.Alignment
 import com.intellij.psi.PsiElement
@@ -52,6 +54,7 @@ object RecursiveCallLineMarkerProvider {
       icon,
       (e: PsiElement) => psiElemToTooltip(e.getText),
       null,
-      Alignment.LEFT
+      Alignment.LEFT,
+      () => psiElemToTooltip(element.getText)
     )
 }

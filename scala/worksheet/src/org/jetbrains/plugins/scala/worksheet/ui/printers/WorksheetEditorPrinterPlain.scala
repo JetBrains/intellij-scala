@@ -5,6 +5,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import javax.swing.Timer
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.{CalledInAwt, TestOnly}
@@ -117,7 +118,7 @@ final class WorksheetEditorPrinterPlain private[printers](
   // currently we re-render text on each mid-flush (~once per 1 second for long processes),
   // for now we are ok with this cause `renderText` proved to be quite a lightweight operation
   // Called from timer, so body invoked in EDT
-  @CalledInAwt
+  @RequiresEdt
   @Measure
   private def flushOnTimer(): Unit = myLock.synchronized {
     if (terminated) return
@@ -176,7 +177,7 @@ final class WorksheetEditorPrinterPlain private[printers](
   private def isResultEnd(line: String): Boolean =
     line.startsWith(ServiceMarkers.CHUNK_OUTPUT_END_MARKER)
 
-  @CalledInAwt
+  @RequiresEdt
   private def updateWithPersistentScroll(document: Document, text: CharSequence, foldings: Iterable[InputOutputFoldingInfo]): Unit = {
     val editorScroll = originalEditor.getScrollingModel.getVerticalScrollOffset
     val viewerScroll = worksheetViewer.getScrollingModel.getVerticalScrollOffset

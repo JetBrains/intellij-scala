@@ -133,11 +133,10 @@ class ScalaAutoImportOptionsProviderForm {
   private def createFindMoreLinkComponent() = {
     val label = new HyperlinkLabel()
 
-    //noinspection ScalaExtractStringToBundle
-    label.setHyperlinkText(
-      ScalaBundle.message("auto.import.find.more.options.in"),
-      ScalaBundle.message("auto.import.code.style.link"),
-      ""
+    //noinspection ScalaExtractStringToBundle,ReferencePassedToNls
+    label.setTextWithHyperlink(
+      ScalaBundle.message("auto.import.find.more.options.in") + "<hyperlink>" +
+      ScalaBundle.message("auto.import.code.style.link")      + "</hyperlink>"
     )
     UIUtil.applyStyle(UIUtil.ComponentStyle.SMALL, label)
 

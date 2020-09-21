@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaBundle}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.{ScalaProjectSettings, ScalaProjectSettingsConfigurable}
 import org.jetbrains.plugins.scala.util.NotificationUtil.HyperlinkListener
+import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.{SbtProjectSettings, SbtProjectSettingsListener}
 
@@ -78,7 +79,7 @@ object Scala3Disclaimer {
 
   private def showDisclaimerIn(project: Project, message: String, actions: AnAction*): Unit = {
     val notification =
-      new NotificationGroup(ScalaBundle.message("scala.3.disclaimer"), NotificationDisplayType.STICKY_BALLOON, /* isLogByDefault = */ true)
+      ScalaNotificationGroups.stickyBalloonGroup
         .createNotification(message, NotificationType.INFORMATION)
 
     actions.foreach(notification.addAction)

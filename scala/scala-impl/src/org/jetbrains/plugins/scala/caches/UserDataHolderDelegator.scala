@@ -17,7 +17,6 @@ object UserDataHolderDelegator {
       // In that case the holder wouldn't get collected and subsequently not removed from delegates.
       // Instead we force holder to be a Disposable and relay on the deposing mechanism to remove it from the map
       assert(!Disposer.isDisposed(holder))
-      assert(!Disposer.isDisposing(holder))
       Disposer.register(holder, () => delegates.remove(holder))
 
       new UserDataHolderBase

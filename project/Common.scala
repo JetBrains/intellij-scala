@@ -12,11 +12,11 @@ object Common {
 
   val globalJavacOptions = Seq(
     "-source", "11",
-    "-target", "11",
+    "-target", "1.8",
     "-Xlint:unchecked"
   )
   val globalScalacOptions = Seq(
-    "-target:jvm-11",
+    "-target:jvm-1.8",
     "-explaintypes",
     "-deprecation",
     "-unchecked",

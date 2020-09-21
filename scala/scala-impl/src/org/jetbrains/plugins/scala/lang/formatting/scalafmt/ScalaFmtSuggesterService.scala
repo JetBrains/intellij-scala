@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 
 import scala.beans.BeanProperty
 
@@ -105,6 +106,5 @@ object ScalaFmtSuggesterService {
     var enableForCurrentProject: Boolean = true
   }
 
-  private val suggesterNotificationGroup: NotificationGroup =
-    NotificationGroup.balloonGroup("Scalafmt detection")
+  private val suggesterNotificationGroup: NotificationGroup = ScalaNotificationGroups.balloonGroup
 }

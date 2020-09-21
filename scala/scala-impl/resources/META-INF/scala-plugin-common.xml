@@ -186,6 +186,11 @@
         <problemHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemHighlightFilter"/>
         <problemFileHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemFileHighlightFilter"/>
 
+        <!--  Notification groups  -->
+        <notificationGroup id="Scala Balloon Notifications" displayType="BALLOON"  key=""/>
+        <notificationGroup id="Persistent Scala Notifications" displayType="STICKY_BALLOON" />
+        <notificationGroup id="Scala ToolWindow Notifications" displayType="TOOL_WINDOW" toolWindowId="Messages"/>
+
         <toolWindow id="internal-profiler" anchor="bottom" canCloseContents="false"
                     factoryClass="org.jetbrains.plugins.scala.caches.stats.InternalProfilerToolWindowFactory"/>
 

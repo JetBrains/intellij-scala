@@ -11,7 +11,7 @@ import com.intellij.psi.{PsiComment, PsiDocumentManager, PsiElement, PsiWhiteSpa
 import com.intellij.util.FunctionUtil
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.worksheet.WorksheetFile
+import org.jetbrains.plugins.scala.worksheet.{WorksheetBundle, WorksheetFile}
 
 import scala.jdk.CollectionConverters._
 
@@ -67,7 +67,8 @@ class WorksheetLineMarkerProvider extends LineMarkerProvider {
       AllIcons.Actions.Forward,
       FunctionUtil.nullConstant[PsiElement, String],
       null,
-      GutterIconRenderer.Alignment.RIGHT
+      GutterIconRenderer.Alignment.RIGHT,
+      () => WorksheetBundle.message("accessibility.worksheet.arrow")
     )
   }
 }

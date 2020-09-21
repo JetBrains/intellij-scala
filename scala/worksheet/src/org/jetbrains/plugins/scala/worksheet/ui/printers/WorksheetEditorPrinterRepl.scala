@@ -7,6 +7,7 @@ import com.intellij.openapi.editor.{Document, Editor, LogicalPosition}
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.util.concurrency.annotations.{RequiresEdt, RequiresWriteLock}
 import org.jetbrains.annotations.{CalledInAwt, CalledWithWriteLock}
 import org.jetbrains.plugins.scala.compiler.data.worksheet.ReplMessages
 import org.jetbrains.plugins.scala.extensions._
@@ -184,8 +185,8 @@ final class WorksheetEditorPrinterRepl private[printers](
       }
     }
 
-  @CalledInAwt
-  @CalledWithWriteLock
+  @RequiresEdt
+  @RequiresWriteLock
   private def chunkProcessed(queuedPsi: QueuedPsi, outputText: String, successfully: Boolean): Unit = {
     val inputLinesInfo  = buildInputLinesInfo(queuedPsi)
     val outputInfo      = buildOutputInfo(inputLinesInfo, queuedPsi, outputText)

@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.ScalaMetaMode
+import org.jetbrains.plugins.scala.util.ScalaNotificationGroups.toolWindowGroup
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -37,8 +38,7 @@ abstract class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerPro
 
   protected val EXPANDED_KEY = new Key[UndoExpansionData]("MACRO_EXPANDED_KEY")
 
-  protected lazy val messageGroup: NotificationGroup =
-    NotificationGroup.toolWindowGroup("macroexpand_messages", ToolWindowId.MESSAGES_WINDOW)
+  protected lazy val messageGroup: NotificationGroup = toolWindowGroup
   
   override def collectNavigationMarkers(element: PsiElement, result: Markers): Unit = {
     if (ScalaProjectSettings.getInstance(element.getProject).getScalaMetaMode == ScalaMetaMode.Disabled) return

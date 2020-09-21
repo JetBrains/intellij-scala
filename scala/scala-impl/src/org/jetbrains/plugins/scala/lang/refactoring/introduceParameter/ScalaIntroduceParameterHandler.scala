@@ -12,9 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.refactoring.RefactoringBundle
 import com.intellij.refactoring.util.CommonRefactoringUtil
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInsight.intention.expression.ConvertParameterToUnderscoreIntention
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -166,7 +164,7 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
 
     val superMethod = (methodLike.findDeepestSuperMethod(): @nowarn("cat=deprecation")) match {
       case null => methodLike
-      case _: ScMethodLike => SuperMethodWarningUtil.checkSuperMethod(methodLike, RefactoringBundle.message("to.refactor"))
+      case _: ScMethodLike => SuperMethodWarningUtil.checkSuperMethod(methodLike)
       case _ => methodLike
     }
     val methodToSearchFor: ScMethodLike = superMethod match {

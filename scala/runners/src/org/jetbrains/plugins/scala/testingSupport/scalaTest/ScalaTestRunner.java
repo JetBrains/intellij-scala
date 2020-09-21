@@ -8,10 +8,7 @@ import scala.Option;
 import scala.Some$;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class ScalaTestRunner {
 
@@ -98,7 +95,7 @@ public class ScalaTestRunner {
   private static void runSingleTest(String className, String testName, Reporter reporter) {
     try {
       Class<?> aClass = ScalaTestRunner.class.getClassLoader().loadClass(className);
-      Suite suite = (Suite) aClass.newInstance();
+      Suite suite = (Suite) aClass.getDeclaredConstructor().newInstance();
       // This stopper could be used to request stop to runner
       Stopper stopper = new Stopper() {
         private volatile boolean stopRequested = false;
