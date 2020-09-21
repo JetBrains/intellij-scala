@@ -52,10 +52,6 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
       SettingsManager.setGlobalSettings(jpsGlobal, settings);
     }
 
-    @Override
-    public void saveExtension(@NotNull JpsGlobal jpsGlobal, @NotNull Element componentTag) {
-      // do nothing
-    }
   }
 
   private static class CompilerConfigurationSerializer extends JpsProjectExtensionSerializer {
@@ -101,11 +97,6 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
       CompilerSettingsImpl.State state = XmlSerializer.deserialize(componentTag, CompilerSettingsImpl.State.class);
       return new CompilerSettingsImpl(state == null ? new CompilerSettingsImpl.State() : state);
     }
-
-    @Override
-    public void saveExtension(@NotNull JpsProject jpsProject, @NotNull Element componentTag) {
-      // do nothing
-    }
   }
 
   private static class ScalaLibraryPropertiesSerializer extends JpsLibraryPropertiesSerializer<LibrarySettings> {
@@ -118,11 +109,6 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
       LibrarySettingsImpl.State state = propertiesElement == null? null :
           XmlSerializer.deserialize(propertiesElement, LibrarySettingsImpl.State.class);
       return new LibrarySettingsImpl(state == null? new LibrarySettingsImpl.State() : state);
-    }
-
-    @Override
-    public void saveProperties(LibrarySettings properties, Element element) {
-      // do nothing
     }
   }
 }

@@ -19,9 +19,4 @@ public class SharedSourcesModuleSerializer extends JpsModulePropertiesSerializer
   public JpsDummyElement loadProperties(@Nullable Element componentElement) {
     return JpsElementFactory.getInstance().createDummyElement();
   }
-
-  @Override
-  public void saveProperties(@NotNull JpsDummyElement properties, @NotNull Element componentElement) {
-
-  }
 }
