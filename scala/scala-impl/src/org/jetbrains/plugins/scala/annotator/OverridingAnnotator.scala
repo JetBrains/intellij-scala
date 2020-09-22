@@ -274,9 +274,9 @@ trait OverridingAnnotator {
     implicit val tpc: TypePresentationContext = TypePresentationContext(memberNameId)
 
     for {
-      overridingType <- typeFromSigElement(namedElement)
+      overridingType <- typeForSigElement(namedElement)
       superSig       <- superSignatures.filterByType[TermSignature]
-      baseType       <- typeFromSigElement(superSig.namedElement)
+      baseType       <- typeForSigElement(superSig.namedElement)
       if !overrideTypeMatchesBase(baseType, overridingType, superSig, superSig.namedElement.name)
     } {
       holder.createErrorAnnotation(
@@ -292,9 +292,10 @@ trait OverridingAnnotator {
 }
 
 object OverridingAnnotator {
-  def typeFromSigElement(named: PsiNamedElement): Option[ScType] = named match {
-    case cp: ScClassParameter => cp.getRealParameterType.toOption
-    case t: Typeable          => t.`type`().toOption
-    case _                    => None
-  }
+  def typeForSigElement(named: PsiNamedElement): Option[ScType] =
+    named match {
+      case cp: ScClassParameter => cp.getRealParameterType.toOption
+      case t: Typeable          => t.`type`().toOption
+      case _                    => None
+    }
 }
