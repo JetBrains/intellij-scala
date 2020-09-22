@@ -31,8 +31,10 @@ abstract class SbtCommandsBuilderBase extends SbtCommandsBuilder {
   protected final def quoteSpaces(text: String): String =
     if (text.contains(" ")) s""""$text"""" else text
 
-  private def withClassKey(value: String): String =
-    classKey.fold(" ")(key => key.trim + " " + sanitize(value).trim)
+  private def withClassKey(value: String): String = {
+    val className = sanitize(value).trim
+    classKey.fold(className)(key => key.trim + " " + className)
+  }
 
   // TODO: extract to utils, rename
   private def sanitize(qualifiedName: String): String = qualifiedName.replace("`", "")
