@@ -4,11 +4,13 @@ import com.intellij.notification.{Notification, NotificationListener, Notificati
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.{Service, ServiceManager}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.JavaSdkVersion
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.CompositeModificationTracker
 import javax.swing.event.HyperlinkEvent
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
+import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 import scala.annotation.nowarn
@@ -24,24 +26,30 @@ final class CompileServerNotificationsService(project: Project) {
   def resetNotifications(): Unit =
     modificationTracker.incModificationCount()
 
+  /**
+   * SCL-18187
+   * SCL-17817
+   */
   @nowarn("msg=pure expression")
   @Cached(modificationTracker, null)
-  def warnIfCompileServerJdkVersionTooOld(): Unit =
+  def warnIfCompileServerJdkMayLeadToCompilationProblems(): Unit = {
+    def serverJdkIsOk(serverJdkVersion: JavaSdkVersion, recommendedJdkVersion: JavaSdkVersion): Boolean =
+      if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
+        serverJdkVersion == recommendedJdkVersion
+      else
+        serverJdkVersion isAtLeast recommendedJdkVersion
     for {
       (serverSdk, serverJdkVersion) <- CompileServerJdkManager.compileServerJdk(project)
       (recommendedSdk, recommendedJdkVersion) <- CompileServerJdkManager.recommendedJdk(project)
-      if !serverJdkVersion.isAtLeast(recommendedJdkVersion)
+      if !serverJdkIsOk(serverJdkVersion, recommendedJdkVersion)
     } showWarning(serverSdk.getName, recommendedSdk.getName)
+  }
 
-  private def showWarning(serverSdk: String,
-                          recommendedSdk: String): Unit = {
+  private def showWarning(serverSdk: String, recommendedSdk: String): Unit = {
     val text =
       s"""Compilation problems may occur.<p/>
-         |<a href="">Use JDK $recommendedSdk for Compile Server</a><p/>
-         |Version of the Compile Server JDK is less than
-         |the maximum JDK version used in the project.<p/>
-         |Compile Server JDK: $serverSdk<p/>
-         |Modules JDK: $recommendedSdk<p/>
+         |We recommend <a href="">using JDK $recommendedSdk</a> to prevent them.<p/>
+         |Current JDK is $serverSdk.
          |""".stripMargin
     val listener = new FixSdkNotificationListener(recommendedSdk)
     val warningNotification = new Notification(title, title, text, NotificationType.WARNING, listener)

@@ -44,7 +44,7 @@ object CompileServerLauncher {
     override def beforeBuildProcessStarted(project: Project, sessionId: UUID): Unit = {
       ensureCompileServerRunning(project)
       if (ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED)
-        CompileServerNotificationsService.get(project).warnIfCompileServerJdkVersionTooOld()
+        CompileServerNotificationsService.get(project).warnIfCompileServerJdkMayLeadToCompilationProblems()
     }
 
     override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit =

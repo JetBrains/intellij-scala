@@ -8,6 +8,7 @@ import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.PsiModificationTrackerImpl
 import com.intellij.psi.impl.source.resolve.ResolveCache
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
+import org.jetbrains.plugins.scala.compiler.CompileServerNotificationsService
 import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
@@ -34,6 +35,7 @@ class ToggleHighlightingModeListener
         ExternalHighlighters.eraseAllHighlightings(project)
       }
       forceStandradHighlighting(project)
+      CompileServerNotificationsService.get(project).resetNotifications()
     }
   
   private def forceStandradHighlighting(project: Project): Unit = {
