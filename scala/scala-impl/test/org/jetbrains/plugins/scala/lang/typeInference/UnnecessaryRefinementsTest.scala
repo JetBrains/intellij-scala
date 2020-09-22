@@ -39,4 +39,19 @@ class UnnecessaryRefinementsTest extends TypeInferenceTestBase {
        |}*/
        |""".stripMargin
   )
+
+  def testSCL18191(): Unit = doTest(
+    s"""
+       |trait Monoid[A] {
+       |  def op(left: A, right: A): A
+       |  def zero: A
+       |}
+       |${START}new Monoid[List[Int]] {
+       |  override def op(left: List[Int], right: List[Int]): List[Int] = left ++ right
+       |  override def zero: List[Int] = Nil
+       |
+       |}$END
+       |//Monoid[List[Int]]
+       |""".stripMargin
+  )
 }
