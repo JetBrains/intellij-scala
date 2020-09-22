@@ -27,7 +27,7 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
-      override def visitDocComment(s: ScDocComment): Unit = {
+      override def visitDocComment(docComment: ScDocComment): Unit = {
         val tagParams = mutable.HashMap[String, ScDocTag]()
         val tagTypeParams = mutable.HashMap[String, ScDocTag]()
         val duplicatingParams = mutable.HashSet[ScDocTag]()
@@ -50,7 +50,7 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
         }
 
         def collectDocParams(): Unit = {
-          for (tagParam <- s.findTagsByName(Set("@param", "@tparam").contains _)) {
+          for (tagParam <- docComment.findTagsByName(Set("@param", "@tparam").contains _)) {
             if (tagParam.getValueElement != null) {
               tagParam.name match {
                 case "@param" =>
@@ -89,7 +89,8 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
           registerBadParams()
         }
 
-        s.getOwner match {
+        val commentOwner = docComment.getOwner
+        commentOwner match {
           case func: ScFunction =>
             doInspection(func.parameters, func.typeParameters)
           case clazz: ScClass =>
@@ -107,14 +108,16 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
           case traitt: ScTrait =>
             doInspection(null, traitt.typeParameters)
           case _: ScTypeAlias => //scaladoc can't process tparams for type alias now
-            for (tag <- s.findTagsByName(MyScaladocParsing.TYPE_PARAM_TAG)) {
+            for (tag <- docComment.findTagsByName(MyScaladocParsing.TYPE_PARAM_TAG)) {
               holder.registerProblem(holder.getManager.createProblemDescriptor(
                 tag.getFirstChild, ScalaInspectionBundle.message("scaladoc.cant.process.tparams.for.type.alias.now"),
                 true, ProblemHighlightType.WEAK_WARNING, isOnTheFly))
             }
           case _ => //we can't have params/tparams here
-            for (tag <- s.findTagsByName(Set(MyScaladocParsing.PARAM_TAG, MyScaladocParsing.TYPE_PARAM_TAG).contains _)
-                 if tag.isInstanceOf[ScDocTag]) {
+            for {
+              tag <- docComment.findTagsByName(Set(MyScaladocParsing.PARAM_TAG, MyScaladocParsing.TYPE_PARAM_TAG).contains _)
+              if tag.isInstanceOf[ScDocTag]
+            } {
               holder.registerProblem(holder.getManager.createProblemDescriptor(
                 tag.getFirstChild, ScalaInspectionBundle.message("param.and.tparams.tags.arnt.allowed.there"),
                 true, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly,
