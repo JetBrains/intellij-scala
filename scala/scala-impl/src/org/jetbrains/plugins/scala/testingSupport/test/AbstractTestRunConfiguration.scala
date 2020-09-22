@@ -7,7 +7,7 @@ import com.intellij.diagnostic.logging.LogConfigurationPanel
 import com.intellij.execution._
 import com.intellij.execution.configurations._
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
+import com.intellij.execution.testframework.sm.runner.{SMRunnerConsolePropertiesProvider, SMTRunnerConsoleProperties}
 import com.intellij.openapi.components.PathMacroManager
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.options.{SettingsEditor, SettingsEditorGroup}
@@ -41,7 +41,11 @@ abstract class AbstractTestRunConfiguration(
   new RunConfigurationModule(project),
   configurationFactory
 ) with ConfigurationWithCommandLineShortener
+  with SMRunnerConsolePropertiesProvider
   with exceptions {
+
+  override def createTestConsoleProperties(executor: Executor): SMTRunnerConsoleProperties =
+    new ScalaTestFrameworkConsoleProperties(this, testFramework.getName, executor)
 
   def configurationProducer: AbstractTestConfigurationProducer[_]
   def testFramework: TestFramework
@@ -171,11 +175,25 @@ abstract class AbstractTestRunConfiguration(
 
   def sbtSupport: SbtTestRunningSupport
 
-  override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
-    val module = getModule
-    if (module == null) throw executionException(ScalaBundle.message("test.run.config.module.is.not.specified"))
+  override def getState(executor: Executor, env: ExecutionEnvironment): ScalaTestFrameworkCommandLineState =
+    newCommandLineState(env, None)
 
-    new ScalaTestFrameworkCommandLineState(this, env, testConfigurationData, runnerInfo, sbtSupport)(project, module)
+  def newCommandLineState(
+    env: ExecutionEnvironment,
+    failedTests: Option[Seq[(String, String)]]
+  ): ScalaTestFrameworkCommandLineState = {
+    val module = getModule
+    if (module == null)
+      throw executionException(ScalaBundle.message("test.run.config.module.is.not.specified"))
+
+    new ScalaTestFrameworkCommandLineState(
+      this,
+      env,
+      testConfigurationData,
+      failedTests,
+      runnerInfo,
+      sbtSupport
+    )(project, module)
   }
 
   override def writeExternal(element: Element): Unit = {
@@ -209,27 +227,6 @@ object AbstractTestRunConfiguration {
   type SettingMap = Map[SettingEntry, String]
 
   def SettingMap(): SettingMap = Map[SettingEntry, String]()
-
-  private[test] trait TestCommandLinePatcher {
-    private var failedTests: collection.Seq[(String, String)] = Seq()
-
-    def setFailedTests(failedTests: collection.Seq[(String, String)]): Unit =
-      this.failedTests = Option(failedTests).map(_.distinct).orNull
-
-    def getFailedTests: collection.Seq[(String, String)] = failedTests
-
-    def getClasses: collection.Seq[String]
-
-    @BeanProperty
-    var configuration: RunConfigurationBase[_] = _
-  }
-
-  private[test] trait PropertiesExtension {
-    self: SMTRunnerConsoleProperties =>
-
-    def getRunConfigurationBase: RunConfigurationBase[_]
-  }
-
   /**
    * see runners module for details
    * @param runnerClass fully qualified name of runner class

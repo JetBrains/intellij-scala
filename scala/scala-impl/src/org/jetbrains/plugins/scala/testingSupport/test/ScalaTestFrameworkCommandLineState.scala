@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.testingSupport.test
 import java.io.{File, FileOutputStream, IOException, PrintStream}
 import java.{util => ju}
 
+import com.intellij.execution.configuration.RunConfigurationExtensionsManager
 import com.intellij.execution.configurations.{JavaCommandLineState, JavaParameters, ParametersList, RunConfigurationBase}
 import com.intellij.execution.impl.ConsoleViewImpl
 import com.intellij.execution.process.ProcessHandler
@@ -10,11 +11,11 @@ import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.testDiscovery.JavaAutoRunManager
 import com.intellij.execution.testframework.autotest.{AbstractAutoTestManager, ToggleAutoTestAction}
 import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
-import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
 import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
 import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.{DefaultExecutionResult, ExecutionResult, Executor, JavaRunConfigurationExtensionManager, RunConfigurationExtension, ShortenCommandLine}
+import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.components.PathMacroManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -23,11 +24,11 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.newvfs.ManagingFS
 import com.intellij.openapi.vfs.newvfs.persistent.PersistentFSImpl
 import org.apache.commons.lang3.StringUtils
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt}
 import org.jetbrains.plugins.scala.project.{ModuleExt, PathsListExt, ProjectExt}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
-import org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{PropertiesExtension, TestFrameworkRunnerInfo}
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.TestFrameworkRunnerInfo
 import org.jetbrains.plugins.scala.testingSupport.test.ScalaTestFrameworkCommandLineState._
 import org.jetbrains.plugins.scala.testingSupport.test.actions.ScalaRerunFailedTestsAction
 import org.jetbrains.plugins.scala.testingSupport.test.exceptions.executionException
@@ -39,32 +40,39 @@ import org.jetbrains.sbt.shell.SbtProcessManager
 import scala.jdk.CollectionConverters._
 import scala.util.Using
 
-/** for ScalaTest, Spec2, uTest */
+/**
+ * For ScalaTest, Spec2, uTest
+ *
+ * @param failedTests if defined, the list of test classes and methods to run
+ *                    is taken from it instead of from [[testConfigurationData.getTestMap]]
+ */
+@ApiStatus.Internal
 class ScalaTestFrameworkCommandLineState(
   configuration: AbstractTestRunConfiguration,
   env: ExecutionEnvironment,
   testConfigurationData: TestConfigurationData,
+  failedTests: Option[Seq[(String, String)]],
   runnerInfo: TestFrameworkRunnerInfo,
   sbtSupport: SbtTestRunningSupport
 )(implicit project: Project, module: Module)
-  extends JavaCommandLineState(env)
-    with AbstractTestRunConfiguration.TestCommandLinePatcher {
+  extends JavaCommandLineState(env) {
 
-  override val getClasses: Seq[String] = testConfigurationData.getTestMap.keys.toSeq
-
-  // Debug settings
-  private def debugProcessOutput = false
-  private def attachDebugAgent = false
-  private def waitUntilDebuggerAttached = true
-
-  private def suitesToTestsMap: Map[String, Set[String]] = {
-    val failedTests = getFailedTests.groupBy(_._1).map { case (aClass, tests) => (aClass, tests.map(_._2).toSet) }.filter(_._2.nonEmpty)
-    if (failedTests.nonEmpty) {
-      failedTests
-    } else {
-      testConfigurationData.getTestMap
-    }
+  private object DebugOptions {
+    // set to true to debug raw process output, can be useful to test teamcity service messages
+    def debugProcessOutput = false
+    // set to true to debug test runner process
+    def attachDebugAgent = false
+    def waitUntilDebuggerAttached = true
   }
+
+  private def buildSuitesToTestsMap: Map[String, Set[String]] =
+    failedTests match {
+      case Some(failed) =>
+        val grouped = failed.groupBy(_._1).map { case (aClass, tests) => (aClass, tests.map(_._2).toSet) }
+        grouped.filter(_._2.nonEmpty)
+      case None =>
+        testConfigurationData.getTestMap
+    }
 
   override def createJavaParameters(): JavaParameters = {
     val params = new JavaParametersModified()
@@ -84,8 +92,8 @@ class ScalaTestFrameworkCommandLineState(
     for (ext <- RunConfigurationExtension.EP_NAME.getExtensionList.asScala)
       ext.updateJavaParameters(configuration, params, getRunnerSettings)
 
-    if (attachDebugAgent) {
-      val suspend = if(waitUntilDebuggerAttached) "y" else "n"
+    if (DebugOptions.attachDebugAgent) {
+      val suspend = if(DebugOptions.waitUntilDebuggerAttached) "y" else "n"
       params.getVMParametersList.addParametersString(s"-agentlib:jdwp=transport=dt_socket,server=y,suspend=$suspend,address=5009")
     }
 
@@ -119,6 +127,7 @@ class ScalaTestFrameworkCommandLineState(
       params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS, sdk)
     }
 
+    val suitesToTestsMap = buildSuitesToTestsMap
     val programParameters = buildProgramParameters(suitesToTestsMap)
     val useTestsArgsFile = {
       // multiple test classes can blow command line length
@@ -194,21 +203,13 @@ class ScalaTestFrameworkCommandLineState(
       startProcess()
     }
 
-    if (getConfiguration == null)
-      setConfiguration(configuration)
-    val config = getConfiguration // shouldn't it be used everywhere below instead of thisConfiguration?
-
     attachExtensionsToProcess(processHandler)
 
     val useSimplifiedConsoleView = useSbt && !useUiWithSbt
     val consoleView = if (useSimplifiedConsoleView) {
       new ConsoleViewImpl(project, true)
     } else {
-      //noinspection TypeAnnotation
-      val consoleProperties = new SMTRunnerConsoleProperties(configuration, "Scala", executor) with PropertiesExtension {
-        override def getTestLocator = new ScalaTestLocationProvider
-        override def getRunConfigurationBase: RunConfigurationBase[_] = config
-      }
+      val consoleProperties = configuration.createTestConsoleProperties(executor)
       consoleProperties.setIdBasedTestTree(true)
       SMTestRunnerConnectionUtil.createConsole("Scala", consoleProperties)
     }
@@ -216,11 +217,12 @@ class ScalaTestFrameworkCommandLineState(
 
     val executionResult = createExecutionResult(consoleView, processHandler)
 
-    if (debugProcessOutput)
+    if (DebugOptions.debugProcessOutput)
       addDebugOutputListener(processHandler)
 
     if (useSbt) {
       Stats.trigger(FeatureKey.sbtShellTestRunConfig)
+      val suitesToTestsMap = buildSuitesToTestsMap
       val future = SbtShellTestsRunner.runTestsInSbtShell(
         sbtSupport,
         module,
@@ -248,9 +250,12 @@ class ScalaTestFrameworkCommandLineState(
 
   private def attachExtensionsToProcess(processHandler: ProcessHandler): Unit = {
     val runnerSettings = getRunnerSettings
-    JavaRunConfigurationExtensionManager.getInstance
-      .attachExtensionsToProcess(configuration, processHandler, runnerSettings)
+    configurationExtensionManager.attachExtensionsToProcess(configuration, processHandler, runnerSettings)
   }
+
+  // case is required to avoid bad red-highlighting by Scala Plugin which can't understand Kotlin generics
+  private def configurationExtensionManager: RunConfigurationExtensionsManager[RunConfigurationBase[_], _] =
+    JavaRunConfigurationExtensionManager.getInstance.asInstanceOf[RunConfigurationExtensionsManager[RunConfigurationBase[_], _]]
 
   private def sbtShellProcess(project: Project): ProcessHandler = {
     //use a process running sbt
@@ -276,17 +281,17 @@ object ScalaTestFrameworkCommandLineState {
 
   private def createExecutionResult(consoleView: ConsoleView, processHandler: ProcessHandler): DefaultExecutionResult = {
     val result = new DefaultExecutionResult(consoleView, processHandler)
-    val restartActions = createRestartActions(consoleView).toSeq.flatten
+    val restartActions = createRestartActions(consoleView)
     result.setRestartActions(restartActions: _*)
     result
   }
 
-  private def createRestartActions(consoleView: ConsoleView) =
+  private def createRestartActions(consoleView: ConsoleView): Seq[AnAction] =
     consoleView match {
       case testConsole: BaseTestsOutputConsoleView =>
         val rerunFailedTestsAction = {
-          val action = new ScalaRerunFailedTestsAction(testConsole)
-          action.init(testConsole.getProperties)
+          val properties = testConsole.getProperties.asInstanceOf[ScalaTestFrameworkConsoleProperties]
+          val action = new ScalaRerunFailedTestsAction(testConsole, properties)
           action.setModelProvider(() => testConsole.asInstanceOf[SMTRunnerConsoleView].getResultsViewer)
           action
         }
@@ -294,9 +299,9 @@ object ScalaTestFrameworkCommandLineState {
           override def isDelayApplicable: Boolean = false
           override def getAutoTestManager(project: Project): AbstractAutoTestManager = JavaAutoRunManager.getInstance(project)
         }
-        Some(Seq(rerunFailedTestsAction, toggleAutoTestAction))
+        Seq(rerunFailedTestsAction, toggleAutoTestAction)
       case _ =>
-        None
+        Nil
     }
 
   // ScalaTest does not understand backticks in class/package qualified names, it will fail to run

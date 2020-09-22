@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.testingSupport.test.actions
 
 import java.util
+import java.util.stream.Collectors
 
-import org.jetbrains.plugins.scala.extensions.OptionExt
 import com.intellij.execution.Executor
 import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.runners.ExecutionEnvironment
@@ -12,25 +12,30 @@ import com.intellij.execution.testframework.actions.AbstractRerunFailedTestsActi
 import com.intellij.execution.testframework.sm.runner.SMTestProxy
 import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
 import com.intellij.execution.ui.ConsoleView
-import com.intellij.openapi.actionSystem.ex.ActionUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.plugins.scala.extensions.IteratorExt
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.PsiLocationWithName
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{PropertiesExtension, TestCommandLinePatcher}
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, ScalaTestFrameworkConsoleProperties}
+import org.jetbrains.plugins.scala.testingSupport.test.actions.ScalaRerunFailedTestsAction.MyScalaRunProfile
 
 import scala.jdk.CollectionConverters._
-import scala.collection.mutable.ArrayBuffer
 
-class ScalaRerunFailedTestsAction(consoleView: ConsoleView)
+@ApiStatus.Internal
+class ScalaRerunFailedTestsAction(consoleView: ConsoleView, properties: ScalaTestFrameworkConsoleProperties)
   extends AbstractRerunFailedTestsAction(consoleView) {
 
-  ActionUtil.copyFrom(this, "RerunFailedTests")
-  registerCustomShortcutSet(getShortcutSet, consoleView.getComponent)
+  locally {
+    this.init(properties)
+  }
 
-  override def getFailedTests(project: Project): util.List[AbstractTestProxy] =
-    getModel.getRoot.getAllTests.asScala.filter(isFailed).asJava.asInstanceOf[util.List[AbstractTestProxy]]
+  override def getFailedTests(project: Project): util.List[AbstractTestProxy] = {
+    val allTests = getModel.getRoot.getAllTests
+    val failedTests = allTests.stream().filter(isFailed)
+    failedTests.collect(Collectors.toList[AbstractTestProxy])
+  }
 
   private def isFailed(test: AbstractTestProxy): Boolean = {
     if (!test.isLeaf) return false
@@ -46,73 +51,65 @@ class ScalaRerunFailedTestsAction(consoleView: ConsoleView)
   override def getRunProfile(environment: ExecutionEnvironment): MyRunProfile = {
     val properties = getModel.getProperties
     val configuration = properties.getConfiguration.asInstanceOf[AbstractTestRunConfiguration]
-    new MyScalaRunProfile(configuration, properties.asInstanceOf[PropertiesExtension])
+    new MyScalaRunProfile(
+      configuration,
+      getFailedTests(configuration.getProject).asScala.toSeq
+    )
   }
+}
+
+object ScalaRerunFailedTestsAction {
 
   private class MyScalaRunProfile(
     configuration: AbstractTestRunConfiguration,
-    propertiesExtension: PropertiesExtension
+    failedTests: Seq[AbstractTestProxy]
   ) extends MyRunProfile(configuration) {
-
-    private var previouslyFailed: Option[collection.Seq[Tuple2[String, String]]] = None
 
     override def getModules: Array[Module] = configuration.getModules
 
     override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
-      val state = configuration.getState(executor, env)
-
-      val buffer = new ArrayBuffer[(String, String)]
-
-      val extensionConfiguration = propertiesExtension.getRunConfigurationBase
-      val patcher = state.asInstanceOf[TestCommandLinePatcher]
-      val classNames = patcher.getClasses.groupBy(fqnToSimpleName).view.mapValues(_.head).toMap
-
-      val failedTests = getFailedTests(configuration.getProject).asScala
-      for (failedTest <- failedTests) { //todo: fix after adding location API
-        def tail(): Unit = {
-          var parent = failedTest.getParent
-          while (parent != null) {
-            classNames.get(parent.getName) match {
-              case None =>
-                parent = parent.getParent
-                if (parent == null)
-                  buffer += ((classNames.values.iterator.next(), getTestName(failedTest)))
-              case Some(s) =>
-                buffer += ((s, getTestName(failedTest)))
-                parent = null
-            }
-          }
-        }
-
-        val previouslyFailed = for {
-          profile          <- Option(extensionConfiguration).filterByType[MyScalaRunProfile]
-          previouslyFailed <- profile.previouslyFailed
-          failed           <- previouslyFailed.find(_._2 == getTestName(failedTest))
-        } yield failed
-        previouslyFailed match {
-          case Some(failed) =>
-            buffer += failed
-          case None         =>
-            tail()
-        }
-      }
-      previouslyFailed = Some(buffer)
-      patcher.setFailedTests(buffer)
-      patcher.setConfiguration(this)
-
-      state
+      val classes = configuration.testConfigurationData.getTestMap.keys.toSeq
+      val failedSeq: Seq[(String, String)] = getFailedTests(classes, failedTests)
+      configuration.newCommandLineState(env, Some(failedSeq))
     }
 
-    private def getTestName(failed: AbstractTestProxy): String =
+    private def getFailedTests(
+      classes: Seq[String],
+      failedTests: Seq[AbstractTestProxy]
+    ): Seq[(String, String)] = {
+
+      // (TODO: what about same classes in different modules?)
+      val classNameToFqn: Map[String, String] =
+        classes.groupBy(fqnToSimpleName).view.mapValues(_.head).toMap
+
+      for {
+        failedTest <- failedTests
+        failedTestName = getFailedTestName(failedTest)
+        tailClassFqn <- detectClassFqn(failedTest, classNameToFqn)
+      } yield (tailClassFqn, failedTestName)
+    }
+
+    private def detectClassFqn(failedTest: AbstractTestProxy, classNames: Map[String, String]): Option[String] = {
+      val parents = Iterator.iterate(failedTest.getParent)(_.getParent).takeWhile(_ != null)
+      (for {
+        parent <- parents
+        // can be a class name or intermediate test node name
+        // (TODO: what about same classes in different modules?)
+        parentName = parent.getName
+        classFqn <- classNames.get(parentName)
+      } yield classFqn).headOption
+    }
+
+    private def getFailedTestName(failed: AbstractTestProxy): String =
       failed.getLocation(getProject, GlobalSearchScope.allScope(getProject)) match {
         case PsiLocationWithName(_, _, testName) => testName
         case _ => failed.getName
       }
   }
 
-  private def fqnToSimpleName(className: String): String = {
-    val i = className.lastIndexOf(".")
-    if (i < 0) className
-    else className.substring(i + 1)
+  private def fqnToSimpleName(classFqn: String): String = {
+    val i = classFqn.lastIndexOf(".")
+    if (i < 0) classFqn
+    else classFqn.substring(i + 1)
   }
 }
