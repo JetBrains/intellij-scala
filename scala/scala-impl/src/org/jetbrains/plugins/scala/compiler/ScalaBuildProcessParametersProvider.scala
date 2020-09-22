@@ -28,9 +28,14 @@ class ScalaBuildProcessParametersProvider(project: Project)
   }
   
   private def compileParallelMaxThreadsOption(): Option[String] = {
-    val key = GlobalOptions.COMPILE_PARALLEL_MAX_THREADS_OPTION
-    val value = ScalaCompileServerSettings.getInstance.COMPILE_SERVER_PARALLELISM
-    Some(s"-D$key=$value")
+    val settings = ScalaCompileServerSettings.getInstance
+    if (settings.COMPILE_SERVER_ENABLED && settings.COMPILE_SERVER_PARALLEL_COMPILATION) {
+      val key = GlobalOptions.COMPILE_PARALLEL_MAX_THREADS_OPTION
+      val value = ScalaCompileServerSettings.getInstance.COMPILE_SERVER_PARALLELISM
+      Some(s"-D$key=$value")
+    } else {
+      None
+    }
   }
 
   override def isProcessPreloadingEnabled: Boolean =

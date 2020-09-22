@@ -24,8 +24,9 @@ class ParallelCompilationEnabler
   
   // BEFORE
   override def execute(context: CompileContext): Boolean = {
-    if (ScalaCompileServerSettings.getInstance.COMPILE_SERVER_PARALLEL_COMPILATION)
-      tempService(context.getProject).setTempParallelCompilation(true)
+    val settings = ScalaCompileServerSettings.getInstance
+    if (settings.COMPILE_SERVER_ENABLED)
+      tempService(context.getProject).setTempParallelCompilation(settings.COMPILE_SERVER_PARALLEL_COMPILATION)
     true
   }
 
