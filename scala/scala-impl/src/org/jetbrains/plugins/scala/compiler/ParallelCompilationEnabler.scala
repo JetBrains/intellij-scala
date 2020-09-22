@@ -12,10 +12,8 @@ import com.intellij.openapi.project.Project
 
 /**
  * #SCL-17704
- * 
- * For implementation explanation see scaladoc for
- * [[org.jetbrains.plugins.scala.externalHighlighters.SetSameJdkToBuildProcessAsInCompileServer]].
- * This class is implemented the same way.
+ *
+ * Temporary sets "Compile independent modules in parallel" value and then resets it.
  */
 class ParallelCompilationEnabler
   extends CompileTask
