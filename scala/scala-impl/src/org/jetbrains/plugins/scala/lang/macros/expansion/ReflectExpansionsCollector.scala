@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.macros.expansion
 import java.io._
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
@@ -24,6 +25,7 @@ class ReflectExpansionsCollector(project: Project) {
 
   private val collectedExpansions: mutable.HashMap[Place, MacroExpansion] = mutable.HashMap.empty
   private var parser: ScalaReflectMacroExpansionParser = _
+  private val LOG = Logger.getInstance(classOf[ReflectExpansionsCollector])
 
 
   deserializeExpansions()
@@ -60,15 +62,28 @@ class ReflectExpansionsCollector(project: Project) {
     if (!file.exists())
       return
 
-    extensions.using(new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)))) { os =>
-      collectedExpansions ++= os.readObject().asInstanceOf[collectedExpansions.type]
+    try {
+      extensions.using(new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)))) { os =>
+        collectedExpansions ++= os.readObject().asInstanceOf[collectedExpansions.type]
+      }
+    } catch {
+      case e: Throwable =>
+        LOG.warn("Filed to deserialize macro expansions, removing cache", e)
+        file.delete()
     }
   }
 
   def serializeExpansions(): Unit = {
     val file = new File(System.getProperty("java.io.tmpdir") + s"/expansion-${project.getName}")
-    scala.extensions.using(new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
-      _.writeObject(collectedExpansions)
+    try {
+      scala.extensions.using(new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
+        _.writeObject(collectedExpansions)
+      }
+    } catch {
+      case e: Throwable =>
+        LOG.warn("Filed to serialize macro expansions, removing cache", e)
+        collectedExpansions.clear()
+        file.delete()
     }
   }
 
