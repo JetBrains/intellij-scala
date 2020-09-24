@@ -124,8 +124,9 @@ private object DecompilationResult {
       try {
         // TODO Don't decompile definitions (right-hand side).
         // TODO Can we decompile TASTy file content, not a class name? https://github.com/lampepfl/dotty-feature-requests/issues/96
-        val text = TastyPath(file).flatMap(TastyReader.read).map(_.text).getOrElse(s"Error reading TASTy file: ${file.getPath}")
-        Some(("source.scala", text)) // TODO Read source file from TASTy.
+        TastyPath(file)
+          .flatMap(TastyReader.read)
+          .map(tastyFile => (tastyFile.source, tastyFile.text))
       } catch {
         case _: Throwable => None // TODO Handle errors more gracefully.
       }

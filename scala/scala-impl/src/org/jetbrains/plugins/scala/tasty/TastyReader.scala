@@ -60,7 +60,12 @@ object TastyReader {
       override def apply(reflect: Reflection)(tree: reflect.delegate.Tree): Unit = {
         val printer = new SourceCodePrinter[reflect.type](reflect)(SyntaxHighlight.plain)
         val text = printer.showTree(tree)(reflect.delegate.rootContext)
-        result = Some(TastyFile(text, printer.references, printer.types))
+        def file(path: String) = {
+          val i = path.replace('\\', '/').lastIndexOf("/")
+          if (i > 0) path.substring(i + 1) else path
+        }
+        val source = printer.sources.headOption.map(file).getOrElse("unknown.scala")
+        result = Some(TastyFile(source, text, printer.references, printer.types))
       }
     }
 

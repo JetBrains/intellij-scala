@@ -19,7 +19,7 @@ package object tasty {
   @Nls
   val tastyName = "TASTy"
 
-  case class TastyFile(text: String, references: Seq[ReferenceData], types: Seq[TypeData])
+  case class TastyFile(source: String, text: String, references: Seq[ReferenceData], types: Seq[TypeData])
 
   case class Position(file: String, start: Int,  end: Int)
 
@@ -38,10 +38,10 @@ package object tasty {
 
     def apply(tastyFile: VirtualFile): Option[TastyPath] = Some(tastyFile.getPath) collect {
       case JarPath(outputDirectory, relativePath) =>
-        TastyPath(outputDirectory, relativePath.replaceAll("/", "."))
+        TastyPath(outputDirectory, relativePath.replace('/', '.'))
 
       case CompileOutputPath(outputDirectory, relativePath) =>
-        TastyPath(outputDirectory, relativePath.replaceAll("/", "."))
+        TastyPath(outputDirectory, relativePath.replace('/', '.'))
     }
 
     def apply(element: PsiElement): Option[TastyPath] = {

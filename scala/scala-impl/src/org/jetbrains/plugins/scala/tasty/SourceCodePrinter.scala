@@ -15,6 +15,8 @@ class SourceCodePrinter[R <: Reflection](val tasty: R)(syntaxHighlight: SyntaxHi
 
   var types: Seq[TypeData] = Vector.empty
 
+  var sources: Seq[String] = Vector.empty
+
   def showTree(tree: Tree)(implicit ctx: Context): String =
     (new Buffer).printTree(tree).result()
 
@@ -1286,12 +1288,20 @@ class SourceCodePrinter[R <: Reflection](val tasty: R)(syntaxHighlight: SyntaxHi
       val Annotation(ref, args) = annot
       if (annot.symbol.maybeOwner == Symbol.requiredClass("scala.internal.quoted.showName")) this
       else {
+        val previousLength = sb.length
         this += "@"
         printTypeTree(ref)
-        if (args.isEmpty)
+        val result = if (args.isEmpty)
           this
         else
           inParens(printTrees(args, ", "))
+        if (sb.substring(previousLength).startsWith("@scala.annotation.internal.SourceFile")) {
+          sources :+= sb.substring(previousLength + 39, sb.length - 2)
+          sb.delete(previousLength, sb.length())
+        } else {
+          this += lineBreak()
+        }
+        result
       }
     }
 
