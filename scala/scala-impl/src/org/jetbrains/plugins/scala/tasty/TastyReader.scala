@@ -4,7 +4,6 @@ import java.io.File
 import java.net.URLClassLoader
 import java.nio.file.{Files, Paths}
 
-import com.intellij.psi.PsiFile
 import com.intellij.util.PathUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
@@ -13,17 +12,8 @@ import scala.quoted.show.SyntaxHighlight
 import scala.tasty.compat.{ConsumeTasty, Reflection, TastyConsumer}
 
 object TastyReader {
-  def read(classpath: String, className: String): Option[TastyFile] =
-    read(api, classpath, className)
-
-  def read(containingFile: PsiFile): Option[TastyFile] =
-    for {
-      Location(outputDirectory, className) <- compiledLocationOf(containingFile)
-      result <- TastyReader.read(outputDirectory, className)
-    } yield result
-
-  def readText(classpath: String, className: String): Option[String] =
-    read(classpath, className).map(_.text)
+  def read(tastyPath: TastyPath): Option[TastyFile] =
+    read(api, tastyPath.classpath, tastyPath.className)
 
   // The "dotty-tasty-inspector" transitively depends on many unnecessary libraries.
   private val RequiredLibraries = Seq(
@@ -118,7 +108,7 @@ object TastyReader {
 
     exampleClasses.foreach { fqn =>
       println(fqn)
-      val file = read(basePath + "target/scala-0.27/classes", fqn).get
+      val file = read(TastyPath(basePath + "target/scala-0.27/classes", fqn)).get
       println(file.text)
 
       (file.references ++ file.types).sortBy {

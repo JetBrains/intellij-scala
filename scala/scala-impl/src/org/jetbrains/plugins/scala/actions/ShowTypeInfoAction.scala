@@ -87,8 +87,8 @@ class ShowTypeInfoAction extends AnAction(
 
       if (isTastyEnabledFor(file)) {
         for (element <- Option(file.findElementAt(offset));
-             Location(outputDirectory, className) <- compiledLocationOf(element);
-             tastyFile <- TastyReader.read(outputDirectory, className);
+             tastyPath <- TastyPath(element);
+             tastyFile <- TastyReader.read(tastyPath);
              presentation <- typeAt(editor.getCaretModel.getOffset, tastyFile)) {
 
           showTastyNotification("Type Info") // Internal mode

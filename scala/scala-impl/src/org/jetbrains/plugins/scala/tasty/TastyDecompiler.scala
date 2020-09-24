@@ -5,14 +5,9 @@ import com.intellij.openapi.vfs.VirtualFile
 
 class TastyDecompiler extends BinaryFileDecompiler {
   override def decompile(file: VirtualFile): String = {
-
     // TODO An option to inspect a file, not just class, https://github.com/lampepfl/dotty-feature-requests/issues/96
-    locationOf(file) match {
-      case Some(Location(outputDirectory, className)) =>
-        TastyReader.readText(outputDirectory, className)
-          .getOrElse(s"Error reading TASTy file: ${file.getPath}")
-
-      case _ => s"Cannot determine output directory: ${file.getPath}"
-    }
+    TastyPath(file)
+      .map(path => TastyReader.read(path).map(_.text).getOrElse(s"Error reading TASTy file: ${file.getPath}"))
+      .getOrElse(s"Cannot determine path of: ${file.getPath}")
   }
 }

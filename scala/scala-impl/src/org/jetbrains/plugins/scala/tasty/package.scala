@@ -30,29 +30,33 @@ package object tasty {
   def isTastyEnabledFor(element: PsiElement): Boolean = element.isInScala3Module
 //    element.getLanguage.is(Scala3Language.INSTANCE) // TODO SCL-17237
 
-  case class Location(outputDirectory: String, className: String)
+  case class TastyPath(classpath: String, className: String)
 
-  def compiledLocationOf(element: PsiElement): Option[Location] = {
-    element.containingFile.flatMap { psiFile =>
-      element.module.flatMap { module =>
-        val index = ProjectFileIndex.SERVICE.getInstance(element.getProject)
-        val inTest = index.isInTestSourceContent(psiFile.getVirtualFile)
-        Option(CompilerPaths.getModuleOutputPath(module, inTest)).flatMap { outputDirectory =>
-          element.parentsInFile.filterByType[ScTypeDefinition].lastOption.map { topLevelTypeDefinition =>
-            Location(outputDirectory, topLevelTypeDefinition.qualifiedName)
+  object TastyPath {
+    private val JarPath = """(.+.jar)!/(.+)\.tasty""".r
+    private val CompileOutputPath = """(.+/(?:classes|(?:out/(?:production|test))))/(.+)\.tasty""".r
+
+    def apply(tastyFile: VirtualFile): Option[TastyPath] = Some(tastyFile.getPath) collect {
+      case JarPath(outputDirectory, relativePath) =>
+        TastyPath(outputDirectory, relativePath.replaceAll("/", "."))
+
+      case CompileOutputPath(outputDirectory, relativePath) =>
+        TastyPath(outputDirectory, relativePath.replaceAll("/", "."))
+    }
+
+    def apply(element: PsiElement): Option[TastyPath] = {
+      element.containingFile.flatMap { psiFile =>
+        element.module.flatMap { module =>
+          val index = ProjectFileIndex.SERVICE.getInstance(element.getProject)
+          val inTest = index.isInTestSourceContent(psiFile.getVirtualFile)
+          Option(CompilerPaths.getModuleOutputPath(module, inTest)).flatMap { outputDirectory =>
+            element.parentsInFile.filterByType[ScTypeDefinition].lastOption.map { topLevelTypeDefinition =>
+              TastyPath(outputDirectory, topLevelTypeDefinition.qualifiedName)
+            }
           }
         }
       }
     }
-  }
-
-  private val OutputPath = """(.+[\\\/](?:classes|(?:out[\\\/](?:production|test))))[\\\/](.+\.tasty)""".r
-
-  def locationOf(compiledFile: VirtualFile): Option[Location] = compiledFile.getPath match {
-    case OutputPath(outputDirectory, relativePath) =>
-      val className = relativePath.dropRight(6).replaceAll("""[\\/]""", ".")
-      Some(Location(outputDirectory, className))
-    case _ => None
   }
 
   def typeAt(offset: Int, tastyFile: TastyFile): Option[String] =

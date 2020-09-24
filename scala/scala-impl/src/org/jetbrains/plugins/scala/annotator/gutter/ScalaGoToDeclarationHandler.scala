@@ -44,8 +44,8 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     if (!sourceElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return null
 
     if (isTastyEnabledFor(element)) {
-      for (Location(outputDirectory, className) <- compiledLocationOf(sourceElement);
-           tastyFile <- TastyReader.read(outputDirectory, className);  // IDEA shows "Resolving Reference..." modal progress
+      for (tastyPath <- TastyPath(sourceElement);
+           tastyFile <- TastyReader.read(tastyPath); // IDEA shows "Resolving Reference..." modal progress
            (file, offset) <- referenceTargetAt(editor.getCaretModel.getOffset, tastyFile);
            virtualFile <- Option(VfsUtil.findFileByIoFile(new File(element.getProject.getBasePath, file), false));
            psiFile <- Option(PsiManager.getInstance(element.getProject).findFile(virtualFile));
