@@ -88,7 +88,7 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
 
   def testSbtVersion(): Unit = {
     val projectSettings = SbtProjectSettings.default
-    projectSettings.setExternalProjectPath(ExternalSystemApiUtil.normalizePath(getProject.getBasePath))
+    projectSettings.setExternalProjectPath(ExternalSystemApiUtil.toCanonicalPath(getProject.getBasePath))
     SbtSettings.getInstance(getProject).linkProject(projectSettings)
 
     val expectedVersion = "0.13.8"
