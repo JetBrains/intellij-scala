@@ -25,7 +25,7 @@ trait SbtRefreshCaller {
             asInstanceOf[AbstractExternalSystemSettings[_ <: AbstractExternalSystemSettings[_, SbtProjectSettings, _],
             SbtProjectSettings, _ <: ExternalSystemSettingsListener[SbtProjectSettings]]]
 
-        getExternalProjectSettings setExternalProjectPath getContentEntryPath
+        getExternalProjectSettings.setExternalProjectPath(getContentEntryPath)
         settings linkProject getExternalProjectSettings
 
         ExternalSystemUtil.refreshProject(project, SbtProjectSystem.Id, getContentEntryPath,
