@@ -10,6 +10,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtilBase}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation
@@ -85,7 +86,7 @@ class ShowTypeInfoAction extends AnAction(
       val offset = TargetElementUtil.adjustOffset(file, editor.getDocument,
         editor.logicalPositionToOffset(editor.getCaretModel.getLogicalPosition))
 
-      if (isTastyEnabledFor(file)) {
+      if (ScalaHighlightingMode.showDotcErrors && isTastyEnabledFor(file)) {
         for (element <- Option(file.findElementAt(offset));
              tastyPath <- TastyPath(element);
              tastyFile <- TastyReader.read(tastyPath);

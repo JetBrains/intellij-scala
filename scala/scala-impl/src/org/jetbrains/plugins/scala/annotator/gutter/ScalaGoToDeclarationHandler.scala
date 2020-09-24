@@ -12,6 +12,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.IsTemplateDefinition
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -43,7 +44,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     if (sourceElement == null) return null
     if (!sourceElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return null
 
-    if (isTastyEnabledFor(element)) {
+    if (ScalaHighlightingMode.showDotcErrors && isTastyEnabledFor(element)) {
       for (tastyPath <- TastyPath(sourceElement);
            tastyFile <- TastyReader.read(tastyPath); // IDEA shows "Resolving Reference..." modal progress
            (file, offset) <- referenceTargetAt(editor.getCaretModel.getOffset, tastyFile);
