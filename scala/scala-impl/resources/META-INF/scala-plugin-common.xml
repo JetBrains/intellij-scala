@@ -531,6 +531,8 @@
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaStatementGroupSelectioner"/>
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaCodeBlockSelectioner"/>
 
+        <compilableFileTypesProvider implementation="org.jetbrains.plugins.scala.lang.psi.compiled.ScalaCompilableFileTypesProvider" />
+
         <psi.classFileDecompiler implementation="org.jetbrains.plugins.scala.lang.psi.compiled.ScClassFileDecompiler"/>
 
         <fileType name="SIG" extensions="sig"
@@ -541,9 +543,12 @@
         <filetype.stubBuilder filetype="SIG" implementationClass="org.jetbrains.plugins.scala.lang.psi.compiled.SigFileStubBuilder"/>
         <filetype.decompiler filetype="SIG" implementationClass="org.jetbrains.plugins.scala.lang.psi.compiled.SigFileDecompiler"/>
 
+        <!-- TODO Research whether it's possible to use only the following: -->
+<!--        <fileType name="TASTy" extensions="tasty" implementationClass="com.intellij.ide.highlighter.JavaClassFileType"/>-->
         <fileType name="TASTy" extensions="tasty" implementationClass="org.jetbrains.plugins.scala.tasty.TastyFileType$" fieldName="MODULE$"/>
+        <fileType.fileViewProviderFactory filetype="TASTy" implementationClass="org.jetbrains.plugins.scala.tasty.TastyFileViewProviderFactory"/>
+        <filetype.stubBuilder filetype="TASTy" implementationClass="org.jetbrains.plugins.scala.tasty.TastyFileStubBuilder"/>
         <filetype.decompiler filetype="TASTy" implementationClass="org.jetbrains.plugins.scala.tasty.TastyDecompiler"/>
-        <compilableFileTypesProvider implementation="org.jetbrains.plugins.scala.lang.psi.compiled.ScalaCompilableFileTypesProvider" />
         <syntaxHighlighter id="tasty.file" key="TASTy" factoryClass="org.jetbrains.plugins.scala.tasty.TastySyntaxHighlighterFactory"/>
 
         <registryKey key="scala.highlighting.compiler.errors.in.editor" defaultValue="false" restartRequired="false"

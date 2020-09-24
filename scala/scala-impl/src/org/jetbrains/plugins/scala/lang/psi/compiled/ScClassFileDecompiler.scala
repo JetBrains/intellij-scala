@@ -8,21 +8,30 @@ import com.intellij.lang.{Language, LanguageParserDefinitions}
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiFile, PsiFileFactory, PsiManager, SingleRootFileViewProvider, compiled, stubs}
+import com.intellij.psi.{FileViewProvider, PsiFile, PsiFileFactory, PsiManager, SingleRootFileViewProvider, compiled, stubs}
 import com.intellij.util.indexing.FileContent
+import org.jetbrains.plugins.scala.tasty.TastyFileType
 
 final class ScClassFileDecompiler extends compiled.ClassFileDecompilers.Full {
 
   import ScClassFileDecompiler._
 
-  override def accepts(file: VirtualFile): Boolean = topLevelScalaClassFor(file).nonEmpty
+  override def accepts(file: VirtualFile): Boolean =
+    isTasty(file) ||
+      hasTasty(file) || // Accept .class files that have .tasty to subsequently hide them (to avoid .tasty + .class duplication).
+      topLevelScalaClassFor(file).nonEmpty
 
   override def getStubBuilder: ScClsStubBuilder.type = ScClsStubBuilder
 
   override def createFileViewProvider(file: VirtualFile,
                                       manager: PsiManager,
-                                      eventSystemEnabled: Boolean): SingleRootFileViewProvider =
-    createFileViewProviderImpl(manager, file, eventSystemEnabled, ScalaLanguage.INSTANCE)
+                                      eventSystemEnabled: Boolean): FileViewProvider = {
+    if (!isTasty(file) && hasTasty(file)) {
+      new NonScalaClassFileViewProvider(manager, file, eventSystemEnabled, ScalaLanguage.INSTANCE)
+    } else {
+      createFileViewProviderImpl(manager, file, eventSystemEnabled, ScalaLanguage.INSTANCE)
+    }
+  }
 }
 
 object ScClassFileDecompiler {
@@ -31,7 +40,7 @@ object ScClassFileDecompiler {
 
   object ScClsStubBuilder extends compiled.ClsStubBuilder {
 
-    override val getStubVersion = 334
+    override val getStubVersion = 335
 
     override def buildFileStub(content: FileContent): stubs.PsiFileStubImpl[_ <: PsiFile] =
       decompiledScalaFile(content)
@@ -47,7 +56,7 @@ object ScClassFileDecompiler {
   }
 
   private def decompiledScalaFile(content: FileContent): Option[PsiFile] = content.getFile match {
-    case original if isTopLevelScalaClass(original) =>
+    case original if isTasty(content.getFile) || isTopLevelScalaClass(original) =>
       sourceNameAndText(original, content.getContent).map {
         case (sourceName, sourceText) => PsiFileFactory.getInstance(content.getProject).createFileFromText(
           sourceName,
@@ -63,8 +72,8 @@ object ScClassFileDecompiler {
   }
 
 
-  private[compiled] def createFileViewProviderImpl(manager: PsiManager, file: VirtualFile,
-                                                   eventSystemEnabled: Boolean, language: Language) =
+  def createFileViewProviderImpl(manager: PsiManager, file: VirtualFile,
+                                 eventSystemEnabled: Boolean, language: Language): FileViewProvider =
     tryDecompile(file) match {
       case Some(decompilationResult) =>
         new ScClsFileViewProvider(decompilationResult)(manager, file, eventSystemEnabled, language)
@@ -72,7 +81,7 @@ object ScClassFileDecompiler {
         new NonScalaClassFileViewProvider(manager, file, eventSystemEnabled, language)
     }
 
-  private[this] final class NonScalaClassFileViewProvider(manager: PsiManager, file: VirtualFile,
+  private final class NonScalaClassFileViewProvider(manager: PsiManager, file: VirtualFile,
                                                           eventSystemEnabled: Boolean, language: Language)
     extends SingleRootFileViewProvider(manager, file, eventSystemEnabled, language) {
 
@@ -111,6 +120,21 @@ object ScClassFileDecompiler {
             }
         }
       case _ => None
+    }
+  }
+
+  private def isTasty(file: VirtualFile) =
+    file.getExtension == TastyFileType.getDefaultExtension
+
+  private def hasTasty(file: VirtualFile): Boolean = {
+    val directory = file.getParent
+
+    if (directory == null) {
+      return false
+    }
+
+    new PrefixIterator(file.getNameWithoutExtension).exists { name =>
+      directory.findChild(s"$name.${TastyFileType.getDefaultExtension}") != null
     }
   }
 

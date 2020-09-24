@@ -13,6 +13,7 @@ import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.compiled.SigFileType
+import org.jetbrains.plugins.scala.tasty.TastyFileType
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
 sealed abstract class FilterScope(val delegate: GlobalSearchScope)
@@ -58,7 +59,7 @@ final class ScalaFilterScope private(delegate: GlobalSearchScope)
 
   override protected def mayContain(file: VirtualFile): Boolean =
     FileTypeRegistry.getInstance.getFileTypeByFile(file) match {
-      case _: JavaClassFileType | SigFileType =>
+      case _: JavaClassFileType | SigFileType | TastyFileType =>
         isInLibraryClasses(file)
       case fileType: LanguageFileType =>
         val hasScala = fileType.getLanguage.isKindOf(ScalaLanguage.INSTANCE) || ScalaLanguageDerivative.existsFor(fileType)

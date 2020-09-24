@@ -11,6 +11,7 @@ import com.intellij.reference.SoftReference
 import org.jetbrains.plugins.scala.decompiler.Decompiler
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.compiled.ScClassFileDecompiler.ScClsStubBuilder.getStubVersion
+import org.jetbrains.plugins.scala.tasty.{TastyFileType, TastyPath, TastyReader}
 
 private sealed trait DecompilationResult {
   val isScala: Boolean
@@ -101,9 +102,9 @@ private object DecompilationResult {
     val result: DecompilationResult = getFromFileAttribute(file) match {
       case Some(nonScala: NonScala) => nonScala
       case Some(PartialScala(sourceName, _)) =>
-        Lazy(sourceName, timeStamp, () => Decompiler.sourceNameAndText(file.getName, content()).map(_._2).getOrElse(""))
+        Lazy(sourceName, timeStamp, () => sourceNameAndText(file, content).map(_._2).getOrElse(""))
       case None =>
-        val recomputedResult = Decompiler.sourceNameAndText(file.getName, content()) match {
+        val recomputedResult = sourceNameAndText(file, content) match {
           case Some((sourceName, sourceText)) => Full(sourceName, sourceText, timeStamp)
           case None                           => NonScala(timeStamp)
         }
@@ -116,6 +117,21 @@ private object DecompilationResult {
     cacheInUserData(file, result)
 
     result.asOptionOf[ScalaDecompilationResult]
+  }
+
+  private def sourceNameAndText(file: VirtualFile, content: () => Array[Byte]): Option[(String, String)] = {
+    if (file.getExtension == TastyFileType.getDefaultExtension) {
+      try {
+        // TODO Don't decompile definitions (right-hand side).
+        // TODO Can we decompile TASTy file content, not a class name? https://github.com/lampepfl/dotty-feature-requests/issues/96
+        val text = TastyPath(file).flatMap(TastyReader.read).map(_.text).getOrElse(s"Error reading TASTy file: ${file.getPath}")
+        Some(("source.scala", text)) // TODO Read source file from TASTy.
+      } catch {
+        case _: Throwable => None // TODO Handle errors more gracefully.
+      }
+    } else {
+      Decompiler.sourceNameAndText(file.getName, content())
+    }
   }
 
   private def getFromFileAttribute(file: VirtualFile): Option[DecompilationResult.WritableResult] = {
