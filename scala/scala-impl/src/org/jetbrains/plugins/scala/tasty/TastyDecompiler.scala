@@ -6,8 +6,9 @@ import com.intellij.openapi.vfs.VirtualFile
 class TastyDecompiler extends BinaryFileDecompiler {
   override def decompile(file: VirtualFile): String = {
     // TODO An option to inspect a file, not just class, https://github.com/lampepfl/dotty-feature-requests/issues/96
+    // TODO How can we show rightHandSize without causing "file/doc text length different" exception in FoldingUpdate.getFoldingsFor?
     TastyPath(file)
-      .map(path => TastyReader.read(path).map(_.text).getOrElse(s"Error reading TASTy file: ${file.getPath}"))
+      .map(path => TastyReader.read(path, rightHandSize = false).map(_.text).getOrElse(s"Error reading TASTy file: ${file.getPath}"))
       .getOrElse(s"Cannot determine path of: ${file.getPath}")
   }
 }

@@ -122,10 +122,9 @@ private object DecompilationResult {
   private def sourceNameAndText(file: VirtualFile, content: () => Array[Byte]): Option[(String, String)] = {
     if (file.getExtension == TastyFileType.getDefaultExtension) {
       try {
-        // TODO Don't decompile definitions (right-hand side).
         // TODO Can we decompile TASTy file content, not a class name? https://github.com/lampepfl/dotty-feature-requests/issues/96
         TastyPath(file)
-          .flatMap(TastyReader.read)
+          .flatMap(TastyReader.read(_, rightHandSize = false))
           .map(tastyFile => (tastyFile.source, tastyFile.text))
       } catch {
         case _: Throwable => None // TODO Handle errors more gracefully.

@@ -6,7 +6,7 @@ import scala.tasty.compat._
 import scala.tasty.reflect._
 
 // Copy of https://github.com/lampepfl/dotty/blob/0.27.0-RC1/library/src/scala/tasty/reflect/SourceCodePrinter.scala with cosmetic Scala 2.x updates.
-class SourceCodePrinter[R <: Reflection](val tasty: R)(syntaxHighlight: SyntaxHighlight) {
+class SourceCodePrinter[R <: Reflection](val tasty: R, rightHandSize: Boolean)(syntaxHighlight: SyntaxHighlight) {
   import tasty._
   import tasty.delegate._
   import syntaxHighlight._
@@ -311,7 +311,7 @@ class SourceCodePrinter[R <: Reflection](val tasty: R)(syntaxHighlight: SyntaxHi
         rhs match {
           case Some(tree) =>
             this += " = "
-            printTree(tree)
+            if (rightHandSize) printTree(tree) else { this += "???"; this}
           case None =>
             this
         }
@@ -355,7 +355,7 @@ class SourceCodePrinter[R <: Reflection](val tasty: R)(syntaxHighlight: SyntaxHi
         rhs match {
           case Some(tree) =>
             this += " = "
-            printTree(tree)
+            if (rightHandSize) printTree(tree) else { this += "???"; this}
           case None =>
         }
         this

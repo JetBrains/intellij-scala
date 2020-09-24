@@ -12,8 +12,8 @@ import scala.quoted.show.SyntaxHighlight
 import scala.tasty.compat.{ConsumeTasty, Reflection, TastyConsumer}
 
 object TastyReader {
-  def read(tastyPath: TastyPath): Option[TastyFile] =
-    read(api, tastyPath.classpath, tastyPath.className)
+  def read(tastyPath: TastyPath, rightHandSize: Boolean = true): Option[TastyFile] =
+    read(api, tastyPath.classpath, tastyPath.className, rightHandSize)
 
   // The "dotty-tasty-inspector" transitively depends on many unnecessary libraries.
   private val RequiredLibraries = Seq(
@@ -52,13 +52,13 @@ object TastyReader {
     consumeTastyImplClass.getDeclaredConstructor().newInstance().asInstanceOf[ConsumeTasty]
   }
 
-  private def read(consumeTasty: ConsumeTasty, classpath: String, className: String): Option[TastyFile] = {
+  private def read(consumeTasty: ConsumeTasty, classpath: String, className: String, rightHandSize: Boolean): Option[TastyFile] = {
     // TODO An ability to detect errors, https://github.com/lampepfl/dotty-feature-requests/issues/101
     var result = Option.empty[TastyFile]
 
     val tastyConsumer = new TastyConsumer {
       override def apply(reflect: Reflection)(tree: reflect.delegate.Tree): Unit = {
-        val printer = new SourceCodePrinter[reflect.type](reflect)(SyntaxHighlight.plain)
+        val printer = new SourceCodePrinter[reflect.type](reflect, rightHandSize)(SyntaxHighlight.plain)
         val text = printer.showTree(tree)(reflect.delegate.rootContext)
         def file(path: String) = {
           val i = path.replace('\\', '/').lastIndexOf("/")
