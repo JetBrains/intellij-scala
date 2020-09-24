@@ -10,6 +10,7 @@ package usages
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, SmartPointerManager, SmartPsiElementPointer}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, ifReadAllowed}
+import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
@@ -39,7 +40,7 @@ sealed abstract class ImportUsed(private val pointer: SmartPsiElementPointer[Psi
   def isAlwaysUsed: Boolean = {
     val settings = ScalaCodeStyleSettings.getInstance(pointer.getProject)
     val isScala3 = Option(element).exists(_.isInScala3Module)
-    qualName.exists(settings.isAlwaysUsedImport) || isLanguageFeatureImport || isScala3
+    qualName.exists(settings.isAlwaysUsedImport) || isLanguageFeatureImport || (ScalaHighlightingMode.showDotcErrors && isScala3)
   }
 
   private def isLanguageFeatureImport: Boolean = {

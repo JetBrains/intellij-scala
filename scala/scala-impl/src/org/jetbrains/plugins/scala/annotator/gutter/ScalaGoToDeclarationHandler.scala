@@ -44,7 +44,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     if (sourceElement == null) return null
     if (!sourceElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return null
 
-    if (ScalaHighlightingMode.showDotcErrors && isTastyEnabledFor(element)) {
+    if (isTastyEnabledFor(element)) {
       for (tastyPath <- TastyPath(sourceElement);
            tastyFile <- TastyReader.read(tastyPath); // IDEA shows "Resolving Reference..." modal progress
            (file, offset) <- referenceTargetAt(editor.getCaretModel.getOffset, tastyFile);

@@ -11,6 +11,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.util.AlarmFactory
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.project._
 
@@ -27,7 +28,8 @@ package object tasty {
 
   case class TypeData(position: Position, presentation: String)
 
-  def isTastyEnabledFor(element: PsiElement): Boolean = element.isInScala3Module
+  def isTastyEnabledFor(element: PsiElement): Boolean =
+    ScalaHighlightingMode.showDotcErrors && element.isInScala3Module
 //    element.getLanguage.is(Scala3Language.INSTANCE) // TODO SCL-17237
 
   case class TastyPath(classpath: String, className: String)

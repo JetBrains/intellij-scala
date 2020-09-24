@@ -86,7 +86,7 @@ class ShowTypeInfoAction extends AnAction(
       val offset = TargetElementUtil.adjustOffset(file, editor.getDocument,
         editor.logicalPositionToOffset(editor.getCaretModel.getLogicalPosition))
 
-      if (ScalaHighlightingMode.showDotcErrors && isTastyEnabledFor(file)) {
+      if (isTastyEnabledFor(file)) {
         for (element <- Option(file.findElementAt(offset));
              tastyPath <- TastyPath(element);
              tastyFile <- TastyReader.read(tastyPath);
