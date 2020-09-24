@@ -469,6 +469,7 @@
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.lang.formatting.ReformatOnCompileTask"/>
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.ParallelCompilationEnabler"/>
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.EnsureModulesHaveDifferentProdAndTestOutputsTask"/>
+        <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.externalHighlighters.EraseCompilerProcessJdkOnce"/>
 
         <applicationService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"
                             serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"/>
@@ -553,6 +554,8 @@
                      description="Delay between runs of the compilation for highlighting, millis"/>
         <registryKey key="scala.highlighting.compilation.timeout.to.show.progress.millis" defaultValue="7000" restartRequired="false"
                      description="The progress of compilation for highlighting will be shown after this timeout"/>
+        <registryKey key="scala.erase.compiler.process.jdk.once" defaultValue="true" restartRequired="false"
+                     description="Erase compiler.process.jdk value before compilation. A dirty hack needed because of removal of SetSameJdkToBuildProcessAsInCompileServer #SCL-17676"/>
 
         <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
         <spellchecker.support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>
