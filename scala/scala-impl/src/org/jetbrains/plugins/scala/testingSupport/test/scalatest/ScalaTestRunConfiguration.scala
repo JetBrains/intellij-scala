@@ -48,6 +48,9 @@ class ScalaTestRunConfiguration(
 
     override def allowsSbtUiRun: Boolean = true
 
+    /**
+     * @see [[https://www.scalatest.org/user_guide/using_scalatest_with_sbt]]
+     */
     override def commandsBuilder: SbtCommandsBuilder = new SbtCommandsBuilderBase {
       override def testNameKey: Option[String] = Some("-- -t")
     }
