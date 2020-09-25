@@ -3,9 +3,12 @@
 <idea-plugin>
 
     <extensions defaultExtensionNs="com.intellij">
-        <localInspection language="Scala" shortName="ScalaUnresolvedPropertyKey" bundle="messages.CodeInsightBundle"
+        <localInspection language="Scala" shortName="ScalaUnresolvedPropertyKey"
+                         bundle="messages.IdeDeprecatedMessagesBundle"
                          key="inspection.unresolved.property.key.reference.name"
-                         groupBundle="messages.InspectionsBundle" groupKey="group.names.properties.files"
+                         groupPath="Scala"
+                         groupBundle="messages.InspectionsBundle"
+                         groupKey="group.names.properties.files"
                          enabledByDefault="true" level="ERROR"
                          implementationClass="org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.ScalaInvalidPropertyKeyInspection"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.ScalaExtractStringToBundleInspection"
