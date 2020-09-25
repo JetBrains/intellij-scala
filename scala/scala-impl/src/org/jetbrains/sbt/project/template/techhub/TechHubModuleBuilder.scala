@@ -54,8 +54,6 @@ class TechHubModuleBuilder extends
 
     val moduleType = getModuleType
     val module: Module = moduleModel.newModule(path, moduleType.getId)
-    moduleModel.commit()
-
     setupModule(module)
     module
   }
