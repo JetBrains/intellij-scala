@@ -6,6 +6,7 @@ import java.util
 
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.{BuildRootDescriptor, BuildTarget}
 import org.jetbrains.jps.incremental.fs.CompilationRound
 import org.jetbrains.jps.incremental.{CompileContext, FSOperations}
@@ -23,10 +24,10 @@ import scala.util.control.Exception._
  */
 class IdeClientSbt(compilerName: String,
                    context: CompileContext,
-                   modules: Seq[String],
+                   chunk: ModuleChunk,
                    consumer: OutputConsumer,
                    sourceToTarget: File => Option[BuildTarget[_ <: BuildRootDescriptor]])
-        extends IdeClient(compilerName, context, modules) {
+        extends IdeClient(compilerName, context, chunk) {
 
   override def generated(source: File, outputFile: File, name: String): Unit = {
     invalidateBoundForms(source)

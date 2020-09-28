@@ -73,12 +73,20 @@ object CompilationDataFactory
         !JavaBuilderUtil.isCompileJavaIncrementally(context) &&
           !JavaBuilderUtil.isForcedRecompilationAllJavaModules(context)
 
-      CompilationData(canonicalSources, classpath.toSeq, output, commonOptions ++ scalaOptions, commonOptions ++ javaOptions,
-        order, cacheFile, relevantOutputToCacheMap, outputGroups,
-        ZincData(allSources, compilationStamp, isCompile))
+      CompilationData(
+        sources = canonicalSources,
+        classpath = classpath.toSeq,
+        output = output,
+        scalaOptions = commonOptions ++ scalaOptions,
+        javaOptions = commonOptions ++ javaOptions,
+        order = order,
+        cacheFile = cacheFile,
+        outputToCacheMap = relevantOutputToCacheMap,
+        outputGroups = outputGroups,
+        zincData = ZincData(allSources, compilationStamp, isCompile)
+      )
     }
   }
-
 
   private def checkOrCreate(output: File): Unit = {
     if (!output.exists()) {

@@ -5,6 +5,7 @@ import java.io.{File, IOException}
 import java.util.Collections
 
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.java.dependencyView.Callbacks
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.OutputConsumer
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage}
@@ -24,12 +25,12 @@ import scala.collection.mutable.ArrayBuffer
   */
 class IdeClientIdea(compilerName: String,
                     context: CompileContext,
-                    modules: Seq[String],
+                    chunk: ModuleChunk,
                     consumer: OutputConsumer,
                     mappingsCallback: Callbacks.Backend,
                     successfullyCompiled: mutable.Set[File],
                     packageObjectsData: PackageObjectsData)
-  extends IdeClient(compilerName, context, modules) {
+  extends IdeClient(compilerName, context, chunk) {
 
   private val packageObjectsBaseClasses = ArrayBuffer[PackageObjectBaseClass]()
   private var compilationResults: Seq[CompilationResult] = List.empty

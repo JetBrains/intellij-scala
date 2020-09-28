@@ -84,7 +84,7 @@ abstract class HighlightingCompilerConflictsBase(compileServerLanguageLevel: Lan
     val promise = Promise[Unit]
     getProject.getMessageBus.connect().subscribe(CompilerEventListener.topic, new CompilerEventListener {
       override def eventReceived(event: CompilerEvent): Unit = event match {
-        case CompilerEvent.CompilationFinished(_, _) => promise.success(())
+        case CompilerEvent.CompilationFinished(_, _, _) => promise.success(())
         case _ => ()
       }
     })

@@ -21,18 +21,18 @@ private class CompilerEventGeneratingClient(project: Project,
     indicator.setText(ScalaBundle.message("highlighting.compilation.progress", text))
     indicator.setFraction(done.getOrElse(-1.0F).toDouble)
     done.foreach { doneVal =>
-      sendEvent(CompilerEvent.ProgressEmitted(compilationId, doneVal))
+      sendEvent(CompilerEvent.ProgressEmitted(compilationId, None, doneVal))
     }
   }
 
   override def message(msg: Client.ClientMsg): Unit =
-    sendEvent(CompilerEvent.MessageEmitted(compilationId, msg))
+    sendEvent(CompilerEvent.MessageEmitted(compilationId, None, msg))
 
   override def compilationStart(): Unit =
-    sendEvent(CompilerEvent.CompilationStarted(compilationId))
+    sendEvent(CompilerEvent.CompilationStarted(compilationId, None))
 
   override def compilationEnd(sources: Set[File]): Unit =
-    sendEvent(CompilerEvent.CompilationFinished(compilationId, sources))
+    sendEvent(CompilerEvent.CompilationFinished(compilationId, None, sources))
 
   override def isCanceled: Boolean = indicator.isCanceled
 

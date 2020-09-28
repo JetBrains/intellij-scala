@@ -77,7 +77,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
     val compilerName = if (data.CompilerDataFactory.hasDotty(modules)) "dotc"
     else "scalac"
 
-    val client = new local.IdeClientIdea(compilerName, context, modules.map(_.getName).toSeq, outputConsumer,
+    val client = new local.IdeClientIdea(compilerName, context, chunk, outputConsumer,
       callback, successfullyCompiled, packageObjectsData)
 
     val scalaSources = sources.filter(_.getName.endsWith(".scala")).asJava

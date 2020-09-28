@@ -15,6 +15,8 @@ sealed trait CompilerEvent {
 
   def compilationId: CompilationId
 
+  def compilationUnitId: Option[CompilationUnitId]
+
   final def toCustomMessage: CustomBuilderMessage = new CustomBuilderMessage(
     CompilerEvent.BuilderId,
     eventType.toString,
@@ -25,26 +27,33 @@ sealed trait CompilerEvent {
 object CompilerEvent {
 
   // can be sent multiple times for different modules by jps compiler
-  case class CompilationStarted(override val compilationId: CompilationId)
+  case class CompilationStarted(override val compilationId: CompilationId,
+                                override val compilationUnitId: Option[CompilationUnitId])
     extends CompilerEvent {
     
     override def eventType: CompilerEventType = CompilerEventType.CompilationStarted
   }
   
-  case class MessageEmitted(override val compilationId: CompilationId, msg: Client.ClientMsg)
+  case class MessageEmitted(override val compilationId: CompilationId,
+                            override val compilationUnitId: Option[CompilationUnitId],
+                            msg: Client.ClientMsg)
     extends CompilerEvent {
 
     override def eventType: CompilerEventType = CompilerEventType.MessageEmitted
   }
 
-  case class ProgressEmitted(override val compilationId: CompilationId, progress: Double)
+  case class ProgressEmitted(override val compilationId: CompilationId,
+                             override val compilationUnitId: Option[CompilationUnitId],
+                             progress: Double)
     extends CompilerEvent {
 
     override def eventType: CompilerEventType = CompilerEventType.ProgressEmitted
   }
   
   // can be sent multiple times for different modules by jps compiler
-  case class CompilationFinished(override val compilationId: CompilationId, sources: Set[File])
+  case class CompilationFinished(override val compilationId: CompilationId,
+                                 override val compilationUnitId: Option[CompilationUnitId],
+                                 sources: Set[File])
     extends CompilerEvent {
 
     override def eventType: CompilerEventType = CompilerEventType.CompilationFinished
@@ -58,5 +67,5 @@ object CompilerEvent {
       .map { _ => ObjectSerialization.fromBase64[CompilerEvent](text) }
   }
 
-  val BuilderId = "compiler-event"
+  final val BuilderId = "compiler-event"
 }

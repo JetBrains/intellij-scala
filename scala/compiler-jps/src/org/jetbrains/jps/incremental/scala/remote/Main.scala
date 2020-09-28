@@ -166,8 +166,8 @@ object Main {
       override def processMessage(msg: BuildMessage): Unit = msg match {
         case customMessage: CustomBuilderMessage =>
           CompilerEvent.fromCustomMessage(customMessage).foreach {
-            case CompilerEvent.MessageEmitted(_, msg) => client.message(msg)
-            case CompilerEvent.CompilationFinished(_, sources) => compiledFiles ++= sources
+            case CompilerEvent.MessageEmitted(_, _, msg) => client.message(msg)
+            case CompilerEvent.CompilationFinished(_, _, sources) => compiledFiles ++= sources
             case _ => ()
           }
         case progressMessage: ProgressMessage =>

@@ -51,7 +51,7 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
     val moduleNames = modules.map(_.getName).toSeq
 
-    val compilerOptionsChanged = CompilerOptionsStore.updateCompilerOptionsCache(context, chunk, moduleNames)
+    val compilerOptionsChanged = CompilerOptionsStore.updateCompilerOptionsCache(context, chunk)
 
     if (dirtyFilesFromIntellij.isEmpty &&
       !ModulesFedToZincStore.checkIfAnyModuleDependencyWasFedToZinc(context, chunk) &&
@@ -67,7 +67,7 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
     val allSources = sourceToBuildTarget.keySet.toSeq
 
-    val client = new IdeClientSbt("scala", context, moduleNames, outputConsumer, sourceToBuildTarget.get)
+    val client = new IdeClientSbt("scala", context, chunk, outputConsumer, sourceToBuildTarget.get)
 
     logCustomSbtIncOptions(context, chunk, client)
 

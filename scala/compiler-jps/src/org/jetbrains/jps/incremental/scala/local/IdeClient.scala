@@ -5,13 +5,16 @@ import java.io.File
 import java.util
 
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.incremental.CompileContext
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.messages.{CompilerMessage, FileDeletedEvent, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.jps.incremental.scala.remote.CompileServerMeteringInfo
-import org.jetbrains.plugins.scala.compiler.CompilerEvent
+import org.jetbrains.plugins.scala.compiler.{CompilationUnitId, CompilerEvent}
 import org.jetbrains.plugins.scala.util.CompilationId
+
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 
 /**
@@ -20,11 +23,12 @@ import org.jetbrains.plugins.scala.util.CompilationId
  */
 abstract class IdeClient(compilerName: String,
                          context: CompileContext,
-                         modules: Seq[String]) extends Client {
+                         chunk: ModuleChunk) extends Client {
 
   private var hasErrors = false
   private var lastProgressMessage: String = ""
-  protected val compilationId: CompilationId = CompilationId.generate()
+  private val compilationId: CompilationId = CompilationId.generate()
+  private val compilationUnitId = Some(IdeClient.getCompilationUnitId(chunk))
 
   override def message(msg: Client.ClientMsg): Unit = {
     val Client.ClientMsg(kind, text, source, PosInfo(line, column, _), _) = msg
@@ -39,15 +43,15 @@ abstract class IdeClient(compilerName: String,
     if (LogFilter.shouldLog(kind, text, source, line, column)) {
       context.processMessage(new CompilerMessage(name, kind, text, sourcePath.orNull,
         -1L, -1L, -1L, line.getOrElse(-1L), column.getOrElse(-1L)))
-      context.processMessage(CompilerEvent.MessageEmitted(compilationId, msg).toCustomMessage)
+      context.processMessage(CompilerEvent.MessageEmitted(compilationId, compilationUnitId, msg).toCustomMessage)
     }
   }
 
   override def compilationStart(): Unit =
-    context.processMessage(CompilerEvent.CompilationStarted(compilationId).toCustomMessage)
+    context.processMessage(CompilerEvent.CompilationStarted(compilationId, compilationUnitId).toCustomMessage)
 
   override def compilationEnd(sources: Set[File]): Unit =
-    context.processMessage(CompilerEvent.CompilationFinished(compilationId, sources).toCustomMessage)
+    context.processMessage(CompilerEvent.CompilationFinished(compilationId, compilationUnitId, sources).toCustomMessage)
 
   override def trace(exception: Throwable): Unit =
     context.processMessage(CompilerMessage.createInternalCompilationError(compilerName, exception))
@@ -55,11 +59,11 @@ abstract class IdeClient(compilerName: String,
   override def progress(text: String, done: Option[Float]): Unit = {
     if (text.nonEmpty) {
       val decapitalizedText = text.charAt(0).toLower.toString + text.substring(1)
-      lastProgressMessage = "%s: %s [%s]".format(compilerName, decapitalizedText, modules.mkString(", "))
+      lastProgressMessage = "%s: %s [%s]".format(compilerName, decapitalizedText, chunk.getModules.asScala.head.getName)
     }
     context.processMessage(new ProgressMessage(lastProgressMessage, done.getOrElse(-1.0F)))
     done.foreach { doneVal =>
-      context.processMessage(CompilerEvent.ProgressEmitted(compilationId, doneVal).toCustomMessage)
+      context.processMessage(CompilerEvent.ProgressEmitted(compilationId, compilationUnitId, doneVal).toCustomMessage)
     }
   }
 
@@ -79,4 +83,17 @@ abstract class IdeClient(compilerName: String,
   override def isCanceled: Boolean = context.getCancelStatus.isCanceled
 
   def hasReportedErrors: Boolean = hasErrors
+}
+
+object IdeClient {
+
+  private def getCompilationUnitId(chunk: ModuleChunk): CompilationUnitId = {
+    val moduleBuildTarget = chunk.representativeTarget
+    val moduleId = moduleBuildTarget.getModule.getName
+    val testScope = moduleBuildTarget.isTests
+    CompilationUnitId(
+      moduleId = moduleId,
+      testScope = testScope
+    )
+  }
 }

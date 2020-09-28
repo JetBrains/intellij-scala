@@ -20,7 +20,7 @@ object CompilerOptionsStore {
   /**
     * @return true if compiler options change was detected
     */
-  def updateCompilerOptionsCache(context: CompileContext, chunk: ModuleChunk, moduleNames: Seq[String]): Boolean = {
+  def updateCompilerOptionsCache(context: CompileContext, chunk: ModuleChunk): Boolean = {
     val target = chunk.getTargets.asScala.minBy(_.getPresentableName)
     val scalacOptsCacheFile = getCacheFileFor(context, target)
     val previousScalacOpts = readCachedOptions(scalacOptsCacheFile)
