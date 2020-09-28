@@ -74,5 +74,5 @@ object Scala3ImportedParserTest_Import_FromDottyDirectory {
     new File(path).listFiles().foreach(_.delete())
 
   private def normalizeToAbsolutePath(path: String): String =
-    new File(path.replace("~", System.getProperty("user.home")) + "tests/pos").getAbsolutePath
+    new File(path.replace("~", System.getProperty("user.home"))).getAbsolutePath
 }
