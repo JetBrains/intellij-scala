@@ -15,12 +15,12 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.ParamType
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
 */
-object Param {
+object Param extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val paramMarker = builder.mark
 
-    Annotations()(builder)
+    Annotations()
 
     //empty modifiers
     val modifiersMarker = builder.mark()
@@ -41,13 +41,13 @@ object Param {
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON =>
         builder.advanceLexer() //Ate :
-        if (!ParamType.parse(builder)) builder error ErrMsg("wrong.type")
+        if (!ParamType()) builder error ErrMsg("wrong.type")
       case _ =>
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tASSIGN =>
         builder.advanceLexer() //Ate =
-        if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
+        if (!Expr()) builder error ErrMsg("wrong.expression")
       case _ =>
     }
     paramMarker.done(ScalaElementType.PARAM)

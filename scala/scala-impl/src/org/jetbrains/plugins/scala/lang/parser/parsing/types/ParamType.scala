@@ -21,10 +21,10 @@ object ParamType extends ParamType {
   override protected def `type`: Type = Type
 }
 
-trait ParamType {
+trait ParamType extends ParsingRule {
   protected def `type`: Type
 
-  def parse(builder: ScalaPsiBuilder): Boolean =
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean =
     builder.build(ScalaElementType.PARAM_TYPE) {
       parseInner
     }

@@ -15,15 +15,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /*
  * Params ::= Param {',' Param}
  */
-object Params {
+object Params extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     if (!Param.parse(builder)) {
       return false
     }
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !builder.consumeTrailingComma(ScalaTokenTypes.tRPARENTHESIS)) {
       builder.advanceLexer() //Ate ,
-      if (!Param.parse(builder)) {
+      if (!Param()) {
         builder error ScalaBundle.message("wrong.parameter")
       }
     }

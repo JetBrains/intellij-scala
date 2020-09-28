@@ -15,9 +15,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /*
  * ParamClause ::= [nl] '(' [Params] ')'
  */
-object ParamClause {
+object ParamClause extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val paramMarker = builder.mark
     if (builder.twoNewlinesBeforeCurrentToken) {
       paramMarker.drop()
@@ -40,11 +40,11 @@ object ParamClause {
     }
 
     if (builder.isScala3 && builder.tryParseSoftKeyword(ScalaTokenType.UsingKeyword)) {
-      if (!TypesAsParams.parse(builder)) {
-        Params.parse(builder)
+      if (!TypesAsParams()) {
+        Params()
       }
     } else {
-      Params.parse(builder)
+      Params()
     }
 
 
