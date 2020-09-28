@@ -18,7 +18,7 @@ class ScalaBuildProcessParametersProvider(project: Project)
   
   override def getVMArguments: util.List[String] = {
     customScalaCompilerInterfaceDir().toSeq ++
-    compileParallelMaxThreadsOption().toSeq
+    parallelCompilationOptions()
   }.asJava
 
   private def customScalaCompilerInterfaceDir(): Option[String] = {
@@ -27,15 +27,17 @@ class ScalaBuildProcessParametersProvider(project: Project)
     custom.map(path => s"-D$key=$path")
   }
   
-  private def compileParallelMaxThreadsOption(): Option[String] = {
+  private def parallelCompilationOptions(): Seq[String] = {
     val settings = ScalaCompileServerSettings.getInstance
-    if (settings.COMPILE_SERVER_ENABLED && settings.COMPILE_SERVER_PARALLEL_COMPILATION) {
-      val key = GlobalOptions.COMPILE_PARALLEL_MAX_THREADS_OPTION
-      val value = ScalaCompileServerSettings.getInstance.COMPILE_SERVER_PARALLELISM
-      Some(s"-D$key=$value")
-    } else {
-      None
-    }
+    if (settings.COMPILE_SERVER_ENABLED)
+      Seq(
+        GlobalOptions.COMPILE_PARALLEL_MAX_THREADS_OPTION -> settings.COMPILE_SERVER_PARALLELISM,
+        GlobalOptions.COMPILE_PARALLEL_OPTION -> settings.COMPILE_SERVER_PARALLEL_COMPILATION
+      ).map { case (key, value) =>
+        s"-D$key=$value"
+      }
+    else
+      Seq.empty
   }
 
   override def isProcessPreloadingEnabled: Boolean =
