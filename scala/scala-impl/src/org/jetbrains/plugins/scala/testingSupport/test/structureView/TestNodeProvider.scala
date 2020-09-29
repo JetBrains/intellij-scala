@@ -4,6 +4,7 @@ import java.util
 import java.util.Collections
 
 import com.intellij.execution.PsiLocation
+import com.intellij.icons.AllIcons
 import com.intellij.ide.util.FileStructureNodeProvider
 import com.intellij.ide.util.treeView.smartTree.{ActionPresentation, ActionPresentationData, TreeElement}
 import com.intellij.openapi.actionSystem.Shortcut
@@ -13,7 +14,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt, IteratorExt}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScReferencePattern, ScTuplePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScPatternList}
@@ -40,7 +41,7 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
 
   //TODO: what icon should be used here?
   override def getPresentation: ActionPresentation = new ActionPresentationData(
-    getCheckBoxText, null, IconLoader.getIcon("/hierarchy/supertypes.png"))
+    getCheckBoxText, null, AllIcons.Hierarchy.Supertypes)
 
   override def getName: String = "SCALA_SHOW_SCALATEST_TESTS"
 

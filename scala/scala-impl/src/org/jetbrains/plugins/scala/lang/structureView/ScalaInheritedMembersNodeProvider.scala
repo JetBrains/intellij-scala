@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.structureView
 import java.util
 import java.util.Collections
 
+import com.intellij.icons.AllIcons
 import com.intellij.ide.IdeBundle
 import com.intellij.ide.util.FileStructureNodeProvider
 import com.intellij.ide.util.treeView.smartTree.{ActionPresentation, ActionPresentationData, TreeElement}
@@ -80,7 +81,7 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
   override def getShortcut: Array[Shortcut] = KeymapManager.getInstance.getActiveKeymap.getShortcuts("FileStructurePopup")
 
   override def getPresentation: ActionPresentation = new ActionPresentationData(
-    IdeBundle.message("action.structureview.show.inherited"), null, IconLoader.getIcon("/hierarchy/supertypes.png"))
+    IdeBundle.message("action.structureview.show.inherited"), null, AllIcons.Hierarchy.Supertypes)
 
   override def getName: String = "SCALA_SHOW_INHERITED"
 }
