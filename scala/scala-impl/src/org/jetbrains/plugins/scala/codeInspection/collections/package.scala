@@ -96,7 +96,10 @@ package object collections {
   val `-`: Qualified = invocation("-")
   val `+`: Qualified = invocation("+")
 
-  private[collections] val `.toCollection` = new Qualified(name => name.startsWith("to") && name != "toString").from(likeCollectionClasses)
+  private val isSpecialStringToConversions = Set(
+    "toString", "toLowerCase", "toUpperCase"
+  )
+  private[collections] val `.toCollection` = new Qualified(name => name.startsWith("to") && !isSpecialStringToConversions(name)).from(likeCollectionClasses)
   private[collections] val `.toSet` = invocation("toSet").from(likeCollectionClasses)
   private[collections] val `.toIterator` = invocation("toIterator").from(likeCollectionClasses)
 

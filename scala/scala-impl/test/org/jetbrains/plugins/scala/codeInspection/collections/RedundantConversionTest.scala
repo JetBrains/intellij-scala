@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
-import com.intellij.testFramework.EditorTestUtil
-
 /**
  * @author Nikolay.Tropin
  */
@@ -70,4 +68,18 @@ class RedundantConversionTest extends OperationsOnCollectionInspectionTest {
 
     )
   }
+
+  // SCL-18210
+  def test_toUpperCase_is_not_redundant(): Unit = checkTextHasNoErrors(
+    """
+      |val x = "test".toUpperCase
+      |""".stripMargin
+  )
+
+  // SCL-18210
+  def test_toLowerCase_is_not_redundant(): Unit = checkTextHasNoErrors(
+    """
+      |val x = "test".toLowerCase
+      |""".stripMargin
+  )
 }
