@@ -62,11 +62,15 @@ trait Type {
     }
   }
 
-  private def parseWildcardType(typeMarker: PsiBuilder.Marker, isPattern: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
+  private def parseWildcardType(
+    typeMarker: PsiBuilder.Marker,
+    isPattern:  Boolean
+  )(implicit builder: ScalaPsiBuilder): Boolean = {
     if (!parseWildcardStartToken())
       return false
 
-    Bounds.parseSubtypeBounds()
+    builder.advanceLexer() // eat _ or ?
+    if (!isPattern) Bounds.parseSubtypeBounds()
     typeMarker.done(ScalaElementType.WILDCARD_TYPE)
 
     // TODO: looks like this is a dead code, no tests trigger breakpoint inside, leaving it just in case...
@@ -75,7 +79,7 @@ trait Type {
         val funMarker = typeMarker.precede()
         builder.advanceLexer() //Ate =>
         if (!parse(builder, isPattern = isPattern)) {
-          builder error ScalaBundle.message("wrong.type")
+          builder.error(ScalaBundle.message("wrong.type"))
         }
         funMarker.done(ScalaElementType.TYPE)
       case _ =>

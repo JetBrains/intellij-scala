@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTem
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createParameterFromText
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.{PatternTypeInferenceUtil, ScForImpl}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.{PatternTypeInference, ScForImpl}
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitResolveResult, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
@@ -240,7 +240,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
         val newState = place match {
           case (cc: ScCaseClause) && Parent(Parent(m: ScMatch)) =>
-            val maybeSubst = PatternTypeInferenceUtil.doForMatchClause(m, cc)
+            val maybeSubst = PatternTypeInference.doForMatchClause(m, cc)
             val oldSubst   = state.matchClauseSubstitutor
 
             maybeSubst.fold(state)(

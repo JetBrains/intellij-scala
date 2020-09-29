@@ -17,14 +17,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialArgument, ScExis
 */
 
 class ScWildcardTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeBoundsOwnerImpl with ScWildcardTypeElement {
-  override protected def innerType: TypeResult = {
+  override protected def innerType: TypeResult =
     for {
       lb <- lowerBound
       ub <- upperBound
     } yield {
       ScExistentialType(ScExistentialArgument("_$1", Nil, lb, ub))
     }
-  }
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitWildcardTypeElement(this)

@@ -149,4 +149,27 @@ class PatternTypeInferenceTest extends ScalaLightCodeInsightFixtureTestAdapter {
       |  }
       |}""".stripMargin
   )
+
+  def testSCL15405(): Unit = checkTextHasNoErrors(
+    """
+      |class SomeBase {
+      |  type A
+      |}
+      |
+      |trait SomeType[C] extends SomeBase {
+      |  def getA: A
+      |}
+      |
+      |trait Test {
+      |  def x(i: SomeBase#A)
+      |
+      |  def provideExecutionEnvironment[C <: SomeBase](construct: C): Unit = {
+      |    construct match {
+      |      case c: SomeType[_] =>
+      |        x(c.getA)
+      |    }
+      |  }
+      |}
+      |""".stripMargin
+  )
 }

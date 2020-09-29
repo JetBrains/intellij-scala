@@ -16,7 +16,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  *  typeArgs ::= '[' Types ']'
  */
 object TypeArgs extends TypeArgs {
-  override protected def parseComponent(builder: ScalaPsiBuilder): Boolean = Type.parse(builder)
+  override protected def parseComponent(builder: ScalaPsiBuilder, isPattern: Boolean): Boolean =
+    Type.parse(builder, isPattern = isPattern)
 }
 
 trait TypeArgs {
@@ -30,12 +31,12 @@ trait TypeArgs {
           def checkTypeVariable: Boolean = {
             if (isPattern) {
               builder.getTokenType match {
-                case ScalaTokenTypes.tIDENTIFIER =>
+                case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
                   val idText = builder.getTokenText
                   val firstChar = idText.charAt(0)
-                  if (firstChar != '`' && firstChar.isLower) {
+                  if (firstChar == '_' || (firstChar != '`' && firstChar.isLower)) {
                     val typeParameterMarker = builder.mark()
-                    val idMarker = builder.mark()
+                    val idMarker            = builder.mark()
                     builder.advanceLexer()
                     builder.getTokenType match {
                       case ScalaTokenTypes.tCOMMA | ScalaTokenTypes.tRSQBRACKET =>
@@ -53,12 +54,12 @@ trait TypeArgs {
             } else false
           }
 
-          if (checkTypeVariable || parseComponent(builder)) {
+          if (checkTypeVariable || parseComponent(builder, isPattern)) {
             var parsedType = true
             while (builder.getTokenType == ScalaTokenTypes.tCOMMA && parsedType &&
               !builder.consumeTrailingComma(ScalaTokenTypes.tRSQBRACKET)) {
               builder.advanceLexer()
-              parsedType = checkTypeVariable || parseComponent(builder)
+              parsedType = checkTypeVariable || parseComponent(builder, isPattern)
               if (!parsedType) builder error ScalaBundle.message("wrong.type")
             }
           } else builder error ScalaBundle.message("wrong.type")
@@ -74,5 +75,5 @@ trait TypeArgs {
       }
     }
 
-  protected def parseComponent(builder: ScalaPsiBuilder): Boolean
+  protected def parseComponent(builder: ScalaPsiBuilder, isPattern: Boolean): Boolean
 }
