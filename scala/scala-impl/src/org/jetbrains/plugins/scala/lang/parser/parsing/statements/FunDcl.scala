@@ -16,9 +16,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 /*
  * FunDcl ::= FunSig [':' Type]
  */
-object FunDcl {
+object FunDcl extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     //val returnMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kDEF =>

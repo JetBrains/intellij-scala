@@ -21,9 +21,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
  *          | 'this' ParamClause ParamClauses
  *            ('=' ConstrExpr | [nl] ConstrBlock)
  */
-object FunDef {
+object FunDef extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val faultMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kDEF => builder.advanceLexer()
