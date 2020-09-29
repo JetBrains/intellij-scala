@@ -147,6 +147,9 @@ package object parser {
       finally repr.popIndentationWidth()
     }
 
+    def maybeWithIndentationWidth[R](width: Option[IndentationWidth])(body: => R): R =
+      width.fold(body)(withIndentationWidth(_)(body))
+
     def isPrecededByNewIndent: Boolean = {
       findPreviousIndent.exists(_ > repr.currentIndentationWidth)
     }

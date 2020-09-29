@@ -6,7 +6,9 @@ package util
 import com.intellij.lang.PsiBuilder
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.tree.TokenSet
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 import scala.annotation.tailrec
@@ -148,4 +150,51 @@ object ParserUtils {
       false
     }
   }
+
+
+  @annotation.tailrec
+  def parseRuleInBlockOrIndentationRegion(blockIndentation: BlockIndentation, baseIndentation: Option[IndentationWidth], @Nls expectedMessage: String)(rule: => Boolean)(implicit builder: ScalaPsiBuilder): Unit = {
+    skipSemicolon(blockIndentation)
+    blockIndentation.fromHere()
+    builder.getTokenType match {
+      case null =>
+        builder.error(ErrMsg("rbrace.expected"))
+        return
+      case ScalaTokenTypes.tRBRACE =>
+        if (baseIndentation.isEmpty)
+          builder.advanceLexer() // Ate }
+        return
+      case _ if isOutdent(baseIndentation) =>
+        End()
+        return
+      case _ if rule =>
+        builder.getTokenType match {
+          case ScalaTokenTypes.tRBRACE =>
+            if (baseIndentation.isEmpty)
+              builder.advanceLexer() // Ate }
+            return
+          case _ if isOutdent(baseIndentation) =>
+            End()
+            return
+          case ScalaTokenTypes.tSEMICOLON =>
+          case _ if builder.newlineBeforeCurrentToken =>
+          case _ =>
+            builder.error(ErrMsg("semi.expected"))
+            builder.advanceLexer() // Ate something
+        }
+      case _ =>
+        builder.error(expectedMessage)
+        builder.advanceLexer() // Ate something
+    }
+    parseRuleInBlockOrIndentationRegion(blockIndentation, baseIndentation, expectedMessage)(rule)
+  }
+
+  private def isOutdent(baseIndentation: Option[IndentationWidth])(implicit builder: ScalaPsiBuilder): Boolean =
+    baseIndentation.exists(cur => builder.findPreviousIndent.exists(_ < cur) || builder.eof())
+
+  private def skipSemicolon(blockIndentation: BlockIndentation)(implicit builder: ScalaPsiBuilder): Unit =
+    while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) {
+      blockIndentation.fromHere()
+      builder.advanceLexer()
+    }
 }

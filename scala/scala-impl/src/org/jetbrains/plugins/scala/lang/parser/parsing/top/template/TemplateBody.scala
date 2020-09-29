@@ -6,9 +6,9 @@ package top
 package template
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SelfType
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.parseRuleInBlockOrIndentationRegion
 
 /**
  * @author Alexander Podkhalyuzin
@@ -46,10 +46,11 @@ sealed abstract class Body extends ParsingRule {
         return true
     }
 
-    def nowrap(body: => Unit): Unit = body
-    baseIndentation.fold(nowrap _)(builder.withIndentationWidth) {
+    builder.maybeWithIndentationWidth(baseIndentation) {
       SelfType.parse(builder)
-      parseStatements(blockIndentation, baseIndentation)
+      parseRuleInBlockOrIndentationRegion(blockIndentation, baseIndentation, ErrMsg("def.dcl.expected")) {
+        statementRule()
+      }
     }
 
     blockIndentation.drop()
@@ -58,56 +59,6 @@ sealed abstract class Body extends ParsingRule {
 
     true
   }
-
-
-  /**
-   * [[Stat]] { semi [[Stat]] }
-   */
-  @annotation.tailrec
-  private def parseStatements(blockIndentation: BlockIndentation, baseIndentation: Option[IndentationWidth])(implicit builder: ScalaPsiBuilder): Unit = {
-    skipSemicolon(blockIndentation)
-    blockIndentation.fromHere()
-    builder.getTokenType match {
-      case null =>
-        builder.error(ScalaBundle.message("rbrace.expected"))
-        return
-      case `tRBRACE` =>
-        if (baseIndentation.isEmpty)
-          builder.advanceLexer() // Ate }
-        return
-      case _ if isOutdent(baseIndentation) =>
-        End()
-        return
-      case _ if statementRule() =>
-        builder.getTokenType match {
-          case `tRBRACE` =>
-            if (baseIndentation.isEmpty)
-              builder.advanceLexer() // Ate }
-            return
-          case _ if isOutdent(baseIndentation) =>
-            End()
-            return
-          case `tSEMICOLON` =>
-          case _ if builder.newlineBeforeCurrentToken =>
-          case _ =>
-            builder.error(ScalaBundle.message("semi.expected"))
-            builder.advanceLexer() // Ate something
-        }
-      case _ =>
-        builder.error(ScalaBundle.message("def.dcl.expected"))
-        builder.advanceLexer() // Ate something
-    }
-    parseStatements(blockIndentation, baseIndentation)
-  }
-
-  private def isOutdent(baseIndentation: Option[IndentationWidth])(implicit builder: ScalaPsiBuilder): Boolean =
-    baseIndentation.exists(cur => builder.findPreviousIndent.exists(_ < cur) || builder.eof())
-
-  private def skipSemicolon(blockIndentation: BlockIndentation)(implicit builder: ScalaPsiBuilder): Unit =
-    while (builder.getTokenType == tSEMICOLON) {
-      blockIndentation.fromHere()
-      builder.advanceLexer()
-    }
 }
 
 /**
