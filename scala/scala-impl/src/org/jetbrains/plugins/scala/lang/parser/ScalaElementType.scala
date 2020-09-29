@@ -63,6 +63,7 @@ object ScalaElementType {
       new ScExportStmtImpl(stub, nodeType, node, debugName)
   }
 
+  val Extension = new ScExtensionElementType
   val VALUE_DECLARATION: ScPropertyElementType[ScValueDeclaration] = ValueDeclaration
   val PATTERN_DEFINITION: ScPropertyElementType[ScPatternDefinition] = ValueDefinition
   val VARIABLE_DECLARATION: ScPropertyElementType[ScVariableDeclaration] = VariableDeclaration

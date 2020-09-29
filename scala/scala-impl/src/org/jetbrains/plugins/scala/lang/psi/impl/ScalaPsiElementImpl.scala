@@ -12,6 +12,7 @@ import com.intellij.psi.search.SearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, StubBasedPsiElement}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{stubOrPsiNextSibling, stubOrPsiPrevSibling}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -70,7 +71,7 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
     ScalaUseScope(super.getUseScope, this)
 }
 
-abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](stub: S,
+abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](@Nullable stub: S,
                                                                                nodeType: stubs.elements.ScStubElementType[S, T],
                                                                                node: ASTNode)
   extends StubBasedPsiElementBase[S](stub, if (stub == null) null else nodeType, node)
