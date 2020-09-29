@@ -3,7 +3,7 @@ package lang
 package parser
 package parsing
 
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Export, Import}
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Export, Extension, Import}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateStat
@@ -14,6 +14,7 @@ import scala.annotation.tailrec
  * [[TopStat]] ::= {Annotation} {Modifier} -> [[TmplDef]] (it's mean that all parsed in TmplDef)
  * | [[Import]]
  * | [[Export]]
+ * | [[Extension]]
  * | [[Packaging]]
  *
  * @author Alexander Podkhalyuzin
@@ -34,6 +35,8 @@ object TopStat {
         None
       case ExportKeyword =>
         Export()
+        None
+      case _ if Extension() =>
         None
       case `kPACKAGE` =>
         if (state == SCRIPT_STATE) Some(EMPTY_STATE)
