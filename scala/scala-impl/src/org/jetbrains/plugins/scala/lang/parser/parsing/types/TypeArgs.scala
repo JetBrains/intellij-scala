@@ -23,12 +23,12 @@ trait TypeArgs {
           def checkTypeVariable: Boolean = {
             if (isPattern) {
               builder.getTokenType match {
-                case ScalaTokenTypes.tIDENTIFIER =>
+                case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
                   val idText = builder.getTokenText
                   val firstChar = idText.charAt(0)
-                  if (firstChar != '`' && firstChar.isLower) {
+                  if (firstChar == '_' || (firstChar != '`' && firstChar.isLower)) {
                     val typeParameterMarker = builder.mark()
-                    val idMarker = builder.mark()
+                    val idMarker            = builder.mark()
                     builder.advanceLexer()
                     builder.getTokenType match {
                       case ScalaTokenTypes.tCOMMA | ScalaTokenTypes.tRSQBRACKET =>

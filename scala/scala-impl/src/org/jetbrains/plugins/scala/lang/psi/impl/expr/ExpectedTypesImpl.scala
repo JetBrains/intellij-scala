@@ -339,7 +339,8 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
           if (expectedForMatch.isEmpty) Array.empty
           else {
-            val matchSubst = PatternTypeInferenceUtil.doForMatchClause(m, c).getOrElse(ScSubstitutor.empty)
+            val matchSubst =
+                PatternTypeInference.doForMatchClause(m, c).getOrElse(ScSubstitutor.empty)
             expectedForMatch.map { case (tpe, elem) => (matchSubst(tpe), elem) }
           }
         case b: ScBlockExpr if b.isInCatchBlock =>

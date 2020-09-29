@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue,
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScInterpolationPatternImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.PatternTypeInferenceUtil
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.PatternTypeInference
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScThisType}
@@ -206,7 +206,7 @@ object ScPattern {
         val substitutedFunctionType = substitutor(functionType)
 
         val maybeSubst =
-          PatternTypeInferenceUtil.doTypeInference(
+        PatternTypeInference.doTypeInference(
             pattern,
             tp,
             substitutedFunctionType.toOption,

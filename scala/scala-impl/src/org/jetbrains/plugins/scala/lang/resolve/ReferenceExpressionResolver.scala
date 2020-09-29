@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPa
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScForImpl
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitConversionResolveResult
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{PatternTypeInferenceUtil, ScForImpl}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.{PatternTypeInference, ScForImpl}
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitResolveResult, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
@@ -314,7 +315,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
            */
           case fdef @ ExtensionMethod() => fdef.extensionMethodOwner.fold(state)(state.withExtensionContext)
           case (cc: ScCaseClause) && Parent(Parent(m: ScMatch)) =>
-            val maybeSubst = PatternTypeInferenceUtil.doForMatchClause(m, cc)
+            val maybeSubst = PatternTypeInference.doForMatchClause(m, cc)
             val oldSubst   = state.matchClauseSubstitutor
 
             maybeSubst.fold(state)(
