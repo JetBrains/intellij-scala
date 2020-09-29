@@ -51,7 +51,7 @@ trait ScMethodLike extends ScMember with PsiMethod with PsiTypeParametersOwnerAd
 
   def parameterList: ScParameters
 
-  def parameters: collection.Seq[ScParameter]
+  def parameters: Seq[ScParameter]
 
   final def parametersInClause(clauseIndex: Int): collection.Seq[ScParameter] =
     effectiveParameterClauses match {

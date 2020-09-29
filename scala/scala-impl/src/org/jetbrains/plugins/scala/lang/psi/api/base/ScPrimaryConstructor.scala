@@ -33,7 +33,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
 
   override def parameterList: ScParameters
 
-  override def parameters : collection.Seq[ScClassParameter] = parameterList.clauses.flatMap(_.unsafeClassParameters)
+  override def parameters : Seq[ScClassParameter] = parameterList.clauses.flatMap(_.unsafeClassParameters)
 
   override def containingClass: ScTypeDefinition = getParent.asInstanceOf[ScTypeDefinition]
 

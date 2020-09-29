@@ -14,9 +14,9 @@ import com.intellij.psi._
 
 trait ScParameters extends ScalaPsiElement with PsiParameterList {
 
-  def params: collection.Seq[ScParameter] = clauses.flatMap((clause: ScParameterClause) => clause.parameters)
+  def params: Seq[ScParameter] = clauses.flatMap((clause: ScParameterClause) => clause.parameters)
 
-  def clauses: collection.Seq[ScParameterClause]
+  def clauses: Seq[ScParameterClause]
 
   def addClause(clause: ScParameterClause): ScParameters = {
     getNode.addChild(clause.getNode)

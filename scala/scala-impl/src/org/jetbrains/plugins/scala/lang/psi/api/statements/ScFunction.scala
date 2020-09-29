@@ -108,7 +108,7 @@ trait ScFunction extends ScalaPsiElement with ScMember.WithBaseIconProvider with
     */
   def getFunctionWrappers(isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass] = None): collection.Seq[ScFunctionWrapper]
 
-  override def parameters: collection.Seq[ScParameter] = paramClauses.params
+  override def parameters: Seq[ScParameter] = paramClauses.params
 
   def superMethods: collection.Seq[PsiMethod]
 
