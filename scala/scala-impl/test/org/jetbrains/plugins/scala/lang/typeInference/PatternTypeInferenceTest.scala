@@ -172,4 +172,22 @@ class PatternTypeInferenceTest extends ScalaLightCodeInsightFixtureTestAdapter {
       |}
       |""".stripMargin
   )
+
+  def testPatternTypeInferenceMaxtype(): Unit = checkTextHasNoErrors(
+    """
+      |trait Foo
+      |trait Baz extends Foo { def isBaz: Unit }
+      |
+      |trait A[+B]
+      |case class B[+X >: Baz](x: X) extends A[X]
+      |
+      |val a: A[Foo] = new B[Foo](null)
+      |
+      |val i: Int = 123
+      |a match {
+      |  case b: B[x] =>
+      |    val xxx: x = new Foo {}
+      |}
+      |""".stripMargin
+  )
 }

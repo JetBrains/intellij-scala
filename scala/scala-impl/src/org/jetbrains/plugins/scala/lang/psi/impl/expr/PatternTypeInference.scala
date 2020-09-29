@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern, ScTypedPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMatch
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwn
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, PsiTypeParamatersExt, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 object PatternTypeInference {
@@ -57,28 +57,37 @@ object PatternTypeInference {
     val typeVars = typeVarsBuilder.result()
 
     val subst =
-      if (tpe.conforms(scrutineeType)) constraints.toSubst
+      if (tpe.conforms(scrutineeType)) solveForMaxType(constraints)
       else {
         val undefSubst  = ScSubstitutor.undefineTypeParams(typeVars)
         val conformance = undefSubst(tpe).conforms(scrutineeType, constraints)
         conformance match {
-          case ConstraintSystem(subst) => subst.toOption
+          case cs: ConstraintSystem => solveForMaxType(cs)
           case _ =>
             for {
               enclosingFun   <- pattern.parentOfType[ScFunctionDefinition]
               typeParams     = enclosingFun.typeParameters.map(TypeParameter(_))
               undefScrutinee = ScSubstitutor.undefineTypeParams(typeParams)
               conformance    = undefSubst(tpe).conforms(undefScrutinee(scrutineeType), constraints)
-              subst          <- conformance.toSubst
+              subst          <- solveForMaxType(conformance)
             } yield subst
         }
       }
 
-    // This is probably an incomplete solution in the presence of variance in typeParams,
-    // see also ScConstructorPattern#`type`, the correct way would be to flip variance
-    // and solve for max, not min type.
     subst.map(_.followed(ScSubstitutor.bind(typeVars)(_.upperType)))
   }
+
+  private def solveForMaxType(
+    constraints: ConstraintsResult
+  )(implicit
+    ctx: ProjectContext
+  ): Option[ScSubstitutor] =
+    constraints match {
+      case ConstraintsResult.Left => None
+      case cs: ConstraintSystem =>
+        cs.substitutionBounds(canThrowSCE = true)
+          .map(bounds => ScSubstitutor(bounds.upperMap))
+    }
 
   def doForMatchClause(m: ScMatch, cc: ScCaseClause): Option[ScSubstitutor] =
     for {
