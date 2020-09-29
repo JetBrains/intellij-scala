@@ -48,6 +48,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
           case obj: ScObject => Right(ScalaType.designator(obj))
           case fun: ScFunction if (fun.name == CommonNames.Unapply || fun.name == CommonNames.UnapplySeq) &&
                   fun.parameters.count(!_.isImplicitParameter) == 1 =>
+            //@TODO: this is prettu much duplicated in ScPattern.expectedType
             val substitutor = r.substitutor
             val typeParams = fun.typeParameters
             val subst =

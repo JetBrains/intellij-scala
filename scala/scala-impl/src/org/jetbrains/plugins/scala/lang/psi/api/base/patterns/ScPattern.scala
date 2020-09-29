@@ -21,7 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.PatternTypeInference
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
@@ -206,7 +205,7 @@ object ScPattern {
         val substitutedFunctionType = substitutor(functionType)
 
         val maybeSubst =
-        PatternTypeInference.doTypeInference(
+          PatternTypeInference.doTypeInference(
             pattern,
             tp,
             substitutedFunctionType.toOption,
@@ -272,17 +271,6 @@ object ScPattern {
             }
           fun.returnType match {
             case Right(rt) =>
-//              def updateRes(tp: ScType): ScType = {
-//                tp.recursiveVarianceUpdate() {
-//                  case (tp: TypeParameterType, variance: Variance) if funTypeParams.contains(tp.psiTypeParameter) =>
-//                    val result =
-//                      if (variance == Contravariant) substitutor(tp.lowerType)
-//                      else                           substitutor(tp.upperType)
-//                    ReplaceWith(result)
-//                  case (_, _) => ProcessSubtypes
-//                }
-//              }
-
               val args = ScPattern.unapplySubpatternTypes(subst(rt), pattern, fun)
 
               if (totalNumberOfPatterns == 1 && args.length > 1) Some(TupleType(args))
