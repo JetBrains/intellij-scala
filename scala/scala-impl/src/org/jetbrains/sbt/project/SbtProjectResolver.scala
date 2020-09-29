@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.build._
 import org.jetbrains.plugins.scala.compiler.data.serialization.extensions.EitherExt
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{AndroidJdk, JdkByHome, JdkByName, SdkReference}
+import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.SbtProjectResolver._
 import org.jetbrains.sbt.project.data._
@@ -105,7 +106,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
           // notify user if project exists already
           val projectOpt = ProjectManager.getInstance().getOpenProjects.find(p => FileUtil.pathsEqual(p.getBasePath, projectRoot.getCanonicalPath))
           projectOpt.foreach { p =>
-            val notification = Sbt.balloonNotification.createNotification(SbtBundle.message("sbt.import.cancelled", causeMessage), NotificationType.INFORMATION)
+            val notification = ScalaNotificationGroups.balloonGroup.createNotification(SbtBundle.message("sbt.import.cancelled", causeMessage), NotificationType.INFORMATION)
             notification.notify(p)
           }
 

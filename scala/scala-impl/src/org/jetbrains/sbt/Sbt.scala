@@ -57,6 +57,4 @@ object Sbt {
   val Icon: Icon = Icons.SBT
 
   val FolderIcon: Icon = Icons.SBT_FOLDER
-
-  val balloonNotification: NotificationGroup = ScalaNotificationGroups.balloonGroup
 }

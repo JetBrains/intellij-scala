@@ -29,6 +29,7 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.concurrency.{AsyncPromise, Promise}
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildWarning, IndicatorReporter, TaskRunnerResult}
 import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.settings.SbtSettings
@@ -81,7 +82,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
       // sometimes external system loses information about sbt modules
       // since it is very confusing to users, when build task silently does nothing
       // we detect such cases and suggest project refresh
-      val notification = Sbt.balloonNotification.createNotification(
+      val notification = ScalaNotificationGroups.balloonGroup.createNotification(
         SbtBundle.message("sbt.shell.sbt.build.failed"),
         SbtBundle.message("sbt.shell.unable.to.build.sbt.project", project.getName),
         NotificationType.ERROR,

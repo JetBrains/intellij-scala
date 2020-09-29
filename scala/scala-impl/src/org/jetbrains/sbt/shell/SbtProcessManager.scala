@@ -35,6 +35,7 @@ import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings._
 import org.jetbrains.plugins.scala.macroAnnotations.TraceWithLogger
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByName, SdkUtils}
+import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.settings.{SbtExecutionSettings, SbtProjectSettings}
 import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOpts}
@@ -212,7 +213,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
   private def notifyVersionUpgrade(projectSbtVersion: String, upgradedSbtVersion: Version, projectPath: File): Unit = {
     val message = SbtBundle.message("sbt.shell.started.sbt.shell.with.sbt.version", upgradedSbtVersion.presentation, projectSbtVersion)
-    val notification = Sbt.balloonNotification.createNotification(message, MessageType.INFO)
+    val notification = ScalaNotificationGroups.balloonGroup.createNotification(message, MessageType.INFO)
 
     notification.addAction(new UpdateSbtVersionAction(projectPath))
     notification.addAction(DisableSbtVersionOverrideAction)
@@ -243,7 +244,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
       if (path.isFile) true
       else {
         val badCustomVMNotification =
-          Sbt.balloonNotification
+          ScalaNotificationGroups.balloonGroup
             .createNotification(SbtBundle.message("sbt.shell.no.jre.found.at.path", sbtSettings.vmExecutable), NotificationType.WARNING)
         badCustomVMNotification.addAction(ConfigureSbtAction)
         badCustomVMNotification.notify(project)
@@ -270,7 +271,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
       else {
         val message = SbtBundle.message("sbt.shell.no.project.jdk.configured")
         val noProjectSdkNotification =
-          Sbt.balloonNotification.createNotification(message, NotificationType.ERROR)
+          ScalaNotificationGroups.balloonGroup.createNotification(message, NotificationType.ERROR)
         noProjectSdkNotification.addAction(ConfigureProjectJdkAction)
         noProjectSdkNotification.notify(project)
         throw new RuntimeException(message)
