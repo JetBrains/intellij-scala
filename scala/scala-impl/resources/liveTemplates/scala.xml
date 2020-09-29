@@ -4,6 +4,7 @@ TODO: review macros expresisons, looks like most of them do not work now
  expressions should start with `scala_` prefix (see org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaMacro.getName)
 -->
 <templateSet group="scala">
+
   <template name="main" value="def main(args: Array[String]): Unit = {&#13;&#10;  $END$&#13;&#10;}"
             resource-bundle="messages.ScalaEditorBundle" key="template.for.main.method"
             toReformat="true" toShortenFQNames="true">
@@ -74,7 +75,7 @@ TODO: review macros expresisons, looks like most of them do not work now
 	<variable name="RET_TYPE"        alwaysStopAt="true"  expression="scala_primaryConstructorParamTypes" defaultValue="Int" />
     <variable name="BODY"            alwaysStopAt="true"  expression="" defaultValue="&quot;???&quot;" /> <!-- TODO: we could try auto-generate unapply body? -->
 	<context>
-	  <option name="SCALA_CODE" value="true"/>
+      <option name="SCALA_BLANK_LINE" value="true"/>
 	</context>
   </template>
 
@@ -87,7 +88,7 @@ TODO: review macros expresisons, looks like most of them do not work now
 	<variable name="CLASS_NAME"      alwaysStopAt="false" expression="scala_className"/>
 	<variable name="ARGS_NO_TYPES"   alwaysStopAt="true"  expression="scala_primaryConstructorParamNames(ARGS)"/>
 	<context>
-	  <option name="SCALA_CODE" value="true"/>
+	  <option name="SCALA_BLANK_LINE" value="true"/>
 	</context>
   </template>
 

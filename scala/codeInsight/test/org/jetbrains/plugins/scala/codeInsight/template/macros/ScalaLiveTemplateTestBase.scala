@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.template.macros
 
-import com.intellij.codeInsight.template.TemplateManager
+import com.intellij.codeInsight.template.{TemplateActionContext, TemplateManager}
 import com.intellij.codeInsight.template.impl.{TemplateImpl, TemplateManagerImpl, TemplateSettings}
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.util.ui.UIUtil
@@ -40,7 +40,7 @@ abstract class ScalaLiveTemplateTestBase extends ScalaLightCodeInsightFixtureTes
     myFixture.configureByText(s"a.$fileExtension", before)
 
     val template = findTemplate(templateName, templateGroup)
-    assertIsApplicable(template)
+    assertIsApplicable(template, Some(before))
 
     val templateManager = TemplateManager.getInstance(getProject)
 
@@ -66,7 +66,8 @@ abstract class ScalaLiveTemplateTestBase extends ScalaLightCodeInsightFixtureTes
   }
 
   private def isApplicable(template: TemplateImpl): Boolean = {
-    TemplateManagerImpl.isApplicable(myFixture.getFile, myFixture.getCaretOffset, template): @nowarn("cat=deprecation")
+    val context = TemplateActionContext.expanding(myFixture.getFile, myFixture.getCaretOffset)
+    TemplateManagerImpl.isApplicable(template, context): @nowarn("cat=deprecation")
   }
 
   protected def assertIsApplicable(code: String): Unit =
@@ -87,8 +88,8 @@ abstract class ScalaLiveTemplateTestBase extends ScalaLightCodeInsightFixtureTes
     assertIsNotApplicable(template)
   }
 
-  protected def assertIsApplicable(template: TemplateImpl): Unit =
-    assertTrue(s"template $templateId should be applicable", isApplicable(template))
+  protected def assertIsApplicable(template: TemplateImpl, fileText: Option[String] = None): Unit =
+    assertTrue(s"template $templateId should be applicable${fileText.fold("")(s => s" in file:\n$s")}", isApplicable(template))
 
   protected def assertIsNotApplicable(template: TemplateImpl): Unit =
     assertFalse(s"template $templateId should not be applicable", isApplicable(template))

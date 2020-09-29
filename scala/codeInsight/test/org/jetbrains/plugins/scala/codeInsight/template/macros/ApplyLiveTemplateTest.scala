@@ -52,4 +52,93 @@ class ApplyLiveTemplateTest extends ScalaLiveTemplateTestBase with DoTestInCompa
       "class X[T1 <: CharSequence, T2 >: String <: CharSequence](val value: String, val seq: Seq[T1], val opt: Option[T2])",
       "def apply[T1 <: CharSequence, T2 >: String <: CharSequence](value: String, seq: Seq[T1], opt: Option[T2]): X[T1, T2] = new X(value, seq, opt)"
     )
+
+  def testAvailableOnEmptyLine(): Unit = {
+    assertIsApplicable(
+      s"""object O {
+         |  $CARET
+         |}
+         |""".stripMargin
+    )
+
+    assertIsApplicable(
+      s"""object O {
+         |
+         |  $CARET
+         |}
+         |""".stripMargin
+    )
+
+    assertIsApplicable(
+      s"""object O {
+         |  $CARET
+         |
+         |}
+         |""".stripMargin
+    )
+
+    assertIsApplicable(
+      s"""object O {
+         |
+         |
+         |  $CARET
+         |
+         |
+         |}
+         |""".stripMargin
+    )
+  }
+
+  def testNotAvailableBeforeSomeContentOnSameLine(): Unit = {
+    assertIsNotApplicable(
+      s"""object O {
+         |  ${CARET}def apply() = ???
+         |}
+         |""".stripMargin
+    )
+
+    assertIsNotApplicable(
+      s"""object O {
+         |  ${CARET}def apply() = ???
+         |}
+         |""".stripMargin
+    )
+
+    assertIsNotApplicable(
+      s"""object O {
+         |  appl${CARET}def apply() = ???
+         |}
+         |""".stripMargin
+    )
+
+    assertIsNotApplicable(
+      s"""object O {
+         |  appl$CARET   def apply() = ???
+         |}
+         |""".stripMargin
+    )
+  }
+
+  def testNotAvailableAfterSomeContentOnSameLine(): Unit = {
+    assertIsNotApplicable(
+      s"""object O {
+         |  "some string".$CARET
+         |}
+         |""".stripMargin
+    )
+
+    assertIsNotApplicable(
+      s"""object O {
+         |  "some string".app$CARET
+         |}
+         |""".stripMargin
+    )
+
+    assertIsNotApplicable(
+      s"""object O {
+         |  "some string".   app$CARET
+         |}
+         |""".stripMargin
+    )
+  }
 }
