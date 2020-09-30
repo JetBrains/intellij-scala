@@ -23,6 +23,6 @@ class UTestConfigurationType extends ConfigurationType with DumbAware {
 
 object UTestConfigurationType {
 
-  def instance: UTestConfigurationType =
+  def apply(): UTestConfigurationType =
     ConfigurationTypeUtil.findConfigurationType(classOf[UTestConfigurationType])
 }

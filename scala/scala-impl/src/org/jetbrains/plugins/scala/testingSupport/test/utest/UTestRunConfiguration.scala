@@ -24,7 +24,7 @@ class UTestRunConfiguration(
 
   override val testFramework: TestFramework = TestFramework.EXTENSION_NAME.findExtension(classOf[UTestTestFramework])
 
-  override val configurationProducer: UTestConfigurationProducer = UTestConfigurationProducer.instance
+  override val configurationProducer: UTestConfigurationProducer = UTestConfigurationProducer()
 
   override protected val validityChecker: SuiteValidityChecker = new SuiteValidityCheckerBase {
     override protected def isValidClass(clazz: PsiClass): Boolean = clazz.isInstanceOf[ScObject]

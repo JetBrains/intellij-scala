@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodePro
 //  eliminate this
 final class UTestConfigurationProducer extends AbstractTestConfigurationProducer[UTestRunConfiguration] {
 
-  override def getConfigurationFactory: ConfigurationFactory = UTestConfigurationType.instance.confFactory
+  override def getConfigurationFactory: ConfigurationFactory = UTestConfigurationType().confFactory
 
   override def suitePaths: Seq[String] = UTestUtil.suitePaths
 
@@ -136,6 +136,6 @@ final class UTestConfigurationProducer extends AbstractTestConfigurationProducer
 
 object UTestConfigurationProducer {
 
-  def instance: UTestConfigurationProducer =
+  def apply(): UTestConfigurationProducer =
     RunConfigurationProducer.EP_NAME.findExtensionOrFail(classOf[UTestConfigurationProducer])
 }

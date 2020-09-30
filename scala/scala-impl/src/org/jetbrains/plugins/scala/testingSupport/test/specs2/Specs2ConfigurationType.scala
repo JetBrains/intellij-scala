@@ -24,6 +24,6 @@ class Specs2ConfigurationType extends ConfigurationType with DumbAware {
 
 object Specs2ConfigurationType {
 
-  def instance: Specs2ConfigurationType =
+  def apply(): Specs2ConfigurationType =
     ConfigurationTypeUtil.findConfigurationType(classOf[Specs2ConfigurationType])
 }

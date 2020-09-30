@@ -23,6 +23,6 @@ class ScalaTestConfigurationType extends ConfigurationType with DumbAware {
 
 object ScalaTestConfigurationType {
 
-  def instance: ScalaTestConfigurationType =
+  def apply(): ScalaTestConfigurationType =
     ConfigurationTypeUtil.findConfigurationType(classOf[ScalaTestConfigurationType])
 }

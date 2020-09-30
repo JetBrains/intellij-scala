@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfiguratio
 
 final class Specs2ConfigurationProducer extends AbstractTestConfigurationProducer[Specs2RunConfiguration] {
 
-  override def getConfigurationFactory: ConfigurationFactory = Specs2ConfigurationType.instance.confFactory
+  override def getConfigurationFactory: ConfigurationFactory = Specs2ConfigurationType().confFactory
 
   override def suitePaths = List(
     "org.specs2.specification.SpecificationStructure",
@@ -73,6 +73,6 @@ final class Specs2ConfigurationProducer extends AbstractTestConfigurationProduce
 
 object Specs2ConfigurationProducer {
 
-  def instance: Specs2ConfigurationProducer =
+  def apply(): Specs2ConfigurationProducer =
     RunConfigurationProducer.EP_NAME.findExtensionOrFail(classOf[Specs2ConfigurationProducer])
 }
