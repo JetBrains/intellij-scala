@@ -58,7 +58,7 @@ trait ScExpression extends ScBlockStatement
   def replaceExpression(expr: ScExpression, removeParenthesis: Boolean): ScExpression = {
     val oldParent = getParent
     if (oldParent == null) throw new PsiInvalidElementAccessException(this)
-    if (removeParenthesis && oldParent.isInstanceOf[ScParenthesisedExpr]) {
+    if (removeParenthesis && oldParent.is[ScParenthesisedExpr]) {
       return oldParent.asInstanceOf[ScExpression].replaceExpression(expr, removeParenthesis = true)
     }
     val newExpr = if (ScalaPsiUtil.needParentheses(this, expr)) {

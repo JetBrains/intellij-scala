@@ -711,3 +711,78 @@ class TestLambda extends ComparingUnrelatedTypesInspectionTest {
       """.stripMargin
   )
 }
+
+class TestRange extends ComparingUnrelatedTypesInspectionTest {
+  override protected val description: String =
+    ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Range.Inclusive", "Range.Exclusive")
+
+  def test_comparing_inclusive_and_exclusive_range(): Unit = checkTextHasNoErrors(
+    s"""
+       |val r1 = 1 to 9
+       |val r2 = Range(1, 10)
+       |r1 == r2
+       |""".stripMargin
+  )
+}
+
+class TestCaseClasses extends ComparingUnrelatedTypesInspectionTest {
+  override protected val description: String =
+    ScalaInspectionBundle.message("comparing.unrelated.types.hint", "A", "B")
+
+  def test_comparing_different_case_classe(): Unit = checkTextHasError(
+    s"""
+       |trait T
+       |case class A() extends T
+       |case class B() extends T
+       |${START}A() == B()$END
+       |""".stripMargin
+  )
+
+  def test_comparing_case_class_with_normal_class(): Unit = checkTextHasError(
+    s"""
+       |case class A()
+       |class B { override def equals(obj: Any): Boolean = true }
+       |
+       |${START}A() == new B$END
+       |""".stripMargin
+  )
+
+  def test_special_comparing_normal_class_with_case_class(): Unit = checkTextHasNoErrors(
+    s"""
+       |case class A()
+       |class B { override def equals(obj: Any): Boolean = true }
+       |
+       |new B == A()
+       |""".stripMargin
+  )
+
+  def test_normal_comparing_normal_class_with_case_class(): Unit = checkTextHasError(
+    s"""
+       |class A
+       |case class B()
+       |
+       |${START}new A == B()$END
+       |""".stripMargin
+  )
+
+  ///////////////// eq /////////////////
+
+
+  def test_eq_case_class_with_normal_class(): Unit = checkTextHasError(
+    s"""
+       |case class A()
+       |class B { override def equals(obj: Any): Boolean = true }
+       |
+       |${START}A() eq new B$END
+       |""".stripMargin
+  )
+
+  def test_eq_normal_class_with_case_class(): Unit = checkTextHasError(
+    s"""
+       |class A { override def equals(obj: Any): Boolean = true }
+       |case class B()
+       |
+       |${START}new A eq B()$END
+       |""".stripMargin
+  )
+}
