@@ -8,15 +8,439 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |  def test = 0
       |""".stripMargin,
     """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  Extension on Int
+      |    PsiElement(extension)('extension')
+      |    PsiWhiteSpace(' ')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: i
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('i')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: Int
+      |              CodeReferenceElement: Int
+      |                PsiElement(identifier)('Int')
+      |        PsiElement())(')')
+      |    PsiWhiteSpace('\n  ')
+      |    ScTemplateBody
+      |      ScFunctionDefinition: test
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          <empty list>
+      |        PsiElement(def)('def')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('test')
+      |        Parameters
+      |          <empty list>
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('0')
+      |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
 
-  def test_simple_on_next_line(): Unit = checkTree(
+  def test_with_using(): Unit = checkTree(
     """
-      |extension (i: Int)
+      |extension (i: Int)(using X)
       |  def test = 0
       |""".stripMargin,
     """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  Extension on Int
+      |    PsiElement(extension)('extension')
+      |    PsiWhiteSpace(' ')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: i
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('i')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: Int
+      |              CodeReferenceElement: Int
+      |                PsiElement(identifier)('Int')
+      |        PsiElement())(')')
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        PsiElement(using)('using')
+      |        PsiWhiteSpace(' ')
+      |        Parameter: _
+      |          SimpleType: X
+      |            CodeReferenceElement: X
+      |              PsiElement(identifier)('X')
+      |        PsiElement())(')')
+      |    PsiWhiteSpace('\n  ')
+      |    ScTemplateBody
+      |      ScFunctionDefinition: test
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          <empty list>
+      |        PsiElement(def)('def')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('test')
+      |        Parameters
+      |          <empty list>
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('0')
+      |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_same_line(): Unit = checkTree(
+    """
+      |extension (i: Int) def test = 0
+      |  def not_extension = 1
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  Extension on Int
+      |    PsiElement(extension)('extension')
+      |    PsiWhiteSpace(' ')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: i
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('i')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: Int
+      |              CodeReferenceElement: Int
+      |                PsiElement(identifier)('Int')
+      |        PsiElement())(')')
+      |    PsiWhiteSpace(' ')
+      |    ScTemplateBody
+      |      ScFunctionDefinition: test
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          <empty list>
+      |        PsiElement(def)('def')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('test')
+      |        Parameters
+      |          <empty list>
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('0')
+      |  PsiWhiteSpace('\n  ')
+      |  ScFunctionDefinition: not_extension
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('not_extension')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    IntegerLiteral
+      |      PsiElement(integer)('1')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_block(): Unit = checkTree(
+    """
+      |extension (i: Int) {
+      |  def a = 0
+      |  def b = 0
+      |}
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  Extension on Int
+      |    PsiElement(extension)('extension')
+      |    PsiWhiteSpace(' ')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: i
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('i')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: Int
+      |              CodeReferenceElement: Int
+      |                PsiElement(identifier)('Int')
+      |        PsiElement())(')')
+      |    PsiWhiteSpace(' ')
+      |    ScTemplateBody
+      |      PsiElement({)('{')
+      |      PsiWhiteSpace('\n  ')
+      |      ScFunctionDefinition: a
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          <empty list>
+      |        PsiElement(def)('def')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('a')
+      |        Parameters
+      |          <empty list>
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('0')
+      |      PsiWhiteSpace('\n  ')
+      |      ScFunctionDefinition: b
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          <empty list>
+      |        PsiElement(def)('def')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('b')
+      |        Parameters
+      |          <empty list>
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('0')
+      |      PsiWhiteSpace('\n')
+      |      PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_multi(): Unit = checkTree(
+    """
+      |extension (i: Int)
+      |  def a = 0
+      |  def b = 0
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  Extension on Int
+      |    PsiElement(extension)('extension')
+      |    PsiWhiteSpace(' ')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: i
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('i')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: Int
+      |              CodeReferenceElement: Int
+      |                PsiElement(identifier)('Int')
+      |        PsiElement())(')')
+      |    PsiWhiteSpace('\n  ')
+      |    ScTemplateBody
+      |      ScFunctionDefinition: a
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          <empty list>
+      |        PsiElement(def)('def')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('a')
+      |        Parameters
+      |          <empty list>
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('0')
+      |      PsiWhiteSpace('\n  ')
+      |      ScFunctionDefinition: b
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          <empty list>
+      |        PsiElement(def)('def')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('b')
+      |        Parameters
+      |          <empty list>
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('0')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_multi_with_colon(): Unit = checkTree(
+    """
+      |extension (i: Int):
+      |  def a = 0
+      |  def b = 0
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  Extension on Int
+      |    PsiElement(extension)('extension')
+      |    PsiWhiteSpace(' ')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: i
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('i')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: Int
+      |              CodeReferenceElement: Int
+      |                PsiElement(identifier)('Int')
+      |        PsiElement())(')')
+      |    ScTemplateBody
+      |      PsiElement(:)(':')
+      |      PsiWhiteSpace('\n  ')
+      |      ScFunctionDefinition: a
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          <empty list>
+      |        PsiElement(def)('def')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('a')
+      |        Parameters
+      |          <empty list>
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('0')
+      |      PsiWhiteSpace('\n  ')
+      |      ScFunctionDefinition: b
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          <empty list>
+      |        PsiElement(def)('def')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('b')
+      |        Parameters
+      |          <empty list>
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('0')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_end(): Unit = checkTree(
+    """
+      |extension (i: Int)
+      |  def a = 0
+      |  def b = 1
+      |end extension
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  Extension on Int
+      |    PsiElement(extension)('extension')
+      |    PsiWhiteSpace(' ')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: i
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('i')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: Int
+      |              CodeReferenceElement: Int
+      |                PsiElement(identifier)('Int')
+      |        PsiElement())(')')
+      |    PsiWhiteSpace('\n  ')
+      |    ScTemplateBody
+      |      ScFunctionDefinition: a
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          <empty list>
+      |        PsiElement(def)('def')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('a')
+      |        Parameters
+      |          <empty list>
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('0')
+      |      PsiWhiteSpace('\n  ')
+      |      ScFunctionDefinition: b
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          <empty list>
+      |        PsiElement(def)('def')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('b')
+      |        Parameters
+      |          <empty list>
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('1')
+      |      PsiWhiteSpace('\n')
+      |      End: extension
+      |        PsiElement(end)('end')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('extension')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
 }
