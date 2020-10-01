@@ -75,4 +75,16 @@ class RedundantConversionInspectionTest extends ScalaQuickFixTestBase {
       "Remove Redundant Conversion"
     )
   }
+
+  def test_toString_removal(): Unit = testQuickFix(
+    """
+      |def test(arg: String, i: Int) = ()
+      |test("".toString, 3)
+      |""".stripMargin,
+    """
+      |def test(arg: String, i: Int) = ()
+      |test("", 3)
+      |""".stripMargin,
+    "Remove Redundant Conversion"
+  )
 }

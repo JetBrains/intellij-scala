@@ -70,8 +70,7 @@ class ScalaRedundantConversionInspection extends AbstractInspection(ScalaInspect
         case under: ScUnderscoreSection if under.overExpr.contains(elem) =>
           elem.replace(ScalaPsiElementFactory.createIdentifier("identity").getPsi)
         case _ =>
-          elem.getParent.addBefore(scExpr, elem)
-          elem.delete()
+          elem.replace(scExpr)
       }
     }
   }
