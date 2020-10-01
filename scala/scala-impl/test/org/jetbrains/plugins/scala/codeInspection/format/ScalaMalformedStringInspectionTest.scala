@@ -2,10 +2,17 @@ package org.jetbrains.plugins.scala.codeInspection.format
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.findCaretOffset
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.junit.runner.RunWith
 
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_12,
+  TestScalaVersion.Scala_2_13
+))
 class ScalaMalformedStringInspectionTest extends ScalaInspectionTestBase {
 
   override protected val description = null // not used... better to throw a NPE
@@ -20,6 +27,7 @@ class ScalaMalformedStringInspectionTest extends ScalaInspectionTestBase {
     "%d",
     "%e",
     "%f",
+    "%.3f",
     "%ts"
   )
 
@@ -66,12 +74,13 @@ class ScalaMalformedStringInspectionTest extends ScalaInspectionTestBase {
       .toSeq
   }
 
-  def build_test(): (String, Seq[String]) = {
+  def build_test(codeFromSpecifierAndArg: (String, String) => String): (String, Seq[String]) = {
     val codeBuilder = new StringBuilder()
     val testBuilder = Seq.newBuilder[String]
 
     for (specifier <- formatSpecifiers; (arg, repr) <- arguments) {
-      codeBuilder ++= s"""String.format("$specifier", $arg)\n"""
+      codeBuilder ++= codeFromSpecifierAndArg(specifier, arg)
+      codeBuilder += '\n'
 
       val shouldHaveInspection = Try(specifier.format(repr)).isFailure
       if (shouldHaveInspection) {
@@ -86,16 +95,29 @@ class ScalaMalformedStringInspectionTest extends ScalaInspectionTestBase {
     (codeBuilder.result(), testBuilder.result())
   }
 
-  def test_all(): Unit = {
-    val (code, expectedHints) = build_test()
+  def run_all(codeFromSpecifierAndArg: (String, String) => String): Unit = {
+    val (code, expectedHints) = build_test(codeFromSpecifierAndArg)
     assert(expectedHints.length >= 100, "There must be something wrong with the test building...")
     assert(expectedHints.distinct.length == expectedHints.length)
 
-    val inspectionHints = findInspections(code)
-    val inspectionHintsWithoutTypes = inspectionHints.map(" \\(.*\\)".r.replaceFirstIn(_, " (---)"))
+    val foundHints = findInspections(code)
+    val foundHintsWithoutTypes = foundHints.map(" \\(.*\\)".r.replaceFirstIn(_, " (---)"))
 
-    for(expected <- expectedHints) {
-      assert(inspectionHintsWithoutTypes.contains(expected), s"Couldn't find: $expected")
+    for (expected <- expectedHints) {
+      assert(foundHintsWithoutTypes.contains(expected), s"Couldn't find: $expected")
+    }
+
+    for (found <- foundHintsWithoutTypes) {
+      assert(expectedHints.contains(found), s"Didn't expected: $found")
     }
   }
+
+  def test_format_call(): Unit =
+    run_all((specifier, arg) => s"""String.format("$specifier", $arg)""")
+
+  def test_interpolated(): Unit =
+    run_all((specifier, arg) => s"""f"$${$arg}$specifier"""")
+
+  def test_printf(): Unit =
+    run_all((specifier, arg) => s"""printf("$specifier", $arg)""")
 }

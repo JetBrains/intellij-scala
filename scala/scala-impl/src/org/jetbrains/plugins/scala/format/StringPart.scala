@@ -4,6 +4,7 @@ package format
 import java.util.{IllegalFormatConversionException, IllegalFormatException}
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -46,7 +47,7 @@ case class Injection(expression: ScExpression, specifier: Option[Specifier]) ext
 
   def expressionType: Option[ScType] = expression.`type`().toOption
 
-  def isLiteral: Boolean = expression.isInstanceOf[ScLiteral]
+  def isLiteral: Boolean = expression.is[ScLiteral]
 
   def isAlphanumericIdentifier: Boolean = !isLiteral && expression.getText.forall(it => it.isLetter || it.isDigit)
 

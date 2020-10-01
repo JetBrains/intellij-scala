@@ -4,8 +4,8 @@ package format
 import java.{lang, util}
 
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 
 /**
  * Pavel Fatin
@@ -26,6 +26,7 @@ object Types {
       case Long => 0L
       case Float => 0.0F
       case Double => 0D
+      case ScLiteralType(value, _) => value.value
       case ScDesignatorType(element) => element.name match {
         case "String" => ""
         case "Boolean" => lang.Boolean.valueOf(true)
