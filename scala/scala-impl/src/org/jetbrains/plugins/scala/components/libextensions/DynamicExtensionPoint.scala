@@ -9,5 +9,9 @@ private[scala]
 final class DynamicExtensionPoint[T](implicit val tag: ClassTag[T]) {
 
   def getExtensions(implicit project: Project): Seq[T] =
-    LibraryExtensionsManager.getInstance(project).getExtensions(tag.runtimeClass).asInstanceOf[Seq[T]]
+    LibraryExtensionsManager
+      .getInstance(project)
+      .getExtensions(tag.runtimeClass)
+      .toSeq
+      .asInstanceOf[Seq[T]]
 }
