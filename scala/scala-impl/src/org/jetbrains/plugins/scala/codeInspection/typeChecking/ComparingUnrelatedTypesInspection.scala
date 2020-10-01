@@ -47,6 +47,9 @@ object ComparingUnrelatedTypesInspection {
 
     var types = Seq(type1, type2)
     if (types.exists(undefinedTypeAlias)) return Comparability.Comparable
+    if (types.exists(_.isAny)) return Comparability.Comparable
+    if (types.exists(_.isNothing)) return Comparability.Comparable
+    if (types.exists(_.isNull)) return Comparability.Comparable
 
     // a comparison with AnyRef is always ok, because of autoboxing
     // i.e:

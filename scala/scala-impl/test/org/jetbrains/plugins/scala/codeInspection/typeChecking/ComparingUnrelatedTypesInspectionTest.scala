@@ -786,3 +786,91 @@ class TestCaseClasses extends ComparingUnrelatedTypesInspectionTest {
        |""".stripMargin
   )
 }
+
+class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest {
+  override protected val description = null
+
+  override protected def descriptionMatches(s: String): Boolean =
+    s != null && s.contains("Comparing unrelated types:")
+
+  def test_any_and_any(): Unit = checkTextHasNoErrors(
+    s"""
+       |val a: Any = null
+       |val b: Any = null
+       |
+       |a == b
+       |""".stripMargin
+  )
+
+  def test_any_and_anyval(): Unit = checkTextHasNoErrors(
+    s"""
+       |val a: Any = null
+       |val b: AnyVal = null
+       |
+       |a == b
+       |""".stripMargin
+  )
+
+  def test_any_and_trait(): Unit = checkTextHasNoErrors(
+    s"""
+       |trait A
+       |val a: Any = null
+       |val b: A = null
+       |
+       |a == b
+       |""".stripMargin
+  )
+
+  def test_any_and_class(): Unit = checkTextHasNoErrors(
+    s"""
+       |class A
+       |val a: Any = null
+       |val b: A = null
+       |
+       |a == b
+       |""".stripMargin
+  )
+
+  def test_with_nothing(): Unit = checkTextHasNoErrors(
+    s"""
+       |val a: Boolean = true
+       |val b: Nothing = null
+       |
+       |a == b
+       |""".stripMargin
+  )
+
+  def test_trait_with_null(): Unit = checkTextHasNoErrors(
+    s"""
+       |trait A
+       |val a: A = null
+       |
+       |a == null
+       |""".stripMargin
+  )
+
+  def test_class_with_null(): Unit = checkTextHasNoErrors(
+    s"""
+       |class A
+       |val a: A = null
+       |
+       |a == null
+       |""".stripMargin
+  )
+
+  def test_anyref_with_null(): Unit = checkTextHasNoErrors(
+    s"""
+       |class A
+       |val a: AnyRef = null
+       |
+       |a == null
+       |""".stripMargin
+  )
+
+  def test_anyval_with_null(): Unit = checkTextHasError(
+    s"""
+       |val a: AnyVal = true
+       |${START}a == null$END
+       |""".stripMargin
+  )
+}
