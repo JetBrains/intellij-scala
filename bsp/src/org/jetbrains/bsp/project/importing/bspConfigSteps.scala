@@ -85,20 +85,20 @@ object bspConfigSteps {
     if (workspaceBspConfigs.size == 1) {
       builder.setPreImportConfig(NoPreImport)
       builder.setServerConfig(BspConfigFile(workspaceBspConfigs.head._1.toPath))
-      new NoConfigSetup
+      NoConfigSetup
     } else configSetup match {
         case bspConfigSteps.NoSetup =>
           builder.setPreImportConfig(AutoPreImport)
           builder.setServerConfig(AutoConfig)
-          new NoConfigSetup
+          NoConfigSetup
         case bspConfigSteps.BloopSetup =>
           builder.setPreImportConfig(NoPreImport)
           builder.setServerConfig(BloopConfig)
-          new NoConfigSetup
+          NoConfigSetup
         case bspConfigSteps.BloopSbtSetup =>
           builder.setPreImportConfig(BloopSbtPreImport)
           builder.setServerConfig(BloopConfig)
-          new NoConfigSetup
+          NoConfigSetup
         case bspConfigSteps.SbtSetup =>
           builder.setPreImportConfig(NoPreImport)
           // server config to be set in next step
@@ -149,7 +149,7 @@ object bspConfigSteps {
 class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImportBuilder, setupTaskWorkspace: File)
   extends ModuleWizardStep {
 
-  private var runSetupTask: BspConfigSetup = new NoConfigSetup
+  private var runSetupTask: BspConfigSetup = NoConfigSetup
 
   private val workspaceBspConfigs = BspConnectionConfig.workspaceBspConfigs(setupTaskWorkspace)
   private lazy val workspaceSetupConfigs: List[ConfigSetup] = workspaceSetupChoices(setupTaskWorkspace)
@@ -198,7 +198,10 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
       if (configSetupChoices.size == 1) 0
       else chooseBspSetup.getSelectedIndex
 
-    runSetupTask = configureBuilder(builder, setupTaskWorkspace, configSetupChoices(configIndex))
+    runSetupTask =
+      if (configSetupChoices.size > configIndex && configIndex > 0)
+        configureBuilder(builder, setupTaskWorkspace, configSetupChoices(configIndex))
+      else NoConfigSetup
   }
 
   override def isStepVisible: Boolean = {
