@@ -2,8 +2,10 @@ package org.jetbrains.plugins.scala
 package performance
 
 import java.io.File
+import java.nio.file.{Files, Path, Paths}
 import java.util
 
+import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
 import com.intellij.openapi.externalSystem.test.ExternalSystemImportingTestCase
@@ -19,6 +21,7 @@ import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, IdeaTestFixt
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
+import org.jetbrains.plugins.scala.performance.ImportingProjectTestCase.isCachingEnabled
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 import org.jetbrains.sbt.Sbt
@@ -34,9 +37,16 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
 
   protected var codeInsightFixture: CodeInsightTestFixture = _
 
+  private def getProjectFilePath: Path = Paths.get(projectDirPath, "testHighlighting.ipr")
+  private def isProjectAlreadyCached = Files.exists(getProjectFilePath)
+
   override def setUpFixtures(): Unit = {
     val factory = IdeaTestFixtureFactory.getFixtureFactory
-    val projectFixture = factory.createFixtureBuilder(getName).getFixture
+    val projectFixture =
+      if (isProjectAlreadyCached && isCachingEnabled)
+        new FixtureDelegate(getProjectFilePath)
+      else
+        factory.createFixtureBuilder(getName).getFixture
     codeInsightFixture = factory.createCodeInsightFixture(projectFixture)
     codeInsightFixture.setUp()
     myTestFixture = codeInsightFixture
@@ -44,6 +54,8 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
 
 
   override protected def tearDownFixtures(): Unit = {
+    if (!isProjectAlreadyCached && isCachingEnabled)
+      Files.copy(Paths.get(myProject.getProjectFilePath), getProjectFilePath)
     codeInsightFixture.tearDown()
     codeInsightFixture = null
     myTestFixture = null
@@ -98,10 +110,25 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
     }
   }
 
+  private def forceSaveProject(): Unit = {
+    val app = ApplicationManagerEx.getApplicationEx
+    try {
+      app.setSaveAllowed(true)
+      myProject.save()
+    } finally {
+      app.setSaveAllowed(false)
+    }
+  }
+
   override def setUp(): Unit = {
     super.setUp()
     Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
-    importProject()
+    if (!isProjectAlreadyCached || !isCachingEnabled)
+      importProject()
+    else
+      reporter.notify("Project caching enabled, reusing last sbt import")
+    if (isCachingEnabled)
+      forceSaveProject()
   }
 
   override def tearDown(): Unit = {
@@ -135,4 +162,7 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
 
   def getJdk: Sdk = SmartJDKLoader.getOrCreateJDK(jdkLanguageLevel)
 
+}
+object ImportingProjectTestCase {
+  private final val isCachingEnabled = !sys.props.get("project.highlighting.disable.cache").contains("true")
 }

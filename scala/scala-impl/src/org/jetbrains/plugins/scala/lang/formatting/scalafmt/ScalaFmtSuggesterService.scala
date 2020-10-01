@@ -106,5 +106,5 @@ object ScalaFmtSuggesterService {
     var enableForCurrentProject: Boolean = true
   }
 
-  private val suggesterNotificationGroup: NotificationGroup = ScalaNotificationGroups.balloonGroup
+  private def suggesterNotificationGroup: NotificationGroup = ScalaNotificationGroups.balloonGroup
 }

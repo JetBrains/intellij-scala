@@ -70,7 +70,7 @@ object ScalaPluginUpdater {
 
   private val updGroupId = "Scala Plugin Update"
   private val title = updGroupId
-  private lazy val GROUP = ScalaNotificationGroups.stickyBalloonGroup
+  private def GROUP = ScalaNotificationGroups.stickyBalloonGroup
 
   // save plugin version before patching to restore it when switching back
   private var savedPluginVersion = ""
