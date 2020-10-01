@@ -29,6 +29,9 @@ final class Specs2TestFramework extends AbstractTestFramework with TestFramework
 
 object Specs2TestFramework {
 
+  @deprecated("use `apply` instead", "2020.3")
+  def instance: Specs2TestFramework = apply()
+
   def apply(): Specs2TestFramework =
     TestFramework.EXTENSION_NAME.findExtension(classOf[Specs2TestFramework])
 }

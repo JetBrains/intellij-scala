@@ -33,6 +33,9 @@ final class ScalaTestTestFramework extends AbstractTestFramework with TestFramew
 
 object ScalaTestTestFramework {
 
+  @deprecated("use `apply` instead", "2020.3")
+  def instance: ScalaTestTestFramework = apply()
+
   def apply(): ScalaTestTestFramework =
     TestFramework.EXTENSION_NAME.findExtension(classOf[ScalaTestTestFramework])
 }

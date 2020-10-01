@@ -136,6 +136,9 @@ final class UTestConfigurationProducer extends AbstractTestConfigurationProducer
 
 object UTestConfigurationProducer {
 
+  @deprecated("use `apply` instead", "2020.3")
+  def instance: UTestConfigurationProducer = apply()
+
   def apply(): UTestConfigurationProducer =
     RunConfigurationProducer.EP_NAME.findExtensionOrFail(classOf[UTestConfigurationProducer])
 }

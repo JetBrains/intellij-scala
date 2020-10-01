@@ -91,6 +91,9 @@ final class ScalaTestConfigurationProducer extends AbstractTestConfigurationProd
 
 object ScalaTestConfigurationProducer {
 
+  @deprecated("use `apply` instead", "2020.3")
+  def instance: ScalaTestConfigurationProducer = apply()
+
   def apply(): ScalaTestConfigurationProducer =
     RunConfigurationProducer.EP_NAME.findExtensionOrFail(classOf[ScalaTestConfigurationProducer])
 }

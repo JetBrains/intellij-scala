@@ -70,6 +70,9 @@ final class Specs2ConfigurationProducer extends AbstractTestConfigurationProduce
 
 object Specs2ConfigurationProducer {
 
+  @deprecated("use `apply` instead", "2020.3")
+  def instance: Specs2ConfigurationProducer = apply()
+
   def apply(): Specs2ConfigurationProducer =
     RunConfigurationProducer.EP_NAME.findExtensionOrFail(classOf[Specs2ConfigurationProducer])
 }

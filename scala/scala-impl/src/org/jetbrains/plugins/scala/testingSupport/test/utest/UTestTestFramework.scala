@@ -36,6 +36,9 @@ final class UTestTestFramework extends AbstractTestFramework with TestFrameworkS
 
 object UTestTestFramework {
 
+  @deprecated("use `apply` instead", "2020.3")
+  def instance: UTestTestFramework = apply()
+
   def apply(): UTestTestFramework =
     TestFramework.EXTENSION_NAME.findExtension(classOf[UTestTestFramework])
 }

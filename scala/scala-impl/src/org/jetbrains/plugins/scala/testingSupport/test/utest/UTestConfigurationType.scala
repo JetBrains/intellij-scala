@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test.utest
 
-import javax.swing.Icon
 import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType, ConfigurationTypeUtil}
 import com.intellij.openapi.project.DumbAware
-import org.jetbrains.plugins.scala.ScalaBundle
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.icons.Icons
 
 class UTestConfigurationType extends ConfigurationType with DumbAware {
@@ -22,6 +21,9 @@ class UTestConfigurationType extends ConfigurationType with DumbAware {
 }
 
 object UTestConfigurationType {
+
+  @deprecated("use `apply` instead", "2020.3")
+  def instance: UTestConfigurationType = apply()
 
   def apply(): UTestConfigurationType =
     ConfigurationTypeUtil.findConfigurationType(classOf[UTestConfigurationType])

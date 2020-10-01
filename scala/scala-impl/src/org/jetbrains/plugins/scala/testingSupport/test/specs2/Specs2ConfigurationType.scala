@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test.specs2
 
-import javax.swing.Icon
 import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType, ConfigurationTypeUtil}
 import com.intellij.openapi.project.DumbAware
-import org.jetbrains.plugins.scala.ScalaBundle
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.icons.Icons
 
 class Specs2ConfigurationType extends ConfigurationType with DumbAware {
@@ -23,6 +22,9 @@ class Specs2ConfigurationType extends ConfigurationType with DumbAware {
 }
 
 object Specs2ConfigurationType {
+
+  @deprecated("use `apply` instead", "2020.3")
+  def instance: Specs2ConfigurationType = apply()
 
   def apply(): Specs2ConfigurationType =
     ConfigurationTypeUtil.findConfigurationType(classOf[Specs2ConfigurationType])
