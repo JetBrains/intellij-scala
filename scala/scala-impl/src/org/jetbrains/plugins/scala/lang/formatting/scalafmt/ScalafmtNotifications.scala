@@ -10,9 +10,9 @@ import scala.ref.WeakReference
 private[formatting]
 object ScalafmtNotifications {
 
-  private val notificationGroup =
+  private def notificationGroup =
     ScalaNotificationGroups.balloonGroup
-  private val notificationErrorGroup =
+  private def notificationErrorGroup =
     ScalaNotificationGroups.stickyBalloonGroup
 
   // do not display notification with same content several times

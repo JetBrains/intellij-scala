@@ -38,7 +38,7 @@ class InternalProfilerToolWindowFactory extends ToolWindowFactory with DumbAware
 //noinspection ScalaExtractStringToBundle
 object InternalProfilerToolWindowFactory {
   val ID = "internal-profiler"
-  val notificationGroup: NotificationGroup = ScalaNotificationGroups.balloonGroup
+  def notificationGroup: NotificationGroup = ScalaNotificationGroups.balloonGroup
 
   lazy val timingsModel: DataByIdTableModel[TracerData] = {
     val dataById = new DataById[TracerData](_.id)
