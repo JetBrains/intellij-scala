@@ -4,14 +4,13 @@ package testingSupport.test.utest
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
-import com.intellij.testIntegration.TestFramework
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.TestFrameworkRunnerInfo
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.{SbtCommandsBuilder, SbtTestRunningSupport, SbtTestRunningSupportBase}
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestRunConfiguration.UTestSbtCommandsBuilder
 import org.jetbrains.plugins.scala.testingSupport.test.utils.StringOps
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, SuiteValidityChecker, SuiteValidityCheckerBase, TestConfigurationUtil}
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, SuiteValidityChecker, SuiteValidityCheckerBase}
 
 class UTestRunConfiguration(
   project: Project,
@@ -23,9 +22,7 @@ class UTestRunConfiguration(
   name
 ) {
 
-  override val suitePaths: Seq[String] = UTestUtil.suitePaths
-
-  override val testFramework: TestFramework = TestFramework.EXTENSION_NAME.findExtension(classOf[UTestTestFramework])
+  override val testFramework: UTestTestFramework = UTestTestFramework()
 
   override val configurationProducer: UTestConfigurationProducer = UTestConfigurationProducer()
 

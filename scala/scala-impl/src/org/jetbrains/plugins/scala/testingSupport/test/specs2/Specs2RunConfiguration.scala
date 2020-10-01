@@ -4,7 +4,6 @@ package testingSupport.test.specs2
 import com.intellij.execution.configurations._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
-import com.intellij.testIntegration.TestFramework
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
@@ -29,9 +28,7 @@ class Specs2RunConfiguration(
   name
 ) {
 
-  override val suitePaths: List[String] = Specs2Util.suitePaths
-
-  override val testFramework: TestFramework = TestFramework.EXTENSION_NAME.findExtension(classOf[Specs2TestFramework])
+  override val testFramework: Specs2TestFramework = Specs2TestFramework()
 
   override val configurationProducer: Specs2ConfigurationProducer = Specs2ConfigurationProducer()
 

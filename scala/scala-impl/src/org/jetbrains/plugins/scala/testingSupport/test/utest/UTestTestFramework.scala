@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test.utest
 
+import com.intellij.testIntegration.TestFramework
 import org.jetbrains.plugins.scala.extensions.IteratorExt
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestFramework, TestFrameworkSetupSupportBase}
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestFramework.TestFrameworkSetupInfo
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestFramework, TestFrameworkSetupSupportBase}
 
-class UTestTestFramework extends AbstractTestFramework with TestFrameworkSetupSupportBase {
+final class UTestTestFramework extends AbstractTestFramework with TestFrameworkSetupSupportBase {
 
   override def getName: String = "uTest"
 
@@ -18,7 +19,7 @@ class UTestTestFramework extends AbstractTestFramework with TestFrameworkSetupSu
 
   override def getDefaultSuperClass: String = "utest.TestSuite"
 
-  override def baseSuitePaths: Seq[String] = UTestUtil.suitePaths
+  override def baseSuitePaths: Seq[String] = Seq("utest.framework.TestSuite", "utest.TestSuite")
 
   // overridden cause UTest now has 2 marker classes which are equal to suitePathes
   override protected def isTestClass(definition: ScTemplateDefinition): Boolean = {
@@ -31,4 +32,10 @@ class UTestTestFramework extends AbstractTestFramework with TestFrameworkSetupSu
 
   override def frameworkSetupInfo(scalaVersion: Option[String]): TestFrameworkSetupInfo =
     TestFrameworkSetupInfo(Seq(""""com.lihaoyi" %% "utest" % "latest.integration""""), Seq())
+}
+
+object UTestTestFramework {
+
+  def apply(): UTestTestFramework =
+    TestFramework.EXTENSION_NAME.findExtension(classOf[UTestTestFramework])
 }

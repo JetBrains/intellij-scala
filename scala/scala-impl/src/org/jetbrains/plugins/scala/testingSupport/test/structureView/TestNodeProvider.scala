@@ -9,7 +9,6 @@ import com.intellij.ide.util.FileStructureNodeProvider
 import com.intellij.ide.util.treeView.smartTree.{ActionPresentation, ActionPresentationData, TreeElement}
 import com.intellij.openapi.actionSystem.Shortcut
 import com.intellij.openapi.project.{IndexNotReadyException, Project}
-import com.intellij.openapi.util.IconLoader
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.NonNls
@@ -32,6 +31,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2Util
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationProducer
 
 import scala.annotation.tailrec
+import scala.jdk.CollectionConverters._
 
 // used on "Structure view" (Alt + 7)
 class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
@@ -568,23 +568,26 @@ object TestNodeProvider {
       }
     }
     val suiteName = aSuite.getQualifiedName
-    import scala.jdk.CollectionConverters._
+
     val nodeProvider = new TestNodeProvider
 
-    val elements: Iterable[TreeElement] = configurationProducer match {
-      case _: UTestConfigurationProducer =>
+    val isUTest = configurationProducer.isInstanceOf[UTestConfigurationProducer]
+    val elements: Iterable[TreeElement] =
+      if (isUTest) {
         val children = new TypeDefinition(aSuite).getChildren
         children.flatMap {
           case scVal: Value if !scVal.inherited => nodeProvider.provideNodes(scVal).asScala
           case _                                => List.empty
         }
-      case _=>
+      }
+      else
         nodeProvider.provideNodes(new TypeDefinition(aSuite)).asScala
-    }
+
     val leaves = getTestLeaves(elements)
     val suitesWithTestNames = leaves.flatMap { e =>
       configurationProducer.getTestClassWithTestName(new PsiLocation(e.element))
     }
+
     suitesWithTestNames.collect {
       case ClassWithTestName(suite, Some(testName)) if suite.getQualifiedName == suiteName =>
         testName

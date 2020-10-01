@@ -5,7 +5,6 @@ import com.intellij.execution.configurations._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.ProjectScope
 import com.intellij.psi.{PsiClass, PsiModifier}
-import com.intellij.testIntegration.TestFramework
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMethodExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
@@ -30,9 +29,8 @@ class ScalaTestRunConfiguration(
   name
 ) {
 
-  override val suitePaths: List[String] = ScalaTestUtil.suitePaths
 
-  override val testFramework: TestFramework = TestFramework.EXTENSION_NAME.findExtension(classOf[ScalaTestTestFramework])
+  override val testFramework: ScalaTestTestFramework = ScalaTestTestFramework()
 
   override val configurationProducer: ScalaTestConfigurationProducer = ScalaTestConfigurationProducer()
 

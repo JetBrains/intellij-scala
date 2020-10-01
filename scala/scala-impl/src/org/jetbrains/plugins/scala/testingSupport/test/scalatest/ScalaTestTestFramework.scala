@@ -3,13 +3,14 @@ package testingSupport.test.scalatest
 
 import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.testIntegration.TestFramework
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestFramework, TestFrameworkSetupSupportBase}
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestFramework.TestFrameworkSetupInfo
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestFramework, TestFrameworkSetupSupportBase}
 
 import scala.annotation.nowarn
 
-class ScalaTestTestFramework extends AbstractTestFramework with TestFrameworkSetupSupportBase{
+final class ScalaTestTestFramework extends AbstractTestFramework with TestFrameworkSetupSupportBase{
 
   override def getName: String = "ScalaTest"
 
@@ -28,4 +29,10 @@ class ScalaTestTestFramework extends AbstractTestFramework with TestFrameworkSet
 
   override def frameworkSetupInfo(scalaVersion: Option[String]): TestFrameworkSetupInfo =
     TestFrameworkSetupInfo(Seq(""""org.scalatest" %% "scalatest" % "latest.integration" % "test""""), Seq())
+}
+
+object ScalaTestTestFramework {
+
+  def apply(): ScalaTestTestFramework =
+    TestFramework.EXTENSION_NAME.findExtension(classOf[ScalaTestTestFramework])
 }

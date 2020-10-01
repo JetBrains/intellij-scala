@@ -17,9 +17,9 @@ import org.scalatest.finders.{Selection => TestFindersSelection}
 
 final class ScalaTestConfigurationProducer extends AbstractTestConfigurationProducer[ScalaTestRunConfiguration] {
 
-  override def getConfigurationFactory: ConfigurationFactory = ScalaTestConfigurationType().confFactory
+  override val getConfigurationFactory: ConfigurationFactory = ScalaTestConfigurationType().confFactory
 
-  override def suitePaths: Seq[String] = List("org.scalatest.Suite")
+  override val suitePaths: Seq[String] = ScalaTestTestFramework().baseSuitePaths
 
   override protected def configurationName(contextInfo: CreateFromContextInfo): String = contextInfo match {
     case AllInPackage(_, packageName)           =>

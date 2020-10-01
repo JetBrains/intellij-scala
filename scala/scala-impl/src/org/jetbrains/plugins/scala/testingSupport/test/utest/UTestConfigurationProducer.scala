@@ -21,9 +21,9 @@ import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodePro
 //  eliminate this
 final class UTestConfigurationProducer extends AbstractTestConfigurationProducer[UTestRunConfiguration] {
 
-  override def getConfigurationFactory: ConfigurationFactory = UTestConfigurationType().confFactory
+  override val getConfigurationFactory: ConfigurationFactory = UTestConfigurationType().confFactory
 
-  override def suitePaths: Seq[String] = UTestUtil.suitePaths
+  override val suitePaths: Seq[String] = UTestTestFramework().baseSuitePaths
 
   override protected def configurationName(contextInfo: CreateFromContextInfo): String = contextInfo match {
     case AllInPackage(_, packageName)           =>
