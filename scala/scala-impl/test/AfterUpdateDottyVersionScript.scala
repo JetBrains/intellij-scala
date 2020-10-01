@@ -1,112 +1,265 @@
-import java.io.{File, FileOutputStream}
-import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path, Paths}
+import java.io.{File, FileOutputStream, PrintWriter}
+import java.nio.file.{Files, Path, Paths, StandardCopyOption}
+import java.util
+import java.util.Enumeration
 
 import com.intellij.openapi.progress.EmptyProgressIndicator
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.platform.templates.github.{DownloadUtil, ZipUtil => GithubZipUtil}
+import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import junit.framework.{TestCase, TestFailure, TestResult, TestSuite}
 import org.apache.ivy.osgi.util.ZipUtil
-import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
+import org.jetbrains.plugins.scala.lang.parser.scala3.imported.{Scala3ImportedParserTest, Scala3ImportedParserTestBase, Scala3ImportedParserTest_Fail}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Ignore
+import org.junit.runner.JUnitCore
 
 import scala.io.Source
+import scala.jdk.CollectionConverters.{EnumerationHasAsScala, ListHasAsScala}
 import scala.util.Using
 
-/**
- * You should run this script after updating the version of Dotty.
- */
-@Ignore
+@Ignore("for local running only")
 class AfterUpdateDottyVersionScript
-  extends ScalaCompilerTestBase {
+  extends TestCase {
 
-  def scalaUltimateProjectDir: Path =
-    Paths.get(getClass.getProtectionDomain.getCodeSource.getLocation.getPath)
-      .getParent.getParent.getParent
-      .getParent.getParent.getParent
+  import AfterUpdateDottyVersionScript._
 
-  /**
-   * Runs all stuff needed after update dotty version
-   */
-  def testRunAllStuffNeededAfterUpdateDottyVersion(): Unit = {
-    downloadLatestDottyProjectTemplate()
-    recompileMacroPrinter3()
-//    replaceDottyVersionInTastyReadmeFiles()
+  def testRunAllScripts(): Unit =
+    Seq(
+      Script.FromTestCase(classOf[DownloadLatestDottyProjectTemplate]),
+      Script.FromTestCase(classOf[RecompileMacroPrinter3]),
+      Script.FromTestCase(classOf[Scala3ImportedParserTest_Import_FromDottyDirectory]),
+      Script.FromTestSuite(new Scala3ImportedParserTest_Move_Fixed_Tests)
+    ).foreach(runScript(_))
+
+  private def runScript[A](script: Script): Unit = script match {
+    case Script.FromTestCase(clazz) =>
+      val result = new JUnitCore().run(clazz)
+      result.getFailures.asScala.headOption match {
+        case Some(failure) =>
+          println(s"${clazz.getSimpleName} FAILED")
+          throw failure.getException
+        case None =>
+          println(s"${clazz.getSimpleName} COMPLETED")
+      }
+    case Script.FromTestSuite(suite) =>
+      val result = new TestResult
+      suite.run(result)
+      result.stop()
+
+      val problems = (result.errors().asScala.toList ++ result.failures().asScala.toList)
+        .asInstanceOf[List[TestFailure]] // It can't be compiled on TC by some reason. So we need asInstanceOf here.
+      problems.headOption match {
+        case Some(problem) =>
+          println(s"${suite.getClass.getSimpleName} FAILED")
+          throw problem.thrownException()
+        case None =>
+          println(s"${suite.getClass.getSimpleName} COMPLETED")
+      }
   }
+}
+
+object AfterUpdateDottyVersionScript {
 
   /**
    * Downloads the latest Dotty project template
+   *
+   * @author artyom.semyonov
    */
-  def downloadLatestDottyProjectTemplate(): Unit = {
-    val resultFile = scalaUltimateProjectDir.resolve(Paths.get(
-      "community", "scala", "scala-impl", "resources", "projectTemplates", "dottyTemplate.zip"
-    )).toFile
+  private class DownloadLatestDottyProjectTemplate
+    extends BasePlatformTestCase {
 
-    val url = "https://github.com/lampepfl/dotty.g8/archive/master.zip"
-    val repoFile = newTempFile()
-    DownloadUtil.downloadAtomically(new EmptyProgressIndicator, url, repoFile)
+    def test(): Unit = {
+      val resultFile = scalaUltimateProjectDir.resolve(Paths.get(
+        "community", "scala", "scala-impl", "resources", "projectTemplates", "dottyTemplate.zip"
+      )).toFile
 
-    val repoDir = newTempDir()
-    GithubZipUtil.unzip(null, repoDir, repoFile, null, null, true)
+      val url = "https://github.com/lampepfl/dotty.g8/archive/master.zip"
+      val repoFile = newTempFile()
+      DownloadUtil.downloadAtomically(new EmptyProgressIndicator, url, repoFile)
 
-    val dottyTemplateDir = repoDir.toPath.resolve(Paths.get("src", "main", "g8")).toFile
-    ZipUtil.zip(dottyTemplateDir, new FileOutputStream(resultFile))
-  }
+      val repoDir = newTempDir()
+      GithubZipUtil.unzip(null, repoDir, repoFile, null, null, true)
 
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version == LatestScalaVersions.Dotty
-
-  /**
-   * Recompile some classes needed in tests
-   */
-  def recompileMacroPrinter3(): Unit = {
-    val resourcesPath = scalaUltimateProjectDir.resolve(Paths.get(
-      "community", "scala", "runners", "resources"
-    ))
-    val packagePath = Paths.get("org", "jetbrains", "plugins", "scala", "worksheet")
-    val sourceFileName = "MacroPrinter3_sources.scala"
-    val targetDir = resourcesPath.resolve(packagePath)
-    val sourceFile = targetDir.resolve(Paths.get("src", sourceFileName))
-
-    val sourceContent = readFile(sourceFile)
-    addFileToProjectSources(sourceFileName, sourceContent)
-    compiler.make().assertNoProblems()
-
-    CompilerModuleExtension.getInstance(getModule).getCompilerOutputPath
-      .toFile.toPath.resolve(packagePath)
-      .toFile.listFiles
-      .foreach { compiledFile =>
-        val resultFile = targetDir.resolve(compiledFile.getName).toFile
-        compiledFile.renameTo(resultFile)
-      }
-  }
-
-  /**
-   * Replaces dotty version in the README.md files
-   */
-  def replaceDottyVersionInTastyReadmeFiles(): Unit = {
-    val actualVersion = LatestScalaVersions.Dotty.minor
-    val regex = "(lampepfl/dotty/blob/)(.+)(/library/src/scala/tasty/Reflection)".r
-    val replacement = s"$$1$actualVersion$$3"
-    Seq(
-      Paths.get("community", "tasty", "compile", "README.md"),
-      Paths.get("community", "tasty", "provided", "README.md")
-    ).foreach { relativePath =>
-      val readmeFile = scalaUltimateProjectDir.resolve(relativePath)
-      val content = readFile(readmeFile)
-      val fixedContent = content.replaceAll(regex.toString, replacement)
-      Files.write(readmeFile, fixedContent.getBytes(StandardCharsets.UTF_8))
+      val dottyTemplateDir = repoDir.toPath.resolve(Paths.get("src", "main", "g8")).toFile
+      ZipUtil.zip(dottyTemplateDir, new FileOutputStream(resultFile))
     }
   }
 
-  private def readFile(path: Path): String =
-    Using.resource(Source.fromFile(path.toFile))(_.mkString)
+  /**
+   * Recompile some classes needed in tests
+   *
+   * @author artyom.semyonov
+   */
+  private class RecompileMacroPrinter3
+    extends ScalaCompilerTestBase {
+
+    override protected def supportedIn(version: ScalaVersion): Boolean =
+      version == LatestScalaVersions.Dotty
+
+    def test(): Unit = {
+      val resourcesPath = scalaUltimateProjectDir.resolve(Paths.get(
+        "community", "scala", "runners", "resources"
+      ))
+      val packagePath = Paths.get("org", "jetbrains", "plugins", "scala", "worksheet")
+      val sourceFileName = "MacroPrinter3_sources.scala"
+      val targetDir = resourcesPath.resolve(packagePath)
+      val sourceFile = targetDir.resolve(Paths.get("src", sourceFileName))
+
+      val sourceContent = readFile(sourceFile)
+      addFileToProjectSources(sourceFileName, sourceContent)
+      compiler.make().assertNoProblems()
+
+      CompilerModuleExtension.getInstance(getModule).getCompilerOutputPath
+        .toFile.toPath.resolve(packagePath)
+        .toFile.listFiles
+        .foreach { compiledFile =>
+          val resultFile = targetDir.resolve(compiledFile.getName).toFile
+          compiledFile.renameTo(resultFile)
+        }
+    }
+
+    private def readFile(path: Path): String =
+      Using.resource(Source.fromFile(path.toFile))(_.mkString)
+  }
+
+  /**
+   * Imports Tests from the dotty repositiory
+   *
+   * @author tobias.kahlert
+   */
+  private class Scala3ImportedParserTest_Import_FromDottyDirectory
+    extends TestCase {
+
+    /**
+     * The path to the directory with a copy of the newest dotty repo source code.
+     */
+    def dottyDirectory: String = "" // TODO Download repo automatically
+
+    def test(): Unit = {
+      if (dottyDirectory.isEmpty) {
+        throw new IllegalArgumentException("You have to specify the Dotty directory")
+      }
+      val srcDir = Paths.get(dottyDirectory, "tests", "pos").toAbsolutePath.toString
+
+      val succDir = TestUtils.getTestDataPath + Scala3ImportedParserTest.directory
+      val failDir = TestUtils.getTestDataPath +  Scala3ImportedParserTest_Fail.directory
+
+      clearDirectory(succDir)
+      clearDirectory(failDir)
+
+      println("srcdir =  " + srcDir)
+      println("faildir = " + failDir)
+
+      new File(succDir).mkdirs()
+      new File(failDir).mkdirs()
+
+      var atLeastOneFileProcessed = false
+      for (file <- allFilesIn(srcDir) if file.toString.toLowerCase.endsWith(".scala"))  {
+        val target = failDir + file.toString.substring(srcDir.length).replace(".scala", "++++test")
+        val content = {
+          val src = Source.fromFile(file)
+          try {
+            val content = src.mkString
+            content.replaceAll("[-]{5,}", "+") // <- some test files have comment lines with dashes which confuse junit
+          } finally src.close()
+        }
+
+        val targetFile = new File(target)
+
+        val targetWithDirs = failDir + "/" + Iterator
+          .iterate(targetFile)(_.getParentFile)
+          .takeWhile(_ != null)
+          .takeWhile(!_.isDirectory)
+          .map(_.getName.replace('.', '_').replace("++++", "."))
+          .toSeq
+          .reverse
+          .mkString("_")
+        println(file.toString + " -> " + targetWithDirs)
+
+        val pw = new PrintWriter(targetWithDirs)
+        pw.write(content)
+        if (content.last != '\n')
+          pw.write('\n')
+        pw.println("-----")
+        pw.close()
+        atLeastOneFileProcessed = true
+      }
+      if (!atLeastOneFileProcessed)
+        throw new AssertionError("No files were processed")
+    }
+
+    private def allFilesIn(path: String): Iterator[File] =
+      allFilesIn(new File(path))
+
+    private def allFilesIn(path: File): Iterator[File] = {
+      if (!path.exists) Iterator.empty
+      else if (!path.isDirectory) Iterator(path)
+      else path.listFiles.iterator.flatMap(allFilesIn)
+    }
+
+    private def clearDirectory(path: String): Unit =
+      new File(path).listFiles().foreach(_.delete())
+  }
+
+  /**
+   * Run this main method to move all scala 3 test files that generate no PsiErrorElements anymore to
+   * the succeeding directory
+   *
+   * Use this if you have made progress in the parser and fixed files that produced PsiErrorElement
+   * and, now, make Scala3ImportedParserTest_Fail fail. In this case this method will move those
+   * into the succeeding folder, so they can fail if someone screws anything up in the parser, that
+   * had previously worked.
+   *
+   * @author tobias.kahlert
+   */
+  private class Scala3ImportedParserTest_Move_Fixed_Tests
+    extends Scala3ImportedParserTestBase(Scala3ImportedParserTest_Fail.directory) {
+
+    protected override def transform(testName: String, fileText: String, project: Project): String = {
+      val succDir = Scala3ImportedParserTest.directory
+      val failDir = Scala3ImportedParserTest_Fail.directory
+
+      val (errors, _) = findErrorElements(fileText, project)
+
+      if (errors.isEmpty) {
+        val from = getTestDataPath + failDir + "/" + testName + ".test"
+        val to = getTestDataPath + succDir + "/" + testName + ".test"
+
+        println("Move " + from)
+        println("  to " + to)
+        Files.move(
+          Paths.get(from),
+          Paths.get(to),
+          StandardCopyOption.REPLACE_EXISTING
+        )
+      }
+      // all files of failing test have no ast to test against, so return an empty string here
+      ""
+    }
+
+    override protected def shouldHaveErrorElements: Boolean = throw new UnsupportedOperationException
+  }
+
+  private def scalaUltimateProjectDir: Path =
+    Paths.get(getClass.getProtectionDomain.getCodeSource.getLocation.getPath)
+      .getParent.getParent.getParent
+      .getParent.getParent.getParent
 
   private def newTempFile(): File =
     FileUtilRt.createTempFile(getClass.getName, "", true)
 
   private def newTempDir(): File =
     FileUtilRt.createTempDirectory(getClass.getName, "", true)
+
+  sealed trait Script
+  object Script {
+    final case class FromTestCase(clazz: Class[_ <: TestCase]) extends Script
+    final case class FromTestSuite(suite: TestSuite) extends Script
+  }
 }
