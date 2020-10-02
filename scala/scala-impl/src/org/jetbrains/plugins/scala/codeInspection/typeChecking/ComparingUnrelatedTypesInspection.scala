@@ -45,7 +45,7 @@ object ComparingUnrelatedTypesInspection {
     val stdTypes = type1.projectContext.stdTypes
     import stdTypes._
 
-    var types = Seq(type1, type2)
+    val types = Seq(type1, type2)
     // a comparison with AnyRef is always ok, because of autoboxing
     // i.e:
     //   val anyRef: AnyRef = new Integer(4)
@@ -57,15 +57,16 @@ object ComparingUnrelatedTypesInspection {
     if (types.exists(_.isNothing)) return Comparability.Comparable
 
 
-    types = types.map(extractActualType)
-    val oneTypeIsNull = types.contains(Null)
-    if (!oneTypeIsNull) {
-      types = types.map(tp => fqnBoxedToScType.getOrElse(tp.canonicalText.stripPrefix("_root_."), tp))
-    }
+    val actualTypes = types.map(extractActualType)
+    val oneTypeIsNull = actualTypes.contains(Null)
 
-    if (types.forall(isNumericType)) return Comparability.Comparable
+    val unboxed =
+      if (oneTypeIsNull) actualTypes
+      else actualTypes.map(tp => fqnBoxedToScType.getOrElse(tp.canonicalText.stripPrefix("_root_."), tp))
 
-    val Seq(unboxed1, unboxed2) = types
+    if (unboxed.forall(isNumericType)) return Comparability.Comparable
+
+    val Seq(unboxed1, unboxed2) = unboxed
     if (isBuiltinOperation && ComparingUtil.isNeverSubType(unboxed1, unboxed2) && ComparingUtil.isNeverSubType(unboxed2, unboxed1))
       return Comparability.Incomparable
 
@@ -98,7 +99,7 @@ object ComparingUnrelatedTypesInspection {
 
   @tailrec
   private def extractActualType(`type`: ScType): ScType = `type` match {
-    case AliasType(_, Right(rhs), _) => extractActualType(rhs)
+    case AliasType(_, _, Right(rhs)) => extractActualType(rhs)
     case _                           => `type`.widen
   }
 

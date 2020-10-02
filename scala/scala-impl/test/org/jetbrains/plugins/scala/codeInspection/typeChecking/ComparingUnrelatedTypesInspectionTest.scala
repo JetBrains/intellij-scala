@@ -901,4 +901,36 @@ class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest
        |}
        |""".stripMargin
   )
+
+  def test_generic_type_with_upper_bound(): Unit = checkTextHasNoErrors(
+    s"""
+       |class Enum[E <: Enum[E]]
+       |
+       |trait EnumSetProvider {
+       |  type EnumSet[E <: Enum[E]] <: Int
+       |  def empty[E <: Enum[E]]: EnumSet[E]
+       |}
+       |
+       |object EnumSetProvider {
+       |  val instance: EnumSetProvider =
+       |    new EnumSetProvider {
+       |      type EnumSet[E <: Enum[E]] = Int
+       |      override def empty[E <: Enum[E]]: EnumSet[E] = 0
+       |    }
+       |}
+       |
+       |object EnumSet {
+       |  import EnumSetProvider.instance
+       |
+       |  type EnumSet[E <: Enum[E]] = EnumSetProvider.instance.EnumSet[E]
+       |
+       |  def empty[E <: Enum[E]]: EnumSet[E] = instance.empty
+       |
+       |
+       |  implicit class EnumSetOps[E <: Enum[E]](private val set: EnumSet[E]) extends AnyVal {
+       |    def isEmpty: Boolean = set == EnumSet.empty
+       |  }
+       |}
+       |""".stripMargin
+  )
 }
