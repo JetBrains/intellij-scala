@@ -37,7 +37,8 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
 
   protected var codeInsightFixture: CodeInsightTestFixture = _
 
-  private def getProjectFilePath: Path = Paths.get(projectDirPath, "testHighlighting.ipr")
+  private val projectFileName = "testHighlighting"
+  private def getProjectFilePath: Path = Paths.get(projectDirPath, s"$projectFileName.ipr")
   private def isProjectAlreadyCached = Files.exists(getProjectFilePath)
 
   override def setUpFixtures(): Unit = {
@@ -52,10 +53,15 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
     myTestFixture = codeInsightFixture
   }
 
+  private def persistProjectConfiguration(): Unit = {
+    Files.copy(myProject.getProjectFile.toNioPath, getProjectFilePath)
+    if (myProject.getWorkspaceFile.exists())
+      Files.copy(myProject.getWorkspaceFile.toNioPath, Paths.get(projectDirPath, s"$projectFileName.iws"))
+  }
 
   override protected def tearDownFixtures(): Unit = {
     if (!isProjectAlreadyCached && isCachingEnabled)
-      Files.copy(Paths.get(myProject.getProjectFilePath), getProjectFilePath)
+      persistProjectConfiguration()
     codeInsightFixture.tearDown()
     codeInsightFixture = null
     myTestFixture = null
