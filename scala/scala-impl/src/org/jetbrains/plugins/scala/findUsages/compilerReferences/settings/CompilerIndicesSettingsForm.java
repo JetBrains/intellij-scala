@@ -90,7 +90,7 @@ public class CompilerIndicesSettingsForm {
     private void updateSbtPluginTextArea() {
         String version = BuildInfo.sbtIdeaCompilerIndicesVersion();
         pluginSettignsTextArea.setText(
-                "addSbtPlugin(\"org.jetbrains.scala\" % \"sbt-idea-compiler-indices\" % \"" + version + "\")"
+                "addSbtPlugin(\"org.jetbrains\" % \"sbt-idea-compiler-indices\" % \"" + version + "\")"
         );
     }
 
