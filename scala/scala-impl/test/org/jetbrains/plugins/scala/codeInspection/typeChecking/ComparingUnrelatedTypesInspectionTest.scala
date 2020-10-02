@@ -873,4 +873,32 @@ class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest
        |${START}a == null$END
        |""".stripMargin
   )
+
+  def test_int_with_null(): Unit = checkTextHasError(
+    s"""
+       |val a: Int = 3
+       |${START}a == null$END
+       |""".stripMargin
+  )
+
+  def test_generic_type_with_null(): Unit = checkTextHasNoErrors(
+    s"""
+       |class Test[T](a: T) {
+       |  a == null
+       |}
+       |""".stripMargin
+  )
+
+  def test_associated_type_with_null(): Unit = checkTextHasNoErrors(
+    s"""
+       |class Test {
+       |  type T
+       |  val a: T
+       |  def b: T
+       |
+       |  a == null
+       |  b == null
+       |}
+       |""".stripMargin
+  )
 }

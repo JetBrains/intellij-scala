@@ -46,20 +46,20 @@ object ComparingUnrelatedTypesInspection {
     import stdTypes._
 
     var types = Seq(type1, type2)
-    if (types.exists(undefinedTypeAlias)) return Comparability.Comparable
-    if (types.exists(_.isAny)) return Comparability.Comparable
-    if (types.exists(_.isNothing)) return Comparability.Comparable
-    if (types.exists(_.isNull)) return Comparability.Comparable
-
     // a comparison with AnyRef is always ok, because of autoboxing
     // i.e:
     //   val anyRef: AnyRef = new Integer(4)
     //   anyRef == 4                 <- true
     //   anyRef.isInstanceOf[Int]    <- true
     if (types.contains(AnyRef)) return Comparability.Comparable
+    if (types.exists(undefinedTypeAlias)) return Comparability.Comparable
+    if (types.exists(_.isAny)) return Comparability.Comparable
+    if (types.exists(_.isNothing)) return Comparability.Comparable
+
 
     types = types.map(extractActualType)
-    if (!types.contains(Null)) {
+    val oneTypeIsNull = types.contains(Null)
+    if (!oneTypeIsNull) {
       types = types.map(tp => fqnBoxedToScType.getOrElse(tp.canonicalText.stripPrefix("_root_."), tp))
     }
 
@@ -68,6 +68,8 @@ object ComparingUnrelatedTypesInspection {
     val Seq(unboxed1, unboxed2) = types
     if (isBuiltinOperation && ComparingUtil.isNeverSubType(unboxed1, unboxed2) && ComparingUtil.isNeverSubType(unboxed2, unboxed1))
       return Comparability.Incomparable
+
+    if (oneTypeIsNull) return Comparability.Comparable
 
     // check if their lub is interesting
     val lub = unboxed1 lub unboxed2
