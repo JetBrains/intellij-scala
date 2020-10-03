@@ -6,7 +6,6 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.{PsiClass, PsiTypeParameter}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Contravariant, Covariant, Invariant, ParameterizedType, Variance}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
@@ -33,24 +32,16 @@ object ComparingUtil {
         }
     }
 
-    def sealedAndAllChildrenAreIrreconcilable = {
-      val areSealed = classes.forall{
-        case modOwner: ScModifierListOwner => modOwner.hasModifierProperty("sealed")
-        case _ => false
-      }
-      def childrenAreIrreconcilable =
-        inheritorsInSameFile(clazz1).forall {
-          c1 => inheritorsInSameFile(clazz2).forall {
-            c2 => isNeverSubClass(c1, c2)
-          }
-        }
-      areSealed && childrenAreIrreconcilable
-    }
+    def sealedAndAllChildrenAreIrreconcilable(clazz1: PsiClass, clazz2: PsiClass): Boolean =
+      clazz1.isSealed && inheritorsInSameFile(clazz1).forall(isNeverSubClass(_, clazz2))
+
+    def oneClazzIsSealedAndAllChildrenAreIrreconcilable: Boolean =
+      sealedAndAllChildrenAreIrreconcilable(clazz1, clazz2) || sealedAndAllChildrenAreIrreconcilable(clazz2, clazz1)
 
     val areUnrelatedClasses =
       !areClassesEquivalent(clazz1, clazz2) && !(clazz1.isInheritor(clazz2, true) || clazz2.isInheritor(clazz1, true))
 
-    areUnrelatedClasses && (oneFinal || twoNonTraitsOrInterfaces || sealedAndAllChildrenAreIrreconcilable)
+    areUnrelatedClasses && (oneFinal || twoNonTraitsOrInterfaces || oneClazzIsSealedAndAllChildrenAreIrreconcilable)
   }
 
   def isNeverSubType(tp1: ScType, tp2: ScType, sameType: Boolean = false): Boolean = {

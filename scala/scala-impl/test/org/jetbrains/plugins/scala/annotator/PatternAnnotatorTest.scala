@@ -589,4 +589,19 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
       """.stripMargin
     emptyMessages(code)
   }
+
+  def testSealedTrait(): Unit = {
+    val text =
+      """
+        |
+        |sealed trait A
+        |class C
+        |
+        |new C match {
+        |  case _: A =>
+        |}
+        |""".stripMargin
+    assertNoErrors(text)
+    checkWarning(text, "_: A", fruitless("C", "A"))
+  }
 }

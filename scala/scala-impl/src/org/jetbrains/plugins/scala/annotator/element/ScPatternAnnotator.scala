@@ -3,6 +3,7 @@ package annotator
 package element
 
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.externalLibraries.bm4.Implicit0Pattern
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -11,11 +12,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil.{isNeverSubClass, isNeverSubType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyVal, Nothing, Null, TypePresentation, TupleType, TypeParameterType, arrayType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyVal, Nothing, Null, TupleType, TypeParameterType, TypePresentation, arrayType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScParameterizedType, ScType, ScalaType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.externalLibraries.bm4.Implicit0Pattern
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -61,7 +61,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
     val neverMatches = !matchesPattern(exTp, patType) && isNeverSubType(exTp, patType)
 
     def isEliminatedByErasure = (exprType.extractClass, patType.extractClass) match {
-      case (Some(cl1), Some(cl2)) if pattern.isInstanceOf[ScTypedPattern] => !isNeverSubClass(cl1, cl2)
+      case (Some(cl1), Some(cl2)) if pattern.is[ScTypedPattern] => !isNeverSubClass(cl1, cl2)
       case _ => false
     }
 
@@ -92,14 +92,14 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
       case _: ScConstructorPattern if neverMatches && patType.isFinalType =>
         val message = ScalaBundle.message("constructor.cannot.be.instantiated.to.expected.type", patType, exprType)
         holder.createErrorAnnotation(pattern, message)
-      case (_: ScTuplePattern | _: ScInfixPattern) if neverMatches =>
+      case _: ScTuplePattern | _: ScInfixPattern if neverMatches =>
         val message = ScalaBundle.message("pattern.type.incompatible.with.expected", patType, exprType)
         holder.createErrorAnnotation(pattern, message)
       case _  if patType.isFinalType && neverMatches =>
         val (exprTypeText, patTypeText) = TypePresentation.different(exprType, patType)
         val message = ScalaBundle.message("pattern.type.incompatible.with.expected", patTypeText, exprTypeText)
         holder.createErrorAnnotation(pattern, message)
-      case (_: ScTypedPattern | _: ScConstructorPattern) if neverMatches =>
+      case _: ScTypedPattern | _: ScConstructorPattern if neverMatches =>
         val erasureWarn =
           if (isEliminatedByErasure) ScalaBundle.message("erasure.warning")
           else ""
