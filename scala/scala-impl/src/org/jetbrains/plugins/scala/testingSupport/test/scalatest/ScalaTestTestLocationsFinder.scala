@@ -1,14 +1,12 @@
 package org.jetbrains.plugins.scala.testingSupport.test.scalatest
 
-import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiElement
 import com.intellij.util.concurrency.annotations.RequiresReadLock
-import org.jetbrains.annotations.CalledWithReadLock
 import org.jetbrains.plugins.scala.caches.CachesUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation => ScMethodInvocation, _}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
+import org.jetbrains.plugins.scala.testingSupport.test.utils.ScalaTestLocationsFinderUtils
 import org.scalatest.finders._
 
 
@@ -19,13 +17,12 @@ import org.scalatest.finders._
 //     }
 //   }
 // }
+private[testingSupport]
 object ScalaTestTestLocationsFinder {
-
-  type TestLocations = collection.Seq[PsiElement]
 
   @RequiresReadLock
   @CachedInUserData(definition, CachesUtil.fileModTracker(definition.getContainingFile))
-  def calculateTestLocations(definition: ScTypeDefinition): Option[TestLocations] = {
+  def calculateTestLocations(definition: ScTypeDefinition): Option[Seq[PsiElement]] = {
     //Thread.sleep(5000) // uncomment to test long resolve
     for {
       module <- definition.module
@@ -58,6 +55,9 @@ object ScalaTestTestLocationsFinder {
     }
   }
 
+  private type TestLocations = Seq[PsiElement]
+
+  import ScalaTestLocationsFinderUtils.collectTestLocations
   import SuiteMethodNames._
 
   private def funSuiteTestLocations(body: ScTemplateBody): TestLocations =
@@ -80,42 +80,6 @@ object ScalaTestTestLocationsFinder {
 
   private def featureSpecTestLocations(body: ScTemplateBody): TestLocations =
     collectTestLocations(body, infixStyle = false, FeatureSpecNodes, FeatureSpecLeaves)
-
-  private def collectTestLocations(
-    body: ScTemplateBody,
-    infixStyle: Boolean,
-    intermediateMethodNames: Set[String],
-    leafMethodNames: Set[String]
-  ): TestLocations = {
-
-    def inner(expressions: collection.Seq[ScExpression]): collection.Seq[ScReferenceExpression] =
-      expressions.flatMap { expr =>
-        ProgressManager.checkCanceled()
-
-        val (methodCall, target) = expr match {
-          case call: ScMethodInvocation if infixStyle => (call, call.getInvokedExpr)
-          case call: ScMethodCall                     => (call, call.deepestInvokedExpr)
-          case _                                      => return Seq.empty
-        }
-
-        target match {
-          case ref: ScReferenceExpression =>
-            if (intermediateMethodNames.contains(ref.refName)) {
-              val childExpressions = methodCall.argumentExpressions.collect { case block: ScBlockExpr => block.exprs }
-              Seq(ref) ++ inner(childExpressions.flatten)
-            } else if (leafMethodNames.contains(ref.refName)) {
-              Seq(ref)
-            } else {
-              Seq.empty
-            }
-          case _ =>
-            Seq.empty
-        }
-      }
-
-    val constructorExpressions = body.exprs
-    inner(constructorExpressions)
-  }
 
   private[scalatest] object SuiteMethodNames {
 

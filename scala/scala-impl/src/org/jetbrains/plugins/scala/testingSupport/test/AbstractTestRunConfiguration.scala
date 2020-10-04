@@ -36,9 +36,9 @@ abstract class AbstractTestRunConfiguration(
   project: Project,
   val configurationFactory: ConfigurationFactory,
   val name: String
-) extends ModuleBasedConfiguration[RunConfigurationModule, Element](
+) extends ModuleBasedConfiguration[JavaRunConfigurationModule, Element](
   name,
-  new RunConfigurationModule(project),
+  new JavaRunConfigurationModule(project, true),
   configurationFactory
 ) with ConfigurationWithCommandLineShortener
   with SMRunnerConsolePropertiesProvider

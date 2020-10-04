@@ -11,12 +11,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
-import ScalaTestTestLocationsFinder.SuiteMethodNames
+import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestTestLocationsFinder.SuiteMethodNames
 
 /**
  * TODO: now we have two different types set finders:
  *  1. defined in this class
- *  2. forked scala-test-finders (see most up-to-date forks: https://github.com/scalatest/scalatest-finders)
+ *  1. forked scala-test-finders (see most up-to-date forks: https://github.com/scalatest/scalatest-finders)
  *  Despite this class has "Old" it's not quite clear which is older
  *  because original scala-test-finders were abandoned in 2013 (!)
  *  Currently both finders work in some cases and do not in others.
@@ -29,7 +29,7 @@ class ScalaTestSingleTestLocationFinderOld(
   templateBody: ScTemplateBody
 ) {
 
-  def testClassWithTestName: (ScTypeDefinition, String) = {
+  def findTestName: Option[String] = {
 
     import ScalaTestUtil._
 
@@ -58,6 +58,19 @@ class ScalaTestSingleTestLocationFinderOld(
       (wordSpecBases, checkWordSpec _),
     )
 
+    findTestName(suitsWithFinders)
+  }
+
+  def findTestNameForFunSuite(funSuiteBaseClasses: Seq[String]): Option[String] = {
+    //noinspection ConvertibleToMethodValue
+    val suitsWithFinders: Seq[(Seq[String], String => Option[String])] = Seq(
+      (funSuiteBaseClasses, checkFunSuite _)
+    )
+
+    findTestName(suitsWithFinders)
+  }
+
+  private def findTestName(suitsWithFinders: Seq[(Seq[String], String => Option[String])]): Option[String] = {
     // use iterators, let the search be lazy
     val searchResults: Iterator[(String, String)] =
       for {
@@ -67,8 +80,7 @@ class ScalaTestSingleTestLocationFinderOld(
       } yield (suite, testName)
 
     val suiteWithTestName = searchResults.headOption
-    val testName = suiteWithTestName.map(_._2)
-    (clazz, testName.orNull)
+    suiteWithTestName.map(_._2)
   }
 
   private val shouldFqn  = "org.scalatest.verb.ShouldVerb.StringShouldWrapperForVerb"

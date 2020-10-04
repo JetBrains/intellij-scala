@@ -42,8 +42,10 @@ class ScalaTestLocationProvider extends SMTestLocator {
 object ScalaTestLocationProvider {
 
   /** note: used not only in ScalaTest framework, but e.g. in uTest
+   *
    * @see [[org.jetbrains.plugins.scala.testingSupport.uTest.UTestReporter]] */
   private val ScalaTestProtocol = "scalatest"
+  val ScalaTestProtocolPrefix = "scalatest://"
   // what is this protocol used? don't we only use "scalatest" prefix for now?
   private val ScalaProtocol = "scala"
 
@@ -52,6 +54,17 @@ object ScalaTestLocationProvider {
   private val ScalaTestTopOfClassPattern  = """TopOfClass:(\S+)TestName:(.+)""".r
   private val ScalaTestTopOfMethodPattern = """TopOfMethod:(\S+):(\S+)TestName:(.+)""".r
   private val ScalaTestLineInFinePattern  = """LineInFile:(\S+):(.+):(.+)TestName:(.+)""".r
+
+  def isTestUrl(url: String): Boolean =
+    url.startsWith(ScalaTestLocationProvider.ScalaTestProtocolPrefix)
+
+  def getClassFqn(locationUrl: String): Option[String] =
+    locationUrl.stripPrefix(ScalaTestLocationProvider.ScalaTestProtocolPrefix) match {
+      case ScalaTestTopOfClassPattern(classFqn, _)       => Some(classFqn)
+      case ScalaTestTopOfMethodPattern(classFqn, _, _)   => Some(classFqn)
+      case ScalaTestLineInFinePattern(classFqn, _, _, _) => Some(classFqn)
+      case _                                             => None
+    }
 
   private def getLocationForScalaTestProtocol(locationData: String, project: Project, scope: GlobalSearchScope): ju.List[Location[_ <: PsiElement]] = {
     val res = new ju.ArrayList[Location[_ <: PsiElement]]()

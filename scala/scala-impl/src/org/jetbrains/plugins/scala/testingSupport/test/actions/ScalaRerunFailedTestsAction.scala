@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.extensions.IteratorExt
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.{PsiLocationWithName, ScalaTestLocationProvider}
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.actions.ScalaRerunFailedTestsAction.MyScalaRunProfile
+import org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitTestLocator
 
 import scala.jdk.CollectionConverters._
 
@@ -93,6 +94,8 @@ object ScalaRerunFailedTestsAction {
     private def detectClassFqnFromUrl(url: String): Option[String] =
       if (ScalaTestLocationProvider.isTestUrl(url))
         ScalaTestLocationProvider.getClassFqn(url)
+      else if (MUnitTestLocator.isTestUrl(url))
+        MUnitTestLocator.getClassFqn(url)
       else
         None
 

@@ -19,27 +19,30 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestFramework
-import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestTestLocationsFinder.TestLocations
+import org.jetbrains.plugins.scala.testingSupport.test.munit.{MUnitTestFramework, MUnitTestLocationsFinder, MUnitUtils}
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.{ScalaTestTestFramework, ScalaTestTestLocationsFinder}
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2TestFramework
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestTestFramework
 
+import scala.jdk.CollectionConverters.IterableHasAsScala
+
+// TODO: split providers by test frameworks, if some logic should be reused, just move to some base/utility classes
 class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
 
   /**
-   * for scalatest location hint format see
-   * [[org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter]]
-   * [[org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporterWithLocation]]
-   * [[org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider]]
+   * for scalatest location hint format see:
+   *  - [[org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter]]
+   *  - [[org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporterWithLocation]]
+   *  - [[org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider]]
    *
    * for uTest  location hint format see
-   * [[org.jetbrains.plugins.scala.testingSupport.uTest.UTestReporter]]
+   *  - [[org.jetbrains.plugins.scala.testingSupport.uTest.UTestReporter]]
    */
   override def getInfo(element: PsiElement): RunLineMarkerContributor.Info =
     element match {
       case leaf: LeafPsiElement if leaf.getElementType == ScalaTokenTypes.tIDENTIFIER =>
         infoForLeafElement(leaf).orNull
-      case _ =>
+      case _                                                                          =>
         null
     }
 
@@ -50,7 +53,7 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
     parent match {
       case clazz: PsiClass            => infoForClass(clazz)
       case method: PsiMethod          => infoForMethod(method)
-      case ref: ScReferenceExpression => infoForElement(leaf, ref)
+      case ref: ScReferenceExpression => infoForTestMethodRef(ref)
       case _                          => None
     }
   }
@@ -62,9 +65,9 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
     val url = framework match {
       case _: ScalaTestTestFramework => Some(s"scalatest://TopOfClass:${clazz.qualifiedName}TestName:${clazz.name}")
       //FIXME: why the hell uTest url is reported with scalatest prefix? (see UTestReporter)
-      case _: UTestTestFramework     => Some(s"scalatest://TopOfClass:${clazz.qualifiedName}TestName:${clazz.qualifiedName}") // TODO: check maybe it should be clazz.name
-      case _: Specs2TestFramework    => Some(s"") // TODO: spec2 runner does not report location for class currently
-      case _                         => Some(s"java:suite://${clazz.qualifiedName}")
+      case _: UTestTestFramework  => Some(s"scalatest://TopOfClass:${clazz.qualifiedName}TestName:${clazz.qualifiedName}") // TODO: check maybe it should be clazz.name
+      case _: Specs2TestFramework => Some(s"") // TODO: spec2 runner does not report location for class currently
+      case _                      => Some(s"java:suite://${clazz.qualifiedName}")
     }
     url.map(buildLineInfo(_, clazz.getProject, isClass = true))
   }
@@ -75,9 +78,11 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
   @Measure
   private def infoForMethod(method: PsiMethod): Option[RunLineMarkerContributor.Info] = {
     val clazz: PsiClass = PsiTreeUtil.getParentOfType(method, classOf[PsiClass])
-    if (clazz == null) return None
+    if (clazz == null)
+      return None
     val framework = TestFrameworks.detectFramework(clazz)
-    if (framework == null || !framework.isTestMethod(method)) return None
+    if (framework == null || !framework.isTestMethod(method))
+      return None
 
     val url = framework match {
       case _: AbstractTestFramework => None
@@ -86,32 +91,45 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
     url.map(buildLineInfo(_, method.getProject, isClass = false))
   }
 
-  @Measure
-  private def infoForElement(leaf: PsiElement, parent: PsiElement): Option[RunLineMarkerContributor.Info] = {
-    val definition = PsiTreeUtil.getParentOfType(parent, classOf[ScTypeDefinition])
-    if (definition == null) return None
+  private def infoForTestMethodRef(ref: ScReferenceExpression): Option[RunLineMarkerContributor.Info] = {
+    val definition = PsiTreeUtil.getParentOfType(ref, classOf[ScTypeDefinition])
+    if (definition == null)
+      return None
 
-    TestFrameworks.detectFramework(definition) match {
-      case _: ScalaTestTestFramework =>
-      case _ => return None
-    }
+    // NOT: for MUnit more than one framework is applicable: MUnit and JUnit, and JUnit is detected first =(
+    val frameworks = TestFrameworks.detectApplicableFrameworks(definition).asScala
+    val scalaFramework = frameworks.filterByType[AbstractTestFramework].headOption
 
-    val testLocations: Option[TestLocations] =
-      ScalaTestTestLocationsFinder.calculateTestLocations(definition)
-
-    testLocations match {
-      case Some(locations) if locations.contains(parent) =>
-        Some(scalaTestLineInfo(parent, definition, testName = ""))
-      case _ =>
-        None
+    scalaFramework.flatMap {
+      case _: ScalaTestTestFramework => infoForScalaTestMethodRef(ref, definition)
+      case _: MUnitTestFramework     => infoForMUnitMethodRef(ref, definition)
+      case _                         => None
     }
   }
 
-  private def scalaTestLineInfo(element: PsiElement, definition: ScTypeDefinition, testName: String): RunLineMarkerContributor.Info = {
-    val url = scalaTestLineUrl(element, definition, testName)
-    val project = element.getProject
-    buildLineInfo(url, project, isClass = false)
+  private def infoForScalaTestMethodRef(ref: ScReferenceExpression, definition: ScTypeDefinition): Option[RunLineMarkerContributor.Info] = {
+    val locations = ScalaTestTestLocationsFinder.calculateTestLocations(definition)
+    if (locations.exists(_.contains(ref))) {
+      val url = scalaTestLineUrl(ref, definition, testName = "")
+      val info = buildLineInfo(url, ref.getProject, isClass = false)
+      Some(info)
+    }
+    else None
   }
+
+  private def infoForMUnitMethodRef(ref: ScReferenceExpression, definition: ScTypeDefinition): Option[RunLineMarkerContributor.Info] = {
+    val locations = MUnitTestLocationsFinder.calculateTestLocations(definition)
+    if (locations.exists(_.contains(ref))) {
+      val testName = MUnitUtils.staticTestName(ref)
+      val url = testName.fold("")(junit4TestMethodUrl(definition.qualifiedName, _))
+      val info = buildLineInfo(url, ref.getProject, isClass = false)
+      Some(info)
+    }
+    else None
+  }
+
+  private def junit4TestMethodUrl(classFqn: String, testName: String) =
+    s"java:test://$classFqn/$testName"
 
   private def scalaTestLineUrl(element: PsiElement, definition: ScTypeDefinition, testName: String): String = {
     // NOTE: there are difficulties with identifying test by test lines due to when test file is modified lines
