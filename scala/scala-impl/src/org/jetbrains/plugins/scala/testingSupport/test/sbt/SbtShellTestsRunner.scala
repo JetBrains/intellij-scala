@@ -33,7 +33,7 @@ object SbtShellTestsRunner {
       if (useSbtUi)
         for {
           _ <- sbtSupport.initialize(communication)
-          mod <- sbtSupport.modifySbtSettingsForUi(communication)
+          mod <- sbtSupport.modifySbtSettingsForUi(module, communication)
         } yield Some(mod)
       else
         Future.successful(None)

@@ -7,7 +7,7 @@ import com.intellij.execution.testframework.AbstractJavaTestConfigurationProduce
 import com.intellij.execution.{JavaRunConfigurationExtensionManager, Location, RunManager, RunnerAndConfigurationSettings}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.util.Ref
+import com.intellij.openapi.util.{NlsSafe, Ref}
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
@@ -25,8 +25,6 @@ import scala.jdk.CollectionConverters._
 
 abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfiguration]
   extends LazyRunConfigurationProducer[T] {
-
-  protected final val Log: Logger = Logger.getInstance(this.getClass)
 
   final type PsiElementLocation = Location[_ <: PsiElement]
 
@@ -119,6 +117,7 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
       (element, settings)
     }
 
+  @NlsSafe
   protected def configurationName(contextInfo: CreateFromContextInfo): String
 
   protected def getContextInfo(location: PsiElementLocation): Option[CreateFromContextInfo] = {
@@ -234,6 +233,8 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
 }
 
 object AbstractTestConfigurationProducer {
+
+  private final val Log: Logger = Logger.getInstance(classOf[AbstractTestConfigurationProducer[_]])
 
   // do not display backticks in test class/package name
   private def sanitize(qualifiedName: String): String = qualifiedName.replace("`", "")

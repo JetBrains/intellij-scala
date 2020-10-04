@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.test.utest
 
 import junit.framework.TestCase
-import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestRunConfiguration.UTestSbtCommandsBuilder
+import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestSbtTestRunningSupport.UTestSbtCommandsBuilder
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions._
 
 class UTestSbtCommandsBuilderTest extends TestCase {

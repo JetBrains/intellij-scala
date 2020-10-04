@@ -15,7 +15,6 @@ import com.intellij.openapi.options.{SettingsEditor, SettingsEditorGroup}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.{GlobalSearchScope, GlobalSearchScopes}
-import com.intellij.testIntegration.TestFramework
 import com.intellij.util.xmlb.XmlSerializer
 import com.intellij.util.xmlb.annotations.Transient
 import org.jdom.Element
@@ -25,7 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration._
-import org.jetbrains.plugins.scala.testingSupport.test.sbt.SbtTestRunningSupport
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{ClassTestData, TestConfigurationData}
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
@@ -50,9 +48,9 @@ abstract class AbstractTestRunConfiguration(
     new ScalaTestFrameworkConsoleProperties(this, testFramework.getName, executor)
 
   def configurationProducer: AbstractTestConfigurationProducer[_]
-  def testFramework: TestFramework
+  def testFramework: AbstractTestFramework
 
-  def suitePaths: Seq[String]
+  private lazy val suitePaths: Seq[String] = testFramework.baseSuitePaths
   final def javaSuitePaths: ju.List[String] = suitePaths.asJava
 
   // TODO: move to test data itself to avoid information duplication (currently same info is expressed via testKind and testConfigurationData.class
@@ -179,30 +177,12 @@ abstract class AbstractTestRunConfiguration(
 
   protected def validityChecker: SuiteValidityChecker
 
-  protected def runnerInfo: TestFrameworkRunnerInfo
-
-  def sbtSupport: SbtTestRunningSupport
-
-  override def getState(executor: Executor, env: ExecutionEnvironment): ScalaTestFrameworkCommandLineState =
-    newCommandLineState(env, None)
-
-  def newCommandLineState(
-    env: ExecutionEnvironment,
-    failedTests: Option[Seq[(String, String)]]
-  ): ScalaTestFrameworkCommandLineState = {
-    val module = getModule
-    if (module == null)
-      throw executionException(ScalaBundle.message("test.run.config.module.is.not.specified"))
-
-    new ScalaTestFrameworkCommandLineState(
-      this,
-      env,
-      testConfigurationData,
-      failedTests,
-      runnerInfo,
-      sbtSupport
-    )(project, module)
+  override final def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState ={
+    val provider = runStateProvider
+    provider.commandLineState(env, None)
   }
+
+  def runStateProvider: RunStateProvider
 
   override def writeExternal(element: Element): Unit = {
     super.writeExternal(element)
@@ -237,11 +217,6 @@ object AbstractTestRunConfiguration {
   type SettingMap = Map[SettingEntry, String]
 
   def SettingMap(): SettingMap = Map[SettingEntry, String]()
-  /**
-   * see runners module for details
-   * @param runnerClass fully qualified name of runner class
-   */
-  case class TestFrameworkRunnerInfo(runnerClass: String)
 
   private def moduleScope(module: Module): GlobalSearchScope =
     GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module)

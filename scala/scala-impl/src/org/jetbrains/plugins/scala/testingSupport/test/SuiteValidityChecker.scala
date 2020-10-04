@@ -13,7 +13,8 @@ trait SuiteValidityChecker {
   def isValidSuite(clazz: PsiClass, suiteClass: PsiClass): Boolean
 }
 
-abstract class SuiteValidityCheckerBase extends SuiteValidityChecker {
+@ApiStatus.Internal
+class SuiteValidityCheckerBase extends SuiteValidityChecker {
 
   override def isValidSuite(clazz: PsiClass, suiteClass: PsiClass): Boolean = {
     isValidClass(clazz) &&

@@ -20,14 +20,13 @@ import com.intellij.util.ui.JBUI
 import javax.swing._
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.IteratorExt
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.settings.SimpleMappingListCellRenderer
 import org.jetbrains.plugins.scala.testingSupport.test._
 import org.jetbrains.plugins.scala.testingSupport.test.testdata._
 import org.jetbrains.plugins.scala.testingSupport.test.ui.TestRunConfigurationForm.{PackageChooserActionListener, _}
-import org.jetbrains.plugins.scala.util.ui.TextWithMnemonic
 import org.jetbrains.plugins.scala.util.ui.TextWithMnemonic.AbstractButtonExt
 import org.jetbrains.sbt.settings.SbtSettings
 
@@ -191,9 +190,20 @@ final class TestRunConfigurationForm(val myProject: Project) {
 
     def update(configuration: AbstractTestRunConfiguration): Unit = {
       update()
-      val projectHasSbt = hasSbt(myProject)
-      myUseSbtCheckBox.setVisible(projectHasSbt) // TODO: hide if sbt support is null/None
-      myUseUiWithSbt.setVisible(projectHasSbt && configuration.sbtSupport.allowsSbtUiRun)
+      val sbtSupport = configuration.runStateProvider match {
+        case provider: CustomTestRunnerOrSbtShellStateProvider => Some(provider.sbtSupport)
+        case provider: SbtShellBasedStateProvider              => Some(provider.sbtSupport)
+        case _                                                 => None
+      }
+      sbtSupport match {
+        case Some(support ) =>
+          val projectHasSbt = hasSbt(myProject)
+          myUseSbtCheckBox.setVisible(projectHasSbt)
+          myUseUiWithSbt.setVisible(projectHasSbt && support.allowsSbtUiRun)
+        case None =>
+          myUseSbtCheckBox.setVisible(false)
+          myUseUiWithSbt.setVisible(false)
+      }
     }
 
     private def hideAll(): Unit = {

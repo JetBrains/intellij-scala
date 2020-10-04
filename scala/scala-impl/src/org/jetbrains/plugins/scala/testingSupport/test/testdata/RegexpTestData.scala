@@ -106,6 +106,9 @@ class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigura
 
       val visitedNew = visited + classesToVisit.head
 
+      // TODO: consider delegating tests filtering by regexp to test framework itself
+      //  our approach can't work with dynamically-created tests
+      //  the full picture of tests can only be obtained inside test runner itself
       val testNamesNew = TestNodeProvider.getTestNames(classesToVisit.head, config.configurationProducer)
       val resNew = res ++ testNamesNew
 

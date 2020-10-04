@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
 import scala.beans.BeanProperty
 
+// TODO: it doesn't represent single test already testName can contain multiple tests
 class SingleTestData(config: AbstractTestRunConfiguration) extends ClassTestData(config) {
 
   override def getKind: TestKind = TestKind.TEST_NAME

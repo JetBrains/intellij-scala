@@ -21,7 +21,7 @@ import scala.jdk.CollectionConverters._
 
 /**
  * NOTE: when changing constructor params do not forget to edit TestConfigurationData.serializeIntoSkippingDefaults
- * TODO: make this class dummy, with default constructor, just containing serialized values
+ * TODO: make this class anemic, with default constructor, just containing serialized values
  */
 //noinspection ConvertNullInitializerToUnderscore
 abstract class TestConfigurationData(config: AbstractTestRunConfiguration)

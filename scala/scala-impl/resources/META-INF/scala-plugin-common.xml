@@ -560,6 +560,8 @@
                      description="The progress of compilation for highlighting will be shown after this timeout"/>
         <registryKey key="scala.erase.compiler.process.jdk.once" defaultValue="true" restartRequired="false"
                      description="Erase compiler.process.jdk value before compilation. A dirty hack needed because of removal of SetSameJdkToBuildProcessAsInCompileServer #SCL-17676"/>
+        <registryKey key="scala.test.framework.runner.log.raw.process.output" defaultValue="false" restartRequired="false"
+                     description="Prints raw output of process that executes test framework runner, including unprocessed TeamCity service messages"/>
 
         <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
         <spellchecker.support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>
