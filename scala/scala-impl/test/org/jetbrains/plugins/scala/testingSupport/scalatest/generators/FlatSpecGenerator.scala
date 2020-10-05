@@ -20,7 +20,7 @@ trait FlatSpecGenerator extends ScalaTestTestCase {
        |class $flatSpecClassName extends FlatSpec with GivenWhenThen {
        | "A FlatSpecTest" should "be able to run single test" in {
        |   Given("an empty test case")
-       |   val resultToPrint = ">>TEST: OK<<"
+       |   val resultToPrint = "$TestOutputPrefix OK $TestOutputSuffix"
        |
        |   When("the result line is printed")
        |   print(resultToPrint)
@@ -31,7 +31,7 @@ trait FlatSpecGenerator extends ScalaTestTestCase {
        | }
        |
        | it should "not run other tests" in {
-       |   print(">>TEST: FAILED<<")
+       |   print("$TestOutputPrefix FAILED $TestOutputSuffix")
        | }
        |
        | it should "run tagged tests" taggedAs(FlatSpecTag) in {}

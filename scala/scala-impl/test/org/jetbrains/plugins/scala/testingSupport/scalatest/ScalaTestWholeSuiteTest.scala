@@ -12,74 +12,74 @@ trait ScalaTestWholeSuiteTest extends ScalaTestTestCase
   with WordSpecGenerator {
 
   val featureSpecTestPaths = Seq(
-    Seq("[root]", featureSpecClassName, "Feature: Feature 1", "Scenario: Scenario A"),
-    Seq("[root]", featureSpecClassName, "Feature: Feature 1", "Scenario: Scenario B"),
-    Seq("[root]", featureSpecClassName, "Feature: Feature 2", "Scenario: Scenario C")
+    TestNodePath("[root]", featureSpecClassName, "Feature: Feature 1", "Scenario: Scenario A"),
+    TestNodePath("[root]", featureSpecClassName, "Feature: Feature 1", "Scenario: Scenario B"),
+    TestNodePath("[root]", featureSpecClassName, "Feature: Feature 2", "Scenario: Scenario C")
   )
   val flatSpecTestPaths = Seq(
-    Seq("[root]", flatSpecClassName, "A FlatSpecTest", "should be able to run single test"),
-    Seq("[root]", flatSpecClassName, "A FlatSpecTest", "should not run other tests")
+    TestNodePath("[root]", flatSpecClassName, "A FlatSpecTest", "should be able to run single test"),
+    TestNodePath("[root]", flatSpecClassName, "A FlatSpecTest", "should not run other tests")
   )
   val freeSpecTestPaths = Seq(
-    Seq("[root]", freeSpecClassName, "A FreeSpecTest", "should be able to run single tests"),
-    Seq("[root]", freeSpecClassName, "A FreeSpecTest", "should not run tests that are not selected")
+    TestNodePath("[root]", freeSpecClassName, "A FreeSpecTest", "should be able to run single tests"),
+    TestNodePath("[root]", freeSpecClassName, "A FreeSpecTest", "should not run tests that are not selected")
   )
   val funSpecTestPaths = Seq(
-    Seq("[root]", funSpecClassName, "FunSpecTest", "should launch single test"),
-    Seq("[root]", funSpecClassName, "FunSpecTest", "should not launch other tests"),
-    Seq("[root]", funSpecClassName, "OtherScope", "is here")
+    TestNodePath("[root]", funSpecClassName, "FunSpecTest", "should launch single test"),
+    TestNodePath("[root]", funSpecClassName, "FunSpecTest", "should not launch other tests"),
+    TestNodePath("[root]", funSpecClassName, "OtherScope", "is here")
   )
   val funSuiteTestPaths = Seq(
-    Seq("[root]", funSuiteClassName, "should run single test"),
-    Seq("[root]", funSuiteClassName, "should not run other tests")
+    TestNodePath("[root]", funSuiteClassName, "should run single test"),
+    TestNodePath("[root]", funSuiteClassName, "should not run other tests")
   )
   val propSpecTestPaths = Seq(
-    Seq("[root]", propSpecClassName, "Single tests should run"),
-    Seq("[root]", propSpecClassName, "other test should not run")
+    TestNodePath("[root]", propSpecClassName, "Single tests should run"),
+    TestNodePath("[root]", propSpecClassName, "other test should not run")
   )
   val wordSpecTestPaths = Seq(
-    Seq("[root]", wordSpecClassName, "WordSpecTest", "Run single test"),
-    Seq("[root]", wordSpecClassName, "WordSpecTest", "ignore other tests"), Seq("[root]", "WordSpecTest", "outer", "inner")
+    TestNodePath("[root]", wordSpecClassName, "WordSpecTest", "Run single test"),
+    TestNodePath("[root]", wordSpecClassName, "WordSpecTest", "ignore other tests"), TestNodePath("[root]", "WordSpecTest", "outer", "inner")
   )
 
   def testFeatureSpec(): Unit =
-    runTestByLocation2(2, 10, featureSpecFileName,
+    runTestByLocation(loc(featureSpecFileName, 2, 10),
       assertConfigAndSettings(_, featureSpecClassName),
       root => assertResultTreeHasExactNamedPaths(root)(featureSpecTestPaths)
     )
 
   def testFlatSpec(): Unit =
-    runTestByLocation2(2, 10, flatSpecFileName,
+    runTestByLocation(loc(flatSpecFileName, 2, 10),
       assertConfigAndSettings(_, flatSpecClassName),
       root => assertResultTreeHasExactNamedPaths(root)(flatSpecTestPaths)
     )
 
   def testFreeSpec(): Unit =
-    runTestByLocation2(2, 10, freeSpecFileName,
+    runTestByLocation(loc(freeSpecFileName, 2, 10),
       assertConfigAndSettings(_, freeSpecClassName),
       root => assertResultTreeHasExactNamedPaths(root)(freeSpecTestPaths)
     )
 
   def testFunSpec(): Unit =
-    runTestByLocation2(2, 10, funSpecFileName,
+    runTestByLocation(loc(funSpecFileName, 2, 10),
       assertConfigAndSettings(_, funSpecClassName),
       root => assertResultTreeHasExactNamedPaths(root)(funSpecTestPaths)
     )
 
   def testFunSuite(): Unit =
-    runTestByLocation2(2, 10, funSuiteFileName,
+    runTestByLocation(loc(funSuiteFileName, 2, 10),
       assertConfigAndSettings(_, funSuiteClassName),
       root => assertResultTreeHasExactNamedPaths(root)(funSuiteTestPaths)
     )
 
   def testPropSpec(): Unit =
-    runTestByLocation2(2, 10, propSpecFileName,
+    runTestByLocation(loc(propSpecFileName, 2, 10),
       assertConfigAndSettings(_, propSpecClassName),
       root => assertResultTreeHasExactNamedPaths(root)(propSpecTestPaths)
     )
 
   def testWordSpec(): Unit =
-    runTestByLocation2(2, 10, wordSpecFileName,
+    runTestByLocation(loc(wordSpecFileName, 2, 10),
       assertConfigAndSettings(_, wordSpecClassName),
       root => assertResultTreeHasExactNamedPaths(root)(wordSpecTestPaths)
     )

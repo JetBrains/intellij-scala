@@ -25,7 +25,7 @@ trait ExceptionAssertions {
         return
 
       case e: Throwable =>
-        throw new AssertionError(s"Expected exception ${expectedExceptionName} but ${e.getClass.getName} was thrown", e)
+        throw new AssertionError(s"Expected exception $expectedExceptionName but ${e.getClass.getName} was thrown", e)
     }
 
     expectedMessage match {
@@ -41,3 +41,6 @@ trait ExceptionAssertions {
   def assertException[E <: Throwable: ClassTag](code: => Unit): Unit =
     assertExceptionMessage(None)(code)
 }
+
+
+object ExceptionAssertions extends ExceptionAssertions

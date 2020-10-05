@@ -14,11 +14,11 @@ trait FunSpecGenerator extends ScalaTestTestCase {
        |class $funSpecClassName extends FunSpec {
        |  describe("FunSpecTest") {
        |    it ("should launch single test") {
-       |      print(">>TEST: OK<<")
+       |      print("$TestOutputPrefix OK $TestOutputSuffix")
        |    }
        |
        |    it ("should not launch other tests") {
-       |      print(">>TEST: FAILED<<")
+       |      print("$TestOutputPrefix FAILED $TestOutputSuffix")
        |    }
        |  }
        |

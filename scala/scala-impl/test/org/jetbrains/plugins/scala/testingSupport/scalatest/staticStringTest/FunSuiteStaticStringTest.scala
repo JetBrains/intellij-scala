@@ -27,17 +27,17 @@ trait FunSuiteStaticStringTest extends ScalaTestTestCase {
   )
 
   def testFunSuiteSum(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(5, 10, funSuiteFileName), funSuiteClassName,
+    assertConfigAndSettings(createTestCaretLocation(5, 10, funSuiteFileName), funSuiteClassName,
       "should work with sums")
   }
 
   def testFunSuiteVal(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(8, 10, funSuiteFileName), funSuiteClassName,
+    assertConfigAndSettings(createTestCaretLocation(8, 10, funSuiteFileName), funSuiteClassName,
       "consts")
   }
 
   def testFunSuiteValSum(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(11, 10, funSuiteFileName), funSuiteClassName,
+    assertConfigAndSettings(createTestCaretLocation(11, 10, funSuiteFileName), funSuiteClassName,
       "should sum consts")
   }
 

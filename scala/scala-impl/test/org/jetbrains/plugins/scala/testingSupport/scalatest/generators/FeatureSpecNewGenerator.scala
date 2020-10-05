@@ -17,18 +17,18 @@ trait FeatureSpecNewGenerator extends ScalaTestTestCase {
        | Feature("Feature 1") {
        |   Scenario("Scenario A") {
        |    Given("A")
-       |    print(">>TEST: OK<<")
+       |    print("$TestOutputPrefix OK $TestOutputSuffix")
        |   }
        |   Scenario("Scenario B") {
        |    Given("B")
-       |    print(">>TEST: 1-B-B<<")
+       |    print("$TestOutputPrefix 1-B-B$TestOutputSuffix")
        |   }
        | }
        |
        | Feature("Feature 2") {
        |   Scenario("Scenario C") {
        |    Given("C")
-       |    print(">>TEST: 2-C-C<<")
+       |    print("$TestOutputPrefix 2-C-C$TestOutputSuffix")
        |   }
        | }
        |

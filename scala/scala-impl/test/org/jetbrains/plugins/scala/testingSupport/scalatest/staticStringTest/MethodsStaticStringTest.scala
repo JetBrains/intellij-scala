@@ -37,30 +37,30 @@ trait MethodsStaticStringTest extends ScalaTestTestCase {
     """.stripMargin.trim)
 
   def testTrim(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(3, 7, methodsFileName), methodsClassName, "testName1")
+    assertConfigAndSettings(createTestCaretLocation(3, 7, methodsFileName), methodsClassName, "testName1")
   }
 
   def testToLowerCase(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(6, 7, methodsFileName), methodsClassName, "testname2")
+    assertConfigAndSettings(createTestCaretLocation(6, 7, methodsFileName), methodsClassName, "testname2")
   }
 
   def testStripSuffix(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(9, 7, methodsFileName), methodsClassName, "testName3")
+    assertConfigAndSettings(createTestCaretLocation(9, 7, methodsFileName), methodsClassName, "testName3")
   }
 
   def testStripPrefix(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(12, 7, methodsFileName), methodsClassName, "testName4")
+    assertConfigAndSettings(createTestCaretLocation(12, 7, methodsFileName), methodsClassName, "testName4")
   }
 
   def testSubstring1(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(15, 7, methodsFileName), methodsClassName, "testName5")
+    assertConfigAndSettings(createTestCaretLocation(15, 7, methodsFileName), methodsClassName, "testName5")
   }
 
   def testSubstring2(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(18, 7, methodsFileName), methodsClassName, "testName6")
+    assertConfigAndSettings(createTestCaretLocation(18, 7, methodsFileName), methodsClassName, "testName6")
   }
 
   def testReplace(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(21, 7, methodsFileName), methodsClassName, "testName7")
+    assertConfigAndSettings(createTestCaretLocation(21, 7, methodsFileName), methodsClassName, "testName7")
   }
 }

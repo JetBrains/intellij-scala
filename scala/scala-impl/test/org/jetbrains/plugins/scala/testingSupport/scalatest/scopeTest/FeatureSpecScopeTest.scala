@@ -5,14 +5,14 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.FeatureSp
 trait FeatureSpecScopeTest extends FeatureSpecGenerator {
 
   def testFeatureSpecEmptyScope(): Unit =
-    assertConfigAndSettings(createTestFromLocation(21, 7, featureSpecFileName), featureSpecClassName)
+    assertConfigAndSettings(createTestCaretLocation(21, 7, featureSpecFileName), featureSpecClassName)
 
   def testFeatureSpecScope(): Unit = {
     val testNames = Seq("Feature: Feature 1 Scenario: Scenario A", "Feature: Feature 1 Scenario: Scenario B")
-    val aPath = List("[root]", featureSpecClassName, "Feature: Feature 1", "Scenario: Scenario A")
-    val bPath = List("[root]", featureSpecClassName, "Feature: Feature 1", "Scenario: Scenario B")
+    val aPath = TestNodePath("[root]", featureSpecClassName, "Feature: Feature 1", "Scenario: Scenario A")
+    val bPath = TestNodePath("[root]", featureSpecClassName, "Feature: Feature 1", "Scenario: Scenario B")
 
-    runTestByLocation2(3, 10, featureSpecFileName,
+    runTestByLocation(loc(featureSpecFileName, 3, 10),
       assertConfigAndSettings(_, featureSpecClassName, testNames:_*),
       root => {
        assertResultTreeHasExactNamedPaths(root)(Seq(aPath, bPath))

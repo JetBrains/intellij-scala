@@ -4,11 +4,11 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.WordSpecG
 
 trait WordSpecSingleTestTest extends WordSpecGenerator {
 
-  val wordSpecTestPath = List("[root]", wordSpecClassName, "WordSpecTest", "Run single test")
-  val wordSpecTestTaggedPath = List("[root]", wordSpecClassName, "tagged", "be tagged")
+  val wordSpecTestPath = TestNodePath("[root]", wordSpecClassName, "WordSpecTest", "Run single test")
+  val wordSpecTestTaggedPath = TestNodePath("[root]", wordSpecClassName, "tagged", "be tagged")
 
   def testWordSpec(): Unit =
-    runTestByLocation2(5, 10, wordSpecFileName,
+    runTestByLocation(loc(wordSpecFileName, 5, 10),
       assertConfigAndSettings(_, wordSpecClassName, "WordSpecTest should Run single test"),
       root => {
         assertResultTreeHasExactNamedPath(root, wordSpecTestPath)
@@ -17,7 +17,7 @@ trait WordSpecSingleTestTest extends WordSpecGenerator {
     )
 
   def testTaggedWordSpec(): Unit =
-    runTestByLocation2(20, 6, wordSpecFileName,
+    runTestByLocation(loc(wordSpecFileName, 20, 6),
       assertConfigAndSettings(_, wordSpecClassName, "tagged should be tagged"),
       root => {
         assertResultTreeHasExactNamedPath(root, wordSpecTestTaggedPath)

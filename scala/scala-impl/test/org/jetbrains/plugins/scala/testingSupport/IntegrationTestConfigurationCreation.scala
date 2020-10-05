@@ -1,0 +1,32 @@
+package org.jetbrains.plugins.scala.testingSupport
+
+import com.intellij.execution.{PsiLocation, RunnerAndConfigurationSettings}
+import com.intellij.psi.PsiElement
+
+trait IntegrationTestConfigurationCreation {
+
+  protected def packageLoc(packageName: String): PackageLocation = PackageLocation(packageName)
+  protected def moduleLoc(moduleName: String): ModuleLocation = ModuleLocation(moduleName)
+  protected def loc(fileName: String, line: Int, column: Int): CaretLocation = CaretLocation(fileName, line, column)
+
+  protected def createTestFromCaretLocation(caretLocation: CaretLocation): RunnerAndConfigurationSettings
+  protected final def createTestCaretLocation(line: Int, column: Int, fileName: String): RunnerAndConfigurationSettings =
+    createTestFromLocation(loc(fileName, line, column))
+
+  protected def createTestFromPackage(packageName: String): RunnerAndConfigurationSettings
+  protected def createTestFromModule(moduleName: String): RunnerAndConfigurationSettings
+  protected def createPsiLocation(caretLocation: CaretLocation): PsiLocation[PsiElement]
+
+  protected final def createTestFromPackage(packageLocation: PackageLocation): RunnerAndConfigurationSettings =
+    createTestFromPackage(packageLocation.packageName)
+  protected final def createTestFromModule(moduleLocation: ModuleLocation): RunnerAndConfigurationSettings =
+    createTestFromModule(moduleLocation.moduleName)
+
+  protected final def createTestFromLocation(testLocation: TestLocation): RunnerAndConfigurationSettings =
+    testLocation match {
+      case loc: CaretLocation   => createTestFromCaretLocation(loc)
+      case loc: PackageLocation => createTestFromPackage(loc)
+      case loc: ModuleLocation  => createTestFromModule(loc)
+    }
+
+}

@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.utest
 
-import com.intellij.execution.testframework.AbstractTestProxy
-
 /**
  * @author Roman.Shein
  * @since 05.09.2015.
@@ -57,14 +55,15 @@ trait UTestPackageTest extends UTestTestCase {
       """.stripMargin.trim())
 
   def testPackageTestRun(): Unit = {
-    runTestByConfig2(createTestFromPackage(packageName),
+    runTestByLocation(
+      packageLoc(packageName),
       assertPackageConfigAndSettings(_, packageName),
       root => {
         assertResultTreeHasExactNamedPaths(root)(Seq(
-          Seq("[root]", "Test1", "tests", "test1"),
-          Seq("[root]", "Test1", "tests", "test2"),
-          Seq("[root]", "Test2", "tests", "test1"),
-          Seq("[root]", "Test2", "tests", "test2"),
+          TestNodePath("[root]", "Test1", "tests", "test1"),
+          TestNodePath("[root]", "Test1", "tests", "test2"),
+          TestNodePath("[root]", "Test2", "tests", "test1"),
+          TestNodePath("[root]", "Test2", "tests", "test2"),
         ))
         assertResultTreeDoesNotHaveNodes(root, "test")
       }
@@ -72,14 +71,15 @@ trait UTestPackageTest extends UTestTestCase {
   }
 
   def testModuleTestRun(): Unit =
-    runTestByConfig2(createTestFromModule(getModule.getName),
+    runTestByLocation(
+      moduleLoc(getModule.getName),
       assertPackageConfigAndSettings(_, generatedName = "ScalaTests in 'src'"),
       root => assertResultTreeHasExactNamedPaths(root)(Seq(
-        Seq("[root]", "Test1", "tests", "test1"),
-        Seq("[root]", "Test1", "tests", "test2"),
-        Seq("[root]", "Test2", "tests", "test1"),
-        Seq("[root]", "Test2", "tests", "test2"),
-        Seq("[root]", "Test2", "tests", "test")
+        TestNodePath("[root]", "Test1", "tests", "test1"),
+        TestNodePath("[root]", "Test1", "tests", "test2"),
+        TestNodePath("[root]", "Test2", "tests", "test1"),
+        TestNodePath("[root]", "Test2", "tests", "test2"),
+        TestNodePath("[root]", "Test2", "tests", "test")
       ))
     )
 }

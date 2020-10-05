@@ -14,11 +14,11 @@ trait SpecSingleTestTest extends ScalaTestTestCase {
 //      |  object `A SpecTest` {
 //      |    object `When launched` {
 //      |      def `should run single test` {
-//      |        print(">>TEST: OK<<")
+//      |        print("$TestOutputPrefix OK $TestOutputSuffix")
 //      |      }
 //      |
 //      |      def `should not run other tests` {
-//      |        print(">>TEST: FAILED<<")
+//      |        print("$TestOutputPrefix FAILED $TestOutputSuffix")
 //      |      }
 //      |    }
 //      |  }
@@ -26,10 +26,10 @@ trait SpecSingleTestTest extends ScalaTestTestCase {
 //    """.stripMargin
 //  )
   def __ignored__testSpec(): Unit = {
-    runTestByLocation2(8, 12, "Spec.scala",
+    runTestByLocation(loc("Spec.scala", 8, 12),
       assertConfigAndSettings(_, "SpecTest", "A SpecTest When launched should run single test"),
       root => {
-        assertResultTreeHasExactNamedPath(root, Seq("[root]", "SpecTest", "A SpecTest", "When launched", "should run single test"))
+        assertResultTreeHasExactNamedPath(root, TestNodePath("[root]", "SpecTest", "A SpecTest", "When launched", "should run single test"))
         assertResultTreeDoesNotHaveNodes(root, "should not run other tests")
       }
     )

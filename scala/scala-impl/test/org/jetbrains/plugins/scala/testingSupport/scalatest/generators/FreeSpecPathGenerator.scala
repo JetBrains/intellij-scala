@@ -14,7 +14,7 @@ trait FreeSpecPathGenerator extends ScalaTestTestCase {
       |class $freeSpecPathClassName extends path.FreeSpec {
       |  "A FreeSpecTest" - {
       |    "should be able to run single test" in {
-      |      print(">>TEST: OK<<")
+      |      print("$TestOutputPrefix OK $TestOutputSuffix")
       |    }
       |
       |    "should not run tests that are not selected" in {

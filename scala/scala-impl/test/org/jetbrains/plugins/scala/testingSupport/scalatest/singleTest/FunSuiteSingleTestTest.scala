@@ -4,11 +4,11 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.FunSuiteG
 
 trait FunSuiteSingleTestTest extends FunSuiteGenerator {
 
-  val funSuiteTestPath = List("[root]", funSuiteClassName, "should run single test")
-  val funSuiteTaggedTestPath = List("[root]", funSuiteClassName, "tagged")
+  val funSuiteTestPath = TestNodePath("[root]", funSuiteClassName, "should run single test")
+  val funSuiteTaggedTestPath = TestNodePath("[root]", funSuiteClassName, "tagged")
 
   def testFunSuite(): Unit = {
-    runTestByLocation2(9, 8, funSuiteFileName,
+    runTestByLocation(loc(funSuiteFileName, 9, 8),
       assertConfigAndSettings(_, funSuiteClassName, "should run single test"),
       root => {
         assertResultTreeHasExactNamedPath(root, funSuiteTestPath)
@@ -18,7 +18,7 @@ trait FunSuiteSingleTestTest extends FunSuiteGenerator {
   }
 
   def testTaggedFunSuite(): Unit = {
-    runTestByLocation2(12, 8, funSuiteFileName,
+    runTestByLocation(loc(funSuiteFileName, 12, 8),
       assertConfigAndSettings(_, funSuiteClassName, "tagged"),
       root => {
         assertResultTreeHasExactNamedPath(root, funSuiteTaggedTestPath)

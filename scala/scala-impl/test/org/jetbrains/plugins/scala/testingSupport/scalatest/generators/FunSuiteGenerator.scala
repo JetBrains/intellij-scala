@@ -14,11 +14,11 @@ trait FunSuiteGenerator extends ScalaTestTestCase {
       |class $funSuiteClassName extends FunSuite {
       |
       |  test("should not run other tests") {
-      |    print(">>TEST: FAILED<<")
+      |    print("$TestOutputPrefix FAILED $TestOutputSuffix")
       |  }
       |
       |  test("should run single test") {
-      |    print(">>TEST: OK<<")
+      |    print("$TestOutputPrefix OK $TestOutputSuffix")
       |  }
       |
       |  test("tagged", FunSuiteTag) {}

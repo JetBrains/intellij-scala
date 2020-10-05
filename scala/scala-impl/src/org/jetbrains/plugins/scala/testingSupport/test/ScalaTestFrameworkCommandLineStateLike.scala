@@ -10,6 +10,7 @@ import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.{DefaultExecutionResult, JavaRunConfigurationExtensionManager}
 import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.jetbrains.annotations.ApiStatus
@@ -46,7 +47,7 @@ trait ScalaTestFrameworkCommandLineStateLike {
 
   protected final object DebugOptions {
     // set to true to debug test runner process
-    def attachDebugAgent = false
+    def attachDebugAgent = false && !ApplicationManager.getApplication.isUnitTestMode
     def waitUntilDebuggerAttached = true
   }
 

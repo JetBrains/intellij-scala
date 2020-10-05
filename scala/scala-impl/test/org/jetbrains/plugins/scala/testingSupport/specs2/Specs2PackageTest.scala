@@ -64,29 +64,31 @@ abstract class Specs2PackageTest extends Specs2TestCase {
     """.stripMargin.trim())
 
   def testPackageTestRun(): Unit =
-    runTestByConfig2(createTestFromPackage(packageName),
+    runTestByLocation(
+      packageLoc(packageName),
       assertPackageConfigAndSettings(_, packageName),
       root => {
         assertResultTreeHasExactNamedPaths(root)(Seq(
-          Seq("[root]", "Test1", "One should", "run"),
-          Seq("[root]", "Test1", "Two should", "run"),
-          Seq("[root]", "Test2", "One should", "run"),
-          Seq("[root]", "Test2", "Two should", "run"),
+          TestNodePath("[root]", "Test1", "One should", "run"),
+          TestNodePath("[root]", "Test1", "Two should", "run"),
+          TestNodePath("[root]", "Test2", "One should", "run"),
+          TestNodePath("[root]", "Test2", "Two should", "run"),
         ))
         assertResultTreeDoesNotHaveNodes(root, "Three should")
       }
     )
 
   def testModuleTestRun(): Unit =
-    runTestByConfig2(createTestFromModule(getModule.getName),
+    runTestByLocation(
+      moduleLoc(getModule.getName),
       assertPackageConfigAndSettings(_, generatedName = "ScalaTests in 'src'"),
       root => {
         assertResultTreeHasExactNamedPaths(root)(Seq(
-          Seq("[root]", "Test1", "One should", "run"),
-          Seq("[root]", "Test1", "Two should", "run"),
-          Seq("[root]", "Test2", "One should", "run"),
-          Seq("[root]", "Test2", "Two should", "run"),
-          Seq("[root]", "Test2", "Three should", "run"),
+          TestNodePath("[root]", "Test1", "One should", "run"),
+          TestNodePath("[root]", "Test1", "Two should", "run"),
+          TestNodePath("[root]", "Test2", "One should", "run"),
+          TestNodePath("[root]", "Test2", "Two should", "run"),
+          TestNodePath("[root]", "Test2", "Three should", "run"),
         ))
       }
     )

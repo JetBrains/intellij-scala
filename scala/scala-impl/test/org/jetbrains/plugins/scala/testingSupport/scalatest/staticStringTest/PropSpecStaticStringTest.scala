@@ -28,18 +28,18 @@ trait PropSpecStaticStringTest extends ScalaTestTestCase {
   )
 
   def testPropSpecSum(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(10, 10, propSpecFileName), propSpecClassName, "string sum")
+    assertConfigAndSettings(createTestCaretLocation(10, 10, propSpecFileName), propSpecClassName, "string sum")
   }
 
   def testPropSpecVal(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(4, 10, propSpecFileName), propSpecClassName, "const")
+    assertConfigAndSettings(createTestCaretLocation(4, 10, propSpecFileName), propSpecClassName, "const")
   }
 
   def testPropSpecValSum(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(7, 10, propSpecFileName), propSpecClassName, "const test name")
+    assertConfigAndSettings(createTestCaretLocation(7, 10, propSpecFileName), propSpecClassName, "const test name")
   }
 
   def testPropSpecNonConst(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(13, 10, propSpecFileName), propSpecClassName)
+    assertConfigAndSettings(createTestCaretLocation(13, 10, propSpecFileName), propSpecClassName)
   }
 }

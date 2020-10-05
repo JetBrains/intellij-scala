@@ -4,11 +4,11 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.FlatSpecG
 
 trait FlatSpecSingleTestTest extends FlatSpecSingleTestTestBase with FlatSpecGenerator {
 
-  val flatSpecTestPath = List("[root]", flatSpecClassName, "A FlatSpecTest", "should be able to run single test")
+  val flatSpecTestPath = TestNodePath("[root]", flatSpecClassName, "A FlatSpecTest", "should be able to run single test")
 
   def testFlatSpec_StringScope(): Unit = {
     def test(lineNumber: Int, offset: Int): Unit =
-      doTest(flatSpecFileName, flatSpecClassName)(lineNumber, offset)(
+      doTest(flatSpecClassName)(loc(flatSpecFileName, lineNumber, offset))(
         "A FlatSpecTest should be able to run single test",
         flatSpecTestPath
       )
@@ -21,8 +21,8 @@ trait FlatSpecSingleTestTest extends FlatSpecSingleTestTestBase with FlatSpecGen
   }
 
   def testFlatSpec_ItWithoutExplicitScope(): Unit = {
-    def test(lineNumber: Int, offset: Int)(expectedTestName: String, expectedTestPath: List[String]): Unit =
-      doTest(testItFlatFileName, testItFlatClassName)(lineNumber, offset)(
+    def test(lineNumber: Int, offset: Int)(expectedTestName: String, expectedTestPath: TestNodePath): Unit =
+      doTest(testItFlatClassName)(loc(testItFlatFileName, lineNumber, offset))(
         expectedTestName,
         expectedTestPath
       )
@@ -30,7 +30,7 @@ trait FlatSpecSingleTestTest extends FlatSpecSingleTestTestBase with FlatSpecGen
     def test1(lineNumber: Int, offset: Int): Unit =
       test(lineNumber, offset)(
         s"should run test with correct name",
-        List("[root]", testItFlatClassName, "should run test with correct name")
+        TestNodePath("[root]", testItFlatClassName, "should run test with correct name")
       )
 
     test1(3, 3)
@@ -39,9 +39,9 @@ trait FlatSpecSingleTestTest extends FlatSpecSingleTestTestBase with FlatSpecGen
     test1(3, 41)
     test1(4, 1)
 
-    test(6, 5)("should tag", List("[root]", testItFlatClassName, "should tag"))
-    test(9, 10)("Test should be fine", List("[root]", testItFlatClassName, "Test", "should be fine"))
-    test(11, 10)("Test should change name", List("[root]", testItFlatClassName, "Test", "should change name"))
+    test(6, 5)("should tag", TestNodePath("[root]", testItFlatClassName, "should tag"))
+    test(9, 10)("Test should be fine", TestNodePath("[root]", testItFlatClassName, "Test", "should be fine"))
+    test(11, 10)("Test should change name", TestNodePath("[root]", testItFlatClassName, "Test", "should change name"))
   }
 
   def testSelectTestAfterIgnore(): Unit = {
@@ -49,14 +49,14 @@ trait FlatSpecSingleTestTest extends FlatSpecSingleTestTestBase with FlatSpecGen
     val className = testWithIgnoreClassName
 
     val baseName = "SomeService should "
-    val basePath = List("[root]", "SomeServiceTest", "SomeService")
+    val basePath = TestNodePath("[root]", "SomeServiceTest", "SomeService")
 
     // before ignore
-    doTest(fileName, className)(5, 3)(baseName + "do something1", basePath :+ "should do something1")
-    doTest(fileName, className)(6, 3)(baseName + "do something2", basePath :+ "should do something2")
-    doTest(fileName, className)(7, 3)(baseName + "do something3", basePath :+ "should do something3")
+    doTest(className)(loc(fileName, 5, 3))(baseName + "do something1", basePath :+ "should do something1")
+    doTest(className)(loc(fileName, 6, 3))(baseName + "do something2", basePath :+ "should do something2")
+    doTest(className)(loc(fileName, 7, 3))(baseName + "do something3", basePath :+ "should do something3")
     // after ignore
-    doTest(fileName, className)(11, 3)(baseName + "do something5", basePath :+ "should do something5")
-    doTest(fileName, className)(12, 3)(baseName + "do something6", basePath :+ "should do something6")
+    doTest(className)(loc(fileName, 11, 3))(baseName + "do something5", basePath :+ "should do something5")
+    doTest(className)(loc(fileName, 12, 3))(baseName + "do something6", basePath :+ "should do something6")
   }
 }

@@ -14,11 +14,11 @@ trait PropSpecGenerator extends ScalaTestTestCase {
       |class $propSpecClassName extends PropSpec {
       |
       |  property("Single tests should run") {
-      |    print(">>TEST: OK<<")
+      |    print("$TestOutputPrefix OK $TestOutputSuffix")
       |  }
       |
       |  property("other test should not run") {
-      |    print(">>TEST: FAILED<<")
+      |    print("$TestOutputPrefix FAILED $TestOutputSuffix")
       |  }
       |
       |  property("tagged", PropSpecTag) {}

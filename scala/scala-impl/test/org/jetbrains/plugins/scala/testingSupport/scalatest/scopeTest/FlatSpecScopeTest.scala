@@ -33,11 +33,11 @@ trait FlatSpecScopeTest extends ScalaTestTestCase {
     return
 
     val testPaths = Seq(
-      Seq("[root]", className, "should test name without behaviour with it"),
-      Seq("[root]", className, "should test name without behaviour with it tagged"),
-      Seq("[root]", className, "Test Prefix", "should test name with string prefix"),
-      Seq("[root]", className, "Test Prefix", "should test name with it and string prefix above"),
-      Seq("[root]", className, "Behaviour Descriptor", "should test name with it behaviour")
+      TestNodePath("[root]", className, "should test name without behaviour with it"),
+      TestNodePath("[root]", className, "should test name without behaviour with it tagged"),
+      TestNodePath("[root]", className, "Test Prefix", "should test name with string prefix"),
+      TestNodePath("[root]", className, "Test Prefix", "should test name with it and string prefix above"),
+      TestNodePath("[root]", className, "Behaviour Descriptor", "should test name with it behaviour")
     )
     val testNames = testPaths.map(_.drop(2).mkString(" "))
 
@@ -49,7 +49,7 @@ trait FlatSpecScopeTest extends ScalaTestTestCase {
         true
       },
       root => {
-        val pathsNotInTree = testPaths.filterNot(path => checkResultTreeHasExactNamedPath(root, path: _*))
+        val pathsNotInTree = testPaths.filterNot(path => assertResultTreeHasExactNamedPath(root, path: _*))
         if (pathsNotInTree.nonEmpty) {
           fail(s"result tree does not contain paths:\n${pathsNotInTree.map("  " + _).mkString("\n")}")
         }

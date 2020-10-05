@@ -23,7 +23,7 @@ abstract class Specs2StaticStringTest extends Specs2TestCase {
       |    """.stripMargin)
 
   def testValString(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(7, 7, valFileName), valClassName, "run")
+    assertConfigAndSettings(createTestCaretLocation(7, 7, valFileName), valClassName, "run")
   }
 
   val sumClassName = "StringSumTest"
@@ -42,7 +42,7 @@ abstract class Specs2StaticStringTest extends Specs2TestCase {
       |}
     """.stripMargin)
   def testStringSum(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(6, 7, sumFileName), sumClassName, "run fine")
+    assertConfigAndSettings(createTestCaretLocation(6, 7, sumFileName), sumClassName, "run fine")
   }
 
   val badClassName = "BadStringTest"
@@ -66,7 +66,7 @@ abstract class Specs2StaticStringTest extends Specs2TestCase {
     """.stripMargin)
 
   def testNonConst(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(6, 7, badFileName), badClassName)
+    assertConfigAndSettings(createTestCaretLocation(6, 7, badFileName), badClassName)
   }
 
   val methodsTestClassName = "SpecsMethodsTest"
@@ -109,30 +109,30 @@ abstract class Specs2StaticStringTest extends Specs2TestCase {
       |}
     """.stripMargin.trim)
   def testTrim(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(4, 7, methodsTestFileName), methodsTestClassName, "Test1")
+    assertConfigAndSettings(createTestCaretLocation(4, 7, methodsTestFileName), methodsTestClassName, "Test1")
   }
 
   def testToLowerCase(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(8, 7, methodsTestFileName), methodsTestClassName, "test2")
+    assertConfigAndSettings(createTestCaretLocation(8, 7, methodsTestFileName), methodsTestClassName, "test2")
   }
 
   def testSuffix(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(12, 7, methodsTestFileName), methodsTestClassName, "Test3")
+    assertConfigAndSettings(createTestCaretLocation(12, 7, methodsTestFileName), methodsTestClassName, "Test3")
   }
 
   def testPrefix(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(16, 7, methodsTestFileName), methodsTestClassName, "Test4")
+    assertConfigAndSettings(createTestCaretLocation(16, 7, methodsTestFileName), methodsTestClassName, "Test4")
   }
 
   def testSubString1(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(20, 7, methodsTestFileName), methodsTestClassName, "Test5")
+    assertConfigAndSettings(createTestCaretLocation(20, 7, methodsTestFileName), methodsTestClassName, "Test5")
   }
 
   def testSubString2(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(24, 7, methodsTestFileName), methodsTestClassName, "Test6")
+    assertConfigAndSettings(createTestCaretLocation(24, 7, methodsTestFileName), methodsTestClassName, "Test6")
   }
 
   def testReplace(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(28, 7, methodsTestFileName), methodsTestClassName, "Test7")
+    assertConfigAndSettings(createTestCaretLocation(28, 7, methodsTestFileName), methodsTestClassName, "Test7")
   }
 }

@@ -34,7 +34,7 @@ class UTestStaticStringTest_2_13_0_7_4_old_syntax extends UTestTestBase_2_13_0_7
   }
 
   protected def checkTestsTest(lineNumber: Int, position: Int, expectedName: String): Unit = {
-    assertConfigAndSettings(createTestFromLocation(lineNumber, position, testsTestFileName),
+    assertConfigAndSettings(createTestCaretLocation(lineNumber, position, testsTestFileName),
       testsTestName, "tests" + (if (expectedName.isEmpty) "" else "\\" + expectedName))
   }
 }

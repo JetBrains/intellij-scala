@@ -4,11 +4,11 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.FunSpecGe
 
 trait FunSpecSingleTestTest extends FunSpecGenerator {
 
-  val funSpecTestPath = List("[root]", funSpecClassName, "FunSpecTest", "should launch single test")
-  val funSpecTaggedTestPath = List("[root]", funSpecClassName, "taggedScope", "is tagged")
+  val funSpecTestPath = TestNodePath("[root]", funSpecClassName, "FunSpecTest", "should launch single test")
+  val funSpecTaggedTestPath = TestNodePath("[root]", funSpecClassName, "taggedScope", "is tagged")
 
   def testFunSpec(): Unit = {
-    runTestByLocation2(5, 9, funSpecFileName,
+    runTestByLocation(loc(funSpecFileName, 5, 9),
       assertConfigAndSettings(_, funSpecClassName, "FunSpecTest should launch single test"),
       root => {
         assertResultTreeHasExactNamedPath(root, funSpecTestPath)
@@ -18,7 +18,7 @@ trait FunSpecSingleTestTest extends FunSpecGenerator {
   }
 
   def testTaggedFunSpec(): Unit = {
-    runTestByLocation2(20, 6, funSpecFileName,
+    runTestByLocation(loc(funSpecFileName, 20, 6),
       assertConfigAndSettings(_, funSpecClassName, "taggedScope is tagged"),
       root => {
         assertResultTreeHasExactNamedPath(root, funSpecTaggedTestPath)

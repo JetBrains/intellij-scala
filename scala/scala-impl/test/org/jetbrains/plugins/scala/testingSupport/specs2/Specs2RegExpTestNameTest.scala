@@ -34,43 +34,43 @@ abstract class Specs2RegExpTestNameTest extends Specs2TestCase {
     """.stripMargin.trim)
 
   def testInnerMost(): Unit =
-    runTestByLocation2(8, 10, regExpFileName,
+    runTestByLocation(loc(regExpFileName, 8, 10),
       assertConfigAndSettings(_, regExpClassName, "test"),
       root => {
-        assertResultTreeHasExactNamedPath(root, Seq("[root]", regExpClassName, "The RegExpTest should", "test"))
+        assertResultTreeHasExactNamedPath(root, TestNodePath("[root]", regExpClassName, "The RegExpTest should", "test"))
         assertResultTreeDoesNotHaveNodes(root, "testtest", "testtesttest")
       }
     )
 
   def testMiddle(): Unit =
-    runTestByLocation2(10, 10, regExpFileName,
+    runTestByLocation(loc(regExpFileName, 10, 10),
       assertConfigAndSettings(_, regExpClassName, "testtest"),
       root => {
-        assertResultTreeHasExactNamedPath(root, Seq("[root]", regExpClassName, "The RegExpTest should", "testtest"))
+        assertResultTreeHasExactNamedPath(root, TestNodePath("[root]", regExpClassName, "The RegExpTest should", "testtest"))
         assertResultTreeDoesNotHaveNodes(root, "test", "testtesttest")
       })
 
   def testOuterMost(): Unit =
-    runTestByLocation2(4, 10, regExpFileName,
+    runTestByLocation(loc(regExpFileName, 4, 10),
       assertConfigAndSettings(_, regExpClassName, "testtesttest"),
       root => {
-        assertResultTreeHasExactNamedPath(root, Seq("[root]", regExpClassName, "The RegExpTest should", "testtesttest"))
+        assertResultTreeHasExactNamedPath(root, TestNodePath("[root]", regExpClassName, "The RegExpTest should", "testtesttest"))
         assertResultTreeDoesNotHaveNodes(root, "test", "testtest")
       })
 
   //TODO: enable the test once I find a way to run different tests with same description in specs2
   def __IGNORE_testDifferentScopes(): Unit = {
-    runTestByLocation2(14, 10, regExpFileName,
+    runTestByLocation(loc(regExpFileName, 14, 10),
       assertConfigAndSettings(_, regExpClassName, "run"),
       root => {
-        assertResultTreeHasExactNamedPath(root, Seq("[root]", regExpClassName, "First should", "run"))
+        assertResultTreeHasExactNamedPath(root, TestNodePath("[root]", regExpClassName, "First should", "run"))
         assertResultTreeDoesNotHaveNodes(root, "Second should")
       })
 
-    runTestByLocation2(18, 10, regExpFileName,
+    runTestByLocation(loc(regExpFileName, 18, 10),
       assertConfigAndSettings(_, regExpClassName, "run"),
       root => {
-        assertResultTreeHasExactNamedPath(root, Seq("[root]", regExpClassName, "Second should", "run"))
+        assertResultTreeHasExactNamedPath(root, TestNodePath("[root]", regExpClassName, "Second should", "run"))
         assertResultTreeDoesNotHaveNodes(root, "First should")
       })
   }

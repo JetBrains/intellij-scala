@@ -14,23 +14,25 @@ class UTestBeforeAfterTest_2_13_0_7_4 extends UTestTestBase_2_13_0_7_4 {
        |    test("test1") {}
        |  }
        |
-       |  override def utestBeforeEach(path: Seq[String]): Unit = { println(">>TEST: BEFORE <<") }
+       |  override def utestBeforeEach(path: Seq[String]): Unit = { println("$TestOutputPrefix BEFORE $TestOutputSuffix") }
        |
-       |  override def utestAfterEach(path: Seq[String]): Unit = { println(">>TEST: AFTER <<") }
+       |  override def utestAfterEach(path: Seq[String]): Unit = { println("$TestOutputPrefix AFTER $TestOutputSuffix") }
        |}
        |""".stripMargin.trim())
 
-  def testBefore(): Unit = {
-
-
-    runTestByLocation2(4, 10, beforeAfterFileName,
+  def testBefore(): Unit =
+    runTestByLocation(
+      loc(beforeAfterFileName, 4, 10),
       assertConfigAndSettings(_, beforeAfterTestName, "tests\\test1"),
-      DoNotCheck, expectedText = "BEFORE", checkOutputs = true)
-  }
+      IgnoreTreeResult,
+      AssertTestOutputTextContains("BEFORE")
+    )
 
-  def testAfter(): Unit = {
-    runTestByLocation2(4, 10, beforeAfterFileName,
+  def testAfter(): Unit =
+    runTestByLocation(
+      loc(beforeAfterFileName, 4, 10),
       assertConfigAndSettings(_, beforeAfterTestName, "tests\\test1"),
-      DoNotCheck, expectedText = "AFTER", checkOutputs = true)
-  }
+      IgnoreTreeResult,
+      AssertTestOutputTextContains("AFTER")
+    )
 }

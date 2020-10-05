@@ -31,20 +31,21 @@ trait ScalaTestPackageNewTest extends ScalaTestPackageTest {
   )
 
   def testPackageTestRun_ShouldSkipNonDiscoverableTests(): Unit =
-    runTestByConfig2(createTestFromPackage(thirdPackageName),
+    runTestByLocation(
+      packageLoc(thirdPackageName),
       assertPackageConfigAndSettings(_, thirdPackageName),
       root => {
         assertResultTreeHasExactNamedPaths(root)(Seq(
-          Seq("[root]", "NestedStepsSuite", "StepSuiteNotDiscoverable1", "test1.1"),
-          Seq("[root]", "NestedStepsSuite", "StepSuiteNotDiscoverable1", "test1.2"),
-          Seq("[root]", "NestedStepsSuite", "StepSuiteNotDiscoverable2", "test2.1"),
-          Seq("[root]", "NestedStepsSuite", "StepSuiteDiscoverable", "test3.1"),
-          Seq("[root]", "StepSuiteDiscoverable", "test3.1"),
+          TestNodePath("[root]", "NestedStepsSuite", "StepSuiteNotDiscoverable1", "test1.1"),
+          TestNodePath("[root]", "NestedStepsSuite", "StepSuiteNotDiscoverable1", "test1.2"),
+          TestNodePath("[root]", "NestedStepsSuite", "StepSuiteNotDiscoverable2", "test2.1"),
+          TestNodePath("[root]", "NestedStepsSuite", "StepSuiteDiscoverable", "test3.1"),
+          TestNodePath("[root]", "StepSuiteDiscoverable", "test3.1"),
         ))
         assertResultTreeHasNotGotExactNamedPaths(root)(Seq(
-          Seq("[root]", "StepSuiteNotDiscoverable1", "test1.1"),
-          Seq("[root]", "StepSuiteNotDiscoverable1", "test1.2"),
-          Seq("[root]", "StepSuiteNotDiscoverable2", "test2.1")
+          TestNodePath("[root]", "StepSuiteNotDiscoverable1", "test1.1"),
+          TestNodePath("[root]", "StepSuiteNotDiscoverable1", "test1.2"),
+          TestNodePath("[root]", "StepSuiteNotDiscoverable2", "test2.1")
         ))
       }
     )

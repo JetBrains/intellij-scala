@@ -4,10 +4,10 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.FreeSpecP
 
 trait FreeSpecPathSingleTestTest extends FreeSpecPathGenerator {
 
-  val freeSpecPathTestPath = List("[root]", freeSpecPathClassName, "A FreeSpecTest", "should be able to run single test")
+  val freeSpecPathTestPath = TestNodePath("[root]", freeSpecPathClassName, "A FreeSpecTest", "should be able to run single test")
 
   def testFreeSpecPath(): Unit = {
-    runTestByLocation2(5, 15, freeSpecPathFileName,
+    runTestByLocation(loc(freeSpecPathFileName, 5, 15),
       assertConfigAndSettings(_, freeSpecPathClassName, "A FreeSpecTest should be able to run single test"),
       root => {
         assertResultTreeHasExactNamedPath(root, freeSpecPathTestPath)
