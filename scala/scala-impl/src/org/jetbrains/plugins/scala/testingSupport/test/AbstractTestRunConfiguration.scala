@@ -160,14 +160,16 @@ abstract class AbstractTestRunConfiguration(
 
   private def thisConfiguration: RunConfigurationBase[_] = this
 
-  protected[test] final def isValidSuite(clazz: PsiClass): Boolean =
-    getSuiteClass.fold(
+  protected[test] final def isValidSuite(clazz: PsiClass): Boolean = {
+    val suiteClass = getSuiteClass
+    suiteClass.fold(
       exception => {
         Log.traceSafe(s"isValidSuite: false (${exception.getMessage})")
         false
       },
       validityChecker.isValidSuite(clazz, _)
     )
+  }
 
   /** @return whether `clazz` can be discovered when run indirectly, e.g. using "All in package" test kind */
   protected[test] def canBeDiscovered(clazz: PsiClass): Boolean = true

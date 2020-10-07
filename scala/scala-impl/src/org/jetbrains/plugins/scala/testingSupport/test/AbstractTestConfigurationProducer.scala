@@ -33,7 +33,8 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
   private def hasTestSuitesInModuleDependencies(module: Module): Boolean = {
     val scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module, true)
     val psiManager = ScalaPsiManager.instance(module.getProject)
-    suitePaths.exists(psiManager.getCachedClass(scope, _).isDefined)
+    val exists = suitePaths.exists(psiManager.getCachedClass(scope, _).isDefined)
+    exists
   }
 
   override def setupConfigurationFromContext(
@@ -55,9 +56,7 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
 
       (testElement, confSettings) = elementWithConf
       config = confSettings.getConfiguration.asInstanceOf[T]
-
-      // TODO: should we really check it for configuration (the one we should setup) and not for config (just created)?
-      _ <- ensure(isRunPossibleFor(configuration, testElement, config.getModule), "run is impossible")
+      _ <- ensure(isRunPossibleFor(config, testElement), "run is impossible")
     } yield (testElement, config)
 
     elementWithConfSettings match {
@@ -72,7 +71,7 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
     }
   }
 
-  private def ensure(bool: Boolean, errorMessage: String): Either[String, ()] =
+  private def ensure(bool: Boolean, errorMessage: => String): Either[String, ()] =
     if (bool) Right(()) else Left(errorMessage)
 
   private def extendCreatedConfiguration(configuration: RunConfigurationBase[_], location: PsiElementLocation): Unit = {
@@ -165,10 +164,11 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
    *
    * @param testElement test class OR package OR directory
    */
-  private def isRunPossibleFor(configuration: T, testElement: PsiElement, module: Module): Boolean =
+  private def isRunPossibleFor(configuration: T, testElement: PsiElement): Boolean =
     testElement match {
-      case cl: PsiClass if hasTestSuitesInModuleDependencies(module) =>
-        configuration.isValidSuite(cl) || {
+      case cl: PsiClass if hasTestSuitesInModuleDependencies(configuration.getModule) =>
+        val isValidSuite = configuration.isValidSuite(cl)
+        isValidSuite || {
           // TODO: check with debugger: this shouldn't be true if previous is false cause in previous check we already checked inheritors?
           //  plus this seems to be not the optimal, cause inside configuration.isValidSuite we do quite a lot of job
           ClassInheritorsSearch.search(cl).asScala.exists(configuration.isValidSuite)
