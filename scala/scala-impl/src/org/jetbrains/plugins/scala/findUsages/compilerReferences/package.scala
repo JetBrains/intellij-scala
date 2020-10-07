@@ -18,8 +18,12 @@ import org.jetbrains.plugins.scala.indices.protocol.sbt.SbtCompilationInfo
 import org.jetbrains.sbt.project.data.ModuleNode
 
 package object compilerReferences {
-  private def buildDir(project: Project): Option[File] =
-    Option(BuildManager.getInstance().getProjectSystemDirectory(project))
+  private def buildDir(project: Project): Option[File] = {
+    if (project.isDefault)
+      None
+    else
+      Option(BuildManager.getInstance().getProjectSystemDirectory(project))
+  }
 
   def indexDir(project: Project): Option[File] = buildDir(project).map(new File(_, "scala-compiler-references"))
   def removeIndexFiles(project: Project): Unit = indexDir(project).foreach(CompilerReferenceIndex.removeIndexFiles)
