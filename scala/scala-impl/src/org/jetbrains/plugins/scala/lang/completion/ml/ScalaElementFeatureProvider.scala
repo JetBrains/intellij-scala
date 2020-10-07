@@ -25,12 +25,8 @@ final class ScalaElementFeatureProvider extends ElementFeatureProvider {
   override def getName: String = ScalaLowerCase
 
   override def calculateFeatures(element: LookupElement, location: CompletionLocation, contextFeatures: ContextFeatures): util.Map[String, MLFeatureValue] = {
-    implicit val position: PsiElement = Position.get(contextFeatures)
+    implicit val position: PsiElement = location.getCompletionParameters.getPosition
     implicit val project: Project = location.getProject
-
-    if (!Position.isIn(location)) {
-      Position.set(location, position)
-    }
 
     val keyword = element.getObject match {
       case string: String if isKeyword(string) => string
@@ -96,7 +92,7 @@ final class ScalaElementFeatureProvider extends ElementFeatureProvider {
 object ScalaElementFeatureProvider {
 
   private val ExpectedTypeAndNameWords = NotNullLazyKey.create[(Array[String], Array[String]), CompletionLocation]("scala.feature.element.expected.type.and.name.words", location => {
-    val position = Position.get(location)
+    val position = location.getCompletionParameters.getPosition
 
     val expectedTypeAndName = definitionByPosition(position).flatMap {
       _.expectedTypeEx()
@@ -121,7 +117,7 @@ object ScalaElementFeatureProvider {
   })
 
   private val Context = NotNullLazyKey.create[util.HashMap[String, MLFeatureValue], CompletionLocation]("scala.feature.element.context", location => {
-    val position = Position.get(location)
+    val position = location.getCompletionParameters.getPosition
     val processingContext = location.getProcessingContext
 
     // theses features should be moved to context after IntellijIdeaRulezzz fix
