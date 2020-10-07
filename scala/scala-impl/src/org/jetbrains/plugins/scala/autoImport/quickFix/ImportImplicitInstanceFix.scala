@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.autoImport.quickFix
 
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiNamedElement}
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -83,7 +84,7 @@ object ImportImplicitInstanceFix {
   private def withProbableArguments(prefix: Seq[ScalaResolveResult],
                                     parameter: ScalaResolveResult,
                                     visited: Set[PsiNamedElement] = Set.empty): collection.Seq[TypeToSearch] = {
-    if (visited(parameter.element))
+    if (visited(parameter.element) || visited.size > 2)
       return Seq.empty
 
     val forParameter = implicitTypeToSearch(parameter).map(TypeToSearch(prefix :+ parameter, _))
