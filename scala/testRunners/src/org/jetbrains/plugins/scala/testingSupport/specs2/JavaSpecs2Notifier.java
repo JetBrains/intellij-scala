@@ -14,16 +14,10 @@ import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeSt
 import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.formatCurrentTimestamp;
 
 /**
- * !!! ATTENTION: don't rename this class until to-do below are fixed
- *
- * TODO: actually `org.specs2.reporter.Notifier` interface is different for different major versions
- *  e.g. 2.x and 3.x/4.x, but we implement a single trait here (version 2.x) and pass it to all other spec2 versions.
- *  This leads to some issues at runtime, which are Hacky-worked-around-ed in spec2 itself (for some reason)
- *  (e.g. see https://github.com/etorreborre/specs2/commit/7d89a6aa33714ba14b7bf70d9520648b113e7ce8)
- *  We should implement at least two different notifiers implementations:
- *  for <=2.x and >=3.x (in separate modules) and instantiate it via notifier
- *
- * TODO: after fixing ^ review other reflection-related issues with spec2
+ * NOTE: better not to rename this class, just in case. Although the original issue (see commit history)
+ * shouldn't be reproducible at this moment, after creating separate notifier for version 2.x
+ * <br>
+ * see hack in spec2: https://github.com/etorreborre/specs2/commit/7d89a6aa33714ba14b7bf70d9520648b113e7ce8
  */
 public class JavaSpecs2Notifier implements Notifier {
   public static boolean myShowProgressMessages = true;
@@ -135,13 +129,6 @@ public class JavaSpecs2Notifier implements Notifier {
     exampleFailureOrError(name, message, f, true, actualExpectedAttrs);
   }
 
-  // @Override (in specs 2.x)
-  public void exampleSkipped(@NonNls String name, @NonNls String message, long duration) {
-    String tsMessage = String.format("testIgnored name='%s' message='%s' nodeId='%d'", escapeString(name), escapeString(message), getCurrentId());
-    report(tsMessage);
-    ascend();
-  }
-
   @Override
   public void exampleSkipped(@NonNls String name, @NonNls String message, @NonNls String location, long duration) {
     String tsMessage = String.format("testIgnored name='%s' message='%s' nodeId='%d'", escapeString(name), escapeString(message), getCurrentId());
@@ -167,10 +154,6 @@ public class JavaSpecs2Notifier implements Notifier {
   @Override
   public void stepError(String message, String location, Throwable f, long duration) {
     // TODO
-  }
-
-  public void examplePending(@NonNls String name, @NonNls String message, long duration) {
-    ascend();
   }
 
   private void exampleFailureOrError(@NonNls String name, @NonNls String message, Throwable f, boolean error, @NonNls String actualExpectedAttrs) {
