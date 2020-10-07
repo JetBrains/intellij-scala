@@ -88,10 +88,6 @@ package object ml {
     case (elementType, keyword) => elementType.toString -> keyword
   }.withDefaultValue(Keyword.UNKNOWN)
 
-  private[ml] val Position = NotNullLazyKey.create[PsiElement, CompletionEnvironment]("scala.feature.element.position", environment => {
-    environment.getParameters.getPosition
-  })
-
   private[ml] def isSymbolic(name: String): Boolean = name.exists(c => !c.isLetterOrDigit && c != '$')
 
   private[ml] def extractWords(name: String,

@@ -12,7 +12,7 @@ final class ScalaContextFeatureProvider extends ContextFeatureProvider {
   override def getName: String = ScalaLowerCase
 
   override def calculateFeatures(environment: CompletionEnvironment): util.Map[String, MLFeatureValue] = {
-    val position = Position.getValue(environment)
+    val position = environment.getParameters.getPosition
 
     val features = new util.HashMap[String, MLFeatureValue]()
 
