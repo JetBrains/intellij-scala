@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitConfigurationP
 
 abstract class MUnitTestCase extends ScalaTestingTestCase {
 
-  val LatestMunitVersion = "0.7.13"
+  val LatestMunitVersion = "0.7.14"
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= ScalaVersion.Latest.Scala_2_13
