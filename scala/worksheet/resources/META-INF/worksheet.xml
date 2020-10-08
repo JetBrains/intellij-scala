@@ -79,9 +79,6 @@
 
         <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteFileDeclarationsContributor"/>
         <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.WorksheetFileDeclarationsContributor"/>
-
-        <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteFileDeclarationsContributor"/>
-        <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.WorksheetFileDeclarationsContributor"/>
     </extensions>
 
     <projectListeners>
