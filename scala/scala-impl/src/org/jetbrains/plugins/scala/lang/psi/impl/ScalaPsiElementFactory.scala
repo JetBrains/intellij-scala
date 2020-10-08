@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ClassParamClauses
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -805,7 +806,7 @@ object ScalaPsiElementFactory {
   }
 
   def createElement(@NonNls text: String)
-                   (parse: builder.ScalaPsiBuilder => AnyVal)
+                   (parse: ScalaPsiBuilder => AnyVal)
                    (implicit ctx: ProjectContext): PsiElement =
     createElement(
       text,
@@ -815,7 +816,7 @@ object ScalaPsiElementFactory {
   private def createElementWithContext[E <: ScalaPsiElement](@NonNls text: String,
                                                              context: PsiElement,
                                                              child: PsiElement)
-                                                            (parse: builder.ScalaPsiBuilder => AnyVal)
+                                                            (parse: ScalaPsiBuilder => AnyVal)
                                                             (implicit tag: ClassTag[E]): E = {
     implicit val project: Project = (if (context == null) child else context).getProject
     createElement(text, context, checkLength = true)(parse) match {
@@ -834,7 +835,7 @@ object ScalaPsiElementFactory {
 
   private def createElement[T <: AnyVal](@NonNls text: String, context: PsiElement,
                                          checkLength: Boolean = false)
-                                        (parse: builder.ScalaPsiBuilder => T)
+                                        (parse: ScalaPsiBuilder => T)
                                         (implicit project: Project): PsiElement = {
     val chameleon = DummyHolderFactory.createHolder(
       PsiManager.getInstance(project),
@@ -853,7 +854,11 @@ object ScalaPsiElementFactory {
       seq
     )
 
-    val psiBuilder = new builder.ScalaPsiBuilderImpl(delegate, isScala3 = false)
+    val psiBuilder = new ScalaPsiBuilderImpl(delegate, isScala3 = false)
+    if (text.indexOf('\n') >= 0 && !ScalaPsiUtil.newLinesEnabled(context)) {
+      psiBuilder.disableNewlines()
+    }
+
     psiBuilder.mark() match {
       case marker =>
         parse(psiBuilder)
