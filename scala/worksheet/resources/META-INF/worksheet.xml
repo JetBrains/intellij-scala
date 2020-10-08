@@ -52,9 +52,6 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder$Startup"/>
 
-        <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteFileDeclarationsContributor"/>
-        <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.WorksheetFileDeclarationsContributor"/>
-
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner"/>
 
         <registryKey key="scala.worksheet.continue.evalutaion.on.first.expression.failure" defaultValue="false" restartRequired="false"
@@ -79,6 +76,9 @@
         <referenceExtraResolver implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScStableCodeReferenceExtraResolver"/>
         <compilerSettingsProfileProvider implementation="org.jetbrains.plugins.scala.worksheet.WorksheetScalaCompilerSettingsProfileProvider"/>
         <highlightingCompilerHelper implementation="org.jetbrains.plugins.scala.worksheet.processor.WorksheetHighlightingCompiler"/>
+
+        <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteFileDeclarationsContributor"/>
+        <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.WorksheetFileDeclarationsContributor"/>
 
         <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteFileDeclarationsContributor"/>
         <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.WorksheetFileDeclarationsContributor"/>
