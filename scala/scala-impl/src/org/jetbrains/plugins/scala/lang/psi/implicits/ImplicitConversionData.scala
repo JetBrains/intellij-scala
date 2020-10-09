@@ -116,7 +116,7 @@ abstract class ImplicitConversionData {
             val resultSubstitutor =
               ScSubstitutor.paramToExprType(inferredParameters, expressions, useExpected = false)
 
-            Some(ImplicitConversionApplication(resultType, resultSubstitutor, found))
+            Some(ImplicitConversionApplication(resultType, resultSubstitutor, found.toSeq))
           case _ => None
         }
       case _ => None

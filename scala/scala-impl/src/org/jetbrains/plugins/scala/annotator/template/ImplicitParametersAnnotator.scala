@@ -30,11 +30,11 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
       }
 
       if (typeAware && showImplictErrors)
-        highlightNotFound(element, params)
+        highlightNotFound(element, params.toSeq)
     }
   }
 
-  private def highlightNotFound(element: ImplicitArgumentsOwner, parameters: collection.Seq[ScalaResolveResult])
+  private def highlightNotFound(element: ImplicitArgumentsOwner, parameters: Seq[ScalaResolveResult])
                                (implicit holder: ScalaAnnotationHolder): Unit = {
     val settings = ScalaProjectSettings.getInstance(element.getProject)
 
@@ -47,10 +47,7 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
         val annotation = holder.createErrorAnnotation(lastLineRange(element), message(presentableTypes))
 
         val notFound = parameters.filter(_.isNotFoundImplicitParameter)
-        val importImplicitInstanceFix = ImportImplicitInstanceFix(notFound, element)
-        if (importImplicitInstanceFix.exists(_.isAvailable)) {
-          importImplicitInstanceFix.foreach(annotation.registerFix)
-        }
+        annotation.registerFix(ImportImplicitInstanceFix(() => notFound, element))
 
         //make annotation invisible in editor in favor of inlay hint
         adjustTextAttributesOf(annotation)

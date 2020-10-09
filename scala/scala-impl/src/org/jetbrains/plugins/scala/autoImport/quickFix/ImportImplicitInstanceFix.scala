@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.autoImport.quickFix
 
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiNamedElement}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.autoImport.GlobalImplicitInstance
 import org.jetbrains.plugins.scala.autoImport.GlobalMember.findGlobalMembers
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, TraversableExt}
+import org.jetbrains.plugins.scala.autoImport.quickFix.ImportImplicitInstanceFix.implicitsToImport
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.isInExcludedPackage
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
@@ -20,12 +20,12 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.{AnyFqn, AnyRefFqn, JavaObjectFqn}
 
-final class ImportImplicitInstanceFix private (found: collection.Seq[FoundImplicit],
+final class ImportImplicitInstanceFix private (notFoundImplicitParams: () => Seq[ScalaResolveResult],
                                                owner: ImplicitArgumentsOwner,
                                                popupPosition: PopupPosition)
-  extends ScalaImportElementFix(owner) {
+  extends ScalaImportElementFix[ImplicitToImport](owner) {
 
-  override val elements: collection.Seq[ImplicitToImport] = found.map(ImplicitToImport)
+  override protected def findElementsToImport(): Seq[ImplicitToImport] = implicitsToImport(notFoundImplicitParams(), owner)
 
   override def shouldShowHint(): Boolean =
     super.shouldShowHint() && ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_IMPLICITS
@@ -36,8 +36,8 @@ final class ImportImplicitInstanceFix private (found: collection.Seq[FoundImplic
   override def isAddUnambiguous: Boolean = false
 
   override def getText: String = {
-    if (found.size == 1)
-      ScalaBundle.message("import.with", found.head.instance.qualifiedName)
+    if (elements.size == 1)
+      ScalaBundle.message("import.with", elements.head.qualifiedName)
     else
       ScalaBundle.message("import.implicit")
   }
@@ -56,10 +56,12 @@ case class FoundImplicit(instance: GlobalImplicitInstance, path: Seq[ScalaResolv
 object ImportImplicitInstanceFix {
   private case class TypeToSearch(path: Seq[ScalaResolveResult], scType: ScType)
 
-  def apply(notFoundImplicitParams: collection.Seq[ScalaResolveResult],
+  def apply(notFoundImplicitParams: () => Seq[ScalaResolveResult],
             owner: ImplicitArgumentsOwner,
-            popupPosition: PopupPosition = PopupPosition.best): Option[ImportImplicitInstanceFix] = {
+            popupPosition: PopupPosition = PopupPosition.best): ImportImplicitInstanceFix =
+    new ImportImplicitInstanceFix(notFoundImplicitParams, owner, popupPosition)
 
+  private[quickFix] def implicitsToImport(notFoundImplicitParams: Seq[ScalaResolveResult], owner: ImplicitArgumentsOwner): Seq[ImplicitToImport] = {
     val typesToSearch = notFoundImplicitParams.flatMap(withProbableArguments(Nil, _))
     val allInstances = typesToSearch.flatMap {
       case TypeToSearch(path, scType) => findCompatibleInstances(scType, owner).map(FoundImplicit(_, path, scType))
@@ -67,18 +69,14 @@ object ImportImplicitInstanceFix {
     val alreadyImported =
       ImplicitCollector.visibleImplicits(owner).flatMap(GlobalImplicitInstance.from)
 
-    val instances =
-      allInstances
-        .distinctBy(_.instance)
-        .filterNot(x => alreadyImported.contains(x.instance) || isInExcludedPackage(x.instance.pathToOwner, owner.getProject))
-        .sortBy {
-          case FoundImplicit(instance, path, scType) =>
-            (path.size, typesToSearch.indexWhere(_.scType == scType), instance.qualifiedName)
-        }
-
-    if (instances.nonEmpty)
-      Some(new ImportImplicitInstanceFix(instances, owner, popupPosition))
-    else None
+    allInstances
+      .distinctBy(_.instance)
+      .filterNot(x => alreadyImported.contains(x.instance) || isInExcludedPackage(x.instance.pathToOwner, owner.getProject))
+      .sortBy {
+        case FoundImplicit(instance, path, scType) =>
+          (path.size, typesToSearch.indexWhere(_.scType == scType), instance.qualifiedName)
+      }
+      .map(ImplicitToImport)
   }
 
   private def withProbableArguments(prefix: Seq[ScalaResolveResult],
