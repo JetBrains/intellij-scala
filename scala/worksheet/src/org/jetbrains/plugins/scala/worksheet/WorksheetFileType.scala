@@ -11,5 +11,5 @@ object WorksheetFileType
   override def getDefaultExtension = "sc"
 
   // TODO worksheet logo
-  override val getIcon: Icon = ScalaFileType.INSTANCE.getIcon
+  override def getIcon: Icon = ScalaFileType.INSTANCE.getIcon
 }
