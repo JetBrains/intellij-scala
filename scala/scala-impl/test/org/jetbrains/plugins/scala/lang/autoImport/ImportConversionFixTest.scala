@@ -13,7 +13,7 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
   //conversions from standard library may be different in older versions
   override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_2_13
 
-  override def createFix(ref: ScReferenceExpression) = ImportImplicitConversionFix(ref).headOption
+  override def createFix(ref: ScReferenceExpression) = ImportImplicitConversionFix(ref).find(_.elements.nonEmpty)
 
   def testAsJavaCollection(): Unit = checkElementsToImport(
     s"""object Test {

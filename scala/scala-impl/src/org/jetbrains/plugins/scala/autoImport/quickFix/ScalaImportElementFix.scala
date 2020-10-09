@@ -1,28 +1,42 @@
 package org.jetbrains.plugins.scala.autoImport.quickFix
 
 import java.awt.Point
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
 
 import com.intellij.codeInsight.hint.HintManagerImpl
 import com.intellij.codeInsight.intention.PriorityAction
 import com.intellij.codeInspection.HintAction
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{ModificationTracker, TextRange}
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.ScalaBundle
+import com.intellij.util.concurrency.AppExecutorUtil
 import org.jetbrains.plugins.scala.autoImport.quickFix.Presentation.htmlWithBody
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportElementFix._
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiFileExt, executeUndoTransparentAction, invokeLater}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiFileExt, executeUndoTransparentAction, invokeLater, scheduleOnPooledThread}
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenericCall
+import org.jetbrains.plugins.scala.{ScalaBundle, isUnitTestMode}
 
-abstract class ScalaImportElementFix(val place: PsiElement) extends HintAction with PriorityAction {
+abstract class ScalaImportElementFix[Element <: ElementToImport](val place: PsiElement) extends HintAction with PriorityAction {
 
   private val modificationCount = currentModCount()
 
-  val elements: Seq[ElementToImport]
+  private val computedElements: AtomicReference[Seq[Element]] = new AtomicReference()
+
+  private val isComputationScheduled = new AtomicBoolean(false)
+
+  if (isUnitTestMode) {
+    computedElements.set(findElementsToImport())
+  }
+
+  final def elements: Seq[Element] = Option(computedElements.get()).getOrElse(Seq.empty)
+
+  protected def findElementsToImport(): Seq[Element]
 
   def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _]
 
@@ -36,9 +50,13 @@ abstract class ScalaImportElementFix(val place: PsiElement) extends HintAction w
 
   override def isAvailable(project: Project,
                            editor: Editor,
-                           file: PsiFile): Boolean = isAvailable && file.hasScalaPsi
+                           file: PsiFile): Boolean = {
+    scheduleComputationOnce(editor)
 
-  def isAvailable: Boolean = place.isValid && elements.nonEmpty && modificationCount == currentModCount()
+    isAvailable && file.hasScalaPsi
+  }
+
+  def isAvailable: Boolean = place.isValid && elements.nonEmpty && isUpToDate
 
   override def showHint(editor: Editor): Boolean = {
     if (elements.isEmpty || !shouldShowHint())
@@ -47,7 +65,7 @@ abstract class ScalaImportElementFix(val place: PsiElement) extends HintAction w
       true
     else {
       invokeLater {
-        showHintWithAction(editor)
+        if (!editor.isDisposed) showHintWithAction(editor)
       }
       true
     }
@@ -107,6 +125,35 @@ abstract class ScalaImportElementFix(val place: PsiElement) extends HintAction w
         elementEnd,
         createAddImportAction(editor)
       )
+    }
+  }
+
+  private def isUpToDate: Boolean = currentModCount() == modificationCount
+
+  private def scheduleComputationOnce(editor: Editor): Unit = {
+    if (isComputationScheduled.compareAndSet(false, true)) {
+      val computationRunnable: Runnable = () => {
+        computedElements.set(findElementsToImport())
+        scheduleShowHint(editor)
+      }
+
+      val task = ReadAction.nonBlocking(computationRunnable)
+        .expireWhen(() => !isUpToDate)
+
+      task.submit(AppExecutorUtil.getAppExecutorService)
+    }
+  }
+
+  //if `showHint` is invoked when daemon is still running, hint may be hidden as a result of subsequent passes
+  //(for example, ImplicitHintsPass hides all hints when it disposes old inlays)
+  //introduce some delay as a workaround
+  private def scheduleShowHint(editor: Editor): Unit = {
+    scheduleOnPooledThread(500, TimeUnit.MILLISECONDS) {
+      invokeLater {
+        if (!editor.isDisposed && editor.getContentComponent.isFocusOwner && isAvailable) {
+          showHint(editor)
+        }
+      }
     }
   }
 

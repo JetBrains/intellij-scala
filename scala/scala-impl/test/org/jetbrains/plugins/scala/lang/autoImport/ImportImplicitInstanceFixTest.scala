@@ -16,8 +16,7 @@ class ImportImplicitInstanceFixTest extends ImportElementFixTestBase[ImplicitArg
     for {
       args <- findImplicitArgs(element)
       notFound = args.filter(_.isNotFoundImplicitParameter)
-      fix <- ImportImplicitInstanceFix(notFound, element)
-    } yield fix
+    } yield ImportImplicitInstanceFix(() => notFound.toSeq, element)
   }
 
   def testExecutionContext(): Unit = checkElementsToImport(

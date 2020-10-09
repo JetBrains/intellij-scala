@@ -6,6 +6,7 @@ import com.intellij.psi.{PsiDocCommentOwner, PsiNamedElement}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
 import org.jetbrains.plugins.scala.autoImport.GlobalImplicitConversion
+import org.jetbrains.plugins.scala.autoImport.quickFix.ImportImplicitConversionFix.ConversionToImportComputation
 import org.jetbrains.plugins.scala.extensions.{ChildOf, ObjectExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.isInExcludedPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScReference}
@@ -20,17 +21,18 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import scala.collection.mutable.ArrayBuffer
 
 class ImportImplicitConversionFix private (ref: ScReferenceExpression,
-                                           found: Seq[GlobalImplicitConversion])
-  extends ScalaImportElementFix(ref) {
+                                           computation: ConversionToImportComputation)
+  extends ScalaImportElementFix[MemberToImport](ref) {
 
-  override val elements: Seq[MemberToImport] = found.map(f => MemberToImport(f.function, f.owner, f.pathToOwner))
+  override protected def findElementsToImport(): Seq[MemberToImport] =
+    computation.conversions
 
   override def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _] =
     ScalaAddImportAction.importImplicitConversion(editor, elements, ref)
 
   override def isAddUnambiguous: Boolean = false
 
-  override def getText: String = found match {
+  override def getText: String = elements match {
     case Seq(conversion) => ScalaBundle.message("import.with", conversion.qualifiedName)
     case _               => ScalaBundle.message("import.implicit.conversion")
   }
@@ -53,45 +55,49 @@ object ImportImplicitConversionFix {
       }
   }
 
-  def apply(ref: ScReferenceExpression): Seq[ScalaImportElementFix] = {
-    val visible =
-      (for {
-        result <- ImplicitCollector.visibleImplicits(ref)
-        fun    <- result.element.asOptionOf[ScFunction]
-        if fun.isImplicitConversion
-      } yield fun)
-        .toSet
+  private class ConversionToImportComputation(ref: ScReferenceExpression) {
+    private case class Result(conversions: Seq[MemberToImport], missingInstances: Seq[ScalaResolveResult])
 
-    val conversionsToImport = ArrayBuffer.empty[GlobalImplicitConversion]
-    val notFoundImplicits = ArrayBuffer.empty[ScalaResolveResult]
+    private lazy val result: Result = {
+      val visible =
+        (for {
+          result <- ImplicitCollector.visibleImplicits(ref)
+          fun    <- result.element.asOptionOf[ScFunction]
+          if fun.isImplicitConversion
+        } yield fun)
+          .toSet
 
-    for {
-      qualifier                 <- qualifier(ref).toSeq
-      (conversion, application) <- ImplicitConversionData.getPossibleConversions(qualifier).toSeq
+      val conversionsToImport = ArrayBuffer.empty[GlobalImplicitConversion]
+      val notFoundImplicits = ArrayBuffer.empty[ScalaResolveResult]
 
-      if !isInExcludedPackage(conversion.pathToOwner, ref.getProject) &&
-        CompletionProcessor.variantsWithName(application.resultType, qualifier, ref.refName).nonEmpty
+      for {
+        qualifier                 <- qualifier(ref).toSeq
+        (conversion, application) <- ImplicitConversionData.getPossibleConversions(qualifier).toSeq
 
-    } {
-      val notFoundImplicitParameters = application.implicitParameters.filter(_.isNotFoundImplicitParameter)
+        if !isInExcludedPackage(conversion.pathToOwner, ref.getProject) &&
+          CompletionProcessor.variantsWithName(application.resultType, qualifier, ref.refName).nonEmpty
 
-      if (visible.contains(conversion.function))
-        notFoundImplicits ++= notFoundImplicitParameters
-      else if (mayFindImplicits(notFoundImplicitParameters, qualifier))
-        conversionsToImport += conversion
+      } {
+        val notFoundImplicitParameters = application.implicitParameters.filter(_.isNotFoundImplicitParameter)
+
+        if (visible.contains(conversion.function))
+          notFoundImplicits ++= notFoundImplicitParameters
+        else if (mayFindImplicits(notFoundImplicitParameters, qualifier))
+          conversionsToImport += conversion
+      }
+
+      val sortedConversions = conversionsToImport.sortBy(c => (isDeprecated(c), c.qualifiedName)).toSeq
+
+      Result(sortedConversions.map(f => MemberToImport(f.member, f.owner, f.pathToOwner)), notFoundImplicits.toSeq)
     }
 
-    val sortedConversions = conversionsToImport.sortBy(c => (isDeprecated(c), c.qualifiedName))
+    def conversions: Seq[MemberToImport] = result.conversions
+    def missingImplicits: Seq[ScalaResolveResult] = result.missingInstances
+  }
 
-    val importConversionFix =
-      if (sortedConversions.isEmpty) Nil
-      else Seq(new ImportImplicitConversionFix(ref, sortedConversions))
-
-    val importMissingImplicitsFixes =
-      if (notFoundImplicits.isEmpty) Nil
-      else ImportImplicitInstanceFix(notFoundImplicits, ref).toSeq
-
-    importConversionFix ++ importMissingImplicitsFixes
+  def apply(ref: ScReferenceExpression): Seq[ScalaImportElementFix[_ <: ElementToImport]] = {
+    val computation = new ConversionToImportComputation(ref)
+    Seq(new ImportImplicitConversionFix(ref, computation), ImportImplicitInstanceFix(() => computation.missingImplicits, ref))
   }
 
   private def qualifier(ref: ScReferenceExpression): Option[ScExpression] = ref match {
@@ -115,6 +121,6 @@ object ImportImplicitConversionFix {
   //todo we already search for implicit parameters, so we could import them together with a conversion
   // need to think about UX
   private def mayFindImplicits(notFoundImplicitParameters: Seq[ScalaResolveResult],
-                              owner: ScExpression): Boolean =
-    notFoundImplicitParameters.isEmpty || ImportImplicitInstanceFix(notFoundImplicitParameters, owner).nonEmpty
+                               owner: ScExpression): Boolean =
+    notFoundImplicitParameters.isEmpty || ImportImplicitInstanceFix.implicitsToImport(notFoundImplicitParameters, owner).nonEmpty
 }

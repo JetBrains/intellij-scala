@@ -325,11 +325,8 @@ private object ImplicitHintsPass {
 
   private def notFoundErrorTooltip(@Nls message: String, notFoundArgs: Seq[ScalaResolveResult])
                                   (implicit owner: ImplicitArgumentsOwner): ErrorTooltip = {
-    val quickFix = ImportImplicitInstanceFix(notFoundArgs, owner, PopupPosition.atCustomLocation)
-    quickFix match {
-      case Some(fix) => ErrorTooltip(message, fix, owner)
-      case _         => ErrorTooltip(message)
-    }
+    val quickFix = ImportImplicitInstanceFix(() => notFoundArgs, owner, PopupPosition.atCustomLocation)
+    ErrorTooltip(message, quickFix, owner)
   }
 
 

@@ -257,24 +257,18 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
             ScalaBundle.message("cannot.resolve", refElement.refName)
           )
 
-          val importTypeFix = ScalaImportTypeFix(refElement)
-          if (importTypeFix.isAvailable) {
-            annotation.registerFix(importTypeFix)
-          }
+          annotation.registerFix(ScalaImportTypeFix(refElement))
         }
         return
       case _ =>
     }
 
     if (resolve.length != 1) {
-      def processError(countError: Boolean): Unit = {
+      def processError(): Unit = {
         //todo remove when resolve of unqualified expression will be fully implemented
         if ((refElement.getManager.isInProject(refElement) || refElement.containingScalaFile.exists(_.isWorksheetFile)) &&
           resolve.isEmpty) {
-          val importTypeFix = ScalaImportTypeFix(refElement)
-          if (importTypeFix.isAvailable || countError) {
-            createUnknownSymbolProblem(refElement)(Seq(importTypeFix))
-          }
+          createUnknownSymbolProblem(refElement)(Seq(ScalaImportTypeFix(refElement)))
         }
       }
 
@@ -286,17 +280,11 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
             case assignment@ScAssignment(`refElement`, _) if resolve.isEmpty && assignment.isDynamicNamedAssignment => return
             case _ =>
           }
-
-          parent match {
-            case ScPrefixExpr(`refElement`, _) => // todo: this is hide !(Not Boolean)
-            case ScInfixExpr(_, `refElement`, _) => // todo: this is hide A op B
-            case _ => processError(countError = false)
-          }
         case _ =>
           parent match {
             case ScInfixPattern(_, `refElement`, _) if refElement.isInstanceOf[ScStableCodeReference] => // todo: this is hide A op B in patterns
             case _: ScImportSelector if resolve.length > 0 =>
-            case _ => processError(countError = true)
+            case _ => processError()
           }
       }
     } else {
@@ -462,9 +450,6 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
     if (refElement.isInstanceOf[ScDocResolvableCodeReference] && resolveCount > 0 || refElement.isSoft) return
     if (typeAware && resolveCount != 1) {
-      if (resolveCount == 1) {
-        return
-      }
 
       refElement.getParent match {
         case _: ScImportSelector | _: ScImportExpr if resolveCount > 0 => return

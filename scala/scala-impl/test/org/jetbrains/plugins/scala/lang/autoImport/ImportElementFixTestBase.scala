@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.autoImport
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportElementFix
+import org.jetbrains.plugins.scala.autoImport.quickFix.{ElementToImport, ScalaImportElementFix}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
 import org.junit.Assert.{assertEquals, fail}
@@ -12,7 +12,7 @@ import scala.reflect.ClassTag
 abstract class ImportElementFixTestBase[Psi <: PsiElement : ClassTag]
   extends ScalaLightCodeInsightFixtureTestAdapter with ScalaFiles {
 
-  def createFix(element: Psi): Option[ScalaImportElementFix]
+  def createFix(element: Psi): Option[ScalaImportElementFix[_ <: ElementToImport]]
 
   def checkElementsToImport(fileText: String, expectedQNames: String*): Unit = {
     val fix = configureAndCreateFix(fileText)
@@ -20,12 +20,8 @@ abstract class ImportElementFixTestBase[Psi <: PsiElement : ClassTag]
   }
 
   def checkNoImportFix(fileText: String): Unit = {
-    val fix =
-      try configureAndCreateFix(fileText)
-      catch {
-        case NoFixException(_) => return
-      }
-    fail(s"Some elements to import found ${fix.elements.map(_.qualifiedName)}")
+    val fix = configureAndCreateFix(fileText)
+    assertEquals(s"Some elements to import found ${fix.elements.map(_.qualifiedName)}", Seq.empty, fix.elements)
   }
 
   def doTest(fileText: String, expectedText: String, selected: String): Unit = {
@@ -39,7 +35,7 @@ abstract class ImportElementFixTestBase[Psi <: PsiElement : ClassTag]
     assertEquals("Result doesn't match expected text", normalize(expectedText), normalize(getFile.getText))
   }
 
-  private def configureAndCreateFix(fileText: String): ScalaImportElementFix = {
+  private def configureAndCreateFix(fileText: String): ScalaImportElementFix[_ <: ElementToImport] = {
     val file = configureFromFileText(fileText, fileType)
     val clazz = implicitly[ClassTag[Psi]].runtimeClass.asInstanceOf[Class[Psi]]
     val element = PsiTreeUtil.findElementOfClassAtOffset(file, getEditorOffset, clazz, false)

@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportTypeFix.getTypesToImport
 import org.jetbrains.plugins.scala.autoImport.{GlobalMember, GlobalTypeAlias}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -27,9 +28,8 @@ import org.jetbrains.plugins.scala.util.OrderingUtil.orderingByRelevantImports
  * User: Alexander Podkhalyuzin
  * Date: 15.07.2009
  */
-final class ScalaImportTypeFix private (override val elements: Seq[ElementToImport],
-                                        ref: ScReference)
-  extends ScalaImportElementFix(ref) {
+final class ScalaImportTypeFix private (ref: ScReference)
+  extends ScalaImportElementFix[ElementToImport](ref) {
 
   override def getText: String = elements match {
     case Seq(head) =>
@@ -41,6 +41,8 @@ final class ScalaImportTypeFix private (override val elements: Seq[ElementToImpo
         ScalaBundle.message("import.something")
       )
   }
+
+  override protected def findElementsToImport(): Seq[ElementToImport] = getTypesToImport(ref)
 
   override def shouldShowHint(): Boolean = {
     val settings = ScalaApplicationSettings.getInstance()
@@ -68,10 +70,7 @@ final class ScalaImportTypeFix private (override val elements: Seq[ElementToImpo
 
 object ScalaImportTypeFix {
 
-  def apply(reference: ScReference) = new ScalaImportTypeFix(
-    getTypesToImport(reference),
-    reference
-  )
+  def apply(reference: ScReference) = new ScalaImportTypeFix(reference)
 
   @annotation.tailrec
   private[this] def notInner(clazz: PsiClass, ref: PsiElement): Boolean = clazz match {
@@ -94,9 +93,9 @@ object ScalaImportTypeFix {
     case _ => true
   }
 
-  def getTypesToImport(ref: ScReference): Array[ElementToImport] = {
+  def getTypesToImport(ref: ScReference): Seq[ElementToImport] = {
     if (!ref.isValid || ref.isInstanceOf[ScTypeProjection])
-      return Array.empty
+      return Seq.empty
 
     implicit val project: Project = ref.getProject
 
@@ -163,7 +162,7 @@ object ScalaImportTypeFix {
       distinctAliases ++
       packages)
       .sortBy(_.qualifiedName)(orderingByRelevantImports(ref))
-      .toArray
+      .toSeq
   }
 
   private def hasApplyMethod(`class`: PsiClass) = `class` match {
