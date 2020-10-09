@@ -12,8 +12,11 @@ import com.intellij.openapi.options.ConfigurationException
 import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk, SdkTypeId}
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.util.{io, text}
+import com.intellij.ui.DocumentAdapter
+import com.intellij.util.ui.UI
 import javax.swing._
 import org.jetbrains.annotations.NonNls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.JComponentExt.ActionListenersOwner
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, Version, Versions}
@@ -36,7 +39,8 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     null,
     null,
     resolveClassifiers = true,
-    resolveSbtClassifiers = false
+    resolveSbtClassifiers = false,
+    packagePrefix = None,
   )
 
   private lazy val scalaVersions = ScalaKind()
@@ -52,7 +56,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
   override def createModule(moduleModel: ModifiableModuleModel): Module = {
     new File(getModuleFileDirectory) match {
       case root if root.exists() =>
-        val Selections(sbtVersion, scalaVersion, sbtPlugins, resolveClassifiers, resolveSbtClassifiers) = selections
+        val Selections(sbtVersion, scalaVersion, sbtPlugins, resolveClassifiers, resolveSbtClassifiers, packagePrefix) = selections
 
       {
         val settings = getExternalProjectSettings
@@ -60,7 +64,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
         settings.setResolveSbtClassifiers(resolveSbtClassifiers)
       }
 
-        createProjectTemplateIn(root, getName, scalaVersion, sbtVersion, sbtPlugins)
+        createProjectTemplateIn(root, getName, scalaVersion, sbtVersion, sbtPlugins, packagePrefix)
 
         setModuleFilePath(updateModuleFilePath(getModuleFilePath))
       case _ =>
@@ -84,6 +88,10 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     val scalaVersionComboBox = applyTo(new SComboBox())(
       setupScalaVersionItems
     )
+
+    val packagePrefixField = applyTo(new JTextField()) {
+      _.setText(selections.packagePrefix.getOrElse(""))
+    }
 
     //noinspection TypeAnnotation
     val step = sdkSettingsStep(settingsStep)
@@ -111,6 +119,8 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     resolveSbtClassifiersCheckBox.addActionListenerEx {
       selections.resolveSbtClassifiers = resolveSbtClassifiersCheckBox.isSelected
     }
+    packagePrefixField.getDocument.addDocumentListener(
+      (_ => selections.packagePrefix = Option(packagePrefixField.getText).filter(_.nonEmpty)): DocumentAdapter)
 
     val sbtVersionPanel = applyTo(new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)))(
       _.add(sbtVersionComboBox),
@@ -126,6 +136,8 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
     settingsStep.addSettingsField(SbtBundle.message("sbt.settings.sbt"), sbtVersionPanel)
     settingsStep.addSettingsField(SbtBundle.message("sbt.settings.scala"), scalaVersionPanel)
+    settingsStep.addSettingsField(ScalaBundle.message("package.prefix.label"),
+      UI.PanelFactory.panel(packagePrefixField).withTooltip(ScalaBundle.message("package.prefix.help")).createPanel())
 
     // TODO Remove the label patching when the External System will use the concise and proper labels natively
     Option(sbtVersionPanel.getParent).foreach { parent =>
@@ -228,7 +240,8 @@ object SbtModuleBuilder {
                                       var scalaVersion: String,
                                       var sbtPlugins: String,
                                       var resolveClassifiers: Boolean,
-                                      var resolveSbtClassifiers: Boolean) {
+                                      var resolveSbtClassifiers: Boolean,
+                                      var packagePrefix: Option[String]) {
 
     import Versions.{Kind, SBT => SbtKind, Scala => ScalaKind}
 
@@ -256,7 +269,8 @@ object SbtModuleBuilder {
                                       @NonNls name: String,
                                       @NonNls scalaVersion: String,
                                       @NonNls sbtVersion: String,
-                                      @NonNls sbtPlugins: String): Unit = {
+                                      @NonNls sbtPlugins: String,
+                                      packagePrefix: Option[String]): Unit = {
     val buildFile = root / BuildFile
     val projectDir = root / ProjectDirectory
 
@@ -273,12 +287,22 @@ object SbtModuleBuilder {
            |version := "0.1"
            |
            |scalaVersion := "$scalaVersion"
-           |""".stripMargin
+           |""".stripMargin +
+          packagePrefix.map(prefix =>
+            s"""
+               |idePackagePrefix := Some("$prefix")
+               |""".stripMargin).getOrElse("")
       )
       writeToFile(
         projectDir / PropertiesFile,
         "sbt.version = " + sbtVersion
       )
+      if (packagePrefix.isDefined) {
+        writeToFile(
+          projectDir / PluginsFile,
+          """addSbtPlugin("org.jetbrains" % "sbt-ide-settings" % "1.1.0")"""
+        )
+      }
 
       import text.StringUtil.isEmpty
       if (!isEmpty(sbtPlugins)) {
