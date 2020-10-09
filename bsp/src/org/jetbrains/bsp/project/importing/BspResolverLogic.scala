@@ -710,7 +710,8 @@ private[importing] object BspResolverLogic {
 
         val moduleData = moduleNode.getData
 
-        val scalaSdkLibrary = new LibraryData(BSP.ProjectSystemId, ScalaSdkData.LibraryName)
+        val scalaSdkLibrary = new LibraryData(BSP.ProjectSystemId, s"${ScalaSdkData.LibraryName}-${scalaSdkData.scalaVersion}")
+
         scalaSdkData.scalacClasspath.forEach { path =>
           scalaSdkLibrary.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
         }
