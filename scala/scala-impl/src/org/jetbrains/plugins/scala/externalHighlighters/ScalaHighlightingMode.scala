@@ -16,7 +16,7 @@ object ScalaHighlightingMode {
   final val ShowDotcErrorsKey = "dotty.highlighting.compiler.errors.in.editor"
   final val ShowScalacErrorsKey = "scala.highlighting.compiler.errors.in.editor"
 
-  private def showDotcErrors: Boolean = Registry.is(ShowDotcErrorsKey)
+  def showDotcErrors: Boolean = Registry.is(ShowDotcErrorsKey)
   private def showScalacErrors: Boolean = Registry.is(ShowScalacErrorsKey)
   
   def addRegistryListener(project: Project)
