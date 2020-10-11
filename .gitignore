@@ -10,7 +10,6 @@
 .idea/*.xml
 !.idea/vcs.xml
 !.idea/uiDesigner.xml
-/target
 /*.bat
 *.class
 *.log
