@@ -131,31 +131,38 @@ abstract class ScalaImportElementFix[Element <: ElementToImport](val place: PsiE
   private def isUpToDate: Boolean = currentModCount() == modificationCount
 
   private def scheduleComputationOnce(editor: Editor): Unit = {
-    if (isComputationScheduled.compareAndSet(false, true)) {
-      val computationRunnable: Runnable = () => {
-        computedElements.set(findElementsToImport())
-        scheduleShowHint(editor)
+    invokeLater {
+      //compute quickfix only if reference is visible in the current editor
+      val shouldSchedule = place.isValid && isRelevant(editor) && editor.visibleRange.containsOffset(place.startOffset)
+
+      if (shouldSchedule && isComputationScheduled.compareAndSet(false, true)) {
+        val computationRunnable: Runnable = () => {
+          computedElements.set(findElementsToImport())
+          scheduleShowHint(editor)
+        }
+
+        val task = ReadAction.nonBlocking(computationRunnable)
+          .expireWhen(() => !isUpToDate)
+
+        task.submit(AppExecutorUtil.getAppExecutorService)
       }
-
-      val task = ReadAction.nonBlocking(computationRunnable)
-        .expireWhen(() => !isUpToDate)
-
-      task.submit(AppExecutorUtil.getAppExecutorService)
     }
   }
 
   //if `showHint` is invoked when daemon is still running, hint may be hidden as a result of subsequent passes
   //(for example, ImplicitHintsPass hides all hints when it disposes old inlays)
   //introduce some delay as a workaround
-  private def scheduleShowHint(editor: Editor): Unit = {
+  private def scheduleShowHint(editor: Editor): Unit =
     scheduleOnPooledThread(500, TimeUnit.MILLISECONDS) {
       invokeLater {
-        if (!editor.isDisposed && editor.getContentComponent.isFocusOwner && isAvailable) {
+        if (isRelevant(editor) && isAvailable) {
           showHint(editor)
         }
       }
     }
-  }
+
+  private def isRelevant(editor: Editor): Boolean =
+    !editor.isDisposed && editor.getContentComponent.isFocusOwner
 
   private def currentModCount(): Long =
     if (place.isValid) BlockModificationTracker(place).getModificationCount
