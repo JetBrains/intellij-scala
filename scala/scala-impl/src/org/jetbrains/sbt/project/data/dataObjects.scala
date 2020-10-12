@@ -133,12 +133,13 @@ object SbtCommandData {
 }
 
 @SerialVersionUID(1)
-case class ModuleExtData @PropertyMapping(Array("scalaVersion", "scalacClasspath", "scalacOptions", "sdk", "javacOptions")) (
+case class ModuleExtData @PropertyMapping(Array("scalaVersion", "scalacClasspath", "scalacOptions", "sdk", "javacOptions", "packagePrefix")) (
   @Nullable scalaVersion: String,
   scalacClasspath: JList[File],
   scalacOptions: JList[String],
   @Nullable sdk: SdkReference,
-  javacOptions: JList[String]
+  javacOptions: JList[String],
+  packagePrefix: String
 ) extends SbtEntityData
 
 object ModuleExtData {
@@ -148,13 +149,15 @@ object ModuleExtData {
             scalacClasspath: Seq[File] = Seq.empty,
             scalacOptions: Seq[String] = Seq.empty,
             sdk: Option[SdkReference] = None,
-            javacOptions: Seq[String] = Seq.empty): ModuleExtData =
+            javacOptions: Seq[String] = Seq.empty,
+            packagePrefix: Option[String] = None): ModuleExtData =
     ModuleExtData(
       scalaVersion.orNull,
       scalacClasspath.toJavaList,
       scalacOptions.toJavaList,
       sdk.orNull,
-      javacOptions.toJavaList
+      javacOptions.toJavaList,
+      packagePrefix.orNull
     )
 }
 

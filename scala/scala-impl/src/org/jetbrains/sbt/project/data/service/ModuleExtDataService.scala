@@ -43,13 +43,14 @@ object ModuleExtDataService {
     override def importData(): Unit = for {
       dataNode <- dataToImport
       module <- getIdeModuleByNode(dataNode)
-      ModuleExtData(scalaVersion, scalacClasspath, scalacOptions, sdk, javacOptions) = dataNode.getData
+      ModuleExtData(scalaVersion, scalacClasspath, scalacOptions, sdk, javacOptions, packagePrefix) = dataNode.getData
     } {
       module.configureScalaCompilerSettingsFrom("sbt", scalacOptions.asScala)
       Option(scalaVersion).foreach(configureScalaSdk(module, _, scalacClasspath.asScala))
       configureOrInheritSdk(module, Option(sdk))
       configureLanguageLevel(module, javacOptions.asScala)
       configureJavacOptions(module, javacOptions.asScala)
+      getModifiableRootModel(module).getContentEntries.foreach(_.getSourceFolders.foreach(_.setPackagePrefix(Option(packagePrefix).getOrElse(""))))
     }
 
     private def configureScalaSdk(module: Module,

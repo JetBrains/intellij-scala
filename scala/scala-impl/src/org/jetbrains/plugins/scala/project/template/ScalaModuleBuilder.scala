@@ -12,7 +12,8 @@ import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.ui.configuration.projectRoot.{LibrariesContainer, LibrariesContainerFactory}
 import com.intellij.openapi.util.Disposer
-import javax.swing.{JComponent, JLabel}
+import com.intellij.util.ui.UI
+import javax.swing.{JComponent, JLabel, JTextField}
 import org.jetbrains.plugins.scala.extensions._
 
 /**
@@ -23,9 +24,12 @@ class ScalaModuleBuilder extends JavaModuleBuilder {
 
   private var libraryCompositionSettings: LibraryCompositionSettings = _
 
+  private var packagePrefix = Option.empty[String]
+
   addModuleConfigurationUpdater((_: Module, rootModel: ModifiableRootModel) => {
     val mutableEmptyList = new ju.ArrayList[Library]()
     libraryCompositionSettings.addLibraries(rootModel, mutableEmptyList, librariesContainer)
+    packagePrefix.foreach(prefix => rootModel.getContentEntries.foreach(_.getSourceFolders.foreach(_.setPackagePrefix(prefix))))
   })
 
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
@@ -45,6 +49,8 @@ class ScalaModuleBuilder extends JavaModuleBuilder {
       false
     )
 
+    private val packagePrefixField = new JTextField()
+
     //noinspection ScalaExtractStringToBundle
     settingsStep.addSettingsField("Scala S\u001BDK:", libraryPanel.getSimplePanel)
 
@@ -57,8 +63,12 @@ class ScalaModuleBuilder extends JavaModuleBuilder {
       }
     }
 
+    settingsStep.addSettingsField(ScalaBundle.message("package.prefix.label"),
+      UI.PanelFactory.panel(packagePrefixField).withTooltip(ScalaBundle.message("package.prefix.help")).createPanel())
+
     override def updateDataModel(): Unit = {
       libraryCompositionSettings = libraryPanel.apply()
+      packagePrefix = Option(packagePrefixField.getText).filter(_.nonEmpty)
       javaStep.updateDataModel()
     }
 
