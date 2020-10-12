@@ -263,6 +263,7 @@ package object project {
     def hasScala: Boolean = modulesWithScala.nonEmpty
 
     // TODO Generalize: hasScala(Version => Boolean), hasScala(_ >= Scala3)
+    @CachedInUserData(project, ProjectRootManager.getInstance(project))
     def hasScala3: Boolean = modulesWithScala.exists(_.hasScala3)
 
     def modulesWithScala: Seq[Module] =
