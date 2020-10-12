@@ -285,12 +285,14 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
   }
 
   private def completeInterpolatedStringBraces(document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
-    if (element == null) return
+    if (element == null)
+      return
     import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 
-    if (element.getNode.getElementType == tLBRACE &&
-      Option(element.getParent.getPrevSibling).exists(_.getNode.getElementType == tINTERPOLATED_STRING_INJECTION) &&
-      (element.getNextSibling == null || element.getNextSibling.getNode.getElementType != tRBRACE)) {
+    val needInsert = element.elementType == tLBRACE &&
+      element.getParent.prevSibling.exists(_.elementType == tINTERPOLATED_STRING_INJECTION) &&
+      element.nextSibling.forall(_.elementType != tRBRACE)
+    if (needInsert) {
       insertAndCommit(offset, "}", document, project)
     }
   }

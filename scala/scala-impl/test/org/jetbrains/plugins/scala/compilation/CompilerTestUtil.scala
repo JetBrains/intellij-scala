@@ -14,8 +14,12 @@ object CompilerTestUtil {
 
   trait RevertableChange {
 
+    // TODO: rename: add "Change" suffux
     def apply(): Unit
     def revert(): Unit
+
+    final def apply(body: => Any): Unit =
+      run(body)
 
     final def run(body: => Any): Unit = {
       this.apply()
