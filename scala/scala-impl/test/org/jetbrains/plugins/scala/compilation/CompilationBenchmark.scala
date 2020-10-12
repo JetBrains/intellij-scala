@@ -41,7 +41,7 @@ abstract class CompilationBenchmark
   override def setUp(): Unit = {
     super.setUp()
     revertable = CompilerTestUtil.withEnabledCompileServer(true)
-    revertable.apply()
+    revertable.applyChange ()
     compiler = new CompilerTester(myProject, myProject.modules.asJava, null)
   }
 
@@ -54,7 +54,7 @@ abstract class CompilationBenchmark
     }
   } finally {
     compiler = null
-    revertable.revert()
+    revertable.revertChange()
     super.tearDown()
   }
 

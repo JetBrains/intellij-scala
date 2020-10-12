@@ -106,12 +106,12 @@ class InterpolatedStringTypingTest extends EditorActionTestBase {
     private def instance = CodeInsightSettings.getInstance
     private var before: Option[T] = None
 
-    override def apply(): Unit = {
+    override def applyChange(): Unit = {
       before = Some(get(instance))
       set(instance, value)
     }
 
-    override def revert(): Unit =
+    override def revertChange(): Unit =
       before.foreach(set(instance, _))
   }
 
