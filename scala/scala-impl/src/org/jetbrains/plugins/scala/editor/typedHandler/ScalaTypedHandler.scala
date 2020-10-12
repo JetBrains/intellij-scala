@@ -289,7 +289,8 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
       return
     import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 
-    val needInsert = element.elementType == tLBRACE &&
+    val needInsert = CodeInsightSettings.getInstance.AUTOINSERT_PAIR_BRACKET &&
+      element.elementType == tLBRACE &&
       element.getParent.prevSibling.exists(_.elementType == tINTERPOLATED_STRING_INJECTION) &&
       element.nextSibling.forall(_.elementType != tRBRACE)
     if (needInsert) {
