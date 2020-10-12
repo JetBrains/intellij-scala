@@ -84,4 +84,17 @@ class ApplicationTestHeavy extends ScalaHighlightingTestBase {
       Error("test(3)", "Type mismatch, expected: Boolean => Unit, actual: Int => Unit"),
     )
   }
+
+  def testApplyDynamicNamed(): Unit = {
+    assertNothing(errorsFromScalaCode(
+      """import scala.language.dynamics
+        |
+        |object literal extends Dynamic {
+        |  def applyDynamicNamed(name: String)(fields: (String, Any)*): Dynamic = ???
+        |}
+        |
+        |val foo: String = "foo"
+        |literal(foo = foo)""".stripMargin
+    ))
+  }
 }

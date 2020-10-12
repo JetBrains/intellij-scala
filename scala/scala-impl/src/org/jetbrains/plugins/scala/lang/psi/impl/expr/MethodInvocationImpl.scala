@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedWithRecursionGuard}
 
 
 /**
@@ -65,7 +65,8 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
     case _ => None
   }
 
-  @Cached(BlockModificationTracker(this), this)
+  //noinspection ScalaExtractStringToBundle
+  @CachedWithRecursionGuard(this, FailureCase(Failure("Recursive innerTypeExt"), Seq.empty), BlockModificationTracker(this))
   private def innerTypeExt: InvocationData = try {
     tryToGetInnerTypeExt(useExpectedType = true)
   } catch {

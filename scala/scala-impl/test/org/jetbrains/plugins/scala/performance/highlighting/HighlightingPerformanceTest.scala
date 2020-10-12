@@ -2,6 +2,10 @@ package org.jetbrains.plugins.scala
 package performance.highlighting
 
 
+import java.util.concurrent.TimeoutException
+
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
+import com.intellij.openapi.progress.util.StandardProgressIndicatorBase
 import com.intellij.psi.PsiFileFactory
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -131,5 +135,152 @@ object addressbook {
     val TIMEOUT = 13000
 
     doTest(text, TIMEOUT)
+  }
+
+  //SCL-18276
+  def testExcessiveNamedArgumentsOfApply(): Unit = {
+    doTest(
+      """
+        |object Raw {
+        |
+        |  final case class Boo2020_10_05(
+        |                                          salesRegion: String,
+        |                                          region: String,
+        |                                          market: String,
+        |                                          country: String,
+        |                                          regionalOrigin: String,
+        |                                          strategicGroup: String,
+        |                                          designParent: String,
+        |                                          salesParent: String,
+        |                                          salesGroup: String,
+        |                                          salesBrand: String,
+        |                                          salesNameplate: String,
+        |                                          globalNameplate: String,
+        |                                          platform: String,
+        |                                          program: String,
+        |                                          actualDate: String,
+        |                                          GVWRating: String,
+        |                                          globalIndustrySegment: String,
+        |                                          globalIndustryRegion: String,
+        |                                          productionType: String,
+        |                                          carTruck: String,
+        |                                          off_Type: String,
+        |                                          globalSalesSegment: String,
+        |                                          globalSalesSubSegment: String,
+        |                                          globalSalesPriceClass: String,
+        |                                          regionalSalesSegment: String,
+        |                                          regionalSubSegment: String,
+        |                                          regionalSalesPriceClass: String,
+        |                                          architecture: String,
+        |                                          mnemonicNamplateCountry: String,
+        |                                          monthsInMarket: Int,
+        |                                          vehicleLifeCycleinMonth: Int,
+        |                                          year2010: Int,
+        |                                          year2011: Int,
+        |                                          year2012: Int,
+        |                                          year2013: Int,
+        |                                          year2014: Int,
+        |                                          year2015: Int,
+        |                                          year2016: Int,
+        |                                          year2017: Int,
+        |                                          year2018: Int,
+        |                                          year2019: Int,
+        |                                          year2020: Int,
+        |                                          year2021: Int,
+        |                                          year2022: Int,
+        |                                          year2023: Int,
+        |                                          year2024: Int,
+        |                                          year2025: Int,
+        |                                          year2026: Int,
+        |                                          year2027: Int,
+        |                                          year2028: Int,
+        |                                          year2029: Int,
+        |                                          year2030: Int,
+        |                                          year2031: Int,
+        |                                          year2032: Int
+        |                                        )
+        |
+        |}
+        |
+        |object Clean {
+        |
+        |  val Boo2020_10_05: Raw.Boo2020_10_05.type = Raw.Boo2020_10_05
+        |  type Boo2020_10_05 = Raw.Boo2020_10_05
+        |
+        |}
+        |
+        |object Boo2020StubsProvider {
+        |
+        |  import Clean.Boo2020_10_05
+        |
+        |  final def clean2020_10_05(): Boo2020_10_05 = {
+        |    Boo2020_10_05(
+        |      <error descr="Cannot resolve symbol salesRegion">salesRegion</error> = "A",
+        |      <error descr="Cannot resolve symbol region">region</error> = "A",
+        |      <error descr="Cannot resolve symbol market">market</error> = "A",
+        |      <error descr="Cannot resolve symbol country">country</error> = "A",
+        |      <error descr="Cannot resolve symbol regionalOrigin">regionalOrigin</error> = "A",
+        |      <error descr="Cannot resolve symbol actualDate">actualDate</error> = "A",
+        |      <error descr="Cannot resolve symbol GVWRating">GVWRating</error> = "A",
+        |      <error descr="Cannot resolve symbol globalIndustrySegment">globalIndustrySegment</error> = "A",
+        |      <error descr="Cannot resolve symbol globalIndustryRegion">globalIndustryRegion</error> = "A",
+        |      <error descr="Cannot resolve symbol productionType">productionType</error> = "A",
+        |      <error descr="Cannot resolve symbol carTruck">carTruck</error> = "A",
+        |      <error descr="Cannot resolve symbol off_Type">off_Type</error> = "A",
+        |      <error descr="Cannot resolve symbol globalSalesSegment">globalSalesSegment</error> = "A",
+        |      <error descr="Cannot resolve symbol globalSalesSubSegment">globalSalesSubSegment</error> = "A",
+        |      <error descr="Cannot resolve symbol globalSalesPriceClass">globalSalesPriceClass</error> = "A",
+        |      <error descr="Cannot resolve symbol regionalSalesSegment">regionalSalesSegment</error> = "A",
+        |      <error descr="Cannot resolve symbol regionalSubSegment">regionalSubSegment</error> = "A",
+        |      <error descr="Cannot resolve symbol regionalSalesPriceClass">regionalSalesPriceClass</error> = "A",
+        |      <error descr="Cannot resolve symbol architecture">architecture</error> = "A",
+        |      <error descr="Cannot resolve symbol mnemonicNamplateCountry">mnemonicNamplateCountry</error> = "A",
+        |      <error descr="Cannot resolve symbol monthsInMarket">monthsInMarket</error> = 1,
+        |      <error descr="Cannot resolve symbol vehicleLifeCycleinMonth">vehicleLifeCycleinMonth</error> = 1,
+        |      <error descr="Cannot resolve symbol strategicGroup">strategicGroup</error> = "A",
+        |      <error descr="Cannot resolve symbol designParent">designParent</error> = "A",
+        |      <error descr="Cannot resolve symbol salesParent">salesParent</error> = "A",
+        |      <error descr="Cannot resolve symbol salesGroup">salesGroup</error> = "A",
+        |      <error descr="Cannot resolve symbol salesBrand">salesBrand</error> = "A",
+        |      <error descr="Cannot resolve symbol salesNameplate">salesNameplate</error> = "A",
+        |      <error descr="Cannot resolve symbol globalNameplate">globalNameplate</error> = "A",
+        |      <error descr="Cannot resolve symbol platform">platform</error> = "A",
+        |      <error descr="Cannot resolve symbol program">program</error> = "A",
+        |      <error descr="Cannot resolve symbol year2000">year2000</error> = 0,
+        |      <error descr="Cannot resolve symbol year2001">year2001</error> = 0,
+        |      <error descr="Cannot resolve symbol year2002">year2002</error> = 0,
+        |      <error descr="Cannot resolve symbol year2003">year2003</error> = 0,
+        |      <error descr="Cannot resolve symbol year2004">year2004</error> = 0,
+        |      <error descr="Cannot resolve symbol year2005">year2005</error> = 0,
+        |      <error descr="Cannot resolve symbol year2006">year2006</error> = 0,
+        |      <error descr="Cannot resolve symbol year2007">year2007</error> = 0,
+        |      <error descr="Cannot resolve symbol year2008">year2008</error> = 0,
+        |      <error descr="Cannot resolve symbol year2009">year2009</error> = 0,
+        |      <error descr="Cannot resolve symbol year2010">year2010</error> = 0,
+        |      <error descr="Cannot resolve symbol year2011">year2011</error> = 0,
+        |      <error descr="Cannot resolve symbol year2012">year2012</error> = 0,
+        |      <error descr="Cannot resolve symbol year2013">year2013</error> = 0,
+        |      <error descr="Cannot resolve symbol year2014">year2014</error> = 0,
+        |      <error descr="Cannot resolve symbol year2015">year2015</error> = 0,
+        |      <error descr="Cannot resolve symbol year2016">year2016</error> = 0,
+        |      <error descr="Cannot resolve symbol year2017">year2017</error> = 0,
+        |      <error descr="Cannot resolve symbol year2018">year2018</error> = 0,
+        |      <error descr="Cannot resolve symbol year2019">year2019</error> = 0,
+        |      <error descr="Cannot resolve symbol year2020">year2020</error> = 1,
+        |      <error descr="Cannot resolve symbol year2021">year2021</error> = 1,
+        |      <error descr="Cannot resolve symbol year2022">year2022</error> = 1,
+        |      <error descr="Cannot resolve symbol year2023">year2023</error> = 0,
+        |      <error descr="Cannot resolve symbol year2024">year2024</error> = 0,
+        |      <error descr="Cannot resolve symbol year2025">year2025</error> = 0,
+        |      <error descr="Cannot resolve symbol year2026">year2026</error> = 0,
+        |      <error descr="Cannot resolve symbol year2027">year2027</error> = 0,
+        |      <error descr="Cannot resolve symbol year2028">year2028</error> = 0,
+        |      <error descr="Cannot resolve symbol year2029">year2029</error> = 0,
+        |      <error descr="Cannot resolve symbol year2030">year2030</error> = 0,
+        |      <error descr="Cannot resolve symbol year2031">year2031</error> = 0,
+        |      <error descr="Cannot resolve symbol year2032">year2032</error> = 0
+        |    )
+        |  }
+        |}""".stripMargin, 5000)
   }
 }
