@@ -32,6 +32,18 @@ trait IntegrationTestRunResultAssertions {
   def AssertExitCode(expectedCode: Int): TestRunResultAssert = res =>
     assertExitCode(expectedCode, res.processExitCode)
 
-  def assertExitCode(expectedCode: Int, actualCode: Int): Unit =
-    Assert.assertEquals("Test runner process terminated with unexpected error code $errorCode", expectedCode, actualCode)
+  def assertExitCode(expectedCode: Int, actualCode: Int): Unit = {
+    // return code on Unix/Linux program is a single byte; it has a value between 0 and 255
+    // -1 becomes 255, -2 becomes 254, etc...
+    val expectedCodeFixed =
+      if (com.intellij.openapi.util.SystemInfo.isUnix)
+        expectedCode.toByte & 0xFF
+      else
+        expectedCode
+    Assert.assertEquals(
+      "Test runner process terminated with unexpected error code $errorCode",
+      expectedCodeFixed,
+      actualCode
+    )
+  }
 }
