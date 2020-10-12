@@ -264,10 +264,8 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     }
 
     if (resolve.length != 1) {
-      def processError(): Unit = {
-        //todo remove when resolve of unqualified expression will be fully implemented
-        if ((refElement.getManager.isInProject(refElement) || refElement.containingScalaFile.exists(_.isWorksheetFile)) &&
-          resolve.isEmpty) {
+      def addUnknownSymbolProblem(): Unit = {
+        if (resolve.isEmpty) {
           createUnknownSymbolProblem(refElement)(Seq(ScalaImportTypeFix(refElement)))
         }
       }
@@ -278,13 +276,13 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
           // Let's try to hide dynamic named parameter usage
           refElement.getContext match {
             case assignment@ScAssignment(`refElement`, _) if resolve.isEmpty && assignment.isDynamicNamedAssignment => return
-            case _ =>
+            case _ => addUnknownSymbolProblem()
           }
         case _ =>
           parent match {
             case ScInfixPattern(_, `refElement`, _) if refElement.isInstanceOf[ScStableCodeReference] => // todo: this is hide A op B in patterns
             case _: ScImportSelector if resolve.length > 0 =>
-            case _ => processError()
+            case _ => addUnknownSymbolProblem()
           }
       }
     } else {
@@ -406,7 +404,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
           val errorWithRefName: String => String = ScalaBundle.message("cannot.resolve.unapply.method", _)
           if (addCreateApplyOrUnapplyFix(errorWithRefName, td => new CreateUnapplyQuickFix(td, p))) return
         case scalaDocTag: ScDocTag if scalaDocTag.getName == MyScaladocParsing.THROWS_TAG => return //see SCL-9490
-        case _ => createUnknownSymbolProblem(refElement)()
+        case _ =>
       }
     }
   }
