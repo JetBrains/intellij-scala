@@ -773,6 +773,11 @@
                          key="displayname.deprecated.identifier"
                          groupPath="Scala" groupKey="group.general" shortName="ScalaDeprecatedIdentifier"
                          id="ScalaDeprecatedIdentifier" level="WARNING" enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.deprecation.Scala3DeprecatedPackageObjectInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.deprecated.package.object"
+                         groupPath="Scala" groupKey="group.general" shortName="DeprecatedPackageObject"
+                         id="DeprecatedPackageObject" level="WARNING" enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.DeprecatedKindProjectorSyntaxInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.deprecated.kind.projector.syntax"
