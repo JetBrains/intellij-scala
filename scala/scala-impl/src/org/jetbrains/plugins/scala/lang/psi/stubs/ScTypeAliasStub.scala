@@ -10,8 +10,11 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.{ScBoundsOwnerStub, ScTyp
  * User: Alexander Podkhalyuzin
  * Date: 18.10.2008
  */
-trait ScTypeAliasStub extends ScBoundsOwnerStub[ScTypeAlias]
-  with ScTypeElementOwnerStub[ScTypeAlias] with ScMemberOrLocal {
+trait ScTypeAliasStub
+  extends ScBoundsOwnerStub[ScTypeAlias]
+    with ScTopLevelElementStub[ScTypeAlias]
+    with ScTypeElementOwnerStub[ScTypeAlias]
+    with ScMemberOrLocal {
 
   def isDeclaration: Boolean
 

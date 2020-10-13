@@ -13,7 +13,7 @@ trait ScTypeElementOwnerStub[E <: PsiElement] extends PsiOwner[E] {
 
   def typeText: Option[String]
 
-  private[impl] var typeElementReference: SofterReference[Option[ScTypeElement]] = null
+  private[impl] var typeElementReference: SofterReference[Option[ScTypeElement]] = _
 
   def typeElement: Option[ScTypeElement] = {
     getFromOptionalReference(typeElementReference) {

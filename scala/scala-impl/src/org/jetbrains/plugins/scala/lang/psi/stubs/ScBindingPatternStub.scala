@@ -4,7 +4,7 @@ package psi
 package stubs
 
 import com.intellij.psi.stubs.NamedStub
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 
 /**
   * User: Alexander Podkhalyuzin

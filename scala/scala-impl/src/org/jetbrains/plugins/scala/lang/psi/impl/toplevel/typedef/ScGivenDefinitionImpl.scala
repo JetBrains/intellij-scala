@@ -22,8 +22,7 @@ class ScGivenDefinitionImpl(stub:      ScTemplateDefinitionStub[ScGivenDefinitio
                             debugName: String)
   extends ScTypeDefinitionImpl(stub, nodeType, node, debugName)
     with ScGivenImpl
-    with ScGivenDefinition
-{
+    with ScGivenDefinition {
   override protected def baseIcon: Icon = Icons.CLASS // todo: better icon ?
 
   override protected def targetTokenType: ScalaTokenType = ScalaTokenType.GivenKeyword

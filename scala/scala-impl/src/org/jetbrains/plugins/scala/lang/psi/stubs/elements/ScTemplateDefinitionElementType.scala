@@ -38,27 +38,31 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     dataStream.writeBoolean(stub.isImplicitObject)
     dataStream.writeOptionName(stub.implicitConversionParameterClass)
     dataStream.writeNames(stub.implicitClassNames)
+    dataStream.writeBoolean(stub.isTopLevel)
+    dataStream.writeOptionName(stub.topLevelQualifier)
   }
 
-  override final def deserialize(dataStream: StubInputStream,
-                                 parentStub: StubElement[_ <: PsiElement]) = new ScTemplateDefinitionStubImpl(
-    parentStub,
-    this,
-    nameRef = dataStream.readNameString,
-    getQualifiedName = dataStream.readNameString,
-    getSourceFileName = dataStream.readNameString,
-    javaName = dataStream.readNameString,
-    javaQualifiedName = dataStream.readNameString,
-    additionalJavaName = dataStream.readOptionName,
-    isPackageObject = dataStream.readBoolean,
-    isScriptFileClass = dataStream.readBoolean,
-    isDeprecated = dataStream.readBoolean,
-    isLocal = dataStream.readBoolean,
-    isVisibleInJava = dataStream.readBoolean,
-    isImplicitObject = dataStream.readBoolean,
-    implicitConversionParameterClass = dataStream.readOptionName,
-    implicitClassNames = dataStream.readNames
-  )
+  override final def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]) =
+    new ScTemplateDefinitionStubImpl(
+      parentStub,
+      this,
+      nameRef                          = dataStream.readNameString,
+      getQualifiedName                 = dataStream.readNameString,
+      getSourceFileName                = dataStream.readNameString,
+      javaName                         = dataStream.readNameString,
+      javaQualifiedName                = dataStream.readNameString,
+      additionalJavaName               = dataStream.readOptionName,
+      isPackageObject                  = dataStream.readBoolean,
+      isScriptFileClass                = dataStream.readBoolean,
+      isDeprecated                     = dataStream.readBoolean,
+      isLocal                          = dataStream.readBoolean,
+      isVisibleInJava                  = dataStream.readBoolean,
+      isImplicitObject                 = dataStream.readBoolean,
+      implicitConversionParameterClass = dataStream.readOptionName,
+      implicitClassNames               = dataStream.readNames,
+      isTopLevel                       = dataStream.readBoolean,
+      topLevelQualifier                = dataStream.readOptionName
+    )
 
   override final def createStubImpl(definition: TypeDef,
                                     parent: StubElement[_ <: PsiElement]): ScTemplateDefinitionStub[TypeDef] = {
@@ -103,23 +107,30 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       case _                           => (false, None, EMPTY_STRING_ARRAY)
     }
 
+    val (isTopLevel, topLevelQualifier) = definition match {
+      case member: ScMember => (member.isTopLevel, member.topLevelQualifier)
+      case _                => (false, None)
+    }
+
     new ScTemplateDefinitionStubImpl(
       parent,
       this,
-      nameRef = definition.name,
-      getQualifiedName = definition.qualifiedName,
-      getSourceFileName = fileName,
-      javaName = definition.getName,
-      javaQualifiedName = definition.getQualifiedName,
-      additionalJavaName = additionalJavaName,
-      isPackageObject = isPackageObject,
-      isScriptFileClass = definition.isScriptFileClass,
-      isDeprecated = isDeprecated,
-      isLocal = isLocal,
-      isVisibleInJava = isVisibleInJava,
-      isImplicitObject = isImplicitObject,
+      nameRef                          = definition.name,
+      getQualifiedName                 = definition.qualifiedName,
+      getSourceFileName                = fileName,
+      javaName                         = definition.getName,
+      javaQualifiedName                = definition.getQualifiedName,
+      additionalJavaName               = additionalJavaName,
+      isPackageObject                  = isPackageObject,
+      isScriptFileClass                = definition.isScriptFileClass,
+      isDeprecated                     = isDeprecated,
+      isLocal                          = isLocal,
+      isVisibleInJava                  = isVisibleInJava,
+      isImplicitObject                 = isImplicitObject,
       implicitConversionParameterClass = implicitConversionParamClass,
-      implicitClassNames = implicitClassNames
+      implicitClassNames               = implicitClassNames,
+      isTopLevel                       = isTopLevel,
+      topLevelQualifier                = topLevelQualifier
     )
   }
 
@@ -168,6 +179,9 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
         else fqn.substring(0, i)
       sink.occurrence(CLASS_NAME_IN_PACKAGE_KEY, pack)
       if (stub.isImplicitObject) sink.occurrence(IMPLICIT_OBJECT_KEY, pack)
+
+      if (stub.implicitConversionParameterClass.nonEmpty)
+        sink.occurrence(TOP_LEVEL_IMPLICIT_CLASS_BY_PKG_KEY, pack)
 
       stub.indexImplicits(sink)
     }

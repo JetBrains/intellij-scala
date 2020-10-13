@@ -236,7 +236,7 @@ private[annotator] object ModifierChecker {
                       case _: ScPackaging => true
                       case _ => false
                     }
-                    if (onTopLevel) {
+                    if (onTopLevel && !owner.isInScala3Module) {
                       registerQuickFix(
                         ScalaBundle.message("implicit.modifier.cannot.be.used.for.top.level.objects"),
                         modifierPsi,

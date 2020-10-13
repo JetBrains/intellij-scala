@@ -6,7 +6,6 @@ package toplevel
 package typedef
 
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ifReadAllowed, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
@@ -21,8 +20,8 @@ class ScGivenAliasImpl(stub: ScFunctionStub[ScGivenAlias],
                        node: ASTNode)
   extends ScFunctionImpl(stub, nodeType, node)
     with ScGivenImpl
-    with ScGivenAlias
-{
+    with ScGivenAlias {
+
   override def toString: String = "ScGivenAlias: " + ifReadAllowed(name)("")
   override def returnType: TypeResult = Failure(ScalaBundle.message("scgivenaliasimpl.returntype.not.yet.implemented"))
 
@@ -31,7 +30,8 @@ class ScGivenAliasImpl(stub: ScFunctionStub[ScGivenAlias],
 
 
   private lazy val syntheticEmptyParameterList =
-    ScalaPsiElementFactory.createParamClausesWithContext("",this, this.getFirstChild)
+    ScalaPsiElementFactory.createParamClausesWithContext("", this, this.getFirstChild)
+
   override def paramClauses: ScParameters = {
     super.paramClauses.nullSafe.getOrElse(syntheticEmptyParameterList)
   }

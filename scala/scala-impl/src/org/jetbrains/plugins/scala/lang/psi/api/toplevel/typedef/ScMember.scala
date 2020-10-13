@@ -103,6 +103,17 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 
   def isLocal: Boolean = containingClass == null
 
+  def isTopLevel: Boolean = getParent match {
+    case _: ScPackaging | _: ScFile => true
+    case _                          => false
+  }
+
+  def topLevelQualifier: Option[String] =
+    PsiTreeUtil
+      .getStubOrPsiParentOfType(this, classOf[ScPackaging])
+      .toOption
+      .map(_.fullPackageName)
+
   // TODO Should be unified, see ScModifierListOwner
   override def hasModifierProperty(name: String): Boolean = {
     def thisAccessModifier = getModifierList.accessModifier

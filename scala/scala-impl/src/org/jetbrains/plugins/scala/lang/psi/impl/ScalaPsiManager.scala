@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.idToName
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticPackage
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
@@ -112,11 +112,19 @@ class ScalaPsiManager(implicit val project: Project) {
     else getPackageImplicitObjectsCached(fqn, scope).toSeq
   }
 
+  def getTopLevelImplicitClassesByPackage(fqn: String, scope: GlobalSearchScope): Seq[ScClass] =
+    if (DumbService.getInstance(project).isDumb) Seq.empty
+    else getTopLevelImplicitClassesByPackageCached(fqn, scope).toSeq
+
   import ScalaIndexKeys._
 
   @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
   private def getPackageImplicitObjectsCached(fqn: String, scope: GlobalSearchScope): Iterable[ScObject] =
     IMPLICIT_OBJECT_KEY.elements(cleanFqn(fqn), scope)
+
+  @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
+  private def getTopLevelImplicitClassesByPackageCached(fqn: String, scope: GlobalSearchScope): Iterable[ScClass] =
+    TOP_LEVEL_IMPLICIT_CLASS_BY_PKG_KEY.elements(cleanFqn(fqn), scope)
 
   @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
   def getCachedPackage(inFqn: String): Option[PsiPackage] = {
@@ -160,6 +168,14 @@ class ScalaPsiManager(implicit val project: Project) {
 
     val res = ScalaShortNamesCacheManager.getInstance(project).getClassByFQName(fqn, scope)
     Option(res).orElse(getCachedFacadeClass(scope, fqn))
+  }
+
+  @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
+  def getTopLevelDefinitionsByPackage(pkgFqn: String, scope: GlobalSearchScope): Iterable[ScMember] = {
+    val fqn = cleanFqn(pkgFqn)
+    TOP_LEVEL_VAL_OR_VAR_BY_PKG_KEY.elements(fqn, scope) ++
+      TOP_LEVEL_TYPE_ALIAS_BY_PKG_KEY.elements(fqn, scope) ++
+      TOP_LEVEL_FUNCTION_BY_PKG_KEY.elements(fqn, scope)
   }
 
   def getTypeAliasesByName(name: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =

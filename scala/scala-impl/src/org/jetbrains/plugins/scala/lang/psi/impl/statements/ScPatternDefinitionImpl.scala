@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternDefinition],
                                                  nodeType: ScPropertyElementType[ScPatternDefinition],
                                                  node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScPatternDefinition {
+  extends ScValueOrVariableImpl(stub, nodeType, node) with ScPatternDefinition {
 
   override def toString: String = ifReadAllowed {
     val names = declaredNames

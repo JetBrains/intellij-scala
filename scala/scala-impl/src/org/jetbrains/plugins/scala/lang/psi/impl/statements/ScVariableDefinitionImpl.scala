@@ -6,7 +6,6 @@ package statements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -23,10 +22,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 /**
   * @author Alexander Podkhalyuzin
   */
-final class ScVariableDefinitionImpl private[psi](stub: ScPropertyStub[ScVariableDefinition],
-                                                  nodeType: ScPropertyElementType[ScVariableDefinition],
-                                                  node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScVariableDefinition {
+final class ScVariableDefinitionImpl private[psi] (
+  stub:     ScPropertyStub[ScVariableDefinition],
+  nodeType: ScPropertyElementType[ScVariableDefinition],
+  node:     ASTNode
+) extends ScValueOrVariableImpl(stub, nodeType, node)
+    with ScVariableDefinition {
 
   override def assignment: Option[PsiElement] = Option(findChildByType[PsiElement](ScalaTokenTypes.tASSIGN))
 

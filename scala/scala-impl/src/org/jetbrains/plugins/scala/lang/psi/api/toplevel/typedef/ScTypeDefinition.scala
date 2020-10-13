@@ -32,8 +32,6 @@ trait ScTypeDefinition extends ScTemplateDefinition
 
   def isObject: Boolean = false
 
-  def isTopLevel: Boolean = !this.parentsInFile.exists(_.isInstanceOf[ScTypeDefinition])
-
   def getPath: String = {
     val qualName = qualifiedName
     val index = qualName.lastIndexOf('.')

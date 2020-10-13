@@ -32,22 +32,26 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     dataStream.writeOptionName(stub.implicitConversionParameterClass)
     dataStream.writeBoolean(stub.isLocal)
     dataStream.writeNames(stub.implicitClassNames)
+    dataStream.writeBoolean(stub.isTopLevel)
+    dataStream.writeOptionName(stub.topLevelQualifier)
   }
 
-  override def deserialize(dataStream: StubInputStream,
-                           parent: StubElement[_ <: PsiElement]) = new ScFunctionStubImpl(
-    parent,
-    this,
-    name = dataStream.readNameString,
-    isDeclaration = dataStream.readBoolean,
-    annotations = dataStream.readNames,
-    typeText = dataStream.readOptionName,
-    bodyText = dataStream.readOptionName,
-    hasAssign = dataStream.readBoolean,
-    implicitConversionParameterClass = dataStream.readOptionName,
-    isLocal = dataStream.readBoolean,
-    implicitClassNames = dataStream.readNames
-  )
+  override def deserialize(dataStream: StubInputStream, parent: StubElement[_ <: PsiElement]) =
+    new ScFunctionStubImpl(
+      parent,
+      this,
+      name                             = dataStream.readNameString,
+      isDeclaration                    = dataStream.readBoolean,
+      annotations                      = dataStream.readNames,
+      typeText                         = dataStream.readOptionName,
+      bodyText                         = dataStream.readOptionName,
+      hasAssign                        = dataStream.readBoolean,
+      implicitConversionParameterClass = dataStream.readOptionName,
+      isLocal                          = dataStream.readBoolean,
+      implicitClassNames               = dataStream.readNames,
+      isTopLevel                       = dataStream.readBoolean,
+      topLevelQualifier                = dataStream.readOptionName
+    )
 
   override def createStubImpl(function: Fun,
                               parentStub: StubElement[_ <: PsiElement]): ScFunctionStub[Fun] = {
@@ -75,21 +79,32 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
       if (function.isImplicitConversion) ScImplicitStub.conversionParamClass(function)
       else None
 
-    new ScFunctionStubImpl(parentStub, this,
-      name = function.name,
-      isDeclaration = function.isInstanceOf[ScFunctionDeclaration],
-      annotations = annotations,
-      typeText = returnTypeText,
-      bodyText = bodyText,
-      hasAssign = maybeDefinition.exists(_.hasAssign),
+    new ScFunctionStubImpl(
+      parentStub,
+      this,
+      name                             = function.name,
+      isDeclaration                    = function.isInstanceOf[ScFunctionDeclaration],
+      annotations                      = annotations,
+      typeText                         = returnTypeText,
+      bodyText                         = bodyText,
+      hasAssign                        = maybeDefinition.exists(_.hasAssign),
       implicitConversionParameterClass = implicitConversionParamClass,
-      isLocal = function.containingClass == null,
-      implicitClassNames = ScImplicitStub.implicitClassNames(function, function.returnTypeElement))
+      isLocal                          = function.containingClass == null,
+      implicitClassNames               = ScImplicitStub.implicitClassNames(function, function.returnTypeElement),
+      isTopLevel                       = function.isTopLevel,
+      topLevelQualifier                = function.topLevelQualifier
+    )
   }
 
   override def indexStub(stub: ScFunctionStub[Fun], sink: IndexSink): Unit = {
     import index.ScalaIndexKeys._
     sink.occurrences(METHOD_NAME_KEY, stub.getName)
+
+    if (stub.isTopLevel)
+      stub.topLevelQualifier.foreach(
+        sink.fqnOccurence(TOP_LEVEL_FUNCTION_BY_PKG_KEY, _)
+      )
+
     stub.indexImplicits(sink)
   }
 }

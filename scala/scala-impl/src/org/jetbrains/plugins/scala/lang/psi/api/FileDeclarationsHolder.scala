@@ -11,6 +11,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.{StubBasedExt, _}
 import org.jetbrains.plugins.scala.externalLibraries.bm4.BetterMonadicForSupport
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike.processPackageObject
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -133,7 +134,7 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
           manager.getCachedClasses(scope, fqn)
             .findByType[ScObject]
             .foreach { `object` =>
-              if (!processObject(`object`)(processor, state, null, place))
+              if (!processPackageObject(`object`)(processor, state, null, place))
                 return false
             }
 

@@ -50,7 +50,7 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
             case Constructor.ofClass(clazz) if clazz.isDeprecated => Some(clazz)
             case func@ScFunction.inSynthetic(clazz) if func.isApplyMethod && clazz.isDeprecated => Some(clazz)
             case other if other.isDeprecated => Some(other)
-            case func: ScFunction =>
+            case _: ScFunction =>
               result.getActualElement.asOptionOfUnsafe[PsiDocCommentOwner].filter(_.isDeprecated)
             case _ =>
               None

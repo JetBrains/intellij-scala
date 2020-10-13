@@ -46,12 +46,14 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
-abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl](stub: ScTemplateDefinitionStub[T],
-                                                                                 nodeType: ScTemplateDefinitionElementType[T],
-                                                                                 node: ASTNode,
-                                                                                 debugName: String) // TODO to be moved to ScalaStubBasedElementImpl eventually
-  extends ScalaStubBasedElementImpl(stub, nodeType, node)
+abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl] (
+  stub:      ScTemplateDefinitionStub[T],
+  nodeType:  ScTemplateDefinitionElementType[T],
+  node:      ASTNode,
+  debugName: String // TODO to be moved to ScalaStubBasedElementImpl eventually
+) extends ScalaStubBasedElementImpl(stub, nodeType, node)
     with PsiClassFake
+    with ScTopLevelStubBasedElement[T, ScTemplateDefinitionStub[T]]
     with ScTemplateDefinition {
 
   import PsiTreeUtil.isContextAncestor

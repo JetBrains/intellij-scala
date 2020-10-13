@@ -7,7 +7,6 @@ package statements
 import com.intellij.ide.util.EditSourceUtil
 import com.intellij.lang.ASTNode
 import com.intellij.navigation.ItemPresentation
-import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil.getNextSiblingOfType
@@ -25,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
 * Time: 9:54:54
@@ -48,7 +47,7 @@ final class ScTypeAliasDeclarationImpl private(stub: ScTypeAliasStub, node: ASTN
     case null => createIdentifier(getGreenStub.getName).getPsi
     case n => n
   }
-  
+
   override def toString: String = "ScTypeAliasDeclaration: " + ifReadAllowed(name)("")
 
   override def lowerBound: TypeResult = lowerTypeElement match {

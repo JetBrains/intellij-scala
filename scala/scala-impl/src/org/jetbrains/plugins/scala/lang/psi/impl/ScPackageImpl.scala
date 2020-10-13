@@ -12,10 +12,9 @@ import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScPackageLike}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveState}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
@@ -38,8 +37,8 @@ final class ScPackageImpl private(val pack: PsiPackage) extends PsiPackageImpl(
     val isInScalaContext = place.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
     implicit val manager: ScalaPsiManager = ScalaPsiManager.instance(getProject)
 
-    def processObject(`object`: ScObject) =
-      ScPackageImpl.processObject(`object`)(processor, state, lastParent, place)
+    def processPackageObject(`object`: ScObject): Boolean =
+      ScPackageLike.processPackageObject(`object`)(processor, state, lastParent, place)
 
     getQualifiedName match {
       case ScalaLowerCase if isInScalaContext =>
@@ -51,11 +50,13 @@ final class ScPackageImpl private(val pack: PsiPackage) extends PsiPackageImpl(
 
         manager.getCachedClasses(scope, ScalaLowerCase)
           .findByType[ScObject]
-          .forall(processObject)
+          .forall(processPackageObject)
       case _ if !packageProcessDeclarations(pack)(processor, state, lastParent, place) => false
       case _ if isInScalaContext =>
         val scope = findScope(processor, place)
-        findPackageObject(scope).forall(processObject)
+        if (!findPackageObject(scope).forall(processPackageObject)) return false
+        if (!processTopLevelDeclarations(processor, state, place)) return false
+        true
       case _ =>
         true
     }
@@ -64,6 +65,8 @@ final class ScPackageImpl private(val pack: PsiPackage) extends PsiPackageImpl(
   @CachedInUserData(this, ScalaPsiManager.instance(getProject).TopLevelModificationTracker)
   override def findPackageObject(scope: GlobalSearchScope): Option[ScObject] =
     ScalaShortNamesCacheManager.getInstance(getProject).findPackageObjectByName(getQualifiedName, scope)
+
+  override def fqn: String = getQualifiedName
 
   override def getParentPackage: PsiPackageImpl =
     ScalaPsiUtil.parentPackage(getQualifiedName, getProject)
@@ -128,19 +131,6 @@ object ScPackageImpl {
     true
   }
 
-  private[psi] def processObject(`object`: ScObject)
-                                 (processor: PsiScopeProcessor,
-                                  state: ResolveState,
-                                  lastParent: PsiElement,
-                                  place: PsiElement): Boolean = {
-    val newState = `object`.`type`().fold(
-      Function.const(state),
-      state.withFromType
-    )
-
-    `object`.processDeclarations(processor, newState, lastParent, place)
-  }
-
   private[psi] def packageProcessDeclarations(`package`: PsiPackage)
                                              (processor: PsiScopeProcessor,
                                               state: ResolveState,
@@ -148,10 +138,16 @@ object ScPackageImpl {
                                               place: PsiElement)
                                              (implicit manager: ScalaPsiManager): Boolean = processor match {
     case b: BaseProcessor if b.isImplicitProcessor =>
-      val objectsIterator = manager.
-        getPackageImplicitObjects(`package`.getQualifiedName, place.resolveScope).iterator
-      while (objectsIterator.hasNext) {
-        val obj = objectsIterator.next()
+      val pkgFqn = `package`.getQualifiedName
+      val scope  = place.resolveScope
+
+      val topLevelImplicits =
+        manager.getPackageImplicitObjects(pkgFqn, scope).iterator ++
+          manager.getTopLevelImplicitClassesByPackage(pkgFqn, scope).iterator
+                 .flatMap(_.getSyntheticImplicitMethod)
+
+      while (topLevelImplicits.hasNext) {
+        val obj = topLevelImplicits.next()
         if (!processor.execute(obj, state)) return false
       }
       true
@@ -167,14 +163,21 @@ object ScPackageImpl {
 
             val calcForName = {
               val fqn = if (qName.length() > 0) qName + "." + name else name
+
               val scope = base match {
                 case r: ResolveProcessor => r.getResolveScope
-                case _ => place.resolveScope
+                case _                   => place.resolveScope
               }
+
               val classes = manager.getCachedClasses(scope, fqn).iterator
               var stop = false
               while (classes.hasNext && !stop) {
                 val clazz = classes.next()
+                clazz match {
+                  case cls: ScClass => cls.getSyntheticImplicitMethod.foreach(processor.execute(_, state))
+                  case _            => ()
+                }
+
                 stop = clazz.containingClass == null && !processor.execute(clazz, state)
               }
               !stop

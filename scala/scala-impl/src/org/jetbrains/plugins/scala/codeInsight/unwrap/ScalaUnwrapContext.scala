@@ -4,6 +4,7 @@ package codeInsight.unwrap
 import com.intellij.codeInsight.unwrap.AbstractUnwrapper
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createNewLine
 
 /**
@@ -12,6 +13,11 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createNe
  */
 class ScalaUnwrapContext extends AbstractUnwrapper.AbstractContext {
   override def isWhiteSpace(element: PsiElement): Boolean = element.isInstanceOf[PsiWhiteSpace]
+
+  def extractAllMembers(td: ScTemplateDefinition): Unit = {
+    val members = td.members
+    if (members.nonEmpty) extract(members.head, members.last, td)
+  }
 
   def extractBlockOrSingleStatement(blockStmt: ScBlockStatement, from: PsiElement): Unit = blockStmt match {
     case block: ScBlock if block.statements.nonEmpty =>

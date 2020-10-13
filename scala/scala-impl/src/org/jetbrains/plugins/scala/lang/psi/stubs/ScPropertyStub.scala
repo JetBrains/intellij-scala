@@ -5,7 +5,6 @@ package stubs
 
 import com.intellij.psi.stubs.StubElement
 import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScIdList, ScPatternList}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.{ScExpressionOwnerStub, ScTypeElementOwnerStub}
 
@@ -13,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.{ScExpressionOwnerStub, S
   * @author adkozlov
   */
 trait ScPropertyStub[P <: ScValueOrVariable] extends StubElement[P]
+  with ScTopLevelElementStub[P]
   with ScTypeElementOwnerStub[P]
   with ScExpressionOwnerStub[P]
   with ScMemberOrLocal

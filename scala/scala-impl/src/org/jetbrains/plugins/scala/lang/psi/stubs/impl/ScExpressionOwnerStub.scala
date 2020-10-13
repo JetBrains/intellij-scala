@@ -13,7 +13,7 @@ trait ScExpressionOwnerStub[E <: PsiElement] extends StubElement[E] with PsiOwne
 
   def bodyText: Option[String]
 
-  private[impl] var expressionElementReference: SofterReference[Option[ScExpression]] = null
+  private[impl] var expressionElementReference: SofterReference[Option[ScExpression]] = _
 
   def bodyExpression: Option[ScExpression] = {
     getFromOptionalReference(expressionElementReference) {

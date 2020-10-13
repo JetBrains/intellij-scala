@@ -52,6 +52,8 @@ package object elements {
   }
 
   implicit class IndexSinkExt(private val sink: IndexSink) extends AnyVal {
+    def fqnOccurence[T <: PsiElement](key: StubIndexKey[String, T], fqn: String): Unit =
+      sink.occurrence(key, ScalaNamesUtil.cleanFqn(fqn))
 
     def occurrences[T <: PsiElement](key: StubIndexKey[String, T],
                                      names: String*): Unit =

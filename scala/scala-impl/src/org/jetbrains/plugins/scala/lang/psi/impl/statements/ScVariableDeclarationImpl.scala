@@ -18,10 +18,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 /**
   * @author Alexander Podkhalyuzin
   */
-final class ScVariableDeclarationImpl private[psi](stub: ScPropertyStub[ScVariableDeclaration],
-                                                   nodeType: ScPropertyElementType[ScVariableDeclaration],
-                                                   node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScVariableDeclaration {
+final class ScVariableDeclarationImpl private[psi] (
+  stub:     ScPropertyStub[ScVariableDeclaration],
+  nodeType: ScPropertyElementType[ScVariableDeclaration],
+  node:     ASTNode
+) extends ScValueOrVariableImpl(stub, nodeType, node)
+    with ScVariableDeclaration {
 
   override def toString: String = "ScVariableDeclaration: " + ifReadAllowed(declaredNames.mkString(", "))("")
 

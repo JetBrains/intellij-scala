@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.{ScExpressionOwnerStub, S
   * Date: 14.10.2008
   */
 trait ScFunctionStub[F <: ScFunction] extends NamedStub[F]
+  with ScTopLevelElementStub[F]
   with ScMemberOrLocal
   with ScTypeElementOwnerStub[F]
   with ScExpressionOwnerStub[F]

@@ -31,9 +31,17 @@ import scala.collection.immutable.Set
 /**
  * Represents Scala's internal function definitions and declarations
  */
-trait ScFunction extends ScalaPsiElement with ScMember.WithBaseIconProvider with ScTypeParametersOwner
-  with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition with ScCommentOwner
-  with ScDeclaredElementsHolder with ScMethodLike with ScBlockStatement {
+trait ScFunction
+    extends ScalaPsiElement
+    with ScMember.WithBaseIconProvider
+    with ScTypeParametersOwner
+    with ScParameterOwner
+    with ScDocCommentOwner
+    with ScTypedDefinition
+    with ScCommentOwner
+    with ScDeclaredElementsHolder
+    with ScMethodLike
+    with ScBlockStatement {
 
   private[this] val probablyRecursive = ThreadLocal.withInitial[Boolean](() => false)
 

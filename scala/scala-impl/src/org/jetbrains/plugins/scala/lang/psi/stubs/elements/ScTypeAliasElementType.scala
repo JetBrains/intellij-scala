@@ -9,6 +9,7 @@ import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutp
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeAliasStubImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
@@ -26,19 +27,25 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
     dataStream.writeBoolean(stub.isDeclaration)
     dataStream.writeBoolean(stub.isStableQualifier)
     dataStream.writeOptionName(stub.stableQualifier)
+    dataStream.writeBoolean(stub.isTopLevel)
+    dataStream.writeOptionName(stub.topLevelQualifier)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScTypeAliasStub = {
-    new ScTypeAliasStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this,
-      name = dataStream.readNameString,
-      typeText = dataStream.readOptionName,
-      lowerBoundText = dataStream.readOptionName,
-      upperBoundText = dataStream.readOptionName,
-      isLocal = dataStream.readBoolean,
-      isDeclaration = dataStream.readBoolean,
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScTypeAliasStub =
+    new ScTypeAliasStubImpl(
+      parentStub.asInstanceOf[StubElement[PsiElement]],
+      this,
+      name              = dataStream.readNameString,
+      typeText          = dataStream.readOptionName,
+      lowerBoundText    = dataStream.readOptionName,
+      upperBoundText    = dataStream.readOptionName,
+      isLocal           = dataStream.readBoolean,
+      isDeclaration     = dataStream.readBoolean,
       isStableQualifier = dataStream.readBoolean,
-      stableQualifier = dataStream.readOptionName)
-  }
+      stableQualifier   = dataStream.readOptionName,
+      isTopLevel        = dataStream.readBoolean,
+      topLevelQualifier = dataStream.readOptionName
+    )
 
   override def createStubImpl(alias: ScTypeAlias, parentStub: StubElement[_ <: PsiElement]): ScTypeAliasStub = {
     val maybeAlias = Option(alias)
@@ -82,17 +89,31 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
       isLocal           = maybeContainingClass.isEmpty,
       isDeclaration     = maybeDeclaration.isDefined,
       isStableQualifier = stableQualifier.isDefined,
-      stableQualifier   = stableQualifier
+      stableQualifier   = stableQualifier,
+      isTopLevel        = alias.isTopLevel,
+      topLevelQualifier = alias.topLevelQualifier
     )
   }
 
   override def indexStub(stub: ScTypeAliasStub, sink: IndexSink): Unit = {
     val name = stub.getName
-    sink.occurrence(index.ScalaIndexKeys.TYPE_ALIAS_NAME_KEY, name)
+    sink.occurrence(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY, name)
+
+    if (stub.isTopLevel) {
+      stub.topLevelQualifier.foreach(
+        sink.fqnOccurence(ScalaIndexKeys.TOP_LEVEL_TYPE_ALIAS_BY_PKG_KEY, _)
+      )
+    }
+
     if (stub.isStableQualifier) {
-      sink.occurrence(index.ScalaIndexKeys.STABLE_ALIAS_NAME_KEY, name)
+      sink.occurrence(ScalaIndexKeys.STABLE_ALIAS_NAME_KEY, name)
+
       stub.stableQualifier.foreach(
-        fqn => sink.occurrence[ScTypeAlias, Integer](index.ScalaIndexKeys.STABLE_ALIAS_FQN_KEY, ScalaNamesUtil.cleanFqn(fqn).hashCode)
+        fqn =>
+          sink.occurrence[ScTypeAlias, Integer](
+            ScalaIndexKeys.STABLE_ALIAS_FQN_KEY,
+            ScalaNamesUtil.cleanFqn(fqn).hashCode
+          )
       )
     }
   }

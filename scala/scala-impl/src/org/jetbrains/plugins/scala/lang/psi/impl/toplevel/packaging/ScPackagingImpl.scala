@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScPackageLike, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackagingStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 
 /**
   * @author Alexander Podkhalyuzin, Pavel Fatin
@@ -36,6 +35,7 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
     with ScPackaging
     with ScImportsHolder // todo: to be removed
     with ScDeclarationSequenceHolder {
+  import ScPackageLike._
 
   override def toString = "ScPackaging"
 
@@ -89,13 +89,15 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
 
       findPackage(fullPackageName) match {
         case Some(p) if !p.processDeclarations(processor, state, lastParent, place) => return false
-        case _ =>
+        case _                                                                      =>
       }
 
-      findPackageObject(place.resolveScope).foreach { definition =>
-        val newState = state.withFromType(definition.`type`().toOption)
-        if (!definition.processDeclarations(processor, newState, lastParent, place))
-          return false
+      if (!findPackageObject(place.resolveScope)
+            .forall(processPackageObject(_)(processor, state, lastParent, place)))
+        return false
+
+      if (this.isInScala3Module) {
+        if (!processTopLevelDeclarations(processor, state, place)) return false
       }
     }
 
@@ -110,6 +112,8 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
   override def findPackageObject(scope: GlobalSearchScope): Option[ScObject] =
     ScalaShortNamesCacheManager.getInstance(getProject)
       .findPackageObjectByName(fullPackageName, scope)
+
+  override def fqn: String = fullPackageName
 
   override def bodyText: String = {
     val text = getText

@@ -467,6 +467,10 @@
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScDirectInheritorsIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScSelfTypeInheritorsIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScAnnotatedMemberIndex"/>
+        <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScTopLevelPropertyByPackageIndex"/>
+        <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScTopLevelFunctionByPackageIndex"/>
+        <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScTopLevelAliasByPackageIndex"/>
+        <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScTopLevelImplicitClassByPackageIndex"/>
 
         <fileBasedIndex implementation="org.jetbrains.plugins.scala.lang.formatting.settings.inference.ScalaDocAsteriskAlignStyleIndexer"/>
 

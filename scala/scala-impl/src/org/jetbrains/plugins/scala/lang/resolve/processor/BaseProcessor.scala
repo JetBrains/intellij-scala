@@ -66,7 +66,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
 
   override final def execute(element: PsiElement, state: ResolveState): Boolean = element match {
     case namedElement: PsiNamedElement if ResolveUtils.kindMatches(namedElement, kinds) => execute(namedElement)(state)
-    case _ => true
+    case _                                                                              => true
   }
 
   protected def execute(namedElement: PsiNamedElement)

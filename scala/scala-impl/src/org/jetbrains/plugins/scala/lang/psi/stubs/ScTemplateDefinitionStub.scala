@@ -10,7 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
  * @author ilyas
  */
 trait ScTemplateDefinitionStub[T <: ScTemplateDefinition]
-  extends PsiClassStub[T]
+  extends ScTopLevelElementStub[T]
+    with PsiClassStub[T]
     with ScMemberOrLocal
     with ScImplicitStub {
 

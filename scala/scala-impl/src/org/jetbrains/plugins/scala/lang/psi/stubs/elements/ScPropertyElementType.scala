@@ -27,39 +27,51 @@ sealed abstract class ScPropertyElementType[P <: ScValueOrVariable](debugName: S
     dataStream.writeOptionName(stub.bodyText)
     dataStream.writeBoolean(stub.isLocal)
     dataStream.writeNames(stub.classNames)
+    dataStream.writeBoolean(stub.isTopLevel)
+    dataStream.writeOptionName(stub.topLevelQualifier)
   }
 
-  override final def deserialize(dataStream: StubInputStream,
-                                 parentStub: StubElement[_ <: PsiElement]) = new ScPropertyStubImpl(
-    parentStub,
-    this,
-    isDeclaration = dataStream.readBoolean,
-    isImplicit = dataStream.readBoolean,
-    names = dataStream.readNames,
-    typeText = dataStream.readOptionName,
-    bodyText = dataStream.readOptionName,
-    isLocal = dataStream.readBoolean,
-    classNames = dataStream.readNames
-  )
-
-  override protected final def createStubImpl(property: P,
-                                              parentStub: StubElement[_ <: PsiElement]) =
+  override final def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]) =
     new ScPropertyStubImpl(
       parentStub,
       this,
-      isDeclaration = property.isInstanceOf[ScVariableDeclaration],
-      isImplicit = property.hasModifierProperty("implicit"),
-      names = property.declaredNames.toArray,
-      typeText = property.typeElement.map(_.getText),
-      bodyText = body(property).map(_.getText),
-      isLocal = property.containingClass == null,
-      classNames = property.typeElement.toArray.flatMap(classNames)
+      isDeclaration     = dataStream.readBoolean,
+      isImplicit        = dataStream.readBoolean,
+      names             = dataStream.readNames,
+      typeText          = dataStream.readOptionName,
+      bodyText          = dataStream.readOptionName,
+      isLocal           = dataStream.readBoolean,
+      classNames        = dataStream.readNames,
+      isTopLevel        = dataStream.readBoolean,
+      topLevelQualifier = dataStream.readOptionName
+    )
+
+  override protected final def createStubImpl(property: P, parentStub: StubElement[_ <: PsiElement]) =
+    new ScPropertyStubImpl(
+      parentStub,
+      this,
+      isDeclaration     = property.isInstanceOf[ScVariableDeclaration],
+      isImplicit        = property.hasModifierProperty("implicit"),
+      names             = property.declaredNames.toArray,
+      typeText          = property.typeElement.map(_.getText),
+      bodyText          = body(property).map(_.getText),
+      isLocal           = property.containingClass == null,
+      classNames        = property.typeElement.toArray.flatMap(classNames),
+      isTopLevel        = property.isTopLevel,
+      topLevelQualifier = property.topLevelQualifier
     )
 
   override final def indexStub(stub: ScPropertyStub[P], sink: IndexSink): Unit = {
     import index.ScalaIndexKeys._
     sink.occurrences(PROPERTY_NAME_KEY, stub.names.toSeq: _*)
     sink.occurrences(PROPERTY_CLASS_NAME_KEY, stub.classNames.toSeq: _*)
+
+    if (stub.isTopLevel){
+      stub.topLevelQualifier.foreach(
+        sink.fqnOccurence(TOP_LEVEL_VAL_OR_VAR_BY_PKG_KEY, _)
+      )
+    }
+
     stub.indexImplicits(sink)
   }
 
