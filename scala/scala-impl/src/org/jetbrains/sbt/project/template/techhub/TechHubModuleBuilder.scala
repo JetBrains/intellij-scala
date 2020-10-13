@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
+import org.jetbrains.sbt.project.template.SbtModuleBuilderUtil
 import org.jetbrains.sbt.project.template.SbtModuleBuilderUtil.tryToSetupRootModel
 import org.jetbrains.sbt.{Sbt, SbtBundle}
 
@@ -70,8 +71,13 @@ class TechHubModuleBuilder extends
         SbtBundle.message("downloading.template")
       )
 
-      tryToSetupRootModel(model, getContentEntryPath, getExternalProjectSettings)
+      tryToSetupRootModel(model, getContentEntryPath)
     }
+  }
+
+  override def setupModule(module: Module): Unit = {
+    super.setupModule(module)
+    SbtModuleBuilderUtil.doSetupModule(module, getExternalProjectSettings, getContentEntryPath)
   }
 
   override def getModuleType: ModuleType[_ <: ModuleBuilder] = JavaModuleType.getModuleType

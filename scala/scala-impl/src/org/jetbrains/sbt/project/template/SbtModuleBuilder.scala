@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.extensions.JComponentExt.ActionListenersOwner
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, Version, Versions}
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
+import org.jetbrains.sbt.project.template.SbtModuleBuilderUtil.{doSetupModule, getOrCreateContentRootDir}
 
 /**
  * User: Dmitry Naydanov, Pavel Fatin
@@ -45,6 +46,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
   private lazy val scalaVersions = ScalaKind()
   private lazy val sbtVersions = SbtKind()
+  private lazy val contentRootDir: Option[File] = getOrCreateContentRootDir(getContentEntryPath)
 
   {
     val settings = getExternalProjectSettings
@@ -71,6 +73,11 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     }
 
     super.createModule(moduleModel)
+  }
+
+  override def setupModule(module: Module): Unit = {
+    super.setupModule(module)
+    doSetupModule(module, getExternalProjectSettings, getContentEntryPath)
   }
 
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
@@ -217,7 +224,6 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
   override def setupRootModel(model: ModifiableRootModel): Unit = SbtModuleBuilderUtil.tryToSetupRootModel(
     model,
     getContentEntryPath,
-    getExternalProjectSettings
   )
 
   // TODO customize the path in UI when IDEA-122951 will be implemented
