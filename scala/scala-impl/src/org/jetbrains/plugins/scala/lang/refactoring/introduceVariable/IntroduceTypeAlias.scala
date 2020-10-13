@@ -10,10 +10,10 @@ import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsScheme}
 import com.intellij.openapi.editor.markup._
 import com.intellij.openapi.editor.{Editor, SelectionModel}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.popup.{JBPopupAdapter, JBPopupFactory, JBPopupListener, LightweightWindowEvent}
+import com.intellij.openapi.ui.popup.{JBPopupFactory, JBPopupListener, LightweightWindowEvent}
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi._
-import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
+import com.intellij.psi.impl.source.tree.injected.InjectedLanguageEditorUtil
 import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getChildOfType, getParentOfType}
 import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import org.jetbrains.annotations.Nls
@@ -136,10 +136,10 @@ trait IntroduceTypeAlias {
         val currentScope = currentDataObject.currentScope
 
         //need open modal dialog in inplace mode
-        if ((StartMarkAction.canStart(project) != null) && (currentScope != null)) {
+        if ((StartMarkAction.canStart(editor) != null) && (currentScope != null)) {
           currentDataObject.isCallModalDialogInProgress = true
           val templateState: TemplateState = TemplateManagerImpl.getTemplateState(
-            InjectedLanguageUtil.getTopLevelEditor(editor): @nowarn("cat=deprecation")
+            InjectedLanguageEditorUtil.getTopLevelEditor(editor)
           )
 
           if (templateState != null) {

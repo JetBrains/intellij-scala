@@ -57,7 +57,7 @@ class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with D
     }
 
     //clear data on startRefactoring, if there is no marks, but there is some data
-    if (StartMarkAction.canStart(project) == null) {
+    if (StartMarkAction.canStart(editor) == null) {
       editor.putUserData(REVERT_TYPE_ALIAS_INFO, new IntroduceTypeAliasData())
     }
 
