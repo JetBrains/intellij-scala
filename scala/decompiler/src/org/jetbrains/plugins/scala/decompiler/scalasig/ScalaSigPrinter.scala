@@ -535,21 +535,21 @@ class ScalaSigPrinter(builder: StringBuilder) {
                   case _: ConstantType => false
                   case TypeRefType(_, Ref(sym), _) => sym == parent
                   case _: TypeBoundsType => false
-                  case RefinedType(Ref(sym), refs) => sym == parent || !refs.forall(tp => !checkContainsSelf(Some(tp), parent))
-                  case ClassInfoType(Ref(sym), refs) => sym == parent || !refs.forall(tp => !checkContainsSelf(Some(tp), parent))
-                  case ClassInfoTypeWithCons(Ref(sym), refs, _) => sym == parent || !refs.forall(tp => !checkContainsSelf(Some(tp), parent))
+                  case RefinedType(Ref(sym), refs) => sym == parent || refs.exists(tp => checkContainsSelf(Some(tp), parent))
+                  case ClassInfoType(Ref(sym), refs) => sym == parent || refs.exists(tp => checkContainsSelf(Some(tp), parent))
+                  case ClassInfoTypeWithCons(Ref(sym), refs, _) => sym == parent || refs.exists(tp => checkContainsSelf(Some(tp), parent))
                   case ImplicitMethodType(_, _) => false
                   case MethodType(_, _) => false
                   case NullaryMethodType(_) => false
                   case PolyType(typeRef, symbols) =>
-                    checkContainsSelf(Some(typeRef), parent) || symbols.contains(parent)
+                    checkContainsSelf(Some(typeRef), parent) || symbols.exists(_.get == parent)
                   case PolyTypeWithCons(typeRef, symbols, _) =>
-                    checkContainsSelf(Some(typeRef), parent) || symbols.contains(parent)
+                    checkContainsSelf(Some(typeRef), parent) || symbols.exists(_.get == parent)
                   case AnnotatedType(typeRef) => checkContainsSelf(Some(typeRef), parent)
                   case AnnotatedWithSelfType(typeRef, Ref(sym), _) =>
                     checkContainsSelf(Some(typeRef), parent) || sym == parent
                   case ExistentialType(typeRef, symbols) =>
-                    checkContainsSelf(Some(typeRef), parent) || symbols.contains(parent)
+                    checkContainsSelf(Some(typeRef), parent) || symbols.exists(_.get == parent)
                   case _ => false
                 }
               case None => false
@@ -644,7 +644,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
   def toString(symbol: Symbol): String = symbol match {
     case symbol: TypeSymbol =>
       val attrs = (for (a <- symbol.attributes) yield toString(a)).mkString(" ")
-      val atrs = if (attrs.length > 0) attrs.trim + " " else ""
+      val atrs = if (attrs.nonEmpty) attrs.trim + " " else ""
       val symbolType = symbol.infoType match {
         case PolyType(typeRef, symbols) => PolyTypeWithCons(typeRef, symbols, "")
         case tp => tp

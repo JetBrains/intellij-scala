@@ -7,8 +7,8 @@ import com.intellij.util.containers.ContainerUtil
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
-import scala.jdk.CollectionConverters._
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 import scala.util.Try
 
 /**
@@ -141,12 +141,12 @@ object ScalaSyntheticProvider {
         val implMethods = it.methodsByName(m.name + "$")
         if (implMethods.isEmpty) false
         else {
-          val typeNames = m.argumentTypeNames()
+          val typeNames = m.argumentTypeNames().asScala
           val argCount = typeNames.size
           implMethods.asScala.exists { impl =>
-            val implTypeNames = impl.argumentTypeNames()
+            val implTypeNames = impl.argumentTypeNames().asScala
             val implArgCount = implTypeNames.size
-            implArgCount == argCount + 1 && implTypeNames.asScala.tail == typeNames ||
+            implArgCount == argCount + 1 && implTypeNames.tail == typeNames ||
               implArgCount == argCount && implTypeNames == typeNames
           }
         }
