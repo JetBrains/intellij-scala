@@ -6,7 +6,7 @@ import com.intellij.CommonBundle
 import com.intellij.ide.util.PackageUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
+import com.intellij.openapi.roots.{ModuleRootManager, ProjectFileIndex, ProjectRootManager}
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi._
 import com.intellij.refactoring.PackageWrapper
@@ -14,6 +14,7 @@ import com.intellij.refactoring.move.moveClassesOrPackages.{MoveClassesOrPackage
 import com.intellij.refactoring.util.RefactoringMessageUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.codeInspection.packageNameInspection.ScalaMoveToPackageQuickFix.packagePrefixIn
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.refactoring.move.saveMoveDestination
@@ -23,13 +24,21 @@ import org.jetbrains.plugins.scala.lang.refactoring.move.saveMoveDestination
  * Date: 08.07.2009
  */
 final class ScalaMoveToPackageQuickFix(myFile: ScalaFile, packageName: String)
-      extends AbstractFixOnPsiElement(ScalaMoveToPackageQuickFix.hint(myFile.name, packageName), myFile) {
+      extends AbstractFixOnPsiElement(ScalaMoveToPackageQuickFix.hint(packageName), myFile) {
 
   override protected def doApplyFix(file: ScalaFile)
                                    (implicit project: Project): Unit = {
     var error: String = null
     var directory: PsiDirectory = null
     try {
+      // TODO Support multiple source roots (more complicated because chooseDestinationPackage throws an exception instead of returning a directory in such a case.)
+      file.module.flatMap(packagePrefixIn).filterNot(packagePrefix => (packageName + ".").startsWith(packagePrefix + ".")).foreach { packagePrefix =>
+        Messages.showMessageDialog(project,
+          ScalaInspectionBundle.message("move.file.to.package.package.prefix.error", s"'$packageName'", s"'$packagePrefix'"),
+          CommonBundle.getErrorTitle, Messages.getErrorIcon)
+        return
+      }
+
       directory = MoveClassesOrPackagesUtil.chooseDestinationPackage(project, packageName, myFile.getContainingDirectory);
       if (directory == null) {
         return
@@ -59,10 +68,17 @@ final class ScalaMoveToPackageQuickFix(myFile: ScalaFile, packageName: String)
   override def getFamilyName: String = ScalaInspectionBundle.message("fimaly.name.move.file.to.package")
 }
 
-object ScalaMoveToPackageQuickFix {
+private object ScalaMoveToPackageQuickFix {
   @Nls
-  def hint(fileName: String, packageName: String): String = {
+  def hint(packageName: String): String = {
     if (packageName.isEmpty) ScalaInspectionBundle.message("move.file.to.default.package")
     else ScalaInspectionBundle.message("move.file.to.package.with.packagename", s"'$packageName'")
   }
+
+  // Only if there's a single source root
+  def packagePrefixIn(module: Module): Option[String] =
+    ModuleRootManager.getInstance(module).getContentEntries.flatMap(_.getSourceFolders) match {
+      case Array(sourceFolder) if !sourceFolder.getPackagePrefix.isEmpty => Some(sourceFolder.getPackagePrefix)
+      case _ =>  None
+    }
 }
