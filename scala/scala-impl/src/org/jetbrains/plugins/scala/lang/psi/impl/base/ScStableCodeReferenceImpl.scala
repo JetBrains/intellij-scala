@@ -293,16 +293,17 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           }
         }
 
-        val startingPlace = getContext match {
+        val (lastParent, startingPlace) = getContext match {
           // when processing Foo.this.Bar or Foo.super[Bar].Baz, positioned in the extends block,
           // it is important to skip the contexts up to the actual outer type definition, or else
           // we may end up with weird self-references if the name is not unique (#SCL-14707, #SCL-14922)
           case ctx @ (_: ScSuperReference | _: ScThisReference) =>
-            ResolveUtils.enclosingTypeDef(ctx).fold(this: PsiElement)(_.getContext)
-          case _                                                => this
+            ResolveUtils.enclosingTypeDef(ctx).map(td => (td, td.getContext))
+              .getOrElse((this, getContext))
+          case _                                                => (this, getContext)
         }
 
-        treeWalkUp(startingPlace, null)
+        treeWalkUp(startingPlace, lastParent)
         processor.candidates
       case Some(p: ScInterpolationPattern) =>
         val expr =

@@ -34,6 +34,9 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
                                    state: ResolveState,
                                    lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
+    if (isProcessLocalClasses(lastParent) &&
+      !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
+
     if (!super[ScImportsHolder].processDeclarations(processor, state, lastParent, place)) return false
 
     if (this.context != null) return true
@@ -110,9 +113,6 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
       if (!processImplicitImports(processor, state, place)) return false
     }
 
-    if (isProcessLocalClasses(lastParent) &&
-      !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
-
     true
   }
 
@@ -186,9 +186,7 @@ object FileDeclarationsHolder {
 
         val index = ProjectRootManager.getInstance(place.getProject).getFileIndex
         val belongsToProject =
-          index.isInSourceContent(file) ||
-            index.isInLibraryClasses(file) ||
-            index.isInLibrarySource(file)
+          index.isInSourceContent(file) || index.isInLibraryClasses(file)
         !belongsToProject
       case _ => false
     }
