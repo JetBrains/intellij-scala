@@ -54,13 +54,12 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
         }
 
         if (packName == null) {
-          val fixes = Seq(new EnablePerformanceProblemsQuickFix(file.getProject))
+          val fixes = Seq.empty[LocalQuickFix]
           problemDescriptors(fixes).toArray
         } else if (packName != expectedPackageName) {
           val fixes = Seq(
             new ScalaRenamePackageQuickFix(file, expectedPackageName),
-            new ScalaMoveToPackageQuickFix(file, packName),
-            new EnablePerformanceProblemsQuickFix(file.getProject))
+            new ScalaMoveToPackageQuickFix(file, packName))
 
           problemDescriptors(fixes).toArray
         } else null
