@@ -8,7 +8,6 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.{findCommonContext, findFirstContext}
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.{highlightImplicitView, registerTypeMismatchError}
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
@@ -281,6 +280,8 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
           parent match {
             case ScInfixPattern(_, `refElement`, _) if refElement.isInstanceOf[ScStableCodeReference] => // todo: this is hide A op B in patterns
             case _: ScImportSelector if resolve.length > 0 =>
+            case _: ScDocTag =>
+              holder.createWeakWarningAnnotation(refElement, ScalaBundle.message("cannot.resolve", refElement.refName))
             case _ => addUnknownSymbolProblem()
           }
       }

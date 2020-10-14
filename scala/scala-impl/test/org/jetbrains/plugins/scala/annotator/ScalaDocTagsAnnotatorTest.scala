@@ -23,11 +23,11 @@ class ScalaDocTagsAnnotatorTest extends SimpleTestCase {
   def testDefineAndResolvedParamTags(): Unit = assertNothing(messages(textWithComment()))
 
   def testUnresolvedParamTag(): Unit = assertMessages(messages(textWithComment(paramTag = "baz")))(
-    Error("baz", "Cannot resolve symbol baz")
+    Warning("baz", "Cannot resolve symbol baz")
   )
 
   def testUnresolvedTypeParamTag(): Unit = assertMessages(messages(textWithComment(typeParamTag = "A")))(
-    Error("A", "Cannot resolve symbol A")
+    Warning("A", "Cannot resolve symbol A")
   )
 
   private def messages(code: String): List[Message] = {
