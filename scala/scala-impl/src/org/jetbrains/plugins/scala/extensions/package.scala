@@ -228,12 +228,6 @@ package object extensions {
       }
     }
 
-    def firstBy[B](f: A => B)(implicit ord: Ordering[B]): Option[A] =
-      if (value.isEmpty) None else Some(value.minBy(f))
-
-    def lastBy[B](f: A => B)(implicit ord: Ordering[B]): Option[A] =
-      if (value.isEmpty) None else Some(value.maxBy(f))
-
     def join[B](separator: B)
                (generator: A => Seq[B]): Seq[B] = {
       val delegate = value.iterator

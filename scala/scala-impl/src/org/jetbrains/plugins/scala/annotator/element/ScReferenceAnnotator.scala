@@ -130,7 +130,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                 var typeMismatchShown = false
 
                 if (!inDesugaring) {
-                  val firstExcessiveArgument = problems.filterByType[ExcessArgument].map(_.argument).filter(inSameFile(_, holder)).firstBy(_.getTextOffset)
+                  val firstExcessiveArgument = problems.filterByType[ExcessArgument].map(_.argument).filter(inSameFile(_, holder)).minByOption(_.getTextOffset)
                   firstExcessiveArgument.foreach { argument =>
                     val opening = argument.prevSiblings.takeWhile(e => e.is[PsiWhiteSpace] || e.is[PsiComment] || e.textMatches(",") || e.textMatches("(")).toSeq.lastOption
                     val range = opening.map(e => new TextRange(e.getTextOffset, argument.getTextOffset + 1)).getOrElse(argument.getTextRange)
