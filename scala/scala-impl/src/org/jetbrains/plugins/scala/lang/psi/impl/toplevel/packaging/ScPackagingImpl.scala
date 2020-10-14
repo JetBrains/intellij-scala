@@ -78,6 +78,11 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
                                    place: PsiElement): Boolean = {
     if (DumbService.getInstance(getProject).isDumb) return true
 
+    val isTreeWalkUp = lastParent != null && lastParent.getContext == this
+
+    if (isTreeWalkUp && FileDeclarationsHolder.isProcessLocalClasses(lastParent) &&
+      !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
+
     //If stub is not null, then we are not trying to resolve packaging reference.
     if (getStub != null || !reference.contains(lastParent)) {
       ProgressManager.checkCanceled()
@@ -94,11 +99,9 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
       }
     }
 
-    if (lastParent != null && lastParent.getContext == this) {
-      if (!super[ScImportsHolder].processDeclarations(processor,
-        state, lastParent, place)) return false
-
-      if (FileDeclarationsHolder.isProcessLocalClasses(lastParent) && !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
+    if (isTreeWalkUp) {
+      if (!super[ScImportsHolder].processDeclarations(processor, state, lastParent, place))
+        return false
     }
 
     true
