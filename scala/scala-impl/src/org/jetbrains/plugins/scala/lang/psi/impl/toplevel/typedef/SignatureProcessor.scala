@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
 import com.intellij.psi.{PsiClass, PsiMember, PsiMethod, PsiNamedElement}
-import org.jetbrains.plugins.scala.extensions.{OptionExt, PsiElementExt, TraversableExt}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.{PropertyMethods, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.{DefinitionRole, EQ, SETTER, isApplicable, methodName}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor

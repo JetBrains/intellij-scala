@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.FileContentUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction.toggleSettingAndRehighlight
-import org.jetbrains.plugins.scala.extensions.{TraversableExt, invokeLater}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.jdk.CollectionConverters._

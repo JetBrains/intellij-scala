@@ -4,7 +4,7 @@ import java.lang.reflect.Field
 
 import com.intellij.psi.tree.IElementType
 import junit.framework.TestCase
-import org.jetbrains.plugins.scala.extensions.TraversableExt
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
 import org.junit.Assert._
 

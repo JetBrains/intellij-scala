@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
-import org.jetbrains.plugins.scala.extensions.TraversableExt
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType.substitutorCache
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor

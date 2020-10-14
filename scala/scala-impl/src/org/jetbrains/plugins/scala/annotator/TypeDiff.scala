@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.annotator.Tree.{Leaf, Node}
-import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, SeqExt}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TypePresentation, TupleType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScExistentialArgument, ScExistentialType, ScParameterizedType, ScType, TypePresentationContext}

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package format
 
 import com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.plugins.scala.extensions.TraversableExt
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotes, MultilineQuotesEscaped}
 

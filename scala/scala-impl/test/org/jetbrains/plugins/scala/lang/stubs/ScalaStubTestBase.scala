@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.stubs
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.stubs.StubElement
 import org.jetbrains.plugins.scala.base.SimpleTestCase
-import org.jetbrains.plugins.scala.extensions.TraversableExt
+import org.jetbrains.plugins.scala.extensions._
 
 import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag

@@ -11,7 +11,7 @@ import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.{Nls, TestOnly}
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentGenerator._
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiClassExt, PsiElementExt, PsiMemberExt, TraversableExt}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject

@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ParameterExpectedTypesUtil._
-import org.jetbrains.plugins.scala.extensions.TraversableExt
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * @author Alexander Podkhalyuzin, ilyas

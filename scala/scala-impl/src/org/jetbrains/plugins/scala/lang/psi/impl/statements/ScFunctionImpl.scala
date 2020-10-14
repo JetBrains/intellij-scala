@@ -17,7 +17,7 @@ import com.intellij.util.PlatformIcons
 import com.intellij.util.containers.ContainerUtil
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiModifierListOwnerExt, PsiTypeExt, TraversableExt}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.contextApplied.{ContextApplied, ContextAppliedUtil}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer._

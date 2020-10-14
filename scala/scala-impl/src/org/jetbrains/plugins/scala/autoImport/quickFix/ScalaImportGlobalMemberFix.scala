@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
 import org.jetbrains.plugins.scala.autoImport.GlobalMember
 import org.jetbrains.plugins.scala.autoImport.GlobalMember.findGlobalMembers
-import org.jetbrains.plugins.scala.extensions.{&&, PsiElementExt, PsiMemberExt, PsiNamedElementExt, TraversableExt}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.isInExcludedPackage
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{hasImplicitModifier, inNameContext}

@@ -4,7 +4,7 @@ package testingSupport.test.specs2
 import com.intellij.execution.actions.RunConfigurationProducer
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, TraversableExt}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition

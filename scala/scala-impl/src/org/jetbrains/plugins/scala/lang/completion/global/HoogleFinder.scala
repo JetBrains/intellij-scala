@@ -5,7 +5,7 @@ package global
 
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementPresentation, LookupElementRenderer}
-import org.jetbrains.plugins.scala.extensions.TraversableExt
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction

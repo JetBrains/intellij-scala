@@ -9,7 +9,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiReference}
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.containers.MultiMap
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, Parent, TraversableExt}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.format.{Injection, InterpolatedStringFormatter, InterpolatedStringParser}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
