@@ -43,6 +43,6 @@ class ImportStableMemberIntention extends PsiElementBaseIntentionAction {
   }
 
   private def checkReference(ref: ScReference): Boolean = {
-    !isInImport(ref) && resolvesToStablePath(ref) && hasQualifier(ref)
+    !isPackagingName(ref) && !isInImport(ref) && resolvesToStablePath(ref) && hasQualifier(ref)
   }
 }
