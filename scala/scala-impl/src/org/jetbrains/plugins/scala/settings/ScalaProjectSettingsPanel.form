@@ -242,7 +242,7 @@
               </component>
             </children>
           </grid>
-          <grid id="d23f" layout-manager="GridLayoutManager" row-count="10" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="d23f" layout-manager="GridLayoutManager" row-count="9" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="9" left="9" bottom="0" right="0"/>
             <constraints>
               <tabbedpane title-resource-bundle="messages/ScalaBundle" title-key="scala.project.settings.form.tabs.performance"/>
@@ -252,7 +252,7 @@
             <children>
               <vspacer id="c9804">
                 <constraints>
-                  <grid row="9" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                  <grid row="8" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                 </constraints>
               </vspacer>
               <component id="2e626" class="javax.swing.JLabel">
@@ -271,17 +271,9 @@
                 </constraints>
                 <properties/>
               </component>
-              <component id="74373" class="javax.swing.JCheckBox" binding="myResolveToAllClassesCheckBox" default-binding="true">
-                <constraints>
-                  <grid row="5" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.resolve.to.all.classes.even.in.wrong.directories"/>
-                </properties>
-              </component>
               <component id="cdb42" class="javax.swing.JCheckBox" binding="treatDocCommentAsBlockComment">
                 <constraints>
-                  <grid row="6" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="5" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.disable.parsing.of.documentation.comments"/>
@@ -289,7 +281,7 @@
               </component>
               <component id="73696" class="javax.swing.JCheckBox" binding="myDisableLanguageInjection">
                 <constraints>
-                  <grid row="7" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="6" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.disable.language.injection.in.scala.files"/>
@@ -297,7 +289,7 @@
               </component>
               <component id="6926b" class="javax.swing.JCheckBox" binding="myDontCacheCompound">
                 <constraints>
-                  <grid row="8" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="7" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.dont.cache.compound.types"/>
