@@ -146,9 +146,9 @@ object MixinNodes {
 
   class Node[T](val info: T, val fromSuper: Boolean) {
     private[this] var _concreteSuper: Node[T] = _
-    private[this] val _supers: SmartList[Node[T]] = new SmartList()
+    private[this] var _supers: Seq[Node[T]] = Vector.empty
 
-    private[MixinNodes] def addSuper(n: Node[T]): Unit = _supers.add(n)
+    private[MixinNodes] def addSuper(node: Node[T]): Unit = _supers :+= node
 
     private[MixinNodes] def setConcreteSuper(n: Node[T]): Unit = {
       if (_concreteSuper == null) {
@@ -158,7 +158,7 @@ object MixinNodes {
 
     private[MixinNodes] def concreteSuper: Option[Node[T]] = Option(_concreteSuper)
 
-    def supers: collection.Seq[Node[T]] = _supers.asScala
+    def supers: Seq[Node[T]] = _supers
     def primarySuper: Option[Node[T]] = concreteSuper.orElse(supers.headOption)
   }
 
