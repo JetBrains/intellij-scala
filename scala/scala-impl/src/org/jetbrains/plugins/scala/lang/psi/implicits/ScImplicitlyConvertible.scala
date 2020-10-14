@@ -27,7 +27,7 @@ object ScImplicitlyConvertible {
       case None => Seq.empty
       case Some(placeType) =>
         val all = collectRegulars(place, placeType) ++ collectCompanions(placeType, Seq.empty, place)
-        all.distinctBy(_.element)
+        all.iterator.distinctBy(_.element).toSeq
     }
 
   def implicits(place: ScExpression, fromUnderscore: Boolean): Seq[PsiNamedElement] =

@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala
 
-import java.io.Closeable
 import java.lang.ref.Reference
 import java.lang.reflect.InvocationTargetException
 import java.nio.file.Path
@@ -65,13 +64,12 @@ import org.jetbrains.plugins.scala.util.ScalaPluginUtils
 import scala.annotation.{nowarn, tailrec}
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Future, Promise}
-import scala.io.Source
+import scala.jdk.CollectionConverters._
 import scala.math.Ordering
-import scala.reflect.{ClassTag, classTag}
+import scala.reflect.ClassTag
 import scala.runtime.NonLocalReturnControl
 import scala.util.control.Exception.catching
 import scala.util.{Failure, Success, Try}
-import scala.jdk.CollectionConverters._
 
 /**
   * Pavel Fatin
@@ -186,18 +184,6 @@ package object extensions {
       result.asInstanceOf[Option[T]]
     }
 
-    def distinctBy[K](f: A => K): collection.Seq[A] = {
-      val buffer = new ArrayBuffer[A](value.size)
-      var seen = Set[K]()
-      for (x <- value) {
-        val v = f(x)
-        if (!(seen contains v)) {
-          buffer += x
-          seen = seen + v
-        }
-      }
-      buffer
-    }
     def mapWithIndex[B](f: (A, Int) => B): CC[B] = {
       val builder = value.iterableFactory.newBuilder[B]
       builder.sizeHint(value)
@@ -457,11 +443,11 @@ package object extensions {
 
   implicit class StringExt(private val string: String) extends AnyVal {
     def startsWith(ch: Char): Boolean = {
-      !string.isEmpty && string.charAt(0) == ch
+      string.nonEmpty && string.charAt(0) == ch
     }
 
     def endsWith(ch: Char): Boolean = {
-      !string.isEmpty && string.charAt(string.length - 1) == ch
+      string.nonEmpty && string.charAt(string.length - 1) == ch
     }
 
     def parenthesize(needParenthesis: Boolean = true): String =
@@ -651,7 +637,7 @@ package object extensions {
 
     def parentsInFile: Iterator[PsiElement] = element match {
       case _: PsiFile | _: PsiDirectory => Iterator.empty
-      case _ => parents.takeWhile(!_.isInstanceOf[PsiFile])
+      case _ => parents.takeWhile(!_.is[PsiFile])
     }
 
     def withParentsInFile: Iterator[PsiElement] = Iterator(element) ++ parentsInFile
@@ -735,7 +721,7 @@ package object extensions {
 
     def getPrevSiblingNotWhitespace: PsiElement = {
       var prev: PsiElement = element.getPrevSibling
-      while (prev != null && (prev.isInstanceOf[PsiWhiteSpace] ||
+      while (prev != null && (prev.is[PsiWhiteSpace] ||
         prev.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)) prev = prev.getPrevSibling
       prev
     }
@@ -745,8 +731,8 @@ package object extensions {
 
     def getPrevSiblingNotWhitespaceComment: PsiElement = {
       var prev: PsiElement = element.getPrevSibling
-      while (prev != null && (prev.isInstanceOf[PsiWhiteSpace] ||
-        prev.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE || prev.isInstanceOf[PsiComment]))
+      while (prev != null && (prev.is[PsiWhiteSpace] ||
+        prev.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE || prev.is[PsiComment]))
         prev = prev.getPrevSibling
       prev
     }
@@ -756,7 +742,7 @@ package object extensions {
 
     def getNextSiblingNotWhitespace: PsiElement = {
       var next: PsiElement = element.getNextSibling
-      while (next != null && (next.isInstanceOf[PsiWhiteSpace] ||
+      while (next != null && (next.is[PsiWhiteSpace] ||
         next.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)) next = next.getNextSibling
       next
     }
@@ -816,8 +802,8 @@ package object extensions {
 
     def getNextSiblingNotWhitespaceComment: PsiElement = {
       var next: PsiElement = element.getNextSibling
-      while (next != null && (next.isInstanceOf[PsiWhiteSpace] ||
-        next.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE || next.isInstanceOf[PsiComment]))
+      while (next != null && (next.is[PsiWhiteSpace] ||
+        next.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE || next.is[PsiComment]))
         next = next.getNextSibling
       next
     }
@@ -835,7 +821,7 @@ package object extensions {
 
     def getNextNonWhitespaceAndNonEmptyLeaf: PsiElement = {
       var next = PsiTreeUtil.nextLeaf(element)
-      while (next != null && (next.getTextLength == 0 || next.isInstanceOf[PsiWhiteSpace]))
+      while (next != null && (next.getTextLength == 0 || next.is[PsiWhiteSpace]))
         next = PsiTreeUtil.nextLeaf(next)
       next
     }
@@ -930,7 +916,9 @@ package object extensions {
       case scClass: ScClass => scClass.hasFinalModifier
       case _: ScObject | _: ScNewTemplateDefinition => true
       case synth: ScSyntheticClass if !Seq("AnyRef", "AnyVal").contains(synth.className) => true //wrappers for value types
-      case _ => clazz.hasModifierProperty(PsiModifier.FINAL)
+      case _ =>
+        //noinspection ScalaWrongPlatformMethodsUsage
+        clazz.hasModifierProperty(PsiModifier.FINAL)
     }
 
     def allSupers: collection.Seq[PsiClass] = {
@@ -1005,7 +993,7 @@ package object extensions {
             processName(method.getName)
           }
         case t: ScTypedDefinition if t.isVal || t.isVar ||
-          (t.isInstanceOf[ScClassParameter] && t.asInstanceOf[ScClassParameter].isCaseClassVal) =>
+          (t.is[ScClassParameter] && t.asInstanceOf[ScClassParameter].isCaseClassVal) =>
 
           PsiTypedDefinitionWrapper.processWrappersFor(t, concreteClassFor(t), signature.name, isStatic, isInterface, processMethod, processName)
         case _ =>

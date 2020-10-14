@@ -142,7 +142,7 @@ object ScalaImportTypeFix {
     } yield MemberToImport(alias, global.owner, global.pathToOwner)
 
     //it's possible to have same qualified name with different owners in case of val overriding
-    val distinctAliases = aliases.distinctBy(_.qualifiedName)
+    val distinctAliases = aliases.iterator.distinctBy(_.qualifiedName)
 
     val packagesList = importsWithPrefix(referenceName).map { s =>
       s.reverse.dropWhile(_ != '.').tail.reverse
