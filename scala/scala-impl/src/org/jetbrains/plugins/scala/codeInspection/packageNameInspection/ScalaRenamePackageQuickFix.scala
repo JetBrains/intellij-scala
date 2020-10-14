@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
  * Date: 08.07.2009
  */
 class ScalaRenamePackageQuickFix(myFile: ScalaFile, name: String)
-      extends AbstractFixOnPsiElement(if (name == null || name.isEmpty) ScalaInspectionBundle.message("remove.package.statement") else ScalaInspectionBundle.message("rename.package.to", name), myFile) {
+      extends AbstractFixOnPsiElement(if (name == null || name.isEmpty) ScalaInspectionBundle.message("remove.package.statement") else ScalaInspectionBundle.message("rename.package.to", s"'$name'"), myFile) {
 
   override protected def doApplyFix(file: ScalaFile)
                                    (implicit project: Project): Unit =

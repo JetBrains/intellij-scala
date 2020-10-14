@@ -58,7 +58,7 @@ final class ScalaMoveToPackageQuickFix(myFile: ScalaFile, packQualName: String)
 object ScalaMoveToPackageQuickFix {
   @Nls
   def hint(fileName: String, packageName: String): String = {
-    if (packageName.isEmpty) ScalaInspectionBundle.message("move.file.to.default.package", fileName)
-    else ScalaInspectionBundle.message("move.file.to.package.with.packagename", fileName, packageName)
+    if (packageName.isEmpty) ScalaInspectionBundle.message("move.file.to.default.package")
+    else ScalaInspectionBundle.message("move.file.to.package.with.packagename", s"'$packageName'")
   }
 }

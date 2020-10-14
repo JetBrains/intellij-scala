@@ -41,7 +41,7 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
 
         def problemDescriptors(buffer: Seq[LocalQuickFix]): Seq[ProblemDescriptor] = ranges.map { range =>
           manager.createProblemDescriptor(file, range,
-            ScalaInspectionBundle.message("package.names.does.not.correspond.to.directory.structure"),
+            ScalaInspectionBundle.message("package.names.does.not.correspond.to.directory.structure", s"'$packName'", s"'$pack.getQualifiedName'"),
             ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
             isOnTheFly, buffer: _*)
         }
