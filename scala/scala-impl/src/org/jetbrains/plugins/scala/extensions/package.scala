@@ -162,8 +162,7 @@ package object extensions {
     def hasScalaPsi: Boolean = viewProvider.getBaseLanguage.isKindOf(ScalaLanguage.INSTANCE) || viewProvider.getPsi(ScalaLanguage.INSTANCE) != null
   }
 
-  implicit class TraversableExt[CC[X] <: Iterable[X], A](private val value: CC[A]) extends AnyVal {
-
+  implicit class IterableExt[CC[X] <: collection.IterableOps[X, CC, CC[X]], A](private val value: CC[A]) extends AnyVal {
     def foreachDefined(pf: PartialFunction[A, Unit]): Unit =
       value.foreach(pf.applyOrElse(_, (_: A) => ()))
 
@@ -199,72 +198,26 @@ package object extensions {
       }
       buffer
     }
-
-    def mkParenString(implicit ev: A <:< String): String = value.mkString("(", ", ", ")")
-  }
-
-  implicit class SeqExt[CC[X] <: collection.Seq[X], A <: AnyRef](private val value: CC[A]) extends AnyVal {
-
-    def firstBy[B](f: A => B)(implicit ord: Ordering[B]): Option[A] =
-      if (value.isEmpty) None else Some(value.minBy(f))
-
-    def lastBy[B](f: A => B)(implicit ord: Ordering[B]): Option[A] =
-      if (value.isEmpty) None else Some(value.maxBy(f))
-
-    def mapWithIndex[B](f: (A, Int) => B): collection.Seq[B] = {
-      val buffer = new ArrayBuffer[B](value.size)
+    def mapWithIndex[B](f: (A, Int) => B): CC[B] = {
+      val builder = value.iterableFactory.newBuilder[B]
+      builder.sizeHint(value)
       var i = 0
       for (x <- value) {
-        buffer += f(x, i)
+        builder += f(x, i)
         i += 1
       }
-      buffer
+      builder.result()
     }
 
-    //may return same instance if no element was changed
-    def smartMapWithIndex(f: (A, Int) => A): collection.Seq[A] = {
-      val buffer = new ArrayBuffer[A](value.size)
-      val iterator = value.iterator
-      var i = 0
-      var updated = false
-      while (iterator.hasNext) {
-        val next = iterator.next()
-        val fNext = f(next, i)
-        if (next ne fNext) {
-          updated = true
-        }
-        buffer += fNext
-        i += 1
-      }
-      if (updated) buffer
-      else value
-    }
-
-    //may return same instance if no element was changed
-    def smartMap(f: A => A): collection.Seq[A] = {
-      val buffer = new ArrayBuffer[A](value.size)
-      val iterator = value.iterator
-      var updated = false
-      while (iterator.hasNext) {
-        val next = iterator.next()
-        val fNext = f(next)
-        if (next ne fNext) {
-          updated = true
-        }
-        buffer += fNext
-      }
-      if (updated) buffer
-      else value
-    }
-
-    def zipMapped[B](f: A => B): collection.Seq[(A, B)] = {
-      val b = new ArrayBuffer[(A, B)](value.size)
+    def zipMapped[B](f: A => B): CC[(A, B)] = {
+      val builder = value.iterableFactory.newBuilder[(A, B)]
+      builder.sizeHint(value)
       val it = value.iterator
       while (it.hasNext) {
         val v = it.next()
-        b += ((v, f(v)))
+        builder += ((v, f(v)))
       }
-      b
+      builder.result()
     }
 
     def foreachWithIndex[B](f: (A, Int) => B): Unit = {
@@ -274,6 +227,12 @@ package object extensions {
         i += 1
       }
     }
+
+    def firstBy[B](f: A => B)(implicit ord: Ordering[B]): Option[A] =
+      if (value.isEmpty) None else Some(value.minBy(f))
+
+    def lastBy[B](f: A => B)(implicit ord: Ordering[B]): Option[A] =
+      if (value.isEmpty) None else Some(value.maxBy(f))
 
     def join[B](separator: B)
                (generator: A => Seq[B]): Seq[B] = {
@@ -312,15 +271,6 @@ package object extensions {
       if (value.isEmpty) r
       else f2(l, value.head, value.tail.foldlr(f1(l, value.head), r)(f1)(f2))
 
-    def lastWhere(p: A => Boolean): Option[A] =
-      value.lastIndexWhere(p) match {
-        case -1 => None
-        case idx => Some(value(idx))
-      }
-  }
-
-  implicit class IterableExt[CC[X] <: Iterable[X], A <: AnyRef](private val value: CC[A]) extends AnyVal {
-
     def mapToArray[B <: AnyRef](f: A => B)(implicit factory: ArrayFactory[B]): Array[B] = {
       val size = value.size
       val array = factory.create(size)
@@ -334,6 +284,48 @@ package object extensions {
     }
 
     def makeArray[B >: A <: AnyRef](implicit factory: ArrayFactory[B]): Array[B] = mapToArray(_.asInstanceOf[B])
+
+    def mkParenString(implicit ev: A <:< String): String = value.mkString("(", ", ", ")")
+  }
+
+  implicit class IterableOfNullablesExt[CC[X] <: collection.IterableOps[X, CC, CC[X]], A <: AnyRef](private val value: CC[A]) extends AnyVal {
+    //may return same instance if no element was changed
+    def smartMapWithIndex(f: (A, Int) => A): CC[A] = {
+      val builder = value.iterableFactory.newBuilder[A]
+      builder.sizeHint(value)
+      val iterator = value.iterator
+      var i = 0
+      var updated = false
+      while (iterator.hasNext) {
+        val next = iterator.next()
+        val fNext = f(next, i)
+        if (next ne fNext) {
+          updated = true
+        }
+        builder += fNext
+        i += 1
+      }
+      if (updated) builder.result()
+      else value
+    }
+
+    //may return same instance if no element was changed
+    def smartMap(f: A => A): CC[A] = {
+      val builder = value.iterableFactory.newBuilder[A]
+      builder.sizeHint(value)
+      val iterator = value.iterator
+      var updated = false
+      while (iterator.hasNext) {
+        val next = iterator.next()
+        val fNext = f(next)
+        if (next ne fNext) {
+          updated = true
+        }
+        builder += fNext
+      }
+      if (updated) builder.result()
+      else value
+    }
   }
 
   implicit class ArrayExt[A](val array: Array[A]) extends AnyVal {
