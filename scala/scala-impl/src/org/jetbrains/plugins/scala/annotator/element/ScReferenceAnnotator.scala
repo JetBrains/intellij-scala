@@ -282,6 +282,8 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
           parent match {
             case ScInfixPattern(_, `refElement`, _) if refElement.isInstanceOf[ScStableCodeReference] => // todo: this is hide A op B in patterns
             case _: ScImportSelector if resolve.length > 0 =>
+            case _: ScDocTag =>
+              holder.createWeakWarningAnnotation(refElement, ScalaBundle.message("cannot.resolve", refElement.refName))
             case _ => addUnknownSymbolProblem()
           }
       }
