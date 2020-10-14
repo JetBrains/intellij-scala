@@ -3,6 +3,7 @@ package org.jetbrains.jps.incremental.scala.local.zinc
 import java.util.Optional
 
 import org.jetbrains.jps.incremental.scala.Client
+import org.jetbrains.jps.incremental.scala.local.zinc.IntellijExternalLookup.EmptyProvenanceLookupAnalyzedClassResult
 import org.jetbrains.plugins.scala.compiler.data.CompilationData
 import sbt.internal.inc._
 import xsbti.api.AnalyzedClass
@@ -22,7 +23,7 @@ case class IntellijExternalLookup(compilationData: CompilationData, client: Clie
     .toSet
 
   override def lookupAnalyzedClass(binaryClassName: String, file: Option[VirtualFileRef]): Option[AnalyzedClass] =
-    None
+    EmptyProvenanceLookupAnalyzedClassResult // Keep the default behaviour of the lookupAnalyzedClass. SCL-18302
 
   override def changedSources(previousAnalysis: CompileAnalysis): Option[Changes[VirtualFileRef]] =
     if (isCached) None else {
@@ -56,4 +57,10 @@ case class IntellijExternalLookup(compilationData: CompilationData, client: Clie
   }
 
   override def hashClasspath(classpath: Array[VirtualFile]): Optional[Array[FileHash]] = Optional.empty()
+}
+
+object IntellijExternalLookup {
+
+  private final val EmptyProvenanceLookupAnalyzedClassResult =
+    Some(AnalyzedClass.create(0L, null, null, 0, null, false))
 }
