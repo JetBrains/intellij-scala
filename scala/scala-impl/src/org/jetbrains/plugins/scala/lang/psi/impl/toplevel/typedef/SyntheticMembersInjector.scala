@@ -15,7 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScOb
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.immutable.ArraySeq
+import scala.collection.mutable
 import scala.util.control.ControlThrowable
 
 /**
@@ -89,7 +90,7 @@ object SyntheticMembersInjector {
     if (!source.isValid) return Seq.empty
 
     implicit val ctx: Project = source.getProject
-    val buffer = new ArrayBuffer[ScFunction]()
+    val builder = mutable.ArraySeq.newBuilder[ScFunction]
 
     for {
       injector <- implementations
@@ -104,19 +105,19 @@ object SyntheticMembersInjector {
         throw new RuntimeException(s"Failed to parse method for class $source: '$template'")
       function.syntheticNavigationElement = context
       function.syntheticContainingClass = source
-      buffer += function
+      builder += function
     } catch {
       case p: ProcessCanceledException => throw p
       case e: Throwable =>
         logError(s"Error during parsing template from injector: ${injector.getClass.getName}", e)
     }
-    buffer
+    builder.result()
   }
 
   def injectInners(source: ScTypeDefinition): collection.Seq[ScTypeDefinition] = {
     if (!source.isValid) return Seq.empty
 
-    val buffer = new ArrayBuffer[ScTypeDefinition]()
+    val builder = ArraySeq.newBuilder[ScTypeDefinition]
     implicit val ctx: Project = source.getProject
     for {
       injector <- implementations
@@ -130,13 +131,13 @@ object SyntheticMembersInjector {
       val td = ScalaPsiElementFactory.createTypeDefinitionWithContext(template, context, source)
       td.syntheticContainingClass = source
       updateSynthetic(td, context)
-      buffer += td
+      builder += td
     } catch {
       case p: ProcessCanceledException => throw p
       case e: Throwable =>
         logError(s"Error during parsing template from injector: ${injector.getClass.getName}", e)
     }
-    buffer
+    builder.result()
   }
 
   def needsCompanion(source: ScTypeDefinition): Boolean = {
@@ -149,7 +150,7 @@ object SyntheticMembersInjector {
   def injectSupers(source: ScTypeDefinition): collection.Seq[ScTypeElement] = {
     if (!source.isValid) return Seq.empty
 
-    val buffer = new ArrayBuffer[ScTypeElement]()
+    val builder = Seq.newBuilder[ScTypeElement]
     implicit val ctx: Project = source.getProject
     for {
       injector <- implementations
@@ -159,19 +160,19 @@ object SyntheticMembersInjector {
         case o: ScObject if o.isSyntheticObject => ScalaPsiUtil.getCompanionModule(o).getOrElse(source)
         case _ => source
       }
-      buffer += ScalaPsiElementFactory.createTypeElementFromText(supers, context, source)
+      builder += ScalaPsiElementFactory.createTypeElementFromText(supers, context, source)
     } catch {
       case p: ProcessCanceledException => throw p
       case e: Throwable =>
         logError(s"Error during parsing type element from injector: ${injector.getClass.getName}", e)
     }
-    buffer
+    builder.result()
   }
 
   def injectMembers(source: ScTypeDefinition): collection.Seq[ScMember] = {
     if (!source.isValid) return Seq.empty
 
-    val buffer = new ArrayBuffer[ScMember]()
+    val builder = ArraySeq.newBuilder[ScMember]
     implicit val ctx: Project = source.getProject
     for {
       injector <- implementations
@@ -187,13 +188,13 @@ object SyntheticMembersInjector {
       member.syntheticContainingClass = context
 
       updateSynthetic(member, context)
-      if (!member.hasModifierProperty("override")) buffer += member
+      if (!member.hasModifierProperty("override")) builder += member
     } catch {
       case p: ProcessCanceledException => throw p
       case e: Throwable =>
         logError(s"Error during parsing template from injector: ${injector.getClass.getName}", e)
     }
-    buffer
+    builder.result()
   }
 
   private def logError(message: String, t: Throwable): Unit = {

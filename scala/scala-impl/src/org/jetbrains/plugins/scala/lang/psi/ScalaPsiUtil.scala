@@ -580,8 +580,8 @@ object ScalaPsiUtil {
       case _ => return empty
     }
     val clazz: ScTemplateDefinition = typed.nameContext match {
-      case e@(_: ScValue | _: ScVariable | _: ScObject) if e.getParent.isInstanceOf[ScTemplateBody] ||
-        e.getParent.isInstanceOf[ScEarlyDefinitions] =>
+      case e@(_: ScValue | _: ScVariable | _: ScObject) if e.getParent.is[ScTemplateBody] ||
+        e.getParent.is[ScEarlyDefinitions] =>
         e.asInstanceOf[ScMember].containingClass
       case e: ScClassParameter if e.isClassMember => e.containingClass
       case _ => return empty
@@ -592,15 +592,15 @@ object ScalaPsiUtil {
       if (withSelfType) TypeDefinitionMembers.getSelfTypeSignatures(clazz)
       else TypeDefinitionMembers.getSignatures(clazz)
     val sigs = signatures.forName(x.name)
-    var res: collection.Seq[TermSignature] = sigs.get(s) match {
+    val builder = Seq.newBuilder[TermSignature]
+    sigs.get(s) match {
       case Some(node) if !withSelfType || node.info.namedElement == x =>
-        node.supers.map(_.info)
+        builder ++= node.supers.map(_.info)
       case Some(node) =>
-        node.supers.map(_.info).filter(_.namedElement != x) :+ node.info
+        builder ++= node.supers.map(_.info).filter(_.namedElement != x) :+ node.info
       case _ =>
         //this is possible case: private member of library source class.
         //Problem is that we are building signatures over decompiled class.
-        Seq.empty
     }
 
 
@@ -609,15 +609,15 @@ object ScalaPsiUtil {
       val sigs = TypeDefinitionMembers.getSignatures(clazz).forName(method.name)
       sigs.get(new PhysicalMethodSignature(method, ScSubstitutor.empty)) match {
         case Some(node) if !withSelfType || node.info.namedElement == method =>
-          res ++= node.supers.map(_.info)
+          builder ++= node.supers.map(_.info)
         case Some(node) =>
-          res +:= node.info
-          res ++= node.supers.map(_.info).filter(_.namedElement != method)
+          builder += node.info
+          builder ++= node.supers.map(_.info).filter(_.namedElement != method)
         case _ =>
       }
     }
 
-    res
+    builder.result()
   }
 
   def superTypeMembers(element: PsiNamedElement,
@@ -1357,7 +1357,7 @@ object ScalaPsiUtil {
       _.selectors
     }.flatMap {
       selector =>
-        selector.reference.zip(selector.importedName).headOption
+        selector.reference.zip(selector.importedName)
     }.filter {
       case (_, "_") => false
       case (reference, name) => reference.refName != name
@@ -1367,7 +1367,7 @@ object ScalaPsiUtil {
       return Set.empty
 
     var parent = position.getParent
-    val aliases = collection.mutable.Set[(ScReference, String)]()
+    val aliases = mutable.Set[(ScReference, String)]()
     while (parent != null) {
       parent match {
         case holder: ScImportsHolder => aliases ++= getSelectors(holder)
@@ -1413,10 +1413,10 @@ object ScalaPsiUtil {
       nextElement = file.findElementAt(nextOffset)
       parent <- element.parent
     } {
-      if (!prevElement.isInstanceOf[PsiWhiteSpace]) {
+      if (!prevElement.is[PsiWhiteSpace]) {
         parent.addBefore(createWhitespace(element.getManager), element)
       }
-      if (!nextElement.isInstanceOf[PsiWhiteSpace]) {
+      if (!nextElement.is[PsiWhiteSpace]) {
         parent.addAfter(createWhitespace(element.getManager), element)
       }
     }
@@ -1425,7 +1425,7 @@ object ScalaPsiUtil {
   def findInstanceBinding(instance: ScExpression): Option[ScBindingPattern] = {
     instance match {
       case _: ScNewTemplateDefinition =>
-      case ref: ScReferenceExpression if ref.resolve().isInstanceOf[ScObject] =>
+      case ref: ScReferenceExpression if ref.resolve().is[ScObject] =>
       case _ => return None
     }
     val nameContext = PsiTreeUtil.getParentOfType(instance, classOf[ScVariableDefinition], classOf[ScPatternDefinition])

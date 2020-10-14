@@ -7,18 +7,18 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenerator
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 
-import scala.collection.mutable
+import scala.collection.compat.immutable.ArraySeq
 
 trait ScPatternImpl extends ScPattern {
 
   override def `type`(): TypeResult = Failure(ScalaBundle.message("cannot.type.pattern"))
 
-  override def bindings: collection.Seq[ScBindingPattern] = {
-    val b = mutable.ArrayBuffer.empty[ScBindingPattern]
+  override def bindings: Seq[ScBindingPattern] = {
+    val builder = Seq.newBuilder[ScBindingPattern]
 
     def inner(p: ScPattern): Unit = {
       p match {
-        case binding: ScBindingPattern => b += binding
+        case binding: ScBindingPattern => builder += binding
         case _ =>
       }
 
@@ -28,18 +28,18 @@ trait ScPatternImpl extends ScPattern {
     }
 
     inner(this)
-    b
+    builder.result()
   }
 
-  override def typeVariables: collection.Seq[ScTypeVariableTypeElement] = {
-    val b = mutable.ArrayBuffer.empty[ScTypeVariableTypeElement]
+  override def typeVariables: Seq[ScTypeVariableTypeElement] = {
+    val builder = Seq.newBuilder[ScTypeVariableTypeElement]
 
     def inner(p: ScPattern): Unit = {
       p match {
         case ScTypedPattern(te) =>
           te.accept(new ScalaRecursiveElementVisitor {
             override def visitTypeVariableTypeElement(tvar: ScTypeVariableTypeElement): Unit = {
-              b += tvar
+              builder += tvar
             }
           })
         case _ =>
@@ -51,7 +51,7 @@ trait ScPatternImpl extends ScPattern {
     }
 
     inner(this)
-    b
+    builder.result()
   }
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
@@ -60,7 +60,7 @@ trait ScPatternImpl extends ScPattern {
 
   override def subpatterns: collection.Seq[ScPattern] = this match {
     case _: ScReferencePattern => Seq.empty
-    case _ => findChildrenByClassScala[ScPattern](classOf[ScPattern])
+    case _ => ArraySeq.unsafeWrapArray(findChildrenByClassScala[ScPattern](classOf[ScPattern]))
   }
 
   override def analogInDesugaredForExpr: Option[ScPattern] = {

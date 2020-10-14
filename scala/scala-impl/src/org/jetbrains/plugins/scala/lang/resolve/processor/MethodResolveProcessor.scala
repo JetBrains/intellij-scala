@@ -186,7 +186,7 @@ object MethodResolveProcessor {
 
     implicit val ctx: ProjectContext = c.element
 
-    val problems = new ArrayBuffer[ApplicabilityProblem]()
+    val problems = Seq.newBuilder[ApplicabilityProblem]
 
     val realResolveResult = c.innerResolveResult match {
       case Some(rr) => rr
@@ -225,7 +225,12 @@ object MethodResolveProcessor {
       eOption: Option[ScType]               = expectedOption(),
       result:  Option[ConformanceExtResult] = None
     ): ConformanceExtResult = {
-      if (eOption.isEmpty) return result.map(_.copy(problems)).getOrElse(ConformanceExtResult(problems))
+      if (eOption.isEmpty) {
+        val problemsSeq = problems.result()
+        return result
+          .map(_.copy(problems = problemsSeq))
+          .getOrElse(ConformanceExtResult(problemsSeq))
+      }
 
       val expected = eOption.get
       val retType: ScType = element match {
@@ -250,8 +255,8 @@ object MethodResolveProcessor {
           val constraints =
             if (expected.equiv(api.Unit)) aResult.constraints
             else                          aResult.constraints + conformance.constraints
-          aResult.copy(problems, constraints)
-        case None => ConformanceExtResult(problems, conformance.constraints)
+          aResult.copy(problems.result(), constraints)
+        case None => ConformanceExtResult(problems.result(), conformance.constraints)
       }
     }
 
@@ -260,7 +265,7 @@ object MethodResolveProcessor {
         fun match {
           case fun: ScFunction if fun.paramClauses.clauses.isEmpty ||
             fun.paramClauses.clauses.head.parameters.isEmpty ||
-            isUnderscore => ConformanceExtResult(problems)
+            isUnderscore => ConformanceExtResult(problems.result())
           case fun: ScFun if fun.paramClauses == Seq() || fun.paramClauses == Seq(Seq()) || isUnderscore =>
             addExpectedTypeProblems()
           case method: PsiMethod if method.parameters.isEmpty ||
@@ -313,7 +318,7 @@ object MethodResolveProcessor {
 
         constraints match {
           case ConstraintsResult.Left => ConformanceExtResult(Seq(ExpectedTypeMismatch))
-          case cs: ConstraintSystem   => ConformanceExtResult(problems, cs)
+          case cs: ConstraintSystem   => ConformanceExtResult(problems.result(), cs)
         }
       }
 
@@ -358,14 +363,14 @@ object MethodResolveProcessor {
         val result =
           Compatibility.compatible(constr, substitutor, argumentClauses, checkWithImplicits, isShapeResolve)
         problems ++= result.problems
-        result.copy(problems)
+        result.copy(problems = problems.result())
       } else {
         val problem = InternalApplicabilityProblem(
           ScalaBundle.message("not.all.type.parameters.are.defined", typeArgElements.mkString(", "), classTypeParameters.mkString(", "))
         )
         LOG.warn(problem.toString)
         problems += problem
-        ConformanceExtResult(problems)
+        ConformanceExtResult(problems.result())
       }
     }
 
@@ -417,7 +422,7 @@ object MethodResolveProcessor {
           )
 
         problems ++= argsConformance.problems
-        argsConformance.copy(problems = problems)
+        argsConformance.copy(problems = problems.result())
       }
     }
 
@@ -437,15 +442,15 @@ object MethodResolveProcessor {
         } else {
           problems += new DoesNotTakeParameters
         }
-        ConformanceExtResult(problems)
+        ConformanceExtResult(problems.result())
       case _: PsiClass =>
-        ConformanceExtResult(problems)
+        ConformanceExtResult(problems.result())
       case _: ScTypeAlias =>
-        ConformanceExtResult(problems)
+        ConformanceExtResult(problems.result())
       //Implicit Application
       case f: ScMethodLike if hasMalformedSignature(f) =>
         problems += MalformedDefinition(f.name)
-        ConformanceExtResult(problems)
+        ConformanceExtResult(problems.result())
       case ScalaConstructor(constructor) => scalaConstructorCompatibility(constructor)
       case JavaConstructor(constructor) => javaConstructorCompatibility(constructor)
       case fun: ScFunction if (typeArgElements.isEmpty ||
@@ -732,7 +737,7 @@ object MethodResolveProcessor {
     import proc._
 
     val expanded = input.flatMap(expandApplyOrUpdateMethod(_, proc)).iterator
-    var results  = ArrayBuffer.empty[ScalaResolveResult]
+    var builder  = Set.newBuilder[ScalaResolveResult]
 
     //problemsFor make all the work, wrapping it in scala collection API adds 9 unnecessary methods to the stacktrace
     while (expanded.hasNext) {
@@ -769,10 +774,10 @@ object MethodResolveProcessor {
           )
       }
 
-      results += result
+      builder += result
     }
 
-    results.toSet
+    builder.result()
   }
 
   //Signature has repeated param, which is not the last one

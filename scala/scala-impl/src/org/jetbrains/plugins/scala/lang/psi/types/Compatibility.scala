@@ -260,7 +260,7 @@ object Compatibility {
   }
 
   def collectSimpleProblems(exprs: collection.Seq[Expression], parameters: collection.Seq[Parameter]): collection.Seq[ApplicabilityProblem] = {
-    val problems = new ArrayBuffer[ApplicabilityProblem]()
+    val problems = Seq.newBuilder[ApplicabilityProblem]
 
     exprs.foldLeft(parameters) { (parameters, expression) =>
       expression match {
@@ -277,7 +277,7 @@ object Compatibility {
         problems += MissedValueParameter(param)
       }
     }
-    problems
+    problems.result()
   }
 
   def checkConformanceExt(

@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable
 
 /**
 * @author Alexander Podkhalyuzin
@@ -175,22 +175,22 @@ class ScConstructorInvocationImpl(node: ASTNode)
     def processSimple(s: ScSimpleTypeElement): Array[TypeResult] = {
       s.reference match {
         case Some(ref) =>
-          val buffer = new ArrayBuffer[TypeResult]
+          val builder = mutable.ArrayBuilder.make[TypeResult]
           val resolve = if (isShape) ref.shapeResolveConstr else ref.resolveAllConstructors
           resolve.foreach {
             case r@ScalaResolveResult(constr: PsiMethod, subst) =>
-              buffer += workWithResolveResult(constr, r, subst, s, ref)
-            case ScalaResolveResult(clazz: PsiClass, subst) if !clazz.isInstanceOf[ScTemplateDefinition] && clazz.isAnnotationType =>
-              val params = clazz.getMethods.flatMap {
+              builder += workWithResolveResult(constr, r, subst, s, ref)
+            case ScalaResolveResult(clazz: PsiClass, subst) if !clazz.is[ScTemplateDefinition] && clazz.isAnnotationType =>
+              val params = clazz.getMethods.iterator.flatMap {
                 case p: PsiAnnotationMethod =>
                   val paramType = subst(p.getReturnType.toScType())
-                  Seq(Parameter(p.getName, None, paramType, paramType, p.getDefaultValue != null, isRepeated = false, isByName = false))
+                  Seq(Parameter(p.name, None, paramType, paramType, p.getDefaultValue != null, isRepeated = false, isByName = false))
                 case _ => Seq.empty
               }
-              buffer += Right(ScMethodType(ScDesignatorType(clazz), params, isImplicit = false))
+              builder += Right(ScMethodType(ScDesignatorType(clazz), params.toSeq, isImplicit = false))
             case _ =>
           }
-          buffer.toArray
+          builder.result()
         case _ => Array(Failure(ScalaBundle.message("has.no.reference")))
       }
     }

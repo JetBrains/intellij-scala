@@ -196,15 +196,14 @@ package object extensions {
       builder.result()
     }
 
-    def zipMapped[B](f: A => B): CC[(A, B)] = {
-      val builder = value.iterableFactory.newBuilder[(A, B)]
-      builder.sizeHint(value)
+    def zipMapped[B](f: A => B): collection.Seq[(A, B)] = {
+      val b = new ArrayBuffer[(A, B)](value.size)
       val it = value.iterator
       while (it.hasNext) {
         val v = it.next()
-        builder += ((v, f(v)))
+        b += ((v, f(v)))
       }
-      builder.result()
+      b
     }
 
     def join[B](separator: B)

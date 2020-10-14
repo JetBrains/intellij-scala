@@ -112,9 +112,10 @@ final class ScDocTagValueImpl(node: ASTNode) extends ScReferenceImpl(node) with 
           if tag.getValueElement != null && tag != getParent
         } yield tag.getValueElement.getText).toSet
 
-      val result = mutable.ArrayBuilder.make[ScNamedElement]
-      params.filter(param => !paramsSet.contains(param.name)).foreach(result += _)
-      result.result()
+      params
+        .iterator
+        .filter(param => !paramsSet.contains(param.name))
+        .to(Array)
     }
 
     scalaDocParent.getParent match {

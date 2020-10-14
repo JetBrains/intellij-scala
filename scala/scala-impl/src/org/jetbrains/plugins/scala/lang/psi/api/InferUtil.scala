@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.SAMUtil
 
 import scala.annotation.tailrec
+import scala.collection.compat.immutable.ArraySeq
 import scala.collection.mutable.ArrayBuffer
 import scala.util.control.ControlThrowable
 
@@ -103,9 +104,9 @@ object InferUtil {
         }
 
         resInner = ScTypePolymorphicType(splitMethodType, typeParams)
-        val paramsForInferBuffer = new ArrayBuffer[Parameter]()
-        val exprsBuffer          = new ArrayBuffer[Compatibility.Expression]()
-        val resolveResultsBuffer = new ArrayBuffer[ScalaResolveResult]()
+        val paramsForInferBuffer = ArraySeq.newBuilder[Parameter]
+        val exprsBuffer          = ArraySeq.newBuilder[Compatibility.Expression]
+        val resolveResultsBuffer = ArraySeq.newBuilder[ScalaResolveResult]
 
         //todo: do we need to execute this loop several times?
         var i = 0
@@ -127,9 +128,9 @@ object InferUtil {
           }
         }
 
-        implicitParameters = Some(resolveResultsBuffer)
+        implicitParameters = Some(resolveResultsBuffer.result())
 
-        val dependentSubst = ScSubstitutor.paramToExprType(paramsForInferBuffer, exprsBuffer)
+        val dependentSubst = ScSubstitutor.paramToExprType(paramsForInferBuffer.result(), exprsBuffer.result())
         resInner = dependentSubst(resInner)
       case mt@ScMethodType(retType, _, isImplicit) if !isImplicit =>
         // See SCL-3516
@@ -163,9 +164,9 @@ object InferUtil {
 
     implicit val project: ProjectContext = place.getProject
 
-    val exprs = new ArrayBuffer[Expression]
-    val paramsForInfer = new ArrayBuffer[Parameter]()
-    val resolveResults = new ArrayBuffer[ScalaResolveResult]
+    val exprs = ArraySeq.newBuilder[Expression]
+    val paramsForInfer = ArraySeq.newBuilder[Parameter]
+    val resolveResults = ArraySeq.newBuilder[ScalaResolveResult]
     val iterator = params.iterator
     while (iterator.hasNext) {
       val param = iterator.next()
@@ -216,7 +217,7 @@ object InferUtil {
         resolveResults += result
       }
     }
-    (paramsForInfer, exprs, resolveResults)
+    (paramsForInfer.result(), exprs.result(), resolveResults.result())
   }
 
   private def compilerGeneratedInstance(tp: ScType): Option[ScalaResolveResult] = tp match {
@@ -644,16 +645,15 @@ object InferUtil {
   def functionTypeNoImplicits(function: ScFunction): Option[ScType] = {
     val retType = function.returnType.toOption
 
-    collectReverseParamTypesNoImplicits(function) match {
-      case Some(params) =>
+    collectReverseParamTypesNoImplicits(function).flatMap {
+      params =>
         implicit val scope: ElementScope = ElementScope(function)
         retType.map(params.foldLeft(_)((res, params) => FunctionType(res, params)))
-      case None => None
     }
   }
 
-  private def collectReverseParamTypesNoImplicits(function: ScFunction): Option[collection.Seq[collection.Seq[ScType]]] = {
-    val buffer = ArrayBuffer.empty[Seq[ScType]]
+  private def collectReverseParamTypesNoImplicits(function: ScFunction): Option[Seq[Seq[ScType]]] = {
+    val builder = Seq.newBuilder[Seq[ScType]]
     val clauses = function.paramClauses.clauses
 
     //for performance
@@ -665,10 +665,10 @@ object InferUtil {
         val paramTypes = parameters.flatMap(_.`type`().toOption)
 
         if (paramTypes.size != parameters.size) return None
-        else buffer += paramTypes
+        else builder += paramTypes
       }
       idx -= 1
     }
-    Some(buffer)
+    Some(builder.result())
   }
 }

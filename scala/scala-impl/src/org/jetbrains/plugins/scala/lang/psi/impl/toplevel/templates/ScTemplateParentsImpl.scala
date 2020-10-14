@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
-import scala.collection.mutable
+import scala.collection.immutable.ArraySeq
 
 /**
   * @author Alexander Podkhalyuzin
@@ -50,12 +50,12 @@ final class ScTemplateParentsImpl private(stub: ScTemplateParentsStub, node: AST
     }
 
     //for reduced stack size
-    val result = mutable.ArrayBuffer.empty[ScType]
+    val builder = ArraySeq.newBuilder[ScType]
     val iterator = elements.iterator
     while (iterator.hasNext) {
-      result += iterator.next.`type`().getOrAny
+      builder += iterator.next.`type`().getOrAny
     }
-    result
+    builder.result()
   }
 
   @Cached(BlockModificationTracker(this), this)

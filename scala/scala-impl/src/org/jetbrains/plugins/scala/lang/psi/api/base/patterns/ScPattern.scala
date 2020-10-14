@@ -334,17 +334,17 @@ object ScPattern {
     }.headOption
   }
 
-  def extractPossibleProductParts(receiverType: ScType, place: PsiElement): collection.Seq[ScType] = {
-    val result = mutable.ArrayBuffer.empty[ScType]
+  def extractPossibleProductParts(receiverType: ScType, place: PsiElement): Seq[ScType] = {
+    val builder = Seq.newBuilder[ScType]
 
     @tailrec
     def collect(i: Int): Unit = findMember(s"_$i", receiverType, place) match {
-      case Some(tp) => result += tp; collect(i + 1)
+      case Some(tp) => builder += tp; collect(i + 1)
       case _        => ()
     }
 
     collect(1)
-    result
+    builder.result()
   }
 
   def expectedNumberOfExtractorArguments(

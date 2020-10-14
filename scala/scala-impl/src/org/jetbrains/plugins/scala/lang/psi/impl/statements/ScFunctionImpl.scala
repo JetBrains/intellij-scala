@@ -223,18 +223,18 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     * @return Empty array, if containing class is null.
     */
   @Cached(BlockModificationTracker(this), this)
-  override def getFunctionWrappers(isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass] = None): collection.Seq[ScFunctionWrapper] = {
-    val buffer = new ArrayBuffer[ScFunctionWrapper]
+  override def getFunctionWrappers(isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper] = {
+    val builder = Seq.newBuilder[ScFunctionWrapper]
     if (cClass.isDefined || containingClass != null) {
       for {
         clause <- clauses
         first  <- clause.clauses.headOption
         if first.hasRepeatedParam && isJavaVarargs(this)
-      } buffer += new ScFunctionWrapper(this, isStatic, isAbstract, cClass, isJavaVarargs = true)
+      } builder += new ScFunctionWrapper(this, isStatic, isAbstract, cClass, isJavaVarargs = true)
 
-      buffer += new ScFunctionWrapper(this, isStatic, isAbstract, cClass)
+      builder += new ScFunctionWrapper(this, isStatic, isAbstract, cClass)
     }
-    buffer
+    builder.result()
   }
 
   // TODO Should be unified, see ScModifierListOwner
@@ -354,20 +354,24 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     if (ccontainingClass == null) return this
     val originalClass: PsiClass = ccontainingClass.getOriginalElement.asInstanceOf[PsiClass]
     if (ccontainingClass eq originalClass) return this
-    if (!originalClass.isInstanceOf[ScTypeDefinition]) return this
+    if (!originalClass.is[ScTypeDefinition]) return this
     val c = originalClass.asInstanceOf[ScTypeDefinition]
     val membersIterator = c.members.iterator
-    val buf: ArrayBuffer[ScMember] = new ArrayBuffer[ScMember]
+    var buf = List.empty[ScMember]
     while (membersIterator.hasNext) {
       val member = membersIterator.next()
-      if (isSimilarMemberForNavigation(member, strictCheck = false)) buf += member
+      if (isSimilarMemberForNavigation(member, strictCheck = false)) {
+        buf ::= member
+      }
     }
-    if (buf.isEmpty) this
-    else if (buf.length == 1) buf(0)
-    else {
-      val filter = buf.filter(isSimilarMemberForNavigation(_, strictCheck = true))
-      if (filter.isEmpty) buf(0)
-      else filter(0)
+    buf match {
+      case List() => this
+      case List(one) => one
+      case head +: _ =>
+        buf.iterator
+          .filter(isSimilarMemberForNavigation(_, strictCheck = true))
+          .headOption
+          .getOrElse(head)
     }
   }
 
