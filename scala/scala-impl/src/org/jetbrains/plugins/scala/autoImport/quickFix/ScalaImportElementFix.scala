@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala.autoImport.quickFix
 
 import java.awt.Point
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
+import java.util.concurrent.{ExecutorService, TimeUnit}
 
 import com.intellij.codeInsight.hint.HintManagerImpl
 import com.intellij.codeInsight.intention.PriorityAction
 import com.intellij.codeInspection.HintAction
-import com.intellij.openapi.application.ReadAction
+import com.intellij.openapi.application.{ApplicationManager, ReadAction}
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{ModificationTracker, TextRange}
@@ -142,9 +143,9 @@ abstract class ScalaImportElementFix[Element <: ElementToImport](val place: PsiE
         }
 
         val task = ReadAction.nonBlocking(computationRunnable)
-          .expireWhen(() => !isUpToDate)
+          .expireWhen(() => !isUpToDate || !isRelevant(editor))
 
-        task.submit(AppExecutorUtil.getAppExecutorService)
+        task.submit(boundedExecutor)
       }
     }
   }
@@ -170,6 +171,15 @@ abstract class ScalaImportElementFix[Element <: ElementToImport](val place: PsiE
 }
 
 private object ScalaImportElementFix {
+
+  private def boundedExecutor: ExecutorService =
+    ApplicationManager.getApplication.getService(classOf[ExecutorHolder]).boundedTaskExecutor
+
+  @Service
+  private final class ExecutorHolder {
+    val boundedTaskExecutor: ExecutorService =
+      AppExecutorUtil.createBoundedApplicationPoolExecutor("scala.import.element.fix.executor", 2)
+  }
 
   private def isShowErrorsFromCompilerEnabled(file: PsiFile) =
     ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(file)
