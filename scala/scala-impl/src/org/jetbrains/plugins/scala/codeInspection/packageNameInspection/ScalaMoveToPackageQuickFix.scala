@@ -10,8 +10,9 @@ import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi._
 import com.intellij.refactoring.PackageWrapper
-import com.intellij.refactoring.move.moveClassesOrPackages.{MoveClassesOrPackagesProcessor, SingleSourceRootMoveDestination}
+import com.intellij.refactoring.move.moveClassesOrPackages.{MoveClassesOrPackagesProcessor, MoveClassesOrPackagesUtil, SingleSourceRootMoveDestination}
 import com.intellij.refactoring.util.RefactoringMessageUtil
+import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -21,20 +22,23 @@ import org.jetbrains.plugins.scala.lang.refactoring.move.saveMoveDestination
  * User: Alexander Podkhalyuzin
  * Date: 08.07.2009
  */
-final class ScalaMoveToPackageQuickFix(myFile: ScalaFile, packQualName: String)
-      extends AbstractFixOnPsiElement(ScalaMoveToPackageQuickFix.hint(myFile.name, packQualName), myFile) {
+final class ScalaMoveToPackageQuickFix(myFile: ScalaFile, packageName: String)
+      extends AbstractFixOnPsiElement(ScalaMoveToPackageQuickFix.hint(myFile.name, packageName), myFile) {
 
   override protected def doApplyFix(file: ScalaFile)
                                    (implicit project: Project): Unit = {
-    val packageName = packQualName
-    val fileIndex: ProjectFileIndex = ProjectRootManager.getInstance(project).getFileIndex
-    val currentModule: Module = fileIndex.getModuleForFile(file.getVirtualFile)
-    val directory = PackageUtil.findOrCreateDirectoryForPackage(currentModule, packageName, null, false)
-
-    if (directory == null) {
-      return
+    var error: String = null
+    var directory: PsiDirectory = null
+    try {
+      directory = MoveClassesOrPackagesUtil.chooseDestinationPackage(project, packageName, myFile.getContainingDirectory);
+      if (directory == null) {
+        return
+      }
+      error = RefactoringMessageUtil.checkCanCreateFile(directory, file.name)
+    } catch {
+      case e: IncorrectOperationException =>
+        error = e.getLocalizedMessage
     }
-    val error = RefactoringMessageUtil.checkCanCreateFile(directory, file.name)
     if (error != null) {
       Messages.showMessageDialog(project, error, CommonBundle.getErrorTitle, Messages.getErrorIcon)
       return
