@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenerator
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 
-import scala.collection.compat.immutable.ArraySeq
+import scala.collection.immutable.ArraySeq
 
 trait ScPatternImpl extends ScPattern {
 
@@ -58,7 +58,7 @@ trait ScPatternImpl extends ScPattern {
     visitor.visitPattern(this)
   }
 
-  override def subpatterns: collection.Seq[ScPattern] = this match {
+  override def subpatterns: Seq[ScPattern] = this match {
     case _: ScReferencePattern => Seq.empty
     case _ => ArraySeq.unsafeWrapArray(findChildrenByClassScala[ScPattern](classOf[ScPattern]))
   }

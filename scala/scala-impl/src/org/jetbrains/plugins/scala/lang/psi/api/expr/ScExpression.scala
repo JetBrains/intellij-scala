@@ -155,7 +155,7 @@ trait ScExpression extends ScBlockStatement
 object ScExpression {
   final case class ExpressionTypeResult(
     tr:                 TypeResult,
-    importsUsed:        collection.Set[ImportUsed] = Set.empty,
+    importsUsed:        Set[ImportUsed] = Set.empty,
     implicitConversion: Option[ScalaResolveResult] = None
   ) {
     def implicitFunction: Option[PsiNamedElement] = implicitConversion.map(_.element)
@@ -265,7 +265,7 @@ object ScExpression {
       newType
     }
 
-    def updatedWithImplicitParameters(tpe: ScType, checkExpectedType: Boolean): (ScType, Option[collection.Seq[ScalaResolveResult]]) = {
+    def updatedWithImplicitParameters(tpe: ScType, checkExpectedType: Boolean): (ScType, Option[Seq[ScalaResolveResult]]) = {
       val checkImplicitParameters = ScalaPsiUtil.withEtaExpansion(expr)
       if (checkImplicitParameters)
         InferUtil.updateTypeWithImplicitParameters(tpe, expr, None, checkExpectedType, fullInfo = false)
@@ -403,7 +403,7 @@ object ScExpression {
     ): ScType = {
       implicit val scope: ElementScope = expr.elementScope
 
-      def flattenParamTypes(t: ScType): collection.Seq[ScType] = t match {
+      def flattenParamTypes(t: ScType): Seq[ScType] = t match {
         case TupleType(comps) => comps
         case _                => Seq(t)
       }
@@ -414,7 +414,7 @@ object ScExpression {
 
       def checkExpectedPartialFunctionType(
         resTpe:    ScType,
-        paramTpes: collection.Seq[ScType]
+        paramTpes: Seq[ScType]
       ): ScType = expectedTpe match {
         case Some(PartialFunctionType(ptRes, ptParams))
             if resTpe.conforms(ptRes) && parameterTypesMatch(ptParams, paramTpes) &&

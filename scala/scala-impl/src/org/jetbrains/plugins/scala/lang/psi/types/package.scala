@@ -349,7 +349,7 @@ package object types {
   final case class FunctionLikeType(place: PsiElement) {
     import FunctionTypeMarker._
 
-    def unapply(tpe: ScType): Option[(FunctionTypeMarker, ScType, collection.Seq[ScType])] = tpe match {
+    def unapply(tpe: ScType): Option[(FunctionTypeMarker, ScType, Seq[ScType])] = tpe match {
       case FunctionType(retTpe, paramTpes)       => (FunctionN, retTpe, paramTpes).toOption
       case PartialFunctionType(retTpe, paramTpe) => (PF, retTpe, Seq(paramTpe)).toOption
       case ScAbstractType(_, _, upper)           => unapply(upper)

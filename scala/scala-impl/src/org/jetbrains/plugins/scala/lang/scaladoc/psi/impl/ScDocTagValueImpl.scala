@@ -20,8 +20,6 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveRes
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing.{PARAM_TAG, TYPE_PARAM_TAG}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocReference, ScDocTag, ScDocTagValue}
 
-import scala.collection.{Set, mutable}
-
 final class ScDocTagValueImpl(node: ASTNode) extends ScReferenceImpl(node) with ScDocTagValue with ScDocReference {
 
   import ResolveTargets._

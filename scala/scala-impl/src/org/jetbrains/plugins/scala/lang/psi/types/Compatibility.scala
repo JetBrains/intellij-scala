@@ -227,8 +227,8 @@ object Compatibility {
     ).orElse(expr.elementScope.scalaSeqType)
 
   def checkConformance(
-    parameters:         collection.Seq[Parameter],
-    exprs:              collection.Seq[Expression],
+    parameters:         Seq[Parameter],
+    exprs:              Seq[Expression],
     checkWithImplicits: Boolean
   ): ConstraintsResult = {
     val r = checkConformanceExt(
@@ -242,24 +242,24 @@ object Compatibility {
     else                     r.constraints
   }
 
-  def clashedAssignmentsIn(exprs: collection.Seq[Expression]): collection.Seq[ScAssignment] = {
+  def clashedAssignmentsIn(exprs: Seq[Expression]): Seq[ScAssignment] = {
     val pairs = for(Expression(assignment @ ScAssignment.Named(name)) <- exprs) yield (name, assignment)
     val names = pairs.map(_._1)
     val clashedNames = names.diff(names.distinct)
     pairs.filter(p => clashedNames.contains(p._1)).map(_._2)
   }
 
-  case class ConformanceExtResult(problems: collection.Seq[ApplicabilityProblem],
+  case class ConformanceExtResult(problems: Seq[ApplicabilityProblem],
                                   constraints: ConstraintSystem,
                                   defaultParameterUsed: Boolean = false,
-                                  matched: collection.Seq[(Parameter, ScExpression, ScType)] = collection.Seq())
+                                  matched: Seq[(Parameter, ScExpression, ScType)] = Seq.empty)
 
   object ConformanceExtResult {
-    def apply(problems: collection.Seq[ApplicabilityProblem])(implicit project: ProjectContext): ConformanceExtResult =
+    def apply(problems: Seq[ApplicabilityProblem])(implicit project: ProjectContext): ConformanceExtResult =
       ConformanceExtResult(problems, ConstraintSystem.empty)
   }
 
-  def collectSimpleProblems(exprs: collection.Seq[Expression], parameters: collection.Seq[Parameter]): collection.Seq[ApplicabilityProblem] = {
+  def collectSimpleProblems(exprs: Seq[Expression], parameters: Seq[Parameter]): Seq[ApplicabilityProblem] = {
     val problems = Seq.newBuilder[ApplicabilityProblem]
 
     exprs.foldLeft(parameters) { (parameters, expression) =>
@@ -281,8 +281,8 @@ object Compatibility {
   }
 
   def checkConformanceExt(
-    parameters:         collection.Seq[Parameter],
-    exprs:              collection.Seq[Expression],
+    parameters:         Seq[Parameter],
+    exprs:              Seq[Expression],
     checkWithImplicits: Boolean,
     isShapesResolve:    Boolean
   ): ConformanceExtResult = {
@@ -314,7 +314,7 @@ object Compatibility {
 
     if (parameters.isEmpty) {
       assert(exprs.isEmpty, "Empty exprs should have been handled by the excess check above")
-      return ConformanceExtResult(collection.Seq.empty, constraintAccumulator)
+      return ConformanceExtResult(Seq.empty, constraintAccumulator)
     }
 
     var k = 0
@@ -528,17 +528,17 @@ object Compatibility {
   def compatible(
     named:              PsiNamedElement,
     substitutor:        ScSubstitutor,
-    argClauses:         List[collection.Seq[Expression]],
+    argClauses:         List[Seq[Expression]],
     checkWithImplicits: Boolean,
     isShapesResolve:    Boolean,
     ref:                PsiElement = null
   )(implicit
     project: ProjectContext
   ): ConformanceExtResult = {
-    def checkParameterListConformance(parameters: collection.Seq[Parameter], arguments: collection.Seq[Expression]) =
+    def checkParameterListConformance(parameters: Seq[Parameter], arguments: Seq[Expression]) =
       checkConformanceExt(parameters, arguments, checkWithImplicits, isShapesResolve)
 
-    val firstArgumentListArgs: collection.Seq[Expression] = argClauses.headOption.getOrElse(Seq.empty)
+    val firstArgumentListArgs: Seq[Expression] = argClauses.headOption.getOrElse(Seq.empty)
 
     named match {
       case synthetic: ScSyntheticFunction =>
@@ -591,8 +591,8 @@ object Compatibility {
 
   def checkConstructorConformance(constrInvocation: ConstructorInvocationLike,
                                   substitutor: ScSubstitutor,
-                                  argClauses: collection.Seq[ScArgumentExprList],
-                                  paramClauses: collection.Seq[ScParameterClause])
+                                  argClauses: Seq[ScArgumentExprList],
+                                  paramClauses: Seq[ScParameterClause])
                                  (implicit project: ProjectContext): ConformanceExtResult = {
 
     // a first empty argument clause might lack
@@ -644,8 +644,8 @@ object Compatibility {
     else result.copy(problems = result.problems ++ missedParameterClauseProblems)
   }
 
-  def missedParameterClauseProblemsFor(paramClauses: collection.Seq[ScParameterClause],
-                                       argClauseCount: Int): collection.Seq[MissedParametersClause] = {
+  def missedParameterClauseProblemsFor(paramClauses: Seq[ScParameterClause],
+                                       argClauseCount: Int): Seq[MissedParametersClause] = {
     var minParamClauses = paramClauses.length
 
     val hasImplicitClause = paramClauses.lastOption.exists(_.isImplicit)

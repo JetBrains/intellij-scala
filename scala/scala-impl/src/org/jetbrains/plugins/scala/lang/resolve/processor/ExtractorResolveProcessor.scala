@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateEx
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 
-import scala.collection.{Set, mutable}
+import scala.collection.mutable
 
 class ExtractorResolveProcessor(ref: ScReference,
                                 refName: String,
@@ -82,7 +82,7 @@ class ExtractorResolveProcessor(ref: ScReference,
   }
 
   override def candidatesS: Set[ScalaResolveResult] = {
-    val candidates: Set[ScalaResolveResult] = super.candidatesS
+    val candidates = super.candidatesS
     expected match {
       case Some(tp) =>
         def isApplicable(r: ScalaResolveResult): Boolean = {
@@ -104,7 +104,7 @@ class ExtractorResolveProcessor(ref: ScReference,
         if (filtered.isEmpty)        candidates
         else if (filtered.size == 1) filtered
         else MostSpecificUtil(ref, 1).mostSpecificForResolveResult(filtered, expandInnerResult = false) match {
-          case Some(r) => mutable.HashSet(r)
+          case Some(r) => Set(r)
           case None    => candidates
         }
       case _ => candidates

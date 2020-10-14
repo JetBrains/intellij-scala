@@ -40,23 +40,23 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     *
     * @return seq of application problems
     */
-  def applicationProblems: collection.Seq[ApplicabilityProblem] = collection.Seq.empty
+  def applicationProblems: Seq[ApplicabilityProblem] = Seq.empty
 
   /**
     * @return map of expressions and parameters
     */
-  override def matchedParameters: collection.Seq[(ScExpression, Parameter)] = matchedParametersInner.collect {
+  override def matchedParameters: Seq[(ScExpression, Parameter)] = matchedParametersInner.collect {
     case (parameter, expression, _) if expression != null => expression -> parameter // todo: catch when expression is null
   }
 
-  protected def matchedParametersInner: collection.Seq[(Parameter, ScExpression, ScType)]
+  protected def matchedParametersInner: Seq[(Parameter, ScExpression, ScType)]
 
   /**
     * In case if invoked expression converted implicitly to invoke apply or update method
     *
     * @return imports used for implicit conversion
     */
-  def getImportsUsed: collection.Set[ImportUsed]
+  def getImportsUsed: Set[ImportUsed]
 
   /**
     * In case if invoked expression converted implicitly to invoke apply or update method
@@ -88,7 +88,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
 object MethodInvocation {
 
-  def unapply(methodInvocation: MethodInvocation): Option[(ScExpression, collection.Seq[ScExpression])] =
+  def unapply(methodInvocation: MethodInvocation): Option[(ScExpression, Seq[ScExpression])] =
     for {
       invocation <- Option(methodInvocation)
       expression = invocation.getInvokedExpr
@@ -98,7 +98,7 @@ object MethodInvocation {
   /**
     * @return map of expressions and parameters
     */
-  def matchedParametersMap(methodInvocation: MethodInvocation): Map[Parameter, collection.Seq[ScExpression]] =
+  def matchedParametersMap(methodInvocation: MethodInvocation): Map[Parameter, Seq[ScExpression]] =
     methodInvocation.matchedParametersInner
       .groupBy(_._1)
       .map { pair =>

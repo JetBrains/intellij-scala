@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 
+import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
@@ -255,7 +256,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
       tp.getExtendsListTypes match {
         case Array() => api.Any
         case Array(head) => convertBound(head)
-        case components => ScCompoundType(components.map(convertBound))
+        case components => ScCompoundType(ArraySeq.unsafeWrapArray(components.map(convertBound)))
       }
     }
 

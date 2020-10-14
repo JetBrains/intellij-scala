@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.SAMUtil
 
 import scala.annotation.tailrec
-import scala.collection.compat.immutable.ArraySeq
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable.ArrayBuffer
 import scala.util.control.ControlThrowable
 
@@ -73,11 +73,11 @@ object InferUtil {
     * @return updated type and sequence of implicit parameters
     */
   def updateTypeWithImplicitParameters(res: ScType, element: PsiElement, coreElement: Option[ScNamedElement], canThrowSCE: Boolean,
-                                       searchImplicitsRecursively: Int = 0, fullInfo: Boolean): (ScType, Option[collection.Seq[ScalaResolveResult]]) = {
+                                       searchImplicitsRecursively: Int = 0, fullInfo: Boolean): (ScType, Option[Seq[ScalaResolveResult]]) = {
     implicit val ctx: ProjectContext = element
 
     var resInner = res
-    var implicitParameters: Option[collection.Seq[ScalaResolveResult]] = None
+    var implicitParameters: Option[Seq[ScalaResolveResult]] = None
     res match {
       case t@ScTypePolymorphicType(mt@ScMethodType(retType, _, isImplicit), _) if !isImplicit =>
         // See SCL-3516
@@ -154,13 +154,13 @@ object InferUtil {
 
 
   def findImplicits(
-    params:                     collection.Seq[Parameter],
+    params:                     Seq[Parameter],
     coreElement:                Option[ScNamedElement],
     place:                      PsiElement,
     canThrowSCE:                Boolean,
     searchImplicitsRecursively: Int = 0,
     abstractSubstitutor:        ScSubstitutor = ScSubstitutor.empty
-  ): (collection.Seq[Parameter], collection.Seq[Compatibility.Expression], collection.Seq[ScalaResolveResult]) = {
+  ): (Seq[Parameter], Seq[Compatibility.Expression], Seq[ScalaResolveResult]) = {
 
     implicit val project: ProjectContext = place.getProject
 
@@ -344,7 +344,7 @@ object InferUtil {
       case _                                                                     => _nonValueType
     }
 
-    if (!expr.isInstanceOf[ScExpression]) return nonValueType
+    if (!expr.is[ScExpression]) return nonValueType
 
     // interim fix for SCL-3905.
     def applyImplicitViewToResult(mt: ScMethodType, expectedType: Option[ScType], fromSAM: Boolean = false,
@@ -463,9 +463,9 @@ object InferUtil {
 
   def localTypeInference(
     retType:                  ScType,
-    params:                   collection.Seq[Parameter],
-    exprs:                    collection.Seq[Expression],
-    typeParams:               collection.Seq[TypeParameter],
+    params:                   Seq[Parameter],
+    exprs:                    Seq[Expression],
+    typeParams:               Seq[TypeParameter],
     shouldUndefineParameters: Boolean = true,
     canThrowSCE:              Boolean = false,
     filterTypeParams:         Boolean = true
@@ -484,9 +484,9 @@ object InferUtil {
 
   def localTypeInferenceWithApplicabilityExt(
     retType:                  ScType,
-    params:                   collection.Seq[Parameter],
-    exprs:                    collection.Seq[Expression],
-    typeParams:               collection.Seq[TypeParameter],
+    params:                   Seq[Parameter],
+    exprs:                    Seq[Expression],
+    typeParams:               Seq[TypeParameter],
     shouldUndefineParameters: Boolean = true,
     canThrowSCE:              Boolean = false,
     filterTypeParams:         Boolean = true,

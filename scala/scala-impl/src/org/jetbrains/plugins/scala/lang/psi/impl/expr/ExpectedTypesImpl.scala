@@ -126,7 +126,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
   case class FunctionLikeTpe(
     marker:    FunctionTypeMarker,
     resTpe:    ScType,
-    paramTpes: collection.Seq[ScType],
+    paramTpes: Seq[ScType],
     fromTpe:   ScType
   ) {
     def instantiate(implicit scope: ElementScope): ScType = marker match {
@@ -504,13 +504,13 @@ class ExpectedTypesImpl extends ExpectedTypes {
   @tailrec
   private def computeExpectedParamType(expr: ScExpression,
                                        invokedExprType: TypeResult,
-                                       argExprs: collection.Seq[ScExpression],
+                                       argExprs: Seq[ScExpression],
                                        idx: Int,
                                        call: Option[MethodInvocation] = None,
                                        forApply: Boolean = false,
                                        isDynamicNamed: Boolean = false): Option[ParameterType] = {
 
-    def fromMethodTypeParams(params: collection.Seq[Parameter], subst: ScSubstitutor = ScSubstitutor.empty): Option[ParameterType] = {
+    def fromMethodTypeParams(params: Seq[Parameter], subst: ScSubstitutor = ScSubstitutor.empty): Option[ParameterType] = {
       val newParams =
         if (subst.isEmpty) params
         else
@@ -534,7 +534,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     }
 
     //returns properly substituted method type of `apply` method invocation and whether it's apply dynamic named
-    def tryApplyMethod(internalType: ScType, typeParams: collection.Seq[TypeParameter]): Option[(TypeResult, Boolean)] = {
+    def tryApplyMethod(internalType: ScType, typeParams: Seq[TypeParameter]): Option[(TypeResult, Boolean)] = {
       call.getOrElse(expr).shapeResolveApplyMethod(internalType, argExprs, call) match {
         case Array(r@ScalaResolveResult(fun: ScFunction, s)) =>
 

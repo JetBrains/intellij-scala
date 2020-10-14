@@ -11,13 +11,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 
-import scala.collection.Set
-
 /**
   * User: Alexander Podkhalyuzin
   * Date: 30.04.2010
   */
-class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: List[collection.Seq[Expression]],
+class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: List[Seq[Expression]],
                                   typeArgs: Seq[ScTypeElement], kinds: Set[ResolveTargets.Value],
                                   shapeResolve: Boolean, allConstructors: Boolean)
   extends MethodResolveProcessor(constr, refName, args, typeArgs, Seq.empty, kinds,
@@ -45,14 +43,14 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
           (_, substitutor, Some(namedElement))
         }
 
-      def orDefault(tuples: collection.Seq[(PsiNamedElement, ScSubstitutor, Option[PsiNamedElement])] = Seq.empty)
-      : collection.Seq[(PsiNamedElement, ScSubstitutor, Option[PsiNamedElement])] =
+      def orDefault(tuples: Seq[(PsiNamedElement, ScSubstitutor, Option[PsiNamedElement])] = Seq.empty
+                   ): Seq[(PsiNamedElement, ScSubstitutor, Option[PsiNamedElement])] =
         tuples match {
-          case collection.Seq() => Seq((namedElement, defaultSubstitutor, None))
+          case Seq() => Seq((namedElement, defaultSubstitutor, None))
         case seq => seq
       }
 
-      val tuples: collection.Seq[(PsiNamedElement, ScSubstitutor, Option[PsiNamedElement])] = namedElement match {
+      val tuples = namedElement match {
         case clazz: PsiClass =>
           orDefault(constructors(clazz, defaultSubstitutor))
         case _: ScTypeAliasDeclaration =>

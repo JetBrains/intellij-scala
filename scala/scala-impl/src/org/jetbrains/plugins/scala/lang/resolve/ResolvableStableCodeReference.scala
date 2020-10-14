@@ -7,8 +7,6 @@ import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 
-import scala.collection.Set
-
 trait ResolvableStableCodeReference
 
 object ResolvableStableCodeReference {

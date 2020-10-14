@@ -9,5 +9,5 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 trait ScFun extends ScTypeParametersOwner {
   def retType: ScType
 
-  def paramClauses: collection.Seq[collection.Seq[Parameter]]
+  def paramClauses: Seq[Seq[Parameter]]
 }

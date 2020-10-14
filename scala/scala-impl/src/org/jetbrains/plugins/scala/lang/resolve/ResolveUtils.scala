@@ -136,7 +136,7 @@ object ResolveUtils {
       }
       var placeTd: ScTemplateDefinition = getPlaceTd(place, isConstr)
       if (isConstr) {
-        if (placeTd != null && !placeTd.isInstanceOf[ScTypeDefinition] && placeTd.extendsBlock.templateBody.isEmpty) {
+        if (placeTd != null && !placeTd.is[ScTypeDefinition] && placeTd.extendsBlock.templateBody.isEmpty) {
           placeTd = getPlaceTd(placeTd)
         } else if (placeTd != null) {
           if (td != null && isInheritorOrSelfOrSame(placeTd, td)) return true
@@ -205,7 +205,7 @@ object ResolveUtils {
                     getContextOfType(place, true, classOf[ScPackaging],
                       classOf[ScObject], classOf[ScalaFile])
                   var placeEnclosing: PsiElement = context(place)
-                  while (placeEnclosing != null && placeEnclosing.isInstanceOf[ScObject] &&
+                  while (placeEnclosing != null && placeEnclosing.is[ScObject] &&
                            !placeEnclosing.asInstanceOf[ScObject].isPackageObject)
                     placeEnclosing = context(placeEnclosing)
                   if (placeEnclosing == null) return false //not Scala
@@ -271,7 +271,7 @@ object ResolveUtils {
                     getContextOfType(place, true, classOf[ScPackaging],
                       classOf[ScObject], classOf[ScalaFile])
                   var placeEnclosing: PsiElement = context(place)
-                  while (placeEnclosing != null && placeEnclosing.isInstanceOf[ScObject] &&
+                  while (placeEnclosing != null && placeEnclosing.is[ScObject] &&
                            !placeEnclosing.asInstanceOf[ScObject].isPackageObject)
                     placeEnclosing = context(placeEnclosing)
                   if (placeEnclosing == null) return Some(false) //not Scala
@@ -444,7 +444,7 @@ object ResolveUtils {
     @CachedWithRecursionGuard(expr, Array.empty[ScalaResolveResult], BlockModificationTracker(expr))
     def shapeResolveApplyMethod(
       tp:    ScType,
-      exprs: collection.Seq[ScExpression],
+      exprs: Seq[ScExpression],
       call:  Option[MethodInvocation]
     ): Array[ScalaResolveResult] = {
       val applyProc =

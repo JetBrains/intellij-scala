@@ -22,8 +22,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.{isIdent
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
-import scala.collection.Set
-
 /**
  * @author Alexander Podkhalyuzin
  * Date: 22.02.2008

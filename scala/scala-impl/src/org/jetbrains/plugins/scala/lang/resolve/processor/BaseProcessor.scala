@@ -27,8 +27,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateEx
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor.RecursionState
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.collection.Set
-
 object BaseProcessor {
   def unapply(p: BaseProcessor): Some[Set[ResolveTargets.Value]] = Some(p.kinds)
 

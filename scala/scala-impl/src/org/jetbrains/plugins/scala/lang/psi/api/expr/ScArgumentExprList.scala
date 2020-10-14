@@ -5,6 +5,7 @@ package api
 package expr
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -55,7 +56,7 @@ trait ScArgumentExprList extends ScArguments {
    * Mapping from argument expressions to corresponding parameters, as found during
    * applicability checking.
    */
-  def matchedParameters: collection.Seq[(ScExpression, Parameter)]
+  def matchedParameters: Seq[(ScExpression, Parameter)]
 
   def isUsing: Boolean
 
@@ -64,7 +65,7 @@ trait ScArgumentExprList extends ScArguments {
   def missedLastExpr: Boolean = {
     var child = getLastChild
     while (child != null && child.getNode.getElementType != ScalaTokenTypes.tCOMMA) {
-      if (child.isInstanceOf[ScExpression]) return false
+      if (child.is[ScExpression]) return false
       child = child.getPrevSibling
     }
     child != null && child.getNode.getElementType == ScalaTokenTypes.tCOMMA

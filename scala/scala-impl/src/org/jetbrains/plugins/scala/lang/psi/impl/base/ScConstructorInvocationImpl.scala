@@ -49,7 +49,7 @@ class ScConstructorInvocationImpl(node: ASTNode)
   override def args: Option[ScArgumentExprList] =
     findChild(classOf[ScArgumentExprList])
 
-  override def arguments: collection.Seq[ScArgumentExprList] =
+  override def arguments: Seq[ScArgumentExprList] =
     Seq(findChildrenByClassScala(classOf[ScArgumentExprList]).toSeq: _*)
 
   override protected def updateImplicitArguments(): Unit =
@@ -126,7 +126,7 @@ class ScConstructorInvocationImpl(node: ASTNode)
           val methodType = method.methodTypeProvider(elementScope).methodType(Some(tp))
           subst(methodType)
       }
-      val typeParameters: collection.Seq[TypeParameter] = r.getActualElement match {
+      val typeParameters = r.getActualElement match {
         case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>
           tp.typeParameters.map(TypeParameter(_))
         case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.nonEmpty =>

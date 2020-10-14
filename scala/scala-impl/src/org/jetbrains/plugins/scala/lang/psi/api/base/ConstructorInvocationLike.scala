@@ -11,5 +11,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScArgumentExprList
 trait ConstructorInvocationLike extends PsiElement with ImplicitArgumentsOwner {
   def typeArgList: Option[ScTypeArgs]
 
-  def arguments: collection.Seq[ScArgumentExprList]
+  def arguments: Seq[ScArgumentExprList]
 }

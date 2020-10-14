@@ -50,9 +50,9 @@ class ScInfixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScI
                 Right(ScLiteralType(value)(synth.getProject))
               }
           case (Some(ScProjectionType(_, element: Typeable)), _) =>
-            foldConstTypes(element.`type`().toOption.filter(_.isInstanceOf[ScLiteralType]), right)
+            foldConstTypes(element.`type`().toOption.filter(_.is[ScLiteralType]), right)
           case (_, Some(ScProjectionType(_, element: Typeable))) =>
-            foldConstTypes(left, element.`type`().toOption.filter(_.isInstanceOf[ScLiteralType]))
+            foldConstTypes(left, element.`type`().toOption.filter(_.is[ScLiteralType]))
           case _ => super.innerType
         }
 

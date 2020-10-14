@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.collection.immutable.ArraySeq
-import scala.collection.mutable
 import scala.util.control.ControlThrowable
 
 /**
@@ -86,11 +85,11 @@ object SyntheticMembersInjector {
   private val LOG: Logger = Logger.getInstance(getClass)
 
 
-  def inject(source: ScTypeDefinition): collection.Seq[ScFunction] = {
+  def inject(source: ScTypeDefinition): Seq[ScFunction] = {
     if (!source.isValid) return Seq.empty
 
     implicit val ctx: Project = source.getProject
-    val builder = mutable.ArraySeq.newBuilder[ScFunction]
+    val builder = ArraySeq.newBuilder[ScFunction]
 
     for {
       injector <- implementations
@@ -114,7 +113,7 @@ object SyntheticMembersInjector {
     builder.result()
   }
 
-  def injectInners(source: ScTypeDefinition): collection.Seq[ScTypeDefinition] = {
+  def injectInners(source: ScTypeDefinition): Seq[ScTypeDefinition] = {
     if (!source.isValid) return Seq.empty
 
     val builder = ArraySeq.newBuilder[ScTypeDefinition]
@@ -147,7 +146,7 @@ object SyntheticMembersInjector {
     (EP_NAME.getExtensions ++ DYN_EP.getExtensions).exists(_.needsCompanionObject(source))
   }
 
-  def injectSupers(source: ScTypeDefinition): collection.Seq[ScTypeElement] = {
+  def injectSupers(source: ScTypeDefinition): Seq[ScTypeElement] = {
     if (!source.isValid) return Seq.empty
 
     val builder = Seq.newBuilder[ScTypeElement]
@@ -169,7 +168,7 @@ object SyntheticMembersInjector {
     builder.result()
   }
 
-  def injectMembers(source: ScTypeDefinition): collection.Seq[ScMember] = {
+  def injectMembers(source: ScTypeDefinition): Seq[ScMember] = {
     if (!source.isValid) return Seq.empty
 
     val builder = ArraySeq.newBuilder[ScMember]

@@ -292,7 +292,7 @@ class ImplicitCollector(place: PsiElement,
     }
   }
 
-  private def inferValueType(tp: ScType): (ScType, collection.Seq[TypeParameter]) = {
+  private def inferValueType(tp: ScType): (ScType, Seq[TypeParameter]) = {
     if (isExtensionConversion) {
       tp match {
         case ScTypePolymorphicType(internalType, typeParams) =>
@@ -333,7 +333,7 @@ class ImplicitCollector(place: PsiElement,
       Some(c.copy(problems = Seq(WrongTypeParameterInferred), implicitReason = result))
     }
 
-    def reportParamNotFoundResult(implicitParams: collection.Seq[ScalaResolveResult]): Option[ScalaResolveResult] = {
+    def reportParamNotFoundResult(implicitParams: Seq[ScalaResolveResult]): Option[ScalaResolveResult] = {
       reportWrong(c.copy(implicitParameters = implicitParams), ImplicitParameterNotFoundResult)
     }
 
@@ -349,7 +349,7 @@ class ImplicitCollector(place: PsiElement,
 
     def fullResult(
       resType:          ScType,
-      implicitParams:   collection.Seq[ScalaResolveResult],
+      implicitParams:   Seq[ScalaResolveResult],
       checkConformance: Boolean = false
     ): Option[ScalaResolveResult] = {
       val (valueType, typeParams) = inferValueType(resType)

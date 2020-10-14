@@ -116,7 +116,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
       case (m1 @ (_: PsiMethod | _: ScFun), m2 @ (_: PsiMethod | _: ScFun)) =>
         val (t1, t2) = (r1.substitutor(getType(m1, r1.implicitCase)), r2.substitutor(getType(m2, r2.implicitCase)))
 
-        def calcParams(tp: ScType, undefine: Boolean): Either[collection.Seq[Parameter], ScType] = {
+        def calcParams(tp: ScType, undefine: Boolean): Either[Seq[Parameter], ScType] = {
           tp match {
             case ScMethodType(_, params, _) => Left(params)
             case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) =>
@@ -167,8 +167,8 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
               val i: Int = if (params1.nonEmpty) 0.max(length - params1.length) else 0
               val default: Expression =
                 Expression(if (params1.nonEmpty) params1.last.paramType else Nothing, elem)
-              val exprs: collection.Seq[Expression] = params1.map(p => Expression(p.paramType, elem)) ++
-                      Seq.fill(i)(default)
+              val exprs =
+                params1.map(p => Expression(p.paramType, elem)) ++ Seq.fill(i)(default)
               Compatibility.checkConformance(params2, exprs, checkImplicits)
             case (Right(type1), Right(type2)) =>
               type1.conforms(type2, ConstraintSystem.empty) //todo: with implcits?

@@ -7,6 +7,7 @@ package expr
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil.kindProjectorPolymorphicLambdaType
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -37,10 +38,10 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
       case call: ScMethodCall => call
       case _ => this
     }
-    val isUpdate = curr.getContext.isInstanceOf[ScAssignment] &&
+    val isUpdate = curr.getContext.is[ScAssignment] &&
       curr.getContext.asInstanceOf[ScAssignment].leftExpression == curr
     val methodName = if (isUpdate) "update" else "apply"
-    val args: List[collection.Seq[ScExpression]] =
+    val args =
       if (curr == this && !isUpdate) List.empty
       else {
         (curr match {
@@ -48,7 +49,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
           case _ => Seq.empty[ScExpression]
         }) ++ (
           if (isUpdate) curr.getContext.asInstanceOf[ScAssignment].rightExpression match {
-            case Some(x) => Seq[ScExpression](x)
+            case Some(x) => Seq(x)
             case None =>
               Seq[ScExpression](createExpressionFromText("{val x: Nothing = null; x}"))
             //we can't to not add something => add Nothing expression

@@ -15,17 +15,17 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 trait ConstructorInvocationLikeImpl extends ConstructorInvocationLike {
-  override def matchedParameters: collection.Seq[(ScExpression, Parameter)] = matchedParametersByClauses.flatten
+  override def matchedParameters: Seq[(ScExpression, Parameter)] = matchedParametersByClauses.flatten
 
   @Nullable
   protected def resolveConstructor(): PsiElement
 
   @Cached(BlockModificationTracker(this), this)
-  def matchedParametersByClauses: collection.Seq[collection.Seq[(ScExpression, Parameter)]] = {
+  def matchedParametersByClauses: Seq[Seq[(ScExpression, Parameter)]] = {
     val paramClauses = resolveConstructor() match {
       case ScalaConstructor(constr) => constr.effectiveParameterClauses.map(_.effectiveParameters)
-      case JavaConstructor(constr)  => collection.Seq(constr.parameters)
-      case _                        => collection.Seq.empty
+      case JavaConstructor(constr)  => Seq(constr.parameters)
+      case _                        => Seq.empty
     }
     (for {
       (paramClause, argList) <- paramClauses.zip(arguments)

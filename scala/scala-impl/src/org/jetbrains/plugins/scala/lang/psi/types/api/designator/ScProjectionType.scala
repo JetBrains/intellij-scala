@@ -104,7 +104,7 @@ final class ScProjectionType private(val projected: ScType,
     }
 
     import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
-    def processType(kinds: collection.Set[ResolveTargets.Value] = ValueSet(CLASS)): Option[(PsiNamedElement, ScSubstitutor)] = {
+    def processType(kinds: Set[ResolveTargets.Value] = ValueSet(CLASS)): Option[(PsiNamedElement, ScSubstitutor)] = {
       def elementClazz: Option[PsiClass] = element match {
         case named: ScBindingPattern => Option(named.containingClass)
         case member: ScMember => Option(member.containingClass)

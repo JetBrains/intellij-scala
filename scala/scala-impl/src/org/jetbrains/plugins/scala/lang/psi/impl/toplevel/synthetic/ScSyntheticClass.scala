@@ -150,7 +150,10 @@ sealed class ScSyntheticClass(val className: String, val stdType: StdType)
   }
 }
 
-class ScSyntheticFunction(val name: String, override val retType: ScType, override val paramClauses: collection.Seq[collection.Seq[Parameter]], typeParameterNames: Seq[String])
+class ScSyntheticFunction(val name: String,
+                          override val retType: ScType,
+                          override val paramClauses: Seq[Seq[Parameter]],
+                          typeParameterNames: Seq[String])
                          (implicit projectContext: ProjectContext)
   extends SyntheticNamedElement(name) with ScFun {
   def isStringPlusMethod: Boolean = {

@@ -4,12 +4,13 @@ package psi
 package types
 package nonvalue
 
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScGenericCall, ScMethodCall, ScReferenceExpression, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 import scala.annotation.tailrec
 
-final case class ScMethodType(result: ScType, params: collection.Seq[Parameter], isImplicit: Boolean)
+final case class ScMethodType(result: ScType, params: Seq[Parameter], isImplicit: Boolean)
                              (implicit val elementScope: ElementScope) extends NonValueType {
 
   override implicit def projectContext: project.ProjectContext = elementScope.projectContext
@@ -53,8 +54,8 @@ object ScMethodType {
   // A safe & simple workaround for https://youtrack.jetbrains.com/issue/SCL-16431 and https://youtrack.jetbrains.com/issue/SCL-15354
   // TODO Actually infer method types
   @tailrec def hasMethodType(e: ScExpression): Boolean = e match {
-    case r: ScReferenceExpression => r.bind().exists(_.problems.exists(_.isInstanceOf[MissedParametersClause]))
-    case call: ScMethodCall if !call.getParent.isInstanceOf[ScUnderscoreSection] => call.deepestInvokedExpr match {
+    case r: ScReferenceExpression => r.bind().exists(_.problems.exists(_.is[MissedParametersClause]))
+    case call: ScMethodCall if !call.getParent.is[ScUnderscoreSection] => call.deepestInvokedExpr match {
       case method: ScReferenceExpression => method.bind().map(_.element) match {
         case Some(definition: ScFunctionDefinition) =>
           definition.paramClauses.clauses.takeWhile(!_.isImplicit).length > call.argumentListCount
@@ -62,7 +63,7 @@ object ScMethodType {
       }
       case _ => false
     }
-    case i: MethodInvocation => i.applicationProblems.exists(_.isInstanceOf[MissedValueParameter]) // Infix Expression
+    case i: MethodInvocation => i.applicationProblems.exists(_.is[MissedValueParameter]) // Infix Expression
     case c: ScGenericCall => hasMethodType(c.referencedExpr)
     case _ => false
   }

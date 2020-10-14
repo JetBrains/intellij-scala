@@ -8,7 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -56,12 +56,12 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
   private def multiResolveInternal(shapeResolve: Boolean): Array[ScalaResolveResult] = {
     val psiClass = PsiTreeUtil.getContextOfType(this, classOf[PsiClass])
     if (psiClass == null) return Array.empty
-    if (!psiClass.isInstanceOf[ScClass]) return Array.empty
+    if (!psiClass.is[ScClass]) return Array.empty
     val clazz = psiClass.asInstanceOf[ScClass]
     val method = PsiTreeUtil.getContextOfType(this, classOf[ScFunction])
     if (method == null) return Array.empty
 
-    val expressions: collection.Seq[Expression] = args match {
+    val expressions: Seq[Expression] = args match {
       case Some(arguments) => arguments.exprs
       case None            => Seq.empty
     }

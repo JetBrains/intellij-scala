@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 
+import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 
 /**
@@ -54,9 +55,9 @@ trait PsiTypeBridge {
     case wildcardType: PsiCapturedWildcardType =>
       toScTypeInner(wildcardType.getWildcard, paramTopLevel, treatJavaObjectAsAny, rawExistentialArguments)
     case intersectionType: PsiIntersectionType =>
-      typeSystem.andType(intersectionType.getConjuncts.map {
+      typeSystem.andType(ArraySeq.unsafeWrapArray(intersectionType.getConjuncts.map {
         toScTypeInner(_, paramTopLevel, treatJavaObjectAsAny, rawExistentialArguments)
-      })
+      }))
     case _ => throw new IllegalArgumentException(s"psi type $psiType should not be converted to ${typeSystem.name} type")
   }
 

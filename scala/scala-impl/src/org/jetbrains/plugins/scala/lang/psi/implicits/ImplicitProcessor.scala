@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResul
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
-import scala.collection.{Set, mutable}
+import scala.collection.mutable
 
 /**
   * @author Alexander Podkhalyuzin
@@ -164,7 +164,7 @@ object ImplicitProcessor {
 
 
   private def findImplicitObjects(`type`: ScType, scope: GlobalSearchScope)
-                                 (implicit context: ProjectContext): collection.Seq[ScType] = {
+                                 (implicit context: ProjectContext): Seq[ScType] = {
     val implicitObjectsCache = ScalaPsiManager.instance.collectImplicitObjectsCache
     val cacheKey = (`type`, scope)
 

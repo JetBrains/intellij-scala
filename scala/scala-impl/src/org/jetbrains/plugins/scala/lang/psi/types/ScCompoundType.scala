@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
 final case class ScCompoundType private (
-  components:   collection.Seq[ScType],
+  components:   Seq[ScType],
   signatureMap: Map[TermSignature, ScType]      = Map.empty,
   typesMap:     Map[String, TypeAliasSignature] = Map.empty
 )(implicit
@@ -123,7 +123,7 @@ final case class ScCompoundType private (
 
 object ScCompoundType {
   def apply(
-    components:   collection.Seq[ScType],
+    components:   Seq[ScType],
     signatureMap: Map[TermSignature, ScType]      = Map.empty,
     typesMap:     Map[String, TypeAliasSignature] = Map.empty
   )(implicit projectContext: ProjectContext): ScCompoundType = {

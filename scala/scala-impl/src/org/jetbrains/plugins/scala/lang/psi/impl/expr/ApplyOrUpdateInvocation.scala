@@ -22,11 +22,11 @@ import scala.collection.Set
 
 //data collected to resolve update/apply/dynamic calls
 case class ApplyOrUpdateInvocation(call: MethodInvocation,
-                                   argClauses: List[collection.Seq[Expression]],
+                                   argClauses: List[Seq[Expression]],
                                    baseExpr: ScExpression,
                                    baseExprType: ScType,
-                                   typeArgs: collection.Seq[ScTypeElement],
-                                   typeParams: collection.Seq[TypeParameter],
+                                   typeArgs: Seq[ScTypeElement],
+                                   typeParams: Seq[TypeParameter],
                                    isDynamic: Boolean) {
 
   def collectCandidates(isShape: Boolean): Array[ScalaResolveResult] = {
@@ -114,7 +114,7 @@ object ApplyOrUpdateInvocation {
     ApplyOrUpdateInvocation(call, argClauses, baseExpr, baseExprType, typeArgs, typeParams, isDynamic)
   }
 
-  private def argumentClauses(call: MethodInvocation, isDynamic: Boolean): List[collection.Seq[Expression]] = {
+  private def argumentClauses(call: MethodInvocation, isDynamic: Boolean): List[Seq[Expression]] = {
     import call.projectContext
 
     val newValueForUpdate = call.getContext match {
@@ -125,7 +125,7 @@ object ApplyOrUpdateInvocation {
       case _ =>
         Seq.empty
     }
-    val arguments: collection.Seq[Expression] = call.argumentExpressions ++ newValueForUpdate
+    val arguments = call.argumentExpressions ++ newValueForUpdate
 
     if (!isDynamic) List(arguments)
     else {

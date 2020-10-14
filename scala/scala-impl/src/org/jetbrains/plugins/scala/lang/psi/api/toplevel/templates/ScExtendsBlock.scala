@@ -18,13 +18,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 trait ScExtendsBlock extends ScalaPsiElement {
 
-  def members : collection.Seq[ScMember]
+  def members : Seq[ScMember]
 
-  def functions: collection.Seq[ScFunction]
+  def functions: Seq[ScFunction]
 
-  def properties: collection.Seq[ScValueOrVariable]
+  def properties: Seq[ScValueOrVariable]
 
-  def aliases: collection.Seq[ScTypeAlias]
+  def aliases: Seq[ScTypeAlias]
 
   def templateBody: Option[ScTemplateBody]
 
@@ -39,11 +39,11 @@ trait ScExtendsBlock extends ScalaPsiElement {
 
   def earlyDefinitions: Option[ScEarlyDefinitions]
 
-  def typeDefinitions : collection.Seq[ScTypeDefinition]
+  def typeDefinitions : Seq[ScTypeDefinition]
 
   def superTypes : List[ScType]
 
-  def supers : collection.Seq[PsiClass]
+  def supers : Seq[PsiClass]
 
   def isAnonymousClass: Boolean
 

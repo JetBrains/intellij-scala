@@ -64,7 +64,7 @@ trait ScReferenceExpression extends ScExpression
 
   def bindToElement(element: PsiElement, containingClass: Option[PsiClass]): PsiElement
 
-  def getPrevTypeInfoParams: collection.Seq[TypeParameter]
+  def getPrevTypeInfoParams: Seq[TypeParameter]
 }
 
 object ScReferenceExpression {

@@ -36,7 +36,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 
   override protected def innerType: TypeResult = innerTypeExt.typeResult
 
-  override def applicationProblems: collection.Seq[ApplicabilityProblem] = innerTypeExt match {
+  override def applicationProblems: Seq[ApplicabilityProblem] = innerTypeExt match {
     case RegularCase(_, problems, _)                           => problems
     case SyntheticCase(RegularCase(_, problems, _), _, _)      => problems
     case FailureCase(_, problems) if problems.nonEmpty         => problems
@@ -44,13 +44,13 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
     case _                                                     => Seq.empty
   }
 
-  override protected def matchedParametersInner: collection.Seq[(Parameter, ScExpression, ScType)] = innerTypeExt match {
+  override protected def matchedParametersInner: Seq[(Parameter, ScExpression, ScType)] = innerTypeExt match {
     case RegularCase(_, _, matched) => matched
     case SyntheticCase(RegularCase(_, _, matched), _, _) => matched
     case _ => Seq.empty
   }
 
-  override final def getImportsUsed: collection.Set[ImportUsed] = innerTypeExt match {
+  override final def getImportsUsed: Set[ImportUsed] = innerTypeExt match {
     case syntheticCase: SyntheticCase => syntheticCase.resolveResult.importsUsed
     case _ => Set.empty
   }
@@ -126,9 +126,9 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
     }
   }
 
-  private def tuplizyCase(expressions: collection.Seq[Expression])
-                         (function: collection.Seq[Expression] => (ScType, ConformanceExtResult)): RegularCase = {
-    def asRegularCase(expressions: collection.Seq[Expression]) = {
+  private def tuplizyCase(expressions: Seq[Expression])
+                         (function: Seq[Expression] => (ScType, ConformanceExtResult)): RegularCase = {
+    def asRegularCase(expressions: Seq[Expression]) = {
       val (tp, ConformanceExtResult(problems, _, _, matched)) = function(expressions)
       RegularCase(tp, problems, matched)
     }
@@ -163,7 +163,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 
     maybeTuple.map {
       case (returnType, parameters, maybePolymorphicType) =>
-        val function: collection.Seq[Expression] => (ScType, ConformanceExtResult) = maybePolymorphicType match {
+        val function: Seq[Expression] => (ScType, ConformanceExtResult) = maybePolymorphicType match {
           case Some(polymorphicType) =>
             val canThrowSCE = useExpectedType && this.expectedType().isDefined /* optimization to avoid except */
 
@@ -174,13 +174,13 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
             localTypeInferenceWithApplicabilityExt(
               returnType,
               parameters,
-              _: collection.Seq[Expression],
+              _: Seq[Expression],
               polymorphicType.typeParameters,
               canThrowSCE = canThrowSCE,
               paramSubst  = paramSubst
             )
           case _ =>
-            (expressions: collection.Seq[Expression]) => {
+            (expressions: Seq[Expression]) => {
               val conformanceResult = checkConformanceExt(
                 parameters,
                 expressions,
@@ -197,7 +197,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
   }
 
   private def arguments(maybeResolveResult: Option[ScalaResolveResult])
-                       (implicit elementScope: ElementScope): collection.Seq[Expression] = {
+                       (implicit elementScope: ElementScope): Seq[Expression] = {
     val updateArgument = maybeResolveResult
       .find(_.name == Update)
       .map(_ => getContext)
@@ -244,7 +244,7 @@ object MethodInvocationImpl {
   private object FunctionTypeParameters {
 
     def unapply(`type`: ScType)
-               (implicit elementScope: ElementScope): Option[(ScType, collection.Seq[Parameter])] = `type` match {
+               (implicit elementScope: ElementScope): Option[(ScType, Seq[Parameter])] = `type` match {
       case FunctionType(returnType, types) =>
         elementScope.getFunctionTrait(types.length)
           .flatMap(_.functions.find(_.isApplyMethod))
@@ -254,7 +254,7 @@ object MethodInvocationImpl {
       case _ => None
     }
 
-    private def parameters(applyFunction: ScFunction, types: collection.Seq[ScType]): collection.Seq[Parameter] =
+    private def parameters(applyFunction: ScFunction, types: Seq[ScType]): Seq[Parameter] =
       applyFunction.parameters.zip(types).mapWithIndex {
         case ((parameter, tp), i) =>
           Parameter("v" + (i + 1), None, tp, tp, index = i, psiParam = Some(parameter))
@@ -272,7 +272,7 @@ object MethodInvocationImpl {
     }
 
     def unapply(`type`: ScType): Option[ScType] = `type` match {
-      case api.TupleType(collection.Seq(_, result)) => Some(result)
+      case api.TupleType(Seq(_, result)) => Some(result)
       case _ => None
     }
   }
@@ -326,14 +326,14 @@ object MethodInvocationImpl {
   }
 
   private case class RegularCase(inferredType: ScType,
-                                 problems: collection.Seq[ApplicabilityProblem] = Seq.empty,
-                                 matched: collection.Seq[(Parameter, ScExpression, ScType)] = Seq.empty) extends InvocationData {
+                                 problems: Seq[ApplicabilityProblem] = Seq.empty,
+                                 matched: Seq[(Parameter, ScExpression, ScType)] = Seq.empty) extends InvocationData {
 
     override def typeResult: TypeResult = Right(inferredType)
 
     def withSubstitutedType: Option[RegularCase] = (problems, matched) match {
-      case (collection.Seq(), collection.Seq()) => Some(this)
-      case (collection.Seq(), matchedParams) =>
+      case (Seq(), Seq()) => Some(this)
+      case (Seq(), matchedParams) =>
         val paramSubstitutor = ScSubstitutor.paramToType(matchedParams.map(_._1), matchedParams.map(_._3))
         val `type` = paramSubstitutor(inferredType)
         Some(RegularCase(`type`, Seq.empty, matched))

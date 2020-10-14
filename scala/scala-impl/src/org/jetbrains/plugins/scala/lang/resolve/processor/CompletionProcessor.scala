@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScTy
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{MappedTopPrecedenceHolder, PrecedenceHelper, TopPrecedenceHolder}
 
-import scala.collection.{Set, mutable}
+import scala.collection.mutable
 
 object CompletionProcessor {
 

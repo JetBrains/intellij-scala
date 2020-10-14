@@ -24,16 +24,16 @@ trait ScConstructorOwner extends ScTypeDefinition
     _.unsafeClassParameters
   }
 
-  def secondaryConstructors: collection.Seq[ScFunction] =  functions.filter {
+  def secondaryConstructors: Seq[ScFunction] =  functions.filter {
     _.isConstructor
   }
 
-  def constructors: collection.Seq[ScMethodLike] =
+  def constructors: Seq[ScMethodLike] =
     secondaryConstructors ++ constructor
 
   override def clauses: Option[ScParameters] = constructor map {
     _.parameterList
   }
 
-  override def members: collection.Seq[ScMember] = super.members ++ constructor
+  override def members: Seq[ScMember] = super.members ++ constructor
 }

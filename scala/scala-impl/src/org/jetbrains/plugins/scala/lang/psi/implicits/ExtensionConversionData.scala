@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -24,10 +25,8 @@ case class ExtensionConversionData(place: ScExpression,
 
   //TODO! remove this after find a way to improve implicits according to compiler.
   val isHardCoded: Boolean = refName == "+" &&
-    place.getTypeWithoutImplicits().exists {
-      _.isInstanceOf[ValType]
-    }
-  val kinds: collection.Set[ResolveTargets.Value] = processor.kinds
+    place.getTypeWithoutImplicits().exists(_.is[ValType])
+  val kinds: Set[ResolveTargets.Value] = processor.kinds
 }
 
 object ExtensionConversionHelper {
@@ -94,7 +93,7 @@ object ExtensionConversionHelper {
     }
   }
 
-  private def findInType(tp: ScType, data: ExtensionConversionData, typeParams: collection.Seq[TypeParameter]): Option[ScalaResolveResult] = {
+  private def findInType(tp: ScType, data: ExtensionConversionData, typeParams: Seq[TypeParameter]): Option[ScalaResolveResult] = {
     import data._
 
     Option(processor).collect {

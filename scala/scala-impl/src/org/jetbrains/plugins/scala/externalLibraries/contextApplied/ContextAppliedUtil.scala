@@ -7,8 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 
-import scala.collection.Seq
-
 /**
  * @see [[ContextApplied.SyntheticElementsOwner]]
  * @see <a href="https://github.com/augustjune/context-applied">context-applied</a>

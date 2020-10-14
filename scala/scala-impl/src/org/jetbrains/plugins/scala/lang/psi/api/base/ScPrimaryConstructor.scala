@@ -40,7 +40,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
   /**
    * return only parameters, which are additionally members.
    */
-  def valueParameters: collection.Seq[ScClassParameter] = parameters.filter((p: ScClassParameter) => p.isVal || p.isVar)
+  def valueParameters: Seq[ScClassParameter] = parameters.filter((p: ScClassParameter) => p.isVal || p.isVar)
 
   /**
    * All classes must have one non-implicit parameter list. If this is not declared in in the code,
@@ -49,13 +49,13 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
    * In addition, view and context bounds generate an additional implicit parameter section.
    */
   @CachedInUserData(this, BlockModificationTracker(this))
-  override def effectiveParameterClauses: collection.Seq[ScParameterClause] = {
+  override def effectiveParameterClauses: Seq[ScParameterClause] = {
     def emptyParameterList: ScParameterClause =
       ScalaPsiElementFactory.createEmptyClassParamClauseWithContext(parameterList)
 
     val clausesWithInitialEmpty = parameterList.clauses match {
-      case collection.Seq() => Seq(emptyParameterList)
-      case collection.Seq(clause) if clause.isImplicit => Seq(emptyParameterList, clause)
+      case Seq() => Seq(emptyParameterList)
+      case Seq(clause) if clause.isImplicit => Seq(emptyParameterList, clause)
       case clauses => clauses
     }
 

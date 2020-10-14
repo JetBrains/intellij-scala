@@ -12,8 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionTyp
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 
-import scala.collection.Set
 import scala.collection.mutable.ArrayBuffer
+
 /**
  * This class is useful for finding actual methods for unapply or unapplySeq, in case for values:
  * <code>

@@ -46,7 +46,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScTy
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
 
 /**
   * @author ilyas
@@ -82,7 +81,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   override def paramClauses: ScParameters = getStubOrPsiChild(ScalaElementType.PARAM_CLAUSES)
 
   @CachedInUserData(this, BlockModificationTracker(this))
-  override def syntheticContextAppliedDefs: collection.Seq[ScalaPsiElement] =
+  override def syntheticContextAppliedDefs: Seq[ScalaPsiElement] =
     ContextAppliedUtil.createSyntheticElementsFor(this, this.containingClass, parameters, typeParameters)
 
   override def processDeclarations(
@@ -206,7 +205,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   override def extensionMethodClause: Option[ScParameterClause] = Option(getStubOrPsiChild(ScalaElementType.PARAM_CLAUSE))
 
   @CachedInUserData(this, BlockModificationTracker(this))
-  override def effectiveParameterClauses: collection.Seq[ScParameterClause] = {
+  override def effectiveParameterClauses: Seq[ScParameterClause] = {
     val maybeOwner = if (isConstructor) {
       containingClass match {
         case owner: ScTypeParametersOwner => Some(owner)
@@ -375,7 +374,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     }
   }
 
-  override def superMethods: collection.Seq[PsiMethod] = superSignatures.map(_.namedElement).filterByType[PsiMethod]
+  override def superMethods: Seq[PsiMethod] = superSignatures.map(_.namedElement).filterByType[PsiMethod]
 
   override def superMethod: Option[PsiMethod] = superMethodAndSubstitutor.map(_._1)
 
@@ -389,13 +388,13 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
       }
   }
 
-  override def superSignatures: collection.Seq[TermSignature] =
+  override def superSignatures: Seq[TermSignature] =
     TypeDefinitionMembers.getSignatures(containingClass).forName(name).findNode(this) match {
       case Some(x) => x.supers.map { _.info }
       case None    => Seq.empty
     }
 
-  override def superSignaturesIncludingSelfType: collection.Seq[TermSignature] = {
+  override def superSignaturesIncludingSelfType: Seq[TermSignature] = {
     val clazz = containingClass
     if (clazz == null) return Seq.empty
 

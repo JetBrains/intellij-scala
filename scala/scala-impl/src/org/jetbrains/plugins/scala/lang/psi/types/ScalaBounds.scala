@@ -46,21 +46,15 @@ trait ScalaBounds extends api.Bounds {
     }
   }
 
-  override def glb(typez: collection.Seq[ScType], checkWeak: Boolean): ScType = {
-    if (typez.length == 1) typez.head
-    var res = typez.head
-    for (i <- 1 until typez.length) {
-      res = glb(res, typez(i), checkWeak)
-    }
-    res
-  }
+  override def glb(typez: Iterable[ScType], checkWeak: Boolean): ScType =
+    typez.reduce(glb(_, _, checkWeak))
 
   private def typeParametersBound(
-    lhsParams: collection.Seq[TypeParameter],
-    rhsParams: collection.Seq[TypeParameter],
+    lhsParams: Seq[TypeParameter],
+    rhsParams: Seq[TypeParameter],
     boundKind: BoundKind,
     checkWeak: Boolean
-  ): collection.Seq[TypeParameter] =
+  ): Seq[TypeParameter] =
     lhsParams.zip(rhsParams).map {
       case (p1, p2) =>
         val (lower, upper) = boundKind match {
@@ -172,7 +166,7 @@ trait ScalaBounds extends api.Bounds {
       case _ => None
     }
 
-    def getSuperClasses: collection.Seq[ClassLike] = {
+    def getSuperClasses: Seq[ClassLike] = {
       val subst = this.projectionOption match {
         case Some(proj) => ScSubstitutor(proj)
         case None => ScSubstitutor.empty
@@ -182,7 +176,7 @@ trait ScalaBounds extends api.Bounds {
         case p: PsiClass => p.getSupers.toSeq.map(cl => new ClassLike(ScalaType.designator(cl))).filter(!_.isEmpty)
         case _: ScTypeAlias =>
           val upperType: ScType = tp.aliasType.map(_.upper.getOrAny).getOrElse(Any)
-          val classes: collection.Seq[ClassLike] = {
+          val classes: Seq[ClassLike] = {
             upperType match {
               case ScCompoundType(comps1, _, _) => comps1.map(new ClassLike(_))
               case _ => Seq(new ClassLike(upperType))
@@ -345,13 +339,13 @@ trait ScalaBounds extends api.Bounds {
           case (lhs: ScTypePolymorphicType, rhs: ScTypePolymorphicType) =>
             polymorphicTypesBound(lhs, rhs, BoundKind.Lub, checkWeak)
           case _ =>
-            val leftClasses: collection.Seq[ClassLike] = {
+            val leftClasses: Seq[ClassLike] = {
               t1 match {
                 case ScCompoundType(comps1, _, _) => comps1.map(new ClassLike(_))
                 case _ => Seq(new ClassLike(t1))
               }
             }
-            val rightClasses: collection.Seq[ClassLike] = {
+            val rightClasses: Seq[ClassLike] = {
               t2 match {
                 case ScCompoundType(comps1, _, _) => comps1.map(new ClassLike(_))
                 case _ => Seq(new ClassLike(t2))
@@ -445,7 +439,7 @@ trait ScalaBounds extends api.Bounds {
     }
   }
 
-  private def getLeastUpperClasses(leftClasses: collection.Seq[ClassLike], rightClasses: collection.Seq[ClassLike]): Array[(ClassLike, Int, Int)] = {
+  private def getLeastUpperClasses(leftClasses: Seq[ClassLike], rightClasses: Seq[ClassLike]): Array[(ClassLike, Int, Int)] = {
     val res = new ArrayBuffer[(ClassLike, Int, Int)]
     def addClass(baseClassToAdd: ClassLike, x: Int, y: Int): Unit = {
       var i = 0
@@ -464,7 +458,7 @@ trait ScalaBounds extends api.Bounds {
         res += ((baseClassToAdd, x, y))
       }
     }
-    def checkClasses(leftClasses: collection.Seq[ClassLike], baseIndex: Int = -1, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty): Unit = {
+    def checkClasses(leftClasses: Seq[ClassLike], baseIndex: Int = -1, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty): Unit = {
       ProgressManager.checkCanceled()
 
       if (leftClasses.isEmpty) return

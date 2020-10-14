@@ -10,8 +10,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
-import scala.collection.Set
-
 private[implicits] final class ImplicitParametersProcessor(override val getPlace: PsiElement,
                                                            override protected val withoutPrecedence: Boolean)
   extends ImplicitProcessor(getPlace, withoutPrecedence) {

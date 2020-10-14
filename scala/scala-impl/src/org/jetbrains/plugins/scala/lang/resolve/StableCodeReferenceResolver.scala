@@ -41,6 +41,6 @@ class StableCodeReferenceResolver(reference: ScStableCodeReference, shapeResolve
     reference.doResolve(proc)
   }
 
-  protected def getKindsFor(ref: ScStableCodeReference): collection.Set[ResolveTargets.Value] =
+  protected def getKindsFor(ref: ScStableCodeReference): Set[ResolveTargets.Value] =
     ref.getKinds(incomplete = false)
 }

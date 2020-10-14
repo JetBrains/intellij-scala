@@ -19,8 +19,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence._
 
-import scala.collection.Set
-
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
                        val name: String) extends BaseProcessor(kinds)(ref) with PrecedenceHelper {
@@ -151,7 +149,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     }
   }
 
-  override def candidatesS: collection.Set[ScalaResolveResult] = {
+  override def candidatesS: Set[ScalaResolveResult] = {
     var res = candidatesSet
     val iterator = levelSet.iterator()
     while (iterator.hasNext) {

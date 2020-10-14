@@ -8,8 +8,7 @@ package patterns
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.ifReadAllowed
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -37,7 +36,7 @@ class ScNamingPatternImpl private(stub: ScBindingPatternStub[ScNamingPattern], n
   override def isWildcard: Boolean = findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null
 
   override def `type`(): TypeResult = {
-    if (getLastChild.isInstanceOf[ScSeqWildcard]) {
+    if (getLastChild.is[ScSeqWildcard]) {
       return this.expectedType match {
         case Some(x) => Right(x)
         case _ =>  Failure(ScalaBundle.message("no.expected.type.for.wildcard.naming"))

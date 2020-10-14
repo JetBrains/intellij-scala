@@ -18,9 +18,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 trait ScVariableDefinition extends ScVariable {
   def pList: ScPatternList
 
-  def bindings: collection.Seq[ScBindingPattern]
+  def bindings: Seq[ScBindingPattern]
 
-  override def declaredElements: collection.Seq[ScBindingPattern] = bindings
+  override def declaredElements: Seq[ScBindingPattern] = bindings
 
   def assignment: Option[PsiElement]
 

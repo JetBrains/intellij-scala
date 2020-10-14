@@ -35,14 +35,13 @@ import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
-import scala.collection.Set
 import scala.language.implicitConversions
 
 class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
-  private case class ContextInfo(arguments: Option[collection.Seq[Expression]], expectedType: () => Option[ScType], isUnderscore: Boolean)
+  private case class ContextInfo(arguments: Option[Seq[Expression]], expectedType: () => Option[ScType], isUnderscore: Boolean)
 
-  private def argumentsOf(ref: PsiElement): collection.Seq[Expression] = {
+  private def argumentsOf(ref: PsiElement): Seq[Expression] = {
     ref.getContext match {
       case infixExpr: ScInfixExpr =>
         //TODO should right expression really be parsed as Tuple (not as argument list)?
@@ -86,7 +85,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     ref:        ScReferenceExpression,
     e:          ScExpression,
     incomplete: Boolean
-  ): scala.collection.Set[ResolveTargets.Value] = e.getContext match {
+  ): Set[ResolveTargets.Value] = e.getContext match {
     case gen: ScGenericCall                             => kinds(ref, gen, incomplete)
     case parents: ScParenthesisedExpr                   => kinds(ref, parents, incomplete)
     case _: ScMethodCall | _: ScUnderscoreSection       => StdKinds.methodRef
@@ -299,7 +298,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         )
       }
 
-    def processAnyAssignment(exprs: collection.Seq[ScExpression],
+    def processAnyAssignment(exprs: Seq[ScExpression],
                              call: MethodInvocation,
                              callReference: ScReferenceExpression,
                              processor: BaseProcessor,
@@ -660,7 +659,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
   private def collectNamedCompletions(parameters: ScParameters,
                                       processor: CompletionProcessor,
                                       substitutor: ScSubstitutor,
-                                      expressions: collection.Seq[ScExpression],
+                                      expressions: Seq[ScExpression],
                                       index: Int): Unit = {
     val clauses = parameters.clauses
     if (0 <= index && index < clauses.length) {

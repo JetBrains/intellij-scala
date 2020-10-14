@@ -47,13 +47,13 @@ trait ScMethodLike extends ScMember with PsiMethod with PsiTypeParametersOwnerAd
     } else None
   }
 
-  def effectiveParameterClauses: collection.Seq[ScParameterClause]
+  def effectiveParameterClauses: Seq[ScParameterClause]
 
   def parameterList: ScParameters
 
   def parameters: Seq[ScParameter]
 
-  final def parametersInClause(clauseIndex: Int): collection.Seq[ScParameter] =
+  final def parametersInClause(clauseIndex: Int): Seq[ScParameter] =
     effectiveParameterClauses match {
       case clauses if clauses.indices.contains(clauseIndex) =>
         clauses(clauseIndex).effectiveParameters

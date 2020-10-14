@@ -5,18 +5,19 @@ package api
 package base
 package patterns
 
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSequenceArg
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 trait ScPatternArgumentList extends ScArguments {
 
-  def patterns: collection.Seq[ScPattern]
+  def patterns: Seq[ScPattern]
 
   def missedLastExpr: Boolean = {
     var child = getLastChild
     while (child != null && child.getNode.getElementType != ScalaTokenTypes.tCOMMA) {
-      if (child.isInstanceOf[ScPattern] || child.isInstanceOf[ScSequenceArg])
+      if (child.is[ScPattern, ScSequenceArg])
         return false
       child = child.getPrevSibling
     }

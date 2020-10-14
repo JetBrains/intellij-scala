@@ -9,6 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
+import scala.collection.immutable.ArraySeq
+
 /**
   * @author Alexander Podkhalyuzin
   *         Date: 22.02.2008
@@ -16,14 +18,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
   */
 trait ScTemplateParents extends ScalaPsiElement {
 
-  def typeElements: collection.Seq[ScTypeElement]
+  def typeElements: Seq[ScTypeElement]
 
-  def superTypes: collection.Seq[ScType]
+  def superTypes: Seq[ScType]
 
-  def allTypeElements: collection.Seq[ScTypeElement]
+  def allTypeElements: Seq[ScTypeElement]
 
   final def constructorInvocation: Option[ScConstructorInvocation] = findChild(classOf[ScConstructorInvocation])
 
-  final def typeElementsWithoutConstructor: collection.Seq[ScTypeElement] =
-    findChildrenByClassScala(classOf[ScTypeElement])
+  final def typeElementsWithoutConstructor: Seq[ScTypeElement] =
+    ArraySeq.unsafeWrapArray(findChildrenByClassScala(classOf[ScTypeElement]))
 }

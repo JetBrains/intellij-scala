@@ -7,7 +7,6 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 
-import scala.collection.Set
 
 class CollectAllForImportProcessor(override val kinds: Set[ResolveTargets.Value],
                                    override val ref: PsiElement,

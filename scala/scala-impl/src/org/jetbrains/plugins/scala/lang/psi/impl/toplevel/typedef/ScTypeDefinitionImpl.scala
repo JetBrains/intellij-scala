@@ -384,13 +384,13 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     ScalaPsiImplementationHelper.getOriginalClass(this)
 
   @CachedInUserData(this, BlockModificationTracker(this))
-  override def syntheticTypeDefinitions: collection.Seq[ScTypeDefinition] = SyntheticMembersInjector.injectInners(this)
+  override def syntheticTypeDefinitions: Seq[ScTypeDefinition] = SyntheticMembersInjector.injectInners(this)
 
   @CachedInUserData(this, BlockModificationTracker(this))
-  override def syntheticMembers: collection.Seq[ScMember] = SyntheticMembersInjector.injectMembers(this)
+  override def syntheticMembers: Seq[ScMember] = SyntheticMembersInjector.injectMembers(this)
 
   @CachedInUserData(this, BlockModificationTracker(this))
-  override def syntheticMethods: collection.Seq[ScFunction] = SyntheticMembersInjector.inject(this)
+  override def syntheticMethods: Seq[ScFunction] = SyntheticMembersInjector.inject(this)
 
   @CachedInUserData(this, ModTracker.libraryAware(this))
   override def psiMethods: Array[PsiMethod] = getAllMethods.filter(_.containingClass == this)

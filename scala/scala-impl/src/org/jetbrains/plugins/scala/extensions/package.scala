@@ -62,6 +62,7 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 import org.jetbrains.plugins.scala.util.ScalaPluginUtils
 
 import scala.annotation.{nowarn, tailrec}
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Future, Promise}
 import scala.jdk.CollectionConverters._
@@ -104,7 +105,7 @@ package object extensions {
     def parameters: Seq[PsiParameter] =
       repr.getParameterList.getParameters.toSeq
 
-    def parametersTypes: collection.Seq[ScType] = repr match {
+    def parametersTypes = repr match {
       case scalaFunction: ScFunction =>
         scalaFunction.parameters
           .map(_.`type`().getOrNothing)
@@ -859,7 +860,7 @@ package object extensions {
       }
     }
 
-    def names: collection.Seq[String] = {
+    def names: Seq[String] = {
       member match {
         case decls: ScDeclaredElementsHolder => decls.declaredNames
         case named: PsiNamedElement          => Seq(named.name)
@@ -898,10 +899,10 @@ package object extensions {
       }
     }
 
-    def constructors: collection.Seq[PsiMethod] =
+    def constructors: Seq[PsiMethod] =
       clazz match {
         case c: ScConstructorOwner => c.constructors
-        case _ => clazz.getConstructors
+        case _ => ArraySeq.unsafeWrapArray(clazz.getConstructors)
       }
 
     def isEffectivelyFinal: Boolean = clazz match {
@@ -913,7 +914,7 @@ package object extensions {
         clazz.hasModifierProperty(PsiModifier.FINAL)
     }
 
-    def allSupers: collection.Seq[PsiClass] = {
+    def allSupers: Seq[PsiClass] = {
       val res = ArrayBuffer[PsiClass]()
 
       def addWithSupers(c: PsiClass): Unit = {
@@ -995,7 +996,7 @@ package object extensions {
     def isJavaLangObject: Boolean =
       clazz.qualifiedName == "java.lang.Object"
 
-    def namedElements: collection.Seq[PsiNamedElement] = {
+    def namedElements: Seq[PsiNamedElement] = {
       clazz match {
         case td: ScTemplateDefinition =>
           td.membersWithSynthetic.flatMap {
@@ -1003,7 +1004,7 @@ package object extensions {
             case named: ScNamedElement => Seq(named)
             case _ => Seq.empty
           }
-        case _ => clazz.getFields ++ clazz.getMethods
+        case _ => ArraySeq.unsafeWrapArray(clazz.getFields ++ clazz.getMethods)
       }
     }
 

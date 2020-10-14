@@ -525,7 +525,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     Right(inner)
   }
 
-  override def getPrevTypeInfoParams: collection.Seq[TypeParameter] = {
+  override def getPrevTypeInfoParams: Seq[TypeParameter] = {
     val maybeExpression = qualifier match {
       case Some(_: ScSuperReference) => None
       case None => getContext match {

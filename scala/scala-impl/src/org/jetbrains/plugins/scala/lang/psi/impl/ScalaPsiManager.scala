@@ -47,6 +47,7 @@ import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.annotation.tailrec
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 class ScalaPsiManager(implicit val project: Project) {
@@ -344,12 +345,12 @@ class ScalaPsiManager(implicit val project: Project) {
 
   @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnChange)
   def javaPsiTypeParameterUpperType(typeParameter: PsiTypeParameter): ScType = {
-    val types = typeParameter.getExtendsListTypes ++ typeParameter.getImplementsListTypes
+    val types = ArraySeq.unsafeWrapArray(typeParameter.getExtendsListTypes ++ typeParameter.getImplementsListTypes)
     if (types.isEmpty) Any
     else andType(types)
   }
 
-  private def andType(psiTypes: collection.Seq[PsiType]): ScType = {
+  private def andType(psiTypes: Seq[PsiType]): ScType = {
     new ProjectContext(project).typeSystem.andType(psiTypes.map(_.toScType()))
   }
 

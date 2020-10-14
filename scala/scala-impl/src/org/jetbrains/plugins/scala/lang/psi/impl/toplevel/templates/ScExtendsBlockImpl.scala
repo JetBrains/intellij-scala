@@ -140,7 +140,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     }
 
   @Cached(BlockModificationTracker(this), this)
-  def syntheticTypeElements: collection.Seq[ScTypeElement] = {
+  def syntheticTypeElements: Seq[ScTypeElement] = {
     if (templateParents.nonEmpty) return Seq.empty //will be handled separately
     getContext match {
       case td: ScTypeDefinition => SyntheticMembersInjector.injectSupers(td)
@@ -149,7 +149,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
   }
 
   @CachedInUserData(this, ModTracker.libraryAware(this))
-  override def supers: collection.Seq[PsiClass] = {
+  override def supers: Seq[PsiClass] = {
     val typeElements = templateParents.fold(syntheticTypeElements) {
       _.allTypeElements
     }
@@ -178,10 +178,10 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
       case _ =>
         buffer ++= javaObjectClass
     }
-    buffer
+    buffer.toSeq
   }
 
-  override def members: collection.Seq[ScMember] = {
+  override def members: Seq[ScMember] = {
     templateBodies.flatMap {
       _.members
     } ++ earlyDefinitions.toSeq.flatMap {
@@ -196,12 +196,12 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
   def nameId: Null = null
 
-  override def aliases: collection.Seq[ScTypeAlias] =
+  override def aliases: Seq[ScTypeAlias] =
     templateBodies.flatMap {
       _.aliases
     }
 
-  override def functions: collection.Seq[ScFunction] =
+  override def functions: Seq[ScFunction] =
     templateBodies.flatMap {
       _.functions
     }

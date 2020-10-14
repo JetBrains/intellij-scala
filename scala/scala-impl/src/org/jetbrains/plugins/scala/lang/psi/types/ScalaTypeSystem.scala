@@ -17,7 +17,7 @@ final class ScalaTypeSystem private (implicit override val projectContext: Proje
 
   override val name = "Scala"
 
-  override def andType(types: collection.Seq[ScType]): ScType = ScCompoundType(types)
+  override def andType(types: Seq[ScType]): ScType = ScCompoundType(types)
 
   override def parameterizedType(designator: ScType, typeArguments: collection.Seq[ScType]): ValueType =
     ScParameterizedType(designator, typeArguments.toSeq)
