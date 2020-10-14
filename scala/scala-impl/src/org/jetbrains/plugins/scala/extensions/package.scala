@@ -160,14 +160,13 @@ package object extensions {
     def hasScalaPsi: Boolean = viewProvider.getBaseLanguage.isKindOf(ScalaLanguage.INSTANCE) || viewProvider.getPsi(ScalaLanguage.INSTANCE) != null
   }
 
-  implicit class IterableExt[CC[X] <: collection.IterableOps[X, CC, CC[X]], A](private val value: CC[A]) extends AnyVal {
+  implicit class IterableOnceExt[CC[X] <: collection.IterableOnceOps[X, CC, CC[X]], A](private val value: CC[A]) extends AnyVal {
     def foreachDefined(pf: PartialFunction[A, Unit]): Unit =
       value.foreach(pf.applyOrElse(_, (_: A) => ()))
 
-    def filterByType[T: ClassTag](implicit factory: scala.collection.Factory[T, CC[T]]): CC[T] = {
+    def filterByType[T: ClassTag]: CC[T] = {
       val clazz = implicitly[ClassTag[T]].runtimeClass
-      val mapped = value.filter(clazz.isInstance).map(_.asInstanceOf[T])
-      factory.fromSpecific(mapped)
+      value.filter(clazz.isInstance).map(_.asInstanceOf[T])
     }
 
     def findByType[T: ClassTag]: Option[T] = {
@@ -183,7 +182,9 @@ package object extensions {
       }
       result.asInstanceOf[Option[T]]
     }
+  }
 
+  implicit class IterableExt[CC[X] <: collection.IterableOps[X, CC, CC[X]], A](private val value: CC[A]) extends AnyVal {
     def mapWithIndex[B](f: (A, Int) => B): CC[B] = {
       val builder = value.iterableFactory.newBuilder[B]
       builder.sizeHint(value)
@@ -204,14 +205,6 @@ package object extensions {
         builder += ((v, f(v)))
       }
       builder.result()
-    }
-
-    def foreachWithIndex[B](f: (A, Int) => B): Unit = {
-      var i = 0
-      for (x <- value) {
-        f(x, i)
-        i += 1
-      }
     }
 
     def join[B](separator: B)
