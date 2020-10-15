@@ -24,7 +24,10 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[HighlightingTests]))
 class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  private val filesWithProblems = Map.empty[String, Set[TextRange]]
+  private val filesWithProblems: Map[String, Set[TextRange]] = Map(
+    "scala/reflect/ClassManifestDeprecatedApis.scala" -> Set((2714, 2721),(2947, 2954)),
+    "scala/collection/mutable/ListBuffer.scala" -> Set((6975, 6976),(7285, 7286))
+  )
 
   override def librariesLoaders = Seq(
     CustomSDKLoader,
