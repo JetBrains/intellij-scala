@@ -31,13 +31,13 @@ final class ScalaMoveToPackageQuickFix(myFile: ScalaFile, packageName: String)
     var directory: PsiDirectory = null
     try {
       // TODO Support multiple source roots (more complicated because chooseDestinationPackage throws an exception instead of returning a directory in such a case.)
-      // Specifically make sure that the package is compatible with an existing package prefix.
+      // Specifically make sure that the package name is compatible with an existing package prefix.
       for (module <- file.module;
            sourceFolder <- sourceFolderIn(module);
            packagePrefix = sourceFolder.getPackagePrefix if !packagePrefix.isEmpty;
            if !(packageName + ".").startsWith(packagePrefix + ".")) {
         Messages.showMessageDialog(project,
-          ScalaInspectionBundle.message("move.file.to.package.package.prefix.error", s"'$packageName'", s"'${sourceFolder.getFile.getName}'", s"'$packagePrefix'"),
+          ScalaInspectionBundle.message("move.file.to.package.package.prefix.error", packageName, sourceFolder.getFile.getName, packagePrefix),
           CommonBundle.getErrorTitle, Messages.getErrorIcon)
         return
       }
