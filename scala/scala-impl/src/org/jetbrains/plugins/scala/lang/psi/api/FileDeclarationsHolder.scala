@@ -8,7 +8,7 @@ import com.intellij.psi.impl.migration.PsiMigrationManager
 import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{StubBasedExt, _}
 import org.jetbrains.plugins.scala.externalLibraries.bm4.BetterMonadicForSupport
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -176,7 +176,7 @@ object FileDeclarationsHolder {
       case s: ScalaPsiElement => s.getDeepSameElementInContext
       case _ => _place
     }
-    if (place == null) return false
+    if (place == null || place.hasOnlyStub) return false
 
     place.getContainingFile match {
       case scalaFile: ScalaFile if scalaFile.isWorksheetFile => true

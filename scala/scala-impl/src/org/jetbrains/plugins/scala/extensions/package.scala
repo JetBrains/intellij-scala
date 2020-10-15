@@ -1496,6 +1496,10 @@ package object extensions {
         elem.withNextSiblings
     }
 
+    def hasOnlyStub: Boolean = element match {
+      case st: StubBasedPsiElementBase[_] => st.getStub != null
+      case _ => false
+    }
   }
 
   /* Calls each funtion with `v` as an argument, returns `v` (replicates Kotlin's "apply").
