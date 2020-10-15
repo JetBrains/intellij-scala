@@ -35,7 +35,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, Method
 import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
-import _root_.scala.collection.Set
 import scala.annotation.tailrec
 
 /**

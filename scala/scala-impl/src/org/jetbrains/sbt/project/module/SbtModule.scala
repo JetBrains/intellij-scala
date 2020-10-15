@@ -87,7 +87,7 @@ object SbtModule {
     }
 
     @nowarn("cat=deprecation")
-    def update(module: Module, resolvers: collection.Set[SbtResolver]): Unit = {
+    def update(module: Module, resolvers: Set[SbtResolver]): Unit = {
       val newResolvers = resolvers.map(_.toString)
         .mkString(Delimiter)
 

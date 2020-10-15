@@ -1474,10 +1474,8 @@ package object extensions {
 
   //noinspection TypeAnnotation
   final class CollectUniquesProcessorEx[T] extends CollectUniquesProcessor[T] {
-
-    def results = {
-      getResults.asScala
-    }
+    def results =
+      getResults.asScala.toSet
 
     override def getResults =
       super.getResults.asInstanceOf[JSet[T]]

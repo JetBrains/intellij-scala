@@ -44,7 +44,7 @@ abstract class DirtyScopeHolder[Scope](
   protected val compilationAffectedScopes: util.Set[Scope]       = ContainerUtil.newConcurrentSet[Scope]()
   protected var indexingPhases: Int                              = 0
 
-  protected def scopeForSourceContentFile(vfile: VirtualFile): collection.Set[Scope]
+  protected def scopeForSourceContentFile(vfile: VirtualFile): Set[Scope]
   protected def moduleScopes(m: Module): Set[Scope]
   protected def scopeToSearchScope(scope: Scope): GlobalSearchScope
 
@@ -87,7 +87,7 @@ abstract class DirtyScopeHolder[Scope](
 
   protected def markModuleAsDirty(m: Module): Unit = lock.locked(addToDirtyScopes(moduleScopes(m)))
 
-  protected def addToDirtyScopes(scopes: collection.Set[Scope]): Unit = lock.locked {
+  protected def addToDirtyScopes(scopes: Set[Scope]): Unit = lock.locked {
     if (indexingPhases != 0) {
       scopes.foreach(scope =>
         modifiedDuringIndexing.merge(scope, indexingPhases, Math.max(_, _))

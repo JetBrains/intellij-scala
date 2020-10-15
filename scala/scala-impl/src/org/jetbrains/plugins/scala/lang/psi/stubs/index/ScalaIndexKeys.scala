@@ -106,7 +106,7 @@ object ScalaIndexKeys {
   implicit class StubIndexStringKeyExt[Psi <: PsiElement : ClassTag](private val indexKey: StubIndexKey[String, Psi]) {
 
     def forClassFqn(qualifiedName: String, scope: GlobalSearchScope)
-                   (implicit project: Project): collection.Set[Psi] = {
+                   (implicit project: Project): Set[Psi] = {
       val stubIndex = StubIndex.getInstance
       val collectProcessor = new CollectUniquesProcessorEx[Psi]
 

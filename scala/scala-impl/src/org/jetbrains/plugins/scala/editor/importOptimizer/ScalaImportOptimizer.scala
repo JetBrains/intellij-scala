@@ -459,7 +459,7 @@ object ScalaImportOptimizer {
 
   def updateToWildcardImports(infos: mutable.Buffer[ImportInfo],
                               startPsi: PsiAnchor,
-                              usedImportedNames: collection.Set[String],
+                              usedImportedNames: Set[String],
                               settings: OptimizeImportSettings): Unit = {
 
     val rangeStartPsi = startPsi.retrieve()

@@ -12,8 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.macroAnnotations.Measure
 
-import scala.collection.Set
-
 private case class NonValueFunctionTypes(fun: ScFunction, substitutor: ScSubstitutor, typeFromMacro: Option[ScType]) {
 
   @volatile

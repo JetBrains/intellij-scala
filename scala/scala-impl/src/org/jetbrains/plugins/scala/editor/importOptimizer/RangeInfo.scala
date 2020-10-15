@@ -8,7 +8,7 @@ import com.intellij.psi.PsiAnchor
 case class RangeInfo(firstPsi: PsiAnchor,
                      lastPsi: PsiAnchor,
                      importInfos: Seq[ImportInfo],
-                     usedImportedNames: collection.Set[String],
+                     usedImportedNames: Set[String],
                      isLocal: Boolean) {
 
   def startOffset: Int = firstPsi.getStartOffset

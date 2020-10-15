@@ -9,12 +9,12 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.StubIndex
 
 object StableValIndex {
   def forClassFqn(qualifiedName: String, scope: GlobalSearchScope)
-                 (implicit project: Project): collection.Set[ScValue] =
+                 (implicit project: Project): Set[ScValue] =
     ScalaIndexKeys.PROPERTY_CLASS_NAME_KEY
       .forClassFqn(qualifiedName, scope)
       .filterByType[ScValue]
 
-  def findValuesOfClassType(c: PsiClass, scope: GlobalSearchScope): collection.Set[ScValue] = {
+  def findValuesOfClassType(c: PsiClass, scope: GlobalSearchScope): Set[ScValue] = {
     val className = c.qualifiedName
     forClassFqn(className, scope)(c.getProject)
       .filter {

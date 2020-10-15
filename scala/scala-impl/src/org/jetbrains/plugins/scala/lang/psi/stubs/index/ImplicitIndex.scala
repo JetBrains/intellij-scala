@@ -19,7 +19,7 @@ trait ImplicitIndex {
     sink.occurrence(indexKey, name)
 
   def forClassFqn(qualifiedName: String, scope: GlobalSearchScope)
-                 (implicit project: Project): collection.Set[ScMember] = {
+                 (implicit project: Project): Set[ScMember] = {
     val stubIndex = StubIndex.getInstance
     val collectProcessor = new CollectUniquesProcessorEx[ScMember]
 

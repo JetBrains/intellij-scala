@@ -24,8 +24,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.collection.Set
-
 /**
  * Nikolay.Tropin
  * 4/17/13

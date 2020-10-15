@@ -40,7 +40,7 @@ object SbtBuildModuleDataService {
     val SbtBuildModuleData(imports, resolvers, buildFor) = data
 
     Imports(sbtModule) = imports
-    Resolvers(sbtModule) = resolvers.asScala
+    Resolvers(sbtModule) = resolvers.asScala.toSet
     setLocalIvyCache(resolvers)(sbtModule.getProject)
     Build(sbtModule) = buildFor
   }

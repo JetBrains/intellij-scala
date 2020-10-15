@@ -156,7 +156,7 @@ package object project {
     def modifiableModel: ModifiableRootModel =
       ModuleRootManager.getInstance(module).getModifiableModel
 
-    def libraries: collection.Set[Library] = {
+    def libraries: Set[Library] = {
       val processor = new CollectUniquesProcessorEx[Library]()
       OrderEnumerator.orderEntries(module)
         .librariesOnly()

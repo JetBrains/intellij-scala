@@ -34,14 +34,14 @@ private[findUsages] class ScalaDirtyScopeHolder(
     ) {
   import ScalaDirtyScopeHolder._
 
-  override protected def scopeForSourceContentFile(vfile: VirtualFile): collection.Set[ScopedModule] = {
+  override protected def scopeForSourceContentFile(vfile: VirtualFile): Set[ScopedModule] = {
     val ftype = fileTypeRegistry.getFileTypeByFileName(vfile.getNameSequence)
 
     inReadAction {
       if (fileTypes.contains(ftype) && fileIndex.isInSourceContent(vfile)) {
         val module = fileIndex.getModuleForFile(vfile).toOption
 
-        val scopeBuilder = mutable.HashSet.newBuilder[ScopedModule]
+        val scopeBuilder = Set.newBuilder[ScopedModule]
 
         module.foreach { m =>
           val scoped =

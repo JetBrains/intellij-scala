@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.collection.Set
 import scala.collection.immutable.ArraySeq
 
 /**

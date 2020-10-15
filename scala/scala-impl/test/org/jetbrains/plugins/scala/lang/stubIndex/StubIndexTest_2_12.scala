@@ -38,7 +38,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
     assertEquals(expected.mkString("\n"), fqnsInScalaLibrary(key, indexKey).mkString("\n"))
   }
 
-  private def assertContains[T](set: collection.Set[T], element: T): Unit = {
+  private def assertContains[T](set: Set[T], element: T): Unit = {
     assertTrue(s"$element not found", set.contains(element))
   }
 
