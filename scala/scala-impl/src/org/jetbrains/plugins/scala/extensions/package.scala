@@ -93,7 +93,7 @@ package object extensions {
     def hasQueryLikeName: Boolean = {
       val name = repr.getName
 
-      def startsWith(prefix: String) =
+      def startsWith(prefix: String): Boolean =
         name.length > prefix.length && name.startsWith(prefix) && name.charAt(prefix.length).isUpper
 
       name != "getInstance" && // TODO others?
@@ -105,7 +105,7 @@ package object extensions {
     def parameters: Seq[PsiParameter] =
       repr.getParameterList.getParameters.toSeq
 
-    def parametersTypes = repr match {
+    def parametersTypes: Seq[ScType] = repr match {
       case scalaFunction: ScFunction =>
         scalaFunction.parameters
           .map(_.`type`().getOrNothing)
@@ -165,17 +165,17 @@ package object extensions {
     def foreachDefined(pf: PartialFunction[A, Unit]): Unit =
       value.foreach(pf.applyOrElse(_, (_: A) => ()))
 
-    def filterByType[T: ClassTag]: CC[T] = {
+    def filterByType[T <: AnyRef : ClassTag]: CC[T] = {
       val clazz = implicitly[ClassTag[T]].runtimeClass
       value.filter(clazz.isInstance).map(_.asInstanceOf[T])
     }
 
-    def findByType[T: ClassTag]: Option[T] = {
+    def findByType[T <: AnyRef : ClassTag]: Option[T] = {
       val clazz = implicitly[ClassTag[T]].runtimeClass
       value.find(clazz.isInstance).asInstanceOf[Option[T]]
     }
 
-    def findFirstBy[T: ClassTag](predicate: T => Boolean): Option[T] = {
+    def findFirstBy[T <: AnyRef : ClassTag](predicate: T => Boolean): Option[T] = {
       val clazz = implicitly[ClassTag[T]].runtimeClass
       val result = value.find {
         case elem if clazz.isInstance(elem) && predicate(elem.asInstanceOf[T]) => true
@@ -295,9 +295,9 @@ package object extensions {
   }
 
   implicit class ArrayExt[A](val array: Array[A]) extends AnyVal {
-    def findByType[T: ClassTag]: Option[T] = collectFirstByType(identity[T])
+    def findByType[T <: AnyRef : ClassTag]: Option[T] = collectFirstByType(identity[T])
 
-    def collectFirstByType[T: ClassTag, R](f: T => R): Option[R] = {
+    def collectFirstByType[T <: AnyRef : ClassTag, R](f: T => R): Option[R] = {
       var idx = 0
       val clazz = implicitly[ClassTag[T]].runtimeClass
       while (idx < array.length) {
@@ -386,7 +386,7 @@ package object extensions {
     // Use for safely checking for null in chained calls
     @inline def safeMap[A](f: T => A): Option[A] = if (option.isEmpty) None else Option(f(option.get))
 
-    def filterByType[S: ClassTag]: Option[S] = {
+    def filterByType[S <: AnyRef : ClassTag]: Option[S] = {
       option match {
         case Some(element) if implicitly[ClassTag[S]].runtimeClass.isInstance(element) =>
           option.asInstanceOf[Option[S]]
@@ -1098,12 +1098,12 @@ package object extensions {
       delegate.find(_.is[T1, T2])
     }
 
-    def filterByType[T: ClassTag]: Iterator[T] = {
+    def filterByType[T <: AnyRef : ClassTag]: Iterator[T] = {
       val aClass = implicitly[ClassTag[T]].runtimeClass
       delegate.filter(aClass.isInstance).asInstanceOf[Iterator[T]]
     }
 
-    def containsInstanceOf[T: ClassTag]: Boolean = {
+    def containsInstanceOf[T <: AnyRef : ClassTag]: Boolean = {
       val aClass = implicitly[ClassTag[T]].runtimeClass
       delegate.exists(aClass.isInstance)
     }
@@ -1114,16 +1114,15 @@ package object extensions {
     }
 
     def lastOption: Option[A] = {
-      var result = null.asInstanceOf[A]
-      var isEmpty = true
+      if (!delegate.hasNext)
+        return None
 
-      while (delegate.hasNext) {
-        result = delegate.next()
-        isEmpty = false
+      while (true) {
+        val value = delegate.next()
+        if (!delegate.hasNext)
+          return Some(value)
       }
-
-      if (isEmpty) None
-      else Some(result)
+      throw new NotImplementedError
     }
 
     // https://github.com/scala/collection-strawman/issues/208
