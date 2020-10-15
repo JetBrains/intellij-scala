@@ -28,6 +28,9 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResul
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
+import scala.collection.immutable.ArraySeq
+import scala.jdk.CollectionConverters._
+
 /**
 * Nikolay.Tropin
 * 2014-03-21
@@ -86,7 +89,7 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
   }
 
   private def methodBody(delegate: ClassMember, prototype: ScFunction): ScExpression = {
-    def typeParameterUsedIn(parameter: ScTypeParam, elements: collection.Seq[PsiElement]) = {
+    def typeParameterUsedIn(parameter: ScTypeParam, elements: Seq[PsiElement]) = {
       elements.exists(elem =>
         !ReferencesSearch
           .search(parameter, new LocalSearchScope(elem))
@@ -126,7 +129,7 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
   }
 
   @Nullable
-  private def chooseMethods(delegate: ClassMember, file: PsiFile, editor: Editor, project: Project): Array[ScMethodMember] = {
+  private def chooseMethods(delegate: ClassMember, file: PsiFile, editor: Editor, project: Project): ArraySeq[ScMethodMember] = {
     val delegateType = delegate.asInstanceOf[ScalaTypedMember].scType
     val aClass = classAtOffset(editor.getCaretModel.getOffset, file)
     val tBody = aClass.extendsBlock.templateBody.get
@@ -137,16 +140,17 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     val members = toMethodMembers(candidates, place)
 
     if (!ApplicationManager.getApplication.isUnitTestMode) {
-      val chooser = new ScalaMemberChooser[ScMethodMember](members.toArray, false, true, false, true, false, aClass)
+      val chooser = new ScalaMemberChooser[ScMethodMember](members, false, true, false, true, false, aClass)
       chooser.setTitle(CodeInsightBundle.message("generate.delegate.method.chooser.title"))
       chooser.show()
       if (chooser.getExitCode != DialogWrapper.OK_EXIT_CODE) return null
-      chooser.getSelectedElements.toArray(Array.empty[ScMethodMember])
+      chooser.getSelectedElements.asScala.to(ArraySeq)
     }
-    else if (members.nonEmpty) Array(members.head) else Array()
+    else if (members.nonEmpty) ArraySeq(members.head)
+    else ArraySeq()
   }
 
-  private def toMethodMembers(candidates: Iterable[ScalaResolveResult], place: PsiElement): Seq[ScMethodMember] = {
+  private def toMethodMembers(candidates: Iterable[ScalaResolveResult], place: PsiElement): ArraySeq[ScMethodMember] = {
     def toMember(srr: ScalaResolveResult): Option[ScMethodMember] = {
       val ScalaResolveResult(element, subst) = srr
       implicit val ctx: ProjectContext = element
@@ -161,7 +165,7 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
       }
     }
 
-    candidates.flatMap(toMember).toSeq
+    candidates.iterator.flatMap(toMember).to(ArraySeq)
   }
 
   @Nullable
@@ -170,7 +174,7 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     if (elements.isEmpty) null
     else if (ApplicationManager.getApplication.isUnitTestMode) elements.head
     else {
-      val chooser = new ScalaMemberChooser(elements.toArray, false, false, false, false, false, classAtOffset(editor.getCaretModel.getOffset, file))
+      val chooser = new ScalaMemberChooser(elements, false, false, false, false, false, classAtOffset(editor.getCaretModel.getOffset, file))
       chooser.setTitle(CodeInsightBundle.message("generate.delegate.target.chooser.title"))
       chooser.show()
 
@@ -181,9 +185,11 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     }
   }
 
-  private def targetElements(file: PsiFile, editor: Editor): Seq[ClassMember] =
-    parentClasses(file, editor).flatMap(targetsIn)
-      .sortBy(m => (m.getPsiElement.getContainingFile.getName, m.getPsiElement.getTextRange.getStartOffset))
+  private def targetElements(file: PsiFile, editor: Editor): ArraySeq[ClassMember] =
+    parentClasses(file, editor).iterator
+      .flatMap(targetsIn)
+      .to(ArraySeq)
+      .sortBy(m => (m.getPsiElement.getContainingFile.name, m.getPsiElement.getTextRange.getStartOffset))
 
   // todo add ScObjectMember for targets
   private def targetsIn(clazz: ScTemplateDefinition): Seq[ClassMember] =

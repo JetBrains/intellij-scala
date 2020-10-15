@@ -39,11 +39,11 @@ trait ScConstructorInvocation extends ScalaPsiElement with ConstructorInvocation
 
   def reference: Option[ScStableCodeReference]
 
-  def matchedParameters: collection.Seq[(ScExpression, Parameter)]
+  def matchedParameters: Seq[(ScExpression, Parameter)]
 }
 
 object ScConstructorInvocation {
-  def unapply(c: ScConstructorInvocation): Option[(ScTypeElement, collection.Seq[ScArgumentExprList])] = {
+  def unapply(c: ScConstructorInvocation): Option[(ScTypeElement, Seq[ScArgumentExprList])] = {
     Option(c).map(it => (it.typeElement, it.arguments))
   }
 

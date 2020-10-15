@@ -24,7 +24,10 @@ private class FacetProperties(element: Element) {
 
   def int(key: String, default: Int): Int = option(key).map(_.toInt).getOrElse(default)
 
-  def array(key: String): collection.Seq[String] = {
-    XPath.selectNodes(element, s"configuration/option[@name='$key']/array/option/@value").asScala.map(_.asInstanceOf[Attribute].getValue): @nowarn("cat=deprecation")
+  @nowarn("cat=deprecation")
+  def array(key: String): Seq[String] = {
+    XPath.selectNodes(element, s"configuration/option[@name='$key']/array/option/@value").asScala.iterator
+      .map(_.asInstanceOf[Attribute].getValue)
+      .toSeq
   }
 }

@@ -17,7 +17,7 @@ class MethodRepr private (val itself: ScExpression,
 
 object MethodRepr {
   //method represented by optional base expression, optional method reference and arguments
-  def unapply(expr: ScExpression): Option[(ScExpression, Option[ScExpression], Option[ScReferenceExpression], collection.Seq[ScExpression])] =
+  def unapply(expr: ScExpression): Option[(ScExpression, Option[ScExpression], Option[ScReferenceExpression], Seq[ScExpression])] =
     expr match {
       case null => None
       case expr => unapplyInner(expr)
@@ -25,7 +25,7 @@ object MethodRepr {
 
   //it is invoked very often in inspection, so BlockModificationTracker would be to heavy
   @CachedInUserData(expr, ModTracker.anyScalaPsiChange)
-  private def unapplyInner(expr: ScExpression): Option[(ScExpression, Option[ScExpression], Option[ScReferenceExpression], collection.Seq[ScExpression])] = {
+  private def unapplyInner(expr: ScExpression): Option[(ScExpression, Option[ScExpression], Option[ScReferenceExpression], Seq[ScExpression])] = {
     expr match {
       case call: ScMethodCall =>
         val args = call.args match {

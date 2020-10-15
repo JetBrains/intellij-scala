@@ -10,7 +10,7 @@ import com.intellij.openapi.externalSystem.model.settings.ExternalSystemExecutio
  */
 class SbtExecutionSettings(val realProjectPath: String,
                            val vmExecutable: File,
-                           val vmOptions: collection.Seq[String],
+                           val vmOptions: Seq[String],
                            val hiddenDefaultMaxHeapSize: JvmMemorySize,
                            val environment: Map[String,String],
                            val customLauncher: Option[File],

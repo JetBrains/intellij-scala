@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.util.HashBuilder._
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.annotation.tailrec
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 /**
@@ -29,7 +30,7 @@ import scala.collection.mutable
   * on 12/8/15
   */
 object ConverterUtil {
-  def getTopElements(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int]): (collection.Seq[Part], mutable.HashSet[PsiElement]) = {
+  def getTopElements(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int]): (Seq[Part], mutable.HashSet[PsiElement]) = {
 
     def buildTextPart(offset1: Int, offset2: Int, dropElements: mutable.HashSet[PsiElement]): TextPart = {
       val possibleComment = file.findElementAt(offset1)
@@ -38,7 +39,7 @@ object ConverterUtil {
     }
 
     val dropElements = new mutable.HashSet[PsiElement]()
-    val buffer = mutable.ArrayBuffer.empty[Part]
+    val builder = ArraySeq.newBuilder[Part]
     for ((startOffset, endOffset) <- startOffsets.zip(endOffsets)) {
       @tailrec
       def findElem(offset: Int): PsiElement = {
@@ -49,7 +50,7 @@ object ConverterUtil {
         if (elem.getParent.getTextRange.getEndOffset > endOffset ||
           elem.getParent.getTextRange.getStartOffset < startOffset) {
           if (CommentsCollector.isComment(elem) && !dropElements.contains(elem)) {
-            buffer += TextPart(elem.getText + "\n")
+            builder += TextPart(elem.getText + "\n")
             dropElements += elem
           }
           findElem(elem.getTextRange.getEndOffset + 1)
@@ -70,21 +71,21 @@ object ConverterUtil {
         if (shifted != elem) {
           elem = shifted
         } else if (startOffset < elem.getTextRange.getStartOffset) {
-          buffer += buildTextPart(startOffset, elem.getTextRange.getStartOffset, dropElements)
+          builder += buildTextPart(startOffset, elem.getTextRange.getStartOffset, dropElements)
         }
 
-        buffer += ElementPart(elem)
+        builder += ElementPart(elem)
         while (elem.getNextSibling != null && elem.getNextSibling.getTextRange.getEndOffset <= endOffset) {
           elem = elem.getNextSibling
-          buffer += ElementPart(elem)
+          builder += ElementPart(elem)
         }
 
         if (elem.getTextRange.getEndOffset < endOffset) {
-          buffer += buildTextPart(elem.getTextRange.getEndOffset, endOffset, dropElements)
+          builder += buildTextPart(elem.getTextRange.getEndOffset, endOffset, dropElements)
         }
       }
     }
-    (buffer, dropElements)
+    (builder.result(), dropElements)
   }
 
   def canDropElement(element: PsiElement): Boolean = {

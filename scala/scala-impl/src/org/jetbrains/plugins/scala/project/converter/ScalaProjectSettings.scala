@@ -13,7 +13,7 @@ import scala.xml.Elem
 /**
  * @author Pavel Fatin
  */
-class ScalaProjectSettings(basePackages: collection.Seq[String]) extends XmlConversion {
+class ScalaProjectSettings(basePackages: Seq[String]) extends XmlConversion {
   def createOrUpdateIn(context: ConversionContext): Option[Path] = {
     if (basePackages.isEmpty) return None
 

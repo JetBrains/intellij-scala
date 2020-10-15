@@ -13,6 +13,8 @@ import com.intellij.usageView.UsageInfo
 import com.intellij.util.containers.MultiMap
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * @author Nikolay.Tropin
  */
@@ -36,7 +38,9 @@ class ScalaIntroduceParameterUsageProcessor extends ChangeSignatureUsageProcesso
 
     changeInfo match {
       case isIntroduceParameter(data) =>
-        val textRangeUsages = usages.collect {case t: TextRangeUsageInfo => t}
+        val textRangeUsages = usages.iterator
+          .collect { case t: TextRangeUsageInfo => t }
+          .to(ArraySeq)
         if (textRangeUsages.headOption.forall(_.processed)) return false
 
         val pName = data.paramName

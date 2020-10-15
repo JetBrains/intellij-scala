@@ -35,7 +35,7 @@ final class ScUAnnotation(override protected val scElement: ScAnnotation,
   override def getQualifiedName: String = scElement.getQualifiedName
 
   override def getAttributeValues: util.List[UNamedExpression] = {
-    val result: collection.Seq[UNamedExpression] = scElement.annotationExpr.getAnnotationParameters
+    val result: Seq[UNamedExpression] = scElement.annotationExpr.getAnnotationParameters
       .map {
         case namedArg: ScAssignment =>
           new ScUNamedExpression(namedArg, LazyUElement.just(this))

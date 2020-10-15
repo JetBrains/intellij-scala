@@ -147,7 +147,7 @@ object ScalaCompilerSettings {
     fromState(state)
   }
 
-  private def normalized(options: collection.Seq[String]): collection.Seq[String] = options.flatMap {
+  private def normalized(options: collection.Seq[String]): Seq[String] = options.iterator.flatMap {
     case "-language:macros" =>
       Seq("-language:experimental.macros")
 
@@ -158,7 +158,7 @@ object ScalaCompilerSettings {
       option.substring(9).split(";").map("-Xplugin:" + _)
 
     case option => Seq(option)
-  }
+  }.toSeq
 
   private type BoolGetter = ScalaCompilerSettingsState => Boolean
   private type BoolSetter = (ScalaCompilerSettingsState, Boolean) => Unit

@@ -197,7 +197,7 @@ object Compatibility {
       )
 
       val fromImplicit = implicitCollector.collect() match {
-        case collection.Seq(res) =>
+        case Seq(res) =>
           extractImplicitParameterType(res).flatMap {
             case FunctionType(rt, Seq(_)) => Some(rt)
             case paramType =>

@@ -59,7 +59,7 @@ import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt
 import org.jetbrains.plugins.scala.util.{SAMUtil, ScEquivalenceUtil}
 
 import scala.annotation.tailrec
-import scala.collection.{Set, mutable}
+import scala.collection.mutable
 import scala.reflect.{ClassTag, NameTransformer}
 
 /**
@@ -1380,7 +1380,10 @@ object ScalaPsiUtil {
         .exists(rr => ref.isReferenceTo(rr.element))
     }
 
-    aliases.filter(_._1.getTextRange.getEndOffset < position.getTextOffset).filter(correctResolve).toSet
+    aliases.iterator
+      .filter(_._1.getTextRange.getEndOffset < position.getTextOffset)
+      .filter(correctResolve)
+      .toSet
   }
 
   def importAliasFor(element: PsiElement, refPosition: PsiElement): Option[ScReference] = {

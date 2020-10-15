@@ -57,7 +57,7 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionName
 
   private def inspectAccordingToExpectedType(expected: ScType, definition: ScNewTemplateDefinition, holder: ProblemsHolder): Unit = {
     definition.membersWithSynthetic match {
-      case collection.Seq(fun: ScFunctionDefinition) =>
+      case Seq(fun: ScFunctionDefinition) =>
         def containsReturn(expr: ScExpression): Boolean = {
           expr.depthFirst().exists(_.getNode.getElementType == ScalaTokenTypes.kRETURN)
         }

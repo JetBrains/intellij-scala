@@ -66,7 +66,7 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
     missing
   }
 
-  private def tooManyParametersIn(literal: ScFunctionExpr, parameters: collection.Seq[ScParameter], expectedTypes: Iterable[ScType])
+  private def tooManyParametersIn(literal: ScFunctionExpr, parameters: Seq[ScParameter], expectedTypes: Iterable[ScType])
                                  (implicit holder: ScalaAnnotationHolder): Boolean = {
     val tooMany = parameters.size > expectedTypes.size
     if (tooMany) {
@@ -99,7 +99,7 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
     typeMismatch
   }
 
-  private def missingParameterTypeIn(parameters: collection.Seq[ScParameter])
+  private def missingParameterTypeIn(parameters: Seq[ScParameter])
                                     (implicit holder: ScalaAnnotationHolder): Boolean = {
     var missing = false
     parameters.iterator.takeWhile(_ => !missing).foreach { parameter =>

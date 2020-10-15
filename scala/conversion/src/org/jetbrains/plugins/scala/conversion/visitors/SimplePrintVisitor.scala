@@ -886,8 +886,8 @@ class SimplePrintVisitor protected() {
     printWithSeparator(parts, ", ", "[", "]", parts.nonEmpty)
   }
 
-  protected def printWithSeparator(seq: collection.Seq[IntermediateNode], separator: String): Unit = {
-    if (seq != null && seq.nonEmpty) {
+  protected def printWithSeparator(seq: IterableOnce[IntermediateNode], separator: String): Unit = {
+    if (seq != null) {
       val it = seq.iterator
       while (it.hasNext) {
         visit(it.next())
@@ -896,17 +896,17 @@ class SimplePrintVisitor protected() {
     }
   }
 
-  protected def printWithSeparator(seq: Seq[IntermediateNode], separator: String, before: String, after: String, needAppend: Boolean): Unit = {
+  protected def printWithSeparator(seq: IterableOnce[IntermediateNode], separator: String, before: String, after: String, needAppend: Boolean): Unit = {
     if (needAppend) printer.append(before)
     printWithSeparator(seq, separator)
     if (needAppend) printer.append(after)
   }
 
-  protected def printWithSeparator(seq: Seq[IntermediateNode], separator: String, before: String, after: String): Unit = {
+  protected def printWithSeparator(seq: IterableOnce[IntermediateNode], separator: String, before: String, after: String): Unit = {
     printWithSeparator(seq, separator, before, after, needAppend = true)
   }
 
-  protected def visitTypeParameters(data: Seq[IntermediateNode]): Unit = {
+  protected def visitTypeParameters(data: Iterable[IntermediateNode]): Unit = {
     printWithSeparator(data, ", ", "[", "]", data.nonEmpty)
   }
 

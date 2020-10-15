@@ -195,7 +195,7 @@ package object project {
     def isCompilerStrictMode: Boolean =
       scalaModuleSettings.exists(_.isCompilerStrictMode)
 
-    def scalaCompilerClasspath: collection.Seq[File] = module.scalaSdk
+    def scalaCompilerClasspath: Seq[File] = module.scalaSdk
       .fold(throw new ScalaSdkNotConfiguredException(module)) {
         _.properties.compilerClasspath
       }

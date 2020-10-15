@@ -40,8 +40,8 @@ object FlattenSimplification extends SimplificationType {
           case Some(identity()) => true
           case _ => false
         }
-      case ScFunctionExpr(collection.Seq(x), Some(ResolvesTo(param))) if x == param => true
-      case ScFunctionExpr(collection.Seq(x), Some(identity(ResolvesTo(param)))) if x == param => true
+      case ScFunctionExpr(Seq(x), Some(ResolvesTo(param))) if x == param => true
+      case ScFunctionExpr(Seq(x), Some(identity(ResolvesTo(param)))) if x == param => true
       case _ => false
     }
   }

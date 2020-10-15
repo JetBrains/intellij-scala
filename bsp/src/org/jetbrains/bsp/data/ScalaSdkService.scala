@@ -50,13 +50,13 @@ object ScalaSdkService {
       configureScalaSdk(
         module,
         Option(scalaVersion),
-        scalacClasspath.asScala
+        scalacClasspath.asScala.toSeq
       )
     }
 
     private def configureScalaSdk(module: Module,
                                   maybeVersion: Option[String],
-                                  compilerClasspath: collection.Seq[File]): Unit = for {
+                                  compilerClasspath: Seq[File]): Unit = for {
       presentation <- maybeVersion
       if ScalaLanguageLevel.findByVersion(presentation).isDefined
 

@@ -91,7 +91,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
             val javacOptions = data.javacOptions.map(_.getItems.asScala).getOrElse {List.empty[JavacOptionsItem]}
 
             val descriptions = calculateModuleDescriptions(
-              targets, scalacOptions, javacOptions, sources, resources, depSources
+              targets, scalacOptions.toSeq, javacOptions.toSeq, sources.toSeq, resources.toSeq, depSources.toSeq
             )
             projectNode(workspace, descriptions, rootExclusions(workspace))
           }

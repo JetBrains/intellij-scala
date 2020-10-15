@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-import scala.collection.mutable
+import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 
 /**
@@ -78,29 +78,30 @@ object ScalaOIUtil {
       else getMembersToOverride(clazz)
     if (classMembers.isEmpty) return
 
-    val selectedMembers = mutable.ListBuffer[ClassMember]()
-    if (!ApplicationManager.getApplication.isUnitTestMode) {
+    val selectedMembers =
+      if (!ApplicationManager.getApplication.isUnitTestMode) {
+        val chooser = new ScalaMemberChooser[ClassMember](classMembers.to(ArraySeq), false, true, isImplement, true, true, clazz)
+        chooser.setTitle(if (isImplement) ScalaBundle.message("select.method.implement") else ScalaBundle.message("select.method.override"))
+        if (isImplement) chooser.selectElements(classMembers.toArray[JClassMember])
+        chooser.show()
 
-      val chooser = new ScalaMemberChooser[ClassMember](classMembers.toArray, false, true, isImplement, true, true, clazz)
-      chooser.setTitle(if (isImplement) ScalaBundle.message("select.method.implement") else ScalaBundle.message("select.method.override"))
-      if (isImplement) chooser.selectElements(classMembers.toArray[JClassMember])
-      chooser.show()
-
-      val elements = chooser.getSelectedElements
-      if (elements != null) selectedMembers ++= elements.asScala
-      if (selectedMembers.isEmpty) return
-    } else {
-      selectedMembers ++= classMembers.find {
-        case named: ScalaNamedMember if named.name == methodName => true
-        case _ => false
-      }.toSeq
-    }
+        val elements = chooser.getSelectedElements
+        if (elements == null || elements.isEmpty) {
+          return
+        }
+        elements.asScala.to(ArraySeq)
+      } else {
+        classMembers.find {
+          case named: ScalaNamedMember if named.name == methodName => true
+          case _ => false
+        }.to(ArraySeq)
+      }
 
     runAction(selectedMembers, isImplement, clazz)
   }
 
 
-  def runAction(selectedMembers: collection.Seq[ClassMember],
+  def runAction(selectedMembers: Seq[ClassMember],
                 isImplement: Boolean,
                 clazz: ScTemplateDefinition)
                (implicit project: Project, editor: Editor): Unit =

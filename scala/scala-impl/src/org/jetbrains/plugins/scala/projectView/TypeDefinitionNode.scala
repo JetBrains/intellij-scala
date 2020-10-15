@@ -32,7 +32,7 @@ private[projectView] class TypeDefinitionNode(definition: ScTypeDefinition)
       super.getChildrenImpl
 
   private def childrenOf(value: ScTypeDefinition): util.List[Node] = {
-    val result: collection.Seq[Node] = value.membersWithSynthetic.flatMap {
+    val result: Seq[Node] = value.membersWithSynthetic.flatMap {
       case definition: ScTypeDefinition =>
         Seq(new TypeDefinitionNode(definition))
       case element: ScNamedElement =>

@@ -27,7 +27,7 @@ class CreateExtractorObjectQuickFix(ref: ScReference, p: ScPattern)
 
   override protected def addMoreElementsToTemplate(builder: TemplateBuilder, clazz: ScTypeDefinition): Unit = {
     val method = clazz.members match {
-      case collection.Seq(fun: ScFunction) => fun
+      case Seq(fun: ScFunction) => fun
       case _ => return
     }
 

@@ -11,11 +11,12 @@ import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.plugins.scala.compiler.data.{CompilationData, ZincData}
 
 import scala.jdk.CollectionConverters._
+import scala.collection.immutable.ArraySeq
 
 trait CompilationDataFactory {
 
-  def from(sources: collection.Seq[File],
-           allSources: collection.Seq[File],
+  def from(sources: Seq[File],
+           allSources: Seq[File],
            context: CompileContext,
            chunk: ModuleChunk): Either[String, CompilationData]
 }
@@ -25,8 +26,8 @@ object CompilationDataFactory
 
   private val compilationStamp = System.nanoTime()
 
-  override def from(sources: collection.Seq[File],
-                    allSources: collection.Seq[File],
+  override def from(sources: Seq[File],
+                    allSources: Seq[File],
                     context: CompileContext,
                     chunk: ModuleChunk): Either[String, CompilationData] = {
     val target = chunk.representativeTarget
@@ -137,7 +138,7 @@ object CompilationDataFactory
       if sourceRootFile.exists
     } yield (sourceRootFile, output)
   
-  private def targetsIn(context: CompileContext): collection.Seq[ModuleBuildTarget] = {
+  private def targetsIn(context: CompileContext): Seq[ModuleBuildTarget] = {
     def isExcluded(target: ModuleBuildTarget): Boolean =
       ChunkExclusionService.isExcluded(chunk(target))
 
@@ -147,17 +148,17 @@ object CompilationDataFactory
     }
 
     val buildTargetIndex = context.getProjectDescriptor.getBuildTargetIndex
-    val targets = JavaModuleBuildTargetType.ALL_TYPES.asScala.flatMap(buildTargetIndex.getAllTargets(_).asScala)
+    val targets = JavaModuleBuildTargetType.ALL_TYPES.iterator.asScala.flatMap(buildTargetIndex.getAllTargets(_).asScala)
 
-    targets.distinct.filterNot { target =>
-      buildTargetIndex.isDummy(target) || isExcluded(target) || isProductionTargetOfTestModule(target)
-    }
+    targets.distinct
+      .filterNot(target => buildTargetIndex.isDummy(target) || isExcluded(target) || isProductionTargetOfTestModule(target))
+      .to(ArraySeq)
   }
 
   private def chunk(target: ModuleBuildTarget): ModuleChunk =
     new ModuleChunk(Collections.singleton(target))
 
-  private def outputClashesIn(targetToOutput: collection.Seq[(ModuleBuildTarget, File)]): Option[String] = {
+  private def outputClashesIn(targetToOutput: Seq[(ModuleBuildTarget, File)]): Option[String] = {
     val outputToTargetsMap = targetToOutput.groupBy(_._2).view.mapValues(_.map(_._1))
 
     val errors = outputToTargetsMap.collect {

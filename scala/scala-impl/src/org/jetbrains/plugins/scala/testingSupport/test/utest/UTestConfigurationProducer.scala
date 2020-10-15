@@ -88,7 +88,7 @@ final class UTestConfigurationProducer extends AbstractTestConfigurationProducer
     methodCall.deepestInvokedExpr.getParent match {
       case deepest: ScMethodCall =>
         deepest.args.exprs match {
-          case collection.Seq(name) =>
+          case Seq(name) =>
             val testName = TestConfigurationUtil.getStaticTestName(name)
             val testNameTotal = testName.flatMap(testName => buildTestPath(methodCall, testName))
             testNameTotal

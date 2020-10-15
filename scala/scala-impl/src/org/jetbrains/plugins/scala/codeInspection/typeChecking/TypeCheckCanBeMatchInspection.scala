@@ -82,7 +82,7 @@ object TypeCheckCanBeMatchInspection {
   @Nls
   val inspectionName: String = ScalaInspectionBundle.message("type.check.can.be.replaced.by.pattern.matching")
 
-  private type RenameData = mutable.ArrayBuffer[(Int, collection.Seq[String])]
+  private type RenameData = mutable.ArrayBuffer[(Int, Seq[String])]
 
   def buildMatchStmt(ifStmt: ScIf, isInstOfUnderFix: ScGenericCall, onlyFirst: Boolean)
                     (implicit project: Project): (Option[ScMatch], RenameData) =

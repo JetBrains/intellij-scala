@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
-import scala.collection.mutable
+import scala.collection.immutable.ArraySeq
 
 /**
 * @author Alexander Podkhalyuzin
@@ -23,14 +23,14 @@ class ScEnumeratorsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
 
   override def toString: String = "Enumerators"
 
-  override def forBindings: mutable.ArraySeq[ScForBinding] = findChildrenByClass[ScForBinding](classOf[ScForBinding])
+  override def forBindings: ArraySeq[ScForBinding] = ArraySeq.unsafeWrapArray(findChildrenByClass[ScForBinding](classOf[ScForBinding]))
 
-  override def generators: mutable.ArraySeq[ScGenerator] = findChildrenByClass[ScGenerator](classOf[ScGenerator])
+  override def generators: ArraySeq[ScGenerator] = ArraySeq.unsafeWrapArray(findChildrenByClass[ScGenerator](classOf[ScGenerator]))
 
-  override def guards: mutable.ArraySeq[ScGuard] = findChildrenByClass[ScGuard](classOf[ScGuard])
+  override def guards: ArraySeq[ScGuard] = ArraySeq.unsafeWrapArray(findChildrenByClass[ScGuard](classOf[ScGuard]))
 
   override def namings: Seq[ScPatterned] =
-    for (c <- getChildren.toSeq if c.isInstanceOf[ScGenerator] || c.isInstanceOf[ScForBinding])
+    for (c <- getChildren.toSeq if c.is[ScGenerator, ScForBinding])
           yield c.asInstanceOf[ScPatterned]
 
   override def processDeclarations(processor: PsiScopeProcessor,

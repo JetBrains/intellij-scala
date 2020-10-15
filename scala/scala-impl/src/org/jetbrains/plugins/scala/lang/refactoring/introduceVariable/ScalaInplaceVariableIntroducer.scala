@@ -42,6 +42,7 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.annotations._
 import org.jetbrains.plugins.scala.util._
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 class ScalaInplaceVariableIntroducer(expr: ScExpression,
@@ -376,8 +377,9 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
       val named = namedElement(getDeclaration).orNull
       val templateState: TemplateState = TemplateManagerImpl.getTemplateState(myEditor)
       if (named != null && templateState != null) {
-        val occurrences =
-          (for (i <- 0 until templateState.getSegmentsCount) yield templateState.getSegmentRange(i)).toArray
+        val occurrences = (0 until templateState.getSegmentsCount)
+          .map(templateState.getSegmentRange)
+          .to(ArraySeq)
         val validator: ScalaVariableValidator = ScalaVariableValidator(myFile, named, occurrences)
 
         val reporter = new ValidationReporter(myProject, new BalloonConflictsReporter(myEditor), validator)

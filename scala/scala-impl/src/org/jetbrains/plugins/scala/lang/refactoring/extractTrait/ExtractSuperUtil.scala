@@ -138,14 +138,18 @@ object ExtractSuperUtil {
     null
   }
 
-  def possibleMembersToExtract(clazz: ScTemplateDefinition): util.List[ScalaExtractMemberInfo] = {
+  def possibleMembersToExtract(clazz: ScTemplateDefinition): Seq[ScalaExtractMemberInfo] = {
     clazz.membersWithSynthetic.filter {
       case m if m.isPrivate => false
       case ScalaConstructor(_) => false
       case _: ScTypeDefinition => false
       case _ => true
-    }.map(new ScalaExtractMemberInfo(_)).asJava
+    }.map(new ScalaExtractMemberInfo(_))
   }
+
+  def possibleMembersToExtractAsJava(clazz: ScTemplateDefinition): util.List[ScalaExtractMemberInfo] =
+    possibleMembersToExtract(clazz).asJava
+
 
   def declarationScope(m: ScMember): Seq[PsiElement] = {
     m match {

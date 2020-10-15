@@ -15,6 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScExtendsBlockStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
 
+import scala.collection.immutable.ArraySeq
+
+
 /**
   * @author ilyas
   */
@@ -28,7 +31,7 @@ class ScExtendsBlockElementType extends ScStubElementType[ScExtendsBlockStub, Sc
                            parentStub: StubElement[_ <: PsiElement]) = new ScExtendsBlockStubImpl(
     parentStub,
     this,
-    baseClasses = dataStream.readNames
+    baseClasses = ArraySeq.unsafeWrapArray(dataStream.readNames)
   )
 
   override def createStubImpl(block: ScExtendsBlock,
@@ -39,7 +42,7 @@ class ScExtendsBlockElementType extends ScStubElementType[ScExtendsBlockStub, Sc
   )
 
   override def indexStub(stub: ScExtendsBlockStub, sink: IndexSink): Unit = {
-    sink.occurrences(index.ScalaIndexKeys.SUPER_CLASS_NAME_KEY, stub.baseClasses.toSeq: _*)
+    sink.occurrences(index.ScalaIndexKeys.SUPER_CLASS_NAME_KEY, stub.baseClasses: _*)
   }
 
   override def createElement(node: ASTNode) = new ScExtendsBlockImpl(node)

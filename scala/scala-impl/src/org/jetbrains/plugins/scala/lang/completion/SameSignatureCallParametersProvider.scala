@@ -103,7 +103,7 @@ object SameSignatureCallParametersProvider {
 
     private def findResolvableParameters(reference: PsiElement,
                                          invocationCount: Int)
-                                        (parameters: collection.Seq[ScParameter]) = for {
+                                        (parameters: Seq[ScParameter]) = for {
       parameter <- parameters
       name = parameter.name
 
@@ -135,7 +135,7 @@ object SameSignatureCallParametersProvider {
             case typeElement@Typeable(tp) =>
               tp.extractClassType match {
                 //noinspection ScalaUnnecessaryParentheses
-                case Some((clazz: ScClass, substitutor)) if (if (clazz.hasTypeParameters) typeElement.isInstanceOf[ScParameterizedTypeElement] else true) =>
+                case Some((clazz: ScClass, substitutor)) if (if (clazz.hasTypeParameters) typeElement.is[ScParameterizedTypeElement] else true) =>
                   val argumentToStart = new ArgumentToStart(argumentsList)(constructorInvocation.arguments.indexOf(argumentsList))
 
                   for {
@@ -166,7 +166,7 @@ object SameSignatureCallParametersProvider {
       /** empty expressions cannot be handled via [[ScArgumentExprList.exprs]] */
     )
 
-    def parametersNames(method: ScMethodLike): collection.Seq[ScParameter] = method
+    def parametersNames(method: ScMethodLike): Seq[ScParameter] = method
       .parametersInClause(clauseIndex)
       .drop(argumentsToDrop)
   }
@@ -190,7 +190,7 @@ object SameSignatureCallParametersProvider {
   private[this] final case class ParameterArgument(override protected val typeable: ScParameter)
     extends Argument(typeable, typeable)
 
-  private[this] def findMethodParameters(method: ScMethodLike) = { _: collection.Seq[ScParameter] =>
+  private[this] def findMethodParameters(method: ScMethodLike): Seq[ScParameter] => Seq[(String, ParameterArgument)] = { _ =>
     method
       .parameterList
       .params
@@ -202,7 +202,7 @@ object SameSignatureCallParametersProvider {
   private[this] def createLookupElement(method: ScMethodLike,
                                         argumentToStart: ArgumentToStart,
                                         substitutor: ScSubstitutor)
-                                       (argumentsWithNames: collection.Seq[ScParameter] => collection.Seq[(String, Argument)]) = {
+                                       (argumentsWithNames: Seq[ScParameter] => Seq[(String, Argument)]) = {
     val parameters = argumentToStart.parametersNames(method)
 
     parameters.length match {
@@ -227,17 +227,18 @@ object SameSignatureCallParametersProvider {
     }
   }
 
-  private[this] def applicableNames(parameters: collection.Seq[ScParameter],
+  private[this] def applicableNames(parameters: Seq[ScParameter],
                                     substitutor: ScSubstitutor,
-                                    nameToArgument: Map[String, Argument]) = for {
-    parameter <- parameters
+                                    nameToArgument: Map[String, Argument]) =
+    for {
+      parameter <- parameters
 
-    name = parameter.name
-    if name != null
+      name = parameter.name
+      if name != null
 
-    argument <- nameToArgument.get(name)
-    if argument.conformsTo(parameter, substitutor)
-  } yield name
+      argument <- nameToArgument.get(name)
+      if argument.conformsTo(parameter, substitutor)
+    } yield name
 
   private[this] abstract class ExpressionListInsertHandler extends InsertHandler[LookupElement] {
 

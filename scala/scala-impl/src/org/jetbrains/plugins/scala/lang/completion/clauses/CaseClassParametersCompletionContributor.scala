@@ -65,7 +65,7 @@ class CaseClassParametersCompletionContributor extends ScalaCompletionContributo
         result.withRelevanceSorter(sorter).addAllElements(elements)
       }
 
-      private def createItems(pairs: collection.Seq[(ScParameter, String)]) = {
+      private def createItems(pairs: Seq[(ScParameter, String)]) = {
         pairs.map {
           case (parameter, name) =>
             val result = new ScalaLookupItem(parameter, name)

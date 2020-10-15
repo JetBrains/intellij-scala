@@ -106,19 +106,19 @@ trait ScFunction extends ScalaPsiElement with ScMember.WithBaseIconProvider with
   /** PsiMethod wrappers for java compatibility
     * @return Empty array, if containing class is null.
     */
-  def getFunctionWrappers(isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass] = None): collection.Seq[ScFunctionWrapper]
+  def getFunctionWrappers(isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper]
 
   override def parameters: Seq[ScParameter] = paramClauses.params
 
-  def superMethods: collection.Seq[PsiMethod]
+  def superMethods: Seq[PsiMethod]
 
   def superMethod: Option[PsiMethod]
 
   def superMethodAndSubstitutor: Option[(PsiMethod, ScSubstitutor)]
 
-  def superSignatures: collection.Seq[TermSignature]
+  def superSignatures: Seq[TermSignature]
 
-  def superSignaturesIncludingSelfType: collection.Seq[TermSignature]
+  def superSignaturesIncludingSelfType: Seq[TermSignature]
 
   def hasAssign: Boolean
 

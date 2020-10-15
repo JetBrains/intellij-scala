@@ -21,7 +21,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
 
 import scala.jdk.CollectionConverters._
-import scala.collection.immutable
 import scala.meta.parsers.Parse
 import scala.meta.trees.{AbortException, ScalaMetaException, TreeConverter}
 import scala.meta.{Dialect, ScalaMetaBundle, Tree}
@@ -59,8 +58,8 @@ class MetaExpansionsManager {
     def classLoaderForModule(module: Module)(contextCP: Seq[URL]): URLClassLoader = {
       annotationClassLoaders.getOrElseUpdate(module.getName, {
         val dependencyCP: List[URL] = OrderEnumerator.orderEntries(module).getClassesRoots.toList.map(toUrl)
-        val outDirs: List[URL] = projectOutputDirs(module.getProject).map(str => new File(str).toURI.toURL)
-        val fullCP: immutable.Seq[URL] = outDirs ++ dependencyCP :+ pluginCP
+        val outDirs = projectOutputDirs(module.getProject).map(str => new File(str).toURI.toURL)
+        val fullCP = outDirs ++ dependencyCP :+ pluginCP
         // a quick way to test for compatible meta version - check jar name in classpath
         if (annot.scalaLanguageLevelOrDefault == Scala_2_12 && dependencyCP.exists(_.toString.contains(s"trees_2.12-$META_MAJOR_VERSION")))
           new URLClassLoader(fullCP, getClass.getClassLoader)

@@ -72,7 +72,7 @@ object CompilerFactoryImpl {
   private val Log: JpsLogger = JpsLogger.getInstance(CompilerFactoryImpl.getClass.getName)
   private val scalaInstanceCache = new Cache[CompilerJars, ScalaInstance](3)
 
-  private var classLoadersMap = Map[collection.Seq[File], ClassLoader]()
+  private var classLoadersMap = Map[Seq[File], ClassLoader]()
 
   def getOrCreateScalaInstance(jars: CompilerJars): ScalaInstance =
     scalaInstanceCache.getOrUpdate(jars)(createScalaInstance(jars))

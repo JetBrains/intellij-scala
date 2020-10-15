@@ -19,7 +19,7 @@ import scala.xml.{Elem, PrettyPrinter}
 /**
  * @author Pavel Fatin
  */
-private case class ScalaSdkData(name: String, standardLibrary: LibraryData, languageLevel: String, compilerClasspath: collection.Seq[String]) {
+private case class ScalaSdkData(name: String, standardLibrary: LibraryData, languageLevel: String, compilerClasspath: Seq[String]) {
   def isEquivalentTo(compilerLibrary: LibraryData): Boolean =
     compilerClasspath.toSet == compilerLibrary.classesAsFileUrls.toSet
 
@@ -101,7 +101,9 @@ private object ScalaSdkData {
 
     @nowarn("cat=deprecation")
     val compilerClasspath = XPath.selectNodes(element, "properties/compiler-classpath/root/@url").asScala
-            .map(_.asInstanceOf[Attribute].getValue)
+      .iterator
+      .map(_.asInstanceOf[Attribute].getValue)
+      .toSeq
 
     val languageLevel = languageLevelFrom(compilerClasspath)
     

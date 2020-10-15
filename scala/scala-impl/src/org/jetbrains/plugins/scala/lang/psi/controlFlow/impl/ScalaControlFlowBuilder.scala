@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -24,7 +25,7 @@ import scala.collection.mutable.ArrayBuffer
 class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
                               endInsScope: ScalaPsiElement)
         extends ScalaRecursiveElementVisitor {
-  private val myInstructions = new ArrayBuffer[InstructionImpl]
+  private val myInstructionsBuilder = ArraySeq.newBuilder[InstructionImpl]
   private val myPending = new ArrayBuffer[(InstructionImpl, ScalaPsiElement)]
   private val myTransitionInstructions = new ArrayBuffer[(InstructionImpl, HandleInfo)]
   private var myCatchedExnStack = List.empty[HandleInfo]
@@ -32,14 +33,14 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   private var myHead: InstructionImpl = _
 
 
-  def buildControlflow(scope: ScalaPsiElement): collection.Seq[Instruction] = {
+  def buildControlflow(scope: ScalaPsiElement): Seq[Instruction] = {
     // initial node
     val instr = new InstructionImpl(inc, None)
     addNode(instr)
     scope.accept(this)
     // final node
     emptyNode()
-    myInstructions
+    myInstructionsBuilder.result()
   }
 
   def inc: Int = {
@@ -73,7 +74,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   private def addNode(instr: InstructionImpl): Unit = {
-    myInstructions += instr
+    myInstructionsBuilder += instr
     if (myHead != null) addEdge(myHead, instr)
     myHead = instr
   }

@@ -80,7 +80,7 @@ object TypesCollector extends SignatureProcessor[TypeSignature] {
 
 abstract class TermsCollector extends SignatureProcessor[TermSignature] {
 
-  protected def relevantMembers(td: ScTemplateDefinition): collection.Seq[ScMember]
+  protected def relevantMembers(td: ScTemplateDefinition): Seq[ScMember]
 
   override def shouldSkip(t: TermSignature): Boolean = t.namedElement match {
     case f: ScFunction => f.isConstructor
@@ -181,12 +181,12 @@ abstract class TermsCollector extends SignatureProcessor[TermSignature] {
 }
 
 object TermsCollector extends TermsCollector {
-  override def relevantMembers(td: ScTemplateDefinition): collection.Seq[ScMember] =
+  override def relevantMembers(td: ScTemplateDefinition): Seq[ScMember] =
     td.membersWithSynthetic
 }
 
 object StableTermsCollector extends TermsCollector {
-  override def relevantMembers(td: ScTemplateDefinition): collection.Seq[ScMember] = {
+  override def relevantMembers(td: ScTemplateDefinition): Seq[ScMember] = {
     (td.members ++ td.syntheticMembers ++ td.syntheticTypeDefinitions)
       .filter(mayContainStable)
   }

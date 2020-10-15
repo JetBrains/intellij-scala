@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package debugger
 
 import java.io.File
-import java.util.Collections.{emptyList, singletonList}
+import java.util.Collections.emptyList
 import java.{util => ju}
 
 import com.intellij.debugger.engine._
@@ -42,6 +42,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.toJavaFq
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.annotation.tailrec
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.reflect.NameTransformer
@@ -222,7 +223,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       else (false, "")
     }
 
-    def findDefaultArg(possiblePositions: collection.Seq[PsiElement], defaultArgIndex: String) : Option[PsiElement] = {
+    def findDefaultArg(possiblePositions: Seq[PsiElement], defaultArgIndex: String) : Option[PsiElement] = {
       try {
         val paramNumber = defaultArgIndex.toInt - 1
         possiblePositions.find {
@@ -400,7 +401,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       checkLines(elem, document) && ScalaEvaluatorBuilderUtil.isGenerateClass(elem) && nameMatches(elem, refType)
     }
 
-    def findCandidates(): collection.Seq[PsiElement] = {
+    def findCandidates(): Seq[PsiElement] = {
       def findAt(offset: Int): Option[PsiElement] = {
         val startElem = file.findElementAt(offset)
         startElem.parentsInFile.find(isAppropriateCandidate)
@@ -421,7 +422,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       }
     }
 
-    def filterWithSignature(candidates: collection.Seq[PsiElement]): collection.Seq[PsiElement] = {
+    def filterWithSignature(candidates: Seq[PsiElement]): Seq[PsiElement] = {
       val applySignature = refType.methodsByName("apply").asScala.find(m => !m.isSynthetic).map(_.signature())
       if (applySignature.isEmpty) candidates
       else {
@@ -586,10 +587,10 @@ object ScalaPositionManager {
     }
   }
 
-  def positionsOnLine(file: PsiFile, lineNumber: Int): collection.Seq[PsiElement] = {
+  def positionsOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {
     //stored in `file`, invalidated on `file` change
     @CachedInUserData(file, file)
-    def cachedMap: ConcurrentIntObjectMap[collection.Seq[PsiElement]] = ContainerUtil.createConcurrentIntObjectMap()
+    def cachedMap: ConcurrentIntObjectMap[Seq[PsiElement]] = ContainerUtil.createConcurrentIntObjectMap()
 
     if (lineNumber < 0) return Seq.empty
 
@@ -612,29 +613,29 @@ object ScalaPositionManager {
     ScalaPositionManager.instance(refType).map(_.caches).flatMap(_.cachedSourceName(refType))
   }
 
-  private def positionsOnLineInner(file: ScalaFile, lineNumber: Int): collection.Seq[PsiElement] = {
+  private def positionsOnLineInner(file: ScalaFile, lineNumber: Int): Seq[PsiElement] = {
     inReadAction {
       val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
       if (document == null || lineNumber >= document.getLineCount) return Seq.empty
       val startLine = document.getLineStartOffset(lineNumber)
       val endLine = document.getLineEndOffset(lineNumber)
 
-      def elementsOnTheLine(file: ScalaFile): collection.Seq[PsiElement] = {
-        val result = mutable.ArrayBuffer.empty[PsiElement]
+      def elementsOnTheLine(file: ScalaFile): Seq[PsiElement] = {
+        val builder = ArraySeq.newBuilder[PsiElement]
         var elem = file.findElementAt(startLine)
 
         while (elem != null && elem.getTextOffset <= endLine) {
           elem match {
             case ChildOf(_: ScUnitExpr) | ChildOf(ScBlock()) =>
-              result += elem
+              builder += elem
             case ElementType(t) if ScalaTokenTypes.WHITES_SPACES_AND_COMMENTS_TOKEN_SET.contains(t) ||
               ScalaTokenTypes.ANY_BRACKETS_TOKEN_SET.contains(t) =>
             case _ =>
-              result += elem
+              builder += elem
           }
           elem = PsiTreeUtil.nextLeaf(elem, true)
         }
-        result
+        builder.result()
       }
 
       def findParent(element: PsiElement): Option[PsiElement] = {
@@ -663,7 +664,7 @@ object ScalaPositionManager {
     ScalaEvaluatorBuilderUtil.isGenerateAnonfun(element) && !isInsideMacro(element)
   }
 
-  def lambdasOnLine(file: PsiFile, lineNumber: Int): collection.Seq[PsiElement] = {
+  def lambdasOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {
     positionsOnLine(file, lineNumber).filter(isLambda)
   }
 
@@ -685,16 +686,16 @@ object ScalaPositionManager {
     isIndyLambda(m) || m.name.startsWith("apply") && isAnonfunType(m.declaringType())
   }
 
-  def indyLambdaMethodsOnLine(refType: ReferenceType, lineNumber: Int): collection.Seq[Method] = {
+  def indyLambdaMethodsOnLine(refType: ReferenceType, lineNumber: Int): Seq[Method] = {
     def ordinal(m: Method) = {
       val name = m.name()
       val lastDollar = name.lastIndexOf('$')
       Try(name.substring(lastDollar + 1).toInt).getOrElse(-1)
     }
 
-    val all = refType.methods().asScala.filter(isIndyLambda)
+    val all = refType.methods().asScala.iterator.filter(isIndyLambda)
     val onLine = all.filter(m => Try(!m.locationsOfLine(lineNumber + 1).isEmpty).getOrElse(false))
-    onLine.sortBy(ordinal)
+    onLine.toSeq.sortBy(ordinal)
   }
 
   @tailrec

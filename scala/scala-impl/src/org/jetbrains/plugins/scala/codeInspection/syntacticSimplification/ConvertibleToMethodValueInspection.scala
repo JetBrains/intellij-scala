@@ -93,7 +93,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionNa
       hasContextOrViewBoundTypeParam(srr.getElement)
   }
 
-  private def allArgsUnderscores(args: collection.Seq[ScExpression]): Boolean = {
+  private def allArgsUnderscores(args: Seq[ScExpression]): Boolean = {
     args.nonEmpty && args.forall(arg => arg.isInstanceOf[ScUnderscoreSection] && ScUnderScoreSectionUtil.isUnderscore(arg))
   }
 

@@ -39,9 +39,9 @@ abstract class RemoteServerConnectorBase(
 
   private val javaParameters = Seq.empty[String]
 
-  private val compilerClasspath: collection.Seq[File] = module.scalaCompilerClasspath
+  private val compilerClasspath: Seq[File] = module.scalaCompilerClasspath
 
-  private val additionalCp: collection.Seq[File] = compilerClasspath :+ ScalaPluginJars.runnersJar :+ ScalaPluginJars.compilerSharedJar :+ outputDir
+  private val additionalCp: Seq[File] = compilerClasspath :+ ScalaPluginJars.runnersJar :+ ScalaPluginJars.compilerSharedJar :+ outputDir
 
   protected def additionalScalaParameters: Seq[String] = Seq.empty
 

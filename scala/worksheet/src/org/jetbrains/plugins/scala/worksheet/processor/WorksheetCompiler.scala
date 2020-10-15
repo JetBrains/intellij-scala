@@ -262,7 +262,7 @@ object WorksheetCompiler {
   }
 
   trait CompilerMessagesCollector {
-    def collectedMessages: collection.Seq[CompilerMessage]
+    def collectedMessages: Seq[CompilerMessage]
   }
 
   private class CompilerInterfaceImpl(
@@ -281,7 +281,7 @@ object WorksheetCompiler {
 
     override def isCompiledWithErrors: Boolean = hasCompilationErrors
 
-    override def collectedMessages: collection.Seq[CompilerMessage] = messages
+    override def collectedMessages: Seq[CompilerMessage] = messages.toSeq
 
     override def message(message: CompilerMessage): Unit = {
       // for now we only need the compiler messages in unit tests

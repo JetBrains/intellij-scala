@@ -229,7 +229,7 @@ object InferUtil {
   }
 
 
-  private def areEligible(params: collection.Seq[ScType], typeFqn: String): Boolean =
+  private def areEligible(params: Seq[ScType], typeFqn: String): Boolean =
     (typeFqn, params) match {
       case (ValueOf, Seq(t))              => eligibleForValueOf(t)
       case (ConformsWitness, Seq(t1, t2)) => t1.conforms(t2)

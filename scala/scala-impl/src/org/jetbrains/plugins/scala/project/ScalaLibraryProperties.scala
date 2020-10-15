@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.util.HashBuilder._
  * @author Pavel Fatin
  */
 final class ScalaLibraryProperties private(private[this] var _languageLevel: ScalaLanguageLevel,
-                                           private[this] var _compilerClasspath: collection.Seq[File])
+                                           private[this] var _compilerClasspath: Seq[File])
   extends LibraryProperties[ScalaLibraryPropertiesState] {
 
   import ScalaLibraryProperties._
@@ -25,7 +25,7 @@ final class ScalaLibraryProperties private(private[this] var _languageLevel: Sca
     _languageLevel = languageLevel
   }
 
-  def compilerClasspath: collection.Seq[File] = _compilerClasspath
+  def compilerClasspath: Seq[File] = _compilerClasspath
 
   def compilerClasspath_=(compilerClasspath: Seq[File]): Unit = {
     _compilerClasspath = compilerClasspath
@@ -59,7 +59,7 @@ object ScalaLibraryProperties {
   import VfsUtilCore._
 
   def apply(version: Option[String] = None,
-            compilerClasspath: collection.Seq[File] = Seq.empty): ScalaLibraryProperties = {
+            compilerClasspath: Seq[File] = Seq.empty): ScalaLibraryProperties = {
     val languageLevel = version.flatMap(findByVersion).getOrElse(getDefault)
     new ScalaLibraryProperties(languageLevel, compilerClasspath)
   }

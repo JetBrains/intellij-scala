@@ -161,7 +161,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
     val qualNameToType = projectContext.stdTypes.QualNameToType
 
     t match {
-      case ScCompoundType(collection.Seq(typez, _*), _, _) => toPsiTypeInner(typez)
+      case ScCompoundType(Seq(typez, _*), _, _) => toPsiTypeInner(typez)
       case ScDesignatorType(c: ScTypeDefinition) if qualNameToType.contains(c.qualifiedName) =>
         toPsiTypeInner(qualNameToType(c.qualifiedName), noPrimitives)
       case ScDesignatorType(valClass: ScClass) if ValueClassType.isValueClass(valClass) =>

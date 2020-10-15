@@ -131,7 +131,7 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
 
         val maybeExpectedParamTpe = eTpe.flatMap(extractFromFunctionType(_, isUnderscoreFn))
         maybeExpectedParamTpe.orElse {
-          val findArg: collection.Seq[ScExpression] => Option[ScExpression] = _.find(_.textMatches(name))
+          val findArg: Seq[ScExpression] => Option[ScExpression] = _.find(_.textMatches(name))
           fn.result.flatMap(inferExpectedParamTypeUndoingEtaExpansion(_, findArg))
         }
       case _ => None
@@ -182,7 +182,7 @@ object ParameterExpectedTypesUtil {
    */
   def inferExpectedParamTypeUndoingEtaExpansion(
     resultExpr: ScExpression,
-    findArg:    collection.Seq[ScExpression] => Option[ScExpression]
+    findArg:    Seq[ScExpression] => Option[ScExpression]
   ): Option[ScType] = {
     val maybeInvokedAndArgs = resultExpr match {
       case MethodInvocation(inv: ScReferenceExpression, args)          => (inv, args).toOption

@@ -247,8 +247,8 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
 
 object ScExtendsBlockImpl {
-  private def extractSupers(typeElements: collection.Seq[ScTypeElement])
-                           (implicit project: ProjectContext): collection.Seq[PsiClass] =
+  private def extractSupers(typeElements: Seq[ScTypeElement])
+                           (implicit project: ProjectContext): Seq[PsiClass] =
     typeElements.flatMap {
       case typeElement@ScSimpleTypeElement.unwrapped(reference) =>
         reference.resolveNoConstructor match {

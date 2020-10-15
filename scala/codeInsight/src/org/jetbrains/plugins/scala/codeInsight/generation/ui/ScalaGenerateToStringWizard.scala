@@ -25,7 +25,7 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
   * @param classMembers Class members to choose from.
   * @author Rado Buransky (buransky.com)
   */
-final class ScalaGenerateToStringWizard(classMembers: collection.Seq[ScNamedElement])
+final class ScalaGenerateToStringWizard(classMembers: Seq[ScNamedElement])
                                        (implicit project: Project)
   extends AbstractWizard[Step](
     ScalaCodeInsightBundle.message("generate.ui.toString.title"),
@@ -70,7 +70,7 @@ final class ScalaGenerateToStringWizard(classMembers: collection.Seq[ScNamedElem
 
 object ScalaGenerateToStringWizard {
 
-  private final class Panel(members: collection.Seq[ScNamedElement])
+  private final class Panel(members: Seq[ScNamedElement])
                            (listener: TableModelListener)
     extends ScalaMemberSelectionPanel(
       ScalaCodeInsightBundle.message("generate.ui.toString.properties"),

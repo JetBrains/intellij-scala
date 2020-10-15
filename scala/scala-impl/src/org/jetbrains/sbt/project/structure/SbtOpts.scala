@@ -14,10 +14,13 @@ object SbtOpts {
 
   val SbtOptsFile: String = ".sbtopts"
 
-  def loadFrom(directory: File): collection.Seq[String] = {
+  def loadFrom(directory: File): Seq[String] = {
     val sbtOptsFile = directory / SbtOptsFile
     if (sbtOptsFile.exists && sbtOptsFile.isFile && sbtOptsFile.canRead)
-      process(FileUtil.loadLines(sbtOptsFile).asScala.map(_.trim))
+      process(FileUtil.loadLines(sbtOptsFile)
+        .asScala.iterator
+        .map(_.trim)
+        .toSeq)
     else
       Seq.empty
   }
@@ -33,7 +36,7 @@ object SbtOpts {
     "-jvm-debug" -> debuggerOpts
   )
 
-  private def process(opts: collection.Seq[String]): collection.Seq[String] = {
+  private def process(opts: Seq[String]): Seq[String] = {
     opts.flatMap { opt =>
       if (opt.startsWith("-no-share"))
         Some(noShareOpts)

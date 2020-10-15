@@ -58,7 +58,7 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
   def getSettingsForModule(module: Module): ScalaCompilerSettings =
     getProfileForModule(module).getSettings
 
-  def allCompilerPlugins: collection.Seq[String] = allProfiles.map(_.getSettings).flatMap(_.plugins)
+  def allCompilerPlugins: Seq[String] = allProfiles.map(_.getSettings).flatMap(_.plugins)
 
   def allProfiles: Seq[ScalaCompilerSettingsProfile] = defaultProfile +: customProfiles
 
@@ -67,14 +67,14 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
     settingsForHighlighting(module).exists(hasSetting)
 
   //currently we cannot rely on compiler options for shared source modules
-  def settingsForHighlighting(module: Module): collection.Seq[ScalaCompilerSettings] = {
+  def settingsForHighlighting(module: Module): Seq[ScalaCompilerSettings] = {
     val modules = module.getModuleTypeName match{
       case "SHARED_SOURCES_MODULE" =>
         ModuleManager.getInstance(module.getProject).getModuleDependentModules(module).asScala
       case _ => Seq(module)
     }
 
-    modules.map(getSettingsForModule)
+    modules.iterator.map(getSettingsForModule).toSeq
   }
 
   def configureSettingsForModule(module: Module, source: String, settings: ScalaCompilerSettings): Unit = {

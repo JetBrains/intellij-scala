@@ -19,8 +19,8 @@ trait Symbol extends Flags with Entry {
 
   def parent: Option[Symbol] = parentRef.map(_.get)
 
-  def children: collection.Seq[Symbol]
-  def attributes: collection.Seq[SymAnnot]
+  def children: Iterable[Symbol]
+  def attributes: Iterable[SymAnnot]
 
   def isType: Boolean = this match {
     case _: ClassSymbol if !isModule=> true
@@ -51,8 +51,8 @@ trait Symbol extends Flags with Entry {
 }
 
 abstract class ScalaSigSymbol(protected val scalaSig: ScalaSig) extends Symbol {
-  override def children: collection.Seq[Symbol] = scalaSig.children(this)
-  override def attributes: Seq[SymAnnot] = scalaSig.attributes(this)
+  override def children: Iterable[Symbol] = scalaSig.children(this)
+  override def attributes: Iterable[SymAnnot] = scalaSig.attributes(this)
 }
 
 abstract class SymbolInfoSymbol(val symbolInfo: SymbolInfo) extends ScalaSigSymbol(symbolInfo.name.scalaSig) {
@@ -71,8 +71,8 @@ case object NoSymbol extends Symbol {
   override def name = "<no symbol>"
   override def parentRef: Option[Ref[Symbol]] = None
   override def hasFlag(flag: Long) = false
-  override def children: Seq[Symbol] = Nil
-  override def attributes: Seq[SymAnnot] = Nil
+  override def children: Iterable[Symbol] = Iterable.empty
+  override def attributes: Iterable[SymAnnot] = Iterable.empty
 }
 
 case class TypeSymbol(info: SymbolInfo) extends SymbolInfoSymbol(info)

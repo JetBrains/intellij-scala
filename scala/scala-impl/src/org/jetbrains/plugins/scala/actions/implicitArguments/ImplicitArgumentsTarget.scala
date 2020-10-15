@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 private case class ImplicitArgumentsTarget(expression: PsiElement,
-                                           arguments: collection.Seq[ScalaResolveResult],
+                                           arguments: Seq[ScalaResolveResult],
                                            implicitConversion: Option[ScalaResolveResult] = None) {
 
   def presentation: String = {

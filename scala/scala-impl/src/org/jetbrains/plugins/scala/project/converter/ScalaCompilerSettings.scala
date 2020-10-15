@@ -17,8 +17,8 @@ case class ScalaCompilerSettings(compileOrder: String,
                                  explainTypeErrors: Boolean,
                                  continuations: Boolean,
                                  debuggingInfoLevel: String,
-                                 additionalCompilerOptions: collection.Seq[String],
-                                 compilerPlugins: collection.Seq[String]) {
+                                 additionalCompilerOptions: Seq[String],
+                                 compilerPlugins: Seq[String]) {
 
   def isDefault: Boolean = this == Default
 

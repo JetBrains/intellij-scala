@@ -34,7 +34,7 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
   val caretMarker = "/*caret*/"
   private var myEditors: Map[VirtualFile, Editor] = _
   private var myDirectory: VirtualFile = _
-  private var filesBefore: Array[VirtualFile] = _
+  private var filesBefore: Seq[VirtualFile] = _
 
   protected val folderPath: String = TestUtils.getTestDataPath + "/rename3/"
 
@@ -48,7 +48,7 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
     filesBefore =
       VfsUtil.collectChildrenRecursively(myDirectory.findChild("tests")).asScala
         .filter(!_.isDirectory)
-        .toArray
+        .toSeq
     //hack to avoid pointer leak: if pointer is created early enough it is not considered leak
     filesBefore.foreach(VirtualFilePointerManager.getInstance().create(_, projectAdapter, null))
   }
@@ -82,21 +82,21 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
 
   case class CaretPosition(file: VirtualFile, offset: Int)
 
-  private def findCaretsAndRemoveMarkers(files: Array[VirtualFile]): collection.Seq[CaretPosition] = {
-    val caretsInFile: VirtualFile => collection.Seq[CaretPosition] = { file =>
+  private def findCaretsAndRemoveMarkers(files: Seq[VirtualFile]): Seq[CaretPosition] = {
+    val caretsInFile: VirtualFile => Seq[CaretPosition] = { file =>
       var text = fileText(file)
       val fileLength = text.length
-      def findOffsets(s: String): collection.Seq[Int] = {
-        val result = ListBuffer[Int]()
+      def findOffsets(s: String): Seq[Int] = {
+        val builder = Seq.newBuilder[Int]
         val length = caretMarker.length
         var occ = text.indexOf(caretMarker)
         while(occ > 0) {
-          result += occ
+          builder += occ
           text = text.substring(0, occ) + text.substring(occ + length)
           occ = text.indexOf(caretMarker)
         }
 
-        result
+        builder.result()
       }
       val result = findOffsets(text).map(offset => CaretPosition(file, offset))
       if (result.nonEmpty) {
@@ -107,8 +107,8 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
     files.flatMap(caretsInFile)
   }
 
-  private def createEditors(files: Array[VirtualFile]): Map[VirtualFile, Editor] = {
-    files.map(f => f -> createEditor(f)).toMap
+  private def createEditors(files: Seq[VirtualFile]): Map[VirtualFile, Editor] = {
+    files.iterator.map(f => f -> createEditor(f)).toMap
   }
 
   protected override def tearDown(): Unit = {

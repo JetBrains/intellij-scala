@@ -254,7 +254,7 @@ object ScalaCompilerHighlightingTest {
 
     override def describeMismatch(item: Any, description: Description): Unit =
       item match {
-        case seq: collection.Seq[HighlightInfo @unchecked] =>
+        case seq: Seq[HighlightInfo @unchecked] =>
           val itemFixed = descriptionFor(seq.map(toExpectedHighlighting))
           super.describeMismatch(itemFixed, description)
         case _ =>
@@ -264,7 +264,7 @@ object ScalaCompilerHighlightingTest {
     private def toExpectedHighlighting(info: HighlightInfo): ExpectedHighlighting =
       ExpectedHighlighting(info.getSeverity, Some(info.range), info.getDescription)
 
-    private def descriptionFor(highlightings: collection.Seq[ExpectedHighlighting]): String =
+    private def descriptionFor(highlightings: Seq[ExpectedHighlighting]): String =
       highlightings.map(descriptionFor).mkString("\n")
 
     private def descriptionFor(highlighting: ExpectedHighlighting): String = {

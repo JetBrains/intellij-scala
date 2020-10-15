@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeRefe
 
 sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToImport](
   editor: Editor,
-  variants: collection.Seq[Elem],
+  variants: Seq[Elem],
   place: Psi,
   popupPosition: PopupPosition = PopupPosition.best
 ) extends QuestionAction {
@@ -69,7 +69,7 @@ sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToI
   }
 
   @Nls
-  protected def chooserTitle(variants: collection.Seq[Elem]): String =
+  protected def chooserTitle(variants: Seq[Elem]): String =
     ElementToImport.messageByType(variants)(
       ScalaBundle.message("import.class.chooser.title"),
       ScalaBundle.message("import.package.chooser.title"),
@@ -78,7 +78,7 @@ sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToI
 
   protected def separatorAbove(variant: Elem): ListSeparator = null
 
-  private def showChooser(validVariants: collection.Seq[Elem]): Unit = {
+  private def showChooser(validVariants: Seq[Elem]): Unit = {
     val title = chooserTitle(validVariants)
     val firstPopupStep: BaseListPopupStep[Elem] = new BaseListPopupStep[Elem](title, validVariants.toSeq: _*) {
       override def getIconFor(aValue: Elem): Icon =
@@ -166,7 +166,7 @@ object ScalaAddImportAction {
   }
 
   private sealed class ForReference[Ref <: ScReference, ToImport <: ElementToImport](editor: Editor,
-                                                                                     variants: collection.Seq[ToImport],
+                                                                                     variants: Seq[ToImport],
                                                                                      ref: Ref)
     extends ScalaAddImportAction[Ref, ToImport](editor, variants, ref) {
 
@@ -203,11 +203,11 @@ object ScalaAddImportAction {
   }
 
   private final class ImportImplicitConversionAction(editor: Editor,
-                                                     variants: collection.Seq[MemberToImport],
+                                                     variants: Seq[MemberToImport],
                                                      ref: ScReferenceExpression)
     extends ForReference[ScReferenceExpression, MemberToImport](editor, variants, ref) {
 
-    override protected def chooserTitle(variants: collection.Seq[MemberToImport]): String =
+    override protected def chooserTitle(variants: Seq[MemberToImport]): String =
       ScalaBundle.message("import.conversion.chooser.title")
 
     override protected def doAddImport(toImport: MemberToImport): Unit = {
@@ -216,12 +216,12 @@ object ScalaAddImportAction {
   }
 
   def importImplicitConversion(editor: Editor,
-                               variants: collection.Seq[MemberToImport],
+                               variants: Seq[MemberToImport],
                                ref: ScReferenceExpression): ScalaAddImportAction[ScReferenceExpression, MemberToImport] =
     new ImportImplicitConversionAction(editor, variants, ref)
 
   def importImplicits(editor: Editor,
-                      variants: collection.Seq[ImplicitToImport],
+                      variants: Seq[ImplicitToImport],
                       place: ImplicitArgumentsOwner,
                       popupPosition: PopupPosition): ScalaAddImportAction[ImplicitArgumentsOwner, ImplicitToImport] =
     new ImportImplicits(editor, variants, place, popupPosition)
@@ -232,12 +232,12 @@ object ScalaAddImportAction {
     new ImportMemberWithPrefix(editor, variants, ref)
 
   private final class ImportImplicits(editor: Editor,
-                                      variants: collection.Seq[ImplicitToImport],
+                                      variants: Seq[ImplicitToImport],
                                       place: ImplicitArgumentsOwner,
                                       popupPosition: PopupPosition)
     extends ScalaAddImportAction[ImplicitArgumentsOwner, ImplicitToImport](editor, variants, place, popupPosition) {
 
-    override protected def chooserTitle(variants: collection.Seq[ImplicitToImport]): String =
+    override protected def chooserTitle(variants: Seq[ImplicitToImport]): String =
       ScalaBundle.message("import.implicit.chooser.title")
 
     override protected def doAddImport(toImport: ImplicitToImport): Unit =

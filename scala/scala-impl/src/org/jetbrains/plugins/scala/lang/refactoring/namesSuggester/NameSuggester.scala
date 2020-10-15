@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaTypeValidator, ScalaValidator, ScalaVariableValidator}
 
 import scala.annotation.tailrec
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 /**
@@ -26,10 +27,10 @@ object NameSuggester {
 
   private val DefaultName = "value"
 
-  def suggestNames(expression: ScExpression, validator: ScalaVariableValidator = ScalaVariableValidator.empty): collection.Seq[String] =
+  def suggestNames(expression: ScExpression, validator: ScalaVariableValidator = ScalaVariableValidator.empty): ArraySeq[String] =
     suggestNames(expression, validator, collectTypes(expression))
 
-  def suggestNames(expression: ScExpression, validator: ScalaVariableValidator, types: collection.Seq[ScType]): collection.Seq[String] =
+  def suggestNames(expression: ScExpression, validator: ScalaVariableValidator, types: Seq[ScType]): ArraySeq[String] =
     collectNames(namesByExpression(expression, types), validator)
 
   private def collectTypes(expression: ScExpression): Seq[ScType] = {
@@ -43,11 +44,11 @@ object NameSuggester {
     }.reverse
   }
 
-  private def namesByTypes(types: collection.Seq[ScType]): collection.Seq[String] = {
+  private def namesByTypes(types: Seq[ScType]): Seq[String] = {
     types.flatMap(namesByType(_))
   }
 
-  private def collectNames(names: collection.Seq[String], validator: ScalaValidator): Seq[String] = {
+  private def collectNames(names: Seq[String], validator: ScalaValidator): ArraySeq[String] = {
 
     val filteredNames = mutable.LinkedHashSet.newBuilder.addAll(names).result().map {
       case "class" => "clazz"
@@ -61,7 +62,7 @@ object NameSuggester {
 
     mutable.LinkedHashSet(collected: _*)
       .map(validator.validateName)
-      .toSeq
+      .to(ArraySeq)
   }
 
   def suggestNamesByType(`type`: ScType, validator: ScalaTypeValidator = ScalaTypeValidator.empty): Seq[String] =
@@ -86,7 +87,7 @@ object NameSuggester {
   }
 
   @tailrec
-  private[namesSuggester] def namesByType(`type`: ScType, withPlurals: Boolean = true, shortVersion: Boolean = true): collection.Seq[String] = {
+  private[namesSuggester] def namesByType(`type`: ScType, withPlurals: Boolean = true, shortVersion: Boolean = true): Seq[String] = {
     def toLowerCase(name: String, length: Int): String = {
       val lowerCased = name.toLowerCase
       if (shortVersion) lowerCased.substring(0, length) else lowerCased
@@ -118,7 +119,7 @@ object NameSuggester {
       case ScDesignatorType(e) => byName(e.name)
       case parameterType: TypeParameterType => byName(parameterType.name)
       case ScProjectionType(_, e) => byName(e.name)
-      case ScCompoundType(collection.Seq(head, _*), _, _) => namesByType(head, withPlurals)
+      case ScCompoundType(Seq(head, _*), _, _) => namesByType(head, withPlurals)
       case JavaArrayType(argument) =>
         TypePluralNamesProvider.pluralizeNames(argument)
       case genericType: ScParameterizedType =>
@@ -128,10 +129,10 @@ object NameSuggester {
     }
   }
 
-  private def namesByExpression(expression: ScExpression): collection.Seq[String] =
+  private def namesByExpression(expression: ScExpression): Seq[String] =
     namesByExpression(expression, collectTypes(expression))
 
-  private def namesByExpression(expression: ScExpression, types: collection.Seq[ScType]): collection.Seq[String] = expression match {
+  private def namesByExpression(expression: ScExpression, types: Seq[ScType]): Seq[String] = expression match {
     case _: ScThisReference => Seq("thisInstance")
     case _: ScSuperReference => Seq("superInstance")
     case reference: ScReference if reference.refName != null =>
@@ -158,8 +159,8 @@ object NameSuggester {
       maybeName.toSeq ++ namesByTypes(types)
   }
 
-  private def enhancedNames(parameters: collection.Seq[(ScExpression, Parameter)],
-                            types: collection.Seq[ScType]): collection.Seq[String] = {
+  private def enhancedNames(parameters: Seq[(ScExpression, Parameter)],
+                            types: Seq[ScType]): Seq[String] = {
     val namesByParameters = parameters.collect {
       case (expression, parameter) if parameter.name == "name" => expression
     }.flatMap(namesByExpression)
@@ -169,9 +170,9 @@ object NameSuggester {
     names ++ compoundNames(namesByParameters, names) ++ namesByParameters
   }
 
-  private[namesSuggester] def compoundNames(firstNames: collection.Seq[String],
-                                            lastNames: collection.Seq[String],
-                                            separator: String = ""): collection.Seq[String] =
+  private[namesSuggester] def compoundNames(firstNames: Seq[String],
+                                            lastNames: Seq[String],
+                                            separator: String = ""): Seq[String] =
     for {
       firstName <- firstNames
       lastName <- lastNames

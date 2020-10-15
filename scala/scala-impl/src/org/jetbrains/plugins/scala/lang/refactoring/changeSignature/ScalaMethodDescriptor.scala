@@ -28,7 +28,7 @@ class ScalaMethodDescriptor(val fun: ScMethodLike) extends MethodDescriptor[Scal
 
   override def canChangeVisibility: Boolean = !fun.isLocal
 
-  val parameters: collection.Seq[collection.Seq[ScalaParameterInfo]] = parametersInner
+  val parameters: Seq[Seq[ScalaParameterInfo]] = parametersInner
 
   override def getParameters: util.List[ScalaParameterInfo] = parameters.flatten.asJava
 
@@ -48,5 +48,5 @@ class ScalaMethodDescriptor(val fun: ScMethodLike) extends MethodDescriptor[Scal
     case _ => ""
   }
 
-  protected def parametersInner: collection.Seq[collection.Seq[ScalaParameterInfo]] = ScalaParameterInfo.allForMethod(fun)
+  protected def parametersInner: Seq[Seq[ScalaParameterInfo]] = ScalaParameterInfo.allForMethod(fun)
 }

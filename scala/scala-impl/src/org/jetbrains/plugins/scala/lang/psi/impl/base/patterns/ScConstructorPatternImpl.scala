@@ -85,7 +85,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
 }
 
 object ScConstructorPatternImpl {
-  def isIrrefutable(typeOpt: Option[ScType], ref: ScStableCodeReference, subpatterns: collection.Seq[ScPattern]): Boolean = {
+  def isIrrefutable(typeOpt: Option[ScType], ref: ScStableCodeReference, subpatterns: Seq[ScPattern]): Boolean = {
     val typedParamsOpt = for {
       matchedType <- typeOpt
       unapplyMethod <- resolveUnapplyMethodFromReference(ref)

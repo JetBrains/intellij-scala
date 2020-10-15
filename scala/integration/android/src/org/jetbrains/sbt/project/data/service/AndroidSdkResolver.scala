@@ -36,7 +36,7 @@ private object AndroidSdkResolver {
     matchingSdks.headOption
   }
 
-  private def allAndroidSdks: collection.Seq[Sdk] = inReadAction {
-    ProjectJdkTable.getInstance().getSdksOfType(AndroidSdkType.getInstance()).asScala
+  private def allAndroidSdks: Seq[Sdk] = inReadAction {
+    ProjectJdkTable.getInstance().getSdksOfType(AndroidSdkType.getInstance()).asScala.toSeq
   }
 }

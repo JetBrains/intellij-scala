@@ -94,7 +94,7 @@ class ScalaInlineHandler extends InlineHandler {
       }
       if (refs.isEmpty)
         showErrorHint(ScalaBundle.message("cannot.inline.never.used"), inlineTitleSuffix)
-      else if (!psiNamedElement.isInstanceOf[ScTypeAliasDefinition] &&
+      else if (!psiNamedElement.is[ScTypeAliasDefinition] &&
         refs.map(_.getElement)
           .flatMap(_.nonStrictParentOfType(Seq(classOf[ScStableCodeReference], classOf[ScStableReferencePattern])))
           .nonEmpty)
@@ -229,7 +229,7 @@ class ScalaInlineHandler extends InlineHandler {
     val scope = new LocalSearchScope(fun.containingClass.toOption.getOrElse(fun.getContainingFile))
 
     val allReferences = ReferencesSearch.search(fun, scope)
-    val notCall: Condition[PsiReference] = ref => !ref.getElement.getParent.isInstanceOf[ScMethodCall]
+    val notCall: Condition[PsiReference] = ref => !ref.getElement.getParent.is[ScMethodCall]
     val noCallUsages = new FilteredQuery[PsiReference](allReferences, notCall)
     noCallUsages.findFirst() != null
   }

@@ -30,7 +30,7 @@ import scala.collection.mutable
 final class ScalaPullUpProcessor(project: Project,
                                  sourceClass: ScTemplateDefinition,
                                  targetClass: ScTemplateDefinition,
-                                 memberInfos: collection.Seq[ScalaExtractMemberInfo]) extends BaseRefactoringProcessor(project) {
+                                 memberInfos: Seq[ScalaExtractMemberInfo]) extends BaseRefactoringProcessor(project) {
   override def createUsageViewDescriptor(usages: Array[UsageInfo]): UsageViewDescriptor =
     new PullUpUsageViewDescriptor
 
@@ -102,7 +102,7 @@ final class ScalaPullUpProcessor(project: Project,
     csManager.adjustLineIndent(sourceClass.getContainingFile, sourceClass.getTextRange)
   }
 
-  private def memberCopiesToExtract(info: ScalaExtractMemberInfo): collection.Seq[ScMember] = {
+  private def memberCopiesToExtract(info: ScalaExtractMemberInfo): Seq[ScMember] = {
     info match {
       case ScalaExtractMemberInfo(decl: ScDeclaration, _) =>
         val member = decl.copy().asInstanceOf[ScMember]
@@ -125,7 +125,7 @@ final class ScalaPullUpProcessor(project: Project,
     case member => member.delete()
   }
 
-  private def declarationsText(m: ScMember): collection.Seq[String] = {
+  private def declarationsText(m: ScMember): Seq[String] = {
     def textForBinding(b: ScBindingPattern) = {
       val typeText = b.`type`() match {
         case Right(t) => s": ${t.canonicalCodeText}"

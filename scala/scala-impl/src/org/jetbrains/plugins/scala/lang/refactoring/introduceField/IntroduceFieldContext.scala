@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{IntroduceException, getOccurrenceRanges}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaVariableValidator, ValidationReporter}
 
+import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 
 /**
@@ -25,10 +26,10 @@ class IntroduceFieldContext[T <: PsiElement](val project: Project,
                                              val editor: Editor,
                                              val file: PsiFile,
                                              val element: T,
-                                             val types: Array[ScType],
+                                             val types: ArraySeq[ScType],
                                              val aClass: ScTemplateDefinition) {
 
-  val occurrences: collection.Seq[TextRange] = element match {
+  val occurrences: Seq[TextRange] = element match {
     case expr: ScExpression => getOccurrenceRanges(expr, aClass.extendsBlock)
     case _ => null
   }

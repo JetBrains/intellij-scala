@@ -22,19 +22,19 @@ sealed trait ImplicitResolveResult {
 
   protected val resolveResult: ScalaResolveResult
 
-  protected val unresolvedTypeParameters: collection.Seq[TypeParameter]
+  protected val unresolvedTypeParameters: Seq[TypeParameter]
 }
 
 final case class CompanionImplicitResolveResult(override val resolveResult: ScalaResolveResult,
                                                 override val `type`: ScType,
                                                 override val implicitDependentSubstitutor: ScSubstitutor) extends ImplicitResolveResult {
-  override val unresolvedTypeParameters: collection.Seq[TypeParameter] = Seq.empty
+  override val unresolvedTypeParameters: Seq[TypeParameter] = Seq.empty
 }
 
 final case class RegularImplicitResolveResult(override val resolveResult: ScalaResolveResult,
                                               override val `type`: ScType,
                                               override val implicitDependentSubstitutor: ScSubstitutor = ScSubstitutor.empty,
-                                              override val unresolvedTypeParameters: collection.Seq[TypeParameter] = Seq.empty) extends ImplicitResolveResult
+                                              override val unresolvedTypeParameters: Seq[TypeParameter] = Seq.empty) extends ImplicitResolveResult
 
 object ImplicitResolveResult {
 
@@ -99,7 +99,7 @@ object ImplicitResolveResult {
     val functionType = FunctionType(Any(place.projectContext), Seq(expressionType))
     val expandedFunctionType = FunctionType(expressionType, arguments(processor, noImplicitsForArgs))
 
-    def checkImplicits(noApplicability: Boolean = false, withoutImplicitsForArgs: Boolean = noImplicitsForArgs): collection.Seq[ScalaResolveResult] = {
+    def checkImplicits(noApplicability: Boolean = false, withoutImplicitsForArgs: Boolean = noImplicitsForArgs): Seq[ScalaResolveResult] = {
       val data = ExtensionConversionData(place, ref, refName, processor, noApplicability, withoutImplicitsForArgs)
 
       new ImplicitCollector(
@@ -115,13 +115,13 @@ object ImplicitResolveResult {
     //This logic is important to have to navigate to problematic method, in case of failed resolve.
     //That's why we need to have noApplicability parameter
     val foundImplicits = checkImplicits() match {
-      case collection.Seq() => checkImplicits(noApplicability = true)
-      case seq@collection.Seq(_) => seq
+      case Seq() => checkImplicits(noApplicability = true)
+      case seq@Seq(_) => seq
       case _ => checkImplicits(withoutImplicitsForArgs = true)
     }
 
     foundImplicits match {
-      case collection.Seq(resolveResult) => Some(resolveResult)
+      case Seq(resolveResult) => Some(resolveResult)
       case _ => None
     }
   }

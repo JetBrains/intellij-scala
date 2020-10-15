@@ -46,7 +46,7 @@ object ScopeSuggester {
       if (isScriptFile) getParentOfType(element, classOf[ScTemplateBody], classOf[ScalaFile])
       else getParentOfType(element, classOf[ScTemplateBody])
 
-    def isSuitableParent(owners: collection.Seq[ScTypeParametersOwner], parent: PsiElement): Boolean = {
+    def isSuitableParent(owners: Seq[ScTypeParametersOwner], parent: PsiElement): Boolean = {
       var result = true
       for (elementOwner <- owners) {
         val pparent = getParentOfType(parent, classOf[ScTemplateDefinition])

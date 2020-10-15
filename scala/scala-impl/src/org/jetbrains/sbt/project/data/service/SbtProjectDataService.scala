@@ -121,10 +121,10 @@ object SbtProjectDataService {
       settings.ADDITIONAL_OPTIONS_STRING = customOptions.mkString(" ")
     }
 
-    private def additionalOptionsFrom(options: collection.Seq[String]): collection.Seq[String] = {
+    private def additionalOptionsFrom(options: collection.Seq[String]): Seq[String] = {
       @NonNls val handledOptions = Set("-g:none", "-nowarn", "-Xlint:none", "-deprecation", "-Xlint:deprecation")
 
-      def removePair(name: String, options: collection.Seq[String]): collection.Seq[String] = {
+      def removePair(name: String, options: Seq[String]): Seq[String] = {
         val index = options.indexOf(name)
 
         if (index == -1) options
@@ -134,7 +134,7 @@ object SbtProjectDataService {
         }
       }
 
-      removePair("-source", removePair("-target", options.filterNot(handledOptions.contains)))
+      removePair("-source", removePair("-target", options.iterator.filterNot(handledOptions.contains).toSeq))
     }
   }
 }

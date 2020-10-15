@@ -77,7 +77,7 @@ object ScalaGenerateEqualsAction {
       }
 
       fields(aClass) match {
-        case collection.Seq() =>
+        case Seq() =>
           HintManager.getInstance.showErrorHint(editor, ScalaCodeInsightBundle.message("no.fields.to.include.in.equals.hashcode.have.been.found"))
           false
         case fields if ApplicationManager.getApplication.isUnitTestMode =>

@@ -170,17 +170,18 @@ class ScalaPsiManager(implicit val project: Project) {
       .elementsByHash(fqn, scope)
       .filter(_.qualifiedNameOpt.contains(fqn))
 
-  def getClassesByName(name: String, scope: GlobalSearchScope): collection.Seq[PsiClass] = {
+  def getClassesByName(name: String, scope: GlobalSearchScope): Seq[PsiClass] = {
     val scalaClasses = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(name, scope)
-    val buffer: mutable.Buffer[PsiClass] = PsiShortNamesCache.getInstance(project).getClassesByName(name, scope).filterNot(p =>
-      p.isInstanceOf[ScTemplateDefinition] || p.isInstanceOf[PsiClassWrapper]
-    ).toBuffer
+    val builder = ArraySeq.newBuilder[PsiClass]
+    builder ++= PsiShortNamesCache.getInstance(project).getClassesByName(name, scope).iterator.filterNot(p =>
+      p.is[ScTemplateDefinition, PsiClassWrapper]
+    )
     val classesIterator = scalaClasses.iterator
     while (classesIterator.hasNext) {
       val clazz = classesIterator.next()
-      buffer += clazz
+      builder += clazz
     }
-    buffer
+    builder.result()
   }
 
   def getClasses(`package`: PsiPackage)

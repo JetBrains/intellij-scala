@@ -102,8 +102,7 @@ object SimulacrumInjector {
     }
   }
 
-  private[this] def adaptForAppliedType(m: ScFunction, tCons: ScTypeParam, liftedTypeParams: collection.Seq[ScTypeParam])
-  : collection.Seq[String] = {
+  private[this] def adaptForAppliedType(m: ScFunction, tCons: ScTypeParam, liftedTypeParams: Seq[ScTypeParam]): Seq[String] = {
     val firstParamType = m.parameters.headOption.flatMap(_.`type`().toOption)
     val typeParamNames = m.typeParameters.map(tparam => tparam.name -> tparam).toMap
 
@@ -190,9 +189,9 @@ object SimulacrumInjector {
   private[this] def adaptMethods(
     source:           ScTypeDefinition,
     tCons:            ScTypeParam,
-    liftedTypeParams: collection.Seq[ScTypeParam],
+    liftedTypeParams: Seq[ScTypeParam],
     proper:           Boolean
-  ): collection.Seq[String] = {
+  ): Seq[String] = {
     val typeClassMethods = source.functions.filter(isEligibleForAdaptation)
 
     typeClassMethods.flatMap { m =>

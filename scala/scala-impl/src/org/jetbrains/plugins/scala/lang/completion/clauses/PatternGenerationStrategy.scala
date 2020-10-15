@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, TypeP
 sealed trait PatternGenerationStrategy {
   def canBeExhaustive: Boolean
 
-  def patterns: collection.Seq[PatternComponents]
+  def patterns: Seq[PatternComponents]
 }
 
 object PatternGenerationStrategy {
@@ -24,8 +24,8 @@ object PatternGenerationStrategy {
 
   implicit class StrategyExt(private val strategy: PatternGenerationStrategy) extends AnyVal {
 
-    def adjustTypes(components: collection.Seq[PatternComponents],
-                    caseClauses: collection.Seq[ScCaseClause]): Unit =
+    def adjustTypes(components: Seq[PatternComponents],
+                    caseClauses: Seq[ScCaseClause]): Unit =
       adjustTypesOnClauses(
         addImports = strategy.isInstanceOf[DirectInheritorsGenerationStrategy],
         caseClauses.zip(components)
@@ -33,7 +33,7 @@ object PatternGenerationStrategy {
 
     def createClauses(prefix: Option[String] = None,
                       suffix: Option[String] = None)
-                     (implicit project: Project): (collection.Seq[PatternComponents], String) = {
+                     (implicit project: Project): (Seq[PatternComponents], String) = {
       val components = strategy.patterns
 
       val clausesText = components
@@ -62,7 +62,7 @@ object PatternGenerationStrategy {
         } yield declaredName
 
         membersNames match {
-          case collection.Seq() => null
+          case Seq() => null
           case _ => new EnumGenerationStrategy(enumClass, enumClass.qualifiedName, membersNames)
         }
       case ScDesignatorType(enumClass@JavaEnum(enumConstants)) =>
@@ -75,7 +75,7 @@ object PatternGenerationStrategy {
               enumConstants.map(_.getName)
             )
         }
-      case ScCompoundType(collection.Seq(ExtractClass(DirectInheritors(inheritors)), _*), _, _) =>
+      case ScCompoundType(Seq(ExtractClass(DirectInheritors(inheritors)), _*), _, _) =>
         val Inheritors(namedInheritors, isSealed, isExhaustive) = inheritors
 
         val appropriateNamedInheritors = for {
@@ -100,7 +100,7 @@ object PatternGenerationStrategy {
 
     private[this] val EnumerationFQN = "scala.Enumeration"
 
-    def unapply(enumClass: ScObject): Option[collection.Seq[ScValue]] =
+    def unapply(enumClass: ScObject): Option[Seq[ScValue]] =
       if (enumClass.supers.map(_.qualifiedName).contains(EnumerationFQN))
         Some(enumClass.members.filterByType[ScValue])
       else
@@ -135,11 +135,11 @@ object PatternGenerationStrategy {
   }
 
   private final class EnumGenerationStrategy(enumClass: PsiClass, qualifiedName: String,
-                                             membersNames: collection.Seq[String]) extends PatternGenerationStrategy {
+                                             membersNames: Seq[String]) extends PatternGenerationStrategy {
 
     override def canBeExhaustive = true
 
-    override def patterns: collection.Seq[StablePatternComponents] = membersNames.map { name =>
+    override def patterns: Seq[StablePatternComponents] = membersNames.map { name =>
       new StablePatternComponents(enumClass, qualifiedName + "." + name)
     }
   }

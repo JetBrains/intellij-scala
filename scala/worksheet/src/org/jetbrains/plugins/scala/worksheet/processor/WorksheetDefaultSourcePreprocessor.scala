@@ -112,20 +112,21 @@ object WorksheetDefaultSourcePreprocessor {
       dir <- srcFile.getContainingDirectory.toOption
       psiPackage <- JavaDirectoryService.getInstance().getPackage(dir).toOption
       packageName = psiPackage.getQualifiedName
-      if !packageName.trim.isEmpty
+      if packageName.trim.nonEmpty
     } yield packageName
 
-  private def rootForObject(srcFile: ScalaFile, sourceBuilder: ScalaSourceBuilderBase): (PsiElement, collection.Seq[PsiElement], collection.Seq[PsiElement]) = {
-    val preDeclarations  = mutable.ListBuffer.empty[PsiElement]
-    val postDeclarations = mutable.ListBuffer.empty[PsiElement]
+  private def rootForObject(srcFile: ScalaFile, sourceBuilder: ScalaSourceBuilderBase): (PsiElement, Seq[PsiElement], Seq[PsiElement]) = {
+    val preDeclarationsBuilder  = Seq.newBuilder[PsiElement]
+    val postDeclarationsBuilder = Seq.newBuilder[PsiElement]
     var root: PsiElement = null
     srcFile.getChildren.foreach {
-      case imp: ScImportStmt        => sourceBuilder.processImport(imp)
-      case obj: ScObject            => root = obj.extendsBlock.templateBody.getOrElse(srcFile)
-      case cl: ScTemplateDefinition => (if (root == null) preDeclarations else postDeclarations) += cl
-      case _                        =>
+      case imp: ScImportStmt                          => sourceBuilder.processImport(imp)
+      case obj: ScObject                              => root = obj.extendsBlock.templateBody.getOrElse(srcFile)
+      case cl: ScTemplateDefinition if (root == null) => preDeclarationsBuilder += cl
+      case cl: ScTemplateDefinition                   => postDeclarationsBuilder += cl
+      case _                                          =>
     }
-    (root, preDeclarations, postDeclarations)
+    (root, preDeclarationsBuilder.result(), postDeclarationsBuilder.result())
   }
 
   private def isForObject(file: ScalaFile): Boolean = {
@@ -345,9 +346,9 @@ object WorksheetDefaultSourcePreprocessor {
         case other => Seq(other)
       }
 
-      def withOptionalBraces(s: collection.Seq[String]): Option[String] = s match {
-        case collection.Seq()     => None
-        case collection.Seq(head) => Some(head)
+      def withOptionalBraces(s: Seq[String]): Option[String] = s match {
+        case Seq()     => None
+        case Seq(head) => Some(head)
         case seq       => Some(seq.mkString("(", ",", ")"))
       }
 

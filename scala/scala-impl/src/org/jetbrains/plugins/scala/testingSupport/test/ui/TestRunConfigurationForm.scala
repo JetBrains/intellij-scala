@@ -38,7 +38,7 @@ final class TestRunConfigurationForm(val myProject: Project) {
   private var myWholePanel: JPanel                      = null
   def getPanel: JPanel = myWholePanel
 
-  private var mySuitePaths    : collection.Seq[String]                 = null
+  private var mySuitePaths    : collection.Seq[String]      = null
   private var myModuleSelector: ConfigurationModuleSelector = null
 
   // TOP PANEL: TestKind-specific

@@ -33,10 +33,10 @@ class MatchToPartialFunctionInspection extends AbstractInspection(MatchToPartial
   import MatchToPartialFunctionInspection._
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
-    case function@ScFunctionExpr(collection.Seq(param), Some(statement@ScMatch(ScReferenceExpression(resolved), _)))
+    case function@ScFunctionExpr(Seq(param), Some(statement@ScMatch(ScReferenceExpression(resolved), _)))
       if resolved == param && isValid(function) =>
       registerProblem(statement, function)
-    case function@ScFunctionExpr(collection.Seq(param), Some(ScBlock(statement@ScMatch(ScReferenceExpression(resolved), _))))
+    case function@ScFunctionExpr(Seq(param), Some(ScBlock(statement@ScMatch(ScReferenceExpression(resolved), _))))
       if resolved == param && isValid(function) =>
       registerProblem(statement, function) //if fun is last statement in block, result can be block without braces
     case statement@ScMatch(_: ScUnderscoreSection, _) if checkSameResolve(statement) =>

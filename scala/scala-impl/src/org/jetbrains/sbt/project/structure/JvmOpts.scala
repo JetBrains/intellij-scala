@@ -10,10 +10,14 @@ import scala.jdk.CollectionConverters._
   */
 object JvmOpts {
 
-  def loadFrom(directory: File): collection.Seq[String] = {
+  def loadFrom(directory: File): Seq[String] = {
     val jvmOptsFile = directory / ".jvmopts"
     if (jvmOptsFile.exists && jvmOptsFile.isFile && jvmOptsFile.canRead)
-      FileUtil.loadLines(jvmOptsFile).asScala.map(_.trim).filter(_.startsWith("-"))
+      FileUtil.loadLines(jvmOptsFile)
+        .asScala.iterator
+        .map(_.trim)
+        .filter(_.startsWith("-"))
+        .toSeq
     else
       Seq.empty
   }

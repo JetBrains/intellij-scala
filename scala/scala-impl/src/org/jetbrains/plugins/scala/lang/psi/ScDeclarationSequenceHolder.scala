@@ -51,7 +51,7 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
           true
         case named: ScNamedElement => processor.execute(named, state)
         case holder: ScDeclaredElementsHolder =>
-          val elements: collection.Seq[PsiNamedElement] = holder.declaredElements
+          val elements: Seq[PsiNamedElement] = holder.declaredElements
           var i = 0
           while (i < elements.length) {
             ProgressManager.checkCanceled()

@@ -15,6 +15,7 @@ import com.intellij.refactoring.rename.inplace.MyLookupExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
 import scala.annotation.nowarn
+import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -28,7 +29,7 @@ class InplaceRenameHelper(parent: PsiElement) {
           createTemplateBuilder(parent).asInstanceOf[TemplateBuilderImpl]
   private val primaries = mutable.ArrayBuffer[PsiElement]()
   private val primaryNames = mutable.HashMap[PsiElement, String]()
-  private val dependentNames = mutable.HashMap[PsiElement, collection.Seq[String]]()
+  private val dependentNames = mutable.HashMap[PsiElement, Seq[String]]()
   val project: Project = parent.getProject
   val file: PsiFile = parent.getContainingFile
   val document: Document = PsiDocumentManager.getInstance(project).getDocument(file)
@@ -36,7 +37,7 @@ class InplaceRenameHelper(parent: PsiElement) {
 
   def addGroup(primary: PsiElement,
                newName: String,
-               dependentsWithRanges: collection.Seq[(PsiElement, TextRange)],
+               dependentsWithRanges: Seq[(PsiElement, TextRange)],
                suggestedNames: Iterable[String]): Unit = {
     val names = new java.util.LinkedHashSet[String]()
     suggestedNames.foreach(names.add)
@@ -47,20 +48,21 @@ class InplaceRenameHelper(parent: PsiElement) {
 
     builder.replaceElement(primary, newName, lookupExpr, true)
 
-    val depNames = mutable.ArrayBuffer[String]()
+    val depNamesBuilder = ArraySeq.newBuilder[String]
     for (index <- dependentsWithRanges.indices) {
       val dependentName: String = newName + "_" + index
-      depNames += dependentName
+      depNamesBuilder += dependentName
       val (depElem, depRange) = dependentsWithRanges(index)
       if (depRange != null) builder.replaceElement(depElem, depRange, dependentName, newName, false)
       else builder.replaceElement(depElem, dependentName, newName, false)
     }
+    val depNames = depNamesBuilder.result()
     primaries += primary
     primaryNames += (primary -> newName)
     dependentNames += (primary -> depNames)
   }
 
-  def addGroup(primary: ScNamedElement, dependents: collection.Seq[PsiElement], suggestedNames: Iterable[String]): Unit = {
+  def addGroup(primary: ScNamedElement, dependents: Seq[PsiElement], suggestedNames: Iterable[String]): Unit = {
     addGroup(primary.nameId, primary.name, dependents.map((_, null)), suggestedNames)
   }
 

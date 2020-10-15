@@ -801,7 +801,7 @@ object ScalaImportOptimizer {
       withImplicits(srr).foreach(addResult(_, fromElem))
     }
 
-    def withImplicits(srr: ScalaResolveResult): collection.Seq[ScalaResolveResult] = {
+    def withImplicits(srr: ScalaResolveResult): Seq[ScalaResolveResult] = {
       srr +:
         srr.implicitConversion.toSeq.flatMap(withImplicits) ++:
         srr.implicitParameters.flatMap(withImplicits)

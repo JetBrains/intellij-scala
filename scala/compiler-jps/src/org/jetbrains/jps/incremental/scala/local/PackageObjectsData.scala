@@ -22,7 +22,7 @@ class PackageObjectsData extends Serializable {
     packageObjectToBaseSources.update(packageObject, packageObjectToBaseSources.getOrElse(packageObject, Set.empty) + baseSource)
   }
 
-  def invalidatedPackageObjects(sources: collection.Seq[File]): Set[File] = synchronized {
+  def invalidatedPackageObjects(sources: Seq[File]): Set[File] = synchronized {
     sources.toSet.flatMap((f: File) => baseSourceToPackageObjects.getOrElse(f, Set.empty)) -- sources
   }
 

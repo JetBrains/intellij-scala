@@ -6,7 +6,7 @@ import java.nio.file.Files
 import java.util.UUID
 
 import com.intellij.compiler.server.impl.BuildProcessClasspathManager
-import com.intellij.compiler.server.{BuildManager, BuildManagerListener, BuildProcessParametersProvider}
+import com.intellij.compiler.server.{BuildManagerListener, BuildProcessParametersProvider}
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
@@ -15,7 +15,6 @@ import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.impl.OrderEntryUtil
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
-import com.intellij.openapi.util.ShutDownTracker
 import com.intellij.util.net.NetUtils
 import javax.swing.event.HyperlinkEvent
 import org.jetbrains.jps.api.GlobalOptions
@@ -25,6 +24,7 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServerToken}
 import org.jetbrains.plugins.scala.util.{IntellijPlatformJars, LibraryJars, ScalaPluginJars, UnloadAwareDisposable}
 
+import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 import scala.util.control.Exception._
@@ -162,12 +162,12 @@ object CompileServerLauncher {
         val isScalaCompileServer = s"-D${CompileServerProperties.IsScalaCompileServer}=true"
         val parallelCompilation = s"-D${GlobalOptions.COMPILE_PARALLEL_OPTION}=${settings.COMPILE_SERVER_PARALLEL_COMPILATION}"
 
-        val vmOptions: collection.Seq[String] = if (isUnitTestMode && project == null) Seq() else {
-          val buildProcessParameters = BuildProcessParametersProvider.EP_NAME.getExtensions(project).asScala
+        val vmOptions: Seq[String] = if (isUnitTestMode && project == null) Seq() else {
+          val buildProcessParameters = BuildProcessParametersProvider.EP_NAME.getExtensions(project).asScala.iterator
             .flatMap(_.getVMArguments.asScala)
-          val extraJvmParameters = CompileServerVmOptionsProvider.implementations
+          val extraJvmParameters = CompileServerVmOptionsProvider.implementations.iterator
             .flatMap(_.vmOptionsFor(project))
-          buildProcessParameters ++ extraJvmParameters
+          (buildProcessParameters ++ extraJvmParameters).to(ArraySeq)
         }
 
         val commands =

@@ -33,7 +33,7 @@ class ConstructorParamsInConstructorPatternSearcher extends CustomUsageSearcher 
 
         val processor = new Processor[PsiReference] {
           override def process(t: PsiReference): Boolean = t match {
-            case correspondingSubpatternWithBindings(collection.Seq(only)) =>
+            case correspondingSubpatternWithBindings(Seq(only)) =>
               ReferencesSearch.search(only, scope, false).forEach((t: PsiReference) => {
                 inReadAction {
                   val descriptor = new UsageInfoToUsageConverter.TargetElementsDescriptor(Array(), Array(only))
@@ -67,7 +67,7 @@ class ConstructorParamsInConstructorPatternSearcher extends CustomUsageSearcher 
   }
 
   private class SubPatternWithIndexBindings(i: Int) {
-    def unapply(ref: PsiReference): Option[collection.Seq[ScBindingPattern]] = {
+    def unapply(ref: PsiReference): Option[Seq[ScBindingPattern]] = {
       inReadAction {
         ref.getElement.getParent match {
           case consPattern: ScConstructorPattern => consPattern.args.patterns.lift(i).map(_.bindings)

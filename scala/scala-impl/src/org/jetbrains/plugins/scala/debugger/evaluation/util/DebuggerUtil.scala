@@ -38,6 +38,7 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
 
 import scala.annotation.tailrec
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.NameTransformer
@@ -64,6 +65,7 @@ object DebuggerUtil {
 
     def toName: JVMName = {
       new JVMName {
+        private var myName: String = _
         override def getName(process: DebugProcessImpl): String = {
           if (myName == null) {
             var name: String = ""
@@ -75,6 +77,7 @@ object DebuggerUtil {
           myName
         }
 
+        private var myDisplayName: String = _
         override def getDisplayName(debugProcess: DebugProcessImpl): String = {
           if (myDisplayName == null) {
             var displayName: String = ""
@@ -85,9 +88,6 @@ object DebuggerUtil {
           }
           myDisplayName
         }
-
-        private var myName: String = null
-        private var myDisplayName: String = null
       }
     }
 
@@ -186,7 +186,7 @@ object DebuggerUtil {
     val valueClassParameter = function.containingClass match {
       case cl: ScClass if ValueClassType.isValueClass(cl) =>
         cl.constructors match {
-          case collection.Seq(pc: ScPrimaryConstructor) => pc.parameters.headOption
+          case Seq(pc: ScPrimaryConstructor) => pc.parameters.headOption
           case _ => None
         }
       case _ => None
@@ -384,7 +384,7 @@ object DebuggerUtil {
       .orElse(refType.fieldByName("_value").toOption)
   }
 
-  def localParamsForFunDef(fun: ScFunctionDefinition, visited: mutable.Set[PsiElement] = mutable.Set.empty): collection.Seq[ScTypedDefinition] = {
+  def localParamsForFunDef(fun: ScFunctionDefinition, visited: mutable.Set[PsiElement] = mutable.Set.empty): Seq[ScTypedDefinition] = {
     val container = ScalaEvaluatorBuilderUtil.getContextClass(fun)
     fun.body match { //to exclude references from default parameters
       case Some(b) => localParams(b, fun, container, visited)
@@ -392,13 +392,13 @@ object DebuggerUtil {
     } 
   }
 
-  def localParamsForConstructor(cl: ScClass, visited: mutable.Set[PsiElement] = mutable.Set.empty): collection.Seq[ScTypedDefinition] = {
+  def localParamsForConstructor(cl: ScClass, visited: mutable.Set[PsiElement] = mutable.Set.empty): Seq[ScTypedDefinition] = {
     val container = ScalaEvaluatorBuilderUtil.getContextClass(cl)
     val extendsBlock = cl.extendsBlock //to exclude references from default parameters
     localParams(extendsBlock, cl, container, visited)
   }
 
-  def localParamsForDefaultParam(param: ScParameter, visited: mutable.Set[PsiElement] = mutable.Set.empty): collection.Seq[ScTypedDefinition] = {
+  def localParamsForDefaultParam(param: ScParameter, visited: mutable.Set[PsiElement] = mutable.Set.empty): Seq[ScTypedDefinition] = {
     val owner = param.owner
     val container = ScalaEvaluatorBuilderUtil.getContextClass {
       owner match {
@@ -413,7 +413,7 @@ object DebuggerUtil {
   }
 
   private def localParams(block: PsiElement, excludeContext: PsiElement, contextClass: PsiElement,
-                          visited: mutable.Set[PsiElement] = mutable.Set.empty): collection.Seq[ScTypedDefinition] = {
+                          visited: mutable.Set[PsiElement] = mutable.Set.empty): Seq[ScTypedDefinition] = {
     def atRightPlace(elem: PsiElement): Boolean = {
       if (PsiTreeUtil.isContextAncestor(excludeContext, elem, false)) return false
 
@@ -434,7 +434,7 @@ object DebuggerUtil {
       case _ => false
     }
 
-    val buf = ArrayBuffer.empty[ScTypedDefinition]
+    val builder = mutable.HashSet.empty[ScTypedDefinition]
     block.accept(new ScalaRecursiveElementVisitor {
       override def visitReference(ref: ScReference): Unit = {
         if (ref.qualifier.isDefined || isArgName(ref)) {
@@ -446,25 +446,24 @@ object DebuggerUtil {
           case null =>
           case fun: ScFunctionDefinition if fun.isLocal && !visited.contains(fun) =>
             visited += fun
-            buf ++= localParamsForFunDef(fun, visited).filter(atRightPlace)
+            builder ++= localParamsForFunDef(fun, visited).filter(atRightPlace)
           case ScalaConstructor(fun) if !visited.contains(fun) =>
             fun.containingClass match {
               case c: ScClass if isLocalClass(c) =>
                 visited += c
-                buf ++= localParamsForConstructor(c, visited).filter(atRightPlace)
+                builder ++= localParamsForConstructor(c, visited).filter(atRightPlace)
               case _ =>
             }
           case td: ScTypedDefinition if isLocalV(td) && atRightPlace(td) =>
-            buf += td
+            builder += td
           case _ => super.visitReference(ref)
         }
       }
     })
 
-      if (isAtLeast212(block))
-        buf.distinct.sortBy(e => e.isInstanceOf[ScObject])
-      else
-        buf.distinct.sortBy(e => (e.isInstanceOf[ScObject], e.startOffset))
+    val result = builder.to(ArraySeq)
+    if (isAtLeast212(block)) result.sortBy(e => e.is[ScObject])
+    else result.sortBy(e => (e.is[ScObject], e.startOffset))
   }
 
   def isAtLeast212(element: PsiElement): Boolean =
@@ -478,12 +477,12 @@ object DebuggerUtil {
       case b: ScBindingPattern =>
         ScalaPsiUtil.nameContext(b) match {
           case v @ (_: ScValue | _: ScVariable) =>
-            !v.getContext.isInstanceOf[ScTemplateBody] && !v.getContext.isInstanceOf[ScEarlyDefinitions]
+            !v.getContext.is[ScTemplateBody] && !v.getContext.is[ScEarlyDefinitions]
           case _: ScCaseClause => true
           case _ => true //todo: for generator/enumerators
         }
       case o: ScObject =>
-        !o.getContext.isInstanceOf[ScTemplateBody] && ScalaPsiUtil.getContextOfType(o, true, classOf[PsiClass]) != null
+        !o.getContext.is[ScTemplateBody] && ScalaPsiUtil.getContextOfType(o, true, classOf[PsiClass]) != null
       case _ => false
     }
   }

@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 import org.jetbrains.plugins.scala.settings.annotations.*;
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil;
 import scala.Some$;
+import scala.collection.immutable.ArraySeq;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -70,7 +71,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     public String myEnteredName;
 
     private Project project;
-    private ScType[] myTypes;
+    private ArraySeq<ScType> myTypes;
     private int occurrencesCount;
     private ValidationReporter reporter;
     private IntroduceFieldSettings mySettings;
@@ -214,15 +215,10 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
 
         readSettings();
 
-        boolean nullText = false;
-        for (ScType myType : myTypes) {
-            if (myType.toString() == null) {
-                nullText = true;
-            }
-        }
+        boolean nullText = myTypes.exists(ty -> ty.toString() == null);
 
         // Type specification
-        if (myTypes.length == 0 || nullText) {
+        if (myTypes.size() == 0 || nullText) {
             myTypeComboBox.setEnabled(false);
         } else {
             TypePresentationContext context = TypePresentationContext$.MODULE$.psiElementPresentationContext(myClass);

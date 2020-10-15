@@ -84,7 +84,7 @@ object Play2Keys {
         allIn(allKeys).find(_._1 == projectName).map(_._2)
       }
 
-      def allIn(allKeys: Map[String, Map[String, ParsedValue[_]]]): collection.Seq[(String, T)]
+      def allIn(allKeys: Map[String, Map[String, ParsedValue[_]]]): Seq[(String, T)]
 
       override def toString: String = name + "_KEY"
     }
@@ -100,11 +100,11 @@ object Play2Keys {
       }
     }
 
-    class SeqStringParsedKey(@NonNls name: String) extends ParsedKey[collection.Seq[String]](name) {
-      override def allIn(allKeys: Map[String, Map[String, ParsedValue[_]]]): collection.Seq[(String, collection.Seq[String])] = {
+    class SeqStringParsedKey(@NonNls name: String) extends ParsedKey[Seq[String]](name) {
+      override def allIn(allKeys: Map[String, Map[String, ParsedValue[_]]]): Seq[(String, Seq[String])] = {
         in(allKeys) map { vs =>
             vs.toSeq flatMap {
-              case (projectName, projectValue: SeqStringParsedValue) => Some((projectName, projectValue.parsed.asScala))
+              case (projectName, projectValue: SeqStringParsedValue) => Some((projectName, projectValue.parsed.asScala.toSeq))
               case _ => None
             }
         } getOrElse Seq.empty

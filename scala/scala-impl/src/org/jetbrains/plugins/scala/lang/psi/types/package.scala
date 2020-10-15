@@ -258,7 +258,7 @@ package object types {
       else                                 "scala.collection.Seq"
   }
 
-  implicit class ScTypesExt(private val types: collection.Seq[ScType]) extends AnyVal {
+  implicit class ScTypesExt(private val types: IterableOnce[ScType]) extends AnyVal {
     def glb(checkWeak: Boolean = false)(implicit project: ProjectContext): ScType = {
       project.typeSystem.glb(types, checkWeak)
     }

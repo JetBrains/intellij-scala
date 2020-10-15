@@ -16,34 +16,36 @@ class ScalaSdkProvider(implicit indicator: ProgressIndicator, contextDirectory: 
 
   protected val scalaJarDetectors: Seq[ScalaSdkDetector] = ScalaSdkDetector.allDetectors(contextDirectory)
 
-  def discoverSDKs(callback: Consumer[SdkChoice]): Seq[SdkChoice] = scalaJarDetectors.flatMap(detector => {
-    indicator.setText(message("sdk.scan.title", detector.friendlyName))
-    indicator.setIndeterminate(true)
+  def discoverSDKs(callback: Consumer[SdkChoice]): Unit =
+    scalaJarDetectors.foreach { detector =>
+      indicator.setText(message("sdk.scan.title", detector.friendlyName))
+      indicator.setIndeterminate(true)
 
-    val jarStream = detector.buildJarStream
-    val components = try {
-      jarStream
-        .map[ScalaSdkComponent] { f =>
-          indicator.checkCanceled()
-          //noinspection ReferencePassedToNls
-          indicator.setText2(f.toString)
-          ScalaSdkComponent.fromFile(f.toFile).orNull
-        }
-        .filter(_ != null)
-        .collect(Collectors.toList[ScalaSdkComponent]).asScala
-    } finally {
-      jarStream.close()
+      val jarStream = detector.buildJarStream
+      val components = try {
+        jarStream
+          .iterator().asScala
+          .map { f =>
+            indicator.checkCanceled()
+            //noinspection ReferencePassedToNls
+            indicator.setText2(f.toString)
+            ScalaSdkComponent.fromFile(f.toFile).orNull
+          }
+          .filter(_ != null)
+          .toSeq
+      } finally {
+        jarStream.close()
+      }
+
+      val componentsByVersion = components.groupBy(_.version)
+      componentsByVersion
+        .view
+        .mapValues(ScalaSdkDescriptor.buildFromComponents)
+        .toSeq
+        .collect { case (Some(_), Right(descriptor)) => detector.buildSdkChoice(descriptor) }
+        .sortBy(_.sdk.version)
+        .reverse
+        .foreach(callback.accept)
     }
-
-    val componentsByVersion = components.groupBy(_.version)
-    componentsByVersion
-      .view
-      .mapValues(ScalaSdkDescriptor.buildFromComponents)
-      .toSeq
-      .collect { case (Some(_), Right(descriptor)) => detector.buildSdkChoice(descriptor) }
-      .sortBy(_.sdk.version)
-      .reverse
-      .map { sdk => callback.accept(sdk); sdk}
-  })
 
 }

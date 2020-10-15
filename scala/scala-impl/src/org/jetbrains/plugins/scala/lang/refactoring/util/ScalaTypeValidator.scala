@@ -24,21 +24,21 @@ class ScalaTypeValidator(val selectedElement: PsiElement, override val noOccurre
 
   private implicit def ctx: ProjectContext = selectedElement
 
-  protected override def findConflictsImpl(name: String, allOcc: Boolean): collection.Seq[(PsiNamedElement, String)] = {
+  protected override def findConflictsImpl(name: String, allOcc: Boolean): Seq[(PsiNamedElement, String)] = {
     //returns declaration and message
     val container = enclosingContainer(allOcc)
     if (container == null) return Seq.empty
 
     forbiddenNames(container, name) match {
-      case collection.Seq() => forbiddenNamesInBlock(container, name)
+      case Seq() => forbiddenNamesInBlock(container, name)
       case seq => seq
     }
   }
 
   import ScalaTypeValidator._
 
-  protected def forbiddenNames(position: PsiElement, name: String): collection.Seq[(PsiNamedElement, String)] = {
-    val result = mutable.ArrayBuffer.empty[(PsiNamedElement, String)]
+  protected def forbiddenNames(position: PsiElement, name: String): Seq[(PsiNamedElement, String)] = {
+    val builder = Seq.newBuilder[(PsiNamedElement, String)]
 
     val processor = new BaseProcessor(ValueSet(ResolveTargets.CLASS)) {
 
@@ -46,27 +46,27 @@ class ScalaTypeValidator(val selectedElement: PsiElement, override val noOccurre
                                     (implicit state: ResolveState): Boolean = {
         for {
           msg <- message(namedElement, name)
-        } result += namedElement -> msg
+        } builder += namedElement -> msg
 
         true
       }
     }
     PsiTreeUtil.treeWalkUp(processor, position, null, ScalaResolveState.empty)
 
-    result
+    builder.result()
   }
 
-  protected def forbiddenNamesInBlock(commonParent: PsiElement, name: String): collection.Seq[(PsiNamedElement, String)] = {
-    val result = mutable.ArrayBuffer.empty[(PsiNamedElement, String)]
+  protected def forbiddenNamesInBlock(commonParent: PsiElement, name: String): Seq[(PsiNamedElement, String)] = {
+    val builder = Seq.newBuilder[(PsiNamedElement, String)]
 
     for {
       namedElement <- commonParent.depthFirst().collect {
         case named: PsiNamedElement => named
       }
       msg <- message(namedElement, name)
-    } result += namedElement -> msg
+    } builder += namedElement -> msg
 
-    result
+    builder.result()
   }
 
   override def validateName(name: String): String =

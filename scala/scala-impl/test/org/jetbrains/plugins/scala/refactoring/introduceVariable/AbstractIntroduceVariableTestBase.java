@@ -31,6 +31,7 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationSettings;
 import org.junit.Assert;
 import scala.Option;
 import scala.Tuple2;
+import scala.collection.immutable.ArraySeq;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -155,19 +156,19 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
         PsiElement element = PsiTreeUtil.getParentOfType(myFile.findElementAt(startOffset), ScExpression.class, ScTypeElement.class);
         if (element instanceof ScExpression){
           ScExpression selectedExpr = null;
-          ScType[] types = null;
+          ArraySeq<ScType> types = null;
 
-          Option<Tuple2<ScExpression, ScType[]>> maybeExpression =
+          Option<Tuple2<ScExpression, ArraySeq<ScType>>> maybeExpression =
               ScalaRefactoringUtil.getExpressionWithTypes(myFile, startOffset, endOffset, project, myEditor);
           if (maybeExpression.isDefined()) {
-            Tuple2<ScExpression, ScType[]> tuple2 = maybeExpression.get();
+            Tuple2<ScExpression, ArraySeq<ScType>> tuple2 = maybeExpression.get();
             selectedExpr = tuple2._1();
             types = tuple2._2();
           }
           Assert.assertNotNull("Selected expression reference points to null", selectedExpr);
 
-          OccurrencesInFile occurrencesInFile = new OccurrencesInFile(myFile, new TextRange(startOffset, endOffset), ScalaRefactoringUtil.getOccurrenceRanges(selectedExpr, myFile).toSeq());
-          introduceVariableHandler.runRefactoring(occurrencesInFile, selectedExpr, "value", types[0], replaceAllOccurences, false, myEditor.getProject(), myEditor);
+          OccurrencesInFile occurrencesInFile = new OccurrencesInFile(myFile, new TextRange(startOffset, endOffset), ScalaRefactoringUtil.getOccurrenceRanges(selectedExpr, myFile));
+          introduceVariableHandler.runRefactoring(occurrencesInFile, selectedExpr, "value", types.head(), replaceAllOccurences, false, myEditor.getProject(), myEditor);
 
           result = myEditor.getDocument().getText();
         } else if (element instanceof ScTypeElement){

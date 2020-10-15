@@ -363,7 +363,7 @@ object ScalaPsiElementFactory {
         stmtText(st)
       case fun@ScFunctionExpr(parSeq, Some(result)) =>
         val paramText = parSeq match {
-          case collection.Seq(parameter) if parameter.typeElement.isDefined && parameter.getPrevSiblingNotWhitespace == null =>
+          case Seq(parameter) if parameter.typeElement.isDefined && parameter.getPrevSiblingNotWhitespace == null =>
             parameter.getText.parenthesize()
           case _ => fun.params.getText
         }

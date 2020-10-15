@@ -267,7 +267,7 @@ class ChangeAccessModifierIntention extends BaseElementAtCaretIntentionAction {
       .createScalaFileFromText(s"$modifier class a").typeDefinitions.head.getModifierList
     val useScope = member.getUseScope
 
-    def getElementsToSearch(member: ScMember): collection.Seq[PsiElement] = member match {
+    def getElementsToSearch(member: ScMember): Seq[PsiElement] = member match {
       case holder: ScDeclaredElementsHolder => holder.declaredElements
       case _ => Seq(member)
     }

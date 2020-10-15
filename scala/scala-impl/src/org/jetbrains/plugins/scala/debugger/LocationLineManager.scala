@@ -52,7 +52,7 @@ trait LocationLineManager {
     synth || exactLineNumber(location) < 0
   }
 
-  def locationsOfLine(refType: ReferenceType, line: Int, sourceName: String): collection.Seq[Location] = {
+  def locationsOfLine(refType: ReferenceType, line: Int, sourceName: String): Seq[Location] = {
     val jvmLocations: util.List[Location] =
       try {
         val stratum =
@@ -66,9 +66,9 @@ trait LocationLineManager {
 
     checkAndUpdateCaches(refType)
 
-    val nonCustomized = jvmLocations.asScala.filterNot(customizedLocationsCache.contains)
+    val nonCustomized = jvmLocations.asScala.iterator.filterNot(customizedLocationsCache.contains)
     val customized = customizedLocations(refType, line)
-    (nonCustomized ++ customized).filter(!shouldSkip(_))
+    (nonCustomized ++ customized).filter(!shouldSkip(_)).toSeq
   }
 
   private def customizedLocations(refType: ReferenceType, line: Int): Seq[Location] = {
@@ -100,8 +100,8 @@ trait LocationLineManager {
     if (document == null) return
 
     def elementStartLine(e: PsiElement): Int = document.getLineNumber(e.getTextOffset)
-    def locationsOfLine(m: Method, line: Int): collection.Seq[Location] =
-      Try(m.locationsOfLine(line + 1).asScala).getOrElse(Seq.empty)
+    def locationsOfLine(m: Method, line: Int): Seq[Location] =
+      Try(m.locationsOfLine(line + 1).asScala.toSeq).getOrElse(Seq.empty)
 
     //scalac sometimes generates very strange line numbers for <init> method
     def customizeLineForConstructors(): Unit = {
@@ -174,7 +174,7 @@ trait LocationLineManager {
         }
       }
 
-      def skipReturnValueAssignment(method: Method, caseLinesLocations: collection.Seq[collection.Seq[Location]]): Unit = {
+      def skipReturnValueAssignment(method: Method, caseLinesLocations: Seq[Seq[Location]]): Unit = {
         val bytecodes =
           try method.bytecodes()
           catch {case _: Throwable => return }
@@ -203,7 +203,7 @@ trait LocationLineManager {
         loadLocations.foreach(cacheCustomLine(_, -1))
       }
 
-      def skipBaseLineExtraLocations(method: Method, locations: collection.Seq[Location]): Unit = {
+      def skipBaseLineExtraLocations(method: Method, locations: Seq[Location]): Unit = {
         val filtered = locations.filter(!customizedLocationsCache.contains(_))
         if (filtered.size <= 1) return
 
@@ -213,7 +213,7 @@ trait LocationLineManager {
             case _: Throwable => return
           }
 
-        val tail: collection.Seq[Location] = filtered.tail
+        val tail: Seq[Location] = filtered.tail
 
         val loadExpressionValueLocations = tail.filter { l =>
           readLoadCode(l.codeIndex().toInt, bytecodes).nonEmpty
@@ -226,7 +226,7 @@ trait LocationLineManager {
         (loadExpressionValueLocations ++ returnLocations).foreach(cacheCustomLine(_, -1))
       }
 
-      def skipGotoLocations(method: Method, possibleLocations: collection.Seq[Location]): Unit = {
+      def skipGotoLocations(method: Method, possibleLocations: Seq[Location]): Unit = {
         val bytecodes =
           try method.bytecodes()
           catch {case _: Throwable => return }

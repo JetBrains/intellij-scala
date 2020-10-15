@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplatePar
 trait ScTemplateParentsStub extends StubElement[ScTemplateParents] {
   def parentTypesTexts: Array[String]
 
-  def parentTypeElements: collection.Seq[ScTypeElement]
+  def parentTypeElements: Seq[ScTypeElement]
 
   def constructorText: Option[String]
 }

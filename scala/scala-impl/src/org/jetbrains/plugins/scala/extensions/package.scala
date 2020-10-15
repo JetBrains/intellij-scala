@@ -183,6 +183,9 @@ package object extensions {
       }
       result.asInstanceOf[Option[T]]
     }
+
+    def zipMapped[B](f: A => B): CC[(A, B)] =
+      value.map(item => item -> f(item))
   }
 
   implicit class IterableExt[CC[X] <: collection.IterableOps[X, CC, CC[X]], A](private val value: CC[A]) extends AnyVal {
@@ -195,16 +198,6 @@ package object extensions {
         i += 1
       }
       builder.result()
-    }
-
-    def zipMapped[B](f: A => B): collection.Seq[(A, B)] = {
-      val b = new ArrayBuffer[(A, B)](value.size)
-      val it = value.iterator
-      while (it.hasNext) {
-        val v = it.next()
-        b += ((v, f(v)))
-      }
-      b
     }
 
     def join[B](separator: B)

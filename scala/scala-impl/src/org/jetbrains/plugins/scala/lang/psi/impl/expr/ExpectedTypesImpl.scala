@@ -155,7 +155,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     lazy val expectedArity    = aritiesOf(e)
     lazy val functionLikeType = FunctionLikeType(e)
 
-    def paramTpesMatch(lhs: collection.Seq[ScType], rhs: collection.Seq[ScType]): Boolean =
+    def paramTpesMatch(lhs: Seq[ScType], rhs: Seq[ScType]): Boolean =
       lhs.isEmpty || lhs.corresponds(rhs)(equiv)
 
     @tailrec
@@ -272,7 +272,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
         case (r, tp) => (tp, isApplyDynamicNamed(r))
       }
 
-    def argIndex(argExprs: collection.Seq[ScExpression]) =
+    def argIndex(argExprs: Seq[ScExpression]) =
       if (sameInContext == null) 0
       else argExprs.indexWhere(_ == sameInContext).max(0)
 
@@ -577,10 +577,10 @@ class ExpectedTypesImpl extends ExpectedTypes {
     }
   }
 
-  private def paramTypeFromExpr(expr: ScExpression, params: collection.Seq[Parameter], idx: Int, isDynamicNamed: Boolean): Option[ParameterType] = {
+  private def paramTypeFromExpr(expr: ScExpression, params: Seq[Parameter], idx: Int, isDynamicNamed: Boolean): Option[ParameterType] = {
     import expr.elementScope
 
-    def findByIdx(params: collection.Seq[Parameter]): ParameterType = {
+    def findByIdx(params: Seq[Parameter]): ParameterType = {
       def simple = (params(idx).paramType, typeElem(params(idx)))
       def repeated = (params.last.paramType, typeElem(params.last))
 
@@ -628,7 +628,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     }
   }
 
-  private def paramsFromTuple(tupleArgs: collection.Seq[ScType]): collection.Seq[Parameter] = tupleArgs.zipWithIndex.map {
+  private def paramsFromTuple(tupleArgs: Seq[ScType]): Seq[Parameter] = tupleArgs.zipWithIndex.map {
     case (tpe, index) => Parameter(tpe, isRepeated = false, index = index)
   }
 

@@ -93,10 +93,10 @@ object CommentsCollector {
       }
     }
 
-    val innerComments = collectCommentsAndSpacesBefore(element).reverse
+    val innerComments = collectCommentsAndSpacesBefore(element)
     val result = collectCommentsAtStart(element)
     if (!collectedCommentsUsedInParent(innerComments)) {
-      result ++= innerComments
+      result ++= innerComments.reverseIterator
     }
 
     usedComments ++= result

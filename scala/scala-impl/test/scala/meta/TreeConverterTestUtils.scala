@@ -51,7 +51,7 @@ trait TreeConverterTestUtils {
       case (x1, x2) => x1 == x2
     }
     def tagsEqual = true
-    def fieldsEqual = tree1.productIterator.toList.zip(tree2.productIterator.toList).forall { case (x1, x2) => loop(x1, x2)}
+    def fieldsEqual = tree1.productIterator.zip(tree2.productIterator).forall { case (x1, x2) => loop(x1, x2)}
     (tagsEqual && fieldsEqual) || {println(s"${tree1.show[scala.meta.Structure]} <=> ${tree2.show[scala.meta.Structure]}"); false}
     true
   }

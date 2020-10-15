@@ -203,7 +203,7 @@ object ScalaTestAstTransformer {
   @tailrec
   private def getScalaTestMethodInvocation(selected: MethodInvocation,
                                            current: MethodInvocation,
-                                           previousArgs: collection.Seq[ScExpression],
+                                           previousArgs: Seq[ScExpression],
                                            className: String): Option[StMethodInvocation] = {
     val arguments = current.argumentExpressions ++ previousArgs
 

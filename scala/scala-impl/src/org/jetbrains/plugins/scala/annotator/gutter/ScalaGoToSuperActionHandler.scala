@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 class ScalaGoToSuperActionHandler extends ScalaCodeInsightActionHandler {
@@ -25,7 +26,7 @@ class ScalaGoToSuperActionHandler extends ScalaCodeInsightActionHandler {
     val offset = editor.getCaretModel.getOffset
     val (superClasses, superSignatureElements) = ScalaGoToSuperActionHandler.findSuperElements(file, offset)
 
-    def popupChooser(superElements: collection.Seq[PsiElement], @Nls title: String): Unit = {
+    def popupChooser(superElements: Seq[PsiElement], @Nls title: String): Unit = {
       val processor: PsiElementProcessor[PsiElement] = (element: PsiElement) => {
         val descriptor = EditSourceUtil.getDescriptor(element)
         if (descriptor != null && descriptor.canNavigate) {
@@ -38,12 +39,12 @@ class ScalaGoToSuperActionHandler extends ScalaCodeInsightActionHandler {
     }
 
     (superClasses, superSignatureElements) match {
-      case (collection.Seq(), collection.Seq()) =>
-      case (collection.Seq(c: NavigatablePsiElement), collection.Seq()) if c.canNavigate => c.navigate(true)
-      case (collection.Seq(), collection.Seq(c: NavigatablePsiElement)) if c.canNavigate => c.navigate(true)
-      case (superClassElems, collection.Seq()) =>
+      case (Seq(), Seq()) =>
+      case (Seq(c: NavigatablePsiElement), Seq()) if c.canNavigate => c.navigate(true)
+      case (Seq(), Seq(c: NavigatablePsiElement)) if c.canNavigate => c.navigate(true)
+      case (superClassElems, Seq()) =>
         popupChooser(superClassElems, ScalaBundle.message("goto.super.class.chooser.title"))
-      case (collection.Seq(), superSigElems) =>
+      case (Seq(), superSigElems) =>
         popupChooser(superSigElems, ScalaBundle.message("goto.super.member.chooser.title"))
       case (superClassElems, superSigElems) =>
         popupChooser(superClassElems ++ superSigElems, ScalaBundle.message("goto.super.class.or.member.chooser.title"))
@@ -52,9 +53,7 @@ class ScalaGoToSuperActionHandler extends ScalaCodeInsightActionHandler {
 }
 
 private object ScalaGoToSuperActionHandler {
-  val empty: Array[PsiElement] = Array[PsiElement]()
-
-  def findSuperElements(file: PsiFile, offset: Int): (collection.Seq[PsiElement], collection.Seq[PsiElement]) = {
+  def findSuperElements(file: PsiFile, offset: Int): (Seq[PsiElement], Seq[PsiElement]) = {
     var element = file.findElementAt(offset)
     def test(e: PsiElement): Boolean = e match {
       case _: ScTemplateDefinition | _: ScFunction | _: ScValue
@@ -63,29 +62,29 @@ private object ScalaGoToSuperActionHandler {
     }
     while (element != null && !test(element)) element = element.getParent
 
-    def templateSupers(template: ScTemplateDefinition): Array[PsiElement] = {
+    def templateSupers(template: ScTemplateDefinition): ArraySeq[PsiElement] = {
       def ignored = Set("java.lang.Object", "scala.Any", "scala.AnyRef", "scala.AnyVal")
-      val supers = template.supers.filterNot((x: PsiClass) => ignored.contains(x.qualifiedName))
-      supers.distinct.toArray
+      val supers = template.supers.iterator.filterNot((x: PsiClass) => ignored.contains(x.qualifiedName))
+      supers.distinct.to(ArraySeq)
     }
 
     // TODO refactor a bit more.
-    def declaredElementHolderSupers(d: ScDeclaredElementsHolder): Array[PsiElement] = {
+    def declaredElementHolderSupers(d: ScDeclaredElementsHolder): ArraySeq[PsiElement] = {
       var el = file.findElementAt(offset)
       val elOrig = el
-      while (el != null && !(el.isInstanceOf[ScTypedDefinition] && el != elOrig)) el = el.getParent
+      while (el != null && !(el.is[ScTypedDefinition] && el != elOrig)) el = el.getParent
       val elements = d.declaredElements
-      if (elements.isEmpty) return empty
+      if (elements.isEmpty) return ArraySeq.empty
       val superElems =
         if (el != null && elements.contains(el.asInstanceOf[ScTypedDefinition])) {
           ScalaPsiUtil.superValsSignatures(el.asInstanceOf[ScTypedDefinition], withSelfType = true)
         } else ScalaPsiUtil.superValsSignatures(elements.head, withSelfType =  true)
-      val namedSuperElems: Seq[NavigatablePsiElement] = superElems.flatMap(_.namedElement match {
+      val namedSuperElems = superElems.iterator.flatMap(_.namedElement match {
         case n: NavigatablePsiElement => Some(n)
         case _ => None
-      }).toSeq
+      })
 
-      namedSuperElems.distinct.toArray
+      namedSuperElems.distinct.to(ArraySeq)
     }
 
     element match {
@@ -97,7 +96,7 @@ private object ScalaGoToSuperActionHandler {
         val superElems: Seq[NavigatablePsiElement] = func.superSignaturesIncludingSelfType.flatMap(_.namedElement match {
           case n: NavigatablePsiElement => Some(n)
           case _ => None
-        }).toSeq
+        })
         val supers = mutable.HashSet[NavigatablePsiElement](superElems: _*)
         (Seq(), supers.toSeq)
       case d: ScDeclaredElementsHolder =>

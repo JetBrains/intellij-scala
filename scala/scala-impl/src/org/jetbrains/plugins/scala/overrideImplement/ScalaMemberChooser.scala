@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.settings.annotations.{Declaration, Location, 
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil._
 
 import scala.annotation.nowarn
+import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
@@ -24,13 +25,13 @@ import scala.collection.mutable
  * 2014-03-25
  */
 @nowarn("msg=early initializers")
-class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Array[T],
-                         allowEmptySelection: Boolean,
-                         allowMultiSelection: Boolean,
-                         needAddOverrideChb: Boolean,
-                         needSpecifyTypeChb: Boolean,
-                         needCopyScalaDocChb: Boolean,
-                         targetClass: ScTemplateDefinition)
+class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: ArraySeq[T],
+                                                                    allowEmptySelection: Boolean,
+                                                                    allowMultiSelection: Boolean,
+                                                                    needAddOverrideChb: Boolean,
+                                                                    needSpecifyTypeChb: Boolean,
+                                                                    needCopyScalaDocChb: Boolean,
+                                                                    targetClass: ScTemplateDefinition)
         extends {
           val addOverrideModifierChb = new NonFocusableCheckBox(ScalaBundle.message("add.override.modifier"))
           val copyScalaDocChb = new NonFocusableCheckBox(ScalaBundle.message("copy.scaladoc"))
@@ -135,7 +136,7 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
 }
 
 object ScalaMemberChooser {
-  def sorted[T <: ClassMember](members: collection.Seq[T], targetClass: ScTemplateDefinition): Seq[T] = {
+  def sorted[T <: ClassMember](members: Seq[T], targetClass: ScTemplateDefinition): Seq[T] = {
     val groupedMembers = members.groupBy(cm => cm.getElement.getContainingClass)
     val sortedClasses = mutable.LinkedHashSet[PsiClass]()
     if (targetClass != null) {

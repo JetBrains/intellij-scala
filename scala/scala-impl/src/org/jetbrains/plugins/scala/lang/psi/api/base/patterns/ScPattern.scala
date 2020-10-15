@@ -31,7 +31,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, 
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.annotation.tailrec
-import scala.collection.mutable
 import scala.meta.intellij.QuasiquoteInferUtil
 
 /**

@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType.DOC_TAG_VALUE_TOKEN
 
 import scala.annotation.tailrec
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
@@ -81,7 +82,7 @@ private class ScalaBasicCompletionProvider extends CompletionProvider[Completion
         import ScalaAfterNewCompletionContributor._
         val maybeExpectedTypes = expectedTypeAfterNew(position, context)
 
-        val defaultLookupElements = processor.lookupElements.filter {
+        val defaultLookupElements = processor.lookupElements().filter {
           case ScalaLookupItem(_, clazz: PsiClass) =>
             !classNameCompletion &&
               (!annotationsOnly || clazz.isAnnotationType)
@@ -129,7 +130,7 @@ private class ScalaBasicCompletionProvider extends CompletionProvider[Completion
               if lookupStrings.add(element.getLookupString) // TODO support renamed classes
             } yield LookupElementDecorator.withInsertHandler(element, decorator)
           }
-        } result.addAllElements(processor.lookupElements.asJava)
+        } result.addAllElements(processor.lookupElements().asJava)
       case _ =>
     }
     if (position.getNode.getElementType == DOC_TAG_VALUE_TOKEN) result.stopHere()
@@ -151,23 +152,23 @@ object ScalaBasicCompletionProvider {
       withImplicitConversions = getPlace.isInstanceOf[ScReferenceExpression]
     ) {
 
-    private val lookupElements_ = mutable.ArrayBuffer.empty[LookupElement]
+    private val _lookupElementsBuilder = ArraySeq.newBuilder[LookupElement]
 
     private val containingClass = Option(getContextOfType(getPlace, classOf[PsiClass]))
     private val isInImport = completion.isInImport(getPlace)
     private val isInTypeElement = completion.isInTypeElement(getPlace)
     private val isInStableCodeReference = getPlace.isInstanceOf[ScStableCodeReference]
 
-    final def lookupElements: collection.Seq[LookupElement] = {
+    final def lookupElements(): Seq[LookupElement] = {
       ProgressManager.checkCanceled()
       getPlace.doResolve(this)
 
       ProgressManager.checkCanceled()
-      lookupElements_
+      _lookupElementsBuilder.result()
     }
 
     override protected final def postProcess(resolveResult: ScalaResolveResult): Unit = {
-      lookupElements_ ++= validLookupElement(resolveResult)
+      _lookupElementsBuilder ++= validLookupElement(resolveResult)
     }
 
     protected def validLookupElement(result: ScalaResolveResult): Option[LookupElement] = {

@@ -138,9 +138,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
   private def printChildren(level: Int, symbol: Symbol, filterFirstCons: Boolean = false): Unit = {
     var firstConsFiltered = !filterFirstCons
-    for {
-      child <- symbol.children
-    } {
+    for (child <- symbol.children) {
       if (child.isParam && child.isType) {} // do nothing
       else if (!firstConsFiltered)
         child match {

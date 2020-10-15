@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolv
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
 
 import scala.annotation.{nowarn, tailrec}
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 object TypeAdjuster extends ApplicationListener {
@@ -42,9 +43,9 @@ object TypeAdjuster extends ApplicationListener {
       val head = markedElements.head
       PsiDocumentManager.getInstance(head.getProject).commitAllDocuments()
 
-      val elements = markedElements.collect {
+      val elements = markedElements.iterator.collect {
         case ValidSmartPointer(element) => element
-      }
+      }.to(ArraySeq)
       markedElements.clear()
 
       adjustFor(elements)
@@ -60,7 +61,7 @@ object TypeAdjuster extends ApplicationListener {
     if (element != null) markedElements.contains(element.createSmartPointer)
     else                 false
 
-  def adjustFor(elements: collection.Seq[PsiElement],
+  def adjustFor(elements: Seq[PsiElement],
                 addImports: Boolean = true,
                 useTypeAliases: Boolean = true): Unit = {
     val infos = for {
@@ -266,7 +267,7 @@ object TypeAdjuster extends ApplicationListener {
     }
   }
 
-  private def rewriteInfosAsInfix(infos: collection.Seq[ReplacementInfo]): collection.Seq[ReplacementInfo] = {
+  private def rewriteInfosAsInfix(infos: Seq[ReplacementInfo]): Seq[ReplacementInfo] = {
     def infoToMappings(info: ReplacementInfo): List[(String, PsiElement)] = info match {
       case SimpleInfo(place, replacement, _, _) =>
         val maybePair = for {

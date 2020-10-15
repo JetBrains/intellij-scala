@@ -77,7 +77,7 @@ object ScalaMarkerType {
     superMethods
   }
 
-  def findOverrides(member: ScMember, deep: Boolean): collection.Seq[PsiNamedElement] = {
+  def findOverrides(member: ScMember, deep: Boolean): Seq[PsiNamedElement] = {
 
     val namedElems = member match {
       case d: ScDeclaredElementsHolder => d.declaredElements.filterByType[ScNamedElement]
@@ -243,7 +243,7 @@ object ScalaMarkerType {
 
   private val maxNumberOfElements = 5
 
-  private def overridesImplementsPrefix(member: ScMember, supers: collection.Seq[PsiNamedElement]): String = {
+  private def overridesImplementsPrefix(member: ScMember, supers: Seq[PsiNamedElement]): String = {
     val isTooMany = supers.size > maxNumberOfElements
     val isOverrides = GutterUtil.isOverrides(member, supers)
     member match {

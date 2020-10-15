@@ -10,8 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-import scala.collection.Set
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.immutable.ArraySeq
 
 /**
   * @author Alexander Podkhalyuzin
@@ -40,8 +39,8 @@ object UsageTracker {
     registerUsedImports(element, resolveResult.importsUsed)
   }
 
-  def getUnusedImports(file: ScalaFile): collection.Seq[ImportUsed] = {
-    val redundant = ArrayBuffer.empty[ImportUsed]
+  def getUnusedImports(file: ScalaFile): Seq[ImportUsed] = {
+    val redundantBuilder = ArraySeq.newBuilder[ImportUsed]
     val imports = file.getAllImportUsed
     val refHolder = ScalaRefCountHolder.getInstance(file)
 
@@ -52,14 +51,14 @@ object UsageTracker {
             importsUsed.filterNot(imp => refHolder.usageFound(imp) || imp.isAlwaysUsed)
 
           if (toHighlight.size == importsUsed.size)
-            redundant += ImportExprUsed(expr.get)
+            redundantBuilder += ImportExprUsed(expr.get)
           else
-            redundant ++= toHighlight
+            redundantBuilder ++= toHighlight
         case _ =>
       }
     }
 
-    ImportInfoProvider.filterOutUsedImports(file, redundant)
+    ImportInfoProvider.filterOutUsedImports(file, redundantBuilder.result())
   }
 
   private def registerUsedElement(element: PsiElement,

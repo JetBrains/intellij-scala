@@ -133,7 +133,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
     }
   }
 
-  private def isAmbiguousOverload(problems: collection.Seq[ApplicabilityProblem]): Boolean =
+  private def isAmbiguousOverload(problems: Seq[ApplicabilityProblem]): Boolean =
     problems.filterByType[TypeMismatch].groupBy(_.expression).exists(_._2.size > 1)
 
   @tailrec

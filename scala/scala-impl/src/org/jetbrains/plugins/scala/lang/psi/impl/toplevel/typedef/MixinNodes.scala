@@ -8,7 +8,6 @@ package impl
 package toplevel
 package typedef
 
-import java.util
 import java.util.concurrent.ConcurrentHashMap
 import java.util.{List => JList}
 
@@ -34,9 +33,9 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
-import scala.jdk.CollectionConverters._
 import scala.collection.mutable
-import scala.collection.mutable.{ArrayBuffer, ListBuffer}
+import scala.collection.immutable.ArraySeq
+import scala.jdk.CollectionConverters._
 
 abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor[T]) {
   type Map = MixinNodes.Map[T]
@@ -81,7 +80,7 @@ abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor
 
 object MixinNodes {
 
-  private case class SuperTypesData(substitutors: collection.Map[PsiClass, ScSubstitutor], refinements: collection.Seq[ScCompoundType])
+  private case class SuperTypesData(substitutors: collection.Map[PsiClass, ScSubstitutor], refinements: Seq[ScCompoundType])
 
   private object SuperTypesData {
 
@@ -105,9 +104,9 @@ object MixinNodes {
       SuperTypesData(superTypes, thisTypeSubst)
     }
 
-    private def apply(superTypes: collection.Seq[ScType], thisTypeSubst: ScSubstitutor): SuperTypesData = {
-      val substitutors = new util.LinkedHashMap[PsiClass, ScSubstitutor]
-      val refinements = new SmartList[ScCompoundType]
+    private def apply(superTypes: Seq[ScType], thisTypeSubst: ScSubstitutor): SuperTypesData = {
+      val substitutors = mutable.LinkedHashMap.empty[PsiClass, ScSubstitutor]
+      val refinementsBuilder = List.newBuilder[ScCompoundType]
 
       for (superType <- superTypes) {
         superType.extractClassType match {
@@ -122,12 +121,12 @@ object MixinNodes {
           case _ =>
             dealias(superType) match {
               case cp: ScCompoundType =>
-                refinements.add(cp)
+                refinementsBuilder += cp
               case _ =>
             }
         }
       }
-      SuperTypesData(substitutors.asScala, refinements.asScala)
+      SuperTypesData(substitutors, refinementsBuilder.result())
     }
 
     private def combine(superSubst: ScSubstitutor, superClass : PsiClass): ScSubstitutor = {
@@ -172,18 +171,19 @@ object MixinNodes {
 
     private val forNameCache = new ConcurrentHashMap[String, AllNodes[T]]()
 
-    private lazy val implicitNodes: collection.Seq[Node[T]] = {
-      val res = new ArrayBuffer[Node[T]](implicitNames.size)
+    private lazy val implicitNodes: Seq[Node[T]] = {
+      val builder = ArraySeq.newBuilder[Node[T]]
+      builder.sizeHint(implicitNames.size)
       val iterator = implicitNames.iterator()
       while (iterator.hasNext) {
         val thisMap = forName(iterator.next)
         thisMap.nodesIterator.foreach { node =>
           if (node.info.isImplicit) {
-            res += node
+            builder += node
           }
         }
       }
-      res
+      builder.result()
     }
 
     private var fromSuper: Boolean = false
@@ -366,9 +366,9 @@ object MixinNodes {
     def empty[T <: Signature]: NodesMap[T] = new THashMap[T, Node[T]](2, hashingStrategy[T])
   }
 
-  def linearization(clazz: PsiClass): collection.Seq[ScType] = {
+  def linearization(clazz: PsiClass): Seq[ScType] = {
     @CachedWithRecursionGuard(clazz, Seq.empty, ModTracker.libraryAware(clazz))
-    def inner(): collection.Seq[ScType] = {
+    def inner(): Seq[ScType] = {
       implicit val ctx: ProjectContext = clazz
 
       clazz match {
@@ -412,15 +412,15 @@ object MixinNodes {
   }
 
 
-  def linearization(compound: ScCompoundType, addTp: Boolean = false): collection.Seq[ScType] = {
+  def linearization(compound: ScCompoundType, addTp: Boolean = false): Seq[ScType] = {
     val comps = compound.components
     val classType = if (addTp) Some(compound) else None
     generalLinearization(classType, comps)
   }
 
 
-  private def generalLinearization(classType: Option[ScType], supers: Iterable[ScType]): collection.Seq[ScType] = {
-    val buffer = new ListBuffer[ScType]
+  private def generalLinearization(classType: Option[ScType], supers: Iterable[ScType]): Seq[ScType] = {
+    val buffer = mutable.ListBuffer.empty[ScType]
     val set: mutable.HashSet[String] = new mutable.HashSet //to add here qualified names of classes
     def classString(clazz: PsiClass): String = {
       clazz match {
@@ -493,7 +493,7 @@ object MixinNodes {
       }
     }
     classType.foreach(add)
-    buffer
+    buffer.toList
   }
 
   private def dealias(tp: ScType) = tp match {

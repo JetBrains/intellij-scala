@@ -12,8 +12,8 @@ import scala.jdk.CollectionConverters._
 /**
  * @author Pavel Fatin
  */
-private case class LibraryData(name: String, classes: collection.Seq[String], sources: collection.Seq[String], docs: collection.Seq[String]) {
-  def classesAsFileUrls: collection.Seq[String] =
+private case class LibraryData(name: String, classes: Seq[String], sources: Seq[String], docs: Seq[String]) {
+  def classesAsFileUrls: Seq[String] =
     classes.map(url => "file" + url.substring(3, url.length - 2))
 }
 
@@ -26,8 +26,11 @@ private object LibraryData {
   }
 
   def apply(element: Element): LibraryData = {
+    @nowarn("cat=deprecation")
     def urls(kind: String) = {
-      XPath.selectNodes(element, kind + "/root/@url").asScala.map(_.asInstanceOf[Attribute].getValue): @nowarn("cat=deprecation")
+      XPath.selectNodes(element, kind + "/root/@url").asScala.iterator
+        .map(_.asInstanceOf[Attribute].getValue)
+        .toSeq
     }
 
     LibraryData(element.getAttributeValue("name"), urls("CLASSES"), urls("SOURCES"), urls("JAVADOC"))

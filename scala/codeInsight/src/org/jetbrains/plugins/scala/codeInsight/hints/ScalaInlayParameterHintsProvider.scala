@@ -35,7 +35,7 @@ final class ScalaInlayParameterHintsProvider extends hints.InlayParameterHintsPr
     }
 
     matchedParameters match {
-      case collection.Seq() => ju.Collections.emptyList()
+      case Seq() => ju.Collections.emptyList()
       case _ =>
         parameterHints(matchedParameters).asJava
     }
@@ -80,7 +80,7 @@ object ScalaInlayParameterHintsProvider {
       new hints.Option(id, () => s"<html><body>$nameBody</body></html>", false)
   }
 
-  private def parameterHints(matchedParameters: collection.Seq[(ScExpression, Parameter)]) = {
+  private def parameterHints(matchedParameters: Seq[(ScExpression, Parameter)]) = {
     val (varargs, regular) = matchedParameters.partition {
       case (_, parameter) => parameter.isRepeated
     }

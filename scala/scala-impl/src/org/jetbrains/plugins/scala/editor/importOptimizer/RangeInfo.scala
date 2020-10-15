@@ -7,7 +7,7 @@ import com.intellij.psi.PsiAnchor
   */
 case class RangeInfo(firstPsi: PsiAnchor,
                      lastPsi: PsiAnchor,
-                     importInfos: collection.Seq[ImportInfo],
+                     importInfos: Seq[ImportInfo],
                      usedImportedNames: collection.Set[String],
                      isLocal: Boolean) {
 

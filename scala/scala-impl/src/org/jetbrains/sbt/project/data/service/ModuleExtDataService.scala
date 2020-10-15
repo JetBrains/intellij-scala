@@ -46,7 +46,7 @@ object ModuleExtDataService {
       ModuleExtData(scalaVersion, scalacClasspath, scalacOptions, sdk, javacOptions, packagePrefix) = dataNode.getData
     } {
       module.configureScalaCompilerSettingsFrom("sbt", scalacOptions.asScala)
-      Option(scalaVersion).foreach(configureScalaSdk(module, _, scalacClasspath.asScala))
+      Option(scalaVersion).foreach(configureScalaSdk(module, _, scalacClasspath.asScala.toSeq))
       configureOrInheritSdk(module, Option(sdk))
       configureLanguageLevel(module, javacOptions.asScala)
       configureJavacOptions(module, javacOptions.asScala)
@@ -55,7 +55,7 @@ object ModuleExtDataService {
 
     private def configureScalaSdk(module: Module,
                                   compilerVersion: String,
-                                  scalacClasspath: collection.Seq[File]): Unit = getScalaLibraries(module) match {
+                                  scalacClasspath: Seq[File]): Unit = getScalaLibraries(module) match {
       case libraries if libraries.isEmpty =>
       case libraries =>
         val maybeLibrary = libraries.asScala.find { library =>
@@ -74,14 +74,13 @@ object ModuleExtDataService {
 
     private def getScalaLibraries(module: Module) = {
       val delegate = new CollectProcessor[Library] {
-
         override def accept(library: Library): Boolean = library.hasRuntimeLibrary
       }
 
       getModifiableRootModel(module)
         .orderEntries
         .librariesOnly
-        .forEachLibrary(new UniqueProcessor(delegate))
+        .forEachLibrary(new UniqueProcessor[Library](delegate))
 
       delegate.getResults
     }

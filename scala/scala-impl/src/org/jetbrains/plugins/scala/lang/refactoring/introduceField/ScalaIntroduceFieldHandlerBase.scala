@@ -21,6 +21,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * Nikolay.Tropin
  * 6/28/13
@@ -31,7 +33,7 @@ abstract class ScalaIntroduceFieldHandlerBase extends ScalaRefactoringActionHand
 
   protected def isSuitableClass(elem: PsiElement, clazz: ScTemplateDefinition): Boolean
 
-  def afterClassChoosing[T <: PsiElement](elem: T, types: Array[ScType], project: Project, editor: Editor, file: PsiFile, @Nls title: String)
+  def afterClassChoosing[T <: PsiElement](elem: T, types: ArraySeq[ScType], project: Project, editor: Editor, file: PsiFile, @Nls title: String)
                                          (action: IntroduceFieldContext[T] => Unit): Unit = {
     try {
       val classes = ScalaPsiUtil.getParents(elem, file).collect {
@@ -58,7 +60,7 @@ abstract class ScalaIntroduceFieldHandlerBase extends ScalaRefactoringActionHand
     }
   }
 
-  protected def anchorForNewDeclaration(expr: ScExpression, occurrences: collection.Seq[TextRange], aClass: ScTemplateDefinition): PsiElement = {
+  protected def anchorForNewDeclaration(expr: ScExpression, occurrences: Seq[TextRange], aClass: ScTemplateDefinition): PsiElement = {
     val firstOccOffset = occurrences.map(_.getStartOffset).min
     val anchor = statementsAndMembersInClass(aClass).find(_.getTextRange.getEndOffset >= firstOccOffset)
     anchor.getOrElse {
@@ -99,7 +101,7 @@ object ScalaIntroduceFieldHandlerBase {
     }
   }
 
-  def anchorForInitializer(occurrences: collection.Seq[TextRange], file: PsiFile): Option[PsiElement] = {
+  def anchorForInitializer(occurrences: Seq[TextRange], file: PsiFile): Option[PsiElement] = {
     var firstRange = occurrences.head
 
     val parExpr = findParentExpr(commonParent(file, occurrences))

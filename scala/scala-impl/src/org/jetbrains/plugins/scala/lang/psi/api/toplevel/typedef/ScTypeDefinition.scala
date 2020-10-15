@@ -56,7 +56,7 @@ trait ScTypeDefinition extends ScTemplateDefinition
     PsiClassImplUtil.isClassEquivalentTo(this, another)
   }
 
-  def allInnerTypeDefinitions: collection.Seq[ScTypeDefinition] = this.membersWithSynthetic.filterByType[ScTypeDefinition]
+  def allInnerTypeDefinitions: Seq[ScTypeDefinition] = this.membersWithSynthetic.filterByType[ScTypeDefinition]
 
   def typeParameters: Seq[ScTypeParam]
 

@@ -43,7 +43,7 @@ class DeleteRedundantDefaultArgumentQuickFix(arg: ScExpression)
 }
 
 object RedundantDefaultArgumentUtil {
-  def isRedundantArgumentAt(arguments: collection.Seq[ScExpression], index: Int, parameters: collection.Seq[ScParameter]): Boolean = arguments(index) match {
+  def isRedundantArgumentAt(arguments: Seq[ScExpression], index: Int, parameters: Seq[ScParameter]): Boolean = arguments(index) match {
     case expression: ScExpression if isAllArgumentsNamedAfterIndex(arguments, index) => expression match {
       case _: ScInterpolatedStringLiteral => false
       case literal: ScLiteral => parameters.isDefinedAt(index) && hasDefaultValue(parameters(index), literal)
@@ -63,7 +63,7 @@ object RedundantDefaultArgumentUtil {
     case _ => false
   }
 
-  def isAllArgumentsNamedAfterIndex(expressions: collection.Seq[ScExpression], index: Int): Boolean = expressions.drop(index + 1).forall {
+  def isAllArgumentsNamedAfterIndex(expressions: Seq[ScExpression], index: Int): Boolean = expressions.drop(index + 1).forall {
     case assign: ScAssignment if assign.isNamedParameter => true
     case _ => false
   }

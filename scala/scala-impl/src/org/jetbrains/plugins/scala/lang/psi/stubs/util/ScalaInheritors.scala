@@ -23,26 +23,27 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
+import scala.collection.immutable.ArraySeq
+import scala.collection.mutable
 import scala.jdk.CollectionConverters._
-import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
 
 object ScalaInheritors {
   private val defaultParents   : Array[String] = Array("Object")
   private val caseClassDefaults: Array[String] = defaultParents :+ "Product" :+ "Serializable"
 
-  def directSupersNames(extBlock: ScExtendsBlock): Array[String] = {
+  def directSupersNames(extBlock: ScExtendsBlock): ArraySeq[String] = {
     def default = if (extBlock.isUnderCaseClass) caseClassDefaults else defaultParents
 
     collectForDirectSuperReferences(extBlock, _.refName) ++ default
   }
 
-  private def directSuperReferenceTexts(extendsBlock: ScExtendsBlock): Array[String] = {
+  private def directSuperReferenceTexts(extendsBlock: ScExtendsBlock): ArraySeq[String] = {
     collectForDirectSuperReferences(extendsBlock, _.getText)
   }
 
   private def collectForDirectSuperReferences(extBlock: ScExtendsBlock,
-                                                 function: ScStableCodeReference => String): Array[String] = {
+                                                 function: ScStableCodeReference => String): ArraySeq[String] = {
     @tailrec
     def extractReference(te: ScTypeElement): Option[ScStableCodeReference] = {
       te match {
@@ -59,34 +60,34 @@ object ScalaInheritors {
     }
 
     extBlock.templateParents match {
-      case None => Array.empty
+      case None => ArraySeq.empty
       case Some(parents) =>
         val parentElements = parents.typeElements.iterator
-        val result = new ArrayBuffer[String]()
+        val builder = ArraySeq.newBuilder[String]
         while (parentElements.hasNext) {
           extractReference(parentElements.next()) match {
             case Some(value) =>
-              result += function(value)
+              builder += function(value)
             case _ =>
           }
         }
-        result.toArray
+        builder.result()
     }
   }
 
-  def directInheritorCandidates(clazz: PsiClass, scope: SearchScope): collection.Seq[ScTemplateDefinition] =
+  def directInheritorCandidates(clazz: PsiClass, scope: SearchScope): Seq[ScTemplateDefinition] =
     scope match {
       case scope: GlobalSearchScope => directInheritorCandidates(clazz, scope)
       case scope: LocalSearchScope  => directInheritorCandidates(clazz, scope)
       case _                        => Seq()
     }
 
-  def directInheritorCandidates(clazz: PsiClass, scope: GlobalSearchScope): collection.Seq[ScTemplateDefinition] = {
+  def directInheritorCandidates(clazz: PsiClass, scope: GlobalSearchScope): Seq[ScTemplateDefinition] = {
     val name: String = clazz.name
     val qName = clazz.qualifiedNameOpt.getOrElse(name)
     if (name == null || clazz.isEffectivelyFinal) return Seq.empty
 
-    val inheritors = new ArrayBuffer[ScTemplateDefinition]
+    val inheritorsBuilder = ArraySeq.newBuilder[ScTemplateDefinition]
 
     import ScalaIndexKeys._
     val extendsBlockIterable = SUPER_CLASS_NAME_KEY.elements(name, scope)(clazz.getProject)
@@ -99,22 +100,23 @@ object ScalaInheritors {
           // simple names are stored in index, but in decompiled files they are qualified
           val superReferenceTexts =
             directSuperReferenceTexts(extendsBlock)
+              .iterator
               .map(_.stripPrefix("_root_.").stripPrefix("super."))
 
           if (superReferenceTexts.exists(qName.endsWith)) {
-            inheritors += tp
+            inheritorsBuilder += tp
           }
         case _ =>
       }
     }
-    inheritors
+    inheritorsBuilder.result()
   }
 
-  def directInheritorCandidates(clazz: PsiClass, localScope: LocalSearchScope): collection.Seq[ScTemplateDefinition] = {
+  def directInheritorCandidates(clazz: PsiClass, localScope: LocalSearchScope): Seq[ScTemplateDefinition] = {
     val name: String = clazz.name
     if (name == null || clazz.isEffectivelyFinal) return Seq.empty
 
-    val inheritors = new ArrayBuffer[ScTemplateDefinition]
+    val inheritorsBuilder = ArraySeq.newBuilder[ScTemplateDefinition]
 
     val references = ReferencesSearch.search(clazz, localScope).findAll().asScala
     val extendsBlocksIterable = references.collect {
@@ -124,11 +126,11 @@ object ScalaInheritors {
     while (extendsBlocks.hasNext) {
       val extendsBlock = extendsBlocks.next
       extendsBlock.getParent match {
-        case tp: ScTemplateDefinition => inheritors += tp
+        case tp: ScTemplateDefinition => inheritorsBuilder += tp
         case _ =>
       }
     }
-    inheritors
+    inheritorsBuilder.result()
   }
 
   def getSelfTypeInheritors(clazz: PsiClass): Seq[ScTemplateDefinition] = {
@@ -138,7 +140,7 @@ object ScalaInheritors {
         return Seq.empty
       }
 
-      val inheritors = new ArrayBuffer[ScTemplateDefinition]
+      val inheritorsBuilder = ArraySeq.newBuilder[ScTemplateDefinition]
 
       implicit val project: Project = clazz.getProject
       val resolveScope = clazz.resolveScope
@@ -170,7 +172,7 @@ object ScalaInheritors {
             tp <- typeElement.`type`().toOption
             if checkTp(tp)
             clazz = PsiTreeUtil.getContextOfType(selfTypeElement, classOf[ScTemplateDefinition])
-          } if (clazz != null) inheritors += clazz
+          } if (clazz != null) inheritorsBuilder += clazz
         }
       }
       processClass(clazz)
@@ -180,7 +182,7 @@ object ScalaInheritors {
           true
         }
       })
-      inheritors.toVector
+      inheritorsBuilder.result()
     }
 
     if (clazz.isEffectivelyFinal) Seq.empty
@@ -188,29 +190,33 @@ object ScalaInheritors {
   }
 
   private def withInheritors[T <: PsiClass : ClassTag](clazz: PsiClass,
-                                                       scope: GlobalSearchScope,
-                                                       visited: Set[PsiClass] = Set.empty,
-                                                       buffer: ArrayBuffer[T] = ArrayBuffer.empty[T])
+                                                       scope: GlobalSearchScope)
                                                       (predicate: T => Boolean): Set[T] = {
-    if (!visited(clazz)) {
+    val builder = Set.newBuilder[T]
+    val visited = mutable.Set.empty[PsiClass]
 
-      clazz match {
-        case t: T if predicate(t) => buffer += t
-        case _ =>
-      }
+    def inner(clazz: PsiClass): Unit = {
+      if (!visited(clazz)) {
+        visited += clazz
 
-      clazz match {
-        case td: ScTypeDefinition if !td.isEffectivelyFinal =>
-          val directInheritors = directInheritorCandidates(clazz, clazz.resolveScope).filter(_.isInheritor(td, false))
-          directInheritors
-            .foreach(withInheritors(_, scope, visited + clazz, buffer)(predicate))
+        clazz match {
+          case t: T if predicate(t) => builder += t
+          case _ =>
+        }
 
-        //todo collect inheritors of java classes
-        case _ =>
+        clazz match {
+          case td: ScTypeDefinition if !td.isEffectivelyFinal =>
+            val directInheritors = directInheritorCandidates(clazz, clazz.resolveScope).filter(_.isInheritor(td, false))
+            directInheritors.foreach(inner)
+
+          //todo collect inheritors of java classes
+          case _ =>
+        }
       }
     }
 
-    buffer.toSet
+    inner(clazz)
+    builder.result()
   }
 
   private def withStableInheritors[T <: PsiClass : ClassTag](clazz: PsiClass, scope: GlobalSearchScope): Set[T] =

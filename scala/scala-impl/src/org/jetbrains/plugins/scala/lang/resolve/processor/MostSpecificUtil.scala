@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.Set
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.immutable.ArraySeq
 
 /**
  * User: Alexander Podkhalyuzin
@@ -53,7 +53,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
   }
 
   def nextLayerSpecificForImplicitParameters(filterRest: Option[ScalaResolveResult],
-                                             rest: collection.Seq[ScalaResolveResult]): (Option[ScalaResolveResult], collection.Seq[ScalaResolveResult]) = {
+                                             rest: Seq[ScalaResolveResult]): (Option[ScalaResolveResult], Seq[ScalaResolveResult]) = {
     val (next, r) = nextLayerSpecificGeneric(filterRest.map(toInnerSRR), rest.map(toInnerSRR))
     (next.map(_.repr), r.map(_.repr))
   }
@@ -90,7 +90,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     val implicitCase:            Boolean = false
   )
 
-  private class ExistentialAbstractionBuilder(tparams: collection.Seq[TypeParameter]) {
+  private class ExistentialAbstractionBuilder(tparams: Seq[TypeParameter]) {
     private lazy val existentialArgumentSubst: ScSubstitutor = {
       ScSubstitutor.bind(tparams)(
         tp =>
@@ -296,7 +296,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
   }
 
   private def nextLayerSpecificGeneric[T](filterRest: Option[InnerScalaResolveResult[T]],
-                                          rest: collection.Seq[InnerScalaResolveResult[T]]): (Option[InnerScalaResolveResult[T]], collection.Seq[InnerScalaResolveResult[T]]) = {
+                                          rest: Seq[InnerScalaResolveResult[T]]): (Option[InnerScalaResolveResult[T]], Seq[InnerScalaResolveResult[T]]) = {
 
     val filteredRest = filterRest match {
       case Some(r) => rest.filter(!isMoreSpecific(r, _, checkImplicits = false))
@@ -306,16 +306,16 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     if (filteredRest.length == 1) return (Some(filteredRest.head), Seq.empty)
     var found = filteredRest.head
     val iter = filteredRest.tail.iterator
-    val out: ArrayBuffer[InnerScalaResolveResult[T]] = new ArrayBuffer[InnerScalaResolveResult[T]]()
+    val builder = ArraySeq.newBuilder[InnerScalaResolveResult[T]]
 
     while (iter.hasNext) {
       val res = iter.next()
       if (isDerived(getClazz(res), getClazz(found))) {
-        out += found
+        builder += found
         found = res
-      } else out += res
+      } else builder += res
     }
-    (Some(found), out)
+    (Some(found), builder.result())
   }
 
   private def nextMostSpecificGeneric[T](rest: Set[InnerScalaResolveResult[T]]): Option[InnerScalaResolveResult[T]] = {

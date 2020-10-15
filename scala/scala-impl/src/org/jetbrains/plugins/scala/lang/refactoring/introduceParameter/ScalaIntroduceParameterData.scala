@@ -9,6 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * @author Nikolay.Tropin
  */
@@ -16,9 +18,9 @@ case class ScalaIntroduceParameterData(methodLike: ScMethodLike,
                                        methodToSearchFor: ScMethodLike,
                                        elems: Iterable[PsiElement],
                                        paramName: String,
-                                       possibleTypes: Array[ScType],
+                                       possibleTypes: ArraySeq[ScType],
                                        tp: ScType,
-                                       occurrences: collection.Seq[TextRange],
+                                       occurrences: Seq[TextRange],
                                        mainOcc: TextRange,
                                        replaceAll: Boolean,
                                        defaultArg: String,

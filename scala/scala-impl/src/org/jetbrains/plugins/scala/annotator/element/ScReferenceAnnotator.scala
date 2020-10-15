@@ -80,7 +80,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
               case genCall: ScGenericCall =>
                 val missing = for (MissedTypeParameter(p) <- r.problems) yield p.name
                 missing match {
-                  case collection.Seq() =>
+                  case Seq() =>
                   case as =>
                     holder.createErrorAnnotation(genCall.typeArgs.getOrElse(genCall),
                       ScalaBundle.message("annotator.error.unspecified.type.parameters", as.mkString(", ")))
@@ -410,7 +410,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
   }
 
   private def createUnknownSymbolProblem(reference: ScReference)
-                                        (fixes: collection.Seq[IntentionAction] = UnresolvedReferenceFixProvider.fixesFor(reference))
+                                        (fixes: Seq[IntentionAction] = UnresolvedReferenceFixProvider.fixesFor(reference))
                                         (implicit holder: ScalaAnnotationHolder) = {
     val identifier = reference.nameId
     val annotation = holder.createErrorAnnotation(
@@ -489,7 +489,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     paramClauses.clauses.map(clause => formatParams(clause.parameters, clause.paramTypes)).mkString
   }
 
-  private def formatJavaParams(parameters: collection.Seq[PsiParameter])(implicit tpc: TypePresentationContext): String = {
+  private def formatJavaParams(parameters: Seq[PsiParameter])(implicit tpc: TypePresentationContext): String = {
     val types = parameters.map(_.paramType())
     val parts = parameters.zip(types).map {
       case (p, t) => t.presentableText + (if(p.isVarArgs) "*" else "")
@@ -497,19 +497,19 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     parenthesise(parts)
   }
 
-  private def formatSyntheticParams(parameters: collection.Seq[Parameter])(implicit tpc: TypePresentationContext): String = {
+  private def formatSyntheticParams(parameters: Seq[Parameter])(implicit tpc: TypePresentationContext): String = {
     val parts = parameters.map {
       p => p.paramType.presentableText + (if (p.isRepeated) "*" else "")
     }
     parenthesise(parts)
   }
 
-  private def parenthesise(items: collection.Seq[_]) = items.mkString("(", ", ", ")")
+  private def parenthesise(items: Seq[_]) = items.mkString("(", ", ", ")")
 
   // some properties cannot be shown because they are synthetic for example.
   // filter these out
-  private def withoutNonHighlightables(problems: collection.Seq[ApplicabilityProblem], holder: ScalaAnnotationHolder)
-  : collection.Seq[ApplicabilityProblem] = problems.filter {
+  private def withoutNonHighlightables(problems: Seq[ApplicabilityProblem], holder: ScalaAnnotationHolder)
+  : Seq[ApplicabilityProblem] = problems.filter {
     case PositionalAfterNamedArgument(argument) => inSameFile(argument, holder)
     case ParameterSpecifiedMultipleTimes(assignment) => inSameFile(assignment, holder)
     case UnresolvedParameter(assignment) => inSameFile(assignment, holder)

@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
 
-import scala.collection.mutable
+import scala.collection.immutable.ArraySeq
 
 /**
 * @author Alexander Podkhalyuzin
@@ -88,17 +88,17 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
   }
 
   @Cached(BlockModificationTracker(this), this)
-  def getFunctionWrappers: collection.Seq[ScPrimaryConstructorWrapper] = {
-    val buffer = mutable.ArrayBuffer.empty[ScPrimaryConstructorWrapper]
+  def getFunctionWrappers: Seq[ScPrimaryConstructorWrapper] = {
+    val builder = ArraySeq.newBuilder[ScPrimaryConstructorWrapper]
 
     for {
       first <- parameterList.clauses.headOption
       if first.hasRepeatedParam
       if hasAnnotation("scala.annotation.varargs")
-    } buffer += new ScPrimaryConstructorWrapper(this, isJavaVarargs = true)
+    } builder += new ScPrimaryConstructorWrapper(this, isJavaVarargs = true)
 
-    buffer += new ScPrimaryConstructorWrapper(this)
-    buffer
+    builder += new ScPrimaryConstructorWrapper(this)
+    builder.result()
   }
 }
 

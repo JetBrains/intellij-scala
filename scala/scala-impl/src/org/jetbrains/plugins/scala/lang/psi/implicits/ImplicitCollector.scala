@@ -65,7 +65,7 @@ object ImplicitCollector {
     def presentableTypeText: String = tp.presentableText(place)
   }
 
-  def probableArgumentsFor(parameter: ScalaResolveResult): collection.Seq[(ScalaResolveResult, FullInfoResult)] = {
+  def probableArgumentsFor(parameter: ScalaResolveResult): Seq[(ScalaResolveResult, FullInfoResult)] = {
     parameter.implicitSearchState.map { state =>
       val collector = new ImplicitCollector(state.copy(fullInfo = true))
       collector.collect().flatMap { r =>
@@ -122,8 +122,8 @@ class ImplicitCollector(place: PsiElement,
 
   private def isExtensionConversion: Boolean = extensionData.isDefined
 
-  def collect(): collection.Seq[ScalaResolveResult] = {
-    def calc(): collection.Seq[ScalaResolveResult] = {
+  def collect(): Seq[ScalaResolveResult] = {
+    def calc(): Seq[ScalaResolveResult] = {
       clazz match {
         case Some(c) if InferUtil.tagsAndManifists.contains(c.qualifiedName) => return Seq.empty
         case _                                                               =>

@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.compiler.IncrementalityType
 
 import _root_.java.{util => jutil}
 import _root_.scala.jdk.CollectionConverters._
-import _root_.scala.collection.mutable
+import _root_.scala.collection.immutable.ArraySeq
 
 /**
  * @author Pavel Fatin
@@ -134,17 +134,17 @@ object SbtBuilder {
   }
 
   //in current chunk only
-  private def collectDirtyFiles(dirtyFilesHolder: DirtyFilesHolder): mutable.Seq[File] = {
-    val result = collection.mutable.Buffer.empty[File]
+  private def collectDirtyFiles(dirtyFilesHolder: DirtyFilesHolder): Seq[File] = {
+    val builder = Seq.newBuilder[File]
     dirtyFilesHolder.processDirtyFiles((_, file, _) => {
-      result += file
+      builder += file
       true
     })
-    result
+    builder.result()
   }
 
-  private def compilableFiles(context: CompileContext, target: ModuleBuildTarget): mutable.Seq[File] = {
-    val result = mutable.ArrayBuffer.empty[File]
+  private def compilableFiles(context: CompileContext, target: ModuleBuildTarget): Seq[File] = {
+    val builder = ArraySeq.newBuilder[File]
 
     val rootIndex = context.getProjectDescriptor.getBuildRootIndex
     val excludeIndex = context.getProjectDescriptor.getModuleExcludeIndex
@@ -155,13 +155,13 @@ object SbtBuilder {
         if (!excludeIndex.isExcluded(file)) {
           val fileName = file.getName
           if (fileName.endsWith(".scala") || fileName.endsWith(".java")) {
-            result += file
+            builder += file
           }
         }
         true
       })
     }
-    result
+    builder.result()
   }
 
   private def collectCompilableFiles(context: CompileContext,

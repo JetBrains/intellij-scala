@@ -53,7 +53,7 @@ class Qualified(nameCondition: String => Boolean) extends InvocationTemplate(nam
 }
 
 class Unqualified(nameCondition: String => Boolean) extends InvocationTemplate(nameCondition) {
-  def unapplySeq(expr: ScExpression): Option[collection.Seq[ScExpression]] = {
+  def unapplySeq(expr: ScExpression): Option[Seq[ScExpression]] = {
     stripped(expr) match {
       case (_: ScMethodCall) childOf (parentCall: ScMethodCall) => None
       case MethodRepr(_, None, Some(ref), args) if nameCondition(ref.refName) && refCondition(ref) =>

@@ -32,7 +32,7 @@ object ImportInfoProvider {
   def providers: Iterable[ImportInfoProvider] =
     ImportInfoProvider.EP_NAME.getExtensionList.asScala
 
-  def filterOutUsedImports(file: ScalaFile, unused: collection.Seq[ImportUsed]): collection.Seq[ImportUsed] =
+  def filterOutUsedImports(file: ScalaFile, unused: Seq[ImportUsed]): Seq[ImportUsed] =
     providers.foldLeft(unused) { case (acc, provider) =>
       if (provider.acceptsFile(file))
         acc.filterNot {

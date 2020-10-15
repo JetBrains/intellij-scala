@@ -68,7 +68,7 @@ object ExtensionConversionHelper {
 
         findInType(tp, data, typeParams).map { tp =>
           typeParams match {
-            case collection.Seq() => candidate
+            case Seq() => candidate
             case _     => update(candidate, tp)
           }
         }

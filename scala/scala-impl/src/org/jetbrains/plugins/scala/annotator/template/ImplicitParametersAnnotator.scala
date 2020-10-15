@@ -39,7 +39,7 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
     val settings = ScalaProjectSettings.getInstance(element.getProject)
 
     parameters.filter(hasProblemToHighlight(_, settings)) match {
-      case collection.Seq() =>
+      case Seq() =>
       case params =>
         val presentableTypes = params
           .map(_.implicitSearchState.map(_.presentableTypeText).getOrElse(ScalaBundle.message("unknown.type")))
@@ -80,6 +80,6 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
     annotation.setEnforcedTextAttributes(attributes)
   }
 
-  def message(types: collection.Seq[String]): String =
+  def message(types: Seq[String]): String =
     ScalaBundle.message("no.implicit.arguments.of.type", types.mkString(", "))
 }

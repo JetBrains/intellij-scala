@@ -49,7 +49,7 @@ private[findUsages] class ScalaCompilerReferenceReader private[compilerReference
       searchInBackwardUsagesIndex(ref) {
         case (fileId, lines) =>
           val file = findFileByEnumeratorId(fileId)
-          file.foreach(usages += UsagesInFile(_, lines))
+          file.foreach(usages += UsagesInFile(_, lines.toSeq))
           true
       }
 
@@ -62,7 +62,7 @@ private[findUsages] class ScalaCompilerReferenceReader private[compilerReference
 
       myIndex.get(ScalaCompilerIndices.backwardHierarchy).getData(classRef).forEach {
         case (fileId, inheritors) =>
-          val lines = inheritors.collect { case funExpr: ScFunExprCompilerRef => funExpr.line }
+          val lines = inheritors.iterator.collect { case funExpr: ScFunExprCompilerRef => funExpr.line }.toSeq
           val file  = findFileByEnumeratorId(fileId)
           file.foreach(usages += UsagesInFile(_, lines))
           true

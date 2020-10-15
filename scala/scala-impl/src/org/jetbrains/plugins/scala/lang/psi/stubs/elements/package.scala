@@ -36,7 +36,7 @@ package object elements {
       }
     }
 
-    def writeNames(names: Array[String]): Unit = {
+    def writeNames(names: collection.Seq[String]): Unit = {
       dataStream.writeInt(names.length)
       names.foreach {
         dataStream.writeName

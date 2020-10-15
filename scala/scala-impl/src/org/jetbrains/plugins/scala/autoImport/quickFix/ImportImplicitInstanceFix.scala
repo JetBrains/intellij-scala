@@ -81,7 +81,7 @@ object ImportImplicitInstanceFix {
 
   private def withProbableArguments(prefix: Seq[ScalaResolveResult],
                                     parameter: ScalaResolveResult,
-                                    visited: Set[PsiNamedElement] = Set.empty): collection.Seq[TypeToSearch] = {
+                                    visited: Set[PsiNamedElement] = Set.empty): Seq[TypeToSearch] = {
     if (visited(parameter.element) || visited.size > 2)
       return Seq.empty
 

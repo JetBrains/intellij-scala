@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePre
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.InputOutputFoldingInfo
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain._
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable.ArrayBuffer
 
 final class WorksheetEditorPrinterPlain private[printers](
@@ -226,7 +227,7 @@ object WorksheetEditorPrinterPlain {
    *          input: Seq((1, 1), (1, 1), (1, 2), (2, 2), (3, 4), (4, 5)) <br>
    *          output: Seq(Seq((1, 1), (1, 1), (1, 2), (2, 2)), Seq((3, 4), (4, 5))) <br>
    */
-  private def groupChunks(chunks: collection.Seq[EvaluationChunk]): collection.Seq[collection.Seq[EvaluationChunk]] =
+  private def groupChunks(chunks: collection.Seq[EvaluationChunk]): Iterable[Iterable[EvaluationChunk]] =
     if (chunks.isEmpty) Seq()
     else {
       val result = ArrayBuffer(ArrayBuffer(chunks.head))
@@ -262,9 +263,9 @@ object WorksheetEditorPrinterPlain {
 
   // TODO: unify with REPL printer, reuse concepts
   @Measure
-  private def renderText(chunks: collection.Seq[EvaluationChunk]): (CharSequence, collection.Seq[InputOutputFoldingInfo]) = {
+  private def renderText(chunks: collection.Seq[EvaluationChunk]): (CharSequence, Seq[InputOutputFoldingInfo]) = {
     val resultText = new StringBuilder()
-    val resultFoldings = ArrayBuffer.empty[InputOutputFoldingInfo]
+    val resultFoldingsBuilder = ArraySeq.newBuilder[InputOutputFoldingInfo]
     var foldedLines = 0
 
     val chunksGrouped: Iterable[Iterable[EvaluationChunk]] = WorksheetEditorPrinterPlain.groupChunks(chunks)
@@ -312,7 +313,7 @@ object WorksheetEditorPrinterPlain {
         )
 
         foldedLines += diffLocal
-        resultFoldings += folding
+        resultFoldingsBuilder += folding
       } else if (diffLocal < 0) {
         // current input is longer than output need to add extra trailing spaces after the output
         // to align input end with output last line
@@ -323,7 +324,7 @@ object WorksheetEditorPrinterPlain {
       }
     }
 
-    (resultText, resultFoldings)
+    (resultText, resultFoldingsBuilder.result())
   }
 
   @TestOnly

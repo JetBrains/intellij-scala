@@ -8,7 +8,7 @@ import com.intellij.psi.codeStyle.{JavaCodeStyleSettings, ReferenceAdjuster}
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.immutable.ArraySeq
 
 /**
  * @author Alefas
@@ -38,16 +38,16 @@ class ScalaReferenceAdjuster extends ReferenceAdjuster {
     val psi = element.getPsi
     if (!psi.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return
     //do not process other languages
-    val buffer = new ArrayBuffer[ScalaPsiElement]()
+    val builder = ArraySeq.newBuilder[ScalaPsiElement]
     val visitor = new ScalaRecursiveElementVisitor {
         override def visitScalaElement(element: ScalaPsiElement): Unit = {
           if (element.getTextRange.getStartOffset >= startOffset && element.getTextRange.getEndOffset <= endOffset) {
-            buffer += element
+            builder += element
           } else super.visitScalaElement(element)
         }
       }
     psi.accept(visitor)
-    TypeAdjuster.adjustFor(buffer, addImports)
+    TypeAdjuster.adjustFor(builder.result(), addImports)
   }
 
   override def processRange(element: ASTNode, startOffset: Int, endOffset: Int, project: Project): Unit = {

@@ -33,17 +33,13 @@ abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatfor
 
   override protected def getProjectJDK: Sdk = SmartJDKLoader.getOrCreateJDK()
 
-  override protected def librariesLoaders: collection.Seq[LibraryLoader] = {
-    val back = new util.ArrayList[LibraryLoader]
+  override protected def librariesLoaders: Seq[LibraryLoader] = {
+    val builder = Seq.newBuilder[LibraryLoader]
     val scalaLoader = new ScalaSDKLoader(isIncludeReflectLibrary)
-    back.add(scalaLoader)
-    val path = sourceRootPath
-    if (path != null) back.add(SourcesLoader(path))
-    val result = back.asScala
-    val addLibs = additionalLibraries
-    //noinspection unchecked (because variance)
-    result ++= addLibs
-    result
+    builder += scalaLoader
+    builder ++= Option(sourceRootPath).map(SourcesLoader)
+    builder ++= additionalLibraries
+    builder.result()
   }
 
   override protected def getProjectDescriptor: LightProjectDescriptor = new ScalaLightProjectDescriptor() {

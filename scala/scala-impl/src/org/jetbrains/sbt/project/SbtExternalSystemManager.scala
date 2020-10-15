@@ -159,7 +159,7 @@ object SbtExternalSystemManager {
         }
       }.getOrElse(Map.empty)
 
-  private def getVmOptions(settings: SbtSettings.State, jreHome: Option[File]): collection.Seq[String] = {
+  private def getVmOptions(settings: SbtSettings.State, jreHome: Option[File]): Seq[String] = {
     @NonNls val userOptions = settings.getVmParameters.split("\\s+").toSeq.filter(_.nonEmpty)
 
     @NonNls val maxHeapSizeString = settings.getMaximumHeapSize.trim
@@ -179,7 +179,7 @@ object SbtExternalSystemManager {
     getVmOptions(givenOptions, jreHome)
   }
 
-  def getVmOptions(givenOptions: collection.Seq[String], jreHome: Option[File]): collection.Seq[String] = {
+  def getVmOptions(givenOptions: Seq[String], jreHome: Option[File]): Seq[String] = {
     import DefaultOptions._
     val ideaProxyOptions = proxyOptions { optName => !givenOptions.exists(_.startsWith(optName)) }
 
@@ -193,10 +193,14 @@ object SbtExternalSystemManager {
 
 
   /** @param select Allow only options that pass this filter on option name */
-  private def proxyOptions(select: String=>Boolean): collection.Seq[String] = {
+  private def proxyOptions(select: String => Boolean): Seq[String] = {
 
     val http = HttpConfigurable.getInstance
-    val jvmArgs = http.getJvmProperties(false, null).asScala.map { pair => (pair.first, pair.second)}
+    val jvmArgs = http
+      .getJvmProperties(false, null)
+      .asScala.iterator
+      .map { pair => (pair.first, pair.second)}
+      .toSeq
 
     // TODO workaround for IDEA-186551 -- remove when fixed in core
     val nonProxyHosts =
@@ -212,8 +216,8 @@ object SbtExternalSystemManager {
       .collect { case (name,value) if select(name) => s"-D$name=$value" }
   }
 
-  private implicit class OptionsOps(options: collection.Seq[String]) {
-    def addPermSize(jreHome: Option[File]): collection.Seq[String] = {
+  private implicit class OptionsOps(options: Seq[String]) {
+    def addPermSize(jreHome: Option[File]): Seq[String] = {
       import DefaultOptions.maxPermSize
 
       // use no MaxPermSize param if we know jdk version is >= 8 or user set it anyway
@@ -228,7 +232,7 @@ object SbtExternalSystemManager {
       withoutPermSize.getOrElse(addDefaultOption(maxPermSize.key, maxPermSize.value))
     }
 
-    def addDefaultOption(prefix: String, value: String): collection.Seq[String] =
+    def addDefaultOption(prefix: String, value: String): Seq[String] =
       if (hasOption(prefix)) options
       else options :+ s"$prefix=$value"
 

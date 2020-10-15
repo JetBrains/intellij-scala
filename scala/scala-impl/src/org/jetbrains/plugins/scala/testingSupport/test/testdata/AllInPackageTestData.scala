@@ -57,7 +57,7 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
     classFqns.map(_ -> Set[String]()).toMap
   }
 
-  private def findTestSuites(scope: GlobalSearchScope): collection.Seq[String] = {
+  private def findTestSuites(scope: GlobalSearchScope): Seq[String] = {
     val pack = ScPackageImpl(getPackage(getTestPackagePath))
 
     if (pack == null) throw executionException(ScalaBundle.message("test.run.config.test.package.not.found", testPackagePath))
@@ -70,7 +70,7 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
     }
 
     val classesAll = collectClasses(pack)
-    val classesUnique = classesAll.distinct
+    val classesUnique = classesAll.iterator.distinct.toSeq
     val classes = classesUnique.filter(c => config.isValidSuite(c) && config.canBeDiscovered(c))
     if (classes.isEmpty)
       throw executionException(ScalaBundle.message("test.config.did.not.find.suite.classes.in.package", pack.getQualifiedName))

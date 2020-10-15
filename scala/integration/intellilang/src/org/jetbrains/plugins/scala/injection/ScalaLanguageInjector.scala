@@ -344,7 +344,7 @@ object ScalaLanguageInjector {
     case _                                              => None
   }
 
-  private def extractMultiLineStringRanges(literal: ScLiteral): collection.Seq[TextRange] = {
+  private def extractMultiLineStringRanges(literal: ScLiteral): Seq[TextRange] = {
     val range = getRangeInElement(literal)
     val rangeStartOffset = range.getStartOffset
 
@@ -378,7 +378,7 @@ object ScalaLanguageInjector {
       rangesCollected += TextRange.create(rangeStartOffset, rangeStartOffset)
     }
 
-    rangesCollected
+    rangesCollected.toList
   }
 
   private def performSimpleInjection(literals: Seq[StringLiteral], injectedLanguage: InjectedLanguage,

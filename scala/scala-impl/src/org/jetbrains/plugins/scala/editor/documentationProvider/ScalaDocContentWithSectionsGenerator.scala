@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOw
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.immutable.ArraySeq
 
 /**
  * @note for the current moment (8 June 2020) there is no any Scala Doc specification.<br>
@@ -111,7 +111,7 @@ private class ScalaDocContentWithSectionsGenerator(
       buffer.append(DocumentationMarkup.CONTENT_END)
   }
 
-  private def appendSections(sections: collection.Seq[Section], result: StringBuilder): Unit =
+  private def appendSections(sections: Seq[Section], result: StringBuilder): Unit =
     sections.foreach { section =>
       import DocumentationMarkup._
       result
@@ -123,10 +123,10 @@ private class ScalaDocContentWithSectionsGenerator(
     }
 
 
-  private def buildSections(tags: Seq[ScDocTag]): collection.Seq[Section] = {
-    val sections = ArrayBuffer.empty[Section]
+  private def buildSections(tags: Seq[ScDocTag]): Seq[Section] = {
+    val sectionsBuilder = ArraySeq.newBuilder[Section]
 
-    sections ++=
+    sectionsBuilder ++=
       prepareSimpleSections(tags, MyScaladocParsing.DEPRECATED_TAG, ScalaEditorBundle.message("scaladoc.section.deprecated"))
 
     val paramsSection     = prepareParamsSection(tags)
@@ -134,13 +134,13 @@ private class ScalaDocContentWithSectionsGenerator(
     val returnsSection    = prepareReturnsSection(tags)
     val throwsSection     = prepareThrowsSection(tags)
 
-    sections ++=
+    sectionsBuilder ++=
       paramsSection ++=
       typeParamsSection ++=
       returnsSection ++=
       throwsSection
 
-    sections ++=
+    sectionsBuilder ++=
       prepareSimpleSections(tags, MyScaladocParsing.NOTE_TAG, ScalaEditorBundle.message("scaladoc.section.note")) ++=
       prepareSimpleSections(tags, MyScaladocParsing.EXAMPLE_TAG, ScalaEditorBundle.message("scaladoc.section.example")) ++=
       prepareSimpleSections(tags, MyScaladocParsing.SEE_TAG, ScalaEditorBundle.message("scaladoc.section.see.also")) ++=
@@ -157,18 +157,18 @@ private class ScalaDocContentWithSectionsGenerator(
     // generateRecordParametersSection(buffer, aClass, comment);
     // generateTypeParametersSection(buffer, aClass, rendered);
     if (rendered) {
-      sections ++=
+      sectionsBuilder ++=
         prepareSimpleSections(tags, MyScaladocParsing.AUTHOR_TAG, ScalaEditorBundle.message("scaladoc.section.author")) ++=
         prepareSimpleSections(tags, MyScaladocParsing.VERSION_TAG, ScalaEditorBundle.message("scaladoc.section.version"))
     }
 
-    sections ++=
+    sectionsBuilder ++=
       prepareSimpleSections(tags, MyScaladocParsing.TODO_TAG, ScalaEditorBundle.message("scaladoc.section.todo"))
 
-    sections
+    sectionsBuilder.result()
   }
 
-  private def prepareSimpleSections(tags: Seq[ScDocTag], tagName: String, sectionTitle: String): Seq[Section] = {
+  private def prepareSimpleSections(tags: Seq[ScDocTag], tagName: String, @Nls sectionTitle: String): Seq[Section] = {
     val matchingTags = tags.filter(_.name == tagName)
     val result = matchingTags.map { (tag: ScDocTag) =>
       val sectionContent = newContentGenerator.tagDescriptionText(tag)

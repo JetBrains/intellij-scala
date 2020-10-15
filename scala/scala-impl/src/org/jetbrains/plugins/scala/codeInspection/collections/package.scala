@@ -174,7 +174,7 @@ package object collections {
   object binaryOperation {
     def unapply(expr: ScExpression): Option[String] = {
       val operRef = stripped(expr) match {
-        case ScFunctionExpr(collection.Seq(x, y), Some(result)) =>
+        case ScFunctionExpr(Seq(x, y), Some(result)) =>
           def checkResolve(left: ScExpression, right: ScExpression) = (stripped(left), stripped(right)) match {
             case (leftRef: ScReferenceExpression, rightRef: ScReferenceExpression) =>
               Set(leftRef.resolve(), rightRef.resolve()) equals Set(x, y)
@@ -196,7 +196,7 @@ package object collections {
   class BinaryOperationOnParameterAndExprTemplate(operName: String) {
     def unapply(expr: ScExpression): Option[ScExpression] = {
       stripped(expr) match {
-        case ScFunctionExpr(collection.Seq(x), Some(result)) =>
+        case ScFunctionExpr(Seq(x), Some(result)) =>
           stripped(result) match {
             case ScInfixExpr(left, oper, right) if oper.refName == operName =>
               (stripped(left), stripped(right)) match {
@@ -223,7 +223,7 @@ package object collections {
   object andCondition {
     def unapply(expr: ScExpression): Option[ScExpression] = {
       stripped(expr) match {
-        case ScFunctionExpr(collection.Seq(x, y), Some(result)) =>
+        case ScFunctionExpr(Seq(x, y), Some(result)) =>
           stripped(result) match {
             case ScInfixExpr(left, oper, right) if oper.refName == "&&" =>
               (stripped(left), stripped(right)) match {
@@ -245,7 +245,7 @@ package object collections {
   class ParameterlessCallOnParameterTemplate(name: String) {
     def unapply(expr: ScExpression): Boolean = {
       stripped(expr) match {
-        case ScFunctionExpr(collection.Seq(x), Some(result)) =>
+        case ScFunctionExpr(Seq(x), Some(result)) =>
           stripped(result) match {
             case MethodRepr(_, Some(ResolvesTo(`x`)), Some(ref), Seq()) if ref.refName == name => true
             case _ => false
@@ -324,8 +324,8 @@ package object collections {
   def implicitParameterExistsFor(expr: ScExpression): Boolean = {
     if (expr == null) false
     else expr.findImplicitArguments match {
-      case Some(collection.Seq(srr)) if srr.isImplicitParameterProblem => false
-      case Some(collection.Seq(_, _*)) => true
+      case Some(Seq(srr)) if srr.isImplicitParameterProblem => false
+      case Some(Seq(_, _*)) => true
       case _ => false
     }
   }

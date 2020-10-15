@@ -31,6 +31,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaVariableValidator, ValidationReporter}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
+import scala.collection.immutable.ArraySeq
+
 /**
   * Created by Kate Ustyuzhanina
   * on 9/18/15
@@ -87,7 +89,7 @@ trait IntroduceExpressions {
   //todo refactor to avoid duplication
   @TestOnly
   def suggestedNamesForExpression(file: PsiFile, startOffset: Int, endOffset: Int)
-                                 (implicit project: Project, editor: Editor): Array[String] = {
+                                 (implicit project: Project, editor: Editor): ArraySeq[String] = {
     val Some((expr, types)) = getExpressionWithTypes(file, startOffset, endOffset)
     val occurrences = fileEncloser(file, startOffset).toSeq.flatMap {
       getOccurrenceRanges(expr, _)
@@ -141,7 +143,7 @@ trait IntroduceExpressions {
     val SuggestedNames(expression, types, names) = suggestedNames
     val validator = suggestedNames.validator
     val reporter = new ValidationReporter(project, this, validator)
-    val dialog = new ScalaIntroduceVariableDialog(project, types, occurrences_.length, reporter, names, expression)
+    val dialog = new ScalaIntroduceVariableDialog(project, types, occurrences_.length, reporter, names.toArray, expression)
 
     this.showDialogImpl(dialog, occurrences_).foreach { dialog =>
       runRefactoring(occurrences, suggestedNames.expression,
@@ -168,17 +170,17 @@ trait IntroduceExpressions {
 
 object IntroduceExpressions {
 
-  private class SuggestedNames(val expression: ScExpression, val types: Array[ScType], val validator: ScalaVariableValidator) {
+  private class SuggestedNames(val expression: ScExpression, val types: ArraySeq[ScType], val validator: ScalaVariableValidator) {
 
-    def names: Array[String] = NameSuggester.suggestNames(expression, validator, types).toArray
+    def names: ArraySeq[String] = NameSuggester.suggestNames(expression, validator, types)
   }
 
   private object SuggestedNames {
 
-    def apply(expression: ScExpression, types: Array[ScType], validator: ScalaVariableValidator): SuggestedNames =
+    def apply(expression: ScExpression, types: ArraySeq[ScType], validator: ScalaVariableValidator): SuggestedNames =
       new SuggestedNames(expression, types, validator)
 
-    def unapply(names: SuggestedNames): Option[(ScExpression, Array[ScType], Array[String])] =
+    def unapply(names: SuggestedNames): Option[(ScExpression, ArraySeq[ScType], ArraySeq[String])] =
       Some(names.expression, names.types, names.names)
   }
 
@@ -188,7 +190,7 @@ object IntroduceExpressions {
                                         maybeType: Option[ScType],
                                         replaceAll: Boolean,
                                         forceType: Boolean,
-                                        suggestedNames: Array[String])
+                                        suggestedNames: ArraySeq[String])
                                        (implicit project: Project, editor: Editor): Unit = {
     val maybeNamedElement = newDeclaration match {
       case holder: ScDeclaredElementsHolder => holder.declaredElements.headOption

@@ -115,7 +115,7 @@ object ScUBlockExpression {
 
     case localFunDecl: ScULocalFunctionDeclarationExpression =>
       localFunDecl.getDeclarations.asScala match {
-        case collection.Seq(variable: UVariable) =>
+        case Seq(variable: UVariable) =>
           variable.getUastInitializer match {
             case lambda: ULambdaExpression =>
               Option(lambda.getBody).exists(_.getExpressionType != PsiType.VOID)

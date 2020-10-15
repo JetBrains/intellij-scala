@@ -9,11 +9,11 @@ import org.jetbrains.jps.incremental.scala.containsDotty
  */
 case class CompilerJars(libraries: Seq[File],
                         compiler: File,
-                        extra: collection.Seq[File]) {
+                        extra: Seq[File]) {
 
   def hasDotty: Boolean =
     containsDotty(extra)
 
-  def allJars: collection.Seq[File] =
+  def allJars: Seq[File] =
     libraries ++ extra :+ compiler
 }

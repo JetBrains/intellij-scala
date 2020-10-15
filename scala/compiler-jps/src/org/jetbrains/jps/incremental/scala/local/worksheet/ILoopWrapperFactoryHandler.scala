@@ -206,6 +206,6 @@ object ILoopWrapperFactoryHandler {
 
   case class ReplContext(sbtData: SbtData,
                          compilerJars: CompilerJars,
-                         classpath: collection.Seq[File],
-                         scalacOptions: collection.Seq[String])
+                         classpath: Seq[File],
+                         scalacOptions: Seq[String])
 }

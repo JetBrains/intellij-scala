@@ -280,7 +280,7 @@ private object GutterUtil {
       )
   }
 
-  def getOverridesOrImplementsIcon(element: PsiElement, signatures: collection.Seq[TermSignature]): Icon =
+  def getOverridesOrImplementsIcon(element: PsiElement, signatures: Seq[TermSignature]): Icon =
     if (isOverrides(element, signatures.map(_.namedElement))) OverridingMethod else ImplementingMethod
 
   def namedParent(e: PsiElement): Option[PsiElement] =
@@ -335,7 +335,7 @@ private object GutterUtil {
         }
     }
 
-  def isOverrides(element: PsiElement, supers: collection.Seq[PsiNamedElement]): Boolean =
+  def isOverrides(element: PsiElement, supers: Seq[PsiNamedElement]): Boolean =
     element match {
       case _: ScFunctionDeclaration  => true
       case _: ScValueDeclaration     => true

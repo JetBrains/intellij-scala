@@ -151,36 +151,38 @@ private object ScalaMavenImporter {
 
     private def compilerVersionProperty: Option[String] = resolvePluginConfig(configElementName = "scalaVersion", userPropertyName = "scala.version")
 
-    def vmOptions: Seq[String] = elements("jvmArgs", "jvmArg").map(_.getTextTrim)
+    def vmOptions: Seq[String] = elements("jvmArgs", "jvmArg").map(_.getTextTrim).toSeq
 
     def compilerOptions: Seq[String] = {
-      val args: Seq[String] = elements("args", "arg").map(_.getTextTrim)
-      val addScalacArgs: Option[String] = resolvePluginConfig(configElementName = "addScalacArgs", userPropertyName = "addScalacArgs")
-      val addScalacArgsSplit: Seq[String] = addScalacArgs.toSeq.flatMap(_.split("\\|"))
+      val args = elements("args", "arg").map(_.getTextTrim)
+      val addScalacArgs = resolvePluginConfig(configElementName = "addScalacArgs", userPropertyName = "addScalacArgs")
+      val addScalacArgsSplit = addScalacArgs.toSeq.flatMap(_.split("\\|"))
 
       // NB scala-maven-plugin puts addScalacArgs after args
-      args ++ addScalacArgsSplit
+      (args ++ addScalacArgsSplit).toSeq
     }
 
     def plugins: Seq[MavenId] = {
-      elements("compilerPlugins", "compilerPlugin").flatMap { plugin =>
-        plugin.getChildTextTrim("groupId").toOption
-          .zip(plugin.getChildTextTrim("artifactId").toOption)
-          .zip(plugin.getChildTextTrim("version").toOption)
-        .map {
-          case ((groupId, artifactId), version) =>
-            // It's okay if classifier is absent or blank
-            val classifier = plugin.getChildTextTrim("classifier").toOption
-              .filterNot(_.isEmpty)
-            MavenId(groupId, artifactId, version, classifier)
+      elements("compilerPlugins", "compilerPlugin").iterator
+        .flatMap { plugin =>
+          plugin.getChildTextTrim("groupId").toOption
+            .zip(plugin.getChildTextTrim("artifactId").toOption)
+            .zip(plugin.getChildTextTrim("version").toOption)
+          .map {
+            case ((groupId, artifactId), version) =>
+              // It's okay if classifier is absent or blank
+              val classifier = plugin.getChildTextTrim("classifier").toOption
+                .filterNot(_.isEmpty)
+              MavenId(groupId, artifactId, version, classifier)
+          }
         }
-      }
+        .toSeq
     }
 
-    private def elements(root: String, name: String): Seq[Element] =
-      element(root).toSeq.flatMap(elements(_, name))
+    private def elements(root: String, name: String): Iterator[Element] =
+      element(root).iterator.flatMap(elements(_, name))
 
-    private def elements(root: Element, name: String): collection.Seq[Element] =
+    private def elements(root: Element, name: String): Iterable[Element] =
       root.getChildren(name).asScala
 
     private def element(name: String): Option[Element] =

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.decompiler.scalasig
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -20,31 +21,30 @@ class ScalaSig(val entries: Array[Entry]) {
   private val symAnnots = ArrayBuffer.empty[SymAnnot]
   private val parentToChildren = mutable.HashMap.empty[Int, ArrayBuffer[Symbol]]
 
-  def topLevelClasses: mutable.Seq[ClassSymbol] = classes.filter(isTopLevelClass)
-  def topLevelObjects: mutable.Seq[ObjectSymbol] = objects.filter(isTopLevel)
+  def topLevelClasses: Iterable[ClassSymbol] = classes.filter(isTopLevelClass)
+  def topLevelObjects: Iterable[ObjectSymbol] = objects.filter(isTopLevel)
 
   def findCompanionClass(objectSymbol: ObjectSymbol): Option[ClassSymbol] = {
     val owner: Symbol = objectSymbol.symbolInfo.owner.get
     val name = objectSymbol.name
-    classes.find(c => c.info.owner.get.eq(owner) && c.name == objectSymbol.name)
+    classes.find(c => c.info.owner.get.eq(owner) && c.name == name)
   }
 
-  def children(symbol: ScalaSigSymbol): collection.Seq[Symbol] = {
+  def children(symbol: ScalaSigSymbol): Iterable[Symbol] = {
     parentToChildren.keysIterator.find(get(_) eq symbol) match {
-      case None => Seq.empty
+      case None => Iterable.empty
       case Some(i) => parentToChildren(i)
     }
   }
 
-  def attributes(symbol: ScalaSigSymbol): Seq[SymAnnot] = {
+  def attributes(symbol: ScalaSigSymbol): Iterable[SymAnnot] = {
     def sameSymbol(ann: SymAnnot) = (ann.symbol.get, symbol) match {
       case (s, t) if s == t => true
       case (m1: MethodSymbol, m2: MethodSymbol) if equiv(m1, m2) => true
       case _ => false
     }
     val forSameSymbol = symAnnots.filter(sameSymbol)
-    val distinctTypes = forSameSymbol.map(ann => ann.typeRef -> ann).toMap.values
-    distinctTypes.toVector
+    forSameSymbol.iterator.distinctBy(_.typeRef).to(ArraySeq)
   }
 
   def addClass(c: ClassSymbol): Unit = classes += c

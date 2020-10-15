@@ -17,7 +17,7 @@ class ParametersRenderer(
   def renderClauses(parametersOwner: ScParameterOwner): String =
     renderClauses(parametersOwner.allClauses)
 
-  def renderClauses(clauses: collection.Seq[ScParameterClause]): String = {
+  def renderClauses(clauses: Seq[ScParameterClause]): String = {
     val buffer = new StringBuilder()
     for (child <- clauses) {
       renderClause(child, buffer)

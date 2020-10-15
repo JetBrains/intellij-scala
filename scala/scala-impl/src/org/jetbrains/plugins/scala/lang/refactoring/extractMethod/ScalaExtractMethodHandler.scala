@@ -168,7 +168,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
     res.toArray.reverse
   }
 
-  private def findScopeBound(elements: collection.Seq[PsiElement]): Option[PsiElement] = {
+  private def findScopeBound(elements: Seq[PsiElement]): Option[PsiElement] = {
     val commonParent = PsiTreeUtil.findCommonParent(elements.toSeq: _*)
 
     def scopeBound(ref: ScReference): Option[PsiElement] = {

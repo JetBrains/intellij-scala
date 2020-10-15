@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.components.libextensions
 
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier.Version
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.immutable.ArraySeq
 import scala.language.postfixOps
 import scala.xml.{Elem, XML}
 
@@ -30,11 +30,11 @@ object LibraryDescriptor {
     import scala.xml._
 
     def verifyDescriptor(libraryDescriptor: LibraryDescriptor): collection.Seq[String] = {
-      val errors = ArrayBuffer[String]()
-      if (libraryDescriptor.name.isEmpty) errors += "Descriptor name is empty"
-      if (libraryDescriptor.pluginVersions.isEmpty) errors += "Descriptor version is empty"
+      val errorsBuilder = ArraySeq.newBuilder[String]
+      if (libraryDescriptor.name.isEmpty) errorsBuilder += "Descriptor name is empty"
+      if (libraryDescriptor.pluginVersions.isEmpty) errorsBuilder += "Descriptor version is empty"
 
-      errors
+      errorsBuilder.result()
     }
 
     def parseExtension(node: Node): ExtensionDescriptor = {
@@ -68,7 +68,7 @@ object LibraryDescriptor {
     val descriptor = LibraryDescriptor(name, id, descr, vendor, version, descriptors)
 
     verifyDescriptor(descriptor) match {
-      case collection.Seq(errors)  => Left(errors)
+      case Seq(errors)  => Left(errors)
       case Nil          => Right(descriptor)
     }
   }

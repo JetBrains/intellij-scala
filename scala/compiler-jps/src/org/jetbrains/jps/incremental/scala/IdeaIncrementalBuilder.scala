@@ -118,9 +118,9 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
   private def collectSources(context: CompileContext,
                              chunk: ModuleChunk,
-                             dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]): collection.Seq[File] = {
+                             dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]): Seq[File] = {
 
-    val result = mutable.ListBuffer.empty[File]
+    val builder = Seq.newBuilder[File]
 
     val project = context.getProjectDescriptor
 
@@ -133,7 +133,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
     def checkAndCollectFile(file: File): Boolean = {
       val fileName = file.getName
       if (extensionsToCollect.exists(fileName.endsWith))
-        result += file
+        builder += file
 
       true
     }
@@ -149,6 +149,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
 
     //if no scala files to compile, return empty seq
+    val result = builder.result()
     if (!result.exists(_.getName.endsWith(".scala"))) Seq.empty
     else result
   }

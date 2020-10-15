@@ -69,7 +69,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
     editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
     val element: PsiElement = file.findElementAt(offset)
     val clazz = PsiTreeUtil.getParentOfType(element, classOf[ScTemplateDefinition])
-    val allMembers = ExtractSuperUtil.possibleMembersToExtract(clazz).asScala
+    val allMembers = ExtractSuperUtil.possibleMembersToExtract(clazz)
     val memberInfos = if (onlyFirstMember) Seq(allMembers.head) else allMembers
     if (onlyDeclarations) memberInfos.foreach(_.setToAbstract(true))
     val extractInfo = new ExtractInfo(clazz, memberInfos)
@@ -100,7 +100,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
     dialog.show()
     if (!dialog.isOK) return
 
-    val memberInfos = dialog.getSelectedMembers.asScala
+    val memberInfos = dialog.getSelectedMembers.asScala.toSeq
     val extractInfo = new ExtractInfo(clazz, memberInfos)
     extractInfo.collect()
 
@@ -168,11 +168,10 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
     ScalaDirectoryService.createClassFromTemplate(dir, name, "Scala Trait", askToDefineVariables = false).asInstanceOf[ScTrait]
   }
 
-  private class ExtractInfo(val clazz: ScTemplateDefinition, val memberInfos: collection.Seq[ScalaExtractMemberInfo]) {
-
+  private class ExtractInfo(val clazz: ScTemplateDefinition, val memberInfos: Seq[ScalaExtractMemberInfo]) {
     private val classesForSelfType = mutable.Buffer[PsiClass]()
     private val selected = memberInfos.map(_.getMember)
-    private var currentMemberName: String = null
+    private var currentMemberName: String = _
     private val typeParams = mutable.Set[ScTypeParam]()
     val conflicts: MultiMap[PsiElement, String] = new MultiMap[PsiElement, String]
 
@@ -234,11 +233,11 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
             case m: ScMember if m.containingClass == clazz && m.isPrivate=>
               val message = ScalaBundle.message("private.member.cannot.be.used.in.extracted.member", named.name, currentMemberName)
               conflicts.putValue(m, message)
-            case m: ScMember if clazz.isInstanceOf[ScNewTemplateDefinition] && m.containingClass == clazz && !selected.contains(m) =>
+            case m: ScMember if clazz.is[ScNewTemplateDefinition] && m.containingClass == clazz && !selected.contains(m) =>
               val message = ScalaBundle.message("member.of.anonymous.class.cannot.be.used.in.extracted.member", named.name, currentMemberName)
               conflicts.putValue(m, message)
             case m: PsiMember
-              if m.containingClass != null && ref.qualifier.exists(_.isInstanceOf[ScSuperReference]) && clazz.isInheritor(m.containingClass, true) =>
+              if m.containingClass != null && ref.qualifier.exists(_.is[ScSuperReference]) && clazz.isInheritor(m.containingClass, true) =>
               val message = ScalaBundle.message("super.reference.used.in.extracted.member", currentMemberName)
               conflicts.putValue(m, message)
             case _ =>
@@ -301,7 +300,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
       val typeText = classesForSelfType.reverseIterator.map {
         case obj: ScObject => s"${obj.qualifiedName}.type"
         case cl: ScTypeDefinition => cl.qualifiedName
-        case cl: PsiClass => cl.getQualifiedName
+        case cl: PsiClass => cl.qualifiedName
       }.mkString(" with ")
 
       if (classesForSelfType.nonEmpty) {

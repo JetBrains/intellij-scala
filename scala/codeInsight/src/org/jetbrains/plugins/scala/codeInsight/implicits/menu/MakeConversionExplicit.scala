@@ -23,15 +23,17 @@ class MakeConversionExplicit extends AnAction(
 
     new MakeImplicitConversionExplicit().invoke(e.getData(CommonDataKeys.PROJECT), editor, element)
 
-    val prefixAndSuffixInlays: collection.Seq[Inlay[_]] = if(inlay == null) Seq() else {
-      val startOffset = inlay.getOffset
-      val endOffset = {
-        val inlayText = inlay.getRenderer.asInstanceOf[HintRenderer].getText
-        startOffset + inlayText.length + element.getTextLength + 1
-      }
+    val prefixAndSuffixInlays =
+      if(inlay == null) Seq()
+      else {
+        val startOffset = inlay.getOffset
+        val endOffset = {
+          val inlayText = inlay.getRenderer.asInstanceOf[HintRenderer].getText
+          startOffset + inlayText.length + element.getTextLength + 1
+        }
 
-      model.getInlineElementsInRange(startOffset, endOffset).asScala
-    }
+        model.getInlineElementsInRange(startOffset, endOffset).asScala
+      }
 
     prefixAndSuffixInlays.foreach(_.dispose())
   }

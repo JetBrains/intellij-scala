@@ -121,7 +121,7 @@ private class ServerConnector(module: Module, filesToCompile: Seq[File], outputD
     case files => files.map(f => (f, s"$namePrefix${f.getName}".stripSuffix(".class")))
   }
 
-  type CompileResult = Either[collection.Seq[NlsString], Array[(File, String)]]
+  type CompileResult = Either[Seq[NlsString], Array[(File, String)]]
   def compile(): CompileResult = {
     val project = module.getProject
 

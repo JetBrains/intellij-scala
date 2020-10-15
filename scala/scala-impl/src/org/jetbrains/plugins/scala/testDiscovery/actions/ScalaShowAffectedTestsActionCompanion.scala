@@ -69,7 +69,7 @@ object ScalaShowAffectedTestsActionCompanion {
     (if (method.isConstructor) "<init>" else method.getName) + tail
   }
 
-  private def getValOrVarKeys(element: ScValueOrVariable): collection.Seq[Couple[String]] = {
+  private def getValOrVarKeys(element: ScValueOrVariable): Seq[Couple[String]] = {
     (for {
       clazz <- (if (element.isValid) element.getContainingClass else null).nullSafe
       className <- DiscoveredTestsTreeModel.getClassName(clazz).nullSafe

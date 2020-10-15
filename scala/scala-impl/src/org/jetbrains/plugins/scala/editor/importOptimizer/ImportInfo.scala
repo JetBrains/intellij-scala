@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
 import scala.annotation.tailrec
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -41,21 +42,21 @@ case class ImportInfo(prefixQualifier: String,
   def withoutRelative: ImportInfo =
     if (relative.isDefined || rootUsed) copy(relative = None) else this
 
-  def split: collection.Seq[ImportInfo] = {
-    val result = new ArrayBuffer[ImportInfo]()
-    result ++= singleNames.toSeq.sorted.map { name =>
+  def split: Seq[ImportInfo] = {
+    val builder = ArraySeq.newBuilder[ImportInfo]
+    builder ++= singleNames.toSeq.sorted.map { name =>
       template.copy(singleNames = Set(name))
     }
-    result ++= renames.map { rename =>
+    builder ++= renames.map { rename =>
       template.copy(renames = Map(rename))
     }
-    result ++= hiddenNames.map { hidden =>
+    builder ++= hiddenNames.map { hidden =>
       this.toHiddenNameInfo(hidden)
     }
     if (hasWildcard) {
-      result += this.toWildcardInfo
+      builder += this.toWildcardInfo
     }
-    result
+    builder.result()
   }
 
   def merge(second: ImportInfo): ImportInfo = {
@@ -229,7 +230,7 @@ object ImportInfo {
     )
   }
 
-  def merge(infos: collection.Seq[ImportInfo]): Option[ImportInfo] = infos.reduceOption(_ merge _)
+  def merge(infos: IterableOnce[ImportInfo]): Option[ImportInfo] = infos.iterator.reduceOption(_ merge _)
 
   private def withDot(s: String): String = {
     if (s.isEmpty) "" else "." + s

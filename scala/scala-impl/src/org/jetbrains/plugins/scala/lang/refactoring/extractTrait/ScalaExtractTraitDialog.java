@@ -48,7 +48,7 @@ public class ScalaExtractTraitDialog extends DialogWrapper {
     super(project, false);
     mySourceClass = sourceClass;
     myProject = mySourceClass.getProject();
-    myMembers = ExtractSuperUtil.possibleMembersToExtract(sourceClass);
+    myMembers = ExtractSuperUtil.possibleMembersToExtractAsJava(sourceClass);
     setTitle(ScalaBundle.message("extract.trait.title"));
     init();
     setupDialog();

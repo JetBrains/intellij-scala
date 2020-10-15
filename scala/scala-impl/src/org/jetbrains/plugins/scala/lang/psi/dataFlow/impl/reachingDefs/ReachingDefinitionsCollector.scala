@@ -31,7 +31,7 @@ object ReachingDefinitionsCollector {
     )
     if (cfowner == null) {
       val message = "cfowner == null: " + fragment.map(_.getText).mkString("(", ", ", ")") + "\n" + "files: " +
-        fragment.map(_.getContainingFile.getName).mkString("(", ", ", ")")
+        fragment.map(_.getContainingFile.name).mkString("(", ", ", ")")
       throw new RuntimeException(message)
     }
     val cfg = cfowner.getControlFlow //todo: make cache more right to not get PsiInvalidAccess
@@ -86,11 +86,11 @@ object ReachingDefinitionsCollector {
   private def isInFragment(element: PsiElement, fragment: collection.Seq[PsiElement]) =
     fragment.exists(PsiTreeUtil.isAncestor(_, element, false))
 
-  private def filterByFragment(cfg: collection.Seq[Instruction], fragment: collection.Seq[PsiElement]) = cfg.filter {
+  private def filterByFragment(cfg: Seq[Instruction], fragment: collection.Seq[PsiElement]) = cfg.filter {
     i => i.element.exists(isInFragment(_, fragment))
   }
 
-  private def computeOutputVariables(innerInstructions: collection.Seq[Instruction],
+  private def computeOutputVariables(innerInstructions: Seq[Instruction],
                                      dfaResult: mutable.Map[Instruction, RDSet]): Iterable[VariableInfo] = {
     val buffer = new ArrayBuffer[PsiNamedElement]
     for {
@@ -108,7 +108,7 @@ object ReachingDefinitionsCollector {
     buffer.sortBy(_.getTextRange.getStartOffset).map(VariableInfo)
   }
 
-  private def computeInputVariables(innerInstructions: collection.Seq[Instruction]): Iterable[VariableInfo] = {
+  private def computeInputVariables(innerInstructions: Seq[Instruction]): Iterable[VariableInfo] = {
     val buffer = mutable.Set[PsiNamedElement]()
     val definedHere = innerInstructions.collect {
       case DefinitionInstruction(_, named, _) => named

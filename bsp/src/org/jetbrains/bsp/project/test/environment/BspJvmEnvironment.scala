@@ -37,15 +37,15 @@ object BspJvmEnvironment {
 
   type Result[A] = Either[Error, A]
 
-  def getBspTargets(module: Module): Result[collection.Seq[BuildTargetIdentifier]] = {
+  def getBspTargets(module: Module): Result[Seq[BuildTargetIdentifier]] = {
     BspMetadata.get(module.getProject, module)
       .left.map(err => Error(err.msg))
-      .map(data => data.targetIds.asScala.map(id => new BuildTargetIdentifier(id.toString)))
+      .map(data => data.targetIds.asScala.iterator.map(id => new BuildTargetIdentifier(id.toString)).toSeq)
   }
 
   def promptUserToSelectBspTarget(
     project: Project,
-    targetIds: collection.Seq[BuildTargetIdentifier],
+    targetIds: Seq[BuildTargetIdentifier],
     holder: BspTargetIdHolder
   ): Option[BuildTargetIdentifier] = {
     val selected = invokeAndWait(BspSelectTargetDialog.promptForBspTarget(project, targetIds, holder.currentValue))
@@ -102,9 +102,9 @@ object BspJvmEnvironment {
     configuration: RunConfiguration,
     project: Project,
     extractor: BspEnvironmentRunnerExtension,
-    potentialTargets: collection.Seq[BuildTargetIdentifier],
+    potentialTargets: Seq[BuildTargetIdentifier],
     workspace: URI
-  ): Result[collection.Seq[BuildTargetIdentifier]] = {
+  ): Result[Seq[BuildTargetIdentifier]] = {
     def sourceFileForClass(className: String): Option[PsiFile] = {
       val psiFacade = JavaPsiFacade.getInstance(project)
       val scope = GlobalSearchScope.allScope(project)
@@ -115,7 +115,7 @@ object BspJvmEnvironment {
       }
     }
 
-    def filterTargetsContainingSources(sourceItems: collection.Seq[SourcesItem], files: Seq[PsiFile]): collection.Seq[BuildTargetIdentifier] = {
+    def filterTargetsContainingSources(sourceItems: Seq[SourcesItem], files: Seq[PsiFile]): Seq[BuildTargetIdentifier] = {
       val filePaths = files.map(file => Paths.get(file.getVirtualFile.getPath))
 
       def sourceItemContainsAnyOfFiles(sourceItem: SourceItem): Boolean = {
@@ -155,7 +155,7 @@ object BspJvmEnvironment {
       createJvmEnvironmentRequest(List(target), environmentType)
     ).flatMap {
       case Left(value) => Failure(value)
-      case Right(collection.Seq(environment)) => Success(JvmEnvironment.fromBsp(environment))
+      case Right(Seq(environment)) => Success(JvmEnvironment.fromBsp(environment))
       case _ => Failure(Error(BspBundle.message("bsp.task.invalid.environment.response")))
     }.toEither.left.map {
       case e: Error => e
@@ -166,15 +166,15 @@ object BspJvmEnvironment {
   private def createJvmEnvironmentRequest(targets: Seq[BuildTargetIdentifier], environmentType: ExecutionEnvironmentType)(
     server: BspServer,
     capabilities: BuildServerCapabilities
-  ): CompletableFuture[Result[collection.Seq[JvmEnvironmentItem]]] = {
+  ): CompletableFuture[Result[Seq[JvmEnvironmentItem]]] = {
     def environment[R](
       capability: BuildServerCapabilities => java.lang.Boolean,
       endpoint: java.util.List[BuildTargetIdentifier] => CompletableFuture[R],
       items: R => java.util.List[JvmEnvironmentItem],
       endpointName: String
-    ): CompletableFuture[Result[collection.Seq[JvmEnvironmentItem]]] = {
+    ): CompletableFuture[Result[Seq[JvmEnvironmentItem]]] = {
       if (Option(capability(capabilities)).exists(_.booleanValue)) {
-        endpoint(targets.asJava).thenApply(response => Right(items(response).asScala))
+        endpoint(targets.asJava).thenApply(response => Right(items(response).asScala.toSeq))
       } else {
         CompletableFuture.completedFuture(Left(Error(
           BspBundle.message("bsp.task.error.env.not.supported", endpointName)))
@@ -199,17 +199,17 @@ object BspJvmEnvironment {
   }
 
   private def fetchSourcesForTargets(
-    potentialTargets: collection.Seq[BuildTargetIdentifier],
+    potentialTargets: Seq[BuildTargetIdentifier],
     workspace: URI,
     project: Project
-  ): Try[collection.Seq[SourcesItem]] = {
+  ): Try[Seq[SourcesItem]] = {
     bspRequest(
       workspace, project, BspBundle.message("bsp.task.fetching.sources"),
       createSourcesRequest(potentialTargets)
     ).map(sources => sources.getItems.asScala.toList)
   }
 
-  private def createSourcesRequest(targets: collection.Seq[BuildTargetIdentifier])(
+  private def createSourcesRequest(targets: Seq[BuildTargetIdentifier])(
     server: BspServer, capabilities: BuildServerCapabilities
   ): CompletableFuture[SourcesResult] = {
     server.buildTargetSources(new SourcesParams(targets.asJava))
@@ -232,9 +232,9 @@ object BspJvmEnvironment {
     BspJob.waitForJob(job, retries = 10)
   }
 
-  private implicit class SeqOps[A](s: collection.Seq[A]) {
+  private implicit class SeqOps[A](s: Seq[A]) {
     def singleElement: Option[A] = s match {
-      case collection.Seq(single) => Some(single)
+      case Seq(single) => Some(single)
       case _ => None
     }
   }
