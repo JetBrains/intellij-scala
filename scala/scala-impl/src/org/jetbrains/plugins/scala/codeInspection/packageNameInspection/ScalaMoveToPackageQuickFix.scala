@@ -34,7 +34,7 @@ final class ScalaMoveToPackageQuickFix(myFile: ScalaFile, packageName: String)
       // Specifically make sure that the package name is compatible with an existing package prefix.
       for (module <- file.module;
            sourceFolder <- sourceFolderIn(module);
-           packagePrefix = sourceFolder.getPackagePrefix if !packagePrefix.isEmpty;
+           packagePrefix = sourceFolder.getPackagePrefix if !packagePrefix.isEmpty
            if !(packageName + ".").startsWith(packagePrefix + ".")) {
         Messages.showMessageDialog(project,
           ScalaInspectionBundle.message("move.file.to.package.package.prefix.error", packageName, sourceFolder.getFile.getName, packagePrefix),

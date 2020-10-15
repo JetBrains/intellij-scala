@@ -45,11 +45,11 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
           var message = ScalaInspectionBundle.message("package.names.does.not.correspond.to.directory.structure", packName, pack.getQualifiedName)
 
           // Specifically make sure that the file path doesn't repeat an existing package prefix (twice).
-          Option(ProjectRootManager.getInstance(file.getProject).getFileIndex.getSourceFolder(file.getVirtualFile)).foreach { sourceFolder =>
-            val packagePrefix = sourceFolder.getPackagePrefix
-            if (!packagePrefix.isEmpty && (pack.getQualifiedName + ".").startsWith(packagePrefix + "." + packagePrefix + ".")) {
-              message += " " + ScalaInspectionBundle.message("package.names.does.not.correspond.to.directory.structure.package.prefix", sourceFolder.getFile.getName, packagePrefix)
-            }
+          for (virtualFile <- Option(file.getVirtualFile);
+               sourceFolder <- Option(ProjectRootManager.getInstance(file.getProject).getFileIndex.getSourceFolder(virtualFile));
+               packagePrefix = sourceFolder.getPackagePrefix if !packagePrefix.isEmpty
+               if (pack.getQualifiedName + ".").startsWith(packagePrefix + "." + packagePrefix + ".")) {
+            message += "\n\n" + ScalaInspectionBundle.message("package.names.does.not.correspond.to.directory.structure.package.prefix", sourceFolder.getFile.getName, packagePrefix)
           }
 
           manager.createProblemDescriptor(file, range, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly, buffer: _*)
