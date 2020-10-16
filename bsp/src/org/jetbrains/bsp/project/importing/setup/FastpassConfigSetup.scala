@@ -1,10 +1,15 @@
 package org.jetbrains.bsp.project.importing.setup
+import com.intellij.notification.{Notification, NotificationType}
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
+import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.vfs.LocalFileSystem
+import java.awt.datatransfer.StringSelection
 import java.io.{BufferedReader, File, InputStreamReader}
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicBoolean
-import org.jetbrains.bsp.BspErrorMessage
+import org.jetbrains.bsp.{BspBundle, BspErrorMessage}
 import org.jetbrains.bsp.project.importing.FastpassProjectImportProvider
 import org.jetbrains.bsp.project.importing.setup.FastpassConfigSetup.{FastpassProcessCheckTimeout, logger}
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
@@ -27,13 +32,12 @@ object FastpassConfigSetup {
     bspWorkspace.toFile.toPath
   }
 
-  def create(baseDir: File): Try[FastpassConfigSetup] = {
+  def create(baseDir: File): Try[BspConfigSetup] = {
     val bspWorkspace = FastpassConfigSetup.computeBspWorkspace(baseDir)
     val baseDirVFile = LocalFileSystem.getInstance().findFileByIoFile(baseDir)
     FastpassProjectImportProvider.pantsRoot(baseDirVFile) match {
       case Some(_) if bspWorkspace.resolve(".bloop").toFile.exists()=> {
-        logger.info(s"BSP configuration already found in $bspWorkspace")
-        Success(new FastpassConfigSetup(new ProcessBuilder("true")))
+        Success(new FastpassConfigSetupEmpty(bspWorkspace))
       }
       case Some(pantsRoot) =>
         val relativeDir = pantsRoot.toNioPath.relativize(baseDirVFile.toNioPath)
@@ -48,6 +52,28 @@ object FastpassConfigSetup {
         Success(new FastpassConfigSetup(processBuilder))
       case None => Failure(new IllegalArgumentException(s"'$baseDir is not a pants directory'"))
     }
+  }
+}
+
+class FastpassConfigSetupEmpty(bspWorkspace: Path) extends BspConfigSetup {
+  override def cancel(): Unit = {  }
+
+  override def run(implicit reporter: BuildReporter): Try[BuildMessages] = {
+    val realPath = bspWorkspace.toRealPath().toString
+    val title = BspBundle.message("bsp.fastpass.notification.reused.workspace.title")
+    val message = BspBundle.message("bsp.fastpass.notification.reused.workspace.message", realPath)
+    val notification = new Notification("Fastpass", title, message, NotificationType.WARNING)
+    notification.addAction(new AnAction(BspBundle.message("bsp.fastpass.notification.reused.workspace.button")) {
+      override def actionPerformed(e: AnActionEvent): Unit = {
+        CopyPasteManager.getInstance().setContents(new StringSelection(realPath))
+      }
+    })
+    notification.setImportant(true)
+    ApplicationManager.getApplication.invokeLater(new Runnable {
+      override def run(): Unit = notification.notify(null)
+    }, ModalityState.NON_MODAL)
+
+    Success(BuildMessages.empty)
   }
 }
 
