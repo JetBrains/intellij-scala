@@ -14,15 +14,18 @@ object CompilerTestUtil {
 
   trait RevertableChange {
 
-    def apply(): Unit
-    def revert(): Unit
+    def applyChange(): Unit
+    def revertChange(): Unit
+
+    final def apply(body: => Any): Unit =
+      run(body)
 
     final def run(body: => Any): Unit = {
-      this.apply()
+      this.applyChange()
       try
         body
       finally
-        this.revert()
+        this.revertChange()
     }
 
     final def |+| (change: RevertableChange): RevertableChange = {
@@ -35,13 +38,13 @@ object CompilerTestUtil {
   }
 
   object NoOpRevertableChange extends RevertableChange {
-    override def apply(): Unit = ()
-    override def revert(): Unit = ()
+    override def applyChange(): Unit = ()
+    override def revertChange(): Unit = ()
   }
 
   class CompositeRevertableChange(val changes: Seq[RevertableChange]) extends RevertableChange {
-    override def apply(): Unit = changes.foreach(_.apply())
-    override def revert(): Unit = changes.reverse.foreach(_.revert())
+    override def applyChange(): Unit = changes.foreach(_.applyChange())
+    override def revertChange(): Unit = changes.reverse.foreach(_.revertChange())
   }
 
   private def compileServerSettings: ScalaCompileServerSettings =
@@ -54,12 +57,12 @@ object CompilerTestUtil {
     private var settingsBefore: ScalaCompileServerSettings = _
     private lazy val settings: ScalaCompileServerSettings = compileServerSettings
 
-    override def apply(): Unit = {
+    override def applyChange(): Unit = {
       settingsBefore = XmlSerializerUtil.createCopy(settings)
       body(settings)
     }
 
-    override def revert(): Unit =
+    override def revertChange(): Unit =
       XmlSerializerUtil.copyBean(settingsBefore, settings)
   }
 
@@ -73,13 +76,13 @@ object CompilerTestUtil {
       private var saveAllowedBefore: Boolean = _
       private lazy val application: ApplicationEx = ApplicationManagerEx.getApplicationEx
 
-      override def apply(): Unit = {
+      override def applyChange(): Unit = {
         saveAllowedBefore = application.isSaveAllowed
         application.setSaveAllowed(true)
         application.saveSettings()
       }
 
-      override def revert(): Unit = {
+      override def revertChange(): Unit = {
         application.setSaveAllowed(saveAllowedBefore)
         application.saveSettings()
       }
@@ -89,7 +92,7 @@ object CompilerTestUtil {
   def withForcedJdkForBuildProcess(jdk: Sdk): RevertableChange = new RevertableChange {
     private var jdkBefore: Option[String] = None
 
-    override def apply(): Unit = {
+    override def applyChange(): Unit = {
       jdk.getHomeDirectory match {
         case null =>
           throw new RuntimeException(s"Failed to set up JDK, got: $jdk")
@@ -101,7 +104,7 @@ object CompilerTestUtil {
       }
     }
 
-    override def revert(): Unit =
+    override def revertChange(): Unit =
       jdkBefore.foreach { jdk =>
         Registry.get("compiler.process.jdk").setValue(jdk)
       }
@@ -120,13 +123,13 @@ object CompilerTestUtil {
     new RevertableChange {
       private var before: Option[A] = None
 
-      override def apply(): Unit = {
+      override def applyChange(): Unit = {
         val registryValue = Registry.get(key)
         before = Some(getter(registryValue))
         setter(registryValue, newValue)
       }
 
-      override def revert(): Unit =
+      override def revertChange(): Unit =
         before.foreach { oldValue =>
           setter(Registry.get(key), oldValue)
         }

@@ -26,7 +26,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   /**
     * @return call arguments
     */
-  def argumentExpressions: collection.Seq[ScExpression]
+  def argumentExpressions: Seq[ScExpression]
 
   /**
     * Unwraps parenthesised expression for method calls

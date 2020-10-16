@@ -17,8 +17,8 @@ import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
 import scala.annotation.tailrec
 import scala.beans.BeanProperty
-import scala.jdk.CollectionConverters._
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigurationData(config) {
 
@@ -55,32 +55,64 @@ class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigura
     Right(())
   }
 
-  private def findTestsByFqnCondition(classCondition: String => Boolean, testCondition: String => Boolean,
-                                      classToTests: mutable.Map[String, Set[String]]): Unit = {
-    val suiteClasses = AllClassesSearch
-      .search(config.getSearchScope.intersectWith(GlobalSearchScopesCore.projectTestScope(getProject)), getProject)
-      .asScala
-      .filter(c => classCondition(c.qualifiedName)).filter(config.isValidSuite)
-
-    //we don't care about linearization here, so can process in arbitrary order
-    @tailrec
-    def getTestNames(classesToVisit: List[ScTypeDefinition], visited: Set[ScTypeDefinition] = Set.empty,
-                     res: Set[String] = Set.empty): Set[String] = {
-      if (classesToVisit.isEmpty) res
-      else if (visited.contains(classesToVisit.head)) getTestNames(classesToVisit.tail, visited, res)
-      else {
-        getTestNames(classesToVisit.head.supers.toList.filter(_.isInstanceOf[ScTypeDefinition]).
-          map(_.asInstanceOf[ScTypeDefinition]).filter(!visited.contains(_)) ++ classesToVisit.tail,
-          visited + classesToVisit.head,
-          res ++ TestNodeProvider.getTestNames(classesToVisit.head, config.configurationProducer))
-      }
+  private def findTestsByFqnCondition(
+    classCondition: String => Boolean,
+    testCondition: String => Boolean,
+    outputClassToTests: mutable.Map[String, Set[String]]
+  ): Unit = {
+    val suiteClasses = findTestClassesByFqnCondition(classCondition)
+    suiteClasses.foreach { testClass =>
+      val className = testClass.qualifiedName
+      val testNames = findTestNamesByFqnCondition(testClass, testCondition)
+      outputClassToTests += (className -> testNames)
     }
+  }
 
-    suiteClasses.map {
-      case aSuite: ScTypeDefinition =>
-        val tests = getTestNames(List(aSuite))
-        classToTests += (aSuite.qualifiedName -> tests.filter(testCondition))
-      case _ => None
+  private def findTestClassesByFqnCondition(classCondition: String => Boolean): Iterable[ScTypeDefinition] = {
+    val scope = config.getSearchScope.intersectWith(GlobalSearchScopesCore.projectTestScope(getProject))
+    val classes = AllClassesSearch.search(scope, getProject).asScala
+    classes
+      .filter(c => classCondition(c.qualifiedName))
+      .filter(config.isValidSuite)
+      .filterByType[ScTypeDefinition]
+  }
+
+  private def findTestNamesByFqnCondition(
+    testClass: ScTypeDefinition,
+    testCondition: String => Boolean
+  ): Set[String] = {
+    val tests = collectTestNames(List(testClass))
+    tests.filter(testCondition)
+  }
+
+  //we don't care about linearization here, so can process in arbitrary order
+  @tailrec
+  private def collectTestNames(
+    classesToVisit: List[ScTypeDefinition],
+    visited: Set[ScTypeDefinition] = Set.empty,
+    res: Set[String] = Set.empty
+  ): Set[String] = {
+    if (classesToVisit.isEmpty)
+      res
+    else if (visited.contains(classesToVisit.head))
+      collectTestNames(classesToVisit.tail, visited, res)
+    else {
+      val (head, tail) = (classesToVisit.head, classesToVisit.tail)
+
+      val notVisitedSupers = head.supers
+        .filterByType[ScTypeDefinition]
+        .filter(!visited.contains(_)).toList
+      val classesToVisitNew = notVisitedSupers ++ tail
+
+      val visitedNew = visited + classesToVisit.head
+
+      // TODO: consider delegating tests filtering by regexp to test framework itself
+      //  our approach can't work with dynamically-created tests
+      //  the full picture of tests can only be obtained inside test runner itself
+      val testNamesNew = TestNodeProvider.getTestNames(classesToVisit.head, config.configurationProducer)
+      val resNew = res ++ testNamesNew
+
+      collectTestNames(classesToVisitNew, visitedNew, resNew)
     }
   }
 
@@ -95,10 +127,12 @@ class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigura
 
   override def getTestMap: Map[String, Set[String]] = {
     val patterns = zippedRegexps
-    val classToTests = mutable.Map[String, Set[String]]()
+
     if (isDumb) {
-      if (testsBuf.isEmpty) throw executionException(ScalaBundle.message("test.config.cant.run.while.indexing.no.class.names.memorized.from.previous.iterations"))
-      return testsBuf.asScala.map { case (k,v) => k -> v.asScala.toSet }.toMap
+      if (testsBuf.isEmpty)
+        throw executionException(ScalaBundle.message("test.config.cant.run.while.indexing.no.class.names.memorized.from.previous.iterations"))
+      val cached = testsBuf.asScala.map { case (k, v) => k -> v.asScala.toSet }.toMap
+      return cached
     }
 
     def getCondition(patternString: String): String => Boolean = {
@@ -113,8 +147,10 @@ class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigura
       }
     }
 
-    patterns foreach {
-      case ("", "") => //do nothing, empty patterns are ignored
+    val classToTests = mutable.Map.empty[String, Set[String]]
+    patterns.foreach {
+      case ("", "") =>
+        Map.empty[String, Set[String]] //do nothing, empty patterns are ignored
       case ("", testPatternString) => //run all tests with names matching the pattern
         findTestsByFqnCondition(_ => true, getCondition(testPatternString), classToTests)
       case (classPatternString, "") => //run all tests for all classes matching the pattern

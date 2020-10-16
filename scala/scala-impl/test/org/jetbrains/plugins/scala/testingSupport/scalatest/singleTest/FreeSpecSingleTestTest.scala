@@ -4,11 +4,11 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.FreeSpecG
 
 trait FreeSpecSingleTestTest extends FreeSpecGenerator {
 
-  val freeSpecTestPath = List("[root]", freeSpecClassName, "A FreeSpecTest", "should be able to run single tests")
-  val freeSpecNonNestedTestPath = List("[root]", complexFreeSpecClassName, "Not nested scope")
+  val freeSpecTestPath = TestNodePath("[root]", freeSpecClassName, "A FreeSpecTest", "should be able to run single tests")
+  val freeSpecNonNestedTestPath = TestNodePath("[root]", complexFreeSpecClassName, "Not nested scope")
 
   def testFreeSpec(): Unit =
-    runTestByLocation2(6, 3, freeSpecFileName,
+    runTestByLocation(loc(freeSpecFileName, 6, 3),
       assertConfigAndSettings(_, freeSpecClassName, "A FreeSpecTest should be able to run single tests"),
       root => {
         assertResultTreeHasExactNamedPath(root, freeSpecTestPath)
@@ -17,7 +17,7 @@ trait FreeSpecSingleTestTest extends FreeSpecGenerator {
     )
 
   def testFreeSpecNonNested(): Unit =
-    runTestByLocation2(33, 15, complexFreeSpecFileName,
+    runTestByLocation(loc(complexFreeSpecFileName, 33, 15),
       assertConfigAndSettings(_, complexFreeSpecClassName, "Not nested scope"),
       root => {
         assertResultTreeHasExactNamedPath(root, freeSpecNonNestedTestPath)

@@ -35,23 +35,23 @@ trait FeatureSpecStaticStringTest extends ScalaTestTestCase {
   )
 
   def testFeatureSpecSumString(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(6, 7, featureSpecFileName), featureSpecClassName,
+    assertConfigAndSettings(createTestCaretLocation(6, 7, featureSpecFileName), featureSpecClassName,
       "Feature: Feature 1 Scenario: Scenario A")
   }
 
   def testFeatureSpecValSumString(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(8, 7, featureSpecFileName), featureSpecClassName,
+    assertConfigAndSettings(createTestCaretLocation(8, 7, featureSpecFileName), featureSpecClassName,
       "Feature: Feature 1 Scenario: Scenario B")
   }
 
   def testFeatureSpecValString(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(15, 7, featureSpecFileName), featureSpecClassName,
+    assertConfigAndSettings(createTestCaretLocation(15, 7, featureSpecFileName), featureSpecClassName,
       "Feature: C Scenario: other")
   }
 
   def testFeatureSpecNonConst(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(13, 7, featureSpecFileName), featureSpecClassName,
+    assertConfigAndSettings(createTestCaretLocation(13, 7, featureSpecFileName), featureSpecClassName,
       "Feature: C Scenario: other")
-    assertConfigAndSettings(createTestFromLocation(19, 7, featureSpecFileName), featureSpecClassName)
+    assertConfigAndSettings(createTestCaretLocation(19, 7, featureSpecFileName), featureSpecClassName)
   }
 }

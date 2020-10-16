@@ -1,5 +1,5 @@
 import Common._
-import Dependencies.sbtStructureExtractor
+import Dependencies.{provided, sbtStructureExtractor}
 import org.jetbrains.sbtidea.Keys._
 import sbtide.Keys.ideSkipProject
 
@@ -38,7 +38,8 @@ lazy val scalaCommunity: sbt.Project =
       intelliLangIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
       propertiesIntegration % "test->test;compile->compile",
-      javaDecompilerIntegration)
+      javaDecompilerIntegration
+    )
     .settings(
       ideExcludedDirectories    := Seq(baseDirectory.value / "target"),
       packageAdditionalProjects := Seq(
@@ -142,7 +143,8 @@ lazy val scalaImpl: sbt.Project =
       scalaApi,
       macroAnnotations,
       decompiler % "test->test;compile->compile",
-      runners    % "test->test;compile->compile",
+      runners % "test->test;compile->compile",
+      testRunners % "test->test;compile->compile",
       tastyCompile,
       tastyProvided % Provided
     )
@@ -238,13 +240,28 @@ lazy val compilerShared =
       packageMethod := PackagingMethod.Standalone("lib/compiler-shared.jar", static = true)
     )
 
-lazy val runners =
+lazy val runners: Project =
   newProject("runners", file("scala/runners"))
     .settings(
       packageMethod := PackagingMethod.Standalone(static = true),
-      libraryDependencies ++= DependencyGroups.runners
+      packageAdditionalProjects ++= Seq(testRunners, testRunners_spec2_2x)
       // WORKAROUND fixes build error in sbt 0.13.12+ analogously to https://github.com/scala/scala/pull/5386/
 //      ivyScala ~= (_ map (_ copy (overrideScalaVersion = false)))
+    )
+
+lazy val testRunners: Project =
+  newProject("testRunners", file("scala/testRunners"))
+    .settings(
+      packageMethod := PackagingMethod.MergeIntoOther(runners),
+      libraryDependencies ++= DependencyGroups.testRunners
+    )
+
+lazy val testRunners_spec2_2x: Project =
+  newProject("testRunners_spec2_2x", file("scala/testRunners_spec2_2x"))
+    .dependsOn(testRunners)
+    .settings(
+      packageMethod := PackagingMethod.MergeIntoOther(runners),
+      libraryDependencies ++= Seq(provided.specs2_2x)
     )
 
 lazy val nailgunRunners =

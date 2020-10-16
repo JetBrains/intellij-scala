@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest
 
-import com.intellij.compiler.server.BuildManager
-import com.intellij.openapi.util.registry.Registry
-
 trait ScalaTestPackageTest extends ScalaTestTestCase {
 
   protected val packageName = "myPackage"
@@ -60,34 +57,36 @@ trait ScalaTestPackageTest extends ScalaTestTestCase {
     """.stripMargin.trim())
 
   def testPackageTestRun(): Unit =
-    runTestByConfig2(createTestFromPackage(packageName),
+    runTestByLocation(
+      packageLoc(packageName),
       assertPackageConfigAndSettings(_, packageName),
       root => {
         assertResultTreeHasExactNamedPaths(root)(Seq(
-          Seq("[root]", "Test1", "Test1"),
-          Seq("[root]", "Test2", "Test2")
+          TestNodePath("[root]", "Test1", "Test1"),
+          TestNodePath("[root]", "Test2", "Test2")
         ))
         assertResultTreeDoesNotHaveNodes(root, "SecondTest")
       }
     )
 
   def testPackageTestRun_WithReservedKeywordInName(): Unit =
-    runTestByConfig2(
-      createTestFromPackage(packageNameWithReservedKeyword),
+    runTestByLocation(
+      packageLoc(packageNameWithReservedKeyword),
       assertPackageConfigAndSettings(_, packageNameWithReservedKeyword),
       root => assertResultTreeHasExactNamedPaths(root)(Seq(
-        Seq("[root]", "Test3", "some test name")
+        TestNodePath("[root]", "Test3", "some test name")
       ))
     )
 
   def testModuleTestRun(): Unit =
-    runTestByConfig2(createTestFromModule(getModule.getName),
+    runTestByLocation(
+      moduleLoc(getModule.getName),
       assertPackageConfigAndSettings(_, generatedName = "ScalaTests in 'src'"),
       root => assertResultTreeHasExactNamedPaths(root)(Seq(
-        Seq("[root]", "Test1", "Test1"),
-        Seq("[root]", "Test2", "Test2"),
-        Seq("[root]", "Test1", "SecondTest"),
-        Seq("[root]", "Test3", "some test name"),
+        TestNodePath("[root]", "Test1", "Test1"),
+        TestNodePath("[root]", "Test2", "Test2"),
+        TestNodePath("[root]", "Test1", "SecondTest"),
+        TestNodePath("[root]", "Test3", "some test name"),
       ))
     )
 }

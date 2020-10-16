@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test.utest
 
+import com.intellij.execution.actions.RunConfigurationProducer
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
@@ -20,9 +21,9 @@ import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodePro
 //  eliminate this
 final class UTestConfigurationProducer extends AbstractTestConfigurationProducer[UTestRunConfiguration] {
 
-  override def getConfigurationFactory: ConfigurationFactory = UTestConfigurationType.instance.confFactory
+  override val getConfigurationFactory: ConfigurationFactory = UTestConfigurationType().confFactory
 
-  override def suitePaths: Seq[String] = UTestUtil.suitePaths
+  override val suitePaths: Seq[String] = UTestTestFramework().baseSuitePaths
 
   override protected def configurationName(contextInfo: CreateFromContextInfo): String = contextInfo match {
     case AllInPackage(_, packageName)           =>
@@ -131,4 +132,13 @@ final class UTestConfigurationProducer extends AbstractTestConfigurationProducer
     val testName = testNameOpt.orElse(TestNodeProvider.getUTestLeftHandTestDefinition(element).flatMap(getTestSuiteName))
     Some(ClassWithTestName(containingObject, testName))
   }
+}
+
+object UTestConfigurationProducer {
+
+  @deprecated("use `apply` instead", "2020.3")
+  def instance: UTestConfigurationProducer = apply()
+
+  def apply(): UTestConfigurationProducer =
+    RunConfigurationProducer.EP_NAME.findExtensionOrFail(classOf[UTestConfigurationProducer])
 }

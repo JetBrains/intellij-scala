@@ -1,28 +1,136 @@
 package org.jetbrains.plugins.scala.testingSupport
 
+import com.intellij.ide.structureView.newStructureView.StructureViewComponent
 import com.intellij.ide.util.treeView.AbstractTreeNode
-import com.intellij.ide.util.treeView.smartTree.{TreeElement, TreeElementWrapper}
-import com.intellij.testFramework.EdtTestUtil
+import com.intellij.ide.util.treeView.smartTree.{NodeProvider, TreeElement, TreeElementWrapper}
+import com.intellij.psi.PsiManager
+import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestBase
+import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewModel
 import org.jetbrains.plugins.scala.lang.structureView.element.Test
-import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions._
+import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
+import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.junit.Assert._
 
 import scala.jdk.CollectionConverters._
+import scala.util.matching.Regex
 
 trait FileStructureTest {
+  self: ScalaDebuggerTestBase =>
 
-  protected def buildFileStructure(fileName: String): TreeElementWrapper
+  trait FileStructureTreeAssert extends Function1[TreeElementWrapper, Unit]
 
-  protected def runFileStructureViewTest(testClassName: String, status: Int, tests: String*): Unit
+  case class FileStructureNode(text: String, status: Option[Int]) {
+    def nodeString: String = status.fold(text)(s => s"[$s] $text")
+  }
 
-  protected def runFileStructureViewTest(testClassName: String, testName: String, parentTestName: Option[String] = None, testStatus: Int = Test.NormalStatusId): Unit
+  object FileStructureNode {
+    private val StatusAndTextRegex: Regex = """\[(\d+)] (.*)""".r
 
-  protected def assertTestNodeInFileStructure(
+    def parse(nodeString: String): FileStructureNode =
+      nodeString match {
+        case StatusAndTextRegex(status, text) =>
+          FileStructureNode(text, Some(status.toInt))
+        case _ =>
+          FileStructureNode(nodeString, None)
+      }
+  }
+
+  case class FileStructurePath(nodes: Seq[FileStructureNode]) {
+    def pathString: String = nodes.map(_.nodeString).mkString(FileStructurePath.PartsSeparator)
+  }
+
+  object FileStructurePath {
+    val PartsSeparator = " / "
+    def p(s: String): FileStructurePath = parse(s)
+    def parse(pathString: String): FileStructurePath = {
+      val nodesStrings = pathString.split(PartsSeparator).toList
+      val nodes = nodesStrings.map(FileStructureNode.parse)
+      FileStructurePath(nodes)
+    }
+  }
+
+  protected def runFileStructureViewTest(
+    testClassName: String,
+    status: Int,
+    tests: String*
+  ): Unit = {
+    val structureViewRoot = buildFileStructureForClass(testClassName)
+    tests.foreach(assertTestNodeInFileStructure(structureViewRoot, _, None, status))
+  }
+
+  protected def runFileStructureViewTest0(
+    testClassName: String,
+    assertTree: FileStructureTreeAssert
+  ): Unit = {
+    val structureViewRoot = buildFileStructureForClass(testClassName)
+    assertTree(structureViewRoot)
+  }
+
+  protected def runFileStructureViewTest2(
+    testClassName: String,
+    status: Int
+  )(tests: Seq[String]): Unit = {
+    val structureViewRoot = buildFileStructureForClass(testClassName)
+    tests.foreach(assertTestNodeInFileStructure(structureViewRoot, _, None, status))
+  }
+
+  protected def runFileStructureViewTest(
+    testClassName: String,
+    testName: String,
+    parentTestName: Option[String],
+    testStatus: Int = Test.NormalStatusId
+  ): Unit = {
+    val structureViewRoot = buildFileStructureForClass(testClassName)
+    assertTestNodeInFileStructure(structureViewRoot, testName, parentTestName, testStatus)
+  }
+
+  private def buildFileStructureForClass(testClassName: String): TreeElementWrapper =
+    buildFileStructure(testClassName + ".scala")
+
+  private def buildFileStructure(fileName: String): TreeElementWrapper =
+    inReadAction {
+      val ioFile = new java.io.File(srcDir, fileName)
+      val file = PsiManager.getInstance(getProject).findFile(getVirtualFile(ioFile))
+      val treeViewModel = new ScalaStructureViewModel(file.asInstanceOf[ScalaFile]) {
+        override def isEnabled(provider: NodeProvider[_ <: TreeElement]): Boolean = provider.isInstanceOf[TestNodeProvider]
+      }
+      val wrapper = StructureViewComponent.createWrapper(getProject, treeViewModel.getRoot, treeViewModel)
+
+      def initTree(wrapper: TreeElementWrapper): Unit = {
+        wrapper.initChildren()
+        wrapper.getChildren.asScala.foreach(node => initTree(node.asInstanceOf[TreeElementWrapper]))
+      }
+
+      initTree(wrapper)
+
+      wrapper
+    }
+
+  protected def assertFileStructureTreePathsEqualsUnordered(
+    root: TreeElementWrapper
+  )(expectedPaths: Iterable[FileStructurePath]): Unit =
+    AssertFileStructureTreePathsEqualsUnordered(expectedPaths)(root)
+
+  protected def AssertFileStructureTreePathsEqualsUnordered(
+    expectedPaths: Iterable[FileStructurePath]
+  ): FileStructureTreeAssert = { root =>
+    val actualPaths = allAvailablePaths(root)
+    assertCollectionEquals(
+      "Test tree paths don't match",
+      expectedPaths.toSeq.map(_.pathString).sorted,
+      actualPaths.map(_.pathString).sorted,
+    )
+  }
+
+  private def assertTestNodeInFileStructure(
     root: TreeElementWrapper,
     expectedNodeName: String,
     expectedParentName: Option[String],
     expectedStatus: Int
   ): Unit = {
+
     def containsNodeWithName(currentNode: AbstractTreeNode[_], currentParentName: String): Boolean = {
       val treeElement = currentNode.getValue.asInstanceOf[TreeElement]
       val nodeName = treeElement.getPresentation.getPresentableText
@@ -38,42 +146,45 @@ trait FileStructureTest {
         currentNode.getChildren.asScala.exists(containsNodeWithName(_, nodeName))
     }
 
-    EdtTestUtil.runInEdtAndWait { () =>
+    inReadAction {
       val containsNode = containsNodeWithName(root, "")
       if (!containsNode) {
         val parentStr = expectedParentName.fold("")(p => s" with parent '$p'")
         val allPaths = allAvailablePaths(root)
-        val allPathsText = allPaths.map(pathString).mkString("\n")
-        fail(s"test node for test '$expectedNodeName'$parentStr was not found in file structure\navailable paths:\n$allPathsText")
+        val allPathsText = allPaths.map(_.pathString).mkString("\n")
+        fail(
+          s"""test node for test '$expectedNodeName'$parentStr was not found in file structure
+             |available paths:
+             |$allPathsText""".stripMargin
+        )
       }
     }
   }
 
-  private def allAvailablePaths(root: AbstractTreeNode[_]): Seq[Seq[String]] = {
-    def inner(node: AbstractTreeNode[_], curPath: List[String]): Seq[Seq[String]] = {
+  private def allAvailablePaths(root: AbstractTreeNode[_]): Seq[FileStructurePath] = inReadAction {
+    def inner(node: AbstractTreeNode[_], curPath: List[FileStructureNode]): Seq[Seq[FileStructureNode]] = {
       val children = node.getChildren
-      val path = nodeString(node.getValue.asInstanceOf[TreeElement]) :: curPath
+      val path = nodeInfo(node.getValue.asInstanceOf[TreeElement]) :: curPath
       if (children.isEmpty)
         path :: Nil
       else
         children.asScala.toSeq.flatMap(inner(_, path))
     }
-    val result = inner(root, Nil)
-    result.map(_.reverse).sortBy(_.mkString)
+    val pathsSeqs = inner(root, Nil)
+    val paths = pathsSeqs.map(_.reverse).map(FileStructurePath.apply)
+    paths.sortBy(_.pathString)
   }
 
-  private def nodeString(node: TreeElement): String = {
+  private def nodeInfo(node: TreeElement): FileStructureNode =
     node match {
       case test: Test =>
         val presentation = test.getPresentation
         val text = presentation.getPresentableText
         val status = presentation.asInstanceOf[Test].testStatus
-        s"[$status] $text"
+        FileStructureNode(text, Some(status))
       case _ =>
-        node.getPresentation.getPresentableText
+        val presentation = node.getPresentation
+        val text = presentation.getPresentableText
+        FileStructureNode(text, None)
     }
-  }
-
-  private def pathString(names: Iterable[String]) =
-    names.mkString(" / ")
 }

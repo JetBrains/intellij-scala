@@ -122,7 +122,7 @@ object Dependencies {
   object provided {
     val scalaTest = scalaTestNotSpecified % "provided"
     val utest = "com.lihaoyi" %% "utest" % "0.7.4" % "provided"
-    val specs2_2x = "org.specs2" %% "specs2-core" % "2.4.17" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
+    val specs2_2x = "org.specs2" % "specs2-core_2.12" % "2.4.17" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
     val specs2_4x = "org.specs2" %% "specs2-core" % "4.8.3" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
   }
 
@@ -186,7 +186,7 @@ object DependencyGroups {
     bcel
   )
 
-  val runners: Seq[ModuleID] = Seq(
+  val testRunners: Seq[ModuleID] = Seq(
     provided.scalaTest,
     provided.utest,
     provided.specs2_4x

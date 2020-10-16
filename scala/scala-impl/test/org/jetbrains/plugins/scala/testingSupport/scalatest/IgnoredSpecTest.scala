@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest
 
 trait IgnoredSpecTest extends ScalaTestTestCase {
-  def ignoredTestPath: List[String] = List("[root]", "IgnoredTestSpec", "An IgnoredTestSpec", "should be ignored and have proper suffix !!! IGNORED !!!")
-  def succeededTestPath: List[String] = List("[root]", "IgnoredTestSpec", "An IgnoredTestSpec", "should run tests")
+  def ignoredTestPath: TestNodePath = TestNodePath("[root]", "IgnoredTestSpec", "An IgnoredTestSpec", "should be ignored and have proper suffix !!! IGNORED !!!")
+  def succeededTestPath: TestNodePath = TestNodePath("[root]", "IgnoredTestSpec", "An IgnoredTestSpec", "should run tests")
 
   addSourceFile("IgnoredTest.scala",
     """
@@ -11,7 +11,7 @@ trait IgnoredSpecTest extends ScalaTestTestCase {
       |class IgnoredTestSpec extends FlatSpec with GivenWhenThen {
       | "An IgnoredTestSpec" should "run tests" in {
       |   Given("an empty test case")
-      |   val resultToPrint = ">>TEST: OK<<"
+      |   val resultToPrint = "$TestOutputPrefix OK $TestOutputSuffix"
       |
       |   When("the result line is printed")
       |   print(resultToPrint)
@@ -22,14 +22,14 @@ trait IgnoredSpecTest extends ScalaTestTestCase {
       | }
       |
       | ignore should "be ignored and have proper suffix" in {
-      |   print(">>TEST: FAILED<<")
+      |   print("$TestOutputPrefix FAILED $TestOutputSuffix")
       | }
       |}
     """.stripMargin.trim()
   )
 
   def testIgnoredTest(): Unit =
-    runTestByLocation2(2, 7, "IgnoredTest.scala",
+    runTestByLocation(loc("IgnoredTest.scala", 2, 7),
       assertConfigAndSettings(_, "IgnoredTestSpec"),
       root => assertResultTreeHasExactNamedPaths(root)(Seq(succeededTestPath, ignoredTestPath))
     )

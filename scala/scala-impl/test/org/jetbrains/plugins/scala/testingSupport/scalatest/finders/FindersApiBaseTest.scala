@@ -9,7 +9,7 @@ import org.scalatest.finders.Selection
 trait FindersApiBaseTest extends ScalaTestTestCase {
 
   def checkSelection(lineNumber: Int, offset: Int, fileName: String, testNames: Set[String]): Unit = {
-    val location = createLocation(lineNumber, offset, fileName)
+    val location = createPsiLocation(loc(fileName, lineNumber, offset))
     val selection = EdtTestUtil.runInEdtAndGet[Option[Selection], Throwable] { () =>
       ScalaTestAstTransformer.testSelection(location)
     }.orNull

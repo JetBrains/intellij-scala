@@ -48,7 +48,7 @@ abstract class DottyCompilationTestBase(incrementalityType: IncrementalityType,
     super.setUp()
 
     revertable = CompilerTestUtil.withEnabledCompileServer(useCompileServer)
-    revertable.apply()
+    revertable.applyChange()
     ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = incrementalityType
     compiler = new CompilerTester(module)
   }
@@ -62,7 +62,7 @@ abstract class DottyCompilationTestBase(incrementalityType: IncrementalityType,
     }
   } finally {
     compiler = null
-    revertable.revert()
+    revertable.revertChange()
     super.tearDown()
   }
 

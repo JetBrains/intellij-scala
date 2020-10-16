@@ -17,8 +17,7 @@ import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler.BraceWrapInfo
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTypes}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlStartTag
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -213,6 +212,11 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       So we have to fix it in our handler
      */
   override def charDeleted(deletedChar: Char, file: PsiFile, editor: Editor): Boolean = {
+    val scalaFile = file match {
+      case f: ScFile => f
+      case _ =>
+        return false
+    }
     val document = editor.getDocument
     val offset = editor.getCaretModel.getOffset
 
@@ -221,28 +225,29 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     }
 
     if (CodeInsightSettings.getInstance.AUTOINSERT_PAIR_BRACKET) {
-      handleAutoInsertBraces(deletedChar, offset, file, document, editor)
+      handleAutoInsertBraces(deletedChar, offset, scalaFile, document, editor)
     }
 
     if (ScalaApplicationSettings.getInstance.HANDLE_BLOCK_BRACES_REMOVAL_AUTOMATICALLY && !deletedChar.isWhitespace) {
-      handleDeleteAutoBrace(offset, document, file, editor)
+      handleDeleteAutoBrace(offset, document, scalaFile, editor)
     }
 
     false
   }
 
-  private def handleAutoInsertBraces(deletedChar: Char, offset: Int, file: PsiFile, document: Document, editor: Editor): Unit = {
+  private def handleAutoInsertBraces(deletedChar: Char, offset: Int, file: ScFile, document: Document, editor: Editor): Unit = {
     def hasLeft: Option[Boolean] = {
-      val fileType = file.getFileType
-      if (fileType != ScalaFileType.INSTANCE) return None
       val txt = document.getImmutableCharSequence
 
       val iterator = editor.asInstanceOf[EditorEx].getHighlighter.createIterator(offset)
       val tpe = iterator.getTokenType
-      if (tpe == null) return None
+      if (tpe == null)
+        return None
 
+      val fileType = file.getFileType
       val matcher = BraceMatchingUtil.getBraceMatcher(fileType, tpe)
-      if (matcher == null) return None
+      if (matcher == null)
+        return None
 
       val stack = scala.collection.mutable.Stack[IElementType]()
 
@@ -250,7 +255,8 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       while (!iterator.atEnd() && iterator.getStart > 0 && iterator.getTokenType != null) {
         if (matcher.isRBraceToken(iterator, txt, fileType)) stack push iterator.getTokenType
         else if (matcher.isLBraceToken(iterator, txt, fileType)) {
-          if (stack.isEmpty || !matcher.isPairBraces(iterator.getTokenType, stack.pop())) return Some(false)
+          if (stack.isEmpty || !matcher.isPairBraces(iterator.getTokenType, stack.pop()))
+            return Some(false)
         }
 
         iterator.retreat()
@@ -275,7 +281,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     }
   }
 
-  private def handleDeleteAutoBrace(offset: Int, document: Document, file: PsiFile, editor: Editor): Unit = {
+  private def handleDeleteAutoBrace(offset: Int, document: Document, file: ScFile, editor: Editor): Unit = {
     val lineText = document.lineTextAt(offset)
     if (!containsOnlyWhitespaces(lineText)) {
       return

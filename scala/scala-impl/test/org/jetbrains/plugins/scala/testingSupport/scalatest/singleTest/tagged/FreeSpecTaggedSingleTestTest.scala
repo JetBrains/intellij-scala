@@ -3,10 +3,10 @@ package org.jetbrains.plugins.scala.testingSupport.scalatest.singleTest.tagged
 import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.FreeSpecGenerator
 
 trait FreeSpecTaggedSingleTestTest extends FreeSpecGenerator {
-  val freeSpecTaggedTestPath = List("[root]", freeSpecClassName, "A FreeSpecTest", "can be tagged")
+  val freeSpecTaggedTestPath = TestNodePath("[root]", freeSpecClassName, "A FreeSpecTest", "can be tagged")
 
   def testTaggedFreeSpec(): Unit = {
-    runTestByLocation2(12, 7, freeSpecFileName,
+    runTestByLocation(loc(freeSpecFileName, 12, 7),
       assertConfigAndSettings(_, freeSpecClassName, "A FreeSpecTest can be tagged"),
       root => {
         assertResultTreeHasExactNamedPath(root, freeSpecTaggedTestPath)

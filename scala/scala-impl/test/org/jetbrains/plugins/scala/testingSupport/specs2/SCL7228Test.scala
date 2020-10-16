@@ -19,8 +19,8 @@ abstract class SCL7228Test extends Specs2TestCase {
   )
 
   def testScl7228(): Unit =
-    runTestByLocation2(3, 1, "SCL7228Test.scala",
+    runTestByLocation(loc("SCL7228Test.scala", 3, 1),
       assertConfigAndSettings(_, "SCL7228Test"),
-      assertResultTreeHasExactNamedPath(_, Seq("[root]", "SCL7228Test", "foo (bar)"))
+      assertResultTreeHasExactNamedPath(_, TestNodePath("[root]", "SCL7228Test", "foo (bar)"))
     )
 }

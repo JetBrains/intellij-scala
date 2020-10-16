@@ -2,9 +2,11 @@ package org.jetbrains.plugins.scala
 package testingSupport.test.scalatest
 
 import com.intellij.execution._
+import com.intellij.execution.actions.RunConfigurationProducer
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -16,9 +18,9 @@ import org.scalatest.finders.{Selection => TestFindersSelection}
 
 final class ScalaTestConfigurationProducer extends AbstractTestConfigurationProducer[ScalaTestRunConfiguration] {
 
-  override def getConfigurationFactory: ConfigurationFactory = ScalaTestConfigurationType.instance.confFactory
+  override val getConfigurationFactory: ConfigurationFactory = ScalaTestConfigurationType().confFactory
 
-  override def suitePaths: Seq[String] = List("org.scalatest.Suite")
+  override val suitePaths: Seq[String] = ScalaTestTestFramework().baseSuitePaths
 
   override protected def configurationName(contextInfo: CreateFromContextInfo): String = contextInfo match {
     case AllInPackage(_, packageName)           =>
@@ -42,19 +44,18 @@ final class ScalaTestConfigurationProducer extends AbstractTestConfigurationProd
         PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
     }
 
-    if (clazz == null) return None
-
-    val templateBody: ScTemplateBody = clazz.extendsBlock.templateBody.orNull
+    if (clazz == null)
+      return None
 
     clazz = PsiTreeUtil.getTopmostParentOfType(clazz, classOf[ScTypeDefinition]) match {
       case null   => clazz
       case parent => parent
     }
 
-    clazz match {
-      case _: ScClass | _: ScTrait if matchesSomeTestSuite(clazz) =>
-      case _ => return None
-    }
+    if (!clazz.is[ScClass, ScTrait])
+      return None
+    if (!matchesSomeTestSuite(clazz))
+      return None
 
     val maybeSelection = ScalaTestAstTransformer.testSelection(location)
     maybeSelection match {
@@ -63,8 +64,10 @@ final class ScalaTestConfigurationProducer extends AbstractTestConfigurationProd
         val result2 = result1.orElse(testClassWithTestNameForParent(location))
         result2
       case None =>
+        val templateBody: ScTemplateBody = clazz.extendsBlock.templateBody.orNull
         val finder = new ScalaTestSingleTestLocationFinderOld(element, clazz, templateBody)
-        Option(finder.testClassWithTestName).map(t => ClassWithTestName(t._1, Option(t._2)))
+        val testName = finder.findTestName
+        Some(ClassWithTestName(clazz, testName))
     }
   }
 
@@ -86,4 +89,13 @@ final class ScalaTestConfigurationProducer extends AbstractTestConfigurationProd
       newLocation = new PsiLocation(location.getProject, location.getModule, parent)
       result      <- getTestClassWithTestName(newLocation)
     } yield result
+}
+
+object ScalaTestConfigurationProducer {
+
+  @deprecated("use `apply` instead", "2020.3")
+  def instance: ScalaTestConfigurationProducer = apply()
+
+  def apply(): ScalaTestConfigurationProducer =
+    RunConfigurationProducer.EP_NAME.findExtensionOrFail(classOf[ScalaTestConfigurationProducer])
 }

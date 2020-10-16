@@ -3,22 +3,12 @@ package org.jetbrains.plugins.scala.testingSupport.test
 import java.io.{File, FileOutputStream, IOException, PrintStream}
 import java.{util => ju}
 
-import com.intellij.execution.configuration.RunConfigurationExtensionsManager
-import com.intellij.execution.configurations.{JavaCommandLineState, JavaParameters, ParametersList, RunConfigurationBase}
-import com.intellij.execution.impl.ConsoleViewImpl
-import com.intellij.execution.process.ProcessHandler
+import com.intellij.execution.configurations.{JavaCommandLineState, JavaParameters, ParametersList}
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
-import com.intellij.execution.testDiscovery.JavaAutoRunManager
-import com.intellij.execution.testframework.autotest.{AbstractAutoTestManager, ToggleAutoTestAction}
 import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
-import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
-import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
-import com.intellij.execution.ui.ConsoleView
-import com.intellij.execution.{DefaultExecutionResult, ExecutionResult, Executor, JavaRunConfigurationExtensionManager, RunConfigurationExtension, ShortenCommandLine}
-import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.execution.{ExecutionResult, Executor, RunConfigurationExtension, ShortenCommandLine}
 import com.intellij.openapi.components.PathMacroManager
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.newvfs.ManagingFS
@@ -27,15 +17,10 @@ import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt}
 import org.jetbrains.plugins.scala.project.{ModuleExt, PathsListExt, ProjectExt}
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.TestFrameworkRunnerInfo
+import org.jetbrains.plugins.scala.testingSupport.test.CustomTestRunnerBasedStateProvider.TestFrameworkRunnerInfo
 import org.jetbrains.plugins.scala.testingSupport.test.ScalaTestFrameworkCommandLineState._
-import org.jetbrains.plugins.scala.testingSupport.test.actions.ScalaRerunFailedTestsAction
 import org.jetbrains.plugins.scala.testingSupport.test.exceptions.executionException
-import org.jetbrains.plugins.scala.testingSupport.test.sbt.{ReportingSbtTestEventHandler, SbtProcessHandlerWrapper, SbtShellTestsRunner, SbtTestRunningSupport}
-import org.jetbrains.plugins.scala.testingSupport.test.testdata.TestConfigurationData
-import org.jetbrains.plugins.scala.testingSupport.test.utils.JavaParametersModified
-import org.jetbrains.sbt.shell.SbtProcessManager
+import org.jetbrains.plugins.scala.testingSupport.test.utils.{JavaParametersModified, RawProcessOutputDebugLogger}
 
 import scala.jdk.CollectionConverters._
 import scala.util.Using
@@ -44,35 +29,16 @@ import scala.util.Using
  * For ScalaTest, Spec2, uTest
  *
  * @param failedTests if defined, the list of test classes and methods to run
- *                    is taken from it instead of from [[testConfigurationData.getTestMap]]
+ *                    is taken from it instead of from test data
  */
 @ApiStatus.Internal
 class ScalaTestFrameworkCommandLineState(
-  configuration: AbstractTestRunConfiguration,
+  override val configuration: AbstractTestRunConfiguration,
   env: ExecutionEnvironment,
-  testConfigurationData: TestConfigurationData,
-  failedTests: Option[Seq[(String, String)]],
-  runnerInfo: TestFrameworkRunnerInfo,
-  sbtSupport: SbtTestRunningSupport
-)(implicit project: Project, module: Module)
-  extends JavaCommandLineState(env) {
-
-  private object DebugOptions {
-    // set to true to debug raw process output, can be useful to test teamcity service messages
-    def debugProcessOutput = false
-    // set to true to debug test runner process
-    def attachDebugAgent = false
-    def waitUntilDebuggerAttached = true
-  }
-
-  private def buildSuitesToTestsMap: Map[String, Set[String]] =
-    failedTests match {
-      case Some(failed) =>
-        val grouped = failed.groupBy(_._1).map { case (aClass, tests) => (aClass, tests.map(_._2).toSet) }
-        grouped.filter(_._2.nonEmpty)
-      case None =>
-        testConfigurationData.getTestMap
-    }
+  override val failedTests: Option[Seq[(String, String)]],
+  runnerInfo: TestFrameworkRunnerInfo
+) extends JavaCommandLineState(env)
+  with ScalaTestFrameworkCommandLineStateLike{
 
   override def createJavaParameters(): JavaParameters = {
     val params = new JavaParametersModified()
@@ -148,7 +114,6 @@ class ScalaTestFrameworkCommandLineState(
     params
   }
 
-
   /**
    * Process command line has length limitation (on windows it's max 32768 characters).
    * When we run many tests (e.g. in "all in package", "all in project" mode) we can potentially pass a lot of
@@ -194,21 +159,13 @@ class ScalaTestFrameworkCommandLineState(
   }
 
   override def execute(executor: Executor, runner: ProgramRunner[_]): ExecutionResult = {
-    val useSbt = testConfigurationData.useSbt
-    val useUiWithSbt = testConfigurationData.useUiWithSbt
+    val processHandler = startProcess()
 
-    val processHandler = if (useSbt) { // TODO: only if supported
-      sbtShellProcess(project)
-    } else {
-      startProcess()
-    }
+    attachExtensionsToProcess(configuration, processHandler)
 
-    attachExtensionsToProcess(processHandler)
+    RawProcessOutputDebugLogger.maybeAddListenerTo(processHandler)
 
-    val useSimplifiedConsoleView = useSbt && !useUiWithSbt
-    val consoleView = if (useSimplifiedConsoleView) {
-      new ConsoleViewImpl(project, true)
-    } else {
+    val consoleView = {
       val consoleProperties = configuration.createTestConsoleProperties(executor)
       consoleProperties.setIdBasedTestTree(true)
       SMTestRunnerConnectionUtil.createConsole("Scala", consoleProperties)
@@ -217,91 +174,21 @@ class ScalaTestFrameworkCommandLineState(
 
     val executionResult = createExecutionResult(consoleView, processHandler)
 
-    if (DebugOptions.debugProcessOutput)
-      addDebugOutputListener(processHandler)
-
-    if (useSbt) {
-      Stats.trigger(FeatureKey.sbtShellTestRunConfig)
-      val suitesToTestsMap = buildSuitesToTestsMap
-      val future = SbtShellTestsRunner.runTestsInSbtShell(
-        sbtSupport,
-        module,
-        suitesToTestsMap,
-        new ReportingSbtTestEventHandler((message, key) => {
-          processHandler.notifyTextAvailable(message, key)
-        }),
-        useUiWithSbt
-      )
-      future.onComplete(_ => processHandler.destroyProcess())(sbtSupport.executionContext)
-    }
-
     executionResult
-  }
-
-  private def addDebugOutputListener(processHandler: ProcessHandler): Unit = {
-    import com.intellij.execution.process.{ProcessAdapter, ProcessEvent}
-    import com.intellij.openapi.util.Key
-
-    processHandler.addProcessListener(new ProcessAdapter {
-      override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit =
-        print(s"[$outputType] ${event.getText}")
-    })
-  }
-
-  private def attachExtensionsToProcess(processHandler: ProcessHandler): Unit = {
-    val runnerSettings = getRunnerSettings
-    configurationExtensionManager.attachExtensionsToProcess(configuration, processHandler, runnerSettings)
-  }
-
-  // case is required to avoid bad red-highlighting by Scala Plugin which can't understand Kotlin generics
-  private def configurationExtensionManager: RunConfigurationExtensionsManager[RunConfigurationBase[_], _] =
-    JavaRunConfigurationExtensionManager.getInstance.asInstanceOf[RunConfigurationExtensionsManager[RunConfigurationBase[_], _]]
-
-  private def sbtShellProcess(project: Project): ProcessHandler = {
-    //use a process running sbt
-    val sbtProcessManager = SbtProcessManager.forProject(project)
-    //make sure the process is initialized
-    val shellRunner = sbtProcessManager.acquireShellRunner()
-    SbtProcessHandlerWrapper(shellRunner.createProcessHandler)
   }
 }
 
 object ScalaTestFrameworkCommandLineState {
 
-  private def expandPath(text: String)(implicit project: Project, module: Module): String =
+  private def expandPath(text: String)(implicit module: Module): String =
     Some(text)
-      .map(PathMacroManager.getInstance(project).expandPath)
+      .map(PathMacroManager.getInstance(module.getProject).expandPath)
       .map(PathMacroManager.getInstance(module).expandPath)
       .get
 
   private def expandEnvs(text: String, envs: scala.collection.Map[String, String]) =
     envs.foldLeft(text) { case (text, (key, value)) =>
       StringUtil.replace(text, "$" + key + "$", value, false)
-    }
-
-  private def createExecutionResult(consoleView: ConsoleView, processHandler: ProcessHandler): DefaultExecutionResult = {
-    val result = new DefaultExecutionResult(consoleView, processHandler)
-    val restartActions = createRestartActions(consoleView)
-    result.setRestartActions(restartActions: _*)
-    result
-  }
-
-  private def createRestartActions(consoleView: ConsoleView): Seq[AnAction] =
-    consoleView match {
-      case testConsole: BaseTestsOutputConsoleView =>
-        val rerunFailedTestsAction = {
-          val properties = testConsole.getProperties.asInstanceOf[ScalaTestFrameworkConsoleProperties]
-          val action = new ScalaRerunFailedTestsAction(testConsole, properties)
-          action.setModelProvider(() => testConsole.asInstanceOf[SMTRunnerConsoleView].getResultsViewer)
-          action
-        }
-        val toggleAutoTestAction   = new ToggleAutoTestAction() {
-          override def isDelayApplicable: Boolean = false
-          override def getAutoTestManager(project: Project): AbstractAutoTestManager = JavaAutoRunManager.getInstance(project)
-        }
-        Seq(rerunFailedTestsAction, toggleAutoTestAction)
-      case _ =>
-        Nil
     }
 
   // ScalaTest does not understand backticks in class/package qualified names, it will fail to run

@@ -39,6 +39,8 @@
         <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaStringContextType"/>
         <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType"/>
         <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaImplicitValueClassContextType"/>
+        <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaBlankLineContextType"/>
+
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaAnnotatedMacro"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaVariableOfTypeMacro$RegularVariable"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaVariableOfTypeMacro$ArrayVariable"/>

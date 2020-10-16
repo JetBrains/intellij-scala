@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.locationProvider
 
+import java.util.Collections
 import java.{util => ju}
 
 import com.intellij.execution.testframework.sm.runner.SMTestLocator
@@ -13,91 +14,128 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider._
+
+import scala.jdk.CollectionConverters.SeqHasAsJava
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 24.02.2009
  *
  * For Specs, Specs2 and ScalaTest
+ *
+ * @see [[org.jetbrains.plugins.scala.testingSupport.test.ui.ScalaTestRunLineMarkerProvider]]
  */
 class ScalaTestLocationProvider extends SMTestLocator {
+
+  override def getLocation(protocolId: String, locationData: String, project: Project, scope: GlobalSearchScope): ju.List[Location[_ <: PsiElement]] =
+    protocolId match {
+      case ScalaProtocol =>
+        getLocationForScalaProtocol(locationData, project, scope)
+      case ScalaTestProtocol =>
+        getLocationForScalaTestProtocol(locationData, project, scope)
+      case _ =>
+        Collections.emptyList()
+    }
+}
+
+object ScalaTestLocationProvider {
+
+  /** note: used not only in ScalaTest framework, but e.g. in uTest
+   *
+   * @see [[org.jetbrains.plugins.scala.testingSupport.uTest.UTestReporter]] */
+  private val ScalaTestProtocol = "scalatest"
+  val ScalaTestProtocolPrefix = "scalatest://"
+  // what is this protocol used? don't we only use "scalatest" prefix for now?
+  private val ScalaProtocol = "scala"
+
   private val SpecsHintPattern = """(\S+)\?filelocation=(.+):(.+)""".r
 
   private val ScalaTestTopOfClassPattern  = """TopOfClass:(\S+)TestName:(.+)""".r
   private val ScalaTestTopOfMethodPattern = """TopOfMethod:(\S+):(\S+)TestName:(.+)""".r
   private val ScalaTestLineInFinePattern  = """LineInFile:(\S+):(.+):(.+)TestName:(.+)""".r
 
-  override def getLocation(protocolId: String, locationData: String, project: Project, scope: GlobalSearchScope): ju.List[Location[_ <: PsiElement]] = {
-    protocolId match {
-      case "scala" =>
-        locationData match {
-          case SpecsHintPattern(className, fileName, lineNumber) =>
-            val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(className, scope)
-            val found = classes.find(c => Option(c.getContainingFile).exists(_.name == fileName))
+  def isTestUrl(url: String): Boolean =
+    url.startsWith(ScalaTestLocationProvider.ScalaTestProtocolPrefix)
 
-            found match {
-              case Some(file) =>
-                val res = new ju.ArrayList[Location[_ <: PsiElement]]()
-                res.add(createLocationFor(project, file.getContainingFile, lineNumber.toInt))
-                res
-              case _ => searchForClassByUnqualifiedName(project, className)
-            }
-          case _ => searchForClassByUnqualifiedName(project, locationData)
-        }
-      case "scalatest" =>
-        val res = new ju.ArrayList[Location[_ <: PsiElement]]()
-        locationData match {
-          case ScalaTestTopOfClassPattern(classFqn, testName) =>
-            val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(classFqn, scope)
-            val clazz = classes.find(!_.isInstanceOf[ScObject]).orElse(classes.headOption)
-            clazz.foreach(c => res.add(PsiLocationWithName(project, c, testName)))
-          case ScalaTestTopOfMethodPattern(classFqn, methodName, testName) =>
-            val classes = ScalaShortNamesCacheManager.getInstance(project).
-              getClassesByFQName(classFqn, GlobalSearchScope.allScope(project))
-            val methodOwner = classes.find(!_.isInstanceOf[ScObject]).orElse(classes.headOption)
-            methodOwner match {
-              case Some(td: ScTypeDefinition) =>
-                td.methodsByName(methodName).foreach { signature =>
-                    res.add(PsiLocationWithName(project, signature.method, testName))
-                }
-              case _ =>
-            }
-            if (res.isEmpty && methodOwner.isDefined) {
-              val methods = methodOwner.get.findMethodsByName(methodName, false)
-              methods.foreach {
-                method => res.add(PsiLocationWithName(project, method, testName))
-              }
-            }
-          case ScalaTestLineInFinePattern(classFqn, fileName, lineNumber, testName) =>
-            val classes = ScalaPsiManager.instance(project).getCachedClass(GlobalSearchScope.allScope(project), classFqn)
-            val supers = classes.iterator.flatMap(_.allSupers)
-            val found = (classes.iterator ++ supers).find(_.containingFile.exists(_.name == fileName))
-            found match {
-              case Some(file) =>
-                res.add(createLocationFor(project, file.getContainingFile, lineNumber.toInt, Some(testName)))
-              case _ =>
+  def getClassFqn(locationUrl: String): Option[String] =
+    locationUrl.stripPrefix(ScalaTestLocationProvider.ScalaTestProtocolPrefix) match {
+      case ScalaTestTopOfClassPattern(classFqn, _)       => Some(classFqn)
+      case ScalaTestTopOfMethodPattern(classFqn, _, _)   => Some(classFqn)
+      case ScalaTestLineInFinePattern(classFqn, _, _, _) => Some(classFqn)
+      case _                                             => None
+    }
+
+  private def getLocationForScalaTestProtocol(locationData: String, project: Project, scope: GlobalSearchScope): ju.List[Location[_ <: PsiElement]] = {
+    val res = new ju.ArrayList[Location[_ <: PsiElement]]()
+    locationData match {
+      case ScalaTestTopOfClassPattern(classFqn, testName) =>
+        val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(classFqn, scope)
+        val clazz = classes.find(!_.isInstanceOf[ScObject]).orElse(classes.headOption)
+        clazz.foreach(c => res.add(PsiLocationWithName(project, c, testName)))
+      case ScalaTestTopOfMethodPattern(classFqn, methodName, testName) =>
+        val classes = ScalaShortNamesCacheManager.getInstance(project).
+          getClassesByFQName(classFqn, GlobalSearchScope.allScope(project))
+        val methodOwner = classes.find(!_.isInstanceOf[ScObject]).orElse(classes.headOption)
+        methodOwner match {
+          case Some(td: ScTypeDefinition) =>
+            td.methodsByName(methodName).foreach { signature =>
+              res.add(PsiLocationWithName(project, signature.method, testName))
             }
           case _ =>
         }
-        res
-      case _ => new ju.ArrayList[Location[_ <: PsiElement]]()
-    }
-  }
-
-  private def searchForClassByUnqualifiedName(project: Project, locationData: String): ju.ArrayList[Location[_ <: PsiElement]] = {
-    val res = new ju.ArrayList[Location[_ <: PsiElement]]()
-    ElementScope(project).getCachedClass(locationData)
-      .map {
-        PsiLocation.fromPsiElement[PsiClass](project, _)
-      }.foreach {
-      res.add(_)
+        if (res.isEmpty && methodOwner.isDefined) {
+          val methods = methodOwner.get.findMethodsByName(methodName, false)
+          methods.foreach {
+            method => res.add(PsiLocationWithName(project, method, testName))
+          }
+        }
+      case ScalaTestLineInFinePattern(classFqn, fileName, lineNumber, testName) =>
+        val classes = ScalaPsiManager.instance(project).getCachedClass(GlobalSearchScope.allScope(project), classFqn)
+        val supers = classes.iterator.flatMap(_.allSupers)
+        val found = (classes.iterator ++ supers).find(_.containingFile.exists(_.name == fileName))
+        found match {
+          case Some(file) =>
+            res.add(createLocationFor(project, file.getContainingFile, lineNumber.toInt, Some(testName)))
+          case _  =>
+        }
+      case _ =>
     }
     res
   }
 
-  private def createLocationFor(project: Project, psiFile: PsiFile, lineNum: Int,
-                                withName: Option[String] = None): Location[_ <: PsiElement] = {
+  private def getLocationForScalaProtocol(locationData: String, project: Project, scope: GlobalSearchScope): ju.List[Location[_ <: PsiElement]] =
+    locationData match {
+      case SpecsHintPattern(className, fileName, lineNumber) =>
+        val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(className, scope)
+        val found = classes.find(c => Option(c.getContainingFile).exists(_.name == fileName))
+
+        found match {
+          case Some(file) =>
+            val res = new ju.ArrayList[Location[_ <: PsiElement]]()
+            res.add(createLocationFor(project, file.getContainingFile, lineNumber.toInt))
+            res
+          case _ =>
+            searchForClassByUnqualifiedName(project, className).toSeq.asJava
+        }
+      case _ =>
+        searchForClassByUnqualifiedName(project, locationData).toSeq.asJava
+    }
+
+  private def searchForClassByUnqualifiedName(project: Project, locationData: String): Option[Location[_ <: PsiElement]] = {
+    val clazz = ElementScope(project).getCachedClass(locationData)
+    val location = clazz.map(PsiLocation.fromPsiElement[PsiClass](project, _))
+    location
+  }
+
+  private def createLocationFor(
+    project: Project,
+    psiFile: PsiFile,
+    lineNum: Int,
+    withName: Option[String] = None
+  ): Location[_ <: PsiElement] = {
     assert(lineNum > 0)
+
     val doc: Document = PsiDocumentManager.getInstance(project).getDocument(psiFile)
     if (doc == null) {
       return null

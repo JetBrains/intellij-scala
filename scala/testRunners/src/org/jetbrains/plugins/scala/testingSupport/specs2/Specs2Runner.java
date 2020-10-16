@@ -17,6 +17,8 @@ import java.util.stream.Collectors;
 public class Specs2Runner {
 
   private static final String REPORTER_FQN = JavaSpecs2Notifier.class.getName();
+  // see org.jetbrains.plugins.scala.testingSupport.specs2.JavaSpecs2Notifier_spec2x
+  private static final String REPORTER_2x_FQN = JavaSpecs2Notifier.class.getName() + "_spec2x";
 
   public static void main(String[] argsRaw) throws IllegalAccessException {
     final boolean isSpecs2_3x_4x;
@@ -28,7 +30,7 @@ public class Specs2Runner {
     }
 
     Spec2RunnerArgs args = Spec2RunnerArgs.parse(TestRunnerUtil.preprocessArgsFiles(argsRaw));
-    List<List<String>> runnerArgsList = toSpec2LibArgsList(args);
+    List<List<String>> runnerArgsList = toSpec2LibArgsList(args, isSpecs2_3x_4x);
 
     for (List<String> runnerArgs : runnerArgsList) {
       String[] runnerArgsArray = runnerArgs.toArray(new String[0]);
@@ -48,10 +50,10 @@ public class Specs2Runner {
    * org.specs2.runner.NotifierRunner arguments:
    * https://etorreborre.github.io/specs2/guide/SPECS2-3.0.1/org.specs2.guide.ArgumentsReference.html
    */
-  private static List<String> toSpec2LibArgs(Spec2RunnerArgs args) {
+  private static List<String> toSpec2LibArgs(Spec2RunnerArgs args, boolean isSpecs2_3x_4x) {
     List<String> libArgs = new ArrayList<>(args.otherArgs);
     libArgs.add("-notifier");
-    libArgs.add(REPORTER_FQN);
+    libArgs.add(isSpecs2_3x_4x ? REPORTER_FQN : REPORTER_2x_FQN);
     return libArgs;
   }
 
@@ -59,8 +61,8 @@ public class Specs2Runner {
    * One each class should passed separately to Spec2 runner, so for single Spec2RunnerArgs
    * we generate several args sets which will be passed to Spec2 runner.
    */
-  private static List<List<String>> toSpec2LibArgsList(Spec2RunnerArgs args) {
-    List<String> commonArgs = toSpec2LibArgs(args);
+  private static List<List<String>> toSpec2LibArgsList(Spec2RunnerArgs args, boolean isSpecs2_3x_4x) {
+    List<String> commonArgs = toSpec2LibArgs(args, isSpecs2_3x_4x);
     return args.classesToTests
             .entrySet().stream()
             .map(entry -> {

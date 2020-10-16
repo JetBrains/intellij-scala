@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
   */
 class ScPostfixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScPostfixExpr {
 
-  override def argumentExpressions: collection.Seq[ScExpression] = Seq.empty
+  override def argumentExpressions: Seq[ScExpression] = Seq.empty
 
   override def getInvokedExpr: ScExpression = operation
 

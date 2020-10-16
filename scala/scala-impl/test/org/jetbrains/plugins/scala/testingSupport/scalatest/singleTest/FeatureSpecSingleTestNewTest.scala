@@ -7,11 +7,11 @@ trait FeatureSpecSingleTestNewTest extends FeatureSpecNewGenerator {
 
   val featureSpecConfigTestName = "Feature: Feature 1 Scenario: Scenario A"
   val featureSpecTaggedConfigTestName = "Feature: Feature 3 Scenario: Tagged"
-  val featureSpecTestPath = List("[root]", featureSpecNewClassName, "Feature: Feature 1", "Scenario: Scenario A")
-  val featureSpecTaggedTestPath = List("[root]", featureSpecNewClassName, "Feature: Feature 3", "Scenario: Tagged")
+  val featureSpecTestPath = TestNodePath("[root]", featureSpecNewClassName, "Feature: Feature 1", "Scenario: Scenario A")
+  val featureSpecTaggedTestPath = TestNodePath("[root]", featureSpecNewClassName, "Feature: Feature 3", "Scenario: Tagged")
 
   def testFeatureSpecSingleTest(): Unit = {
-    runTestByLocation2(5, 7, featureSpecNewFileName,
+    runTestByLocation(loc(featureSpecNewFileName, 5, 7),
       assertConfigAndSettings(_, featureSpecNewClassName, featureSpecConfigTestName),
       root => {
         assertResultTreeHasExactNamedPaths(root)(Seq(featureSpecTestPath))
@@ -21,7 +21,7 @@ trait FeatureSpecSingleTestNewTest extends FeatureSpecNewGenerator {
   }
 
   def testTaggedFeatureSpecTest(): Unit = {
-    runTestByLocation2(24, 7, featureSpecNewFileName,
+    runTestByLocation(loc(featureSpecNewFileName, 24, 7),
       assertConfigAndSettings(_, featureSpecNewClassName, featureSpecTaggedConfigTestName),
       root => {
         assertResultTreeHasExactNamedPaths(root)(Seq(featureSpecTaggedTestPath))

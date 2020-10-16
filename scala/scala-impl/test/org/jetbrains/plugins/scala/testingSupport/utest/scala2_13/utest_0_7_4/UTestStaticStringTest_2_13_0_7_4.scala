@@ -27,7 +27,7 @@ class UTestStaticStringTest_2_13_0_7_4 extends UTestTestBase_2_13_0_7_4 with UTe
 
   protected def checkTestsTest(lineNumber: Int, position: Int, expectedName: String): Unit =
     assertConfigAndSettings(
-      createTestFromLocation(lineNumber, position, testsTestFileName),
+      createTestCaretLocation(lineNumber, position, testsTestFileName),
       testsTestName,
       s"tests${if (expectedName.isEmpty) "" else "\\" + expectedName}"
     )

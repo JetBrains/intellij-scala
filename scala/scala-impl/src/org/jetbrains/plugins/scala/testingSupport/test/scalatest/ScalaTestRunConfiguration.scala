@@ -5,20 +5,15 @@ import com.intellij.execution.configurations._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.ProjectScope
 import com.intellij.psi.{PsiClass, PsiModifier}
-import com.intellij.testIntegration.TestFramework
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMethodExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{SettingMap, TestFrameworkRunnerInfo}
+import org.jetbrains.plugins.scala.testingSupport.test.CustomTestRunnerBasedStateProvider.TestFrameworkRunnerInfo
 import org.jetbrains.plugins.scala.testingSupport.test._
-import org.jetbrains.plugins.scala.testingSupport.test.sbt.{SbtCommandsBuilder, SbtCommandsBuilderBase, SbtTestRunningSupport, SbtTestRunningSupportBase}
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration.DoNotDiscoverAnnotationFqn
-import org.jetbrains.sbt.shell.SbtShellCommunication
-
-import scala.concurrent.Future
 
 class ScalaTestRunConfiguration(
   project: Project,
@@ -30,36 +25,19 @@ class ScalaTestRunConfiguration(
   name
 ) {
 
-  override val suitePaths: List[String] = ScalaTestUtil.suitePaths
+  override val testFramework: ScalaTestTestFramework = ScalaTestTestFramework()
 
-  override val testFramework: TestFramework = TestFramework.EXTENSION_NAME.findExtension(classOf[ScalaTestTestFramework])
-
-  override val configurationProducer: ScalaTestConfigurationProducer = TestConfigurationUtil.scalaTestConfigurationProducer
+  override val configurationProducer: ScalaTestConfigurationProducer = ScalaTestConfigurationProducer()
 
   override protected def validityChecker: SuiteValidityChecker = ScalaTestRunConfiguration.validityChecker
 
   override protected[test] def canBeDiscovered(clazz: PsiClass): Boolean = !clazz.hasAnnotation(DoNotDiscoverAnnotationFqn)
 
-  override protected val runnerInfo: TestFrameworkRunnerInfo = TestFrameworkRunnerInfo(
-    classOf[org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunner].getName
+  override def runStateProvider: RunStateProvider = new CustomTestRunnerOrSbtShellStateProvider(
+    this,
+    TestFrameworkRunnerInfo(classOf[org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunner]),
+    new ScalaTestSbtTestRunningSupport
   )
-
-  override val sbtSupport: SbtTestRunningSupport = new SbtTestRunningSupportBase {
-
-    override def allowsSbtUiRun: Boolean = true
-
-    override def commandsBuilder: SbtCommandsBuilder = new SbtCommandsBuilderBase {
-      override def testNameKey: Option[String] = Some("-- -t")
-    }
-
-    override def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[SettingMap] = {
-      val module = getModule
-      for {
-        x <- modifySbtSetting(comm, module, SettingMap(), "testOptions", "test", "Test", """Tests.Argument(TestFrameworks.ScalaTest, "-oDU")""", !_.contains("-oDU"))
-        y <- modifySbtSetting(comm, module, x, "parallelExecution", "test", "Test", "false", !_.contains("false"), shouldSet = true)
-      } yield y
-    }
-  }
 }
 
 object ScalaTestRunConfiguration {

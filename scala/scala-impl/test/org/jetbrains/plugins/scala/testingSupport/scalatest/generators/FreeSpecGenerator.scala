@@ -16,11 +16,11 @@ trait FreeSpecGenerator extends ScalaTestTestCase {
        |class $freeSpecClassName extends FreeSpec {
        |  "A FreeSpecTest" - {
        |    "should be able to run single tests" in {
-       |      print(">>TEST: OK<<")
+       |      print("$TestOutputPrefix OK $TestOutputSuffix")
        |    }
        |
        |    "should not run tests that are not selected" in {
-       |      print(">>TEST: FAILED<<")
+       |      print("$TestOutputPrefix FAILED $TestOutputSuffix")
        |    }
        |
        |    "can be tagged" taggedAs(FreeSpecTag) in {}

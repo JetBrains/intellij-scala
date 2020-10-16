@@ -2,14 +2,18 @@ package org.jetbrains.plugins.scala
 package testingSupport.test
 
 import com.intellij.lang.Language
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.{PsiClass, PsiElement}
 import javax.swing.Icon
+import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 
 abstract class AbstractTestFramework extends JavaTestFrameworkBridge {
+
+  private val Log: Logger = Logger.getInstance(this.getClass)
 
   def baseSuitePaths: Seq[String]
 
@@ -37,7 +41,12 @@ abstract class AbstractTestFramework extends JavaTestFrameworkBridge {
     }
 
     val cachedMarkerClass = elementScope.getCachedClass(getMarkerClassFQName)
-    cachedMarkerClass.isDefined && baseSuitePaths.exists(isInheritor)
+    if (cachedMarkerClass.isDefined) {
+      baseSuitePaths.exists(isInheritor)
+    } else {
+      Log.traceSafe(s"can't find marker class $getMarkerClassFQName for class ${definition.name}")
+      false
+    }
   }
 
   /** @return template file name from scala/scala-impl/resources/fileTemplates/code, used in "create test dialog" */

@@ -443,8 +443,11 @@ object ScalaPsiManager {
 
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager")
 
-  def instance(implicit ctx: ProjectContext): ScalaPsiManager =
-    ctx.getService(classOf[ScalaPsiManagerHolder]).get
+  def instance(implicit ctx: ProjectContext, d: DummyImplicit): ScalaPsiManager =
+    instance(ctx.getProject)
+
+  def instance(project: Project): ScalaPsiManager =
+    project.getService(classOf[ScalaPsiManagerHolder]).get
 
   private def registerLowMemoryWatcher(project: Project): Unit = {
     LowMemoryWatcher.register((() => {

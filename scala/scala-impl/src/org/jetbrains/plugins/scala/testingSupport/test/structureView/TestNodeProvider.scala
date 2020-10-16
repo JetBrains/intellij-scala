@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.test.structureView
 
-import java.util
 import java.util.Collections
+import java.{util => ju}
 
 import com.intellij.execution.PsiLocation
 import com.intellij.icons.AllIcons
@@ -9,12 +9,11 @@ import com.intellij.ide.util.FileStructureNodeProvider
 import com.intellij.ide.util.treeView.smartTree.{ActionPresentation, ActionPresentationData, TreeElement}
 import com.intellij.openapi.actionSystem.Shortcut
 import com.intellij.openapi.project.{IndexNotReadyException, Project}
-import com.intellij.openapi.util.IconLoader
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScReferencePattern, ScTuplePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScPatternList}
@@ -22,18 +21,22 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScPatternsImpl
 import org.jetbrains.plugins.scala.lang.structureView.element.{Test, TypeDefinition, Value}
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer.CreateFromContextInfo.ClassWithTestName
+import org.jetbrains.plugins.scala.testingSupport.test.munit.{MUnitTestFramework, MUnitUtils}
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestUtil
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2Util
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationProducer
 
 import scala.annotation.tailrec
+import scala.jdk.CollectionConverters._
 
 // used on "Structure view" (Alt + 7)
+// TODO: split this by test frameworks
 class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
   override def getCheckBoxText: String = ScalaBundle.message("test.node.provider.show.scala.tests")
 
@@ -45,40 +48,25 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
 
   override def getName: String = "SCALA_SHOW_SCALATEST_TESTS"
 
-  override def provideNodes(node: TreeElement): util.Collection[TreeElement] = {
+  private def emptyList: ju.List[TreeElement] = Collections.emptyList[TreeElement]
+
+  override def provideNodes(node: TreeElement): ju.Collection[TreeElement] =
     node match {
       case td: TypeDefinition =>
-        val children = new util.ArrayList[TreeElement]()
-        val clazz = td.element
-        val project = clazz.getProject
-        try {
-          if (!clazz.isValid) return children
-          clazz.extendsBlock.templateBody match {
-            case Some(body) =>
-              for (expr <- body.getChildren.filter(_.isInstanceOf[ScExpression])) {
-                (expr match {
-                  case expr: ScMethodCall =>
-                    TestNodeProvider.extractTestViewElement(expr, clazz, project)
-                  case expr: ScInfixExpr =>
-                    TestNodeProvider.extractTestViewElementInfix(expr, clazz, project)
-                  case expr: ScPatternDefinition =>
-                    TestNodeProvider.extractTestViewElementPatternDef(expr, clazz, project)
-                  case _ =>
-                    None
-                }).map(children.add)
-              }
-            case _ =>
-          }
-          children
+        val result = try {
+          collectNodes(td)
+        } catch {
+          case _: IndexNotReadyException =>
+            None
         }
-        catch {
-          case _: IndexNotReadyException => new util.ArrayList[TreeElement]()
-        }
+        result.map(_.asJava).getOrElse(emptyList)
+
       case valElement: Value =>
-        def tryTupledId(psiElement: PsiElement) = TestNodeProvider.getUTestLeftHandTestDefinition(psiElement) match {
-          case Some(testTupleDefinition) => TestNodeProvider.extractUTest(testTupleDefinition, testTupleDefinition.getProject)
-          case _ => Collections.emptyList[TreeElement]
-        }
+        def tryTupledId(psiElement: PsiElement): ju.Collection[TreeElement] =
+          TestNodeProvider.getUTestLeftHandTestDefinition(psiElement) match {
+            case Some(testTupleDefinition) => TestNodeProvider.extractUTest(testTupleDefinition, testTupleDefinition.getProject)
+            case _ => emptyList
+          }
 
         valElement.getValue match {
           case valDef: ScPatternDefinition =>
@@ -89,11 +77,35 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
             }
           case named: ScNamedElement =>
             tryTupledId(named.nameId)
-          case _ => Collections.emptyList[TreeElement]
+          case _ =>
+            emptyList
         }
-      case _ => Collections.emptyList[TreeElement]
+      case _ =>
+        emptyList
     }
+
+  private def collectNodes(td: TypeDefinition): Option[Seq[TreeElement]] = {
+    val clazz = td.element
+    if (clazz.isValid) {
+      val templateBody = clazz.extendsBlock.templateBody
+      templateBody.map(collectTestNodes(clazz, _))
+    } else
+      None
   }
+
+  private def collectTestNodes(clazz: ScTypeDefinition, body: ScTemplateBody): Seq[TreeElement] =
+    (for {
+      expr <- body.children.filter(_.is[ScExpression])
+      testNode <- testNodeForTemplateBodyChild(clazz, expr)
+    } yield testNode).toSeq
+
+  private def testNodeForTemplateBodyChild(clazz: ScTypeDefinition, expr: PsiElement) =
+    expr match {
+      case expr: ScMethodCall        => TestNodeProvider.extractTestViewElement(expr, clazz, clazz.getProject)
+      case expr: ScInfixExpr         => TestNodeProvider.extractTestViewElementInfix(expr, clazz, clazz.getProject)
+      case expr: ScPatternDefinition => TestNodeProvider.extractTestViewElementPatternDef(expr, clazz, clazz.getProject)
+      case _                         => None
+    }
 }
 
 object TestNodeProvider {
@@ -108,42 +120,43 @@ object TestNodeProvider {
     import ScalaTestUtil._
     import Specs2Util._
     import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
-    if (flatSpecBases.exists(isInheritor(clazz, _))) {
+    if (flatSpecBases.exists(isInheritor(clazz, _)))
       extractFlatSpec(expr, project)
-    } else if (freeSpecBases.exists(isInheritor(clazz, _))) {
+    else if (freeSpecBases.exists(isInheritor(clazz, _)))
       extractFreeSpec(expr, project)
-    } else if (wordSpecBases.exists(isInheritor(clazz, _))) {
+    else if (wordSpecBases.exists(isInheritor(clazz, _)))
       extractWordSpec(expr, project)
-    } else if (isInheritor(clazz, unitSpecBase)) {
+    else if (isInheritor(clazz, unitSpecBase))
       extractUnitSpec(expr, project)
-    } else None
+    else
+      None
   }
 
-  private def extractTestViewElementPatternDef(pDef: ScPatternDefinition, clazz: ScTypeDefinition, project: Project):
-  Option[Test] = {
+  private def extractTestViewElementPatternDef(pDef: ScPatternDefinition, clazz: ScTypeDefinition, project: Project): Option[Test] = {
     import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
     if (isInheritor(clazz, "utest.framework.TestSuite") && pDef.getLastChild.isInstanceOf[ScMethodCall]) {
       val methodCall = pDef.getLastChild.asInstanceOf[ScMethodCall]
       checkScMethodCall(methodCall, "apply")
       None
-    } else None
+    }
+    else None
   }
 
-  private def extractTestViewElement(expr: ScMethodCall, clazz: ScTypeDefinition, project: Project):
-  Option[Test] = {
+  private def extractTestViewElement(expr: ScMethodCall, clazz: ScTypeDefinition, project: Project): Option[Test] = {
     import ScalaTestUtil._
     import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
-    if (funSuiteBases.exists(isInheritor(clazz, _))) {
-      extractFunSuite(expr, project)
-      //this should be a funSuite-like test
-    } else if (featureSpecBases.exists(isInheritor(clazz, _))) {
+    if (funSuiteBases.exists(isInheritor(clazz, _)))
+      extractFunSuite(expr, project) //this should be a funSuite-like test
+    else if (featureSpecBases.exists(isInheritor(clazz, _)))
       extractFeatureSpec(expr, project)
-    } else if (funSpecBasesPost2_0.exists(isInheritor(clazz, _)) || funSpecBasesPre2_0.exists(isInheritor
-    (clazz, _))) {
+    else if (funSpecBasesPost2_0.exists(isInheritor(clazz, _)) || funSpecBasesPre2_0.exists(isInheritor(clazz, _)))
       extractFunSpec(expr, project)
-    } else if (propSpecBases.exists(isInheritor(clazz, _))) {
+    else if (propSpecBases.exists(isInheritor(clazz, _)))
       extractPropSpec(expr, project)
-    } else None
+    else if (isInheritor(clazz, MUnitUtils.FunSuiteFqn))
+      extractMUnitFunSuite(expr, project) //this should be a funSuite-like test
+    else
+      None
   }
 
   // TODO: refactor usage of these, it looks ugly, many code duplications, error-prone, probably non-efficient
@@ -151,6 +164,8 @@ object TestNodeProvider {
   private val scMethodCallDefaultArg = Seq(List("java.lang.String", "scala.collection.Seq<org.scalatest.Tag>"), List("void"))
   private val scMethodCallDefaultArgScalaTest3_v1 = Seq(List("java.lang.String", "scala.collection.Seq<org.scalatest.Tag>"), List("java.lang.Object")) // scala < 2.13
   private val scMethodCallDefaultArgScalaTest3_v2 = Seq(List("java.lang.String", "scala.collection.immutable.Seq<org.scalatest.Tag>"), List("java.lang.Object")) // scala >= 2.13
+
+  private val munitTestMethodCallArg = Seq(List("java.lang.String"), List("java.lang.Object"))
 
   private def getMethodCallTestName(expr: ScMethodCall) =
   //TODO: this is horrible
@@ -213,14 +228,14 @@ object TestNodeProvider {
               case None => resolveResult.getElement
             }
             funElement.name == "apply" && funElement.isInstanceOf[ScFunctionDefinition] &&
-              checkClauses(funElement.asInstanceOf[ScFunctionDefinition].getParameterList.clauses, paramNames: _*)
+              checkClauses(funElement.asInstanceOf[ScFunctionDefinition].getParameterList.clauses, paramNames)
           }
         case _ => false
       }
     }
   }
 
-  private def checkClauses(clauses: collection.Seq[ScParameterClause], paramNames: List[String]*): Boolean = {
+  private def checkClauses(clauses: Seq[ScParameterClause], paramNames: Seq[Seq[String]]): Boolean = {
     val filteredClauses = clauses.filterNot(_.parameters.forall(_.isImplicitParameter))
     filteredClauses.length == paramNames.length && (filteredClauses zip paramNames).forall {
       case (clause, names) =>
@@ -242,14 +257,20 @@ object TestNodeProvider {
   private def checkRefExpr(refExpr: ScReferenceExpression, funName: String, paramNames: List[String]*): Boolean =
     checkRefExpr(refExpr, funName, None, Some(paramNames))
 
-  private def checkRefExpr(refExpr: ScReferenceExpression, funName: String, funDef: Option[ScFunctionDefinition],
-                           paramNames: Option[Seq[List[String]]]): Boolean = {
-    funDef.orElse(refExpr.resolve() match {
+  private def checkRefExpr(
+    refExpr: ScReferenceExpression,
+    funName: String,
+    funDef: Option[ScFunctionDefinition],
+    paramNames: Option[Seq[List[String]]]
+  ): Boolean = {
+    val funDef2 = funDef.orElse(refExpr.resolve() match {
       case funDef: ScFunctionDefinition => Some(funDef)
-      case _ => None
-    }).exists(funDef => {
+      case _                            => None
+    })
+    funDef2.exists { funDef =>
       funDef.getName == funName &&
-        paramNames.forall(checkClauses(funDef.getParameterList.clauses, _: _*))})
+        paramNames.forall(checkClauses(funDef.getParameterList.clauses, _))
+    }
   }
 
   private def checkSpecsPending(expr: ScInfixExpr): Boolean = {
@@ -339,9 +360,11 @@ object TestNodeProvider {
   private def extractSpecs2ScInfixExpr(expr: ScInfixExpr, children: => Array[TreeElement], project: Project): Option[Test] = {
     //check matchers here because they are supposed to be stacked, as opposed to scalaTest, where bases are distinct
     if (isSpecs2Expr(expr: ScInfixExpr)) {
-      Some(new Test(expr, getInfixExprTestName(expr), children,
-        if (checkSpecsPending(expr)) Test.PendingStatusId else Test.NormalStatusId))
-    }  else None
+      val status = if (checkSpecsPending(expr)) Test.PendingStatusId else Test.NormalStatusId
+      val node = new Test(expr, getInfixExprTestName(expr), children, status)
+      Some(node)
+    }
+    else None
   }
 
   private def extractScMethodCall(expr: ScMethodCall, entry: ExtractEntry, project: Project): Option[Test] = {
@@ -350,15 +373,18 @@ object TestNodeProvider {
       checkScMethodCall(expr, "ignore", scMethodCallDefaultArgScalaTest3_v2: _*)))
     {
       Some(ignoredScalaTestElement(expr, getMethodCallTestName(expr), entry.children(())))
-    } else if (entry.canPend && checkMethodCallPending(expr)) {
+    }
+    else if (entry.canPend && checkMethodCallPending(expr)) {
       Some(pendingScalaTestElement(expr, getMethodCallTestName(expr), entry.children(())))
-    } else if (checkScMethodCall(expr, entry.funName, entry.args: _*) ||
+    }
+    else if (checkScMethodCall(expr, entry.funName, entry.args: _*) ||
       checkScMethodCallApply(expr, entry.funName, scMethodCallDefaultArg:_*) ||
       checkScMethodCallApply(expr, entry.funName, scMethodCallDefaultArgScalaTest3_v1:_*) ||
       checkScMethodCallApply(expr, entry.funName, scMethodCallDefaultArgScalaTest3_v2:_*)
     ) {
       Some(new Test(expr, getMethodCallTestName(expr), entry.children(())))
-    } else None
+    }
+    else None
   }
 
   //-----------------Here are checks for concrete test class bases---------------------
@@ -423,10 +449,19 @@ object TestNodeProvider {
       orElse(extractScMethodCall(expr, ExtractEntry("property", true, true, scMethodCallDefaultArgScalaTest3_v2: _*), project))
   }
 
+  // TODO: recheck, why we pass 3 parameters, while extractScMethodCall already handles 3 variants
   private def extractFunSuite(expr: ScMethodCall, project: Project): Option[Test] = {
-    extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArg:_*), project).
-      orElse(extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArgScalaTest3_v1:_*), project)).
-      orElse(extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArgScalaTest3_v2:_*), project))
+    extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArg:_*), project)
+      .orElse(extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArgScalaTest3_v1:_*), project))
+      .orElse(extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArgScalaTest3_v2:_*), project))
+  }
+
+  private def extractMUnitFunSuite(expr: ScMethodCall, project: Project): Option[Test] = {
+    val entry = ExtractEntry("test", false, false, munitTestMethodCallArg: _*)
+    if (checkScMethodCall(expr, entry.funName, entry.args: _*))
+      Some(new Test(expr, getMethodCallTestName(expr), entry.children(())))
+    else
+      None
   }
 
   //-----Specs2-----
@@ -448,7 +483,7 @@ object TestNodeProvider {
   }
 
   //-----uTest-----
-  private def extractUTest(expr: ScMethodCall, project: Project): util.Collection[TreeElement] = {
+  private def extractUTest(expr: ScMethodCall, project: Project): ju.Collection[TreeElement] = {
     def extractUTestInner(expr: PsiElement, project: Project): Option[TreeElement] = {
       if (isUTestInfixExpr(expr)) {
         Some(new Test(expr, getInfixExprTestName(expr.asInstanceOf[ScInfixExpr]),
@@ -463,9 +498,9 @@ object TestNodeProvider {
       expr.args.findFirstChildByType(ScCodeBlockElementType.BlockExpression) match {
         case blockExpr: ScBlockExpr => (for (methodExpr <- blockExpr.children if methodExpr.isInstanceOf[ScInfixExpr] || methodExpr.isInstanceOf[ScMethodCall])
           yield extractUTestInner(methodExpr, project)).filter(_.isDefined).map(_.get).toList.asJava
-        case _ => new util.ArrayList[TreeElement]
+        case _ => new ju.ArrayList[TreeElement]
       }
-    } else new util.ArrayList[TreeElement]()
+    } else new ju.ArrayList[TreeElement]()
   }
 
   def isUTestInfixExpr(psiElement: PsiElement): Boolean = psiElement match {
@@ -482,7 +517,7 @@ object TestNodeProvider {
           literal.implicitElement()
             .collect { case definition: ScFunctionDefinition => definition }
             .filter(definition => definition.getName == "TestableSymbol" && definition.isSynthetic)
-            .exists(definition => checkClauses(definition.getParameterList.clauses, List("scala.Symbol")))
+            .exists(definition => checkClauses(definition.getParameterList.clauses, List(List("scala.Symbol"))))
         case _ => false
       }
     case _ => false
@@ -568,23 +603,26 @@ object TestNodeProvider {
       }
     }
     val suiteName = aSuite.getQualifiedName
-    import scala.jdk.CollectionConverters._
+
     val nodeProvider = new TestNodeProvider
 
-    val elements: Iterable[TreeElement] = configurationProducer match {
-      case _: UTestConfigurationProducer =>
+    val isUTest = configurationProducer.isInstanceOf[UTestConfigurationProducer]
+    val elements: Iterable[TreeElement] =
+      if (isUTest) {
         val children = new TypeDefinition(aSuite).getChildren
         children.flatMap {
           case scVal: Value if !scVal.inherited => nodeProvider.provideNodes(scVal).asScala
           case _                                => List.empty
         }
-      case _=>
+      }
+      else
         nodeProvider.provideNodes(new TypeDefinition(aSuite)).asScala
-    }
+
     val leaves = getTestLeaves(elements)
     val suitesWithTestNames = leaves.flatMap { e =>
       configurationProducer.getTestClassWithTestName(new PsiLocation(e.element))
     }
+
     suitesWithTestNames.collect {
       case ClassWithTestName(suite, Some(testName)) if suite.getQualifiedName == suiteName =>
         testName

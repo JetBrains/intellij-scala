@@ -4,11 +4,11 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.PropSpecG
 
 trait PropSpecSingleTestTest extends PropSpecGenerator {
 
-  val propSpecTestPath = List("[root]", propSpecClassName, "Single tests should run")
-  val propSpecTestTaggedPath = List("[root]", propSpecClassName, "tagged")
+  val propSpecTestPath = TestNodePath("[root]", propSpecClassName, "Single tests should run")
+  val propSpecTestTaggedPath = TestNodePath("[root]", propSpecClassName, "tagged")
 
   def testPropSpec(): Unit = {
-    runTestByLocation2(5, 5, propSpecFileName,
+    runTestByLocation(loc(propSpecFileName, 5, 5),
       assertConfigAndSettings(_, propSpecClassName, "Single tests should run"),
       root => {
         assertResultTreeHasExactNamedPath(root, propSpecTestPath)
@@ -18,7 +18,7 @@ trait PropSpecSingleTestTest extends PropSpecGenerator {
   }
 
   def testTaggedPropSpec(): Unit = {
-    runTestByLocation2(12, 5, propSpecFileName,
+    runTestByLocation(loc(propSpecFileName, 12, 5),
       assertConfigAndSettings(_, propSpecClassName, "tagged"),
       root => {
         assertResultTreeHasExactNamedPath(root, propSpecTestTaggedPath)

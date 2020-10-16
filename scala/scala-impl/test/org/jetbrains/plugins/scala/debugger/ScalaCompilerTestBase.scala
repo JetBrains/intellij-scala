@@ -56,7 +56,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
       CompilerTestUtil.withEnabledCompileServer(useCompileServer) |+|
         CompilerTestUtil.withCompileServerJdk(compileServerJdk) |+|
         CompilerTestUtil.withForcedJdkForBuildProcess(buildProcessJdk)
-    revertable.apply()
+    revertable.applyChange()
   }
 
   override protected def setUp(): Unit = {
@@ -94,7 +94,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
     }
   } finally {
     compilerTester = null
-    revertable.revert()
+    revertable.revertChange()
     EdtTestUtil.runInEdtAndWait { () =>
       ScalaCompilerTestBase.super.tearDown()
     }

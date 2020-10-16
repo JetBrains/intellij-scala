@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala
 package lang.actions.editor
 
+import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
+import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.RevertableChange
 
 /**
  * User: Dmitry Naydanov
@@ -85,7 +87,7 @@ class InterpolatedStringTypingTest extends EditorActionTestBase {
   def testSimpleStringBraceTyped(): Unit = {
     val text = "class A { val a = s\"blah blah $" + CARET_MARKER + "\" }"
     val assumedStub = "class A { val a = s\"blah blah ${" + CARET_MARKER + "}\" }"
-    
+
     checkGeneratedTextAfterTyping(text, assumedStub, '{')
   }
 
@@ -96,16 +98,55 @@ class InterpolatedStringTypingTest extends EditorActionTestBase {
     checkGeneratedTextAfterTyping(text, assumedStub, '{')
   }
 
-  def testInsertBrace(): Unit = {
+  private def withModifiedCodeInsightSettings[T](
+    get: CodeInsightSettings => T,
+    set: (CodeInsightSettings, T) => (),
+    value: T
+  ): RevertableChange = new RevertableChange {
+    private def instance = CodeInsightSettings.getInstance
+    private var before: Option[T] = None
+
+    override def applyChange(): Unit = {
+      before = Some(get(instance))
+      set(instance, value)
+    }
+
+    override def revertChange(): Unit =
+      before.foreach(set(instance, _))
+  }
+
+  private def withAutoInsertPairBracket(value: Boolean): RevertableChange =
+    withModifiedCodeInsightSettings[Boolean](
+      _.AUTOINSERT_PAIR_BRACKET,
+      _.AUTOINSERT_PAIR_BRACKET = _,
+      value
+    )
+
+  def testInsertBrace(): Unit = withAutoInsertPairBracket(true) {
     val text = s""" val a = s"($$$CARET_MARKER)" """
     val assumed = s""" val a = s"($${$CARET_MARKER})" """
 
     checkGeneratedTextAfterTyping(text, assumed, '{')
   }
 
-  def testInsertBraceInvalidCode(): Unit = {
+  def testDontInsertBrace(): Unit = withAutoInsertPairBracket(false) {
+    val text = s""" val a = s"($$$CARET_MARKER)" """
+    val assumed = s""" val a = s"($${$CARET_MARKER)" """
+
+    checkGeneratedTextAfterTyping(text, assumed, '{')
+  }
+
+  def testInsertBraceInvalidCode(): Unit = withAutoInsertPairBracket(true) {
+
     val text = s""" val a = s"blah-blah $$$CARET_MARKER """
     val assumed = s""" val a = s"blah-blah $${$CARET_MARKER} """
+
+    checkGeneratedTextAfterTyping(text, assumed, '{')
+  }
+
+  def testDontInsertBraceInvalidCode(): Unit = withAutoInsertPairBracket(false) {
+    val text = s""" val a = s"blah-blah $$$CARET_MARKER """
+    val assumed = s""" val a = s"blah-blah $${$CARET_MARKER """
 
     checkGeneratedTextAfterTyping(text, assumed, '{')
   }

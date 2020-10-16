@@ -24,7 +24,7 @@ trait ScArgumentExprList extends ScArguments {
   /**
    * Expressions applied to appropriate method call (@see ScMethodCall).
    */
-  def exprs: collection.Seq[ScExpression] = findChildrenByClassScala(classOf[ScExpression]).toSeq
+  def exprs: Seq[ScExpression] = findChildrenByClassScala(classOf[ScExpression]).toSeq
 
   //TODO java helper (should be removed later)
   def exprsArray: Array[ScExpression] = exprs.toArray

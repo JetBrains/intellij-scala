@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test.specs2
 
+import com.intellij.execution.actions.RunConfigurationProducer
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, TraversableExt}
@@ -14,12 +15,9 @@ import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfiguratio
 
 final class Specs2ConfigurationProducer extends AbstractTestConfigurationProducer[Specs2RunConfiguration] {
 
-  override def getConfigurationFactory: ConfigurationFactory = Specs2ConfigurationType.instance.confFactory
+  override val getConfigurationFactory: ConfigurationFactory = Specs2ConfigurationType().confFactory
 
-  override def suitePaths = List(
-    "org.specs2.specification.SpecificationStructure",
-    "org.specs2.specification.core.SpecificationStructure"
-  )
+  override val suitePaths = Specs2TestFramework().baseSuitePaths
 
   override protected def configurationName(contextInfo: CreateFromContextInfo): String = contextInfo match {
     case AllInPackage(_, packageName)           =>
@@ -68,4 +66,13 @@ final class Specs2ConfigurationProducer extends AbstractTestConfigurationProduce
     }
     Some(ClassWithTestName(testClassDef, testName))
   }
+}
+
+object Specs2ConfigurationProducer {
+
+  @deprecated("use `apply` instead", "2020.3")
+  def instance: Specs2ConfigurationProducer = apply()
+
+  def apply(): Specs2ConfigurationProducer =
+    RunConfigurationProducer.EP_NAME.findExtensionOrFail(classOf[Specs2ConfigurationProducer])
 }

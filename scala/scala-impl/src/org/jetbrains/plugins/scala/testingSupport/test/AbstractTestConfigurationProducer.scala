@@ -5,13 +5,15 @@ import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromCo
 import com.intellij.execution.configurations.RunConfigurationBase
 import com.intellij.execution.testframework.AbstractJavaTestConfigurationProducer
 import com.intellij.execution.{JavaRunConfigurationExtensionManager, Location, RunManager, RunnerAndConfigurationSettings}
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.util.Ref
+import com.intellij.openapi.util.{NlsSafe, Ref}
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt}
+import org.jetbrains.annotations.TestOnly
+import org.jetbrains.plugins.scala.extensions.{LoggerExt, ObjectExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project.ModuleExt
@@ -31,7 +33,8 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
   private def hasTestSuitesInModuleDependencies(module: Module): Boolean = {
     val scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module, true)
     val psiManager = ScalaPsiManager.instance(module.getProject)
-    suitePaths.exists(psiManager.getCachedClass(scope, _).isDefined)
+    val exists = suitePaths.exists(psiManager.getCachedClass(scope, _).isDefined)
+    exists
   }
 
   override def setupConfigurationFromContext(
@@ -39,26 +42,37 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
     context: ConfigurationContext,
     sourceElement: Ref[PsiElement]
   ): Boolean = {
-    val contextLocation = context.getLocation
-    val contextModule = contextLocation.getModule //context.getModule
+    Log.traceSafe(
+      s"setupConfigurationFromContext start:" +
+        s" ${Option(sourceElement.get()).map(el => {el.toString + ", " + el.getText}).orNull}"
+    )
 
-    if (contextLocation == null || contextModule == null) false
-    else if (sourceElement.isNull) false
-    else if (!hasTestSuitesInModuleDependencies(contextModule)) false
-    else {
-      val maybeTuple = createConfigurationFromContextLocation(contextLocation)
-      maybeTuple.fold(false) { case (testElement, confSettings) =>
-        val config = confSettings.getConfiguration.asInstanceOf[T]
-        // TODO: should we really check it for configuration (the one we should setup) and not for config (just created)?
-        if (isRunPossibleFor(configuration, testElement, config.getModule)) {
-          sourceElement.set(testElement)
-          configuration.initFrom(config)
-          true
-        }
-        else false
-      }
+    val elementWithConfSettings = for {
+      contextLocation <- Option(context.getLocation).toRight("context location is empty")
+      contextModule   <- Option(contextLocation.getModule).toRight("context module is empty")
+      _               <- ensure(!sourceElement.isNull, "source element is empty")
+      _               <- ensure(hasTestSuitesInModuleDependencies(contextModule), "context module doesn't contain any test dependencies")
+      elementWithConf <- createConfigurationFromContextLocation(contextLocation)
+
+      (testElement, confSettings) = elementWithConf
+      config = confSettings.getConfiguration.asInstanceOf[T]
+      _ <- ensure(isRunPossibleFor(config, testElement), "run is impossible")
+    } yield (testElement, config)
+
+    elementWithConfSettings match {
+      case Left(failureReason)  =>
+        Log.traceSafe(s"setupConfigurationFromContext failed: $failureReason")
+        false
+      case Right((testElement, config)) =>
+        Log.traceSafe(s"setupConfigurationFromContext end: ${config.getName}")
+        sourceElement.set(testElement)
+        configuration.initFrom(config)
+        true
     }
   }
+
+  private def ensure(bool: Boolean, errorMessage: => String): Either[String, ()] =
+    if (bool) Right(()) else Left(errorMessage)
 
   private def extendCreatedConfiguration(configuration: RunConfigurationBase[_], location: PsiElementLocation): Unit = {
     val instance = JavaRunConfigurationExtensionManager.getInstance
@@ -68,11 +82,12 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
   /**
    * @return element ~ test class OR test package OR test directory
    */
+  @TestOnly
   def createConfigurationFromContextLocation(
     location: PsiElementLocation
-  ): Option[(PsiElement, RunnerAndConfigurationSettings)] = {
+  ): Either[String, (PsiElement, RunnerAndConfigurationSettings)] =
     for {
-      contextInfo <- getContextInfo(location)
+      contextInfo <- getContextInfo(location).toRight("couldn't prepare context info")
     } yield {
       val displayName = configurationName(contextInfo)
       val settings = RunManager.getInstance(location.getProject).createConfiguration(displayName, getConfigurationFactory)
@@ -100,8 +115,8 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
       }
       (element, settings)
     }
-  }
 
+  @NlsSafe
   protected def configurationName(contextInfo: CreateFromContextInfo): String
 
   protected def getContextInfo(location: PsiElementLocation): Option[CreateFromContextInfo] = {
@@ -149,10 +164,11 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
    *
    * @param testElement test class OR package OR directory
    */
-  private def isRunPossibleFor(configuration: T, testElement: PsiElement, module: Module): Boolean =
+  private def isRunPossibleFor(configuration: T, testElement: PsiElement): Boolean =
     testElement match {
-      case cl: PsiClass if hasTestSuitesInModuleDependencies(module) =>
-        configuration.isValidSuite(cl) || {
+      case cl: PsiClass if hasTestSuitesInModuleDependencies(configuration.getModule) =>
+        val isValidSuite = configuration.isValidSuite(cl)
+        isValidSuite || {
           // TODO: check with debugger: this shouldn't be true if previous is false cause in previous check we already checked inheritors?
           //  plus this seems to be not the optimal, cause inside configuration.isValidSuite we do quite a lot of job
           ClassInheritorsSearch.search(cl).asScala.exists(configuration.isValidSuite)
@@ -217,6 +233,8 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
 }
 
 object AbstractTestConfigurationProducer {
+
+  private final val Log: Logger = Logger.getInstance(classOf[AbstractTestConfigurationProducer[_]])
 
   // do not display backticks in test class/package name
   private def sanitize(qualifiedName: String): String = qualifiedName.replace("`", "")

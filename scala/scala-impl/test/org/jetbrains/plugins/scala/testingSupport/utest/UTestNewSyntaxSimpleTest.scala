@@ -32,14 +32,14 @@ trait UTestNewSyntaxSimpleTest extends UTestTestCase {
        |}
        |""".stripMargin.trim())
 
-  protected val inner2_1Path = List("[root]", uTestTestName, "tests", "outer2", "inner2_1")
-  protected val outer1_Path = List("[root]", uTestTestName, "tests", "outer1")
-  protected val sameNamePath = List("[root]", uTestTestName, "tests", "sameName", "sameName")
-  protected val inner1_1Path = List("[root]", uTestTestName, "otherTests", "outer1", "inner1_1")
-  protected val failedPath = List("[root]", uTestTestName, "tests", "failed")
+  protected val inner2_1Path = TestNodePath("[root]", uTestTestName, "tests", "outer2", "inner2_1")
+  protected val outer1_Path = TestNodePath("[root]", uTestTestName, "tests", "outer1")
+  protected val sameNamePath = TestNodePath("[root]", uTestTestName, "tests", "sameName", "sameName")
+  protected val inner1_1Path = TestNodePath("[root]", uTestTestName, "otherTests", "outer1", "inner1_1")
+  protected val failedPath = TestNodePath("[root]", uTestTestName, "tests", "failed")
 
   def testClassSuite(): Unit =
-    runTestByLocation2(2, 3, uTestFileName,
+    runTestByLocation(loc(uTestFileName, 2, 3),
       assertConfigAndSettings(_, uTestTestName),
       root => assertResultTreeHasExactNamedPaths(root)(Seq(
         outer1_Path,
@@ -50,7 +50,7 @@ trait UTestNewSyntaxSimpleTest extends UTestTestCase {
     )
 
   def testSingleTest(): Unit = {
-    runTestByLocation2(8, 15, uTestFileName,
+    runTestByLocation(loc(uTestFileName, 8, 15),
       assertConfigAndSettings(_, uTestTestName, "tests\\outer2\\inner2_1"),
       root => {
         assertResultTreeHasExactNamedPaths(root)(Seq(inner2_1Path))
@@ -63,22 +63,26 @@ trait UTestNewSyntaxSimpleTest extends UTestTestCase {
   }
 
   def testSameName(): Unit = {
-    runTestByLocation2(14, 15, uTestFileName,
+    runTestByLocation(loc(uTestFileName, 14, 15),
       assertConfigAndSettings(_, uTestTestName, "tests\\sameName\\sameName"),
       root => assertResultTreeHasExactNamedPath(root, sameNamePath))
   }
 
-  def testGoToSourceSuccessful(): Unit = {
-    runGoToSourceTest(3, 7, uTestFileName,
+  def testGoToSourceSuccessful(): Unit =
+    runGoToSourceTest(
+      loc(uTestFileName, 3, 7),
       assertConfigAndSettings(_, uTestTestName, "tests"),
-      List("[root]", uTestTestName, "tests"), 3)
-  }
+      TestNodePath("[root]", uTestTestName, "tests"),
+      sourceLine = 3
+    )
 
-  def testGoToSourceFailed(): Unit = {
-    runGoToSourceTest(18, 10, uTestFileName,
+  def testGoToSourceFailed(): Unit =
+    runGoToSourceTest(
+      loc(uTestFileName, 18, 10),
       assertConfigAndSettings(_, uTestTestName, "tests\\failed"),
-      failedPath, 3)
-  }
+      failedPath,
+      sourceLine = 3
+    )
 
   def testFileStructureView(): Unit = {
     // FIXME
@@ -119,14 +123,14 @@ trait UTestNewSyntaxSimpleTest extends UTestTestCase {
        |""".stripMargin.trim())
 
   def testFailing(): Unit =
-    runTestByLocation2(4, 10, uTestFileName1,
+    runTestByLocation(loc(uTestFileName1, 4, 10),
       assertConfigAndSettings(_, uTestTestName1, "tests\\test1"),
-      root => assertResultTreeHasExactNamedPath(root, List("[root]", uTestTestName1, "tests", "test1"))
+      root => assertResultTreeHasExactNamedPath(root, TestNodePath("[root]", uTestTestName1, "tests", "test1"))
     )
 
   def testFailingWithNullMessage(): Unit =
-    runTestByLocation2(7, 10, uTestFileName1,
+    runTestByLocation(loc(uTestFileName1, 7, 10),
       assertConfigAndSettings(_, uTestTestName1, "tests\\test2"),
-      root => assertResultTreeHasExactNamedPath(root, List("[root]", uTestTestName1, "tests", "test2"))
+      root => assertResultTreeHasExactNamedPath(root, TestNodePath("[root]", uTestTestName1, "tests", "test2"))
     )
 }

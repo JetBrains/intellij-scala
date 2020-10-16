@@ -25,7 +25,8 @@ abstract class ExtendWordSelectionHandlerTestBase extends BasePlatformTestCase {
         myFixture.checkResult(text.withNormalizedSeparator)
       } catch {
         case error: java.lang.AssertionError =>
-          System.err.println(s"## Test failed at step: $idx ##")
+          // + 1 cause `0` state is the initial text
+          System.err.println(s"## Test failed at step: ${idx + 1} ##")
           throw error
       }
     }

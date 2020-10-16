@@ -15,11 +15,11 @@ trait WordSpecGenerator extends ScalaTestTestCase {
        |class $wordSpecClassName extends WordSpec {
        |  "WordSpecTest" should {
        |    "Run single test" in {
-       |      print(">>TEST: OK<<")
+       |      print("$TestOutputPrefix OK $TestOutputSuffix")
        |    }
        |
        |    "ignore other tests" in {
-       |      print(">>TEST: FAILED<<")
+       |      print("$TestOutputPrefix FAILED $TestOutputSuffix")
        |    }
        |  }
        |

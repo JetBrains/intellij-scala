@@ -9,3 +9,8 @@ case class PsiLocationWithName[T <: PsiElement](
   element: T,
   name: String
 ) extends PsiLocation[T](project, element)
+
+object PsiLocationWithName {
+  def apply[T <: PsiElement](element: T, name: String): PsiLocationWithName[T] =
+    new PsiLocationWithName(element.getProject, element, name)
+}

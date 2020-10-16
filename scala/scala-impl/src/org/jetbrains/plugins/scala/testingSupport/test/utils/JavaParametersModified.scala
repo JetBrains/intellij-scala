@@ -12,8 +12,10 @@ import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
 import scala.jdk.CollectionConverters._
 
 /**
- * (Hacky) Helper class needed to skip build-modules classpath during tests run.
- * E.g. sbt build project can contain Scala runtime with a different library version.
+ * (Hacky) Helper class needed to skip "build modules" classpath during tests run.
+ * Example of "build module" is module created for sbt `project` folders (see any sbt project structure)
+ * Such modules can contain Scala runtime libraries with version different from project version.
+ * E.g. if you use sbt 1.3.x and scala 2.13.3, "build module" will use scala 2.12.x anyway
  */
 private[test] class JavaParametersModified extends JavaParameters {
 

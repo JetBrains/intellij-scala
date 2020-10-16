@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.FreeSpecG
 trait FreeSpecScopeTest extends FreeSpecGenerator {
 
   def testFreeSpecEmptyScope(): Unit = {
-    assertConfigAndSettings(createTestFromLocation(31, 7, complexFreeSpecFileName), complexFreeSpecClassName)
+    assertConfigAndSettings(createTestCaretLocation(31, 7, complexFreeSpecFileName), complexFreeSpecClassName)
   }
 
   def testFreeSpecScope(): Unit = {
@@ -13,10 +13,10 @@ trait FreeSpecScopeTest extends FreeSpecGenerator {
       "A ComplexFreeSpec Outer scope 2 Inner scope 2 Another innermost scope",
       "A ComplexFreeSpec Outer scope 2 Inner test"
     )
-    val path1 = List("[root]", complexFreeSpecClassName, "A ComplexFreeSpec", "Outer scope 2", "Inner scope 2", "Another innermost scope")
-    val path2 = List("[root]", complexFreeSpecClassName, "A ComplexFreeSpec", "Outer scope 2", "Inner test")
-    runTestByLocation2(
-      10, 10, complexFreeSpecFileName,
+    val path1 = TestNodePath("[root]", complexFreeSpecClassName, "A ComplexFreeSpec", "Outer scope 2", "Inner scope 2", "Another innermost scope")
+    val path2 = TestNodePath("[root]", complexFreeSpecClassName, "A ComplexFreeSpec", "Outer scope 2", "Inner test")
+    runTestByLocation(
+      loc(complexFreeSpecFileName, 10, 10),
       assertConfigAndSettings(_, complexFreeSpecClassName, testNames:_*),
       root => {
         assertResultTreeHasExactNamedPaths(root)(Seq(
