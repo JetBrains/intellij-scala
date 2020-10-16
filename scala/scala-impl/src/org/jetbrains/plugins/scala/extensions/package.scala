@@ -1495,6 +1495,10 @@ package object extensions {
         elem.withNextSiblings
     }
 
+    def hasOnlyStub: Boolean = element match {
+      case st: StubBasedPsiElementBase[_] => st.getStub != null
+      case _ => false
+    }
   }
 
   def using[A <: Closeable, R](resource: A)(block: A => R): R = {

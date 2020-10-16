@@ -176,7 +176,7 @@ object FileDeclarationsHolder {
       case s: ScalaPsiElement => s.getDeepSameElementInContext
       case _ => _place
     }
-    if (place == null) return false
+    if (place == null || place.hasOnlyStub) return false
 
     place.getContainingFile match {
       case scalaFile: ScalaFile if scalaFile.isWorksheetFile => true
