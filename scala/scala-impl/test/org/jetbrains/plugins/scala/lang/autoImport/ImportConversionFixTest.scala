@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.autoImport
 
-import org.jetbrains.plugins.scala.autoImport.quickFix.ImportImplicitConversionFix
+import org.jetbrains.plugins.scala.autoImport.quickFix.ImportImplicitConversionFixes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
@@ -8,7 +8,7 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
   //conversions from standard library may be different in older versions
   override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_2_13
 
-  override def createFix(ref: ScReferenceExpression) = ImportImplicitConversionFix(ref).find(_.elements.nonEmpty)
+  override def createFix(ref: ScReferenceExpression) = ImportImplicitConversionFixes(ref).find(_.elements.nonEmpty)
 
   def testAsJavaCollection(): Unit = checkElementsToImport(
     s"""object Test {

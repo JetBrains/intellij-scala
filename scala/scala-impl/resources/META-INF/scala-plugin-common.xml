@@ -54,7 +54,7 @@
         <genericTypeNamesProvider
                 implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.TupleTypeNamesProvider"/>
 
-        <unresolvedReferenceFixProvider implementation="org.jetbrains.plugins.scala.autoImport.quickFix.ImportImplicitConversionFix$Provider"/>
+        <unresolvedReferenceFixProvider implementation="org.jetbrains.plugins.scala.autoImport.quickFix.ImportImplicitConversionFixes$Provider"/>
         <unresolvedReferenceFixProvider implementation="org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportGlobalMemberFix$Provider"/>
     </extensions>
 

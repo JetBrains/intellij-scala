@@ -6,7 +6,6 @@ import com.intellij.psi.{PsiDocCommentOwner, PsiNamedElement}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
 import org.jetbrains.plugins.scala.autoImport.GlobalImplicitConversion
-import org.jetbrains.plugins.scala.autoImport.quickFix.ImportImplicitConversionFix.ConversionToImportComputation
 import org.jetbrains.plugins.scala.extensions.{ChildOf, ObjectExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.isInExcludedPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScReference}
@@ -44,61 +43,49 @@ class ImportImplicitConversionFix private (ref: ScReferenceExpression,
     super.shouldShowHint() && ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_CONVERSIONS
 }
 
-object ImportImplicitConversionFix {
+private object ImportImplicitConversionFix {
+  def apply(ref: ScReferenceExpression, computation: ConversionToImportComputation): ImportImplicitConversionFix =
+    new ImportImplicitConversionFix(ref, computation)
+}
 
-  final class Provider extends UnresolvedReferenceFixProvider {
-    override def fixesFor(reference: ScReference): Seq[IntentionAction] =
-      reference match {
-        case refExpr: ScReferenceExpression if refExpr.isQualified                                  => ImportImplicitConversionFix(refExpr)
-        case ChildOf(ScSugarCallExpr(_, refExpr: ScReferenceExpression, _)) if refExpr == reference => ImportImplicitConversionFix(refExpr)
-        case _ => Nil
-      }
-  }
+private class ConversionToImportComputation(ref: ScReferenceExpression) {
+  private case class Result(conversions: Seq[MemberToImport], missingInstances: Seq[ScalaResolveResult])
 
-  private class ConversionToImportComputation(ref: ScReferenceExpression) {
-    private case class Result(conversions: Seq[MemberToImport], missingInstances: Seq[ScalaResolveResult])
+  private lazy val result: Result = {
+    val visible =
+      (for {
+        result <- ImplicitCollector.visibleImplicits(ref)
+        fun    <- result.element.asOptionOf[ScFunction]
+        if fun.isImplicitConversion
+      } yield fun)
+        .toSet
 
-    private lazy val result: Result = {
-      val visible =
-        (for {
-          result <- ImplicitCollector.visibleImplicits(ref)
-          fun    <- result.element.asOptionOf[ScFunction]
-          if fun.isImplicitConversion
-        } yield fun)
-          .toSet
+    val conversionsToImport = ArrayBuffer.empty[GlobalImplicitConversion]
+    val notFoundImplicits = ArrayBuffer.empty[ScalaResolveResult]
 
-      val conversionsToImport = ArrayBuffer.empty[GlobalImplicitConversion]
-      val notFoundImplicits = ArrayBuffer.empty[ScalaResolveResult]
+    for {
+      qualifier                 <- qualifier(ref).toSeq
+      (conversion, application) <- ImplicitConversionData.getPossibleConversions(qualifier).toSeq
 
-      for {
-        qualifier                 <- qualifier(ref).toSeq
-        (conversion, application) <- ImplicitConversionData.getPossibleConversions(qualifier).toSeq
+      if !isInExcludedPackage(conversion.pathToOwner, ref.getProject) &&
+        CompletionProcessor.variantsWithName(application.resultType, qualifier, ref.refName).nonEmpty
 
-        if !isInExcludedPackage(conversion.pathToOwner, ref.getProject) &&
-          CompletionProcessor.variantsWithName(application.resultType, qualifier, ref.refName).nonEmpty
+    } {
+      val notFoundImplicitParameters = application.implicitParameters.filter(_.isNotFoundImplicitParameter)
 
-      } {
-        val notFoundImplicitParameters = application.implicitParameters.filter(_.isNotFoundImplicitParameter)
-
-        if (visible.contains(conversion.function))
-          notFoundImplicits ++= notFoundImplicitParameters
-        else if (mayFindImplicits(notFoundImplicitParameters, qualifier))
-          conversionsToImport += conversion
-      }
-
-      val sortedConversions = conversionsToImport.sortBy(c => (isDeprecated(c), c.qualifiedName)).toSeq
-
-      Result(sortedConversions.map(f => MemberToImport(f.member, f.owner, f.pathToOwner)), notFoundImplicits.toSeq)
+      if (visible.contains(conversion.function))
+        notFoundImplicits ++= notFoundImplicitParameters
+      else if (mayFindImplicits(notFoundImplicitParameters, qualifier))
+        conversionsToImport += conversion
     }
 
-    def conversions: Seq[MemberToImport] = result.conversions
-    def missingImplicits: Seq[ScalaResolveResult] = result.missingInstances
+    val sortedConversions = conversionsToImport.sortBy(c => (isDeprecated(c), c.qualifiedName)).toSeq
+
+    Result(sortedConversions.map(f => MemberToImport(f.member, f.owner, f.pathToOwner)), notFoundImplicits.toSeq)
   }
 
-  def apply(ref: ScReferenceExpression): Seq[ScalaImportElementFix[_ <: ElementToImport]] = {
-    val computation = new ConversionToImportComputation(ref)
-    Seq(new ImportImplicitConversionFix(ref, computation), ImportImplicitInstanceFix(() => computation.missingImplicits, ref))
-  }
+  def conversions: Seq[MemberToImport] = result.conversions
+  def missingImplicits: Seq[ScalaResolveResult] = result.missingInstances
 
   private def qualifier(ref: ScReferenceExpression): Option[ScExpression] = ref match {
     case prefix: ScInterpolatedExpressionPrefix =>
@@ -123,4 +110,21 @@ object ImportImplicitConversionFix {
   private def mayFindImplicits(notFoundImplicitParameters: Seq[ScalaResolveResult],
                                owner: ScExpression): Boolean =
     notFoundImplicitParameters.isEmpty || ImportImplicitInstanceFix.implicitsToImport(notFoundImplicitParameters, owner).nonEmpty
+}
+
+object ImportImplicitConversionFixes {
+
+  final class Provider extends UnresolvedReferenceFixProvider {
+    override def fixesFor(reference: ScReference): Seq[IntentionAction] =
+      reference match {
+        case refExpr: ScReferenceExpression if refExpr.isQualified                                  => ImportImplicitConversionFixes(refExpr)
+        case ChildOf(ScSugarCallExpr(_, refExpr: ScReferenceExpression, _)) if refExpr == reference => ImportImplicitConversionFixes(refExpr)
+        case _ => Nil
+      }
+  }
+
+  def apply(ref: ScReferenceExpression): Seq[ScalaImportElementFix[_ <: ElementToImport]] = {
+    val computation = new ConversionToImportComputation(ref)
+    Seq(ImportImplicitConversionFix(ref, computation), ImportImplicitInstanceFix(() => computation.missingImplicits, ref))
+  }
 }
