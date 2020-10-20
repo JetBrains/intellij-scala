@@ -47,7 +47,6 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
   private boolean SHOW_ARGUMENTS_TO_BY_NAME_PARAMETERS = false;
   private boolean INCLUDE_BLOCK_EXPRESSIONS = false;
   private boolean INCLUDE_LITERALS = false;
-  private boolean IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES = false;
 
   private boolean CUSTOM_SCALATEST_SYNTAX_HIGHLIGHTING = false;
 
@@ -267,14 +266,6 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
 
   public void setIncludeLiterals(boolean value) {
     INCLUDE_LITERALS = value;
-  }
-
-  public boolean isIgnorePerformance() {
-    return IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES;
-  }
-
-  public void setIgnorePerformance(boolean value) {
-    IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES = value;
   }
 
   public boolean isTreatDocCommentAsBlockComment() {

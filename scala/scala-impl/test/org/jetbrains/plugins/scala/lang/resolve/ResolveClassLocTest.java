@@ -14,16 +14,10 @@ public class ResolveClassLocTest extends ScalaResolveTestCase {
     return super.folderPath() + "resolve/class/loc/";
   }
 
-  public void testMyClass() throws Exception {
-    try {
-      ScalaProjectSettings.getInstance(getProjectAdapter()).setIgnorePerformance(true);
-      PsiReference ref = findReferenceAtCaret();
-      PsiElement resolved = ref.resolve();
-      assertTrue(resolved instanceof ScTrait);
-      assertEquals(((ScTrait) resolved).qualifiedName(), "org.MyTrait");
-    }
-    finally {
-      ScalaProjectSettings.getInstance(getProjectAdapter()).setIgnorePerformance(false);
-    }
+  public void testMyClass() {
+    PsiReference ref = findReferenceAtCaret();
+    PsiElement resolved = ref.resolve();
+    assertTrue(resolved instanceof ScTrait);
+    assertEquals(((ScTrait) resolved).qualifiedName(), "org.MyTrait");
   }
 }

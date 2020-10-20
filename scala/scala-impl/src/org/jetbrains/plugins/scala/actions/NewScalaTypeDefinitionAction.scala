@@ -17,7 +17,7 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -63,6 +63,15 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
         if (inputString.length > 0 && !ScalaNamesUtil.isQualifiedName(inputString)) {
           return ScalaBundle.message("this.is.not.a.valid.scala.qualified.name")
         }
+
+        // Specifically make sure that the input string doesn't repeat an existing package prefix (twice).
+        // Technically, "org.example.application.org.example.application.Main" is not an error, but most likely it's so (and there's no way to display a warning).
+        for (sourceFolder <- Option(ProjectRootManager.getInstance(project).getFileIndex.getSourceFolder(directory.getVirtualFile));
+             packagePrefix = sourceFolder.getPackagePrefix if !packagePrefix.isEmpty
+             if (inputString + ".").startsWith(packagePrefix + ".")) {
+          return ScalaInspectionBundle.message("package.names.does.not.correspond.to.directory.structure.package.prefix", sourceFolder.getFile.getName, packagePrefix)
+        }
+
         null
       }
 

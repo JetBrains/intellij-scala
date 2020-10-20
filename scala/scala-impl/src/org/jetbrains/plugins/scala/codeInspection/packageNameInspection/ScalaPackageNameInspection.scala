@@ -3,6 +3,8 @@ package codeInspection
 package packageNameInspection
 
 import com.intellij.codeInspection._
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -40,10 +42,17 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
         }
 
         def problemDescriptors(buffer: Seq[LocalQuickFix]): Seq[ProblemDescriptor] = ranges.map { range =>
-          manager.createProblemDescriptor(file, range,
-            ScalaInspectionBundle.message("package.names.does.not.correspond.to.directory.structure"),
-            ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
-            isOnTheFly, buffer: _*)
+          var message = ScalaInspectionBundle.message("package.names.does.not.correspond.to.directory.structure", packName, pack.getQualifiedName)
+
+          // Specifically make sure that the file path doesn't repeat an existing package prefix (twice).
+          for (virtualFile <- Option(file.getVirtualFile);
+               sourceFolder <- Option(ProjectRootManager.getInstance(file.getProject).getFileIndex.getSourceFolder(virtualFile));
+               packagePrefix = sourceFolder.getPackagePrefix if !packagePrefix.isEmpty
+               if (pack.getQualifiedName + ".").startsWith(packagePrefix + "." + packagePrefix + ".")) {
+            message += "\n\n" + ScalaInspectionBundle.message("package.names.does.not.correspond.to.directory.structure.package.prefix", sourceFolder.getFile.getName, packagePrefix)
+          }
+
+          manager.createProblemDescriptor(file, range, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly, buffer: _*)
         }
 
         val expectedPackageName = file.typeDefinitions.head match {
@@ -54,13 +63,12 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
         }
 
         if (packName == null) {
-          val fixes = Seq(new EnablePerformanceProblemsQuickFix(file.getProject))
+          val fixes = Seq.empty[LocalQuickFix]
           problemDescriptors(fixes).toArray
         } else if (packName != expectedPackageName) {
           val fixes = Seq(
             new ScalaRenamePackageQuickFix(file, expectedPackageName),
-            new ScalaMoveToPackageQuickFix(file, packName),
-            new EnablePerformanceProblemsQuickFix(file.getProject))
+            new ScalaMoveToPackageQuickFix(file, packName))
 
           problemDescriptors(fixes).toArray
         } else null

@@ -757,7 +757,7 @@
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.package.name.inspection"
                          groupPath="Scala" groupKey="group.general" id="ScalaPackageName"
-                         shortName="ScalaPackageName" level="WARNING" enabledByDefault="true" language="Scala"/>
+                         shortName="ScalaPackageName" level="ERROR" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.deprecation.ScalaDeprecationInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.scala.deprecation"
@@ -1862,6 +1862,9 @@
                 class="org.jetbrains.plugins.scala.actions.internal.ScalaCollectShortTroubleshootingInfoAction">
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt shift P"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl alt shift P"/>
+        </action>
+        <action id="Scala.EditPackagePrefix" class="org.jetbrains.plugins.scala.actions.EditPackagePrefixAction">
+            <add-to-group group-id="ProjectViewPopupMenuSettingsGroup" relative-to-action="MarkRootGroup" anchor="after"/>
         </action>
     </actions>
 </idea-plugin>

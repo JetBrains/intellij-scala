@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScPostfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -22,6 +23,11 @@ import scala.jdk.CollectionConverters._
  * 2014-03-20
  */
 object ImportMembersUtil {
+  def isPackagingName(element: PsiElement): Boolean = element match {
+    case Parent(packaging: ScPackaging) => packaging.reference.contains(element)
+    case _ => false
+  }
+
   def isInImport(element: PsiElement): Boolean = PsiTreeUtil.getParentOfType(element, classOf[ScImportExpr]) != null
 
   def hasQualifier(ref: ScReference): Boolean = {
