@@ -113,6 +113,7 @@ public class AttachIntellijSourcesAction extends AnAction {
                 .stream(PackageIndex.getInstance(project).getDirectoriesByPackageName("com.intellij", false))
                 .flatMap(file -> getLibraryOrderEntries(project, file))
                 .filter(AttachIntellijSourcesAction::isSourceless)
+                .limit(1)          // only take the first matching library, this should be enough
                 .collect(Collectors.toSet());
     }
 
