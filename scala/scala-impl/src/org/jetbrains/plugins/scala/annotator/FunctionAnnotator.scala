@@ -4,9 +4,7 @@ package annotator
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.shouldIgnoreTypeMismatchIn
+import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.annotator.quickfix._
 import org.jetbrains.plugins.scala.extensions.{&&, Parent}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
@@ -14,10 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypesExt
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, ScTypesExt}
 
 /**
   * Pavel.Fatin, 18.05.2010
@@ -72,73 +69,29 @@ trait FunctionAnnotator {
             } yield holder.createErrorAnnotation(target, ScalaBundle.message("recursive.call.not.in.tail.position"))
         }
 
-        annotations.foreach {
-          _.registerFix(quickFix)
-        }
+        annotations.foreach(_.registerFix(quickFix))
       }
     }
 
-    for {
-      functionType <- function.returnType
-      returnUsages = function.returnUsages
-      usage <- returnUsages
-      usageType <- typeOf(usage)
-    } {
+    val returnUsages = function.returnUsages
 
-      val explicitType = function.hasExplicitType
-      val unitType = functionType == Unit
-
-      val hasAssign = function.hasAssign
-      val unitFunction = !hasAssign || unitType
-
+    for (usage <- returnUsages) {
+      val explicitType   = function.hasExplicitType
+      val hasAssign      = function.hasAssign
       val explicitReturn = usage.isInstanceOf[ScReturn]
-      val emptyReturn = explicitReturn && usage.asInstanceOf[ScReturn].expr.isEmpty
-      val anyReturn = usageType.isAny
-      val underCatchBlock = usage.getContext.isInstanceOf[ScCatchBlock]
 
-      if (explicitReturn && hasAssign && !explicitType) {
-        needsTypeAnnotation()
-      } else if (unitFunction && explicitReturn && !emptyReturn) {
-        redundantReturnExpression()
-      } else if (!unitFunction && !anyReturn && !underCatchBlock && !usageType.conforms(functionType)) {
-        typeMismatch()
-      }
+      if (explicitReturn && hasAssign && !explicitType) needsTypeAnnotation()
 
       def needsTypeAnnotation(): Unit = {
         val message = ScalaBundle.message("function.must.define.type.explicitly", function.name)
         val returnTypes = returnUsages.collect {
-          case retStmt: ScReturn => retStmt.expr.flatMap(_.`type`().toOption).getOrElse(Any)
+          case retStmt: ScReturn  => retStmt.expr.flatMap(_.`type`().toOption).getOrElse(Any)
           case expr: ScExpression => expr.`type`().getOrAny
         }
         val annotation = holder.createErrorAnnotation(usage.asInstanceOf[ScReturn].keyword, message)
         annotation.registerFix(new AddReturnTypeFix(function, returnTypes.toSeq.lub()))
       }
-
-      def redundantReturnExpression(): ScalaAnnotation = {
-        val message = ScalaBundle.message("return.expression.is.redundant", usageType.presentableText(usage))
-        holder.createWarningAnnotation(usage.asInstanceOf[ScReturn].expr.get, message)
-      }
-
-      def typeMismatch(): Unit = {
-        if (typeAware) {
-          val returnExpression = if (explicitReturn) usage.asInstanceOf[ScReturn].expr else None
-          val expression = returnExpression.getOrElse(usage)
-          if (!ScMethodType.hasMethodType(expression) && !shouldIgnoreTypeMismatchIn(expression)) {
-            TypeMismatchError.register(expression, functionType, usageType, blockLevel = 1) { (expected, actual) =>
-              ScalaBundle.message("type.mismatch.found.required", actual, expected)
-            }
-          }
-        }
-      }
     }
-  }
-
-  private def typeOf(element: PsiElement) = (element match {
-    case returnStmt: ScReturn => (returnStmt.expr, Unit)
-    case _ => (Some(element), Any)
-  }) match {
-    case (Some(expression: ScExpression), _) => expression.getTypeAfterImplicitConversion().tr
-    case (_, default) => Right(default)
   }
 }
 
@@ -175,5 +128,5 @@ object FunctionAnnotator {
 
     override def startInWriteAction = true
   }
-
 }
+
