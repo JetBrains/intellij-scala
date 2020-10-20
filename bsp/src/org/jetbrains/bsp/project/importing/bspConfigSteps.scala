@@ -199,7 +199,7 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
       else chooseBspSetup.getSelectedIndex
 
     runSetupTask =
-      if (configSetupChoices.size > configIndex && configIndex > 0)
+      if (configSetupChoices.size > configIndex && configIndex >= 0)
         configureBuilder(builder, setupTaskWorkspace, configSetupChoices(configIndex))
       else NoConfigSetup
   }
