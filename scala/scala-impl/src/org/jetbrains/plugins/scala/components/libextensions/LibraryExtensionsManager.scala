@@ -26,7 +26,9 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.project.module.SbtModule
 import org.jetbrains.sbt.resolvers.SbtResolver
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
+import scala.reflect.ClassTag
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try, Using}
 import scala.xml.factory.XMLLoader
@@ -191,8 +193,8 @@ final class LibraryExtensionsManager(project: Project) {
     }
   }
 
-  def getExtensions[T](iface: Class[T]): Seq[T] = {
-    myExtensionInstances.getOrElse(iface, Seq.empty).asInstanceOf[Seq[T]]
+  def getExtensions[T](implicit tag: ClassTag[T]): Seq[T] = {
+    myExtensionInstances.get(tag.runtimeClass).fold(Seq.empty[T])(_.to(ArraySeq).asInstanceOf[Seq[T]])
   }
 
   def removeExtension(jarData: ExtensionJarData): Unit = {

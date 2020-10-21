@@ -43,8 +43,7 @@ class ScalaMacroEvaluator(project: Project) {
   private def expansionRules: Map[MacroImpl, ScalaMacroExpandable]  = loadRules(defaultExprProviders)
 
   private def loadRules[T <: ScalaMacroBound](defaults: Seq[T])(implicit tag: ClassTag[T]) : Map[MacroImpl, T] = {
-    val external = LibraryExtensionsManager.getInstance(project)
-      .getExtensions(tag.runtimeClass).asInstanceOf[Seq[T]]
+    val external = LibraryExtensionsManager.getInstance(project).getExtensions[T]
     defaults.flatMap(p => p.boundMacro.map(_ -> p)).toMap ++
       external.flatMap(p => p.boundMacro.map(_ -> p)).toMap
   }

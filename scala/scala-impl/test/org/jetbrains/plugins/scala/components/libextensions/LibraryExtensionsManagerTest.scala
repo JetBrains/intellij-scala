@@ -19,26 +19,26 @@ class LibraryExtensionsManagerTest extends SimpleTestCase {
 
   def testLoadFromJar(): Unit = {
     loadExtensions()
-    assertEquals(s"No extension loaded from $jarPath", 3, manager.getExtensions(classOf[Inspection]).size)
+    assertEquals(s"No extension loaded from $jarPath", 3, manager.getExtensions[Inspection].size)
   }
 
   def testIdeaVersionFiltering(): Unit = {
     loadExtensions()
-    val extensions = manager.getExtensions(classOf[Inspection])
+    val extensions = manager.getExtensions[Inspection]
     assertFalse("Extension from outdated IDEA build has been loaded",
       extensions.exists(_.getClass.getSimpleName == "TestInspectionE"))
   }
 
   def testPluginIdFiltering(): Unit = {
     loadExtensions()
-    val extensions = manager.getExtensions(classOf[Inspection])
+    val extensions = manager.getExtensions[Inspection]
     assertFalse("Extension for non-existing plugin has been loaded",
       extensions.exists(_.getClass.getSimpleName == "TestInspectionC"))
   }
 
   def testExplicitScalaExtension(): Unit = {
     loadExtensions()
-    val extensions = manager.getExtensions(classOf[Inspection])
+    val extensions = manager.getExtensions[Inspection]
     assertTrue("Extension for non-existing plugin has been loaded",
       extensions.exists(_.getClass.getSimpleName == "TestInspectionD"))
   }
