@@ -34,7 +34,7 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
 import scala.collection.{immutable, mutable}
-import scala.collection.immutable.ArraySeq
+import scala.collection.immutable.{ArraySeq, SeqMap}
 import scala.jdk.CollectionConverters._
 
 abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor[T]) {
@@ -80,7 +80,7 @@ abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor
 
 object MixinNodes {
 
-  private case class SuperTypesData(substitutors: immutable.Map[PsiClass, ScSubstitutor], refinements: Seq[ScCompoundType])
+  private case class SuperTypesData(substitutors: SeqMap[PsiClass, ScSubstitutor], refinements: Seq[ScCompoundType])
 
   private object SuperTypesData {
 
@@ -105,7 +105,7 @@ object MixinNodes {
     }
 
     private def apply(superTypes: Seq[ScType], thisTypeSubst: ScSubstitutor): SuperTypesData = {
-      val substitutorsBuilder = Map.newBuilder[PsiClass, ScSubstitutor]
+      val substitutorsBuilder = SeqMap.newBuilder[PsiClass, ScSubstitutor]
       val refinementsBuilder = List.newBuilder[ScCompoundType]
 
       for (superType <- superTypes) {
