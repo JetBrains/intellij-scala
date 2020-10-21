@@ -14,6 +14,6 @@ case class CompilationData(sources: Seq[File],
                            javaOptions: Seq[String],
                            order: CompileOrder,
                            cacheFile: File,
-                           outputToCacheMap: collection.Map[File, File],
+                           outputToCacheMap: Map[File, File],
                            outputGroups: Seq[(File, File)],
                            zincData: ZincData)

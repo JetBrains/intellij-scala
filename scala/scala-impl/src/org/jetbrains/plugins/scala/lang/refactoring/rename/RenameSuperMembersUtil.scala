@@ -89,7 +89,7 @@ object RenameSuperMembersUtil {
 
     val oneSuperClass = superMembers.size == 1
     val additional = if (oneSuperClass) Nil else List((renameAllMarker(element), null)) //option for rename all
-    val classesToNamed = collection.Map.newBuilder
+    val classesToNamed = Map.newBuilder
       .addAll(classes.zip(allElements))
       .addAll(additional)
       .result()

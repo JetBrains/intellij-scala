@@ -186,7 +186,7 @@ object ScalaTestFrameworkCommandLineState {
       .map(PathMacroManager.getInstance(module).expandPath)
       .get
 
-  private def expandEnvs(text: String, envs: scala.collection.Map[String, String]) =
+  private def expandEnvs(text: String, envs: collection.Map[String, String]) =
     envs.foldLeft(text) { case (text, (key, value)) =>
       StringUtil.replace(text, "$" + key + "$", value, false)
     }

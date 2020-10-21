@@ -33,7 +33,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
-import scala.collection.mutable
+import scala.collection.{immutable, mutable}
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 
@@ -80,7 +80,7 @@ abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor
 
 object MixinNodes {
 
-  private case class SuperTypesData(substitutors: collection.Map[PsiClass, ScSubstitutor], refinements: Seq[ScCompoundType])
+  private case class SuperTypesData(substitutors: immutable.Map[PsiClass, ScSubstitutor], refinements: Seq[ScCompoundType])
 
   private object SuperTypesData {
 
@@ -105,7 +105,7 @@ object MixinNodes {
     }
 
     private def apply(superTypes: Seq[ScType], thisTypeSubst: ScSubstitutor): SuperTypesData = {
-      val substitutors = mutable.LinkedHashMap.empty[PsiClass, ScSubstitutor]
+      val substitutorsBuilder = Map.newBuilder[PsiClass, ScSubstitutor]
       val refinementsBuilder = List.newBuilder[ScCompoundType]
 
       for (superType <- superTypes) {
@@ -117,7 +117,7 @@ object MixinNodes {
               case _ => ScSubstitutor.empty
             }
             val newSubst = combine(s, superClass).followed(thisTypeSubst).followed(dependentSubst)
-            substitutors.put(superClass, newSubst)
+            substitutorsBuilder += superClass -> newSubst
           case _ =>
             dealias(superType) match {
               case cp: ScCompoundType =>
@@ -126,7 +126,7 @@ object MixinNodes {
             }
         }
       }
-      SuperTypesData(substitutors, refinementsBuilder.result())
+      SuperTypesData(substitutorsBuilder.result(), refinementsBuilder.result())
     }
 
     private def combine(superSubst: ScSubstitutor, superClass : PsiClass): ScSubstitutor = {
