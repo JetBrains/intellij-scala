@@ -2,10 +2,12 @@ package org.jetbrains.plugins.scala.autoImport.quickFix
 
 import com.intellij.codeInsight.JavaProjectCodeInsightSettings
 import com.intellij.codeInsight.completion.JavaCompletionUtil.isInExcludedPackage
+import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportTypeFix.getTypesToImport
 import org.jetbrains.plugins.scala.autoImport.{GlobalMember, GlobalTypeAlias}
 import org.jetbrains.plugins.scala.extensions._
@@ -14,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{getCompanionModule, ha
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScSugarCallExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression, ScSugarCallExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -69,6 +71,10 @@ final class ScalaImportTypeFix private (ref: ScReference)
 }
 
 object ScalaImportTypeFix {
+
+  final class Provider extends UnresolvedReferenceFixProvider {
+    override def fixesFor(reference: ScReference): Seq[IntentionAction] = Seq(ScalaImportTypeFix(reference))
+  }
 
   def apply(reference: ScReference) = new ScalaImportTypeFix(reference)
 

@@ -264,7 +264,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     if (resolve.length != 1) {
       def addUnknownSymbolProblem(): Unit = {
         if (resolve.isEmpty) {
-          createUnknownSymbolProblem(refElement)(Seq(ScalaImportTypeFix(refElement)))
+          createUnknownSymbolProblem(refElement)
         }
       }
 
@@ -410,7 +410,6 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
   }
 
   private def createUnknownSymbolProblem(reference: ScReference)
-                                        (fixes: Seq[IntentionAction] = UnresolvedReferenceFixProvider.fixesFor(reference))
                                         (implicit holder: ScalaAnnotationHolder) = {
     val identifier = reference.nameId
     val annotation = holder.createErrorAnnotation(
@@ -418,6 +417,8 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
       ScalaBundle.message("cannot.resolve", identifier.getText)
     )
     annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+
+    val fixes = UnresolvedReferenceFixProvider.fixesFor(reference)
 
     annotation.registerFixes(fixes)
     annotation.registerFix(ReportHighlightingErrorQuickFix)
@@ -454,7 +455,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
         case _: ScMethodCall if resolveCount > 1 =>
           val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
           holder.createErrorAnnotation(refElement.nameId, error)
-        case _ => createUnknownSymbolProblem(refElement)()
+        case _ => createUnknownSymbolProblem(refElement)
       }
     }
   }
