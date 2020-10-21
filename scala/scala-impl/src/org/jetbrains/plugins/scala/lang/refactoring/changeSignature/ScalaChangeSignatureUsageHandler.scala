@@ -25,6 +25,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import org.jetbrains.plugins.scala.project.ProjectContext
 
+import scala.collection.mutable
+
 /**
  * Nikolay.Tropin
  * 2014-08-13
@@ -300,7 +302,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
 
     def nonVarargArgs(clause: Seq[ParameterInfo]): Seq[String] = {
       var needNamed = false
-      val builder = Seq.newBuilder[String]
+      val builder = mutable.ListBuffer.empty[String]
       for {
         (param, idx) <- clause.zipWithIndex
         if !isRepeated(param)
@@ -308,7 +310,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
         newArgumentExpression(oldArgsInfo, param, manager, isAddDefault, needNamed) match {
           case Some(text) =>
             builder += text
-            if (text.contains("=")) needNamed = true
+            if (text.contains("=") && idx >= builder.size) needNamed = true
           case None => needNamed = true
         }
       }
