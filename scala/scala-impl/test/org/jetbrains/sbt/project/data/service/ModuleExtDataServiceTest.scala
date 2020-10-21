@@ -183,7 +183,7 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
       linkedProjectPath := getProject.getBasePath
-      arbitraryNodes += new SbtProjectNode(SbtProjectData(Seq.empty, None, Seq.empty, "", getProject.getBasePath))
+      arbitraryNodes += new SbtProjectNode(SbtProjectData(None, Seq.empty, "", getProject.getBasePath))
 
       val evictedScalaLibrary: library = new library { name := s"org.scala-lang:scala-library:$evictedVersion" }
       val newScalaLibrary: library = new library { name := s"org.scala-lang:scala-library:$newVersion" }
@@ -221,7 +221,7 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
       linkedProjectPath := getProject.getBasePath
-      arbitraryNodes += new SbtProjectNode(SbtProjectData(Seq.empty, None, Seq.empty, "", getProject.getBasePath))
+      arbitraryNodes += new SbtProjectNode(SbtProjectData(None, Seq.empty, "", getProject.getBasePath))
 
       val scalaLibrary: Option[library] = scalaLibraryVersion.map { version =>
         new library { name := "org.scala-lang:scala-library:" + version }

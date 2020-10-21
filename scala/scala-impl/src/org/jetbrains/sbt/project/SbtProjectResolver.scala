@@ -240,7 +240,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val moduleFilesDirectory = new File(projectPath, Sbt.ModulesDirectory)
     val projectToModule = createModules(projects, libraryNodes, moduleFilesDirectory)
 
-    val dummySbtProjectData = SbtProjectData(Seq.empty, settings.jdk.map(JdkByName), Seq.empty, sbtVersion, projectPath)
+    val dummySbtProjectData = SbtProjectData(settings.jdk.map(JdkByName), Seq.empty, sbtVersion, projectPath)
     projectNode.add(new SbtProjectNode(dummySbtProjectData))
     projectNode.addAll(projectToModule.values)
 
@@ -270,12 +270,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         .getOrElse(throw new RuntimeException("No root project found"))
     val projectNode = new ProjectNode(rootProject.name, root, root)
 
-    val basePackages = projects.flatMap(_.basePackages).distinct
     val javacOptions = rootProject.java.map(_.options).getOrElse(Seq.empty)
 
     val projectJdk = chooseJdk(rootProject, settingsJdk)
 
-    projectNode.add(new SbtProjectNode(SbtProjectData(basePackages, projectJdk, javacOptions, data.sbtVersion, root)))
+    projectNode.add(new SbtProjectNode(SbtProjectData(projectJdk, javacOptions, data.sbtVersion, root)))
 
     val newPlay2Data = projects.flatMap(p => p.play2.map(d => (p.id, p.base, d)))
     projectNode.add(new Play2ProjectNode(Play2OldStructureAdapter(newPlay2Data)))
@@ -396,7 +395,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def createModuleExtData(project: sbtStructure.ProjectData): ModuleExtNode = {
-    val ProjectData(_, _, _, _, _, _, packagePrfix, _, _, _, java, scala, android, _, _, _, _, _, _) = project
+    val ProjectData(_, _, _, _, _, _, packagePrefix, basePackages, _, _, java, scala, android, _, _, _, _, _, _) = project
 
     val sdk = android.map(_.targetVersion).map(AndroidJdk)
       .orElse(java.flatMap(_.home).map(JdkByHome))
@@ -407,7 +406,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       scala.fold(Seq.empty[String])(_.options),
       sdk,
       java.fold(Seq.empty[String])(_.options),
-      packagePrfix
+      packagePrefix,
+      basePackages.headOption // TODO Rename basePackages to basePackage in sbt-ide-settings?
     )
     new ModuleExtNode(data)
   }

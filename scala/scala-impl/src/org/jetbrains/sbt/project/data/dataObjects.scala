@@ -68,8 +68,7 @@ object SbtModuleData {
 }
 
 @SerialVersionUID(1)
-case class SbtProjectData @PropertyMapping(Array("basePackages", "jdk", "javacOptions", "sbtVersion", "projectPath"))(
-  basePackages: JList[String],
+case class SbtProjectData @PropertyMapping(Array("jdk", "javacOptions", "sbtVersion", "projectPath"))(
   @Nullable jdk: SdkReference,
   javacOptions: JList[String],
   sbtVersion: String,
@@ -79,13 +78,11 @@ case class SbtProjectData @PropertyMapping(Array("basePackages", "jdk", "javacOp
 object SbtProjectData {
   val Key: Key[SbtProjectData] = datakey(classOf[SbtProjectData])
 
-  def apply(basePackages: Seq[String],
-            jdk: Option[SdkReference],
+  def apply(jdk: Option[SdkReference],
             javacOptions: Seq[String],
             sbtVersion: String,
             projectPath: String): SbtProjectData =
     SbtProjectData(
-      basePackages.toJavaList,
       jdk.orNull,
       javacOptions.toJavaList,
       sbtVersion,
@@ -133,13 +130,14 @@ object SbtCommandData {
 }
 
 @SerialVersionUID(1)
-case class ModuleExtData @PropertyMapping(Array("scalaVersion", "scalacClasspath", "scalacOptions", "sdk", "javacOptions", "packagePrefix")) (
+case class ModuleExtData @PropertyMapping(Array("scalaVersion", "scalacClasspath", "scalacOptions", "sdk", "javacOptions", "packagePrefix", "basePackage")) (
   @Nullable scalaVersion: String,
   scalacClasspath: JList[File],
   scalacOptions: JList[String],
   @Nullable sdk: SdkReference,
   javacOptions: JList[String],
-  packagePrefix: String
+  packagePrefix: String,
+  basePackage: String,
 ) extends SbtEntityData
 
 object ModuleExtData {
@@ -150,14 +148,16 @@ object ModuleExtData {
             scalacOptions: Seq[String] = Seq.empty,
             sdk: Option[SdkReference] = None,
             javacOptions: Seq[String] = Seq.empty,
-            packagePrefix: Option[String] = None): ModuleExtData =
+            packagePrefix: Option[String] = None,
+            basePackage: Option[String] = None): ModuleExtData =
     ModuleExtData(
       scalaVersion.orNull,
       scalacClasspath.toJavaList,
       scalacOptions.toJavaList,
       sdk.orNull,
       javacOptions.toJavaList,
-      packagePrefix.orNull
+      packagePrefix.orNull,
+      basePackage.orNull
     )
 }
 

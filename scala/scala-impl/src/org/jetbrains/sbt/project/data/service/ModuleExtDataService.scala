@@ -18,6 +18,7 @@ import com.intellij.openapi.roots.libraries.Library
 import com.intellij.util.CommonProcessors.{CollectProcessor, UniqueProcessor}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.external._
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.jdk.CollectionConverters._
 
@@ -43,7 +44,7 @@ object ModuleExtDataService {
     override def importData(): Unit = for {
       dataNode <- dataToImport
       module <- getIdeModuleByNode(dataNode)
-      ModuleExtData(scalaVersion, scalacClasspath, scalacOptions, sdk, javacOptions, packagePrefix) = dataNode.getData
+      ModuleExtData(scalaVersion, scalacClasspath, scalacOptions, sdk, javacOptions, packagePrefix, basePackage) = dataNode.getData
     } {
       module.configureScalaCompilerSettingsFrom("sbt", scalacOptions.asScala)
       Option(scalaVersion).foreach(configureScalaSdk(module, _, scalacClasspath.asScala.toSeq))
@@ -51,6 +52,7 @@ object ModuleExtDataService {
       configureLanguageLevel(module, javacOptions.asScala)
       configureJavacOptions(module, javacOptions.asScala)
       getModifiableRootModel(module).getContentEntries.foreach(_.getSourceFolders.foreach(_.setPackagePrefix(Option(packagePrefix).getOrElse(""))))
+      ScalaProjectSettings.getInstance(project).setCustomBasePackage(module.getName, basePackage)
     }
 
     private def configureScalaSdk(module: Module,

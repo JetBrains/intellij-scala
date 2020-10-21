@@ -122,11 +122,8 @@ class ScalaFileImpl(
   override def isWorksheetFile: Boolean = false
 
   override def setPackageName(inName: String): Unit = {
-    // TODO support multiple base packages simultaneously
-    val basePackageName = {
-      val basePackages = ScalaProjectSettings.getInstance(getProject).getBasePackages.asScala
-      basePackages.find(inName.startsWith).getOrElse("")
-    }
+    val basePackageName =
+      this.module.map(ScalaProjectSettings.getInstance(getProject).getBasePackageFor).getOrElse("")
 
     val name = ScalaNamesUtil.escapeKeywordsFqn(inName)
 

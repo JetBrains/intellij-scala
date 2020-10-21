@@ -53,7 +53,6 @@ object SbtProjectDataService {
       dataToImport.foreach(node => doImport(node.getData))
 
     private def doImport(data: SbtProjectData): Unit = {
-      ScalaProjectSettings.getInstance(project).setBasePackages(data.basePackages)
       configureJdk(project, data)
       updateJavaCompilerOptionsIn(project, data.javacOptions.asScala)
       setLanguageLevel(project, data)

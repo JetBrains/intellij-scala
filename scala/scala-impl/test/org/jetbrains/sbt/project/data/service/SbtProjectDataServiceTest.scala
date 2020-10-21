@@ -5,25 +5,24 @@ import java.net.URI
 
 import com.intellij.compiler.CompilerConfiguration
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
-import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
+import com.intellij.openapi.module.JavaModuleType
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.{IdeaTestUtil, UsefulTestCase}
-import org.jetbrains.plugins.scala.project.{IncrementalityType, external}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.project.external.{JdkByName, SdkReference, SdkUtils}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.project.{IncrementalityType, external}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.sbt.project.data
-import org.jetbrains.sbt.project.data.{ModuleNode, SbtProjectData, SbtProjectNode}
+import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert._
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project.external.{JdkByName, SdkReference, SdkUtils}
 
 /**
  * @author Nikolay Obedin
@@ -43,11 +42,11 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
     super.tearDown()
   }
 
-  def testEmptyBasePackages(): Unit =
+  def testEmptyBasePackage(): Unit =
     doTestBasePackages(Seq.empty)
 
-  def testNonEmptyBasePackages(): Unit =
-    doTestBasePackages(Seq("com.test1.base", "com.test2.base"))
+  def testNonEmptyBasePackage(): Unit =
+    doTestBasePackages(Seq("com.test.base"))
 
   def testValidJavaSdk(): Unit =
     doTestSdk(Option(JdkByName("1.8")),
@@ -114,7 +113,7 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
         externalConfigPath := getProject.getBasePath + "/module1"
       }
 
-      arbitraryNodes += new SbtProjectNode(SbtProjectData(Seq.empty, None, Seq.empty, "", getProject.getBasePath))
+      arbitraryNodes += new SbtProjectNode(SbtProjectData(None, Seq.empty, "", getProject.getBasePath))
     }.build.toDataNode
 
     importProjectData(testProject)
@@ -140,12 +139,25 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
       ideDirectoryPath := getProject.getBasePath
       linkedProjectPath := getProject.getBasePath
 
-      arbitraryNodes += new SbtProjectNode(SbtProjectData(basePackages, jdk, javacOptions, sbtVersion, getProject.getBasePath))
+      modules += new module {
+        val uri: URI = new File(getProject.getBasePath).toURI
+        val moduleName = "Module 1"
+        override val typeId: String = JavaModuleType.getModuleType.getId
+        projectId := ModuleNode.combinedId(moduleName, Option(uri))
+        projectURI := uri
+        name := moduleName
+        projectId := ModuleNode.combinedId(moduleName, Option(uri))
+        moduleFileDirectoryPath := getProject.getBasePath + "/module1"
+        externalConfigPath := getProject.getBasePath + "/module1"
+        arbitraryNodes += new ModuleExtNode(ModuleExtData(None, basePackage = basePackages.headOption))
+      }
+
+      arbitraryNodes += new SbtProjectNode(SbtProjectData(jdk, javacOptions, sbtVersion, getProject.getBasePath))
     }.build.toDataNode
 
   private def doTestBasePackages(basePackages: Seq[String]): Unit = {
     importProjectData(generateProject(basePackages, None, Seq.empty, ""))
-    UsefulTestCase.assertContainsElements(ScalaProjectSettings.getInstance(getProject).getBasePackages, basePackages:_*)
+    UsefulTestCase.assertContainsElements(ScalaProjectSettings.getInstance(getProject).getCustomBasePackages.values(), basePackages:_*)
   }
 
   private def defaultJdk: Sdk =

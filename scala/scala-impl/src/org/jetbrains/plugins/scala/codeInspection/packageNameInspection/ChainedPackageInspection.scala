@@ -4,6 +4,7 @@ package packageNameInspection
 
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -18,21 +19,21 @@ class ChainedPackageInspection extends LocalInspectionTool {
 
   override def getID = "ScalaChainedPackageClause"
 
-  // TODO support multiple base packages simultaneously
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] =
     file match {
       case file: ScalaFile if !file.isScriptFile =>
         val maybeProblemDescriptor = for {
           firstPackaging <- file.firstPackaging
-
-          basePackage <- findBasePackageByName(firstPackaging.packageName)(file.getProject)
+          module <- file.module
+          basePackage = ScalaProjectSettings.getInstance(file.getProject).getBasePackageFor(module)
+          if !basePackage.isEmpty && firstPackaging.packageName != basePackage && (firstPackaging.packageName + ".").startsWith(basePackage + ".")
           reference <- firstPackaging.reference
-          range = reference.getTextRange
-          quickFix = new UseChainedPackageQuickFix(file, basePackage)
+          range = new TextRange(reference.getTextRange.getStartOffset, reference.getTextRange.getStartOffset + basePackage.length)
+          quickFix = new UseChainedPackageQuickFix(file)
         } yield manager.createProblemDescriptor(
           file,
           range,
-          ScalaInspectionBundle.message("package.declaration.could.use.chained.package.clauses"),
+          ScalaInspectionBundle.message("package.declaration.could.use.chained.package.clauses", basePackage),
           ProblemHighlightType.WEAK_WARNING,
           false,
           quickFix
@@ -48,8 +49,8 @@ class ChainedPackageInspection extends LocalInspectionTool {
 
 object ChainedPackageInspection {
 
-  private class UseChainedPackageQuickFix(myFile: ScalaFile, basePackage: String)
-    extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("use.chained.package.clauses.like", basePackage), myFile) {
+  private class UseChainedPackageQuickFix(myFile: ScalaFile)
+    extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("use.chained.package.clauses.like"), myFile) {
 
     override protected def doApplyFix(file: ScalaFile)
                                      (implicit project: Project): Unit = {
@@ -57,13 +58,5 @@ object ChainedPackageInspection {
     }
 
     override def getFamilyName: String = ScalaInspectionBundle.message("use.chained.package.clauses")
-  }
-
-  private def findBasePackageByName(packageName: String)
-                                   (implicit project: Project) = {
-    val packages = ScalaProjectSettings.getInstance(project).getBasePackages.asScala
-    packages.find { basePackage =>
-      basePackage != packageName && packageName.startsWith(basePackage)
-    }
   }
 }

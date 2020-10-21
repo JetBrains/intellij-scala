@@ -2,9 +2,13 @@ package org.jetbrains.plugins.scala.settings;
 
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.components.*;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.SourceFolder;
 import com.intellij.util.xmlb.Converter;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import com.intellij.util.xmlb.annotations.MapAnnotation;
 import com.intellij.util.xmlb.annotations.OptionTag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,7 +36,11 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
   @ReportValue
   private int IMPLICIT_PARAMETERS_SEARCH_DEPTH = -1;
 
-  private String[] BASE_PACKAGES = new String[0];
+  public boolean INHERIT_BASE_PACKAGES = true;
+
+  @MapAnnotation(surroundWithTag = false, entryTagName = "module", keyAttributeName = "name", valueAttributeName = "basePackage")
+  public Map<String, String> CUSTOM_BASE_PACKAGES = new HashMap<>();
+
   private String SCALATEST_DEFAULT_SUPERCLASS = "org.scalatest.FunSuite";
 
   private boolean SEARCH_ALL_SYMBOLS = false;
@@ -353,10 +361,6 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     return INTERPOLATED_INJECTION_MAPPING;
   }
 
-  public List<String> getBasePackages() {
-    return new ArrayList<>(Arrays.asList(BASE_PACKAGES));
-  }
-
   public String getScalaTestDefaultSuperClass() {
     return SCALATEST_DEFAULT_SUPERCLASS;
   }
@@ -365,9 +369,44 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     SCALATEST_DEFAULT_SUPERCLASS = superClassName;
   }
 
-  @SuppressWarnings("ToArrayCallWithZeroLengthArrayArgument")
-  public void setBasePackages(List<String> packages) {
-    BASE_PACKAGES = packages.toArray(new String[packages.size()]);
+  @NotNull
+  public String getBasePackageFor(@NotNull Module module) {
+    if (INHERIT_BASE_PACKAGES) {
+      return Arrays.stream(ModuleRootManager.getInstance(module).getContentEntries())
+              .flatMap(it -> Arrays.stream(it.getSourceFolders()))
+              .map(SourceFolder::getPackagePrefix)
+              .filter(it -> !it.isEmpty())
+              .findFirst()
+              .orElse("");
+    } else {
+      return CUSTOM_BASE_PACKAGES.getOrDefault(module.getName(), "");
+    }
+  }
+
+  public boolean isInheritBasePackages() {
+    return INHERIT_BASE_PACKAGES;
+  }
+
+  public void setInheritBasePackages(boolean b) {
+    INHERIT_BASE_PACKAGES = b;
+  }
+
+  @NotNull
+  public Map<String, String> getCustomBasePackages() {
+    return CUSTOM_BASE_PACKAGES;
+  }
+
+  public void setCustomBasePackages(@NotNull Map<String, String> basePackages) {
+    CUSTOM_BASE_PACKAGES = basePackages;
+  }
+
+  public void setCustomBasePackage(@NotNull String module, @Nullable String basePackages) {
+    if (basePackages == null) {
+      CUSTOM_BASE_PACKAGES.remove(module);
+    } else {
+      CUSTOM_BASE_PACKAGES.put(module, basePackages);
+    }
+    INHERIT_BASE_PACKAGES = CUSTOM_BASE_PACKAGES.isEmpty();
   }
 
   public void setIntInjectionMapping(Map<String, String> intInjectionMapping) {
