@@ -420,7 +420,7 @@ object MixinNodes {
 
 
   private def generalLinearization(classType: Option[ScType], supers: Iterable[ScType]): Seq[ScType] = {
-    val buffer = mutable.ListBuffer.empty[ScType]
+    val buffer = mutable.ArrayBuffer.empty[ScType]
     val set: mutable.HashSet[String] = new mutable.HashSet //to add here qualified names of classes
     def classString(clazz: PsiClass): String = {
       clazz match {
@@ -441,7 +441,7 @@ object MixinNodes {
           }
           )
           if (i != -1) {
-            val newTp = buffer.apply(i)
+            val newTp = buffer(i)
             if (tp.conforms(newTp)) buffer.update(i, tp)
           }
         case _ =>
@@ -493,7 +493,7 @@ object MixinNodes {
       }
     }
     classType.foreach(add)
-    buffer.toList
+    buffer.to(ArraySeq)
   }
 
   private def dealias(tp: ScType) = tp match {
