@@ -423,14 +423,17 @@ lazy val ideaRunner = createRunnerProject(scalaCommunity, "idea-runner")
 // Testing keys and settings
 import Common.TestCategory._
 
-addCommandAlias("runPerfOptTests", s"testOnly -- --include-categories=$perfOptTests --exclude-categories=$flakyTests")
-addCommandAlias("runSlowTests", s"testOnly -- --include-categories=$slowTests --exclude-categories=$flakyTests")
-addCommandAlias("runDebuggerTests", s"testOnly -- --include-categories=$debuggerTests --exclude-categories=$flakyTests")
-addCommandAlias("runHighlightingTests", s"testOnly -- --include-categories=$highlightingTests --exclude-categories=$flakyTests")
-addCommandAlias("runScalacTests", s"testOnly -- --include-categories=$scalacTests --exclude-categories=$flakyTests")
-addCommandAlias("runTypeInferenceTests", s"testOnly -- --include-categories=$typecheckerTests --exclude-categories=$flakyTests")
-addCommandAlias("runTestingSupportTests", s"testOnly -- --include-categories=$testingSupportTests --exclude-categories=$flakyTests")
-addCommandAlias("runWorksheetEvaluationTests", s"testOnly -- --include-categories=$worksheetEvaluationTests --exclude-categories=$flakyTests")
+def testOnlyCategory(category: String): String =
+  s"testOnly -- --include-categories=$category --exclude-categories=$flakyTests"
+
+addCommandAlias("runPerfOptTests", testOnlyCategory(perfOptTests))
+addCommandAlias("runSlowTests", testOnlyCategory(debuggerTests))
+addCommandAlias("runDebuggerTests", testOnlyCategory(debuggerTests))
+addCommandAlias("runHighlightingTests", testOnlyCategory(highlightingTests))
+addCommandAlias("runScalacTests", testOnlyCategory(scalacTests))
+addCommandAlias("runTypeInferenceTests", testOnlyCategory(typecheckerTests))
+addCommandAlias("runTestingSupportTests", testOnlyCategory(testingSupportTests))
+addCommandAlias("runWorksheetEvaluationTests", testOnlyCategory(worksheetEvaluationTests))
 addCommandAlias("runFlakyTests", s"testOnly -- --include-categories=$flakyTests")
 
 val fastTestOptions = "-v -s -a +c +q " +
