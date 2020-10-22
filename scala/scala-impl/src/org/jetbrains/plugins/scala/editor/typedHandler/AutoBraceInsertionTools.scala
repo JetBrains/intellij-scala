@@ -195,10 +195,10 @@ object AutoBraceInsertionTools {
     }
 
   @tailrec
-  def isPrecededByNewline(element: PsiElement): Boolean = PsiTreeUtil.prevLeaf(element) match {
-    case ws: PsiWhiteSpace => ws.textContains('\n')
-    case null => false
-    case prev if prev.getTextLength == 0 => isPrecededByNewline(prev)
+  def isPrecededByLineStart(element: PsiElement): Boolean = PsiTreeUtil.prevLeaf(element) match {
+    case ws: PsiWhiteSpace => ws.textContains('\n') || isPrecededByLineStart(ws)
+    case null => true
+    case prev if prev.getTextLength == 0 => isPrecededByLineStart(prev)
     case _ => false
   }
 
@@ -330,11 +330,12 @@ object AutoBraceInsertionTools {
     }
 
     val elementWithIndentationContext = elementWhereExprShouldBe.getParent
-    val newlineBeforeKeyword = isPrecededByNewline(tokenBeginningWithStatement)
+    val newlineBeforeKeyword = isPrecededByLineStart(tokenBeginningWithStatement)
+    val newlineBeforeElementWithIndentationContext = isPrecededByLineStart(elementWithIndentationContext)
     val tabSize = CodeStyle.getSettings(project).getTabSize(ScalaFileType.INSTANCE)
 
     //check indentation
-    if (newlineBeforeKeyword && calcIndent(tokenBeginningWithStatement, tabSize) > calcIndent(elementWithIndentationContext, tabSize)) {
+    if (newlineBeforeKeyword && newlineBeforeElementWithIndentationContext && calcIndent(tokenBeginningWithStatement, tabSize) > calcIndent(elementWithIndentationContext, tabSize)) {
       val document = editor.getDocument
 
       for {

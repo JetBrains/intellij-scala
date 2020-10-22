@@ -50,7 +50,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
 {
 
   override def charTyped(c: Char, project: Project, editor: Editor, file: PsiFile): Result = {
-    if (!file.isInstanceOf[ScalaFile]) return Result.CONTINUE
+    if (!file.is[ScalaFile]) return Result.CONTINUE
 
     val offset = editor.offset
     val element = file.findElementAt(offset - 1)
@@ -145,7 +145,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
   }
 
   override def beforeCharTyped(c: Char, project: Project, editor: Editor, file: PsiFile, fileType: FileType): Result = {
-    if (!file.isInstanceOf[ScalaFile]) return Result.CONTINUE
+    if (!file.is[ScalaFile]) return Result.CONTINUE
 
     implicit val e: Editor = editor
     implicit val p: Project = project
@@ -211,7 +211,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
 
   @inline
   private def isClosingScaladocTagOrMarkup(c: Char, element: PsiElement, elementType: IElementType) = {
-    (elementType.isInstanceOf[ScalaDocSyntaxElementType] || elementType == ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG) &&
+    (elementType.is[ScalaDocSyntaxElementType] || elementType == ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG) &&
       isInDocComment(element) &&
       element.getParent.getLastChild == element && element.getText.startsWith("" + c) &&
       // handling case when '`' was type right after second '`' inside "````" to enable bold syntax ("```bold text```)"
@@ -251,12 +251,12 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
   }
 
   private def completeScalaDocWikiSyntax(tagToInsert: String)(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
-    if (element.getNode.getElementType.isInstanceOf[ScalaDocSyntaxElementType] || tagToInsert == "}}}") {
+    if (element.getNode.getElementType.is[ScalaDocSyntaxElementType] || tagToInsert == "}}}") {
       insertAndCommit(offset, tagToInsert, document, project)
     }
 
   private def completeScalaDocBoldSyntaxElement(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
-    if (element.getNode.getElementType.isInstanceOf[ScalaDocSyntaxElementType]) {
+    if (element.getNode.getElementType.is[ScalaDocSyntaxElementType]) {
       insertAndCommit(offset, "'", document, project)
     }
 
@@ -300,7 +300,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
 
   private def completeXmlAttributeQuote(editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
     if (element != null && element.getNode.getElementType == ScalaXmlTokenTypes.XML_EQ && element.getParent != null &&
-      element.getParent.isInstanceOf[ScXmlAttribute]) {
+      element.getParent.is[ScXmlAttribute]) {
       insertAndCommit(offset, "\"\"", document, project)
       editor.getCaretModel.moveCaretRelatively(1, 0, false, false, false)
     }
@@ -389,7 +389,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
         case l: ScLiteral =>
           element.getNode.getElementType match {
             case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING =>
-              if (l.getText.filter(_ == '$').length == 1)
+              if (l.getText.count(_ == '$') == 1)
                 scheduleAutoPopup(file, editor, project)
             case _ =>
           }
@@ -425,7 +425,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
           element.getNode.getElementType match {
             case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING =>
               val chars = file.charSequence
-              if (l.getText.filter(_ == '$').length == 1 && chars.charAt(offset - 2) == '$') {
+              if (l.getText.count(_ == '$') == 1 && chars.charAt(offset - 2) == '$') {
                 if (chars.charAt(offset) != '}' && CodeInsightSettings.getInstance().AUTOINSERT_PAIR_BRACKET) {
                   document.insertString(offset, "}")
                 }
@@ -440,7 +440,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
 
   private def completeEmptyXmlTag(editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
     if (element != null && element.getNode.getElementType == ScalaXmlTokenTypes.XML_DATA_CHARACTERS && element.textMatches("/") &&
-      element.getPrevSibling != null && element.getPrevSibling.isInstanceOf[ScXmlStartTag]) {
+      element.getPrevSibling != null && element.getPrevSibling.is[ScXmlStartTag]) {
       val xmlLexer = new ScalaXmlLexer
       xmlLexer.start(element.getPrevSibling.getText + "/>")
       xmlLexer.advance()
@@ -462,7 +462,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
                                  (implicit project: Project, file: PsiFile, editor: Editor, settings: CodeStyleSettings): Result =
     findElementToWrap(element) match {
       case Some(wrapInfo) =>
-        if (!wrapInfo.wrapElement.isInstanceOf[ScBlockExpr])
+        if (!wrapInfo.wrapElement.is[ScBlockExpr])
           wrapWithBraces(caretOffset, wrapInfo)
         else Result.CONTINUE
       case _ => Result.CONTINUE
@@ -547,7 +547,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
   private def followedByBrokenClosingBrace(element: PsiElement): Boolean = {
     val next = element.getNextNonWhitespaceAndNonEmptyLeaf
     val isClosingBrace = next != null && next.elementType == ScalaTokenTypes.tRBRACE
-    isClosingBrace && PsiTreeUtil.nextLeaf(next).isInstanceOf[PsiErrorElement]
+    isClosingBrace && PsiTreeUtil.nextLeaf(next).is[PsiErrorElement]
   }
 }
 

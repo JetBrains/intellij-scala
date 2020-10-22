@@ -557,4 +557,36 @@ class AutoBracesTypingTest extends AutoBraceTestBase {
        |""".stripMargin -> ContinuationOnNewline,
     ' '
   )
+
+  def testFinishingUnindentedVal(): Unit = checkGeneratedTextAfterTyping(
+    s"""
+       |def test = {
+       |  if (true) return
+       |  val${CARET}
+       |}
+       |""".stripMargin,
+    s"""
+       |def test = {
+       |  if (true) return
+       |  val ${CARET}
+       |}
+       |""".stripMargin,
+    ' '
+  )
+
+  def testFinishingIndentedVal(): Unit = checkGeneratedTextAfterTyping(
+    s"""
+       |def test = {
+       |  if (true) return
+       |  val${CARET}
+       |}
+       |""".stripMargin,
+    s"""
+       |def test = {
+       |  if (true) return
+       |  val ${CARET}
+       |}
+       |""".stripMargin,
+    ' '
+  )
 }
