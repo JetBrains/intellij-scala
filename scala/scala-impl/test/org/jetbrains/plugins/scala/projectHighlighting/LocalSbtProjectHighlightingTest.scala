@@ -33,6 +33,7 @@ class AkkaSamplesTest extends LocalSbtProjectHighlightingTest {
 }
 
 @Category(Array(classOf[HighlightingTests]))
+@Ignore
 class ScalaPetStoreTest extends LocalSbtProjectHighlightingTest {
   override def projectName = "scala-pet-store"
 }

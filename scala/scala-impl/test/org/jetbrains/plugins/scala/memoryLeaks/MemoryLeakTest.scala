@@ -30,7 +30,10 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TestUtils.getTestDataPath
 import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 import org.junit.Assert._
+import org.junit.{Ignore, Test}
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 import scala.jdk.CollectionConverters._
 
@@ -38,6 +41,7 @@ import scala.jdk.CollectionConverters._
   * @author Nikolay.Tropin
   */
 @Category(Array(classOf[SlowTests]))
+@RunWith(classOf[JUnit4])
 class MemoryLeakTest extends HeavyPlatformTestCase {
 
   import MemoryLeakTest._
@@ -100,6 +104,8 @@ class MemoryLeakTest extends HeavyPlatformTestCase {
     assertTrue(project.project.isDisposed)
   }
 
+  @Test
+  @Ignore
   def testLeaksAfterProjectDispose(): Unit = {
     implicit val project: Project = loadAndSetupProject()
 

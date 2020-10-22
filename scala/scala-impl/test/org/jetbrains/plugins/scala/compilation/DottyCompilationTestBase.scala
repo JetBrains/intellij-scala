@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.performance.DownloadingAndImportingTestCase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{IncrementalityType, LibraryExt, ModuleExt}
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, SlowTests}
+import org.junit.Ignore
 import org.junit.experimental.categories.Category
 
 /**
@@ -88,5 +89,6 @@ abstract class DottyCompilationTestBase(incrementalityType: IncrementalityType,
 class DottyIdeaCompilationTest
   extends DottyCompilationTestBase(IncrementalityType.IDEA)
 
+@Ignore
 class DottySbtCompilationTest
   extends DottyCompilationTestBase(IncrementalityType.SBT)

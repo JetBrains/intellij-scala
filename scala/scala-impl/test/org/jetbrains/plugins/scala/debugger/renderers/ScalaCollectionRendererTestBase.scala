@@ -5,6 +5,7 @@ package renderers
 import com.intellij.debugger.settings.NodeRendererSettings
 import com.intellij.debugger.ui.tree.render._
 import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer
+import org.junit.Ignore
 import org.junit.experimental.categories.Category
 
 /**
@@ -16,6 +17,7 @@ class ScalaCollectionRendererTest_until_2_11 extends ScalaCollectionRendererTest
   override protected def supportedIn(version: ScalaVersion): Boolean = version  <= LatestScalaVersions.Scala_2_11
 }
 @Category(Array(classOf[DebuggerTests]))
+@Ignore
 class ScalaCollectionRendererTest_since_2_12 extends ScalaCollectionRendererTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_12
 
@@ -35,6 +37,7 @@ class ScalaCollectionRendererTest_since_2_12 extends ScalaCollectionRendererTest
   }
 }
 @Category(Array(classOf[DebuggerTests]))
+@Ignore
 class ScalaCollectionRendererTest_since_2_13 extends ScalaCollectionRendererTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_13
 

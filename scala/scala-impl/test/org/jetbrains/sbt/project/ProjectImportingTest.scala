@@ -5,6 +5,7 @@ import java.io.File
 import java.net.URI
 
 import org.jetbrains.plugins.scala.{DependencyManager, DependencyManagerBase, LatestScalaVersions, ScalaVersion, SlowTests}
+import org.junit.Ignore
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[SlowTests]))
@@ -21,6 +22,7 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
       lazy val scalaLibrary: library = {
         val dependency = scalaLibraryDescription
         new library(s"sbt: $dependency:jar") {
+          // TODO DependencyManager resolves with ivy, but in sbt 1.3+ coursier is the default
           classes += DependencyManager.resolveSingle(dependency).file.getAbsolutePath
         }
       }

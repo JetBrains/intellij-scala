@@ -54,9 +54,13 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
   }
 
   private def persistProjectConfiguration(): Unit = {
-    Files.copy(myProject.getProjectFile.toNioPath, getProjectFilePath)
-    if (myProject.getWorkspaceFile.exists())
-      Files.copy(myProject.getWorkspaceFile.toNioPath, Paths.get(projectDirPath, s"$projectFileName.iws"))
+    Option(myProject.getProjectFile).foreach { projectFile =>
+      Files.copy(projectFile.toNioPath, getProjectFilePath)
+    }
+    Option(myProject.getWorkspaceFile).foreach { workspaceFile =>
+      if (workspaceFile.exists())
+        Files.copy(myProject.getWorkspaceFile.toNioPath, Paths.get(projectDirPath, s"$projectFileName.iws"))
+    }
   }
 
   override protected def tearDownFixtures(): Unit = {

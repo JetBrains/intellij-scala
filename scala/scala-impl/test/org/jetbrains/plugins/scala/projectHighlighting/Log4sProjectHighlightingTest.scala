@@ -2,9 +2,11 @@ package org.jetbrains.plugins.scala.projectHighlighting
 
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.HighlightingTests
+import org.junit.Ignore
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[HighlightingTests]))
+@Ignore
 class Log4sProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
   override def githubUsername = "Log4s"
 

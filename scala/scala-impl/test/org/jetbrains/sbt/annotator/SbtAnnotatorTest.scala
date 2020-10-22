@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
+import org.junit.Ignore
 import org.junit.experimental.categories.Category
 
 import scala.annotation.nowarn
@@ -90,6 +91,7 @@ abstract class SbtAnnotatorTestBase extends org.jetbrains.sbt.annotator.Annotato
 }
 
 @Category(Array(classOf[SlowTests]))
+@Ignore
 class SbtAnnotatorTest_0_12_4 extends SbtAnnotatorTestBase with MockSbt_0_12 {
   override implicit val sbtVersion: Version = Version("0.12.4")
 
@@ -97,6 +99,7 @@ class SbtAnnotatorTest_0_12_4 extends SbtAnnotatorTestBase with MockSbt_0_12 {
 }
 
 @Category(Array(classOf[SlowTests]))
+@Ignore
 class SbtAnnotatorTest_0_13_1 extends SbtAnnotatorTestBase with MockSbt_0_13 {
   override implicit val sbtVersion: Version = Version("0.13.1")
 
@@ -104,6 +107,7 @@ class SbtAnnotatorTest_0_13_1 extends SbtAnnotatorTestBase with MockSbt_0_13 {
 }
 
 @Category(Array(classOf[SlowTests]))
+@Ignore
 class SbtAnnotatorTest_0_13_7 extends SbtAnnotatorTestBase with MockSbt_0_13 {
   override implicit val sbtVersion: Version = Version("0.13.7")
 
