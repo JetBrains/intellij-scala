@@ -79,7 +79,7 @@ private object ScalaMoveToPackageQuickFix {
   }
 
   def sourceFolderIn(module: Module): Option[SourceFolder] =
-    ModuleRootManager.getInstance(module).getContentEntries.flatMap(_.getSourceFolders) match {
+    ModuleRootManager.getInstance(module).getContentEntries.flatMap(_.getSourceFolders).distinctBy(_.getPackagePrefix) match {
       case Array(sourceFolder) => Some(sourceFolder)
       case _ => None
     }
