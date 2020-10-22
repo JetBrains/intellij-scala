@@ -2,13 +2,17 @@ package org.jetbrains.plugins.scala
 package debugger
 package evaluateExpression
 
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 // !!! NOTE: some of these methods are failing: SCL-16528
 // TODO: cleanup running against different versions
 //  separate supported in and actual running versions
 //  looks like "supported in" should generally use the lowers minor version (language level in other words)
 //  and "run with" can run with various minor versions
+@RunWith(classOf[JUnit4])
 @Category(Array(classOf[DebuggerTests]))
 class ScalaMethodEvaluationTest_2_11 extends ScalaMethodEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion) = version  == LatestScalaVersions.Scala_2_11
@@ -33,16 +37,19 @@ class ScalaMethodEvaluationTest_2_11 extends ScalaMethodEvaluationTestBase {
   }
 }
 
+@RunWith(classOf[JUnit4])
 @Category(Array(classOf[DebuggerTests]))
 class ScalaMethodEvaluationTest_2_12 extends ScalaMethodEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion) = version  == LatestScalaVersions.Scala_2_12
 }
 
+@RunWith(classOf[JUnit4])
 @Category(Array(classOf[DebuggerTests]))
 class ScalaMethodEvaluationTest_2_13 extends ScalaMethodEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_2_13
 }
 
+@RunWith(classOf[JUnit4])
 @Category(Array(classOf[DebuggerTests]))
 abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
 
@@ -58,6 +65,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
+
+  @Test
   def testSmartBoxing(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -119,6 +128,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
+
+  @Test
   def testPrivateMethods(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -140,6 +151,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
+
+  @Test
   def testApplyCall(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -158,6 +171,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
+
+  @Test
   def testCurriedFunction(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -176,6 +191,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
+
+  @Test
   def testArrayApplyFunction(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -194,6 +211,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
+
+  @Test
   def testOverloadedFunction(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -211,6 +230,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
+
+  @Test
   def testImplicitConversion(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -231,6 +252,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
+
+  @Test
   def testSequenceArgument(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -248,6 +271,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
+
+  @Test
   def testArrayLengthFunction(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -270,6 +295,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
+
+  @Test
   def testSimpleFunctionFromInner(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -286,6 +313,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
+
+  @Test
   def testLibraryFunctions(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -318,6 +347,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
+
+  @Test
   def testDynamicFunctionApplication(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -351,6 +382,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
+
+  @Test
   def testNonStaticFunction(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -368,6 +401,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
+
+  @Test
   def testDefaultAndNamedParameters(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -387,6 +422,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
+
+  @Test
   def testRepeatedParameters(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -413,6 +450,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
+
+  @Test
   def testImplicitParameters(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -434,6 +473,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim()
   )
+
+  @Test
   def testCaseClasses(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -467,6 +508,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |    a.open()
       |  }
       |}""".stripMargin)
+
+  @Test
   def testPrivateInTrait(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -496,6 +539,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |  }
       |}
     """.stripMargin)
+
+  @Test
   def testLocalsInTrait(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -593,6 +638,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
     """.stripMargin.trim()
   )
 
+  @Test
+  @Category(Array(classOf[FlakyTests]))
   def testLocalFunctions(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -642,6 +689,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
     """.stripMargin.trim()
   )
 
+  @Test
   def testClosure(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -669,6 +717,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
     """.stripMargin.trim()
   )
 
+  @Test
   def testLocalWithDefaultAndNamedParams(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -705,6 +754,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
     """.stripMargin.trim())
 
+  @Test
   def testLocalMethodsWithSameName(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -745,6 +795,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
     """.stripMargin.trim())
 
+  @Test
   def testLocalMethodsWithSameName1(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -775,6 +826,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
     """.stripMargin.trim())
 
+  @Test
   def testLocalMethodsWithSameName2(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -804,6 +856,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
     """.stripMargin.trim()
   )
 
+  @Test
   def testClosureWithDefaultParameter(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -841,6 +894,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
     """.stripMargin.trim()
   )
 
+  @Test
+  @Category(Array(classOf[FlakyTests]))
   def testFunctionsWithLocalParameters(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -887,6 +942,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
         |}
     """.stripMargin.trim)
 
+  @Test
+  @Category(Array(classOf[FlakyTests]))
   def testWithFieldsFromOtherThread(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -925,6 +982,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |}
     """.stripMargin.trim)
 
+  @Test
   def testInForStmt(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -955,6 +1013,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
        |  }
        |}
     """.stripMargin.trim)
+
+  @Test
   def testQualifierNamedAsPackage(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -985,6 +1045,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
        |  }
        |}
    """.stripMargin.trim)
+
+  @Test
   def testDefaultArgsInTrait(): Unit = {
     runDebugger() {
       waitForBreakpoint()
