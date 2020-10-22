@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotesLeng
 
 class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
   override def beforeCharDeleted(c: Char, file: PsiFile, editor: Editor): Unit = {
-    if (!file.isInstanceOf[ScalaFile]) return
+    if (!file.is[ScalaFile]) return
 
     val document = editor.getDocument
 
@@ -55,7 +55,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
 
         PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
       }
-    } else if (element.getNode.getElementType == ScalaXmlTokenTypes.XML_NAME && element.getParent != null && element.getParent.isInstanceOf[ScXmlStartTag]) {
+    } else if (element.getNode.getElementType == ScalaXmlTokenTypes.XML_NAME && element.getParent != null && element.getParent.is[ScXmlStartTag]) {
       val openingTag = element.getParent.asInstanceOf[ScXmlStartTag]
       val closingTag = openingTag.getClosingTag
 
@@ -121,7 +121,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     })
 
   private def needCorrectWiki(element: PsiElement): Boolean = {
-    (element.getNode.getElementType.isInstanceOf[ScalaDocSyntaxElementType] || element.textMatches("{{{")) &&
+    (element.getNode.getElementType.is[ScalaDocSyntaxElementType] || element.textMatches("{{{")) &&
       (element.getParent.getLastChild != element ||
         element.textMatches("'''") && element.getPrevSibling != null &&
           element.getPrevSibling.textMatches("'"))
@@ -130,7 +130,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
   private def handleLeftBrace(offset: Int, element: PsiElement, file: PsiFile, editor: Editor): Unit = {
     for {
       BraceWrapInfo(element, _, parent, _) <- ScalaTypedHandler.findElementToWrap(element)
-      if element.isInstanceOf[ScBlockExpr]
+      if element.is[ScBlockExpr]
       block = element.asInstanceOf[ScBlockExpr]
       rBrace <- block.getRBrace
       if canDeleteClosingBrace(block, rBrace)
@@ -299,11 +299,18 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
 
             val tabSize = CodeStyle.getSettings(project).getTabSize(ScalaFileType.INSTANCE)
             if (IndentUtil.compare(rBrace, parent, tabSize) >= 0) {
-              val document = editor.getDocument
-              // delete closing brace first because deleting it doesn't change position of the left brace
-              deleteBrace(rBrace, document)
-              deleteBrace(lBrace, document)
-              document.commit(project)
+              val firstWhiteSpace = lBrace.nextSibling.filter(ws => ws.isWhitespace && ws.getNextSibling != rBrace)
+              val caretIsOnBlockIndent = firstWhiteSpace.forall(ws =>
+                IndentUtil.calcIndent(ws.getNode.getChars, tabSize) == IndentUtil.calcIndent(lineText, tabSize)
+              )
+
+              if (caretIsOnBlockIndent) {
+                val document = editor.getDocument
+                // delete closing brace first because deleting it doesn't change position of the left brace
+                deleteBrace(rBrace, document)
+                deleteBrace(lBrace, document)
+                document.commit(project)
+              }
             }
           case _ =>
         }

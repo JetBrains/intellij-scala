@@ -194,4 +194,26 @@ class AutoBraceBackspaceTest extends AutoBraceTestBase {
        |}
        |""".stripMargin -> ContinuationOnSameLine,
   )
+
+  // SCL-18041
+  def testDeletingInner(): Unit = checkBackspaceInAllContexts(
+    s"""
+       |def test = {
+       |  if (true)
+       |    a$CARET
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+    s"""
+       |def test = {
+       |  if (true)
+       |    $CARET
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+    s"""
+       |def test = {
+       |  if (true)
+       |    $CARET
+       |}
+       |""".stripMargin -> ContinuationOnSameLine,
+  )
 }
