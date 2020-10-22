@@ -28,6 +28,11 @@ class ScalaHighlightConstructorInvocationUsages(invoc: ScConstructorInvocation, 
   override def selectTargets(targets: util.List[_ <: PsiElement], selectionConsumer: Consumer[_ >: util.List[_ <: PsiElement]]): Unit =
     selectionConsumer.consume(targets)
 
+  override protected def addOccurrence(element: PsiElement): Unit = {
+    if (element.getContainingFile == file)
+      super.addOccurrence(element)
+  }
+
   override def computeUsages(targets: util.List[_ <: PsiElement]): Unit = elementsToHighlight.foreach { case (classToHighlight, constructor) =>
     val project = file.getProject
     val factory = ScalaFindUsagesHandlerFactory.getInstance(project)
