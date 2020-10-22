@@ -317,18 +317,11 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
 
   def signatureUpdater: ChangeSignatureDialogBase[ScalaParameterInfo, ScFunction, String, ScalaMethodDescriptor, ScalaParameterTableModelItem, ScalaParameterTableModel]#UpdateSignatureListener = mySignatureUpdater
 
-  def getTypesMaxLength: Int = {
-    parameterItems.map(_.typeText.length) match {
-      case Seq() => 0
-      case seq => seq.max
-    }
-  }
+  def getTypesMaxLength: Int =
+    parameterItems.map(_.typeText.length).maxOption.getOrElse(0)
 
   def getNamesMaxLength: Int = {
-    parameterItems.map(_.parameter.getName.length) match {
-      case Seq() => 0
-      case seq => seq.max
-    }
+    parameterItems.map(_.parameter.getName.length).maxOption.getOrElse(0)
   }
 
   def parametersTable: JBTable = Option(myParametersList).map(_.getTable).orNull
@@ -575,19 +568,15 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
     }
 
     protected def nameText(item: ScalaParameterTableModelItem): String = {
-      val maxLength = parameterItems.map(_.parameter.getName.length) match {
-        case Seq() => 0
-        case seq => seq.max
-      }
+      val maxLength = parameterItems.map(_.parameter.getName.length)
+        .maxOption.getOrElse(0)
       val name = item.parameter.getName
       name + StringUtil.repeat(" ", maxLength - name.length)
     }
 
     protected def typeText(item: ScalaParameterTableModelItem): String = {
-      val maxLength = parameterItems.map(_.typeText.length) match {
-        case Seq() => 0
-        case seq => seq.max
-      }
+      val maxLength =parameterItems.map(_.typeText.length)
+        .maxOption.getOrElse(0)
       val typeText = item.typeText
       typeText + StringUtil.repeat(" ", maxLength - typeText.length)
     }
