@@ -351,7 +351,6 @@
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.EnterBetweenClosureBracesHandler"/>
         <!--/Handler-->
 
-        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.AutoBraceAdvertisementEnterHandler" order="first"/>
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.ScalaEnterAfterUnmatchedBraceHandler" order="first"/>
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.AddUnitTypeEnterHandler" order="first"/>
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.PackageSplitEnterHandler"/>
