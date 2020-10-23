@@ -434,7 +434,7 @@ object DebuggerUtil {
       case _ => false
     }
 
-    val builder = mutable.HashSet.empty[ScTypedDefinition]
+    val builder = ArraySeq.newBuilder[ScTypedDefinition]
     block.accept(new ScalaRecursiveElementVisitor {
       override def visitReference(ref: ScReference): Unit = {
         if (ref.qualifier.isDefined || isArgName(ref)) {
@@ -461,7 +461,7 @@ object DebuggerUtil {
       }
     })
 
-    val result = builder.to(ArraySeq)
+    val result = builder.result().distinct
     if (isAtLeast212(block)) result.sortBy(e => e.is[ScObject])
     else result.sortBy(e => (e.is[ScObject], e.startOffset))
   }
