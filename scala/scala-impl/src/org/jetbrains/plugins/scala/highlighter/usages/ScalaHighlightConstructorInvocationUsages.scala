@@ -7,21 +7,22 @@ import java.util
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandlerBase
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.search.LocalSearchScope
-import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.psi.{PsiClass, PsiElement, PsiFile}
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesHandler, ScalaFindUsagesHandlerFactory}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScConstructorInvocation, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 class ScalaHighlightConstructorInvocationUsages(invoc: ScConstructorInvocation, file: PsiFile, editor: Editor)
   extends HighlightUsagesHandlerBase[PsiElement](editor, file)
 {
-  private val elementsToHighlight =
-    for {
-      ref <- invoc.reference
-      constructor <- ref.resolve().asOptionOf[ScMethodLike]
-      clazz <- constructor.containingClass.toOption
-    } yield (clazz, constructor)
+  private val elementsToHighlight = invoc.reference
+    .flatMap(_.bind())
+    .collect {
+      case ScalaResolveResult(clazz: PsiClass, _) => (clazz, None)
+      case ScalaResolveResult(Constructor(constructor), _) => (constructor.containingClass, Some(constructor))
+    }
 
   override def getTargets: util.List[PsiElement] = invoc.reference.fold(util.Collections.emptyList[PsiElement])(util.Collections.singletonList)
 
@@ -29,8 +30,11 @@ class ScalaHighlightConstructorInvocationUsages(invoc: ScConstructorInvocation, 
     selectionConsumer.consume(targets)
 
   override protected def addOccurrence(element: PsiElement): Unit = {
-    if (element.getContainingFile == file)
-      super.addOccurrence(element)
+    if (element != null && element.getContainingFile == file)
+      super.addOccurrence(element match {
+        case ref: ScStableCodeReference => ref.nameId
+        case e => e
+      })
   }
 
   override def computeUsages(targets: util.List[_ <: PsiElement]): Unit = elementsToHighlight.foreach { case (classToHighlight, constructor) =>
@@ -42,9 +46,9 @@ class ScalaHighlightConstructorInvocationUsages(invoc: ScConstructorInvocation, 
     manager
       .findReferencesToHighlight(classToHighlight, localSearchScope)
       .forEach(e => addOccurrence(e.getElement))
-    addOccurrence(classToHighlight.nameId)
+    addOccurrence(classToHighlight.getNameIdentifier)
     constructor
-      .getNameIdentifier.toOption
+      .flatMap(_.getNameIdentifier.toOption)
       .filter(_.textMatches("this"))
       .foreach(addOccurrence)
   }
