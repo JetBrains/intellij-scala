@@ -1170,6 +1170,12 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       if (result != null) return
 
       r match {
+        case AliasType(_: ScTypeAliasDefinition, Right(lower), _) =>
+          val conformsLower = conformsInner(tpt1, lower, visited, constraints)
+          if (conformsLower.isRight) {
+            result = conformsLower
+            return
+          }
         case tpt2: TypeParameterType =>
           val res = conformsInner(tpt1.lowerType, r, HashSet.empty, constraints)
           if (res.isRight) {

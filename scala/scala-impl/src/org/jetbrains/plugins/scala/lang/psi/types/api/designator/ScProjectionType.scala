@@ -96,10 +96,11 @@ final class ScProjectionType private(val projected: ScType,
 
       projected.tryExtractDesignatorSingleton.extractClass match {
         case Some(definition: ScTypeDefinition) => fromClazz(definition)
-        case _ => projected match {
-          case ScThisType(definition: ScTypeDefinition) => fromClazz(definition)
-          case _ => element
-        }
+        case _ =>
+          projected match {
+            case ScThisType(definition: ScTypeDefinition) => fromClazz(definition)
+            case _                                        => element
+          }
       }
     }
 
@@ -107,9 +108,10 @@ final class ScProjectionType private(val projected: ScType,
     def processType(kinds: Set[ResolveTargets.Value] = ValueSet(CLASS)): Option[(PsiNamedElement, ScSubstitutor)] = {
       def elementClazz: Option[PsiClass] = element match {
         case named: ScBindingPattern => Option(named.containingClass)
-        case member: ScMember => Option(member.containingClass)
-        case _ => None
+        case member: ScMember        => Option(member.containingClass)
+        case _                       => None
       }
+
       projected match {
         case ScDesignatorType(clazz: PsiClass)
           if elementClazz.exists(ScEquivalenceUtil.areClassesEquivalent(_, clazz)) =>
@@ -134,7 +136,7 @@ final class ScProjectionType private(val projected: ScType,
         case ScCompoundType(_, _, typesMap) =>
           typesMap.get(element.name) match {
             case Some(taSig) => return Some(taSig.typeAlias, taSig.substitutor)
-            case _ =>
+            case _           =>
           }
         case _ => //continue with processor :(
       }

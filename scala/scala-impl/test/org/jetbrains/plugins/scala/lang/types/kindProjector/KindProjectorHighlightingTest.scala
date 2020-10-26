@@ -122,4 +122,25 @@ class KindProjectorHighlightingTest extends ScalaLightCodeInsightFixtureTestAdap
         |def repeat[A: Monoid : Lambda[a => a <:!< Int]](a: A): Int = 42
       """.stripMargin
     )
+
+  def testSCL18366(): Unit =
+    checkTextHasNoErrors(
+      """
+        |sealed abstract class Resource[+F[_], +A] {
+        |  def flatMap[G[x] >: F[x], B](f: A => Resource[G[*], B]): Resource[G[*], B] = ???
+        |  def map[G[x] >: F[x], B](f: A => B): Resource[G[*], B] = ???
+        |}
+        |
+        |trait S[F[_]]
+        |object A {
+        |  def xxx[U[_], Q[_]]: Resource[U, S[U]] = {
+        |    val r1: Resource[U, Int] = ???
+        |    val r2: Resource[U, Int] = ???
+        |    val s: S[U] = ???
+        |
+        |    r1.flatMap(_ => r2.map(_ => s))
+        |  }
+        |}
+        |""".stripMargin
+    )
 }
