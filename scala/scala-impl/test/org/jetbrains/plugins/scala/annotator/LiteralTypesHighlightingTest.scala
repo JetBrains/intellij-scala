@@ -7,9 +7,7 @@ class LiteralTypesHighlightingTest extends LiteralTypesHighlightingTestBase {
 
 
   def testSip23Null(): Unit = doTest (
-    Error("null", "Type mismatch, found: Null, required: x.type") ::
       Error("null", "Expression of type Null doesn't conform to expected type x.type") ::
-      Error("null", "Type mismatch, found: Null, required: y.type") ::
       Error("null", "Expression of type Null doesn't conform to expected type y.type") :: Nil
   )
 

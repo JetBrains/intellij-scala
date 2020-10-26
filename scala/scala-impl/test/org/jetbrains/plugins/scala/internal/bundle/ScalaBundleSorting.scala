@@ -100,9 +100,6 @@ object ScalaBundleSorting {
     intellilangModule
   )
 
-
-
-
   def main(args: Array[String]): Unit = sortAll(allModuleInfos)
 
   def sortAll(moduleInfos: Seq[ModuleInfo]): Unit = for (info <- moduleInfos) {
