@@ -71,6 +71,8 @@ object BspProjectSettings {
   case object AutoPreImport extends PreImportConfig
   /** Preimport with Bloop from sbt project */
   case object BloopSbtPreImport extends PreImportConfig
+  /** Preimport with BSP from Mill project */
+  case object MillBspPreImport extends PreImportConfig
 
   class PreImportConfigConverter extends Converter[PreImportConfig] {
     override def fromString(value: String): PreImportConfig =
@@ -78,6 +80,7 @@ object BspProjectSettings {
         case "NoPreImport" => NoPreImport
         case "AutoPreImport" => AutoPreImport
         case "BloopBspPreImport" => BloopSbtPreImport
+        case "MillBspPreImport" => MillBspPreImport
       }
 
     override def toString(value: PreImportConfig): String =
@@ -85,6 +88,7 @@ object BspProjectSettings {
         case NoPreImport => "NoPreImport"
         case AutoPreImport => "AutoPreImport"
         case BloopSbtPreImport => "BloopBspPreImport"
+        case MillBspPreImport => "MillBspPreImport"
       }
   }
 
@@ -101,7 +105,7 @@ object BspProjectSettings {
     override def toString(value: BspServerConfig): String =
       value match {
         case AutoConfig => "AutoConfig"
-        case BloopConfig =>"BloopConfig"
+        case BloopConfig => "BloopConfig"
         case BspConfigFile(path) => s"BspConfigFile:$path"
       }
   }

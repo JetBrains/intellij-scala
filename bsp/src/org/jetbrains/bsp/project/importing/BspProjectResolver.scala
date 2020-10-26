@@ -171,9 +171,13 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         case BspProjectSettings.AutoPreImport =>
           if (executionSettings.config == AutoConfig && bloopConfigDir(workspace).isDefined && isSbtProject)
             runBloopInstall(workspace)
+          else if (MillProjectImportProvider.canImport(workspace))
+            MillProjectImportProvider.bspInstall(workspace)
           else emptySuccess
         case BspProjectSettings.BloopSbtPreImport =>
           runBloopInstall(workspace)
+        case BspProjectSettings.MillBspPreImport =>
+          MillProjectImportProvider.bspInstall(workspace)
       }
     } else emptySuccess
   }
