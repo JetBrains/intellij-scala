@@ -31,7 +31,7 @@ object ExternalHighlighters {
         psiFile <- Option(inReadAction(PsiManager.getInstance(project).findFile(virtualFile)))
         if ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(psiFile)
       } invokeLater {
-        val externalHighlights = state.getOrElse(virtualFile, Set.empty)
+        val externalHighlights = state.externalHighlightings(virtualFile)
         val highlightInfos = externalHighlights.flatMap(toHighlightInfo(_, editor))
         UpdateHighlightersUtil.setHighlightersToEditor(
           project,
@@ -68,9 +68,7 @@ object ExternalHighlighters {
       val errorTypes = Set(HighlightInfoType.ERROR, HighlightInfoType.WRONG_REF)
       ProblemSolverUtils.clearAllProblemsFromExternalSource(project, this)
       val wolf = WolfTheProblemSolver.getInstance(project)
-      val errorFiles = state.collect {
-        case (file, fileState) if fileState.exists(errorTypes contains _.highlightType) => file
-      }
+      val errorFiles = state.filesWithHighlightings(errorTypes)
       errorFiles.foreach(wolf.reportProblemsFromExternalSource(_, this))
     }
 

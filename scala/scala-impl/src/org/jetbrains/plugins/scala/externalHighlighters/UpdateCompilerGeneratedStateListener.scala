@@ -21,9 +21,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
 
     val handleEventResult = event match {
       case CompilerEvent.CompilationStarted(_, _) =>
-        val newHighlightOnCompilationFinished = oldState.toHighlightingState.collect {
-          case (virtualFile, highlightings) if highlightings.nonEmpty => virtualFile
-        }.toSet
+        val newHighlightOnCompilationFinished = oldState.toHighlightingState.filesWithHighlightings
         val newState = oldState.copy(highlightOnCompilationFinished = newHighlightOnCompilationFinished)
         Some(HandleEventResult(newState, Set.empty, informWolf = false))
       case CompilerEvent.MessageEmitted(compilationId, _, msg) =>
