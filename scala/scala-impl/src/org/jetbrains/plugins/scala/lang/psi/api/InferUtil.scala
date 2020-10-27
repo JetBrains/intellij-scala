@@ -562,7 +562,7 @@ object InferUtil {
           } else {
 
             def addConstraints(un: ConstraintSystem, tp: TypeParameter): ConstraintSystem = {
-              val typeParamId = tp.typeParamId
+              val typeParamId  = tp.typeParamId
               val substedLower = unSubst(tp.lowerType)
               val substedUpper = unSubst(tp.upperType)
 
@@ -604,6 +604,17 @@ object InferUtil {
 
             val newConstraints = typeParams.foldLeft(constraints)(addConstraints)
 
+
+            val notInferred =
+              if (!retType.isValue) Seq.empty
+              else
+                typeParams.filter(tp =>
+                    tp.varianceInType(retType).isContravariant &&
+                      !newConstraints.isApplicable(tp.typeParamId)
+                )
+
+            val contrSubst = ScSubstitutor.bind(notInferred)(tp => unSubst(tp.upperType))
+
             import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.SubtypeUpdater._
 
             def updateWithSubst(sub: ScSubstitutor): ScTypePolymorphicType = ScTypePolymorphicType(
@@ -631,8 +642,8 @@ object InferUtil {
             )
 
             newConstraints match {
-              case ConstraintSystem(substitutor) => updateWithSubst(substitutor)
-              case _ if !canThrowSCE             => updateWithSubst(unSubst)
+              case ConstraintSystem(substitutor) => updateWithSubst(substitutor.followed(contrSubst))
+              case _ if !canThrowSCE             => updateWithSubst(unSubst.followed(contrSubst))
               case _                             => throw new SafeCheckException
             }
           }

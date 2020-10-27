@@ -142,11 +142,21 @@ class ScConstructorInvocationImpl(node: ASTNode)
           expectedType match {
             case Some(expected) =>
               try {
-                nonValueType = InferUtil.localTypeInference(nonValueType.internalType,
-                  Seq(Parameter(expected, isRepeated = false, index = 0)),
-                  Seq(Expression(ScSubstitutor.bind(nonValueType.typeParameters)(UndefinedType(_)).
-                    apply(subst(tp).inferValueType))),
-                  nonValueType.typeParameters, shouldUndefineParameters = false, filterTypeParams = false)
+                nonValueType =
+                  InferUtil.localTypeInference(
+                    nonValueType.internalType,
+                    Seq(Parameter(expected, isRepeated = false, index = 0)),
+                    Seq(
+                      Expression(
+                        ScSubstitutor
+                          .bind(nonValueType.typeParameters)(UndefinedType(_))
+                          .apply(subst(tp).inferValueType)
+                      )
+                    ),
+                    nonValueType.typeParameters,
+                    shouldUndefineParameters = false,
+                    filterTypeParams         = false
+                  )
               } catch {
                 case _: SafeCheckException => //ignore
               }
