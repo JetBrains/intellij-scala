@@ -64,9 +64,15 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
     
     handleEventResult.foreach { case HandleEventResult(newState, toHighlight, informWolf) =>
       CompilerGeneratedStateManager.update(project, newState)
-      val highlightingState = newState.toHighlightingState
-      updateHighlightings(toHighlight, highlightingState)
-      if (informWolf) ExternalHighlighters.informWolf(project, highlightingState)
+
+      //don't proceed with ProgressEmitted
+      if (toHighlight.nonEmpty || informWolf) {
+        val highlightingState = newState.toHighlightingState
+        updateHighlightings(toHighlight, highlightingState)
+
+        if (informWolf)
+          ExternalHighlighters.informWolf(project, highlightingState)
+      }
     }
   }
 
