@@ -167,7 +167,7 @@ public class ScalaProjectSettingsPanel {
                 Pair.create(ScFileMode.Auto, ScalaBundle.message("script.file.mode.ammonite.in.test.sources.otherwise.worksheet"))
         ));
 
-        myBasePackagesHelpPanel.add(ContextHelpLabel.create(ScalaBundle.message("base.packages.context.help")));
+        myBasePackagesHelpPanel.add(ContextHelpLabel.create(ScalaBundle.message("base.package.help")));
         myBasePackagesTable = new JBTable(new ModuleOptionsTableModel());
         myBasePackagesTable.setRowHeight(JBUIScale.scale(22));
 

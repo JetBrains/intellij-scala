@@ -407,14 +407,20 @@ object ScalaImportOptimizer {
     import settings._
     val RangeInfo(firstPsi, _, importInfos, usedImportedNames, isLocalRange) = rangeInfo
 
-    val buffer = new ArrayBuffer[ImportInfo]()
+    val buffer = ArrayBuffer(importInfos: _*)
 
     val needReplaceWithFqnImports = addFullQualifiedImports && !(isLocalRange && isLocalImportsCanBeRelative)
 
-    if (needReplaceWithFqnImports)
-      buffer ++= importInfos.map(_.withoutRelative)
-    else
-      buffer ++= importInfos
+    if (needReplaceWithFqnImports) {
+      for ((info, i) <- importInfos.zipWithIndex) {
+        buffer(i) = basePackage match {
+          case Some(base) if (info.prefixQualifier + ".").startsWith(base + ".") =>
+            info.copy(relative = Some(info.prefixQualifier.substring(base.length + 1)))
+          case _ =>
+            info.withoutRelative
+        }
+      }
+    }
 
     if (sortImports) sortImportInfos(buffer, settings)
 
