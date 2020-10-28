@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings;
 
 import com.intellij.psi.codeStyle.CodeStyleSettings;
-import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBList;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import com.intellij.util.ui.UI;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
@@ -34,12 +34,21 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
     private JPanel importLayoutPanel;
     private JCheckBox doNotChangePathCheckBox;
     private JPanel myAlwaysUsedImportsPanel;
+    private JCheckBox myImportRetativeToBasePackageCheckBox;
+    private JPanel myImportRetativeToBasePackagePanel;
     private final DefaultListModel<String> myReferencesWithPrefixModel;
     private final DefaultListModel<String> alwaysUsedImportsModel;
     private final DefaultListModel<String> myImportLayoutModel;
 
     public ImportsPanel(@NotNull CodeStyleSettings settings) {
         super(settings, ScalaBundle.message("imports.panel.title"));
+
+        myImportRetativeToBasePackagePanel.add(UI.PanelFactory.panel(myImportRetativeToBasePackageCheckBox)
+                .withTooltip(ScalaBundle.message("imports.panel.base.package.help")).createPanel());
+
+        addFullQualifiedImportsCheckBox.addItemListener(itemEvent -> myImportRetativeToBasePackageCheckBox.setEnabled(addFullQualifiedImportsCheckBox.isSelected()));
+        myImportRetativeToBasePackageCheckBox.setEnabled(addFullQualifiedImportsCheckBox.isSelected());
+
         classCountSpinner.setModel(new SpinnerNumberModel(1, 1, null, 1));
 
         JBList<String> referencesWithPrefixList = new JBList<>();
@@ -108,6 +117,7 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
 
         scalaCodeStyleSettings.setAddImportMostCloseToReference(addImportStatementInCheckBox.isSelected());
         scalaCodeStyleSettings.setAddFullQualifiedImports(addFullQualifiedImportsCheckBox.isSelected());
+        scalaCodeStyleSettings.setAddImportsRelativeToBasePackage(myImportRetativeToBasePackageCheckBox.isSelected());
         scalaCodeStyleSettings.setDoNotChangeLocalImportsOnOptimize(doNotChangePathCheckBox.isSelected());
         scalaCodeStyleSettings.setSortImports(sortImportsCheckBox.isSelected());
         scalaCodeStyleSettings.setSortAsScalastyle(sortScalastyleRb.isSelected());
@@ -129,6 +139,8 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
                 addImportStatementInCheckBox.isSelected()) return true;
         if (scalaCodeStyleSettings.isAddFullQualifiedImports() !=
                 addFullQualifiedImportsCheckBox.isSelected()) return true;
+        if (scalaCodeStyleSettings.isAddImportsRelativeToBasePackage() !=
+                myImportRetativeToBasePackageCheckBox.isSelected()) return true;
         if (scalaCodeStyleSettings.isDoNotChangeLocalImportsOnOptimize() !=
                 doNotChangePathCheckBox.isSelected()) return true;
         if (scalaCodeStyleSettings.isSortImports() !=
@@ -156,6 +168,7 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
 
         setValue(addImportStatementInCheckBox, scalaCodeStyleSettings.isAddImportMostCloseToReference());
         setValue(addFullQualifiedImportsCheckBox, scalaCodeStyleSettings.isAddFullQualifiedImports());
+        setValue(myImportRetativeToBasePackageCheckBox, scalaCodeStyleSettings.isAddImportsRelativeToBasePackage());
         setValue(doNotChangePathCheckBox, scalaCodeStyleSettings.isDoNotChangeLocalImportsOnOptimize());
         setValue(sortImportsCheckBox, scalaCodeStyleSettings.isSortImports());
         setValue(sortScalastyleRb, scalaCodeStyleSettings.isSortAsScalastyle());

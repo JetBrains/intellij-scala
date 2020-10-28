@@ -5,11 +5,14 @@ import java.util.regex.Pattern
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /**
   * @author Nikolay.Tropin
   */
 case class OptimizeImportSettings(addFullQualifiedImports: Boolean,
+                                  basePackage: Option[String],
                                   isLocalImportsCanBeRelative: Boolean,
                                   sortImports: Boolean,
                                   collectImports: Boolean,
@@ -23,10 +26,11 @@ case class OptimizeImportSettings(addFullQualifiedImports: Boolean,
   def scalastyleGroups: Option[Seq[Pattern]] = scalastyleSettings.groups
   def scalastyleOrder: Boolean = scalastyleSettings.scalastyleOrder
 
-  private def this(s: ScalaCodeStyleSettings, scalastyleSettings: ScalastyleSettings) = {
+  private def this(s: ScalaCodeStyleSettings, scalastyleSettings: ScalastyleSettings, basePackage: Option[String]) = {
 
     this(
       s.isAddFullQualifiedImports,
+      basePackage,
       s.isDoNotChangeLocalImportsOnOptimize,
       s.isSortImports,
       s.isCollectImports,
@@ -53,6 +57,10 @@ object OptimizeImportSettings {
       }
       else ScalastyleSettings(scalastyleOrder = false, None)
 
-    new OptimizeImportSettings(codeStyleSettings, scalastyleSettings)
+    val basePackage: Option[String] =
+      if (codeStyleSettings.isAddImportsRelativeToBasePackage) file.module.map(ScalaProjectSettings.getInstance(project).getBasePackageFor).filter(_.nonEmpty)
+      else None
+
+    new OptimizeImportSettings(codeStyleSettings, scalastyleSettings, basePackage)
   }
 }
