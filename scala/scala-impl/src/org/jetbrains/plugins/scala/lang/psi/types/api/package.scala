@@ -21,10 +21,10 @@ package object api {
     }
   }
 
-  implicit class PsiTypeParamatersExt(private val typeParameters: Array[PsiTypeParameter]) extends AnyVal {
+  implicit class PsiTypeParametersExt(private val typeParameters: Array[PsiTypeParameter]) extends AnyVal {
     def instantiate: Seq[TypeParameter] = typeParameters match {
       case Array() => Seq.empty
-      case array => array.toSeq.map(TypeParameter(_))
+      case array   => array.toSeq.map(TypeParameter(_))
     }
   }
 
