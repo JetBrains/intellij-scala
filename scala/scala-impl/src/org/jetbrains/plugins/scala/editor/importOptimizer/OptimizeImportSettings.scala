@@ -5,6 +5,7 @@ import java.util.regex.Pattern
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -58,7 +59,13 @@ object OptimizeImportSettings {
       else ScalastyleSettings(scalastyleOrder = false, None)
 
     val basePackage: Option[String] =
-      if (codeStyleSettings.isAddImportsRelativeToBasePackage) file.module.map(ScalaProjectSettings.getInstance(project).getBasePackageFor).filter(_.nonEmpty)
+      if (codeStyleSettings.isAddImportsRelativeToBasePackage) {
+        val configuredBasePackage = file.module.map(ScalaProjectSettings.getInstance(project).getBasePackageFor).filter(_.nonEmpty)
+        (file, configuredBasePackage) match {
+          case (file: ScalaFile, Some(basePackage)) if file.firstPackaging.exists(_.packageName == basePackage) => Some(basePackage)
+          case _ => None
+        }
+      }
       else None
 
     new OptimizeImportSettings(codeStyleSettings, scalastyleSettings, basePackage)
