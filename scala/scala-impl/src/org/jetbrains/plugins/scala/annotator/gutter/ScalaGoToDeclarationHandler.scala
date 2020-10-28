@@ -7,12 +7,12 @@ import java.io.File
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.IsTemplateDefinition
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelecto
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
+import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.tasty._
 
 import scala.annotation.tailrec
@@ -43,20 +44,6 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     val sourceElement = containingFile.findElementAt(offset)
     if (sourceElement == null) return null
     if (!sourceElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return null
-
-    if (isTastyEnabledFor(element)) {
-      for (tastyPath <- TastyPath(sourceElement);
-           tastyFile <- TastyReader.read(tastyPath); // IDEA shows "Resolving Reference..." modal progress
-           (file, offset) <- referenceTargetAt(editor.getCaretModel.getOffset, tastyFile);
-           virtualFile <- Option(VfsUtil.findFileByIoFile(new File(element.getProject.getBasePath, file), false));
-           psiFile <- Option(PsiManager.getInstance(element.getProject).findFile(virtualFile));
-           targetElement <- Option(psiFile.findElementAt(offset))) {
-
-        showTastyNotification("Navigation") // Internal mode
-
-        return Array(targetElement)
-      }
-    }
 
     val maybeParent = sourceElement.parent
     sourceElement.getNode.getElementType match {
@@ -89,7 +76,19 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
         getGotoDeclarationTargetsForEnumerator(maybeParent)
 
       case ScalaTokenTypes.tIDENTIFIER =>
-        getGotoDeclarationTargetsForElement(sourceElement, maybeParent, containingFile)
+        val reference = containingFile.findReferenceAt(sourceElement.getTextRange.getStartOffset)
+        if (reference == null)
+          return null
+
+        val result = getGotoDeclarationTargetsForElement(reference, maybeParent)
+
+        if ((result == null || result.isEmpty) && isTastyEnabledFor(element)) {
+          targetElementByTasty(containingFile.getProject, sourceElement, offset)
+            .map(Array(_))
+            .getOrElse(result)
+        }
+        else
+          result
       case _ => null
     }
   }
@@ -103,14 +102,12 @@ object ScalaGoToDeclarationHandler {
       .collect { case enum: ScEnumerator => enum }
       .flatMap { _.desugared }
       .flatMap { _.callExpr }
-      .map { expr => getGotoDeclarationTargetsForElement(expr.nameId, Some(expr), expr.getContainingFile)}
+      .map { expr => getGotoDeclarationTargetsForElement(expr, Some(expr))}
       .orNull
   }
 
-  private def getGotoDeclarationTargetsForElement(sourceElement: PsiElement,
-                                                   maybeParent: Option[PsiElement],
-                                                   containingFile: PsiFile): Array[PsiElement] = {
-    val reference = containingFile.findReferenceAt(sourceElement.getTextRange.getStartOffset)
+  private def getGotoDeclarationTargetsForElement(reference: PsiReference,
+                                                  maybeParent: Option[PsiElement]): Array[PsiElement] = {
 
     val targets = reference match {
       case DynamicResolveProcessor.DynamicReference(results) =>
@@ -131,6 +128,20 @@ object ScalaGoToDeclarationHandler {
     targets.map { element =>
       syntheticTarget(element).getOrElse(element)
     }.toArray
+  }
+
+  @Measure
+  private def targetElementByTasty(project: Project, sourceElement: PsiElement, caretOffset: Int): Option[PsiElement] = {
+    for (tastyPath <- TastyPath(sourceElement);
+         tastyFile <- TastyReader.read(tastyPath); // IDEA shows "Resolving Reference..." modal progress
+         (file, offset) <- referenceTargetAt(caretOffset, tastyFile);
+         virtualFile <- Option(VfsUtil.findFileByIoFile(new File(project.getBasePath, file), false));
+         psiFile <- Option(PsiManager.getInstance(project).findFile(virtualFile));
+         targetElement <- Option(psiFile.findElementAt(offset)))
+    yield {
+      showTastyNotification("Navigation") // Internal mode
+      targetElement
+    }
   }
 
   private def regularCase(result: ScalaResolveResult): Seq[PsiElement] = {
