@@ -477,7 +477,8 @@ trait ScalaBounds extends api.Bounds {
           } else {
             val element = leftClass.getNamedElement
             if (!visited.contains(element)) {
-              checkClasses(leftClass.getSuperClasses, if (baseIndex == -1) i else baseIndex, visited union Set(element))
+              visited.add(element)
+              checkClasses(leftClass.getSuperClasses, if (baseIndex == -1) i else baseIndex, visited)
             }
           }
           j += 1
