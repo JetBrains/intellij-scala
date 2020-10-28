@@ -55,7 +55,7 @@ object Scala3DeprecatedPackageObjectInspection {
 
     override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext): Unit = {
       context.extractAllMembers(element.asInstanceOf[ScObject])
-      context.delete(element)
+      context.deleteExactly(element)
     }
   }
 }
