@@ -80,7 +80,7 @@ class ScFunctionDefinitionImpl(stub: ScFunctionStub[ScFunctionDefinition],
 
   override def getBody: FakePsiCodeBlock = body match {
     case Some(b) => new FakePsiCodeBlock(b) // Needed so that LineBreakpoint.canAddLineBreakpoint allows line breakpoints on one-line method definitions
-    case None => null
+    case None    => null
   }
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit =
@@ -107,10 +107,11 @@ private object ScFunctionDefinitionImpl {
 
     fun.returnTypeElement match {
       case None if !fun.hasAssign => Right(api.Unit)
-      case None => fun.body match {
-        case Some(b) => b.`type`().map(ScLiteralType.widenRecursive)
-        case _ => Right(api.Unit)
-      }
+      case None =>
+        fun.body match {
+          case Some(b) => b.`type`().map(ScLiteralType.widenRecursive)
+          case _       => Right(api.Unit)
+        }
       case Some(rte: ScTypeElement) => rte.`type`()
     }
   }
