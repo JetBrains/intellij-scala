@@ -29,7 +29,8 @@ class AbsoluteImportInspection extends AbstractInspection(ScalaInspectionBundle.
       if (ScalaCodeStyleSettings.getInstance(project).isAddImportsRelativeToBasePackage) {
         qualifier.module.map(ScalaProjectSettings.getInstance(project).getBasePackageFor).filterNot(_.isEmpty).foreach { basePackage =>
           if ((qualifier.getText + ".").startsWith(basePackage + ".")) {
-            holder.registerProblem(qualifier, "", ProblemHighlightType.LIKE_UNUSED_SYMBOL, TextRange.create(0, basePackage.length + 1), new OptimizeImportsQuickFix())
+            holder.registerProblem(qualifier, ScalaInspectionBundle.message("absolute.import.detected"),
+              ProblemHighlightType.LIKE_UNUSED_SYMBOL, TextRange.create(0, basePackage.length + 1), new OptimizeImportsQuickFix())
           }
         }
       }
