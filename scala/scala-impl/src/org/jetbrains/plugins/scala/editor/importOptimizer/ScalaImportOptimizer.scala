@@ -442,7 +442,7 @@ object ScalaImportOptimizer {
 
   // TODO Remove the import layout notification in 2021.1+
   private def notifyAboutNewImportLayout(buffer: mutable.Buffer[ImportInfo], project: Project)(sort: => Unit): Unit = {
-    val hadJavaGroupAtTheTop = buffer.length > 1 && buffer.head.prefixQualifier.startsWith("java.") && !buffer.last.prefixQualifier.startsWith("java.");
+    val hadJavaGroupAtTheTop = buffer.length > 1 && buffer.head.prefixQualifier.startsWith("java") && !buffer.last.prefixQualifier.startsWith("java");
 
     sort
 
