@@ -1,7 +1,6 @@
 package org.jetbrains.bsp.data
 
 import java.io.File
-
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
@@ -13,12 +12,14 @@ import com.intellij.openapi.projectRoots.JavaSdk
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.roots.impl.LanguageLevelProjectExtensionImpl
 import com.intellij.openapi.vcs.ProjectLevelVcsManager
 import com.intellij.openapi.vcs.VcsDirectoryMapping
 import com.intellij.openapi.vcs.VcsRoot
 import com.intellij.openapi.vcs.roots.VcsRootDetector
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VfsUtilCore
+import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.bsp.data.BspProjectDataService._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.project.external.JdkByHome
@@ -27,7 +28,6 @@ import org.jetbrains.plugins.scala.project.external.AbstractDataService
 import org.jetbrains.plugins.scala.project.external.AbstractImporter
 import org.jetbrains.plugins.scala.project.external.Importer
 import org.jetbrains.plugins.scala.project.external.SdkUtils
-
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
@@ -44,10 +44,10 @@ class BspProjectDataService extends AbstractDataService[BspProjectData, Project]
       }
     }
   }
+
 }
 
 object BspProjectDataService {
-
   private def configureVcs(vcsRootsCandidates: collection.Seq[File], project: Project): Unit = {
     val vcsManager = ProjectLevelVcsManager.getInstance(project)
     val currentVcsRoots = vcsManager.getAllVcsRoots
@@ -86,6 +86,17 @@ object BspProjectDataService {
         .orElse(existingJdk)
         .orElse(SdkUtils.mostRecentJdk)
     projectJdk.foreach(ProjectRootManager.getInstance(project).setProjectSdk)
+
+    setLanguageLevel(projectJdk, project)
+  }
+
+  private def setLanguageLevel(projectJdk: Option[Sdk], project: ProjectContext) = {
+    projectJdk.foreach { jdk =>
+      Option(LanguageLevel.parse(jdk.getVersionString)).foreach {
+        languageLevel =>
+          LanguageLevelProjectExtensionImpl.getInstanceImpl(project).setLanguageLevel(languageLevel)
+      }
+    }
   }
 
   private def findOrCreateSdkFromBsp(sdkReference: SdkReference): Option[Sdk] = {
