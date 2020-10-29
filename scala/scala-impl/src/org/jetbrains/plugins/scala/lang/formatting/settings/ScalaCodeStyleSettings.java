@@ -352,15 +352,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
       "scala.reflect.macros.whitebox.Context"
   };
 
-  private String[] IMPORT_LAYOUT = new String[]{
-      "java",
-      BLANK_LINE,
-      BASE_PACKAGE_IMPORTS,
-      BLANK_LINE,
-      ALL_OTHER_IMPORTS,
-      BLANK_LINE,
-      "scala"
-  };
+  private String[] IMPORT_LAYOUT = DEFAULT_IMPORT_LAYOUT;
 
   public ScalaCodeStyleSettings(CodeStyleSettings container) {
     super("ScalaCodeStyleSettings", container);
@@ -474,6 +466,26 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public static final String BLANK_LINE = "_______ blank line _______";
   public static final String BASE_PACKAGE_IMPORTS = "base package imports";
   public static final String ALL_OTHER_IMPORTS = "all other imports";
+
+  public static String[] DEFAULT_IMPORT_LAYOUT = new String[]{
+          BASE_PACKAGE_IMPORTS,
+          BLANK_LINE,
+          ALL_OTHER_IMPORTS,
+          BLANK_LINE,
+          "java",
+          "javax",
+          "scala"
+  };
+
+  public static String[] LEGACY_IMPORT_LAYOUT = new String[]{
+          "java",
+          BLANK_LINE,
+          BASE_PACKAGE_IMPORTS,
+          BLANK_LINE,
+          ALL_OTHER_IMPORTS,
+          BLANK_LINE,
+          "scala"
+  };
 
   public static ScalaCodeStyleSettings getInstance(Project project) {
     return CodeStyle.getSettings(project).getCustomSettings(ScalaCodeStyleSettings.class);
