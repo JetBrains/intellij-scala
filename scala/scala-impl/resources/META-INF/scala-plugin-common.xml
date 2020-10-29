@@ -851,6 +851,12 @@
                          groupPath="Scala" groupKey="group.general"
                          shortName="RelativeImport" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.relativeImports.AbsoluteImportInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="display.name.absolute.import"
+                         groupPath="Scala" groupKey="group.general"
+                         shortName="AbsoluteImport" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.shadow.VariablePatternShadowInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.suspicious.shadowing.by.a.variable.pattern"

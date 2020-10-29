@@ -215,7 +215,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
     }
 
     val text = importInfos.map { info =>
-      val index: Int = findGroupIndex(info.prefixQualifier, settings)
+      val index: Int = findGroupIndex(info.prefixQualifier, info.relative, settings)
       val blankLines = groupSeparatorsBefore(info, index)
       prevGroupIndex = index
       blankLines + textCreator.getImportText(info, settings)
@@ -731,13 +731,14 @@ object ScalaImportOptimizer {
     }
   }
 
-  def findGroupIndex(prefix: String, settings: OptimizeImportSettings): Int = {
+  def findGroupIndex(prefix: String, relativeTo: Option[String], settings: OptimizeImportSettings): Int = {
     settings.scalastyleGroups match {
       case Some(patterns) =>
         patterns.indexWhere(_.matcher(prefix).matches())
       case _ =>
         def matches(packagePattern: String) =
-          prefix == packagePattern || prefix.startsWith(packagePattern + ".")
+          prefix == packagePattern || prefix.startsWith(packagePattern + ".") ||
+            (packagePattern == BASE_PACKAGE_IMPORTS && relativeTo.exists(id => settings.basePackage.contains(prefix.dropRight(id.length + 1))))
 
         val groups = settings.importLayout
 
@@ -758,10 +759,8 @@ object ScalaImportOptimizer {
   def greater(lInfo: ImportInfo, rInfo: ImportInfo, settings: OptimizeImportSettings): Boolean = {
     val textCreator = new ImportTextCreator
 
-    val lPrefix: String = lInfo.prefixQualifier
-    val rPrefix: String = rInfo.prefixQualifier
-    val lIndex = findGroupIndex(lPrefix, settings)
-    val rIndex = findGroupIndex(rPrefix, settings)
+    val lIndex = findGroupIndex(lInfo.prefixQualifier, lInfo.relative, settings)
+    val rIndex = findGroupIndex(rInfo.prefixQualifier, rInfo.relative, settings)
 
     if (lIndex > rIndex) true
     else if (rIndex > lIndex) false
