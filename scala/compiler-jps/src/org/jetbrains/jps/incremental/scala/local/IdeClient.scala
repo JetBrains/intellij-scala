@@ -59,7 +59,8 @@ abstract class IdeClient(compilerName: String,
   override def progress(text: String, done: Option[Float]): Unit = {
     if (text.nonEmpty) {
       val decapitalizedText = text.charAt(0).toLower.toString + text.substring(1)
-      lastProgressMessage = "%s: %s [%s]".format(compilerName, decapitalizedText, chunk.getModules.asScala.head.getName)
+      val chunkName = chunk.getPresentableShortName
+      lastProgressMessage = "%s: %s [%s]".format(compilerName, decapitalizedText, chunkName)
     }
     context.processMessage(new ProgressMessage(lastProgressMessage, done.getOrElse(-1.0F)))
     done.foreach { doneVal =>
