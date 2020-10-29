@@ -36,7 +36,6 @@ class MeerkatProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest
     "src/test/scala/org/meerkat/parsers/examples/Example15.scala" -> Set(),
     "src/test/scala/org/meerkat/parsers/examples/Example6.scala" -> Set(),
     "src/main/scala/org/meerkat/parsers/AbstractParsers.scala" -> Set(),
-    "src/main/scala/org/meerkat/parsers/DDParsers.scala" -> Set((8336,8347),(8402, 8434),(9372,9383),(9438, 9470)),
     "src/test/scala/org/meerkat/parsers/examples/Example7.scala" -> Set()
   )
 }
