@@ -23,7 +23,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScTypeBoundsOwnerImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeParamStub
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameter, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
@@ -45,27 +46,18 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
   override lazy val typeParamId: Long = reusableId(this)
 
   @tailrec
-  final override protected def extractBound(in: ScType, isLower: Boolean): ScType = {
-    typeParametersClause match {
-      case Some(pClause: ScTypeParamClause) =>
-        val tParams = pClause.typeParameters
-        in match {
-          case ParameterizedType(des, params) =>
-            if (params.length == tParams.length && params.forall(_.isInstanceOf[TypeParameterType]) &&
-              params.map(_.asInstanceOf[TypeParameterType].psiTypeParameter) == tParams) {
-              des
-            } else {
-              //here we should actually construct existential type for partial application
-              in
-            }
-          case t => t match {
-            case AliasType(_: ScTypeAliasDefinition, Right(lower), _) if isLower  => extractBound(lower, isLower)
-            case AliasType(_: ScTypeAliasDefinition, _, Right(upper)) if !isLower => extractBound(upper, isLower)
-            case _ => t
-          }
-        }
-      case _ => in
-    }
+  final override protected def extractBound(in: ScType, isLower: Boolean): ScType = typeParametersClause match {
+    case Some(pClause: ScTypeParamClause) =>
+      val tParams = pClause.typeParameters
+      in match {
+        case ParameterizedType(des, params)
+          if params.length == tParams.length &&
+            params.collect { case tpt: TypeParameterType => tpt.psiTypeParameter } == tParams => des
+        case AliasType(_: ScTypeAliasDefinition, Right(lower), _) if isLower  => extractBound(lower, isLower)
+        case AliasType(_: ScTypeAliasDefinition, _, Right(upper)) if !isLower => extractBound(upper, isLower)
+        case t                                                                => ScTypePolymorphicType(t, tParams.map(TypeParameter(_)))
+      }
+    case _ => in
   }
 
   override def toString: String = "TypeParameter: " + ifReadAllowed(name)("")
@@ -75,9 +67,10 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
   }
 
   override def getIndex: Int = 0
+
   override def getOwner: PsiTypeParameterListOwner = getContext.getContext match {
-    case c : PsiTypeParameterListOwner => c
-    case _ => null
+    case c: PsiTypeParameterListOwner => c
+    case _                            => null
   }
 
   override def getContainingClass: ScTemplateDefinition = null
