@@ -1,0 +1,27 @@
+<html>
+<body>
+Reports fully qualified imports that can be relative to base package (Settings | Languages | Scala | Base Packages).
+
+Only applicable when "Except for base package" is enabled in Settings | Editor | Code Style | Scala | Imports.
+
+<p>
+Before:
+<pre>
+package org.example.application
+package ui
+
+import org.example.application.model.Data
+</pre>
+
+<br>
+After:
+<pre>
+package org.example.application
+package ui
+
+import model.Data
+</pre>
+</p>
+
+</body>
+</html>
