@@ -3,12 +3,10 @@ package codeInspection.relativeImports
 
 import codeInspection.relativeImports.AbsoluteImportInspection.OptimizeImportsQuickFix
 import codeInspection.{AbstractInspection, ScalaInspectionBundle}
-import editor.importOptimizer.ScalaImportOptimizer
-import extensions.ObjectExt
-import lang.formatting.settings.ScalaCodeStyleSettings
+import editor.importOptimizer.{OptimizeImportSettings, ScalaImportOptimizer}
+import extensions.{ObjectExt, PsiElementExt}
 import lang.psi.api.ScalaFile
 import lang.psi.api.toplevel.imports.ScImportExpr
-import settings.ScalaProjectSettings
 
 import com.intellij.codeInsight.daemon.QuickFixBundle
 import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
@@ -23,11 +21,10 @@ class AbsoluteImportInspection extends AbstractInspection(ScalaInspectionBundle.
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case importExpr: ScImportExpr if importExpr.qualifier != null =>
 
-      val project = importExpr.getProject
       val qualifier = importExpr.qualifier
 
-      if (ScalaCodeStyleSettings.getInstance(project).isAddImportsRelativeToBasePackage) {
-        qualifier.module.map(ScalaProjectSettings.getInstance(project).getBasePackageFor).filterNot(_.isEmpty).foreach { basePackage =>
+      importExpr.containingFile.foreach { file =>
+        OptimizeImportSettings(file).basePackage.foreach { basePackage =>
           if ((qualifier.getText + ".").startsWith(basePackage + ".")) {
             holder.registerProblem(qualifier, ScalaInspectionBundle.message("absolute.import.detected"),
               ProblemHighlightType.LIKE_UNUSED_SYMBOL, TextRange.create(0, basePackage.length + 1), new OptimizeImportsQuickFix())
