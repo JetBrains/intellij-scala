@@ -195,7 +195,6 @@ abstract class ImportAllMembersIntentionBaseTest extends ScalaIntentionTestBase 
   def testImportConflicts(): Unit = {
     val text =
       """import java.lang.Math._
-        |
         |import scala.math.{abs, sin => sine}
         |
         |object A {
@@ -204,7 +203,6 @@ abstract class ImportAllMembersIntentionBaseTest extends ScalaIntentionTestBase 
         |}""".stripMargin
     val result =
       """import java.lang.Math._
-        |
         |import scala.math.{abs, sin => sine, E => _, _}
         |
         |object A {
@@ -219,7 +217,6 @@ abstract class ImportAllMembersIntentionBaseTest extends ScalaIntentionTestBase 
     settings.setCollectImports(false)
     val text =
       """import java.lang.Math._
-        |
         |import scala.math.{abs, sin => sine}
         |
         |object A {
@@ -228,7 +225,6 @@ abstract class ImportAllMembersIntentionBaseTest extends ScalaIntentionTestBase 
         |}""".stripMargin
     val result =
       """import java.lang.Math._
-        |
         |import scala.math.abs
         |import scala.math.{sin => sine, E => _, _}
         |
