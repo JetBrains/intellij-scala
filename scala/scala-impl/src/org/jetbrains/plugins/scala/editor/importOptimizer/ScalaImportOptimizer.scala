@@ -7,6 +7,8 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import com.intellij.concurrency.JobLauncher
 import com.intellij.lang.{ImportOptimizer, LanguageImportStatements}
+import com.intellij.notification.{Notification, NotificationDisplayType, NotificationGroup, NotificationType}
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.Project
@@ -18,6 +20,7 @@ import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference, ScStableCodeReference}
@@ -32,9 +35,10 @@ import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
@@ -422,7 +426,9 @@ object ScalaImportOptimizer {
       }
     }
 
-    if (sortImports) sortImportInfos(buffer, settings)
+    if (sortImports) notifyAboutNewImportLayout(buffer, firstPsi.getFile.getProject) {
+      sortImportInfos(buffer, settings)
+    }
 
     val result =
       if (collectImports) mergeImportInfos(buffer)
@@ -432,6 +438,43 @@ object ScalaImportOptimizer {
     updateRootPrefix(result)
 
     result.toSeq
+  }
+
+  // TODO Remove the import layout notification in 2021.1+
+  private def notifyAboutNewImportLayout(buffer: mutable.Buffer[ImportInfo], project: Project)(sort: => Unit): Unit = {
+    val hadJavaGroupAtTheTop = buffer.length > 1 && buffer.head.prefixQualifier.startsWith("java.") && !buffer.last.prefixQualifier.startsWith("java.");
+
+    sort
+
+    val settings = ScalaApplicationSettings.getInstance
+    val style = ScalaCodeStyleSettings.getInstance(project)
+
+    if (settings.SUGGEST_LEGACY_IMPORT_LAYOUT && style.getImportLayout.sameElements(ScalaCodeStyleSettings.DEFAULT_IMPORT_LAYOUT)) {
+
+      if (hadJavaGroupAtTheTop && !buffer.head.prefixQualifier.startsWith("java.")) {
+        val notification = {
+          @nowarn
+          val group = new NotificationGroup("Import Layout", NotificationDisplayType.STICKY_BALLOON, true)
+          group.createNotification("Import Layout Updated", null, "Scala Code Style now places java.* imports at the bottom (recommended).", NotificationType.INFORMATION)
+        }
+
+        def action(name: String)(f: () => Unit) = new AnAction(name) {
+          override def actionPerformed(e: AnActionEvent): Unit = f()
+        }
+
+        def hide(): Unit = Option(notification.getBalloon).foreach(_.hide())
+
+        notification.setCollapseActionsDirection(Notification.CollapseActionsDirection.KEEP_LEFTMOST)
+
+        notification
+          .addAction(action("Got It")(() => hide()))
+          .addAction(action("Switch to Legacy Scheme"){ () => style.setImportLayout(ScalaCodeStyleSettings.LEGACY_IMPORT_LAYOUT); hide() })
+
+        notification.notify(project)
+
+        settings.SUGGEST_LEGACY_IMPORT_LAYOUT = false
+      }
+    }
   }
 
   def updateRootPrefix(importInfos: mutable.Buffer[ImportInfo]): Unit = {
