@@ -355,6 +355,8 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   private String[] IMPORT_LAYOUT = new String[]{
       "java",
       BLANK_LINE,
+      BASE_PACKAGE_IMPORTS,
+      BLANK_LINE,
       ALL_OTHER_IMPORTS,
       BLANK_LINE,
       "scala"
@@ -470,6 +472,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public static final String EXCLUDE_PREFIX = "exclude:";
 
   public static final String BLANK_LINE = "_______ blank line _______";
+  public static final String BASE_PACKAGE_IMPORTS = "base package imports";
   public static final String ALL_OTHER_IMPORTS = "all other imports";
 
   public static ScalaCodeStyleSettings getInstance(Project project) {

@@ -115,6 +115,7 @@ object ScalaProjectSettingsUtil {
         val index = patternJBList.getList.getSelectedIndex
         if (index != -1) {
           if (listModel.get(index) == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) return
+          if (listModel.get(index) == ScalaCodeStyleSettings.BASE_PACKAGE_IMPORTS) return
           val size = listModel.size()
           listModel.remove(index)
           val to = if (index == size - 1) index - 1 else index
