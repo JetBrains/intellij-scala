@@ -403,8 +403,8 @@ object InferUtil {
         val canConform = if (!filterTypeParams) {
           val subst         = tpt.abstractTypeSubstitutor
           val withAbstracts = subst(mt).asInstanceOf[ScMethodType]
-          withAbstracts.result
-        } else mt.result
+          truncateMethodType(withAbstracts, expr)
+        } else truncateMethodType(mt, expr)
 
         if (expectedType.forall(canConform.conforms)) tpt
         else tpt.copy(internalType = applyImplicitViewToResult(mt, expectedType))
