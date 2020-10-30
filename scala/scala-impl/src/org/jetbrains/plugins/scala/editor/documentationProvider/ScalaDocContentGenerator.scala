@@ -4,6 +4,7 @@ import com.intellij.codeInsight.documentation.DocumentationManagerUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProcessCanceledException
+import com.intellij.openapi.project.IndexNotReadyException
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiClass, PsiElement}
@@ -290,7 +291,7 @@ private class ScalaDocContentGenerator(
     val macroKey = macroName(macroElement)
     val macroValue: Option[String] = Try(macroFinder.getMacroBody(macroKey)) match {
       case Success(value)     => value
-      case Failure(_: ProcessCanceledException) =>
+      case Failure(_: ProcessCanceledException | _: IndexNotReadyException) =>
         None
       case Failure(exception) =>
         val message = s"Error occurred during macro resolving: $macroKey"
