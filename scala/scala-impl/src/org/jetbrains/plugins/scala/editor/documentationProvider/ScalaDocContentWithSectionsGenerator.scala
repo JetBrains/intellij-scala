@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.lang.documentation.DocumentationMarkup
+import com.intellij.openapi.project.IndexNotReadyException
 import com.intellij.psi.{PsiDocCommentOwner, PsiElement}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
@@ -233,14 +234,16 @@ private class ScalaDocContentWithSectionsGenerator(
 
   /** @return true - if some content was added from inherited doc<br>
    *          false - otherwise */
-  private def addInheritedDocText(buffer: StringBuilder, hasOwnDescription: Boolean): Boolean = {
+  private def addInheritedDocText(buffer: StringBuilder, hasOwnDescription: Boolean): Boolean = try {
     val superCommentOwner: Option[PsiDocCommentOwner] = comment.getOwner match {
       case fun: ScFunction             => fun.superMethod
       case clazz: ScTemplateDefinition => clazz.supers.headOption
       case _                           => None
     }
 
-    superCommentOwner.fold(false) {
+    // in case inherited class is in jar file we need to use sources for it
+    val superCommentOwnerSources = superCommentOwner.map(_.getNavigationElement)
+    superCommentOwnerSources.fold(false) {
       case scalaDocOwner: ScDocCommentOwner =>
         scalaDocOwner.docComment match {
           case Some(superComment) =>
@@ -252,7 +255,7 @@ private class ScalaDocContentWithSectionsGenerator(
           case _ =>
             false
         }
-      case javaDocOwner =>
+      case javaDocOwner: PsiDocCommentOwner =>
         ScalaDocUtil.generateJavaDocInfoContentInner(javaDocOwner) match {
           case Some(superContent) =>
             if (hasOwnDescription)
@@ -262,7 +265,15 @@ private class ScalaDocContentWithSectionsGenerator(
           case None   =>
             false
         }
+      case _ =>
+        false
     }
+  } catch {
+    case _: IndexNotReadyException =>
+      if (hasOwnDescription)
+        buffer.append("<p>")
+      buffer.append(ScalaEditorBundle.message("cannot.render.inherited.documentation.during.indexing"))
+      true
   }
 }
 
