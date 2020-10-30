@@ -6,6 +6,7 @@ import com.intellij.lang.documentation.DocumentationMarkup
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProcessCanceledException
+import com.intellij.openapi.project.IndexNotReadyException
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.{PsiClass, PsiDocCommentOwner, PsiElement, PsiMethod}
@@ -28,7 +29,8 @@ object ScalaDocGenerator {
   // we would like to at least show them in internal mode, during development
   private def internalLog[T](body: => T): T = Try(body).fold(
     {
-      case pce: ProcessCanceledException => throw pce
+      case ex: ProcessCanceledException => throw ex
+      case ex: IndexNotReadyException => throw ex
       case ex =>
         if (ApplicationManager.getApplication.isInternal)
           Log.error("Unexpected exception occurred during doc info generation", ex)
