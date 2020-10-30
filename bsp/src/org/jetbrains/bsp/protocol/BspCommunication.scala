@@ -34,7 +34,7 @@ class BspCommunication private[protocol](base: File, config: BspServerConfig) ex
 
   private val session: AtomicReference[Option[BspSession]] = new AtomicReference[Option[BspSession]](None)
 
-  val exitCommands: List[List[String]] = {
+  lazy val exitCommands: List[List[String]] = {
     val workspace = new File(base.getAbsolutePath)
     val files = BspConnectionConfig.workspaceBspConfigs(workspace)
     val argvExitCommands = files.flatMap { file =>

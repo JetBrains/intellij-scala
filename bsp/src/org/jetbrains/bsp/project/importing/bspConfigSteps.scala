@@ -16,13 +16,13 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.bsp.{BspBundle, BspUtil}
 import org.jetbrains.bsp.project.importing.BspSetupConfigStep.ConfigSetupTask
 import org.jetbrains.bsp.project.importing.bspConfigSteps._
-import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, FastpassConfigSetup, MillConfigSetup, NoConfigSetup, SbtConfigSetup}
+import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, FastpassConfigSetup, NoConfigSetup, SbtConfigSetup}
 import org.jetbrains.bsp.protocol.BspConnectionConfig
 import org.jetbrains.bsp.settings.BspProjectSettings._
 import org.jetbrains.plugins.scala.build.IndicatorReporter
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil._
-import org.jetbrains.sbt.project.{MillProjectImportProvider, SbtProjectImportProvider}
+import org.jetbrains.sbt.project.SbtProjectImportProvider
 
 object bspConfigSteps {
 
@@ -104,8 +104,9 @@ object bspConfigSteps {
           // server config to be set in next step
           SbtConfigSetup(workspace)
         case bspConfigSteps.MillSetup =>
-          builder.setPreImportConfig(NoPreImport)
-          MillConfigSetup(workspace)
+          builder.setPreImportConfig(MillBspPreImport)
+          builder.setServerConfig(AutoConfig)
+          NoConfigSetup
         case bspConfigSteps.FastpassSetup =>
           builder.setPreImportConfig(NoPreImport)
           val bspWorkspace = FastpassConfigSetup.computeBspWorkspace(workspace)
@@ -129,7 +130,7 @@ object bspConfigSteps {
     } else Nil
 
     val millChoice =
-      if (MillProjectImportProvider.canImport(vfile)) List(MillSetup)
+      if (MillProjectImportProvider.canImport(vfile.toNioPath.toFile)) List(MillSetup)
       else Nil
 
     val bloopChoice =
