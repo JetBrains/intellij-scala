@@ -47,7 +47,7 @@ class TypeInferenceSelfTypeTest extends TypeInferenceTestBase{
       |}
       |
       |class Concrete[A <: OA] (override val a: A) extends ABC[A, Concrete] with XYZ[A, Concrete]
-      |//AA
+      |//A
     """.stripMargin
   }
 }
