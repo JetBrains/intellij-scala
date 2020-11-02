@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes.Sup
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, CachedWithRecursionGuard}
@@ -33,7 +34,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
-import scala.collection.{immutable, mutable}
+import scala.collection.mutable
 import scala.collection.immutable.{ArraySeq, SeqMap}
 import scala.jdk.CollectionConverters._
 
@@ -501,11 +502,17 @@ object MixinNodes {
     case _                                             => tp
   }
 
-  private def extractClassOrUpperBoundClass(tp: ScType) = {
+  private def extractClassOrUpperBoundClass(tp: ScType): Option[(PsiClass, ScSubstitutor)] =
     tp match {
-      case TypeParameterType(tparam)                       => tparam.upperType.extractClassType
-      case ParameterizedType(TypeParameterType(tparam), _) => tparam.upperType.extractClassType
-      case _                                               => tp.extractClassType
+      case TypeParameterType(tparam) => tparam.upperType.extractClassType
+      case ParameterizedType(TypeParameterType(tparam), targs) =>
+        val upperBound = tparam.upperType
+        upperBound match {
+          case ScTypePolymorphicType(internal, tps) =>
+            val subst = ScSubstitutor.bind(tps, targs)
+            subst(internal).extractClassType
+          case t => ParameterizedType(t, targs).extractClassType
+        }
+      case _ => tp.extractClassType
     }
-  }
 }
