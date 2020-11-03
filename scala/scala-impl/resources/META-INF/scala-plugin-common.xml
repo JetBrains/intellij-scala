@@ -64,7 +64,7 @@
                    implementationClass="org.jetbrains.plugins.scala.annotator.template.SealedJavaInheritance"/>
         <annotator language="Scala"
                    implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaColorSchemeAnnotator"/>
-        <statusBarWidgetProvider implementation="org.jetbrains.plugins.scala.components.TypeAwareWidgetProvider"/>
+        <statusBarWidgetFactory implementation="org.jetbrains.plugins.scala.components.TypeAwareWidgetFactory"/>
 
         <trafficLightRendererContributor implementation="org.jetbrains.plugins.scala.externalHighlighters.CustomTrafficLightRendererContributor"/>
 
