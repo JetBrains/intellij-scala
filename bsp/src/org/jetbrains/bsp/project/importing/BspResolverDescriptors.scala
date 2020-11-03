@@ -3,6 +3,7 @@ package org.jetbrains.bsp.project.importing
 import java.io.File
 
 import ch.epfl.scala.bsp4j._
+import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.bsp.data.JdkData
 import org.jetbrains.bsp.data.{SbtBuildModuleDataBsp, ScalaSdkData}
 
@@ -31,7 +32,8 @@ object BspResolverDescriptors {
                                    classpath: Seq[File],
                                    classpathSources: Seq[File],
                                    testClasspath: Seq[File],
-                                   testClasspathSources: Seq[File])
+                                   testClasspathSources: Seq[File],
+                                   languageLevel: Option[LanguageLevel])
 
   case class ProjectModules(modules: Seq[ModuleDescription], synthetic: Seq[ModuleDescription])
 

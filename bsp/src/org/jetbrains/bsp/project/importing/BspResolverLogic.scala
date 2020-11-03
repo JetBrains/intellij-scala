@@ -8,6 +8,7 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.pom.java.LanguageLevel
 import java.io.File
 import java.net.URI
 import java.nio.file.Paths
@@ -248,6 +249,10 @@ private[importing] object BspResolverLogic {
     val tags = target.getTags.asScala
 
     val targetData = Option(target.getData).map(_.asInstanceOf[JsonElement])
+    val langLevel = javacOptions
+      .flatMap(_.getOptions.asScala.dropWhile(_ != "-source").drop(1).headOption)
+      .map(LanguageLevel.parse)
+      .flatMap(Option(_))
     val moduleKind = targetData.flatMap { _ =>
       target.getDataKind match {
         case BuildTargetDataKind.JVM =>
@@ -269,7 +274,7 @@ private[importing] object BspResolverLogic {
 
     val moduleDescriptionData = createModuleDescriptionData(
       target, tags.toSeq, moduleBase, outputPath, sourceRoots, resourceRoots,
-      classPathWithoutDependencyOutputs, dependencySourceDirs)
+      classPathWithoutDependencyOutputs, dependencySourceDirs, langLevel)
 
     if (tags.contains(BuildTargetTag.NO_IDE)) None
     else Option(ModuleDescription(moduleDescriptionData, moduleKind.getOrElse(UnspecifiedModule())))
@@ -282,7 +287,8 @@ private[importing] object BspResolverLogic {
                                                      sourceRoots: Seq[SourceDirectory],
                                                      resourceRoots: Seq[SourceDirectory],
                                                      classPath: Seq[File],
-                                                     dependencySources: Seq[File]
+                                                     dependencySources: Seq[File],
+                                                     languageLevel: Option[LanguageLevel]
                                                ): ModuleDescriptionData = {
     import BuildTargetTag._
 
@@ -299,7 +305,7 @@ private[importing] object BspResolverLogic {
       Seq.empty, Seq.empty,
       Seq.empty, Seq.empty,
       Seq.empty, Seq.empty,
-      Seq.empty, Seq.empty)
+      Seq.empty, Seq.empty, languageLevel)
 
     val targetDeps = target.getDependencies.asScala.toSeq
 
@@ -393,6 +399,7 @@ private[importing] object BspResolverLogic {
         val classPathSources = mergeFiles(dataCombined.classpathSources, dataNext.classpathSources)
         val testClassPath = mergeFiles(dataCombined.testClasspath, dataNext.testClasspath)
         val testClassPathSources = mergeFiles(dataCombined.testClasspathSources, dataNext.testClasspathSources)
+        val languageLevel = (dataCombined.languageLevel ++ dataNext.languageLevel).maxOption
 
         val newData = ModuleDescriptionData(
           dataCombined.id, dataCombined.name,
@@ -401,7 +408,7 @@ private[importing] object BspResolverLogic {
           sourceDirs, testSourceDirs,
           resourceDirs, testResourceDirs,
           classPath, classPathSources,
-          testClassPath, testClassPathSources)
+          testClassPath, testClassPathSources, languageLevel)
 
         val newModuleKindData = mergeModuleKind(combined.moduleKindData, next.moduleKindData)
 
@@ -627,8 +634,8 @@ private[importing] object BspResolverLogic {
       case module: SbtModule => Some(module.jdkData)
       case _ => None
     }
-    jdkData.fold(BspMetadata(targetIds.asJava, null, null)) { data =>
-      BspMetadata(targetIds.asJava, data.javaHome, data.javaVersion)
+    jdkData.fold(BspMetadata(targetIds.asJava, null, null, null)) { data =>
+      BspMetadata(targetIds.asJava, data.javaHome, data.javaVersion, moduleDescription.data.languageLevel.orNull)
     }
   }
 
