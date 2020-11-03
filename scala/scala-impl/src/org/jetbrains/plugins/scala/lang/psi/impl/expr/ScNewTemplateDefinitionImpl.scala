@@ -78,20 +78,20 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
         }
 
         !isAvalableOutside || {
-          val maybeTpe = OverridingAnnotator.typeFromSigElement(sig.namedElement)
+          val maybeTpe = OverridingAnnotator.typeForSigElement(sig.namedElement)
           val supers =
             sigs
               .forName(sig.name)
               .findNode(sig.namedElement)
-              .map(_.supers.map(_.info.namedElement))
+              .map(_.supers.map(sig => (sig.info.namedElement, sig.info.substitutor)))
               .getOrElse(Seq.empty)
 
             maybeTpe.exists(
               tpe =>
-                supers.exists(
-                  superElem =>
-                    OverridingAnnotator.typeFromSigElement(superElem).exists(_.equiv(tpe))
-                )
+                supers.exists { case (superElem, subst) =>
+                  val superTpe = OverridingAnnotator.typeForSigElement(superElem)
+                  superTpe.exists(t => subst(t).equiv(tpe))
+                }
             )
         }
       }

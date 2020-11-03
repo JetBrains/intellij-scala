@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaConformance._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{NonValueType, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -267,8 +267,8 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
             val subst = ScSubstitutor.bind(typeParameter.typeParameters, p.typeArguments)
             val lower: ScType =
               subst(lowerBound) match {
-                case ParameterizedType(lower, _) => ScParameterizedType(lower, p.typeArguments.toSeq)
-                case lower => ScParameterizedType(lower, p.typeArguments.toSeq)
+                case ParameterizedType(lower, _) => ScParameterizedType(lower, p.typeArguments)
+                case lower => ScParameterizedType(lower, p.typeArguments)
               }
             if (!lower.equiv(Nothing)) {
               result = conformsInner(l, lower, visited, constraints, checkWeak)
@@ -516,6 +516,16 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       }
     }
 
+    trait PolymorphicDesignatorVisitor extends ScalaTypeVisitor {
+      private def visitDesignatorOwner(downer: DesignatorOwner): Unit = downer.polyTypeOption match {
+        case Some(tpt: ScTypePolymorphicType) => result = conformsInner(l, tpt, visited, constraints, checkWeak)
+        case None                             => ()
+      }
+
+      override def visitDesignatorType(d: ScDesignatorType): Unit = visitDesignatorOwner(d)
+      override def visitProjectionType(p: ScProjectionType): Unit = visitDesignatorOwner(p)
+    }
+
     private var result: ConstraintsResult = _
     private var constraints: ConstraintSystem = ConstraintSystem.empty
 
@@ -726,6 +736,17 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       if (result != null) return
 
       r match {
+        case rhs: ScTypePolymorphicType =>
+          proj.polyTypeOption match {
+            case Some(lhs) =>
+              conformsInner(lhs, rhs, visited, constraints)
+              if (result != null) return
+            case None      => ()
+          }
+        case _ => ()
+      }
+
+      r match {
         case proj1: ScProjectionType if smartEquivalence(proj1.actualElement, proj.actualElement) =>
           val projected1 = proj.projected
           val projected2 = proj1.projected
@@ -826,9 +847,9 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           val subst = ScSubstitutor.bind(a.typeParameter.typeParameters, p.typeArguments)
           val upper: ScType =
             subst(a.upper) match {
-              case up if up.equiv(Any)      => ScParameterizedType(WildcardType(a.typeParameter), p.typeArguments.toSeq)
-              case ParameterizedType(up, _) => ScParameterizedType(up, p.typeArguments.toSeq)
-              case up                       => ScParameterizedType(up, p.typeArguments.toSeq)
+              case up if up.equiv(Any)      => ScParameterizedType(WildcardType(a.typeParameter), p.typeArguments)
+              case ParameterizedType(up, _) => ScParameterizedType(up, p.typeArguments)
+              case up                       => ScParameterizedType(up, p.typeArguments)
             }
           if (!upper.equiv(Any)) {
             result = conformsInner(upper, r, visited, constraints, checkWeak)
@@ -838,9 +859,9 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           if (result.isRight) {
             val lower: ScType =
               subst(a.lower) match {
-                case low if low.equiv(Nothing) => ScParameterizedType(WildcardType(a.typeParameter), p.typeArguments.toSeq)
-                case ParameterizedType(low, _) => ScParameterizedType(low, p.typeArguments.toSeq)
-                case low                       => ScParameterizedType(low, p.typeArguments.toSeq)
+                case low if low.equiv(Nothing) => ScParameterizedType(WildcardType(a.typeParameter), p.typeArguments)
+                case ParameterizedType(low, _) => ScParameterizedType(low, p.typeArguments)
+                case low                       => ScParameterizedType(low, p.typeArguments)
               }
             if (!lower.equiv(Nothing)) {
               val t = conformsInner(r, lower, visited, result.constraints, checkWeak)
@@ -1137,6 +1158,17 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       }
       if (result != null) return
 
+      r match {
+        case rhs: ScTypePolymorphicType =>
+          des.polyTypeOption match {
+            case Some(lhs) =>
+              conformsInner(lhs, rhs, visited, constraints)
+              if (result != null) return
+            case None      => ()
+          }
+        case _ => ()
+      }
+
       rightVisitor = new DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -1342,7 +1374,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
     override def visitTypePolymorphicType(t1: ScTypePolymorphicType): Unit = {
       var rightVisitor: ScalaTypeVisitor =
         new ValDesignatorSimplification with UndefinedSubstVisitor
-          with AbstractVisitor
+          with AbstractVisitor with PolymorphicDesignatorVisitor
           with ParameterizedAbstractVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -1362,8 +1394,9 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         case t2: ScTypePolymorphicType =>
           val typeParameters1 = t1.typeParameters
           val typeParameters2 = t2.typeParameters
-          val internalType1 = t1.internalType
-          val internalType2 = t2.internalType
+          val internalType1   = t1.internalType
+          val internalType2   = t2.internalType
+
           if (typeParameters1.length != typeParameters2.length) {
             result = ConstraintsResult.Left
             return

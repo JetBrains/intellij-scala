@@ -80,18 +80,5 @@ object ScEquivalenceUtil {
     poly:        ScTypePolymorphicType,
     constraints: ConstraintSystem,
     falseUndef:  Boolean
-  ): Option[ConstraintsResult] = {
-    val typeParams = des.element match {
-      case alias: ScTypeAlias => alias.typeParameters.map(TypeParameter(_))
-      case cls: PsiClass      => cls.getTypeParameters.map(TypeParameter(_)).toSeq
-      case _                  => Seq.empty
-    }
-
-    if (typeParams.isEmpty) None
-    else {
-      val appliedToParams = ScParameterizedType(des, typeParams.map(TypeParameterType(_)))
-      val tpt             = ScTypePolymorphicType(appliedToParams, typeParams)
-      Option(tpt.equiv(poly, constraints, falseUndef))
-    }
-  }
+  ): Option[ConstraintsResult] = des.polyTypeOption.map(_.equiv(poly, constraints, falseUndef))
 }

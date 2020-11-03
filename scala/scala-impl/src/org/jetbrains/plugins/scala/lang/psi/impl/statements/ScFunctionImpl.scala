@@ -39,7 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, Unit}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TypeParameterType, Unit}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
@@ -175,14 +175,23 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   }
 
   override def definedReturnType: TypeResult = {
+    def renameTypeParams(superM: PsiMethod): ScSubstitutor = {
+      import org.jetbrains.plugins.scala.lang.psi.types.api.PsiTypeParametersExt
+      val superTypeParams = superM.getTypeParameters.instantiate
+      ScSubstitutor.bind(superTypeParams, typeParameters)(TypeParameterType(_))
+    }
+
     returnTypeElement match {
-      case Some(ret) => ret.`type`()
+      case Some(ret)       => ret.`type`()
       case _ if !hasAssign => Right(Unit)
       case _ =>
-        superMethod match {
-          case Some(f: ScFunction) => f.definedReturnType
-          case Some(m: PsiMethod) =>
-            Right(m.getReturnType.toScType())
+        superMethodAndSubstitutor match {
+          case Some((f: ScFunction, s)) =>
+            val subst = renameTypeParams(f).followed(s)
+            f.definedReturnType.map(subst)
+          case Some((m: PsiMethod, s)) =>
+            val subst = renameTypeParams(m).followed(s)
+            Right(subst(m.getReturnType.toScType()))
           case _ => Failure(ScalaBundle.message("no.defined.return.type"))
         }
     }

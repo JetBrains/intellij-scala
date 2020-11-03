@@ -214,8 +214,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     */
   private[this] def isStableContext(t: ScType): Boolean = {
     val expectedStable = this.expectedType() match {
-      case Some(downer: DesignatorOwner)     => downer.isStable
-      case Some(t) if t eq Singleton         => true
+      case Some(downer: DesignatorOwner) if downer.isStable => true
+      case Some(t) if t eq Singleton                        => true
       case Some(other) if !t.conforms(other) =>
         other match {
           case AliasType(_, Right(lower: DesignatorOwner), _)                   => lower.isStable
@@ -229,9 +229,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     val isParamToDepMethod = this.expectedTypeEx().collect {
       case (_, Some(te)) =>
         (for {
-          param     <- te.contexts.take(2).findByType[ScParameter] //parameter is first context for stub elements and second context for ast
+          param  <- te.contexts.take(2).findByType[ScParameter] //parameter is first context for stub elements and second context for ast
           if !param.getDefaultExpression.contains(this)
-          method     <- param.owner.asOptionOf[ScFunction]
+          method <- param.owner.asOptionOf[ScFunction]
         } yield isReferencedInReturnType(method, param)).getOrElse(false)
     }.getOrElse(false)
 

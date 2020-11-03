@@ -494,6 +494,7 @@ object ScExpression {
       }
 
       val functionLikeType = FunctionLikeType(expr)
+      val scalaVersion = expr.scalaLanguageLevelOrDefault
       import FunctionTypeMarker.SAM
 
       val shouldDrop =
@@ -502,8 +503,8 @@ object ScExpression {
             .map(_.removeAbstracts)
             .forall {
               case functionLikeType(marker, _, _) => marker match {
-                case SAM(_) => expr.scalaLanguageLevelOrDefault != Scala_2_11
-                case _      => false
+                case SAM(_) => scalaVersion != Scala_2_11
+                case _      => scalaVersion >= Scala_2_13
               }
               case _ => true
             }

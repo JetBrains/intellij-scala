@@ -68,4 +68,12 @@ class SingletonTypesConformanceTest extends ScalaLightCodeInsightFixtureTestAdap
         |}
       """.stripMargin.trim
     )
+
+  def testSCL18169(): Unit = checkTextHasNoErrors(
+    """object DemonstrateTypeAliasError {
+      |  val s: String = "7"
+      |  type AliasForString = s.type
+      |  val t: AliasForString = s  // required AliasForString, found String
+      |}""".stripMargin
+  )
 }

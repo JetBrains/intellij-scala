@@ -644,44 +644,25 @@ class ExpectedTypesImpl extends ExpectedTypes {
         v.typeElement.map(te => (te.`type`().getOrAny, Some(te)))
       case _ => return Array.empty
     }
+
     declaredType.orElse {
       inheritedType(member).map((_, None))
     }.toArray
   }
 
   private def inheritedType(member: ScMember): Option[ScType] = {
-    import member.projectContext
-
     //is necessary to avoid recursion
     if (member.getParent.isInstanceOf[ScEarlyDefinitions])
       return None
 
-    val typeParameters =
-      member.asOptionOf[ScFunction].map(_.typeParameters).getOrElse(Seq.empty)
-
-    val superMemberAndSubstitutor = member match {
-      case fun: ScFunction => fun.superMethodAndSubstitutor
-      case other: ScMember => valSuperSignature(other).map(s => (s.namedElement, s.substitutor))
-    }
-    superMemberAndSubstitutor match {
-      case Some((fun: ScFunction, subst)) =>
-        val typeParamSubst =
-          ScSubstitutor.bind(fun.typeParameters, typeParameters)(TypeParameterType(_))
-
-        fun.returnType.toOption.map(typeParamSubst.followed(subst))
-      case Some((fun: ScSyntheticFunction, _)) =>
-        val typeParamSubst =
-          ScSubstitutor.bind(fun.typeParameters, typeParameters)(TypeParameterType(_))
-
-        Some(typeParamSubst(fun.retType))
-      case Some((fun: PsiMethod, subst)) =>
-        val typeParamSubst =
-          ScSubstitutor.bind(fun.getTypeParameters, typeParameters)(TypeParameterType(_))
-
-        Some(typeParamSubst.followed(subst)(fun.getReturnType.toScType()))
-      case Some((t: Typeable, s: ScSubstitutor)) =>
-        t.`type`().map(s).toOption
-      case _ => None
+    member match {
+      case fun: ScFunction => fun.definedReturnType.toOption
+      case other: ScMember =>
+        valSuperSignature(other).map(s => (s.namedElement, s.substitutor)) match {
+          case Some((f: ScFunction, s))                => f.definedReturnType.toOption.map(s)
+          case Some((Typeable(tpe), s: ScSubstitutor)) => s(tpe).toOption
+          case _                                       => None
+        }
     }
   }
 
