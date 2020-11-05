@@ -4,6 +4,7 @@ package remote
 import java.net.{ConnectException, InetAddress, UnknownHostException}
 
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
+import org.jetbrains.jps.incremental.Utils
 import org.jetbrains.jps.incremental.scala.JpsBundle
 import org.jetbrains.plugins.scala.compiler.data.{Arguments, CompilationData, CompilerData, SbtData}
 import org.jetbrains.plugins.scala.server.CompileServerToken
@@ -23,7 +24,8 @@ class RemoteServer(override val address: InetAddress, override val port: Int)
     val arguments = Arguments(sbtData, compilerData, compilationData, None).asStrings
 
     try {
-      val token = CompileServerToken.tokenForPort(port).getOrElse("NO_TOKEN")
+      val buildSystemDir = Utils.getSystemRoot.toPath
+      val token = CompileServerToken.tokenForPort(buildSystemDir, port).getOrElse("NO_TOKEN")
       send(CommandIds.Compile, token +: arguments, client)
       // client.compilationEnd() is meant to be sent by remote server
       ExitCode.OK

@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala
 package compiler
 
 import java.io.{File, IOException}
-import java.nio.file.Files
+import java.nio.file.{Files, Path}
 import java.util.UUID
 
 import com.intellij.compiler.server.impl.BuildProcessClasspathManager
-import com.intellij.compiler.server.{BuildManagerListener, BuildProcessParametersProvider}
+import com.intellij.compiler.server.{BuildManager, BuildManagerListener, BuildProcessParametersProvider}
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
@@ -152,7 +152,8 @@ object CompileServerLauncher {
           settings.COMPILE_SERVER_PORT = freePort
           saveSettings()
         }
-        deleteOldTokenFile(freePort)
+        val buildSystemDir = BuildManager.getInstance.getBuildSystemDirectory
+        deleteOldTokenFile(buildSystemDir, freePort)
         val id = settings.COMPILE_SERVER_ID
 
         val shutdownDelay = settings.COMPILE_SERVER_SHUTDOWN_DELAY
@@ -182,6 +183,7 @@ object CompileServerLauncher {
             freePort.toString +:
             id +:
             classpath.mkString(File.pathSeparator) +:
+            buildSystemDir.toFile.getCanonicalPath +:
             Nil
 
         val builder = new ProcessBuilder(commands.asJava)
@@ -210,8 +212,8 @@ object CompileServerLauncher {
   // ensure that old tokens from old sessions do not exist on file system to avoid race conditions (see ticket from the commit)
   // it should be deleted in org.jetbrains.plugins.scala.nailgun.NailgunRunner.ShutdownHook.run
   // but in case of some server crashes it can remain on the file system
-  private def deleteOldTokenFile(freePort: Int): Unit =
-    Try(Files.delete(CompileServerToken.tokenPathForPort(freePort)))
+  private def deleteOldTokenFile(buildSystemDir: Path, freePort: Int): Unit =
+    Try(Files.delete(CompileServerToken.tokenPathForPort(buildSystemDir, freePort)))
 
   // TODO stop server more gracefully
   def stop(timeoutMs: Long = 0): Boolean = {
