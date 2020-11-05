@@ -5,6 +5,7 @@ import com.martiansoftware.nailgun.NGServer;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -27,7 +28,6 @@ import static java.util.Arrays.asList;
  */
 @SuppressWarnings("JavadocReference")
 public class NailgunRunner {
-  public static final String SERVER_CLASS_NAME = "org.jetbrains.jps.incremental.scala.remote.Main";
 
   /** NOTE: set of commands should be equal to commands from {@link org.jetbrains.jps.incremental.scala.remote.CommandIds} */
   private static final String[] COMMANDS = {
@@ -41,26 +41,28 @@ public class NailgunRunner {
   private static final String STOP_ALIAS_START = "stop_";
   private static final String STOP_CLASS_NAME = "com.martiansoftware.nailgun.builtins.NGStop";
 
-  public static void main(String[] args) throws IOException, ClassNotFoundException {
-    if (args.length != 3) throw new IllegalArgumentException("Usage: NailgunRunner [port] [id] [classpath]");
+  public static void main(String[] args) throws Exception {
+    if (args.length != 4)
+      throw new IllegalArgumentException("Usage: NailgunRunner [port] [id] [classpath] [system-dir-path]");
 
     int port = Integer.parseInt(args[0]);
     String id = args[1];
     String classpath = args[2];
+    Path buildSystemDirPath = Paths.get(args[3]);
 
     URLClassLoader classLoader = constructClassLoader(classpath);
 
-    TokensGenerator.generateAndWriteTokenFor(port);
+    TokensGenerator.generateAndWriteTokenFor(buildSystemDirPath, port);
 
     InetAddress address = InetAddress.getByName(null);
-    NGServer server = createServer(address, port, id, classLoader);
+    NGServer server = createServer(address, port, id, buildSystemDirPath, classLoader);
 
     Thread thread = new Thread(server);
     thread.setName("NGServer(" + address.toString() + ", " + port + "," + id + ")");
     thread.setContextClassLoader(classLoader);
     thread.start();
 
-    Runtime.getRuntime().addShutdownHook(new ShutdownHook(server));
+    Runtime.getRuntime().addShutdownHook(new ShutdownHook(server, buildSystemDirPath));
   }
 
   /**
@@ -82,13 +84,13 @@ public class NailgunRunner {
     return new URLClassLoader(urls, NailgunRunner.class.getClassLoader());
   }
 
-  private static NGServer createServer(InetAddress address, int port, String id, URLClassLoader classLoader)
-      throws ClassNotFoundException {
+  private static NGServer createServer(InetAddress address, int port, String id, Path buildSystemDir, URLClassLoader classLoader)
+          throws Exception {
     NGServer server = new NGServer(address, port);
 
     server.setAllowNailsByClassName(false);
 
-    Class<?> serverClass = classLoader.loadClass(SERVER_CLASS_NAME);
+    Class<?> serverClass = Utils.loadAndSetupMainClass(classLoader, buildSystemDir);
     for (String command : COMMANDS) {
       server.getAliasManager().addAlias(new Alias(command, SERVER_DESCRIPTION, serverClass));
     }
@@ -105,13 +107,15 @@ public class NailgunRunner {
     static final int TIMEOUT = 30;
 
     private final NGServer myServer;
+    private final Path buildSystemDir;
 
-    ShutdownHook(NGServer server) {
+    ShutdownHook(NGServer server, Path buildSystemDir) {
       myServer = server;
+      this.buildSystemDir = buildSystemDir;
     }
 
     public void run() {
-      TokensGenerator.deleteTokenFor(myServer.getPort());
+      TokensGenerator.deleteTokenFor(buildSystemDir, myServer.getPort());
 
       myServer.shutdown(false);
 
@@ -129,14 +133,14 @@ public class NailgunRunner {
 
   private static class TokensGenerator {
 
-    static void generateAndWriteTokenFor(int port) throws IOException {
-      Path path = tokenPathFor(port);
+    static void generateAndWriteTokenFor(Path buildSystemDir, int port) throws IOException {
+      Path path = tokenPathFor(buildSystemDir, port);
       writeTokenTo(path, UUID.randomUUID());
     }
 
     /** duplicated in {@link org.jetbrains.plugins.scala.server.CompileServerToken} */
-    static Path tokenPathFor(int port) {
-      return Paths.get(System.getProperty("user.home"), ".idea-build", "tokens", Integer.toString(port));
+    static Path tokenPathFor(Path buildSystemDir, int port) {
+      return buildSystemDir.resolve("tokens").resolve(Integer.toString(port));
     }
 
     static void writeTokenTo(Path path, UUID uuid) throws IOException {
@@ -160,8 +164,8 @@ public class NailgunRunner {
       }
     }
 
-    public static void deleteTokenFor(int port) {
-      File tokenFile = tokenPathFor(port).toFile();
+    public static void deleteTokenFor(Path buildSystemDir, int port) {
+      File tokenFile = tokenPathFor(buildSystemDir, port).toFile();
       if (!tokenFile.delete()) {
         tokenFile.deleteOnExit();
       }

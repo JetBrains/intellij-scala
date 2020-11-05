@@ -12,7 +12,7 @@ import com.martiansoftware.nailgun.NGContext
 import org.jetbrains.jps.api.{BuildType, CmdlineProtoUtil}
 import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
 import org.jetbrains.jps.cmdline.{BuildRunner, JpsModelLoaderImpl}
-import org.jetbrains.jps.incremental.MessageHandler
+import org.jetbrains.jps.incremental.{MessageHandler, Utils}
 import org.jetbrains.jps.incremental.fs.BuildFSState
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CustomBuilderMessage, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.Client
@@ -44,6 +44,13 @@ object Main {
   private var shutdownTimer: Timer = _
 
   private val currentParallelism = new AtomicInteger(0)
+
+  private var buildSystemDir: Path = _
+
+  def setup(buildSystemDir: Path): Unit = {
+    this.buildSystemDir = buildSystemDir
+    Utils.setSystemRoot(buildSystemDir.toFile)
+  }
 
   def getCurrentParallelism(): Int = currentParallelism.get()
 
@@ -77,6 +84,8 @@ object Main {
                           out: PrintStream,
                           port: Int,
                           standalone: Boolean): Unit = {
+    if (buildSystemDir == null)
+      throw new IllegalStateException("the 'setup' method must be invoked before compile server usage")
     val client = new EncodingEventGeneratingClient(out, standalone)
     val oldOut = System.out
     // Suppress any stdout data, interpret such data as error
@@ -95,7 +104,7 @@ object Main {
       // Don't check token in non-server mode
       if (port != -1) {
         try {
-          val tokenPath = CompileServerToken.tokenPathForPort(port)
+          val tokenPath = CompileServerToken.tokenPathForPort(buildSystemDir, port)
           validateToken(tokenPath, argsParsed.token)
         } catch {
           // We must abort the process on _any_ error

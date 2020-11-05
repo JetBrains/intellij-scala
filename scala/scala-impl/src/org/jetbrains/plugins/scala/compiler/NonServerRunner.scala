@@ -7,6 +7,7 @@ import java.util.Base64
 import java.util.concurrent.Future
 import java.util.concurrent.atomic.AtomicBoolean
 
+import com.intellij.compiler.server.BuildManager
 import com.intellij.execution.process._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
@@ -52,8 +53,9 @@ class NonServerRunner(project: Project) {
           val jdkPath = FileUtil.toCanonicalPath(jdk.executable.getPath)
           val runnerClassPath = classPathArg(jdk.tools.toSeq :+ ScalaPluginJars.scalaNailgunRunnerJar)
           val mainClassPath = classPathArg(jdk.tools.toSeq ++ CompileServerLauncher.compileServerJars)
+          val buildSystemDir = BuildManager.getInstance.getBuildSystemDirectory.toFile.getCanonicalPath
           (jdkPath +: "-cp" +: runnerClassPath +: jvmParameters) ++
-            (SERVER_CLASS_NAME +: "-classpath" +: mainClassPath +: argsEncoded)
+            (SERVER_CLASS_NAME +: mainClassPath +: buildSystemDir +: argsEncoded)
         }
 
         val builder = new ProcessBuilder(commands.asJava)

@@ -5,9 +5,10 @@ import java.security.MessageDigest
 import java.util.jar.JarFile
 
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.jps.incremental.Utils
 
 import scala.io.Source
-import scala.util.{Failure, Success, Try, Using}
+import scala.util.{Failure, Success, Using}
 
 /**
  * @author Pavel Fatin
@@ -36,7 +37,8 @@ object SbtData {
   val compilerInterfacesKey = "scala.compiler.interfaces.dir"
 
   private def compilerInterfacesDir = {
-    def defaultDir = new File(new File(System.getProperty("user.home"), ".idea-build"), "scala-compiler-interfaces")
+    def defaultDir =
+      Utils.getSystemRoot.toPath.resolve("scala-compiler-interfaces").toFile
 
     val customPath = Option(System.getProperty(compilerInterfacesKey))
     customPath.map(new File(_)).getOrElse(defaultDir)

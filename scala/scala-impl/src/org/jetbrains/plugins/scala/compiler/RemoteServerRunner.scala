@@ -2,7 +2,9 @@ package org.jetbrains.plugins.scala
 package compiler
 
 import java.net.{ConnectException, InetAddress, UnknownHostException}
+import java.nio.file.Path
 
+import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.project.Project
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.{CompileServerCommand, RemoteResourceOwner}
@@ -39,12 +41,13 @@ class RemoteServerRunner(project: Project)
       this.callbacks :+= callback
 
     override def run(): Unit = {
+      val buildSystemDir = BuildManager.getInstance.getBuildSystemDirectory
       var unhandledException: Option[Throwable] = None
       try {
         for (i <- 0 until (COUNT - 1)) {
           try {
             Thread.sleep(i*20)
-            val token = readToken(port)
+            val token = readToken(buildSystemDir, port)
             send(command, token +: arguments, client)
             return
           } catch {
@@ -52,7 +55,7 @@ class RemoteServerRunner(project: Project)
           }
         }
 
-        val token = readToken(port)
+        val token = readToken(buildSystemDir, port)
         send(command, token +: arguments, client)
       } catch {
         case e: ConnectException =>
@@ -80,6 +83,6 @@ class RemoteServerRunner(project: Project)
 private object RemoteServerRunner {
   private class CantFindSecureTokenException extends Exception
 
-  private def readToken(port: Int): String =
-    CompileServerToken.tokenForPort(port).getOrElse(throw new CantFindSecureTokenException)
+  private def readToken(buildSystemDir: Path, port: Int): String =
+    CompileServerToken.tokenForPort(buildSystemDir, port).getOrElse(throw new CantFindSecureTokenException)
 }
