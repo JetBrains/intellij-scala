@@ -6,10 +6,12 @@ import java.util.jar.Attributes
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.{OrderEnumerator, libraries}
+import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.util.io.JarUtil.{containsEntry, getJarAttribute}
 import com.intellij.util.CommonProcessors.FindProcessor
+import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel._
-import org.jetbrains.plugins.scala.project.ScalaModuleSettings.{Yimports, YnoPredefOrNoImports}
+import org.jetbrains.plugins.scala.project.ScalaModuleSettings.{Yimports, YnoPredefOrNoImports, isMetaParadiseJar}
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
 import org.jetbrains.sbt.settings.SbtSettings
 
@@ -97,18 +99,6 @@ private class ScalaModuleSettings(module: Module, val scalaSdk: LibraryEx) {
       case Yimports(imports) if scalaLanguageLevel >= Scala_2_13 => imports
       case YnoPredefOrNoImports(imports)                         => imports
     }
-
-  private[this] def isMetaParadiseJar(pathname: String): Boolean = new File(pathname) match {
-    case file if containsEntry(file, "scalac-plugin.xml") =>
-      def hasAttribute(nameSuffix: String, value: String) = getJarAttribute(
-        file,
-        new Attributes.Name(s"Specification-$nameSuffix")
-      ) == value
-
-      hasAttribute("Vendor", "org.scalameta") &&
-        hasAttribute("Title", "paradise")
-    case _ => false
-  }
 }
 
 private object ScalaModuleSettings {
@@ -150,5 +140,19 @@ private object ScalaModuleSettings {
       }
     }
   }
+
+  @Cached(ModificationTracker.NEVER_CHANGED, null)
+  private def isMetaParadiseJar(pathname: String): Boolean = new File(pathname) match {
+    case file if containsEntry(file, "scalac-plugin.xml") =>
+      def hasAttribute(nameSuffix: String, value: String) = getJarAttribute(
+        file,
+        new Attributes.Name(s"Specification-$nameSuffix")
+      ) == value
+
+      hasAttribute("Vendor", "org.scalameta") &&
+        hasAttribute("Title", "paradise")
+    case _ => false
+  }
+
 }
 
