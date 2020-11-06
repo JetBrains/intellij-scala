@@ -25,6 +25,7 @@ object Versions {
     val binary_2_13 = "2.13"
 
     val latest_dotty = "0.27.0-RC1"
+    val latest_scala3 = "3.0.0-M1"
 
     def binaryVersion(v: String): String =
       if (v.startsWith("2.9")) binary_2_9
@@ -116,6 +117,7 @@ object Dependencies {
   val compilerBridgeSources_2_11 = "org.scala-sbt" % "compiler-bridge_2.11" % zincVersion classifier "sources"
   val compilerBridgeSources_2_13 = "org.scala-sbt" % "compiler-bridge_2.13" % zincVersion classifier "sources"
   val dottySbtBridge = "ch.epfl.lamp" % "dotty-sbt-bridge" % Scala.latest_dotty
+  val scala3SbtBridge = "org.scala-lang" % "scala3-sbt-bridge" % Scala.latest_scala3
 
   // "provided" danger: we statically depend on a single version, but need to support all the version
   // some part of our code is now statically dependent on lib classes, another part uses reflections for other versions
@@ -198,6 +200,7 @@ object DependencyGroups {
     compilerBridgeSources_2_10,
     compilerBridgeSources_2_11,
     compilerBridgeSources_2_13,
-    dottySbtBridge
+    dottySbtBridge,
+    scala3SbtBridge
   )
 }

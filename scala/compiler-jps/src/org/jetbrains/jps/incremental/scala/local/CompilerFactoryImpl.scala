@@ -52,7 +52,8 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
         scalaInstance = scalaInstance,
         javaClassVersion = sbtData.javaClassVersion,
         client = Option(client),
-        isDotty = compilerJars.exists(_.hasDotty)
+        isDotty = compilerJars.exists(_.hasDotty),
+        isScala3 = compilerJars.exists(_.hasScala3),
       )
 
       new AnalyzingCompiler(
@@ -91,7 +92,7 @@ object CompilerFactoryImpl {
       classLoadersMap.getOrElse(paths, createClassLoader(paths))
     }
 
-    val classLoader = getOrCreateClassLoader(jars.allJars.toSeq)
+    val classLoader = getOrCreateClassLoader(jars.allJars)
     val loaderLibraryOnly = getOrCreateClassLoader(jars.libraries)
 
     val version = compilerVersion(classLoader)
@@ -113,10 +114,13 @@ object CompilerFactoryImpl {
                                        scalaInstance: ScalaInstance,
                                        javaClassVersion: String,
                                        client: Option[Client],
-                                       isDotty: Boolean): File =
-    if (isDotty) {
-      compilerBridges.dotty.bridge
-    } else {
+                                       isDotty: Boolean,
+                                       isScala3: Boolean): File =
+    if (isDotty)
+      compilerBridges.scala3.dotty
+    else if (isScala3)
+      compilerBridges.scala3.scala3
+    else {
       val scalaVersion = scalaInstance.actualVersion
 
       val sourceJar =

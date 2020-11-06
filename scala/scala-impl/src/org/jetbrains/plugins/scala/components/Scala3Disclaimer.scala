@@ -22,7 +22,7 @@ import org.jetbrains.sbt.project.settings.{SbtProjectSettings, SbtProjectSetting
 object Scala3Disclaimer {
   private val DottyVersion = "scalaVersion\\s*:=\\s*\"(0\\.\\S+)\"".r
   // TODO Create a constant (for project template, compiler, etc.)
-  private val SupportedDottyVersion = LatestScalaVersions.Dotty.minor
+  private val SupportedDottyVersion = LatestScalaVersions.Scala_3_0.minor
 
   private var versionInfoShown = false
 
