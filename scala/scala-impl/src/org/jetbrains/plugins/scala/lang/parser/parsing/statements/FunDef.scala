@@ -33,7 +33,7 @@ object FunDef extends ParsingRule {
     }
 
     if (builder.isScala3) {
-      if (FunTypeParamClause.parse(builder)) {
+      if (FunTypeParamClause()) {
         if (builder.getTokenType != ScalaTokenTypes.tLPARENTHESIS) {
           builder error ErrMsg("expected.parameter.clause.for.extension.method")
         }
@@ -42,7 +42,7 @@ object FunDef extends ParsingRule {
       if (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS) {
         val extensionMethodParamMarker = builder.mark()
         builder.advanceLexer()
-        Params.parse(builder)
+        Params()
 
         if (builder.getTokenType == ScalaTokenTypes.tRPARENTHESIS) {
           builder.advanceLexer() // ate )
@@ -68,7 +68,7 @@ object FunDef extends ParsingRule {
               builder.getTokenType match {
                 case ScalaTokenTypes.tASSIGN =>
                   builder.advanceLexer() //Ate =
-                  if (ExprInIndentationRegion.parse(builder)) {
+                  if (ExprInIndentationRegion()) {
                     faultMarker.drop()
                     true
                   }
@@ -90,7 +90,7 @@ object FunDef extends ParsingRule {
             builder.advanceLexer() //Ate =
             builder.skipExternalToken()
 
-            if (ExprInIndentationRegion.parse(builder)) {
+            if (ExprInIndentationRegion()) {
               faultMarker.drop()
               true
             }
@@ -128,7 +128,7 @@ object FunDef extends ParsingRule {
               faultMarker.drop()
               return true
             }
-            if (!ConstrBlock.parse(builder)) {
+            if (!ConstrBlock()) {
               builder error ScalaBundle.message("constr.block.expected")
             }
             faultMarker.drop()
