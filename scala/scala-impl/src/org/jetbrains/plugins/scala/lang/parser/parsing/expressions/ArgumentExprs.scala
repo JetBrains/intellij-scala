@@ -16,9 +16,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * ArgumentExprs ::= '(' [Exprs [',']] ')'
  *                 | [nl] BlockExpr
  */
-object ArgumentExprs {
+object ArgumentExprs extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val argMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS =>
@@ -29,10 +29,10 @@ object ArgumentExprs {
           builder.tryParseSoftKeyword(ScalaTokenType.UsingKeyword)
         }
 
-        Expr parse builder
+        Expr()
         while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !builder.consumeTrailingComma(ScalaTokenTypes.tRPARENTHESIS)) {
           builder.advanceLexer()
-          if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
+          if (!Expr()) builder error ErrMsg("wrong.expression")
         }
       
         builder.getTokenType match {
@@ -49,7 +49,7 @@ object ArgumentExprs {
           argMarker.rollbackTo()
           return false
         }
-        BlockExpr parse builder
+        BlockExpr()
         argMarker.done(ScalaElementType.ARG_EXPRS)
         true
       case _ =>

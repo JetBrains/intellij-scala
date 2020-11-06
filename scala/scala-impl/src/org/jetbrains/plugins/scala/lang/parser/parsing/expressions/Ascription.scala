@@ -17,9 +17,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
  * Ascription ::=  ‘:’ InfixType
                 |  ‘:’ Annotation {Annotation}
  */
-object Ascription {
+object Ascription extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON =>
         builder.advanceLexer() //Ate :

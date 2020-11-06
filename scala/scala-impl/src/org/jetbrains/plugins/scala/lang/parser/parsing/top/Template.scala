@@ -30,7 +30,7 @@ sealed abstract class Template extends ParsingRule {
         builder.advanceLexer() // Ate extends
 
         builder.getTokenType match {
-          case `tLBRACE` if !EarlyDef.parse(builder) => bodyRule()
+          case `tLBRACE` if !EarlyDef() => bodyRule()
           case _ =>
             parentsRule()
 

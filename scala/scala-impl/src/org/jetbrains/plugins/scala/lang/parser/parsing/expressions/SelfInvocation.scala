@@ -15,9 +15,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /*
  * SelfInvocation ::= 'this' ArgumentExprs {ArgumentExprs}
  */
-object SelfInvocation {
+object SelfInvocation extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val selfMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kTHIS =>
@@ -27,11 +27,11 @@ object SelfInvocation {
         selfMarker.drop()
         return true
     }
-    if (!ArgumentExprs.parse(builder)) {
+    if (!ArgumentExprs()) {
       selfMarker.done(ScalaElementType.SELF_INVOCATION)
       return true
     }
-    while (!builder.newlineBeforeCurrentToken && ArgumentExprs.parse(builder)) {}
+    while (!builder.newlineBeforeCurrentToken && ArgumentExprs()) {}
     selfMarker.done(ScalaElementType.SELF_INVOCATION)
     true
   }
