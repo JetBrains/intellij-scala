@@ -37,14 +37,13 @@ object Versions {
 
         val version = Version(minVersion)
 
-        loadLinesFrom(url).fold(
+        val lines = loadLinesFrom(url)
+        val versionStrings = lines.fold(
           Function.const(hardcodedVersions),
           extractVersions(_, versionPattern)
-        ).map {
-          Version(_)
-        }.filter {
-          _ >= version
-        }
+        )
+        val versions = versionStrings.map(Version(_))
+        versions.filter(_ >= version)
     }
 
     private[this] def extractVersions(strings: Seq[String],
@@ -56,7 +55,7 @@ object Versions {
 
   case object Scala extends Kind(
     if (isInternalMode)
-      ScalaCandidatesEntity :: DottyEntity :: Nil
+      ScalaCandidatesEntity :: Nil
     else
       ScalaEntity :: Nil
   )
@@ -86,33 +85,25 @@ object Versions {
     import buildinfo.BuildInfo._
 
     val ScalaEntity: Entity = Entity(
-      "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
-      Scala_2_10.major + ".0",
-      scalaVersion :: Scala_2_11.minor :: Scala_2_10.minor :: Nil
-    )
-
-    val Sbt013Entity: Entity = Entity(
-      "https://dl.bintray.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/",
-      "0.13.5",
-      sbtLatest_0_13 :: Nil
-    )
-
-    val Sbt1Entity: Entity = Entity(
-      "https://dl.bintray.com/sbt/maven-releases/org/scala-sbt/sbt-launch/",
-      "1.0.0",
-      (sbtLatestVersion :: sbtLatest_1_0 :: Nil).distinct
-    )
-
-    val DottyEntity: Entity = Entity(
-      s"https://repo1.maven.org/maven2/ch/epfl/lamp/dotty_${Scala_3_0.major}/",
-      Scala_3_0.major + ".0",
-      Scala_3_0.minor :: Nil,
-      ".+>(\\d+\\.\\d+\\.\\d+(?:-\\w+)?)/<.*".r
+      url = "https://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
+      minVersion = Scala_2_10.major + ".0",
+      hardcodedVersions = Scala_2_13.minor :: Scala_2_12.minor :: Scala_2_11.minor :: Scala_2_10.minor :: Nil
     )
 
     val ScalaCandidatesEntity: Entity = ScalaEntity.copy(
-      hardcodedVersions = Scala_2_13.minor :: ScalaEntity.hardcodedVersions,
-      versionPattern = DottyEntity.versionPattern
+      versionPattern = ".+>(\\d+\\.\\d+\\.\\d+(?:-\\w+)?)/<.*".r
+    )
+
+    val Sbt013Entity: Entity = Entity(
+      url = "https://dl.bintray.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/",
+      minVersion = "0.13.18",
+      hardcodedVersions = sbtLatest_0_13 :: Nil
+    )
+
+    val Sbt1Entity: Entity = Entity(
+      url = "https://dl.bintray.com/sbt/maven-releases/org/scala-sbt/sbt-launch/",
+      minVersion = "1.4.1",
+      hardcodedVersions = (sbtLatestVersion :: sbtLatest_1_0 :: Nil).distinct
     )
   }
 }

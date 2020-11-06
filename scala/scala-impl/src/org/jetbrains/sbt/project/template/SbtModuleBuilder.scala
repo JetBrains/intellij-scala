@@ -239,7 +239,7 @@ object SbtModuleBuilder {
   import Sbt._
 
   @NonNls private val Scala3RequiredSbtPlugins =
-    """addSbtPlugin("ch.epfl.lamp" % "sbt-dotty" % "0.3.3")
+    """addSbtPlugin("ch.epfl.lamp" % "sbt-dotty" % "0.4.4")
       |""".stripMargin
 
   private final case class Selections(var sbtVersion: String,

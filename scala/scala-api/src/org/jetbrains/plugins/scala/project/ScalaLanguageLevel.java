@@ -13,7 +13,8 @@ public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel>, Named {
     Scala_2_11("2.11"),
     Scala_2_12("2.12"),
     Scala_2_13("2.13"),
-    Scala_3_0("0.27", "3.0", "0\\.\\d\\d.*");
+    Dotty("0.27"),
+    Scala_3_0("3.0");
 
     @NotNull
     private final String myVersion;

@@ -30,7 +30,9 @@ case class ScalaCompilerSettings(compileOrder: CompileOrder,
                                  specialization: Boolean,
                                  continuations: Boolean,
                                  debuggingInfoLevel: DebuggingInfoLevel,
-                                 dottySbtBridgePath: String,
+                                 // single field for dotty & scala3 artifacts,
+                                 // assuming only one can be used in a module at a time
+                                 scala3BridgePath: String,
                                  additionalCompilerOptions: Seq[String],
                                  plugins: Seq[String]) {
 
@@ -79,7 +81,7 @@ case class ScalaCompilerSettings(compileOrder: CompileOrder,
     state.specialization = specialization
     state.continuations = continuations
     state.debuggingInfoLevel = debuggingInfoLevel
-    state.dottySbtBridgePath = dottySbtBridgePath
+    state.scala3SbtBridgePath = scala3BridgePath
     state.additionalCompilerOptions = additionalCompilerOptions.toArray
     state.plugins = plugins.toArray
     state
@@ -115,7 +117,7 @@ object ScalaCompilerSettings {
       specialization = state.specialization,
       continuations = state.continuations,
       debuggingInfoLevel = state.debuggingInfoLevel,
-      dottySbtBridgePath = state.dottySbtBridgePath,
+      scala3BridgePath = state.scala3SbtBridgePath,
       additionalCompilerOptions = state.additionalCompilerOptions.toSeq,
       plugins = state.plugins.toSeq
     )

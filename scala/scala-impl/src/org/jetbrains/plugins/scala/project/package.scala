@@ -71,7 +71,7 @@ package object project {
 
     private val LibraryVersion = "(?<=[:\\-])\\d+\\.\\d+\\.\\d+[^:\\s]*".r
 
-    private[this] val RuntimeLibrary = "((?:scala|dotty)-library).+".r
+    private[this] val RuntimeLibrary = "((?:scala|dotty|scala3)-library).+".r
 
     private[this] val JarVersion = "(?<=-)\\d+\\.\\d+\\.\\d+\\S*(?=\\.jar$)".r
 

@@ -100,6 +100,14 @@ object CompilerDataFactory
     modules.exists {
       compilerJarsIn(_).exists(_.hasDotty)
     }
+  def hasScala3(modules: Set[JpsModule]): Boolean =
+    modules.exists {
+      compilerJarsIn(_).exists(_.hasDotty)
+    }
+  def hasScala3OrDotty(modules: Set[JpsModule]): Boolean =
+    modules.exists {
+      compilerJarsIn(_).exists(_.hasScala3OrDotty)
+    }
 
   private def hasOldScala(modules: Set[JpsModule]) =
     hasVersions(modules, "2.8", "2.9")
@@ -116,18 +124,16 @@ object CompilerDataFactory
     val options = compilerSettings.getCompilerOptions
     val plugins = compilerSettings.getPlugins
     val modules = chunk.getModules.asScala.toSet
-    val hasDotty = CompilerDataFactory.hasDotty(modules)
+    val hasScala3OrDotty = CompilerDataFactory.hasScala3OrDotty(modules)
 
-    val bootCpArgs = CompilerDataFactory.bootCpArgs(hasDotty, hasOldScala(modules))
+    val bootCpArgs = CompilerDataFactory.bootCpArgs(hasOldScala(modules))
     val implicitlyAddedArgs = CompilerDataFactory.implicitlyAddedArgs(options.toIndexedSeq, plugins.toIndexedSeq, chunk)
-    val otherArgs = options.filterNot(_.startsWith("-g:") && hasDotty) // TODO SCL-16881
+    val otherArgs = options.filterNot(_.startsWith("-g:") && hasScala3OrDotty) // TODO SCL-16881
     bootCpArgs ++ implicitlyAddedArgs ++ otherArgs 
   }
 
-  private def bootCpArgs(hasDotty: => Boolean, hasOldScala: => Boolean): Seq[String] =
-    if (hasDotty) {
-      Seq.empty
-    } else if (hasOldScala) {
+  private def bootCpArgs(hasOldScala: => Boolean): Seq[String] =
+    if (hasOldScala) {
       Seq("-nobootcp", "-javabootclasspath", File.pathSeparator)
     } else {
       Seq.empty

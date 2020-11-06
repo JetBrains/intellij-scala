@@ -129,11 +129,13 @@ lazy val tastyRuntime = newProject("tasty-runtime", file("tasty/runtime"))
 
 lazy val tastyExample = newProject("tasty-example", file("tasty/example"))
   .dependsOn(tastyCompile, tastyProvided % Provided)
-  .settings(scalaVersion := Versions.scalaVersion, libraryDependencies += "ch.epfl.lamp" % "dotty-library_0.27" % "0.27.0-RC1" % Runtime)
+  .settings(scalaVersion := Versions.scalaVersion, libraryDependencies += "org.scala-lang" % "scala3-library_3.0.0-M1" % "3.0.0-M1" % Runtime)
 
 // TODO Remove this synthetic module, package the Runtime dependency automatically.
 lazy val dottyLibraryJar = newProject("dotty-library-jar", file("target/tools/dotty-library-jar"))
   .settings(libraryDependencies += "ch.epfl.lamp" % "dotty-library_0.27" % "0.27.0-RC1", packageMethod := PackagingMethod.DepsOnly("lib"))
+lazy val scala3LibraryJar = newProject("scala3-library-jar", file("target/tools/scala3-library-jar"))
+  .settings(libraryDependencies += "org.scala-lang" % "scala3-library_3.0.0-M1" % "3.0.0-M1", packageMethod := PackagingMethod.DepsOnly("lib"))
 
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
@@ -154,8 +156,9 @@ lazy val scalaImpl: sbt.Project =
       ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
       //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
       libraryDependencies ++= DependencyGroups.scalaCommunity :+
-        "ch.epfl.lamp" % "dotty-library_0.27" % "0.27.0-RC1" % Runtime, // TODO Runtime dependencies must be packaged automatically.
-//      addCompilerPlugin(Dependencies.macroParadise),
+        "ch.epfl.lamp" % "dotty-library_0.27" % "0.27.0-RC1" % Runtime :+ // TODO Runtime dependencies must be packaged automatically.
+        "org.scala-lang" % "scala3-library_3.0.0-M1" % "3.0.0-M1" % Runtime,
+      //      addCompilerPlugin(Dependencies.macroParadise),
       intellijPlugins := Seq(
         "org.intellij.intelliLang",
         "com.intellij.java-i18n",
@@ -170,7 +173,7 @@ lazy val scalaImpl: sbt.Project =
       intellijPluginJars :=
         intellijPluginJars.value.filterNot(cp => cp.data.getName.contains("junit-jupiter-api")),
       packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity),
-      packageAdditionalProjects := Seq(tastyRuntime, dottyLibraryJar),
+      packageAdditionalProjects := Seq(tastyRuntime, dottyLibraryJar, scala3LibraryJar),
       packageLibraryMappings ++= Seq(
         "org.scalameta" %% ".*" % ".*"                        -> Some("lib/scalameta.jar"),
         "com.thesamet.scalapb" %% "scalapb-runtime" % ".*"  -> None,
@@ -397,6 +400,7 @@ lazy val runtimeDependencies =
         Dependencies.sbtInterface -> Some("lib/jps/sbt-interface.jar"),
         Dependencies.zincInterface -> Some("lib/jps/compiler-interface.jar"),
         Dependencies.dottySbtBridge -> Some("lib/jps/dotty-sbt-bridge.jar"),
+        Dependencies.scala3SbtBridge -> Some("lib/jps/scala3-sbt-bridge.jar"),
         Dependencies.compilerBridgeSources_2_13 -> Some("lib/jps/compiler-interface-sources-2.13.jar"),
         Dependencies.compilerBridgeSources_2_11 -> Some("lib/jps/compiler-interface-sources-2.11.jar"),
         Dependencies.compilerBridgeSources_2_10 -> Some("lib/jps/compiler-interface-sources-2.10.jar")
