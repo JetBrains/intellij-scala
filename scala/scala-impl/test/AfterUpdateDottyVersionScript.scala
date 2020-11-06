@@ -13,6 +13,7 @@ import junit.framework.{TestCase, TestFailure, TestResult, TestSuite}
 import org.apache.ivy.osgi.util.ZipUtil
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
+import org.jetbrains.plugins.scala.lang.parser.scala3.imported.Scala3ImportedParserTest_Move_Fixed_Tests
 import org.jetbrains.plugins.scala.lang.parser.scala3.imported.{Scala3ImportedParserTest, Scala3ImportedParserTestBase, Scala3ImportedParserTest_Fail}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -34,7 +35,7 @@ class AfterUpdateDottyVersionScript
       Script.FromTestCase(classOf[DownloadLatestDottyProjectTemplate]) #::
       Script.FromTestCase(classOf[RecompileMacroPrinter3]) #::
       Script.FromTestCase(classOf[Scala3ImportedParserTest_Import_FromDottyDirectory]) #::
-      Script.FromTestSuite(new Scala3ImportedParserTest_Move_Fixed_Tests) #::
+      Script.FromTestSuite(new Scala3ImportedParserTest_Move_Fixed_Tests.Scala3ImportedParserTest_Move_Fixed_Tests) #::
         LazyList.empty
     tests.foreach(runScript)
   }
@@ -67,8 +68,7 @@ class AfterUpdateDottyVersionScript
 }
 
 object AfterUpdateDottyVersionScript {
-  private val dottyParserTestsSuccessDir = TestUtils.getTestDataPath + Scala3ImportedParserTest.directory
-  private val dottyParserTestsFailDir = TestUtils.getTestDataPath +  Scala3ImportedParserTest_Fail.directory
+  import Scala3ImportedParserTest_Move_Fixed_Tests.{dottyParserTestsSuccessDir, dottyParserTestsFailDir}
 
   private def downloadRepository(url: String): File = {
     val repoFile = newTempFile()
@@ -202,42 +202,6 @@ object AfterUpdateDottyVersionScript {
 
     private def clearDirectory(path: String): Unit =
       new File(path).listFiles().foreach(_.delete())
-  }
-
-  /**
-   * Run this main method to move all scala 3 test files that generate no PsiErrorElements anymore to
-   * the succeeding directory
-   *
-   * Use this if you have made progress in the parser and fixed files that produced PsiErrorElement
-   * and, now, make Scala3ImportedParserTest_Fail fail. In this case this method will move those
-   * into the succeeding folder, so they can fail if someone screws anything up in the parser, that
-   * had previously worked.
-   *
-   * @author tobias.kahlert
-   */
-  private class Scala3ImportedParserTest_Move_Fixed_Tests
-    extends Scala3ImportedParserTestBase(Scala3ImportedParserTest_Fail.directory) {
-
-    protected override def transform(testName: String, fileText: String, project: Project): String = {
-      val (errors, _) = findErrorElements(fileText, project)
-
-      if (errors.isEmpty) {
-        val from = dottyParserTestsFailDir + "/" + testName + ".test"
-        val to = dottyParserTestsSuccessDir + "/" + testName + ".test"
-
-        println("Move " + from)
-        println("  to " + to)
-        Files.move(
-          Paths.get(from),
-          Paths.get(to),
-          StandardCopyOption.REPLACE_EXISTING
-        )
-      }
-      // all files of failing test have no ast to test against, so return an empty string here
-      ""
-    }
-
-    override protected def shouldHaveErrorElements: Boolean = throw new UnsupportedOperationException
   }
 
   private def scalaUltimateProjectDir: Path =
