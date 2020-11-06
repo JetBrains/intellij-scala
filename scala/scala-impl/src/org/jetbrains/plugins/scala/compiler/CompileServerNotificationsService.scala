@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.nowarn
 import scala.concurrent.duration.DurationLong
@@ -32,7 +33,7 @@ final class CompileServerNotificationsService(project: Project) {
    */
   @nowarn("msg=pure expression")
   @Cached(modificationTracker, null)
-  def warnIfCompileServerJdkMayLeadToCompilationProblems(): Unit = {
+  def warnIfCompileServerJdkMayLeadToCompilationProblems(): Unit = if (project.hasScala) {
     def serverJdkIsOk(serverJdkVersion: JavaSdkVersion, recommendedJdkVersion: JavaSdkVersion): Boolean =
       if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
         serverJdkVersion == recommendedJdkVersion
