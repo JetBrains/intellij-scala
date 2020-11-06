@@ -11,7 +11,7 @@ import com.intellij.notification.{Notification, NotificationListener, Notificati
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
+import com.intellij.openapi.projectRoots.{JavaSdkVersion, ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.impl.OrderEntryUtil
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
@@ -161,7 +161,6 @@ object CompileServerLauncher {
         } else Nil
         val isScalaCompileServer = s"-D${CompileServerProperties.IsScalaCompileServer}=true"
         val parallelCompilation = s"-D${GlobalOptions.COMPILE_PARALLEL_OPTION}=${settings.COMPILE_SERVER_PARALLEL_COMPILATION}"
-        val illegalAccessDeny = "-Djdk.module.illegalAccess=deny" // SCL-18193
 
         val vmOptions: Seq[String] = if (isUnitTestMode && project == null) Seq() else {
           val buildProcessParameters = BuildProcessParametersProvider.EP_NAME.getExtensions(project).asScala.iterator
@@ -171,6 +170,12 @@ object CompileServerLauncher {
           (buildProcessParameters ++ extraJvmParameters).to(ArraySeq)
         }
 
+        // SCL-18193
+        val addOpensOptions = if (jdk.version.exists(_ isAtLeast JavaSdkVersion.JDK_11))
+          Seq("--add-opens", "java.base/java.util=ALL-UNNAMED")
+        else
+          Seq.empty
+
         val commands =
           jdk.executable.canonicalPath +:
             "-cp" +: nailgunClasspath +:
@@ -178,7 +183,7 @@ object CompileServerLauncher {
             shutdownDelayArg ++:
             isScalaCompileServer +:
             parallelCompilation +:
-            illegalAccessDeny +:
+            addOpensOptions ++:
             vmOptions ++:
             NailgunRunnerFQN +:
             freePort.toString +:
