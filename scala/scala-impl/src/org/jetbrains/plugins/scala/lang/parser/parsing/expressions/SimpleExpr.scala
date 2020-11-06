@@ -172,7 +172,7 @@ object SimpleExpr extends ParsingRule {
           //This is kinda hack for cases when we have to build stubs for sources, that use meta and contain inline keyword
           //Without this we would get different count of stub elements and ast nodes (and exception as the result)  
           marker.drop()
-          Def.parse(builder)
+          Def()
         case _ =>
           marker.drop()
       }

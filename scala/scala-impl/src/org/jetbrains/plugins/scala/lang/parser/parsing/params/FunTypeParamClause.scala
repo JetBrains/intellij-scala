@@ -16,8 +16,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * FunTypeParam ::= '[' TypeParam {',' TypeParam} ']'
  */
 
-object FunTypeParamClause {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+object FunTypeParamClause extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val funMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tLSQBRACKET =>

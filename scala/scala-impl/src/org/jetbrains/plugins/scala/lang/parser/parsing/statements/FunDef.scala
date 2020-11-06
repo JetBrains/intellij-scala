@@ -60,7 +60,7 @@ object FunDef extends ParsingRule {
 
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
-        FunSig parse builder
+        FunSig()
         builder.getTokenType match {
           case ScalaTokenTypes.tCOLON =>
             builder.advanceLexer() //Ate :
@@ -117,7 +117,7 @@ object FunDef extends ParsingRule {
         builder.getTokenType match {
           case ScalaTokenTypes.tASSIGN =>
             builder.advanceLexer() //Ate =
-            if (!ConstrExpr.parse(builder)) {
+            if (!ConstrExpr()) {
               builder error ScalaBundle.message("wrong.constr.expression")
             }
             faultMarker.drop()

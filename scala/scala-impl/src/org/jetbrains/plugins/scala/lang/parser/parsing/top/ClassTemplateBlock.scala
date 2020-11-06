@@ -17,9 +17,9 @@ import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 * Date: 06.03.2008
 * Time: 9:31:16
 */
-object ClassTemplateBlock {
+object ClassTemplateBlock extends ParsingRule{
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val extendsMarker = builder.mark
     var nonEmpty = false
 
@@ -29,13 +29,13 @@ object ClassTemplateBlock {
         nonEmpty = true
         //try to parse early definition if we can't => it's template body
         if (EarlyDef parse builder) {
-          NewExprParents parse builder
+          NewExprParents()
           //parse template body
           builder.getTokenType match {
             case ScalaTokenTypes.tLBRACE if !builder.twoNewlinesBeforeCurrentToken =>
-              TemplateBody parse builder
+              TemplateBody()
             case InScala3(ScalaTokenTypes.tCOLON) =>
-              TemplateBody parse builder
+              TemplateBody()
             case _ =>
           }
           extendsMarker.done(ScalaElementType.EXTENDS_BLOCK)
@@ -43,14 +43,14 @@ object ClassTemplateBlock {
         }
         else {
           //parse template body
-          TemplateBody parse builder
+          TemplateBody()
           extendsMarker.done(ScalaElementType.EXTENDS_BLOCK)
           nonEmpty
         }
       //if we find nl => it could be TemplateBody only, but we can't find nl after extends keyword
       //In this case of course it's ClassParents
       case _ =>
-        if (NewExprParents parse builder) nonEmpty = true
+        if (NewExprParents()) nonEmpty = true
         else if (true) {
           extendsMarker.drop()
           return false
@@ -58,9 +58,9 @@ object ClassTemplateBlock {
         //parse template body
         builder.getTokenType match {
           case ScalaTokenTypes.tLBRACE if !builder.twoNewlinesBeforeCurrentToken =>
-            TemplateBody parse builder
-          case ScalaTokenTypes.tCOLON if builder.isScala3 =>
-            TemplateBody parse builder
+            TemplateBody()
+          case InScala3(ScalaTokenTypes.tCOLON) =>
+            TemplateBody()
           case _ =>
         }
         extendsMarker.done(ScalaElementType.EXTENDS_BLOCK)

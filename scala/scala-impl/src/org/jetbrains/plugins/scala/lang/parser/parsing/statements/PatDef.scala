@@ -17,9 +17,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2
  * PatDef ::= ids [‘:’ Type] ‘=’ Expr
  *          | Pattern2 [‘:’ Type | Ascription] ‘=’ Expr
  */
-object PatDef {
+object PatDef extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val patDefMarker = builder.mark
 
     def parsePatterns(): Boolean = {
@@ -37,7 +37,7 @@ object PatDef {
 
     def parseTypeOrAnnotationAscription(): Boolean = {
       if (builder.getTokenType == ScalaTokenTypes.tCOLON) {
-        Ascription.parse(builder)
+        Ascription()
         true
       } else {
         false
@@ -48,7 +48,7 @@ object PatDef {
       if (builder.getTokenType == ScalaTokenTypes.tASSIGN) {
         builder.checkedAdvanceLexer()
 
-        if (!ExprInIndentationRegion.parse(builder)) {
+        if (!ExprInIndentationRegion()) {
           builder.error(ErrMsg("expression.expected"))
         }
 
