@@ -274,14 +274,14 @@ package object collections {
     def argsText = argListText(args)
 
     if (qual == null) {
-      val argsText = argListText(args)
       s"$methName$argsText"
     } else {
       val qualText = qual.getText
       qual match {
         case _ childOf ScInfixExpr(`qual`, _, _) if args.size == 1 =>
-          s"${qual.getText} $methName ${args.head.getText}"
+          s"$qualText $methName ${args.head.getText}"
         case _: ScInfixExpr => s"($qualText).$methName$argsText"
+        case _: ScFor => s"($qualText).$methName$argsText"
         case _ => s"$qualText.$methName$argsText"
       }
 
