@@ -3,14 +3,14 @@ package parser
 package parsing
 package top
 
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.kWITH
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{kWITH, tCOMMA}
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Constructor
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.AnnotType
 
-sealed abstract class Parents extends ParsingRule {
-
+sealed abstract class Parents(val allowCommaSeparatedParentsInScala3: Boolean = true) extends ParsingRule {
   protected def parseFirstParent()(implicit builder: ScalaPsiBuilder): Boolean =
     parseSimpleType()
 
@@ -30,7 +30,7 @@ sealed abstract class Parents extends ParsingRule {
   private def parseSimpleTypes(continue: Boolean)
                               (implicit builder: ScalaPsiBuilder): Unit =
     builder.getTokenType match {
-      case `kWITH` if continue =>
+      case `kWITH` | CommaIfAllowed() if continue =>
         builder.advanceLexer() // Ate with
         parseSimpleTypes(continue = parseSimpleType())
       case _ =>
@@ -45,6 +45,21 @@ sealed abstract class Parents extends ParsingRule {
 
     result
   }
+
+  private object CommaIfAllowed {
+    def unapply(element: IElementType)(implicit builder: ScalaPsiBuilder): Boolean =
+      element == tCOMMA && builder.isScala3 && allowCommaSeparatedParentsInScala3
+  }
+}
+
+
+/**
+ * [[NewExprParents]] ::= [[Constructor]] { ('with' | ',') [[AnnotType]] }
+ */
+object NewExprParents extends Parents(allowCommaSeparatedParentsInScala3 = false) {
+
+  override protected def parseFirstParent()(implicit builder: ScalaPsiBuilder): Boolean =
+    Constructor.parse(builder)
 }
 
 /**
@@ -62,8 +77,7 @@ object ClassParents extends Parents {
 object MixinParents extends Parents
 
 /**
- * [[ConstrApps]] ::= [[ConstrApp]] { 'with' [[ConstrApp]] }
- * | [[ConstrApp]] { ',' [[ConstrApp]] }
+ * [[ConstrApps]] ::= [[ConstrApp]] { ('with' | ',') [[ConstrApp]] }
  */
 object ConstrApps extends Parents {
 
