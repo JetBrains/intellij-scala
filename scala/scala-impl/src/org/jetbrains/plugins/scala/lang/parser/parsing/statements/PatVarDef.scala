@@ -15,21 +15,21 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 * @author Alexander Podkhalyuzin
 * Date: 06.02.2008
 */
-object PatVarDef {
+object PatVarDef extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder):Boolean = {
+  override def apply()(implicit builder: ScalaPsiBuilder):Boolean = {
     val patVarMarker = builder.mark
 
     Annotations()(builder)
 
     //parse modifiers
     val modifierMarker = builder.mark
-    while (Modifier.parse(builder)) {}
+    while (Modifier()) {}
     modifierMarker.done(ScalaElementType.MODIFIERS)
     builder.getTokenType match {
       case ScalaTokenTypes.kVAL =>
         builder.advanceLexer() //Ate val
-        if (PatDef parse builder) {
+        if (PatDef()) {
           patVarMarker.done(ScalaElementType.PATTERN_DEFINITION)
           true
         }
@@ -39,7 +39,7 @@ object PatVarDef {
         }
       case ScalaTokenTypes.kVAR =>
         builder.advanceLexer() //Ate var
-        if (VarDef parse builder) {
+        if (VarDef()) {
           patVarMarker.done(ScalaElementType.VARIABLE_DEFINITION)
           true
         }

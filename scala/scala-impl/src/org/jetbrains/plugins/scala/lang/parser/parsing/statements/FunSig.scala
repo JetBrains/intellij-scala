@@ -14,12 +14,12 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 * Date: 11.02.2008
 */
 //TODO: rewrite this
-object FunSig {
+object FunSig extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
-    if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
       builder.checkedAdvanceLexer()
-      FunTypeParamClause parse builder
+      FunTypeParamClause()
       ParamClauses parse builder
       true
     } else {

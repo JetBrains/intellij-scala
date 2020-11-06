@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.parser.parsing.types
+package org.jetbrains.plugins.scala.lang.parser
+package parsing
+package types
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -7,8 +9,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /**
  * [[MatchType]] ::= [[InfixType]] [[MatchTypeSuffix]]
  */
-object MatchType {
-  def parse()(implicit builder: ScalaPsiBuilder): Boolean = {
+object MatchType extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
 
     if (!InfixType.parse(builder)) {

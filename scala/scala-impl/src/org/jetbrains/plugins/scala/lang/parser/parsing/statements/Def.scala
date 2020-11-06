@@ -41,7 +41,7 @@ object Def extends ParsingRule {
     builder.getTokenType match {
       case `kVAL` =>
         builder.advanceLexer() //Ate val
-        if (PatDef.parse(builder)) {
+        if (PatDef()) {
           defMarker.done(ScalaElementType.PATTERN_DEFINITION)
           true
         }
@@ -51,7 +51,7 @@ object Def extends ParsingRule {
         }
       case `kVAR` =>
         builder.advanceLexer() //Ate var
-        if (VarDef.parse(builder)) {
+        if (VarDef()) {
           defMarker.done(ScalaElementType.VARIABLE_DEFINITION)
           true
         }
@@ -60,10 +60,10 @@ object Def extends ParsingRule {
           false
         }
       case `kDEF` =>
-        if (MacroDef.parse(builder)) {
+        if (MacroDef()) {
           defMarker.done(ScalaElementType.MACRO_DEFINITION)
           true
-        } else if (FunDef.parse(builder)) {
+        } else if (FunDef()) {
           defMarker.done(ScalaElementType.FUNCTION_DEFINITION)
           true
         } else {
@@ -71,7 +71,7 @@ object Def extends ParsingRule {
           false
         }
       case `kTYPE` =>
-        if (TypeDef.parse(builder)) {
+        if (TypeDef()) {
           defMarker.done(ScalaElementType.TYPE_DEFINITION)
           true
         }

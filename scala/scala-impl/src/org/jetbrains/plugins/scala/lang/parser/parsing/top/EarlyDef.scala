@@ -18,9 +18,9 @@ import scala.annotation.tailrec
 /*
  * EarlyDef ::= '{' [PatVarDef {semi PatVarDef}] '}' 'with'
  */
-object EarlyDef {
+object EarlyDef extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val earlyMarker = builder.mark
     //Look for {
     builder.getTokenType match {
@@ -34,23 +34,23 @@ object EarlyDef {
     }
     //this metod parse recursively PatVarDef {semi PatVarDef}
     @tailrec
-    def subparse: Boolean = {
+    def subparse(): Boolean = {
       builder.getTokenType match {
         case ScalaTokenTypes.tRBRACE =>
           builder.advanceLexer() //Ate }
           true
         case _ =>
-          if (PatVarDef parse builder) {
+          if (PatVarDef()) {
             builder.getTokenType match {
               case ScalaTokenTypes.tRBRACE =>
                 builder.advanceLexer() //Ate }
                 true
               case ScalaTokenTypes.tSEMICOLON =>
                 builder.advanceLexer() //Ate semicolon
-                subparse
+                subparse()
               case _ =>
                 if (builder.newlineBeforeCurrentToken) {
-                  subparse
+                  subparse()
                 } else {
                   false
                 }

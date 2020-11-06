@@ -18,10 +18,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
  *  ValDef ::= PatDef |
  *             ids ':' Type '=' '_'
  */
-object VarDef {
+object VarDef extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
-    if (PatDef.parse(builder)) {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    if (PatDef()) {
       return true
     }
 
@@ -29,7 +29,7 @@ object VarDef {
     val valDefMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
-        Ids parse builder
+        Ids()
         var hasTypeDcl = false
 
         if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
@@ -43,7 +43,7 @@ object VarDef {
           valDefMarker.rollbackTo()
           return false
         }
-        if (!ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
+        if (builder.getTokenType != ScalaTokenTypes.tASSIGN) {
           valDefMarker.rollbackTo()
           false
         } else {
