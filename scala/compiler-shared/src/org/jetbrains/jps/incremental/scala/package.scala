@@ -27,6 +27,13 @@ package object scala {
 
   def containsDotty(files: Iterable[File]): Boolean =
     files.exists(_.getName.startsWith("dotty"))
+  def containsScala3(files: Iterable[File]): Boolean =
+    files.exists(_.getName.startsWith("scala3"))
+  def containsScala3OrDotty(files: Iterable[File]): Boolean =
+    files.exists(f => {
+      val name = f.getName
+      name.startsWith("scala3") ||  name.startsWith("dotty")
+    })
 
   // TODO implement a better version comparison
   def compilerVersionIn(compiler: File, versions: String*): Boolean =

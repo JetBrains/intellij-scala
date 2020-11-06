@@ -196,8 +196,15 @@ object DependencyManagerBase {
 
   private def scalaDependency(kind: String)
                              (implicit scalaVersion: ScalaVersion) = {
+    /**
+     * Examples:
+     *  - https://mvnrepository.com/artifact/ch.epfl.lamp/dotty-library_0.27/0.27.0-RC1
+     *  - https://mvnrepository.com/artifact/org.scala-lang/scala3-library_3.0.0-M1/3.0.0-M1
+     *  - https://mvnrepository.com/artifact/org.scala-lang/scala-library/2.13.3
+     */
     val (org, idPrefix, idSuffix) = scalaVersion.languageLevel match {
-      case ScalaLanguageLevel.Scala_3_0 => ("ch.epfl.lamp", "dotty", "_" + scalaVersion.major)
+      case ScalaLanguageLevel.Dotty     => ("ch.epfl.lamp", "dotty", "_" + scalaVersion.major)
+      case ScalaLanguageLevel.Scala_3_0 => ("org.scala-lang", "scala3", "_" + scalaVersion.minor)
       case _                            => ("org.scala-lang", "scala", "")
     }
 
