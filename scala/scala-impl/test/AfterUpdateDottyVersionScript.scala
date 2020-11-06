@@ -29,13 +29,15 @@ class AfterUpdateDottyVersionScript
 
   import AfterUpdateDottyVersionScript._
 
-  def testRunAllScripts(): Unit =
-    Seq(
-      Script.FromTestCase(classOf[DownloadLatestDottyProjectTemplate]),
-      Script.FromTestCase(classOf[RecompileMacroPrinter3]),
-      Script.FromTestCase(classOf[Scala3ImportedParserTest_Import_FromDottyDirectory]),
-      Script.FromTestSuite(new Scala3ImportedParserTest_Move_Fixed_Tests)
-    ).foreach(runScript(_))
+  def testRunAllScripts(): Unit = {
+    val tests =
+      Script.FromTestCase(classOf[DownloadLatestDottyProjectTemplate]) #::
+      Script.FromTestCase(classOf[RecompileMacroPrinter3]) #::
+      Script.FromTestCase(classOf[Scala3ImportedParserTest_Import_FromDottyDirectory]) #::
+      Script.FromTestSuite(new Scala3ImportedParserTest_Move_Fixed_Tests) #::
+        LazyList.empty
+    tests.foreach(runScript)
+  }
 
   private def runScript[A](script: Script): Unit = script match {
     case Script.FromTestCase(clazz) =>
@@ -65,6 +67,17 @@ class AfterUpdateDottyVersionScript
 }
 
 object AfterUpdateDottyVersionScript {
+  private val dottyParserTestsSuccessDir = TestUtils.getTestDataPath + Scala3ImportedParserTest.directory
+  private val dottyParserTestsFailDir = TestUtils.getTestDataPath +  Scala3ImportedParserTest_Fail.directory
+
+  private def downloadRepository(url: String): File = {
+    val repoFile = newTempFile()
+    DownloadUtil.downloadAtomically(new EmptyProgressIndicator, url, repoFile)
+
+    val repoDir = newTempDir()
+    GithubZipUtil.unzip(null, repoDir, repoFile, null, null, true)
+    repoDir
+  }
 
   /**
    * Downloads the latest Dotty project template
@@ -79,14 +92,8 @@ object AfterUpdateDottyVersionScript {
         "community", "scala", "scala-impl", "resources", "projectTemplates", "dottyTemplate.zip"
       )).toFile
 
-      val url = "https://github.com/lampepfl/dotty.g8/archive/master.zip"
-      val repoFile = newTempFile()
-      DownloadUtil.downloadAtomically(new EmptyProgressIndicator, url, repoFile)
-
-      val repoDir = newTempDir()
-      GithubZipUtil.unzip(null, repoDir, repoFile, null, null, true)
-
-      val dottyTemplateDir = repoDir.toPath.resolve(Paths.get("src", "main", "g8")).toFile
+      val repoPath = downloadRepository("https://github.com/lampepfl/dotty.g8/archive/master.zip").toPath
+      val dottyTemplateDir = repoPath.resolve(Paths.get("src", "main", "g8")).toFile
       ZipUtil.zip(dottyTemplateDir, new FileOutputStream(resultFile))
     }
   }
@@ -136,32 +143,22 @@ object AfterUpdateDottyVersionScript {
   private class Scala3ImportedParserTest_Import_FromDottyDirectory
     extends TestCase {
 
-    /**
-     * The path to the directory with a copy of the newest dotty repo source code.
-     */
-    def dottyDirectory: String = "" // TODO Download repo automatically
-
     def test(): Unit = {
-      if (dottyDirectory.isEmpty) {
-        throw new IllegalArgumentException("You have to specify the Dotty directory")
-      }
-      val srcDir = Paths.get(dottyDirectory, "tests", "pos").toAbsolutePath.toString
+      val repoPath = downloadRepository("https://github.com/lampepfl/dotty/archive/master.zip").toPath
+      val srcDir = repoPath.resolve(Paths.get("tests", "pos")).toAbsolutePath.toString
 
-      val succDir = TestUtils.getTestDataPath + Scala3ImportedParserTest.directory
-      val failDir = TestUtils.getTestDataPath +  Scala3ImportedParserTest_Fail.directory
-
-      clearDirectory(succDir)
-      clearDirectory(failDir)
+      clearDirectory(dottyParserTestsSuccessDir)
+      clearDirectory(dottyParserTestsFailDir)
 
       println("srcdir =  " + srcDir)
-      println("faildir = " + failDir)
+      println("faildir = " + dottyParserTestsFailDir)
 
-      new File(succDir).mkdirs()
-      new File(failDir).mkdirs()
+      new File(dottyParserTestsSuccessDir).mkdirs()
+      new File(dottyParserTestsFailDir).mkdirs()
 
       var atLeastOneFileProcessed = false
       for (file <- allFilesIn(srcDir) if file.toString.toLowerCase.endsWith(".scala"))  {
-        val target = failDir + file.toString.substring(srcDir.length).replace(".scala", "++++test")
+        val target = dottyParserTestsFailDir + file.toString.substring(srcDir.length).replace(".scala", "++++test")
         val content = {
           val src = Source.fromFile(file)
           try {
@@ -172,7 +169,7 @@ object AfterUpdateDottyVersionScript {
 
         val targetFile = new File(target)
 
-        val targetWithDirs = failDir + "/" + Iterator
+        val targetWithDirs = dottyParserTestsFailDir + "/" + Iterator
           .iterate(targetFile)(_.getParentFile)
           .takeWhile(_ != null)
           .takeWhile(!_.isDirectory)
@@ -222,14 +219,11 @@ object AfterUpdateDottyVersionScript {
     extends Scala3ImportedParserTestBase(Scala3ImportedParserTest_Fail.directory) {
 
     protected override def transform(testName: String, fileText: String, project: Project): String = {
-      val succDir = Scala3ImportedParserTest.directory
-      val failDir = Scala3ImportedParserTest_Fail.directory
-
       val (errors, _) = findErrorElements(fileText, project)
 
       if (errors.isEmpty) {
-        val from = getTestDataPath + failDir + "/" + testName + ".test"
-        val to = getTestDataPath + succDir + "/" + testName + ".test"
+        val from = dottyParserTestsFailDir + "/" + testName + ".test"
+        val to = dottyParserTestsSuccessDir + "/" + testName + ".test"
 
         println("Move " + from)
         println("  to " + to)
