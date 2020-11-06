@@ -8,6 +8,7 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 
 /**
  * Type ::= [[InfixTypePrefix]]
@@ -26,9 +27,9 @@ object Type extends Type {
   //   The Scala 3.1 behavior is already available today under the -strict setting.
   def isWildcardStartToken(tokenType: IElementType)(implicit builder: ScalaPsiBuilder): Boolean =
     tokenType match {
-      case ScalaTokenTypes.tQUESTION if builder.isScala3 => true
-      case ScalaTokenTypes.tUNDER                        => true
-      case _                                             => false
+      case InScala3(ScalaTokenTypes.tQUESTION) => true
+      case          ScalaTokenTypes.tUNDER     => true
+      case _                                   => false
     }
 }
 
