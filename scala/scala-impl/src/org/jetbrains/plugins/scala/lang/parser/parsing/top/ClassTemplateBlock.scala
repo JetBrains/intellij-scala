@@ -7,6 +7,7 @@ package top
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateBody
+import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 
 /**
  * [[ClassTemplateBlock]] ::= [EarlyDefs] ClassParents [TemplateBody]
@@ -33,7 +34,7 @@ object ClassTemplateBlock {
           builder.getTokenType match {
             case ScalaTokenTypes.tLBRACE if !builder.twoNewlinesBeforeCurrentToken =>
               TemplateBody parse builder
-            case ScalaTokenTypes.tCOLON if builder.isScala3 =>
+            case InScala3(ScalaTokenTypes.tCOLON) =>
               TemplateBody parse builder
             case _ =>
           }
