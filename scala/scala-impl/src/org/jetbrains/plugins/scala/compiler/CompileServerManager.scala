@@ -46,8 +46,8 @@ final class CompileServerManager(project: Project) extends Disposable {
   override def dispose(): Unit = {
     if (ApplicationManager.getApplication.isUnitTestMode) return
 
-    configureWidget()
     timer.stop()
+    removeWidget()
   }
 
   private def applicable: Boolean = running ||

@@ -76,6 +76,18 @@ class ScalaHighlightConstructorInvocationUsagesTest extends ScalaLightCodeInsigh
     doTest(code)
   }
 
+  def testTraitTypeAnnotationUsage(): Unit = {
+    val code =
+      s"""
+         |object Obj {
+         |  trait ${|<}Test${>|}
+         |  val x: ${|<}Test${>|} = new ${|<}Te${|}st${>|} {}
+         |  new ${|<}Test${>|} {}
+         |}
+       """.stripMargin
+    doTest(code)
+  }
+
   def doTest(fileText: String): Unit = {
     val (fileTextWithoutMarkers, expectedRanges) = extractSequentialMarkers(fileText.withNormalizedSeparator, considerCaret = true)
     val file = myFixture.configureByText("dummy.scala", fileTextWithoutMarkers)
