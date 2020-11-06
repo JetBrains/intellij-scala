@@ -29,9 +29,6 @@ object Common {
     "-language:existentials"
   )
 
-  val jpsJavacOptions = Seq("-source", "1.8", "-target", "1.8")
-  val jpsScalacOptions = Seq("-release", "8", "-deprecation", "-Ymacro-annotations")
-
   def newProject(projectName: String, base: File): Project =
     Project(projectName, base).settings(
       name := projectName,
