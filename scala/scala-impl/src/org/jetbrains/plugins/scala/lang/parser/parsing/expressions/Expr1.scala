@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClauses
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.lang.parser.util.{InScala3, ParserUtils}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -372,7 +372,7 @@ object Expr1 extends ParsingRule {
         ParserUtils.parseLoopUntilRBrace(builder, foo _)
         builder.restoreNewlinesState()
 
-      case ScalaTokenTypes.kCASE if builder.isScala3 =>
+      case InScala3(ScalaTokenTypes.kCASE) =>
         CaseClausesInIndentationRegion()
 
       case _ => builder error ErrMsg("case.clauses.expected")

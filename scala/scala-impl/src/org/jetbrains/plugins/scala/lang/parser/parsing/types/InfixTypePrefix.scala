@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 
 /**
  * [[InfixTypePrefix]] ::= [[InfixType]] ( ((‘=>’ | '?=>') [[Type]])
@@ -50,7 +51,7 @@ object InfixTypePrefix {
           case ScalaTokenTypes.kFOR_SOME =>
             ExistentialClause.parse(builder)
             marker.done(ScalaElementType.EXISTENTIAL_TYPE)
-          case ScalaTokenTypes.kMATCH if builder.isScala3 =>
+          case InScala3(ScalaTokenTypes.kMATCH) =>
             builder.advanceLexer()
             MatchTypeSuffix.parse(builder)
             marker.done(ScalaElementType.MATCH_TYPE)
