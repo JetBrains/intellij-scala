@@ -32,7 +32,7 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
     expectedType =  ScalaTokenTypes.kIF
   )
 
-  /*def test_end_while(): Unit = doTest(
+  def test_end_while(): Unit = doTest(
     """
       |while
       |  stmt1
@@ -54,7 +54,7 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
       |end for
       |""".stripMargin,
     expectedType = ScalaTokenTypes.kFOR
-  )*/
+  )
 
   def test_end_try_finally(): Unit = doTest(
     """
