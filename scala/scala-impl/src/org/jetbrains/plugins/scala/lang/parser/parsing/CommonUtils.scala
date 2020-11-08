@@ -64,9 +64,9 @@ object CommonUtils {
     }
   }
 
-  def eatAllSemicolons(builder: ScalaPsiBuilder, blockIndentation: BlockIndentation): Unit = {
+  def eatAllSemicolons(blockIndentation: BlockIndentation)(implicit builder: ScalaPsiBuilder): Unit = {
     while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) {
-      blockIndentation.fromHere()(builder)
+      blockIndentation.fromHere()
       builder.advanceLexer()
     }
   }
