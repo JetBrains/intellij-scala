@@ -7,7 +7,7 @@ package statements
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
-import org.jetbrains.plugins.scala.lang.parser.parsing.types.{MatchType, Type}
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Bounds, MatchType, Type}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -34,6 +34,11 @@ object TypeDef extends ParsingRule {
         return false
     }
     TypeParamClause.parse(builder)
+
+    if (builder.isScala3) {
+      Bounds.parseSubtypeBounds()
+    }
+
     builder.getTokenType match {
       case ScalaTokenTypes.tASSIGN =>
         builder.advanceLexer() //Ate =
@@ -45,22 +50,6 @@ object TypeDef extends ParsingRule {
           faultMarker.drop()
           builder.error(ScalaBundle.message("wrong.type"))
           false
-        }
-      case ScalaTokenTypes.tUPPER_BOUND if builder.isScala3 =>
-        builder.advanceLexer()
-        if (!Type.parse(builder)) builder.error(ScalaBundle.message("wrong.type"))
-        builder.getTokenType match {
-          case ScalaTokenTypes.tASSIGN =>
-            builder.advanceLexer()
-
-            if (!MatchType())
-              builder.error(ScalaBundle.message("match.type.expected"))
-
-            faultMarker.drop()
-            true
-          case _ =>
-            faultMarker.rollbackTo()
-            false
         }
       case _ =>
         faultMarker.rollbackTo()
