@@ -30,19 +30,19 @@ trait ParamType extends ParsingRule {
     }
 
   def parseInner(builder: ScalaPsiBuilder): Boolean = {
-    builder.getTokenType match {
-      case ScalaTokenTypes.tFUNTYPE =>
-        builder.advanceLexer() //Ate '=>'
-        `type`.parse(builder)
-      case _ =>
-        if (!`type`.parse(builder, star = true)) false
-        else {
-          builder.getTokenText match {
-            case "*" => builder.advanceLexer() // Ate '*'
-            case _ => /* nothing needs to be done */
-          }
-          true
-        }
+    val isByName = builder.getTokenType == ScalaTokenTypes.tFUNTYPE
+    if (isByName) {
+      builder.advanceLexer()
     }
+    val allowStar = !isByName || builder.isScala3
+    val parsedType = `type`.parse(builder, star = allowStar)
+
+    if (parsedType && allowStar) {
+      builder.getTokenText match {
+        case "*" => builder.advanceLexer() // Ate '*'
+        case _ => /* nothing needs to be done */
+      }
+    }
+    parsedType
   }
 }
