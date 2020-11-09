@@ -148,7 +148,7 @@ object ILoopWrapperFactoryHandler {
   // ATTENTION: when editing ILoopWrapperXXXImpl.scala ensure to increase the version
   private case class ILoopWrapperDescriptor(className: String, version: Int)
   private def Scala2ILoopWrapperVersion = 6
-  private def Scala3ILoopWrapperVersion = 10
+  private def Scala3ILoopWrapperVersion = 11
   // 2.12 works OK for 2.11 as well
   private def ILoopWrapper212Impl   = ILoopWrapperDescriptor("ILoopWrapper212Impl", Scala2ILoopWrapperVersion)
   private def ILoopWrapper213_0Impl = ILoopWrapperDescriptor("ILoopWrapper213_0Impl", Scala2ILoopWrapperVersion)
@@ -167,7 +167,7 @@ object ILoopWrapperFactoryHandler {
 
   private[worksheet] case class ScalaVersion(value: String) {
     // temp solution while dotty is evolving very fast
-    val isScala3: Boolean = value.matches("""0\.2\d.*""")
+    val isScala3: Boolean = value.startsWith("""3.""")
   }
 
   private val FallBackScalaVersion = ScalaVersion("2.12.0")
@@ -187,7 +187,7 @@ object ILoopWrapperFactoryHandler {
   private def createIsolatingClassLoader(compilerJars: CompilerJars): URLClassLoader = {
     val jars = compilerJars.allJars
     val parent = IsolatingClassLoader.scalaStdLibIsolatingLoader(this.getClass.getClassLoader)
-    new URLClassLoader(sbt.io.Path.toURLs(jars.toSeq), parent)
+    new URLClassLoader(sbt.io.Path.toURLs(jars), parent)
   }
 
   // use for debugging
