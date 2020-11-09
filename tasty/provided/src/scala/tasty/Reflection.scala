@@ -524,12 +524,6 @@ trait Reflection extends CompilerInterface { reflectSelf =>
 
   def typeOf[T](implicit qtype: scala.quoted.Type[T], ctx: Context): Type = ???
 
-  implicit class TypeOrBoundsOps(tpe: TypeOrBounds) {
-    def showExtractors(implicit ctx: Context): String = ???
-    def show(implicit ctx: Context): String = ???
-    def show(syntaxHighlight: SyntaxHighlight)(implicit ctx: Context): String = ???
-  }
-
   implicit def given_TypeTest_TypeOrBounds_Type(implicit v: Context): TypeTest[TypeOrBounds, Type] = ???
   object Type {
     def apply(clazz: Class[_])(implicit ctx: Context): Type = ???
