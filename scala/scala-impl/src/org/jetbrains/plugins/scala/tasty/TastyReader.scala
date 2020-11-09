@@ -17,13 +17,13 @@ object TastyReader {
 
   // The "dotty-tasty-inspector" transitively depends on many unnecessary libraries.
   private val RequiredLibraries = Seq(
-    "dotty-interfaces",
-    "dotty-compiler",
-    "dotty-tasty-inspector",
+    "scala3-interfaces",
+    "scala3-compiler",
+    "scala3-tasty-inspector",
     "tasty-core",
     // TODO Why do we also need those libraries in the URL classloader? (tasty-example works fine without them)
     "scala-library",
-    "dotty-library",
+    "scala3-library",
   )
 
   // TODO Async, Progress, GC, error handling
@@ -34,7 +34,7 @@ object TastyReader {
         // TODO TASTy inspect: an ability to detect .tasty file version, https://github.com/lampepfl/dotty-feature-requests/issues/99
         // TODO TASTy inspect: make dotty-compiler depend on tasty-inspector https://github.com/lampepfl/dotty-feature-requests/issues/100
         // TODO Introduce the version variable
-        val tastyInspectorDependency = DependencyDescription("ch.epfl.lamp", "dotty-tasty-inspector_0.27", "0.27.0-RC1", isTransitive = true)
+        val tastyInspectorDependency = DependencyDescription("org.scala-lang", "scala3-tasty-inspector_3.0.0-M1", "3.0.0-M1", isTransitive = true)
         Resolver.resolve(tastyInspectorDependency).map(_.file).filter(jar => RequiredLibraries.exists(jar.getPath.contains))
       }
 
