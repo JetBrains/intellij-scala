@@ -17,10 +17,9 @@ class G
 }
 
 class Groups1 {
-  import java.util.ArrayList
-
   import pack.G
 
+  import java.util.ArrayList
   import scala.collection.mutable.ArrayBuffer
 
   val b: ArrayBuffer[Int] = null

@@ -84,7 +84,6 @@ abstract class ConvertJavaToScalaCollectionIntentionBaseTest(converters: String)
     val text =
       s"""
         |import java.util
-        |
         |import $converters
         |
         |class UsesJavaCollections {
@@ -94,7 +93,6 @@ abstract class ConvertJavaToScalaCollectionIntentionBaseTest(converters: String)
     val resultText =
       s"""
         |import java.util
-        |
         |import $converters
         |
         |class UsesJavaCollections {

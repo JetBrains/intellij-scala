@@ -28,7 +28,7 @@ object TastyReader {
 
   // TODO Async, Progress, GC, error handling
   private lazy val api: ConsumeTasty = {
-    var jarFiles = {
+    val jarFiles = {
       val resolvedJars = {
         val Resolver = new DependencyManagerBase {override protected val artifactBlackList = Set.empty[String] }
         // TODO TASTy inspect: an ability to detect .tasty file version, https://github.com/lampepfl/dotty-feature-requests/issues/99
@@ -87,12 +87,15 @@ object TastyReader {
 
   // TODO Remove (convenience for debugging purposes)
   // NB: The plugin artifact must be build before running.
+  // cd ~/IdeaProjects
+  // git clone https://github.com/lampepfl/dotty-example-project.git
+  // cd dotty-example-project ; sbt compile
   def main(args: Array[String]): Unit = {
-    val basePath = System.getProperty("user.home") + "/IdeaProjects/dotty-example-project/"
+    val DottyExampleProject = System.getProperty("user.home") + "/IdeaProjects/dotty-example-project"
 
     def textAt(position: Position): String =
       if (position.start == -1) "<undefined>"
-      else new String(Files.readAllBytes(Paths.get(basePath + position.file))).substring(position.start, position.end)
+      else new String(Files.readAllBytes(Paths.get(DottyExampleProject + "/" + position.file))).substring(position.start, position.end)
 
     val exampleClasses = Seq(
       "AutoParamTupling",
@@ -111,9 +114,17 @@ object TastyReader {
       "UnionTypes",
     )
 
+    assertExists(DottyExampleProject)
+
+    val outputDir = DottyExampleProject + "/target/scala-0.27/classes"
+    assertExists(outputDir)
+
     exampleClasses.foreach { fqn =>
+      assertExists(outputDir + "/" + fqn.replace('.', '/') + ".class")
+      assertExists(outputDir + "/" + fqn.replace('.', '/') + ".tasty")
+
       println(fqn)
-      val file = read(TastyPath(basePath + "target/scala-0.27/classes", fqn)).get
+      val file = read(TastyPath(outputDir, fqn)).get
       println(file.text)
 
       (file.references ++ file.types).sortBy {
@@ -127,4 +138,6 @@ object TastyReader {
       }
     }
   }
+
+  private def assertExists(path: String): Unit = assert(new File(path).exists, path)
 }

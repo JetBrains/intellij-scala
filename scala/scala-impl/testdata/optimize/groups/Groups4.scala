@@ -15,9 +15,9 @@ package pack {
 class G
 }
 
-import java.util.ArrayList
-
 import pack.G
+
+import java.util.ArrayList
 
 class Groups4 {
   val c: ArrayList[Int] = null
