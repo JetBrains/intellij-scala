@@ -162,25 +162,27 @@ object AfterUpdateDottyVersionScript {
           } finally src.close()
         }
 
-        val targetFile = new File(target)
+        if (!content.contains("import language.experimental")) {
+          val targetFile = new File(target)
 
-        val targetWithDirs = dottyParserTestsFailDir + "/" + Iterator
-          .iterate(targetFile)(_.getParentFile)
-          .takeWhile(_ != null)
-          .takeWhile(!_.isDirectory)
-          .map(_.getName.replace('.', '_').replace("++++", "."))
-          .toSeq
-          .reverse
-          .mkString("_")
-        println(file.toString + " -> " + targetWithDirs)
+          val targetWithDirs = dottyParserTestsFailDir + "/" + Iterator
+            .iterate(targetFile)(_.getParentFile)
+            .takeWhile(_ != null)
+            .takeWhile(!_.isDirectory)
+            .map(_.getName.replace('.', '_').replace("++++", "."))
+            .toSeq
+            .reverse
+            .mkString("_")
+          println(file.toString + " -> " + targetWithDirs)
 
-        val pw = new PrintWriter(targetWithDirs)
-        pw.write(content)
-        if (content.last != '\n')
-          pw.write('\n')
-        pw.println("-----")
-        pw.close()
-        atLeastOneFileProcessed = true
+          val pw = new PrintWriter(targetWithDirs)
+          pw.write(content)
+          if (content.last != '\n')
+            pw.write('\n')
+          pw.println("-----")
+          pw.close()
+          atLeastOneFileProcessed = true
+        }
       }
       if (!atLeastOneFileProcessed)
         throw new AssertionError("No files were processed")
