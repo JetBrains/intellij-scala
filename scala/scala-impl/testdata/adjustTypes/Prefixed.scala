@@ -5,7 +5,6 @@ object Prefixed /*start*/{
 
 /*
 import java.util
-
 import scala.collection.mutable
 
 object Prefixed /*start*/{
