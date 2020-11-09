@@ -10,33 +10,38 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.Constructor
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.AnnotType
 
+import scala.annotation.tailrec
+
 sealed abstract class Parents(val allowCommaSeparatedParentsInScala3: Boolean = true) extends ParsingRule {
-  protected def parseFirstParent()(implicit builder: ScalaPsiBuilder): Boolean =
-    parseSimpleType()
+  protected def parseFirstParent()(implicit builder: ScalaPsiBuilder): Boolean
 
   protected def parseParent()(implicit builder: ScalaPsiBuilder): Boolean =
-    AnnotType.parse(builder, isPattern = false)
+    if (builder.isScala3) Constructor()
+    else AnnotType.parse(builder, isPattern = false)
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
 
-    parseSimpleTypes(continue = parseFirstParent())
+    if (parseFirstParent()) {
+      parseNextSimpleTypes()
+    }
 
     marker.done(ScalaElementType.TEMPLATE_PARENTS)
     true
   }
 
-  @annotation.tailrec
-  private def parseSimpleTypes(continue: Boolean)
-                              (implicit builder: ScalaPsiBuilder): Unit =
+  @tailrec
+  private def parseNextSimpleTypes()(implicit builder: ScalaPsiBuilder): Unit =
     builder.getTokenType match {
-      case `kWITH` | CommaIfAllowed() if continue =>
+      case `kWITH` | CommaIfAllowed() =>
         builder.advanceLexer() // Ate with
-        parseSimpleTypes(continue = parseSimpleType())
+        if (parseSimpleType()) {
+          parseNextSimpleTypes()
+        }
       case _ =>
     }
 
-  private def parseSimpleType()(implicit builder: ScalaPsiBuilder): Boolean = {
+  protected def parseSimpleType()(implicit builder: ScalaPsiBuilder): Boolean = {
     val result = parseParent()
 
     if (!result) {
@@ -59,7 +64,7 @@ sealed abstract class Parents(val allowCommaSeparatedParentsInScala3: Boolean = 
 object NewExprParents extends Parents(allowCommaSeparatedParentsInScala3 = false) {
 
   override protected def parseFirstParent()(implicit builder: ScalaPsiBuilder): Boolean =
-    Constructor.parse(builder)
+    Constructor()
 }
 
 /**
@@ -68,19 +73,24 @@ object NewExprParents extends Parents(allowCommaSeparatedParentsInScala3 = false
 object ClassParents extends Parents {
 
   override protected def parseFirstParent()(implicit builder: ScalaPsiBuilder): Boolean =
-    Constructor.parse(builder)
+    Constructor()
 }
 
 /**
  * [[MixinParents]] ::= [[AnnotType]] { 'with' [[AnnotType]] }
  */
-object MixinParents extends Parents
+object MixinParents extends Parents {
+  override protected def parseFirstParent()(implicit builder: ScalaPsiBuilder): Boolean =
+    parseSimpleType()
+}
 
 /**
  * [[ConstrApps]] ::= [[ConstrApp]] { ('with' | ',') [[ConstrApp]] }
  */
 object ConstrApps extends Parents {
+  override protected def parseFirstParent()(implicit builder: ScalaPsiBuilder): Boolean =
+    Constructor()
 
   override protected def parseParent()(implicit builder: ScalaPsiBuilder): Boolean =
-    Constructor.parse(builder)
+    Constructor()
 }
