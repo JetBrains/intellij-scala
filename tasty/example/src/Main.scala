@@ -4,6 +4,9 @@ import java.net.URLClassLoader
 import scala.quoted.show.SyntaxHighlight
 import scala.tasty.compat.{ConsumeTasty, Reflection, TastyConsumer}
 
+// cd ~/IdeaProjects
+// git clone https://github.com/lampepfl/dotty-example-project.git
+// cd dotty-example-project ; sbt compile
 object Main {
   val tastyConsumer: TastyConsumer = new TastyConsumer {
     override def apply(reflect: Reflection)(tree: reflect.delegate.Tree): Unit = {
@@ -24,16 +27,17 @@ object Main {
   }
 
   def main(args: Array[String]): Unit = {
-    val home = System.getProperty("user.home")
-
+    val Home = System.getProperty("user.home")
+    val DottyExampleProject = Home + "/IdeaProjects/dotty-example-project"
     val Version = "0.27.0-RC1"
-    val MajorVersion = Version.split('.').take(2).mkString(".")
+
+    val majorVersion = Version.split('.').take(2).mkString(".")
 
     val files = Seq(
-      s"$home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/dotty-interfaces/$Version/dotty-interfaces-$Version.jar",
-      s"$home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/dotty-compiler_$MajorVersion//$Version/dotty-compiler_$MajorVersion-$Version.jar",
-      s"$home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/dotty-tasty-inspector_$MajorVersion//$Version/dotty-tasty-inspector_$MajorVersion-$Version.jar",
-      s"$home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/tasty-core_$MajorVersion//$Version/tasty-core_$MajorVersion-$Version.jar",
+      s"$Home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/dotty-interfaces/$Version/dotty-interfaces-$Version.jar",
+      s"$Home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/dotty-compiler_$majorVersion//$Version/dotty-compiler_$majorVersion-$Version.jar",
+      s"$Home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/dotty-tasty-inspector_$majorVersion//$Version/dotty-tasty-inspector_$majorVersion-$Version.jar",
+      s"$Home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/tasty-core_$majorVersion//$Version/tasty-core_$majorVersion-$Version.jar",
       "target/plugin/Scala/lib/tasty/tasty-runtime.jar",
     )
 
@@ -77,9 +81,19 @@ object Main {
       "UnionTypes",
     )
 
+    assertExists(DottyExampleProject)
+
+    val outputDir = DottyExampleProject + "/target/scala-" + majorVersion + "/classes"
+    assertExists(outputDir)
+
     exampleClasses.foreach { fqn =>
+      assertExists(outputDir + "/" + fqn.replace('.', '/') + ".class")
+      assertExists(outputDir + "/" + fqn.replace('.', '/') + ".tasty")
+
       println(fqn)
-      consumeTasty.apply(home + "/IdeaProjects/dotty-example-project/target/scala-" + MajorVersion + "/classes", List(fqn), tastyConsumer)
+      consumeTasty.apply(outputDir, List(fqn), tastyConsumer)
     }
   }
+
+  private def assertExists(path: String): Unit = assert(new File(path).exists, path)
 }
