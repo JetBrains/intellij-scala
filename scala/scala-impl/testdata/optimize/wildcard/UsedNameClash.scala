@@ -14,7 +14,6 @@ class UsedNameClash {
 
 /*
 import java.util.{Random => _, _}
-
 import scala.util._
 
 class UsedNameClash {

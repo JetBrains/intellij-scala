@@ -16,10 +16,9 @@ package scalala {
   class G
 }
 
-import java.util.ArrayList
-
 import scalala.G
 
+import java.util.ArrayList
 import scala.collection.mutable.ArrayBuffer
 
 class Groups1 {
