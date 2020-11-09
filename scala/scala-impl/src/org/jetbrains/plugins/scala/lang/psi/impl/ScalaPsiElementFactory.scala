@@ -253,7 +253,7 @@ object ScalaPsiElementFactory {
     createElementWithContext[ScParameters](text, context, contextLastChild(context))(ClassParamClauses()(_))
 
   def createConstructorFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScConstructorInvocation =
-    createElementWithContext[ScConstructorInvocation](text, context, child)(parsingBase.Constructor.parse)
+    createElementWithContext[ScConstructorInvocation](text, context, child)(parsingBase.Constructor()(_))
 
   def createParamClausesWithContext(@NonNls text: String, context: PsiElement, child: PsiElement): ScParameters =
     createElementWithContext[ScParameters](text, context, child)(params.ParamClauses.parse)
