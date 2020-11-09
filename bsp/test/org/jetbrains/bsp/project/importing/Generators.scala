@@ -2,18 +2,17 @@ package org.jetbrains.bsp.project.importing
 
 import java.io.File
 import java.nio.file.{Path, Paths}
-
 import ch.epfl.scala.bsp.testkit.gen.Bsp4jGenerators._
 import ch.epfl.scala.bsp.testkit.gen.UtilGenerators.{genFileUriString, genPath}
 import ch.epfl.scala.bsp.testkit.gen.bsp4jArbitrary._
 import ch.epfl.scala.bsp4j.{BuildTarget, BuildTargetIdentifier}
 import com.google.gson.{Gson, GsonBuilder}
+import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.bsp.data.JdkData
 import org.jetbrains.bsp.data.ScalaSdkData
 import org.jetbrains.bsp.project.importing.BspResolverDescriptors.{ModuleDescription, SourceDirectory, _}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
-
 import scala.jdk.CollectionConverters._
 import org.jetbrains.sbt.RichOption
 
@@ -26,6 +25,7 @@ object Generators {
   implicit val arbModuleDescription: Arbitrary[ModuleDescription] = Arbitrary(genModuleDescription)
   implicit val arbVersion: Arbitrary[String] = Arbitrary(genVersion)
   implicit val arbPath: Arbitrary[Path] = Arbitrary(genPath)
+  implicit val arbLanguageLevel: Arbitrary[LanguageLevel] = Arbitrary(genLanguageLevel)
   implicit val arbSourceDirectory: Arbitrary[SourceDirectory] = Arbitrary(genSourceDirectory)
 
   /** A system-dependent file path. */
@@ -42,6 +42,11 @@ object Generators {
     val sub = Paths.get(truncated)
     root.resolve(sub)
   }
+
+  def genLanguageLevel: Gen[LanguageLevel] = for {
+     n <- Gen.chooseNum(0, LanguageLevel.values().size - 1)
+     value = LanguageLevel.values()(n)
+  } yield value
 
   def genVersion: Gen[String] = for {
     n <- Gen.chooseNum(0,4)
@@ -120,7 +125,7 @@ object Generators {
     moduleKind <- genModuleKind
   } yield {
     val data = ModuleDescriptionData(id, name, targets, targetDependencies, targetTestDependencies, basePath.map(_.toFile), output, testOutput,
-      sourceDirs, testSourceDirs, resourceDirs, testResourceDirs, classPath, classPathSources, testClassPath, testClassPathSources)
+      sourceDirs, testSourceDirs, resourceDirs, testResourceDirs, classPath, classPathSources, testClassPath, testClassPathSources, None)
     ModuleDescription(data, moduleKind)
   }
 
