@@ -8,6 +8,8 @@ import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
+import scala.annotation.tailrec
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 06.02.2008
@@ -17,12 +19,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
   QualId ::= id {. id}
 */
 
-object Qual_Id {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
-    val qualMarker = builder.mark
-    return parse(builder,qualMarker)
+object QualId extends ParsingRule {
+
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    parseNext(builder.mark)
+    true
   }
-  def parse(builder: ScalaPsiBuilder, qualMarker: PsiBuilder.Marker): Boolean = {
+
+  @tailrec
+  private def parseNext(qualMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Unit = {
     //parsing td identifier
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
@@ -34,19 +39,16 @@ object Qual_Id {
             qualMarker.done(ScalaElementType.REFERENCE)
             builder.advanceLexer() //Ate dot
             //recursively parse qualified identifier
-            Qual_Id parse(builder, newMarker)
-            return true
+            parseNext(newMarker)
           }
           case _ => {
             //It's OK, let's close marker
             qualMarker.done(ScalaElementType.REFERENCE)
-            return true
           }
         }
       case _ =>
         builder error ScalaBundle.message("wrong.qual.identifier")
         qualMarker.drop()
-        return true
     }
   }
 }

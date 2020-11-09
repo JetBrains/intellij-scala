@@ -5,7 +5,7 @@ package parsing
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.Qual_Id
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.QualId
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /** 
@@ -23,7 +23,7 @@ object Packaging {
     builder.getTokenType match {
       case ScalaTokenTypes.kPACKAGE =>
         builder.advanceLexer() //Ate package
-        if (!(Qual_Id parse builder)) {
+        if (!(QualId parse builder)) {
           packMarker.drop()
           return false
         }
