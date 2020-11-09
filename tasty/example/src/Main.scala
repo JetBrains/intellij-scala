@@ -27,23 +27,31 @@ object Main {
   }
 
   def main(args: Array[String]): Unit = {
-    val Home = System.getProperty("user.home")
-    val DottyExampleProject = Home + "/IdeaProjects/dotty-example-project"
-    val Version = "0.27.0-RC1"
+    val home = System.getProperty("user.home")
+//    val coursierCacheFolder = s"$home/AppData/Local/Coursier/cache" // Windows 1
+//    val coursierCacheFolder = s"$home/.coursier/cache" // Windows 2
+    val coursierCacheFolder = s"$home/.cache/coursier" // Unix
+    val mavenCacheRoot = s"$coursierCacheFolder/v1/https/repo1.maven.org/maven2"
 
-    val majorVersion = Version.split('.').take(2).mkString(".")
+    val Version = "3.0.0-M1"
+    val MajorVersion = Version // it is the same for "3.0.0-M1"
+    //val MajorVersion = Version.split('.').take(2).mkString(".")
 
     val files = Seq(
-      s"$Home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/dotty-interfaces/$Version/dotty-interfaces-$Version.jar",
-      s"$Home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/dotty-compiler_$majorVersion//$Version/dotty-compiler_$majorVersion-$Version.jar",
-      s"$Home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/dotty-tasty-inspector_$majorVersion//$Version/dotty-tasty-inspector_$majorVersion-$Version.jar",
-      s"$Home/.cache/coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/tasty-core_$majorVersion//$Version/tasty-core_$majorVersion-$Version.jar",
+      s"$mavenCacheRoot/org/scala-lang/scala3-interfaces/$Version/scala3-interfaces-$Version.jar",
+      s"$mavenCacheRoot/org/scala-lang/scala3-compiler_$MajorVersion/$Version/scala3-compiler_$MajorVersion-$Version.jar",
+      s"$mavenCacheRoot/org/scala-lang/scala3-tasty-inspector_$MajorVersion//$Version/scala3-tasty-inspector_$MajorVersion-$Version.jar",
+      s"$mavenCacheRoot/org/scala-lang/tasty-core_$MajorVersion//$Version/tasty-core_$MajorVersion-$Version.jar",
       "target/plugin/Scala/lib/tasty/tasty-runtime.jar",
     )
 
     val urls = files.map(file => new File(file).toURI.toURL)
 
-    urls.foreach(url => assert(new File(url.toURI).exists(), url.toString))
+    println("Creating classloader for jars:")
+    urls.foreach { url =>
+      assert(new File(url.toURI).exists(), url.toString)
+      println("  " + url)
+    }
 
     val loader = new URLClassLoader(urls.toArray, getClass.getClassLoader)
 
@@ -73,7 +81,7 @@ object Main {
       "IntersectionTypes",
       "Main",
       "MultiversalEquality",
-      "NamedTypeArguments",
+//      "NamedTypeArguments",
 //      "PatternMatching",
       "StructuralTypes",
       "TraitParams",
@@ -81,17 +89,20 @@ object Main {
       "UnionTypes",
     )
 
-    assertExists(DottyExampleProject)
 
-    val outputDir = DottyExampleProject + "/target/scala-" + majorVersion + "/classes"
-    assertExists(outputDir)
+    val exampleProject = new File(home + "/IdeaProjects/dotty-example-project/")
+    assert(exampleProject.exists(), s"Dotty example project doesn't exist under ${exampleProject.toPath}")
+
+    val outputDir = new File(exampleProject, "target/scala-" + MajorVersion + "/classes")
+    assert(outputDir.exists(), s"Dotty example project classes are not compiled: ${outputDir}")
 
     exampleClasses.foreach { fqn =>
-      assertExists(outputDir + "/" + fqn.replace('.', '/') + ".class")
-      assertExists(outputDir + "/" + fqn.replace('.', '/') + ".tasty")
-
       println(fqn)
-      consumeTasty.apply(outputDir, List(fqn), tastyConsumer)
+      assertExists(s"$outputDir/${fqn.replace('.', '/')}.class")
+      assertExists(s"$outputDir/${fqn.replace('.', '/')}.tasty")
+
+      val classes = outputDir.getAbsolutePath
+      consumeTasty.apply(classes, List(fqn), tastyConsumer)
     }
   }
 
