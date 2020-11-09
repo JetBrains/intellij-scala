@@ -318,7 +318,7 @@ object BspProjectResolver {
   //noinspection ReferencePassedToNls
   private def fetchJavacOptions(targets: List[BuildTarget], parentId: EventId)(implicit bsp: BspServer, reporter: BuildReporter) = {
     val javaTargetIds = targets
-      .filter(t => t.getLanguageIds.contains("java") && t.getDataKind == BuildTargetDataKind.JVM)
+      .filter(_.getLanguageIds.contains("java"))
       .map(_.getId).asJava
 
     if (! javaTargetIds.isEmpty) {
