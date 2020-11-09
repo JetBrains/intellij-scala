@@ -16,7 +16,6 @@ class G
 }
 
 import java.util.ArrayList
-
 import scala.collection.mutable.ArrayBuffer
 
 class Groups2 {
