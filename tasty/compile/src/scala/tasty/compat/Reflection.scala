@@ -340,10 +340,10 @@ class Reflection(val delegate: scala.tasty.Reflection) {
     def patterns(implicit ctx: Context): List[Tree] = Alternatives.extension_patterns(self)
   }
 
-  implicit class TypeOrBoundsOps(tpe: TypeOrBounds) {
-    def showExtractors(implicit ctx: Context): String = ???
-    def show(implicit ctx: Context): String = ???
-    def show(syntaxHighlight: SyntaxHighlight)(implicit ctx: Context): String = ???
+  implicit class TypeOrBoundsOpsOps(self: TypeOrBounds) {
+    def showExtractors(implicit ctx: Context): String = TypeOrBoundsOps.extension_showExtractors(self)
+    def show(implicit ctx: Context): String = TypeOrBoundsOps.extension_show(self)
+    def show(syntaxHighlight: SyntaxHighlight)(implicit ctx: Context): String = TypeOrBoundsOps.extension_show(self, syntaxHighlight)
   }
 
   implicit class TypeOps(self: Type) {
