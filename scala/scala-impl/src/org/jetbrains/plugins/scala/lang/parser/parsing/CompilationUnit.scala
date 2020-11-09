@@ -4,13 +4,13 @@ package parser
 package parsing
 
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.Qual_Id
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.QualId
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 import scala.annotation.tailrec
 
 /**
- * [[CompilationUnit]] ::= [ 'package' [[Qual_Id]] StatementSeparator ] [[TopStatSeq]]
+ * [[CompilationUnit]] ::= [ 'package' [[QualId]] StatementSeparator ] [[TopStatSeq]]
  *
  * @author Alexander Podkhalyuzin
  *         Date: 05.02.2008
@@ -68,7 +68,7 @@ object CompilationUnit {
 
                 builder.getTokenType match {
                   case `tIDENTIFIER` =>
-                    Qual_Id.parse(builder)
+                    QualId.parse(builder)
                     // Detect explicit packaging with curly braces
 
                     builder.getTokenType match {
