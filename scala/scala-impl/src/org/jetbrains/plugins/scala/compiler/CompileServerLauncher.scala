@@ -17,6 +17,7 @@ import com.intellij.openapi.roots.impl.OrderEntryUtil
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
 import com.intellij.util.net.NetUtils
 import javax.swing.event.HyperlinkEvent
+import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.extensions._
@@ -42,14 +43,11 @@ object CompileServerLauncher {
   /* @see [[org.jetbrains.plugins.scala.compiler.ServerMediatorTask]] */
   private class Listener extends BuildManagerListener {
 
-    override def beforeBuildProcessStarted(project: Project, sessionId: UUID): Unit = {
+    override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit = {
       ensureCompileServerRunning(project)
       if (ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED)
         CompileServerNotificationsService.get(project).warnIfCompileServerJdkMayLeadToCompilationProblems()
     }
-
-    override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit =
-      ensureCompileServerRunning(project)
 
     private def ensureCompileServerRunning(project: Project): Unit = {
       val settings = ScalaCompileServerSettings.getInstance
@@ -95,7 +93,7 @@ object CompileServerLauncher {
 
   private def start(project: Project): Boolean = {
     val result = for {
-      jdk     <- compileServerJdk(project).left.map(m => ScalaBundle.nls("jdk.for.compiler.process.not.found", m))
+      jdk     <- compileServerJdk(project)
       process <- start(project, jdk)
     } yield process
 
@@ -108,8 +106,23 @@ object CompileServerLauncher {
         true
       case Left(error)  =>
         val title = ScalaBundle.message("cannot.start.scala.compile.server")
-        Notifications.Bus.notify(new Notification("scala", title, error.nls, NotificationType.ERROR))
-        LOG.error(title, error.nls)
+        val groupId = "scala"
+        error match {
+          case CompileServerProblem.SdkNotSpecified =>
+            val text =
+              s"""No SDK specified.<p/>
+                 |Please specify it in the <a href="">Compile Server Settings</a>
+                 |""".stripMargin
+            val listener: NotificationListener = { (notification: Notification, _: HyperlinkEvent) =>
+              notification.expire()
+              CompileServerManager.showCompileServerSettingsDialog(project)
+            }
+            Notifications.Bus.notify(new Notification(groupId, title, text, NotificationType.ERROR, listener))
+          case error: CompileServerProblem.Error =>
+            val text = ScalaBundle.nls("jdk.for.compiler.process.not.found", error.text)
+            Notifications.Bus.notify(new Notification(groupId, title, text, NotificationType.ERROR))
+            LOG.error(title, text)
+        }
         false
     }
   }
@@ -121,7 +134,7 @@ object CompileServerLauncher {
     filesPath        <- extension.classpathSeq
   } yield new File(pluginsLibs, filesPath)
 
-  private def start(project: Project, jdk: JDK): Either[NlsString, Process] = {
+  private def start(project: Project, jdk: JDK): Either[CompileServerProblem.Error, Process] = {
     LOG.traceWithDebugInDev(s"starting server")
 
     val settings = ScalaCompileServerSettings.getInstance
@@ -199,7 +212,7 @@ object CompileServerLauncher {
 
         catching(classOf[IOException])
           .either(builder.start())
-          .left.map(e => NlsString.force(e.getMessage))
+          .left.map(e => CompileServerProblem.Error(NlsString.force(e.getMessage)))
           .map { process =>
             val watcher = new ProcessWatcher(process, "scalaCompileServer")
             val instance = ServerInstance(watcher, freePort, builder.directory(), jdk)
@@ -210,7 +223,7 @@ object CompileServerLauncher {
           }
       case (_, absentFiles) =>
         val paths = absentFiles.map(_.getPath).mkString(", ")
-        Left(ScalaBundle.nls("required.file.not.found.paths", paths))
+        Left(CompileServerProblem.Error(ScalaBundle.message("required.file.not.found.paths", paths)))
     }
   }
 
@@ -241,22 +254,27 @@ object CompileServerLauncher {
   def errors(): Seq[String] = serverInstance.map(_.errors()).getOrElse(Seq.empty)
 
   def port: Option[Int] = serverInstance.map(_.port)
-  
+
   def defaultSdk(project: Project): Sdk =
     CompileServerJdkManager.recommendedSdk(project)
       .getOrElse(CompileServerJdkManager.getBuildProcessRuntimeSdk(project))
 
-  def compileServerSdk(project: Project): Either[NlsString, Sdk] = {
+  def compileServerSdk(project: Project): Either[CompileServerProblem, Sdk] = {
     val settings = ScalaCompileServerSettings.getInstance()
 
     val sdk =
-      if (settings.USE_DEFAULT_SDK) Option(defaultSdk(project)).toRight(ScalaBundle.nls("can.t.find.default.jdk"))
-      else Option(ProjectJdkTable.getInstance().findJdk(settings.COMPILE_SERVER_SDK)).toRight(ScalaBundle.nls("cant.find.jdk", settings.COMPILE_SERVER_SDK))
-
+      if (settings.USE_DEFAULT_SDK)
+        Option(defaultSdk(project))
+          .toRight(CompileServerProblem.Error(ScalaBundle.message("can.t.find.default.jdk")))
+      else if (settings.COMPILE_SERVER_SDK != null)
+        Option(ProjectJdkTable.getInstance().findJdk(settings.COMPILE_SERVER_SDK))
+          .toRight(CompileServerProblem.Error(ScalaBundle.message("cant.find.jdk", settings.COMPILE_SERVER_SDK)))
+      else
+        Left(CompileServerProblem.SdkNotSpecified)
     sdk
   }
 
-  def compileServerJdk(project: Project): Either[NlsString, JDK] = {
+  def compileServerJdk(project: Project): Either[CompileServerProblem, JDK] = {
     val sdk = compileServerSdk(project)
     sdk.flatMap(toJdk)
   }
@@ -378,6 +396,13 @@ object CompileServerLauncher {
 
       notification.expire()
     }
+  }
+
+  sealed trait CompileServerProblem
+
+  object CompileServerProblem {
+    final case object SdkNotSpecified extends CompileServerProblem
+    final case class Error(@Nls text: String) extends CompileServerProblem
   }
 }
 
