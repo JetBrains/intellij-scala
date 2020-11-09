@@ -9,6 +9,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import org.jetbrains.plugins.scala.extensions.Valid
 
+import scala.reflect.{ClassTag, classTag}
 import scala.collection.compat.immutable.ArraySeq
 
 trait ScalaPsiElement extends PsiElement
@@ -51,11 +52,12 @@ trait ScalaPsiElement extends PsiElement
 
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T]
 
+  // TODO: use classTag as in findChildren
   protected final def findChild[T >: Null <: ScalaPsiElement](clazz: Class[T]): Option[T] =
     Option(findChildByClassScala(clazz))
 
-  protected final def findChildren[T >: Null <: ScalaPsiElement](clazz: Class[T]): Seq[T] =
-    ArraySeq.unsafeWrapArray(findChildrenByClassScala(clazz))
+  protected final def findChildren[T >: Null <: ScalaPsiElement: ClassTag]: Seq[T] =
+    ArraySeq.unsafeWrapArray(findChildrenByClassScala(classTag[T].runtimeClass.asInstanceOf[Class[T]]))
 
   def findLastChildByType[T <: PsiElement](t: tree.IElementType): T = {
     var node = getNode.getLastChildNode
