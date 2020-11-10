@@ -4,7 +4,7 @@
 -----
 ScalaFile
   MatchStatement
-    Literal
+    IntegerLiteral
       PsiElement(integer)('1')
     PsiWhiteSpace(' ')
     PsiElement(match)('match')
@@ -16,7 +16,7 @@ ScalaFile
         PsiElement(case)('case')
         PsiWhiteSpace(' ')
         LiteralPattern
-          Literal
+          IntegerLiteral
             PsiElement(integer)('1')
         PsiWhiteSpace(' ')
         PsiElement(=>)('=>')
