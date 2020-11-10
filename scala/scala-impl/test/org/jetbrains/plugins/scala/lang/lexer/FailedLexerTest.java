@@ -1,5 +1,11 @@
 package org.jetbrains.plugins.scala.lang.lexer;
 
+/*
+No more failing lexer tests!
+Leave commented code here for the time we may fail again.
+Until then: Hurray!
+
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.PerfCycleTests;
 import org.junit.experimental.categories.Category;
@@ -21,3 +27,4 @@ public class FailedLexerTest extends ScalaLexerTestBase {
         return new FailedLexerTest();
     }
 }
+ */
