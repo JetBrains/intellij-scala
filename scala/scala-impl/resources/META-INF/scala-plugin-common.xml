@@ -741,7 +741,7 @@
 
         <intentionAction>
             <category>Scala</category>
-            <className>org.jetbrains.plugins.scala.editor.documentationProvider.CreateScalaDocStubIntentionAction</className>
+            <className>org.jetbrains.plugins.scala.editor.documentationProvider.actions.CreateScalaDocStubIntentionAction</className>
         </intentionAction>
 
         <lang.elementManipulator forClass="org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral"
@@ -1862,7 +1862,7 @@
         <action id="Scala.GenerateScaladoc" class="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocAction">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </action>
-        <action id="Scala.CreateScalaDocStub" class="org.jetbrains.plugins.scala.editor.documentationProvider.CreateScalaDocStubAction">
+        <action id="Scala.CreateScalaDocStub" class="org.jetbrains.plugins.scala.editor.documentationProvider.actions.CreateScalaDocStubAction">
             <!-- The shortcut is overridden by "Toggle rendered view" -->
             <!--<keyboard-shortcut first-keystroke="ctrl alt Q" keymap="$default"/>-->
             <keyboard-shortcut first-keystroke="ctrl alt L" keymap="Mac OS X"/>

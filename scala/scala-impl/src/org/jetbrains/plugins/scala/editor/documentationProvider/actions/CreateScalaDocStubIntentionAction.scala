@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.editor.documentationProvider
+package org.jetbrains.plugins.scala.editor.documentationProvider.actions
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.Editor
