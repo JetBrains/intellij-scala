@@ -95,7 +95,7 @@ public class CompilerIndicesSettingsForm {
     }
 
     private void updateSbtKeysTextAreaText() {
-        String messagePrefix = "ideaPort in Global :";
+        String messagePrefix = "ideaPort in Global :=";
         buildSettingsTextArea.setText(String.format("%s %d", messagePrefix, portSelector.getNumber()));
     }
 
