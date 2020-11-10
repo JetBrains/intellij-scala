@@ -12,8 +12,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 * Date: 11.02.2008
 */
 
-object ImportSelector {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+object ImportSelector extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val importSelectorMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
@@ -24,6 +24,7 @@ object ImportSelector {
         importSelectorMarker.drop()
         return false
     }
+
     builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE =>
         builder.advanceLexer() //Ate =>
@@ -31,17 +32,17 @@ object ImportSelector {
           case ScalaTokenTypes.tUNDER | ScalaTokenTypes.tIDENTIFIER => {
             builder.advanceLexer() //Ate _ | identifier
             importSelectorMarker.done(ScalaElementType.IMPORT_SELECTOR)
-            return true
+            true
           }
           case _ => {
             builder error ErrMsg("identifier.or.wild.sign.expected")
             importSelectorMarker.done(ScalaElementType.IMPORT_SELECTOR)
-            return true
+            true
           }
         }
       case _ =>
         importSelectorMarker.done(ScalaElementType.IMPORT_SELECTOR)
-        return true
+        true
     }
   }
 }

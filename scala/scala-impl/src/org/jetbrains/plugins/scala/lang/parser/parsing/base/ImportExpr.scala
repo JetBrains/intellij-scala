@@ -4,9 +4,10 @@ package parser
 package parsing
 package base
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
+import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 
 /**
 * User: Alexander.Podkhalyuzin
@@ -16,8 +17,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
  *  ImportExpr ::= StableId  '.'  (id | '_'  | ImportSelectors)
  */
 
-object ImportExpr {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+object ImportExpr extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val importExprMarker = builder.mark
     if (!StableId.parse(builder, forImport = true, ScalaElementType.REFERENCE)) {
       builder error ErrMsg("identifier.expected")
@@ -32,7 +33,8 @@ object ImportExpr {
     builder.advanceLexer()
     builder.getTokenType match {
       case ScalaTokenTypes.tUNDER => builder.advanceLexer() //Ate _
-      case ScalaTokenTypes.tLBRACE => ImportSelectors parse builder
+      case ScalaTokenTypes.tLBRACE => ImportSelectors()
+      case InScala3(ScalaTokenType.GivenKeyword) => builder.advanceLexer() // Ate given
       case _ => builder error ErrMsg("identifier.or.opening.brace.expected")
     }
     importExprMarker.done(ScalaElementType.IMPORT_EXPR)
