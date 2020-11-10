@@ -12,6 +12,9 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
+import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocStubGenerator
+import org.jetbrains.plugins.scala.editor.documentationProvider.CreateScalaDocStubAction.createStub
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -59,32 +62,11 @@ class CreateScalaDocStubAction extends AnAction(
         }
       case _ =>
     }
-  
-  private def createStub(docOwner: ScDocCommentOwner, psiDocument: Document): Unit = {
-    val stubText = ScalaDocStubGenerator.createScalaDocStub(docOwner).trim()
-    val newComment = createDocCommentFromText(stubText)(docOwner.getManager)
-    val project = docOwner.getProject
-    val docCommentEnd = docOwner.getTextRange.getStartOffset
-    
-    CommandProcessor.getInstance().executeCommand(project, new Runnable {
-      override def run(): Unit = {
-        inWriteAction {
-          psiDocument insertString (docCommentEnd, newComment.getText + "\n")
-          PsiDocumentManager getInstance project commitDocument psiDocument
-        }
-        
-        val docRange = docOwner.getDocComment.getTextRange
-        inWriteAction {
-          CodeStyleManager getInstance project reformatText (docOwner.getContainingFile, docRange.getStartOffset, docRange.getEndOffset + 2)
-        }
-      }
-    }, ScalaEditorBundle.message("action.create.scaladoc.stub"), null, psiDocument)
-  }
-  
+
   private def recreateStub(docOwner: ScDocCommentOwner, psiDocument: Document): Unit = {
     val oldComment = docOwner.getDocComment.asInstanceOf[ScDocComment]
     val oldTags = oldComment findTagsByName (_ => true)
-    
+
     def filterTags[T](groupName: String, newTags: mutable.HashMap[String, T]): Unit = {
       oldTags foreach {
         case tag if tag.getName == groupName => newTags remove tag.getValueElement.getText match {
@@ -111,8 +93,8 @@ class CreateScalaDocStubAction extends AnAction(
 
       (groupNames zip paramMaps).foldLeft(firstAnchor.getTextRange.getEndOffset) {
         case (anchor, (name, paramMap)) => paramMap.foldLeft(anchor) {
-          case (currentAnchor, param) => 
-            val newTagText = 
+          case (currentAnchor, param) =>
+            val newTagText =
               if (psiDocument.getText(new TextRange(currentAnchor - 1, currentAnchor)) == "*") s"$name ${param._2.getName} \n"
               else s"* $name ${param._2.getName} \n"
             psiDocument.insertString(currentAnchor, newTagText)
@@ -140,5 +122,29 @@ class CreateScalaDocStubAction extends AnAction(
         }
       }
     }, ScalaEditorBundle.message("action.create.scaladoc.stub"), null, psiDocument)
+  }
+}
+
+object CreateScalaDocStubAction {
+
+  private[documentationProvider]
+  def createStub(docOwner: ScDocCommentOwner, psiDocument: Document): Unit = {
+    val stubText = ScalaDocStubGenerator.createScalaDocStub(docOwner).trim
+    val newComment = createDocCommentFromText(stubText)(docOwner.getManager)
+    val project = docOwner.getProject
+    val docCommentEnd = docOwner.getTextRange.getStartOffset
+
+    val commandBody: Runnable = () => {
+      inWriteAction {
+        psiDocument.insertString(docCommentEnd, newComment.getText + "\n")
+        PsiDocumentManager.getInstance(project).commitDocument(psiDocument)
+      }
+
+      val docRange = docOwner.getDocComment.getTextRange
+      inWriteAction {
+        CodeStyleManager.getInstance(project).reformatText(docOwner.getContainingFile, docRange.getStartOffset, docRange.getEndOffset + 2)
+      }
+    }
+    CommandProcessor.getInstance().executeCommand(project, commandBody, ScalaEditorBundle.message("action.create.scaladoc.stub"), null, psiDocument)
   }
 }

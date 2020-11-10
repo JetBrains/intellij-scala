@@ -1,0 +1,1 @@
+class <spot></spot>User(name: String, age: Int)
