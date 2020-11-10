@@ -1,0 +1,5 @@
+/**
+ * @param name
+ * @param age
+ */
+class User(name: String, age: Int)
