@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
-import com.intellij.ide.scratch.{ScratchFileService, ScratchFileServiceImpl, ScratchUtil}
-import com.intellij.lang.Language
+import com.intellij.ide.scratch.ScratchUtil
+import com.intellij.lang.LanguageUtil
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
@@ -46,17 +46,11 @@ class ScalaOutOfSourcesResolveScopeProvider extends ResolveScopeProvider {
 
 object ScalaOutOfSourcesResolveScopeProvider {
 
-  private def isScalaScratchFile(file: VirtualFile, project: Project): Boolean = {
-    ScratchUtil.isScratch(file) && scratchFileLanguage(file, project).exists(_.isKindOf(ScalaLanguage.INSTANCE))
-  }
-
-  private def scratchFileLanguage(file: VirtualFile, project: Project): Option[Language] = {
-    val fromMapping = Option(ScratchFileService.getInstance.getScratchesMapping.getMapping(file))
-    fromMapping.orElse {
-      val substituted = Option(ScratchFileServiceImpl.Substitutor.substituteLanguage(project, file))
-      substituted
+  private def isScalaScratchFile(file: VirtualFile, project: Project): Boolean =
+    ScratchUtil.isScratch(file) && {
+      val language = Option(LanguageUtil.getLanguageForPsi(project, file))
+      language.exists(_.isKindOf(ScalaLanguage.INSTANCE))
     }
-  }
 
   private def isExternalScalaFile(file: VirtualFile, project: Project): Boolean =
     if (project.isDefault) false else {
