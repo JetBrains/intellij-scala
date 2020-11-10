@@ -739,6 +739,11 @@
             <className>org.jetbrains.plugins.scala.codeInsight.intention.collections.FilterSetContainsIntention</className>
         </intentionAction>
 
+        <intentionAction>
+            <category>Scala</category>
+            <className>org.jetbrains.plugins.scala.editor.documentationProvider.CreateScalaDocStubIntentionAction</className>
+        </intentionAction>
+
         <lang.elementManipulator forClass="org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral"
                                  implementationClass="org.jetbrains.plugins.scala.injection.ScalaInjectedStringLiteralManipulator"/>
 
@@ -1858,9 +1863,11 @@
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </action>
         <action id="Scala.CreateScalaDocStub" class="org.jetbrains.plugins.scala.editor.documentationProvider.CreateScalaDocStubAction">
-            <keyboard-shortcut first-keystroke="ctrl alt Q" keymap="$default"/>
+            <!-- The shortcut is overridden by "Toggle rendered view" -->
+            <!--<keyboard-shortcut first-keystroke="ctrl alt Q" keymap="$default"/>-->
             <keyboard-shortcut first-keystroke="ctrl alt L" keymap="Mac OS X"/>
         </action>
+
         <action id="Scala.ShowImplicitArguments" class="org.jetbrains.plugins.scala.actions.implicitArguments.ShowImplicitArgumentsAction">
             <keyboard-shortcut first-keystroke="control shift P" keymap="$default"/>
         </action>
