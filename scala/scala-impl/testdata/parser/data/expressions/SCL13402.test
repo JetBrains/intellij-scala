@@ -1,0 +1,45 @@
+for {
+  x <- Seq(1 to 10)
+}
+
+println(x)
+-----
+ScalaFile
+  ForStatement
+    PsiElement(for)('for')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiWhiteSpace('\n  ')
+    Enumerators
+      Generator
+        ReferencePattern: x
+          PsiElement(identifier)('x')
+        PsiWhiteSpace(' ')
+        PsiElement(<-)('<-')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: Seq
+            PsiElement(identifier)('Seq')
+          ArgumentList
+            PsiElement(()('(')
+            InfixExpression
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: to
+                PsiElement(identifier)('to')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('10')
+            PsiElement())(')')
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    MethodCall
+      ReferenceExpression: println
+        PsiElement(identifier)('println')
+      ArgumentList
+        PsiElement(()('(')
+        ReferenceExpression: x
+          PsiElement(identifier)('x')
+        PsiElement())(')')
