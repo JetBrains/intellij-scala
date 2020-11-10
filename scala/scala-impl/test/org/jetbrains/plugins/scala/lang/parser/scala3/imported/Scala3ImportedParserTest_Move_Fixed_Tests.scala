@@ -51,14 +51,6 @@ object Scala3ImportedParserTest_Move_Fixed_Tests {
       ""
     }
 
-    for {
-      x <- Seq(1 to 10)
-    }
-
-
-
-      println(x)
-
     override protected def shouldHaveErrorElements: Boolean = throw new UnsupportedOperationException
   }
 }
