@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 20.02.2008
 */
@@ -28,7 +28,6 @@ trait ScExtendsBlock extends ScalaPsiElement {
 
   def templateBody: Option[ScTemplateBody]
 
-
   /*
    * Return true if extends block is empty
    * @return is block empty
@@ -41,19 +40,21 @@ trait ScExtendsBlock extends ScalaPsiElement {
 
   def earlyDefinitions: Option[ScEarlyDefinitions]
 
-  def typeDefinitions : Seq[ScTypeDefinition]
+  def typeDefinitions: Seq[ScTypeDefinition]
 
-  def superTypes : List[ScType]
+  def superTypes: List[ScType]
 
-  def supers : Seq[PsiClass]
+  def supers: Seq[PsiClass]
 
   def isAnonymousClass: Boolean
 
-  def selfTypeElement : Option[ScSelfTypeElement]
+  def selfTypeElement: Option[ScSelfTypeElement]
 
-  def selfType : Option[ScType]
-  
+  def selfType: Option[ScType]
+
   def isUnderCaseClass: Boolean
+
+  def isEnumDefinition: Boolean
 
   def addEarlyDefinitions(): ScEarlyDefinitions
 

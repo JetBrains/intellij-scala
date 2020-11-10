@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlockImpl._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -89,6 +90,10 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
       buffer ++= scalaSerializable
     }
 
+    if (isEnumDefinition) {
+      buffer ++= scalaReflectEnum
+    }
+
     def extract(scType: ScType): Boolean = {
       scType.extractClass match {
         case Some(_: ScObject) => true
@@ -101,8 +106,9 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
     val findResult = buffer.find {
       case AnyVal | AnyRef | Any => true
-      case t => extract(t)
+      case t                     => extract(t)
     }
+
     findResult match {
       case Some(AnyVal) => //do nothing
       case res@(Some(AnyRef) | Some(Any)) =>
@@ -115,23 +121,18 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     buffer.toList
   }
 
-  private def scalaProductClass: Option[PsiClass] =
-    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Product")
+  private def cachedClass(name: String): Option[PsiClass] =
+    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, name)
 
-  private def scalaSerializableClass: Option[PsiClass] =
-    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Serializable")
+  private def scalaProductClass: Option[PsiClass]      = cachedClass(ScalaProduct)
+  private def scalaSerializableClass: Option[PsiClass] = cachedClass(ScalaSerializable)
+  private def javaObjectClass: Option[PsiClass]        = cachedClass(JavaLangObject)
+  private def scalaReflectEnumClass: Option[PsiClass]  = cachedClass(ScalaReflectEnum)
 
-  private def javaObjectClass: Option[PsiClass] =
-    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.Object")
-
-  private def scalaProduct: Option[ScType] =
-    scalaProductClass.map(ScalaType.designator)
-
-  private def scalaSerializable: Option[ScType] =
-    scalaSerializableClass.map(ScalaType.designator)
-
-  private def javaObject: Option[ScDesignatorType] =
-    javaObjectClass.map(ScDesignatorType(_))
+  private def scalaProduct: Option[ScType]         = scalaProductClass.map(ScalaType.designator)
+  private def scalaSerializable: Option[ScType]    = scalaSerializableClass.map(ScalaType.designator)
+  private def scalaReflectEnum: Option[ScType]     = scalaReflectEnumClass.map(ScalaType.designator)
+  private def javaObject: Option[ScDesignatorType] = javaObjectClass.map(ScDesignatorType(_))
 
   override def isAnonymousClass: Boolean =
     getParent match {
@@ -161,6 +162,8 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
       buffer ++= scalaProductClass
       buffer ++= scalaSerializableClass
     }
+
+    if (isEnumDefinition) buffer ++= scalaReflectEnumClass
 
     buffer.find {
       case _: ScSyntheticClass => true
@@ -242,7 +245,12 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
   override def isUnderCaseClass: Boolean = getParentByStub match {
     case td: ScTypeDefinition if td.isCase => true
-    case _ => false
+    case _                                 => false
+  }
+
+  override def isEnumDefinition: Boolean = getParentByStub match {
+    case _: ScEnum => true
+    case _         => false
   }
 
   private def templateBodies = templateBody.toSeq
@@ -250,6 +258,11 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
 
 object ScExtendsBlockImpl {
+  private val ScalaProduct      = "scala.Product"
+  private val ScalaSerializable = "scala.Serializable"
+  private val ScalaReflectEnum  = "scala.reflect.Enum"
+  private val JavaLangObject    = "java.lang.Object"
+
   private def extractSupers(typeElements: Seq[ScTypeElement])
                            (implicit project: ProjectContext): Seq[PsiClass] =
     typeElements.flatMap {
