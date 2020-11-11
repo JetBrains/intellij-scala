@@ -1,10 +1,10 @@
 package scala.tasty.inspector
 
-import scala.tasty.Reflection
+import scala.quoted.QuoteContext
 
-// Reproduces the API & ABI of https://github.com/lampepfl/dotty/blob/master/tasty-inspector/src/scala/tasty/inspector/TastyInspector.scala
+// Reproduces the API & ABI of https://github.com/lampepfl/dotty/blob/M1/tasty-inspector/src/scala/tasty/inspector/TastyInspector.scala
 trait TastyInspector {
-  protected def processCompilationUnit(reflect: Reflection)(root: reflect.Tree): Unit
+  protected def processCompilationUnit(context: QuoteContext)(root: context.reflect.Tree): Unit
 
   // Scala 2 expects "init" method in a trait with a concrete method.
   // https://github.com/scala/scala-dev/issues/642

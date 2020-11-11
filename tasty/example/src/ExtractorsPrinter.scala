@@ -1,28 +1,28 @@
 import scala.tasty.compat._
 
-// Copy of https://github.com/lampepfl/dotty/blob/0.27.0-RC1/library/src/scala/tasty/reflect/ExtractorsPrinter.scala with cosmetic Scala 2.x updates.
-class ExtractorsPrinter[R <: Reflection with Singleton](val tasty: R) {
-  import tasty.delegate._
-  import tasty._
+// Copy of https://github.com/lampepfl/dotty/blob/M1/library/src/scala/tasty/reflect/ExtractorsPrinter.scala with cosmetic Scala 2.x updates.
+class ExtractorsPrinter[R <: Reflection with Singleton](val reflect: R) {
+  import reflect._
+  import reflect.delegate._
 
-  def showTree(tree: Tree)(implicit ctx: Context): String =
+ def showTree(tree: Tree): String =
     new Buffer().visitTree(tree).result()
 
-  def showTypeOrBounds(tpe: TypeOrBounds)(implicit ctx: Context): String =
+  def showType(tpe: TypeRepr): String =
     new Buffer().visitType(tpe).result()
 
-  def showConstant(const: Constant)(implicit ctx: Context): String =
+  def showConstant(const: Constant): String =
     new Buffer().visitConstant(const).result()
 
-  def showSymbol(symbol: Symbol)(implicit ctx: Context): String =
+  def showSymbol(symbol: Symbol): String =
     new Buffer().visitSymbol(symbol).result()
 
-  def showFlags(flags: Flags)(implicit ctx: Context): String = {
+  def showFlags(flags: Flags): String = {
     val flagList = List.newBuilder[String]
     if (flags.is(Flags.Abstract)) flagList += "Flags.Abstract"
     if (flags.is(Flags.Artifact)) flagList += "Flags.Artifact"
     if (flags.is(Flags.Case)) flagList += "Flags.Case"
-    if (flags.is(Flags.CaseAcessor)) flagList += "Flags.CaseAcessor"
+    if (flags.is(Flags.CaseAccessor)) flagList += "Flags.CaseAccessor"
     if (flags.is(Flags.Contravariant)) flagList += "Flags.Contravariant"
     if (flags.is(Flags.Covariant)) flagList += "Flags.Covariant"
     if (flags.is(Flags.Enum)) flagList += "Flags.Enum"
@@ -47,7 +47,7 @@ class ExtractorsPrinter[R <: Reflection with Singleton](val tasty: R) {
     if (flags.is(Flags.Private)) flagList += "Flags.Private"
     if (flags.is(Flags.PrivateLocal)) flagList += "Flags.PrivateLocal"
     if (flags.is(Flags.Protected)) flagList += "Flags.Protected"
-    if (flags.is(Flags.Scala2X)) flagList += "Flags.Scala2X"
+    if (flags.is(Flags.Scala2x)) flagList += "Flags.Scala2x"
     if (flags.is(Flags.Sealed)) flagList += "Flags.Sealed"
     if (flags.is(Flags.StableRealizable)) flagList += "Flags.StableRealizable"
     if (flags.is(Flags.Static)) flagList += "Flags.javaStatic"
@@ -56,8 +56,7 @@ class ExtractorsPrinter[R <: Reflection with Singleton](val tasty: R) {
     flagList.result().mkString(" | ")
   }
 
-  private class Buffer(implicit ctx: Context) { self =>
-
+  private class Buffer { self =>
     private val sb: StringBuilder = new StringBuilder
 
     def result(): String = sb.result()
@@ -119,8 +118,6 @@ class ExtractorsPrinter[R <: Reflection with Singleton](val tasty: R) {
         this += ", "
         visitList[TypeTree](derived, visitTree)
         this += ", " += self += ", " ++= body += ")"
-      case PackageDef(name, owner) =>
-        this += "PackageDef(\"" += name += "\", " += owner += ")"
       case Import(expr, selectors) =>
         this += "Import(" += expr += ", " ++= selectors += ")"
       case PackageClause(pid, stats) =>
@@ -168,23 +165,23 @@ class ExtractorsPrinter[R <: Reflection with Singleton](val tasty: R) {
     }
 
     def visitConstant(x: Constant): Buffer = x match {
-      case Constant(()) => this += "Constant(())"
-      case Constant(null) => this += "Constant(null)"
-      case Constant(value: Boolean) => this += "Constant(" += value += ")"
-      case Constant(value: Byte) => this += "Constant(" += value += ": Byte)"
-      case Constant(value: Short) => this += "Constant(" += value += ": Short)"
-      case Constant(value: Char) => this += "Constant('" += value += "')"
-      case Constant(value: Int) => this += "Constant(" += value.toString += ")"
-      case Constant(value: Long) => this += "Constant(" += value += "L)"
-      case Constant(value: Float) => this += "Constant(" += value += "f)"
-      case Constant(value: Double) => this += "Constant(" += value += "d)"
-      case Constant(value: String) => this += "Constant(\"" += value += "\")"
-      case Constant.ClassTag(value) =>
-        this += "Constant.ClassTag("
+      case Constant.Unit() => this += "Constant.Unit()"
+      case Constant.Null() => this += "Constant.Null()"
+      case Constant.Boolean(value) => this += "Constant.Boolean(" += value += ")"
+      case Constant.Byte(value) => this += "Constant.Byte(" += value += ")"
+      case Constant.Short(value) => this += "Constant.Short(" += value += ")"
+      case Constant.Int(value) => this += "Constant.Int(" += value += ")"
+      case Constant.Long(value) => this += "Constant.Long(" += value += "L)"
+      case Constant.Float(value) => this += "Constant.Float(" += value += "f)"
+      case Constant.Double(value) => this += "Constant.Double(" += value += "d)"
+      case Constant.Char(value) => this += "Constant.Char('" += value += "')"
+      case Constant.String(value) => this += "Constant.String(\"" += value += "\")"
+      case Constant.ClassOf(value) =>
+        this += "Constant.ClassOf("
         visitType(value) += ")"
     }
 
-    def visitType(x: TypeOrBounds): Buffer = x match {
+    def visitType(x: TypeRepr): Buffer = x match {
       case ConstantType(value) =>
         this += "ConstantType(" += value += ")"
       case TermRef(qual, name) =>
@@ -228,11 +225,6 @@ class ExtractorsPrinter[R <: Reflection with Singleton](val tasty: R) {
         this += "NoPrefix()"
     }
 
-    def visitId(x: Id): Buffer = {
-      val Id(name) = x
-      this += "Id(\"" += name += "\")"
-    }
-
     def visitSignature(sig: Signature): Buffer = {
       val Signature(params, res) = sig
       this += "Signature(" ++= params.map(_.toString) += ", " += res += ")"
@@ -264,6 +256,10 @@ class ExtractorsPrinter[R <: Reflection with Singleton](val tasty: R) {
 
     def ++=(xs: List[String]): Buffer = visitList[String](xs, +=)
 
+    private implicit class StringOps(buff: Buffer) {
+      def +=(x: Option[String]): Buffer = { visitOption(x, (y: String) => buff += "\"" += y += "\""); buff }
+    }
+
     private implicit class TreeOps(buff: Buffer) {
       def +=(x: Tree): Buffer = { visitTree(x); buff }
       def +=(x: Option[Tree]): Buffer = { visitOption(x, visitTree); buff }
@@ -276,14 +272,9 @@ class ExtractorsPrinter[R <: Reflection with Singleton](val tasty: R) {
     }
 
     private implicit class TypeOps(buff: Buffer) {
-      def +=(x: TypeOrBounds): Buffer = { visitType(x); buff }
-      def +=(x: Option[TypeOrBounds]): Buffer = { visitOption(x, visitType); buff }
-      def ++=(x: List[TypeOrBounds]): Buffer = { visitList(x, visitType); buff }
-    }
-
-    private implicit class IdOps(buff: Buffer) {
-      def +=(x: Id): Buffer = { visitId(x); buff }
-      def +=(x: Option[Id]): Buffer = { visitOption(x, visitId); buff }
+      def +=(x: TypeRepr): Buffer = { visitType(x); buff }
+      def +=(x: Option[TypeRepr]): Buffer = { visitOption(x, visitType); buff }
+      def ++=(x: List[TypeRepr]): Buffer = { visitList(x, visitType); buff }
     }
 
     private implicit class SignatureOps(buff: Buffer) {

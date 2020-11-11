@@ -3,10 +3,10 @@ package scala.tasty.reflect
 import scala.tasty.Reflection
 
 trait Printer[R <: Reflection ] {
-  val tasty: R 
-  def showTree(tree: tasty.Tree)(implicit ctx: tasty.Context): String
-  def showTypeOrBounds(tpe: tasty.TypeOrBounds)(implicit ctx: tasty.Context): String
-  def showConstant(const: tasty.Constant)(implicit ctx: tasty.Context): String
-  def showSymbol(symbol: tasty.Symbol)(implicit ctx: tasty.Context): String
-  def showFlags(flags: tasty.Flags)(implicit ctx: tasty.Context): String
-} 
+  val reflect: R
+  import reflect._
+  def showTree(tree: Tree): String
+  def showType(tpe: TypeRepr): String
+  def showConstant(const: Constant): String
+  def showSymbol(symbol: Symbol): String
+  def showFlags(flags: Flags): String}
