@@ -431,7 +431,7 @@ def testOnlyCategory(category: String): String =
   s"testOnly -- --include-categories=$category --exclude-categories=$flakyTests"
 
 addCommandAlias("runPerfOptTests", testOnlyCategory(perfOptTests))
-addCommandAlias("runSlowTests", testOnlyCategory(debuggerTests))
+addCommandAlias("runSlowTests", testOnlyCategory(slowTests))
 addCommandAlias("runDebuggerTests", testOnlyCategory(debuggerTests))
 addCommandAlias("runHighlightingTests", testOnlyCategory(highlightingTests))
 addCommandAlias("runScalacTests", testOnlyCategory(scalacTests))
