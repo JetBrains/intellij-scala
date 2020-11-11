@@ -10,6 +10,7 @@ import com.intellij.openapi.project.{Project, ProjectManagerListener}
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
+import com.intellij.psi.impl.compiled.ClsFileImpl
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.ToNullSafe
@@ -58,6 +59,7 @@ object RegisterCompilationListener {
       if (event.getFile eq null)
         for {
           child <- event.getChild.nullSafe
+          if !child.isInstanceOf[ClsFileImpl]
           file <- child.getContainingFile.nullSafe
         } scheduler.tryHighlight(file)
   }
