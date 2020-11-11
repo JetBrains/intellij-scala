@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.debugger.renderers
 
 import org.jetbrains.plugins.scala.DebuggerTests
 import org.junit.Assert.assertEquals
-import org.junit.Ignore
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[DebuggerTests]))
@@ -33,7 +32,6 @@ class SimpleRendererTest extends RendererTestBase {
        |}
       """.replace("\r", "").stripMargin.trim
   )
-  @Ignore
   def testLiteralRendering(): Unit = {
     checkLabelRendering(
       "x1" -> "x1 = 42",
