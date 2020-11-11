@@ -4,10 +4,11 @@ import com.intellij.codeInsight.daemon.impl.TrafficLightRenderer.DaemonCodeAnaly
 import com.intellij.codeInsight.daemon.impl.{DefaultHighlightInfoProcessor, ProgressableTextEditorHighlightingPass, SeverityRegistrar, TrafficLightRenderer, TrafficLightRendererContributor}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
+
 import java.util.{List => JList}
 import java.util.{ArrayList => JArrayList}
-
 import org.jetbrains.plugins.scala.ScalaBundle
 
 /**
@@ -50,7 +51,7 @@ object CustomTrafficLightRendererContributor {
       ScalaBundle.message("highlighting.compilation"),
       file,
       editor,
-      file.getTextRange,
+      TextRange.EMPTY_RANGE,
       false,
       new DefaultHighlightInfoProcessor) {
 
