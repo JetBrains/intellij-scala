@@ -186,7 +186,11 @@ object CompileServerLauncher {
 
         // SCL-18193
         val addOpensOptions = if (jdk.version.exists(_ isAtLeast JavaSdkVersion.JDK_11))
-          Seq("--add-opens", "java.base/java.util=ALL-UNNAMED")
+          Seq(
+            "--add-opens", "java.base/java.util=ALL-UNNAMED",
+            "--add-opens", "jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+            "--add-opens", "jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
+          )
         else
           Seq.empty
 
