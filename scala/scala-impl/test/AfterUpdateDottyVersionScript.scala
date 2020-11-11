@@ -1,22 +1,17 @@
 import java.io.{File, FileOutputStream, PrintWriter}
-import java.nio.file.{Files, Path, Paths, StandardCopyOption}
-import java.util
-import java.util.Enumeration
+import java.nio.file.{Path, Paths}
 
 import com.intellij.openapi.progress.EmptyProgressIndicator
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.platform.templates.github.{DownloadUtil, ZipUtil => GithubZipUtil}
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import junit.framework.{TestCase, TestFailure, TestResult, TestSuite}
 import org.apache.ivy.osgi.util.ZipUtil
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.lang.parser.scala3.imported.Scala3ImportedParserTest_Move_Fixed_Tests
-import org.jetbrains.plugins.scala.lang.parser.scala3.imported.{Scala3ImportedParserTest, Scala3ImportedParserTestBase, Scala3ImportedParserTest_Fail}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
-import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.Ignore
 import org.junit.runner.JUnitCore
 
@@ -68,7 +63,7 @@ class AfterUpdateDottyVersionScript
 }
 
 object AfterUpdateDottyVersionScript {
-  import Scala3ImportedParserTest_Move_Fixed_Tests.{dottyParserTestsSuccessDir, dottyParserTestsFailDir}
+  import Scala3ImportedParserTest_Move_Fixed_Tests.{dottyParserTestsFailDir, dottyParserTestsSuccessDir}
 
   private def downloadRepository(url: String): File = {
     val repoFile = newTempFile()
@@ -204,10 +199,13 @@ object AfterUpdateDottyVersionScript {
       new File(path).listFiles().foreach(_.delete())
   }
 
-  private def scalaUltimateProjectDir: Path =
-    Paths.get(getClass.getProtectionDomain.getCodeSource.getLocation.getPath)
-      .getParent.getParent.getParent
-      .getParent.getParent.getParent
+  private def scalaUltimateProjectDir: Path = {
+    val file = new File(getClass.getProtectionDomain.getCodeSource.getLocation.getPath)
+    file
+      .getParentFile.getParentFile.getParentFile
+      .getParentFile.getParentFile.getParentFile
+      .toPath
+  }
 
   private def newTempFile(): File =
     FileUtilRt.createTempFile(getClass.getName, "", true)
