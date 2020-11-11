@@ -26,25 +26,27 @@ object MillProjectImportProvider {
   }
 
   private val versionPattern = """^.*(0\.8\.0|0\.7.+|0\.6.+)$"""
-  private def isBspCompatible(workspace: File) =
-    Option(workspace.listFiles())
-      .getOrElse(Array.empty)
-      .exists { buildScript =>
-        !buildScript.isDirectory &&
-          buildScript.getName == "mill" &&
-          Using.resource(Source.fromFile(buildScript)) { source =>
-            source
-              .getLines()
-              .exists(!_.matches(versionPattern))
-          }
+  private def isBspCompatible(workspace: File) = {
+    findFileByName(workspace, "mill").exists { buildScript =>
+      Using.resource(Source.fromFile(buildScript)) { source =>
+        source
+          .getLines()
+          .exists(!_.matches(versionPattern))
+      }
+    }
   }
 
   // Legacy Mill =< 0.8.0
-  private def isLegacyBspCompatible(workspace: File) = workspace.listFiles().exists { buildScript =>
-    !buildScript.isDirectory &&
-      buildScript.getName == "build.sc" &&
+  private def isLegacyBspCompatible(workspace: File) =
+    findFileByName(workspace, "build.sc").exists { buildScript =>
       Using.resource(Source.fromFile(buildScript))(
         _.getLines().contains("import $ivy.`com.lihaoyi::mill-contrib-bsp:$MILL_VERSION`")
       )
-  }
+    }
+
+  private def findFileByName(dir: File, name: String): Option[File] =
+    Option(dir.listFiles())
+      .getOrElse(Array.empty)
+      .filterNot(_.isDirectory)
+      .find(_.getName == name)
 }
