@@ -12,46 +12,39 @@ object Main {
     override def apply(reflect: Reflection)(tree: reflect.delegate.Tree): Unit = {
       import reflect._
 
-      val customExtractorsOutput = new ExtractorsPrinter[reflect.type](reflect).showTree(tree)(reflect.delegate.rootContext)
+      val customExtractorsOutput = new ExtractorsPrinter[reflect.type](reflect).showTree(tree)
 //      println(customExtractorsOutput)
 
-      val originalExtractorsOutput = tree.showExtractors(reflect.delegate.rootContext)
+      val originalExtractorsOutput = tree.showExtractors
       assert(customExtractorsOutput == originalExtractorsOutput)
 
-      val customSourceCodeOutput = new SourceCodePrinter[reflect.type](reflect)(SyntaxHighlight.plain).showTree(tree)(reflect.delegate.rootContext)
+      val customSourceCodeOutput = new SourceCodePrinter[reflect.type](reflect)(SyntaxHighlight.plain).showTree(tree)
 //      println(customSourceCodeOutput)
 
-      val originalSourceCodeOutput = tree.show(reflect.delegate.rootContext)
+      val originalSourceCodeOutput = tree.show
+
       assert(customSourceCodeOutput == originalSourceCodeOutput)
     }
   }
 
   def main(args: Array[String]): Unit = {
-    val home = System.getProperty("user.home")
-//    val coursierCacheFolder = s"$home/AppData/Local/Coursier/cache" // Windows 1
-//    val coursierCacheFolder = s"$home/.coursier/cache" // Windows 2
-    val coursierCacheFolder = s"$home/.cache/coursier" // Unix
-    val mavenCacheRoot = s"$coursierCacheFolder/v1/https/repo1.maven.org/maven2"
-
+    val Home = System.getProperty("user.home")
+    val DottyExampleProject = Home + "/IdeaProjects/dotty-example-project"
     val Version = "3.0.0-M1"
-    val MajorVersion = Version // it is the same for "3.0.0-M1"
-    //val MajorVersion = Version.split('.').take(2).mkString(".")
+
+    val Repository = s"$Home/.cache/coursier/v1/https/repo1.maven.org/maven2"
 
     val files = Seq(
-      s"$mavenCacheRoot/org/scala-lang/scala3-interfaces/$Version/scala3-interfaces-$Version.jar",
-      s"$mavenCacheRoot/org/scala-lang/scala3-compiler_$MajorVersion/$Version/scala3-compiler_$MajorVersion-$Version.jar",
-      s"$mavenCacheRoot/org/scala-lang/scala3-tasty-inspector_$MajorVersion//$Version/scala3-tasty-inspector_$MajorVersion-$Version.jar",
-      s"$mavenCacheRoot/org/scala-lang/tasty-core_$MajorVersion//$Version/tasty-core_$MajorVersion-$Version.jar",
+      s"$Repository/org/scala-lang/scala3-interfaces/$Version/scala3-interfaces-$Version.jar",
+      s"$Repository/org/scala-lang/scala3-compiler_$Version//$Version/scala3-compiler_$Version-$Version.jar",
+      s"$Repository/org/scala-lang/scala3-tasty-inspector_$Version//$Version/scala3-tasty-inspector_$Version-$Version.jar",
+      s"$Repository//org/scala-lang/tasty-core_$Version//$Version/tasty-core_$Version-$Version.jar",
       "target/plugin/Scala/lib/tasty/tasty-runtime.jar",
     )
 
     val urls = files.map(file => new File(file).toURI.toURL)
 
-    println("Creating classloader for jars:")
-    urls.foreach { url =>
-      assert(new File(url.toURI).exists(), url.toString)
-      println("  " + url)
-    }
+    urls.foreach(url => assert(new File(url.toURI).exists(), url.toString))
 
     val loader = new URLClassLoader(urls.toArray, getClass.getClassLoader)
 
@@ -89,20 +82,18 @@ object Main {
       "UnionTypes",
     )
 
+    assertExists(DottyExampleProject)
 
-    val exampleProject = new File(home + "/IdeaProjects/dotty-example-project/")
-    assert(exampleProject.exists(), s"Dotty example project doesn't exist under ${exampleProject.toPath}")
-
-    val outputDir = new File(exampleProject, "target/scala-" + MajorVersion + "/classes")
-    assert(outputDir.exists(), s"Dotty example project classes are not compiled: ${outputDir}")
+    val outputDir = DottyExampleProject + "/target/scala-" + Version + "/classes"
+    assertExists(outputDir)
 
     exampleClasses.foreach { fqn =>
       println(fqn)
-      assertExists(s"$outputDir/${fqn.replace('.', '/')}.class")
-      assertExists(s"$outputDir/${fqn.replace('.', '/')}.tasty")
 
-      val classes = outputDir.getAbsolutePath
-      consumeTasty.apply(classes, List(fqn), tastyConsumer)
+      val filePath = outputDir + "/" + fqn.replace('.', '/') + ".tasty"
+      assertExists(filePath)
+
+      consumeTasty.apply(None, List(filePath), tastyConsumer)
     }
   }
 

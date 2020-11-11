@@ -132,8 +132,6 @@ lazy val tastyExample = newProject("tasty-example", file("tasty/example"))
   .settings(scalaVersion := Versions.scalaVersion, libraryDependencies += "org.scala-lang" % "scala3-library_3.0.0-M1" % "3.0.0-M1" % Runtime)
 
 // TODO Remove this synthetic module, package the Runtime dependency automatically.
-lazy val dottyLibraryJar = newProject("dotty-library-jar", file("target/tools/dotty-library-jar"))
-  .settings(libraryDependencies += "ch.epfl.lamp" % "dotty-library_0.27" % "0.27.0-RC1", packageMethod := PackagingMethod.DepsOnly("lib"))
 lazy val scala3LibraryJar = newProject("scala3-library-jar", file("target/tools/scala3-library-jar"))
   .settings(libraryDependencies += "org.scala-lang" % "scala3-library_3.0.0-M1" % "3.0.0-M1", packageMethod := PackagingMethod.DepsOnly("lib"))
 
@@ -156,9 +154,8 @@ lazy val scalaImpl: sbt.Project =
       ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
       //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
       libraryDependencies ++= DependencyGroups.scalaCommunity :+
-        "ch.epfl.lamp" % "dotty-library_0.27" % "0.27.0-RC1" % Runtime :+ // TODO Runtime dependencies must be packaged automatically.
-        "org.scala-lang" % "scala3-library_3.0.0-M1" % "3.0.0-M1" % Runtime,
-      //      addCompilerPlugin(Dependencies.macroParadise),
+        "org.scala-lang" % "scala3-library_3.0.0-M1" % "3.0.0-M1" % Runtime, // TODO Runtime dependencies must be packaged automatically.
+//      addCompilerPlugin(Dependencies.macroParadise),
       intellijPlugins := Seq(
         "org.intellij.intelliLang",
         "com.intellij.java-i18n",
@@ -173,7 +170,7 @@ lazy val scalaImpl: sbt.Project =
       intellijPluginJars :=
         intellijPluginJars.value.filterNot(cp => cp.data.getName.contains("junit-jupiter-api")),
       packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity),
-      packageAdditionalProjects := Seq(tastyRuntime, dottyLibraryJar, scala3LibraryJar),
+      packageAdditionalProjects := Seq(tastyRuntime, scala3LibraryJar),
       packageLibraryMappings ++= Seq(
         "org.scalameta" %% ".*" % ".*"                        -> Some("lib/scalameta.jar"),
         "com.thesamet.scalapb" %% "scalapb-runtime" % ".*"  -> None,
