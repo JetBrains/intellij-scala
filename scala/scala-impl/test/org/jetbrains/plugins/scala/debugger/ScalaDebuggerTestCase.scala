@@ -279,7 +279,12 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
     ContextUtil.getSourcePosition(currentSuspendContext())
   }
 
-  protected def evalResult(codeText: String): String = {
+  /**
+   * @param renderSelfAsString false to skip rendering resulting value as string. It can be helpful if the value
+   *                           is ignored and `toString` takes long time for some object
+   *                           (e.g. see [[renderers.ScalaCollectionRendererTestBase.testQueueWithLongToStringChildren]]
+   */
+  protected def evalResult(codeText: String, renderSelfAsString: Boolean = true): String = {
     val ctx = evaluationContext()
     val factory = new ScalaCodeFragmentFactory()
     val factoryWrapper = new CodeFragmentFactoryContextWrapper(factory)
@@ -310,7 +315,10 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
       value match {
         case Success(_: VoidValue) => "undefined"
         case Success(v) =>
-          DebuggerUtils.getValueAsString(ctx, v)
+          if (renderSelfAsString)
+            DebuggerUtils.getValueAsString(ctx, v)
+          else
+            "<skipped rendering self as string>"
         case Failure(e: EvaluateException) => e.getMessage + stacktraces(e)
         case Failure(e: Throwable) => "Other error: " + e.getMessage + stacktraces(e)
       }
