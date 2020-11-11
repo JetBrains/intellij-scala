@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.compilation
 
 import java.util.concurrent.TimeUnit
 
-import com.intellij.compiler.CompilerWorkspaceConfiguration
+import com.intellij.compiler.{CompilerConfiguration, CompilerWorkspaceConfiguration}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.util.SystemInfo
@@ -94,7 +94,7 @@ abstract class CompilationBenchmark
   private def benchmark(params: Params): Try[BenchmarkResult] = Try {
     val Params(compileInParallel, heapSize, jvmOptions) = params
 
-    CompilerWorkspaceConfiguration.getInstance(myProject).PARALLEL_COMPILATION = compileInParallel
+    CompilerConfiguration.getInstance(myProject).setParallelCompilationEnabled(compileInParallel)
     val settings = ScalaCompileServerSettings.getInstance
     settings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE = heapSize.toString
     settings.COMPILE_SERVER_JVM_PARAMETERS = jvmOptions
