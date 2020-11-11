@@ -13,7 +13,7 @@ class SimpleRendererTest extends RendererTestBase {
       for {
         (variable, expected) <- variableToExpectedLabel
       } {
-        val (label, _) = renderLabelAndChildren(variable, _.getLabel, renderChildren = false)
+        val (label, _) = renderLabelAndChildren(variable, _.getLabel, renderChildren = false, -1)
         assertEquals(expected, label)
       }
     }
