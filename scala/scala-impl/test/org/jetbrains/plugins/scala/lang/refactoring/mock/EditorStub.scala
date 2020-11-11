@@ -137,6 +137,8 @@ class EditorStub extends Editor {
     override def execute(batchMode: Boolean, operation: Runnable): Unit = {}
 
     override def isInBatchMode: Boolean = false
+
+    override def addInlineElement[T <: EditorCustomElementRenderer](offset: Int, relatesToPrecedingText: Boolean, priority: Int, renderer: T): Inlay[T] = null
   }
 
   override def xyToVisualPosition(p: Point2D): VisualPosition = null
