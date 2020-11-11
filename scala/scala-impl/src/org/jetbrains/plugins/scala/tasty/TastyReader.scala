@@ -13,7 +13,7 @@ import scala.tasty.compat.{ConsumeTasty, Reflection, TastyConsumer}
 
 object TastyReader {
   def read(tastyPath: TastyPath, rightHandSize: Boolean = true): Option[TastyFile] =
-    read(api, tastyPath.classpath, tastyPath.className, rightHandSize)
+    read(api, tastyPath.jar, tastyPath.filePath, rightHandSize)
 
   // The "dotty-tasty-inspector" transitively depends on many unnecessary libraries.
   private val RequiredLibraries = Seq(
@@ -38,6 +38,8 @@ object TastyReader {
         Resolver.resolve(tastyInspectorDependency).map(_.file).filter(jar => RequiredLibraries.exists(jar.getPath.contains))
       }
 
+      RequiredLibraries.foreach(name => assert(resolvedJars.exists(_.getPath.contains(name)), name + " is not resolved"))
+
       val bundledJar = new File(tastyDirectoryFor(getClass), "tasty-runtime.jar")
 
       resolvedJars :+ bundledJar
@@ -52,14 +54,14 @@ object TastyReader {
     consumeTastyImplClass.getDeclaredConstructor().newInstance().asInstanceOf[ConsumeTasty]
   }
 
-  private def read(consumeTasty: ConsumeTasty, classpath: String, className: String, rightHandSize: Boolean): Option[TastyFile] = {
+  private def read(consumeTasty: ConsumeTasty, jar: Option[String], filePath: String, rightHandSize: Boolean): Option[TastyFile] = {
     // TODO An ability to detect errors, https://github.com/lampepfl/dotty-feature-requests/issues/101
     var result = Option.empty[TastyFile]
 
     val tastyConsumer = new TastyConsumer {
       override def apply(reflect: Reflection)(tree: reflect.delegate.Tree): Unit = {
         val printer = new SourceCodePrinter[reflect.type](reflect, rightHandSize)(SyntaxHighlight.plain)
-        val text = printer.showTree(tree)(reflect.delegate.rootContext)
+        val text = printer.showTree(tree)
         def file(path: String) = {
           val i = path.replace('\\', '/').lastIndexOf("/")
           if (i > 0) path.substring(i + 1) else path
@@ -69,7 +71,7 @@ object TastyReader {
       }
     }
 
-    consumeTasty.apply(classpath, List(className), tastyConsumer)
+    consumeTasty.apply(jar, List(filePath), tastyConsumer)
 
     result
   }
@@ -106,7 +108,7 @@ object TastyReader {
       "IntersectionTypes",
       "Main",
       "MultiversalEquality",
-      "NamedTypeArguments",
+//      "NamedTypeArguments",
 //      "PatternMatching",
       "StructuralTypes",
       "TraitParams",
@@ -116,15 +118,16 @@ object TastyReader {
 
     assertExists(DottyExampleProject)
 
-    val outputDir = DottyExampleProject + "/target/scala-0.27/classes"
+    val outputDir = DottyExampleProject + "/target/scala-3.0.0-M1/classes"
     assertExists(outputDir)
 
     exampleClasses.foreach { fqn =>
-      assertExists(outputDir + "/" + fqn.replace('.', '/') + ".class")
-      assertExists(outputDir + "/" + fqn.replace('.', '/') + ".tasty")
-
       println(fqn)
-      val file = read(TastyPath(outputDir, fqn)).get
+
+      val filePath = outputDir + "/" + fqn.replace('.', '/') + ".tasty"
+      assertExists(filePath)
+
+      val file = read(TastyPath(None, filePath)).get
       println(file.text)
 
       (file.references ++ file.types).sortBy {

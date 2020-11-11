@@ -32,18 +32,18 @@ package object tasty {
     ScalaHighlightingMode.showDotcErrors && element.isInScala3Module
 //    element.getLanguage.is(Scala3Language.INSTANCE) // TODO SCL-17237
 
-  case class TastyPath(classpath: String, className: String)
+  case class TastyPath(jar: Option[String], filePath: String)
 
   object TastyPath {
-    private val JarPath = """(.+.jar)!/(.+)\.tasty""".r
-    private val CompileOutputPath = """(.+/(?:classes|(?:out/(?:production|test))))/(.+)\.tasty""".r
+    private val JarPath = """(.+.jar)!/(.+\.tasty)""".r
+    private val CompileOutputPath = """(.+/(?:classes|(?:out/(?:production|test))))/(.+\.tasty)""".r
 
     def apply(tastyFile: VirtualFile): Option[TastyPath] = Some(tastyFile.getPath) collect {
-      case JarPath(outputDirectory, relativePath) =>
-        TastyPath(outputDirectory, relativePath.replace('/', '.'))
+      case JarPath(jar, filePath) =>
+        TastyPath(Some(jar), filePath)
 
       case CompileOutputPath(outputDirectory, relativePath) =>
-        TastyPath(outputDirectory, relativePath.replace('/', '.'))
+        TastyPath(None, outputDirectory + "/" + relativePath)
     }
 
     def apply(element: PsiElement): Option[TastyPath] = {
@@ -53,7 +53,7 @@ package object tasty {
           val inTest = index.isInTestSourceContent(psiFile.getVirtualFile)
           Option(CompilerPaths.getModuleOutputPath(module, inTest)).flatMap { outputDirectory =>
             element.parentsInFile.filterByType[ScTypeDefinition].lastOption.map { topLevelTypeDefinition =>
-              TastyPath(outputDirectory, topLevelTypeDefinition.qualifiedName)
+              TastyPath(None, outputDirectory + "/" + topLevelTypeDefinition.qualifiedName + ".tasty")
             }
           }
         }
