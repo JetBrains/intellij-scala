@@ -7,6 +7,7 @@ package expressions
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Guard
+import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 
 /*
  * Enumerators ::= Generator {semi Enumerator | Guard}
@@ -20,8 +21,10 @@ abstract class Enumerators(val isInIndentationRegion: Boolean) extends ParsingRu
       if (isInIndentationRegion) BlockIndentation.create
       else BlockIndentation.noBlock
 
+    blockIndentation.fromHere()
+
     // eat all semicolons (which is not correct), show error in ScForAnnotator
-    CommonUtils.eatAllSemicolons(builder, blockIndentation)
+    CommonUtils.eatAllSemicolons(blockIndentation)
 
     if (!Generator.parse(builder)) {
       blockIndentation.drop()
@@ -36,9 +39,10 @@ abstract class Enumerators(val isInIndentationRegion: Boolean) extends ParsingRu
         case ScalaTokenTypes.tSEMICOLON =>
           builder.advanceLexer()
           // eat all semicolons (which is not correct), show error in ScForAnnotator
-          CommonUtils.eatAllSemicolons(builder, blockIndentation)
+          CommonUtils.eatAllSemicolons(blockIndentation)
           false
         case ScalaTokenTypes.kCASE => false
+        case InScala3(ScalaTokenTypes.kDO | ScalaTokenTypes.kYIELD) => continue = false; true
         case _ if builder.newlineBeforeCurrentToken => false
         case _ if Guard.parse(builder) => true
         case _ => continue = false; true

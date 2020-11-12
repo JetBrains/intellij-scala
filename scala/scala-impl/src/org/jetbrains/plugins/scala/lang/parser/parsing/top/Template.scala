@@ -33,20 +33,25 @@ sealed abstract class Template extends ParsingRule {
           case `tLBRACE` if !EarlyDef() => bodyRule()
           case _ =>
             parentsRule()
-
-            builder.getTokenType match {
-              case `tCOLON` => bodyRule()
-              case `tLBRACE` if !endedByMultipleNewlines => bodyRule()
-              case _ =>
-            }
+            parseRest()
         }
-      case `tCOLON` => bodyRule()
-      case `tLBRACE` if !endedByMultipleNewlines => bodyRule()
-      case _ =>
+      case _ => parseRest()
     }
 
     marker.done(ScalaElementType.EXTENDS_BLOCK)
     true
+  }
+
+  private def parseRest()(implicit builder: ScalaPsiBuilder): Unit = {
+    if (builder.isScala3) {
+      Derives()
+    }
+
+    builder.getTokenType match {
+      case `tCOLON` => bodyRule()
+      case `tLBRACE` if !endedByMultipleNewlines => bodyRule()
+      case _ =>
+    }
   }
 }
 

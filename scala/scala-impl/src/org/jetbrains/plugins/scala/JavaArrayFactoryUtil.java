@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelecto
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateDerives;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
@@ -89,6 +90,8 @@ public class JavaArrayFactoryUtil {
   public static ArrayFactory<ScTemplateDefinition> ScTemplateDefinitionArrayFactory = ScTemplateDefinition[]::new;
 
   public static ArrayFactory<ScTemplateParents> ScTemplateParentsFactory = ScTemplateParents[]::new;
+
+  public static ArrayFactory<ScTemplateDerives> ScTemplateDerivesFactory = ScTemplateDerives[]::new;
 
   public static ArrayFactory<ScEarlyDefinitions> ScEarlyDefinitionsFactory = ScEarlyDefinitions[]::new;
 

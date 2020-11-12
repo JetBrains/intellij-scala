@@ -37,6 +37,8 @@ trait ScExtendsBlock extends ScalaPsiElement {
 
   def templateParents: Option[ScTemplateParents]
 
+  def templateDerives: Option[ScTemplateDerives]
+
   def earlyDefinitions: Option[ScEarlyDefinitions]
 
   def typeDefinitions : Seq[ScTypeDefinition]

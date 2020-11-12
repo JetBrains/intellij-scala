@@ -83,6 +83,7 @@ object ScalaElementType {
   val PACKAGING: ScPackagingElementType.type = ScPackagingElementType
   val EXTENDS_BLOCK = new ScExtendsBlockElementType
   val TEMPLATE_PARENTS = new ScTemplateParentsElementType
+  val TEMPLATE_DERIVES = new ScTemplateDerivesElementType
   val TEMPLATE_BODY = new ScTemplateBodyElementType
   val PARAM = new signatures.ScParameterElementType
   val PARAM_CLAUSE = new signatures.ScParamClauseElementType

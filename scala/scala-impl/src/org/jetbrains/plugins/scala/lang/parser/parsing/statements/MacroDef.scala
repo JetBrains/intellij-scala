@@ -7,7 +7,7 @@ package statements
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Block
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.Qual_Id
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.QualId
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Type, TypeArgs}
 
 /**
@@ -47,7 +47,7 @@ object MacroDef extends ParsingRule {
                           marker.drop()
                           true
                         case _ =>
-                          if (Qual_Id.parse(builder)) {
+                          if (QualId.parse(builder)) {
                             if (builder.getTokenType == ScalaTokenTypes.tLSQBRACKET) {
                               TypeArgs.parse(builder, isPattern = false)
                             }
@@ -85,7 +85,7 @@ object MacroDef extends ParsingRule {
                     marker.drop()
                     true
                   case _ =>
-                    if (Qual_Id.parse(builder)) {
+                    if (QualId.parse(builder)) {
                       if (builder.getTokenType == ScalaTokenTypes.tLSQBRACKET) {
                         TypeArgs.parse(builder, isPattern = false)
                       }

@@ -8,6 +8,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
+import scala.annotation.tailrec
+
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -17,26 +19,29 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 /*
  * Refinement ::= [nl] '{' Refinestat {semi RefineStat} '}'
  */
-object Refinement {
+object Refinement extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
-    val refineMarker = builder.mark
-    if (builder.twoNewlinesBeforeCurrentToken) {
-      refineMarker.drop()
-      return false
-    }
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean =
+    parseRefinements(hadOneRefinement = false)
+
+  @tailrec
+  private def parseRefinements(hadOneRefinement: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
-      case ScalaTokenTypes.tLBRACE =>
+      case ScalaTokenTypes.tLBRACE if !builder.twoNewlinesBeforeCurrentToken =>
+        val refineMarker = builder.mark
+
         builder.advanceLexer() //Ate {
         builder.enableNewlines()
 
         ParserUtils.parseLoopUntilRBrace(builder, () => RefineStatSeq parse builder)
         builder.restoreNewlinesState()
         refineMarker.done(ScalaElementType.REFINEMENT)
-        true
+
+        if (builder.isScala3) {
+          parseRefinements(hadOneRefinement = true)
+        } else true
       case _ =>
-        refineMarker.rollbackTo()
-        false
+        hadOneRefinement
     }
   }
 }

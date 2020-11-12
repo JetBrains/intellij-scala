@@ -131,7 +131,7 @@ object Expr1 extends ParsingRule {
       //----------------do statement----------------//
       case ScalaTokenTypes.kDO =>
         builder.advanceLexer() //Ate do
-        if (!Expr()) builder error ErrMsg("wrong.expression")
+        if (!ExprInIndentationRegion()) builder error ErrMsg("wrong.expression")
         builder.getTokenType match {
           case ScalaTokenTypes.tSEMICOLON =>
             builder.advanceLexer() //Ate semi
@@ -152,6 +152,7 @@ object Expr1 extends ParsingRule {
                     builder error ErrMsg("rparenthesis.expected")
                 }
                 builder.restoreNewlinesState()
+              case _ if builder.isScala3 && ExprInIndentationRegion() =>
               case _ =>
                 builder error ErrMsg("condition.expected")
             }
@@ -213,6 +214,7 @@ object Expr1 extends ParsingRule {
           }
         }
 
+        End()
         exprMarker.done(ScalaElementType.FOR_STMT)
         return true
       //----------------throw statment--------------//
