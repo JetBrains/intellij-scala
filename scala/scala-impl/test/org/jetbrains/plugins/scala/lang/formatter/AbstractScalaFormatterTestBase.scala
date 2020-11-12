@@ -54,6 +54,17 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     TestUtils.disableTimerThread()
   }
 
+  override def tearDown(): Unit = {
+    // clean virtual files references to aboid project leaks
+    // NOTE: in theory it shouldn't be required because VirtualFiles are not associated with project, they are application-level
+    // but for some reason project is leaked in LightVirtualFile via FileManagerImpl.myPsiHardRefKey key, stuck in the user map
+    // there was an attempt to fix it in https://github.com/JetBrains/intellij-community/commit/ba9f0e8624ab8e64bd52928e662c154672452ff8
+    // but the change was reverted for unknown reason =/
+    ScalaFmtPreFormatProcessor.formattedCountMap.clear()
+
+    super.tearDown()
+  }
+
   import scala.jdk.CollectionConverters._
 
   private val Actions: Map[Action, TestFormatAction] = Map(
