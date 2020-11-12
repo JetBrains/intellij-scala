@@ -75,7 +75,7 @@ object CachedInUserData {
 
         val updateHolder =
           if (hasParams) q"$holderName.putIfAbsent($dataName, $resultName)"
-          else q"$holderName.compareAndSet(null, $resultName)"
+          else q"$holderName.compareAndSet(null, $resultName); $holderName.get()"
 
 
         val actualCalculation = withUIFreezingGuard(c)(rhs, retTp)
@@ -107,10 +107,13 @@ object CachedInUserData {
           }
 
           if (stackStamp.mayCacheNow()) {
-            $updateHolder
-          }
+            val race = $updateHolder
 
-          $resultName
+            if (race != null) race
+            else $resultName
+          } else {
+            $resultName
+          }
           """
         val updatedDef = DefDef(mods, termName, tpParams, paramss, retTp, updatedRhs)
 

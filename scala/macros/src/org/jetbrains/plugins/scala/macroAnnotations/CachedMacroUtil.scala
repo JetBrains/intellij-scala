@@ -227,13 +227,13 @@ object CachedMacroUtil {
   }
 
   abstract class UpdateHolderGenerator[C <: whitebox.Context](val c: C) {
+    //generated expression should evaluate to the existing value if it is present
     def apply(resultName: c.universe.TermName): c.universe.Tree
   }
 
   def doPreventingRecursionCaching(c: whitebox.Context)(computation: c.universe.Tree,
                                                         guard: c.universe.TermName,
                                                         data: c.universe.TermName,
-                                                        resultType: c.universe.Tree,
                                                         updateHolderGenerator: UpdateHolderGenerator[c.type]): c.universe.Tree = {
     import c.universe.Quasiquote
     implicit val context: c.type = c
@@ -255,23 +255,25 @@ object CachedMacroUtil {
               val stackStamp = $recursionManagerFQN.markStack()
               val result = $computation
               val shouldCache = stackStamp.mayCacheNow()
-              result -> shouldCache
+              (result, shouldCache)
             }
             finally {
               $guard.afterComputation(realKey, sizeBefore, sizeAfter, minDepth, localCacheBefore)
             }
 
             if (shouldCache) {
-              ${updateHolderGenerator(resultName)}
+              val race = ${updateHolderGenerator(resultName)}
+
+              if (race != null) race
+              else $resultName
             } else {
               // we should not cache, because the value is tainted by an intercepted recursion
               // but we can cache it in the local cache to prevent calculating it again in
               // same situations
               // See CacheWithinRecursionTest.test_local_cache/test_local_cache_reset
               $guard.cacheInLocalCache($data, $resultName)
+              $resultName
             }
-
-            $resultName
           }
         }
      """
