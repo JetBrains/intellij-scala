@@ -79,7 +79,7 @@ object CachedWithRecursionGuard {
         val updateHolder = new UpdateHolderGenerator[c.type](c) {
           override def apply(resultName: c.universe.TermName): c.universe.Tree =
             if (hasParams) q"$holderName.putIfAbsent($dataName, $resultName)"
-            else q"$holderName.compareAndSet(null, $resultName)"
+            else q"$holderName.compareAndSet(null, $resultName); $holderName.get()"
         }
 
         val dataForGuardType =
@@ -92,7 +92,7 @@ object CachedWithRecursionGuard {
 
         val guardedCalculation = withUIFreezingGuard(c)(rhs, retTp)
         val withProbablyRecursiveException = handleProbablyRecursiveException(c)(elemName, dataName, keyVarName, guardedCalculation)
-        val cachedCalculationWithAllTheChecks = doPreventingRecursionCaching(c)(withProbablyRecursiveException, guard, dataForGuardName, retTp, updateHolder)
+        val cachedCalculationWithAllTheChecks = doPreventingRecursionCaching(c)(withProbablyRecursiveException, guard, dataForGuardName, updateHolder)
 
         val updatedRhs = q"""
           val $elemName = $element
