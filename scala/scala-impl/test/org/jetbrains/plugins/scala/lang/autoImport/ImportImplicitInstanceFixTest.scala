@@ -31,6 +31,19 @@ class ImportImplicitInstanceFixTest extends ImportElementFixTestBase[ImplicitArg
     "scala.concurrent.ExecutionContext.Implicits.global"
   )
 
+  def testExcludedExecutionContext(): Unit =
+    withExcluded("scala.concurrent.ExecutionContext.Implicits.global") {
+      checkNoImportFix(
+        s"""
+           |import scala.concurrent.Future
+           |
+           |object Test {
+           |  ${CARET}Future(42)
+           |}
+           |""".stripMargin
+      )
+    }
+
   def testSeqDerivedOrdering(): Unit = checkElementsToImport(
     s"""
        |object Test {

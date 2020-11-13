@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala.autoImport.quickFix
 
-import java.awt.Point
-import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
-import java.util.concurrent.{ExecutorService, TimeUnit}
-
+import com.intellij.codeInsight.JavaProjectCodeInsightSettings
 import com.intellij.codeInsight.hint.HintManagerImpl
 import com.intellij.codeInsight.intention.PriorityAction
 import com.intellij.codeInspection.HintAction
@@ -22,6 +19,10 @@ import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenericCall
 import org.jetbrains.plugins.scala.{ScalaBundle, isUnitTestMode}
+
+import java.awt.Point
+import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
+import java.util.concurrent.{ExecutorService, TimeUnit}
 
 abstract class ScalaImportElementFix[Element <: ElementToImport](val place: PsiElement) extends HintAction with PriorityAction {
 
@@ -204,4 +205,11 @@ private object ScalaImportElementFix {
     }
 
   }
+
+  def isExcluded(qualifiedName: String, project: Project): Boolean =
+    !isQualified(qualifiedName) ||
+      JavaProjectCodeInsightSettings.getSettings(project).isExcluded(qualifiedName)
+
+  private def isQualified(name: String) =
+    name.indexOf('.') != -1
 }

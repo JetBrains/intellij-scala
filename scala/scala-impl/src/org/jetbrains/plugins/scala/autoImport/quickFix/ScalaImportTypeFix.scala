@@ -1,22 +1,21 @@
 package org.jetbrains.plugins.scala.autoImport.quickFix
 
-import com.intellij.codeInsight.JavaProjectCodeInsightSettings
-import com.intellij.codeInsight.completion.JavaCompletionUtil.isInExcludedPackage
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
+import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportElementFix.isExcluded
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportTypeFix.getTypesToImport
 import org.jetbrains.plugins.scala.autoImport.{GlobalMember, GlobalTypeAlias}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{getCompanionModule, hasStablePath}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression, ScSugarCallExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScSugarCallExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -100,7 +99,7 @@ object ScalaImportTypeFix {
   }
 
   def getTypesToImport(ref: ScReference): Seq[ElementToImport] = {
-    if (!ref.isValid || ref.isInstanceOf[ScTypeProjection])
+    if (!ref.isValid || ref.is[ScTypeProjection])
       return Seq.empty
 
     implicit val project: Project = ref.getProject
@@ -131,10 +130,8 @@ object ScalaImportTypeFix {
 
       if classOrCompanion != null &&
         classOrCompanion.qualifiedName != null &&
-        isQualified(classOrCompanion.qualifiedName) &&
         kindMatchesAndIsAccessible(classOrCompanion) &&
         notInner(classOrCompanion, ref) &&
-        !isInExcludedPackage(classOrCompanion, false) &&
         predicate(classOrCompanion)
 
     } yield ClassToImport(classOrCompanion)
@@ -156,19 +153,13 @@ object ScalaImportTypeFix {
 
     val packages = for {
       packageQualifier <- packagesList
-      pack = ScPackageImpl.findPackage(packageQualifier)(manager)
-
-      if pack != null &&
-        kindMatches(pack, kinds) &&
-        !isExcluded(pack.getQualifiedName)
-
+      pack <- ScPackageImpl.findPackage(packageQualifier)(manager).toOption
+      if kindMatches(pack, kinds)
     } yield PrefixPackageToImport(pack)
 
-    (classes ++
-      distinctAliases ++
-      packages)
+    (classes ++ distinctAliases ++ packages)
+      .filterNot(e => isExcluded(e.qualifiedName, project))
       .sortBy(_.qualifiedName)(orderingByRelevantImports(ref))
-      .toSeq
   }
 
   private def hasApplyMethod(`class`: PsiClass) = `class` match {
@@ -188,12 +179,4 @@ object ScalaImportTypeFix {
             case parts => parts(parts.length - 2) == prefix
           }
       }
-
-  private def isExcluded(qualifiedName: String)
-                        (implicit project: Project) =
-    !isQualified(qualifiedName) ||
-      JavaProjectCodeInsightSettings.getSettings(project).isExcluded(qualifiedName)
-
-  private def isQualified(name: String) =
-    name.indexOf('.') != -1
 }
