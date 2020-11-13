@@ -14,8 +14,6 @@ import org.jetbrains.jps.incremental.scala.remote.CompileServerMeteringInfo
 import org.jetbrains.plugins.scala.compiler.{CompilationUnitId, CompilerEvent}
 import org.jetbrains.plugins.scala.util.CompilationId
 
-import scala.jdk.CollectionConverters.CollectionHasAsScala
-
 
 /**
  * Nikolay.Tropin
@@ -26,7 +24,6 @@ abstract class IdeClient(compilerName: String,
                          chunk: ModuleChunk) extends Client {
 
   private var hasErrors = false
-  private var lastProgressMessage: String = ""
   private val compilationId: CompilationId = CompilationId.generate()
   private val compilationUnitId = Some(IdeClient.getCompilationUnitId(chunk))
 
@@ -57,12 +54,10 @@ abstract class IdeClient(compilerName: String,
     context.processMessage(CompilerMessage.createInternalCompilationError(compilerName, exception))
 
   override def progress(text: String, done: Option[Float]): Unit = {
-    if (text.nonEmpty) {
-      val decapitalizedText = text.charAt(0).toLower.toString + text.substring(1)
-      val chunkName = chunk.getPresentableShortName
-      lastProgressMessage = "%s: %s [%s]".format(compilerName, decapitalizedText, chunkName)
-    }
-    context.processMessage(new ProgressMessage(lastProgressMessage, done.getOrElse(-1.0F)))
+    for {
+      unitId <- compilationUnitId
+      doneVal <- done
+    } AggregateProgressLogger.log(context, unitId, doneVal)
     done.foreach { doneVal =>
       context.processMessage(CompilerEvent.ProgressEmitted(compilationId, compilationUnitId, doneVal).toCustomMessage)
     }
