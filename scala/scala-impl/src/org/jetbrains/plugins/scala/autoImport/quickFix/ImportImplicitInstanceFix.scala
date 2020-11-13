@@ -7,8 +7,8 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.autoImport.GlobalImplicitInstance
 import org.jetbrains.plugins.scala.autoImport.GlobalMember.findGlobalMembers
 import org.jetbrains.plugins.scala.autoImport.quickFix.ImportImplicitInstanceFix.implicitsToImport
+import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportElementFix.isExcluded
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.isInExcludedPackage
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.TypeDoesntConformResult
@@ -71,7 +71,7 @@ object ImportImplicitInstanceFix {
 
     allInstances
       .distinctBy(_.instance)
-      .filterNot(x => alreadyImported.contains(x.instance) || isInExcludedPackage(x.instance.pathToOwner, owner.getProject))
+      .filterNot(x => alreadyImported.contains(x.instance) || isExcluded(x.instance.qualifiedName, owner.getProject))
       .sortBy {
         case FoundImplicit(instance, path, scType) =>
           (path.size, typesToSearch.indexWhere(_.scType == scType), instance.qualifiedName)

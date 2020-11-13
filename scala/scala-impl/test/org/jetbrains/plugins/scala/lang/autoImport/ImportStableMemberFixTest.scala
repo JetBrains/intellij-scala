@@ -223,4 +223,30 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
 
     "AbcImpl.api.myMethod"
   )
+
+  def testExcludedClass(): Unit = {
+    withExcluded("scala.util.Random") {
+      checkNoImportFix(
+        s"""object Test {
+          |  ${CARET}nextInt()
+          |}
+          |""".stripMargin)
+      checkNoImportFix(
+        s"""object Test {
+           |  ${CARET}Random.nextInt()
+           |}
+           |""".stripMargin)
+    }
+  }
+
+  def testExcludedMethod(): Unit = {
+    withExcluded("scala.util.Random.nextInt") {
+      checkNoImportFix(
+        s"""object Test {
+           |  ${CARET}nextInt()
+           |}
+           |""".stripMargin)
+    }
+  }
+
 }

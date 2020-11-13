@@ -6,8 +6,8 @@ import com.intellij.psi.{PsiDocCommentOwner, PsiNamedElement}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
 import org.jetbrains.plugins.scala.autoImport.GlobalImplicitConversion
+import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportElementFix.isExcluded
 import org.jetbrains.plugins.scala.extensions.{ChildOf, ObjectExt, PsiNamedElementExt}
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.isInExcludedPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression, ScSugarCallExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -58,7 +58,6 @@ private class ConversionToImportComputation(ref: ScReferenceExpression) {
         fun    <- result.element.asOptionOf[ScFunction]
         if fun.isImplicitConversion
       } yield fun)
-        .toSet
 
     val conversionsToImport = ArrayBuffer.empty[GlobalImplicitConversion]
     val notFoundImplicits = ArrayBuffer.empty[ScalaResolveResult]
@@ -67,7 +66,7 @@ private class ConversionToImportComputation(ref: ScReferenceExpression) {
       qualifier                 <- qualifier(ref).toSeq
       (conversion, application) <- ImplicitConversionData.getPossibleConversions(qualifier).toSeq
 
-      if !isInExcludedPackage(conversion.pathToOwner, ref.getProject) &&
+      if !isExcluded(conversion.qualifiedName, ref.getProject) &&
         CompletionProcessor.variantsWithName(application.resultType, qualifier, ref.refName).nonEmpty
 
     } {

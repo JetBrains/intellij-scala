@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package autoImport
 
-import java.io.File
-
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
@@ -18,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.junit.Assert._
 
+import java.io.File
 import scala.annotation.nowarn
 
 /**
@@ -58,6 +57,7 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
     val fix = ScalaImportTypeFix(ref)
     val classes = fix.elements
     assertFalse("Element to import not found", classes.isEmpty)
+    checkNoResultsIfExcluded(ref, classes.map(_.qualifiedName))
 
     classes.map(_.element).foreach {
       case _: PsiClass | _: ScTypeAlias | _: PsiPackage =>
@@ -76,7 +76,7 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
     catch {
       case e: Exception =>
         println(e)
-        fail(e.getMessage + "\n" + e.getStackTrace)
+        fail(e.getMessage + "\n" + e.getStackTrace.mkString("Array(", ", ", ")"))
     }
 
     val text = lastPsi.getText
@@ -89,5 +89,16 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
         ""
     }
     assertEquals(output, res)
+  }
+
+  private def checkNoResultsIfExcluded(ref: ScReference, excludedNames: Seq[String]): Unit = {
+    ImportElementFixTestBase.withExcluded(getProject, excludedNames) {
+      val newFix = ScalaImportTypeFix(ref)
+      val foundElements = newFix.elements
+      assertTrue(
+        s"$excludedNames excluded, but something was found",
+        foundElements.isEmpty
+      )
+    }
   }
 }

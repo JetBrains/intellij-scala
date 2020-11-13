@@ -10,8 +10,8 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
 import org.jetbrains.plugins.scala.autoImport.GlobalMember
 import org.jetbrains.plugins.scala.autoImport.GlobalMember.findGlobalMembers
+import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportElementFix.isExcluded
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.isInExcludedPackage
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{hasImplicitModifier, inNameContext}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -82,6 +82,7 @@ private class MemberToImportComputation(ref: ScReferenceExpression) {
       (findJavaCandidates(ref) ++ findScalaCandidates(ref))
         .toSeq
         .distinctBy(_.qualifiedName)
+        .filterNot(c => isExcluded(c.qualifiedName, ref.getProject))
         .sortBy(_.qualifiedName)(orderingByRelevantImports(ref))
 
     //check for compatibility takes too long if there are that many candidates
@@ -90,7 +91,7 @@ private class MemberToImportComputation(ref: ScReferenceExpression) {
       Result(withPrefix = allCandidates, withoutPrefix = Seq.empty)
     }
     else {
-      val compatible = allCandidates.filter(c => !isInExcludedPackage(c.pathToOwner, ref.getProject) && isCompatible(ref, c))
+      val compatible = allCandidates.filter(isCompatible(ref, _))
       val candidates = if (compatible.isEmpty) allCandidates else compatible
 
       Result(
@@ -104,7 +105,6 @@ private class MemberToImportComputation(ref: ScReferenceExpression) {
   def forImportWithPrefix: Seq[MemberToImport] = result.withPrefix
   def forImportWithoutPrefix: Seq[MemberToImport] = result.withoutPrefix
   def hasCompatible: Boolean = result.hasCompatible
-
 
   private def findJavaCandidates(ref: ScReferenceExpression): Iterable[MemberToImport] =
     JavaStaticMemberNameIndex.getInstance().getStaticMembers(ref.refName, ref.getProject, ref.resolveScope)

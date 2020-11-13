@@ -19,6 +19,18 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
     "scala.collection.JavaConverters.asJavaCollectionConverter",
   )
 
+  def testAsJavaCollectionOldExcluded(): Unit =
+    withExcluded("scala.collection.JavaConverters") {
+      checkElementsToImport(
+        s"""object Test {
+           |  Seq("").${CARET}asJavaCollection
+           |}
+           |""".stripMargin,
+        "scala.jdk.CollectionConverters.IterableHasAsJava"
+      )
+    }
+
+
   def testAsJava(): Unit = checkElementsToImport(
     s"""object Test {
        |  Seq("").${CARET}asJava
