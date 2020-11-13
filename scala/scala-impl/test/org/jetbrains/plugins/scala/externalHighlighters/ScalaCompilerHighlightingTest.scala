@@ -7,7 +7,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.testFramework.EdtTestUtil
 import org.hamcrest.{Description, Matcher}
-import org.jetbrains.plugins.scala.HighlightingTests
+import org.jetbrains.plugins.scala.{HighlightingTests, SlowTests}
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.withErrorsFromCompiler
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
@@ -26,7 +26,7 @@ import scala.concurrent.{Await, Promise}
 import scala.util.{Success, Try}
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
-@Category(Array(classOf[HighlightingTests]))
+@Category(Array(classOf[SlowTests]))
 class ScalaCompilerHighlightingTest
   extends ScalaCompilerTestBase
     with HamcrestMatchers {
