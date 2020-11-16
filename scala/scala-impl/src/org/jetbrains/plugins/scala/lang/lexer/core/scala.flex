@@ -337,9 +337,9 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
     return process(tINTERPOLATED_STRING_INJECTION);
   }
 
-  [\r\n] {
-    yybegin(COMMON_STATE);
-    return process(tWRONG_STRING);
+  \r*\n {
+    // Process new lines as string ending, but mark them as errors in the parser
+    return processOutsideString();
   }
 
   [^] {
