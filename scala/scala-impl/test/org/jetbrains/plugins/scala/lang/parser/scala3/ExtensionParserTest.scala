@@ -443,4 +443,45 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
+  // #EA-5880432
+  def test_wrong_extension(): Unit = checkTree(
+    """
+      |trait Error01 {
+      |  extension []
+      |}
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScTrait: Error01
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(trait)('trait')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('Error01')
+      |    PsiWhiteSpace(' ')
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement({)('{')
+      |        PsiWhiteSpace('\n  ')
+      |        Extension on <unknown>
+      |          PsiElement(extension)('extension')
+      |          PsiWhiteSpace(' ')
+      |          TypeParameterClause
+      |            PsiElement([)('[')
+      |            PsiErrorElement:Wrong parameter
+      |              <empty list>
+      |            PsiElement(])(']')
+      |          Parameters
+      |            PsiErrorElement:Parameter clause expected
+      |              <empty list>
+      |          ScTemplateBody
+      |            <empty list>
+      |        PsiWhiteSpace('\n')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
