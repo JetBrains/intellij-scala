@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.parser.parsing
 
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockExpr
@@ -55,6 +56,9 @@ object CommonUtils {
     }
     if (isPattern) patternArgsMarker.done(ScalaElementType.PATTERN_ARGS)
     else patternArgsMarker.drop()
+    if (builder.eof() || builder.getTokenText.contains('\n')) {
+      builder.error(ScalaBundle.message("end.of.string.expected"))
+    }
     if (!builder.eof()) builder.advanceLexer()
   }
 
