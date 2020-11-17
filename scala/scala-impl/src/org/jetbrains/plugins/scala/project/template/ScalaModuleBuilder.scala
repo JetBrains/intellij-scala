@@ -12,6 +12,7 @@ import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.ui.configuration.projectRoot.{LibrariesContainer, LibrariesContainerFactory}
 import com.intellij.openapi.util.Disposer
+import com.intellij.ui.components.JBTextField
 import com.intellij.util.ui.UI
 import javax.swing.{JComponent, JLabel, JTextField}
 import org.jetbrains.plugins.scala.extensions._
@@ -49,7 +50,8 @@ class ScalaModuleBuilder extends JavaModuleBuilder {
       false
     )
 
-    private val packagePrefixField = new JTextField()
+    private val packagePrefixField = new JBTextField()
+    packagePrefixField.getEmptyText.setText(ScalaBundle.message("package.prefix.example"))
 
     //noinspection ScalaExtractStringToBundle
     settingsStep.addSettingsField("Scala S\u001BDK:", libraryPanel.getSimplePanel)
