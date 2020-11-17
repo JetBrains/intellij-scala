@@ -8,6 +8,7 @@ import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClauses
 import org.jetbrains.plugins.scala.lang.parser.util.{InScala3, ParserUtils}
 
@@ -224,6 +225,21 @@ object Expr1 extends ParsingRule {
           builder error ErrMsg("wrong.expression")
         }
         exprMarker.done(ScalaElementType.THROW_STMT)
+        return true
+      //--------- higher kinded type lamdba --------//
+      case InScala3(ScalaTokenTypes.tLSQBRACKET) =>
+        TypeParamClause.parse(builder,
+          mayHaveViewBounds = false,
+          mayHaveContextBounds = false)
+
+        builder.getTokenType match {
+          case ScalaTokenTypes.tFUNTYPE =>
+            builder.advanceLexer() // ate =>
+            Expr()
+          case _ =>
+            builder.error(ScalaBundle.message("type.lambda.expected"))
+        }
+        exprMarker.done(ScalaElementType.POLY_FUNCTION_EXPR)
         return true
       //--------------implicit closure--------------//
       case ScalaTokenTypes.kIMPLICIT =>

@@ -323,6 +323,9 @@ object ScalaElementType {
   val FUNCTION_EXPR: ScExpressionElementType = new ScExpressionElementType("expression") {
     override def createElement(node: ASTNode) = new ScFunctionExprImpl(node)
   }
+  val POLY_FUNCTION_EXPR: ScExpressionElementType = new ScExpressionElementType("expression") {
+    override def createElement(node: ASTNode) = new ScPolyFunctionExprImpl(node)
+  }
   val CONSTR_BLOCK: ScExpressionElementType = new ScExpressionElementType("constructor block") {
     override def createElement(node: ASTNode) = new ScConstrBlockImpl(node)
   }

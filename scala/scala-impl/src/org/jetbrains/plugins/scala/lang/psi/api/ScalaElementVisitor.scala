@@ -152,6 +152,7 @@ abstract class ScalaElementVisitor extends PsiElementVisitor {
   def visitFor(expr: ScFor): Unit = { visitExpression(expr) }
   def visitDo(stmt: ScDo): Unit = { visitExpression(stmt) }
   def visitFunctionExpression(stmt: ScFunctionExpr): Unit = { visitExpression(stmt) }
+  def visitPolyFunctionExpression(fun: ScPolyFunctionExpr): Unit = { visitExpression(fun) }
   def visitThrow(throwStmt: ScThrow): Unit = { visitExpression(throwStmt) }
   def visitTry(tryStmt: ScTry): Unit = { visitExpression(tryStmt) }
   def visitParenthesisedExpr(expr: ScParenthesisedExpr): Unit = {visitExpression(expr)}
