@@ -781,7 +781,7 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
          |        currentThread: Thread,
          |        defaultUncaughtExceptionHandler: UncaughtExceptionHandler): Unit = {}
          |
-         |foo(e$CARET)
+         |foo(emptyL$CARET)
          |""".stripMargin,
     resultText =
       s"""import java.util.{Collections, List}
