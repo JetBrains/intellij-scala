@@ -578,13 +578,13 @@ class AutoBracesTypingTest extends AutoBraceTestBase {
     s"""
        |def test = {
        |  if (true) return
-       |  val${CARET}
+       |    val${CARET}
        |}
        |""".stripMargin,
     s"""
        |def test = {
        |  if (true) return
-       |  val ${CARET}
+       |    val ${CARET}
        |}
        |""".stripMargin,
     ' '
