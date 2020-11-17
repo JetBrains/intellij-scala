@@ -13,6 +13,7 @@ import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk, SdkTypeI
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.util.{io, text}
 import com.intellij.ui.DocumentAdapter
+import com.intellij.ui.components.JBTextField
 import com.intellij.util.ui.UI
 import javax.swing._
 import org.jetbrains.annotations.NonNls
@@ -96,9 +97,10 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
       setupScalaVersionItems
     )
 
-    val packagePrefixField = applyTo(new JTextField()) {
-      _.setText(selections.packagePrefix.getOrElse(""))
-    }
+    val packagePrefixField = applyTo(new JBTextField())(
+      _.setText(selections.packagePrefix.getOrElse("")),
+      _.getEmptyText.setText(ScalaBundle.message("package.prefix.example"))
+    )
 
     //noinspection TypeAnnotation
     val step = sdkSettingsStep(settingsStep)
