@@ -9,4 +9,5 @@ trait Printer[R <: Reflection ] {
   def showType(tpe: TypeRepr): String
   def showConstant(const: Constant): String
   def showSymbol(symbol: Symbol): String
-  def showFlags(flags: Flags): String}
+  def showFlags(flags: Flags): String
+}
