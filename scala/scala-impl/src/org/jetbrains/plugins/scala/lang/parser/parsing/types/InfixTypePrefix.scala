@@ -17,10 +17,13 @@ object InfixTypePrefix {
     val marker = builder.mark()
 
     if (builder.isScala3 && DepFunParams.parse()) {
-      if (builder.getTokenType == ScalaTokenTypes.tFUNTYPE) {
-        builder.advanceLexer()
-        Type.parse(builder, star, isPattern)
-      } else builder.error(ScalaBundle.message("fun.sign.expected"))
+      builder.getTokenType match {
+        case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>
+          builder.advanceLexer()
+          Type.parse(builder, star, isPattern)
+        case _ =>
+          builder.error(ScalaBundle.message("fun.sign.expected"))
+      }
       marker.done(ScalaElementType.DEPENDENT_FUNCTION_TYPE)
       true
     } else {
