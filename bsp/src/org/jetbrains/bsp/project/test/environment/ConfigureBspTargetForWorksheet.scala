@@ -18,19 +18,20 @@ class ConfigureBspTargetForWorksheet extends AnAction with TopComponentAction {
 
   override def acceptFile(file: ScalaFile): Boolean = {
     val module = findModule(file)
-    BspUtil.isBspModule(module)
+    module.exists(BspUtil.isBspModule)
   }
 
-  override def actionPerformed(e: AnActionEvent): Unit =
-    findFile(e).map(findModule).foreach(promptUserToSelectBspTargetForWorksheet)
+  override def actionPerformed(e: AnActionEvent): Unit = {
+    val file = findFile(e)
+    val module = file.flatMap(findModule)
+    module.foreach(promptUserToSelectBspTargetForWorksheet)
+  }
 
   private def findFile(e: AnActionEvent): Option[PsiFile] =
     ScalaActionUtil.getFileFrom(e).orElse(getSelectedFile(e))
 
-  private def findModule(file: PsiFile): Module =
-    WorksheetFileSettings(file).getModule.getOrElse {
-      throw new AssertionError(s"Module of worksheet is empty: `${file.getVirtualFile}`")
-    }
+  private def findModule(file: PsiFile): Option[Module] =
+    WorksheetFileSettings(file).getModule
 
   override def updateInner(e: AnActionEvent): Unit = {
     super.updateInner(e)
