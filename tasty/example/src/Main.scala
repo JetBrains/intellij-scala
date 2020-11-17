@@ -22,7 +22,6 @@ object Main {
 //      println(customSourceCodeOutput)
 
       val originalSourceCodeOutput = tree.show
-
       assert(customSourceCodeOutput == originalSourceCodeOutput)
     }
   }
@@ -90,10 +89,10 @@ object Main {
     exampleClasses.foreach { fqn =>
       println(fqn)
 
-      val filePath = outputDir + "/" + fqn.replace('.', '/') + ".tasty"
-      assertExists(filePath)
+      assertExists(outputDir + "/" + fqn.replace('.', '/') + ".tasty")
+      assertExists(outputDir + "/" + fqn.replace('.', '/') + ".class")
 
-      consumeTasty.apply(None, List(filePath), tastyConsumer)
+      consumeTasty.apply(outputDir, List(fqn), tastyConsumer)
     }
   }
 

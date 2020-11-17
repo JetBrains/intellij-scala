@@ -13,7 +13,7 @@ import scala.tasty.compat.{ConsumeTasty, Reflection, TastyConsumer}
 
 object TastyReader {
   def read(tastyPath: TastyPath, rightHandSize: Boolean = true): Option[TastyFile] =
-    read(api, tastyPath.jar, tastyPath.filePath, rightHandSize)
+    read(api, tastyPath.classpath, tastyPath.className, rightHandSize)
 
   // The "dotty-tasty-inspector" transitively depends on many unnecessary libraries.
   private val RequiredLibraries = Seq(
@@ -54,7 +54,7 @@ object TastyReader {
     consumeTastyImplClass.getDeclaredConstructor().newInstance().asInstanceOf[ConsumeTasty]
   }
 
-  private def read(consumeTasty: ConsumeTasty, jar: Option[String], filePath: String, rightHandSize: Boolean): Option[TastyFile] = {
+  private def read(consumeTasty: ConsumeTasty, classpath: String, className: String, rightHandSize: Boolean): Option[TastyFile] = {
     // TODO An ability to detect errors, https://github.com/lampepfl/dotty-feature-requests/issues/101
     var result = Option.empty[TastyFile]
 
@@ -71,7 +71,7 @@ object TastyReader {
       }
     }
 
-    consumeTasty.apply(jar, List(filePath), tastyConsumer)
+    consumeTasty.apply(classpath, List(className), tastyConsumer)
 
     result
   }
@@ -124,10 +124,10 @@ object TastyReader {
     exampleClasses.foreach { fqn =>
       println(fqn)
 
-      val filePath = outputDir + "/" + fqn.replace('.', '/') + ".tasty"
-      assertExists(filePath)
+      assertExists(outputDir + "/" + fqn.replace('.', '/') + ".tasty")
+      assertExists(outputDir + "/" + fqn.replace('.', '/') + ".class")
 
-      val file = read(TastyPath(None, filePath)).get
+      val file = read(TastyPath(outputDir, fqn)).get
       println(file.text)
 
       (file.references ++ file.types).sortBy {

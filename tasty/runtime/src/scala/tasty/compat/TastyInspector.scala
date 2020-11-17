@@ -1,5 +1,6 @@
 package scala.tasty.compat
 
+import java.io.File
 import scala.language.reflectiveCalls
 import scala.quoted.QuoteContext
 
@@ -13,9 +14,11 @@ private trait TastyInspector extends scala.tasty.inspector.TastyInspector {
 
   protected def processCompilationUnit0(reflect: Reflection)(tree: reflect.delegate.Tree): Unit
 
-  def inspect0(jar: Option[String], filePaths: List[String]): Unit = {
+  def inspect0(classpath: String, classes: List[String]): Unit = {
     // See the comments in scala.tasty.inspector.TastyInspector
-    val thisInstance = this.asInstanceOf[ {def inspectAllTastyFiles(tastyFiles: List[String], jars: List[String], dependenciesClasspath: List[String]): Boolean}]
-    thisInstance.inspectAllTastyFiles(filePaths, jar.toList, List.empty)
+    // We use the private method rather than the public API because we want to pass FQN rather than .tasty file path,
+    val method = classOf[scala.tasty.inspector.TastyInspector].getDeclaredMethod("inspectFiles", classOf[List[String]], classOf[List[String]])
+    method.setAccessible(true)
+    method.invoke(this, classpath.split(File.pathSeparator).toList, classes)
   }
 }
