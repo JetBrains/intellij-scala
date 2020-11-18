@@ -68,8 +68,6 @@ object NewExprParents extends Parents(allowCommaSeparatedParentsInScala3 = false
 }
 
 
-// FIXME: pretty sure we need to fix the usage of theese
-// to take scala 3 trait parameters into account
 /**
  * [[ClassParents]] ::= [[Constructor]] { 'with' [[AnnotType]] }
  */
@@ -85,15 +83,4 @@ object ClassParents extends Parents {
 object MixinParents extends Parents {
   override protected def parseFirstParent()(implicit builder: ScalaPsiBuilder): Boolean =
     parseSimpleType()
-}
-
-/**
- * [[ConstrApps]] ::= [[ConstrApp]] { ('with' | ',') [[ConstrApp]] }
- */
-object ConstrApps extends Parents {
-  override protected def parseFirstParent()(implicit builder: ScalaPsiBuilder): Boolean =
-    Constructor()
-
-  override protected def parseParent()(implicit builder: ScalaPsiBuilder): Boolean =
-    Constructor()
 }
