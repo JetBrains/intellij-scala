@@ -19,6 +19,7 @@ import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.process.{ProcessAdapter, ProcessEvent, ProcessHandler, ProcessListener}
 import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
 import com.intellij.execution.ui.RunContentDescriptor
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Disposer, Key, Ref}
@@ -84,15 +85,37 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
 
     breakpointTracker.addListener(debugProcess)
 
-    try {
+    def failedToStopAtBreakpoint: Boolean = shouldStopAtBreakpoint && !breakpointTracker.wasAtBreakpoint
+    val result = Try {
       callback
-    } finally {
-      // TODO: rethink: ALL exceptions thrown from callback are overwritten by exceptions from Assert.assertTrue
-      Assert.assertTrue("Stop at breakpoint expected", breakpointTracker.wasAtBreakpoint || !shouldStopAtBreakpoint)
+    }
 
+    if (failedToStopAtBreakpoint) {
+      result.failed.foreach(_.printStackTrace())
+      Assert.fail("Stop at breakpoint expected")
+    }
+    else {
       EdtTestUtil.runInEdtAndWait(() => {
         clearXBreakpoints()
+
+        val requestBeforeStop = debugProcess.getManagerThread.getCurrentRequest
         debugProcess.stop(true)
+
+        /**
+         * Non 100% reliable attempt to avoid such exceptions:
+         * {{{
+         * java.lang.IllegalStateException: Expected com.intellij.debugger.impl.InvokeThread$WorkerThreadRequest@8a5ebc8 instead of com.intellij.debugger.impl.InvokeThread$WorkerThreadRequest@61cb3c3a closed=false
+         *  at com.intellij.debugger.impl.InvokeThread.lambda$run$0(InvokeThread.java:134)
+         * }}}
+         *
+         * Such exceptions occur because `debugProcess.stop` does async stuff under the hood (see [[DebuggerManagerThreadImpl#terminateAndInvoke]]
+         * and there is a race condition with `processHandler.destroyProcess()`
+         * (just try to comment this sleep and see the logger exceptions)
+         *
+         * @todo create some reliable synchronized version of [[com.intellij.debugger.engine.DebugProcessImpl#stop(boolean)]] in platform
+         */
+        Thread.sleep(150)
+
         breakpointTracker.removeListener(debugProcess)
         breakpointTracker = null
         processHandler.destroyProcess()
@@ -101,6 +124,8 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
           processHandler.waitFor(timeout.toMillis))
         ThreadTracker.awaitJDIThreadsTermination(10, TimeUnit.SECONDS)
       })
+
+      result.failed.foreach(throw _)
     }
   }
 
