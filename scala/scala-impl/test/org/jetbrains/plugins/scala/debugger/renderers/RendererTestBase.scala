@@ -15,7 +15,6 @@ import javax.swing.Icon
 import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
 
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration.{Duration, DurationDouble, FiniteDuration}
 import scala.concurrent.{Await, Promise, TimeoutException}
 import scala.jdk.CollectionConverters._
@@ -74,12 +73,13 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
         val value = testVariable.calcValue(context)
         if (renderChildren) {
           renderer.buildChildren(value, new DummyChildrenBuilder(frameTree, testVariable) {
-            private val result = ArrayBuffer.empty[DebuggerTreeNode]
+            private val result = mutable.LinkedHashSet.empty[DebuggerTreeNode]
 
             // NOTE: from usages of `setChildren` it looks like it's actually ADD children, not SET
             override def setChildren(children: util.List[_ <: DebuggerTreeNode]): Unit = synchronized {
               val childrenSeq = children.asScala
               result ++= childrenSeq
+              result.result()
               log.debug(s"setChildren called, all children $result")
               if (result.size >= childrenCount && !testVariableChildrenPromise.isCompleted) {
                 testVariableChildrenPromise.success(result.map(_.getDescriptor).toSeq)
@@ -119,7 +119,7 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
           })
         }
       case unknown =>
-        println("### UNEXPECTED CHILD TYPE: " + unknown)
+        System.err.println("### UNEXPECTED CHILD TYPE: " + unknown)
     }
 
     try Await.result(testVariableEvaluatedPromise.future, timeout) catch {
