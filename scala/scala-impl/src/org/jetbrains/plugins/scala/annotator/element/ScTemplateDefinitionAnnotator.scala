@@ -13,9 +13,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScFunctionDefinition, ScTypeAliasDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScEnumCase, ScFunctionDefinition, ScTypeAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, TypePresentationContext, ValueClassType}
 import org.jetbrains.plugins.scala.overrideImplement.{ScalaOIUtil, ScalaTypedMember}
@@ -169,25 +169,39 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
   }
 
   // TODO test
-  private def annotateSealedclassInheritance(element: ScTemplateDefinition)
-                                            (implicit holder: ScalaAnnotationHolder): Unit = element.getContainingFile match {
-    case file: ScalaFile if !file.isCompiled =>
-      val references = element match {
-        case templateDefinition: ScNewTemplateDefinition if templateDefinition.extendsBlock.templateBody.isEmpty => Nil
-        case _ => superRefs(element)
-      }
-      val fileNavigationElement = file.getNavigationElement
+  private def annotateSealedclassInheritance(
+    element: ScTemplateDefinition
+  )(implicit
+    holder: ScalaAnnotationHolder
+  ): Unit = element.getContainingFile match {
+      case file: ScalaFile if !file.isCompiled =>
+        val references = element match {
+          case templateDefinition: ScNewTemplateDefinition if templateDefinition.extendsBlock.templateBody.isEmpty =>
+            Nil
+          case _ => superRefs(element)
+        }
+        val fileNavigationElement = file.getNavigationElement
+        val isEnumCase            = element.is[ScEnumCase]
 
-      references.collect {
-        case (range, definition@ErrorAnnotationMessage(message))
-          if definition.getContainingFile.getNavigationElement != fileNavigationElement =>
-          (range, message)
-      }.foreach {
-        case (range, message) =>
-          holder.createErrorAnnotation(range, message.nls)
-      }
-    case _ =>
-  }
+        def isInDifferentFile(tdef: ScTemplateDefinition): Boolean =
+          tdef.getContainingFile.getNavigationElement != fileNavigationElement
+
+        def isEnumSyntheticClass(tdef: ScTemplateDefinition): Boolean =
+          tdef match {
+            case cls: ScClass => isEnumCase && cls.originalEnumElement != null
+            case _            => false
+          }
+
+        references.collect {
+          case (range, definition @ ErrorAnnotationMessage(message))
+              if isInDifferentFile(definition) && !isEnumSyntheticClass(definition) =>
+            (range, message)
+        }.foreach {
+          case (range, message) =>
+            holder.createErrorAnnotation(range, message.nls)
+        }
+      case _ =>
+    }
 
   // TODO package private
   def annotateNeedsToBeAbstract(element: ScTemplateDefinition, typeAware: Boolean = true)
