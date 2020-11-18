@@ -40,7 +40,7 @@ final class MUnitConfigurationProducer extends AbstractTestConfigurationProducer
 
     def matchesSomeTestSuite(typ: ScTemplateDefinition): Boolean = suitePaths.exists(isInheritor(typ, _))
 
-    val parentClasses = element.parents.filterByType[ScTypeDefinition]
+    val parentClasses = element.withParentsInFile.filterByType[ScTypeDefinition]
     val suiteClass = parentClasses.filter(matchesSomeTestSuite).headOption match {
       case Some(value) =>
         value
