@@ -454,8 +454,8 @@ object ScalaImportOptimizer {
       if (hadJavaGroupAtTheTop && !buffer.head.prefixQualifier.startsWith("java.")) {
         val notification = {
           @nowarn
-          val group = new NotificationGroup("Import Layout", NotificationDisplayType.STICKY_BALLOON, true)
-          group.createNotification("Import Layout Updated", null, "Scala Code Style now places java.* imports at the bottom (recommended).", NotificationType.INFORMATION)
+          val group = new NotificationGroup(ScalaEditorBundle.message("import.layout.group"), NotificationDisplayType.STICKY_BALLOON, true)
+          group.createNotification("import.layout.updated.title", null, "import.layout.updated.description", NotificationType.INFORMATION)
         }
 
         def action(name: String)(f: () => Unit) = new AnAction(name) {
