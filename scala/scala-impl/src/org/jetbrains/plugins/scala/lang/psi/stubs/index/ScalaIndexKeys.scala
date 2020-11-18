@@ -55,6 +55,9 @@ object ScalaIndexKeys {
   val TOP_LEVEL_FUNCTION_BY_PKG_KEY       = createIndexKey[String, ScFunction]("sc.top.level.function.by.package.key")
   val TOP_LEVEL_IMPLICIT_CLASS_BY_PKG_KEY = createIndexKey[String, ScClass]("sc.top.level.implicit.class.by.package.key")
 
+  // Scala3 @main methods
+  val ANNOTATED_MAIN_FUNCTION_BY_PKG_KEY  = createIndexKey[String, ScFunction]("sc.annotated.main.function.by.package.key")
+
   //only implicit classes and implicit conversion defs are indexed
   //there is also a case when implicit conversion is provided by an implicit val with function type, but I think it is too exotic to support
   val IMPLICIT_CONVERSION_KEY = createIndexKey[String, ScMember]("sc.implicit.conversion")

@@ -832,6 +832,11 @@ package object extensions {
     def startsWithToken(token: IElementType): Boolean = {
       PsiTreeUtil.firstChild(element).elementType == token
     }
+
+    def isInScala3File: Boolean = {
+      val file = element.getContainingFile
+      file != null || file.isScala3File
+    }
   }
 
   implicit class PsiTypeExt(val `type`: PsiType) extends AnyVal {

@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenAlias
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScFunctionDeclarationImpl, ScFunctionDefinitionImpl, ScMacroDefinitionImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScGivenAliasImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFunctionStubImpl
+import org.jetbrains.plugins.scala.macroAnnotations.Measure
 
 /**
   * User: Alexander Podkhalyuzin
@@ -55,7 +56,6 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
 
   override def createStubImpl(function: Fun,
                               parentStub: StubElement[_ <: PsiElement]): ScFunctionStub[Fun] = {
-
     val returnTypeElement = function.returnTypeElement
 
     val returnTypeText = returnTypeElement.map(_.getText)
@@ -72,8 +72,8 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     val annotations = function.annotations
       .map(_.annotationExpr.constructorInvocation.typeElement)
       .asStrings { text =>
-        text.substring(text.lastIndexOf('.') + 1)
-      }
+      text.substring(text.lastIndexOf('.') + 1)
+    }
 
     val implicitConversionParamClass =
       if (function.isImplicitConversion) ScImplicitStub.conversionParamClass(function)
@@ -98,12 +98,22 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
 
   override def indexStub(stub: ScFunctionStub[Fun], sink: IndexSink): Unit = {
     import index.ScalaIndexKeys._
-    sink.occurrences(METHOD_NAME_KEY, stub.getName)
 
-    if (stub.isTopLevel)
-      stub.topLevelQualifier.foreach(
-        sink.fqnOccurence(TOP_LEVEL_FUNCTION_BY_PKG_KEY, _)
-      )
+    val functionName = stub.getName
+    sink.occurrences(METHOD_NAME_KEY, functionName)
+
+    if (stub.isTopLevel) {
+      val packageFqn = stub.topLevelQualifier
+      packageFqn.foreach(sink.fqnOccurence(TOP_LEVEL_FUNCTION_BY_PKG_KEY, _))
+    }
+
+
+
+    if (stub.annotations.contains("main")) {
+      val packageFqn = stub.topLevelQualifier
+      val syntheticClassName = packageFqn.fold("")(_ + ".") + functionName
+      sink.occurrences(ANNOTATED_MAIN_FUNCTION_BY_PKG_KEY, syntheticClassName)
+    }
 
     stub.indexImplicits(sink)
   }

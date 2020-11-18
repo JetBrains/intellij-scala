@@ -6,7 +6,7 @@ import java.{util => ju}
 import com.intellij.execution.configurations.{JavaCommandLineState, JavaParameters, ParametersList}
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
-import com.intellij.execution.{ExecutionResult, Executor, RunConfigurationExtension, ShortenCommandLine}
+import com.intellij.execution.{ExecutionResult, Executor, JavaRunConfigurationExtensionManager, RunConfigurationExtension, ShortenCommandLine}
 import com.intellij.openapi.components.PathMacroManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
@@ -55,8 +55,8 @@ class ScalaTestFrameworkCommandLineState(
     }
     params.getVMParametersList.addParametersString(vmParams)
 
-    for (ext <- RunConfigurationExtension.EP_NAME.getExtensionList.asScala)
-      ext.updateJavaParameters(configuration, params, getRunnerSettings)
+    // automatically fiters non-applicable extensions
+    JavaRunConfigurationExtensionManager.getInstance().updateJavaParameters(configuration, params, getRunnerSettings, env.getExecutor)
 
     if (DebugOptions.attachDebugAgent) {
       val suspend = if(DebugOptions.waitUntilDebuggerAttached) "y" else "n"
