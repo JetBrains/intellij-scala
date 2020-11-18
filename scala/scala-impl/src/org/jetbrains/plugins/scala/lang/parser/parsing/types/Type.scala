@@ -5,10 +5,9 @@ package parsing
 package types
 
 import com.intellij.lang.PsiBuilder
-import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.util.InScala3
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type.parseWildcardStartToken
 
 /**
  * Type ::= [[InfixTypePrefix]]
@@ -25,12 +24,11 @@ object Type extends Type {
   //   In Scala 3.1, _ is deprecated in favor of ? as a name for a wildcard. A -rewrite option is available to rewrite one to the other.
   //   In Scala 3.2, the meaning of _ changes from wildcard to placeholder for type parameter.
   //   The Scala 3.1 behavior is already available today under the -strict setting.
-  def isWildcardStartToken(tokenType: IElementType)(implicit builder: ScalaPsiBuilder): Boolean =
-    tokenType match {
-      case InScala3(ScalaTokenTypes.tQUESTION) => true
-      case          ScalaTokenTypes.tUNDER     => true
-      case _                                   => false
-    }
+  def parseWildcardStartToken()(implicit builder: ScalaPsiBuilder): Boolean =
+    if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
+      builder.advanceLexer()
+      true
+    } else builder.isScala3 && builder.tryParseSoftKeyword(ScalaTokenType.WildcardTypeQuestionMark)
 }
 
 trait Type {
@@ -65,10 +63,9 @@ trait Type {
   }
 
   private def parseWildcardType(typeMarker: PsiBuilder.Marker, isPattern: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
-    if (!Type.isWildcardStartToken(builder.getTokenType))
+    if (!parseWildcardStartToken())
       return false
 
-    builder.advanceLexer() // eat _ or ?
     Bounds.parseSubtypeBounds()
     typeMarker.done(ScalaElementType.WILDCARD_TYPE)
 

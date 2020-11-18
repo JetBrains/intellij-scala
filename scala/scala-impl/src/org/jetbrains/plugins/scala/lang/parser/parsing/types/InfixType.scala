@@ -130,13 +130,14 @@ trait InfixType {
   }
 
   //wildcard is possible for infix types, like for parameterized. No bounds possible
-  private def parseInfixWildcardType()(implicit builder: ScalaPsiBuilder): Boolean =
-    if (Type.isWildcardStartToken(builder.getTokenType)) {
-      val typeMarker = builder.mark()
-      builder.advanceLexer()
+  private def parseInfixWildcardType()(implicit builder: ScalaPsiBuilder): Boolean = {
+    val typeMarker = builder.mark()
+    if (Type.parseWildcardStartToken()) {
       typeMarker.done(ScalaElementType.WILDCARD_TYPE)
       true
     } else {
+      typeMarker.drop()
       false
     }
+  }
 }

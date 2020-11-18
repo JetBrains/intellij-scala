@@ -173,7 +173,6 @@ public interface ScalaTokenTypes {
     IElementType tVIEW = new ScalaTokenType("<%");
     IElementType tINNER_CLASS = new ScalaTokenType("#");
     IElementType tAT = new ScalaTokenType("@");
-    IElementType tQUESTION = new ScalaTokenType("?");
 
     TokenSet WHITES_SPACES_FOR_FORMATTER_TOKEN_SET = TokenSet.create(
             tWHITE_SPACE_IN_LINE,
