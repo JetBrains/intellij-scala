@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.externalHighlighters
 import com.intellij.codeInsight.daemon.impl.TrafficLightRenderer.DaemonCodeAnalyzerStatus
 import com.intellij.codeInsight.daemon.impl.{DefaultHighlightInfoProcessor, ProgressableTextEditorHighlightingPass, SeverityRegistrar, TrafficLightRenderer, TrafficLightRendererContributor}
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.markup.UIController
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
@@ -38,6 +39,8 @@ class CustomTrafficLightRendererContributor
         }
         status
       }
+
+      override def createUIController(): UIController = super.createUIController(editor)
     }
   }
 }
