@@ -7,6 +7,7 @@ import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
@@ -18,10 +19,13 @@ object ScalaMainMethodUtil {
   def findMainClass(element: PsiElement): Option[PsiClass] = findMainClassAndSourceElem(element).map(_._1)
 
   def findMainClassAndSourceElem(element: PsiElement): Option[(PsiClass, PsiElement)] = {
-    findContainingMainMethod(element) match {
-      case Some(funDef) => Some((funDef.containingClass, funDef.getFirstChild))
+    val mainMethod = findContainingMainMethod(element)
+    mainMethod match {
+      case Some(funDef) =>
+        Some((funDef.containingClass, funDef.getFirstChild))
       case None =>
-        findObjectWithMain(element) match {
+        val objectWithMain = findObjectWithMain(element)
+        objectWithMain match {
           case Some(obj) =>
             val sourceElem =
               if (PsiTreeUtil.isAncestor(obj, element, false)) obj.fakeCompanionClassOrCompanionClass
@@ -41,6 +45,17 @@ object ScalaMainMethodUtil {
       case funDef: ScFunctionDefinition if isMainMethod(funDef) => funDef
     }
   }
+
+  def findContainingScala3MainMethod(elem: PsiElement): Option[ScFunctionDefinition] =
+    containingScala3MainMethodCandidates(elem).headOption
+
+  def containingScala3MainMethodCandidates(elem: PsiElement): Iterator[ScFunctionDefinition] =
+    if (elem.isInScala3File)
+      elem.withParentsInFile.collect {
+        case funDef: ScFunctionDefinition if isScala3MainMethod(funDef) => funDef
+      }
+    else
+      Iterator.empty
 
   def findObjectWithMain(element: PsiElement): Option[ScObject] = {
     def findTopLevel: Option[ScObject] = element.containingScalaFile.flatMap { file =>
@@ -89,6 +104,19 @@ object ScalaMainMethodUtil {
         .exists(PsiMethodUtil.isMainMethod)
 
     ScalaNamesUtil.toJavaName(funDef.name) == "main" && isInStableObject && hasJavaMainWrapper
+  }
+
+  def isScala3MainMethod(funDef: ScFunctionDefinition): Boolean =
+    if (funDef.isInScala3File) {
+      val mainAnnotation = funDef.annotations.find(isMainAnnotation)
+      mainAnnotation.isDefined
+    }
+    else false
+
+  // TODO: resolve properly to "scala.main" (currently resolve for the annotation is broken for Scala3 for some reason)
+  private def isMainAnnotation(annotation: ScAnnotation): Boolean = {
+    val text = annotation.annotationExpr.getText
+    text == "main" || text == "scala.main"
   }
 
   private def stableObject(element: PsiElement): Option[ScObject] = element.withParentsInFile.collectFirst {

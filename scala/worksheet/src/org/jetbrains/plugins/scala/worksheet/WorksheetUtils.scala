@@ -1,11 +1,13 @@
 package org.jetbrains.plugins.scala.worksheet
 
 import com.intellij.ide.scratch.ScratchUtil
+import com.intellij.lang.LanguageUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.jps.model.java.JavaSourceRootType
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 object WorksheetUtils {
@@ -16,8 +18,12 @@ object WorksheetUtils {
       isScratchWorksheet(project, file)
   }
 
-  def isScratchWorksheet(project: Project, file: VirtualFile): Boolean =
-    ScratchUtil.isScratch(file) && WorksheetUtils.treatScratchFileAsWorksheet(project)
+  def isScratchWorksheet(project: Project, file: VirtualFile): Boolean = {
+    ScratchUtil.isScratch(file) && {
+      WorksheetFileType.isMyFileType(file) ||
+        WorksheetUtils.treatScratchFileAsWorksheet(project) && ScalaFileType.INSTANCE.isMyFileType(file)
+    }
+  }
 
   def treatScratchFileAsWorksheet(project: Project): Boolean =
     settings(project).isTreatScratchFilesAsWorksheet
