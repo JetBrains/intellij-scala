@@ -67,6 +67,9 @@ object NewExprParents extends Parents(allowCommaSeparatedParentsInScala3 = false
     Constructor()
 }
 
+
+// FIXME: pretty sure we need to fix the usage of theese
+// to take scala 3 trait parameters into account
 /**
  * [[ClassParents]] ::= [[Constructor]] { 'with' [[AnnotType]] }
  */
