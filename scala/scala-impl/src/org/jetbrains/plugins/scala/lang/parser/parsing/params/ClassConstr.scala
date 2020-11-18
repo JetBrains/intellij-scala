@@ -37,3 +37,5 @@ abstract class ClassConstr(val dropConstructorIfEmpty: Boolean) extends ParsingR
 object ClassConstr extends ClassConstr(dropConstructorIfEmpty = false)
 
 object TraitConstr extends ClassConstr(dropConstructorIfEmpty = true)
+
+object EnumCaseConstr extends ClassConstr(dropConstructorIfEmpty = true)
