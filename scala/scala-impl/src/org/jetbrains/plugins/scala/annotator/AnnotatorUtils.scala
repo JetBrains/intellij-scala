@@ -155,6 +155,12 @@ object AnnotatorUtils {
   // TODO something more reliable
   object ErrorAnnotationMessage {
     def unapply(definition: ScTypeDefinition): Option[NlsString] =
-      definition.isSealed.option(ScalaBundle.nls("illegal.inheritance.from.sealed.kind", kindOf(definition, toLowerCase = true), definition.name))
+      Option.when(definition.isSealed)(
+        ScalaBundle.nls(
+          "illegal.inheritance.from.sealed.kind",
+          kindOf(definition, toLowerCase = true),
+          definition.name
+        )
+      )
   }
 }
