@@ -83,6 +83,13 @@ class ScalaFileImpl(
       super.processDeclarations(processor, state, lastParent, place)
 
   private def isScriptFileImpl: Boolean = {
+    // scala3 supports top level definitions, so no script files for scala3 for now
+    // this is needed to:
+    //  1. make ScalaRunLineMarkerContributor work for scala3 main methods
+    //  2. show normal icon in project view for files with top level definitions
+    if (this.getLanguage.isKindOf(Scala3Language.INSTANCE))
+      return false
+
     val empty = this.children.forall {
       case _: PsiWhiteSpace => true
       case _: PsiComment => true

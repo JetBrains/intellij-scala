@@ -25,7 +25,7 @@ class ScalaRunLineMarkerContributor extends RunLineMarkerContributor {
 
     val isIdentifier = element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER
     val hasMain = element.getParent match {
-      case fun: ScFunctionDefinition => ScalaMainMethodUtil.isMainMethod(fun)
+      case fun: ScFunctionDefinition => ScalaMainMethodUtil.isMainMethod(fun) || ScalaMainMethodUtil.isScala3MainMethod(fun)
       case obj: ScObject if ScalaMainMethodUtil.hasMainMethod(obj) => true
       case c: PsiClass => ScalaMainMethodUtil.hasMainMethodFromProviders(c)
       case _ => false
