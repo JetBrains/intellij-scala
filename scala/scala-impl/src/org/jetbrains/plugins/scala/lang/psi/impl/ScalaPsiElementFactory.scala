@@ -837,7 +837,7 @@ object ScalaPsiElementFactory {
         element.context = context
         element.child = child
         element
-      case element => throw elementCreationException(tag.getClass.getSimpleName, text + "; actual: " + element.getText, context)
+      case element => throw elementCreationException(tag.runtimeClass.getSimpleName, text + "; actual: " + element.getText, context)
     }
   }
 
