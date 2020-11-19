@@ -75,7 +75,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
       val typeName = classRenderer.renderTypeName(collectionClass)
       val expectedLabel = s"$collectionName = {$typeName@$UNIQUE_ID}$afterTypeLabel"
 
-      assertEquals(expectedLabel, label)
+      assertEquals("node label value doesn't match", expectedLabel, label)
 
       if (checkChildren) {
         val intType = classRenderer.renderTypeName("java.lang.Integer")
@@ -84,7 +84,16 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
         children.foreach { childLabel =>
           val expectedChildLabel = s"$testIndex = $intLabel${testIndex + 1}"
 
-          assertEquals(expectedChildLabel, childLabel)
+          try
+            assertEquals(expectedChildLabel, childLabel)
+          catch {
+            case err: AssertionError =>
+              val childrenDebugText = childLabel.zipWithIndex
+                .map { case (child, idx) => s"$idx: $child"}
+                .mkString("\n")
+              System.err.println(s"all children nodes labels:\n$childrenDebugText")
+              throw err
+          }
           testIndex += 1
         }
       }
