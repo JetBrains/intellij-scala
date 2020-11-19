@@ -74,8 +74,10 @@ object Def extends ParsingRule {
         if (TypeDef()) {
           defMarker.done(ScalaElementType.TYPE_DEFINITION)
           true
-        }
-        else {
+        } else if (builder.isScala3 && TypeDcl()) {
+          defMarker.done(ScalaElementType.TYPE_DECLARATION)
+          true
+        } else {
           defMarker.rollbackTo()
           false
         }
