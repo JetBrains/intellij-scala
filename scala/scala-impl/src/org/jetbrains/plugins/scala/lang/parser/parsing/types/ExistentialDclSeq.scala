@@ -20,22 +20,22 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{Dcl, EmptyDcl
  *                  | 'val' ValDcl
  */
 
-object ExistentialDclSeq {
-  def parse(builder: ScalaPsiBuilder): Unit = {
+object ExistentialDclSeq extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.kTYPE | ScalaTokenTypes.kVAL =>
-        if (!Dcl.parse(builder, isMod = false)) {
+        if (!Dcl(isMod = false)) {
           EmptyDcl.parse(builder, isMod = false)
         }
       case _ =>
         //builder error ScalaBundle.message("wrong.existential.declaration")
-        return
+        return true
     }
     while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON || builder.newlineBeforeCurrentToken) {
       if (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) builder.advanceLexer() //Ate semi
       builder.getTokenType match {
         case ScalaTokenTypes.kTYPE | ScalaTokenTypes.kVAL =>
-          if (!Dcl.parse(builder, isMod = false)) {
+          if (!Dcl(isMod = false)) {
             EmptyDcl.parse(builder, isMod = false)
           }
         case _ =>
@@ -43,5 +43,6 @@ object ExistentialDclSeq {
           builder.advanceLexer()
       }
     }
+    true
   }
 }

@@ -16,13 +16,12 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.{ExistentialClause,
 /*
  * TypePattern ::= Type (but it can't be InfixType => Type (because case A => B => C?))
  */
-object TypePattern {
-
-  def parse(builder: ScalaPsiBuilder): Boolean = {
-    val typeMarker = builder.mark
+object TypePattern extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    val typeMarker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS =>
-        val parMarker = builder.mark
+        val parMarker = builder.mark()
         builder.advanceLexer() //Ate (
         builder.disableNewlines()
         builder.getTokenType match {
@@ -64,7 +63,7 @@ object TypePattern {
     }
     builder.getTokenType match {
       case ScalaTokenTypes.kFOR_SOME =>
-        ExistentialClause parse builder
+        ExistentialClause()
         typeMarker.done(ScalaElementType.TYPE_PATTERN)
         true
       case _ =>

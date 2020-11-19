@@ -7,13 +7,19 @@ package types
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
+import scala.annotation.tailrec
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 28.02.2008
 */
-object RefineStatSeq {
+object RefineStatSeq extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    parseStats()
+    true
+  }
 
-  def parse(builder: ScalaPsiBuilder): Unit = {
+  private def parseStats()(implicit builder: ScalaPsiBuilder): Unit = {
     while (true) {
       builder.getTokenType match {
         //end of parsing when find } or builder.eof

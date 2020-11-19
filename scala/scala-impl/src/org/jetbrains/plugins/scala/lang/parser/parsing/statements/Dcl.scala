@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
  */
 object Dcl {
 
-  def parse(builder: ScalaPsiBuilder, isMod: Boolean = true): Boolean = {
+  def apply(isMod: Boolean = true)(implicit builder: ScalaPsiBuilder): Boolean = {
     val dclMarker = builder.mark
     dclMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_COMMENTS_TOKEN, null)
     if (isMod) {
@@ -42,10 +42,10 @@ object Dcl {
     }
     //Look for val,var,def or type
     val (successfullyParsed, elementType) = builder.getTokenType match {
-      case ScalaTokenTypes.kVAL  => (ValDcl.parse(builder),  ScalaElementType.VALUE_DECLARATION)
-      case ScalaTokenTypes.kVAR  => (VarDcl.parse(builder),  ScalaElementType.VARIABLE_DECLARATION)
-      case ScalaTokenTypes.kDEF  => (FunDcl.parse(builder),  ScalaElementType.FUNCTION_DECLARATION)
-      case ScalaTokenTypes.kTYPE => (TypeDcl.parse(builder), ScalaElementType.TYPE_DECLARATION)
+      case ScalaTokenTypes.kVAL  => (ValDcl(),  ScalaElementType.VALUE_DECLARATION)
+      case ScalaTokenTypes.kVAR  => (VarDcl(),  ScalaElementType.VARIABLE_DECLARATION)
+      case ScalaTokenTypes.kDEF  => (FunDcl(),  ScalaElementType.FUNCTION_DECLARATION)
+      case ScalaTokenTypes.kTYPE => (TypeDcl(), ScalaElementType.TYPE_DECLARATION)
       case _                     => (false, null: IElementType)
     }
 

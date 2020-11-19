@@ -23,14 +23,14 @@ object RefineStat extends ParsingRule {
     builder.getTokenType match {
       case ScalaTokenTypes.kTYPE =>
         if (!Def()) {
-          if (!Dcl.parse(builder, isMod = false)) {
+          if (!Dcl(isMod = false)) {
             EmptyDcl.parse(builder, isMod = false)
           }
         }
         true
       case ScalaTokenTypes.kVAR | ScalaTokenTypes.kVAL
            | ScalaTokenTypes.kDEF =>
-        if (Dcl.parse(builder, isMod = false)) {
+        if (Dcl(isMod = false)) {
           true
         }
         else {

@@ -18,9 +18,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 /*
  * ValDcl ::= ids ':' Type
  */
-object ValDcl {
-
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+object ValDcl extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val returnMarker = builder.mark
     //Look for val
     builder.getTokenType match {

@@ -37,7 +37,7 @@ object BlockStat extends ParsingRule {
         return true
       case ScalaTokenTypes.kDEF | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR | ScalaTokenTypes.kTYPE =>
         if (!Def()) {
-          if (Dcl.parse(builder)) {
+          if (Dcl()) {
             builder error ErrMsg("wrong.declaration.in.block")
             return true
           } else {
@@ -53,7 +53,7 @@ object BlockStat extends ParsingRule {
         if (!Expr1()) {
           if (!Def()) {
             if (!TmplDef()) {
-              if (Dcl.parse(builder)) {
+              if (Dcl()) {
                 builder error ErrMsg("wrong.declaration.in.block")
                 return true
               }

@@ -17,9 +17,9 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  * SelfType ::= id [':' Type] '=>' |
  *              ['this' | '_'] ':' Type '=>'
  */
-object SelfType {
+object SelfType extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Unit = {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val selfTypeMarker = builder.mark
     
     def handleFunArrow(): Unit = {
@@ -30,7 +30,7 @@ object SelfType {
     def handleColon(): Unit = {
       builder.advanceLexer() //Ate ':'
       
-      if (!parseType(builder)) selfTypeMarker.rollbackTo()
+      if (!parseType()) selfTypeMarker.rollbackTo()
         else {
           builder.getTokenType match {
             case ScalaTokenTypes.tFUNTYPE => handleFunArrow()
@@ -62,9 +62,10 @@ object SelfType {
            handleLastPart() else selfTypeMarker.rollbackTo()
       case _ => selfTypeMarker.rollbackTo()
     }
+    true
   }
 
-  def parseType(builder : ScalaPsiBuilder) : Boolean = {
+  private def parseType()(implicit builder : ScalaPsiBuilder) : Boolean = {
     val typeMarker = builder.mark
     if (!InfixType.parse(builder, star = false, isPattern = true)) {
       typeMarker.drop()
@@ -73,7 +74,7 @@ object SelfType {
 
     builder.getTokenType match {
       case ScalaTokenTypes.kFOR_SOME =>
-        ExistentialClause parse builder
+        ExistentialClause()
         typeMarker.done(ScalaElementType.EXISTENTIAL_TYPE)
       case _ => typeMarker.drop()
     }

@@ -12,9 +12,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Bounds, Type}
 /*
  * TypeDcl ::= id [TypeParamClause] ['>:' Type] ['<:' Type]
  */
-object TypeDcl {
+object TypeDcl extends ParsingRule {
 
-  def parse(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val returnMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kTYPE =>

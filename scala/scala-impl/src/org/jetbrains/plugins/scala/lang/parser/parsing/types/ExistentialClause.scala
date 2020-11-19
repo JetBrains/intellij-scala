@@ -17,8 +17,8 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  * ExistentialClause ::= 'forSome' '{' ExistentialDcl {semi ExistentialDcl} '}'
  */
 
-object ExistentialClause {
-  def parse(builder: ScalaPsiBuilder) : Boolean = {
+object ExistentialClause extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val existMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kFOR_SOME =>
@@ -37,7 +37,7 @@ object ExistentialClause {
         return true
     }
     def foo(): Unit = {
-      ExistentialDclSeq parse builder
+      ExistentialDclSeq()
     }
     ParserUtils.parseLoopUntilRBrace(builder, foo _)
     builder.restoreNewlinesState()

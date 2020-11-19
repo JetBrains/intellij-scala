@@ -31,7 +31,7 @@ sealed abstract class Stat extends ParsingRule {
     }
 
   protected def parseDeclaration()(implicit builder: ScalaPsiBuilder): Boolean =
-    Def.parse(builder) || Dcl.parse(builder)
+    Def() || Dcl()
 }
 
 /**

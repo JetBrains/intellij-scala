@@ -52,7 +52,7 @@ object InfixTypePrefix {
             if (!Type.parse(builder, star, isPattern)) builder.error(ScalaBundle.message("wrong.type"))
             marker.done(ScalaElementType.TYPE)
           case ScalaTokenTypes.kFOR_SOME =>
-            ExistentialClause.parse(builder)
+            ExistentialClause()
             marker.done(ScalaElementType.EXISTENTIAL_TYPE)
           case InScala3(ScalaTokenTypes.kMATCH) =>
             builder.advanceLexer()
