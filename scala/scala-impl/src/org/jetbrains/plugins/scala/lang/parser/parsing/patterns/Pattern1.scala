@@ -38,6 +38,6 @@ object Pattern1 extends ParsingRule {
     } else {
       pattern1Marker.drop()
     }
-    Pattern2.parse(builder, forDef = false)
+    Pattern2()
   }
 }

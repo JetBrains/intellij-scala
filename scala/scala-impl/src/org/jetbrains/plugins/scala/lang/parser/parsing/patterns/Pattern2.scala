@@ -4,7 +4,7 @@ package parser
 package parsing
 package patterns
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /*
@@ -17,24 +17,21 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * Pattern2      ::=  [id ‘@’] InfixPattern
  * InfixPattern  ::=  SimplePattern { id [nl] SimplePattern }
  */
-object Pattern2 {
-  protected def pattern3: Pattern3.type = Pattern3
+abstract class Pattern2(forDef: Boolean) extends ParsingRule {
+  private val patternInForLookAhead = Set(
+    ScalaTokenTypes.tAT,
+    ScalaTokenTypes.tIDENTIFIER,
+    ScalaTokenTypes.tDOT,
+    ScalaTokenTypes.tLPARENTHESIS,
+    ScalaTokenType.AsKeyword
+  )
 
-  def parse(builder: ScalaPsiBuilder, forDef: Boolean): Boolean = {
-    def testForId = {
-      val m = builder.mark
-      builder.advanceLexer()
-      val s = Set(ScalaTokenTypes.tAT,
-        ScalaTokenTypes.tIDENTIFIER,
-        ScalaTokenTypes.tDOT,
-        ScalaTokenTypes.tLPARENTHESIS)
-      val b = !s.contains(builder.getTokenType)
-      m.rollbackTo()
-      b
-    }
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    def testForId =
+      !patternInForLookAhead.contains(builder.lookAhead(1))
 
-    val pattern2Marker = builder.mark
-    val backupMarker = builder.mark
+    val pattern2Marker = builder.mark()
+    val backupMarker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
         if (forDef && testForId) {
@@ -44,40 +41,38 @@ object Pattern2 {
           return true
         } else if (builder.isIdBinding) {
           builder.advanceLexer() //Ate id
-          val idMarker = builder.mark
-          builder.getTokenType match {
-            case ScalaTokenTypes.tAT =>
-              builder.advanceLexer() //Ate @
-              backupMarker.drop()
-              if (!pattern3.parse(builder)) {
-                idMarker.rollbackTo()
-                pattern2Marker.done(ScalaElementType.REFERENCE_PATTERN)
-                val err = builder.mark
-                builder.advanceLexer()
-                err.error(ErrMsg("wrong.pattern"))
-              } else {
-                idMarker.drop()
-                pattern2Marker.done(ScalaElementType.NAMING_PATTERN)
-              }
-              return true
-            case _ =>
+          val idMarker = builder.mark()
+          if (parseAtOrAs()) {
+            backupMarker.drop()
+            if (!Pattern3.parse(builder)) {
+              idMarker.rollbackTo()
+              pattern2Marker.done(ScalaElementType.REFERENCE_PATTERN)
+              val err = builder.mark()
+              builder.advanceLexer()
+              err.error(ErrMsg("wrong.pattern"))
+            } else {
               idMarker.drop()
-              backupMarker.rollbackTo()
+              pattern2Marker.done(ScalaElementType.NAMING_PATTERN)
+            }
+            return true
+          } else {
+            idMarker.drop()
+            backupMarker.rollbackTo()
           }
         } else {
           backupMarker.rollbackTo()
         }
       case ScalaTokenTypes.tUNDER =>
         builder.advanceLexer() //Ate id
-        val idMarker = builder.mark
+        val idMarker = builder.mark()
         builder.getTokenType match {
           case ScalaTokenTypes.tAT =>
             builder.advanceLexer() //Ate @
             backupMarker.drop()
-            if (!pattern3.parse(builder)) {
+            if (!Pattern3.parse(builder)) {
               idMarker.rollbackTo()
               pattern2Marker.done(ScalaElementType.REFERENCE_PATTERN)
-              val err = builder.mark
+              val err = builder.mark()
               builder.advanceLexer()
               err.error(ErrMsg("wrong.pattern"))
             } else {
@@ -93,6 +88,18 @@ object Pattern2 {
         backupMarker.drop()
     }
     pattern2Marker.drop()
-    pattern3.parse(builder)
+    Pattern3.parse(builder)
   }
+
+  private def parseAtOrAs()(implicit builder: ScalaPsiBuilder): Boolean =
+    (builder.isScala3 && builder.tryParseSoftKeyword(ScalaTokenType.AsKeyword)) || {
+      if (builder.getTokenType == ScalaTokenTypes.tAT) {
+        builder.advanceLexer()
+        true
+      } else false
+    }
 }
+
+object Pattern2 extends Pattern2(forDef = false)
+
+object Pattern2InForDef extends Pattern2(forDef = true)
