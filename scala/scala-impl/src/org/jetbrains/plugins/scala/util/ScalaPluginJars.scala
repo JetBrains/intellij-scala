@@ -36,7 +36,7 @@ object ScalaPluginJars {
   val compilerSharedJar     = new File(libRoot, "compiler-shared.jar")
   val runnersJarName        = "runners.jar"
   val runnersJar            = new File(libRoot, runnersJarName)
-  val replReporters         = new File(libRoot, "repl-reporters.jar")
+  val replInterface         = new File(libRoot, "repl-interface.jar")
 
   val nailgunJar             = new File(jpsRoot, "nailgun.jar")
   val sbtInterfaceJar        = new File(jpsRoot, "sbt-interface.jar")

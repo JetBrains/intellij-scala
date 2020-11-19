@@ -5,28 +5,22 @@ import java.io.File
 import com.intellij.execution._
 import com.intellij.execution.configurations.{ConfigurationFactory, JavaParameters, _}
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
-import com.intellij.notification.{Notification, NotificationAction}
-import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.options.SettingsEditor
-import com.intellij.openapi.options.ex.SingleConfigurableEditor
-import com.intellij.openapi.options.newEditor.SettingsDialog
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdkType, JdkUtil, Sdk}
 import com.intellij.openapi.roots.ModuleRootManager
-import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
-import com.intellij.openapi.ui.DialogWrapper.DialogStyle
 import com.intellij.util.PathsList
 import com.intellij.util.xmlb.XmlSerializer
 import org.jdom.Element
-import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.annotations.{ApiStatus, Nls}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfiguration.JlineResolveResult._
-import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfiguration._
-import org.jetbrains.plugins.scala.console.{ScalaLanguageConsole, ScalaLanguageConsoleView}
+import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
+import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView.ScalaConsole
+import org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer.{JlineResolveResult, showJLineMissingNotification}
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.util.{JdomExternalizerMigrationHelper, NotificationUtil}
-import org.jetbrains.sbt.{RichFile, RichOption}
+import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
+import org.jetbrains.sbt.RichOption
 
 import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters._
@@ -120,21 +114,31 @@ class ScalaConsoleRunConfiguration(
       val classPath = params.getClassPath
 
       val module = requireModule
-      validateJLineInClassPath(classPath, module) match {
-        case JlineResolveResult.NotRequired =>
-          super.execute(executor, runner)
-        case RequiredFound(file) =>
-          classPath.add(file)
-          super.execute(executor, runner)
-        case JlineResolveResult.RequiredNotFound =>
-          showJLineMissingNotification(module)
-          null
+      val success = ensureJLineInClassPathOrShowErrorNotification(classPath, module, ScalaConsole)
+      if (success)
+        super.execute(executor, runner)
+      else
+        null
+    }
+
+    private def ensureJLineInClassPathOrShowErrorNotification(classPathList: PathsList, module: Module, @Nls subsystemName: String): Boolean = {
+      val classPath = classPathList.getPathList.asScala.map(new File(_)).toSeq
+      val result = ScalaSdkJLineFixer.validateJLineInClassPath(classPath, module)
+      result match {
+        case JlineResolveResult.NotRequired         =>
+          true
+        case JlineResolveResult.RequiredFound(file) =>
+          classPathList.add(file)
+          true
+        case JlineResolveResult.RequiredNotFound    =>
+          showJLineMissingNotification(module, subsystemName)
+          false
       }
     }
   }
 
   private def disableJLineOption: String =
-    getModule.flatMap(minorScalaVersion) match {
+    getModule.flatMap(_.scalaMinorVersion).map(_.minor) match {
       case Some(version) if version >= "2.13.2" => "-Xjline:off" // https://github.com/scala/scala/pull/8906
       case _                                    => "-Xnojline"
     }
@@ -173,115 +177,4 @@ class ScalaConsoleRunConfiguration(
     } else {
       ShortenCommandLine.CLASSPATH_FILE
     }
-
-  private def showJLineMissingNotification(module: Module): Unit = {
-    val message: String = {
-      import JLineFinder.JLineJarName
-      import ScalaLanguageConsoleView.ScalaConsole
-      val sdkName = module.scalaSdk.safeMap(_.getName).getOrElse(ScalaBundle.message("scala.console.config.unknown.sdk"))
-      ScalaBundle.message("scala.console.config.scala.console.requires.jline", ScalaConsole, JLineJarName, sdkName).replaceAll("\n", "<br>")
-    }
-
-    val goToSdkSettingsAction = new NotificationAction(ScalaBundle.message("scala.console.configure.scala.sdk.classpath")) {
-      override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
-        notification.expire()
-        val configurable = ProjectStructureConfigurable.getInstance(project)
-        val editor = new SingleConfigurableEditor(project, configurable, SettingsDialog.DIMENSION_KEY) {
-          override protected def getStyle = DialogStyle.COMPACT
-        }
-        module.scalaSdk match {
-          case Some(sdk) => configurable.selectProjectOrGlobalLibrary(sdk, true)
-          case None      => configurable.selectGlobalLibraries(true)
-        }
-        editor.show()
-      }
-    }
-
-    NotificationUtil.builder(project, message)
-      .addAction(goToSdkSettingsAction)
-      .setTitle(null)
-      .show()
-  }
-}
-
-private object ScalaConsoleRunConfiguration {
-
-  sealed trait JlineResolveResult
-  object JlineResolveResult {
-    case object NotRequired extends JlineResolveResult
-    case object RequiredNotFound extends JlineResolveResult
-    case class RequiredFound(file: File) extends JlineResolveResult
-  }
-
-  //TODO: Fix Scala SDK setup in order that it includes jline jar as a dependency of scala-compiler
-  /**
-   * This is a workaround to make Scala Console run in Scala 2.13.0 & 2.13.1 versions
-   * It will fail to run if jline jar is not present in classpath.
-   * For the details, please see the discussion: [[https://youtrack.jetbrains.com/issue/SCL-15818]]
-   *
-   * @return false - if jline jar could not be found and it is required to run scala console in current scala version<br>
-   *         true - otherwise
-   */
-  private def validateJLineInClassPath(classPath: PathsList, module: Module): JlineResolveResult =
-    if (isJLineNeeded(module) && !isJLinePresentIn(classPath)) {
-      jLineFor(classPath) match {
-        case Some(jline) => RequiredFound(jline)
-        case None => RequiredNotFound
-      }
-    } else NotRequired
-
-  private def isJLineNeeded(module: Module): Boolean =
-    module.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_13) && {
-      // 2.13.2 was fixed and does not require jline jar if jline is disabled
-      // see https://github.com/scala/bug/issues/11654
-      minorScalaVersion(module).exists(v => v == "2.13.0" || v == "2.13.1")
-    }
-
-  private def minorScalaVersion(module: Module): Option[String] =
-    module.scalaSdk.flatMap(_.compilerVersion)
-
-  private def isJLinePresentIn(classPath: PathsList): Boolean =
-    classPath.getPathList.asScala.exists(new File(_).getName == JLineFinder.JLineJarName)
-
-  private def jLineFor(classPath: PathsList): Option[File] = {
-    val jars = classPath.getPathList.asScala.map(new File(_))
-    val compilerJar = jars.find(_.getName.startsWith("scala-compiler"))
-    compilerJar.flatMap(JLineFinder.findJline)
-  }
-
-  private object JLineFinder {
-    //this is a dependency of scala-compiler-2.13.0 & 2.13.1, it is the last jline 2.x version
-    //so we can use exact value instead of some regexp with versions
-    //see: https://mvnrepository.com/artifact/org.scala-lang/scala-compiler/2.13.0
-    //see: https://mvnrepository.com/artifact/jline/jline
-    //see: https://github.com/jline/jline2
-    private val JLineVersionInScala213 = "2.14.6"
-    val JLineJarName = s"jline-$JLineVersionInScala213.jar"
-
-    def findJline(compilerJar: File): Option[File] =
-      findInSameFolder(compilerJar)
-        .orElse(findInIvy(compilerJar))
-        .orElse(findInMaven(compilerJar))
-
-    private def findInSameFolder(compilerJar: File): Option[File] = for {
-      parent <- compilerJar.parent
-      jLineJar <- (parent / JLineJarName).maybeFile
-    } yield jLineJar
-
-    //location of `scala-compiler-x.x.x.jar` : .ivy2/cache/org.scala-lang/scala-compiler/jars
-    //location of `jline-x.x.x.jar`          : .ivy2/cache/jline/jline/jars
-    private def findInIvy(compilerJar: File): Option[File] = for {
-      cacheFolder <- compilerJar.parent(level = 4)
-      jLineFolder <- (cacheFolder / "jline" / "jline" / "jars").maybeDir
-      jLineJar <- (jLineFolder / JLineJarName).maybeFile
-    } yield jLineJar
-
-    //location of `scala-compiler-x.x.x.jar` : .m2/repository/org/scala-lang/scala-compiler/x.x.x
-    //location of `jline-x.x.x.jar`          : .m2/repository/jline/jline/x.x.x
-    private def findInMaven(compilerJar: File): Option[File] = for {
-      repositoryFolder <- compilerJar.parent(level = 5)
-      jLineFolder <- (repositoryFolder / "jline" / "jline" / JLineVersionInScala213).maybeDir
-      jLineJar <- (jLineFolder / JLineJarName).maybeFile
-    } yield jLineJar
-  }
 }

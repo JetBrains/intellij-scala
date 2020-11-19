@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.worksheet.reporters;
+package org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface;
 
 public interface ILoopWrapperReporter {
 
@@ -7,6 +7,4 @@ public interface ILoopWrapperReporter {
                 Integer column,
                 String lineContent,
                 String message);
-
-    default void internalDebug(String message) {};
 }
