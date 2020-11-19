@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
 
 import com.intellij.openapi.editor.Editor
+import org.jetbrains.plugins.scala.WorksheetEvaluationTests
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.withModifiedRegistryValue
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions._
 import org.jetbrains.plugins.scala.util.runners._
@@ -13,7 +14,6 @@ import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.Workshe
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, WorksheetEvaluationTests}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
@@ -28,10 +28,10 @@ class WorksheetReplIntegration_Scala_2_13_Test extends WorksheetReplIntegrationB
   with WorksheetRuntimeExceptionsTests {
 
   // with some health check runs
-  @RunWithScalaVersions(extra = Array(
+  @RunWithScalaVersions(Array(
     TestScalaVersion.Scala_2_13_0,
   ))
-  def testSimpleDeclaration(): Unit = {
+  def testSimpleDeclaration_2_13_0(): Unit = {
     val left =
       """val a = 1
         |var b = 2
@@ -40,6 +40,19 @@ class WorksheetReplIntegration_Scala_2_13_Test extends WorksheetReplIntegrationB
     val right =
       """a: Int = 1
         |b: Int = 2""".stripMargin
+
+    doRenderTest(left, right)
+  }
+
+  def testSimpleDeclaration(): Unit = {
+    val left =
+      """val a = 1
+        |var b = 2
+        |""".stripMargin
+
+    val right =
+      """val a: Int = 1
+        |var b: Int = 2""".stripMargin
 
     doRenderTest(left, right)
   }
@@ -193,7 +206,6 @@ class WorksheetReplIntegration_Scala_2_13_Test extends WorksheetReplIntegrationB
     )
   }
 
-  @NotSupportedScalaVersions(Array(TestScalaVersion.Scala_2_11))
   def testCompilationErrorsAndWarnings_ComplexTest(): Unit =
     baseTestCompilationErrorsAndWarnings_ComplexTest(
       """Warning:(2, 7) match may not be exhaustive.
@@ -264,9 +276,7 @@ class WorksheetReplIntegration_Scala_2_13_Test extends WorksheetReplIntegrationB
          |""".stripMargin
 
 
-    val TestRunResult(editor, evaluationResult) = doRenderTestWithoutCompilationChecks(before, after)
-
-    assertEquals(WorksheetRunError(WorksheetCompilerResult.CompilationError), evaluationResult)
+    val TestRunResult(editor, _) = doRenderTestWithoutCompilationChecks(before, after, WorksheetRunError(WorksheetCompilerResult.CompilationError))
 
     assertCompilerMessages(editor)(expectedCompilerOutput)
 
@@ -789,7 +799,7 @@ class WorksheetReplIntegration_Scala_2_13_Test extends WorksheetReplIntegrationB
           |""".stripMargin
 
       val TestRunResult(editor, evaluationResult) =
-        doRenderTestWithoutCompilationChecks(LargeInputWithErrors, output => assertIsBlank(output))
+        doRenderTestWithoutCompilationChecks2(LargeInputWithErrors, output => assertIsBlank(output))
       assertEquals(WorksheetRunError(WorksheetCompilerResult.CompilationError), evaluationResult)
       assertCompilerMessages(editor)(expectedCompilerOutput)
     }
@@ -837,7 +847,7 @@ class WorksheetReplIntegration_Scala_2_13_Test extends WorksheetReplIntegrationB
           |unknown14""".stripMargin
 
       val TestRunResult(editor, evaluationResult) =
-        doRenderTestWithoutCompilationChecks(LargeInputWithErrors, output => assertIsBlank(output))
+        doRenderTestWithoutCompilationChecks2(LargeInputWithErrors, output => assertIsBlank(output))
       assertEquals(WorksheetRunError(WorksheetCompilerResult.CompilationError), evaluationResult)
       assertCompilerMessages(editor)(expectedCompilerOutput)
     }
@@ -878,7 +888,7 @@ class WorksheetReplIntegration_Scala_2_13_Test extends WorksheetReplIntegrationB
           |unknown14""".stripMargin
 
       val TestRunResult(editor, evaluationResult) =
-        doRenderTestWithoutCompilationChecks(LargeInputWithErrors, output => assertIsBlank(output))
+        doRenderTestWithoutCompilationChecks2(LargeInputWithErrors, output => assertIsBlank(output))
       assertEquals(WorksheetRunError(WorksheetCompilerResult.CompilationError), evaluationResult)
       assertCompilerMessages(editor)(expectedCompilerOutput)
     }

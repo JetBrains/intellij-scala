@@ -1,16 +1,15 @@
-package org.jetbrains.jps.incremental.scala.local.worksheet
+package org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface
 
 import java.io.{File, Flushable, PrintWriter}
 
-import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapper
-import org.jetbrains.plugins.scala.worksheet.reporters.ILoopWrapperReporter
+import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.ILoopWrapper
+import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.ILoopWrapper
 
 import scala.reflect.classTag
 import scala.reflect.internal.util.Position
 import scala.tools.nsc.Settings
 import scala.tools.nsc.interpreter.StdReplTags.tagOfIMain
 import scala.tools.nsc.interpreter.{ILoop, IMain, NamedParam, ReplReporter, Results}
-
 import scala.collection.JavaConverters._
 
 /**
@@ -54,8 +53,9 @@ class ILoopWrapper212Impl(
   class MyILoopInterpreter extends ILoopInterpreter {
 
     override lazy val reporter: ReplReporter = new ReplReporter(this) {
-      override def print(pos: Position, msg: String, severity: Severity): Unit =
+      override def print(pos: Position, msg: String, severity: Severity): Unit = {
         wrapperReporter.report(severity.toString, pos.line, pos.column, pos.lineContent, msg)
+      }
     }
   }
 

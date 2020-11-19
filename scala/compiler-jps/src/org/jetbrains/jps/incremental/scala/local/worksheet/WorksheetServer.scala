@@ -3,10 +3,10 @@ package org.jetbrains.jps.incremental.scala.local.worksheet
 import java.io._
 import java.nio.{Buffer, ByteBuffer}
 
-import org.jetbrains.jps.incremental.scala.{Client, JpsBundle}
 import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactoryHandler.ReplContext
-import org.jetbrains.plugins.scala.compiler.data.{Arguments, CompilerJars}
+import org.jetbrains.jps.incremental.scala.{Client, JpsBundle}
 import org.jetbrains.plugins.scala.compiler.data.worksheet._
+import org.jetbrains.plugins.scala.compiler.data.{Arguments, CompilerJars}
 
 class WorksheetServer {
   import WorksheetServer._

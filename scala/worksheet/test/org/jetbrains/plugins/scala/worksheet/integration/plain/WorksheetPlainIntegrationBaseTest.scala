@@ -25,10 +25,12 @@ import org.junit.experimental.categories.Category
 import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
 
+//noinspection RedundantBlock
 @Category(Array(classOf[WorksheetEvaluationTests]))
 abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBaseTest
   with WorksheetRunTestSettings
-  with WorksheetRuntimeExceptionsTests {
+  with WorksheetRuntimeExceptionsTests
+  with WorksheetPlainCheckRuntimeVersionScalaTests {
 
   override def runType: WorksheetExternalRunType = WorksheetExternalRunType.PlainRunType
 

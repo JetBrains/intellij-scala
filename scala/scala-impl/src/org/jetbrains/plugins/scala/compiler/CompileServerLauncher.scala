@@ -15,6 +15,7 @@ import com.intellij.openapi.projectRoots.{JavaSdkVersion, ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.impl.OrderEntryUtil
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
+import com.intellij.openapi.util.ShutDownTracker
 import com.intellij.util.net.NetUtils
 import javax.swing.event.HyperlinkEvent
 import org.jetbrains.annotations.Nls
@@ -63,7 +64,19 @@ object CompileServerLauncher {
     }
   }
 
+
+  private val shutdownTask: Runnable = () => {
+    LOG.info("Shutdown event triggered, stopping server")
+    ensureServerNotRunning()
+  }
+  ShutDownTracker.getInstance().registerShutdownTask(shutdownTask)
+
+  // NOTE: this is only triggered when plugin is unloaded, and not triggered when IDE is closed
   invokeOnDispose(UnloadAwareDisposable.scalaPluginDisposable) {
+    // need to avoid any leaks to scala plugin classes (SCL-16809)
+    ShutDownTracker.getInstance().unregisterShutdownTask(shutdownTask)
+
+    LOG.info("Scala Plugin is unloaded, stopping server")
     ensureServerNotRunning()
   }
 
@@ -299,7 +312,7 @@ object CompileServerLauncher {
     ScalaPluginJars.sbtInterfaceJar,
     ScalaPluginJars.incrementalCompilerJar,
     ScalaPluginJars.compilerJpsJar,
-    ScalaPluginJars.replReporters
+    ScalaPluginJars.replInterface,
   )
 
   def jvmParameters: Seq[String] = {

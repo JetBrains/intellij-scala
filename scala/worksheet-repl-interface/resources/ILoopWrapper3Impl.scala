@@ -1,13 +1,15 @@
-package org.jetbrains.jps.incremental.scala.local.worksheet
+package org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface
 
 import java.io.{File, Flushable, PrintStream}
 import java.util
 
+import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.ILoopWrapper
+import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.ILoopWrapper3Impl._
+
 import dotty.tools.repl.ReplDriver
 import dotty.tools.repl.State
+
 import scala.jdk.CollectionConverters._
-import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapper3Impl._
-import org.jetbrains.plugins.scala.worksheet.reporters.ILoopWrapperReporter
 
 /**
  * ATTENTION: when editing ensure to increase the version in ILoopWrapperFactoryHandler

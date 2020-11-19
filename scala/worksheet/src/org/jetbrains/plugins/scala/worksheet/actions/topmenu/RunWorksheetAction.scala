@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.WorksheetCompilerError
-import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetEvalutaionErrorReporter}
+import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetEvaluationErrorReporter}
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
@@ -125,10 +125,10 @@ object RunWorksheetAction {
   private def reportError(project: Project, error: RunWorksheetActionResult.Error): Unit = {
     import RunWorksheetActionResult._
     error match {
-      case NoModuleError                    => WorksheetEvalutaionErrorReporter.showConfigErrorNotification(project, WorksheetBundle.message("worksheet.config.error.no.module.classpath.specified"))
+      case NoModuleError                    => WorksheetEvaluationErrorReporter.showConfigErrorNotification(project, WorksheetBundle.message("worksheet.config.error.no.module.classpath.specified"))
       case AlreadyRunning                   => // skip, there already exists icon representation that WS is running
       case ProjectCompilationError(_, _, _) => // skip, already reported in Build tool window
-      case WorksheetRunError(_)             => // skip, already reported in WorksheetCompilerErrorReporter
+      case WorksheetRunError(_)             => // skip, already reported in WorksheetEvaluationErrorReporter
       case NoWorksheetFileError             => // skip for now
       case NoWorksheetEditorError           => // skip for now
       case IndexNotReady(_)                 => // skip for now
@@ -213,7 +213,7 @@ object RunWorksheetAction {
       compiler.compileAndRun(auto, editor) { result =>
         val resultTransformed = result match {
           case error: WorksheetCompilerError =>
-            val reporter = new WorksheetEvalutaionErrorReporter(project, vFile, editor, Log)
+            val reporter = new WorksheetEvaluationErrorReporter(project, vFile, editor, Log)
             reporter.reportError(error)
             RunWorksheetActionResult.WorksheetRunError(error)
           case _ =>
