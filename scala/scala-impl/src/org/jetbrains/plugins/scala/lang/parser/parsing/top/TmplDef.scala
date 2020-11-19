@@ -56,7 +56,15 @@ object TmplDef extends ParsingRule {
       case EnumKeyword =>
         parseTmplRest(EnumDef, templateMarker, EnumDefinition)
         true
-      case GivenKeyword =>
+
+        // Try not to parse a given definition if case was used,
+        // because "case given" can be the start of a new case clause
+        // Example:
+        //  x match {
+        //    case 3 => /* template definitions can occur here */
+        //    case given X =>
+        //  }
+      case GivenKeyword if !caseState =>
         GivenDef.parse(templateMarker)
         true
       case _ =>

@@ -506,6 +506,9 @@ object ScalaElementType {
   val PATTERN_IN_PARENTHESIS: ScalaElementType = new ScalaElementType("pattern in parenthesis") {
     override def createElement(node: ASTNode) = new ScParenthesisedPatternImpl(node)
   }
+  val GIVEN_PATTERN: ScalaElementType = new ScalaElementType("given pattern") {
+    override def createElement(node: ASTNode): ScalaPsiElement = new ScGivenPatternImpl(node)
+  }
 
   /** ************************************ TYPE PATTERNS ********************************/
 

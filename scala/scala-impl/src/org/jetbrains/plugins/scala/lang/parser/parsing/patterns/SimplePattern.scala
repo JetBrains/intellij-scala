@@ -4,10 +4,10 @@ package parser
 package parsing
 package patterns
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Literal
-import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.{CompoundType, StableId}
 import org.jetbrains.plugins.scala.lang.parser.parsing.xml.pattern.XmlPattern
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
@@ -89,6 +89,11 @@ object SimplePattern {
           simplePatternMarker.done(ScalaElementType.PATTERN_IN_PARENTHESIS)
           return true
         }
+      case ScalaTokenType.GivenKeyword =>
+        builder.advanceLexer() //Ate given
+        CompoundType.parse(builder, isPattern = true)
+        simplePatternMarker.done(ScalaElementType.GIVEN_PATTERN)
+        return true
       case _ =>
     }
 
