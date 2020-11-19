@@ -33,6 +33,7 @@
     <extensions defaultExtensionNs="org.intellij.scala">
         <!--<syntheticMemberInjector implementation="scala.meta.MetaAnnotationInjector"/>-->
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.CaseClassAndCompanionMembersInjector"/>
+        <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.EnumMembersInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.externalLibraries.monocle.MonocleInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.externalLibraries.scalazDeriving.ScalazDerivingInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.externalLibraries.circe.CirceCodecInjector"/>
