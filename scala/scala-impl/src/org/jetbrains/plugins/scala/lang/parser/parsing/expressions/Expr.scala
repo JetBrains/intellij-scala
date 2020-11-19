@@ -4,8 +4,10 @@ package parser
 package parsing
 package expressions
 
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 
 /**
  * @author Alexander Podkhalyuzin
@@ -16,15 +18,24 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * Expr ::= (Bindings | [‘implicit’] id | ‘_’) ‘=>’ Expr
  *         | Expr1
  *
+ * In Scala 3:
+ * Expr              ::= [`implicit'] FunParams ‘=>’ Expr
+ *                     | Expr1
+ *
  * implicit closures are actually implemented in other parts of the parser, not here! The grammar
  * from the Scala Reference does not match the implementation in Parsers.scala.
  */
 object Expr extends ParsingRule {
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val exprMarker = builder.mark
+    val exprMarker = builder.mark()
+
+    if (builder.isScala3 && builder.getTokenType == ScalaTokenTypes.kIMPLICIT) {
+      builder.advanceLexer() // ate
+    }
+
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
-        val pmarker = builder.mark
+        val pmarker = builder.mark()
         builder.advanceLexer() //Ate id
         builder.getTokenType match {
           case ScalaTokenTypes.tFUNTYPE =>
@@ -44,6 +55,9 @@ object Expr extends ParsingRule {
         }
 
       case ScalaTokenTypes.tLPARENTHESIS =>
+        if (builder.getTokenType == ScalaTokenTypes.kIMPLICIT) {
+          builder.advanceLexer() // ate implicit
+        }
         if (Bindings()) {
           builder.getTokenType match {
             case ScalaTokenTypes.tFUNTYPE =>
@@ -57,7 +71,7 @@ object Expr extends ParsingRule {
         else {
           exprMarker.drop()
         }
-      case _ => exprMarker.drop()
+      case _ => exprMarker.rollbackTo()
     }
     Expr1()
   }

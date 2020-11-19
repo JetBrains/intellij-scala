@@ -8,6 +8,7 @@ import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.CompoundType
+import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 
 /**
 * @author Alexander Podkhalyuzin
@@ -15,16 +16,21 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.CompoundType
 */
 
 /*
- * ResultExpr ::= Expr1
- *              | (Bindings | id ':' CompoundType) '=>' Block
+ * ResultExpr ::=  Expr1
+ *              |  (Bindings | id ':' CompoundType) '=>' Block
+ *
+ * In Scala 3:
+ *
+ * BlockResult ::=  [‘implicit’] FunParams ‘=>’ Block
+ *               |  Expr1
  */
-object ResultExpr {
+object ResultExpr extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
-    val resultMarker = builder.mark
-    val backupMarker = builder.mark
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    val resultMarker = builder.mark()
+    val backupMarker = builder.mark()
 
-    def parseFunctionEnd() = builder.getTokenType match {
+    def parseFunctionEnd(): Boolean = builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE =>
         builder.advanceLexer() //Ate =>
         Block.parse(builder, hasBrace = false, needNode = true)
@@ -42,7 +48,7 @@ object ResultExpr {
       builder.advanceLexer() //Ate id
       if (ScalaTokenTypes.tCOLON == builder.getTokenType) {
         builder.advanceLexer() // ate ':'
-        val pt = builder.mark
+        val pt = builder.mark()
         CompoundType.parse(builder)
         pt.done(ScalaElementType.PARAM_TYPE)
       }
@@ -62,7 +68,7 @@ object ResultExpr {
 
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS =>
-        Bindings parse builder
+        Bindings()
         return parseFunctionEnd()
       case ScalaTokenTypes.kIMPLICIT =>
         val pmarker = builder.mark()
@@ -70,13 +76,17 @@ object ResultExpr {
         builder.getTokenType match {
           case ScalaTokenTypes.tIDENTIFIER =>
             return parseFunction(pmarker)
+          case InScala3(ScalaTokenTypes.tLPARENTHESIS) =>
+            pmarker.drop()
+            Bindings()
+            return parseFunctionEnd()
           case _ =>
             resultMarker.drop()
             backupMarker.rollbackTo()
             return false
         }
       case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
-        val pmarker = builder.mark
+        val pmarker = builder.mark()
         return parseFunction(pmarker)
       case _ =>
         backupMarker.drop()
