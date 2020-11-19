@@ -272,9 +272,8 @@ class WorksheetReplIntegration_Scala_2_11_2_12_Test extends WorksheetReplIntegra
          |""".stripMargin
 
 
-    val TestRunResult(editor, evaluationResult) = doRenderTestWithoutCompilationChecks(before, after)
-
-    assertEquals(WorksheetRunError(WorksheetCompilerResult.CompilationError), evaluationResult)
+    val TestRunResult(editor, _) =
+      doRenderTestWithoutCompilationChecks(before, after, WorksheetRunError(WorksheetCompilerResult.CompilationError))
 
     assertCompilerMessages(editor)(expectedCompilerOutput)
 
@@ -850,7 +849,7 @@ class WorksheetReplIntegration_Scala_2_11_2_12_Test extends WorksheetReplIntegra
           |""".stripMargin
 
       val TestRunResult(editor, evaluationResult) =
-        doRenderTestWithoutCompilationChecks(LargeInputWithErrors, output => assertIsBlank(output))
+        doRenderTestWithoutCompilationChecks2(LargeInputWithErrors, output => assertIsBlank(output))
       assertEquals(WorksheetRunError(WorksheetCompilerResult.CompilationError), evaluationResult)
       assertCompilerMessages(editor)(expectedCompilerOutput)
     }
@@ -898,7 +897,7 @@ class WorksheetReplIntegration_Scala_2_11_2_12_Test extends WorksheetReplIntegra
           |unknown14""".stripMargin
 
       val TestRunResult(editor, evaluationResult) =
-        doRenderTestWithoutCompilationChecks(LargeInputWithErrors, output => assertIsBlank(output))
+        doRenderTestWithoutCompilationChecks2(LargeInputWithErrors, output => assertIsBlank(output))
       assertEquals(WorksheetRunError(WorksheetCompilerResult.CompilationError), evaluationResult)
       assertCompilerMessages(editor)(expectedCompilerOutput)
     }
@@ -939,7 +938,7 @@ class WorksheetReplIntegration_Scala_2_11_2_12_Test extends WorksheetReplIntegra
           |unknown14""".stripMargin
 
       val TestRunResult(editor, evaluationResult) =
-        doRenderTestWithoutCompilationChecks(LargeInputWithErrors, output => assertIsBlank(output))
+        doRenderTestWithoutCompilationChecks2(LargeInputWithErrors, output => assertIsBlank(output))
       assertEquals(WorksheetRunError(WorksheetCompilerResult.CompilationError), evaluationResult)
       assertCompilerMessages(editor)(expectedCompilerOutput)
     }

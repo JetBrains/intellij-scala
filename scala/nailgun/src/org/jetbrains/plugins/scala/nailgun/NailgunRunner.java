@@ -5,7 +5,6 @@ import com.martiansoftware.nailgun.NGServer;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -15,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFilePermission;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.UUID;
 import java.util.function.Function;
@@ -66,8 +66,38 @@ public class NailgunRunner {
   }
 
   /**
-   * Extra Uclass loader is required because dotty compiler interfaces (used inside Main during compilation)
-   * casts classloader to a URLClassloader, and in JRE 11 AppClassLoader is not an instance of URLClassloader.
+   * Extra class loader is required due to several reasons:
+   * <p>
+   * 1. Dotty compiler interfaces (used inside Main during compilation)
+   * casts classloader to a URLClassloader, and in JRE 11 AppClassLoader is not an instance of URLClassloader.<br>
+   * <p>
+   * 2. In order to run REPL instances (aka iLoopWrapper) (for Worksheet in REPL mode) in compiler server process.
+   * REPL instances can use arbitrary scala versions in runtime. However, Compile Server uses fixed scala version.
+   * In order to interact with REPL in compile server `repl-interface` is used. It's written in java to avoid any
+   * scala binary incompatibility errors at runtime.
+   * <p>
+   * Final classloader hierarchy looks like this
+   * <pre>
+   *         [PlatformClassLoader]
+   *                   |
+   *            [AppClassLoader] (pure java)
+   *                   |
+   *            [repl-interface] (pure java)
+   *            /      |       \
+   *           /       |    [JPS & Compiler Server jars] (scala version A)
+   *          /        |
+   *         /  [REPL instance 1] (scala version B)
+   *        /
+   *   [REPL instance 2] (scala version C)
+   * </pre>
+   * Where:<br>
+   * [PlatformClassLoader] - contains all jvm classes<br>
+   * [AppClassLoader] - contains jars required to run Nailgun itself (scala-nailgun-runner, nailgun.jar)<br>
+   * [repl-interface] - contains jars through which repl instances interact with main CompileServer<br>
+   * [JPS & Compiler Server jars] - contains main compiler server jars with fixed scala version (2.13.2 at this moment)<br>
+   * [REPL instance N] - classloaders created for each REPL instance with arbitrary scala version
+   *
+   * @see org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactoryHandler#createClassLoader(org.jetbrains.plugins.scala.compiler.data.CompilerJars)
    */
   public static URLClassLoader constructClassLoader(String classpath) {
     Function<String, URL> pathToUrl = path -> {
@@ -81,7 +111,21 @@ public class NailgunRunner {
     URL[] urls = Stream.of(classpath.split(File.pathSeparator))
             .map(pathToUrl)
             .toArray(URL[]::new);
-    return new URLClassLoader(urls, NailgunRunner.class.getClassLoader());
+
+    //noinspection Convert2MethodRef
+    URL[] replInterfaceUrls = Arrays.stream(urls).filter(it -> isReplInterfaceJar(it)).toArray(URL[]::new);
+    if (replInterfaceUrls.length == 0) {
+      throw new IllegalStateException("repl interface jar not found");
+    }
+    URL[] otherUrls = Arrays.stream(urls).filter(it -> !isReplInterfaceJar(it)).toArray(URL[]::new);
+
+    URLClassLoader replLoader = new URLClassLoader(replInterfaceUrls, NailgunRunner.class.getClassLoader());
+    return new URLClassLoader(otherUrls, replLoader);
+  }
+
+  private static boolean isReplInterfaceJar(URL url) {
+    String urlString = url.toString();
+    return urlString.contains("repl-interface.jar");
   }
 
   private static NGServer createServer(InetAddress address, int port, String id, Path buildSystemDir, URLClassLoader classLoader)

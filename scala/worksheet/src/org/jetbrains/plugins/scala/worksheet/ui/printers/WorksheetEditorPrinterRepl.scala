@@ -8,7 +8,7 @@ import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.concurrency.annotations.{RequiresEdt, RequiresWriteLock}
-import org.jetbrains.annotations.{CalledInAwt, CalledWithWriteLock}
+import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.PrintWriterReporter
 import org.jetbrains.plugins.scala.compiler.data.worksheet.ReplMessages
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.project
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.{NotificationUtil, ScalaPluginUtils}
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
-import org.jetbrains.plugins.scala.worksheet.reporters.PrintWriterReporter
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.CompilerMessagesConsumer
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.InputOutputFoldingInfo
@@ -322,17 +321,20 @@ final class WorksheetEditorPrinterRepl private[printers](
     )
   }
 
-  private def extractReplMessage(messageLine: String): Option[ReplMessageInfo] =
-    PrintWriterReporter.parse(messageLine).map {
-      case PrintWriterReporter.MessageLineParsed(severity, line, column, lineContent, message) =>
-        val messageCategory = severity match {
-          case "INFO"    => CompilerMessageCategory.INFORMATION
-          case "ERROR"   => CompilerMessageCategory.ERROR
-          case "WARNING" => CompilerMessageCategory.WARNING
-          case _         => CompilerMessageCategory.INFORMATION
-        }
-        ReplMessageInfo(message, lineContent, (line - 1).max(0), (column - 1).max(0), messageCategory)
+  private def extractReplMessage(messageLine: String): Option[ReplMessageInfo] = {
+    val parsed = Option(PrintWriterReporter.parse(messageLine))
+    parsed.map(toReplMessageInfo)
+  }
+
+  private def toReplMessageInfo(res: PrintWriterReporter.MessageLineParsed): ReplMessageInfo = {
+    val messageCategory = res.severity match {
+      case "INFO"    => CompilerMessageCategory.INFORMATION
+      case "ERROR"   => CompilerMessageCategory.ERROR
+      case "WARNING" => CompilerMessageCategory.WARNING
+      case _         => CompilerMessageCategory.INFORMATION
     }
+    ReplMessageInfo(res.message, res.lineContent, (res.line - 1).max(0), (res.column - 1).max(0), messageCategory)
+  }
 
   private def updateLastLineMarker(): Unit = inReadAction {
     DaemonCodeAnalyzer.getInstance(project).restart(getScalaFile)

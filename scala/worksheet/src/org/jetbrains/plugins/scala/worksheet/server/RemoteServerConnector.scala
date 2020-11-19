@@ -14,6 +14,8 @@ import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.CommandIds
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.compiler.{CompilationProcess, NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
+import org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer
+import org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer.JlineResolveResult
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.project.ModuleExt
@@ -99,7 +101,17 @@ final class RemoteServerConnector(
     client: Client
   )(callback: RemoteServerConnectorResult => Unit): Unit = {
     Log.debugSafe(s"compileAndRun: originalFile = $originalFile")
-    val process = {
+
+    ScalaSdkJLineFixer.validateJLineInCompilerClassPath(module) match {
+      case JlineResolveResult.NotRequired =>
+      case JlineResolveResult.RequiredFound(file) =>
+        additionalCompilerClasspath = Seq(file)
+      case JlineResolveResult.RequiredNotFound =>
+        callback(RemoteServerConnectorResult.RequiredJLineIsMissingFromClasspathError(module))
+        return
+    }
+
+    val process: CompilationProcess = {
       val argumentsRaw = arguments.asStrings
 
       val worksheetProcess: CompilationProcess = makeType match {
@@ -141,10 +153,10 @@ final class RemoteServerConnector(
     strings.map(new File(_)).toSeq
   }
 
-  override protected def assemblyClasspath(): Seq[File] = {
+  override protected def assemblyRuntimeClasspath(): Seq[File] = {
     val extensionCp = WorksheetCompilerExtension.worksheetClasspath(module)
     extensionCp.getOrElse {
-      super.assemblyClasspath()
+      super.assemblyRuntimeClasspath()
     }
   }
 }
@@ -181,6 +193,7 @@ object RemoteServerConnector {
     final case class ProcessTerminatedError(cause: Throwable) extends UnhandledError
     final case object CantInitializeProcessError extends UnhandledError
     final case class ExpectedError(cause: Throwable) extends UnhandledError
+    final case class RequiredJLineIsMissingFromClasspathError(module: Module) extends UnhandledError  // (SCL-15818, SCL-15948)
     final case class UnexpectedError(cause: Throwable) extends UnhandledError
   }
 

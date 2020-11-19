@@ -1,10 +1,9 @@
-package org.jetbrains.jps.incremental.scala.local.worksheet
+package org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface
 
 import java.io.{File, Flushable, PrintWriter}
 
-import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapper
-import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapper213Impl.DummyConfig
-import org.jetbrains.plugins.scala.worksheet.reporters.ILoopWrapperReporter
+import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.ILoopWrapper
+import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.ILoopWrapper213Impl._
 
 import scala.reflect.classTag
 import scala.reflect.internal.util.Position

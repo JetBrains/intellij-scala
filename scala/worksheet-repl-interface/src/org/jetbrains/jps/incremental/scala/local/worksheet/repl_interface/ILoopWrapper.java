@@ -1,4 +1,4 @@
-package org.jetbrains.jps.incremental.scala.local.worksheet;
+package org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface;
 
 import java.io.Flushable;
 
