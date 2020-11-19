@@ -12,6 +12,11 @@ final class IndentationWidth(private val width: String) extends Ordered[Indentat
     this.widthNum compare that.widthNum
 
   override def toString: String = s"Indent[$widthNum]"
+
+  override def equals(obj: Any): Boolean = obj match {
+    case other: IndentationWidth => other.widthNum == widthNum
+    case _ => false
+  }
 }
 
 object IndentationWidth {

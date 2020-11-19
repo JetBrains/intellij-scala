@@ -121,5 +121,13 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
     expectedType =  ScalaTokenTypes.tIDENTIFIER
   )
 
+  def test_empty_trait_end(): Unit = doTest(
+    """
+      |trait A:
+      |end A
+      |""".stripMargin,
+    expectedType =  ScalaTokenTypes.tIDENTIFIER
+  )
+
   // todo: add tests for extensions and given
 }

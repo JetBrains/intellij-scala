@@ -6,6 +6,7 @@ package top
 package template
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SelfType
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.parseRuleInBlockOrIndentationRegion
@@ -31,9 +32,16 @@ sealed abstract class Body extends ParsingRule {
       case ScalaTokenTypes.tCOLON if builder.isScala3 =>
         builder.advanceLexer() // Ate :
 
+        val currentIndent = builder.currentIndentationWidth
         builder.findPreviousIndent match {
-          case indentO@Some(indent) if indent > builder.currentIndentationWidth =>
+          case indentO@Some(indent) if indent > currentIndent =>
             BlockIndentation.noBlock -> indentO
+          case Some(indent) if indent == currentIndent && End() =>
+            // for the special case that the template definition doesn't contain
+            // any statements, but is ended by an end statement
+            marker.done(ScalaElementType.TEMPLATE_BODY)
+            builder.restoreNewlinesState()
+            return true
           case _ =>
             builder error ScalaBundle.message("expected.indented.template.body")
             marker.rollbackTo()
