@@ -44,6 +44,12 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   final def syntheticContainingClass_=(containingClass: ScTypeDefinition): Unit =
     putUserData(syntheticContainingClassKey, containingClass)
 
+  final def originalEnumElement: ScEnum =
+    getUserData(originalEnumElementKey)
+
+  final def originalEnumElement_=(e: ScEnum): Unit =
+    putUserData(originalEnumElementKey, e)
+
   /**
     * getContainingClassStrict(bar) == null in
     *
@@ -193,6 +199,8 @@ object ScMember {
   private val syntheticNavigationElementKey = Key.create[PsiElement]("ScMember.syntheticNavigationElement")
 
   private val syntheticContainingClassKey = Key.create[ScTypeDefinition]("ScMember.syntheticContainingClass")
+
+  private val originalEnumElementKey = Key.create[ScEnum]("ScMember.originalEnumElement")
 
   private def containingClass(member: ScMember,
                               found: ScTemplateDefinition) = member match {

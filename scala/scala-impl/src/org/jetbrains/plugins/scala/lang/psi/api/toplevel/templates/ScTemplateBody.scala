@@ -8,7 +8,7 @@ package templates
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScBraceOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScTypeAlias, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScEnumCases, ScFunction, ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
 /**
@@ -30,6 +30,8 @@ trait ScTemplateBody extends ScalaPsiElement
   def properties: Seq[ScValueOrVariable]
 
   def aliases: Seq[ScTypeAlias]
+
+  def cases: Seq[ScEnumCases]
 
   def typeDefinitions: Seq[ScTypeDefinition]
 

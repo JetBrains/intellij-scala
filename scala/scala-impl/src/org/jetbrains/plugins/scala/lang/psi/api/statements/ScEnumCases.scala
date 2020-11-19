@@ -3,10 +3,8 @@ package lang
 package psi
 package api
 package statements
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
-
-trait ScEnumCases extends ScDeclaredElementsHolder {
-
-  override def declaredElements: Seq[ScFieldId]
+trait ScEnumCases extends ScDeclaredElementsHolder with ScModifierListOwner {
+  override def declaredElements: Seq[ScEnumCase]
 }
