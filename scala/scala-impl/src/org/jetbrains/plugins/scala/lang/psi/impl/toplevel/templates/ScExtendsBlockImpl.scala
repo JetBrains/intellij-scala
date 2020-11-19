@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDefinition, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCases, ScFunction, ScTypeAlias, ScTypeAliasDefinition, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -203,6 +203,9 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     templateBodies.flatMap {
       _.aliases
     }
+
+  override def cases: Seq[ScEnumCases] =
+    templateBodies.flatMap(_.cases)
 
   override def functions: Seq[ScFunction] =
     templateBodies.flatMap {

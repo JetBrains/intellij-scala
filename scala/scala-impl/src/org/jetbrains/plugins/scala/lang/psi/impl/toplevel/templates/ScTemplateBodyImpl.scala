@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.{SELF_TYPE, TEMP
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScTypeAlias, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScEnumCases, ScFunction, ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTemplateDefinitionImpl
@@ -43,6 +43,9 @@ class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
 
   override def aliases: Seq[ScTypeAlias] =
     getStubOrPsiChildren(ALIASES_SET, ScTypeAliasFactory).toSeq
+
+  override def cases: Seq[ScEnumCases] =
+    getStubOrPsiChildren(ENUM_CASES, ScEnumCasesFactory).toSeq
 
   override def functions: Seq[ScFunction] =
     getStubOrPsiChildren(FUNCTIONS, ScFunctionFactory).toSeq.filterNot(_.isLocal)
