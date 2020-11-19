@@ -113,13 +113,14 @@ final class ScalaApplicationConfigurationExtension extends RunConfigurationExten
   }
 
   /**
-   * When last parameter is vararg, we imply that form input can contain several values.
+   * When the last parameter is vararg, we imply that form input can contain several values.
    *  - If vararg parameter type is `Int*` and user input is `1 2 3`, actual parameters will be Seq(1, 2, 3)
-   *  - If vararg parameter type is `String*` and user input is `one two three`, actual parameters will be Seq(one, two, three)
-   *    If in this case user wants to input string with spaces s/he needs to escape them manually with double quotes (")
+   *  - If vararg parameter type is `String*` and user input is `one two three`, actual parameters will be Seq("one", "two", "three")
+   *  - If vararg parameter type is `String*` and user input is `"one two three"`, actual parameters will be Seq("one two three")
+   *    (If in this case user wants to input string with spaces s/he needs to escape them manually with double quotes ("))
    *
    * All other, non-vararg parameters are escaped automatically:
-   *  - If parameter value is `42 hello world` then it will be passed as a single string argument with escaped spaces
+   *  - If the parameter value is `42 hello world` then it will be passed as a single string argument with escaped spaces
    */
   private def fixVarargParameter(argumentsFromForm: Seq[String], hasVarargs: Boolean): Seq[String] =
     if (hasVarargs) {
