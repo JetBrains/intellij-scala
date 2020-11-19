@@ -1,5 +1,5 @@
 import java.io.{File, FileOutputStream, PrintWriter}
-import java.nio.file.{Path, Paths}
+import java.nio.file.{Files, Path, Paths, StandardCopyOption}
 
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.roots.CompilerModuleExtension
@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.lang.parser.scala3.imported.Scala3ImportedParserTest_Move_Fixed_Tests
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.Ignore
 import org.junit.runner.JUnitCore
 
@@ -102,7 +103,7 @@ object AfterUpdateDottyVersionScript {
     extends ScalaCompilerTestBase {
 
     override protected def supportedIn(version: ScalaVersion): Boolean =
-      version == LatestScalaVersions.Dotty
+      version == LatestScalaVersions.Scala_3_0 // TODO: ATTENTION! ENSURE VERSION IS UPDATED ON RUN
 
     def test(): Unit = {
       val resourcesPath = scalaUltimateProjectDir.resolve(Paths.get(
@@ -112,18 +113,28 @@ object AfterUpdateDottyVersionScript {
       val sourceFileName = "MacroPrinter3_sources.scala"
       val targetDir = resourcesPath.resolve(packagePath)
       val sourceFile = targetDir.resolve(Paths.get("src", sourceFileName))
+      assertTrue(new File(sourceFile.toUri).exists())
 
       val sourceContent = readFile(sourceFile)
       addFileToProjectSources(sourceFileName, sourceContent)
       compiler.make().assertNoProblems()
 
-      CompilerModuleExtension.getInstance(getModule).getCompilerOutputPath
-        .toFile.toPath.resolve(packagePath)
-        .toFile.listFiles
-        .foreach { compiledFile =>
-          val resultFile = targetDir.resolve(compiledFile.getName).toFile
-          compiledFile.renameTo(resultFile)
-        }
+      val compileOutput = CompilerModuleExtension.getInstance(getModule).getCompilerOutputPath
+      assertTrue("compilation output not found", compileOutput.exists())
+
+      val folderWithClasses = compileOutput.toFile.toPath.resolve(packagePath).toFile
+      assertTrue(folderWithClasses.exists())
+
+      val classes = folderWithClasses.listFiles.toSeq
+      assertEquals(
+        classes.map(_.getName).toSet,
+        Set("MacroPrinter3$.class", "MacroPrinter3.class", "MacroPrinter3.tasty")
+      )
+
+      classes.foreach { compiledFile =>
+        val resultFile = targetDir.resolve(compiledFile.getName)
+        Files.copy(compiledFile.toPath, resultFile, StandardCopyOption.REPLACE_EXISTING)
+      }
     }
 
     private def readFile(path: Path): String =

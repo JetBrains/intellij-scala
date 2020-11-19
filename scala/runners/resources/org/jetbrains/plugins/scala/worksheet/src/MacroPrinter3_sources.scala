@@ -13,10 +13,10 @@ object MacroPrinter3 {
   inline def showMethodDefinition[T](inline expr: T): String = ${ showMethodDefinitionImpl('expr) }
 
   private def summonInternalContext(implicit qc: QuoteContext): InternalContext =
-    qc.tasty.rootContext.asInstanceOf[InternalContext]
+    qc.reflect.rootContext.asInstanceOf[InternalContext]
 
   private def showTypeImpl[T](expr: Expr[T])(implicit qctx: QuoteContext): Expr[String] = {
-    import qctx.tasty._
+    import qctx.reflect._
     implicit val ic: InternalContext = summonInternalContext
 
     val tasty = expr.asInstanceOf[TastyTreeExpr]
@@ -31,7 +31,7 @@ object MacroPrinter3 {
   }
 
   private def showMethodDefinitionImpl[T](expr: Expr[T])(implicit qctx: QuoteContext): Expr[String] = {
-    import qctx.tasty._
+    import qctx.reflect._
     implicit val ic: InternalContext = summonInternalContext
 
     def showTypeParam(p: TypeDef) =
