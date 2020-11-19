@@ -39,24 +39,6 @@ abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfigu
   extends JavaRuntimeConfigurationProduceBaseAdapter[T](configurationType)
     with Cloneable {
 
-  private def setupConfiguration(
-    mainClassName: String,
-    element: PsiElement,
-    context: ConfigurationContext,
-    location: Location[_ <: PsiElement],
-    configuration: T
-  ): Unit = {
-    configuration.setMainClassName(mainClassName)
-    configuration.setName(configuration.suggestedName())
-    setupConfigurationModule(context, configuration)
-
-    if (element.isInScala3Module) {
-      configuration.putCopyableUserData(ScalaApplicationConfigurationProducer.key, TRUE)
-    }
-
-    JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(configuration, location)
-  }
-
   override def findModule(configuration: T, contextModule: Module): Module = {
     Option(super.findModule(configuration, contextModule))
       .flatMap(_.findJVMModule)
@@ -148,6 +130,24 @@ abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfigu
             false
         }
     }
+  }
+
+  private def setupConfiguration(
+    mainClassName: String,
+    element: PsiElement,
+    context: ConfigurationContext,
+    location: Location[_ <: PsiElement],
+    configuration: T
+  ): Unit = {
+    configuration.setMainClassName(mainClassName)
+    configuration.setName(configuration.suggestedName())
+    setupConfigurationModule(context, configuration)
+
+    if (element.isInScala3Module) {
+      configuration.putCopyableUserData(ScalaApplicationConfigurationProducer.key, TRUE)
+    }
+
+    JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(configuration, location)
   }
 
   override def shouldReplace(self: ConfigurationFromContext, other: ConfigurationFromContext): Boolean = {
