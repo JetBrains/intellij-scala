@@ -17,19 +17,17 @@ import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, WorksheetEvaluationTests}
 import org.junit.Assert._
-import org.junit.Ignore
 import org.junit.experimental.categories.Category
 
 import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
 
-@Ignore("SCL-18088")
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_11,
   TestScalaVersion.Scala_2_12
 ))
 @Category(Array(classOf[WorksheetEvaluationTests]))
-class WorksheetReplIntegrationTest extends WorksheetReplIntegrationBaseTest
+class WorksheetReplIntegration_Scala_2_11_2_12_Test extends WorksheetReplIntegrationBaseTest
   with WorksheetRuntimeExceptionsTests {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
