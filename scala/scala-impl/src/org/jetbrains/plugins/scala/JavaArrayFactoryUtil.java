@@ -53,6 +53,8 @@ public class JavaArrayFactoryUtil {
 
   public static ArrayFactory<ScTypeAlias> ScTypeAliasFactory = ScTypeAlias[]::new;
 
+  public static ArrayFactory<ScEnumCases> ScEnumCasesFactory = ScEnumCases[]::new;
+
   public static ArrayFactory<ScTemplateBody> ScTemplateBodyFactory = ScTemplateBody[]::new;
 
   public static ArrayFactory<ScImportExpr> ScImportExprFactory = ScImportExpr[]::new;
