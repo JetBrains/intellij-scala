@@ -7,8 +7,10 @@ import org.jetbrains.plugins.scala.{FlakyTests, LatestScalaVersions, WorksheetEv
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[WorksheetEvaluationTests]))
-class WorksheetPlainCompileLocallyRunLocallyIntegrationTest  extends WorksheetIntegrationBaseTest
-  with WorksheetRunTestSettings {
+class WorksheetPlainCompileLocallyRunLocallyIntegrationTest
+  extends WorksheetIntegrationBaseTest
+    with WorksheetRunTestSettings
+    with WorksheetPlainCheckRuntimeVersionScalaTests {
 
   override def runType: WorksheetExternalRunType = WorksheetExternalRunType.PlainRunType
 

@@ -6,12 +6,12 @@ import java.net.{URLClassLoader, URLDecoder}
 import java.nio.file.Path
 
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.scala.local.worksheet.util.{IOUtils, IsolatingClassLoader}
+import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.ILoopWrapper
+import org.jetbrains.jps.incremental.scala.local.worksheet.util.IOUtils
 import org.jetbrains.jps.incremental.scala.local.{CompilerFactoryImpl, NullLogger}
 import org.jetbrains.jps.incremental.scala.{Client, compilerVersion}
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.compiler.data.{CompilerJars, SbtData}
-import org.jetbrains.plugins.scala.worksheet.reporters._
 import sbt.internal.inc.{AnalyzingCompiler, RawCompiler}
 import sbt.util.{Level, Logger}
 import xsbti.compile.{ClasspathOptionsUtil, ScalaInstance}
@@ -43,7 +43,7 @@ class ILoopWrapperFactoryHandler {
         cached
       case _ =>
         client.internalDebug("creating new cachedReplFactory")
-        val loader = createIsolatingClassLoader(compilerJars)
+        val loader = createClassLoader(compilerJars)
         val iLoopWrapper = new ILoopWrapperFactory
         cachedReplFactory.foreach(_.replFactory.clearCaches())
         val cached = CachedReplFactory(loader, iLoopWrapper, scalaVersion)
@@ -75,6 +75,7 @@ class ILoopWrapperFactoryHandler {
     ReplWrapperCompiled(targetFile, wrapperClassName, scalaVersion)
   }
 
+  private val ReplCompilationFailedMessage = "Repl wrapper compilation failed"
 
   private def compileReplLoopFile(scalaInstance: ScalaInstance,
                                   sbtData: SbtData,
@@ -82,21 +83,19 @@ class ILoopWrapperFactoryHandler {
                                   replLabel: String,
                                   targetJar: File,
                                   client: Client): Unit = {
-    // sources containing ILoopWrapper213Impl.scala and ILoopWrapperImpl.scala
-    val sourceJar = {
-      val jpsJarsFolder = sbtData.compilerBridges.scala._2_11.getParent
-      new File(jpsJarsFolder, "repl-interface-sources.jar")
+    def findContainingJarOrReport(clazz: Class[_]): Option[File] = {
+      val res = findContainingJar(clazz)
+      if (res.isEmpty)
+        client.error(s"$ReplCompilationFailedMessage: jar for class `${clazz.getName}` can't be found")
+      res
     }
+
+    // sources containing ILoopWrapper213Impl.scala and ILoopWrapperImpl.scala
     val interfaceJar = sbtData.compilerInterfaceJar
     // compiler-jps.jar
-    val containingJar = findContainingJar(this.getClass) match {
-      case Some(jar) => jar
-      case None => return
-    }
-    val reporterJar = findContainingJar(classOf[ILoopWrapperReporter]) match {
-      case Some(jar) => jar
-      case None => return
-    }
+    val containingJar = findContainingJarOrReport(this.getClass).getOrElse(return)
+    val replInterfaceJar = findContainingJarOrReport(classOf[ILoopWrapper]).getOrElse(return)
+    val replInterfaceSourcesJar = replInterfaceJar // we pack sources in resources in same jar
 
     client.progress("Compiling REPL runner...")
 
@@ -114,9 +113,9 @@ class ILoopWrapperFactoryHandler {
     }
     try
       AnalyzingCompiler.compileSources(
-        Seq(sourceJar.toPath),
+        Seq(replInterfaceSourcesJar.toPath),
         targetJar.toPath,
-        xsbtiJars = Seq(interfaceJar, containingJar, reporterJar).distinct.map(_.toPath),
+        xsbtiJars = Seq(interfaceJar, containingJar, replInterfaceJar).distinct.map(_.toPath),
         id = replLabel,
         compiler = rawCompiler,
         log = logger
@@ -125,7 +124,7 @@ class ILoopWrapperFactoryHandler {
       case compilationFailed: sbt.internal.inc.CompileFailed =>
         val indent = "  "
         val message =
-          s"""Repl wrapper compilation failed: $compilationFailed
+          s"""$ReplCompilationFailedMessage: ${compilationFailed.toString}
              |Arguments:
              |${compilationFailed.arguments.map(indent + _.trim).mkString("\n")}
              |Problems:
@@ -147,8 +146,8 @@ object ILoopWrapperFactoryHandler {
 
   // ATTENTION: when editing ILoopWrapperXXXImpl.scala ensure to increase the version
   private case class ILoopWrapperDescriptor(className: String, version: Int)
-  private def Scala2ILoopWrapperVersion = 6
-  private def Scala3ILoopWrapperVersion = 11
+  private def Scala2ILoopWrapperVersion = 8
+  private def Scala3ILoopWrapperVersion = 13
   // 2.12 works OK for 2.11 as well
   private def ILoopWrapper212Impl   = ILoopWrapperDescriptor("ILoopWrapper212Impl", Scala2ILoopWrapperVersion)
   private def ILoopWrapper213_0Impl = ILoopWrapperDescriptor("ILoopWrapper213_0Impl", Scala2ILoopWrapperVersion)
@@ -184,10 +183,10 @@ object ILoopWrapperFactoryHandler {
     Some(new File(url.substring(0, idx + 4))).filter(_.exists())
   }
 
-  private def createIsolatingClassLoader(compilerJars: CompilerJars): URLClassLoader = {
+  private def createClassLoader(compilerJars: CompilerJars): URLClassLoader = {
     val jars = compilerJars.allJars
-    val parent = IsolatingClassLoader.scalaStdLibIsolatingLoader(this.getClass.getClassLoader)
-    new URLClassLoader(sbt.io.Path.toURLs(jars), parent)
+    val replInterfaceLoader = classOf[ILoopWrapper].getClassLoader
+    new URLClassLoader(sbt.io.Path.toURLs(jars), replInterfaceLoader)
   }
 
   // use for debugging

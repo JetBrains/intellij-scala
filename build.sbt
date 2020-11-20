@@ -107,13 +107,13 @@ lazy val worksheet =
   newProject("worksheet", file("scala/worksheet"))
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
-      worksheetReplReporters % "test->test;compile->compile"
+      worksheetReplInterface % "test->test;compile->compile"
     )
 
-lazy val worksheetReplReporters =
-  newProject("worksheet_repl_reporters", file("scala/worksheet_repl_reporters"))
+lazy val worksheetReplInterface =
+  newProject("worksheet-repl-interface", file("scala/worksheet-repl-interface"))
     .settings(
-      packageMethod :=  PackagingMethod.Standalone("lib/repl-reporters.jar", static = true)
+      packageMethod :=  PackagingMethod.Standalone("lib/repl-interface.jar", static = true)
     )
 
 lazy val tastyProvided = newProject("tasty-provided", file("tasty/provided"))
@@ -139,7 +139,6 @@ lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
     .dependsOn(
       compilerShared,
-      worksheetReplReporters,
       scalaApi,
       macroAnnotations,
       decompiler % "test->test;compile->compile",
@@ -179,12 +178,6 @@ lazy val scalaImpl: sbt.Project =
         Dependencies.scalaReflect                             -> Some("lib/scala-reflect.jar"),
         Dependencies.scalaLibrary                             -> None
       ),
-      packageFileMappings ++= Seq(
-        baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapper212Impl.scala"   -> "lib/jps/repl-interface-sources.jar",
-        baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapper213_0Impl.scala" -> "lib/jps/repl-interface-sources.jar",
-        baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapper213Impl.scala"   -> "lib/jps/repl-interface-sources.jar",
-        baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapper3Impl.scala"     -> "lib/jps/repl-interface-sources.jar"
-      ),
       buildInfoPackage := "org.jetbrains.plugins.scala.buildinfo",
       buildInfoKeys := Seq(
         name, version, scalaVersion, sbtVersion,
@@ -205,7 +198,7 @@ lazy val scalaImpl: sbt.Project =
 
 lazy val compilerJps =
   newProject("compiler-jps", file("scala/compiler-jps"))
-    .dependsOn(compilerShared, repackagedZinc, worksheetReplReporters)
+    .dependsOn(compilerShared, repackagedZinc, worksheetReplInterface)
     .settings(
       javacOptions in Compile := globalJavacOptions,
       scalacOptions in Compile := globalScalacOptions,

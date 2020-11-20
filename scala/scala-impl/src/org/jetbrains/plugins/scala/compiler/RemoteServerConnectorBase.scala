@@ -39,20 +39,29 @@ abstract class RemoteServerConnectorBase(
 
   private val javaParameters = Seq.empty[String]
 
-  private val compilerClasspath: Seq[File] = module.scalaCompilerClasspath
+  private val moduleCompilerClasspath: Seq[File] = module.scalaCompilerClasspath
+  protected var additionalCompilerClasspath: Seq[File] = Nil
+  def compilerClasspath: Seq[File] = moduleCompilerClasspath ++ additionalCompilerClasspath
 
-  private val additionalCp: Seq[File] = compilerClasspath :+ ScalaPluginJars.runnersJar :+ ScalaPluginJars.compilerSharedJar :+ outputDir
+  private val additionalRuntimeClasspath: Seq[File] =
+    compilerClasspath :+
+      ScalaPluginJars.runnersJar :+
+      ScalaPluginJars.compilerSharedJar :+
+      outputDir
 
   protected def additionalScalaParameters: Seq[String] = Seq.empty
 
   protected def worksheetArgs: Option[WorksheetArgs] = None
 
-  private def classpath: Seq[File] = {
-    val classesRoots = assemblyClasspath().map(f => new File(f.getCanonicalPath.stripSuffix("!").stripSuffix("!/")))
-    classesRoots ++ additionalCp
+  private def runtimeClasspath: Seq[File] = {
+    val classesRoots = assemblyRuntimeClasspath().map(stripJarPathSuffix).map(new File(_))
+    classesRoots ++ additionalRuntimeClasspath
   }
 
-  protected def assemblyClasspath(): Seq[File] = {
+  private def stripJarPathSuffix(f: File): String =
+    f.getCanonicalPath.stripSuffix("!").stripSuffix("!/")
+
+  protected def assemblyRuntimeClasspath(): Seq[File] = {
     val enumerator = OrderEnumerator.orderEntries(module).compileOnly()
     enumerator.getClassesRoots.map(_.toFile).toSeq
   }
@@ -66,7 +75,7 @@ abstract class RemoteServerConnectorBase(
     ),
     compilationData = CompilationData(
       sources = filesToCompile.toSeq.flatten,
-      classpath = classpath,
+      classpath = runtimeClasspath,
       output = outputDir,
       scalaOptions = scalaParameters,
       javaOptions = javaParameters,

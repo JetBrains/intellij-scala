@@ -17,7 +17,6 @@ import com.intellij.psi.{PsiDocumentManager, PsiManager}
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.ui.UIUtil
-import org.jetbrains.annotations.CalledInAwt
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration

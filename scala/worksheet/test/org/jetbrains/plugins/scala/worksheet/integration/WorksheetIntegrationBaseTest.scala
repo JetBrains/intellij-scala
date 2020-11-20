@@ -113,7 +113,7 @@ abstract class WorksheetIntegrationBaseTest
   }
 
   protected def doRenderTest(before: String, afterAssert: String => Unit): Editor = {
-    val TestRunResult(editor, evaluationResult) = doRenderTestWithoutCompilationChecks(before, afterAssert)
+    val TestRunResult(editor, evaluationResult) = doRenderTestWithoutCompilationChecks2(before, afterAssert)
 
     evaluationResult shouldBe RunWorksheetActionResult.Done
 
@@ -134,9 +134,8 @@ abstract class WorksheetIntegrationBaseTest
     foldings: Seq[Folding],
     isCompilerMessageAllowed: CompilerMessage => Boolean
   ): Editor = {
-    val TestRunResult(editor, evaluationResult) = doRenderTestWithoutCompilationChecks(before, after, foldings)
-
-    evaluationResult shouldBe RunWorksheetActionResult.Done
+    val TestRunResult(editor, evaluationResult) =
+      doRenderTestWithoutCompilationChecks(before, after, foldings, RunWorksheetActionResult.Done)
 
     assertNoErrorMessages(editor, isCompilerMessageAllowed)
     assertNoWarningMessages(editor, isCompilerMessageAllowed)
@@ -149,9 +148,8 @@ abstract class WorksheetIntegrationBaseTest
     after: String,
     foldings: Seq[Folding]
   ): Editor = {
-    val TestRunResult(editor, evaluationResult) = doRenderTestWithoutCompilationChecks(before, after, foldings)
-
-    evaluationResult shouldBe RunWorksheetActionResult.Done
+    val TestRunResult(editor, evaluationResult) =
+      doRenderTestWithoutCompilationChecks(before, after, foldings, RunWorksheetActionResult.Done)
 
     assertNoErrorMessages(editor)
 
@@ -173,23 +171,31 @@ abstract class WorksheetIntegrationBaseTest
     editor
   }
 
-  protected def doRenderTestWithoutCompilationChecks(before: String, afterWithFoldings: String): TestRunResult = {
+  protected def doRenderTestWithoutCompilationChecks(
+    before: String,
+    afterWithFoldings: String,
+    expectedEvaluationResult: RunWorksheetActionResult
+  ): TestRunResult = {
     val beforeFixed = before
     val (afterFixed, foldings) = preprocessViewerText(afterWithFoldings)
-    doRenderTestWithoutCompilationChecks(beforeFixed, afterFixed, foldings)
+    doRenderTestWithoutCompilationChecks(beforeFixed, afterFixed, foldings, expectedEvaluationResult)
   }
 
   private def doRenderTestWithoutCompilationChecks(
     before: String,
     after: String,
-    foldings: Seq[Folding]
+    foldings: Seq[Folding],
+    expectedEvaluationResult: RunWorksheetActionResult
   ): TestRunResult = {
     val result = runWorksheetEvaluationAndWait(before)
+
+    assertEquals("evaluation result is wrong", expectedEvaluationResult, result.runResult)
     assertViewerOutput(result.worksheetEditor, after, foldings)
+
     result
   }
 
-  protected def doRenderTestWithoutCompilationChecks(
+  protected def doRenderTestWithoutCompilationChecks2(
     before: String,
     afterAssert: String => Unit
   ): TestRunResult = {

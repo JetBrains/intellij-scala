@@ -8,10 +8,10 @@ import java.util.regex.Pattern
 import java.{util => ju}
 
 import org.jetbrains.jps.incremental.scala.Client
-import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactory._
+import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactory.{ILoopCreationException, MyUpdatePrintStream, MyUpdatePrintWriter}
 import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactoryHandler.{ReplContext, ReplWrapperCompiled}
+import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.{ILoopWrapper, ILoopWrapperReporter, NoopReporter, PrintWriterReporter}
 import org.jetbrains.plugins.scala.compiler.data.worksheet.{ReplMessages, WorksheetArgs}
-import org.jetbrains.plugins.scala.worksheet.reporters.{ILoopWrapperReporter, NoopReporter, PrintWriterReporter}
 
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
@@ -39,18 +39,18 @@ class ILoopWrapperFactory {
     classLoader: ClassLoader
   ): Unit = {
     client.progress("Retrieving REPL instance...")
-    val inst = cache.getOrCreate(args.sessionId, () => {
+    val instOpt = cache.getOrCreate(args.sessionId, () => {
       client.progress("Creating REPL instance...")
-      createILoopWrapper(args, replContext, replWrapper, outStream, classLoader, client) match {
+      createILoopWrapper(args, replContext, replWrapper, outStream, classLoader) match {
         case Right(inst) =>
           inst.init()
-          inst
+          Some(inst)
         case Left(error)  =>
           client.trace(error)
-          null
+          None
       }
     }, _.shutdown())
-    if (inst == null) return
+    val inst = instOpt.getOrElse(return)
 
     val out = inst.getOutput
     out match {
@@ -131,8 +131,7 @@ class ILoopWrapperFactory {
     replContext: ReplContext,
     replWrapper: ReplWrapperCompiled,
     out: PrintStream,
-    classLoader: ClassLoader,
-    client: Client
+    classLoader: ClassLoader
   ): Either[ILoopCreationException, ILoopWrapper] = {
     val ReplWrapperCompiled(replFile, replClassName, version) = replWrapper
     val loader = try {
@@ -144,7 +143,9 @@ class ILoopWrapperFactory {
     }
 
     val clazz = try {
-      loader.loadClass(s"org.jetbrains.jps.incremental.scala.local.worksheet.$replClassName")
+      // assuming that implementation classes will have same package as interface
+      val basePackage = classOf[ILoopWrapper].getPackage.getName
+      loader.loadClass(s"$basePackage.$replClassName")
     } catch {
       case ex: ClassNotFoundException =>
         return Left(ILoopCreationException(ex))
@@ -162,10 +163,7 @@ class ILoopWrapperFactory {
     try {
       val inst = if (!version.isScala3) {
         val printWriter = new MyUpdatePrintWriter(out)
-        val reporter = new PrintWriterReporter(printWriter) {
-          override def internalDebug(message: String): Unit =
-            client.internalDebug(message)
-        }
+        val reporter = new PrintWriterReporter(printWriter)
         val constructor = clazz.getConstructor(classOf[PrintWriter], classOf[ILoopWrapperReporter], classOf[ju.List[_]], classOf[ju.List[_]])
         constructor.newInstance(printWriter, reporter, classpathStrings, scalaOptions).asInstanceOf[ILoopWrapper]
       } else {
@@ -177,7 +175,11 @@ class ILoopWrapperFactory {
       Right(inst)
     } catch {
       case ex@(_: ReflectiveOperationException | _: IllegalArgumentException) =>
-        Left(ILoopWrapperFactory.ILoopCreationException(ex))
+        val exception = ILoopWrapperFactory.ILoopCreationException(ex)
+        exception.setStackTrace(ex.getStackTrace)
+        Left(exception)
+      case wtf: Throwable =>
+        throw wtf
     }
   }
 }
@@ -209,13 +211,13 @@ private object ILoopWrapperFactory {
 
     def getOrCreate(
       sessionId: String,
-      onCreation: () => ILoopWrapper,
+      createWrapper: () => Option[ILoopWrapper],
       onDiscard: ILoopWrapper => Unit
-    ): ILoopWrapper = {
+    ): Option[ILoopWrapper] = {
       findById(sessionId) match {
         case Some(existing) =>
           comparator.inc(sessionId)
-          return existing.wrapper
+          return Some(existing.wrapper)
         case _ =>
       }
       if (sessionsQueue.size >= limit) {
@@ -225,10 +227,14 @@ private object ILoopWrapperFactory {
           comparator.remove(oldSession.id)
         }
       }
-      val newSession = new ReplSession(sessionId, onCreation())
-      comparator.put(sessionId)
-      sessionsQueue.offer(newSession)
-      newSession.wrapper
+
+      val wrapper = createWrapper()
+      wrapper.foreach { w =>
+        val newSession = new ReplSession(sessionId, w)
+        comparator.put(sessionId)
+        sessionsQueue.offer(newSession)
+      }
+      wrapper
     }
 
     private class ReplSessionComparator extends ju.Comparator[ReplSession] {

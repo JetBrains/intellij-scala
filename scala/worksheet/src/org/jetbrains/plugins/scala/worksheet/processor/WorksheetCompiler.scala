@@ -147,7 +147,7 @@ class WorksheetCompiler(
       case _: RunCompile => autoTriggered
     }
     val logUnexpectedException: Throwable => Unit = ex => {
-      val message = s"Unexpected exc exception occurred during worksheet execution, ${errorDetails(module)}, ${runType.getName}, $makeType"
+      val message = s"Unexpected exception occurred during worksheet execution, ${errorDetails(module).mkString(", ")}, ${runType.getName}, $makeType"
       Log.error(message, ex)
     }
     val consumer = new CompilerInterfaceImpl(logUnexpectedException, compilerTask, printer, ignoreCompilerMessages)
@@ -212,6 +212,8 @@ class WorksheetCompiler(
 
   def compileAndRun(autoTriggered: Boolean, editor: Editor)
                    (originalCallback: EvaluationCallback): Unit = try {
+    Log.traceWithDebugInDev(s"compileAndRun, autoTriggered: $autoTriggered")
+
     if (DumbService.getInstance(project).isDumb) {
       originalCallback(PreconditionError(Precondition.ProjectShouldBeInSmartState))
     } else if (runType.isReplRunType && makeType != InProcessServer) {

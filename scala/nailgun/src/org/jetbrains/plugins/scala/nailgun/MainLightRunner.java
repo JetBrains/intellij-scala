@@ -14,10 +14,11 @@ public class MainLightRunner {
     public static void main(String[] args) throws ReflectiveOperationException {
         if (args.length < 3) throw invalidUsageException();
 
-        String classpathStr = args[1];
-        Path buildSystemDir = Paths.get(args[2]);
-        String[] argsToDelegate = Arrays.copyOfRange(args, 3, args.length);
+        String classpathStr = args[0];
+        Path buildSystemDir = Paths.get(args[1]);
+        String[] argsToDelegate = Arrays.copyOfRange(args, 2, args.length);
         URLClassLoader classLoader = NailgunRunner.constructClassLoader(classpathStr);
+        System.err.println();
         runMainMethod(buildSystemDir, argsToDelegate, classLoader);
     }
 

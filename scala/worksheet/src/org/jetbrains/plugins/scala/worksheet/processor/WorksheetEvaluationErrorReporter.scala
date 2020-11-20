@@ -8,14 +8,15 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.compiler.{CompileServerManager, ScalaCompileServerForm}
+import org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer
 import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.{Precondition, WorksheetCompilerError}
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetEvalutaionErrorReporter.{errorNotification, showConfigErrorNotification, warningNotification}
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetEvaluationErrorReporter.{errorNotification, showConfigErrorNotification, warningNotification}
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.RemoteServerConnectorResult
 
-class WorksheetEvalutaionErrorReporter(
+class WorksheetEvaluationErrorReporter(
   project: Project,
   worksheetFile: VirtualFile,
   worksheetEditor: Editor,
@@ -51,6 +52,8 @@ class WorksheetEvalutaionErrorReporter(
             //don't report when worksheet evaluation stopped
             // (stop button currently stops entire compile server see SCL-17265)
           }
+          case RSCR.RequiredJLineIsMissingFromClasspathError(module) =>
+            ScalaSdkJLineFixer.showJLineMissingNotification(module, WorksheetBundle.message("worksheet.subsystem.name"))
         }
     }
   }
@@ -82,7 +85,7 @@ class WorksheetEvalutaionErrorReporter(
     )(project)
 }
 
-object WorksheetEvalutaionErrorReporter {
+object WorksheetEvaluationErrorReporter {
 
   def ConfigErrorHeader: String = WorksheetBundle.message("worksheet.configuration.errors.base")
   def NotificationsGroup: String = "Scala"
