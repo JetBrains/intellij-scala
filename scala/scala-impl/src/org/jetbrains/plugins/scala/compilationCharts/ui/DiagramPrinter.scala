@@ -55,7 +55,7 @@ class ProgressDiagramPrinter(clip: Rectangle2D,
       val segmentClip = new Rectangle2D.Double(
         x,
         getRowY(row) + SegmentGap,
-        math.max(currentZoom.toPixels(to) - x, BorderStroke.thickness),
+        math.max(currentZoom.toPixels(to) - x - SegmentGap, SegmentGap),
         ProgressRowHeight - SegmentGap
       )
       val color = if (backgroundOnly)

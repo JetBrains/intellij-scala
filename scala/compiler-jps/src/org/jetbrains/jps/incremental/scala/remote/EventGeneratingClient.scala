@@ -63,11 +63,11 @@ class EventGeneratingClient(writeEvent: Event => Unit, canceled: => Boolean) ext
     publishEvent(WorksheetOutputEvent(text))
 
   override def sourceStarted(source: String): Unit =
-    publishEvent(CompilationStartedInSbt(source))
+    publishEvent(CompilationStartedInSbtEvent(source))
 
   override def meteringInfo(info: CompileServerMeteringInfo): Unit =
-    publishEvent(MeteringInfo(info))
+    publishEvent(MeteringInfoEvent(info))
 
   override def metrics(value: CompileServerMetrics): Unit =
-    publishEvent(Metrics(value))
+    publishEvent(MetricsEvent(value))
 }

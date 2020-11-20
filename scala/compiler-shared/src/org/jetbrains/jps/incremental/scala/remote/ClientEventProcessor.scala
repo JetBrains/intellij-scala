@@ -42,13 +42,13 @@ class ClientEventProcessor(client: Client) {
       case WorksheetOutputEvent(text) =>
         client.worksheetOutput(text)
 
-      case CompilationStartedInSbt(file) =>
+      case CompilationStartedInSbtEvent(file) =>
         client.sourceStarted(file)
 
-      case MeteringInfo(info) =>
+      case MeteringInfoEvent(info) =>
         client.meteringInfo(info)
 
-      case Metrics(metrics) =>
+      case MetricsEvent(metrics) =>
         client.metrics(metrics)
     }
   }
