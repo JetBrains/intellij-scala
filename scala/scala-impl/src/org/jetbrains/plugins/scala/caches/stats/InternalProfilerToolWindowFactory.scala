@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.caches.stats
 
-import java.awt.event.{HierarchyEvent, HierarchyListener}
-import java.awt.{BorderLayout, Component}
+import java.awt.BorderLayout
 import java.util.concurrent.{Future, TimeUnit}
 
 import com.intellij.concurrency.JobScheduler
@@ -14,6 +13,7 @@ import com.intellij.openapi.wm.{ToolWindow, ToolWindowFactory}
 import com.intellij.ui.content.{Content, ContentFactory}
 import javax.swing.{Icon, JPanel, JScrollPane}
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
+import org.jetbrains.plugins.scala.util.ui.extensions.ComponentExt
 
 import scala.jdk.CollectionConverters._
 
@@ -121,7 +121,9 @@ object InternalProfilerToolWindowFactory {
     mainPanel.add(actionToolbarPanel, BorderLayout.WEST)
     mainPanel.add(scrollPane, BorderLayout.CENTER)
 
-    bindExecutionToVisibility(mainPanel, () => scheduleRefresh(tableModel, dataSource))
+    mainPanel.bindExecutionToVisibility { () =>
+      scheduleRefresh(tableModel, dataSource)
+    }
 
     mainPanel
   }
@@ -136,23 +138,6 @@ object InternalProfilerToolWindowFactory {
         )
       }, 0, refreshRateMs, TimeUnit.MILLISECONDS)
   }
-
-  // Executes `startOp` if the component becomes visible
-  // Cancels the created future when the component is hidden
-  def bindExecutionToVisibility(component: Component, startOp: () => Future[_]): Unit =
-    component.addHierarchyListener(new HierarchyListener {
-      private var refreshFeature = Option.empty[Future[_]]
-      override def hierarchyChanged(e: HierarchyEvent): Unit = {
-        if (HierarchyEvent.SHOWING_CHANGED == (e.getChangeFlags & HierarchyEvent.SHOWING_CHANGED)) {
-          if (component.isShowing) {
-            refreshFeature = refreshFeature.orElse(Option(startOp()))
-          } else {
-            refreshFeature.foreach(_.cancel(true))
-            refreshFeature = None
-          }
-        }
-      }
-    })
 
   class RunPauseAction(dataSource: DataSource[_]) extends AnAction with DumbAware {
 

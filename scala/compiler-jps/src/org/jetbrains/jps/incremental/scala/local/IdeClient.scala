@@ -10,7 +10,7 @@ import org.jetbrains.jps.incremental.CompileContext
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.messages.{CompilerMessage, FileDeletedEvent, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
-import org.jetbrains.jps.incremental.scala.remote.CompileServerMeteringInfo
+import org.jetbrains.jps.incremental.scala.remote.{CompileServerMeteringInfo, CompileServerMetrics}
 import org.jetbrains.plugins.scala.compiler.{CompilationUnitId, CompilerEvent}
 import org.jetbrains.plugins.scala.util.CompilationId
 
@@ -75,6 +75,8 @@ abstract class IdeClient(compilerName: String,
   }
 
   override def meteringInfo(info: CompileServerMeteringInfo): Unit = ()
+
+  override def metrics(value: CompileServerMetrics): Unit = ()
 
   override def isCanceled: Boolean = context.getCancelStatus.isCanceled
 

@@ -67,4 +67,7 @@ class EventGeneratingClient(writeEvent: Event => Unit, canceled: => Boolean) ext
 
   override def meteringInfo(info: CompileServerMeteringInfo): Unit =
     publishEvent(MeteringInfo(info))
+
+  override def metrics(value: CompileServerMetrics): Unit =
+    publishEvent(Metrics(value))
 }

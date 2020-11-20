@@ -62,3 +62,6 @@ case class CompilationStartedInSbt(path: String) extends Event
 
 @SerialVersionUID(1L)
 case class MeteringInfo(info: CompileServerMeteringInfo) extends Event
+
+@SerialVersionUID(1L)
+case class Metrics(metrics: CompileServerMetrics) extends Event
