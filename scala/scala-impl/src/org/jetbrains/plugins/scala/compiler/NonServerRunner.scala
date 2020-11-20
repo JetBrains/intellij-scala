@@ -9,12 +9,15 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 import com.intellij.compiler.server.BuildManager
 import com.intellij.execution.process._
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.io.BaseDataReader
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.{ClientEventProcessor, Event, TraceEvent}
+import org.jetbrains.plugins.scala.compiler.NonServerRunner.Log
 import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
 
@@ -68,8 +71,18 @@ class NonServerRunner(project: Project) {
 
           override def addTerminationCallback(callback: Option[Throwable] => Unit): Unit = this.myCallbacks :+= callback
 
+
+          private def finish(result: Option[Throwable]): Unit = {
+            myCallbacks.foreach(_.apply(result))
+          }
+
           override def run(): Unit = try {
             val p = builder.start()
+
+            if (ApplicationManager.getApplication.isUnitTestMode) {
+              Log.debug(s"NonServerRunner process command line: ${builder.command().asScala.mkString(" ")}")
+            }
+
             myProcess = Some(p)
 
             val eventClient = new ClientEventProcessor(client)
@@ -87,21 +100,29 @@ class NonServerRunner(project: Project) {
             val bufferedReader = new BufferedReader(new InputStreamReader(p.getInputStream))
             val reader = new MyBase64StreamReader(bufferedReader, listener) //starts threads under the hood
 
+            val bufferedErrorsReader = new BufferedReader(new InputStreamReader(p.getErrorStream))
+            val errorsReader = new CollectingStreamReader(bufferedErrorsReader, s"error stream  : ${project.getName}")
+
             val processName = "Non-server worksheet runner"
             val processWaitFor =
               new ProcessWaitFor(p, (task: Runnable) => AppExecutorUtil.getAppExecutorService.submit(task), processName)
 
             processWaitFor.setTerminationCallback { returnCode =>
               if (myCallbacksHandled.compareAndSet(false, true)) {
-                val ex = if (returnCode == 0) None else Some(new RuntimeException(s"process terminated with return code: $returnCode"))
-                myCallbacks.foreach(_.apply(ex))
+                val ex = if (returnCode == 0) None else {
+                  Log.error(s"NonServerRunner process output:\n${errorsReader.getText}")
+                  Some(new RuntimeException(s"process terminated with return code: $returnCode"))
+                }
+                finish(ex)
               }
+
+              errorsReader.stop()
               reader.stop() // will close streams under the hood in event loop
             }
           } catch {
             case ex: Throwable =>
               if(myCallbacksHandled.compareAndSet(false, true)) {
-                myCallbacks.foreach(_.apply(Some(ex)))
+                finish(Some(ex))
               }
               throw ex
           }
@@ -117,10 +138,10 @@ class NonServerRunner(project: Project) {
 
   private class MyBase64StreamReader(private val reader: Reader, listener: String => Unit) extends BaseDataReader(null) {
     start(project.getName)
-    
+
     private val charBuffer = new Array[Char](8192)
     private val text = new StringBuilder
-    
+
     override def executeOnPooledThread(runnable: Runnable): Future[_] =
       AppExecutorUtil.getAppExecutorService.submit(runnable)
 
@@ -143,13 +164,13 @@ class NonServerRunner(project: Project) {
 
     override def readAvailable(): Boolean = {
       var read = false
-      
+
       while (reader.ready()) {
         val n = reader.read(charBuffer)
-        
+
         if (n > 0) {
           read = true
-          
+
           for (i <- 0 until n) {
             charBuffer(i) match {
               case '=' if i == 0 && text.isEmpty =>
@@ -161,7 +182,7 @@ class NonServerRunner(project: Project) {
                 }
                 onTextAvailable(text.toString())
                 text.clear()
-              case '\n' if text.nonEmpty && text.startsWith("Listening") => 
+              case '\n' if text.nonEmpty && text.startsWith("Listening") =>
                 text.clear()
               case c =>
                 text.append(c)
@@ -169,8 +190,43 @@ class NonServerRunner(project: Project) {
           }
         }
       }
-      
+
       read
     }
   }
+  private class CollectingStreamReader(
+    reader: Reader,
+    presentableName: String
+  ) extends BaseDataReader(null) {
+    start(presentableName)
+
+    private val charBuffer = new Array[Char](8192)
+    private val text = new java.lang.StringBuilder
+    def getText: String = text.toString
+
+    override def executeOnPooledThread(runnable: Runnable): Future[_] =
+      AppExecutorUtil.getAppExecutorService.submit(runnable)
+
+    override def close(): Unit = {
+      reader.close()
+    }
+
+    override def readAvailable(): Boolean = {
+      var read = false
+
+      while (reader.ready()) {
+        val n = reader.read(charBuffer)
+        if (n > 0) {
+          read = true
+          text.append(charBuffer, 0, n)
+        }
+      }
+
+      read
+    }
+  }
+}
+
+object NonServerRunner {
+  private val Log = Logger.getInstance(getClass)
 }
