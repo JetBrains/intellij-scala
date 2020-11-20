@@ -87,7 +87,7 @@ class ScalaFileImpl(
     // this is needed to:
     //  1. make ScalaRunLineMarkerContributor work for scala3 main methods
     //  2. show normal icon in project view for files with top level definitions
-    if (this.getLanguage.isKindOf(Scala3Language.INSTANCE))
+    if (this.isScala3File)
       return false
 
     val empty = this.children.forall {

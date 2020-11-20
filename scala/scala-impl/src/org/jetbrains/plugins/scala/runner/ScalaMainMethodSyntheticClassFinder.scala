@@ -108,7 +108,7 @@ private final class Scala3MainMethodSyntheticClass(
   override def getContainingFile: PsiFile = containingFile
   override def getContext: PsiFile = containingFile
 
-  override def toString = "scala @main method synthetic class"
+  override def toString = s"synthetic class for scala @main method: $qualifiedName"
 
   override def setName(newName: String): PsiElement = throw new IncorrectOperationException("nonphysical element")
   override def copy = throw new IncorrectOperationException("nonphysical element")
