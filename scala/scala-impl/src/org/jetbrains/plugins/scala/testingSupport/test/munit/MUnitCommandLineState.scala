@@ -18,6 +18,12 @@ import org.jetbrains.plugins.scala.testingSupport.test.utils.RawProcessOutputDeb
 
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
+/**
+ * @todo We reuse [[com.intellij.rt.junit.JUnitStarter]] so we depend on bundled JUnit plugin at runtime.<br>
+ *       We should extract munit support to a separate module (SCL-13080) or even plugin.<br>
+ *       Munit support should automatically be disabled when JUnit plugin is disabled manually<br>
+ *       (though it's not a often case)
+ */
 private class MUnitCommandLineState(
   conf: MUnitConfiguration,
   env: ExecutionEnvironment,

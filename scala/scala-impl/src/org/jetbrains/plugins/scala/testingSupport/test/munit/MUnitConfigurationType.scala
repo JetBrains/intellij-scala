@@ -1,21 +1,21 @@
 package org.jetbrains.plugins.scala.testingSupport.test.munit
 
-import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationTypeUtil}
-import com.intellij.execution.junit.JUnitConfigurationType
+import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType, ConfigurationTypeUtil}
 import javax.swing.Icon
 import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.icons.Icons
 
 @ApiStatus.Experimental
-final class MUnitConfigurationType extends JUnitConfigurationType {
+final class MUnitConfigurationType extends ConfigurationType {
 
   val confFactory = new MUnitConfigurationFactory(this)
 
   override def getId: String = "MUnitRunConfiguration"
 
-  override def getDisplayName: String = "MUnit"
+  override def getDisplayName: String = ScalaBundle.message("munit.config.display.name")
 
-  override def getConfigurationTypeDescription: String = "MUnit testing framework run configuration"
+  override def getConfigurationTypeDescription: String = ScalaBundle.message("munit.config.description")
 
   override def getHelpTopic: String = super.getHelpTopic
 
