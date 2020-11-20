@@ -24,7 +24,7 @@ import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServerToken}
-import org.jetbrains.plugins.scala.util.{IntellijPlatformJars, LibraryJars, ScalaPluginJars, UnloadAwareDisposable}
+import org.jetbrains.plugins.scala.util.{IntellijPlatformJars, LibraryJars, ScalaPluginJars, ScalaShutDownTracker, UnloadAwareDisposable}
 
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
@@ -64,21 +64,10 @@ object CompileServerLauncher {
     }
   }
 
-
-  private val shutdownTask: Runnable = () => {
+  ScalaShutDownTracker.registerShutdownTask(() => {
     LOG.info("Shutdown event triggered, stopping server")
     ensureServerNotRunning()
-  }
-  ShutDownTracker.getInstance().registerShutdownTask(shutdownTask)
-
-  // NOTE: this is only triggered when plugin is unloaded, and not triggered when IDE is closed
-  invokeOnDispose(UnloadAwareDisposable.scalaPluginDisposable) {
-    // need to avoid any leaks to scala plugin classes (SCL-16809)
-    ShutDownTracker.getInstance().unregisterShutdownTask(shutdownTask)
-
-    LOG.info("Scala Plugin is unloaded, stopping server")
-    ensureServerNotRunning()
-  }
+  })
 
   def tryToStart(project: Project): Boolean = serverStartLock.synchronized {
     if (running) true else {

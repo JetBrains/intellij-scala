@@ -14,7 +14,7 @@ import com.intellij.util.concurrency.AppExecutorUtil
 import org.jetbrains.bsp.settings.BspProjectSettings.BspServerConfig
 import org.jetbrains.bsp.project.BspExternalSystemManager
 import org.jetbrains.bsp.settings.BspExecutionSettings
-import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
+import org.jetbrains.plugins.scala.util.{ScalaShutDownTracker, UnloadAwareDisposable}
 
 import scala.collection.mutable
 import scala.concurrent.duration._
@@ -26,7 +26,7 @@ class BspCommunicationService extends Disposable {
   import BspCommunicationService.projectPath
 
   { // init
-    Disposer.register(UnloadAwareDisposable.scalaPluginDisposable, this)
+    ScalaShutDownTracker.registerShutdownTask(() => this.dispose())
 
     val bus = ApplicationManager.getApplication.getMessageBus.connect(this)
     bus.subscribe(ProjectManager.TOPIC, MyProjectListener)
