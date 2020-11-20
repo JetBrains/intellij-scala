@@ -47,6 +47,9 @@ class ClientEventProcessor(client: Client) {
 
       case MeteringInfo(info) =>
         client.meteringInfo(info)
+
+      case Metrics(metrics) =>
+        client.metrics(metrics)
     }
   }
 }

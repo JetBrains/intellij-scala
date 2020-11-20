@@ -3,7 +3,7 @@ package lang
 package completion
 
 /**
- * Represents a Scala keyword. Constants defined in this trait represent all
+ * Represents a Scala keyword. Common defined in this trait represent all
  * keywords of the Scala language.
  */
 object ScalaKeyword {
