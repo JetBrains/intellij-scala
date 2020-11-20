@@ -22,6 +22,7 @@ import static com.intellij.openapi.util.IconLoader.getIcon;
 public interface Icons {
 
     Icon COMPILE_SERVER = getIcon("/org/jetbrains/plugins/scala/images/compileServer.svg", Icons.class);
+    Icon COMPILATION_CHARTS = getIcon("/org/jetbrains/plugins/scala/images/compilation_charts.svg", Icons.class);
 
     Icon SCALA_SMALL_LOGO = getIcon("/org/jetbrains/plugins/scala/images/scala-small-logo.svg", Icons.class);
     Icon SCRIPT_FILE_LOGO = getIcon("/org/jetbrains/plugins/scala/images/scala_script_icon.svg", Icons.class);

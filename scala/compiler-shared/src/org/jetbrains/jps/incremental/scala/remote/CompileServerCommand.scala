@@ -40,6 +40,17 @@ object CompileServerCommand {
     override def isCompileCommand: Boolean = true
   }
 
+  case class GetMetrics()
+    extends CompileServerCommand {
+
+    override def asArgs: Seq[String] = Seq.empty
+
+    override def id: String = CommandIds.GetMetrics
+
+    override def isCompileCommand: Boolean = false
+  }
+
+  // TODO replace with GetMetrics
   case class StartMetering(meteringInterval: FiniteDuration)
     extends CompileServerCommand {
 
@@ -50,6 +61,7 @@ object CompileServerCommand {
     override def isCompileCommand: Boolean = false
   }
 
+  // TODO replace with GetMetrics
   case class EndMetering()
     extends CompileServerCommand {
 

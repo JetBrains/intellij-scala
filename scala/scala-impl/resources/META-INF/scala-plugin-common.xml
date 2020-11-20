@@ -480,6 +480,8 @@
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.lang.formatting.ReformatOnCompileTask"/>
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.EnsureModulesHaveDifferentProdAndTestOutputsTask"/>
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.externalHighlighters.EraseCompilerProcessJdkOnce"/>
+        <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compilationCharts.EraseCompilationProgressStateTask"/>
+        <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compilationCharts.CompileServerMetricsCollecting"/>
 
         <applicationService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"
                             serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"/>
@@ -511,7 +513,6 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.externalHighlighters.CompilerLock"
                         serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.CompilerLockImpl"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.CompilerGeneratedStateManager$MutableState"/>
         <projectService serviceImplementation="scala.meta.intellij.MetaExpansionsManager"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"/>
@@ -1749,8 +1750,8 @@
     </extensions>
 
     <applicationListeners>
-        <listener class="org.jetbrains.plugins.scala.editor.mouseHandler.MouseHoverHandler"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
+        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
+                  class="org.jetbrains.plugins.scala.editor.mouseHandler.MouseHoverHandler"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.annotator.TypeMismatchTooltipsHandler"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
@@ -1771,6 +1772,10 @@
                   class="org.jetbrains.plugins.scala.externalHighlighters.CompilerLockBuildManagerListener"/>
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
                   class="org.jetbrains.plugins.scala.externalHighlighters.DropProjectDataChangesBuildManagerListener"/>
+        <listener topic="com.intellij.compiler.server.BuildManagerListener"
+                  class="org.jetbrains.plugins.scala.compilationCharts.CompileServerMetricsCollecting"/>
+        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
+                  class="org.jetbrains.plugins.scala.compilationCharts.ui.CompilationChartsBuildToolWindowNodeFactory"/>
         <!-- Formatter listeners-->
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtProjectListener"/>
@@ -1801,6 +1806,9 @@
 
         <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
                   class="org.jetbrains.plugins.scala.editor.documentationProvider.listeners.ScalaDocRenderInEditorAdvertiser"/>
+
+        <listener topic="org.jetbrains.plugins.scala.compiler.CompilerEventListener"
+                  class="org.jetbrains.plugins.scala.compilationCharts.UpdateCompilationProgressListener"/>
     </projectListeners>
     <actions>
         <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaTypeDefinitionAction">
