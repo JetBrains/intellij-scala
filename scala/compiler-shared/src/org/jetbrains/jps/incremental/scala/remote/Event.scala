@@ -58,10 +58,10 @@ case class ProcessingEndEvent() extends Event
 case class WorksheetOutputEvent(text: String) extends Event
 
 @SerialVersionUID(1L)
-case class CompilationStartedInSbt(path: String) extends Event
+case class CompilationStartedInSbtEvent(path: String) extends Event
 
 @SerialVersionUID(1L)
-case class MeteringInfo(info: CompileServerMeteringInfo) extends Event
+case class MeteringInfoEvent(info: CompileServerMeteringInfo) extends Event
 
 @SerialVersionUID(1L)
-case class Metrics(metrics: CompileServerMetrics) extends Event
+case class MetricsEvent(metrics: CompileServerMetrics) extends Event
