@@ -43,6 +43,7 @@ object Main {
 
   private var shutdownTimer: Timer = _
 
+  private val maxHeapSize = Runtime.getRuntime.maxMemory()
   private val currentParallelism = new AtomicInteger(0)
 
   private var buildSystemDir: Path = _
@@ -143,6 +144,8 @@ object Main {
           compileLogic(arguments, client)
         case compileJps: CompileServerCommand.CompileJps =>
           compileJpsLogic(compileJps, client)
+        case getMetrics: CompileServerCommand.GetMetrics =>
+          getMetricsLogic(getMetrics, client)
         case startMetering: CompileServerCommand.StartMetering =>
           startMeteringLogic(startMetering, client)
         case endMetering: CompileServerCommand.EndMetering =>
@@ -206,6 +209,15 @@ object Main {
       client.compilationEnd(compiledFiles)
       descriptor.release()
     }
+  }
+
+  private def getMetricsLogic(command: CompileServerCommand.GetMetrics, client: Client): Unit = {
+    val runtime = Runtime.getRuntime
+    val metrics = CompileServerMetrics(
+      heapUsed = runtime.totalMemory() - runtime.freeMemory(),
+      maxHeapSize = maxHeapSize
+    )
+    client.metrics(metrics)
   }
 
   private def startMeteringLogic(command: CompileServerCommand.StartMetering, client: Client): Unit = {

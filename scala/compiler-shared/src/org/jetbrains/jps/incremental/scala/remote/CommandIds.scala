@@ -5,6 +5,7 @@ object CommandIds {
 
   final val Compile = "compile"
   final val CompileJps = "compile-jps"
-  final val StartMetering = "start-metering"
-  final val EndMetering = "end-metering"
+  final val GetMetrics = "get-metrics"
+  final val StartMetering = "start-metering" // TODO replace with GetMetrics
+  final val EndMetering = "end-metering" // TODO replace with GetMetrics
 }
