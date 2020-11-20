@@ -88,7 +88,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
             assertEquals(expectedChildLabel, childLabel)
           catch {
             case err: AssertionError =>
-              val childrenDebugText = childLabel.zipWithIndex
+              val childrenDebugText = children.zipWithIndex
                 .map { case (child, idx) => s"$idx: $child"}
                 .mkString("\n")
               System.err.println(s"all children nodes labels:\n$childrenDebugText")
