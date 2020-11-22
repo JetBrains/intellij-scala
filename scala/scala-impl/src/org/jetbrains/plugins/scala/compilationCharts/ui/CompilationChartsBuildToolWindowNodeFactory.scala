@@ -49,9 +49,6 @@ class CompilationChartsBuildToolWindowNodeFactory
 
 object CompilationChartsBuildToolWindowNodeFactory {
 
-  def refresh(project: Project): Unit =
-    MainComponentHolder.createOrGet(project).repaint()
-
   private class CompilationChartsBuildEvent(buildId: AnyRef, component: JComponent)
     extends AbstractBuildEvent(
       new Object, buildId, System.currentTimeMillis(), ScalaBundle.message("compilation.charts.title")
@@ -85,7 +82,11 @@ object CompilationChartsBuildToolWindowNodeFactory {
         val component = new CompilationChartsComponent(project)
         holder.mainComponent = Some(component)
         component.bindExecutionToVisibility { () =>
-          JobScheduler.getScheduler.scheduleWithFixedDelay(() => component.repaint(),
+          JobScheduler.getScheduler.scheduleWithFixedDelay(
+            () => {
+              component.updateData()
+              component.repaint()
+            },
             0, RefreshDelay.length, RefreshDelay.unit
           )
         }
