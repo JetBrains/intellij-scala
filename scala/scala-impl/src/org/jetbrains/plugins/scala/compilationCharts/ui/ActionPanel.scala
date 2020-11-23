@@ -1,20 +1,21 @@
 package org.jetbrains.plugins.scala.compilationCharts.ui
 
-import java.awt.{Color, Dimension, FlowLayout, Graphics, Graphics2D}
+import java.awt._
+import java.awt.geom.Rectangle2D
+
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ActionManager, AnActionEvent, DefaultActionGroup, Presentation, Separator}
+import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.actionSystem.ex.CustomComponentAction
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.util.NlsActions
 import com.intellij.ui.components.JBPanel
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.components.BorderLayoutPanel
-
+import javax.swing.border.LineBorder
 import javax.swing.{Icon, JComponent}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.ScalaBundle
 
-import java.awt.geom.Rectangle2D
 import scala.concurrent.duration.DurationInt
 
 class ActionPanel(setZoom: Zoom => Unit)
@@ -25,8 +26,18 @@ class ActionPanel(setZoom: Zoom => Unit)
 
   private var currentZoomIndex: Int = DefaultZoomIndex
 
+  private val debugBorder = false
+  private val debugBorderThickness = 2
+  private def maybeSetDebugBorder(c: JComponent, color: Color): Unit = {
+    if (debugBorder) {
+      c.setBorder(new LineBorder(color, debugBorderThickness))
+    }
+  }
+
   setBorder(JBUI.Borders.empty)
+  maybeSetDebugBorder(this, Color.RED)
   addToRight(createActionToolbar())
+  withMinimumHeight((2.5 * NormalFont.getSize).toInt)
 
   private def createActionToolbar(): JComponent = {
     val actionGroup = new DefaultActionGroup
@@ -50,6 +61,7 @@ class ActionPanel(setZoom: Zoom => Unit)
         new LegendItem("Memory", MemoryLineColor, isLine = true)
       )
       items.foreach(panel.add)
+      maybeSetDebugBorder(panel, Color.BLUE)
       panel
     }
 
@@ -60,21 +72,38 @@ class ActionPanel(setZoom: Zoom => Unit)
                              isLine: Boolean = false)
       extends JBPanel {
 
+      maybeSetDebugBorder(this, Color.RED)
+
+      private var initialized = false
+
       override def paintComponent(g: Graphics): Unit = {
         val graphics = g.asInstanceOf[Graphics2D]
-        val rendering = graphics.getTextRendering(graphics.getClipBounds, name, NormalFont, HAlign.Right, VAlign.Center)
+
+        val clipBounds = g.getClipBounds()
+        // HACK: I don't know why, but sometimes clipBounds is larger by 1 then component width and this causes flickering
+        // Looks like something is wrong with parents layout, but I didn't manage to find out what exactly.
+        // So this is probably not the best solution, but looks like it works fine.
+        clipBounds.width = clipBounds.width.min(this.getWidth)
+        clipBounds.height = clipBounds.height.min(this.getHeight)
+
+        val rendering = graphics.getTextRendering(clipBounds, name, NormalFont, HAlign.Right, VAlign.Center)
         val textRect = rendering.rect.getBounds
         val colorHeight = if (isLine) MemoryLineStroke.thickness else ColorWidth
-        val colorY = textRect.y + textRect.height / 2.0 - colorHeight / 2.0
-        val preferredWidth = textRect.width + ColorWidth + BeforeColorMargin + AfterColorMargin
+        val colorY = textRect.y + (textRect.height - colorHeight) / 2.0
         val colorRect = new Rectangle2D.Double(BeforeColorMargin, colorY, ColorWidth, colorHeight)
 
         graphics.printText(rendering, TextColor)
         graphics.printRect(colorRect, DiagramBackgroundColor)
         graphics.printRect(colorRect, color)
 
-        setPreferredSize(new Dimension(preferredWidth, textRect.height))
-        revalidate()
+        // we don't have dynamic text, so we can set calculated preferred size just once
+        if (!initialized) {
+          val width = textRect.width + ColorWidth + BeforeColorMargin + AfterColorMargin
+          val height = graphics.getFontMetrics(NormalFont).getHeight
+          setPreferredSize(new Dimension(width, height))
+          revalidate()
+          initialized = true
+        }
       }
     }
 
