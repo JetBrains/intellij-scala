@@ -4,7 +4,7 @@ import java.awt.geom.{Line2D, Point2D, Rectangle2D}
 import java.awt.{Color, Font, Graphics, Graphics2D, Rectangle}
 import scala.annotation.tailrec
 import scala.util.Using
-import scala.util.Using.Releasable
+import scala.util.Using.{Releasable, resource}
 
 package object ui {
 
@@ -107,6 +107,16 @@ package object ui {
         case Side.West | Side.East => true
       }
       printVerticalOrHorizontalLine(new Point2D.Double(x, y), length, color, stroke, vertical)
+    }
+  }
+
+  implicit class ColorExt(private val color: Color) extends AnyVal {
+    def greyShift(value: Int): Color = {
+      def shiftComponent(component: Int): Int = {
+        val result = component + value
+        if (result < 0) 0 else if (result > 255) 255 else result
+      }
+      new Color(shiftComponent(color.getRed), shiftComponent(color.getGreen), shiftComponent(color.getBlue))
     }
   }
 }
