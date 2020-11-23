@@ -8,7 +8,6 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 import scala.annotation.tailrec
@@ -165,7 +164,6 @@ object ParserUtils {
           builder.advanceLexer() // Ate }
         return
       case _ if isOutdent(baseIndentation) =>
-        End()
         return
       case _ if rule =>
         builder.getTokenType match {
@@ -174,7 +172,6 @@ object ParserUtils {
               builder.advanceLexer() // Ate }
             return
           case _ if isOutdent(baseIndentation) =>
-            End()
             return
           case ScalaTokenTypes.tSEMICOLON =>
           case _ if builder.newlineBeforeCurrentToken =>
@@ -189,7 +186,7 @@ object ParserUtils {
     parseRuleInBlockOrIndentationRegion(blockIndentation, baseIndentation, expectedMessage)(rule)
   }
 
-  private def isOutdent(baseIndentation: Option[IndentationWidth])(implicit builder: ScalaPsiBuilder): Boolean =
+  def isOutdent(baseIndentation: Option[IndentationWidth])(implicit builder: ScalaPsiBuilder): Boolean =
     baseIndentation.exists(cur => builder.findPreviousIndent.exists(_ < cur) || builder.eof())
 
   private def skipSemicolon(blockIndentation: BlockIndentation)(implicit builder: ScalaPsiBuilder): Unit =

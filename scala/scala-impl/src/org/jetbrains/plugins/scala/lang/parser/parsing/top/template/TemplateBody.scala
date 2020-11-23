@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SelfType
+import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.parseRuleInBlockOrIndentationRegion
 
 /**
@@ -29,7 +30,7 @@ sealed abstract class Body extends ParsingRule {
       case `tLBRACE` =>
         builder.advanceLexer() // Ate {
         BlockIndentation.create -> None
-      case ScalaTokenTypes.tCOLON if builder.isScala3 =>
+      case InScala3(ScalaTokenTypes.tCOLON) =>
         builder.advanceLexer() // Ate :
 
         val currentIndent = builder.currentIndentationWidth
@@ -62,6 +63,7 @@ sealed abstract class Body extends ParsingRule {
     }
 
     blockIndentation.drop()
+    End()
     builder.restoreNewlinesState()
     marker.done(ScalaElementType.TEMPLATE_BODY)
 

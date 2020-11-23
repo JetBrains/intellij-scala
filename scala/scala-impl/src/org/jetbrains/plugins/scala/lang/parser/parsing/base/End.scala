@@ -25,19 +25,23 @@ object End extends ParsingRule {
       return false
 
     if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER &&
-          builder.getTokenText == "end" &&
-          builder.findPreviousIndent.isDefined) {
-      val marker = builder.mark()
-      builder.remapCurrentToken(ScalaTokenType.EndKeyword)
-      builder.advanceLexer()
+          builder.getTokenText == "end") {
+      builder.findPreviousIndent match {
+        case Some(indent) if indent == builder.currentIndentationWidth =>
+          val marker = builder.mark()
+          builder.remapCurrentToken(ScalaTokenType.EndKeyword)
+          builder.advanceLexer()
 
-      if (isAllowedEndToken(builder.getTokenType)) {
-        builder.advanceLexer()
-        marker.done(ScalaElementType.END_STMT)
-        true
-      } else {
-        marker.rollbackTo()
-        false
+          if (isAllowedEndToken(builder.getTokenType)) {
+            builder.advanceLexer()
+            marker.done(ScalaElementType.END_STMT)
+            true
+          } else {
+            marker.rollbackTo()
+            false
+          }
+        case _ =>
+          false
       }
     } else false
   }

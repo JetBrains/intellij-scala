@@ -215,7 +215,6 @@ object Expr1 extends ParsingRule {
           }
         }
 
-        End()
         exprMarker.done(ScalaElementType.FOR_STMT)
         return true
       //----------------throw statment--------------//

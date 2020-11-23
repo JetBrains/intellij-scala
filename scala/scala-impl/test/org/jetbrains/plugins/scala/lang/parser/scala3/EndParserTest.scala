@@ -29,7 +29,73 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
       |  stmt4
       |end if
       |""".stripMargin,
-    expectedType =  ScalaTokenTypes.kIF
+    expectedType = ScalaTokenTypes.kIF
+  )
+
+
+  def test_one_expr_end_if(): Unit = checkTree(
+    """
+      |if (boolean)
+      |  stmt
+      |end if
+      |""".stripMargin,
+    """ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  IfStatement
+      |    PsiElement(if)('if')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(()('(')
+      |    ReferenceExpression: boolean
+      |      PsiElement(identifier)('boolean')
+      |    PsiElement())(')')
+      |    BlockOfExpressions
+      |      PsiWhiteSpace('\n  ')
+      |      ReferenceExpression: stmt
+      |        PsiElement(identifier)('stmt')
+      |      PsiWhiteSpace('\n')
+      |      End: if
+      |        PsiElement(end)('end')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(if)('if')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_end_on_nested_if(): Unit = checkTree(
+    """
+      |if (boolean)
+      |  if (boolean)
+      |    stmt
+      |end if
+      |""".stripMargin,
+    """ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  IfStatement
+      |    PsiElement(if)('if')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(()('(')
+      |    ReferenceExpression: boolean
+      |      PsiElement(identifier)('boolean')
+      |    PsiElement())(')')
+      |    BlockOfExpressions
+      |      PsiWhiteSpace('\n  ')
+      |      IfStatement
+      |        PsiElement(if)('if')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(()('(')
+      |        ReferenceExpression: boolean
+      |          PsiElement(identifier)('boolean')
+      |        PsiElement())(')')
+      |        PsiWhiteSpace('\n    ')
+      |        ReferenceExpression: stmt
+      |          PsiElement(identifier)('stmt')
+      |      PsiWhiteSpace('\n')
+      |      End: if
+      |        PsiElement(end)('end')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(if)('if')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
   )
 
   def test_end_while(): Unit = doTest(
@@ -42,7 +108,7 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
       |  stmt4
       |end while
       |""".stripMargin,
-    expectedType =  ScalaTokenTypes.kWHILE
+    expectedType = ScalaTokenTypes.kWHILE
   )
 
   def test_end_for(): Unit = doTest(
@@ -66,7 +132,7 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
       |  stmt4
       |end try
       |""".stripMargin,
-    expectedType =  ScalaTokenTypes.kTRY
+    expectedType = ScalaTokenTypes.kTRY
   )
 
   def test_end_try_catch(): Unit = doTest(
@@ -79,7 +145,7 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
       |case b => stmt4
       |end try
       |""".stripMargin,
-    expectedType =  ScalaTokenTypes.kTRY
+    expectedType = ScalaTokenTypes.kTRY
   )
 
   def test_end_match(): Unit = doTest(
@@ -89,7 +155,7 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
       |case _ => stmt2
       |end match
       |""".stripMargin,
-    expectedType =  ScalaTokenTypes.kMATCH
+    expectedType = ScalaTokenTypes.kMATCH
   )
 
   def test_end_new(): Unit = doTest(
@@ -99,7 +165,7 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
       |  stmt2
       |end new
       |""".stripMargin,
-    expectedType =  ScalaTokenType.NewKeyword
+    expectedType = ScalaTokenType.NewKeyword
   )
 
   def test_end_class(): Unit = doTest(
@@ -109,8 +175,9 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
       |  stmt2
       |end A
       |""".stripMargin,
-    expectedType =  ScalaTokenTypes.tIDENTIFIER
+    expectedType = ScalaTokenTypes.tIDENTIFIER
   )
+
   def test_end_method(): Unit = doTest(
     """
       |def test() =
@@ -118,7 +185,7 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
       |  stmt2
       |end test
       |""".stripMargin,
-    expectedType =  ScalaTokenTypes.tIDENTIFIER
+    expectedType = ScalaTokenTypes.tIDENTIFIER
   )
 
   def test_empty_trait_end(): Unit = doTest(
@@ -126,7 +193,7 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
       |trait A:
       |end A
       |""".stripMargin,
-    expectedType =  ScalaTokenTypes.tIDENTIFIER
+    expectedType = ScalaTokenTypes.tIDENTIFIER
   )
 
   // todo: add tests for extensions and given

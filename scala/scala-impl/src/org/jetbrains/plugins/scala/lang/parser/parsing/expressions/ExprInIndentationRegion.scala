@@ -23,9 +23,9 @@ trait ExprInIndentationRegion extends ParsingRule {
       case None => return exprKind()
     }
 
-    builder.withIndentationWidth(indentationForExprBlock) {
+    val blockMarker = builder.mark()
+    val aBlockWasParsed = builder.withIndentationWidth(indentationForExprBlock) {
 
-      val blockMarker = builder.mark()
       blockMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_WS_AND_COMMENT_TOKENS, null)
       if (!exprKind()) {
         BlockStat.parse(builder)
@@ -48,16 +48,17 @@ trait ExprInIndentationRegion extends ParsingRule {
           isBlock
         }
       }
-
-      if (parseRest(isBlock = false)) {
-        End()
-        blockMarker.done(ScalaElementType.BLOCK)
-      } else {
-        blockMarker.drop()
-      }
-
-      true
+      parseRest(isBlock = false)
     }
+
+
+    if (End() || aBlockWasParsed) {
+      blockMarker.done(ScalaElementType.BLOCK)
+    } else {
+      blockMarker.drop()
+    }
+
+    true
   }
 }
 
