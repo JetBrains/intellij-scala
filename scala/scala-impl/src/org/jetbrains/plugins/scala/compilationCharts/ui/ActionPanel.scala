@@ -9,8 +9,8 @@ import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.actionSystem.ex.CustomComponentAction
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.util.NlsActions
+import com.intellij.ui.{IdeBorderFactory, SideBorder}
 import com.intellij.ui.components.JBPanel
-import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.components.BorderLayoutPanel
 import javax.swing.border.LineBorder
 import javax.swing.{Icon, JComponent}
@@ -28,17 +28,15 @@ class ActionPanel(setZoom: Zoom => Unit)
   private var currentZoomIndex: Int = DefaultZoomIndex
 
   private val debugBorder = false
-  private val debugBorderThickness = 2
-  private def maybeSetDebugBorder(c: JComponent, color: Color): Unit = {
-    if (debugBorder) {
-      c.setBorder(new LineBorder(color, debugBorderThickness))
-    }
-  }
+  private def configureBorder(c: JComponent, debugColor: Color): Unit =
+    if (debugBorder)
+      c.setBorder(new LineBorder(debugColor, 2))
+    else
+      setBorder(IdeBorderFactory.createBorder(SideBorder.BOTTOM))
 
-  setBorder(JBUI.Borders.empty)
-  maybeSetDebugBorder(this, Color.RED)
   addToRight(createActionToolbar())
   withMinimumHeight((2.5 * NormalFont.getSize).toInt)
+  configureBorder(this, Color.RED)
 
   private def createActionToolbar(): JComponent = {
     val actionGroup = new DefaultActionGroup
@@ -62,7 +60,7 @@ class ActionPanel(setZoom: Zoom => Unit)
         new LegendItem("Memory", MemoryLineColor, isLine = true)
       )
       items.foreach(panel.add)
-      maybeSetDebugBorder(panel, Color.BLUE)
+      configureBorder(panel, Color.BLUE)
       panel
     }
 
@@ -73,7 +71,7 @@ class ActionPanel(setZoom: Zoom => Unit)
                              isLine: Boolean = false)
       extends JBPanel {
 
-      maybeSetDebugBorder(this, Color.RED)
+      configureBorder(this, Color.RED)
 
       private var initialized = false
 
@@ -95,7 +93,7 @@ class ActionPanel(setZoom: Zoom => Unit)
 
         UISettings.setupAntialiasing(graphics)
         graphics.printText(rendering, TextColor)
-        graphics.printRect(colorRect, DiagramBackgroundColor)
+        graphics.printRect(colorRect, diagramBackgroundColor)
         graphics.printRect(colorRect, color)
 
         // we don't have dynamic text, so we can set calculated preferred size just once
