@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.compilationCharts.ui
 
 import java.awt.geom.{Point2D, Rectangle2D}
-import java.awt.{Dimension, Graphics, Graphics2D, Point, RenderingHints}
-
+import java.awt.{Dimension, Graphics, Graphics2D, Point, Rectangle, RenderingHints}
 import com.intellij.ide.ui.laf.UIThemeBasedLookAndFeelInfo
 import com.intellij.ide.ui.{LafManager, UISettings}
 import com.intellij.openapi.project.Project
@@ -10,8 +9,9 @@ import com.intellij.ui.components.{JBPanelWithEmptyText, JBScrollPane}
 import com.intellij.util.ui.StartupUiUtil
 import org.jetbrains.plugins.scala.compilationCharts.ui.Common._
 import org.jetbrains.plugins.scala.compilationCharts.{CompilationProgressStateManager, CompileServerMetricsStateManager, Memory}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeLater}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 
+import javax.swing.UIManager
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
 class DiagramsComponent(chartsComponent: CompilationChartsComponent,
@@ -95,12 +95,12 @@ class DiagramsComponent(chartsComponent: CompilationChartsComponent,
     val darkTheme = isDarkTheme
 
     val Diagrams(progressDiagram, memoryDiagram, progressTime) = diagrams
-    val clipBounds = g.getClipBounds
+    val visibleArea = getVisibleArea
     val estimatedPreferredWidth = math.max(
       currentZoomPixels,
-      clipBounds.width
+      visibleArea.width
     )
-    val clips = getDiagramClips(clipBounds, staticHeights)
+    val clips = getDiagramClips(visibleArea, staticHeights, estimatedPreferredWidth)
 
     val diagramPrinters = Seq(
       new ProgressDiagramPrinter(clips.progressDiagram, progressDiagram, currentZoom, estimatedPreferredWidth, darkTheme),
@@ -117,6 +117,15 @@ class DiagramsComponent(chartsComponent: CompilationChartsComponent,
     graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, aliasingHintValueBefore)
   }
 
+  private def getVisibleArea: Rectangle = {
+    val viewport = scrollComponent.getViewport
+    val visibleRect = viewport.getVisibleRect
+    val viewPosition = viewport.getViewPosition
+    visibleRect.x = viewPosition.x
+    visibleRect.y = viewPosition.y
+    visibleRect
+  }
+
   private def getDiagramStaticHeights(progressDiagramRowCount: Int): DiagramStaticHeights =
     DiagramStaticHeights(
       ProgressRowHeight * progressDiagramRowCount,
@@ -124,19 +133,20 @@ class DiagramsComponent(chartsComponent: CompilationChartsComponent,
       DurationAxisHeight
     )
 
-  private def getDiagramClips(clipBounds: Rectangle2D, heights: DiagramStaticHeights): DiagramClips = {
+  private def getDiagramClips(visibleArea: Rectangle2D,
+                              heights: DiagramStaticHeights,
+                              estimatedPreferredWidth: Double): DiagramClips = {
     def nextClip(height: Double, prevClip: Rectangle2D): Rectangle2D.Double =
-      new Rectangle2D.Double(clipBounds.getX, prevClip.getY + prevClip.getHeight, clipBounds.getWidth, height)
+      new Rectangle2D.Double(visibleArea.getX, prevClip.getY + prevClip.getHeight, estimatedPreferredWidth, height)
 
-    val durationAxisHeight = heights.durationAxis + scrollComponent.getHorizontalScrollBar.getPreferredSize.getHeight
-    val progressDiagramClip = new Rectangle2D.Double(clipBounds.getX, 0, clipBounds.getWidth, heights.progressDiagram)
+    val progressDiagramClip = new Rectangle2D.Double(visibleArea.getX, 0, visibleArea.getWidth, heights.progressDiagram)
     val memoryDiagramY = progressDiagramClip.y + progressDiagramClip.height
     val memoryDiagramHeight = math.max(
-      clipBounds.getHeight - memoryDiagramY - durationAxisHeight,
+      visibleArea.getHeight - memoryDiagramY - heights.durationAxis,
       heights.memoryDiagram
     )
     val memoryDiagramClip = nextClip(memoryDiagramHeight, progressDiagramClip)
-    val durationAxisClip = nextClip(durationAxisHeight, memoryDiagramClip)
+    val durationAxisClip = nextClip(heights.durationAxis, memoryDiagramClip)
     DiagramClips(
       progressDiagram = progressDiagramClip,
       memoryDiagram = memoryDiagramClip,
@@ -231,9 +241,9 @@ object DiagramsComponent {
     if (result.nonEmpty) result else "0"
   }
 
-  private final val MinMemoryDiagramHeight = ProgressRowHeight * 3
-  private final val DurationAxisHeight = ProgressRowHeight * 0.8
-  private final val LongDashLength = DashLength * 2
+  private final val MinMemoryDiagramHeight = 3 * ProgressRowHeight
+  private final val DurationAxisHeight = 1.5 * SmallFont.getSize + UIManager.get("ScrollBar.width").asInstanceOf[Int]
+  private final val LongDashLength = 2 * DashLength
 
   private final val DashedStroke = new LineStroke(DashStroke.thickness, dashLength = Some((ProgressRowHeight / 5).toFloat))
 }
