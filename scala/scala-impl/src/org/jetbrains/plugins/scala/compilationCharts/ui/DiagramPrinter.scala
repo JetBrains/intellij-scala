@@ -108,8 +108,6 @@ class MemoryDiagramPrinter(clip: Rectangle2D,
     graphics.printRect(clip, DiagramBackgroundColor)
 
   override def printDiagram(graphics: Graphics2D): Unit = {
-    graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-
     val MemoryDiagram(points, maxMemory) = memoryDiagram
 
     val leftExtraPoints = getExtraPoints(points.headOption, Duration.Zero, firstPoint = true)
@@ -151,8 +149,6 @@ class MemoryDiagramPrinter(clip: Rectangle2D,
     printMemoryMark(graphics, lastMemoryMark, maxMemory, last = true)
 
     printTopBorder(graphics, clip)
-
-    graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF)
   }
 
   private def getExtraPoints(edgePoint: Option[MemoryPoint],
