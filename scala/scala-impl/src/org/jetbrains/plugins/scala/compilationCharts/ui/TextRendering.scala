@@ -41,7 +41,7 @@ object TextRendering {
                 font: Font,
                 hAlign: HAlign,
                 vAlign: VAlign): TextRendering = {
-    graphics.setFont(font) // TODO: the method kinda doesn't imply that it mutates some string...
+    graphics.setFont(font) // TODO: the method kinda doesn't imply that it mutates state
     val fontMetrics = graphics.getFontMetrics(graphics.getFont)
     val stringBounds = fontMetrics.getStringBounds(text, graphics)
     val ascent = fontMetrics.getAscent.toDouble * 0.33 // The returned ascent value is incorrect. IDK why.
