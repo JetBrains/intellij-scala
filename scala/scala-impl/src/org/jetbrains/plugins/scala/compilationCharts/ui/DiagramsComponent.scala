@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.compilationCharts.ui
 
 import java.awt.geom.{Point2D, Rectangle2D}
-import java.awt.{Dimension, Graphics, Graphics2D, Point}
+import java.awt.{Dimension, Graphics, Graphics2D, Point, RenderingHints}
 
 import com.intellij.ide.ui.laf.UIThemeBasedLookAndFeelInfo
 import com.intellij.ide.ui.{LafManager, UISettings}
@@ -109,7 +109,12 @@ class DiagramsComponent(chartsComponent: CompilationChartsComponent,
 
     diagramPrinters.foreach(_.printBackground(graphics))
     printDiagramVerticalLines(graphics, clips.allDiagramsClip, estimatedPreferredWidth, progressTime)
+
+    val aliasingHintValueBefore = graphics.getRenderingHint(RenderingHints.KEY_ANTIALIASING)
+    graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
     diagramPrinters.foreach(_.printDiagram(graphics))
+    graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, aliasingHintValueBefore)
+
     printDurationAxis(graphics, clips.durationAxis, estimatedPreferredWidth)
   }
 
