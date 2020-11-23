@@ -4,9 +4,11 @@ package parser
 package parsing
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.QualId
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.lang.parser.util.InScala3
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.parseRuleInBlockOrIndentationRegion
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -16,19 +18,19 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 /*
  * Packaging := 'package' QualId [nl] '{' TopStatSeq '}'
  */
-object Packaging {
+object Packaging extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder):Boolean = {
-    val packMarker = builder.mark
+  override def apply()(implicit builder: ScalaPsiBuilder):Boolean = {
+    val packMarker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.kPACKAGE =>
         builder.advanceLexer() //Ate package
-        if (!(QualId parse builder)) {
+        if (!(QualId())) {
           packMarker.drop()
           return false
         }
         //parsing body of regular packaging
-        builder.getTokenType match {
+        val (blockIndentation, baseIndentation) = builder.getTokenType match {
           case ScalaTokenTypes.tLBRACE =>
             if (builder.twoNewlinesBeforeCurrentToken) {
               builder error ScalaBundle.message("lbrace.expected")
@@ -36,19 +38,46 @@ object Packaging {
               return true
             }
             builder.advanceLexer() //Ate '{'
-            builder.enableNewlines()
-            ParserUtils.parseLoopUntilRBrace(builder, () => {
-              //parse packaging body
-              TopStatSeq.parse(builder)
-            })
-            builder.restoreNewlinesState()
-            packMarker.done(ScalaElementType.PACKAGING)
-            true
+            BlockIndentation.create -> None
+          case InScala3(ScalaTokenTypes.tCOLON) =>
+            if (builder.twoNewlinesBeforeCurrentToken) {
+              builder error ScalaBundle.message("lbrace.or.colon.expected")
+              packMarker.done(ScalaElementType.PACKAGING)
+              return true
+            }
+            builder.advanceLexer() // Ate :
+            val currentIndent = builder.currentIndentationWidth
+            builder.findPreviousIndent match {
+              case indentO@Some(indent) if indent > currentIndent =>
+                BlockIndentation.noBlock -> indentO
+              case Some(indent) if indent == currentIndent && End() =>
+                // for the special case that the template definition doesn't contain
+                // any statements, but is ended by an end statement
+                packMarker.done(ScalaElementType.PACKAGING)
+                return true
+              case _ =>
+                builder error ScalaBundle.message("expected.indented.package.statement")
+                packMarker.drop()
+                return true
+            }
           case _ =>
             builder error ScalaBundle.message("lbrace.expected")
             packMarker.done(ScalaElementType.PACKAGING)
-            true
+            return true
         }
+
+        builder.enableNewlines()
+        builder.maybeWithIndentationWidth(baseIndentation) {
+          parseRuleInBlockOrIndentationRegion(blockIndentation, baseIndentation, ErrMsg("def.dcl.expected")) {
+            TopStatSeq(baseIndent = baseIndentation)
+            true
+          }
+        }
+        blockIndentation.drop()
+        End()
+        builder.restoreNewlinesState()
+        packMarker.done(ScalaElementType.PACKAGING)
+        true
       case _ =>
         //this code shouldn't be reachable, if it is, this is unexpected error
         builder error ScalaBundle.message("unreachable.error")

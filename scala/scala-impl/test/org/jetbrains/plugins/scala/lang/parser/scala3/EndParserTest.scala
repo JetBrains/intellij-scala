@@ -196,5 +196,133 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
     expectedType = ScalaTokenTypes.tIDENTIFIER
   )
 
+  def test_empty_package_end(): Unit = doTest(
+    """
+      |package A:
+      |end A
+      |""".stripMargin,
+    expectedType = ScalaTokenTypes.tIDENTIFIER
+  )
+
+  def test_package_end(): Unit = checkTree(
+    """
+      |package foo:
+      |  package bar:
+      |    object A:
+      |      def foo = 1
+      |  end bar
+      |end foo
+      |package baz:
+      |  object B:
+      |    def f = foo.bar.A.foo
+      |end baz
+      |""".stripMargin,
+    """ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScPackaging
+      |    PsiElement(package)('package')
+      |    PsiWhiteSpace(' ')
+      |    CodeReferenceElement: foo
+      |      PsiElement(identifier)('foo')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace('\n  ')
+      |    ScPackaging
+      |      PsiElement(package)('package')
+      |      PsiWhiteSpace(' ')
+      |      CodeReferenceElement: bar
+      |        PsiElement(identifier)('bar')
+      |      PsiElement(:)(':')
+      |      PsiWhiteSpace('\n    ')
+      |      ScObject: A
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          <empty list>
+      |        PsiElement(object)('object')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('A')
+      |        ExtendsBlock
+      |          ScTemplateBody
+      |            PsiElement(:)(':')
+      |            PsiWhiteSpace('\n      ')
+      |            ScFunctionDefinition: foo
+      |              AnnotationsList
+      |                <empty list>
+      |              Modifiers
+      |                <empty list>
+      |              PsiElement(def)('def')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(identifier)('foo')
+      |              Parameters
+      |                <empty list>
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(=)('=')
+      |              PsiWhiteSpace(' ')
+      |              IntegerLiteral
+      |                PsiElement(integer)('1')
+      |      PsiWhiteSpace('\n  ')
+      |      End: bar
+      |        PsiElement(end)('end')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('bar')
+      |    PsiWhiteSpace('\n')
+      |    End: foo
+      |      PsiElement(end)('end')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(identifier)('foo')
+      |  PsiWhiteSpace('\n')
+      |  ScPackaging
+      |    PsiElement(package)('package')
+      |    PsiWhiteSpace(' ')
+      |    CodeReferenceElement: baz
+      |      PsiElement(identifier)('baz')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace('\n  ')
+      |    ScObject: B
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      PsiElement(object)('object')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(identifier)('B')
+      |      ExtendsBlock
+      |        ScTemplateBody
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace('\n    ')
+      |          ScFunctionDefinition: f
+      |            AnnotationsList
+      |              <empty list>
+      |            Modifiers
+      |              <empty list>
+      |            PsiElement(def)('def')
+      |            PsiWhiteSpace(' ')
+      |            PsiElement(identifier)('f')
+      |            Parameters
+      |              <empty list>
+      |            PsiWhiteSpace(' ')
+      |            PsiElement(=)('=')
+      |            PsiWhiteSpace(' ')
+      |            ReferenceExpression: foo.bar.A.foo
+      |              ReferenceExpression: foo.bar.A
+      |                ReferenceExpression: foo.bar
+      |                  ReferenceExpression: foo
+      |                    PsiElement(identifier)('foo')
+      |                  PsiElement(.)('.')
+      |                  PsiElement(identifier)('bar')
+      |                PsiElement(.)('.')
+      |                PsiElement(identifier)('A')
+      |              PsiElement(.)('.')
+      |              PsiElement(identifier)('foo')
+      |    PsiWhiteSpace('\n')
+      |    End: baz
+      |      PsiElement(end)('end')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(identifier)('baz')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+
   // todo: add tests for extensions and given
 }

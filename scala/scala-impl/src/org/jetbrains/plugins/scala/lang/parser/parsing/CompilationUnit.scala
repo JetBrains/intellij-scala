@@ -3,8 +3,10 @@ package lang
 package parser
 package parsing
 
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.QualId
+import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 import scala.annotation.tailrec
@@ -26,7 +28,7 @@ object CompilationUnit {
 
     def parsePackagingBody(hasPackage: Boolean): Unit = {
       while (builder.getTokenType != null) {
-        TopStatSeq.parse(builder, waitBrace = false, hasPackage) match {
+        TopStatSeq(waitBrace = false, hasPackage) match {
           case EMPTY_STATE =>
           case SCRIPT_STATE =>
             Stats.trigger(FeatureKey.parserScalaScript)
@@ -72,7 +74,7 @@ object CompilationUnit {
                     // Detect explicit packaging with curly braces
 
                     builder.getTokenType match {
-                      case `tLBRACE` if !builder.getTokenText.matches(".*\n.*\n.*") =>
+                      case `tLBRACE` | InScala3(ScalaTokenTypes.tCOLON) =>
                         newMarker.rollbackTo()
                         parsePackagingBody(true)
                         parsePackage

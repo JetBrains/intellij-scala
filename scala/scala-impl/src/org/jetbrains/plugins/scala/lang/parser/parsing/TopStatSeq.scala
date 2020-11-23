@@ -6,6 +6,7 @@ package parsing
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import ParserState._
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.isOutdent
 
 /**
   * @author Alexander Podkhalyuzin
@@ -16,10 +17,10 @@ import ParserState._
 *  TopStatSeq ::= TopStat {semi TopStat}
 */
 object TopStatSeq {
-
-  def parse(builder: ScalaPsiBuilder,
-            waitBrace: Boolean = true,
-            hasPackage: Boolean = false): ParserState = {
+  def apply(waitBrace: Boolean = true,
+            hasPackage: Boolean = false,
+            baseIndent: Option[IndentationWidth] = None)
+           (implicit builder: ScalaPsiBuilder): ParserState = {
     var parseState: ParserState = EMPTY_STATE
     if (waitBrace || hasPackage) {
       parseState = FILE_STATE
@@ -30,6 +31,7 @@ object TopStatSeq {
         case ScalaTokenTypes.tRBRACE if waitBrace => return parseState
         case null => return parseState
         case ScalaTokenTypes.tSEMICOLON => builder.advanceLexer() //not interesting case
+        case _ if isOutdent(baseIndent) => return parseState
         //otherwise parse TopStat
         case _ =>
           TopStat.parse(parseState)(builder) match {
@@ -44,6 +46,7 @@ object TopStatSeq {
                 case ScalaTokenTypes.tSEMICOLON => builder.advanceLexer() //it is good
                 case ScalaTokenTypes.tRBRACE if waitBrace => return parseState
                 case null => return parseState
+                case _ if isOutdent(baseIndent) => return parseState
                 case _ =>
                   if (!builder.newlineBeforeCurrentToken)
                     builder error ScalaBundle.message("semi.expected")
