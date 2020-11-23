@@ -22,7 +22,7 @@ class DiagramsComponent(chartsComponent: CompilationChartsComponent,
   import DiagramsComponent._
 
   // injecting due to cyclic dependency between scroll pane and diagrams component
-  var scrollComponent: JBScrollPane = _
+  private[ui] var scrollComponent: JBScrollPane = _
 
   private var initialized = false
 
