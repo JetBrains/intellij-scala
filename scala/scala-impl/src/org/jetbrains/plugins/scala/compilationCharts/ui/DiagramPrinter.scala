@@ -4,9 +4,9 @@ import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.compilationCharts.Memory
 import org.jetbrains.plugins.scala.compilationCharts.ui.Common._
 import org.jetbrains.plugins.scala.compiler.CompilationUnitId
-
-import java.awt.{Color, Graphics2D}
+import java.awt.{Color, Graphics2D, RenderingHints}
 import java.awt.geom.{Line2D, Point2D, Rectangle2D}
+
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
 trait DiagramPrinter {
@@ -108,6 +108,8 @@ class MemoryDiagramPrinter(clip: Rectangle2D,
     graphics.printRect(clip, DiagramBackgroundColor)
 
   override def printDiagram(graphics: Graphics2D): Unit = {
+    graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
     val MemoryDiagram(points, maxMemory) = memoryDiagram
 
     val leftExtraPoints = getExtraPoints(points.headOption, Duration.Zero, firstPoint = true)
@@ -149,6 +151,8 @@ class MemoryDiagramPrinter(clip: Rectangle2D,
     printMemoryMark(graphics, lastMemoryMark, maxMemory, last = true)
 
     printTopBorder(graphics, clip)
+
+    graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF)
   }
 
   private def getExtraPoints(edgePoint: Option[MemoryPoint],
