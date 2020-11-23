@@ -4,6 +4,7 @@ import java.awt._
 import java.awt.geom.Rectangle2D
 
 import com.intellij.icons.AllIcons
+import com.intellij.ide.ui.UISettings
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.actionSystem.ex.CustomComponentAction
 import com.intellij.openapi.project.DumbAwareAction
@@ -92,6 +93,7 @@ class ActionPanel(setZoom: Zoom => Unit)
         val colorY = textRect.y + (textRect.height - colorHeight) / 2.0
         val colorRect = new Rectangle2D.Double(BeforeColorMargin, colorY, ColorWidth, colorHeight)
 
+        UISettings.setupAntialiasing(graphics)
         graphics.printText(rendering, TextColor)
         graphics.printRect(colorRect, DiagramBackgroundColor)
         graphics.printRect(colorRect, color)
