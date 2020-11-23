@@ -509,6 +509,9 @@ object ScalaElementType {
   val GIVEN_PATTERN: ScalaElementType = new ScalaElementType("given pattern") {
     override def createElement(node: ASTNode): ScalaPsiElement = new ScGivenPatternImpl(node)
   }
+  val SCALA3_TYPED_PATTERN: ScalaElementType = new ScalaElementType("Scala 3 Typed Pattern") {
+    override def createElement(node: ASTNode): ScalaPsiElement = new Sc3TypedPatternImpl(node)
+  }
 
   /** ************************************ TYPE PATTERNS ********************************/
 

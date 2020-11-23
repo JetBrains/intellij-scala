@@ -26,8 +26,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialType, api, _}
 */
 
 class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementType.TYPED_PATTERN, node) with ScPatternImpl with ScTypedPattern {
-
+  extends ScalaStubBasedElementImpl(stub, ScalaElementType.TYPED_PATTERN, node)
+    with ScPatternImpl
+    with ScTypedPattern
+    with TypedPatternLikeImpl
+{
   def this(node: ASTNode) = this(null, node)
 
   def this(stub: ScBindingPatternStub[ScTypedPattern]) = this(stub, null)
@@ -35,15 +38,6 @@ class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], nod
   override def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
 
   override def isWildcard: Boolean = findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null
-
-  override def isIrrefutableFor(t: Option[ScType]): Boolean = {
-    for {
-      ty <- t
-      Right(tp) <- Some(`type`())
-    } yield {
-      ty conforms tp
-    }
-  }.getOrElse(false)
 
   override def toString: String = "TypedPattern: " + ifReadAllowed(name)("")
 
@@ -70,7 +64,7 @@ class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], nod
                             else arg.upper //todo: glb?
                           ScExistentialArgument(arg.name, arg.typeParameters, lowerBound, upperBound)
                         case (tp: ScType, _: ScTypeParam) => tp
-                      }.toSeq).unpackedType
+                      }).unpackedType
                     case _ => tp
                   }
                 case Some((clazz: PsiClass, subst)) =>
@@ -88,7 +82,7 @@ class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], nod
                             } else arg.upper //todo: glb?
                           ScExistentialArgument(arg.name, arg.typeParameters, lowerBound, upperBound)
                         case (tp: ScType, _) => tp
-                      }.toSeq).unpackedType
+                      }).unpackedType
                     case _ => tp
                   }
                 case _ => tp
