@@ -145,12 +145,12 @@ class DiagramsComponent(chartsComponent: CompilationChartsComponent,
   }
 
   private def printDurationAxis(graphics: Graphics2D, clip: Rectangle2D, preferredWidth: Double): Unit = {
-    graphics.printRect(clip, DiagramBackgroundColor)
-    printTopBorder(graphics, clip)
+    graphics.printRect(clip, diagramBackgroundColor)
+    graphics.printBorder(clip, Side.North, LineColor, BorderStroke)
     durationXIterator(preferredWidth).zipWithIndex.foreach { case (x, i) =>
       val point = new Point2D.Double(x, clip.getY)
       if (i % currentZoom.durationLabelPeriod == 0) {
-        graphics.printVerticalLine(point, LongDashLength, LineColor, DashStroke)
+        if (i != 0) graphics.printVerticalLine(point, LongDashLength, LineColor, DashStroke)
         val text = " " + stringify(i * currentZoom.durationStep)
         val textClip = new Rectangle2D.Double(point.x, clip.getY, clip.getWidth, clip.getHeight)
         val rendering = graphics.getTextRendering(textClip, text, SmallFont, HAlign.Left, VAlign.Top)
@@ -232,7 +232,7 @@ object DiagramsComponent {
   }
 
   private final val MinMemoryDiagramHeight = ProgressRowHeight * 3
-  private final val DurationAxisHeight = ProgressRowHeight
+  private final val DurationAxisHeight = ProgressRowHeight * 0.75
   private final val LongDashLength = DashLength * 2
 
   private final val DashedStroke = new LineStroke(DashStroke.thickness, dashLength = Some((ProgressRowHeight / 5).toFloat))

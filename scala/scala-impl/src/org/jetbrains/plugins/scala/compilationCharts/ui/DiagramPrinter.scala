@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.compilationCharts.ui
 
-import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.compilationCharts.Memory
 import org.jetbrains.plugins.scala.compilationCharts.ui.Common._
 import org.jetbrains.plugins.scala.compiler.CompilationUnitId
@@ -24,12 +23,10 @@ class ProgressDiagramPrinter(clip: Rectangle2D,
   extends DiagramPrinter {
 
   override def printBackground(graphics: Graphics2D): Unit = {
-    graphics.printRect(clip, DiagramBackgroundColor)
+    graphics.printRect(clip, diagramBackgroundColor)
     Range.inclusive(1, progressDiagram.rowCount).foreach { row =>
-      val rowColor = if (row % 2 == 0)
-        DiagramBackgroundColor
-      else
-        UIUtil.getDecoratedRowColor
+      val shift = if (row % 2 == 0) 0 else if (darkTheme) 6 else -13
+      val rowColor = diagramBackgroundColor.greyShift(shift)
       val rowY = getRowY(row)
       val rowRect = new Rectangle2D.Double(clip.getX, rowY, clip.getWidth, ProgressRowHeight)
       graphics.printRect(rowRect, rowColor)
@@ -37,10 +34,8 @@ class ProgressDiagramPrinter(clip: Rectangle2D,
     printSegments(graphics, backgroundOnly = true)
   }
 
-  override def printDiagram(graphics: Graphics2D): Unit = {
+  override def printDiagram(graphics: Graphics2D): Unit =
     printSegments(graphics, backgroundOnly = false)
-    printTopBorder(graphics, clip)
-  }
 
   private def getRowY(row: Int): Double =
     clip.getY + clip.getHeight - ProgressRowHeight * row
@@ -59,7 +54,7 @@ class ProgressDiagramPrinter(clip: Rectangle2D,
         ProgressRowHeight - SegmentGap
       )
       val color = if (backgroundOnly)
-        DiagramBackgroundColor
+        diagramBackgroundColor
       else if (testScope)
         TestModuleColor
       else
@@ -105,7 +100,7 @@ class MemoryDiagramPrinter(clip: Rectangle2D,
   extends DiagramPrinter {
 
   override def printBackground(graphics: Graphics2D): Unit =
-    graphics.printRect(clip, DiagramBackgroundColor)
+    graphics.printRect(clip, diagramBackgroundColor)
 
   override def printDiagram(graphics: Graphics2D): Unit = {
     val MemoryDiagram(points, maxMemory) = memoryDiagram
@@ -148,7 +143,7 @@ class MemoryDiagramPrinter(clip: Rectangle2D,
     printMemoryMark(graphics, firstMemoryMark, maxMemory, last = false)
     printMemoryMark(graphics, lastMemoryMark, maxMemory, last = true)
 
-    printTopBorder(graphics, clip)
+    graphics.printBorder(clip, Side.North, LineColor, BorderStroke)
   }
 
   private def getExtraPoints(edgePoint: Option[MemoryPoint],

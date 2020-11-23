@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.compilationCharts.ui
 
+import com.intellij.openapi.editor.colors.EditorColorsManager
+
 import java.awt.{Color, Graphics2D}
 import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.UIUtil.{FontColor, FontSize}
@@ -18,7 +20,10 @@ object Common {
 
   final val TextColor = UIUtil.getLabelFontColor(FontColor.NORMAL)
   final val LineColor = UIUtil.getInactiveTextColor
-  final val DiagramBackgroundColor = UIUtil.getTreeBackground
+
+  def diagramBackgroundColor: Color =
+    EditorColorsManager.getInstance().getSchemeForCurrentUITheme.getDefaultBackground
+
   final val TestModuleColor = new Color(98, 181, 67, 153)
   final val ProdModuleColor = new Color(64, 182, 224, 153)
   final val MemoryLineColor = new Color(231, 45, 45)
