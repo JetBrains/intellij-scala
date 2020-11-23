@@ -113,9 +113,8 @@ class DiagramsComponent(chartsComponent: CompilationChartsComponent,
     val aliasingHintValueBefore = graphics.getRenderingHint(RenderingHints.KEY_ANTIALIASING)
     graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
     diagramPrinters.foreach(_.printDiagram(graphics))
-    graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, aliasingHintValueBefore)
-
     printDurationAxis(graphics, clips.durationAxis, estimatedPreferredWidth)
+    graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, aliasingHintValueBefore)
   }
 
   private def getDiagramStaticHeights(progressDiagramRowCount: Int): DiagramStaticHeights =
@@ -129,14 +128,15 @@ class DiagramsComponent(chartsComponent: CompilationChartsComponent,
     def nextClip(height: Double, prevClip: Rectangle2D): Rectangle2D.Double =
       new Rectangle2D.Double(clipBounds.getX, prevClip.getY + prevClip.getHeight, clipBounds.getWidth, height)
 
+    val durationAxisHeight = heights.durationAxis + scrollComponent.getHorizontalScrollBar.getPreferredSize.getHeight
     val progressDiagramClip = new Rectangle2D.Double(clipBounds.getX, 0, clipBounds.getWidth, heights.progressDiagram)
     val memoryDiagramY = progressDiagramClip.y + progressDiagramClip.height
     val memoryDiagramHeight = math.max(
-      clipBounds.getHeight - memoryDiagramY - heights.durationAxis,
+      clipBounds.getHeight - memoryDiagramY - durationAxisHeight,
       heights.memoryDiagram
     )
     val memoryDiagramClip = nextClip(memoryDiagramHeight, progressDiagramClip)
-    val durationAxisClip = nextClip(heights.durationAxis, memoryDiagramClip)
+    val durationAxisClip = nextClip(durationAxisHeight, memoryDiagramClip)
     DiagramClips(
       progressDiagram = progressDiagramClip,
       memoryDiagram = memoryDiagramClip,
@@ -232,7 +232,7 @@ object DiagramsComponent {
   }
 
   private final val MinMemoryDiagramHeight = ProgressRowHeight * 3
-  private final val DurationAxisHeight = ProgressRowHeight * 0.75
+  private final val DurationAxisHeight = ProgressRowHeight * 0.8
   private final val LongDashLength = DashLength * 2
 
   private final val DashedStroke = new LineStroke(DashStroke.thickness, dashLength = Some((ProgressRowHeight / 5).toFloat))
