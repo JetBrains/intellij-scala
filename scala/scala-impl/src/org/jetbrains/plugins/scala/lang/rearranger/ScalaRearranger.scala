@@ -146,8 +146,11 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
     for (dependency <- info.getDependentMethodInfos) {
       setupDepthFirstDependency(dependency)
       val dependentEntry = dependency.getAnchorMethod
-      if (dependentEntry.getDependencies == null) {
-        dependentEntry.addDependency(info.getAnchorMethod)
+      if (dependentEntry != null && dependentEntry.getDependencies == null) {
+        val method = info.getAnchorMethod
+        if (method != null) {
+          dependentEntry.addDependency(method)
+        }
       }
     }
   }
@@ -159,8 +162,11 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
       val current = toProcess.dequeue()
       for (dependencyInfo <- current.getDependentMethodInfos) {
         val dependencyMethod = dependencyInfo.getAnchorMethod
-        if (dependencyMethod.getDependencies == null) {
-          dependencyMethod.addDependency(current.getAnchorMethod)
+        if (dependencyMethod != null && dependencyMethod.getDependencies == null) {
+          val method = current.getAnchorMethod
+          if (method != null) {
+            dependencyMethod.addDependency(method)
+          }
         }
         toProcess += dependencyInfo
       }
