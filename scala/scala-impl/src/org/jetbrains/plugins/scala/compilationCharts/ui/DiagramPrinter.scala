@@ -117,31 +117,32 @@ class MemoryDiagramPrinter(clip: Rectangle2D,
         if (x1 != x2)
           graphics.printLine(new Line2D.Double(x1, y1, x2, y2), MemoryLineColor, MemoryLineStroke)
       }
-    points.lastOption.foreach { point =>
+    val currentMemoryTextRendering = points.lastOption.map { point =>
       val x = currentZoom.toPixels(progressTime)
       val (_, y) = toPlotPoint(point, maxMemory)
       val currentMemoryTextClip = new Rectangle2D.Double(x, y - clip.getHeight, clip.getWidth, 2 * clip.getHeight)
       val text = " " + stringify(point.memory, showMb = true)
-      val rendering = {
-        val baseRendering = graphics.getTextRendering(currentMemoryTextClip, text, NormalFont, HAlign.Left, VAlign.Center)
-        val rect = baseRendering.rect
-        lazy val topDelta = clip.getY - rect.getY
-        lazy val bottomDelta = clip.getY + clip.getHeight - rect.getY - rect.getHeight
-        val deltaY = if (topDelta > 0)
-          topDelta
-        else if (bottomDelta < 0)
-          bottomDelta
-        else
-          0
-        baseRendering.translate(baseRendering.x, baseRendering.y + deltaY)
-      }
+      val baseRendering = graphics.getTextRendering(currentMemoryTextClip, text, NormalFont, HAlign.Left, VAlign.Center)
+      val rect = baseRendering.rect
+      lazy val topDelta = clip.getY - rect.getY
+      lazy val bottomDelta = clip.getY + clip.getHeight - rect.getY - rect.getHeight
+      val deltaY = if (topDelta > 0)
+        topDelta
+      else if (bottomDelta < 0)
+        bottomDelta
+      else
+        0
+      baseRendering.translate(baseRendering.x, baseRendering.y + deltaY)
+    }
+    currentMemoryTextRendering.foreach { rendering =>
       graphics.doInClip(rendering.rect)(_.printText(rendering, TextColor))
     }
+    val currentMemoryRect = currentMemoryTextRendering.map(_.rect)
 
     val firstMemoryMark = roundMegabytes(maxMemory / 3)
     val lastMemoryMark = firstMemoryMark * 2
-    printMemoryMark(graphics, firstMemoryMark, maxMemory, last = false)
-    printMemoryMark(graphics, lastMemoryMark, maxMemory, last = true)
+    printMemoryMark(graphics, firstMemoryMark, maxMemory, currentMemoryRect, last = false)
+    printMemoryMark(graphics, lastMemoryMark, maxMemory, currentMemoryRect, last = true)
 
     graphics.printBorder(clip, Side.North, LineColor, BorderStroke)
   }
@@ -165,7 +166,11 @@ class MemoryDiagramPrinter(clip: Rectangle2D,
     (x, y)
   }
 
-  private def printMemoryMark(graphics: Graphics2D, memory: Memory, maxMemory: Memory, last: Boolean): Unit = {
+  private def printMemoryMark(graphics: Graphics2D,
+                              memory: Memory,
+                              maxMemory: Memory,
+                              currentMemoryRect: Option[Rectangle2D],
+                              last: Boolean): Unit = {
     val (_, y) = toPlotPoint(MemoryPoint(Duration.Zero, memory), maxMemory)
     val point = new Point2D.Double(clip.getX, y)
     graphics.printHorizontalLine(point, DashLength, LineColor, DashStroke)
@@ -173,7 +178,8 @@ class MemoryDiagramPrinter(clip: Rectangle2D,
     val textClip = new Rectangle2D.Double(clip.getX + DashLength, y - h, clip.getWidth, 2 * h)
     val text = " " + stringify(memory, showMb = last)
     val rendering = graphics.getTextRendering(textClip, text, SmallFont, HAlign.Left, VAlign.Center)
-    graphics.printText(rendering, TextColor)
+    if (!currentMemoryRect.exists(_ intersects rendering.rect))
+      graphics.printText(rendering, TextColor)
   }
 
   private def stringify(bytes: Memory, showMb: Boolean): String = {
