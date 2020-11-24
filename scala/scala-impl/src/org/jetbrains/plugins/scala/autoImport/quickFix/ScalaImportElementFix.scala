@@ -53,7 +53,9 @@ abstract class ScalaImportElementFix[Element <: ElementToImport](val place: PsiE
   override def isAvailable(project: Project,
                            editor: Editor,
                            file: PsiFile): Boolean = {
-    scheduleComputationOnce(editor)
+    if (editor != null) {
+      scheduleComputationOnce(editor)
+    }
 
     isAvailable && file.hasScalaPsi
   }
