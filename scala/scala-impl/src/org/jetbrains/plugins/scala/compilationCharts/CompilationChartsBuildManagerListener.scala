@@ -11,18 +11,15 @@ import org.jetbrains.plugins.scala.util.ScheduledService
 
 import scala.concurrent.duration.DurationInt
 
-class CompileServerMetricsCollecting
-  extends CompileTask
-    with BuildManagerListener {
+class CompilationChartsBuildManagerListener
+  extends BuildManagerListener {
 
-  // BEFORE
-  override def execute(context: CompileContext): Boolean = {
-    val project = context.getProject
+  override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit = {
+    CompilationProgressStateManager.erase(project)
     CompileServerMetricsStateManager.reset(project)
     val collector = CompileServerMetricsCollector.get(project)
     collector.stopScheduling()
     collector.startScheduling()
-    true
   }
 
   override def buildFinished(project: Project, sessionId: UUID, isAutomake: Boolean): Unit =
