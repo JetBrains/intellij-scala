@@ -14,6 +14,7 @@ import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.EmptyRunnable
 import com.intellij.psi._
+import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.containers.ContainerUtil
@@ -455,7 +456,7 @@ object ScalaImportOptimizer {
         val notification = {
           @nowarn
           val group = new NotificationGroup(ScalaEditorBundle.message("import.layout.group"), NotificationDisplayType.STICKY_BALLOON, true)
-          group.createNotification("import.layout.updated.title", null, "import.layout.updated.description", NotificationType.INFORMATION)
+          group.createNotification(ScalaEditorBundle.message("import.layout.updated.title"), null, ScalaEditorBundle.message("import.layout.updated.description"), NotificationType.INFORMATION)
         }
 
         def action(name: String)(f: () => Unit) = new AnAction(name) {
@@ -468,7 +469,11 @@ object ScalaImportOptimizer {
 
         notification
           .addAction(action("Got It")(() => hide()))
-          .addAction(action("Switch to Legacy Scheme"){ () => style.setImportLayout(ScalaCodeStyleSettings.LEGACY_IMPORT_LAYOUT); hide() })
+          .addAction(action("Switch to Legacy Scheme"){ () =>
+            style.setImportLayout(ScalaCodeStyleSettings.LEGACY_IMPORT_LAYOUT);
+            CodeStyleSettingsManager.getInstance(project).notifyCodeStyleSettingsChanged()
+            hide()
+          })
 
         notification.notify(project)
 
