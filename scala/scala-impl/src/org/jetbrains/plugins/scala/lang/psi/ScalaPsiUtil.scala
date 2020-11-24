@@ -740,6 +740,8 @@ object ScalaPsiUtil {
   // a synthetic method of the same class
   def isSyntheticContextAncestor(ancestor: PsiElement, element: PsiElement): Boolean = {
     ancestor.getContext match {
+      case m: ScMember if m.isSynthetic =>
+        PsiTreeUtil.isContextAncestor(m.syntheticNavigationElement, element, true)
       case td: ScTemplateDefinition if td.isDesugared =>
         PsiTreeUtil.isContextAncestor(td.originalElement.get, element, true)
       case _ => false
