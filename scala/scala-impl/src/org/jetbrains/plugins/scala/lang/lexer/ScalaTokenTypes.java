@@ -71,21 +71,6 @@ public interface ScalaTokenTypes {
     IElementType tCHAR = new ScalaTokenType("Character");
     IElementType tSYMBOL = new ScalaTokenType("Symbol");
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////// Operators ////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    IElementType tEQUAL = new ScalaTokenType("==");
-    IElementType tNOTEQUAL = new ScalaTokenType("!=");
-    IElementType tLESS = new ScalaTokenType("<");
-    IElementType tLESSOREQUAL = new ScalaTokenType("<=");
-    IElementType tGREATER = new ScalaTokenType(">");
-    IElementType tGREATEROREQUAL = new ScalaTokenType(">=");
-
-    IElementType tTILDA = new ScalaTokenType("~");
-    IElementType tNOT = new ScalaTokenType("!");
-    IElementType tSTAR = new ScalaTokenType("*");
-    IElementType tDIV = new ScalaTokenType("/");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// Braces ///////////////////////////////////////////////////////////////////////////////////////
@@ -149,8 +134,6 @@ public interface ScalaTokenTypes {
     IElementType tCLOSEXMLTAG = new ScalaTokenType("closed xml tag");
     IElementType tBADCLOSEXMLTAG = new ScalaTokenType("closing tag without opening");
     IElementType tXMLTAGPART = new ScalaTokenType("tag part");
-    IElementType tBEGINSCALAEXPR = new ScalaTokenType("begin of scala expression");
-    IElementType tENDSCALAEXPR = new ScalaTokenType("end of scala expression");
     IElementType tXML_COMMENT_START = new ScalaTokenType("Xml Comment Start");
     IElementType tXML_COMMENT_END = new ScalaTokenType("Xml Comment End");
 
@@ -163,8 +146,6 @@ public interface ScalaTokenTypes {
     IElementType tUNDER = new ScalaTokenType("_");
     IElementType tCOLON = new ScalaTokenType(":");
     IElementType tASSIGN = new ScalaTokenType("=");
-    IElementType tAND = new ScalaTokenType("&");
-    IElementType tOR = new ScalaTokenType("|");
     IElementType tFUNTYPE = new ScalaTokenType("=>");
     IElementType tFUNTYPE_ASCII = new ScalaTokenType(Character.toString('\u21D2'));
     IElementType tCHOOSE = new ScalaTokenType("<-");

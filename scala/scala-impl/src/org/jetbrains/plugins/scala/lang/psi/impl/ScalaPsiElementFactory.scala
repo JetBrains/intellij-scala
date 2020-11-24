@@ -649,7 +649,7 @@ object ScalaPsiElementFactory {
         for (paramClause <- method.paramClauses.clauses) {
           val parameters = paramClause.parameters.map { param =>
             val arrow = if (param.isCallByNameParameter) functionArrow else ""
-            val asterisk = if (param.isRepeatedParameter) tSTAR.toString else ""
+            val asterisk = if (param.isRepeatedParameter) "*" else ""
 
             val name = param.name
             val tpe = param.`type`().map(substitutor).getOrAny
