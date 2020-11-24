@@ -5,9 +5,9 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.{PropertyMethods, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.{DefinitionRole, EQ, SETTER, isApplicable, methodName}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScTypeAlias, ScValue, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -36,13 +36,12 @@ trait SignatureProcessor[T <: Signature] {
   protected def isStaticJava(m: PsiMember): Boolean = !m.isInstanceOf[ScalaPsiElement] && m.hasModifierProperty("static")
 
   @tailrec
-  final def processAll(clazz: PsiClass, substitutor: ScSubstitutor, sink: Sink): Unit = {
-    clazz match {
-      case null                     => ()
-      case syn: ScSyntheticClass    => processAll(realClass(syn), substitutor, sink)
-      case td: ScTemplateDefinition => processScala(td, substitutor, sink)
-      case _                        => processJava(clazz, substitutor, sink)
-    }
+  final def processAll(clazz: PsiClass, substitutor: ScSubstitutor, sink: Sink): Unit = clazz match {
+    case null                                            => ()
+    case cls: ScClass if cls.originalEnumElement != null => processAll(cls.originalEnumElement, substitutor, sink)
+    case syn: ScSyntheticClass                           => processAll(realClass(syn), substitutor, sink)
+    case td: ScTemplateDefinition                        => processScala(td, substitutor, sink)
+    case _                                               => processJava(clazz, substitutor, sink)
   }
 
   private def realClass(syn: ScSyntheticClass): ScTemplateDefinition =
@@ -67,6 +66,10 @@ object TypesCollector extends SignatureProcessor[TypeSignature] {
 
   override def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, sink: Sink): Unit = {
     for (member <- template.membersWithSynthetic.filterByType[ScNamedElement]) {
+      member match {
+        case e: ScEnum => e.syntheticClass.foreach(cls => process(TypeSignature(cls, subst), sink))
+        case _         => ()
+      }
       process(TypeSignature(member, subst), sink)
     }
   }

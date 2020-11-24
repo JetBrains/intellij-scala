@@ -12,7 +12,7 @@ import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScPackageLike}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
@@ -179,6 +179,8 @@ object ScPackageImpl {
                       synMethod => if (!processor.execute(synMethod, state)) return false
                     }
                   case _ => ()
+                  case e: ScEnum    => e.syntheticClass.foreach(processor.execute(_, state))
+                  case _            => ()
                 }
 
                 stop = clazz.containingClass == null && !processor.execute(clazz, state)

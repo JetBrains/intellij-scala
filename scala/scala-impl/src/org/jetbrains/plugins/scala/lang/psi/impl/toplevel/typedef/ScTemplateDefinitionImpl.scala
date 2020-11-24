@@ -353,7 +353,11 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
           case _ =>
             extendsBlock match {
               case e: ScExtendsBlock if e != null =>
-                if (isContextAncestor(e, place, true) ||
+                val isUnderExtendsBlock =
+                  if (!this.isSynthetic) isContextAncestor(e, place, true)
+                  else                   isContextAncestor(this, place, true)
+
+                if (isUnderExtendsBlock ||
                   ScalaPsiUtil.isSyntheticContextAncestor(e, place) ||
                   !isContextAncestor(this, place, true)) {
                   this match {
