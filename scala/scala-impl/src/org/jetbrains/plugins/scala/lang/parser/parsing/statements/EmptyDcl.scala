@@ -11,11 +11,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
  */
 object EmptyDcl {
 
-  def parse(builder: ScalaPsiBuilder, isMod: Boolean = true): Boolean = {
-    val dclMarker = builder.mark
+  def apply(isMod: Boolean = true)(implicit builder: ScalaPsiBuilder): Boolean = {
+    val dclMarker = builder.mark()
     if (isMod) {
       while (Annotation.parse(builder)) {}
-      while (Modifier.parse(builder)) {}
+      while (Modifier()) {}
     }
     builder.getTokenType match {
       case ScalaTokenTypes.kDEF | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR |

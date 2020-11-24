@@ -42,7 +42,7 @@ object BlockStat extends ParsingRule {
           if (Dcl()) {
             builder error ErrMsg("wrong.declaration.in.block")
           } else {
-            EmptyDcl.parse(builder)
+            EmptyDcl()
             builder error ErrMsg("wrong.declaration.in.block")
           }
         }
@@ -56,7 +56,7 @@ object BlockStat extends ParsingRule {
           if (Dcl()) {
             builder error ErrMsg("wrong.declaration.in.block")
             true
-          } else if (EmptyDcl.parse(builder)) {
+          } else if (EmptyDcl()) {
             builder error ErrMsg("wrong.declaration.in.block")
             true
           } else {

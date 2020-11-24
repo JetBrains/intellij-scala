@@ -24,7 +24,7 @@ object RefineStat extends ParsingRule {
       case ScalaTokenTypes.kTYPE =>
         if (!Def()) {
           if (!Dcl(isMod = false)) {
-            EmptyDcl.parse(builder, isMod = false)
+            EmptyDcl(isMod = false)
           }
         }
         true
@@ -34,7 +34,7 @@ object RefineStat extends ParsingRule {
           true
         }
         else {
-          EmptyDcl.parse(builder, isMod = false)
+          EmptyDcl(isMod = false)
           true
         }
       case _ =>

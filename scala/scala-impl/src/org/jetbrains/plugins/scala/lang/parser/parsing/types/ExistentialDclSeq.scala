@@ -25,7 +25,7 @@ object ExistentialDclSeq extends ParsingRule {
     builder.getTokenType match {
       case ScalaTokenTypes.kTYPE | ScalaTokenTypes.kVAL =>
         if (!Dcl(isMod = false)) {
-          EmptyDcl.parse(builder, isMod = false)
+          EmptyDcl(isMod = false)
         }
       case _ =>
         //builder error ScalaBundle.message("wrong.existential.declaration")
@@ -36,7 +36,7 @@ object ExistentialDclSeq extends ParsingRule {
       builder.getTokenType match {
         case ScalaTokenTypes.kTYPE | ScalaTokenTypes.kVAL =>
           if (!Dcl(isMod = false)) {
-            EmptyDcl.parse(builder, isMod = false)
+            EmptyDcl(isMod = false)
           }
         case _ =>
           builder error ScalaBundle.message("wrong.existential.declaration")

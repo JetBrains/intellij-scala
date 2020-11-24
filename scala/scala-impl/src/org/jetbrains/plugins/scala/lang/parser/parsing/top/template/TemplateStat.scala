@@ -27,8 +27,8 @@ sealed abstract class Stat extends ParsingRule {
       case _ if Extension() => true
       case _ =>
         parseDeclaration() ||
-          EmptyDcl.parse(builder) ||
-          Expr.parse(builder)
+          EmptyDcl() ||
+          Expr()
     }
 
   protected def parseDeclaration()(implicit builder: ScalaPsiBuilder): Boolean =
