@@ -38,7 +38,7 @@ object Diagrams {
   }
 
   private def getMinMaxTimestamps(progressState: CompilationProgressState): Option[(Timestamp, Timestamp)] = {
-    val timestamps = progressState.values.flatMap { info =>
+    val timestamps = progressState.toSeq.map(_._2).flatMap { info =>
       Seq(info.startTime, info.updateTime) ++ info.finishTime.toSeq
     }
     for {

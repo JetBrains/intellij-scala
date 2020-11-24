@@ -11,29 +11,27 @@ private class UpdateCompilationProgressListener(project: Project)
     val state = CompilationProgressStateManager.get(project)
     val newStateOption = for {
       compilationUnitId <- event.compilationUnitId
-      newProgressInfo <- event match {
+      newState <- Option(event).collect {
         case _: CompilerEvent.CompilationStarted =>
-          Some(CompilationProgressInfo(
+          state.put(compilationUnitId, CompilationProgressInfo(
             startTime = timestamp,
             finishTime = None,
             updateTime = timestamp,
             progress = 0.0
           ))
         case CompilerEvent.ProgressEmitted(_, _, progress) =>
-          state.get(compilationUnitId).map(_.copy(
+          state.updateLast(compilationUnitId)(_.copy(
             updateTime = timestamp,
             progress = progress
           ))
         case _: CompilerEvent.CompilationFinished =>
-          state.get(compilationUnitId).map(_.copy(
+          state.updateLast(compilationUnitId)(_.copy(
             finishTime = Some(timestamp),
             updateTime = timestamp,
             progress = 1.0
           ))
-        case _ =>
-          None
       }
-    } yield state.updated(compilationUnitId, newProgressInfo)
+    } yield newState
     newStateOption.foreach(CompilationProgressStateManager.update(project, _))
   }
 }
