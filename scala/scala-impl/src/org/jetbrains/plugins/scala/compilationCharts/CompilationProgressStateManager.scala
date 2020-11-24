@@ -15,13 +15,13 @@ object CompilationProgressStateManager {
   }
 
   def erase(project: Project): CompilationProgressState =
-    update(project, Map.empty)
+    update(project, CompilationProgressState.Empty)
 
   private def mutableState(project: Project): MutableState =
     ServiceManager.getService(project, classOf[MutableState])
 
   @Service
   private final class MutableState {
-    var state: CompilationProgressState = Map.empty
+    var state: CompilationProgressState = CompilationProgressState.Empty
   }
 }
