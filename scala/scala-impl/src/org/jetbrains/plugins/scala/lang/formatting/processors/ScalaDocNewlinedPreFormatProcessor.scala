@@ -34,18 +34,16 @@ final class ScalaDocNewlinedPreFormatProcessor extends PreFormatProcessor with S
 
   override def process(element: ASTNode, range: TextRange): TextRange = {
     val psiElement = element.getPsi
-    val scalaSettings = ScalaCodeStyleSettings.getInstance(psiElement.getProject)
+    if (psiElement == null) return range
+    if (!psiElement.isValid) return range
+    if (!psiElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return range
 
+    val scalaSettings = ScalaCodeStyleSettings.getInstance(psiElement.getProject)
     if (needToProcess(psiElement, range, scalaSettings)) {
-      Option(psiElement)
-        .filter(_.isValid)
-        .filter(_.getLanguage.isKindOf(ScalaLanguage.INSTANCE))
-        .map(processScalaElement(_, range, scalaSettings))
-        .map(range.grown)
-        .getOrElse(range)
-    } else {
-      range
+      val delta = processScalaElement(psiElement, range, scalaSettings)
+      range.grown(delta)
     }
+    else range
   }
 
   private def processScalaElement(psiElement: PsiElement, range: TextRange, scalaSettings: ScalaCodeStyleSettings): Int = {
