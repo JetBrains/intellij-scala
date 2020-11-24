@@ -480,8 +480,6 @@
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.lang.formatting.ReformatOnCompileTask"/>
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.EnsureModulesHaveDifferentProdAndTestOutputsTask"/>
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.externalHighlighters.EraseCompilerProcessJdkOnce"/>
-        <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compilationCharts.EraseCompilationProgressStateTask"/>
-        <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compilationCharts.CompileServerMetricsCollecting"/>
 
         <applicationService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"
                             serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"/>
@@ -1773,7 +1771,7 @@
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
                   class="org.jetbrains.plugins.scala.externalHighlighters.DropProjectDataChangesBuildManagerListener"/>
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
-                  class="org.jetbrains.plugins.scala.compilationCharts.CompileServerMetricsCollecting"/>
+                  class="org.jetbrains.plugins.scala.compilationCharts.CompilationChartsBuildManagerListener"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.compilationCharts.ui.CompilationChartsBuildToolWindowNodeFactory"/>
         <!-- Formatter listeners-->
