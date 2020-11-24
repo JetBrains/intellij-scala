@@ -3,7 +3,6 @@ package lang
 package psi
 
 import java.{util => ju}
-
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.extapi.psi.{ASTDelegatePsiElement, StubBasedPsiElementBase}
@@ -27,6 +26,7 @@ import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt
 import org.jetbrains.plugins.scala.externalLibraries.bm4.{BetterMonadicForSupport, Implicit0Binding}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScPatternArgumentList}
@@ -892,7 +892,7 @@ object ScalaPsiUtil {
         if (priority(lid) < priority(rid)) true
         else if (priority(rid) < priority(lid)) false
         else if (associate(lid) != associate(rid)) true
-        else if (associate(lid) == -1) true
+        else if (associate(lid) == Associativity.Right) true
         else false
       }
       else {
@@ -901,7 +901,7 @@ object ScalaPsiUtil {
         if (priority(lid) < priority(rid)) false
         else if (priority(rid) < priority(lid)) true
         else if (associate(lid) != associate(rid)) true
-        else if (associate(lid) == -1) false
+        else if (associate(lid) == Associativity.Right) false
         else true
       }
     }

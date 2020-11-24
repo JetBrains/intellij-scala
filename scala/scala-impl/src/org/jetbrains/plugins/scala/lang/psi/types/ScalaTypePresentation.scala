@@ -6,6 +6,7 @@ package types
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.KindProjectorSimplifyTypeProjectionInspection
+import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixExpr
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
@@ -262,7 +263,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
     def infixTypeText(op: PsiNamedElement, left: ScType, right: ScType, printArgsFun: ScType => String): String = {
       val assoc = InfixExpr.associate(op.name)
 
-      def componentText(`type`: ScType, requiredAssoc: Int) = {
+      def componentText(`type`: ScType, requiredAssoc: Associativity.LeftOrRight) = {
         val needParenthesis = `type` match {
           case ParameterizedType(InfixDesignator(newOp), _) =>
             assoc != InfixExpr.associate(newOp.name) || assoc == requiredAssoc
@@ -275,7 +276,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
       val opRendered =
         if (options.renderInfixType) nameRenderer.renderName(op)
         else nameRenderer.escapeName(op.name)
-      s"${componentText(left, -1)} $opRendered ${componentText(right, 1)}"
+      s"${componentText(left, Associativity.Right)} $opRendered ${componentText(right, Associativity.Left)}"
     }
 
     def innerTypeText(

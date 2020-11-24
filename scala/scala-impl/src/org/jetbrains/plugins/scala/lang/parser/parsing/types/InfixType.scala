@@ -9,7 +9,6 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.types.InfixType.{Associativity, NoAssoc, LeftAssoc, RightAssoc}
 
 /*
  * InfixType ::= CompoundType {id [nl] CompoundType}
@@ -17,11 +16,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.InfixType.{Associat
 object InfixType extends InfixType {
   override protected def componentType: Type = CompoundType
   override protected def errorMessage: String = ScalaBundle.message("compound.type.expected")
-
-  private sealed abstract class Associativity
-  private final case object LeftAssoc extends Associativity
-  private final case object RightAssoc extends Associativity
-  private final case object NoAssoc extends Associativity
 }
 
 trait InfixType {
@@ -53,7 +47,7 @@ trait InfixType {
 
     var couldBeVarArg = false
     var count = 0
-    var assoc: Associativity = NoAssoc
+    var assoc: Associativity = Associativity.NoAssociativity
 
     while (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && (!builder.newlineBeforeCurrentToken) &&
       (!star || builder.getTokenText != "*") && (!isPattern || builder.getTokenText != "|")) {
@@ -65,19 +59,19 @@ trait InfixType {
       s.last match {
         case ':' =>
           assoc match {
-            case NoAssoc  => assoc = RightAssoc
-            case LeftAssoc  => builder error ScalaBundle.message("wrong.type.associativity")
-            case RightAssoc =>
+            case Associativity.NoAssociativity  => assoc = Associativity.Right
+            case Associativity.Left  => builder error ScalaBundle.message("wrong.type.associativity")
+            case Associativity.Right =>
           }
         case _ =>
           assoc match {
-            case NoAssoc  => assoc = LeftAssoc
-            case LeftAssoc  =>
-            case RightAssoc => builder error ScalaBundle.message("wrong.type.associativity")
+            case Associativity.NoAssociativity  => assoc = Associativity.Left
+            case Associativity.Left  =>
+            case Associativity.Right => builder error ScalaBundle.message("wrong.type.associativity")
           }
       }
       parseId(builder)
-      if (assoc == RightAssoc) {
+      if (assoc == Associativity.Right) {
         val newMarker = builder.mark
         markerList ::= newMarker
       }
@@ -92,7 +86,7 @@ trait InfixType {
         builder.error(errorMessage)
       }
 
-      if (assoc == LeftAssoc) {
+      if (assoc == Associativity.Left) {
         val newMarker = infixTypeMarker.precede
         infixTypeMarker.done(ScalaElementType.INFIX_TYPE)
         infixTypeMarker = newMarker
@@ -100,7 +94,7 @@ trait InfixType {
     }
     //final ops closing
     if (count>0) {
-      if (assoc == LeftAssoc) {
+      if (assoc == Associativity.Left) {
         if (couldBeVarArg && builder.lookBack(ScalaTokenTypes.tIDENTIFIER) && count == 1) {
           infixTypeMarker.rollbackTo()
           parseId(builder)
@@ -113,7 +107,7 @@ trait InfixType {
       }
     }
     else {
-      if (assoc == LeftAssoc) {
+      if (assoc == Associativity.Left) {
         infixTypeMarker.drop()
       }
       else {

@@ -60,9 +60,9 @@ object InfixExpr extends ParsingRule {
           exit = true
         }
       }
-      val setMarker = builder.mark
-      val gcMarker = builder.mark
-      val opMarker = builder.mark
+      val setMarker = builder.mark()
+      val gcMarker = builder.mark()
+      val opMarker = builder.mark()
       builder.advanceLexer() //Ate id
       opMarker.done(ScalaElementType.REFERENCE_EXPRESSION)
 
@@ -77,7 +77,7 @@ object InfixExpr extends ParsingRule {
         exitOf = false
       } else {
         backupMarker.drop()
-        backupMarker = builder.mark
+        backupMarker = builder.mark()
         if (!PrefixExpr()) {
           setMarker.rollbackTo()
           count = 0
@@ -105,14 +105,13 @@ object InfixExpr extends ParsingRule {
     }
     true
   }
-  //private var assoc: Int = 0  //this mark associativity: left - 1, right - -1
 
   //compares two operators a id2 b id1 c
   private def compar(id1: String, id2: String, builder: PsiBuilder): Boolean = {
     if (priority(id1, assignments = true) < priority(id2, assignments = true)) true //  a * b + c  =((a * b) + c)
     else if (priority(id1, assignments = true) > priority(id2, assignments = true)) false //  a + b * c = (a + (b * c))
     else if (associate(id1) == associate(id2))
-      if (associate(id1) == -1) true
+      if (associate(id1) == Associativity.Right) true
       else false
     else {
       builder error ErrMsg("wrong.type.associativity")
@@ -121,10 +120,10 @@ object InfixExpr extends ParsingRule {
   }
 
   //Associations of operator
-  def associate(id: String): Int = {
+  def associate(id: String): Associativity.LeftOrRight = {
     id.charAt(id.length - 1) match {
-      case ':' => -1 // right
-      case _ => +1 // left
+      case ':' => Associativity.Right
+      case _ => Associativity.Left
     }
   }
 }
