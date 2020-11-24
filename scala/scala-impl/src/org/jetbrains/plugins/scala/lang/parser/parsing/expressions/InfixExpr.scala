@@ -5,10 +5,10 @@ package parsing
 package expressions
 
 import com.intellij.lang.PsiBuilder
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.TypeArgs
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.priority
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.{isSymbolicIdentifier, priority}
 
 
 /**
@@ -34,7 +34,7 @@ object InfixExpr extends ParsingRule {
       return false
     }
     var exitOf = true
-    while (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && !builder.newlineBeforeCurrentToken && exitOf) {
+    while (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && shouldContinue && exitOf) {
       //need to know associativity
       val s = builder.getTokenText
 
@@ -105,6 +105,44 @@ object InfixExpr extends ParsingRule {
     }
     true
   }
+
+  // first-set of Expr()
+  private val startsExpression = {
+    import ScalaTokenTypes._
+    import ScalaTokenType._
+    Set(
+      tLBRACE, tLPARENTHESIS,
+      tIDENTIFIER, tUNDER,
+      tCHAR, tSYMBOL,
+      tSTRING, tWRONG_STRING, tMULTILINE_STRING, tINTERPOLATED_STRING,
+      kDO, kFOR, kWHILE, kIF, kTRY,
+      kNULL, kTRUE, kFALSE, kTHROW, kRETURN, kSUPER,
+      Long, Integer, Double, Float,
+      NewKeyword,
+      InlineKeyword, SpliceStart, QuoteStart
+    )
+  }
+
+  private def shouldContinue(implicit builder: ScalaPsiBuilder): Boolean =
+    !builder.newlineBeforeCurrentToken || {
+      if (builder.isScala3) {
+        // In scala 3 the infix operator may be on the next line
+        // but only if
+        // - it is a symbolic identifier,
+        // - followed by at least one whitespace, and
+        // - the next token is in the same line and this token can start an expression
+        builder.rawLookup(1) == ScalaTokenTypes.tWHITE_SPACE_IN_LINE &&
+          isSymbolicIdentifier(builder.getTokenText) && {
+          val rollbackMarker = builder.mark()
+          try {
+            builder.advanceLexer() // ate identifier
+            startsExpression(builder.getTokenType) &&
+              builder.findPreviousNewLine.isEmpty
+          } finally rollbackMarker.rollbackTo()
+        }
+
+      } else false
+    }
 
   //compares two operators a id2 b id1 c
   private def compar(id1: String, id2: String, builder: PsiBuilder): Boolean = {

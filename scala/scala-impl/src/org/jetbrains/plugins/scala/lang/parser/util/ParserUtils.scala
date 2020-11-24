@@ -20,6 +20,8 @@ object ParserUtils {
     case id => id.head != '=' && id.last == '='
   }
 
+  def isSymbolicIdentifier(s: String): Boolean =
+    !s.forall(_.isUnicodeIdentifierPart)
 
   /** Defines the precedence of an infix operator, according
     * to its first character.
