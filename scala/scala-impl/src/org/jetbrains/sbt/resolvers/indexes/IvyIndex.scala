@@ -33,12 +33,7 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
   private var (_, _, innerTimestamp, currentVersion, mode) = loadProps()
 
   private def checkStorage(): Unit = {
-    if (artifactToGroupMap.isCorrupted ||
-        groupToArtifactMap.isCorrupted ||
-        groupArtifactToVersionMap.isCorrupted ||
-        fqNameToGroupArtifactVersionMap.isCorrupted ||
-        currentVersion.toInt < CURRENT_INDEX_VERSION.toInt || hasIndexModeChanged)
-    {
+    if (currentVersion.toInt < CURRENT_INDEX_VERSION.toInt || hasIndexModeChanged) {
       close()
       deleteIndex()
       artifactToGroupMap = createPersistentMap(indexDir / Paths.ARTIFACT_TO_GROUP_FILE)
