@@ -5,7 +5,6 @@ package parsing
 package expressions
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 import scala.annotation.tailrec
@@ -24,7 +23,7 @@ trait ExprInIndentationRegion extends ParsingRule {
     }
 
     val blockMarker = builder.mark()
-    val aBlockWasParsed = builder.withIndentationWidth(indentationForExprBlock) {
+    builder.withIndentationWidth(indentationForExprBlock) {
 
       blockMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_WS_AND_COMMENT_TOKENS, null)
       if (!exprKind()) {
@@ -48,14 +47,12 @@ trait ExprInIndentationRegion extends ParsingRule {
           isBlock
         }
       }
-      parseRest(isBlock = false)
-    }
 
-
-    if (End() || aBlockWasParsed) {
-      blockMarker.done(ScalaElementType.BLOCK)
-    } else {
-      blockMarker.drop()
+      if (parseRest(isBlock = false)) {
+        blockMarker.done(ScalaElementType.BLOCK)
+      } else {
+        blockMarker.drop()
+      }
     }
 
     true

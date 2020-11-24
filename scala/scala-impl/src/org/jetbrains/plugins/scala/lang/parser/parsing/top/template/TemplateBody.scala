@@ -6,7 +6,6 @@ package top
 package template
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SelfType
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
@@ -35,17 +34,18 @@ sealed abstract class Body extends ParsingRule {
 
         val currentIndent = builder.currentIndentationWidth
         builder.findPreviousIndent match {
+          case None =>
+            // if something else comes after the colon in the same line
+            // we have to rollback because it might be a typing like
+            //
+            //   call(new Blob: Ty)
+            marker.rollbackTo()
+            builder.restoreNewlinesState()
+            return false
           case indentO@Some(indent) if indent > currentIndent =>
             BlockIndentation.noBlock -> indentO
-          case Some(indent) if indent == currentIndent && End() =>
-            // for the special case that the template definition doesn't contain
-            // any statements, but is ended by an end statement
-            marker.done(ScalaElementType.TEMPLATE_BODY)
-            builder.restoreNewlinesState()
-            return true
           case _ =>
-            builder error ScalaBundle.message("expected.indented.template.body")
-            marker.rollbackTo()
+            marker.done(ScalaElementType.TEMPLATE_BODY)
             builder.restoreNewlinesState()
             return true
         }
@@ -63,7 +63,6 @@ sealed abstract class Body extends ParsingRule {
     }
 
     blockIndentation.drop()
-    End()
     builder.restoreNewlinesState()
     marker.done(ScalaElementType.TEMPLATE_BODY)
 

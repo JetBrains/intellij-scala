@@ -6,7 +6,6 @@ package expressions
 
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClauses
@@ -126,7 +125,6 @@ object Expr1 extends ParsingRule {
           case _ =>
             finallyMarker.drop()
         }
-        End()
         exprMarker.done(ScalaElementType.TRY_STMT)
         return true
       //----------------do statement----------------//
@@ -395,7 +393,6 @@ object Expr1 extends ParsingRule {
       case _ => builder error ErrMsg("case.clauses.expected")
     }
 
-    End()
     exprMarker.done(ScalaElementType.MATCH_STMT)
   }
 }

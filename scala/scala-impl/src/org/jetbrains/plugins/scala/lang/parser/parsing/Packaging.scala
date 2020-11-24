@@ -4,7 +4,6 @@ package parser
 package parsing
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.QualId
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
@@ -50,14 +49,8 @@ object Packaging extends ParsingRule {
             builder.findPreviousIndent match {
               case indentO@Some(indent) if indent > currentIndent =>
                 BlockIndentation.noBlock -> indentO
-              case Some(indent) if indent == currentIndent && End() =>
-                // for the special case that the template definition doesn't contain
-                // any statements, but is ended by an end statement
-                packMarker.done(ScalaElementType.PACKAGING)
-                return true
               case _ =>
-                builder error ScalaBundle.message("expected.indented.package.statement")
-                packMarker.drop()
+                packMarker.done(ScalaElementType.PACKAGING)
                 return true
             }
           case _ =>
@@ -74,7 +67,6 @@ object Packaging extends ParsingRule {
           }
         }
         blockIndentation.drop()
-        End()
         builder.restoreNewlinesState()
         packMarker.done(ScalaElementType.PACKAGING)
         true

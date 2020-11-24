@@ -9,11 +9,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 object End extends ParsingRule {
   private val isAllowedEndToken = Set(
+    ScalaTokenTypes.kVAL,
     ScalaTokenTypes.kIF,
     ScalaTokenTypes.kWHILE,
     ScalaTokenTypes.kFOR,
     ScalaTokenTypes.kMATCH,
     ScalaTokenTypes.kTRY,
+    ScalaTokenTypes.kTHIS,
     ScalaTokenType.NewKeyword,
     ScalaTokenType.GivenKeyword,
     ScalaTokenType.ExtensionKeyword,
@@ -25,24 +27,14 @@ object End extends ParsingRule {
       return false
 
     if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER &&
-          builder.getTokenText == "end") {
-      builder.findPreviousIndent match {
-        case Some(indent) if indent == builder.currentIndentationWidth =>
-          val marker = builder.mark()
-          builder.remapCurrentToken(ScalaTokenType.EndKeyword)
-          builder.advanceLexer()
-
-          if (isAllowedEndToken(builder.getTokenType)) {
-            builder.advanceLexer()
-            marker.done(ScalaElementType.END_STMT)
-            true
-          } else {
-            marker.rollbackTo()
-            false
-          }
-        case _ =>
-          false
-      }
+          builder.getTokenText == "end" &&
+          isAllowedEndToken(builder.lookAhead(1))) {
+      val marker = builder.mark()
+      builder.remapCurrentToken(ScalaTokenType.EndKeyword)
+      builder.advanceLexer() // ate end
+      builder.advanceLexer() // ate end-token
+      marker.done(ScalaElementType.END_STMT)
+      true
     } else false
   }
 }
