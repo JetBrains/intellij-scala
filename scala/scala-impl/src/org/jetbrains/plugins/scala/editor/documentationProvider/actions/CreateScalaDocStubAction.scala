@@ -139,9 +139,13 @@ object CreateScalaDocStubAction {
         PsiDocumentManager.getInstance(project).commitDocument(psiDocument)
       }
 
-      val docRange = docOwner.getDocComment.getTextRange
-      inWriteAction {
-        CodeStyleManager.getInstance(project).reformatText(docOwner.getContainingFile, docRange.getStartOffset, docRange.getEndOffset + 2)
+      docOwner.docComment match {
+        case Some(docComment) =>
+          val docRange = docComment.getTextRange
+          inWriteAction {
+            CodeStyleManager.getInstance(project).reformatText(docOwner.getContainingFile, docRange.getStartOffset, docRange.getEndOffset + 2)
+          }
+        case None => // I don't know when it could be the case, but just in case (see EA-246924)
       }
     }
     CommandProcessor.getInstance().executeCommand(project, commandBody, ScalaEditorBundle.message("action.create.scaladoc.stub"), null, psiDocument)
