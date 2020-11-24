@@ -226,23 +226,24 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   }
 
 
-  override def fakeCompanionModule: Option[ScObject] = {
-    if (this.isInstanceOf[ScObject]) None
-    else {
+  override def fakeCompanionModule: Option[ScObject] = this match {
+    case _: ScObject => None
+    case enm: ScEnum => enm.syntheticClass.flatMap(_.fakeCompanionModule)
+    case _ =>
       baseCompanionModule match {
-        case Some(_: ScObject) => None
+        case Some(_: ScObject)                                              => None
         case _ if !isCase && !SyntheticMembersInjector.needsCompanion(this) => None
-        case _ => calcFakeCompanionModule()
+        case _                                                              => calcFakeCompanionModule()
       }
     }
-  }
 
   @Cached(ModTracker.libraryAware(this), this)
   private def calcFakeCompanionModule(): Option[ScObject] = {
     val accessModifier = getModifierList.accessModifier match {
-      case None => ""
+      case None     => ""
       case Some(am) => AccessModifierRenderer.simpleTextHtmlEscaped(am) + " "
     }
+
     val objText =
       s"""${accessModifier}object $name {
          |  //Generated synthetic object
@@ -252,6 +253,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
       case null => this
       case next => next
     }
+
     createObjectWithContext(objText, getContext, child) match {
       case null => None
       case obj =>
