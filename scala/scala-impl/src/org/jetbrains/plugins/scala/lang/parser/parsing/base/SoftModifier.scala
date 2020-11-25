@@ -27,7 +27,7 @@ sealed abstract class SoftModifier(modifiers: ScalaModifier*) extends ParsingRul
       // * a definition start;
       // * another soft modifier;
       val result = builder.getTokenType match {
-        case `kCASE` => isCaseDefinition.contains(builder.lookAhead(0))
+        case `kCASE` => isCaseDefinition.contains(builder.lookAhead(1))
         case tokenType if isDefinitionStart.contains(tokenType) ||
           isHardModifier.contains(tokenType) => true
         case IsSoftModifier(_) => isFollowedBySoftModifier()
@@ -35,7 +35,10 @@ sealed abstract class SoftModifier(modifiers: ScalaModifier*) extends ParsingRul
       }
 
       if (result) marker.drop()
-      else marker.rollbackTo()
+      else {
+        marker.rollbackTo()
+        builder.remapCurrentToken(ScalaTokenTypes.tIDENTIFIER)
+      }
 
       result
     case _ => false

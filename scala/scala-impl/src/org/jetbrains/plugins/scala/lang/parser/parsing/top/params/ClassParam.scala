@@ -17,22 +17,22 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.ParamType
 * @author Alexander Podkhalyuzin
 * Date: 08.02.2008
 */
-object ClassParam {
+object ClassParam extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val classParamMarker = builder.mark
 
-    Annotations()(builder)
+    Annotations()
 
     //parse modifiers
-    val modifierMarker = builder.mark
+    val modifierMarker = builder.mark()
     var isModifier = false
-    while (Modifier.parse(builder)) {
+    while (Modifier()) {
       isModifier = true
     }
     modifierMarker.done(ScalaElementType.MODIFIERS)
 
-    if (builder.isScala3) {
+    if (builder.isScala3 && canFollowInlineKeyword(builder.lookAhead(1))) {
       // It's syntactically allowed by the parser, though it is semantically not allowed
       builder.tryParseSoftKeyword(ScalaTokenType.InlineKeyword)
     }
@@ -59,7 +59,7 @@ object ClassParam {
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON =>
         builder.advanceLexer() //Ate ':'
-        if (!ParamType.parse(builder)) {
+        if (!ParamType()) {
           builder.error(ScalaBundle.message("parameter.type.expected"))
         }
       case _ =>
@@ -70,7 +70,7 @@ object ClassParam {
     builder.getTokenType match {
       case ScalaTokenTypes.tASSIGN =>
         builder.advanceLexer() //Ate '='
-        if (!Expr.parse(builder)) {
+        if (!Expr()) {
           builder error ScalaBundle.message("wrong.expression")
         }
       case _ =>
@@ -78,4 +78,10 @@ object ClassParam {
     classParamMarker.done(ScalaElementType.CLASS_PARAM)
     true
   }
+
+  private val canFollowInlineKeyword = Set(
+    ScalaTokenTypes.kVAL,
+    ScalaTokenTypes.kVAR,
+    ScalaTokenTypes.tIDENTIFIER
+  )
 }
