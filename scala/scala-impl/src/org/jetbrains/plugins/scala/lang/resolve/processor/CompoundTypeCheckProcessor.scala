@@ -284,7 +284,7 @@ class CompoundTypeCheckTypeAliasProcessor(
           case _ => throw new IllegalArgumentException("Type alias must be either a declaration of definition.")
         }
       case tp: ScTypeAliasDeclaration => if (checkDeclarationForTypeAlias(tp)) return false
-      case _ => throw new IllegalArgumentException("Type alias must be either a declaration of definition.")
+      case _ => ()
     }
     true
   }
