@@ -39,7 +39,10 @@ class ScStringLiteralImpl(node: ASTNode,
       try {
         StringContext.processEscapes(text) // for octal escape sequences
       } catch {
-        case _: StringContext.InvalidEscapeException => StringUtil.unescapeStringCharacters(getText)
+        case _: StringContext.InvalidEscapeException =>
+          StringUtil.unescapeStringCharacters(getText)
+        case e: IllegalArgumentException if e.getMessage.contains("invalid unicode escape") =>
+          StringUtil.unescapeStringCharacters(getText)
       }
     case _ => text
   }
