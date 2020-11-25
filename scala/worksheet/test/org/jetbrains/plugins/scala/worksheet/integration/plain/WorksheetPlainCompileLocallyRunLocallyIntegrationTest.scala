@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.worksheet.integration.plain
 import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
 import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRunTestSettings}
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
-import org.jetbrains.plugins.scala.{FlakyTests, LatestScalaVersions, WorksheetEvaluationTests}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, WorksheetEvaluationTests}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[WorksheetEvaluationTests]))
@@ -21,7 +21,6 @@ class WorksheetPlainCompileLocallyRunLocallyIntegrationTest
 
   // 1 test should be enough, not-using compile server os something legacy and in future we will probably
   // leave only one option with using compile server
-  @Category(Array(classOf[FlakyTests]))
   def testHealthCheck(): Unit = {
     doRenderTest(
       """import java.io.PrintStream
