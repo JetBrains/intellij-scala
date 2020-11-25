@@ -8,6 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction}
+import scala.util.Try
 
 import scala.jdk.CollectionConverters._
 
@@ -36,8 +37,8 @@ object ScalaPackageObjectFilter {
       val declaringClass = matcher.group(1)
       val methodName = matcher.group(2)
       val fileName = matcher.group(3)
-      val lineNumber = matcher.group(4)
-      new StackTraceElement(declaringClass, methodName, fileName, Integer.parseInt(lineNumber))
+      val lineNumber = Try(Integer.parseInt(matcher.group(4))).getOrElse(-1)
+      new StackTraceElement(declaringClass, methodName, fileName, lineNumber)
     }
     else null
   }
