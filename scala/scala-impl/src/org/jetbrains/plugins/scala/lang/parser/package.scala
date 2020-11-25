@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang
 
-import com.intellij.lang.PsiBuilder
+import com.intellij.lang.{PsiBuilder, WhitespacesAndCommentsBinder}
 import com.intellij.psi.tree.IElementType
 
 import scala.annotation.tailrec
@@ -88,14 +88,13 @@ package object parser {
       } else false
     }
 
-    def tryParseSoftKeywordWithRollbackMarker(softKeyword: IElementType): Option[PsiBuilder.Marker] = {
+    def tryParseSoftKeywordWithRollbackMarker(softKeyword: IElementType): Option[PsiBuilder.Marker] =
       if (repr.getTokenText == softKeyword.toString) {
-        val marker = repr.mark()
+        val marker = new SoftKeywordRollbackMarker(repr, repr.getTokenType)
         repr.remapCurrentToken(softKeyword)
         repr.advanceLexer()
         Some(marker)
       } else None
-    }
 
     def consumeTrailingComma(expectedBrace: IElementType): Boolean = {
       val result = repr.isTrailingComma &&
@@ -153,5 +152,30 @@ package object parser {
     def isPrecededByNewIndent: Boolean = {
       findPreviousIndent.exists(_ > repr.currentIndentationWidth)
     }
+  }
+
+  private class SoftKeywordRollbackMarker(builder: PsiBuilder, oldTokenType: IElementType) extends PsiBuilder.Marker {
+    private val inner = builder.mark()
+
+    override def precede(): PsiBuilder.Marker = inner.precede()
+    override def doneBefore(`type`: IElementType, before: PsiBuilder.Marker): Unit =
+      inner.doneBefore(`type`, before)
+    override def doneBefore(`type`: IElementType, before: PsiBuilder.Marker, errorMessage: String): Unit =
+      inner.doneBefore(`type`, before, errorMessage)
+    override def errorBefore(message: String, before: PsiBuilder.Marker): Unit =
+      inner.errorBefore(message, before)
+    override def drop(): Unit = inner.drop()
+    override def rollbackTo(): Unit = {
+      inner.rollbackTo()
+      builder.remapCurrentToken(oldTokenType)
+    }
+    override def done(`type`: IElementType): Unit =
+      inner.done(`type`)
+    override def collapse(`type`: IElementType): Unit =
+      inner.collapse(`type`)
+    override def error(message: String): Unit =
+      inner.error(message)
+    override def setCustomEdgeTokenBinders(left: WhitespacesAndCommentsBinder, right: WhitespacesAndCommentsBinder): Unit =
+      inner.setCustomEdgeTokenBinders(left, right)
   }
 }
