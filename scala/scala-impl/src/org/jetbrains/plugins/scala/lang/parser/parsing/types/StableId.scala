@@ -36,13 +36,13 @@ object StableId {
         if (stopAtImportEnd(builder, forImport)) {
           marker.done(element)
           return true
-        } else if (builder.getTokenType == tDOT && !builder.lookAhead(tDOT, kTYPE)) {
+        } else if (builder.getTokenType == tDOT && !builder.lookAhead(tDOT, kTYPE) && !isMatchAfterDot(builder)) {
           val nm = marker.precede
           if (builder.lookAhead(tDOT, kTHIS) || builder.lookAhead(tDOT, kSUPER))
             marker.done(REFERENCE)
           else
             marker.done(element)
-          builder.advanceLexer()
+          builder.advanceLexer() // ate dot
           builder.getTokenType match {
             case ScalaTokenTypes.tIDENTIFIER => return parseQualId(builder, nm, element, forImport)
             case ScalaTokenTypes.kTHIS => return parseThisReference(builder, nm, element, forImport)
@@ -127,7 +127,7 @@ object StableId {
     if (stopAtImportEnd(builder, forImport)) {
       nm.done(element)
       true
-    } else if (builder.getTokenType == tDOT && !builder.lookAhead(tDOT, kTYPE)) {
+    } else if (builder.getTokenType == tDOT && !builder.lookAhead(tDOT, kTYPE) && !isMatchAfterDot(builder)) {
       val nm1 = nm.precede()
       nm.done(element)
       builder.advanceLexer()
@@ -150,7 +150,7 @@ object StableId {
     if (stopAtImportEnd(builder, forImport)) {
       marker.done(element)
       true
-    } else if (builder.getTokenType == tDOT && !builder.lookAhead(tDOT, kTYPE)) {
+    } else if (builder.getTokenType == tDOT && !builder.lookAhead(tDOT, kTYPE) && !isMatchAfterDot(builder)) {
       val nm = marker.precede
       marker.done(element)
       builder.advanceLexer() // ate dot
@@ -167,4 +167,6 @@ object StableId {
     builder.lookAhead(tDOT, tUNDER) || builder.lookAhead(tDOT, tLBRACE)
   }
 
+  private def isMatchAfterDot(builder: ScalaPsiBuilder): Boolean =
+    builder.isScala3 && builder.lookAhead(tDOT, kMATCH)
 }

@@ -289,4 +289,37 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_match_after_dot(): Unit = checkTree(
+    """
+      |x.y.match
+      |  case _ => ???
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  MatchStatement
+      |    ReferenceExpression: x.y
+      |      ReferenceExpression: x
+      |        PsiElement(identifier)('x')
+      |      PsiElement(.)('.')
+      |      PsiElement(identifier)('y')
+      |    PsiElement(.)('.')
+      |    PsiElement(match)('match')
+      |    PsiWhiteSpace('\n  ')
+      |    CaseClauses
+      |      CaseClause
+      |        PsiElement(case)('case')
+      |        PsiWhiteSpace(' ')
+      |        WildcardPattern
+      |          PsiElement(_)('_')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=>)('=>')
+      |        PsiWhiteSpace(' ')
+      |        BlockOfExpressions
+      |          ReferenceExpression: ???
+      |            PsiElement(identifier)('???')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }

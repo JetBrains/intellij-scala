@@ -371,7 +371,7 @@ object Expr1 extends ParsingRule {
     exprMarker.done(ScalaElementType.IF_STMT)
   }
 
-  private def parseMatch(exprMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Unit = {
+  def parseMatch(exprMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Unit = {
     builder.advanceLexer() //Ate match
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE =>

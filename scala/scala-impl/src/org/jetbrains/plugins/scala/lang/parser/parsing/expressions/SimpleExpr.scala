@@ -148,6 +148,10 @@ object SimpleExpr extends ParsingRule {
             val tMarker = marker.precede
               marker.done(ScalaElementType.REFERENCE_EXPRESSION)
               subparse(tMarker)
+            case `kMATCH` =>
+              val tMarker = marker.precede()
+              Expr1.parseMatch(marker)
+              subparse(tMarker)
             case _ =>
               builder error ScalaBundle.message("identifier.expected")
               marker.drop()
