@@ -5,8 +5,11 @@ import com.intellij.codeInsight.daemon.impl.{DefaultHighlightInfoProcessor, Prog
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.markup.UIController
 import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
+import com.intellij.serviceContainer.AlreadyDisposedException
+import com.intellij.util.ui.EDT
 
 import java.util.{List => JList}
 import java.util.{ArrayList => JArrayList}
@@ -24,8 +27,14 @@ class CustomTrafficLightRendererContributor
     val project = editor.getProject
     new TrafficLightRenderer(project, editor.getDocument) {
       override def getDaemonCodeAnalyzerStatus(severityRegistrar: SeverityRegistrar): DaemonCodeAnalyzerStatus = {
+        def isHighlightingCompilerRunning(project: Project): Boolean = try {
+          HighlightingCompiler.get(project).isRunning
+        } catch {
+          case _: AlreadyDisposedException => false
+        }
+
         val compilerHighlightingInProgress =
-          HighlightingCompiler.get(project).isRunning && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)
+          isHighlightingCompilerRunning(project) && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)
         val status = super.getDaemonCodeAnalyzerStatus(severityRegistrar)
         status.errorAnalyzingFinished = status.errorAnalyzingFinished && !compilerHighlightingInProgress
         if (compilerHighlightingInProgress) {
