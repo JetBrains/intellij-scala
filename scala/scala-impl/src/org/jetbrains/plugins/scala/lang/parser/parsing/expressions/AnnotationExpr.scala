@@ -27,7 +27,7 @@ object AnnotationExpr {
     }
     
     builder.getTokenType match {
-      case ScalaTokenTypes.tLBRACE =>
+      case ScalaTokenTypes.tLBRACE if !builder.isScala3 =>
         if (builder.twoNewlinesBeforeCurrentToken) {
           annotExprMarker.done(ScalaElementType.ANNOTATION_EXPR)
           return true

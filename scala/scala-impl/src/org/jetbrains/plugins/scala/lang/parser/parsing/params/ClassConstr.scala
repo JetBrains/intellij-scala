@@ -5,6 +5,7 @@ package parsing
 package params
 
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.ConstrMods
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ClassParamClauses
 
@@ -18,6 +19,9 @@ abstract class ClassConstr(val dropConstructorIfEmpty: Boolean) extends ParsingR
 
     val idx = builder.getCurrentOffset
     val constructorMarker = builder.mark()
+    if (builder.isScala3 && !builder.newlineBeforeCurrentToken) {
+      Annotation.parse(builder)
+    }
     ConstrMods()
     ClassParamClauses()
     if (dropConstructorIfEmpty && idx == builder.getCurrentOffset) {
