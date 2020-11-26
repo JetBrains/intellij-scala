@@ -7,7 +7,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.KindProjectorSimplifyTypeProjectionInspection
 import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixExpr
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.operatorAssociativity
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -261,12 +261,12 @@ trait ScalaTypePresentation extends api.TypePresentation {
     }
 
     def infixTypeText(op: PsiNamedElement, left: ScType, right: ScType, printArgsFun: ScType => String): String = {
-      val assoc = InfixExpr.associate(op.name)
+      val assoc = operatorAssociativity(op.name)
 
       def componentText(`type`: ScType, requiredAssoc: Associativity.LeftOrRight) = {
         val needParenthesis = `type` match {
           case ParameterizedType(InfixDesignator(newOp), _) =>
-            assoc != InfixExpr.associate(newOp.name) || assoc == requiredAssoc
+            assoc != operatorAssociativity(newOp.name) || assoc == requiredAssoc
           case _ => false
         }
 

@@ -891,8 +891,8 @@ object ScalaPsiUtil {
         val rid = child.operation.getText
         if (priority(lid) < priority(rid)) true
         else if (priority(rid) < priority(lid)) false
-        else if (associate(lid) != associate(rid)) true
-        else if (associate(lid) == Associativity.Right) true
+        else if (operatorAssociativity(lid) != operatorAssociativity(rid)) true
+        else if (operatorAssociativity(lid) == Associativity.Right) true
         else false
       }
       else {
@@ -900,8 +900,8 @@ object ScalaPsiUtil {
         val rid = parent.operation.getText
         if (priority(lid) < priority(rid)) false
         else if (priority(rid) < priority(lid)) true
-        else if (associate(lid) != associate(rid)) true
-        else if (associate(lid) == Associativity.Right) false
+        else if (operatorAssociativity(lid) != operatorAssociativity(rid)) true
+        else if (operatorAssociativity(lid) == Associativity.Right) false
         else true
       }
     }

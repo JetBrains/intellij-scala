@@ -9,6 +9,7 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.util.PrecedenceClimbingInfixParsingRule
 
 /*
  * InfixType ::= CompoundType {id [nl] CompoundType}
@@ -26,6 +27,9 @@ trait InfixType {
   def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, star = false)
   def parse(builder: ScalaPsiBuilder, star: Boolean): Boolean = parse(builder,star,isPattern = false)
   def parse(builder: ScalaPsiBuilder, star: Boolean, isPattern: Boolean): Boolean = {
+    if (builder.isScala3) {
+      return parseInScala3(star, isPattern)(builder)
+    }
     implicit val b: ScalaPsiBuilder = builder
 
     var markerList = List.empty[PsiBuilder.Marker] //This list consist of markers for right-associated op
@@ -134,4 +138,30 @@ trait InfixType {
       false
     }
   }
+
+  private def parseInScala3(star: Boolean, isPattern: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
+    val infixParsingRule = new PrecedenceClimbingInfixParsingRule {
+      override protected def referenceElementType: IElementType = ScalaElementType.REFERENCE
+      override protected def infixElementType: IElementType = ScalaElementType.INFIX_TYPE
+
+      override protected def parseFirstOperator()(implicit builder: ScalaPsiBuilder): Boolean =
+        if (parseInfixWildcardType()) {
+          builder.getTokenText match {
+            case Bounds.UPPER | Bounds.LOWER => false
+            case _ => true
+          }
+        } else {
+          componentType.parse(builder, star, isPattern)
+        }
+
+      override protected def parseOperator()(implicit builder: ScalaPsiBuilder): Boolean =
+        parseInfixWildcardType() || componentType.parse(builder, star, isPattern)
+
+      override protected def shouldContinue(implicit builder: ScalaPsiBuilder): Boolean =
+        (!isPattern || builder.getTokenText != "|") && super.shouldContinue
+    }
+
+    infixParsingRule()
+  }
+
 }

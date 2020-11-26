@@ -8,11 +8,19 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 import scala.annotation.tailrec
 
 object ParserUtils {
+  //Associations of operator
+  def operatorAssociativity(id: String): Associativity.LeftOrRight = {
+    id.last match {
+      case ':' => Associativity.Right
+      case _ => Associativity.Left
+    }
+  }
 
   def isAssignmentOperator: String => Boolean = {
     case "==" | "!=" | "<=" | ">=" => false
