@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTupleTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScTuple, ScTypedExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScBlockExpr, ScTuple, ScTypedExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -137,6 +137,13 @@ private class ScalaTrailingCommaVisitor(settings: CodeStyleSettings) extends Sca
     val isCommaNext = next != null && next.getNode.getElementType == ScalaTokenTypes.tCOMMA
 
     val parent = trailingElement.getParent
+    val isSingleBlockExpresssion = parent match {
+      case args @ ScArgumentExprList(_: ScBlockExpr) =>
+        val isParenBefore = args.firstChild.exists(_.getNode.getElementType == ScalaTokenTypes.tLPARENTHESIS)
+        val isParenAfter = args.lastChild.exists(_.getNode.getElementType == ScalaTokenTypes.tRPARENTHESIS)
+        !(isParenBefore && isParenAfter)
+      case _ => false
+    }
     val project = trailingElement.getProject
     val oldTextLength: Int = parent.getTextLength
     try {
@@ -149,7 +156,7 @@ private class ScalaTrailingCommaVisitor(settings: CodeStyleSettings) extends Sca
             )
           }
         case TrailingCommaMode.TRAILING_COMMA_ADD_WHEN_MULTILINE =>
-          if (!isCommaNext && trailingElement.followedByNewLine()) {
+          if (!isCommaNext && trailingElement.followedByNewLine() && !isSingleBlockExpresssion) {
             val newComma = ScalaPsiElementFactory.createComma(project)
             CodeEditUtil.addChild(
               SourceTreeToPsiMap.psiElementToTree(parent),
