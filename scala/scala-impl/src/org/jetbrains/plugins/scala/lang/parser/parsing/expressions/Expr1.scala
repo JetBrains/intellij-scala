@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.{InScala3, ParserUtils}
 
 /*
  * Expr1 ::= ['inline'] 'if' '(' Expr ')' {nl} Expr [[semi] else Expr]
+ *         | ['inline'] ‘if’  Expr ‘then’ Expr [[semi] ‘else’ Expr]
  *         | 'while' '(' Expr ')' {nl} Expr
  *         | 'try' '{' Block '}' [catch CatchHandler] ['finally' Expr ]
  *         | 'do' Expr [semi] 'while' '(' Expr ')'
@@ -325,6 +326,8 @@ object Expr1 extends ParsingRule {
   private def parseIf(exprMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Unit = {
     builder.advanceLexer() //Ate if
     builder.getTokenType match {
+      case InScala3(_) if parseParenlessIfCondition() =>
+        // already parsed everything till after 'then'
       case ScalaTokenTypes.tLPARENTHESIS =>
         builder.advanceLexer() //Ate (
         builder.disableNewlines()
@@ -336,15 +339,6 @@ object Expr1 extends ParsingRule {
             builder error ErrMsg("rparenthesis.expected")
         }
         builder.restoreNewlinesState()
-      case _ if builder.isScala3 =>
-        if (!Expr()) {
-          builder error ErrMsg("wrong.expression")
-        }
-        if (builder.getTokenType == ScalaTokenType.ThenKeyword) {
-          builder.advanceLexer()
-        } else if (!builder.isPrecededByNewIndent) {
-          builder error ErrMsg("expected.then")
-        }
       case _ =>
         builder error ErrMsg("condition.expected")
     }
@@ -369,6 +363,27 @@ object Expr1 extends ParsingRule {
         rollbackMarker.rollbackTo()
     }
     exprMarker.done(ScalaElementType.IF_STMT)
+  }
+
+  def parseParenlessIfCondition()(implicit builder: ScalaPsiBuilder): Boolean = {
+    val startedWithLParen = builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS
+    val rollbackMarker = builder.mark()
+    val success = Expr() && (
+      if (builder.getTokenType == ScalaTokenType.ThenKeyword) {
+        builder.advanceLexer()
+        true
+      } else if (startedWithLParen) {
+        false
+      } else {
+        builder error ErrMsg("expected.then")
+        true
+      }
+    )
+
+    if (success) rollbackMarker.drop()
+    else rollbackMarker.rollbackTo()
+
+    success
   }
 
   def parseMatch(exprMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Unit = {
