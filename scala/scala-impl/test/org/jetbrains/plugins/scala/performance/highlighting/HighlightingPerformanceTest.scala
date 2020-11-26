@@ -1,15 +1,12 @@
 package org.jetbrains.plugins.scala
 package performance.highlighting
 
-
-import java.util.concurrent.TimeoutException
-
-import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
-import com.intellij.openapi.progress.util.StandardProgressIndicatorBase
 import com.intellij.psi.PsiFileFactory
+import com.intellij.testFramework.PlatformTestUtil
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
-import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.experimental.categories.Category
+
+import scala.util.Try
 
 /**
  * User: Alexander Podkhalyuzin
@@ -18,17 +15,15 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[SlowTests]))
 class HighlightingPerformanceTest extends ScalaFixtureTestCase {
   def doTest(text: String, TIMEOUT: Int): Unit = {
-    val file = PsiFileFactory.getInstance(myFixture.getProject)
-      .createFileFromText("dummy.scala", ScalaLanguage.INSTANCE, text, true, false)
-    TestUtils.assertTiming("Failed highlighting performance test", TIMEOUT,
-      () => try {
-          getFixture.allowTreeAccessForAllFiles()
-          myFixture.testHighlighting(false, false, false, file.getVirtualFile)
-        }
-        catch {
-          case e: RuntimeException =>
-        }
-      )
+
+    PlatformTestUtil.assertTiming("Failed highlighting performance test", TIMEOUT,
+      () => Try {
+        val file = PsiFileFactory.getInstance(myFixture.getProject)
+          .createFileFromText("dummy.scala", ScalaLanguage.INSTANCE, text, true, false)
+        getFixture.allowTreeAccessForAllFiles()
+        myFixture.testHighlighting(false, false, false, file.getVirtualFile)
+      }
+    )
   }
 
   def testPerformance(): Unit = {
