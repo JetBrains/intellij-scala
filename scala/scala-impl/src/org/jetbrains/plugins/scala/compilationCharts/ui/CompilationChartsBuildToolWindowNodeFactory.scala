@@ -3,10 +3,8 @@ package org.jetbrains.plugins.scala.compilationCharts.ui
 import com.intellij.build.events.impl.AbstractBuildEvent
 import com.intellij.build.events.{BuildEvent, BuildEventPresentationData, PresentableBuildEvent, StartBuildEvent}
 import com.intellij.build.{BuildProgressListener, BuildViewManager, DefaultBuildDescriptor}
-import com.intellij.concurrency.JobScheduler
 import com.intellij.execution.ui.ExecutionConsole
 import com.intellij.openapi.actionSystem.ActionGroup
-import com.intellij.openapi.components.{Service, ServiceManager}
 import com.intellij.openapi.project.{Project, ProjectManagerListener}
 
 import javax.swing.{Icon, JComponent}
@@ -14,9 +12,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.util.ui.extensions.ComponentExt
 
-import scala.concurrent.duration.DurationInt
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 class CompilationChartsBuildToolWindowNodeFactory
@@ -39,7 +35,7 @@ class CompilationChartsBuildToolWindowNodeFactory
     val buildViewManager = project.getService(classOf[BuildViewManager])
     val listener: BuildProgressListener = { (buildId, event) =>
       if (isJpsBuild(event)) {
-        val component = MainComponentHolder.createOrGet(project)
+        val component = CompilationChartsComponentHolder.createOrGet(project)
         buildViewManager.onEvent(buildId, new CompilationChartsBuildEvent(buildId, component))
       }
     }
@@ -64,34 +60,6 @@ object CompilationChartsBuildToolWindowNodeFactory {
       }
 
       override def consoleToolbarActions(): ActionGroup = null
-    }
-  }
-
-  @Service
-  private final class MainComponentHolder {
-    var mainComponent: Option[JComponent] = None
-  }
-
-  private object MainComponentHolder {
-
-    private final val RefreshDelay = 1.second
-
-    def createOrGet(project: Project): JComponent = {
-      val holder = ServiceManager.getService(project, classOf[MainComponentHolder])
-      holder.mainComponent.getOrElse {
-        val component = new CompilationChartsComponent(project)
-        holder.mainComponent = Some(component)
-        component.bindExecutionToVisibility { () =>
-          JobScheduler.getScheduler.scheduleWithFixedDelay(
-            () => {
-              component.updateData()
-              component.repaint()
-            },
-            0, RefreshDelay.length, RefreshDelay.unit
-          )
-        }
-        component
-      }
     }
   }
 }

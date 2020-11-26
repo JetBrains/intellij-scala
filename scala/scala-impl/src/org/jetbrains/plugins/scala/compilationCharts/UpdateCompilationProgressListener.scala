@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.compilationCharts
 
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.compilationCharts.ui.CompilationChartsComponentHolder
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 
 private class UpdateCompilationProgressListener(project: Project)
@@ -32,6 +33,11 @@ private class UpdateCompilationProgressListener(project: Project)
           ))
       }
     } yield newState
-    newStateOption.foreach(CompilationProgressStateManager.update(project, _))
+    newStateOption.foreach { newState =>
+      CompilationProgressStateManager.update(project, newState)
+      val component = CompilationChartsComponentHolder.createOrGet(project)
+      component.updateData()
+      component.repaint()
+    }
   }
 }
