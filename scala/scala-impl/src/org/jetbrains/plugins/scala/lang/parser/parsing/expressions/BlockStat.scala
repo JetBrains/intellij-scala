@@ -52,7 +52,7 @@ object BlockStat extends ParsingRule {
       case _ if End() => true
       case _ if builder.skipExternalToken() => BlockStat()
       case _ =>
-        if (!Expr1() && !Def() && !TmplDef()) {
+        if (!Def() && !TmplDef()) {
           if (Dcl()) {
             builder error ErrMsg("wrong.declaration.in.block")
             true
@@ -60,7 +60,16 @@ object BlockStat extends ParsingRule {
             builder error ErrMsg("wrong.declaration.in.block")
             true
           } else {
-            false
+            // expression has to be parsed after trying def/decl because
+            // in scala 3 def/decl might start with a soft modifier
+            // which could also be a simple reference expression in expr1
+            //
+            //  def test = {
+            //    inline
+            //    // vs
+            //    inline def test = 3
+            //  }
+            Expr1()
           }
         } else {
           true

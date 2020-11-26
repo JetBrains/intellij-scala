@@ -244,4 +244,14 @@ class ModifierParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_inline_val(): Unit = checkTree(
+    """
+      |def test = {
+      |  inline val x = 3
+      |}
+      |""".stripMargin,
+    """
+      |""".stripMargin
+  )
 }
