@@ -205,13 +205,10 @@ object Expr1 extends ParsingRule {
         if (builder.getTokenType == ScalaTokenTypes.kYIELD ||
             (builder.isScala3 && builder.getTokenType == ScalaTokenTypes.kDO)) {
           builder.advanceLexer() //Ate yield or do
-          if (!ExprInIndentationRegion.parse(builder)) {
-            builder error ErrMsg("wrong.expression")
-          }
-        } else {
-          if (!Expr.parse(builder)) {
-            builder error ErrMsg("wrong.expression")
-          }
+        }
+
+        if (!ExprInIndentationRegion()) {
+          builder error ErrMsg("wrong.expression")
         }
 
         exprMarker.done(ScalaElementType.FOR_STMT)
@@ -394,7 +391,7 @@ object Expr1 extends ParsingRule {
         builder.enableNewlines()
 
         def foo(): Unit = {
-          if (!CaseClauses.parse(builder)) {
+          if (!CaseClauses()) {
             builder error ErrMsg("case.clauses.expected")
           }
         }
