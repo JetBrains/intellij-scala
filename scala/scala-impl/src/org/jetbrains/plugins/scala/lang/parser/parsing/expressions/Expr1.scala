@@ -108,7 +108,7 @@ object Expr1 extends ParsingRule {
         builder.getTokenType match {
           case ScalaTokenTypes.kCATCH =>
             builder.advanceLexer() //Ate catch
-            if (!CaseClausesOrExprCaseClause() && !Expr()) {
+            if (!CaseClausesOrExprCaseClause() && !ExprInIndentationRegion()) {
               builder.error(ErrMsg("wrong.expression"))
             }
             catchMarker.done(ScalaElementType.CATCH_BLOCK)
@@ -233,7 +233,7 @@ object Expr1 extends ParsingRule {
         builder.getTokenType match {
           case ScalaTokenTypes.tFUNTYPE =>
             builder.advanceLexer() // ate =>
-            Expr()
+            ExprInIndentationRegion()
           case _ =>
             builder.error(ScalaBundle.message("type.lambda.expected"))
         }
@@ -254,7 +254,7 @@ object Expr1 extends ParsingRule {
                 ipmarker.precede.done(ScalaElementType.PARAM_CLAUSES)
 
                 builder.advanceLexer() //Ate =>
-                if (!Expr()) builder error ErrMsg("wrong.expression")
+                if (!ExprInIndentationRegion()) builder error ErrMsg("wrong.expression")
                 exprMarker.done(ScalaElementType.FUNCTION_EXPR)
                 return true
               case _ =>

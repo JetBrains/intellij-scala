@@ -8,7 +8,7 @@ package template
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Expr, ExprInIndentationRegion}
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ParamClauses, TypeParamClause}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 
@@ -44,7 +44,7 @@ object GivenDef {
       aliasMarker.drop()
       builder.advanceLexer() // ate =
 
-      if (!Expr()) {
+      if (!ExprInIndentationRegion()) {
         builder.error(ScalaBundle.message("expression.expected"))
       }
 

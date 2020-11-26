@@ -4,10 +4,8 @@ package parser
 package parsing
 package expressions
 
-import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 
 /**
  * @author Alexander Podkhalyuzin
@@ -46,7 +44,7 @@ object Expr extends ParsingRule {
             pssm.done(ScalaElementType.PARAM_CLAUSES)
 
             builder.advanceLexer() //Ate =>
-            if (!parse(builder)) builder error ErrMsg("wrong.expression")
+            if (!ExprInIndentationRegion()) builder error ErrMsg("wrong.expression")
             exprMarker.done(ScalaElementType.FUNCTION_EXPR)
             return true
           case _ =>
@@ -62,7 +60,7 @@ object Expr extends ParsingRule {
           builder.getTokenType match {
             case ScalaTokenTypes.tFUNTYPE =>
               builder.advanceLexer() //Ate =>
-              if (!parse(builder)) builder error ErrMsg("wrong.expression")
+              if (!ExprInIndentationRegion()) builder error ErrMsg("wrong.expression")
               exprMarker.done(ScalaElementType.FUNCTION_EXPR)
               return true
             case _ => exprMarker.rollbackTo()
