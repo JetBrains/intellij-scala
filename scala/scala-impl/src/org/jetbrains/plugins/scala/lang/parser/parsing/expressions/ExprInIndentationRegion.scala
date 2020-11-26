@@ -27,7 +27,7 @@ trait ExprInIndentationRegion extends ParsingRule {
 
       blockMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_WS_AND_COMMENT_TOKENS, null)
       if (!exprKind()) {
-        BlockStat.parse(builder)
+        BlockStat()
       }
 
       @tailrec
@@ -39,7 +39,7 @@ trait ExprInIndentationRegion extends ParsingRule {
             builder.advanceLexer() // ate ;
           } else if (builder.eof() || tt == ScalaTokenTypes.tRPARENTHESIS || tt == ScalaTokenTypes.tRBRACE) {
             return isBlock
-          } else if (!BlockStat.parse(builder)) {
+          } else if (!ResultExpr() && !BlockStat()) {
             builder.advanceLexer() // ate something
           }
           parseRest(isBlock = true)
