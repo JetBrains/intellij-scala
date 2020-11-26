@@ -422,10 +422,10 @@ class ScalaPsiManager(implicit val project: Project) {
         case tracker =>
 
           @CachedInUserData(clazz, tracker)
-          def cachedInUserData(clazz: PsiClass, n: MixinNodes[T]): nodes.Map = nodes.build(clazz, withSupers)
+          def cachedInUserData(clazz: PsiClass, n: MixinNodes[T], withSupers: Boolean): nodes.Map = nodes.build(clazz, withSupers)
 
           //@CachedInUserData creates a single map for all 3 cases, so we need to pass `nodes` as a parameter to have different keys
-          cachedInUserData(clazz, nodes)
+          cachedInUserData(clazz, nodes, withSupers)
       }
     }
   }
