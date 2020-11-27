@@ -156,7 +156,7 @@ abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfigu
 
   private def nameForConfiguration(c: PsiClass): String = c.qualifiedName
 
-  // scala3 @main method always uses qualified name of the containing file even if the method is not top level (at least with version 3.0.0-M1)
+  // scala3 @main method always uses qualified name of the containing file even if the method is not top level (at least with version 3.0.0-M2)
   private def nameForScala3MainConfiguration(fun: ScFunctionDefinition): String = {
     val packageFqn = fun.topLevelQualifier.filter(_.nonEmpty)
     (packageFqn.toSeq :+ fun.name).mkString(".")

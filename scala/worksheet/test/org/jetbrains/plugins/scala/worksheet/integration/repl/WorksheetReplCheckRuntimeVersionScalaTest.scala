@@ -42,7 +42,7 @@ class WorksheetReplCheckRuntimeVersionScalaTest extends WorksheetReplIntegration
     TestScalaVersion.Scala_3_0,
   ))
   def testRuntimeScalaVersion_Scala_3(): Unit = {
-    val runtimeScalaVersion = "2.13.3" // in Scala3 a version from 2.13 scala-library.jar is used (at least in 3.0.0-M1)
+    val runtimeScalaVersion = "2.13.4" // in Scala3 a version from 2.13 scala-library.jar is used (at least in 3.0.0-M2)
     doRenderTest(
       s"util.Properties.versionString",
       s"val res0: String = version $runtimeScalaVersion"

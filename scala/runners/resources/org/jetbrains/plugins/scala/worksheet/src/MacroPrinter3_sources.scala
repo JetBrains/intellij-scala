@@ -1,37 +1,41 @@
 package org.jetbrains.plugins.scala.worksheet
 
 import scala.quoted._
-import dotty.tools.dotc.ast.tpd.Tree
+
+import dotty.tools.dotc.ast.tpd.{Tree => InternalTree}
 import dotty.tools.dotc.core.Contexts.{Context => InternalContext}
 import dotty.tools.dotc.ast.{Trees => InternalTrees}
 
 object MacroPrinter3 {
 
-  type TastyTreeExpr = scala.internal.quoted.Expr[Tree]
-
   inline def showType[T](inline expr: => T): String = ${ showTypeImpl('expr) }
   inline def showMethodDefinition[T](inline expr: T): String = ${ showMethodDefinitionImpl('expr) }
 
-  private def summonInternalContext(implicit qc: QuoteContext): InternalContext =
-    qc.reflect.rootContext.asInstanceOf[InternalContext]
+  private def summonInternalContext(implicit quotes: Quotes): InternalContext = {
+    quotes.asInstanceOf[scala.quoted.runtime.impl.QuotesImpl].ctx
+  }
 
-  private def showTypeImpl[T](expr: Expr[T])(implicit qctx: QuoteContext): Expr[String] = {
-    import qctx.reflect._
+  private def showTypeImpl[T](expr: quoted.Expr[T])(implicit quotes: Quotes): Expr[String] = {
+    import quotes.reflect._
+
+    // need to import TermMethod to use `.tpe` extension methods, but for some reason import quotes.TermMethods doesn't work
+    import quotes._
+
     implicit val ic: InternalContext = summonInternalContext
-
-    val tasty = expr.asInstanceOf[TastyTreeExpr]
     val printer = new dotty.tools.dotc.printing.ReplPrinter(ic)
-    // val printer = new dotty.tools.dotc.printing.PlainPrinter(c)
-    // val text = printer.dclText(tasty.tree.denot.asSingleDenotation)
-    val tpe = tasty.tree.tpe
+
+    val quotesImpl = quotes.asInstanceOf[scala.quoted.runtime.impl.QuotesImpl]
+    val tpe1 = Term.of(expr).tpe
+    val tpe2 = tpe1.asInstanceOf[dotty.tools.dotc.core.Types.Type]
+    val tpe3 = tpe2
       .deconst // avoid value types (val x: 42 = 42)
       .widenTermRefExpr // avoid varName.type
-    val text = printer.toText(tpe)
+    val text = printer.toText(tpe3)
     Expr(text.mkString(80, false)) // TODO: max width, const or parameterize in settings?
   }
 
-  private def showMethodDefinitionImpl[T](expr: Expr[T])(implicit qctx: QuoteContext): Expr[String] = {
-    import qctx.reflect._
+  private def showMethodDefinitionImpl[T](expr: Expr[T])(implicit quotes: Quotes): Expr[String] = {
+    import quotes.reflect._
     implicit val ic: InternalContext = summonInternalContext
 
     def showTypeParam(p: TypeDef) =
@@ -73,8 +77,7 @@ object MacroPrinter3 {
           None
       }
 
-
-    val xTree: Term = expr.unseal
+    val xTree: Term = Term.of(expr)
     val result = xTree match {
       case Block(statements, _)                => processStatements(statements)
       case Inlined(_, _, Block(statements, _)) => processStatements(statements)
