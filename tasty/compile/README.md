@@ -1,6 +1,6 @@
 # TASTy Reflect & Inspect compatibility for the Scala 2.x TASTy APIs
 
-Scala 3-like syntax on top of the ABI of [scala.tasty.Reflection.scala](https://github.com/lampepfl/dotty/blob/M1/library/src/scala/tasty/Reflection.scala)
+Scala 3-like syntax on top of the ABI of [scala.tasty.Reflection.scala](https://github.com/lampepfl/dotty/blob/M2/library/src/scala/quoted/Quotes.scala)
 
 Required because Scala 2.x doesn't support extension methods (and implicit AnyVal classes in a class):
 https://dotty.epfl.ch/docs/reference/contextual/relationship-implicits.html
@@ -12,4 +12,4 @@ See:
 * https://github.com/lampepfl/dotty/tree/master/tasty-inspector
 
 It should be possible to compile in and use the following file from Scala 2.x:
-https://github.com/lampepfl/dotty/blob/master/library/src/scala/tasty/reflect/SourceCodePrinter.scala
+https://github.com/lampepfl/dotty/blob/M2/compiler/src/scala/quoted/runtime/impl/printers/SourceCode.scala

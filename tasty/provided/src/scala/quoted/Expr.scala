@@ -1,3 +1,3 @@
 package scala.quoted
 
-class Expr[+T] private[scala]
+abstract class Expr[+T] private[scala]
