@@ -112,7 +112,7 @@ object ScUnderScoreSectionUtil {
 
   /**Collects parameters of anonymous functions in placeholder syntax*/
   def underscores(expr: ScExpression): Seq[ScUnderscoreSection] = {
-    if (!expr.isValid)
+    if (!expr.isValid || !expr.textContains('_'))
       return Nil
 
     val expressionText = expr.getText
