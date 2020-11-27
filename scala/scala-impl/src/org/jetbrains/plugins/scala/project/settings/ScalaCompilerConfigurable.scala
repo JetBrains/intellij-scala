@@ -53,8 +53,10 @@ class ScalaCompilerConfigurable(project: Project)
     configuration.incrementalityType = newIncType
     configuration.defaultProfile = profilesPanel.getDefaultProfile.copy
     configuration.customProfiles = profilesPanel.getModuleProfiles.map(_.copy)
-    DaemonCodeAnalyzer.getInstance(project).restart()
-    BuildManager.getInstance().clearState(project)
+    if (!project.isDefault) {
+      DaemonCodeAnalyzer.getInstance(project).restart()
+      BuildManager.getInstance().clearState(project)
+    }
   }
 
   override def getConfigurables: Array[Configurable] = Array()
