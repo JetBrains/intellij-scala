@@ -1,8 +1,8 @@
 import java.io.File
 import java.net.URLClassLoader
 
-import scala.quoted.show.SyntaxHighlight
-import scala.tasty.compat.{ConsumeTasty, Reflection, TastyConsumer}
+import scala.quoted.Reflection
+import scala.tasty.inspector.{ConsumeTasty, TastyConsumer}
 
 // cd ~/IdeaProjects
 // git clone https://github.com/lampepfl/dotty-example-project.git
@@ -16,12 +16,14 @@ object Main {
 //      println(customExtractorsOutput)
 
       val originalExtractorsOutput = tree.showExtractors
+      assert(customExtractorsOutput.startsWith("PackageClause("))
       assert(customExtractorsOutput == originalExtractorsOutput)
 
-      val customSourceCodeOutput = new SourceCodePrinter[reflect.type](reflect)(SyntaxHighlight.plain).showTree(tree)
+      val customSourceCodeOutput = new SourceCodePrinter[reflect.type](reflect).showTree(tree)
 //      println(customSourceCodeOutput)
 
       val originalSourceCodeOutput = tree.show
+      assert(originalSourceCodeOutput.startsWith("import ") || originalSourceCodeOutput.startsWith("@scala.annotation.internal.SourceFile("))
       assert(customSourceCodeOutput == originalSourceCodeOutput)
     }
   }
@@ -37,7 +39,7 @@ object Main {
       s"$Repository/org/scala-lang/scala3-interfaces/$Version/scala3-interfaces-$Version.jar",
       s"$Repository/org/scala-lang/scala3-compiler_$Version//$Version/scala3-compiler_$Version-$Version.jar",
       s"$Repository/org/scala-lang/scala3-tasty-inspector_$Version//$Version/scala3-tasty-inspector_$Version-$Version.jar",
-      s"$Repository//org/scala-lang/tasty-core_$Version//$Version/tasty-core_$Version-$Version.jar",
+      s"$Repository/org/scala-lang/tasty-core_$Version/$Version/tasty-core_$Version-$Version.jar",
       "target/plugin/Scala/lib/tasty/tasty-runtime.jar",
     )
 
@@ -73,7 +75,6 @@ object Main {
       "IntersectionTypes",
       "Main",
       "MultiversalEquality",
-//      "NamedTypeArguments",
 //      "PatternMatching",
       "StructuralTypes",
       "TraitParams",
@@ -92,7 +93,7 @@ object Main {
       assertExists(outputDir + "/" + fqn.replace('.', '/') + ".tasty")
       assertExists(outputDir + "/" + fqn.replace('.', '/') + ".class")
 
-      consumeTasty.apply(outputDir, List(fqn), tastyConsumer)
+      consumeTasty.apply(outputDir, List(s"$outputDir/$fqn.tasty"), tastyConsumer)
     }
   }
 

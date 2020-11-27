@@ -1,14 +1,12 @@
 package org.jetbrains.plugins.scala.tasty
 
 import scala.annotation.switch
-import scala.quoted.show.SyntaxHighlight
-import scala.tasty.compat._
+import scala.quoted._
 
 // Copy of https://github.com/lampepfl/dotty/blob/M1/library/src/scala/tasty/reflect/SourceCodePrinter.scala with cosmetic Scala 2.x updates.
-class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)(syntaxHighlight: SyntaxHighlight) {
+class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean) {
   import reflect._
   import reflect.delegate._
-  import syntaxHighlight._
 
   var references: Seq[ReferenceData] = Vector.empty
 
@@ -100,25 +98,25 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
     }
 
     private[this] var indent: Int = 0
-    def indented(printIndented: => Unit): Unit = {
+    private def indented(printIndented: => Unit): Unit = {
       indent += 1
       printIndented
       indent -= 1
     }
 
-    def inParens(body: => Unit): Buffer = {
+    private def inParens(body: => Unit): this.type = {
       this += "("
       body
       this += ")"
     }
 
-    def inSquare(body: => Unit): Buffer = {
+    private def inSquare(body: => Unit): this.type = {
       this += "["
       body
       this += "]"
     }
 
-    def inBlock(body: => Unit): Buffer = {
+    private def inBlock(body: => Unit): this.type = {
       this += " {"
       indented {
         this += lineBreak()
@@ -129,10 +127,10 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
 
     def result(): String = sb.result()
 
-    def lineBreak(): String = "\n" + ("  " * indent)
-    def doubleLineBreak(): String = "\n\n" + ("  " * indent)
+    private def lineBreak(): String = "\n" + ("  " * indent)
+    private def doubleLineBreak(): String = "\n\n" + ("  " * indent)
 
-    def printTree(tree: Tree)(implicit elideThis: Option[Symbol] = None): Buffer = tree match {
+    def printTree(tree: Tree)(implicit elideThis: Option[Symbol] = None): this.type = tree match {
       case PackageObject(body)=>
         printTree(body) // Print package object
 
@@ -480,7 +478,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
           case _ =>
             inParens {
               printTree(term)
-              this += (if (scala.internal.Chars.isOperatorPart(sb.last)) " : " else ": ")
+              this += (if (isOperatorPart(sb.last)) " : " else ": ")
               def printTypeOrAnnots(tpe: TypeRepr): Unit = tpe match {
                 case AnnotatedType(tp, annot) if tp == term.tpe =>
                   printAnnotation(annot)
@@ -530,8 +528,8 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
         this += highlightKeyword(" match")
         inBlock(printCases(cases, lineBreak()))
 
-      case GivenMatch(cases) =>
-        this += highlightKeyword("given match")  // TODO: drop
+      case SummonFrom(cases) =>
+        this += highlightKeyword("summonFrom ")
         inBlock(printCases(cases, lineBreak()))
 
       case Try(body, cases, finallyOpt) =>
@@ -549,7 +547,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
             this
         }
 
-      case Return(expr) =>
+      case Return(expr, from) =>
         this += "return "
         printTree(expr)
 
@@ -576,7 +574,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
 
     }
 
-    def printQualTree(tree: Tree): Buffer = tree match {
+    private def printQualTree(tree: Tree): this.type = tree match {
       case _: If | _: Match | _: While | _: Try | _: Return =>
         this += "("
         printTree(tree)
@@ -584,7 +582,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       case _ => printTree(tree)
     }
 
-    def flatBlock(stats: List[Statement], expr: Term): (List[Statement], Term) = {
+    private def flatBlock(stats: List[Statement], expr: Term): (List[Statement], Term) = {
       val flatStats = List.newBuilder[Statement]
       def extractFlatStats(stat: Statement): Unit = stat match {
         case Lambda(_, _) =>   // must come before `Block`
@@ -624,7 +622,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       (flatStats.result(), flatExpr)
     }
 
-    def printFlatBlock(stats: List[Statement], expr: Term)(implicit elideThis: Option[Symbol]): Buffer = {
+    private def printFlatBlock(stats: List[Statement], expr: Term)(implicit elideThis: Option[Symbol]): this.type = {
       val (stats1, expr1) = flatBlock(stats, expr)
       val stats2 = stats1.filter {
         case tree: TypeDef => !tree.symbol.annots.exists(_.symbol.maybeOwner == Symbol.requiredClass("scala.internal.Quoted.quoteTypeTag"))
@@ -641,7 +639,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       }
     }
 
-    def printStats(stats: List[Tree], expr: Tree)(implicit eliseThis: Option[Symbol]): Unit = {
+    private def printStats(stats: List[Tree], expr: Tree)(implicit eliseThis: Option[Symbol]): Unit = {
       def printSeparator(next: Tree): Unit = {
         // Avoid accidental application of opening `{` on next line with a double break
         def rec(next: Tree): Unit = next match {
@@ -676,7 +674,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       printSeparated(stats)
     }
 
-    def printList[T](xs: List[T], sep: String, print: T => Buffer): Buffer = {
+    private def printList[T](xs: List[T], sep: String, print: T => this.type): this.type = {
       def printSeparated(list: List[T]): Unit = list match {
         case Nil =>
         case x :: Nil => print(x)
@@ -689,13 +687,13 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       this
     }
 
-    def printTrees(trees: List[Tree], sep: String)(implicit elideThis: Option[Symbol]): Buffer =
+    private def printTrees(trees: List[Tree], sep: String)(implicit elideThis: Option[Symbol]): this.type =
       printList(trees, sep, (t: Tree) => printTree(t))
 
-    def printTypeTrees(trees: List[TypeTree], sep: String)(implicit elideThis: Option[Symbol] = None): Buffer =
+    private def printTypeTrees(trees: List[TypeTree], sep: String)(implicit elideThis: Option[Symbol] = None): this.type =
       printList(trees, sep, (t: TypeTree) => printTypeTree(t))
 
-    def printTypes(trees: List[TypeRepr], sep: String)(implicit elideThis: Option[Symbol]): Buffer = {
+    private def printTypes(trees: List[TypeRepr], sep: String)(implicit elideThis: Option[Symbol]): this.type = {
       def printSeparated(list: List[TypeRepr]): Unit = list match {
         case Nil =>
         case x :: Nil => printType(x)
@@ -708,7 +706,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       this
     }
 
-    def printImportSelectors(selectors: List[ImportSelector]): Buffer = {
+    private def printImportSelectors(selectors: List[ImportSelector]): this.type = {
       def printSeparated(list: List[ImportSelector]): Unit = list match {
         case Nil =>
         case x :: Nil => printImportSelector(x)
@@ -722,7 +720,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       this += "}"
     }
 
-    def printCases(cases: List[CaseDef], sep: String): Buffer = {
+    private def printCases(cases: List[CaseDef], sep: String): this.type = {
       def printSeparated(list: List[CaseDef]): Unit = list match {
         case Nil =>
         case x :: Nil => printCaseDef(x)
@@ -735,7 +733,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       this
     }
 
-    def printTypeCases(cases: List[TypeCaseDef], sep: String): Buffer = {
+    private def printTypeCases(cases: List[TypeCaseDef], sep: String): this.type = {
       def printSeparated(list: List[TypeCaseDef]): Unit = list match {
         case Nil =>
         case x :: Nil => printTypeCaseDef(x)
@@ -748,7 +746,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       this
     }
 
-    def printPatterns(cases: List[Tree], sep: String): Buffer = {
+    private def printPatterns(cases: List[Tree], sep: String): this.type = {
       def printSeparated(list: List[Tree]): Unit = list match {
         case Nil =>
         case x :: Nil => printPattern(x)
@@ -761,7 +759,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       this
     }
 
-    def printTypesOrBounds(types: List[TypeRepr], sep: String)(implicit elideThis: Option[Symbol]): Buffer = {
+    private def printTypesOrBounds(types: List[TypeRepr], sep: String)(implicit elideThis: Option[Symbol]): this.type = {
       def printSeparated(list: List[TypeRepr]): Unit = list match {
         case Nil =>
         case x :: Nil => printType(x)
@@ -774,7 +772,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       this
     }
 
-    def printTargsDefs(targs: List[(TypeDef, TypeDef)], isDef:Boolean = true)(implicit elideThis: Option[Symbol]): Unit = {
+    private def printTargsDefs(targs: List[(TypeDef, TypeDef)], isDef:Boolean = true)(implicit elideThis: Option[Symbol]): Unit = {
       if (!targs.isEmpty) {
         def printSeparated(list: List[(TypeDef, TypeDef)]): Unit = list match {
           case Nil =>
@@ -789,7 +787,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       }
     }
 
-    def printTargDef(arg: (TypeDef, TypeDef), isMember: Boolean = false, isDef:Boolean = true)(implicit elideThis: Option[Symbol]): Buffer = {
+    private def printTargDef(arg: (TypeDef, TypeDef), isMember: Boolean = false, isDef:Boolean = true)(implicit elideThis: Option[Symbol]): this.type = {
       val (argDef, argCons) = arg
 
       if (isDef) {
@@ -802,7 +800,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
 
       this += argCons.name
       argCons.rhs match {
-        case rhs: TypeBoundsTree =>  this //printBoundsTree(rhs) TODO
+        case rhs: TypeBoundsTree => printBoundsTree(rhs)
         case rhs: WildcardTypeTree =>
           printType(rhs.tpe)
         case rhs @ LambdaTypeTree(tparams, body) =>
@@ -839,7 +837,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       }
     }
 
-    def printArgsDefs(args: List[ValDef])(implicit elideThis: Option[Symbol]): Unit = {
+    private def printArgsDefs(args: List[ValDef])(implicit elideThis: Option[Symbol]): Unit = {
       val argFlags = args match {
         case Nil => Flags.EmptyFlags
         case arg :: _ => arg.symbol.flags
@@ -865,7 +863,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       }
     }
 
-    def printAnnotations(trees: List[Term])(implicit elideThis: Option[Symbol]): Buffer = {
+    private def printAnnotations(trees: List[Term])(implicit elideThis: Option[Symbol]): this.type = {
       def printSeparated(list: List[Term]): Unit = list match {
         case Nil =>
         case x :: Nil => printAnnotation(x)
@@ -878,7 +876,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       this
     }
 
-    def printParamDef(arg: ValDef)(implicit elideThis: Option[Symbol]): Unit = {
+    private def printParamDef(arg: ValDef)(implicit elideThis: Option[Symbol]): Unit = {
       val name = splicedName(arg.symbol).getOrElse(arg.symbol.name)
       val sym = arg.symbol.owner
       if (sym.isDefDef && sym.name == "<init>") {
@@ -902,7 +900,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       printTypeTree(arg.tpt)
     }
 
-    def printCaseDef(caseDef: CaseDef): Buffer = {
+    private def printCaseDef(caseDef: CaseDef): this.type = {
       this += highlightValDef("case ")
       printPattern(caseDef.pattern)
       caseDef.guard match {
@@ -924,7 +922,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       this
     }
 
-    def printTypeCaseDef(caseDef: TypeCaseDef): Buffer = {
+    private def printTypeCaseDef(caseDef: TypeCaseDef): this.type = {
       this += highlightValDef("case ")
       printTypeTree(caseDef.pattern)
       this += highlightValDef(" => ")
@@ -932,7 +930,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       this
     }
 
-    def printPattern(pattern: Tree): Buffer = pattern match {
+    private def printPattern(pattern: Tree): this.type = pattern match {
       case Ident("_") =>
         this += "_"
 
@@ -980,7 +978,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
     @inline private val qc  = '\''
     @inline private val qSc = '"'
 
-    def printConstant(const: Constant): Buffer = const match {
+    def printConstant(const: Constant): this.type = const match {
       case Constant.Unit() => this += highlightLiteral("()")
       case Constant.Null() => this += highlightLiteral("null")
       case Constant.Boolean(v) => this += highlightLiteral(v.toString)
@@ -997,7 +995,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
         inSquare(printType(v))
     }
 
-    def printTypeOrBoundsTree(tpt: Tree)(implicit elideThis: Option[Symbol] = None): Buffer = tpt match {
+    private def printTypeOrBoundsTree(tpt: Tree)(implicit elideThis: Option[Symbol] = None): this.type = tpt match {
       case TypeBoundsTree(lo, hi) =>
         this += "_ >: "
         printTypeTree(lo)
@@ -1017,10 +1015,10 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       *   Self type annotation and types in parent list should elide current class
       *   prefix `C.this` to avoid type checking errors.
       */
-    def printTypeTree(tree: TypeTree)(implicit elideThis: Option[Symbol] = None): Buffer = tree match {
+    private def printTypeTree(tree: TypeTree)(implicit elideThis: Option[Symbol] = None): this.type = tree match {
       case Inferred() =>
         // TODO try to move this logic into `printType`
-        def printTypeAndAnnots(tpe: TypeRepr): Buffer = tpe match {
+        def printTypeAndAnnots(tpe: TypeRepr): this.type = tpe match {
           case AnnotatedType(tp, annot) =>
             printTypeAndAnnots(tp)
             this += " "
@@ -1047,7 +1045,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       case TypeSelect(qual, name) =>
         printTree(qual) += "." += highlightTypeDef(name)
 
-      case Projection(qual, name) =>
+      case TypeProjection(qual, name) =>
         printTypeTree(qual) += "#" += highlightTypeDef(name)
 
       case Singleton(ref) =>
@@ -1111,7 +1109,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       *   Self type annotation and types in parent list should elide current class
       *   prefix `C.this` to avoid type checking errors.
       */
-    def printType(tpe: TypeRepr)(implicit elideThis: Option[Symbol] = None): Buffer = tpe match {
+    def printType(tpe: TypeRepr)(implicit elideThis: Option[Symbol] = None): this.type = tpe match {
       case ConstantType(const) =>
         printConstant(const)
 
@@ -1266,41 +1264,38 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
         throw new MatchError(tpe.showExtractors)
     }
 
-    def printImportSelector(sel: ImportSelector): Buffer = sel match {
+    private def printImportSelector(sel: ImportSelector): this.type = sel match {
       case SimpleSelector(name) => this += name
       case OmitSelector(name) => this += name += " => _"
       case RenameSelector(name, newName) => this += name += " => " += newName
     }
 
-    def printDefinitionName(tree: Definition): Buffer = tree match {
+    private def printDefinitionName(tree: Definition): this.type = tree match {
       case ValDef(name, _, _) => this += highlightValDef(name)
       case DefDef(name, _, _, _, _) => this += highlightValDef(name)
       case ClassDef(name, _, _, _, _, _) => this += highlightTypeDef(name.stripSuffix("$"))
       case TypeDef(name, _) => this += highlightTypeDef(name)
     }
 
-    def printAnnotation(annot: Term)(implicit elideThis: Option[Symbol]): Buffer = {
+    private def printAnnotation(annot: Term)(implicit elideThis: Option[Symbol]): this.type = {
       val Annotation(ref, args) = annot
-      if (annot.symbol.maybeOwner == Symbol.requiredClass("scala.internal.quoted.showName")) this
-      else {
-        val previousLength = sb.length
-        this += "@"
-        printTypeTree(ref)
-        val result = if (args.isEmpty)
-          this
-        else
-          inParens(printTrees(args, ", "))
-        if (sb.substring(previousLength).startsWith("@scala.annotation.internal.SourceFile")) {
-          sources :+= sb.substring(previousLength + 39, sb.length - 2)
-          sb.delete(previousLength, sb.length())
-        } else {
-          this += lineBreak()
-        }
-        result
+      val previousLength = sb.length
+      this += "@"
+      printTypeTree(ref)
+      val result: Buffer.this.type = if (args.isEmpty)
+        this
+      else
+        inParens(printTrees(args, ", "))
+      if (sb.substring(previousLength).startsWith("@scala.annotation.internal.SourceFile")) {
+        sources :+= sb.substring(previousLength + 39, sb.length - 2)
+        sb.delete(previousLength, sb.length())
+      } else {
+        this += lineBreak()
       }
+      result
     }
 
-    def printDefAnnotations(definition: Definition)(implicit elideThis: Option[Symbol]): Buffer = {
+    private def printDefAnnotations(definition: Definition)(implicit elideThis: Option[Symbol]): this.type = {
       val annots = definition.symbol.annots.filter {
         case Annotation(annot, _) =>
           val sym = annot.tpe.typeSymbol
@@ -1313,7 +1308,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       else this
     }
 
-    def printRefinement(tpe: TypeRepr)(implicit elideThis: Option[Symbol]): Buffer = {
+    private def printRefinement(tpe: TypeRepr)(implicit elideThis: Option[Symbol]): this.type = {
       def printMethodicType(tp: TypeRepr): Unit = tp match {
         case tp @ MethodType(paramNames, params, res) =>
           inParens(printMethodicTypeParams(paramNames, params))
@@ -1353,7 +1348,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       this += lineBreak() += "}"
     }
 
-    def printMethodicTypeParams(paramNames: List[String], params: List[TypeRepr])(implicit elideThis: Option[Symbol]): Unit = {
+    private def printMethodicTypeParams(paramNames: List[String], params: List[TypeRepr])(implicit elideThis: Option[Symbol]): Unit = {
       def printInfo(info: TypeRepr) = info match {
         case info: TypeBounds => printBounds(info)
         case info: TypeRepr @unchecked =>
@@ -1374,7 +1369,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       printSeparated(paramNames.zip(params))
     }
 
-    def printBoundsTree(bounds: TypeBoundsTree)(implicit elideThis: Option[Symbol]): Buffer = {
+    private def printBoundsTree(bounds: TypeBoundsTree)(implicit elideThis: Option[Symbol]): this.type = {
       bounds.low match {
         case Inferred() =>
         case low =>
@@ -1389,14 +1384,14 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       }
     }
 
-    def printBounds(bounds: TypeBounds)(implicit elideThis: Option[Symbol]): Buffer = {
+    private def printBounds(bounds: TypeBounds)(implicit elideThis: Option[Symbol]): this.type = {
       this += " >: "
       printType(bounds.low)
       this += " <: "
       printType(bounds.hi)
     }
 
-    def printProtectedOrPrivate(definition: Definition): Boolean = {
+    private def printProtectedOrPrivate(definition: Definition): Boolean = {
       var prefixWasPrinted = false
       def printWithin(within: TypeRepr) = within match {
         case TypeRef(_, name) => this += name
@@ -1424,7 +1419,7 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       prefixWasPrinted
     }
 
-    def printFullClassName(tp: TypeRepr): Unit = {
+    private def printFullClassName(tp: TypeRepr): Unit = {
       def printClassPrefix(prefix: TypeRepr): Unit = prefix match {
         case TypeRef(prefix2, name) =>
           printClassPrefix(prefix2)
@@ -1436,15 +1431,15 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
       this += name
     }
 
-    def +=(x: Boolean): this.type = { sb.append(x); this }
-    def +=(x: Byte): this.type = { sb.append(x); this }
-    def +=(x: Short): this.type = { sb.append(x); this }
-    def +=(x: Int): this.type = { sb.append(x); this }
-    def +=(x: Long): this.type = { sb.append(x); this }
-    def +=(x: Float): this.type = { sb.append(x); this }
-    def +=(x: Double): this.type = { sb.append(x); this }
-    def +=(x: Char): this.type = { sb.append(x); this }
-    def +=(x: String): this.type = { sb.append(x); this }
+    private def +=(x: Boolean): this.type = { sb.append(x); this }
+    private def +=(x: Byte): this.type = { sb.append(x); this }
+    private def +=(x: Short): this.type = { sb.append(x); this }
+    private def +=(x: Int): this.type = { sb.append(x); this }
+    private def +=(x: Long): this.type = { sb.append(x); this }
+    private def +=(x: Float): this.type = { sb.append(x); this }
+    private def +=(x: Double): this.type = { sb.append(x); this }
+    private def +=(x: Char): this.type = { sb.append(x); this }
+    private def +=(x: String): this.type = { sb.append(x); this }
 
     private def escapedChar(ch: Char): String = (ch: @switch) match {
       case '\b' => "\\b"
@@ -1459,17 +1454,11 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
     }
 
     private def escapedString(str: String): String = str flatMap escapedChar
-  }
 
-  private[this] val names = collection.mutable.Map.empty[Symbol, String]
-  private[this] val namesIndex = collection.mutable.Map.empty[String, Int]
+    private[this] val names = collection.mutable.Map.empty[Symbol, String]
+    private[this] val namesIndex = collection.mutable.Map.empty[String, Int]
 
-  private def splicedName(sym: Symbol): Option[String] = {
-    sym.annots.find(_.symbol.owner == Symbol.requiredClass("scala.internal.quoted.showName")).flatMap {
-      case Apply(_, Literal(Constant.String(c)) :: Nil) => Some(c)
-      case Apply(_, Inlined(_, _, Literal(Constant.String(c))) :: Nil) => Some(c)
-      case annot => None
-    }.orElse {
+    private def splicedName(sym: Symbol): Option[String] = {
       if (sym.owner.isClassDef) None
       else names.get(sym).orElse {
         val name0 = sym.name
@@ -1482,55 +1471,54 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
         Some(name)
       }
     }
-  }
 
-  private object SpecialOp {
-    def unapply(arg: Tree): Option[(String, List[Term])] = arg match {
-      case arg @ Apply(fn, args) =>
-        fn.tpe match {
-          case tpe @ TermRef(ThisType(TypeRef(_, name)), name2) if name == "<special-ops>" =>
-            Some((name2, args))
+    private object SpecialOp {
+      def unapply(arg: Tree): Option[(String, List[Term])] = arg match {
+        case arg @ Apply(fn, args) =>
+          fn.tpe match {
+            case tpe @ TermRef(ThisType(TypeRef(_, name)), name2) if name == "<special-ops>" =>
+              Some((name2, args))
+            case _ => None
+          }
+        case _ => None
+      }
+    }
+
+    private object Annotation {
+      def unapply(arg: Tree): Option[(TypeTree, List[Term])] = arg match {
+        case New(annot) => Some((annot, Nil))
+        case Apply(Select(New(annot), "<init>"), args) => Some((annot, args))
+        case Apply(TypeApply(Select(New(annot), "<init>"), targs), args) => Some((annot, args))
+        case _ => None
+      }
+    }
+
+    // TODO Provide some of these in scala.tasty.Reflection.scala and implement them using checks on symbols for performance
+    private object Types {
+
+      object Sequence {
+        def unapply(tpe: TypeRepr): Option[TypeRepr] = tpe match {
+          case AppliedType(seq, (tp: TypeRepr @unchecked) :: Nil)
+              if seq.typeSymbol == Symbol.requiredClass("scala.collection.Seq") || seq.typeSymbol == Symbol.requiredClass("scala.collection.immutable.Seq") =>
+            Some(tp)
           case _ => None
         }
-      case _ => None
+      }
+
+      object Repeated {
+        def unapply(tpe: TypeRepr): Option[TypeRepr] = tpe match {
+          case AppliedType(rep, (tp: TypeRepr @unchecked) :: Nil) if rep.typeSymbol == Symbol.requiredClass("scala.<repeated>") => Some(tp)
+          case _ => None
+        }
+      }
+
     }
-  }
 
-  private object Annotation {
-    def unapply(arg: Tree): Option[(TypeTree, List[Term])] = arg match {
-      case New(annot) => Some((annot, Nil))
-      case Apply(Select(New(annot), "<init>"), args) => Some((annot, args))
-      case Apply(TypeApply(Select(New(annot), "<init>"), targs), args) => Some((annot, args))
-      case _ => None
-    }
-  }
-
-  // TODO Provide some of these in scala.tasty.Reflection.scala and implement them using checks on symbols for performance
-  private object Types {
-
-    object Sequence {
-      def unapply(tpe: TypeRepr): Option[TypeRepr] = tpe match {
-        case AppliedType(seq, (tp: TypeRepr @unchecked) :: Nil)
-            if seq.typeSymbol == Symbol.requiredClass("scala.collection.Seq") || seq.typeSymbol == Symbol.requiredClass("scala.collection.immutable.Seq") =>
-          Some(tp)
+    private object PackageObject {
+      def unapply(tree: Tree): Option[Tree] = tree match {
+        case PackageClause(_, ValDef("package", _, _) :: body :: Nil) => Some(body)
         case _ => None
       }
     }
-
-    object Repeated {
-      def unapply(tpe: TypeRepr): Option[TypeRepr] = tpe match {
-        case AppliedType(rep, (tp: TypeRepr @unchecked) :: Nil) if rep.typeSymbol == Symbol.requiredClass("scala.<repeated>") => Some(tp)
-        case _ => None
-      }
-    }
-
   }
-
-  object PackageObject {
-    def unapply(tree: Tree): Option[Tree] = tree match {
-      case PackageClause(_, ValDef("package", _, _) :: body :: Nil) => Some(body)
-      case _ => None
-    }
-  }
-
 }

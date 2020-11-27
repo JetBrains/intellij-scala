@@ -1,12 +1,13 @@
 package scala.tasty.compat
 
 import java.io.File
+
 import scala.language.reflectiveCalls
-import scala.quoted.QuoteContext
+import scala.quoted.{Quotes, Reflection}
 
 // Adds "compat" extensions to https://github.com/lampepfl/dotty/blob/master/tasty-inspector/src/scala/tasty/inspector/TastyInspector.scala
 private trait TastyInspector extends scala.tasty.inspector.TastyInspector {
-  override protected final def processCompilationUnit(context: QuoteContext)(root: context.reflect.Tree): Unit = {
+  override protected final def processCompilationUnit(context: Quotes)(root: context.reflect.Tree): Unit = {
     // There are no extension methods in Scala 2.x, so we have to add them separately on top of the ABI.
     val reflectWrapper = new Reflection(context.reflect)
     processCompilationUnit0(reflectWrapper)(root.asInstanceOf[reflectWrapper.delegate.Tree])

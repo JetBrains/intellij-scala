@@ -2,18 +2,42 @@ package org.jetbrains.plugins.scala.tasty
 
 import java.io.File
 import java.net.URLClassLoader
-import java.nio.file.{Files, Paths}
+import java.nio.file.{Files, Paths, StandardCopyOption}
+import java.util.jar.JarFile
 
 import com.intellij.util.PathUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
 
-import scala.quoted.show.SyntaxHighlight
-import scala.tasty.compat.{ConsumeTasty, Reflection, TastyConsumer}
+import scala.quoted.Reflection
+import scala.tasty.inspector.{ConsumeTasty, TastyConsumer}
+import scala.util.Using
 
 object TastyReader {
-  def read(tastyPath: TastyPath, rightHandSize: Boolean = true): Option[TastyFile] =
-    read(api, tastyPath.classpath, tastyPath.className, rightHandSize)
+  // TODO fully-qualified name VS .tasty file path
+  // There is no way to read a specific (one) .tasty file in a JAR using the API of https://github.com/lampepfl/dotty/blob/M2/tasty-inspector/src/scala/tasty/inspector/TastyInspector.scala?
+  def read(tastyPath: TastyPath, rightHandSize: Boolean = true): Option[TastyFile] = {
+    if (tastyPath.classpath.endsWith(".jar")) {
+      extracting(tastyPath.classpath, tastyPath.className.replace('.', '/') + ".tasty")(read(api, "", _, rightHandSize))
+    } else {
+      read(api, tastyPath.classpath, tastyPath.classpath + "/" + tastyPath.className + ".tasty", rightHandSize)
+    }
+  }
+
+  private def extracting[T](jar: String, entry: String)(process: String => Option[T]): Option[T] = {
+    Using(new JarFile(jar)) { jar =>
+      Option(jar.getEntry(entry)).foreach { entry =>
+        val file = File.createTempFile("foo", ".tasty")
+        try {
+          Using(jar.getInputStream(entry))(Files.copy(_, file.toPath, StandardCopyOption.REPLACE_EXISTING))
+          return process(file.getAbsolutePath)
+        } finally {
+          file.delete()
+        }
+      }
+    }
+    None
+  }
 
   // The "dotty-tasty-inspector" transitively depends on many unnecessary libraries.
   private val RequiredLibraries = Seq(
@@ -60,7 +84,7 @@ object TastyReader {
 
     val tastyConsumer = new TastyConsumer {
       override def apply(reflect: Reflection)(tree: reflect.delegate.Tree): Unit = {
-        val printer = new SourceCodePrinter[reflect.type](reflect, rightHandSize)(SyntaxHighlight.plain)
+        val printer = new SourceCodePrinter[reflect.type](reflect, rightHandSize)
         val text = printer.showTree(tree)
         def file(path: String) = {
           val i = path.replace('\\', '/').lastIndexOf("/")
@@ -108,7 +132,6 @@ object TastyReader {
       "IntersectionTypes",
       "Main",
       "MultiversalEquality",
-//      "NamedTypeArguments",
 //      "PatternMatching",
       "StructuralTypes",
       "TraitParams",
