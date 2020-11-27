@@ -77,4 +77,25 @@ class ScalaStringLiteralSelectionerTest extends ScalaStringLiteralSelectionerBas
       s"""$qqq content $q$Caret$qq""",
       s"""$Start$qqq content $q$Caret$qq$End""",
     ))
+
+  /** ensure [[com.intellij.codeInsight.editorActions.wordSelection.InjectedFileReferenceSelectioner]] works */
+  def testFilePathPart(): Unit = {
+    doTestForMultilineAndSingleLine(Seq(
+     s"${qqq}aaaa/bbb/ccc$Caret/ddd${qqq}",
+     s"${qqq}aaaa/bbb/${Start}ccc$Caret${End}/ddd${qqq}",
+     s"${qqq}aaaa/${Start}bbb/ccc$Caret${End}/ddd${qqq}",
+     s"${qqq}${Start}aaaa/bbb/ccc$Caret${End}/ddd${qqq}",
+     s"${qqq}${Start}aaaa/bbb/ccc$Caret/ddd${End}${qqq}",
+    ))
+  }
+
+  def testFilePathPart_1(): Unit = {
+    doTestForMultilineAndSingleLine(Seq(
+     s"${qqq}aaaa/bbb.ccc$Caret.ddd/eee${qqq}",
+     s"${qqq}aaaa/bbb.${Start}ccc$Caret${End}.ddd/eee${qqq}",
+     s"${qqq}aaaa/${Start}bbb.ccc$Caret.ddd${End}/eee${qqq}",
+     s"${qqq}${Start}aaaa/bbb.ccc$Caret.ddd${End}/eee${qqq}",
+     s"${qqq}${Start}aaaa/bbb.ccc$Caret.ddd/eee$${End}{qqq}",
+    ))
+  }
 }

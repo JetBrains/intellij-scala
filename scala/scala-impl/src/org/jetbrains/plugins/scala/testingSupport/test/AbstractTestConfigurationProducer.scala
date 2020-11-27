@@ -75,6 +75,8 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
     if (bool) Right(()) else Left(errorMessage)
 
   private def extendCreatedConfiguration(configuration: RunConfigurationBase[_], location: PsiElementLocation): Unit = {
+    return
+    // TODO
     val instance = JavaRunConfigurationExtensionManager.getInstance
     instance.extendCreatedConfiguration(configuration, location)
   }

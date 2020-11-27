@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.util
 
 import java.io.File
 
-import com.intellij.openapi.application.PathManager
+import com.intellij.openapi.application.{ApplicationManager, PathManager}
 
 object ScalaPluginUtils {
 
@@ -19,4 +19,15 @@ object ScalaPluginUtils {
   } catch {
     case _: Throwable => false
   }
+
+  val isRunningFromSourcesOrInternal: Boolean =
+    isRunningFromSources || ApplicationManager.getApplication.isInternal
+
+  val isRunningFromSourcesOrUnitTestMode: Boolean =
+    isRunningFromSources || ApplicationManager.getApplication.isUnitTestMode
+
+  val isRunningFromSourcesOrInternalOrUnitTestMode: Boolean =
+    isRunningFromSources ||
+      ApplicationManager.getApplication.isInternal ||
+      ApplicationManager.getApplication.isUnitTestMode
 }

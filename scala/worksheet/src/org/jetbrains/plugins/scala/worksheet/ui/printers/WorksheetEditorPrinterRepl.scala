@@ -156,7 +156,7 @@ final class WorksheetEditorPrinterRepl private[printers](
     if (psiToProcess.isEmpty) {
       // not expecting to be empty, elements count in original psiToProcess should be equal to number of executed  commands in REPL
       //noinspection ScalaExtractStringToBundle
-      if (ScalaPluginUtils.isRunningFromSources)
+      if (ScalaPluginUtils.isRunningFromSourcesOrInternal)
         NotificationUtil.showMessage(project, "psiToProcess is empty")
       return None
     }

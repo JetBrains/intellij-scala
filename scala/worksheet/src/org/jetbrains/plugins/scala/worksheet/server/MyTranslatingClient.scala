@@ -34,7 +34,7 @@ private class MyTranslatingClient(
 
   override def internalDebug(text: String): Unit = {
     Log.debugSafe(text)
-    if (ApplicationManager.getApplication.isInternal || ScalaPluginUtils.isRunningFromSources)
+    if (ScalaPluginUtils.isRunningFromSourcesOrInternal)
       progress(s"internal message: $text", None)
   }
 

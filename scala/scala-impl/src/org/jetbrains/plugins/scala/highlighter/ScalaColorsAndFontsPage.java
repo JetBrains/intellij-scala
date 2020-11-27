@@ -8,6 +8,7 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory;
 import com.intellij.openapi.options.colors.AttributesDescriptor;
 import com.intellij.openapi.options.colors.ColorDescriptor;
 import com.intellij.openapi.options.colors.RainbowColorSettingsPage;
+import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,7 +17,10 @@ import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.icons.Icons;
 
 import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.jetbrains.plugins.scala.highlighter.DefaultHighlighter.*;
 
@@ -40,10 +44,25 @@ public class ScalaColorsAndFontsPage implements RainbowColorSettingsPage {
   @NotNull
   @Override
   public AttributesDescriptor[] getAttributeDescriptors() {
-    return ourDescriptors;
-  }
+    if (descriptors == null) {
+      synchronized (this) {
+        if (descriptors == null) {
+          List<AttributesDescriptor> extraDescriptors = ScalaColorsAndFontsPageDescriptorsProvider.EP_NAME.getExtensionList().stream()
+                  .flatMap(it -> it.descriptors().stream())
+                  .collect(Collectors.toList());
 
-  private static final AttributesDescriptor[] ourDescriptors = {
+          ArrayList<AttributesDescriptor> list = new ArrayList<>(ourDescriptors);
+          list.addAll(extraDescriptors);
+          descriptors = list.toArray(new AttributesDescriptor[0]);
+        }
+      }
+    }
+    return descriptors;
+  }
+  private static AttributesDescriptor[] descriptors = null;
+
+
+  private static final List<AttributesDescriptor> ourDescriptors = ContainerUtil.immutableList(
           new AttributesDescriptor(DisplayNames.KEYWORD, KEYWORD),
           new AttributesDescriptor(DisplayNames.NUMBER, NUMBER),
           new AttributesDescriptor(DisplayNames.STRING, STRING),
@@ -102,7 +121,7 @@ public class ScalaColorsAndFontsPage implements RainbowColorSettingsPage {
           new AttributesDescriptor(DisplayNames.XML_ATTRIBUTE_VALUE, XML_ATTRIBUTE_VALUE),
           new AttributesDescriptor(DisplayNames.XML_COMMENT, XML_COMMENT),
           new AttributesDescriptor(DisplayNames.SCALATEST_KEYWORD, SCALATEST_KEYWORD)
-  };
+  );
 
   @NotNull
   @Override

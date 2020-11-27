@@ -366,18 +366,19 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   override def psiInnerClasses: Array[PsiClass] = {
     val inCompanionModule = baseCompanionModule.toSeq.flatMap {
       case o: ScObject =>
-        o.membersWithSynthetic.flatMap {
+        val objectMembers = o.membersWithSynthetic
+        objectMembers.flatMap {
           case o: ScObject => Seq(o) ++ o.fakeCompanionClass
-          case t: ScTrait => Seq(t, t.fakeCompanionClass)
-          case c: ScClass => Seq(c)
-          case _ => Seq.empty
+          case t: ScTrait  => Seq(t, t.fakeCompanionClass)
+          case c: ScClass  => Seq(c)
+          case _           => Seq.empty
         }
       case _ => Seq.empty
     }
 
-    (this.membersWithSynthetic.collect {
-      case c: PsiClass => c
-    } ++ inCompanionModule).toArray
+    val members = this.membersWithSynthetic
+    val filtered = members.filterByType[PsiClass]
+    (filtered ++ inCompanionModule).toArray
   }
 
   override def getOriginalElement: PsiElement =

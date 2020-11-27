@@ -154,6 +154,9 @@ package object extensions {
     def isScala2File: Boolean =
       file.getLanguage == ScalaLanguage.INSTANCE
 
+    def containingDirectory: Option[PsiDirectory] =
+      Option(file.getContainingDirectory)
+
     private def viewProvider = file.getViewProvider
   }
 
@@ -523,6 +526,26 @@ package object extensions {
   implicit class TextRangeExt(private val target: TextRange) extends AnyVal {
     def expand(delta: Int): TextRange = TextRange.create(target.getStartOffset - delta, target.getEndOffset + delta)
     def shrink(delta: Int): TextRange = TextRange.create(target.getStartOffset + delta, target.getEndOffset - delta)
+
+    // (2, 6) x 1 => (3, 5)
+    // (2, 6) x 2 => (4, 4)
+    // (2, 6) x 3 => (4, 4)
+    //
+    // (2, 5) x 1 => (3, 4)
+    // (2, 5) x 2 => (3, 3)
+    // (2, 5) x 3 => (3, 3)
+    def shrinkSafe(delta: Int): TextRange = {
+      val startNew = target.getStartOffset + delta
+      val endNew = target.getEndOffset - delta
+      if (endNew < startNew) {
+        val mid = middle
+        TextRange.create(mid, mid)
+      }
+      else
+        TextRange.create(startNew, endNew)
+    }
+    def middle: Int = (target.getStartOffset + target.getEndOffset) / 2
+
     def shiftStart(delta: Int): TextRange = TextRange.create(target.getStartOffset + delta, target.getEndOffset)
     def shiftEnd(delta: Int): TextRange = TextRange.create(target.getStartOffset, target.getEndOffset + delta)
   }
@@ -837,6 +860,16 @@ package object extensions {
       val file = element.getContainingFile
       file != null || file.isScala3File
     }
+
+    def getOrElseUpdateCopyableUserData[T](key: Key[T], default: => T): T =
+      element.getCopyableUserData(key) match {
+        case null =>
+          val data = default
+          element.putCopyableUserData(key, data)
+          data
+        case data =>
+          data
+      }
   }
 
   implicit class PsiTypeExt(val `type`: PsiType) extends AnyVal {
@@ -1501,7 +1534,7 @@ package object extensions {
     def traceWithDebugInDev(@NonNls message: => String): Unit =
       if (logger.isTraceEnabled)
         logger.trace(message)
-      else if (ApplicationManager.getApplication.isUnitTestMode || ScalaPluginUtils.isRunningFromSources)
+      else if (ScalaPluginUtils.isRunningFromSourcesOrUnitTestMode)
         logger.debugSafe(message)
   }
 

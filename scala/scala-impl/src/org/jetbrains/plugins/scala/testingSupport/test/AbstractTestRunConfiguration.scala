@@ -153,7 +153,8 @@ abstract class AbstractTestRunConfiguration(
   override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = {
     val group: SettingsEditorGroup[AbstractTestRunConfiguration] = new SettingsEditorGroup
     group.addEditor(ExecutionBundle.message("run.configuration.configuration.tab.title"), new AbstractTestRunConfigurationEditor(project))
-    JavaRunConfigurationExtensionManager.getInstance.appendEditors(thisConfiguration, group)
+    // TODO
+    //JavaRunConfigurationExtensionManager.getInstance.appendEditors(thisConfiguration, group)
     group.addEditor(ExecutionBundle.message("logs.tab.title"), new LogConfigurationPanel[AbstractTestRunConfiguration])
     group
   }

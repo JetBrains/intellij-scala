@@ -28,6 +28,8 @@
         <extensionPoint name="referenceExtraResolver" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceExtraResolver" dynamic="true"/>
         <extensionPoint name="highlightingCompilerHelper" interface="org.jetbrains.plugins.scala.externalHighlighters.HighlightingCompilerHelper" dynamic="true"/>
         <extensionPoint name="compilerSettingsProfileProvider" interface="org.jetbrains.plugins.scala.codeInspection.feature.ScalaCompilerSettingsProfileProvider" dynamic="true"/>
+
+        <extensionPoint name="colorsAndFontsPageDescriptorsProvider" interface="org.jetbrains.plugins.scala.highlighter.ScalaColorsAndFontsPageDescriptorsProvider" dynamic="true"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">
