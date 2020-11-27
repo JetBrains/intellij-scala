@@ -5,6 +5,7 @@ import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.platform.templates.github.{DownloadUtil, ZipUtil => GithubZipUtil}
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import junit.framework.{TestCase, TestFailure, TestResult, TestSuite}
 import org.apache.ivy.osgi.util.ZipUtil
@@ -104,6 +105,8 @@ object AfterUpdateDottyVersionScript {
 
     override protected def supportedIn(version: ScalaVersion): Boolean =
       version == LatestScalaVersions.Scala_3_0 // TODO: ATTENTION! ENSURE VERSION IS UPDATED ON RUN
+
+    override def testProjectJdkVersion = LanguageLevel.JDK_1_8
 
     def test(): Unit = {
       val resourcesPath = scalaUltimateProjectDir.resolve(Paths.get(

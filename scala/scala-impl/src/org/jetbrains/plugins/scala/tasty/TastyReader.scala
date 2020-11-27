@@ -34,7 +34,7 @@ object TastyReader {
         // TODO TASTy inspect: an ability to detect .tasty file version, https://github.com/lampepfl/dotty-feature-requests/issues/99
         // TODO TASTy inspect: make dotty-compiler depend on tasty-inspector https://github.com/lampepfl/dotty-feature-requests/issues/100
         // TODO Introduce the version variable
-        val tastyInspectorDependency = DependencyDescription("org.scala-lang", "scala3-tasty-inspector_3.0.0-M1", "3.0.0-M1", isTransitive = true)
+        val tastyInspectorDependency = DependencyDescription("org.scala-lang", "scala3-tasty-inspector_3.0.0-M2", "3.0.0-M2", isTransitive = true)
         Resolver.resolve(tastyInspectorDependency).map(_.file).filter(jar => RequiredLibraries.exists(jar.getPath.contains))
       }
 
@@ -118,7 +118,7 @@ object TastyReader {
 
     assertExists(DottyExampleProject)
 
-    val outputDir = DottyExampleProject + "/target/scala-3.0.0-M1/classes"
+    val outputDir = DottyExampleProject + "/target/scala-3.0.0-M2/classes"
     assertExists(outputDir)
 
     exampleClasses.foreach { fqn =>

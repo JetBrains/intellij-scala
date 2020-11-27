@@ -19,6 +19,9 @@ class ScalaVersionTest extends TestCase {
     assertEquals(Some(new ScalaVersion(ScalaLanguageLevel.Scala_3_0, "0-M2")), ScalaVersion.fromString("3.0.0-M2"))
     assertEquals(Some(new ScalaVersion(ScalaLanguageLevel.Scala_3_0, "1-M1")), ScalaVersion.fromString("3.0.1-M1"))
     assertEquals(Some(new ScalaVersion(ScalaLanguageLevel.Scala_3_0, "1-M2")), ScalaVersion.fromString("3.0.1-M2"))
+    assertEquals(Some(new ScalaVersion(ScalaLanguageLevel.Scala_3_0, "0-RC1")), ScalaVersion.fromString("3.0.0-RC1"))
+    assertEquals(Some(new ScalaVersion(ScalaLanguageLevel.Scala_3_0, "0")), ScalaVersion.fromString("3.0.0"))
+    assertEquals(Some(new ScalaVersion(ScalaLanguageLevel.Scala_3_0, "1")), ScalaVersion.fromString("3.0.1"))
 
     assertEquals(None, ScalaVersion.fromString("A.BC.3"))
     assertEquals(None, ScalaVersion.fromString("2.BC.3"))

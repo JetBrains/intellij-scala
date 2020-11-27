@@ -29,7 +29,7 @@ object Main {
   def main(args: Array[String]): Unit = {
     val Home = System.getProperty("user.home")
     val DottyExampleProject = Home + "/IdeaProjects/dotty-example-project"
-    val Version = "3.0.0-M1"
+    val Version = "3.0.0-M2"
 
     val Repository = s"$Home/.cache/coursier/v1/https/repo1.maven.org/maven2"
 
