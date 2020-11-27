@@ -76,7 +76,7 @@ object CompilationDataFactory
 
       CompilationData(
         sources = canonicalSources,
-        classpath = classpath.toSeq,
+        classpath = classpath.toSeq ++ TempScoverageJarsContainer.jars,
         output = output,
         scalaOptions = commonOptions ++ scalaOptions,
         javaOptions = commonOptions ++ javaOptions,

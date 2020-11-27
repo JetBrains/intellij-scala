@@ -119,8 +119,16 @@ abstract class AbstractCompiler extends Compiler {
 
       val pos = problem.position
       val messageWithoutAnsiColorCodes = ansiColorCodePattern.replaceAllIn(problem.message(), "")
-      val resultMsg = s"${messageWithoutAnsiColorCodes}\n${pos.lineContent}\n"
+      val resultMsg = s"$messageWithoutAnsiColorCodes${lineContentText(pos)}"
       logInClient(resultMsg, pos, kind)
+    }
+
+    // not all messages are bound to source file,
+    // some messages are just information messages about context
+    // we don't want to report 2 extra blank lines in such cases
+    private def lineContentText(pos: Position): String = {
+      val lineContentOpt = Option(pos.lineContent).filter(_.nonEmpty)
+      lineContentOpt.fold("")("\n" + _ + "\n")
     }
 
     private def logInClient(msg: String, pos: Position, kind: Kind): Unit = {

@@ -12,20 +12,24 @@ import java.util.Map;
  * @author Pavel Fatin
  */
 public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> implements ProjectSettings {
+
   public static final ProjectSettingsImpl DEFAULT =
-      new ProjectSettingsImpl(IncrementalityType.IDEA, CompilerSettingsImpl.DEFAULT,
-          new HashMap<String, CompilerSettingsImpl>(), new HashMap<String, String>());
+      new ProjectSettingsImpl(
+              IncrementalityType.IDEA,
+              CompilerSettingsImpl.DEFAULT,
+              new HashMap<>(),
+              new HashMap<>()
+      );
 
-  private IncrementalityType myIncrementalityType;
+  private final IncrementalityType myIncrementalityType;
+  private final CompilerSettingsImpl myDefaultSettings;
+  private final Map<String, CompilerSettingsImpl> myProfileToSettings;
+  private final Map<String, String> myModuleToProfile;
 
-  private CompilerSettingsImpl myDefaultSettings;
-
-  private Map<String, CompilerSettingsImpl> myProfileToSettings;
-
-  private Map<String, String> myModuleToProfile;
-
-
-  public ProjectSettingsImpl(IncrementalityType incrementalityType, CompilerSettingsImpl defaultSettings, Map<String, CompilerSettingsImpl> profileToSettings, Map<String, String> moduleToProfile) {
+  public ProjectSettingsImpl(IncrementalityType incrementalityType,
+                             CompilerSettingsImpl defaultSettings,
+                             Map<String, CompilerSettingsImpl> profileToSettings,
+                             Map<String, String> moduleToProfile) {
     myIncrementalityType = incrementalityType;
     myDefaultSettings = defaultSettings;
     myProfileToSettings = profileToSettings;
