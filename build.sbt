@@ -129,11 +129,11 @@ lazy val tastyRuntime = newProject("tasty-runtime", file("tasty/runtime"))
 
 lazy val tastyExample = newProject("tasty-example", file("tasty/example"))
   .dependsOn(tastyCompile, tastyProvided % Provided)
-  .settings(scalaVersion := Versions.scalaVersion, libraryDependencies += "org.scala-lang" % "scala3-library_3.0.0-M1" % "3.0.0-M1" % Runtime)
+  .settings(scalaVersion := Versions.scalaVersion, libraryDependencies += "org.scala-lang" % "scala3-library_3.0.0-M2" % "3.0.0-M2" % Runtime)
 
 // TODO Remove this synthetic module, package the Runtime dependency automatically.
 lazy val scala3LibraryJar = newProject("scala3-library-jar", file("target/tools/scala3-library-jar"))
-  .settings(libraryDependencies += "org.scala-lang" % "scala3-library_3.0.0-M1" % "3.0.0-M1", packageMethod := PackagingMethod.DepsOnly("lib"))
+  .settings(libraryDependencies += "org.scala-lang" % "scala3-library_3.0.0-M2" % "3.0.0-M2", packageMethod := PackagingMethod.DepsOnly("lib"))
 
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
@@ -153,7 +153,7 @@ lazy val scalaImpl: sbt.Project =
       ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
       //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
       libraryDependencies ++= DependencyGroups.scalaCommunity :+
-        "org.scala-lang" % "scala3-library_3.0.0-M1" % "3.0.0-M1" % Runtime, // TODO Runtime dependencies must be packaged automatically.
+        "org.scala-lang" % "scala3-library_3.0.0-M2" % "3.0.0-M2" % Runtime, // TODO Runtime dependencies must be packaged automatically.
 //      addCompilerPlugin(Dependencies.macroParadise),
       intellijPlugins := Seq(
         "org.intellij.intelliLang",
