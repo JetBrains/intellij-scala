@@ -9,7 +9,7 @@ import com.intellij.ui.components.{JBPanelWithEmptyText, JBScrollPane}
 import com.intellij.util.ui.StartupUiUtil
 import org.jetbrains.plugins.scala.compilationCharts.ui.Common._
 import org.jetbrains.plugins.scala.compilationCharts.{CompilationProgressStateManager, CompileServerMetricsStateManager, Memory}
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeLater}
 
 import javax.swing.UIManager
 import scala.concurrent.duration.{Duration, FiniteDuration}
@@ -47,7 +47,12 @@ class DiagramsComponent(chartsComponent: CompilationChartsComponent,
     updateZoomPixels()
     updatePreferredSize()
 
+    // Sometimes a strange thing happens:
+    // viewport.setViewPosition(newViewPosition)
+    // viewport.getViewPosition != newViewPosition
+    // IDK why, but the second setViewPosition invocation fixes the problem. ¯\_(ツ)_/¯
     viewport.setViewPosition(newViewPosition)
+    invokeLater(viewport.setViewPosition(newViewPosition))
     chartsComponent.repaint()
   }
 
