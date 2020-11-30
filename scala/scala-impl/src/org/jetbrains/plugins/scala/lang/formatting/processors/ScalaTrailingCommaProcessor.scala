@@ -137,13 +137,6 @@ private class ScalaTrailingCommaVisitor(settings: CodeStyleSettings) extends Sca
     val isCommaNext = next != null && next.getNode.getElementType == ScalaTokenTypes.tCOMMA
 
     val parent = trailingElement.getParent
-    val isSingleBlockExpresssion = parent match {
-      case args @ ScArgumentExprList(_: ScBlockExpr) =>
-        val isParenBefore = args.firstChild.exists(_.getNode.getElementType == ScalaTokenTypes.tLPARENTHESIS)
-        val isParenAfter = args.lastChild.exists(_.getNode.getElementType == ScalaTokenTypes.tRPARENTHESIS)
-        !(isParenBefore && isParenAfter)
-      case _ => false
-    }
     val project = trailingElement.getProject
     val oldTextLength: Int = parent.getTextLength
     try {
@@ -156,7 +149,11 @@ private class ScalaTrailingCommaVisitor(settings: CodeStyleSettings) extends Sca
             )
           }
         case TrailingCommaMode.TRAILING_COMMA_ADD_WHEN_MULTILINE =>
-          if (!isCommaNext && trailingElement.followedByNewLine() && !isSingleBlockExpresssion) {
+          val isSingleInfixBlockExpression = parent match {
+            case args: ScArgumentExprList => args.isSingleInfixBlockExpression
+            case _ => false
+          }
+          if (!isCommaNext && trailingElement.followedByNewLine() && !isSingleInfixBlockExpression) {
             val newComma = ScalaPsiElementFactory.createComma(project)
             CodeEditUtil.addChild(
               SourceTreeToPsiMap.psiElementToTree(parent),
