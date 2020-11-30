@@ -80,6 +80,13 @@ object AfterUpdateDottyVersionScript {
     repoDir
   }
 
+  private def cloneRepository(url: String): File = {
+    val cloneDir = newTempDir()
+    val sc = Process("git" :: "clone" :: url :: "." :: "--depth=1" :: Nil, cloneDir).!
+    assert(sc == 0, s"Failed ($sc) to clone $url into $cloneDir")
+    cloneDir
+  }
+
   /**
    * Downloads the latest Dotty project template
    *
@@ -155,9 +162,6 @@ object AfterUpdateDottyVersionScript {
         Files.copy(compiledFile.toPath, resultFile, StandardCopyOption.REPLACE_EXISTING)
       }
     }
-
-    private def readFile(path: Path): String =
-      Using.resource(Source.fromFile(path.toFile))(_.mkString)
   }
 
   /**
@@ -169,7 +173,8 @@ object AfterUpdateDottyVersionScript {
     extends TestCase {
 
     def test(): Unit = {
-      val repoPath = downloadRepository("https://github.com/lampepfl/dotty/archive/master.zip").toPath
+      // we have to clone the repo because it needs a git history
+      val repoPath = cloneRepository("https://github.com/lampepfl/dotty/").toPath
       val srcDir = repoPath.resolve(Paths.get("tests", "pos")).toAbsolutePath.toString
 
       clearDirectory(dottyParserTestsSuccessDir)
@@ -188,13 +193,8 @@ object AfterUpdateDottyVersionScript {
       var atLeastOneFileProcessed = false
       for (file <- allFilesIn(srcDir) if file.toString.toLowerCase.endsWith(".scala"))  {
         val target = dottyParserTestsFailDir + file.toString.substring(srcDir.length).replace(".scala", "++++test")
-        val content = {
-          val src = Source.fromFile(file)
-          try {
-            val content = src.mkString
-            content.replaceAll("[-]{5,}", "+") // <- some test files have comment lines with dashes which confuse junit
-          } finally src.close()
-        }
+        val content = readFile(file.toPath)
+          .replaceAll("[-]{5,}", "+") // <- some test files have comment lines with dashes which confuse junit
 
         if (!content.contains("import language.experimental")) {
           val targetFile = new File(target)
@@ -207,7 +207,7 @@ object AfterUpdateDottyVersionScript {
             .toSeq
             .reverse
             .mkString("_")
-          val outputPath = dottyParserTestsFailDir + File.pathSeparator + outputFileName
+          val outputPath = dottyParserTestsFailDir + File.separator + outputFileName
           val outputInRangeDir = tempRangeSourceDir.resolve(outputFileName.replaceFirst("test$", "scala"))
           println(file.toString + " -> " + outputPath)
 
@@ -245,10 +245,10 @@ object AfterUpdateDottyVersionScript {
   }
 
   private def newTempFile(): File =
-    FileUtilRt.createTempFile(getClass.getName, "", true)
+    FileUtilRt.createTempFile("imported-dotty-tests", "", true)
 
   private def newTempDir(): File =
-    FileUtilRt.createTempDirectory(getClass.getName, "", true)
+    FileUtilRt.createTempDirectory("imported-dotty-tests", "", true)
 
   private def allFilesIn(path: String): Iterator[File] =
     allFilesIn(new File(path))
@@ -289,7 +289,7 @@ object AfterUpdateDottyVersionScript {
     patchFile(
       repoPath.resolve("compiler/test/dotty/tools/dotc/FromTastyTests.scala"),
       "compileTastyInDir(s\"tests${JFile.separator}pos\"",
-      s"compileTastyInDir(s${"\"" + testFilePath + "\""}"
+      s"compileTastyInDir(${"\"" + testFilePath + "\""}"
     )
 
     // patch away an assertion that prevents tree traversal in the parser.
@@ -313,6 +313,10 @@ object AfterUpdateDottyVersionScript {
          |def parse(): Tree = {
          |  val t = compilationUnit()
          |  accept(EOF)
+         |  // we need to test if the files are actually our test files
+         |  // because this function is also used to compile some bootstrap libraries
+         |  if (!source.path.contains("$testFilePath"))
+         |    return t
          |  val w = new java.io.PrintWriter("$targetRangeDirectory/" + source.name.replace(".scala", ".ranges"), java.nio.charset.StandardCharsets.UTF_8)
          |  val traverser = new dotty.tools.dotc.ast.untpd.TreeTraverser {
          |    def traverse(tree: Tree)(using Context) = {
@@ -341,18 +345,20 @@ object AfterUpdateDottyVersionScript {
       clearDirectory(rangesDirectory)
     }
 
-    val sc = Process("sbt" :: "testCompilation --from-tasty pos" :: Nil, repoPath.toFile).!
-    assert(sc == 0, s"sbt failed with exit code $sc")
-    assert(allFilesIn(dottyParserTestsFailDir).size == allFilesIn(rangesDirectory).size)
+    val sc2 = Process("sbt" :: "testCompilation --from-tasty pos" :: Nil, repoPath.toFile).!
+    assert(sc2 == 0, s"sbt failed with exit code $sc2")
+
+    val blacklisted = linesInFile(repoPath.resolve("compiler/test/dotc/pos-from-tasty.blacklist"))
+      .filterNot(_.isBlank)
+      .filterNot(_.startsWith("#"))
+      .size
+    assert(allFilesIn(dottyParserTestsFailDir).size - blacklisted == allFilesIn(rangesDirectory).size)
   }
 
   private def patchFile(path: Path, searchString: String, replacement: String): Unit = {
-    val source = Source.fromFile(path.toFile)
-    val content =
-      try source.mkString
-      finally source.close()
+    val content = readFile(path)
     if (!content.contains(searchString) && !content.contains(replacement)) {
-      throw new Exception(s"Couldn't patch file ${path} because ${searchString} was not found in the content")
+      throw new Exception(s"Couldn't patch file $path because $searchString was not found in the content")
     }
     val newContent = content.replace(searchString, replacement)
     val w = new PrintWriter(path.toFile, StandardCharsets.UTF_8)
@@ -360,13 +366,20 @@ object AfterUpdateDottyVersionScript {
     finally w.close()
   }
 
+  private def linesInFile(path: Path): Seq[String] =
+    Using.resource(Source.fromFile(path.toFile))(_.getLines().toSeq)
+
+  private def readFile(path: Path): String =
+    Using.resource(Source.fromFile(path.toFile))(_.mkString)
+
   /*
   def main(args: Array[String]): Unit = {
     //val tempRangeSourceDir = newTempDir().toPath.resolve("pos").toFile
     //tempRangeSourceDir.mkdirs()
     extractRanges(
-      Path.of("/home/tobi/workspace/forks/dotty/"),
-      Path.of("/home/tobi/desktop/testing/pos")
+      Path.of("/home/tobi/desktop/blub"),
+      Path.of("/home/tobi/desktop/testing/pos"),
+      "/home/tobi/desktop/testing/ranges"
     )
   } // */
 }
