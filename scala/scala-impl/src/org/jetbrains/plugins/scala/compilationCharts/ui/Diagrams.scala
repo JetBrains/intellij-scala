@@ -13,10 +13,11 @@ final case class Diagrams(progressDiagram: ProgressDiagram,
 object Diagrams {
 
   def calculate(progressState: CompilationProgressState,
-                metricsState: CompileServerMemoryState): Diagrams = {
+                metricsState: CompileServerMemoryState,
+                currentTime: Timestamp): Diagrams = {
     val progressRowCount = getParallelism
     val result = for {
-      (minTimestamp, maxTimestamp) <- getMinMaxTimestamps(progressState)
+      (minTimestamp, maxTimestamp) <- getMinMaxTimestamps(progressState, currentTime)
       progressDiagram = calculateProgressDiagram(progressState, progressRowCount, minTimestamp, maxTimestamp)
       progressTime <- progressDiagram.segmentGroups.flatten.map(_.to).maxOption
       memoryDiagram = calculateMemoryDiagram(metricsState, minTimestamp, maxTimestamp)
@@ -37,10 +38,11 @@ object Diagrams {
     if (settings.COMPILE_SERVER_PARALLEL_COMPILATION) settings.COMPILE_SERVER_PARALLELISM else 1
   }
 
-  private def getMinMaxTimestamps(progressState: CompilationProgressState): Option[(Timestamp, Timestamp)] = {
+  private def getMinMaxTimestamps(progressState: CompilationProgressState,
+                                  currentTime: Timestamp): Option[(Timestamp, Timestamp)] = {
     val timestamps = progressState.toSeq.map(_._2).flatMap { info =>
       Seq(info.startTime, info.updateTime) ++ info.finishTime.toSeq
-    }
+    } :+ currentTime
     for {
       min <- timestamps.minOption
       max <- timestamps.maxOption
