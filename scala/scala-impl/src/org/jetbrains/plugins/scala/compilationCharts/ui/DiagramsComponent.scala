@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.ui.components.{JBPanelWithEmptyText, JBScrollPane}
 import com.intellij.util.ui.StartupUiUtil
 import org.jetbrains.plugins.scala.compilationCharts.ui.Common._
-import org.jetbrains.plugins.scala.compilationCharts.{CompilationProgressStateManager, CompileServerMetricsStateManager, Memory}
+import org.jetbrains.plugins.scala.compilationCharts.{CompilationProgressStateManager, CompileServerMetricsStateManager, Memory, Timestamp}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeLater}
 
 import javax.swing.UIManager
@@ -56,10 +56,10 @@ class DiagramsComponent(chartsComponent: CompilationChartsComponent,
     chartsComponent.repaint()
   }
 
-  def updateData(): Unit = {
+  def updateData(currentTime: Timestamp): Unit = {
     val progressState = CompilationProgressStateManager.get(project)
     val metricsState = CompileServerMetricsStateManager.get(project)
-    diagrams = Diagrams.calculate(progressState, metricsState)
+    diagrams = Diagrams.calculate(progressState, metricsState, currentTime)
     staticHeights = getDiagramStaticHeights(diagrams.progressDiagram.rowCount)
 
     updateZoomPixels()

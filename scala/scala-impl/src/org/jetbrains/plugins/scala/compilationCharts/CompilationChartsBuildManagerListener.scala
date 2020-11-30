@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.compilationCharts
 
 import java.util.UUID
-
 import com.intellij.compiler.server.BuildManagerListener
-import com.intellij.openapi.compiler.{CompileContext, CompileTask}
 import com.intellij.openapi.components.{Service, ServiceManager}
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.compilationCharts.ui.CompilationChartsComponentHolder
 import org.jetbrains.plugins.scala.compiler.CompileServerClient
 import org.jetbrains.plugins.scala.util.ScheduledService
 
@@ -17,35 +16,45 @@ class CompilationChartsBuildManagerListener
   override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit = {
     CompilationProgressStateManager.erase(project)
     CompileServerMetricsStateManager.reset(project)
-    val collector = CompileServerMetricsCollector.get(project)
-    collector.stopScheduling()
-    collector.startScheduling()
+
+    val updater = CompilationChartsUpdater.get(project)
+    updater.stopScheduling()
+    updater.startScheduling()
   }
 
   override def buildFinished(project: Project, sessionId: UUID, isAutomake: Boolean): Unit =
-    CompileServerMetricsCollector.get(project).stopScheduling()
+    CompilationChartsUpdater.get(project).stopScheduling()
 }
 
 @Service
-private final class CompileServerMetricsCollector(project: Project)
-  extends ScheduledService(3.seconds) {
-
-  private val compileServerClient = CompileServerClient.get(project)
+private final class CompilationChartsUpdater(project: Project)
+  extends ScheduledService(1.seconds) {
 
   override def runnable: Runnable = { () =>
-    val metrics = compileServerClient.getMetrics()
-    val timestamp = System.nanoTime()
+    val currentTime = System.nanoTime()
+    updateCompileServerMetricsState(currentTime)
+    refreshDiagram(currentTime)
+  }
+
+  private def updateCompileServerMetricsState(currentTime: Timestamp): Unit = {
+    val metrics = CompileServerClient.get(project).getMetrics()
     val state = CompileServerMetricsStateManager.get(project)
     val newState = state.copy(
       maxHeapSize = metrics.maxHeapSize,
-      heapUsed = state.heapUsed.updated(timestamp, metrics.heapUsed)
+      heapUsed = state.heapUsed.updated(currentTime, metrics.heapUsed)
     )
     CompileServerMetricsStateManager.update(project, newState)
   }
+
+  private def refreshDiagram(currentTime: Timestamp): Unit = {
+    val component = CompilationChartsComponentHolder.createOrGet(project)
+    component.updateData(currentTime)
+    component.repaint()
+  }
 }
 
-private object CompileServerMetricsCollector {
+private object CompilationChartsUpdater {
 
-  def get(project: Project): CompileServerMetricsCollector =
-    ServiceManager.getService(project, classOf[CompileServerMetricsCollector])
+  def get(project: Project): CompilationChartsUpdater =
+    ServiceManager.getService(project, classOf[CompilationChartsUpdater])
 }
