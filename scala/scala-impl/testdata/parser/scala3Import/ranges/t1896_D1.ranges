@@ -1,0 +1,7 @@
+[0,27]: PackageDef
+[8,9]: Ident
+[10,27]: TypeDef
+[26,27]: Template
+[26,26]: DefDef
+[26,26]: TypeTree
+[26,27]: Ident

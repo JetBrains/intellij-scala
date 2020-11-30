@@ -1,0 +1,16 @@
+[0,146]: PackageDef
+[0,0]: Ident
+[0,82]: PackageDef
+[8,9]: Ident
+[14,82]: TypeDef
+[30,78]: Template
+[30,30]: DefDef
+[30,30]: TypeTree
+[30,33]: Select
+[30,31]: Ident
+[40,78]: DefDef
+[68,72]: Ident
+[75,78]: Block
+[86,146]: PackageDef
+[94,95]: Ident
+[100,144]: ModuleDef

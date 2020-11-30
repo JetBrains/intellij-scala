@@ -1,0 +1,8 @@
+[0,41]: PackageDef
+[0,0]: Ident
+[0,41]: TypeDef
+[11,39]: Template
+[11,11]: DefDef
+[11,11]: TypeTree
+[11,39]: DefDef
+[18,39]: PolyFunction

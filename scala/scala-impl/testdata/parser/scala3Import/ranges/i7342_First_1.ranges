@@ -1,0 +1,14 @@
+[0,71]: PackageDef
+[0,0]: Ident
+[0,71]: DefDef
+[13,20]: ValDef
+[17,20]: Ident
+[21,21]: TypeTree
+[24,71]: Apply
+[24,46]: Select
+[24,40]: Parens
+[47,70]: Block
+[48,66]: Apply
+[48,55]: Ident
+[56,65]: Literal
+[68,69]: Number

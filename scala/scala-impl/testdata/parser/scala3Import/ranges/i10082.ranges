@@ -1,0 +1,15 @@
+[0,156]: PackageDef
+[0,0]: Ident
+[0,94]: ModuleDef
+[96,118]: Import
+[103,109]: Ident
+[121,156]: DefDef
+[129,129]: TypeTree
+[132,156]: Apply
+[132,143]: Select
+[132,139]: Apply
+[132,136]: Ident
+[137,138]: Number
+[144,155]: Apply
+[144,147]: Ident
+[148,154]: InfixOp

@@ -1,0 +1,10 @@
+[0,91]: PackageDef
+[0,0]: Ident
+[0,32]: ModuleDef
+[34,47]: Import
+[41,45]: Ident
+[49,91]: TypeDef
+[69,91]: LambdaTypeTree
+[69,71]: TypeDef
+[69,69]: TypeBoundsTree
+[75,91]: Parens

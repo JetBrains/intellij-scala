@@ -1,0 +1,16 @@
+[0,54]: PackageDef
+[0,0]: Ident
+[0,22]: TypeDef
+[13,22]: Template
+[13,22]: DefDef
+[14,21]: ValDef
+[17,21]: AppliedTypeTree
+[17,18]: Ident
+[19,20]: TypeBoundsTree
+[21,21]: TypeTree
+[24,54]: TypeDef
+[38,54]: Template
+[38,54]: DefDef
+[39,53]: ValDef
+[42,53]: Function
+[53,53]: TypeTree

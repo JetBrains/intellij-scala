@@ -1,0 +1,10 @@
+[1,195]: PackageDef
+[1,1]: Ident
+[1,106]: ModuleDef
+[107,195]: PackageDef
+[115,120]: Ident
+[125,193]: TypeDef
+[139,148]: Template
+[139,139]: DefDef
+[139,139]: TypeTree
+[139,148]: InterpolatedString

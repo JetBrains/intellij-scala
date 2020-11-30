@@ -1,0 +1,12 @@
+[0,180]: PackageDef
+[8,11]: Ident
+[13,76]: ModuleDef
+[78,180]: PackageDef
+[86,89]: Ident
+[94,110]: Import
+[101,108]: Select
+[101,105]: Ident
+[113,129]: Import
+[120,127]: Select
+[120,123]: Ident
+[133,178]: ModuleDef

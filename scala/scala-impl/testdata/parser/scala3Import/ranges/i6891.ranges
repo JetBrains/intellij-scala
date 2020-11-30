@@ -1,0 +1,7 @@
+[0,45]: PackageDef
+[0,0]: Ident
+[0,45]: DefDef
+[8,33]: ValDef
+[13,33]: PolyFunction
+[36,39]: Ident
+[42,45]: Ident

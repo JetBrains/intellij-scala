@@ -1,0 +1,16 @@
+[0,103]: PackageDef
+[0,0]: Ident
+[0,60]: DefDef
+[23,38]: ValDef
+[34,38]: Ident
+[41,45]: Ident
+[50,60]: Block
+[50,60]: PatDef
+[62,103]: DefDef
+[70,70]: TypeTree
+[73,103]: Apply
+[73,84]: Ident
+[85,103]: Block
+[87,101]: Apply
+[87,94]: Ident
+[95,100]: Literal

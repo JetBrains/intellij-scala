@@ -1,0 +1,14 @@
+[0,60]: PackageDef
+[0,0]: Ident
+[0,60]: ValDef
+[9,37]: AppliedTypeTree
+[9,24]: Ident
+[25,31]: Ident
+[33,36]: Ident
+[40,60]: Match
+[42,58]: CaseDef
+[47,53]: Typed
+[47,48]: Ident
+[50,53]: Ident
+[54,58]: Block
+[57,58]: Ident

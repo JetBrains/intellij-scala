@@ -1,0 +1,15 @@
+[0,195]: PackageDef
+[0,0]: Ident
+[0,195]: TypeDef
+[17,193]: Template
+[17,17]: DefDef
+[17,17]: TypeTree
+[17,44]: DefDef
+[26,37]: AppliedTypeTree
+[26,32]: Ident
+[33,36]: Ident
+[40,44]: Ident
+[48,193]: DefDef
+[60,60]: TypeTree
+[63,193]: Block
+[69,189]: ForDo

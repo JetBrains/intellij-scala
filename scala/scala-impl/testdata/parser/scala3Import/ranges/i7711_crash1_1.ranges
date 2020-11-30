@@ -1,0 +1,10 @@
+[0,203]: PackageDef
+[8,17]: Ident
+[19,65]: Import
+[26,44]: Select
+[26,33]: Ident
+[103,163]: TypeDef
+[114,163]: Function
+[165,203]: ValDef
+[179,182]: Ident
+[187,203]: Function

@@ -1,0 +1,16 @@
+[0,46]: PackageDef
+[0,0]: Ident
+[0,29]: DefDef
+[8,9]: TypeDef
+[8,8]: TypeBoundsTree
+[11,17]: ValDef
+[15,17]: PostfixOp
+[20,23]: Ident
+[26,29]: Ident
+[30,46]: ValDef
+[35,35]: TypeTree
+[38,46]: Apply
+[38,44]: TypeApply
+[38,41]: Ident
+[42,43]: SingletonTypeTree
+[42,43]: Literal

@@ -1,0 +1,17 @@
+[0,169]: PackageDef
+[0,0]: Ident
+[0,169]: TypeDef
+[17,167]: Template
+[17,17]: DefDef
+[17,17]: TypeTree
+[17,47]: ModuleDef
+[52,75]: DefDef
+[61,61]: TypeTree
+[64,75]: Throw
+[80,167]: DefDef
+[90,100]: ValDef
+[93,100]: ByNameTypeTree
+[96,100]: Ident
+[103,107]: Ident
+[110,167]: Block
+[120,161]: ParsedTry

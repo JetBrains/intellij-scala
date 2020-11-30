@@ -1,0 +1,11 @@
+[810,8944]: PackageDef
+[810,810]: Ident
+[810,1349]: ModuleDef
+[1350,1366]: Import
+[1357,1364]: Ident
+[1368,3165]: ModuleDef
+[4133,5868]: ModuleDef
+[6734,7373]: ModuleDef
+[7374,7391]: Import
+[7381,7389]: Ident
+[7393,8944]: ModuleDef

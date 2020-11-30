@@ -1,0 +1,13 @@
+[0,97]: PackageDef
+[0,0]: Ident
+[0,50]: ModuleDef
+[52,97]: DefDef
+[64,70]: ValDef
+[67,70]: Ident
+[71,71]: TypeTree
+[74,97]: Match
+[74,75]: Ident
+[84,95]: CaseDef
+[89,92]: Apply
+[89,90]: Ident
+[93,95]: Block

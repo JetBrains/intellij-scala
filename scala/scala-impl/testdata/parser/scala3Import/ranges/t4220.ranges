@@ -1,0 +1,10 @@
+[110,162]: PackageDef
+[110,110]: Ident
+[110,131]: TypeDef
+[119,131]: Template
+[119,131]: DefDef
+[120,130]: ValDef
+[123,126]: Ident
+[129,130]: Number
+[130,130]: TypeTree
+[133,162]: ModuleDef

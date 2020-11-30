@@ -1,0 +1,5 @@
+[0,73]: PackageDef
+[0,0]: Ident
+[0,73]: DefDef
+[14,14]: TypeTree
+[19,73]: Parens

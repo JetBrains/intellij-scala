@@ -1,0 +1,12 @@
+[0,76]: PackageDef
+[0,0]: Ident
+[0,28]: DefDef
+[8,12]: Ident
+[15,28]: Block
+[17,26]: DefDef
+[22,22]: TypeTree
+[25,26]: Number
+[29,76]: DefDef
+[37,41]: Ident
+[44,76]: Block
+[46,74]: ExtMethods

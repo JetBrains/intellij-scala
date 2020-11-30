@@ -1,0 +1,16 @@
+[3,177]: PackageDef
+[3,3]: Ident
+[3,56]: ExtMethods
+[57,116]: ExtMethods
+[117,131]: ValDef
+[122,122]: TypeTree
+[125,131]: Apply
+[125,128]: Select
+[125,126]: Number
+[129,130]: Number
+[132,177]: DefDef
+[145,145]: TypeTree
+[149,177]: Apply
+[149,170]: Select
+[149,168]: Parens
+[171,176]: Literal

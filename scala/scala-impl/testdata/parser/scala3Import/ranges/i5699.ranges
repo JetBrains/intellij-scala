@@ -1,0 +1,16 @@
+[0,96]: PackageDef
+[0,0]: Ident
+[0,96]: DefDef
+[8,8]: TypeTree
+[11,96]: Block
+[15,55]: TypeDef
+[24,55]: InfixOp
+[58,87]: ValDef
+[65,66]: Ident
+[69,87]: TypeApply
+[69,84]: Select
+[69,71]: Tuple
+[85,86]: Ident
+[90,94]: Typed
+[90,91]: Ident
+[93,94]: Ident

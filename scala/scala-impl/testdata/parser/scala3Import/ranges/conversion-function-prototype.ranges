@@ -1,0 +1,13 @@
+[0,927]: PackageDef
+[8,13]: Ident
+[16,243]: ModuleDef
+[245,335]: TypeDef
+[269,335]: LambdaTypeTree
+[269,289]: TypeDef
+[272,289]: TypeBoundsTree
+[275,289]: Function
+[295,335]: AppliedTypeTree
+[295,332]: Select
+[295,313]: Ident
+[333,334]: Ident
+[337,927]: ModuleDef

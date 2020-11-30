@@ -1,0 +1,7 @@
+[0,483]: PackageDef
+[8,17]: Select
+[8,12]: Ident
+[468,483]: TypeDef
+[468,468]: Template
+[468,468]: DefDef
+[468,468]: TypeTree

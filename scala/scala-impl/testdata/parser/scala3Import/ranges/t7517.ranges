@@ -1,0 +1,15 @@
+[67,687]: PackageDef
+[67,67]: Ident
+[67,87]: TypeDef
+[76,87]: Template
+[76,87]: DefDef
+[78,85]: TypeDef
+[80,84]: LambdaTypeTree
+[80,84]: TypeDef
+[82,83]: LambdaTypeTree
+[82,83]: TypeDef
+[82,82]: TypeBoundsTree
+[83,83]: TypeBoundsTree
+[84,84]: TypeBoundsTree
+[85,85]: TypeTree
+[89,687]: ModuleDef

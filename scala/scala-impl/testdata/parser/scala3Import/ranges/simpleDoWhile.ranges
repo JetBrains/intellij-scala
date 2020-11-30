@@ -1,0 +1,15 @@
+[0,93]: PackageDef
+[0,0]: Ident
+[0,93]: TypeDef
+[14,91]: Template
+[14,14]: DefDef
+[14,14]: TypeTree
+[14,91]: DefDef
+[21,21]: TypeTree
+[24,91]: Block
+[30,39]: ValDef
+[35,35]: TypeTree
+[38,39]: Number
+[44,87]: WhileDo
+[50,84]: Parens
+[85,87]: Tuple

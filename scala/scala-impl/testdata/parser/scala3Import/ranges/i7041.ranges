@@ -1,0 +1,12 @@
+[0,376]: PackageDef
+[0,0]: Ident
+[0,43]: Import
+[7,41]: Select
+[7,25]: Select
+[7,17]: Select
+[7,12]: Ident
+[45,301]: ExtMethods
+[303,376]: DefDef
+[313,317]: Ident
+[320,376]: Block
+[324,374]: InfixOp

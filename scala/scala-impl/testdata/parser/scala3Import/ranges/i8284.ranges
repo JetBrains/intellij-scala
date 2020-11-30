@@ -1,0 +1,15 @@
+[0,112]: PackageDef
+[0,0]: Ident
+[0,8]: TypeDef
+[0,0]: TypeBoundsTree
+[9,53]: ValDef
+[25,47]: Parens
+[50,53]: Ident
+[55,86]: TypeDef
+[66,86]: RefinedTypeTree
+[66,69]: Ident
+[72,84]: TypeDef
+[81,84]: Ident
+[87,112]: ValDef
+[103,106]: Ident
+[109,112]: Ident

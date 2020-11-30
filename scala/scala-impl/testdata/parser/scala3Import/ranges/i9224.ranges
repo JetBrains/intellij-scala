@@ -1,0 +1,17 @@
+[0,86]: PackageDef
+[0,0]: Ident
+[0,28]: ModuleDef
+[30,86]: DefDef
+[38,44]: ValDef
+[41,44]: Ident
+[45,45]: TypeTree
+[48,86]: Match
+[48,49]: Ident
+[58,84]: CaseDef
+[63,74]: Typed
+[63,64]: Ident
+[66,74]: SingletonTypeTree
+[66,69]: Ident
+[75,84]: Block
+[78,84]: Select
+[78,79]: Ident
