@@ -290,6 +290,21 @@ class TrailingCommaTest extends AbstractScalaFormatterTestBase {
     doTextTest(before)
   }
 
+  def testNotAdd_ParameterBlockWithoutParenthesis_1(): Unit = {
+    getScalaSettings.TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_ADD_WHEN_MULTILINE
+    val before =
+      """val items = List[String]("One", "Two", "Three")
+        |items.reduceLeft{_ + _}""".stripMargin
+    val after =
+      """val items = List[String]("One", "Two", "Three")
+        |items.reduceLeft {
+        |  _ + _
+        |}
+        |""".stripMargin
+    doTextTest(before, after)
+    doTextTest(after, after)
+  }
+
   def testNotRemove_NotMultilineWithErrorComma(): Unit = {
     getScalaSettings.TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_REMOVE_WHEN_MULTILINE
     val before ="""List(1, 2, 3,)"""
