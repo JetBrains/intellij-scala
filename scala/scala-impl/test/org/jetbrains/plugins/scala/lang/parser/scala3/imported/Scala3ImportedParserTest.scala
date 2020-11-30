@@ -69,6 +69,7 @@ class Scala3ImportedParserTest extends Scala3ImportedParserTestBase(Scala3Import
 
 object Scala3ImportedParserTest {
   val directory = "/parser/scala3Import/success"
+  val rangesDirectory = "/parser/scala3Import/ranges"
   def suite = new Scala3ImportedParserTest()
 }
 

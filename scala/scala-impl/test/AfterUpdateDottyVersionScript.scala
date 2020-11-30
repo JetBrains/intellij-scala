@@ -7,18 +7,21 @@ import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.util.io.ZipUtil
 import junit.framework.{TestCase, TestFailure, TestResult, TestSuite}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
-import org.jetbrains.plugins.scala.lang.parser.scala3.imported.Scala3ImportedParserTest_Move_Fixed_Tests
+import org.jetbrains.plugins.scala.lang.parser.scala3.imported.{Scala3ImportedParserTest, Scala3ImportedParserTest_Move_Fixed_Tests}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.Ignore
 import org.junit.runner.JUnitCore
 
 import java.io.{File, FileOutputStream, PrintWriter}
+import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, Paths, StandardCopyOption}
 import java.util.zip.ZipOutputStream
 import scala.io.Source
 import scala.jdk.CollectionConverters.{EnumerationHasAsScala, ListHasAsScala}
+import scala.sys.process.Process
 import scala.util.Using
 
 @Ignore("for local running only")
@@ -66,6 +69,7 @@ class AfterUpdateDottyVersionScript
 
 object AfterUpdateDottyVersionScript {
   import Scala3ImportedParserTest_Move_Fixed_Tests.{dottyParserTestsFailDir, dottyParserTestsSuccessDir}
+  private val rangesDirectory: String = TestUtils.getTestDataPath + Scala3ImportedParserTest.rangesDirectory
 
   private def downloadRepository(url: String): File = {
     val repoFile = newTempFile()
@@ -177,6 +181,10 @@ object AfterUpdateDottyVersionScript {
       new File(dottyParserTestsSuccessDir).mkdirs()
       new File(dottyParserTestsFailDir).mkdirs()
 
+      //val tempRangeSourceDir = Path.of("/home/tobi/desktop/testing/pos")
+      val tempRangeSourceDir = newTempDir().toPath.resolve("pos")
+      tempRangeSourceDir.toFile.mkdirs()
+
       var atLeastOneFileProcessed = false
       for (file <- allFilesIn(srcDir) if file.toString.toLowerCase.endsWith(".scala"))  {
         val target = dottyParserTestsFailDir + file.toString.substring(srcDir.length).replace(".scala", "++++test")
@@ -191,7 +199,7 @@ object AfterUpdateDottyVersionScript {
         if (!content.contains("import language.experimental")) {
           val targetFile = new File(target)
 
-          val targetWithDirs = dottyParserTestsFailDir + "/" + Iterator
+          val outputFileName = Iterator
             .iterate(targetFile)(_.getParentFile)
             .takeWhile(_ != null)
             .takeWhile(!_.isDirectory)
@@ -199,32 +207,33 @@ object AfterUpdateDottyVersionScript {
             .toSeq
             .reverse
             .mkString("_")
-          println(file.toString + " -> " + targetWithDirs)
+          val outputPath = dottyParserTestsFailDir + File.pathSeparator + outputFileName
+          val outputInRangeDir = tempRangeSourceDir.resolve(outputFileName.replaceFirst("test$", "scala"))
+          println(file.toString + " -> " + outputPath)
 
-          val pw = new PrintWriter(targetWithDirs)
-          pw.write(content)
-          if (content.last != '\n')
-            pw.write('\n')
-          pw.println("-----")
-          pw.close()
+          {
+            val pw = new PrintWriter(outputPath)
+            pw.write(content)
+            if (content.last != '\n')
+              pw.write('\n')
+            pw.println("-----")
+            pw.close()
+          }
+
+          // print it into a temporary directory which we can use to run sbt tests on
+          {
+            val pw = new PrintWriter(outputInRangeDir.toFile)
+            pw.write(content)
+            pw.close()
+          }
           atLeastOneFileProcessed = true
         }
       }
       if (!atLeastOneFileProcessed)
         throw new AssertionError("No files were processed")
+
+      extractRanges(repoPath, tempRangeSourceDir, rangesDirectory)
     }
-
-    private def allFilesIn(path: String): Iterator[File] =
-      allFilesIn(new File(path))
-
-    private def allFilesIn(path: File): Iterator[File] = {
-      if (!path.exists) Iterator.empty
-      else if (!path.isDirectory) Iterator(path)
-      else path.listFiles.iterator.flatMap(allFilesIn)
-    }
-
-    private def clearDirectory(path: String): Unit =
-      new File(path).listFiles().foreach(_.delete())
   }
 
   private def scalaUltimateProjectDir: Path = {
@@ -241,9 +250,123 @@ object AfterUpdateDottyVersionScript {
   private def newTempDir(): File =
     FileUtilRt.createTempDirectory(getClass.getName, "", true)
 
+  private def allFilesIn(path: String): Iterator[File] =
+    allFilesIn(new File(path))
+
+  private def allFilesIn(path: File): Iterator[File] = {
+    if (!path.exists) Iterator.empty
+    else if (!path.isDirectory) Iterator(path)
+    else path.listFiles.iterator.flatMap(allFilesIn)
+  }
+
+  private def clearDirectory(path: String): Unit =
+    new File(path).listFiles().foreach(_.delete())
+
   sealed trait Script
   object Script {
     final case class FromTestCase(clazz: Class[_ <: TestCase]) extends Script
     final case class FromTestSuite(suite: TestSuite) extends Script
   }
+
+  /**
+   * Runs the dotty test suite on the imported files and extracts ranges of syntax elements for each test file
+   * This is done by patching multiple files in the dotty compiler/test source.
+   * Most importantly we hook into the main parse function and traverse trees that were created there.
+   *
+   * @param repoPath path to the complete dotty source code
+   * @param testFilePath path to a directory that contains all test files
+   * @param targetRangeDirectory path where the resulting range files are put into
+   */
+  private def extractRanges(repoPath: Path, testFilePath: Path, targetRangeDirectory: String): Unit = {
+    // patch test source to not delete tasty files
+    patchFile(
+      repoPath.resolve("compiler/test/dotty/tools/vulpix/ParallelTesting.scala"),
+      "shouldDelete = true",
+      "shouldDelete = false"
+    )
+
+    // patch test source to take our own source files
+    patchFile(
+      repoPath.resolve("compiler/test/dotty/tools/dotc/FromTastyTests.scala"),
+      "compileTastyInDir(s\"tests${JFile.separator}pos\"",
+      s"compileTastyInDir(s${"\"" + testFilePath + "\""}"
+    )
+
+    // patch away an assertion that prevents tree traversal in the parser.
+    // This is like setting the mode to Mode.Interactive, just easier :D
+    patchFile(
+      repoPath.resolve("compiler/src/dotty/tools/dotc/ast/Trees.scala"),
+      "assert(ctx.reporter.errorsReported || ctx.mode.is(Mode.Interactive), tree)",
+      "assert(true || ctx.reporter.errorsReported || ctx.mode.is(Mode.Interactive), tree)"
+    )
+
+    // patch the parse function to output the ranges of the parsed tree
+    patchFile(
+      repoPath.resolve("compiler/src/dotty/tools/dotc/parsing/Parsers.scala"),
+      """    def parse(): Tree = {
+        |      val t = compilationUnit()
+        |      accept(EOF)
+        |      t
+        |    }
+        |""".stripMargin,
+      s"""
+         |def parse(): Tree = {
+         |  val t = compilationUnit()
+         |  accept(EOF)
+         |  val w = new java.io.PrintWriter("$targetRangeDirectory/" + source.name.replace(".scala", ".ranges"), java.nio.charset.StandardCharsets.UTF_8)
+         |  val traverser = new dotty.tools.dotc.ast.untpd.TreeTraverser {
+         |    def traverse(tree: Tree)(using Context) = {
+         |      val span = tree.span
+         |      if (span.exists) {
+         |        val s = tree.toString
+         |        val endOfName = s.indexOf("(")
+         |        val name =
+         |          if endOfName == -1
+         |          then s
+         |          else s.substring(0, endOfName)
+         |        w.println(s"[$${span.start},$${span.end}]: $$name")
+         |      }
+         |      foldOver((), tree)
+         |    }
+         |  }
+         |  traverser.traverse(t)
+         |  w.close()
+         |  EmptyTree  // <- prevent rest of the tests from failing
+         |}
+         |""".stripMargin.replaceAll("\n", "\n    ")
+    )
+
+    {
+      new File(rangesDirectory).mkdirs()
+      clearDirectory(rangesDirectory)
+    }
+
+    val sc = Process("sbt" :: "testCompilation --from-tasty pos" :: Nil, repoPath.toFile).!
+    assert(sc == 0, s"sbt failed with exit code $sc")
+    assert(allFilesIn(dottyParserTestsFailDir).size == allFilesIn(rangesDirectory).size)
+  }
+
+  private def patchFile(path: Path, searchString: String, replacement: String): Unit = {
+    val source = Source.fromFile(path.toFile)
+    val content =
+      try source.mkString
+      finally source.close()
+    if (!content.contains(searchString) && !content.contains(replacement)) {
+      throw new Exception(s"Couldn't patch file ${path} because ${searchString} was not found in the content")
+    }
+    val newContent = content.replace(searchString, replacement)
+    val w = new PrintWriter(path.toFile, StandardCharsets.UTF_8)
+    try w.write(newContent)
+    finally w.close()
+  }
+
+  /*
+  def main(args: Array[String]): Unit = {
+    //val tempRangeSourceDir = newTempDir().toPath.resolve("pos").toFile
+    //tempRangeSourceDir.mkdirs()
+    extractRanges(
+      Path.of("/home/tobi/workspace/forks/dotty/"),
+      Path.of("/home/tobi/desktop/testing/pos")
+    )
+  } // */
 }
