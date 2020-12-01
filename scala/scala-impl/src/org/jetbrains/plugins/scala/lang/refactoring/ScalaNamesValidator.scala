@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil.isEmpty
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{KEYWORDS, tIDENTIFIER}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{KEYWORDS, SOFT_KEYWORDS, tIDENTIFIER}
 import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 class ScalaNamesValidator extends NamesValidator {
@@ -14,6 +14,11 @@ class ScalaNamesValidator extends NamesValidator {
   private val lexerCache = UnloadableThreadLocal(new ScalaLexer(false, null))
 
   private val keywordNames: Set[String] = KEYWORDS.getTypes
+    .iterator
+    // Todo: this is a temporary solution for SCL-18347
+    //       soft keywords are highly context dependent
+    //       and need another way of handling them (tracking issue: SCL-18509)
+    .filterNot(SOFT_KEYWORDS.contains)
     .map(_.toString)
     .toSet
 
