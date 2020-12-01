@@ -2,15 +2,19 @@ package org.jetbrains.plugins.scala.lang.parser.scala3.imported
 
 import com.intellij.lang.Language
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.impl.DebugUtil.psiToString
-import com.intellij.psi.{PsiErrorElement, PsiFile}
+import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile}
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.parser.scala3.imported.Scala3ImportedParserTest.rangesDirectory
 import org.jetbrains.plugins.scala.{PerfCycleTests, Scala3Language}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 import org.junit.runners.AllTests
+
+import java.nio.file.Paths
 
 @RunWith(classOf[AllTests])
 @Category(Array(classOf[PerfCycleTests]))
@@ -33,7 +37,7 @@ abstract class Scala3ImportedParserTestBase(dir: String) extends ScalaFileSetTes
     val hasErrorElements = errors.nonEmpty
 
     lazy val expected = psiToString(lightFile, false).replace(": " + lightFile.name, "")
-    if (hasErrorElements != shouldHaveErrorElements) {
+    if (hasErrorElements != shouldHaveErrors) {
       println(fileText)
       println("-------")
       println(expected)
@@ -41,30 +45,65 @@ abstract class Scala3ImportedParserTestBase(dir: String) extends ScalaFileSetTes
 
     val msg = s"Found following errors: " + errors.mkString(", ")
 
-    if (shouldHaveErrorElements) {
-      assertTrue("Was expected to find error elements, but found none", hasErrorElements)
+    // check ranges
+    lazy val interlaced = findInterlacedRanges(lightFile, testName)
+
+    if (shouldHaveErrors) {
+      assert(hasErrorElements || interlaced.nonEmpty, "Expected to find error elements or interlaced ranges, but found none.")
     } else {
       assertFalse(msg, hasErrorElements)
+      assert(interlaced.isEmpty, "Following elements have conflicting ranges:\n" + {
+        val maxStringLen = 50
+        def clip(s: String): String = {
+          if (s.length > maxStringLen) s.take(maxStringLen / 2 - 1) + ".." + s.takeRight(maxStringLen / 2 - 1)
+          else s
+        }.replace("\n", "\\n")
+
+        interlaced
+          .map { case (e, (range, name)) =>
+            val rangeText = textInRange(lightFile, range)
+            s"$e <-> $name:\n   ${trimRanges(lightFile, e.getTextRange)}[${clip(e.getText)}]\nvs $range[${clip(rangeText)}]"
+          }
+          .mkString("\n")
+      })
     }
 
-    // TODO: return real psi tree instead of empty one and add reference tree to testfiles
-    if (testsWithPsiResult.contains(testName))
-      expected
-    else ""
+    // TODO: return real psi tree instead of empty one
+    ""
   }
 
-  protected def testsWithPsiResult: Set[String] = Set.empty
+  def findInterlacedRanges(root: PsiElement, testName: String): Seq[(PsiElement, (TextRange, String))] = {
+    val ranges = RangeMap.fromFileOrEmpty(Paths.get(getTestDataPath, rangesDirectory, testName + ".ranges"))
+    val ignoredNames = Set("Import", "Export")
+    for {
+      e <- root.depthFirst()
+      interlaced = ranges.interlaced(trimRanges(root, e.getTextRange)).toMap
+      interlace <- interlaced
+      if !ignoredNames(interlace._2)
+    } yield e -> interlace
+  }.toSeq
 
-  protected def shouldHaveErrorElements: Boolean
+  def textInRange(root: PsiElement, range: TextRange): String =
+    root.getText.substring(range.getStartOffset, range.getEndOffset)
+
+  def trimRanges(root: PsiElement, range: TextRange): TextRange = {
+    val text = textInRange(root, range)
+    val leadingWs = text.iterator.takeWhile(_.isWhitespace).size
+    if (leadingWs == text.length) range
+    else {
+      val trailingWs = text.reverseIterator.takeWhile(_.isWhitespace).size
+      new TextRange(range.getStartOffset + leadingWs, range.getEndOffset - trailingWs)
+    }
+  }
+
+  protected def shouldHaveErrors: Boolean
 
   override protected def shouldPass = true
 }
 
 
 class Scala3ImportedParserTest extends Scala3ImportedParserTestBase(Scala3ImportedParserTest.directory) {
-  override protected def shouldHaveErrorElements: Boolean = false
-
-  override val testsWithPsiResult = Set()
+  override protected def shouldHaveErrors: Boolean = false
 }
 
 object Scala3ImportedParserTest {
@@ -79,7 +118,7 @@ object Scala3ImportedParserTest {
  * run [[Scala3ImportedParserTest_Move_Fixed_Tests]].
  */
 class Scala3ImportedParserTest_Fail extends Scala3ImportedParserTestBase(Scala3ImportedParserTest_Fail.directory) {
-  override protected def shouldHaveErrorElements: Boolean = true
+  override protected def shouldHaveErrors: Boolean = true
 }
 
 object Scala3ImportedParserTest_Fail {

@@ -1,4 +1,4 @@
-[0,318]: PackageDef
+[0,317]: PackageDef
 [0,0]: Ident
 [0,20]: Import
 [7,11]: Ident
@@ -24,7 +24,7 @@
 [138,148]: AppliedTypeTree
 [138,145]: Ident
 [146,147]: Ident
-[151,318]: DefDef
+[151,317]: DefDef
 [158,159]: TypeDef
 [158,158]: TypeBoundsTree
 [161,175]: ValDef
@@ -32,7 +32,7 @@
 [164,172]: Ident
 [173,174]: Ident
 [176,176]: TypeTree
-[179,318]: Block
+[179,317]: Block
 [183,205]: ValDef
 [189,189]: TypeTree
 [192,205]: Apply
@@ -41,4 +41,4 @@
 [200,201]: Ident
 [203,204]: Ident
 [208,258]: ForYield
-[261,316]: ForYield
+[261,315]: ForYield

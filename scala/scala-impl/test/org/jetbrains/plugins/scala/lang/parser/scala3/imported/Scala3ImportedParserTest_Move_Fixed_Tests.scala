@@ -33,9 +33,10 @@ object Scala3ImportedParserTest_Move_Fixed_Tests {
     extends Scala3ImportedParserTestBase(Scala3ImportedParserTest_Fail.directory) {
 
     protected override def transform(testName: String, fileText: String, project: Project): String = {
-      val (errors, _) = findErrorElements(fileText, project)
+      val (errors, file) = findErrorElements(fileText, project)
+      val interlaced = findInterlacedRanges(file, testName)
 
-      if (errors.isEmpty) {
+      if (errors.isEmpty && interlaced.isEmpty) {
         val from = dottyParserTestsFailDir + "/" + testName + ".test"
         val to = dottyParserTestsSuccessDir + "/" + testName + ".test"
 
@@ -51,6 +52,6 @@ object Scala3ImportedParserTest_Move_Fixed_Tests {
       ""
     }
 
-    override protected def shouldHaveErrorElements: Boolean = throw new UnsupportedOperationException
+    override protected def shouldHaveErrors: Boolean = throw new UnsupportedOperationException
   }
 }
