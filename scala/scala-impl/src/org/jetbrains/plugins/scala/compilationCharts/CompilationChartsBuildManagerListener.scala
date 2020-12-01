@@ -33,7 +33,7 @@ private final class CompilationChartsUpdater(project: Project)
   override def runnable: Runnable = { () =>
     val currentTime = System.nanoTime()
     updateCompileServerMetricsState(currentTime)
-    refreshDiagram(currentTime)
+    refreshDiagram()
   }
 
   private def updateCompileServerMetricsState(currentTime: Timestamp): Unit = {
@@ -46,9 +46,9 @@ private final class CompilationChartsUpdater(project: Project)
     CompileServerMetricsStateManager.update(project, newState)
   }
 
-  private def refreshDiagram(currentTime: Timestamp): Unit = {
+  private def refreshDiagram(): Unit = {
     val component = CompilationChartsComponentHolder.createOrGet(project)
-    component.updateData(currentTime)
+    component.updateData()
     component.repaint()
   }
 }
