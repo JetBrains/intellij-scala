@@ -90,7 +90,17 @@ object AfterUpdateDottyVersionScript {
       )).toFile
 
       val repoPath = downloadRepository("https://github.com/lampepfl/dotty.g8/archive/master.zip").toPath
+      assertTrue("repository folder doesn't exist", repoPath.toFile.exists())
+
       val dottyTemplateDir = repoPath.resolve(Paths.get("src", "main", "g8")).toFile
+      assertTrue("template folder doesn't exist", dottyTemplateDir.exists())
+
+      // no need it it, it doesn't contain any useful info
+      val g8ProjectDescriptionFile = new File(dottyTemplateDir, "default.properties")
+      g8ProjectDescriptionFile.delete()
+
+      // ATTENTION !!! Ensure created zip archive is correctly unzipped on all OS. Especially if the script is run
+      // on Windows, check it on Linux: it shouldn't contain backslashes archive entries paths.
       ZipUtil.zip(dottyTemplateDir, new FileOutputStream(resultFile))
     }
   }
