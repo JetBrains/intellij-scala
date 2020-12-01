@@ -56,10 +56,10 @@ class DiagramsComponent(chartsComponent: CompilationChartsComponent,
     chartsComponent.repaint()
   }
 
-  def updateData(currentTime: Timestamp): Unit = {
+  def updateData(): Unit = {
     val progressState = CompilationProgressStateManager.get(project)
     val metricsState = CompileServerMetricsStateManager.get(project)
-    diagrams = Diagrams.calculate(progressState, metricsState, currentTime)
+    diagrams = Diagrams.calculate(progressState, metricsState)
     staticHeights = getDiagramStaticHeights(diagrams.progressDiagram.rowCount)
 
     updateZoomPixels()
