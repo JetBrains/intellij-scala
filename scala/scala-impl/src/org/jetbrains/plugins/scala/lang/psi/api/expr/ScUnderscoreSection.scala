@@ -4,12 +4,19 @@ package psi
 package api
 package expr
 
+import com.intellij.lang.ASTNode
+import com.intellij.psi.impl.source.tree.{CompositeElement, LeafElement}
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderScoreSectionUtil.isUnderscore
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 
 /**
 * @author Alexander Podkhalyuzin
@@ -111,27 +118,32 @@ object ScUnderScoreSectionUtil {
   def isUnderscoreFunction(expr: ScExpression): Boolean = underscores(expr).nonEmpty
 
   /**Collects parameters of anonymous functions in placeholder syntax*/
+  @CachedInUserData(expr, ModTracker.anyScalaPsiChange)
   def underscores(expr: ScExpression): Seq[ScUnderscoreSection] = {
-    if (!expr.isValid || !expr.textContains('_'))
+    if (!expr.isValid)
       return Nil
 
-    val expressionText = expr.getText
-    val file = expr.getContainingFile
-    val start = expr.startOffset
+    val underscores = ArrayBuffer.empty[ScUnderscoreSection]
+    collectUnderscoreNodes(expr.getNode, underscores)
 
-    var index = expressionText.lastIndexOf('_')
-    var found: List[ScUnderscoreSection] = Nil
+    underscores
+      .filter(u => u.bindingExpr.isEmpty && u.overExpr.contains(expr))
+      .toList
+  }
 
-    while (index >= 0) {
-      val leaf = file.findElementAt(start + index)
-      leaf.getParent match {
-        case u: ScUnderscoreSection if u.bindingExpr.isEmpty && u.overExpr.contains(expr) =>
-          found = u :: found
-        case _ =>
-      }
-      index = expressionText.lastIndexOf('_', index - 1)
+  private def collectUnderscoreNodes(node: ASTNode, result: ArrayBuffer[ScUnderscoreSection]): Unit = {
+    node match {
+      case composite: CompositeElement =>
+        var currentChild = composite.getFirstChildNode
+        while (currentChild != null) {
+          if (currentChild.getElementType == ScalaElementType.PLACEHOLDER_EXPR)
+            result.addOne(currentChild.getPsi(classOf[ScUnderscoreSection]))
+          else
+            collectUnderscoreNodes(currentChild, result)
+
+          currentChild = currentChild.getTreeNext
+        }
+      case _ =>
     }
-
-    found
   }
 }
