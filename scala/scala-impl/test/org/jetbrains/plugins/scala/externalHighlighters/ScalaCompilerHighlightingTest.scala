@@ -7,27 +7,30 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.testFramework.EdtTestUtil
 import org.hamcrest.{Description, Matcher}
-import org.jetbrains.plugins.scala.{HighlightingTests, SlowTests}
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.withErrorsFromCompiler
-import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, invokeAndWait}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.util.matchers.{HamcrestMatchers, ScalaBaseMatcher}
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
 import org.junit.Assert.assertThat
 import org.junit.experimental.categories.Category
-import org.junit.runner.RunWith
 
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
-import scala.concurrent.duration.DurationInt
-import scala.concurrent.{Await, Promise}
-import scala.util.{Success, Try}
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
 @Category(Array(classOf[SlowTests]))
-class ScalaCompilerHighlightingTest
+class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
+}
+
+@Category(Array(classOf[SlowTests]))
+class ScalaCompilerHighlightingTest_3_0 extends ScalaCompilerHighlightingTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_0
+}
+
+@Category(Array(classOf[SlowTests]))
+abstract class ScalaCompilerHighlightingTestBase
   extends ScalaCompilerTestBase
     with HamcrestMatchers {
 
@@ -36,15 +39,11 @@ class ScalaCompilerHighlightingTest
 
   override def setUp(): Unit =
     EdtTestUtil.runInEdtAndWait(() => {
-      ScalaCompilerHighlightingTest.super.setUp()
+      ScalaCompilerHighlightingTestBase.super.setUp()
     })
 
-  import ScalaCompilerHighlightingTest._
+  type ExpectedResult = Matcher[Seq[HighlightInfo]]
 
-  @RunWithScalaVersions(Array(
-    TestScalaVersion.Scala_2_13,
-    TestScalaVersion.Scala_3_0
-  ))
   def testWarningHighlighting(): Unit = runTestCase(
     fileName = "ExhaustiveMatchWarning.scala",
     content =
@@ -63,10 +62,6 @@ class ScalaCompilerHighlightingTest
     ))
   )
 
-  @RunWithScalaVersions(Array(
-    TestScalaVersion.Scala_2_13,
-    TestScalaVersion.Scala_3_0
-  ))
   def testErrorHighlighting(): Unit = runTestCase(
     fileName = "AbstractMethodInClassError.scala",
     content =
@@ -82,78 +77,7 @@ class ScalaCompilerHighlightingTest
     ))
   )
 
-  private val worksheetContent =
-    """42
-      |val option: Option[Int] = Some(1)
-      |option match {
-      |  case Some(_) =>
-      |}
-      |unknownFunction()
-      |val x = 23 //actually, in worksheets this should be treated as OK, but for now we just fix the behaviour in tests
-      |val x = 23
-      |"""
-
-  /** see [[org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WrappedWorksheetCompilerMessagesFixer]] */
-  @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
-  def testOnlyErrorsAreExpectedInWorksheet_Scala_2_13(): Unit = runTestCaseForWorksheet(
-    fileName = "worksheet.sc",
-    content = worksheetContent.stripMargin,
-    expectedResult = expectedResult(
-      ExpectedHighlighting(
-        severity = HighlightSeverity.ERROR,
-        range = Some(new TextRange(72, 87)),
-        msgPrefix = "not found: value unknownFunction"
-      ),
-      ExpectedHighlighting(
-        severity = HighlightSeverity.ERROR,
-        range = Some(new TextRange(208, 209)),
-        msgPrefix = "x is already defined as value x"
-      )
-    )
-  )
-
-  /* see [[org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WrappedWorksheetCompilerMessagesFixer]] */
-  @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_0))
-  def testOnlyErrorsAreExpectedInWorksheet_Scala_3(): Unit = runTestCaseForWorksheet(
-    fileName = "worksheet.sc",
-    content = worksheetContent.stripMargin,
-    expectedResult = expectedResult(
-      ExpectedHighlighting(
-        severity = HighlightSeverity.ERROR,
-        range = Some(new TextRange(72, 87)),
-        msgPrefix = "Not found: unknownFunction"
-      ),
-      ExpectedHighlighting(
-        severity = HighlightSeverity.ERROR,
-        range = Some(new TextRange(208, 209)),
-        msgPrefix = "Double definition:\nval x: Int in worksheet.sc at line 8 and\nval x: Int in worksheet.sc at line 9"
-      )
-    )
-  )
-
-  @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_0))
-  def testReplaceWrapperClassNameFromErrorMessages(): Unit = runTestCaseForWorksheet(
-    fileName = "worksheet.sc",
-    content =
-      """object X {}
-        |X.foo()
-        |this.bar()""".stripMargin,
-    expectedResult = expectedResult(
-      ExpectedHighlighting(
-        severity = HighlightSeverity.ERROR,
-        range = Some(new TextRange(14, 17)),
-        msgPrefix = "value foo is not a member of object X"
-      ),
-      ExpectedHighlighting(
-        severity = HighlightSeverity.ERROR,
-        range = Some(new TextRange(25, 28)),
-        msgPrefix = "value bar is not a member of worksheet.sc"
-      )
-    )
-  )
-
-
-  private def runTestCase(
+  protected def runTestCase(
     fileName: String,
     content: String,
     expectedResult: ExpectedResult,
@@ -164,8 +88,8 @@ class ScalaCompilerHighlightingTest
     doAssertion(virtualFile, expectedResult)
   }
 
-  private def doAssertion(virtualFile: VirtualFile,
-                          expectedResult: ExpectedResult): Unit = {
+  protected def doAssertion(virtualFile: VirtualFile,
+                            expectedResult: ExpectedResult): Unit = {
     @tailrec
     def rec(attemptsLeft: Int): Unit = {
       val actualResult = invokeAndWait {
@@ -187,9 +111,9 @@ class ScalaCompilerHighlightingTest
     rec(2)
   }
 
-  private def runTestCase(fileName: String,
-                          content: String,
-                          expectedResult: ExpectedResult): Unit = withErrorsFromCompiler {
+  protected def runTestCase(fileName: String,
+                            content: String,
+                            expectedResult: ExpectedResult): Unit = withErrorsFromCompiler {
     val waitUntilFileIsHighlighted: VirtualFile => Unit = virtualFile => {
       invokeAndWait {
         FileEditorManager.getInstance(getProject).openFile(virtualFile, true)
@@ -199,46 +123,11 @@ class ScalaCompilerHighlightingTest
     runTestCase(fileName, content, expectedResult, waitUntilFileIsHighlighted)
   }
 
-  private def runTestCaseForWorksheet(
-    fileName: String,
-    content: String,
-    expectedResult: ExpectedResult
-  ): Unit = withErrorsFromCompiler {
-    val waitUntilFileIsHighlighted: VirtualFile => Unit = virtualFile => {
-      // Compilation is done on file opening (see RegisterCompilationListener.MyFileEditorManagerListener)
-      // There is no explicit compile worksheet action for now, like we have in Build with JPS.
-      // In order to detect the end of we wait until CompilationFinished event is generated
-      val promise = Promise[Unit]()
-      getProject.getMessageBus.connect().subscribe(CompilerEventListener.topic, new CompilerEventListener {
-        override def eventReceived(event: CompilerEvent): Unit = event match {
-          case CompilerEvent.CompilationFinished(_, _, files) =>
-            // todo (minor): we should also ensure that the file is actually the tested file
-            promise.complete(Success(()))
-          case _ =>
-            ()
-        }
-      })
+  protected case class ExpectedHighlighting(severity: HighlightSeverity,
+                                            range: Option[TextRange] = None,
+                                            msgPrefix: String = "")
 
-      invokeAndWait {
-        FileEditorManager.getInstance(getProject).openFile(virtualFile, true)
-      }
-
-      val timeout = 60.seconds
-      Await.result(promise.future, timeout)
-    }
-    runTestCase(fileName, content, expectedResult, waitUntilFileIsHighlighted)
-  }
-}
-
-object ScalaCompilerHighlightingTest {
-
-  private type ExpectedResult = Matcher[Seq[HighlightInfo]]
-
-  private case class ExpectedHighlighting(severity: HighlightSeverity,
-                                          range: Option[TextRange] = None,
-                                          msgPrefix: String = "")
-
-  private def expectedResult(expected: ExpectedHighlighting*): ExpectedResult = new ScalaBaseMatcher[Seq[HighlightInfo]] {
+  protected def expectedResult(expected: ExpectedHighlighting*): ExpectedResult = new ScalaBaseMatcher[Seq[HighlightInfo]] {
 
     override protected def valueMatches(actualValue: Seq[HighlightInfo]): Boolean = {
       expected.size == actualValue.size &&
