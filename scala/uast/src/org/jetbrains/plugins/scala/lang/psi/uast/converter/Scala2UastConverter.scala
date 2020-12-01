@@ -4,6 +4,7 @@ package lang.psi.uast.converter
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -188,7 +189,7 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
         case e: ScCaseClause =>
           if (isInsideCatchBlock(e)) new ScUCatchExpression(e, _)
           else new ScUCaseClause(e, _)
-        case e: ScBlock if e.getParent.isInstanceOf[ScCaseClause] =>
+        case e: ScBlock if e.getParent.is[ScCaseClause] =>
           e.getParent match {
             case clause: ScCaseClause if !isInsideCatchBlock(clause) =>
               new ScUCaseClauseBodyList(e, _)
@@ -217,16 +218,15 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
           new ScUMethodCallExpression(e, _)
 
         case e: ScGenericCall
-            if !e.getParent.isInstanceOf[ScMethodCall] &&
+            if !e.getParent.is[ScMethodCall] &&
               requiredType == classOf[UCallExpression] =>
           new ScUGenericCallExpression(e, _)
 
-        case funRef @ ScReferenceExpression(
-              _: PsiMethod | _: ScSyntheticFunction
-            )
-            if !funRef.getParent.isInstanceOf[ScMethodCall] &&
-              !funRef.getParent.isInstanceOf[ScGenericCall] &&
-              requiredType == classOf[UCallExpression] =>
+        case funRef: ScReferenceExpression
+            if !funRef.getParent.is[ScMethodCall, ScGenericCall] &&
+              requiredType == classOf[UCallExpression] &&
+              funRef.resolve().is[PsiMethod, ScSyntheticFunction] =>
+
           new ScUReferenceCallExpression(funRef, _)
         //endregion
 
@@ -250,7 +250,7 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
             case _ => new ScUMethodCallExpression(e, _)
           }
 
-        case e: ScGenericCall if !e.getParent.isInstanceOf[ScMethodCall] =>
+        case e: ScGenericCall if !e.getParent.is[ScMethodCall] =>
           e.referencedExpr match {
             case ref: ScReferenceExpression if ref.isQualified =>
               new ScUQualifiedReferenceExpression(ref, sourcePsi = e, _)
@@ -275,22 +275,15 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
               new ScUQualifiedReferenceExpression(e, _)
           }
 
-        case funRef @ ScReferenceExpression(
-              _: PsiMethod | _: ScSyntheticFunction
-            ) if {
-              funRef.getParent match {
-                case _: ScMethodCall        => false
-                case _: ScGenericCall       => false
-                case _: ScUnderscoreSection => false
-                case _                      => true
-              }
-            } =>
+        case funRef: ScReferenceExpression
+          if !funRef.getParent.is[ScMethodCall, ScGenericCall, ScUnderscoreSection] &&
+            funRef.resolve().is[PsiMethod, ScSyntheticFunction] =>
           new ScUReferenceCallExpression(funRef, _)
 
         case ScUReferenceExpression(parent2ScURef) =>
           parent2ScURef(_)
 
-        case e: ScTypeElement if e.getFirstChild.isInstanceOf[ScReference] =>
+        case e: ScTypeElement if e.getFirstChild.is[ScReference] =>
           new ScUTypeReferenceExpression(
             e.getFirstChild.asInstanceOf[ScReference],
             typeProvider = Some(e),
@@ -380,13 +373,13 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
         // lambda of this expression
         case (e: ScExpression, uElement, _)
             if SAMUtil.isFunctionalExpression(e) &&
-              !uElement.isInstanceOf[UCallableReferenceExpression] &&
-              !uElement.isInstanceOf[ULambdaExpression] =>
+              !uElement.is[UCallableReferenceExpression] &&
+              !uElement.is[ULambdaExpression] =>
           convertWithParentTo[ULambdaExpression](e).orNull
 
         // selects method call as a parent for method arguments
         case (arg, _: UExpression, uParent: UQualifiedReferenceExpression)
-            if arg.getParent.isInstanceOf[ScArgumentExprList] =>
+            if arg.getParent.is[ScArgumentExprList] =>
           uParent.getSelector
 
         // skips block for call expressions with braced arguments
@@ -402,22 +395,22 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
 
         /** Wraps unnamed annotation args into [[ScUUnnamedExpression]] */
         case (scExpr: ScExpression, uElement, uParent: UAnnotation)
-            if !uElement.isInstanceOf[UNamedExpression] =>
+            if !uElement.is[UNamedExpression] =>
           new ScUUnnamedExpression(scExpr, LazyUElement.just(uParent))
 
         // skips constructor invocation as an ancestor inside annotation
         case (_, _, constructorCall: UCallExpression)
-            if constructorCall.getUastParent.isInstanceOf[UAnnotation] =>
+            if constructorCall.getUastParent.is[UAnnotation] =>
           constructorCall.getUastParent
 
         // skips type reference as an ancestor inside constructor invocation
         case (_, _, typeRef: UTypeReferenceExpression)
-            if typeRef.getUastParent.isInstanceOf[UCallExpression] =>
+            if typeRef.getUastParent.is[UCallExpression] =>
           typeRef.getUastParent
 
         // skips type reference as an ancestor inside annotation
         case (_, _, typeRef: UTypeReferenceExpression)
-            if typeRef.getUastParent.isInstanceOf[UAnnotation] =>
+            if typeRef.getUastParent.is[UAnnotation] =>
           typeRef.getUastParent
 
         // skips primary constructor as a parent for the "field"
@@ -472,7 +465,7 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
         case (source, uExpr: UExpression, uParent)
             if isExplicitFunctionLastStatementWithoutReturn(source) ||
               (isImplicitFunctionLastStatementWithoutReturn(source) &&
-                !uExpr.isInstanceOf[ULambdaExpression]) =>
+                !uExpr.is[ULambdaExpression]) =>
           uParent match {
             case _: UBlockExpression =>
               ScUImplicitReturnExpression
@@ -491,7 +484,7 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
             source,
             uExpr: UExpression,
             uParent @ (_: UMethod | _: ULambdaExpression)
-            ) if !uExpr.isInstanceOf[UBlockExpression] =>
+            ) if !uExpr.is[UBlockExpression] =>
           ScUImplicitBlockExpression
             .convertAndWrapIntoBlock(source, LazyUElement.just(uParent))
 
@@ -521,8 +514,8 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
     }
 
     //avoid converting everything to UAST from PropertyFoldingBuilder
-    if (uastRequiredType == classOf[ULiteralExpression]) scalaElement.isInstanceOf[ScLiteral]
-    else if (uastRequiredType == classOf[UImportStatement]) scalaElement.isInstanceOf[ScImportStmt]
+    if (uastRequiredType == classOf[ULiteralExpression]) scalaElement.is[ScLiteral]
+    else if (uastRequiredType == classOf[UImportStatement]) scalaElement.is[ScImportStmt]
     else if (uastRequiredType == classOf[UIdentifier]) isIdentifier
     else if (uastRequiredType == classOf[UCallExpression]) mayBeCallExpression
     else if (uastRequiredType == classOf[UMethod]) mayBeMethod
