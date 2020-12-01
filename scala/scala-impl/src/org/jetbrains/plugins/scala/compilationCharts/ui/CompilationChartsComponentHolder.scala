@@ -10,7 +10,7 @@ final class CompilationChartsComponentHolder {
   private def createOrGet(project: Project): CompilationChartsComponent = synchronized {
     mainComponent.getOrElse {
       val component = new CompilationChartsComponent(project)
-      component.updateData(System.nanoTime())
+      component.updateData()
       mainComponent = Some(component)
       component
     }

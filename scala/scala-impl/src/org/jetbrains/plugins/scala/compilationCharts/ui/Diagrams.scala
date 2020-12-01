@@ -13,14 +13,13 @@ final case class Diagrams(progressDiagram: ProgressDiagram,
 object Diagrams {
 
   def calculate(progressState: CompilationProgressState,
-                metricsState: CompileServerMemoryState,
-                currentTime: Timestamp): Diagrams = {
+                metricsState: CompileServerMemoryState): Diagrams = {
     val progressRowCount = getParallelism
     val result = for {
-      (minTimestamp, maxTimestamp) <- getMinMaxTimestamps(progressState, currentTime)
+      (minTimestamp, maxTimestamp) <- getMinMaxTimestamps(progressState, metricsState)
       progressDiagram = calculateProgressDiagram(progressState, progressRowCount, minTimestamp, maxTimestamp)
       progressTime <- progressDiagram.segmentGroups.flatten.map(_.to).maxOption
-      memoryDiagram = calculateMemoryDiagram(metricsState, minTimestamp, maxTimestamp)
+      memoryDiagram = calculateMemoryDiagram(metricsState, minTimestamp, minTimestamp + progressTime.toNanos)
     } yield Diagrams(
       progressDiagram = progressDiagram,
       memoryDiagram = memoryDiagram,
@@ -39,13 +38,14 @@ object Diagrams {
   }
 
   private def getMinMaxTimestamps(progressState: CompilationProgressState,
-                                  currentTime: Timestamp): Option[(Timestamp, Timestamp)] = {
-    val timestamps = progressState.toSeq.map(_._2).flatMap { info =>
+                                  metricsState: CompileServerMemoryState): Option[(Timestamp, Timestamp)] = {
+    val minOption = progressState.toSeq.map(_._2).flatMap { info =>
       Seq(info.startTime, info.updateTime) ++ info.finishTime.toSeq
-    } :+ currentTime
+    }.minOption
+    val maxOption = metricsState.heapUsed.keys.maxOption
     for {
-      min <- timestamps.minOption
-      max <- timestamps.maxOption
+      min <- minOption
+      max <- maxOption
     } yield (min, max)
   }
 
@@ -94,15 +94,9 @@ object Diagrams {
 
   private def calculateMemoryDiagram(metricsState: CompileServerMemoryState,
                                      minTimestamp: Timestamp,
-                                     maxTimestamp: Timestamp): MemoryDiagram = {
-    val points = metricsState.heapUsed.map { case (timestamp, memory) =>
-      val fixedTimestamp = if (timestamp < minTimestamp)
-        minTimestamp
-      else if (timestamp > maxTimestamp)
-        maxTimestamp
-      else
-        timestamp
-      fixedTimestamp -> memory
+                                     progressTimestamp: Timestamp): MemoryDiagram = {
+    val points = metricsState.heapUsed.filter { case (timestamp, _) =>
+      minTimestamp <= timestamp && timestamp <= progressTimestamp
     }.map { case (timestamp, memory) =>
       val time = (timestamp - minTimestamp).nanos
       MemoryPoint(time, memory)

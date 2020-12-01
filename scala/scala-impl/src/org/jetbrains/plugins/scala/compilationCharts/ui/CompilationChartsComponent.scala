@@ -4,7 +4,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.components.BorderLayoutPanel
-import org.jetbrains.plugins.scala.compilationCharts.Timestamp
 
 import javax.swing.{JViewport, ScrollPaneConstants}
 
@@ -27,6 +26,6 @@ class CompilationChartsComponent(project: Project)
     addToCenter(diagramsScrollPane)
   }
 
-  def updateData(currentTime: Timestamp): Unit =
-    diagramsComponent.updateData(currentTime)
+  def updateData(): Unit =
+    diagramsComponent.updateData()
 }
