@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.compiler;
 
+import com.intellij.compiler.server.BuildManager;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox;
 import com.intellij.ui.RawCommandLineEditor;
@@ -18,6 +20,7 @@ import org.jetbrains.plugins.scala.ScalaBundle;
 import javax.swing.*;
 import java.awt.*;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 
 /**
@@ -149,8 +152,15 @@ public class ScalaCompileServerForm implements Configurable {
 
         mySettings.COMPILE_SERVER_SHUTDOWN_IDLE = myShutdownServerCheckBox.isSelected();
         mySettings.COMPILE_SERVER_SHUTDOWN_DELAY = (Integer) (myShutdownDelay.getModel().getValue());
-        mySettings.COMPILE_SERVER_PARALLELISM = (Integer) (myParallelism.getModel().getValue());
-        mySettings.COMPILE_SERVER_PARALLEL_COMPILATION = myParallelCompilation.isSelected();
+
+        Integer newParallelism = (Integer) (myParallelism.getModel().getValue());
+        Boolean newParallelCompilation = myParallelCompilation.isSelected();
+        if (mySettings.COMPILE_SERVER_PARALLELISM != newParallelism ||
+                mySettings.COMPILE_SERVER_PARALLEL_COMPILATION != newParallelCompilation) {
+            BuildManager.getInstance().clearState(); // We have to cancel all preloaded builds. SCL-18512
+        }
+        mySettings.COMPILE_SERVER_PARALLELISM = newParallelism;
+        mySettings.COMPILE_SERVER_PARALLEL_COMPILATION = newParallelCompilation;
     }
 
     @Override
@@ -301,6 +311,7 @@ public class ScalaCompileServerForm implements Configurable {
                     mnemonicIndex = result.length();
                 }
             }
+            result.append(text.charAt(i));
             result.append(text.charAt(i));
         }
         component.setText(result.toString());
