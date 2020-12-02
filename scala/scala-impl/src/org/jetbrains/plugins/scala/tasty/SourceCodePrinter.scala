@@ -4,6 +4,11 @@ import scala.annotation.switch
 import scala.quoted._
 
 // Copy of https://github.com/lampepfl/dotty/blob/M1/library/src/scala/tasty/reflect/SourceCodePrinter.scala with cosmetic Scala 2.x updates.
+// NOTE: link is not available any more, closest possible link is:
+// https://github.com/lampepfl/dotty/blob/748d9ab2c7c27ebafb6831828d6838039877eb22/library/src/scala/tasty/reflect/SourceCodePrinter.scala
+//
+// Latest version of the class can be found in:
+// https://github.com/lampepfl/dotty/blob/master/compiler/src/scala/quoted/runtime/impl/printers/SourceCode.scala
 class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean) {
   import reflect._
   import reflect.delegate._
@@ -352,7 +357,11 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
         rhs match {
           case Some(tree) =>
             this += " = "
-            if (rightHandSize) printTree(tree) else { this += "???"; this}
+            if (rightHandSize) printTree(tree)
+            else if (isConstructor) this += "{ }" // `def this() = ???` isn't parsed correctly: `???` or `{ ??? }` can can't be a constructor body, see SCL-18521
+            else this += "???"
+
+            this
           case None =>
         }
         this
