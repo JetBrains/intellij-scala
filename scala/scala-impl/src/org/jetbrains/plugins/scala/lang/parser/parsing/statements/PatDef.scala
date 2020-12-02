@@ -4,6 +4,7 @@ package parser
 package parsing
 package statements
 
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Ascription, ExprInIndentationRegion}
@@ -26,23 +27,28 @@ object PatDef extends ParsingRule {
       if (!Pattern2.parse(builder, forDef = true)) {
         return false
       }
-      while (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
+      while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
         builder.checkedAdvanceLexer()
         if (!Pattern2.parse(builder, forDef = true)) {
-          return false
+          // do some error recovery
+          builder.getTokenType match {
+            case ScalaTokenTypes.tCOMMA =>
+              builder.error(ScalaBundle.message("expected.another.pattern"))
+            case ScalaTokenTypes.tCOLON | ScalaTokenTypes.tASSIGN =>
+              builder.error(ScalaBundle.message("expected.another.pattern"))
+              return true
+            case _ =>
+              return false
+          }
         }
       }
       true
     }
 
-    def parseTypeOrAnnotationAscription(): Boolean = {
+    def parseTypeOrAnnotationAscription(): Unit =
       if (builder.getTokenType == ScalaTokenTypes.tCOLON) {
         Ascription()
-        true
-      } else {
-        false
       }
-    }
 
     def parseAssignExpression(): Boolean = {
       if (builder.getTokenType == ScalaTokenTypes.tASSIGN) {

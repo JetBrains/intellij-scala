@@ -39,7 +39,7 @@ object PatVarDef extends ParsingRule {
         }
       case ScalaTokenTypes.kVAR =>
         builder.advanceLexer() //Ate var
-        if (VarDef()) {
+        if (PatDef()) {
           patVarMarker.done(ScalaElementType.VARIABLE_DEFINITION)
           true
         }

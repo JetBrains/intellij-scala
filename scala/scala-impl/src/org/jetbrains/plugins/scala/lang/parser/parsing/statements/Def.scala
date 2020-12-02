@@ -51,7 +51,7 @@ object Def extends ParsingRule {
         }
       case `kVAR` =>
         builder.advanceLexer() //Ate var
-        if (VarDef()) {
+        if (PatDef()) {
           defMarker.done(ScalaElementType.VARIABLE_DEFINITION)
           true
         }
