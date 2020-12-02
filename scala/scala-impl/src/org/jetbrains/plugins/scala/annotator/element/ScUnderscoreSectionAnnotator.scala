@@ -27,7 +27,7 @@ object ScUnderscoreSectionAnnotator extends ElementAnnotator[ScUnderscoreSection
           } else if (varDef.typeElement.isEmpty) {
             val error = ScalaBundle.message("unbound.placeholder.parameter")
             holder.createErrorAnnotation(under, error)
-          } else if (varDef.typeElement.exists(_.isInstanceOf[ScLiteralTypeElement])) {
+          } else if (varDef.typeElement.exists(_.is[ScLiteralTypeElement])) {
             holder.createErrorAnnotation(varDef.typeElement.get, ScalaBundle.message("default.init.prohibited.literal.types"))
           }
         case valDef @ ScPatternDefinition.expr(_) if valDef.expr.contains(under) =>

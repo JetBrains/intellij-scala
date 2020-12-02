@@ -85,4 +85,34 @@ class SimpleParserTest extends SimpleScalaParserTestBase {
       |}
       |""".stripMargin
   )
+
+  // EA-246946
+  def test_unfinished_id_list(): Unit = checkTree(
+    """
+      |var x, = 3
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScVariableDefinition: x
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(var)('var')
+      |    PsiWhiteSpace(' ')
+      |    ListOfPatterns
+      |      ReferencePattern: x
+      |        PsiElement(identifier)('x')
+      |      PsiElement(,)(',')
+      |      PsiErrorElement:Expected another pattern
+      |        <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    IntegerLiteral
+      |      PsiElement(integer)('3')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
