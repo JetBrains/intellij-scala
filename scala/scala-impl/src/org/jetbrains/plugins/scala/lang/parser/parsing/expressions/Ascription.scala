@@ -45,7 +45,7 @@ object Ascription extends ParsingRule {
     if (!Type.parse(builder)) {
       val annotationsMarker = builder.mark
       var x = 0
-      while (Annotation.parse(builder)) {
+      while (Annotation.parse(builder, countLinesAfterAnnotation = x > 0)) {
         x = x + 1
       }
       annotationsMarker.done(ScalaElementType.ANNOTATIONS)
