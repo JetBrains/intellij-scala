@@ -41,7 +41,7 @@ abstract class TransformationTest extends base.ScalaLightCodeInsightFixtureTestA
 
     val actualFile = configureByText(before)
 
-    // collect all ranges that should be formated
+    // collect all ranges that should be formatted
     var actualRewriteTextRanges = List.empty[TextRange]
     val reformat: Transformer.ReformatAction = (textRanges, _, _) => actualRewriteTextRanges :::= textRanges
 
