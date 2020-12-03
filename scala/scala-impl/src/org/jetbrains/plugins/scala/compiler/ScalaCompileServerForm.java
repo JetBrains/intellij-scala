@@ -312,7 +312,6 @@ public class ScalaCompileServerForm implements Configurable {
                 }
             }
             result.append(text.charAt(i));
-            result.append(text.charAt(i));
         }
         component.setText(result.toString());
         if (haveMnemonic) {
