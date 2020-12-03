@@ -502,4 +502,14 @@ class ScalaUnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
       |type X = (Int Plus Int) Implies Double
       |""".stripMargin
   )
+
+  // SCL-18524
+  def testTypeAroundFunctionTypeInParenlessParamClause(): Unit = checkTextHasNoErrors(
+    """
+      |def test[T](x: T): Unit = ()
+      |test {
+      |  collect: (Int =>Unit) =>
+      |}
+      |""".stripMargin
+  )
 }

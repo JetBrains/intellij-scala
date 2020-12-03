@@ -79,6 +79,7 @@ object ParenthesizedElement {
         case SameKindParentAndInner(parent, inner)                         => !parenthesesRedundant(parent, inner)
         case ChildOf(_: ScConstructorInvocation | _: ScTemplateParents)    => true
         case _ if isIndivisibleRepeatedParamType(parenthesized)            => true
+        case NeededParenthesisAroundFunctionalType()                       => true
         case _                                                             => false
       }
 
@@ -191,4 +192,14 @@ object ParenthesizedElement {
       for (parent <- p.sameTreeParent; inner <- p.innerElement) yield (parent, inner)
   }
 
+  private object NeededParenthesisAroundFunctionalType {
+    /*
+     * Parenthesis here are not redundant
+     * test { blub: (Int => Int) => ??? }
+     */
+    def unapply(p: ScParenthesisedTypeElement): Boolean =
+      p.innerElement.exists(_.is[ScFunctionalTypeElement]) &&
+        p.getParent.is[ScParameterType] &&
+        p.nextVisibleLeaf.exists(_.elementType == ScalaTokenTypes.tFUNTYPE)
+  }
 }
