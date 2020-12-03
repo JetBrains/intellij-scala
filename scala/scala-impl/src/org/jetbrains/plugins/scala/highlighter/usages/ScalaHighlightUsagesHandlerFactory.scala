@@ -32,7 +32,7 @@ final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFac
   import ScalaTokenTypes._
 
   override def createHighlightUsagesHandler(editor: Editor, file: PsiFile): HighlightUsagesHandlerBase[_ <: PsiElement] = {
-    if (!file.isInstanceOf[ScalaFile]) return null
+    if (!file.is[ScalaFile]) return null
     val offset = TargetElementUtil.adjustOffset(file, editor.getDocument, editor.getCaretModel.getOffset)
     val element: PsiElement = file.findElementAt(offset) match {
       case _: PsiWhiteSpace => file.findElementAt(offset - 1)
@@ -94,14 +94,15 @@ final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFac
         if (ifStmt != null) {
           return new ScalaHighlightExprResultHandler(ifStmt, editor, file, element)
         }
-      case `tFUNTYPE` =>
-        element.getParent match {
-          case funcExpr: ScFunctionExpr =>
-            funcExpr.result match {
-              case Some(resultExpr) =>
-                return new ScalaHighlightExprResultHandler(resultExpr, editor, file, element)
-              case _ =>
-            }
+      case `tFUNTYPE` | `tFUNTYPE_ASCII` =>
+        val maybeResult = element.getParent match {
+          case funcExpr: ScFunctionExpr => funcExpr.result
+          case caseClause: ScCaseClause => caseClause.resultExpr
+          case _ => None
+        }
+        maybeResult match {
+          case Some(resultExpr) =>
+            return new ScalaHighlightExprResultHandler(resultExpr, editor, file, element)
           case _ =>
         }
       case IsTemplateDefinition() =>
