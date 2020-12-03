@@ -54,7 +54,21 @@ object Sbt {
   val Latest_0_12: Version = Version(BuildInfo.sbtLatest_0_12)
   val Latest_0_13: Version = Version(BuildInfo.sbtLatest_0_13)
 
-  val Icon: Icon = Icons.SBT
-
-  val FolderIcon: Icon = Icons.SBT_FOLDER
+  /**
+   * '''ATTENTION!'''<br>
+   * Don't do these icons `val`. They are initialized  in test suites fields (e.g. via Sbt.LatestVersion)
+   * This can lead to initialization of [[com.github.benmanes.caffeine.cache.Caffeine]] which under the hood
+   * initializes ForkJoinPool via `getExecutor` method call. This initialization is done before test initialization
+   * which leads to ignoring of [[com.intellij.concurrency.IdeaForkJoinWorkerThreadFactory]].
+   *
+   * '''Note!''' <br>
+   * When tests are run using sbt with filtering of category (using `--exclude-categories=`), all the filtered
+   * tests are actually initialized (only constrictor). So if some ignored test contains a field with a reference
+   * to Icon, it will lead to corrupted ForkJoinPool in non-ignored tests.
+   *
+   * @see [[com.intellij.concurrency.IdeaForkJoinWorkerThreadFactory]]
+   * @see [[com.intellij.concurrency.PoisonFactory]]
+   */
+  def Icon: Icon = Icons.SBT
+  def FolderIcon: Icon = Icons.SBT_FOLDER
 }
