@@ -173,6 +173,22 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestAd
     doTest(code, Seq("1", "=>"))
   }
 
+  def testCaseClauseInAnonymousFunction(): Unit = {
+    val code =
+      s"""
+         |object Zoo {
+         |  () => {
+         |    test {
+         |      case 3 =${|}>
+         |    }
+         |    1
+         |  }
+         |}
+       """.stripMargin
+    assertHandlerIsNull(code)
+  }
+
+
   def testCompanionObject(): Unit = {
     val code =
       s"""
@@ -208,7 +224,7 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestAd
 
   def doTest(fileText: String, expected: Seq[String]): Unit = {
     myFixture.configureByText("dummy.scala", fileText)
-    val handler = createHandler
+    val handler = createHandler()
     val targets = handler.getTargets
     Assert.assertEquals(1, targets.size())
     handler.computeUsages(targets)
@@ -216,7 +232,7 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestAd
     Assert.assertEquals(s"actual: $actualUsages, expected: $expected", expected, actualUsages)
   }
 
-  def createHandler: HighlightUsagesHandlerBase[PsiElement] = {
+  def createHandler(): HighlightUsagesHandlerBase[PsiElement] = {
     HighlightUsagesHandler.createCustomHandler(getEditor, getFile).asInstanceOf[HighlightUsagesHandlerBase[PsiElement]]
   }
 
