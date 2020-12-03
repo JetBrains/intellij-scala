@@ -95,13 +95,14 @@ final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFac
           return new ScalaHighlightExprResultHandler(ifStmt, editor, file, element)
         }
       case `tFUNTYPE` =>
-        val funcExpr = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionExpr])
-        if (funcExpr != null) {
-          funcExpr.result match {
-            case Some(resultExpr) =>
-              return new ScalaHighlightExprResultHandler(resultExpr, editor, file, element)
-            case _ =>
-          }
+        element.getParent match {
+          case funcExpr: ScFunctionExpr =>
+            funcExpr.result match {
+              case Some(resultExpr) =>
+                return new ScalaHighlightExprResultHandler(resultExpr, editor, file, element)
+              case _ =>
+            }
+          case _ =>
         }
       case IsTemplateDefinition() =>
         val typeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition])
