@@ -1,16 +1,17 @@
 package org.jetbrains.plugins.scala.util.runners
 
-import java.lang.annotation.Annotation
-
 import com.intellij.pom.java.{LanguageLevel => JdkVersion}
 import junit.extensions.TestDecorator
 import junit.framework.{Test, TestCase, TestSuite}
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.{InjectableJdk, ScalaSdkOwner}
+import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
+import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils.Status.Warning
 import org.junit.experimental.categories.Category
 import org.junit.internal.runners.JUnit38ClassRunner
 import org.junit.runner.{Describable, Description}
 
+import java.lang.annotation.Annotation
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 
@@ -38,8 +39,11 @@ private object MultipleScalaVersionsRunner {
   private val DefaultJdkVersionToRun: TestJdkVersion =
     TestJdkVersion.from(InjectableJdk.DefaultJdk)
 
-  // flag to be able to run tests for different JDKs independently
-  private def filterJdkVersionRegistry = Option(System.getProperty("filter.test.jdk.version")).map(TestJdkVersion.valueOf)
+  lazy val filterJdkVersionRegistry: Option[TestJdkVersion] = {
+    val result = Option(System.getProperty("filter.test.jdk.version")).map(TestJdkVersion.valueOf)
+    result.foreach(v => TeamcityUtils.logUnderTeamcity(s"MultipleScalaVersionsRunner: running jdk filter: $v", status = Warning))
+    result
+  }
 
   private case class ScalaVersionTestSuite(name: String) extends TestSuite(name) {
     def this() = this(null: String)
@@ -63,11 +67,24 @@ private object MultipleScalaVersionsRunner {
     assert(classScalaVersions.nonEmpty, "at least one scala version should be specified")
     assert(classJdkVersions.nonEmpty, "at least one jdk version should be specified")
 
-    val filterAnnotation = findAnnotation(klass, classOf[RunWithScalaVersionsFilter])
+    val filterScalaVersionAnnotation = findAnnotation(klass, classOf[RunWithScalaVersionsFilter]).map(_.value.toSeq)
+    val filterJdkVersionAnnotation = findAnnotation(klass, classOf[RunWithJdkVersionsFilter]).map(_.value.toSeq)
+
+    val runWithScalaVersion: Option[Seq[TestScalaVersion]] =
+      filterScalaVersionAnnotation
+    val runWithJdkVersion: Option[Seq[TestJdkVersion]] = {
+      (filterJdkVersionAnnotation, filterJdkVersionRegistry.map(Seq(_))) match {
+        case (Some(a), Some(b)) => Some(a.intersect(b))
+        case (Some(a), None)    => Some(a)
+        case (None, Some(b))    => Some(b)
+        case (None, None)       => None
+      }
+    }
+
     def filterScalaVersion(version: TestScalaVersion): Boolean =
-      filterAnnotation.forall(_.value.contains(version))
+      runWithScalaVersion.forall(_.contains(version))
     def filterJdkVersion(version: TestJdkVersion): Boolean =
-      filterJdkVersionRegistry.forall(_ == version)
+      runWithJdkVersion.forall(_.contains(version))
 
     val allTestCases: Seq[(TestCase, ScalaVersion, JdkVersion)] = {
       val collected = new ScalaVersionAwareTestsCollector(klass, classScalaVersions, classJdkVersions).collectTests()
