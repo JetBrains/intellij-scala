@@ -8,7 +8,7 @@ package patterns
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScGuard}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScGuard}
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -33,4 +33,12 @@ trait ScCaseClause extends ScalaPsiElement {
 object ScCaseClause {
   def unapply(e: ScCaseClause): Option[(Option[ScPattern], Option[ScGuard], Option[ScExpression])] =
     Option(e).map(e => (e.pattern, e.guard, e.expr))
+
+  implicit class ScCaseClauseExt(private val cc: ScCaseClause) extends AnyVal {
+    def resultExpr: Option[ScExpression] =
+      cc.expr match {
+        case Some(block: ScBlock) =>  block.resultExpression
+        case _ => None
+      }
+  }
 }

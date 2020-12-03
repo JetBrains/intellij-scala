@@ -189,6 +189,23 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestAd
   }
 
 
+  def testCaseClause(): Unit = {
+    val code =
+      s"""
+         |object Zoo {
+         |  () => {
+         |    test {
+         |      case 3 =${|}>
+         |        val x = 3
+         |        x
+         |    }
+         |    1
+         |  }
+         |}
+       """.stripMargin
+    doTest(code, Seq("x", "=>"))
+  }
+
   def testCompanionObject(): Unit = {
     val code =
       s"""
