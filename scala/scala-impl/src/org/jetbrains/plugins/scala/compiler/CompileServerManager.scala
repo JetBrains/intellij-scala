@@ -136,7 +136,7 @@ final class CompileServerManager(project: Project) extends Disposable {
       e.getPresentation.setEnabled(launcher.running)
 
     override def actionPerformed(e: AnActionEvent): Unit =
-      launcher.stop(e.getProject)
+      launcher.stopForProject(e.getProject)
   }
 
   private object Configure extends AnAction(ScalaBundle.message("action.configure"), ScalaBundle.message("configure.compile.server"), AllIcons.General.Settings) with DumbAware {
