@@ -16,6 +16,7 @@ import com.intellij.psi.impl.source.codeStyle.PreFormatProcessor
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.util.PsiTreeUtil
+
 import javax.swing.event.HyperlinkEvent
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.annotations.{NonNls, TestOnly}
@@ -28,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConf
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
@@ -44,7 +45,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
 
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.util.Try
@@ -122,7 +123,7 @@ object ScalaFmtPreFormatProcessor {
     }.getOrElse(range)
   }
 
-  private def formatIfRequired(file: PsiFile, range: TextRange): Unit = {
+  private def formatIfRequired(file: ScalaFile, range: TextRange): Unit = {
     val (cachedRange, cachedFileTimeStamp, cachedConfigTimestamp) =
       file.getOrUpdateUserData(FORMATTED_RANGES_KEY, (new TextRanges, file.getModificationStamp, None))
 
@@ -371,7 +372,7 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
-  private def formatRange(file: PsiFile, range: TextRange)
+  private def formatRange(file: ScalaFile, range: TextRange)
                          (implicit context: ConfigContext): Either[Unit, Option[Int]] = {
     implicit val project: Project = file.getProject
     val manager = PsiDocumentManager.getInstance(project)
@@ -391,24 +392,28 @@ object ScalaFmtPreFormatProcessor {
         case _ =>
       }
 
-    def processRange(elements: Seq[PsiElement], wrap: Boolean): Either[Unit, Option[Int]] = {
+    def processRange(elements: Seq[PsiElement], wrap: Boolean): Either[Unit, Int] = {
       val hasRewriteRules = context.config.hasRewriteRules
       val rewriteElements: Seq[PsiElement] = if (hasRewriteRules) elements.flatMap(maybeRewriteElements(_, range)) else Seq.empty
       val rewriteElementsToFormatted = attachFormattedCode(rewriteElements)
       val noRewriteConfig = if (hasRewriteRules) context.config.withoutRewriteRules else context.config
 
       val newContext = context.withConfig(noRewriteConfig)
-      val result = formatInSingleFile(elements, wrap)(project, newContext).map { formatted =>
-        val textRangeDelta = replaceWithFormatted(elements, formatted, rewriteElementsToFormatted, range)
-        manager.commitDocument(document)
-        textRangeDelta
-      }
 
-      if (result.isEmpty) {
-        reportInvalidCodeFailure(file, wholeFileFormatError)
-        Left(())
-      } else {
-        Right(result)
+      val formattedInSingleFile = formatInSingleFile(elements, wrap)(project, newContext)
+      formattedInSingleFile match {
+        case Some(formatted) =>
+          replaceWithFormatted(elements, formatted, rewriteElementsToFormatted, range) match {
+            case Left(err) =>
+              reportMarkerNotFound(file, err)
+              Left(())
+            case Right(textRangeDelta) =>
+              manager.commitDocument(document)
+              Right(textRangeDelta)
+          }
+        case None =>
+          reportInvalidCodeFailure(file, wholeFileFormatError)
+          Left(())
       }
     }
 
@@ -420,12 +425,20 @@ object ScalaFmtPreFormatProcessor {
         Left(())
       } else {
         //failed to wrap some elements, try the whole file
-        processRange(Seq(file), wrap = false)
+        processRange(Seq(file), wrap = false).map(Some(_))
         Right(None)
       }
     } else {
-      processRange(elementsWrapped, wrap = true)
+      processRange(elementsWrapped, wrap = true).map(Some(_))
     }
+  }
+
+  // just log a warning in log files to avoid exceptions in EA,
+  // in case some valid code wasn't formatted properly, I expect someone will report an example some day in YouTrack
+  private def reportMarkerNotFound(file: ScalaFile, err: CantFindMarkerElementInFormattedCode): Unit = {
+    val vFile = ScFile.VirtualFile.unapply(file)
+    val typ = if (err.isStartMarker) "start" else "end"
+    Log.warn(s"Couldn't find $typ marker in formatted file, original file: $vFile")
   }
 
   //Use this since calls to 'getText' for inner elements of big files are somewhat expensive
@@ -435,12 +448,19 @@ object ScalaFmtPreFormatProcessor {
   private def getText(range: TextRange)(implicit fileText: String): String =
     fileText.substring(range.getStartOffset, range.getEndOffset)
 
-  private def unwrap(wrapFile: PsiFile)(implicit project: Project): Seq[PsiElement] = {
+  private def unwrap(wrapFile: PsiFile)(implicit project: Project): Either[CantFindMarkerElementInFormattedCode, Seq[PsiElement]] = {
     val text = wrapFile.getText
 
+    // I don't know when it can be the case that start/end element are null, but handling it just to avoid exceptions
+    val startElement = wrapFile.findElementAt(text.indexOf(StartMarker))
+    if (startElement == null) return Left(CantFindMarkerElementInFormattedCode(true))
+
+    val endElement = wrapFile.findElementAt(text.indexOf(EndMarker))
+    if (endElement == null) return Left(CantFindMarkerElementInFormattedCode(true))
+
     // we need to call extra `getParent` because findElementAt returns DOC_COMMENT_START
-    val startMarker = wrapFile.findElementAt(text.indexOf(StartMarker)).getParent
-    val endMarker = wrapFile.findElementAt(text.indexOf(EndMarker)).getParent
+    val startMarker = startElement.getParent
+    val endMarker = endElement.getParent
 
     assert(startMarker.is[ScDocComment])
     assert(endMarker.is[ScDocComment])
@@ -470,7 +490,7 @@ object ScalaFmtPreFormatProcessor {
       result = result.drop(1)
     if (result.lastOption.contains(endMarker))
       result = result.dropRight(1)
-    result
+    Right(result)
   }
 
   /** this is a partial copy of [[PsiTreeUtil.getElementsOfRange]] except this method does not fail
@@ -595,35 +615,48 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
-  private def unwrapPsiFromFormattedFile(formattedCode: WrappedCode)(implicit project: Project): Seq[PsiElement] = {
+  private def unwrapPsiFromFormattedFile(formattedCode: WrappedCode)(implicit project: Project): Either[CantFindMarkerElementInFormattedCode, Seq[PsiElement]] = {
     val wrapFile = PsiFileFactory.getInstance(project).createFileFromText(DummyWrapperClassName, ScalaFileType.INSTANCE, formattedCode.text)
-    val elementsUnwrapped =
+    val elementsUnwrapped: Either[CantFindMarkerElementInFormattedCode, Seq[PsiElement]] =
       if (formattedCode.wrapped) unwrap(wrapFile)
-      else Seq(wrapFile)
-    trimWhitespacesOrEmpty(elementsUnwrapped)
+      else Right(Seq(wrapFile))
+    elementsUnwrapped.map(trimWhitespacesOrEmpty)
   }
 
   private def unwrapPsiFromFormattedElements(elementsToFormatted: Seq[(PsiElement, WrappedCode)])
-                                            (implicit project: Project): Seq[(PsiElement, Seq[PsiElement])] =
-    elementsToFormatted.map { case (element, formattedCode) =>
+                                            (implicit project: Project): Seq[(PsiElement, Either[CantFindMarkerElementInFormattedCode, Seq[PsiElement]])] = {
+    val withUnwrapped = elementsToFormatted.map { case (element, formattedCode) =>
       val unwrapped = unwrapPsiFromFormattedFile(formattedCode)
       (element, unwrapped)
-    }.sortBy(_._1.getTextRange.getStartOffset)
+    }
+    withUnwrapped.sortBy(_._1.getTextRange.getStartOffset)
+  }
 
   private def replaceWithFormatted(elements: Iterable[PsiElement],
                                    formattedCode: WrappedCode,
                                    rewriteToFormatted: Seq[(PsiElement, WrappedCode)],
                                    range: TextRange)
-                                  (implicit project: Project, fileText: String): Int = {
-    val elementsUnwrapped: Seq[PsiElement] = unwrapPsiFromFormattedFile(formattedCode)
+                                  (implicit project: Project, fileText: String): Either[CantFindMarkerElementInFormattedCode, Int] = {
+    val elementsUnwrapped: Seq[PsiElement] = unwrapPsiFromFormattedFile(formattedCode) match {
+      case Right(value) => value
+      case Left(err)    => return Left(err)
+    }
     val elementsToTraverse: Iterable[(PsiElement, PsiElement)] = elements.zip(elementsUnwrapped)
-    val rewriteElementsToTraverse: Seq[(PsiElement, Seq[PsiElement])] =
+    val rewriteElementsToTraverse0: Seq[(PsiElement, Either[CantFindMarkerElementInFormattedCode, Seq[PsiElement]])] =
       unwrapPsiFromFormattedElements(rewriteToFormatted)
+
+    rewriteElementsToTraverse0.find(_._2.isLeft) match {
+      case Some((_, Left(err))) => return Left(err)
+      case _ =>
+    }
+
+    val rewriteElementsToTraverse: Seq[(PsiElement, Seq[PsiElement])] =
+      rewriteElementsToTraverse0.map { case (k, v) => (k, (v.right.get: @nowarn)) }
 
     val additionalIndent = if (formattedCode.wrappedInHelperClass) -ScalaFmtIndent else 0
 
     val changes = buildChangesList(elementsToTraverse, rewriteElementsToTraverse, range, additionalIndent)
-    applyChanges(changes, range)
+    Right(applyChanges(changes, range))
   }
 
   private class AdjustIndentsVisitor(val additionalIndent: Int, val project: Project) extends PsiRecursiveElementVisitor {
@@ -942,6 +975,7 @@ object ScalaFmtPreFormatProcessor {
   private sealed trait FormattingError
   private object DocumentNotFoundError extends FormattingError
   private case class ScalafmtFormatError(cause: Throwable) extends FormattingError
+  private case class CantFindMarkerElementInFormattedCode(isStartMarker: Boolean) extends FormattingError
 
   /** This is a helper class to keep information about how formatted elements were wrapped
    */
