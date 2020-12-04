@@ -3,6 +3,7 @@ package codeInspection
 package feature
 
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
+import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nls
@@ -118,8 +119,10 @@ private final class ImportFeatureFlagFix(e: PsiElement, name: String, flag: Stri
   extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("import.feature.flag.for.language.feature").format(name), e) {
 
   override protected def doApplyFix(elem: PsiElement)
-                                   (implicit project: Project): Unit =
+                                   (implicit project: Project): Unit = {
     ScImportsHolder(elem).addImportForPath(flag, elem)
+    BuildManager.getInstance().clearState(project) // SCL-18217
+  }
 }
 
 private class EnableFeatureFix(profile: => ScalaCompilerSettingsProfile,
