@@ -1,10 +1,6 @@
 package org.jetbrains.plugins.scala
 package compiler
 
-import java.io.{File, IOException}
-import java.nio.file.{Files, Path}
-import java.util.UUID
-
 import com.intellij.compiler.server.impl.BuildProcessClasspathManager
 import com.intellij.compiler.server.{BuildManager, BuildManagerListener, BuildProcessParametersProvider}
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
@@ -15,18 +11,23 @@ import com.intellij.openapi.projectRoots.{JavaSdkVersion, ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.impl.OrderEntryUtil
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
-import com.intellij.openapi.util.ShutDownTracker
 import com.intellij.util.net.NetUtils
-import javax.swing.event.HyperlinkEvent
+import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServerToken}
-import org.jetbrains.plugins.scala.util.{IntellijPlatformJars, LibraryJars, ScalaPluginJars, ScalaShutDownTracker, UnloadAwareDisposable}
+import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
+import org.jetbrains.plugins.scala.util.{IntellijPlatformJars, LibraryJars, ScalaPluginJars, ScalaShutDownTracker}
 
+import java.io.{File, IOException}
+import java.nio.file.{Files, Path}
+import java.util.UUID
+import javax.swing.event.HyperlinkEvent
 import scala.collection.immutable.ArraySeq
+import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 import scala.util.control.Exception._
@@ -226,7 +227,7 @@ object CompileServerLauncher {
             val instance = ServerInstance(watcher, freePort, builder.directory(), jdk)
             serverInstance = Some(instance)
             watcher.startNotify()
-            LOG.info(s"compile server process started: ${instance.summary}")
+            infoAndPrintOnTeamcity(s"compile server process started : ${instance.summary}")
             process
           }
       case (_, absentFiles) =>
@@ -242,14 +243,21 @@ object CompileServerLauncher {
     Try(Files.delete(CompileServerToken.tokenPathForPort(buildSystemDir, freePort)))
 
   // TODO stop server more gracefully
-  def stop(timeoutMs: Long = 0): Boolean = {
-    LOG.traceWithDebugInDev(s"stop: ${serverInstance.map(_.summary)}")
+  def stop(timeoutMs: Long = 0, debugReason: Option[String] = None): Boolean = {
+    LOG.info(s"compile server process stop: ${serverInstance.map(_.summary).getOrElse("<no info>")}")
     serverInstance.forall { it =>
-      it.destroyAndWait(timeoutMs)
+      val bool = it.destroyAndWait(timeoutMs)
+      infoAndPrintOnTeamcity(s"compile server process stopped${debugReason.fold("")(", reason: " + _)}")
+      bool
     }
   }
 
-  def stop(project: Project): Unit = {
+  private def infoAndPrintOnTeamcity(message: String): Unit = {
+    LOG.info(message)
+    TeamcityUtils.logUnderTeamcity(message)
+  }
+
+  def stopForProject(project: Project, debugReason: Option[String] = None): Unit = {
     stop()
 
     invokeLater {
@@ -310,7 +318,8 @@ object CompileServerLauncher {
       if (size.isEmpty) Nil else List("-Xmx%sm".format(size))
     }
 
-    val (_, otherParams) = settings.COMPILE_SERVER_JVM_PARAMETERS.split(" ").partition(_.contains("-XX:MaxPermSize"))
+    val paramsParsed = settings.COMPILE_SERVER_JVM_PARAMETERS.split(" ").filter(StringUtils.isNotBlank)
+    val (_, otherParams) = paramsParsed.partition(_.contains("-XX:MaxPermSize"))
 
     val debugAgent: Option[String] =
       if (attachDebugAgent) {
@@ -327,19 +336,21 @@ object CompileServerLauncher {
 
   def ensureServerRunning(project: Project): Boolean = serverStartLock.synchronized {
     LOG.traceWithDebugInDev(s"ensureServerRunning [thread:${Thread.currentThread.getId}]")
-    if (needRestart(project)) {
-      LOG.traceWithDebugInDev("ensureServerRunning: need to restart, stopping")
-      stop()
+
+    restartReasons(project) match {
+      case Some(reasons) =>
+        stop(debugReason = Some(s"needsRestart: ${reasons.mkString(", ")}"))
+      case _ =>
     }
 
     running || tryToStart(project)
   }
 
-  private def needRestart(project: Project): Boolean = {
+  private def restartReasons(project: Project): Option[Seq[String]] = {
     val currentInstance = serverInstance
     val settings = ScalaCompileServerSettings.getInstance()
     currentInstance match {
-      case None => false // if no server running, then nothing to restart
+      case None => None // if no server running, then nothing to restart
       case Some(instance) =>
         val useProjectHome = settings.USE_PROJECT_HOME_AS_WORKING_DIR
         val workingDirChanged = useProjectHome && projectHome(project) != currentInstance.map(_.workingDir)
@@ -347,16 +358,20 @@ object CompileServerLauncher {
           case Right(projectJdk) => projectJdk != instance.jdk
           case _ => false
         }
-        workingDirChanged || jdkChanged
+
+        val reasons = mutable.ArrayBuffer.empty[String]
+        if (workingDirChanged) reasons += "working dir changed"
+        if (jdkChanged) reasons += "jdk changed"
+        if (reasons.nonEmpty) Some(reasons.toSeq) else None
     }
   }
 
   def ensureServerNotRunning(project: Project): Unit = serverStartLock.synchronized {
-    if (running) stop(project)
+    if (running) stopForProject(project, debugReason = Some("ensureServerNotRunning (for project)"))
   }
 
   private def ensureServerNotRunning(): Unit = serverStartLock.synchronized {
-    if (running) stop()
+    if (running) stop(debugReason = Some("ensureServerNotRunning"))
   }
 
   private def findFreePort: Int = {
