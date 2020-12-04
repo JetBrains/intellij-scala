@@ -13,7 +13,7 @@ object AggregateProgressLogger {
     state += unitId -> done
 
     val compilingNow = state.toSeq
-      .filter { case (_, done) => done > 0.0 && done < 1.0 }
+      .filter { case (id, done) => done >= 0.01 && (done < 1.0 || id == unitId) }
       .sortBy { case (CompilationUnitId(moduleId, testScope), _) => (moduleId, testScope) }
     if (compilingNow.nonEmpty) {
       val progressMessagePart = compilingNow
