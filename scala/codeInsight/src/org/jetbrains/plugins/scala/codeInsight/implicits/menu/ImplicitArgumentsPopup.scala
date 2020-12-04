@@ -13,9 +13,12 @@ class ImplicitArgumentsPopup extends AnAction(
 ) {
   override def actionPerformed(e: AnActionEvent): Unit = {
     val editor = e.getData(CommonDataKeys.EDITOR)
+    if (editor == null) return
     val model = editor.getInlayModel
 
     val inlay = model.getElementAt(MouseHandler.mousePressLocation)
+    if (inlay == null) return
+
     ImplicitHint.elementOf(inlay) match {
       case ImplicitArgumentsOwner(args) =>
         ShowImplicitArgumentsAction.showPopup(editor, args, isConversion = false)
