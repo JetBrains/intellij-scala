@@ -30,7 +30,7 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
 
   def test_if_indented(): Unit = checkTree(
     """
-      |if a
+      |if a then
       |  b
       |  c
       |else
@@ -44,6 +44,8 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    ReferenceExpression: a
       |      PsiElement(identifier)('a')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(then)('then')
       |    BlockOfExpressions
       |      PsiWhiteSpace('\n  ')
       |      ReferenceExpression: b

@@ -252,6 +252,43 @@ class ModifierParserTest extends SimpleScala3ParserTestBase {
       |}
       |""".stripMargin,
     """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScFunctionDefinition: test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('test')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    BlockExpression
+      |      PsiElement({)('{')
+      |      PsiWhiteSpace('\n  ')
+      |      ScPatternDefinition: x
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          PsiElement(inline)('inline')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(val)('val')
+      |        PsiWhiteSpace(' ')
+      |        ListOfPatterns
+      |          ReferencePattern: x
+      |            PsiElement(identifier)('x')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('3')
+      |      PsiWhiteSpace('\n')
+      |      PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
 }
