@@ -32,7 +32,7 @@ final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFac
   import ScalaTokenTypes._
 
   override def createHighlightUsagesHandler(editor: Editor, file: PsiFile): HighlightUsagesHandlerBase[_ <: PsiElement] = {
-    if (!file.isInstanceOf[ScalaFile]) return null
+    if (!file.is[ScalaFile]) return null
     val offset = TargetElementUtil.adjustOffset(file, editor.getDocument, editor.getCaretModel.getOffset)
     val element: PsiElement = file.findElementAt(offset) match {
       case _: PsiWhiteSpace => file.findElementAt(offset - 1)
@@ -51,13 +51,13 @@ final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFac
         }
       case `kVAL` =>
         PsiTreeUtil.getParentOfType(element, classOf[ScPatternDefinition]) match {
-          case pattern@ScPatternDefinition.expr(expr) if pattern.pList.simplePatterns && pattern.pList.patterns.length == 1 =>
+          case pattern@ScPatternDefinition.expr(expr) if pattern.isSimple =>
             return new ScalaHighlightExprResultHandler(expr, editor, file, element)
           case _ =>
         }
       case `kVAR` =>
         PsiTreeUtil.getParentOfType(element, classOf[ScVariableDefinition]) match {
-          case pattern@ScVariableDefinition.expr(expr) if pattern.pList.simplePatterns && pattern.pList.patterns.length == 1 =>
+          case pattern@ScVariableDefinition.expr(expr) if pattern.isSimple =>
             return new ScalaHighlightExprResultHandler(expr, editor, file, element)
           case _ =>
         }
@@ -94,14 +94,16 @@ final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFac
         if (ifStmt != null) {
           return new ScalaHighlightExprResultHandler(ifStmt, editor, file, element)
         }
-      case `tFUNTYPE` =>
-        val funcExpr = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionExpr])
-        if (funcExpr != null) {
-          funcExpr.result match {
-            case Some(resultExpr) =>
-              return new ScalaHighlightExprResultHandler(resultExpr, editor, file, element)
-            case _ =>
-          }
+      case `tFUNTYPE` | `tFUNTYPE_ASCII` =>
+        val maybeResult = element.getParent match {
+          case funcExpr: ScFunctionExpr => funcExpr.result
+          case caseClause: ScCaseClause => caseClause.resultExpr
+          case _ => None
+        }
+        maybeResult match {
+          case Some(resultExpr) =>
+            return new ScalaHighlightExprResultHandler(resultExpr, editor, file, element)
+          case _ =>
         }
       case IsTemplateDefinition() =>
         val typeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition])

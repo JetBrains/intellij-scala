@@ -253,7 +253,16 @@ object ScalaPsiElementFactory {
     createElementWithContext[ScParameters](text, context, contextLastChild(context))(ClassParamClauses()(_))
 
   def createConstructorFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScConstructorInvocation =
-    createElementWithContext[ScConstructorInvocation](text, context, child)(parsingBase.Constructor()(_))
+    createElementWithContext[ScConstructorInvocation](text, context, child){
+      implicit builder =>
+        // Disable newlines because otherwise we cannot parse constructor-invocations
+        // that have multiple argument clauses over multiple lines (which is possible in new-expr), like:
+        //    (new Test()
+        //      ())
+        builder.withDisabledNewlines {
+          parsingBase.Constructor()
+        }
+    }
 
   def createParamClausesWithContext(@NonNls text: String, context: PsiElement, child: PsiElement): ScParameters =
     createElementWithContext[ScParameters](text, context, child)(params.ParamClauses.parse)

@@ -41,4 +41,78 @@ class SimpleParserTest extends SimpleScalaParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  // SCL-18498
+  def test_new_lines_after_typed_statements(): Unit = checkParseErrors(
+    """
+      |import scala.annotation.nowarn
+      |
+      |class Main {
+      |
+      |  (null: String): @nowarn
+      |
+      |  override def toString: String = "hello"
+      |
+      |  def foo1: String = {
+      |    (null: String): @nowarn
+      |
+      |  }
+      |
+      |  def foo2(): Unit = {
+      |    (null: String): @nowarn
+      |    def bar1():Unit  = ???
+      |    (null: String): @nowarn
+      |    val x = 42
+      |
+      |    (null: String): @nowarn
+      |
+      |    def bar2():Unit  = ???
+      |
+      |    (null: String): @nowarn
+      |
+      |    val y = 42
+      |
+      |    (null: String): @nowarn
+      |
+      |    (null:
+      |
+      |    @nowarn
+      |
+      |    @nowarn
+      |
+      |    )
+      |  }
+      |}
+      |""".stripMargin
+  )
+
+  // EA-246946
+  def test_unfinished_id_list(): Unit = checkTree(
+    """
+      |var x, = 3
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScVariableDefinition: x
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(var)('var')
+      |    PsiWhiteSpace(' ')
+      |    ListOfPatterns
+      |      ReferencePattern: x
+      |        PsiElement(identifier)('x')
+      |      PsiElement(,)(',')
+      |      PsiErrorElement:Expected another pattern
+      |        <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    IntegerLiteral
+      |      PsiElement(integer)('3')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }

@@ -26,7 +26,7 @@ trait ScVariableDefinition extends ScVariable {
 
   def expr: Option[ScExpression]
 
-  def isSimple: Boolean = pList.simplePatterns && bindings.size == 1
+  def isSimple: Boolean
 
   override def isAbstract: Boolean = false
 

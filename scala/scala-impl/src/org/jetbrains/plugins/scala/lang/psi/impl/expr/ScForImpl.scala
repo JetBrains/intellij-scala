@@ -9,7 +9,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.scope._
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
-import org.jetbrains.plugins.scala.extensions.{Model, PsiElementExt, StringsExt}
+import org.jetbrains.plugins.scala.extensions.{Model, ObjectExt, PsiElementExt, StringsExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -244,7 +244,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
 
     def appendGen(gen: ScGenerator, restEnums: Seq[ScEnumerator]): Unit = {
       val rvalue = gen.expr.map(normalizeUnderscores)
-      val isLastGen = !restEnums.exists(_.isInstanceOf[ScGenerator])
+      val isLastGen = !restEnums.exists(_.is[ScGenerator])
 
       val pattern = gen.pattern
       type Arg = (Option[ScPattern], String)
@@ -296,7 +296,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
         }
 
         val isBinding: Boolean = bindingPattern.isDefined
-        val isWildCard: Boolean = pattern.exists(_.isInstanceOf[ScWildcardPattern])
+        val isWildCard: Boolean = pattern.exists(_.is[ScWildcardPattern])
 
         val name: String = bindingPattern.fold({
           nextNameIdx += 1
@@ -372,7 +372,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
         }
       }
 
-      val (forBindingsAndGuards, nextEnums) = restEnums.span(!_.isInstanceOf[ScGenerator])
+      val (forBindingsAndGuards, nextEnums) = restEnums.span(!_.is[ScGenerator])
 
       val (forBindingsInGenBody, generatorArgs) = {
         // accumulate all ForBindings for the next guard
@@ -465,12 +465,18 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
           }) + " " + `=>` + " "
       }
 
+      // we need the braces to handle incomplete fors, because createExpressionWithContextFromText
+      // needs to parse exactly one expression.
+      // The parenthesis are needed for correct newline-handling
+      val prefix = "{("
+      resultText.insert(0, prefix + lambdaPrefix)
+      resultText ++= ")}"
       val expression = ScalaPsiElementFactory.createExpressionWithContextFromText(
-        resultText.insert(0, lambdaPrefix).toString,
+        resultText.toString,
         getContext,
         this
       )
-      val shiftOffset = lambdaPrefix.length
+      val shiftOffset = lambdaPrefix.length + prefix.length
 
       def withElements[T](mappings: mutable.Map[T, Int]) = for {
         (original, offset) <- if (forDisplay) Iterator.empty else mappings.iterator
@@ -479,7 +485,16 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
         if element != null
       } yield original -> element
 
-      (expression, withElements(patternMappings), withElements(enumMappings))
+      val desugared = expression match {
+        case ScBlock(ScParenthesisedExpr(desugaredFor)) =>
+          desugaredFor.context = getContext
+          desugaredFor.child = this
+          desugaredFor
+        case _ =>
+          expression
+      }
+
+      (desugared, withElements(patternMappings), withElements(enumMappings))
     }
   }
 
