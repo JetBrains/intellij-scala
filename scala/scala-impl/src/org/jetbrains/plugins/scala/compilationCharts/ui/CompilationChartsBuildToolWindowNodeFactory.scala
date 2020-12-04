@@ -9,6 +9,7 @@ import com.intellij.openapi.project.{Project, ProjectManagerListener}
 
 import javax.swing.{Icon, JComponent}
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -32,9 +33,12 @@ class CompilationChartsBuildToolWindowNodeFactory
         }
     }
 
+    def compileServerEnabled: Boolean =
+      ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED || CompileServerLauncher.running
+
     val buildViewManager = project.getService(classOf[BuildViewManager])
     val listener: BuildProgressListener = { (buildId, event) =>
-      if (isJpsBuild(event)) {
+      if (compileServerEnabled && project.hasScala && isJpsBuild(event)) {
         val component = CompilationChartsComponentHolder.createOrGet(project)
         buildViewManager.onEvent(buildId, new CompilationChartsBuildEvent(buildId, component))
       }
