@@ -119,10 +119,8 @@ private final class ImportFeatureFlagFix(e: PsiElement, name: String, flag: Stri
   extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("import.feature.flag.for.language.feature").format(name), e) {
 
   override protected def doApplyFix(elem: PsiElement)
-                                   (implicit project: Project): Unit = {
+                                   (implicit project: Project): Unit =
     ScImportsHolder(elem).addImportForPath(flag, elem)
-    BuildManager.getInstance().clearState(project) // SCL-18217
-  }
 }
 
 private class EnableFeatureFix(profile: => ScalaCompilerSettingsProfile,
@@ -135,5 +133,6 @@ private class EnableFeatureFix(profile: => ScalaCompilerSettingsProfile,
                                    (implicit project: Project): Unit = {
     val updatedSettings = update(profile.getSettings)
     profile.setSettings(updatedSettings)
+    BuildManager.getInstance().clearState(project) // SCL-18217
   }
 }
