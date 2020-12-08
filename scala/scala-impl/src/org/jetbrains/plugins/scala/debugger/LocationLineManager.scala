@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.debugger
 
 import java.util
-
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.DebugProcess.JAVA_STRATUM
 import com.intellij.debugger.engine.SyntheticTypeComponentProvider
@@ -10,7 +9,7 @@ import com.intellij.debugger.settings.DebuggerSettings
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.sun.jdi.{AbsentInformationException, Location, Method, ReferenceType}
-import org.jetbrains.plugins.scala.debugger.ScalaPositionManager.SCALA_STRATUM
+import org.jetbrains.plugins.scala.debugger.ScalaPositionManager.{SCALA_STRATUM, scalaStratomSupportEnabled}
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
@@ -56,7 +55,7 @@ trait LocationLineManager {
     val jvmLocations: util.List[Location] =
       try {
         val stratum =
-          if (refType.availableStrata().contains(SCALA_STRATUM)) SCALA_STRATUM
+          if (scalaStratomSupportEnabled && refType.availableStrata().contains(SCALA_STRATUM)) SCALA_STRATUM
           else JAVA_STRATUM
 
         refType.locationsOfLine(stratum, sourceName, line + 1)
