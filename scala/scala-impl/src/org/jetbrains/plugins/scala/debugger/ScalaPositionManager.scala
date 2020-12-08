@@ -4,7 +4,6 @@ package debugger
 import java.io.File
 import java.util.Collections.emptyList
 import java.{util => ju}
-
 import com.intellij.debugger.engine._
 import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.debugger.jdi.VirtualMachineProxyImpl
@@ -14,6 +13,7 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.CachedValueProvider.Result
@@ -109,7 +109,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
       filterAllClasses(debugProcess) { refType =>
         val samePathAndSourceName =
-          if (refType.availableStrata().contains(SCALA_STRATUM))
+          if (scalaStratomSupportEnabled && refType.availableStrata().contains(SCALA_STRATUM))
             correctSourceName(refType) && correctSourcePath(refType)
           else
             refType.name().startsWith(pckgName) &&
@@ -288,7 +288,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   private def findPsiFileByLocation(location: Location): Option[PsiFile] = {
     val referenceType = location.declaringType()
 
-    if (referenceType.availableStrata().contains(SCALA_STRATUM)) {
+    if (scalaStratomSupportEnabled && referenceType.availableStrata().contains(SCALA_STRATUM)) {
       val className = location.sourcePath(SCALA_STRATUM).replace(File.separatorChar, '.')
       findPsiFileByClassName(className)
     }
@@ -531,6 +531,8 @@ object ScalaPositionManager {
    *  inlined method was defined as a file system path, e.g. `my/test/Example$`
    */
   final val SCALA_STRATUM = "Scala"
+
+  def scalaStratomSupportEnabled: Boolean = Registry.get("scala.debugger.experimental.jsr45").asBoolean()
 
   private val isCompiledWithIndyLambdasKey: Key[java.lang.Boolean] = Key.create("compiled.with.indy.lambdas")
 
