@@ -126,6 +126,11 @@ class SimpleScalaRenderingLogTest
           case _ =>
         }
 
+        val javaPsi = node.getJavaPsi
+        if (javaPsi.isInstanceOf[UElement]) {
+          Assert.fail(s"javaPsi: ${javaPsi.getClass} for ${node.getClass} should not be a `UElement`")
+        }
+
         false
       }
     })
