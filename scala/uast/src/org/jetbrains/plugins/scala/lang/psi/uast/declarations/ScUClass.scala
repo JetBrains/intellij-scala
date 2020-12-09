@@ -1,10 +1,13 @@
 package org.jetbrains.plugins.scala.lang.psi.uast.declarations
 
-import java.{util => ju}
+import com.intellij.openapi.util.{Key, UserDataHolderBase}
 
+import java.{util => ju}
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.util.PsiTypesUtil
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -12,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTem
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnchorOwner, ScUAnnotated, ScUElement}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
+import org.jetbrains.plugins.scala.lang.psi.uast.psi.PsiClassAnonimousWrapper
 import org.jetbrains.uast._
 
 import scala.jdk.CollectionConverters._
@@ -136,7 +140,7 @@ final class ScUAnonymousClass(scAnonDefinition: ScNewTemplateDefinition,
     super[ScUClassCommon].getUInnerClasses
 
   override type PsiFacade = PsiAnonymousClass
-  override protected val scElement: PsiFacade = this
+  override protected val scElement: PsiFacade = new ScTemplateToPsiAnonymousClassAdapter(scAnonDefinition)
 
   @Nullable
   override def getSourcePsi: PsiElement =
@@ -193,6 +197,34 @@ final class ScUAnonymousClass(scAnonDefinition: ScNewTemplateDefinition,
       .flatMap(_.convertWithParentTo[UClass]())
       .orNull
 }
+
+private final class ScTemplateToPsiAnonymousClassAdapter(scTemplate: ScNewTemplateDefinition) extends PsiClassAnonimousWrapper{
+  override protected def getDelegate: PsiClass = scTemplate
+
+  override def getBaseClassReference: PsiJavaCodeReferenceElement =
+    JavaPsiFacade.getElementFactory(getProject).createReferenceElementByType(getBaseClassType)
+
+  override def getBaseClassType: PsiClassType =
+    scTemplate.constructorInvocation.flatMap(_.reference)
+      .flatMap(_.resolve().asOptionOf[PsiClass])
+      .map(PsiTypesUtil.getClassType)
+      .getOrElse(PsiType.getJavaLangObject(scTemplate.getManager, scTemplate.getResolveScope))
+
+  override def getArgumentList: PsiExpressionList = null
+
+  override def isInQualifiedNew: Boolean = false
+
+  private val dataHolder = new UserDataHolderBase
+
+  override def getCopyableUserData[T](key: Key[T]): T = dataHolder.getCopyableUserData(key)
+
+  override def putCopyableUserData[T](key: Key[T], value: T): Unit = dataHolder.putCopyableUserData(key, value)
+
+  override def getUserData[T](key: Key[T]): T = dataHolder.getUserData(key)
+
+  override def putUserData[T](key: Key[T], value: T): Unit = dataHolder.putUserData(key, value)
+}
+
 
 /**
   * Mock of the [[UClass]] when conversion failed
