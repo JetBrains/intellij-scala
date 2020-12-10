@@ -14,7 +14,16 @@ import scala.tasty.inspector.{ConsumeTasty, TastyConsumer}
 import scala.util.Using
 
 object TastyReader {
+  private val MajorVersion = 25
+  private val MinorVersion = 1
+
+  private val Header: Array[Byte] = Array(0x5C, 0xA1, 0xAB, 0x1F, 0x80 | MajorVersion, 0x80 | MinorVersion).map(_.toByte)
+
   def read(classpath: String, bytes: Array[Byte], rightHandSize: Boolean): Option[TastyFile] = {
+    if (!bytes.startsWith(Header)) {
+      return None
+    }
+
     val file = File.createTempFile("foo", ".tasty")
     try {
       Files.write(file.toPath, bytes, StandardOpenOption.TRUNCATE_EXISTING)
