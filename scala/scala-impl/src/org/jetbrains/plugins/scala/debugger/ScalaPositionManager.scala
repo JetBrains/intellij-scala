@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package debugger
 
 import java.{util => ju}
-
 import com.intellij.debugger.engine._
 import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.debugger.jdi.VirtualMachineProxyImpl
@@ -25,6 +24,7 @@ import org.jetbrains.plugins.scala.debugger.ScalaPositionManager._
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaCompilingEvaluator
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil._
+import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
@@ -639,6 +639,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 }
 
 object ScalaPositionManager {
+  private val SCRIPT_HOLDER_CLASS_NAME: String = "Main$$anon$1"
   private val delayedInitBody = "delayedInit$body"
 
   private val isCompiledWithIndyLambdasCache = mutable.HashMap[PsiFile, Boolean]()
