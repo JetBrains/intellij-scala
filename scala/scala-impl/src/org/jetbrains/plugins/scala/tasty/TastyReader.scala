@@ -6,8 +6,7 @@ import java.nio.file.{Files, Paths, StandardCopyOption, StandardOpenOption}
 import java.util.jar.JarFile
 
 import com.intellij.util.PathUtil
-import org.jetbrains.plugins.scala.DependencyManagerBase
-import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
+import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 
 import scala.quoted.Reflection
 import scala.tasty.inspector.{ConsumeTasty, TastyConsumer}
@@ -58,34 +57,24 @@ object TastyReader {
     None
   }
 
-  // The "dotty-tasty-inspector" transitively depends on many unnecessary libraries.
-  private val RequiredLibraries = Seq(
-    "scala3-interfaces",
-    "scala3-compiler",
-    "scala3-tasty-inspector",
-    "tasty-core",
-    // TODO Why do we also need those libraries in the URL classloader? (tasty-example works fine without them)
-    "scala-library",
-    "scala3-library",
-  )
-
   // TODO Async, Progress, GC, error handling
   private lazy val api: ConsumeTasty = {
     val jarFiles = {
-      val resolvedJars = {
-        val Resolver = new DependencyManagerBase {override protected val artifactBlackList = Set.empty[String] }
-        // TODO TASTy inspect: an ability to detect .tasty file version, https://github.com/lampepfl/dotty-feature-requests/issues/99
-        // TODO TASTy inspect: make dotty-compiler depend on tasty-inspector https://github.com/lampepfl/dotty-feature-requests/issues/100
-        // TODO Introduce the version variable
-        val tastyInspectorDependency = DependencyDescription("org.scala-lang", "scala3-tasty-inspector_3.0.0-M2", "3.0.0-M2", isTransitive = true)
-        Resolver.resolve(tastyInspectorDependency).map(_.file).filter(jar => RequiredLibraries.exists(jar.getPath.contains))
-      }
-
-      RequiredLibraries.foreach(name => assert(resolvedJars.exists(_.getPath.contains(name)), name + " is not resolved"))
-
-      val bundledJar = new File(tastyDirectoryFor(getClass), "tasty-runtime.jar")
-
-      resolvedJars :+ bundledJar
+      val tastyDirectory = tastyDirectoryFor(getClass)
+      val bundledJars =
+        Seq(
+          "tasty-runtime.jar",
+          "tasty-inspector.jar",
+          "tasty-core.jar",
+          "scala-interfaces.jar",
+          "scala-compiler.jar")
+          .map(new File(tastyDirectory, _)) ++
+          Seq( // TODO Why do we also need those libraries in the URL classloader? (it work fine using the main method, but not from IDEA)
+            s"scala-library-${BuildInfo.scalaVersion}.jar",
+            "scala3-library_3.0.0-M2-3.0.0-M2.jar")
+            .map(new File(tastyDirectory.getParent, _))
+      bundledJars.foreach(file => assert(file.exists(), "Not found: " + file.getPath))
+      bundledJars
     }
 
     val consumeTastyImplClass = {
