@@ -124,7 +124,7 @@ private object DecompilationResult {
       try {
         // TODO Can we decompile TASTy file content, not a class name? https://github.com/lampepfl/dotty-feature-requests/issues/96
         TastyPath(file)
-          .flatMap(TastyReader.read(_, rightHandSize = false))
+          .flatMap(path => TastyReader.read(path.classpath, content.apply(), rightHandSize = false))
           .map(tastyFile => (tastyFile.source, tastyFile.text))
       } catch {
         case _: Throwable => None // TODO Handle errors more gracefully.

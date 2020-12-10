@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.tasty
 
 import java.io.File
 import java.net.URLClassLoader
-import java.nio.file.{Files, Paths, StandardCopyOption}
+import java.nio.file.{Files, Paths, StandardCopyOption, StandardOpenOption}
 import java.util.jar.JarFile
 
 import com.intellij.util.PathUtil
@@ -14,6 +14,16 @@ import scala.tasty.inspector.{ConsumeTasty, TastyConsumer}
 import scala.util.Using
 
 object TastyReader {
+  def read(classpath: String, bytes: Array[Byte], rightHandSize: Boolean): Option[TastyFile] = {
+    val file = File.createTempFile("foo", ".tasty")
+    try {
+      Files.write(file.toPath, bytes, StandardOpenOption.TRUNCATE_EXISTING)
+      read(api, classpath: String, file.getPath, rightHandSize)
+    } finally {
+      file.delete()
+    }
+  }
+
   // TODO fully-qualified name VS .tasty file path
   // There is no way to read a specific (one) .tasty file in a JAR using the API of https://github.com/lampepfl/dotty/blob/M2/tasty-inspector/src/scala/tasty/inspector/TastyInspector.scala?
   def read(tastyPath: TastyPath, rightHandSize: Boolean = true): Option[TastyFile] = {
