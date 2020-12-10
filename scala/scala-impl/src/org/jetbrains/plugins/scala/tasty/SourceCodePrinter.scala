@@ -3,13 +3,8 @@ package org.jetbrains.plugins.scala.tasty
 import scala.annotation.switch
 import scala.quoted._
 
-// Copy of https://github.com/lampepfl/dotty/blob/M1/library/src/scala/tasty/reflect/SourceCodePrinter.scala with cosmetic Scala 2.x updates.
-// NOTE: link is not available any more, closest possible link is:
-// https://github.com/lampepfl/dotty/blob/748d9ab2c7c27ebafb6831828d6838039877eb22/library/src/scala/tasty/reflect/SourceCodePrinter.scala
-//
-// Latest version of the class can be found in:
-// https://github.com/lampepfl/dotty/blob/master/compiler/src/scala/quoted/runtime/impl/printers/SourceCode.scala
-class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean) {
+// Copy of https://github.com/lampepfl/dotty/blob/M2/compiler/src/scala/quoted/runtime/impl/printers/SourceCode.scala with cosmetic Scala 2.x updates.
+class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSide: Boolean) {
   import reflect._
   import reflect.delegate._
 
@@ -212,8 +207,10 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
             if (!args.isEmpty || needEmptyParens)
               inParens(printTrees(args, ", ")(Some(cdef.symbol)))
           case Select(newTree: New, _) =>
-            val tpt = newTree.tpt
-            collectReference(tpt.pos, tpt.symbol.pos) // TODO Handle more complex cases
+            if (rightHandSide) {
+              val tpt = newTree.tpt
+              collectReference(tpt.pos, tpt.symbol.pos) // TODO Handle more complex cases
+            }
             printType(newTree.tpe)(Some(cdef.symbol))
           case parent: Term =>
             throw new MatchError(parent.showExtractors)
@@ -309,11 +306,13 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
         val name1 = splicedName(vdef.symbol).getOrElse(name)
         this += highlightValDef(name1) += ": "
         printTypeTree(tpt)
-        collectType(vdef.symbol.pos, name1.length, printTypeTree(tpt))
+        if (rightHandSide) {
+          collectType(vdef.symbol.pos, name1.length, printTypeTree(tpt))
+        }
         rhs match {
           case Some(tree) =>
             this += " = "
-            if (rightHandSize) printTree(tree) else { this += "???"; this}
+            if (rightHandSide) printTree(tree) else { this += "{ /* compiled code */ }"; this}
           case None =>
             this
         }
@@ -352,16 +351,14 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
         if (!isConstructor) {
           this += ": "
           printTypeTree(tpt)
-          collectType(ddef.symbol.pos, name1.length, printTypeTree(tpt))
+          if (rightHandSide) {
+            collectType(ddef.symbol.pos, name1.length, printTypeTree(tpt))
+          }
         }
         rhs match {
           case Some(tree) =>
             this += " = "
-            if (rightHandSize) printTree(tree)
-            else if (isConstructor) this += "{ }" // `def this() = ???` isn't parsed correctly: `???` or `{ ??? }` can can't be a constructor body, see SCL-18521
-            else this += "???"
-
-            this
+            if (rightHandSide) printTree(tree) else { this += "{ /* compiled code */ }"; this}
           case None =>
         }
         this
@@ -370,8 +367,10 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
         this += "_"
 
       case tree: Ident =>
-        collectReference(tree.pos, tree.symbol.pos)
-        collectType(tree.pos, 0, printType(tree.tpe.widen))
+        if (rightHandSide) {
+          collectReference(tree.pos, tree.symbol.pos)
+          collectType(tree.pos, 0, printType(tree.tpe.widen))
+        }
 
         splicedName(tree.symbol) match {
           case Some(name) => this += highlightTypeDef(name)
@@ -397,8 +396,10 @@ class SourceCodePrinter[R <: Reflection](val reflect: R, rightHandSize: Boolean)
 
       case tree: New =>
         this += "new "
-        val tpt = tree.tpt
-        collectReference(tpt.pos, tpt.symbol.pos)  // TODO Handle more complex cases
+        if (rightHandSide) {
+          val tpt = tree.tpt
+          collectReference(tpt.pos, tpt.symbol.pos) // TODO Handle more complex cases
+        }
         printType(tree.tpe)
 
       case NamedArg(name, arg) =>
