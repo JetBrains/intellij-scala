@@ -128,7 +128,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
   protected def compiler: CompilerTester = compilerTester
 
   protected def getBaseDir: VirtualFile = {
-    val baseDir = myProject.baseDir
+    val baseDir = PlatformTestUtil.getOrCreateProjectBaseDir(myProject)
     assertNotNull(baseDir)
     baseDir
   }
