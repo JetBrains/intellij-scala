@@ -393,7 +393,11 @@ lazy val runtimeDependencies =
         Dependencies.scala3SbtBridge -> Some("lib/jps/scala3-sbt-bridge.jar"),
         Dependencies.compilerBridgeSources_2_13 -> Some("lib/jps/compiler-interface-sources-2.13.jar"),
         Dependencies.compilerBridgeSources_2_11 -> Some("lib/jps/compiler-interface-sources-2.11.jar"),
-        Dependencies.compilerBridgeSources_2_10 -> Some("lib/jps/compiler-interface-sources-2.10.jar")
+        Dependencies.compilerBridgeSources_2_10 -> Some("lib/jps/compiler-interface-sources-2.10.jar"),
+        Dependencies.tasty.inspector -> Some("lib/tasty/tasty-inspector.jar"),
+        Dependencies.tasty.core % "3.0.0-M2" -> Some("lib/tasty/tasty-core.jar"),
+        Dependencies.tasty.interfaces % "3.0.0-M2" -> Some("lib/tasty/scala-interfaces.jar"),
+        Dependencies.tasty.compiler % "3.0.0-M2" -> Some("lib/tasty/scala-compiler.jar"),
       ),
       update := {
         LocalRepoPackager.localPluginRepo(target.value / "repo", localRepoPaths)
