@@ -97,20 +97,12 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     else {
       val pckgName = toJavaFqn(packageName(topLevelClassNames.head))
       val sourcePaths = topLevelClassNames.map(qName => toJavaFqn(qName).replace('.', File.separatorChar))
-      val positionClassName = className(position)
-
-      def correctSourceName(refType: ReferenceType): Boolean = {
-        val sourceNames = refType.sourceNames(SCALA_STRATUM)
-        sourceNames.contains(sourceName) || positionClassName.exists(sourceNames.contains)
-      }
-
-      def correctSourcePath(refType: ReferenceType): Boolean =
-        sourcePaths.exists(source => refType.sourcePaths(SCALA_STRATUM).asScala.exists(_.startsWith(source)))
 
       filterAllClasses(debugProcess) { refType =>
         val samePathAndSourceName =
           if (refType.availableStrata().contains(SCALA_STRATUM))
-            correctSourceName(refType) && correctSourcePath(refType)
+            refType.sourceNames(SCALA_STRATUM).contains(sourceName) &&
+              sourcePaths.exists(source => refType.sourcePaths(SCALA_STRATUM).asScala.exists(_.startsWith(source)))
           else
             refType.name().startsWith(pckgName) &&
               cachedSourceName(refType).contains(sourceName)
@@ -126,9 +118,8 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
     try {
       inReadAction {
-        locationsOfLine(refType, position.getLine, position.getFile.name) ++
-          className(position).toList.flatMap(locationsOfLine(refType, position.getLine, _))
-      }.asJava
+        locationsOfLine(refType, position.getLine, position.getFile.name).asJava
+      }
     }
     catch {
       case _: AbsentInformationException => ju.Collections.emptyList()
@@ -143,30 +134,10 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     val file = position.getFile
     throwIfNotScalaFile(file)
 
-    val requestManager = debugProcess.getRequestsManager
-    val sourceNameRequest = requestManager.createClassPrepareRequest(requestor, "")
-    sourceNameRequest.addSourceNameFilter(file.name)
+    val request = debugProcess.getRequestsManager.createClassPrepareRequest(requestor, "")
+    request.addSourceNameFilter(file.name)
 
-    val classNameAsSourceRequest = className(position).map { name =>
-      val request = requestManager.createClassPrepareRequest(requestor, "")
-      request.addSourceNameFilter(name)
-      request
-    }
-
-    (sourceNameRequest :: classNameAsSourceRequest.toList).asJava
-  }
-
-  private def className(position: SourcePosition): Option[String] = {
-    inReadAction {
-      positionsOnLine(position.getFile, position.getLine)
-        .flatMap(_.parentOfType[ScTypeDefinition])
-        .headOption
-        .map {
-          case o: ScObject => o.name + "$"
-          case c => c.name
-        }
-
-    }
+    singletonList(request)
   }
 
   private def throwIfNotScalaFile(file: PsiFile): Unit = {
