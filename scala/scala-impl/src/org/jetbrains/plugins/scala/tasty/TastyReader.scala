@@ -18,7 +18,7 @@ object TastyReader {
 
   private val Header: Array[Byte] = Array(0x5C, 0xA1, 0xAB, 0x1F, 0x80 | MajorVersion, 0x80 | MinorVersion).map(_.toByte)
 
-  def read(classpath: String, bytes: Array[Byte], rightHandSize: Boolean): Option[TastyFile] = {
+  def read(classpath: String, bytes: Array[Byte], rightHandSide: Boolean): Option[TastyFile] = {
     if (!bytes.startsWith(Header)) {
       return None
     }
@@ -26,7 +26,7 @@ object TastyReader {
     val file = File.createTempFile("foo", ".tasty")
     try {
       Files.write(file.toPath, bytes, StandardOpenOption.TRUNCATE_EXISTING)
-      read(api, classpath: String, file.getPath, rightHandSize)
+      read(api, classpath: String, file.getPath, rightHandSide)
     } finally {
       file.delete()
     }
@@ -34,11 +34,11 @@ object TastyReader {
 
   // TODO fully-qualified name VS .tasty file path
   // There is no way to read a specific (one) .tasty file in a JAR using the API of https://github.com/lampepfl/dotty/blob/M2/tasty-inspector/src/scala/tasty/inspector/TastyInspector.scala?
-  def read(tastyPath: TastyPath, rightHandSize: Boolean = true): Option[TastyFile] = {
+  def read(tastyPath: TastyPath, rightHandSide: Boolean = true): Option[TastyFile] = {
     if (tastyPath.classpath.endsWith(".jar")) {
-      extracting(tastyPath.classpath, tastyPath.className.replace('.', '/') + ".tasty")(read(api, "", _, rightHandSize))
+      extracting(tastyPath.classpath, tastyPath.className.replace('.', '/') + ".tasty")(read(api, "", _, rightHandSide))
     } else {
-      read(api, tastyPath.classpath, tastyPath.classpath + "/" + tastyPath.className + ".tasty", rightHandSize)
+      read(api, tastyPath.classpath, tastyPath.classpath + "/" + tastyPath.className + ".tasty", rightHandSide)
     }
   }
 
@@ -86,13 +86,13 @@ object TastyReader {
     consumeTastyImplClass.getDeclaredConstructor().newInstance().asInstanceOf[ConsumeTasty]
   }
 
-  private def read(consumeTasty: ConsumeTasty, classpath: String, className: String, rightHandSize: Boolean): Option[TastyFile] = {
+  private def read(consumeTasty: ConsumeTasty, classpath: String, className: String, rightHandSide: Boolean): Option[TastyFile] = {
     // TODO An ability to detect errors, https://github.com/lampepfl/dotty-feature-requests/issues/101
     var result = Option.empty[TastyFile]
 
     val tastyConsumer = new TastyConsumer {
       override def apply(reflect: Reflection)(tree: reflect.delegate.Tree): Unit = {
-        val printer = new SourceCodePrinter[reflect.type](reflect, rightHandSize)
+        val printer = new SourceCodePrinter[reflect.type](reflect, rightHandSide)
         val text = printer.showTree(tree)
         def file(path: String) = {
           val i = path.replace('\\', '/').lastIndexOf("/")
