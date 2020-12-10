@@ -2,21 +2,19 @@ package org.jetbrains.plugins.scala
 
 import java.io.File
 import java.net.URL
-
 import com.intellij.ProjectTopics
 import com.intellij.execution.ExecutionException
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
 import com.intellij.openapi.module._
-import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.project.{DumbService, Project, ProjectUtil}
 import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{LanguageSubstitutors, PsiElement, PsiFile}
-import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.util.PathsList
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -284,7 +282,7 @@ package object project {
     def libraries: Seq[Library] =
       LibraryTablesRegistrar.getInstance.getLibraryTable(project).getLibraries.toSeq
 
-    def baseDir: VirtualFile = PlatformTestUtil.getOrCreateProjectBaseDir(project)
+    def baseDir: VirtualFile = ProjectUtil.guessProjectDir(project)
 
     // TODO: SCL-18097: it should be per-module, like for all other compiler flags (e.g. for isSAMEnabled)
     def isPartialUnificationEnabled: Boolean = modulesWithScala.exists(_.isPartialUnificationEnabled)
