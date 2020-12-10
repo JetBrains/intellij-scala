@@ -11,7 +11,7 @@ import com.intellij.debugger.requests.ClassPrepareRequestor
 import com.intellij.debugger.{MultiRequestPositionManager, NoDataException, PositionManager, SourcePosition}
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.FileType
-import com.intellij.openapi.project.DumbService
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.CachedValueProvider.Result
@@ -71,7 +71,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     val position =
       for {
         loc <- location.toOption
-        psiFile <- getPsiFileByReferenceType(loc.declaringType).toOption
+        psiFile <- getPsiFileByReferenceType(debugProcess.getProject, loc.declaringType).toOption
         lineNumber = exactLineNumber(location)
         if lineNumber >= 0
       } yield {
@@ -84,6 +84,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
   @NotNull
   override def getAllClasses(@NotNull position: SourcePosition): ju.List[ReferenceType] = {
+
     val file = position.getFile
     throwIfNotScalaFile(file)
 
@@ -92,7 +93,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     def hasLocations(refType: ReferenceType, position: SourcePosition): Boolean = {
       try {
         val generated = isGeneratedClass(generatedClassName, refType)
-        lazy val sameFile = getPsiFileByReferenceType(refType) == file
+        lazy val sameFile = getPsiFileByReferenceType(file.getProject, refType) == file
 
         generated || sameFile && locationsOfLine(refType, position).size > 0
       } catch {
@@ -323,12 +324,9 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   }
 
   @Nullable
-  private def getPsiFileByReferenceType(refType: ReferenceType): PsiFile = {
-    if (refType == null)
-      return null
-
-    if (refTypeToFileCache.contains(refType))
-      return refTypeToFileCache(refType)
+  private def getPsiFileByReferenceType(project: Project, refType: ReferenceType): PsiFile = {
+    if (refType == null) return null
+    if (refTypeToFileCache.contains(refType)) return refTypeToFileCache(refType)
 
     def findFile() = {
       def withDollarTestName(originalQName: String): Option[String] = {
@@ -336,7 +334,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         if (originalQName.endsWith(dollarTestSuffix)) Some(originalQName)
         else if (originalQName.contains(dollarTestSuffix + "$")) {
           val index = originalQName.indexOf(dollarTestSuffix) + dollarTestSuffix.length
-          Some(originalQName.substring(0, index))
+          Some(originalQName.take(index))
         }
         else None
       }
@@ -375,7 +373,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
   private def checkForIndyLambdas(refType: ReferenceType) = {
     if (!refTypeToFileCache.contains(refType)) {
-      getPsiFileByReferenceType(refType)
+      getPsiFileByReferenceType(debugProcess.getProject, refType)
     }
   }
 
@@ -394,6 +392,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   }
 
   private def findElementByReferenceTypeInner(refType: ReferenceType): Option[PsiElement] = {
+
     val byName = findPsiClassByQName(refType, debugProcessScope) orElse findByShortName(refType)
     if (byName.isDefined) return byName
 
@@ -408,7 +407,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     val lastRefTypeLine = refTypeLineNumbers.max
     val refTypeLines = firstRefTypeLine to lastRefTypeLine
 
-    val file = getPsiFileByReferenceType(refType)
+    val file = getPsiFileByReferenceType(project, refType)
     if (!checkScalaFile(file)) return None
 
     val document = PsiDocumentManager.getInstance(project).getDocument(file)
