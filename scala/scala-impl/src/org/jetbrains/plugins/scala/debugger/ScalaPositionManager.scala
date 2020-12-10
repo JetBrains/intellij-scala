@@ -70,7 +70,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
     val position =
       for {
-        psiFile   <- findPsiFileByLocation(location)
+        psiFile <- getPsiFileByReferenceType(location.declaringType)
         lineNumber = exactLineNumber(location)
         if lineNumber >= 0
       } yield {
@@ -96,18 +96,11 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     if (topLevelClassNames.isEmpty) emptyList()
     else {
       val pckgName = toJavaFqn(packageName(topLevelClassNames.head))
-      val sourcePaths = topLevelClassNames.map(qName => toJavaFqn(qName).replace('.', File.separatorChar))
 
       filterAllClasses(debugProcess) { refType =>
-        val samePathAndSourceName =
-          if (refType.availableStrata().contains(SCALA_STRATUM))
-            refType.sourceNames(SCALA_STRATUM).contains(sourceName) &&
-              sourcePaths.exists(source => refType.sourcePaths(SCALA_STRATUM).asScala.exists(_.startsWith(source)))
-          else
-            refType.name().startsWith(pckgName) &&
-              cachedSourceName(refType).contains(sourceName)
-
-        samePathAndSourceName && locationsOfLine(refType, position).size > 0
+        refType.name().startsWith(pckgName) &&
+          cachedSourceName(refType).contains(sourceName) &&
+          locationsOfLine(refType, position).size > 0
       }
     }
   }
@@ -118,7 +111,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
     try {
       inReadAction {
-        locationsOfLine(refType, position.getLine, position.getFile.name).asJava
+        locationsOfLine(refType, position.getLine).asJava
       }
     }
     catch {
@@ -254,17 +247,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     }
 
     calcElement().filter(_.isValid).map(SourcePosition.createFromElement)
-  }
-
-  private def findPsiFileByLocation(location: Location): Option[PsiFile] = {
-    val referenceType = location.declaringType()
-
-    if (referenceType.availableStrata().contains(SCALA_STRATUM)) {
-      val className = location.sourcePath(SCALA_STRATUM).replace(File.separatorChar, '.')
-      findPsiFileByClassName(className)
-    }
-    else
-      getPsiFileByReferenceType(referenceType)
   }
 
   @Nullable
@@ -494,14 +476,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 }
 
 object ScalaPositionManager {
-  /** May exist for classes where some code was inlined.
-   *
-   *  `location.sourceName(SCALA_STRATUM)` returns source file name, e.g. `Example.scala`
-   *
-   * `location.sourcePath(SCALA_STRATUM)` returns qualified name of a class where
-   *  inlined method was defined as a file system path, e.g. `my/test/Example$`
-   */
-  final val SCALA_STRATUM = "Scala"
 
   private val isCompiledWithIndyLambdasKey: Key[java.lang.Boolean] = Key.create("compiled.with.indy.lambdas")
 
