@@ -149,9 +149,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       if (namePatterns.isEmpty) Nil
       else filterAllClasses(c => hasLocations(c, position) && namePatterns.exists(_.matches(c)), packageName)
     val distinctExactClasses = exactClasses.distinct
-    val loadedNestedClasses = if (ScalaDebuggerSettings.getInstance().FORCE_POSITION_LOOKUP_IN_NESTED_TYPES)
-      getNestedClasses(distinctExactClasses).filter(hasLocations(_, position))
-    else Nil
+    val loadedNestedClasses = getNestedClasses(distinctExactClasses).filter(hasLocations(_, position))
 
     (distinctExactClasses ++ foundWithPattern ++ loadedNestedClasses).distinct.asJava
   }
@@ -194,12 +192,11 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       notLocalEnclosingTypeDefinition(element)
     }
 
-    val forceForNestedTypes = ScalaDebuggerSettings.getInstance().FORCE_CLASS_PREPARE_REQUESTS_FOR_NESTED_TYPES
     def createClassPrepareRequests(classPrepareRequestor: ClassPrepareRequestor,
                                    classPreparePattern: String): Seq[ClassPrepareRequest] = {
       val reqManager = debugProcess.getRequestsManager
       val patternCoversNestedTypes = classPreparePattern.endsWith("*")
-      if (patternCoversNestedTypes || !forceForNestedTypes) {
+      if (patternCoversNestedTypes) {
         List(reqManager.createClassPrepareRequest(classPrepareRequestor, classPreparePattern))
       } else {
         val nestedTypesSuffix = if (classPreparePattern.endsWith("$")) "*" else "$*"
