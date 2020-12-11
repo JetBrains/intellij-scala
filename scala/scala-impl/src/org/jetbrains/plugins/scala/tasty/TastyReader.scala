@@ -16,6 +16,10 @@ object TastyReader {
   private val MajorVersion = 25
   private val MinorVersion = 1
 
+  // A TASTy document is composed of a header, which contains a magic number 0x5CA1AB1F, a version number and a UUID.
+  // * https://github.com/scala/scala/pull/9109/files#diff-f7bbafb9ed1dff384defaa69687349daa35b276a4320aa61046844b0014e0cb5R26
+  // * https://github.com/scala/scala/blob/1360aef77125e993e8495dd59ce2983889688b54/src/compiler/scala/tools/tasty/TastyFormat.scala#L17
+  // * https://github.com/scala/scala/pull/9109/files#diff-b57f5a78fc6ead7f134260b01093bed096c9dd51b12cc59e094c1a58a14eea1bR27
   private val Header: Array[Byte] = Array(0x5C, 0xA1, 0xAB, 0x1F, 0x80 | MajorVersion, 0x80 | MinorVersion).map(_.toByte)
 
   def read(classpath: String, bytes: Array[Byte], rightHandSide: Boolean): Option[TastyFile] = {
