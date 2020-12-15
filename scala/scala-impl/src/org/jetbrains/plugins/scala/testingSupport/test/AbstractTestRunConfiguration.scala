@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package testingSupport.test
 
 import java.{util => ju}
-
 import com.intellij.diagnostic.logging.LogConfigurationPanel
 import com.intellij.execution._
 import com.intellij.execution.configurations._
@@ -15,6 +14,7 @@ import com.intellij.openapi.options.{SettingsEditor, SettingsEditorGroup}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.{GlobalSearchScope, GlobalSearchScopes}
+import com.intellij.util.keyFMap.KeyFMap
 import com.intellij.util.xmlb.XmlSerializer
 import com.intellij.util.xmlb.annotations.Transient
 import org.jdom.Element
@@ -200,6 +200,9 @@ abstract class AbstractTestRunConfiguration(
     JavaRunConfigurationExtensionManager.getInstance.readExternal(thisConfiguration, element)
     readModule(element)
     XmlSerializer.deserializeInto(this, element)
+    //TODO: since UserDataHolderBase extends AtomicReference in 2021.1 deserialization of it's value doesn't work and plain
+    // Object instance is deserialized instead of KeyFMap
+    set(KeyFMap.EMPTY_MAP)
     migrate(element)
     testConfigurationData = TestConfigurationData.createFromExternal(element, this)
   }
