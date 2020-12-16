@@ -48,7 +48,6 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
-import scala.collection.mutable
 
 class ScalaPsiManager(implicit val project: Project) {
 

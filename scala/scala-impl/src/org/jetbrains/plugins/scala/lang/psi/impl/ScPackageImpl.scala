@@ -162,7 +162,7 @@ object ScPackageImpl {
             val qName = `package`.getQualifiedName
 
             val calcForName = {
-              val fqn = if (qName.length() > 0) qName + "." + name else name
+              val fqn = if (qName.nonEmpty) qName + "." + name else name
 
               val scope = base match {
                 case r: ResolveProcessor => r.getResolveScope
@@ -174,8 +174,11 @@ object ScPackageImpl {
               while (classes.hasNext && !stop) {
                 val clazz = classes.next()
                 clazz match {
-                  case cls: ScClass => cls.getSyntheticImplicitMethod.foreach(processor.execute(_, state))
-                  case _            => ()
+                  case cls: ScClass if cls.isTopLevel =>
+                    cls.getSyntheticImplicitMethod.foreach {
+                      synMethod => if (!processor.execute(synMethod, state)) return false
+                    }
+                  case _ => ()
                 }
 
                 stop = clazz.containingClass == null && !processor.execute(clazz, state)
