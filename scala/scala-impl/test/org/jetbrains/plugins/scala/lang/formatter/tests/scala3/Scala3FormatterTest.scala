@@ -20,13 +20,12 @@ class Scala3FormatterTest extends AbstractScalaFormatterTestBase {
       |""".stripMargin
   )
 
-  // TODO: fix end parsing
-  //def testClassEnd(): Unit = doTextTest(
-  //  """
-  //    |class Test:
-  //    |  def test = ()
-  //    |end Test
-  //    |""".stripMargin
-  //)
+  def testClassEnd(): Unit = doTextTest(
+    """
+      |class Test:
+      |  def test = ()
+      |end Test
+      |""".stripMargin
+  )
 
 }
