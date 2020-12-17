@@ -114,19 +114,25 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
     }
 
     @NotNull
-    private IElementType processInsideString(boolean isInsideMultiline) {
-        boolean isEscape = yycharat(1) == '$';
-        if (!isEscape) {
+    private IElementType processDollarInsideString(boolean isInsideMultiline) {
+        final IElementType token;
+
+        boolean isDollarEscape = yycharat(1) == '$';
+        if (isDollarEscape) {
+            yypushback(yylength() - 2);
+            token = tINTERPOLATED_STRING_ESCAPE;
+        }
+        else {
             if (isInsideMultiline) {
                 haveIdInMultilineString = true;
             } else {
                 haveIdInString = true;
             }
             yybegin(INJ_COMMON_STATE);
+            yypushback(yylength() - 1);
+            token = tINTERPOLATED_STRING_INJECTION;
         }
-
-        yypushback(yylength() - 1 - (isEscape ? 1 : 0));
-        return process(isEscape ? tINTERPOLATED_STRING_ESCAPE : tINTERPOLATED_STRING_INJECTION);
+        return process(token);
     }
 
     private IElementType processScala3(@NotNull IElementType type) {
@@ -325,7 +331,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
   }
 
   "$"{identifier} {
-    return processInsideString(false);
+    return processDollarInsideString(false);
   }
 
   \" {
@@ -361,7 +367,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
   }
 
   "$"{identifier} {
-    return processInsideString(true);
+    return processDollarInsideString(true);
   }
 
   \"\"\" (\")+ {
