@@ -6,6 +6,7 @@ package expressions
 
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClauses
@@ -51,6 +52,7 @@ object Expr1 extends ParsingRule {
 
       //--------------------while statement-----------------------//
       case ScalaTokenTypes.kWHILE =>
+        val iw = builder.currentIndentationWidth
         builder.advanceLexer() //Ate while
         val parseNormal =
           if (builder.isScala3) {
@@ -96,10 +98,12 @@ object Expr1 extends ParsingRule {
         if (!ExprInIndentationRegion()) {
           builder error ErrMsg("wrong.expression")
         }
+        End(iw)
         exprMarker.done(ScalaElementType.WHILE_STMT)
         return true
       //---------------------try statement------------------------//
       case ScalaTokenTypes.kTRY =>
+        val iw = builder.currentIndentationWidth
         builder.advanceLexer() //Ate try
         if (!ExprInIndentationRegion()) {
           builder error ErrMsg("wrong.expression")
@@ -126,10 +130,12 @@ object Expr1 extends ParsingRule {
           case _ =>
             finallyMarker.drop()
         }
+        End(iw)
         exprMarker.done(ScalaElementType.TRY_STMT)
         return true
       //----------------do statement----------------//
       case ScalaTokenTypes.kDO =>
+        val iw = builder.currentIndentationWidth
         builder.advanceLexer() //Ate do
         if (!ExprInIndentationRegion()) builder error ErrMsg("wrong.expression")
         builder.getTokenType match {
@@ -159,10 +165,12 @@ object Expr1 extends ParsingRule {
           case _ =>
             builder error ErrMsg("while.expected")
         }
+        End(iw)
         exprMarker.done(ScalaElementType.DO_STMT)
         return true
       //----------------for statement------------------------//
       case ScalaTokenTypes.kFOR =>
+        val iw = builder.currentIndentationWidth
         builder.advanceLexer() //Ate for
         builder.getTokenType match {
           case ScalaTokenTypes.tLBRACE =>
@@ -211,6 +219,7 @@ object Expr1 extends ParsingRule {
           builder error ErrMsg("wrong.expression")
         }
 
+        End(iw)
         exprMarker.done(ScalaElementType.FOR_STMT)
         return true
       //----------------throw statment--------------//
@@ -321,6 +330,7 @@ object Expr1 extends ParsingRule {
   }
 
   private def parseIf(exprMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Unit = {
+    val iw = builder.currentIndentationWidth
     builder.advanceLexer() //Ate if
     builder.getTokenType match {
       case InScala3(_) if parseParenlessIfCondition() =>
@@ -359,6 +369,7 @@ object Expr1 extends ParsingRule {
       case _ =>
         rollbackMarker.rollbackTo()
     }
+    End(iw)
     exprMarker.done(ScalaElementType.IF_STMT)
   }
 
@@ -384,6 +395,7 @@ object Expr1 extends ParsingRule {
   }
 
   def parseMatch(exprMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Unit = {
+    val iw = builder.currentIndentationWidth
     builder.advanceLexer() //Ate match
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE =>
@@ -405,6 +417,7 @@ object Expr1 extends ParsingRule {
       case _ => builder error ErrMsg("case.clauses.expected")
     }
 
+    End(iw)
     exprMarker.done(ScalaElementType.MATCH_STMT)
   }
 }

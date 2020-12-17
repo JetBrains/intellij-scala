@@ -106,7 +106,9 @@ object ExtMethod extends ParsingRule {
     while (Modifier() || parseScalaMetaInline()) {}
     modifierMarker.done(ScalaElementType.MODIFIERS)
 
+    val iw = builder.currentIndentationWidth
     if (FunDef() || FunDcl()) {
+      End(iw)
       defMarker.done(ScalaElementType.FUNCTION_DEFINITION)
       true
     } else {

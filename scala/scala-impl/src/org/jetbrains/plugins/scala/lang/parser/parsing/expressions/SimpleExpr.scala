@@ -5,6 +5,7 @@ package parsing
 package expressions
 
 import com.intellij.lang.PsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Def
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.ClassTemplateBlock
@@ -45,6 +46,7 @@ object SimpleExpr extends ParsingRule {
     var state: Boolean = false //false means SimpleExpr, true SimpleExpr1
     builder.getTokenType match {
       case NewKeyword =>
+        val iw = builder.currentIndentationWidth
         builder.advanceLexer() //Ate new
         if (!ClassTemplateBlock.parse(builder)) {
           builder error ErrMsg("identifier.expected")
@@ -52,6 +54,7 @@ object SimpleExpr extends ParsingRule {
           return false
         }
         newMarker = simpleMarker.precede
+        End(iw)
         simpleMarker.done(ScalaElementType.NewTemplate)
       case `tLBRACE` =>
         newMarker = simpleMarker.precede

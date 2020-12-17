@@ -4,7 +4,7 @@ package parser
 package parsing
 package expressions
 
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.{End, Extension, Import}
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Extension, Import}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{Dcl, Def, EmptyDcl}
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
@@ -49,7 +49,6 @@ object BlockStat extends ParsingRule {
         true
       case IsTemplateDefinition() =>
         TmplDef()
-      case _ if End() => true
       case _ if builder.skipExternalToken() => BlockStat()
       case _ =>
         if (!Def() && !TmplDef()) {

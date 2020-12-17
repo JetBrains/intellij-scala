@@ -4,6 +4,7 @@ package parser
 package parsing
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.QualId
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
@@ -23,6 +24,7 @@ object Packaging extends ParsingRule {
     val packMarker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.kPACKAGE =>
+        val iw = builder.currentIndentationWidth
         builder.advanceLexer() //Ate package
         if (!(QualId())) {
           packMarker.drop()
@@ -50,6 +52,7 @@ object Packaging extends ParsingRule {
               case indentO@Some(indent) if indent > currentIndent =>
                 BlockIndentation.noBlock -> indentO
               case _ =>
+                End(iw)
                 packMarker.done(ScalaElementType.PACKAGING)
                 return true
             }
@@ -68,6 +71,7 @@ object Packaging extends ParsingRule {
         }
         blockIndentation.drop()
         builder.restoreNewlinesState()
+        End(iw)
         packMarker.done(ScalaElementType.PACKAGING)
         true
       case _ =>

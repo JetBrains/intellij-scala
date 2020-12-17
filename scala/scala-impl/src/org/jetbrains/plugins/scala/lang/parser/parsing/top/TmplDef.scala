@@ -6,7 +6,7 @@ package top
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.{End, Modifier}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.GivenDef
@@ -74,8 +74,10 @@ object TmplDef extends ParsingRule {
   }
 
   private def parseTmplRest(rule: ParsingRule, templateMarker: PsiBuilder.Marker, elementType: IElementType)(implicit builder: ScalaPsiBuilder): Unit = {
+    val iw = builder.currentIndentationWidth
     builder.advanceLexer() // ate class
     if (rule()) {
+      End(iw)
       templateMarker.done(elementType)
     } else {
       templateMarker.drop()

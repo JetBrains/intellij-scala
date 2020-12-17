@@ -51,11 +51,11 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
       |    PsiWhiteSpace('\n  ')
       |    ReferenceExpression: stmt
       |      PsiElement(identifier)('stmt')
-      |  PsiWhiteSpace('\n')
-      |  End: if
-      |    PsiElement(end)('end')
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(if)('if')
+      |    PsiWhiteSpace('\n')
+      |    End: if
+      |      PsiElement(end)('end')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(if)('if')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
@@ -87,11 +87,11 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
       |      PsiWhiteSpace('\n    ')
       |      ReferenceExpression: stmt
       |        PsiElement(identifier)('stmt')
-      |  PsiWhiteSpace('\n')
-      |  End: if
-      |    PsiElement(end)('end')
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(if)('if')
+      |    PsiWhiteSpace('\n')
+      |    End: if
+      |      PsiElement(end)('end')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(if)('if')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
@@ -256,16 +256,16 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
       |              PsiWhiteSpace(' ')
       |              IntegerLiteral
       |                PsiElement(integer)('1')
-      |    PsiWhiteSpace('\n  ')
-      |    End: bar
+      |      PsiWhiteSpace('\n  ')
+      |      End: bar
+      |        PsiElement(end)('end')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('bar')
+      |    PsiWhiteSpace('\n')
+      |    End: foo
       |      PsiElement(end)('end')
       |      PsiWhiteSpace(' ')
-      |      PsiElement(identifier)('bar')
-      |  PsiWhiteSpace('\n')
-      |  End: foo
-      |    PsiElement(end)('end')
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(identifier)('foo')
+      |      PsiElement(identifier)('foo')
       |  PsiWhiteSpace('\n')
       |  ScPackaging
       |    PsiElement(package)('package')
@@ -310,15 +310,43 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
       |                PsiElement(identifier)('A')
       |              PsiElement(.)('.')
       |              PsiElement(identifier)('foo')
-      |  PsiWhiteSpace('\n')
-      |  End: baz
-      |    PsiElement(end)('end')
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(identifier)('baz')
+      |    PsiWhiteSpace('\n')
+      |    End: baz
+      |      PsiElement(end)('end')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(identifier)('baz')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
 
+  def test_nested(): Unit = checkTree(
+    """class Test:
+      |  def this():
+      |    super()
+      |    if x > 0 then
+      |      val a :: b =
+      |        x :: Nil
+      |      end val
+      |      var y =
+      |        x
+      |      end y
+      |      while y > 0 do
+      |        println(y)
+      |        y -= 1
+      |      end while
+      |      try
+      |        x match
+      |          case 0 => println("0")
+      |          case _ =>
+      |        end match
+      |      finally
+      |        println("done")
+      |      end try
+      |    end if
+      |""".stripMargin,
+    """
+      |""".stripMargin
+  )
 
   // todo: add tests for extensions and given
 }

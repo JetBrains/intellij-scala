@@ -4,7 +4,7 @@ package parser
 package parsing
 package statements
 
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.{End, Modifier}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
@@ -38,10 +38,12 @@ object Def extends ParsingRule {
     modifierMarker.done(ScalaElementType.MODIFIERS)
 
     //Look for val,var,def or type
+    val iw = builder.currentIndentationWidth
     builder.getTokenType match {
       case `kVAL` =>
         builder.advanceLexer() //Ate val
         if (PatDef()) {
+          End(iw)
           defMarker.done(ScalaElementType.PATTERN_DEFINITION)
           true
         }
@@ -52,6 +54,7 @@ object Def extends ParsingRule {
       case `kVAR` =>
         builder.advanceLexer() //Ate var
         if (PatDef()) {
+          End(iw)
           defMarker.done(ScalaElementType.VARIABLE_DEFINITION)
           true
         }
@@ -61,9 +64,11 @@ object Def extends ParsingRule {
         }
       case `kDEF` =>
         if (MacroDef()) {
+          End(iw)
           defMarker.done(ScalaElementType.MACRO_DEFINITION)
           true
         } else if (FunDef()) {
+          End(iw)
           defMarker.done(ScalaElementType.FUNCTION_DEFINITION)
           true
         } else {

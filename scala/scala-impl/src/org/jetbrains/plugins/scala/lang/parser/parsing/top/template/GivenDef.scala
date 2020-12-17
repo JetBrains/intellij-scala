@@ -7,6 +7,7 @@ package template
 
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Expr, ExprInIndentationRegion}
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ParamClauses, TypeParamClause}
@@ -24,13 +25,16 @@ object GivenDef {
     assert(builder.isScala3)
     assert(builder.getTokenType == ScalaTokenType.GivenKeyword)
 
+    val iw = builder.currentIndentationWidth
     builder.advanceLexer() // ate given
 
     GivenSig()
 
     if(parseGivenAlias()) {
+      End(iw)
       templateMarker.done(ScalaElementType.GIVEN_ALIAS)
     } else if (parseGivenDefinition()) {
+      End(iw)
       templateMarker.done(ScalaElementType.GivenDefinition)
     } else {
       templateMarker.drop()

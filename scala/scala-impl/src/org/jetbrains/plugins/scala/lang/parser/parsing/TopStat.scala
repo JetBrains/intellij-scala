@@ -3,7 +3,7 @@ package lang
 package parser
 package parsing
 
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.{End, Export, Extension, Import}
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Export, Extension, Import}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{Dcl, Def, EmptyDcl}
@@ -51,8 +51,6 @@ object TopStat {
             else Some(EMPTY_STATE)
           }
         }
-      case _ if End() =>
-        None
       case _ if builder.skipExternalToken() =>
         if (!builder.eof()) parse(state) else Some(SCRIPT_STATE)
       case _ =>
