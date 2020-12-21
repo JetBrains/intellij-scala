@@ -6,6 +6,7 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.LanguageSubstitutors
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory.createScalaSyntaxHighlighter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
@@ -24,7 +25,7 @@ final class ScalaSyntaxHighlighterFactory extends SyntaxHighlighterFactory {
 }
 
 object ScalaSyntaxHighlighterFactory {
-  def createScalaSyntaxHighlighter(project: Project, file: VirtualFile, language: Language): ScalaSyntaxHighlighter = {
+  def createScalaSyntaxHighlighter(project: Project, @Nullable file: VirtualFile, language: Language): ScalaSyntaxHighlighter = {
     val scalaLexer = LanguageParserDefinitions.INSTANCE
       .forLanguage(language)
       .createLexer(project)

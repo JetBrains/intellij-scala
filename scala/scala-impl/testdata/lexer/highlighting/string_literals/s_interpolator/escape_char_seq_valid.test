@@ -1,0 +1,8 @@
+s"\t\n\r"
+-----
+interpolated string id {s}
+interpolated string {"}
+VALID_STRING_ESCAPE_TOKEN {\t}
+VALID_STRING_ESCAPE_TOKEN {\n}
+VALID_STRING_ESCAPE_TOKEN {\r}
+interpolated string end {"}

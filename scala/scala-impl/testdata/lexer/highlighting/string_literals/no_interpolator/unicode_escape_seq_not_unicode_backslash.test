@@ -1,0 +1,11 @@
+"\\u0025"
+"\\uu0025"
+-----
+string content {"}
+VALID_STRING_ESCAPE_TOKEN {\\}
+string content {u0025"}
+white space in line {
+}
+string content {"}
+VALID_STRING_ESCAPE_TOKEN {\\}
+string content {uu0025"}

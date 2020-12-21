@@ -6,6 +6,7 @@ package expressions
 
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.annotations.{Nls, Nullable}
+import org.jetbrains.plugins.scala.lang.parser.parsing.CommonUtils.remapRawStringTokens
 
 /**
  * Literal ::= ['-']integerLiteral
@@ -64,7 +65,11 @@ object Literal {
         marker.done(InterpolatedString)
         true
       case `tINTERPOLATED_MULTILINE_STRING` |
-           `tINTERPOLATED_STRING` =>
+           `tINTERPOLATED_STRING` |
+           `tINTERPOLATED_MULTILINE_RAW_STRING` |
+           `tINTERPOLATED_RAW_STRING` =>
+        // TODO: is this dead branch? it's not triggered by tests
+        remapRawStringTokens(builder)
         advanceAndMarkDone(InterpolatedString)
       case `kNULL` =>
         advanceAndMarkDone(NullLiteral)
@@ -80,6 +85,7 @@ object Literal {
         advanceAndMarkDone(StringLiteral)
       case `tWRONG_STRING` =>
         advanceAndMarkDone(StringLiteral, ScalaBundle.message("wrong.string.literal"))
+      //case `tWRONG_LINE_BREAK_IN_STRING` => TODO: it's currently not added in non-interpolated string literals (see TODOs in scala.flex)
       case tokenType =>
         matchNumber(tokenType)
     }

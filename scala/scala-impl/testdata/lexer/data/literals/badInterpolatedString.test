@@ -21,9 +21,9 @@ white space in line { }
 white space in line { }
 interpolated string id {s}
 interpolated string {"blah blah}
-interpolated string end {
-}
+wrong line break in string {}
 white space in line {
+
   }
 val {val}
 white space in line { }

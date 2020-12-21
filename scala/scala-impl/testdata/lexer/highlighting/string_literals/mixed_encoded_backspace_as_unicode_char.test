@@ -1,0 +1,39 @@
+"\u005c"
+s"\u005c"
+raw"\u005c"
+"""\u005c"""
+s"""\u005c"""
+raw"""\u005c"""
+-----
+string content {"}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+string content {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {raw}
+interpolated string {"}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolated string end {"}
+white space in line {
+}
+multiline string {"""}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+multiline string {"""}
+white space in line {
+}
+interpolated string id {s}
+interpolatedmultiline string {"""}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolated string end {"""}
+white space in line {
+}
+interpolated string id {raw}
+interpolatedmultiline string {"""}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolated string end {"""}

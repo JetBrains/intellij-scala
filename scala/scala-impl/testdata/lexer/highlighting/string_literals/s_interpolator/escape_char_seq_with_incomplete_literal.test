@@ -1,0 +1,47 @@
+s"\"
+s"\t\n\r\"
+
+class a {
+  s"\"
+  s"\t\n\r\"
+}
+-----
+interpolated string id {s}
+interpolated string {"}
+VALID_STRING_ESCAPE_TOKEN {\"}
+wrong line break in string {}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+VALID_STRING_ESCAPE_TOKEN {\t}
+VALID_STRING_ESCAPE_TOKEN {\n}
+VALID_STRING_ESCAPE_TOKEN {\r}
+VALID_STRING_ESCAPE_TOKEN {\"}
+wrong line break in string {}
+white space in line {
+
+}
+class {class}
+white space in line { }
+identifier {a}
+white space in line { }
+{ {{}
+white space in line {
+  }
+interpolated string id {s}
+interpolated string {"}
+VALID_STRING_ESCAPE_TOKEN {\"}
+wrong line break in string {}
+white space in line {
+  }
+interpolated string id {s}
+interpolated string {"}
+VALID_STRING_ESCAPE_TOKEN {\t}
+VALID_STRING_ESCAPE_TOKEN {\n}
+VALID_STRING_ESCAPE_TOKEN {\r}
+VALID_STRING_ESCAPE_TOKEN {\"}
+wrong line break in string {}
+white space in line {
+}
+} {}}

@@ -61,12 +61,23 @@ public interface ScalaTokenTypes {
     IElementType tSTRING = new ScalaTokenType("string content");
     IElementType tMULTILINE_STRING = new ScalaTokenType("multiline string");
     IElementType tINTERPOLATED_STRING = new ScalaTokenType("interpolated string");
+    // TODO: add a space between `interpolated` and `multiline` in debug name
     IElementType tINTERPOLATED_MULTILINE_STRING = new ScalaTokenType("interpolatedmultiline string");
     IElementType tINTERPOLATED_STRING_ID = new ScalaTokenType("interpolated string id");
     IElementType tINTERPOLATED_STRING_INJECTION = new ScalaTokenType("interpolated string injection");
     IElementType tINTERPOLATED_STRING_END = new ScalaTokenType("interpolated string end");
+    // TODO: rename it, it represents "$$" (dollar escape) "interpolated string escape" is misleading
     IElementType tINTERPOLATED_STRING_ESCAPE = new ScalaTokenType("interpolated string escape");
     IElementType tWRONG_STRING = new ScalaTokenType("wrong string content");
+    IElementType tWRONG_LINE_BREAK_IN_STRING = new ScalaTokenType("wrong line break in string");
+
+    // These 2 -RAW tokens are only required in highlighting lexer for now.
+    // (see org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter.CompoundLexer)
+    // They are remapped to non-RAW versions in parser.
+    // We could preserve them in PSI tree, but until it's required somewhere I decided no to do so.
+    // This will help avoiding a lot of modifications in other subsystems.
+    IElementType tINTERPOLATED_MULTILINE_RAW_STRING = new ScalaTokenType("interpolated multiline raw string");
+    IElementType tINTERPOLATED_RAW_STRING = new ScalaTokenType("interpolated raw string");
 
     IElementType tCHAR = new ScalaTokenType("Character");
     IElementType tSYMBOL = new ScalaTokenType("Symbol");

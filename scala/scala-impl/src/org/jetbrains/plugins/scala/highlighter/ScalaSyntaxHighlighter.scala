@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package highlighter
 
 import java.{util => ju}
-
 import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
 import com.intellij.lexer._
 import com.intellij.openapi.editor.colors.TextAttributesKey
@@ -10,10 +9,13 @@ import com.intellij.openapi.fileTypes.{SyntaxHighlighter, SyntaxHighlighterBase}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.xml.XmlTokenType
 import com.intellij.psi.{StringEscapesTokenTypes, TokenType}
+import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter.CustomScalaLexer
+import org.jetbrains.plugins.scala.highlighter.lexer.{ScalaInterpolatedStringLiteralLexer, ScalaMultilineStringLiteralLexer, ScalaStringLiteralLexer}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes, ScalaXmlLexer, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 
+// todo: move to some inner package
 /**
  * TODO: Extract scaladoc highlighter completely,
  *  now it's something intermediate in
@@ -23,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
  *  packages
  */
 final class ScalaSyntaxHighlighter(
-  scalaLexer: Lexer,
+  scalaLexer: CustomScalaLexer,
   scalaDocHighlighter: SyntaxHighlighter,
   htmlHighlighter: SyntaxHighlighter
 ) extends SyntaxHighlighterBase {
@@ -237,27 +239,65 @@ object ScalaSyntaxHighlighter {
     scalaLexer: Lexer,
     scalaDocLexer: Lexer,
     htmlLexer: Lexer
-  ) extends LayeredLexer(scalaLexer) {
+  ) extends com.intellij.lexer.LayeredLexer(scalaLexer) {
 
     init()
 
     private def init(): Unit = {
+      //char literal highlighting
       registerSelfStoppingLayer(
-        new StringLiteralLexer('\"', tSTRING),
-        Array(tSTRING),
+        new ScalaStringLiteralLexer('\'', tSTRING),
+        Array(tCHAR),
         IElementType.EMPTY_ARRAY
       )
 
+      //string highlighting
       registerSelfStoppingLayer(
-        new StringLiteralLexer('\'', tSTRING),
-        Array(tCHAR),
+        new ScalaStringLiteralLexer('\"', tSTRING),
+        Array(tSTRING),
+        IElementType.EMPTY_ARRAY
+      )
+      //multiline string highlighting
+      registerSelfStoppingLayer(
+        new ScalaMultilineStringLiteralLexer(StringLiteralLexer.NO_QUOTE_CHAR, tMULTILINE_STRING),
+        Array(tMULTILINE_STRING),
         IElementType.EMPTY_ARRAY
       )
 
       //interpolated string highlighting
       registerLayer(
-        new LayeredLexer(new StringLiteralLexer(StringLiteralLexer.NO_QUOTE_CHAR, tINTERPOLATED_STRING)),
+        new LayeredLexer(new ScalaInterpolatedStringLiteralLexer(
+          StringLiteralLexer.NO_QUOTE_CHAR,
+          tINTERPOLATED_STRING,
+          isRawLiteral = false
+        )),
         tINTERPOLATED_STRING
+      )
+      registerLayer(
+        new LayeredLexer(new ScalaInterpolatedStringLiteralLexer(
+          StringLiteralLexer.NO_QUOTE_CHAR,
+          tINTERPOLATED_STRING,
+          isRawLiteral = true
+        )),
+        tINTERPOLATED_RAW_STRING
+      )
+
+      //multiline interpolated string highlighting
+      registerLayer(
+        new LayeredLexer(new ScalaInterpolatedStringLiteralLexer(
+          StringLiteralLexer.NO_QUOTE_CHAR,
+          tINTERPOLATED_MULTILINE_STRING,
+          isRawLiteral = false
+        )),
+        tINTERPOLATED_MULTILINE_STRING
+      )
+      registerLayer(
+        new LayeredLexer(new ScalaInterpolatedStringLiteralLexer(
+          StringLiteralLexer.NO_QUOTE_CHAR,
+          tINTERPOLATED_MULTILINE_STRING,
+          isRawLiteral = true
+        )),
+        tINTERPOLATED_MULTILINE_RAW_STRING
       )
 
       //scalaDoc highlighting

@@ -55,7 +55,9 @@ object ScalaPlainLexer {
     private val TokensToMerge = TokenSet.create(
       tWHITE_SPACE_IN_LINE,
       tINTERPOLATED_MULTILINE_STRING,
+      tINTERPOLATED_MULTILINE_RAW_STRING,
       tINTERPOLATED_STRING,
+      tINTERPOLATED_RAW_STRING,
       tINTERPOLATED_STRING_INJECTION
     )
 

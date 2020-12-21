@@ -6,6 +6,7 @@ import com.intellij.util.containers.Stack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
+import com.intellij.openapi.util.text.StringUtil;
 
 import static com.intellij.openapi.util.text.StringUtil.endsWith;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.*;
@@ -37,6 +38,15 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
     private static abstract class InterpolatedStringLevel {
       private int value = 0;
 
+      public final boolean isRaw;
+
+      public InterpolatedStringLevel(boolean isRaw) {
+        this.isRaw = isRaw;
+      }
+      public InterpolatedStringLevel(CharSequence interpolator) {
+        this(StringUtil.equal(interpolator, "raw", true));
+      }
+
       public int get() {
         return value;
       }
@@ -57,12 +67,18 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
     }
 
     private static class RegularLevel extends InterpolatedStringLevel {
+      public RegularLevel(CharSequence intepolator) {
+        super(intepolator);
+      }
       public int getState() {
         return INSIDE_INTERPOLATED_STRING;
       }
     }
 
     private static class MultilineLevel extends InterpolatedStringLevel {
+      public MultilineLevel(CharSequence intepolator) {
+        super(intepolator);
+      }
       public int getState() {
         return INSIDE_MULTI_LINE_INTERPOLATED_STRING;
       }
@@ -74,9 +90,14 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
     private boolean haveIdInMultilineString = false;
     // Currently opened interpolated Strings. Each int represents the number of the opened left structural braces in the String
     private Stack<InterpolatedStringLevel> nestedString = new Stack<>();
+    private CharSequence lastSeenInterpolator = null;
+
+    private boolean isInsideRawInterpolator() {
+      return !nestedString.isEmpty() && nestedString.peek().isRaw;
+    }
 
     public boolean isInterpolatedStringState() {
-        return shouldProcessBracesForInterpolated() ||
+        return isInsideInterpolatedString() ||
                haveIdInString ||
                haveIdInMultilineString ||
                yystate() == INSIDE_INTERPOLATED_STRING ||
@@ -84,18 +105,26 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
     }
 
     private boolean shouldProcessBracesForInterpolated() {
+      return isInsideInterpolatedString();
+    }
+    private boolean isInsideInterpolatedString() {
       return !nestedString.isEmpty();
     }
 
     @NotNull
     private IElementType processOutsideString() {
-      if (shouldProcessBracesForInterpolated()) nestedString.pop();
+      return processOutsideString(tINTERPOLATED_STRING_END);
+    }
+
+    private IElementType processOutsideString(IElementType typ) {
+      if (isInsideInterpolatedString())
+        nestedString.pop();
       yybegin(COMMON_STATE);
-      return process(tINTERPOLATED_STRING_END);
+      return process(typ);
     }
 
     @NotNull
-    private IElementType process(@NotNull IElementType type){
+    private IElementType process(@NotNull final IElementType type){
       if ((type == tIDENTIFIER || type == kTHIS)) {
         if (haveIdInString) {
           haveIdInString = false;
@@ -110,13 +139,23 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
         yybegin(COMMON_STATE);
       }
 
-      return type;
+      // see comments to tINTERPOLATED_RAW_STRING and tINTERPOLATED_MULTILINE_RAW_STRING and
+      final IElementType typeAdjusted;
+      if (type == tINTERPOLATED_STRING && isInsideRawInterpolator())
+        typeAdjusted =  tINTERPOLATED_RAW_STRING;
+      else if (type == tINTERPOLATED_MULTILINE_STRING && isInsideRawInterpolator())
+        typeAdjusted = tINTERPOLATED_MULTILINE_RAW_STRING;
+      else
+        typeAdjusted = type;
+
+      return typeAdjusted;
     }
 
     @NotNull
     private IElementType processDollarInsideString(boolean isInsideMultiline) {
         final IElementType token;
 
+        // TODO: remove this chech, this should always be false, cause $$ is handled by INTERPOLATED_STRING_ESCAPE pattern earlier
         boolean isDollarEscape = yycharat(1) == '$';
         if (isDollarEscape) {
             yypushback(yylength() - 2);
@@ -204,26 +243,45 @@ SH_COMMENT="#!" [^]* "!#" | "::#!" [^]* "::!#"
 ////////// String & chars //////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-hexDigit = [0-9A-Fa-f]
-octalDigit = [0-7]
-ESCAPE_SEQUENCE=\\[^\r\n]
-UNICODE_ESCAPE=!(!(\\u{hexDigit}{hexDigit}{hexDigit}{hexDigit}) | \\u000A)
-SOME_ESCAPE=\\{octalDigit} {octalDigit}? {octalDigit}?
-CHARACTER_LITERAL="'"([^\\\'\r\n]|{ESCAPE_SEQUENCE}|{UNICODE_ESCAPE}|{SOME_ESCAPE})("'"|\\) | \'\\u000A\' | "'''"
+// Latest (WIP) Dotty / Scala 3 syntax: https://dotty.epfl.ch/docs/internals/syntax.html
+// Scala 2.13 syntax: https://www.scala-lang.org/files/archive/spec/2.13/13-syntax-summary.html
+// Scala 2.12 syntax: https://www.scala-lang.org/files/archive/spec/2.12/13-syntax-summary.html
+// Scala 2.11 syntax: https://www.scala-lang.org/files/archive/spec/2.11/13-syntax-summary.html
 
-STRING_BEGIN = \"([^\\\"\r\n]|{ESCAPE_SEQUENCE})*
+// NOTE 1: octal escape literals are:
+//  - deprecated since 2.11.0 (https://github.com/scala/scala/pull/2342)
+//  - dropped in 2.13.0 (https://github.com/scala/scala/pull/6324)
+// NOTE 2: \377 is max value for octal literals, see https://docs.oracle.com/javase/specs/jls/se7/html/jls-3.html#jls-3.10.6
+octalDigit = [0-7]
+OCTAL_ESCAPE_LITERAL = \\ ({octalDigit} | {octalDigit} {octalDigit} | [0-3] {octalDigit} {octalDigit})
+
+// ATTENTION:
+// This lexer rules are a little bit weaker that in compiler.
+// (e.g. we compure even invalid char escape sequences, like \x \j
+// In addition to this "usual" lexer we also have syntax-highligting lexer
+// (see org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter)
+// which have more stirict rules for validating string contents
+hexDigit             = [0-9A-Fa-f]
+CHAR_ESCAPE_SEQUENCE = \\[^\r\n]
+UNICODE_ESCAPE       = \\u+ {hexDigit}{hexDigit}{hexDigit}{hexDigit} // Scala supports 1. multiple `u` chars after `\` 2. even \u000A ('\n') and \u000D (unlike Java)
+ESCAPE_SEQUENCE      = {UNICODE_ESCAPE} | {CHAR_ESCAPE_SEQUENCE}
+CHARACTER_LITERAL    = "'"([^\\\'\r\n]|{ESCAPE_SEQUENCE}|{OCTAL_ESCAPE_LITERAL})("'"|\\) | \'\\u000A\' | "'''" // TODO: \'\\u000A\' is redundunt, remove
+
+STRING_BEGIN = \"([^\\\"\r\n]|{CHAR_ESCAPE_SEQUENCE})*
 STRING_LITERAL={STRING_BEGIN} \"
 MULTI_LINE_STRING = \"\"\" ( (\"(\")?)? [^\"] )* \"\"\" (\")* // Multi-line string
 
 ////////String Interpolation////////
 INTERPOLATED_STRING_ID = {varid}
 
-INTERPOLATED_STRING_BEGIN = \"([^\\\"\r\n\$]|{ESCAPE_SEQUENCE})*
-INTERPOLATED_STRING_PART = ([^\\\"\r\n\$]|{ESCAPE_SEQUENCE})+
+INTERPOLATED_STRING_BEGIN = \"{INTERPOLATED_STRING_PART}*
+INTERPOLATED_STRING_PART = {INTERPOLATED_STRING_PART_NOT_ESCAPED}|{ESCAPE_SEQUENCE}
+INTERPOLATED_STRING_PART_NOT_ESCAPED = [^\\\"\r\n\$]
 
-INTERPOLATED_MULTI_LINE_STRING_BEGIN = \"\"\" ( (\"(\")?)? [^\"\$] )*
-INTERPOLATED_MULTI_LINE_STRING_PART = ( (\"(\")?)? [^\"\$] )+
+INTERPOLATED_MULTI_LINE_STRING_BEGIN = \"\"\"{INTERPOLATED_MULTI_LINE_STRING_PART}*
+INTERPOLATED_MULTI_LINE_STRING_PART = ((\"(\")?)? [^\"\$])
 
+// TODO: rename, it's missleading
 INTERPOLATED_STRING_ESCAPE = "$$"
 //INTERPOLATED_STRING_VARIABLE = "$"({identifier})
 //INTERPOLATED_STRING_EXPRESSION_START = "${"
@@ -284,20 +342,25 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 
 {INTERPOLATED_STRING_ID} / ({INTERPOLATED_STRING_BEGIN} | {INTERPOLATED_MULTI_LINE_STRING_BEGIN}) {
   yybegin(WAIT_FOR_INTERPOLATED_STRING);
+  // TODO: remove this check: looks like it's a dead code,
+  //  yytext() should only return text that is matched by INTERPOLATED_STRING_ID, which can't end with \"\"
   if (endsWith(yytext(), "\"\"")) yypushback(2);
-  return process(haveIdInString || haveIdInMultilineString ? tIDENTIFIER : tINTERPOLATED_STRING_ID);
+  lastSeenInterpolator = yytext();
+  IElementType token = haveIdInString || haveIdInMultilineString ? tIDENTIFIER : tINTERPOLATED_STRING_ID;
+  return process(token);
 }
 
 <WAIT_FOR_INTERPOLATED_STRING> {
   {INTERPOLATED_STRING_BEGIN} {
+    yypushback(yylength() - 1); // only push opening quote
     yybegin(INSIDE_INTERPOLATED_STRING);
-    nestedString.push(new RegularLevel());
+    nestedString.push(new RegularLevel(lastSeenInterpolator));
     return process(tINTERPOLATED_STRING);
   }
 
   {INTERPOLATED_MULTI_LINE_STRING_BEGIN} {
     yybegin(INSIDE_MULTI_LINE_INTERPOLATED_STRING);
-    nestedString.push(new MultilineLevel());
+    nestedString.push(new MultilineLevel(lastSeenInterpolator));
     return process(tINTERPOLATED_MULTILINE_STRING);
   }
 }
@@ -326,7 +389,16 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
     return process(tINTERPOLATED_STRING_ESCAPE);
   }
 
-  {INTERPOLATED_STRING_PART} {
+  {INTERPOLATED_STRING_PART_NOT_ESCAPED}+ {
+    return process(tINTERPOLATED_STRING);
+  }
+  {UNICODE_ESCAPE} {
+    return process(tINTERPOLATED_STRING);
+  }
+  {CHAR_ESCAPE_SEQUENCE} {
+    if (isInsideRawInterpolator()) {
+      yypushback(1); // from "\t" push "t" back, also if we have "\" we don't want " to be captured
+    }
     return process(tINTERPOLATED_STRING);
   }
 
@@ -344,8 +416,9 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
   }
 
   \r*\n {
-    // Process new lines as string ending, but mark them as errors in the parser
-    return processOutsideString();
+    //don't add new lines to string itself, add empty error
+    yypushback(yylength());
+    return processOutsideString(tWRONG_LINE_BREAK_IN_STRING);
   }
 
   [^] {
@@ -362,7 +435,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
     return process(tINTERPOLATED_MULTILINE_STRING);
   }
 
-  {INTERPOLATED_MULTI_LINE_STRING_PART} {
+  {INTERPOLATED_MULTI_LINE_STRING_PART}+ {
     return process(tINTERPOLATED_MULTILINE_STRING);
   }
 
@@ -406,6 +479,9 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 
 {MULTI_LINE_STRING}                     {   return process(tMULTILINE_STRING);  }
 
+// TODO: incomplete strings should be handled the same way with interpolated strings
+//  what can be parsed should be parsed as tSTRING,
+//  tWRONG_LINE_BREAK_IN_STRING error token should be added at unexpected new line should
 {WRONG_STRING}                          {   return process(tWRONG_STRING);  }
 
 

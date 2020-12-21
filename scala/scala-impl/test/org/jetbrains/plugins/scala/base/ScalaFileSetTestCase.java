@@ -198,11 +198,18 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
         @Override
         protected void runTestRunnable(@NotNull ThrowableRunnable<Throwable> testRunnable) throws Throwable {
             String fileText = new String(loadFileText(myTestFile, "UTF-8"));
-            ScalaFileSetTestCase.this.runTest(
-                    myTestFile.getName(),
-                    convertLineSeparators(fileText),
-                    getProject()
-            );
+            try {
+                ScalaFileSetTestCase.this.runTest(
+                        myTestFile.getName(),
+                        convertLineSeparators(fileText),
+                        getProject()
+                );
+            } catch(AssertionError error) {
+                // to be able to Ctrl + Click in console to nabigate to test file on failure
+                // (note, can not work with Android plugin disabled, see IDEA-257969)
+                System.err.println("### Test file: " + myTestFile.getAbsolutePath());
+                throw error;
+            }
         }
 
         @NotNull

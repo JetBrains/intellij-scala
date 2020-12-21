@@ -1,0 +1,69 @@
+"\u0025"
+"\uu0025"
+"\uuu0025"
+"\u0025666"
+"\uu0025666"
+"\uuu0025666"
+"\u0025\u0025\u0025666"
+"\uu0025\uu0025\uu0025666"
+"\uuu0025\uuu0025\uuu0025666"
+"uu\uuu0025uu\uuu0025uu\uuu0025666"
+-----
+string content {"}
+VALID_STRING_ESCAPE_TOKEN {\u0025}
+string content {"}
+white space in line {
+}
+string content {"}
+VALID_STRING_ESCAPE_TOKEN {\uu0025}
+string content {"}
+white space in line {
+}
+string content {"}
+VALID_STRING_ESCAPE_TOKEN {\uuu0025}
+string content {"}
+white space in line {
+}
+string content {"}
+VALID_STRING_ESCAPE_TOKEN {\u0025}
+string content {666"}
+white space in line {
+}
+string content {"}
+VALID_STRING_ESCAPE_TOKEN {\uu0025}
+string content {666"}
+white space in line {
+}
+string content {"}
+VALID_STRING_ESCAPE_TOKEN {\uuu0025}
+string content {666"}
+white space in line {
+}
+string content {"}
+VALID_STRING_ESCAPE_TOKEN {\u0025}
+VALID_STRING_ESCAPE_TOKEN {\u0025}
+VALID_STRING_ESCAPE_TOKEN {\u0025}
+string content {666"}
+white space in line {
+}
+string content {"}
+VALID_STRING_ESCAPE_TOKEN {\uu0025}
+VALID_STRING_ESCAPE_TOKEN {\uu0025}
+VALID_STRING_ESCAPE_TOKEN {\uu0025}
+string content {666"}
+white space in line {
+}
+string content {"}
+VALID_STRING_ESCAPE_TOKEN {\uuu0025}
+VALID_STRING_ESCAPE_TOKEN {\uuu0025}
+VALID_STRING_ESCAPE_TOKEN {\uuu0025}
+string content {666"}
+white space in line {
+}
+string content {"uu}
+VALID_STRING_ESCAPE_TOKEN {\uuu0025}
+string content {uu}
+VALID_STRING_ESCAPE_TOKEN {\uuu0025}
+string content {uu}
+VALID_STRING_ESCAPE_TOKEN {\uuu0025}
+string content {666"}

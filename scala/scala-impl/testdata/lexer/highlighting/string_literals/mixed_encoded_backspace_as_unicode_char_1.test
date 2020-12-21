@@ -1,0 +1,111 @@
+"\u005c \u005c\u005c  \u005c0 \u005c\u005c\u005c \u005c\\"
+s"\u005c \u005c\u005c  \u005c0 \u005c\u005c\u005c \u005c\\"
+raw"\u005c \u005c\u005c  \u005c0 \u005c\u005c\u005c \u005c\"
+"""\u005c \u005c\u005c  \u005c0 \u005c\u005c\u005c \u005c\"""
+s"""\u005c \u005c\u005c  \u005c0 \u005c\u005c\u005c \u005c\\"""
+raw"""\u005c \u005c\u005c  \u005c0 \u005c\u005c\u005c \u005c\"""
+-----
+string content {"}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+string content { }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+string content {  }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+string content {0 }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+string content { }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+VALID_STRING_ESCAPE_TOKEN {\\}
+string content {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolated string { }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolated string {  }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolated string {0 }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolated string { }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+VALID_STRING_ESCAPE_TOKEN {\\}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {raw}
+interpolated string {"}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolated string { }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolated string {  }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolated string {0 }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolated string { }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolated string {\}
+interpolated string end {"}
+white space in line {
+}
+multiline string {"""}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+multiline string { }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+multiline string {  }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+multiline string {0 }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+multiline string { }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+multiline string {\"}
+multiline string {""}
+white space in line {
+}
+interpolated string id {s}
+interpolatedmultiline string {"""}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolatedmultiline string { }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolatedmultiline string {  }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolatedmultiline string {0 }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolatedmultiline string { }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+VALID_STRING_ESCAPE_TOKEN {\\}
+interpolated string end {"""}
+white space in line {
+}
+interpolated string id {raw}
+interpolatedmultiline string {"""}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolatedmultiline string { }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolatedmultiline string {  }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolatedmultiline string {0 }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolatedmultiline string { }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolatedmultiline string {\}
+interpolated string end {"""}

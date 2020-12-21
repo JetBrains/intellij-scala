@@ -1,0 +1,305 @@
+// backslash
+raw"""\"""
+raw"""\ \ \"""
+raw"""\\"""
+raw"""\\\"""
+raw"""\\\\"""
+raw"""\f\t\n\r"""
+raw"""\f\t\n\r\"""
+
+// backslash with wrong escaped if it was ordinary interpolator
+raw"""\q\w\e"""
+raw"""\q\w\e\t\n\r\f"""
+
+//backslashes with injections
+raw"""\${42}\${42}\"""
+raw"""\ ${42} \ ${42} \"""
+raw"""\t${42}\t${42}\r${42}"""
+
+//backslashes with inner string injections
+raw"""a\a${s"b\\b${raw"c\c"}b\\b"}a\a"""
+raw"""1 \u ${ s"2" } \u 1"""
+raw"""1 \u ${ s"2" } \u 1"""
+raw"""1 \u ${ s"2 \u ${raw"3 \u 3"}  ${raw"3 \u 3"} \u 2" }  ${raw"3 \u 3"} \u 1"""
+raw"""outer \a ${s"inner \a inner"} \a outer ${s"inner \a inner"} \a outer""""
+-----
+comment {// backslash}
+white space in line {
+}
+interpolated string id {raw}
+interpolatedmultiline string {"""}
+interpolatedmultiline string {\}
+interpolated string end {"""}
+white space in line {
+}
+interpolated string id {raw}
+interpolatedmultiline string {"""}
+interpolatedmultiline string {\ }
+interpolatedmultiline string {\ }
+interpolatedmultiline string {\}
+interpolated string end {"""}
+white space in line {
+}
+interpolated string id {raw}
+interpolatedmultiline string {"""}
+interpolatedmultiline string {\\}
+interpolated string end {"""}
+white space in line {
+}
+interpolated string id {raw}
+interpolatedmultiline string {"""}
+interpolatedmultiline string {\\}
+interpolatedmultiline string {\}
+interpolated string end {"""}
+white space in line {
+}
+interpolated string id {raw}
+interpolatedmultiline string {"""}
+interpolatedmultiline string {\\}
+interpolatedmultiline string {\\}
+interpolated string end {"""}
+white space in line {
+}
+interpolated string id {raw}
+interpolatedmultiline string {"""}
+interpolatedmultiline string {\f}
+interpolatedmultiline string {\t}
+interpolatedmultiline string {\n}
+interpolatedmultiline string {\r}
+interpolated string end {"""}
+white space in line {
+}
+interpolated string id {raw}
+interpolatedmultiline string {"""}
+interpolatedmultiline string {\f}
+interpolatedmultiline string {\t}
+interpolatedmultiline string {\n}
+interpolatedmultiline string {\r}
+interpolatedmultiline string {\}
+interpolated string end {"""}
+white space in line {
+
+}
+comment {// backslash with wrong escaped if it was ordinary interpolator}
+white space in line {
+}
+interpolated string id {raw}
+interpolatedmultiline string {"""}
+interpolatedmultiline string {\q}
+interpolatedmultiline string {\w}
+interpolatedmultiline string {\e}
+interpolated string end {"""}
+white space in line {
+}
+interpolated string id {raw}
+interpolatedmultiline string {"""}
+interpolatedmultiline string {\q}
+interpolatedmultiline string {\w}
+interpolatedmultiline string {\e}
+interpolatedmultiline string {\t}
+interpolatedmultiline string {\n}
+interpolatedmultiline string {\r}
+interpolatedmultiline string {\f}
+interpolated string end {"""}
+white space in line {
+
+}
+comment {//backslashes with injections}
+white space in line {
+}
+interpolated string id {raw}
+interpolatedmultiline string {"""}
+interpolatedmultiline string {\}
+interpolated string injection {$}
+{ {{}
+integer {42}
+} {}}
+interpolatedmultiline string {\}
+interpolated string injection {$}
+{ {{}
+integer {42}
+} {}}
+interpolatedmultiline string {\}
+interpolated string end {"""}
+white space in line {
+}
+interpolated string id {raw}
+interpolatedmultiline string {"""}
+interpolatedmultiline string {\ }
+interpolated string injection {$}
+{ {{}
+integer {42}
+} {}}
+interpolatedmultiline string { }
+interpolatedmultiline string {\ }
+interpolated string injection {$}
+{ {{}
+integer {42}
+} {}}
+interpolatedmultiline string { }
+interpolatedmultiline string {\}
+interpolated string end {"""}
+white space in line {
+}
+interpolated string id {raw}
+interpolatedmultiline string {"""}
+interpolatedmultiline string {\t}
+interpolated string injection {$}
+{ {{}
+integer {42}
+} {}}
+interpolatedmultiline string {\t}
+interpolated string injection {$}
+{ {{}
+integer {42}
+} {}}
+interpolatedmultiline string {\r}
+interpolated string injection {$}
+{ {{}
+integer {42}
+} {}}
+interpolated string end {"""}
+white space in line {
+
+}
+comment {//backslashes with inner string injections}
+white space in line {
+}
+interpolated string id {raw}
+interpolatedmultiline string {"""a}
+interpolatedmultiline string {\a}
+interpolated string injection {$}
+{ {{}
+interpolated string id {s}
+interpolated string {"b}
+VALID_STRING_ESCAPE_TOKEN {\\}
+interpolated string {b}
+interpolated string injection {$}
+{ {{}
+interpolated string id {raw}
+interpolated string {"c}
+interpolated string {\c}
+interpolated string end {"}
+} {}}
+interpolated string {b}
+VALID_STRING_ESCAPE_TOKEN {\\}
+interpolated string {b}
+interpolated string end {"}
+} {}}
+interpolatedmultiline string {a}
+interpolatedmultiline string {\a}
+interpolated string end {"""}
+white space in line {
+}
+interpolated string id {raw}
+interpolatedmultiline string {"""1 }
+interpolatedmultiline string {\u}
+interpolatedmultiline string { }
+interpolated string injection {$}
+{ {{}
+white space in line { }
+interpolated string id {s}
+interpolated string {"2}
+interpolated string end {"}
+white space in line { }
+} {}}
+interpolatedmultiline string { }
+interpolatedmultiline string {\u}
+interpolatedmultiline string { 1}
+interpolated string end {"""}
+white space in line {
+}
+interpolated string id {raw}
+interpolatedmultiline string {"""1 }
+interpolatedmultiline string {\u}
+interpolatedmultiline string { }
+interpolated string injection {$}
+{ {{}
+white space in line { }
+interpolated string id {s}
+interpolated string {"2}
+interpolated string end {"}
+white space in line { }
+} {}}
+interpolatedmultiline string { }
+interpolatedmultiline string {\u}
+interpolatedmultiline string { 1}
+interpolated string end {"""}
+white space in line {
+}
+interpolated string id {raw}
+interpolatedmultiline string {"""1 }
+interpolatedmultiline string {\u}
+interpolatedmultiline string { }
+interpolated string injection {$}
+{ {{}
+white space in line { }
+interpolated string id {s}
+interpolated string {"2 }
+INVALID_UNICODE_ESCAPE_TOKEN {\u}
+interpolated string { }
+interpolated string injection {$}
+{ {{}
+interpolated string id {raw}
+interpolated string {"3 }
+interpolated string {\u}
+interpolated string { 3}
+interpolated string end {"}
+} {}}
+interpolated string {  }
+interpolated string injection {$}
+{ {{}
+interpolated string id {raw}
+interpolated string {"3 }
+interpolated string {\u}
+interpolated string { 3}
+interpolated string end {"}
+} {}}
+interpolated string { }
+INVALID_UNICODE_ESCAPE_TOKEN {\u}
+interpolated string { 2}
+interpolated string end {"}
+white space in line { }
+} {}}
+interpolatedmultiline string {  }
+interpolated string injection {$}
+{ {{}
+interpolated string id {raw}
+interpolated string {"3 }
+interpolated string {\u}
+interpolated string { 3}
+interpolated string end {"}
+} {}}
+interpolatedmultiline string { }
+interpolatedmultiline string {\u}
+interpolatedmultiline string { 1}
+interpolated string end {"""}
+white space in line {
+}
+interpolated string id {raw}
+interpolatedmultiline string {"""outer }
+interpolatedmultiline string {\a}
+interpolatedmultiline string { }
+interpolated string injection {$}
+{ {{}
+interpolated string id {s}
+interpolated string {"inner }
+INVALID_CHARACTER_ESCAPE_TOKEN {\a}
+interpolated string { inner}
+interpolated string end {"}
+} {}}
+interpolatedmultiline string { }
+interpolatedmultiline string {\a}
+interpolatedmultiline string { outer }
+interpolated string injection {$}
+{ {{}
+interpolated string id {s}
+interpolated string {"inner }
+INVALID_CHARACTER_ESCAPE_TOKEN {\a}
+interpolated string { inner}
+interpolated string end {"}
+} {}}
+interpolatedmultiline string { }
+interpolatedmultiline string {\a}
+interpolatedmultiline string { outer"}
+interpolated string end {"""}

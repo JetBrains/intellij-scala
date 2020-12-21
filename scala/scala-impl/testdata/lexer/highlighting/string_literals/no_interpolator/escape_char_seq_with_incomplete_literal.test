@@ -1,0 +1,61 @@
+"\"
+"\t\n\r\"
+"aaa\"
+"bbb\t\n\r\"
+"aaa\")))
+"bbb\t\n\r\")))
+
+class a {
+  "\"
+  "\t\n\r\"
+  "aaa\"
+  "bbb\t\n\r\"
+  "aaa\")))
+  "bbb\t\n\r\")))
+}
+-----
+wrong string content {"\"}
+white space in line {
+}
+wrong string content {"\t\n\r\"}
+white space in line {
+}
+wrong string content {"aaa\"}
+white space in line {
+}
+wrong string content {"bbb\t\n\r\"}
+white space in line {
+}
+wrong string content {"aaa\")))}
+white space in line {
+}
+wrong string content {"bbb\t\n\r\")))}
+white space in line {
+
+}
+class {class}
+white space in line { }
+identifier {a}
+white space in line { }
+{ {{}
+white space in line {
+  }
+wrong string content {"\"}
+white space in line {
+  }
+wrong string content {"\t\n\r\"}
+white space in line {
+  }
+wrong string content {"aaa\"}
+white space in line {
+  }
+wrong string content {"bbb\t\n\r\"}
+white space in line {
+  }
+wrong string content {"aaa\")))}
+white space in line {
+  }
+wrong string content {"bbb\t\n\r\")))}
+white space in line {
+}
+} {}}

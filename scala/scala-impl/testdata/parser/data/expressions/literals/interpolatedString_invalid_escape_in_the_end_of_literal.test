@@ -1,0 +1,41 @@
+class a {
+  s"\"
+  s"\"
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"\"')
+          PsiErrorElement:End of string expected
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        InterpolatedStringLiteral
+          InterpolatedExpressionPrefix: s
+            PsiElement(interpolated string id)('s')
+          PsiElement(interpolated string)('"\"')
+          PsiErrorElement:End of string expected
+            <empty list>
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,0 +1,26 @@
+s"\\"
+s"\\${}"
+s"\d\g\h\j"
+-----
+interpolated string id {s}
+interpolated string {"}
+VALID_STRING_ESCAPE_TOKEN {\\}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+VALID_STRING_ESCAPE_TOKEN {\\}
+interpolated string injection {$}
+{ {{}
+} {}}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+INVALID_CHARACTER_ESCAPE_TOKEN {\d}
+INVALID_CHARACTER_ESCAPE_TOKEN {\g}
+INVALID_CHARACTER_ESCAPE_TOKEN {\h}
+INVALID_CHARACTER_ESCAPE_TOKEN {\j}
+interpolated string end {"}
