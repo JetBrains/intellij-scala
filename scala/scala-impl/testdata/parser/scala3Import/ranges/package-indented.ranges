@@ -1,0 +1,15 @@
+[1,71]: PackageDef
+[1,1]: Ident
+[1,24]: PackageDef
+[9,10]: Ident
+[14,24]: DefDef
+[19,19]: TypeTree
+[22,24]: Number
+[26,49]: PackageDef
+[34,35]: Ident
+[39,49]: DefDef
+[44,44]: TypeTree
+[47,49]: Number
+[51,71]: DefDef
+[59,59]: TypeTree
+[62,71]: InfixOp

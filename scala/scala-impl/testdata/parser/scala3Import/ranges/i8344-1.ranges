@@ -1,4 +1,4 @@
-[0,315]: PackageDef
+[0,313]: PackageDef
 [0,0]: Ident
 [0,29]: Import
 [7,12]: Ident
@@ -24,4 +24,4 @@
 [117,128]: AppliedTypeTree
 [117,125]: Ident
 [126,127]: Ident
-[132,315]: ModuleDef
+[132,313]: ModuleDef

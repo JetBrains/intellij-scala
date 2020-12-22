@@ -56,7 +56,9 @@
 [355,362]: New
 [355,362]: Ident
 [368,388]: Export
+[375,383]: Ident
 [393,425]: Export
+[400,409]: Ident
 [432,494]: DefDef
 [444,456]: AppliedTypeTree
 [444,448]: Ident
@@ -70,6 +72,7 @@
 [514,514]: TypeBoundsTree
 [525,556]: ModuleDef
 [559,571]: Export
+[566,569]: Ident
 [574,592]: DefDef
 [583,586]: Select
 [583,584]: Ident

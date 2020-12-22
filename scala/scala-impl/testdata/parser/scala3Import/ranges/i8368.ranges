@@ -20,6 +20,7 @@
 [66,69]: Ident
 [69,69]: TypeTree
 [75,104]: Export
+[82,85]: Ident
 [108,118]: ValDef
 [114,114]: TypeTree
 [117,118]: Ident

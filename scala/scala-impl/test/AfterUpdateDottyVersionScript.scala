@@ -330,7 +330,7 @@ object AfterUpdateDottyVersionScript {
          |          else s.substring(0, endOfName)
          |        w.println(s"[$${span.start},$${span.end}]: $$name")
          |      }
-         |      foldOver((), tree)
+         |      traverseChildren(tree)
          |    }
          |  }
          |  traverser.traverse(t)

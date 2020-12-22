@@ -31,6 +31,7 @@
 [110,113]: New
 [110,113]: Ident
 [119,131]: Export
+[126,129]: Ident
 [134,154]: ValDef
 [144,144]: TypeTree
 [147,154]: Select

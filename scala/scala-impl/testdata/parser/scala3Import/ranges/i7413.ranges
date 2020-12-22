@@ -1,4 +1,4 @@
-[0,547]: PackageDef
+[0,549]: PackageDef
 [0,0]: Ident
 [0,41]: Import
 [7,21]: Select
@@ -38,12 +38,12 @@
 [290,306]: ValDef
 [299,306]: Ident
 [306,306]: TypeTree
-[309,418]: ModuleDef
-[420,547]: TypeDef
-[441,547]: Template
-[441,441]: DefDef
-[441,441]: TypeTree
-[441,465]: AppliedTypeTree
-[441,454]: Ident
-[455,464]: Ident
-[469,547]: InfixOp
+[309,420]: ModuleDef
+[422,549]: TypeDef
+[443,549]: Template
+[443,443]: DefDef
+[443,443]: TypeTree
+[443,467]: AppliedTypeTree
+[443,456]: Ident
+[457,466]: Ident
+[471,549]: InfixOp

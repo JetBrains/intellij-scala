@@ -1,4 +1,4 @@
-[0,798]: PackageDef
+[0,796]: PackageDef
 [0,0]: Ident
 [0,41]: Import
 [7,21]: Select
@@ -86,4 +86,4 @@
 [559,560]: Ident
 [564,571]: Block
 [567,571]: Ident
-[573,798]: ModuleDef
+[573,796]: ModuleDef

@@ -1,4 +1,4 @@
-[0,367]: PackageDef
+[0,362]: PackageDef
 [0,0]: Ident
 [0,12]: TypeDef
 [9,12]: Template
@@ -22,4 +22,4 @@
 [109,110]: TypeDef
 [109,109]: TypeBoundsTree
 [114,129]: InfixOp
-[131,367]: ModuleDef
+[131,362]: ModuleDef
