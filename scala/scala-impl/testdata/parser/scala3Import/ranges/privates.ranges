@@ -10,6 +10,9 @@
 [37,62]: DefDef
 [54,54]: TypeTree
 [57,62]: InfixOp
+[57,58]: Ident
+[59,60]: Ident
+[61,62]: Ident
 [66,91]: DefDef
 [83,83]: TypeTree
 [86,91]: Apply

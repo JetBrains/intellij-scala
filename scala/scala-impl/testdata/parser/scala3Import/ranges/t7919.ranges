@@ -1,3 +1,13 @@
 [1,42]: PackageDef
 [1,1]: Ident
 [1,42]: ModuleDef
+[14,40]: Template
+[14,14]: DefDef
+[14,14]: TypeTree
+[14,25]: ValDef
+[19,19]: TypeTree
+[22,25]: InterpolatedString
+[24,24]: Literal
+[28,40]: ValDef
+[33,33]: TypeTree
+[36,40]: Literal

@@ -11,7 +11,12 @@
 [34,36]: Tuple
 [39,70]: ValDef
 [46,60]: Function
+[46,52]: Ident
+[56,60]: Ident
 [63,70]: Function
+[63,64]: ValDef
+[63,63]: TypeTree
+[68,70]: Tuple
 [73,79]: Apply
 [73,74]: Ident
 [75,78]: Literal

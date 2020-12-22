@@ -24,3 +24,10 @@
 [175,185]: Select
 [175,180]: Ident
 [222,275]: ModuleDef
+[250,275]: Template
+[250,250]: DefDef
+[250,250]: TypeTree
+[250,275]: Select
+[250,267]: Select
+[250,260]: Select
+[250,255]: Ident

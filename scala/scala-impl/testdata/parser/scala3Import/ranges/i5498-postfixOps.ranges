@@ -8,6 +8,8 @@
 [46,46]: TypeTree
 [49,196]: Block
 [146,154]: PostfixOp
+[146,147]: Number
+[148,154]: Ident
 [158,194]: Apply
 [158,174]: Select
 [158,167]: Apply
@@ -15,3 +17,8 @@
 [162,163]: Number
 [165,166]: Number
 [175,193]: PostfixOp
+[175,184]: Apply
+[175,179]: Ident
+[180,181]: Number
+[182,183]: Number
+[185,193]: Ident

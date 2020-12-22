@@ -9,3 +9,4 @@
 [25,28]: Ident
 [31,35]: Ident
 [38,45]: Function
+[44,45]: Ident

@@ -22,6 +22,14 @@
 [437,437]: TypeTree
 [440,481]: Block
 [446,477]: ForYield
+[451,468]: GenFrom
+[451,462]: Apply
+[451,454]: Ident
+[455,461]: Typed
+[455,456]: Ident
+[458,461]: Ident
+[466,468]: Ident
+[476,477]: Ident
 [484,554]: DefDef
 [491,509]: ValDef
 [495,509]: AppliedTypeTree
@@ -32,3 +40,11 @@
 [510,510]: TypeTree
 [513,554]: Block
 [519,550]: ForYield
+[524,541]: GenFrom
+[524,535]: Apply
+[524,527]: Ident
+[528,534]: Typed
+[528,529]: Ident
+[531,534]: Ident
+[539,541]: Ident
+[549,550]: Ident

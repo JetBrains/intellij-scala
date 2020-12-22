@@ -3,3 +3,12 @@
 [0,73]: DefDef
 [14,14]: TypeTree
 [19,73]: Parens
+[25,69]: ParsedTry
+[29,30]: Number
+[47,69]: Match
+[47,69]: CaseDef
+[52,64]: Typed
+[52,53]: Ident
+[55,64]: Ident
+[65,69]: Block
+[68,69]: Number

@@ -71,3 +71,6 @@
 [382,398]: ValDef
 [389,389]: TypeTree
 [392,398]: InfixOp
+[392,393]: Ident
+[394,396]: Ident
+[397,398]: Ident

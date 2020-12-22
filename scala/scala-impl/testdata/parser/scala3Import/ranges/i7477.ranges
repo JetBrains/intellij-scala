@@ -92,3 +92,6 @@
 [585,605]: Select
 [585,598]: Ident
 [615,618]: InfixOp
+[615,616]: Ident
+[616,617]: Ident
+[617,618]: Number

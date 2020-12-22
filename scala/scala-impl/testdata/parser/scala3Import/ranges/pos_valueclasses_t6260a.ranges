@@ -49,3 +49,16 @@
 [725,732]: Ident
 [735,742]: Ident
 [745,803]: ModuleDef
+[758,801]: Template
+[758,758]: DefDef
+[758,758]: TypeTree
+[758,801]: New
+[758,801]: Template
+[762,762]: DefDef
+[762,762]: TypeTree
+[762,766]: Ident
+[769,799]: DefDef
+[779,791]: ValDef
+[784,791]: Ident
+[792,792]: TypeTree
+[795,799]: Literal

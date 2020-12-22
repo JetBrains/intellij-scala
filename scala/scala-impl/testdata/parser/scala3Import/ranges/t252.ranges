@@ -42,6 +42,8 @@
 [322,323]: Ident
 [325,334]: ValDef
 [328,334]: Function
+[328,329]: Ident
+[333,334]: Ident
 [337,338]: Ident
 [341,345]: Apply
 [341,342]: Ident
@@ -51,6 +53,10 @@
 [348,353]: Ident
 [354,355]: Ident
 [357,370]: Function
+[357,358]: ValDef
+[357,357]: TypeTree
+[362,370]: Select
+[362,363]: Ident
 [430,482]: DefDef
 [440,441]: TypeDef
 [440,440]: TypeBoundsTree
@@ -60,6 +66,10 @@
 [449,450]: Ident
 [452,468]: ValDef
 [455,468]: Function
+[455,456]: Ident
+[460,468]: Function
+[460,463]: Ident
+[467,468]: Ident
 [471,472]: Ident
 [475,482]: Apply
 [475,479]: Apply
@@ -71,6 +81,13 @@
 [485,490]: Ident
 [491,492]: Ident
 [494,512]: Function
+[494,495]: ValDef
+[494,494]: TypeTree
+[499,512]: Function
+[499,500]: ValDef
+[499,499]: TypeTree
+[504,512]: Select
+[504,505]: Ident
 [560,640]: DefDef
 [566,585]: ValDef
 [574,585]: AppliedTypeTree
@@ -79,3 +96,11 @@
 [588,592]: Ident
 [595,640]: Block
 [601,636]: ForDo
+[606,617]: GenFrom
+[606,607]: Ident
+[611,617]: Ident
+[619,631]: GenAlias
+[619,620]: Ident
+[623,631]: Select
+[623,624]: Ident
+[633,636]: Block

@@ -40,6 +40,12 @@
 [160,162]: TypeDef
 [160,160]: TypeBoundsTree
 [166,178]: Function
+[166,170]: AppliedTypeTree
+[166,167]: Ident
+[168,169]: Ident
+[174,178]: AppliedTypeTree
+[174,175]: Ident
+[176,177]: Ident
 [183,218]: Apply
 [183,214]: Apply
 [183,193]: TypeApply
@@ -47,6 +53,12 @@
 [191,192]: Ident
 [193,214]: Block
 [195,212]: Function
+[196,205]: ValDef
+[201,205]: AppliedTypeTree
+[201,202]: Ident
+[203,204]: Ident
+[210,212]: Block
+[210,212]: Ident
 [215,217]: Ident
 [225,320]: DefDef
 [239,240]: TypeDef
@@ -54,10 +66,12 @@
 [242,255]: ValDef
 [247,255]: AppliedTypeTree
 [247,247]: TypedSplice
+[247,247]: TypeTree[TypeRef
 [247,248]: Ident
 [254,255]: Ident
 [259,267]: AppliedTypeTree
 [259,259]: TypedSplice
+[259,259]: TypeTree[TypeRef
 [259,260]: Ident
 [266,267]: Ident
 [270,320]: Block
@@ -67,6 +81,7 @@
 [283,283]: TypeBoundsTree
 [289,297]: AppliedTypeTree
 [289,289]: TypedSplice
+[289,289]: TypeTree[TypeRef
 [289,290]: Ident
 [296,297]: Ident
 [302,316]: Apply

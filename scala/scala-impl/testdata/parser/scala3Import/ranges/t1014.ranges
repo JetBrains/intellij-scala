@@ -18,6 +18,9 @@
 [240,262]: DefDef
 [247,247]: TypeTree
 [250,262]: Parens
+[251,261]: Typed
+[251,254]: Ident
+[257,261]: Ident
 [266,323]: DefDef
 [293,301]: ValDef
 [297,301]: Ident

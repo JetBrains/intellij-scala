@@ -7,3 +7,6 @@
 [10,50]: DefDef
 [28,32]: Ident
 [35,50]: Function
+[36,42]: ValDef
+[39,42]: Ident
+[48,50]: Tuple

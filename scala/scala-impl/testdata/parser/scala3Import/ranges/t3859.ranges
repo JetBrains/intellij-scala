@@ -17,5 +17,7 @@
 [58,93]: DefDef
 [66,81]: ValDef
 [74,81]: PostfixOp
+[74,80]: Ident
+[80,80]: Ident
 [84,88]: Ident
 [91,93]: Tuple

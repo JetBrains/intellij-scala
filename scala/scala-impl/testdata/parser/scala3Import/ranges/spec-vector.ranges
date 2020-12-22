@@ -5,6 +5,9 @@
 [57,57]: DefDef
 [57,57]: TypeTree
 [57,70]: Parens
+[58,69]: Function
+[58,61]: Ident
+[63,69]: Ident
 [75,109]: DefDef
 [94,100]: ValDef
 [97,100]: Ident

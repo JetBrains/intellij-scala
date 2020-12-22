@@ -9,9 +9,16 @@
 [33,146]: Block
 [39,63]: ValDef
 [46,57]: InfixOp
+[46,52]: Ident
+[52,53]: Ident
+[53,57]: Ident
 [60,63]: Ident
 [68,142]: If
 [71,82]: Parens
+[72,81]: InfixOp
+[72,73]: Ident
+[74,76]: Ident
+[77,81]: Literal
 [83,113]: Block
 [91,107]: ValDef
 [96,96]: TypeTree

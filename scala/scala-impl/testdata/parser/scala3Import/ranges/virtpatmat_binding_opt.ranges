@@ -11,6 +11,9 @@
 [46,79]: CaseDef
 [51,55]: Ident
 [59,71]: InfixOp
+[59,63]: Ident
+[64,66]: Ident
+[67,71]: This
 [72,79]: Block
 [75,79]: This
 [104,154]: CaseDef

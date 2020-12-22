@@ -1,3 +1,17 @@
 [0,74]: PackageDef
 [0,0]: Ident
 [0,74]: ModuleDef
+[13,72]: Template
+[13,13]: DefDef
+[13,13]: TypeTree
+[13,72]: ParsedTry
+[17,20]: Block
+[29,42]: Match
+[31,40]: CaseDef
+[36,37]: Ident
+[38,40]: Block
+[53,72]: Block
+[55,70]: WhileDo
+[60,66]: Parens
+[61,65]: Literal
+[67,70]: Block

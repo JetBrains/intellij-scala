@@ -8,6 +8,9 @@
 [40,64]: ValDef
 [56,56]: TypeTree
 [59,64]: InfixOp
+[59,60]: Ident
+[61,62]: Ident
+[63,64]: Ident
 [68,89]: DefDef
 [78,82]: Ident
 [85,89]: Apply

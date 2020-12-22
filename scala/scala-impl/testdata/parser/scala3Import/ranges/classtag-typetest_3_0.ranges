@@ -9,6 +9,10 @@
 [59,123]: DefDef
 [68,79]: TypeDef
 [69,79]: ContextBounds
+[69,69]: TypeBoundsTree
+[69,79]: AppliedTypeTree
+[71,79]: Ident
+[79,79]: Ident
 [81,87]: ValDef
 [84,87]: Ident
 [90,94]: Ident

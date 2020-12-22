@@ -11,6 +11,8 @@
 [30,57]: DefDef
 [37,51]: ValDef
 [40,51]: Function
+[40,43]: Ident
+[47,51]: Ident
 [54,57]: Ident
 [61,129]: TypeDef
 [83,127]: Template
@@ -39,3 +41,17 @@
 [211,273]: ValDef
 [219,219]: TypeTree
 [222,273]: InfixOp
+[222,223]: Number
+[224,225]: Ident
+[226,273]: Apply
+[226,228]: Ident
+[229,273]: Match
+[231,271]: CaseDef
+[236,252]: Typed
+[236,247]: Ident
+[249,252]: Ident
+[253,271]: Block
+[256,271]: InfixOp
+[256,267]: Ident
+[268,269]: Ident
+[270,271]: Number

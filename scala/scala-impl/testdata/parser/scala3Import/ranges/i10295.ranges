@@ -7,6 +7,12 @@
 [11,17]: TypeDef
 [11,11]: TypeBoundsTree
 [20,52]: ModuleDef
+[34,52]: Template
+[34,34]: DefDef
+[34,34]: TypeTree
+[34,52]: DefDef
+[45,46]: Ident
+[49,52]: Ident
 [54,90]: DefDef
 [73,77]: ValDef
 [76,77]: Ident
@@ -16,6 +22,8 @@
 [92,147]: DefDef
 [108,124]: ValDef
 [114,124]: Function
+[114,115]: Ident
+[120,124]: Ident
 [125,125]: TypeTree
 [128,147]: Apply
 [128,132]: Ident

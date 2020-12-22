@@ -10,6 +10,8 @@
 [56,93]: DefDef
 [77,87]: ValDef
 [80,87]: PostfixOp
+[80,86]: Ident
+[86,86]: Ident
 [88,88]: TypeTree
 [91,93]: Tuple
 [97,149]: TypeDef
@@ -19,4 +21,6 @@
 [109,147]: DefDef
 [130,140]: ValDef
 [133,140]: PostfixOp
+[133,139]: Ident
+[139,139]: Ident
 [143,147]: Ident

@@ -278,12 +278,13 @@ object AfterUpdateDottyVersionScript {
    * @param targetRangeDirectory path where the resulting range files are put into
    */
   private def extractRanges(repoPath: Path, testFilePath: Path, targetRangeDirectory: String): Unit = {
+    /* not needed anymore?
     // patch test source to not delete tasty files
     patchFile(
       repoPath.resolve("compiler/test/dotty/tools/vulpix/ParallelTesting.scala"),
       "shouldDelete = true",
       "shouldDelete = false"
-    )
+    )*/
 
     // patch test source to take our own source files
     patchFile(
@@ -292,13 +293,14 @@ object AfterUpdateDottyVersionScript {
       s"compileTastyInDir(${"\"" + testFilePath + "\""}"
     )
 
+    /* not needed anymore?
     // patch away an assertion that prevents tree traversal in the parser.
     // This is like setting the mode to Mode.Interactive, just easier :D
     patchFile(
       repoPath.resolve("compiler/src/dotty/tools/dotc/ast/Trees.scala"),
       "assert(ctx.reporter.errorsReported || ctx.mode.is(Mode.Interactive), tree)",
       "assert(true || ctx.reporter.errorsReported || ctx.mode.is(Mode.Interactive), tree)"
-    )
+    )*/
 
     // patch the parse function to output the ranges of the parsed tree
     patchFile(
@@ -318,7 +320,7 @@ object AfterUpdateDottyVersionScript {
          |  if (!source.path.contains("$testFilePath"))
          |    return t
          |  val w = new java.io.PrintWriter("$targetRangeDirectory/" + source.name.replace(".scala", ".ranges"), java.nio.charset.StandardCharsets.UTF_8)
-         |  val traverser = new dotty.tools.dotc.ast.untpd.TreeTraverser {
+         |  val traverser = new dotty.tools.dotc.ast.untpd.UntypedTreeTraverser {
          |    def traverse(tree: Tree)(using Context) = {
          |      val span = tree.span
          |      if (span.exists) {

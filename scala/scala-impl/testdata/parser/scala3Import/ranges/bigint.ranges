@@ -4,3 +4,12 @@
 [7,17]: Select
 [7,12]: Ident
 [43,76]: ModuleDef
+[60,73]: Template
+[60,60]: DefDef
+[60,60]: TypeTree
+[60,73]: InfixOp
+[60,61]: Number
+[62,63]: Ident
+[64,73]: Apply
+[64,70]: Ident
+[71,72]: Number

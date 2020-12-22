@@ -40,4 +40,14 @@
 [165,166]: Number
 [170,171]: Number
 [175,184]: InfixOp
+[175,179]: Apply
+[175,176]: Ident
+[177,178]: Number
+[180,182]: Ident
+[183,184]: Number
 [187,196]: InfixOp
+[187,191]: Apply
+[187,188]: Ident
+[189,190]: Number
+[192,194]: Ident
+[195,196]: Number

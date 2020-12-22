@@ -49,6 +49,7 @@
 [317,429]: Block
 [323,425]: If
 [326,332]: Parens
+[327,331]: Literal
 [333,374]: Select
 [333,355]: Block
 [334,336]: Tuple
@@ -110,6 +111,7 @@
 [602,606]: Ident
 [609,633]: If
 [612,619]: Parens
+[613,618]: Literal
 [620,625]: TypeApply
 [620,622]: Ident
 [623,624]: Ident

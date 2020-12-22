@@ -15,3 +15,8 @@
 [107,162]: DefDef
 [146,146]: TypeTree
 [149,162]: InfixOp
+[149,158]: Select
+[149,154]: Super
+[149,149]: This
+[159,160]: Ident
+[161,162]: Number

@@ -9,10 +9,16 @@
 [24,30]: Ident
 [32,42]: ValDef
 [35,42]: PostfixOp
+[35,41]: Ident
+[41,41]: Ident
 [44,55]: ValDef
 [47,55]: PostfixOp
+[47,54]: Ident
+[54,54]: Ident
 [57,63]: ValDef
 [60,63]: Ident
 [65,72]: ValDef
 [68,72]: PostfixOp
+[68,71]: Ident
+[71,71]: Ident
 [75,78]: Ident

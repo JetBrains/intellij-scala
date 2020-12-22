@@ -7,6 +7,7 @@
 [12,36]: DefDef
 [21,24]: Ident
 [33,36]: MacroTree
+[33,36]: Ident
 [39,64]: DefDef
 [55,58]: Ident
 [61,64]: Ident

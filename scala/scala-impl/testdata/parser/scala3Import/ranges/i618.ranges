@@ -5,6 +5,8 @@
 [7,20]: DefDef
 [8,19]: ValDef
 [15,19]: PostfixOp
+[15,18]: Ident
+[18,18]: Ident
 [19,19]: TypeTree
 [22,67]: TypeDef
 [29,67]: Template

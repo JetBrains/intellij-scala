@@ -11,6 +11,9 @@
 [32,32]: TypeBoundsTree
 [35,43]: ValDef
 [37,43]: InfixOp
+[37,38]: Ident
+[38,39]: Ident
+[39,43]: Ident
 [43,43]: TypeTree
 [51,80]: DefDef
 [59,60]: Ident
@@ -20,6 +23,9 @@
 [78,79]: Ident
 [88,114]: ValDef
 [96,107]: InfixOp
+[96,102]: Ident
+[102,103]: Ident
+[103,107]: Ident
 [110,114]: Literal
 [117,129]: Select
 [117,122]: Select

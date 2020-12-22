@@ -12,4 +12,12 @@
 [38,39]: Number
 [44,87]: WhileDo
 [50,84]: Parens
+[51,83]: Block
+[59,64]: Assign
+[59,60]: Ident
+[63,64]: Number
+[71,77]: InfixOp
+[71,72]: Ident
+[73,75]: Ident
+[76,77]: Number
 [85,87]: Tuple

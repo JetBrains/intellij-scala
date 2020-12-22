@@ -32,3 +32,10 @@
 [144,149]: Literal
 [152,157]: Literal
 [165,192]: ModuleDef
+[180,190]: Template
+[180,180]: DefDef
+[180,180]: TypeTree
+[180,190]: ModuleDef
+[180,180]: Template
+[180,180]: DefDef
+[180,180]: TypeTree

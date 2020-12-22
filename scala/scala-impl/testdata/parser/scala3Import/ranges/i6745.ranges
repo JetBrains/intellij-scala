@@ -11,6 +11,11 @@
 [31,85]: DefDef
 [41,68]: ValDef
 [47,68]: Function
+[48,60]: ValDef
+[51,60]: SingletonTypeTree
+[51,55]: This
+[65,68]: Select
+[65,66]: Ident
 [71,72]: Ident
 [75,85]: Apply
 [75,79]: Ident

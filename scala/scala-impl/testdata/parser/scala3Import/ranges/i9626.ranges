@@ -6,6 +6,9 @@
 [41,45]: Ident
 [50,60]: Block
 [50,60]: PatDef
+[54,55]: Ident
+[55,55]: TypeTree
+[58,60]: Ident
 [62,103]: DefDef
 [70,70]: TypeTree
 [73,103]: Apply

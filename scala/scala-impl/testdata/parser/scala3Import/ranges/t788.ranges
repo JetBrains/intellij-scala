@@ -15,6 +15,7 @@
 [89,116]: TypeBoundsTree
 [92,116]: AppliedTypeTree
 [92,92]: TypedSplice
+[92,92]: TypeTree[TypeRef
 [92,96]: Ident
 [102,116]: Ident
 [120,190]: TypeDef
@@ -28,6 +29,7 @@
 [204,226]: TypeBoundsTree
 [207,226]: AppliedTypeTree
 [207,207]: TypedSplice
+[207,207]: TypeTree[TypeRef
 [207,211]: Ident
 [217,226]: Ident
 [230,290]: TypeDef

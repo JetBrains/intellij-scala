@@ -5,6 +5,9 @@
 [11,11]: DefDef
 [11,11]: TypeTree
 [11,19]: ModuleDef
+[11,11]: Template
+[11,11]: DefDef
+[11,11]: TypeTree
 [22,57]: TypeDef
 [38,55]: Template
 [38,38]: DefDef

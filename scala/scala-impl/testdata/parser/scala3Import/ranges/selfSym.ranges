@@ -24,6 +24,9 @@
 [715,718]: Ident
 [721,724]: Ident
 [727,732]: InfixOp
+[727,728]: Ident
+[729,730]: Ident
+[731,732]: Ident
 [737,799]: TypeDef
 [755,796]: Template
 [755,755]: DefDef

@@ -8,3 +8,6 @@
 [24,24]: TypeTree
 [34,40]: Ident
 [41,49]: ModuleDef
+[41,41]: Template
+[41,41]: DefDef
+[41,41]: TypeTree

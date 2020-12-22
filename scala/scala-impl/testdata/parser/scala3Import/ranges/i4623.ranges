@@ -21,6 +21,7 @@
 [79,98]: RefinedTypeTree
 [79,87]: AppliedTypeTree
 [79,79]: TypedSplice
+[79,79]: TypeTree[TypeRef
 [79,80]: Ident
 [86,87]: Ident
 [90,96]: TypeDef
@@ -30,6 +31,7 @@
 [112,143]: RefinedTypeTree
 [112,132]: AppliedTypeTree
 [112,112]: TypedSplice
+[112,112]: TypeTree[TypeRef
 [112,119]: AppliedTypeTree
 [112,116]: Ident
 [117,118]: Ident

@@ -5,6 +5,12 @@
 [18,97]: DefDef
 [19,62]: TypeDef
 [33,62]: ContextBounds
+[33,33]: TypeBoundsTree
+[33,62]: AppliedTypeTree
+[35,62]: Select
+[35,48]: Select
+[35,40]: Ident
+[62,62]: Ident
 [64,79]: TypeDef
 [66,79]: TypeBoundsTree
 [69,79]: AppliedTypeTree
@@ -32,6 +38,9 @@
 [168,173]: Ident
 [174,175]: Ident
 [177,195]: InfixOp
+[177,188]: Ident
+[189,190]: Ident
+[191,195]: Ident
 [200,212]: DefDef
 [208,208]: TypeTree
 [211,212]: Ident

@@ -5,7 +5,13 @@
 [12,12]: DefDef
 [12,12]: TypeTree
 [12,20]: ModuleDef
+[12,12]: Template
+[12,12]: DefDef
+[12,12]: TypeTree
 [24,54]: DefDef
 [35,39]: Ident
 [42,54]: Block
 [44,52]: ModuleDef
+[44,44]: Template
+[44,44]: DefDef
+[44,44]: TypeTree

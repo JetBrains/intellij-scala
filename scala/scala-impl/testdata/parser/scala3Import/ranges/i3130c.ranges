@@ -31,6 +31,14 @@
 [202,202]: DefDef
 [202,202]: TypeTree
 [202,281]: ModuleDef
+[229,275]: Template
+[229,229]: DefDef
+[229,229]: TypeTree
+[229,240]: Ident
+[249,275]: ValDef
+[261,269]: SingletonTypeTree
+[261,264]: Ident
+[272,275]: Ident
 [286,310]: Apply
 [286,301]: Select
 [286,297]: Ident

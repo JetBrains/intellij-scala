@@ -20,4 +20,9 @@
 [104,139]: Block
 [110,135]: Apply
 [110,132]: Parens
+[111,131]: New
+[111,131]: Template
+[115,115]: DefDef
+[115,115]: TypeTree
+[115,128]: Ident
 [133,134]: Ident

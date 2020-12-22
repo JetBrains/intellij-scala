@@ -22,4 +22,8 @@
 [63,69]: Ident
 [74,90]: Typed
 [74,81]: Parens
+[75,80]: Apply
+[79,80]: Select
+[79,80]: New
+[79,80]: Ident
 [84,90]: Ident

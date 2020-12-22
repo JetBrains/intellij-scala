@@ -60,6 +60,8 @@
 [239,239]: TypeBoundsTree
 [242,251]: ValDef
 [245,251]: Function
+[245,246]: Ident
+[250,251]: Ident
 [254,260]: AppliedTypeTree
 [254,257]: Ident
 [258,259]: Ident
@@ -109,6 +111,12 @@
 [417,420]: Ident
 [425,428]: Ident
 [430,435]: Function
+[430,430]: ValDef
+[430,430]: TypeTree
+[430,435]: InfixOp
+[430,431]: Ident
+[432,433]: Ident
+[434,435]: Number
 [447,482]: ValDef
 [455,455]: TypeTree
 [458,482]: Select
@@ -117,3 +125,9 @@
 [458,465]: Select
 [458,461]: Ident
 [466,471]: Function
+[466,466]: ValDef
+[466,466]: TypeTree
+[466,471]: InfixOp
+[466,467]: Ident
+[468,469]: Ident
+[470,471]: Number

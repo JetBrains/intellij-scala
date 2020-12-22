@@ -12,6 +12,8 @@
 [34,35]: TypeDef
 [34,34]: TypeBoundsTree
 [41,47]: Tuple
+[42,43]: Ident
+[45,46]: Ident
 [51,77]: TypeDef
 [58,77]: LambdaTypeTree
 [58,59]: TypeDef
@@ -20,11 +22,15 @@
 [64,65]: TypeDef
 [64,64]: TypeBoundsTree
 [71,77]: Tuple
+[72,73]: Ident
+[75,76]: Ident
 [81,99]: TypeDef
 [88,99]: LambdaTypeTree
 [88,89]: TypeDef
 [88,88]: TypeBoundsTree
 [93,99]: Tuple
+[94,95]: Ident
+[97,98]: Ident
 [103,131]: ValDef
 [110,125]: AppliedTypeTree
 [110,116]: AppliedTypeTree

@@ -24,10 +24,16 @@
 [82,82]: TypeBoundsTree
 [85,94]: ValDef
 [88,94]: Function
+[88,89]: Ident
+[93,94]: Ident
 [97,101]: AppliedTypeTree
 [97,98]: Ident
 [99,100]: Ident
 [104,119]: Throw
+[110,119]: Apply
+[114,119]: Select
+[114,119]: New
+[114,119]: Ident
 [130,196]: DefDef
 [149,153]: TypeDef
 [151,152]: LambdaTypeTree
@@ -68,6 +74,9 @@
 [250,256]: Select
 [250,252]: Ident
 [257,263]: Function
+[257,258]: ValDef
+[257,257]: TypeTree
+[262,263]: Ident
 [288,318]: TypeDef
 [307,318]: AppliedTypeTree
 [307,313]: Ident
@@ -80,3 +89,6 @@
 [350,356]: Select
 [350,352]: Ident
 [357,363]: Function
+[357,358]: ValDef
+[357,357]: TypeTree
+[362,363]: Ident

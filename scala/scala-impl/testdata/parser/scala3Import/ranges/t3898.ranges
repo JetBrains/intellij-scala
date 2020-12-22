@@ -11,6 +11,8 @@
 [54,97]: DefDef
 [60,70]: ValDef
 [64,70]: Function
+[64,65]: Ident
+[69,70]: Ident
 [73,80]: Ident
 [83,97]: Apply
 [83,84]: Ident

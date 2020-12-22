@@ -2,6 +2,8 @@
 [0,0]: Ident
 [0,89]: ValDef
 [9,19]: Function
+[9,12]: Ident
+[16,19]: Ident
 [22,89]: Match
 [22,29]: Apply
 [22,26]: Ident
@@ -12,6 +14,10 @@
 [48,49]: Ident
 [51,60]: Block
 [54,60]: Function
+[54,55]: ValDef
+[54,54]: TypeTree
+[59,60]: Block
+[59,60]: Ident
 [63,89]: CaseDef
 [68,72]: Ident
 [73,89]: Block

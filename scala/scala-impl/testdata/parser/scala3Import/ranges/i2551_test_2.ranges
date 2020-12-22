@@ -4,3 +4,10 @@
 [7,17]: Select
 [7,12]: Ident
 [21,56]: ModuleDef
+[37,54]: Template
+[37,37]: DefDef
+[37,37]: TypeTree
+[37,54]: ValDef
+[42,42]: TypeTree
+[45,54]: Apply
+[45,52]: Ident

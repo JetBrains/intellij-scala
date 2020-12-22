@@ -13,6 +13,13 @@
 [72,72]: TypeTree
 [75,176]: Match
 [75,99]: Parens
+[76,98]: Annotated
+[76,78]: Ident
+[80,98]: Apply
+[80,98]: Select
+[80,98]: New
+[81,98]: Select
+[81,91]: Ident
 [112,125]: CaseDef
 [117,120]: Literal
 [121,125]: Block

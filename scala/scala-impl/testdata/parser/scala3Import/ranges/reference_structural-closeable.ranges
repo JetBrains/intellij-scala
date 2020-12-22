@@ -27,5 +27,13 @@
 [203,212]: Ident
 [214,235]: ValDef
 [218,235]: Function
+[218,227]: Ident
+[231,235]: Ident
 [238,242]: Ident
 [247,274]: ParsedTry
+[251,256]: Apply
+[251,253]: Ident
+[254,255]: Ident
+[265,274]: Apply
+[265,272]: Select
+[265,266]: Ident

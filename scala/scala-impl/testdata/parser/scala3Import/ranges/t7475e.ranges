@@ -10,10 +10,14 @@
 [35,53]: TypeDef
 [45,53]: AppliedTypeTree
 [45,45]: TypedSplice
+[45,45]: TypeTree[TypeRef
 [45,46]: Ident
 [52,53]: Ident
 [79,94]: Select
 [79,89]: Parens
+[80,88]: Typed
+[80,83]: Ident
+[86,88]: Ident
 [98,113]: TypeDef
 [98,98]: Template
 [98,98]: DefDef

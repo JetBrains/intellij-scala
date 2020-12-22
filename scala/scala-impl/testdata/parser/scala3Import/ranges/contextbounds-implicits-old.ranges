@@ -7,8 +7,16 @@
 [137,207]: DefDef
 [143,154]: TypeDef
 [144,154]: ContextBounds
+[144,144]: TypeBoundsTree
+[144,154]: AppliedTypeTree
+[146,154]: Ident
+[154,154]: Ident
 [156,167]: TypeDef
 [157,167]: ContextBounds
+[157,157]: TypeBoundsTree
+[157,167]: AppliedTypeTree
+[159,167]: Ident
+[167,167]: Ident
 [169,173]: ValDef
 [172,173]: Ident
 [175,179]: ValDef

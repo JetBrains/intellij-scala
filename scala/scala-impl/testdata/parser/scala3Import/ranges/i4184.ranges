@@ -1,3 +1,15 @@
 [0,50]: PackageDef
 [0,0]: Ident
 [0,50]: ModuleDef
+[15,48]: Template
+[15,15]: DefDef
+[15,15]: TypeTree
+[15,48]: InfixOp
+[15,19]: Literal
+[20,22]: Ident
+[23,48]: Parens
+[24,47]: Typed
+[24,28]: Literal
+[30,47]: Select
+[30,39]: Select
+[30,34]: Ident

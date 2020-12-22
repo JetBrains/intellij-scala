@@ -18,5 +18,14 @@
 [136,139]: Ident
 [142,145]: Ident
 [148,153]: InfixOp
+[148,149]: Ident
+[150,151]: Ident
+[152,153]: Ident
 [156,161]: InfixOp
+[156,157]: Ident
+[158,159]: Ident
+[160,161]: Ident
 [164,169]: InfixOp
+[164,165]: Ident
+[166,167]: Ident
+[168,169]: Ident

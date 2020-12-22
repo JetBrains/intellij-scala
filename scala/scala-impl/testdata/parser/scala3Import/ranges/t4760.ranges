@@ -41,6 +41,12 @@
 [409,416]: Ident
 [417,458]: Block
 [419,454]: Function
+[420,426]: ValDef
+[423,426]: Ident
+[435,454]: Block
+[435,454]: Import
+[442,452]: Select
+[442,447]: Ident
 [461,514]: Match
 [461,462]: Number
 [475,510]: CaseDef

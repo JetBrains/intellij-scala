@@ -14,6 +14,8 @@
 [632,778]: DefDef
 [640,651]: ValDef
 [643,651]: Function
+[643,644]: Ident
+[648,651]: Ident
 [654,657]: Ident
 [660,778]: Block
 [666,759]: DefDef

@@ -3,3 +3,9 @@
 [64,82]: Import
 [71,80]: Ident
 [84,133]: ModuleDef
+[99,120]: Template
+[99,99]: DefDef
+[99,99]: TypeTree
+[99,120]: ValDef
+[110,110]: TypeTree
+[113,120]: Ident

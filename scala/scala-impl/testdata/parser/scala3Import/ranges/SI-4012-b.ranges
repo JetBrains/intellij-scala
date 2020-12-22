@@ -10,3 +10,17 @@
 [47,47]: TypeTree
 [50,51]: Number
 [55,576]: ModuleDef
+[74,566]: Template
+[74,74]: DefDef
+[74,74]: TypeTree
+[74,84]: AppliedTypeTree
+[74,79]: Ident
+[80,83]: Ident
+[497,509]: Select
+[497,502]: Super
+[497,497]: This
+[527,566]: DefDef
+[548,551]: Ident
+[554,566]: Select
+[554,559]: Super
+[554,554]: This

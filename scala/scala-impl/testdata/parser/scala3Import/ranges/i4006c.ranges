@@ -7,4 +7,11 @@
 [14,67]: DefDef
 [30,33]: Ident
 [36,67]: ParsedTry
+[40,45]: Block
+[42,43]: Number
+[52,67]: Match
+[54,65]: CaseDef
+[59,60]: Ident
+[61,65]: Block
+[64,65]: Number
 [70,73]: Ident

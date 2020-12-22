@@ -22,6 +22,13 @@
 [43,43]: TypeBoundsTree
 [52,66]: ValDef
 [52,66]: InfixOp
+[52,56]: AppliedTypeTree
+[52,53]: Ident
+[54,55]: Ident
+[57,60]: Ident
+[61,66]: AppliedTypeTree
+[61,63]: Ident
+[64,65]: Ident
 [69,73]: Ident
 [76,78]: Block
 [81,84]: Ident

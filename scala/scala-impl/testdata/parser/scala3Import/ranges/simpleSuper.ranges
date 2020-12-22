@@ -23,3 +23,10 @@
 [106,154]: DefDef
 [124,127]: Ident
 [130,154]: InfixOp
+[130,139]: Select
+[130,135]: Super
+[130,130]: This
+[140,141]: Ident
+[142,154]: Select
+[142,150]: Super
+[148,148]: This

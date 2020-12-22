@@ -14,3 +14,13 @@
 [50,61]: Select
 [50,53]: Ident
 [62,111]: Function
+[62,63]: ValDef
+[62,62]: TypeTree
+[67,111]: Match
+[67,68]: Ident
+[83,105]: CaseDef
+[88,89]: Ident
+[90,105]: Block
+[93,105]: Apply
+[93,100]: Ident
+[101,104]: Ident

@@ -14,3 +14,6 @@
 [52,53]: Number
 [54,54]: Literal
 [58,72]: ModuleDef
+[58,58]: Template
+[58,58]: DefDef
+[58,58]: TypeTree

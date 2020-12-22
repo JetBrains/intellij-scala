@@ -12,3 +12,15 @@
 [36,36]: TypeTree
 [39,40]: Number
 [44,81]: ModuleDef
+[60,79]: Template
+[60,60]: DefDef
+[60,60]: TypeTree
+[60,79]: Apply
+[60,76]: TypeApply
+[60,71]: Parens
+[61,70]: Apply
+[65,70]: Select
+[65,70]: New
+[65,70]: Ident
+[72,75]: Ident
+[77,78]: Number

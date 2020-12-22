@@ -12,6 +12,10 @@
 [79,91]: ValDef
 [85,91]: Ident
 [96,135]: Function
+[96,109]: Ident
+[114,135]: Function
+[114,127]: Ident
+[132,135]: Ident
 [138,141]: Ident
 [145,221]: TypeDef
 [163,219]: Template

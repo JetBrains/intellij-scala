@@ -64,6 +64,11 @@
 [444,448]: Ident
 [449,455]: Ident
 [459,494]: InfixOp
+[459,475]: Select
+[459,468]: Ident
+[476,478]: Ident
+[479,494]: Select
+[479,487]: Ident
 [502,522]: TypeDef
 [514,520]: Template
 [514,514]: DefDef
@@ -71,6 +76,12 @@
 [514,520]: TypeDef
 [514,514]: TypeBoundsTree
 [525,556]: ModuleDef
+[538,554]: Template
+[538,538]: DefDef
+[538,538]: TypeTree
+[538,554]: ValDef
+[545,548]: Ident
+[551,554]: Ident
 [559,571]: Export
 [566,569]: Ident
 [574,592]: DefDef

@@ -26,3 +26,6 @@
 [109,116]: Ident
 [117,120]: Literal
 [129,137]: ModuleDef
+[129,129]: Template
+[129,129]: DefDef
+[129,129]: TypeTree

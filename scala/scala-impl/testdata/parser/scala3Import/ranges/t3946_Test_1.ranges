@@ -14,3 +14,15 @@
 [86,146]: PackageDef
 [94,95]: Ident
 [100,144]: ModuleDef
+[115,140]: Template
+[115,115]: DefDef
+[115,115]: TypeTree
+[115,130]: ValDef
+[120,120]: TypeTree
+[123,130]: Apply
+[127,128]: Select
+[127,128]: New
+[127,128]: Ident
+[135,140]: Apply
+[135,138]: Select
+[135,136]: Ident

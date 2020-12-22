@@ -12,4 +12,7 @@
 [75,91]: ValDef
 [78,79]: Ident
 [82,91]: Parens
+[83,90]: Typed
+[83,86]: Ident
+[89,90]: Ident
 [91,91]: TypeTree

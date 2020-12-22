@@ -17,11 +17,16 @@
 [106,107]: Ident
 [109,124]: ValDef
 [113,124]: Function
+[114,115]: Ident
+[117,118]: Ident
+[123,124]: Ident
 [127,136]: AppliedTypeTree
 [127,133]: Ident
 [134,135]: Ident
 [143,211]: If
 [146,166]: Parens
+[147,165]: Select
+[147,157]: Ident
 [167,171]: Ident
 [177,211]: Apply
 [177,181]: Ident
@@ -53,3 +58,6 @@
 [555,559]: Ident
 [560,561]: Ident
 [565,572]: InfixOp
+[565,566]: Ident
+[567,569]: Ident
+[570,572]: Ident

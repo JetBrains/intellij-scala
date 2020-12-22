@@ -1,3 +1,10 @@
 [53,97]: PackageDef
 [53,53]: Ident
 [53,97]: ModuleDef
+[69,95]: Template
+[69,69]: DefDef
+[69,69]: TypeTree
+[69,84]: Import
+[76,82]: Ident
+[87,95]: Select
+[87,93]: Ident

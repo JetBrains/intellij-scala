@@ -13,6 +13,9 @@
 [35,36]: Ident
 [41,90]: Match
 [41,52]: Parens
+[42,51]: Typed
+[42,46]: Literal
+[48,51]: Ident
 [61,88]: CaseDef
 [66,83]: Typed
 [66,67]: Ident

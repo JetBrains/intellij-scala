@@ -8,3 +8,10 @@
 [129,130]: Number
 [130,130]: TypeTree
 [133,162]: ModuleDef
+[151,160]: Template
+[151,151]: DefDef
+[151,151]: TypeTree
+[151,160]: TypeDef
+[151,151]: Template
+[151,151]: DefDef
+[151,151]: TypeTree

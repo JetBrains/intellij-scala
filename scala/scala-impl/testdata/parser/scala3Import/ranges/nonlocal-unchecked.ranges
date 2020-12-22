@@ -10,4 +10,12 @@
 [35,71]: ValDef
 [41,41]: TypeTree
 [44,71]: InfixOp
+[44,47]: Ident
+[48,51]: Ident
+[52,71]: Parens
+[53,70]: Function
+[53,54]: ValDef
+[53,53]: TypeTree
+[58,70]: Return
+[65,70]: Literal
 [76,80]: Literal

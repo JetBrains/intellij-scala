@@ -10,6 +10,12 @@
 [48,50]: Literal
 [50,50]: TypeTree
 [55,91]: ModuleDef
+[77,89]: Template
+[77,77]: DefDef
+[77,77]: TypeTree
+[77,89]: TypeDef
+[86,89]: Select
+[86,87]: Ident
 [93,104]: Import
 [100,102]: Ident
 [105,156]: TypeDef

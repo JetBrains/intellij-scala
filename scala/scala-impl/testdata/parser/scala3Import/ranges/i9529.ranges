@@ -10,3 +10,8 @@
 [37,41]: Ident
 [44,76]: Block
 [46,74]: ExtMethods
+[57,63]: ValDef
+[60,63]: Ident
+[65,74]: DefDef
+[70,70]: TypeTree
+[73,74]: Number

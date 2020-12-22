@@ -15,6 +15,12 @@
 [64,131]: ValDef
 [71,127]: Select
 [71,119]: Parens
+[72,118]: RefinedTypeTree
+[72,78]: Ident
+[81,97]: TypeDef
+[94,97]: Ident
+[99,116]: TypeDef
+[110,116]: Ident
 [130,131]: Ident
 [134,148]: ValDef
 [141,144]: Ident
@@ -28,6 +34,13 @@
 [168,236]: ValDef
 [176,232]: Select
 [176,224]: Parens
+[177,223]: RefinedTypeTree
+[177,204]: RefinedTypeTree
+[177,183]: Ident
+[186,202]: TypeDef
+[199,202]: Ident
+[207,221]: TypeDef
+[218,221]: Ident
 [235,236]: Ident
 [239,245]: Assign
 [239,241]: Ident

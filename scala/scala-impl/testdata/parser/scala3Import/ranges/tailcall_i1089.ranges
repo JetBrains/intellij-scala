@@ -31,6 +31,10 @@
 [224,312]: Block
 [232,306]: If
 [235,243]: Parens
+[236,242]: InfixOp
+[236,237]: Ident
+[238,240]: Ident
+[241,242]: Number
 [244,306]: Block
 [254,272]: Apply
 [254,261]: Ident
@@ -40,6 +44,9 @@
 [281,298]: Apply
 [281,285]: Ident
 [286,291]: InfixOp
+[286,287]: Ident
+[288,289]: Ident
+[290,291]: Number
 [293,297]: Ident
 [318,343]: Apply
 [318,322]: Ident
@@ -50,3 +57,16 @@
 [330,338]: Ident
 [339,341]: Number
 [351,434]: ModuleDef
+[372,432]: Template
+[372,372]: DefDef
+[372,372]: TypeTree
+[372,375]: Ident
+[380,403]: Apply
+[380,387]: Ident
+[388,402]: Literal
+[406,432]: Apply
+[406,430]: Select
+[406,421]: Apply
+[410,419]: Select
+[410,419]: New
+[410,419]: Ident

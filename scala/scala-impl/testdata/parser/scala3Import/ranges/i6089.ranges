@@ -7,6 +7,11 @@
 [10,55]: DefDef
 [31,31]: TypeTree
 [34,55]: InfixOp
+[34,48]: Select
+[34,39]: Super
+[34,34]: This
+[49,50]: Ident
+[51,55]: Literal
 [58,115]: TypeDef
 [68,113]: Template
 [68,68]: DefDef
@@ -14,6 +19,11 @@
 [68,113]: DefDef
 [89,89]: TypeTree
 [92,113]: InfixOp
+[92,106]: Select
+[92,97]: Super
+[92,92]: This
+[107,108]: Ident
+[109,113]: Literal
 [116,140]: TypeDef
 [132,140]: Template
 [132,132]: DefDef

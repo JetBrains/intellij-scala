@@ -14,6 +14,14 @@
 [62,62]: TypeTree
 [73,77]: Ident
 [81,130]: ModuleDef
+[96,126]: Template
+[96,96]: DefDef
+[96,96]: TypeTree
+[96,126]: TypeDef
+[111,126]: Template
+[111,113]: DefDef
+[111,111]: TypeTree
+[122,126]: Ident
 [134,275]: TypeDef
 [146,273]: Template
 [146,166]: DefDef

@@ -34,6 +34,12 @@
 [167,193]: DefDef
 [173,173]: TypeTree
 [176,193]: InfixOp
+[176,181]: Literal
+[182,190]: Ident
+[191,193]: Ident
 [196,222]: DefDef
 [202,202]: TypeTree
 [205,222]: InfixOp
+[205,210]: Literal
+[211,219]: Ident
+[220,222]: Ident

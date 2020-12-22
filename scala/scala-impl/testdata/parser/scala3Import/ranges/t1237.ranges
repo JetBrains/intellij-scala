@@ -12,6 +12,9 @@
 [52,56]: Ident
 [59,201]: Block
 [66,81]: ModuleDef
+[66,66]: Template
+[66,66]: DefDef
+[66,66]: TypeTree
 [88,189]: TypeDef
 [106,131]: Template
 [106,106]: DefDef

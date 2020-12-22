@@ -6,3 +6,13 @@
 [48,78]: Import
 [48,63]: Ident
 [81,160]: ModuleDef
+[97,120]: Template
+[97,97]: DefDef
+[97,97]: TypeTree
+[97,120]: Apply
+[97,108]: Select
+[97,104]: Apply
+[97,100]: Ident
+[101,103]: Literal
+[109,119]: Select
+[109,113]: Ident

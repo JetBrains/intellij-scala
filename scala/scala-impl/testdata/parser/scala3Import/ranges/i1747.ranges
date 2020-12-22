@@ -19,12 +19,14 @@
 [87,92]: Ident
 [93,106]: AppliedTypeTree
 [93,93]: TypedSplice
+[93,93]: TypeTree[TypeRef
 [93,94]: Ident
 [100,106]: Ident
 [110,130]: AppliedTypeTree
 [110,115]: Ident
 [116,129]: AppliedTypeTree
 [116,116]: TypedSplice
+[116,116]: TypeTree[TypeRef
 [116,117]: Ident
 [123,129]: Ident
 [133,136]: Ident

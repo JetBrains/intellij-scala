@@ -6,3 +6,14 @@
 [18,18]: DefDef
 [18,18]: TypeTree
 [29,92]: ModuleDef
+[51,90]: Template
+[51,51]: DefDef
+[51,51]: TypeTree
+[51,90]: DefDef
+[68,74]: ValDef
+[71,74]: Ident
+[77,80]: Ident
+[83,90]: Apply
+[87,90]: Select
+[87,90]: New
+[87,90]: Ident

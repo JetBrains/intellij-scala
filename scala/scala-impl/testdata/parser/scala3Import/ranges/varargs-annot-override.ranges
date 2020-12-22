@@ -10,6 +10,8 @@
 [92,118]: DefDef
 [98,111]: ValDef
 [104,111]: PostfixOp
+[104,110]: Ident
+[110,110]: Ident
 [114,118]: Ident
 [121,218]: TypeDef
 [138,216]: Template
@@ -19,6 +21,8 @@
 [182,216]: DefDef
 [197,210]: ValDef
 [203,210]: PostfixOp
+[203,209]: Ident
+[209,209]: Ident
 [211,211]: TypeTree
 [214,216]: Tuple
 [219,362]: TypeDef
@@ -29,6 +33,8 @@
 [315,360]: DefDef
 [341,354]: ValDef
 [347,354]: PostfixOp
+[347,353]: Ident
+[353,353]: Ident
 [355,355]: TypeTree
 [358,360]: Tuple
 [363,484]: TypeDef
@@ -39,6 +45,8 @@
 [448,482]: DefDef
 [463,476]: ValDef
 [469,476]: PostfixOp
+[469,475]: Ident
+[475,475]: Ident
 [477,477]: TypeTree
 [480,482]: Tuple
 [485,617]: TypeDef
@@ -49,5 +57,7 @@
 [570,615]: DefDef
 [596,609]: ValDef
 [602,609]: PostfixOp
+[602,608]: Ident
+[608,608]: Ident
 [610,610]: TypeTree
 [613,615]: Tuple

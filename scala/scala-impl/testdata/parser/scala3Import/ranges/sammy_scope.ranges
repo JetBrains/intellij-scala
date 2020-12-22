@@ -28,3 +28,11 @@
 [339,340]: Ident
 [344,364]: Block
 [346,362]: Function
+[346,347]: ValDef
+[346,346]: TypeTree
+[351,362]: Block
+[351,362]: Apply
+[351,356]: Ident
+[357,361]: Apply
+[357,358]: Ident
+[359,360]: Ident

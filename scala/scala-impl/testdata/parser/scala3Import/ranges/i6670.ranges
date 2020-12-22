@@ -25,3 +25,16 @@
 [112,113]: Ident
 [117,120]: Ident
 [123,175]: ModuleDef
+[139,173]: Template
+[139,139]: DefDef
+[139,139]: TypeTree
+[139,151]: ValDef
+[144,144]: TypeTree
+[147,151]: Apply
+[147,148]: Ident
+[149,150]: Number
+[154,173]: Apply
+[154,160]: Select
+[154,155]: Ident
+[161,172]: NamedArg
+[167,172]: Literal

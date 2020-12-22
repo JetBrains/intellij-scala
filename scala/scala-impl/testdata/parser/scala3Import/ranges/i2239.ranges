@@ -9,6 +9,9 @@
 [16,16]: TypeBoundsTree
 [18,18]: TypeTree
 [28,37]: Parens
+[29,36]: Function
+[29,31]: Ident
+[35,36]: Ident
 [42,125]: DefDef
 [54,63]: TypeDef
 [58,63]: TypeBoundsTree
@@ -17,6 +20,13 @@
 [65,65]: TypeBoundsTree
 [68,100]: ValDef
 [78,100]: Function
+[78,79]: Ident
+[83,100]: AppliedTypeTree
+[83,87]: Ident
+[88,91]: Ident
+[93,99]: AppliedTypeTree
+[93,96]: Ident
+[97,98]: Ident
 [103,119]: AppliedTypeTree
 [103,107]: Ident
 [108,110]: Ident
@@ -29,6 +39,8 @@
 [136,136]: TypeBoundsTree
 [139,151]: ValDef
 [145,151]: Function
+[145,146]: Ident
+[150,151]: Ident
 [154,165]: AppliedTypeTree
 [154,158]: Ident
 [159,161]: Ident
@@ -50,6 +62,17 @@
 [219,220]: Ident
 [223,223]: TypeTree
 [226,272]: ForYield
+[231,240]: GenFrom
+[231,232]: Ident
+[236,240]: This
+[242,251]: GenFrom
+[242,243]: Ident
+[247,251]: Ident
+[259,272]: InfixOp
+[259,260]: Ident
+[261,263]: Ident
+[264,272]: Select
+[264,265]: Ident
 [397,522]: TypeDef
 [415,520]: Template
 [415,415]: DefDef
@@ -79,3 +102,6 @@
 [500,503]: Ident
 [504,505]: Ident
 [510,520]: InfixOp
+[510,514]: Ident
+[515,518]: Ident
+[519,520]: Ident

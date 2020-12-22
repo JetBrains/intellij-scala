@@ -15,3 +15,11 @@
 [62,62]: TypeTree
 [65,167]: Block
 [100,161]: PostfixOp
+[100,159]: Apply
+[100,103]: Ident
+[104,159]: Block
+[118,131]: ValDef
+[127,127]: TypeTree
+[130,131]: Number
+[144,149]: Ident
+[159,159]: Ident

@@ -17,6 +17,7 @@
 [108,137]: TypeBoundsTree
 [111,137]: AppliedTypeTree
 [111,111]: TypedSplice
+[111,111]: TypeTree[TypeRef
 [111,122]: Ident
 [128,137]: Ident
 [140,198]: TypeDef
@@ -29,3 +30,16 @@
 [201,224]: ValDef
 [218,224]: Ident
 [259,432]: ModuleDef
+[275,430]: Template
+[275,275]: DefDef
+[275,275]: TypeTree
+[275,289]: ValDef
+[282,283]: Ident
+[286,289]: Ident
+[293,430]: Match
+[293,306]: Select
+[293,294]: Ident
+[319,340]: CaseDef
+[324,337]: Select
+[324,325]: Ident
+[338,340]: Block

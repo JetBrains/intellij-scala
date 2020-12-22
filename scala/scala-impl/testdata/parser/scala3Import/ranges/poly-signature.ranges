@@ -26,3 +26,15 @@
 [90,93]: Ident
 [96,97]: Ident
 [101,160]: ModuleDef
+[117,158]: Template
+[117,117]: DefDef
+[117,117]: TypeTree
+[117,158]: DefDef
+[126,130]: ValDef
+[129,130]: Ident
+[133,137]: Ident
+[140,158]: Block
+[146,154]: Apply
+[146,151]: Select
+[146,147]: Ident
+[152,153]: Number

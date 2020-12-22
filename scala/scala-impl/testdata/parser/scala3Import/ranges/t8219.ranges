@@ -45,3 +45,6 @@
 [192,209]: Import
 [199,204]: Ident
 [238,246]: InfixOp
+[238,240]: Literal
+[241,243]: Ident
+[244,246]: Literal

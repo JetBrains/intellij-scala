@@ -21,3 +21,16 @@
 [212,244]: DefDef
 [241,244]: Ident
 [249,405]: ModuleDef
+[362,403]: Template
+[362,362]: DefDef
+[362,362]: TypeTree
+[362,403]: New
+[362,403]: Template
+[366,366]: DefDef
+[366,366]: TypeTree
+[366,382]: Apply
+[366,376]: Select
+[366,376]: New
+[366,376]: Ident
+[377,381]: Literal
+[388,403]: Ident

@@ -10,3 +10,5 @@
 [36,51]: DefDef
 [44,44]: TypeTree
 [47,51]: PrefixOp
+[47,48]: Ident
+[48,51]: Ident

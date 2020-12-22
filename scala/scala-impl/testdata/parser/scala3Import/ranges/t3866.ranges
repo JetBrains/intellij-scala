@@ -26,6 +26,11 @@
 [84,85]: TypeBoundsTree
 [88,103]: ValDef
 [95,103]: PostfixOp
+[95,102]: AppliedTypeTree
+[95,96]: Ident
+[97,98]: Ident
+[100,101]: Ident
+[102,102]: Ident
 [106,110]: Ident
 [146,206]: DefDef
 [152,153]: TypeDef
@@ -39,6 +44,11 @@
 [176,182]: Ident
 [184,199]: ValDef
 [191,199]: PostfixOp
+[191,198]: AppliedTypeTree
+[191,192]: Ident
+[193,194]: Ident
+[196,197]: Ident
+[198,198]: Ident
 [202,206]: Ident
 [290,339]: DefDef
 [312,316]: ValDef

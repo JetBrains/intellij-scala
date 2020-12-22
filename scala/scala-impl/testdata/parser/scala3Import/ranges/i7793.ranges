@@ -7,6 +7,8 @@
 [13,42]: DefDef
 [19,32]: ValDef
 [22,32]: Function
+[22,25]: Ident
+[29,32]: Ident
 [35,38]: Ident
 [41,42]: Number
 [45,96]: DefDef
@@ -14,6 +16,8 @@
 [57,63]: Ident
 [65,81]: ValDef
 [68,81]: Function
+[68,71]: Ident
+[75,81]: Ident
 [84,90]: Ident
 [93,96]: Literal
 [98,210]: DefDef
@@ -29,6 +33,9 @@
 [159,162]: Select
 [159,160]: Ident
 [163,171]: Function
+[163,164]: ValDef
+[163,163]: TypeTree
+[168,171]: Literal
 [175,210]: Apply
 [175,200]: Apply
 [175,178]: Select
@@ -37,3 +44,6 @@
 [185,191]: Ident
 [192,198]: Ident
 [201,209]: Function
+[201,202]: ValDef
+[201,201]: TypeTree
+[206,209]: Literal

@@ -1,6 +1,17 @@
 [0,313]: PackageDef
 [0,0]: Ident
 [0,50]: ModuleDef
+[17,48]: Template
+[17,17]: DefDef
+[17,17]: TypeTree
+[17,33]: TypeDef
+[17,17]: Template
+[17,17]: DefDef
+[17,17]: TypeTree
+[36,48]: TypeDef
+[36,36]: Template
+[36,36]: DefDef
+[36,36]: TypeTree
 [52,313]: TypeDef
 [75,268]: Template
 [75,75]: DefDef
@@ -25,5 +36,6 @@
 [226,232]: Ident
 [239,268]: If
 [242,248]: Parens
+[243,247]: Ident
 [249,256]: Ident
 [262,268]: Ident

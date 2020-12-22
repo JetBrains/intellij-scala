@@ -5,6 +5,8 @@
 [9,28]: DefDef
 [10,27]: ValDef
 [17,27]: Function
+[17,20]: Ident
+[24,27]: Ident
 [27,27]: TypeTree
 [29,58]: TypeDef
 [47,58]: Template
@@ -15,3 +17,6 @@
 [47,50]: New
 [47,50]: Ident
 [51,57]: Function
+[51,52]: ValDef
+[51,51]: TypeTree
+[56,57]: Ident

@@ -12,6 +12,13 @@
 [117,131]: Select
 [117,125]: Ident
 [134,206]: ModuleDef
+[153,202]: Template
+[153,153]: DefDef
+[153,153]: TypeTree
+[153,202]: DefDef
+[169,174]: Ident
+[177,202]: Select
+[177,185]: Ident
 [210,280]: TypeDef
 [238,278]: Template
 [238,238]: DefDef

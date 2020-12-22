@@ -56,6 +56,10 @@
 [192,198]: Ident
 [216,233]: ValDef
 [219,233]: Function
+[219,220]: Ident
+[224,233]: AppliedTypeTree
+[224,230]: Ident
+[231,232]: Ident
 [236,245]: AppliedTypeTree
 [236,242]: Ident
 [243,244]: Ident
@@ -93,6 +97,10 @@
 [376,382]: Ident
 [400,417]: ValDef
 [403,417]: Function
+[403,404]: Ident
+[408,417]: AppliedTypeTree
+[408,414]: Ident
+[415,416]: Ident
 [419,430]: ValDef
 [424,430]: Ident
 [433,442]: AppliedTypeTree
@@ -106,6 +114,10 @@
 [468,469]: Ident
 [487,504]: ValDef
 [490,504]: Function
+[490,491]: Ident
+[495,504]: AppliedTypeTree
+[495,501]: Ident
+[502,503]: Ident
 [506,514]: ValDef
 [511,514]: Ident
 [517,526]: AppliedTypeTree
@@ -169,6 +181,10 @@
 [757,763]: Ident
 [779,796]: ValDef
 [782,796]: Function
+[782,783]: Ident
+[787,796]: AppliedTypeTree
+[787,793]: Ident
+[794,795]: Ident
 [799,808]: AppliedTypeTree
 [799,805]: Ident
 [806,807]: Ident
@@ -210,6 +226,10 @@
 [958,964]: Ident
 [980,997]: ValDef
 [983,997]: Function
+[983,984]: Ident
+[988,997]: AppliedTypeTree
+[988,994]: Ident
+[995,996]: Ident
 [999,1010]: ValDef
 [1004,1010]: Ident
 [1013,1022]: AppliedTypeTree
@@ -224,6 +244,10 @@
 [1059,1059]: TypeBoundsTree
 [1075,1090]: ValDef
 [1078,1090]: Function
+[1078,1079]: Ident
+[1083,1090]: AppliedTypeTree
+[1083,1087]: Ident
+[1088,1089]: Ident
 [1092,1100]: ValDef
 [1097,1100]: Ident
 [1103,1110]: AppliedTypeTree
@@ -249,3 +273,10 @@
 [1194,1197]: Ident
 [1199,1204]: Ident
 [1206,1237]: Function
+[1207,1213]: ValDef
+[1210,1213]: Ident
+[1218,1237]: Apply
+[1222,1227]: Select
+[1222,1227]: New
+[1222,1227]: Ident
+[1228,1236]: Literal

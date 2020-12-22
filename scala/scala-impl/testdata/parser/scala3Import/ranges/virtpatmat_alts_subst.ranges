@@ -17,6 +17,9 @@
 [91,94]: Ident
 [95,130]: Bind
 [101,130]: Parens
+[102,129]: Alternative
+[102,116]: Literal
+[119,129]: Literal
 [132,147]: Block
 [135,147]: Apply
 [135,142]: Ident

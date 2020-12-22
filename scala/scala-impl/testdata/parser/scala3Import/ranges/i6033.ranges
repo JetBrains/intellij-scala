@@ -7,6 +7,11 @@
 [15,86]: DefDef
 [21,37]: ValDef
 [24,37]: InfixOp
+[24,32]: AppliedTypeTree
+[24,29]: Ident
+[30,31]: TypeBoundsTree
+[32,33]: Ident
+[33,37]: Ident
 [40,44]: Ident
 [48,86]: Match
 [48,49]: Ident

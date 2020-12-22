@@ -13,6 +13,9 @@
 [70,71]: Ident
 [73,87]: ValDef
 [76,87]: Function
+[77,78]: Ident
+[80,81]: Ident
+[86,87]: Ident
 [90,91]: Ident
 [95,255]: TypeDef
 [104,253]: Template
@@ -32,6 +35,9 @@
 [181,182]: Ident
 [184,200]: ValDef
 [187,200]: Function
+[188,189]: Ident
+[191,194]: Ident
+[199,200]: Ident
 [203,204]: Ident
 [207,253]: Block
 [213,229]: ValDef

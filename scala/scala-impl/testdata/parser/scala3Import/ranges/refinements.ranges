@@ -31,6 +31,12 @@
 [161,163]: Ident
 [166,202]: ValDef
 [173,202]: InfixOp
+[173,182]: SingletonTypeTree
+[173,177]: This
+[183,184]: Ident
+[185,202]: RefinedTypeTree
+[187,200]: TypeDef
+[197,200]: Ident
 [205,221]: ValDef
 [212,215]: Ident
 [218,221]: Select

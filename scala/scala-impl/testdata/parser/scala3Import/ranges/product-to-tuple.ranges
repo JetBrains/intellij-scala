@@ -16,6 +16,8 @@
 [50,53]: Literal
 [55,103]: ValDef
 [62,75]: Tuple
+[63,66]: Ident
+[68,74]: Ident
 [78,103]: Apply
 [78,100]: Select
 [78,83]: Ident
@@ -47,6 +49,10 @@
 [183,186]: Literal
 [188,231]: ValDef
 [195,203]: Tuple
+[196,197]: SingletonTypeTree
+[196,197]: Literal
+[199,202]: SingletonTypeTree
+[199,202]: Literal
 [206,231]: Apply
 [206,228]: Select
 [206,211]: Ident

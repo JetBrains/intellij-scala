@@ -20,6 +20,8 @@
 [63,75]: AppliedTypeTree
 [63,67]: Ident
 [68,74]: Tuple
+[69,70]: Ident
+[72,73]: Ident
 [79,83]: Ident
 [86,137]: Apply
 [86,92]: Ident
@@ -31,6 +33,8 @@
 [115,134]: AppliedTypeTree
 [115,119]: Ident
 [120,133]: Tuple
+[121,124]: Ident
+[126,132]: Ident
 [151,200]: DefDef
 [163,164]: TypeDef
 [163,163]: TypeBoundsTree
@@ -47,6 +51,8 @@
 [183,192]: AppliedTypeTree
 [183,184]: Ident
 [185,191]: Tuple
+[186,187]: Ident
+[189,190]: Ident
 [196,200]: Ident
 [203,255]: Apply
 [203,210]: Ident
@@ -58,6 +64,8 @@
 [233,252]: AppliedTypeTree
 [233,237]: Ident
 [238,251]: Tuple
+[239,242]: Ident
+[244,250]: Ident
 [259,301]: DefDef
 [275,276]: TypeDef
 [275,275]: TypeBoundsTree
@@ -133,7 +141,19 @@
 [517,526]: AppliedTypeTree
 [517,518]: Ident
 [519,525]: Tuple
+[520,521]: Ident
+[523,524]: Ident
 [530,552]: Tuple
+[531,540]: AppliedTypeTree
+[531,534]: Ident
+[535,539]: AppliedTypeTree
+[535,536]: Ident
+[537,538]: Ident
+[542,551]: AppliedTypeTree
+[542,545]: Ident
+[546,550]: AppliedTypeTree
+[546,547]: Ident
+[548,549]: Ident
 [555,609]: DefDef
 [568,569]: TypeDef
 [568,568]: TypeBoundsTree
@@ -145,6 +165,8 @@
 [582,594]: AppliedTypeTree
 [582,586]: Ident
 [587,593]: Tuple
+[588,589]: Ident
+[591,592]: Ident
 [596,596]: TypeTree
 [599,609]: Apply
 [599,605]: Ident

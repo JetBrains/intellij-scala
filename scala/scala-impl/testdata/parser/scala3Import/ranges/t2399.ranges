@@ -28,6 +28,7 @@
 [68,72]: Ident
 [76,100]: AppliedTypeTree
 [76,76]: TypedSplice
+[76,76]: TypeTree[TypeRef
 [76,84]: AppliedTypeTree
 [76,81]: Ident
 [82,83]: Ident
@@ -48,6 +49,9 @@
 [175,201]: DefDef
 [186,186]: TypeTree
 [189,201]: InfixOp
+[189,193]: Ident
+[194,196]: Ident
+[197,201]: Literal
 [205,331]: DefDef
 [217,220]: Ident
 [223,331]: Block
@@ -59,12 +63,17 @@
 [258,261]: Ident
 [264,309]: If
 [267,278]: Parens
+[268,277]: Select
+[268,269]: Ident
 [279,282]: Ident
 [288,309]: Apply
 [288,292]: Ident
 [293,299]: Select
 [293,294]: Ident
 [301,308]: InfixOp
+[301,304]: Ident
+[305,306]: Ident
+[307,308]: Number
 [314,327]: Apply
 [314,318]: Ident
 [319,323]: Ident

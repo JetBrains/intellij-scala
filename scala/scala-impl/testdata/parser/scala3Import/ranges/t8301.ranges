@@ -9,6 +9,7 @@
 [34,38]: Ident
 [42,63]: AppliedTypeTree
 [42,42]: TypedSplice
+[42,42]: TypeTree[TypeRef
 [42,48]: Ident
 [54,63]: Ident
 [66,81]: TypeDef
@@ -20,6 +21,7 @@
 [104,108]: Ident
 [112,137]: AppliedTypeTree
 [112,112]: TypedSplice
+[112,112]: TypeTree[TypeRef
 [112,125]: Ident
 [131,137]: Ident
 [140,159]: TypeDef
@@ -36,3 +38,17 @@
 [230,240]: Ident
 [243,246]: Ident
 [254,360]: ModuleDef
+[274,358]: Template
+[274,274]: DefDef
+[274,274]: TypeTree
+[274,277]: Ident
+[282,303]: ValDef
+[289,297]: Ident
+[300,303]: Ident
+[306,316]: Import
+[313,314]: Ident
+[320,341]: ValDef
+[329,335]: Ident
+[338,341]: Ident
+[344,358]: Select
+[344,347]: Ident

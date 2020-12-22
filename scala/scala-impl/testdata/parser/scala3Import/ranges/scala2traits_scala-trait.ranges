@@ -11,6 +11,9 @@
 [79,79]: TypeTree
 [82,84]: Literal
 [87,95]: ModuleDef
+[87,87]: Template
+[87,87]: DefDef
+[87,87]: TypeTree
 [98,114]: ValDef
 [109,109]: TypeTree
 [112,114]: Number
@@ -36,6 +39,9 @@
 [224,227]: Ident
 [230,233]: Ident
 [236,241]: InfixOp
+[236,237]: Ident
+[238,239]: Ident
+[240,241]: Ident
 [245,478]: TypeDef
 [266,476]: Template
 [266,266]: DefDef
@@ -54,6 +60,9 @@
 [364,367]: Ident
 [370,373]: Ident
 [376,381]: InfixOp
+[376,377]: Ident
+[378,379]: Ident
+[380,381]: Ident
 [384,394]: DefDef
 [390,390]: TypeTree
 [393,394]: Ident

@@ -6,4 +6,9 @@
 [10,28]: TypeDef
 [12,28]: TypeBoundsTree
 [15,28]: InfixOp
+[15,19]: AppliedTypeTree
+[15,16]: Ident
+[17,18]: TypeBoundsTree
+[20,21]: Ident
+[22,28]: Ident
 [28,28]: TypeTree

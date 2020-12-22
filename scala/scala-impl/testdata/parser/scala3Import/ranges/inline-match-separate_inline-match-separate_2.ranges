@@ -3,3 +3,17 @@
 [0,14]: Import
 [7,12]: Ident
 [16,59]: ModuleDef
+[32,57]: Template
+[32,32]: DefDef
+[32,32]: TypeTree
+[32,57]: ValDef
+[37,37]: TypeTree
+[40,57]: Apply
+[40,43]: Ident
+[44,56]: Apply
+[48,56]: Select
+[48,56]: New
+[48,56]: AppliedTypeTree
+[48,51]: Ident
+[52,55]: SingletonTypeTree
+[52,55]: Literal

@@ -1,4 +1,14 @@
 [0,101]: PackageDef
 [0,0]: Ident
 [0,47]: ExtMethods
+[11,23]: ValDef
+[17,23]: Ident
+[27,47]: DefDef
+[41,41]: TypeTree
+[44,47]: Ident
 [63,101]: ExtMethods
+[74,86]: ValDef
+[80,86]: Ident
+[90,101]: DefDef
+[95,95]: TypeTree
+[98,101]: Ident

@@ -45,3 +45,16 @@
 [246,250]: Ident
 [251,252]: Ident
 [255,332]: ModuleDef
+[281,330]: Template
+[281,281]: DefDef
+[281,281]: TypeTree
+[281,330]: DefDef
+[293,301]: ValDef
+[296,301]: Ident
+[304,316]: AppliedTypeTree
+[304,308]: Ident
+[309,315]: SingletonTypeTree
+[309,310]: Ident
+[319,330]: Apply
+[319,327]: Ident
+[328,329]: Ident

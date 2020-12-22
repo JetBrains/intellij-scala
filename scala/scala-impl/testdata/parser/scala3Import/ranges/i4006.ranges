@@ -7,4 +7,9 @@
 [14,82]: DefDef
 [42,45]: Ident
 [48,82]: ParsedTry
+[52,57]: Block
+[54,55]: Number
+[66,82]: Apply
+[66,73]: Ident
+[74,81]: Literal
 [85,88]: Ident

@@ -18,9 +18,16 @@
 [81,82]: Ident
 [90,138]: If
 [93,101]: Parens
+[94,100]: InfixOp
+[94,95]: Ident
+[96,98]: Ident
+[99,100]: Number
 [102,104]: Ident
 [114,138]: Apply
 [114,122]: Ident
 [123,128]: InfixOp
+[123,124]: Ident
+[125,126]: Ident
+[127,128]: Number
 [130,137]: Select
 [130,132]: Ident

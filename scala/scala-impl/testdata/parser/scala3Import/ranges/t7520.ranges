@@ -7,6 +7,7 @@
 [12,50]: ValDef
 [19,43]: AppliedTypeTree
 [19,19]: TypedSplice
+[19,19]: TypeTree[TypeRef
 [19,28]: Ident
 [34,43]: SingletonTypeTree
 [34,38]: This
@@ -25,6 +26,7 @@
 [102,135]: ValDef
 [110,131]: AppliedTypeTree
 [110,110]: TypedSplice
+[110,110]: TypeTree[TypeRef
 [110,116]: SingletonTypeTree
 [110,111]: Ident
 [122,131]: Ident

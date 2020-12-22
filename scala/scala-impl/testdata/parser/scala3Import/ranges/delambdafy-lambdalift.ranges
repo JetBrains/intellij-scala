@@ -14,6 +14,14 @@
 [93,96]: Ident
 [99,102]: Ident
 [105,120]: InfixOp
+[105,106]: Ident
+[107,108]: Ident
+[109,120]: Ident
 [125,159]: ValDef
 [130,130]: TypeTree
 [133,159]: Function
+[134,140]: ValDef
+[137,140]: Ident
+[145,159]: Apply
+[145,156]: Ident
+[157,158]: Ident

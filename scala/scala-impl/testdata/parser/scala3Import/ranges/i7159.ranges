@@ -21,3 +21,16 @@
 [154,160]: Ident
 [163,166]: Ident
 [170,248]: ModuleDef
+[185,246]: Template
+[185,185]: DefDef
+[185,185]: TypeTree
+[185,208]: ValDef
+[195,202]: Ident
+[205,208]: Ident
+[211,224]: Import
+[218,222]: Ident
+[228,246]: Apply
+[228,232]: Ident
+[233,245]: Typed
+[233,236]: Ident
+[239,245]: Ident

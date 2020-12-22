@@ -20,3 +20,14 @@
 [101,131]: DefDef
 [106,106]: TypeTree
 [109,131]: InfixOp
+[109,118]: Apply
+[113,114]: Select
+[113,114]: New
+[113,114]: Ident
+[115,117]: Literal
+[119,121]: Ident
+[122,131]: Apply
+[126,127]: Select
+[126,127]: New
+[126,127]: Ident
+[128,130]: Literal

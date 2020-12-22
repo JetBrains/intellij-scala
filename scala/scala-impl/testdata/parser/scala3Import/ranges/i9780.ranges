@@ -14,6 +14,7 @@
 [99,138]: DefDef
 [109,138]: AppliedTypeTree
 [109,109]: TypedSplice
+[109,109]: TypeTree[TypeRef
 [109,118]: Ident
 [124,138]: Ident
 [142,210]: TypeDef
@@ -42,6 +43,12 @@
 [370,371]: Ident
 [379,446]: If
 [382,421]: Parens
+[383,420]: InfixOp
+[383,390]: Select
+[383,384]: Ident
+[391,393]: Ident
+[394,420]: Select
+[394,405]: Ident
 [430,446]: Apply
 [430,444]: Ident
 [460,491]: DefDef

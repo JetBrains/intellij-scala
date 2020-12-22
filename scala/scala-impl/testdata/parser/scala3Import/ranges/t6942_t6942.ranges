@@ -10,6 +10,9 @@
 [247,247]: TypeTree
 [250,323]: Match
 [250,261]: Parens
+[251,260]: Typed
+[251,255]: Literal
+[257,260]: Ident
 [274,294]: CaseDef
 [279,291]: Select
 [279,282]: Ident

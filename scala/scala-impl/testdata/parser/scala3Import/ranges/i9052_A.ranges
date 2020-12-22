@@ -1,6 +1,13 @@
 [0,91]: PackageDef
 [0,0]: Ident
 [0,32]: ModuleDef
+[15,32]: Template
+[15,15]: DefDef
+[15,15]: TypeTree
+[15,32]: ModuleDef
+[15,15]: Template
+[15,15]: DefDef
+[15,15]: TypeTree
 [34,47]: Import
 [41,45]: Ident
 [49,91]: TypeDef
@@ -8,3 +15,8 @@
 [69,71]: TypeDef
 [69,69]: TypeBoundsTree
 [75,91]: Parens
+[76,90]: InfixOp
+[76,77]: Ident
+[78,79]: Ident
+[80,90]: SingletonTypeTree
+[80,85]: Ident

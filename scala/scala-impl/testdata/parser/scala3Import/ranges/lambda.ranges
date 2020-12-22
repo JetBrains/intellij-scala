@@ -6,6 +6,16 @@
 [26,26]: TypeTree
 [26,49]: Block
 [32,45]: Function
+[33,39]: ValDef
+[36,39]: Ident
+[44,45]: Block
+[44,45]: Number
 [52,77]: ValDef
 [57,57]: TypeTree
 [60,77]: Function
+[61,67]: ValDef
+[64,67]: Ident
+[72,77]: InfixOp
+[72,73]: Ident
+[74,75]: Ident
+[76,77]: Ident

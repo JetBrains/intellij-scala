@@ -21,8 +21,12 @@
 [93,140]: DefDef
 [99,109]: ValDef
 [103,109]: Function
+[103,104]: Ident
+[108,109]: Ident
 [111,121]: ValDef
 [115,121]: Function
+[115,116]: Ident
+[120,121]: Ident
 [122,122]: TypeTree
 [125,140]: Apply
 [125,126]: Ident
@@ -39,3 +43,6 @@
 [158,159]: Ident
 [160,160]: TypeTree
 [163,171]: Parens
+[164,170]: Tuple
+[165,166]: Ident
+[168,169]: Ident

@@ -25,6 +25,9 @@
 [205,206]: Ident
 [209,229]: ValDef
 [214,229]: Function
+[215,218]: Ident
+[220,221]: Ident
+[226,229]: Ident
 [232,235]: Ident
 [242,261]: Apply
 [242,256]: Apply
@@ -54,6 +57,9 @@
 [458,461]: Ident
 [464,467]: Ident
 [470,475]: InfixOp
+[470,471]: Ident
+[472,473]: Ident
+[474,475]: Ident
 [479,535]: DefDef
 [487,500]: ValDef
 [491,500]: AppliedTypeTree
@@ -66,6 +72,14 @@
 [513,515]: Ident
 [525,526]: Number
 [529,534]: Function
+[529,529]: ValDef
+[529,529]: TypeTree
+[533,533]: ValDef
+[533,533]: TypeTree
+[529,534]: InfixOp
+[529,530]: Ident
+[531,532]: Ident
+[533,534]: Ident
 [539,584]: DefDef
 [547,553]: ValDef
 [550,553]: Ident

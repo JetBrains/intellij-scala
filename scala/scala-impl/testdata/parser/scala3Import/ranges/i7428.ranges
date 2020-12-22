@@ -9,6 +9,9 @@
 [28,28]: DefDef
 [28,28]: TypeTree
 [28,38]: ModuleDef
+[28,28]: Template
+[28,28]: DefDef
+[28,28]: TypeTree
 [41,57]: Import
 [48,51]: Ident
 [60,74]: ValDef

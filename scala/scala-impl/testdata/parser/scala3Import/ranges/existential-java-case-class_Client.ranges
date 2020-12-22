@@ -13,4 +13,8 @@
 [38,54]: DefDef
 [39,53]: ValDef
 [42,53]: Function
+[42,45]: Ident
+[49,53]: AppliedTypeTree
+[49,50]: Ident
+[51,52]: TypeBoundsTree
 [53,53]: TypeTree

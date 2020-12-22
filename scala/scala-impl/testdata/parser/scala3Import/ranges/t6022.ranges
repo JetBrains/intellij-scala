@@ -6,6 +6,9 @@
 [15,15]: TypeTree
 [15,172]: Match
 [15,26]: Parens
+[16,25]: Typed
+[16,20]: Literal
+[22,25]: Ident
 [39,65]: CaseDef
 [44,53]: Typed
 [44,45]: Ident

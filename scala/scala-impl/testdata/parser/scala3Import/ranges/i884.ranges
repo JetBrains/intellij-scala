@@ -4,3 +4,6 @@
 [7,20]: Select
 [7,12]: Ident
 [24,44]: ModuleDef
+[24,24]: Template
+[24,24]: DefDef
+[24,24]: TypeTree

@@ -28,3 +28,12 @@
 [217,218]: Ident
 [219,220]: Number
 [281,334]: InfixOp
+[281,295]: Select
+[281,287]: Ident
+[296,298]: Ident
+[299,334]: Apply
+[299,322]: Select
+[299,309]: Ident
+[323,333]: PrefixOp
+[323,324]: Ident
+[324,333]: Ident

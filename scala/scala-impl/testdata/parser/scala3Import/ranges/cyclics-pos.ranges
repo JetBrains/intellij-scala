@@ -90,12 +90,16 @@
 [437,437]: TypeBoundsTree
 [441,453]: ValDef
 [444,453]: Function
+[444,448]: Ident
+[452,453]: Ident
 [456,467]: AppliedTypeTree
 [456,464]: Ident
 [465,466]: Ident
 [471,521]: DefDef
 [483,498]: ValDef
 [486,498]: Function
+[486,490]: Ident
+[494,498]: Ident
 [499,499]: TypeTree
 [502,521]: Apply
 [502,518]: Select

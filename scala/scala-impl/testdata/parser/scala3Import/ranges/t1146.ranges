@@ -5,3 +5,14 @@
 [15,15]: DefDef
 [15,15]: TypeTree
 [15,71]: PatDef
+[19,20]: Ident
+[20,20]: TypeTree
+[23,71]: Function
+[29,71]: Block
+[34,59]: ValDef
+[41,41]: TypeTree
+[44,59]: Apply
+[44,57]: TypeApply
+[44,49]: Ident
+[50,56]: Ident
+[63,67]: Literal

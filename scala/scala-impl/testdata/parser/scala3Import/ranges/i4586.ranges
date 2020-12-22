@@ -8,6 +8,8 @@
 [30,46]: ValDef
 [33,46]: ByNameTypeTree
 [36,46]: Function
+[36,39]: Ident
+[43,46]: Ident
 [49,52]: Ident
 [55,59]: Apply
 [55,56]: Ident
@@ -17,3 +19,9 @@
 [73,89]: Apply
 [73,77]: Ident
 [78,88]: Function
+[78,79]: ValDef
+[78,78]: TypeTree
+[83,88]: InfixOp
+[83,84]: Ident
+[85,86]: Ident
+[87,88]: Number

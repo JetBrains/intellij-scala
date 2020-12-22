@@ -43,3 +43,14 @@
 [115,116]: New
 [115,116]: Ident
 [120,149]: ModuleDef
+[139,149]: Template
+[139,139]: DefDef
+[139,139]: TypeTree
+[139,149]: Apply
+[139,142]: Select
+[139,142]: New
+[139,142]: Ident
+[143,148]: Apply
+[147,148]: Select
+[147,148]: New
+[147,148]: Ident

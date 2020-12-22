@@ -5,6 +5,9 @@
 [12,12]: DefDef
 [12,12]: TypeTree
 [12,31]: ModuleDef
+[12,12]: Template
+[12,12]: DefDef
+[12,12]: TypeTree
 [100,120]: TypeApply
 [100,110]: Ident
 [111,119]: SingletonTypeTree

@@ -18,6 +18,8 @@
 [78,80]: Tuple
 [84,115]: ValDef
 [93,104]: Function
+[93,96]: Ident
+[100,104]: Ident
 [107,115]: Apply
 [107,110]: Ident
 [111,114]: Apply

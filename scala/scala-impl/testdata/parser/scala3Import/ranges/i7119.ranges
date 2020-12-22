@@ -5,6 +5,13 @@
 [0,0]: DefDef
 [0,0]: TypeTree
 [12,60]: ExtMethods
+[23,33]: ValDef
+[29,33]: Ident
+[35,60]: DefDef
+[50,53]: ValDef
+[50,53]: Ident
+[54,54]: TypeTree
+[57,60]: Ident
 [76,169]: DefDef
 [85,104]: ValDef
 [91,104]: AppliedTypeTree

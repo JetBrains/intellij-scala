@@ -19,6 +19,10 @@
 [41,42]: TypeDef
 [41,41]: TypeBoundsTree
 [44,47]: ContextBounds
+[44,44]: TypeBoundsTree
+[44,47]: AppliedTypeTree
+[46,47]: Ident
+[47,47]: Ident
 [49,70]: ValDef
 [52,64]: AppliedTypeTree
 [52,56]: Ident

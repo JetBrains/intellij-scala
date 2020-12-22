@@ -21,3 +21,14 @@
 [156,160]: Literal
 [161,161]: Literal
 [166,218]: ModuleDef
+[186,216]: Template
+[186,186]: DefDef
+[186,186]: TypeTree
+[186,216]: Assign
+[186,208]: Select
+[186,203]: Apply
+[190,194]: Select
+[190,194]: New
+[190,194]: Ident
+[195,202]: Literal
+[211,216]: Literal

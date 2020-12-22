@@ -5,6 +5,9 @@
 [12,12]: DefDef
 [12,12]: TypeTree
 [12,20]: ModuleDef
+[12,12]: Template
+[12,12]: DefDef
+[12,12]: TypeTree
 [45,161]: TypeDef
 [57,159]: Template
 [57,57]: DefDef
@@ -14,6 +17,14 @@
 [68,159]: Block
 [74,146]: If
 [77,96]: Parens
+[78,95]: InfixOp
+[78,90]: Select
+[78,83]: Literal
+[91,93]: Ident
+[94,95]: Number
 [97,146]: Block
 [105,113]: ModuleDef
+[105,105]: Template
+[105,105]: DefDef
+[105,105]: TypeTree
 [151,155]: Literal

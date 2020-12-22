@@ -7,8 +7,14 @@
 [12,12]: TypeBoundsTree
 [15,36]: ValDef
 [20,36]: Function
+[21,22]: Ident
+[23,24]: Ident
+[29,36]: Ident
 [37,59]: ValDef
 [43,59]: Function
+[44,45]: Ident
+[46,47]: Ident
+[52,59]: Ident
 [59,59]: TypeTree
 [65,235]: TypeDef
 [74,233]: Template
@@ -35,6 +41,8 @@
 [169,170]: Ident
 [172,180]: ValDef
 [178,180]: PostfixOp
+[178,179]: Ident
+[179,179]: Ident
 [183,192]: AppliedTypeTree
 [183,186]: Ident
 [187,188]: Ident

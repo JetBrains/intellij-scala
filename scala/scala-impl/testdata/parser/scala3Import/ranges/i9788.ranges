@@ -5,4 +5,12 @@
 [12,50]: DefDef
 [13,49]: ValDef
 [16,49]: InfixOp
+[16,28]: Tuple
+[17,21]: Ident
+[23,27]: Ident
+[29,30]: Ident
+[31,49]: Tuple
+[32,36]: Ident
+[38,42]: Ident
+[44,48]: Ident
 [49,49]: TypeTree

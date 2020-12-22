@@ -8,3 +8,17 @@
 [23,23]: TypeTree
 [33,39]: Ident
 [45,104]: ModuleDef
+[63,102]: Template
+[63,63]: DefDef
+[63,63]: TypeTree
+[63,102]: DefDef
+[69,79]: ValDef
+[73,79]: Ident
+[80,80]: TypeTree
+[83,102]: New
+[83,102]: Template
+[89,89]: DefDef
+[89,89]: TypeTree
+[89,100]: DefDef
+[96,96]: TypeTree
+[99,100]: Number

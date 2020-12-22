@@ -11,11 +11,16 @@
 [334,337]: Ident
 [338,338]: TypeTree
 [341,346]: InfixOp
+[341,342]: Ident
+[343,344]: Ident
+[345,346]: Ident
 [349,388]: DefDef
 [357,358]: TypeDef
 [357,357]: TypeBoundsTree
 [369,381]: ValDef
 [373,381]: Function
+[373,376]: Ident
+[380,381]: Ident
 [382,382]: TypeTree
 [385,388]: Ident
 [391,399]: TypeApply

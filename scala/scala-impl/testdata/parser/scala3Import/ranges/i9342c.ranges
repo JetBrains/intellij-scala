@@ -17,6 +17,10 @@
 [53,58]: Ident
 [59,60]: Ident
 [64,74]: Function
+[64,64]: ValDef
+[64,64]: TypeTree
+[64,74]: Select
+[64,65]: Ident
 [76,136]: DefDef
 [93,94]: TypeDef
 [93,93]: TypeBoundsTree

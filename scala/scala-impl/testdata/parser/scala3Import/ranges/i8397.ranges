@@ -83,6 +83,9 @@
 [370,387]: AppliedTypeTree
 [370,373]: Ident
 [374,386]: InfixOp
+[374,378]: Ident
+[379,380]: Ident
+[381,386]: Ident
 [395,420]: TypeDef
 [409,420]: Select
 [409,413]: Ident

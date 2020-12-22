@@ -27,6 +27,10 @@
 [118,143]: TypeApply
 [118,136]: Select
 [118,123]: Parens
+[119,122]: InfixOp
+[119,120]: Ident
+[120,121]: Ident
+[121,122]: Number
 [137,142]: AppliedTypeTree
 [137,139]: Ident
 [140,141]: Ident
@@ -35,4 +39,15 @@
 [157,161]: Block
 [160,161]: Ident
 [171,193]: ModuleDef
+[190,193]: Template
+[190,190]: DefDef
+[190,190]: TypeTree
+[190,193]: Ident
 [195,224]: ModuleDef
+[211,222]: Template
+[211,211]: DefDef
+[211,211]: TypeTree
+[211,222]: Apply
+[211,218]: Select
+[211,214]: Ident
+[219,221]: Number

@@ -15,6 +15,15 @@
 [57,129]: TypeDef
 [67,129]: Select
 [67,121]: Parens
+[68,120]: RefinedTypeTree
+[68,93]: RefinedTypeTree
+[68,74]: Ident
+[77,91]: TypeDef
+[88,91]: Ident
+[96,118]: TypeDef
+[109,118]: AppliedTypeTree
+[109,113]: Ident
+[114,117]: Ident
 [132,151]: TypeDef
 [142,151]: AppliedTypeTree
 [142,146]: Ident

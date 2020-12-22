@@ -17,6 +17,8 @@
 [69,69]: TypeTree
 [69,109]: Match
 [69,77]: Parens
+[70,76]: Ident
 [86,107]: CaseDef
 [91,104]: Parens
+[92,103]: Ident
 [105,107]: Block

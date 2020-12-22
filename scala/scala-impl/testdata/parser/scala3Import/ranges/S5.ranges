@@ -49,3 +49,17 @@
 [621,623]: DefDef
 [621,621]: TypeTree
 [662,709]: ModuleDef
+[677,707]: Template
+[677,677]: DefDef
+[677,677]: TypeTree
+[677,707]: ValDef
+[687,687]: TypeTree
+[690,707]: New
+[690,707]: Template
+[694,694]: DefDef
+[694,694]: TypeTree
+[694,697]: Apply
+[694,695]: Select
+[694,695]: New
+[694,695]: Ident
+[703,704]: Ident

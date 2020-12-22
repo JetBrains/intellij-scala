@@ -35,3 +35,13 @@
 [113,119]: Select
 [113,115]: Ident
 [124,182]: ModuleDef
+[140,180]: Template
+[140,140]: DefDef
+[140,140]: TypeTree
+[140,180]: DefDef
+[149,168]: ValDef
+[155,168]: AppliedTypeTree
+[155,160]: Ident
+[161,167]: Ident
+[171,175]: Ident
+[178,180]: Tuple

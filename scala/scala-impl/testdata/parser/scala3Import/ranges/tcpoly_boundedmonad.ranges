@@ -30,6 +30,8 @@
 [83,84]: Ident
 [87,96]: ValDef
 [90,96]: Function
+[90,91]: Ident
+[95,96]: Ident
 [99,108]: AppliedTypeTree
 [99,105]: Ident
 [106,107]: Ident
@@ -67,12 +69,18 @@
 [240,246]: Ident
 [264,281]: ValDef
 [267,281]: Function
+[267,268]: Ident
+[272,281]: AppliedTypeTree
+[272,278]: Ident
+[279,280]: Ident
 [284,293]: AppliedTypeTree
 [284,290]: Ident
 [291,292]: Ident
 [297,335]: DefDef
 [308,323]: ValDef
 [311,323]: Function
+[311,312]: Ident
+[316,323]: Ident
 [326,335]: AppliedTypeTree
 [326,332]: Ident
 [333,334]: Ident
@@ -98,6 +106,8 @@
 [422,423]: Ident
 [426,435]: ValDef
 [429,435]: Function
+[429,430]: Ident
+[434,435]: Ident
 [438,444]: AppliedTypeTree
 [438,441]: Ident
 [442,443]: Ident
@@ -139,6 +149,10 @@
 [596,602]: Ident
 [620,637]: ValDef
 [623,637]: Function
+[623,624]: Ident
+[628,637]: AppliedTypeTree
+[628,634]: Ident
+[635,636]: Ident
 [640,649]: AppliedTypeTree
 [640,646]: Ident
 [647,648]: Ident
@@ -149,6 +163,8 @@
 [674,729]: DefDef
 [685,700]: ValDef
 [688,700]: Function
+[688,689]: Ident
+[693,700]: Ident
 [703,709]: AppliedTypeTree
 [703,706]: Ident
 [707,708]: Ident

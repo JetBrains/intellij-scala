@@ -35,6 +35,16 @@
 [163,163]: TypeTree
 [166,238]: Match
 [166,197]: Parens
+[167,196]: Apply
+[167,185]: Select
+[167,180]: Select
+[167,168]: Ident
+[186,195]: Function
+[186,186]: ValDef
+[186,186]: TypeTree
+[186,195]: Select
+[186,189]: Select
+[186,187]: Ident
 [205,222]: CaseDef
 [210,217]: Apply
 [210,214]: Ident
@@ -47,6 +57,10 @@
 [236,237]: Ident
 [246,283]: If
 [249,257]: Parens
+[250,256]: InfixOp
+[250,251]: Ident
+[252,254]: Ident
+[255,256]: Ident
 [258,259]: Ident
 [265,283]: Apply
 [265,280]: Select

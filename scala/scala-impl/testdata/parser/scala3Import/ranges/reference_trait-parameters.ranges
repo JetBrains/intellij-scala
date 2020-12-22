@@ -9,6 +9,10 @@
 [37,68]: DefDef
 [44,44]: TypeTree
 [47,68]: InterpolatedString
+[49,67]: Thicket
+[49,62]: Literal
+[63,67]: Ident
+[67,67]: Literal
 [72,158]: TypeDef
 [101,156]: Template
 [101,101]: DefDef
@@ -17,6 +21,10 @@
 [114,156]: DefDef
 [130,130]: TypeTree
 [133,156]: InterpolatedString
+[135,155]: Thicket
+[135,150]: Literal
+[151,155]: Ident
+[155,155]: Literal
 [160,210]: TypeDef
 [176,208]: Template
 [176,176]: DefDef

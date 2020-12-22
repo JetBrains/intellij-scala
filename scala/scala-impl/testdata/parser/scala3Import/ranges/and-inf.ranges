@@ -36,6 +36,13 @@
 [90,113]: AppliedTypeTree
 [90,96]: Ident
 [97,112]: InfixOp
+[97,103]: AppliedTypeTree
+[97,100]: Ident
+[101,102]: Ident
+[104,105]: Ident
+[106,112]: AppliedTypeTree
+[106,109]: Ident
+[110,111]: Ident
 [116,119]: Ident
 [122,138]: ValDef
 [129,130]: Ident
@@ -53,6 +60,13 @@
 [168,191]: AppliedTypeTree
 [168,174]: Ident
 [175,190]: InfixOp
+[175,181]: AppliedTypeTree
+[175,178]: Ident
+[179,180]: Ident
+[182,183]: Ident
+[184,190]: AppliedTypeTree
+[184,187]: Ident
+[188,189]: Ident
 [194,203]: Apply
 [194,197]: Ident
 [198,199]: Ident

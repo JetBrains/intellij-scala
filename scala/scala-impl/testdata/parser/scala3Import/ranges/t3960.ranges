@@ -38,3 +38,8 @@
 [126,127]: TypeBoundsTree
 [131,132]: Ident
 [135,145]: InfixOp
+[135,140]: Apply
+[135,137]: Ident
+[138,139]: Ident
+[141,143]: Ident
+[144,145]: Number

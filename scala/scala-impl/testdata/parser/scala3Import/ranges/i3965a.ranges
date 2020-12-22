@@ -62,6 +62,7 @@
 [274,321]: TypeBoundsTree
 [277,321]: AppliedTypeTree
 [277,277]: TypedSplice
+[277,277]: TypeTree[TypeRef
 [277,289]: AppliedTypeTree
 [277,286]: Ident
 [287,288]: Ident
@@ -74,6 +75,10 @@
 [318,319]: Ident
 [323,335]: TypeDef
 [325,335]: ContextBounds
+[325,325]: TypeBoundsTree
+[325,335]: AppliedTypeTree
+[327,335]: Ident
+[335,335]: Ident
 [337,346]: ValDef
 [341,346]: AppliedTypeTree
 [341,343]: Ident

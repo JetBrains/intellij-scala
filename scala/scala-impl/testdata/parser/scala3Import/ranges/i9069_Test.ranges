@@ -15,3 +15,11 @@
 [63,119]: TypeApply
 [63,69]: Ident
 [70,118]: InfixOp
+[70,94]: Select
+[70,76]: Ident
+[95,98]: Ident
+[99,118]: Tuple
+[100,112]: SingletonTypeTree
+[100,107]: Select
+[100,103]: Ident
+[114,117]: Ident

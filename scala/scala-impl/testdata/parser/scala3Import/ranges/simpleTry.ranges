@@ -5,3 +5,14 @@
 [15,15]: DefDef
 [15,15]: TypeTree
 [15,80]: ParsedTry
+[19,20]: Number
+[29,61]: Match
+[35,57]: CaseDef
+[40,52]: Typed
+[40,41]: Ident
+[43,52]: Ident
+[53,57]: Block
+[56,57]: Number
+[70,80]: Apply
+[70,77]: Ident
+[78,79]: Number

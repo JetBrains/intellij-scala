@@ -5,9 +5,14 @@
 [17,17]: DefDef
 [17,17]: TypeTree
 [17,47]: ModuleDef
+[38,47]: Template
+[38,38]: DefDef
+[38,38]: TypeTree
+[38,47]: Ident
 [52,75]: DefDef
 [61,61]: TypeTree
 [64,75]: Throw
+[70,75]: Ident
 [80,167]: DefDef
 [90,100]: ValDef
 [93,100]: ByNameTypeTree
@@ -15,3 +20,12 @@
 [103,107]: Ident
 [110,167]: Block
 [120,161]: ParsedTry
+[124,129]: Block
+[126,127]: Ident
+[136,161]: Match
+[138,159]: CaseDef
+[143,156]: Typed
+[143,144]: Ident
+[146,156]: SingletonTypeTree
+[146,151]: Ident
+[157,159]: Block

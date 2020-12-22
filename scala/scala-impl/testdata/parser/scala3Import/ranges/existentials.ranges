@@ -23,6 +23,10 @@
 [241,257]: ValDef
 [251,251]: TypeTree
 [254,257]: PostfixOp
+[254,255]: Ident
+[255,255]: Ident
 [260,276]: DefDef
 [270,270]: TypeTree
 [273,276]: PostfixOp
+[273,274]: Ident
+[274,274]: Ident

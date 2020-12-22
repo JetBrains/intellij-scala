@@ -1,3 +1,17 @@
 [0,278]: PackageDef
 [0,0]: Ident
 [0,278]: ModuleDef
+[147,276]: Template
+[147,147]: DefDef
+[147,147]: TypeTree
+[147,276]: DefDef
+[192,200]: AppliedTypeTree
+[192,197]: Ident
+[198,199]: TypeBoundsTree
+[203,276]: Block
+[209,272]: Match
+[209,222]: Literal
+[237,266]: CaseDef
+[242,243]: Ident
+[244,266]: Block
+[255,266]: Ident

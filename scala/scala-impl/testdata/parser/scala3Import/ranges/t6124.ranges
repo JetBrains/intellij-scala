@@ -10,6 +10,9 @@
 [34,62]: DefDef
 [41,45]: Ident
 [48,62]: InfixOp
+[48,54]: Literal
+[55,56]: Ident
+[57,62]: Number
 [84,100]: DefDef
 [89,89]: TypeTree
 [92,100]: Literal

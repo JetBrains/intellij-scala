@@ -9,3 +9,7 @@
 [44,44]: DefDef
 [44,44]: TypeTree
 [44,72]: ModuleDef
+[69,72]: Template
+[69,69]: DefDef
+[69,69]: TypeTree
+[69,72]: Ident

@@ -22,6 +22,9 @@
 [66,67]: Ident
 [67,67]: TypeTree
 [71,80]: ModuleDef
+[71,71]: Template
+[71,71]: DefDef
+[71,71]: TypeTree
 [82,124]: ValDef
 [93,104]: AppliedTypeTree
 [93,99]: Select
@@ -51,6 +54,8 @@
 [189,206]: DefDef
 [190,205]: ValDef
 [194,205]: Function
+[194,195]: Ident
+[199,205]: Ident
 [205,205]: TypeTree
 [210,272]: DefDef
 [219,223]: ValDef
@@ -77,6 +82,10 @@
 [314,323]: Select
 [314,318]: Ident
 [324,334]: Function
+[324,324]: ValDef
+[324,324]: TypeTree
+[324,334]: Select
+[324,325]: Ident
 [336,376]: ValDef
 [349,363]: AppliedTypeTree
 [349,358]: Select

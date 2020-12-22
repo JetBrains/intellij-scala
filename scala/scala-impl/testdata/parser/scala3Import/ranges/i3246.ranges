@@ -24,3 +24,6 @@
 [92,105]: ValDef
 [97,97]: TypeTree
 [100,105]: PostfixOp
+[100,103]: Select
+[100,101]: Ident
+[103,103]: Ident

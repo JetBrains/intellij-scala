@@ -1,3 +1,17 @@
 [0,58]: PackageDef
 [0,0]: Ident
 [0,58]: ModuleDef
+[16,56]: Template
+[16,16]: DefDef
+[16,16]: TypeTree
+[16,44]: DefDef
+[29,30]: TypeDef
+[29,29]: TypeBoundsTree
+[31,31]: TypeTree
+[34,44]: TypeApply
+[34,41]: Ident
+[42,43]: Ident
+[48,56]: TypeApply
+[48,49]: Ident
+[50,55]: SingletonTypeTree
+[50,55]: Literal

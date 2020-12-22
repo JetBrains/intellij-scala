@@ -17,6 +17,7 @@
 [71,84]: ValDef
 [74,84]: AppliedTypeTree
 [74,74]: TypedSplice
+[74,74]: TypeTree[TypeRef
 [74,75]: Ident
 [81,84]: Ident
 [88,92]: Ident

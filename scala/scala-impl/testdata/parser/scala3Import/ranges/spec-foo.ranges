@@ -11,3 +11,6 @@
 [28,29]: Number
 [31,32]: Number
 [36,43]: InfixOp
+[36,37]: Number
+[38,40]: Ident
+[41,43]: Ident

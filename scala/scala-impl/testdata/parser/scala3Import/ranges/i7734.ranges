@@ -7,6 +7,8 @@
 [10,16]: Ident
 [18,25]: ValDef
 [21,25]: PostfixOp
+[21,24]: Ident
+[24,24]: Ident
 [25,25]: TypeTree
 [35,52]: AppliedTypeTree
 [35,49]: Select
@@ -14,3 +16,11 @@
 [35,39]: Ident
 [50,51]: Ident
 [59,79]: ModuleDef
+[74,79]: Template
+[74,74]: DefDef
+[74,74]: TypeTree
+[74,79]: Apply
+[74,75]: Select
+[74,75]: New
+[74,75]: Ident
+[76,78]: Number

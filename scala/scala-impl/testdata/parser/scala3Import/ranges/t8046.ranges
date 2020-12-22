@@ -28,6 +28,9 @@
 [87,87]: TypeBoundsTree
 [88,88]: TypeTree
 [98,106]: Parens
+[99,105]: Function
+[99,100]: Ident
+[104,105]: Ident
 [129,184]: TypeDef
 [149,182]: Template
 [149,149]: DefDef

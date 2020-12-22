@@ -6,3 +6,12 @@
 [22,22]: TypeTree
 [22,26]: Ident
 [83,209]: ModuleDef
+[111,207]: Template
+[111,111]: DefDef
+[111,111]: TypeTree
+[111,114]: Ident
+[120,124]: Ident
+[193,207]: Apply
+[193,200]: Ident
+[201,206]: Select
+[201,202]: Number

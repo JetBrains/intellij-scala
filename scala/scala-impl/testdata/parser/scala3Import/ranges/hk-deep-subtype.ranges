@@ -54,6 +54,7 @@
 [307,331]: TypeBoundsTree
 [310,331]: AppliedTypeTree
 [310,310]: TypedSplice
+[310,310]: TypeTree[TypeRef
 [310,315]: AppliedTypeTree
 [310,312]: Ident
 [313,314]: Ident

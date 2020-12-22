@@ -17,8 +17,12 @@
 [95,95]: TypeTree
 [95,174]: Match
 [95,110]: Parens
+[96,109]: Typed
+[96,100]: Literal
+[103,109]: Ident
 [127,148]: CaseDef
 [132,145]: Parens
+[133,144]: Ident
 [146,148]: Block
 [157,166]: CaseDef
 [162,163]: Ident

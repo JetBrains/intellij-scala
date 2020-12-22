@@ -11,11 +11,15 @@
 [28,31]: Ident
 [34,45]: ValDef
 [38,45]: PostfixOp
+[38,44]: Ident
+[44,44]: Ident
 [46,46]: TypeTree
 [49,51]: Tuple
 [54,77]: DefDef
 [60,71]: ValDef
 [64,71]: PostfixOp
+[64,70]: Ident
+[70,70]: Ident
 [72,72]: TypeTree
 [75,77]: Tuple
 [81,84]: Apply

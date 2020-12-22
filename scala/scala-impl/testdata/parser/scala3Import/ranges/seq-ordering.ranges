@@ -23,6 +23,8 @@
 [114,139]: AppliedTypeTree
 [114,124]: Ident
 [125,138]: Tuple
+[126,129]: Ident
+[131,137]: Ident
 [144,170]: TypeApply
 [144,145]: Ident
 [146,169]: AppliedTypeTree

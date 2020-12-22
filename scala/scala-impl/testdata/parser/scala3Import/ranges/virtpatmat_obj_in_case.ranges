@@ -10,3 +10,6 @@
 [39,40]: Ident
 [41,52]: Block
 [44,52]: ModuleDef
+[44,44]: Template
+[44,44]: DefDef
+[44,44]: TypeTree

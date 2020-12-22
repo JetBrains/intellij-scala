@@ -16,6 +16,8 @@
 [106,112]: Ident
 [113,122]: Block
 [116,122]: Tuple
+[117,118]: Ident
+[120,121]: Ident
 [159,178]: CaseDef
 [164,173]: Typed
 [164,165]: Ident
@@ -30,6 +32,8 @@
 [203,207]: Literal
 [257,293]: ValDef
 [265,281]: Tuple
+[266,272]: Ident
+[274,280]: Ident
 [284,293]: Apply
 [284,285]: Ident
 [286,292]: Literal
@@ -38,6 +42,10 @@
 [326,326]: DefDef
 [326,326]: TypeTree
 [338,366]: ModuleDef
+[363,366]: Template
+[363,363]: DefDef
+[363,363]: TypeTree
+[363,366]: Ident
 [369,412]: TypeDef
 [384,412]: Template
 [384,400]: DefDef
@@ -64,6 +72,11 @@
 [510,512]: Ident
 [514,530]: Block
 [517,530]: InfixOp
+[517,526]: Apply
+[517,522]: Ident
+[523,525]: Ident
+[527,528]: Ident
+[529,530]: Number
 [538,580]: ValDef
 [554,554]: TypeTree
 [557,580]: Apply

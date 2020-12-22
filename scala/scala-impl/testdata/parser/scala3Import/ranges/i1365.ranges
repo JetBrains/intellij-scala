@@ -50,6 +50,11 @@
 [213,223]: Select
 [213,214]: Ident
 [232,241]: Function
+[232,233]: ValDef
+[232,232]: TypeTree
+[237,241]: Apply
+[237,238]: Ident
+[239,240]: Ident
 [249,350]: DefDef
 [255,270]: ValDef
 [260,270]: AppliedTypeTree
@@ -70,3 +75,8 @@
 [317,327]: Select
 [317,318]: Ident
 [336,345]: Function
+[336,337]: ValDef
+[336,336]: TypeTree
+[341,345]: Apply
+[341,342]: Ident
+[343,344]: Ident

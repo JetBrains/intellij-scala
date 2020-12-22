@@ -9,6 +9,7 @@
 [26,47]: ValDef
 [32,47]: AppliedTypeTree
 [32,32]: TypedSplice
+[32,32]: TypeTree[TypeRef
 [32,35]: Ident
 [41,47]: Ident
 [53,73]: DefDef

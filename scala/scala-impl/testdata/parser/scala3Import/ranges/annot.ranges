@@ -36,6 +36,7 @@
 [678,737]: ValDef
 [685,731]: AppliedTypeTree
 [685,685]: TypedSplice
+[685,685]: TypeTree[TypeRef
 [685,705]: Annotated
 [685,686]: Ident
 [687,705]: Apply
@@ -71,6 +72,9 @@
 [825,869]: ValDef
 [832,863]: Annotated
 [832,844]: Parens
+[833,843]: Function
+[833,836]: Ident
+[840,843]: Ident
 [845,863]: Apply
 [845,863]: Select
 [845,863]: New

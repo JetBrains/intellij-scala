@@ -20,6 +20,12 @@
 [400,400]: TypeTree
 [403,522]: Match
 [403,415]: Parens
+[404,414]: Annotated
+[404,405]: Ident
+[407,414]: Apply
+[407,414]: Select
+[407,414]: New
+[408,414]: Ident
 [428,442]: CaseDef
 [433,437]: Ident
 [438,442]: Block

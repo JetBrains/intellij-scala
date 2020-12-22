@@ -1,6 +1,22 @@
 [1,195]: PackageDef
 [1,1]: Ident
 [1,106]: ModuleDef
+[26,104]: Template
+[26,26]: DefDef
+[26,26]: TypeTree
+[26,104]: TypeDef
+[42,100]: Template
+[42,61]: DefDef
+[43,60]: ValDef
+[47,60]: Ident
+[60,60]: TypeTree
+[68,100]: DefDef
+[76,86]: ValDef
+[82,86]: PostfixOp
+[82,85]: Ident
+[85,85]: Ident
+[87,87]: TypeTree
+[90,100]: Literal
 [107,195]: PackageDef
 [115,120]: Ident
 [125,193]: TypeDef
@@ -8,3 +24,4 @@
 [139,139]: DefDef
 [139,139]: TypeTree
 [139,148]: InterpolatedString
+[143,147]: Literal

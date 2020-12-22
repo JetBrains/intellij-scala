@@ -15,3 +15,6 @@
 [55,55]: TypeTree
 [55,56]: Ident
 [61,70]: PatDef
+[66,67]: Ident
+[69,70]: Ident
+[70,70]: TypeTree

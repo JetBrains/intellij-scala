@@ -13,5 +13,9 @@
 [74,74]: TypeTree
 [81,109]: If
 [84,94]: Parens
+[85,93]: InfixOp
+[85,88]: Ident
+[89,91]: Ident
+[92,93]: Number
 [95,99]: This
 [105,109]: Ident

@@ -38,7 +38,13 @@
 [179,181]: Ident
 [182,186]: This
 [192,202]: InfixOp
+[192,193]: Ident
+[194,197]: Ident
+[198,202]: This
 [207,217]: InfixOp
+[207,208]: Ident
+[209,212]: Ident
+[213,217]: Ident
 [222,230]: Select
 [222,223]: Ident
 [239,456]: TypeDef

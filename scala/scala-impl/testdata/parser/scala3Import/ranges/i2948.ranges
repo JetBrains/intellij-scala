@@ -12,8 +12,16 @@
 [69,94]: AppliedTypeTree
 [69,79]: Ident
 [80,93]: Tuple
+[81,87]: Ident
+[89,92]: Ident
 [97,101]: Literal
 [104,171]: ValDef
 [119,156]: Tuple
+[120,138]: AppliedTypeTree
+[120,130]: Ident
+[131,137]: Ident
+[140,155]: AppliedTypeTree
+[140,150]: Ident
+[151,154]: Ident
 [159,171]: Select
 [159,165]: Ident

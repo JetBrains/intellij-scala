@@ -10,6 +10,10 @@
 [60,60]: TypeBoundsTree
 [63,99]: TypeDef
 [89,99]: ContextBounds
+[89,89]: TypeBoundsTree
+[89,99]: AppliedTypeTree
+[91,99]: Ident
+[99,99]: Ident
 [99,99]: TypeTree
 [107,132]: DefDef
 [113,121]: ValDef
@@ -50,3 +54,8 @@
 [293,298]: Ident
 [299,300]: Ident
 [302,314]: InfixOp
+[302,303]: Ident
+[304,305]: Ident
+[306,314]: Apply
+[306,311]: Ident
+[312,313]: Ident

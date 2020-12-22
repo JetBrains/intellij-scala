@@ -25,3 +25,15 @@
 [121,123]: Ident
 [128,129]: Ident
 [133,200]: ModuleDef
+[149,188]: Template
+[149,149]: DefDef
+[149,149]: TypeTree
+[149,175]: ValDef
+[159,168]: AppliedTypeTree
+[159,163]: Ident
+[164,167]: Ident
+[171,175]: Literal
+[179,188]: InfixOp
+[179,183]: Ident
+[184,186]: Ident
+[187,188]: Number

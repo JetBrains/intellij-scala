@@ -19,6 +19,17 @@
 [52,53]: Ident
 [58,64]: Ident
 [68,124]: ExtMethods
+[79,80]: TypeDef
+[79,79]: TypeBoundsTree
+[82,88]: ValDef
+[87,88]: Ident
+[94,122]: DefDef
+[106,115]: ValDef
+[111,115]: AppliedTypeTree
+[111,112]: Ident
+[113,114]: Ident
+[116,116]: TypeTree
+[119,122]: Ident
 [126,167]: DefDef
 [132,141]: ValDef
 [135,141]: AppliedTypeTree

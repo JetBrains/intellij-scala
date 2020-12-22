@@ -14,6 +14,10 @@
 [54,54]: DefDef
 [54,54]: TypeTree
 [65,79]: Function
+[66,72]: ValDef
+[69,72]: Ident
+[77,79]: Block
+[77,79]: Ident
 [87,162]: DefDef
 [111,115]: Ident
 [118,162]: Block
@@ -24,3 +28,7 @@
 [133,133]: DefDef
 [133,133]: TypeTree
 [144,158]: Function
+[145,151]: ValDef
+[148,151]: Ident
+[156,158]: Block
+[156,158]: Ident

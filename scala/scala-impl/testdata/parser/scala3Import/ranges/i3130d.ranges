@@ -23,3 +23,14 @@
 [87,89]: New
 [87,89]: Ident
 [92,132]: ModuleDef
+[108,130]: Template
+[108,108]: DefDef
+[108,108]: TypeTree
+[108,130]: Apply
+[108,128]: Select
+[108,122]: Select
+[108,116]: Apply
+[112,113]: Select
+[112,113]: New
+[112,113]: Ident
+[114,115]: Number

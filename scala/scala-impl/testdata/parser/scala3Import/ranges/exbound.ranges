@@ -10,3 +10,11 @@
 [15,16]: Ident
 [17,17]: TypeTree
 [25,61]: ModuleDef
+[41,59]: Template
+[41,41]: DefDef
+[41,41]: TypeTree
+[41,59]: ValDef
+[48,52]: AppliedTypeTree
+[48,49]: Ident
+[50,51]: TypeBoundsTree
+[55,59]: Literal

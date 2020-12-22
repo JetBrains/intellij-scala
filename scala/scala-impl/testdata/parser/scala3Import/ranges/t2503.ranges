@@ -46,3 +46,17 @@
 [281,282]: Ident
 [284,291]: Ident
 [300,363]: ModuleDef
+[320,361]: Template
+[320,320]: DefDef
+[320,320]: TypeTree
+[320,323]: Ident
+[328,361]: New
+[328,361]: Template
+[332,332]: DefDef
+[332,332]: TypeTree
+[332,348]: AppliedTypeTree
+[332,343]: Ident
+[344,347]: Ident
+[354,361]: AppliedTypeTree
+[354,356]: Ident
+[357,360]: Ident

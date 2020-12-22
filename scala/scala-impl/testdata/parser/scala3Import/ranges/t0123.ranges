@@ -5,3 +5,6 @@
 [11,11]: DefDef
 [11,11]: TypeTree
 [11,20]: PatDef
+[15,16]: Number
+[16,16]: TypeTree
+[19,20]: Number

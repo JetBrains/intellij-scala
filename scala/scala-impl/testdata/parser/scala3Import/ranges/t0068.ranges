@@ -8,5 +8,16 @@
 [19,19]: TypeTree
 [22,71]: Block
 [28,53]: PatDef
+[32,39]: Parens
+[33,38]: InfixOp
+[33,34]: Ident
+[34,36]: Ident
+[36,38]: Ident
+[39,39]: TypeTree
+[42,53]: Apply
+[42,46]: Ident
+[47,48]: Number
+[49,50]: Number
+[51,52]: Number
 [59,66]: Select
 [59,61]: Ident

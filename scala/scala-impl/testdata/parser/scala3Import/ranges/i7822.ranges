@@ -19,6 +19,11 @@
 [57,61]: Ident
 [64,90]: TypeDef
 [75,90]: InfixOp
+[75,81]: Select
+[75,77]: Ident
+[82,83]: Ident
+[84,90]: Select
+[84,86]: Ident
 [93,168]: DefDef
 [102,109]: ValDef
 [105,109]: Ident
@@ -28,6 +33,11 @@
 [120,124]: Ident
 [127,153]: TypeDef
 [138,153]: InfixOp
+[138,144]: Select
+[138,140]: Ident
+[145,146]: Ident
+[147,153]: Select
+[147,149]: Ident
 [158,168]: Apply
 [158,161]: Ident
 [162,164]: Ident

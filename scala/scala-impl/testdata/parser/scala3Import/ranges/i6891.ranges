@@ -3,5 +3,11 @@
 [0,45]: DefDef
 [8,33]: ValDef
 [13,33]: PolyFunction
+[14,15]: TypeDef
+[14,14]: TypeBoundsTree
+[20,33]: Function
+[21,25]: ValDef
+[24,25]: Ident
+[30,33]: Ident
 [36,39]: Ident
 [42,45]: Ident

@@ -42,6 +42,7 @@
 [208,228]: Apply
 [208,220]: Select
 [208,214]: Parens
+[209,213]: This
 [221,227]: Apply
 [221,224]: Ident
 [225,226]: Number

@@ -5,6 +5,10 @@
 [9,39]: DefDef
 [10,38]: ValDef
 [16,38]: Function
+[16,29]: AppliedTypeTree
+[16,21]: Ident
+[22,28]: Ident
+[34,38]: Ident
 [38,38]: TypeTree
 [44,105]: DefDef
 [60,79]: ValDef

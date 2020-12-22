@@ -5,3 +5,9 @@
 [15,15]: DefDef
 [15,15]: TypeTree
 [15,38]: PatDef
+[19,29]: Bind
+[23,29]: Apply
+[23,27]: Ident
+[29,29]: TypeTree
+[32,38]: Apply
+[32,36]: Ident

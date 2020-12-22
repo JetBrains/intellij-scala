@@ -14,6 +14,9 @@
 [92,119]: CaseDef
 [97,100]: Ident
 [104,113]: InfixOp
+[104,107]: Ident
+[108,110]: Ident
+[111,113]: Number
 [114,119]: Block
 [117,119]: Number
 [130,142]: CaseDef

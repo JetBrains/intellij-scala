@@ -10,6 +10,9 @@
 [43,65]: DefDef
 [48,48]: TypeTree
 [51,65]: Function
+[52,59]: ValDef
+[55,59]: Ident
+[64,65]: Ident
 [69,132]: TypeDef
 [83,130]: Template
 [83,83]: DefDef
@@ -19,3 +22,5 @@
 [108,130]: DefDef
 [119,119]: TypeTree
 [122,130]: PrefixOp
+[122,123]: Ident
+[123,130]: Ident

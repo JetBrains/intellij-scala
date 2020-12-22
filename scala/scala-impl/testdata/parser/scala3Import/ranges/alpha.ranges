@@ -3,3 +3,14 @@
 [0,28]: Import
 [7,17]: Ident
 [30,104]: ModuleDef
+[47,102]: Template
+[47,47]: DefDef
+[47,47]: TypeTree
+[47,60]: DefDef
+[56,56]: TypeTree
+[59,60]: Number
+[64,102]: DefDef
+[91,97]: ValDef
+[94,97]: Ident
+[98,98]: TypeTree
+[101,102]: Number

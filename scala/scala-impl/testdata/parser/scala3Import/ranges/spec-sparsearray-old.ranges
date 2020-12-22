@@ -11,6 +11,10 @@
 [98,133]: DefDef
 [99,132]: TypeDef
 [118,132]: ContextBounds
+[118,118]: TypeBoundsTree
+[118,132]: AppliedTypeTree
+[119,132]: Ident
+[132,132]: Ident
 [132,132]: TypeTree
 [142,171]: AppliedTypeTree
 [142,164]: Select
@@ -42,6 +46,10 @@
 [306,307]: Ident
 [313,360]: If
 [315,324]: Parens
+[316,323]: InfixOp
+[316,319]: Ident
+[320,321]: Ident
+[322,323]: Number
 [325,329]: Ident
 [335,360]: Apply
 [335,339]: Ident
@@ -61,6 +69,8 @@
 [678,733]: DefDef
 [689,703]: ValDef
 [695,703]: Tuple
+[696,699]: Ident
+[701,702]: Ident
 [706,727]: SingletonTypeTree
 [706,722]: This
 [730,733]: Ident
@@ -68,6 +78,8 @@
 [750,768]: AppliedTypeTree
 [750,758]: Ident
 [759,767]: Tuple
+[760,763]: Ident
+[765,766]: Ident
 [771,774]: Ident
 [777,832]: DefDef
 [793,802]: ValDef
@@ -80,6 +92,8 @@
 [884,906]: AppliedTypeTree
 [884,896]: Ident
 [897,905]: Tuple
+[898,901]: Ident
+[903,904]: Ident
 [909,923]: AppliedTypeTree
 [909,920]: Ident
 [921,922]: Ident
@@ -89,6 +103,8 @@
 [981,996]: Select
 [981,988]: Ident
 [997,1005]: Tuple
+[998,1001]: Ident
+[1003,1004]: Ident
 [1007,1021]: AppliedTypeTree
 [1007,1018]: Ident
 [1019,1020]: Ident

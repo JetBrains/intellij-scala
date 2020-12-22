@@ -11,6 +11,9 @@
 [37,50]: Ident
 [53,59]: Ident
 [62,67]: InfixOp
+[62,63]: Ident
+[64,65]: Ident
+[66,67]: Number
 [70,139]: DefDef
 [76,85]: ValDef
 [79,85]: Ident
@@ -20,6 +23,9 @@
 [115,122]: Ident
 [125,131]: Ident
 [134,139]: InfixOp
+[134,135]: Ident
+[136,137]: Ident
+[138,139]: Number
 [143,187]: DefDef
 [157,157]: TypeTree
 [160,187]: Apply

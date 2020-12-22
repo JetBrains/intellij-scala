@@ -14,9 +14,14 @@
 [74,74]: TypeBoundsTree
 [77,89]: ValDef
 [80,89]: Function
+[80,81]: Ident
+[85,89]: AppliedTypeTree
+[85,86]: Ident
+[87,88]: Ident
 [90,90]: TypeTree
 [93,117]: If
 [96,102]: Parens
+[97,101]: Literal
 [103,107]: This
 [113,117]: Apply
 [113,114]: Ident

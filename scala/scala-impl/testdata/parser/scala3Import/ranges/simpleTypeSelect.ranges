@@ -7,3 +7,10 @@
 [13,21]: TypeDef
 [13,13]: TypeBoundsTree
 [24,62]: ModuleDef
+[40,60]: Template
+[40,40]: DefDef
+[40,40]: TypeTree
+[40,60]: ValDef
+[47,54]: Select
+[47,50]: Ident
+[57,60]: Ident

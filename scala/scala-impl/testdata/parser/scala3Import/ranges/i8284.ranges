@@ -4,6 +4,10 @@
 [0,0]: TypeBoundsTree
 [9,51]: ValDef
 [23,45]: Parens
+[24,44]: RefinedTypeTree
+[24,27]: Ident
+[30,42]: TypeDef
+[39,42]: Ident
 [48,51]: Ident
 [53,84]: TypeDef
 [64,84]: RefinedTypeTree

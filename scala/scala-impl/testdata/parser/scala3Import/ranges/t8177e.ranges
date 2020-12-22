@@ -18,3 +18,12 @@
 [85,85]: TypeTree
 [88,90]: Tuple
 [93,127]: ModuleDef
+[110,125]: Template
+[110,110]: DefDef
+[110,110]: TypeTree
+[110,116]: AppliedTypeTree
+[110,111]: Ident
+[112,115]: Ident
+[119,125]: Apply
+[119,122]: Ident
+[123,124]: Number

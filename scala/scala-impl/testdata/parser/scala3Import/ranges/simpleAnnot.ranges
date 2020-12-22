@@ -22,6 +22,12 @@
 [98,101]: Ident
 [102,102]: TypeTree
 [105,117]: Parens
+[106,116]: Annotated
+[106,107]: Ident
+[110,116]: Apply
+[110,116]: Select
+[110,116]: New
+[111,116]: Ident
 [121,168]: TypeDef
 [141,168]: Template
 [141,141]: DefDef

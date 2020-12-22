@@ -13,3 +13,8 @@
 [51,71]: DefDef
 [59,59]: TypeTree
 [62,71]: InfixOp
+[62,65]: Select
+[62,63]: Ident
+[66,67]: Ident
+[68,71]: Select
+[68,69]: Ident

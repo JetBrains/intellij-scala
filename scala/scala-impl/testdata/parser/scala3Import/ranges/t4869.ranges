@@ -23,3 +23,8 @@
 [119,141]: DefDef
 [124,124]: TypeTree
 [127,141]: InfixOp
+[127,135]: Apply
+[127,131]: Ident
+[132,134]: Literal
+[136,139]: Ident
+[140,141]: Ident

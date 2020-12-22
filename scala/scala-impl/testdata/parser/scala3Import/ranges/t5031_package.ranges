@@ -1,3 +1,8 @@
 [0,40]: PackageDef
 [0,0]: Ident
 [0,40]: ModuleDef
+[25,38]: Template
+[25,25]: DefDef
+[25,25]: TypeTree
+[25,38]: TypeDef
+[35,38]: Ident

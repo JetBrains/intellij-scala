@@ -7,4 +7,6 @@
 [13,37]: DefDef
 [21,31]: ValDef
 [24,31]: PostfixOp
+[24,30]: Ident
+[30,30]: Ident
 [34,37]: Ident

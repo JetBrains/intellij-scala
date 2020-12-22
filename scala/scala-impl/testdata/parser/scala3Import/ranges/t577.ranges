@@ -14,11 +14,13 @@
 [76,84]: Select
 [76,79]: Ident
 [87,97]: Parens
+[88,96]: Ident
 [101,122]: Assign
 [101,114]: Select
 [101,109]: Select
 [101,104]: Ident
 [117,122]: Parens
+[118,121]: Ident
 [127,146]: DefDef
 [142,146]: Ident
 [154,405]: TypeDef

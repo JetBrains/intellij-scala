@@ -8,5 +8,11 @@
 [19,19]: TypeTree
 [22,77]: Block
 [28,63]: ModuleDef
+[45,56]: Template
+[45,45]: DefDef
+[45,45]: TypeTree
+[45,56]: DefDef
+[52,52]: TypeTree
+[55,56]: Number
 [68,73]: Select
 [68,69]: Ident

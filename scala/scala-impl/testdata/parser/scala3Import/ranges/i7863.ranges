@@ -16,6 +16,8 @@
 [36,37]: TypeDef
 [36,36]: TypeBoundsTree
 [43,51]: Function
+[43,46]: Ident
+[50,51]: Ident
 [54,63]: ValDef
 [59,59]: TypeTree
 [62,63]: Ident

@@ -20,6 +20,7 @@
 [95,125]: RefinedTypeTree
 [95,103]: AppliedTypeTree
 [95,95]: TypedSplice
+[95,95]: TypeTree[TypeRef
 [95,96]: Ident
 [102,103]: Ident
 [106,112]: TypeDef
@@ -31,6 +32,7 @@
 [144,174]: RefinedTypeTree
 [144,152]: AppliedTypeTree
 [144,144]: TypedSplice
+[144,144]: TypeTree[TypeRef
 [144,145]: Ident
 [151,152]: Ident
 [155,161]: TypeDef
@@ -49,6 +51,7 @@
 [230,260]: RefinedTypeTree
 [230,238]: AppliedTypeTree
 [230,230]: TypedSplice
+[230,230]: TypeTree[TypeRef
 [230,231]: Ident
 [237,238]: Ident
 [241,247]: TypeDef
@@ -60,6 +63,7 @@
 [279,309]: RefinedTypeTree
 [279,287]: AppliedTypeTree
 [279,279]: TypedSplice
+[279,279]: TypeTree[TypeRef
 [279,280]: Ident
 [286,287]: Ident
 [290,296]: TypeDef

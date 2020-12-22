@@ -20,3 +20,12 @@
 [122,148]: Assign
 [122,123]: Ident
 [126,148]: InfixOp
+[126,139]: InfixOp
+[126,131]: InfixOp
+[126,127]: Ident
+[128,129]: Ident
+[130,131]: Number
+[132,133]: Ident
+[134,139]: Ident
+[140,141]: Ident
+[142,148]: Ident

@@ -33,3 +33,15 @@
 [206,209]: Ident
 [216,218]: Literal
 [222,287]: ModuleDef
+[237,285]: Template
+[237,237]: DefDef
+[237,237]: TypeTree
+[237,285]: DefDef
+[243,258]: ValDef
+[251,258]: ByNameTypeTree
+[254,258]: Ident
+[262,269]: Ident
+[272,285]: Apply
+[272,281]: Select
+[272,275]: Ident
+[282,284]: Literal
