@@ -15,6 +15,7 @@
 
 package org.jetbrains.plugins.scala.lang.resolve
 
+import com.intellij.openapi.editor.CaretState
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.CharsetToolkit
@@ -22,10 +23,13 @@ import com.intellij.psi.PsiReference
 import org.jetbrains.plugins.scala.TypecheckerTests
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.junit.Assert._
 import org.junit.experimental.categories.Category
-import java.io.File
 
+import java.io.File
 import scala.annotation.nowarn
+import scala.collection.mutable
+import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 
 /**
  * @author ilyas
@@ -40,6 +44,15 @@ abstract class ScalaResolveTestCase extends ScalaLightPlatformCodeInsightTestCas
   protected def findReferenceAtCaret(): PsiReference =
     getFileAdapter.findReferenceAt(getEditorAdapter.getCaretModel.getOffset)
 
+  protected def findAllReferencesAtCarets: Seq[PsiReference] = {
+    val carets = getEditorAdapter.getCaretModel.getAllCarets.asScala.toSeq
+    assertTrue("no carets found", carets.nonEmpty)
+    carets.map { caret =>
+      val offset = caret.getOffset
+      getFileAdapter.findReferenceAt(offset)
+    }
+  }
+
   override def setUp(): Unit = {
     super.setUp()
 
@@ -52,12 +65,42 @@ abstract class ScalaResolveTestCase extends ScalaLightPlatformCodeInsightTestCas
     val filePath = folderPath + File.separator + fileName + extention
     val ioFile = new File(filePath)
     val fileTextRaw = FileUtil.loadFile(ioFile, CharsetToolkit.UTF8)
-    val fileText = StringUtil.convertLineSeparators(fileTextRaw)
-    val offset = fileText.indexOf("<ref>")
-    val fileTextWithoutRef = fileText.replace("<ref>", "")
-    configureFromFileTextAdapter(ioFile.getName, fileTextWithoutRef)
-    if (offset != -1) {
-      getEditor.getCaretModel.moveToOffset(offset)
+    val fileTextOriginal = StringUtil.convertLineSeparators(fileTextRaw)
+
+    setupEditor(ioFile.getName, fileTextOriginal)
+  }
+
+  private val RefTag = "<ref>"
+
+  private def setupEditor(fileName: String, fileTextWithRefs: String): String = {
+    val caretOffsets = mutable.ArrayBuffer.empty[Int]
+
+    var fileText = fileTextWithRefs
+    var offset = fileText.indexOf(RefTag)
+    while (offset != -1) {
+      caretOffsets += offset
+
+      fileText = fileText.substring(0, offset) + fileText.substring(offset + RefTag.length, fileText.length)
+      offset = fileText.indexOf(RefTag)
     }
+
+    configureFromFileTextAdapter(fileName, fileText)
+
+    val caretModel = getEditor.getCaretModel
+    caretOffsets.toSeq match {
+      case Seq()       =>
+      case Seq(offset) => caretModel.moveToOffset(offset)
+      case offsets     =>
+        val caretStates = offsets.map { o =>
+          val position = getEditor.offsetToLogicalPosition(o)
+          new CaretState(position, null, null)
+        }
+        caretModel.setCaretsAndSelections(caretStates.asJava)
+
+        val carets = caretModel.getAllCarets.asScala
+        assertTrue(carets.size == caretStates.length)
+    }
+
+    fileText
   }
 }

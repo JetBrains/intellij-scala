@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.QuotedLiteralImplBase
 import org.jetbrains.plugins.scala.lang.psi.types._
 
+// todo: move to "literals" subpackage, but check usages
 /**
  * @author Alexander Podkhalyuzin
  *         Date: 22.02.2008

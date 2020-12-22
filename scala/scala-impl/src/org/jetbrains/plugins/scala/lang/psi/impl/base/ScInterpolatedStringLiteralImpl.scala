@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.util.CommonQualifiedNames.StringContextCanoni
 
 import scala.meta.intellij.QuasiquoteInferUtil._
 
+// todo: move to "literals" subpackage, but check usages
 final class ScInterpolatedStringLiteralImpl(node: ASTNode,
                                             override val toString: String)
   extends ScStringLiteralImpl(node, toString)
@@ -70,15 +71,17 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
       isValidIdentifier(methodName) =>
       val quote = endQuote
 
-      val constructorParameters = getStringParts.map(quote + _ + quote)
+      // NOTE: we don't need to actually extract all the string parts content during resolve,
+      // some dummy placeholders is enough
+      val constructorParameters = getStringPartsDummies.map(quote + _ + quote)
         .commaSeparated(Model.Parentheses)
 
-      val methodParameters = getInjections.map { injection =>
-        injection -> injection.getText
-      }.map {
-        case (_: ScReferenceExpression, text) if !isValidIdentifier(text) => "???"
-        case (_, text) => text
-      }.commaSeparated(Model.Parentheses)
+      val injectionsValues = getInjections.map { injection =>
+        val text = injection.getText
+        val isInvalidRef = injection.is[ScReferenceExpression] && !isValidIdentifier(text)
+        if (isInvalidRef) "???" else text
+      }
+      val methodParameters = injectionsValues.commaSeparated(Model.Parentheses)
 
       val expression =
         try {
