@@ -30,6 +30,13 @@ object ScSelfInvocationAnnotator extends ElementAnnotator[ScSelfInvocation] {
         ScalaBundle.message("annotator.error.constructor.has.malformed.definition"))
     }
 
+    resolved match {
+      case Seq(ScConstructorResolveResult(constr)) =>
+        if (constr.getTextRange.getStartOffset > element.getTextRange.getStartOffset) {
+          holder.createErrorAnnotation(element.thisElement, ScalaBundle.message("called.constructor.definition.must.precede"))
+        }
+      case _ =>
+    }
 
     resolved match {
       case Seq() =>

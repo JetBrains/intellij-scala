@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.element.ScSelfInvocationAnnotator
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
@@ -151,6 +152,19 @@ class SelfInvocationAnnotatorTest extends SimpleTestCase {
       """.stripMargin
     assertMessages(messages(code))(
       Error("this", "Constructor has malformed definition")
+    )
+  }
+
+  def testAuxiliaryConstructorComesAfterSelfInvocation(): Unit = {
+    val code =
+      """
+        |class Test {
+        |  def this(i: Int) = this(true)
+        |  def this(b: Boolean) = this()
+        |}
+      """.stripMargin
+    assertMessages(messages(code))(
+      Error("this", ScalaBundle.message("called.constructor.definition.must.precede"))
     )
   }
 

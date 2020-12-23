@@ -11,15 +11,7 @@ object ScConstrBlockAnnotator extends ElementAnnotator[ScConstrBlock] {
   override def annotate(element: ScConstrBlock, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     element.selfInvocation match {
-      case Some(invocation) =>
-        invocation.bind match {
-          case AuxiliaryConstructor(constr) =>
-            //check order
-            if (constr.getTextRange.getStartOffset > element.getTextRange.getStartOffset) {
-              holder.createErrorAnnotation(element, ScalaBundle.message("called.constructor.definition.must.precede"))
-            }
-          case _ =>
-        }
+      case Some(_) =>
       case None =>
         element.getContainingFile match {
           case file: ScalaFile if !file.isCompiled =>
