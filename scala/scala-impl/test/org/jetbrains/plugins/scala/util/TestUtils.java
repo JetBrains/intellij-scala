@@ -20,6 +20,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.testFramework.ThreadTracker;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.Console;
 import org.junit.Assert;
 
@@ -102,7 +103,11 @@ public class TestUtils {
   }
 
   public static List<String> readInput(String filePath) throws IOException {
-    String content = new String(FileUtil.loadFileText(new File(filePath)));
+    return readInput(new File(filePath), null);
+  }
+
+  public static List<String> readInput(File file, @Nullable String encoding) throws IOException {
+    String content = new String(FileUtil.loadFileText(file, encoding));
     Assert.assertNotNull(content);
 
     List<String> input = new ArrayList<>();

@@ -1,12 +1,13 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.base
+package org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers
 
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers.{ScalaStringParser, ScLiteralEscaperBase}
+import org.jetbrains.plugins.scala.macroAnnotations.Measure
 
-// todo: move to literals/escapers subpackage
-class ScLiteralEscaper(val literal: ScStringLiteral) extends ScLiteralEscaperBase[ScStringLiteral](literal) {
+//@todo handle Scala3 case: unicode escape sequences are dropped in raw literals
+class ScLiteralRawEscaper(val literal: ScStringLiteral) extends ScLiteralEscaperBase[ScStringLiteral](literal) {
 
+  @Measure
   override def decode(rangeInsideHost: TextRange, outChars: java.lang.StringBuilder): Boolean = {
     TextRange.assertProperRange(rangeInsideHost)
 
@@ -15,14 +16,11 @@ class ScLiteralEscaper(val literal: ScStringLiteral) extends ScLiteralEscaperBas
 
     val parser = new ScalaStringParser(
       outSourceOffsets,
-      isRaw = false
+      isRaw = true
     )
     parser.parse(chars, outChars)
   }
 
-  override def isOneLine: Boolean =
-    myHost.getValue match {
-      case str: String => str.indexOf('\n') < 0
-      case _ => false
-    }
+  /** @see [[org.jetbrains.plugins.scala.lang.psi.impl.base.PassthroughLiteralEscaper.isOneLine]] */
+  override def isOneLine: Boolean = true
 }

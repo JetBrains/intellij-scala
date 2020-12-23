@@ -31,12 +31,12 @@ class ScalaLanguageInjectorTest extends AbstractLanguageInjectionTestCase {
 
   def testCommentInjection_SingleLine(): Unit = {
     val body =
-      s"""//language=JSON
-         |"{$Caret \\\"a\\\" : 42 }"
-         |""".stripMargin
+      raw"""//language=JSON
+           |"{$Caret \"a\" : 42 }"
+           |""".stripMargin
 
     val expected =
-      """{ \"a\" : 42 }"""
+      """{ "a" : 42 }"""
 
     doTestInBody(JsonLangId, body, expected)
   }
@@ -126,9 +126,9 @@ class ScalaLanguageInjectorTest extends AbstractLanguageInjectionTestCase {
 
   def testInterpolationInjection_SingleLine(): Unit = {
     val body =
-      s"""json"{$Caret \\\"a\\\" : 42 }""""
+      raw"""json"{$Caret \"a\" : 42 }""""
     val expected =
-      """{ \"a\" : 42 }"""
+      """{ "a" : 42 }"""
     doTestInBody(JsonLangId, body, expected)
   }
 
@@ -178,12 +178,12 @@ class ScalaLanguageInjectorTest extends AbstractLanguageInjectionTestCase {
 
   def testAnnotationInjection_SingleLine(): Unit = {
     val body =
-      s"""def foo(@Language("JSON") param: String): Unit = ???
-         |foo("{$Caret \\\"a\\\" : 42 }")
-         |""".stripMargin
+      raw"""def foo(@Language("JSON") param: String): Unit = ???
+           |foo("{$Caret \"a\" : 42 }")
+           |""".stripMargin
 
     val expected =
-      """{ \"a\" : 42 }"""
+      """{ "a" : 42 }"""
 
     doAnnotationTestInBody(JsonLangId, body, expected)
   }

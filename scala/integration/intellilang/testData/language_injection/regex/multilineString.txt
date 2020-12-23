@@ -1,0 +1,40 @@
+###
+"""(\d+)-(\d+) [abc]""".r
+---
+(\d+)-(\d+) [abc]
+###
+"""\d \\d \\\d""".r
+---
+\d \\d \\\d
+### unicode sequences
+"""\u005cd \u005cd \u0025 \uuuu0025""".r
+---
+\d \d % %
+### invalid unicode sequences
+"""\d \u \d \u002+ \d \d""".r
+---
+\d \u \d \u002+ \d \d
+### don't handle as unicode sequences
+"""\\u0025 \\\\u0025 \\ u0025 \\\\ u0025""".r
+---
+\\u0025 \\\\u0025 \\ u0025 \\\\ u0025
+### dangling backslash 1
+"""\\\""".r
+---
+\\\
+### dangling backslash 2
+"""\""".r
+---
+\
+### new lines
+"""a\nb\nc\nd""".r
+---
+a\nb\nc\nd
+### backslashes
+"""\\ \\\\""".r
+-----
+\\ \\\\
+### quotes
+"""""""".r
+-----
+""

@@ -1,13 +1,18 @@
 package org.jetbrains.plugins.scala.injection
 
-import com.intellij.openapi.editor.Editor
+import com.intellij.lang.Language
+import com.intellij.lang.injection.InjectedLanguageManager
+import com.intellij.openapi.editor.{Caret, Editor}
 import com.intellij.openapi.module.Module
-import com.intellij.psi.PsiFile
+import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.testFramework.fixtures.InjectionTestFixture
 import org.intellij.plugins.intelliLang
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.injection.AbstractLanguageInjectionTestCase._
+import org.jetbrains.plugins.scala.lang.psi.api.ScFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
+import org.junit.Assert
 import org.junit.Assert._
 
 import scala.jdk.CollectionConverters._
@@ -37,8 +42,30 @@ abstract class AbstractLanguageInjectionTestCase extends ScalaLightCodeInsightFi
     intelliLangConfig.getAdvancedConfiguration.setLanguageAnnotation(LanguageAnnotationName)
   }
 
-  protected def assertInjectedLangAtCaret(lang: String): Unit = {
-    injectionTestFixture.assertInjectedLangAtCaret(lang)
+  /**
+   * Copy of [[injectionTestFixture.assertInjectedLangAtCaret]] with a small alteration:<br>
+   * if string contains single invalid token it's language can be empty (with id "") so we need to check for parent as well.
+   * For example injected regex in "\\".r literal contains single token
+   * `PsiElement(INVALID_CHARACTER_ESCAPE_TOKEN)('\\')` but it's parent is `RegExpCharImpl: <\\>`
+   */
+  private def assertInjectedLangAtCaret(expectedLanguage: String): Unit = {
+    val injectedElement = injectionTestFixture.getInjectedElement
+    if (expectedLanguage != null) {
+      val language = injectedElementLanguage(injectedElement)
+      assertNotNull(s"injection of '$expectedLanguage' expected", injectedElement)
+      assertEquals(expectedLanguage, language.getID)
+    }
+    else {
+      assertNull(injectedElement)
+    }
+  }
+
+  private def injectedElementLanguage(injectedElement: PsiElement) = {
+    val language = injectedElement.getLanguage match {
+      case Language.ANY => injectedElement.getParent.getLanguage
+      case lang         => lang
+    }
+    language
   }
 
   protected def assertInjected(injectedFileText: String, injectedLangId: String): Unit = {
@@ -53,7 +80,7 @@ abstract class AbstractLanguageInjectionTestCase extends ScalaLightCodeInsightFi
   protected def assertInjected(expectedInjection: ExpectedInjection): Unit = {
     val ExpectedInjection(text, langId) = expectedInjection
 
-    val foundInjections = injectionTestFixture.getAllInjections.asScala.map(pairToTuple).toBuffer
+    val foundInjections = injectionTestFixture.getAllInjections.asScala.map(pairToTuple)
     if (foundInjections.isEmpty)
       fail("no language injections found")
 
@@ -63,13 +90,15 @@ abstract class AbstractLanguageInjectionTestCase extends ScalaLightCodeInsightFi
         fail(s"no injection with language `$langId` found")
       case head :: Nil =>
         val injectedFile: PsiFile = head._2
-        val fileText = injectedFile.getText
-        assertEquals("injected file text is not equal to the expected one", text, fileText)
+        val manager = InjectedLanguageManager.getInstance(getProject)
+        // e.g. if we have a string literal `"\\d\u0025\\u0025".r` the actual regex text will be `\d%\u0025`
+        val fileTextUnescaped = manager.getUnescapedText(injectedFile)
+        assertEquals("injected file unescaped text is not equal to the expected one", text, fileTextUnescaped)
       case _ =>
         sameLanguageInjections.find(_._2.textMatches(text)) match {
           case None =>
             val remains = foundInjections
-              .map { case (psi, injectedFile) => s"'${psi.getText}' -> '${injectedFile.getLanguage.getID}'" }
+              .map { case (psi, injectedFile) => s"${injectedFile.getLanguage.getID}: '${psi.getText}'" }
               .mkString("\n")
 
             fail(
@@ -113,6 +142,8 @@ abstract class AbstractLanguageInjectionTestCase extends ScalaLightCodeInsightFi
 
   protected def doTest(languageId: String, text: String, injectedFileExpectedText: String): Unit = {
     myFixture.configureByText("A.scala", text)
+    val file = injectionTestFixture.getTopLevelFile
+    ensureCaretIsSet(myFixture.getEditor, file.asInstanceOf[ScFile])
     assertInjected(injectedFileExpectedText, languageId)
   }
 }
@@ -121,4 +152,27 @@ object AbstractLanguageInjectionTestCase {
   private def pairToTuple[A, B](pair: kotlin.Pair[A, B]): (A, B) = (pair.getFirst, pair.getSecond)
 
   case class ExpectedInjection(injectedFileText: String, injectedLangId: String)
+
+  private def ensureCaretIsSet(editor: Editor, file: ScFile): Unit = {
+    val caret = editor.getCaretModel.getCurrentCaret
+    // test text didn't contain <caret> tag (assuming that it will not be placed at 0 offset in this case)
+    val isDefaultCaret = caret.getOffset == 0
+    if (isDefaultCaret) {
+      placeCaretInsideFirstStringLiteral(caret, file)
+    }
+  }
+
+  private def placeCaretInsideFirstStringLiteral(caret: Caret, file: ScFile): Unit = {
+    val stringLiterals: Seq[ScStringLiteral] = findAllStringLiterals(file.asInstanceOf[ScFile])
+    stringLiterals match {
+      case Seq(literal) =>
+        val contentOffset = literal.contentRange.getStartOffset
+        caret.moveToOffset(contentOffset)
+      case Seq() => Assert.fail("string literal not found")
+      case _     => Assert.fail("several string literals were found, use <caret> tag to point to required literal")
+    }
+  }
+
+  private def findAllStringLiterals(scalaFile: ScFile): Seq[ScStringLiteral] =
+    scalaFile.breadthFirst().filterByType[ScStringLiteral].toSeq
 }

@@ -14,6 +14,7 @@ import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.QuotedLiteralImplBase
+import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers.{ScLiteralEscaper, ScLiteralRawEscaper}
 import org.jetbrains.plugins.scala.lang.psi.types._
 
 // todo: move to "literals" subpackage, but check usages
@@ -65,7 +66,7 @@ class ScStringLiteralImpl(node: ASTNode,
   }
 
   override def createLiteralTextEscaper: LiteralTextEscaper[ScStringLiteral] =
-    if (isMultiLineString) new PassthroughLiteralEscaper(this)
+    if (isMultiLineString) new ScLiteralRawEscaper(this)
     else new ScLiteralEscaper(this)
 
   override def getReferences: Array[PsiReference] = PsiReferenceService.getService.getContributedReferences(this)

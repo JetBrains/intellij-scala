@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package injection
 
 import java.{util => ju}
-
 import com.intellij.lang.Language
 import com.intellij.lang.injection.{MultiHostInjector, MultiHostRegistrar}
 import com.intellij.openapi.application.ApplicationManager
@@ -22,13 +21,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPatternPrefix
-import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
-import scala.collection.{immutable, mutable}
+import scala.collection.mutable
 
 final class ScalaLanguageInjector extends MultiHostInjector {
 
@@ -40,7 +38,6 @@ final class ScalaLanguageInjector extends MultiHostInjector {
 
   // TODO: rethink, add caching
   //  this adds significant typing performance overhead if file contains many injected literals
-  @Measure
   override def getLanguagesToInject(registrar: MultiHostRegistrar, host: PsiElement): Unit =  {
     val support = LanguageInjectionSupport.EP_NAME.findExtension(classOf[ScalaLanguageInjectionSupport])
     if (support == null)
@@ -113,21 +110,21 @@ final class ScalaLanguageInjector extends MultiHostInjector {
       }
   }
 
-  @Measure
   private def injectInInterpolation(host: PsiElement, literals: Seq[ScLiteral],
                                     mapping: ju.Map[String, String])
                                    (implicit support: ScalaLanguageInjectionSupport,
-                                    registrar: MultiHostRegistrar): Boolean =
-    literals.filterByType[ScInterpolatedStringLiteral with PsiLanguageInjectionHost] match {
-      case interpolatedLiterals if interpolatedLiterals.size == literals.size =>
-        val languages = for {
-          interpolated <- interpolatedLiterals
-          reference <- interpolated.reference
+                                    registrar: MultiHostRegistrar): Boolean = {
+    val interpolatedLiterals = literals.filterByType[ScInterpolatedStringLiteral with PsiLanguageInjectionHost]
+    if (interpolatedLiterals.size == literals.size) {
+      val languages = for {
+        interpolated <- interpolatedLiterals
+        reference <- interpolated.reference
 
-          langId = mapping.get(reference.getText)
-          if StringUtils.isNotBlank(langId)
-        } yield langId
+        langId = mapping.get(reference.getText)
+        if StringUtils.isNotBlank(langId)
+      } yield langId
 
+      if (languages.nonEmpty) {
         languages.toSet.toList match {
           case langId :: Nil =>
             val language = Language.findLanguageByID(langId)
@@ -136,12 +133,13 @@ final class ScalaLanguageInjector extends MultiHostInjector {
             }
           case _ => // only inject if all interpolations in string concatenation have same language ids
         }
-
         true
-      case _ => false
+      }
+      else false
     }
+    else false
+  }
 
-  @Measure
   private def injectUsingComment(host: PsiElement, literals: Seq[StringLiteral])
                                 (implicit support: ScalaLanguageInjectionSupport,
                                  registrar: MultiHostRegistrar): Boolean = {
@@ -203,7 +201,6 @@ final class ScalaLanguageInjector extends MultiHostInjector {
       case _                                        => false
     }
 
-  @Measure
   private def injectUsingAnnotation(host: ScExpression, literals: Seq[StringLiteral],
                                     annotationQualifiedName: String)
                                    (implicit support: ScalaLanguageInjectionSupport,
@@ -238,7 +235,6 @@ final class ScalaLanguageInjector extends MultiHostInjector {
   }
 
   // FIXME: looks like this does not work for now, see SCL-15463
-  @Measure
   private def injectUsingIntention(host: PsiElement, literals: Seq[StringLiteral])
                                   (implicit support: ScalaLanguageInjectionSupport,
                                    registrar: MultiHostRegistrar): Boolean = {
@@ -285,7 +281,6 @@ object ScalaLanguageInjector {
   @inline
   private def isEdt: Boolean = ApplicationManager.getApplication.isDispatchThread
 
-  @Measure
   private def injectUsingPatterns(host: PsiElement, literals: Seq[StringLiteral],
                                   injections: ju.List[BaseInjection])
                                  (implicit support: ScalaLanguageInjectionSupport,
