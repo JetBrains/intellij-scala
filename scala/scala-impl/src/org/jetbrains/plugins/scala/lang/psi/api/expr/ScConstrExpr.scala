@@ -4,4 +4,6 @@ package psi
 package api
 package expr
 
-trait ScConstrExpr extends ScExpression
+trait ScConstrExpr extends ScExpression {
+  def selfInvocation: Option[ScSelfInvocation]
+}

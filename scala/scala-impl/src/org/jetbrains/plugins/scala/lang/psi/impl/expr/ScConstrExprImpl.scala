@@ -5,7 +5,7 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScConstrExpr
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScConstrExpr, ScSelfInvocation}
 
 /**
   * @author Alexander Podkhalyuzin
@@ -14,4 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScConstrExpr
 final class ScConstrExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScConstrExpr {
 
   override def toString: String = "ConstructorExpression"
+
+  override def selfInvocation: Option[ScSelfInvocation] = findChild(classOf[ScSelfInvocation])
 }
