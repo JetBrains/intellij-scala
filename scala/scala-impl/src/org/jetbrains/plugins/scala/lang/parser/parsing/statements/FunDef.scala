@@ -6,7 +6,7 @@ package statements
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Block, ExprInIndentationRegion}
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Block, ConstrExprInIndentationRegion, ExprInIndentationRegion}
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.{FunTypeParamClause, ParamClauses, Params}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 
@@ -114,22 +114,26 @@ object FunDef extends ParsingRule {
       case ScalaTokenTypes.kTHIS =>
         builder.advanceLexer() //Ate this
         ParamClauses parse(builder, expectAtLeastOneClause = true)
+
+        // just parse a type annotation here, even though it is not correct
+        if (builder.getTokenType == ScalaTokenTypes.tCOLON) {
+          val wrongTypeMarker = builder.mark()
+          builder.advanceLexer() // Ate :
+          Type.parse(builder)
+          wrongTypeMarker error ScalaBundle.message("auxiliary.constructor.may.not.have.a.type.annotation")
+        }
+
         builder.getTokenType match {
           case ScalaTokenTypes.tASSIGN =>
             builder.advanceLexer() //Ate =
-            if (!ConstrExpr()) {
+            if (!ConstrExprInIndentationRegion()) {
               builder error ScalaBundle.message("wrong.constr.expression")
             }
             faultMarker.drop()
             true
           case _ =>
-            if (builder.twoNewlinesBeforeCurrentToken) {
-              builder error ScalaBundle.message("constr.block.expected")
-              faultMarker.drop()
-              return true
-            }
-            if (!ConstrBlock()) {
-              builder error ScalaBundle.message("constr.block.expected")
+            if (builder.twoNewlinesBeforeCurrentToken || !ConstrBlock()) {
+              builder error ScalaBundle.message("auxiliary.constructor.definition.expected")
             }
             faultMarker.drop()
             true

@@ -23,15 +23,12 @@ object SelfInvocation extends ParsingRule {
       case ScalaTokenTypes.kTHIS =>
         builder.advanceLexer() //Ate this
       case _ =>
-        //error moved to ScalaAnnotator to differentiate with compiled files
         selfMarker.drop()
-        return true
+        return false
     }
-    if (!ArgumentExprs()) {
-      selfMarker.done(ScalaElementType.SELF_INVOCATION)
-      return true
+    if (ArgumentExprs()) {
+      while (!builder.newlineBeforeCurrentToken && ArgumentExprs()) {}
     }
-    while (!builder.newlineBeforeCurrentToken && ArgumentExprs()) {}
     selfMarker.done(ScalaElementType.SELF_INVOCATION)
     true
   }

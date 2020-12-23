@@ -4,13 +4,16 @@ package parser
 package parsing
 package expressions
 
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.statements.ConstrBlock
 
 import scala.annotation.tailrec
 
 trait ExprInIndentationRegion extends ParsingRule {
   protected def exprKind: ParsingRule
+  protected def blockType: IElementType = ScalaElementType.BLOCK
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     if (!builder.isScala3 || builder.getTokenType == ScalaTokenTypes.tLBRACE) {
@@ -49,7 +52,7 @@ trait ExprInIndentationRegion extends ParsingRule {
       }
 
       if (parseRest(isBlock = false)) {
-        blockMarker.done(ScalaElementType.BLOCK)
+        blockMarker.done(blockType)
       } else {
         blockMarker.drop()
       }
@@ -65,4 +68,29 @@ object ExprInIndentationRegion extends ExprInIndentationRegion {
 
 object PostfixExprInIndentationRegion extends ExprInIndentationRegion {
   override protected def exprKind: ParsingRule = PostfixExpr
+}
+
+object ConstrExprInIndentationRegion extends ExprInIndentationRegion {
+  override protected def exprKind: ParsingRule = new ParsingRule {
+    override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+      if (builder.getTokenType == ScalaTokenTypes.tLBRACE) ConstrBlock()
+      else {
+        val marker = builder.mark()
+        // We expect a self invocation as first statement/sole expression,
+        // but if there is no self invocation,
+        // don't fail and just parse an expression.
+        // This will make the following parse
+        //
+        //   def this() = ???
+        if (SelfInvocation() || Expr()) {
+          marker.done(ScalaElementType.CONSTR_EXPR)
+          true
+        } else {
+          marker.drop()
+          false
+        }
+      }
+    }
+  }
+  override protected def blockType: IElementType = ScalaElementType.CONSTR_BLOCK
 }

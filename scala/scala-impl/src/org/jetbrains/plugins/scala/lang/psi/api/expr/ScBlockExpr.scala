@@ -5,6 +5,7 @@ package api
 package expr
 
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 
@@ -15,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 
 trait ScBlockExpr extends ScExpression with ScBlock with ScControlFlowOwner {
   def asSimpleExpression: Option[ScExpression] = Some(exprs) collect {
-    case Seq(it) if !it.isInstanceOf[ScBlockExpr] => it
+    case Seq(it) if !it.is[ScBlockExpr] => it
   }
 
   def caseClauses: Option[ScCaseClauses] = findChild(classOf[ScCaseClauses])
