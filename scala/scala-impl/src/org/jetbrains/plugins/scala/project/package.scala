@@ -175,8 +175,20 @@ package object project {
     def scalaCompilerSettings: ScalaCompilerSettings =
       compilerConfiguration.getSettingsForModule(module)
 
-    def configureScalaCompilerSettingsFrom(source: String, options: collection.Seq[String]): Unit =
-      compilerConfiguration.configureSettingsForModule(module, source, ScalaCompilerSettings.fromOptions(options))
+    def configureScalaCompilerSettingsFrom(source: String, options: collection.Seq[String]): Unit = {
+      val projectDirectory = module.getProject.getBasePath
+      compilerConfiguration.configureSettingsForModule(module, source, ScalaCompilerSettings.fromOptions(withPathsRelativeTo(projectDirectory, options.toSeq)))
+    }
+
+    private def withPathsRelativeTo(baseDirectory: String, options: Seq[String]): Seq[String] = options.map { option =>
+      if (option.startsWith("-Xplugin:")) {
+        val path = option.substring(9)
+        val absolutePath = if (new File(path).isAbsolute) path else new File(baseDirectory, path).getPath;
+        "-Xplugin:" + absolutePath
+      } else {
+        option
+      }
+    }
 
     private def compilerConfiguration =
       ScalaCompilerConfiguration.instanceIn(module.getProject)
