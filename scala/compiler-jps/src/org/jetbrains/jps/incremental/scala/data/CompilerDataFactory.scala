@@ -139,7 +139,7 @@ object CompilerDataFactory
 
   // https://youtrack.jetbrains.com/issue/SCL-17519
   private def semanticDbOptionsFor(configuredOptions: Seq[String], chunk: ModuleChunk): Seq[String] = {
-    val hasSemanticDbPlugin = configuredOptions.exists(option => option.startsWith("-Xplugin:") && option.contains("semanticdb-scalac"))
+    val hasSemanticDbPlugin = configuredOptions.exists(s => s.startsWith("-Xplugin:") && s.contains("semanticdb-scalac") && new File(s.substring(9)).exists())
     val hasSourceRootOption = configuredOptions.exists(_.startsWith("-P:semanticdb:sourceroot:"))
 
     if (hasSemanticDbPlugin && !hasSourceRootOption) {
