@@ -41,7 +41,7 @@ public final class ScalaLexer extends Lexer {
   private static final int MASK = 0x3F;
   private static final int XML_SHIFT = 6;
 
-  private static final java.util.regex.Pattern NEW_LINE_IN_XML_PATTERN = java.util.regex.Pattern.compile("\\s*\n(\n|\\s)*");
+  private static final java.util.regex.Pattern LINE_BREAK_PATTERN = java.util.regex.Pattern.compile("\\s*\n\\s*");
 
   private final ScalaPlainLexer myScalaPlainLexer;
   private final ScalaXmlLexer myXmlLexer;
@@ -251,10 +251,7 @@ public final class ScalaLexer extends Lexer {
         myCurrentLexer.start(getBufferSequence(), myTokenEnd, myBufferEnd, myCurrentLexer.getState());
       }
     }
-    else if ((type == XmlTokenType.XML_REAL_WHITE_SPACE ||
-        type == XmlTokenType.XML_WHITE_SPACE ||
-        type == XmlTokenType.TAG_WHITE_SPACE) &&
-        NEW_LINE_IN_XML_PATTERN.matcher(tokenText).matches()) {
+    else if ((isXmlWhiteSpaceToken(type) || type == TokenType.WHITE_SPACE)  && isLineBreakText(tokenText)) {
       type = ScalaTokenTypes.tWHITE_SPACE_IN_LINE;
     }
     else if (type == null || !(type instanceof IXmlLeafElementType) && !ScalaXmlLexer.ScalaXmlTokenType$.MODULE$.unapply(type)) {
@@ -270,6 +267,16 @@ public final class ScalaLexer extends Lexer {
     //we have to advance current lexer only if we didn't start scala plain lexer on this iteration
     //because of wrong behaviour of the latter ScalaPlainLexer
     myCurrentLexer.advance();
+  }
+
+  private static boolean isXmlWhiteSpaceToken(IElementType type) {
+    return type == XmlTokenType.XML_REAL_WHITE_SPACE ||
+        //type == XmlTokenType.XML_WHITE_SPACE || // it actually refers to com.intellij.psi.TokenType.WHITE_SPACE
+        type == XmlTokenType.TAG_WHITE_SPACE;
+  }
+
+  private static boolean isLineBreakText(CharSequence tokenText) {
+    return LINE_BREAK_PATTERN.matcher(tokenText).matches();
   }
 
   private boolean startsWith(CharSequence chars, String prefix) {
