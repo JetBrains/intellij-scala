@@ -41,6 +41,8 @@ public final class ScalaLexer extends Lexer {
   private static final int MASK = 0x3F;
   private static final int XML_SHIFT = 6;
 
+  private static final java.util.regex.Pattern NEW_LINE_IN_XML_PATTERN = java.util.regex.Pattern.compile("\\s*\n(\n|\\s)*");
+
   private final ScalaPlainLexer myScalaPlainLexer;
   private final ScalaXmlLexer myXmlLexer;
 
@@ -252,7 +254,7 @@ public final class ScalaLexer extends Lexer {
     else if ((type == XmlTokenType.XML_REAL_WHITE_SPACE ||
         type == XmlTokenType.XML_WHITE_SPACE ||
         type == XmlTokenType.TAG_WHITE_SPACE) &&
-        tokenText.toString().matches("\\s*\n(\n|\\s)*")) {
+        NEW_LINE_IN_XML_PATTERN.matcher(tokenText).matches()) {
       type = ScalaTokenTypes.tWHITE_SPACE_IN_LINE;
     }
     else if (type == null || !(type instanceof IXmlLeafElementType) && !ScalaXmlLexer.ScalaXmlTokenType$.MODULE$.unapply(type)) {
