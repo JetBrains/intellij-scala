@@ -12,7 +12,10 @@ final class ScalaXmlLexer extends MergingLexerAdapter(
   new _XmlLexer(new __XmlLexer(null), false),
   ScalaXmlLexer.TokensToMerge
 ) {
-  override def getTokenType: IElementType = ScalaXmlLexer.ScalaXmlTokenType(super.getTokenType)
+  override def getTokenType: IElementType = {
+    val tokenType = super.getTokenType
+    ScalaXmlLexer.ScalaXmlTokenType(tokenType)
+  }
 }
 
 object ScalaXmlLexer {
