@@ -35,18 +35,17 @@ ScalaFile
               PsiElement(identifier)('Some')
           PsiErrorElement:Wrong value declaration
             <empty list>
-        PsiElement(()('(')
-        ReferenceExpression: x
-          PsiElement(identifier)('x')
-        PsiErrorElement:';' or newline expected
-          <empty list>
-        PsiElement())(')')
-        PsiErrorElement:Definition or declaration expected
-          <empty list>
-        PsiWhiteSpace(' ')
-        PsiElement(:)(':')
-        PsiWhiteSpace(' ')
-        ReferenceExpression: String
-          PsiElement(identifier)('String')
+        TypedStatement
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

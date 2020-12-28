@@ -161,8 +161,15 @@ object ParserUtils {
   }
 
 
+  /*
+   * [[Stat]] { semi [[Stat]] }
+   */
   @annotation.tailrec
-  def parseRuleInBlockOrIndentationRegion(blockIndentation: BlockIndentation, baseIndentation: Option[IndentationWidth], @Nls expectedMessage: String)(rule: => Boolean)(implicit builder: ScalaPsiBuilder): Unit = {
+  def parseRuleInBlockOrIndentationRegion(
+    blockIndentation: BlockIndentation,
+    baseIndentation: Option[IndentationWidth],
+    @Nls expectedMessage: String
+  )(rule: => Boolean)(implicit builder: ScalaPsiBuilder): Unit = {
     skipSemicolon(blockIndentation)
     blockIndentation.fromHere()
     builder.getTokenType match {
@@ -187,7 +194,8 @@ object ParserUtils {
           case _ if builder.newlineBeforeCurrentToken =>
           case _ =>
             builder.error(ErrMsg("semi.expected"))
-            builder.advanceLexer() // Ate something
+            // don't advance, we already added error, let's continue parsing following expression if we can parse it
+            //builder.advanceLexer()
         }
       case _ =>
         builder.error(expectedMessage)

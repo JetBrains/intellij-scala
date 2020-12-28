@@ -52,23 +52,20 @@ ScalaFile
         PsiErrorElement:';' or newline expected
           <empty list>
         PsiWhiteSpace(' ')
-        PsiElement(if)('if')
-        PsiWhiteSpace(' ')
-        ExpressionInParenthesis
+        IfStatement
+          PsiElement(if)('if')
+          PsiWhiteSpace(' ')
           PsiElement(()('(')
           ReferenceExpression: a
             PsiElement(identifier)('a')
           PsiElement())(')')
-        PsiErrorElement:';' or newline expected
-          <empty list>
-        PsiWhiteSpace(' ')
-        PsiElement(string content)('""')
-        PsiErrorElement:Definition or declaration expected
-          <empty list>
-        PsiWhiteSpace(' ')
-        PsiElement(else)('else')
-        PsiWhiteSpace(' ')
-        StringLiteral
-          PsiElement(string content)('" "')
+          PsiWhiteSpace(' ')
+          StringLiteral
+            PsiElement(string content)('""')
+          PsiWhiteSpace(' ')
+          PsiElement(else)('else')
+          PsiWhiteSpace(' ')
+          StringLiteral
+            PsiElement(string content)('" "')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

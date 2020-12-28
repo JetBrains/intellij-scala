@@ -1,0 +1,40 @@
+42 42 42 42 42 42 42 42
+-----
+ScalaFile
+  IntegerLiteral
+    PsiElement(integer)('42')
+  PsiErrorElement:';' or newline expected
+    <empty list>
+  PsiWhiteSpace(' ')
+  IntegerLiteral
+    PsiElement(integer)('42')
+  PsiErrorElement:';' or newline expected
+    <empty list>
+  PsiWhiteSpace(' ')
+  IntegerLiteral
+    PsiElement(integer)('42')
+  PsiErrorElement:';' or newline expected
+    <empty list>
+  PsiWhiteSpace(' ')
+  IntegerLiteral
+    PsiElement(integer)('42')
+  PsiErrorElement:';' or newline expected
+    <empty list>
+  PsiWhiteSpace(' ')
+  IntegerLiteral
+    PsiElement(integer)('42')
+  PsiErrorElement:';' or newline expected
+    <empty list>
+  PsiWhiteSpace(' ')
+  IntegerLiteral
+    PsiElement(integer)('42')
+  PsiErrorElement:';' or newline expected
+    <empty list>
+  PsiWhiteSpace(' ')
+  IntegerLiteral
+    PsiElement(integer)('42')
+  PsiErrorElement:';' or newline expected
+    <empty list>
+  PsiWhiteSpace(' ')
+  IntegerLiteral
+    PsiElement(integer)('42')

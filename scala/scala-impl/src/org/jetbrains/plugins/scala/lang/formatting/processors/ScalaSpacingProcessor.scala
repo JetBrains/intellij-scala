@@ -731,8 +731,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           case b@(_: ScEarlyDefinitions | _: ScTemplateBody) =>
             val p = PsiTreeUtil.getParentOfType(b, classOf[ScTemplateDefinition])
             val setting = (leftPsi, rightPsi) match {
-              case (_: ScFunction, _: ScValueOrVariable) | (_: ScValueOrVariable, _: ScFunction) |
-                   (_: ScTypeAlias, _: ScFunction) | (_: ScFunction, _: ScTypeAlias) =>
+              case (_: ScFunction, _: ScValueOrVariable) |
+                   (_: ScValueOrVariable, _: ScFunction) |
+                   (_: ScTypeAlias, _: ScFunction) |
+                   (_: ScFunction, _: ScTypeAlias) =>
                 if (p.isInstanceOf[ScTrait])
                   math.max(settings.BLANK_LINES_AROUND_FIELD_IN_INTERFACE, settings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE)
                 else
@@ -753,13 +755,19 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           case _: ScBlock if rightPsi.is[PsiComment] =>
           case _: ScBlock =>
             val setting = (leftPsi, rightPsi) match {
-              case (_: ScFunction, _: ScValueOrVariable) | (_: ScValueOrVariable, _: ScFunction) |
-                   (_: ScTypeAlias, _: ScFunction) | (_: ScFunction, _: ScTypeAlias) =>
+              case (_: ScFunction, _: ScValueOrVariable) |
+                   (_: ScValueOrVariable, _: ScFunction) |
+                   (_: ScTypeAlias, _: ScFunction) |
+                   (_: ScFunction, _: ScTypeAlias) =>
                 math.max(scalaSettings.BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES, scalaSettings.BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES)
-              case (_: ScFunction, _) | (_, _: ScFunction) => scalaSettings.BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES
-              case _ => scalaSettings.BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES
+              case (_: ScFunction, _) | (_, _: ScFunction) =>
+                scalaSettings.BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES
+              case _ =>
+                scalaSettings.BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES
             }
             return Spacing.createSpacing(0, 0, setting + 1, keepLineBreaks, keepBlankLinesInDeclarations)
+          case _: ScalaFile =>
+            return Spacing.createSpacing(0, 0, 1, keepLineBreaks, keepBlankLinesInDeclarations)
           case _ =>
         }
 

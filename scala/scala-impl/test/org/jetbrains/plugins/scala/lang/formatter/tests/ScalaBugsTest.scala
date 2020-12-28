@@ -8,14 +8,18 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
 
   import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotes => Quotes}
 
-  def testSCL2424(): Unit = {
-    val before =
-      """
-        |someMethod(new Something, abc, def)
-        |""".stripMargin
+  def testSCL2424(): Unit =
+    doTextTest(
+      """someMethod(new Something, abc, xyz)""",
+      """someMethod(new Something, abc, xyz)""",
+    )
 
-    doTextTest(before)
-  }
+  def testSCL2424_WithDefKeyworkd(): Unit =
+    doTextTest(
+      """someMethod(new Something, abc, def)""",
+      """someMethod(new Something, abc,
+        |def)""".stripMargin,
+    )
 
   def testSCL2425(): Unit = {
     val before =
@@ -3976,5 +3980,96 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
         |println(MyString("hello"))
         |""".stripMargin,
       repeats = 3
+    )
+
+  def testSCL18640_InTemplateBody(): Unit =
+    doTextTest(
+      """class a {
+        |  0 1 2 3 4 5
+        |  0 + 1 2 + 3 4 + 5
+        |  def baz XXX = 42
+        |  def foo XXX def bar
+        |}
+        |""".stripMargin,
+      """class a {
+        |  0
+        |  1
+        |  2
+        |  3
+        |  4
+        |  5
+        |  0 + 1
+        |  2 + 3
+        |  4 + 5
+        |
+        |  def baz
+        |
+        |  XXX = 42
+        |
+        |  def foo
+        |
+        |  XXX
+        |
+        |  def bar
+        |}
+        |""".stripMargin
+    )
+
+  def testSCL18640_InBlock(): Unit =
+    doTextTest(
+      """def foo = {
+        |  0 1 2 3 4 5
+        |  0 + 1 2 + 3 4 + 5
+        |  def baz XXX = 42
+        |  def foo XXX def bar
+        |}
+        |""".stripMargin,
+      """def foo = {
+        |  0
+        |  1
+        |  2
+        |  3
+        |  4
+        |  5
+        |  0 + 1
+        |  2 + 3
+        |  4 + 5
+        |
+        |  def baz
+        |
+        |  XXX = 42
+        |
+        |  def foo
+        |
+        |  XXX
+        |
+        |  def bar
+        |}
+        |""".stripMargin
+    )
+
+  // for worksheets
+  def testSCL18640_TopLevel(): Unit =
+    doTextTest(
+      """0 1 2 3 4 5
+        |0 + 1 2 + 3 4 + 5
+        |def baz XXX = 42
+        |def foo XXX def bar
+        |""".stripMargin,
+      """0
+        |1
+        |2
+        |3
+        |4
+        |5
+        |0 + 1
+        |2 + 3
+        |4 + 5
+        |def baz
+        |XXX = 42
+        |def foo
+        |XXX
+        |def bar
+        |""".stripMargin
     )
 }
