@@ -29,7 +29,8 @@ class VarCouldBeValInspection extends HighlightingPassInspection {
   }
 
   override def shouldProcessElement(element: PsiElement): Boolean = element match {
-    case variable: ScVariableDefinition => isLocalOrPrivate(variable)
+    case variable: ScVariableDefinition =>
+      isLocalOrPrivate(variable)
     case _ => false
   }
 
@@ -56,14 +57,6 @@ object VarCouldBeValInspection {
     override def getFamilyName: String = getText
   }
 
-  def findReferences(element: PsiElement): (Iterable[PsiElement], Iterable[PsiElement]) = {
-    val references = ReferencesSearch.search(element, element.getUseScope)
-      .findAll().asScala
-      .map(_.getElement)
-
-    references.partition(isPossiblyAssignment)
-  }
-
   private def hasNoWriteUsagesOnTheFly(element: ScBindingPattern): Boolean = {
     var hasWriteUsages = false
     var used = false
@@ -78,5 +71,13 @@ object VarCouldBeValInspection {
   private def hasNoWriteUsages(element: ScBindingPattern): Boolean = {
     val (write, read) = findReferences(element)
     read.nonEmpty && write.isEmpty
+  }
+
+  def findReferences(element: PsiElement): (Iterable[PsiElement], Iterable[PsiElement]) = {
+    val references = ReferencesSearch.search(element, element.getUseScope)
+      .findAll().asScala
+      .map(_.getElement)
+
+    references.partition(isPossiblyAssignment)
   }
 }

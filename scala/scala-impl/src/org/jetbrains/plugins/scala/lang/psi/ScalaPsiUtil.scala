@@ -1335,12 +1335,9 @@ object ScalaPsiUtil {
     Some(result)
   }
 
-  //todo: fix it
-  // This is a conservative approximation, we should really resolve the operation
-  // to differentiate self assignment from calling a method whose name happens to be an assignment operator.
   def isPossiblyAssignment(elem: PsiElement): Boolean = elem.getContext match {
     case assign: ScAssignment if assign.leftExpression == elem => true
-    case infix: ScInfixExpr if infix.isAssignmentOperator => true
+    case infix: ScInfixExpr if infix.isAssignment => true
     case ref1@ScReferenceExpression.withQualifier(`elem`) => ParserUtils.isAssignmentOperator(ref1.refName)
     case _ => false
   }

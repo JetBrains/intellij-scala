@@ -4,9 +4,11 @@ package psi
 package api
 package expr
 
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInfixElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
   * @author Alexander Podkhalyuzin
@@ -45,6 +47,13 @@ trait ScInfixExpr extends ScExpression with ScSugarCallExpr with ScInfixElement 
 
   def isAssignmentOperator: Boolean =
     ParserUtils.isAssignmentOperator(operation.getText)
+
+  def isAssignment: Boolean = isAssignmentOperator && (
+    operation.textMatches("=") ||
+      operation.multiResolveScala(incomplete = false).exists {
+        case ScalaResolveResult(element, _) => element.name + "=" == operation.refName
+      }
+  )
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitInfixExpression(this)

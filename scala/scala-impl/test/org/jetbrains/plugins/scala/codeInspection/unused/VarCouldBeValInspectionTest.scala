@@ -3,18 +3,14 @@ package codeInspection
 package unused
 
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.testFramework.EditorTestUtil
+import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.VarCouldBeValInspection
 /**
   * Created by Svyatoslav Ilinskiy on 11.07.16.
   */
 class VarCouldBeValInspectionTest extends ScalaQuickFixTestBase {
 
-  import varCouldBeValInspection.VarCouldBeValInspection
-
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[VarCouldBeValInspection]
-
-  import VarCouldBeValInspection._
 
   override protected val description: String = ScalaInspectionBundle.message("var.could.be.a.val")
 
@@ -172,6 +168,40 @@ class VarCouldBeValInspectionTest extends ScalaQuickFixTestBase {
       |   result
       | }
       |}""".stripMargin
+  )
+
+  def testCustomPlus(): Unit = checkTextHasNoErrors(
+    """class Y {
+      |  def +(any: AnyRef): this.type = this
+      |}
+      |
+      |{
+      |  var y = new Y()
+      |  y += 1
+      |}
+      |""".stripMargin
+  )
+
+  // SCL-17508
+  def testCustomPlusEq(): Unit = testQuickFix(
+    s"""class Y {
+       |  def +=(any: AnyRef): Unit = ()
+       |}
+       |
+       |{
+       |  ${START}var$END y = new Y()
+       |  y += 1
+       |}
+       |""".stripMargin,
+    """class Y {
+      |  def +=(any: AnyRef): Unit = ()
+      |}
+      |
+      |{
+      |  val y = new Y()
+      |  y += 1
+      |}
+      |""".stripMargin,
   )
 
   private def testQuickFix(text: String, expected: String): Unit =
