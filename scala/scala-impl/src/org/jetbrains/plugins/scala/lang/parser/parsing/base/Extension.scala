@@ -24,6 +24,7 @@ object Extension extends ParsingRule {
       return false
     }
 
+    val iw = builder.currentIndentationWidth
     val marker = builder.tryParseSoftKeywordWithRollbackMarker(ExtensionKeyword) match {
       case Some(marker) => marker
       case None => return false
@@ -40,6 +41,7 @@ object Extension extends ParsingRule {
 
     ExtMethods()
 
+    End(iw)
     marker.done(ScalaElementType.Extension)
     true
   }
