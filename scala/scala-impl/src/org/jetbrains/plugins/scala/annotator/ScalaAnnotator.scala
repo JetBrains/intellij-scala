@@ -425,6 +425,7 @@ object ScalaAnnotator {
       }
   }
 
+  // TODO: what is advanced highlighting? Add comment please
   def isAdvancedHighlightingEnabled(file: PsiFile): Boolean = {
     val settings = ScalaProjectSettings.getInstance(file.getProject)
     file match {

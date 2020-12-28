@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTagValue
 
+// support for "Semantic Highlighting" feature of Intellij IDEA
 final class ScalaRainbowVisitor extends RainbowVisitor {
 
   import ScalaRainbowVisitor._

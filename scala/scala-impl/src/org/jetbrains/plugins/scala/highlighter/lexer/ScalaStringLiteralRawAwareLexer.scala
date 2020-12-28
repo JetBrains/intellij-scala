@@ -20,6 +20,10 @@ abstract class ScalaStringLiteralRawAwareLexer(
     if (!isEscapeStart)
       return myOriginalLiteralToken
 
+    val isEof = myStart + 1 >= myBuffer.length()
+    if (isEof)
+      return null
+
     // handle unicode escape sequences: \u0025
     val nextChar = myBuffer.charAt(myStart + 1)
     if (nextChar == 'u')

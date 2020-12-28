@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpol
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
 
+/** see also [[ScStringLiteralAnnotator]] */
 object ScInterpolatedStringLiteralAnnotator extends ElementAnnotator[ScInterpolatedStringLiteral] {
 
   override def annotate(literal: ScInterpolatedStringLiteral, typeAware: Boolean)

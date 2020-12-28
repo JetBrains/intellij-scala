@@ -1,0 +1,10 @@
+//// invalid unicode escape
+// NOTE: to avoid false positive red code we don't currently show an error due to inconsistency of these errors in scala compiler
+// (see https://github.com/scala/bug/issues/12294)
+// we could try showing them after it's fixed
+"""\u"""
+"""\u0"""
+"""\u00"""
+"""\u002"""
+"""\u \u0 u00 \u002"""
+-----

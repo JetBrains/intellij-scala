@@ -1,0 +1,20 @@
+//// invalid escape chars
+s"\x \y \z"
+//// invalid unicode escape
+s"\u"
+s"\u0"
+s"\u00"
+s"\u002"
+s"\u \u0 \u00 \u002"
+-----
+Error((28,30),Invalid escape character)
+Error((31,33),Invalid escape character)
+Error((34,36),Invalid escape character)
+Error((68,70),Invalid unicode escape)
+Error((74,77),Invalid unicode escape)
+Error((81,85),Invalid unicode escape)
+Error((89,94),Invalid unicode escape)
+Error((98,100),Invalid unicode escape)
+Error((101,104),Invalid unicode escape)
+Error((105,109),Invalid unicode escape)
+Error((110,115),Invalid unicode escape)

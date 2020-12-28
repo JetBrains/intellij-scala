@@ -5,6 +5,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.StringEscapesTokenTypes
 import com.intellij.psi.tree.IElementType
 
+/** @see [[org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers.ScalaStringParser]] */
 class ScalaStringLiteralLexer(
   quoteChar: Char,
   originalLiteralToken: IElementType

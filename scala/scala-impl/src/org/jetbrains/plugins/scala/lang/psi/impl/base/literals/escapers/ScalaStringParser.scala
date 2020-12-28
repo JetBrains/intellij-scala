@@ -20,6 +20,7 @@ import java.util
  *              - single line raw literal: raw"42"
  *              - multiline raw literal: raw"""42"""
  *              - multiline non-interpolated literal: """42"""
+ * @see [[org.jetbrains.plugins.scala.highlighter.lexer.ScalaStringLiteralLexer]] and other lexers in same package
  */
 final class ScalaStringParser(
   sourceOffsets: Array[Int],

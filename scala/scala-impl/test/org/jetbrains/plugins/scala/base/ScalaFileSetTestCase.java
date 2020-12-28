@@ -111,13 +111,14 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
                 .replace(": " + lightFile.getName(), "");
     }
 
-    protected void runTest(@NotNull String testName,
-                           @NotNull String content,
-                           @NotNull Project project) {
+    protected void runTest(@NotNull final String testName0,
+                           @NotNull final String content0,
+                           @NotNull final Project project) {
         final List<String> input = new ArrayList<>();
 
         int separatorIndex;
         // Adding input  before -----
+        String content = content0;
         while ((separatorIndex = content.indexOf("-----")) >= 0) {
             input.add(content.substring(0, separatorIndex - 1));
             content = content.substring(separatorIndex);
@@ -143,10 +144,9 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
         assertFalse("No data found in source file", input.isEmpty());
         assertNotNull(result);
 
-        final int dotIdx = testName.indexOf('.');
-        if (dotIdx >= 0) {
-            testName = testName.substring(0, dotIdx);
-        }
+        final String testName;
+        final int dotIdx = testName0.indexOf('.');
+        testName = dotIdx >= 0 ? testName0.substring(0, dotIdx) : testName0;
 
         String temp = transform(testName, input.get(0), project);
         result = result.trim();
@@ -206,7 +206,7 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
                         convertLineSeparators(fileText),
                         getProject()
                 );
-            } catch(AssertionError error) {
+            } catch(Throwable error) {
                 // to be able to Ctrl + Click in console to nabigate to test file on failure
                 // (note, can not work with Android plugin disabled, see IDEA-257969)
                 System.err.println("### Test file: " + myTestFile.getAbsolutePath());
