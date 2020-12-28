@@ -47,7 +47,7 @@ class ScConstructorInvocationImpl(node: ASTNode)
   }
 
   override def args: Option[ScArgumentExprList] =
-    findChild(classOf[ScArgumentExprList])
+    findChild[ScArgumentExprList]
 
   override def arguments: Seq[ScArgumentExprList] =
     Seq(findChildrenByClassScala(classOf[ScArgumentExprList]).toSeq: _*)

@@ -24,7 +24,7 @@ trait ScTemplateParents extends ScalaPsiElement {
 
   def allTypeElements: Seq[ScTypeElement]
 
-  final def constructorInvocation: Option[ScConstructorInvocation] = findChild(classOf[ScConstructorInvocation])
+  final def constructorInvocation: Option[ScConstructorInvocation] = findChild[ScConstructorInvocation]
 
   final def constructorInvocations: Seq[ScConstructorInvocation] = findChildren[ScConstructorInvocation]
 

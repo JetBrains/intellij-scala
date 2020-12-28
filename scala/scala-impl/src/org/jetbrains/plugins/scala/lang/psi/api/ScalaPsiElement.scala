@@ -52,9 +52,8 @@ trait ScalaPsiElement extends PsiElement
 
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T]
 
-  // TODO: use classTag as in findChildren
-  protected final def findChild[T >: Null <: ScalaPsiElement](clazz: Class[T]): Option[T] =
-    Option(findChildByClassScala(clazz))
+  protected final def findChild[T >: Null <: ScalaPsiElement: ClassTag]: Option[T] =
+    Option(findChildByClassScala(classTag[T].runtimeClass.asInstanceOf[Class[T]]))
 
   protected final def findChildren[T >: Null <: ScalaPsiElement: ClassTag]: Seq[T] =
     ArraySeq.unsafeWrapArray(findChildrenByClassScala(classTag[T].runtimeClass.asInstanceOf[Class[T]]))

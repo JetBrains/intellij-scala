@@ -21,11 +21,11 @@ class ScTryImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTry {
 
   import ScTryImpl._
 
-  override def expression: Option[ScExpression] = findChild(classOf[ScExpression])
+  override def expression: Option[ScExpression] = findChild[ScExpression]
 
-  override def catchBlock: Option[ScCatchBlock] = findChild(classOf[ScCatchBlock])
+  override def catchBlock: Option[ScCatchBlock] = findChild[ScCatchBlock]
 
-  override def finallyBlock: Option[ScFinallyBlock] = findChild(classOf[ScFinallyBlock])
+  override def finallyBlock: Option[ScFinallyBlock] = findChild[ScFinallyBlock]
 
   protected override def innerType: TypeResult =
     expression.map(_.`type`().flatMap { tryBlockType =>

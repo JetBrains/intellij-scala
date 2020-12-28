@@ -34,7 +34,7 @@ final class ScValueDeclarationImpl private[psi](stub: ScPropertyStub[ScValueDecl
     case None => Failure(ScalaBundle.message("no.type.element.found", getText))
   }
 
-  override def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
+  override def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild[ScTypeElement])(_.typeElement)
 
   override def getIdList: ScIdList = getStubOrPsiChild(ScalaElementType.IDENTIFIER_LIST)
 

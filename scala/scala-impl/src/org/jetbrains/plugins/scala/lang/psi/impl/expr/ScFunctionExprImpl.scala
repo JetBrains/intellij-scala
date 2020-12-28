@@ -25,7 +25,7 @@ class ScFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
 
   override def params: ScParameters = findChildByClass(classOf[ScParameters])
 
-  override def result: Option[ScExpression] = findChild(classOf[ScExpression])
+  override def result: Option[ScExpression] = findChild[ScExpression]
 
   override def hasParentheses: Boolean = leftParen.isDefined && rightParen.isDefined
 

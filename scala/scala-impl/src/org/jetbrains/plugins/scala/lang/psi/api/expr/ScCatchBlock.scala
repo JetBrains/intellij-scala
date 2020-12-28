@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
   * Date: 06.03.2008
   */
 trait ScCatchBlock extends ScalaPsiElement {
-  def expression: Option[ScExpression] = findChild(classOf[ScExpression])
+  def expression: Option[ScExpression] = findChild[ScExpression]
 
   def getLeftParenthesis: Option[PsiElement]
 

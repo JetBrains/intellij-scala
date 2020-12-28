@@ -31,7 +31,7 @@ final class ScVariableDefinitionImpl private[psi] (
 
   override def assignment: Option[PsiElement] = Option(findChildByType[PsiElement](ScalaTokenTypes.tASSIGN))
 
-  override def expr: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
+  override def expr: Option[ScExpression] = byPsiOrStub(findChild[ScExpression])(_.bodyExpression)
 
   override def bindings: Seq[ScBindingPattern] = pList.patterns.flatMap(_.bindings)
 
@@ -43,7 +43,7 @@ final class ScVariableDefinitionImpl private[psi] (
       getOrElse(Failure(ScalaBundle.message("cannot.infer.type.without.an.expression")))
   }
 
-  override def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
+  override def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild[ScTypeElement])(_.typeElement)
 
   override def annotationAscription: Option[ScAnnotations] =
     assignment.flatMap(_.getPrevSiblingNotWhitespaceComment match {

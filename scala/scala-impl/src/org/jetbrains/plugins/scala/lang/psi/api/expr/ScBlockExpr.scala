@@ -19,7 +19,7 @@ trait ScBlockExpr extends ScExpression with ScBlock with ScControlFlowOwner {
     case Seq(it) if !it.is[ScBlockExpr] => it
   }
 
-  def caseClauses: Option[ScCaseClauses] = findChild(classOf[ScCaseClauses])
+  def caseClauses: Option[ScCaseClauses] = findChild[ScCaseClauses]
 
   override def getControlFlow: Seq[Instruction] = {
     if (isAnonymousFunction) super.getControlFlow

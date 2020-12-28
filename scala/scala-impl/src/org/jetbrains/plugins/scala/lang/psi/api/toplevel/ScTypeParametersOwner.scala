@@ -27,7 +27,7 @@ trait ScTypeParametersOwner extends ScalaPsiElement {
       case st: ScalaStubBasedElementImpl[_, _] =>
         Option(st.getStubOrPsiChild(ScalaElementType.TYPE_PARAM_CLAUSE))
       case _ =>
-        findChild(classOf[ScTypeParamClause])
+        findChild[ScTypeParamClause]
     }
   }
 

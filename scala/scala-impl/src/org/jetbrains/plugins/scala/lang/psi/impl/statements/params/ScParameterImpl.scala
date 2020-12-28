@@ -142,7 +142,7 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
 
   override def isRepeatedParameter: Boolean = byStubOrPsi(_.isRepeated)(paramType.exists(_.isRepeatedParameter))
 
-  override def getActualDefaultExpression: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
+  override def getActualDefaultExpression: Option[ScExpression] = byPsiOrStub(findChild[ScExpression])(_.bodyExpression)
 
   override def getNavigationElement: PsiElement = {
     val maybeResult = owner match {

@@ -46,7 +46,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
 
   def typeElement: Option[ScTypeElement]
 
-  def paramType: Option[ScParameterType] = findChild(classOf[ScParameterType])
+  def paramType: Option[ScParameterType] = findChild[ScParameterType]
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 

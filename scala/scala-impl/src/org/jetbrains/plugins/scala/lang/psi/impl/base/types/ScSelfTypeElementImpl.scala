@@ -45,7 +45,7 @@ class ScSelfTypeElementImpl private(stub: ScSelfTypeElementStub, node: ASTNode)
     }
   }
 
-  override def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
+  override def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild[ScTypeElement])(_.typeElement)
 
   override def classNames: Array[String] = byStubOrPsi(_.classNames) {
     val names = mutable.ArrayBuffer.empty[String]

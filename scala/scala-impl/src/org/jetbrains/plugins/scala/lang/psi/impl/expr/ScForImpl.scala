@@ -34,7 +34,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
   @inline
   private def yieldKeyword: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.kYIELD)
 
-  override def enumerators: Option[ScEnumerators] = findChild(classOf[ScEnumerators])
+  override def enumerators: Option[ScEnumerators] = findChild[ScEnumerators]
 
   // Binding patterns in reverse order
   override def patterns: Seq[ScPattern] = enumerators.toSeq.flatMap(_.patterns)

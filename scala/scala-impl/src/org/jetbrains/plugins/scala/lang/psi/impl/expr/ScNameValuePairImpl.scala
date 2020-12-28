@@ -21,7 +21,7 @@ class ScNameValuePairImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
 
   override def getValue: PsiAnnotationMemberValue = null
 
-  override def getLiteral: Option[ScLiteral] = findChild(classOf[ScLiteral])
+  override def getLiteral: Option[ScLiteral] = findChild[ScLiteral]
 
   override def getLiteralValue: String = {
     getLiteral match {

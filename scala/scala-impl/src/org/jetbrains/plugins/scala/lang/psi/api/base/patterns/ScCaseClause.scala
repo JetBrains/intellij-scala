@@ -16,9 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScG
 */
 
 trait ScCaseClause extends ScalaPsiElement {
-  def pattern: Option[ScPattern] = findChild(classOf[ScPattern])
-  def expr: Option[ScExpression] = findChild(classOf[ScExpression])
-  def guard: Option[ScGuard] = findChild(classOf[ScGuard])
+  def pattern: Option[ScPattern] = findChild[ScPattern]
+  def expr: Option[ScExpression] = findChild[ScExpression]
+  def guard: Option[ScGuard] = findChild[ScGuard]
   def funType: Option[PsiElement] = {
     val result = getNode.getChildren(TokenSet.create(ScalaTokenTypes.tFUNTYPE, 
       ScalaTokenTypes.tFUNTYPE_ASCII))

@@ -27,7 +27,7 @@ trait ScSuperReference extends ScExpression with ScPathElement {
   //for A.super or simply super
   def drvTemplate: Option[ScTemplateDefinition]
 
-  def reference: Option[ScStableCodeReference] = findChild(classOf[ScStableCodeReference])
+  def reference: Option[ScStableCodeReference] = findChild[ScStableCodeReference]
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitSuperReference(this)

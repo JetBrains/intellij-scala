@@ -16,7 +16,7 @@ trait ScGenericCall extends ScExpression {
 
   def referencedExpr: ScExpression = findChildByClassScala(classOf[ScExpression])
 
-  def typeArgs: Option[ScTypeArgs] = findChild(classOf[ScTypeArgs])
+  def typeArgs: Option[ScTypeArgs] = findChild[ScTypeArgs]
 
   def arguments: Seq[ScTypeElement] = typeArgs.fold(Seq.empty[ScTypeElement])(_.typeArgs)
 

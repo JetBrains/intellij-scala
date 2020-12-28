@@ -15,7 +15,7 @@ trait ScCompoundTypeElement extends ScTypeElement {
   override protected val typeName = "CompoundType"
 
   def components : Seq[ScTypeElement] = findChildrenByClassScala(classOf[ScTypeElement]).toSeq
-  def refinement: Option[ScRefinement] = findChild(classOf[ScRefinement])
+  def refinement: Option[ScRefinement] = findChild[ScRefinement]
   def refinements: Seq[ScRefinement] = findChildrenByClassScala(classOf[ScRefinement]).toSeq
 }
 

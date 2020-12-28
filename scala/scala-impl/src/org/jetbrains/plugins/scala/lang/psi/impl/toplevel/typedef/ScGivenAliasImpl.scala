@@ -26,7 +26,7 @@ class ScGivenAliasImpl(stub: ScFunctionStub[ScGivenAlias],
   override def returnType: TypeResult = Failure(ScalaBundle.message("scgivenaliasimpl.returntype.not.yet.implemented"))
 
   override protected def typeElementForAnonymousName: Option[ScTypeElement] =
-    byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
+    byPsiOrStub(findChild[ScTypeElement])(_.typeElement)
 
 
   private lazy val syntheticEmptyParameterList =

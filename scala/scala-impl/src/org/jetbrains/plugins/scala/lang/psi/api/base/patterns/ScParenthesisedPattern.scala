@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 trait ScParenthesisedPattern extends ScPattern with ScParenthesizedElement {
   type Kind = ScPattern
 
-  override def innerElement: Option[ScPattern] = findChild(classOf[ScPattern])
+  override def innerElement: Option[ScPattern] = findChild[ScPattern]
 
   override def sameTreeParent: Option[ScPattern] = getParent.asOptionOf[ScPattern]
 }

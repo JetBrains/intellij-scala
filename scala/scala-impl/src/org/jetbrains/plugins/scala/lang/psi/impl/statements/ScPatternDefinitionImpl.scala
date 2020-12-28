@@ -52,9 +52,9 @@ final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternD
 
   override def assignment: Option[PsiElement] = Option(findChildByType[PsiElement](ScalaTokenTypes.tASSIGN))
 
-  override def expr: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
+  override def expr: Option[ScExpression] = byPsiOrStub(findChild[ScExpression])(_.bodyExpression)
 
-  override def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
+  override def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild[ScTypeElement])(_.typeElement)
 
   override def annotationAscription: Option[ScAnnotations] =
     assignment.flatMap(_.getPrevSiblingNotWhitespaceComment match {

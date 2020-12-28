@@ -81,7 +81,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
 
     def hasImplicitKeyword =
       findChildByType(ScalaTokenTypes.kIMPLICIT) != null ||
-      findChild(classOf[ScClassParameter])
+      findChild[ScClassParameter]
         .exists(_.getModifierList.isImplicit)
 
     byStubOrPsi(_.isImplicit)(hasImplicitKeyword)

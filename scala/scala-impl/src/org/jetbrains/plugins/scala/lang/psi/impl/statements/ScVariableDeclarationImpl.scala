@@ -31,7 +31,7 @@ final class ScVariableDeclarationImpl private[psi] (
 
   override def declaredElements: Seq[ScFieldId] = getIdList.fieldIds
 
-  override def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
+  override def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild[ScTypeElement])(_.typeElement)
 
   override def getIdList: ScIdList = getStubOrPsiChild(ScalaElementType.IDENTIFIER_LIST)
 

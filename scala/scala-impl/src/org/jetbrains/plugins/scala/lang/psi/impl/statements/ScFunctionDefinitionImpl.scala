@@ -72,7 +72,7 @@ class ScFunctionDefinitionImpl(stub: ScFunctionStub[ScFunctionDefinition],
     } else returnTypeInner(this)
   }
 
-  override def body: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
+  override def body: Option[ScExpression] = byPsiOrStub(findChild[ScExpression])(_.bodyExpression)
 
   override def hasAssign: Boolean = byStubOrPsi(_.hasAssign)(assignment.isDefined)
 

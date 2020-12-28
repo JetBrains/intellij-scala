@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScParenthesizedElement
 trait ScParenthesisedExpr extends ScInfixArgumentExpression with ScParenthesizedElement {
   type Kind = ScExpression
 
-  override def innerElement: Option[ScExpression] = findChild(classOf[ScExpression])
+  override def innerElement: Option[ScExpression] = findChild[ScExpression]
 
   override def sameTreeParent: Option[ScExpression] = getParent.asOptionOf[ScExpression]
 

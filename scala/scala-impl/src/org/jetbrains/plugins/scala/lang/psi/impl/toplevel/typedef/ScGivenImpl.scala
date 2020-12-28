@@ -21,10 +21,10 @@ trait ScGivenImpl extends ScGiven  {
     findFirstChildByType(ScalaTokenTypes.tIDENTIFIER).toOption
 
   override def givenTypeParamClause: Option[ScTypeParamClause] =
-    findChild(classOf[ScTypeParamClause])
+    findChild[ScTypeParamClause]
 
   override def givenParameters: Option[ScParameters] =
-    findChild(classOf[ScParameters])
+    findChild[ScParameters]
 
   override def nameInner: String = {
     def nameFromTypeElement = typeElementForAnonymousName.map(ScGiven.generateAnonymousGivenName)

@@ -12,7 +12,7 @@ package types
 trait ScSimpleTypeElement extends ScTypeElement {
   override protected val typeName = "SimpleType"
 
-  def reference: Option[ScStableCodeReference] = findChild(classOf[ScStableCodeReference])
+  def reference: Option[ScStableCodeReference] = findChild[ScStableCodeReference]
 
   def pathElement: ScPathElement = findChildByClassScala(classOf[ScPathElement])
 

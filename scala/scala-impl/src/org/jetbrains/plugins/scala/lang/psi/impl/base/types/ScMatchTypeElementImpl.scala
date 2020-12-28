@@ -12,7 +12,7 @@ class ScMatchTypeElementImpl(node: ASTNode)
 
   override def scrutineeTypeElement: ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
 
-  override def cases: Option[ScMatchTypeCases] = findChild(classOf[ScMatchTypeCases])
+  override def cases: Option[ScMatchTypeCases] = findChild[ScMatchTypeCases]
 
   override protected def innerType: TypeResult =
     Failure(ScalaBundle.message("match.types.are.not.yet.supported"))

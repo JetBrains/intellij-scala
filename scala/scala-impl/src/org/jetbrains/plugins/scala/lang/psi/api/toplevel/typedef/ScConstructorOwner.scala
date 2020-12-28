@@ -16,7 +16,7 @@ trait ScConstructorOwner extends ScTypeDefinition
   with ScParameterOwner {
 
   def constructor: Option[ScPrimaryConstructor] =
-    findChild(classOf[ScPrimaryConstructor])
+    findChild[ScPrimaryConstructor]
 
   override def parameters: Seq[ScClassParameter] = constructor.toSeq.flatMap {
     _.effectiveParameterClauses

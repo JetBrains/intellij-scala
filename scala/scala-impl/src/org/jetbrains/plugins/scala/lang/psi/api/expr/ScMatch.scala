@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
   * @author Alexander Podkhalyuzin, ilyas
   */
 trait ScMatch extends ScExpression {
-  def expression: Option[ScExpression] = findChild(classOf[ScExpression])
+  def expression: Option[ScExpression] = findChild[ScExpression]
 
   def expressions: Seq[ScExpression] = clauses.map(_.expr.getOrElse(createExpressionFromText("{}")))
 

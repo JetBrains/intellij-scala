@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
   */
 class ScDoImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScDo {
 
-  override def body: Option[ScExpression] = findChild(classOf[ScExpression])
+  override def body: Option[ScExpression] = findChild[ScExpression]
 
   override def condition: Option[ScExpression] = {
     val rpar = findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS)

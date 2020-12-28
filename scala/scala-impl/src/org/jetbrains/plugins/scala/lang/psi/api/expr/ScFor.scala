@@ -26,7 +26,7 @@ trait ScFor extends ScExpression {
 
   def patterns: Seq[ScPattern]
 
-  def body: Option[ScExpression] = findChild(classOf[ScExpression])
+  def body: Option[ScExpression] = findChild[ScExpression]
 
   /** @return left parenthesis of enumerators  */
   def getLeftParenthesis: Option[PsiElement]

@@ -9,7 +9,7 @@ package expr
   */
 trait ScConstrBlock extends ScBlockExpr {
 
-  def selfInvocation: Option[ScSelfInvocation] = findChild(classOf[ScSelfInvocation])
+  def selfInvocation: Option[ScSelfInvocation] = findChild[ScSelfInvocation]
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitConstrBlock(this)

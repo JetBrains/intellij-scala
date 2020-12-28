@@ -47,7 +47,7 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
     }.collect {
       case reference: ScStableCodeReference => reference
     }.orElse {
-      findChild(classOf[ScStableCodeReference])
+      findChild[ScStableCodeReference]
     }
 
   override def packagings: Seq[ScPackaging] =

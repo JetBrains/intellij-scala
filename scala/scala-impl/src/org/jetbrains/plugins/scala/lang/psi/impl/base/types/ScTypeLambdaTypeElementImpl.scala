@@ -14,7 +14,7 @@ class ScTypeLambdaTypeElementImpl(node: ASTNode)
   override protected def innerType: TypeResult =
     Failure(ScalaBundle.message("scala.3.type.are.not.yet.supported"))
 
-  override def resultTypeElement: Option[ScTypeElement] = findChild(classOf[ScTypeElement])
+  override def resultTypeElement: Option[ScTypeElement] = findChild[ScTypeElement]
   override def resultType: TypeResult                   = this.flatMapType(resultTypeElement)
   override def lowerBound: TypeResult                   = resultType
   override def upperBound: TypeResult                   = resultType

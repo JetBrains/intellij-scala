@@ -33,7 +33,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolv
 class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScSelfInvocation with ConstructorInvocationLikeImpl {
 
   override def args: Option[ScArgumentExprList] =
-    findChild(classOf[ScArgumentExprList])
+    findChild[ScArgumentExprList]
 
   override def arguments: Seq[ScArgumentExprList] =
     findChildrenByClassScala(classOf[ScArgumentExprList]).toSeq

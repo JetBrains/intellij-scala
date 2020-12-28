@@ -17,7 +17,7 @@ trait ScParenthesisedTypeElement extends ScTypeElement with ScParenthesizedEleme
 
   type Kind = ScTypeElement
 
-  override def innerElement: Option[ScTypeElement] = findChild(classOf[ScTypeElement])
+  override def innerElement: Option[ScTypeElement] = findChild[ScTypeElement]
 
   override def sameTreeParent: Option[ScTypeElement] = getParent.asOptionOf[ScTypeElement]
 }
