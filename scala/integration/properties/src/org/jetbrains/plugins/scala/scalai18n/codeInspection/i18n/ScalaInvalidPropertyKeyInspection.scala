@@ -123,7 +123,7 @@ class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
               case referenceExpression: ScReferenceExpression =>
                 referenceExpression.resolve() match {
                   case method: PsiMethod =>
-                    val args: Array[ScExpression] = expressions.exprsArray
+                    val args = expressions.exprs
                     var i: Int = 0
                     var flag = true
                     while (i < args.length && flag) {

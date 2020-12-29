@@ -112,48 +112,46 @@ object MultilineStringUtil {
   }
 
   def getMarginChar(element: PsiElement): Char = findAllMethodCallsOnMLString(element, "stripMargin") match {
-    case Array(Array(literals.ScCharLiteral(value), _*), _*) => value
-    case Array(Array(), _*)                                  => DefaultMarginChar
+    case Seq(Seq(literals.ScCharLiteral(value), _*), _*) => value
+    case Seq(Seq(), _*)                                  => DefaultMarginChar
     case _                                                   =>
       CodeStyle.getSettings(element.getProject)
         .getCustomSettings(classOf[ScalaCodeStyleSettings])
         .getMarginChar
   }
 
-  def findAllMethodCallsOnMLString(stringElement: PsiElement, methodName: String): Array[Array[ScExpression]] = {
-    val calls = new ArrayBuffer[Array[ScExpression]]()
+  def findAllMethodCallsOnMLString(stringElement: PsiElement, methodName: String): Seq[Seq[ScExpression]] = {
+    val calls = Seq.newBuilder[Seq[ScExpression]]
 
-    def callsArray = calls.toArray
-
-    var prevParent: PsiElement = findParentMLString(stringElement).getOrElse(return Array.empty)
+    var prevParent: PsiElement = findParentMLString(stringElement).getOrElse(return Seq.empty)
     var parent = prevParent.getParent
 
     do {
       parent match {
-        case lit: ScLiteral => if (!lit.isMultiLineString) return Array.empty
+        case lit: ScLiteral => if (!lit.isMultiLineString) return Seq.empty
         case inf: ScInfixExpr =>
           if (inf.operation.textMatches(methodName)) {
-            if (prevParent != parent.getFirstChild) return callsArray
-            calls += Array(inf.right)
+            if (prevParent != parent.getFirstChild) return calls.result()
+            calls += Seq(inf.right)
           }
         case call: ScMethodCall =>
           call.getEffectiveInvokedExpr match {
-            case ref: ScReferenceExpression if ref.refName == methodName => calls += call.args.exprsArray
+            case ref: ScReferenceExpression if ref.refName == methodName => calls += call.args.exprs
             case _ =>
           }
         case exp: ScReferenceExpression =>
-          if (!exp.getParent.isInstanceOf[ScMethodCall]) {
-            calls += Array[ScExpression]()
+          if (!exp.getParent.is[ScMethodCall]) {
+            calls += Seq.empty
           }
         case _: ScParenthesisedExpr =>
-        case _ => return callsArray
+        case _ => return calls.result()
       }
 
       prevParent = parent
       parent = parent.getParent
     } while (parent != null)
 
-    callsArray
+    calls.result()
   }
 
   def findParentMLString(element: PsiElement): Option[ScLiteral] = {
@@ -174,13 +172,13 @@ object MultilineStringUtil {
     case _ => ""
   }
 
-  def containsArgs(currentArgs: Array[Array[ScExpression]], argsToFind: String*): Boolean = {
+  def containsArgs(currentArgs: Seq[Seq[ScExpression]], argsToFind: String*): Boolean = {
     val myArgs = argsToFind.sorted
 
     for (arg <- currentArgs) {
       val argsString = arg.map(_.getText).sorted
 
-      if (myArgs.sameElements(argsString) || myArgs.reverse.sameElements(argsString)) return true
+      if (myArgs == argsString || myArgs.reverse == argsString) return true
     }
 
     false

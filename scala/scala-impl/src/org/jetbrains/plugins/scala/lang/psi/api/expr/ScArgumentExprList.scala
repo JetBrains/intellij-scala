@@ -27,9 +27,6 @@ trait ScArgumentExprList extends ScArguments {
    */
   def exprs: Seq[ScExpression] = findChildren[ScExpression]
 
-  //TODO java helper (should be removed later)
-  def exprsArray: Array[ScExpression] = exprs.toArray
-
   /**
    * Number of clause.
    * For example: foo()()'()'()

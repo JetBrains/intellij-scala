@@ -96,8 +96,8 @@ object ScalaTestAstTransformer {
               methodCall.getInvokedExpr match {
                 case ref: ScReferenceExpression if ref.refName == "Array" =>
                   val constructorArgs = methodCall.args
-                  constructorArgs.exprsArray match {
-                    case Array(single) if constructorArgs.invocationCount == 1 => expr = single
+                  constructorArgs.exprs match {
+                    case Seq(single) if constructorArgs.invocationCount == 1 => expr = single
                     case _ =>
                   }
               }

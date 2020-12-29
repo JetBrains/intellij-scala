@@ -185,10 +185,10 @@ object AddSbtDependencyUtils {
   }
 
   def isAddableSettings(settings: ScMethodCall): Boolean = {
-    val args = settings.args.exprsArray
+    val args = settings.args.exprs
 
     if (args.length == 1) {
-      args(0) match {
+      args.head match {
         case typedStmt: ScTypedExpression if typedStmt.isSequenceArg =>
           typedStmt.expr match {
             case _: ScMethodCall => false

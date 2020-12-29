@@ -26,7 +26,7 @@ private object SbtDependenciesVisitor {
     f(call)
 
     def processSettings(settings: ScMethodCall): Unit = {
-      settings.args.exprsArray.foreach({
+      settings.args.exprs.foreach({
         case typedStmt: ScTypedExpression => processTypedStmt(typedStmt)(f)
         case infix: ScInfixExpr if infix.left.textMatches(LIBRARY_DEPENDENCIES) => processInfix(infix)(f)
         case call: ScMethodCall => processMethodCall(call)(f)

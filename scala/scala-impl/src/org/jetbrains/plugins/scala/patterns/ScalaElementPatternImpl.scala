@@ -23,7 +23,7 @@ private object ScalaElementPatternImpl {
   ): Boolean = {
     host.getParent match {
       case argsList: ScArgumentExprList =>
-        val args = argsList.exprsArray
+        val args = argsList.exprs
         val hostIsAnArgument = index < args.length && (args(index) eq host)
         if (!hostIsAnArgument)
           return false
