@@ -93,7 +93,7 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
 
   override def getUseScope: SearchScope = new LocalSearchScope(owner).intersectWith(super.getUseScope)
 
-  override def nameId: PsiElement = findLastChildByType(TokenSets.ID_SET)
+  override def nameId: PsiElement = findLastChildByType(TokenSets.ID_SET).orNull
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 

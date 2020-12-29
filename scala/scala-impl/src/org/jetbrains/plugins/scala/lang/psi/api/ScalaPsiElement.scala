@@ -85,12 +85,12 @@ trait ScalaPsiElement extends PsiElement
     builder.result()
   }
 
-  def findLastChildByType(set: tree.TokenSet): PsiElement = {
+  def findLastChildByType(set: tree.TokenSet): Option[PsiElement] = {
     var node = getNode.getLastChildNode
     while (node != null && !set.contains(node.getElementType)) {
       node = node.getTreePrev
     }
-    if (node == null) null else node.getPsi
+    Option(node).map(_.getPsi)
   }
 
   protected def findLastChild[T >: Null <: ScalaPsiElement: ClassTag]: Option[T] = {

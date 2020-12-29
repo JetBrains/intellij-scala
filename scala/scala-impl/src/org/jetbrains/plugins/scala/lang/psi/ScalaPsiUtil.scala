@@ -841,7 +841,7 @@ object ScalaPsiUtil {
           import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 
           val funTypeToken = caseClause.findLastChildByType(TokenSet.create(tFUNTYPE, tFUNTYPE_ASCII))
-          if (funTypeToken != null && element.getTextOffset < funTypeToken.getTextOffset) false
+          if (funTypeToken.exists(element.getTextOffset < _.getTextOffset)) false
           else newLinesEnabled(caseClause.getParent)
 
         case other => newLinesEnabled(other.getParent)
