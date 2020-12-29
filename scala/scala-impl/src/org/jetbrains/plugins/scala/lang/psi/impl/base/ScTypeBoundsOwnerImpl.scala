@@ -5,6 +5,7 @@ package impl
 package base
 
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
@@ -23,37 +24,26 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
 
   override def contextBound: Seq[ScType] = contextBoundTypeElement.flatMap(_.`type`().toOption)
 
-  override def upperTypeElement: Option[ScTypeElement] = {
-    findLastChildByTypeScala[PsiElement](ScalaTokenTypes.tUPPER_BOUND).flatMap { tUpper =>
-      ScalaPsiUtil.getNextSiblingOfType(tUpper, classOf[ScTypeElement]) match {
-        case null => None
-        case te => Some(te)
-      }
-    }
-  }
+  override def upperTypeElement: Option[ScTypeElement] =
+    findLastChildByTypeScala[PsiElement](ScalaTokenTypes.tUPPER_BOUND)
+      .flatMap(_.nextSiblingOfType[ScTypeElement])
 
-  override def lowerTypeElement: Option[ScTypeElement] = {
-    findLastChildByTypeScala[PsiElement](ScalaTokenTypes.tLOWER_BOUND).flatMap { tLower =>
-      ScalaPsiUtil.getNextSiblingOfType(tLower, classOf[ScTypeElement]) match {
-        case null => None
-        case te => Some(te)
-      }
-    }
-  }
+  override def lowerTypeElement: Option[ScTypeElement] =
+    findLastChildByTypeScala[PsiElement](ScalaTokenTypes.tLOWER_BOUND)
+      .flatMap(_.nextSiblingOfType[ScTypeElement])
 
 
   override def viewTypeElement: Seq[ScTypeElement] = {
     for {
       v <- findChildrenByType(ScalaTokenTypes.tVIEW)
-      e = ScalaPsiUtil.getNextSiblingOfType(v, classOf[ScTypeElement])
-      t <- Option(e)
+      t <- v.nextSiblingOfType[ScTypeElement]
     } yield t
   }
 
   override def contextBoundTypeElement: Seq[ScTypeElement] = {
     for {
       v <- findChildrenByType(ScalaTokenTypes.tCOLON)
-      t <- Option(ScalaPsiUtil.getNextSiblingOfType(v, classOf[ScTypeElement]))
+      t <- v.nextSiblingOfType[ScTypeElement]
     } yield t
   }
 

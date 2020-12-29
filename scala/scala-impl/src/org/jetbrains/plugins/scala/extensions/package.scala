@@ -642,6 +642,8 @@ package object extensions {
 
     def nextSibling: Option[PsiElement] = Option(element.getNextSibling)
 
+    def nextSiblingOfType[T <: PsiElement: ClassTag]: Option[T] = nextSiblings.findByType[T]
+
     def prevSiblings: Iterator[PsiElement] = new PrevSiblignsIterator(element)
 
     def nextSiblings: Iterator[PsiElement] = new NextSiblignsIterator(element)

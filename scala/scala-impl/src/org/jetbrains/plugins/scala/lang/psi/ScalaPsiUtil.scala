@@ -206,18 +206,6 @@ object ScalaPsiUtil {
     maybeType.map(t => Seq(Expression(t, firstLeaf(context))))
   }
 
-  def getNextSiblingOfType[T <: PsiElement](sibling: PsiElement, aClass: Class[T]): T = {
-    if (sibling == null) return null.asInstanceOf[T]
-    var child: PsiElement = sibling.getNextSibling
-    while (child != null) {
-      if (aClass.isInstance(child)) {
-        return child.asInstanceOf[T]
-      }
-      child = child.getNextSibling
-    }
-    null.asInstanceOf[T]
-  }
-
   def processImportLastParent(processor: PsiScopeProcessor, state: ResolveState, place: PsiElement,
                               lastParent: PsiElement, typeResult: => TypeResult): Boolean = {
     lastParent match {
