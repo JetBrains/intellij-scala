@@ -14,5 +14,5 @@ class ScForBindingImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScF
   override def toString: String = "ForBinding"
 
   override def enumeratorToken: Option[PsiElement] =
-    Option(findFirstChildByType(ScalaTokenTypes.tASSIGN))
+    findFirstChildByType(ScalaTokenTypes.tASSIGN)
 }

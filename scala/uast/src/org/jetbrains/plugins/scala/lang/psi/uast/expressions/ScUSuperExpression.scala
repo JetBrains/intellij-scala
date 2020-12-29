@@ -30,13 +30,13 @@ final class ScUSuperExpression(
 
   @Nullable
   override def getLabel: String =
-    Option(scExpression.findFirstChildByType(ScalaTokenTypes.kSUPER))
+    scExpression.findFirstChildByType(ScalaTokenTypes.kSUPER)
       .map(_.getText)
       .orNull
 
   @Nullable
   override def getLabelIdentifier: UIdentifier =
-    Option(scExpression.findFirstChildByType(ScalaTokenTypes.kSUPER))
+    scExpression.findFirstChildByType(ScalaTokenTypes.kSUPER)
       .map(Scala2UastConverter.createUIdentifier(_, this))
       .orNull
 

@@ -7,7 +7,7 @@ import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegateAdapter
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -33,14 +33,14 @@ class AddUnitTypeEnterHandler extends EnterHandlerDelegateAdapter {
 
     @inline def checkBlock2(block: ScBlockExpr) = {
       val children: Array[PsiElement] = block.getChildren
-      children.length == 3 && children.apply(1).isInstanceOf[PsiWhiteSpace] && children.apply(1).getText.count(_ == '\n') == 2
+      children.length == 3 && children(1).is[PsiWhiteSpace] && children(1).getText.count(_ == '\n') == 2
     }
 
     element.getParent match {
       case block: ScBlockExpr if checkBlock2(block) =>
         (block.getParent, block.getPrevSiblingNotWhitespace) match {
           case (funDef: ScFunctionDefinition, prev: ScalaPsiElement) =>
-            if (funDef.findFirstChildByType(ScalaTokenTypes.tASSIGN) == null)
+            if (funDef.findFirstChildByType(ScalaTokenTypes.tASSIGN).isEmpty)
               extensions.inWriteAction {
                 document.insertString(prev.getTextRange.getEndOffset, ": Unit =")
               }
@@ -56,7 +56,7 @@ class AddUnitTypeEnterHandler extends EnterHandlerDelegateAdapter {
     val project = file.getProject
     val settings = ScalaCodeStyleSettings.getInstance(project)
 
-    file.isInstanceOf[ScalaFile] &&
+    file.is[ScalaFile] &&
       settings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT &&
       prevNonWhitespace(editor) == '{'
   }

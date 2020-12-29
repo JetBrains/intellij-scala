@@ -210,16 +210,16 @@ object TestNodeProvider {
 
   private def checkScMethodCall(expr: ScMethodCall, funName: String, paramNames: List[String]*): Boolean = {
     val methodExpr = expr.getEffectiveInvokedExpr.findFirstChildByType(ScalaElementType.REFERENCE_EXPRESSION)
-    methodExpr != null && checkRefExpr(methodExpr.asInstanceOf[ScReferenceExpression], funName, paramNames: _*)
+    methodExpr.exists(methodExpr => checkRefExpr(methodExpr.asInstanceOf[ScReferenceExpression], funName, paramNames: _*))
   }
 
   private def checkScMethodCallApply(expr: ScMethodCall, @NonNls callerName: String, @NonNls paramNames: List[String]*): Boolean = {
     val methodExpr = expr.getEffectiveInvokedExpr match {
-      case refExpr: ScReferenceExpression => refExpr
-      case otherExpr => otherExpr.findFirstChildByType(ScalaElementType.REFERENCE_EXPRESSION)
+      case refExpr: ScReferenceExpression => Some(refExpr)
+      case otherExpr => otherExpr.findFirstChildByTypeScala[ScReferenceExpression](ScalaElementType.REFERENCE_EXPRESSION)
     }
-    methodExpr != null && {
-      methodExpr.asInstanceOf[ScReferenceExpression].bind() match {
+    methodExpr.exists { methodExpr =>
+      methodExpr.bind() match {
         case Some(resolveResult) =>
           resolveResult.getActualElement.name == callerName && {
             val funElement = resolveResult.innerResolveResult match {
@@ -227,7 +227,7 @@ object TestNodeProvider {
                 innerResult.getActualElement
               case None => resolveResult.getElement
             }
-            funElement.name == "apply" && funElement.isInstanceOf[ScFunctionDefinition] &&
+            funElement.name == "apply" && funElement.is[ScFunctionDefinition] &&
               checkClauses(funElement.asInstanceOf[ScFunctionDefinition].getParameterList.clauses, paramNames)
           }
         case _ => false
@@ -281,7 +281,7 @@ object TestNodeProvider {
         methodCall.getEffectiveInvokedExpr match {
           case ref: ScReferenceExpression => Some(ref)
           case otherExpr =>
-            Option(otherExpr.findFirstChildByType(ScalaElementType.REFERENCE_EXPRESSION)).
+            otherExpr.findFirstChildByType(ScalaElementType.REFERENCE_EXPRESSION).
               map(_.asInstanceOf[ScReferenceExpression])
         }
       case _ => None
@@ -497,8 +497,14 @@ object TestNodeProvider {
     if (isUTestSuiteApplyCall(expr) || isUTestTestsCall(expr)) {
       import scala.jdk.CollectionConverters._
       expr.args.findFirstChildByType(ScCodeBlockElementType.BlockExpression) match {
-        case blockExpr: ScBlockExpr => (for (methodExpr <- blockExpr.children if methodExpr.isInstanceOf[ScInfixExpr] || methodExpr.isInstanceOf[ScMethodCall])
-          yield extractUTestInner(methodExpr, project)).filter(_.isDefined).map(_.get).toList.asJava
+        case Some(blockExpr: ScBlockExpr) =>
+          (
+            for {
+              methodExpr <- blockExpr.children
+              if methodExpr.is[ScInfixExpr, ScMethodCall]
+              inner <- extractUTestInner(methodExpr, project)
+            } yield inner
+          ).toList.asJava
         case _ => new ju.ArrayList[TreeElement]
       }
     } else new ju.ArrayList[TreeElement]()

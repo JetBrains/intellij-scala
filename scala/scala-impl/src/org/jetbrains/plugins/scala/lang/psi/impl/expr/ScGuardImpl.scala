@@ -14,5 +14,5 @@ class ScGuardImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScGuard 
   override def toString: String = "Guard"
 
   override def enumeratorToken: Option[PsiElement] =
-    Option(findFirstChildByType(ScalaTokenTypes.kIF))
+    findFirstChildByType(ScalaTokenTypes.kIF)
 }

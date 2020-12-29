@@ -26,13 +26,13 @@ final class ScUThisExpression(
 
   @Nullable
   override def getLabel: String =
-    Option(scExpression.findFirstChildByType(ScalaTokenTypes.kTHIS))
+    scExpression.findFirstChildByType(ScalaTokenTypes.kTHIS)
       .map(_.getText)
       .orNull
 
   @Nullable
   override def getLabelIdentifier: UIdentifier =
-    Option(scExpression.findFirstChildByType(ScalaTokenTypes.kTHIS))
+    scExpression.findFirstChildByType(ScalaTokenTypes.kTHIS)
       .map(Scala2UastConverter.createUIdentifier(_, this))
       .orNull
 

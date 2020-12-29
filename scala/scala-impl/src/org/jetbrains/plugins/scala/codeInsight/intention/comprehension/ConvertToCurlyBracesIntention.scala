@@ -36,12 +36,12 @@ class ConvertToCurlyBracesIntention extends PsiElementBaseIntentionAction {
     val statement = element.getParent.asInstanceOf[ScFor]
     val block = createElementFromText("{}")
 
-    for (lParen <- Option(statement.findFirstChildByType(ScalaTokenTypes.tLPARENTHESIS))) {
+    for (lParen <- statement.findFirstChildByType(ScalaTokenTypes.tLPARENTHESIS)) {
       val lBrace = lParen.replace(block.getFirstChild)
       statement.addAfter(createNewLine(), lBrace)
     }
 
-    for (rParen <- Option(statement.findFirstChildByType(ScalaTokenTypes.tRPARENTHESIS))) {
+    for (rParen <- statement.findFirstChildByType(ScalaTokenTypes.tRPARENTHESIS)) {
       val rBrace = rParen.replace(block.getLastChild)
       statement.addBefore(createNewLine(), rBrace)
     }

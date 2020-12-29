@@ -42,7 +42,7 @@ final class ScUTryExpression(override protected val scExpression: ScTry,
 
   @Nullable
   override def getFinallyIdentifier: UIdentifier =
-    Option(scExpression.findFirstChildByType(ScalaTokenTypes.kFINALLY))
+    scExpression.findFirstChildByType(ScalaTokenTypes.kFINALLY)
       .map(createUIdentifier(_, parent = this))
       .orNull
 
@@ -56,7 +56,7 @@ final class ScUTryExpression(override protected val scExpression: ScTry,
 
   override def getTryIdentifier: UIdentifier =
     createUIdentifier(
-      scExpression.findFirstChildByType(ScalaTokenTypes.kTRY),
+      scExpression.findFirstChildByType(ScalaTokenTypes.kTRY).orNull,
       parent = this
     )
 }

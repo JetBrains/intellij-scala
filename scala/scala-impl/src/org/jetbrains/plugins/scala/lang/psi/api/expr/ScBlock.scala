@@ -99,7 +99,7 @@ trait ScBlock extends ScExpression
   }
 
   def getLBrace: Option[PsiElement] =
-    this.findFirstChildByType(ScalaTokenTypes.tLBRACE).toOption
+    this.findFirstChildByType(ScalaTokenTypes.tLBRACE)
 
   def resultExpression: Option[ScExpression] = lastStatement.flatMap(_.asOptionOf[ScExpression])
   def lastStatement: Option[ScBlockStatement] = findLastChild[ScBlockStatement]

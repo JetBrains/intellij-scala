@@ -199,9 +199,9 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
           val declarationCopy = declaration.copy.asInstanceOf[ScalaPsiElement]
           val fakeDeclaration = createDeclaration(selectedType, "x", isVariable = false, "", isPresentableText = false)
 
-          val first  = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tCOLON)
-          val last   = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tASSIGN)
-          val assign = declarationCopy.findFirstChildByType(ScalaTokenTypes.tASSIGN)
+          val first  = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tCOLON).get
+          val last   = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tASSIGN).get
+          val assign = declarationCopy.findFirstChildByType(ScalaTokenTypes.tASSIGN).get
           declarationCopy.addRangeAfter(first, last, assign)
           assign.delete()
 
@@ -216,8 +216,8 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
     def removeTypeAnnotation(): Unit = {
       getDeclaration.foreach {
         case holder: ScDeclaredElementsHolder =>
-          val colon  = holder.findFirstChildByType(ScalaTokenTypes.tCOLON)
-          val assign = holder.findFirstChildByType(ScalaTokenTypes.tASSIGN)
+          val colon  = holder.findFirstChildByType(ScalaTokenTypes.tCOLON).get
+          val assign = holder.findFirstChildByType(ScalaTokenTypes.tASSIGN).get
           implicit val manager: PsiManager = myFile.getManager
           val whiteSpace    = createExpressionFromText("1 + 1").findElementAt(1)
           val newWhiteSpace = holder.addBefore(whiteSpace, assign)
@@ -225,7 +225,7 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
           setDeclaration(holder)
           commitDocument()
         case forBinding: ScForBinding if forBinding.pattern.isInstanceOf[ScTypedPattern] =>
-          val colon = forBinding.pattern.findFirstChildByType(ScalaTokenTypes.tCOLON)
+          val colon = forBinding.pattern.findFirstChildByType(ScalaTokenTypes.tCOLON).get
           forBinding.pattern.getNode.removeRange(colon.getNode, null)
           setDeclaration(forBinding)
           commitDocument()

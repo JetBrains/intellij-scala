@@ -73,7 +73,7 @@ class OverrideAbstractMemberInspection extends AbstractRegisteredInspection {
               "val x",
               modifierListOwner.getParent,
               modifierListOwner
-            ).findFirstChildByType(ScalaTokenTypes.kVAL)
+            ).findFirstChildByType(ScalaTokenTypes.kVAL).get
             modifierListOwner.addAfter(valKeyword, modifierList)
           case _ =>
         }

@@ -66,13 +66,16 @@ trait ScalaPsiElement extends PsiElement
     Option(node).map(_.getPsi.asInstanceOf[T])
   }
 
-  def findFirstChildByType(t: tree.IElementType): PsiElement = {
+  def findFirstChildByType(t: tree.IElementType): Option[PsiElement] = {
     var node = getNode.getFirstChildNode
     while (node != null && node.getElementType != t) {
       node = node.getTreeNext
     }
-    if (node == null) null else node.getPsi
+    Option(node).map(_.getPsi)
   }
+
+  def findFirstChildByTypeScala[T <: PsiElement](t: tree.IElementType): Option[T] =
+    findFirstChildByType(t).map(_.asInstanceOf[T])
 
   def findChildrenByType(t: tree.IElementType): Seq[PsiElement] = {
     val builder = Seq.newBuilder[PsiElement]

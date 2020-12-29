@@ -92,7 +92,7 @@ object MatchToPartialFunctionInspection {
   }
 
   private[this] def findLeftBrace(statement: ScMatch): Option[PsiElement] =
-    Option(statement.findFirstChildByType(ScalaTokenTypes.tLBRACE))
+    statement.findFirstChildByType(ScalaTokenTypes.tLBRACE)
 
   object MatchToPartialFunctionQuickFix {
 

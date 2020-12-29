@@ -32,7 +32,7 @@ final class ScUIfExpression(override protected val scExpression: ScIf,
 
   override def getIfIdentifier: UIdentifier =
     createUIdentifier(
-      scExpression.findFirstChildByType(ScalaTokenTypes.kIF),
+      scExpression.findFirstChildByType(ScalaTokenTypes.kIF).orNull,
       parent = this
     )
 

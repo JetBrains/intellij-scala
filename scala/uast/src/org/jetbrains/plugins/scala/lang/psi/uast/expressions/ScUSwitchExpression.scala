@@ -42,7 +42,7 @@ final class ScUSwitchExpression(override protected val scExpression: ScMatch,
 
   override def getSwitchIdentifier: UIdentifier =
     createUIdentifier(
-      scExpression.findFirstChildByType(ScalaTokenTypes.kMATCH),
+      scExpression.findFirstChildByType(ScalaTokenTypes.kMATCH).orNull,
       this
     )
 }

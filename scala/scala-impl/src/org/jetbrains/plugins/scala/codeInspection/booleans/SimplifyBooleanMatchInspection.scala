@@ -21,7 +21,7 @@ class SimplifyBooleanMatchInspection extends AbstractInspection(ScalaInspectionB
 
   override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case stmt: ScMatch if stmt.isValid && SimpleBooleanMatchUtil.isSimpleBooleanMatchStmt(stmt) =>
-      val toHighlight = Option(stmt.findFirstChildByType(ScalaTokenTypes.kMATCH)).getOrElse(stmt)
+      val toHighlight = stmt.findFirstChildByType(ScalaTokenTypes.kMATCH).getOrElse(stmt)
       holder.registerProblem(toHighlight, getDisplayName, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new SimplifyBooleanMatchToIfStmtQuickFix(stmt))
     case _ =>
   }

@@ -84,7 +84,7 @@ object ModifierQuickFix {
         keywordType.toString + " x",
         listOwner.getParent,
         listOwner
-      ).findFirstChildByType(keywordType)
+      ).findFirstChildByType(keywordType).get
       listOwner.addAfter(keyword, modifierList)
 
       super.onModifierList(modifierList)

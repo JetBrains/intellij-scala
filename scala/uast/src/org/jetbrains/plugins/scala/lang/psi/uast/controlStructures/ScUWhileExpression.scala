@@ -23,7 +23,7 @@ final class ScUWhileExpression(override protected val scExpression: ScWhile,
 
   override def getWhileIdentifier: UIdentifier =
     createUIdentifier(
-      scExpression.findFirstChildByType(ScalaTokenTypes.kWHILE),
+      scExpression.findFirstChildByType(ScalaTokenTypes.kWHILE).orNull,
       parent = this
     )
 

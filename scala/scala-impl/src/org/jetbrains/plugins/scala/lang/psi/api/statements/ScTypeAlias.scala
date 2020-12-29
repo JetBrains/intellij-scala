@@ -33,7 +33,7 @@ trait ScTypeAlias extends ScNamedElement
     }
   }
 
-  def getTypeToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kTYPE)
+  def getTypeToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kTYPE).get
 
   override def getOriginalElement: PsiElement = {
     val ccontainingClass = containingClass

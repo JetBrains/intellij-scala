@@ -24,7 +24,7 @@ trait ScValueOrVariable extends ScBlockStatement
   with ScCommentOwner
   with Typeable {
 
-  def keywordToken: PsiElement = findFirstChildByType(keywordElementType)
+  def keywordToken: PsiElement = findFirstChildByType(keywordElementType).get
 
   protected def keywordElementType: IElementType
 

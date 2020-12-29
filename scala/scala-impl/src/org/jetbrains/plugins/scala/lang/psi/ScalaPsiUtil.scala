@@ -1482,11 +1482,11 @@ object ScalaPsiUtil {
 
     val block = createElementFromText("(_)")
 
-    for (lBrace <- Option(element.findFirstChildByType(ScalaTokenTypes.tLBRACE))) {
+    for (lBrace <- element.findFirstChildByType(ScalaTokenTypes.tLBRACE)) {
       lBrace.replace(block.getFirstChild)
     }
 
-    for (rBrace <- Option(element.findFirstChildByType(ScalaTokenTypes.tRBRACE))) {
+    for (rBrace <- element.findFirstChildByType(ScalaTokenTypes.tRBRACE)) {
       rBrace.replace(block.getLastChild)
     }
   }

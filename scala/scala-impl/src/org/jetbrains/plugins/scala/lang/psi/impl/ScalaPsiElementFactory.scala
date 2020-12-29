@@ -426,7 +426,7 @@ object ScalaPsiElementFactory {
   private[this] def replaceKeywordTokenIn(member: ScMember,
                                           fromToken: IElementType = kVAR,
                                           toToken: IElementType = kVAL) = {
-    val offset = member.findFirstChildByType(fromToken).getStartOffsetInParent
+    val offset = member.findFirstChildByType(fromToken).get.getStartOffsetInParent
     val memberText = member.getText
 
     memberText.substring(0, offset) +
@@ -502,7 +502,7 @@ object ScalaPsiElementFactory {
       s"""class a extends $superName {
          |}""".stripMargin
     val extendsBlock = createScalaFileFromText(text).typeDefinitions.head.extendsBlock
-    (extendsBlock.findFirstChildByType(kEXTENDS), extendsBlock.templateParents.get)
+    (extendsBlock.findFirstChildByType(kEXTENDS).get, extendsBlock.templateParents.get)
   }
 
   def createMethodFromSignature(signature: PhysicalMethodSignature, @NonNls body: String,

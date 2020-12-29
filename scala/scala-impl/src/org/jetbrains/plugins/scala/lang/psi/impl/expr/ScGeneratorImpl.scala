@@ -14,5 +14,5 @@ class ScGeneratorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScGe
   override def toString: String = "Generator"
 
   override def enumeratorToken: Option[PsiElement] =
-    Option(findFirstChildByType(ScalaTokenTypes.tCHOOSE))
+    findFirstChildByType(ScalaTokenTypes.tCHOOSE)
 }

@@ -115,6 +115,6 @@ object ScAssignment {
   }
 
   implicit class ScAssignmentExt(private val target: ScAssignment) extends AnyVal {
-    def assignmentToken: Option[PsiElement] = target.findFirstChildByType(ScalaTokenTypes.tASSIGN).toOption
+    def assignmentToken: Option[PsiElement] = target.findFirstChildByType(ScalaTokenTypes.tASSIGN)
   }
 }

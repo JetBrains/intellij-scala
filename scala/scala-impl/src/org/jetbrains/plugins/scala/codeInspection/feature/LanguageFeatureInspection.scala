@@ -49,7 +49,7 @@ class LanguageFeatureInspection extends AbstractInspection(ScalaInspectionBundle
       case e: ScFunctionDefinition if e.getModifierList.isImplicit &&
               e.parameters.size == 1 &&
               !e.parameterList.clauses.exists(_.isImplicit) =>
-        Option(e.getModifierList.findFirstChildByType(ScalaTokenTypes.kIMPLICIT)).getOrElse(e)
+        e.getModifierList.findFirstChildByType(ScalaTokenTypes.kIMPLICIT).getOrElse(e)
     },
     Feature(ScalaInspectionBundle.message("language.feature.higher.kinded.type"), "scala.language", "higherKinds", _.higherKinds, _.copy(higherKinds = true),
       isEnabledOn = _.scalaMinorVersionOrDefault < scalaVersionSinceWhichHigherKindsAreAlwaysEnabled) {

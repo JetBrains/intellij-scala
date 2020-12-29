@@ -35,12 +35,12 @@ class UnnecessaryPartialFunctionQuickFix(expression: ScBlockExpr)
   }
 
   def deleteLeadingWhitespace(expressionCopy: ScBlockExpr): Unit =
-    Option(expressionCopy.findFirstChildByType(ScalaTokenTypes.tLPARENTHESIS))
+    expressionCopy.findFirstChildByType(ScalaTokenTypes.tLPARENTHESIS)
       .map(_.getNextSibling)
       .foreach(deleteIfWhitespace)
 
   def deleteTrailingWhitespace(expressionCopy: ScBlockExpr): Unit =
-    Option(expressionCopy.findFirstChildByType(ScalaTokenTypes.tRPARENTHESIS))
+    expressionCopy.findFirstChildByType(ScalaTokenTypes.tRPARENTHESIS)
       .map(_.getPrevSibling)
       .foreach(deleteIfWhitespace)
 

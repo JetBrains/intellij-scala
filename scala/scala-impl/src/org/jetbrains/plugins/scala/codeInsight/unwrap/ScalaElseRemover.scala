@@ -19,7 +19,7 @@ class ScalaElseRemover extends ScalaElseUnwrapperBase {
       case ifSt @ ScIf(_, Some(`expr`), Some(elseExpr)) childOf (parentIf @ ScIf(_, _, Some(elseIf))) if ifSt == elseIf =>
         context.setElseBranch(parentIf, elseExpr)
       case _ =>
-        context.delete(ifStmt.findFirstChildByType(ScalaTokenTypes.kELSE))
+        context.delete(ifStmt.findFirstChildByType(ScalaTokenTypes.kELSE).get)
         context.delete(expr)
     }
   }

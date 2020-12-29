@@ -24,11 +24,7 @@ trait ScAnnotationExpr extends ScalaPsiElement {
     val constrInvocation = findChild[ScConstructorInvocation].get
     if (constrInvocation == null) return None
 
-    val args = constrInvocation.findFirstChildByType(ScalaElementType.ARG_EXPRS)
-    args match {
-      case scArgExpr: ScArgumentExprList => Some(scArgExpr)
-      case _ => None
-    }
+    constrInvocation.findFirstChildByTypeScala[ScArgumentExprList](ScalaElementType.ARG_EXPRS)
   }
 
   private class ScNameValueAssignment(assign: ScAssignment) extends ScNameValuePairImpl(assign.getNode) {

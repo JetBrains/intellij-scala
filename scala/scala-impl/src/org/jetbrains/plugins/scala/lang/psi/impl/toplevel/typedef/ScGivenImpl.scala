@@ -18,7 +18,7 @@ trait ScGivenImpl extends ScGiven  {
   protected def typeElementForAnonymousName: Option[ScTypeElement]
 
   override def givenName: Option[PsiElement] =
-    findFirstChildByType(ScalaTokenTypes.tIDENTIFIER).toOption
+    findFirstChildByType(ScalaTokenTypes.tIDENTIFIER)
 
   override def givenTypeParamClause: Option[ScTypeParamClause] =
     findChild[ScTypeParamClause]

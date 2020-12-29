@@ -239,7 +239,7 @@ private class ScalaDocContentGenerator(
   }
 
   private def generateHttpLink(linkElement: ScDocSyntaxElement): Option[String] = {
-    val linkValue = linkElement.findFirstChildByType(ScalaDocTokenType.DOC_HTTP_LINK_VALUE)
+    val linkValue = linkElement.findFirstChildByType(ScalaDocTokenType.DOC_HTTP_LINK_VALUE).orNull
     if (linkValue == null) return None
 
     val href = linkValue.getText

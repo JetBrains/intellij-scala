@@ -160,9 +160,9 @@ final class ScalaPullUpProcessor(project: Project,
       case ta: ScTypeAliasDefinition =>
         val copy = ta.copy().asInstanceOf[ScTypeAliasDefinition]
         Seq(
-          Option(copy.findFirstChildByType(ScalaTokenTypes.tASSIGN)),
-          Option(copy.findFirstChildByType(ScalaTokenTypes.tUPPER_BOUND)),
-          Option(copy.findFirstChildByType(ScalaTokenTypes.tLOWER_BOUND)),
+          copy.findFirstChildByType(ScalaTokenTypes.tASSIGN),
+          copy.findFirstChildByType(ScalaTokenTypes.tUPPER_BOUND),
+          copy.findFirstChildByType(ScalaTokenTypes.tLOWER_BOUND),
           copy.aliasedTypeElement
         ).flatten.foreach(_.delete())
         Seq(copy.getText)

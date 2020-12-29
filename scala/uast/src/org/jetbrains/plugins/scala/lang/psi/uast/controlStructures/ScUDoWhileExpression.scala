@@ -23,13 +23,13 @@ final class ScUDoWhileExpression(override protected val scExpression: ScDo,
 
   override def getDoIdentifier: UIdentifier =
     createUIdentifier(
-      scExpression.findFirstChildByType(ScalaTokenTypes.kDO),
+      scExpression.findFirstChildByType(ScalaTokenTypes.kDO).orNull,
       parent = this
     )
 
   override def getWhileIdentifier: UIdentifier =
     createUIdentifier(
-      scExpression.findFirstChildByType(ScalaTokenTypes.kWHILE),
+      scExpression.findFirstChildByType(ScalaTokenTypes.kWHILE).orNull,
       parent = this
     )
 
