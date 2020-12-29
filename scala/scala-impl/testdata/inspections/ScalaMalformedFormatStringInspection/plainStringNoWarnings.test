@@ -1,0 +1,26 @@
+// no warning for kind
+"value: %d".format(123) // call format
+"value: %b".format(true) // call format
+"value: %f".format(0.5F) // call format
+"value: %c".format('c') // call format
+"value: %s".format(123) // call format
+
+// no warnings for different method calls
+"value: %d".format(123) // call format
+"value: %d" format 123 //  infix format
+123.formatted("%d") // call formatted
+123 formatted "%d" // infix formatted
+String.format("%d", 123) // java call format
+String format("%d", 123) // java infix format
+printf("%d", 123) // printf
+System.out.printf("%d", 123) // System.out.printf
+
+// %% escape (SCL-5807)
+"%.1f%% of %s".format (42f, "value")
+
+ // %n escape (SCL-5383)
+"locals (%d total): %n".format(42)
+case class A(x: String)
+val a = A("qwe")
+"%n %%n %s%n %s%n %s%n %s%n".format(2, A("hello"), a, "value")
+-----

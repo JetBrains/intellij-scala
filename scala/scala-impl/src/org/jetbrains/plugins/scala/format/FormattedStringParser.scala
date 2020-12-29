@@ -7,9 +7,11 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.project.ProjectContext
+
+import scala.util.matching.Regex
 
 /**
  * Pavel Fatin
@@ -22,21 +24,21 @@ object FormattedStringParser extends StringParser {
       // string interpolators that are used in interpolated strings
       // have a higher priority over `.format` method call (see SCL-15414)
       // so we shouldn't detect them as formatted
-      .filter(!_._1.isInstanceOf[ScInterpolatedStringLiteral])
+      .filter(!_._1.is[ScInterpolatedStringLiteral])
       .map(p => parseFormatCall(p._1, p._2))
   }
 
+  // TODO: we already have ScStringLiteral, remove "isString" checks
   def extractFormatCall(element: PsiElement): Option[(ScLiteral, Seq[ScExpression])] = Some(element) collect {
     // "%d".format(1)
     case ScMethodCall(ScReferenceExpression.withQualifier(literal: ScLiteral) &&
-            PsiReferenceEx.resolve((f: ScFunction) && ContainingClass(owner: ScTrait)), args)
-      if literal.isString && isFormatMethod(owner.qualifiedName, f.name) =>
+      PsiReferenceEx.resolve((f: ScFunction) && ContainingClass(owner: ScTypeDefinition)), args)
+      if literal.isString && isScalaFormatMethod(owner, f.name) =>
       (literal, args)
 
     // "%d" format 1, "%d" format (1)
-    case ScInfixExpr(literal: ScLiteral, PsiReferenceEx.resolve((f: ScFunction) &&
-            ContainingClass(owner: ScTrait)), arg)
-      if literal.isString && isFormatMethod(owner.qualifiedName, f.name) =>
+    case ScInfixExpr(literal: ScLiteral, PsiReferenceEx.resolve((f: ScFunction) && ContainingClass(owner: ScTypeDefinition)), arg)
+      if literal.isString && isScalaFormatMethod(owner, f.name) =>
       val args = arg match {
         case tuple: ScTuple => tuple.exprs
         case it => Seq(it)
@@ -45,28 +47,47 @@ object FormattedStringParser extends StringParser {
 
     // 1.formatted("%d")
     case ScMethodCall(ScReferenceExpression.withQualifier(arg: ScExpression) &&
-            PsiReferenceEx.resolve((f: ScFunction) && ContainingClass(owner: ScClass)), Seq(literal: ScLiteral))
-      if literal.isString && isFormattedMethod(owner.qualifiedName, f.name) =>
+      PsiReferenceEx.resolve((f: ScFunction) && ContainingClass(owner: ScTypeDefinition)), Seq(literal: ScLiteral))
+      if literal.isString && isScalaFormattedMethod(owner, f.name) =>
       (literal, Seq(arg))
 
     // 1 formatted "%d"
     case ScInfixExpr(arg: ScExpression, PsiReferenceEx.resolve((f: ScFunction) &&
-            ContainingClass(owner: ScClass)), literal: ScLiteral)
-      if literal.isString && isFormattedMethod(owner.qualifiedName, f.name) =>
+      ContainingClass(owner: ScTypeDefinition)), literal: ScLiteral)
+      if literal.isString && isScalaFormattedMethod(owner, f.name) =>
       (literal, Seq(arg))
 
     // String.format("%d", 1)
     case MethodInvocation(PsiReferenceEx.resolve((f: PsiMethod) &&
-            ContainingClass(owner: PsiClass)), Seq(literal: ScLiteral, args@_*))
+      ContainingClass(owner: PsiClass)), Seq(literal: ScLiteral, args@_*))
       if literal.isString && isStringFormatMethod(owner.qualifiedName, f.getName) =>
       (literal, args)
   }
 
-  private def isFormatMethod(holder: String, method: String) =
-    holder == "scala.collection.immutable.StringLike" && method == "format"
+  private def isScalaFormatMethod(holder: ScTypeDefinition, method: String): Boolean = {
+    val fqn = holder.qualifiedName
+    holder match {
+      case _: ScTrait => // < 2.13
+        method == "format" && fqn == "scala.collection.immutable.StringLike"
+      case _: ScClass => // since 2.13
+        method == "format" && fqn == "scala.collection.StringOps"
+      case _ =>
+        false
+    }
+  }
 
-  private def isFormattedMethod(holder: String, method: String) =
-    (holder == "scala.runtime.StringFormat" || holder == "scala.runtime.StringAdd") && method == "formatted"
+  private def isScalaFormattedMethod(holder: ScTypeDefinition, method: String): Boolean = {
+    val fqn = holder.qualifiedName
+    holder match {
+      case _: ScClass =>
+        method == "formatted" && {
+          fqn == "scala.runtime.StringFormat" ||
+            fqn == "scala.runtime.StringAdd" || // TODO: why StringAdd is here?
+            fqn == "scala.Predef.StringFormat"
+        }
+      case _ => false
+    }
+  }
 
   private def isStringFormatMethod(holder: String, method: String) =
     holder == "java.lang.String" && method == "format"
@@ -79,7 +100,8 @@ object FormattedStringParser extends StringParser {
 
     var referredArguments: List[ScExpression] = Nil
 
-    val bindings = FormatSpecifierPattern.findAllMatchIn(formatString).map { it =>
+    val specifiers: Iterator[Regex.Match] = FormatSpecifierPattern.findAllMatchIn(formatString)
+    val bindings = specifiers.map { it =>
       val specifier = {
         val span = Span(literal, it.start(0) + shift, it.end(0) + shift)
         val cleanFormat = {

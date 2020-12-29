@@ -12,48 +12,19 @@ import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import scala.annotation.nowarn
 
 /**
-  * // Acceptance test
-
-  * // Expression kind
-  * "value: %d".format("123") // call format
-  * "value: %d" format "123"  //  infix format
-  * "123".formatted("%d") // call formatted
-  * "123" formatted "%d" // infix formatted
-  * String.format("%d", "123") // java call format
-  * String format ("%d", "123") // java infix format
-  * printf("%d", "123") // printf
-  * System.out.printf("%d", "123") // System.out.printf
-
-  * // Warning kind
-  * "value: %d".format() // no argument
-  * "value: %1$d".format() // no positional argument
-  * "value: %d".format("123") // inconvertible type
-  * "value: ".format(123) // unused argument
-
-  * // Multi-line string
-  * """value: %d""".format("123") // call format
-
-  * // Specifier type
-  * "value: %d".format(123) // call format
-  * "value: %b".format(true) // call format
-  * "value: %f".format(0.5F) // call format
-  * "value: %c".format('c') // call format
-  * "value: %s".format(123) // call format
-
-  * // Interpolated strings ...
- */
-
-/**
- * Pavel Fatin
+ * NOTE!!!<br>
+ * We currently don't handle interpolated string in formatted context.
+ * See comment inside [[org.jetbrains.plugins.scala.format.FormattedStringParser.parse]] and SCL-15414
  */
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 class ScalaMalformedFormatStringInspection extends AbstractInspection {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case element =>
-      val representation = FormattedStringParser.parse(element)
-              .orElse(PrintStringParser.parse(element))
-              .orElse(InterpolatedStringParser.parse(element))
+      val res0 = FormattedStringParser.parse(element)
+      val res1 = res0.orElse(PrintStringParser.parse(element))
+      val res2 = res1.orElse(InterpolatedStringParser.parse(element))
+      val representation = res2
 
       for (parts <- representation; part <- parts)
         inspect(part, holder)
@@ -65,7 +36,7 @@ class ScalaMalformedFormatStringInspection extends AbstractInspection {
         implicit val tpc: TypePresentationContext = TypePresentationContext(element)
         injection.problem match {
           case Some(Inapplicable) =>
-            for (argumentType <- injection.expressionType) {
+            for (argumentType <- injection.expressionType.map(_.widenIfLiteral)) {
               holder.registerProblem(element, new TextRange(start, end),
                 ScalaInspectionBundle.message("format.specifier.cannot.be.used.for.an.argument", format, exp.getText, argumentType.presentableText))
               holder.registerProblem(exp,
