@@ -75,14 +75,14 @@ trait ScalaPsiElement extends PsiElement
     if (node == null) null else node.getPsi
   }
 
-  def findChildrenByType(t: tree.IElementType): List[PsiElement] = {
-    val buffer = new collection.mutable.ArrayBuffer[PsiElement]
+  def findChildrenByType(t: tree.IElementType): Seq[PsiElement] = {
+    val builder = Seq.newBuilder[PsiElement]
     var node = getNode.getFirstChildNode
     while (node != null) {
-      if (node.getElementType == t) buffer += node.getPsi
+      if (node.getElementType == t) builder += node.getPsi
       node = node.getTreeNext
     }
-    buffer.toList
+    builder.result()
   }
 
   def findLastChildByType(set: tree.TokenSet): PsiElement = {
