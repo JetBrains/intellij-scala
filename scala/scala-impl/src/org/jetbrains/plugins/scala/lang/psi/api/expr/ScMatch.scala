@@ -17,7 +17,7 @@ trait ScMatch extends ScExpression {
   def expressions: Seq[ScExpression] = clauses.map(_.expr.getOrElse(createExpressionFromText("{}")))
 
   @Nullable
-  def caseClauses: ScCaseClauses = findChildByClassScala(classOf[ScCaseClauses])
+  def caseClauses: ScCaseClauses = findChild[ScCaseClauses].get
 
   def clauses: Seq[ScCaseClause] = caseClauses match {
     case null => Seq.empty

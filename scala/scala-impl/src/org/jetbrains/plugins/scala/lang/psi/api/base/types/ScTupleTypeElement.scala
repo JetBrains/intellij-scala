@@ -12,7 +12,7 @@ package types
 trait ScTupleTypeElement extends ScDesugarizableToParametrizedTypeElement {
   override protected val typeName = "TupleType"
 
-  def typeList: ScTypes = findChildByClassScala(classOf[ScTypes])
+  def typeList: ScTypes = findChild[ScTypes].get
 
   def components: Seq[ScTypeElement] = typeList.types
 

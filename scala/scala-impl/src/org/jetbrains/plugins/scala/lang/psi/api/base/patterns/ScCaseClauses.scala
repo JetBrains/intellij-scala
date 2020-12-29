@@ -11,7 +11,7 @@ package patterns
 */
 
 trait ScCaseClauses extends ScalaPsiElement {
-  def caseClause: ScCaseClause = findChildByClassScala(classOf[ScCaseClause])
+  def caseClause: ScCaseClause = findChild[ScCaseClause].get
   def caseClauses: Seq[ScCaseClause] = findChildren[ScCaseClause]
 }
 

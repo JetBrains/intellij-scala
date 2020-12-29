@@ -13,7 +13,7 @@ package types
 trait ScFunctionalTypeElement extends ScDesugarizableToParametrizedTypeElement {
   override protected val typeName = "FunctionalType"
 
-  def paramTypeElement: ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
+  def paramTypeElement: ScTypeElement = findChild[ScTypeElement].get
 
   def returnTypeElement: Option[ScTypeElement] = findChildren[ScTypeElement] match {
     case Seq(_) => None

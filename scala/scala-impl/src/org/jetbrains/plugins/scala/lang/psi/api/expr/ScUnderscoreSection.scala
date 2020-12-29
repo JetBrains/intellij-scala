@@ -23,12 +23,8 @@ import scala.collection.mutable.ArrayBuffer
 * Date: 06.03.2008
 */
 trait ScUnderscoreSection extends ScExpression {
-  def bindingExpr: Option[ScExpression] = {
-    findChildByClassScala(classOf[ScExpression]) match {
-      case null => None
-      case expression: ScExpression => Some(expression)
-    }
-  }
+  def bindingExpr: Option[ScExpression] =
+    findChild[ScExpression]
 
   def overExpr: Option[ScExpression] = {
     if (bindingExpr.isDefined) return Some(this)

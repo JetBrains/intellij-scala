@@ -14,7 +14,7 @@ package types
 * Common trait for usual infix types and dotty and/or types.
 */
 trait ScInfixLikeTypeElement extends ScTypeElement {
-  def left: ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
+  def left: ScTypeElement = findChild[ScTypeElement].get
 
   def rightOption: Option[ScTypeElement] = findChildren[ScTypeElement] match {
     case Seq(_, right) => Some(right)
@@ -31,7 +31,7 @@ trait ScInfixTypeElement extends ScInfixLikeTypeElement
   type Kind = ScTypeElement
   type Reference = ScStableCodeReference
 
-  override def operation: ScStableCodeReference = findChildByClassScala(classOf[ScStableCodeReference])
+  override def operation: ScStableCodeReference = findChild[ScStableCodeReference].get
 
   override def desugarizedText = s"${operation.getText}[${left.getText}, ${rightOption.map(_.getText).getOrElse("Nothing")}]"
 }

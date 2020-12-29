@@ -5,6 +5,7 @@ package api
 package expr
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions._
 
 import scala.annotation.tailrec
 
@@ -26,9 +27,10 @@ trait ScMethodCall extends ScExpression with MethodInvocation {
     case _ => 1
   }
 
-  def args: ScArgumentExprList = findChildByClassScala(classOf[ScArgumentExprList])
+  // todo: this can be null? check that and make it an Optionn
+  def args: ScArgumentExprList = findChild[ScArgumentExprList].orNull
 
-  override def isUpdateCall: Boolean = getContext.isInstanceOf[ScAssignment] &&
+  override def isUpdateCall: Boolean = getContext.is[ScAssignment] &&
     getContext.asInstanceOf[ScAssignment].leftExpression == this
 
   def updateExpression(): Option[ScExpression] = {

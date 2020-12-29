@@ -44,7 +44,7 @@ final class ScTypeAliasDefinitionImpl private(stub: ScTypeAliasStub, node: ASTNo
   }
 
   override def aliasedTypeElement: Option[ScTypeElement] =
-    byPsiOrStub(Option(findChildByClassScala(classOf[ScTypeElement])))(_.typeElement)
+    byPsiOrStub(findChild[ScTypeElement])(_.typeElement)
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 

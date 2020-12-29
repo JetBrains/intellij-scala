@@ -12,7 +12,7 @@ class ScDependentFunctionTypeElementImpl(node: ASTNode)
     extends ScalaPsiElementImpl(node)
     with ScDependentFunctionTypeElement {
 
-  override def paramTypeElement: ScParameterClause      = findChildByClassScala(classOf[ScParameterClause])
+  override def paramTypeElement: ScParameterClause      = findChild[ScParameterClause].get
   override def returnTypeElement: Option[ScTypeElement] = getLastChild.asOptionOf[ScTypeElement]
 
   override protected def innerType: TypeResult =

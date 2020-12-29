@@ -14,7 +14,7 @@ trait ScSimpleTypeElement extends ScTypeElement {
 
   def reference: Option[ScStableCodeReference] = findChild[ScStableCodeReference]
 
-  def pathElement: ScPathElement = findChildByClassScala(classOf[ScPathElement])
+  def pathElement: ScPathElement = findChild[ScPathElement].get
 
   def singleton: Boolean = getNode.findChildByType(lang.lexer.ScalaTokenTypes.kTYPE) != null
 

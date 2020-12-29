@@ -56,7 +56,7 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotatedAdapter {
   }
 
   override def addAnnotation(qualifiedName: String): PsiAnnotation = {
-    val container = findChildByClassScala(classOf[ScAnnotations])
+    val container = findChild[ScAnnotations].get
 
     val added = container.add(createAnAnnotation(qualifiedName))
     container.add(createNewLine())

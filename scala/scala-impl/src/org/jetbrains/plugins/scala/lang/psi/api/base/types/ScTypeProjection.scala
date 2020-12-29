@@ -13,5 +13,5 @@ package types
 trait ScTypeProjection extends ScTypeElement with ScReference {
   override protected val typeName = "TypeProjection"
 
-  def typeElement: ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
+  def typeElement: ScTypeElement = findChild[ScTypeElement].get
 }

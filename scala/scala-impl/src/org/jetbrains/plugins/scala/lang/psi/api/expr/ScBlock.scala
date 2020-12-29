@@ -33,7 +33,7 @@ trait ScBlock extends ScExpression
 {
   protected override def innerType: TypeResult = {
     if (hasCaseClauses) {
-      val caseClauses = findChildByClassScala(classOf[ScCaseClauses])
+      val caseClauses = findChild[ScCaseClauses].get
       val clauses: Seq[ScCaseClause] = caseClauses.caseClauses
 
       val clausesTypes = ArrayBuffer[ScType]()

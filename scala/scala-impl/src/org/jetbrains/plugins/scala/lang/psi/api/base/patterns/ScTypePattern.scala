@@ -13,5 +13,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 */
 
 trait ScTypePattern extends ScalaPsiElement {
-  def typeElement: ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
+  def typeElement: ScTypeElement = findChild[ScTypeElement].get
 }

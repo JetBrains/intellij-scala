@@ -16,9 +16,9 @@ import org.jetbrains.plugins.scala.macroAnnotations.Cached
 trait ScParameterizedTypeElement extends ScDesugarizableTypeElement {
   override protected val typeName = "ParametrizedType"
 
-  def typeArgList: ScTypeArgs = findChildByClassScala(classOf[ScTypeArgs])
+  def typeArgList: ScTypeArgs = findChild[ScTypeArgs].get
 
-  def typeElement: ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
+  def typeElement: ScTypeElement = findChild[ScTypeElement].get
 
   def findConstructorInvocation: Option[ScConstructorInvocation] = getContext match {
     case constrInvocation: ScConstructorInvocation => Some(constrInvocation)

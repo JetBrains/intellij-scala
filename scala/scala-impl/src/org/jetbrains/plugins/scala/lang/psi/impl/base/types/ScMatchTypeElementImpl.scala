@@ -10,7 +10,7 @@ class ScMatchTypeElementImpl(node: ASTNode)
   extends ScalaPsiElementImpl(node)
     with ScMatchTypeElement {
 
-  override def scrutineeTypeElement: ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
+  override def scrutineeTypeElement: ScTypeElement = findChild[ScTypeElement].get
 
   override def cases: Option[ScMatchTypeCases] = findChild[ScMatchTypeCases]
 

@@ -14,8 +14,8 @@ trait ScInfixPattern extends ScPattern with ScInfixElement {
   type Kind = ScPattern
   type Reference = ScStableCodeReference
 
-  override def left: ScPattern = findChildByClassScala(classOf[ScPattern])
-  override def operation: ScStableCodeReference = findChildByClassScala(classOf[ScStableCodeReference])
+  override def left: ScPattern = findChild[ScPattern].get
+  override def operation: ScStableCodeReference = findChild[ScStableCodeReference].get
   override def rightOption: Option[ScPattern] = findLastChild(classOf[ScPattern])
 }
 

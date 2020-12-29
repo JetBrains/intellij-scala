@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
   */
 trait ScGenericCall extends ScExpression {
 
-  def referencedExpr: ScExpression = findChildByClassScala(classOf[ScExpression])
+  def referencedExpr: ScExpression = findChild[ScExpression].get
 
   def typeArgs: Option[ScTypeArgs] = findChild[ScTypeArgs]
 

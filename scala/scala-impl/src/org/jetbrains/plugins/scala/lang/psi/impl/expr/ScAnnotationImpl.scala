@@ -46,10 +46,10 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
   }.orNull
 
   override def typeElement: ScTypeElement =
-    byPsiOrStub(Option(annotationExpr.constructorInvocation.typeElement))(_.typeElement).orNull
+    byPsiOrStub(Option(annotationExpr.constructorInvocation.typeElement))(_.typeElement).get
 
   override def annotationExpr: ScAnnotationExpr =
-    byPsiOrStub(Option(findChildByClassScala(classOf[ScAnnotationExpr])))(_.annotationExpr).orNull
+    byPsiOrStub(findChild[ScAnnotationExpr])(_.annotationExpr).get
 
   override def findDeclaredAttributeValue(attributeName: String): PsiAnnotationMemberValue = {
     constructorInvocation.args match {
