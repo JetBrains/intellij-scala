@@ -60,7 +60,7 @@ trait ScPatternImpl extends ScPattern {
 
   override def subpatterns: Seq[ScPattern] = this match {
     case _: ScReferencePattern => Seq.empty
-    case _ => ArraySeq.unsafeWrapArray(findChildrenByClassScala[ScPattern](classOf[ScPattern]))
+    case _ => findChildren[ScPattern]
   }
 
   override def analogInDesugaredForExpr: Option[ScPattern] = {

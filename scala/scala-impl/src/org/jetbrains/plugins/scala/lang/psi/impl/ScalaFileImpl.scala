@@ -4,7 +4,6 @@ package psi
 package impl
 
 import java.{util => ju}
-
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.lang.Language
 import com.intellij.openapi.diagnostic.Logger
@@ -36,6 +35,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.annotation.{nowarn, tailrec}
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
@@ -229,8 +229,8 @@ class ScalaFileImpl(
 
   override def firstPackaging: Option[ScPackaging] = packagings.headOption
 
-  protected def packagings: Array[ScPackaging] = foldStub(findChildrenByClassScala(classOf[ScPackaging])) {
-    _.getChildrenByType(PACKAGING, JavaArrayFactoryUtil.ScPackagingFactory)
+  protected def packagings: Seq[ScPackaging] = foldStub(findChildren[ScPackaging]) { stub =>
+    ArraySeq.unsafeWrapArray(stub.getChildrenByType(PACKAGING, JavaArrayFactoryUtil.ScPackagingFactory))
   }
 
   override def getPackageName: String = packageName match {
@@ -250,7 +250,7 @@ class ScalaFileImpl(
         case _ => null
       }
 
-    inner(packagings.toSeq, new StringBuilder())
+    inner(packagings, new StringBuilder())
   }
 
   override def getClasses: Array[PsiClass] =
@@ -338,14 +338,14 @@ class ScalaFileImpl(
   }
 
   override def typeDefinitions: Seq[ScTypeDefinition] = {
-    val typeDefinitions = foldStub(findChildrenByClassScala(classOf[ScTypeDefinition])) {
-      _.getChildrenByType(TYPE_DEFINITIONS, JavaArrayFactoryUtil.ScTypeDefinitionFactory)
+    val typeDefinitions = foldStub(findChildren[ScTypeDefinition]) { stub =>
+      ArraySeq.unsafeWrapArray(stub.getChildrenByType(TYPE_DEFINITIONS, JavaArrayFactoryUtil.ScTypeDefinitionFactory))
     }
 
-    typeDefinitions.toSeq ++ indirectTypeDefinitions
+    typeDefinitions ++ indirectTypeDefinitions
   }
 
-  protected final def indirectTypeDefinitions: Seq[ScTypeDefinition] = packagings.flatMap(_.typeDefinitions).toSeq
+  protected final def indirectTypeDefinitions: Seq[ScTypeDefinition] = packagings.flatMap(_.typeDefinitions)
 
   private def foldStub[R](byPsi: => R)(byStub: ScFileStub => R): R = getStub match {
     case null => byPsi

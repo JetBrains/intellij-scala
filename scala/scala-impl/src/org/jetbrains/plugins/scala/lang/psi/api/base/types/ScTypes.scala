@@ -11,5 +11,5 @@ package types
  */
 
 trait ScTypes extends ScalaPsiElement {
-  def types: Seq[ScTypeElement] = findChildrenByClassScala(classOf[ScTypeElement]).toSeq
+  def types: Seq[ScTypeElement] = findChildren[ScTypeElement]
 }

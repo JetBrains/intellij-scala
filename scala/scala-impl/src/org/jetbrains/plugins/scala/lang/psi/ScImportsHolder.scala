@@ -46,7 +46,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     if (stub != null)
       stub.getChildrenByType(ScalaElementType.ImportStatement, ScImportStmtFactory).toSeq
     else
-      findChildrenByClassScala(classOf[ScImportStmt]).toSeq
+      findChildren[ScImportStmt]
   }
 
   override def processDeclarations(processor: PsiScopeProcessor,

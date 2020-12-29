@@ -24,15 +24,8 @@ import scala.collection.mutable.ArrayBuffer
 class ScXmlPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScPatternImpl with ScXmlPattern {
   override def isIrrefutableFor(t: Option[ScType]): Boolean = false
 
-  override def subpatterns: Seq[ScPattern] = {
-    val pattBuff: ArrayBuffer[ScPattern] = new ArrayBuffer[ScPattern]
-    pattBuff ++= super.subpatterns
-    val args = findChildrenByClassScala(classOf[ScPatterns])
-    for (arg <- args) {
-      pattBuff ++= arg.patterns
-    }
-    pattBuff.toSeq
-  }
+  override def subpatterns: Seq[ScPattern] =
+    super.subpatterns ++ findChildren[ScPatterns].iterator.flatMap(_.patterns)
 
   override def toString: String = "XmlPattern"
 

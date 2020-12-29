@@ -9,7 +9,7 @@ package expr
   *         Date: 06.03.2008
   */
 trait ScTuple extends ScInfixArgumentExpression {
-  def exprs: Seq[ScExpression] = findChildrenByClassScala(classOf[ScExpression]).toSeq
+  def exprs: Seq[ScExpression] = findChildren[ScExpression]
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitTuple(this)

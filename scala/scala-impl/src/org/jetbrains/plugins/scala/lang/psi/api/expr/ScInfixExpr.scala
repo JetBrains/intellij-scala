@@ -60,9 +60,9 @@ trait ScInfixExpr extends ScExpression with ScSugarCallExpr with ScInfixElement 
   }
 
   private def unapply: (ScExpression, ScExpression, ScExpression) =
-    findChildrenByClassScala(classOf[ScExpression]) match {
-      case Array(left, operation, right) => (left, operation, right)
-      case _                             => malformedInfixExpr(getText)
+    findChildren[ScExpression] match {
+      case Seq(left, operation, right) => (left, operation, right)
+      case _                           => malformedInfixExpr(getText)
     }
 }
 

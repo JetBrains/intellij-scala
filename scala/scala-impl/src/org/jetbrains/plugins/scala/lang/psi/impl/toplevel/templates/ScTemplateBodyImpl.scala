@@ -67,7 +67,7 @@ class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
 
   override def exprs: Seq[ScExpression] =
     if (this.getStub != null) Seq.empty //we don't have stubbed expressions
-    else findChildrenByClassScala(classOf[ScExpression]).toSeq
+    else findChildren[ScExpression]
 
   @Cached(ModTracker.anyScalaPsiChange, this)
   override def selfTypeElement: Option[ScSelfTypeElement] =

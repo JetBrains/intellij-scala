@@ -21,7 +21,7 @@ class ScPatternArgumentListImpl(node: ASTNode) extends ScalaPsiElementImpl (node
   override def toString: String = "Pattern Argument List"
 
   override def patterns: Seq[ScPattern] = {
-    val children = ArraySeq.unsafeWrapArray(findChildrenByClassScala[ScPattern](classOf[ScPattern]))
+    val children = findChildren[ScPattern]
     val grandChildrenInBlockExpr = children
       .iterator
       .filterByType[ScBlockExpr]

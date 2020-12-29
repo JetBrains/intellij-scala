@@ -88,8 +88,8 @@ trait ScBlock extends ScExpression
   def isInCatchBlock: Boolean = getContext.isInstanceOf[ScCatchBlock]
   def isAnonymousFunction: Boolean = hasCaseClauses && !isInCatchBlock
 
-  def exprs: Seq[ScExpression] = findChildrenByClassScala(classOf[ScExpression]).toSeq
-  def statements: Seq[ScBlockStatement] = findChildrenByClassScala(classOf[ScBlockStatement]).toSeq
+  def exprs: Seq[ScExpression] = findChildren[ScExpression]
+  def statements: Seq[ScBlockStatement] = findChildren[ScBlockStatement]
 
   def hasRBrace: Boolean = getNode.getChildren(TokenSet.create(ScalaTokenTypes.tRBRACE)).length == 1
 

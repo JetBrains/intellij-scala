@@ -10,9 +10,9 @@ package expr
   */
 trait ScPostfixExpr extends ScExpression with ScSugarCallExpr {
 
-  def operand: ScExpression = findChildrenByClassScala(classOf[ScExpression]).apply(0)
+  def operand: ScExpression = findChild[ScExpression].get
 
-  override def operation: ScReferenceExpression = findChildrenByClassScala(classOf[ScExpression]).apply(1) match {
+  override def operation: ScReferenceExpression = findLastChild(classOf[ScExpression]).get match {
     case re: ScReferenceExpression => re
     case _ =>
       throw new UnsupportedOperationException("Postfix Expr Operation is not reference expression: " + this.getText)

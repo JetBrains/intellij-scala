@@ -16,8 +16,8 @@ package types
 trait ScInfixLikeTypeElement extends ScTypeElement {
   def left: ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
 
-  def rightOption: Option[ScTypeElement] = findChildrenByClassScala(classOf[ScTypeElement]) match {
-    case Array(_, right) => Some(right)
+  def rightOption: Option[ScTypeElement] = findChildren[ScTypeElement] match {
+    case Seq(_, right) => Some(right)
     case _ => None
   }
 }

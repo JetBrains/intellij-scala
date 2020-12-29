@@ -19,5 +19,5 @@ final class ScTemplateDerivesImpl private(stub: ScTemplateDerivesStub, node: AST
 
   override def toString: String = "TemplateDerives"
 
-  override def deriveReferences: Seq[ScReference] = findChildrenByClassScala(classOf[ScReference]).toSeq
+  override def deriveReferences: Seq[ScReference] = findChildren[ScReference]
 }

@@ -6,9 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 
 class ScMatchTypeCaseImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScMatchTypeCase {
 
-  override def patternTypeElement: Option[ScTypeElement] =
-    findChildrenByClassScala(classOf[ScTypeElement]).headOption
+  override def patternTypeElement: Option[ScTypeElement] = findChild[ScTypeElement]
 
-  override def resultTypeElement: Option[ScTypeElement] =
-    findChildrenByClassScala(classOf[ScTypeElement]).lastOption
+  override def resultTypeElement: Option[ScTypeElement] = findChild[ScTypeElement]
 }

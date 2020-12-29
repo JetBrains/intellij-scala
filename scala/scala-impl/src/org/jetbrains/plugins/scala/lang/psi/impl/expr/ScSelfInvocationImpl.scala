@@ -36,7 +36,7 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
     findChild[ScArgumentExprList]
 
   override def arguments: Seq[ScArgumentExprList] =
-    findChildrenByClassScala(classOf[ScArgumentExprList]).toSeq
+    findChildren[ScArgumentExprList]
 
   override def typeArgList: Option[ScTypeArgs] = None
 

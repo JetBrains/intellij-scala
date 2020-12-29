@@ -15,8 +15,8 @@ trait ScFunctionalTypeElement extends ScDesugarizableToParametrizedTypeElement {
 
   def paramTypeElement: ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
 
-  def returnTypeElement: Option[ScTypeElement] = findChildrenByClassScala(classOf[ScTypeElement]) match {
-    case Array(_) => None
+  def returnTypeElement: Option[ScTypeElement] = findChildren[ScTypeElement] match {
+    case Seq(_) => None
     case many => Some(many(1))
   }
 
