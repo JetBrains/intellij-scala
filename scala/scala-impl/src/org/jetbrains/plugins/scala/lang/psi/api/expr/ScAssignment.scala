@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcesso
 trait ScAssignment extends ScExpression {
   def leftExpression: ScExpression = findChild[ScExpression].get
 
-  def rightExpression: Option[ScExpression] = findLastChild(classOf[ScExpression]) match {
+  def rightExpression: Option[ScExpression] = findLastChild[ScExpression] match {
     case Some(expr: ScExpression) if expr != leftExpression => Some(expr)
     case _ => None
   }

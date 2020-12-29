@@ -11,7 +11,7 @@ import com.intellij.psi.PsiElement
   *         Date: 06.03.2008
   */
 trait ScPrefixExpr extends ScExpression with ScSugarCallExpr {
-  def operand: ScExpression = findLastChild(classOf[ScExpression]).get
+  def operand: ScExpression = findLastChild[ScExpression].get
 
   override def operation: ScReferenceExpression = findChild[ScExpression].get match {
     case re: ScReferenceExpression => re

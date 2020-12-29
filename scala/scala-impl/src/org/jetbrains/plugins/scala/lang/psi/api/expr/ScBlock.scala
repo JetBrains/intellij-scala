@@ -101,8 +101,8 @@ trait ScBlock extends ScExpression
   def getLBrace: Option[PsiElement] =
     this.findFirstChildByType(ScalaTokenTypes.tLBRACE).toOption
 
-  def resultExpression: Option[ScExpression] = findLastChild(classOf[ScBlockStatement]).flatMap(_.asOptionOf[ScExpression])
-  def lastStatement: Option[ScBlockStatement] = findLastChild(classOf[ScBlockStatement])
+  def resultExpression: Option[ScExpression] = lastStatement.flatMap(_.asOptionOf[ScExpression])
+  def lastStatement: Option[ScBlockStatement] = findLastChild[ScBlockStatement]
 
   def addDefinition(decl: ScMember, before: PsiElement): Boolean = {
     getNode.addChild(decl.getNode,before.getNode)

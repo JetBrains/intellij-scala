@@ -12,7 +12,7 @@ trait ScPostfixExpr extends ScExpression with ScSugarCallExpr {
 
   def operand: ScExpression = findChild[ScExpression].get
 
-  override def operation: ScReferenceExpression = findLastChild(classOf[ScExpression]).get match {
+  override def operation: ScReferenceExpression = findLastChild[ScExpression].get match {
     case re: ScReferenceExpression => re
     case _ =>
       throw new UnsupportedOperationException("Postfix Expr Operation is not reference expression: " + this.getText)

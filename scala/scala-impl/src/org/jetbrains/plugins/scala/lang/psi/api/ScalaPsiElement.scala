@@ -93,12 +93,13 @@ trait ScalaPsiElement extends PsiElement
     if (node == null) null else node.getPsi
   }
 
-  protected def findLastChild[T >: Null <: ScalaPsiElement](clazz: Class[T]): Option[T] = {
+  protected def findLastChild[T >: Null <: ScalaPsiElement: ClassTag]: Option[T] = {
+    val clazz = implicitly[ClassTag[T]].runtimeClass
     var child = getLastChild
     while (child != null && !clazz.isInstance(child)) {
       child = child.getPrevSibling
     }
-    if (child == null) None else Some(child.asInstanceOf[T])
+    Option(child.asInstanceOf[T])
   }
 
   abstract override def accept(visitor: PsiElementVisitor): Unit = visitor match {

@@ -16,7 +16,7 @@ trait ScInfixPattern extends ScPattern with ScInfixElement {
 
   override def left: ScPattern = findChild[ScPattern].get
   override def operation: ScStableCodeReference = findChild[ScStableCodeReference].get
-  override def rightOption: Option[ScPattern] = findLastChild(classOf[ScPattern])
+  override def rightOption: Option[ScPattern] = findLastChild[ScPattern]
 }
 
 object ScInfixPattern {
