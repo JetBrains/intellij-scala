@@ -24,23 +24,21 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
   override def contextBound: Seq[ScType] = contextBoundTypeElement.flatMap(_.`type`().toOption)
 
   override def upperTypeElement: Option[ScTypeElement] = {
-    val tUpper = findLastChildByType[PsiElement](ScalaTokenTypes.tUPPER_BOUND)
-    if (tUpper != null) {
+    findLastChildByTypeScala[PsiElement](ScalaTokenTypes.tUPPER_BOUND).flatMap { tUpper =>
       ScalaPsiUtil.getNextSiblingOfType(tUpper, classOf[ScTypeElement]) match {
         case null => None
         case te => Some(te)
       }
-    } else None
+    }
   }
 
   override def lowerTypeElement: Option[ScTypeElement] = {
-    val tLower = findLastChildByType[PsiElement](ScalaTokenTypes.tLOWER_BOUND)
-    if (tLower != null) {
+    findLastChildByTypeScala[PsiElement](ScalaTokenTypes.tLOWER_BOUND).flatMap { tLower =>
       ScalaPsiUtil.getNextSiblingOfType(tLower, classOf[ScTypeElement]) match {
         case null => None
         case te => Some(te)
       }
-    } else None
+    }
   }
 
 

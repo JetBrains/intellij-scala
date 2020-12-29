@@ -116,7 +116,7 @@ object ExhaustiveMatchCompletionContributor {
       replaceText(clausesText)
 
       onTargetElement { (statement: E) =>
-        val caseClauses = statement.findLastChildByType[ScCaseClauses](parser.ScalaElementType.CASE_CLAUSES)
+        val caseClauses = statement.findLastChildByTypeScala[ScCaseClauses](parser.ScalaElementType.CASE_CLAUSES).get
 
         val clauses = caseClauses.caseClauses
         strategy.adjustTypes(components, clauses)

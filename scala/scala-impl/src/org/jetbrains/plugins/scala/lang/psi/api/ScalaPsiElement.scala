@@ -58,13 +58,12 @@ trait ScalaPsiElement extends PsiElement
   protected final def findChildren[T >: Null <: ScalaPsiElement: ClassTag]: Seq[T] =
     ArraySeq.unsafeWrapArray(findChildrenByClassScala(classTag[T].runtimeClass.asInstanceOf[Class[T]]))
 
-  def findLastChildByType[T <: PsiElement](t: tree.IElementType): T = {
+  def findLastChildByTypeScala[T <: PsiElement](t: tree.IElementType): Option[T] = {
     var node = getNode.getLastChildNode
     while (node != null && node.getElementType != t) {
       node = node.getTreePrev
     }
-    if (node == null) null.asInstanceOf[T]
-    else node.getPsi.asInstanceOf[T]
+    Option(node).map(_.getPsi.asInstanceOf[T])
   }
 
   def findFirstChildByType(t: tree.IElementType): PsiElement = {

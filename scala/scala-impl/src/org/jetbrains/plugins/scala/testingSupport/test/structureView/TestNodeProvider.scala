@@ -309,10 +309,11 @@ object TestNodeProvider {
   }
 
   private def checkPendingExpr(expr: ScExpression): Boolean = {
-    Option(expr match {
-      case refExpr: ScReferenceExpression => refExpr
-      case _ => expr.findLastChildByType(ScalaElementType.REFERENCE_EXPRESSION)
-    }).exists(checkRefExpr(_, "pending"))
+    val refExpr = expr match {
+      case refExpr: ScReferenceExpression => Some(refExpr)
+      case _ => expr.findLastChildByTypeScala(ScalaElementType.REFERENCE_EXPRESSION)
+    }
+    refExpr.exists(checkRefExpr(_, "pending"))
   }
 
   private def checkIgnoreExpr(expr: ScInfixExpr): Boolean = {

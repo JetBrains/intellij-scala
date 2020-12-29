@@ -11,7 +11,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil.getNextSiblingOfType
 import javax.swing.Icon
-import org.jetbrains.plugins.scala.extensions.ifReadAllowed
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{tLOWER_BOUND, tUPPER_BOUND}
@@ -66,12 +66,10 @@ final class ScTypeAliasDeclarationImpl private(stub: ScTypeAliasStub, node: ASTN
   override def lowerTypeElement: Option[ScTypeElement] =
     byPsiOrStub(boundElement(tLOWER_BOUND))(_.lowerBoundTypeElement)
 
-  private def boundElement(elementType: IElementType) = {
-    val result = findLastChildByType[PsiElement](elementType) match {
-      case null => null
-      case element => getNextSiblingOfType(element, classOf[ScTypeElement])
+  private def boundElement(elementType: IElementType): Option[ScTypeElement] = {
+    findLastChildByTypeScala[PsiElement](elementType).flatMap { element =>
+      getNextSiblingOfType(element, classOf[ScTypeElement]).toOption
     }
-    Option(result)
   }
 
   override protected def baseIcon: Icon = Icons.ABSTRACT_TYPE_ALIAS
