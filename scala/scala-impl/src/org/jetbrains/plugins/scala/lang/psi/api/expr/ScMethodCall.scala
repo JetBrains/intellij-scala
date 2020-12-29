@@ -27,8 +27,7 @@ trait ScMethodCall extends ScExpression with MethodInvocation {
     case _ => 1
   }
 
-  // todo: this can be null? check that and make it an Optionn
-  def args: ScArgumentExprList = findChild[ScArgumentExprList].orNull
+  def args: ScArgumentExprList = findChild[ScArgumentExprList].get
 
   override def isUpdateCall: Boolean = getContext.is[ScAssignment] &&
     getContext.asInstanceOf[ScAssignment].leftExpression == this

@@ -111,7 +111,7 @@ object ScalaRefactoringUtil {
   }
 
   def isInvalid(typeElement: ScTypeElement): Boolean =
-    typeElement.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs]
+    typeElement.getNextSiblingNotWhitespace.is[ScTypeArgs]
 
   def getTypeElement(file: PsiFile)
                     (implicit selectionModel: SelectionModel): Option[ScTypeElement] =

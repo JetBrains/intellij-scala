@@ -177,7 +177,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
         val endOffset = call.getTextRange.getEndOffset
         val markRange = call
           .asOptionOf[ScMethodCall]
-          .flatMap(_.args.toOption)
+          .map(_.args)
           .flatMap(_.findLastChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS).toOption)
           .map(_.getTextRange)
           .getOrElse(TextRange.create(endOffset - 1, endOffset))
