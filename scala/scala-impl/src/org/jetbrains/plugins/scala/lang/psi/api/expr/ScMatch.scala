@@ -17,12 +17,9 @@ trait ScMatch extends ScExpression {
   def expressions: Seq[ScExpression] = clauses.map(_.expr.getOrElse(createExpressionFromText("{}")))
 
   @Nullable
-  def caseClauses: ScCaseClauses = findChild[ScCaseClauses].get
+  def caseClauses: Option[ScCaseClauses] = findChild[ScCaseClauses]
 
-  def clauses: Seq[ScCaseClause] = caseClauses match {
-    case null => Seq.empty
-    case clauses => clauses.caseClauses
-  }
+  def clauses: Seq[ScCaseClause] = caseClauses.fold(Seq.empty[ScCaseClause])(_.caseClauses)
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitMatch(this)

@@ -26,15 +26,18 @@ final class ScUSwitchExpression(override protected val scExpression: ScMatch,
     with ScUExpression
     with ScUAnnotated {
 
-  override def getBody: UExpressionList =
-    scExpression.caseClauses
+  override def getBody: UExpressionList = {
+    @Nullable
+    val caseClauses = scExpression.caseClauses.orNull
+    caseClauses
       .convertTo[UExpressionList](this)
       .getOrElse(
         new ScUEmptyExpressionList(
-          scExpression.caseClauses,
+          caseClauses,
           LazyUElement.just(this)
         )
       )
+  }
 
   @Nullable
   override def getExpression: UExpression =
