@@ -75,7 +75,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
           case Constructor(_) =>
           // don't handle constructors here
 
-          case f @ (_: ScFunction | _: PsiMethod | _: ScSyntheticFunction | _: ScParameter) =>
+          case f @ (_: ScFunction | _: PsiMethod | _: ScSyntheticFunction) =>
             reference.getContext match {
               case genCall: ScGenericCall =>
                 val missing = for (MissedTypeParameter(p) <- r.problems) yield p.name
