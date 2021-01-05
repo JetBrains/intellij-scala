@@ -15,5 +15,5 @@ final class ScConstrExprImpl(node: ASTNode) extends ScExpressionImplBase(node) w
 
   override def toString: String = "ConstructorExpression"
 
-  override def selfInvocation: Option[ScSelfInvocation] = findChild(classOf[ScSelfInvocation])
+  override def selfInvocation: Option[ScSelfInvocation] = findChild[ScSelfInvocation]
 }

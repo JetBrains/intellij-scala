@@ -10,8 +10,8 @@ final class Sc3TypedPatternImpl(node: ASTNode)
     with Sc3TypedPattern
     with TypedPatternLikeImpl
 {
-  override def pattern: Option[ScPattern] = findChild(classOf[ScPattern])
-  override def typePattern: Option[ScTypePattern] = findChild(classOf[ScTypePattern])
+  override def pattern: Option[ScPattern] = findChild[ScPattern]
+  override def typePattern: Option[ScTypePattern] = findChild[ScTypePattern]
 
   override def toString: String = "Scala3 TypedPattern"
 }

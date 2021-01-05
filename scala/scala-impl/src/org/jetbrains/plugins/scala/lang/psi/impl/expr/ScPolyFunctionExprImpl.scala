@@ -16,9 +16,9 @@ class ScPolyFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) w
 
   override def typeParameters : Seq[ScTypeParam] = typeParamClause.typeParameters
 
-  override def typeParamClause: ScTypeParamClause = findChildByClass(classOf[ScTypeParamClause])
+  override def typeParamClause: ScTypeParamClause = findChild[ScTypeParamClause].get
 
-  override def result: Option[ScExpression] = findChild(classOf[ScExpression])
+  override def result: Option[ScExpression] = findChild[ScExpression]
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                    state: ResolveState,
