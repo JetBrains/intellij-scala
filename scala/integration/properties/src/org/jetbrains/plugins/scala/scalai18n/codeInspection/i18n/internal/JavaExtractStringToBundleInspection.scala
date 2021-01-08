@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.codeInsight.intention.AbstractIntention
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.JavaExtractStringToBundleInspection._
 import BundleExtraction._
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
 
@@ -44,8 +45,7 @@ class JavaExtractStringToBundleInspection extends AbstractIntention(
   // Only show in our project
   override def checkFile(file: PsiFile): Boolean =
     super.checkFile(file) && (
-      file.getProject.getName == "scalaUltimate" ||
-        file.getProject.getName == "scalaCommunity"
+      file.getProject.isIntellijScalaPluginProject
     )
 }
 

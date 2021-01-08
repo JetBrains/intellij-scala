@@ -302,6 +302,11 @@ package object project {
     def selectedDocument: Option[Document] =
       Option(FileEditorManager.getInstance(project).getSelectedTextEditor)
         .map(_.getDocument)
+
+    def isIntellijScalaPluginProject: Boolean = {
+      val name = project.getName
+      name == "scalaUltimate" || name == "scalaCommunity"
+    }
   }
 
   implicit class UserDataHolderExt(private val holder: UserDataHolder) extends AnyVal {
