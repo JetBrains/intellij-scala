@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala.util
 
 import java.nio.file.{Path, Paths}
-
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.{CharsetToolkit, VfsUtil, VirtualFile}
 import com.intellij.psi.{PsiDocumentManager, PsiFile, PsiManager}
 import com.intellij.testFramework.LightPlatformTestCase
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.junit.Assert.{assertNotNull, assertTrue}
+
+import java.nio.charset.StandardCharsets
 
 /**
   * Nikolay.Tropin
@@ -40,7 +41,7 @@ object PsiFileTestUtil {
       val psiFile = PsiManager.getInstance(project).findFile(vFile)
       assertNotNull("Can't create PsiFile for '" + fileName + "'. Unknown file type most probably.", vFile)
       assertTrue(psiFile.isPhysical)
-      vFile.setCharset(CharsetToolkit.UTF8_CHARSET)
+      vFile.setCharset(StandardCharsets.UTF_8)
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       psiFile
     }

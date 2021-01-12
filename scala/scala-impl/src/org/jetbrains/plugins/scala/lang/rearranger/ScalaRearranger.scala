@@ -24,9 +24,13 @@ import scala.collection.immutable.HashSet
 import scala.collection.mutable
 
 class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with ArrangementStandardSettingsAware {
-
-  override def parseWithNew(root: PsiElement, document: Document, ranges: java.util.Collection[TextRange],
-                            element: PsiElement, settings: ArrangementSettings): Pair[ScalaArrangementEntry, java.util.List[ScalaArrangementEntry]] = {
+  override def parseWithNew(
+    root:     PsiElement,
+    document: Document,
+    ranges:   util.Collection[_ <: TextRange],
+    element:  PsiElement,
+    settings: ArrangementSettings
+  ): Pair[ScalaArrangementEntry, util.List[ScalaArrangementEntry]] = {
     val groupingRules = getGroupingRules(settings)
 
     val existingInfo = new ScalaArrangementParseInfo
@@ -41,8 +45,12 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
     }
   }
 
-  override def parse(root: PsiElement, document: Document,
-                              ranges: java.util.Collection[TextRange], settings: ArrangementSettings): util.List[ScalaArrangementEntry] = {
+  override def parse(
+    root:     PsiElement,
+    document: Document,
+    ranges:   util.Collection[_ <: TextRange],
+    settings: ArrangementSettings
+  ): util.List[ScalaArrangementEntry] = {
     Stats.trigger(FeatureKey.rearrange)
     val info = new ScalaArrangementParseInfo
     root.accept(new ScalaArrangementVisitor(info, document, ranges.asScala, getGroupingRules(settings)))

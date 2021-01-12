@@ -9,13 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 trait ScMatchTypeCase extends ScalaPsiElement {
   def patternTypeElement: Option[ScTypeElement]
   def resultTypeElement: Option[ScTypeElement]
-
-  def get: ScMatchTypeCase      = this
-  def isEmpty: Boolean          = false
-  def _1: Option[ScTypeElement] = patternTypeElement
-  def _2: Option[ScTypeElement] = resultTypeElement
 }
 
 object ScMatchTypeCase {
-  def unapply(cse: ScMatchTypeCase): ScMatchTypeCase = cse
+  def unapply(cse: ScMatchTypeCase): Some[(Option[ScTypeElement], Option[ScTypeElement])] =
+    Some((cse.patternTypeElement, cse.resultTypeElement))
 }

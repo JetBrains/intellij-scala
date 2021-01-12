@@ -75,7 +75,7 @@ object AndroidFacetDataService {
 
       if (!data.proguardConfig.isEmpty) {
         val proguardFile = new File(module.getProject.getBasePath) / "proguard-sbt.txt"
-        FileUtil.writeToFile(proguardFile, data.proguardConfig.asScala.mkString(SystemProperties.getLineSeparator))
+        FileUtil.writeToFile(proguardFile, data.proguardConfig.asScala.mkString(System.lineSeparator()))
         configuration.myProGuardCfgFiles.add(proguardFile.getCanonicalPath)
         configuration.RUN_PROGUARD = true
       }

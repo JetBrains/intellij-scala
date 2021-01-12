@@ -16,13 +16,9 @@ trait ScTypeLambdaTypeElement extends ScTypeElement with ScPolymorphicElement {
 
   def resultTypeElement: Option[ScTypeElement]
   def resultType: TypeResult
-
-  def get: ScTypeLambdaTypeElement = this
-  def isEmpty: Boolean             = false
-  def _1: Option[ScTypeElement]    = resultTypeElement
-  def _2: Seq[ScTypeParam]         = typeParameters
 }
 
 object ScTypeLambdaTypeElement {
-  def unapplySeq(lambda: ScTypeLambdaTypeElement): ScTypeLambdaTypeElement = lambda
+  def unapplySeq(lambda: ScTypeLambdaTypeElement): Some[(Option[ScTypeElement], Seq[ScTypeParam])] =
+    Some(lambda.resultTypeElement, lambda.typeParameters)
 }

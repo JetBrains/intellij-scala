@@ -10,7 +10,6 @@ import com.intellij.openapi.module.ModuleManager
 import org.jetbrains.plugins.gradle.model.data.{ScalaCompileOptionsData, ScalaModelData}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{DebuggingInfoLevel, _}
-import org.jetbrains.sbt.UsefulTestCaseHelper
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.data.service.ExternalSystemDataDsl._
@@ -24,7 +23,7 @@ import scala.jdk.CollectionConverters._
  * @author Nikolay Obedin
  * @since 6/4/15.
  */
-class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulTestCaseHelper {
+class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
 
   private def generateProject(scalaVersion: Option[String] = None,
                               scalaCompilerClasspath: Set[File] = Set.empty,

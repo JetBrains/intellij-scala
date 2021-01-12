@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala.worksheet.actions
 
 import java.nio.file.Path
-
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.extensions.{PluginDescriptor, PluginId}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Condition, Key}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.util.ExceptionUtilRt
 import com.intellij.util.messages.MessageBus
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.project.settings.CompilerProfileAwareModule
@@ -15,6 +16,7 @@ import org.jetbrains.plugins.scala.worksheet.actions.WorksheetSyntheticModule.Lo
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import org.picocontainer.PicoContainer
 
+import java.util
 import scala.annotation.nowarn
 
 /**
@@ -109,6 +111,27 @@ final class WorksheetSyntheticModule(
 
   override def compilerProfileName: String =
     WorksheetFileSettings(getProject, virtualFile).getCompilerProfileName
+
+  override def createError(
+    error:    Throwable,
+    pluginId: PluginId
+  ): RuntimeException = cpModule.createError(error, pluginId)
+
+  override def createError(
+    message:  String,
+    pluginId: PluginId
+  ): RuntimeException = cpModule.createError(message, pluginId)
+
+  override def createError(
+    message:     String,
+    pluginId:    PluginId,
+    attachments: util.Map[String, String]
+  ): RuntimeException = cpModule.createError(message, pluginId, attachments)
+
+  override def loadClass[T](
+    className:        String,
+    pluginDescriptor: PluginDescriptor
+  ): Class[T] = cpModule.loadClass(className, pluginDescriptor)
 }
 
 object WorksheetSyntheticModule {

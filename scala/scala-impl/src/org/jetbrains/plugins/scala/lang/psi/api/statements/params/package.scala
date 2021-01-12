@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
+import com.intellij.concurrency.ConcurrentCollectionFactory
+
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
-
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.PsiTypeParameter
@@ -31,11 +32,11 @@ package object params {
 
   //for better debugging, cleared by ScalaPsiManager on every change
   val idToName: ConcurrentLongObjectMap[String] =
-    ContainerUtil.createConcurrentLongObjectMap()
+    ConcurrentCollectionFactory.createConcurrentLongObjectMap()
 
   //never cleared
   private val reusableIdToName: ConcurrentLongObjectMap[String] =
-    ContainerUtil.createConcurrentLongObjectMap()
+    ConcurrentCollectionFactory.createConcurrentLongObjectMap()
 
   def typeParamName(id: Long): String = {
     idToName.get(id).toOption
