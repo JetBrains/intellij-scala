@@ -25,19 +25,41 @@ class ScParameterizedTypeElementAnnotatorTest extends SimpleTestCase {
     )
   }
 
+  def testBoundViolation(): Unit = {
+    assertMessagesInAllContexts("Test2[A, A]")(
+      Error("A", "Type A does not conform to upper bound B of type parameter X"),
+    )
+
+    assertMessagesInAllContexts("Test2[C, C]")(
+      Error("C", "Type C does not conform to lower bound B of type parameter Y"),
+    )
+
+    assertMessagesInAllContexts("Test2[A, C]")(
+      Error("A", "Type A does not conform to upper bound B of type parameter X"),
+      Error("C", "Type C does not conform to lower bound B of type parameter Y"),
+    )
+  }
+
   def assertMessagesInAllContexts(typeText: String)(expected: Message*): Unit = {
     val Header =
       """
+        |trait A
+        |trait B extends A
+        |trait C extends B
+        |
         |class Test[X, Y]
+        |class Test2[X <: B, Y >: B]
         |""".stripMargin
 
     val contexts = Seq(
-      s"type X = $typeText",
-      s"def x(arg: $typeText): Unit = ()",
-      s"def x[Q](arg: $typeText): Unit = ()",
-      s"def x(): $typeText = x()",
+      s"type W = $typeText",
+      s"def w(arg: $typeText): Unit = ()",
+      s"def w[Q](arg: $typeText): Unit = ()",
+      s"def w(): $typeText = w()",
       s"new $typeText",
       s"class Blub extends $typeText",
+      s"class W[Q <: $typeText]",
+      s"class W[Test[X, Y], Test2[X <: B, Y >: B], Q <: $typeText]",
     )
 
     for (context <- contexts) {

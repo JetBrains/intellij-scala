@@ -4,9 +4,11 @@ package element
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiNamedElement, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 
 object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameterizedTypeElement] {
 
@@ -34,6 +36,22 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
         val opening = firstExcessiveArg.prevSiblings.takeWhile(e => e.is[PsiWhiteSpace, PsiComment] || e.textMatches(",") || e.textMatches("[")).lastOption
         val range = opening.map(e => new TextRange(e.startOffset, firstExcessiveArg.getTextOffset + 1)).getOrElse(firstExcessiveArg.getTextRange)
         holder.createErrorAnnotation(range, ScalaBundle.message("too.many.type.arguments.for.typeparamowner", signatureOf(typeParamOwner)))
+      }
+
+      implicit val tcp: TypePresentationContext = typeArgList
+      for {
+        // the zip will cut away missing or excessive arguments
+        (arg, param) <- args zip params
+        argTy <- arg.`type`()
+      } {
+        lazy val argTyText = argTy.presentableText
+        for (upperBound <- param.upperBound.toOption if !argTy.conforms(upperBound)) {
+          holder.createErrorAnnotation(arg, ScalaBundle.message("type.arg.does.not.conform.to.upper.bound", argTyText, upperBound.presentableText, param.name))
+        }
+
+        for (lowerBound <- param.lowerBound.toOption if !lowerBound.conforms(argTy)) {
+          holder.createErrorAnnotation(arg, ScalaBundle.message("type.arg.does.not.conform.to.lower.bound", argTyText, lowerBound.presentableText, param.name))
+        }
       }
     }
   }
