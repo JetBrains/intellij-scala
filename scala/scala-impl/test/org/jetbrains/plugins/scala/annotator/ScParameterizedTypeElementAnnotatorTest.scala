@@ -23,6 +23,10 @@ class ScParameterizedTypeElementAnnotatorTest extends SimpleTestCase {
     assertMessagesInAllContexts("Test[Int, Int, Boolean, Int]")(
       Error(", B", "Too many type arguments for Test[X, Y]")
     )
+
+    assertMessagesInAllContexts("A[Int]")(
+      Error("[Int]", "A does not take type arguments")
+    )
   }
 
   def testBoundViolation(): Unit = {

@@ -32,10 +32,14 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
         holder.createErrorAnnotation(range, ScalaBundle.message("unspecified.type.parameters", missingText))
       } else if (args.length > params.length) {
         // Annotate to many arguments
-        val firstExcessiveArg = args(params.length)
-        val opening = firstExcessiveArg.prevSiblings.takeWhile(e => e.is[PsiWhiteSpace, PsiComment] || e.textMatches(",") || e.textMatches("[")).lastOption
-        val range = opening.map(e => new TextRange(e.startOffset, firstExcessiveArg.getTextOffset + 1)).getOrElse(firstExcessiveArg.getTextRange)
-        holder.createErrorAnnotation(range, ScalaBundle.message("too.many.type.arguments.for.typeparamowner", signatureOf(typeParamOwner)))
+        if (typeParamOwner.typeParametersClause.isEmpty) {
+          holder.createErrorAnnotation(typeArgList, ScalaBundle.message("name.does.not.take.type.arguments", typeParamOwner.name))
+        } else {
+          val firstExcessiveArg = args(params.length)
+          val opening = firstExcessiveArg.prevSiblings.takeWhile(e => e.is[PsiWhiteSpace, PsiComment] || e.textMatches(",") || e.textMatches("[")).lastOption
+          val range = opening.map(e => new TextRange(e.startOffset, firstExcessiveArg.getTextOffset + 1)).getOrElse(firstExcessiveArg.getTextRange)
+          holder.createErrorAnnotation(range, ScalaBundle.message("too.many.type.arguments.for.typeparamowner", signatureOf(typeParamOwner)))
+        }
       }
 
       implicit val tcp: TypePresentationContext = typeArgList
