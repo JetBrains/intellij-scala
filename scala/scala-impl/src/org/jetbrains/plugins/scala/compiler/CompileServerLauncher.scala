@@ -197,10 +197,11 @@ object CompileServerLauncher {
         else
           Seq.empty
 
+        val userJvmParameters = jvmParameters
         val commands =
           jdk.executable.canonicalPath +:
             "-cp" +: nailgunClasspath +:
-            jvmParameters ++:
+            userJvmParameters ++:
             shutdownDelayArg ++:
             isScalaCompileServer +:
             parallelCompilation +:
@@ -224,7 +225,7 @@ object CompileServerLauncher {
           .left.map(e => CompileServerProblem.Error(NlsString.force(e.getMessage)))
           .map { process =>
             val watcher = new ProcessWatcher(process, "scalaCompileServer")
-            val instance = ServerInstance(watcher, freePort, builder.directory(), jdk)
+            val instance = ServerInstance(watcher, freePort, builder.directory(), jdk, userJvmParameters.toSet)
             serverInstance = Some(instance)
             watcher.startNotify()
             infoAndPrintOnTeamcity(s"compile server process started : ${instance.summary}")
@@ -336,34 +337,31 @@ object CompileServerLauncher {
 
   def ensureServerRunning(project: Project): Boolean = serverStartLock.synchronized {
     LOG.traceWithDebugInDev(s"ensureServerRunning [thread:${Thread.currentThread.getId}]")
-
-    restartReasons(project) match {
-      case Some(reasons) =>
-        stop(debugReason = Some(s"needsRestart: ${reasons.mkString(", ")}"))
-      case _ =>
-    }
+    val reasons = restartReasons(project)
+    if (reasons.nonEmpty)
+      stop(timeoutMs = 3000L, debugReason = Some(s"needsRestart: ${reasons.mkString(", ")}"))
 
     running || tryToStart(project)
   }
 
-  private def restartReasons(project: Project): Option[Seq[String]] = {
+  private def restartReasons(project: Project): Seq[String] = {
     val currentInstance = serverInstance
     val settings = ScalaCompileServerSettings.getInstance()
-    currentInstance match {
-      case None => None // if no server running, then nothing to restart
-      case Some(instance) =>
-        val useProjectHome = settings.USE_PROJECT_HOME_AS_WORKING_DIR
-        val workingDirChanged = useProjectHome && projectHome(project) != currentInstance.map(_.workingDir)
-        val jdkChanged = compileServerJdk(project) match {
-          case Right(projectJdk) => projectJdk != instance.jdk
-          case _ => false
-        }
+    currentInstance.map { instance =>
+      val useProjectHome = settings.USE_PROJECT_HOME_AS_WORKING_DIR
+      val workingDirChanged = useProjectHome && projectHome(project) != currentInstance.map(_.workingDir)
+      val jdkChanged = compileServerJdk(project) match {
+        case Right(projectJdk) => projectJdk != instance.jdk
+        case _ => false
+      }
+      val jvmParametersChanged = jvmParameters.toSet != instance.jvmParameters
 
-        val reasons = mutable.ArrayBuffer.empty[String]
-        if (workingDirChanged) reasons += "working dir changed"
-        if (jdkChanged) reasons += "jdk changed"
-        if (reasons.nonEmpty) Some(reasons.toSeq) else None
-    }
+      val reasons = mutable.ArrayBuffer.empty[String]
+      if (workingDirChanged) reasons += "working dir changed"
+      if (jdkChanged) reasons += "jdk changed"
+      if (jvmParametersChanged) reasons += "jvm parameters"
+      reasons.toSeq
+    }.getOrElse(Seq.empty)
   }
 
   def ensureServerNotRunning(project: Project): Unit = serverStartLock.synchronized {
@@ -432,7 +430,8 @@ object CompileServerLauncher {
 private case class ServerInstance(watcher: ProcessWatcher,
                                   port: Int,
                                   workingDir: File,
-                                  jdk: JDK) {
+                                  jdk: JDK,
+                                  jvmParameters: Set[String]) {
   private var stopped = false
 
   def running: Boolean = !stopped && watcher.running
@@ -447,6 +446,7 @@ private case class ServerInstance(watcher: ProcessWatcher,
   def summary: String = {
     s"port: $port" +
       s", jdk: $jdk" +
+      s", jvmParameters: ${jvmParameters.mkString(",")}" +
       s", stopped: $stopped" +
       s", running: $running" +
       s", errors: ${errors().mkString("(", ", ", ")")}"
