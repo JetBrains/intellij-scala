@@ -385,7 +385,6 @@ lazy val runtimeDependencies =
       packageMethod := PackagingMethod.DepsOnly(),
       packageLibraryMappings := Seq(
         "org.scala-lang.modules" % "scala-.*" % ".*" -> None,
-//        Dependencies.bloopLauncher -> Some("launcher/bloop-launcher.jar"),
         Dependencies.sbtLaunch -> Some("launcher/sbt-launch.jar"),
         Dependencies.sbtInterface -> Some("lib/jps/sbt-interface.jar"),
         Dependencies.zincInterface -> Some("lib/jps/compiler-interface.jar"),
@@ -400,7 +399,10 @@ lazy val runtimeDependencies =
         Dependencies.tasty.compiler % "3.0.0-M2" -> Some("lib/tasty/scala-compiler.jar"),
       ),
       update := {
-        LocalRepoPackager.localPluginRepo(target.value / "repo", localRepoPaths)
+        LocalRepoPackager.localPluginRepo(
+          target.value / "repo",
+          localRepoPaths,
+          (ThisBuild/baseDirectory).value / "project" / "resources")
         update.value
       },
       packageFileMappings ++= {
