@@ -15,11 +15,11 @@ object LocalRepoPackager {
   /**
     * Create local plugin repo by downloading published files from the jetbrains sbt-plugins bintray repo.
     */
-  def localPluginRepo(localRepo: File, paths: Seq[String]): Seq[File] = {
+  def localPluginRepo(localRepo: File, paths: Seq[String], resources: File): Seq[File] = {
 //    val homeDir = System.getProperty("user.home", "~")
 //    val localPublishRepo = Paths.get(homeDir, ".ivy2", "local").toUri
     val jetbrainsRepo = URI.create("https://dl.bintray.com/jetbrains/sbt-plugins/")
-    downloadPathsToLocalRepo(Seq(/*localPublishRepo,*/ jetbrainsRepo), localRepo, paths)
+    downloadPathsToLocalRepo(Seq(/*localPublishRepo,*/ jetbrainsRepo), localRepo, paths, resources)
   }
 
   /**
@@ -35,9 +35,10 @@ object LocalRepoPackager {
     }
 
   /** Download sbt plugin files to a local repo for both sbt 0.13 and 1.0 */
-  private def downloadPathsToLocalRepo(remoteRepos: Seq[URI], localRepo: File, paths: Seq[String]): Seq[File] = {
+  private def downloadPathsToLocalRepo(remoteRepos: Seq[URI], localRepo: File, paths: Seq[String], resources: File): Seq[File] = {
 
-    val emptyMD5 = "d41d8cd98f00b204e9800998ecf8427e"
+    val dummyJavadocJar = resources / "dummy-javadoc.jar"
+    val dummyJavadocMD5 = "6d10f2309b835f609baa38fb82bd466b"
 
     val downloadedArtifactFiles = paths.map { path =>
       val downloadUrls = remoteRepos.map(_.resolve(path).normalize().toURL)
@@ -46,9 +47,10 @@ object LocalRepoPackager {
       // Place dummy javadoc files for artifacts to avoid resolve errors without packaging large-ish but useless files.
       if (!localFile.exists) {
         if (path.endsWith("-javadoc.jar")) {
-          IO.write(localFile, Array.empty[Byte])
+          IO.copyFile(dummyJavadocJar, localFile)
+//          IO.write(localFile, Array.empty[Byte])
         } else if (path.endsWith("-javadoc.jar.md5")) {
-          IO.write(localFile, emptyMD5.getBytes(StandardCharsets.US_ASCII))
+          IO.write(localFile, dummyJavadocMD5.getBytes(StandardCharsets.US_ASCII))
         } else {
           localFile.getParentFile.mkdirs()
           downloadUrls.find { downloadUrl =>
