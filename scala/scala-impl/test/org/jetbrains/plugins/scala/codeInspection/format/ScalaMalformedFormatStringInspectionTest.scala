@@ -59,7 +59,10 @@ abstract class ScalaMalformedFormatStringInspectionTestBase extends ScalaInspect
   }
 
   def testPlainString(): Unit = doTest()
+  def testPlainString_1(): Unit = doTest()
   def testPlainStringNoWarnings(): Unit = doTest()
+  def testPlainStringNoWarnings_DifferentTypes(): Unit = doTest()
   def testMultilineString(): Unit = doTest()
+  def testMultilineString_1(): Unit = doTest()
   def testMultilineStringNoWarnings(): Unit = doTest()
 }

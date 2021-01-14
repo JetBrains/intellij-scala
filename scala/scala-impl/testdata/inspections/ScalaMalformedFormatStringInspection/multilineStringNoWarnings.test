@@ -17,11 +17,14 @@ System.out.printf("""%d""", 123) // System.out.printf
 
 // %% escape (SCL-5807)
 """%.1f%% of %s""".format (42f, """value""")
+"""%% a%%b%%%%c%%%%%%""".format()
 
  // %n escape (SCL-5383)
 """locals (%d total): %n""".format(42)
-
 case class A(x: String)
 val a = A("qwe")
 """%n %%n %s%n %s%n %s%n %s%n""".format(2, A("hello"), a, "value")
+
+//flags after %
+"""% (d""".format(1)
 -----

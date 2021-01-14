@@ -22,13 +22,15 @@ class ScalaMalformedFormatStringInspection extends AbstractInspection {
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case element =>
       val res0 = FormattedStringParser.parse(element)
-      val res1 = res0.orElse(PrintStringParser.parse(element))
+      val res1 = res0.orElse(FormattedPrintStringParser.parse(element))
       val res2 = res1.orElse(InterpolatedStringParser.parse(element))
       val representation = res2
 
-      for (parts <- representation; part <- parts)
-        inspect(part, holder)
+      representation.foreach(inspect(_, holder))
   }
+
+  private def inspect(parts: Seq[StringPart], holder: ProblemsHolder): Unit =
+    parts.foreach(inspect(_, holder))
 
   private def inspect(part: StringPart, holder: ProblemsHolder): Unit = {
     part match {
@@ -36,13 +38,18 @@ class ScalaMalformedFormatStringInspection extends AbstractInspection {
         implicit val tpc: TypePresentationContext = TypePresentationContext(element)
         injection.problem match {
           case Some(Inapplicable) =>
-            for (argumentType <- injection.expressionType.map(_.widenIfLiteral)) {
+            for (argumentType <- injection.expressionType) {
               holder.registerProblem(element, new TextRange(start, end),
                 ScalaInspectionBundle.message("format.specifier.cannot.be.used.for.an.argument", format, exp.getText, argumentType.presentableText))
               holder.registerProblem(exp,
                 ScalaInspectionBundle.message("argument.cannot.be.used.for.a.format.specifier", exp.getText, argumentType.presentableText, format))
             }
           case Some(Malformed) =>
+            /**
+             * TODO: Show details of what is malformed, like in java SCL-18606
+             * @see [[com.siyeh.ig.bugs.MalformedFormatStringInspection]]
+             * @see [[com.siyeh.ig.bugs.FormatDecode]]
+             */
             holder.registerProblem(element, new TextRange(start, end), ScalaInspectionBundle.message("malformed.format.specifier"))
           case _ =>
         }

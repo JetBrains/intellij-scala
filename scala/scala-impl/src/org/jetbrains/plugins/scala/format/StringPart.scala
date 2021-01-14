@@ -1,33 +1,53 @@
 package org.jetbrains.plugins.scala
 package format
 
-import java.util.{IllegalFormatConversionException, IllegalFormatException}
-
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaType.expandAliases
 import org.jetbrains.plugins.scala.project.ProjectContext
+
+import java.util.{IllegalFormatConversionException, IllegalFormatException}
 
 /**
  * Pavel Fatin
  */
 sealed trait StringPart
 
-case class Text(s: String) extends StringPart {
-  def withEscapedPercent(implicit ctx: ProjectContext): List[StringPart] = {
-    val literal = createExpressionFromText("\"%\"")
-    if (s == "%") {
-      List(Text(""), Injection(literal, None), Text(""))
-    } else {
-      val splitted = s.split('%')
-      val list = splitted.flatMap(text => List(Injection(literal, None), Text(text))).toList
-      if (list.nonEmpty) list.tail else Nil
-    }
-  }
+case class Text(value: String) extends StringPart
+
+/**
+ * https://docs.oracle.com/javase/8/docs/api/java/util/Formatter.html#syntax
+ *
+ * Represents special escapes %% and %n which comes from formatted string.
+ * Example: {{{
+ *   f"aaa %% %n"
+ *   "aaa %% %n".format()
+ * }}}
+ *
+ * We can't hold such content as a simple Text("%n") or Text("\n").<br>
+ * We need to preserve information whether content was originally obtained from formatted string.<br>
+ * When we convert `f"%% %n"` to `String.format(...)` we want to get `String.format("%% %n")`<br>
+ * When we convert it to string concatenation, we want it to become just "%"
+ *
+ * @param originalText  text from formatted string itself: "abc %% %n"
+ */
+case class SpecialFormatEscape(originalText: String, unescapedText: String) extends StringPart
+
+object SpecialFormatEscape {
+  val PercentChar: SpecialFormatEscape = SpecialFormatEscape("%%", "%")
+
+  /**
+   * Represents system line separator, taken from System.getProperty("line.separator"))
+   * NOTE: we don't use system separator in unescaped text for simplicity, to avoid system-dependant behaviour in tests
+   * TODO: should we using system property?
+   *
+   * @see https://docs.oracle.com/javase/8/docs/api/java/util/Formatter.html#syntax
+   * @see [[scala.tools.reflect.FormatInterpolator.interpolated]]
+   */
+  val LineSeparator: SpecialFormatEscape = SpecialFormatEscape("%n", "\n")
 }
 
 case class Injection(expression: ScExpression, specifier: Option[Specifier]) extends StringPart {
@@ -38,14 +58,14 @@ case class Injection(expression: ScExpression, specifier: Option[Specifier]) ext
   def text: String = expression.getText
 
   def value: String = expression match {
-    case literal: ScLiteral => literal.getValue.toString
+    case literal: ScLiteral => literal.getValue.toString // 42 -> 42, "str" -> str
     case block: ScBlockExpr => block.exprs.headOption.map(_.getText).mkString
-    case element => element.getText
+    case element            => element.getText
   }
 
   def format: String = specifier.map(_.format).getOrElse("")
 
-  def expressionType: Option[ScType] = expression.`type`().toOption
+  def expressionType: Option[ScType] = expression.`type`().map(_.widen).toOption
 
   def isLiteral: Boolean = expression.is[ScLiteral]
 

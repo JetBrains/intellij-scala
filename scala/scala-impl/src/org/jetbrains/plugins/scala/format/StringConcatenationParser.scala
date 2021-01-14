@@ -25,7 +25,7 @@ object StringConcatenationParser extends StringParser {
       InterpolatedStringParser.parse(interpolated).getOrElse(Nil).toList
     case literal: ScLiteral =>
       val value = Option(literal.getValue).toSeq
-      value.flatMap(v => Text(v.toString).withEscapedPercent(exp.getManager))
+      value.map(v => Text(v.toString))
     case it =>
       FormattedStringParser.parse(it).map(_.toList).getOrElse(Injection(it, None) :: Nil)
   }

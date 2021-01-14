@@ -8,13 +8,18 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 
+import scala.collection.mutable
+import scala.util.matching.Regex
+
 /**
  * Pavel Fatin
  */
 object InterpolatedStringParser extends StringParser {
-  private val FormatSpecifierPattern = "^%(\\d+\\$)?([-#+ 0,(\\<]*)?(\\d+)?(\\.\\d+)?([tT])?([a-zA-Z%])".r
 
-  override def parse(element: PsiElement): Option[Seq[StringPart]] = parse(element, checkStripMargin = true)
+  import FormattedStringParser.FormatSpecifierStartPattern
+
+  override def parse(element: PsiElement): Option[Seq[StringPart]] =
+    parse(element, checkStripMargin = true)
 
   private[format] def parse(element: PsiElement, checkStripMargin: Boolean): Option[Seq[StringPart]] = {
     if (checkStripMargin) element match {
@@ -23,11 +28,11 @@ object InterpolatedStringParser extends StringParser {
     }
     Some(element) collect {
       case literal: ScInterpolatedStringLiteral =>
-        parseLiteral(literal, element)
+        parseLiteral(literal)
     }
   }
 
-  private def parseLiteral(literal: ScInterpolatedStringLiteral, element: PsiElement): Seq[StringPart] = {
+  private def parseLiteral(literal: ScInterpolatedStringLiteral): Seq[StringPart] = {
     val formatted = literal.firstChild.exists(_.textMatches("f"))
 
     val pairs: Seq[(PsiElement, Option[PsiElement])] = {
@@ -36,6 +41,8 @@ object InterpolatedStringParser extends StringParser {
     }
 
     val parts = pairs.collect {
+      // `str`, `{2 + 2}`
+      // in input: s"$str ${2 + 2}"
       case (expression: ScExpression, nextOpt: Option[PsiElement]) =>
         val actualExpression = expression match {
           case block: ScBlockExpr =>
@@ -47,23 +54,29 @@ object InterpolatedStringParser extends StringParser {
         val specifier = if (!formatted) None else nextOpt match {
           case Some(next) if isTextElement(next) =>
             val nextText = textIn(next)
-            FormatSpecifierPattern.findFirstIn(nextText).map { format =>
+            val matched = FormatSpecifierStartPattern.findFirstIn(nextText)
+            matched.map { format =>
               Specifier(Span(next, 0, format.length), format)
             }
           case _ => None
         }
         Injection(actualExpression, specifier)
 
+      // `text`
+      // in input: s"${a}text${b}"
       case (e, _) if isTextElement(e) =>
         val text: String = {
-          val s = textIn(e)
-          if (!formatted) s
-          else FormatSpecifierPattern.findFirstIn(s).map(format => s.substring(format.length)).getOrElse(s)
+          val value = textIn(e)
+          // specifier was already handled in previous step, when handling injection, so drop it here
+          if (formatted) FormatSpecifierStartPattern.replaceFirstIn(value, "")
+          else value
         }
         Text(text)
 
+      // `$$`
+      // in input: s"$$"
       case (e, _) if e.getNode.getElementType == ScalaTokenTypes.tINTERPOLATED_STRING_ESCAPE =>
-        Text(e.getText.drop(1))
+        Text("$")
     }
 
     val withFixedLeadingQuote = parts match {
@@ -71,14 +84,17 @@ object InterpolatedStringParser extends StringParser {
         Text(s.drop(literal.quoteLength)) :: tail
       case it => it
     }
-    val withEscapedPercents = withFixedLeadingQuote flatMap {
-      case t: Text => t.withEscapedPercent(element.getManager)
-      case part => List(part)
+    val withEscapedPercents = if (!formatted) withFixedLeadingQuote else {
+      withFixedLeadingQuote.flatMap {
+        case t: Text => processSpecialFormatEscapes(t)
+        case part    => List(part)
+      }
     }
-    withEscapedPercents filter {
+    val withoutEmpty = withEscapedPercents.filter {
       case Text("") => false
-      case _ => true
+      case _        => true
     }
+    withoutEmpty
   }
 
   private def isTextElement(e: PsiElement): Boolean = {
@@ -91,8 +107,45 @@ object InterpolatedStringParser extends StringParser {
     val elementType = e.getNode.getElementType
     val text = e.getText
     elementType match  {
+        // TODO: it's wrong to ignore multiline interpolated string SCL-18617
       case ScalaTokenTypes.tINTERPOLATED_STRING => StringUtil.unescapeStringCharacters(text)
       case ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING => text
     }
   }
+
+  private val SpecialEscapeRegex = "(%%|%n)".r
+
+  private def processSpecialFormatEscapes(textPart: Text): Seq[StringPart] = {
+    val text = textPart.value
+
+    val matches: Seq[Regex.Match] = SpecialEscapeRegex.findAllMatchIn(text).toList
+    if (matches.isEmpty) List(textPart)
+    else processSpecialFormatEscapes(text, matches)
+  }
+
+  private def processSpecialFormatEscapes(text: String, matches: Seq[Regex.Match]): Seq[StringPart] = {
+    import SpecialFormatEscape._
+
+    val result = new mutable.ArrayBuffer[StringPart](2 * matches.size + 1)
+
+    var prevEnd = 0
+    matches.foreach { m =>
+      if (m.start > prevEnd) {
+        result += Text(text.substring(prevEnd, m.start))
+      }
+      val specialEscape = m.matched match {
+        case PercentChar.originalText   => PercentChar
+        case LineSeparator.originalText => LineSeparator
+      }
+      result += specialEscape
+
+      prevEnd = m.end
+    }
+
+    if (prevEnd < text.length)
+      result += Text(text.substring(prevEnd, text.length))
+
+    result.toSeq
+  }
+
 }

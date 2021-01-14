@@ -16,8 +16,8 @@ object StripMarginParser extends StringParser {
 
   override def parse(element: PsiElement): Option[Seq[StringPart]] = element match {
     case literal@WithStrippedMargin(_, marginChar) =>
-      def escapePercent(text: String) =
-        Text(text.stripMargin(marginChar)).withEscapedPercent(element)
+      def escapePercent(text: String): Seq[StringPart] =
+        Text(text.stripMargin(marginChar)) :: Nil
 
       literal match {
         case _: ScInterpolatedStringLiteral =>

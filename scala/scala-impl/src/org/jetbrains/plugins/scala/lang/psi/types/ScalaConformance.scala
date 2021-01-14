@@ -1481,14 +1481,6 @@ private object ScalaConformance {
     }
   }
 
-  private object ScalaArrayType {
-    def unapply(p: ParameterizedType): Option[ScType] = p match {
-      case ParameterizedType(ScDesignatorType(ClassQualifiedName("scala.Array")), Seq(arg)) =>
-        Some(arg)
-      case _ => None
-    }
-  }
-
   private[psi] sealed trait Bound
   private[psi] object Bound {
     case object Lower       extends Bound

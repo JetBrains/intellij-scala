@@ -43,17 +43,27 @@ abstract class ScalaIntentionTestBase  extends ScalaLightCodeInsightFixtureTestA
           action.invoke(project, getEditor, getFile)
         }
       case None =>
-        fail("Intention is not found")
+        fail(s"Intention action is not found for input:\n$text")
     }
 
+    checkIntentionResultText(resultText)(text)
+  }
+
+  protected def checkIntentionResultText(resultText: String)(originalInputForDebugging: String)(implicit project: Project): Unit =
     executeWriteActionCommand("Test Intention Formatting") {
       val document = FileDocumentManager.getInstance().getDocument(getFile.getVirtualFile)
       document.commit(project)
       CodeStyleManager.getInstance(project).reformat(getFile)
       val normalizedResultText = normalize(resultText)
-      getFixture.checkResult(normalizedResultText)
+
+      try {
+        getFixture.checkResult(normalizedResultText)
+      } catch {
+        case err: AssertionError =>
+          System.err.println(s"Wrong result for input:\n$originalInputForDebugging")
+          throw err
+      }
     }
-  }
 
   protected def checkIntentionIsNotAvailable(text: String): Unit =
     assertFalse("Intention is found", intentionIsAvailable(text))
@@ -66,8 +76,12 @@ abstract class ScalaIntentionTestBase  extends ScalaLightCodeInsightFixtureTestA
 
   private def findIntention(text: String, fileType: FileType): Option[IntentionAction] = {
     getFixture.configureByText(fileType, normalize(text))
-    getFixture.getAvailableIntentions.asScala
-      .find(_.getFamilyName == familyName)
+    findIntentionByName(familyName)
+  }
+
+  protected def findIntentionByName(familyName: String): Option[IntentionAction] = {
+    val intentions = getFixture.getAvailableIntentions.asScala
+    intentions.toSeq.find(_.getFamilyName == familyName)
   }
 
   private def intentionIsAvailable(text: String): Boolean =

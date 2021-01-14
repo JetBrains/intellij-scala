@@ -100,6 +100,8 @@ package object types {
 
     def isUnit: Boolean = isStdType(Name.Unit)
 
+    def isChar: Boolean = isStdType(Name.Char)
+
     def isNull: Boolean = isStdType(Name.Null)
 
     def isPrimitive: Boolean = scType match {
@@ -218,6 +220,25 @@ package object types {
       innerUpdate(scType, Set.empty)
     }
 
+    /**
+     * @example {{{
+     * Int           -> Int
+     * String        -> String
+     *
+     * 42.type       -> Int
+     * "text".type   -> String
+     * intValue.type -> Int
+     * strValue.type -> String
+     * objValue.type -> AnyRef
+     * anyValue.type -> Any
+     *
+     * where:
+     * val strValue: String = ???
+     * val intValue: Int = ???
+     * val objValue: AnyRef = ???
+     * val anyValue: Any = ???
+     * }}}
+     */
     def widen: ScType = scType match {
       case lit: ScLiteralType if lit.allowWiden => lit.wideType
       case other                                => other.tryExtractDesignatorSingleton
@@ -379,5 +400,21 @@ package object types {
 
   object FullyAbstractType {
     def unapply(abs: ScAbstractType): Boolean = abs.upper.isAny && abs.lower.isNothing
+  }
+
+  private[types] object ScalaArrayType {
+    def unapply(p: ParameterizedType): Option[ScType] = p match {
+      case ParameterizedType(ScDesignatorType(ClassQualifiedName("scala.Array")), Seq(arg)) =>
+        Some(arg)
+      case _ => None
+    }
+  }
+
+  object AnyArrayType {
+    def unapply(p: ScType): Option[ScType] = p match {
+      case JavaArrayType(arg)  => Some(arg)
+      case ScalaArrayType(arg) => Some(arg)
+      case _                   => None
+    }
   }
 }

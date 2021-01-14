@@ -1,0 +1,36 @@
+scala.util.Properties.versionString
+
+//// malformed format specifier
+"%".format(1)
+"%  d".format(1)
+"% % %".format(1, 2)
+"%%%".format(1)
+"%    aaa".format(1)
+"aaa %".format(1)
+"aaa % ".format(1)
+"% %".format(1)
+"aaa % %".format(1)
+"% aaa %".format(1, 2)
+"% 1  % 2".format(1, 2)
+"%  d".format(1)
+"%   d".format(1)
+"%##d".format(1)
+-----
+WARNING (70, 71) Malformed format specifier
+WARNING (84, 88) Malformed format specifier
+WARNING (101, 104) Malformed format specifier
+WARNING (105, 106) Malformed format specifier
+WARNING (124, 125) Malformed format specifier
+WARNING (138, 144) Malformed format specifier
+WARNING (163, 164) Malformed format specifier
+WARNING (181, 183) Malformed format specifier
+WARNING (196, 199) Malformed format specifier
+WARNING (216, 219) Malformed format specifier
+WARNING (232, 235) Format specifier % a cannot be used for an argument 1 (Int)
+WARNING (238, 239) Malformed format specifier
+WARNING (248, 249) Argument 1 (Int) cannot be used for a format specifier % a
+WARNING (255, 259) Malformed format specifier
+WARNING (260, 263) Malformed format specifier
+WARNING (279, 283) Malformed format specifier
+WARNING (296, 301) Malformed format specifier
+WARNING (314, 318) Malformed format specifier

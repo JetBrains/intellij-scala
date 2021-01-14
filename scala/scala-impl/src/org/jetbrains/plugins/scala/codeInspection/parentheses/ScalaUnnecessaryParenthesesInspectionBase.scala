@@ -47,6 +47,9 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase
     f.parameters.size == 1 && hasParenthesizedClause && hasNoParamType
   }
 
+  protected[scala] def isParenthesesRedundant(elem: ScParenthesizedElement): Boolean =
+    isParenthesesRedundant(elem, currentSettings)
+
   private def isParenthesesRedundant(elem: ScParenthesizedElement, settings: UnnecessaryParenthesesSettings): Boolean = {
     if (elem.isParenthesisNeeded) return false
 
@@ -64,7 +67,7 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase
   private def isProblem(elem: ScParenthesizedElement): Boolean =
     !elem.isNestedParenthesis &&
       checkInspection(this, elem) &&
-      isParenthesesRedundant(elem, currentSettings)
+      isParenthesesRedundant(elem)
 
 
   private def registerProblem(parenthesized: ScParenthesizedElement)(implicit holder: ProblemsHolder, isOnTheFly: Boolean): Unit = {

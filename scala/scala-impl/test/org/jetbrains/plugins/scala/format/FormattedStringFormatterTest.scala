@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package format
 
-import org.jetbrains.plugins.scala.base.SimpleTestCase
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SimpleTestCase}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.junit.Assert._
@@ -10,7 +10,8 @@ import org.junit.Assert._
  * Pavel Fatin
  */
 
-class FormattedStringFormatterTest extends SimpleTestCase {
+class FormattedStringFormatterTest extends ScalaLightCodeInsightFixtureTestAdapter {
+
   def testEmpty(): Unit = {
     assertEquals(call("", ""), format())
   }
@@ -71,7 +72,7 @@ class FormattedStringFormatterTest extends SimpleTestCase {
     assertEquals(call("%d", "foo.bar"), format(Injection(exp("{foo.bar}"), Some(Specifier(null, "%d")))))
   }
 
-  def testBlockExpressionWithMadatoryFormat(): Unit = {
+  def testBlockExpressionWithMandatoryFormat(): Unit = {
     assertEquals(call("%2d", "foo.bar"), format(Injection(exp("{foo.bar}"), Some(Specifier(null, "%2d")))))
   }
 
@@ -106,9 +107,9 @@ class FormattedStringFormatterTest extends SimpleTestCase {
   }
 
   private def call(formatter: String, arguments: String) =
-    "\"" + formatter + "\"" + ".format(%s)".format(arguments)
+    s""""$formatter".format($arguments)"""
 
   private def exp(s: String): ScExpression = {
-    createExpressionFromText(s)
+    createExpressionFromText(s)(getProject)
   }
 }

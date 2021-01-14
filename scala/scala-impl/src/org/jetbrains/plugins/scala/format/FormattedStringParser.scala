@@ -4,11 +4,11 @@ package format
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.util.matching.Regex
@@ -17,7 +17,30 @@ import scala.util.matching.Regex
  * Pavel Fatin
  */
 object FormattedStringParser extends StringParser {
-  private val FormatSpecifierPattern = "%(\\d+\\$)?([-#+ 0,(\\<]*)?(\\d+)?(\\.\\d+)?([tT])?([a-zA-Z%])".r
+
+  private val FormatSpecifierWithoutConversionCharPattern = "%(\\d+\\$)?([-#+ 0,(<]*)?(\\d+)?(\\.\\d+)?([tT])?".r
+
+  /**
+   * Parses a formatted string specifier candidate<br>
+   * see [[java.util.Formatter]]<br>
+   * see  [[https://docs.oracle.com/javase/8/docs/api/java/util/Formatter.html#syntax]]<br>
+   *
+   * @note it excludes special escapes "%n" and "%%"
+   * @note it also parses invalid specifiers with invalid conversion e.g. "%j"
+   * @note yes, space is supported after %: {{{"% (d, % (d".format(1, -1)}}}
+   */
+  private val FormatSpecifierPattern = (FormatSpecifierWithoutConversionCharPattern.toString + "([a-mo-zA-Z])").r
+
+  private[format] val FormatSpecifierStartPattern = ("^" + FormatSpecifierPattern.toString).r
+
+  /**
+   * Can also parse malformed specifiers with invalid (or even missing) conversion char<br>
+   * Example:<br>
+   * "text %".format()<br>
+   * "text %j".format()
+   */
+  private val FormatSpecifierAcceptingInvalidTypePattern = (FormatSpecifierWithoutConversionCharPattern.toString + ".?").r
+
 
   override def parse(element: PsiElement): Option[Seq[StringPart]] = {
     extractFormatCall(element)
@@ -28,17 +51,16 @@ object FormattedStringParser extends StringParser {
       .map(p => parseFormatCall(p._1, p._2))
   }
 
-  // TODO: we already have ScStringLiteral, remove "isString" checks
-  def extractFormatCall(element: PsiElement): Option[(ScLiteral, Seq[ScExpression])] = Some(element) collect {
+  def extractFormatCall(element: PsiElement): Option[(ScStringLiteral, Seq[ScExpression])] = Some(element) collect {
     // "%d".format(1)
-    case ScMethodCall(ScReferenceExpression.withQualifier(literal: ScLiteral) &&
+    case ScMethodCall(ScReferenceExpression.withQualifier(literal: ScStringLiteral) &&
       PsiReferenceEx.resolve((f: ScFunction) && ContainingClass(owner: ScTypeDefinition)), args)
-      if literal.isString && isScalaFormatMethod(owner, f.name) =>
+      if isScalaFormatMethod(owner, f.name) =>
       (literal, args)
 
     // "%d" format 1, "%d" format (1)
-    case ScInfixExpr(literal: ScLiteral, PsiReferenceEx.resolve((f: ScFunction) && ContainingClass(owner: ScTypeDefinition)), arg)
-      if literal.isString && isScalaFormatMethod(owner, f.name) =>
+    case ScInfixExpr(literal: ScStringLiteral, PsiReferenceEx.resolve((f: ScFunction) && ContainingClass(owner: ScTypeDefinition)), arg)
+      if isScalaFormatMethod(owner, f.name) =>
       val args = arg match {
         case tuple: ScTuple => tuple.exprs
         case it => Seq(it)
@@ -47,20 +69,20 @@ object FormattedStringParser extends StringParser {
 
     // 1.formatted("%d")
     case ScMethodCall(ScReferenceExpression.withQualifier(arg: ScExpression) &&
-      PsiReferenceEx.resolve((f: ScFunction) && ContainingClass(owner: ScTypeDefinition)), Seq(literal: ScLiteral))
-      if literal.isString && isScalaFormattedMethod(owner, f.name) =>
+      PsiReferenceEx.resolve((f: ScFunction) && ContainingClass(owner: ScTypeDefinition)), Seq(literal: ScStringLiteral))
+      if isScalaFormattedMethod(owner, f.name) =>
       (literal, Seq(arg))
 
     // 1 formatted "%d"
     case ScInfixExpr(arg: ScExpression, PsiReferenceEx.resolve((f: ScFunction) &&
-      ContainingClass(owner: ScTypeDefinition)), literal: ScLiteral)
-      if literal.isString && isScalaFormattedMethod(owner, f.name) =>
+      ContainingClass(owner: ScTypeDefinition)), literal: ScStringLiteral)
+      if isScalaFormattedMethod(owner, f.name) =>
       (literal, Seq(arg))
 
     // String.format("%d", 1)
     case MethodInvocation(PsiReferenceEx.resolve((f: PsiMethod) &&
-      ContainingClass(owner: PsiClass)), Seq(literal: ScLiteral, args@_*))
-      if literal.isString && isStringFormatMethod(owner.qualifiedName, f.getName) =>
+      ContainingClass(owner: PsiClass)), Seq(literal: ScStringLiteral, args@_*))
+      if isStringFormatMethod(owner.qualifiedName, f.getName) =>
       (literal, args)
   }
 
@@ -93,15 +115,20 @@ object FormattedStringParser extends StringParser {
     holder == "java.lang.String" && method == "format"
 
   private[format]
-  def parseFormatCall(literal: ScLiteral, arguments: Seq[ScExpression]): Seq[StringPart] = {
+  def parseFormatCall(literal: ScStringLiteral, arguments: Seq[ScExpression]): Seq[StringPart] = {
     val remainingArguments = arguments.iterator
     val shift = if (literal.isMultiLineString) 3 else 1
     val formatString = literal.getText.drop(shift).dropRight(shift)
 
     var referredArguments: List[ScExpression] = Nil
 
-    val specifiers: Iterator[Regex.Match] = FormatSpecifierPattern.findAllMatchIn(formatString)
-    val bindings = specifiers.map { it =>
+
+    /**
+     * NOTE: invalid specifiers be actually marked as malformed in the editor
+     * in [[org.jetbrains.plugins.scala.codeInspection.format.ScalaMalformedFormatStringInspection]]
+     */
+    val specifierMatches: Iterator[Regex.Match] = FormatSpecifierAcceptingInvalidTypePattern.findAllMatchIn(formatString)
+    val bindings: List[StringPart] = specifierMatches.map { it =>
       val specifier = {
         val span = Span(literal, it.start(0) + shift, it.end(0) + shift)
         val cleanFormat = {
@@ -113,29 +140,39 @@ object FormattedStringParser extends StringParser {
       val positional = it.group(1) != null
       if (positional) {
         val position = it.group(1).dropRight(1).toInt
-        arguments.lift(position - 1).map { argument =>
+        val argumentOpt = arguments.lift(position - 1)
+        argumentOpt.map { argument =>
           referredArguments ::= argument
           Injection(argument, Some(specifier))
-        } getOrElse {
-          UnboundPositionalSpecifier(specifier, position)
-        }
+        }.getOrElse(UnboundPositionalSpecifier(specifier, position))
       } else {
+        import SpecialFormatEscape._
         implicit val projectContext: ProjectContext = literal.projectContext
-        if (it.toString().equals("%n")) Injection(createExpressionFromText("\"\\n\""), None)
-        else if (it.toString == "%%") Injection(createExpressionFromText("\"%\""), None)
+        val itValue = it.toString
+        // NOTE: ideally, %% and %n shouldn't be treated as bindings at all at this stage cause they are not bound to any injection.
+        // But for simplicity, I add them as bindings and handle them specially later, when merging with text parts
+        if (itValue == LineSeparator.originalText) LineSeparator
+        else if (itValue == PercentChar.originalText) PercentChar
         else if (remainingArguments.hasNext) Injection(remainingArguments.next(), Some(specifier))
         else UnboundSpecifier(specifier)
       }
-    }
+    }.toList
 
-    val texts = FormatSpecifierPattern.split(formatString).map { s =>
-      if (literal.isMultiLineString) Text(s) else Text(StringUtil.unescapeStringCharacters(s))
-    }
+    val regexParts = FormatSpecifierAcceptingInvalidTypePattern.split(formatString)
 
-    val prefix = intersperse(texts.toList, bindings.toList).filter {
+    assert(!literal.is[ScInterpolatedStringLiteral])
+    val isRawContent = literal.isMultiLineString
+    val texts: List[Text] = regexParts.map { s0 =>
+      val s = if (isRawContent) s0 else StringUtil.unescapeStringCharacters(s0)
+      Text(s)
+    }.toList
+
+    val interparsed = intersperse(texts, bindings)
+    val withoutEmpty = interparsed.filter {
       case Text("") => false
       case _ => true
     }
+    val prefix = withoutEmpty
 
     val unusedArguments = remainingArguments.filterNot(referredArguments.contains).map(UnboundExpression).toList
 
