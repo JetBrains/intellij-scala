@@ -4,11 +4,14 @@ package element
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiNamedElement, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 
 object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameterizedTypeElement] {
 
@@ -48,14 +51,45 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
         (arg, param) <- args zip params
         argTy <- arg.`type`()
       } {
-        lazy val argTyText = argTy.presentableText
-        for (upperBound <- param.upperBound.toOption if !argTy.conforms(upperBound)) {
-          holder.createErrorAnnotation(arg, ScalaBundle.message("type.arg.does.not.conform.to.upper.bound", argTyText, upperBound.presentableText, param.name))
-        }
+        checkBounds(arg, argTy, param)
+        checkHigherKindedType(arg, argTy, param)
+      }
+    }
+  }
 
-        for (lowerBound <- param.lowerBound.toOption if !lowerBound.conforms(argTy)) {
-          holder.createErrorAnnotation(arg, ScalaBundle.message("type.arg.does.not.conform.to.lower.bound", argTyText, lowerBound.presentableText, param.name))
-        }
+  private def checkBounds(arg: ScTypeElement, argTy: ScType, param: ScTypeParam)
+                         (implicit holder: ScalaAnnotationHolder, tcp: TypePresentationContext): Unit = {
+    lazy val argTyText = argTy.presentableText
+    for (upperBound <- param.upperBound.toOption if !argTy.conforms(upperBound)) {
+      holder.createErrorAnnotation(arg, ScalaBundle.message("type.arg.does.not.conform.to.upper.bound", argTyText, upperBound.presentableText, param.name))
+        .registerFix(ReportHighlightingErrorQuickFix)
+    }
+
+    for (lowerBound <- param.lowerBound.toOption if !lowerBound.conforms(argTy)) {
+      holder.createErrorAnnotation(arg, ScalaBundle.message("type.arg.does.not.conform.to.lower.bound", argTyText, lowerBound.presentableText, param.name))
+        .registerFix(ReportHighlightingErrorQuickFix)
+    }
+  }
+
+  private def checkHigherKindedType(arg: ScTypeElement, argTy: ScType, param: ScTypeParam)
+                                   (implicit holder: ScalaAnnotationHolder, tcp: TypePresentationContext): Unit = {
+    val paramTyParams = param.typeParameters.map(TypeParameter(_))
+
+    if (paramTyParams.nonEmpty) {
+      argTy match {
+        case ScTypePolymorphicType(ty, argParams) =>
+          val expectedHkT = (param.name, paramTyParams)
+          val actualHkT = (ty.presentableText, argParams)
+          val actualDiff = HkTypeDiff.forActual(expectedHkT, actualHkT)
+          if (actualDiff.exists(_.isMismatch)) {
+            val expectedDiff = HkTypeDiff.forExpected(expectedHkT, actualHkT)
+            val annotation = holder.createErrorAnnotation(arg, ScalaBundle.message("higher.kinded.type.does.not.conform", argTy.presentableText, expectedDiff.flatten.mkString))
+            annotation.setTooltip(tooltipForDiffTrees(ScalaBundle.message("higher.kinded.type.mismatch"), expectedDiff, actualDiff)(_.isMismatch, _.text))
+            annotation.registerFix(ReportHighlightingErrorQuickFix)
+          }
+        case _ =>
+          holder.createErrorAnnotation(arg, ScalaBundle.message("expected.higher.kinded.type", param.typeParameterText))
+            .registerFix(ReportHighlightingErrorQuickFix)
       }
     }
   }
