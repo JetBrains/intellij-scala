@@ -502,9 +502,9 @@ object ScExpression {
           expectedType
             .map(_.removeAbstracts)
             .forall {
-              case functionLikeType(marker, _, _) => marker match {
+              case functionLikeType(marker, _, ptpes) => marker match {
                 case SAM(_) => scalaVersion != Scala_2_11
-                case _      => scalaVersion >= Scala_2_13
+                case _      => scalaVersion >= Scala_2_13 && ptpes.nonEmpty
               }
               case _ => true
             }

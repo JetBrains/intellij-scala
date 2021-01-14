@@ -23,7 +23,7 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util._
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt, _}
-import org.jetbrains.plugins.scala.externalLibraries.bm4.{BetterMonadicForSupport, Implicit0Binding}
+import org.jetbrains.plugins.scala.externalLibraries.bm4.Implicit0Binding
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
@@ -871,7 +871,6 @@ object ScalaPsiUtil {
   def needParentheses(from: ScExpression, expr: ScExpression): Boolean = {
     def infixInInfixParentheses(parent: ScInfixExpr, child: ScInfixExpr): Boolean = {
 
-      import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixExpr._
       import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils._
 
       if (parent.left == from) {
@@ -894,7 +893,7 @@ object ScalaPsiUtil {
       }
     }
 
-    def tupleInInfixNeedParentheses(parent: ScInfixExpr, from: ScExpression, expr: ScTuple): Boolean = {
+    def tupleInInfixNeedParentheses(parent: ScInfixExpr, from: ScExpression): Boolean = {
       if (from.getParent != parent) throw new IllegalArgumentException
       if (from == parent.left) false
       else {
@@ -943,7 +942,7 @@ object ScalaPsiUtil {
         case _ if !parent.is[ScExpression] => false
         case _ if expr.textMatches("_") => false
         case (_: ScTuple | _: ScBlock | _: ScXmlExpr, _) => false
-        case (infix: ScInfixExpr, tuple: ScTuple) => tupleInInfixNeedParentheses(infix, from, tuple)
+        case (infix: ScInfixExpr, tuple: ScTuple) => tupleInInfixNeedParentheses(infix, from)
         case (_: ScSugarCallExpr |
               _: ScReferenceExpression, elem: PsiElement) if ScUnderScoreSectionUtil.isUnderscoreFunction(elem) => true
         case (_, _: ScReferenceExpression | _: ScMethodCall |

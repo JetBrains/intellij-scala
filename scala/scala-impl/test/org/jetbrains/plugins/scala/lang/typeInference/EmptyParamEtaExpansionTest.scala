@@ -17,6 +17,35 @@ class EmptyParamEtaExpansionTest extends ScalaLightCodeInsightFixtureTestAdapter
       |}
       |""".stripMargin
   )
+
+  def testSCL18525(): Unit = checkTextHasNoErrors(
+    """
+      |class Bug01 {
+      |  def get(): Int = 101
+      |}
+      |
+      |object Bug01 {
+      |
+      |  def invoke(f: () => Int): Int = f()
+      |
+      |  def main(args: Array[String]): Unit = {
+      |    println(
+      |      invoke(
+      |        new Bug01().get
+      |      )
+      |    )
+      |  }
+      |}
+      |""".stripMargin
+  )
+
+  def testSCL18589(): Unit = checkTextHasNoErrors(
+    """
+      |def helloWorld(): Unit = println(s"  function helloWorld called")
+      |def callFunc(func: () => Unit) = func()
+      |callFunc(helloWorld)
+      |""".stripMargin
+  )
 }
 
 class EmpptyParamEtaExpansion_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
