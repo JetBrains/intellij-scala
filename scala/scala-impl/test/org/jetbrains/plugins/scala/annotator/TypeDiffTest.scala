@@ -614,7 +614,7 @@ class TypeDiffTest extends ScalaFixtureTestCase {
     val flattenDiff2 = actualDiffData2.flatten
     assertEquals(s"""The number of elements must match:
                     |${flattenDiff1.mkString("|")}
-                    |${flattenDiff1.mkString("|")}""".stripMargin,
+                    |${flattenDiff2.mkString("|")}""".stripMargin,
       flattenDiff1.length, flattenDiff2.length)
   }
 
@@ -622,9 +622,8 @@ class TypeDiffTest extends ScalaFixtureTestCase {
 
   private def asString(diff: Tree[TypeDiff]) = {
     val parts = diff.flatten.map {
-      case Leaf(Match(text, _)) => text
-      case Leaf(Mismatch(text, _)) => s"~$text~"
-      case _ => ???
+      case Match(text, _) => text
+      case Mismatch(text, _) => s"~$text~"
     }
     parts.mkString
   }

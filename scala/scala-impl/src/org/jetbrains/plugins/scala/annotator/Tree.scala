@@ -2,10 +2,12 @@ package org.jetbrains.plugins.scala.annotator
 
 import org.jetbrains.plugins.scala.extensions._
 
-import scala.Function._
-
 sealed trait Tree[+T] {
-  def flatten: Seq[Tree[T]] = flattenTo(const(0), Integer.MAX_VALUE)
+  final def flatten: Seq[T] = {
+    val builder = Seq.newBuilder[T]
+    fold(builder)(_ += _)
+    builder.result()
+  }
 
   def flattenTo(lengthOf: Tree[T] => Int, maxLength: Int): Seq[Tree[T]] = flattenTo0(lengthOf, maxLength)._1
 

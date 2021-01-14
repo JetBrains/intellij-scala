@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.psi.PsiElement
 import com.intellij.util.text.LiteralFormatUtil
+import com.intellij.util.ui.StartupUiUtil
+import com.intellij.xml.util.XmlStringUtil.escapeString
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
 
@@ -70,4 +72,27 @@ package object annotator {
   private[annotator] case object Hex extends IntegerKind(16, "0x")
 
   private[annotator] case object Oct extends IntegerKind(8, "0")
+
+
+  @Nls
+  private[annotator] def tooltipForDiffTrees[T](@Nls error: String, expectedTree: Tree[T], actualType: Tree[T])(isMismatch: T => Boolean, textOf: T => String): String = {
+    def format(diff: Tree[T], f: String => String) = {
+      val parts = diff.flatten.map { element =>
+        val text = textOf(element)
+        if (isMismatch(element)) f(text)
+        else text
+      }.map {
+        "<td style=\"text-align:center\">" + _ + "</td>"
+      }
+      parts.mkString
+    }
+
+    // com.intellij.codeInsight.daemon.impl.analysis.HighlightUtil.redIfNotMatch
+    def red(text: String) = {
+      val color = if (StartupUiUtil.isUnderDarcula) "FF6B68" else "red"
+      "<font color='" + color + "'><b>" + escapeString(text) + "</b></font>"
+    }
+
+    ScalaBundle.message("tree.mismatch.tooltip", error, format(expectedTree, s => s"<b>$s</b>"), format(actualType, red))
+  }
 }
