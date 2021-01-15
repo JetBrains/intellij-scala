@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeE
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 
@@ -76,14 +77,14 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
     val paramTyParams = param.typeParameters.map(TypeParameter(_))
 
     if (paramTyParams.nonEmpty) {
-      argTy match {
-        case ScTypePolymorphicType(ty, argParams) =>
+      argTy.asOptionOf[DesignatorOwner].flatMap(_.polyTypeOption) match {
+        case Some(ScTypePolymorphicType(_, argParams)) =>
           val expectedHkT = (param.name, paramTyParams)
-          val actualHkT = (ty.presentableText, argParams)
+          val actualHkT = (argTy.presentableText, argParams)
           val actualDiff = HkTypeDiff.forActual(expectedHkT, actualHkT)
           if (actualDiff.exists(_.isMismatch)) {
             val expectedDiff = HkTypeDiff.forExpected(expectedHkT, actualHkT)
-            val annotation = holder.createErrorAnnotation(arg, ScalaBundle.message("higher.kinded.type.does.not.conform", argTy.presentableText, expectedDiff.flatten.mkString))
+            val annotation = holder.createErrorAnnotation(arg, ScalaBundle.message("higher.kinded.type.does.not.conform", argTy.presentableText, expectedDiff.flatten.map(_.text).mkString))
             annotation.setTooltip(tooltipForDiffTrees(ScalaBundle.message("higher.kinded.type.mismatch"), expectedDiff, actualDiff)(_.isMismatch, _.text))
             annotation.registerFix(ReportHighlightingErrorQuickFix)
           }

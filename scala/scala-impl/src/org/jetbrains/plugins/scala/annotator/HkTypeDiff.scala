@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
 import org.jetbrains.plugins.scala.annotator.Tree.{Leaf, Node}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 
@@ -18,8 +19,8 @@ object HkTypeDiff {
   def forExpected(expected: HkTy, actual: HkTy)(implicit tpc: TypePresentationContext): Tree[HkTypeDiff] =
     diff(expected._1, expected._2, actual._2)((lower, upper) => upper.conforms(lower), tpc)
 
-  private def aMatch(text: String) = Leaf(new HkTypeDiff(text, true))
-  private def aMismatch(text: String) = Leaf(new HkTypeDiff(text, false))
+  private def aMatch(text: String) = Leaf(new HkTypeDiff(text, false))
+  private def aMismatch(text: String) = Leaf(new HkTypeDiff(text, true))
 
   private type Conformance = (ScType, ScType) => Boolean
 
@@ -27,7 +28,7 @@ object HkTypeDiff {
     if (subjectParams.isEmpty) {
       Leaf(new HkTypeDiff(subjectName, isMismatch = otherParams.nonEmpty))
     } else if (subjectParams.size != otherParams.size) {
-      val paramText = subjectParams.map(_.name).mkString(", ")
+      val paramText = subjectParams.map(_.name).mkString(", ")
       aMismatch(s"$subjectName[$paramText]")
     } else {
       val paramsDiffs = subjectParams.lazyZip(otherParams).map(diff)
@@ -36,31 +37,40 @@ object HkTypeDiff {
           aMatch(subjectName),
           aMatch("[")
         ) ++
-        paramsDiffs :+
-        aMatch("]"): _*
+          paramsDiffs.iterator.intersperse(aMatch(", ")) :+
+          aMatch("]"): _*
       )
     }
   }
 
   private def diff(subjectParam: TypeParameter, otherParam: TypeParameter)(implicit conformance: Conformance, tpc: TypePresentationContext): Tree[HkTypeDiff] = {
-    val lowerType = subjectParam.lowerType
-    val lowerBoundLeaf: String => Seq[Tree[HkTypeDiff]] =
-      if (!conformance(otherParam.lowerType, lowerType)) str => Seq(aMismatch(str))
-      else if (lowerType.isNothing) _ => Seq()
-      else str => Seq(aMatch(str))
+    def listIf[T](cond: Boolean)(elem: T): List[T] = if (cond) List(elem) else Nil
 
-    val upperType = subjectParam.upperType
-    val upperBoundLeaf: String => Seq[Tree[HkTypeDiff]] =
-      if (!conformance(upperType, otherParam.upperType)) str => Seq(aMismatch(str))
-      else if (upperType.isAny) _ => Seq()
-      else str => Seq(aMatch(str))
+    val subjectLowerType = subjectParam.lowerType
+    val lowerBoundLeaf: String => List[Tree[HkTypeDiff]] = {
+      val otherLowerType = otherParam.lowerType
+      val list = listIf[Tree[HkTypeDiff]](!subjectLowerType.isNothing || !otherLowerType.isNothing) _
+      if (subjectLowerType.isNothing) _ => list(aMatch(""))
+      else if (!conformance(subjectLowerType, otherLowerType)) str => list(aMismatch(str))
+      else str => list(aMatch(str))
+    }
+
+    val subjectUpperType = subjectParam.upperType
+    val upperBoundLeaf: String => List[Tree[HkTypeDiff]] = {
+      val otherUpperType = otherParam.upperType
+      val list = listIf[Tree[HkTypeDiff]](!subjectUpperType.isAny || !otherUpperType.isAny) _
+      if (subjectUpperType.isAny) _ => list(aMatch(""))
+      else if (!conformance(otherUpperType, subjectUpperType)) str => list(aMismatch(str))
+      else str => list(aMatch(str))
+    }
 
     Node(
-      diff(subjectParam.name, subjectParam.typeParameters, otherParam.typeParameters) +:
-      (lowerBoundLeaf(" >: ") ++
-      lowerBoundLeaf(lowerType.presentableText) ++
-      upperBoundLeaf(" <: ") ++
-      upperBoundLeaf(upperType.presentableText)): _*
+      diff(subjectParam.name, subjectParam.typeParameters, otherParam.typeParameters) ::
+      lowerBoundLeaf(" >: ") :::
+      lowerBoundLeaf(subjectLowerType.presentableText) :::
+      upperBoundLeaf(" <: ") :::
+      upperBoundLeaf(subjectUpperType.presentableText) :::
+      Nil: _*
     )
   }
 }
