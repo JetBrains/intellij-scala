@@ -28,7 +28,7 @@ object HkTypeDiff {
     if (subjectParams.isEmpty) {
       Leaf(new HkTypeDiff(subjectName, isMismatch = otherParams.nonEmpty))
     } else if (subjectParams.size != otherParams.size) {
-      val paramText = subjectParams.map(_.name).mkString(", ")
+      val paramText = subjectParams.map(_.name).mkString(", ")
       aMismatch(s"$subjectName[$paramText]")
     } else {
       val paramsDiffs = subjectParams.lazyZip(otherParams).map(diff)
@@ -37,7 +37,7 @@ object HkTypeDiff {
           aMatch(subjectName),
           aMatch("[")
         ) ++
-          paramsDiffs.iterator.intersperse(aMatch(", ")) :+
+          paramsDiffs.iterator.intersperse(aMatch(", ")) :+
           aMatch("]"): _*
       )
     }
@@ -66,9 +66,9 @@ object HkTypeDiff {
 
     Node(
       diff(subjectParam.name, subjectParam.typeParameters, otherParam.typeParameters) ::
-      lowerBoundLeaf(" >: ") :::
+      lowerBoundLeaf(" >: ") :::
       lowerBoundLeaf(subjectLowerType.presentableText) :::
-      upperBoundLeaf(" <: ") :::
+      upperBoundLeaf(" <: ") :::
       upperBoundLeaf(subjectUpperType.presentableText) :::
       Nil: _*
     )

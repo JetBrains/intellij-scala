@@ -44,6 +44,19 @@ class ScParameterizedTypeElementAnnotatorTest extends SimpleTestCase {
     )
   }
 
+  def testHigherKindedTypes(): Unit = {
+    assertMessagesInAllContexts("Test3[Test]")()
+    assertMessagesInAllContexts("Test3[Test2]")()
+
+    assertMessagesInAllContexts("Test3[A]")(
+      Error("A", "Expected higher-kinded type CC[X >: B <: B, _]")
+    )
+
+    assertMessagesInAllContexts("Test3[Hk]")(
+      Error("Hk", "Higher-kinded type Hk does not conform to CC[X >: B <: B, _]")
+    )
+  }
+
   def assertMessagesInAllContexts(typeText: String)(expected: Message*): Unit = {
     val Header =
       """
@@ -53,6 +66,9 @@ class ScParameterizedTypeElementAnnotatorTest extends SimpleTestCase {
         |
         |class Test[X, Y]
         |class Test2[X <: B, Y >: B]
+        |class Test3[CC[X >: B <: B, _]]
+        |
+        |class Hk[X >: A, Y <: C]
         |""".stripMargin
 
     val contexts = Seq(
@@ -63,7 +79,6 @@ class ScParameterizedTypeElementAnnotatorTest extends SimpleTestCase {
       s"new $typeText",
       s"class Blub extends $typeText",
       s"class W[Q <: $typeText]",
-      s"class W[Test[X, Y], Test2[X <: B, Y >: B], Q <: $typeText]",
     )
 
     for (context <- contexts) {

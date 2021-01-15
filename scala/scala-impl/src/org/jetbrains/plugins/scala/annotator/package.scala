@@ -78,7 +78,7 @@ package object annotator {
   private[annotator] def tooltipForDiffTrees[T](@Nls error: String, expectedTree: Tree[T], actualType: Tree[T])(isMismatch: T => Boolean, textOf: T => String): String = {
     def format(diff: Tree[T], f: String => String) = {
       val parts = diff.flatten.map { element =>
-        val htmlText = escapeString(textOf(element))
+        val htmlText = escapeString(textOf(element), true)
         if (isMismatch(element)) f(htmlText)
         else htmlText
       }.map {
