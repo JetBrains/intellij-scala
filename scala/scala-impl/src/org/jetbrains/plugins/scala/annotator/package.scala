@@ -78,9 +78,9 @@ package object annotator {
   private[annotator] def tooltipForDiffTrees[T](@Nls error: String, expectedTree: Tree[T], actualType: Tree[T])(isMismatch: T => Boolean, textOf: T => String): String = {
     def format(diff: Tree[T], f: String => String) = {
       val parts = diff.flatten.map { element =>
-        val text = textOf(element)
-        if (isMismatch(element)) f(text)
-        else text
+        val htmlText = escapeString(textOf(element))
+        if (isMismatch(element)) f(htmlText)
+        else htmlText
       }.map {
         "<td style=\"text-align:center\">" + _ + "</td>"
       }
@@ -88,9 +88,9 @@ package object annotator {
     }
 
     // com.intellij.codeInsight.daemon.impl.analysis.HighlightUtil.redIfNotMatch
-    def red(text: String) = {
+    def red(htmlText: String) = {
       val color = if (StartupUiUtil.isUnderDarcula) "FF6B68" else "red"
-      "<font color='" + color + "'><b>" + escapeString(text) + "</b></font>"
+      "<font color='" + color + "'><b>" + htmlText + "</b></font>"
     }
 
     ScalaBundle.message("tree.mismatch.tooltip", error, format(expectedTree, s => s"<b>$s</b>"), format(actualType, red))
