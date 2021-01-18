@@ -53,7 +53,7 @@ class SbtMavenResolver @PropertyMapping(Array("name", "root", "presentableName")
     if (_presentableName != null) _presentableName else NlsString.force(name)
 
   override def getIndex(project: Project): Option[ResolverIndex] = try {
-      MavenIndicesManager.getInstance()
+      MavenIndicesManager.getInstance(project)
       Some(new MavenProxyIndex(root, name, project))
     } catch {
     case _: PluginException =>

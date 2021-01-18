@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala
 package refactoring.extractMethod
 
-import java.io.File
+import com.intellij.openapi.actionSystem.DataKey
 
+import java.io.File
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.project.Project
@@ -51,13 +52,15 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightPlatformCodeInsightT
     assertEquals(expected, actual)
   }
 
+  private val chosenTargetScopeKey: DataKey[Int] = DataKey.create("chosenTargetScope")
+
   private def invokeExtractMethodRefactoring(scalaFile: ScalaFile, scopeOffset: Int, startOffset: Int, endOffset: Int)
-                                           (project: Project): Unit = {
+                                            (project: Project): Unit = {
     val editorManager = FileEditorManager.getInstance(project)
     val editor = editorManager.openTextEditor(new OpenFileDescriptor(project, getVFileAdapter, startOffset), false)
     editor.getSelectionModel.setSelection(startOffset, endOffset)
 
-    val context = SimpleDataContext.getSimpleContext("chosenTargetScope", scopeOffset)
+    val context = SimpleDataContext.getSimpleContext(chosenTargetScopeKey, scopeOffset)
     val handler = new ScalaExtractMethodHandler
     handler.invoke(project, getEditorAdapter, scalaFile, context)
     UsefulTestCase.doPostponedFormatting(project)

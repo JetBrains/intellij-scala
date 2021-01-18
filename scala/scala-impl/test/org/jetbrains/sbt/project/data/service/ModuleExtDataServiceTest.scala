@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.DebuggingInfoLevel
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByName, SdkReference, SdkUtils}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.sbt.UsefulTestCaseHelper
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.data.service.ModuleExtDataService.NotificationException
@@ -32,7 +31,7 @@ import scala.util.{Failure, Try}
  * @author Nikolay Obedin
  * @since 6/9/15.
  */
-class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTestCaseHelper {
+class ModuleExtDataServiceTest extends ProjectDataServiceTestCase {
 
   import ExternalSystemDataDsl._
 

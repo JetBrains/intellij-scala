@@ -3,8 +3,8 @@ package org.jetbrains.sbt.resolvers.indexes
 import java.io._
 import java.util.Properties
 import java.util.jar.JarFile
-
 import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.util.CommonProcessors
 import com.intellij.util.io.{DataExternalizer, EnumeratorStringDescriptor, PersistentHashMap}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -58,23 +58,21 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
 
   override def searchGroup(artifactId: String): Set[String] = {
     withStorageCheck {
-      if (artifactId.isEmpty)
-        Option(groupToArtifactMap.getAllKeysWithExistingMapping)
-          .map {_.asScala.toSet}
-          .getOrElse(Set.empty)
-      else
-        Option(artifactToGroupMap.get(artifactId)).getOrElse(Set.empty)
+      if (artifactId.isEmpty) {
+        val result = Set.empty[String]
+        groupToArtifactMap.processKeysWithExistingMapping(new CommonProcessors.CollectProcessor(result.asJava))
+        result
+      } else Option(artifactToGroupMap.get(artifactId)).getOrElse(Set.empty)
     }
   }
 
   override def searchArtifact(groupId: String): Set[String] = {
     withStorageCheck {
-      if (groupId.isEmpty)
-        Option(artifactToGroupMap.getAllKeysWithExistingMapping)
-        .map {_.asScala.toSet}
-        .getOrElse (Set.empty)
-      else
-        Option(groupToArtifactMap.get(groupId)).getOrElse(Set.empty)
+      if (groupId.isEmpty) {
+        val result = Set.empty[String]
+        groupToArtifactMap.processKeysWithExistingMapping(new CommonProcessors.CollectProcessor(result.asJava))
+        result
+      } else Option(groupToArtifactMap.get(groupId)).getOrElse(Set.empty)
     }
   }
 

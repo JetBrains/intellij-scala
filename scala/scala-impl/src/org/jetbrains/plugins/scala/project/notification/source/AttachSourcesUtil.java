@@ -70,7 +70,7 @@ public class AttachSourcesUtil {
             }
             if (modelsToCommit.isEmpty()) return new ActionCallback.Rejected();
             new WriteAction<Void>() {
-                @Override protected void run(@NotNull final Result<Void> result) {
+                @Override protected void run(@NotNull final Result<? super Void> result) {
                     for (Library.ModifiableModel model : modelsToCommit) {
                         model.commit();
                     }

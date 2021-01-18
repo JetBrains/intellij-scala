@@ -11,15 +11,10 @@ trait ScMatchTypeElement extends ScTypeElement {
   override protected val typeName: String = "MatchType"
 
   def scrutineeTypeElement: ScTypeElement
-
   def cases: Option[ScMatchTypeCases]
-
-  def get: ScMatchTypeElement      = this
-  def isEmpty: Boolean             = false
-  def _1: ScTypeElement            = scrutineeTypeElement
-  def _2: Option[ScMatchTypeCases] = cases
 }
 
 object ScMatchTypeElement {
-  def unapply(mte: ScMatchTypeElement): ScMatchTypeElement = mte
+  def unapply(mte: ScMatchTypeElement): Some[(ScTypeElement, Option[ScMatchTypeCases])] =
+    Some((mte.scrutineeTypeElement, mte.cases))
 }

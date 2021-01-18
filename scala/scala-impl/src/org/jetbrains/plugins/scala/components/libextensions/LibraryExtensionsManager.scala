@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.components.libextensions
 
 import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
-
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification._
@@ -26,11 +25,12 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.project.module.SbtModule
 import org.jetbrains.sbt.resolvers.SbtResolver
 
+import java.{util => ju}
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.reflect.ClassTag
 import scala.util.control.NonFatal
-import scala.util.{Failure, Success, Try, Using}
+import scala.util.{Failure, Success, Using}
 import scala.xml.factory.XMLLoader
 import scala.xml.{Elem, SAXParser}
 
@@ -160,7 +160,7 @@ final class LibraryExtensionsManager(project: Project) {
     descriptor.getCurrentPluginDescriptor.foreach { currentVersion =>
       val IdeaVersionDescriptor(_, _, _, defaultPackage, extensions) = currentVersion
       val classLoader = UrlClassLoader.build()
-        .urls(jarFile.toURI.toURL)
+        .files(ju.Collections.singletonList(jarFile.toPath))
         .parent(getClass.getClassLoader)
         .useCache()
         .get()

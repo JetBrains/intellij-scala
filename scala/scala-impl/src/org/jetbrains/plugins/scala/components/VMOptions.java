@@ -21,6 +21,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.util.system.CpuArch;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,7 +40,7 @@ class VMOptions {
   @NonNls static final String XMX_OPTION_NAME = "Xmx";
   @NonNls static final String PERM_GEN_OPTION_NAME = "XX:MaxPermSize";
   @NonNls static final String CODE_CACHE_OPTION_NAME = "XX:ReservedCodeCacheSize";
-  @NonNls static final String MAC_ARCH_VM_OPTIONS = SystemInfo.is64Bit ? "VMOptions.x86_64" : "VMOptions.i386";
+  @NonNls static final String MAC_ARCH_VM_OPTIONS = CpuArch.isIntel64() ? "VMOptions.x86_64" : "VMOptions.i386";
 
   @NonNls private static final String XMX_OPTION = "-" + XMX_OPTION_NAME;
   @NonNls private static final String PERM_GEN_OPTION = "-" + PERM_GEN_OPTION_NAME + "=";
@@ -235,7 +236,7 @@ class VMOptions {
     }
 
     final String productName = ApplicationNamesInfo.getInstance().getProductName().toLowerCase(Locale.US);
-    final String platformSuffix = SystemInfo.is64Bit ? "64" : "";
+    final String platformSuffix = CpuArch.CURRENT.width == 64 ? "64" : "";
     final String osSuffix = SystemInfo.isWindows ? ".exe" : "";
     return PathManager.getBinPath() + File.separatorChar + productName + platformSuffix + osSuffix + ".vmoptions";
   }
