@@ -175,8 +175,11 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       else names
     val clause = params.mkString("(", ", ", ")")
     val newFunExprText = s"$clause => $exprText"
-    val replaced = expr.replaceExpression(createExpressionFromText(newFunExprText)(expr.getManager), removeParenthesis = true)
-      .asInstanceOf[ScFunctionExpr]
+    val replaced = expr.replaceExpression(createExpressionFromText(newFunExprText)(expr.getManager), removeParenthesis = true) match {
+      case fn: ScFunctionExpr => fn
+      case ScParenthesisedExpr(fn: ScFunctionExpr) => fn
+      case _ => return
+    }
     TypeAdjuster.markToAdjust(replaced)
     replaced.result match {
       case Some(infix: ScInfixExpr) =>
