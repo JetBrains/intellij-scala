@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
+import com.intellij.lang.java.lexer.JavaLexer
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightModifierList
+import com.intellij.psi.util.PsiUtil
 import gnu.trove.THashSet
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
@@ -11,9 +13,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.light.ScLightModifierList._
 
 import scala.annotation.tailrec
+import scala.util.matching.Regex
 
 private[light] class ScLightModifierList(scalaElement: ScalaPsiElement,
                                          isStatic: Boolean,
@@ -90,12 +94,14 @@ private[light] class ScLightModifierList(scalaElement: ScalaPsiElement,
     if (annotationHolder == null)
       return PsiAnnotation.EMPTY_ARRAY
 
+    val javaLL = PsiUtil.getLanguageLevel(this.getProject)
     val convertibleAnnotations = annotationHolder.annotations.filterNot { a =>
       a.getQualifiedName match {
         case null => true
-        case s if keywordAnnotations.keySet.contains(s) => true
+        case s if keywordAnnotations.contains(s) => true
         case s if Set("scala.throws", "scala.inline", "scala.unchecked").contains(s) => true
         case s if s.endsWith("BeanProperty") => true
+        case s if s.split('.').exists(JavaLexer.isKeyword(_, javaLL)) => true
         case _ => false
       }
     }
@@ -176,6 +182,7 @@ private[light] class ScLightModifierList(scalaElement: ScalaPsiElement,
 private[light] object ScLightModifierList {
   val keywordAnnotations: Map[String, String] = Map(
     "scala.native" -> "native",
+    "scala.scalajs.js.native" -> "native",
     "scala.annotation.strictfp" -> "strictfp",
     "scala.volatile" -> "volatile",
     "scala.transient" -> "transient")
