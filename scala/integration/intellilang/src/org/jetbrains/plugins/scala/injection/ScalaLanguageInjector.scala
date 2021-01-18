@@ -145,7 +145,7 @@ final class ScalaLanguageInjector extends MultiHostInjector {
   private def injectUsingComment(host: PsiElement, literals: Seq[StringLiteral])
                                 (implicit support: ScalaLanguageInjectionSupport,
                                  registrar: MultiHostRegistrar): Boolean = {
-    val injection = support.findCommentInjection(host, null)
+    val injection = InjectorUtils.findCommentInjection(host, "comment", null)
     if (injection == null) return false
     val langId: String = injection.getInjectedLanguageId
     if (StringUtils.isBlank(langId)) return false
