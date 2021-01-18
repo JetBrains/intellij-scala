@@ -6,6 +6,7 @@ package filters.expression
 import com.intellij.psi.filters.ElementFilter
 import com.intellij.psi.{PsiElement, _}
 import org.jetbrains.annotations.NonNls
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -18,15 +19,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScArguments
 
 class CatchFilter extends ElementFilter {
   override def isAcceptable(element: Object, context: PsiElement): Boolean = {
-    if (context.isInstanceOf[PsiComment]) return false
+    if (context.is[PsiComment]) return false
     val (leaf, _) = processPsiLeafForFilter(getLeafByOffset(context.getTextRange.getStartOffset, context))
     if (leaf != null) {
       var i = getPrevNotWhitespaceAndComment(context.getTextRange.getStartOffset - 1, context)
       var leaf1 = getLeafByOffset(i, context)
-      if (leaf1.getNode.getElementType == ScalaTokenTypes.kTRY) return false
+      if (leaf1 == null || leaf1.getNode.getElementType == ScalaTokenTypes.kTRY) return false
       val prevIsRBrace = leaf1.textMatches("}")
       val prevIsRParan = leaf1.textMatches(")")
-      while (leaf1 != null && !leaf1.isInstanceOf[ScTry]) {
+      while (leaf1 != null && !leaf1.is[ScTry]) {
         leaf1 match {
           case _: ScFinallyBlock =>
             return false
