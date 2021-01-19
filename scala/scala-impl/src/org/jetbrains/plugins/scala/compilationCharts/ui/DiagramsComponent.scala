@@ -33,6 +33,26 @@ class DiagramsComponent(chartsComponent: CompilationChartsComponent,
   private var currentLevel = Level.Modules
   private var currentZoomPixels: Double = -1
 
+  // TODO Use a Timer to postpone the tooltip calculation
+  addMouseMotionListener(new MouseAdapter {
+    override def mouseMoved(e: MouseEvent): Unit = {
+      setToolTipText(null)
+
+      val diagram = diagrams.progressDiagram
+
+      val selectedRow = diagram.rowCount - (e.getPoint.y / ProgressRowHeight).toInt - 1
+      val selectedTime = currentZoom.fromPixels(e.getPoint.x)
+
+      // TODO Use more effective search?
+      for (group <- diagram.segmentGroups.lift(selectedRow);
+           segment <- group.find(segment => segment.from <= selectedTime && segment.to >= selectedTime);
+           phase = segment.phases.find(it => it.from <= selectedTime && it.to >= selectedTime)) {
+        // TODO Show duration, number of files, etc. (maybe also labels)
+        setToolTipText(segment.unitId.moduleId + phase.map(" | " + _.name).getOrElse(""))
+      }
+    }
+  })
+
   def setZoom(zoom: Zoom): Unit = {
     if (scrollComponent == null)
       return
