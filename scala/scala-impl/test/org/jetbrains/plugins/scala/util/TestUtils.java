@@ -85,7 +85,7 @@ public class TestUtils {
     if (testData.exists()) {
       return testData.getCanonicalPath();
     } else {
-      File newParent = parent.getParentFile();
+      File newParent = parent.getCanonicalFile().getParentFile();
       if (newParent == null) throw new RuntimeException("no testdata directory found");
       else return findTestDataDir(newParent, child);
     }
