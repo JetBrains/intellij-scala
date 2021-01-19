@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package conversion
 
 import java.util.regex.Pattern
-
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.codeInsight.editorActions.ReferenceData
 import com.intellij.lang.java.JavaLanguage
@@ -13,7 +12,7 @@ import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import com.siyeh.ig.psiutils.{ControlFlowUtils, CountingLoop, ExpressionUtils}
 import org.jetbrains.plugins.scala.conversion.ast.{ModifierType, _}
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiMethodExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiMemberExt, PsiMethodExt}
 import org.jetbrains.plugins.scala.lang.dependency.Path
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -995,7 +994,9 @@ object JavaToScala {
     }
 
     val ml = ModifiersConstruction(handleAnnotations, handleModifiers)
-    ml.setComments(CommentsCollector.allCommentsForElement(owner.getModifierList))
+    owner.getModifierList.toOption.foreach { modList =>
+      ml.setComments(CommentsCollector.allCommentsForElement(modList))
+    }
     ml
   }
 
