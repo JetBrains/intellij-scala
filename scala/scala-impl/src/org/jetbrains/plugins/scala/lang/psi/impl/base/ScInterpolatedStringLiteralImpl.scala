@@ -5,6 +5,7 @@ package impl
 package base
 
 import com.intellij.lang.{ASTNode, LanguageNamesValidation}
+import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
@@ -79,11 +80,17 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
         case (_, text) => text
       }.commaSeparated(Model.Parentheses)
 
-      val expression = ScalaPsiElementFactory.createExpressionWithContextFromText(
-        s"$StringContextCanonical$constructorParameters.$methodName$methodParameters",
-        context,
-        this
-      ).asInstanceOf[ScMethodCall]
+      val expression =
+        try {
+          ScalaPsiElementFactory.createExpressionWithContextFromText(
+            s"$StringContextCanonical$constructorParameters.$methodName$methodParameters",
+            context,
+            this
+          ).asInstanceOf[ScMethodCall]
+        } catch {
+          case e: IncorrectOperationException =>
+            throw new IncorrectOperationException(s"Couldn't desugar interpolated string ${this.getText}", e: Throwable)
+        }
       Some(expression.getInvokedExpr.asInstanceOf[ScReferenceExpression], expression)
     case _ => None
   }
