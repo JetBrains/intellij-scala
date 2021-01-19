@@ -30,6 +30,19 @@ class ConvertToInterpolatedActionTest extends StringConversionTestBase {
         |s"${x}foo"""".stripMargin,
     )
 
+  def testFromConcatenation(): Unit = {
+    def insert(str: String, idx: Int, insert: String) = str.substring(0, idx) + insert + str.substring(idx)
+
+    val beforeBase = """"aaa" + "bbb" + "ccc" + x"""
+    val beforeSeq = beforeBase.indices.map { idx =>
+      insert(beforeBase, idx, CARET)
+    }
+    val after = """s"aaabbbccc$x""""
+    beforeSeq.foreach { before =>
+      doTest(before, after)
+    }
+  }
+
   def testFromConcatenation_WithPercents(): Unit =
     doTest(
       """"" + 42 + "%" + "%%" + "%%%" + "a%" + "a%%" + "a%%%" + "%b" + "%%b" + "%%%b"""",
@@ -229,4 +242,31 @@ class ConvertToInterpolatedActionTest extends StringConversionTestBase {
         |<caret>s"$str0 $str1 $str2"
         |""".stripMargin
     )
+
+  def test_SCL_17122(): Unit =
+    doTest(
+      """case class Method(name: String)
+        |
+        |val methods = Seq[Method]()
+        |val className = "ClassName"
+        |
+        |val a = methods
+        |  .map(m => "\"" <caret>+ m.name + "\" in {\nok\n}\n")
+        |  .fold("\"" + className + "\" should {")(_ + "\n" + _) + "\n}"
+        |""".stripMargin,
+    """case class Method(name: String)
+      |
+      |val methods = Seq[Method]()
+      |val className = "ClassName"
+      |
+      |val a = methods
+      |  .map(m =>
+      |    s'''"${m.name}" in {
+      |       |ok
+      |       |}
+      |       |'''.stripMargin)
+      |  .fold("\"" + className + "\" should {")(_ + "\n" + _) + "\n}"
+      |""".stripMargin.fixTripleQuotes
+    )
+
 }

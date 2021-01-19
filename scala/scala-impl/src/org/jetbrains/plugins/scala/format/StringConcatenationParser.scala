@@ -8,12 +8,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 object StringConcatenationParser extends StringParser {
   override def parse(element: PsiElement): Option[Seq[StringPart]] = {
-    Some(element) collect {
-      case StringConcatenationExpression(left, right) =>
-        val prefix = parse(left).getOrElse(parseOperand(left))
-        prefix ++: parseOperand(right)
+    val operands = detectOperands(element)
+    operands.map { case (left, right) =>
+      val leftParsed = parse(left)
+      val prefix = leftParsed.getOrElse(parseOperand(left))
+      prefix ++: parseOperand(right)
     }
   }
+
+  def detectOperands(element: PsiElement): Option[(ScExpression, ScExpression)] =
+    element match {
+      case StringConcatenationExpression(left, right) => Some((left, right))
+      case _ => None
+    }
 
   private def parseOperand(exp: ScExpression): Seq[StringPart] = exp match {
     case WithStrippedMargin.StripMarginCall(_, lit, _) =>

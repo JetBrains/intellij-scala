@@ -10,8 +10,7 @@ import com.intellij.profile.codeInspection.InspectionProfileManager
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryParenthesesInspection
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.format._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.format.{StringConcatenationParser, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -23,23 +22,27 @@ import scala.collection.mutable
 /**
  * Pavel Fatin
  */
-sealed abstract class FormatConversionIntention(override val getText: String,
-                                                parser: StringParser,
-                                                protected val formatter: StringFormatter) extends PsiElementBaseIntentionAction {
+sealed abstract class FormatConversionIntention[P <: StringParser](
+  override val getText: String,
+  protected val parser: P,
+  protected val formatter: StringFormatter
+) extends PsiElementBaseIntentionAction {
 
   override def getFamilyName: String = getText
 
-  protected def eager: Boolean = false
+  protected def findCandidates(element: PsiElement): Seq[PsiElement] =
+    element.withParentsInFile.toList
 
   protected def findTargetIn(element: PsiElement): Option[(PsiElement, Seq[StringPart])] = {
-    val candidates = element.withParentsInFile.toList match {
-      case list if eager => list.reverse
-      case list => list
-    }
-
-    candidates.collectFirst {
-      case candidate@Parts(parts) => (candidate, parts)
-    }
+    val candidates = findCandidates(element)
+    candidates.iterator
+      .map { candidate =>
+        val partsOpt = parser.parse(candidate)
+        (candidate, partsOpt)
+      }
+      .collectFirst { case (c, Some(p)) =>
+        (c, p)
+      }
   }
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
@@ -57,10 +60,6 @@ sealed abstract class FormatConversionIntention(override val getText: String,
         MultilineStringUtil.addMarginsAndFormatMLString(literal, editor.getDocument)
       case _ =>
     }
-  }
-
-  private object Parts {
-    def unapply(element: PsiElement): Option[Seq[StringPart]] = parser.parse(element)
   }
 }
 
@@ -81,20 +80,30 @@ object FormatConversionIntention {
     FormattedStringFormatter
   )
 
+
   final class StringConcatenationToFormatted extends FormatConversionIntention(
     ConvertToFormatted,
     StringConcatenationParser,
     FormattedStringFormatter
-  ) {
-    override protected def eager: Boolean = true
-  }
+  ) with StringConcatenationToAnyBase
 
   final class StringConcatenationToInterpolated extends FormatConversionIntention(
     ConvertToInterpolated,
     StringConcatenationParser,
     InterpolatedStringFormatter
-  ) {
-    override protected def eager: Boolean = true
+  ) with StringConcatenationToAnyBase
+
+  trait StringConcatenationToAnyBase {
+    self: FormatConversionIntention[StringConcatenationParser.type] =>
+
+    override protected def findCandidates(element: PsiElement): Seq[PsiElement] = {
+      val list = element
+        .withParentsInFile
+        .dropWhile { el => parser.detectOperands(el).isEmpty }
+        .takeWhile { el => parser.detectOperands(el).isDefined }
+        .toList
+      list.reverse
+    }
   }
 
   final class FormattedToStringConcatenation extends FormatConversionIntention(
@@ -110,7 +119,7 @@ object FormatConversionIntention {
   ) with AnyToStringConcatenationBase
 
   trait AnyToStringConcatenationBase {
-    self: FormatConversionIntention =>
+    self: FormatConversionIntention[_] =>
 
     // just run the tests...
     override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
@@ -224,10 +233,18 @@ object FormatConversionIntention {
       val left = infix.left
       val right = infix.right
       left match {
-        case inner@ScInfixExpr(_, ElementText("+"), _) => flattenConcat(inner, right :: acc)
-        case _                                         => left :: right :: acc
+        case inner@Concat(_, _) => flattenConcat(inner, right :: acc)
+        case _                  => left :: right :: acc
       }
     }
+  }
+
+  private object Concat {
+    def unapply(infix: ScInfixExpr): Option[(ScExpression, ScExpression)] =
+      infix match {
+        case ScInfixExpr(left, ElementText("+"), right) => Some((left, right))
+        case _                                          => None
+      }
   }
 
   /** @param targetToReplace original element which will be replaced with concatenation */

@@ -257,6 +257,7 @@ public interface ScalaTokenTypes {
     TokenSet STRING_LITERAL_TOKEN_SET = TokenSet.create(
             tSTRING,
             tWRONG_STRING,
+            // tWRONG_LINE_BREAK_IN_STRING // TODO: should we add it here?
             tMULTILINE_STRING,
             tINTERPOLATED_STRING,
             tINTERPOLATED_MULTILINE_STRING
