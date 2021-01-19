@@ -232,14 +232,20 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
       case proj: ScProjectionType =>
         val withActual = new ScProjectionType.withActual(updateWithProjectionSubst)
         proj match {
-          case withActual(alias: ScTypeAlias, s) =>
-            val upper = alias.upperBound.getOrElse(return true)
-            processTypeImpl(s(upper), place, state.withSubstitutor(ScSubstitutor.empty))(recState.add(alias))
           case withActual(elem, s) =>
-            val subst =
-              if (updateWithProjectionSubst) ScSubstitutor(proj) followed s
-              else                           s
-            processElement(elem, subst, place, state)(recState.add(elem))
+            if (recState.visitedProjections.contains(elem))
+              return true
+              
+            elem match {
+              case alias: ScTypeAlias =>
+                val upper = alias.upperBound.getOrElse(return true)
+                processTypeImpl(s(upper), place, state.withSubstitutor(ScSubstitutor.empty))(recState.add(alias))
+              case elem =>
+                val subst =
+                  if (updateWithProjectionSubst) ScSubstitutor(proj) followed s
+                  else                           s
+                processElement(elem, subst, place, state)(recState.add(elem))
+            }
         }
       case lit: ScLiteralType => processType(lit.wideType, place, state, updateWithProjectionSubst)
       case StdType(name, tSuper) =>
