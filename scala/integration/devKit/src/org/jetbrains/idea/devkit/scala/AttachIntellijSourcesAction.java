@@ -1,4 +1,4 @@
-package org.jetbrains.idea.devkit.build;
+package org.jetbrains.idea.devkit.scala;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;

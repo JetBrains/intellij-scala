@@ -1,4 +1,4 @@
-package org.jetbrains.idea.devkit.build;
+package org.jetbrains.idea.devkit.scala;
 
 import com.intellij.DynamicBundle;
 import org.jetbrains.annotations.Nls;

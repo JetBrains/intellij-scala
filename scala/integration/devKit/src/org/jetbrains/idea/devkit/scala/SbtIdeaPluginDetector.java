@@ -1,4 +1,4 @@
-package org.jetbrains.idea.devkit.build;
+package org.jetbrains.idea.devkit.scala;
 
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;

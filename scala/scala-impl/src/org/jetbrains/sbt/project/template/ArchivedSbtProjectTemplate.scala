@@ -20,7 +20,7 @@ case class ArchivedSbtProjectTemplate(@Nls name: String,
 
   override def getIcon: Icon = icon
 
-  override def createModuleBuilder(): AbstractModuleBuilder = new ArchivedSbtProjectBuilder(this)
+  override def createModuleBuilder(): AbstractModuleBuilder = new ArchivedSbtProjectBuilder(url)
 
   override def validateSettings(): ValidationInfo = null
 }

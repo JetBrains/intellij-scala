@@ -3,14 +3,15 @@
 <idea-plugin>
 
     <actions>
-        <action class="org.jetbrains.idea.devkit.build.AttachIntellijSourcesAction" text="Attach IntelliJ Sources">
+        <action class="org.jetbrains.idea.devkit.scala.AttachIntellijSourcesAction" text="Attach IntelliJ Sources">
             <add-to-group group-id="MaintenanceGroup"/>
         </action>
     </actions>
 
     <extensions defaultExtensionNs="com.intellij">
         <externalSystemTaskNotificationListener
-                implementation="org.jetbrains.idea.devkit.build.IntellijSourcesAttachListener"/>
+                implementation="org.jetbrains.idea.devkit.scala.IntellijSourcesAttachListener"/>
+        <projectTemplatesFactory implementation="org.jetbrains.idea.devkit.scala.project.SbtIdeaPluginTemplatesFactory"/>
     </extensions>
 
 </idea-plugin>
