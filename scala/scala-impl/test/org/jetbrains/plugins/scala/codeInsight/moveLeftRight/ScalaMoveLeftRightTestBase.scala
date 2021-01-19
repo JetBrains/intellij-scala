@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.moveLeftRight
 
 import com.intellij.openapi.actionSystem.IdeActions
-import com.intellij.testFramework.LightPlatformCodeInsightTestCase
+import com.intellij.testFramework.{EditorTestUtil, LightPlatformCodeInsightTestCase}
 import org.jetbrains.plugins.scala.util.TestUtils
 
 /**
@@ -16,6 +16,12 @@ abstract class ScalaMoveLeftRightTestBase extends LightPlatformCodeInsightTestCa
   protected def doTestFromRightToLeft(rightMostPosition: String, leftPositions: String*): Unit = {
     doTest(false, rightMostPosition)
     doTest(true, rightMostPosition, leftPositions: _*)
+  }
+
+  protected def checkMoveRightIsDisabled(fileText: String): Unit = {
+    configureEditor(fileText)
+    val actionId = IdeActions.MOVE_ELEMENT_RIGHT
+    EditorTestUtil.executeAction(getEditor, actionId, false)
   }
 
   private def doTest(moveLeft: Boolean, before: String, after: String*): Unit = {

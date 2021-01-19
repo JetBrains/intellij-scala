@@ -103,17 +103,11 @@ class ScalaMoveLeftRightTest extends ScalaMoveLeftRightTestBase {
   }
 
   def testInfixExprNonOperator(): Unit = {
-    doTestFromLeftToRight(
-      "Se<caret>q(1) foreach println",
-      "Se<caret>q(1) foreach println"
-    )
+    checkMoveRightIsDisabled("Se<caret>q(1) foreach println")
   }
 
   def testInfixExprAssignOperator(): Unit = {
-    doTestFromLeftToRight(
-      "<caret>x += 1 + 2 + 3",
-      "<caret>x += 1 + 2 + 3"
-    )
+    checkMoveRightIsDisabled("<caret>x += 1 + 2 + 3")
     doTestFromLeftToRight(
       "x += <caret>1 + 2 + 3",
       "x += 2 + <caret>1 + 3",
