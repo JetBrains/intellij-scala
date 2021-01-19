@@ -10,16 +10,16 @@ import com.intellij.openapi.actionSystem.ex.CustomComponentAction
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.util.NlsActions
 import com.intellij.ui.{IdeBorderFactory, SideBorder}
-import com.intellij.ui.components.JBPanel
+import com.intellij.ui.components.{JBLabel, JBPanel}
 import com.intellij.util.ui.components.BorderLayoutPanel
-import javax.swing.border.LineBorder
-import javax.swing.{Icon, JComponent}
+import javax.swing.border.{EmptyBorder, LineBorder}
+import javax.swing.{BoxLayout, Icon, JComboBox, JComponent, JPanel}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.ScalaBundle
 
 import scala.concurrent.duration.DurationInt
 
-class ActionPanel(setZoom: Zoom => Unit)
+class ActionPanel(setZoom: Zoom => Unit, setLevel: Level => Unit)
   extends BorderLayoutPanel {
 
   import ActionPanel._
@@ -34,6 +34,18 @@ class ActionPanel(setZoom: Zoom => Unit)
     else
       setBorder(IdeBorderFactory.createBorder(SideBorder.BOTTOM))
 
+  // TODO Dynamic legend (that depends on the currently visible largest areas)?
+  addToLeft({
+    val panel = new JPanel()
+    panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS))
+    panel.setBorder(new EmptyBorder(2, 3, 0, 0))
+    panel.add(new JBLabel("Level: "))
+    val comboBox = new JComboBox[Level](Level.values())
+    comboBox.setFocusable(false)
+    comboBox.addItemListener(e => setLevel(comboBox.getSelectedItem.asInstanceOf[Level]))
+    panel.add(comboBox)
+    panel
+  })
   addToRight(createActionToolbar())
   withMinimumHeight((2.5 * NormalFont.getSize).toInt)
   configureBorder(this, Color.RED)
@@ -189,6 +201,10 @@ object ActionPanel {
     Zoom(750.millis, 4),
     Zoom(500.millis, 6),
     Zoom(250.millis, 4),
+    Zoom(150.millis, 4),
+    Zoom(100.millis, 4),
+    Zoom(75.millis, 4),
+    Zoom(50.millis, 4),
   ).sortBy(_.durationStep).reverse
 
   private final val DefaultZoomIndex = AvailableZooms.size / 2

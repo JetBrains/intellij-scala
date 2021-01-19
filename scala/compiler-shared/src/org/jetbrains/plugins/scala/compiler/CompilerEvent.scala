@@ -33,7 +33,15 @@ object CompilerEvent {
     
     override def eventType: CompilerEventType = CompilerEventType.CompilationStarted
   }
-  
+
+  case class CompilationPhase(override val compilationId: CompilationId,
+                              override val compilationUnitId: Option[CompilationUnitId],
+                              phase: String)
+    extends CompilerEvent {
+
+    override def eventType: CompilerEventType = CompilerEventType.CompilationPhase
+  }
+
   case class MessageEmitted(override val compilationId: CompilationId,
                             override val compilationUnitId: Option[CompilationUnitId],
                             msg: Client.ClientMsg)

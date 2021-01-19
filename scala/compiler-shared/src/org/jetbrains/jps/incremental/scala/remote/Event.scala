@@ -48,6 +48,9 @@ case class DeletedEvent(module: File) extends Event
 @SerialVersionUID(-6907017854101285465L)
 case class CompilationStartEvent() extends Event
 
+@SerialVersionUID(-6907027214131285462L)
+case class CompilationPhaseEvent(name: String) extends Event
+
 @SerialVersionUID(2848760871163806524L)
 case class CompilationEndEvent(sources: Set[File]) extends Event
 

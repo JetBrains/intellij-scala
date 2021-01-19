@@ -36,6 +36,9 @@ class DelegateClient(client: Client)
   override def compilationStart(): Unit =
     client.compilationStart()
   
+  override def compilationPhase(name: String): Unit =
+    client.compilationPhase(name)
+
   override def compilationEnd(sources: Set[File]): Unit =
     client.compilationEnd(sources)
 

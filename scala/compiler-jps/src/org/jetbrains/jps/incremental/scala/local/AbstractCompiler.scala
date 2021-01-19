@@ -56,7 +56,14 @@ abstract class AbstractCompiler extends Compiler {
     private var cancelLastTimeChecked = System.currentTimeMillis()
     private final val cancelThreshold = 1000L
 
-    override def startUnit(phase: String, unitPath: String): Unit = ()
+    private var currentPhase: String = _
+
+    override def startUnit(phase: String, unitPath: String): Unit = {
+      if (phase != currentPhase) {
+        client.compilationPhase(phase)
+        currentPhase = phase
+      }
+    }
 
     override def advance(current: Int, total: Int, prevPhase: String, nextPhase: String): Boolean = {
       val currentTime = System.currentTimeMillis()

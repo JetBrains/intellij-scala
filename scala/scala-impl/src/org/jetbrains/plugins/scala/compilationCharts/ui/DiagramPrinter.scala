@@ -6,7 +6,10 @@ import org.jetbrains.plugins.scala.compiler.CompilationUnitId
 import java.awt.{Color, Graphics2D, RenderingHints}
 import java.awt.geom.{Line2D, Point2D, Rectangle2D}
 
+import ProgressDiagramPrinter._
+
 import scala.concurrent.duration.{Duration, FiniteDuration}
+import scala.util.Random
 
 trait DiagramPrinter {
 
@@ -18,6 +21,7 @@ trait DiagramPrinter {
 class ProgressDiagramPrinter(clip: Rectangle2D,
                              progressDiagram: ProgressDiagram,
                              currentZoom: Zoom,
+                             currentLevel: Level,
                              preferredWidth: Double,
                              darkTheme: Boolean)
   extends DiagramPrinter {
@@ -45,7 +49,7 @@ class ProgressDiagramPrinter(clip: Rectangle2D,
     def printSegment(graphics: Graphics2D,
                      segment: Segment,
                      row: Int): Unit = {
-      val Segment(CompilationUnitId(moduleName, testScope), from, to, progress) = segment
+      val Segment(CompilationUnitId(moduleName, testScope), from, to, progress, phases) = segment
       val x = currentZoom.toPixels(from)
       val segmentClip = new Rectangle2D.Double(
         x,
@@ -60,6 +64,20 @@ class ProgressDiagramPrinter(clip: Rectangle2D,
       else
         ProdModuleColor
       graphics.doInClip(segmentClip)(_.printRect(segmentClip, color))
+
+      if (currentLevel.ordinal > Level.Modules.ordinal) {
+        phases.foreach { phase =>
+          graphics.setColor(colorOf(phase.name).withAlpha(128))
+          val x = currentZoom.toPixels(phase.from)
+          graphics.fill(new Rectangle2D.Double(
+            x,
+            getRowY(row) + SegmentGap + VerticalGap,
+            math.min(currentZoom.toPixels(phase.to), segmentClip.getMaxX - 1)  - x,
+            ProgressRowHeight - SegmentGap - VerticalGap * 2
+          ))
+        }
+      }
+
       if (!backgroundOnly) {
         val text = s" $moduleName"
         val textRendering = graphics.getReducedTextRendering(segmentClip, text, NormalFont, HAlign.Left)
@@ -90,6 +108,62 @@ class ProgressDiagramPrinter(clip: Rectangle2D,
   private final val DarkModuleTextColor = new Color(255, 255, 255)
   private final val LightModuleTextColor = TextColor
   private final val SegmentGap = 1
+  private final val VerticalGap = 4
+}
+
+private object ProgressDiagramPrinter {
+  private def colorOf(phase: String): Color = PredefinedColors.getOrElse(phase, {
+    selectedColors.getOrElse(phase, {
+      val color = randomColor()
+      selectedColors += phase -> color
+      color
+    })
+  })
+
+  // TODO Use an additional palette for non-standard phases.
+  private def randomColor(): Color =
+    new Color(Random.nextInt(255), Random.nextInt(255), Random.nextInt(255))
+
+  implicit final class ColorOps(private val that: Color) extends AnyVal {
+    def withAlpha(alpha: Int): Color = new Color(that.getRed, that.getGreen, that.getBlue, alpha)
+  }
+
+  private var selectedColors = Map.empty[String, Color]
+
+  // TODO Refine the palette.
+  // Ordered list of the Scala compiler phases (see scalac -Xshow-phases)
+  // Palette of contrast colors (see https://graphicdesign.stackexchange.com/questions/3682/where-can-i-find-a-large-palette-set-of-contrasting-colors-for-coloring-many-d)
+  // Besides the contrast, the colors must differ from the colors of modules.
+  // Due to the (black) module labels, it's better to use relatively light colors in the beginning.
+  // It's possible to change the "val" to "def" and see the result on-the-fly in a debug IDEA.
+  private val PredefinedColors: Map[String, Color] = Map(
+    "parser" -> new Color(234, 237, 137),
+    "namer" -> new Color(214, 188, 192),
+    "packageobjects" -> new Color(190, 193, 212),
+    "typer" -> new Color(133, 149, 225), // 1st largest
+    "superaccessors" -> new Color(187, 119, 132),
+    "extmethods" -> new Color(142, 6, 59),
+    "pickler" -> new Color(74, 111, 227),
+    "refchecks" -> new Color(2, 63, 165),
+    "patmat" -> new Color(230, 175, 185), // 2nd largest
+    "uncurry" -> new Color(181, 187, 227),
+    "fields" -> new Color(224, 123, 145),
+    "tailcalls" -> new Color(211, 63, 106),
+    "specialize" -> new Color(125, 135, 185),
+    "explicitouter" -> new Color(141, 213, 147),
+    "erasure" -> new Color(198, 222, 199), // 4th largest
+    "posterasure" -> new Color(234, 211, 198),
+    "lambdalift" -> new Color(240, 185, 141),
+    "constructors" -> new Color(239, 151, 8),
+    "flatten" -> new Color(15, 207, 192),
+    "mixin" -> new Color(156, 222, 214),
+    "cleanup" -> new Color(213, 234, 231),
+    "delambdafy" -> new Color(243, 225, 235),
+    "jvm" -> new Color(246, 196, 225), // 3rd largest
+    "terminal" -> new Color(247, 156, 212),
+    // Non-standard but predefined
+    "semanticdb-typer" -> new Color(17, 198, 56)
+  )
 }
 
 class MemoryDiagramPrinter(clip: Rectangle2D,

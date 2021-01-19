@@ -53,6 +53,9 @@ class EventGeneratingClient(writeEvent: Event => Unit, canceled: => Boolean) ext
   override def compilationStart(): Unit =
     publishEvent(CompilationStartEvent())
 
+  override def compilationPhase(phase: String): Unit =
+    publishEvent(CompilationPhaseEvent(phase))
+
   override def compilationEnd(sources: Set[File]): Unit =
     publishEvent(CompilationEndEvent(sources))
 

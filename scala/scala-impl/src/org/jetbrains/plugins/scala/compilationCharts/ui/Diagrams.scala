@@ -76,7 +76,7 @@ object Diagrams {
     }
 
     val sortedState = progressState.toSeq.sortBy(_._2.startTime)
-    val segments = sortedState.flatMap { case (unitId, CompilationProgressInfo(startTime, finishTime, _, progress)) =>
+    val segments = sortedState.flatMap { case (unitId, CompilationProgressInfo(startTime, finishTime, _, progress, phases)) =>
       val from = (startTime - minTimestamp).nanos
       val to = (finishTime.getOrElse(maxTimestamp) - minTimestamp).nanos
       if (from.length >= 0 && to.length >= 0)
@@ -84,7 +84,9 @@ object Diagrams {
           unitId = unitId,
           from = from,
           to = to,
-          progress = progress
+          progress = progress,
+          phases = phases.zip(phases.drop(1) :+ (finishTime.getOrElse(maxTimestamp), ""))
+            .map { case ((from, name), (to, _)) => Phase(name, (from - minTimestamp).nanos, (to - minTimestamp).nanos) }
         ))
       else
         None
@@ -113,7 +115,12 @@ final case class ProgressDiagram(segmentGroups: Seq[Seq[Segment]],
 final case class Segment(unitId: CompilationUnitId,
                          from: FiniteDuration,
                          to: FiniteDuration,
-                         progress: Double)
+                         progress: Double,
+                         phases: Seq[Phase])
+
+final case class Phase(name: String,
+                       from: FiniteDuration,
+                       to: FiniteDuration)
 
 final case class MemoryDiagram(points: Seq[MemoryPoint],
                                maxMemory: Memory)

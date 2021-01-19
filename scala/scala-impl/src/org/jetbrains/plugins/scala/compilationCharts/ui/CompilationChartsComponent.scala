@@ -21,7 +21,7 @@ class CompilationChartsComponent(project: Project)
     diagramsScrollPane.getViewport.setScrollMode(JViewport.SIMPLE_SCROLL_MODE)
     diagramsScrollPane.setName("compilation-charts-scroll-pane") // for easier debugging
 
-    val actionPanel = new ActionPanel(diagramsComponent.setZoom)
+    val actionPanel = new ActionPanel(diagramsComponent.setZoom, diagramsComponent.setLevel)
     addToTop(actionPanel)
     addToCenter(diagramsScrollPane)
   }

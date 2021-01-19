@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.compilationCharts.ui
 
+import java.awt.event.{MouseAdapter, MouseEvent}
 import java.awt.geom.{Point2D, Rectangle2D}
 import java.awt.{Dimension, Graphics, Graphics2D, Point, Rectangle, RenderingHints}
 import com.intellij.ide.ui.laf.UIThemeBasedLookAndFeelInfo
@@ -29,6 +30,7 @@ class DiagramsComponent(chartsComponent: CompilationChartsComponent,
   private var diagrams: Diagrams = _
   private var staticHeights: DiagramStaticHeights = _
   private var currentZoom = defaultZoom
+  private var currentLevel = Level.Modules
   private var currentZoomPixels: Double = -1
 
   def setZoom(zoom: Zoom): Unit = {
@@ -53,6 +55,11 @@ class DiagramsComponent(chartsComponent: CompilationChartsComponent,
     // IDK why, but the second setViewPosition invocation fixes the problem. ¯\_(ツ)_/¯
     viewport.setViewPosition(newViewPosition)
     invokeLater(viewport.setViewPosition(newViewPosition))
+    chartsComponent.repaint()
+  }
+
+  def setLevel(level: Level): Unit = {
+    currentLevel = level
     chartsComponent.repaint()
   }
 
@@ -108,7 +115,7 @@ class DiagramsComponent(chartsComponent: CompilationChartsComponent,
     val clips = getDiagramClips(visibleArea, staticHeights, estimatedPreferredWidth)
 
     val diagramPrinters = Seq(
-      new ProgressDiagramPrinter(clips.progressDiagram, progressDiagram, currentZoom, estimatedPreferredWidth, darkTheme),
+      new ProgressDiagramPrinter(clips.progressDiagram, progressDiagram, currentZoom, currentLevel, estimatedPreferredWidth, darkTheme),
       new MemoryDiagramPrinter(clips.memoryDiagram, memoryDiagram, currentZoom, progressTime, darkTheme)
     )
 

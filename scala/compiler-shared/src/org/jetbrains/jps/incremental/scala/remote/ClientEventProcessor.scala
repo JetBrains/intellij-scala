@@ -32,7 +32,10 @@ class ClientEventProcessor(client: Client) {
 
       case CompilationStartEvent() =>
         client.compilationStart()
-        
+
+      case CompilationPhaseEvent(name) =>
+        client.compilationPhase(name)
+
       case CompilationEndEvent(sources) =>
         client.compilationEnd(sources)
 

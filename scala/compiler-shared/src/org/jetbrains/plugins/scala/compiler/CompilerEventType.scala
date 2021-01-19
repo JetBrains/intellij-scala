@@ -6,6 +6,7 @@ object CompilerEventType
   type CompilerEventType = Value
   
   final val CompilationStarted = Value("compilation-started")
+  final val CompilationPhase = Value("compilation-phase")
   final val MessageEmitted = Value("message-emitted")
   final val ProgressEmitted = Value("progress-emitted")
   final val CompilationFinished = Value("compilation-finished")
