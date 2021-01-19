@@ -17,8 +17,6 @@ import scala.jdk.CollectionConverters._
 
 abstract class ScalaIntentionTestBase  extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  import ScalaLightCodeInsightFixtureTestAdapter._
-
   def familyName: String
 
   def caretTag: String = EditorTestUtil.CARET_TAG
@@ -64,6 +62,9 @@ abstract class ScalaIntentionTestBase  extends ScalaLightCodeInsightFixtureTestA
           throw err
       }
     }
+
+  protected def normalize(text: String): String =
+    ScalaLightCodeInsightFixtureTestAdapter.normalize(text)
 
   protected def checkIntentionIsNotAvailable(text: String): Unit =
     assertFalse("Intention is found", intentionIsAvailable(text))

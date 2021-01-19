@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers
 
 import com.intellij.openapi.diagnostic.Logger
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers.ScalaStringParser.Log
 
 import java.lang.{StringBuilder => JStringBuilder}
@@ -14,7 +15,7 @@ import java.util
  *  - drop support for octal literals<br>
  *    (cause it's dropped in 2.13 https://github.com/scala/scala/pull/6324 and were deprecated for a long time)
  *  - remove logic with "isAfterEscapedBackslash"<br>
- *    (in 2.13.2 unicode escapes are not inlined in source code: https://github.com/scala/scala/pull/8282)
+ *    (since 2.13.2 unicode escapes are not inlined in source code: https://github.com/scala/scala/pull/8282)
  *
  * @param isRaw includes
  *              - single line raw literal: raw"42"
@@ -23,8 +24,10 @@ import java.util
  * @see [[org.jetbrains.plugins.scala.highlighter.lexer.ScalaStringLiteralLexer]] and other lexers in same package
  */
 final class ScalaStringParser(
+  @Nullable
   sourceOffsets: Array[Int],
-  isRaw: Boolean
+  isRaw: Boolean,
+  exitOnEscapingWrongSymbol: Boolean = true
 ) {
 
   private val onlyUnicode: Boolean = isRaw
@@ -35,7 +38,8 @@ final class ScalaStringParser(
     val hasAnyEscapeCandidates = chars.indexOf('\\') >= 0
     if (!hasAnyEscapeCandidates) {
       outChars.append(chars)
-      util.Arrays.setAll(sourceOffsets, (i: Int) => i)
+      if (sourceOffsets != null)
+        util.Arrays.setAll(sourceOffsets, (i: Int) => i)
       return true
     }
 
@@ -45,16 +49,25 @@ final class ScalaStringParser(
       val c = chars.charAt(index)
       index += 1;
 
-      sourceOffsets(outChars.length - outOffset) = index - 1
-      sourceOffsets(outChars.length + 1 - outOffset) = index
+      if (sourceOffsets != null) {
+        sourceOffsets(outChars.length - outOffset) = index - 1
+        sourceOffsets(outChars.length + 1 - outOffset) = index
+      }
 
       if (c != '\\')
         outChars.append(c)
       else {
-        index = parseEscapedSymbol(chars, outChars, index, outOffset)
-        if (index == -1)
-          return false
-        sourceOffsets(outChars.length - outOffset) = index
+        val res = parseEscapedSymbol(chars, outChars, index, outOffset)
+        if (res == -1) {
+          if (exitOnEscapingWrongSymbol)
+            return false
+          else if (index < chars.length)
+            index += 1 // skip wrong escaped char: "a\j\ b" -> "ab"
+        } else
+          index = res
+
+        if (sourceOffsets != null)
+          sourceOffsets(outChars.length - outOffset) = index
       }
     }
 
@@ -84,7 +97,8 @@ final class ScalaStringParser(
     if (newIndex == -1 & isRaw) {
       // just add whatever escape-looking char sequence
       outChars.append('\\')
-      sourceOffsets(outChars.length - outOffset) = index - 1
+      if (sourceOffsets != null)
+        sourceOffsets(outChars.length - outOffset) = index - 1
       outChars.append(c)
       index
     }
@@ -135,11 +149,12 @@ object ScalaStringParser {
       case 'r'  =>
         outChars.append('\r')
         true
-      case 's'  =>
-        outChars.append(' ')
-        true
+      //case 's'  => // supported since Java 15, but not in Scala
       case '\\' =>
         outChars.append('\\')
+        true
+      case '\"' =>
+        outChars.append('\"')
         true
       case '\n' =>
         //don't append anything

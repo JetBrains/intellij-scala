@@ -8,13 +8,12 @@ import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.command.undo.UndoUtil
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteAction}
-import org.jetbrains.plugins.scala.format.{Text, _}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
+import org.jetbrains.plugins.scala.format._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
@@ -26,7 +25,7 @@ final class StringToMultilineStringIntention extends PsiElementBaseIntentionActi
   override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.regular.multi.line.string.conversion")
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    val maybeText = literalParent(element).collect {
+    val maybeText = stringLiteralParent(element).collect {
       case lit if lit.isMultiLineString => ScalaCodeInsightBundle.message("convert.to.normal.string")
       case lit if lit.isString => ScalaCodeInsightBundle.message("convert.to.multiline.string")
     }
@@ -36,13 +35,14 @@ final class StringToMultilineStringIntention extends PsiElementBaseIntentionActi
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    if (!element.isValid) return
+    if (!element.isValid)
+      return
 
-    val lit = literalParent(element)
-      .filter(_.isString)
+    val lit = stringLiteralParent(element)
       .getOrElse(return)
 
-    if (!FileModificationService.getInstance.preparePsiElementForWrite(element)) return
+    if (!FileModificationService.getInstance.preparePsiElementForWrite(element))
+      return
     val containingFile = element.getContainingFile
 
     if (lit.isMultiLineString) multilineToRegular(lit, editor)
@@ -55,12 +55,12 @@ final class StringToMultilineStringIntention extends PsiElementBaseIntentionActi
 object StringToMultilineStringIntention {
   private val Quote = "\""
 
-  import MultilineStringUtil.{MultilineQuotes => Quotes, MultilineQuotesEscaped => QuotesEscaped}
+  import MultilineStringUtil.{MultilineQuotes => Quotes}
 
-  private def literalParent(element: PsiElement): Option[ScLiteral] =
-    element.parentOfType(classOf[ScLiteral], strict = false)
+  private def stringLiteralParent(element: PsiElement): Option[ScStringLiteral] =
+    element.parentOfType(classOf[ScStringLiteral], strict = false)
 
-  private def regularToMultiline(literal: ScLiteral, editor: Editor): Unit = {
+  private def regularToMultiline(literal: ScStringLiteral, editor: Editor): Unit = {
     import literal.projectContext
 
     val document = editor.getDocument
@@ -70,6 +70,7 @@ object StringToMultilineStringIntention {
     val caretModel = editor.getCaretModel
     val caretOffset = caretModel.getOffset
 
+    // todo (minor) it doesn't restore caret pos for all tests from StringToMultilineStringIntentionTest, especially with escape sequences
     def fixCaretPosition(newOffset: Int): Unit = {
       if (literalRange.contains(caretOffset)) {
         inWriteAction {
@@ -78,7 +79,11 @@ object StringToMultilineStringIntention {
       }
     }
 
-    def addMargins(literalReplaced: PsiElement, interpolatorLength: Int, extraCaretOffset: Int = 0): Unit = {
+    def addMargins(literalReplaced0: PsiElement, interpolatorLength: Int, extraCaretOffset: Int): Unit = {
+      val literalReplaced = literalReplaced0 match {
+        case str: ScStringLiteral if str.isMultiLineString => str
+        case _ => return
+      }
       val caretShiftFromQuoteStart = caretOffset - literalRange.getStartOffset - interpolatorLength
       if (caretShiftFromQuoteStart > 0) {
         val textBeforeCaret = documentText.subSequence(literalRange.getStartOffset, caretOffset)
@@ -90,38 +95,21 @@ object StringToMultilineStringIntention {
 
       val caretShift = MultilineStringUtil.addMarginsAndFormatMLString(literalReplaced, document, caretModel.getOffset)
       if (caretShift > 0) {
-        fixCaretPosition(caretModel.getOffset + caretShift)
+        val newCaretOffset = caretModel.getOffset + caretShift
+        fixCaretPosition(newCaretOffset)
       }
     }
 
-    literal match {
-      case interpolated: ScInterpolatedStringLiteral =>
-        val prefix = interpolated.referenceName
-        val parts = InterpolatedStringParser.parse(interpolated).getOrElse(Nil)
-        val content = InterpolatedStringFormatter.formatContent(parts, prefix, toMultiline = true)
-        val newLiteralText = s"$prefix$Quotes$content$Quotes"
-        val newLiteral = createExpressionFromText(newLiteralText)
-        val replaced = interpolated.replace(newLiteral)
-        addMargins(replaced, prefix.length)
-
-      case LiteralValue(s: String) =>
-        val contentWithoutR = s.replace("\r", "")
-        val (prefix, content) = if (s.contains(Quotes)) {
-          // non-interpolated multiline string can not contain tripple quotes, see https://github.com/scala/bug/issues/6476
-          ("s", contentWithoutR.replace("$", "$$").replace(Quotes, QuotesEscaped))
-        } else {
-          ("", contentWithoutR)
-        }
-        val newLiteralText = s"$prefix$Quotes$content$Quotes"
-        val newLiteral = createExpressionFromText(newLiteralText)
-        val replaced = literal.replace(newLiteral)
-        addMargins(replaced, 0, prefix.length)
-
-      case _ =>
-    }
+    val parts = ScStringLiteralParser.parse(literal, checkStripMargin = true).getOrElse(Nil)
+    val prefix = interpolatorPrefix(literal)
+    val content = InterpolatedStringFormatter.formatContent(parts, prefix, toMultiline = true)
+    val newLiteralText = s"$prefix$Quotes$content$Quotes"
+    val newLiteral = createExpressionFromText(newLiteralText)
+    val replaced = literal.replace(newLiteral)
+    addMargins(replaced, interpolatorLength = prefix.length, extraCaretOffset = 0)
   }
 
-  private def multilineToRegular(literal: ScLiteral, editor: Editor): Unit = {
+  private def multilineToRegular(literal: ScStringLiteral, editor: Editor): Unit = {
     implicit val projectContext: ProjectContext = literal.projectContext
 
     val document = editor.getDocument
@@ -131,6 +119,7 @@ object StringToMultilineStringIntention {
     val caretModel = editor.getCaretModel
     val caretOffset = caretModel.getOffset
 
+    // todo (minor) it doesn't restore caret pos for all tests from StringToMultilineStringIntentionTest, especially with escape sequences
     def fixCaretPosition(interpolatorLength: Int): Unit = {
       val caretShiftFromQuotesStart = caretOffset - literalRange.getStartOffset - interpolatorLength
       if (literalRange.contains(caretOffset) && caretShiftFromQuotesStart > 0) {
@@ -138,7 +127,7 @@ object StringToMultilineStringIntention {
 
         // each new line character ('\n') of multiline string is replaced with a new line sequence ("\\n")
         // after converting to regular string
-        val shiftNewLines = textBeforeCaret.toString.count(_ == '\n')
+        val shiftNewLines = textBeforeCaret.count(_ == '\n')
         val shiftQuotes = -2.min(caretShiftFromQuotesStart)
         val shiftStrippedMargins: Int = literal match {
           case WithStrippedMargin(_, marginChar) =>
@@ -156,41 +145,25 @@ object StringToMultilineStringIntention {
       }
     }
 
-    literal match {
-      case interpolated: ScInterpolatedStringLiteral =>
-        val prefix = interpolated.referenceName
-        val (toReplace, parts) = literal match {
-          case WithStrippedMargin(expr, _) =>
-            (expr, StripMarginParser.parse(literal).getOrElse(Nil))
-          case _ =>
-            (interpolated, InterpolatedStringParser.parse(interpolated).getOrElse(Nil))
-        }
-        val content = InterpolatedStringFormatter.formatContent(parts, prefix)
-        val newLiteralText = s"$prefix$Quote$content$Quote"
-        val newLiteral = createExpressionFromText(newLiteralText)
-        toReplace.replace(newLiteral)
-        fixCaretPosition(prefix.length)
-
-      case _ =>
-        val (toReplace, parts: Seq[StringPart]) = literal match {
-          case WithStrippedMargin(expr, _) =>
-            (expr, StripMarginParser.parse(literal).getOrElse(Nil))
-          case LiteralValue(s: String) =>
-            (literal, List(Text(s)))
-          case _ =>
-            (literal, Nil)
-        }
-        parts match {
-          case Seq(Text(s)) =>
-            val content = StringUtil.escapeStringCharacters(s)
-            val newLiteralText = s"$Quote$content$Quote"
-            val newLiteral = createExpressionFromText(newLiteralText)
-            toReplace.replace(newLiteral)
-            fixCaretPosition(0)
-          case _ =>
-        }
+    val (elementToReplace, parts: Seq[StringPart]) = literal match {
+      case WithStrippedMargin(literalWithMarginCall, _) =>
+        (literalWithMarginCall, StripMarginParser.parse(literal).getOrElse(Nil))
+      case _                                            =>
+        (literal, ScStringLiteralParser.parse(literal, checkStripMargin = false).getOrElse(Nil))
     }
+    val prefix = interpolatorPrefix(literal)
+    val content = InterpolatedStringFormatter.formatContent(parts, prefix, toMultiline = false)
+    val newLiteralText = s"$prefix$Quote$content$Quote"
+    val newLiteral = createExpressionFromText(newLiteralText)
+    elementToReplace.replace(newLiteral)
+    fixCaretPosition(prefix.length)
   }
+
+  private def interpolatorPrefix(literal: ScStringLiteral): String =
+    literal match {
+      case literal: ScInterpolatedStringLiteral =>  literal.referenceName
+      case _ => ""
+    }
 
   /* Example 1:
    *  """one
@@ -214,9 +187,5 @@ object StringToMultilineStringIntention {
       idx -= 1
     }
     0
-  }
-
-  private object LiteralValue {
-    def unapply(arg: ScLiteral): Option[AnyRef] = Option(arg.getValue)
   }
 }

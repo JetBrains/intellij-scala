@@ -185,72 +185,70 @@ object MultilineStringUtil {
   }
 
   /**
-   * @param element     ScLiteral multiline element that needs margins
+   * @param literal     multiline string literal element that needs margins
    * @param document    document containing element
    * @param caretOffset current caret offset inside document
    * @return additional caret offset needed to preserve original caret position relative to surrounding string parts
    */
-  def addMarginsAndFormatMLString(element: PsiElement, document: Document, caretOffset: Int = 0): Int = {
-    val settings = new MultilineStringSettings(element.getProject)
+  def addMarginsAndFormatMLString(literal: ScStringLiteral, document: Document, caretOffset: Int = 0): Int = {
+    val settings = new MultilineStringSettings(literal.getProject)
     if (!settings.insertMargin) return 0
 
-    PsiDocumentManager.getInstance(element.getProject).doPostponedOperationsAndUnblockDocument(document)
+    if (!literal.isMultiLineString)
+      throw new IllegalStateException(s"Need multiline string literal, but get: ${literal.getText}")
 
-    element match {
-      case literal: ScLiteral if literal.isMultiLineString =>
-        val firstMLQuote = interpolatorPrefix(literal) + MultilineQuotes
+    PsiDocumentManager.getInstance(literal.getProject).doPostponedOperationsAndUnblockDocument(document)
 
-        val (literalStart, literalEnd) = (literal.getTextRange.getStartOffset, literal.getTextRange.getEndOffset)
-        val (startLineNumber, endLineNumber) = (document.getLineNumber(literalStart), document.getLineNumber(literalEnd))
-        val (startLineOffset, startLineEndOffset) = (document.getLineStartOffset(startLineNumber), document.getLineEndOffset(startLineNumber))
+    val firstMLQuote = interpolatorPrefix(literal) + MultilineQuotes
 
-        val text = document.getImmutableCharSequence
-        val startLine = text.substring(startLineOffset, startLineEndOffset)
-        val startsOnNewLine = startLine.trim.startsWith(firstMLQuote)
-        val multipleLines = endLineNumber != startLineNumber
-        val needNewLineBefore = settings.quotesOnNewLine && multipleLines && !startsOnNewLine
-        val marginChar = getMarginChar(literal)
+    val (literalStart, literalEnd) = (literal.getTextRange.getStartOffset, literal.getTextRange.getEndOffset)
+    val (startLineNumber, endLineNumber) = (document.getLineNumber(literalStart), document.getLineNumber(literalEnd))
+    val (startLineOffset, startLineEndOffset) = (document.getLineStartOffset(startLineNumber), document.getLineEndOffset(startLineNumber))
 
-        val quotesIndent = if (needNewLineBefore) {
-          val oldIndent = settings.calcIndentSize(text.subSequence(startLineOffset, literalStart))
-          oldIndent + settings.regularIndent
-        } else {
-          settings.getSmartLength(text.subSequence(startLineOffset, literalStart))
-        }
-        val marginIndent = quotesIndent + interpolatorPrefixLength(literal) + settings.marginIndent
+    val text = document.getImmutableCharSequence
+    val startLine = text.substring(startLineOffset, startLineEndOffset)
+    val startsOnNewLine = startLine.trim.startsWith(firstMLQuote)
+    val multipleLines = endLineNumber != startLineNumber
+    val needNewLineBefore = settings.quotesOnNewLine && multipleLines && !startsOnNewLine
+    val marginChar = getMarginChar(literal)
 
-        inWriteAction {
-          def insertIndent(lineNumber: Int, indent: Int, marginChar: Option[Char]): Unit = {
-            val lineStart = document.getLineStartOffset(lineNumber)
-            val indentStr = settings.getSmartSpaces(indent) + marginChar.getOrElse("")
-            document.insertString(lineStart, indentStr)
-          }
-
-          if (multipleLines)
-            insertStripMargin(document, literal, marginChar)
-
-          for (lineNumber <- startLineNumber + 1 to endLineNumber) {
-            insertIndent(lineNumber, marginIndent, Some(marginChar))
-          }
-
-          if (needNewLineBefore) {
-            document.insertString(literalStart, "\n")
-            insertIndent(startLineNumber + 1, quotesIndent, None)
-          }
-        }
-
-        val caretIsAfterNewLine = text.charAt((caretOffset - 1).max(0)) == '\n'
-        val caretShift = if (caretIsAfterNewLine) {
-          1 + marginIndent // if caret is at new line then indent and margin char will be inserted AFTER caret
-        } else if (caretOffset == literalStart && needNewLineBefore) {
-          1 + quotesIndent // if caret is at literal start then indent and new line will be inserted AFTER caret
-        } else {
-          0 // otherwise caret will be automatically shifted by document.insertString, no need to fix it
-        }
-        caretShift
-      case something =>
-        throw new IllegalStateException(s"Need multiline string literal, but get: ${something.getText}")
+    val quotesIndent = if (needNewLineBefore) {
+      val oldIndent = settings.calcIndentSize(text.subSequence(startLineOffset, literalStart))
+      oldIndent + settings.regularIndent
+    } else {
+      settings.getSmartLength(text.subSequence(startLineOffset, literalStart))
     }
+    val marginIndent = quotesIndent + interpolatorPrefixLength(literal) + settings.marginIndent
+
+    inWriteAction {
+      def insertIndent(lineNumber: Int, indent: Int, marginChar: Option[Char]): Unit = {
+        val lineStart = document.getLineStartOffset(lineNumber)
+        val indentStr = settings.getSmartSpaces(indent) + marginChar.getOrElse("")
+        document.insertString(lineStart, indentStr)
+      }
+
+      if (multipleLines)
+        insertStripMargin(document, literal, marginChar)
+
+      for (lineNumber <- startLineNumber + 1 to endLineNumber) {
+        insertIndent(lineNumber, marginIndent, Some(marginChar))
+      }
+
+      if (needNewLineBefore) {
+        document.insertString(literalStart, "\n")
+        insertIndent(startLineNumber + 1, quotesIndent, None)
+      }
+    }
+
+    val caretIsAfterNewLine = text.charAt((caretOffset - 1).max(0)) == '\n'
+    val caretShift = if (caretIsAfterNewLine) {
+      1 + marginIndent // if caret is at new line then indent and margin char will be inserted AFTER caret
+    } else if (caretOffset == literalStart && needNewLineBefore) {
+      1 + quotesIndent // if caret is at literal start then indent and new line will be inserted AFTER caret
+    } else {
+      0 // otherwise caret will be automatically shifted by document.insertString, no need to fix it
+    }
+    caretShift
   }
 
   /**

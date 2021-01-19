@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package format
 
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SimpleTestCase}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.junit.Assert._
@@ -12,35 +12,41 @@ import org.junit.Assert._
 
 class InterpolatedStringFormatterTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testEmpty(): Unit = {
-    assertEquals("", format("s"))
+    assertEquals("", formatS())
+    assertEquals("", formatF())
+    assertEquals("", formatRaw())
   }
 
   def testText(): Unit = {
-    assertEquals("foo", format("s", Text("foo")))
+    assertEquals("foo", formatS(Text("foo")))
+    assertEquals("foo", formatF(Text("foo")))
+    assertEquals("foo", formatRaw(Text("foo")))
   }
 
   def testEscapeChar(): Unit = {
-    val text = Text("\n")
-    assertEquals("\\n", format("s", text))
-    assertEquals(quoted("\n", multiline = true), formatFull(text))
+    val text = Text("a \\ \n \t b")
+    assertEquals("a \\\\ \\n \\t b", formatS(text))
+    assertEquals(quoted("a \\ \n \t b", multiline = true), formatFull(text))
   }
 
   def testSlash(): Unit = {
-    assertEquals("\\\\", format("s", Text("\\")))
+    assertEquals("\\\\ \\\\\\\\", formatS(Text("\\ \\\\")))
+    assertEquals("\\\\ \\\\\\\\", formatF(Text("\\ \\\\")))
+    assertEquals("\\ \\\\", formatRaw(Text("\\ \\\\")))
   }
 
   def testDollar(): Unit = {
-    assertEquals("$$", format("s", Text("$")))
+    assertEquals("$$", formatS(Text("$")))
     assertEquals(quoted("$"), formatFull(Text("$")))
 
     val parts = Seq(Text("$ "), Injection(exp("amount"), None))
-    assertEquals("$$ $amount", format("s", parts: _*))
+    assertEquals("$$ $amount", formatS(parts: _*))
     assertEquals(quoted("$$ $amount", prefix = "s"), formatFull(parts: _*))
   }
 
   def testPlainExpression(): Unit = {
     val injection = Injection(exp("foo"), None)
-    assertEquals("$foo", format("s", injection))
+    assertEquals("$foo", formatS(injection))
     assertEquals(quoted("$foo", prefix = "s"), formatFull(injection))
   }
 
@@ -115,21 +121,24 @@ class InterpolatedStringFormatterTest extends ScalaLightCodeInsightFixtureTestAd
   }
 
   def testOther(): Unit = {
-    assertEquals("", format("s", UnboundExpression(exp("foo"))))
+    assertEquals("", formatS(UnboundExpression(exp("foo"))))
   }
 
-  private def format(prefix: String, parts: StringPart*): String = {
-    InterpolatedStringFormatter.formatContent(parts, prefix)
-  }
+  private def formatS(parts: StringPart*): String =
+    InterpolatedStringFormatter.formatContent(parts, "s", toMultiline = false)
+  private def formatF(parts: StringPart*): String =
+    InterpolatedStringFormatter.formatContent(parts, "f", toMultiline = false)
+  private def formatRaw(parts: StringPart*): String =
+    InterpolatedStringFormatter.formatContent(parts, "raw", toMultiline = false)
 
   //with prefix and quotes
   private def formatFull(parts: StringPart*): String = {
     InterpolatedStringFormatter.format(parts)
   }
 
-  private def quoted(s: String, multiline: Boolean = false, prefix: String = "") = {
+  private def quoted(content: String, multiline: Boolean = false, prefix: String = "") = {
     val quote = if (multiline) "\"\"\"" else "\""
-    s"$prefix$quote$s$quote"
+    s"$prefix$quote$content$quote"
   }
 
   private def exp(s: String): ScExpression = {

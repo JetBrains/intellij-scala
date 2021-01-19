@@ -90,7 +90,12 @@ object RegexpLanguageInjectionTest {
 
   private def readTestCaseContent(testFile: File, testIdx: Int): ParsedTestCase = {
     val testCaseText = readTestCaseRawContent(testFile, testIdx)
-    val Array(input, expectedResult) = TestCaseInnerSeparator.split(testCaseText.content)
+    val Array(input, expectedResult0) = TestCaseInnerSeparator.split(testCaseText.content)
+
+    // To support trailing space in the end of the line inside test data files. Otherwise it's trimmed by IDE.
+    // Example: `some text `
+    val expectedResult = expectedResult0.replaceAll("<trailing_space>([\r\n]|$)", "$1")
+
     ParsedTestCase(input, expectedResult, testCaseText.testLine)
   }
 

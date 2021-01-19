@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral
 
-import org.jetbrains.plugins.scala.codeInsight.intentions
-
-class ConvertToFormattedActionTest extends intentions.ScalaIntentionTestBase {
+class ConvertToFormattedActionTest extends StringConversionTestBase {
 
   override def familyName: String = FormatConversionIntention.ConvertToFormatted
 
@@ -25,7 +23,7 @@ class ConvertToFormattedActionTest extends intentions.ScalaIntentionTestBase {
     """"%n %%n" + 1"""          -> """"%%n %%%%n1".format()""",
     """" %n %%n " + 1"""        -> """" %%n %%%%n 1".format()""",
   ).map { case (in, res) =>
-    ((in.replaceFirst(raw"\+", "<caret>+")), res) // place caret at concatenation
+    (in.replaceFirst(raw"\+", "<caret>+"), res) // place caret at concatenation
   }
 
   private def toMultiline(s: String): String = s.replace("\"", "\"\"\"")
@@ -47,7 +45,7 @@ class ConvertToFormattedActionTest extends intentions.ScalaIntentionTestBase {
   def testEscapePercent_FromInterpolatedString_1(): Unit =
     doTest(
       """s"% %% | ${"%"} ${"%"}% | ${"%%"} ${"%%%"} | ${"%%"}% ${"%%%"}% ${"a%b%%c%%%"}"""",
-      """"%% %%%% | %% %%%% | %%%% %%%%%% | %%%%%% %%%%%%%% a%%b%%%%c%%%%%%".format() """
+      """"%% %%%% | %% %%%% | %%%% %%%%%% | %%%%%% %%%%%%%% a%%b%%%%c%%%%%%".format()"""
     )
 
   def testFromFormatInterpolator(): Unit =
@@ -58,7 +56,8 @@ class ConvertToFormattedActionTest extends intentions.ScalaIntentionTestBase {
         |""".stripMargin,
       """val height = 1.9d
         |val name = "James"
-        |"%s is %2.2f meters tall".format(name, height)""".stripMargin
+        |"%s is %2.2f meters tall".format(name, height)
+        |""".stripMargin
     )
 
   def testPreservePercentEscape_FromFormatInterpolator(): Unit =

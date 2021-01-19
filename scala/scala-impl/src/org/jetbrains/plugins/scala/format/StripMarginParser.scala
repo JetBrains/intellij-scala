@@ -1,42 +1,34 @@
 package org.jetbrains.plugins.scala
 package format
 
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.extensions.Parent
-import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScCharLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScCharLiteral, ScStringLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScReferenceExpression}
 
 /**
  * Nikolay.Tropin
  * 3/6/14
  */
-object StripMarginParser extends StringParser {
+object StripMarginParser extends StringParserLike[ScStringLiteral] {
 
-  override def parse(element: PsiElement): Option[Seq[StringPart]] = element match {
-    case literal@WithStrippedMargin(_, marginChar) =>
-      def escapePercent(text: String): Seq[StringPart] =
-        Text(text.stripMargin(marginChar)) :: Nil
-
-      literal match {
-        case _: ScInterpolatedStringLiteral =>
-          InterpolatedStringParser.parse(literal, checkStripMargin = false).map { parts =>
-            parts.flatMap {
-              case Text(text) => escapePercent(text)
-              case part => part :: Nil
-            }
-          }
-        case _ => Option(literal.getValue).map(_.toString).map(escapePercent)
-      }
-    case _ => None
+  override def parse(literal: ScStringLiteral): Option[Seq[StringPart]] = literal match {
+    case WithStrippedMargin(_, marginChar) =>
+      val res = ScStringLiteralParser.parse(literal, checkStripMargin = false)
+      res.map(_.map(stripMargin(_, marginChar)))
+    case _ =>
+      None
   }
 
+  private def stripMargin(part: StringPart, marginChar: Char): StringPart = part match {
+    case Text(text) => Text(text.stripMargin(marginChar))
+    case part       => part
+  }
 }
 
 object WithStrippedMargin {
 
-  def unapply(literal: ScLiteral): Option[(ScExpression, Char)] = literal.getParent match {
+  def unapply(literal: ScStringLiteral): Option[(ScExpression, Char)] = literal.getParent match {
     case StripMarginCall(reference: ScReferenceExpression, _, Seq()) => Some(reference, '|')
     case Parent(StripMarginCall(mc: ScMethodCall, _, Seq(ScCharLiteral(value)))) =>Some(mc, value)
     case _ => None
@@ -44,8 +36,8 @@ object WithStrippedMargin {
 
   private[format] object StripMarginCall {
 
-    def unapply(expression: ScExpression): Option[(ScExpression, ScLiteral, Seq[ScExpression])] = expression match {
-      case MethodRepr(itself, Some(literal: ScLiteral), Some(ref), args) if literal.isMultiLineString && ref.refName == "stripMargin" =>
+    def unapply(expression: ScExpression): Option[(ScExpression, ScStringLiteral, Seq[ScExpression])] = expression match {
+      case MethodRepr(itself, Some(literal: ScStringLiteral), Some(ref), args) if literal.isMultiLineString && ref.refName == "stripMargin" =>
         Some((itself, literal, args))
       case _ => None
     }

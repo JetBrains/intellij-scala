@@ -14,10 +14,14 @@
 """\d \u \d \u002+ \d \d""".r
 ---
 \d \u \d \u002+ \d \d
-### don't handle as unicode sequences
+### don't handle as unicode sequences 1
 """\\u0025 \\\\u0025 \\ u0025 \\\\ u0025""".r
 ---
 \\u0025 \\\\u0025 \\ u0025 \\\\ u0025
+### don't handle as unicode sequences 2
+"""a \\ b \t c \u0023 d \\u0023 e""".r
+---
+a \\ b \t c # d \\u0023 e
 ### dangling backslash 1
 """\\\""".r
 ---

@@ -3,9 +3,8 @@ package format
 
 import com.intellij.psi.PsiElement
 
-/**
- * Pavel Fatin
- */
-trait StringParser {
-  def parse(element: PsiElement): Option[Seq[StringPart]]
+trait StringParser extends StringParserLike[PsiElement]
+
+trait StringParserLike[E <: PsiElement] {
+  def parse(element: E): Option[Seq[StringPart]]
 }

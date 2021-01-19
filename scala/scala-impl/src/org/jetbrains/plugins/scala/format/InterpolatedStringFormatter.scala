@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala
 package format
 
-import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
-import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotes, MultilineQuotesEscaped}
+import org.jetbrains.plugins.scala.util.MultilineStringUtil.MultilineQuotes
 
 /**
  * Pavel Fatin
@@ -33,15 +32,15 @@ object InterpolatedStringFormatter extends StringFormatter {
     s"$prefix$quote$content$quote"
   }
 
-  def formatContent(parts: Seq[StringPart], prefix: String, toMultiline: Boolean = false): String = {
+  def formatContent(parts: Seq[StringPart], prefix: String, toMultiline: Boolean): String = {
     val strings = parts.collect {
       case text: Text                         =>
-        escapePlainText(text.value, toMultiline, escapeDollar = prefix.nonEmpty)
+        ScalaStringUtils.escapePlainText(text.value, toMultiline, prefix)
       case textFormatted: SpecialFormatEscape =>
         val isFormat = prefix == "f"
         val content = if (isFormat) textFormatted.originalText else textFormatted.unescapedText
-        escapePlainText(content, toMultiline, escapeDollar = prefix.nonEmpty)
-      case it: Injection                      =>
+        ScalaStringUtils.escapePlainText(content, toMultiline, prefix)
+      case it: Injection =>
         if (injectByValue(it))
           it.value
         else {
@@ -52,20 +51,15 @@ object InterpolatedStringFormatter extends StringFormatter {
           else presentation
         }
     }
-    strings.mkString
+    // micro-optimization for single Text()
+    strings.size match {
+      case 0 => ""
+      case 1 => strings.head
+      case _ => strings.mkString
+    }
   }
 
   private def injectByValue(it: Injection) = it.isLiteral && !it.isFormattingRequired
-
-  private def escapePlainText(s: String, toMultiline: Boolean, escapeDollar: Boolean): String = {
-    val s1 = if (escapeDollar) s.replaceAll("\\$", "\\$\\$") else s
-
-    if (toMultiline) {
-      s1.replace("\r", "").replace(MultilineQuotes, MultilineQuotesEscaped)
-    } else {
-      StringUtil.escapeStringCharacters(s1.replace(MultilineQuotesEscaped, MultilineQuotes))
-    }
-  }
 
   // TODO: WTF naming
   private def noBraces(parts: Seq[StringPart], it: Injection): Boolean =  {
@@ -74,7 +68,7 @@ object InterpolatedStringFormatter extends StringFormatter {
       parts(ind + 1) match {
         case Text(s) =>
           return s.isEmpty || !isIdentifier(it.text + s.charAt(0)) ||
-                s.startsWith("`") || s.exists(_ == '$')
+            s.startsWith("`") || s.exists(_ == '$')
         case _ =>
       }
     }

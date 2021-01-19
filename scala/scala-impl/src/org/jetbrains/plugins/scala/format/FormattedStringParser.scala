@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package format
 
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
@@ -163,7 +162,7 @@ object FormattedStringParser extends StringParser {
     assert(!literal.is[ScInterpolatedStringLiteral])
     val isRawContent = literal.isMultiLineString
     val texts: List[Text] = regexParts.map { s0 =>
-      val s = if (isRawContent) s0 else StringUtil.unescapeStringCharacters(s0)
+      val s = ScalaStringUtils.unescapeStringCharacters(s0, isRawContent)
       Text(s)
     }.toList
 

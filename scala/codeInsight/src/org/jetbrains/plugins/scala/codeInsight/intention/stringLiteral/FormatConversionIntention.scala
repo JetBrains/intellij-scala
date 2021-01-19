@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryPa
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.format._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
@@ -52,7 +53,7 @@ sealed abstract class FormatConversionIntention(override val getText: String,
     val stringFormatted = formatter.format(parts)
     val replacement = ScalaPsiElementFactory.createExpressionFromText(stringFormatted)(element.getProject)
     target.replace(replacement) match {
-      case literal: ScLiteral if literal.isMultiLineString =>
+      case literal: ScStringLiteral if literal.isMultiLineString =>
         MultilineStringUtil.addMarginsAndFormatMLString(literal, editor.getDocument)
       case _ =>
     }
@@ -137,7 +138,7 @@ object FormatConversionIntention {
     /**
      * SCL-18586
      *
-     * @return new element with optimized parenthesis or `formattedStringExpr`` if no parentheses were removed
+     * @return new element with optimized parenthesis or `formattedStringExpr` if no parentheses were removed
      * @example '''in:''' (str) + (str + str) + (42) + (2 + 2)<br>
      *          '''out:''' str + (str + str) + 42 + (2 + 2)
      */

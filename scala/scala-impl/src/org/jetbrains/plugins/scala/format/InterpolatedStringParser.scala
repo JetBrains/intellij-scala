@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package format
 
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -22,13 +21,18 @@ object InterpolatedStringParser extends StringParser {
     parse(element, checkStripMargin = true)
 
   private[format] def parse(element: PsiElement, checkStripMargin: Boolean): Option[Seq[StringPart]] = {
-    if (checkStripMargin) element match {
-      case WithStrippedMargin(_, _) => return StripMarginParser.parse(element)
-      case _ =>
+    if (checkStripMargin) {
+      element match {
+        case literal@WithStrippedMargin(_, _) =>
+          return StripMarginParser.parse(literal)
+        case _ =>
+      }
     }
-    Some(element) collect {
+    element match {
       case literal: ScInterpolatedStringLiteral =>
-        parseLiteral(literal)
+        Some(parseLiteral(literal))
+      case _ =>
+        None
     }
   }
 
@@ -40,8 +44,9 @@ object InterpolatedStringParser extends StringParser {
       elements.zipAll(elements.drop(1).map(Some(_)), null, None)
     }
 
+    val isRaw = literal.kind == ScInterpolatedStringLiteral.Raw
     val parts = pairs.collect {
-      // `str`, `{2 + 2}`
+      // `str` or `{2 + 2}`
       // in input: s"$str ${2 + 2}"
       case (expression: ScExpression, nextOpt: Option[PsiElement]) =>
         val actualExpression = expression match {
@@ -53,7 +58,7 @@ object InterpolatedStringParser extends StringParser {
         }
         val specifier = if (!formatted) None else nextOpt match {
           case Some(next) if isTextElement(next) =>
-            val nextText = textIn(next)
+            val nextText = textIn(next, isRaw)
             val matched = FormatSpecifierStartPattern.findFirstIn(nextText)
             matched.map { format =>
               Specifier(Span(next, 0, format.length), format)
@@ -66,7 +71,7 @@ object InterpolatedStringParser extends StringParser {
       // in input: s"${a}text${b}"
       case (e, _) if isTextElement(e) =>
         val text: String = {
-          val value = textIn(e)
+          val value = textIn(e, isRaw)
           // specifier was already handled in previous step, when handling injection, so drop it here
           if (formatted) FormatSpecifierStartPattern.replaceFirstIn(value, "")
           else value
@@ -103,14 +108,9 @@ object InterpolatedStringParser extends StringParser {
       elementType == ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING
   }
 
-  private def textIn(e: PsiElement): String = {
-    val elementType = e.getNode.getElementType
-    val text = e.getText
-    elementType match  {
-        // TODO: it's wrong to ignore multiline interpolated string SCL-18617
-      case ScalaTokenTypes.tINTERPOLATED_STRING => StringUtil.unescapeStringCharacters(text)
-      case ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING => text
-    }
+  private def textIn(part: PsiElement, isRaw: Boolean): String = {
+    val text = part.getText
+    ScalaStringUtils.unescapeStringCharacters(text, isRaw)
   }
 
   private val SpecialEscapeRegex = "(%%|%n)".r

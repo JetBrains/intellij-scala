@@ -13,51 +13,59 @@ import org.junit.Assert.assertEquals
  */
 class InterpolatedStringParserTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testEmpty(): Unit = {
-    assertMatches(parseF("")) { case Nil =>}
-    assertMatches(parseS("")) { case Nil =>}
+    assertMatches(parseF("")) { case Nil => }
+    assertMatches(parseS("")) { case Nil => }
+    assertMatches(parseRaw("")) { case Nil => }
   }
 
   def testText(): Unit = {
-    assertMatches(parseF("foo")) { case Text("foo") :: Nil =>}
-    assertMatches(parseS("foo")) { case Text("foo") :: Nil =>}
+    assertMatches(parseF("foo")) { case Text("foo") :: Nil => }
+    assertMatches(parseS("foo")) { case Text("foo") :: Nil => }
+    assertMatches(parseRaw("foo")) { case Text("foo") :: Nil => }
   }
 
   def testEscapeChar(): Unit = {
-    assertMatches(parseF("\\n")) { case Text("\n") :: Nil =>}
-    assertMatches(parseS("\\n")) { case Text("\n") :: Nil =>}
+    assertMatches(parseF("\\n \\t \\\\")) { case Text("\n \t \\") :: Nil => }
+    assertMatches(parseS("\\n \\t \\\\")) { case Text("\n \t \\") :: Nil => }
+    assertMatches(parseRaw("\\n \\t \\ \\\\")) { case Text("\\n \\t \\ \\\\") :: Nil => }
   }
 
   def testEscapeCharInMultilineString(): Unit = {
-    assertMatches(parseF("\n", multiline = true)) { case Text("\n") :: Nil =>}
-    assertMatches(parseS("\n", multiline = true)) { case Text("\n") :: Nil =>}
+    assertMatches(parseF("\n \\n \\\\", multiline = true)) { case Text("\n \n \\") :: Nil => }
+    assertMatches(parseS("\n \\n \\\\", multiline = true)) { case Text("\n \n \\") :: Nil => }
+    assertMatches(parseRaw("\n \\n \\\\", multiline = true)) { case Text("\n \\n \\\\") :: Nil => }
   }
 
   def testDollarEscapeChar(): Unit = {
-    assertMatches(parseF("$$")) { case Text("$") :: Nil =>}
-    assertMatches(parseS("$$")) { case Text("$") :: Nil =>}
+    assertMatches(parseF("$$")) { case Text("$") :: Nil => }
+    assertMatches(parseS("$$")) { case Text("$") :: Nil => }
+    assertMatches(parseRaw("$$")) { case Text("$") :: Nil => }
   }
 
   def testExpression(): Unit = {
-    assertMatches(parseF("$foo")) { case Injection(ElementText("foo"), None) :: Nil =>}
-    assertMatches(parseS("$foo")) { case Injection(ElementText("foo"), None) :: Nil =>}
+    assertMatches(parseF("$foo")) { case Injection(ElementText("foo"), None) :: Nil => }
+    assertMatches(parseS("$foo")) { case Injection(ElementText("foo"), None) :: Nil => }
+    assertMatches(parseRaw("$foo")) { case Injection(ElementText("foo"), None) :: Nil => }
   }
 
   def testBlockExpression(): Unit = {
-    assertMatches(parseF("${foo.bar}")) { case Injection(ElementText("foo.bar"), None) :: Nil =>}
-    assertMatches(parseS("${foo.bar}")) { case Injection(ElementText("foo.bar"), None) :: Nil =>}
+    assertMatches(parseF("${foo.bar}")) { case Injection(ElementText("foo.bar"), None) :: Nil => }
+    assertMatches(parseS("${foo.bar}")) { case Injection(ElementText("foo.bar"), None) :: Nil => }
+    assertMatches(parseRaw("${foo.bar}")) { case Injection(ElementText("foo.bar"), None) :: Nil => }
   }
 
   def testComplexBlockExpression(): Unit = {
-    assertMatches(parseF("${null; foo}")) { case Injection(ElementText("{null; foo}"), None) :: Nil =>}
-    assertMatches(parseS("${null; foo}")) { case Injection(ElementText("{null; foo}"), None) :: Nil =>}
+    assertMatches(parseF("${null; foo}")) { case Injection(ElementText("{null; foo}"), None) :: Nil => }
+    assertMatches(parseS("${null; foo}")) { case Injection(ElementText("{null; foo}"), None) :: Nil => }
+    assertMatches(parseRaw("${null; foo}")) { case Injection(ElementText("{null; foo}"), None) :: Nil => }
   }
 
   def testFormattedExpression(): Unit =
     assertMatches(parseF("$foo%d")) { case Injection(ElementText("foo"), Some(Specifier(Span(_, 0, 2), "%d"))) :: Nil => }
 
   def testExpressionWithSeparatedFormatter(): Unit = {
-    assertMatches(parseF("$foo %d")) { case Injection(ElementText("foo"), None) :: Text(" %d") :: Nil =>}
-    assertMatches(parseF("$foo %d%d")) { case Injection(ElementText("foo"), None) :: Text(" %d%d") :: Nil =>}
+    assertMatches(parseF("$foo %d")) { case Injection(ElementText("foo"), None) :: Text(" %d") :: Nil => }
+    assertMatches(parseF("$foo %d%d")) { case Injection(ElementText("foo"), None) :: Text(" %d%d") :: Nil => }
   }
 
   def testExpressionWithSpecialFormatEscape(): Unit = {
@@ -159,18 +167,26 @@ class InterpolatedStringParserTest extends ScalaLightCodeInsightFixtureTestAdapt
     }
 
   private def parseF(content: String, multiline: Boolean = false): List[StringPart] =
-    parse(content, formatted = true, multiline)
+    parse(content, ScInterpolatedStringLiteral.Format, multiline)
   private def parseS(content: String, multiline: Boolean = false): List[StringPart] =
-    parse(content, formatted = false, multiline)
+    parse(content, ScInterpolatedStringLiteral.Standard, multiline)
+  private def parseRaw(content: String, multiline: Boolean = false): List[StringPart] =
+    parse(content, ScInterpolatedStringLiteral.Raw, multiline)
 
-  private def parse(content: String, formatted: Boolean, multiline: Boolean = false): List[StringPart] = {
-    val element = literal(content, formatted, multiline)
+  private def parse(content: String, kind: ScInterpolatedStringLiteral.Kind, multiline: Boolean = false): List[StringPart] = {
+    val element = literal(content, kind, multiline)
     InterpolatedStringParser.parse(element).get.toList
   }
 
-  private def literal(s: String, formatted: Boolean, multiline: Boolean): ScInterpolatedStringLiteral = {
+  private def literal(s: String, kind: ScInterpolatedStringLiteral.Kind, multiline: Boolean): ScInterpolatedStringLiteral = {
     val text = {
-      val prefix = if (formatted) "f" else "s"
+      // TODO: move to method of kind, but how to handle "Pattern"?
+      val prefix = kind match {
+        case ScInterpolatedStringLiteral.Standard => "s"
+        case ScInterpolatedStringLiteral.Format   => "f"
+        case ScInterpolatedStringLiteral.Raw      => "raw"
+        case ScInterpolatedStringLiteral.Pattern  => ""
+      }
       val quote = if (multiline) "\"\"\"" else "\""
       prefix + quote + s + quote
     }

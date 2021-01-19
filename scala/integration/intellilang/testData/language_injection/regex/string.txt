@@ -6,6 +6,18 @@
 "\\d \\\\d \\\\\\d".r
 ---
 \d \\d \\\d
+### invalid escape char sequence 1
+"xxx \ xxx".r
+---
+xxx <trailing_space>
+### invalid escape char sequence 2
+"xxx \ ".r
+---
+xxx <trailing_space>
+### invalid escape char sequence 3
+"xxx \ ".r
+---
+xxx <trailing_space>
 ### unicode sequences
 "\u005cd \u005cd \u0025 \uuuu0025".r
 ---
@@ -14,10 +26,14 @@
 "\\d \\u \\d \\u002+ \\d \\d".r
 ---
 \d \u \d \u002+ \d \d
-### don't handle as unicode sequences
+### don't handle as unicode sequences 1
 "\\u0025 \\\\u0025 \\\\ u0025".r
 ---
 \u0025 \\u0025 \\ u0025
+### don't handle as unicode sequences 2
+"a \\ b \t c \u0023 d \\u0023 e".r
+---
+a \ b 	 c # d \u0023 e
 ### dangling backslash 1
 "\\\\\\".r
 ---

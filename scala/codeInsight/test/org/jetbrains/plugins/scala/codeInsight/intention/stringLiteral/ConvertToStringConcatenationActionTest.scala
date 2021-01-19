@@ -1,18 +1,12 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral
 
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.fileTypes.FileType
-import com.intellij.openapi.project.Project
 import com.intellij.profile.codeInspection.InspectionProfileManager
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
-import org.jetbrains.plugins.scala.codeInsight.intentions
 import org.jetbrains.plugins.scala.codeInspection.parentheses.{ScalaUnnecessaryParenthesesInspection, UnnecessaryParenthesesSettings}
-import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-import scala.jdk.CollectionConverters.CollectionHasAsScala
+import scala.annotation.nowarn
 
-class ConvertToStringConcatenationActionTest extends intentions.ScalaIntentionTestBase {
+// TODO: rewrite the tests: use file-based test cases to avoid all this backslashes escaping staff...
+class ConvertToStringConcatenationActionTest extends StringConversionTestBase {
 
   override def familyName: String = FormatConversionIntention.ConvertToStringConcat
 
@@ -31,14 +25,14 @@ class ConvertToStringConcatenationActionTest extends intentions.ScalaIntentionTe
          |  val x = 42
          |  ${CARET}s"one $$x two"
          |}
-         |"""
+         |""".stripMargin
 
     val after =
       s"""object A {
          |  val x = 42
          |  $CARET"one " + x + " two"
          |}
-         |"""
+         |""".stripMargin
 
     doTest(before, after)
   }
@@ -56,14 +50,14 @@ class ConvertToStringConcatenationActionTest extends intentions.ScalaIntentionTe
          |  val x = 42
          |  ${CARET}s"one $$x two".length
          |}
-         |"""
+         |""".stripMargin
 
     val after =
       s"""object A {
          |  val x = 42
          |  $CARET("one " + x + " two").length
          |}
-         |"""
+         |""".stripMargin
 
     doTest(before, after)
   }
@@ -74,14 +68,14 @@ class ConvertToStringConcatenationActionTest extends intentions.ScalaIntentionTe
          |  val x = 42
          |  ${CARET}s"one $$x two".substring(23)
          |}
-         |"""
+         |""".stripMargin
 
     val after =
       s"""object A {
          |  val x = 42
          |  $CARET("one " + x + " two").substring(23)
          |}
-         |"""
+         |""".stripMargin
 
     doTest(before, after)
   }
@@ -92,14 +86,14 @@ class ConvertToStringConcatenationActionTest extends intentions.ScalaIntentionTe
          |  val x = 42
          |  ${CARET}s"one $$x two" length
          |}
-         |"""
+         |""".stripMargin
 
     val after =
       s"""object A {
          |  val x = 42
          |  $CARET("one " + x + " two") length
          |}
-         |"""
+         |""".stripMargin
 
     doTest(before, after)
   }
@@ -110,14 +104,14 @@ class ConvertToStringConcatenationActionTest extends intentions.ScalaIntentionTe
          |  val x = 42
          |  obj foo ${CARET}s"one $$x two"
          |}
-         |"""
+         |""".stripMargin
 
     val after =
       s"""object A {
          |  val x = 42
          |  obj foo $CARET("one " + x + " two")
          |}
-         |"""
+         |""".stripMargin
 
     doTest(before, after)
   }
@@ -148,7 +142,8 @@ class ConvertToStringConcatenationActionTest extends intentions.ScalaIntentionTe
         |
         |().toString + " b"
         |().toString + " b"
-        |().toString + () + " b"""".stripMargin
+        |().toString + () + " b"
+        |""".stripMargin
     )
   }
 
@@ -610,60 +605,183 @@ class ConvertToStringConcatenationActionTest extends intentions.ScalaIntentionTe
     )
   }
 
-  // NOTE: current implementation only works when each intention action does not adds new lines or removes some lines
-  protected def doBulkTest(
-    text: String,
-    resultText: String,
-    fileType: FileType = fileType
-  ): Unit = {
-    implicit val project: Project = getProject
+  //SCL-18617, SCL-18583
+  @nowarn("cat=deprecation")
+  def testFromInterpolated_WithEscapeSequences(): Unit =
+    doBulkTest(
+      s"""s"\\\\ $${42} \\\\ \\t"
+         |s'''\\\\ $${42} \\\\ \\t'''
+         |f"\\\\ $${42} \\\\ \\t"
+         |f'''\\\\ $${42} \\\\ \\t'''
+         |raw"\\ \\\\ $${42} \\\\ \\t"
+         |raw'''\\ \\\\ $${42} \\\\ \\t'''
+         |""".stripMargin.fixTripleQuotes,
+      s""""\\\\ " + 42 + " \\\\ \\t"
+        |"\\\\ " + 42 + " \\\\ \\t"
+        |"\\\\ " + 42 + " \\\\ \\t"
+        |"\\\\ " + 42 + " \\\\ \\t"
+        |"\\\\ \\\\\\\\ " + 42 + " \\\\\\\\ \\\\t"
+        |"\\\\ \\\\\\\\ " + 42 + " \\\\\\\\ \\\\t"
+        |""".stripMargin.fixTripleQuotes
+    )
 
-    getFixture.configureByText(fileType, normalize(text)).asInstanceOf[ScalaFile]
+  @nowarn("cat=deprecation")
+  def testFromInterpolated_WithEscapeSequences_UnicodeEscape(): Unit =
+    doBulkTest(
+      s"""val str = " text"
+         |
+         |s"\\u0023 \\u0024 \\u0025 $$str"
+         |s'''\\u0023 \\u0024 \\u0025 $$str'''
+         |f"\\u0023 \\u0024 \\u0025\\u0025 $$str"
+         |f'''\\u0023 \\u0024 \\u0025\\u0025 $$str'''
+         |raw"\\u0023 \\u0024 \\u0025 $$str"
+         |raw'''\\u0023 \\u0024 \\u0025 $$str'''
+         |""".stripMargin.fixTripleQuotes,
+      """val str = " text"
+        |
+        |"# $ % " + str
+        |"# $ % " + str
+        |"# $ % " + str
+        |"# $ % " + str
+        |"# $ % " + str
+        |"# $ % " + str
+        |""".stripMargin.fixTripleQuotes
+    )
 
-    placeCaretAtEachLineContent(getEditor)
+  // Mind this weird compiler behaviour: https://github.com/scala/bug/issues/12293#issuecomment-760276225
+  // raw"\u0025" == "%"
+  // raw"\\u0025" == "\\u0025"
+  // raw"\\\u0025" == "\\%"
+  // raw"\\\\u0025" == "\\\\u0025"
+  @nowarn("cat=deprecation")
+  def testFromInterpolated_WithEscapeSequences_UnicodeEscape_WeirdCase(): Unit =
+    doBulkTest(
+      s"""val str = " text"
+         |
+         |s"text \\\\u0023 $$str"
+         |s'''text \\\\u0023 $$str'''
+         |f"text \\\\u0023 $$str"
+         |f'''text \\\\u0023 $$str'''
+         |raw"text \\\\u0023 $$str"
+         |raw'''text \\\\u0023 $$str'''
+         |""".stripMargin.fixTripleQuotes,
+      s"""val str = " text"
+         |
+         |"text \\\\u0023 " + str
+         |"text \\\\u0023 " + str
+         |"text \\\\u0023 " + str
+         |"text \\\\u0023 " + str
+         |"text \\\\\\\\u0023 " + str
+         |"text \\\\\\\\u0023 " + str
+         |""".stripMargin.fixTripleQuotes
+    )
 
-    val caretModel  = getEditor.getCaretModel
+  @nowarn("cat=deprecation")
+  def testFromFormatted_WithEscapeSequences(): Unit =
+    doBulkTest(
+      s""""\\b \\t \\n \\f \\r \\\\ \\" \\n".format()""",
+      s""""\\b \\t \\n \\f \\r \\\\ \\" \\n""""
+    )
 
-    val carets = caretModel.getAllCarets.asScala.toSeq.map(_.getVisualPosition)
-    carets.foreach { caret =>
-      caretModel.getCurrentCaret.moveToVisualPosition(caret)
+  @nowarn("cat=deprecation")
+  def testFromFormatted_WithEscapeSequences_RawContent(): Unit =
+    doBulkTest(
+      s"""'''\\b \\t \\n \\f \\r \\\\ \\\\" \\n'''.format()""".fixTripleQuotes,
+      s""""\\\\b \\\\t \\\\n \\\\f \\\\r \\\\\\\\ \\\\\\\\\\" \\\\n""""
+    )
 
-      val intention = findIntentionByName(familyName)
-      intention.foreach { action =>
-        executeWriteActionCommand("Invoke Intention Action") {
-          action.invoke(project, getEditor, getFile)
-        }
-      }
-    }
+  @nowarn("cat=deprecation")
+  def testFromFormatted_WithEscapeSequences_WithUnicode(): Unit =
+    doBulkTest(
+      s""""\\u0023 \\\\u0023 \\\\\\u0023 \\\\\\\\u0023".format()""",
+      s""""# \\\\u0023 \\\\# \\\\\\\\u0023""""
+    )
 
-    checkIntentionResultText(resultText)(text)
-  }
+  def testFromFormatted_WithEscapeSequences_WithUnicode_RawContent(): Unit =
+    doBulkTest(
+      s"""'''\\u0023 \\\\u0023'''.format()""".fixTripleQuotes,
+      s""""# \\\\\\\\u0023""""
+    )
 
-  /**
-   * {{{
-   * class A {
-   *   2 + 2
-   * }
-   * }}}
-   * ->
-   * {{{
-   * <caret>class A {
-   *   <caret>2 + 2
-   * <caret>}
-   * }}}
-   */
-  private def placeCaretAtEachLineContent(editor: Editor): Unit = {
-    val document = editor.getDocument
-    val caretModel = editor.getCaretModel
-    val text = document.getText
+  def testFromFormatted_WithMultilineStringWithMargins_WithEscapeChar(): Unit =
+    doBulkTest(
+      """'''prefix \b \t \n suffix
+         |  |prefix \f \r \\ " \" \\" \n suffix
+         |  |'''.stripMargin.format()
+         |""".stripMargin.fixTripleQuotes,
+      """("prefix \\b \\t \\n suffix\nprefix \\f \\r \\\\ \" \\\" \\\\\" \\n suffix\n").stripMargin.format()
+         |""".stripMargin.fixTripleQuotes
+    )
 
-    // place a caret at the beginning of content on each line
-    (0 until document.getLineCount).foreach { line =>
-      var contentOnLineOffset = document.getLineStartOffset(line)
-      while (text.charAt(contentOnLineOffset).isWhitespace)
-        contentOnLineOffset += 1
+  def testFromFormatted_WithMultilineStringWithMargins_WithEscapeUnicode(): Unit =
+    doBulkTest(
+      s"""'''prefix \\u0023 \\\\u0023 \\\\\\u0023 \\\\\\\\u0023 suffix
+         |  |prefix \\u0023 \\\\u0023 \\\\\\u0023 \\\\\\\\u0023 suffix
+         |  |'''.stripMargin.format()
+         |""".stripMargin.fixTripleQuotes,
+      s"""("prefix # \\\\\\\\u0023 \\\\\\\\# \\\\\\\\\\\\\\\\u0023 suffix\\nprefix # \\\\\\\\u0023 \\\\\\\\# \\\\\\\\\\\\\\\\u0023 suffix\\n").stripMargin.format()
+         |""".stripMargin.fixTripleQuotes
+    )
 
-      caretModel.addCaret(editor.offsetToVisualPosition(contentOnLineOffset))
-    }
-  }
+  // Yes I know, it's very huge and clumsy...
+  def testFromInterpolated_WithMultilineStringWithMargins_WithEscapeChar(): Unit =
+    doBulkTest(
+      """val str = " text"
+         |
+         |s'''prefix \\ ${42} \\ \t " \" \\" "" \n
+         |   |\\ ${42} \\ \t " \" \\" "" \n suffix
+         |   |'''.stripMargin
+         |f'''prefix \\ ${42} \\ \t " \" \\" "" \n
+         |   |\\ ${42} \\ \t " \" \\" "" \n suffix
+         |   |'''.stripMargin
+         |raw'''prefix \ \\ ${42} \\ \t " \" \\" "" \n
+         |     |\ \\ ${42} \\ \t " \" \\" "" \n suffix
+         |     |'''.stripMargin
+         |""".stripMargin.fixTripleQuotes,
+      """val str = " text"
+         |
+         |("prefix \\ " + 42 + " \\ \t \" \" \\\" \"\" \n\n\\ " + 42 + " \\ \t \" \" \\\" \"\" \n suffix\n").stripMargin
+         |("prefix \\ " + 42 + " \\ \t \" \" \\\" \"\" \n\n\\ " + 42 + " \\ \t \" \" \\\" \"\" \n suffix\n").stripMargin
+         |("prefix \\ \\\\ " + 42 + " \\\\ \\t \" \\\" \\\\\" \"\" \\n\n\\ \\\\ " + 42 + " \\\\ \\t \" \\\" \\\\\" \"\" \\n suffix\n").stripMargin
+         |""".stripMargin
+    )
+
+  // Yes I know, it's very huge and clumsy...
+  def testFromInterpolated_WithMultilineStringWithMargins_WithEscapeUnicode(): Unit =
+    doBulkTest(
+      s"""val str = " text"
+         |
+         |s'''prefix \\u0023 \\u0024 \\u0025 $$str \\\\u0023 $$str
+         |   |\\u0023 \\u0024 \\u0025 $$str \\\\u0023 $$str suffix
+         |   |\\u0023 \\u0024 \\u0025 $$str \\\\u0023 $$str
+         |   |'''.stripMargin
+         |f'''prefix \\u0023 \\u0024 \\u0025\\u0025 $$str \\\\u0023 $$str
+         |   |\\u0023 \\u0024 \\u0025\\u0025 $$str \\\\u0023 $$str suffix
+         |   |\\u0023 \\u0024 \\u0025\\u0025 $$str \\\\u0023 $$str
+         |   |'''.stripMargin
+         |raw'''prefix \\u0023 \\u0024 \\u0025 $$str \\\\u0023 $$str
+         |     |\\u0023 \\u0024 \\u0025 $$str \\\\u0023 $$str suffix
+         |     |\\u0023 \\u0024 \\u0025 $$str \\\\u0023 $$str
+         |     |'''.stripMargin
+         |""".stripMargin.fixTripleQuotes,
+      s"""val str = " text"
+         |
+         |("prefix # $$ % " + str + " \\\\u0023 " + str + "\\n# $$ % " + str + " \\\\u0023 " + str + " suffix\\n# $$ % " + str + " \\\\u0023 " + str + "\\n").stripMargin
+         |("prefix # $$ % " + str + " \\\\u0023 " + str + "\\n# $$ % " + str + " \\\\u0023 " + str + " suffix\\n# $$ % " + str + " \\\\u0023 " + str + "\\n").stripMargin
+         |("prefix # $$ % " + str + " \\\\\\\\u0023 " + str + "\\n# $$ % " + str + " \\\\\\\\u0023 " + str + " suffix\\n# $$ % " + str + " \\\\\\\\u0023 " + str + "\\n").stripMargin
+         |""".stripMargin
+    )
+
+  // NOTE: injected elements can contain margins, so we can't simply remove enclosing strip margin
+  def testFromMultilineStringStripMarginCallShouldRemainAfterConversion(): Unit =
+    doBulkTest(
+      """val str = "\n|inner1\n|inner2"
+        |s'''$str
+        |   |$str
+        |   |$str'''.stripMargin
+        |""".stripMargin.fixTripleQuotes,
+      """val str = "\n|inner1\n|inner2"
+        |(str + "\n" + str + "\n" + str).stripMargin
+        |""".stripMargin
+    )
 }

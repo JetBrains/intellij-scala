@@ -1,10 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.base
+package org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers
 
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers.{ScalaStringParser, ScLiteralEscaperBase}
 
-// todo: move to literals/escapers subpackage
 class ScLiteralEscaper(val literal: ScStringLiteral) extends ScLiteralEscaperBase[ScStringLiteral](literal) {
 
   override def decode(rangeInsideHost: TextRange, outChars: java.lang.StringBuilder): Boolean = {
