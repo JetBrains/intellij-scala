@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
@@ -43,7 +44,8 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
     call.getEffectiveInvokedExpr match {
       case ref: ScReference =>
         ref.bind() match {
-          case Some(r) if r.notCheckedResolveResult || r.isDynamic => //it's unhandled case
+          case Some(rr) if rr.notCheckedResolveResult || rr.isDynamic => //it's unhandled case
+          case Some(rr) if rr.element.is[ScParameter] => // this was previously handled by ScReferenceAnnotator, but didn't make sense there
           case _ =>
             call.applyOrUpdateElement match {
               case Some(r) if r.isDynamic => //it's still unhandled
