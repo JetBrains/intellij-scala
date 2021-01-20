@@ -5,9 +5,17 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 
-class TypeConstructorDiff(val text: String, val isMismatch: Boolean)
+class TypeConstructorDiff(val text: String, val isMismatch: Boolean, val isMissing: Boolean) {
+  def hasError: Boolean = isMismatch || isMissing
+}
 
 object TypeConstructorDiff {
+  implicit val TypeDiffTooltipFormatter: TooltipTreeFormatter[TypeConstructorDiff] = new TooltipTreeFormatter[TypeConstructorDiff] {
+    override def textOf(element: TypeConstructorDiff): String = element.text
+    override def isMismatch(element: TypeConstructorDiff): Boolean = element.isMismatch
+    override def isMissing(element: TypeConstructorDiff): Boolean = element.isMissing
+  }
+
   type TyConstr = (String, Seq[TypeParameter])
 
   def forBoth(expected: TyConstr, actual: TyConstr)(implicit tpc: TypePresentationContext): (Tree[TypeConstructorDiff], Tree[TypeConstructorDiff]) =
@@ -19,17 +27,41 @@ object TypeConstructorDiff {
   def forExpected(expected: TyConstr, actual: TyConstr)(implicit tpc: TypePresentationContext): Tree[TypeConstructorDiff] =
     diff(expected._1, expected._2, actual._2)((lower, upper) => upper.conforms(lower), tpc)
 
-  private def aMatch(text: String) = Leaf(new TypeConstructorDiff(text, false))
-  private def aMismatch(text: String) = Leaf(new TypeConstructorDiff(text, true))
+  private def aMatch(text: String) = Leaf(new TypeConstructorDiff(text, false, false))
+  private def aMismatch(text: String) = Leaf(new TypeConstructorDiff(text, true, false))
+  private def aMissing(text: String) = Leaf(new TypeConstructorDiff(text, false, true))
 
   private type Conformance = (ScType, ScType) => Boolean
 
   private def diff(subjectName: String, subjectParams: Seq[TypeParameter], otherParams: Seq[TypeParameter])(implicit conformance: Conformance, tpc: TypePresentationContext): Tree[TypeConstructorDiff] = {
-    if (subjectParams.isEmpty) {
-      Leaf(new TypeConstructorDiff(subjectName, isMismatch = otherParams.nonEmpty))
-    } else if (subjectParams.size != otherParams.size) {
-      val paramText = subjectParams.map(_.name).mkString(", ")
-      aMismatch(s"$subjectName[$paramText]")
+    if (subjectParams.isEmpty && otherParams.isEmpty) {
+      aMatch(subjectName)
+    } else if (subjectParams.size > otherParams.size) {
+      Node(
+        Seq(
+          aMatch(subjectName),
+          aMatch("[")
+        ) ++
+          subjectParams.zipWithIndex.iterator
+            .map {
+              case (ty, idx) if idx < otherParams.size => aMatch(ty.name)
+              case (ty, _) => aMissing(ty.name)
+            }
+            .intersperse(aMatch(", ")) :+
+          aMatch("]"): _*
+      )
+    } else if (subjectParams.size < otherParams.size) {
+      val paramDiff = otherParams.size - subjectParams.size
+      val hasParams = subjectParams.nonEmpty
+      Node(
+        Seq(
+          aMatch(subjectName),
+          aMatch(if (hasParams) "[" else "")
+        ) ++
+          subjectParams.map(ty => aMatch(ty.name)).intersperse(aMatch(", ")) ++
+          (if (hasParams) Seq(aMatch("]")) else Seq.empty) ++
+          Iterator.fill(paramDiff)(Seq(aMissing(" "), aMatch(""))).flatten: _*
+      )
     } else {
       val paramsDiffs = subjectParams.lazyZip(otherParams).map(diff)
       Node(

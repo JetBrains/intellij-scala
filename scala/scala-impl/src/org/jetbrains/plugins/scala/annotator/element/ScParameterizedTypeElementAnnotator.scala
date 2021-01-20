@@ -83,7 +83,7 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
         case Some(ScTypePolymorphicType(_, argParams)) =>
           val actualTyConstr = (argTy.presentableText, argParams)
           val actualDiff = TypeConstructorDiff.forActual(expectedTyConstr, actualTyConstr)
-          if (actualDiff.exists(_.isMismatch)) {
+          if (actualDiff.exists(_.hasError)) {
             val expectedDiff = TypeConstructorDiff.forExpected(expectedTyConstr, actualTyConstr)
             val annotation = holder.createErrorAnnotation(arg, ScalaBundle.message("type.constructor.does.not.conform", argTy.presentableText, expectedDiff.flatten.map(_.text).mkString))
             annotation.setTooltip(tooltipForDiffTrees(ScalaBundle.message("type.constructor.mismatch"), expectedDiff, actualDiff))
@@ -100,9 +100,6 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
       }
     }
   }
-
-  private def tooltipForDiffTrees(@Nls msg: String, expectedDiff: Tree[TypeConstructorDiff], actualDiff: Tree[TypeConstructorDiff]): String =
-    annotator.tooltipForDiffTrees(msg, expectedDiff, actualDiff)(_.isMismatch, _.text)
 
   private def signatureOf(typeParamOwner: PsiNamedElement with ScTypeParametersOwner): String = {
     val name = typeParamOwner.name

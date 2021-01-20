@@ -74,12 +74,19 @@ package object annotator {
   private[annotator] case object Oct extends IntegerKind(8, "0")
 
 
+  trait TooltipTreeFormatter[T] {
+    def textOf(element: T): String
+    def isMismatch(element: T): Boolean
+    def isMissing(element: T): Boolean
+  }
+
   @Nls
-  private[annotator] def tooltipForDiffTrees[T](@Nls error: String, expectedTree: Tree[T], actualType: Tree[T])(isMismatch: T => Boolean, textOf: T => String): String = {
-    def format(diff: Tree[T], f: String => String) = {
+  private[annotator] def tooltipForDiffTrees[T](@Nls error: String, expectedTree: Tree[T], actualType: Tree[T])(implicit formatter: TooltipTreeFormatter[T]): String = {
+    def format(diff: Tree[T], formatMismatch: String => String, formatMissing: String => String) = {
       val parts = diff.flatten.map { element =>
-        val htmlText = escapeString(textOf(element), true)
-        if (isMismatch(element)) f(htmlText)
+        val htmlText = escapeString(formatter.textOf(element), true)
+        if (formatter.isMismatch(element)) formatMismatch(htmlText)
+        else if (formatter.isMissing(element)) formatMissing(htmlText)
         else htmlText
       }.map {
         "<td style=\"text-align:center\">" + _ + "</td>"
@@ -93,11 +100,19 @@ package object annotator {
       "<font color='" + color + "'><b>" + htmlText + "</b></font>"
     }
 
+    def underline(htmlText: String): String = {
+      val color = if (StartupUiUtil.isUnderDarcula) "#FF6B68" else "red"
+      s"<p style='border-bottom: 1px dotted $color;'>$htmlText</p>"
+    }
+
+    def bold(htmlText: String): String =
+      s"<b>$htmlText</b>"
+
     ScalaBundle.message(
       "tree.mismatch.tooltip",
       escapeString(error),
-      format(expectedTree, s => s"<b>$s</b>"),
-      format(actualType, red)
+      format(expectedTree, bold, bold),
+      format(actualType, red, underline)
     )
   }
 }

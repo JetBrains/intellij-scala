@@ -23,8 +23,13 @@ sealed trait TypeDiff {
 
 object TypeDiff {
   final case class Match(override val text: String, tpe: Option[ScType] = None) extends TypeDiff
-
   final case class Mismatch(override val text: String, tpe: Option[ScType] = None) extends TypeDiff
+
+  implicit val TypeDiffTooltipFormatter: TooltipTreeFormatter[TypeDiff] = new TooltipTreeFormatter[TypeDiff] {
+    override def textOf(element: TypeDiff): String = element.text
+    override def isMismatch(element: TypeDiff): Boolean = element.is[Mismatch]
+    override def isMissing(element: TypeDiff): Boolean = false
+  }
 
   // To display a type hint
   def parse(tpe: ScType)(implicit context: TypePresentationContext): Tree[TypeDiff] =

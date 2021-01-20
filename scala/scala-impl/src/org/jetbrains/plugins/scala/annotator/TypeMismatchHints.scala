@@ -89,7 +89,7 @@ object TypeMismatchHints {
   private[annotator] def tooltipFor(expectedType: ScType, actualType: ScType)(implicit context: TypePresentationContext): String = {
     val (diff1, diff2) = TypeDiff.forBoth(expectedType, actualType)
 
-    tooltipForDiffTrees(ScalaBundle.message("type.mismatch.dot"), diff1, diff2)(_.is[Mismatch], _.text)
+    tooltipForDiffTrees(ScalaBundle.message("type.mismatch.dot"), diff1, diff2)
   }
 
   // TODO Use a dedicated pass when built-in "advanced" hint API will be available in IDEA, SCL-14502
