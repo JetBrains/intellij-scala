@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala
 package project.maven
 
+import com.intellij.build.BuildProgressListener
+import com.intellij.build.events.BuildEvent
+
 import java.io.File
 import java.util
-
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.module.Module
@@ -60,21 +62,21 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
 
       val Some(version) = configuration.compilerVersion
 
-      val scalaLibrary = modelsProvider.getAllLibraries
-        .find { library =>
-          library.getName.contains("scala-library") &&
-            library.compilerVersion.contains(version)
-        }.getOrElse {
-        throw new ExternalSystemException(s"Cannot find project Scala library $version for module ${module.getName}")
-      }
-
-      if (!scalaLibrary.isScalaSdk) {
-        Importer.setScalaSdk(
-          modelsProvider,
-          scalaLibrary,
-          ScalaLibraryProperties(Some(version), configuration.compilerClasspath.map(mavenProject.localPathTo)
-          )
-        )
+      modelsProvider.getAllLibraries.find { library =>
+        library.getName.contains("scala-library") && library.compilerVersion.contains(version)
+      } match {
+        case Some(scalaLibrary) =>
+          if (!scalaLibrary.isScalaSdk)
+            Importer.setScalaSdk(
+              modelsProvider,
+              scalaLibrary,
+              ScalaLibraryProperties(Some(version), configuration.compilerClasspath.map(mavenProject.localPathTo))
+            )
+        case None =>
+          val msg = s"Cannot find project Scala library $version for module ${module.getName}"
+          val exception = new IllegalArgumentException(msg)
+          val console = MavenProjectsManager.getInstance(module.getProject).getSyncConsole
+          console.addException(exception, (_: Any, _: BuildEvent) => ())
       }
     }
   }
