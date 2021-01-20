@@ -34,7 +34,6 @@ import scala.collection.immutable.Set
 trait ScFunction
     extends ScalaPsiElement
     with ScMember.WithBaseIconProvider
-    with ScTypeParametersOwner
     with ScParameterOwner
     with ScDocCommentOwner
     with ScTypedDefinition

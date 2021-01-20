@@ -52,8 +52,8 @@ object ScSimpleTypeElementAnnotator extends ElementAnnotator[ScSimpleTypeElement
           parameterized.typeElement match {
             case ScSimpleTypeElement(ResolvesTo(target)) =>
               target match {
-                case owner: ScTypeParametersOwner => noHigherKinds(owner)
                 case ScPrimaryConstructor.ofClass(c) => noHigherKinds(c)
+                case owner: ScTypeParametersOwner => noHigherKinds(owner)
                 case _ => false
               }
             case _ => false
