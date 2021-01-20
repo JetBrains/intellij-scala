@@ -73,7 +73,7 @@ object VarCouldBeValInspection {
     read.nonEmpty && write.isEmpty
   }
 
-  def findReferences(element: PsiElement): (Iterable[PsiElement], Iterable[PsiElement]) = {
+  private def findReferences(element: PsiElement): (Iterable[PsiElement], Iterable[PsiElement]) = {
     val references = ReferencesSearch.search(element, element.getUseScope)
       .findAll().asScala
       .map(_.getElement)

@@ -1323,6 +1323,13 @@ object ScalaPsiUtil {
     Some(result)
   }
 
+  def looksLikeAssignment(elem: PsiElement): Boolean = elem.getContext match {
+    case assign: ScAssignment if assign.leftExpression == elem => true
+    case infix: ScInfixExpr if infix.isAssignmentOperator => true
+    case ref1@ScReferenceExpression.withQualifier(`elem`) => ParserUtils.isAssignmentOperator(ref1.refName)
+    case _ => false
+  }
+
   def isPossiblyAssignment(elem: PsiElement): Boolean = elem.getContext match {
     case assign: ScAssignment if assign.leftExpression == elem => true
     case infix: ScInfixExpr if infix.isAssignment => true
