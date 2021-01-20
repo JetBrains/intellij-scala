@@ -45,15 +45,14 @@ class ScParameterizedTypeElementAnnotatorTest extends SimpleTestCase {
   }
 
   def testHigherKindedTypes(): Unit = {
-    assertMessagesInAllContexts("Test3[Test]")()
-    assertMessagesInAllContexts("Test3[Test2]")()
+    assertMessagesInAllContexts("TestHk[Test]")()
 
-    assertMessagesInAllContexts("Test3[A]")(
-      Error("A", "Expected higher-kinded type CC[X >: B <: B, _]")
+    assertMessagesInAllContexts("TestHk[A]")(
+      Error("A", "Expected type constructor CC[X >: B <: B, _]")
     )
 
-    assertMessagesInAllContexts("Test3[Hk]")(
-      Error("Hk", "Higher-kinded type Hk does not conform to CC[X >: B <: B, _]")
+    assertMessagesInAllContexts("TestHk[HkArg]")(
+      Error("HkArg", "Type constructor HkArg does not conform to CC[X >: B <: B, _]")
     )
   }
 
@@ -66,9 +65,9 @@ class ScParameterizedTypeElementAnnotatorTest extends SimpleTestCase {
         |
         |class Test[X, Y]
         |class Test2[X <: B, Y >: B]
-        |class Test3[CC[X >: B <: B, _]]
+        |class TestHk[CC[X >: B <: B, _]]
         |
-        |class Hk[X >: A, Y <: C]
+        |class HkArg[X >: A, Y <: C]
         |""".stripMargin
 
     val contexts = Seq(

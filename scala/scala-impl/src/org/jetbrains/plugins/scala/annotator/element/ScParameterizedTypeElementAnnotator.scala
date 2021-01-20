@@ -4,6 +4,7 @@ package element
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiNamedElement, PsiWhiteSpace}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeElement}
@@ -77,23 +78,31 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
     val paramTyParams = param.typeParameters.map(TypeParameter(_))
 
     if (paramTyParams.nonEmpty) {
+      val expectedTyConstr = (param.name, paramTyParams)
       argTy.asOptionOf[DesignatorOwner].flatMap(_.polyTypeOption) match {
         case Some(ScTypePolymorphicType(_, argParams)) =>
-          val expectedHkT = (param.name, paramTyParams)
-          val actualHkT = (argTy.presentableText, argParams)
-          val actualDiff = HkTypeDiff.forActual(expectedHkT, actualHkT)
+          val actualTyConstr = (argTy.presentableText, argParams)
+          val actualDiff = TypeConstructorDiff.forActual(expectedTyConstr, actualTyConstr)
           if (actualDiff.exists(_.isMismatch)) {
-            val expectedDiff = HkTypeDiff.forExpected(expectedHkT, actualHkT)
-            val annotation = holder.createErrorAnnotation(arg, ScalaBundle.message("higher.kinded.type.does.not.conform", argTy.presentableText, expectedDiff.flatten.map(_.text).mkString))
-            annotation.setTooltip(tooltipForDiffTrees(ScalaBundle.message("higher.kinded.type.mismatch"), expectedDiff, actualDiff)(_.isMismatch, _.text))
+            val expectedDiff = TypeConstructorDiff.forExpected(expectedTyConstr, actualTyConstr)
+            val annotation = holder.createErrorAnnotation(arg, ScalaBundle.message("type.constructor.does.not.conform", argTy.presentableText, expectedDiff.flatten.map(_.text).mkString))
+            annotation.setTooltip(tooltipForDiffTrees(ScalaBundle.message("type.constructor.mismatch"), expectedDiff, actualDiff))
             annotation.registerFix(ReportHighlightingErrorQuickFix)
           }
         case _ =>
-          holder.createErrorAnnotation(arg, ScalaBundle.message("expected.higher.kinded.type", param.typeParameterText))
-            .registerFix(ReportHighlightingErrorQuickFix)
+          val actualTyConstr = (argTy.presentableText, Seq.empty)
+          val expectedDiff = TypeConstructorDiff.forExpected(expectedTyConstr, actualTyConstr)
+          val actualDiff = TypeConstructorDiff.forActual(expectedTyConstr, actualTyConstr)
+
+          val annotation = holder.createErrorAnnotation(arg, ScalaBundle.message("expected.type.constructor", param.typeParameterText))
+          annotation.registerFix(ReportHighlightingErrorQuickFix)
+          annotation.setTooltip(tooltipForDiffTrees(ScalaBundle.message("expected.type.constructor", ""), expectedDiff, actualDiff))
       }
     }
   }
+
+  private def tooltipForDiffTrees(@Nls msg: String, expectedDiff: Tree[TypeConstructorDiff], actualDiff: Tree[TypeConstructorDiff]): String =
+    annotator.tooltipForDiffTrees(msg, expectedDiff, actualDiff)(_.isMismatch, _.text)
 
   private def signatureOf(typeParamOwner: PsiNamedElement with ScTypeParametersOwner): String = {
     val name = typeParamOwner.name

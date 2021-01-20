@@ -93,6 +93,11 @@ package object annotator {
       "<font color='" + color + "'><b>" + htmlText + "</b></font>"
     }
 
-    ScalaBundle.message("tree.mismatch.tooltip", error, format(expectedTree, s => s"<b>$s</b>"), format(actualType, red))
+    ScalaBundle.message(
+      "tree.mismatch.tooltip",
+      escapeString(error),
+      format(expectedTree, s => s"<b>$s</b>"),
+      format(actualType, red)
+    )
   }
 }
