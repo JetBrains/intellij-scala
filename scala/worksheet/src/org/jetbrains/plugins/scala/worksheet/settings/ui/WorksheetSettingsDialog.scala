@@ -34,7 +34,6 @@ final class WorksheetSettingsDialog(worksheetFile: PsiFile)
 
   locally {
     setTitle(WorksheetBundle.message("worksheet.settings.panel.title"))
-    setButtonsAlignment(SwingConstants.CENTER)
     init()
   }
 

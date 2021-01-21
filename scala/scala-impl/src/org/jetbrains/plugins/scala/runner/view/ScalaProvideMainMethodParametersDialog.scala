@@ -21,7 +21,6 @@ private[runner] final class ScalaProvideMainMethodParametersDialog(
 
   locally {
     setTitle(ScalaBundle.message("provide.program.arguments"))
-    setButtonsAlignment(SwingConstants.RIGHT)
     init()
   }
 

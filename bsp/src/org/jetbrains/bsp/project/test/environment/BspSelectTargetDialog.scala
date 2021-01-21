@@ -48,7 +48,6 @@ class BspSelectTargetDialog(
 
   locally {
     setTitle(BspBundle.message("bsp.task.choose.target.title"))
-    setButtonsAlignment(SwingConstants.CENTER)
     setOKButtonText(CommonBundle.getOkButtonText)
     init()
   }

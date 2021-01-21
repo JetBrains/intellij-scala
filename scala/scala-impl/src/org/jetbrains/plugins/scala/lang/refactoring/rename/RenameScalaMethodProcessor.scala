@@ -140,7 +140,6 @@ class PrepareRenameScalaMethodProcessor extends RenamePsiElementProcessor {
 
   private class WarningDialog(project: Project, text: String) extends DialogWrapper(project, true) {
     setTitle(IdeBundle.message("title.warning"))
-    setButtonsAlignment(SwingConstants.CENTER)
     setOKButtonText(CommonBundle.getYesButtonText)
     init()
 
