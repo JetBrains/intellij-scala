@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.cast
 import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
 
-class RedundantConversionInspectionTest extends ScalaQuickFixTestBase {
+class ScalaRedundantConversionInspectionTest extends ScalaQuickFixTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ScalaRedundantConversionInspection]
   override protected val description = "Casting '<from>' to '<to>' is redundant"

@@ -34,7 +34,7 @@ class ScalaRedundantConversionInspection extends AbstractInspection(ScalaInspect
       case f: ScSyntheticFunction if f.name.startsWith("to") =>
         for {
           leftType <- left.`type`().toOption
-          conversionType = f.retType if leftType.equiv(conversionType)
+          conversionType = f.retType if leftType.widen.equiv(conversionType)
         } registerProblem(element, left, conversionType.presentableText, offset, holder)
       case f: PsiMethod if f.name == "toString" &&
               f.getParameterList.getParametersCount == 0 &&
