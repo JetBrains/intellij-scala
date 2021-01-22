@@ -12,7 +12,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.profile.codeInspection.ProjectInspectionProfileManager
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, ScalaSdkOwner}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.{findCaretOffset, normalize}
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
@@ -215,6 +215,7 @@ object ScalaAnnotatorQuickFixTestBase {
 }
 
 abstract class ScalaInspectionTestBase extends ScalaAnnotatorQuickFixTestBase {
+  override protected def defaultVersionOverride: Option[ScalaVersion] = Some(ScalaSdkOwner.preferableSdkVersion)
 
   protected val classOfInspection: Class[_ <: LocalInspectionTool]
 

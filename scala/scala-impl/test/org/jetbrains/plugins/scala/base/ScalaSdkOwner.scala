@@ -18,7 +18,7 @@ trait ScalaSdkOwner extends Test
   )
   override implicit def version: ScalaVersion = {
     val supportedVersions = allTestVersions.filter(supportedIn)
-    val configuredVersion = configuredScalaVersion.getOrElse(defaultSdkVersion)
+    val configuredVersion = configuredScalaVersion.orElse(defaultVersionOverride).getOrElse(defaultSdkVersion)
     selectVersion(configuredVersion, supportedVersions)
   }
 
@@ -30,6 +30,8 @@ trait ScalaSdkOwner extends Test
     injectedScalaVersion.orElse(globalConfiguredScalaVersion)
 
   protected def supportedIn(version: ScalaVersion): Boolean = true
+
+  protected def defaultVersionOverride: Option[ScalaVersion] = None
 
   def skip: Boolean = configuredScalaVersion.exists(!supportedIn(_))
 
@@ -65,7 +67,10 @@ object ScalaSdkOwner {
 
   // todo: eventually move to version Scala_2_13
   //       (or better, move ScalaLanguageLevel.getDefault to Scala_2_13 and use ScalaVersion.default again)
+  //       for now just use defaultVersionOverride with Some(preferableSdkVersion) for test-(base)classes
+  //       that should already work in newest version (SCL-15634)
   val defaultSdkVersion: ScalaVersion = LatestScalaVersions.Scala_2_10 // ScalaVersion.default
+  val preferableSdkVersion: ScalaVersion = LatestScalaVersions.Scala_2_13
   val allTestVersions: SortedSet[ScalaVersion] = {
     val allScalaMinorVersions = for {
       latestVersion <- LatestScalaVersions.all.filterNot(Scala3Versions.contains)
@@ -77,7 +82,7 @@ object ScalaSdkOwner {
 
 
   private def selectVersion(wantedVersion: ScalaVersion, possibleVersions: SortedSet[ScalaVersion]): ScalaVersion =
-    possibleVersions.iteratorFrom(wantedVersion).to(LazyList).headOption.getOrElse(possibleVersions.last)
+    possibleVersions.iteratorFrom(wantedVersion).nextOption().getOrElse(possibleVersions.last)
 
   lazy val globalConfiguredScalaVersion: Option[ScalaVersion] = {
     val property = scala.util.Properties.propOrNone("scala.sdk.test.version")
