@@ -120,22 +120,27 @@ final class ScalafmtDynamicServiceImpl
     @NonNls val NewLine = "<br>"
     val ColonWithNewLine = ":" + NewLine
 
-    val baseMessage = ScalaBundle.message("scalafmt.resolve.errors.cant.resolve.scalafmt.version", error.version) + ColonWithNewLine
+    val version = error.version
+    val baseMessage = ScalaBundle.message("scalafmt.resolve.errors.cant.resolve.scalafmt.version", version) + ColonWithNewLine
 
+    val versionHint = s"(version $version)"
     error match {
-      case ScalafmtResolveError.NotFound(version) =>
+      case ScalafmtResolveError.NotFound(_) =>
         // TODO: if reformat action was performed but scalafmt version is not resolve
         //  then we could postpone reformat action after scalafmt is downloaded
+        Log.warn(s"scalafmt version is not downloaded $versionHint")
         val message = ScalaBundle.message("scalafmt.resolve.errors.version.is.not.downloaded.yet", version)
         displayWarning(message, Seq(new DownloadScalafmtNotificationActon(version, ScalaBundle.message("scalafmt.download"))))
       case ScalafmtResolveError.DownloadInProgress(_) =>
+        Log.warn(s"download in progress $versionHint")
         val errorMessage = baseMessage + " " + ScalaBundle.message("scalafmt.resolve.errors.download.is.in.progress")
         displayError(errorMessage)
       case DownloadError(_, cause) =>
+        Log.warn(s"download error $versionHint", cause)
         val errorMessage = baseMessage + " " + ScalaBundle.message("scalafmt.resolve.errors.downloading.error.occurred") + ColonWithNewLine + cause.getMessage
         displayError(errorMessage)
-      case ScalafmtResolveError.CorruptedClassPath(version, _, cause) =>
-        Log.warn(cause)
+      case ScalafmtResolveError.CorruptedClassPath(_, urls, cause) =>
+        Log.warn(s"corrupted class path $versionHint: ${urls.mkString(";")}", cause)
         val action = new DownloadScalafmtNotificationActon(version, ScalaBundle.message("scalafmt.resolve.again")) {
           override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
             state.resolvedVersions.remove(version)
@@ -144,7 +149,7 @@ final class ScalafmtDynamicServiceImpl
         }
         displayError(baseMessage + " " + ScalaBundle.message("scalafmt.resolve.errors.classpath.is.corrupted"), Seq(action))
       case ScalafmtResolveError.UnknownError(_, cause) =>
-        Log.error(cause)
+        Log.error(s"unknown error $versionHint", cause)
         displayError(baseMessage + " " + ScalaBundle.message("scalafmt.resolve.errors.unknown.error") + ColonWithNewLine + cause.getMessage)
     }
   }

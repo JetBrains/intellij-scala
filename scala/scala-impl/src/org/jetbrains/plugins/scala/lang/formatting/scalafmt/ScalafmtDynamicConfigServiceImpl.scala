@@ -214,15 +214,21 @@ final class ScalafmtDynamicConfigServiceImpl(private val project: Project)
   private def reportConfigResolveError(configFile: VirtualFile, configError: ConfigResolveError): Unit = {
     import ConfigResolveError._
     val details = configError match {
-      case ConfigFileNotFound(_)                   => ScalaBundle.message("scalafmt.config.load.errors.file.not.found")
-      case ConfigParseError(_, cause)              => ScalaBundle.message("scalafmt.config.load.errors.parse.error", cause.getMessage)
-      case UnknownError(unknownMessage, _)         => ScalaBundle.message("scalafmt.config.load.errors.unknown.error", unknownMessage)
-      /** reported in [[ScalafmtDynamicServiceImpl.reportResolveError]]*/
+      case ConfigFileNotFound(path) =>
+        Log.warn(s"config resolve error: config not found: $path")
+        ScalaBundle.message("scalafmt.config.load.errors.file.not.found")
+      case ConfigParseError(path, cause) =>
+        Log.warn(s"config resolve error: parse error: $path", cause)
+        ScalaBundle.message("scalafmt.config.load.errors.parse.error", cause.getMessage)
+      case UnknownError(unknownMessage, exception) =>
+        Log.warn(s"config resolve error: unknown error: $unknownMessage", exception.orNull)
+        ScalaBundle.message("scalafmt.config.load.errors.unknown.error", unknownMessage)
+      /** reported in [[ScalafmtDynamicServiceImpl.reportResolveError]] */
       case _: ConfigScalafmtResolveError => return
       case ConfigCyclicDependenciesError(configPath, ex) =>
         val stackReverse = ex.filesResolveStack.reverse
         val filesStackText = stackReverse.mkString("  ", "\n  ", "")
-        Log.warn(s"Cyclic includes detected during scalafmt config parse: $configPath. Files include stack:\n$filesStackText")
+        Log.warn(s"config resolve error: cyclic includes detected during scalafmt config parse: $configPath. Files include stack:\n$filesStackText")
 
         val filesStackShortNotificationText = stackReverse.map(_.getName).mkString("<br>  ", "<br>  ", "")
         ScalaBundle.message("scalafmt.config.load.errors.parse.error", ScalaBundle.message("scalafmt.config.load.errors.cyclic.includes.detected")) + filesStackShortNotificationText
