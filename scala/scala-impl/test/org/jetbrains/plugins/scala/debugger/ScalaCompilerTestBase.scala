@@ -79,6 +79,8 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
     // !!! MUST BE CALLED AFTER compilerTester new CompilerTester(...)
     //     new CompilerTester resets modules SDK to internal SDK ! (ノಠ益ಠ)ノ彡┻━┻ so we need to setup jdk again
     setUpJdk()
+    // We need to enforce calculating of the versionString value to ensure presence of it in the JPS-process (╥﹏╥)
+    getTestProjectJdk.getVersionString
     addOutRoot()
   }
 
