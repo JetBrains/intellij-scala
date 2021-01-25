@@ -311,6 +311,7 @@ private object ConstraintSystemImpl {
   private[this] def updateUpper(variance: Variance, rawUpper: ScType)
                                (implicit freshExArg: FreshExistentialArg): ScType =
     rawUpper match {
+      case UndefinedType(tp, _)                                 => TypeParameterType(tp)
       case ScAbstractType(_, _, upper) if variance == Invariant => upper
       case ScAbstractType(_, _, upper) if variance == Covariant && isAny(upper) =>
         import upper.projectContext
@@ -325,6 +326,7 @@ private object ConstraintSystemImpl {
   private[this] def updateLower(variance: Variance, rawLower: ScType)
                                (implicit freshExArg: FreshExistentialArg): ScType =
     rawLower match {
+      case UndefinedType(tp, _)        => TypeParameterType(tp)
       case ScAbstractType(_, lower, _) => lower
       case ex: ScExistentialArgument if variance.isInvariant => freshExArg(ex)
       case _ =>
