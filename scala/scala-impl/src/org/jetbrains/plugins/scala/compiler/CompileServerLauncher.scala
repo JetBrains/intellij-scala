@@ -301,6 +301,7 @@ object CompileServerLauncher {
     IntellijPlatformJars.utilJar,
     IntellijPlatformJars.trove4jJar,
     IntellijPlatformJars.protobufJava,
+    IntellijPlatformJars.fastUtilJar,
     LibraryJars.scalaParserCombinators,
     ScalaPluginJars.scalaLibraryJar,
     ScalaPluginJars.scalaReflectJar,

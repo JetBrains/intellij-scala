@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala.util
 
-import java.io.File
-
 import com.google.protobuf.GeneratedMessageLite
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.PathUtil
 import gnu.trove.TByteArrayList
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import org.jetbrains.jps.incremental.BuilderService
 
+import java.io.File
 import scala.util.parsing.combinator.RegexParsers
 
 object ScalaPluginJars {
@@ -50,6 +50,7 @@ object IntellijPlatformJars {
   val jpsBuildersJar = new File(PathUtil.getJarPathForClass(classOf[BuilderService]))
   val utilJar        = new File(PathUtil.getJarPathForClass(classOf[FileUtil]))
   val trove4jJar     = new File(PathUtil.getJarPathForClass(classOf[TByteArrayList]))
+  val fastUtilJar    = new File(PathUtil.getJarPathForClass(classOf[Int2ObjectMap[_]]))
   val protobufJava = new File(PathUtil.getJarPathForClass(classOf[GeneratedMessageLite[_, _]]))
 }
 
