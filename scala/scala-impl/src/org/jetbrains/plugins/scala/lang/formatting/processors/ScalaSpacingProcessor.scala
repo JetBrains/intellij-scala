@@ -84,7 +84,13 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
   }
 
-  def getSpacing(left: ScalaBlock, right: ScalaBlock): Spacing = {
+  def getSpacing(left: ScalaBlock, right: ScalaBlock): Spacing =
+    getSpacingImpl(left, right)
+
+  // extra method for easier debugging
+  // (the method contains a lot of returns, and it's hard to just debug the result for specific input)
+  @inline
+  private def getSpacingImpl(left: ScalaBlock, right: ScalaBlock): Spacing = {
     val settings = right.commonSettings
 
     val keepBlankLinesInCode = settings.KEEP_BLANK_LINES_IN_CODE
@@ -123,6 +129,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val leftPsiParent  = leftNode.getPsi.getParent
     val rightPsiParent = rightNode.getPsi.getParent
 
+    // TODO: it's not good for performance to extract entire file text on each reformat
+    //  (it can be reformat of tiny block, e.g. after tiny refactoring)
     val fileText = PsiDocumentManager.getInstance(leftPsi.getProject).nullSafe
       .map(_.getDocument(leftPsi.getContainingFile))
       .map(_.getImmutableCharSequence)
@@ -132,6 +140,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
     /**
      * This is not nodes text! This is blocks text, which can be different from node.
+     * @todo consider not using substring for left and right: for big notes it's not cheep operation
      */
     val (leftBlockString, rightBlockString) =
       if (fileTextRange.contains(left.getTextRange) && fileTextRange.contains(right.getTextRange)) {
@@ -392,7 +401,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       rightElementType == ScalaTokenTypes.tLINE_COMMENT ||
         FormatterUtil.isCommentGrabbingPsi(rightPsi) && rightPsi.getFirstChild.elementType == ScalaTokenTypes.tLINE_COMMENT
     val noNewLineBetweenBlocks =
-      !leftPsi.nextSibling.filterByType[PsiWhiteSpace].exists(getText(_, fileText).contains("\n"))
+      !leftPsi.nextSibling.filterByType[PsiWhiteSpace].exists(e => containsNewLine(fileText, e.getTextRange))
     if (scalaSettings.KEEP_COMMENTS_ON_SAME_LINE && rightIsLineComment && noNewLineBetweenBlocks) {
       return COMMON_SPACING
     }
@@ -735,10 +744,13 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
                 if (p.isInstanceOf[ScTrait]) settings.BLANK_LINES_AROUND_FIELD_IN_INTERFACE
                 else settings.BLANK_LINES_AROUND_FIELD
             }
-            val newLineBetween = fileText.substring(leftPsi.getTextRange.getEndOffset, rightPsi.getTextRange.getEndOffset).contains("\n")
-            return if (rightPsi.isInstanceOf[PsiComment] && !newLineBetween) COMMON_SPACING
-            else Spacing.createSpacing(0, 0, setting + 1, keepLineBreaks, keepBlankLinesInDeclarations)
-          case _: ScBlock if rightPsi.isInstanceOf[PsiComment] =>
+
+            val newLineBetween = containsNewLine(fileText, leftPsi.endOffset, rightPsi.endOffset)
+            val res =
+              if (rightPsi.is[PsiComment] && !newLineBetween) COMMON_SPACING
+              else Spacing.createSpacing(0, 0, setting + 1, keepLineBreaks, keepBlankLinesInDeclarations)
+            return res
+          case _: ScBlock if rightPsi.is[PsiComment] =>
           case _: ScBlock =>
             val setting = (leftPsi, rightPsi) match {
               case (_: ScFunction, _: ScValueOrVariable) | (_: ScValueOrVariable, _: ScFunction) |
@@ -1174,7 +1186,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (ScalaTokenTypes.tFUNTYPE, ScalaElementType.BLOCK, ScalaElementType.FUNCTION_EXPR, _)
         if !scalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE =>
         if (rightBlockString.startsWith("{")) WITH_SPACING
-        else if (fileText.substring(leftNode.getTreeParent.getTextRange).contains("\n")) ON_NEW_LINE
+        else if (containsNewLine(fileText, leftNode.getTreeParent.getTextRange)) ON_NEW_LINE
         else WITH_SPACING
       //annotation
       case (_, ScalaElementType.ANNOTATIONS, ScalaElementType.ANNOT_TYPE, _) => WITHOUT_SPACING
@@ -1234,9 +1246,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (_, ScalaTokenTypes.tRBRACE, _, _) => NO_SPACING_WITH_NEWLINE
       //Semicolon
       case (ScalaTokenTypes.tSEMICOLON, _, parentType, _) =>
-        if (BLOCK_ELEMENT_TYPES.contains(parentType) &&
-          !getText(leftNode.getTreeParent, fileText).contains("\n")) COMMON_SPACING
-        else IMPORT_BETWEEN_SPACING
+        if (BLOCK_ELEMENT_TYPES.contains(parentType) && !containsNewLine(fileText, leftNode.getTreeParent.getTextRange))
+          COMMON_SPACING
+        else
+          IMPORT_BETWEEN_SPACING
       case (_, ScalaTokenTypes.tSEMICOLON, _, _) =>
         NO_SPACING
       //Imports
@@ -1275,5 +1288,26 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case _ =>
         COMMON_SPACING
     }
+  }
+
+  @inline
+  private def containsNewLine(text: CharSequence, start: Int, end: Int): Boolean =
+    contains(text, start, end, '\n')
+
+  @inline
+  private def containsNewLine(fileText: CharSequence, range: TextRange): Boolean =
+    contains(fileText, range.getStartOffset, range.getEndOffset, '\n')
+
+  private def contains(text: CharSequence, start: Int, end: Int, char: Char): Boolean = {
+    val textLength = text.length
+
+    var idx = start
+    while (idx < end && idx < textLength) {
+      if (text.charAt(idx) == char)
+        return true
+      idx += 1
+    }
+
+    false
   }
 }
