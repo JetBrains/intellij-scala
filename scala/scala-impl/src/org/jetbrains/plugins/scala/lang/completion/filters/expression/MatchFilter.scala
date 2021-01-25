@@ -8,6 +8,8 @@ import com.intellij.psi.{PsiElement, _}
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -16,12 +18,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 class MatchFilter extends ElementFilter {
   override def isAcceptable(element: Object, context: PsiElement): Boolean = {
-    if (context.isInstanceOf[PsiComment]) return false
+    if (context.is[PsiComment]) return false
     val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context)
     if (leaf != null) {
       val parent = leaf.getParent
-      if (parent.isInstanceOf[ScExpression] && (parent.getParent.isInstanceOf[ScInfixExpr] ||
-          (parent.getParent.isInstanceOf[ScPostfixExpr] && !parent.getParent.getParent.isInstanceOf[ScTry]))) {
+      if (parent.is[ScExpression] &&
+        !parent.is[ScStringLiteral] &&
+        (parent.getParent.is[ScInfixExpr] ||
+          (parent.getParent.is[ScPostfixExpr] &&
+            !parent.getParent.getParent.is[ScTry]))) {
         return true
       }
     }
