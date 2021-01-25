@@ -1,8 +1,6 @@
 package org.jetbrains.sbt.resolvers.indexes
 
-import java.io._
-import java.util.Properties
-import java.util.jar.JarFile
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.util.CommonProcessors
 import com.intellij.util.io.{DataExternalizer, EnumeratorStringDescriptor, PersistentHashMap}
@@ -12,8 +10,11 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.Ivy2IndexingMod
 import org.jetbrains.sbt._
 import org.jetbrains.sbt.resolvers._
 
-import scala.jdk.CollectionConverters._
+import java.io._
+import java.util.Properties
+import java.util.jar.JarFile
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 import scala.util.Using
 import scala.xml.XML
 
@@ -24,6 +25,7 @@ import scala.xml.XML
 class IvyIndex(val root: String, val name: String, implicit val project: ProjectContext) extends ResolverIndex {
   import ResolverIndex._
 
+  private val log = Logger.getInstance(getClass)
   private val indexDir: File = getIndexDirectory(root)
   ensureIndexDir()
   private var artifactToGroupMap = createPersistentMap(indexDir / Paths.ARTIFACT_TO_GROUP_FILE)
@@ -52,28 +54,32 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
 
   private def withStorageCheck[T](f: => Set[T]): Set[T] = {
     try     { f }
-    catch   { case _: Exception => Set.empty }
+    catch   { case x: Exception =>
+      log.error(x)
+      Set.empty
+    }
     finally { checkStorage() }
   }
 
   override def searchGroup(artifactId: String): Set[String] = {
     withStorageCheck {
-      if (artifactId.isEmpty) {
-        val result = Set.empty[String]
-        groupToArtifactMap.processKeysWithExistingMapping(new CommonProcessors.CollectProcessor(result.asJava))
-        result
-      } else Option(artifactToGroupMap.get(artifactId)).getOrElse(Set.empty)
+      if (artifactId.isEmpty) processMap(groupToArtifactMap)
+      else Option(artifactToGroupMap.get(artifactId)).getOrElse(Set.empty)
     }
   }
 
   override def searchArtifact(groupId: String): Set[String] = {
     withStorageCheck {
-      if (groupId.isEmpty) {
-        val result = Set.empty[String]
-        groupToArtifactMap.processKeysWithExistingMapping(new CommonProcessors.CollectProcessor(result.asJava))
-        result
-      } else Option(groupToArtifactMap.get(groupId)).getOrElse(Set.empty)
+      if (groupId.isEmpty) processMap(artifactToGroupMap)
+      else Option(groupToArtifactMap.get(groupId)).getOrElse(Set.empty)
     }
+  }
+
+  private def processMap[K,V](map: PersistentHashMap[K,_]): Set[K] = {
+    val result = new java.util.HashSet[K]
+    val processor = new CommonProcessors.CollectProcessor(result)
+    map.processKeysWithExistingMapping(processor)
+    result.asScala.toSet
   }
 
   override def searchVersion(groupId: String, artifactId: String): Set[String] = {
