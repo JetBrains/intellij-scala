@@ -726,7 +726,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     if (leftPsi.is[ScFunction, ScValueOrVariable, ScTypeAlias, ScExpression]) {
-      if (rightElementType != tSEMICOLON) {
+      if (rightElementType != tSEMICOLON && !rightPsi.is[PsiComment]) {
         leftPsiParent match {
           case b@(_: ScEarlyDefinitions | _: ScTemplateBody) =>
             val p = PsiTreeUtil.getParentOfType(b, classOf[ScTemplateDefinition])
@@ -746,13 +746,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
                 if (p.isInstanceOf[ScTrait]) settings.BLANK_LINES_AROUND_FIELD_IN_INTERFACE
                 else settings.BLANK_LINES_AROUND_FIELD
             }
-
-            val newLineBetween = containsNewLine(fileText, leftPsi.endOffset, rightPsi.endOffset)
-            val res =
-              if (rightPsi.is[PsiComment] && !newLineBetween) COMMON_SPACING
-              else Spacing.createSpacing(0, 0, setting + 1, keepLineBreaks, keepBlankLinesInDeclarations)
-            return res
-          case _: ScBlock if rightPsi.is[PsiComment] =>
+            return Spacing.createSpacing(0, 0, setting + 1, keepLineBreaks, keepBlankLinesInDeclarations)
           case _: ScBlock =>
             val setting = (leftPsi, rightPsi) match {
               case (_: ScFunction, _: ScValueOrVariable) |
@@ -770,7 +764,6 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
             return Spacing.createSpacing(0, 0, 1, keepLineBreaks, keepBlankLinesInDeclarations)
           case _ =>
         }
-
       }
     }
 
