@@ -8,13 +8,18 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
-
-/*
- * ArgumentExprs ::= '(' [Exprs [',']] ')'
- *                 | [nl] BlockExpr
+ * Scala 2: {{{
+ * ArgumentExprs     ::=  ‘(’ [Exprs] ‘)’
+ *                     |  ‘(’ [Exprs ‘,’] PostfixExpr ‘:’ ‘_’ ‘*’ ‘)’
+ *                     |  [nl] BlockExpr
+ * }}}
+ *
+ * Scala 3: {{{
+ * ArgumentExprs     ::=  ParArgumentExprs
+ *                     |  BlockExpr
+ * ParArgumentExprs  ::=  ‘(’ [‘using’] ExprsInParens ‘)’
+ *                     |  ‘(’ [ExprsInParens ‘,’] PostfixExpr ‘:’ ‘_’ ‘*’ ‘)’
+ * }}}
  */
 object ArgumentExprs extends ParsingRule {
 
@@ -45,7 +50,8 @@ object ArgumentExprs extends ParsingRule {
         argMarker.done(ScalaElementType.ARG_EXPRS)
         true
       case ScalaTokenTypes.tLBRACE =>
-        if (builder.twoNewlinesBeforeCurrentToken) {
+        val blockCantBeArgs = builder.twoNewlinesBeforeCurrentToken || builder.isScala3 && builder.newlineBeforeCurrentToken
+        if (blockCantBeArgs) {
           argMarker.rollbackTo()
           return false
         }

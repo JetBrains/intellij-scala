@@ -1,0 +1,52 @@
+Seq {
+  42
+}
+
+Seq
+{
+  42
+}
+
+Seq
+
+{
+  42
+}
+-----
+ScalaFile
+  MethodCall
+    ReferenceExpression: Seq
+      PsiElement(identifier)('Seq')
+    PsiWhiteSpace(' ')
+    ArgumentList
+      BlockExpression
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        IntegerLiteral
+          PsiElement(integer)('42')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  MethodCall
+    ReferenceExpression: Seq
+      PsiElement(identifier)('Seq')
+    PsiWhiteSpace('\n')
+    ArgumentList
+      BlockExpression
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        IntegerLiteral
+          PsiElement(integer)('42')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ReferenceExpression: Seq
+    PsiElement(identifier)('Seq')
+  PsiWhiteSpace('\n\n')
+  BlockExpression
+    PsiElement({)('{')
+    PsiWhiteSpace('\n  ')
+    IntegerLiteral
+      PsiElement(integer)('42')
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')
