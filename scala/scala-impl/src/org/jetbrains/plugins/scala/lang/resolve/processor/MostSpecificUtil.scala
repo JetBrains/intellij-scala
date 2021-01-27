@@ -7,7 +7,6 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -20,10 +19,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, _}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.immutable.ArraySeq
+import scala.collection.mutable
 
 /**
  * User: Alexander Podkhalyuzin
@@ -126,13 +127,22 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
               }
             case ScTypePolymorphicType(internal, typeParams) =>
               val existentialSubst = new ExistentialAbstractionBuilder(typeParams).substitutor
+              val usedNames        = mutable.Set.empty[String]
+              val argumentsBuilder = List.newBuilder[ScExistentialArgument]
 
               val substedInternal = existentialSubst(internal).visitRecursively {
-                case arg: ScExistentialArgument => arg.initialize()
-                case _                          => ()
+                case arg: ScExistentialArgument =>
+                  arg.initialize()
+                  val name = arg.name
+
+                  if (!usedNames.contains(name) && typeParams.exists(_.name == name)) {
+                    usedNames.add(name)
+                    argumentsBuilder += arg
+                  }
+                case _ => ()
               }
 
-              Right(ScExistentialType(substedInternal))
+              Right(ScExistentialType(substedInternal, Option(argumentsBuilder.result())))
             case _ => Right(tp)
           }
         }

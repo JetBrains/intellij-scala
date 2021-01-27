@@ -16,9 +16,12 @@ import scala.annotation.tailrec
 /**
   * @author ilyas
   */
-final class ScExistentialType private (val quantified: ScType,
-                                       val wildcards: List[ScExistentialArgument],
-                                       private val simplified: Option[ScType]) extends ScalaType with ValueType {
+final class ScExistentialType private (
+  val quantified:         ScType,
+  val wildcards:          List[ScExistentialArgument],
+  private val simplified: Option[ScType]
+) extends ScalaType
+    with ValueType {
 
   override implicit def projectContext: project.ProjectContext = quantified.projectContext
 
@@ -35,16 +38,16 @@ final class ScExistentialType private (val quantified: ScType,
         val subst = ScSubstitutor.bind(typeParameter.typeParameters, args)
         val upper: ScType =
           subst(upperBound) match {
-            case ParameterizedType(u, _) => ScExistentialType(ScParameterizedType(u, args.toSeq))
-            case u => ScExistentialType(ScParameterizedType(u, args.toSeq))
+            case ParameterizedType(u, _) => ScExistentialType(ScParameterizedType(u, args))
+            case u => ScExistentialType(ScParameterizedType(u, args))
           }
         val conformance = r.conforms(upper, constraints)
         if (conformance.isLeft) return conformance
 
         val lower: ScType =
           subst(lowerBound) match {
-            case ParameterizedType(l, _) => ScExistentialType(ScParameterizedType(l, args.toSeq))
-            case l => ScExistentialType(ScParameterizedType(l, args.toSeq))
+            case ParameterizedType(l, _) => ScExistentialType(ScParameterizedType(l, args))
+            case l => ScExistentialType(ScParameterizedType(l, args))
           }
         return lower.conforms(r, conformance.constraints)
       case (ParameterizedType(UndefinedType(typeParameter, _), args), _) if !falseUndef =>
@@ -53,12 +56,12 @@ final class ScExistentialType private (val quantified: ScType,
             val y = ScalaConformance.addParam(typeParameter, des, constraints)
             if (y.isLeft) return ConstraintsResult.Left
 
-            return ScExistentialType(ScParameterizedType(des, args.toSeq)).equiv(r, y.constraints, falseUndef)
+            return ScExistentialType(ScParameterizedType(des, args)).equiv(r, y.constraints, falseUndef)
           case ScExistentialType(ParameterizedType(des, _), _) =>
             val y = ScalaConformance.addParam(typeParameter, des, constraints)
             if (y.isLeft) return ConstraintsResult.Left
 
-            return ScExistentialType(ScParameterizedType(des, args.toSeq)).equiv(r, y.constraints, falseUndef)
+            return ScExistentialType(ScParameterizedType(des, args)).equiv(r, y.constraints, falseUndef)
           case _ => return ConstraintsResult.Left //looks like something is wrong
         }
       case (ParameterizedType(pType, args), ParameterizedType(rType, _)) =>
@@ -143,17 +146,18 @@ object ScExistentialType {
     * Simplification by 3. and 4. is computed once when existential type is created.
     */
   @tailrec
-  final def apply(quantified: ScType): ScExistentialType = {
-    quantified match {
+  final def apply(
+    quantified:        ScType,
+    precalculatedArgs: Option[List[ScExistentialArgument]] = None
+  ): ScExistentialType = quantified match {
       case e: ScExistentialType =>
         //first rule
-        ScExistentialType(e.quantified)
+        ScExistentialType(e.quantified, precalculatedArgs)
       case _ =>
         //second rule
-        val args = notBoundArgs(quantified).toList
+        val args = precalculatedArgs.getOrElse(notBoundArgs(quantified).toList)
         new ScExistentialType(quantified, args, simplify(quantified, args))
     }
-  }
 
   private def simplify(quantified: ScType, wildcards: List[ScExistentialArgument], visitedQ: Set[ScType] = Set.empty): Option[ScType] = {
     val startVariance = quantified match {
@@ -173,24 +177,26 @@ object ScExistentialType {
         }
         ReplaceWith(ex.simplify())
       case (arg: ScExistentialArgument, variance) =>
-        //fourth rule
-        val argOrBound = variance match {
-          case Covariant =>
-            updated = true
-            arg.upper
-          case Contravariant =>
-            updated = true
-            arg.lower
-          case _ =>
-            arg
+        if (arg.isDeferred) Stop
+        else {
+          //fourth rule
+          val argOrBound = variance match {
+            case Covariant =>
+              updated = true
+              arg.upper
+            case Contravariant =>
+              updated = true
+              arg.lower
+            case _ =>
+              arg
+          }
+          ReplaceWith(argOrBound)
         }
-        ReplaceWith(argOrBound)
       case _ => ProcessSubtypes
     }
 
     if (!updated) None
     else {
-
       val newWildcards = notBoundArgs(simplifiedQ).toList
       if (newWildcards.isEmpty)
         Some(simplifiedQ)
@@ -212,7 +218,9 @@ object ScExistentialType {
         if (result.contains(arg)) Stop
         else {
           result += arg
-          ProcessSubtypes
+
+          if (arg.isDeferred) Stop
+          else                ProcessSubtypes
         }
       case _ =>
         ProcessSubtypes
