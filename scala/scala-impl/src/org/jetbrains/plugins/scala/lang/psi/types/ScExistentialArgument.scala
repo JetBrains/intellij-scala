@@ -22,6 +22,7 @@ trait ScExistentialArgument extends NamedType with ValueType {
   def upper: ScType
 
   def isLazy: Boolean
+  def isDeferred: Boolean
 
   def copyWithBounds(newLower: ScType, newUpper: ScType): ScExistentialArgument
 
@@ -55,10 +56,12 @@ object ScExistentialArgument {
 
   //used for representing type parameters of a java raw class type
   //it may have a reference to itself in it's bounds, so it cannot be fully initialized in constructor
-  private class Deferred(override val name: String,
-                         override val typeParameters: Seq[TypeParameter],
-                         var lowerBound: () => ScType,
-                         var upperBound: () => ScType) extends ScExistentialArgument {
+  private class Deferred(
+    override val name:           String,
+    override val typeParameters: Seq[TypeParameter],
+    var lowerBound:              () => ScType,
+    var upperBound:              () => ScType
+  ) extends ScExistentialArgument {
     @volatile
     private var isInitialized: Boolean = false
 
@@ -90,7 +93,8 @@ object ScExistentialArgument {
       _upper
     }
 
-    override def isLazy: Boolean = true
+    override def isLazy: Boolean     = true
+    override def isDeferred: Boolean = true
 
     override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
       assertInitialized()
@@ -108,7 +112,8 @@ object ScExistentialArgument {
     override lazy val lower: ScType = ta.lowerBound.getOrNothing
     override lazy val upper: ScType = ta.upperBound.getOrAny
 
-    override def isLazy: Boolean = true
+    override def isLazy: Boolean     = true
+    override def isDeferred: Boolean = false
 
     override def copyWithBounds(newLower: ScType, newUpper: ScType): ScExistentialArgument = {
       if (newLower != lower || newUpper != upper)
@@ -124,7 +129,8 @@ object ScExistentialArgument {
 
     extends ScExistentialArgument {
 
-    override def isLazy: Boolean = false
+    override def isLazy: Boolean     = false
+    override def isDeferred: Boolean = false
 
     override def copyWithBounds(newLower: ScType, newUpper: ScType): ScExistentialArgument =
       Complete(name, typeParameters, newLower, newUpper)
@@ -135,10 +141,13 @@ object ScExistentialArgument {
   def apply(name: String, typeParameters: Seq[TypeParameter], lower: ScType, upper: ScType): ScExistentialArgument =
     Complete(name, typeParameters, lower, upper)
 
-  def deferred(name: String,
-               typeParameters: Seq[TypeParameter],
-               lower: () => ScType,
-               upper: () => ScType): ScExistentialArgument = new Deferred(name, typeParameters, lower, upper)
+  def deferred(
+    name:           String,
+    typeParameters: Seq[TypeParameter],
+    lower:          () => ScType,
+    upper:          () => ScType
+  ): ScExistentialArgument =
+    new Deferred(name, typeParameters, lower, upper)
 
   def unapply(arg: ScExistentialArgument): Option[(String, Seq[TypeParameter], ScType, ScType)] =
     Some((arg.name, arg.typeParameters, arg.lower, arg.upper))

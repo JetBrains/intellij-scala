@@ -37,4 +37,35 @@ class ImplicitParametersTest extends ImplicitParametersTestBase {
        |}
     """.stripMargin
   )
+
+  def testScalaTestEmptiness(): Unit = checkNoImplicitParameterProblems (
+    s"""
+       |trait Emptiness[-T] {
+       |  def isEmpty(thing: T): Boolean
+       |}
+       |
+       |object Emptiness {
+       |
+       |  ${START}implicitly[Emptiness[Seq[String]]]$END
+       |
+       |  import scala.language.higherKinds
+       |
+       |  implicit def emptinessOfGenTraversable[E, TRAV[e] <: scala.collection.GenTraversable[e]]: Emptiness[TRAV[E]] =
+       |    new Emptiness[TRAV[E]] {
+       |      def isEmpty(trav: TRAV[E]): Boolean = trav.isEmpty
+       |    }
+       |
+       |  import scala.language.reflectiveCalls
+       |
+       |  implicit def emptinessOfAnyRefWithIsEmptyMethod[T <: AnyRef { def isEmpty(): Boolean}]: Emptiness[T] =
+       |    new Emptiness[T] {
+       |      def isEmpty(obj: T): Boolean = obj.isEmpty
+       |    }
+       |
+       |  implicit def emptinessOfAnyRefWithParameterlessIsEmptyMethod[T <: AnyRef { def isEmpty: Boolean}]: Emptiness[T] =
+       |    new Emptiness[T] {
+       |      def isEmpty(obj: T): Boolean = obj.isEmpty
+       |    }
+       |}
+    """.stripMargin)
 }

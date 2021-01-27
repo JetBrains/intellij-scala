@@ -20,9 +20,4 @@ class BetterFilesProjectHighlightingTest extends GithubSbtAllProjectHighlighting
 
   //v.3.0.0
   override def revision = "eb7a357713c083534de9eeaee771750582c8ad31"
-
-  override def filesWithProblems: Map[String, Set[TextRange]] = Map(
-    "akka/src/test/scala/better/files/FileWatcherSpec.scala" -> Set((1991,2029)),
-    "core/src/test/scala/better/files/FileSpec.scala" -> Set((9562, 9627),(9894, 9971),(12457, 12492)),
-  )
 }
