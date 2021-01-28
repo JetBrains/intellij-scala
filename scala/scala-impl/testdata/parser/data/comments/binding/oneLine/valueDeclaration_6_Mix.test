@@ -1,0 +1,44 @@
+val a: Int // comment
+
+// comment
+// comment
+val b: Int
+-----
+ScalaFile
+  ScValueDeclaration: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfIdentifiers
+      Field identifier: a
+        PsiElement(identifier)('a')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Int
+      CodeReferenceElement: Int
+        PsiElement(identifier)('Int')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// comment')
+  PsiWhiteSpace('\n\n')
+  ScValueDeclaration: b
+    PsiComment(comment)('// comment')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// comment')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfIdentifiers
+      Field identifier: b
+        PsiElement(identifier)('b')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Int
+      CodeReferenceElement: Int
+        PsiElement(identifier)('Int')

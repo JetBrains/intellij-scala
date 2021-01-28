@@ -54,20 +54,19 @@ public class ScalaTokenBinders {
               break;
             }
           }
-
-          continue;
         }
-
-        if (ScalaTokenTypes.COMMENTS_TOKEN_SET.contains(type)) {
+        else if (ScalaTokenTypes.COMMENTS_TOKEN_SET.contains(type)) {
           lastCommentIdx = idx;
           lastCommentIsLine = type == ScalaTokenTypes.tLINE_COMMENT;
-          continue;
         }
-
-        break;
+        else
+          break;
       }
 
-      if (lastCommentIdx == 0) {
+      // Parsing in the beginning of a file
+      // // comment
+      // class T
+      if (atStreamEdge) {
         resultEdgeIdx = lastCommentIdx;
       }
 
