@@ -3467,4 +3467,26 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
         |def bar
         |""".stripMargin
     )
+
+  def testSCL14987(): Unit = {
+    doTextTest(
+      """class Test {
+        |  List(1, 2, 3).foreach { value =>
+        |    val x = 1 // comment
+        |    val y = 2
+        |    println(value + x + y)
+        |  }
+        |}""".stripMargin
+    )
+
+    doTextTest(
+      """class Test {
+        |  List(1, 2, 3).foreach { value => // comment
+        |    val x = 1 // comment
+        |    val y = 2 // comment
+        |    println(value + x + y) // comment
+        |  }
+        |}""".stripMargin
+    )
+  }
 }
