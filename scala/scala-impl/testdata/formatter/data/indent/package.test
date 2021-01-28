@@ -10,16 +10,13 @@ def bar = 42
 }
 ------
 package outer {
-
   trait Outer {
     def foo = 42
   }
   package inner {
-
     trait Inner {
       def bar = 42
     }
-
   }
 
 }

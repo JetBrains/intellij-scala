@@ -21,9 +21,10 @@ class CreateScalaDocStubActionTest extends ScalaLightCodeInsightFixtureTestAdapt
     inWriteAction {
       action.actionPerformedImpl(myFixture.getFile, myFixture.getEditor)
     }
-    assertEquals("Wrong caret offset", expectedOffset, getEditorOffset)
 
     getFixture.checkResult(expected, stripTrailingSpaces)
+
+    assertEquals("Wrong caret offset", expectedOffset, getEditorOffset)
   }
 
   def testClass_WithoutParameters(): Unit = {
@@ -81,7 +82,6 @@ class CreateScalaDocStubActionTest extends ScalaLightCodeInsightFixtureTestAdapt
          |  class ${|}A(x: Int, str: String)
          |}""".stripMargin,
       s"""class Outer {
-         |
          |  /**
          |   * @param x
          |   * @param str

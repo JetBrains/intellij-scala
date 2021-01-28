@@ -63,7 +63,6 @@ class ExtractTraitTestConflicts extends ExtractTraitTestBase {
         |
         |    def bar() {}
         |  }
-        |
         |}
       """.stripMargin
     checkResult(text, result, onlyDeclarations = false, onlyFirstMember = false)

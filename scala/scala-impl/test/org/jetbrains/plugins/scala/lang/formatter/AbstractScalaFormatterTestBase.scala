@@ -41,8 +41,8 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
 
   protected def scalaSettings = getScalaSettings
   protected def commonSettings = getCommonSettings
-  protected def indentOptions = getCommonSettings
-  protected def settings = getCommonSettings
+  protected def ss = getScalaSettings
+  protected def cs = getCommonSettings
 
   implicit protected def project: Project = getProject
 

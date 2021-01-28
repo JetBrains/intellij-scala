@@ -9,9 +9,10 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
-import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.psi.impl.source.tree.{LeafPsiElement, PsiWhiteSpaceImpl}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes, ScalaTokenTypesEx, ScalaXmlTokenTypes}
@@ -39,6 +40,7 @@ import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 import scala.annotation.tailrec
 
+//noinspection InstanceOf
 object ScalaSpacingProcessor extends ScalaTokenTypes {
 
   import ScalaElementType._
@@ -50,10 +52,12 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     TokenSet.create(BlockExpression, TEMPLATE_BODY, PACKAGING, MATCH_STMT, CATCH_BLOCK)
   }
 
+  // TODO: minimize getText usages
   private def getText(node: ASTNode, fileText: CharSequence): String = {
     fileText.substring(node.getTextRange)
   }
 
+  // TODO: minimize getText usages
   private def getText(psi: PsiElement, fileText: CharSequence): String = {
     getText(psi.getNode, fileText)
   }
@@ -84,33 +88,94 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
   }
 
-  def getSpacing(left: ScalaBlock, right: ScalaBlock): Spacing =
-    getSpacingImpl(left, right)
+  def getSpacing(@Nullable left0: ScalaBlock, right: ScalaBlock): Spacing = {
+    val settings = right.settings.getCommonSettings(ScalaLanguage.INSTANCE)
+
+    if (left0 == null) {
+      val keepBlankLines = if (settings.KEEP_LINE_BREAKS) settings.KEEP_BLANK_LINES_IN_CODE else 0
+      return Spacing.createSpacing(0, 0, 0, settings.KEEP_LINE_BREAKS, keepBlankLines)
+    }
+
+    val left = getPrevBlockForLineCommentInTheEndOfLine(left0)
+    val leftIsLineComment = !(left eq left0) || left.lastNode != null && left.lastNode.getElementType == ScalaTokenTypes.tLINE_COMMENT
+
+    val scalaSettings = right.settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+
+    getSpacingImpl(left, right, leftIsLineComment, settings, scalaSettings)
+  }
+
+  /**
+   * When left block is a line comment at the end of the line, we substitute previous block instead of the comment block.
+   * Such line comment shouldn't affect anything during the formatting, so we kinda ignore them.
+   *
+   * For example, in this code: {{{
+   * class A // comment
+   * class B
+   * }}}
+   * the comment shouldn't play any role in how the spacing between classes is calculated
+   */
+  private def getPrevBlockForLineCommentInTheEndOfLine(left: ScalaBlock) =
+    if (left.getNode.getElementType == ScalaTokenTypes.tLINE_COMMENT) {
+      val prev = prevOnSameLine(left.getNode)
+      if (prev == null) left
+      else dummyBlock(left, prev)
+    }
+    else left
+
+  // NOTE: align, indent, wrap don't matter in spacing processor
+  private def dummyBlock(left: ScalaBlock, prev: ASTNode): ScalaBlock =
+    new ScalaBlock(left.parentBlock, prev, null, null, null, null, left.settings, None)
+
+  private def prevOnSameLine(node: ASTNode): ASTNode =
+    node.getTreePrev match {
+      case ws: PsiWhiteSpaceImpl =>
+        if (ws.textContains('\n')) null
+        else ws.getTreePrev
+      case prev => prev
+    }
 
   // extra method for easier debugging
   // (the method contains a lot of returns, and it's hard to just debug the result for specific input)
   @inline
-  private def getSpacingImpl(left: ScalaBlock, right: ScalaBlock): Spacing = {
-    val settings = right.commonSettings
+  private def getSpacingImpl(
+    left: ScalaBlock,
+    right: ScalaBlock,
+    leftIsLineComment: Boolean,
+    settings: CommonCodeStyleSettings,
+    scalaSettings: ScalaCodeStyleSettings
+  ): Spacing = {
 
-    val keepBlankLinesInCode = settings.KEEP_BLANK_LINES_IN_CODE
-    val keepLineBreaks = settings.KEEP_LINE_BREAKS
-    val keepBlankLinesInDeclarations = settings.KEEP_BLANK_LINES_IN_DECLARATIONS
-    val keepBlankLinesBeforeRBrace = settings.KEEP_BLANK_LINES_BEFORE_RBRACE
-    def getSpacing(x: Int, y: Int, z: Int): Spacing = {
-      if (keepLineBreaks) Spacing.createSpacing(y, y, z, true, x)
-      else Spacing.createSpacing(y, y, z, false, 0)
-    }
-    if (left == null) {
-      return getSpacing(keepBlankLinesInCode, 0, 0) //todo:
-    }
-    val scalaSettings: ScalaCodeStyleSettings =
-      left.settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    // if keepLineBreaks is disabled but we have a line comment on a previous line,
+    // we shouldn't remove the line break, because it can lead to a broken code, for example:
+    // if (true) // comment
+    // {
+    // }
+    // should NOT transform to
+    // if (true) // comment {
+    // }
+    val keepLineBreaks: Boolean = settings.KEEP_LINE_BREAKS || leftIsLineComment
 
-    def getDependentLFSpacing(x: Int, y: Int, range: TextRange) = {
-      if (keepLineBreaks) Spacing.createDependentLFSpacing(y, y, range, true, x)
-      else Spacing.createDependentLFSpacing(y, y, range, false, 0)
-    }
+    val keepBlankLinesInCode        : Int = settings.KEEP_BLANK_LINES_IN_CODE
+    val keepBlankLinesInDeclarations: Int = settings.KEEP_BLANK_LINES_IN_DECLARATIONS
+    val keepBlankLinesBeforeRBrace  : Int = settings.KEEP_BLANK_LINES_BEFORE_RBRACE
+
+    def getSpacing(minMaxSpaces: Int, minLineFeeds: Int): Spacing =
+      Spacing.createSpacing(
+        minMaxSpaces,
+        minMaxSpaces,
+        minLineFeeds,
+        keepLineBreaks,
+        if (keepLineBreaks) keepBlankLinesInCode else 0
+      )
+
+    def getDependentLFSpacing(minMaxSpaces: Int, range: TextRange): Spacing =
+      Spacing.createDependentLFSpacing(
+        minMaxSpaces,
+        minMaxSpaces,
+        range,
+        keepLineBreaks,
+        if (keepLineBreaks) keepBlankLinesInCode else 0
+      )
 
     //new formatter spacing
 
@@ -138,27 +203,31 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
     val fileTextRange = new TextRange(0, fileText.length())
 
+    val leftTextRange  = left.getTextRange
+    val rightTextRange = right.getTextRange
+
     /**
      * This is not nodes text! This is blocks text, which can be different from node.
+     *
      * @todo consider not using substring for left and right: for big notes it's not cheep operation
      */
     val (leftBlockString, rightBlockString) =
-      if (fileTextRange.contains(left.getTextRange) && fileTextRange.contains(right.getTextRange)) {
-        (fileText.substring(left.getTextRange), fileText.substring(right.getTextRange))
+      if (fileTextRange.contains(leftTextRange) && fileTextRange.contains(rightTextRange)) {
+        (fileText.substring(leftTextRange), fileText.substring(rightTextRange))
       } else {
         LOG.error("File text: \n%s\n\nDoesn't contains nodes:\n(%s, %s)".format(fileText, leftPsi.getText, rightPsi.getText))
         (leftPsi.getText, rightPsi.getText)
       }
 
     val spacesMin: Integer = spacesToPreventNewIds(left, right, fileText, fileTextRange)
-    val WITHOUT_SPACING = getSpacing(keepBlankLinesInCode, spacesMin, 0)
-    val WITHOUT_SPACING_NO_KEEP = Spacing.createSpacing(spacesMin, spacesMin, 0, false, 0)
-    val WITHOUT_SPACING_DEPENDENT = (range: TextRange) => getDependentLFSpacing(keepBlankLinesInCode, spacesMin, range)
-    val WITH_SPACING = getSpacing(keepBlankLinesInCode, 1, 0)
-    val WITH_SPACING_NO_KEEP = Spacing.createSpacing(1, 1, 0, false, 0)
-    val WITH_SPACING_DEPENDENT = (range: TextRange) => getDependentLFSpacing(keepBlankLinesInCode, 1, range)
-    val ON_NEW_LINE = getSpacing(keepBlankLinesInCode, 0, 1)
-    val DOUBLE_LINE = getSpacing(keepBlankLinesInCode, 0, 2)
+    val WITHOUT_SPACING = getSpacing(spacesMin, 0)
+    val WITHOUT_SPACING_NO_KEEP = Spacing.createSpacing(spacesMin, spacesMin, 0, leftIsLineComment, 0)
+    val WITHOUT_SPACING_DEPENDENT = (range: TextRange) => getDependentLFSpacing(spacesMin, range)
+    val WITH_SPACING = getSpacing(1, 0)
+    val WITH_SPACING_NO_KEEP = Spacing.createSpacing(1, 1, 0, leftIsLineComment, 0)
+    val WITH_SPACING_DEPENDENT = (range: TextRange) => getDependentLFSpacing(1, range)
+    val ON_NEW_LINE = getSpacing(0, 1)
+    val DOUBLE_LINE = getSpacing(0, 2)
 
     val NO_SPACING_WITH_NEWLINE = Spacing.createSpacing(0, 0, 0, true, 1)
     val NO_SPACING = Spacing.createSpacing(spacesMin, spacesMin, 0, false, 0)
@@ -323,12 +392,6 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case _ =>
     }
 
-    if (leftElementType == ScalaTokenTypes.tLINE_COMMENT) {
-      if (!rightPsi.is[ScPackaging, ScImportStmt]) {
-        return ON_NEW_LINE
-      }
-    }
-
     def isParenthesis(psi: PsiElement): Boolean = psi.is[ScParenthesizedElement]
 
     if (leftElementType == tLPARENTHESIS && isParenthesis(leftPsiParent)) {
@@ -386,7 +449,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       psiElem match {
         case ml: ScLiteral if ml.isMultiLineString =>
           val nodeOffset = rightNode.getTextRange.getStartOffset
-          val magicCondition = right.getTextRange.contains(new TextRange(nodeOffset, nodeOffset + 3))
+          val magicCondition = rightTextRange.contains(new TextRange(nodeOffset, nodeOffset + 3))
           val actuallyMultiline = rightBlockString.contains("\n")
           magicCondition && actuallyMultiline
 
@@ -396,14 +459,19 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       }
     }
 
-
-    val rightIsLineComment =
-      rightElementType == ScalaTokenTypes.tLINE_COMMENT ||
-        FormatterUtil.isCommentGrabbingPsi(rightPsi) && rightPsi.getFirstChild.elementType == ScalaTokenTypes.tLINE_COMMENT
-    val noNewLineBetweenBlocks =
-      !leftPsi.nextSibling.filterByType[PsiWhiteSpace].exists(e => containsNewLine(fileText, e.getTextRange))
-    if (scalaSettings.KEEP_COMMENTS_ON_SAME_LINE && rightIsLineComment && noNewLineBetweenBlocks) {
-      return COMMON_SPACING
+    // detached line comment
+    if (rightPsi.isInstanceOf[PsiComment] && rightElementType == ScalaTokenTypes.tLINE_COMMENT) {
+      val result = if (scalaSettings.KEEP_COMMENTS_ON_SAME_LINE)
+        COMMON_SPACING
+      else {
+        val isAloneOnTheLine = PsiTreeUtil.prevLeaf(rightPsi) match {
+          case ws: PsiWhiteSpace => containsNewLine(fileText, ws.getTextRange)
+          case _                 => false
+        }
+        if (isAloneOnTheLine) COMMON_SPACING
+        else ON_NEW_LINE
+      }
+      return result
     }
 
     if (rightElementType == tRPARENTHESIS && isParenthesis(rightPsiParent)) {
@@ -469,11 +537,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           settings.CLASS_BRACE_STYLE match {
             case CommonCodeStyleSettings.END_OF_LINE =>
               val deepestLast = PsiTreeUtil.getDeepestLast(left.lastNode.nullSafe.map(_.getPsi).getOrElse(leftPsi))
-              val leftLineComment = deepestLast.getNode.nullSafe.exists(_.getElementType == tLINE_COMMENT)
-              if (settings.SPACE_BEFORE_CLASS_LBRACE)
-                if (leftLineComment) WITH_SPACING
-                else WITH_SPACING_NO_KEEP
-              else if (leftLineComment) WITHOUT_SPACING
+              if (settings.SPACE_BEFORE_CLASS_LBRACE) WITH_SPACING_NO_KEEP
               else WITHOUT_SPACING_NO_KEEP
             case CommonCodeStyleSettings.NEXT_LINE_IF_WRAPPED =>
               val extendsBlock = rightPsi match {
@@ -592,32 +656,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       return Spacing.createSpacing(0, 0, 1, keepLineBreaks, keepBlankLinesInDeclarations)
     }
 
-    if (leftPsi.isInstanceOf[ScTypeDefinition]) {
-      if (rightElementType != ScalaTokenTypes.tSEMICOLON) {
-        if (leftPsiParent.is[ScEarlyDefinitions, ScTemplateBody, ScalaFile, ScPackaging]) {
-          return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AROUND_CLASS + 1, keepLineBreaks, keepBlankLinesInDeclarations)
-        }
-      }
-    }
-
-    if (rightPsi.isInstanceOf[ScTypeDefinition]) {
-      if (leftPsi.isInstanceOf[PsiComment]) {
-        return ON_NEW_LINE
-      }
-      if (rightPsiParent.is[ScEarlyDefinitions, ScTemplateBody, ScalaFile, ScPackaging]) {
-        return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AROUND_CLASS + 1, keepLineBreaks, keepBlankLinesInDeclarations)
-      }
-    }
-
-    if (rightPsi.isInstanceOf[PsiComment]) {
-      val pseudoRightPsi = rightPsi.getNextSiblingNotWhitespaceComment
-      if (pseudoRightPsi.isInstanceOf[ScTypeDefinition]) {
-        if (pseudoRightPsi.getParent.is[ScEarlyDefinitions, ScTemplateBody, ScalaFile, ScPackaging]) {
-          return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AROUND_CLASS + 1, keepLineBreaks, keepBlankLinesInDeclarations)
-        }
-      }
-    }
-
+    // '}' or 'end'
     if (rightElementType == ScalaTokenTypes.tRBRACE || rightElementType == END_STMT) {
       val rightTreeParent = rightNode.getTreeParent
       return rightTreeParent.getPsi match {
@@ -659,7 +698,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     // TODO: do we need separate settings for : block syntax
-    if (leftElementType == ScalaTokenTypes.tLBRACE || (leftElementType == tCOLON && leftNodeParentElementType == TEMPLATE_BODY)) {
+    // '{' or ':'
+    if (leftElementType == ScalaTokenTypes.tLBRACE || leftElementType == tCOLON && leftNodeParentElementType == TEMPLATE_BODY) {
       if (!scalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE) {
         val b = leftNode.getTreeParent.getPsi
         val spaceInsideOneLineBlock = scalaSettings.SPACES_IN_ONE_LINE_BLOCKS && !getText(b.getNode, fileText).contains('\n')
@@ -725,80 +765,52 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       return Spacing.createSpacing(0, 0, minLineFeeds + 1, keepLineBreaks, keepBlankLinesInDeclarations)
     }
 
-    if (leftPsi.is[ScFunction, ScValueOrVariable, ScTypeAlias, ScExpression]) {
-      if (rightElementType != tSEMICOLON && !rightPsi.is[PsiComment]) {
-        leftPsiParent match {
-          case b@(_: ScEarlyDefinitions | _: ScTemplateBody) =>
-            val p = PsiTreeUtil.getParentOfType(b, classOf[ScTemplateDefinition])
-            val setting = (leftPsi, rightPsi) match {
-              case (_: ScFunction, _: ScValueOrVariable) |
-                   (_: ScValueOrVariable, _: ScFunction) |
-                   (_: ScTypeAlias, _: ScFunction) |
-                   (_: ScFunction, _: ScTypeAlias) =>
-                if (p.isInstanceOf[ScTrait])
-                  math.max(settings.BLANK_LINES_AROUND_FIELD_IN_INTERFACE, settings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE)
-                else
-                  math.max(settings.BLANK_LINES_AROUND_FIELD, settings.BLANK_LINES_AROUND_METHOD)
-              case (_: ScFunction, _) | (_, _: ScFunction) =>
-                if (p.isInstanceOf[ScTrait]) settings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE
-                else settings.BLANK_LINES_AROUND_METHOD
-              case _ =>
-                if (p.isInstanceOf[ScTrait]) settings.BLANK_LINES_AROUND_FIELD_IN_INTERFACE
-                else settings.BLANK_LINES_AROUND_FIELD
-            }
-            return Spacing.createSpacing(0, 0, setting + 1, keepLineBreaks, keepBlankLinesInDeclarations)
-          case _: ScBlock =>
-            val setting = (leftPsi, rightPsi) match {
-              case (_: ScFunction, _: ScValueOrVariable) |
-                   (_: ScValueOrVariable, _: ScFunction) |
-                   (_: ScTypeAlias, _: ScFunction) |
-                   (_: ScFunction, _: ScTypeAlias) =>
-                math.max(scalaSettings.BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES, scalaSettings.BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES)
-              case (_: ScFunction, _) | (_, _: ScFunction) =>
-                scalaSettings.BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES
-              case _ =>
-                scalaSettings.BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES
-            }
-            return Spacing.createSpacing(0, 0, setting + 1, keepLineBreaks, keepBlankLinesInDeclarations)
-          case _: ScalaFile =>
-            return Spacing.createSpacing(0, 0, 1, keepLineBreaks, keepBlankLinesInDeclarations)
-          case _ =>
-        }
-      }
-    }
+    // spacing between members in different scopes (class, trait(interface), local scope)
+    if (
+      leftPsi.is[ScTypeDefinition, ScFunction, ScValueOrVariable, ScTypeAlias, ScExpression] &&
+        rightElementType != tSEMICOLON && !rightPsi.is[PsiComment] ||
+      rightPsi.is[ScTypeDefinition, ScFunction, ScValueOrVariable, ScTypeAlias]
+    ) {
+      val cs = settings
+      val ss = scalaSettings
 
-    def spacingForTemplateBodyMember(psi: PsiElement): Option[Spacing] = {
-      psi.getParent match {
-        case b@(_: ScEarlyDefinitions | _: ScTemplateBody) =>
-          val p = PsiTreeUtil.getParentOfType(b, classOf[ScTemplateDefinition])
-          val setting = (psi, p) match {
-            case (_: ScFunction, _: ScTrait) => settings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE
-            case (_: ScFunction, _) => settings.BLANK_LINES_AROUND_METHOD
-            case (_, _: ScTrait) => settings.BLANK_LINES_AROUND_FIELD_IN_INTERFACE
-            case _ => settings.BLANK_LINES_AROUND_FIELD
-          }
-          Some(Spacing.createSpacing(0, 0, setting + 1, keepLineBreaks, keepBlankLinesInDeclarations))
-        case _ =>
-          None
-      }
-    }
+      import BlankLinesContext._
 
-    if (rightPsi.isInstanceOf[PsiComment]) {
-      val pseudoRightPsi = rightPsi.getNextSiblingNotWhitespaceComment
-      if (pseudoRightPsi.is[ScFunction, ScValueOrVariable, ScTypeAlias]) {
-        spacingForTemplateBodyMember(pseudoRightPsi) match {
-          case Some(spacing) => return spacing
-          case _ =>
+      def minBlankLinesAround(psi: PsiElement, context: BlankLinesContext): Int =
+        (psi, context) match {
+          case (_: ScFunction, Class)            => cs.BLANK_LINES_AROUND_METHOD
+          case (_: ScFunction, Trait)            => cs.BLANK_LINES_AROUND_METHOD_IN_INTERFACE
+          case (_: ScFunction, LocalScope)       => ss.BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES
+          case (_: ScTypeDefinition, Class)      => cs.BLANK_LINES_AROUND_CLASS
+          case (_: ScTypeDefinition, Trait)      => cs.BLANK_LINES_AROUND_CLASS
+          case (_: ScTypeDefinition, LocalScope) => ss.BLANK_LINES_AROUND_CLASS_IN_INNER_SCOPES
+          case (_: ScTypeDefinition, TopLevel)   => cs.BLANK_LINES_AROUND_CLASS
+          case (_, Class)                        => cs.BLANK_LINES_AROUND_FIELD
+          case (_, Trait)                        => cs.BLANK_LINES_AROUND_FIELD_IN_INTERFACE
+          case (_, LocalScope)                   => ss.BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES
+          case (_, TopLevel)                     => ss.BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES
+          case _                                 => 0
         }
-      }
-    }
-    if (rightPsi.is[ScFunction, ScValueOrVariable, ScTypeAlias]) {
-      if (leftPsi.isInstanceOf[PsiComment]) {
-        return ON_NEW_LINE
-      }
-      spacingForTemplateBodyMember(rightPsi) match {
-        case Some(spacing) => return spacing
+
+      val context: BlankLinesContext = leftPsiParent match {
+        case _: ScEarlyDefinitions | _: ScTemplateBody =>
+          val p = PsiTreeUtil.getParentOfType(leftPsiParent, classOf[ScTemplateDefinition])
+          if (p.isInstanceOf[ScTrait]) Trait
+          else Class
+        case _: ScBlock                                  =>
+          LocalScope
+        case _: ScalaFile | _: ScPackaging =>
+          TopLevel
         case _ =>
+          null
+      }
+
+      if (context != null) {
+        val leftValue = minBlankLinesAround(leftPsi, context)
+        val rightValue = minBlankLinesAround(rightPsi, context)
+        val minBlankLines = math.max(leftValue, rightValue)
+
+        return Spacing.createSpacing(0, 0, minBlankLines + 1, keepLineBreaks, keepBlankLinesInDeclarations)
       }
     }
 
@@ -806,9 +818,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val isElseIf = leftElementType == ScalaTokenTypes.kELSE &&
       (rightPsi.isInstanceOf[ScIf] || rightElementType == ScalaTokenTypes.kIF)
     if (isElseIf) {
-      val isCommentAfterElse = Option(leftPsi.getNextSiblingNotWhitespace).exists(_.isInstanceOf[PsiComment])
       val spacing =
-        if (settings.SPECIAL_ELSE_IF_TREATMENT && !isCommentAfterElse) WITH_SPACING_NO_KEEP
+        if (settings.SPECIAL_ELSE_IF_TREATMENT) WITH_SPACING_NO_KEEP
         else ON_NEW_LINE
       return spacing
     }
@@ -856,11 +867,13 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         else WITHOUT_SPACING
     }
     atProcessor.lift(rightNode) match {
-      case Some(spacing) => return spacing
+      case Some(spacing) =>
+        return spacing
       case _ =>
     }
     atProcessor.lift(leftNode) match {
-      case Some(spacing) => return spacing
+      case Some(spacing) =>
+        return spacing
       case _ =>
     }
 
@@ -1310,5 +1323,13 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     false
+  }
+
+  private sealed trait BlankLinesContext
+  private object BlankLinesContext {
+    object Class extends BlankLinesContext
+    object Trait extends BlankLinesContext
+    object LocalScope extends BlankLinesContext
+    object TopLevel extends BlankLinesContext
   }
 }

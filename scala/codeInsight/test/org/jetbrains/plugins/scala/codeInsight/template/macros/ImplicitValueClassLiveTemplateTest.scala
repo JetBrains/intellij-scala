@@ -50,7 +50,6 @@ class ImplicitValueClassLiveTemplateTest extends ScalaLiveTemplateTestBase {
     val after      =
       s"""class Example[A, B, C]
          |object Example {
-         |
          |  ${expectedResult("ExampleOps[T1, T2]", "value", "Example[T1, String, T2]").indented(2)}
          |}
          |""".stripMargin

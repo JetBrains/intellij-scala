@@ -740,13 +740,28 @@ class getDummyBlocks(private val block: ScalaBlock) {
 
       val alignment = createAlignment(node)
       val childrenAll = node.getChildren(null).filter(isNotEmptyNode).toList
+
+      /**
+       * some edge cases with comments in the middle of a method call: {{{
+       *   Seq(1) // comment
+       *     .map(_ * 2)
+       *
+       *   foo // comment
+       *   {}
+       * }}}
+       */
       val (comments, children) = childrenAll.partition(isComment)
 
       //don't check for element types other then absolutely required - they do not matter
       children match {
-        case caller :: args :: Nil if args.getPsi.isInstanceOf[ScArgumentExprList] =>
-          collectChainedMethodCalls(caller, dotFollowedByNewLine, args :: delegatedChildren ++ comments)
+        // foo(1, 2, 3)
+        case caller :: args :: Nil if args.getPsi.is[ScArgumentExprList] =>
+          collectChainedMethodCalls(
+            caller, dotFollowedByNewLine,
+            childrenAll.filter(it => !(it eq caller)) ::: delegatedChildren
+          )
 
+        // obj.foo
         case expr :: dot :: id :: Nil if dot.getElementType == tDOT =>
           // delegatedChildren can be args or typeArgs
           val idAdditionalNodes = {
@@ -767,7 +782,8 @@ class getDummyBlocks(private val block: ScalaBlock) {
           val dotFollowedByNewLine = dot.getPsi.followedByNewLine()
           collectChainedMethodCalls(expr, dotFollowedByNewLine)
 
-        case expr :: typeArgs :: Nil if typeArgs.getPsi.isInstanceOf[ScTypeArgs] =>
+        // foo[String]
+        case expr :: typeArgs :: Nil if typeArgs.getPsi.is[ScTypeArgs] =>
           if (expr.getChildren(null).length == 1) {
             val actualAlignment = if (dotFollowedByNewLine) dotAlignment else alignment
             val context = SubBlocksContext(typeArgs, sorted(delegatedChildren))

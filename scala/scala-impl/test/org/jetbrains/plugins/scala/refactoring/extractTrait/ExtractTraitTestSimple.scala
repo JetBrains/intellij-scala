@@ -276,7 +276,6 @@ class ExtractTraitTestSimple extends ExtractTraitTestBase {
         |
         |    val x = 1
         |  }
-        |
         |}
       """.stripMargin
 

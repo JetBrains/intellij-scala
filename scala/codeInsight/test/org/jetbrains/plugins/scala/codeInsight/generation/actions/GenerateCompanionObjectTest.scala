@@ -103,7 +103,6 @@ class GenerateCompanionObjectTest extends ScalaGenerateTestBase {
                    |  object B {
                    |    $CARET_MARKER
                    |  }
-                   |
                    |}"""
     performTest(text, result, checkAvailability = true, checkCaretOffset = true)
   }

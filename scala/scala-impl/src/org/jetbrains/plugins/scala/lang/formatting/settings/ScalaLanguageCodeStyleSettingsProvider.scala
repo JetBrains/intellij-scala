@@ -316,6 +316,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     if (settingsType == SettingsType.BLANK_LINES_SETTINGS) {
       opt("BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES", ScalaBundle.message("blank.lines.panel.around.method.in.inner.scopes"), options.BLANK_LINES)
       opt("BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES",  ScalaBundle.message("blank.lines.panel.around.field.in.inner.scopes"), options.BLANK_LINES)
+      opt("BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES",  ScalaBundle.message("blank.lines.panel.around.class.in.inner.scopes"), options.BLANK_LINES)
     }
 
     if (settingsType == SettingsType.LANGUAGE_SPECIFIC) {

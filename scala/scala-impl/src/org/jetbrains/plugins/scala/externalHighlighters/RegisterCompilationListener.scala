@@ -118,7 +118,6 @@ object RegisterCompilationListener {
           file match {
             case _: ScalaFile | _: PsiJavaFile =>
               document.syncToDisk(project)
-              val projectFileIndex = ProjectFileIndex.getInstance(project)
               compiler.rescheduleCompilation(delayedProgressShow = true, forceCompileFile = Some(virtualFile))
             case _ =>
           }

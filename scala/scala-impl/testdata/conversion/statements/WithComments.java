@@ -21,7 +21,6 @@ class JSome(val t: Int //field will be dropped
     val t: Int = 56 //last in line
     //last in func
   }
-
   //last in class
 }
 */

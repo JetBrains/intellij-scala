@@ -112,13 +112,11 @@ class CopyPasteJavaToScala extends CopyPasteTestBase {
         |
         |
         |object Test {
-        |
         |  private class Inner {
         |    private[qwert] def foo(): Unit = {
         |      val st: util.Set[String] = new util.HashSet[String]
         |    }
         |  }
-        |
         |}
         |
         |class Test {
