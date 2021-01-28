@@ -89,6 +89,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       enableSettings(
         "KEEP_BLANK_LINES_IN_CODE",
         "BLANK_LINES_AFTER_CLASS_HEADER",
+        "BLANK_LINES_BEFORE_CLASS_END",
         "KEEP_BLANK_LINES_BEFORE_RBRACE",
         "KEEP_BLANK_LINES_IN_DECLARATIONS",
         "BLANK_LINES_BEFORE_PACKAGE",
@@ -101,7 +102,8 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         "BLANK_LINES_AROUND_FIELD",
         "BLANK_LINES_AROUND_METHOD_IN_INTERFACE",
         "BLANK_LINES_AROUND_METHOD",
-        "BLANK_LINES_BEFORE_METHOD_BODY")
+        "BLANK_LINES_BEFORE_METHOD_BODY"
+      )
     }
 
     //wrapping and Braces

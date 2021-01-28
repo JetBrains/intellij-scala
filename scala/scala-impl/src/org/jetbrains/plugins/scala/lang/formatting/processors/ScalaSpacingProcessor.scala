@@ -138,12 +138,12 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
   // (the method contains a lot of returns, and it's hard to just debug the result for specific input)
   @inline
   private def getSpacingImpl(
-    left: ScalaBlock,
-    right: ScalaBlock,
-    leftIsLineComment: Boolean,
-    settings: CommonCodeStyleSettings,
-    scalaSettings: ScalaCodeStyleSettings
-  ): Spacing = {
+                              left: ScalaBlock,
+                              right: ScalaBlock,
+                              leftIsLineComment: Boolean,
+                              settings: CommonCodeStyleSettings,
+                              scalaSettings: ScalaCodeStyleSettings
+                            ): Spacing = {
 
     // if keepLineBreaks is disabled but we have a line comment on a previous line,
     // we shouldn't remove the line break, because it can lead to a broken code, for example:
@@ -687,7 +687,21 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
           val needsSpace = checkKeepOneLineLambdas || checkOneLineSpaces
           val spaces = if (needsSpace) 1 else 0
-          Spacing.createDependentLFSpacing(spaces, spaces, block.getTextRange, keepLineBreaks, keepBlankLinesBeforeRBrace)
+          block match {
+            case _: ScTemplateBody =>
+              val isAnonymous = !PsiTreeUtil.getParentOfType(block, classOf[ScTemplateDefinition]).is[ScTypeDefinition]
+              val skipMinLines =
+                leftElementType == ScalaTokenTypes.tLBRACE ||
+                  leftElementType == ScalaElementType.SELF_TYPE ||
+                  COMMENTS_TOKEN_SET.contains(leftElementType)
+              val minLineFeeds =
+                if (skipMinLines)  0
+                else if (isAnonymous) 1
+                else settings.BLANK_LINES_BEFORE_CLASS_END + 1
+              Spacing.createSpacing(spaces, spaces, minLineFeeds, keepLineBreaks, keepBlankLinesBeforeRBrace)
+            case _ =>
+              Spacing.createDependentLFSpacing(spaces, spaces, block.getTextRange, keepLineBreaks, keepBlankLinesBeforeRBrace)
+          }
         case _: ScImportSelectors =>
           val refRange = leftNode.getTreeParent.getTextRange
           if (scalaSettings.SPACES_IN_IMPORTS) WITH_SPACING_DEPENDENT(refRange)
@@ -769,7 +783,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (
       leftPsi.is[ScTypeDefinition, ScFunction, ScValueOrVariable, ScTypeAlias, ScExpression] &&
         rightElementType != tSEMICOLON && !rightPsi.is[PsiComment] ||
-      rightPsi.is[ScTypeDefinition, ScFunction, ScValueOrVariable, ScTypeAlias]
+        rightPsi.is[ScTypeDefinition, ScFunction, ScValueOrVariable, ScTypeAlias]
     ) {
       val cs = settings
       val ss = scalaSettings
