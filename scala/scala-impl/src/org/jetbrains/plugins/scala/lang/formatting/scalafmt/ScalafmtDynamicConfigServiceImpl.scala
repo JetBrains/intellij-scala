@@ -73,12 +73,8 @@ final class ScalafmtDynamicConfigServiceImpl(private val project: Project)
     verbosity: FmtVerbosity,
     resolveFast: Boolean
   ): Option[(ScalafmtReflectConfig, Option[Long])] = {
-    val settings = CodeStyle.getCustomSettings(psiFile, classOf[ScalaCodeStyleSettings])
-    val configPath = settings.SCALAFMT_CONFIG_PATH
+    val (settings, actualConfigPath, configFile) = configFileForFileImpl(psiFile)
 
-    val actualConfigPath = ScalafmtConfigUtils.actualConfigPath(configPath)
-
-    val configFile = ScalafmtConfigUtils.projectConfigFile(project, actualConfigPath)
     val config = configFile match {
       case Some(file) =>
         resolveConfig(file, DefaultVersion, verbosity, resolveFast).toOption
@@ -97,6 +93,20 @@ final class ScalafmtDynamicConfigServiceImpl(private val project: Project)
 
     val timestamp = configFile.map(_.getPath).flatMap(configsCache.get).map(_.vFileModificationTimestamp)
     configWithDialect.map((_, timestamp))
+  }
+
+  override def configFileForFile(
+    psiFile: PsiFile
+  ): Option[VirtualFile] =
+    configFileForFileImpl(psiFile)._3
+
+  private def configFileForFileImpl(
+    psiFile: PsiFile
+  ): (ScalaCodeStyleSettings, String, Option[VirtualFile]) = {
+    val settings = CodeStyle.getCustomSettings(psiFile, classOf[ScalaCodeStyleSettings])
+    val configPath = settings.SCALAFMT_CONFIG_PATH
+    val actualConfigPath = ScalafmtConfigUtils.actualConfigPath(configPath)
+    (settings, actualConfigPath, ScalafmtConfigUtils.projectConfigFile(project, actualConfigPath))
   }
 
   private def intellijDefaultConfig: Option[ScalafmtReflectConfig] = {
@@ -213,26 +223,28 @@ final class ScalafmtDynamicConfigServiceImpl(private val project: Project)
 
   private def reportConfigResolveError(configFile: VirtualFile, configError: ConfigResolveError): Unit = {
     import ConfigResolveError._
+
     val details = configError match {
       case ConfigFileNotFound(path) =>
-        Log.warn(s"config resolve error: config not found: $path")
+        Log.warnWithErrorInTests(s"config resolve error: config not found: $path")
         ScalaBundle.message("scalafmt.config.load.errors.file.not.found")
       case ConfigParseError(path, cause) =>
-        Log.warn(s"config resolve error: parse error: $path", cause)
+        Log.warnWithErrorInTests(s"config resolve error: parse error: $path", cause)
         ScalaBundle.message("scalafmt.config.load.errors.parse.error", cause.getMessage)
       case UnknownError(unknownMessage, exception) =>
-        Log.warn(s"config resolve error: unknown error: $unknownMessage", exception.orNull)
+        Log.warnWithErrorInTests(s"config resolve error: unknown error: $unknownMessage", exception.orNull)
         ScalaBundle.message("scalafmt.config.load.errors.unknown.error", unknownMessage)
       /** reported in [[ScalafmtDynamicServiceImpl.reportResolveError]] */
       case _: ConfigScalafmtResolveError => return
       case ConfigCyclicDependenciesError(configPath, ex) =>
         val stackReverse = ex.filesResolveStack.reverse
         val filesStackText = stackReverse.mkString("  ", "\n  ", "")
-        Log.warn(s"config resolve error: cyclic includes detected during scalafmt config parse: $configPath. Files include stack:\n$filesStackText")
+        Log.warnWithErrorInTests(s"config resolve error: cyclic includes detected during scalafmt config parse: $configPath. Files include stack:\n$filesStackText")
 
         val filesStackShortNotificationText = stackReverse.map(_.getName).mkString("<br>  ", "<br>  ", "")
         ScalaBundle.message("scalafmt.config.load.errors.parse.error", ScalaBundle.message("scalafmt.config.load.errors.cyclic.includes.detected")) + filesStackShortNotificationText
     }
+
     val errorMessage = ScalaBundle.message("scalafmt.config.load.errors.failed.to.load.config") + ":<br>" + details
     // NOTE: ConfError does not provide any information about parsing error position, so setting offset to zero
     val openFileAction = new OpenFileNotificationActon(project, configFile, offset = 0, title = ScalaBundle.message("scalafmt.config.load.actions.open.config.file"))

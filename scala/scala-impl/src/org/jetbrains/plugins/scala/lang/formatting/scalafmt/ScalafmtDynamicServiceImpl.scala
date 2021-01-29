@@ -128,19 +128,19 @@ final class ScalafmtDynamicServiceImpl
       case ScalafmtResolveError.NotFound(_) =>
         // TODO: if reformat action was performed but scalafmt version is not resolve
         //  then we could postpone reformat action after scalafmt is downloaded
-        Log.warn(s"scalafmt version is not downloaded $versionHint")
+        Log.warnWithErrorInTests(s"scalafmt version is not downloaded $versionHint")
         val message = ScalaBundle.message("scalafmt.resolve.errors.version.is.not.downloaded.yet", version)
         displayWarning(message, Seq(new DownloadScalafmtNotificationActon(version, ScalaBundle.message("scalafmt.download"))))
       case ScalafmtResolveError.DownloadInProgress(_) =>
-        Log.warn(s"download in progress $versionHint")
+        Log.warnWithErrorInTests(s"download in progress $versionHint")
         val errorMessage = baseMessage + " " + ScalaBundle.message("scalafmt.resolve.errors.download.is.in.progress")
         displayError(errorMessage)
       case DownloadError(_, cause) =>
-        Log.warn(s"download error $versionHint", cause)
+        Log.warnWithErrorInTests(s"download error $versionHint", cause)
         val errorMessage = baseMessage + " " + ScalaBundle.message("scalafmt.resolve.errors.downloading.error.occurred") + ColonWithNewLine + cause.getMessage
         displayError(errorMessage)
       case ScalafmtResolveError.CorruptedClassPath(_, urls, cause) =>
-        Log.warn(s"corrupted class path $versionHint: ${urls.mkString(";")}", cause)
+        Log.warnWithErrorInTests(s"corrupted class path $versionHint: ${urls.mkString(";")}", cause)
         val action = new DownloadScalafmtNotificationActon(version, ScalaBundle.message("scalafmt.resolve.again")) {
           override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
             state.resolvedVersions.remove(version)

@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.{
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtReflect, ScalafmtReflectConfig}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.PsiChange._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtPreFormatProcessor._
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigService, ScalafmtNotifications}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigService, ScalafmtDynamicConfigServiceImpl, ScalafmtNotifications}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -74,7 +74,8 @@ class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
     else {
       try formatIfRequired(psiFile, shiftRange(psiFile, range)) catch {
         case NonFatal(ex) =>
-          reportUnknownError(ex)
+          val configVersion = configVersionForScalaFile(psiFile)
+          reportUnknownError(ex, configVersion)
           throw ex
       }
       TextRange.EMPTY_RANGE
@@ -847,7 +848,8 @@ object ScalaFmtPreFormatProcessor {
         case Some(cause: PositionExceptionImpl) =>
           displayParseError(cause.shortMessage, cause.pos.start)
         case Some(cause) =>
-          reportUnknownError(cause)
+          val configVersion = configVersionForScalaFile(file)
+          reportUnknownError(cause, configVersion)
         case _ =>
           val errorMessage = ScalaBundle.message("scalafmt.format.errors.failed.to.find.correct.surrounding.code", fileLink(fileName))
           val listener = fileLinkListener(project, file, 0)
@@ -877,8 +879,14 @@ object ScalaFmtPreFormatProcessor {
       }
     }
 
-  private def reportUnknownError(ex: Throwable): Unit = {
-    Log.error("An error occurred during scalafmt formatting", ex)
+  private def reportUnknownError(ex: Throwable, scalafmtVersion: Option[String]): Unit = {
+    Log.error(s"An error occurred during scalafmt formatting (version: ${scalafmtVersion.orNull})", ex)
+  }
+
+  private def configVersionForScalaFile(file: PsiFile): Option[String] = {
+    val service = ScalafmtDynamicConfigService(file.getProject)
+    val configFile = service.configFileForFile(file)
+    configFile.flatMap(ScalafmtDynamicConfigServiceImpl.readVersion(file.getProject, _).toOption.flatten)
   }
 
   //TODO get rid of this once com.intellij.util.text.TextRanges does not have an error on unifying (x, x+1) V (x+1, y)

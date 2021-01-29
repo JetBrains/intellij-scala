@@ -1505,6 +1505,18 @@ package object extensions {
         logger.trace(message)
       else if (ApplicationManager.getApplication.isUnitTestMode || ScalaPluginUtils.isRunningFromSources)
         logger.debugSafe(message)
+
+    def warnWithErrorInTests(@NonNls message: => String): Unit =
+      if (ApplicationManager.getApplication.isUnitTestMode)
+        logger.error(message)
+      else
+        logger.warn(message)
+
+    def warnWithErrorInTests(@NonNls message: => String, cause: Throwable): Unit =
+      if (ApplicationManager.getApplication.isUnitTestMode)
+        logger.error(message, cause)
+      else
+        logger.warn(message, cause)
   }
 
   implicit class HighlightInfoExt(private val info: HighlightInfo) extends AnyVal {

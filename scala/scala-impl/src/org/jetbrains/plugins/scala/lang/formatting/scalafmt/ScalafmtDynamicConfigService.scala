@@ -6,7 +6,7 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveResult
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{ScalafmtResolveError, ScalafmtVersion}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{ScalafmtResolveError, ScalafmtVersion, instance}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtReflectConfig
 
@@ -21,6 +21,10 @@ trait ScalafmtDynamicConfigService {
     verbosity: FmtVerbosity = FmtVerbosity.Verbose,
     resolveFast: Boolean = false
   ): Option[(ScalafmtReflectConfig, Option[Long])]
+
+  def configFileForFile(
+    psiFile: PsiFile
+  ): Option[VirtualFile]
 
   final def configForFile(
     psiFile: PsiFile,
@@ -46,6 +50,9 @@ object ScalafmtDynamicConfigService {
 
   @NonNls
   val DefaultConfigurationFileName: String = ".scalafmt.conf"
+
+  def apply(project: Project): ScalafmtDynamicConfigService =
+    instanceIn(project)
 
   def instanceIn(project: Project): ScalafmtDynamicConfigService =
     project.getService(classOf[ScalafmtDynamicConfigService])
