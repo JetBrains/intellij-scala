@@ -4,23 +4,26 @@ package psi
 package implicits
 
 import java.{util => ju}
-
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.util.Key
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
 import gnu.trove.{THashMap, THashSet}
+import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitProcessor.log
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType, StdType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -33,6 +36,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 import scala.collection.mutable
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 /**
   * @author Alexander Podkhalyuzin
@@ -123,6 +127,29 @@ abstract class ImplicitProcessor(override val getPlace: PsiElement,
       }
 
     treeWalkUp(getPlace, null)
+
+    val names = new ju.HashMap[String, ju.List[String]]
+    candidatesS.foreach { srr =>
+      srr.element match {
+        case fn: ScFunctionDefinition if fn.isSynthetic =>
+          val userData = fn.getUserData(ImplicitProcessor.ImplicitOrigin)
+          if (userData eq  null) {
+            log.warn(s"Implicit method without origin userdata ${fn.name}")
+          } else {
+            names.computeIfAbsent(fn.name, _ => new util.ArrayList[String]()).add(userData)
+          }
+        case _ => ()
+      }
+    }
+
+    names.forEach { case (name, srrs) =>
+      if (srrs.size() > 1) {
+        log.warn(
+          s"Multiple resolve results for single synthetic method $name ${srrs.asScala.mkString(" ")}"
+        )
+      }
+    }
+
     candidatesS
   }
 
@@ -339,4 +366,7 @@ object ImplicitProcessor {
 
     res.values.flatten.toSeq
   }
+
+  val ImplicitOrigin = Key.create[String]("ImplicitMethodOrigin")
+  val log = Logger.getInstance(classOf[ImplicitProcessor])
 }

@@ -3,6 +3,7 @@ package lang
 package psi
 package impl
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
@@ -15,6 +16,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScPackageLike}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitProcessor
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveState}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
@@ -144,7 +146,11 @@ object ScPackageImpl {
       val topLevelImplicits =
         manager.getPackageImplicitObjects(pkgFqn, scope).iterator ++
           manager.getTopLevelImplicitClassesByPackage(pkgFqn, scope).iterator
-                 .flatMap(_.getSyntheticImplicitMethod)
+                 .flatMap { _.getSyntheticImplicitMethod.map { m =>
+                   m.putUserData(ImplicitProcessor.ImplicitOrigin, s"ScPacakgeImplProcessor ${System.currentTimeMillis()}")
+                   m
+                 }
+                 }
 
       while (topLevelImplicits.hasNext) {
         val obj = topLevelImplicits.next()
@@ -176,7 +182,9 @@ object ScPackageImpl {
                 clazz match {
                   case cls: ScClass if cls.isTopLevel =>
                     cls.getSyntheticImplicitMethod.foreach {
-                      synMethod => if (!processor.execute(synMethod, state)) return false
+                      synMethod =>
+                        synMethod.putUserData(ImplicitProcessor.ImplicitOrigin, s"ScPackageRegularProcessor ${System.currentTimeMillis()}")
+                        if (!processor.execute(synMethod, state)) return false
                     }
                   case _ => ()
                 }
@@ -241,4 +249,6 @@ object ScPackageImpl {
     case processor: ResolveProcessor => processor.getResolveScope
     case _ => place.resolveScope
   }
+
+  val log = Logger.getInstance(classOf[ScPackageImpl])
 }

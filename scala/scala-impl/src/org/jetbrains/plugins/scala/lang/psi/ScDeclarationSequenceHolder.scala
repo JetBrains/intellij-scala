@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.scope._
@@ -10,15 +11,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitProcessor
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
 trait ScDeclarationSequenceHolder extends ScalaPsiElement {
-  override def processDeclarations(processor: PsiScopeProcessor,
-      state : ResolveState,
-      lastParent: PsiElement,
-      place: PsiElement): Boolean = {
+  override def processDeclarations(
+    processor:  PsiScopeProcessor,
+    state:      ResolveState,
+    lastParent: PsiElement,
+    place:      PsiElement
+  ): Boolean = {
+
     def processElement(e: PsiElement, state: ResolveState): Boolean = {
       def isOkCompanionModule = {
         processor match {
@@ -39,7 +44,9 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
             processor.execute(c.fakeCompanionModule.get, state)
           }
           c.getSyntheticImplicitMethod match {
-            case Some(impl) => if (!processElement(impl, state)) return false
+            case Some(impl) =>
+              impl.putUserData(ImplicitProcessor.ImplicitOrigin, s"ScDeclarationSequenceHolder ${System.currentTimeMillis()}")
+              if (!processElement(impl, state)) return false
             case _ =>
           }
           true
@@ -91,4 +98,8 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
     }
     true
   }
+}
+
+object ScDeclarationSequenceHolder {
+  val log = Logger.getInstance(classOf[ScDeclarationSequenceHolder])
 }

@@ -4,10 +4,12 @@ package psi
 package stubs
 package index
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitProcessor
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.StubIndexKeyExt
 
 /**
@@ -20,7 +22,6 @@ final class ImplicitConversionIndex extends ScStringStubIndexExtension[ScMember]
 }
 
 object ImplicitConversionIndex extends ImplicitIndex {
-
   //noinspection TypeAnnotation
   override protected val indexKey = ScalaIndexKeys.IMPLICIT_CONVERSION_KEY
 
@@ -37,7 +38,12 @@ object ImplicitConversionIndex extends ImplicitIndex {
 
   private def findImplicitFunction(member: ScMember): Option[ScFunction] = member match {
     case f: ScFunction => Option(f)
-    case c: ScClass => c.getSyntheticImplicitMethod
+    case c: ScClass =>
+      val synMethod = c.getSyntheticImplicitMethod
+      synMethod.foreach { m =>
+        m.putUserData(ImplicitProcessor.ImplicitOrigin, s"ImplicitConevrsionIndex ${System.currentTimeMillis()}")
+      }
+      synMethod
     case _ => None
   }
 }

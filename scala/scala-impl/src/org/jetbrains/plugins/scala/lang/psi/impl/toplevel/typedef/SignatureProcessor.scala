@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
 import com.intellij.psi.{PsiClass, PsiMember, PsiMethod, PsiNamedElement}
+import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.{PropertyMethods, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.{DefinitionRole, EQ, SETTER, isApplicable, methodName}
@@ -10,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitProcessor
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScCompoundType, Signature, TermSignature, TypeSignature}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -172,7 +174,10 @@ abstract class TermsCollector extends SignatureProcessor[TermSignature] {
 
     val implicitClassFun = td match {
       case c: ScClass if c.hasModifierProperty("implicit") =>
-        c.getSyntheticImplicitMethod.map(new PhysicalMethodSignature(_, subst))
+        c.getSyntheticImplicitMethod.map{ synMethod =>
+          synMethod.putUserData(ImplicitProcessor.ImplicitOrigin, s"SignatureProcessor ${System.currentTimeMillis()}")
+          new PhysicalMethodSignature(synMethod, subst)
+        }
       case _ => None
     }
 
@@ -203,4 +208,8 @@ object StableTermsCollector extends TermsCollector {
     case _: ScTypeDefinition | _: ScValue | _: ScPrimaryConstructor => true
     case _ => false
   }
+}
+
+object SignatureProcessor {
+  val log = Logger.getInstance(classOf[SignatureProcessor[_]])
 }
