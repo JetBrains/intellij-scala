@@ -1105,6 +1105,12 @@
                          groupPath="Scala" groupKey="group.syntactic.simplification"
                          shortName="ScalaUnnecessarySemicolon" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.PostfixUnaryNegationInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.postfix.unary.negation"
+                         groupPath="Scala" groupKey="group.syntactic.simplification"
+                         shortName="PostfixUnaryNegation" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.RemoveRedundantReturnInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.redundant.return"
