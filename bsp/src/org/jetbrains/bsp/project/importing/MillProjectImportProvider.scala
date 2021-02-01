@@ -15,7 +15,7 @@ object MillProjectImportProvider {
 
   def bspInstall(workspace: File): Try[BuildMessages] = {
     val work =
-      if (isBspCompatible(workspace)) Try(Process("./mill mill.bsp.BSP/install", workspace).!!)
+      if (isBspCompatible(workspace)) Try(Process("./mill -i mill.bsp.BSP/install", workspace).!!)
       else if (isLegacyBspCompatible(workspace)) Try(Process("./mill -i mill.contrib.BSP/install", workspace).!!)
       else Failure(new IllegalStateException("Unable to install BSP as this is not a Mill project"))
 
