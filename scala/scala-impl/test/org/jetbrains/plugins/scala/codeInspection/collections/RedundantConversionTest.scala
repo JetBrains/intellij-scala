@@ -2,10 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
-/**
- * @author Nikolay.Tropin
- */
-class RedundantConversionTest extends OperationsOnCollectionInspectionTest {
+abstract class RedundantConversionTestBase extends OperationsOnCollectionInspectionTest {
 
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[RedundantCollectionConversionInspection]
@@ -17,18 +14,6 @@ class RedundantConversionTest extends OperationsOnCollectionInspectionTest {
     doTest(s"List(1, 2).${START}toList$END",
       "List(1, 2).toList",
       "List(1, 2)")
-  }
-
-  def test_2(): Unit = {
-    doTest(s"Seq(1, 2).${START}to[Seq]$END",
-      "Seq(1, 2).to[Seq]",
-      "Seq(1, 2)")
-  }
-
-  def test_2_with_implicit_generic(): Unit = {
-    doTest(s"val x: List[Int] = List(1, 2).${START}to$END",
-      "val x: List[Int] = List(1, 2).to",
-      "val x: List[Int] = List(1, 2)")
   }
 
   def test_3(): Unit = {
@@ -44,8 +29,8 @@ class RedundantConversionTest extends OperationsOnCollectionInspectionTest {
          |list().${START}toList$END
        """.stripMargin,
       """
-         |def list() = List(1, 2)
-         |list().toList
+        |def list() = List(1, 2)
+        |list().toList
        """.stripMargin,
       """
         |def list() = List(1, 2)
@@ -57,14 +42,14 @@ class RedundantConversionTest extends OperationsOnCollectionInspectionTest {
   def test_5(): Unit = {
     doTest(
       s"""Seq(1) match {
-        |  case seq => seq.${START}toSeq$END
-        |}""".stripMargin,
+         |  case seq => seq.${START}toSeq$END
+         |}""".stripMargin,
       s"""Seq(1) match {
-          |  case seq => seq.toSeq
-          |}""".stripMargin,
+         |  case seq => seq.toSeq
+         |}""".stripMargin,
       s"""Seq(1) match {
-          |  case seq => seq
-          |}""".stripMargin
+         |  case seq => seq
+         |}""".stripMargin
 
     )
   }
@@ -82,4 +67,42 @@ class RedundantConversionTest extends OperationsOnCollectionInspectionTest {
       |val x = "test".toLowerCase
       |""".stripMargin
   )
+}
+
+class RedundantConversionTest extends RedundantConversionTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= LatestScalaVersions.Scala_2_12
+
+  def test_to(): Unit = {
+    doTest(s"Seq(1, 2).${START}to[Seq]$END",
+      "Seq(1, 2).to[Seq]",
+      "Seq(1, 2)")
+  }
+
+  def test_to_with_implicit_generic(): Unit = {
+    doTest(s"val x: List[Int] = List(1, 2).${START}to$END",
+      "val x: List[Int] = List(1, 2).to",
+      "val x: List[Int] = List(1, 2)")
+  }
+}
+
+
+class RedundantConversionTest_2_13 extends RedundantConversionTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13
+
+  // TODO: implement inspection for .to(Factory)
+  /*
+  def test_to(): Unit = {
+    doTest(s"Seq(1, 2).${START}to(Seq)$END",
+      "Seq(1, 2).to(Seq)",
+      "Seq(1, 2)")
+  }
+
+  def test_to_with_implicit_generic(): Unit = {
+    doTest(s"val x: List[Int] = List(1, 2).${START}to$END",
+      "val x: List[Int] = List(1, 2).to",
+      "val x: List[Int] = List(1, 2)")
+  }
+   */
 }
