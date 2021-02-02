@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.worksheet
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.codeInspection.feature.{LanguageFeatureInspection, LanguageFeatureInspectionTestBase}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
@@ -16,6 +17,8 @@ abstract class WorksheetLanguageFeatureInspectionBaseTest extends LanguageFeatur
 }
 
 class WorksheetLanguageFeatureInspection extends WorksheetLanguageFeatureInspectionBaseTest {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= LatestScalaVersions.Scala_2_12
 
   def testThatModuleCompilerProfileSettingsAreUsedInWorksheet_HasError(): Unit = {
     val profile = getModule.scalaCompilerSettingsProfile
