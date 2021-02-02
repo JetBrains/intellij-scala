@@ -16,8 +16,9 @@ class ScalafmtReflectConfig private[dynamic](
 
   private val targetCls = target.getClass
   private val constructor: Constructor[_] = targetCls.getConstructors()(0)
-  private val constructorParams = constructor.getParameters.map(_.getName)
-  private val rewriteParamIdx = constructorParams.indexOf("rewrite").ensuring(_ >= 0)
+  private val constructorParamNames = constructor.getParameters.map(_.getName)
+  private val publicMethodNames = targetCls.getMethods.map(_.getName)
+  private val rewriteParamIdx = constructorParamNames.indexOf("rewrite").ensuring(_ >= 0)
   private val emptyRewrites = target.invoke("apply$default$" + (rewriteParamIdx + 1))
 
   private val dialectCls  = classLoader.loadClass("scala.meta.Dialect")
@@ -65,7 +66,13 @@ class ScalafmtReflectConfig private[dynamic](
 
   def withoutRewriteRules: ScalafmtReflectConfig =
     if (hasRewriteRules) {
-      val fieldsValues = constructorParams.map(param => target.invoke(param))
+      val fieldsValues: Array[Object] = constructorParamNames.zipWithIndex.map { case (param, idx) =>
+        // some public case class fields were made deprecated and made private, so we can't access them
+        // https://github.com/scalameta/scalafmt/commit/581a99660373554468617b27a349dc732aff92e2
+        // https://github.com/scalameta/scalafmt/commit/5bf5fbfc4454131b113731880002f52c725512c1
+        val accessorName = if (publicMethodNames.contains(param)) param else param + ("$access$" + idx)
+        target.invoke(accessorName)
+      }
       fieldsValues(rewriteParamIdx) = emptyRewrites
       val targetNew = constructor.newInstance(fieldsValues: _*).asInstanceOf[Object]
       new ScalafmtReflectConfig(fmtReflect, targetNew, classLoader)

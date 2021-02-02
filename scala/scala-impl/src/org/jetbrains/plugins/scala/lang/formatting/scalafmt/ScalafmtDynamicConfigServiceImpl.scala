@@ -138,8 +138,10 @@ final class ScalafmtDynamicConfigServiceImpl(private val project: Project)
       }
     }
 
+    val message = ScalaBundle.message("scalafmt.can.not.find.config.file", configPath)
+    Log.warnWithErrorInTests(message)
     ScalafmtNotifications.displayError(
-      ScalaBundle.message("scalafmt.can.not.find.config.file", configPath),
+      message,
       Seq(actionCreate, actionConfigure)
     )
   }

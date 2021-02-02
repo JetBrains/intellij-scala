@@ -2,14 +2,42 @@ package org.jetbrains.plugins.scala.lang.formatter.tests.scalafmt
 
 import org.jetbrains.plugins.scala.util.Markers
 
-//noinspection RedundantBlock
-class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
+class ScalaFmtCommonSelectionTest extends ScalaFmtCommonSelectionTestBase
 
-  def testExprSelection(): Unit = {
-    val before = s"class Test { val v = ${startMarker}1    +     22  $endMarker}"
-    val after = "class Test { val v = 1 + 22 }"
-    doTextTest(before, after)
-  }
+class ScalaFmtCommonSelectionTest_2_7 extends ScalaFmtCommonSelectionTestBase with UseConfig_2_7
+
+//noinspection RedundantBlock
+trait ScalaFmtCommonSelectionTestBase extends ScalaFmtTestBase with Markers {
+
+  def testExprSelection(): Unit =
+    doTextTest(
+      s"class Test { val v = ${startMarker}1    +     22  $endMarker}",
+      s"class Test { val v = ${startMarker}1 + 22 $endMarker}"
+    )
+
+  def testExprSelection_1(): Unit =
+    doTextTest(
+      s"class Test { val v = ${startMarker}1    +     22 $endMarker }",
+      s"class Test { val v = ${startMarker}1 + 22 $endMarker }"
+    )
+
+  def testExprSelection_2(): Unit =
+    doTextTest(
+      s"class Test { val v =    ${startMarker}1    +     22$endMarker     }",
+      s"class Test { val v = ${startMarker}1 + 22$endMarker     }"
+    )
+
+  def testExprSelection_3(): Unit =
+    doTextTest(
+      s"class Test { val v =    ${startMarker}1    +     22   $endMarker  }",
+      s"class Test { val v = ${startMarker}1 + 22   $endMarker  }"
+    )
+
+  def testExprSelection_4(): Unit =
+    doTextTest(
+      s"class Test { val v =    ${startMarker}1    +     22     $endMarker}",
+      s"class Test { val v = ${startMarker}1 + 22 $endMarker}"
+    )
 
   def testStatementSelection(): Unit = {
     val before =
@@ -19,7 +47,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |    ${startMarker}println(42    +   22)$endMarker
          |  }
          |}
-      """.stripMargin
+         |""".stripMargin
     val after =
       """
         |class Test {
@@ -27,7 +55,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
         |    println(42 + 22)
         |  }
         |}
-      """.stripMargin
+        |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -53,7 +81,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |    ${startMarker}pri${endMarker}ntln(42   +   2)
          |  }
          |}
-       """.stripMargin
+         |""".stripMargin
     val after =
       """
         |class Test {
@@ -61,7 +89,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
         |    println(42   +   2)
         |  }
         |}
-      """.stripMargin
+        |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -73,7 +101,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |    println( 42 $startMarker +  43  +  28$endMarker )
          |  }
          |}
-       """.stripMargin
+         |""".stripMargin
     val after =
       """
         |class Test {
@@ -81,7 +109,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
         |    println( 42 + 43 + 28 )
         |  }
         |}
-      """.stripMargin
+        |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -94,7 +122,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          | .foo( "a" )
          |      .foo(   " a "$endMarker)
          |}
-      """.stripMargin
+         |""".stripMargin
     val after =
       """
         |class Test {
@@ -103,7 +131,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
         |      .foo("a")
         |      .foo(" a ")
         |}
-      """.stripMargin
+        |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -118,7 +146,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |    $endMarker}
          |  }
          |}
-       """.stripMargin
+         |""".stripMargin
     val after =
       """
         |class Test {
@@ -129,7 +157,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
         |    }
         |  }
         |}
-      """.stripMargin
+        |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -139,13 +167,13 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |class {
          |  val foo = pri${startMarker}ntln( 42   +   43 )$endMarker
          |}
-       """.stripMargin
+         |""".stripMargin
     val after =
       """
         |class {
         |  val foo = println(42 + 43)
         |}
-      """.stripMargin
+        |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -198,7 +226,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
 
   def testFormatImports(): Unit = {
     val before = s"    ${startMarker}import foo.bar.{baz,    foo,   bar}$endMarker"
-    val after = "import foo.bar.{baz, foo, bar}"
+    val after = "import foo.bar.{baz, foo, bar}\n"
     doTextTest(before, after)
   }
 
@@ -208,13 +236,13 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |${startMarker}import foo.bar. {baz, foo  }
          |import foo.baz.{bar,baz}$endMarker
          |println(2  +  3)
-       """.stripMargin
+         |""".stripMargin
     val after =
       """
         |import foo.bar.{baz, foo}
         |import foo.baz.{bar, baz}
         |println(2  +  3)
-      """.stripMargin
+        |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -223,12 +251,12 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
       s"""$startMarker      ${startMarker(0)}import foo.bar. {baz, foo  }
          |  import foo.baz.{bar,baz}$endMarker${endMarker(0)}
          |println(2  +  3)
-       """.stripMargin
+         |""".stripMargin
     val after =
       """import foo.bar.{baz, foo}
         |import foo.baz.{bar, baz}
         |println(2  +  3)
-      """.stripMargin
+        |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -241,7 +269,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |       println(5+6)$endMarker
          |  println(7+8)
          |}
-       """.stripMargin
+         |""".stripMargin
     val after =
       s"""
          |class Foo {
@@ -250,7 +278,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |  println(5 + 6)
          |  println(7+8)
          |}
-       """.stripMargin
+         |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -264,7 +292,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |  println(5+6)$endMarker
          |  println(7+8)
          |}
-       """.stripMargin
+         |""".stripMargin
     val after =
       s"""
          |class Foo {
@@ -274,7 +302,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |  println(5 + 6)
          |  println(7+8)
          |}
-       """.stripMargin
+         |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -288,7 +316,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |println(5+6)$endMarker
          |  println(7+8)
          |}
-       """.stripMargin
+         |""".stripMargin
     val after =
       s"""
          |class Foo {
@@ -298,7 +326,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |  println(5 + 6)
          |  println(7+8)
          |}
-       """.stripMargin
+         |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -312,7 +340,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |println(5+6)$endMarker
          |  println(7+8)
          |}
-       """.stripMargin
+         |""".stripMargin
     val after =
       s"""
          |class Foo {
@@ -322,7 +350,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |  println(5 + 6)
          |  println(7+8)
          |}
-       """.stripMargin
+         |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -338,7 +366,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |      val sourceCode = new StringBuilder()$endMarker
          |  }
          |}
-      """.stripMargin
+         |""".stripMargin
     val after =
       """
         |object Test {
@@ -350,7 +378,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
         |      val sourceCode = new StringBuilder()
         |  }
         |}
-      """.stripMargin
+        |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -363,7 +391,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |aaa$endMarker
          |  $qqq
          |}
-       """.stripMargin
+         |""".stripMargin
     val after =
       s"""
          |class Foo {
@@ -371,7 +399,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |aaa
          |  $qqq
          |}
-       """.stripMargin
+         |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -379,14 +407,15 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
     val before =
       s"""
          |object Foo {
-         |  ${startMarker}def toString() = "Foo"}$endMarker
-       """.stripMargin
+         |  ${startMarker}def toString() = "Foo"$endMarker
+         |}
+         |""".stripMargin
     val after =
       s"""
          |object Foo {
-         |  def toString() = "Foo"
+         |  ${startMarker}def toString() = "Foo"$endMarker
          |}
-       """.stripMargin
+         |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -414,13 +443,13 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |class T {
          |$startMarker        ${endMarker}def   foo  =  42
          |}
-       """.stripMargin
+         |""".stripMargin
     val after =
       s"""
          |class T {
          |  def   foo  =  42
          |}
-       """.stripMargin
+         |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -433,14 +462,14 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |}
          |$endMarker
          |
-       """.stripMargin
+         |""".stripMargin
     val after =
       s"""
          |package foo
          |object O {
          |  def foo = bar
          |}
-       """.stripMargin
+         |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -450,13 +479,13 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |package foo$startMarker
          |  $endMarker  import bar._
          |class C {}
-       """.stripMargin
+         |""".stripMargin
     val after =
       s"""
          |package foo
          |import bar._
          |class C {}
-       """.stripMargin
+         |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -466,13 +495,13 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |package foo
          |import bar._$startMarker
          |     ${endMarker}class C{}
-       """.stripMargin
+         |""".stripMargin
     val after =
       s"""
          |package foo
          |import bar._
          |class C{}
-       """.stripMargin
+         |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -481,121 +510,13 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
       s"""
          |class A[T]$startMarker
          |${endMarker}class B
-       """.stripMargin
+         |""".stripMargin
     val after =
       s"""
          |class A[T]
          |class B
-       """.stripMargin
-    doTextTest(before, after)
-  }
-
-  def testScl14129_avoidInfix(): Unit = {
-    setScalafmtConfig("avoidInfix.conf")
-    val before =
-      s"""
-         |class C {
-         |  ${startMarker}def foo = 1 to 42$endMarker
-         |}
-       """.stripMargin
-    val after =
-      s"""
-         |class C {
-         |  def foo = 1.to(42)
-         |}
-       """.stripMargin
-    doTextTest(before, after)
-  }
-
-  def testScl14129_avoidInfix_1(): Unit = {
-    setScalafmtConfig("avoidInfix.conf")
-    val before =
-      s"""
-         |class C {
-         |  def foo = ${startMarker}1     ${endMarker}to   42
-         |}
-       """.stripMargin
-    val after =
-      s"""
-         |class C {
-         |  def foo = 1 to   42
-         |}
-       """.stripMargin
-    doTextTest(before, after)
-  }
-
-  def testScl14129_avoidInfix_2(): Unit = {
-    setScalafmtConfig("avoidInfix.conf")
-    val before =
-      s"""
-         |class C {
-         |  def foo = ${startMarker}1     to  $endMarker 42
-         |}
-       """.stripMargin
-    val after =
-      s"""
-         |class C {
-         |  def foo = 1 to 42
-         |}
-       """.stripMargin
-    doTextTest(before, after)
-  }
-
-  def testScl14129_avoidInfix_3(): Unit = {
-    setScalafmtConfig("avoidInfix.conf")
-    val before =
-      s"""
-         |class C {
-         |  def foo = ${startMarker}1     to   42$endMarker
-         |}
-       """.stripMargin
-    val after =
-      s"""
-         |class C {
-         |  def foo = 1.to(42)
-         |}
-       """.stripMargin
-    doTextTest(before, after)
-  }
-
-  def testScl14129_spacesAroundRewrite(): Unit = {
-    setScalafmtConfig("avoidInfix.conf")
-    doTextTest(
-      s"""class C {
-         |  def foo =  $startMarker  (    1      to      42   )   +      $endMarker 11
-         |}
-         |""".stripMargin,
-      s"""class C {
-         |  def foo =    (1 to 42) + 11
-         |}
          |""".stripMargin
-    )
-  }
-
-
-  def testScl14129_spacesAroundRewrite_1(): Unit = {
-    setScalafmtConfig("avoidInfix.conf")
-    doTextTest(
-      s"""class C {
-         |  def foo = $startMarker   (    1      to      42   )   +       11 $endMarker
-         |}
-         |""".stripMargin,
-      s"""class C {
-         |  def foo = (1.to(42)) + 11
-         |}
-         |""".stripMargin
-    )
-  }
-
-  def testScl14129_spacesAroundRewrite_AllRangesNoExceptions(): Unit = {
-    setScalafmtConfig("avoidInfix.conf")
-    doAllRangesTextTest(
-      s"""class C {
-         |  def foo =    (    1      to      42   )   +       11
-         |}
-         |""".stripMargin,
-      checkResult = false
-    )
+    doTextTest(before, after)
   }
 
   def testSCL14031(): Unit = {
@@ -611,7 +532,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |override val bar: Int = ???
          |}$endMarker
          |}
-       """.stripMargin
+         |""".stripMargin
     val after =
       s"""
          |object Outer {
@@ -624,93 +545,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |    override val bar: Int = ???
          |  }
          |}
-       """.stripMargin
-    doTextTest(before, after)
-  }
-
-  def testSCL14129_expandImport(): Unit = {
-    setScalafmtConfig("expandImport.conf")
-    val before =
-      s"""
-         |${startMarker}import a.{
-         |    b,
-         |    c
-         |  }, h.{
-         |    k, l
-         |  }
-         |  import d.e.{f, g}
-         |  import a.{
-         |      foo => bar,
-         |      zzzz => _,
-         |      _
-         |    }$endMarker
-         |class C {}
-       """.stripMargin
-    val after =
-      s"""
-         |import h.l
-         |import h.k
-         |import a.c
-         |import a.b
-         |import d.e.g
-         |import d.e.f
-         |import a.{foo => bar, zzzz => _, _}
-         |class C {}
-       """.stripMargin
-    doTextTest(before, after)
-  }
-
-  def testSCL14129_redundantBraces(): Unit = {
-    setScalafmtConfig("redundantBraces.conf")
-    val before =
-      s"""
-         |val myString = ${startMarker}s"prefix$${myHello}"$endMarker
-       """.stripMargin
-    val after =
-      s"""
-         |val myString = s"prefix$$myHello"
-       """.stripMargin
-    doTextTest(before, after)
-  }
-
-  def testScl14129_redundantBraces_1(): Unit = {
-    setScalafmtConfig("redundantBraces.conf")
-    val before =
-      s"""
-         |val myString = s"pre${startMarker}fix$${myHello}$endMarker"
-       """.stripMargin
-    val after =
-      s"""
-         |val myString = s"prefix$${myHello}"
-       """.stripMargin
-    doTextTest(before, after)
-  }
-
-  def testScl14129_redundantBraces_2(): Unit = {
-    setScalafmtConfig("redundantBraces.conf")
-    val before =
-      s"""
-         |def foo $startMarker= {
-         |  List(1, 2, 3).sum
-         |}$endMarker
-       """.stripMargin
-    val after =
-      s"""
-         |def foo = List(1, 2, 3).sum
-       """.stripMargin
-    doTextTest(before, after)
-  }
-
-  def testScl14129_sortImports(): Unit = {
-    setScalafmtConfig("sortImports.conf")
-    val before =
-      s"""
-         |import foo.{Zilch,$startMarker bar, Random, ${endMarker}sand}
-       """.stripMargin
-    val after =
-      s"""
-         |import foo.{Zilch, bar, Random, sand}
-       """.stripMargin
+         |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -719,8 +554,8 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
       s"""class TestClass {
          |  def parentScope: Unit = {
          |    ${startMarker}Option(1) match {
-         |      case   Some(value) =>
-         |      case   None =>
+         |      case      Some(value) =>
+         |      case      None =>
          |    }$endMarker
          |  }
          |}""".stripMargin
@@ -758,6 +593,19 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
     doTextTest(before, after)
   }
 
+  def testScl14856_patternMatchInsideMethodDefinition_3(): Unit =
+    doAllRangesTextTest(
+      """class TestClass {
+        |  def parentScope: Unit = {
+        |    Option(1) match {
+        |      case Some(value) =>
+        |      case None        =>
+        |    }
+        |  }
+        |}
+        |""".stripMargin
+    )
+
   def testScl14856_patternMatchInsideClassFollowedByErroneousCode(): Unit = {
     val before =
       s"""class TestClass {
@@ -791,12 +639,12 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
       s"""object ${startMarker}O$endMarker {}
          |class ${startMarker(0)}C${endMarker(0)} {}
          |trait ${startMarker(1)}T${endMarker(1)} {}
-       """.stripMargin
+         |""".stripMargin
     val after =
       s"""object O {}
          |class C {}
          |trait T {}
-       """.stripMargin
+         |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -820,11 +668,11 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
     val before =
       s"""  ${startMarker}val x=2   +   2
          |val y  =  4+4$endMarker
-       """.stripMargin
+         |""".stripMargin
     val after =
       s"""val x = 2 + 2
          |val y = 4 + 4
-       """.stripMargin
+         |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -834,13 +682,13 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |${startMarker}val x = 2 + 2
          |val y = 4 + 4$endMarker
          |
-       """.stripMargin
+         |""".stripMargin
     val after =
       s"""
          |val x = 2 + 2
          |val y = 4 + 4
          |
-       """.stripMargin
+         |""".stripMargin
     doTextTest(before, after)
   }
 
@@ -855,7 +703,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |def  foo (): Unit =  {
          |       42
          |       }$endMarker
-       """.stripMargin
+         |""".stripMargin
     val after =
       s"""trait X {
          |  def xFoo = 42
@@ -866,133 +714,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |def foo(): Unit = {
          |  42
          |}
-       """.stripMargin
-    doTextTest(before, after)
-  }
-
-  def testFormatValMultilineDefinition_IfRewriteRulesExist_1(): Unit = {
-    setScalafmtConfig("redundantBraces.conf")
-
-    val before =
-      s"""object Outer {
-         |${startMarker}val x =
-         |2 + 2$endMarker
-         |}""".stripMargin
-    val after =
-      s"""object Outer {
-         |  val x =
-         |    2 + 2
-         |}""".stripMargin
-    doTextTest(before, after)
-  }
-
-  def testFormatValMultilineDefinition_IfRewriteRulesExist_2(): Unit = {
-    setScalafmtConfig("redundantBraces.conf")
-
-    val before =
-      s"""object Outer {
-         |${startMarker}     val x =
-         |2+2$endMarker
-         |}""".stripMargin
-    val after =
-      s"""object Outer {
-         |  val x =
-         |    2 + 2
-         |}""".stripMargin
-    doTextTest(before, after)
-  }
-
-  def testFormatValMultilineDefinition_IfRewriteRulesExist_3(): Unit = {
-    setScalafmtConfig("redundantBraces.conf")
-
-    val before =
-      s"""object Outer {
-         |${startMarker}     val x =
-         |    2 + 2$endMarker
-         |}""".stripMargin
-    val after =
-      s"""object Outer {
-         |  val x =
-         |    2 + 2
-         |}""".stripMargin
-    doTextTest(before, after)
-  }
-
-  def testTypeDefinitionFormat_IfRewriteRulesExist_1(): Unit = {
-    setScalafmtConfig("redundantBraces.conf")
-
-    val before =
-      s"""
-         |${startMarker}object Outer {
-         |    val x=2+2
-         |}${endMarker}
          |""".stripMargin
-    val after =
-      s"""
-         |object Outer {
-         |  val x = 2 + 2
-         |}
-         |""".stripMargin
-    doTextTest(before, after)
-  }
-
-  def testTypeDefinitionFormat_IfRewriteRulesExist_2(): Unit = {
-    setScalafmtConfig("redundantBraces.conf")
-
-    val before =
-      s"""
-         |${startMarker}  object Outer {
-         |val x=2+2
-         |  }${endMarker}
-         |""".stripMargin
-    val after =
-      s"""
-         |object Outer {
-         |  val x = 2 + 2
-         |}
-         |""".stripMargin
-    doTextTest(before, after)
-  }
-
-  def testDeeplyNestedMethodDefinition_IfRewriteRulesExist(): Unit = {
-    setScalafmtConfig("redundantBraces.conf")
-
-    val before =
-      s"""object Outer {
-         |  object Inner {
-         |${startMarker}def   bar  (args:Array[String]):Unit={
-         |val x = 42
-         |}${endMarker}
-         |  }
-         |}""".stripMargin
-    val after =
-      s"""object Outer {
-         |  object Inner {
-         |    def bar(args: Array[String]): Unit = {
-         |      val x = 42
-         |    }
-         |  }
-         |}""".stripMargin
-    doTextTest(before, after)
-  }
-
-  def testDeeplyNestedValMultilineDefinition_IfRewriteRulesExist(): Unit = {
-    setScalafmtConfig("redundantBraces.conf")
-
-    val before =
-      s"""object Outer {
-         |  object Inner {
-         |${startMarker}val x =
-         |2+2${endMarker}
-         |  }
-         |}""".stripMargin
-    val after =
-      s"""object Outer {
-         |  object Inner {
-         |    val x =
-         |      2 + 2
-         |  }
-         |}""".stripMargin
     doTextTest(before, after)
   }
 
@@ -1009,7 +731,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |    }
          |  }
          |}
-      """.stripMargin
+         |""".stripMargin
     )
 
   def testScConstructorPattern_SCL15406_AllRanges(): Unit =
@@ -1025,7 +747,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |    }
          |  }${endMarker}
          |}
-      """.stripMargin
+         |""".stripMargin
     )
 
   def testScConstructorPattern_SCL15406_1(): Unit =
@@ -1060,7 +782,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |    ???
          |  }
          |}
-      """.stripMargin
+         |""".stripMargin
     )
 
     doTextTest(
@@ -1072,7 +794,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |    ???
          |  }
          |}
-      """.stripMargin
+         |""".stripMargin
     )
   }
 
@@ -1086,7 +808,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |    ???
          |  }
          |}
-      """.stripMargin
+         |""".stripMargin
     )
 
     doTextTest(
@@ -1098,7 +820,7 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
          |    ???
          |  }
          |}
-      """.stripMargin
+         |""".stripMargin
     )
   }
 
@@ -1109,11 +831,43 @@ class ScalaFmtSelectionTest extends ScalaFmtTestBase with Markers {
 
   def testRemoveWhitespaces_1(): Unit = doTextTest(
     s"""val$startMarker   x   :   Int   =   123   +   42  $endMarker""",
-    s"""val x: Int = 123 + 42"""
+    s"""val x: Int = 123 + 42  """
   )
 
   def testRemoveWhitespaces_2(): Unit = doTextTest(
     s"""val   x   :$startMarker   Int   =   123   +   42  $endMarker""",
-    s"""val   x   : Int = 123 + 42"""
+    s"""val   x   : Int = 123 + 42  """
   )
+
+  def testSCL14030(): Unit = {
+    doTextTest(
+      s"""object Example {
+         |  trait Foo {
+         |    def foo: Int
+         |    def bar: Int
+         |    def baz: Int
+         |  }
+         |
+         |  val a: Foo = ${start}new Foo {override def bar: Int = ???
+         |override def baz: Int = ???
+         |override def qux: Int = ???
+         |}${end}
+         |}
+         |""".stripMargin,
+      s"""object Example {
+         |  trait Foo {
+         |    def foo: Int
+         |    def bar: Int
+         |    def baz: Int
+         |  }
+         |
+         |  val a: Foo = new Foo {
+         |    override def bar: Int = ???
+         |    override def baz: Int = ???
+         |    override def qux: Int = ???
+         |  }
+         |}
+         |""".stripMargin
+    )
+  }
 }

@@ -16,13 +16,17 @@ final class ScalaFormattingModelBuilder extends FormattingModelBuilder {
 
   import ScalaFormattingModelBuilder._
 
-  override def createModel(element: PsiElement,
-                           styleSettings: CodeStyleSettings): PsiBasedFormattingModel = {
+  override def createModel(formattingContext: FormattingContext): FormattingModel = {
+    val element = formattingContext.getPsiElement
+    val styleSettings= formattingContext.getCodeStyleSettings
+
     Log.assertTrue(element.getNode != null, "AST should not be null for: " + element)
 
     if (styleSettings.getCustomSettings(classOf[settings.ScalaCodeStyleSettings]).USE_SCALAFMT_FORMATTER) {
       //preprocessing is done by this point, use this little side-effect to clean-up ranges synchronization
-      ScalaFmtPreFormatProcessor.clearRangesCache()
+      // NOTE: looks like (only looks) this is not required?
+      // I replaced this line directly in ScalaFmtPreFormatProcessor.process with rangesDeltaCache.remove(psiFile)
+      //ScalaFmtPreFormatProcessor.clearRangesCache()
     }
 
     val file = element.getContainingFile

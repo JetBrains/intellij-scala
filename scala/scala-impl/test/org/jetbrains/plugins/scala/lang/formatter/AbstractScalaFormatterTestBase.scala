@@ -223,7 +223,7 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     textAfter.foreach(check)
   }
 
-  private def prepareText(actual0: String) = {
+  protected def prepareText(actual0: String): String = {
     val actual1 = if (actual0.startsWith("\n")) actual0.substring(1) else actual0
     val actual2 =  if (actual1.startsWith("\n")) actual1.substring(1) else actual1
     // Strip trailing spaces
