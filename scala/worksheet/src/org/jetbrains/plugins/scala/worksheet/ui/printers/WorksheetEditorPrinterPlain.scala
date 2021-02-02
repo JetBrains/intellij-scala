@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.{CalledInAwt, TestOnly}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor.ServiceMarkers
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.InputOutputFoldingInfo
@@ -29,7 +28,7 @@ final class WorksheetEditorPrinterPlain private[printers](
   private val myLock = new Object()
 
   // used to flush collected output if there is some long process generating running
-  private val flushTimer = new Timer(WorksheetEditorPrinterFactory.IDLE_TIME_MLS, _ => flushOnTimer())
+  private val flushTimer = new Timer(WorksheetEditorPrinterFactory.IDLE_TIME.toMillis.toInt, _ => flushOnTimer())
 
   private val evaluatedChunks = ArrayBuffer[EvaluationChunk]()
 
@@ -52,8 +51,9 @@ final class WorksheetEditorPrinterPlain private[printers](
   override def scheduleWorksheetUpdate(): Unit = flushTimer.start()
 
   /** @param line single worksheet output line, currently expecting with '\n' in the end */
-  override def processLine(line: String): Boolean = myLock.synchronized {
-    //debug(s"line: ${line.replaceAll("\n", " \\\\n ")}")
+  override def processLine(line: String): Boolean = try myLock.synchronized {
+    //debug(s"processLine start: ${line.replaceAll("\n", " \\\\n ")}")
+    //Thread.sleep(20) // for concurrency issue debugging
     if (isTerminationLine(line)) {
       flushBuffer()
       terminated = true
@@ -90,6 +90,8 @@ final class WorksheetEditorPrinterPlain private[printers](
     }
 
     false
+  } finally {
+    //debug(s"processLine end")
   }
 
   override def internalError(ex: Throwable): Unit = myLock.synchronized {
@@ -105,7 +107,7 @@ final class WorksheetEditorPrinterPlain private[printers](
 
     stopTimer()
 
-    flushContent()
+    flushContentSync()
 
     invokeAndWait {
       worksheetViewer.getMarkupModel.removeAllHighlighters()
@@ -116,18 +118,36 @@ final class WorksheetEditorPrinterPlain private[printers](
     }
   }
 
+  @volatile
+  private var flushingInProcess = false
+
   // currently we re-render text on each mid-flush (~once per 1 second for long processes),
   // for now we are ok with this cause `renderText` proved to be quite a lightweight operation
   // Called from timer, so body invoked in EDT
   @RequiresEdt
-  @Measure
-  private def flushOnTimer(): Unit = myLock.synchronized {
-    if (terminated) return
-
-    flushContent()
+  private def flushOnTimer(): Unit = {
+    //debug("flushOnTimer start")
+    if (terminated) {
+      //debug("flushOnTimer skip (printer is already terminated)")
+    }
+    else if (flushingInProcess) {
+      //debug("flushOnTimer skip (flushing is already in process)")
+    }
+    else {
+      flushingInProcess = true
+      executeOnPooledThread {
+        flushContentSync()
+        //debug("flushOnTimer end (flushed)")
+        flushingInProcess = false
+      }
+    }
   }
 
-  private def flushContent(): Unit = {
+  private def flushContentSync(): Unit = myLock.synchronized {
+    Log.assertTrue(
+      !ApplicationManager.getApplication.isDispatchThread,
+      "flushContent should not be called on EDT to avoid deadlocks"
+    )
     if (buffed == 0) return
 
     val lastChunkOpt = buildIncompleteLastChunkOpt
@@ -232,37 +252,36 @@ object WorksheetEditorPrinterPlain {
     else {
       val result = ArrayBuffer(ArrayBuffer(chunks.head))
 
-    chunks.sliding(2).foreach {
-      case collection.Seq(prev, curr) =>
-        def logExtraDebugInfo = {
-          val application = ApplicationManager.getApplication
-          application.isUnitTestMode || application.isInternal
-        }
-        def extraDebugInfo =
-          if (logExtraDebugInfo) chunks.mkString("chunks:\n", "\n", "") else ""
+      chunks.sliding(2).foreach {
+        case collection.Seq(prev, curr) =>
+          def logExtraDebugInfo = {
+            val application = ApplicationManager.getApplication
+            application.isUnitTestMode || application.isInternal
+          }
+          def extraDebugInfo =
+            if (logExtraDebugInfo) chunks.mkString("chunks:\n", "\n", "") else ""
 
-        Log.assertTrue(
-          prev.inputEndLine <= curr.inputStartLine,
-          s"""chunks should be ordered:
-             |prev: (${prev.inputStartLine}, ${prev.inputEndLine})
-             |curr: (${curr.inputStartLine}, ${curr.inputEndLine})
-             |$extraDebugInfo""".stripMargin
-        )
+          Log.assertTrue(
+            prev.inputEndLine <= curr.inputStartLine,
+            s"""chunks should be ordered:
+               |prev: (${prev.inputStartLine}, ${prev.inputEndLine})
+               |curr: (${curr.inputStartLine}, ${curr.inputEndLine})
+               |$extraDebugInfo""".stripMargin
+          )
 
-        if (prev.inputEndLine == curr.inputStartLine) {
-          result.last += curr
-        } else {
-          result += ArrayBuffer(curr)
-        }
-      case _ => // only one chunk is present for now
+          if (prev.inputEndLine == curr.inputStartLine) {
+            result.last += curr
+          } else {
+            result += ArrayBuffer(curr)
+          }
+        case _ => // only one chunk is present for now
+      }
+
+      result
     }
-
-    result
-  }
 
 
   // TODO: unify with REPL printer, reuse concepts
-  @Measure
   private def renderText(chunks: collection.Seq[EvaluationChunk]): (CharSequence, Seq[InputOutputFoldingInfo]) = {
     val resultText = new StringBuilder()
     val resultFoldingsBuilder = ArraySeq.newBuilder[InputOutputFoldingInfo]

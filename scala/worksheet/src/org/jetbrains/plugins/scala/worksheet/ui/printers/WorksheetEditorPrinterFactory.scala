@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.worksheet.ui.printers
 
-import java.awt.{BorderLayout, Dimension}
-import java.util
-
 import com.intellij.diff.tools.util.BaseSyncScrollable
 import com.intellij.diff.tools.util.SyncScrollSupport.TwosideSyncScrollSupport
 import com.intellij.ide.DataManager
@@ -17,7 +14,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.ui.JBSplitter
-import javax.swing.{JComponent, JLayeredPane}
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, StringExt, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.util.ui.extensions.JComponentExt
@@ -27,12 +24,23 @@ import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWor
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetDiffSplitters, WorksheetFoldGroup}
 import org.jetbrains.plugins.scala.worksheet.utils.FileAttributeUtilCache
 
+import java.awt.{BorderLayout, Dimension}
+import java.util
+import javax.swing.{JComponent, JLayeredPane}
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
+
 //noinspection TypeAnnotation
 object WorksheetEditorPrinterFactory {
 
   val END_MESSAGE = WorksheetBundle.message("worksheet.printers.output.exceeds.cutoff.limit") + "\n"
-  val BULK_COUNT = 15
-  val IDLE_TIME_MLS = 1000
+  val BULK_COUNT = 15 // TODO: add a setting
+
+  private var _IDLE_TIME: FiniteDuration = 1000.millis
+  def IDLE_TIME: FiniteDuration = _IDLE_TIME
+  @TestOnly
+  def IDLE_TIME_=(value: FiniteDuration): Unit = _IDLE_TIME = value
+
+
   val DEFAULT_WORKSHEET_VIEWERS_RATIO = 0.5f
   val DIFF_SPLITTER_KEY: Key[SimpleWorksheetSplitter] = Key.create[SimpleWorksheetSplitter]("SimpleWorksheetViewerSplitter")
 

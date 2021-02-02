@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.WorksheetEvaluationTests
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions.assertStringMatches
-import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners._
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.{Folding, ViewerEditorData}
@@ -22,7 +22,7 @@ import org.junit.Assert._
 import org.junit.ComparisonFailure
 import org.junit.experimental.categories.Category
 
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration.{Duration, DurationInt, FiniteDuration}
 import scala.language.postfixOps
 
 //noinspection RedundantBlock
@@ -413,8 +413,43 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
     assertNoErrorMessages(editor)
   }
 
-  def testAutoFlushOnLongEvaluation(): Unit = {
-    val sleepTime = WorksheetEditorPrinterFactory.IDLE_TIME_MLS
+  def testAutoFlushOnLongEvaluation_DefaultAutoFlushTimeout(): Unit =
+    doTestAutoFlushOnLongEvaluationNTimes(
+      timesToRunTest = 3,
+      autoFlushTimeout = WorksheetEditorPrinterFactory.IDLE_TIME,
+      sleepInLoop = WorksheetEditorPrinterFactory.IDLE_TIME.mul(1.1)
+    )
+
+  // flush timeout is currently not intended to be changed  by user via any setting,
+  // but this test helps catching concurrency bugs
+  def testAutoFlushOnLongEvaluation_SmallAutoFlushTimeout(): Unit =
+    doTestAutoFlushOnLongEvaluationNTimes(
+      timesToRunTest = 20,
+      autoFlushTimeout = 10.millis,
+      sleepInLoop = 100.millis
+    )
+
+  /** @param timesToRunTest use large values  to catch concurrency-related bugs locally */
+  private def doTestAutoFlushOnLongEvaluationNTimes(
+    timesToRunTest: Int,
+    autoFlushTimeout: FiniteDuration,
+    sleepInLoop: Duration,
+  ): Unit = {
+    val before = WorksheetEditorPrinterFactory.IDLE_TIME
+    try {
+      WorksheetEditorPrinterFactory.IDLE_TIME = autoFlushTimeout
+      val attempts = timesToRunTest
+      for (i <- 1 to attempts) {
+        println(s"test run $i")
+        doTestAutoFlushOnLongEvaluation(sleepInLoop)
+      }
+    } finally {
+      WorksheetEditorPrinterFactory.IDLE_TIME = before
+    }
+  }
+
+  private def doTestAutoFlushOnLongEvaluation(sleepInLoop: Duration): Unit = {
+    val sleepTime: Int = sleepInLoop.toMillis.toInt
     val leftText =
       s"""println("a\\nb\\nc")
          |
@@ -427,27 +462,30 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
          |
          |foo()
          |foo()
-         |""".stripMargin
-
-    val rightCommonText =
-      s"""${foldStart}a
-         |b
-         |c
-         |res0: Unit = ()$foldEnd
-         |
-         |foo: foo[]() => Unit
-         |
-         |
-         |
-         |
-         |
-         |""".stripMargin
+         |""".stripMargin // TODO: extra foo()
 
     // NOTE: this test operates with race condition (worksheet prints with timeout, printer timer flushes with timout)
     // so it's hard to test the exact states during evaluation. But we know for sure that the resulting states should
     // be from the below set in the same order. (so, some states can be missing)
+    // NOTE: each output line is processed separately, even for the same input line
+    // between these processing auto-flush can appear
+    val states1 = Seq(
+      s"a",
+      s"${foldStart}a\nb$foldEnd",
+      s"${foldStart}a\nb\nc$foldEnd",
+      s"${foldStart}a\nb\nc\nres0: Unit = ()$foldEnd",
+      s"${foldStart}a\nb\nc\nres0: Unit = ()$foldEnd\n",
+      s"${foldStart}a\nb\nc\nres0: Unit = ()$foldEnd\n\n",
+      s"${foldStart}a\nb\nc\nres0: Unit = ()$foldEnd\n\nfoo: foo[]() => Unit",
+      s"${foldStart}a\nb\nc\nres0: Unit = ()$foldEnd\n\nfoo: foo[]() => Unit\n",
+      s"${foldStart}a\nb\nc\nres0: Unit = ()$foldEnd\n\nfoo: foo[]() => Unit\n\n",
+      s"${foldStart}a\nb\nc\nres0: Unit = ()$foldEnd\n\nfoo: foo[]() => Unit\n\n\n",
+      s"${foldStart}a\nb\nc\nres0: Unit = ()$foldEnd\n\nfoo: foo[]() => Unit\n\n\n\n",
+      s"${foldStart}a\nb\nc\nres0: Unit = ()$foldEnd\n\nfoo: foo[]() => Unit\n\n\n\n\n",
+      s"${foldStart}a\nb\nc\nres0: Unit = ()$foldEnd\n\nfoo: foo[]() => Unit\n\n\n\n\n\n",
+    )
     //noinspection RedundantBlock
-    val rightTimerFlushedStates = Array(
+    val states2 = Seq(
       "",
       s"\nHello 1",
       s"\n${foldStart}Hello 1\nHello 2${foldEnd}",
@@ -457,28 +495,44 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
       s"\n${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\n${foldStart}Hello 1\nHello 2$foldEnd",
       s"\n${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\n${foldStart}Hello 1\nHello 2\nHello 3$foldEnd",
       s"\n${foldStart}Hello 1\nHello 2\nHello 3\nres1: Unit = ()${foldEnd}\n${foldStart}Hello 1\nHello 2\nHello 3\nres2: Unit = ()$foldEnd",
-    )
+    ).map(states1.last + _)
 
-    val rightTextStates: Array[String] = rightTimerFlushedStates.map(rightCommonText + _).map(_.withNormalizedSeparator)
+    val rightExpectedStates = (states1 ++ states2).map(_.withNormalizedSeparator)
 
     val viewerStates: Seq[ViewerEditorData] = runLongEvaluation(leftText).distinct
 
-    val statesSeparator = "\n#####\n"
-    def expectedStates = rightTextStates.zipWithIndex.map { case (state, idx) => s"$idx: $state" }.toSeq.mkString(statesSeparator)
+    def statesText(statesRendered: Seq[String]): String = {
+      val statesSeparator = "\n#####\n"
+      statesRendered.zipWithIndex.map { case (state, idx) => s"$idx: $state" }.mkString(statesSeparator)
+    }
 
     val flushAtLeast = 3
-    assertTrue(s"editor should be flushed at least $flushAtLeast times", viewerStates.size >= flushAtLeast)
+    assertTrue(
+      s"""editor should be flushed at least $flushAtLeast times, but flushed only ${viewerStates.size} times, states:
+         |${statesText(viewerStates.map(renderViewerData))}""".stripMargin,
+      viewerStates.size >= flushAtLeast
+    )
     var lastStateIdx = -1
     viewerStates.zipWithIndex.foreach { case (actualViewerState, actualStateIdx) =>
       val actualTextWithFoldings = renderViewerData(actualViewerState)
-      rightTextStates.indexWhere(_ == actualTextWithFoldings) match {
+      rightExpectedStates.indexWhere(_ == actualTextWithFoldings) match {
         case idx if idx > lastStateIdx=>
           lastStateIdx = idx
         case _ =>
-          val message = s"editor state at step $actualStateIdx doesn't match any expected state"
-          throw new ComparisonFailure(message, expectedStates, actualTextWithFoldings)
+          val message = s"editor state at step $actualStateIdx doesn't match any expected state:\n$actualTextWithFoldings"
+          val expected = statesText(rightExpectedStates)
+          val actual = statesText(viewerStates.map(renderViewerData))
+          // NOTE: it's not actually a proper usage of ComparisonFailure, cause left and right are not intended to be equal
+          // but I use it to conveniently view expected and actual states in a diff view in IDEA
+          throw new ComparisonFailure(message, expected, actual)
       }
     }
+
+    assertEquals(
+      "final editor state doesn't match",
+      rightExpectedStates.last,
+      renderViewerData(viewerStates.last)
+    )
   }
 
   private def renderViewerData(viewerData: ViewerEditorData): String = {
