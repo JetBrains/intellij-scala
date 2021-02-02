@@ -71,7 +71,7 @@ trait Type {
     if (!parseWildcardStartToken())
       return false
 
-    Bounds.parseSubtypeBounds()
+    if (!isPattern) Bounds.parseSubtypeBounds()
     typeMarker.done(ScalaElementType.WILDCARD_TYPE)
 
     // TODO: looks like this is a dead code, no tests trigger breakpoint inside, leaving it just in case...
@@ -80,7 +80,7 @@ trait Type {
         val funMarker = typeMarker.precede()
         builder.advanceLexer() //Ate =>
         if (!Type(isPattern = isPattern)) {
-          builder error ScalaBundle.message("wrong.type")
+          builder.error(ScalaBundle.message("wrong.type"))
         }
         funMarker.done(ScalaElementType.TYPE)
       case _ =>
