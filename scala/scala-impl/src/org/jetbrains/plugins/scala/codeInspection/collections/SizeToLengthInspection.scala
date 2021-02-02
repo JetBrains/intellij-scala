@@ -27,7 +27,7 @@ object SizeToLength extends SimplificationType {
   }
   
   def isString(tp: ScType): Boolean = {
-    val extracted = tp.tryExtractDesignatorSingleton
+    val extracted = tp.widenIfLiteral.tryExtractDesignatorSingleton
     val canonicalText = extracted.canonicalText
     canonicalText == "_root_.java.lang.String" || canonicalText == "_root_.scala.Predef.String"
   }
