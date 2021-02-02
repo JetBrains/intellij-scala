@@ -1420,11 +1420,11 @@
                          groupPath="Scala,Collections" groupKey="group.simplifications.filter.and.exists"
                          shortName="FilterSize" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FindAndMapToApplyInspection"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FindAndMapToGetInspection"
                          bundle="messages.ScalaInspectionBundle"
-                         key="displayname.find.and.map.to.apply"
+                         key="displayname.find.and.map.to.get"
                          groupPath="Scala,Collections" groupKey="group.simplifications.find.and.map.to.apply"
-                         shortName="FindAndMapToApply" level="WARNING"
+                         shortName="FindAndMapToGet" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ExistsEqualsInspection"
                          bundle="messages.ScalaInspectionBundle"
