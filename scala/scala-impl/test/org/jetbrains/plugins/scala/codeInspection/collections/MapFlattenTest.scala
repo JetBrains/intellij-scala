@@ -2,12 +2,9 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
-import com.intellij.testFramework.EditorTestUtil
+abstract class MapFlattenTestBase extends OperationsOnCollectionInspectionTest {
 
-/**
- * @author Nikolay.Tropin
- */
-class MapFlattenTest extends OperationsOnCollectionInspectionTest {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= LatestScalaVersions.Scala_2_12
 
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[MapFlattenInspection]
@@ -55,10 +52,6 @@ class MapFlattenTest extends OperationsOnCollectionInspectionTest {
     )
   }
 
-  def testSCL10574(): Unit = {
-    checkTextHasNoErrors("Seq(1).map(Option.apply).flatten")
-  }
-
   def testSCL12675(): Unit = {
     checkTextHasNoErrors(
       """
@@ -75,4 +68,23 @@ class MapFlattenTest extends OperationsOnCollectionInspectionTest {
         |seq.map((f _).tupled).flatten.headOption
       """.stripMargin)
   }
+}
+
+class MapFlattenTest_2_12 extends MapFlattenTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= LatestScalaVersions.Scala_2_12
+
+  def testSCL10574(): Unit = {
+    checkTextHasNoErrors("Seq(1).map(Option.apply).flatten")
+  }
+}
+
+class MapFlattenTest_2_13 extends MapFlattenTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version > LatestScalaVersions.Scala_2_12
+
+  def testSCL10574(): Unit = doTest(
+    s"Seq(1).${START}map(Option.apply).flatten$END",
+    "Seq(1).map(Option.apply).flatten",
+    "Seq(1).flatMap(Option.apply)"
+  )
+
 }
