@@ -44,7 +44,7 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
   override protected def afterSetUpProject(module: Module): Unit = {
     super.afterSetUpProject(module)
     LocalFileSystem.getInstance().refresh(false)
-    myDirectory = PsiTestUtil.createTestProjectStructure(projectAdapter, moduleAdapter, rootBefore, new util.HashSet[Path]())
+    myDirectory = PsiTestUtil.createTestProjectStructure(projectAdapter, moduleAdapter, rootBefore, new util.HashSet[Path](), true)
     filesBefore =
       VfsUtil.collectChildrenRecursively(myDirectory.findChild("tests")).asScala
         .filter(!_.isDirectory)

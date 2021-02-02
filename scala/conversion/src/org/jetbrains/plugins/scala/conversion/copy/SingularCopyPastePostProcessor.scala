@@ -46,7 +46,7 @@ abstract class SingularCopyPastePostProcessor[T <: TextBlockTransferableData](da
 
   override final def processTransferableData(project: Project, editor: Editor,
                                              bounds: RangeMarker, caretOffset: Int,
-                                             ref: Ref[JBoolean], values: ju.List[T]): Unit =
+                                             ref: Ref[_ >: JBoolean], values: ju.List[_ <: T]): Unit =
     PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument) match {
       case scalaFile: ScalaFile =>
         Option(scalaFile.findElementAt(caretOffset)) match {
@@ -60,7 +60,7 @@ abstract class SingularCopyPastePostProcessor[T <: TextBlockTransferableData](da
     }
 
   def processTransferableData(bounds: RangeMarker, caretOffset: Int,
-                              ref: Ref[JBoolean], value: T)
+                              ref: Ref[_ >: JBoolean], value: T)
                              (implicit project: Project,
                               editor: Editor,
                               file: ScalaFile): Unit

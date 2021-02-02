@@ -100,7 +100,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
   }
 
   override def processTransferableData(bounds: RangeMarker, caretOffset: Int,
-                                       ref: Ref[Boolean], value: ConvertedCode)
+                                       ref: Ref[_ >: Boolean], value: ConvertedCode)
                                       (implicit project: Project,
                                        editor: Editor,
                                        file: ScalaFile): Unit = {

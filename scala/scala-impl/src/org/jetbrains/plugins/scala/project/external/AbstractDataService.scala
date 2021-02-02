@@ -31,7 +31,7 @@ abstract class AbstractDataService[E, I](key: Key[E]) extends AbstractProjectDat
 
   override def getTargetDataKey: Key[E] = key
 
-  override final def importData(toImport: util.Collection[DataNode[E]],
+  override final def importData(toImport: util.Collection[_ <: DataNode[E]],
                                 projectData: ProjectData,
                                 project: Project,
                                 modelsProvider: IdeModifiableModelsProvider): Unit =
