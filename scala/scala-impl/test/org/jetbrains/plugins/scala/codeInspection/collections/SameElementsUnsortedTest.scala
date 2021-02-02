@@ -27,7 +27,7 @@ class SameElementsUnsortedTest extends CorrespondsUnsortedInspectionTest {
   }
 
   def testSeqMap(): Unit = {
-    checkTextHasError(s"Map(1) ${START}sameElements$END Seq(1)")
+    checkTextHasError(s"Map(1 -> 1) ${START}sameElements$END Seq(1)")
   }
 
   def testSeqIterable(): Unit = {
