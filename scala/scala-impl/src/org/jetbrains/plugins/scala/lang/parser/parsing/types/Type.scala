@@ -69,7 +69,6 @@ trait Type {
     if (!parseWildcardStartToken())
       return false
 
-    builder.advanceLexer() // eat _ or ?
     if (!isPattern) Bounds.parseSubtypeBounds()
     typeMarker.done(ScalaElementType.WILDCARD_TYPE)
 
