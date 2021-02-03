@@ -14,6 +14,8 @@ import com.intellij.openapi.roots.PackageIndex;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.impl.libraries.LibraryEx;
 import com.intellij.openapi.roots.libraries.Library;
+import com.intellij.openapi.roots.libraries.LibraryTable;
+import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
 import com.intellij.openapi.roots.ui.configuration.JavaVfsSourceRootDetectionUtil;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.*;
@@ -47,7 +49,7 @@ public class AttachIntellijSourcesAction extends AnAction {
 
         Application application            = ApplicationManager.getApplication();
 
-        Set<LibraryOrderEntry> ijLibraries = application.runReadAction(getSourcelessIJLibraries(project));
+        Set<Library> ijLibraries = application.runReadAction(getSourcelessIJLibraries(project));
         if (ijLibraries.isEmpty()) {
             LOG.info("No IJ libraries without sources found in current project");
             return;
@@ -67,6 +69,7 @@ public class AttachIntellijSourcesAction extends AnAction {
             return;
         }
 
+        //noinspection DialogTitleCapitalization
         new Task.Backgroundable(project, DevkitBundle.message("attaching.idea.sources"), true) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
@@ -76,7 +79,6 @@ public class AttachIntellijSourcesAction extends AnAction {
 
                 ApplicationManager.getApplication().invokeLater(() -> {
                     ijLibraries.stream()
-                            .map(LibraryOrderEntry::getLibrary)
                             .filter(LibraryEx.class::isInstance)
                             .map(LibraryEx.class::cast)
                             .forEach(library -> application.runWriteAction(addLibrary(library, roots, indicator)));
@@ -98,27 +100,49 @@ public class AttachIntellijSourcesAction extends AnAction {
 
 
     @NotNull
-    private static Computable<Optional<VirtualFile>> getLibraryRoot(@NotNull Set<LibraryOrderEntry> sourceless) {
+    private static Computable<Optional<VirtualFile>> getLibraryRoot(@NotNull Set<Library> sourceless) {
         return () -> sourceless
                 .stream()
-                .map(entry -> entry.getFiles(OrderRootType.CLASSES))
+                .map(library -> library.getFiles(OrderRootType.CLASSES))
                 .map(AttachIntellijSourcesAction::findIJInstallationDirectory)
                 .filter(Objects::nonNull)
                 .findFirst();
     }
 
+    private static final ArrayList<String> CLASSIFIERS = new ArrayList<>();
+    static {
+        CLASSIFIERS.add("[IJ-SDK]");
+//        CLASSIFIERS.add("[IJ-PLUGIN]"); // disabled for performance reasons until IDEA-246022 is fixed
+    }
+
     @NotNull
-    private static Computable<Set<LibraryOrderEntry>> getSourcelessIJLibraries(@NotNull Project project) {
-        return () -> Arrays
-                .stream(PackageIndex.getInstance(project).getDirectoriesByPackageName("com.intellij", false))
-                .flatMap(file -> getLibraryOrderEntries(project, file))
+    private static Set<Library> getSourcelessIJLibrariesByClassifier(@NotNull Project project) {
+        LibraryTable libraryTable = LibraryTablesRegistrar.getInstance().getLibraryTable(project);
+        return Arrays.stream(libraryTable.getLibraries())
+                .filter(library -> {
+                    String libraryName = library.getName();
+                    return libraryName != null && CLASSIFIERS.stream().anyMatch(libraryName::contains);
+                })
                 .filter(AttachIntellijSourcesAction::isSourceless)
-                .limit(1)          // only take the first matching library, this should be enough
                 .collect(Collectors.toSet());
     }
 
-    private static Computable<Set<VirtualFile>> detectSourceRoots(@NotNull VirtualFile sourcesZip) {
-        return null;
+    @NotNull
+    private static Computable<Set<Library>> getSourcelessIJLibraries(@NotNull Project project) {
+        return () -> {
+            Set<Library> librariesByClassifier = getSourcelessIJLibrariesByClassifier(project);
+            if (!librariesByClassifier.isEmpty())
+                return librariesByClassifier;
+            else
+                return Arrays
+                        .stream(PackageIndex.getInstance(project).getDirectoriesByPackageName("com.intellij", false))
+                        .flatMap(file -> getLibraryOrderEntries(project, file))
+                        .map(LibraryOrderEntry::getLibrary)
+                        .filter(Objects::nonNull)
+                        .filter(AttachIntellijSourcesAction::isSourceless)
+                        .limit(1)          // only take the first matching library, this should be enough
+                        .collect(Collectors.toSet());
+        };
     }
 
     @NotNull
@@ -131,9 +155,8 @@ public class AttachIntellijSourcesAction extends AnAction {
                         .map(LibraryOrderEntry.class::cast);
     }
 
-    private static boolean isSourceless(@NotNull LibraryOrderEntry entry) {
-        Library library = entry.getLibrary();
-        return library != null && library.getUrls(OrderRootType.SOURCES).length == 0;
+    private static boolean isSourceless(@NotNull Library library) {
+        return library.getUrls(OrderRootType.SOURCES).length == 0;
     }
 
     @Nullable
