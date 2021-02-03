@@ -6,11 +6,13 @@ import org.jetbrains.plugins.scala.codeInspection.collections.UnzipSingleElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
+import scala.collection.immutable.ArraySeq
+
 /**
   * @author t-kameyama
   */
 class UnzipSingleElementInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(UnzipSingleElement)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(UnzipSingleElement)
 }
 
 private object UnzipSingleElementInspection {
@@ -31,9 +33,9 @@ private object UnzipSingleElementInspection {
       replace(e).withText(text).highlightFrom(q)
     }
 
-    private val `._1` = invocation("_1").from(Array("scala.Tuple2", "scala.Tuple3"))
-    private val `._2` = invocation("_2").from(Array("scala.Tuple2", "scala.Tuple3"))
-    private val `._3` = invocation("_3").from(Array("scala.Tuple3"))
+    private val `._1` = invocation("_1").from(ArraySeq("scala.Tuple2", "scala.Tuple3"))
+    private val `._2` = invocation("_2").from(ArraySeq("scala.Tuple2", "scala.Tuple3"))
+    private val `._3` = invocation("_3").from(ArraySeq("scala.Tuple3"))
   }
 
 }

@@ -3,21 +3,22 @@ package codeInspection.collections
 
 import java.awt.{Component, GridLayout}
 import java.util
-
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.ui.{InputValidator, Messages}
 import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.psi.PsiElement
 import com.intellij.ui._
+
 import javax.swing._
 import javax.swing.event.ChangeEvent
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspectionBase._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle, charExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProjectSettingsUtil}
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
 import scala.annotation.nowarn
+import scala.collection.immutable.ArraySeq
 
 /**
  * Nikolay.Tropin
@@ -69,7 +70,7 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
 
   def highlightType: ProblemHighlightType = ProblemHighlightType.GENERIC_ERROR_OR_WARNING
 
-  private def simplifications(expr: ScExpression): Array[Simplification] = {
+  private def simplifications(expr: ScExpression): Seq[Simplification] = {
     def simplificationTypes = for {
       (st, idx) <- possibleSimplificationTypes.zipWithIndex
       if getSimplificationTypesEnabled(idx)
@@ -78,12 +79,12 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
     simplificationTypes.flatMap(st => st.getSimplifications(expr) ++ st.getSimplification(expr))
   }
 
-  def getLikeCollectionClasses: Array[String] = settings.getLikeCollectionClasses
-  def getLikeOptionClasses: Array[String] = settings.getLikeOptionClasses
-  def setLikeCollectionClasses(values: Array[String]): Unit = settings.setLikeCollectionClasses(values)
-  def setLikeOptionClasses(values: Array[String]): Unit = settings.setLikeOptionClasses(values)
+  def getLikeCollectionClasses: Seq[String] = ArraySeq.unsafeWrapArray(settings.getLikeCollectionClasses)
+  def getLikeOptionClasses: Seq[String] = ArraySeq.unsafeWrapArray(settings.getLikeOptionClasses)
+  def setLikeCollectionClasses(values: Seq[String]): Unit = settings.setLikeCollectionClasses(values.toArray)
+  def setLikeOptionClasses(values: Seq[String]): Unit = settings.setLikeOptionClasses(values.toArray)
 
-  def possibleSimplificationTypes: Array[SimplificationType]
+  def possibleSimplificationTypes: Seq[SimplificationType]
   def getSimplificationTypesEnabled: Array[java.lang.Boolean]
   def setSimplificationTypesEnabled(values: Array[java.lang.Boolean]): Unit
 
@@ -104,11 +105,10 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
       val innerPanel = new JPanel()
       innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.Y_AXIS))
       for (i <- possibleSimplificationTypes.indices) {
-        val enabled: Array[java.lang.Boolean] = getSimplificationTypesEnabled
+        val enabled = getSimplificationTypesEnabled
         val checkBox = new JCheckBox(possibleSimplificationTypes(i).description, enabled(i))
         checkBox.getModel.addChangeListener((_: ChangeEvent) => {
-          enabled(i) = checkBox.isSelected
-          setSimplificationTypesEnabled(enabled)
+          setSimplificationTypesEnabled(enabled.updated(i, checkBox.isSelected))
         })
         innerPanel.add(checkBox)
       }
@@ -120,13 +120,13 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
     }
 
     def createPatternListPanel(parent: JComponent, patternListKey: String): JComponent = {
-      val patternList: Array[String] = patternLists(patternListKey)()
+      val patternList = patternLists(patternListKey)()
       val listModel = JListCompatibility.createDefaultListModel()
       patternList.foreach(JListCompatibility.add(listModel, listModel.size, _))
       val patternJBList = JListCompatibility.createJBListFromModel(listModel)
       def resetValues(): Unit = {
         val newArray = listModel.toArray collect {case s: String => s}
-        setPatternLists(patternListKey)(newArray)
+        setPatternLists(patternListKey)(ArraySeq.unsafeWrapArray(newArray))
       }
       val panel = ToolbarDecorator.createDecorator(patternJBList).setAddAction(new AnActionButtonRunnable {
         def addPattern(pattern: String): Unit = {

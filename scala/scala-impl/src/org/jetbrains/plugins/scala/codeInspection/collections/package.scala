@@ -22,13 +22,14 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 import scala.annotation.tailrec
+import scala.collection.immutable.ArraySeq
 
 /**
  * @author Nikolay.Tropin
  */
 package object collections {
-  def likeCollectionClasses: Array[String] = ScalaApplicationSettings.getInstance().getLikeCollectionClasses
-  def likeOptionClasses: Array[String] = ScalaApplicationSettings.getInstance().getLikeOptionClasses
+  def likeCollectionClasses: ArraySeq[String] = ArraySeq.unsafeWrapArray(ScalaApplicationSettings.getInstance().getLikeCollectionClasses)
+  def likeOptionClasses: ArraySeq[String] = ArraySeq.unsafeWrapArray(ScalaApplicationSettings.getInstance().getLikeOptionClasses)
 
   val monadicMethods = Set("map", "flatMap", "filter", "withFilter")
   val foldMethodNames = Set("foldLeft", "/:", "foldRight", ":\\", "fold")
@@ -84,7 +85,7 @@ package object collections {
   private[collections] val `.corresponds` = invocation("corresponds").from(likeCollectionClasses)
 
   private[collections] val `.toString` = invocation("toString") // on everything
-  private[collections] val `.to` = invocation("to").from(Array("RichInt", "RichChar", "RichLong", "RichDouble", "RichFloat").map("scala.runtime." + _))
+  private[collections] val `.to` = invocation("to").from(ArraySeq("RichInt", "RichChar", "RichLong", "RichDouble", "RichFloat").map("scala.runtime." + _))
 
   val `!=`: Qualified = invocation("!=")
   val `==`: Qualified = invocation(Set("==", "equals"))
@@ -103,7 +104,7 @@ package object collections {
   private[collections] val `.toSet` = invocation("toSet").from(likeCollectionClasses)
   private[collections] val `.toIterator` = invocation("toIterator").from(likeCollectionClasses)
 
-  private[collections] val `.lift` = invocation("lift").from(Array(PartialFunctionType.TypeName))
+  private[collections] val `.lift` = invocation("lift").from(ArraySeq(PartialFunctionType.TypeName))
 
   private[collections] val `.monadicMethod` = invocation(monadicMethods).from(likeCollectionClasses)
 
@@ -356,7 +357,7 @@ package object collections {
     result
   }
 
-  def checkResolve(expr: ScExpression, patterns: Array[String]): Boolean = {
+  def checkResolve(expr: ScExpression, patterns: Seq[String]): Boolean = {
     Option(expr).collect {
       case ref: ScReferenceExpression => ref.resolve()
     }.flatMap {
@@ -368,13 +369,13 @@ package object collections {
     }
   }
 
-  def isOfClassFrom(expr: ScExpression, patterns: Array[String]): Boolean =
+  def isOfClassFrom(expr: ScExpression, patterns: Seq[String]): Boolean =
     expr.`type`().toOption.exists(isOfClassFrom(_, patterns))
 
-  def isOfClassFrom(`type`: ScType, patterns: Array[String]): Boolean =
+  def isOfClassFrom(`type`: ScType, patterns: Seq[String]): Boolean =
     `type`.tryExtractDesignatorSingleton.extractClass.exists(qualifiedNameFitToPatterns(_, patterns))
 
-  private def qualifiedNameFitToPatterns(clazz: PsiClass, patterns: Array[String]) =
+  private def qualifiedNameFitToPatterns(clazz: PsiClass, patterns: Seq[String]) =
     Option(clazz).flatMap(c => Option(c.qualifiedName))
       .exists(ScalaNamesUtil.nameFitToPatterns(_, patterns, strict = false))
 
@@ -384,7 +385,7 @@ package object collections {
 
   def isArray(expr: ScExpression): Boolean = expr match {
     case Typeable(JavaArrayType(_)) => true
-    case _ => isOfClassFrom(expr, Array("scala.Array"))
+    case _ => isOfClassFrom(expr, ArraySeq("scala.Array"))
   }
 
   def isString: ScExpression => Boolean =
@@ -432,7 +433,7 @@ package object collections {
       def isSideEffectCollectionMethod(ref: ScReferenceExpression): Boolean = {
         val refName = ref.refName
         (refName.endsWith("=") || refName.endsWith("=:") || sideEffectsCollectionMethods.contains(refName)) &&
-                checkResolve(ref, Array("scala.collection.mutable._", "scala.collection.Iterator"))
+                checkResolve(ref, ArraySeq("scala.collection.mutable._", "scala.collection.Iterator"))
       }
 
       def isSetter(ref: ScReferenceExpression): Boolean = {

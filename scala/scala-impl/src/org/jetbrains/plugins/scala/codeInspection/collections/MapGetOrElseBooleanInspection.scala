@@ -4,13 +4,15 @@ package collections
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
+import scala.collection.immutable.ArraySeq
+
 /**
   * Nikolay.Tropin
   * 2014-05-05
   */
 class MapGetOrElseBooleanInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(MapGetOrElseFalse, MapGetOrElseTrue)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
+    ArraySeq(MapGetOrElseFalse, MapGetOrElseTrue)
 }
 
 abstract class MapGetOrElseBoolean(defaultValue: String, newMethodName: String, override val hint: String) extends SimplificationType {

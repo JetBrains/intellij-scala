@@ -4,11 +4,13 @@ package collections
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * @author Nikolay.Tropin
  */
 class MapValuesInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(MapValues)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(MapValues)
 }
 
 object MapValues extends SimplificationType {

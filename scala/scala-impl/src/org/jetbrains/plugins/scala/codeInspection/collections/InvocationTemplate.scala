@@ -20,7 +20,7 @@ abstract class InvocationTemplate(nameCondition: String => Boolean) {
 
   protected var refCondition = new Condition[ScReferenceExpression](_ => true)
 
-  def from(patterns: Array[String]): this.type = {
+  def from(patterns: Seq[String]): this.type = {
     refCondition = refCondition.and(checkResolve(_, patterns))
     this
   }

@@ -4,13 +4,15 @@ package collections
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * Nikolay.Tropin
  * 2014-05-07
  */
 class FilterEmptyCheckInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(FilterIsEmptyCheck, FilterNonEmptyCheck, FilterNotIsEmptyCheck, FilterNotNonEmptyCheck)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
+    ArraySeq(FilterIsEmptyCheck, FilterNonEmptyCheck, FilterNotIsEmptyCheck, FilterNotNonEmptyCheck)
 }
 
 object FilterIsEmptyCheck extends SimplificationType {

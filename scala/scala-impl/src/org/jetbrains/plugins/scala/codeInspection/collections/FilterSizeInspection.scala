@@ -4,13 +4,15 @@ package collections
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * Nikolay.Tropin
  * 2014-05-05
  */
 class FilterSizeInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(FilterSize)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
+    ArraySeq(FilterSize)
 }
 
 object FilterSize extends SimplificationType {

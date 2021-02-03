@@ -4,6 +4,8 @@ package collections
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * Nikolay.Tropin
  * 2014-05-05
@@ -34,8 +36,8 @@ class SimplifiableFoldOrReduceInspection extends OperationOnCollectionInspection
     override def description: String = ScalaInspectionBundle.message("reduce.max.short")
   }
 
-  override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(foldSum, foldProduct, reduceSum, reduceProduct, reduceMax, reduceMin)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
+    ArraySeq(foldSum, foldProduct, reduceSum, reduceProduct, reduceMax, reduceMin)
 }
 
 object SimplifiableFoldOrReduceInspection {

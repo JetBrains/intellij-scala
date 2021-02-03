@@ -3,8 +3,10 @@ package codeInspection
 package collections
 
 import com.intellij.psi.PsiMethod
-import org.jetbrains.plugins.scala.extensions.ResolvesTo
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+
+import scala.collection.immutable.ArraySeq
 
 /**
  * @author Nikolay.Tropin
@@ -14,7 +16,7 @@ object ZipWithIndex extends SimplificationType() {
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
-      case (ref @ ResolvesTo(x))`.zip`((ResolvesTo(y))`.indices`Seq()) if x == y && !x.isInstanceOf[PsiMethod] =>
+      case (ref @ ResolvesTo(x))`.zip`((ResolvesTo(y))`.indices`Seq()) if x == y && !x.is[PsiMethod] =>
         Some(replace(expr).withText(invocationText(ref, "zipWithIndex")))
       case _ => None
     }
@@ -22,5 +24,5 @@ object ZipWithIndex extends SimplificationType() {
 }
 
 class ZipWithIndexInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(ZipWithIndex)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(ZipWithIndex)
 }

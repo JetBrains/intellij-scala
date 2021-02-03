@@ -17,6 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.nameFitToPatterns
 
+import scala.collection.immutable.ArraySeq
+
 /**
   * @author Nikolay.Tropin
   */
@@ -24,7 +26,7 @@ object SideEffectsUtil {
 
   private val immutableClasses = listImmutableClasses
 
-  private val knownUnsafeGetters: Array[String] = Array(
+  private val knownUnsafeGetters: ArraySeq[String] = ArraySeq(
     "scala.Option",
     "scala.None",
     "scala.util.Try",
@@ -32,11 +34,11 @@ object SideEffectsUtil {
     "scala.util.Either.LeftProjection"
   ).map(_ + ".get")
 
-  private val knownUnsafeMethodNames: Array[String] =
-    Array("head", "tail", "last", "reduce", "reduceLeft", "reduceRight")
+  private val knownUnsafeMethodNames: ArraySeq[String] =
+    ArraySeq("head", "tail", "last", "reduce", "reduceLeft", "reduceRight")
 
-  private val knownMethodsWithSideEffects: Array[String] = {
-    val objectMethods = Array("wait", "finalize", "notifyAll", "notify").map("java.lang.Object." + _)
+  private val knownMethodsWithSideEffects: ArraySeq[String] = {
+    val objectMethods = ArraySeq("wait", "finalize", "notifyAll", "notify").map("java.lang.Object." + _)
     val stringMethods = "java.lang.String.getChars" //copies to destination array
     objectMethods :+ stringMethods
   }
@@ -139,7 +141,7 @@ object SideEffectsUtil {
     val immutableCollections = Seq("scala.collection.immutable._", "scala.collection.IterableFactory._")
 
     (excludeNonString ++: javaWrappers ++: otherJavaClasses ++:
-      scalaValueClasses ++: otherFromScalaPackage ++: fromScalaUtil ++: fromScalaMath ++: immutableCollections).toArray
+      scalaValueClasses ++: otherFromScalaPackage ++: fromScalaUtil ++: fromScalaMath ++: immutableCollections).to(ArraySeq)
   }
 
   private def hasImplicitConversion(refExpr: ScExpression) = {

@@ -7,11 +7,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * @author Nikolay.Tropin
  */
 class ToSetAndBackInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(ToSetAndBackToDistinct)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(ToSetAndBackToDistinct)
 }
 
 object ToSetAndBackToDistinct extends SimplificationType {

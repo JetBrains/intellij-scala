@@ -4,13 +4,15 @@ package collections
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
+import scala.collection.immutable.ArraySeq
+
 /**
   * @author Nikolay.Tropin
   */
 
 class ReplaceToWithUntilInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(ReplaceToWithUntil)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
+    ArraySeq(ReplaceToWithUntil)
 }
 
 object ReplaceToWithUntil extends SimplificationType {

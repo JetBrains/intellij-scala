@@ -4,13 +4,15 @@ package collections
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * Nikolay.Tropin
  * 2014-05-05
  */
 class FindEmptyCheckInspection extends OperationOnCollectionInspection{
-  override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(FindIsDefined, FindIsEmpty)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
+    ArraySeq(FindIsDefined, FindIsEmpty)
 }
 
 object FindIsDefined extends SimplificationType() {

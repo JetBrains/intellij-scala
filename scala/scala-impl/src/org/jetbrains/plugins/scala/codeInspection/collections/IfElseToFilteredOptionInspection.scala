@@ -6,11 +6,13 @@ import com.intellij.codeInsight.PsiEquivalenceUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.util.SideEffectsUtil
 
+import scala.collection.immutable.ArraySeq
+
 /**
   * @author mattfowler
   */
 class IfElseToFilteredOptionInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(FilterOption)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(FilterOption)
 }
 
 object FilterOption extends SimplificationType {

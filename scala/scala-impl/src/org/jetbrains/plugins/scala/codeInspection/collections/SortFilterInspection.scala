@@ -4,13 +4,15 @@ package collections
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * Nikolay.Tropin
  * 2014-05-05
  */
 class SortFilterInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(SortFilter)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
+    ArraySeq(SortFilter)
 }
 
 object SortFilter extends SimplificationType {

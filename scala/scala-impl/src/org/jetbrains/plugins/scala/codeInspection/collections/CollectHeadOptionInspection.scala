@@ -3,11 +3,13 @@ package org.jetbrains.plugins.scala.codeInspection.collections
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
+import scala.collection.immutable.ArraySeq
+
 /**
   * @author t-kameyama
   */
 class CollectHeadOptionInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(CollectHeadOption)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(CollectHeadOption)
 }
 
 object CollectHeadOption extends SimplificationType {

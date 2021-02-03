@@ -4,11 +4,13 @@ package collections
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * @author Nikolay.Tropin
  */
 class RedundantHeadOrLastOptionInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(RedundantHeadOption, RedundantLastOption)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(RedundantHeadOption, RedundantLastOption)
 }
 
 object RedundantHeadOption extends SimplificationType {

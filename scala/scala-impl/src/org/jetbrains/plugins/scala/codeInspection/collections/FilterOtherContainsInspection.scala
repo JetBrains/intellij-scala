@@ -5,12 +5,14 @@ package collections
 import org.jetbrains.plugins.scala.extensions.ResolvesTo
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScUnderscoreSection}
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * @author Nikolay.Tropin
  */
 class FilterOtherContainsInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(FilterContainsToIntersect, FilterNotContainsToDiff)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
+    ArraySeq(FilterContainsToIntersect, FilterNotContainsToDiff)
 }
 
 object `.contains _` {

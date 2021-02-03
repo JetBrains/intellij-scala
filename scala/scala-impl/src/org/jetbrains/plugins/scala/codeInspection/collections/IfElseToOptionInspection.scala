@@ -5,11 +5,13 @@ package collections
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * @author Nikolay.Tropin
  */
 class IfElseToOptionInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(IfElseToOption)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(IfElseToOption)
 }
 
 object IfElseToOption extends SimplificationType {

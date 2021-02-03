@@ -7,9 +7,11 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScGenericCall}
 import org.jetbrains.plugins.scala.project.ProjectExt
 
+import scala.collection.immutable.ArraySeq
+
 class InstanceOfInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(InstanceOfShouldBeIsInspection)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
+    ArraySeq(InstanceOfShouldBeIsInspection)
 }
 
 object InstanceOfShouldBeIsInspection extends SimplificationType() {

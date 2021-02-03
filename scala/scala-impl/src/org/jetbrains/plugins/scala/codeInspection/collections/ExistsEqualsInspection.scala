@@ -8,9 +8,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
+import scala.collection.immutable.ArraySeq
+
 class ExistsEqualsInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(ExistsEquals, ForallNotEquals)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
+    ArraySeq(ExistsEquals, ForallNotEquals)
 }
 
 //noinspection ScalaUnnecessaryParentheses

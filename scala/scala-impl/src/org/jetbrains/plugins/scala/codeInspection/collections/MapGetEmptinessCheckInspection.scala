@@ -4,9 +4,11 @@ package collections
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
+import scala.collection.immutable.ArraySeq
+
 class MapGetEmptinessCheckInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(MapGetNonEmpty, MapGetIsEmpty)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
+    ArraySeq(MapGetNonEmpty, MapGetIsEmpty)
 }
 
 object MapGetNonEmpty extends SimplificationType() {

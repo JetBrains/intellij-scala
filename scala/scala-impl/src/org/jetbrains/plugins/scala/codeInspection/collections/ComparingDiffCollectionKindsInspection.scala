@@ -4,11 +4,13 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * @author Nikolay.Tropin
  */
 class ComparingDiffCollectionKindsInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(ComparingDiffCollectionKinds)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(ComparingDiffCollectionKinds)
 }
 
 object ComparingDiffCollectionKinds extends SimplificationType {

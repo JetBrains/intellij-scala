@@ -6,11 +6,13 @@ import org.jetbrains.plugins.scala.extensions.BooleanExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * @author Nikolay.Tropin
  */
 class MapFlattenInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(MapFlatten)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(MapFlatten)
 }
 
 object MapFlatten extends SimplificationType {

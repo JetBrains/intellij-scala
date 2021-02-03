@@ -6,11 +6,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * @author Nikolay.Tropin
  */
 class SizeToLengthInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(SizeToLength)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(SizeToLength)
 }
 
 object SizeToLength extends SimplificationType {

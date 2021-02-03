@@ -103,8 +103,8 @@ object ScalaNamesUtil {
   def escapeKeyword(s: String): String =
     if (isKeyword(s)) s"`$s`" else s
 
-  def nameFitToPatterns(qualName: String, patterns: Array[String], strict: Boolean): Boolean = {
-    val (exclude, include) = patterns.toSeq.partition(_.startsWith(EXCLUDE_PREFIX))
+  def nameFitToPatterns(qualName: String, patterns: Seq[String], strict: Boolean): Boolean = {
+    val (exclude, include) = patterns.partition(_.startsWith(EXCLUDE_PREFIX))
 
     !exclude.exists(excl => fitToPattern(excl.stripPrefix(EXCLUDE_PREFIX), qualName, strict)) &&
       include.exists(fitToPattern(_, qualName, strict))

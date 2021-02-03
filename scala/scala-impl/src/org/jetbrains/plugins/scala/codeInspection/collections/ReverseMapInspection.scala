@@ -4,6 +4,8 @@ package collections
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * @author Nikolay.Tropin
  */
@@ -21,5 +23,5 @@ object ReverseMap extends SimplificationType() {
 }
 
 class ReverseMapInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(ReverseMap)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(ReverseMap)
 }

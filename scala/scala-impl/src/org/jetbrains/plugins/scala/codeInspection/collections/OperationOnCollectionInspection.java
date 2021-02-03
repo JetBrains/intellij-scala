@@ -7,7 +7,7 @@ import java.util.Arrays;
  * 5/28/13
  */
 public abstract class OperationOnCollectionInspection extends OperationOnCollectionInspectionBase {
-  public Boolean[] simplificationTypesEnabled = new Boolean[possibleSimplificationTypes().length];
+  public Boolean[] simplificationTypesEnabled = new Boolean[possibleSimplificationTypes().size()];
 
   public OperationOnCollectionInspection() {
     Arrays.fill(simplificationTypesEnabled, true);

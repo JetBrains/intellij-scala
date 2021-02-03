@@ -5,12 +5,14 @@ package collections
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * @author Nikolay.Tropin
  */
 class OptionEqualsSomeToContainsInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(OptionEqualsSomeToContains, OptionNotEqualsSomeToNotContains)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
+    ArraySeq(OptionEqualsSomeToContains, OptionNotEqualsSomeToNotContains)
 }
 
 object OptionEqualsSomeToContains extends SimplificationType {

@@ -5,12 +5,14 @@ package collections
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * @author Nikolay.Tropin
  */
 class HeadOrLastOptionInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(IfElseToHeadOption, IfElseToLastOption, LiftToHeadOption, LiftToLastOption)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
+    ArraySeq(IfElseToHeadOption, IfElseToLastOption, LiftToHeadOption, LiftToLastOption)
 }
 
 object IfElseToHeadOption extends SimplificationType {

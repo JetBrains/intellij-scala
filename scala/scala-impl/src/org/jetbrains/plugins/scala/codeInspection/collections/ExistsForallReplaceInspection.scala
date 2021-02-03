@@ -5,13 +5,15 @@ package collections
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
+import scala.collection.immutable.ArraySeq
+
 /**
   * @author Ignat Loskutov
   */
 
 class ExistsForallReplaceInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(ReplaceForallWithExists, ReplaceExistsWithForall)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
+    ArraySeq(ReplaceForallWithExists, ReplaceExistsWithForall)
 }
 
 private object NegatedPredicate {

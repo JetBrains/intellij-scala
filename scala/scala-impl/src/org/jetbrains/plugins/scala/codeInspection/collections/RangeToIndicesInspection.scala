@@ -4,11 +4,13 @@ package collections
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * @author Nikolay.Tropin
  */
 class RangeToIndicesInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(RangeToIndices, UntilToIndices, ToToIndices)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(RangeToIndices, UntilToIndices, ToToIndices)
 }
 
 object RangeToIndices extends SimplificationType {
@@ -16,7 +18,7 @@ object RangeToIndices extends SimplificationType {
   //noinspection ScalaExtractStringToBundle
   override def description: String = "Range(0, seq.size)"
 
-  private val Range = invocation("apply").from(Array("scala.collection.immutable.Range"))
+  private val Range = invocation("apply").from(ArraySeq("scala.collection.immutable.Range"))
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     // TODO infix notation?
@@ -37,7 +39,7 @@ object UntilToIndices extends SimplificationType {
   //noinspection ScalaExtractStringToBundle
   override def hint: String = "0 until seq.size"
 
-  private val `.until` = invocation("until").from(Array("scala.runtime.RichInt"))
+  private val `.until` = invocation("until").from(ArraySeq("scala.runtime.RichInt"))
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     // TODO infix notation?
@@ -52,7 +54,7 @@ object ToToIndices extends SimplificationType {
   //noinspection ScalaExtractStringToBundle
   override def hint: String = "0 to (seq.size - 1)"
 
-  private val `.to` = invocation("to").from(Array("scala.runtime.RichInt"))
+  private val `.to` = invocation("to").from(ArraySeq("scala.runtime.RichInt"))
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case literal("0")`.to`(`.sizeOrLength`(qual) `-` literal("1"))  if isSeq(qual) || isArray(qual) =>

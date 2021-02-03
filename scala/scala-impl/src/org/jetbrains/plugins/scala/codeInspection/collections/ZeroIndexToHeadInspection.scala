@@ -4,11 +4,13 @@ package collections
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * @author Nikolay.Tropin
  */
 class ZeroIndexToHeadInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(ZeroIndexToHead)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(ZeroIndexToHead)
 }
 
 object ZeroIndexToHead extends SimplificationType() {

@@ -4,12 +4,14 @@ package collections
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * @author Markus.Hauck
  */
 class SortedMaxMinInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(SortedHeadIsMin, SortedLastIsMax, SortByHeadIsMinBy, SortByLastIsMaxBy)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
+    ArraySeq(SortedHeadIsMin, SortedLastIsMax, SortByHeadIsMinBy, SortByLastIsMaxBy)
 }
 
 object SortedHeadIsMin extends SimplificationType {

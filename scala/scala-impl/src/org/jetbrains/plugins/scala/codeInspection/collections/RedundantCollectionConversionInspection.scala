@@ -7,6 +7,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * @author Nikolay.Tropin
  */
@@ -33,5 +35,5 @@ object RedundantCollectionConversion extends SimplificationType {
 class RedundantCollectionConversionInspection extends OperationOnCollectionInspection {
   override def highlightType = ProblemHighlightType.LIKE_UNUSED_SYMBOL
 
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(RedundantCollectionConversion)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(RedundantCollectionConversion)
 }

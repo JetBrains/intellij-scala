@@ -5,6 +5,8 @@ package collections
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.PsiElement
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * @author Nikolay.Tropin
  */
@@ -18,5 +20,5 @@ class SideEffectsInMonadicTransformationInspection extends OperationOnCollection
   }
 
 
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array.empty
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq.empty
 }

@@ -7,11 +7,13 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.&&
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * @author Nikolay.Tropin
  */
 class CorrespondsUnsortedInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array.empty
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq.empty
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case (expr: ScExpression) && (left`.sameElements`(right)) if isUnsorted(left) || isUnsorted(right) =>

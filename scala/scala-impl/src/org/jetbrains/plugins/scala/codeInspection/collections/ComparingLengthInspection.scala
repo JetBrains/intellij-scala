@@ -5,12 +5,14 @@ package collections
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScIntegerLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
+import scala.collection.immutable.ArraySeq
+
 /**
   * @author t-kameyama
   */
 final class ComparingLengthInspection extends OperationOnCollectionInspection {
 
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(ComparingLengthInspection.ComparingLength)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(ComparingLengthInspection.ComparingLength)
 }
 
 object ComparingLengthInspection {

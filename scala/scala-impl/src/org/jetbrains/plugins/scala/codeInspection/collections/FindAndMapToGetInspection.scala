@@ -4,12 +4,14 @@ package collections
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
+import scala.collection.immutable.ArraySeq
+
 /**
   * mattfowler
   * 4/28/16
   */
 class FindAndMapToGetInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(FindAndMapToApply)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(FindAndMapToApply)
 }
 
 object FindAndMapToApply extends SimplificationType {

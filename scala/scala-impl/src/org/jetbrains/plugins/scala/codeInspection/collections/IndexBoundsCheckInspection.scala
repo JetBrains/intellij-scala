@@ -6,11 +6,13 @@ import com.intellij.codeInsight.PsiEquivalenceUtil.areElementsEquivalent
 import org.jetbrains.plugins.scala.codeInspection.collections.IndexBoundsCheckInspection._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
+import scala.collection.immutable.ArraySeq
+
 /**
   * @author t-kameyama
   */
 class IndexBoundsCheckInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(IndexBoundsCheck)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(IndexBoundsCheck)
 }
 
 private object IndexBoundsCheckInspection {

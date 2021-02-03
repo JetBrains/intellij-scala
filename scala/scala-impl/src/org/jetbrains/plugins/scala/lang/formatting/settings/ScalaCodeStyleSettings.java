@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
+import scala.collection.immutable.ArraySeq;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -502,7 +503,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
    * "exclude:scala.collection.immutable._"             all classes from package scala.collection.immutable excluded
    **/
   private static boolean nameFitToPatterns(String qualName, String[] patterns) {
-    return ScalaNamesUtil.nameFitToPatterns(qualName, patterns, true);
+    return ScalaNamesUtil.nameFitToPatterns(qualName, ArraySeq.unsafeWrapArray(patterns), true);
   }
 
   public boolean isDoNotChangeLocalImportsOnOptimize() {

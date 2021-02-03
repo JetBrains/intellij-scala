@@ -7,12 +7,14 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * Nikolay.Tropin
  * 2014-05-05
  */
 class MapGetOrElseInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(MapGetOrElse)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(MapGetOrElse)
 }
 
 object MapGetOrElse extends SimplificationType() {

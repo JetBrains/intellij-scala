@@ -7,6 +7,8 @@ import org.jetbrains.plugins.scala.codeInspection.{AbstractRegisteredInspection,
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
+import scala.collection.immutable.ArraySeq
+
 class SourceNotClosedInspection extends AbstractRegisteredInspection {
 
   override def problemDescriptor(element: PsiElement,
@@ -32,10 +34,10 @@ class SourceNotClosedInspection extends AbstractRegisteredInspection {
       "nwarnings", "pos", "report", "reportError", "reportWarning", "reset"
     )
     private val sourceNonClosingMethods =
-      invocation(sourceNonClosingMethodNames).from(Array("scala.io.Source", "scala.io.BufferedSource"))
+      invocation(sourceNonClosingMethodNames).from(ArraySeq("scala.io.Source", "scala.io.BufferedSource"))
 
     // in the listed base classes, everything will not close the Source
-    private val nonClosingBaseClasses = Array(
+    private val nonClosingBaseClasses = ArraySeq(
       "scala.Any", "scala.AnyRef", "scala.collection.Iterator",
       "scala.collection.TraversableOnce", "scala.collection.GenTraversableOnce",
       "scala.collection.IterableOnceOps"
@@ -49,8 +51,8 @@ class SourceNotClosedInspection extends AbstractRegisteredInspection {
   }
 
   private object SourceCreatingMethod {
-    private val qualFrom = invocation(Set("fromFile", "fromURL", "fromURI")).from(Array("scala.io.Source"))
-    private val unqualFrom = unqualifed(Set("fromFile", "fromURL", "fromURI")).from(Array("scala.io.Source"))
+    private val qualFrom = invocation(Set("fromFile", "fromURL", "fromURI")).from(ArraySeq("scala.io.Source"))
+    private val unqualFrom = unqualifed(Set("fromFile", "fromURL", "fromURI")).from(ArraySeq("scala.io.Source"))
 
     def unapply(expr: ScExpression): Option[ScExpression] = expr match {
       case qualFrom(_, _*) | unqualFrom(_*) =>

@@ -6,12 +6,14 @@ import org.jetbrains.plugins.scala.extensions.ResolvesTo
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
 
+import scala.collection.immutable.ArraySeq
+
 /**
   * @author Lukasz Piepiora
   */
 class EmulateFlattenInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(FlattenSimplification)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
+    ArraySeq(FlattenSimplification)
 }
 
 object FlattenSimplification extends SimplificationType {
@@ -47,8 +49,8 @@ object FlattenSimplification extends SimplificationType {
   }
 
   object identity {
-    private val qualIdentity = invocation("identity").from(Array("scala.Predef"))
-    private val unqualIdentity = unqualifed("identity").from(Array("scala.Predef"))
+    private val qualIdentity = invocation("identity").from(ArraySeq("scala.Predef"))
+    private val unqualIdentity = unqualifed("identity").from(ArraySeq("scala.Predef"))
 
     def unapplySeq(expr: ScExpression): Option[Seq[ScExpression]] = expr match {
       // TODO infix notation?

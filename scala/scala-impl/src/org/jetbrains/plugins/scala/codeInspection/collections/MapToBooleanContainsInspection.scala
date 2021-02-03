@@ -4,12 +4,14 @@ package collections
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * @author Nikolay.Tropin
  */
 class MapToBooleanContainsInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(MapContainsFalse, MapContainsTrue)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
+    ArraySeq(MapContainsFalse, MapContainsTrue)
 }
 
 object MapContainsFalse extends SimplificationType {

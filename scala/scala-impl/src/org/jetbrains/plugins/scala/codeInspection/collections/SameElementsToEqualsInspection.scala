@@ -4,12 +4,14 @@ package collections
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
+import scala.collection.immutable.ArraySeq
+
 /**
  * @author Nikolay.Tropin
  */
 class SameElementsToEqualsInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(SameElementsToEquals, CorrespondsToEquals)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
+    ArraySeq(SameElementsToEquals, CorrespondsToEquals)
 }
 
 object SameElementsToEquals extends SimplificationType {

@@ -15,6 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
+import scala.collection.immutable.ArraySeq
+
 /**
   * @author Nikolay.Tropin
   */
@@ -42,7 +44,7 @@ final class UnitInMapInspection extends OperationOnCollectionInspection {
       )
   }
 
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array.empty
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq.empty
 }
 
 object UnitInMapInspection {
