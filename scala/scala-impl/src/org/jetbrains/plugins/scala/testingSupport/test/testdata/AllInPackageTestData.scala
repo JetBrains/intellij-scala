@@ -96,19 +96,19 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
     GlobalSearchScope.union(moduleScopes.asJavaCollection)
   }
 
-  override def apply(form: TestRunConfigurationForm): Unit = {
-    super.apply(form)
+  override def copyFieldsFromForm(form: TestRunConfigurationForm): Unit = {
+    super.copyFieldsFromForm(form)
     testPackagePath = form.getTestPackagePath
   }
 
-  override protected def apply(data: AllInPackageTestData): Unit = {
-    super.apply(data)
+  override protected def copyFieldsFrom(data: AllInPackageTestData): Unit = {
+    super.copyFieldsFrom(data)
     data.classBuf = new util.ArrayList(classBuf)
   }
 
   override def copy(config: AbstractTestRunConfiguration): AllInPackageTestData = {
     val data = AllInPackageTestData(config, this.testPackagePath)
-    data.apply(this)
+    data.copyFieldsFrom(this)
     data
   }
 

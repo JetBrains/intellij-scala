@@ -48,7 +48,7 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
   final def searchTestsInWholeProject: Boolean =
     getKind == TestKind.ALL_IN_PACKAGE && searchTest == SearchForTest.IN_WHOLE_PROJECT
 
-  def apply(form: TestRunConfigurationForm): Unit = {
+  def copyFieldsFromForm(form: TestRunConfigurationForm): Unit = {
     setSearchTest(form.getSearchForTest)
     setJavaOptions(form.getJavaOptions)
     setTestArgs(form.getTestArgs)
@@ -60,20 +60,21 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
     envs = form.getEnvironmentVariables
   }
 
-  protected def apply(data: SelfType): Unit =
-    copyCommonFieldsFrom(data)
-
-  final def copyCommonFieldsFrom(from: TestConfigurationData): Unit = {
-    setSearchTest(from.getSearchTest)
-    setJavaOptions(from.getJavaOptions)
-    setTestArgs(from.getTestArgs)
-    setJrePath(from.getJrePath)
-    setShowProgressMessages(from.getShowProgressMessages)
-    setUseSbt(from.getUseSbt)
-    setUseUiWithSbt(from.getUseUiWithSbt)
-    setWorkingDirectory(from.getWorkingDirectory)
-    envs = new java.util.HashMap(from.envs)
+  final def copyCommonFieldsFrom(other: TestConfigurationData): Unit = {
+    setSearchTest(other.getSearchTest)
+    setJavaOptions(other.getJavaOptions)
+    setTestArgs(other.getTestArgs)
+    setJrePath(other.getJrePath)
+    setShowProgressMessages(other.getShowProgressMessages)
+    setUseSbt(other.getUseSbt)
+    setUseUiWithSbt(other.getUseUiWithSbt)
+    setWorkingDirectory(other.getWorkingDirectory)
+    envs = new java.util.HashMap(other.envs)
   }
+
+  /** NOTE: overridden implementations must call super method */
+  protected def copyFieldsFrom(data: SelfType): Unit =
+    copyCommonFieldsFrom(data)
 
   def copy(config: AbstractTestRunConfiguration): TestConfigurationData
 
@@ -146,7 +147,7 @@ object TestConfigurationData {
 
   def createFromForm(form: TestRunConfigurationForm, configuration: AbstractTestRunConfiguration): TestConfigurationData = {
     val testData = create(form.getTestKind, configuration)
-    testData.apply(form)
+    testData.copyFieldsFromForm(form)
     testData
   }
 

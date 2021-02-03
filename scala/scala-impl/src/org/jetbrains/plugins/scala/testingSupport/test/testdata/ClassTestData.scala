@@ -49,19 +49,19 @@ class ClassTestData(config: AbstractTestRunConfiguration) extends TestConfigurat
     Map(clazz.qualifiedName -> Set[String]())
   }
 
-  override def apply(form: TestRunConfigurationForm): Unit = {
-    super.apply(form)
+  override def copyFieldsFromForm(form: TestRunConfigurationForm): Unit = {
+    super.copyFieldsFromForm(form)
     testClassPath = form.getTestClassPath
   }
 
-  override protected def apply(data: ClassTestData): Unit = {
-    super.apply(data)
+  override protected def copyFieldsFrom(data: ClassTestData): Unit = {
+    super.copyFieldsFrom(data)
     testClassPath = data.testClassPath
   }
 
   override def copy(config: AbstractTestRunConfiguration): ClassTestData = {
     val data = new ClassTestData(config)
-    data.apply(this)
+    data.copyFieldsFrom(this)
     data
   }
 

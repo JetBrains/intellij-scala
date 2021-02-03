@@ -30,13 +30,13 @@ class SingleTestData(config: AbstractTestRunConfiguration) extends ClassTestData
     clazzMap.map{ case (aClazz, _) => (aClazz, splitTests.toSet)}
   }
 
-  override def apply(form: TestRunConfigurationForm): Unit = {
-    super.apply(form)
+  override def copyFieldsFromForm(form: TestRunConfigurationForm): Unit = {
+    super.copyFieldsFromForm(form)
     testName = form.getTestName
   }
 
-  override protected def apply(data: ClassTestData): Unit = {
-    super.apply(data)
+  override protected def copyFieldsFrom(data: ClassTestData): Unit = {
+    super.copyFieldsFrom(data)
     data match {
       case d: SingleTestData => testName = d.testName
       case _ =>
@@ -45,7 +45,7 @@ class SingleTestData(config: AbstractTestRunConfiguration) extends ClassTestData
 
   override def copy(config: AbstractTestRunConfiguration): SingleTestData = {
     val data = new SingleTestData(config)
-    data.apply(this)
+    data.copyFieldsFrom(this)
     data
   }
 

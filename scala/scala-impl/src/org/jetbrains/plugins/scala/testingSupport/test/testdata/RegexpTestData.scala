@@ -163,22 +163,22 @@ class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigura
     res
   }
 
-  override def apply(form: TestRunConfigurationForm): Unit = {
-    super.apply(form)
+  override def copyFieldsFromForm(form: TestRunConfigurationForm): Unit = {
+    super.copyFieldsFromForm(form)
     val regexps = form.getRegexps
     classRegexps = regexps._1
     testRegexps = regexps._2
   }
 
-  override protected def apply(data: RegexpTestData): Unit = {
-    super.apply(data)
+  override protected def copyFieldsFrom(data: RegexpTestData): Unit = {
+    super.copyFieldsFrom(data)
     data.testsBuf = new ju.HashMap(testsBuf.size())
     testsBuf.asScala.foreach { case (k, v) => data.testsBuf.put(k, new ju.HashSet[String](v)) }
   }
 
   override def copy(config: AbstractTestRunConfiguration): RegexpTestData = {
     val data = new RegexpTestData(config)
-    data.apply(this)
+    data.copyFieldsFrom(this)
     data
   }
 
