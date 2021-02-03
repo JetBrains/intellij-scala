@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 private[parsing] object Annotations extends ParsingRule {
 
   private val LeftEdgeBinder: WhitespacesAndCommentsBinder =
-    (tokens: ju.List[IElementType], _: Boolean, _: WhitespacesAndCommentsBinder.TokenTextGetter) => tokens.size
+    (tokens: ju.List[_ <: IElementType], _: Boolean, _: WhitespacesAndCommentsBinder.TokenTextGetter) => tokens.size
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     parse()

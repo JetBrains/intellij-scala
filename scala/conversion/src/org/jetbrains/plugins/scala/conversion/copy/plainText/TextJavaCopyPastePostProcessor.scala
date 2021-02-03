@@ -45,7 +45,7 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Conv
   }
 
   override def processTransferableData(bounds: RangeMarker, caretOffset: Int,
-                                       ref: Ref[java.lang.Boolean], value: ConvertedCode)
+                                       ref: Ref[_ >: java.lang.Boolean], value: ConvertedCode)
                                       (implicit project: Project,
                                                  editor: Editor,
                                                  file: ScalaFile): Unit = {

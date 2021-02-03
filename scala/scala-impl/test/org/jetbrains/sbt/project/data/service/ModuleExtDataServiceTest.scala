@@ -105,7 +105,7 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase {
     val compilerConfiguration = ScalaCompilerConfiguration.instanceIn(getProject).getSettingsForModule(module)
 
     assertEquals(compilerConfiguration.debuggingInfoLevel, DebuggingInfoLevel.Source)
-    UsefulTestCase.assertContainsElements(compilerConfiguration.plugins.asJava, "test-plugin.jar")
+    assertTrue(compilerConfiguration.plugins.exists(_.endsWith("test-plugin.jar")))
     UsefulTestCase.assertContainsElements(compilerConfiguration.additionalCompilerOptions.asJava, "-XmyCoolAdditionalOption")
     assertTrue(compilerConfiguration.continuations)
     assertTrue(compilerConfiguration.experimental)

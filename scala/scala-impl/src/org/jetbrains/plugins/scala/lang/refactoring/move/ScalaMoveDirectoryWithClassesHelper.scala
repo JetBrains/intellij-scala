@@ -4,7 +4,6 @@ package refactoring
 package move
 
 import java.{util => ju}
-
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
@@ -121,7 +120,7 @@ class ScalaMoveDirectoryWithClassesHelper extends MoveDirectoryWithClassesHelper
     }
   }
 
-  override def postProcessUsages(usages: Array[UsageInfo], newDirMapper: Function[PsiDirectory, PsiDirectory]): Unit = {
+  override def postProcessUsages(usages: Array[UsageInfo], newDirMapper: Function[_ >: PsiDirectory, _ <: PsiDirectory]): Unit = {
     usages.foreach {
       case ImportStatementToRemoveUsage(impStmt) => impStmt.delete()
       case _ =>

@@ -41,7 +41,7 @@ abstract class ScalaMoveClassTestBase extends ScalaLightPlatformCodeInsightTestC
     val rootBefore = root + "/before"
     val rootAfter  = root + "/after"
     findAndRefreshVFile(rootBefore)
-    rootDirBefore = PsiTestUtil.createTestProjectStructure(getProjectAdapter, getModuleAdapter, rootBefore, new util.HashSet[Path]())
+    rootDirBefore = PsiTestUtil.createTestProjectStructure(getProjectAdapter, getModuleAdapter, rootBefore, new util.HashSet[Path](), true)
     rootDirAfter = findAndRefreshVFile(rootAfter)
   }
 

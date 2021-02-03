@@ -21,7 +21,7 @@ class ScalaSdkService extends AbstractProjectDataService[ScalaSdkData, Library] 
 
   import scala.jdk.CollectionConverters._
 
-  override final def importData(toImport: java.util.Collection[DataNode[ScalaSdkData]],
+  override final def importData(toImport: java.util.Collection[_ <: DataNode[ScalaSdkData]],
                                 projectData: ProjectData,
                                 project: Project,
                                 modelsProvider: IdeModifiableModelsProvider): Unit = {
