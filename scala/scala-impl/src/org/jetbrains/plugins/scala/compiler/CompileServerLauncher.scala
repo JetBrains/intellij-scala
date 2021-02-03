@@ -46,7 +46,8 @@ object CompileServerLauncher {
   private class Listener extends BuildManagerListener {
 
     override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit = {
-      ensureCompileServerRunning(project)
+      if (!project.isDisposed)
+        ensureCompileServerRunning(project)
       if (ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED)
         CompileServerNotificationsService.get(project).warnIfCompileServerJdkMayLeadToCompilationProblems()
     }
