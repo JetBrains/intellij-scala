@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection._
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
@@ -65,7 +65,7 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionName
           case Some(funBody) if fun.`type`().getOrAny.conforms(expected) && !containsReturn(funBody) =>
             lazy val replacement: String = {
               val res = new StringBuilder
-              val isInfix = definition.parent.exists(_.isInstanceOf[ScInfixExpr])
+              val isInfix = definition.parent.exists(_.is[ScInfixExpr])
               if (isInfix) {
                 res.append("(")
               }
