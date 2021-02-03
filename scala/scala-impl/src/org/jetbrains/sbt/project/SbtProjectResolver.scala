@@ -456,8 +456,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def nameFor(id: sbtStructure.ModuleIdentifier) = {
-    val classifierOption = if (id.classifier.isEmpty) None else Some(id.classifier)
-    s"${id.organization}:${id.name}:${id.revision}" + classifierOption.map(":"+_).getOrElse("") + s":${id.artifactType}"
+    if (IJ_SDK_CLASSIFIERS.contains(id.classifier)) { // DevKit expects IJ SDK library names in certain format for some features to work
+      s"[${id.classifier}]${id.organization}:${id.name}:${id.revision}"
+    } else {
+      val classifierOption = if (id.classifier.isEmpty) None else Some(id.classifier)
+      s"${id.organization}:${id.name}:${id.revision}" + classifierOption.map(":" + _).getOrElse("") + s":${id.artifactType}"
+    }
   }
 
   private def createModule(project: sbtStructure.ProjectData, moduleFilesDirectory: File, moduleName: String): ModuleNode = {
@@ -689,6 +693,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
 object SbtProjectResolver {
 
+  val IJ_SDK_CLASSIFIERS = Set("IJ-SDK", "IJ-PLUGIN")
 
   case class ImportCancelledException(cause: Throwable) extends Exception(cause)
 
