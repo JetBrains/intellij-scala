@@ -136,7 +136,7 @@ object SideEffectsUtil {
 
     val fromScalaMath = Seq("scala.math.BigInt._", "scala.math.BigDecimal._")
 
-    val immutableCollections = Seq("scala.collection.immutable._")
+    val immutableCollections = Seq("scala.collection.immutable._", "scala.collection.IterableFactory._")
 
     (excludeNonString ++: javaWrappers ++: otherJavaClasses ++:
       scalaValueClasses ++: otherFromScalaPackage ++: fromScalaUtil ++: fromScalaMath ++: immutableCollections).toArray
@@ -170,7 +170,7 @@ object SideEffectsUtil {
       case _ =>
     }
 
-    val clazzName = typeOfQual.map(_.tryExtractDesignatorSingleton) match {
+    val clazzName = typeOfQual.map(_.widen.tryExtractDesignatorSingleton) match {
       case Some(tp) => tp.extractClass.map(_.qualifiedName)
       case None => methodClazzName
     }
