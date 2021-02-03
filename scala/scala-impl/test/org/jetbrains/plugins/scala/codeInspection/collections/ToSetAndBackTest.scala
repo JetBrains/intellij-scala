@@ -2,12 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
-import com.intellij.testFramework.EditorTestUtil
-
-/**
- * @author Nikolay.Tropin
- */
-class ToSetAndBackTest extends OperationsOnCollectionInspectionTest {
+abstract class ToSetAndBackTestBase extends OperationsOnCollectionInspectionTest {
 
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[ToSetAndBackInspection]
@@ -46,15 +41,6 @@ class ToSetAndBackTest extends OperationsOnCollectionInspectionTest {
       "Seq(1).distinct"
     )
   }
-
-  def testTo(): Unit = {
-    doTest(
-      s"Seq(1).${START}toSet.to[Seq]$END",
-      "Seq(1).toSet.to[Seq]",
-      "Seq(1).distinct"
-    )
-  }
-
   def testMap(): Unit = {
     checkTextHasNoErrors("Map(1 -> 2).toSet.toSeq")
   }
@@ -65,5 +51,29 @@ class ToSetAndBackTest extends OperationsOnCollectionInspectionTest {
 
   def testSeqToList2(): Unit = {
     checkTextHasNoErrors("Seq(1).toSet.to[List]")
+  }
+}
+
+class ToSetAndBackTest_2_12 extends ToSetAndBackTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= LatestScalaVersions.Scala_2_12
+
+  def testTo(): Unit = {
+    doTest(
+      s"Seq(1).${START}toSet.to[Seq]$END",
+      "Seq(1).toSet.to[Seq]",
+      "Seq(1).distinct"
+    )
+  }
+}
+
+class ToSetAndBackTest_2_13 extends ToSetAndBackTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
+
+  def testTo(): Unit = {
+    doTest(
+      s"Seq(1).${START}toSet.to(Seq)$END",
+      "Seq(1).toSet.to(Seq)",
+      "Seq(1).distinct"
+    )
   }
 }

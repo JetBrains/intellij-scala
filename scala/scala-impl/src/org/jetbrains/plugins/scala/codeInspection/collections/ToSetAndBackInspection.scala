@@ -28,7 +28,7 @@ object ToSetAndBackToDistinct extends SimplificationType {
 
     expr match {
       // TODO infix notation?
-      case `.toCollection`(`.toSet` (qual@Typeable(qualType)))
+      case `.toCollection`(`.toSet` (qual@Typeable(qualType)), _*)
         if sameCollectionType(qualType, expr.`type`().getOrAny) && (isSeq(qual) || isArray(qual)) =>
         Some(replace(expr).withText(invocationText(qual, "distinct")).highlightFrom(qual))
       case _ => None
