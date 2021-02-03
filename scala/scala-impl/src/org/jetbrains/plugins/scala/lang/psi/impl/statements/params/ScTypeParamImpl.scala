@@ -89,7 +89,17 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
 
   override def typeParameterText: String = byStubOrPsi(_.text)(getText)
 
-  override def owner: ScTypeParametersOwner = getContext.getContext.asInstanceOf[ScTypeParametersOwner]
+  override def owner: ScTypeParametersOwner = {
+    val result = getContext.getContext
+    // To see more info about EA-239302
+    try {
+      result.asInstanceOf[ScTypeParametersOwner]
+    } catch {
+      case exception: ClassCastException =>
+        val errorDescription = result.asOptionOf[PsiErrorElement].map(_.getErrorDescription).getOrElse("")
+        throw new IllegalStateException(s"Error: $errorDescription", exception)
+    }
+  }
 
   override def getUseScope: SearchScope = new LocalSearchScope(owner).intersectWith(super.getUseScope)
 
