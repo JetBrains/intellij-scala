@@ -132,7 +132,6 @@ final class TestRunConfigurationForm(val myProject: Project) {
     configuration.setModule(this.getModule)
     configuration.testConfigurationData = TestConfigurationData.createFromForm(this, configuration)
     configuration.testConfigurationData.initWorkingDirIfEmpty()
-    configuration.setShortenCommandLine(getShortenCommandLine)
   }
 
   private def resetSbtOptionsFrom(configuration: AbstractTestRunConfiguration): Unit = {

@@ -57,6 +57,7 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
     setUseSbt(form.getUseSbt)
     setUseUiWithSbt(form.getUseUiWithSbt)
     setWorkingDirectory(form.getWorkingDirectory)
+    setShortenClasspath(form.getShortenCommandLine)
     envs = form.getEnvironmentVariables
   }
 
@@ -69,6 +70,7 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
     setUseSbt(other.getUseSbt)
     setUseUiWithSbt(other.getUseUiWithSbt)
     setWorkingDirectory(other.getWorkingDirectory)
+    setShortenClasspath(other.getShortenClasspath)
     envs = new java.util.HashMap(other.envs)
   }
 
