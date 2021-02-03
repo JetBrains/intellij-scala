@@ -7,7 +7,7 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorManagerListener}
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.project.{Project, ProjectManagerListener}
-import com.intellij.openapi.roots.ProjectFileIndex
+import com.intellij.openapi.roots.{JavaProjectRootsUtil, ProjectFileIndex}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsFileImpl
@@ -115,12 +115,13 @@ object RegisterCompilationListener {
             highlighter.runHighlightingCompilation(project, file, document, client)
           }
         case _ =>
-          file match {
-            case _: ScalaFile | _: PsiJavaFile =>
-              document.syncToDisk(project)
-              compiler.rescheduleCompilation(delayedProgressShow = true, forceCompileFile = Some(virtualFile))
-            case _ =>
-          }
+          if (!JavaProjectRootsUtil.isOutsideJavaSourceRoot(file)) // EA-228742
+            file match {
+              case _: ScalaFile | _: PsiJavaFile =>
+                document.syncToDisk(project)
+                compiler.rescheduleCompilation(delayedProgressShow = true, forceCompileFile = Some(virtualFile))
+              case _ =>
+            }
       }
     }
 
