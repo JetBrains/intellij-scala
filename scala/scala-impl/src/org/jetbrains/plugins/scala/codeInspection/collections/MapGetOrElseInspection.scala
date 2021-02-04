@@ -22,7 +22,7 @@ object MapGetOrElse extends SimplificationType() {
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
-      case qual`.mapOnOption`(fun)`.getOrElse`(default) =>
+      case qual`.mapOnOption` fun `.getOrElse` default =>
         replacementText(qual, fun, default) match {
           case Some(newText) if checkTypes(qual, fun, newText) =>
             val simplification = replace(expr).withText(newText).highlightFrom(qual)
@@ -46,7 +46,8 @@ object MapGetOrElse extends SimplificationType() {
       case _ => return false
     }
     ScalaPsiElementFactory.createExpressionFromText(replacementText, qual.getContext) match {
-      case ScMethodCall(ScMethodCall(_, Seq(firstArg)), _) => mapArgRetType.conforms(firstArg.`type`().getOrNothing)
+      case ScMethodCall(ScMethodCall(_, Seq(firstArg)), _) =>
+        mapArgRetType.conforms(firstArg.`type`().getOrNothing.widenIfLiteral)
       case _ => false
     }
   }
