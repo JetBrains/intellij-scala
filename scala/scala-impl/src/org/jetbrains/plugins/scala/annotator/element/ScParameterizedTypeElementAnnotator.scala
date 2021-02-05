@@ -4,15 +4,13 @@ package element
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiNamedElement, PsiWhiteSpace}
-import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 
 object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameterizedTypeElement] {
@@ -79,8 +77,8 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
 
     if (paramTyParams.nonEmpty) {
       val expectedTyConstr = (param.name, paramTyParams)
-      argTy.asOptionOf[DesignatorOwner].flatMap(_.polyTypeOption) match {
-        case Some(ScTypePolymorphicType(_, argParams)) =>
+      argTy match {
+        case TypeParameters(argParams) if argParams.nonEmpty =>
           val actualTyConstr = (argTy.presentableText, argParams)
           val actualDiff = TypeConstructorDiff.forActual(expectedTyConstr, actualTyConstr)
           if (actualDiff.exists(_.hasError)) {
@@ -105,5 +103,16 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
     val name = typeParamOwner.name
     val params = typeParamOwner.typeParameters.map(_.name).mkString(", ")
     s"$name[$params]"
+  }
+
+  private object TypeParameters {
+    def unapply(ty: ScType): Option[Seq[TypeParameter]] = ty match {
+      case designatorOwner: DesignatorOwner =>
+        designatorOwner.polyTypeOption.map(_.typeParameters)
+      case typeParameter: TypeParameterType =>
+        Some(typeParameter.typeParameters)
+      case _ =>
+        None
+    }
   }
 }
