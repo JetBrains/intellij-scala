@@ -1,22 +1,41 @@
 package org.jetbrains.plugins.scala.lang.typeInference
-
-import org.jetbrains.plugins.scala.LatestScalaVersions.{Scala_2_12, Scala_2_13}
+import org.jetbrains.plugins.scala.LatestScalaVersions.{Scala_2_11, Scala_2_12, Scala_2_13}
 import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Error, Message, ScalaAnnotator}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions.assertMatches
 
-class EmptyParamEtaExpansionTest extends ScalaLightCodeInsightFixtureTestAdapter {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_13
+abstract class EmptyParamEtaExpansionTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  def testSCL18172(): Unit = checkTextHasNoErrors(
-    """
-      |import java.util.concurrent.{ExecutorService, Future}
-      |type Par[A] = ExecutorService => Future[A]
-      |def join[A](a: Par[Par[A]]): Par[A] = es => {
-      |  val value: Par[A] = a(es).get
-      |  ???
-      |}
-      |""".stripMargin
-  )
+  protected def errorMessages(code: String): List[Message] = {
+    val annotator = ScalaAnnotator.forProject(getProject)
+
+    myFixture.configureByText("a.scala", code)
+    val file = myFixture.getFile.asInstanceOf[ScalaFile]
+
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
+    file.depthFirst().foreach(annotator.annotate)
+    mock.errorAnnotations.filterNot(_.message == null)
+  }
+}
+
+abstract class EmptyParamEtaExpansionTest_Since_2_11 extends EmptyParamEtaExpansionTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
+
+  protected val SCL18172_Code = """
+    |import java.util.concurrent.{ExecutorService, Future}
+    |type Par[A] = ExecutorService => Future[A]
+    |def join[A](a: Par[Par[A]]): Par[A] = es => {
+    |  val value: Par[A] = a(es).get
+    |  ???
+    |}
+    |""".stripMargin
+  def testSCL18172(): Unit =
+    assertMatches(errorMessages(SCL18172_Code)) {
+      case Error("a(es).get", "Expression of type () => Par[A] doesn't conform to expected type Par[A]") :: Nil =>
+    }
 
   def testSCL18525(): Unit = checkTextHasNoErrors(
     """
@@ -48,7 +67,18 @@ class EmptyParamEtaExpansionTest extends ScalaLightCodeInsightFixtureTestAdapter
   )
 }
 
-class EmpptyParamEtaExpansion_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class EmptyParamEtaExpansionTest_Since_2_12 extends EmptyParamEtaExpansionTest_Since_2_11 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_12
+}
+
+abstract class EmptyParamEtaExpansionTest_Since_2_13 extends EmptyParamEtaExpansionTest_Since_2_12 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_13
+
+  override def testSCL18172(): Unit =
+    checkTextHasNoErrors(SCL18172_Code)
+}
+
+class EmptyParamEtaExpansion_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_12
 
   def testSCL18172(): Unit = checkHasErrorAroundCaret(
@@ -60,4 +90,16 @@ class EmpptyParamEtaExpansion_2_12 extends ScalaLightCodeInsightFixtureTestAdapt
        |  ???
        |}""".stripMargin
   )
+}
+
+class EmptyParamEtaExpansionTest_2_11 extends EmptyParamEtaExpansionTest_Since_2_11 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_11
+}
+
+class EmptyParamEtaExpansionTest_2_12 extends EmptyParamEtaExpansionTest_Since_2_12 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_12
+}
+
+class EmptyParamEtaExpansionTest_2_13 extends EmptyParamEtaExpansionTest_Since_2_13 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_13
 }

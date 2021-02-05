@@ -1,0 +1,144 @@
+package org.jetbrains.plugins.scala.annotator.gutter
+
+import com.intellij.codeInsight.daemon.GutterMark
+import com.intellij.codeInsight.daemon.LineMarkerInfo.LineMarkerGutterIconRenderer
+import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.text.StringUtil
+import org.jetbrains.plugins.scala.TypecheckerTests
+import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
+import org.junit.Assert.{assertEquals, assertTrue, fail}
+import org.junit.experimental.categories.Category
+
+import scala.jdk.CollectionConverters.ListHasAsScala
+import scala.math.Ordered.orderingToOrdered
+
+// TODO: we already have some LineMarkerTestBase
+//  could unify the tests
+@Category(Array(classOf[TypecheckerTests]))
+abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
+
+  protected def doTestNoLineMarkersAtCaret(fileText: String): Unit =
+    doTest(fileText) {
+      myFixture.doHighlighting()
+      val gutters = myFixture.findGuttersAtCaret().asScala.toSeq
+      assertNoGutters(gutters, s"no gutters expected at caret, but got:")
+    }
+
+  protected def doTestNoLineMarkers(fileText: String, fileExtension: String = "scala"): Unit =
+    doTest(fileText, fileExtension) {
+      myFixture.doHighlighting()
+      val gutters = myFixture.findAllGutters().asScala.toSeq
+      assertNoGutters(gutters, "no gutters expected, but got:")
+    }
+
+  private def assertNoGutters(gutters: Seq[GutterMark], baseMessage: String): Unit = {
+    if (gutters.nonEmpty) {
+      val guttersText = guttersDebugText(gutters)
+      assertEquals(baseMessage, "", guttersText)
+    }
+  }
+
+  protected def refToElement(superClass: String, superMethod: String, refText: String): String =
+    s"""<a href="#element/$superClass#$superMethod"><code>$refText</code></a>"""
+
+  protected def refToClass(className: String): String =
+    s"""<a href="#element/$className"><code>$className</code></a>"""
+
+  protected def recursionTooltip(methodName: String, isTailRecursive: Boolean) =
+    s"Method '$methodName' is ${if (isTailRecursive) "tail recursive" else "recursive"}"
+
+  // TODO: why using callback? we could just call it "prepareFile" and call as usual
+  protected def doTest(fileText: String, fileExtension: String = "scala")(testFn: => Any): Unit = {
+    val name = getTestName(false)
+    myFixture.configureByText(s"$name.$fileExtension", StringUtil.convertLineSeparators(fileText, "\n"))
+    testFn
+  }
+
+  protected def doTestSingleTooltipAtCaret(fileText: String, expectedTooltipParts: String*): Unit = {
+    assertTrue("Tooltip text expected", expectedTooltipParts.nonEmpty)
+
+    doTest(fileText) {
+      myFixture.doHighlighting()
+      val gutters = myFixture.findGuttersAtCaret().asScala.toSeq
+      gutters match {
+        case Seq(marker) =>
+          val actualTooltip = marker.getTooltipText
+          val missingPart = expectedTooltipParts.find(!actualTooltip.contains(_))
+          missingPart.foreach { missing =>
+            assertEquals(s"Gutter mark must include `$missing`", missing, actualTooltip)
+          }
+        case Seq() =>
+          fail("Gutter mark expected at caret, but no markers found")
+        case markers =>
+          fail(s"Expected single gutter at caret, but got:\n${guttersDebugText(markers)}")
+      }
+    }
+  }
+
+  protected def doTestAllGutters(fileText: String, expectedGutters: Seq[ExpectedGutter], fileExtension: String = "scala"): Unit =
+    doTest(fileText, fileExtension) {
+      val gutters = myFixture.findAllGutters().asScala.toSeq
+      val guttersShort = gutters.map(toShortExpectedGutter)
+      val guttersSorted = guttersShort.sorted
+      val expectedGuttersSorted = expectedGutters.sorted
+
+      val expectedText = guttersDebugText(expectedGuttersSorted)
+      val actualText = guttersDebugText(guttersSorted)
+      assertEquals(expectedText, actualText)
+    }
+
+  private def toShortExpectedGutter(gutter: GutterMark): ExpectedGutter =
+    toExpectedGutter(gutter, extractFirstParagraph(_).getOrElse {
+      fail(s"couldn't extract first paragraph from gutter:\n${gutterDebugText(gutter)}").asInstanceOf[Nothing]
+    })
+
+  private def toFullExpectedGutter(gutter: GutterMark): ExpectedGutter =
+    toExpectedGutter(gutter, identity)
+
+  private def toExpectedGutter(gutter: GutterMark, tooltipContentDecorator: String => String): ExpectedGutter = {
+    val info = gutter.asInstanceOf[LineMarkerGutterIconRenderer[_]].getLineMarkerInfo
+    val line = myFixture.getDocument(myFixture.getFile).getLineNumber(info.startOffset)
+    val tooltip = info.getLineMarkerTooltip
+    val tooltipDecorated = tooltipContentDecorator(tooltip)
+    ExpectedGutter(line, TextRange.create(info.startOffset, info.endOffset), tooltipDecorated)
+  }
+
+  case class ExpectedGutter(line: Int, range: TextRange, tooltipContent: String) extends Ordered[ExpectedGutter] {
+    override def compare(that: ExpectedGutter): Int =
+      (range.getStartOffset, range.getEndOffset).compareTo(that.range.getStartOffset, that.range.getEndOffset)
+  }
+  object ExpectedGutter {
+    def apply(line: Int, range: (Int, Int), tooltipContent: String): ExpectedGutter =
+      new ExpectedGutter(line, TextRange.create(range._1, range._2), tooltipContent)
+  }
+
+  private def extractFirstParagraph(tooltipHtml: String): Option[String] = {
+    val htmlSingleLine = tooltipHtml.trim.replace("\r", "").replace("\n", "")
+    val regex = "<html><body><p>(.*?)</p>.*?</body></html>".r
+    regex.findFirstMatchIn(htmlSingleLine).map(_.group(1))
+  }
+
+  private def guttersDebugText(gutters: Seq[GutterMark]): String =
+    gutters.map(gutterDebugText).mkString("\n")
+
+  private def guttersDebugText(gutters: Seq[ExpectedGutter])(implicit d: DummyImplicit): String =
+    gutters.map(gutterDebugText).mkString("\n")
+
+  private def gutterDebugText(gutter: GutterMark): String =
+    gutter match {
+      case renderer: LineMarkerGutterIconRenderer[_] =>
+        gutterDebugText(renderer)
+      case _ =>
+        gutter.getTooltipText
+    }
+
+  private def gutterDebugText(gutter: LineMarkerGutterIconRenderer[_]): String =
+    gutterDebugText(toFullExpectedGutter(gutter))
+
+  private def gutterDebugText(gutter: ExpectedGutter): String = {
+    val start = gutter.range.getStartOffset
+    val end = gutter.range.getEndOffset
+    val line = myFixture.getDocument(myFixture.getFile).getLineNumber(start)
+    s"line $line ($start, $end) ${gutter.tooltipContent}"
+  }
+}

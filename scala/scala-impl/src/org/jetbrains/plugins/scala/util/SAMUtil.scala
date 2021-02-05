@@ -35,12 +35,17 @@ object SAMUtil {
     def unapply(e: ScExpression): Option[PsiClass] = e.samTypeParent
   }
 
-  def isFunctionalExpression(e: ScExpression): Boolean = e match {
-    case _: ScFunctionExpr                                    => true
-    case block: ScBlock if block.isAnonymousFunction          => true
-    case MethodValue(_)                                       => true
-    case _ if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
-    case _                                                    => false
+  def isFunctionalExpression(e: ScExpression): Boolean = {
+    val res = e match {
+      case _: ScFunctionExpr                                    => true
+      case block: ScBlock if block.isAnonymousFunction          => true
+      case MethodValue(_)                                       => true
+      case _ if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
+      case _                                                    => false
+    }
+    //val line = PsiDocumentManager.getInstance(e.getProject).getDocument(e.getContainingFile).getLineNumber(e.startOffset) + 1
+    //println(f"isFunctionalExpression    $res%-5s  line: ${line}%-3d    ${e.getText.replace("\n", "\\n")}%-45s    ${e.getClass.getSimpleName}")
+    res
   }
 
 
@@ -95,6 +100,12 @@ object SAMUtil {
     *
     * @see SCL-6140
     * @see https://github.com/scala/scala/pull/3018/
+    * @example here in foo expected type is A, and SAMType is (Int => String) {{{
+    *  def foo: A = () => "hello"
+    *  abstract class A {
+    *    abstract def bar(i: Int): String = ???
+    *  }
+    * }}}
     */
     def toSAMType(expected: ScType, element: PsiElement): Option[ScType] = {
       implicit val scope: ElementScope = element.elementScope
@@ -106,23 +117,15 @@ object SAMUtil {
           else {
             for {
               (method, methodSubst) <- cls.singleAbstractMethodWithSubstitutor
-              funType               <- functionType(method)
+              funType               <- method.functionType
             } yield {
               val substituted = methodSubst.followed(subst)(funType)
-              extrapolateWildcardBounds(substituted, expected, languageLevel).getOrElse(substituted)
+              val res = extrapolateWildcardBounds(substituted, expected, languageLevel)
+              res.getOrElse(substituted)
             }
           }
       }
     }
-
-  private def functionType(m: PsiMethod)
-                          (implicit scope: ElementScope): Option[ScType] = m match {
-    case fun: ScFunction => fun.`type`().toOption
-    case method          =>
-      val returnType = Option(method.getReturnType.toScType())
-      val paramTypes = method.parameters.map(_.getType.toScType())
-      returnType.map(FunctionType(_, paramTypes))
-  }
 
   private def hasSingleParameterClause(m: PsiMethod): Boolean = m match {
     case f: ScFunction => f.paramClauses.clauses.size == 1

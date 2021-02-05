@@ -26,7 +26,9 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     // TODO Annotating ScUnderscoreSection is technically correct, but reveals previously hidden red code in ScalacTestdataHighlightingTest.tuples_1.scala
     // TODO see visitUnderscoreExpression in ScalaAnnotator
-    if (element.isInstanceOf[ScUnderscoreSection]) {
+    //  EDIT: the only failing test was scala/scala-impl/testdata/scalacTests/pos/t3864/tuples_1.scala
+    //  it was extracted to https://youtrack.jetbrains.com/issue/SCL-18683
+    if (element.is[ScUnderscoreSection] && element.getParent.is[ScParameter]) {
       return
     }
 
@@ -86,14 +88,16 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
     }
 
     def checkExpressionTypeInner(fromUnderscore: Boolean): Unit = {
+      val smartExpectedType = element.smartExpectedType(fromUnderscore)
       val ExpressionTypeResult(exprType, importUsed, implicitFunction) =
-        element.getTypeAfterImplicitConversion(expectedOption = element.smartExpectedType(fromUnderscore), fromUnderscore = fromUnderscore)
+        element.getTypeAfterImplicitConversion(expectedOption = smartExpectedType, fromUnderscore = fromUnderscore)
 
       registerUsedImports(element, importUsed)
 
       if (isTooBigToHighlight(element) || (!fromFunctionLiteral && isInArgumentPosition(element)) || shouldNotHighlight(element)) return
 
-      element.expectedTypeEx(fromUnderscore) match {
+      val typeEx = element.expectedTypeEx(fromUnderscore)
+      typeEx match {
         case Some((tp: ScType, _)) if tp equiv api.Unit => //do nothing
         case Some((tp: ScType, typeElement)) =>
           val expectedType = Right(tp)

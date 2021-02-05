@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.PsiTypeExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -20,14 +21,14 @@ trait PsiTypeBridge {
     * @param treatJavaObjectAsAny if true, and paramTopLevel is true, java.lang.Object is treated as scala.Any
     *                             See SCL-3036 and SCL-2375
     */
-  def toScType(psiType: PsiType, treatJavaObjectAsAny: Boolean, paramTopLevel: Boolean): ScType =
+  def toScType(@Nullable psiType: PsiType, treatJavaObjectAsAny: Boolean, paramTopLevel: Boolean): ScType =
     toScTypeInner(psiType, treatJavaObjectAsAny, paramTopLevel, rawExistentialArguments = None)
 
   protected type RawExistentialArgs = Map[PsiTypeParameter, ScExistentialArgument]
 
   //Result of this method may contain not-bound existential arguments,
   //because we need to defer initialization of wildcard if it is called recursively.
-  protected def toScTypeInner(psiType: PsiType,
+  protected def toScTypeInner(@Nullable psiType: PsiType,
                               paramTopLevel: Boolean = false,
                               treatJavaObjectAsAny: Boolean = true,
                               rawExistentialArguments: Option[RawExistentialArgs] = None): ScType = psiType match {

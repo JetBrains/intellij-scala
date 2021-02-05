@@ -25,11 +25,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.util.SAMUtil
 
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
-import scala.collection.mutable.ArrayBuffer
 import scala.util.control.ControlThrowable
 
 /**
@@ -344,20 +342,25 @@ object InferUtil {
       case _                                                                     => _nonValueType
     }
 
-    if (!expr.is[ScExpression]) return nonValueType
+    if (!expr.is[ScExpression])
+      return nonValueType
 
     // interim fix for SCL-3905.
-    def applyImplicitViewToResult(mt: ScMethodType, expectedType: Option[ScType], fromSAM: Boolean = false,
-                                  fromMethodInvocation: Boolean = false): ScMethodType = {
+    def applyImplicitViewToResult(
+      mt: ScMethodType,
+      expectedType: Option[ScType],
+      fromSAM: Boolean = false,
+      fromMethodInvocation: Boolean = false
+    ): ScMethodType = {
       implicit val elementScope: ElementScope = mt.elementScope
       val ScMethodType(result, params, _) = mt
 
       expr match {
         case _: MethodInvocation if !fromMethodInvocation =>
           result match {
-            case methodType: ScMethodType => mt.copy(
-              result = applyImplicitViewToResult(methodType, expectedType, fromSAM, fromMethodInvocation = true)
-            )
+            case methodType: ScMethodType =>
+              val resultNew = applyImplicitViewToResult(methodType, expectedType, fromSAM, fromMethodInvocation = true)
+              mt.copy(result = resultNew)
             case _ => mt
           }
         case _ =>
@@ -366,10 +369,12 @@ object InferUtil {
             case Some(FunctionType(expectedRet, expectedParams)) if expectedParams.length == params.length =>
               if (expectedRet.equiv(Unit)) { //value discarding
                 mt.copy(result = Unit)
-              } else {
+              }
+              else {
                 result match {
-                  case methodType: ScMethodType => return mt.copy(
-                    result = applyImplicitViewToResult(methodType, Some(expectedRet), fromSAM))
+                  case methodType: ScMethodType =>
+                    val resultNew = applyImplicitViewToResult(methodType, Some(expectedRet), fromSAM)
+                    return mt.copy(result = resultNew)
                   case _ =>
                 }
 
@@ -387,12 +392,6 @@ object InferUtil {
 
                 mt.copy(result = updatedResultType.tr.getOrElse(result))
               }
-            case Some(tp) if !fromSAM && expr.isSAMEnabled &&
-              (params.nonEmpty || expr.scalaLanguageLevelOrDefault == ScalaLanguageLevel.Scala_2_11) =>
-              //we do this to update additional expression, so that implicits work correctly
-              //@see SingleAbstractMethodTest.testEtaExpansionImplicit
-              val requiredSAMType = SAMUtil.toSAMType(tp, expr)
-              applyImplicitViewToResult(mt, requiredSAMType, fromSAM = true)
             case _ => mt
           }
       }

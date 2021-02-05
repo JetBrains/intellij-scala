@@ -1089,63 +1089,94 @@ object ScalaPsiUtil {
     isCanonicalArg(expr) && parameterOf(expr).exists(p => FunctionType.isFunctionType(p.paramType))
 
   object MethodValue {
-    def unapply(expr: ScExpression): Option[PsiMethod] =
-      if (!isPossibleByClass(expr) || !functionOrSamTypeExpected(expr)) None
+    def unapply(expr: ScExpression): Option[PsiMethod] = {
+      // ! this extra check by class is a performance optimisation SCL-16559
+      // even though their usage may look redundant
+      if (!isPossibleByClass(expr))
+        None
+      else if (expectedFunctionalTypeKind(expr).isEmpty)
+        None
       else
         expr match {
           case ref: ScReferenceExpression if !ref.getParent.is[MethodInvocation] =>
-            referencedMethod(ref, canBeParameterless = false)
+            referencedMethod(ref, hasExplicitUnderscore = false)
           case gc: ScGenericCall if !gc.getParent.is[MethodInvocation] =>
-            referencedMethod(gc, canBeParameterless = false)
+            referencedMethod(gc, hasExplicitUnderscore = false)
           case us: ScUnderscoreSection =>
-            us.bindingExpr.flatMap(referencedMethod(_, canBeParameterless = true))
+            us.bindingExpr.flatMap(referencedMethod(_, hasExplicitUnderscore = true))
           case ScMethodCall(
-            invoked @ (_: ScReferenceExpression | _: ScGenericCall | _: ScMethodCall),
-            args
+          invoked @ (_: ScReferenceExpression | _: ScGenericCall | _: ScMethodCall),
+          args
           ) if args.nonEmpty && args.forall(isSimpleUnderscore) =>
-            referencedMethod(invoked, canBeParameterless = false)
+            referencedMethod(invoked, hasExplicitUnderscore = false)
           case mc: ScMethodCall if !mc.getParent.is[ScMethodCall] =>
-            referencedMethod(mc, canBeParameterless = false).filter {
-              case f: ScFunction if f.paramClauses.clauses.size > numberOfArgumentClauses(mc) =>
-                true
-              case _ => false
+            referencedMethod(mc, hasExplicitUnderscore = false).filter {
+              case f: ScFunction => f.paramClauses.clauses.size > numberOfArgumentClauses(mc)
+              case _             => false
             }
           case _ => None
         }
+    }
 
-    private def cantBeEtaExpanded(m: PsiMethod): Boolean = {
+
+    /**
+     * @return true if a method can be eta-expanded non-explicitly (without using of _, like `foo _`)
+     *         in presence of expected type
+     */
+    private def canBeAutoEtaExpanded(m: PsiMethod): Boolean = {
       import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
       lazy val isScala211 = m.scalaLanguageLevelOrDefault == Scala_2_11
 
-      m match {
+      val res = m match {
         case f: ScFunctionDefinition =>
           val clauses = f.paramClauses.clauses
-
-          clauses.isEmpty ||
-            clauses.forall { clause =>
-              val isEmptyClause =
-                if (isScala211) false
-                else            clause.parameters.isEmpty
-
-              clause.isImplicit || isEmptyClause
-            }
-        case _ => isScala211 || m.hasParameters
+          val hasSomeNonEmptyClause = clauses.exists { clause =>
+            val isEmptyClause =
+              if (isScala211) false
+              else clause.parameters.isEmpty
+            !clause.isImplicit && !isEmptyClause
+          }
+          hasSomeNonEmptyClause
+        case _ =>
+          // java method
+          m.hasParameters || isScala211
       }
+      // debug info
+      //println(f"canBeEtaExpanded    (isScala211: $isScala211)    ${m.getName}%-16s    $res")
+      res
     }
 
-    @tailrec
     private def referencedMethod(
       expr:               ScExpression,
-      canBeParameterless: Boolean
-    ): Option[PsiMethod] = expr match {
-      case ResolvesTo(m: PsiMethod) if cantBeEtaExpanded(m) && !canBeParameterless => None
-      case ResolvesTo(m: PsiMethod)                                                => Some(m)
-      case gc: ScGenericCall =>
-        referencedMethod(gc.referencedExpr, canBeParameterless)
-      case us: ScUnderscoreSection if us.bindingExpr.isDefined =>
-        referencedMethod(us.bindingExpr.get, canBeParameterless)
-      case m: ScMethodCall => referencedMethod(m.deepestInvokedExpr, canBeParameterless = false)
-      case _               => None
+      hasExplicitUnderscore: Boolean
+    ): Option[PsiMethod] = {
+
+      @tailrec
+      def inner(expr: ScExpression, hasExplicitUnderscore: Boolean): Option[PsiMethod] =
+        expr match {
+          case ResolvesTo(m: PsiMethod) =>
+            if (hasExplicitUnderscore || canBeAutoEtaExpanded(m))
+              Some(m)
+            else
+              None
+          case gc: ScGenericCall =>
+            inner(gc.referencedExpr, hasExplicitUnderscore)
+          case us: ScUnderscoreSection if us.bindingExpr.isDefined =>
+            inner(us.bindingExpr.get, hasExplicitUnderscore)
+          case m: ScMethodCall =>
+            inner(m.deepestInvokedExpr, hasExplicitUnderscore = false)
+          case _ =>
+            None
+        }
+
+      val res = inner(expr, hasExplicitUnderscore)
+      // debugging info
+      //if (isPossibleByClass(expr)) {
+      // val document = PsiDocumentManager.getInstance(expr.getProject).getDocument(expr.getContainingFile)
+      //  val line     = if (document == null) -1 else document.getLineNumber(expr.startOffset) + 1
+      //  println(f"line: ${line}%-3s  referencedMethod   ${res.isDefined}%-5s   explicit: ${hasExplicitUnderscore}%-5s  ${expr.getText}    from    ${expr.getClass.getSimpleName}")
+      //}
+      res
     }
 
     private def isSimpleUnderscore(expr: ScExpression) = expr match {
@@ -1169,10 +1200,26 @@ object ScalaPsiUtil {
       case _ => false
     }
 
-    private def functionOrSamTypeExpected(expr: ScExpression): Boolean =
-      expr.expectedType(fromUnderscore = false).exists {
-        case FunctionType(_, _) => true
-        case expected           => expr.isSAMEnabled && SAMUtil.toSAMType(expected, expr).isDefined
+    private sealed trait ExpectedFunctionalTypeKind
+    private object ExpectedTypeKind {
+      case object Function extends ExpectedFunctionalTypeKind
+      case class ClassWithSAM(functionalType: ScType) extends ExpectedFunctionalTypeKind
+    }
+
+    private def expectedFunctionalTypeKind(expr: ScExpression): Option[ExpectedFunctionalTypeKind] = {
+      val expectedType = expr.expectedType(fromUnderscore = false)
+      expectedType.flatMap(expectedFunctionalTypeKind(_, expr))
+    }
+
+    private def expectedFunctionalTypeKind(expectedType: ScType, expr: ScExpression): Option[ExpectedFunctionalTypeKind] =
+      expectedType match {
+        case FunctionType(_, _) =>
+          Some(ExpectedTypeKind.Function)
+        case expected if expr.isSAMEnabled =>
+          val samType = SAMUtil.toSAMType(expected, expr)
+          samType.map(ExpectedTypeKind.ClassWithSAM)
+        case _ =>
+          None
       }
   }
 

@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.{Callable, ScheduledFuture, TimeUnit, ConcurrentMap => JConcurrentMap, Future => JFuture}
 import java.util.regex.Pattern
 import java.util.{Arrays, Set => JSet}
-
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.ide.plugins.DynamicPluginListener
@@ -35,7 +34,7 @@ import com.intellij.util.CommonProcessors.CollectUniquesProcessor
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.text.CharArrayUtil
 import com.intellij.util.{ArrayFactory, ExceptionUtil, Processor}
-import org.jetbrains.annotations.{Nls, NonNls}
+import org.jetbrains.annotations.{Nls, NonNls, Nullable}
 import org.jetbrains.plugins.scala.caches.UserDataHolderDelegator
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -117,11 +116,13 @@ package object extensions {
     def isParameterless: Boolean =
       repr.getParameterList.getParametersCount == 0
 
-    def functionType(implicit scope: ElementScope): TypeResult = repr match {
-      case sf: ScFunction => sf.`type`()
-      case _ =>
-        val retTpe = repr.getReturnType.toScType()
-        Right(FunctionType((retTpe, parametersTypes)))
+    def functionType(implicit scope: ElementScope): Option[ScType] = repr match {
+      case fun: ScFunction =>
+        fun.`type`().toOption
+      case method => // java method
+        val returnType = Option(method.getReturnType).map(_.toScType())
+        val paramTypes = method.parameters.map(_.getType.toScType())
+        returnType.map(FunctionType(_, paramTypes))
     }
   }
 
@@ -560,7 +561,7 @@ package object extensions {
         case e: ScBindingPattern => e.`type`().toOption
         case e: ScFieldId        => e.`type`().toOption
         case e: ScParameter      => e.getRealParameterType.toOption
-        case e: PsiMethod        => e.functionType(scope).toOption
+        case e: PsiMethod        => e.functionType(scope)
         case e: PsiVariable      => lift(e.getType)
         case _                   => None
       }).map(substitutor)
@@ -841,7 +842,7 @@ package object extensions {
     }
   }
 
-  implicit class PsiTypeExt(val `type`: PsiType) extends AnyVal {
+  implicit class PsiTypeExt(@Nullable val `type`: PsiType) extends AnyVal {
     def toScType(paramTopLevel: Boolean = false,
                  treatJavaObjectAsAny: Boolean = true)
                 (implicit project: ProjectContext): ScType =

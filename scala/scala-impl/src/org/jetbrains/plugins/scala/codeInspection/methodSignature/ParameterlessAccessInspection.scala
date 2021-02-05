@@ -71,6 +71,10 @@ object ParameterlessAccessInspection {
     override protected def isValid(method: PsiMethod): Boolean = quickfix.isMutator(method)
   }
 
+  // TODO: this should be an ERROR in Scala3, not a WARNING
+  //  for example this in an error:
+  //  def m00() = "00"
+  //  val f002 = m00
   final class EmptyParenMethod extends ParameterlessAccessInspection {
 
     // might have been eta-expanded to () => A, so don't worn.

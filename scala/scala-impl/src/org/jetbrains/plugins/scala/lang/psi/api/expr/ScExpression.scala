@@ -142,7 +142,9 @@ trait ScExpression extends ScBlockStatement
         case (Some(expType), Some(tp))
           if checkImplicits && !tp.conforms(expType) => //do not try implicit conversions for shape check or already correct type
 
-          this.tryAdaptTypeToSAM(tp, expType, fromUnderscore).getOrElse(
+          // isSAMEnabled is checked in tryAdaptTypeToSAM, but we can cut it right here
+          val adapted = if (this.isSAMEnabled) this.tryAdaptTypeToSAM(tp, expType, fromUnderscore) else None
+          adapted.getOrElse(
             if (isJavaReflectPolymorphic) ExpressionTypeResult(Right(expType))
             else                          this.updateTypeWithImplicitConversion(tp, expType)
           )
@@ -230,7 +232,8 @@ object ScExpression {
       expr match {
         case literals.ScNullLiteral(typeWithoutImplicits) => Right(typeWithoutImplicits)
         case _ =>
-          expr.getNonValueType(ignoreBaseType, fromUnderscore).flatMap { nonValueType =>
+          val maybeNonValueType = expr.getNonValueType(ignoreBaseType, fromUnderscore)
+          maybeNonValueType.flatMap { nonValueType =>
             val expectedType = this.expectedType(fromUnderscore = fromUnderscore)
             val widened      = nonValueType.widenLiteralType(expr, expectedType)
             val maybeSAMpt   = expectedType.flatMap(widened.expectedSAMType(expr, fromUnderscore, _))
@@ -503,7 +506,7 @@ object ScExpression {
             .map(_.removeAbstracts)
             .forall {
               case functionLikeType(marker, _, ptpes) => marker match {
-                case SAM(_) => scalaVersion != Scala_2_11
+                case SAM(_) => !(scalaVersion == Scala_2_11 && expr.isSAMEnabled)
                 case _      => scalaVersion >= Scala_2_13 && ptpes.nonEmpty
               }
               case _ => true
