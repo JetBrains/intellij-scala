@@ -123,6 +123,17 @@ class ScParameterizedTypeElementAnnotatorTest extends SimpleTestCase {
     ))
   }
 
+  def testTypeBoundContainingTypeParamInTypeConstructor(): Unit = {
+    assertNothing(messages(
+      """
+        |trait Trait[X]
+        |trait HkType[A[X <: Trait[X]]] {
+        |    def test[B[Y <: Trait[Y]]]: HkType[B]
+        |}
+        |""".stripMargin
+    ))
+  }
+
 
   def assertMessagesInAllContexts(typeText: String)(expected: Message*): Unit = {
     val Header =

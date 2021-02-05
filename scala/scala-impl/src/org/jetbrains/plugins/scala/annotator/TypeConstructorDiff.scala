@@ -64,7 +64,8 @@ object TypeConstructorDiff {
           Iterator.fill(paramDiff)(Seq(aMissing(" "), aMatch(""))).flatten: _*
       )
     } else {
-      val paramsDiffs = subjectParams.lazyZip(otherParams).map(diff(_, _, substitute))
+      val newSubstitutor = substitute.withBindings(subjectParams, otherParams)
+      val paramsDiffs = subjectParams.lazyZip(otherParams).map(diff(_, _, newSubstitutor))
       Node(
         Seq(
           aMatch(subjectName),
