@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.annotator.Tree.{Leaf, Node}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 
 class TypeConstructorDiff(val text: String, val isMismatch: Boolean, val isMissing: Boolean) {
   def hasError: Boolean = isMismatch || isMissing
@@ -18,14 +19,14 @@ object TypeConstructorDiff {
 
   type TyConstr = (String, Seq[TypeParameter])
 
-  def forBoth(expected: TyConstr, actual: TyConstr)(implicit tpc: TypePresentationContext): (Tree[TypeConstructorDiff], Tree[TypeConstructorDiff]) =
-    (forExpected(expected, actual), forActual(expected, actual))
+  def forBoth(expected: TyConstr, actual: TyConstr, substitute: ScSubstitutor)(implicit tpc: TypePresentationContext): (Tree[TypeConstructorDiff], Tree[TypeConstructorDiff]) =
+    (forExpected(expected, actual, substitute), forActual(expected, actual, substitute))
 
-  def forActual(expected: TyConstr, actual: TyConstr)(implicit tpc: TypePresentationContext): Tree[TypeConstructorDiff] =
-    diff(actual._1, actual._2, expected._2)((lower, upper) => lower.conforms(upper), tpc)
+  def forActual(expected: TyConstr, actual: TyConstr, substitute: ScSubstitutor)(implicit tpc: TypePresentationContext): Tree[TypeConstructorDiff] =
+    diff(actual._1, actual._2, expected._2, substitute)((lower, upper) => lower.conforms(upper), tpc)
 
-  def forExpected(expected: TyConstr, actual: TyConstr)(implicit tpc: TypePresentationContext): Tree[TypeConstructorDiff] =
-    diff(expected._1, expected._2, actual._2)((lower, upper) => upper.conforms(lower), tpc)
+  def forExpected(expected: TyConstr, actual: TyConstr, substitute: ScSubstitutor)(implicit tpc: TypePresentationContext): Tree[TypeConstructorDiff] =
+    diff(expected._1, expected._2, actual._2, substitute)((lower, upper) => upper.conforms(lower), tpc)
 
   private def aMatch(text: String) = Leaf(new TypeConstructorDiff(text, false, false))
   private def aMismatch(text: String) = Leaf(new TypeConstructorDiff(text, true, false))
@@ -33,7 +34,7 @@ object TypeConstructorDiff {
 
   private type Conformance = (ScType, ScType) => Boolean
 
-  private def diff(subjectName: String, subjectParams: Seq[TypeParameter], otherParams: Seq[TypeParameter])(implicit conformance: Conformance, tpc: TypePresentationContext): Tree[TypeConstructorDiff] = {
+  private def diff(subjectName: String, subjectParams: Seq[TypeParameter], otherParams: Seq[TypeParameter], substitute: ScSubstitutor)(implicit conformance: Conformance, tpc: TypePresentationContext): Tree[TypeConstructorDiff] = {
     if (subjectParams.isEmpty && otherParams.isEmpty) {
       aMatch(subjectName)
     } else if (subjectParams.size > otherParams.size) {
@@ -63,7 +64,7 @@ object TypeConstructorDiff {
           Iterator.fill(paramDiff)(Seq(aMissing(" "), aMatch(""))).flatten: _*
       )
     } else {
-      val paramsDiffs = subjectParams.lazyZip(otherParams).map(diff)
+      val paramsDiffs = subjectParams.lazyZip(otherParams).map(diff(_, _, substitute))
       Node(
         Seq(
           aMatch(subjectName),
@@ -75,7 +76,7 @@ object TypeConstructorDiff {
     }
   }
 
-  private def diff(subjectParam: TypeParameter, otherParam: TypeParameter)(implicit conformance: Conformance, tpc: TypePresentationContext): Tree[TypeConstructorDiff] = {
+  private def diff(subjectParam: TypeParameter, otherParam: TypeParameter, substitute: ScSubstitutor)(implicit conformance: Conformance, tpc: TypePresentationContext): Tree[TypeConstructorDiff] = {
     def listIf[T](cond: Boolean)(elem: T): List[T] = if (cond) List(elem) else Nil
 
     val subjectLowerType = subjectParam.lowerType
@@ -83,7 +84,7 @@ object TypeConstructorDiff {
       val otherLowerType = otherParam.lowerType
       val list = listIf[Tree[TypeConstructorDiff]](!subjectLowerType.isNothing || !otherLowerType.isNothing) _
       if (subjectLowerType.isNothing) _ => list(aMatch(""))
-      else if (!conformance(subjectLowerType, otherLowerType)) str => list(aMismatch(str))
+      else if (!conformance(substitute(subjectLowerType), substitute(otherLowerType))) str => list(aMismatch(str))
       else str => list(aMatch(str))
     }
 
@@ -92,17 +93,17 @@ object TypeConstructorDiff {
       val otherUpperType = otherParam.upperType
       val list = listIf[Tree[TypeConstructorDiff]](!subjectUpperType.isAny || !otherUpperType.isAny) _
       if (subjectUpperType.isAny) _ => list(aMatch(""))
-      else if (!conformance(otherUpperType, subjectUpperType)) str => list(aMismatch(str))
+      else if (!conformance(substitute(otherUpperType), substitute(subjectUpperType))) str => list(aMismatch(str))
       else str => list(aMatch(str))
     }
 
     Node(
-      diff(subjectParam.name, subjectParam.typeParameters, otherParam.typeParameters) ::
-      lowerBoundLeaf(" >: ") :::
-      lowerBoundLeaf(subjectLowerType.presentableText) :::
-      upperBoundLeaf(" <: ") :::
-      upperBoundLeaf(subjectUpperType.presentableText) :::
-      Nil: _*
+      diff(subjectParam.name, subjectParam.typeParameters, otherParam.typeParameters, substitute) ::
+        lowerBoundLeaf(" >: ") :::
+        lowerBoundLeaf(subjectLowerType.presentableText) :::
+        upperBoundLeaf(" <: ") :::
+        upperBoundLeaf(subjectUpperType.presentableText) :::
+        Nil: _*
     )
   }
 }

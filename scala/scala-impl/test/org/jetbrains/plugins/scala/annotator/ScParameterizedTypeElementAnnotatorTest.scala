@@ -67,6 +67,63 @@ class ScParameterizedTypeElementAnnotatorTest extends SimpleTestCase {
     ))
   }
 
+  def testInferredUpperbound(): Unit = {
+    assertNothing(messages(
+      """
+        |trait A
+        |trait B extends A
+        |
+        |class Test[Up, X <: Up]
+        |
+        |new Test[A, B]
+        |
+        |""".stripMargin
+    ))
+  }
+
+  def testSelfInUpperBound(): Unit = {
+    assertNothing(messages(
+      """
+        |trait Base[A]
+        |class Impl extends Base[Impl]
+        |
+        |class Test[X <: Base[X]]
+        |
+        |
+        |new Test[Impl]
+        |
+        |""".stripMargin
+    ))
+  }
+
+  def testOuterTypeParameter(): Unit = {
+    assertMessages(messages(
+      """
+        |class Context[C <: Ctx, Ctx] {
+        |
+        |  class Test[X >: Ctx <: Ctx]
+        |
+        |  new Test[C]
+        |}
+        |""".stripMargin
+    ))(
+      Error("C", "Type C does not conform to lower bound Ctx of type parameter X")
+    )
+  }
+
+  def testHkBound(): Unit = {
+
+    assertNothing(messages(
+      """
+        |trait M[F]
+        |trait S[X[A] <: M[X]]
+        |
+        |class Test[Y[_] <: M[Y]] extends S[Y]
+        |""".stripMargin
+    ))
+  }
+
+
   def assertMessagesInAllContexts(typeText: String)(expected: Message*): Unit = {
     val Header =
       """

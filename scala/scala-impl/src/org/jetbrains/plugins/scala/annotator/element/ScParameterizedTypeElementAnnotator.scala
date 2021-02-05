@@ -6,12 +6,13 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiNamedElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeElement, ScTypeVariableTypeElement, ScWildcardTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialArgument, ScExistentialType, ScType, TypePresentationContext}
 
 object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameterizedTypeElement] {
 
@@ -46,32 +47,42 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
       }
 
       implicit val tcp: TypePresentationContext = typeArgList
+      val substitute: ScSubstitutor = {
+        val (ps, as) = (
+          for {
+            (param, arg) <- params zip args
+            argTy <- arg.`type`().toOption
+          } yield (param, argTy)
+          ).unzip
+        ScSubstitutor.bind(ps, as)
+      }
+
       for {
         // the zip will cut away missing or excessive arguments
         (arg, param) <- args zip params
         argTy <- arg.`type`()
       } {
-        checkBounds(arg, argTy, param)
-        checkHigherKindedType(arg, argTy, param)
+        checkBounds(arg, argTy, param, substitute)
+        checkHigherKindedType(arg, argTy, param, substitute)
       }
     }
   }
 
-  private def checkBounds(arg: ScTypeElement, argTy: ScType, param: ScTypeParam)
+  private def checkBounds(arg: ScTypeElement, argTy: ScType, param: ScTypeParam, substitute: ScSubstitutor)
                          (implicit holder: ScalaAnnotationHolder, tcp: TypePresentationContext): Unit = {
     lazy val argTyText = argTy.presentableText
-    for (upperBound <- param.upperBound.toOption if !argTy.conforms(upperBound)) {
+    for (upperBound <- param.upperBound.toOption if !argTy.conforms(substitute(upperBound))) {
       holder.createErrorAnnotation(arg, ScalaBundle.message("type.arg.does.not.conform.to.upper.bound", argTyText, upperBound.presentableText, param.name))
         .registerFix(ReportHighlightingErrorQuickFix)
     }
 
-    for (lowerBound <- param.lowerBound.toOption if !lowerBound.conforms(argTy)) {
+    for (lowerBound <- param.lowerBound.toOption if !substitute(lowerBound).conforms(argTy)) {
       holder.createErrorAnnotation(arg, ScalaBundle.message("type.arg.does.not.conform.to.lower.bound", argTyText, lowerBound.presentableText, param.name))
         .registerFix(ReportHighlightingErrorQuickFix)
     }
   }
 
-  private def checkHigherKindedType(arg: ScTypeElement, argTy: ScType, param: ScTypeParam)
+  private def checkHigherKindedType(arg: ScTypeElement, argTy: ScType, param: ScTypeParam, substitute: ScSubstitutor)
                                    (implicit holder: ScalaAnnotationHolder, tcp: TypePresentationContext): Unit = {
     val paramTyParams = param.typeParameters.map(TypeParameter(_))
 
@@ -80,17 +91,17 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
       argTy match {
         case TypeParameters(argParams) if argParams.nonEmpty =>
           val actualTyConstr = (argTy.presentableText, argParams)
-          val actualDiff = TypeConstructorDiff.forActual(expectedTyConstr, actualTyConstr)
+          val actualDiff = TypeConstructorDiff.forActual(expectedTyConstr, actualTyConstr, substitute)
           if (actualDiff.exists(_.hasError)) {
-            val expectedDiff = TypeConstructorDiff.forExpected(expectedTyConstr, actualTyConstr)
+            val expectedDiff = TypeConstructorDiff.forExpected(expectedTyConstr, actualTyConstr, substitute)
             val annotation = holder.createErrorAnnotation(arg, ScalaBundle.message("type.constructor.does.not.conform", argTy.presentableText, expectedDiff.flatten.map(_.text).mkString))
             annotation.setTooltip(tooltipForDiffTrees(ScalaBundle.message("type.constructor.mismatch"), expectedDiff, actualDiff))
             annotation.registerFix(ReportHighlightingErrorQuickFix)
           }
         case _ =>
           val actualTyConstr = (argTy.presentableText, Seq.empty)
-          val expectedDiff = TypeConstructorDiff.forExpected(expectedTyConstr, actualTyConstr)
-          val actualDiff = TypeConstructorDiff.forActual(expectedTyConstr, actualTyConstr)
+          val expectedDiff = TypeConstructorDiff.forExpected(expectedTyConstr, actualTyConstr, substitute)
+          val actualDiff = TypeConstructorDiff.forActual(expectedTyConstr, actualTyConstr, substitute)
 
           val annotation = holder.createErrorAnnotation(arg, ScalaBundle.message("expected.type.constructor", param.typeParameterText))
           annotation.registerFix(ReportHighlightingErrorQuickFix)
