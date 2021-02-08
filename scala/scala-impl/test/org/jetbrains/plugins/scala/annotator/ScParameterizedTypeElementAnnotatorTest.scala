@@ -243,6 +243,19 @@ class ScParameterizedTypeElementAnnotatorTest extends SimpleTestCase {
     ))
   }
 
+  def testGenericTraversalTemplate(): Unit = {
+    assertNothing(messages(
+      """
+        |// Streamlined version of tcpoly_infer_implicit_tuple_wrapper.scala
+        |trait Iterable[A]
+        |trait GenericTraversableTemplate[DD[X] <: Iterable[X]]
+        |
+        |class IterableOps[CC[B] <: Iterable[B] with GenericTraversableTemplate[CC]]
+        |
+        |""".stripMargin
+    ))
+  }
+
   def assertMessagesInAllContexts(typeText: String)(expected: Message*): Unit = {
     val Header =
       """
