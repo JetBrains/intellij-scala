@@ -48,13 +48,18 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
 
       implicit val tcp: TypePresentationContext = typeArgList
       val substitute: ScSubstitutor = {
+        val projSubstitutor = element.typeElement.`type`().toOption match {
+          case Some(proj: ScProjectionType) => proj.actualSubst
+          case _ => ScSubstitutor.empty
+        }
+
         val (ps, as) = (
           for {
             (param, arg) <- params zip args
             argTy <- arg.`type`().toOption
           } yield (param, argTy)
           ).unzip
-        ScSubstitutor.bind(ps, as)
+        projSubstitutor followed ScSubstitutor.bind(ps, as)
       }
 
       for {

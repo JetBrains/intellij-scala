@@ -134,6 +134,20 @@ class ScParameterizedTypeElementAnnotatorTest extends SimpleTestCase {
     ))
   }
 
+  def testProjectionTypes(): Unit = {
+    assertNothing(messages(
+      """
+        |sealed trait GenericList[U] {
+        |  type Transformed[N <: U]
+        |}
+        |
+        |trait GenericCons[U] {
+        |  type Transformed[N <: U] = GenericList[U]#Transformed[N]
+        |}
+        |""".stripMargin
+    ))
+  }
+
 
   def assertMessagesInAllContexts(typeText: String)(expected: Message*): Unit = {
     val Header =
