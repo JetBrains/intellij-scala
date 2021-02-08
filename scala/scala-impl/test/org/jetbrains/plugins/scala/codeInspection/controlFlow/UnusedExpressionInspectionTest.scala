@@ -21,7 +21,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |    if (true) return 1
        |    else ${START}2$END
        |
-                 |    0
+       |    0
        |}"""
   }
 
@@ -371,6 +371,18 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |}
        |""".stripMargin,
     allowAdditionalHighlights = true
+  )
+
+  // SCL-18641
+  def test_assignment_in_methodcall(): Unit = checkTextHasNoErrors(
+    """
+      |{
+      |  var res = "new Test"
+      |  res.+=(3)
+      |
+      |  ()
+      |}
+      |""".stripMargin
   )
 }
 
