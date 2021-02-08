@@ -18,7 +18,11 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[ScalacTests]))
 class ScalacTestdataHighlightingTest_2_12 extends ScalacTestdataHighlightingTestBase_2_12 {
 
-  override val reporter = ProgressReporter.newInstance(getClass.getSimpleName, filesWithProblems = Map.empty, reportStatus = false)
+  override val reporter = ProgressReporter.newInstance(getClass.getSimpleName, filesWithProblems =
+    Map(
+      "pos/t2994a.scala" -> Set((636, 639),(641, 642)),
+      "pos/unchecked-a.scala" -> Set((107, 110))
+    ), reportStatus = false)
 
   override def filesToHighlight: Array[File] = {
     val testDataPath = TestUtils.getTestDataPath + "/scalacTests/pos/"
