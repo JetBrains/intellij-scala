@@ -148,6 +148,26 @@ class ScParameterizedTypeElementAnnotatorTest extends SimpleTestCase {
     ))
   }
 
+  def testAnyAsTypeConstructor(): Unit = {
+    assertNothing(messages(
+      """
+        |trait Hk[TC[_]]
+        |
+        |new Hk[Any]
+        |""".stripMargin
+    ))
+  }
+
+  def testNothingAsTypeConstructor(): Unit = {
+    assertNothing(messages(
+      """
+        |trait Hk[TC[_]]
+        |
+        |new Hk[Nothing]
+        |""".stripMargin
+    ))
+  }
+
 
   def assertMessagesInAllContexts(typeText: String)(expected: Message*): Unit = {
     val Header =

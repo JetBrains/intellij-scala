@@ -103,6 +103,7 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
             annotation.setTooltip(tooltipForDiffTrees(ScalaBundle.message("type.constructor.mismatch"), expectedDiff, actualDiff))
             annotation.registerFix(ReportHighlightingErrorQuickFix)
           }
+        case ty if ty.isNothing || ty.isAny => // nothing and any are ok
         case _ =>
           val actualTyConstr = (argTy.presentableText, Seq.empty)
           val expectedDiff = TypeConstructorDiff.forExpected(expectedTyConstr, actualTyConstr, substitute)
