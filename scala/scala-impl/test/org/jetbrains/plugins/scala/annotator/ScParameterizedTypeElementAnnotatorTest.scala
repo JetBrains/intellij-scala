@@ -222,6 +222,27 @@ class ScParameterizedTypeElementAnnotatorTest extends SimpleTestCase {
     ))
   }
 
+  def testUpperBoundIsTypeConstructorSetToAny(): Unit = {
+    assertNothing(messages(
+      """
+        |trait Test[X <: Upper[X], Upper[_]]
+        |
+        |def test[T]: Test[T, Any]
+        |""".stripMargin
+    ))
+  }
+
+  def testLowerBoundIsTypeConstructorSetToNothing(): Unit = {
+    assertNothing(messages(
+      """
+        |trait A
+        |trait Test[X >: Lower[X], Lower[_]]
+        |
+        |def test[T >: A]: Test[T, Nothing]
+        |""".stripMargin
+    ))
+  }
+
   def assertMessagesInAllContexts(typeText: String)(expected: Message*): Unit = {
     val Header =
       """

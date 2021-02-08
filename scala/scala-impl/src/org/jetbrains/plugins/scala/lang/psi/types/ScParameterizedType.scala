@@ -143,9 +143,10 @@ object ScParameterizedType {
 
   def apply(designator: ScType, typeArgs: Seq[ScType]): ValueType = {
 
-    val simple = new ScParameterizedType(designator, typeArgs)
+    def simple = new ScParameterizedType(designator, typeArgs)
     designator match {
-
+      // Any and Nothing can take type parameter but will always produce themselves ignoring the arguments
+      case anyOrNothing@StdType(StdType.Name.Any | StdType.Name.Nothing, _) => anyOrNothing
       // Simplify application of "type-lambda-like" types
       // ((Compound {type S[x] = Type[x]}))#S[A] is replaced with Type[A]
       case ScProjectionType(ScCompoundType(_, _, aliasMap), _) && ScProjectionType.withActual(alias: ScTypeAliasDefinition, _)
