@@ -65,7 +65,8 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
       for {
         // the zip will cut away missing or excessive arguments
         (arg, param) <- args zip params
-        argTy <- arg.`type`()
+        argTy <- arg.`type`().toOption
+        if !argTy.is[ScExistentialArgument, ScExistentialType]
       } {
         checkBounds(arg, argTy, param, substitute)
         checkHigherKindedType(arg, argTy, param, substitute)

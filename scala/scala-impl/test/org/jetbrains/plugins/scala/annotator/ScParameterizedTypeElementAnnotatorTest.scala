@@ -168,6 +168,59 @@ class ScParameterizedTypeElementAnnotatorTest extends SimpleTestCase {
     ))
   }
 
+  def testWildcard(): Unit = {
+    assertNothing(messages(
+      """
+        |trait Growable
+        |trait LazyCombiner[Buff <: Growable]
+        |
+        |object Test {
+        |  null.isInstanceOf[LazyCombiner[_]]
+        |}
+        |
+        |""".stripMargin
+    ))
+  }
+
+  def testExistentialType(): Unit = {
+    assertNothing(messages(
+      """
+        |trait Growable
+        |trait LazyCombiner[Buff <: Growable]
+        |
+        |object Test {
+        |  null.isInstanceOf[LazyCombiner[X] forSome { type X }]
+        |}
+        |
+        |""".stripMargin
+    ))
+  }
+
+  def testUnresolved(): Unit = {
+    assertNothing(messages(
+      """
+        |trait A
+        |trait B extends A
+        |
+        |trait Test[X <: A]
+        |new Test[hahaha]
+        |
+        |""".stripMargin
+    ))
+  }
+
+  def testTypePattern(): Unit = {
+    assertNothing(messages(
+      """
+        |trait Bar
+        |class Foo[t <: Bar] {}
+        |
+        |new Foo[Bar] match {
+        |  case _ : Foo[x] => null: Foo[x]
+        |}
+        |""".stripMargin
+    ))
+  }
 
   def assertMessagesInAllContexts(typeText: String)(expected: Message*): Unit = {
     val Header =
