@@ -24,7 +24,7 @@ class FinallyFilter extends ElementFilter{
     if (leaf != null) {
       var i = getPrevNotWhitespaceAndComment(context.getTextRange.getStartOffset - 1, context)
       var leaf1 = getLeafByOffset(i, context)
-      if (leaf1.getNode.getElementType == ScalaTokenTypes.kTRY) return false
+      if (leaf1 == null || leaf1.getNode.getElementType == ScalaTokenTypes.kTRY) return false
       val prevIsRBrace = leaf1.textMatches("}")
       val prevIsRParan = leaf1.textMatches(")")
       while (leaf1 != null && !leaf1.isInstanceOf[ScTry]) {
