@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.util
 
 import com.intellij.psi.PsiMethod
-import org.jetbrains.plugins.scala.extensions.{&&, PsiClassExt, PsiMemberExt, PsiNamedElementExt, ResolvesTo}
+import org.jetbrains.plugins.scala.extensions.{&&, PsiClassExt, PsiMemberExt, PsiNamedElementExt, Resolved, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
@@ -100,6 +100,7 @@ object SideEffectsUtil {
         val checkBaseExpr = baseExpr match {
           case _ if hasImplicitConversion(baseExpr) => false
           case u: ScUnderscoreSection => false
+          case Resolved(rr) if rr.isAssignment => false
           case ResolvesTo(m: PsiMethod) => methodHasNoSideEffects(m, typeOfQual)
           case ResolvesTo(_: ScSyntheticFunction) => true
           case ResolvesTo(_: ScTypedDefinition) =>

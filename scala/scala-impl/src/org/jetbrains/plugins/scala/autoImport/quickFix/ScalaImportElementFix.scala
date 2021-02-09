@@ -181,7 +181,7 @@ private object ScalaImportElementFix {
   @Service
   private final class ExecutorHolder {
     val boundedTaskExecutor: ExecutorService =
-      AppExecutorUtil.createBoundedApplicationPoolExecutor("scala.import.element.fix.executor", 2)
+      AppExecutorUtil.createBoundedApplicationPoolExecutor("ScalaImportElementFixExecutor", 2)
   }
 
   private def isShowErrorsFromCompilerEnabled(file: PsiFile) =
