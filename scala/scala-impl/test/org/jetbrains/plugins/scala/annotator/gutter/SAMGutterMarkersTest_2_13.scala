@@ -79,13 +79,13 @@ class SAMGutterMarkersTest_2_12 extends SAMGutterMarkersTestBase {
         |val g5: (String, String) => JavaAbstractClass = JavaAbstractClass.staticBar2
         |""".stripMargin
 
-    doTestAllGutters(
+    doTestAllGuttersShort(
       scalaCode,
       Seq(
-        ExpectedGutter(8, (362, 379), s"""Implements member ${refToElement("JavaAbstractClass", "abstractFoo", "abstractFoo in JavaAbstractClass")}"""),
-        ExpectedGutter(9, (419, 436), s"""Implements member ${refToElement("JavaAbstractClass", "abstractFoo", "abstractFoo in JavaAbstractClass")}"""),
-        ExpectedGutter(11, (533, 550), s"""Implements member ${refToElement("JavaAbstractClass", "abstractFoo", "abstractFoo in JavaAbstractClass")}"""),
-        ExpectedGutter(12, (590, 607), s"""Implements member ${refToElement("JavaAbstractClass", "abstractFoo", "abstractFoo in JavaAbstractClass")}"""),
+        ExpectedGutter(9, (362, 379), s"""Implements member ${refToElement("JavaAbstractClass", "abstractFoo", "abstractFoo in JavaAbstractClass")}"""),
+        ExpectedGutter(10, (419, 436), s"""Implements member ${refToElement("JavaAbstractClass", "abstractFoo", "abstractFoo in JavaAbstractClass")}"""),
+        ExpectedGutter(12, (533, 550), s"""Implements member ${refToElement("JavaAbstractClass", "abstractFoo", "abstractFoo in JavaAbstractClass")}"""),
+        ExpectedGutter(13, (590, 607), s"""Implements member ${refToElement("JavaAbstractClass", "abstractFoo", "abstractFoo in JavaAbstractClass")}"""),
       ),
       fileExtension = "sc"
     )
@@ -151,13 +151,13 @@ class SAMGutterMarkersTest_2_12 extends SAMGutterMarkersTestBase {
         |val a: (String, String) => ScalaAbstractClass = ScalaAbstractClass.staticBar2
         |"""
 
-    doTestAllGutters(
+    doTestAllGuttersShort(
       scalaCode.stripMargin,
       Seq(
-        ExpectedGutter(29, (995, 1013), s"""Implements member ${refToElement("ScalaAbstractClass", "abstractFoo", "abstractFoo in ScalaAbstractClass")}"""),
-        ExpectedGutter(30, (1053, 1071), s"""Implements member ${refToElement("ScalaAbstractClass", "abstractFoo", "abstractFoo in ScalaAbstractClass")}"""),
-        ExpectedGutter(34, (1229, 1247), s"""Implements member ${refToElement("ScalaAbstractClass", "abstractFoo", "abstractFoo in ScalaAbstractClass")}"""),
-        ExpectedGutter(35, (1287, 1305), s"""Implements member ${refToElement("ScalaAbstractClass", "abstractFoo", "abstractFoo in ScalaAbstractClass")}"""),
+        ExpectedGutter(28, (995, 1013), s"""Implements member ${refToElement("ScalaAbstractClass", "abstractFoo", "abstractFoo in ScalaAbstractClass")}"""),
+        ExpectedGutter(29, (1053, 1071), s"""Implements member ${refToElement("ScalaAbstractClass", "abstractFoo", "abstractFoo in ScalaAbstractClass")}"""),
+        ExpectedGutter(33, (1229, 1247), s"""Implements member ${refToElement("ScalaAbstractClass", "abstractFoo", "abstractFoo in ScalaAbstractClass")}"""),
+        ExpectedGutter(34, (1287, 1305), s"""Implements member ${refToElement("ScalaAbstractClass", "abstractFoo", "abstractFoo in ScalaAbstractClass")}"""),
       ),
       fileExtension = "sc"
     )
@@ -219,19 +219,19 @@ class SAMGutterMarkersTest_2_12 extends SAMGutterMarkersTestBase {
         |def f: JSam1  = x => "42"
         |""".stripMargin
 
-    doTestAllGutters(scalaCode, Seq(
-      ExpectedGutter(13, (352, 356), s"""Implements member ${refToElement("Sam00", "method00", "method00 in Sam00")}"""),
-      ExpectedGutter(15, (397, 402), s"""Implements member ${refToElement("Sam00", "method00", "method00 in Sam00")}"""),
-      ExpectedGutter(23, (537, 541), s"""Implements member ${refToElement("Sam1", "method1", "method1 in Sam1")}"""),
-      ExpectedGutter(24, (557, 561), s"""Implements member ${refToElement("Sam1", "method1", "method1 in Sam1")}"""),
-      ExpectedGutter(31, (686, 690), s"""Implements member ${refToElement("JSamWrapper.JSam0", "getType0", "getType0 in JSam0 in JSamWrapper")}"""),
-      ExpectedGutter(32, (709, 713), s"""Implements member ${refToElement("JSamWrapper.JSam1", "getType1", "getType1 in JSam1 in JSamWrapper")}"""),
-      ExpectedGutter(33, (730, 734), s"""Implements member ${refToElement("JSamWrapper.JSam1", "getType1", "getType1 in JSam1 in JSamWrapper")}"""),
-      ExpectedGutter(36, (782, 793), s"""Implements member ${refToElement("JSamWrapper.JSam0", "getType0", "getType0 in JSam0 in JSamWrapper")}"""),
-      ExpectedGutter(37, (812, 823), s"""Implements member ${refToElement("JSamWrapper.JSam1", "getType1", "getType1 in JSam1 in JSamWrapper")}"""),
-      ExpectedGutter(38, (840, 851), s"""Implements member ${refToElement("JSamWrapper.JSam1", "getType1", "getType1 in JSam1 in JSamWrapper")}"""),
-      ExpectedGutter(40, (871, 872), s"""Implements member ${refToElement("JSamWrapper.JSam0", "getType0", "getType0 in JSam0 in JSamWrapper")}"""),
-      ExpectedGutter(41, (898, 899), s"""Implements member ${refToElement("JSamWrapper.JSam1", "getType1", "getType1 in JSam1 in JSamWrapper")}"""),
+    doTestAllGuttersShort(scalaCode, Seq(
+      ExpectedGutter(14, (352, 356), s"""Implements member ${refToElement("Sam00", "method00", "method00 in Sam00")}"""),
+      ExpectedGutter(16, (397, 402), s"""Implements member ${refToElement("Sam00", "method00", "method00 in Sam00")}"""),
+      ExpectedGutter(24, (537, 541), s"""Implements member ${refToElement("Sam1", "method1", "method1 in Sam1")}"""),
+      ExpectedGutter(25, (557, 561), s"""Implements member ${refToElement("Sam1", "method1", "method1 in Sam1")}"""),
+      ExpectedGutter(32, (686, 690), s"""Implements member ${refToElement("JSamWrapper.JSam0", "getType0", "getType0 in JSam0 in JSamWrapper")}"""),
+      ExpectedGutter(33, (709, 713), s"""Implements member ${refToElement("JSamWrapper.JSam1", "getType1", "getType1 in JSam1 in JSamWrapper")}"""),
+      ExpectedGutter(34, (730, 734), s"""Implements member ${refToElement("JSamWrapper.JSam1", "getType1", "getType1 in JSam1 in JSamWrapper")}"""),
+      ExpectedGutter(37, (782, 793), s"""Implements member ${refToElement("JSamWrapper.JSam0", "getType0", "getType0 in JSam0 in JSamWrapper")}"""),
+      ExpectedGutter(38, (812, 823), s"""Implements member ${refToElement("JSamWrapper.JSam1", "getType1", "getType1 in JSam1 in JSamWrapper")}"""),
+      ExpectedGutter(39, (840, 851), s"""Implements member ${refToElement("JSamWrapper.JSam1", "getType1", "getType1 in JSam1 in JSamWrapper")}"""),
+      ExpectedGutter(41, (871, 872), s"""Implements member ${refToElement("JSamWrapper.JSam0", "getType0", "getType0 in JSam0 in JSamWrapper")}"""),
+      ExpectedGutter(42, (898, 899), s"""Implements member ${refToElement("JSamWrapper.JSam1", "getType1", "getType1 in JSam1 in JSamWrapper")}"""),
     ))
   }
 }
@@ -247,6 +247,6 @@ class SAMGutterMarkersTest_2_11 extends SAMGutterMarkersTest_2_12 {
   override protected def doTestSingleTooltipAtCaret(fileText: String, expectedTooltipParts: String*): Unit =
     doTestNoLineMarkers(fileText)
 
-  override protected def doTestAllGutters(fileText: String, expectedGutters: Seq[ExpectedGutter], fileExtension: String): Unit =
+  override protected def doTestAllGuttersShort(fileText: String, expectedGutters: Seq[ExpectedGutter], fileExtension: String): Unit =
     doTestNoLineMarkers(fileText, fileExtension)
 }

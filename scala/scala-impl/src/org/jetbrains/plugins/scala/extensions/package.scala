@@ -526,6 +526,7 @@ package object extensions {
     def shrink(delta: Int): TextRange = TextRange.create(target.getStartOffset + delta, target.getEndOffset - delta)
     def shiftStart(delta: Int): TextRange = TextRange.create(target.getStartOffset + delta, target.getEndOffset)
     def shiftEnd(delta: Int): TextRange = TextRange.create(target.getStartOffset, target.getEndOffset + delta)
+    def toTuple: (Int, Int) = (target.getStartOffset, target.getEndOffset)
   }
 
   object TextRangeExt {

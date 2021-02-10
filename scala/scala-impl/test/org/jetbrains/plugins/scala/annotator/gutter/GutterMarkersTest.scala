@@ -262,4 +262,61 @@ class GutterMarkersTest extends GutterMarkersTestBase {
 
     "Overrides type", refToElement("Base", "MyInt", "MyInt in Base")
   )
+
+  // SCL-16103
+  def testDontShowOverrideGutterForBeanPropertyIfItDoesNotOverrideAnything(): Unit =
+    doTestNoLineMarkers(
+      """import scala.beans.BeanProperty
+        |
+        |class A {
+        |  @BeanProperty var x: Int = 42
+        |}
+        |""".stripMargin
+    )
+
+  protected val SetterAndGetterTraitsCode =
+    """trait Setter {
+      |  def setValue(foo: String): Unit
+      |}
+      |
+      |trait Getter {
+      |  def getValue: String
+      |}
+      |
+      |trait GetterWithSetter extends Getter with Setter
+      |""".stripMargin
+
+  def testShowOverrideGutterForBeanPropertyIfItOverridesSomeMethod_BeanAsField(): Unit = {
+    myFixture.addFileToProject("common.scala", SetterAndGetterTraitsCode)
+    doTestAllGuttersParts(
+      """import scala.beans.BeanProperty
+        |
+        |class A1 extends Getter { @BeanProperty var value = "foo" }
+        |class B1 extends Setter { @BeanProperty var value = "foo" }
+        |class C1 extends GetterWithSetter { @BeanProperty var value = "foo" }
+        |""".stripMargin,
+      Seq(
+        ExpectedGutterParts(3, (77, 82), "Implements member from", refToElement("Getter", "getValue", "Getter")),
+        ExpectedGutterParts(4, (137, 142), "Implements member from", refToElement("Setter", "setValue", "Setter")),
+        ExpectedGutterParts(5, (207, 212), "Implements member from", refToElement("Getter", "getValue", "Getter"), refToElement("Setter", "setValue", "Setter")),
+      )
+    )
+  }
+
+  def testShowOverrideGutterForBeanPropertyIfItOverridesSomeMethod_BeanAsFieldAndConstructorParameter(): Unit = {
+    myFixture.addFileToProject("common.scala", SetterAndGetterTraitsCode)
+    doTestAllGuttersParts(
+      """import scala.beans.BeanProperty
+        |
+        |class A2(@BeanProperty val value: String) extends Getter
+        |class B2(@BeanProperty var value: String) extends Setter
+        |class C2(@BeanProperty var value: String) extends GetterWithSetter
+        |""".stripMargin,
+      Seq(
+        ExpectedGutterParts(3, (60, 65), "Implements member from", refToElement("Getter", "getValue", "Getter")),
+        ExpectedGutterParts(4, (117, 122), "Implements member from", refToElement("Setter", "setValue", "Setter")),
+        ExpectedGutterParts(5, (174, 179), "Implements member from", refToElement("Getter", "getValue", "Getter"), refToElement("Setter", "setValue", "Setter")),
+      )
+    )
+  }
 }

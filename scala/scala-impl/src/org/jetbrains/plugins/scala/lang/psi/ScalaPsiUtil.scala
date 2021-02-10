@@ -584,7 +584,11 @@ object ScalaPsiUtil {
       case Some(node) if !withSelfType || node.info.namedElement == x =>
         builder ++= node.supers.map(_.info)
       case Some(node) =>
-        builder ++= node.supers.map(_.info).filter(_.namedElement != x) :+ node.info
+        builder ++= node.supers.map(_.info).filter(_.namedElement != x)
+
+        // (self type in method name doesn't mean "this class" but a base class of scala self types (https://docs.scala-lang.org/tour/self-types.html)
+        // e.g. `A` inf this code `trait T { self: A => }`
+        //builder += node.info
       case _ =>
         //this is possible case: private member of library source class.
         //Problem is that we are building signatures over decompiled class.
@@ -598,8 +602,8 @@ object ScalaPsiUtil {
         case Some(node) if !withSelfType || node.info.namedElement == method =>
           builder ++= node.supers.map(_.info)
         case Some(node) =>
-          builder += node.info
           builder ++= node.supers.map(_.info).filter(_.namedElement != method)
+          //builder += node.info
         case _ =>
       }
     }
