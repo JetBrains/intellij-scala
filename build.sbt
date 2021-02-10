@@ -9,7 +9,7 @@ intellijPluginName in ThisBuild := "Scala"
 
 intellijBuild in ThisBuild := Versions.intellijVersion
 
-intellijPlatform in ThisBuild := IntelliJPlatform.IdeaCommunity
+intellijPlatform in ThisBuild := intellijPlatform.in(Global).??(IntelliJPlatform.IdeaCommunity).value
 
 resolvers in ThisBuild ++=
   BintrayJetbrains.allResolvers :+
@@ -154,8 +154,7 @@ lazy val scalaImpl: sbt.Project =
       //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
       libraryDependencies ++= DependencyGroups.scalaCommunity :+
         "org.scala-lang" % "scala3-library_3.0.0-M2" % "3.0.0-M2" % Runtime, // TODO Runtime dependencies must be packaged automatically.
-//      addCompilerPlugin(Dependencies.macroParadise),
-      intellijPlugins := Seq(
+      intellijPlugins ++= Seq(
         "org.intellij.intelliLang",
         "com.intellij.java-i18n",
         "org.jetbrains.android",
@@ -167,7 +166,7 @@ lazy val scalaImpl: sbt.Project =
         "JUnit"
       ).map(_.toPlugin),
       intellijPluginJars :=
-        intellijPluginJars.value.filterNot(cp => cp.data.getName.contains("junit-jupiter-api")),
+        intellijPluginJars.value.map { case (descriptor, cp) => descriptor -> cp.filterNot(_.data.getName.contains("junit-jupiter-api")) },
       packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity),
       packageAdditionalProjects := Seq(tastyRuntime, scala3LibraryJar),
       packageLibraryMappings ++= Seq(
@@ -238,8 +237,6 @@ lazy val runners: Project =
     .settings(
       packageMethod := PackagingMethod.Standalone(static = true),
       packageAdditionalProjects ++= Seq(testRunners, testRunners_spec2_2x)
-      // WORKAROUND fixes build error in sbt 0.13.12+ analogously to https://github.com/scala/scala/pull/5386/
-//      ivyScala ~= (_ map (_ copy (overrideScalaVersion = false)))
     )
 
 lazy val testRunners: Project =
@@ -277,7 +274,6 @@ lazy val decompiler =
 lazy val macroAnnotations =
   newProject("macros", file("scala/macros"))
     .settings(
-//      addCompilerPlugin(Dependencies.macroParadise),
       libraryDependencies ++= Seq(Dependencies.scalaReflect, Dependencies.scalaCompiler),
       packageMethod        := PackagingMethod.Skip()
     )
@@ -290,7 +286,8 @@ lazy val bsp =
     )
     .settings(
       libraryDependencies ++= DependencyGroups.bsp,
-      intellijMainJars := Seq.empty
+      intellijPlugins += "JUnit".toPlugin,
+//      intellijMainJars := Seq.empty // why was this unset?
     )
 
 // Integration with other IDEA plugins
