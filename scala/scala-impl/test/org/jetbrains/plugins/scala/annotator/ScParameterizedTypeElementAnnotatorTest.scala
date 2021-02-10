@@ -255,6 +255,22 @@ class ScParameterizedTypeElementAnnotatorTest extends SimpleTestCase {
         |""".stripMargin
     ))
   }
+  
+  def testParameterizedProjectionType(): Unit = {
+    assertNothing(messages(
+      """
+        |trait ParIterableLike[+TT] {
+        |  class Copy[UU >: TT]
+        |}
+        |
+        |trait ParSeqLike[+T] extends ParIterableLike[T] {
+        |  def test[U >: T]() = {
+        |    new Copy[U]
+        |  }
+        |}
+        |""".stripMargin
+    ))
+  }
 
   def assertMessagesInAllContexts(typeText: String)(expected: Message*): Unit = {
     val Header =

@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeE
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialArgument, ScExistentialType, ScType, TypePresentationContext}
 
@@ -49,7 +49,8 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
       implicit val tcp: TypePresentationContext = typeArgList
       val substitute: ScSubstitutor = {
         val projSubstitutor = element.typeElement.`type`().toOption match {
-          case Some(proj: ScProjectionType) => proj.actualSubst
+          case Some(p@ScProjectionType(proj, _)) => ScSubstitutor(proj).followed(p.actualSubst)
+          case Some(ParameterizedType(p@ScProjectionType(proj, _), _)) => ScSubstitutor(proj).followed(p.actualSubst)
           case _ => ScSubstitutor.empty
         }
 
