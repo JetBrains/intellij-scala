@@ -26,4 +26,21 @@ class HigherKindedTypesConformanceTest extends TypeConformanceTestBase {
        |}
        |//true""".stripMargin
   }
+
+  def testSubstitutedUpperBound(): Unit = doTest(
+    s"""
+      |trait Buffer[UUU]
+      |trait RichBuffer[TT, BB[UU] <: Buffer[UU]] {
+      |  type Buf = Buffer[TT]
+      |}
+      |
+      |def richBuffer[T, B[U] <: Buffer[U]](buffer: B[T]): RichBuffer[T, B] =
+      |  new RichBuffer[T, B] {
+      |    // this is about checking
+      |    //   B[T] <: Buffer[T]
+      |    ${caretMarker}val x: Buf = buffer
+      |  }
+      |//true
+      |""".stripMargin
+  )
 }

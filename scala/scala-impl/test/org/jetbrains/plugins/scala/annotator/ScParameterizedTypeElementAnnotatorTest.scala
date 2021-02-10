@@ -255,7 +255,7 @@ class ScParameterizedTypeElementAnnotatorTest extends SimpleTestCase {
         |""".stripMargin
     ))
   }
-  
+
   def testParameterizedProjectionType(): Unit = {
     assertNothing(messages(
       """
@@ -268,6 +268,20 @@ class ScParameterizedTypeElementAnnotatorTest extends SimpleTestCase {
         |    new Copy[U]
         |  }
         |}
+        |""".stripMargin
+    ))
+  }
+
+  def testBoundTypeConstructorInUpperBoundOfTypeConstructor(): Unit = {
+    assertNothing(messages(
+      """
+        |trait SetLike[K, +This <: SetLike[K, This]]
+        |trait SetFactory[CC[A] <: SetLike[A, CC[A] /* <- interesting */]]
+        |
+        |// Interesting check is
+        |//   CC[A] <: SetLike[A, CC[A]]
+        |// which should check upper bound of CC, which should result in the following check:
+        |//   [A] SetLike[A, CC[A]] <: [A] SetLike[A, CC[A]]
         |""".stripMargin
     ))
   }

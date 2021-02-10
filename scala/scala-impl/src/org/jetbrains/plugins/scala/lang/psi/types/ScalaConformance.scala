@@ -942,8 +942,17 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
                   case _            => ConstraintsResult.Left
                 }
             case (_, t: TypeParameterType) if t.typeParameters.length == p2.typeArguments.length =>
-              val subst = ScSubstitutor.bind(t.typeParameters, p.typeArguments)
-              result = conformsInner(des1, subst(t.upperType), visited, constraints, checkWeak)
+              val upper = {
+                val upper = t.upperType
+                upper.asOptionOf[DesignatorOwner]
+                  .flatMap(_.polyTypeOption)
+                  .getOrElse(upper)
+              }
+              val subst = upper match {
+                case ScTypePolymorphicType(_, tparams) => ScSubstitutor.bind(tparams, p2.typeArguments)
+                case _ => ScSubstitutor.bind(t.typeParameters, p2.typeArguments)
+              }
+              result = conformsInner(ScTypePolymorphicType(p, t.typeParameters), subst(upper), visited, constraints, checkWeak)
             case (proj1: ScProjectionType, proj2: ScProjectionType)
               if smartEquivalence(proj1.actualElement, proj2.actualElement) =>
               val t = conformsInner(proj1, proj2, visited, constraints)
