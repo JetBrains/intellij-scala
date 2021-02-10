@@ -214,4 +214,61 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
       """.stripMargin
     assertNothing(errorsFromScalaCode(code))
   }
+
+  protected val SetterAndGetterTraitsCode =
+    """trait Setter {
+      |  def setValue(foo: String): Unit
+      |}
+      |
+      |trait Getter {
+      |  def getValue: String
+      |}
+      |
+      |trait GetterWithSetter extends Getter with Setter
+      |""".stripMargin
+
+  // SCL-14462
+  def testDontShowErrorForBeanPropertiesOverridingMethods(): Unit = {
+    val code =
+      s"""$SetterAndGetterTraitsCode
+         |
+         |import scala.beans.BeanProperty
+         |
+         |class A1 extends Getter { @BeanProperty var value = "foo" }
+         |class B1 extends Setter { @BeanProperty var value = "foo" }
+         |class C1 extends GetterWithSetter { @BeanProperty var value = "foo" }
+         |
+         |class A2(@BeanProperty val value: String) extends Getter
+         |class B2(@BeanProperty var value: String) extends Setter
+         |class C2(@BeanProperty var value: String) extends GetterWithSetter
+         |""".stripMargin
+    assertNoErrors(code)
+  }
+
+  def testShowErrorForBeanPropertiesOverridingMethodsWithTypeMissmatch(): Unit = {
+    val code =
+      s"""$SetterAndGetterTraitsCode
+         |
+         |import scala.beans.BeanProperty
+         |
+         |class A3 extends Getter { @BeanProperty var value: Int = 42 }
+         |class B3 extends Setter { @BeanProperty var value: Int = 42 }
+         |class C3 extends GetterWithSetter { @BeanProperty var value: Int = 42 }
+         |
+         |class A4(@BeanProperty val value: Int) extends Getter
+         |class B4(@BeanProperty var value: Int) extends Setter
+         |class C4(@BeanProperty var value: Int) extends GetterWithSetter
+         |""".stripMargin
+    assertErrors(code, Seq(
+      Error("value", "Overriding type Int does not conform to base type String"),
+      Error("B3", "Class 'B3' must either be declared abstract or implement abstract member 'setValue(foo: String): Unit' in 'Setter'"),
+      Error("C3", "Class 'C3' must either be declared abstract or implement abstract member 'setValue(foo: String): Unit' in 'Setter'"),
+      Error("value", "Overriding type Int does not conform to base type String"),
+      //
+      Error("value", "Overriding type Int does not conform to base type String"),
+      Error("B4", "Class 'B4' must either be declared abstract or implement abstract member 'setValue(foo: String): Unit' in 'Setter'"),
+      Error("C4", "Class 'C4' must either be declared abstract or implement abstract member 'setValue(foo: String): Unit' in 'Setter'"),
+      Error("value", "Overriding type Int does not conform to base type String"),
+    ): _*)
+  }
 }

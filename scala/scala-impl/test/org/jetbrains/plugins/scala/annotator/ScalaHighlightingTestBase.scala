@@ -27,6 +27,9 @@ abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with Match
     Registry.get(ScalaHighlightingMode.ShowDotcErrorsKey).setValue(false)
   }
 
+  def assertNoErrors(code: String): Unit =
+    assertErrors(code, Nil: _*)
+
   def assertErrors(code: String, messages: Message*): Unit =
     assertEqualsFailable(messages.mkString("\n"), errorsFromScalaCode(code).mkString("\n"))
 

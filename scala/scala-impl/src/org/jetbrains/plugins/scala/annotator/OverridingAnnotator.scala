@@ -258,15 +258,26 @@ trait OverridingAnnotator {
           }
       }
 
+      def isBeanProperty(e: ScNamedElement): Boolean =
+        e.nameContext match {
+          case v: ScValueOrVariable => PropertyMethods.isBeanProperty(v)
+          case p: ScClassParameter  => PropertyMethods.isBeanProperty(p)
+          case _                    => false
+        }
+
       actualType.conforms(actualBase) || ((actualBase, actualType, namedElement) match {
         /* 5.1.3.3 M defines a parameterless method and M′ defines a method with an empty parameter list () or vice versa. */
         case (ParameterizedType(des, args), _, _: ScFunction) if des.canonicalText == "_root_.scala.Function0" =>
           actualType.conforms(args.head)
         case (aType, ParameterizedType(des, args), _: ScFunction) if des.canonicalText == "_root_.scala.Function0" =>
           aType.conforms(args.head)
-        case (ParameterizedType(des, args), _, patOrClassParam)
-          if des.canonicalText == "_root_.scala.Function0" && allowEmptyParens(patOrClassParam) =>
-          actualType.conforms(args.head)
+        case (ParameterizedType(des, args), _, patOrClassParam) =>
+          if (des.canonicalText == "_root_.scala.Function0" && allowEmptyParens(patOrClassParam))
+            actualType.conforms(args.head)
+          // @BeanProperty setter SCL-14462
+          else if (des.canonicalText == "_root_.scala.Function1" && isBeanProperty(patOrClassParam))
+            true // actualType.conforms(args.head) // looks like just "true" is enough
+          else false
         case _ => false
       })
     }
