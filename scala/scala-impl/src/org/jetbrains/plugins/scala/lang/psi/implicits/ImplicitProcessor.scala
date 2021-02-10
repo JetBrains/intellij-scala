@@ -136,7 +136,7 @@ abstract class ImplicitProcessor(override val getPlace: PsiElement,
           if (userData eq  null) {
             log.warn(s"Implicit method without origin userdata ${fn.name}")
           } else {
-            names.computeIfAbsent(fn.name, _ => new util.ArrayList[String]()).add(userData)
+            names.computeIfAbsent(fn.name, _ => new ju.ArrayList[String]()).add(userData)
           }
         case _ => ()
       }
