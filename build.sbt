@@ -54,6 +54,7 @@ lazy val scalaCommunity: sbt.Project =
         runtimeDependencies,
       ),
       packageLibraryMappings    := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
+      intellijPlugins := intellijPlugins.all(ScopeFilter(inDependencies(ThisProject, includeRoot = false))).value.flatten.distinct,
       definedTests in Test := { // all sub-project tests need to be run within main project's classpath
         definedTests.all(ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))).value.flatten }
     )
