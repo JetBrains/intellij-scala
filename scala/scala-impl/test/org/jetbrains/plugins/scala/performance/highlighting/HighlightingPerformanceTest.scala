@@ -16,7 +16,7 @@ import scala.util.Try
 class HighlightingPerformanceTest extends ScalaFixtureTestCase {
   def doTest(text: String, TIMEOUT: Int): Unit = {
 
-    PlatformTestUtil.assertTiming("Failed highlighting performance test", TIMEOUT,
+    PlatformTestUtil.assertTiming("Running highlighting performance test", TIMEOUT,
       () => Try {
         val file = PsiFileFactory.getInstance(myFixture.getProject)
           .createFileFromText("dummy.scala", ScalaLanguage.INSTANCE, text, true, false)
