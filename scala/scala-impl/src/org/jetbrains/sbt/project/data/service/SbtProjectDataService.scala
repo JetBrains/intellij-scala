@@ -14,9 +14,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.project.IncrementalityType
-import org.jetbrains.plugins.scala.project.external.{AbstractDataService, AbstractImporter, Importer, SdkUtils}
+import org.jetbrains.plugins.scala.project.external._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.settings.SbtSettings
 
@@ -36,7 +35,7 @@ class SbtProjectDataService extends AbstractDataService[SbtProjectData, Project]
     } {
       projectData.removeUserData(ContentRootDataService.CREATE_EMPTY_DIRECTORIES) //we don't need creating empty dirs anyway
     }
-    
+
     new SbtProjectDataService.Importer(toImport, projectData, project, modelsProvider)
   }
 }
@@ -54,7 +53,7 @@ object SbtProjectDataService {
 
     private def doImport(data: SbtProjectData): Unit = {
       configureJdk(project, data)
-      updateJavaCompilerOptionsIn(project, data.javacOptions.asScala)
+      updateJavaCompilerOptionsIn(project, data.javacOptions.asScala.toSeq)
       setLanguageLevel(project, data)
       setSbtVersion(project, data)
       updateIncrementalityType(project)
@@ -72,7 +71,7 @@ object SbtProjectDataService {
 
     private def setLanguageLevel(project: Project, data: SbtProjectData): Unit = executeProjectChangeAction {
       val projectJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
-      val javaLanguageLevel = SdkUtils.javaLanguageLevelFrom(data.javacOptions.asScala)
+      val javaLanguageLevel = SdkUtils.javaLanguageLevelFrom(data.javacOptions.asScala.toSeq)
         .orElse(projectJdk.flatMap(SdkUtils.defaultJavaLanguageLevelIn))
       javaLanguageLevel.foreach { level =>
         val extension = LanguageLevelProjectExtension.getInstance(project)
@@ -90,13 +89,10 @@ object SbtProjectDataService {
         ScalaCompilerConfiguration.instanceIn(project).incrementalityType = IncrementalityType.SBT
     }
 
-    private def updateJavaCompilerOptionsIn(project: Project, options: collection.Seq[String]): Unit = executeProjectChangeAction {
+    private def updateJavaCompilerOptionsIn(project: Project, options: Seq[String]): Unit = executeProjectChangeAction {
       val settings = JavacConfiguration.getOptions(project, classOf[JavacConfiguration])
 
       def contains(values: String*) = values.exists(options.contains)
-
-      def valueOf(name: String): Option[String] =
-        Option(options.indexOf(name)).filterNot(-1 == _).flatMap(i => options.lift(i + 1))
 
       if (contains("-g:none")) {
         settings.DEBUGGING_INFO = false
@@ -110,7 +106,8 @@ object SbtProjectDataService {
         settings.DEPRECATION = true
       }
 
-      valueOf("-target").foreach { target =>
+      val targetOpt = JavacOptionsUtils.effectiveTargetValue(options)
+      targetOpt.foreach { target =>
         val compilerSettings = CompilerConfiguration.getInstance(project).asInstanceOf[CompilerConfigurationImpl]
         compilerSettings.setProjectBytecodeTarget(target)
       }
@@ -120,20 +117,29 @@ object SbtProjectDataService {
       settings.ADDITIONAL_OPTIONS_STRING = customOptions.mkString(" ")
     }
 
-    private def additionalOptionsFrom(options: collection.Seq[String]): Seq[String] = {
+    private def additionalOptionsFrom(options: Seq[String]): Seq[String] = {
       @NonNls val handledOptions = Set("-g:none", "-nowarn", "-Xlint:none", "-deprecation", "-Xlint:deprecation")
 
-      def removePair(name: String, options: Seq[String]): Seq[String] = {
-        val index = options.indexOf(name)
+      val nonIgnoredOptions = options.iterator.filterNot(handledOptions.contains).toSeq
+      nonIgnoredOptions
+        // there is a dedicated setting in
+        // File | Settings | Build, Execution, Deployment | Compiler | Java Compiler | Use '--release' option for cross compilation
+        .removePair("--release")
+        .removePair("-target") // already saved in CompilerConfiguration
+        .removePair("-source") // already saved as language level in project settings
+    }
+  }
 
-        if (index == -1) options
-        else {
-          val (prefix, suffix) = options.splitAt(index)
-          prefix ++ suffix.drop(2)
-        }
+  implicit class SeqOps(private val options: Seq[String]) extends AnyVal {
+
+    def removePair(name: String): Seq[String] = {
+      val index = options.indexOf(name)
+
+      if (index == -1) options
+      else {
+        val (prefix, suffix) = options.splitAt(index)
+        prefix ++ suffix.drop(2)
       }
-
-      removePair("-source", removePair("-target", options.iterator.filterNot(handledOptions.contains).toSeq))
     }
   }
 }

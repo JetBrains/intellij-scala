@@ -49,8 +49,8 @@ object ModuleExtDataService {
       module.configureScalaCompilerSettingsFrom("sbt", scalacOptions.asScala)
       Option(scalaVersion).foreach(configureScalaSdk(module, _, scalacClasspath.asScala.toSeq))
       configureOrInheritSdk(module, Option(sdk))
-      configureLanguageLevel(module, javacOptions.asScala)
-      configureJavacOptions(module, javacOptions.asScala)
+      configureLanguageLevel(module, javacOptions.asScala.toSeq)
+      configureJavacOptions(module, javacOptions.asScala.toSeq)
       getModifiableRootModel(module).getContentEntries.foreach(_.getSourceFolders.foreach(_.setPackagePrefix(Option(packagePrefix).getOrElse(""))))
       ScalaProjectSettings.getInstance(project).setCustomBasePackage(module.getName, basePackage)
     }
@@ -93,7 +93,7 @@ object ModuleExtDataService {
       sdk.flatMap(SdkUtils.findProjectSdk).foreach(model.setSdk)
     }
 
-    private def configureLanguageLevel(module: Module, javacOptions: collection.Seq[String]): Unit = {
+    private def configureLanguageLevel(module: Module, javacOptions: Seq[String]): Unit = {
       val model = getModifiableRootModel(module)
       val moduleSdk = Option(model.getSdk)
       val languageLevel = SdkUtils.javaLanguageLevelFrom(javacOptions)
@@ -104,15 +104,13 @@ object ModuleExtDataService {
       }
     }
 
-    private def configureJavacOptions(module: Module, javacOptions: collection.Seq[String]): Unit = {
+    private def configureJavacOptions(module: Module, javacOptions: Seq[String]): Unit =
       for {
-        targetPos <- Option(javacOptions.indexOf("-target")).filterNot(_ == -1)
-        targetValue <- javacOptions.lift(targetPos + 1)
+        targetValue <- JavacOptionsUtils.effectiveTargetValue(javacOptions)
         compilerSettings = CompilerConfiguration.getInstance(module.getProject)
       } {
         executeProjectChangeAction(compilerSettings.setBytecodeTargetLevel(module, targetValue))
       }
-    }
   }
 
   case class NotificationException(notificationData: NotificationData, id: ProjectSystemId) extends Exception
