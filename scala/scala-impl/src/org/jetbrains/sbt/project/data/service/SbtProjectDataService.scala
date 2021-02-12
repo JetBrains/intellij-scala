@@ -71,7 +71,7 @@ object SbtProjectDataService {
 
     private def setLanguageLevel(project: Project, data: SbtProjectData): Unit = executeProjectChangeAction {
       val projectJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
-      val javaLanguageLevel = SdkUtils.javaLanguageLevelFrom(data.javacOptions.asScala.toSeq)
+      val javaLanguageLevel = JavacOptionsUtils.javaLanguageLevel(data.javacOptions.asScala.toSeq)
         .orElse(projectJdk.flatMap(SdkUtils.defaultJavaLanguageLevelIn))
       javaLanguageLevel.foreach { level =>
         val extension = LanguageLevelProjectExtension.getInstance(project)
@@ -117,16 +117,13 @@ object SbtProjectDataService {
       settings.ADDITIONAL_OPTIONS_STRING = customOptions.mkString(" ")
     }
 
-    private def additionalOptionsFrom(options: Seq[String]): Seq[String] = {
-      @NonNls val handledOptions = Set("-g:none", "-nowarn", "-Xlint:none", "-deprecation", "-Xlint:deprecation")
+    private def additionalOptionsFrom(javacOptions: Seq[String]): Seq[String] = {
+      @NonNls val explicitlyHandledOptions = Set(
+        "-g:none", "-nowarn", "-Xlint:none", "-deprecation", "-Xlint:deprecation"
+      )
 
-      val nonIgnoredOptions = options.iterator.filterNot(handledOptions.contains).toSeq
-      nonIgnoredOptions
-        // there is a dedicated setting in
-        // File | Settings | Build, Execution, Deployment | Compiler | Java Compiler | Use '--release' option for cross compilation
-        .removePair("--release")
-        .removePair("-target") // already saved in CompilerConfiguration
-        .removePair("-source") // already saved as language level in project settings
+      val otherOptions = javacOptions.iterator.filterNot(explicitlyHandledOptions.contains).toSeq
+      JavacOptionsUtils.withoutSourceTargetReleaseOptions(otherOptions)
     }
   }
 

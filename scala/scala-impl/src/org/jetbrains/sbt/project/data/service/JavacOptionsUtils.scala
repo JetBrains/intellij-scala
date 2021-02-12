@@ -1,7 +1,15 @@
-package org.jetbrains.plugins.scala.project.external
+package org.jetbrains.sbt.project.data.service
+
+import com.intellij.pom.java.LanguageLevel
 
 /** javac options reference [[https://docs.oracle.com/en/java/javase/11/tools/javac.htm]] */
 object JavacOptionsUtils {
+
+  def javaLanguageLevel(javacOptions: Seq[String]): Option[LanguageLevel] =
+    for {
+      sourceValue <- JavacOptionsUtils.effectiveSourceValue(javacOptions)
+      languageLevel <- Option(LanguageLevel.parse(sourceValue))
+    } yield languageLevel
 
   def effectiveSourceValue(javacOptions: Seq[String]): Option[String] = {
     val release = releaseValue(javacOptions)
@@ -32,4 +40,30 @@ object JavacOptionsUtils {
       keyPos <- Option(options.indexOf(key)).filterNot(_ == -1)
       value <- options.lift(keyPos + 1)
     } yield value
+
+  /**
+   * Assuming that:
+   *  - effective `-target` value is already saved in CompilerConfiguration
+   *  - effective `-source` value is already saved in project of module setting
+   *  - `--release` version is controlled explicitly by idea, see <br>
+   *    File | Settings | Build, Execution, Deployment | Compiler | Java Compiler | Use '--release' option for cross compilation
+   */
+  def withoutSourceTargetReleaseOptions(javacOptions: Seq[String]): Seq[String] =
+    javacOptions
+      .removePair("-target")
+      .removePair("-source")
+      .removePair("--release")
+
+  private implicit class SeqOps(private val options: Seq[String]) extends AnyVal {
+
+    def removePair(name: String): Seq[String] = {
+      val index = options.indexOf(name)
+
+      if (index == -1) options
+      else {
+        val (prefix, suffix) = options.splitAt(index)
+        prefix ++ suffix.drop(2)
+      }
+    }
+  }
 }

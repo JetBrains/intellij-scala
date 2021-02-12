@@ -58,11 +58,5 @@ object SdkUtils {
 
   def defaultJavaLanguageLevelIn(jdk: Sdk): Option[LanguageLevel] =
     Option(LanguageLevel.parse(jdk.getVersionString))
-
-  def javaLanguageLevelFrom(javacOptions: Seq[String]): Option[LanguageLevel] =
-    for {
-      sourceValue   <- JavacOptionsUtils.effectiveSourceValue(javacOptions)
-      languageLevel <- Option(LanguageLevel.parse(sourceValue))
-    } yield languageLevel
 }
 

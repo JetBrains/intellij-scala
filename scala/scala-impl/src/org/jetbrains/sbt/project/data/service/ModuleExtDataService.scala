@@ -4,8 +4,8 @@ package data
 package service
 
 import java.io.File
-
 import com.intellij.compiler.CompilerConfiguration
+import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectSystemId}
@@ -49,8 +49,8 @@ object ModuleExtDataService {
       module.configureScalaCompilerSettingsFrom("sbt", scalacOptions.asScala)
       Option(scalaVersion).foreach(configureScalaSdk(module, _, scalacClasspath.asScala.toSeq))
       configureOrInheritSdk(module, Option(sdk))
-      configureLanguageLevel(module, javacOptions.asScala.toSeq)
-      configureJavacOptions(module, javacOptions.asScala.toSeq)
+      importJavacOptions(module, javacOptions.asScala.toSeq)
+
       getModifiableRootModel(module).getContentEntries.foreach(_.getSourceFolders.foreach(_.setPackagePrefix(Option(packagePrefix).getOrElse(""))))
       ScalaProjectSettings.getInstance(project).setCustomBasePackage(module.getName, basePackage)
     }
@@ -93,24 +93,53 @@ object ModuleExtDataService {
       sdk.flatMap(SdkUtils.findProjectSdk).foreach(model.setSdk)
     }
 
+    private def importJavacOptions(module: Module, javacOptions: Seq[String]): Unit = {
+      configureLanguageLevel(module, javacOptions)
+      configureTargetBytecodeLevel(module, javacOptions)
+      configureJavacOptions(module, javacOptions)
+    }
+
     private def configureLanguageLevel(module: Module, javacOptions: Seq[String]): Unit = {
       val model = getModifiableRootModel(module)
       val moduleSdk = Option(model.getSdk)
-      val languageLevel = SdkUtils.javaLanguageLevelFrom(javacOptions)
-        .orElse(moduleSdk.flatMap(SdkUtils.defaultJavaLanguageLevelIn))
+      val languageLevelFromJavac = JavacOptionsUtils.javaLanguageLevel(javacOptions)
+      val languageLevel = languageLevelFromJavac.orElse(moduleSdk.flatMap(SdkUtils.defaultJavaLanguageLevelIn))
       languageLevel.foreach { level =>
         val extension = model.getModuleExtension(classOf[LanguageLevelModuleExtensionImpl])
         extension.setLanguageLevel(level)
       }
     }
 
-    private def configureJavacOptions(module: Module, javacOptions: Seq[String]): Unit =
+    private def configureTargetBytecodeLevel(module: Module, javacOptions: Seq[String]): Unit =
       for {
         targetValue <- JavacOptionsUtils.effectiveTargetValue(javacOptions)
         compilerSettings = CompilerConfiguration.getInstance(module.getProject)
       } {
         executeProjectChangeAction(compilerSettings.setBytecodeTargetLevel(module, targetValue))
       }
+
+    private def configureJavacOptions(module: Module, javacOptions0: Seq[String]): Unit = {
+      val javacOptions = JavacOptionsUtils.withoutSourceTargetReleaseOptions(javacOptions0)
+
+      val compilerSettings = CompilerConfiguration.getInstance(module.getProject)
+
+      val moduleCurrentOptions0 = compilerSettings.getAdditionalOptions(module).asScala.toSeq
+      val moduleCurrentOptions: Seq[String] = {
+        val moduleCurrentStr = moduleCurrentOptions0.mkString(" ")
+        val projectCurrentStr = JavacConfiguration.getOptions(project, classOf[JavacConfiguration]).ADDITIONAL_OPTIONS_STRING
+
+        // NOTE: getAdditionalOptions fallbacks to project options if module options are empty
+        // so we assume if they are equal then current module additional options are empty
+        if (moduleCurrentStr == projectCurrentStr) Nil
+        else moduleCurrentOptions0
+      }
+
+      if (javacOptions != moduleCurrentOptions) {
+        executeProjectChangeAction {
+          compilerSettings.setAdditionalOptions(module, javacOptions.asJava)
+        }
+      }
+    }
   }
 
   case class NotificationException(notificationData: NotificationData, id: ProjectSystemId) extends Exception
