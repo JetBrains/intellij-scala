@@ -14,6 +14,8 @@ class FinchProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
 
   override def filesWithProblems: Map[String, Set[TextRange]] = Map(
     "generic/src/test/scala/io/finch/generic/GenericSpec.scala" -> Set((225, 255)),
-    "core/src/test/scala/io/finch/syntax/MapperSyntaxSpec.scala" -> Set((2452, 2479))
+    "core/src/test/scala/io/finch/syntax/MapperSyntaxSpec.scala" -> Set((2452, 2479)),
+    "examples/src/main/scala/io/finch/div/Main.scala" -> Set((677, 807),(661, 674)),
+    "examples/src/main/scala/io/finch/todo/Main.scala" -> Set((1339, 1659),(1318, 1332)),
   )
 }
