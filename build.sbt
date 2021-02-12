@@ -114,6 +114,8 @@ lazy val worksheet =
 lazy val worksheetReplInterface =
   newProject("worksheet-repl-interface", file("scala/worksheet-repl-interface"))
     .settings(
+      javacOptions  in Compile := outOfIDEAProcessJavacOptions,
+      scalacOptions in Compile := outOfIDEAProcessScalacOptions,
       packageMethod :=  PackagingMethod.Standalone("lib/repl-interface.jar", static = true)
     )
 
@@ -200,8 +202,8 @@ lazy val compilerJps =
   newProject("compiler-jps", file("scala/compiler-jps"))
     .dependsOn(compilerShared, repackagedZinc, worksheetReplInterface)
     .settings(
-      javacOptions in Compile := globalJavacOptions,
-      scalacOptions in Compile := globalScalacOptions,
+      javacOptions  in Compile := outOfIDEAProcessJavacOptions,
+      scalacOptions in Compile := outOfIDEAProcessScalacOptions,
       packageMethod           :=  PackagingMethod.Standalone("lib/jps/compiler-jps.jar", static = true),
       libraryDependencies     ++= Seq(Dependencies.nailgun,
                                       Dependencies.zincInterface,
@@ -223,8 +225,8 @@ lazy val repackagedZinc =
 lazy val compilerShared =
   newProject("compiler-shared", file("scala/compiler-shared"))
     .settings(
-      javacOptions in Compile := globalJavacOptions,
-      scalacOptions in Compile := globalScalacOptions,
+      javacOptions  in Compile := outOfIDEAProcessJavacOptions,
+      scalacOptions in Compile := outOfIDEAProcessScalacOptions,
       libraryDependencies ++= Seq(Dependencies.nailgun, Dependencies.compilerIndicesProtocol, Dependencies.zincInterface),
       packageLibraryMappings ++= Seq(
         Dependencies.nailgun                 -> Some("lib/jps/nailgun.jar"),
@@ -236,6 +238,8 @@ lazy val compilerShared =
 lazy val runners: Project =
   newProject("runners", file("scala/runners"))
     .settings(
+      javacOptions  in Compile := outOfIDEAProcessJavacOptions,
+      scalacOptions in Compile := outOfIDEAProcessScalacOptions,
       packageMethod := PackagingMethod.Standalone(static = true),
       packageAdditionalProjects ++= Seq(testRunners, testRunners_spec2_2x)
     )
@@ -243,6 +247,8 @@ lazy val runners: Project =
 lazy val testRunners: Project =
   newProject("testRunners", file("scala/testRunners"))
     .settings(
+      javacOptions  in Compile := outOfIDEAProcessJavacOptions,
+      scalacOptions in Compile := outOfIDEAProcessScalacOptions,
       packageMethod := PackagingMethod.MergeIntoOther(runners),
       libraryDependencies ++= DependencyGroups.testRunners
     )
@@ -251,6 +257,8 @@ lazy val testRunners_spec2_2x: Project =
   newProject("testRunners_spec2_2x", file("scala/testRunners_spec2_2x"))
     .dependsOn(testRunners)
     .settings(
+      javacOptions  in Compile := outOfIDEAProcessJavacOptions,
+      scalacOptions in Compile := outOfIDEAProcessScalacOptions,
       packageMethod := PackagingMethod.MergeIntoOther(runners),
       libraryDependencies ++= Seq(provided.specs2_2x)
     )
@@ -258,8 +266,8 @@ lazy val testRunners_spec2_2x: Project =
 lazy val nailgunRunners =
   newProject("nailgun", file("scala/nailgun"))
     .settings(
-      javacOptions in Compile := globalJavacOptions,
-      scalacOptions in Compile := globalScalacOptions,
+      javacOptions  in Compile := outOfIDEAProcessJavacOptions,
+      scalacOptions in Compile := outOfIDEAProcessScalacOptions,
       libraryDependencies += Dependencies.nailgun,
       packageLibraryMappings += Dependencies.nailgun -> Some("lib/jps/nailgun.jar"),
       packageMethod := PackagingMethod.Standalone("lib/scala-nailgun-runner.jar", static = true)
