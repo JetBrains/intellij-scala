@@ -2,20 +2,46 @@ package org.jetbrains.idea.devkit.scala.project
 
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SettingsStep}
 import com.intellij.openapi.application.ApplicationInfo
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.idea.devkit.scala.DevkitBundle
 import org.jetbrains.idea.devkit.scala.project.SbtIdeaPluginProjectBuilder.{NewProjectSettings, fetchLatestSbtIdeaVersion, toCamelCase, toDotSeparatedId}
 import org.jetbrains.plugins.scala.extensions
-import org.jetbrains.sbt.project.template.ArchivedSbtProjectBuilder
+import org.jetbrains.sbt.project.template.{AbstractArchivedSbtProjectBuilder, ArchivedSbtProjectBuilder}
 
+import java.io.File
 import java.net.URL
 import java.nio.file.Path
 import scala.io.Source
 import scala.util.Try
 
-class SbtIdeaPluginProjectBuilder(archiveURL: URL) extends ArchivedSbtProjectBuilder(archiveURL) {
+class SbtIdeaPluginProjectBuilder extends AbstractArchivedSbtProjectBuilder {
+
+  private val LOG = Logger.getInstance(getClass)
+
+  private val GH_WITH_EXAMPLES_URL  = "https://github.com/JetBrains/sbt-idea-example/archive/examples.zip"
+  private val GH_NO_EXAMPLES_URL    = "https://github.com/JetBrains/sbt-idea-example/archive/noexamples.zip"
+  private def FALLBACK_URL          = getClass.getClassLoader.getResource("sbt-idea-example.zip")
+
+  override def archiveURL: URL = {
+    if (newProjectSettings.includeSamples)
+      new URL(GH_WITH_EXAMPLES_URL)
+    else
+      new URL(GH_NO_EXAMPLES_URL)
+  }
+
+  override protected def extractArchive(root: File, url: URL, unwrapSingleTopLevelFolder: Boolean = false): Unit = {
+    try {
+      super.extractArchive(root, url, unwrapSingleTopLevelFolder = true)
+    } catch {
+      case e: Exception =>
+        LOG.error("Couldn't fetch template archive from GH. Using bundled", e)
+        super.extractArchive(root, FALLBACK_URL)
+    }
+  }
 
   private var newProjectSettings = NewProjectSettings(
+    includeSamples = true,
     "Default Name",
     "Default Vendor",
     Try(ApplicationInfo.getInstance().getBuild.withoutProductCode().asString()).getOrElse("LATEST-EAP-SNAPSHOT"),
@@ -65,6 +91,7 @@ class SbtIdeaPluginProjectBuilder(archiveURL: URL) extends ArchivedSbtProjectBui
 
 object SbtIdeaPluginProjectBuilder {
   final case class NewProjectSettings(
+                                       includeSamples: Boolean,
                                        pluginName: String,
                                        pluginVendor: String,
                                        intelliJBuildNumber: String,

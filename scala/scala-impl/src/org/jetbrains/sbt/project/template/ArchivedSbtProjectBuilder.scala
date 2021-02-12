@@ -11,21 +11,27 @@ import java.net.URL
 import java.nio.file.{Files, Path, Paths}
 import java.util.zip.ZipInputStream
 import scala.util.Using
-class ArchivedSbtProjectBuilder(archiveURL: URL) extends SbtModuleBuilder {
+
+class ArchivedSbtProjectBuilder(override val archiveURL: URL) extends AbstractArchivedSbtProjectBuilder
+
+abstract class AbstractArchivedSbtProjectBuilder extends SbtModuleBuilder {
+
+  protected def archiveURL: URL
 
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep =
     new SdkSettingsStep(settingsStep, this, (_: SdkTypeId).is[JavaSdk])
 
+  protected def extractArchive(root: File, url: URL, unwrapSingleTopLevelFolder: Boolean = false): Unit = {
+    Using.resource(new ZipInputStream(url.openStream)) { stream =>
+      ZipUtil.unzip(null, root.toPath, stream, null, null, unwrapSingleTopLevelFolder)
+    }
+  }
+
   override def createModule(moduleModel: ModifiableModuleModel): Module = {
     new File(getModuleFileDirectory) match {
       case root if root.exists() =>
-
-        Using.resource(new ZipInputStream(archiveURL.openStream)) { stream =>
-          ZipUtil.unzip(null, root.toPath, stream, null, null, false)
-        }
-
+        extractArchive(root, archiveURL)
         processExtractedArchive(root.toPath)
-
         setModuleFilePath(updateModuleFilePath(getModuleFilePath))
       case _ =>
     }

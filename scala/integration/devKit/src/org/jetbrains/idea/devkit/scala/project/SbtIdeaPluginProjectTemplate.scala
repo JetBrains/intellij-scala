@@ -14,8 +14,5 @@ class SbtIdeaPluginProjectTemplate extends ProjectTemplate {
   override def getIcon: Icon = AllIcons.Nodes.Plugin
   override def validateSettings(): ValidationInfo = null
 
-  override def createModuleBuilder(): AbstractModuleBuilder = {
-    val archiveUrl = getClass.getClassLoader.getResource("sbt-idea-example.zip")
-    new SbtIdeaPluginProjectBuilder(archiveUrl)
-  }
+  override def createModuleBuilder(): AbstractModuleBuilder = new SbtIdeaPluginProjectBuilder
 }
