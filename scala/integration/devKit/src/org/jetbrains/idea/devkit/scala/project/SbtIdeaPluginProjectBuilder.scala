@@ -44,8 +44,8 @@ class SbtIdeaPluginProjectBuilder extends AbstractArchivedSbtProjectBuilder {
 
   private var newProjectSettings = NewProjectSettings(
     includeSamples = true,
-    "Default Name",
-    "Default Vendor",
+    DevkitBundle.message("sbtidea.template.default.name"),
+    DevkitBundle.message("sbtidea.template.default.vendor"),
     Try(ApplicationInfo.getInstance().getBuild.withoutProductCode().asString()).getOrElse("LATEST-EAP-SNAPSHOT"),
     SbtIdeaPluginPlatformKind.IdeaCommunity)
 
