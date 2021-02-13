@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 class SbtIdeaPluginWizardStep(settingsStep: SettingsStep, moduleBuilder: SbtIdeaPluginProjectBuilder, defaultSettings: NewProjectSettings) extends
   SdkSettingsStep(settingsStep, moduleBuilder, (_: SdkTypeId).is[JavaSdk]) {
 
-  private val includeSamplesCB = new JBCheckBox(DevkitBundle.message("sbtidea.template.samples"))
+  private val includeSamplesCB = new JBCheckBox(DevkitBundle.message("sbtidea.template.samples.tooltip"))
   private val pluginNameField = new JBTextField()
   private val vendorNameField = new JBTextField()
   private val intelliJBuildField = new JBTextField(defaultSettings.intelliJBuildNumber)
@@ -23,15 +23,11 @@ class SbtIdeaPluginWizardStep(settingsStep: SettingsStep, moduleBuilder: SbtIdea
     pluginNameField.getEmptyText.setText(defaultSettings.pluginName)
     vendorNameField.getEmptyText.setText(defaultSettings.pluginVendor)
     includeSamplesCB.setSelected(defaultSettings.includeSamples)
-    val includeSamplesPanel = UI.PanelFactory.panel(includeSamplesCB).withTooltip(DevkitBundle.message("sbtidea.template.samples.tooltip")).createPanel()
-    val pluginNamePanel = UI.PanelFactory.panel(pluginNameField).withTooltip(DevkitBundle.message("sbtidea.template.plugin.name.help")).createPanel()
-    val vendorNamePanel = UI.PanelFactory.panel(vendorNameField).withTooltip(DevkitBundle.message("sbtidea.template.plugin.vendor.help")).createPanel()
-    val intelliJBuildPanel = UI.PanelFactory.panel(intelliJBuildField).withTooltip(DevkitBundle.message("sbtidea.template.intellij.build.help")).createPanel()
-    settingsStep.addSettingsField(DevkitBundle.message("sbtidea.template.plugin.name"), pluginNamePanel)
-    settingsStep.addSettingsField(DevkitBundle.message("sbtidea.template.plugin.vendor"), vendorNamePanel)
-    settingsStep.addSettingsField(DevkitBundle.message("sbtidea.template.intellij.build"), intelliJBuildPanel)
+    settingsStep.addSettingsField(DevkitBundle.message("sbtidea.template.plugin.name"), pluginNameField)
+    settingsStep.addSettingsField(DevkitBundle.message("sbtidea.template.plugin.vendor"), vendorNameField)
+    settingsStep.addSettingsField(DevkitBundle.message("sbtidea.template.intellij.build"), intelliJBuildField)
     settingsStep.addSettingsField(DevkitBundle.message("sbtidea.template.platform.kind"), platformKindSelector)
-    settingsStep.addSettingsComponent(includeSamplesPanel)
+    settingsStep.addSettingsComponent(includeSamplesCB)
   }
 
   override def updateDataModel(): Unit = {
