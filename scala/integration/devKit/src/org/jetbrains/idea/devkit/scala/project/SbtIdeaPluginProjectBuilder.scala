@@ -3,11 +3,13 @@ package org.jetbrains.idea.devkit.scala.project
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SettingsStep}
 import com.intellij.openapi.application.ApplicationInfo
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.idea.devkit.scala.DevkitBundle
 import org.jetbrains.idea.devkit.scala.project.SbtIdeaPluginProjectBuilder.{NewProjectSettings, fetchLatestSbtIdeaVersion, toCamelCase, toDotSeparatedId}
 import org.jetbrains.plugins.scala.extensions
-import org.jetbrains.sbt.project.template.{AbstractArchivedSbtProjectBuilder, ArchivedSbtProjectBuilder}
+import org.jetbrains.sbt.project.template.AbstractArchivedSbtProjectBuilder
+import org.jetbrains.sbt.project.template.AbstractArchivedSbtProjectBuilder.SbtPatternExt
 
 import java.io.File
 import java.net.URL
@@ -64,26 +66,26 @@ class SbtIdeaPluginProjectBuilder extends AbstractArchivedSbtProjectBuilder {
     val intelliJBuild   = newProjectSettings.intelliJBuildNumber
     val platformName    = newProjectSettings.intelliJPlatformKind.toString
     val pluginID        = toDotSeparatedId(pluginVendor + " " + pluginName)
-    val sinceBuild      = newProjectSettings.intelliJBuildNumber.takeWhile(_ != '.') + ".*"
+    val sinceBuild      = newProjectSettings.intelliJBuildNumber.takeWhile(_ != '.') + ".0"
     val sbtIdeaVersion  = fetchLatestSbtIdeaVersion
 
     replaceInFile("build.sbt", Map(
-      "$$PROJECT_VAL_NAME$$"  -> projectValName,
-      "$$SCALA_VERSION$$"     -> scalaVersion,
-      "$$PLUGIN_NAME$$"       -> pluginName,
-      "$$INTELLIJ_BUILD$$"    -> intelliJBuild,
-      "$$INTELLIJ_PLATFORM$$" -> platformName
+      "(^.+lazy\\s+val\\s+)(\\w+)(\\s+=.+$)"          -> projectValName,
+      "scalaVersion".keyInitQuoted                    -> scalaVersion,
+      "ThisBuild / intellijPluginName".keyInitQuoted  -> pluginName,
+      "ThisBuild / intellijBuild".keyInitQuoted       -> intelliJBuild,
+      "ThisBuild / intellijPlatform".keyInit          -> s"IntelliJPlatform.$platformName"
     ))
 
-    replaceInFile("src/main/resources/META-INF/plugin.xml", Map(
-      "$$PLUGIN_ID$$"     -> pluginID,
-      "$$PLUGIN_NAME$$"   -> pluginName,
-      "$$PLUGIN_VENDOR$$" -> pluginVendor,
-      "$$SINCE_BUILD$$"   -> sinceBuild
+    replaceInFile("resources/META-INF/plugin.xml", Map(
+      "id".tagBody                            -> pluginID,
+      "name".tagBody                          -> pluginName,
+      "vendor".tagBody                        -> pluginVendor,
+      "idea-version/since-build".emptyTagAttr -> sinceBuild
     ))
 
     replaceInFile("project/plugins.sbt", Map(
-      "$$SBT_IDEA_PLUGIN_VERSION$$" -> sbtIdeaVersion
+      """(^.*addSbtPlugin\(\s*"org.jetbrains"\s*%\s*"sbt-idea-plugin"\s*%\s*")([^"]+)("\s*\))""" -> sbtIdeaVersion
     ))
 
   }

@@ -5,10 +5,13 @@ import com.intellij.openapi.module.{ModifiableModuleModel, Module}
 import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
 import com.intellij.platform.templates.github.ZipUtil
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.sbt.project.template.AbstractArchivedSbtProjectBuilder.replacePatterns
 
 import java.io.File
 import java.net.URL
 import java.nio.file.{Files, Path, Paths}
+import java.util.regex.Matcher.quoteReplacement
+import java.util.regex.Pattern
 import java.util.zip.ZipInputStream
 import scala.util.Using
 
@@ -51,21 +54,56 @@ abstract class AbstractArchivedSbtProjectBuilder extends SbtModuleBuilder {
     if (Files.exists(fullFilePath)) {
       val newContent = try {
         val content = Files.readString(fullFilePath)
-        val (result, errors) = replacements.foldLeft(content -> Seq.empty[String]) ({ case ((text, errors), (from, to)) =>
-          if (text.contains(from))
-            text.replace(from, to) -> errors
-          else
-            text -> (errors :+ s"Key '$from' not found in $relativePath")
-        })
-        if (errors.isEmpty) {
-          Files.writeString(fullFilePath, result)
-          Right(result)
-        } else Left(errors)
+        replacePatterns(content, replacements) match {
+          case Right(result) =>
+            Files.writeString(fullFilePath, result)
+            Right(result)
+          case x@Left(_) => x
+        }
       } catch {
         case e: Throwable => Left(Seq(s"Error while processing file $relativePath: ${e.getMessage}"))
       }
       newContent
     } else Left(Seq(s"Target file doesn't exist - $relativePath"))
+  }
+
+}
+
+object AbstractArchivedSbtProjectBuilder {
+
+  implicit class SbtPatternExt(val str: String) extends AnyVal {
+    private def escaped(s: String) =
+      s.replaceAll("\\s+", quoteReplacement("\\s+"))
+
+    def keyInit: String =
+      s"""(^.+${escaped(str)}\\s*:=\\s*)([^\\s][^,]+)(,.+$$)"""
+
+    def keyInitQuoted: String =
+      s"""(^.+${escaped(str)}\\s*:=\\s*")([^",]+)(",.+$$)"""
+
+    def tagBody: String =
+      s"""(^.+<$str>)([^<>]+)(</$str>.+$$)"""
+
+    def emptyTagAttr: String = {
+      val Array(tag, attr) = str.split('/')
+      s"""(^.+<$tag.+$attr=")([^"]+)(".*/>.+$$)"""
+    }
+  }
+
+  def replacePatterns(content: String, replacements: Map[String, String]): Either[Seq[String], String] = {
+    val (result, errors) = replacements.foldLeft(content -> Seq.empty[String]) ({ case ((text, errors), (from, to)) =>
+      try {
+        val matcher = Pattern.compile(from, Pattern.DOTALL).matcher(text)
+        if (matcher.matches())
+          matcher.replaceFirst(s"$$1$to$$3") -> errors
+        else
+          text -> (errors :+ s"Key '$from' not found")
+      } catch {
+        case e: Exception =>
+          text -> (errors :+ s"Exception during patching '$from': ${e.getMessage}'")
+      }
+    })
+    if (errors.isEmpty) Right(result) else Left(errors)
   }
 
 }
