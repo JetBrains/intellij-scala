@@ -180,7 +180,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       sink.occurrence(CLASS_NAME_IN_PACKAGE_KEY, pack)
       if (stub.isImplicitObject) sink.occurrence(IMPLICIT_OBJECT_KEY, pack)
 
-      if (stub.implicitConversionParameterClass.nonEmpty)
+      if (stub.isTopLevel && stub.implicitConversionParameterClass.nonEmpty)
         sink.occurrence(TOP_LEVEL_IMPLICIT_CLASS_BY_PKG_KEY, pack)
 
       stub.indexImplicits(sink)
