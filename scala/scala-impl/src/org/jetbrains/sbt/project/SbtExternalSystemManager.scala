@@ -71,7 +71,9 @@ object SbtExternalSystemManager {
   def executionSettingsFor(project: Project, path: String): SbtExecutionSettings = {
     val settings = SbtSettings.getInstance(project)
     val settingsState = settings.getState
-    val projectSettings = Option(settings.getLinkedProjectSettings(path)).getOrElse(SbtProjectSettings.default)
+
+    val linkedProjectSettings = settings.getLinkedProjectSettings(path)
+    val projectSettings = Option(linkedProjectSettings).getOrElse(SbtProjectSettings.default)
 
     val customLauncher = settingsState.customLauncherEnabled.option(settingsState.getCustomLauncherPath).map(_.toFile)
     val customSbtStructureFile = settingsState.customSbtStructurePath.nonEmpty.option(settingsState.customSbtStructurePath.toFile)
@@ -83,10 +85,22 @@ object SbtExternalSystemManager {
     val vmOptions = getVmOptions(settingsState, jreHome)
     val environment = Map.empty ++ getAndroidEnvironmentVariables(projectJdkName)
 
-    new SbtExecutionSettings(realProjectPath,
-      vmExecutable, vmOptions, SbtSettings.hiddenDefaultMaxHeapSize, environment, customLauncher, customSbtStructureFile, projectJdkName,
-      projectSettings.resolveClassifiers, projectSettings.resolveJavadocs, projectSettings.resolveSbtClassifiers,
-      projectSettings.useSbtShellForImport, projectSettings.enableDebugSbtShell, projectSettings.allowSbtVersionOverride)
+    new SbtExecutionSettings(
+      realProjectPath,
+      vmExecutable,
+      vmOptions,
+      SbtSettings.hiddenDefaultMaxHeapSize,
+      environment,
+      customLauncher,
+      customSbtStructureFile,
+      projectJdkName,
+      projectSettings.resolveClassifiers,
+      projectSettings.resolveJavadocs,
+      projectSettings.resolveSbtClassifiers,
+      projectSettings.useSbtShellForImport,
+      projectSettings.enableDebugSbtShell,
+      projectSettings.allowSbtVersionOverride
+    )
   }
 
   /** Choose a jdk for imports. This is then only used when no overriding information is available from sbt definition.

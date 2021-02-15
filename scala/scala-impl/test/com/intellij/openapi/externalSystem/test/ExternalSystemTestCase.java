@@ -164,6 +164,7 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
         File projectDir = new File(myTestDir, "project");
         FileUtil.ensureExists(projectDir);
         myProjectRoot = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(projectDir);
+        assertNotNull("project root was not found: " + projectDir, myProjectRoot);
     }
 
     @After

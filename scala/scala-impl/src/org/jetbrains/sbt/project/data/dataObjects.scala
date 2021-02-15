@@ -70,7 +70,7 @@ object SbtModuleData {
 @SerialVersionUID(1)
 case class SbtProjectData @PropertyMapping(Array("jdk", "javacOptions", "sbtVersion", "projectPath"))(
   @Nullable jdk: SdkReference,
-  javacOptions: JList[String],
+  //javacOptions: JList[String], // see the commit message, why we don't need javacOptions at the project level
   sbtVersion: String,
   projectPath: String
 ) extends SbtEntityData
@@ -79,14 +79,13 @@ object SbtProjectData {
   val Key: Key[SbtProjectData] = datakey(classOf[SbtProjectData])
 
   def apply(jdk: Option[SdkReference],
-            javacOptions: Seq[String],
             sbtVersion: String,
             projectPath: String): SbtProjectData =
     SbtProjectData(
       jdk.orNull,
-      javacOptions.toJavaList,
       sbtVersion,
-      projectPath)
+      projectPath
+    )
 }
 
 sealed trait SbtNamedKey {

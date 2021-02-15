@@ -1,10 +1,5 @@
 package org.jetbrains.sbt.project.data.service
 
-import java.io.File
-import java.net.URI
-
-import com.intellij.compiler.CompilerConfiguration
-import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
@@ -23,6 +18,9 @@ import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert._
+
+import java.io.File
+import java.net.URI
 
 /**
  * @author Nikolay Obedin
@@ -49,41 +47,24 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
     doTestBasePackages(Seq("com.test.base"))
 
   def testValidJavaSdk(): Unit =
-    doTestSdk(Option(JdkByName("1.8")),
+    doTestSdk(
+      Option(JdkByName("1.8")),
       ProjectJdkTable.getInstance().findJdk(IdeaTestUtil.getMockJdk18.getName),
-      LanguageLevel.JDK_1_8)
-
-  def testValidJavaSdkWithDifferentLanguageLevel(): Unit =
-    doTestSdk(Option(external.JdkByName("1.8")),
-      Seq("-source", "1.6"),
-      ProjectJdkTable.getInstance().findJdk(IdeaTestUtil.getMockJdk18.getName),
-      LanguageLevel.JDK_1_6)
-
-  def testInvalidSdk(): Unit =
-    doTestSdk(Some(external.JdkByName("20")), defaultJdk, LanguageLevel.JDK_1_8)
-
-  def testAbsentSdk(): Unit =
-    doTestSdk(None, defaultJdk, LanguageLevel.JDK_1_8)
-
-  def testJavacOptions(): Unit = {
-    val options = Seq(
-      "-g:none",
-      "-nowarn",
-      "-deprecation",
-      "-target", "1.8",
-      "-Werror"
+      LanguageLevel.JDK_1_8,
+      expectedProjectLanguageLevelIsDefault = true
     )
-    importProjectData(generateProject(Seq.empty, None, options, ""))
 
-    val compilerOptions = JavacConfiguration.getOptions(getProject, classOf[JavacConfiguration])
-    assertFalse(compilerOptions.DEBUGGING_INFO)
-    assertTrue(compilerOptions.GENERATE_NO_WARNINGS)
-    assertTrue(compilerOptions.DEPRECATION)
-    assertTrue(compilerOptions.ADDITIONAL_OPTIONS_STRING == "-Werror")
+  def testInvalidSdk_ShouldFallbackToMostRecentJdk(): Unit =
+    doTestSdk(Some(external.JdkByName("20")), mostRecentJdk, mostRecentJdkLanguageLevel, expectedProjectLanguageLevelIsDefault = true)
 
-    val compilerConfiguration = CompilerConfiguration.getInstance(getProject)
-    assertEquals("1.8", compilerConfiguration.getProjectBytecodeTarget)
-  }
+  def testAbsentSdk_ShouldFallbackToMostRecentJdk(): Unit =
+    doTestSdk(None, mostRecentJdk, mostRecentJdkLanguageLevel, expectedProjectLanguageLevelIsDefault = true)
+
+  // javacOptions now don't effect IDEA project settings, they are imported into IDEA modules
+  // (including module which represents sbt root project)
+  // javacOptions in sbt root projects are tested in org.jetbrains.sbt.project.ProjectImportingTest
+  // def testValidJavaSdkWithDifferentLanguageLevel(): Unit = ???
+  // def testJavacOptionsInSbtRootProjectShouldNotBeAppliedToIDEAProjectSettings(): Unit = ???
 
   def testSbtVersion(): Unit = {
     val projectSettings = SbtProjectSettings.default
@@ -91,7 +72,7 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
     SbtSettings.getInstance(getProject).linkProject(projectSettings)
 
     val expectedVersion = "0.13.8"
-    importProjectData(generateProject(Seq.empty, None, Seq.empty, expectedVersion))
+    importProjectData(generateProject(Seq.empty, None, expectedVersion))
     val actualVersion = SbtSettings.getInstance(getProject).getLinkedProjectSettings(getProject.getBasePath).sbtVersion
     assertEquals(expectedVersion, actualVersion)
   }
@@ -113,7 +94,7 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
         externalConfigPath := getProject.getBasePath + "/module1"
       }
 
-      arbitraryNodes += new SbtProjectNode(SbtProjectData(None, Seq.empty, "", getProject.getBasePath))
+      arbitraryNodes += new SbtProjectNode(SbtProjectData(None, "", getProject.getBasePath))
     }.build.toDataNode
 
     importProjectData(testProject)
@@ -133,7 +114,11 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
     projectJdkTable.getAllJdks.foreach(projectJdkTable.removeJdk)
   }
 
-  private def generateProject(basePackages: Seq[String], jdk: Option[SdkReference], javacOptions: Seq[String], sbtVersion: String): DataNode[ProjectData] =
+  private def generateProject(
+    basePackages: Seq[String],
+    jdk: Option[SdkReference],
+    sbtVersion: String
+  ): DataNode[ProjectData] =
     new project {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
@@ -152,27 +137,35 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
         arbitraryNodes += new ModuleExtNode(ModuleExtData(None, basePackage = basePackages.headOption))
       }
 
-      arbitraryNodes += new SbtProjectNode(SbtProjectData(jdk, javacOptions, sbtVersion, getProject.getBasePath))
+      arbitraryNodes += new SbtProjectNode(SbtProjectData(jdk, sbtVersion, getProject.getBasePath))
     }.build.toDataNode
 
   private def doTestBasePackages(basePackages: Seq[String]): Unit = {
-    importProjectData(generateProject(basePackages, None, Seq.empty, ""))
+    importProjectData(generateProject(basePackages, None, ""))
     UsefulTestCase.assertContainsElements(ScalaProjectSettings.getInstance(getProject).getCustomBasePackages.values(), basePackages:_*)
   }
 
-  private def defaultJdk: Sdk =
+  private def mostRecentJdk: Sdk =
     ProjectJdkTable.getInstance().findMostRecentSdkOfType(JavaSdk.getInstance())
 
-  private def doTestSdk(sdk: Option[SdkReference], expectedSdk: Sdk, expectedLanguageLevel: LanguageLevel): Unit =
-    doTestSdk(sdk, Seq.empty, expectedSdk, expectedLanguageLevel)
+  private def mostRecentJdkLanguageLevel: LanguageLevel =
+    LanguageLevel.parse(mostRecentJdk.getVersionString).ensuring(_ != null)
 
-  private def doTestSdk(sdk: Option[SdkReference], javacOptions: Seq[String], expectedSdk: Sdk, expectedLanguageLevel: LanguageLevel): Unit = {
-    importProjectData(generateProject(Seq.empty, sdk, javacOptions, ""))
-    assertEquals(expectedSdk, ProjectRootManager.getInstance(getProject).getProjectSdk)
+  private def doTestSdk(
+    projectSdk: Option[SdkReference],
+    expectedProjectSdk: Sdk,
+    expectedProjectLanguageLevel: LanguageLevel,
+    expectedProjectLanguageLevelIsDefault: Boolean
+  ): Unit = {
+    importProjectData(generateProject(Seq.empty, projectSdk, ""))
+
+    assertEquals(expectedProjectSdk, ProjectRootManager.getInstance(getProject).getProjectSdk)
     val languageLevelProjectExtension = LanguageLevelProjectExtension.getInstance(getProject)
-    val actualLanguageLevel = languageLevelProjectExtension.getLanguageLevel
-    assertEquals(expectedLanguageLevel,actualLanguageLevel)
-    if (SdkUtils.defaultJavaLanguageLevelIn(expectedSdk).fold(false)(_ != expectedLanguageLevel))
+
+    assertEquals(expectedProjectLanguageLevel, languageLevelProjectExtension.getLanguageLevel)
+    assertEquals(expectedProjectLanguageLevelIsDefault, languageLevelProjectExtension.isDefault)
+
+    if (SdkUtils.defaultJavaLanguageLevelIn(expectedProjectSdk).fold(false)(_ != expectedProjectLanguageLevel))
       assertFalse(languageLevelProjectExtension.getDefault)
   }
 }

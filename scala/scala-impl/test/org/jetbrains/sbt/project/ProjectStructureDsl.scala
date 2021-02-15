@@ -28,8 +28,12 @@ object ProjectStructureDsl {
     new Attribute[Seq[module]]("modules") with ProjectAttribute
   val sdk =
     new Attribute[SdkReference]("sdk") with ProjectAttribute with ModuleAttribute
-  val languageLevel =
-    new Attribute[LanguageLevel]("languageLevel") with ProjectAttribute with ModuleAttribute
+  val javaLanguageLevel =
+    new Attribute[LanguageLevel]("javaLanguageLevel") with ProjectAttribute with ModuleAttribute
+  val javaTargetBytecodeLevel =
+    new Attribute[String]("javaTargetBytecodeLevel") with ProjectAttribute with ModuleAttribute
+  val javacOptions =
+    new Attribute[Seq[String]]("javacOptions") with ProjectAttribute with ModuleAttribute
 
   val sbtBuildURI =
     new Attribute[URI]("sbtBuildURI") with ModuleAttribute

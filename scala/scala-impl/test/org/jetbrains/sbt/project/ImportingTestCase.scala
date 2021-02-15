@@ -33,6 +33,11 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase with Pr
     assertProjectsEqual(expected, myProject)
   }
 
+  def runTestWithSdk(sdk: com.intellij.openapi.projectRoots.Sdk, expected: project): Unit = {
+    importProject(sdk)
+    assertProjectsEqual(expected, myProject)
+  }
+
   override protected def getExternalSystemId: ProjectSystemId = SbtProjectSystem.Id
 
   override protected def getExternalSystemConfigFileName: String = Sbt.BuildFile

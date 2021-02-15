@@ -240,7 +240,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val moduleFilesDirectory = new File(projectPath, Sbt.ModulesDirectory)
     val projectToModule = createModules(projects, libraryNodes, moduleFilesDirectory)
 
-    val dummySbtProjectData = SbtProjectData(settings.jdk.map(JdkByName), Seq.empty, sbtVersion, projectPath)
+    val dummySbtProjectData = SbtProjectData(settings.jdk.map(JdkByName), sbtVersion, projectPath)
     projectNode.add(new SbtProjectNode(dummySbtProjectData))
     projectNode.addAll(projectToModule.values)
 
@@ -270,11 +270,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         .getOrElse(throw new RuntimeException("No root project found"))
     val projectNode = new ProjectNode(rootProject.name, root, root)
 
-    val javacOptions = rootProject.java.map(_.options).getOrElse(Seq.empty)
-
     val projectJdk = chooseJdk(rootProject, settingsJdk)
 
-    projectNode.add(new SbtProjectNode(SbtProjectData(projectJdk, javacOptions, data.sbtVersion, root)))
+    projectNode.add(new SbtProjectNode(SbtProjectData(projectJdk, data.sbtVersion, root)))
 
     val newPlay2Data = projects.flatMap(p => p.play2.map(d => (p.id, p.base, d)))
     projectNode.add(new Play2ProjectNode(Play2OldStructureAdapter(newPlay2Data)))

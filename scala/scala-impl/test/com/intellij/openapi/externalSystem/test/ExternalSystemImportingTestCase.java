@@ -24,6 +24,7 @@ import com.intellij.openapi.externalSystem.model.ProjectSystemId;
 import com.intellij.openapi.externalSystem.model.project.ProjectData;
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode;
 import com.intellij.openapi.externalSystem.service.project.ExternalProjectRefreshCallback;
+import com.intellij.openapi.externalSystem.service.project.ProjectDataManager;
 import com.intellij.openapi.externalSystem.settings.AbstractExternalSystemSettings;
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings;
 import com.intellij.openapi.externalSystem.util.DisposeAwareProjectChange;
@@ -58,6 +59,8 @@ import org.jetbrains.jps.model.java.JavaResourceRootType;
 import org.jetbrains.jps.model.java.JavaSourceRootProperties;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType;
+import org.jetbrains.sbt.project.settings.SbtProjectSettings;
+import org.jetbrains.sbt.settings.SbtSettings;
 
 import java.io.IOException;
 import java.util.*;
@@ -378,16 +381,26 @@ public abstract class ExternalSystemImportingTestCase extends ExternalSystemTest
   protected void importProject() {
     doImportProject();
   }
+  protected void importProject(Sdk sdk) {
+    doImportProject(sdk);
+  }
+
+  private void doImportProject() {
+    doImportProject(null);
+  }
 
   @SuppressWarnings("unchecked")
-  private void doImportProject() {
+  private void doImportProject(final Sdk sdk) {
     AbstractExternalSystemSettings systemSettings = ExternalSystemApiUtil.getSettings(myProject, getExternalSystemId());
     final ExternalProjectSettings projectSettings = getCurrentExternalProjectSettings();
     projectSettings.setExternalProjectPath(getProjectPath());
-    Set<ExternalProjectSettings> projects = ContainerUtilRt.newHashSet(systemSettings.getLinkedProjectsSettings());
-    projects.remove(projectSettings);
-    projects.add(projectSettings);
-    systemSettings.setLinkedProjectsSettings(projects);
+    if (sdk != null) {
+      ((SbtProjectSettings) projectSettings).jdk_$eq(sdk.getName());
+    }
+    Set<ExternalProjectSettings> settings = ContainerUtilRt.newHashSet(systemSettings.getLinkedProjectsSettings());
+    settings.remove(projectSettings);
+    settings.add(projectSettings);
+    systemSettings.setLinkedProjectsSettings(settings);
 
     final Ref<Couple<String>> error = Ref.create();
     ExternalSystemUtil.refreshProjects(
@@ -397,7 +410,7 @@ public abstract class ExternalSystemImportingTestCase extends ExternalSystemTest
           @Override
           public void onSuccess(@Nullable final DataNode<ProjectData> externalProject) {
             if (externalProject == null) {
-              System.err.println("Got null External project after import");
+              fail("Got null External project after import");
               return;
             }
             ExternalSystemApiUtil.executeProjectChangeAction(true, new DisposeAwareProjectChange(myProject) {
@@ -406,8 +419,8 @@ public abstract class ExternalSystemImportingTestCase extends ExternalSystemTest
                 ProjectRootManagerEx.getInstanceEx(myProject).mergeRootsChangesDuring(new Runnable() {
                   @Override
                   public void run() {
-                    ServiceManager.getService(com.intellij.openapi.externalSystem.service.project.ProjectDataManager.class).importData(
-                      Collections.singleton(externalProject), myProject, true);
+                    ProjectDataManager ProjectDataManager = ServiceManager.getService(ProjectDataManager.class);
+                    ProjectDataManager.importData(Collections.singleton(externalProject), myProject, true);
                   }
                 });
               }

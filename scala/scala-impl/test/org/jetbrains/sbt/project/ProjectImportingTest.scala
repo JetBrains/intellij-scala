@@ -1,12 +1,22 @@
 package org.jetbrains.sbt
 package project
 
+import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
+import com.intellij.openapi.projectRoots.ProjectJdkTable
+import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
+import com.intellij.pom.java.LanguageLevel
+import com.intellij.testFramework.IdeaTestUtil
+import org.jetbrains.annotations.Nullable
+import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
+import org.jetbrains.plugins.scala.project.external.JdkByName
+import org.jetbrains.plugins.scala.{DependencyManager, DependencyManagerBase, LatestScalaVersions, ScalaVersion, SlowTests}
+import org.jetbrains.sbt.settings.SbtSettings
+import org.junit.Assert.assertEquals
+import org.junit.experimental.categories.Category
+
 import java.io.File
 import java.net.URI
-
-import org.jetbrains.plugins.scala.{DependencyManager, DependencyManagerBase, LatestScalaVersions, ScalaVersion, SlowTests}
-import org.junit.Ignore
-import org.junit.experimental.categories.Category
+import scala.annotation.nowarn
 
 @Category(Array(classOf[SlowTests]))
 class ProjectImportingTest extends ImportingTestCase with InexactMatch {
@@ -197,6 +207,152 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
       modules := Seq(root, crossJS, crossJVM, crossNative, crossSources)
     }
   )
+
+  //noinspection TypeAnnotation
+  // SCL-16204, SCL-17597
+  def testJavaLanguageLevelAndTargetByteCodeLevel(): Unit = {
+    val projectSdk = IdeaTestUtil.getMockJdk9
+    inWriteAction {
+      ProjectJdkTable.getInstance.addJdk(projectSdk)
+      // sbt can't be run with mock project JDK, so use internal JDK as in other tests
+      val internalJdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk: @nowarn
+      val settings = SbtSettings.getInstance(myProject)
+      settings.setCustomVMPath(internalJdk.getHomePath)
+      settings.setCustomVMEnabled(true)
+    }
+    try runTestWithSdk(projectSdk,
+      new project("java-language-level-and-target-byte-code-level") {
+        // we expect no other options except -source -target --release or --enable-preview in this test
+        // these options are specially handled and saved in the dedicated settings, so we don't expect any extra javacOptions
+        javacOptions := Nil
+        sdk := JdkByName(projectSdk.getName)
+
+        def moduleX(name: String, source: LanguageLevel, @Nullable target: String): module = new module(name) {
+          javaLanguageLevel := source
+          javaTargetBytecodeLevel := target
+          javacOptions := Nil
+          sdk := JdkByName(projectSdk.getName)
+        }
+
+        val sdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_9
+
+        val root = moduleX("java-language-level-and-target-byte-code-level", sdkLanguageLevel, null)
+
+        // Module naming: `source_target_release`
+        // `x` means option is missing
+        val module_x_x_x = moduleX("module_x_x_x", sdkLanguageLevel, null)
+
+        val module_8_8_x   = moduleX("module_8_8_x", LanguageLevel.JDK_1_8, "8")
+        val module_8_11_x  = moduleX("module_8_11_x", LanguageLevel.JDK_1_8, "11")
+        val module_11_8_x  = moduleX("module_11_8_x", LanguageLevel.JDK_11, "8")
+        val module_11_11_x = moduleX("module_11_11_x", LanguageLevel.JDK_11, "11")
+
+        // no explicit target: javac will use source level by default
+        val module_8_x_x  = moduleX("module_8_x_x", LanguageLevel.JDK_1_8, null)
+        val module_11_x_x = moduleX("module_11_x_x", LanguageLevel.JDK_11, null)
+        val module_14_x_x = moduleX("module_14_x_x", LanguageLevel.JDK_14, null)
+        val module_15_x_x = moduleX("module_15_x_x", LanguageLevel.JDK_15, null)
+
+        val module_x_8_x  = moduleX("module_x_8_x", sdkLanguageLevel, "8")
+        val module_x_11_x = moduleX("module_x_11_x", sdkLanguageLevel, "11")
+
+        val module_x_x_8  = moduleX("module_x_x_8", LanguageLevel.JDK_1_8, "8")
+        val module_x_x_11 = moduleX("module_x_x_11", LanguageLevel.JDK_11, "11")
+
+        // Java preview features
+        // NOTE: IntelliJ API supports only 2 last preview versions of java language level (in com.intellij.pom.java.LanguageLevel)
+        // When a new version of Java releases and IDEA supports it, we should update this test
+        //
+        // no explicit target: javac will use source level by default
+        val module_8_x_x_preview  = moduleX("module_8_x_x_preview", LanguageLevel.JDK_1_8, null) // no preview for Java 8
+        val module_11_x_x_preview = moduleX("module_11_x_x_preview", LanguageLevel.JDK_11, null) // no preview for Java 11
+        val module_14_x_x_preview = moduleX("module_14_x_x_preview", LanguageLevel.JDK_14, null) // no preview for Java 11
+        val module_15_x_x_preview = moduleX("module_15_x_x_preview", LanguageLevel.JDK_15_PREVIEW, null)
+        val module_16_x_x_preview = moduleX("module_16_x_x_preview", LanguageLevel.JDK_16_PREVIEW, null)
+
+        val module_x_x_8_preview  = moduleX("module_x_x_8_preview", LanguageLevel.JDK_1_8, "8")
+        val module_x_x_11_preview = moduleX("module_x_x_11_preview", LanguageLevel.JDK_11, "11")
+        val module_x_x_14_preview = moduleX("module_x_x_14_preview", LanguageLevel.JDK_14, "14")
+        val module_x_x_15_preview = moduleX("module_x_x_15_preview", LanguageLevel.JDK_15_PREVIEW, "15")
+        val module_x_x_16_preview = moduleX("module_x_x_16_preview", LanguageLevel.JDK_16_PREVIEW, "16")
+
+        modules := Seq(
+          root,
+          module_x_x_x,
+          module_8_8_x, module_8_11_x, module_11_8_x, module_11_11_x,
+          module_8_x_x, module_11_x_x, module_14_x_x, module_15_x_x,
+          module_x_8_x, module_x_11_x,
+          module_x_x_8, module_x_x_11,
+          module_8_x_x_preview, module_11_x_x_preview, module_14_x_x_preview, module_15_x_x_preview, module_16_x_x_preview,
+          module_x_x_8_preview, module_x_x_11_preview, module_x_x_14_preview, module_x_x_15_preview, module_x_x_16_preview,
+        )
+      }
+    ) finally {
+      inWriteAction {
+        ProjectJdkTable.getInstance.removeJdk(projectSdk)
+      }
+    }
+  }
+
+  // TODO: also create test for scalacOptions
+
+  //noinspection TypeAnnotation
+  def testJavacOptionsPerModule(): Unit = runTest(
+    new project("javac-options-per-module") {
+      javacOptions := Nil // no storing project level options
+
+      def moduleX(name: String, expectedJavacOptions: Seq[String]): module = new module(name) {
+        javacOptions := expectedJavacOptions
+      }
+
+      // TODO: currently IDEA doesn't support more finely-grained scopes,like `in (Compile, compile)
+      //  so option root_option_in_compile_compile is not included
+      //  IDEA-232043, SCL-11883, SCL-17020
+      val root = moduleX("javac-options-per-module", Seq("root_option", "root_option_in_compile"))
+
+      val module1 = moduleX("module1", Seq("module_1_option"))
+      val module2 = moduleX("module2", Seq("module_2_option_in_compile"))
+      val module3 = moduleX("module3", Seq())
+
+      modules := Seq(
+        root, module1, module2, module3
+      )
+    }
+  )
+
+  def testJavacSpecialOptionsForRootProject(): Unit = {
+    runTest(
+      new project("javac-special-options-for-root-project") {
+        // no storing project level options
+        javacOptions := Nil
+        javaTargetBytecodeLevel := null
+        javaLanguageLevel := LanguageLevel.JDK_11 // from internal sdk
+
+        val root: module = new module("javac-special-options-for-root-project") {
+          javaLanguageLevel := LanguageLevel.JDK_1_9
+          javaTargetBytecodeLevel := "1.7"
+          javacOptions := Seq(
+            "-g:none",
+            "-nowarn",
+            "-deprecation",
+            "-Werror"
+          )
+        }
+        modules:= Seq(root)
+      }
+    )
+
+    val compilerOptions = JavacConfiguration.getOptions(myProject, classOf[JavacConfiguration])
+    val defaultCompilerOptions = new JpsJavaCompilerOptions
+
+    assertEquals(defaultCompilerOptions.DEBUGGING_INFO, compilerOptions.DEBUGGING_INFO)
+    assertEquals(defaultCompilerOptions.GENERATE_NO_WARNINGS, compilerOptions.GENERATE_NO_WARNINGS)
+    assertEquals(defaultCompilerOptions.DEPRECATION, compilerOptions.DEPRECATION)
+    assertEquals(defaultCompilerOptions.ADDITIONAL_OPTIONS_STRING, compilerOptions.ADDITIONAL_OPTIONS_STRING)
+    assertEquals(defaultCompilerOptions.MAXIMUM_HEAP_SIZE, compilerOptions.MAXIMUM_HEAP_SIZE)
+    assertEquals(defaultCompilerOptions.PREFER_TARGET_JDK_COMPILER, compilerOptions.PREFER_TARGET_JDK_COMPILER)
+  }
+
 }
 
 object ProjectImportingTest {

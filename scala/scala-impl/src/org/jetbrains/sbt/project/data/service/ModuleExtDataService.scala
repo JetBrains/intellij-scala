@@ -119,7 +119,7 @@ object ModuleExtDataService {
       }
 
     private def configureJavacOptions(module: Module, javacOptions0: Seq[String]): Unit = {
-      val javacOptions = JavacOptionsUtils.withoutSourceTargetReleaseOptions(javacOptions0)
+      val javacOptions = JavacOptionsUtils.withoutExplicitlyHandledOptions(javacOptions0)
 
       val compilerSettings = CompilerConfiguration.getInstance(module.getProject)
 

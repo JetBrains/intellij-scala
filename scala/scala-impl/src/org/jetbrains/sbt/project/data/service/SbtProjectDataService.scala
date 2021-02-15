@@ -2,8 +2,6 @@ package org.jetbrains.sbt
 package project.data
 package service
 
-import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
-import com.intellij.compiler.{CompilerConfiguration, CompilerConfigurationImpl}
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
@@ -12,14 +10,11 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.ModuleType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
-import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.project.IncrementalityType
 import org.jetbrains.plugins.scala.project.external._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.settings.SbtSettings
-
-import scala.jdk.CollectionConverters._
 
 /**
  * @author Pavel Fatin
@@ -53,8 +48,7 @@ object SbtProjectDataService {
 
     private def doImport(data: SbtProjectData): Unit = {
       configureJdk(project, data)
-      updateJavaCompilerOptionsIn(project, data.javacOptions.asScala.toSeq)
-      setLanguageLevel(project, data)
+      setDefaultProjectLanguageLevel(project)
       setSbtVersion(project, data)
       updateIncrementalityType(project)
     }
@@ -69,14 +63,15 @@ object SbtProjectDataService {
       projectJdk.foreach(ProjectRootManager.getInstance(project).setProjectSdk)
     }
 
-    private def setLanguageLevel(project: Project, data: SbtProjectData): Unit = executeProjectChangeAction {
+    // NOTE: looks like this will not effect anything in sbt projects,
+    // because each module (including root module) has java language level set and project language level is not used
+    private def setDefaultProjectLanguageLevel(project: Project): Unit = executeProjectChangeAction {
+      val extension = LanguageLevelProjectExtension.getInstance(project)
       val projectJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
-      val javaLanguageLevel = JavacOptionsUtils.javaLanguageLevel(data.javacOptions.asScala.toSeq)
-        .orElse(projectJdk.flatMap(SdkUtils.defaultJavaLanguageLevelIn))
-      javaLanguageLevel.foreach { level =>
-        val extension = LanguageLevelProjectExtension.getInstance(project)
+      val jdkLanguageLevel = projectJdk.flatMap(SdkUtils.defaultJavaLanguageLevelIn)
+      jdkLanguageLevel.foreach { level =>
         extension.setLanguageLevel(level)
-        extension.setDefault(false)
+        extension.setDefault(true)
       }
     }
 
@@ -87,56 +82,6 @@ object SbtProjectDataService {
     private def updateIncrementalityType(project: Project): Unit = {
       if (getModules.exists(it => ModuleType.get(it) == SharedSourcesModuleType.instance))
         ScalaCompilerConfiguration.instanceIn(project).incrementalityType = IncrementalityType.SBT
-    }
-
-    private def updateJavaCompilerOptionsIn(project: Project, options: Seq[String]): Unit = executeProjectChangeAction {
-      val settings = JavacConfiguration.getOptions(project, classOf[JavacConfiguration])
-
-      def contains(values: String*) = values.exists(options.contains)
-
-      if (contains("-g:none")) {
-        settings.DEBUGGING_INFO = false
-      }
-
-      if (contains("-nowarn", "-Xlint:none")) {
-        settings.GENERATE_NO_WARNINGS = true
-      }
-
-      if (contains("-deprecation", "-Xlint:deprecation")) {
-        settings.DEPRECATION = true
-      }
-
-      val targetOpt = JavacOptionsUtils.effectiveTargetValue(options)
-      targetOpt.foreach { target =>
-        val compilerSettings = CompilerConfiguration.getInstance(project).asInstanceOf[CompilerConfigurationImpl]
-        compilerSettings.setProjectBytecodeTarget(target)
-      }
-
-      val customOptions = additionalOptionsFrom(options)
-
-      settings.ADDITIONAL_OPTIONS_STRING = customOptions.mkString(" ")
-    }
-
-    private def additionalOptionsFrom(javacOptions: Seq[String]): Seq[String] = {
-      @NonNls val explicitlyHandledOptions = Set(
-        "-g:none", "-nowarn", "-Xlint:none", "-deprecation", "-Xlint:deprecation"
-      )
-
-      val otherOptions = javacOptions.iterator.filterNot(explicitlyHandledOptions.contains).toSeq
-      JavacOptionsUtils.withoutSourceTargetReleaseOptions(otherOptions)
-    }
-  }
-
-  implicit class SeqOps(private val options: Seq[String]) extends AnyVal {
-
-    def removePair(name: String): Seq[String] = {
-      val index = options.indexOf(name)
-
-      if (index == -1) options
-      else {
-        val (prefix, suffix) = options.splitAt(index)
-        prefix ++ suffix.drop(2)
-      }
     }
   }
 }

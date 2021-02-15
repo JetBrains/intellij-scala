@@ -1,19 +1,20 @@
 package org.jetbrains.sbt
 package project
 
-import java.util
-import java.util.Arrays
-
+import com.intellij.compiler.CompilerConfiguration
+import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots
-import com.intellij.openapi.roots.ModuleOrderEntry
 import com.intellij.openapi.roots.libraries.Library
+import com.intellij.openapi.roots.{LanguageLevelModuleExtensionImpl, ModuleOrderEntry, ModuleRootManager}
 import com.intellij.openapi.vfs.VfsUtilCore
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.util.{CommonProcessors, PathUtil}
 import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.external.{SdkReference, SdkUtils}
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.data.SbtModuleData
 import org.junit.Assert
@@ -29,10 +30,13 @@ trait ProjectStructureMatcher {
 
   def assertProjectsEqual(expected: project, actual: Project): Unit = {
     assertEquals("Project name", expected.name, actual.getName)
-    expected.foreach(sdk)(it => assertEquals("Project SDK", it, roots.ProjectRootManager.getInstance(actual).getProjectSdk))
-    expected.foreach(languageLevel)(it => assertEquals("Project language level", it, roots.LanguageLevelProjectExtension.getInstance(actual).getLanguageLevel))
+    expected.foreach(sdk)(assertProjectSdkEqual(actual))
     expected.foreach(modules)(assertProjectModulesEqual(actual))
     expected.foreach(libraries)(assertProjectLibrariesEqual(actual))
+
+    expected.foreach(javaLanguageLevel)(assertProjectJavaLanguageLevel(actual))
+    expected.foreach(javaTargetBytecodeLevel)(assertProjectJavaTargetBytecodeLevel(actual))
+    expected.foreach(javacOptions)(assertProjectJavacOptions(actual))
   }
 
   private implicit def namedImplicit[T <: Named]: HasName[T] =
@@ -56,6 +60,14 @@ trait ProjectStructureMatcher {
   private implicit val ideaModuleEntryModuleImplicit: HasModule[ModuleOrderEntry] =
     (entry: roots.ModuleOrderEntry) => entry.getModule
 
+  private def assertProjectSdkEqual(project: Project)(expectedSdkRef: SdkReference): Unit = {
+    val expectedSdk = SdkUtils.findProjectSdk(expectedSdkRef).getOrElse {
+      fail(s"Sdk $expectedSdkRef nof found").asInstanceOf[Nothing]
+    }
+    val actualSdk = roots.ProjectRootManager.getInstance(project).getProjectSdk
+    assertEquals("Project SDK", expectedSdk, actualSdk)
+  }
+
   private def assertProjectModulesEqual(project: Project)(expectedModules: Seq[module]): Unit = {
     val actualModules = ModuleManager.getInstance(project).getModules.toSeq
     assertNamesEqual("Project module", expectedModules, actualModules)
@@ -73,7 +85,46 @@ trait ProjectStructureMatcher {
     expected.foreach(libraryDependencies)(assertLibraryDependenciesEqual(actual))
     expected.foreach(libraries)(assertModuleLibrariesEqual(actual))
 
+    expected.foreach(javaLanguageLevel)(assertModuleJavaLanguageLevel(actual))
+    expected.foreach(javaTargetBytecodeLevel)(assertModuleJavaTargetBytecodeLevel(actual))
+    expected.foreach(javacOptions)(assertModuleJavacOptions(actual))
+
     assertGroupEqual(expected, actual)
+  }
+
+  protected def assertModuleJavaLanguageLevel(module: Module)(expected: LanguageLevel): Unit = {
+    val settings = ModuleRootManager.getInstance(module).getModuleExtension(classOf[LanguageLevelModuleExtensionImpl])
+    val actual = settings.getLanguageLevel
+    Assert.assertEquals(s"Module java language level (${module.getName})", expected, actual)
+  }
+
+  protected def assertModuleJavaTargetBytecodeLevel(module: Module)(expected: String): Unit = {
+    val compilerSettings = CompilerConfiguration.getInstance(module.getProject)
+    val actual = compilerSettings.getBytecodeTargetLevel(module)
+    Assert.assertEquals(s"Module Java files target bytecode level (${module.getName})", expected, actual)
+  }
+
+  private def assertProjectJavaLanguageLevel(project: Project)(expected: LanguageLevel): Unit = {
+    val settings = roots.LanguageLevelProjectExtension.getInstance(project)
+    val actual = settings.getLanguageLevel
+    assertEquals("Project java language level", expected, actual)
+  }
+
+  private def assertProjectJavaTargetBytecodeLevel(project: Project)(expected: String): Unit = {
+    val compilerSettings = CompilerConfiguration.getInstance(project)
+    val actual = compilerSettings.getProjectBytecodeTarget
+    assertEquals("Project target bytecode level (for Java sources)", expected, actual)
+  }
+
+  protected def assertModuleJavacOptions(module: Module)(expectedOptions: Seq[String]): Unit = {
+    val settings = CompilerConfiguration.getInstance(module.getProject)
+    val actual = settings.getAdditionalOptions(module).asScala
+    Assert.assertEquals(s"Module javacOptions (${module.getName})", expectedOptions, actual)
+  }
+  private def assertProjectJavacOptions(project: Project)(expectedOptions: Seq[String]): Unit = {
+    val settings = JavacConfiguration.getOptions(project, classOf[JavacConfiguration])
+    val actual = settings.ADDITIONAL_OPTIONS_STRING
+    assertEquals("Project javacOptions", expectedOptions.mkString(" "), actual)
   }
 
   private def assertModuleContentRootsEqual(module: Module)(expected: Seq[String]): Unit = {

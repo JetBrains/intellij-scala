@@ -1,9 +1,5 @@
 package org.jetbrains.sbt.project.data.service
 
-import java.io.File
-import java.net.URI
-import java.util.Optional
-
 import com.intellij.compiler.CompilerConfiguration
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
@@ -23,6 +19,8 @@ import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.data.service.ModuleExtDataService.NotificationException
 import org.junit.Assert._
 
+import java.io.File
+import java.net.URI
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Try}
 
@@ -31,7 +29,7 @@ import scala.util.{Failure, Try}
  * @author Nikolay Obedin
  * @since 6/9/15.
  */
-class ModuleExtDataServiceTest extends ProjectDataServiceTestCase {
+class SbtModuleExtDataServiceTest extends ProjectDataServiceTestCase {
 
   import ExternalSystemDataDsl._
 
@@ -159,17 +157,21 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase {
   }
 
   def testJavacOptions(): Unit = {
-    val options = Seq(
+    val moduleOptions = Seq(
       "-g:none",
       "-nowarn",
       "-deprecation",
       "-target", "1.8",
       "-Werror"
     )
-    importProjectData(generateJavaProject(None, options))
+    importProjectData(generateJavaProject(None, moduleOptions))
 
     val compilerConfiguration = CompilerConfiguration.getInstance(getProject)
     assertEquals("1.8", compilerConfiguration.getBytecodeTargetLevel(getModule))
+    assertEquals(
+      Seq("-g:none", "-nowarn", "-deprecation", "-Werror"),
+      compilerConfiguration.getAdditionalOptions(getModule).asScala.toSeq
+    )
   }
 
   def testScalaSdkForEvictedVersion(): Unit = {
@@ -182,7 +184,7 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
       linkedProjectPath := getProject.getBasePath
-      arbitraryNodes += new SbtProjectNode(SbtProjectData(None, Seq.empty, "", getProject.getBasePath))
+      arbitraryNodes += new SbtProjectNode(SbtProjectData(None, "", getProject.getBasePath))
 
       val evictedScalaLibrary: library = new library { name := s"org.scala-lang:scala-library:$evictedVersion" }
       val newScalaLibrary: library = new library { name := s"org.scala-lang:scala-library:$newVersion" }
@@ -212,15 +214,21 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase {
   private def generateScalaProject(scalaVersion: String, scalaLibraryVersion: Option[String], scalacOptions: Seq[String]): DataNode[ProjectData] =
     generateProject(Some(scalaVersion), scalaLibraryVersion, scalacOptions, None, Seq.empty)
 
-  private def generateJavaProject(sdk: Option[SdkReference], javacOptions: Seq[String]): DataNode[ProjectData] =
-    generateProject(None, None, Seq.empty, sdk, javacOptions)
+  private def generateJavaProject(sdk: Option[SdkReference], moduleJavacOptions: Seq[String]): DataNode[ProjectData] =
+    generateProject(None, None, Seq.empty, sdk, moduleJavacOptions)
 
-  private def generateProject(scalaVersion: Option[String], scalaLibraryVersion: Option[String], scalacOptions: Seq[String], sdk: Option[SdkReference], javacOptions: Seq[String]): DataNode[ProjectData] =
+  private def generateProject(
+    scalaVersion: Option[String],
+    scalaLibraryVersion: Option[String],
+    scalacOptions: Seq[String],
+    sdk: Option[SdkReference],
+    javacOptions: Seq[String]
+  ): DataNode[ProjectData] =
     new project {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
       linkedProjectPath := getProject.getBasePath
-      arbitraryNodes += new SbtProjectNode(SbtProjectData(None, Seq.empty, "", getProject.getBasePath))
+      arbitraryNodes += new SbtProjectNode(SbtProjectData(None, "", getProject.getBasePath))
 
       val scalaLibrary: Option[library] = scalaLibraryVersion.map { version =>
         new library { name := "org.scala-lang:scala-library:" + version }
