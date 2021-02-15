@@ -6,8 +6,9 @@ package top
 package template
 
 import com.intellij.lang.PsiBuilder
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Constructor, End}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Expr, ExprInIndentationRegion}
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ParamClauses, TypeParamClause}
@@ -61,14 +62,32 @@ object GivenDef {
 
   def parseGivenDefinition()(implicit builder: ScalaPsiBuilder): Boolean = {
     val extendsBlockMarker = builder.mark()
-    if (ConstrApps()) {
-      TemplateBody()
-      extendsBlockMarker.done(ScalaElementType.EXTENDS_BLOCK)
-      true
-    } else {
-      extendsBlockMarker.drop()
-      false
+    val templateParents = builder.mark()
+
+    if (!Constructor()) {
+      templateParents.drop()
+      extendsBlockMarker.rollbackTo()
+      return false
     }
+
+    while (builder.getTokenType == ScalaTokenTypes.kWITH && builder.lookAhead(1) != ScalaTokenTypes.tLBRACE) {
+      builder.advanceLexer() // ate with
+
+      if (builder.getTokenType != ScalaTokenTypes.tLBRACE) {
+        Constructor()
+      }
+    }
+
+    templateParents.done(ScalaElementType.TEMPLATE_PARENTS)
+
+    if (builder.getTokenType == ScalaTokenTypes.kWITH) {
+      builder.advanceLexer()
+    } else {
+      builder.error(ScalaBundle.message("expected.with"))
+    }
+    TemplateBody()
+    extendsBlockMarker.done(ScalaElementType.EXTENDS_BLOCK)
+    true
   }
 }
 
@@ -76,8 +95,7 @@ object GivenSig extends ParsingRule {
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val givenSigMarker = builder.mark()
 
-    if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER &&
-          builder.getTokenText != ScalaTokenType.AsKeyword.text) {
+    if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
       builder.advanceLexer() // ate id
     }
 
@@ -85,7 +103,8 @@ object GivenSig extends ParsingRule {
 
     ParamClauses.parse(builder)
 
-    if (builder.tryParseSoftKeyword(ScalaTokenType.AsKeyword)) {
+    if (builder.getTokenType == ScalaTokenTypes.tCOLON) {
+      builder.advanceLexer() // ate :
       givenSigMarker.drop()
       true
     } else {
