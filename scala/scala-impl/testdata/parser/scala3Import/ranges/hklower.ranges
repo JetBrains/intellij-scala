@@ -1,4 +1,4 @@
-[0,440]: PackageDef
+[0,464]: PackageDef
 [0,0]: Ident
 [0,204]: TypeDef
 [16,200]: Template
@@ -70,8 +70,8 @@
 [193,194]: Ident
 [195,196]: Ident
 [198,199]: Ident
-[205,440]: TypeDef
-[222,436]: Template
+[205,464]: TypeDef
+[222,460]: Template
 [222,222]: DefDef
 [222,222]: TypeTree
 [222,232]: TypeDef
@@ -141,11 +141,12 @@
 [400,401]: Ident
 [402,403]: Ident
 [405,406]: Ident
-[411,428]: ValDef
+[411,452]: ValDef
 [418,424]: AppliedTypeTree
 [418,419]: Ident
 [420,423]: Ident
-[427,428]: Ident
-[431,436]: Assign
-[431,432]: Ident
-[435,436]: Ident
+[427,452]: Select
+[427,438]: Ident
+[455,460]: Assign
+[455,456]: Ident
+[459,460]: Ident

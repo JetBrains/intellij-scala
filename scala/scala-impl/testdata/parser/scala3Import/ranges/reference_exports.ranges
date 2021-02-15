@@ -57,7 +57,7 @@
 [355,362]: Ident
 [368,388]: Export
 [375,383]: Ident
-[393,425]: Export
+[393,426]: Export
 [400,409]: Ident
 [432,494]: DefDef
 [444,456]: AppliedTypeTree

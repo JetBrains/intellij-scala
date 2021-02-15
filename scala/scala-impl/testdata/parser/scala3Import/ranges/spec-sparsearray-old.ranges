@@ -3,7 +3,7 @@
 [0,34]: Import
 [7,20]: Select
 [7,12]: Ident
-[35,79]: Import
+[35,80]: Import
 [42,58]: Select
 [42,47]: Ident
 [81,1073]: TypeDef

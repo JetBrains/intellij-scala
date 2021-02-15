@@ -26,7 +26,7 @@
 [83,94]: Apply
 [83,85]: Ident
 [92,93]: Ident
-[96,118]: Import
+[96,119]: Import
 [103,109]: Ident
 [121,156]: DefDef
 [129,129]: TypeTree

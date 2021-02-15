@@ -1,7 +1,7 @@
-[0,87]: PackageDef
+[0,84]: PackageDef
 [0,0]: Ident
-[0,87]: ModuleDef
-[17,85]: Template
+[0,84]: ModuleDef
+[17,82]: Template
 [17,17]: DefDef
 [17,17]: TypeTree
 [17,63]: DefDef
@@ -17,11 +17,11 @@
 [56,56]: Ident
 [58,58]: TypeTree
 [61,63]: Tuple
-[66,85]: Apply
+[66,82]: Apply
 [66,76]: Apply
 [66,69]: Ident
 [70,75]: NamedArg
 [74,75]: Number
-[77,84]: Typed
+[77,81]: Typed
 [77,80]: Ident
-[82,84]: Ident
+[80,81]: Ident

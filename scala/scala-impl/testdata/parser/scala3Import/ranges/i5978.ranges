@@ -68,7 +68,7 @@
 [503,509]: Ident
 [513,517]: Ident
 [520,948]: Block
-[528,555]: Import
+[528,556]: Import
 [535,545]: Ident
 [564,631]: ValDef
 [574,615]: AppliedTypeTree
@@ -159,7 +159,7 @@
 [1243,1249]: Ident
 [1253,1257]: Ident
 [1260,1490]: Block
-[1268,1295]: Import
+[1268,1296]: Import
 [1275,1285]: Ident
 [1304,1371]: ValDef
 [1314,1355]: AppliedTypeTree
@@ -227,7 +227,7 @@
 [1794,1800]: Ident
 [1804,1808]: Ident
 [1811,2374]: Block
-[1819,1846]: Import
+[1819,1847]: Import
 [1826,1836]: Ident
 [1855,1956]: ValDef
 [1865,1905]: AppliedTypeTree

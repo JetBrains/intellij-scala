@@ -45,7 +45,7 @@
 [267,357]: Template
 [267,267]: DefDef
 [267,267]: TypeTree
-[267,306]: Import
+[267,307]: Import
 [274,288]: Ident
 [310,357]: ValDef
 [315,315]: TypeTree

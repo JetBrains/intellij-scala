@@ -19,7 +19,7 @@
 [118,125]: Ident
 [125,125]: TypeTree
 [135,142]: Ident
-[147,178]: Export
+[147,179]: Export
 [154,161]: Ident
 [183,249]: DefDef
 [196,200]: Ident

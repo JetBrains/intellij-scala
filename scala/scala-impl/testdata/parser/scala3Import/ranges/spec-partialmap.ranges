@@ -1,6 +1,6 @@
 [49,586]: PackageDef
 [49,49]: Ident
-[49,94]: Import
+[49,95]: Import
 [56,72]: Select
 [56,61]: Ident
 [98,586]: TypeDef
