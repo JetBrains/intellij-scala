@@ -372,9 +372,9 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
         // if the expression is functional its parent is
         // lambda of this expression
         case (e: ScExpression, uElement, _)
-            if SAMUtil.isFunctionalExpression(e) &&
-              !uElement.is[UCallableReferenceExpression] &&
-              !uElement.is[ULambdaExpression] =>
+            if !uElement.is[UCallableReferenceExpression] &&
+              !uElement.is[ULambdaExpression] &&
+              SAMUtil.isFunctionalExpression(e) =>
           convertWithParentTo[ULambdaExpression](e).orNull
 
         // selects method call as a parent for method arguments
@@ -464,8 +464,8 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
         /** Wraps last statement in function in [[ScUImplicitReturnExpression]] */
         case (source, uExpr: UExpression, uParent)
             if isExplicitFunctionLastStatementWithoutReturn(source) ||
-              (isImplicitFunctionLastStatementWithoutReturn(source) &&
-                !uExpr.is[ULambdaExpression]) =>
+              (!uExpr.is[ULambdaExpression] &&
+                isImplicitFunctionLastStatementWithoutReturn(source)) =>
           uParent match {
             case _: UBlockExpression =>
               ScUImplicitReturnExpression
