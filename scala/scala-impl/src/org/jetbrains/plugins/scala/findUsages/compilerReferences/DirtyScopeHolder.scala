@@ -2,10 +2,9 @@ package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
 import java.util
 import java.util.concurrent.locks.{Lock, ReentrantLock}
-
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.{FileType, FileTypeRegistry}
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.util.io.FileUtil
@@ -73,11 +72,13 @@ abstract class DirtyScopeHolder[Scope](
     case pce: VFilePropertyChangeEvent =>
       val propertyName = pce.getPropertyName
       if (propertyName == VirtualFile.PROP_NAME || propertyName == VirtualFile.PROP_SYMLINK_TARGET) {
-        val path = pce.getPath
+        val file = pce.getFile
+        val module =
+          ProjectFileIndex.getInstance(project).getModuleForFile(file)
+            .toOption
+            .filter(_.isSourceModule)
 
-        project.sourceModules.foreach(
-          m => if (FileUtil.isAncestor(path, m.getModuleFilePath, true)) markModuleAsDirty(m)
-        )
+        module.foreach(markModuleAsDirty)
       }
     case _ => ()
   }
