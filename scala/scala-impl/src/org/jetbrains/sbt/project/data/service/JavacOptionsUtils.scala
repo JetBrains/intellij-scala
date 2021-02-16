@@ -3,7 +3,7 @@ package org.jetbrains.sbt.project.data.service
 import com.intellij.pom.java.LanguageLevel
 
 /** javac options reference [[https://docs.oracle.com/en/java/javase/11/tools/javac.htm]] */
-object JavacOptionsUtils {
+private object JavacOptionsUtils {
 
   private val Target        = "-target"
   private val Source        = "-source"
@@ -52,16 +52,16 @@ object JavacOptionsUtils {
    *  - [[http://openjdk.java.net/jeps/247 JEP 247: Compile for Older Platform Versions]]
    *  - [[https://stackoverflow.com/questions/43102787/what-is-the-release-flag-in-the-java-9-compiler/43103038#43103038 What is the --release flag in the Java 9 compiler?]]
    */
-  def releaseValue(javacOptions: Seq[String]): Option[String] =
+  private def releaseValue(javacOptions: Seq[String]): Option[String] =
     value(javacOptions, Release) // yes, release uses double dash "--"
 
-  def sourceValue(javacOptions: Seq[String]): Option[String] =
+  private def sourceValue(javacOptions: Seq[String]): Option[String] =
     value(javacOptions, Source)
 
-  def targetValue(javacOptions: Seq[String]): Option[String] =
+  private def targetValue(javacOptions: Seq[String]): Option[String] =
     value(javacOptions, Target)
 
-  def value(options: Seq[String], key: String): Option[String] =
+  private def value(options: Seq[String], key: String): Option[String] =
     for {
       keyPos <- Option(options.indexOf(key)).filterNot(_ == -1)
       value <- options.lift(keyPos + 1)
