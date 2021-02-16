@@ -27,7 +27,7 @@ abstract class ScStubElementType[
 
   override def createElement(node: ASTNode): T
 
-  override final def createStub(psi: T, parentStub: StubElement[_]): S = {
+  override final def createStub(psi: T, parentStub: StubElement[_ <: PsiElement]): S = {
     ScStubElementType.Processing {
       createStubImpl(psi, parentStub)
     }
