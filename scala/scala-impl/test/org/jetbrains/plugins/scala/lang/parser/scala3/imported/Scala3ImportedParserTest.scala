@@ -7,6 +7,7 @@ import com.intellij.psi.impl.DebugUtil.psiToString
 import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile}
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.scala3.imported.Scala3ImportedParserTest.rangesDirectory
 import org.jetbrains.plugins.scala.{PerfCycleTests, Scala3Language}
 import org.junit.Assert._
@@ -72,12 +73,15 @@ abstract class Scala3ImportedParserTestBase(dir: String) extends ScalaFileSetTes
     ""
   }
 
+  def isStringPart(e: PsiElement): Boolean =
+    ScalaTokenTypes.STRING_LITERAL_TOKEN_SET.contains(e.elementType)
+
   def findInterlacedRanges(root: PsiElement, testName: String): Seq[(PsiElement, (TextRange, String))] = {
     val ranges = RangeMap.fromFileOrEmpty(Paths.get(getTestDataPath, rangesDirectory, testName + ".ranges"))
     val ignoredNames = Set("Import", "Export")
     for {
       e <- root.depthFirst()
-      interlaced = ranges.interlaced(trimRanges(root, e.getTextRange)).toMap
+      interlaced = ranges.interlaced(if (isStringPart(e)) e.getTextRange else trimRanges(root, e.getTextRange)).toMap
       interlace <- interlaced
       if !ignoredNames(interlace._2)
     } yield e -> interlace
