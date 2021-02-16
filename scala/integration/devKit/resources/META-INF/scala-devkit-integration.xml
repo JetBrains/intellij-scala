@@ -12,6 +12,13 @@
         <externalSystemTaskNotificationListener
                 implementation="org.jetbrains.idea.devkit.scala.IntellijSourcesAttachListener"/>
         <projectTemplatesFactory implementation="org.jetbrains.idea.devkit.scala.project.SbtIdeaPluginTemplatesFactory"/>
+
+        <localInspection
+                implementationClass="org.jetbrains.idea.devkit.scala.sbt.PluginNotRegisteredInspection"
+                bundle="messages.ScalaDevkitBundle"
+                language="sbt" enabledByDefault="true"
+                shortName="PluginNotRegistered" key="inspection.plugin.not.registered.name"
+                groupPath="Scala" groupKey="group.devkit.inspections"/>
     </extensions>
 
 </idea-plugin>

@@ -139,6 +139,13 @@ package object collections {
     }
   }
 
+  object namedRef {
+    def unapply(expr: ScExpression): Option[String] = expr match {
+      case ref: ScReferenceExpression => Some(ref.refName)
+      case _ => None
+    }
+  }
+
   object IfStmt {
     def unapply(expr: ScExpression): Option[(ScExpression, ScExpression, ScExpression)] = {
       expr match {
