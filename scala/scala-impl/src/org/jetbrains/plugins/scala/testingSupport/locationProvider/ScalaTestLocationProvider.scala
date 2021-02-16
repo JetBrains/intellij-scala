@@ -30,7 +30,7 @@ class ScalaTestLocationProvider extends SMTestLocator {
 
   override def getLocation(protocolId: String, locationData: String, project: Project, scope: GlobalSearchScope): ju.List[Location[_ <: PsiElement]] =
     protocolId match {
-      case ScalaProtocol =>
+      case ScalaProtocol => // TODO: do we even need this separation? why not using just scalatest://?
         getLocationForScalaProtocol(locationData, project, scope)
       case ScalaTestProtocol =>
         getLocationForScalaTestProtocol(locationData, project, scope)
@@ -104,6 +104,17 @@ object ScalaTestLocationProvider {
     res
   }
 
+  // TODO: fix SCL-8859
+  //  Classname is not actually classFqn!
+  //  Spec2 reports some trash in it's location line
+  //  (see org.jetbrains.plugins.scala.testingSupport.specs2.Spec2Utils.parseLocation)
+  //  Suppose you have some test class `class MySpec1 extends Specification` in package `org.example`
+  //  Spec2 will report `Specification.s2(MySpec1.scala:7)` as a location line!
+  //  Notice that:
+  //  1) class name is not actually test class name but the name of the base class
+  //  2) class name is not fully qualified
+  //  3) file name is not relevant to sources dir
+  //  So there is no possibility to distinguish between different test classes with same name in different packages!
   private def getLocationForScalaProtocol(locationData: String, project: Project, scope: GlobalSearchScope): ju.List[Location[_ <: PsiElement]] =
     locationData match {
       case SpecsHintPattern(className, fileName, lineNumber) =>

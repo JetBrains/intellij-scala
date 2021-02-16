@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport;
 
-import org.jetbrains.annotations.NotNull;
 import org.specs2.execute.Details;
 import org.specs2.execute.FailureDetails;
 
@@ -32,8 +31,6 @@ public class TestRunnerUtil {
     new PatternWithIndices(Pattern.compile("(.+) had length (.+) instead of expected length (.+)", Pattern.MULTILINE | Pattern.DOTALL), 2, 3);
   public static final PatternWithIndices SCALATEST_PATTERN_CLASSINSTANCE =
     new PatternWithIndices(Pattern.compile("(.+) was not an instance of (.+), but an instance of (.+)", Pattern.MULTILINE | Pattern.DOTALL), 3, 2);
-
-  public static final Pattern LOCATION_PATTERN = Pattern.compile("(\\S+)( \\((.+)\\))?");
 
   // from ServiceMessage
   private static final String FORMAT_WITHOUT_TZ = "yyyy-MM-dd'T'HH:mm:ss.SSS";
@@ -98,33 +95,6 @@ public class TestRunnerUtil {
       }
     }
     return "";
-  }
-
-  public static Location parseLocation(String location) {
-    Location location1 = new Location();
-    Matcher matcher = LOCATION_PATTERN.matcher(location);
-    if (matcher.matches()) {
-      location1.className = matcher.group(1);
-      if (matcher.groupCount() == 3) {
-        location1.fileNameAndLine = matcher.group(3);
-      }
-    }
-    return location1;
-  }
-
-  public static class Location {
-    String className;
-    String fileNameAndLine;
-
-    public String toHint() {
-      if (className == null) return "";
-      String s = " locationHint='scala://" + escapeString(className);
-      if (fileNameAndLine != null && !fileNameAndLine.isEmpty()) {
-        s += "?filelocation=" + escapeString(fileNameAndLine);
-      }
-      s += "'";
-      return s;
-    }
   }
 
   public static void configureReporter(String reporterQualName, boolean showProgressMessages) {
