@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 
 // todo: move to some inner package
+// TODO something is wrong with the highlighter, see comment in SCL-18701
 /**
  * TODO: Extract scaladoc highlighter completely,
  *  now it's something intermediate in
