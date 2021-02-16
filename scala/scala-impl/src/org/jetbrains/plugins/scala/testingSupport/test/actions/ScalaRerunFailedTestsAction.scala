@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.testingSupport.test.actions
 
 import java.util
 import java.util.stream.Collectors
-
 import com.intellij.execution.Executor
 import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.runners.ExecutionEnvironment
@@ -16,11 +15,12 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.annotations.ApiStatus
-import org.jetbrains.plugins.scala.extensions.IteratorExt
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt}
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.{PsiLocationWithName, ScalaTestLocationProvider}
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.actions.ScalaRerunFailedTestsAction.MyScalaRunProfile
 import org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitTestLocator
+import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2RunConfiguration
 
 import scala.jdk.CollectionConverters._
 
@@ -71,8 +71,16 @@ object ScalaRerunFailedTestsAction {
     override def getModules: Array[Module] = configuration.getModules
 
     override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
-      val failedSeq: Seq[(String, String)] = collectFailedTests(failedTestsProxies)
-      configuration.runStateProvider.commandLineState(env, Some(failedSeq))
+      val isSpec2 = configuration.is[Specs2RunConfiguration]
+      if (isSpec2) {
+        val classes = configuration.testConfigurationData.getTestMap.keys.toSeq
+        val failedSeq = getFailedTestsForSpec2(classes, failedTestsProxies)
+        configuration.runStateProvider.commandLineState(env, Some(failedSeq))
+      }
+      else {
+        val failedSeq: Seq[(String, String)] = collectFailedTests(failedTestsProxies)
+        configuration.runStateProvider.commandLineState(env, Some(failedSeq))
+      }
     }
 
     private def collectFailedTests(failedTestNodes: Seq[AbstractTestProxy]): Seq[(String, String)] =
@@ -83,11 +91,9 @@ object ScalaRerunFailedTestsAction {
       } yield (tailClassFqn, failedTestName)
 
     private def detectClassFqn(failedTest: AbstractTestProxy): Option[String] = {
-      val parents = Iterator.iterate(failedTest)(_.getParent).takeWhile(_ != null)
-      val parentLocations = parents.map(_.getLocationUrl)
-      val classFqns = parentLocations.flatMap { url =>
-        detectClassFqnFromUrl(url)
-      }
+      val parents = Iterator.iterate(failedTest)(_.getParent).takeWhile(_ != null).toSeq // TODO: remove toSeq
+      val parentLocations = parents.map(_.getLocationUrl).filter(_ != null)
+      val classFqns = parentLocations.flatMap(detectClassFqnFromUrl)
       classFqns.headOption
     }
 
@@ -105,6 +111,41 @@ object ScalaRerunFailedTestsAction {
         case PsiLocationWithName(_, _, testName) => testName
         case _                                   => failed.getName
       }
+    }
+
+    /**
+     * TODO: this is restored old Hacky solution, it doesn't work for test classes with same name but in different package.
+     *  Test location reporting for Spec2 should be rewritten: SCL-8859
+     */
+    private def getFailedTestsForSpec2(
+      classes: Seq[String],
+      failedTests: Seq[AbstractTestProxy]
+    ): Seq[(String, String)] = {
+
+      // (TODO: what about same classes in different modules?)
+      val classNameToFqn: Map[String, String] =
+        classes.groupBy(fqnToSimpleName).view.mapValues(_.head).toMap
+
+      for {
+        failedTest     <- failedTests
+        failedTestName = getFailedTestName(failedTest)
+        tailClassFqn   <- detectClassFqnForSpec2(failedTest, classNameToFqn)
+      } yield (tailClassFqn, failedTestName)
+    }
+
+    private def detectClassFqnForSpec2(failedTest: AbstractTestProxy, classNames: Map[String, String]): Option[String] = {
+      val parents = Iterator.iterate(failedTest.getParent)(_.getParent).takeWhile(_ != null)
+      (for {
+        parent <- parents
+        parentName = parent.getName
+        classFqn <- classNames.get(parentName)
+      } yield classFqn).headOption
+    }
+
+    private def fqnToSimpleName(classFqn: String): String = {
+      val i = classFqn.lastIndexOf(".")
+      if (i < 0) classFqn
+      else classFqn.substring(i + 1)
     }
   }
 }

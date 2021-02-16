@@ -53,7 +53,7 @@ public class JavaSpecs2Notifier implements Notifier {
     int parentId = descend();
     String message = String.format(
             "testSuiteStarted name='%s'%s nodeId='%d' parentNodeId='%d'",
-            escapeString(title), TestRunnerUtil.parseLocation(location).toHint(), getCurrentId(), parentId
+            escapeString(title), Spec2Utils.parseLocation(location).toHint(), getCurrentId(), parentId
     );
     report(message);
   }
@@ -70,7 +70,7 @@ public class JavaSpecs2Notifier implements Notifier {
     int parentId = descend();
     String message = String.format(
             "testSuiteStarted name='%s'%s nodeId='%d' parentNodeId='%d'",
-            escapeString(text), TestRunnerUtil.parseLocation(location).toHint(), getCurrentId(), parentId
+            escapeString(text), Spec2Utils.parseLocation(location).toHint(), getCurrentId(), parentId
     );
     report(message);
     if (myShowProgressMessages) {
@@ -87,7 +87,7 @@ public class JavaSpecs2Notifier implements Notifier {
     String message = String.format(
             "testSuiteFinished name='%s'%s nodeId='%d'",
             escapeString(text),
-            TestRunnerUtil.parseLocation(location).toHint(), getCurrentId()
+            Spec2Utils.parseLocation(location).toHint(), getCurrentId()
     );
     report(message);
     ascend();
@@ -100,7 +100,7 @@ public class JavaSpecs2Notifier implements Notifier {
   @Override
   public void exampleStarted(@NonNls String name, @NonNls String location) {
     int parentId = descend();
-    report("testStarted name='" + escapeString(name) + "'" + TestRunnerUtil.parseLocation(location).toHint() +
+    report("testStarted name='" + escapeString(name) + "'" + Spec2Utils.parseLocation(location).toHint() +
             " captureStandardOutput='true' nodeId='" + getCurrentId() + "' parentNodeId='" + parentId + "'");
   }
 
