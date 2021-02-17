@@ -795,6 +795,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           case (_: ScFunction, Class)            => cs.BLANK_LINES_AROUND_METHOD
           case (_: ScFunction, Trait)            => cs.BLANK_LINES_AROUND_METHOD_IN_INTERFACE
           case (_: ScFunction, LocalScope)       => ss.BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES
+          case (_: ScEnumCase, Class)            => 0 // TODO: add a setting for enum cases
           case (_: ScTypeDefinition, Class)      => cs.BLANK_LINES_AROUND_CLASS
           case (_: ScTypeDefinition, Trait)      => cs.BLANK_LINES_AROUND_CLASS
           case (_: ScTypeDefinition, LocalScope) => ss.BLANK_LINES_AROUND_CLASS_IN_INNER_SCOPES

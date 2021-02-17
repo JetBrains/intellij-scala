@@ -44,8 +44,10 @@ sealed abstract class Stat extends ParsingRule {
 object TemplateStat extends Stat
 
 /**
- * [[EnumStat]] ::= [[TemplateStat]]
- * | { [[Annotation]] [nl]} { [[Modifier]] } [[EnumCase]]
+ * {{{
+ *   EnumStat ::=  TemplateStat
+ *              |  {Annotation [nl]} {Modifier} EnumCase
+ * }}}
  */
 object EnumStat extends Stat {
 

@@ -86,7 +86,9 @@ object GivenTemplateBody extends Body(indentationCanStartWithoutColon = true) {
 }
 
 /**
- * [[EnumBody]] ::= [cnl] '{' [ [[SelfType]] ] [[EnumStat]] { semi [[EnumStat]] } '}'
+ * {{{
+ *   EnumBody  ::=  :<<< [SelfType] EnumStat { semi EnumStat } >>>
+ * }}}
  */
 object EnumBody extends Body {
   override protected def statementRule: EnumStat.type = EnumStat

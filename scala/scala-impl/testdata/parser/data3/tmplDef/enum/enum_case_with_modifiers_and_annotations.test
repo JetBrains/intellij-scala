@@ -1,0 +1,171 @@
+enum MyEnum {
+    protected case A
+    final case B // NOTE: onyly access modifiers are allowed, but we parse anyway
+    @annotation1 case C
+    @annotation1 @annotaiton2 protected final case D
+    @annotation1 @annotaiton2 protected final
+    case E
+}
+-----
+ScalaFile
+  ScEnum: MyEnum
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyEnum')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n    ')
+        ScEnumCase: A
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(protected)('protected')
+          PsiWhiteSpace(' ')
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('A')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n    ')
+        ScEnumCase: B
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('B')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// NOTE: onyly access modifiers are allowed, but we parse anyway')
+        PsiWhiteSpace('\n    ')
+        ScEnumCase: C
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: annotation1
+                    CodeReferenceElement: annotation1
+                      PsiElement(identifier)('annotation1')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('C')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n    ')
+        ScEnumCase: D
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: annotation1
+                    CodeReferenceElement: annotation1
+                      PsiElement(identifier)('annotation1')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: annotaiton2
+                    CodeReferenceElement: annotaiton2
+                      PsiElement(identifier)('annotaiton2')
+          PsiWhiteSpace(' ')
+          Modifiers
+            AccessModifier
+              PsiElement(protected)('protected')
+            PsiWhiteSpace(' ')
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('D')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n    ')
+        ScEnumCase: E
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: annotation1
+                    CodeReferenceElement: annotation1
+                      PsiElement(identifier)('annotation1')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: annotaiton2
+                    CodeReferenceElement: annotaiton2
+                      PsiElement(identifier)('annotaiton2')
+          PsiWhiteSpace(' ')
+          Modifiers
+            AccessModifier
+              PsiElement(protected)('protected')
+            PsiWhiteSpace(' ')
+            PsiElement(final)('final')
+          PsiWhiteSpace('\n    ')
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('E')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
