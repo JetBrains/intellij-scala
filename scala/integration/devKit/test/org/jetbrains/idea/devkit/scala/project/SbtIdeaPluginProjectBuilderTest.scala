@@ -39,7 +39,9 @@ class SbtIdeaPluginProjectBuilderTest extends TestCase {
       |</idea-plugin>
       |""".stripMargin
 
-  private val PLUGINS_SBT = """addSbtPlugin("org.jetbrains" % "sbt-idea-plugin" % "3.9.0")"""
+  private val PLUGINS_SBT =
+    """addSbtPlugin("org.jetbrains" % "sbt-idea-plugin" % "3.9.0")
+      |""".stripMargin
 
   private def doTest(content: String, replacements: Map[String, String]): Unit = {
     val result = replacePatterns(content, replacements)
@@ -75,7 +77,7 @@ class SbtIdeaPluginProjectBuilderTest extends TestCase {
 
   def testPluginsSbt(): Unit = {
     val replacements = Map(
-      """(^.*addSbtPlugin\(\s*"org.jetbrains"\s*%\s*"sbt-idea-plugin"\s*%\s*")([^"]+)("\s*\))""" -> "VERSION"
+      """(^.*addSbtPlugin\(\s*"org.jetbrains"\s*%\s*"sbt-idea-plugin"\s*%\s*")([^"]+)("\s*\).*$)""" -> "VERSION"
     )
     doTest(PLUGINS_SBT, replacements)
   }

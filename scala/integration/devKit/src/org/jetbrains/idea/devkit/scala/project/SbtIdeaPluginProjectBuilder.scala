@@ -85,7 +85,7 @@ class SbtIdeaPluginProjectBuilder extends AbstractArchivedSbtProjectBuilder {
     ))
 
     replaceInFile("project/plugins.sbt", Map(
-      """(^.*addSbtPlugin\(\s*"org.jetbrains"\s*%\s*"sbt-idea-plugin"\s*%\s*")([^"]+)("\s*\))""" -> sbtIdeaVersion
+      """(^.*addSbtPlugin\(\s*"org.jetbrains"\s*%\s*"sbt-idea-plugin"\s*%\s*")([^"]+)("\s*\).*$)""" -> sbtIdeaVersion
     ))
 
   }
