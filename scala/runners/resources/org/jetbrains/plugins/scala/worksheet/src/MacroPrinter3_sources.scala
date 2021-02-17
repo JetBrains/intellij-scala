@@ -25,7 +25,7 @@ object MacroPrinter3 {
     val printer = new dotty.tools.dotc.printing.ReplPrinter(ic)
 
     val quotesImpl = quotes.asInstanceOf[scala.quoted.runtime.impl.QuotesImpl]
-    val tpe1 = Term.of(expr).tpe
+    val tpe1 = expr.asTerm.tpe
     val tpe2 = tpe1.asInstanceOf[dotty.tools.dotc.core.Types.Type]
     val tpe3 = tpe2
       .deconst // avoid value types (val x: 42 = 42)
@@ -61,7 +61,15 @@ object MacroPrinter3 {
         case _                                  => typ.show
       }
 
-    def showDef(defName: String,  typeParams: List[TypeDef], paramss: List[List[ValDef]], returnTpt: TypeTree): String = {
+    def showDef(defDef: quotes.reflect.DefDef): String = {
+      val quotes.reflect.DefDef(defName, _, returnTpt, _) = defDef
+
+      val typeParams: List[quotes.reflect.TypeDef] = defDef.leadingTypeParams
+      // termParams returns List[TermParamClause], and TermParamClause is a type alias to List[ValDef],
+      // I don't know why the compiler can't accept it, so leave a cast here
+      val paramss: List[List[quotes.reflect.ValDef]] = defDef.termParamss
+        .asInstanceOf[List[List[ValDef]]]
+
       val typeParamsText = showTypeParams(typeParams)
       val paramsText = paramss.map(showParams).mkString("")
       val returnTypeText = showReturnType(returnTpt)
@@ -71,13 +79,13 @@ object MacroPrinter3 {
 
     def processStatements(statements: List[Statement]) =
       statements.headOption.flatMap {
-        case DefDef(name, typeParams, paramss, returnTpt, _) =>
-          Some(showDef(name, typeParams, paramss, returnTpt))
+        case defDef: quotes.reflect.DefDef =>
+          Some(showDef(defDef))
         case _ =>
           None
       }
 
-    val xTree: Term = Term.of(expr)
+    val xTree: Term = expr.asTerm
     val result = xTree match {
       case Block(statements, _)                => processStatements(statements)
       case Inlined(_, _, Block(statements, _)) => processStatements(statements)

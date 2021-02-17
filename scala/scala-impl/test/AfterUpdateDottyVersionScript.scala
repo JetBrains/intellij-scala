@@ -131,7 +131,12 @@ object AfterUpdateDottyVersionScript {
 
     override def testProjectJdkVersion = LanguageLevel.JDK_1_8
 
+    private def log(msg: String): Unit =
+      println(s"${this.getClass.getSimpleName}: $msg")
+
     def test(): Unit = {
+      log("start")
+
       val resourcesPath = scalaUltimateProjectDir.resolve(Paths.get(
         "community", "scala", "runners", "resources"
       ))
@@ -141,8 +146,10 @@ object AfterUpdateDottyVersionScript {
       val sourceFile = targetDir.resolve(Paths.get("src", sourceFileName))
       assertTrue(new File(sourceFile.toUri).exists())
 
+      log("reading source file")
       val sourceContent = readFile(sourceFile)
       addFileToProjectSources(sourceFileName, sourceContent)
+      log("compiling")
       compiler.make().assertNoProblems()
 
       val compileOutput = CompilerModuleExtension.getInstance(getModule).getCompilerOutputPath
@@ -157,10 +164,17 @@ object AfterUpdateDottyVersionScript {
         Set("MacroPrinter3$.class", "MacroPrinter3.class", "MacroPrinter3.tasty")
       )
 
+      log(
+        s"""copying ${classes.length} classes: $targetDir
+           |    from : $folderWithClasses
+           |    to   : $targetDir""".stripMargin
+      )
+
       classes.foreach { compiledFile =>
         val resultFile = targetDir.resolve(compiledFile.getName)
         Files.copy(compiledFile.toPath, resultFile, StandardCopyOption.REPLACE_EXISTING)
       }
+      log("end")
     }
   }
 
