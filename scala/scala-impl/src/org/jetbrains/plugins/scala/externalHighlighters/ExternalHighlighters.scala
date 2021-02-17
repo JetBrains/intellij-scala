@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
 import java.util.Collections
-
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, HighlightInfoType, UpdateHighlightersUtil}
 import com.intellij.openapi.editor.{Document, Editor, EditorFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.problems.WolfTheProblemSolver
 import com.intellij.psi.{JavaTokenType, PsiElement, PsiFile, PsiJavaToken, PsiManager, PsiWhiteSpace}
+import com.intellij.xml.util.XmlStringUtil
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, invokeLater}
 import org.jetbrains.plugins.scala.externalHighlighters.ExternalHighlighting.Pos
@@ -74,6 +74,7 @@ object ExternalHighlighters {
 
   private def toHighlightInfo(highlighting: ExternalHighlighting, editor: Editor): Option[HighlightInfo] = {
     val message = highlighting.message
+    //noinspection ReferencePassedToNls
     for {
       startOffset <- convertToOffset(highlighting.from, message, editor)
       highlightRange <- calculateRangeToHighlight(startOffset, highlighting.to, message, editor)
@@ -81,9 +82,17 @@ object ExternalHighlighters {
     } yield HighlightInfo
       .newHighlightInfo(highlighting.highlightType)
       .range(highlightRange)
-      .descriptionAndTooltip(description)
+      .description(description)
+      .escapedToolTip(escapeHtmlWithNewLines(description))
       .group(ScalaCompilerPassId)
       .create()
+  }
+
+  private def escapeHtmlWithNewLines(unescapedTooltip: String): String = {
+    val escaped0 = XmlStringUtil.escapeString(unescapedTooltip)
+    val escaped1 = escaped0.replace("\n", "<br>")
+    val escaped2 = XmlStringUtil.wrapInHtml(escaped1)
+    escaped2
   }
 
   private def calculateRangeToHighlight(startOffset: Int,
