@@ -85,7 +85,7 @@ object ImportSelectors extends ParsingRule {
               importSelectorMarker.done(ScalaElementType.IMPORT_SELECTORS)
               true
           }
-        case ScalaTokenTypes.tIDENTIFIER | ScalaTokenType.GivenKeyword | ScalaTokenType.WildcardStar =>
+        case ScalaTokenTypes.tIDENTIFIER | ScalaTokenType.GivenKeyword | ScalaTokenType.WildcardStar | ScalaTokenTypes.tUNDER =>
           ImportSelector()
           parseNext(expectComma = true)
 

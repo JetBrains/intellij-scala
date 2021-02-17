@@ -21,11 +21,13 @@ object ImportSelector extends ParsingRule {
       case InScala3(ScalaTokenTypes.tIDENTIFIER) if builder.tryParseSoftKeyword(ScalaTokenType.WildcardStar) =>
         importSelectorMarker.done(ScalaElementType.IMPORT_SELECTOR)
         return true
+      case ScalaTokenTypes.tUNDER =>
+        builder.advanceLexer()
+        importSelectorMarker.done(ScalaElementType.IMPORT_SELECTOR)
+        return true
       case ScalaTokenType.GivenKeyword =>
         builder.advanceLexer()
-        if (!InfixType.parse(builder)) {
-          builder error ErrMsg("type.expected")
-        }
+        InfixType.parse(builder)
         importSelectorMarker.done(ScalaElementType.IMPORT_SELECTOR)
         return true
       case ScalaTokenTypes.tIDENTIFIER =>

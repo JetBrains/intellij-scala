@@ -42,14 +42,12 @@ object ImportExpr extends ParsingRule {
     builder.advanceLexer() // ate .
 
     builder.getTokenType match {
-      case ScalaTokenTypes.tUNDER if !builder.isScala3 => builder.advanceLexer() //Ate _ or *
+      case ScalaTokenTypes.tUNDER => builder.advanceLexer() //Ate _ or *
       case InScala3(_) if builder.tryParseSoftKeyword(ScalaTokenType.WildcardStar) =>
       case ScalaTokenTypes.tLBRACE => ImportSelectors()
       case ScalaTokenType.GivenKeyword =>
         builder.advanceLexer() // Ate given
-        if (!InfixType.parse(builder)) {
-          builder error ErrMsg("type.expected")
-        }
+        InfixType.parse(builder)
       case _ => builder error ErrMsg("identifier.or.opening.brace.expected")
     }
     importExprMarker.done(ScalaElementType.IMPORT_EXPR)
