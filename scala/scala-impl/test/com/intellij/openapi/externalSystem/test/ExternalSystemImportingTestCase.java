@@ -397,7 +397,7 @@ public abstract class ExternalSystemImportingTestCase extends ExternalSystemTest
     if (sdk != null) {
       ((SbtProjectSettings) projectSettings).jdk_$eq(sdk.getName());
     }
-    Set<ExternalProjectSettings> settings = ContainerUtilRt.newHashSet(systemSettings.getLinkedProjectsSettings());
+    Set<ExternalProjectSettings> settings = new HashSet<ExternalProjectSettings>(systemSettings.getLinkedProjectsSettings());
     settings.remove(projectSettings);
     settings.add(projectSettings);
     systemSettings.setLinkedProjectsSettings(settings);

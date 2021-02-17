@@ -4,6 +4,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.table.TableView;
@@ -74,11 +75,9 @@ public class SdkSelectionDialog extends JDialog {
 
     @NotNull
     private Task.Backgroundable createScanTask(VirtualFile contextDirectory, @Nullable Runnable whenFinished) {
-        Project maybeProject = ProjectUtil.guessCurrentProject(myParent);
         return new Task.Backgroundable(null,
                 ScalaBundle.message("sdk.scan.title", ""),
-                true,
-                () -> !maybeProject.isDefault()) {
+                true) {
 
             private void addToTable(SdkChoice sdkChoice) {
                 ApplicationManager.getApplication().invokeLater(() -> {

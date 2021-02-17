@@ -150,7 +150,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
             public void actionPerformed(ActionEvent e) {
                 myNameComboBox.requestFocus();
             }
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.ALT_MASK), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.ALT_DOWN_MASK), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         for (String possibleName : possibleNames) {
             myNameComboBox.addItem(possibleName);

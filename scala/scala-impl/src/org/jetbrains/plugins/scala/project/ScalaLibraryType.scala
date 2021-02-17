@@ -17,9 +17,9 @@ import org.jetbrains.plugins.scala.ScalaBundle
  */
 final class ScalaLibraryType extends LibraryType[ScalaLibraryProperties](ScalaLibraryType.Kind) {
 
-  override def getIcon: Icon = icons.Icons.SCALA_SDK
+  override def getIcon(properties: ScalaLibraryProperties): Icon = icons.Icons.SCALA_SDK
 
-  override def getCreateActionName = ScalaBundle.message("library.type.scala.sdk")
+  override def getCreateActionName: String = ScalaBundle.message("library.type.scala.sdk")
 
   override def createNewLibrary(parent: JComponent,
                                 contextDirectory: VirtualFile,

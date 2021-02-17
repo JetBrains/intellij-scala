@@ -4,6 +4,7 @@ import com.intellij.codeInspection.LocalQuickFixOnPsiElement
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.libraries.{LibraryTable, LibraryTablesRegistrar}
+import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ModuleStructureConfigurable
 import com.intellij.openapi.roots.ui.configuration.projectRoot.daemon.ModuleProjectStructureElement
 import com.intellij.psi.{PsiElement, PsiFile}
@@ -51,7 +52,7 @@ class CreateImportedLibraryQuickFix(private val myPsi: PsiElement) extends Local
                   moduleModel.addLibraryEntry(lib)
                   moduleModel.commit()
 
-                  Option(ModuleStructureConfigurable.getInstance(project).getContext).foreach (
+                  Option(ProjectStructureConfigurable.getInstance(project).getModulesConfig.getContext).foreach (
                     context => Option(context.getDaemonAnalyzer).foreach(
                       _.queueUpdate(new ModuleProjectStructureElement(context, module))
                     )

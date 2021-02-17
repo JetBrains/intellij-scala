@@ -156,7 +156,7 @@ public class MouseHoverHandler implements ProjectManagerListener {
         int selStart = editor.getSelectionModel().getSelectionStart();
         int selEnd = editor.getSelectionModel().getSelectionEnd();
 
-        int myStoredModifiers = mouseEvent.getModifiers();
+        int myStoredModifiers = mouseEvent.getModifiersEx();
         final BrowseMode browseMode = getBrowseMode(myStoredModifiers);
 
         if (myTooltipProvider != null) {

@@ -30,6 +30,9 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
   private var formatterSelectorComboBox: JComboBox[String] = _
   private var outerPanel: JPanel = _
   private var shortenedPanel: ScalafmtTabbedLanguageCodeStylePanel = _
+  // TODO: rework this whole project juggling mess, there should be a straightforward way of depending on a project
+  //  from code style settings panels
+  private var typeAnnotationsPanel: TypeAnnotationsPanel = _
 
   override def dispose(): Unit = {
     super.dispose()
@@ -45,7 +48,7 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
     addTab(new ScalaDocFormattingPanel(settings))
     addTab(new ImportsPanel(settings))
     addTab(new MultiLineStringCodeStylePanel(settings))
-    addTab(new TypeAnnotationsPanel(settings))
+    addTab({typeAnnotationsPanel = new TypeAnnotationsPanel(settings); typeAnnotationsPanel})
     addTab(new ScalaArrangementPanel(settings))
     addTab(new OtherCodeStylePanel(settings))
     initOuterFormatterPanel()
@@ -128,7 +131,10 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
     toggleSettingsVisibility(false)
   }
 
-  def onProjectSet(project: Project): Unit = shortenedPanel.onProjectSet(project)
+  def onProjectSet(project: Project): Unit = {
+    shortenedPanel.onProjectSet(project)
+    typeAnnotationsPanel.onProjectSet(project)
+  }
 
   // scalaFmtSettingsPanel.setModel should be called in order that its settings are saved properly
   // setModel in TabbedLanguageCodeStylePanel is final so we can't override and have to use workaround method

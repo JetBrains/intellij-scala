@@ -4,12 +4,12 @@ package formatting
 package settings
 
 import java.util
-
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
-import com.intellij.openapi.project.ProjectUtil
+import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.util.execution.ParametersListUtil
+
 import javax.swing._
 import org.jetbrains.plugins.scala.extensions.Binding
 
@@ -86,6 +86,17 @@ final class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnota
     )
   }
 
+  private var projectOpt: Option[Project] = None
+
+  def onProjectSet(aProject: Project): Unit = {
+    projectOpt = Some(aProject)
+  }
+
+  override def dispose(): Unit = {
+    projectOpt = None
+    super.dispose()
+  }
+
   override protected def getPanel: JComponent = myContent
 
   override protected def isModified(settings: CodeStyleSettings): Boolean =
@@ -97,7 +108,7 @@ final class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnota
   override protected def apply(settings: CodeStyleSettings): Unit = {
     bindingsFor(settings).foreach(it => it.copyRightToLeft())
 
-    Option(ProjectUtil.guessCurrentProject(myContent)).foreach { project =>
+    projectOpt.foreach { project =>
       DaemonCodeAnalyzer.getInstance(project).restart()
     }
   }

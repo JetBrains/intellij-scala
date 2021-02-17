@@ -166,7 +166,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
         }
 
 
-        contentPane.registerKeyboardAction(e -> myTypeComboBox.requestFocus(), KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.ALT_MASK), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        contentPane.registerKeyboardAction(e -> myTypeComboBox.requestFocus(), KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.ALT_DOWN_MASK), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         updateEnablingTypeList();
     }
@@ -230,7 +230,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
                                                                                                 }
         );
 
-        contentPane.registerKeyboardAction(e -> myNameComboBox.requestFocus(), KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.ALT_MASK), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        contentPane.registerKeyboardAction(e -> myNameComboBox.requestFocus(), KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.ALT_DOWN_MASK), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         for (String possibleName : possibleNames) {
             myNameComboBox.addItem(possibleName);
