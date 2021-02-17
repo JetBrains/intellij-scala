@@ -11,7 +11,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.params.ClassConstr
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.ConstrApps
 
 /**
- * [[EnumCase]] ::= 'case' ( id [[ClassConstr]] [ 'extends' [[ConstrApps]] ] | [[Ids]] )
+ * {{{
+ *   EnumCase ::= 'case' ( id ClassConstr [ 'extends' ConstrApps ] | Ids )
+ * }}}
  */
 object EnumCase extends ParsingRule {
 
@@ -50,11 +52,11 @@ object EnumCase extends ParsingRule {
             marker.done(targetElementType)
             true
           case _ =>
-            marker.drop()
+            marker.rollbackTo()
             false
         }
       case _ =>
-        marker.drop()
+        marker.rollbackTo()
         false
     }
   }
