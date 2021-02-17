@@ -48,6 +48,7 @@ object ScalaTokenType {
   val SpliceStart = new ScalaTokenType("$")
   val QuoteStart  = new ScalaTokenType("'")
 
+  val WildcardStar              = new ScalaTokenType("*")
   val WildcardTypeQuestionMark  = new ScalaTokenType("?")
   val TypeLambdaArrow           = new ScalaTokenType("=>>")
   val ImplicitFunctionArrow     = new ScalaTokenType("?=>")

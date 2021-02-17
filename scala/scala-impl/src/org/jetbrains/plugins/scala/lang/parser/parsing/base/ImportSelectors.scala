@@ -6,7 +6,7 @@ package base
 
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.util.{InScala3, ParserUtils}
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 import scala.annotation.tailrec
 
@@ -71,10 +71,7 @@ object ImportSelectors extends ParsingRule {
           builder error ErrMsg("import.selector.expected")
           doneImportSelectors()
           true
-        case InScala3(ScalaTokenTypes.tUNDER | ScalaTokenType.GivenKeyword) =>
-          builder.advanceLexer()
-          parseNext(expectComma = true)
-        case ScalaTokenTypes.tUNDER =>
+        case ScalaTokenTypes.tUNDER if !builder.isScala3 =>
           builder.advanceLexer() //Ate _
           builder.getTokenType match {
             case ScalaTokenTypes.tRBRACE =>
@@ -88,7 +85,7 @@ object ImportSelectors extends ParsingRule {
               importSelectorMarker.done(ScalaElementType.IMPORT_SELECTORS)
               true
           }
-        case ScalaTokenTypes.tIDENTIFIER =>
+        case ScalaTokenTypes.tIDENTIFIER | ScalaTokenType.GivenKeyword | ScalaTokenType.WildcardStar =>
           ImportSelector()
           parseNext(expectComma = true)
 

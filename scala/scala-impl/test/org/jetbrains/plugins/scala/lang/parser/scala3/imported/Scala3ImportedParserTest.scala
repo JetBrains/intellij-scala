@@ -78,13 +78,13 @@ abstract class Scala3ImportedParserTestBase(dir: String) extends ScalaFileSetTes
 
   def findInterlacedRanges(root: PsiElement, testName: String): Seq[(PsiElement, (TextRange, String))] = {
     val ranges = RangeMap.fromFileOrEmpty(Paths.get(getTestDataPath, rangesDirectory, testName + ".ranges"))
-    val ignoredNames = Set("Import", "Export")
+    //val ignoredNames = Set("Import", "Export")
     for {
       e <- root.depthFirst()
       range = e.getTextRange
       interlaced = ranges.interlaced(if (isStringPart(e)) range else trimRanges(root, range)).toMap
       interlace <- interlaced
-      if !ignoredNames(interlace._2)
+      //if !ignoredNames(interlace._2)
       if !isInterlaceBecauseOfSemicolon(range, interlace)
     } yield e -> interlace
   }.toSeq

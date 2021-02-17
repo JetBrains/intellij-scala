@@ -6,8 +6,8 @@ package types
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
@@ -33,10 +33,7 @@ object StableId {
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
         builder.advanceLexer()
-        if (stopAtImportEnd(builder, forImport)) {
-          marker.done(element)
-          return true
-        } else if (builder.getTokenType == tDOT && !builder.lookAhead(tDOT, kTYPE) && !isMatchAfterDot(builder)) {
+        if (builder.getTokenType == tDOT && !shouldStopBeforeDot(forImport)(builder)) {
           val nm = marker.precede
           if (builder.lookAhead(tDOT, kTHIS) || builder.lookAhead(tDOT, kSUPER))
             marker.done(REFERENCE)
@@ -44,17 +41,18 @@ object StableId {
             marker.done(element)
           builder.advanceLexer() // ate dot
           builder.getTokenType match {
-            case ScalaTokenTypes.tIDENTIFIER => return parseQualId(builder, nm, element, forImport)
-            case ScalaTokenTypes.kTHIS => return parseThisReference(builder, nm, element, forImport)
-            case ScalaTokenTypes.kSUPER => return parseSuperReference(builder, nm, element, forImport)
+            case ScalaTokenTypes.tIDENTIFIER => parseQualId(builder, nm, element, forImport)
+            case ScalaTokenTypes.kTHIS => parseThisReference(builder, nm, element, forImport)
+            case ScalaTokenTypes.kSUPER => parseSuperReference(builder, nm, element, forImport)
             case _ =>
               builder error ErrMsg("identifier.expected")
               nm.drop()
-              return true
+              true
           }
+        } else {
+          marker.done(element)
+          true
         }
-        marker.done(element)
-        true
       case ScalaTokenTypes.kTHIS => parseThisReference(builder, marker, element, forImport)
       case ScalaTokenTypes.kSUPER => parseSuperReference(builder, marker, element, forImport)
       case _ =>
@@ -124,10 +122,7 @@ object StableId {
       return true
     }
     builder.advanceLexer()
-    if (stopAtImportEnd(builder, forImport)) {
-      nm.done(element)
-      true
-    } else if (builder.getTokenType == tDOT && !builder.lookAhead(tDOT, kTYPE) && !isMatchAfterDot(builder)) {
+    if (builder.getTokenType == tDOT && !shouldStopBeforeDot(forImport)(builder)) {
       val nm1 = nm.precede()
       nm.done(element)
       builder.advanceLexer()
@@ -147,10 +142,7 @@ object StableId {
       return true
     }
     builder.advanceLexer() // ate identifier
-    if (stopAtImportEnd(builder, forImport)) {
-      marker.done(element)
-      true
-    } else if (builder.getTokenType == tDOT && !builder.lookAhead(tDOT, kTYPE) && !isMatchAfterDot(builder)) {
+    if (builder.getTokenType == tDOT && !builder.lookAhead(tDOT, kTYPE) && !shouldStopBeforeDot(forImport)(builder)) {
       val nm = marker.precede
       marker.done(element)
       builder.advanceLexer() // ate dot
@@ -161,12 +153,14 @@ object StableId {
     }
   }
 
-  def stopAtImportEnd(builder: ScalaPsiBuilder, forImport: Boolean): Boolean = forImport && isImportEnd(builder)
-
-  def isImportEnd(builder: ScalaPsiBuilder): Boolean = {
-    builder.lookAhead(tDOT, tUNDER) || builder.lookAhead(tDOT, tLBRACE)
+  private def shouldStopBeforeDot(forImport: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
+    val lookAhead = builder.lookAhead(1)
+    lookAhead match {
+      case `kTYPE` => true
+      case `tUNDER` | `tLBRACE` | ScalaTokenType.GivenKeyword if forImport => true
+      case `kMATCH` if builder.isScala3 => true
+      case `tIDENTIFIER` if builder.isScala3 && builder.predict(_.getTokenText == "*") => true
+      case _ => false
+    }
   }
-
-  private def isMatchAfterDot(builder: ScalaPsiBuilder): Boolean =
-    builder.isScala3 && builder.lookAhead(tDOT, kMATCH)
 }
