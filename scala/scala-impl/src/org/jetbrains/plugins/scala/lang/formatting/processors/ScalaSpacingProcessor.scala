@@ -38,8 +38,10 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 
+// TODO: setup SCoverage for scala plugin, run tests and see
+//  which branches of formatter subsystem are potentially dead code or uncovered
 //noinspection InstanceOf
 object ScalaSpacingProcessor extends ScalaTokenTypes {
 
@@ -53,11 +55,13 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
   }
 
   // TODO: minimize getText usages
+  @deprecated("do not access block text directly, this potentially can be a heavyweight operation, use AST nodes")
   private def getText(node: ASTNode, fileText: CharSequence): String = {
     fileText.substring(node.getTextRange)
   }
 
   // TODO: minimize getText usages
+  @deprecated("do not access block text directly, this potentially can be a heavyweight operation, use AST nodes")
   private def getText(psi: PsiElement, fileText: CharSequence): String = {
     getText(psi.getNode, fileText)
   }
@@ -137,6 +141,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
   // extra method for easier debugging
   // (the method contains a lot of returns, and it's hard to just debug the result for specific input)
   @inline
+  @nowarn("cat=deprecation")
   private def getSpacingImpl(
                               left: ScalaBlock,
                               right: ScalaBlock,
@@ -211,6 +216,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
      *
      * @todo consider not using substring for left and right: for big notes it's not cheep operation
      */
+    @deprecated("do not access block text directly, this potentially can be a heavyweight operation, use AST nodes")
     val (leftBlockString, rightBlockString) =
       if (fileTextRange.contains(leftTextRange) && fileTextRange.contains(rightTextRange)) {
         (fileText.substring(leftTextRange), fileText.substring(rightTextRange))
@@ -1025,17 +1031,21 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         return WITH_SPACING
       else return WITHOUT_SPACING
     }
-    if (rightPsi.isInstanceOf[ScArguments] &&
+
+    if (rightPsi.is[ScArgumentExprList, ScPatternArgumentList] && (
       leftNode.getTreeParent.getPsi.is[ScMethodCall, ScConstructorInvocation, ScGenericCall] ||
-      rightPsi.isInstanceOf[ScArguments] && rightNode.getTreeParent.getPsi.isInstanceOf[ScSelfInvocation] &&
-        getText(leftNode, fileText) == "this") {
-      return if (settings.SPACE_BEFORE_METHOD_CALL_PARENTHESES && !rightBlockString.startsWith("{") &&
-        (leftNode.getLastChildNode == null || !leftNode.getLastChildNode.getPsi.isInstanceOf[ScArguments]) &&
-        !leftPsi.isInstanceOf[ScArguments]) WITH_SPACING
-      else if (scalaSettings.SPACE_BEFORE_BRACE_METHOD_CALL && rightBlockString.startsWith("{")) WITH_SPACING
-      else if (settings.SPACE_BEFORE_TYPE_PARAMETER_LIST && rightBlockString.startsWith("[")) WITH_SPACING
-      else WITHOUT_SPACING
+        rightNode.getTreeParent.getPsi.is[ScSelfInvocation] && leftElementType == ScalaTokenTypes.kTHIS
+      )) {
+      val result =
+        if (settings.SPACE_BEFORE_METHOD_CALL_PARENTHESES && !rightBlockString.startsWith("{") &&
+          (leftNode.getLastChildNode == null || !leftNode.getLastChildNode.getPsi.isInstanceOf[ScArguments]) &&
+          !leftPsi.isInstanceOf[ScArguments]) WITH_SPACING
+        else if (scalaSettings.SPACE_BEFORE_BRACE_METHOD_CALL && rightBlockString.startsWith("{")) WITH_SPACING
+        else WITHOUT_SPACING
+
+      return result
     }
+
     if (rightNode.getTreeParent.getPsi.isInstanceOf[ScSelfInvocation] &&
       leftNode.getTreeParent.getPsi.isInstanceOf[ScSelfInvocation] && leftPsi.isInstanceOf[ScArguments] &&
       rightPsi.isInstanceOf[ScArguments]) {
@@ -1182,22 +1192,28 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       }
     }
 
-    //proccessing sqbrackets
+    //processing square brackets "[]"
     if (leftElementType == ScalaTokenTypes.tLSQBRACKET) {
-      if (rightElementType == ScalaTokenTypes.tRSQBRACKET) {
-        return WITHOUT_SPACING
-      }
-      else {
-        if (settings.SPACE_WITHIN_BRACKETS) return WITH_SPACING
-        else return WITHOUT_SPACING
-      }
+      val result =
+        if (rightElementType == ScalaTokenTypes.tRSQBRACKET)
+          WITHOUT_SPACING
+        else if (settings.SPACE_WITHIN_BRACKETS)
+          WITH_SPACING
+        else
+          WITHOUT_SPACING
+      return result
     }
-    if (rightElementType == ScalaTokenTypes.tRSQBRACKET) {
-      if (settings.SPACE_WITHIN_BRACKETS) return WITH_SPACING
-      else return WITHOUT_SPACING
-    }
-    if (rightBlockString.startsWith("[")) {
-      return if (scalaSettings.SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST) WITH_SPACING else WITHOUT_SPACING
+    rightElementType match {
+      case ScalaTokenTypes.tRSQBRACKET =>
+        return if (settings.SPACE_WITHIN_BRACKETS)  WITH_SPACING else WITHOUT_SPACING
+      case ScalaElementType.TYPE_PARAM_CLAUSE =>
+        return if (scalaSettings.SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST) WITH_SPACING else WITHOUT_SPACING
+      case ScalaElementType.TYPE_ARGS  =>
+        return if (settings.SPACE_BEFORE_TYPE_PARAMETER_LIST) WITH_SPACING else WITHOUT_SPACING
+      case ScalaElementType.TYPE_LAMBDA =>
+        return COMMON_SPACING
+      case _ =>
+        //continue
     }
 
     //special for "case <caret> =>" (for SurroundWith)
@@ -1210,8 +1226,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       return WITH_SPACING_DEPENDENT(leftNode.getTreeParent.getTreeParent.getTextRange)
     }
 
-    (leftElementType, rightElementType,
-      leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {
+
+    (leftElementType, rightElementType, leftNodeParentElementType, rightNodeParentElementType) match {
       case (ScalaTokenTypes.tFUNTYPE, ScalaElementType.BLOCK, ScalaElementType.FUNCTION_EXPR, _)
         if !scalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE =>
         if (rightBlockString.startsWith("{")) WITH_SPACING

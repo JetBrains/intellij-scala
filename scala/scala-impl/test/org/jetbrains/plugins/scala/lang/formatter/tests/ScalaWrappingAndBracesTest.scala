@@ -603,8 +603,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
         |                            3
         |                          )
         |                        .kek
-        |                          [String](4)
-      """.stripMargin
+        |                          [String](4)""".stripMargin
     doTextTest(before, after)
   }
 

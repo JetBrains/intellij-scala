@@ -2456,20 +2456,6 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testSCL7690(): Unit = {
-    getCommonSettings.SPACE_BEFORE_TYPE_PARAMETER_LIST = true
-    val before = "bar[A, B]()"
-    val after = "bar [A, B]()"
-    doTextTest(before, after)
-  }
-
-  def testSCL7690_1(): Unit = {
-    getScalaSettings.SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST = true
-    val before = "def bar[A, B]: Int = 42"
-    val after = "def bar [A, B]: Int = 42"
-    doTextTest(before, after)
-  }
-
   def testSCL9066(): Unit = {
     getScalaSettings.TRY_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_ALWAYS
     val before =
