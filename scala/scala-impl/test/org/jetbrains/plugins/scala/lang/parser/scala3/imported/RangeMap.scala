@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser.scala3.imported
 
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.extensions.TextRangeExt
 
 import java.io.FileNotFoundException
 import java.nio.file.Path
@@ -22,7 +23,7 @@ case class RangeMap[+T] private(private val sortedRanges: SortedMap[Int, (TextRa
    * Two ranges are interlaced if they intersect but neither is a sub-range of the other.
    */
   def interlaced(range: TextRange): Iterator[(TextRange, T)] =
-    intersections(range).filter(r => RangeMap.interlaced(r._1, range))
+    intersections(range).filter(_._1 interlaces range)
 }
 
 object RangeMap {
@@ -46,7 +47,4 @@ object RangeMap {
     catch {
       case _: FileNotFoundException => empty
     }
-
-  private def interlaced(a: TextRange, b: TextRange): Boolean =
-    a.intersectsStrict(b) && !a.contains(b) && !b.contains(a)
 }

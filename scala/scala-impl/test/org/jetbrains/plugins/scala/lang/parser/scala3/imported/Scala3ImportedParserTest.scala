@@ -81,9 +81,11 @@ abstract class Scala3ImportedParserTestBase(dir: String) extends ScalaFileSetTes
     val ignoredNames = Set("Import", "Export")
     for {
       e <- root.depthFirst()
-      interlaced = ranges.interlaced(if (isStringPart(e)) e.getTextRange else trimRanges(root, e.getTextRange)).toMap
+      range = e.getTextRange
+      interlaced = ranges.interlaced(if (isStringPart(e)) range else trimRanges(root, range)).toMap
       interlace <- interlaced
       if !ignoredNames(interlace._2)
+      if !isInterlaceBecauseOfSemicolon(range, interlace)
     } yield e -> interlace
   }.toSeq
 
@@ -98,6 +100,20 @@ abstract class Scala3ImportedParserTestBase(dir: String) extends ScalaFileSetTes
       val trailingWs = text.reverseIterator.takeWhile(_.isWhitespace).size
       new TextRange(range.getStartOffset + leadingWs, range.getEndOffset - trailingWs)
     }
+  }
+
+  // In the Scala3 Compiler semicolons might be attached to identifiers,
+  // leading to interlaced ranges
+  // Example (:
+  //   Scala3:  left +[right ;]
+  //   We:     [left + right];
+  def isInterlaceBecauseOfSemicolon(intellijRange: TextRange, interlace: (TextRange, String)): Boolean = {
+    val (scala3Range, text) = interlace
+
+    // adjust ranges
+    val newScala3Range = scala3Range.shiftEnd(-text.reverseIterator.count(c => c.isWhitespace || c == ';'))
+
+    !newScala3Range.isEmpty && (scala3Range interlaces intellijRange)
   }
 
   protected def shouldHaveErrors: Boolean

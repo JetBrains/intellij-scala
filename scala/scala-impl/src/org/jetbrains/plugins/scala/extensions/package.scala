@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.{Callable, ScheduledFuture, TimeUnit, ConcurrentMap => JConcurrentMap, Future => JFuture}
 import java.util.regex.Pattern
 import java.util.{Arrays, Set => JSet}
+
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.ide.plugins.DynamicPluginListener
@@ -527,6 +528,15 @@ package object extensions {
     def shiftStart(delta: Int): TextRange = TextRange.create(target.getStartOffset + delta, target.getEndOffset)
     def shiftEnd(delta: Int): TextRange = TextRange.create(target.getStartOffset, target.getEndOffset + delta)
     def toTuple: (Int, Int) = (target.getStartOffset, target.getEndOffset)
+
+    /**
+     * Checks if two ranges are intersecting while not being subranges of each other.
+     *
+     * Interlacing:     (   [   )   ]
+     * Not interlacing: (   [   ]   )
+     */
+    def interlaces(rhs: TextRange): Boolean =
+      target.intersectsStrict(rhs) && !target.contains(rhs) && !rhs.contains(target)
   }
 
   object TextRangeExt {
