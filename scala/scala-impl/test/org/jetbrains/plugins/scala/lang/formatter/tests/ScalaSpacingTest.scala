@@ -18,13 +18,13 @@ class ScalaSpacingTest extends AbstractScalaFormatterTestBase {
   // tries to set all possible values to some boolean settings and run the test
   // in theory there are 2^N combinations but we do not expect much setters in these unit tests
   private def forAnyValue(setters: (Boolean => Unit)*)(testBody: () => Any): Unit = setters.toList match {
-    case Nil          =>
+    case Nil                    =>
       testBody()
-    case head :: tail =>
-      head(false)
-      forAnyValue(tail: _*)(testBody)
-      head(true)
-      forAnyValue(tail: _*)(testBody)
+    case setter :: otherSetters =>
+      setter(false)
+      forAnyValue(otherSetters: _*)(testBody)
+      setter(true)
+      forAnyValue(otherSetters: _*)(testBody)
   }
 
   def testSpaceBeforeTypeColon(): Unit = {
@@ -163,4 +163,93 @@ class ScalaSpacingTest extends AbstractScalaFormatterTestBase {
         |def foo[F[-_]] = ???
         |""".stripMargin
     )
+
+  // SCL-7690
+  def testTypeParams_SpaceBeforeBrackets(): Unit = {
+    val before =
+      """def foo   [String]() = 42
+        |def bar[A, B]: Int = 42
+        |""".stripMargin
+
+    // NOTE:
+    // SPACE_BEFORE_TYPE_PARAMETER_LIST setting should not affect the result
+
+    scalaSettings.SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST = false
+    doTextTestForAnyValue(
+      before,
+      """def foo[String]() = 42
+        |def bar[A, B]: Int = 42
+        |""".stripMargin
+    )(commonSettings.SPACE_BEFORE_TYPE_PARAMETER_LIST = _)
+
+    scalaSettings.SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST = true
+    doTextTestForAnyValue(before,
+    """def foo [String]() = 42
+      |def bar [A, B]: Int = 42
+      |""".stripMargin
+    )(commonSettings.SPACE_BEFORE_TYPE_PARAMETER_LIST = _)
+  }
+
+  def testTypeArgs_SpaceBeforeBrackets(): Unit = {
+    val before =
+      """foo   [String]()
+        |bar[A, B]()
+        |""".stripMargin
+
+    commonSettings.SPACE_BEFORE_TYPE_PARAMETER_LIST = false
+    doTextTestForAnyValue(
+      before,
+      """foo[String]()
+        |bar[A, B]()
+        |""".stripMargin
+    )(scalaSettings.SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST = _)
+
+    commonSettings.SPACE_BEFORE_TYPE_PARAMETER_LIST = true
+    doTextTestForAnyValue(
+      before,
+      """foo [String]()
+        |bar [A, B]()
+        |""".stripMargin
+    )(scalaSettings.SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST = _)
+  }
+
+  def testTypeArgs_SpaceBeforeBrackets_InMethodChain(): Unit = {
+    val before =
+      """val a = method1  [String]()
+        |  .method2[String](
+        |    "1", "2"
+        |  )
+        |  .method3   [String](
+        |    "3", "4"
+        |  )""".stripMargin
+
+    // NOTE:
+    // SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST settings should not affect the result
+
+    commonSettings.SPACE_BEFORE_TYPE_PARAMETER_LIST = false
+    doTextTestForAnyValue(
+      before,
+      """val a = method1[String]()
+        |  .method2[String](
+        |    "1", "2"
+        |  )
+        |  .method3[String](
+        |    "3", "4"
+        |  )
+        |""".stripMargin
+    )(scalaSettings.SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST = _)
+
+    commonSettings.SPACE_BEFORE_TYPE_PARAMETER_LIST = true
+    doTextTestForAnyValue(
+      before,
+      """val a = method1 [String]()
+        |  .method2 [String](
+        |    "1", "2"
+        |  )
+        |  .method3 [String](
+        |    "3", "4"
+        |  )
+        |""".stripMargin
+    )(scalaSettings.SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST = _)
+  }
 }

@@ -152,4 +152,42 @@ class Scala3FormatterTest extends AbstractScalaFormatterTestBase {
       |}
       |""".stripMargin
   )
+
+  def testTypeLambda_InAlias(): Unit = {
+    val after = "type Tuple = [X] =>> (X, X)"
+    val before1 = "type Tuple=[X]=>>(X,X)"
+    val before2 = "type   Tuple  =  [  X  ]  =>>  (  X  ,  X  )"
+
+    doTextTest(after, after)
+    doTextTest(before1, after)
+    doTextTest(before2, after)
+  }
+
+  def testTypeLambda_WithBounds_InAlias(): Unit = {
+    val after = "type TL1 = [X >: L1 <: U1] =>> R1"
+    val before1 = "type TL1=[X>:L1<:U1]=>>R1"
+    val before2 = "type  TL1  =  [  X  >:  L1  <:  U1  ]  =>>  R1"
+
+    doTextTest(after, after)
+    doTextTest(before1, after)
+    doTextTest(before2, after)
+  }
+
+  def testTypeLambda_AsTypeAliasTypeParameterBound(): Unit = {
+    val after = "type T >: ([X] =>> L) <: ([X] =>> U)"
+    val before1 = "type T>:([X]=>>L)<:([X]=>>U)"
+    val before2 = "type T  >:  (  [  X  ]  =>>  L  )  <:  (  [  X  ]  =>>  U  )"
+    doTextTest(after, after)
+    doTextTest(before1, after)
+    doTextTest(before2, after)
+  }
+
+  def testTypeLambda_AsTypeParameterBound(): Unit = {
+    val after = "def foo[F >: Nothing <: [X] =>> Coll[X]]: Unit = ???"
+    val before1 = "def foo[F>:Nothing<:[X]=>>Coll[X]]: Unit = ???"
+    val before2 = "def foo[  F  >:  Nothing  <:  [  X  ]  =>>  Coll[  X  ]  ]: Unit = ???"
+    doTextTest(after, after)
+    doTextTest(before1, after)
+    doTextTest(before2, after)
+  }
 }
