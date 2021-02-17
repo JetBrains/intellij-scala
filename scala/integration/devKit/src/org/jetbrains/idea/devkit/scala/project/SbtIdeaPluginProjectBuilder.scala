@@ -1,13 +1,18 @@
 package org.jetbrains.idea.devkit.scala.project
 
-import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SettingsStep}
+import com.intellij.ide.projectWizard.ProjectSettingsStep
+import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SettingsStep, WizardContext}
 import com.intellij.openapi.application.ApplicationInfo
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.module.{ModifiableModuleModel, Module, ModuleManager}
+import com.intellij.openapi.roots.ui.configuration.ModulesProvider
 import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.idea.devkit.scala.DevkitBundle
 import org.jetbrains.idea.devkit.scala.project.SbtIdeaPluginProjectBuilder.{NewProjectSettings, fetchLatestSbtIdeaVersion, toCamelCase, toDotSeparatedId}
 import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.template.AbstractArchivedSbtProjectBuilder
 import org.jetbrains.sbt.project.template.AbstractArchivedSbtProjectBuilder.SbtPatternExt
 
@@ -50,7 +55,22 @@ class SbtIdeaPluginProjectBuilder extends AbstractArchivedSbtProjectBuilder {
     SbtIdeaPluginPlatformKind.IdeaCommunity)
 
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
-    new SbtIdeaPluginWizardStep(settingsStep, this, newProjectSettings)
+    val projectNameField = settingsStep match {
+      case projectStep: ProjectSettingsStep =>
+        projectStep.getModuleNameField
+      case other =>
+        throw new IllegalStateException(s"Can't get new project name field. Unexpected parent step: ${other.getClass}")
+    }
+    new SbtIdeaPluginWizardStep(settingsStep, this, newProjectSettings, projectNameField)
+  }
+
+  override protected def updateModuleFilePath(pathname: String): String = {
+    val file = new File(pathname)
+    file.getParent + "/" + Sbt.ModulesDirectory + "/" + toCamelCase(newProjectSettings.pluginName) + ".iml"
+  }
+
+  override def setName(name: String): Unit = {
+    super.setName(toCamelCase(name))
   }
 
   def updateNewProjectSettings(settingsFromWizard: NewProjectSettings): Unit = {
@@ -85,7 +105,7 @@ class SbtIdeaPluginProjectBuilder extends AbstractArchivedSbtProjectBuilder {
     ))
 
     replaceInFile("project/plugins.sbt", Map(
-      """(^.*addSbtPlugin\(\s*"org.jetbrains"\s*%\s*"sbt-idea-plugin"\s*%\s*")([^"]+)("\s*\))""" -> sbtIdeaVersion
+      """(^.*addSbtPlugin\(\s*"org.jetbrains"\s*%\s*"sbt-idea-plugin"\s*%\s*")([^"]+)("\s*\).*$)""" -> sbtIdeaVersion
     ))
 
   }
