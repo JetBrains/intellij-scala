@@ -5,7 +5,7 @@ package parsing
 package expressions
 
 import com.intellij.lang.PsiBuilder
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.CompoundType
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
@@ -31,8 +31,8 @@ object ResultExpr extends ParsingRule {
     val backupMarker = builder.mark()
 
     def parseFunctionEnd(): Boolean = builder.getTokenType match {
-      case ScalaTokenTypes.tFUNTYPE =>
-        builder.advanceLexer() //Ate =>
+      case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>
+        builder.advanceLexer() //Ate => or ?=>
         Block.parse(builder, hasBrace = false, needNode = true)
         backupMarker.drop()
         resultMarker.done(ScalaElementType.FUNCTION_EXPR)
@@ -53,7 +53,7 @@ object ResultExpr extends ParsingRule {
         pt.done(ScalaElementType.PARAM_TYPE)
       }
       builder.getTokenType match {
-        case ScalaTokenTypes.tFUNTYPE =>
+        case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>
           val psm = paramsMarker.precede // 'parameter list'
           paramMarker.done(ScalaElementType.PARAM)
           paramsMarker.done(ScalaElementType.PARAM_CLAUSE)

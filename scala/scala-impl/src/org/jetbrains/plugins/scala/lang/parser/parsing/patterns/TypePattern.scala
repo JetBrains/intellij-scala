@@ -4,7 +4,7 @@ package parser
 package parsing
 package patterns
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{ExistentialClause, InfixType, Type}
 
@@ -25,12 +25,14 @@ object TypePattern extends ParsingRule {
         builder.advanceLexer() //Ate (
         builder.disableNewlines()
         builder.getTokenType match {
-          case ScalaTokenTypes.tFUNTYPE | ScalaTokenTypes.tRPARENTHESIS =>
-            if (builder.getTokenType == ScalaTokenTypes.tFUNTYPE) {
-              builder.advanceLexer() //Ate =>
-              if (!Type.parse(builder, isPattern = true)) {
-                builder error ScalaBundle.message("wrong.type")
-              }
+          case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow | ScalaTokenTypes.tRPARENTHESIS =>
+            builder.getTokenType match {
+              case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>
+                builder.advanceLexer() //Ate => or ?=>
+                if (!Type.parse(builder, isPattern = true)) {
+                  builder error ScalaBundle.message("wrong.type")
+                }
+              case _ =>
             }
             builder.getTokenType match {
               case ScalaTokenTypes.tRPARENTHESIS =>
@@ -40,8 +42,8 @@ object TypePattern extends ParsingRule {
             }
             builder.restoreNewlinesState()
             builder.getTokenType match {
-              case ScalaTokenTypes.tFUNTYPE =>
-                builder.advanceLexer() //Ate =>
+              case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>
+                builder.advanceLexer() //Ate => or ?=>
               case _ =>
                 builder error ScalaBundle.message("fun.sign.expected")
             }

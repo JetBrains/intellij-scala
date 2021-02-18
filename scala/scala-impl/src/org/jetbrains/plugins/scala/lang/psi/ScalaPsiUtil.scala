@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt, _}
 import org.jetbrains.plugins.scala.externalLibraries.bm4.Implicit0Binding
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
@@ -832,7 +832,7 @@ object ScalaPsiUtil {
 
           import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 
-          val funTypeToken = caseClause.findLastChildByType(TokenSet.create(tFUNTYPE, tFUNTYPE_ASCII))
+          val funTypeToken = caseClause.findLastChildByType(TokenSet.create(tFUNTYPE, tFUNTYPE_ASCII, ScalaTokenType.ImplicitFunctionArrow))
           if (funTypeToken.exists(element.getTextOffset < _.getTextOffset)) false
           else newLinesEnabled(caseClause.getParent)
 
