@@ -90,8 +90,8 @@ private case class Feature(@Nls name: String,
               it,
               ScalaInspectionBundle.message("advanced.language.feature", name),
               if (isErrorOn(e)) ProblemHighlightType.ERROR else ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
-              new ImportFeatureFlagFix(it, name, s"$flagQualifier.$flagName"),
-              new EnableFeatureFix(profile, it, name, enable))
+              new ImportFeatureFlagFix(it, name, s"$flagQualifier.$flagName")/*,
+              new EnableFeatureFix(profile, it, name, enable) SCL-18677*/)
           }
         }
       }
