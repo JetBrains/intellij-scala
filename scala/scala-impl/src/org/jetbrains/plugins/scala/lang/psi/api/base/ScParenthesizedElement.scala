@@ -1,12 +1,15 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 /** Generic type for parenthesised nodes.
   *
   * @author Clément Fournier
   */
-trait ScParenthesizedElement extends ScalaPsiElement {
+trait ScParenthesizedElementBase extends ScalaPsiElementBase { this: ScParenthesizedElement =>
   /** Expression, type element or pattern */
   type Kind <: ScalaPsiElement
 
@@ -20,6 +23,6 @@ trait ScParenthesizedElement extends ScalaPsiElement {
 }
 
 
-object ScParenthesizedElement {
+abstract class ScParenthesizedElementCompanion {
   def unapply(p: ScParenthesizedElement): Option[p.Kind] = p.innerElement
 }

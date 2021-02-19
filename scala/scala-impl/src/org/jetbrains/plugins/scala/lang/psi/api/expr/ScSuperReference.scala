@@ -4,6 +4,9 @@ package psi
 package api
 package expr
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPathElement, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -12,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
   * @author Alexander Podkhalyuzin
   *         Date: 14.03.2008
   */
-trait ScSuperReference extends ScExpression with ScPathElement {
+trait ScSuperReferenceBase extends ScExpressionBase { this: ScSuperReference =>
   /**
     * @return is reference in decompiled file from Self type class
     */

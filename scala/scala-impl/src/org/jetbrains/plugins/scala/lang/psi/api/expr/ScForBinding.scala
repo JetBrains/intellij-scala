@@ -4,12 +4,15 @@ package psi
 package api
 package expr
 
-trait ScForBinding extends ScEnumerator with ScPatternedEnumerator {
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
+trait ScForBindingBase extends ScEnumeratorBase with ScPatternedEnumeratorBase { this: ScForBinding =>
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = visitor.visitForBinding(this)
 }
 
-object ScForBinding {
+abstract class ScForBindingCompanion {
   object expr {
     def unapply(forBinding: ScForBinding): Option[ScExpression] = forBinding.expr
   }

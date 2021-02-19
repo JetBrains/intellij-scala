@@ -3,6 +3,9 @@ package lang
 package psi
 package api
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
@@ -12,10 +15,9 @@ import org.jetbrains.plugins.scala.extensions.Valid
 import scala.reflect.{ClassTag, classTag}
 import scala.collection.compat.immutable.ArraySeq
 
-trait ScalaPsiElement extends PsiElement
-  with project.ProjectContextOwner {
+trait ScalaPsiElementBase extends PsiElement with project.ProjectContextOwner { this: ScalaPsiElement =>
 
-  import ScalaPsiElement._
+  import ScalaPsiElementBase._
 
   implicit def elementScope: ElementScope = ElementScope(this)
 
@@ -119,8 +121,7 @@ trait ScalaPsiElement extends PsiElement
   }
 }
 
-object ScalaPsiElement {
-
+object ScalaPsiElementBase {
   private[this] val ContextKey = Key.create[PsiElement]("context.key")
   private[this] val ChildKey = Key.create[PsiElement]("child.key")
 

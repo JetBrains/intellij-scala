@@ -5,11 +5,14 @@ package api
 package statements
 package params
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 21.03.2008
 */
 
-trait ScArguments extends ScalaPsiElement {
+trait ScArgumentsBase extends ScalaPsiElementBase { this: ScArguments =>
   def getArgsCount: Int
 }

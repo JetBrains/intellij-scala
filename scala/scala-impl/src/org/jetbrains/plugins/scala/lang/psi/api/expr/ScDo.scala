@@ -4,11 +4,14 @@ package psi
 package api
 package expr
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 /**
   * @author Alexander Podkhalyuzin
   *         Date: 06.03.2008
   */
-trait ScDo extends ScExpression {
+trait ScDoBase extends ScExpressionBase { this: ScDo =>
   def condition: Option[ScExpression]
 
   /**
@@ -23,7 +26,7 @@ trait ScDo extends ScExpression {
   }
 }
 
-object ScDo {
+abstract class ScDoCompanion {
   def unapply(doStmt: ScDo): Option[(Option[ScExpression], Option[ScExpression])] =
     Some(doStmt.body, doStmt.condition)
 }

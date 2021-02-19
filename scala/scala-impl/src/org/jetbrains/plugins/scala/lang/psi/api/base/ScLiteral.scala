@@ -4,6 +4,9 @@ package psi
 package api
 package base
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
@@ -14,8 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType, api}
  * @author Alexander Podkhalyuzin
  *         Date: 22.02.2008
  */
-trait ScLiteral extends ScExpression
-  with PsiLiteral {
+trait ScLiteralBase extends ScExpressionBase with PsiLiteral { this: ScLiteral =>
 
   protected type V >: Null <: AnyRef
 
@@ -44,7 +46,7 @@ trait ScLiteral extends ScExpression
   def contentText: String
 }
 
-object ScLiteral {
+abstract class ScLiteralCompanion {
 
   trait Numeric extends ScLiteral {
 

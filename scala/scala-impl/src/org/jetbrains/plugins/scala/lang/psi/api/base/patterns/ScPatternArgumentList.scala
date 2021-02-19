@@ -5,12 +5,15 @@ package api
 package base
 package patterns
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSequenceArg
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
-trait ScPatternArgumentList extends ScArguments {
+trait ScPatternArgumentListBase extends ScArgumentsBase { this: ScPatternArgumentList =>
 
   def patterns: Seq[ScPattern]
 
@@ -31,6 +34,6 @@ trait ScPatternArgumentList extends ScArguments {
   }
 }
 
-object ScPatternArgumentList {
+abstract class ScPatternArgumentListCompanion {
   def unapplySeq(spl: ScPatternArgumentList): Option[Seq[ScPattern]] = Option(spl.patterns.toSeq)
 }

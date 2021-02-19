@@ -8,6 +8,24 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
   * @author adkozlov
   */
 package object toplevel {
+  type ScEarlyDefinitions = org.jetbrains.plugins.scala.lang.psi.api.ScEarlyDefinitions
+
+  type ScImportableDeclarationsOwner = org.jetbrains.plugins.scala.lang.psi.api.ScImportableDeclarationsOwner
+
+  type ScModifierListOwner = org.jetbrains.plugins.scala.lang.psi.api.ScModifierListOwner
+
+  type ScNamedElement = org.jetbrains.plugins.scala.lang.psi.api.ScNamedElement
+
+  type ScPackaging = org.jetbrains.plugins.scala.lang.psi.api.ScPackaging
+
+  type ScPolymorphicElement = org.jetbrains.plugins.scala.lang.psi.api.ScPolymorphicElement
+
+  type ScTypeBoundsOwner = org.jetbrains.plugins.scala.lang.psi.api.ScTypeBoundsOwner
+
+  type ScTypeParametersOwner = org.jetbrains.plugins.scala.lang.psi.api.ScTypeParametersOwner
+
+  type ScTypedDefinition = org.jetbrains.plugins.scala.lang.psi.api.ScTypedDefinition
+
 
   implicit class ScNamedElementExt(private val namedElement: ScNamedElement) extends AnyVal {
     private def typeParametersOwnerDepth(f: ScTypeParametersOwner, typeDepth: Int): Int = {
@@ -35,5 +53,4 @@ package object toplevel {
       }
     }
   }
-
 }

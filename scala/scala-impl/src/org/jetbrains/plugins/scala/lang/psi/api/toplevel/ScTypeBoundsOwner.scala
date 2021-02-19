@@ -4,13 +4,16 @@ package psi
 package api
 package toplevel
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
-trait ScTypeBoundsOwner extends ScalaPsiElement {
+trait ScTypeBoundsOwnerBase extends ScalaPsiElementBase { this: ScTypeBoundsOwner =>
   def lowerBound: TypeResult
 
   def upperBound: TypeResult

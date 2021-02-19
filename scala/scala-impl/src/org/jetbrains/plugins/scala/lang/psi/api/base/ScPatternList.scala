@@ -4,6 +4,9 @@ package psi
 package api
 package base
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 
 /** 
@@ -11,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 * Date: 22.02.2008
 */
 
-trait ScPatternList extends ScalaPsiElement {
+trait ScPatternListBase extends ScalaPsiElementBase { this: ScPatternList =>
 
   def bindings: Seq[ScBindingPattern]
 
@@ -24,6 +27,6 @@ trait ScPatternList extends ScalaPsiElement {
   def simplePatterns: Boolean
 }
 
-object ScPatternList {
+abstract class ScPatternListCompanion {
   def unapply(e: ScPatternList): Some[Seq[ScPattern]] = Some(e.patterns)
 }

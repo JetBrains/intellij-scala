@@ -5,12 +5,15 @@ package api
 package base
 package patterns
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 28.02.2008
 */
 
-trait ScInfixPattern extends ScPattern with ScInfixElement {
+trait ScInfixPatternBase extends ScPatternBase with ScInfixElementBase { this: ScInfixPattern =>
   type Kind = ScPattern
   type Reference = ScStableCodeReference
 
@@ -19,7 +22,7 @@ trait ScInfixPattern extends ScPattern with ScInfixElement {
   override def rightOption: Option[ScPattern] = findLastChild[ScPattern]
 }
 
-object ScInfixPattern {
+abstract class ScInfixPatternCompanion {
   def unapply(ifx: ScInfixPattern): Option[(ScPattern, ScStableCodeReference, Option[ScPattern])] =
     Some((ifx.left, ifx.operation, ifx.rightOption))
 

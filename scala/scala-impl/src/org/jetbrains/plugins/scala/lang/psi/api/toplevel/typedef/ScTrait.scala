@@ -5,13 +5,16 @@ package api
 package toplevel
 package typedef
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.PsiClass
 
 /** 
 * @author Alexander Podkhalyuzin
 * @since 20.02.2008
 */
-trait ScTrait extends ScTypeDefinition with ScConstructorOwner {
+trait ScTraitBase extends ScTypeDefinitionBase with ScConstructorOwnerBase { this: ScTrait =>
 
   def fakeCompanionClass: PsiClass
 }

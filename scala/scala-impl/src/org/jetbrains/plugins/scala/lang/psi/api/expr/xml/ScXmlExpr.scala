@@ -5,6 +5,9 @@ package api
 package expr
 package xml
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.PsiElement
 
 /**
@@ -12,7 +15,7 @@ import com.intellij.psi.PsiElement
 * Date: 21.04.2008
 */
 
-trait ScXmlExpr extends ScExpression {
+trait ScXmlExprBase extends ScExpressionBase { this: ScXmlExpr =>
   def getElements: Seq[PsiElement] = getChildren.filter {
     case _: ScXmlElement | _: ScXmlPI | _: ScXmlCDSect | _: ScXmlComment => true
     case _ => false

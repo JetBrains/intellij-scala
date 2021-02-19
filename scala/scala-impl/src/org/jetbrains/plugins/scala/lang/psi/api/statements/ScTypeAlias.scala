@@ -5,21 +5,18 @@ package api
 package statements
 
 import com.intellij.psi.{PsiClass, PsiElement}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPolymorphicElement}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElementBase
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwnerBase, ScMember, ScTypeDefinition}
 
 /**
  * @author Alexander Podkhalyuzin
  * Date: 22.02.2008
  * Time: 9:46:00
  */
-trait ScTypeAlias extends ScNamedElement
-  with ScPolymorphicElement
-  with ScMember.WithBaseIconProvider
-  with ScDocCommentOwner
-  with ScCommentOwner {
+trait ScTypeAliasBase extends ScNamedElementBase with ScMember.WithBaseIconProvider with ScDocCommentOwnerBase with ScCommentOwnerBase { this: ScTypeAlias =>
 
   override protected def isSimilarMemberForNavigation(m: ScMember, isStrict: Boolean): Boolean = m match {
     case t: ScTypeAlias => t.name == name
@@ -40,7 +37,7 @@ trait ScTypeAlias extends ScNamedElement
     if (ccontainingClass == null) return this
     val originalClass: PsiClass = ccontainingClass.getOriginalElement.asInstanceOf[PsiClass]
     if (ccontainingClass eq  originalClass) return this
-    if (!originalClass.isInstanceOf[ScTypeDefinition]) return this
+    if (!originalClass.is[ScTypeDefinition]) return this
     val c = originalClass.asInstanceOf[ScTypeDefinition]
     val aliasesIterator = c.aliases.iterator
     while (aliasesIterator.hasNext) {

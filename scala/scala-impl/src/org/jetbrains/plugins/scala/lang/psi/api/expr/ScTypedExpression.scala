@@ -4,6 +4,9 @@ package psi
 package api
 package expr
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScTypeElement}
 
@@ -11,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScTyp
   * @author Alexander Podkhalyuzin
   *         Date: 06.03.2008
   */
-trait ScTypedExpression extends ScExpression {
+trait ScTypedExpressionBase extends ScExpressionBase { this: ScTypedExpression =>
   def expr: ScExpression = findChild[ScExpression].get
 
   def typeElement: Option[ScTypeElement] = findChild[ScTypeElement]

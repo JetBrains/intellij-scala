@@ -77,8 +77,6 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
 
   @Cached(ModTracker.anyScalaPsiChange, this)
   override def isImplicit: Boolean = {
-    import ScModifierList._
-
     def hasImplicitKeyword =
       findChildByType(ScalaTokenTypes.kIMPLICIT) != null ||
       findChild[ScClassParameter]

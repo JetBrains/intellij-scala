@@ -4,10 +4,13 @@ package psi
 package api
 package statements
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 
-trait ScDeclaredElementsHolder extends ScalaPsiElement {
+trait ScDeclaredElementsHolderBase extends ScalaPsiElementBase { this: ScDeclaredElementsHolder =>
   def declaredElements : Seq[PsiNamedElement]
 
   def declaredNames: Seq[String] = declaredElements.map(_.name)

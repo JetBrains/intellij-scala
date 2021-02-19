@@ -5,6 +5,9 @@ package api
 package base
 package types
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 /** 
@@ -12,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 * Date: 07.03.2008
 */
 
-trait ScAnnotTypeElement extends ScTypeElement {
+trait ScAnnotTypeElementBase extends ScTypeElementBase { this: ScAnnotTypeElement =>
   override protected val typeName = "TypeWithAnnotation"
 
   def typeElement: ScTypeElement = findChild[ScTypeElement].get

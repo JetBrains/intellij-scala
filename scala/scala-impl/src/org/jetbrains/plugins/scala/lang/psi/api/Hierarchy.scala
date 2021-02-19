@@ -1,0 +1,519 @@
+package org.jetbrains.plugins.scala.lang.psi.api
+
+import com.intellij.navigation.NavigationItem
+import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.psi.adapters._
+import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder}
+import org.jetbrains.plugins.scala.lang.resolve.ResolvableStableCodeReference
+import org.jetbrains.plugins.scala.project.ProjectContextOwner
+
+
+sealed trait MethodInvocation extends MethodInvocationBase with ScExpression with ScalaPsiElement
+object MethodInvocation extends MethodInvocationBase.MethodInvocationCompanion
+
+trait ScControlFlowOwner extends ScControlFlowOwnerBase with ScalaPsiElement
+
+trait ScPackage extends ScPackageLike with PsiPackage
+
+sealed trait ScPackageLike extends ScPackageLikeBase with PsiElement
+object ScPackageLike extends ScPackageLikeCompanion
+
+trait ScalaFile extends ScalaFileBase with ScalaPsiElement with ScFile with ScImportsHolder
+
+trait ScalaPsiElement extends ScalaPsiElementBase with PsiElement with ProjectContextOwner
+
+trait ScAccessModifier extends base.ScAccessModifierBase with ScalaPsiElement
+
+trait ScAnnotation extends base.ScAnnotationBase with ScalaPsiElement with PsiAnnotation
+
+trait ScAnnotationExpr extends base.ScAnnotationExprBase with ScalaPsiElement
+
+trait ScAnnotations extends base.ScAnnotationsBase with ScalaPsiElement with PsiReferenceList
+
+trait ScAnnotationsHolder extends base.ScAnnotationsHolderBase with ScalaPsiElement with PsiAnnotatedAdapter
+
+sealed trait ScBraceOwner extends base.ScBraceOwnerBase with ScalaPsiElement
+
+trait ScConstructorInvocation extends base.ScConstructorInvocationBase with ScalaPsiElement with ConstructorInvocationLike
+object ScConstructorInvocation extends base.ScConstructorInvocationCompanion
+
+trait ScEnd extends base.ScEndBase with ScalaPsiElement
+
+trait ScFieldId extends ScTypedDefinition
+
+trait ScIdList extends base.ScIdListBase with ScalaPsiElement
+
+sealed trait ScInfixElement extends base.ScInfixElementBase with ScalaPsiElement
+object ScInfixElement extends base.ScInfixElementCompanion
+
+sealed trait ScInterpolated extends base.ScInterpolatedBase with ScalaPsiElement
+
+trait ScInterpolatedStringLiteral extends base.ScInterpolatedStringLiteralBase with ScStringLiteral with ScInterpolated
+object ScInterpolatedStringLiteral extends base.ScInterpolatedStringLiteralCompanion
+
+trait ScLiteral extends base.ScLiteralBase with ScExpression with PsiLiteral
+object ScLiteral extends base.ScLiteralCompanion
+
+trait ScMethodLike extends base.ScMethodLikeBase with ScMember with PsiMethod with PsiTypeParametersOwnerAdapter with ScTypeParametersOwner
+
+trait ScModifierList extends base.ScModifierListBase with ScalaPsiElement with PsiModifierList
+
+trait ScParenthesizedElement extends base.ScParenthesizedElementBase with ScalaPsiElement
+object ScParenthesizedElement extends base.ScParenthesizedElementCompanion
+
+trait ScPathElement extends ScalaPsiElement
+
+trait ScPatternList extends base.ScPatternListBase with ScalaPsiElement
+object ScPatternList extends base.ScPatternListCompanion
+
+trait ScPrimaryConstructor extends base.ScPrimaryConstructorBase with ScMember with ScMethodLike
+object ScPrimaryConstructor extends base.ScPrimaryConstructorCompanion
+
+trait ScReference extends base.ScReferenceBase with ScalaPsiElement with PsiPolyVariantReference
+object ScReference extends base.ScReferenceCompanion
+
+trait ScStableCodeReference extends base.ScStableCodeReferenceBase with ScReference with ResolvableStableCodeReference with ScPathElement
+object ScStableCodeReference extends base.ScStableCodeReferenceCompanion
+
+trait ScBooleanLiteral extends base.literals.ScBooleanLiteralBase with ScLiteral
+object ScBooleanLiteral extends base.literals.ScBooleanLiteralCompanion
+
+trait ScCharLiteral extends base.literals.ScCharLiteralBase with ScLiteral
+object ScCharLiteral extends base.literals.ScCharLiteralCompanion
+
+trait ScDoubleLiteral extends base.literals.ScDoubleLiteralBase with ScLiteral.Numeric
+object ScDoubleLiteral extends base.literals.ScDoubleLiteralCompanion
+
+trait ScFloatLiteral extends base.literals.ScFloatLiteralBase with ScLiteral.Numeric
+object ScFloatLiteral extends base.literals.ScFloatLiteralCompanion
+
+trait ScIntegerLiteral extends base.literals.ScIntegerLiteralBase with ScLiteral.Numeric
+object ScIntegerLiteral extends base.literals.ScIntegerLiteralCompanion
+
+trait ScLongLiteral extends base.literals.ScLongLiteralBase with ScLiteral.Numeric
+object ScLongLiteral extends base.literals.ScLongLiteralCompanion
+
+trait ScNullLiteral extends base.literals.ScNullLiteralBase with ScLiteral
+object ScNullLiteral extends base.literals.ScNullLiteralCompanion
+
+trait ScStringLiteral extends base.literals.ScStringLiteralBase with ScLiteral with PsiLanguageInjectionHost with ContributedReferenceHost
+object ScStringLiteral extends base.literals.ScStringLiteralCompanion
+
+trait ScSymbolLiteral extends base.literals.ScSymbolLiteralBase with ScLiteral
+object ScSymbolLiteral extends base.literals.ScSymbolLiteralCompanion
+
+trait Sc3TypedPattern extends base.patterns.Sc3TypedPatternBase with ScPattern
+object Sc3TypedPattern extends base.patterns.Sc3TypedPatternCompanion
+
+trait ScBindingPattern extends base.patterns.ScBindingPatternBase with ScPattern with ScNamedElement with ScTypedDefinition with NavigationItem with PsiDocCommentOwner
+
+trait ScCaseClause extends base.patterns.ScCaseClauseBase with ScalaPsiElement
+object ScCaseClause extends base.patterns.ScCaseClauseCompanion
+
+trait ScCaseClauses extends base.patterns.ScCaseClausesBase with ScalaPsiElement
+object ScCaseClauses extends base.patterns.ScCaseClausesCompanion
+
+trait ScCompositePattern extends ScPattern
+
+trait ScConstructorPattern extends base.patterns.ScConstructorPatternBase with ScPattern
+object ScConstructorPattern extends base.patterns.ScConstructorPatternCompanion
+
+trait ScGivenPattern extends base.patterns.ScGivenPatternBase with ScPattern
+
+trait ScInfixPattern extends base.patterns.ScInfixPatternBase with ScPattern with ScInfixElement
+object ScInfixPattern extends base.patterns.ScInfixPatternCompanion
+
+trait ScInterpolationPattern extends ScConstructorPattern with ScInterpolated
+
+trait ScLiteralPattern extends base.patterns.ScLiteralPatternBase with ScPattern
+object ScLiteralPattern extends base.patterns.ScLiteralPatternCompanion
+
+trait ScNamingPattern extends base.patterns.ScNamingPatternBase with ScBindingPattern
+
+trait ScParenthesisedPattern extends base.patterns.ScParenthesisedPatternBase with ScPattern with ScParenthesizedElement
+object ScParenthesisedPattern extends base.patterns.ScParenthesisedPatternCompanion
+
+trait ScPattern extends base.patterns.ScPatternBase with ScalaPsiElement with Typeable
+object ScPattern extends base.patterns.ScPatternBase.ScPatternCompanion
+
+trait ScPatternArgumentList extends base.patterns.ScPatternArgumentListBase with ScArguments
+object ScPatternArgumentList extends base.patterns.ScPatternArgumentListCompanion
+
+trait ScPatterns extends base.patterns.ScPatternsBase with ScalaPsiElement
+
+trait ScReferencePattern extends ScBindingPattern
+
+trait ScSeqWildcard extends ScalaPsiElement with ScPattern
+
+trait ScStableReferencePattern extends base.patterns.ScStableReferencePatternBase with ScPattern
+object ScStableReferencePattern extends base.patterns.ScStableReferencePatternCompanion
+
+trait ScTuplePattern extends base.patterns.ScTuplePatternBase with ScPattern
+
+trait ScTypePattern extends base.patterns.ScTypePatternBase with ScalaPsiElement
+
+trait ScTypedPattern extends base.patterns.ScTypedPatternBase with ScBindingPattern
+object ScTypedPattern extends base.patterns.ScTypedPatternCompanion
+
+trait ScWildcardPattern extends ScPattern
+
+trait ScAnnotTypeElement extends base.types.ScAnnotTypeElementBase with ScTypeElement
+
+trait ScCompoundTypeElement extends base.types.ScCompoundTypeElementBase with ScTypeElement
+object ScCompoundTypeElement extends base.types.ScCompoundTypeElementCompanion
+
+trait ScDependentFunctionTypeElement extends base.types.ScDependentFunctionTypeElementBase with ScTypeElement
+object ScDependentFunctionTypeElement extends base.types.ScDependentFunctionTypeElementCompanion
+
+trait ScExistentialClause extends base.types.ScExistentialClauseBase with ScalaPsiElement
+
+trait ScExistentialTypeElement extends base.types.ScExistentialTypeElementBase with ScTypeElement
+
+trait ScFunctionalTypeElement extends base.types.ScFunctionalTypeElementBase with ScDesugarizableToParametrizedTypeElement
+object ScFunctionalTypeElement extends base.types.ScFunctionalTypeElementCompanion
+
+trait ScInfixLikeTypeElement extends base.types.ScInfixLikeTypeElementBase with ScTypeElement
+
+trait ScInfixTypeElement extends ScInfixTypeElementBase with ScInfixLikeTypeElement with ScInfixElement with ScDesugarizableToParametrizedTypeElement
+object ScInfixTypeElement extends ScInfixTypeElementCompanion
+
+trait ScLiteralTypeElement extends base.types.ScLiteralTypeElementBase with ScTypeElement
+
+trait ScMatchTypeCase extends base.types.ScMatchTypeCaseBase with ScalaPsiElement
+object ScMatchTypeCase extends base.types.ScMatchTypeCaseCompanion
+
+trait ScMatchTypeCases extends base.types.ScMatchTypeCasesBase with ScalaPsiElement
+object ScMatchTypeCases extends base.types.ScMatchTypeCasesCompanion
+
+trait ScMatchTypeElement extends base.types.ScMatchTypeElementBase with ScTypeElement
+object ScMatchTypeElement extends base.types.ScMatchTypeElementCompanion
+
+trait ScParameterizedTypeElement extends base.types.ScParameterizedTypeElementBase with ScDesugarizableTypeElement
+object ScParameterizedTypeElement extends base.types.ScParameterizedTypeElementCompanion
+
+trait ScParenthesisedTypeElement extends base.types.ScParenthesisedTypeElementBase with ScTypeElement with ScParenthesizedElement
+object ScParenthesisedTypeElement extends base.types.ScParenthesisedTypeElementCompanion
+
+trait ScPolyFunctionTypeElement extends base.types.ScPolyFunctionTypeElementBase with ScTypeElement with ScTypeParametersOwner
+
+trait ScQuotedType extends ScExpression with ScQuoted
+
+trait ScRefineStat extends ScalaPsiElement
+
+trait ScRefinement extends base.types.ScRefinementBase with ScalaPsiElement
+
+trait ScSelfTypeElement extends base.types.ScSelfTypeElementBase with ScNamedElement with ScTypedDefinition
+
+trait ScSequenceArg extends ScalaPsiElement
+
+trait ScSimpleTypeElement extends base.types.ScSimpleTypeElementBase with ScTypeElement
+object ScSimpleTypeElement extends base.types.ScSimpleTypeElementCompanion
+
+trait ScStableId extends ScalaPsiElement
+
+trait ScTupleTypeElement extends base.types.ScTupleTypeElementBase with ScDesugarizableToParametrizedTypeElement
+object ScTupleTypeElement extends base.types.ScTupleTypeElementCompanion
+
+trait ScTypeArgs extends base.types.ScTypeArgsBase with ScArguments
+
+trait ScTypeElement extends base.types.ScTypeElementBase with ScalaPsiElement with Typeable
+object ScTypeElement extends base.types.ScTypeElementCompanion
+
+trait ScTypeLambdaTypeElement extends base.types.ScTypeLambdaTypeElementBase with ScTypeElement with ScPolymorphicElement
+object ScTypeLambdaTypeElement extends base.types.ScTypeLambdaTypeElementCompanion
+
+trait ScTypeProjection extends base.types.ScTypeProjectionBase with ScTypeElement with ScReference
+
+trait ScTypeVariableTypeElement extends base.types.ScTypeVariableTypeElementBase with ScTypeElement with ScNamedElement
+
+trait ScTypes extends base.types.ScTypesBase with ScalaPsiElement
+
+trait ScWildcardTypeElement extends base.types.ScWildcardTypeElementBase with ScTypeElement with ScTypeBoundsOwner
+
+trait ScArgumentExprList extends expr.ScArgumentExprListBase with ScArguments
+object ScArgumentExprList extends expr.ScArgumentExprListCompanion
+
+trait ScAssignment extends expr.ScAssignmentBase with ScExpression
+object ScAssignment extends expr.ScAssignmentCompanion
+
+trait ScBlock extends expr.ScBlockBase with ScExpression with ScDeclarationSequenceHolder with ScImportsHolder with ScBraceOwner
+object ScBlock extends expr.ScBlockCompanion
+
+trait ScBlockExpr extends expr.ScBlockExprBase with ScExpression with ScBlock with ScControlFlowOwner
+object ScBlockExpr extends expr.ScBlockExprCompanion
+
+trait ScBlockStatement extends ScalaPsiElement
+
+trait ScCatchBlock extends expr.ScCatchBlockBase with ScalaPsiElement
+object ScCatchBlock extends expr.ScCatchBlockCompanion
+
+trait ScConstrBlock extends expr.ScConstrBlockBase with ScBlockExpr
+
+trait ScConstrExpr extends expr.ScConstrExprBase with ScExpression
+
+trait ScDo extends expr.ScDoBase with ScExpression
+object ScDo extends expr.ScDoCompanion
+
+trait ScEnumerator extends expr.ScEnumeratorBase with ScalaPsiElement with PsiPolyVariantReference
+object ScEnumerator extends expr.ScEnumeratorCompanion
+
+trait ScEnumerators extends expr.ScEnumeratorsBase with ScalaPsiElement
+
+trait ScExpression extends expr.ScExpressionBase with ScBlockStatement with PsiAnnotationMemberValue with ImplicitArgumentsOwner with Typeable with Expression
+object ScExpression extends expr.ScExpressionCompanion
+
+trait ScFinallyBlock extends expr.ScFinallyBlockBase with ScalaPsiElement
+object ScFinallyBlock extends expr.ScFinallyBlockCompanion
+
+trait ScFor extends expr.ScForBase with ScExpression
+object ScFor extends expr.ScForCompanion
+
+trait ScForBinding extends expr.ScForBindingBase with ScEnumerator with ScPatternedEnumerator
+object ScForBinding extends expr.ScForBindingCompanion
+
+trait ScFunctionExpr extends expr.ScFunctionExprBase with ScExpression with ScControlFlowOwner
+object ScFunctionExpr extends expr.ScFunctionExprCompanion
+
+trait ScGenerator extends expr.ScGeneratorBase with ScEnumerator with ScPatternedEnumerator
+object ScGenerator extends expr.ScGeneratorCompanion
+
+trait ScGenericCall extends expr.ScGenericCallBase with ScExpression
+object ScGenericCall extends expr.ScGenericCallCompanion
+
+trait ScGuard extends expr.ScGuardBase with ScEnumerator
+
+trait ScIf extends expr.ScIfBase with ScExpression
+object ScIf extends expr.ScIfCompanion
+
+trait ScInfixArgumentExpression extends expr.ScInfixArgumentExpressionBase with ScExpression
+
+trait ScInfixExpr extends expr.ScInfixExprBase with ScExpression with ScSugarCallExpr with ScInfixElement
+object ScInfixExpr extends expr.ScInfixExprBase.ScInfixExprCompanion
+
+trait ScMatch extends expr.ScMatchBase with ScExpression
+object ScMatch extends expr.ScMatchCompanion
+
+trait ScMethodCall extends expr.ScMethodCallBase with ScExpression with MethodInvocation
+object ScMethodCall extends expr.ScMethodCallCompanion
+
+trait ScNameValuePair extends expr.ScNameValuePairBase with ScalaPsiElement with ScNamedElement with PsiNameValuePair
+
+trait ScNewTemplateDefinition extends expr.ScNewTemplateDefinitionBase with ScExpression with ScTemplateDefinition
+
+trait ScParenthesisedExpr extends expr.ScParenthesisedExprBase with ScInfixArgumentExpression with ScParenthesizedElement
+object ScParenthesisedExpr extends expr.ScParenthesisedExprCompanion
+
+trait ScPatterned extends expr.ScPatternedBase with ScalaPsiElement
+
+trait ScPatternedEnumerator extends expr.ScPatternedEnumeratorBase with ScPatterned
+
+trait ScPolyFunctionExpr extends expr.ScPolyFunctionExprBase with ScExpression with ScControlFlowOwner
+object ScPolyFunctionExpr extends expr.ScPolyFunctionExprCompanion
+
+trait ScPostfixExpr extends expr.ScPostfixExprBase with ScExpression with ScSugarCallExpr
+object ScPostfixExpr extends expr.ScPostfixExprCompanion
+
+trait ScPrefixExpr extends expr.ScPrefixExprBase with ScExpression with ScSugarCallExpr
+object ScPrefixExpr extends expr.ScPrefixExprCompanion
+
+trait ScQuoted
+
+trait ScQuotedBlock extends ScExpression with ScQuoted with ScBlock
+
+trait ScReferenceExpression extends expr.ScReferenceExpressionBase with ScExpression with ScReference
+object ScReferenceExpression extends expr.ScReferenceExpressionCompanion
+
+trait ScReturn extends expr.ScReturnBase with ScExpression
+object ScReturn extends expr.ScReturnCompanion
+
+trait ScSelfInvocation extends expr.ScSelfInvocationBase with ScalaPsiElement with PsiReference with ConstructorInvocationLike
+
+trait ScSpliced
+
+trait ScSplicedBlock extends ScBlock with ScTypeElement with ScSpliced
+
+trait ScSugarCallExpr extends expr.ScSugarCallExprBase with ScExpression with MethodInvocation
+object ScSugarCallExpr extends expr.ScSugarCallExprCompanion
+
+trait ScSuperReference extends expr.ScSuperReferenceBase with ScExpression with ScPathElement
+
+trait ScThisReference extends expr.ScThisReferenceBase with ScExpression with ScPathElement
+
+trait ScThrow extends expr.ScThrowBase with ScExpression
+
+trait ScTry extends expr.ScTryBase with ScExpression
+object ScTry extends expr.ScTryCompanion
+
+trait ScTuple extends expr.ScTupleBase with ScInfixArgumentExpression
+object ScTuple extends expr.ScTupleCompanion
+
+trait ScTypedExpression extends expr.ScTypedExpressionBase with ScExpression
+
+trait ScUnderscoreSection extends expr.ScUnderscoreSectionBase with ScExpression
+object ScUnderscoreSection extends expr.ScUnderscoreSectionCompanion
+
+trait ScUnitExpr extends ScExpression
+
+trait ScWhile extends expr.ScWhileBase with ScExpression
+object ScWhile extends expr.ScWhileCompanion
+
+trait ScXmlAttribute extends ScalaPsiElement
+
+trait ScXmlCDSect extends ScalaPsiElement
+
+trait ScXmlComment extends ScalaPsiElement
+
+trait ScXmlElement extends ScalaPsiElement
+
+trait ScXmlEmptyTag extends ScXmlElement
+
+trait ScXmlEndTag extends expr.xml.ScXmlEndTagBase with ScXmlPairedTag
+
+trait ScXmlExpr extends expr.xml.ScXmlExprBase with ScExpression
+
+trait ScXmlPI extends ScalaPsiElement
+
+trait ScXmlPairedTag extends expr.xml.ScXmlPairedTagBase with ScalaPsiElement
+
+trait ScXmlPattern extends ScPattern
+
+trait ScXmlStartTag extends expr.xml.ScXmlStartTagBase with ScXmlPairedTag
+
+trait ScCommentOwner extends statements.ScCommentOwnerBase
+
+trait ScDeclaration extends statements.ScDeclarationBase with ScalaPsiElement
+
+trait ScDeclaredElementsHolder extends statements.ScDeclaredElementsHolderBase with ScalaPsiElement
+
+trait ScEnumCase extends ScConstructorOwner
+
+trait ScEnumCases extends statements.ScEnumCasesBase with ScDeclaredElementsHolder
+
+trait ScExtension extends statements.ScExtensionBase with ScTypeParametersOwner with ScParameterOwner with ScDocCommentOwner with ScCommentOwner
+
+trait ScFun extends statements.ScFunBase with ScTypeParametersOwner
+
+trait ScFunction extends statements.ScFunctionBase with ScalaPsiElement with ScMember.WithBaseIconProvider with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition with ScCommentOwner with ScDeclaredElementsHolder with ScMethodLike with ScBlockStatement
+object ScFunction extends statements.ScFunctionCompanion
+
+trait ScFunctionDeclaration extends ScFunction with ScTypedDeclaration
+
+trait ScFunctionDefinition extends statements.ScFunctionDefinitionBase with ScFunction with ScControlFlowOwner
+object ScFunctionDefinition extends statements.ScFunctionDefinitionCompanion
+
+trait ScMacroDefinition extends statements.ScMacroDefinitionBase with ScFunction
+object ScMacroDefinition extends statements.ScMacroDefinitionCompanion
+
+trait ScParameterOwner extends statements.ScParameterOwnerBase with ScalaPsiElement
+
+trait ScPatternDefinition extends statements.ScPatternDefinitionBase with ScValue
+object ScPatternDefinition extends statements.ScPatternDefinitionCompanion
+
+trait ScTypeAlias extends statements.ScTypeAliasBase with ScNamedElement with ScPolymorphicElement with ScMember.WithBaseIconProvider with ScDocCommentOwner with ScCommentOwner
+
+trait ScTypeAliasDeclaration extends statements.ScTypeAliasDeclarationBase with ScTypeAlias with ScDeclaration
+
+trait ScTypeAliasDefinition extends statements.ScTypeAliasDefinitionBase with ScTypeAlias
+
+trait ScTypedDeclaration extends statements.ScTypedDeclarationBase with ScDeclaration with Typeable
+
+trait ScValue extends statements.ScValueBase with ScValueOrVariable
+
+trait ScValueDeclaration extends statements.ScValueDeclarationBase with ScValue with ScTypedDeclaration
+
+trait ScValueOrVariable extends statements.ScValueOrVariableBase with ScBlockStatement with ScMember.WithBaseIconProvider with ScDocCommentOwner with ScDeclaredElementsHolder with ScCommentOwner with Typeable
+
+trait ScVariable extends statements.ScVariableBase with ScValueOrVariable
+
+trait ScVariableDeclaration extends statements.ScVariableDeclarationBase with ScVariable with ScTypedDeclaration
+
+trait ScVariableDefinition extends statements.ScVariableDefinitionBase with ScVariable
+object ScVariableDefinition extends statements.ScVariableDefinitionCompanion
+
+trait ScArguments extends statements.params.ScArgumentsBase with ScalaPsiElement
+
+trait ScClassParameter extends statements.params.ScClassParameterBase with ScParameter with ScMember.WithBaseIconProvider
+
+trait ScParameter extends statements.params.ScParameterBase with ScTypedDefinition with ScModifierListOwner with PsiParameterAdapter with ScImportableDeclarationsOwner
+
+trait ScParameterClause extends statements.params.ScParameterClauseBase with ScalaPsiElement
+object ScParameterClause extends statements.params.ScParameterClauseCompanion
+
+trait ScParameterType extends statements.params.ScParameterTypeBase with ScalaPsiElement
+
+trait ScParameters extends statements.params.ScParametersBase with ScalaPsiElement with PsiParameterList
+
+trait ScTypeParam extends statements.params.ScTypeParamBase with ScNamedElement with ScPolymorphicElement with PsiTypeParameterAdapter with ScAnnotationsHolder
+
+trait ScTypeParamClause extends statements.params.ScTypeParamClauseBase with ScalaPsiElement with PsiTypeParameterList
+
+trait ScEarlyDefinitions extends toplevel.ScEarlyDefinitionsBase with ScalaPsiElement
+
+trait ScImportableDeclarationsOwner extends toplevel.ScImportableDeclarationsOwnerBase with ScalaPsiElement {
+  this: ScTypedDefinition =>
+}
+
+trait ScModifierListOwner extends toplevel.ScModifierListOwnerBase with ScalaPsiElement with ScAnnotationsHolder with PsiModifierListOwnerAdapter
+
+trait ScNamedElement extends toplevel.ScNamedElementBase with ScalaPsiElement with PsiNameIdentifierOwner with NavigatablePsiElement
+
+trait ScPackaging extends toplevel.ScPackagingBase with ScImportsHolder with ScDeclaredElementsHolder with ScPackageLike
+
+trait ScPolymorphicElement extends ScTypeParametersOwner with ScTypeBoundsOwner
+
+trait ScTypeBoundsOwner extends toplevel.ScTypeBoundsOwnerBase with ScalaPsiElement
+
+trait ScTypeParametersOwner extends toplevel.ScTypeParametersOwnerBase with ScalaPsiElement
+
+trait ScTypedDefinition extends toplevel.ScTypedDefinitionBase with ScNamedElement with Typeable
+
+trait ScImportExpr extends toplevel.imports.ScImportExprBase with ScalaPsiElement
+
+trait ScImportSelector extends toplevel.imports.ScImportSelectorBase with ScalaPsiElement
+
+trait ScImportSelectors extends toplevel.imports.ScImportSelectorsBase with ScalaPsiElement
+
+trait ScImportStmt extends toplevel.imports.ScImportStmtBase with ScBlockStatement
+
+trait ScExtendsBlock extends toplevel.templates.ScExtendsBlockBase with ScalaPsiElement
+object ScExtendsBlock extends toplevel.templates.ScExtendsBlockCompanion
+
+trait ScTemplateBody extends toplevel.templates.ScTemplateBodyBase with ScalaPsiElement with ScControlFlowOwner with ScImportsHolder with ScBraceOwner
+
+trait ScTemplateDerives extends toplevel.templates.ScTemplateDerivesBase with ScalaPsiElement
+
+trait ScTemplateParents extends toplevel.templates.ScTemplateParentsBase with ScalaPsiElement
+
+trait ScClass extends toplevel.typedef.ScClassBase with ScTypeDefinition with ScConstructorOwner
+
+trait ScConstructorOwner extends toplevel.typedef.ScConstructorOwnerBase with ScTypeDefinition with ScParameterOwner
+
+trait ScDocCommentOwner extends toplevel.typedef.ScDocCommentOwnerBase with PsiDocCommentOwner
+
+trait ScEnum extends ScConstructorOwner
+
+trait ScGiven extends toplevel.typedef.ScGivenBase with ScalaPsiElement with ScNamedElement with ScTypedDefinition with ScMember.WithBaseIconProvider with ScCommentOwner with ScDocCommentOwner with ScDeclaredElementsHolder
+object ScGiven extends toplevel.typedef.ScGivenCompanion
+
+trait ScGivenAlias extends ScGiven with ScFunction
+
+trait ScGivenDefinition extends ScTemplateDefinition with ScGiven
+
+trait ScMember extends toplevel.typedef.ScMemberBase with ScalaPsiElement with ScModifierListOwner with PsiMember
+object ScMember extends toplevel.typedef.ScMemberCompanion
+
+trait ScObject extends toplevel.typedef.ScObjectBase with ScTypeDefinition with ScTypedDefinition with ScMember with ScDeclaredElementsHolder
+object ScObject extends toplevel.typedef.ScObjectCompanion
+
+trait ScTemplateDefinition extends toplevel.typedef.ScTemplateDefinitionBase with ScNamedElement with PsiClassAdapter with Typeable
+object ScTemplateDefinition extends toplevel.typedef.ScTemplateDefinitionCompanion
+
+trait ScTrait extends toplevel.typedef.ScTraitBase with ScTypeDefinition with ScConstructorOwner
+
+trait ScTypeDefinition extends toplevel.typedef.ScTypeDefinitionBase with ScTemplateDefinition with ScMember.WithBaseIconProvider with NavigationItem with PsiClassAdapter with ScTypeParametersOwner with ScDocCommentOwner with ScCommentOwner
+

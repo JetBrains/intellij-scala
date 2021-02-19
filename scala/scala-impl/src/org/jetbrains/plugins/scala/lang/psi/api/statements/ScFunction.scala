@@ -6,9 +6,10 @@ package statements
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
+
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScMethodLikeBase}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames.{Apply, Unapply, UnapplySeq}
@@ -31,16 +32,15 @@ import scala.collection.immutable.Set
 /**
  * Represents Scala's internal function definitions and declarations
  */
-trait ScFunction
-    extends ScalaPsiElement
-    with ScMember.WithBaseIconProvider
-    with ScParameterOwner
-    with ScDocCommentOwner
-    with ScTypedDefinition
-    with ScCommentOwner
-    with ScDeclaredElementsHolder
-    with ScMethodLike
-    with ScBlockStatement {
+trait ScFunctionBase extends ScalaPsiElementBase
+  with ScMember.WithBaseIconProvider
+  with ScParameterOwnerBase
+  with ScDocCommentOwnerBase
+  with ScTypedDefinitionBase
+  with ScCommentOwnerBase
+  with ScDeclaredElementsHolderBase
+  with ScMethodLikeBase
+{ this: ScFunction =>
 
   private[this] val probablyRecursive = ThreadLocal.withInitial[Boolean](() => false)
 
@@ -142,11 +142,36 @@ trait ScFunction
   override def getIcon(flags: Int): Icon = super[WithBaseIconProvider].getIcon(flags)
 }
 
-object ScFunction {
+abstract class ScFunctionCompanion {
+  object inSynthetic {
+    def unapply(func: ScFunction): Option[ScClass] = Option(func.syntheticCaseClass)
+  }
 
+  object CommonNames {
+    val Copy = "copy"
+
+    val Apply = "apply"
+    val Update = "update"
+    val GetSet: Set[String] = Set(Apply, Update)
+
+    val Unapply = "unapply"
+    val UnapplySeq = "unapplySeq"
+    val Unapplies: Set[String] = Set(Unapply, UnapplySeq)
+
+    val Foreach = "foreach"
+    val Map = "map"
+    val FlatMap = "flatMap"
+    val Filter = "filter"
+    val WithFilter = "withFilter"
+    val ForComprehensions: Set[String] = Set(Foreach, Map, FlatMap, Filter, WithFilter)
+
+    val Special: Set[String] = GetSet ++ Unapplies ++ ForComprehensions
+  }
+}
+
+object ScFunctionBase {
   implicit class Ext(private val function: ScFunction) extends AnyVal {
-
-    import CommonNames._
+    import ScFunction.CommonNames._
 
     private implicit def project: Project = function.getProject
 
@@ -173,30 +198,5 @@ object ScFunction {
       }
       isImplicit && hasSingleNonImplicitParam
     }
-  }
-
-  object inSynthetic {
-    def unapply(func: ScFunction): Option[ScClass] = Option(func.syntheticCaseClass)
-  }
-
-  object CommonNames {
-    val Copy = "copy"
-
-    val Apply = "apply"
-    val Update = "update"
-    val GetSet: Set[String] = Set(Apply, Update)
-
-    val Unapply = "unapply"
-    val UnapplySeq = "unapplySeq"
-    val Unapplies: Set[String] = Set(Unapply, UnapplySeq)
-
-    val Foreach = "foreach"
-    val Map = "map"
-    val FlatMap = "flatMap"
-    val Filter = "filter"
-    val WithFilter = "withFilter"
-    val ForComprehensions: Set[String] = Set(Foreach, Map, FlatMap, Filter, WithFilter)
-
-    val Special: Set[String] = GetSet ++ Unapplies ++ ForComprehensions
   }
 }

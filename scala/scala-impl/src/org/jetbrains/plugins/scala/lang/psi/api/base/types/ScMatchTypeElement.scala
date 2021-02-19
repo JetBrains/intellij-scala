@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base.types
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 /**
  * Type element representing Scala 3 match type definitions
  * of shape `X match { P_1 => T_1, ... P_n => T_n }`,
@@ -7,14 +10,14 @@ package org.jetbrains.plugins.scala.lang.psi.api.base.types
  * (if there are no bound type parameters) or a type lambda over an
  * unary function.
  */
-trait ScMatchTypeElement extends ScTypeElement {
+trait ScMatchTypeElementBase extends ScTypeElementBase { this: ScMatchTypeElement =>
   override protected val typeName: String = "MatchType"
 
   def scrutineeTypeElement: ScTypeElement
   def cases: Option[ScMatchTypeCases]
 }
 
-object ScMatchTypeElement {
+abstract class ScMatchTypeElementCompanion {
   def unapply(mte: ScMatchTypeElement): Some[(ScTypeElement, Option[ScMatchTypeCases])] =
     Some((mte.scrutineeTypeElement, mte.cases))
 }

@@ -4,6 +4,9 @@ package psi
 package api
 package base
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.PsiModifierList
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.util.EnumSet._
@@ -12,7 +15,7 @@ import org.jetbrains.plugins.scala.util.EnumSet._
   * @author Alexander Podkhalyuzin
   *         Date: 22.02.2008
   */
-trait ScModifierList extends ScalaPsiElement with PsiModifierList {
+trait ScModifierListBase extends ScalaPsiElementBase with PsiModifierList { this: ScModifierList =>
 
   //only one access modifier can occur in a particular modifier list
   def accessModifier: Option[ScAccessModifier]
@@ -20,7 +23,7 @@ trait ScModifierList extends ScalaPsiElement with PsiModifierList {
   def modifiers: EnumSet[ScalaModifier]
 }
 
-object ScModifierList {
+object ScModifierListBase {
 
   implicit class ScModifierListExt(private val list: ScModifierList) extends AnyVal {
 

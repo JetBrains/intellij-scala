@@ -5,6 +5,9 @@ package api
 package toplevel
 package imports
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.PsiElement
 
 /** 
@@ -12,7 +15,7 @@ import com.intellij.psi.PsiElement
 * Date: 20.02.2008
 */
 
-trait ScImportSelectors extends ScalaPsiElement {
+trait ScImportSelectorsBase extends ScalaPsiElementBase { this: ScImportSelectors =>
   def selectors: Seq[ScImportSelector]
 
   def hasWildcard : Boolean

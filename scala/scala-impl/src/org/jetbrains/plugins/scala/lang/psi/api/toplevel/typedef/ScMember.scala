@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMemberBase._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScMemberOrLocal
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
@@ -28,7 +28,7 @@ import scala.collection.mutable.ArrayBuffer
   * @author Alexander Podkhalyuzin
   * Date: 04.05.2008
   */
-trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
+trait ScMemberBase extends ScalaPsiElementBase with ScModifierListOwnerBase with PsiMember { this: ScMember =>
 
   override def getContainingClass: PsiClass = containingClass
 
@@ -64,7 +64,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     val found = getContainingClassLoose
     if (found == null) return null
 
-    val clazz = ScMember.containingClass(this, found)
+    val clazz = ScMemberBase.containingClass(this, found)
     if (clazz != null) return clazz
 
     val context = getContext
@@ -184,10 +184,21 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   }
 }
 
-object ScMember {
+abstract class ScMemberCompanion {
 
   trait WithBaseIconProvider extends ScMember with BaseIconProvider {
     override protected final def delegate: ScMember = this
+  }
+}
+
+object ScMemberBase {
+  implicit class ScMemberExt(private val member: ScMember) extends AnyVal {
+
+    def isSynthetic: Boolean = member.syntheticNavigationElement != null
+
+    def isPrivate: Boolean = member.hasModifierPropertyScala(PsiModifier.PRIVATE)
+
+    def isProtected: Boolean = member.hasModifierPropertyScala(PsiModifier.PROTECTED)
   }
 
   private val syntheticNavigationElementKey = Key.create[PsiElement]("ScMember.syntheticNavigationElement")
@@ -207,14 +218,5 @@ object ScMember {
          _: ScValueOrVariable => member.syntheticContainingClass
     case _: ScClassParameter | _: ScPrimaryConstructor => found
     case _ => null
-  }
-
-  implicit class ScMemberExt(private val member: ScMember) extends AnyVal {
-
-    def isSynthetic: Boolean = member.syntheticNavigationElement != null
-
-    def isPrivate: Boolean = member.hasModifierPropertyScala(PsiModifier.PRIVATE)
-
-    def isProtected: Boolean = member.hasModifierPropertyScala(PsiModifier.PROTECTED)
   }
 }

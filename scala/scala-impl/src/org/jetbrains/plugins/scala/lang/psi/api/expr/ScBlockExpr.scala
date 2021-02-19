@@ -4,6 +4,9 @@ package psi
 package api
 package expr
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
@@ -14,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 * Date: 06.03.2008
 */
 
-trait ScBlockExpr extends ScExpression with ScBlock with ScControlFlowOwner {
+trait ScBlockExprBase extends ScExpressionBase with ScBlockBase with ScControlFlowOwnerBase { this: ScBlockExpr =>
   def asSimpleExpression: Option[ScExpression] = Some(exprs) collect {
     case Seq(it) if !it.is[ScBlockExpr] => it
   }
@@ -32,7 +35,7 @@ trait ScBlockExpr extends ScExpression with ScBlock with ScControlFlowOwner {
   override def controlFlowScope: Option[ScCaseClauses] = if (isAnonymousFunction) caseClauses else None
 }
 
-object ScBlockExpr {
+abstract class ScBlockExprCompanion {
   object Expressions {
     def unapplySeq(e: ScBlockExpr): Some[Seq[ScExpression]] = Some(e.exprs)
   }

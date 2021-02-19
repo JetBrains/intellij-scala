@@ -5,12 +5,15 @@ package api
 package toplevel
 package imports
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 /**
 * @author Alexander Podkhalyuzin
 * Date: 20.02.2008
 */
 
-trait ScImportStmt extends ScBlockStatement {
+trait ScImportStmtBase { this: ScImportStmt =>
   def importExprs: Seq[ScImportExpr]
 }

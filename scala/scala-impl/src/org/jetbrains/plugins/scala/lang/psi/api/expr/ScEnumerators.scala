@@ -4,6 +4,9 @@ package psi
 package api
 package expr
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 
 /**
@@ -11,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 * Date: 06.03.2008
 */
 
-trait ScEnumerators extends ScalaPsiElement {
+trait ScEnumeratorsBase extends ScalaPsiElementBase { this: ScEnumerators =>
 
   def forBindings: Seq[ScForBinding]
 

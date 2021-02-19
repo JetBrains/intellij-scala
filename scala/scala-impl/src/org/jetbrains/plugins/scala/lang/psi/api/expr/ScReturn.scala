@@ -4,6 +4,9 @@ package psi
 package api
 package expr
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
@@ -12,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
   * @author Alexander Podkhalyuzin
   *         Date: 06.03.2008
   */
-trait ScReturn extends ScExpression {
+trait ScReturnBase extends ScExpressionBase { this: ScReturn =>
   def expr: Option[ScExpression] = findChild[ScExpression]
 
   def keyword: PsiElement
@@ -25,7 +28,7 @@ trait ScReturn extends ScExpression {
   }
 }
 
-object ScReturn {
+abstract class ScReturnCompanion {
   def unapply(expr: ScReturn): Option[ScExpression] = expr.expr
 
   object of {

@@ -6,9 +6,9 @@ import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
+import org.jetbrains.plugins.scala.lang.psi.api.ScReference;
+import org.jetbrains.plugins.scala.lang.psi.api.ScNamedElement;
+import org.jetbrains.plugins.scala.lang.psi.api.ScTemplateDefinition;
 
 import java.io.File;
 import java.io.IOException;

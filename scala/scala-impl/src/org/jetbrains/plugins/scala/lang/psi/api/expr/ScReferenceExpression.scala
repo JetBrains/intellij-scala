@@ -4,6 +4,9 @@ package psi
 package api
 package expr
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
@@ -16,8 +19,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 * Date: 06.03.2008
 */
 
-trait ScReferenceExpression extends ScExpression
-  with ScReference {
+trait ScReferenceExpressionBase extends ScExpressionBase with ScReferenceBase { this: ScReferenceExpression =>
 
   final def isQualified: Boolean = qualifier.isDefined
 
@@ -67,7 +69,7 @@ trait ScReferenceExpression extends ScExpression
   def getPrevTypeInfoParams: Seq[TypeParameter]
 }
 
-object ScReferenceExpression {
+abstract class ScReferenceExpressionCompanion {
 
   def unapply(e: ScReferenceExpression): Option[PsiElement] = Option(e.resolve())
 

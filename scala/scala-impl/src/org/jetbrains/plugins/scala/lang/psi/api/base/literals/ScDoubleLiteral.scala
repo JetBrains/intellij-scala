@@ -5,10 +5,13 @@ package api
 package base
 package literals
 
-trait ScDoubleLiteral extends ScLiteral.Numeric {
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
+trait ScDoubleLiteralBase extends ScLiteral.Numeric { this: ScDoubleLiteral =>
   override protected type V = java.lang.Double
 
   override private[psi] type T = Double
 }
 
-object ScDoubleLiteral extends ScLiteral.NumericCompanion[ScDoubleLiteral]
+abstract class ScDoubleLiteralCompanion extends ScLiteral.NumericCompanion[ScDoubleLiteral]

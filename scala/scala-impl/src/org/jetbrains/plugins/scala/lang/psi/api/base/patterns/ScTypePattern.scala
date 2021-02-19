@@ -5,6 +5,9 @@ package api
 package base
 package patterns
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 
 /** 
@@ -12,6 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 * Date: 28.02.2008
 */
 
-trait ScTypePattern extends ScalaPsiElement {
+trait ScTypePatternBase extends ScalaPsiElementBase { this: ScTypePattern =>
   def typeElement: ScTypeElement = findChild[ScTypeElement].get
 }

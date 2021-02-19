@@ -5,12 +5,15 @@ package api
 package expr
 package xml
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 21.04.2008
 */
 
-trait ScXmlEndTag extends ScXmlPairedTag {
+trait ScXmlEndTagBase extends ScXmlPairedTagBase { this: ScXmlEndTag =>
   def getOpeningTag: ScXmlStartTag = {
     if (getParent != null && getParent.getFirstChild.isInstanceOf[ScXmlStartTag]) {
       return getParent.getFirstChild.asInstanceOf[ScXmlStartTag]

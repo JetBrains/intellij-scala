@@ -25,6 +25,23 @@ import scala.language.implicitConversions
   * @author adkozlov
   */
 package object params {
+  type ScArguments = org.jetbrains.plugins.scala.lang.psi.api.ScArguments
+
+  type ScClassParameter = org.jetbrains.plugins.scala.lang.psi.api.ScClassParameter
+
+  type ScParameter = org.jetbrains.plugins.scala.lang.psi.api.ScParameter
+
+  type ScParameterClause = org.jetbrains.plugins.scala.lang.psi.api.ScParameterClause
+  val ScParameterClause = org.jetbrains.plugins.scala.lang.psi.api.ScParameterClause
+
+  type ScParameterType = org.jetbrains.plugins.scala.lang.psi.api.ScParameterType
+
+  type ScParameters = org.jetbrains.plugins.scala.lang.psi.api.ScParameters
+
+  type ScTypeParam = org.jetbrains.plugins.scala.lang.psi.api.ScTypeParam
+
+  type ScTypeParamClause = org.jetbrains.plugins.scala.lang.psi.api.ScTypeParamClause
+
   private val typeParameterCounter = new AtomicLong(0)
   private val reusableIdMap = new ConcurrentHashMap[String, Long]()
 
@@ -98,5 +115,4 @@ package object params {
     //I'd rather avoid implicit usages of this one
     val nameBased: TypeParamId[String] = name => nameBasedIdBaseline + name.hashCode
   }
-
 }

@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -7,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
   *
   * @author Clément Fournier
   */
-trait ScInfixElement extends ScalaPsiElement {
+trait ScInfixElementBase extends ScalaPsiElementBase { this: ScInfixElement =>
   //expression, type element or pattern
   type Kind <: ScalaPsiElement
 
@@ -25,7 +28,7 @@ trait ScInfixElement extends ScalaPsiElement {
 }
 
 
-object ScInfixElement {
+abstract class ScInfixElementCompanion {
   def unapply(arg: ScInfixElement): Option[(arg.Kind, arg.Reference, Option[arg.Kind])] =
     Some((arg.left, arg.operation, arg.rightOption))
 }

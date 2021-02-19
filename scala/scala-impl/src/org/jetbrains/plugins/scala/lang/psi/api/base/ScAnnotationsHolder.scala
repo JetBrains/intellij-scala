@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.{PsiAnnotation, PsiClass}
 import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions._
@@ -23,7 +26,7 @@ import scala.annotation.tailrec
  * Date: 10.01.2009
  */
 
-trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotatedAdapter {
+trait ScAnnotationsHolderBase extends ScalaPsiElementBase with PsiAnnotatedAdapter { this: ScAnnotationsHolder =>
 
   @Cached(ModTracker.anyScalaPsiChange, this)
   def annotations: Seq[ScAnnotation] = this.stubOrPsiChild(ScalaElementType.ANNOTATIONS) match {

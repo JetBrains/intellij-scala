@@ -4,11 +4,14 @@ package psi
 package api
 package expr
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 /**
   * @author Alexander Podkhalyuzin
   *         Date: 06.03.2008
   */
-trait ScPostfixExpr extends ScExpression with ScSugarCallExpr {
+trait ScPostfixExprBase extends ScExpressionBase with ScSugarCallExprBase { this: ScPostfixExpr =>
 
   def operand: ScExpression = findChild[ScExpression].get
 
@@ -25,6 +28,6 @@ trait ScPostfixExpr extends ScExpression with ScSugarCallExpr {
   }
 }
 
-object ScPostfixExpr {
+abstract class ScPostfixExprCompanion {
   def unapply(e: ScPostfixExpr): Some[(ScExpression, ScReferenceExpression)] = Some(e.operand, e.operation)
 }

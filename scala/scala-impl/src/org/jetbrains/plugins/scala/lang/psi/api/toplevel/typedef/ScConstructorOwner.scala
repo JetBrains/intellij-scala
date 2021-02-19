@@ -5,15 +5,15 @@ package api
 package toplevel
 package typedef
 
+import org.jetbrains.plugins.scala.lang.psi.api._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameters}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParameterOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParameterOwner, ScParameterOwnerBase}
 
 /**
   * @author adkozlov
   */
-trait ScConstructorOwner extends ScTypeDefinition
-  with ScParameterOwner {
+trait ScConstructorOwnerBase extends ScTypeDefinitionBase with ScParameterOwnerBase { this: ScConstructorOwner =>
 
   def constructor: Option[ScPrimaryConstructor] =
     findChild[ScPrimaryConstructor]

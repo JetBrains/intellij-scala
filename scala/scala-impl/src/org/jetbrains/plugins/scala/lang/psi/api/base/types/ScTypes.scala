@@ -5,11 +5,14 @@ package api
 package base
 package types
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 /**
  * @author Alexander Podkhalyuzin
  * Date: 22.02.2008
  */
 
-trait ScTypes extends ScalaPsiElement {
+trait ScTypesBase extends ScalaPsiElementBase { this: ScTypes =>
   def types: Seq[ScTypeElement] = findChildren[ScTypeElement]
 }

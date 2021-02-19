@@ -5,6 +5,9 @@ package api
 package statements
 package params
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.lang.jvm.JvmElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
@@ -12,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
 */
-trait ScClassParameter extends ScParameter with ScMember.WithBaseIconProvider {
+trait ScClassParameterBase extends ScParameterBase with ScMember.WithBaseIconProvider { this: ScClassParameter =>
   def isVal: Boolean
 
   def isVar: Boolean

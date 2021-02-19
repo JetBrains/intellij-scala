@@ -4,6 +4,9 @@ package psi
 package api
 package expr
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 
@@ -13,7 +16,7 @@ import scala.annotation.tailrec
   * @author Alexander Podkhalyuzin
   *         Date: 06.03.2008
   */
-trait ScMethodCall extends ScExpression with MethodInvocation {
+trait ScMethodCallBase extends ScExpressionBase with MethodInvocationBase { this: ScMethodCall =>
 
   @tailrec
   final def deepestInvokedExpr: ScExpression =
@@ -51,7 +54,7 @@ trait ScMethodCall extends ScExpression with MethodInvocation {
   }
 }
 
-object ScMethodCall {
+abstract class ScMethodCallCompanion {
   def unapply(call: ScMethodCall): Option[(ScExpression, Seq[ScExpression])] =
     Some(call.getInvokedExpr, call.argumentExpressions)
 

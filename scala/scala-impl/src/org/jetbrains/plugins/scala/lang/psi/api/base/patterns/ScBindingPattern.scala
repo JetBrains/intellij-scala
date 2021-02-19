@@ -7,16 +7,17 @@ package patterns
 
 import com.intellij.navigation.NavigationItem
 import com.intellij.psi._
-import javax.swing.Icon
 import com.intellij.psi.javadoc.PsiDocComment
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElementBase, ScTypedDefinitionBase}
 
-trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinition with NavigationItem with PsiDocCommentOwner {
+import javax.swing.Icon
+
+trait ScBindingPatternBase extends ScPatternBase with ScNamedElementBase with ScTypedDefinitionBase with NavigationItem with PsiDocCommentOwner { this: ScBindingPattern =>
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
   def isWildcard: Boolean

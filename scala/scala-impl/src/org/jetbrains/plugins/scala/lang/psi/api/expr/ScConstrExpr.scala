@@ -4,6 +4,9 @@ package psi
 package api
 package expr
 
-trait ScConstrExpr extends ScExpression {
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
+trait ScConstrExprBase extends ScExpressionBase { this: ScConstrExpr =>
   def selfInvocation: Option[ScSelfInvocation]
 }

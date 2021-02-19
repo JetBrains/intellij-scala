@@ -5,16 +5,19 @@ package api
 package base
 package patterns
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 
 /**
  * @author Alexander Podkhalyuzin
  */
-trait ScTypedPattern extends ScBindingPattern {
+trait ScTypedPatternBase extends ScBindingPatternBase { this: ScTypedPattern =>
   def typePattern: Option[ScTypePattern] = findChild[ScTypePattern]
 }
 
-object ScTypedPattern {
+abstract class ScTypedPatternCompanion {
   def unapply(pattern: ScTypedPattern): Option[ScTypeElement] =
     pattern.typePattern.map(_.typeElement)
 }

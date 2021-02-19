@@ -4,14 +4,15 @@ package psi
 package api
 package base
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
+import org.jetbrains.plugins.scala.lang.psi.api._
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScStringLiteral, ScStringLiteralBase}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 
 /**
   * User: Dmitry Naydanov
   * Date: 3/17/12
   */
-trait ScInterpolatedStringLiteral extends ScStringLiteral with ScInterpolated {
+trait ScInterpolatedStringLiteralBase extends ScStringLiteralBase with ScInterpolatedBase { this: ScInterpolatedStringLiteral =>
 
   def kind: base.ScInterpolatedStringLiteral.Kind
 
@@ -22,7 +23,7 @@ trait ScInterpolatedStringLiteral extends ScStringLiteral with ScInterpolated {
   def desugaredExpression: Option[(ScReferenceExpression, ScMethodCall)]
 }
 
-object ScInterpolatedStringLiteral {
+abstract class ScInterpolatedStringLiteralCompanion {
 
   def unapply(literal: ScInterpolatedStringLiteral): Option[ScReferenceExpression] =
     literal.reference

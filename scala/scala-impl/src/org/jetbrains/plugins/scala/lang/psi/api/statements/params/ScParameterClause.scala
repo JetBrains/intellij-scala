@@ -5,6 +5,9 @@ package api
 package statements
 package params
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -14,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
   * @author Alexander Podkhalyuzin
   * Date: 21.03.2008
   */
-trait ScParameterClause extends ScalaPsiElement {
+trait ScParameterClauseBase extends ScalaPsiElementBase { this: ScParameterClause =>
 
   def parameters: Seq[ScParameter]
 
@@ -48,6 +51,6 @@ trait ScParameterClause extends ScalaPsiElement {
   }
 }
 
-object ScParameterClause {
+abstract class ScParameterClauseCompanion {
   def unapplySeq(e: ScParameterClause): Some[Seq[ScParameter]] = Some(e.parameters)
 }

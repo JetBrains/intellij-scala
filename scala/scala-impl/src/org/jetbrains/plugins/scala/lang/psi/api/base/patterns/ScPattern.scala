@@ -5,6 +5,9 @@ package api
 package base
 package patterns
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
@@ -37,7 +40,7 @@ import scala.meta.intellij.QuasiquoteInferUtil
  * @author Alexander Podkhalyuzin
  */
 
-trait ScPattern extends ScalaPsiElement with Typeable {
+trait ScPatternBase extends ScalaPsiElementBase with Typeable { this: ScPattern =>
   def isIrrefutableFor(t: Option[ScType]): Boolean
 
   def bindings: Seq[ScBindingPattern]
@@ -53,7 +56,47 @@ trait ScPattern extends ScalaPsiElement with Typeable {
   }
 }
 
-object ScPattern {
+object ScPatternBase {
+  abstract class ScPatternCompanion {
+    def unapplySubpatternTypes(returnTpe: ScType, place: PsiElement, fun: ScFunction): Seq[ScType] = {
+      val isUnapplySeq = fun.name == CommonNames.UnapplySeq
+      val tpes         = productElementTypes(returnTpe, place, fun)
+
+      if (tpes.isEmpty)       Seq.empty
+      else if (!isUnapplySeq) tpes
+      else
+        extractSeqElementType(tpes.last, place).fold(Seq.empty[ScType])(tpes.init :+ _)
+    }
+
+    def isQuasiquote(fun: ScFunction): Boolean = {
+      val fqnO = Option(fun.containingClass).flatMap(_.qualifiedName.toOption)
+      fqnO.exists(fqn => fqn.contains('.') && fqn.substring(0, fqn.lastIndexOf('.')) == "scala.reflect.api.Quasiquotes.Quasiquote")
+    }
+
+    def expectedNumberOfExtractorArguments(
+                                            returnType: ScType,
+                                            place:      PsiElement,
+                                            fun:        ScFunction
+                                          ): Int =
+      unapplySubpatternTypes(returnType, place, fun).size
+
+
+    def extractPossibleProductParts(receiverType: ScType, place: PsiElement): Seq[ScType] = {
+      val builder = Seq.newBuilder[ScType]
+
+      @tailrec
+      def collect(i: Int): Unit = findMember(s"_$i", receiverType, place) match {
+        case Some(tp) => builder += tp; collect(i + 1)
+        case _        => ()
+      }
+
+      collect(1)
+      builder.result()
+    }
+  }
+
+  import ScPattern._
+
   implicit class Ext(private val pattern: ScPattern) extends AnyVal {
 
     import pattern.{elementScope, projectContext}
@@ -333,26 +376,6 @@ object ScPattern {
     }.headOption
   }
 
-  def extractPossibleProductParts(receiverType: ScType, place: PsiElement): Seq[ScType] = {
-    val builder = Seq.newBuilder[ScType]
-
-    @tailrec
-    def collect(i: Int): Unit = findMember(s"_$i", receiverType, place) match {
-      case Some(tp) => builder += tp; collect(i + 1)
-      case _        => ()
-    }
-
-    collect(1)
-    builder.result()
-  }
-
-  def expectedNumberOfExtractorArguments(
-    returnType: ScType,
-    place:      PsiElement,
-    fun:        ScFunction
-  ): Int =
-    unapplySubpatternTypes(returnType, place, fun).size
-
   private[this] case class ByNameExtractor(place: PsiElement) {
     def unapply(tpe: ScType): Option[Seq[ScType]] = {
       val selectors = extractPossibleProductParts(tpe, place)
@@ -438,19 +461,4 @@ object ScPattern {
         case tpe                                  => Seq(tpe)
       }.getOrElse(Seq.empty)
     }
-
-  def unapplySubpatternTypes(returnTpe: ScType, place: PsiElement, fun: ScFunction): Seq[ScType] = {
-    val isUnapplySeq = fun.name == CommonNames.UnapplySeq
-    val tpes         = productElementTypes(returnTpe, place, fun)
-
-    if (tpes.isEmpty)       Seq.empty
-    else if (!isUnapplySeq) tpes
-    else
-      extractSeqElementType(tpes.last, place).fold(Seq.empty[ScType])(tpes.init :+ _)
-  }
-
-  def isQuasiquote(fun: ScFunction): Boolean = {
-    val fqnO = Option(fun.containingClass).flatMap(_.qualifiedName.toOption)
-    fqnO.exists(fqn => fqn.contains('.') && fqn.substring(0, fqn.lastIndexOf('.')) == "scala.reflect.api.Quasiquotes.Quasiquote")
-  }
 }

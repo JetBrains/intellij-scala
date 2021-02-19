@@ -5,13 +5,16 @@ package api
 package toplevel
 package typedef
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 20.02.2008
 */
-trait ScClass extends ScTypeDefinition with ScConstructorOwner {
+trait ScClassBase extends ScTypeDefinitionBase with ScConstructorOwnerBase { this: ScClass =>
 
   def typeParamString: String = typeParameters
     .map(ScalaPsiUtil.typeParamString(_)) match {

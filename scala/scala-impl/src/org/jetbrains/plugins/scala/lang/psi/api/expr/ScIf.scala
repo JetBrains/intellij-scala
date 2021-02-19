@@ -4,13 +4,16 @@ package psi
 package api
 package expr
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.PsiElement
 
 /**
   * @author Alexander Podkhalyuzin
   *         Date: 06.03.2008
   */
-trait ScIf extends ScExpression {
+trait ScIfBase extends ScExpressionBase { this: ScIf =>
   def condition: Option[ScExpression]
 
   def thenExpression: Option[ScExpression]
@@ -28,6 +31,6 @@ trait ScIf extends ScExpression {
   }
 }
 
-object ScIf {
+abstract class ScIfCompanion {
   def unapply(ifStmt: ScIf): Some[(Option[ScExpression], Option[ScExpression], Option[ScExpression])] = Some(ifStmt.condition, ifStmt.thenExpression, ifStmt.elseExpression)
 }

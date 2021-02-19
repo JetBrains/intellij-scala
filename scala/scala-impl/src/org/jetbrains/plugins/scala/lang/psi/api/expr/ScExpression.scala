@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScIntegerLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpressionBase.{ExpressionTypeResult, shape}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
@@ -32,10 +33,7 @@ import scala.annotation.tailrec
 /**
   * @author ilyas, Alexander Podkhalyuzin
   */
-trait ScExpression extends ScBlockStatement
-  with PsiAnnotationMemberValue
-  with ImplicitArgumentsOwner
-  with Typeable with Compatibility.Expression {
+trait ScExpressionBase extends PsiAnnotationMemberValue with ImplicitArgumentsOwner with Typeable with Compatibility.Expression { this: ScExpression =>
 
   import ScExpression._
 
@@ -154,17 +152,27 @@ trait ScExpression extends ScBlockStatement
   }
 }
 
-object ScExpression {
-  final case class ExpressionTypeResult(
-    tr:                 TypeResult,
-    importsUsed:        Set[ImportUsed] = Set.empty,
-    implicitConversion: Option[ScalaResolveResult] = None
-  ) {
-    def implicitFunction: Option[PsiNamedElement] = implicitConversion.map(_.element)
-  }
+object ExpectedType {
+  def unapply(e: ScExpression): Option[ScType] = e.expectedType()
+}
 
+object NonValueType {
+  def unapply(e: ScExpression): Option[ScType] = e.getNonValueType().toOption
+}
+
+abstract class ScExpressionCompanion {
   object Type {
     def unapply(exp: ScExpression): Option[ScType] = exp.`type`().toOption
+  }
+}
+
+object ScExpressionBase {
+  final case class ExpressionTypeResult(
+                                         tr:                 TypeResult,
+                                         importsUsed:        Set[ImportUsed] = Set.empty,
+                                         implicitConversion: Option[ScalaResolveResult] = None
+                                       ) {
+    def implicitFunction: Option[PsiNamedElement] = implicitConversion.map(_.element)
   }
 
   implicit class Ext(private val expr: ScExpression) extends AnyVal {
@@ -224,9 +232,9 @@ object ScExpression {
     @CachedWithRecursionGuard(expr, Failure(NlsString.force("Recursive getTypeWithoutImplicits")),
       BlockModificationTracker(expr))
     def getTypeWithoutImplicits(
-      ignoreBaseType: Boolean = false,
-      fromUnderscore: Boolean = false
-    ): TypeResult = {
+                                 ignoreBaseType: Boolean = false,
+                                 fromUnderscore: Boolean = false
+                               ): TypeResult = {
       ProgressManager.checkCanceled()
 
       expr match {
@@ -258,7 +266,7 @@ object ScExpression {
     }
 
     //has side effect!
-    private[ScExpression] def updateWithImplicitParameters(tpe: ScType, checkExpectedType: Boolean, fromUnderscore: Boolean): ScType = {
+    private[expr] def updateWithImplicitParameters(tpe: ScType, checkExpectedType: Boolean, fromUnderscore: Boolean): ScType = {
       val (newType, params) = updatedWithImplicitParameters(tpe, checkExpectedType)
 
       if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr) == fromUnderscore) {
@@ -368,21 +376,6 @@ object ScExpression {
     }
   }
 
-  @tailrec
-  private def shouldUpdateImplicitParams(expr: ScExpression): Boolean = {
-    //true if it wasn't updated in MethodInvocation method
-    expr match {
-      case _: ScPrefixExpr                    => true
-      case _: ScPostfixExpr                   => true
-      case ChildOf(ScInfixExpr(_, `expr`, _)) => false //implicit parameters are in infix expression
-      case ChildOf(_: ScGenericCall)          => false //implicit parameters are in generic call
-      case ChildOf(ScAssignment(`expr`, _))   => false //simple var cannot have implicit parameters, otherwise it's for assignment
-      case _: MethodInvocation                => false
-      case ScParenthesisedExpr(inner)         => shouldUpdateImplicitParams(inner)
-      case _                                  => true
-    }
-  }
-
   private implicit class ExprTypeUpdates(private val scType: ScType) extends AnyVal {
     def widenLiteralType(expr: ScExpression, expectedType: Option[ScType]): ScType = {
       def isLiteralType(tp: ScType) = tp.removeAliasDefinitions().isInstanceOf[ScLiteralType]
@@ -401,9 +394,9 @@ object ScExpression {
      * PartialFunction with matching type arguments.
      */
     final def synthesizePartialFunctionType(
-      expr:        ScExpression,
-      expectedTpe: Option[ScType]
-    ): ScType = {
+                                             expr:        ScExpression,
+                                             expectedTpe: Option[ScType]
+                                           ): ScType = {
       implicit val scope: ElementScope = expr.elementScope
 
       def flattenParamTypes(t: ScType): Seq[ScType] = t match {
@@ -416,12 +409,12 @@ object ScExpression {
           paramTpes.corresponds(Seq(ptParams))(_.conforms(_))
 
       def checkExpectedPartialFunctionType(
-        resTpe:    ScType,
-        paramTpes: Seq[ScType]
-      ): ScType = expectedTpe match {
+                                            resTpe:    ScType,
+                                            paramTpes: Seq[ScType]
+                                          ): ScType = expectedTpe match {
         case Some(PartialFunctionType(ptRes, ptParams))
-            if resTpe.conforms(ptRes) && parameterTypesMatch(ptParams, paramTpes) &&
-              expr.scalaLanguageLevelOrDefault >= Scala_2_13 =>
+          if resTpe.conforms(ptRes) && parameterTypesMatch(ptParams, paramTpes) &&
+            expr.scalaLanguageLevelOrDefault >= Scala_2_13 =>
           val partialFunctionParamType =
             if (paramTpes.size == 1) paramTpes.head
             else TupleType(paramTpes)
@@ -444,10 +437,10 @@ object ScExpression {
     }
 
     def expectedSAMType(
-      expr:           ScExpression,
-      fromUnderscore: Boolean,
-      expected:       ScType
-    ): Option[ScType] = {
+                         expr:           ScExpression,
+                         fromUnderscore: Boolean,
+                         expected:       ScType
+                       ): Option[ScType] = {
       @scala.annotation.tailrec
       def checkForSAM(tp: ScType): Option[ScType] =
         tp match {
@@ -517,6 +510,21 @@ object ScExpression {
     }
   }
 
+  @tailrec
+  private def shouldUpdateImplicitParams(expr: ScExpression): Boolean = {
+    //true if it wasn't updated in MethodInvocation method
+    expr match {
+      case _: ScPrefixExpr                    => true
+      case _: ScPostfixExpr                   => true
+      case ChildOf(ScInfixExpr(_, `expr`, _)) => false //implicit parameters are in infix expression
+      case ChildOf(_: ScGenericCall)          => false //implicit parameters are in generic call
+      case ChildOf(ScAssignment(`expr`, _))   => false //simple var cannot have implicit parameters, otherwise it's for assignment
+      case _: MethodInvocation                => false
+      case ScParenthesisedExpr(inner)         => shouldUpdateImplicitParams(inner)
+      case _                                  => true
+    }
+  }
+
   private def shape(expression: ScExpression, ignoreAssign: Boolean = false): Option[ScType] = {
     import expression.projectContext
 
@@ -544,12 +552,4 @@ object ScExpression {
         }
     }
   }
-}
-
-object ExpectedType {
-  def unapply(e: ScExpression): Option[ScType] = e.expectedType()
-}
-
-object NonValueType {
-  def unapply(e: ScExpression): Option[ScType] = e.getNonValueType().toOption
 }

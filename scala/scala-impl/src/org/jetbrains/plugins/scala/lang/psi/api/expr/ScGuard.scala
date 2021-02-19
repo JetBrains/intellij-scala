@@ -4,7 +4,10 @@ package psi
 package api
 package expr
 
-trait ScGuard extends ScEnumerator {
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
+trait ScGuardBase extends ScEnumeratorBase { this: ScGuard =>
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = visitor.visitGuard(this)
 }

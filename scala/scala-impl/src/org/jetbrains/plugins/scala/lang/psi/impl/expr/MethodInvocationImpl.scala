@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, MacroInv
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpressionBase.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames.Update
@@ -30,9 +30,11 @@ import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedWithRecursion
   * Nikolay.Tropin
   * 19-Dec-17
   */
-abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) with MethodInvocation {
+abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) with MethodInvocationBase { this: MethodInvocation =>
 
   import MethodInvocationImpl._
+
+  def asMethodInvocation: MethodInvocation = this
 
   override protected def innerType: TypeResult = innerTypeExt.typeResult
 
@@ -218,7 +220,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
               expectedOption: Option[ScType],
               ignoreBaseTypes: Boolean,
               fromUnderscore:  Boolean
-            ): ScExpression.ExpressionTypeResult = {
+            ): ScExpressionBase.ExpressionTypeResult = {
               expr.getTypeAfterImplicitConversion(
                 checkImplicits,
                 isShape,
@@ -281,7 +283,7 @@ object MethodInvocationImpl {
 
     def checkMacroExpansion(result: ScalaResolveResult): Option[ScType] =
       ScalaMacroEvaluator.getInstance(invocation.getProject)
-        .expandMacro(result.element, MacroInvocationContext(invocation, result))
+        .expandMacro(result.element, MacroInvocationContext(invocation.asMethodInvocation, result))
         .flatMap(_.getNonValueType().toOption)
 
     def checkMacro(result: ScalaResolveResult): Option[ScType] =
@@ -293,7 +295,7 @@ object MethodInvocationImpl {
 
     def findPossibleApplyOrUpdateCandidates(`type`: ScType): Option[Array[ScalaResolveResult]] = {
       def findApplyOrUpdate(isDynamic: Boolean) =
-        processTypeForUpdateOrApplyCandidates(invocation, `type`, isShape = false, isDynamic = isDynamic) match {
+        processTypeForUpdateOrApplyCandidates(invocation.asMethodInvocation, `type`, isShape = false, isDynamic = isDynamic) match {
           case Array() => None
           case results if results.forall(_.element.isInstanceOf[PsiMethod]) => Some(results)
           case _ => None

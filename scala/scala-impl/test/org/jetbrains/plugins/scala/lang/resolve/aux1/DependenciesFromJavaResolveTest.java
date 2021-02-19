@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.resolve.aux1;
 
 import com.intellij.psi.*;
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
+import org.jetbrains.plugins.scala.lang.psi.api.ScReference;
+import org.jetbrains.plugins.scala.lang.psi.api.ScClass;
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult;
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveTestCase;
 import scala.Option;

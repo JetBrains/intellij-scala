@@ -4,14 +4,17 @@ package psi
 package api
 package expr
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 /**
   * @author Alexander Podkhalyuzin
   *         Date: 06.03.2008
   */
-trait ScFinallyBlock extends ScalaPsiElement {
+trait ScFinallyBlockBase extends ScalaPsiElementBase { this: ScFinallyBlock =>
   def expression: Option[ScExpression] = findChild[ScExpression]
 }
 
-object ScFinallyBlock {
+abstract class ScFinallyBlockCompanion {
   def unapply(block: ScFinallyBlock): Option[ScExpression] = block.expression
 }

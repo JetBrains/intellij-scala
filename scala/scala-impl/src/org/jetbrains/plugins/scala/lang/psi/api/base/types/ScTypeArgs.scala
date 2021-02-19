@@ -5,6 +5,9 @@ package api
 package base
 package types
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 /** 
@@ -12,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 * Date: 22.02.2008
 */
 
-trait ScTypeArgs extends ScArguments {
+trait ScTypeArgsBase extends ScArgumentsBase { this: ScTypeArgs =>
   def typeArgs: Seq[ScTypeElement]
 
   override def getArgsCount: Int = typeArgs.length

@@ -4,10 +4,13 @@ package psi
 package api
 package expr
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 /**
   * @author Alexander.Podkhalyuzin
   */
-trait ScConstrBlock extends ScBlockExpr {
+trait ScConstrBlockBase extends ScBlockExprBase { this: ScConstrBlock =>
 
   def selfInvocation: Option[ScSelfInvocation] = findChild[ScSelfInvocation]
 

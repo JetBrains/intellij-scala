@@ -5,6 +5,9 @@ package api
 package statements
 package params
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi._
 
 /**
@@ -12,7 +15,7 @@ import com.intellij.psi._
 * Date: 21.03.2008
 */
 
-trait ScParameters extends ScalaPsiElement with PsiParameterList {
+trait ScParametersBase extends ScalaPsiElementBase with PsiParameterList { this: ScParameters =>
 
   def params: Seq[ScParameter] = clauses.flatMap((clause: ScParameterClause) => clause.parameters)
 

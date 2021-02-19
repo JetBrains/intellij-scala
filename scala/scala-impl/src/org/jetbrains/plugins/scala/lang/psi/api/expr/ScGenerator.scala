@@ -4,15 +4,18 @@ package psi
 package api
 package expr
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 
-trait ScGenerator extends ScEnumerator with ScPatternedEnumerator {
+trait ScGeneratorBase extends ScEnumeratorBase with ScPatternedEnumeratorBase { this: ScGenerator =>
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitGenerator(this)
   }
 }
 
-object ScGenerator {
+abstract class ScGeneratorCompanion {
   def unapply(gen: ScGenerator): Option[(ScPattern, Option[ScExpression])] = Some(gen.pattern -> gen.expr)
 }

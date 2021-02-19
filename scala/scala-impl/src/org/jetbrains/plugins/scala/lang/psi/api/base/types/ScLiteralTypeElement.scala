@@ -5,7 +5,10 @@ package api
 package base
 package types
 
-trait ScLiteralTypeElement extends ScTypeElement {
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
+trait ScLiteralTypeElementBase extends ScTypeElementBase { this: ScLiteralTypeElement =>
   override protected val typeName = "LiteralType"
 
   def getLiteral: ScLiteral

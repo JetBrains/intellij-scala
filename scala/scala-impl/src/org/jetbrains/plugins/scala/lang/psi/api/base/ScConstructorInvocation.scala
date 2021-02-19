@@ -4,6 +4,9 @@ package psi
 package api
 package base
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeArgs, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -16,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 * Date: 22.02.2008
 */
 
-trait ScConstructorInvocation extends ScalaPsiElement with ConstructorInvocationLike {
+trait ScConstructorInvocationBase extends ScalaPsiElementBase with ConstructorInvocationLike { this: ScConstructorInvocation =>
   def typeElement: ScTypeElement
 
   def simpleTypeElement: Option[ScSimpleTypeElement]
@@ -42,7 +45,7 @@ trait ScConstructorInvocation extends ScalaPsiElement with ConstructorInvocation
   def matchedParameters: Seq[(ScExpression, Parameter)]
 }
 
-object ScConstructorInvocation {
+abstract class ScConstructorInvocationCompanion {
   def unapply(c: ScConstructorInvocation): Option[(ScTypeElement, Seq[ScArgumentExprList])] = {
     Option(c).map(it => (it.typeElement, it.arguments))
   }

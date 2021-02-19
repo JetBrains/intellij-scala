@@ -5,6 +5,9 @@ package api
 package base
 package types
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -18,7 +21,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 * @author Alexander Podkhalyuzin
 */
 
-trait ScTypeElement extends ScalaPsiElement with Typeable {
+trait ScTypeElementBase extends ScalaPsiElementBase with Typeable { this: ScTypeElement =>
   protected val typeName: String
 
   override def toString: String = {
@@ -80,7 +83,7 @@ trait ScTypeElement extends ScalaPsiElement with Typeable {
   }
 }
 
-object ScTypeElement {
+abstract class ScTypeElementCompanion {
   // java compatibility
   def calcType(typeElement: ScTypeElement): ScType = typeElement.calcType
 }

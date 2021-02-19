@@ -4,25 +4,21 @@ package psi
 package api
 package statements
 
+import org.jetbrains.plugins.scala.lang.psi.api._
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotations
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScMember}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScDocCommentOwnerBase, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 /**
  * @author adkozlov
  */
-trait ScValueOrVariable extends ScBlockStatement
-  with ScMember.WithBaseIconProvider
-  with ScDocCommentOwner
-  with ScDeclaredElementsHolder
-  with ScCommentOwner
-  with Typeable {
+trait ScValueOrVariableBase extends ScMember.WithBaseIconProvider with ScDocCommentOwnerBase with ScDeclaredElementsHolderBase with ScCommentOwnerBase with Typeable { this: ScValueOrVariable =>
 
   def keywordToken: PsiElement = findFirstChildByType(keywordElementType).get
 

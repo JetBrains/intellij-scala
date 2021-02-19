@@ -4,6 +4,9 @@ package psi
 package api
 package base
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -22,7 +25,7 @@ import scala.collection.immutable.ArraySeq
 * Date: 07.03.2008
 */
 
-trait ScPrimaryConstructor extends ScMember with ScMethodLike {
+trait ScPrimaryConstructorBase extends ScMemberBase with ScMethodLikeBase { this: ScPrimaryConstructor =>
 
   /**
    *  @return has access modifier
@@ -102,7 +105,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
   }
 }
 
-object ScPrimaryConstructor {
+abstract class ScPrimaryConstructorCompanion {
   object ofClass {
     def unapply(pc: ScPrimaryConstructor): Option[ScClass] = {
       pc.containingClass match {

@@ -4,6 +4,9 @@ package psi
 package api
 package toplevel
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.{PsiElement, ResolveState}
 
@@ -11,8 +14,7 @@ import com.intellij.psi.{PsiElement, ResolveState}
  * @author ilyas
  */
 
-trait ScImportableDeclarationsOwner extends ScalaPsiElement {
-  self: ScTypedDefinition =>
+trait ScImportableDeclarationsOwnerBase extends ScalaPsiElementBase { this: ScTypedDefinition with ScImportableDeclarationsOwner =>
 
   /**
    * Declarations may be taken from stable elements only

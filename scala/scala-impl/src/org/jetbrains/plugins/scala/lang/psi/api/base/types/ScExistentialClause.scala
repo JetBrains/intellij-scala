@@ -12,6 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaration
 * Date: 07.03.2008
 */
 
-trait ScExistentialClause extends ScalaPsiElement {
+trait ScExistentialClauseBase extends ScalaPsiElementBase { this: ScExistentialClause =>
   def declarations : Seq[ScDeclaration] = findChildren[ScDeclaration]
 }

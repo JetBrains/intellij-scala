@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.psi.api.expr
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 // A common trait for Infix, Postfix and Prefix expressions
 // and Method calls to handle them uniformly
-trait MethodInvocation extends ScExpression with ScalaPsiElement {
+trait MethodInvocationBase extends ScExpressionBase with ScalaPsiElementBase { this: MethodInvocation =>
   /**
     * For Infix, Postfix and Prefix expressions
     * it's reference expression for operation
@@ -86,22 +86,24 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   def isUpdateCall: Boolean = false
 }
 
-object MethodInvocation {
+object MethodInvocationBase {
+  abstract class MethodInvocationCompanion {
 
-  def unapply(methodInvocation: MethodInvocation): Option[(ScExpression, Seq[ScExpression])] =
-    for {
-      invocation <- Option(methodInvocation)
-      expression = invocation.getInvokedExpr
-      if expression != null
-    } yield (expression, invocation.argumentExpressions)
+    def unapply(methodInvocation: MethodInvocation): Option[(ScExpression, Seq[ScExpression])] =
+      for {
+        invocation <- Option(methodInvocation)
+        expression = invocation.getInvokedExpr
+        if expression != null
+      } yield (expression, invocation.argumentExpressions)
 
-  /**
-    * @return map of expressions and parameters
-    */
-  def matchedParametersMap(methodInvocation: MethodInvocation): Map[Parameter, Seq[ScExpression]] =
-    methodInvocation.matchedParametersInner
-      .groupBy(_._1)
-      .map { pair =>
-        pair._1 -> pair._2.map(_._2)
-      }
+    /**
+     * @return map of expressions and parameters
+     */
+    def matchedParametersMap(methodInvocation: MethodInvocation): Map[Parameter, Seq[ScExpression]] =
+      methodInvocation.matchedParametersInner
+        .groupBy(_._1)
+        .map { pair =>
+          pair._1 -> pair._2.map(_._2)
+        }
+  }
 }

@@ -1,6 +1,9 @@
 package org.jetbrains.plugins.scala
 package lang.psi.api.toplevel.typedef
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions._
@@ -16,7 +19,7 @@ import com.intellij.psi.PsiDocCommentOwner
 import com.intellij.psi.javadoc.PsiDocComment
 import org.jetbrains.annotations.Nullable
 
-trait ScDocCommentOwner extends PsiDocCommentOwner {
+trait ScDocCommentOwnerBase extends PsiDocCommentOwner { this: ScDocCommentOwner =>
 
   @Cached(ModTracker.anyScalaPsiChange, this)
   final def docComment: Option[ScDocComment] =

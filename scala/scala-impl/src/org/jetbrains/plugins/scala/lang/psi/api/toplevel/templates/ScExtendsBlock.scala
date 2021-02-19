@@ -5,6 +5,9 @@ package api
 package toplevel
 package templates
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValueOrVariable}
@@ -16,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 * Date: 20.02.2008
 */
 
-trait ScExtendsBlock extends ScalaPsiElement {
+trait ScExtendsBlockBase extends ScalaPsiElementBase { this: ScExtendsBlock =>
 
   def members : Seq[ScMember]
 
@@ -59,7 +62,7 @@ trait ScExtendsBlock extends ScalaPsiElement {
 
 }
 
-object ScExtendsBlock {
+abstract class ScExtendsBlockCompanion {
 
   object EarlyDefinitions {
     def unapply(block: ScExtendsBlock): Option[ScEarlyDefinitions] = block.earlyDefinitions

@@ -5,12 +5,15 @@ package api
 package base
 package types
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 13.03.2008
 */
 
-trait ScExistentialTypeElement extends ScTypeElement {
+trait ScExistentialTypeElementBase extends ScTypeElementBase { this: ScExistentialTypeElement =>
   override protected val typeName = "ExistentialType"
 
   def quantified: ScTypeElement = findChild[ScTypeElement].get

@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.{PsiAnnotationMemberValue, PsiElement}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -11,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScNameValuePairImpl
 * Date: 07.03.2008
 */
 
-trait ScAnnotationExpr extends ScalaPsiElement {
+trait ScAnnotationExprBase extends ScalaPsiElementBase { this: ScAnnotationExpr =>
   def constructorInvocation: ScConstructorInvocation = findChild[ScConstructorInvocation].get
 
   def getAttributes: Seq[ScNameValuePair] = findArgExprs.map(_.findChildrenByType(ScalaElementType.ASSIGN_STMT)).getOrElse(Seq.empty).map {

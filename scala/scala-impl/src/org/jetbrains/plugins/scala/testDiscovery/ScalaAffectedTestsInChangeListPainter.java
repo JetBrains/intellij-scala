@@ -20,7 +20,8 @@ import com.intellij.util.ui.EdtInvocationManager;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember;
+import org.jetbrains.plugins.scala.lang.psi.api.ScMember;
+import org.jetbrains.plugins.scala.lang.psi.api.ScMember;
 import org.jetbrains.plugins.scala.testDiscovery.actions.ScalaShowAffectedTestsAction;
 
 import java.util.*;

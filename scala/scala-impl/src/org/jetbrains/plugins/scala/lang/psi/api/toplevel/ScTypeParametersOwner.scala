@@ -4,6 +4,9 @@ package psi
 package api
 package toplevel
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.ModTracker
@@ -12,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
-trait ScTypeParametersOwner extends ScalaPsiElement {
+trait ScTypeParametersOwnerBase extends ScalaPsiElementBase { this: ScTypeParametersOwner =>
 
   @Cached(ModTracker.anyScalaPsiChange, this)
   def typeParameters: Seq[ScTypeParam] = {

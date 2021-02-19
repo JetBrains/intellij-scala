@@ -4,6 +4,9 @@ package psi
 package api
 package expr
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -21,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
  * 2. foo {expr}
  * In second way there is no parentheses, just one block expression.
  */
-trait ScArgumentExprList extends ScArguments {
+trait ScArgumentExprListBase extends ScArgumentsBase { this: ScArgumentExprList =>
   /**
    * Expressions applied to appropriate method call (@see ScMethodCall).
    */
@@ -81,6 +84,6 @@ trait ScArgumentExprList extends ScArguments {
   }
 }
 
-object ScArgumentExprList {
+abstract class ScArgumentExprListCompanion {
   def unapplySeq(e: ScArgumentExprList): Some[Seq[ScExpression]] = Some(e.exprs.toSeq)
 }

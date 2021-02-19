@@ -5,11 +5,14 @@ package api
 package base
 package types
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 /**
  * Author: Alexander Podkhalyuzin
  * Date: 22.02.2008
  */
-trait ScSimpleTypeElement extends ScTypeElement {
+trait ScSimpleTypeElementBase extends ScTypeElementBase { this: ScSimpleTypeElement =>
   override protected val typeName = "SimpleType"
 
   def reference: Option[ScStableCodeReference] = findChild[ScStableCodeReference]
@@ -33,7 +36,7 @@ trait ScSimpleTypeElement extends ScTypeElement {
   }
 }
 
-object ScSimpleTypeElement {
+abstract class ScSimpleTypeElementCompanion {
 
   def unapply(typeElement: ScSimpleTypeElement): Option[ScStableCodeReference] =
     typeElement.reference

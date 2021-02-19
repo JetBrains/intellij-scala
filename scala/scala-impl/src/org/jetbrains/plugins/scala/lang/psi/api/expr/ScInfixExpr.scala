@@ -6,16 +6,16 @@ package expr
 
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScInfixElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScInfixElementBase
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExprBase._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
   * @author Alexander Podkhalyuzin
   */
-trait ScInfixExpr extends ScExpression with ScSugarCallExpr with ScInfixElement {
-
-  import ScInfixExpr._
+trait ScInfixExprBase extends ScExpressionBase with ScSugarCallExprBase with ScInfixElementBase { this: ScInfixExpr =>
 
   type Kind = ScExpression
   type Reference = ScReferenceExpression
@@ -66,7 +66,23 @@ trait ScInfixExpr extends ScExpression with ScSugarCallExpr with ScInfixElement 
     }
 }
 
-object ScInfixExpr {
+object ScInfixExprBase {
+  abstract class ScInfixExprCompanion {
+    def unapply(expression: ScInfixExpr): Option[(ScExpression, ScReferenceExpression, ScExpression)] =
+      Option((expression: ScInfixExprBase).unapply).map { case (l, invoked, r) => (l, extractOperationRef(invoked), r) }
+
+    object withAssoc {
+
+      def unapply(expression: ScInfixExpr): Some[(ScExpression, ScReferenceExpression, ScExpression)] = {
+        val (left, invoked, right) = (expression: ScInfixExprBase).unapply
+        val op = extractOperationRef(invoked)
+
+        if (expression.isRightAssoc) Some(right, op, left)
+        else                         Some(left, op, right)
+      }
+    }
+  }
+
   private def malformedInfixExpr(text: String): Nothing =
     throw new RuntimeException("Malformed infix expr: " + text)
 
@@ -74,19 +90,5 @@ object ScInfixExpr {
     case ref: ScReferenceExpression => ref
     case ScGenericCall(ref, _)      => ref
     case _                          => malformedInfixExpr(invoked.getParent.getText)
-  }
-
-  def unapply(expression: ScInfixExpr): Option[(ScExpression, ScReferenceExpression, ScExpression)] =
-    Option(expression.unapply).map { case (l, invoked, r) => (l, extractOperationRef(invoked), r) }
-
-  object withAssoc {
-
-    def unapply(expression: ScInfixExpr): Some[(ScExpression, ScReferenceExpression, ScExpression)] = {
-      val (left, invoked, right) = expression.unapply
-      val op = extractOperationRef(invoked)
-
-      if (expression.isRightAssoc) Some(right, op, left)
-      else                         Some(left, op, right)
-    }
   }
 }

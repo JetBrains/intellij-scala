@@ -4,6 +4,9 @@ package psi
 package api
 package statements
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -19,7 +22,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 * Date: 22.02.2008
 */
 
-trait ScTypeAliasDefinition extends ScTypeAlias {
+trait ScTypeAliasDefinitionBase extends ScTypeAliasBase { this: ScTypeAliasDefinition =>
   override def isDefinition: Boolean = true
 
   def aliasedTypeElement: Option[ScTypeElement]

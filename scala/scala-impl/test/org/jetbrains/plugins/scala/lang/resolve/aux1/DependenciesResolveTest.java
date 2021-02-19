@@ -3,9 +3,9 @@ package org.jetbrains.plugins.scala.lang.resolve.aux1;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
+import org.jetbrains.plugins.scala.lang.psi.api.ScPrimaryConstructor;
+import org.jetbrains.plugins.scala.lang.psi.api.ScTypeAlias;
+import org.jetbrains.plugins.scala.lang.psi.api.ScClass;
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveTestCase;
 
 /**

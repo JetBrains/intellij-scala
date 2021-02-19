@@ -4,6 +4,9 @@ package psi
 package api
 package expr
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.{PsiElement, PsiField}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -15,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcesso
 /**
   * @author Alexander Podkhalyuzin
   */
-trait ScAssignment extends ScExpression {
+trait ScAssignmentBase extends ScExpressionBase { this: ScAssignment =>
   def leftExpression: ScExpression = findChild[ScExpression].get
 
   def rightExpression: Option[ScExpression] = findLastChild[ScExpression] match {
@@ -106,15 +109,17 @@ trait ScAssignment extends ScExpression {
   }
 }
 
-object ScAssignment {
-  def unapply(st: ScAssignment): Option[(ScExpression, Option[ScExpression])] =
+object ScAssignmentBase {
+  implicit class ScAssignmentExt(private val target: ScAssignment) extends AnyVal {
+    def assignmentToken: Option[PsiElement] = target.findFirstChildByType(ScalaTokenTypes.tASSIGN)
+  }
+}
+
+abstract class ScAssignmentCompanion {
+  def unapply(st: ScAssignment): Some[(ScExpression, Option[ScExpression])] =
     Some(st.leftExpression, st.rightExpression)
 
   object Named {
     def unapply(st: ScAssignment): Option[String] = st.referenceName
-  }
-
-  implicit class ScAssignmentExt(private val target: ScAssignment) extends AnyVal {
-    def assignmentToken: Option[PsiElement] = target.findFirstChildByType(ScalaTokenTypes.tASSIGN)
   }
 }

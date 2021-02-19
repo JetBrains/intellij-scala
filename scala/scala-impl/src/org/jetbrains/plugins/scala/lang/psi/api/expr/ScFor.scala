@@ -4,10 +4,13 @@ package psi
 package api
 package expr
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 
-trait ScFor extends ScExpression {
+trait ScForBase extends ScExpressionBase { this: ScFor =>
   /**
     * @param forDisplay true if the desugaring is intended for being shown to the user,
     *                   false if it is intented for the type system.
@@ -45,7 +48,7 @@ trait ScFor extends ScExpression {
   }
 }
 
-object ScFor {
+abstract class ScForCompanion {
   def unapply(forStmt: ScFor): Option[(ScEnumerators, ScExpression)] = {
     forStmt.enumerators.zip(forStmt.body).headOption
   }

@@ -4,11 +4,13 @@ package psi
 package api
 package base
 
+import org.jetbrains.plugins.scala.lang.psi.api._
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.psi.api
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
@@ -27,7 +29,7 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
  * Date: 22.02.2008
  */
 
-trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
+trait ScReferenceBase extends ScalaPsiElementBase with PsiPolyVariantReference { this: ScReference =>
   override def getReference: ScReference = this
 
   def nameId: PsiElement
@@ -219,7 +221,7 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
           if (reject) return
           if (usedNames.contains(ref.refName)) {
             ref.bind() match {
-              case Some(r) if ref != ScReference.this && r.importsUsed.isEmpty =>
+              case Some(r) if ref != ScReferenceBase.this && r.importsUsed.isEmpty =>
                 reject = true
                 return
               case _ =>
@@ -324,7 +326,7 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
 
 }
 
-object ScReference {
+abstract class ScReferenceCompanion {
   def unapply(e: ScReference): Option[PsiElement] = Option(e.resolve())
 
   object qualifier {

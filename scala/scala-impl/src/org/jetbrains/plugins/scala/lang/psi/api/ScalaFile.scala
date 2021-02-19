@@ -3,14 +3,15 @@ package lang
 package psi
 package api
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.openapi.util.TextRange
 
 /**
  * @author ilyas
  */
-trait ScalaFile extends ScalaPsiElement
-  with ScFile
-  with ScImportsHolder {
+trait ScalaFileBase extends ScalaPsiElementBase with ScFile { this: ScalaFile =>
 
   def firstPackaging: Option[toplevel.ScPackaging]
 

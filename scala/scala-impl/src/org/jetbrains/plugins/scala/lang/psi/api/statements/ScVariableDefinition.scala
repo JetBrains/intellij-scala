@@ -4,6 +4,9 @@ package psi
 package api
 package statements
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
@@ -15,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 * Date: 22.02.2008
 */
 
-trait ScVariableDefinition extends ScVariable {
+trait ScVariableDefinitionBase extends ScVariableBase { this: ScVariableDefinition =>
   def pList: ScPatternList
 
   def bindings: Seq[ScBindingPattern]
@@ -35,7 +38,7 @@ trait ScVariableDefinition extends ScVariable {
   }
 }
 
-object ScVariableDefinition {
+abstract class ScVariableDefinitionCompanion {
   object expr {
     def unapply(definition: ScVariableDefinition): Option[ScExpression] = Option(definition).flatMap(_.expr)
   }

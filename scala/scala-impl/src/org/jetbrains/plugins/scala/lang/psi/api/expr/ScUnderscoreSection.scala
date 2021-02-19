@@ -4,6 +4,9 @@ package psi
 package api
 package expr
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.lang.ASTNode
 import com.intellij.psi.impl.source.tree.{CompositeElement, LeafElement}
 import com.intellij.psi.tree.IElementType
@@ -22,7 +25,7 @@ import scala.collection.mutable.ArrayBuffer
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
 */
-trait ScUnderscoreSection extends ScExpression {
+trait ScUnderscoreSectionBase extends ScExpressionBase { this: ScUnderscoreSection =>
   def bindingExpr: Option[ScExpression] =
     findChild[ScExpression]
 
@@ -90,7 +93,7 @@ trait ScUnderscoreSection extends ScExpression {
   }
 }
 
-object ScUnderscoreSection {
+abstract class ScUnderscoreSectionCompanion {
   object binding {
     def unapply(under: ScUnderscoreSection): Option[ScExpression] = under.bindingExpr
   }

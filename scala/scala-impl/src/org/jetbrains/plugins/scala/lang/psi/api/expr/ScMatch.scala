@@ -4,6 +4,9 @@ package psi
 package api
 package expr
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -11,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 /**
   * @author Alexander Podkhalyuzin, ilyas
   */
-trait ScMatch extends ScExpression {
+trait ScMatchBase extends ScExpressionBase { this: ScMatch =>
   def expression: Option[ScExpression] = findChild[ScExpression]
 
   def expressions: Seq[ScExpression] = clauses.map(_.expr.getOrElse(createExpressionFromText("{}")))
@@ -26,7 +29,7 @@ trait ScMatch extends ScExpression {
   }
 }
 
-object ScMatch {
+abstract class ScMatchCompanion {
 
   def unapply(ms: ScMatch): Option[(ScExpression, Seq[ScCaseClause])] = ms.expression.map { expression =>
     (expression, ms.clauses)

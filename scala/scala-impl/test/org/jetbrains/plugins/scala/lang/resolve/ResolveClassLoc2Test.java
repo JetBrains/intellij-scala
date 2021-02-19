@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.resolve;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
+import org.jetbrains.plugins.scala.lang.psi.api.ScTrait;
 
 /**
  * User: Alexander Podkhalyuzin

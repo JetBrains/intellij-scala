@@ -5,10 +5,13 @@ package api
 package base
 package literals
 
-trait ScLongLiteral extends ScLiteral.Numeric {
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
+trait ScLongLiteralBase extends ScLiteral.Numeric { this: ScLongLiteral =>
   override protected type V = java.lang.Long
 
   override private[psi] type T = Long
 }
 
-object ScLongLiteral extends ScLiteral.NumericCompanion[ScLongLiteral]
+abstract class ScLongLiteralCompanion extends ScLiteral.NumericCompanion[ScLongLiteral]

@@ -2,28 +2,7 @@ package org.jetbrains.plugins.scala;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.util.ArrayFactory;
-import org.jetbrains.plugins.scala.lang.psi.api.base.*;
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern;
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern;
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement;
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.*;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateDerives;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
+import org.jetbrains.plugins.scala.lang.psi.api.*;
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult;
 
 /**

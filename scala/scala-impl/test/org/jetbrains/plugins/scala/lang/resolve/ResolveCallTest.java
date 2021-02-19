@@ -3,11 +3,11 @@ package org.jetbrains.plugins.scala.lang.resolve;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor;
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScSelfInvocation;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter;
+import org.jetbrains.plugins.scala.lang.psi.api.ScPrimaryConstructor;
+import org.jetbrains.plugins.scala.lang.psi.api.ScSelfInvocation;
+import org.jetbrains.plugins.scala.lang.psi.api.ScFunction;
+import org.jetbrains.plugins.scala.lang.psi.api.ScFunctionDefinition;
+import org.jetbrains.plugins.scala.lang.psi.api.ScParameter;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction;
 import scala.Option;
 

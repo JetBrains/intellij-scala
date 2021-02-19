@@ -5,18 +5,16 @@ package api
 package toplevel
 package typedef
 
+import org.jetbrains.plugins.scala.lang.psi.api._
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScDeclaredElementsHolderBase}
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 20.02.2008
 */
-trait ScObject extends ScTypeDefinition
-  with ScTypedDefinition
-  with ScMember
-  with ScDeclaredElementsHolder {
+trait ScObjectBase extends ScTypeDefinitionBase with ScTypedDefinitionBase with ScMemberBase with ScDeclaredElementsHolderBase { this: ScObject =>
 
   //Is this object generated as case class companion module
   private var flag = false
@@ -44,7 +42,7 @@ trait ScObject extends ScTypeDefinition
   }
 }
 
-object ScObject {
+abstract class ScObjectCompanion {
   object withModifierList {
     def unapply(obj: ScObject): Some[ScModifierList] = Some(obj.getModifierList)
   }

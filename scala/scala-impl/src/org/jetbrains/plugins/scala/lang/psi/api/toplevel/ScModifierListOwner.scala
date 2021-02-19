@@ -4,6 +4,9 @@ package psi
 package api
 package toplevel
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions.{StubBasedExt, ToNullSafe}
@@ -17,7 +20,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.Cached
 * @author ilyas
 */
 
-trait ScModifierListOwner extends ScalaPsiElement with ScAnnotationsHolder with PsiModifierListOwnerAdapter {
+trait ScModifierListOwnerBase extends ScalaPsiElementBase with ScAnnotationsHolderBase with PsiModifierListOwnerAdapter { this: ScModifierListOwner =>
 
   @Cached(ModTracker.anyScalaPsiChange, this)
   override def getModifierList: ScModifierList = {
@@ -25,7 +28,7 @@ trait ScModifierListOwner extends ScalaPsiElement with ScAnnotationsHolder with 
     child.getOrElse(ScalaPsiElementFactory.createEmptyModifierList(this))
   }
 
-  override def hasAnnotation(fqn: String): Boolean = super[ScAnnotationsHolder].hasAnnotation(fqn)
+  override def hasAnnotation(fqn: String): Boolean = super[ScAnnotationsHolderBase].hasAnnotation(fqn)
 
   override def hasModifierProperty(name: String): Boolean = hasModifierPropertyInner(name)
 

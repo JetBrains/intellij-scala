@@ -5,10 +5,13 @@ package api
 package base
 package patterns
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 /**
 * @author Alexander Podkhalyuzin
 */
 
-trait ScNamingPattern extends ScBindingPattern {
+trait ScNamingPatternBase extends ScBindingPatternBase { this: ScNamingPattern =>
   def named: ScPattern = findChild[ScPattern].get
 }

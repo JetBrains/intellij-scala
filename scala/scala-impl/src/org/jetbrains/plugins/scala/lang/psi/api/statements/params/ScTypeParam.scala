@@ -5,16 +5,17 @@ package api
 package statements
 package params
 
+import org.jetbrains.plugins.scala.lang.psi.api._
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiTypeParameterAdapter
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPolymorphicElement, ScTypeParametersOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScAnnotationsHolderBase}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScNamedElementBase, ScPolymorphicElement, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
-trait ScTypeParam extends ScNamedElement with ScPolymorphicElement with PsiTypeParameterAdapter with ScAnnotationsHolder {
+trait ScTypeParamBase extends ScNamedElementBase with PsiTypeParameterAdapter with ScAnnotationsHolderBase { this: ScTypeParam =>
   val typeParamId: Long
 
   def isCovariant: Boolean

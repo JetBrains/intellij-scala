@@ -4,14 +4,15 @@ package psi
 package api
 package expr
 
+import org.jetbrains.plugins.scala.lang.psi.api._
 import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScParenthesizedElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScParenthesizedElement, ScParenthesizedElementBase}
 
 /**
   * @author Alexander Podkhalyuzin
   *         Date: 07.03.2008
   */
-trait ScParenthesisedExpr extends ScInfixArgumentExpression with ScParenthesizedElement {
+trait ScParenthesisedExprBase extends ScInfixArgumentExpressionBase with ScParenthesizedElementBase { this: ScParenthesisedExpr =>
   type Kind = ScExpression
 
   override def innerElement: Option[ScExpression] = findChild[ScExpression]
@@ -23,6 +24,6 @@ trait ScParenthesisedExpr extends ScInfixArgumentExpression with ScParenthesized
   }
 }
 
-object ScParenthesisedExpr {
+abstract class ScParenthesisedExprCompanion {
   def unapply(p: ScParenthesisedExpr): Option[ScExpression] = p.innerElement
 }

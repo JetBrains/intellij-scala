@@ -5,12 +5,15 @@ package api
 package base
 package types
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 13.03.2008
 */
 
-trait ScTypeProjection extends ScTypeElement with ScReference {
+trait ScTypeProjectionBase extends ScTypeElementBase with ScReferenceBase { this: ScTypeProjection =>
   override protected val typeName = "TypeProjection"
 
   def typeElement: ScTypeElement = findChild[ScTypeElement].get

@@ -5,10 +5,13 @@ package api
 package base
 package literals
 
-trait ScFloatLiteral extends ScLiteral.Numeric {
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
+trait ScFloatLiteralBase extends ScLiteral.Numeric { this: ScFloatLiteral =>
   override protected type V = java.lang.Float
 
   override private[psi] type T = Float
 }
 
-object ScFloatLiteral extends ScLiteral.NumericCompanion[ScFloatLiteral]
+abstract class ScFloatLiteralCompanion extends ScLiteral.NumericCompanion[ScFloatLiteral]

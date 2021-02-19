@@ -10,7 +10,7 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.{PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScBraceOwner
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScBraceOwnerBase
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createNewLineNode
@@ -26,11 +26,7 @@ import scala.collection.mutable.ArrayBuffer
  * Author: ilyas, alefas
  */
 
-trait ScBlock extends ScExpression
-  with ScDeclarationSequenceHolder
-  with ScImportsHolder
-  with ScBraceOwner
-{
+trait ScBlockBase extends ScExpressionBase with ScDeclarationSequenceHolder with ScImportsHolder with ScBraceOwnerBase { this: ScBlock =>
   protected override def innerType: TypeResult = {
     if (hasCaseClauses) {
       val caseClauses = findChild[ScCaseClauses].get
@@ -122,6 +118,6 @@ trait ScBlock extends ScExpression
   override def isEnclosedByBraces: Boolean = true
 }
 
-object ScBlock {
+abstract class ScBlockCompanion {
   def unapplySeq(block: ScBlock): Option[Seq[ScBlockStatement]] = Option(block.statements)
 }

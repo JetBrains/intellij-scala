@@ -4,6 +4,9 @@ package psi
 package api
 package statements
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -15,7 +18,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.Cached
  *         Date: 22.02.2008
  *         Time: 9:49:36
  */
-trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
+trait ScFunctionDefinitionBase extends ScFunctionBase with ScControlFlowOwnerBase { this: ScFunctionDefinition =>
 
   def body: Option[ScExpression]
 
@@ -32,7 +35,7 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
     new StaticTraitScFunctionWrapper(this, cClass)
 }
 
-object ScFunctionDefinition {
+abstract class ScFunctionDefinitionCompanion {
   object withBody {
     def unapply(fun: ScFunctionDefinition): Option[ScExpression] = Option(fun).flatMap(_.body)
   }

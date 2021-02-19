@@ -4,6 +4,9 @@ package psi
 package api
 package toplevel
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.DefinitionRole
@@ -16,7 +19,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.Cached
 /**
  * Member definitions, classes, named patterns which have types
  */
-trait ScTypedDefinition extends ScNamedElement with Typeable {
+trait ScTypedDefinitionBase extends ScNamedElementBase with Typeable { this: ScTypedDefinition =>
 
   /**
    * @return false for variable elements

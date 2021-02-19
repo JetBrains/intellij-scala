@@ -4,12 +4,15 @@ package psi
 package api
 package expr
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.PsiElement
 
 /**
   * @author Alexander Podkhalyuzin
   */
-trait ScWhile extends ScExpression {
+trait ScWhileBase extends ScExpressionBase { this: ScWhile =>
   def condition: Option[ScExpression]
 
   def expression: Option[ScExpression]
@@ -23,7 +26,7 @@ trait ScWhile extends ScExpression {
   }
 }
 
-object ScWhile {
+abstract class ScWhileCompanion {
   def unapply(statement: ScWhile): Option[(Option[ScExpression], Option[ScExpression])] =
     Some((statement.condition, statement.expression))
 }

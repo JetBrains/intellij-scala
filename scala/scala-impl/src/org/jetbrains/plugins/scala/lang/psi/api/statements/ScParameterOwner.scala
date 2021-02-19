@@ -4,13 +4,16 @@ package psi
 package api
 package statements
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 /** 
 * @author ilyas
 */
 
-trait ScParameterOwner extends ScalaPsiElement {
+trait ScParameterOwnerBase extends ScalaPsiElementBase { this: ScParameterOwner =>
   def parameters: Seq[ScParameter]
   def clauses: Option[ScParameters]
   def allClauses: Seq[ScParameterClause] = clauses match {

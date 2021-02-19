@@ -5,6 +5,9 @@ package api
 package toplevel
 package typedef
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
@@ -17,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 /**
  * @author ven
  */
-trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Typeable {
+trait ScTemplateDefinitionBase extends ScNamedElementBase with PsiClassAdapter with Typeable { this: ScTemplateDefinition =>
 
   def qualifiedName: String = null
 
@@ -84,16 +87,16 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   def allTermsByName(name: String): Seq[PsiNamedElement]
 }
 
-object ScTemplateDefinition {
+abstract class ScTemplateDefinitionCompanion {
   object ExtendsBlock {
     def unapply(definition: ScTemplateDefinition): Some[ScExtendsBlock] = Some(definition.extendsBlock)
   }
-
+}
+object ScTemplateDefinitionBase {
   implicit class SyntheticMembersExt(private val td: ScTemplateDefinition) extends AnyVal {
     //this method is not in the ScTemplateDefinition trait to avoid binary incompatible change
     def membersWithSynthetic: Seq[ScMember] =
       td.members ++ td.syntheticMembers ++ td.syntheticMethods ++ td.syntheticTypeDefinitions
 
   }
-
 }

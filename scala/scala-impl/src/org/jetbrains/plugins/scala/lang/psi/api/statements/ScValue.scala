@@ -4,6 +4,9 @@ package psi
 package api
 package statements
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
 import javax.swing.Icon
@@ -16,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 /**
  * @author Alexander Podkhalyuzin
  */
-trait ScValue extends ScValueOrVariable {
+trait ScValueBase extends ScValueOrVariableBase { this: ScValue =>
 
   override protected def keywordElementType: IElementType = kVAL
 

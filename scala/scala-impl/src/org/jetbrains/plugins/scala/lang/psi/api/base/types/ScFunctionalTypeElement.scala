@@ -5,12 +5,15 @@ package api
 package base
 package types
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
 */
 
-trait ScFunctionalTypeElement extends ScDesugarizableToParametrizedTypeElement {
+trait ScFunctionalTypeElementBase extends ScDesugarizableToParametrizedTypeElement { this: ScFunctionalTypeElement =>
   override protected val typeName = "FunctionalType"
 
   def paramTypeElement: ScTypeElement = findChild[ScTypeElement].get
@@ -31,7 +34,7 @@ trait ScFunctionalTypeElement extends ScDesugarizableToParametrizedTypeElement {
   }
 }
 
-object ScFunctionalTypeElement {
+abstract class ScFunctionalTypeElementCompanion {
   def unapply(e: ScFunctionalTypeElement): Some[(ScTypeElement, Option[ScTypeElement])] =
     Some(e.paramTypeElement, e.returnTypeElement)
 }

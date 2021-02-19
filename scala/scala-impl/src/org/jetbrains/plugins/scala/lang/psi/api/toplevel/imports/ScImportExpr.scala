@@ -5,6 +5,9 @@ package api
 package toplevel
 package imports
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 
@@ -13,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
  * Date: 20.02.2008
  */
 
-trait ScImportExpr extends ScalaPsiElement {
+trait ScImportExprBase extends ScalaPsiElementBase { this: ScImportExpr =>
   def reference: Option[ScStableCodeReference]
 
   def selectorSet: Option[ScImportSelectors]

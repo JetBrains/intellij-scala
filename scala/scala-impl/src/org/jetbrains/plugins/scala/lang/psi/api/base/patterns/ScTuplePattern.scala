@@ -5,6 +5,9 @@ package api
 package base
 package patterns
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import org.jetbrains.plugins.scala.lang.psi.types.api.TupleType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
@@ -13,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 * Date: 28.02.2008
 */
 
-trait ScTuplePattern extends ScPattern {
+trait ScTuplePatternBase extends ScPatternBase { this: ScTuplePattern =>
   def patternList: Option[ScPatterns] = findChild[ScPatterns]
 
   override def `type`(): TypeResult = this.flatMap(patternList) { list =>

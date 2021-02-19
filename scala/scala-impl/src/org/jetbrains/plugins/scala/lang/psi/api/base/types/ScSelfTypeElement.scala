@@ -5,12 +5,13 @@ package api
 package base
 package types
 
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScNamedElementBase, ScTypedDefinition, ScTypedDefinitionBase}
 
 /**
 * @author ilyas, Alexander Podkhalyuzin
 */
-trait ScSelfTypeElement extends ScNamedElement with ScTypedDefinition {
+trait ScSelfTypeElementBase extends ScNamedElementBase with ScTypedDefinitionBase { this: ScSelfTypeElement =>
   def typeElement: Option[ScTypeElement]
 
   def classNames: Array[String]

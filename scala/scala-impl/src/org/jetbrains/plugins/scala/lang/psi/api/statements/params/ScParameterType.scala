@@ -5,6 +5,9 @@ package api
 package statements
 package params
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
@@ -13,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 * Date: 22.02.2008
 */
 
-trait ScParameterType extends ScalaPsiElement {
+trait ScParameterTypeBase extends ScalaPsiElementBase { this: ScParameterType =>
 
   def typeElement: ScTypeElement
 

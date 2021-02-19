@@ -3,6 +3,9 @@ package lang
 package psi
 package api
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.{PsiElement, ResolveState}
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
@@ -11,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScOb
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 
-trait ScPackageLike extends PsiElement {
+trait ScPackageLikeBase extends PsiElement { this: ScPackageLike =>
 
   def findPackageObject(scope: GlobalSearchScope): Option[ScObject]
 
@@ -30,7 +33,7 @@ trait ScPackageLike extends PsiElement {
     ScalaPsiManager.instance(getProject).getTopLevelDefinitionsByPackage(fqn, scope)
 }
 
-object ScPackageLike {
+abstract class ScPackageLikeCompanion {
   private[psi] def processPackageObject(
     `object`:   ScObject
   )(processor:  PsiScopeProcessor,

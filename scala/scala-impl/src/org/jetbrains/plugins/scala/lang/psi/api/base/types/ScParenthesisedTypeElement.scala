@@ -5,6 +5,9 @@ package api
 package base
 package types
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 
 /** 
@@ -12,7 +15,7 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 * Date: 13.03.2008
 */
 
-trait ScParenthesisedTypeElement extends ScTypeElement with ScParenthesizedElement {
+trait ScParenthesisedTypeElementBase extends ScTypeElementBase with ScParenthesizedElementBase { this: ScParenthesisedTypeElement =>
   override protected val typeName = "TypeInParenthesis"
 
   type Kind = ScTypeElement
@@ -23,6 +26,6 @@ trait ScParenthesisedTypeElement extends ScTypeElement with ScParenthesizedEleme
 }
 
 
-object ScParenthesisedTypeElement {
+abstract class ScParenthesisedTypeElementCompanion {
   def unapply(e: ScParenthesisedTypeElement): Option[ScTypeElement] = e.innerElement
 }

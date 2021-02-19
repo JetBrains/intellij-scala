@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.extensions._
@@ -12,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
  *                         Date: 07.03.2008
  */
 
-trait ScAnnotations extends ScalaPsiElement with PsiReferenceList {
+trait ScAnnotationsBase extends ScalaPsiElementBase with PsiReferenceList { this: ScAnnotations =>
 
   def getAnnotations: Array[ScAnnotation]
 

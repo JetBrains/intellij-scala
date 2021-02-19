@@ -4,11 +4,14 @@ package psi
 package api
 package base
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
 */
 
-trait ScIdList extends ScalaPsiElement {
+trait ScIdListBase extends ScalaPsiElementBase { this: ScIdList =>
   def fieldIds: Seq[ScFieldId]
 }

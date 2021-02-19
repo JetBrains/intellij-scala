@@ -5,8 +5,10 @@ package api
 package statements
 package params
 
+import org.jetbrains.plugins.scala.lang.psi.api._
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.icons.Icons
@@ -15,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScImportableDeclarationsOwner, ScImportableDeclarationsOwnerBase, ScModifierListOwner, ScModifierListOwnerBase, ScTypedDefinition, ScTypedDefinitionBase}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
@@ -28,8 +30,7 @@ import scala.annotation.tailrec
  * Date: 22.02.2008
  */
 
-trait ScParameter extends ScTypedDefinition with ScModifierListOwner
-                  with PsiParameterAdapter with ScImportableDeclarationsOwner { self =>
+trait ScParameterBase extends ScTypedDefinitionBase with ScModifierListOwnerBase with PsiParameterAdapter with ScImportableDeclarationsOwnerBase { this: ScParameter =>
   override def getTypeElement: PsiTypeElement
 
   def isWildcard: Boolean = "_" == name

@@ -1,9 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.{PsiElement, PsiPolyVariantReference}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
-trait ScEnumerator extends ScalaPsiElement with PsiPolyVariantReference {
+trait ScEnumeratorBase extends ScalaPsiElementBase with PsiPolyVariantReference { this: ScEnumerator =>
   def forStatement: Option[ScFor]
 
   def desugared: Option[ScEnumerator.DesugaredEnumerator]
@@ -14,7 +17,7 @@ trait ScEnumerator extends ScalaPsiElement with PsiPolyVariantReference {
   def expr: Option[ScExpression]
 }
 
-object ScEnumerator {
+abstract class ScEnumeratorCompanion {
   /*
     Analog maps enumerators to their desugared counterparts (which are method calls). For example:
 
@@ -48,11 +51,11 @@ object ScEnumerator {
   }
 
   object withDesugared {
-    def unapply(enum: ScEnumerator): Option[DesugaredEnumerator] = enum.desugared
+    def unapply(enum: ScEnumerator): Option[ScEnumerator.DesugaredEnumerator] = enum.desugared
   }
 
   object withDesugaredAndEnumeratorToken {
-    def unapply(enum: ScEnumerator): Option[(DesugaredEnumerator, PsiElement)] = for {
+    def unapply(enum: ScEnumerator): Option[(ScEnumerator.DesugaredEnumerator, PsiElement)] = for {
       desugared <- enum.desugared
       token <- enum.enumeratorToken
     } yield (desugared, token)

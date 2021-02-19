@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.PsiAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -9,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
  * Date: 07.03.2008
  */
 
-trait ScAnnotation extends ScalaPsiElement with PsiAnnotation {
+trait ScAnnotationBase extends ScalaPsiElementBase with PsiAnnotation { this: ScAnnotation =>
   /**
    * Return full annotation only without @ token.
    * @return annotation expression

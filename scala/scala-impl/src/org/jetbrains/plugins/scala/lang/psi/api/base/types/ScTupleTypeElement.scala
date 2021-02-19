@@ -5,11 +5,14 @@ package api
 package base
 package types
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 07.03.2008
 */
-trait ScTupleTypeElement extends ScDesugarizableToParametrizedTypeElement {
+trait ScTupleTypeElementBase extends ScDesugarizableToParametrizedTypeElement { this: ScTupleTypeElement =>
   override protected val typeName = "TupleType"
 
   def typeList: ScTypes = findChild[ScTypes].get
@@ -22,6 +25,6 @@ trait ScTupleTypeElement extends ScDesugarizableToParametrizedTypeElement {
   }
 }
 
-object ScTupleTypeElement {
+abstract class ScTupleTypeElementCompanion {
   def unapplySeq(e: ScTupleTypeElement): Some[Seq[ScTypeElement]] = Some(e.components)
 }

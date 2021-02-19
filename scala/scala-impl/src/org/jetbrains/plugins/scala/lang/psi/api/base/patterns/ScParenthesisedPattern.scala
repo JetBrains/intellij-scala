@@ -5,13 +5,16 @@ package api
 package base
 package patterns
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 
 /** 
 * @author Alexander Podkhalyuzin
 */
 
-trait ScParenthesisedPattern extends ScPattern with ScParenthesizedElement {
+trait ScParenthesisedPatternBase extends ScPatternBase with ScParenthesizedElementBase { this: ScParenthesisedPattern =>
   type Kind = ScPattern
 
   override def innerElement: Option[ScPattern] = findChild[ScPattern]
@@ -19,6 +22,6 @@ trait ScParenthesisedPattern extends ScPattern with ScParenthesizedElement {
   override def sameTreeParent: Option[ScPattern] = getParent.asOptionOf[ScPattern]
 }
 
-object ScParenthesisedPattern {
+abstract class ScParenthesisedPatternCompanion {
   def unapply(e: ScParenthesisedPattern): Option[ScPattern] = e.innerElement
 }

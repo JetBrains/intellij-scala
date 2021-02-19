@@ -4,9 +4,12 @@ package psi
 package api
 package base
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.PsiElement
 
-trait ScEnd extends ScalaPsiElement {
+trait ScEndBase extends ScalaPsiElementBase { this: ScEnd =>
   /**
    * @return the token that designates which element is ended by this end-element
    */

@@ -7,7 +7,7 @@ package base
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableStableCodeReference, ScalaResolveResult}
 
-trait ScStableCodeReference extends ScReference with ResolvableStableCodeReference with ScPathElement {
+trait ScStableCodeReferenceBase extends ScReferenceBase with ResolvableStableCodeReference { this: ScStableCodeReference =>
   override def qualifier: Option[ScStableCodeReference] =
     getFirstChild match {case s: ScStableCodeReference => Some(s) case _ => None}
 
@@ -30,7 +30,7 @@ trait ScStableCodeReference extends ScReference with ResolvableStableCodeReferen
   def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult]
 }
 
-object ScStableCodeReference {
+abstract class ScStableCodeReferenceCompanion {
   object withQualifier {
     def unapply(ref: ScStableCodeReference): Option[ScStableCodeReference] = ref.qualifier
   }

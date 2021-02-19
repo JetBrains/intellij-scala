@@ -12,7 +12,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
+import org.jetbrains.plugins.scala.lang.psi.api.ScTemplateDefinition;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;

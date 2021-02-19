@@ -5,6 +5,9 @@ package api
 package base
 package patterns
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -15,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScG
 * Date: 28.02.2008
 */
 
-trait ScCaseClause extends ScalaPsiElement {
+trait ScCaseClauseBase extends ScalaPsiElementBase { this: ScCaseClause =>
   def pattern: Option[ScPattern] = findChild[ScPattern]
   def expr: Option[ScExpression] = findChild[ScExpression]
   def guard: Option[ScGuard] = findChild[ScGuard]
@@ -30,10 +33,7 @@ trait ScCaseClause extends ScalaPsiElement {
   }
 }
 
-object ScCaseClause {
-  def unapply(e: ScCaseClause): Option[(Option[ScPattern], Option[ScGuard], Option[ScExpression])] =
-    Option(e).map(e => (e.pattern, e.guard, e.expr))
-
+object ScCaseClauseBase {
   implicit class ScCaseClauseExt(private val cc: ScCaseClause) extends AnyVal {
     def resultExpr: Option[ScExpression] =
       cc.expr match {
@@ -41,4 +41,9 @@ object ScCaseClause {
         case _ => None
       }
   }
+}
+
+abstract class ScCaseClauseCompanion {
+  def unapply(e: ScCaseClause): Option[(Option[ScPattern], Option[ScGuard], Option[ScExpression])] =
+    Option(e).map(e => (e.pattern, e.guard, e.expr))
 }

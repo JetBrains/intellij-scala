@@ -8,7 +8,7 @@ import com.intellij.psi.PsiMethod;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement;
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral;
+import org.jetbrains.plugins.scala.lang.psi.api.ScLiteral;
 
 public class ScalaElementPattern<T extends ScalaPsiElement, Self extends ScalaElementPattern<T, Self>> extends PsiJavaElementPattern<T, Self> {
   public ScalaElementPattern(Class<T> tClass) {

@@ -13,6 +13,57 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 
 package object statements {
+  type ScCommentOwner = org.jetbrains.plugins.scala.lang.psi.api.ScCommentOwner
+
+  type ScDeclaration = org.jetbrains.plugins.scala.lang.psi.api.ScDeclaration
+
+  type ScDeclaredElementsHolder = org.jetbrains.plugins.scala.lang.psi.api.ScDeclaredElementsHolder
+
+  type ScEnumCase = org.jetbrains.plugins.scala.lang.psi.api.ScEnumCase
+
+  type ScEnumCases = org.jetbrains.plugins.scala.lang.psi.api.ScEnumCases
+
+  type ScExtension = org.jetbrains.plugins.scala.lang.psi.api.ScExtension
+
+  type ScFun = org.jetbrains.plugins.scala.lang.psi.api.ScFun
+
+  type ScFunction = org.jetbrains.plugins.scala.lang.psi.api.ScFunction
+  val ScFunction = org.jetbrains.plugins.scala.lang.psi.api.ScFunction
+
+  type ScFunctionDeclaration = org.jetbrains.plugins.scala.lang.psi.api.ScFunctionDeclaration
+
+  type ScFunctionDefinition = org.jetbrains.plugins.scala.lang.psi.api.ScFunctionDefinition
+  val ScFunctionDefinition = org.jetbrains.plugins.scala.lang.psi.api.ScFunctionDefinition
+
+  type ScMacroDefinition = org.jetbrains.plugins.scala.lang.psi.api.ScMacroDefinition
+  val ScMacroDefinition = org.jetbrains.plugins.scala.lang.psi.api.ScMacroDefinition
+
+  type ScParameterOwner = org.jetbrains.plugins.scala.lang.psi.api.ScParameterOwner
+
+  type ScPatternDefinition = org.jetbrains.plugins.scala.lang.psi.api.ScPatternDefinition
+  val ScPatternDefinition = org.jetbrains.plugins.scala.lang.psi.api.ScPatternDefinition
+
+  type ScTypeAlias = org.jetbrains.plugins.scala.lang.psi.api.ScTypeAlias
+
+  type ScTypeAliasDeclaration = org.jetbrains.plugins.scala.lang.psi.api.ScTypeAliasDeclaration
+
+  type ScTypeAliasDefinition = org.jetbrains.plugins.scala.lang.psi.api.ScTypeAliasDefinition
+
+  type ScTypedDeclaration = org.jetbrains.plugins.scala.lang.psi.api.ScTypedDeclaration
+
+  type ScValue = org.jetbrains.plugins.scala.lang.psi.api.ScValue
+
+  type ScValueDeclaration = org.jetbrains.plugins.scala.lang.psi.api.ScValueDeclaration
+
+  type ScValueOrVariable = org.jetbrains.plugins.scala.lang.psi.api.ScValueOrVariable
+
+  type ScVariable = org.jetbrains.plugins.scala.lang.psi.api.ScVariable
+
+  type ScVariableDeclaration = org.jetbrains.plugins.scala.lang.psi.api.ScVariableDeclaration
+
+  type ScVariableDefinition = org.jetbrains.plugins.scala.lang.psi.api.ScVariableDefinition
+  val ScVariableDefinition = org.jetbrains.plugins.scala.lang.psi.api.ScVariableDefinition
+
 
   final case class RecursiveReferences(tailRecursive: Seq[ScReference] = Seq.empty,
                                        ordinaryRecursive: Seq[ScReference] = Seq.empty) {

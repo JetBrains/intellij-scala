@@ -5,11 +5,14 @@ package api
 package base
 package literals
 
-trait ScBooleanLiteral extends ScLiteral {
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
+trait ScBooleanLiteralBase extends ScLiteralBase { this: ScBooleanLiteral =>
   override protected type V = java.lang.Boolean
 }
 
-object ScBooleanLiteral {
+abstract class ScBooleanLiteralCompanion {
 
   def unapply(literal: ScBooleanLiteral): Some[Boolean] =
     Some(literal.getValue)

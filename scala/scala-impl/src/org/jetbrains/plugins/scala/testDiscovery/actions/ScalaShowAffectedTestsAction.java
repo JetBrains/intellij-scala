@@ -66,8 +66,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaLanguage;
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember;
+import org.jetbrains.plugins.scala.lang.psi.api.ScMember;
+import org.jetbrains.plugins.scala.lang.psi.api.ScMethodLike;
 
 import javax.swing.*;
 import javax.swing.event.TreeModelEvent;

@@ -5,14 +5,17 @@ package api
 package base
 package literals
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
-trait ScNullLiteral extends ScLiteral {
+trait ScNullLiteralBase extends ScLiteralBase { this: ScNullLiteral =>
   override protected type V = Null
 }
 
-object ScNullLiteral {
+abstract class ScNullLiteralCompanion {
 
   private[this] val TypeKey = Key.create[ScType]("scala.type.without.implicits")
 

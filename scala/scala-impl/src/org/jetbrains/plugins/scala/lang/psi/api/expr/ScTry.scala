@@ -4,10 +4,13 @@ package psi
 package api
 package expr
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 /**
   * @author Alexander Podkhalyuzin
   */
-trait ScTry extends ScExpression {
+trait ScTryBase extends ScExpressionBase { this: ScTry =>
   def expression: Option[ScExpression]
 
   def catchBlock: Option[ScCatchBlock]
@@ -19,7 +22,7 @@ trait ScTry extends ScExpression {
   }
 }
 
-object ScTry {
+abstract class ScTryCompanion {
   def unapply(tryStmt: ScTry): Option[(Option[ScExpression], Option[ScCatchBlock], Option[ScFinallyBlock])] =
     Some((tryStmt.expression, tryStmt.catchBlock, tryStmt.finallyBlock))
 }

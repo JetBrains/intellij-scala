@@ -4,6 +4,9 @@ package psi
 package api
 package toplevel
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
@@ -27,7 +30,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 import scala.annotation.tailrec
 
-trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with NavigatablePsiElement {
+trait ScNamedElementBase extends ScalaPsiElementBase with PsiNameIdentifierOwner with NavigatablePsiElement { this: ScNamedElement =>
 
   @Cached(ModTracker.anyScalaPsiChange, this)
   def name: String = {

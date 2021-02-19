@@ -5,6 +5,9 @@ package api
 package base
 package types
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
@@ -13,7 +16,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.Cached
 * Date: 13.03.2008
 */
 
-trait ScParameterizedTypeElement extends ScDesugarizableTypeElement {
+trait ScParameterizedTypeElementBase extends ScDesugarizableTypeElement { this: ScParameterizedTypeElement =>
   override protected val typeName = "ParametrizedType"
 
   def typeArgList: ScTypeArgs = findChild[ScTypeArgs].get
@@ -26,7 +29,7 @@ trait ScParameterizedTypeElement extends ScDesugarizableTypeElement {
   }
 }
 
-object ScParameterizedTypeElement {
+abstract class ScParameterizedTypeElementCompanion {
   def unapply(pte: ScParameterizedTypeElement): Option[(ScTypeElement, Seq[ScTypeElement])] = {
     pte match {
       case null => None

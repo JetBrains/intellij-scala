@@ -4,12 +4,15 @@ package psi
 package api
 package base
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 07.03.2008
 */
 
-trait ScAccessModifier extends ScalaPsiElement {
+trait ScAccessModifierBase extends ScalaPsiElementBase { this: ScAccessModifier =>
 
   def idText: Option[String]
 

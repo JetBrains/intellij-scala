@@ -4,6 +4,9 @@ package psi
 package api
 package base
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.QuotedLiteralImplBase._
@@ -13,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedExpressionP
  * @author kfeodorov
  * @since 03.03.14.
  */
-trait ScInterpolated extends ScalaPsiElement {
+trait ScInterpolatedBase extends ScalaPsiElementBase { this: ScInterpolated =>
 
   import lexer.ScalaTokenTypes._
 
@@ -61,10 +64,8 @@ trait ScInterpolated extends ScalaPsiElement {
     }
 }
 
-object ScInterpolated {
-
+object ScInterpolatedBase {
   implicit class InterpolatedExt(private val interpolated: ScInterpolated) extends AnyVal {
-
     def quoteLength: Int = (if (interpolated.isMultiLineString) MultiLineQuote else SingleLineQuote).length
   }
 }

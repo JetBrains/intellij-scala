@@ -5,13 +5,16 @@ package api
 package base
 package types
 
+import org.jetbrains.plugins.scala.lang.psi.api._
+
+
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
 */
 
-trait ScCompoundTypeElement extends ScTypeElement {
+trait ScCompoundTypeElementBase extends ScTypeElementBase { this: ScCompoundTypeElement =>
   override protected val typeName = "CompoundType"
 
   def components : Seq[ScTypeElement] = findChildren[ScTypeElement]
@@ -19,7 +22,6 @@ trait ScCompoundTypeElement extends ScTypeElement {
   def refinements: Seq[ScRefinement] = findChildren[ScRefinement]
 }
 
-object ScCompoundTypeElement {
+abstract class ScCompoundTypeElementCompanion {
   def unapply(cte: ScCompoundTypeElement): Option[(Seq[ScTypeElement], Option[ScRefinement])] = Option(cte.components, cte.refinement)
 }
-
