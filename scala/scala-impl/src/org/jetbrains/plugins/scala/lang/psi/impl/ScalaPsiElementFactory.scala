@@ -867,7 +867,8 @@ object ScalaPsiElementFactory {
       seq
     )
 
-    val psiBuilder = new ScalaPsiBuilderImpl(delegate, isScala3 = false)
+    val isScala3 = context.isInScala3File
+    val psiBuilder = new ScalaPsiBuilderImpl(delegate, isScala3)
     if (text.indexOf('\n') >= 0 && !ScalaPsiUtil.newLinesEnabled(context)) {
       psiBuilder.disableNewlines()
     }
