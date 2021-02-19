@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.util
 
-import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.{ScheduledFuture, TimeUnit}
 import java.util.concurrent.atomic.AtomicReference
 
 import com.intellij.openapi.Disposable
@@ -62,6 +62,7 @@ class RescheduledExecutor(val name: String,
 
   override def dispose(): Unit = {
     scheduler.shutdownNow()
+    scheduler.awaitTermination(5, TimeUnit.SECONDS)
     lastScheduledTask.set(null)
   }
 }

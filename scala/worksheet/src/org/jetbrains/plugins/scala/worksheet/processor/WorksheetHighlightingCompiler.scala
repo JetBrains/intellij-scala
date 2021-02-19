@@ -24,6 +24,8 @@ final class WorksheetHighlightingCompiler extends HighlightingCompilerHelper {
       case _ =>
         return
     }
+    if (project.isDisposed)
+      return
 
     val module = scalaFile.module.getOrElse(return)
     val compiler = new WorksheetCompiler(module, scalaFile)

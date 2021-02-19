@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil.Wor
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil.WorksheetCompileRunRequest._
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.Args.{CompileOnly, PlainModeArgs, ReplModeArgs}
-import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.{CompilerInterface, CompilerMessagesConsumer, RemoteServerConnectorResult}
+import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector._
 import org.jetbrains.plugins.scala.worksheet.server._
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType.WorksheetPreprocessError
 import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetFileSettings, _}
@@ -55,18 +55,61 @@ class WorksheetCompiler(
 
   private val virtualFile = worksheetFile.getVirtualFile
 
-  def compileOnlySync(document: Document, client: Client, waitAtMost: Duration): Either[TimeoutException, WorksheetCompilerResult] = {
+  def compileOnlySync(document: Document, client: Client, waitAtMost: Duration): Either[Exception, WorksheetCompilerResult] = {
     val promise = Promise[WorksheetCompilerResult]
     compileOnly(document, client) { result =>
       promise.complete(Success(result))
     }
     Try(Right(Await.result(promise.future, waitAtMost)))
-      .recover { case timeout: TimeoutException => Left(timeout) }
+      .recover {
+        case ex: TimeoutException => Left(ex)
+        case ex: InterruptedException => Left(ex)
+      }
       .get
   }
 
-  def compileOnly(document: Document, client: Client)(originalCallback: EvaluationCallback): Unit = try {
+  private def compileOnly(document: Document, client: Client)(callback0: EvaluationCallback): Unit =  {
     Log.traceWithDebugInDev(s"compileOnly: $document")
+
+    val callback: EvaluationCallback = result => {
+      result match {
+        case error: WorksheetCompilerResult.WorksheetCompilerError =>
+          logCompileOnlyError(error)
+        case _ =>
+          Log.traceWithDebugInDev(s"compileOnly result: ok")
+      }
+      callback0(result)
+    }
+
+    compileOnly2(document, client)(callback)
+  }
+
+  private def logCompileOnlyError(error: WorksheetCompilerResult.WorksheetCompilerError): Unit = {
+    import WorksheetCompiler.{WorksheetCompilerResult => WCR}
+    import RemoteServerConnector.{RemoteServerConnectorResult => RSCR}
+    val exception = error match {
+      case WCR.UnknownError(cause)                                     => Some(cause)
+      case WCR.RemoteServerConnectorError(RSCR.UnexpectedError(cause)) => Some(cause)
+      case _                                                           => None
+    }
+    exception match {
+      case Some(ex) =>
+        Log.error(error.toString, ex)
+      case _ => error match {
+        case WCR.ProjectIsAlreadyDisposed(name, trace) =>
+          Log.error(s"compileOnly was called in already-disposed project: $name", trace)
+        case _ =>
+          Log.traceWithDebugInDev(error.toString)
+      }
+    }
+  }
+
+  private def compileOnly2(document: Document, client: Client)(originalCallback: EvaluationCallback): Unit = try {
+    if (project.isDisposed) {
+      originalCallback(WorksheetCompilerResult.ProjectIsAlreadyDisposed(project.getName))
+      return
+    }
+
     val headlessMode = {
       val application = ApplicationManager.getApplication
       !application.isInternal || application.isUnitTestMode
@@ -87,7 +130,7 @@ class WorksheetCompiler(
 
     compilerTask.startWork {
       val callback: RemoteServerConnectorResult => Unit = result => {
-        Log.traceWithDebugInDev(s"compileOnly result: $result")
+        Log.traceWithDebugInDev(s"compileOnly remote server connection result: $result")
         originalCallback(WorksheetCompilerResult.Compiled)
       }
       try {
@@ -253,6 +296,7 @@ object WorksheetCompiler {
     final case object CompilationError extends WorksheetCompilerError
     final case class ProcessTerminatedError(returnCode: Int, message: String) extends WorksheetCompilerError
     final object CompileServerIsNotRunningError extends WorksheetCompilerError
+    final case class ProjectIsAlreadyDisposed(name: String, trace: Throwable = new Throwable) extends WorksheetCompilerError
     final case class RemoteServerConnectorError(error: RemoteServerConnectorResult.UnhandledError) extends WorksheetCompilerError
     final case class UnknownError(cause: Throwable) extends WorksheetCompilerError // TODO: maybe wrap result into Try instead?
 

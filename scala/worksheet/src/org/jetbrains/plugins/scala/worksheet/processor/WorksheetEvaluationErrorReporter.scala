@@ -37,6 +37,8 @@ class WorksheetEvaluationErrorReporter(
       case WCR.CompilationError                  => // assuming that compilation errors are already reported by CompilerTask in WorksheetCompiler
       case WCR.ProcessTerminatedError(_, _)      => // not handled, used to cancel evaluation
       case WCR.CompileServerIsNotRunningError    => showConfigErrorNotification(project, WorksheetBundle.message("compile.server.is.not.running"))
+      case WCR.ProjectIsAlreadyDisposed(name, trace)  =>
+        log.error(s"Project `$name` is already disposed", trace)
       case WCR.RemoteServerConnectorError(error) =>
         val RSCR = RemoteServerConnectorResult
         error match {
