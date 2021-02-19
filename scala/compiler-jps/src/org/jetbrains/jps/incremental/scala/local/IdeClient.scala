@@ -44,8 +44,11 @@ abstract class IdeClient(compilerName: String,
     }
   }
 
-  override def compilationStart(): Unit =
+  override def compilationStart(): Unit = {
+    val progressMsg = JpsBundle.message("compiling.progress.message", chunk.getPresentableShortName) + "..."
+    context.processMessage(new ProgressMessage(progressMsg))
     context.processMessage(CompilerEvent.CompilationStarted(compilationId, compilationUnitId).toCustomMessage)
+  }
 
   override def compilationPhase(name: String): Unit =
     context.processMessage(CompilerEvent.CompilationPhase(compilationId, compilationUnitId, name).toCustomMessage)
@@ -57,10 +60,11 @@ abstract class IdeClient(compilerName: String,
     context.processMessage(CompilerMessage.createInternalCompilationError(compilerName, exception))
 
   override def progress(text: String, done: Option[Float]): Unit = {
-    for {
-      unitId <- compilationUnitId
-      doneVal <- done
-    } AggregateProgressLogger.log(context, unitId, doneVal)
+    // SCL-18190
+//    for {
+//      unitId <- compilationUnitId
+//      doneVal <- done
+//    } AggregateProgressLogger.log(context, unitId, doneVal)
     done.foreach { doneVal =>
       context.processMessage(CompilerEvent.ProgressEmitted(compilationId, compilationUnitId, doneVal).toCustomMessage)
     }
