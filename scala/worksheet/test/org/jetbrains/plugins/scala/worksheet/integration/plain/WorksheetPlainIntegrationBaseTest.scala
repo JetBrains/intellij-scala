@@ -27,6 +27,9 @@ import scala.language.postfixOps
 
 //noinspection RedundantBlock
 @Category(Array(classOf[WorksheetEvaluationTests]))
+@RunWithScalaVersionsFilter(Array(
+  TestScalaVersion.Scala_3_0,
+))
 abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBaseTest
   with WorksheetRunTestSettings
   with WorksheetRuntimeExceptionsTests
@@ -746,6 +749,40 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
          |val res5: Unit = ()${foldEnd}
          |${foldStart}Cons(42,Empty)
          |val res6: Unit = ()${foldEnd}""".stripMargin
+    doRenderTest(before, after)
+  }
+
+  @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_0))
+  def testScala3_WithBracelessSyntax(): Unit = {
+    val before =
+      """def foo42(x: Int) =
+        |  val y = x + 1
+        |  y + 1
+        |
+        |class A(x: Int):
+        |  val a = x + 2
+        |  def method =
+        |    val b = a + 2
+        |    b
+        |
+        |foo42(1)
+        |
+        |A(1).method
+        |""".stripMargin
+    val after =
+      s"""def foo42(x: Int): Int
+         |
+         |
+         |
+         |// defined class A
+         |
+         |
+         |
+         |
+         |
+         |val res0: Int = 3
+         |
+         |val res1: Int = 5""".stripMargin
     doRenderTest(before, after)
   }
 }

@@ -127,6 +127,39 @@ class WorksheetReplIntegration_Scala_3_Test extends WorksheetReplIntegrationBase
     doRenderTest(before, after)
   }
 
+  def testBracelessSyntax(): Unit = {
+    val before =
+      """def foo42(x: Int) =
+        |  val y = x + 1
+        |  y + 1
+        |
+        |class A(x: Int):
+        |  val a = x + 2
+        |  def method =
+        |    val b = a + 2
+        |    b
+        |
+        |foo42(1)
+        |
+        |A(1).method
+        |""".stripMargin
+    val after =
+      s"""def foo42(x: Int): Int
+         |
+         |
+         |
+         |// defined class A
+         |
+         |
+         |
+         |
+         |
+         |val res0: Int = 3
+         |
+         |val res1: Int = 5""".stripMargin
+    doRenderTest(before, after)
+  }
+
   def testSealedTraitHierarchy_1(): Unit = {
     return // TODO: fix after this is fixed: https://github.com/lampepfl/dotty/issues/8677
     val editor = doRenderTest(
