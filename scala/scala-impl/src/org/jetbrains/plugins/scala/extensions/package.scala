@@ -849,7 +849,7 @@ package object extensions {
 
     def isInScala3File: Boolean = {
       val file = element.getContainingFile
-      file != null || file.isScala3File
+      file != null && file.isScala3File
     }
   }
 
