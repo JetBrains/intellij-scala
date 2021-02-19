@@ -29,7 +29,9 @@ object WorksheetIncrementalSourcePreprocessor {
     }
     val commands = {
       val fileText = inReadAction(srcFile.getText)
-      val codeCommands = elementsToEvaluate.map(_.textRange.substring(fileText))
+      // extra new line is required to indicate "unindent" for Scala 3 braceless syntax
+      // to avoid errors "unindent expected, but eof found" in REPL
+      val codeCommands = elementsToEvaluate.map(_.textRange.substring(fileText) + "\n")
 
       val needToReset = lastProcessedLine.isEmpty
       val additionalCommands = if (needToReset) Seq(":reset") else Nil

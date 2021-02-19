@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala.worksheet.processor
 
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{JavaDirectoryService, PsiElement, PsiErrorElement, PsiFile, _}
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTupleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScBlock, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
@@ -122,7 +123,7 @@ object WorksheetDefaultSourcePreprocessor {
     srcFile.getChildren.foreach {
       case imp: ScImportStmt                          => sourceBuilder.processImport(imp)
       case obj: ScObject                              => root = obj.extendsBlock.templateBody.getOrElse(srcFile)
-      case cl: ScTemplateDefinition if (root == null) => preDeclarationsBuilder += cl
+      case cl: ScTemplateDefinition if root == null   => preDeclarationsBuilder += cl
       case cl: ScTemplateDefinition                   => postDeclarationsBuilder += cl
       case _                                          =>
     }
@@ -203,9 +204,9 @@ object WorksheetDefaultSourcePreprocessor {
         val mainReturnType = withCompilerVersion("", unitReturnType, unitReturnType, unitReturnType, unitReturnType)
         (
           s"""def main()$mainReturnType {
-             |  val $instanceName = new $className
+             |val $instanceName = new $className
              |""".stripMargin,
-          s"""  $printMethodName("$EVALUATION_END_MARKER")
+          s"""$printMethodName("$EVALUATION_END_MARKER")
              |}""".stripMargin
         )
       }
@@ -422,7 +423,7 @@ object WorksheetDefaultSourcePreprocessor {
         case (lastQualifier, el) =>
           val qualifierName = lastQualifier.qualName
           val lineNums = psiToLineNumbers(imp)
-          val memberName = if (el.isInstanceOf[ScValue] || el.isInstanceOf[ScVariable]) //variable to avoid weird errors
+          val memberName = if (el.is[ScValue, ScVariable]) //variable to avoid weird errors
           variableInstanceName(qualifierName) else qualifierName
 
           if (printImports) {
@@ -600,8 +601,31 @@ object WorksheetDefaultSourcePreprocessor {
     override protected def importInfoString(imp: ScImportStmt): String =
       quoted(imp.getText)
 
-    override protected def funDefInfoString(fun: ScFunction): String =
-      s"$typePrinterName.showMethodDefinition({ ${fun.getText.stripPrefix(accessModifierText(fun))} })"
+    override protected def funDefInfoString(fun: ScFunction): String = {
+      def textWithoutAccessModifier: String =
+        fun.getText.stripPrefix(accessModifierText(fun))
+
+      val funText = fun match {
+        case funDef: ScFunctionDefinition =>
+          val assignOpt0 = funDef.assignment // braceless syntax can only be used after assign sign
+          val assignOpt = assignOpt0.filter(_ => usesBracelessSyntax(funDef))
+          assignOpt.fold(textWithoutAccessModifier) { assign: PsiElement =>
+            funTextWithBodyWithBraces(fun, assign)
+          }
+        case _ =>
+          textWithoutAccessModifier
+      }
+
+      s"$typePrinterName.showMethodDefinition({ $funText })"
+    }
+
+    private def funTextWithBodyWithBraces(fun: ScFunction, assign: PsiElement) = {
+      val funText = fun.getText
+      val assignEndRelativeOffset = assign.endOffset - fun.startOffset
+      val funStart = funText.substring(0, assignEndRelativeOffset).stripPrefix(accessModifierText(fun))
+      val funBody = funText.substring(assignEndRelativeOffset)
+      funStart + "{" + funBody + "\n}" // open brace doesn't need extra new line, cause it should already be there
+    }
 
     override protected def processFunDef(fun: ScFunction): Unit =
       withPrecomputedLines(fun) {
@@ -614,6 +638,15 @@ object WorksheetDefaultSourcePreprocessor {
     override protected def printLineCommentBeforeTypeDef: Boolean = true
     override protected def printImports: Boolean = false
   }
+
+  private def usesBracelessSyntax(funDef: ScFunctionDefinition): Boolean =
+    funDef.body match {
+      case Some(block: ScBlock) =>
+        val firstType = PsiTreeUtil.getDeepestFirst(block).elementType
+        firstType != ScalaTokenTypes.tLBRACE
+      case _ =>
+        false
+    }
 
   def inputLinesRangeFromEnd(encodedLine: String): Option[(Int, Int)] =
     inputLinesRangeFrom(encodedLine, CHUNK_OUTPUT_END_MARKER)

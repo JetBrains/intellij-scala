@@ -75,7 +75,6 @@ final class RemoteServerConnector(
     if (module.hasScala3) {
       val extraOptions = Seq(
         "-color:never", // by default dotty prints lots of color, can't handle for now
-        "-noindent", "-old-syntax" // do avoid "Line is indented too far to the left" warnings
       )
       options.filterNot(_.startsWith("-g:")) ++ extraOptions
     } else {
