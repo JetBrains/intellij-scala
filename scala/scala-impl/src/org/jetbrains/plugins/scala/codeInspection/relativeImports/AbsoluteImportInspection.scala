@@ -19,9 +19,7 @@ import scala.annotation.nowarn
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 class AbsoluteImportInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.absolute.import")) {
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
-    case importExpr: ScImportExpr if importExpr.qualifier != null =>
-
-      val qualifier = importExpr.qualifier
+    case importExpr@ScImportExpr.qualifier(qualifier) =>
 
       importExpr.containingFile.foreach { file =>
         OptimizeImportSettings(file).basePackage.foreach { basePackage =>

@@ -42,9 +42,9 @@ class ImportAdditionalIdentifiersIntention extends PsiElementBaseIntentionAction
       case null => None
       case ChildOf(id: ScStableCodeReference) if id.nameId == element =>
         id.getParent match {
-          case imp: ScImportExpr if imp.selectorSet.isEmpty && imp.qualifier != null =>
+          case imp@ScImportExpr.qualifier(qualifier) if imp.selectorSet.isEmpty =>
             val doIt = () => {
-              val name = s"${imp.qualifier.getText}.{${id.nameId.getText}}"
+              val name = s"${qualifier.getText}.{${id.nameId.getText}}"
 
               val replaced = inWriteAction {
                 val replaced = imp.replace(createImportExprFromText(name)(element.getManager))

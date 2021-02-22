@@ -35,14 +35,13 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
     Option(findChildByType(ScalaTokenTypes.tUNDER))
       .orElse(selectorSet.flatMap(_.wildcardElement))
 
-  override def qualifier: ScStableCodeReference = reference match {
-    case Some(reference) =>
+  override def qualifier: Option[ScStableCodeReference] =
+    reference.flatMap(ref =>
       if (isSingleWildcard || selectorSet.isDefined)
-        reference
+        Some(ref)
       else
-        reference.qualifier.orNull
-    case _ => throw new IncorrectOperationException
-  }
+        ref.qualifier
+    )
 
   override def deleteExpr(): Unit = {
     val parent = getParent.asInstanceOf[ScImportStmt]

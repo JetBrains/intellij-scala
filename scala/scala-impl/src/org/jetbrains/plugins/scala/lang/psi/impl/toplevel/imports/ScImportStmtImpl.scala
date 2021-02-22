@@ -85,7 +85,7 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
         }
 
         val qualifier =
-          importExpr.qualifier.nullSafe.getOrElse(return true)
+          importExpr.qualifier.getOrElse(return true)
 
         val resolve = processor match {
           case p: ResolveProcessor =>

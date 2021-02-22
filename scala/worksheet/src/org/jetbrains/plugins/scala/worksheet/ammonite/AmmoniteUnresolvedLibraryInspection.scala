@@ -18,7 +18,7 @@ class AmmoniteUnresolvedLibraryInspection extends AbstractInspection(WorksheetBu
     case stableRef: ScStableCodeReference => stableRef.qualifier.foreach(processExpr(stableRef, _, holder))
     case selector: ScImportSelector =>
       new ParentsIterator(selector).find {
-        case expr: ScImportExpr => selector.reference.foreach(processExpr(_, expr.qualifier, holder))
+        case expr: ScImportExpr => selector.reference.foreach(processExpr(_, expr.qualifier.get, holder))
           true
         case _ => false
       }

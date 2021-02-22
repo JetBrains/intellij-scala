@@ -460,10 +460,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
 
         while (importExprs.hasNext) {
           val expr = importExprs.next()
-          expr.reference match {
-            case Some(reference) => reference.resolve()
-            case None => expr.qualifier.resolve()
-          }
+          expr.reference.foreach(_.resolve())
         }
       }
     }
