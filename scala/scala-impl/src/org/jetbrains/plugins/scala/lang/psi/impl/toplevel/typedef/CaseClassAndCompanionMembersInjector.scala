@@ -5,8 +5,8 @@ package impl
 package toplevel
 package typedef
 
-import com.intellij.psi.PsiClass
-import org.jetbrains.plugins.scala.extensions.{Model, PsiModifierListOwnerExt, PsiNamedElementExt, StringsExt}
+import com.intellij.psi.{PsiClass, PsiElement}
+import org.jetbrains.plugins.scala.extensions.{Model, PsiElementExt, PsiModifierListOwnerExt, PsiNamedElementExt, StringsExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
@@ -107,7 +107,7 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
   }
 
   private def paramTypeText(param: ScParameter, defaultTypeText: String) = {
-    val typeText = param.typeElement.fold(defaultTypeText)(_.getText)
+    val typeText = param.typeElement.fold(defaultTypeText)(toText(defaultTypeText))
     if (param.isRepeatedParameter) SeqCanonical + "[" + typeText + "]"
     else typeText
   }
@@ -116,7 +116,7 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
   private def asFunctionParameters(effectiveClauses: Seq[ScParameterClause], defaultParamString: ScParameter => String): String = {
 
     def paramText(p: ScParameter) = {
-      val paramType = p.typeElement.fold("Any")(_.getText)
+      val paramType = p.typeElement.fold("Any")(toText("Any"))
       val defaultExpr = defaultParamString(p)
       val repeatedSuffix = if (p.isRepeatedParameter) "*" else ""
       p.name + " : " + paramType + repeatedSuffix + defaultExpr
@@ -130,8 +130,11 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
     effectiveClauses.map(clauseText).mkString("")
   }
 
+  private def toText(fallback: String)(psi: PsiElement): String =
+    if (psi.hasParseError) fallback else psi.getText
+
   private def defaultExpressionString(p: ScParameter): String =
-    if (p.isDefaultParam) " = " + p.getDefaultExpression.fold("{}")(_.getText) else ""
+    if (p.isDefaultParam) " = " + p.getDefaultExpression.fold("{}")(toText("{}")) else ""
 
   private[this] def typeParamsString(tparams: Seq[ScTypeParam]): String =
     if (tparams.isEmpty) ""
