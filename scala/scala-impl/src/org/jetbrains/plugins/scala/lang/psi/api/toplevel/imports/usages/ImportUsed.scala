@@ -45,8 +45,8 @@ sealed abstract class ImportUsed(private val pointer: SmartPsiElementPointer[Psi
 
   private def isLanguageFeatureImport: Boolean = {
     importExpr.exists {
-      case expr if expr.qualifier != null =>
-        expr.qualifier.resolve() match {
+      case ScImportExpr.qualifier(qualifier) =>
+        qualifier.resolve() match {
           case o: ScObject =>
             o.qualifiedName.startsWith("scala.language")
           case _ => false
@@ -77,9 +77,10 @@ class ImportExprUsed(e: ScImportExpr) extends ImportUsed(e) {
   override def qualName: Option[String] = {
     val expr = importExpr.getOrElse(return None)
 
-    if (expr.qualifier == null) None
-    else if (expr.isSingleWildcard) Some(expr.qualifier.qualName + "._")
-    else expr.reference.map(ref => expr.qualifier.qualName + "." + ref.refName)
+    expr.qualifier.flatMap(qualifier =>
+      if (expr.isSingleWildcard) Some(qualifier.qualName + "._")
+      else expr.reference.map(ref => qualifier.qualName + "." + ref.refName)
+    )
   }
 
   override def toString: String = "ImportExprUsed(" + super.toString + ")"

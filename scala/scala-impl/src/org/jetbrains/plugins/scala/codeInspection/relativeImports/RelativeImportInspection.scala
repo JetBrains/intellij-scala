@@ -23,8 +23,8 @@ class RelativeImportInspection extends AbstractInspection(ScalaInspectionBundle.
   import org.jetbrains.plugins.scala.codeInspection.relativeImports.RelativeImportInspection.qual
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
-    case expr: ScImportExpr if expr.qualifier != null =>
-      val q = qual(expr.qualifier)
+    case ScImportExpr.qualifier(qualifier) =>
+      val q = qual(qualifier)
       val resolve = q.multiResolveScala(false)
       for (result <- resolve) {
         def applyProblem(qualifiedName: String): Unit = {

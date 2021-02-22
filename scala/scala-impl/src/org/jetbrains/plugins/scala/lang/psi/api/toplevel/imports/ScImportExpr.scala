@@ -7,6 +7,7 @@ package imports
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
+import org.jetbrains.plugins.scala.lang.psi.api.expr
 
 /**
  * @author Alexander Podkhalyuzin
@@ -26,7 +27,7 @@ trait ScImportExpr extends ScalaPsiElement {
 
   def wildcardElement: Option[PsiElement]
 
-  def qualifier: ScStableCodeReference
+  def qualifier: Option[ScStableCodeReference]
 
   def deleteExpr(): Unit
 
@@ -37,4 +38,10 @@ trait ScImportExpr extends ScalaPsiElement {
   }
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = visitor.visitImportExpr(this)
+}
+
+object ScImportExpr {
+  object qualifier {
+    def unapply(expr: ScImportExpr): Option[ScStableCodeReference] = expr.qualifier
+  }
 }

@@ -26,13 +26,12 @@ private final class LocallyImportableMembersFinder(place: ScReferenceExpression,
     importableCandidates(LocallyImportableMemberResult) ++
       companionObjectCandidates
 
-  private def importableCandidates(constructor: (PsiNamedElement, PsiClass) => GlobalMemberResult) = for {
+  private def importableCandidates(constructor: (PsiNamedElement, PsiClass) => GlobalMemberResult): Iterable[GlobalMemberResult] = for {
     importHolder <- contextsOfType[ScImportsHolder]
     statement <- importHolder.getImportStatements
 
     expression <- statement.importExprs
-    qualifier = expression.qualifier
-    if qualifier != null
+    qualifier <- expression.qualifier.toSeq
 
     result <- qualifier.resolve match {
       case ScalaObject(importedObject) =>

@@ -65,7 +65,7 @@ class ScImportSelectorImpl private(stub: ScImportSelectorStub, node: ASTNode)
     expr.selectors match {
       case Seq(sel: ScImportSelector) if !sel.isAliasedImport =>
         sel.reference.foreach { reference =>
-          val withoutBracesText = expr.qualifier.getText + "." + reference.getText
+          val withoutBracesText = expr.qualifier.fold("")(_.getText + ".") + reference.getText
           expr.replace(createImportExprFromText(withoutBracesText))
         }
       case _ =>

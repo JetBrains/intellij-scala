@@ -111,7 +111,7 @@ case class ImportInfo(prefixQualifier: String,
 object ImportInfo {
 
   def apply(imp: ScImportExpr, isImportUsed: ImportUsed => Boolean): Option[ImportInfo] = {
-    val qualifier = imp.qualifier
+    val qualifier = imp.qualifier.orNull
     if (qualifier == null) return None //ignore invalid imports
 
     val importsUsed = ArrayBuffer[ImportUsed]()

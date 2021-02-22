@@ -406,7 +406,7 @@ object WorksheetDefaultSourcePreprocessor {
     protected def processLocalImport(imp: ScImportStmt): Boolean = {
       if (imp.importExprs.lengthCompare(1) < 0) return false
 
-      var currentQual = imp.importExprs.head.qualifier
+      var currentQual = imp.importExprs.head.qualifier.orNull
       var lastFound: Option[(ScStableCodeReference, PsiElement)] = None
 
       while (currentQual != null) {

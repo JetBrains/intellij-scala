@@ -105,7 +105,7 @@ object AmmoniteUtil {
       scRef.getParent match {
         case selector: ScImportSelector =>
           new ParentsIterator(selector).collectFirst {
-            case expr: ScImportExpr => expr.qualifier
+            case ScImportExpr.qualifier(qualifier) => qualifier
           }
         case _ => scRef.qualifier
       }
