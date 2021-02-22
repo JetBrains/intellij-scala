@@ -449,11 +449,11 @@ trait TreeAdapter {
     if (t.selectors.nonEmpty) {
       val wildcards = if (t.isSingleWildcard) List(m.Importee.Wildcard()) else Nil
       val importees = t.selectors.map(selector).toList ++ wildcards
-      m.Importer(getQualifier(t.qualifier), importees)
+      m.Importer(getQualifier(t.qualifier.get), importees)
     } else if (t.isSingleWildcard)
-      m.Importer(getQualifier(t.qualifier), List(m.Importee.Wildcard()))
+      m.Importer(getQualifier(t.qualifier.get), List(m.Importee.Wildcard()))
     else
-      m.Importer(getQualifier(t.qualifier), List(m.Importee.Name(m.Name.Indeterminate(t.importedNames.head))))
+      m.Importer(getQualifier(t.qualifier.get), List(m.Importee.Name(m.Name.Indeterminate(t.importedNames.head))))
   }
 
   def literal(literal: ScLiteral): m.Lit = {

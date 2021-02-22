@@ -18,7 +18,7 @@ class RemoveBracesForSingleImportQuickFix(importExpr: ScImportExpr)
   override protected def doApplyFix(iExpr: ScImportExpr)
                                    (implicit project: Project): Unit = {
     val name = if (iExpr.isSingleWildcard) "_" else iExpr.importedNames.headOption.getOrElse("")
-    val text = s"${iExpr.qualifier.getText}.$name"
+    val text = s"${iExpr.qualifier.get.getText}.$name"
 
     inWriteAction {
       iExpr.replace(createImportExprFromText(text))

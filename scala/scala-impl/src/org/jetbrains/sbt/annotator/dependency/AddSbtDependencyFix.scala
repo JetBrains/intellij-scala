@@ -196,8 +196,9 @@ private class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReference
   @NonNls
   private def getReferenceText: String = {
     val importExpr = PsiTreeUtil.getParentOfType(refElement.getElement, classOf[ScImportExpr])
-    if (importExpr.selectors.size > 1 || importExpr.selectors.exists(_.isAliasedImport))
-      s"${importExpr.qualifier.getText}.${refElement.getElement.getText}" // for "import x.y.{foo, bar=>baz}" and so on
+    if (importExpr.selectors.size > 1 || importExpr.selectors.exists(_.isAliasedImport)) {
+      importExpr.qualifier.fold("")(_.getText + ".") + refElement.getElement.getText
+    } // for "import x.y.{foo, bar=>baz}" and so on
     else
       importExpr.getText
   }

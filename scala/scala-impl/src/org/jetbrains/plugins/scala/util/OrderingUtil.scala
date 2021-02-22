@@ -76,7 +76,7 @@ object OrderingUtil {
     val ctxImportRawQualifiers = packageQualifier.toSeq ++
       ctxImports
         .flatMap(_.importExprs)
-        .flatMap(e => Option(e.qualifier))
+        .flatMap(e => e.qualifier)
         .map(_.qualName)
     val ctxImportQualifiers = ctxImportRawQualifiers.distinct.map(_.split('.')).toArray
 
