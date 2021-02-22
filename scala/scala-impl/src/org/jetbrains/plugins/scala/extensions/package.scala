@@ -847,6 +847,8 @@ package object extensions {
       PsiTreeUtil.firstChild(element).elementType == token
     }
 
+    def hasParseError: Boolean = elements.exists(_.is[PsiErrorElement])
+
     def isInScala3File: Boolean = {
       val file = element.getContainingFile
       file != null && file.isScala3File
