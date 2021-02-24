@@ -42,7 +42,7 @@ object GivenDef {
     }
   }
 
-  def parseGivenAlias()(implicit builder: ScalaPsiBuilder): Boolean = {
+  private def parseGivenAlias()(implicit builder: ScalaPsiBuilder): Boolean = {
     val aliasMarker = builder.mark()
     if (Type.parse(builder) && builder.getTokenType == ScalaTokenTypes.tASSIGN) {
       // given alias
@@ -60,7 +60,8 @@ object GivenDef {
     }
   }
 
-  def parseGivenDefinition()(implicit builder: ScalaPsiBuilder): Boolean = {
+  private val nonConstructorStartId = ScalaTokenTypes.SOFT_KEYWORDS.getTypes.map(_.toString).toSet
+  private def parseGivenDefinition()(implicit builder: ScalaPsiBuilder): Boolean = {
     val extendsBlockMarker = builder.mark()
     val templateParents = builder.mark()
 
@@ -76,7 +77,14 @@ object GivenDef {
         val fallbackMarker = builder.mark()
         builder.advanceLexer() // ate with
 
-        if (builder.getTokenType != ScalaTokenTypes.tLBRACE && Constructor()) {
+        val proceedWithConstructorInvocation =
+          builder.getTokenType match {
+            case ScalaTokenTypes.tLBRACE => false
+            case ScalaTokenTypes.tIDENTIFIER if nonConstructorStartId(builder.getTokenText) => false
+            case _ => true
+          }
+
+        if (proceedWithConstructorInvocation && Constructor()) {
           fallbackMarker.drop()
           parseConstructors()
         } else {
