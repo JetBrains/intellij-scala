@@ -161,7 +161,7 @@ abstract class ScalaElementVisitor extends PsiElementVisitor {
   def visitTuple(tuple: ScTuple): Unit = {visitExpression(tuple)}
   def visitBlockExpression(block: ScBlockExpr): Unit = {visitExpression(block)}
   def visitUnderscoreExpression(under: ScUnderscoreSection): Unit = {visitExpression(under)}
-  def visitConstrBlock(constr: ScConstrBlock): Unit = {visitBlockExpression(constr)}
+  def visitConstrBlockExpr(constr: ScConstrBlockExpr): Unit = {visitBlockExpression(constr)}
 
   //type elements
   //Override also visitTypeProjection!

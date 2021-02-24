@@ -23,16 +23,14 @@ object ConstrBlock extends ParsingRule {
         SelfInvocation()
         while (true) {
           builder.getTokenType match {
-            case ScalaTokenTypes.tRBRACE => {
+            case ScalaTokenTypes.tRBRACE =>
               builder.advanceLexer() //Ate }
               builder.restoreNewlinesState()
-              constrExprMarker.done(ScalaElementType.CONSTR_BLOCK)
+              constrExprMarker.done(ScalaElementType.CONSTR_BLOCK_EXPR)
               return true
-            }
-            case ScalaTokenTypes.tSEMICOLON => {
+            case ScalaTokenTypes.tSEMICOLON =>
               builder.advanceLexer() //Ate semi
               BlockStat()
-            }
             case _ if builder.newlineBeforeCurrentToken =>
               if (!BlockStat()) {
                 builder error ErrMsg("rbrace.expected")
@@ -41,19 +39,18 @@ object ConstrBlock extends ParsingRule {
                   !builder.newlineBeforeCurrentToken) {
                   builder.advanceLexer()
                 }
-                constrExprMarker.done(ScalaElementType.CONSTR_BLOCK)
+                constrExprMarker.done(ScalaElementType.CONSTR_BLOCK_EXPR)
                 return true
               }
-            case _ => {
+            case _ =>
               builder error ErrMsg("rbrace.expected")
               builder.restoreNewlinesState()
               while (!builder.eof && builder.getTokenType != ScalaTokenTypes.tRBRACE &&
                 !builder.newlineBeforeCurrentToken) {
                 builder.advanceLexer()
               }
-              constrExprMarker.done(ScalaElementType.CONSTR_BLOCK)
+              constrExprMarker.done(ScalaElementType.CONSTR_BLOCK_EXPR)
               return true
-            }
           }
         }
         true //it's trick to compiler

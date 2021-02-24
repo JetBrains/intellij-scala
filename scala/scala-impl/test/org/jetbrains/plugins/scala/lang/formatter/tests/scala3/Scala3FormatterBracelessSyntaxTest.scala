@@ -82,4 +82,48 @@ class Scala3FormatterBracelessSyntaxTest extends Scala3FormatterBaseTest {
       |  println("dummy")
       |""".stripMargin
   )
+
+  def testConstructorBody_WithBraces(): Unit = doTextTest(
+    """class A {
+      |  def this(x: Long) = {
+      |    this()
+      |  }
+      |
+      |  def this(x: Short) = {
+      |    this()
+      |    println(1)
+      |  }
+      |
+      |  def this(x: Long, y: Long) = {
+      |    this()
+      |  }
+      |
+      |  def this(x: Short, y: Short) = {
+      |    this()
+      |    println(1)
+      |  }
+      |}
+      |""".stripMargin
+  )
+
+  def testConstructorBody_WithoutBraces(): Unit = doTextTest(
+    """class A {
+      |  def this(x: Int) =
+      |    this()
+      |
+      |  def this(x: String) =
+      |    this()
+      |    println(2)
+      |
+      |  def this(x: Int, y: Int) =
+      |    this()
+      |  end this
+      |
+      |  def this(x: String, y: String) =
+      |    this()
+      |    println(2)
+      |  end this
+      |}
+      |""".stripMargin
+  )
 }

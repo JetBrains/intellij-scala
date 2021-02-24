@@ -326,9 +326,6 @@ object ScalaElementType {
   val POLY_FUNCTION_EXPR: ScExpressionElementType = new ScExpressionElementType("expression") {
     override def createElement(node: ASTNode) = new ScPolyFunctionExprImpl(node)
   }
-  val CONSTR_BLOCK: ScExpressionElementType = new ScExpressionElementType("constructor block") {
-    override def createElement(node: ASTNode) = new ScConstrBlockImpl(node)
-  }
   val BLOCK: ScExpressionElementType = new ScExpressionElementType("block") {
     override def createElement(node: ASTNode) = new ScBlockImpl(node)
   }
@@ -347,8 +344,8 @@ object ScalaElementType {
   val UNIT_EXPR: ScExpressionElementType = new ScExpressionElementType("unit expression") {
     override def createElement(node: ASTNode) = new ScUnitExprImpl(node)
   }
-  val CONSTR_EXPR: ScExpressionElementType = new ScExpressionElementType("constructor expression") {
-    override def createElement(node: ASTNode) = new ScConstrExprImpl(node)
+  val CONSTR_BLOCK_EXPR: ScExpressionElementType = new ScExpressionElementType("constructor block expression") {
+    override def createElement(node: ASTNode) = new ScConstrBlockExprImpl(node)
   }
   val SELF_INVOCATION: ScExpressionElementType = new ScExpressionElementType("self invocation") {
     override def createElement(node: ASTNode) = new ScSelfInvocationImpl(node)
