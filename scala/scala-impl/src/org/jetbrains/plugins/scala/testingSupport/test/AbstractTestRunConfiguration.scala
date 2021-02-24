@@ -6,6 +6,7 @@ import com.intellij.diagnostic.logging.LogConfigurationPanel
 import com.intellij.execution._
 import com.intellij.execution.configurations._
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.execution.testframework.actions.ConsolePropertiesProvider
 import com.intellij.execution.testframework.sm.runner.{SMRunnerConsolePropertiesProvider, SMTRunnerConsoleProperties}
 import com.intellij.openapi.components.PathMacroManager
 import com.intellij.openapi.diagnostic.Logger
@@ -18,7 +19,7 @@ import com.intellij.util.keyFMap.KeyFMap
 import com.intellij.util.xmlb.XmlSerializer
 import com.intellij.util.xmlb.annotations.Transient
 import org.jdom.Element
-import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.annotations.{ApiStatus, Nullable}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -41,11 +42,16 @@ abstract class AbstractTestRunConfiguration(
   new JavaRunConfigurationModule(project, true),
   configurationFactory
 ) with ConfigurationWithCommandLineShortener
-  with SMRunnerConsolePropertiesProvider
+  with ConsolePropertiesProvider
   with exceptions {
 
-  override def createTestConsoleProperties(executor: Executor): SMTRunnerConsoleProperties =
-    new ScalaTestFrameworkConsoleProperties(this, testFramework.getName, executor)
+  @Nullable
+  override def createTestConsoleProperties(executor: Executor): SMTRunnerConsoleProperties = {
+    val hideTestRunnerConsole = this.testConfigurationData.useSbt && !this.testConfigurationData.useUiWithSbt
+    // CWM-1987
+    if (hideTestRunnerConsole) null
+    else new ScalaTestFrameworkConsoleProperties(this, testFramework.getName, executor)
+  }
 
   def configurationProducer: AbstractTestConfigurationProducer[_]
   def testFramework: AbstractTestFramework
