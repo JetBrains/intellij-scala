@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.testingSupport.test.munit
 
 import com.intellij.execution.configurations.ConfigurationFactory
-import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
+import com.intellij.execution.testframework.sm.runner.{SMRunnerConsolePropertiesProvider, SMTRunnerConsoleProperties}
 import com.intellij.execution.{Executor, JavaTestFrameworkRunnableState}
 import com.intellij.openapi.project.Project
+import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.testingSupport.test._
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.TestConfigurationData
 
@@ -15,7 +16,8 @@ final class MUnitConfiguration(
   project,
   configurationFactory,
   name
-) with DelegateCommonJavaRunConfigurationParameters {
+) with DelegateCommonJavaRunConfigurationParameters
+  with SMRunnerConsolePropertiesProvider {
 
   /**
    * This is required because [[JavaTestFrameworkRunnableState]] requires configuration to implement
@@ -29,8 +31,12 @@ final class MUnitConfiguration(
 
   override protected def validityChecker: SuiteValidityChecker = new SuiteValidityCheckerBase
 
-  override def createTestConsoleProperties(executor: Executor): SMTRunnerConsoleProperties =
+  @NotNull
+  override def createTestConsoleProperties(executor: Executor): SMTRunnerConsoleProperties = {
+    // NOTE: we currently do not support sbt for MUnit, so always returning non-null value
+    // see SCL-18257 and CWM-1987
     new MUnitConsoleProperties(this, executor)
+  }
 
   override def runStateProvider: RunStateProvider =
     (env, failedTests) => {
