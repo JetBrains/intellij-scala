@@ -22,10 +22,10 @@ class AmmoniteVersionDownloaderTest extends base.ScalaLightPlatformCodeInsightTe
       case other => fail(s"Cannot download Scala version for $forScala, got: $other")
     }
 
-  private def downloadAndTestAmmoniteVersionImpl(forScala: MyScalaVersion, forString: String): Unit =
-    loadAmmoniteVersion(forScala, forString) match {
+  private def downloadAndTestAmmoniteVersionImpl(scalaVersion: String): Unit =
+    loadAmmoniteVersion(scalaVersion) match {
       case Success(_) =>
-      case other => fail(s"Cannot download Ammonite version for $forScala, got: $other")
+      case other => fail(s"Cannot download Ammonite version for $scalaVersion, got: $other")
     }
 
   def testDownloadScalaVersionExact210(): Unit = downloadAndTestScalaVersionImpl(ExactVersion('0', Version("2.10.6")))
@@ -40,9 +40,9 @@ class AmmoniteVersionDownloaderTest extends base.ScalaLightPlatformCodeInsightTe
 
   def testDownloadScalaVersionMajor212(): Unit = downloadAndTestScalaVersionImpl(MajorVersion('2'))
 
-  def testDownloadAmmoniteVersion210(): Unit = downloadAndTestAmmoniteVersionImpl(MajorVersion('0'), "2.10.6")
+  def testDownloadAmmoniteVersion210(): Unit = downloadAndTestAmmoniteVersionImpl("2.10.6")
 
-  def testDownloadAmmoniteVersion211(): Unit = downloadAndTestAmmoniteVersionImpl(MajorVersion('1'), "2.11.7")
+  def testDownloadAmmoniteVersion211(): Unit = downloadAndTestAmmoniteVersionImpl("2.11.7")
 
-  def testDownloadAmmoniteVersion212(): Unit = downloadAndTestAmmoniteVersionImpl(MajorVersion('2'), "2.12.2")
+  def testDownloadAmmoniteVersion212(): Unit = downloadAndTestAmmoniteVersionImpl("2.12.2")
 }

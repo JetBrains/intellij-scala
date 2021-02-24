@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.worksheet.ammonite
 
-import java.io.File
-
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress._
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator
@@ -13,11 +11,12 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.{inWriteAction, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
-import org.jetbrains.plugins.scala.project.template.{Artifact, createTempSbtProject}
+import org.jetbrains.plugins.scala.project.template.Artifact
 import org.jetbrains.plugins.scala.project.{Version, Versions}
 import org.jetbrains.plugins.scala.util.{NotificationUtil, ScalaUtil}
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 
+import java.io.File
 import scala.collection.mutable
 import scala.util.{Success, Try}
 
@@ -34,7 +33,15 @@ object ImportAmmoniteDependenciesFix {
   private val DEFAULT_AMMONITE_VERSION = "1.0.3"
 
   private val AMMONITE_PREFIX = "ammonite_"
-  private val THREE_DIGIT_PATTERN = "(\\d+\\.\\d+\\.\\d+)"
+
+  private val THREE_DIGIT_PATTERN = """(\d+\.\d+\.\d+)"""
+
+  // Examples: https://repo1.maven.org/maven2/com/lihaoyi/ammonite_2.13.3/
+  // example1: 2.3.8
+  // example2: 2.3.8-36-1cce53f3
+  // the pattern search inside title="..." attribute, e.g. in:
+  // <a href="2.1.4-11-307f3d8/" title="2.1.4-11-307f3d8/">2.1.4-11-307f3d8/</a>
+  private val AMMONITE_VERSION_PATTERN = """"(\d+\.\d+\.\d+)(-\d+-[0-9a-f]+)?/?"""".r
 
   def apply(file: ScFile)
            (implicit project: Project): Unit = {
@@ -45,7 +52,8 @@ object ImportAmmoniteDependenciesFix {
       override def run(indicator: ProgressIndicator): Unit = {
         indicator.setText(WorksheetBundle.message("ammonite.loading.list.of.versions"))
 
-        val (forScala, predicate) = ScalaUtil.getScalaVersion(file)
+        val sv = ScalaUtil.getScalaVersion(file)
+        val (forScala, predicate) = sv
           .fold(
             (
               MajorVersion('2'): MyScalaVersion,
@@ -54,7 +62,7 @@ object ImportAmmoniteDependenciesFix {
           ) { version =>
             (
               ExactVersion(version.charAt(3), Version(version)),
-              (file: File) => file.getName.startsWith("scala-") && Artifact.ScalaArtifacts.exists(_.versionOf(file).isDefined)
+              (file: File) => !isScalaSdkFile(file)
             )
           }
 
@@ -66,10 +74,10 @@ object ImportAmmoniteDependenciesFix {
         val e = new AmmoniteUtil.RegexExtractor
         import e._
 
-        createTempSbtProject(
+        SbtUtils.createTempSbtProject(
           scalaVersion,
-          Seq("set libraryDependencies += \"com.lihaoyi\" " + "%" + " \"ammonite\" " + "%" + " \"" + ammoniteVersion + "\" " + "%" + " \"test\" cross CrossVersion.full"),
-          Seq("show test:dependencyClasspath")
+          Seq(s"""set libraryDependencies += "com.lihaoyi" % "ammonite" % "$ammoniteVersion" % "test" cross CrossVersion.full"""),
+          Seq("""show test:dependencyClasspath""")
         ) {
           case mre"[info] * Attributed($pathname)" =>
             new File(pathname) match {
@@ -86,9 +94,9 @@ object ImportAmmoniteDependenciesFix {
                   val moduleModel = ModuleRootManager.getInstance(module).getModifiableModel
                   val jarFileSystem = JarFileSystem.getInstance
 
+                  val filesFiltered = files.filter(predicate)
                   for {
-                    file <- files
-                    if predicate(file)
+                    file <- filesFiltered
 
                     rootFile = jarFileSystem.findLocalVirtualFileByPath(file.getCanonicalPath)
                     if rootFile != null
@@ -106,7 +114,10 @@ object ImportAmmoniteDependenciesFix {
                 }
               }
             }
-          case mre"[error]$content" => LOG.warn(s"Ammonite, error while importing dependencies: $content")
+          case mre"[error]$_" => {
+            // ignore, assuming that sbt return code will be not 0 and all the process output will be logged in
+            // createTempSbtProject
+          }
           case _ =>
         }
       }
@@ -115,16 +126,29 @@ object ImportAmmoniteDependenciesFix {
     manager.runProcessWithProgressAsynchronously(task, createBgIndicator)
   }
 
-  trait MyScalaVersion
+  // TODO: we should improve this filtering,
+  //  currently in addition to ScalaLibrary it filters out
+  //  ScalaCompiler,
+  //  ScalaReflect,
+  //  ScalaXml,
+  //  ScalaSwing,
+  //  ScalaCombinators,
+  //  ScalaActors
+  //  But what if a user wants to experiment with those libraries in ammonite script?
+  private def isScalaSdkFile(file: File): Boolean =
+    file.getName.startsWith("scala-") && Artifact.ScalaArtifacts.exists(_.versionOf(file).isDefined)
 
+  // TODO: this is a bad solution:
+  //  1: it's unreadable and strang
+  //  2: it is incorrect, we can have same digits for scala 2 and scala 3, e.g. 0 can mean 2.10 and 3.0
+  trait MyScalaVersion
   case class MajorVersion(m: Char) extends MyScalaVersion // m is last num in major version, e.g. 1 for 2.11
   case class ExactVersion(m: Char, v: Version) extends MyScalaVersion
 
-  private def hasAmmonite(file: PsiFile): Boolean =
-    LibraryTablesRegistrar.getInstance()
-      .getLibraryTable(file.getProject)
-      .getLibraries
-      .exists(_.getName.startsWith("ammonite-"))
+  private def hasAmmonite(file: PsiFile): Boolean = {
+    val libraries = LibraryTablesRegistrar.getInstance().getLibraryTable(file.getProject).getLibraries
+    libraries.exists(_.getName.startsWith("ammonite-"))
+  }
 
   private def createBgIndicator(implicit project: Project) =
     ProgressIndicatorProvider.getGlobalProgressIndicator match {
@@ -145,42 +169,64 @@ object ImportAmmoniteDependenciesFix {
       case _ => DEFAULT_SCALA_VERSION
     }
 
-    val ammoniteVersion = loadAmmoniteVersion(forScala, scalaVersion).getOrElse(DEFAULT_AMMONITE_VERSION)
+    val ammoniteVersion = loadAmmoniteVersion(scalaVersion).getOrElse(DEFAULT_AMMONITE_VERSION)
 
     (scalaVersion, ammoniteVersion)
   }
 
-  def loadAmmoniteVersion(forScala: MyScalaVersion, scalaVersion: String): Try[String] = {
-    Versions.loadLinesFrom(s"https://repo1.maven.org/maven2/com/lihaoyi/$AMMONITE_PREFIX$scalaVersion/").map {
-      lines =>
-        val pattern = ("\\Q\"\\E" + THREE_DIGIT_PATTERN).r
+  def loadAmmoniteVersion(scalaVersion: String): Try[String] = {
+    val url = s"https://repo1.maven.org/maven2/com/lihaoyi/$AMMONITE_PREFIX$scalaVersion/"
+    val lines: Try[Seq[String]] = Versions.loadLinesFrom(url)
 
-        lines.flatMap {
-          line => pattern findFirstIn line
-        }.map(str => Version(str stripPrefix "\""))
-    }.filter(_.nonEmpty).map(_.max.presentation)
+    val versions = lines.map(detectAmmoniteVersions)
+    val version = versions.map(chooseAmmoniteVersion)
+    version.flatMap {
+      case Some(v) =>
+        Success(v.presentation)
+      case _ =>
+        // TODO: use something more user-friendly error handling
+        throw new RuntimeException(s"Can't detect appropriate ammonite version for scala version `$scalaVersion`")
+    }
   }
 
+  private def chooseAmmoniteVersion(versions: Seq[Version]): Option[Version] = {
+    // release: 2.1.4
+    // dev: 2.1.4-8-5d0c097
+    val (dev, release) = versions.partition(_.presentation.contains("-"))
+    release.maxOption.orElse(dev.maxOption)
+  }
+
+  private def detectAmmoniteVersions(mavenInfoLines: Seq[String]): Seq[Version] = {
+    val versions = mavenInfoLines.flatMap(AMMONITE_VERSION_PATTERN.findFirstIn)
+    // version inside title contains quotes and slash in the end, e.g. 2.1.4-8-5d0c097/
+    val cleaned = versions.map(_.stripPrefix("\"").stripSuffix("\"").stripSuffix("/"))
+    cleaned.map(Version.apply)
+  }
+
+  // TODO: why "versionS"?
   def loadScalaVersions(forScala: MyScalaVersion): Try[Option[Version]] = {
-    Versions.loadLinesFrom("https://repo1.maven.org/maven2/com/lihaoyi/").map {
-      lines =>
-        val pattern = s"\\Q$AMMONITE_PREFIX\\E$THREE_DIGIT_PATTERN".r
-        lines.flatMap(line => pattern.findFirstIn(line))
-    }.map {
-      ammoniteStrings =>
-        val pattern = THREE_DIGIT_PATTERN.r
-        ammoniteStrings.flatMap(v => pattern findFirstIn v).map(Version(_))
-    }.map {
-      ammoniteVersions => ammoniteVersions.groupBy(_.major(2).presentation.last)
-    }.map {
-      grouped =>
-        forScala match {
-          case MajorVersion(m) => grouped.get(m).map(_.last)
-          case ExactVersion(m, v) =>
-            grouped.get(m).flatMap {
-              f => f.reverse.find(v >= _)
-            }
-        }
+    val url = "https://repo1.maven.org/maven2/com/lihaoyi/"
+    val mavenInfoLines = Versions.loadLinesFrom(url)
+    mavenInfoLines.map(detectScalaVersion(_, forScala))
+  }
+
+  private def detectScalaVersion(mavenInfoLines: Seq[String], forScala: MyScalaVersion): Option[Version] = {
+    val ammoniteLines = {
+      val pattern = s"\\Q$AMMONITE_PREFIX\\E$THREE_DIGIT_PATTERN".r
+      mavenInfoLines.flatMap(line => pattern.findFirstIn(line))
+    }
+
+    val ammoniteVersions = {
+      val pattern = THREE_DIGIT_PATTERN.r
+      ammoniteLines.flatMap(v => pattern.findFirstIn(v)).map(Version(_))
+    }
+    val grouped = ammoniteVersions.groupBy(_.major(2).presentation.last)
+
+    forScala match {
+      case MajorVersion(m) =>
+        grouped.get(m).map(_.last)
+      case ExactVersion(m, v) =>
+        grouped.get(m).flatMap(_.reverse.find(v >= _))
     }
   }
 
