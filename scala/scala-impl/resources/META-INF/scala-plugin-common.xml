@@ -137,7 +137,6 @@
         <autoImportOptionsProvider instance="org.jetbrains.plugins.scala.editor.autoimport.ScalaAutoImportOptionsProvider"/>
         <fileType name="Scala" language="Scala" extensions="scala"
                   implementationClass="org.jetbrains.plugins.scala.ScalaFileType" fieldName="INSTANCE"/>
-        <lang.substitutor language="" implementationClass="org.jetbrains.plugins.scala.Scala3LanguageSubstitutor"/>
         <editorHighlighterProvider filetype="Scala"
                                    implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighterProvider"/>
 

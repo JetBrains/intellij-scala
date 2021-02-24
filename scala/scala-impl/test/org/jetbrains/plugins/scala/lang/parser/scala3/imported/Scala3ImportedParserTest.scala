@@ -138,7 +138,7 @@ object Scala3ImportedParserTest {
  * run [[Scala3ImportedParserTest_Move_Fixed_Tests]].
  */
 class Scala3ImportedParserTest_Fail extends Scala3ImportedParserTestBase(Scala3ImportedParserTest_Fail.directory) {
-  override protected def shouldHaveErrors: Boolean = true
+  override protected def shouldHaveErrors: Boolean = false
 }
 
 object Scala3ImportedParserTest_Fail {
