@@ -10,6 +10,8 @@ class VarargPatternSyntaxTest extends VarargPatternSyntaxTestBase {
 
   override protected val description = "':' syntax in vararg pattern requires Scala 3.0"
 
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= ScalaVersion.Latest.Scala_2_13
+
   private val replaceWithAtFix = "Replace with '@'"
 
   def testVarargPatternWithColonWithBindName(): Unit = {
@@ -57,9 +59,7 @@ class VarargPatternSyntaxScala3Test extends VarargPatternSyntaxScala3TestBase {
 
   override protected val description = "'@' syntax in vararg pattern has been deprecated since Scala 3.0"
 
-  private val replaceWithColonFix = "Replace with ':'"
-
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 
   def testVarargPatternWithColonWithBindName(): Unit = {
     val code =
@@ -69,11 +69,11 @@ class VarargPatternSyntaxScala3Test extends VarargPatternSyntaxScala3TestBase {
          |""".stripMargin
     val codeFixed =
       s"""List(1, 2, 3) match {
-         |  case List(first, other: _*) =>
+         |  case List(first, other*) =>
          |}
          |""".stripMargin
     checkTextHasError(code)
-    testQuickFix(code, codeFixed, replaceWithColonFix)
+    testQuickFix(code, codeFixed, "Replace with 'other*'")
   }
 
   def testVarargPatternWithColonWithBindWildcard(): Unit = {
@@ -84,11 +84,11 @@ class VarargPatternSyntaxScala3Test extends VarargPatternSyntaxScala3TestBase {
          |"""
     val codeFixed =
       s"""List(1, 2, 3) match {
-         |  case List(first, _: _*) =>
+         |  case List(first, _*) =>
          |}
          |""".stripMargin
     checkTextHasError(code)
-    testQuickFix(code, codeFixed, replaceWithColonFix)
+    testQuickFix(code, codeFixed, "Replace with '_*'")
   }
 
   def testVarargPatternWithColon(): Unit =
@@ -99,6 +99,7 @@ class VarargPatternSyntaxScala3Test extends VarargPatternSyntaxScala3TestBase {
     )
 }
 
+/*
 class VarargShortPatternSyntaxScala3Test extends VarargPatternSyntaxScala3TestBase {
 
   override protected val description = "Short _* pattern syntax has been deprecated since Scala 3.0"
@@ -150,4 +151,4 @@ class VarargShortPatternSyntaxScala3Test extends VarargPatternSyntaxScala3TestBa
     checkTextHasError(code)
     testQuickFix(code, codeFixed, "Replace with '_: _*'")
   }
-}
+}*/

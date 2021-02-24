@@ -4,7 +4,6 @@ package psi
 package impl
 
 import java.{util => ju}
-
 import com.intellij.lang.{ASTNode, LanguageParserDefinitions, PsiBuilder, PsiBuilderFactory}
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
@@ -46,7 +45,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocParagraph, ScDocResolvableCodeReference, ScDocSyntaxElement}
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 
 import scala.annotation.tailrec
 import scala.reflect.ClassTag
@@ -161,7 +160,11 @@ object ScalaPsiElementFactory {
   def createScalaFileFromText(@NonNls text: String)
                              (implicit ctx: ProjectContext): ScalaFile =
     PsiFileFactory.getInstance(ctx)
-      .createFileFromText(s"dummy.${ScalaFileType.INSTANCE.getDefaultExtension}", ScalaFileType.INSTANCE, convertLineSeparators(text))
+      .createFileFromText(
+        s"dummy.${ScalaFileType.INSTANCE.getDefaultExtension}",
+        if (ctx.project.hasScala3) Scala3Language.INSTANCE else ScalaLanguage.INSTANCE,
+        convertLineSeparators(text)
+      )
       .asInstanceOf[ScalaFile]
 
 

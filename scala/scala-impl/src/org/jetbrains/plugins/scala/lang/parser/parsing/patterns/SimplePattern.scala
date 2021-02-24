@@ -159,7 +159,8 @@ object SimplePattern extends ParsingRule {
 
           // xs : _* (Scala 3 old?)
           def parseSeqWildcardBindingScala3_old(): Boolean = {
-            val condition = builder.isScala3 && (
+            // should not parse in scala 2, but let's do it anyway and annotate it in ScPatternTypeUnawareAnnotator
+            val condition = (
               builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tCOLON, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER) ||
                 builder.lookAhead(ScalaTokenTypes.tUNDER, ScalaTokenTypes.tCOLON, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)
               )
