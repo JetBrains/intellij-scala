@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.CommonUtils.remapRawStrin
  * @author Alexander Podkhalyuzin
  *         Date: 15.02.2008
  */
-object Literal {
+object Literal extends ParsingRule {
 
   import ScalaElementType._
   import builder.ScalaPsiBuilder
@@ -31,7 +31,7 @@ object Literal {
   import ScalaTokenType._
   import ScalaTokenTypes._
 
-  def parse(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
 
     def advanceAndMarkDone(elementType: ScExpressionElementType,

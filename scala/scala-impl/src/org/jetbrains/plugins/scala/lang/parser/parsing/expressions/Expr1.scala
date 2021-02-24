@@ -241,7 +241,7 @@ object Expr1 extends ParsingRule {
             builder.advanceLexer() // ate =>
             ExprInIndentationRegion()
           case _ =>
-            builder.error(ScalaBundle.message("type.lambda.expected"))
+            builder.error(ScalaBundle.message("fun.sign.expected"))
         }
         exprMarker.done(ScalaElementType.POLY_FUNCTION_EXPR)
         return true

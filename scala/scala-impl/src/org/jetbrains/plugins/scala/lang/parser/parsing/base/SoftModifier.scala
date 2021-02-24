@@ -100,6 +100,7 @@ object LocalSoftModifier extends SoftModifier(
   Inline,
   Transparent,
   Open,
+  Infix,
 )
 
 /**

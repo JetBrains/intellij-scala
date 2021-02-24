@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.codeInsight.hints
 package methodChains
 
 import java.awt.Insets
-
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme, EditorFontType}
@@ -13,7 +12,7 @@ import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodCha
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer
 import org.jetbrains.plugins.scala.compiler.data.serialization.extensions.EitherExt
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
@@ -287,7 +286,7 @@ private object ScalaMethodChainInlayHintsPass {
 
   private def isArrowToken(elem: PsiElement): Boolean = {
     val tt = elem.elementType
-    tt == ScalaTokenTypes.tFUNTYPE || tt == ScalaTokenTypes.tFUNTYPE_ASCII
+    tt == ScalaTokenTypes.tFUNTYPE || tt == ScalaTokenTypes.tFUNTYPE_ASCII || tt == ScalaTokenType.ImplicitFunctionArrow
   }
 
   private def hasObviousReturnType(methodAndTypes: (ScExpression, ScType)): Boolean = {

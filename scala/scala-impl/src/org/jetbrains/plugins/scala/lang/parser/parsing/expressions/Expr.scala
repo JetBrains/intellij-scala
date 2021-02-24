@@ -4,7 +4,7 @@ package parser
 package parsing
 package expressions
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
@@ -36,7 +36,7 @@ object Expr extends ParsingRule {
         val pmarker = builder.mark()
         builder.advanceLexer() //Ate id
         builder.getTokenType match {
-          case ScalaTokenTypes.tFUNTYPE =>
+          case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>
             val psm = pmarker.precede // 'parameter clause'
             val pssm = psm.precede // 'parameter list'
             pmarker.done(ScalaElementType.PARAM)
@@ -58,7 +58,7 @@ object Expr extends ParsingRule {
         }
         if (Bindings()) {
           builder.getTokenType match {
-            case ScalaTokenTypes.tFUNTYPE =>
+            case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>
               builder.advanceLexer() //Ate =>
               if (!ExprInIndentationRegion()) builder error ErrMsg("wrong.expression")
               exprMarker.done(ScalaElementType.FUNCTION_EXPR)

@@ -23,7 +23,6 @@ abstract class Pattern2(forDef: Boolean) extends ParsingRule {
     ScalaTokenTypes.tIDENTIFIER,
     ScalaTokenTypes.tDOT,
     ScalaTokenTypes.tLPARENTHESIS,
-    ScalaTokenType.AsKeyword
   )
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
@@ -42,7 +41,8 @@ abstract class Pattern2(forDef: Boolean) extends ParsingRule {
         } else if (builder.isIdBinding) {
           builder.advanceLexer() //Ate id
           val idMarker = builder.mark()
-          if (parseAtOrAs()) {
+          if (builder.getTokenType == ScalaTokenTypes.tAT) {
+            builder.advanceLexer() // ate @
             backupMarker.drop()
             if (!Pattern3.parse(builder)) {
               idMarker.rollbackTo()
@@ -90,14 +90,6 @@ abstract class Pattern2(forDef: Boolean) extends ParsingRule {
     pattern2Marker.drop()
     Pattern3.parse(builder)
   }
-
-  private def parseAtOrAs()(implicit builder: ScalaPsiBuilder): Boolean =
-    (builder.isScala3 && builder.tryParseSoftKeyword(ScalaTokenType.AsKeyword)) || {
-      if (builder.getTokenType == ScalaTokenTypes.tAT) {
-        builder.advanceLexer()
-        true
-      } else false
-    }
 }
 
 object Pattern2 extends Pattern2(forDef = false)

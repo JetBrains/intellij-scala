@@ -41,7 +41,7 @@
 [242,247]: Ident
 [251,255]: Ident
 [258,323]: Block
-[264,286]: Import
+[264,287]: Import
 [271,276]: Ident
 [292,319]: PatDef
 [296,304]: Apply

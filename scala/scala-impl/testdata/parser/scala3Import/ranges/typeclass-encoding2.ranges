@@ -275,7 +275,7 @@
 [2888,2891]: Ident
 [2892,2892]: TypeTree
 [2895,2900]: Ident
-[2907,2923]: Import
+[2907,2924]: Import
 [2914,2917]: Ident
 [2928,2963]: DefDef
 [2949,2957]: SingletonTypeTree

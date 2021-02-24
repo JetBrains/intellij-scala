@@ -5,7 +5,7 @@
 [42,42]: DefDef
 [42,42]: TypeTree
 [42,45]: Ident
-[49,100]: Import
+[49,101]: Import
 [56,82]: Select
 [56,72]: Select
 [56,61]: Ident

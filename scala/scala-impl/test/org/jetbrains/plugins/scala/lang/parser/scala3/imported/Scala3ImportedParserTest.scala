@@ -7,6 +7,7 @@ import com.intellij.psi.impl.DebugUtil.psiToString
 import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile}
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.scala3.imported.Scala3ImportedParserTest.rangesDirectory
 import org.jetbrains.plugins.scala.{PerfCycleTests, Scala3Language}
 import org.junit.Assert._
@@ -72,14 +73,19 @@ abstract class Scala3ImportedParserTestBase(dir: String) extends ScalaFileSetTes
     ""
   }
 
+  def isStringPart(e: PsiElement): Boolean =
+    ScalaTokenTypes.STRING_LITERAL_TOKEN_SET.contains(e.elementType)
+
   def findInterlacedRanges(root: PsiElement, testName: String): Seq[(PsiElement, (TextRange, String))] = {
     val ranges = RangeMap.fromFileOrEmpty(Paths.get(getTestDataPath, rangesDirectory, testName + ".ranges"))
-    val ignoredNames = Set("Import", "Export")
+    //val ignoredNames = Set("Import", "Export")
     for {
       e <- root.depthFirst()
-      interlaced = ranges.interlaced(trimRanges(root, e.getTextRange)).toMap
+      range = e.getTextRange
+      interlaced = ranges.interlaced(if (isStringPart(e)) range else trimRanges(root, range)).toMap
       interlace <- interlaced
-      if !ignoredNames(interlace._2)
+      //if !ignoredNames(interlace._2)
+      if !isInterlaceBecauseOfSemicolon(range, interlace)
     } yield e -> interlace
   }.toSeq
 
@@ -94,6 +100,20 @@ abstract class Scala3ImportedParserTestBase(dir: String) extends ScalaFileSetTes
       val trailingWs = text.reverseIterator.takeWhile(_.isWhitespace).size
       new TextRange(range.getStartOffset + leadingWs, range.getEndOffset - trailingWs)
     }
+  }
+
+  // In the Scala3 Compiler semicolons might be attached to identifiers,
+  // leading to interlaced ranges
+  // Example (:
+  //   Scala3:  left +[right ;]
+  //   We:     [left + right];
+  def isInterlaceBecauseOfSemicolon(intellijRange: TextRange, interlace: (TextRange, String)): Boolean = {
+    val (scala3Range, text) = interlace
+
+    // adjust ranges
+    val newScala3Range = scala3Range.shiftEnd(-text.reverseIterator.count(c => c.isWhitespace || c == ';'))
+
+    !newScala3Range.isEmpty && (scala3Range interlaces intellijRange)
   }
 
   protected def shouldHaveErrors: Boolean

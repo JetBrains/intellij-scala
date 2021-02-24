@@ -1,4 +1,4 @@
-[0,84]: PackageDef
+[0,81]: PackageDef
 [0,0]: Ident
 [0,7]: TypeDef
 [0,0]: Template
@@ -8,11 +8,11 @@
 [8,8]: Template
 [8,8]: DefDef
 [8,8]: TypeTree
-[16,84]: ModuleDef
-[29,82]: Template
+[16,81]: ModuleDef
+[29,79]: Template
 [29,29]: DefDef
 [29,29]: TypeTree
-[29,82]: DefDef
+[29,79]: DefDef
 [35,48]: ValDef
 [38,48]: AppliedTypeTree
 [38,41]: Ident
@@ -21,11 +21,11 @@
 [44,45]: Ident
 [46,47]: Ident
 [49,49]: TypeTree
-[52,82]: Apply
+[52,79]: Apply
 [52,75]: Select
 [52,68]: Select
 [52,61]: Select
 [52,56]: Ident
-[76,81]: Typed
+[76,78]: Typed
 [76,77]: Ident
-[79,81]: Ident
+[77,78]: Ident

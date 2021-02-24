@@ -2,9 +2,59 @@ package org.jetbrains.plugins.scala.lang.parser.scala3
 
 class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
 
+  def test_indentation(): Unit = checkTree(
+    """
+      |given Test with
+      | def blub = 3
+      |end given
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScGivenDefinition: given_Test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(given)('given')
+      |    PsiWhiteSpace(' ')
+      |    ExtendsBlock
+      |      TemplateParents
+      |        ConstructorInvocation
+      |          SimpleType: Test
+      |            CodeReferenceElement: Test
+      |              PsiElement(identifier)('Test')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(with)('with')
+      |      PsiWhiteSpace('\n ')
+      |      ScTemplateBody
+      |        ScFunctionDefinition: blub
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(def)('def')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('blub')
+      |          Parameters
+      |            <empty list>
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          PsiWhiteSpace(' ')
+      |          IntegerLiteral
+      |            PsiElement(integer)('3')
+      |    PsiWhiteSpace('\n')
+      |    End: given
+      |      PsiElement(end)('end')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(given)('given')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
   def test_full(): Unit = checkTree(
     """
-      |given Test[T](using Ord[T]) as Ord[Int] {}
+      |given Test[T](using Ord[T]): Ord[Int] with {}
       |""".stripMargin,
     """
       |ScalaFile
@@ -39,8 +89,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |                  PsiElement(identifier)('T')
       |              PsiElement(])(']')
       |        PsiElement())(')')
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(as)('as')
+      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
       |    ExtendsBlock
       |      TemplateParents
@@ -56,6 +105,8 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |                  PsiElement(identifier)('Int')
       |              PsiElement(])(']')
       |      PsiWhiteSpace(' ')
+      |      PsiElement(with)('with')
+      |      PsiWhiteSpace(' ')
       |      ScTemplateBody
       |        PsiElement({)('{')
       |        PsiElement(})('}')
@@ -65,7 +116,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
 
   def test_without_name(): Unit = checkTree(
     """
-      |given [T](using Ord[T]) as Ord[Int] {}
+      |given [T](using Ord[T]): Ord[Int] with {}
       |""".stripMargin,
     """
       |ScalaFile
@@ -99,8 +150,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |                  PsiElement(identifier)('T')
       |              PsiElement(])(']')
       |        PsiElement())(')')
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(as)('as')
+      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
       |    ExtendsBlock
       |      TemplateParents
@@ -116,6 +166,8 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |                  PsiElement(identifier)('Int')
       |              PsiElement(])(']')
       |      PsiWhiteSpace(' ')
+      |      PsiElement(with)('with')
+      |      PsiWhiteSpace(' ')
       |      ScTemplateBody
       |        PsiElement({)('{')
       |        PsiElement(})('}')
@@ -125,7 +177,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
 
   def test_without_tpye_params(): Unit = checkTree(
     """
-      |given Test(using Ord[Int]) as Ord[Double] {}
+      |given Test(using Ord[Int]): Ord[Double] with {}
       |""".stripMargin,
     """
       |ScalaFile
@@ -155,8 +207,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |                  PsiElement(identifier)('Int')
       |              PsiElement(])(']')
       |        PsiElement())(')')
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(as)('as')
+      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
       |    ExtendsBlock
       |      TemplateParents
@@ -172,6 +223,8 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |                  PsiElement(identifier)('Double')
       |              PsiElement(])(']')
       |      PsiWhiteSpace(' ')
+      |      PsiElement(with)('with')
+      |      PsiWhiteSpace(' ')
       |      ScTemplateBody
       |        PsiElement({)('{')
       |        PsiElement(})('}')
@@ -181,7 +234,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
 
   def test_without_params(): Unit = checkTree(
     """
-      |given Test[T] as Ord[Int] {}
+      |given Test[T]: Ord[Int] with {}
       |""".stripMargin,
     """
       |ScalaFile
@@ -201,8 +254,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |      PsiElement(])(']')
       |    Parameters
       |      <empty list>
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(as)('as')
+      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
       |    ExtendsBlock
       |      TemplateParents
@@ -218,6 +270,8 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |                  PsiElement(identifier)('Int')
       |              PsiElement(])(']')
       |      PsiWhiteSpace(' ')
+      |      PsiElement(with)('with')
+      |      PsiWhiteSpace(' ')
       |      ScTemplateBody
       |        PsiElement({)('{')
       |        PsiElement(})('}')
@@ -227,7 +281,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
 
   def test_only_type_args(): Unit = checkTree(
     """
-      |given [T] as Ord[T] {}
+      |given [T]: Ord[T] with {}
       |""".stripMargin,
     """
       |ScalaFile
@@ -246,8 +300,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |      PsiElement(])(']')
       |    Parameters
       |      <empty list>
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(as)('as')
+      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
       |    ExtendsBlock
       |      TemplateParents
@@ -263,6 +316,8 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |                  PsiElement(identifier)('T')
       |              PsiElement(])(']')
       |      PsiWhiteSpace(' ')
+      |      PsiElement(with)('with')
+      |      PsiWhiteSpace(' ')
       |      ScTemplateBody
       |        PsiElement({)('{')
       |        PsiElement(})('}')
@@ -272,7 +327,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
 
   def test_only_name(): Unit = checkTree(
     """
-      |given Test as Ord[Int] {}
+      |given Test: Ord[Int] with {}
       |""".stripMargin,
     """
       |ScalaFile
@@ -287,8 +342,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    PsiElement(identifier)('Test')
       |    Parameters
       |      <empty list>
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(as)('as')
+      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
       |    ExtendsBlock
       |      TemplateParents
@@ -303,6 +357,8 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |                CodeReferenceElement: Int
       |                  PsiElement(identifier)('Int')
       |              PsiElement(])(']')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(with)('with')
       |      PsiWhiteSpace(' ')
       |      ScTemplateBody
       |        PsiElement({)('{')
@@ -313,7 +369,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
 
   def test_plain(): Unit = checkTree(
     """
-      |given as Ord[Int] {}
+      |given Ord[Int] with {}
       |""".stripMargin,
     """
       |ScalaFile
@@ -324,10 +380,6 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    Modifiers
       |      <empty list>
       |    PsiElement(given)('given')
-      |    Parameters
-      |      <empty list>
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(as)('as')
       |    PsiWhiteSpace(' ')
       |    ExtendsBlock
       |      TemplateParents
@@ -343,6 +395,8 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |                  PsiElement(identifier)('Int')
       |              PsiElement(])(']')
       |      PsiWhiteSpace(' ')
+      |      PsiElement(with)('with')
+      |      PsiWhiteSpace(' ')
       |      ScTemplateBody
       |        PsiElement({)('{')
       |        PsiElement(})('}')
@@ -352,7 +406,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
 
   def test_without_sig(): Unit = checkTree(
     """
-      |given Test {}
+      |given Test with {}
       |""".stripMargin,
     """
       |ScalaFile
@@ -371,6 +425,8 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |            CodeReferenceElement: Test
       |              PsiElement(identifier)('Test')
       |      PsiWhiteSpace(' ')
+      |      PsiElement(with)('with')
+      |      PsiWhiteSpace(' ')
       |      ScTemplateBody
       |        PsiElement({)('{')
       |        PsiElement(})('}')
@@ -379,36 +435,12 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
   )
 
 
-  def test_without_sig_and_template_body(): Unit = checkTree(
-    """
-      |given Test
-      |""".stripMargin,
-    """
-      |ScalaFile
-      |  PsiWhiteSpace('\n')
-      |  ScGivenDefinition: given_Test
-      |    AnnotationsList
-      |      <empty list>
-      |    Modifiers
-      |      <empty list>
-      |    PsiElement(given)('given')
-      |    PsiWhiteSpace(' ')
-      |    ExtendsBlock
-      |      TemplateParents
-      |        ConstructorInvocation
-      |          SimpleType: Test
-      |            CodeReferenceElement: Test
-      |              PsiElement(identifier)('Test')
-      |  PsiWhiteSpace('\n')
-      |""".stripMargin
-  )
-
   /********************************** with Template body *********************************************/
 
 
   def test_full_alias(): Unit = checkTree(
     """
-      |given Test[T](using Ord[T]) as Ord[Int] = ???
+      |given Test[T](using Ord[T]): Ord[Int] = ???
       |""".stripMargin,
     """
       |ScalaFile
@@ -443,8 +475,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |                  PsiElement(identifier)('T')
       |              PsiElement(])(']')
       |        PsiElement())(')')
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(as)('as')
+      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
       |    ParametrizedType: Ord[Int]
       |      SimpleType: Ord
@@ -467,7 +498,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
 
   def test_alias_without_name(): Unit = checkTree(
     """
-      |given [T](using Ord[T]) as Ord[Int] = ???
+      |given [T](using Ord[T]): Ord[Int] = ???
       |""".stripMargin,
     """
       |ScalaFile
@@ -501,8 +532,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |                  PsiElement(identifier)('T')
       |              PsiElement(])(']')
       |        PsiElement())(')')
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(as)('as')
+      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
       |    ParametrizedType: Ord[Int]
       |      SimpleType: Ord
@@ -525,7 +555,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
 
   def test_alias_without_type_params(): Unit = checkTree(
     """
-      |given Test(using Ord[Int]) as Ord[Double] = ???
+      |given Test(using Ord[Int]): Ord[Double] = ???
       |""".stripMargin,
     """
       |ScalaFile
@@ -555,8 +585,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |                  PsiElement(identifier)('Int')
       |              PsiElement(])(']')
       |        PsiElement())(')')
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(as)('as')
+      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
       |    ParametrizedType: Ord[Double]
       |      SimpleType: Ord
@@ -579,7 +608,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
 
   def test_alias_without_params(): Unit = checkTree(
     """
-      |given Test[T] as Ord[Int] = ???
+      |given Test[T]: Ord[Int] = ???
       |""".stripMargin,
     """
       |ScalaFile
@@ -599,8 +628,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |      PsiElement(])(']')
       |    Parameters
       |      <empty list>
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(as)('as')
+      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
       |    ParametrizedType: Ord[Int]
       |      SimpleType: Ord
@@ -623,7 +651,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
 
   def test_alias_only_type_args(): Unit = checkTree(
     """
-      |given [T] as Ord[T] = ???
+      |given [T]: Ord[T] = ???
       |""".stripMargin,
     """
       |ScalaFile
@@ -642,8 +670,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |      PsiElement(])(']')
       |    Parameters
       |      <empty list>
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(as)('as')
+      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
       |    ParametrizedType: Ord[T]
       |      SimpleType: Ord
@@ -666,7 +693,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
 
   def test_alias_only_name(): Unit = checkTree(
     """
-      |given Test as Ord[Int] = ???
+      |given Test: Ord[Int] = ???
       |""".stripMargin,
     """
       |ScalaFile
@@ -681,8 +708,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    PsiElement(identifier)('Test')
       |    Parameters
       |      <empty list>
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(as)('as')
+      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
       |    ParametrizedType: Ord[Int]
       |      SimpleType: Ord
@@ -705,7 +731,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
 
   def test_alias_plain(): Unit = checkTree(
     """
-      |given as Ord[Int] = ???
+      |given Ord[Int] = ???
       |""".stripMargin,
     """
       |ScalaFile
@@ -716,10 +742,6 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    Modifiers
       |      <empty list>
       |    PsiElement(given)('given')
-      |    Parameters
-      |      <empty list>
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(as)('as')
       |    PsiWhiteSpace(' ')
       |    ParametrizedType: Ord[Int]
       |      SimpleType: Ord

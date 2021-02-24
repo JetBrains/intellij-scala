@@ -6,7 +6,7 @@ package base
 
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.{InfixType, StableId}
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 
 /**
@@ -27,14 +27,27 @@ object ImportExpr extends ParsingRule {
     }
 
     if (builder.getTokenType != ScalaTokenTypes.tDOT) {
+      if (builder.tryParseSoftKeyword(ScalaTokenType.AsKeyword)) {
+        builder.getTokenType match {
+          case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
+            builder.advanceLexer() // ate id or _
+          case _ =>
+            builder error ErrMsg("identifier.or.wild.sign.expected")
+        }
+      }
       importExprMarker.done(ScalaElementType.IMPORT_EXPR)
       return true
     }
-    builder.advanceLexer()
+
+    builder.advanceLexer() // ate .
+
     builder.getTokenType match {
-      case ScalaTokenTypes.tUNDER => builder.advanceLexer() //Ate _
+      case ScalaTokenTypes.tUNDER => builder.advanceLexer() //Ate _ or *
+      case InScala3(_) if builder.tryParseSoftKeyword(ScalaTokenType.WildcardStar) =>
       case ScalaTokenTypes.tLBRACE => ImportSelectors()
-      case InScala3(ScalaTokenType.GivenKeyword) => builder.advanceLexer() // Ate given
+      case ScalaTokenType.GivenKeyword =>
+        builder.advanceLexer() // Ate given
+        InfixType.parse(builder)
       case _ => builder error ErrMsg("identifier.or.opening.brace.expected")
     }
     importExprMarker.done(ScalaElementType.IMPORT_EXPR)

@@ -7,18 +7,19 @@ package template
 
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Constructor, End}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Expr, ExprInIndentationRegion}
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.ExprInIndentationRegion
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ParamClauses, TypeParamClause}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
+
+import scala.annotation.tailrec
 
 /*
   TmplDef           ::=  ...
                      |   ‘given’ GivenDef
-  GivenDef          ::=  [GivenSig] Type ‘=’ Expr
-                     |   [GivenSig] ConstrApps [TemplateBody]
-  GivenSig          ::=  [id] [DefTypeParamClause] {UsingParamClause} ‘as’
+  GivenDef          ::=  [GivenSig] (AnnotType [‘=’ Expr] | StructuralInstance)
+  GivenSig          ::=  [id] [DefTypeParamClause] {UsingParamClause} ‘:’         -- one of `id`, `DefParamClause`, `UsingParamClause` must be present
  */
 object GivenDef {
   def parse(templateMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Unit = {
@@ -41,7 +42,7 @@ object GivenDef {
     }
   }
 
-  def parseGivenAlias()(implicit builder: ScalaPsiBuilder): Boolean = {
+  private def parseGivenAlias()(implicit builder: ScalaPsiBuilder): Boolean = {
     val aliasMarker = builder.mark()
     if (Type.parse(builder) && builder.getTokenType == ScalaTokenTypes.tASSIGN) {
       // given alias
@@ -59,16 +60,50 @@ object GivenDef {
     }
   }
 
-  def parseGivenDefinition()(implicit builder: ScalaPsiBuilder): Boolean = {
+  private val nonConstructorStartId = ScalaTokenTypes.SOFT_KEYWORDS.getTypes.map(_.toString).toSet
+  private def parseGivenDefinition()(implicit builder: ScalaPsiBuilder): Boolean = {
     val extendsBlockMarker = builder.mark()
-    if (ConstrApps()) {
-      TemplateBody()
-      extendsBlockMarker.done(ScalaElementType.EXTENDS_BLOCK)
-      true
-    } else {
-      extendsBlockMarker.drop()
-      false
+    val templateParents = builder.mark()
+
+    if (!Constructor()) {
+      templateParents.drop()
+      extendsBlockMarker.rollbackTo()
+      return false
     }
+
+    @tailrec
+    def parseConstructors(): Unit = {
+      if (builder.getTokenType == ScalaTokenTypes.kWITH) {
+        val fallbackMarker = builder.mark()
+        builder.advanceLexer() // ate with
+
+        val proceedWithConstructorInvocation =
+          builder.getTokenType match {
+            case ScalaTokenTypes.tLBRACE => false
+            case ScalaTokenTypes.tIDENTIFIER if nonConstructorStartId(builder.getTokenText) => false
+            case _ => true
+          }
+
+        if (proceedWithConstructorInvocation && Constructor()) {
+          fallbackMarker.drop()
+          parseConstructors()
+        } else {
+          fallbackMarker.rollbackTo()
+        }
+      }
+    }
+    parseConstructors()
+
+    templateParents.done(ScalaElementType.TEMPLATE_PARENTS)
+
+    if (builder.getTokenType == ScalaTokenTypes.kWITH) {
+      builder.advanceLexer()
+    } else {
+      builder.error(ScalaBundle.message("expected.with"))
+    }
+    GivenTemplateBody()
+    extendsBlockMarker.done(ScalaElementType.EXTENDS_BLOCK)
+    true
   }
 }
 
@@ -76,8 +111,7 @@ object GivenSig extends ParsingRule {
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val givenSigMarker = builder.mark()
 
-    if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER &&
-          builder.getTokenText != ScalaTokenType.AsKeyword.text) {
+    if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
       builder.advanceLexer() // ate id
     }
 
@@ -85,7 +119,8 @@ object GivenSig extends ParsingRule {
 
     ParamClauses.parse(builder)
 
-    if (builder.tryParseSoftKeyword(ScalaTokenType.AsKeyword)) {
+    if (builder.getTokenType == ScalaTokenTypes.tCOLON) {
+      builder.advanceLexer() // ate :
       givenSigMarker.drop()
       true
     } else {

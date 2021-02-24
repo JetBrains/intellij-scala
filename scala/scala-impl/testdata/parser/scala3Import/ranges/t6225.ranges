@@ -30,7 +30,7 @@
 [163,208]: Template
 [163,163]: DefDef
 [163,163]: TypeTree
-[163,189]: Import
+[163,190]: Import
 [170,179]: Select
 [170,177]: Ident
 [193,208]: TypeApply

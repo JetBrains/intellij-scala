@@ -44,10 +44,12 @@ object ScalaTokenType {
   val TransparentKeyword = ScalaModifierTokenType(Transparent)
   val OpaqueKeyword      = ScalaModifierTokenType(Opaque)
   val OpenKeyword        = ScalaModifierTokenType(Open)
+  val InfixKeyword       = ScalaModifierTokenType(Infix)
 
   val SpliceStart = new ScalaTokenType("$")
   val QuoteStart  = new ScalaTokenType("'")
 
+  val WildcardStar              = new ScalaTokenType("*")
   val WildcardTypeQuestionMark  = new ScalaTokenType("?")
   val TypeLambdaArrow           = new ScalaTokenType("=>>")
   val ImplicitFunctionArrow     = new ScalaTokenType("?=>")
