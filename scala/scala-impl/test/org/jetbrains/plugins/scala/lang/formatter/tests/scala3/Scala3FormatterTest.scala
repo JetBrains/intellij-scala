@@ -4,10 +4,7 @@ package formatter
 package tests
 package scala3
 
-import com.intellij.lang.Language
-
-class Scala3FormatterTest extends AbstractScalaFormatterTestBase {
-  override protected def language: Language = Scala3Language.INSTANCE
+class Scala3FormatterTest extends Scala3FormatterBaseTest {
 
   def testColon_AfterTypeDefinition(): Unit = doTextTest(
     """trait Trait:
