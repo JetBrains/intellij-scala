@@ -6,20 +6,20 @@ package top
 package template
 
 import com.intellij.lang.PsiBuilder
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Constructor, End}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Expr, ExprInIndentationRegion}
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.ExprInIndentationRegion
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ParamClauses, TypeParamClause}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
+
+import scala.annotation.tailrec
 
 /*
   TmplDef           ::=  ...
                      |   ‘given’ GivenDef
-  GivenDef          ::=  [GivenSig] Type ‘=’ Expr
-                     |   [GivenSig] ConstrApps [TemplateBody]
-  GivenSig          ::=  [id] [DefTypeParamClause] {UsingParamClause} ‘as’
+  GivenDef          ::=  [GivenSig] (AnnotType [‘=’ Expr] | StructuralInstance)
+  GivenSig          ::=  [id] [DefTypeParamClause] {UsingParamClause} ‘:’         -- one of `id`, `DefParamClause`, `UsingParamClause` must be present
  */
 object GivenDef {
   def parse(templateMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Unit = {
@@ -70,13 +70,21 @@ object GivenDef {
       return false
     }
 
-    while (builder.getTokenType == ScalaTokenTypes.kWITH && builder.lookAhead(1) != ScalaTokenTypes.tLBRACE) {
-      builder.advanceLexer() // ate with
+    @tailrec
+    def parseConstructors(): Unit = {
+      if (builder.getTokenType == ScalaTokenTypes.kWITH) {
+        val fallbackMarker = builder.mark()
+        builder.advanceLexer() // ate with
 
-      if (builder.getTokenType != ScalaTokenTypes.tLBRACE) {
-        Constructor()
+        if (builder.getTokenType != ScalaTokenTypes.tLBRACE && Constructor()) {
+          fallbackMarker.drop()
+          parseConstructors()
+        } else {
+          fallbackMarker.rollbackTo()
+        }
       }
     }
+    parseConstructors()
 
     templateParents.done(ScalaElementType.TEMPLATE_PARENTS)
 
@@ -85,7 +93,7 @@ object GivenDef {
     } else {
       builder.error(ScalaBundle.message("expected.with"))
     }
-    TemplateBody()
+    GivenTemplateBody()
     extendsBlockMarker.done(ScalaElementType.EXTENDS_BLOCK)
     true
   }

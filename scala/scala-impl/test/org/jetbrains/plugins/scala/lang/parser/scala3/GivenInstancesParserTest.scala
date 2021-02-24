@@ -2,6 +2,56 @@ package org.jetbrains.plugins.scala.lang.parser.scala3
 
 class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
 
+  def test_indentation(): Unit = checkTree(
+    """
+      |given Test with
+      | def blub = 3
+      |end given
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScGivenDefinition: given_Test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(given)('given')
+      |    PsiWhiteSpace(' ')
+      |    ExtendsBlock
+      |      TemplateParents
+      |        ConstructorInvocation
+      |          SimpleType: Test
+      |            CodeReferenceElement: Test
+      |              PsiElement(identifier)('Test')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(with)('with')
+      |      PsiWhiteSpace('\n ')
+      |      ScTemplateBody
+      |        ScFunctionDefinition: blub
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(def)('def')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('blub')
+      |          Parameters
+      |            <empty list>
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          PsiWhiteSpace(' ')
+      |          IntegerLiteral
+      |            PsiElement(integer)('3')
+      |    PsiWhiteSpace('\n')
+      |    End: given
+      |      PsiElement(end)('end')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(given)('given')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
   def test_full(): Unit = checkTree(
     """
       |given Test[T](using Ord[T]): Ord[Int] with {}

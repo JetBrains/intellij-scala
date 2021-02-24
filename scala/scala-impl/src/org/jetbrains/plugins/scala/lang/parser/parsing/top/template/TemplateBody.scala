@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.parseRuleInBlock
  * @author Alexander Podkhalyuzin
  *         Date: 08.02.2008
  */
-sealed abstract class Body extends ParsingRule {
+sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) extends ParsingRule {
 
   import lexer.ScalaTokenTypes._
 
@@ -29,8 +29,16 @@ sealed abstract class Body extends ParsingRule {
       case `tLBRACE` =>
         builder.advanceLexer() // Ate {
         BlockIndentation.create -> None
-      case InScala3(ScalaTokenTypes.tCOLON) =>
-        builder.advanceLexer() // Ate :
+      case tok =>
+        tok match {
+          case InScala3(ScalaTokenTypes.tCOLON) =>
+            builder.advanceLexer() // Ate :
+          case InScala3(_) if indentationCanStartWithoutColon =>
+          case _ =>
+            marker.drop()
+            builder.restoreNewlinesState()
+            return true
+        }
 
         val currentIndent = builder.currentIndentationWidth
         builder.findPreviousIndent match {
@@ -49,10 +57,6 @@ sealed abstract class Body extends ParsingRule {
             builder.restoreNewlinesState()
             return true
         }
-      case _ =>
-        marker.drop()
-        builder.restoreNewlinesState()
-        return true
     }
 
     builder.maybeWithIndentationWidth(baseIndentation) {
@@ -74,6 +78,10 @@ sealed abstract class Body extends ParsingRule {
  * [[TemplateBody]] ::= [cnl] '{' [ [[SelfType]] ] [[TemplateStat]] { semi [[TemplateStat]] } '}'
  */
 object TemplateBody extends Body {
+  override protected def statementRule: TemplateStat.type = TemplateStat
+}
+
+object GivenTemplateBody extends Body(indentationCanStartWithoutColon = true) {
   override protected def statementRule: TemplateStat.type = TemplateStat
 }
 
