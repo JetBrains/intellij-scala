@@ -20,6 +20,7 @@ object Versions {
 
   sealed abstract class Kind(private[Versions] val entities: List[Entity]) {
 
+    // TODO: do not do any IO in `apply` method!
     final def apply(): Versions = {
       val versions = extensions
         .withProgressSynchronously(ScalaBundle.message("title.fetching.available.this.versions", this))(loadVersions())
@@ -64,12 +65,12 @@ object Versions {
     Sbt1Entity :: Sbt013Entity :: Nil
   )
 
-  def loadLinesFrom(location: String): Try[Seq[String]] =
-    Try(HttpConfigurable.getInstance().openHttpConnection(location)).map { connection =>
+  // TODO: this should not be a part of a Versions object
+  def loadLinesFrom(url: String): Try[Seq[String]] =
+    Try(HttpConfigurable.getInstance().openHttpConnection(url)).map { connection =>
       try {
-        Source.fromInputStream(connection.getInputStream)
-          .getLines()
-          .toVector
+        val lines = Source.fromInputStream(connection.getInputStream).getLines().toVector
+        lines
       } finally {
         connection.disconnect()
       }

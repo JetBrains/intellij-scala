@@ -19,59 +19,6 @@ import scala.util.Using
  */
 package object template {
 
-  private val DefaultCommands = Array(
-    "java",
-    "-Djline.terminal=jline.UnsupportedTerminal",
-    "-Dsbt.log.noformat=true"
-  )
-
-  private abstract class SBTProcessListener extends ProcessAdapter {
-
-    private val builder: StringBuilder = new StringBuilder()
-
-    final def text: String = builder.toString
-
-    protected def onText(text: String): Unit
-
-    override final def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
-      val text = event.getText.trim
-      onText(text)
-      builder ++= text
-    }
-  }
-
-  def createTempSbtProject(version: String,
-                           preUpdateCommands: Seq[String] = Seq.empty,
-                           postUpdateCommands: Seq[String] = Seq.empty)
-                          (action: String => Unit): Unit =
-    usingTempFile("sbt-commands") { file =>
-      writeLinesTo(file)(
-        (s"""set scalaVersion := "$version"""" +: preUpdateCommands :+ "updateClassifiers") ++
-          postUpdateCommands: _*
-      )
-
-      usingTempDirectory("sbt-project") { dir =>
-        val process = Runtime.getRuntime.exec(
-          DefaultCommands ++ vmOptions ++ launcherOptions(file.getAbsolutePath),
-          null,
-          dir
-        )
-
-        val listener: SBTProcessListener = action(_)
-
-        val handler = new OSProcessHandler(process, "sbt-based downloader", null)
-        handler.addProcessListener(listener)
-        handler.startNotify()
-        handler.waitFor()
-
-        val text = listener.text
-        process.exitValue match {
-          case 0 => text
-          case _ => throw new RuntimeException(text)
-        }
-      }
-    }
-
   import io.FileUtil._
 
   def usingTempFile[T](prefix: String, suffix: String = null)(block: File => T): T = {
@@ -140,28 +87,5 @@ package object template {
       val url = URLDecoder.decode(delegate.toPath.toUri.toString, StandardCharsets.UTF_8.name())
       Option(VirtualFileManager.getInstance.findFileByUrl(url))
     }
-  }
-
-  private[this] def launcherOptions(path: String) =
-    new File(PathUtil.getJarPathForClass(getClass)).getParentFile.getParentFile / "launcher" / "sbt-launch.jar" match {
-      case launcher if launcher.exists => Seq("-jar", launcher.getAbsolutePath, "< " + path)
-      case launcher => throw new FileNotFoundException("Jar file not found for class: " + launcher.getPath)
-    }
-
-  private[this] def vmOptions = {
-    import scala.jdk.CollectionConverters._
-    val proxyOpts = net.HttpConfigurable.getInstance
-      .getJvmProperties(false, null)
-      .asScala
-    val javaOpts = Seq(sysprop("java.io.tmpdir")).flatten
-    (proxyOpts ++ javaOpts)
-      .map { pair =>
-        "-D" + pair.getFirst + "=" + pair.getSecond
-      }
-  }
-
-  private def sysprop(key: String) = {
-    import com.intellij.openapi.util.Pair
-    Option(System.getProperty(key)).map(value => Pair.pair(key, value))
   }
 }
