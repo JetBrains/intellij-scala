@@ -81,17 +81,20 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
 
     //TODO these are hack methods to facilitate indenting in cases when comment before def/val/var adds one more level of blocks
     def funIndent = childPsi match {
-      case _: ScBlockExpr if settings.METHOD_BRACE_STYLE == NEXT_LINE_SHIFTED || settings.METHOD_BRACE_STYLE == NEXT_LINE_SHIFTED2 =>
-        Indent.getNormalIndent
-      case _: ScBlockExpr => Indent.getNoneIndent
-      case _: ScExpression => Indent.getNormalIndent
+      case block: ScBlockExpr =>
+        if (!block.isBraceless && (settings.METHOD_BRACE_STYLE == NEXT_LINE_SHIFTED || settings.METHOD_BRACE_STYLE == NEXT_LINE_SHIFTED2))
+          Indent.getNormalIndent
+        else
+          Indent.getNoneIndent
+      case _: ScBlockStatement => Indent.getNormalIndent
       case _: ScParameters if scalaSettings.INDENT_FIRST_PARAMETER_CLAUSE => Indent.getContinuationIndent
       case _ => Indent.getNoneIndent
     }
     def valIndent = childPsi match {
       case _: ScBlockExpr if isBraceNextLineShifted => Indent.getNormalIndent
       case _: ScBlockExpr => Indent.getNoneIndent
-      case _: ScExpression | _: ScTypeElement => Indent.getNormalIndent
+      case _: ScBlockStatement => Indent.getNormalIndent
+      case _: ScTypeElement    => Indent.getNormalIndent
       case _ => Indent.getNoneIndent
     }
 
@@ -140,13 +143,15 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
     }
 
     node.getPsi match {
-      case expr: ScFunctionExpr => processFunExpr(expr)
+      case expr: ScFunctionExpr =>
+        processFunExpr(expr)
       case _: ScXmlElement =>
         childPsi match {
           case _: ScXmlStartTag | _: ScXmlEndTag | _: ScXmlEmptyTag => Indent.getNoneIndent
           case _ => Indent.getNormalIndent
         }
-      case _: ScalaFile => Indent.getNoneIndent
+      case _: ScalaFile =>
+        Indent.getNoneIndent
       case p: ScPackaging =>
         childElementType match {
           case ScalaTokenTypes.tLBRACE | ScalaTokenTypes.tRBRACE if p.isExplicit && isBraceNextLineShifted =>
@@ -189,12 +194,14 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _ if isBraceNextLineShifted1 => Indent.getNoneIndent
           case _ => Indent.getNormalIndent
         }
-      case _: ScFunction => funIndent
+      case _: ScFunction =>
+        funIndent
       case _ if nodeElementType == ScalaTokenTypes.kDEF ||
         TokenSets.FUNCTIONS.contains(nodeTreeParentElementType) &&
           ModifiersOrAnnotationOrLineComment.contains(nodeElementType) =>
         funIndent
-      case _: ScMethodCall => processMethodCall
+      case _: ScMethodCall =>
+        processMethodCall
       case arg: ScArgumentExprList if arg.isBraceArgs =>
         if (scalaSettings.INDENT_BRACED_FUNCTION_ARGS &&
           arg.children.exists(c => ScalaTokenTypes.PARENTHESIS_TOKEN_SET.contains(c.elementType)) &&
