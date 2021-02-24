@@ -46,7 +46,7 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |      PsiElement(identifier)('a')
       |    PsiWhiteSpace(' ')
       |    PsiElement(then)('then')
-      |    BlockOfExpressions
+      |    BlockExpression
       |      PsiWhiteSpace('\n  ')
       |      ReferenceExpression: b
       |        PsiElement(identifier)('b')
@@ -80,7 +80,7 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |      PsiElement(identifier)('a')
       |    PsiWhiteSpace(' ')
       |    PsiElement(then)('then')
-      |    BlockOfExpressions
+      |    BlockExpression
       |      PsiWhiteSpace('\n  ')
       |      ReferenceExpression: b
       |        PsiElement(identifier)('b')
@@ -152,7 +152,7 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |    ReferenceExpression: a
       |      PsiElement(identifier)('a')
       |    PsiElement())(')')
-      |    BlockOfExpressions
+      |    BlockExpression
       |      PsiWhiteSpace('\n  ')
       |      ReferenceExpression: b
       |        PsiElement(identifier)('b')
@@ -177,7 +177,7 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |  WhileStatement
       |    PsiElement(while)('while')
-      |    BlockOfExpressions
+      |    BlockExpression
       |      PsiWhiteSpace('\n  ')
       |      ReferenceExpression: a
       |        PsiElement(identifier)('a')
@@ -186,7 +186,7 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(identifier)('b')
       |    PsiWhiteSpace('\n')
       |    PsiElement(do)('do')
-      |    BlockOfExpressions
+      |    BlockExpression
       |      PsiWhiteSpace('\n  ')
       |      ReferenceExpression: c
       |        PsiElement(identifier)('c')

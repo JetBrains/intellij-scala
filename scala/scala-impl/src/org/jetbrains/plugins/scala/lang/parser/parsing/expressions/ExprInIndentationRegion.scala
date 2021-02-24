@@ -13,7 +13,7 @@ import scala.annotation.tailrec
 
 trait ExprInIndentationRegion extends ParsingRule {
   protected def exprKind: ParsingRule
-  protected def blockType: IElementType = ScalaElementType.BLOCK
+  protected def blockType: IElementType = ScCodeBlockElementType.BlockExpression
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     if (!builder.isScala3 || builder.getTokenType == ScalaTokenTypes.tLBRACE) {
