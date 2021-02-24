@@ -17,6 +17,7 @@ import java.awt.*;
 import java.lang.reflect.Method;
 import java.util.ResourceBundle;
 
+import static com.intellij.psi.codeStyle.CodeStyleSettingsCustomizable.CommenterOption;
 
 public final class OtherCodeStylePanel extends ScalaCodeStylePanelBase {
 
@@ -40,6 +41,13 @@ public final class OtherCodeStylePanel extends ScalaCodeStylePanelBase {
 
     protected OtherCodeStylePanel(@NotNull CodeStyleSettings settings) {
         super(settings, ScalaBundle.message("other.panel.title"));
+
+        myCommenterForm.showStandardOptions(
+            CommenterOption.LINE_COMMENT_ADD_SPACE.name(),
+            CommenterOption.LINE_COMMENT_AT_FIRST_COLUMN.name(),
+            CommenterOption.BLOCK_COMMENT_AT_FIRST_COLUMN.name()
+        );
+
         $$$setupUI$$$();
         alternateIndentationForParamsSpinner.setModel(new SpinnerNumberModel(4, 1, null, 1));
         resetImpl(settings);
@@ -70,6 +78,7 @@ public final class OtherCodeStylePanel extends ScalaCodeStylePanelBase {
         trailingCommaPanel.apply(settings);
     }
 
+    @SuppressWarnings("RedundantIfStatement")
     @Override
     public boolean isModified(CodeStyleSettings settings) {
         ScalaCodeStyleSettings ss = settings.getCustomSettings(ScalaCodeStyleSettings.class);
@@ -86,7 +95,10 @@ public final class OtherCodeStylePanel extends ScalaCodeStylePanelBase {
         if (ss.REFORMAT_ON_COMPILE != reformatOnCompileCheckBox.isSelected()) return true;
         if (!ss.IMPLICIT_VALUE_CLASS_PREFIX.equals(implicitValueClassPrefix.getText())) return true;
         if (!ss.IMPLICIT_VALUE_CLASS_SUFFIX.equals(implicitValueClassSuffix.getText())) return true;
-        return (myCommenterForm.isModified(settings) || trailingCommaPanel.isModified(settings));
+        if (myCommenterForm.isModified(settings)) return true;
+        if (trailingCommaPanel.isModified(settings)) return true;
+
+        return false;
     }
 
     @Nullable
