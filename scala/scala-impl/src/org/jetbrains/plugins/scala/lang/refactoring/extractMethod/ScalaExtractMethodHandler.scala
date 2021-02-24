@@ -275,7 +275,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
           case _: ScNewTemplateDefinition => ScalaBundle.message("extract.method.to.anonymous.class")
         }
       case _: ScTry => local(ScalaBundle.message("try.block"))
-      case _: ScConstrBlock => local(ScalaBundle.message("constructor"))
+      case _: ScConstrBlockExpr => local(ScalaBundle.message("constructor"))
       case b: ScBlock  =>
         b.getParent match {
           case f: ScFunctionDefinition => local(ScalaBundle.message("def.name", f.name))

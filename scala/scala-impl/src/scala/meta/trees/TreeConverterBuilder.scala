@@ -150,7 +150,7 @@ trait TreeConverterBuilder {
 
       override def visitUnderscoreExpression(under: ScUnderscoreSection): Unit = super.visitUnderscoreExpression(under)
 
-      override def visitConstrBlock(constr: ScConstrBlock): Unit = super.visitConstrBlock(constr)
+      override def visitConstrBlockExpr(constr: ScConstrBlockExpr): Unit = super.visitConstrBlockExpr(constr)
 
       //type elements
       override def visitTypeElement(te: ScTypeElement): Unit = super.visitTypeElement(te)

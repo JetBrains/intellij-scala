@@ -1321,4 +1321,38 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
       |  3 // comment
       |""".stripMargin
   )
+
+  def testConstructorBody_WithBraces(): Unit = doTextTest(
+    """class A {
+      |  def this(x: Long) = {
+      |    this()
+      |  }
+      |
+      |  def this(x: Short) = {
+      |    this()
+      |    println(1)
+      |  }
+      |
+      |  def this(x: Long, y: Long) = {
+      |    this()
+      |  }
+      |
+      |  def this(x: Short, y: Short) = {
+      |    this()
+      |    println(1)
+      |  }
+      |}
+      |""".stripMargin
+  )
+
+  def testConstructorBody_WithoutBraces(): Unit = doTextTest(
+    """class A {
+      |  def this(x: Int) =
+      |    this()
+      |
+      |  def this(x: String) =
+      |    this()
+      |}
+      |""".stripMargin
+  )
 }

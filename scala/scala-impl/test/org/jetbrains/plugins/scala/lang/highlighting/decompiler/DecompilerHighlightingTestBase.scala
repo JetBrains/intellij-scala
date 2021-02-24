@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Error, Messag
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.decompiler.DecompilerTestBase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScConstrBlock, ScConstrExpr}
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 
 /**
@@ -37,14 +36,11 @@ abstract class DecompilerHighlightingTestBase extends ScalaFixtureTestCase with 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(getFile)
     val annotator = ScalaAnnotator.forProject
 
-    getFile.depthFirst().foreach {
-      case _: ScConstrExpr | _: ScConstrBlock => ()
-      case e                                  => annotator.annotate(e)
-    }
+    getFile.depthFirst().foreach(annotator.annotate)
 
     mock.annotations.filter {
       case Error(_, null) | Error(null, _) => false
-      case Error(_, _)                     => true
+      case Error(_, message)               => !message.contains("Auxiliary constructor must begin with call to 'this'")
       case _                               => false
     }
   }

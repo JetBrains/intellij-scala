@@ -284,6 +284,8 @@ trait TreeAdapter {
         m.Lit.Unit()
       case t: ScReturn =>
         m.Term.Return(expression(t.expr).getOrElse(m.Lit.Unit()))
+      case t: ScConstrBlockExpr =>
+        t ???
       case t: ScBlockExpr if t.hasCaseClauses =>
         m.Term.PartialFunction(t.caseClauses.get.caseClauses.map(caseClause).toList)
       case t: ScBlock =>
@@ -359,8 +361,6 @@ trait TreeAdapter {
         m.Term.Placeholder()
       case t: ScTypedExpression =>
         m.Term.Ascribe(expression(t.expr), t.typeElement.map(toType).getOrElse(unreachable))
-      case t: ScConstrExpr =>
-        t ???
       case t: ScXmlExpr =>
         t ???
       case other: ScalaPsiElement => other ?!

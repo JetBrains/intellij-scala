@@ -437,8 +437,10 @@ object IntroduceExpressions {
   private def selectedExpression(file: PsiFile, editor: Editor): Option[ScExpression] = {
     val model = editor.getSelectionModel
 
-    ScalaPsiUtil.elementsAtRange[ScExpression](file, model.getSelectionStart, model.getSelectionEnd)
-      .find(canBeIntroduced)
+    val start = model.getSelectionStart
+    val end = model.getSelectionEnd
+    val elementsAtRange = ScalaPsiUtil.elementsAtRange[ScExpression](file, start, end)
+    elementsAtRange.find(canBeIntroduced)
   }
 
   private def addNewLineBeforeIfNeeded(element: PsiElement): Unit = {

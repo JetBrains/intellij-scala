@@ -3,10 +3,6 @@ package lang
 package refactoring
 package util
 
-import java.awt.Component
-import java.util.Collections
-import java.{util => ju}
-
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.codeInsight.unwrap.ScopeHighlighter
@@ -15,7 +11,7 @@ import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager, Ed
 import com.intellij.openapi.editor.markup._
 import com.intellij.openapi.editor.{Editor, RangeMarker, SelectionModel, VisualPosition}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.popup.{JBPopupAdapter, JBPopupFactory, JBPopupListener, LightweightWindowEvent}
+import com.intellij.openapi.ui.popup.{JBPopupFactory, JBPopupListener, LightweightWindowEvent}
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.ReadonlyStatusHandler
 import com.intellij.psi._
@@ -24,8 +20,7 @@ import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getParentOfType, isAncestor}
 import com.intellij.refactoring.util.CommonRefactoringUtil
-import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
-import org.jetbrains.annotations.Nls
+import org.jetbrains.annotations.{Nls, TestOnly}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -50,11 +45,15 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdenti
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
+import java.awt.Component
+import java.util.Collections
+import java.{util => ju}
+import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import scala.annotation.{nowarn, tailrec}
 import scala.collection.immutable.ArraySeq
-import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.jdk.CollectionConverters._
 
 
 /**
@@ -729,12 +728,19 @@ object ScalaRefactoringUtil {
    * Collects expressions in the same line that may be extracted as variable or parameter
    */
   def possibleExpressionsToExtract(file: PsiFile, offset: Int): Seq[ScExpression] = {
+    val exprWithReasons = possibleExpressionsWithCantIntroduceReason(file, offset)
+    exprWithReasons.filter(_._2.isEmpty).map(_._1)
+  }
+
+  @TestOnly
+  def possibleExpressionsWithCantIntroduceReason(file: PsiFile, offset: Int): Seq[(ScExpression, Option[String])] = {
     val selectedElement = file.findElementAt(offset) match {
       case whiteSpace: PsiWhiteSpace if whiteSpace.getTextRange.getStartOffset == offset &&
         whiteSpace.getText.contains("\n") => file.findElementAt(offset - 1)
       case element => element
     }
-    getExpressions(selectedElement).filter(canBeIntroduced)
+    val expressions = getExpressions(selectedElement)
+    expressions.map(e => (e, cannotBeIntroducedReason(e)))
   }
 
   private[this] def getExpressions(selectedElement: PsiElement): Seq[ScExpression] =
@@ -893,9 +899,10 @@ object ScalaRefactoringUtil {
 
   def canBeIntroduced(expr: ScExpression): Boolean = cannotBeIntroducedReason(expr).isEmpty
 
+  // TODO: for some reason "reason" text is not shown in the error tooltip, e.g. when extracting variable
+  // TODO: separate "reason" UI localized representation (create some enum/ADT for the reason)
   def cannotBeIntroducedReason(expr: ScExpression): Option[String] = {
-    val exists1 = expr.parentOfType(classOf[ScConstrBlock], strict = false)
-      .flatMap(_.selfInvocation)
+    val exists1 = expr.parentOfType(classOf[ScSelfInvocation], strict = false)
       .flatMap(_.args)
       .exists(_.isAncestorOf(expr))
 
@@ -910,7 +917,11 @@ object ScalaRefactoringUtil {
     }
 
     val byExpression = expr match {
-      case block: ScBlock if !block.hasRBrace =>
+      case _: ScConstrBlockExpr =>
+        ScalaBundle.message("cannot.refactor.constr.expression")
+      case _: ScSelfInvocation =>
+        ScalaBundle.message("cannot.refactor.self.invocation")
+      case block: ScBlock if block.isBraceless =>
         ScalaBundle.message("cannot.refactor.not.expression")
       case (_: ScReferenceExpression) childOf (a: ScAssignment) if a.leftExpression == expr =>
         ScalaBundle.message("cannot.refactor.named.arg")
@@ -918,15 +929,12 @@ object ScalaRefactoringUtil {
         ScalaBundle.message("cannot.refactor.named.arg")
       case ElementType(ScalaElementType.INTERPOLATED_PREFIX_LITERAL_REFERENCE) =>
         ScalaBundle.message("cannot.refactor.interpolated.string.prefix")
-      case _: ScConstrExpr =>
-        ScalaBundle.message("cannot.refactor.constr.expression")
-      case _: ScSelfInvocation =>
-        ScalaBundle.message("cannot.refactor.self.invocation")
       case _ =>
         null
     }
 
-    val byParent = expr.getParent match {
+    val parent = expr.getParent
+    val byParent = parent match {
       case ScInfixExpr(_, operation, _) if operation == expr => ScalaBundle.message("cannot.refactor.not.expression")
       case ScPostfixExpr(_, operation) if operation == expr => ScalaBundle.message("cannot.refactor.not.expression")
       case _: ScGenericCall => ScalaBundle.message("cannot.refactor.under.generic.call")
@@ -938,7 +946,7 @@ object ScalaRefactoringUtil {
         }
       case _ => null
     }
-    Option(byExpression) orElse Option(byParent)
+    Option(byExpression).orElse(Option(byParent))
   }
 
   private def replaceOccurrence(textRange: TextRange, newString: String, file: PsiFile): RangeMarker = {
