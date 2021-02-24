@@ -4,7 +4,7 @@ import com.intellij.ide.util.projectWizard.{ModuleWizardStep, WizardContext}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.importing.{AbstractOpenProjectProvider, ImportSpecBuilder}
-import com.intellij.openapi.externalSystem.model.DataNode
+import com.intellij.openapi.externalSystem.model.{DataNode, ProjectSystemId}
 import com.intellij.openapi.externalSystem.model.internal.InternalExternalProjectInfo
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
@@ -22,6 +22,7 @@ import com.intellij.openapi.util.{Disposer, NotNullFactory}
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.packaging.artifacts.ModifiableArtifactModel
 import com.intellij.projectImport.{ProjectImportBuilder, ProjectImportProvider, ProjectOpenProcessor}
+
 import java.io.File
 import java.nio.file.{Path, Paths}
 import java.util
@@ -121,6 +122,9 @@ class BspProjectImportBuilder
 }
 
 class BspOpenProjectProvider() extends AbstractOpenProjectProvider {
+
+  override def getSystemId: ProjectSystemId = BSP.ProjectSystemId
+
   override def isProjectFile(file: VirtualFile): Boolean =
     canOpenProject(file)
 
