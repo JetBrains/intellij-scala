@@ -371,7 +371,9 @@ object AfterUpdateDottyVersionScript {
     assert(allFilesIn(dottyParserTestsFailDir).size - blacklisted == allFilesIn(rangesDirectory).size)
   }
 
-  private def patchFile(path: Path, searchString: String, replacement: String): Unit = {
+  private def patchFile(path: Path, searchString0: String, replacement0: String): Unit = {
+    val searchString = searchString0.replace("\r", "")
+    val replacement = replacement0.replace("\r", "")
     val content = readFile(path)
     if (!content.contains(searchString) && !content.contains(replacement)) {
       throw new Exception(s"Couldn't patch file $path because $searchString was not found in the content")
