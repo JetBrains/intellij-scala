@@ -160,7 +160,12 @@ object ScalaPsiElementFactory {
   def createScalaFileFromText(@NonNls text: String)
                              (implicit ctx: ProjectContext): ScalaFile =
     PsiFileFactory.getInstance(ctx)
-      .createFileFromText(s"dummy.${ScalaFileType.INSTANCE.getDefaultExtension}", ScalaFileType.INSTANCE, convertLineSeparators(text))
+      .createFileFromText(
+        s"dummy.${ScalaFileType.INSTANCE.getDefaultExtension}",
+        if (ctx.project.hasScala3) Scala3Language.INSTANCE else ScalaLanguage.INSTANCE,
+        convertLineSeparators(text),
+        false, true
+      )
       .asInstanceOf[ScalaFile]
 
 
