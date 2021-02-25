@@ -225,7 +225,7 @@ object Expr1 extends ParsingRule {
       //----------------throw statment--------------//
       case ScalaTokenTypes.kTHROW =>
         builder.advanceLexer() //Ate throw
-        if (!Expr()) {
+        if (!ExprInIndentationRegion()) {
           builder error ErrMsg("wrong.expression")
         }
         exprMarker.done(ScalaElementType.THROW_STMT)
