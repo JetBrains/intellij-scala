@@ -68,7 +68,7 @@ object SbtModuleData {
 }
 
 @SerialVersionUID(1)
-case class SbtProjectData @PropertyMapping(Array("jdk", "javacOptions", "sbtVersion", "projectPath"))(
+case class SbtProjectData @PropertyMapping(Array("jdk", /*"javacOptions",*/ "sbtVersion", "projectPath"))(
   @Nullable jdk: SdkReference,
   //javacOptions: JList[String], // see the commit message, why we don't need javacOptions at the project level
   sbtVersion: String,
