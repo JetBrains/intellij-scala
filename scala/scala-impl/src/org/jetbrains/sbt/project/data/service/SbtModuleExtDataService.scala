@@ -25,15 +25,15 @@ import scala.jdk.CollectionConverters._
 /**
  * @author Pavel Fatin
  */
-final class ModuleExtDataService extends AbstractDataService[ModuleExtData, Library](ModuleExtData.Key) {
+final class SbtModuleExtDataService extends AbstractDataService[ModuleExtData, Library](ModuleExtData.Key) {
   override def createImporter(toImport: Seq[DataNode[ModuleExtData]],
                               projectData: ProjectData,
                               project: Project,
                               modelsProvider: IdeModifiableModelsProvider): Importer[ModuleExtData] =
-    new ModuleExtDataService.Importer(toImport, projectData, project, modelsProvider)
+    new SbtModuleExtDataService.Importer(toImport, projectData, project, modelsProvider)
 }
 
-object ModuleExtDataService {
+object SbtModuleExtDataService {
 
   private class Importer(dataToImport: Seq[DataNode[ModuleExtData]],
                          projectData: ProjectData,
@@ -99,7 +99,7 @@ object ModuleExtDataService {
       configureJavacOptions(module, javacOptions)
     }
 
-    private def configureLanguageLevel(module: Module, javacOptions: Seq[String]): Unit = {
+    private def configureLanguageLevel(module: Module, javacOptions: Seq[String]): Unit = executeProjectChangeAction {
       val model = getModifiableRootModel(module)
       val moduleSdk = Option(model.getSdk)
       val languageLevelFromJavac = JavacOptionsUtils.javaLanguageLevel(javacOptions)
@@ -110,13 +110,11 @@ object ModuleExtDataService {
       }
     }
 
-    private def configureTargetBytecodeLevel(module: Module, javacOptions: Seq[String]): Unit =
-      for {
-        targetValue <- JavacOptionsUtils.effectiveTargetValue(javacOptions)
-        compilerSettings = CompilerConfiguration.getInstance(module.getProject)
-      } {
-        executeProjectChangeAction(compilerSettings.setBytecodeTargetLevel(module, targetValue))
-      }
+    private def configureTargetBytecodeLevel(module: Module, javacOptions: Seq[String]): Unit = executeProjectChangeAction {
+      val targetValueFromJavac = JavacOptionsUtils.effectiveTargetValue(javacOptions)
+      val compilerSettings = CompilerConfiguration.getInstance(module.getProject)
+      compilerSettings.setBytecodeTargetLevel(module, targetValueFromJavac.orNull)
+    }
 
     private def configureJavacOptions(module: Module, javacOptions0: Seq[String]): Unit = {
       val javacOptions = JavacOptionsUtils.withoutExplicitlyHandledOptions(javacOptions0)

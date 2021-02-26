@@ -101,7 +101,7 @@ trait ProjectStructureMatcher {
   protected def assertModuleJavaTargetBytecodeLevel(module: Module)(expected: String): Unit = {
     val compilerSettings = CompilerConfiguration.getInstance(module.getProject)
     val actual = compilerSettings.getBytecodeTargetLevel(module)
-    Assert.assertEquals(s"Module Java files target bytecode level (${module.getName})", expected, actual)
+    Assert.assertEquals(s"Module java target bytecode level (${module.getName})", expected, actual)
   }
 
   private def assertProjectJavaLanguageLevel(project: Project)(expected: LanguageLevel): Unit = {
