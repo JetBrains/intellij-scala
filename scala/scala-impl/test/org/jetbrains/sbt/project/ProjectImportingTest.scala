@@ -1,13 +1,19 @@
 package org.jetbrains.sbt
 package project
 
+import com.intellij.compiler.CompilerConfiguration
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
+import com.intellij.openapi.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil}
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
+import com.intellij.openapi.roots.{LanguageLevelModuleExtensionImpl, LanguageLevelProjectExtension}
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
 import org.jetbrains.plugins.scala.{DependencyManager, DependencyManagerBase, LatestScalaVersions, ScalaVersion, SlowTests}
 import org.jetbrains.sbt.settings.SbtSettings
@@ -17,6 +23,7 @@ import org.junit.experimental.categories.Category
 import java.io.File
 import java.net.URI
 import scala.annotation.nowarn
+import scala.jdk.CollectionConverters.SeqHasAsJava
 
 @Category(Array(classOf[SlowTests]))
 class ProjectImportingTest extends ImportingTestCase with InexactMatch {
@@ -292,6 +299,68 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
         ProjectJdkTable.getInstance.removeJdk(projectSdk)
       }
     }
+  }
+
+  //noinspection TypeAnnotation
+  // SCL-16204, SCL-17597
+  def testJavaLanguageLevelAndTargetByteCodeLevel_NoOptions(): Unit = {
+    def doRunTest(): Unit = runTest(
+      new project("java-language-level-and-target-byte-code-level-no-options") {
+        javacOptions := Nil
+        javaLanguageLevel := LanguageLevel.JDK_11
+        javaTargetBytecodeLevel := null
+
+        def moduleX(name: String, source: LanguageLevel, @Nullable target: String): module = new module(name) {
+          javaLanguageLevel := source
+          javaTargetBytecodeLevel := target
+          javacOptions := Nil
+        }
+
+        val root = moduleX("java-language-level-and-target-byte-code-level-no-options", LanguageLevel.JDK_11, null)
+        val module1 = moduleX("module1", LanguageLevel.JDK_11, null)
+
+        modules := Seq(root, module1)
+      }
+    )
+
+    doRunTest()
+
+    // Emulate User changing the settings manually
+    ExternalSystemApiUtil.executeProjectChangeAction(true, new DisposeAwareProjectChange(myProject) {
+      override def execute(): Unit = {
+        val ManuallySetTarget = "9"
+        val ManuallySetSource = LanguageLevel.JDK_1_9
+
+        setOptions(myProject, ManuallySetSource, ManuallySetTarget, Seq("-some-root-option"))
+
+        val projectModules = myProject.modules
+        projectModules.foreach(setOptions(_, ManuallySetSource, ManuallySetTarget, Seq("-some-module-option")))
+      }
+    })
+
+    // Manually set settings should be rewritten if no explicit javac options provided
+    doRunTest()
+  }
+
+  private def setOptions(project: Project, source: LanguageLevel, target: String, other: Seq[String]): Unit = {
+    val compilerSettings = CompilerConfiguration.getInstance(project)
+    compilerSettings.setProjectBytecodeTarget(target)
+
+    val options = JavacConfiguration.getOptions(project, classOf[JavacConfiguration])
+    options.ADDITIONAL_OPTIONS_STRING = other.mkString(" ")
+
+    val ext = LanguageLevelProjectExtension.getInstance(project)
+    ext.setLanguageLevel(source)
+  }
+
+  private def setOptions(module: Module, source: LanguageLevel, target: String, other: Seq[String]): Unit = {
+    val compilerSettings = CompilerConfiguration.getInstance(module.getProject)
+    compilerSettings.setBytecodeTargetLevel(module, target)
+    compilerSettings.setAdditionalOptions(module, other.asJava)
+
+    val model = LanguageLevelModuleExtensionImpl.getInstance(module)
+    val modifiableModel = model.getModifiableModel(true).asInstanceOf[LanguageLevelModuleExtensionImpl]
+    modifiableModel.setLanguageLevel(source)
   }
 
   // TODO: also create test for scalacOptions

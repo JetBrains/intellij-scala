@@ -2,6 +2,8 @@ package org.jetbrains.sbt
 package project.data
 package service
 
+import com.intellij.compiler.CompilerConfiguration
+import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
@@ -48,7 +50,7 @@ object SbtProjectDataService {
 
     private def doImport(data: SbtProjectData): Unit = {
       configureJdk(project, data)
-      setDefaultProjectLanguageLevel(project)
+      setDefaultJavacOptions(project)
       setSbtVersion(project, data)
       updateIncrementalityType(project)
     }
@@ -63,16 +65,32 @@ object SbtProjectDataService {
       projectJdk.foreach(ProjectRootManager.getInstance(project).setProjectSdk)
     }
 
+
+    private def setDefaultJavacOptions(project: Project): Unit = executeProjectChangeAction {
+      // special options -source, -target OR --release
+      setDefaultProjectLanguageLevel(project)
+      setDefaultTargetBytecodeLevel(project)
+
+      val javacOptions = JavacConfiguration.getOptions(project, classOf[JavacConfiguration])
+      javacOptions.ADDITIONAL_OPTIONS_STRING = ""
+    }
+
     // NOTE: looks like this will not effect anything in sbt projects,
-    // because each module (including root module) has java language level set and project language level is not used
-    private def setDefaultProjectLanguageLevel(project: Project): Unit = executeProjectChangeAction {
-      val extension = LanguageLevelProjectExtension.getInstance(project)
+    // because each module (including root module) has explicitly set java language level
+    // so project language level should not be used
+    private def setDefaultProjectLanguageLevel(project: Project): Unit = {
       val projectJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
       val jdkLanguageLevel = projectJdk.flatMap(SdkUtils.defaultJavaLanguageLevelIn)
       jdkLanguageLevel.foreach { level =>
+        val extension = LanguageLevelProjectExtension.getInstance(project)
         extension.setLanguageLevel(level)
         extension.setDefault(true)
       }
+    }
+
+    private def setDefaultTargetBytecodeLevel(project: Project): Unit = {
+      val compilerSettings = CompilerConfiguration.getInstance(project)
+      compilerSettings.setProjectBytecodeTarget(null) // means "same as language level"
     }
 
     private def setSbtVersion(project: Project, data: SbtProjectData): Unit =

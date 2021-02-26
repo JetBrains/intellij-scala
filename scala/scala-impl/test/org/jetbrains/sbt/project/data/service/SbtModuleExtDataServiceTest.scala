@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByName, SdkRe
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data._
-import org.jetbrains.sbt.project.data.service.ModuleExtDataService.NotificationException
+import org.jetbrains.sbt.project.data.service.SbtModuleExtDataService.NotificationException
 import org.junit.Assert._
 
 import java.io.File
