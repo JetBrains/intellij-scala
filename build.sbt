@@ -150,6 +150,9 @@ lazy val scalaImpl: sbt.Project =
       tastyCompile,
       tastyProvided % Provided
     )
+    .dependsOn(scalatestFinders % "compile->compile")
+    // scala-test-finders use different scala versions, so do not depend on it, just aggregate the tests
+    .aggregate(scalatestFindersTests.map(sbt.Project.projectToLocalProject): _*)
     .aggregate(tastyRuntime)
     .enablePlugins(BuildInfoPlugin)
     .settings(
@@ -262,6 +265,53 @@ lazy val testRunners_spec2_2x: Project =
       packageMethod := PackagingMethod.MergeIntoOther(runners),
       libraryDependencies ++= Seq(provided.specs2_2x)
     )
+
+lazy val scalatestFindersRootDir = file("scala/test-integration/scalatest-finders")
+
+lazy val scalatestFinders = Project("scalatest-finders", scalatestFindersRootDir)
+  .settings(
+    // NOTE: we might continue NOT using Scala in scalatestFinders just in case
+    // in some future we will decide again to extract the library, so as it can be used even without scala jar
+    crossPaths := false, // disable using the Scala version in output paths and artifacts
+    autoScalaLibrary := false, // removes Scala dependency,
+    javacOptions := Seq("--release", "11"), // finders are run in IDEA process, so using JDK 11
+    packageMethod := PackagingMethod.Standalone("lib/scalatest-finders-patched.jar")
+  )
+
+lazy val scalatestFindersTests: Seq[Project] = Seq(
+  scalatestFindersTests_2,
+  scalatestFindersTests_3_0,
+  scalatestFindersTests_3_2
+)
+
+lazy val scalatestFindersTestSettings = Seq(
+  scalacOptions := Seq("-deprecation")
+)
+val scalatestLatest_2   = "2.2.6"
+val scalatestLatest_3_0 = "3.0.9"
+val scalatestLatest_3_2 = "3.2.5"
+
+lazy val scalatestFindersTests_2 = Project("scalatest-finders-tests-2", scalatestFindersRootDir / "tests-2")
+  .dependsOn(scalatestFinders)
+  .settings(
+    scalatestFindersTestSettings,
+    scalaVersion := "2.11.12",
+    libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_2 % Test)
+  )
+lazy val scalatestFindersTests_3_0 = Project("scalatest-finders-tests-3_0", scalatestFindersRootDir / "tests-3_0")
+  .dependsOn(scalatestFinders)
+  .settings(
+    scalatestFindersTestSettings,
+    scalaVersion := "2.12.13",
+    libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_0 % Test)
+  )
+lazy val scalatestFindersTests_3_2 = Project("scalatest-finders-tests-3_2", scalatestFindersRootDir / "tests-3_2")
+  .dependsOn(scalatestFinders)
+  .settings(
+    scalatestFindersTestSettings,
+    scalaVersion := "2.13.5",
+    libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_2 % Test)
+  )
 
 lazy val nailgunRunners =
   newProject("nailgun", file("scala/nailgun"))
