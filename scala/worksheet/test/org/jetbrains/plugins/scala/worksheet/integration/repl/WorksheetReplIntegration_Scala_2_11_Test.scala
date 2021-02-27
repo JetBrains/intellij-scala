@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.worksheet.integration.repl
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.withModifiedRegistryValue
 import org.jetbrains.plugins.scala.project.ModuleExt
-import org.jetbrains.plugins.scala.util.assertions.StringAssertions._
-import org.jetbrains.plugins.scala.util.runners._
+import org.jetbrains.plugins.scala.util.assertions.StringAssertions.{assertIsBlank, assertStringMatches}
+import org.jetbrains.plugins.scala.util.runners.{NotSupportedScalaVersions, RunWithScalaVersions, SupportedScalaVersions, TestScalaVersion}
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.TestRunResult
@@ -16,19 +16,17 @@ import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, WorksheetEvaluationTests}
-import org.junit.Assert._
+import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category
 
 import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
 
-@RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_11,
-  TestScalaVersion.Scala_2_12
-))
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_2_11))
 @Category(Array(classOf[WorksheetEvaluationTests]))
-class WorksheetReplIntegration_Scala_2_11_2_12_Test extends WorksheetReplIntegrationBaseTest
-  with WorksheetRuntimeExceptionsTests {
+class WorksheetReplIntegration_Scala_2_11_Test
+  extends WorksheetReplIntegrationBaseTest
+    with WorksheetRuntimeExceptionsTests {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_2_11
@@ -306,7 +304,7 @@ class WorksheetReplIntegration_Scala_2_11_2_12_Test extends WorksheetReplIntegra
 
     val viewer = WorksheetCache.getInstance(project).getViewer(editor)
     val stamp = viewer.getDocument.getModificationStamp
-    MyUiUtils.waitConditioned(5 seconds) { () =>
+    MyUiUtils.waitConditioned(5.seconds) { () =>
       viewer.getDocument.getModificationStamp != stamp
     }
 
@@ -329,7 +327,7 @@ class WorksheetReplIntegration_Scala_2_11_2_12_Test extends WorksheetReplIntegra
     robot.moveToEnd()
     robot.typeString("\n2 + unknownRef + 4\n")
 
-    MyUiUtils.wait(5 seconds)
+    MyUiUtils.wait(5.seconds)
 
     assertViewerEditorText(editor,
       """res0: Int = 42
@@ -749,7 +747,7 @@ class WorksheetReplIntegration_Scala_2_11_2_12_Test extends WorksheetReplIntegra
         |res1: Int = 19""".stripMargin
     )
 
-  private val LargeInputWithErrors =
+  protected val RestoreErrorPositionsInOriginalFileCode =
     """var x =
       |      unknown1
       |
@@ -814,46 +812,6 @@ class WorksheetReplIntegration_Scala_2_11_2_12_Test extends WorksheetReplIntegra
       |  unknown14
       |}""".stripMargin
 
-  @SupportedScalaVersions(Array(TestScalaVersion.Scala_2_13))
-  def testRestoreErrorPositionsInOriginalFile_2_13(): Unit =
-    withModifiedRegistryValue(RemoteServerConnector.WorksheetContinueOnFirstFailure, newValue = true).run {
-      val expectedCompilerOutput =
-        """Error:(2, 7) not found: value unknown1
-          |unknown1
-          |Error:(8, 1) not found: value unknownVar
-          |unknownVar = 23 +
-          |Error:(12, 5) not found: value unknown3
-          |unknown3 +
-          |Error:(13, 7) not found: value unknown4
-          |unknown4
-          |Error:(17, 9) not found: value unknown5
-          |unknown5
-          |Error:(22, 5) not found: value unknown6
-          |unknown6; val z =
-          |Error:(23, 7) not found: value unknown7
-          |unknown7
-          |Error:(29, 5) not found: value unknown8
-          |unknown8
-          |Error:(35, 5) not found: value unknown9
-          |unknown9
-          |Error:(39, 5) not found: value unknown10
-          |unknown10
-          |Error:(48, 5) not found: value unknown11
-          |unknown11
-          |Error:(50, 7) not found: value unknown12
-          |unknown12
-          |Error:(59, 7) not found: value unknown13
-          |unknown13
-          |Error:(62, 3) not found: value unknown14
-          |unknown14
-          |""".stripMargin
-
-      val TestRunResult(editor, evaluationResult) =
-        doRenderTestWithoutCompilationChecks2(LargeInputWithErrors, output => assertIsBlank(output))
-      assertEquals(WorksheetRunError(WorksheetCompilerResult.CompilationError), evaluationResult)
-      assertCompilerMessages(editor)(expectedCompilerOutput)
-    }
-
   /**
    * These two errors positions are restored IINCORRECTLY in Scala < 2.13:
    * Error:(10, 7) not found: value unknownVar
@@ -861,8 +819,7 @@ class WorksheetReplIntegration_Scala_2_11_2_12_Test extends WorksheetReplIntegra
    * Error:(12, 5) not found: value unknown3
    * unknown3 +
    */
-  @SupportedScalaVersions(Array(TestScalaVersion.Scala_2_11))
-  def testRestoreErrorPositionsInOriginalFile_2_11(): Unit =
+  def testRestoreErrorPositionsInOriginalFile(): Unit =
     withModifiedRegistryValue(RemoteServerConnector.WorksheetContinueOnFirstFailure, newValue = true).run {
       val expectedCompilerOutput =
         """Error:(2, 7) not found: value unknown1
@@ -897,62 +854,8 @@ class WorksheetReplIntegration_Scala_2_11_2_12_Test extends WorksheetReplIntegra
           |unknown14""".stripMargin
 
       val TestRunResult(editor, evaluationResult) =
-        doRenderTestWithoutCompilationChecks2(LargeInputWithErrors, output => assertIsBlank(output))
+        doRenderTestWithoutCompilationChecks2(RestoreErrorPositionsInOriginalFileCode, output => assertIsBlank(output))
       assertEquals(WorksheetRunError(WorksheetCompilerResult.CompilationError), evaluationResult)
       assertCompilerMessages(editor)(expectedCompilerOutput)
     }
-
-  @SupportedScalaVersions(Array(TestScalaVersion.Scala_2_12))
-  def testRestoreErrorPositionsInOriginalFile_2_12(): Unit =
-    withModifiedRegistryValue(RemoteServerConnector.WorksheetContinueOnFirstFailure, newValue = true).run {
-      val expectedCompilerOutput =
-        """Error:(2, 7) not found: value unknown1
-          |unknown1
-          |Error:(7, 1) not found: value unknownVar
-          |unknownVar = 23 +
-          |Error:(9, 14) not found: value unknownVar
-          |val $ires0 = unknownVar
-          |Error:(12, 5) not found: value unknown3
-          |unknown3 +
-          |Error:(13, 7) not found: value unknown4
-          |unknown4
-          |Error:(17, 9) not found: value unknown5
-          |unknown5
-          |Error:(22, 5) not found: value unknown6
-          |unknown6; val z =
-          |Error:(23, 7) not found: value unknown7
-          |unknown7
-          |Error:(29, 5) not found: value unknown8
-          |unknown8
-          |Error:(35, 5) not found: value unknown9
-          |unknown9
-          |Error:(39, 5) not found: value unknown10
-          |unknown10
-          |Error:(48, 5) not found: value unknown11
-          |unknown11
-          |Error:(50, 7) not found: value unknown12
-          |unknown12
-          |Error:(59, 7) not found: value unknown13
-          |unknown13
-          |Error:(62, 3) not found: value unknown14
-          |unknown14""".stripMargin
-
-      val TestRunResult(editor, evaluationResult) =
-        doRenderTestWithoutCompilationChecks2(LargeInputWithErrors, output => assertIsBlank(output))
-      assertEquals(WorksheetRunError(WorksheetCompilerResult.CompilationError), evaluationResult)
-      assertCompilerMessages(editor)(expectedCompilerOutput)
-    }
-
-  /** TODO: add tests for cases
-   * 4. (minor) several evaluations of this isn't evaluated multiple times, it's broken now, if last statement has semicolon-separated expressions
-   * {{{
-   * val x = 42; val y =
-   *   23
-   * }}}
-   *
-   * 7. (SCL-17300) For scala 3
-   * sealed trait T
-   * case class A() extends T
-   * case class B() extends T
-   */
 }
