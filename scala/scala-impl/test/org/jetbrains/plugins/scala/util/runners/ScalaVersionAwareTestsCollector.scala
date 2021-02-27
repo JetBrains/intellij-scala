@@ -1,13 +1,11 @@
 package org.jetbrains.plugins.scala.util.runners
 
-import java.lang.reflect.{Method, Modifier}
-
-import com.intellij.pom.java.{LanguageLevel => JdkVersion}
 import junit.framework.{Test, TestCase, TestSuite}
-import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.junit.internal.MethodSorter
 
+import java.lang.reflect.{Method, Modifier}
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
@@ -59,15 +57,21 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
     if (!Modifier.isPublic(klass.getModifiers))
       return warn(s"Class ${klass.getName} is not public")
 
-    val superClasses = Iterator.iterate[Class[_]](klass)(_.getSuperclass)
+    val withSuperClasses = Iterator.iterate[Class[_]](klass)(_.getSuperclass)
       .takeWhile(_ != null)
       .takeWhile(classOf[Test].isAssignableFrom)
+      .toArray
 
+    val visitedMethods = mutable.ArrayBuffer.empty[Method]
     val tests = for {
-      superClass                       <- superClasses
-      method                           <- MethodSorter.getDeclaredMethods(superClass)
+      superClass <- withSuperClasses
+      method     <- MethodSorter.getDeclaredMethods(superClass)
+      if !isShadowed(method, visitedMethods)
       (test, scalaVersion, jdkVersion) <- createTestMethods(klass, method)
-    } yield (test, method, scalaVersion, jdkVersion)
+    } yield {
+      visitedMethods += method
+      (test, method, scalaVersion, jdkVersion)
+    }
 
     if (tests.isEmpty) {
       warn(s"No tests found in ${klass.getName}")
@@ -75,6 +79,13 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
       tests.toSeq
     }
   }
+
+  private def isShadowed(method: Method, results: Iterable[Method]): Boolean =
+    results.exists(isShadowed(method, _))
+
+  private def isShadowed(current: Method, previous: Method): Boolean =
+    previous.getName == current.getName &&
+      previous.getParameterTypes.toSeq == current.getParameterTypes.toSeq
 
   private def createTestMethods(
     theClass: Class[_],

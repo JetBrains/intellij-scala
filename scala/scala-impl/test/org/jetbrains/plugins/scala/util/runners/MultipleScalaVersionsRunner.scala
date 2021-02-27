@@ -9,13 +9,16 @@ import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils.Status.Warning
 import org.junit.experimental.categories.Category
 import org.junit.internal.runners.JUnit38ClassRunner
+import org.junit.runner.manipulation.{Filter, Filterable}
 import org.junit.runner.{Describable, Description}
 
 import java.lang.annotation.Annotation
+import java.util
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
-class MultipleScalaVersionsRunner(myTest: Test, klass: Class[_]) extends JUnit38ClassRunner(myTest) {
+class MultipleScalaVersionsRunner(private val myTest: Test, klass: Class[_]) extends JUnit38ClassRunner(myTest) {
 
   def this(klass: Class[_]) =
     this(MultipleScalaVersionsRunner.testSuite(klass.asSubclass(classOf[TestCase])), klass)
@@ -25,6 +28,9 @@ class MultipleScalaVersionsRunner(myTest: Test, klass: Class[_]) extends JUnit38
     //debugLog(description)
     description
   }
+
+  override def filter(filter: Filter): Unit =
+    super.filter(filter)
 }
 
 private object MultipleScalaVersionsRunner {
@@ -45,13 +51,45 @@ private object MultipleScalaVersionsRunner {
     result
   }
 
-  private case class ScalaVersionTestSuite(name: String) extends TestSuite(name) {
+  class MyBaseTestSuite(name: String) extends TestSuite(name) with Filterable {
+
+    private val mutedTests = mutable.HashSet.empty[Test]
+
+    override def filter(filter: Filter): Unit = {
+      val tests = super.tests().asScala.toSeq
+      tests.foreach {
+        case test: Filterable =>
+          test.filter(filter)
+        case test =>
+          val shouldRun = filter.shouldRun(makeDescription(test.getClass, test))
+          if (shouldRun)
+            mutedTests.remove(test)
+          else
+            mutedTests.add(test)
+      }
+    }
+
+    override def tests(): util.Enumeration[Test] =
+      util.Collections.enumeration(filteredTests.asJava)
+    override def testAt(index: Int): Test =
+      filteredTests(index)
+    override def testCount: Int =
+      filteredTests.size
+
+    private def filteredTests: Seq[Test] = {
+      val tests = super.tests().asScala.toSeq
+      val filtered = tests.filterNot(mutedTests.contains)
+      filtered
+    }
+  }
+
+  private case class ScalaVersionTestSuite(name: String) extends MyBaseTestSuite(name) {
     def this() = this(null: String)
     def this(version: ScalaVersion) = this(sanitize(s"(scala ${version.minor})"))
     def this(version: ScalaVersion, jdkVersion: JdkVersion) = this(sanitize(s"(scala ${version.minor} $jdkVersion)"))
   }
 
-  private case class JdkVersionTestSuite(name: String) extends TestSuite(name) {
+  private case class JdkVersionTestSuite(name: String) extends MyBaseTestSuite(name) {
     def this() = this(null: String)
     def this(version: JdkVersion) = this(sanitize(s"(jdk ${version.toString})"))
   }
@@ -59,8 +97,7 @@ private object MultipleScalaVersionsRunner {
   def testSuite(klass: Class[_ <: TestCase]): TestSuite = {
     assert(classOf[ScalaSdkOwner].isAssignableFrom(klass))
 
-    val suite = new TestSuite
-    suite.setName(klass.getName)
+    val suite = new MyBaseTestSuite(klass.getName)
 
     val classScalaVersions = scalaVersionsToRun(klass)
     val classJdkVersions = jdkVersionsToRun(klass)
