@@ -15,14 +15,18 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[WorksheetEvaluationTests]))
 class WorksheetReplIntegration_Scala_2_12_Test extends WorksheetReplIntegration_Scala_2_11_Test {
 
+  // TODO: why is there this strange error
+  //  Error:(10, 14) not found: value unknownVar
+  //  val $ires0 = unknownVar
+  //  ?
   override def testRestoreErrorPositionsInOriginalFile(): Unit =
     withModifiedRegistryValue(RemoteServerConnector.WorksheetContinueOnFirstFailure, newValue = true).run {
       val expectedCompilerOutput =
         """Error:(2, 7) not found: value unknown1
           |unknown1
-          |Error:(7, 1) not found: value unknownVar
+          |Error:(8, 1) not found: value unknownVar
           |unknownVar = 23 +
-          |Error:(9, 14) not found: value unknownVar
+          |Error:(11, 14) not found: value unknownVar
           |val $ires0 = unknownVar
           |Error:(12, 5) not found: value unknown3
           |unknown3 +

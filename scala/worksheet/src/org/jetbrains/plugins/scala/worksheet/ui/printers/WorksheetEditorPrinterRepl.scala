@@ -12,6 +12,7 @@ import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.PrintW
 import org.jetbrains.plugins.scala.compiler.data.worksheet.ReplMessages
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.project
@@ -381,9 +382,16 @@ object WorksheetEditorPrinterRepl {
       case Scala_2_13             => 0 // looks like scala 13 reports errors fine, no hacks needed
       case Scala_2_9 | Scala_2_10 => 7
       case _                      =>
-        // for any definition, val, var, class, trait, etc... error positions are shifted by one (at least what I observed)
-        val hasSomeDefinition = chunk.getElements.exists(_.is[ScMember, ScValueOrVariable])
-        val definitionOffset = if (hasSomeDefinition) 1 else 0 //
+        // for any definition (val, var, class, trait, etc...)
+        // for assignments
+        // error positions are shifted by one
+        // (at least what I observed)
+        val hasSomeDefinition = chunk.getElements.exists(_.is[
+          ScMember,
+          ScValueOrVariable,
+          ScAssignment
+        ])
+        val definitionOffset = if (hasSomeDefinition) 1 else 0
         11 - definitionOffset
     }
 
