@@ -379,6 +379,10 @@ object ScalaLanguageInjector {
   private def performSimpleInjection(literals: Seq[StringLiteral], injectedLanguage: InjectedLanguage,
                                      injection: BaseInjection, host: PsiElement, registrar: MultiHostRegistrar,
                                      support: LanguageInjectionSupport): Unit = {
+    val language = injectedLanguage.getLanguage
+    if (language == null)
+      return
+
     val trinities = for {
       literal <- literals
       range <- literal match {
@@ -393,7 +397,6 @@ object ScalaLanguageInjector {
       range
     )
 
-    val language = injectedLanguage.getLanguage
     InjectorUtils.registerInjection(language, trinities.asJava, host.getContainingFile, registrar)
     InjectorUtils.registerSupport(support, true, host, language)
   }
