@@ -824,9 +824,9 @@ class WorksheetReplIntegration_Scala_2_11_Test
       val expectedCompilerOutput =
         """Error:(2, 7) not found: value unknown1
           |unknown1
-          |Error:(7, 1) not found: value unknownVar
+          |Error:(8, 1) not found: value unknownVar
           |unknownVar = 23 +
-          |Error:(10, 7) not found: value unknownVar
+          |Error:(11, 7) not found: value unknownVar
           |val $ires0 = unknownVar
           |Error:(12, 5) not found: value unknown3
           |unknown3 +
