@@ -60,6 +60,7 @@ object ElementAnnotator extends ElementAnnotator[ScalaPsiElement] {
       ScSymbolLiteralAnnotator ::
       ScFunctionalTypeElementAnnotator ::
       ScMacroDefAnnotator ::
+      ScEnumCaseAnnotator ::
       Nil
 
   override def annotate(element: ScalaPsiElement, typeAware: Boolean = true)
