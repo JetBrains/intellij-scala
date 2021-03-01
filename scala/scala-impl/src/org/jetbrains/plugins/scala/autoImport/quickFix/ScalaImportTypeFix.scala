@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
+import org.jetbrains.plugins.scala.autoImport.ImportOrderings.defaultImportOrdering
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportElementFix.isExcluded
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportTypeFix.getTypesToImport
 import org.jetbrains.plugins.scala.autoImport.{GlobalMember, GlobalTypeAlias}
@@ -23,7 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDe
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.{isAccessible, kindMatches}
 import org.jetbrains.plugins.scala.settings._
-import org.jetbrains.plugins.scala.util.OrderingUtil.orderingByRelevantImports
 
 /**
  * User: Alexander Podkhalyuzin
@@ -159,7 +159,7 @@ object ScalaImportTypeFix {
 
     (classes ++ distinctAliases ++ packages)
       .filterNot(e => isExcluded(e.qualifiedName, project))
-      .sortBy(_.qualifiedName)(orderingByRelevantImports(ref))
+      .sorted(defaultImportOrdering(ref))
   }
 
   private def hasApplyMethod(`class`: PsiClass) = `class` match {

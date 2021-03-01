@@ -1,40 +1,67 @@
-package org.jetbrains.plugins.scala.util
+package org.jetbrains.plugins.scala.autoImport
 
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import com.intellij.psi.{PsiDocCommentOwner, PsiElement}
+import org.jetbrains.plugins.scala.autoImport.quickFix.ElementToImport
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, cachify}
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
-import scala.collection.mutable
 
-object OrderingUtil {
-  trait NaturalStringOrdering extends Ordering[String] {
-    override def compare(x: String, y: String): Int = StringUtil.naturalCompare(x, y)
+object ImportOrderings {
+  /**
+   * Sophisticated (hehe, sure :D) sorting, using all other orderings in a specific order
+   * Should be used in all places that have to sort imports
+   */
+  def defaultImportOrdering(place: PsiElement): Ordering[ElementToImport] = {
+    orderingByDeprecated.on[ElementToImport](_.element) orElse
+    (
+      orderingByImportCountInProject(place) orElse
+      orderingByDistanceToLocalImports(place) orElse
+      specialPackageOrdering orElse
+      orderingByPackageName
+    ).on(_.qualifiedName)
   }
 
-  trait PackageNameOrdering extends Ordering[String] {
-    override def compare(x: String, y: String): Int = {
-      import implicits.NaturalStringOrdering
+  /**
+   * Sorts undeprecated elements before deprecated once
+   */
+  val orderingByDeprecated: Ordering[PsiElement] =
+    Ordering.by(_.asOptionOf[PsiDocCommentOwner].exists(_.isDeprecated))
 
-      implicitly[Ordering[Tuple2[String, String]]]
-        .compare(splitAtLastPoint(x), splitAtLastPoint(y))
+  /**
+   * Ordering by natural string ordering of the last part of the import
+   *  yyy.A before
+   *  xxx.b
+   */
+  val orderingByPackageName: Ordering[String] = PackageNameOrdering
+
+  /**
+   * Ordering by amount of times the import was used in other parts of the project
+   */
+  def orderingByImportCountInProject(implicit ctx: ProjectContext): Ordering[String] = {
+    val cachedQualifierImportCount = cachify(ImportOrderingIndexer.qualifierImportCountF)
+    Ordering.by(cachedQualifierImportCount)
+      .reverse // most imported should come first
+  }
+
+  /**
+   * Sorts imports starting with "scala" before those starting with "java" before any other
+   */
+  val specialPackageOrdering: Ordering[String] = Ordering.by { qual =>
+    val idx = qual.indexOf('.')
+    if (idx < 0) Int.MaxValue
+    else {
+      specialPackageWeight.getOrElse(qual.substring(0, idx), Int.MaxValue)
     }
-
-    private def splitAtLastPoint(str: String): (String, String) = {
-      val i = str.lastIndexOf('.')
-      if (i >= 0) (str.substring(0, i), str.substring(i + 1))
-      else ("", str)
-    }
   }
 
-  object implicits {
-    implicit object NaturalStringOrdering extends NaturalStringOrdering
-    implicit object PackageNameOrdering extends PackageNameOrdering
-  }
-
-  def orderingByPackageName: Ordering[String] = implicits.PackageNameOrdering
+  private val specialPackageWeight: Map[String, Int] = Map(
+    "scala" -> 100,
+    "java"  -> 1000,
+  )
 
   /**
    * Ordering on qualified names by relevance for the current context.
@@ -58,14 +85,9 @@ object OrderingUtil {
    * @param place the place for which the import should be added
    * @return the sorted list of possible imports
    */
-
-  def orderingByRelevantImports(place: PsiElement): Ordering[String] = {
-
-    val cachedDistance = mutable.Map.empty[String, Int]
-    val distanceFromContext = (fqn: String) => cachedDistance.getOrElseUpdate(fqn, distanceFrom(place)(fqn))
-
-    import OrderingUtil.implicits.PackageNameOrdering
-    Ordering.by(fqn => (distanceFromContext(fqn), fqn))
+  def orderingByDistanceToLocalImports(place: PsiElement): Ordering[String] = {
+    val distanceFromContext = cachify(distanceFrom(place))
+    Ordering.by(distanceFromContext)
   }
 
   private def distanceFrom(place: PsiElement): String => Int = {
@@ -104,15 +126,10 @@ object OrderingUtil {
 
         dist * 2 + distanceMod
       } else {
-        specialPackageDistance.getOrElse(candidateQualifier.head, Int.MaxValue)
+        Int.MaxValue
       }
     }
   }
-
-  val specialPackageDistance: Map[String, Int] = Map(
-    "scala" -> 10000,
-    "java"  -> 100000
-  )
 
   // calculates the distance between two package qualifiers
   // two qualifiers that don't share the first two package names are not related at all!
@@ -140,5 +157,21 @@ object OrderingUtil {
     }
 
     getRelevantImports(e.getParent, found)
+  }
+
+  private object PackageNameOrdering extends Ordering[String] {
+    private implicit val naturalStringOrdering: Ordering[String] = (x, y) => StringUtil.naturalCompare(x, y)
+
+    override def compare(x: String, y: String): Int = {
+
+      implicitly[Ordering[Tuple2[String, String]]]
+        .compare(splitAtLastPoint(x), splitAtLastPoint(y))
+    }
+
+    private def splitAtLastPoint(str: String): (String, String) = {
+      val i = str.lastIndexOf('.')
+      if (i >= 0) (str.substring(0, i), str.substring(i + 1))
+      else ("", str)
+    }
   }
 }
