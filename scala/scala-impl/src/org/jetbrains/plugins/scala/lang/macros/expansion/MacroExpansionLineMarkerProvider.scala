@@ -39,7 +39,7 @@ abstract class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerPro
   protected val EXPANDED_KEY = new Key[UndoExpansionData]("MACRO_EXPANDED_KEY")
 
   protected lazy val messageGroup: NotificationGroup = toolWindowGroup
-  
+
   override def collectNavigationMarkers(element: PsiElement, result: Markers): Unit = {
     if (ScalaProjectSettings.getInstance(element.getProject).getScalaMetaMode == ScalaMetaMode.Disabled) return
     if (element.getNode == null || element.getNode.getElementType != ScalaTokenTypes.tIDENTIFIER ) return
@@ -96,9 +96,9 @@ abstract class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerPro
       (parent, companion) match {
         case (td: ScTypeDefinition, Some(companionText)) =>
           val definition = ScalaPsiElementFactory.createTypeDefinitionWithContext(companionText.trim, parent.getContext, null)
-          td.baseCompanionModule.foreach(_.replace(definition))
+          td.baseCompanion.foreach(_.replace(definition))
         case (td: ScTypeDefinition, None) =>
-          td.baseCompanionModule.foreach(c => c.getParent.getNode.removeChild(c.getNode))
+          td.baseCompanion.foreach(c => c.getParent.getNode.removeChild(c.getNode))
         case _ => None
       }
       parent.replace(newPsi)

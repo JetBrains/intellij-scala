@@ -35,7 +35,7 @@ class CreateCompanionObjectIntention extends PsiElementBaseIntentionAction {
 
   override def isAvailable(project: Project, editor: Editor, psiElement: PsiElement): Boolean =
     getClassIfAvailable(psiElement).exists {
-      _.baseCompanionModule.isEmpty
+      _. baseCompanion.isEmpty
     }
 
   private def moveCaret(project: Project, editor: Editor, obj: PsiElement): Unit = {

@@ -77,7 +77,7 @@ class ScalaTypeDefinitionUsagesDialog(element: ScTypeDefinition, project: Projec
     myCbMembersUsages = addCheckboxToPanel(ScalaBundle.message("find.what.members.usages.checkbox"), getFindUsagesOptions.isMembersUsages, findWhatPanel, true)
     myCbImplementingTypeDefinitions = addCheckboxToPanel(ScalaBundle.message("find.what.implementing.type.definitions.checkbox"),
       getFindUsagesOptions.isImplementingTypeDefinitions, findWhatPanel, true)
-    element.baseCompanionModule.foreach { _ =>
+    element.baseCompanion.foreach { _ =>
       myCbCompanionModule = addCheckboxToPanel(ScalaBundle.message("find.what.companion.module.checkbox"), getFindUsagesOptions.isSearchCompanionModule, findWhatPanel, true)
     }
     findWhatPanel

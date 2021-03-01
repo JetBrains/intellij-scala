@@ -111,7 +111,7 @@ trait TreeAdapter {
       m.Ctor.Primary(Nil, m.Name.Anonymous(), Nil),
       template(t.physicalExtendsBlock)
     )
-    t.baseCompanionModule match {
+    t.baseCompanion match {
       case Some(obj: ScObject) => m.Term.Block(List(defn, toObject(obj)))
       case _      => defn
     }
@@ -125,7 +125,7 @@ trait TreeAdapter {
       ctor(c.constructor),
       template(c.physicalExtendsBlock)
     )
-    c.baseCompanionModule match {
+    c.baseCompanion match {
       case Some(obj: ScObject) => m.Term.Block(List(toObject(obj)))
       case _      => defn
     }

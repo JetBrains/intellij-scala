@@ -9,8 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
-import scala.collection.immutable.ArraySeq
-
 /**
   * @author Alexander Podkhalyuzin
   *         Date: 22.02.2008

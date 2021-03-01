@@ -42,7 +42,7 @@ class ScObjectImpl(
   override protected def targetTokenType: ScalaTokenType = ScalaTokenType.ObjectKeyword
 
   override def additionalClassJavaName: Option[String] =
-    if (baseCompanionModule.isEmpty) Option(getName).map(_.stripSuffix("$")) else None
+    if (baseCompanion.isEmpty) Option(getName).map(_.stripSuffix("$")) else None
 
   override def getNavigationElement: PsiElement = {
     if (isSyntheticObject) {

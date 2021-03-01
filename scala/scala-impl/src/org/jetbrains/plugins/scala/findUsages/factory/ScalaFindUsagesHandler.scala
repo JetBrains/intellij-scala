@@ -140,7 +140,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
           }
 
           if (s.isSearchCompanionModule)
-            definition.baseCompanionModule.foreach(companion => if (!addElementUsages(companion)) return false)
+            definition.baseCompanion.foreach(companion => if (!addElementUsages(companion)) return false)
 
           if (factory.compilerIndicesOptions.isEnabledForSAMTypes && definition.isSAMable) {
             val success =

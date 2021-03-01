@@ -49,7 +49,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     sourceElement.getNode.getElementType match {
       case IsTemplateDefinition() =>
         val typeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition])
-        typeDefinition.baseCompanionModule.map(_.nameId.getPrevSiblingNotWhitespace).toArray
+        typeDefinition.baseCompanion.map(_.nameId.getPrevSiblingNotWhitespace).toArray
 
       case ScalaTokenTypes.tASSIGN =>
         maybeParent

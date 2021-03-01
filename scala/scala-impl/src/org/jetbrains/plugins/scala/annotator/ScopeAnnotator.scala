@@ -111,7 +111,7 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
           case e: ScTypeAlias => types ::= e
           case e: ScTypeParam => types ::= e
           case e: ScClass  =>
-            if (e.isCase && e.baseCompanionModule.isEmpty) { //add synthtetic companion
+            if (e.isCase && e. baseCompanion.isEmpty) { //add synthtetic companion
               parameterless ::= e
               fieldLike ::= e
             }
