@@ -180,7 +180,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
               processTypeImpl(glb, place, newState)
             }
         }
-      case d@ScDesignatorType(e: PsiClass) if d.asInstanceOf[ScDesignatorType].isStatic && !e.isInstanceOf[ScTemplateDefinition] =>
+      case d@ScDesignatorType(e: PsiClass) if d.isStatic && !e.isInstanceOf[ScTemplateDefinition] =>
         //not scala from scala
         var break = true
         for (method <- e.getMethods if break && method.hasModifierProperty("static")) {
@@ -235,7 +235,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
           case withActual(elem, s) =>
             if (recState.visitedProjections.contains(elem))
               return true
-              
+
             elem match {
               case alias: ScTypeAlias =>
                 val upper = alias.upperBound.getOrElse(return true)

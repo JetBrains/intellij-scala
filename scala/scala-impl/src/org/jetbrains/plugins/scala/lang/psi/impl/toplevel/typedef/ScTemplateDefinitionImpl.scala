@@ -275,19 +275,22 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
                                    place: PsiElement): Boolean =
     processDeclarationsImpl(processor, oldState, lastParent, place)
 
-  protected final def processDeclarationsImpl(processor: PsiScopeProcessor,
-                                              oldState: ResolveState,
-                                              lastParent: PsiElement,
-                                              place: PsiElement): Boolean = processor match {
+  protected final def processDeclarationsImpl(
+    processor:  PsiScopeProcessor,
+    oldState:   ResolveState,
+    lastParent: PsiElement,
+    place:      PsiElement
+  ): Boolean = processor match {
     case _: BaseProcessor =>
       extendsBlock.templateBody match {
-        case Some(ancestor) if isContextAncestor(ancestor, place, false) && lastParent != null => true
+        case Some(ancestor)
+          if isContextAncestor(ancestor, place, false) && lastParent != null => true
         case _ => processDeclarationsForTemplateBody(processor, oldState, lastParent, place)
       }
     case _ =>
       val languageLevel = processor match {
         case methodProcessor: MethodsProcessor => methodProcessor.getLanguageLevel
-        case _ => PsiUtil.getLanguageLevel(getProject)
+        case _                                 => PsiUtil.getLanguageLevel(getProject)
       }
       PsiClassImplUtil.processDeclarationsInClass(
         this,
@@ -354,8 +357,11 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
             extendsBlock match {
               case e: ScExtendsBlock if e != null =>
                 val isUnderExtendsBlock =
-                  if (!this.isSynthetic) isContextAncestor(e, place, true)
-                  else                   isContextAncestor(this, place, true)
+                  isContextAncestor(e, place, true) || {
+                    val enclosingMember = place.parentOfType[ScMember]
+                    if (enclosingMember.exists(_.isSynthetic)) isContextAncestor(this, place, true)
+                    else                                       false
+                  }
 
                 if (isUnderExtendsBlock ||
                   ScalaPsiUtil.isSyntheticContextAncestor(e, place) ||

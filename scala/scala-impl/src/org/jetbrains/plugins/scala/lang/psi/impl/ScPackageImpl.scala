@@ -175,12 +175,14 @@ object ScPackageImpl {
                 val clazz = classes.next()
                 clazz match {
                   case cls: ScClass if cls.isTopLevel =>
-                    cls.getSyntheticImplicitMethod.foreach {
-                      synMethod => if (!processor.execute(synMethod, state)) return false
+                    cls.getSyntheticImplicitMethod.foreach { synMethod =>
+                      if (!processor.execute(synMethod, state)) return false
+                    }
+                  case e: ScEnum if e.isTopLevel =>
+                    e.syntheticClass.foreach { synCls =>
+                      if (!processor.execute(synCls, state)) return false
                     }
                   case _ => ()
-                  case e: ScEnum    => e.syntheticClass.foreach(processor.execute(_, state))
-                  case _            => ()
                 }
 
                 stop = clazz.containingClass == null && !processor.execute(clazz, state)
