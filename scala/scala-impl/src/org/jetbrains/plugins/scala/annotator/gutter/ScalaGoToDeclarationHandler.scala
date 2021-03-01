@@ -3,7 +3,6 @@ package annotator
 package gutter
 
 import java.io.File
-
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
@@ -19,10 +18,10 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScEnumerator, ScSelfInvocation}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScEnumCase}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelectors
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.Measure
@@ -125,8 +124,10 @@ object ScalaGoToDeclarationHandler {
       case _ => return null
     }
 
-    targets.map { element =>
-      syntheticTarget(element).getOrElse(element)
+    targets.flatMap { element =>
+      val syntheticTargets = syntheticTarget(element)
+      if (syntheticTargets.isEmpty) Seq.empty
+      else                          syntheticTargets
     }.toArray
   }
 
@@ -210,11 +211,18 @@ object ScalaGoToDeclarationHandler {
 
   import ScalaPsiUtil.{getCompanionModule, parameterForSyntheticParameter}
 
-  private def syntheticTarget(element: PsiElement): Option[PsiElement] = element match {
-    case function: ScFunction => Option(function.syntheticNavigationElement)
-    case definition: ScTypeDefinition if definition.isSynthetic => Option(definition.syntheticContainingClass)
-    case scObject: ScObject if scObject.isSyntheticObject => getCompanionModule(scObject)
-    case parameter: ScParameter => parameterForSyntheticParameter(parameter)
-    case _ => None
-  }
+  private def syntheticTarget(element: PsiElement): Seq[PsiElement] =
+    element match {
+      case ScEnum.DesugaredEnumClass(enum)          => Seq(enum)
+      case ScEnumCase.DesugaredEnumCase(name, enum) => enum.cases.filter(_.name == name)
+      case function: ScFunction                     => Option(function.syntheticNavigationElement).toSeq
+      case scObject: ScObject if scObject.isSyntheticObject =>
+        val companionClass = getCompanionModule(scObject)
+        companionClass.collect {
+          case ScEnum.DesugaredEnumClass(enum) => enum
+        }.orElse(companionClass).toSeq
+      case definition: ScTypeDefinition if definition.isSynthetic => Option(definition.syntheticContainingClass).toSeq
+      case parameter: ScParameter                                 => parameterForSyntheticParameter(parameter).toSeq
+      case _                                                      => Seq.empty
+    }
 }
