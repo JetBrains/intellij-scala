@@ -17,12 +17,13 @@ object ImportOrderings {
    */
   def defaultImportOrdering(place: PsiElement): Ordering[ElementToImport] = {
     orderingByDeprecated.on[ElementToImport](_.element) orElse
-    (
-      orderingByImportCountInProject(place) orElse
-      orderingByDistanceToLocalImports(place) orElse
-      specialPackageOrdering orElse
-      orderingByPackageName
-    ).on(_.qualifiedName)
+      orderingByImportCountInProject(place).on(_.qualifiedName) orElse
+      locationOrdering.on(_.element) orElse
+      (
+        orderingByDistanceToLocalImports(place) orElse
+        specialPackageOrdering orElse
+        orderingByPackageName
+      ).on(_.qualifiedName)
   }
 
   /**
@@ -37,6 +38,13 @@ object ImportOrderings {
    *  xxx.b
    */
   val orderingByPackageName: Ordering[String] = PackageNameOrdering
+
+  /**
+   * Ordering preferring local definitions before external ones
+   */
+  def locationOrdering: Ordering[PsiElement] = {
+    Ordering.by { e => !e.getContainingFile.getVirtualFile.isInLocalFileSystem }
+  }
 
   /**
    * Ordering by amount of times the import was used in other parts of the project
