@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.StubIndex
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.isAccessible
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.util.OrderingUtil.orderingByRelevantImports
+import org.jetbrains.plugins.scala.autoImport.ImportOrderings.defaultImportOrdering
 
 import scala.jdk.CollectionConverters._
 
@@ -83,7 +83,7 @@ private class MemberToImportComputation(ref: ScReferenceExpression) {
         .toSeq
         .distinctBy(_.qualifiedName)
         .filterNot(c => isExcluded(c.qualifiedName, ref.getProject))
-        .sortBy(_.qualifiedName)(orderingByRelevantImports(ref))
+        .sorted(defaultImportOrdering(ref))
 
     //check for compatibility takes too long if there are that many candidates
     //in this case it's probably better to use qualified reference anyway

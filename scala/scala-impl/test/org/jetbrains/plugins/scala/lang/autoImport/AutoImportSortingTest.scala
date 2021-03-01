@@ -3,9 +3,10 @@ package org.jetbrains.plugins.scala.lang.autoImport
 import com.intellij.psi.PsiElement
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.autoImport.ImportOrderings._
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.util.{OrderingUtil, PsiSelectionUtil}
+import org.jetbrains.plugins.scala.util.PsiSelectionUtil
 
 class AutoImportSortingTest extends ScalaLightCodeInsightFixtureTestAdapter with PsiSelectionUtil {
   import org.junit.Assert._
@@ -23,8 +24,8 @@ class AutoImportSortingTest extends ScalaLightCodeInsightFixtureTestAdapter with
     assertEquals(possibilities.mkString("\n"), result.mkString("\n"))
   }
 
-  val alphabeticalSort: PsiElement => Ordering[String] = _ => OrderingUtil.orderingByPackageName
-  val packageDistSort: PsiElement => Ordering[String] = OrderingUtil.orderingByRelevantImports
+  val alphabeticalSort: PsiElement => Ordering[String] = _ => orderingByPackageName
+  val packageDistSort: PsiElement => Ordering[String] = e => orderingByDistanceToLocalImports(e) orElse specialPackageOrdering orElse orderingByPackageName
 
   def test_alphabetical_sorting(): Unit = check(
     """
