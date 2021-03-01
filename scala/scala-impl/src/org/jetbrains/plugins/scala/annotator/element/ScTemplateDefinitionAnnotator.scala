@@ -29,12 +29,28 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     annotateNeedsToBeTrait(element)
     annotateUndefinedMember(element)
     annotateSealedclassInheritance(element)
+    annotateEnumClassInheritance(element)
     annotateNeedsToBeAbstract(element, typeAware)
     annotateNeedsToBeMixin(element)
 
     if (typeAware) {
       annotateIllegalInheritance(element)
       annotateObjectCreationImpossible(element)
+    }
+  }
+
+  private def annotateEnumClassInheritance(
+    tdef: ScTemplateDefinition
+  )(implicit
+    holder: ScalaAnnotationHolder
+  ): Unit = {
+    superRefs(tdef).collect {
+      case (range, ScEnum.DesugaredEnumClass(enum)) =>
+        tdef match {
+          case cse: ScEnumCase if cse.enumParent eq enum => ()
+          case _ =>
+            holder.createErrorAnnotation(range, ScalaBundle.message("illegal.inheritance.extends.enum"))
+        }
     }
   }
 
@@ -181,14 +197,13 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
           case _ => superRefs(element)
         }
         val fileNavigationElement = file.getNavigationElement
-        val isEnumCase            = element.is[ScEnumCase]
 
         def isInDifferentFile(tdef: ScTemplateDefinition): Boolean =
           tdef.getContainingFile.getNavigationElement != fileNavigationElement
 
         def isEnumSyntheticClass(tdef: ScTemplateDefinition): Boolean =
           tdef match {
-            case cls: ScClass => isEnumCase && cls.originalEnumElement != null
+            case cls: ScClass => ScEnum.isDesugaredEnumClass(cls)
             case _            => false
           }
 
