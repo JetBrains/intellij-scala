@@ -4,6 +4,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation.shouldExpand
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType.Name
@@ -266,6 +267,28 @@ package object types {
     def widenIfLiteral: ScType = scType match {
       case litTy: ScLiteralType => litTy.wideType
       case _                    => scType
+    }
+
+    def parents: Seq[ScType] = scType match {
+      case ParameterizedType(des, args) => {
+        val targetCls = des match {
+          case ScDesignatorType(cls: PsiClass)    => cls
+          case ScProjectionType(_, cls: PsiClass) => cls
+        }
+
+        val subst = ScSubstitutor.bind(targetCls.getTypeParameters, args)
+        targetCls.superTypes.map(subst)
+      }
+      case ScDesignatorType(cls: PsiClass)    => cls.superTypes
+      case ScProjectionType(_, cls: PsiClass) => cls.superTypes
+      case _ => Seq.empty
+    }
+
+    def widenToParent: ScType = {
+      val parentTypes = parents
+
+      if (parents.isEmpty) scType
+      else                 ScCompoundType(parentTypes)(scType.projectContext)
     }
   }
 
