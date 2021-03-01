@@ -382,7 +382,7 @@ private object GutterUtil {
       case identifier @ ElementType(ScalaTokenTypes.tIDENTIFIER) && Parent(_: ScClass | _: ScTrait | _: ScObject) =>
         val typeDefinition = identifier.getParent.asInstanceOf[ScTypeDefinition]
 
-        typeDefinition.baseCompanionModule.map { companion =>
+        typeDefinition.baseCompanion.map { companion =>
           val swapped = typeDefinition.startOffset > companion.startOffset ^ typeDefinition.is[ScObject]
 
           val info = new LineMarkerInfo(identifier,

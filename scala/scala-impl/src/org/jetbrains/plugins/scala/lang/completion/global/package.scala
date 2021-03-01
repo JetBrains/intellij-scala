@@ -19,7 +19,7 @@ package object global {
 
     def unapply(definition: ScTypeDefinition): Option[ScObject] = definition match {
       case targetObject: ScObject => Some(targetObject)
-      case _ => definition.baseCompanionModule.filterByType[ScObject] // todo ScalaPsiUtil.getCompanionModule / fakeCompanionModule
+      case _ => definition.baseCompanion.filterByType[ScObject] // todo ScalaPsiUtil.getCompanionModule / fakeCompanionModule
     }
   }
 

@@ -214,7 +214,7 @@ object ScalaBasicCompletionProvider {
     }
 
     private def filterDuplications(definition: ScTypeDefinition) =
-      definition.baseCompanionModule.isDefined &&
+      definition.baseCompanion.isDefined &&
         (definition match {
           case _: ScObject => isInTypeElement
           case _ => isInImport

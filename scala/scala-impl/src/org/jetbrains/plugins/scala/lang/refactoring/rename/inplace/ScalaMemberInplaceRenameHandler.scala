@@ -36,7 +36,7 @@ class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler with Sc
       case clazz: PsiClass if elementToRename.isInstanceOf[PsiClassWrapper] =>
         (None, None)
       case definition: ScTypeDefinition =>
-        (Some(definition), definition.baseCompanionModule)
+        (Some(definition), definition.baseCompanion)
       case clazz: PsiClass =>
         (Some(clazz), None)
       case subst: PsiNamedElement =>

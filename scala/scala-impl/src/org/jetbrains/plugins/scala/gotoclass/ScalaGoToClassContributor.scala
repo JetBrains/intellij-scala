@@ -3,7 +3,6 @@ package gotoclass
 
 import com.intellij.navigation.{GotoClassContributor, NavigationItem}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys

@@ -77,7 +77,7 @@ class MetaExpansionLineMarkerProvider extends MacroExpansionLineMarkerProvider {
             val children = block.getChildren.dropWhile(filter).reverse.dropWhile(filter).reverse
             val savedCompanion = if (expansion.removeCompanionObject) {
               val companion = holder match {
-                case td: ScTypeDefinition => td.baseCompanionModule
+                case td: ScTypeDefinition => td.baseCompanion
                 case _ => None
               }
               companion.map { o =>

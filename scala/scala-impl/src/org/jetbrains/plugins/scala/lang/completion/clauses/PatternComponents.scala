@@ -118,7 +118,7 @@ object PhysicalExtractorPatternComponents {
     parameters: ClauseCompletionParameters
   ): Option[PhysicalExtractorPatternComponents] =
     for {
-      Extractor(method) <- `class`.baseCompanionModule
+      Extractor(method) <- `class`.baseCompanion
       returnType        <- method.returnType.toOption
       types = ScPattern.unapplySubpatternTypes(
         returnType,
