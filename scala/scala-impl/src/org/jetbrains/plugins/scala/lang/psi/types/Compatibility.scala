@@ -251,10 +251,12 @@ object Compatibility {
     pairs.filter(p => clashedNames.contains(p._1)).map(_._2)
   }
 
-  case class ConformanceExtResult(problems: Seq[ApplicabilityProblem],
-                                  constraints: ConstraintSystem,
-                                  defaultParameterUsed: Boolean = false,
-                                  matched: Seq[(Parameter, ScExpression, ScType)] = Seq.empty)
+  case class ConformanceExtResult(
+    problems:             Seq[ApplicabilityProblem],
+    constraints:          ConstraintSystem,
+    defaultParameterUsed: Boolean = false,
+    matched:              Seq[(Parameter, ScExpression, ScType)] = Seq.empty
+  )
 
   object ConformanceExtResult {
     def apply(problems: Seq[ApplicabilityProblem])(implicit project: ProjectContext): ConformanceExtResult =
