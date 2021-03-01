@@ -1,13 +1,5 @@
 package org.jetbrains.plugins.scala
 
-import java.lang.ref.Reference
-import java.lang.reflect.InvocationTargetException
-import java.nio.file.Path
-import java.util.concurrent.atomic.AtomicReference
-import java.util.concurrent.{Callable, ScheduledFuture, TimeUnit, ConcurrentMap => JConcurrentMap, Future => JFuture}
-import java.util.regex.Pattern
-import java.util.{Arrays, Set => JSet}
-
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.ide.plugins.DynamicPluginListener
@@ -61,12 +53,19 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 import org.jetbrains.plugins.scala.util.ScalaPluginUtils
 
+import java.lang.ref.Reference
+import java.lang.reflect.InvocationTargetException
+import java.nio.file.Path
+import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.{Callable, ScheduledFuture, TimeUnit, ConcurrentMap => JConcurrentMap, Future => JFuture}
+import java.util.regex.Pattern
+import java.util.{Arrays, Set => JSet}
 import scala.annotation.{nowarn, tailrec}
 import scala.collection.immutable.ArraySeq
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Future, Promise}
 import scala.jdk.CollectionConverters._
-import scala.math.Ordering
 import scala.reflect.ClassTag
 import scala.runtime.NonLocalReturnControl
 import scala.util.control.Exception.catching
@@ -1490,6 +1489,11 @@ package object extensions {
   def applyTo[T](v: T)(fs: (T => Any)*): T = {
     fs.foreach(_.apply(v))
     v
+  }
+
+  def cachify[A1, R](f: A1 => R): A1 => R = {
+    val cache = mutable.HashMap.empty[A1, R]
+    (arg: A1) => cache.getOrElse(arg, f(arg))
   }
 
   //noinspection TypeAnnotation
