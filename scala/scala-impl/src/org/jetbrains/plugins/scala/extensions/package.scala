@@ -1022,6 +1022,11 @@ package object extensions {
     }
 
     def sameOrInheritor(other: PsiClass): Boolean = areClassesEquivalent(clazz, other) || isInheritorDeep(clazz, other)
+
+    def superTypes: Seq[ScType] = clazz match {
+      case tdef: ScTemplateDefinition => tdef.superTypes
+      case _                          => clazz.getSuperTypes.map(_.toScType()(clazz)).toSeq
+    }
   }
 
 //  implicit class NavigationItemExt(private val item: NavigationItem) extends AnyVal {

@@ -36,7 +36,7 @@ final class ScEnumCaseImpl(
 
   override def getModifierList: ScModifierList = getParentByStub match {
     case cases: ScEnumCases => cases.getModifierList
-    case _ => ScalaPsiElementFactory.createEmptyModifierList(this)
+    case _                  => ScalaPsiElementFactory.createEmptyModifierList(this)
   }
 
   override def enumParent: ScEnum =
