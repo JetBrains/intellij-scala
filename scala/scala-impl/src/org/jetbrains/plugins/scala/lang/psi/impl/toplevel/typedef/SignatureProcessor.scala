@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.{PropertyMethods, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.{DefinitionRole, EQ, SETTER, isApplicable, methodName}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScTypeAlias, ScValue, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -37,12 +37,12 @@ trait SignatureProcessor[T <: Signature] {
 
   @tailrec
   final def processAll(clazz: PsiClass, substitutor: ScSubstitutor, sink: Sink): Unit = clazz match {
-    case null                                            => ()
-    case cls: ScClass if cls.originalEnumElement != null => processAll(cls.originalEnumElement, substitutor, sink)
-    case syn: ScSyntheticClass                           => processAll(realClass(syn), substitutor, sink)
-    case td: ScTemplateDefinition                        => processScala(td, substitutor, sink)
-    case _                                               => processJava(clazz, substitutor, sink)
-  }
+      case null                            => ()
+      case ScEnum.DesugaredEnumClass(enum) => processAll(enum, substitutor, sink)
+      case syn: ScSyntheticClass           => processAll(realClass(syn), substitutor, sink)
+      case td: ScTemplateDefinition        => processScala(td, substitutor, sink)
+      case _                               => processJava(clazz, substitutor, sink)
+    }
 
   private def realClass(syn: ScSyntheticClass): ScTemplateDefinition =
     syn.elementScope.getCachedClass(syn.getQualifiedName)
@@ -190,8 +190,9 @@ object TermsCollector extends TermsCollector {
 
 object StableTermsCollector extends TermsCollector {
   override def relevantMembers(td: ScTemplateDefinition): Seq[ScMember] = {
-    (td.members ++ td.syntheticMembers ++ td.syntheticTypeDefinitions)
+    val res = (td.members ++ td.syntheticMembers ++ td.syntheticTypeDefinitions)
       .filter(mayContainStable)
+    res
   }
 
   override def shouldSkip(t: TermSignature): Boolean = !isStable(t.namedElement) || super.shouldSkip(t)
@@ -204,6 +205,6 @@ object StableTermsCollector extends TermsCollector {
 
   private def mayContainStable(m: ScMember): Boolean = m match {
     case _: ScTypeDefinition | _: ScValue | _: ScPrimaryConstructor => true
-    case _ => false
+    case _                                                          => false
   }
 }
