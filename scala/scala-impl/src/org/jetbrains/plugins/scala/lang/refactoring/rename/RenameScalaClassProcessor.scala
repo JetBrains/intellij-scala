@@ -124,11 +124,7 @@ class ScalaClassRenameDialog(project: Project, psiElement: PsiElement, nameSugge
         with RenameDialog(project: Project, psiElement: PsiElement, nameSuggestionContext: PsiElement, editor: Editor) {
 
   override def createCenterPanel(): JComponent = {
-    val companion = Option(psiElement).collect {
-      case definition: ScTypeDefinition => definition
-    }.flatMap {
-      _.baseCompanionModule
-    }
+    val companion = psiElement.asOptionOf[ScTypeDefinition].flatMap(_.baseCompanion)
 
     companion.collect {
       case _: ScObject => "object"

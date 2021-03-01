@@ -99,7 +99,7 @@ private object ScalaUseScope {
   private def localSearchScope(typeDefinition: ScTypeDefinition, withCompanion: Boolean = true): SearchScope = {
     val scope = safeLocalScope(typeDefinition)
     if (withCompanion) {
-      typeDefinition.baseCompanionModule match {
+      typeDefinition.baseCompanion match {
         case Some(td) => scope.union(safeLocalScope(td))
         case _ => scope
       }

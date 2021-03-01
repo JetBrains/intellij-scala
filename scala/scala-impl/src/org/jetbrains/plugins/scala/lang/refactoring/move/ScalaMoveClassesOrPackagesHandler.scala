@@ -100,7 +100,7 @@ final class ScalaMoveClassesOrPackagesHandler extends JavaMoveClassesOrPackagesH
 
   @NotNull
   protected override def createMoveClassesOrPackagesToNewDirectoryDialog(@NotNull directory: PsiDirectory,
-                                                                         elementsToMove: Array[PsiElement], 
+                                                                         elementsToMove: Array[PsiElement],
                                                                          moveCallback: MoveCallback): DialogWrapper = {
     new MoveClassesOrPackagesToNewDirectoryDialog(directory, elementsToMove, moveCallback) {
       protected override def createCenterPanel(): JComponent = {
@@ -121,7 +121,7 @@ final class ScalaMoveClassesOrPackagesHandler extends JavaMoveClassesOrPackagesH
 
   private def addMoveCompanionChb(@Nullable panel: JComponent, elements: Array[PsiElement]): JComponent = {
     val companionsExist = elements.exists {
-      case definition: ScTypeDefinition => definition.baseCompanionModule.isDefined
+      case definition: ScTypeDefinition => definition.baseCompanion.isDefined
       case _ => false
     }
 

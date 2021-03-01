@@ -53,7 +53,7 @@ package object move {
     Option(clazz).collect {
       case definition: ScTypeDefinition if withCompanion => definition
     }.flatMap {
-      _.baseCompanionModule
+      _.baseCompanion
     }
 
   def moveCompanion: Boolean = settings.ScalaApplicationSettings.getInstance.MOVE_COMPANION

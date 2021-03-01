@@ -62,7 +62,7 @@ trait ScTypeDefinition extends ScTemplateDefinition
 
   override def showAsInheritor: Boolean = true
 
-  def baseCompanionModule: Option[ScTypeDefinition]
+  def baseCompanion: Option[ScTypeDefinition]
 }
 
 object ScTypeDefinition {

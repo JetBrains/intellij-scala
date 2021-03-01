@@ -90,7 +90,7 @@ private final class WorksheetPsiGlue {
     sealedTypeDef.exists(base => typeDef.supers.exists(_ eq base))
 
   private def areCompanions(def1: ScTypeDefinition, def2: ScTypeDefinition) =
-    canBeCompanions(def1, def2) && def1.baseCompanionModule.contains(def2)
+    canBeCompanions(def1, def2) && def1.baseCompanion.contains(def2)
 
   private def canBeCompanions(def1: ScTypeDefinition, def2: ScTypeDefinition): Boolean = (def1, def2) match {
     case (_: ScClass | _: ScTrait, _: ScObject) => true

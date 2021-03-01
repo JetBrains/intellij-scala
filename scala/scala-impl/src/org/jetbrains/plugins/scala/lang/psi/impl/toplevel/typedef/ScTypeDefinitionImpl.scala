@@ -159,11 +159,11 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
 
   //Performance critical method
   //And it is REALLY SO!
-  final override def baseCompanionModule: Option[ScTypeDefinition] = {
+  final override def baseCompanion: Option[ScTypeDefinition] = {
     val isObject = this match {
-      case _: ScObject => true
-      case _: ScTrait | _: ScClass => false
-      case _ => return None
+      case _: ScObject                         => true
+      case _: ScTrait | _: ScClass | _: ScEnum => false
+      case _                                   => return None
     }
 
     val thisName: String = name
@@ -176,10 +176,9 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     }
 
     def isCompanion(td: ScTypeDefinition): Boolean = td match {
-      case td @ (_: ScClass | _: ScTrait)
-        if isObject && td.name == thisName => true
-      case o: ScObject if !isObject && thisName == o.name => true
-      case _ => false
+      case td @ (_: ScClass | _: ScTrait | _: ScEnum) if isObject && td.name == thisName => true
+      case o: ScObject if !isObject && thisName == o.name                                => true
+      case _                                                                             => false
     }
 
     def findByStub(contextStub: StubElement[_]): Option[ScTypeDefinition] = {
@@ -225,12 +224,11 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     else findByAst
   }
 
-
   override def fakeCompanionModule: Option[ScObject] = this match {
     case _: ScObject => None
     case enm: ScEnum => enm.syntheticClass.flatMap(_.fakeCompanionModule)
     case _ =>
-      baseCompanionModule match {
+      baseCompanion match {
         case Some(_: ScObject)                                              => None
         case _ if !isCase && !SyntheticMembersInjector.needsCompanion(this) => None
         case _                                                              => calcFakeCompanionModule()
@@ -366,7 +364,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   override def isDeprecated: Boolean = byStubOrPsi(_.isDeprecated)(super.isDeprecated)
 
   override def psiInnerClasses: Array[PsiClass] = {
-    val inCompanionModule = baseCompanionModule.toSeq.flatMap {
+    val inCompanionModule = baseCompanion.toSeq.flatMap {
       case o: ScObject =>
         o.membersWithSynthetic.flatMap {
           case o: ScObject => Seq(o) ++ o.fakeCompanionClass
