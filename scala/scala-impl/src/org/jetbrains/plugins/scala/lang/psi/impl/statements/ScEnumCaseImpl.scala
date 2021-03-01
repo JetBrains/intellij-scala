@@ -8,7 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, ParameterizedTyp
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
+import javax.swing.Icon
 import scala.util.control.NonFatal
 
 final class ScEnumCaseImpl(
@@ -38,20 +39,21 @@ final class ScEnumCaseImpl(
     case _ => ScalaPsiElementFactory.createEmptyModifierList(this)
   }
 
-  override def enumParent: Option[ScEnum] =
-    this.getStubOrPsiParentOfType(classOf[ScEnum]).toOption
+  override def enumParent: ScEnum =
+    this.getStubOrPsiParentOfType(classOf[ScEnum])
+
+  def physicalTypeParameters: Seq[ScTypeParam] = super.typeParameters
 
   @CachedInUserData(this, BlockModificationTracker(this))
   override def typeParameters: Seq[ScTypeParam] =
-    if (extendsBlock== null && super.typeParameters.isEmpty) {
+    if (super.typeParameters.isEmpty) {
       try {
         val syntheticClause =
           for {
-            e <- enumParent
-            tpClause <- e.typeParametersClause
-            tpText = tpClause.getTextByStub
+            tpClause <- enumParent.typeParametersClause
+            tpText   = tpClause.getTextByStub
           } yield
-            ScalaPsiElementFactory.createTypeParameterClauseFromTextWithContext(tpText, this.getContext, this)
+            ScalaPsiElementFactory.createTypeParameterClauseFromTextWithContext(tpText, this, this.nameId)
 
         syntheticClause.fold(Seq.empty[ScTypeParam])(_.typeParameters)
       } catch {
@@ -61,7 +63,7 @@ final class ScEnumCaseImpl(
     } else super.typeParameters
 
   private def syntheticEnumClass: Option[ScTypeDefinition] =
-    enumParent.flatMap(_.syntheticClass)
+    enumParent.syntheticClass
 
   override def superTypes: List[ScType] =
     if (extendsBlock.templateParents.nonEmpty) super.superTypes
@@ -89,9 +91,7 @@ final class ScEnumCaseImpl(
     if (extendsBlock.templateParents.nonEmpty) super.supers
     else                                       syntheticEnumClass.toSeq
 
-//noinspection TypeAnnotation
-  override protected def targetTokenType = kCASE
+  override protected def targetTokenType: ScalaTokenType = kCASE
 
-  //noinspection TypeAnnotation
-  override protected def baseIcon = icons.Icons.CLASS; // TODO add an icon
+  override protected def baseIcon: Icon = icons.Icons.CLASS; // TODO add an icon
 }

@@ -11,3 +11,16 @@ trait ScEnum extends ScConstructorOwner {
 
   def syntheticClass: Option[ScTypeDefinition]
 }
+
+object ScEnum {
+  object DesugaredEnumClass {
+    def unapply(cls: ScClass): Option[ScEnum] =
+      cls.originalEnumElement match {
+        case null => None
+        case enum => Option(enum)
+      }
+  }
+
+  def isDesugaredEnumClass(cls: ScClass): Boolean =
+    cls.originalEnumElement ne null
+}
