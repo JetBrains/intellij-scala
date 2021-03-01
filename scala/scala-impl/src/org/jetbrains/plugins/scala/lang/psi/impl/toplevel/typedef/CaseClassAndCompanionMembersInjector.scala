@@ -67,17 +67,22 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
   }
 
   private[this] def shouldGenerateCopyMethod(cls: ScClass): Boolean =
-    cls.isCase && !cls.hasAbstractModifier && cls.parameters.nonEmpty && (cls.constructor match {
-      case Some(cons: ScPrimaryConstructor) =>
-        val hasRepeatedParam = cons.parameterList.clauses.exists(cl => cl.hasRepeatedParam)
+    cls.isCase &&
+      !cls.hasAbstractModifier &&
+      cls.parameters.nonEmpty &&
+      (cls.constructor match {
+        case Some(cons: ScPrimaryConstructor) =>
+          val hasRepeatedParam = cons.parameterList.clauses.exists(cl => cl.hasRepeatedParam)
 
-        // That may not look entirely reasonable, but that's how it's done in scalac
-        lazy val hasUserDefinedCopyMethod =
-          hasCopyMethod(cls) || cls.supers.exists(hasCopyMethod)
+          // That may not look entirely reasonable, but that's how it's done in scalac
+          lazy val hasUserDefinedCopyMethod =
+            !cls.isSynthetic &&
+              (hasCopyMethod(cls) ||
+              cls.supers.exists(hasCopyMethod))
 
-        !hasRepeatedParam && !hasUserDefinedCopyMethod
-      case _ => false
-    })
+          !hasRepeatedParam && !hasUserDefinedCopyMethod
+        case _ => false
+      })
 
   private def hasCopyMethod(psiClass: PsiClass) = psiClass match {
     case td: ScTypeDefinition => td.functions.exists(_.name == Copy)
