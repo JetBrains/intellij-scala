@@ -14,7 +14,29 @@ import org.junit.Assert._
   * Nikolay.Tropin
   * 08-Nov-17
   */
-class GoToDeclarationTest extends GoToTestBase {
+abstract class GotoDeclarationTestBase extends GoToTestBase {
+  protected def doTest(fileText: String, expected: (PsiElement => Boolean, String)*): Unit = {
+    configureFromFileText(fileText)
+
+    val editor = getEditor
+    val targets =
+      findAllTargetElements(getProject, editor, editor.getCaretModel.getOffset)
+        .map(_.getNavigationElement)
+        .toSet
+
+    assertEquals("Wrong number of targets: ", expected.size, targets.size)
+
+    val wrongTargets = for {
+      (actualElement, (predicate, expectedName)) <- targets.zip(expected)
+
+      if !predicate(actualElement) || actualName(actualElement) != expectedName
+    } yield actualElement
+
+    assertTrue("Wrong targets: " + wrongTargets, wrongTargets.isEmpty)
+  }
+}
+
+class GoToDeclarationTest extends GotoDeclarationTestBase {
 
   def testSyntheticApply(): Unit = doTest(
     s"""
@@ -200,7 +222,7 @@ class GoToDeclarationTest extends GoToTestBase {
        |}
        |""".stripMargin,
     (is[ScClass], "scala.Option")
-    
+
   )
 
   def testLibraryObject(): Unit = doTestFromLibrarySource(
@@ -242,26 +264,6 @@ class GoToDeclarationTest extends GoToTestBase {
     (is[ScParameter], "start")
   )
 
-  private def doTest(fileText: String, expected: (PsiElement => Boolean, String)*): Unit = {
-    configureFromFileText(fileText)
-
-    val editor = getEditor
-    val targets =
-      findAllTargetElements(getProject, editor, editor.getCaretModel.getOffset)
-        .map(_.getNavigationElement)
-        .toSet
-
-    assertEquals("Wrong number of targets: ", expected.size, targets.size)
-
-    val wrongTargets = for {
-      (actualElement, (predicate, expectedName)) <- targets.zip(expected)
-
-      if !predicate(actualElement) || actualName(actualElement) != expectedName
-    } yield actualElement
-
-    assertTrue("Wrong targets: " + wrongTargets, wrongTargets.isEmpty)
-  }
-  
   private def doTestFromLibrarySource(fileText: String, expected: (PsiElement => Boolean, String)*): Unit = {
     val conditionsWithSourceCheck = expected.map {
       case (condition, name) => ((element: PsiElement) => isFromScalaSource(element) && condition(element), name)

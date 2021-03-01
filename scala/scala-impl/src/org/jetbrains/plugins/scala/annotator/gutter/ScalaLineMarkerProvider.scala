@@ -371,7 +371,7 @@ private object GutterUtil {
     case _                         => false
   }
 
-  // Show companion for class / trait / object in the gutter, https://youtrack.jetbrains.com/issue/SCL-17697
+  // Show companion for class / trait / object / enum in the gutter, https://youtrack.jetbrains.com/issue/SCL-17697
   private[gutter] def companionMarker(element: PsiElement): Option[LineMarkerInfo[_ <: PsiElement]] = {
     if (!CompanionOption.isEnabled) {
       return None
@@ -379,7 +379,7 @@ private object GutterUtil {
 
     // TODO Enable in tests when GutterMarkersTest will be able to separate different maker providers
     if (ApplicationManager.getApplication.isUnitTestMode) None else element match {
-      case identifier @ ElementType(ScalaTokenTypes.tIDENTIFIER) && Parent(_: ScClass | _: ScTrait | _: ScObject) =>
+      case identifier @ ElementType(ScalaTokenTypes.tIDENTIFIER) && Parent(_: ScClass | _: ScTrait | _: ScObject | _: ScEnum) =>
         val typeDefinition = identifier.getParent.asInstanceOf[ScTypeDefinition]
 
         typeDefinition.baseCompanion.map { companion =>
@@ -407,6 +407,7 @@ private object GutterUtil {
   private[this] def nameOf(definition: ScTypeDefinition) = definition match {
     case _: ScClass => ScalaBundle.message("companion.class")
     case _: ScTrait => ScalaBundle.message("companion.trait")
+    case _: ScEnum => ScalaBundle.message("companion.enum")
     case _: ScObject => ScalaBundle.message("companion.object")
     case _ => "" // Just "Has a companion" is OK.
   }
@@ -414,7 +415,8 @@ private object GutterUtil {
   private[this] def iconFor(definition: ScTypeDefinition, swapped: Boolean): Icon = definition match {
     case _: ScClass => if (swapped) Icons.CLASS_COMPANION_SWAPPED else Icons.CLASS_COMPANION
     case _: ScTrait => if (swapped) Icons.TRAIT_COMPANION_SWAPPED else Icons.TRAIT_COMPANION
-    case _: ScObject => if (swapped) Icons.OBECT_COMPANION_SWAPPED else Icons.OBECT_COMPANION
+    case _: ScObject => if (swapped) Icons.OBJECT_COMPANION_SWAPPED else Icons.OBJECT_COMPANION
+    case _: ScEnum => if (swapped) Icons.CLASS_COMPANION_SWAPPED else Icons.CLASS_COMPANION
     case _ => null
   }
 }
