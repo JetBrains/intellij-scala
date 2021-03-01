@@ -12,32 +12,33 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
  * `ScEnumCase`s into proper vals/classes.
  */
 class EnumMembersInjector extends SyntheticMembersInjector {
+  private[this] def processEnumCases(enum: ScEnum): Seq[String] =
+    enum.cases.map(injectEnumCase)
+
   override def injectMembers(source: ScTypeDefinition): Seq[String] = source match {
-    case obj: ScObject if obj.isSynthetic => obj.fakeCompanionClassOrCompanionClass match {
-      case cls: ScClass if cls.originalEnumElement != null =>
-        val owner = cls.originalEnumElement
-        owner.cases.map(injectEnumCase)
-      case _ => Seq.empty
-    }
+    case obj: ScObject =>
+      obj.fakeCompanionClassOrCompanionClass match {
+        case enum: ScEnum                    => processEnumCases(enum)
+        case ScEnum.DesugaredEnumClass(enum) => processEnumCases(enum)
+        case _                               => Seq.empty
+      }
     case _ => Seq.empty
   }
 
   override def injectFunctions(source: ScTypeDefinition): Seq[String] = source match {
     case obj: ScObject if obj.isSynthetic => obj.fakeCompanionClassOrCompanionClass match {
-      case cls: ScClass if cls.originalEnumElement != null =>
-        val owner = cls.originalEnumElement
-
+      case ScEnum.DesugaredEnumClass(enum) =>
         val singletonCases =
-          owner.cases.collect { case cse @ ScEnumCase.SingletonCase(_, _) => cse }
-        injectEnumMethods(owner, singletonCases)
+          enum.cases.collect { case cse @ ScEnumCase.SingletonCase(_, _) => cse }
+        injectEnumMethods(enum, singletonCases)
       case _ => Seq.empty
     }
     case _ => Seq.empty
   }
 
   override def needsCompanionObject(source: ScTypeDefinition): Boolean = source match {
-    case cls: ScClass => cls.originalEnumElement != null
-    case _            => false
+    case ScEnum.DesugaredEnumClass(_) => true
+    case _                            => false
   }
 }
 
@@ -47,28 +48,24 @@ object EnumMembersInjector {
 
   private def injectEnumCase(cse: ScEnumCase): String = {
     val supersText    = superTypesText(cse.superTypes)
-    val modifiers     = cse.getModifierList
-
-    val modifiersText =
-      if (modifiers.isFinal) modifiers.getText
-      else                   modifiers.getText + " final"
+    val modifiers     = cse.getModifierList.getText
 
     cse.constructor match {
       case Some(cons) =>
-        val tps           = cse.typeParameters
+        val tps = cse.typeParameters
 
         val typeParamsText  =
           if (tps.isEmpty) ""
           else             tps.map(_.typeParameterText).commaSeparated(model = Model.SquareBrackets)
 
-        s"$modifiersText case class ${cse.name}$typeParamsText${cons.getText} extends $supersText"
+        s"$modifiers case class ${cse.name}$typeParamsText${cons.getText} extends $supersText"
       case None =>
-        s"$modifiersText def ${cse.name}: $supersText = ???"
+        s"$modifiers val ${cse.name}: $supersText = ???"
     }
   }
 
   private def injectEnumMethods(owner: ScEnum, singletonCases: Seq[ScEnumCase]): Seq[String] = {
-    val tps             = owner.typeParameters
+    val tps = owner.typeParameters
 
     val wildcardsText   =
       if (tps.isEmpty) ""
