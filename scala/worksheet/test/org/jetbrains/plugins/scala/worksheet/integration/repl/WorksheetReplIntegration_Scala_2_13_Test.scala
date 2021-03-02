@@ -1,16 +1,20 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
 
 import com.intellij.openapi.editor.Editor
+import org.jetbrains.plugins.scala.{DependencyManager, WorksheetEvaluationTests}
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.withModifiedRegistryValue
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions._
 import org.jetbrains.plugins.scala.util.runners._
+import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.TestRunResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests.NoFolding
 import org.jetbrains.plugins.scala.worksheet.integration.util.{EditorRobot, MyUiUtils}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.RemoteServerConnectorError
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector
+import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.RemoteServerConnectorResult.RequiredJLineIsMissingFromClasspathError
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, WorksheetEvaluationTests}
 import org.junit.Assert._
@@ -28,6 +32,13 @@ class WorksheetReplIntegration_Scala_2_13_Test extends WorksheetReplIntegration_
     TestScalaVersion.Scala_2_13_0,
   ))
   def testSimpleDeclaration_2_13_0(): Unit = {
+    /**
+     * pre-download jline to avoid flaky tests on machines without locally-available jline (requires internet)
+     * see org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer for the details
+     */
+    import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
+    DependencyManager.resolve("jline" % "jline" % "2.14.6")
+
     val left =
       """val a = 1
         |var b = 2
