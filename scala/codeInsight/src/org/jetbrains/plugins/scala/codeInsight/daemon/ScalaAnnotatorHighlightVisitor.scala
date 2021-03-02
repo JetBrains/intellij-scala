@@ -4,6 +4,7 @@ package daemon
 
 import com.intellij.codeInsight.daemon.impl.analysis.{HighlightInfoHolder, HighlightingLevelManager}
 import com.intellij.codeInsight.daemon.impl.{AnnotationHolderImpl, HighlightInfo, HighlightVisitor}
+import com.intellij.lang.injection.InjectedLanguageManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
@@ -47,7 +48,11 @@ final class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVi
                        analyze: Runnable): Boolean = {
 //    val time = System.currentTimeMillis()
     val scalaFile = file.findScalaLikeFile.orNull
-    if (scalaFile == null) return true
+    if (scalaFile == null)
+      return true
+
+    if (InjectedLanguageManager.getInstance(project).isInjectedFragment(scalaFile))
+      return true
 
     clearDirtyAnnotatorHintsIn(scalaFile)
     var success = true
