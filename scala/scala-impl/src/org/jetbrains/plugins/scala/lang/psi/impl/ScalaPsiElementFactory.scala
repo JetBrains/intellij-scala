@@ -855,7 +855,11 @@ object ScalaPsiElementFactory {
       context
     ).getTreeElement
 
-    val language = ScalaLanguage.INSTANCE
+    val contextLanguage = context.getLanguage
+    // can't use `contextLanguage` directly because for example ScalaDocLanguage is also kind of ScalaLanguage
+    val language =
+      if (contextLanguage.isKindOf(Scala3Language.INSTANCE)) Scala3Language.INSTANCE
+      else ScalaLanguage.INSTANCE
     val parserDefinition = LanguageParserDefinitions.INSTANCE.forLanguage(language)
 
     val seq = convertLineSeparators(text).trim
@@ -873,22 +877,20 @@ object ScalaPsiElementFactory {
       psiBuilder.disableNewlines()
     }
 
-    psiBuilder.mark() match {
-      case marker =>
-        parse(psiBuilder)
-        advanceLexer(psiBuilder)(marker, parserDefinition.getFileNodeType)
-    }
+    val marker = psiBuilder.mark()
+    parse(psiBuilder)
+    advanceLexer(psiBuilder)(marker, parserDefinition.getFileNodeType)
 
     val first = psiBuilder.getTreeBuilt
       .getFirstChildNode
       .asInstanceOf[TreeElement]
     chameleon.rawAddChildren(first)
 
-    first.getPsi match {
-      case result if checkLength && result.getTextLength != seq.length =>
-        throw new IncorrectOperationException(s"Text length differs; actual: ${result.getText}, expected: $seq")
-      case result => result
+    val result = first.getPsi
+    if (checkLength && result.getTextLength != seq.length) {
+      throw new IncorrectOperationException(s"Text length differs; actual: ${result.getText}, expected: $seq")
     }
+    result
   }
 
   @tailrec

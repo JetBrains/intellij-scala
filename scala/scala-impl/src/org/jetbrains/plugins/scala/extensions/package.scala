@@ -150,7 +150,7 @@ package object extensions {
       if (file.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) Option(file) else findAnyScalaFile
 
     def isScala3File: Boolean =
-      file.getLanguage == Scala3Language.INSTANCE
+      file.getLanguage.isKindOf(Scala3Language.INSTANCE) // Scala3Language, WorksheetLanguage3
 
     def isScala2File: Boolean =
       file.getLanguage == ScalaLanguage.INSTANCE
