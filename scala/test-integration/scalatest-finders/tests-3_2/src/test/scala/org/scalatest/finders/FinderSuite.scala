@@ -19,6 +19,9 @@ package org.scalatest.finders
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers._
 
+import scala.annotation.nowarn
+
+@nowarn("cat=deprecation")
 trait FinderSuite extends AnyFunSuite {
 
   def expectSelection(selection: Selection, expectedClassName: String, expectedDisplayName: String, expectedTestNames: Array[String]) {

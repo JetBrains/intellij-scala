@@ -18,6 +18,9 @@ package org.scalatest.finders
 
 import org.scalatest.featurespec.AnyFeatureSpec
 
+import scala.annotation.nowarn
+
+@nowarn("cat=deprecation")
 class FeatureSpecFinderSuite extends FinderSuite {
   
   test("FeatureSpecFinder should find test name for tests written in test suite that extends org.scalatest.FeatureSpec") {
