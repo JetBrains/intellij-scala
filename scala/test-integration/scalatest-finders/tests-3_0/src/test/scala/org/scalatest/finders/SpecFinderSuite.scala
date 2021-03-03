@@ -17,6 +17,9 @@ package org.scalatest.finders
 
 import org.scalatest.Spec
 
+import scala.annotation.nowarn
+
+@nowarn("cat=deprecation")
 class SpecFinderSuite extends FinderSuite {
 
   test("SpecFinder should find test name for tests written in test suite that extends org.scalatest.Spec") {
