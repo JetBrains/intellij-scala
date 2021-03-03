@@ -56,7 +56,8 @@ private object MultipleScalaVersionsRunner {
     private val mutedTests = mutable.HashSet.empty[Test]
 
     override def filter(filter: Filter): Unit = {
-      val tests = super.tests().asScala.toSeq
+      // asInstanceOf is needed. we have multiple junit versions in compiler classpath (3.8, 4.11, 4.12) and jar files order is undefined. See: SCL-18768
+      val tests = super.tests().asScala.toSeq.asInstanceOf[Seq[Test]]
       tests.foreach {
         case test: Filterable =>
           test.filter(filter)
@@ -77,7 +78,8 @@ private object MultipleScalaVersionsRunner {
       filteredTests.size
 
     private def filteredTests: Seq[Test] = {
-      val tests = super.tests().asScala.toSeq
+      // asInstanceOf is needed. we have multiple junit versions in compiler classpath (3.8, 4.11, 4.12) and jar files order is undefined. See: SCL-18768
+      val tests = super.tests().asScala.toSeq.asInstanceOf[Seq[Test]]
       val filtered = tests.filterNot(mutedTests.contains)
       filtered
     }
