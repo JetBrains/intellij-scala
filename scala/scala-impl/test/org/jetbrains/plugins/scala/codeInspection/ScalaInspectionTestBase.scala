@@ -176,11 +176,10 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaHighlightsTestBase {
   import ScalaAnnotatorQuickFixTestBase.quickFixes
 
   protected def testQuickFix(text: String, expected: String, hint: String): Unit = {
-    val maybeAction = findQuickFix(text, hint)
-    assertFalse(s"Quick fix not found: $hint", maybeAction.isEmpty)
+    val action = doFindQuickFix(text, hint)
 
     executeWriteActionCommand() {
-      maybeAction.get.invoke(getProject, getEditor, getFile)
+      action.invoke(getProject, getEditor, getFile)
     }(getProject)
 
     val expectedFileText = createTestText(expected)
@@ -193,15 +192,27 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaHighlightsTestBase {
   }
 
   protected def checkIsNotAvailable(text: String, hint: String): Unit = {
-    val maybeAction = findQuickFix(text, hint)
-    assertTrue("Quick fix not found.", maybeAction.nonEmpty)
-    assertTrue("Quick fix is available", maybeAction.forall(action => !action.isAvailable(getProject, getEditor, getFile)))
+    val action = doFindQuickFix(text, hint)
+    assertFalse("Quick fix is available", action.isAvailable(getProject, getEditor, getFile))
   }
 
-  private def findQuickFix(text: String, hint: String, failOnEmptyErrors: Boolean = true): Option[IntentionAction] =
+  private def findQuickFix(text: String, hint: String, failOnEmptyErrors: Boolean = true): Option[IntentionAction] = {
+    val actions = findAllQuickFixes(text, failOnEmptyErrors)
+    actions.find(_.getText == hint)
+  }
+
+  private def doFindQuickFix(text: String, hint: String, failOnEmptyErrors: Boolean = true): IntentionAction = {
+    val actions = findAllQuickFixes(text, failOnEmptyErrors)
+    val action = actions.find(_.getText == hint).getOrElse(
+      fail(s"Quick fix not found. Available actions:\n${actions.map(_.getText).mkString("\n")}").asInstanceOf[Nothing]
+    )
+    action
+  }
+
+  private def findAllQuickFixes(text: String, failOnEmptyErrors: Boolean = true): Seq[IntentionAction] =
     configureByText(text).actualHighlights match {
       case Seq() if failOnEmptyErrors => fail("Errors not found.").asInstanceOf[Nothing]
-      case seq                        => seq.flatMap(quickFixes).find(_.getText == hint)
+      case seq                        => seq.flatMap(quickFixes)
     }
 }
 

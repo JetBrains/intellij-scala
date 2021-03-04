@@ -528,14 +528,14 @@ class getDummyBlocks(private val block: ScalaBlock) {
     var prevChild: ASTNode = null
     def addTail(tail: List[ASTNode]): Unit = {
       for (child <- tail) {
-        if (child.getElementType != kYIELD)
-          if (prevChild != null && prevChild.getElementType == kYIELD)
+        if (!isYieldOrDo(child))
+          if (prevChild != null && isYieldOrDo(prevChild))
             subBlocks.add(subBlock(prevChild, child))
           else
             subBlocks.add(subBlock(child, null))
         prevChild = child
       }
-      if (prevChild != null && prevChild.getElementType == kYIELD) {
+      if (prevChild != null && isYieldOrDo(prevChild)) {
         //add a block for 'yield' in case of incomplete for statement (expression after yield is missing)
         subBlocks.add(subBlock(prevChild, null))
       }

@@ -5,28 +5,26 @@ package parentheses
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.openapi.util.TextRange
 import com.intellij.profile.codeInspection.InspectionProfileManager
-import com.intellij.testFramework.fixtures.CodeInsightTestFixture
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture.CARET_MARKER
 import org.jetbrains.plugins.scala.codeInspection.ScalaHighlightsTestBase.{ExpectedHighlight, TestPrepareResult}
 import org.jetbrains.plugins.scala.extensions.TextRangeExt
 
-class ScalaUnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
-
-  import CodeInsightTestFixture.CARET_MARKER
+abstract class ScalaUnnecessaryParenthesesInspectionTestBase extends ScalaQuickFixTestBase {
 
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ScalaUnnecessaryParenthesesInspection]
 
   protected override val description = "Unnecessary parentheses"
 
-  private val hintBeginning = "Remove unnecessary parentheses"
+  protected val hintBeginning = "Remove unnecessary parentheses"
 
-  private def defaultSettings = UnnecessaryParenthesesSettings.default
-  private def considerClarifying = defaultSettings.copy(ignoreClarifying = false)
-  private def ignoreAroundFunctionType = defaultSettings.copy(ignoreAroundFunctionType = true)
-  private def ignoreAroundFunctionTypeParam = defaultSettings.copy(ignoreAroundFunctionTypeParam = true)
-  private def ignoreAroundFunctionExprParam = defaultSettings.copy(ignoreAroundFunctionExprParam = true)
+  protected def defaultSettings = UnnecessaryParenthesesSettings.default
+  protected def considerClarifying = defaultSettings.copy(ignoreClarifying = false)
+  protected def ignoreAroundFunctionType = defaultSettings.copy(ignoreAroundFunctionType = true)
+  protected def ignoreAroundFunctionTypeParam = defaultSettings.copy(ignoreAroundFunctionTypeParam = true)
+  protected def ignoreAroundFunctionExprParam = defaultSettings.copy(ignoreAroundFunctionExprParam = true)
 
-  private def withSettings(settings: UnnecessaryParenthesesSettings)(body: => Unit): Unit = {
+  protected def withSettings(settings: UnnecessaryParenthesesSettings)(body: => Unit): Unit = {
 
     val tool = InspectionProfileManager.getInstance(getProject)
       .getCurrentProfile
@@ -46,7 +44,7 @@ class ScalaUnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     }
   }
 
-  private def checkTextHasErrors(text: String): Unit = {
+  protected def checkTextHasErrors(text: String): Unit = {
     val TestPrepareResult(fileText, expectedHighlights, actualHighlights) = configureByText(text)
     val expectedParenthesesHighlights: Seq[ExpectedHighlight] = {
       val ExpectedHighlight(range) = expectedHighlights.head
@@ -62,6 +60,12 @@ class ScalaUnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     }
     super.checkTextHasError(expectedParenthesesHighlights, actualHighlights, allowAdditionalHighlights = true, fileText)
   }
+}
+
+class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryParenthesesInspectionTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version < ScalaVersion.Latest.Scala_3_0
+
+
 
   // see https://github.com/JetBrains/intellij-scala/pull/434 for more test case
 
@@ -512,4 +516,30 @@ class ScalaUnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
       |}
       |""".stripMargin
   )
+}
+
+class ScalaUnnecessaryParenthesesInspectionTest_Scala3 extends ScalaUnnecessaryParenthesesInspectionTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_0
+
+  def testFor(): Unit = {
+    val text = "(for (x <- 0 to 2) println())"
+    val expected = "for (x <- 0 to 2) println()"
+    val hint = hintBeginning + " (for (...) {...})"
+    testQuickFix(text, expected, hint)
+  }
+
+  def testForYield(): Unit = {
+    val text = "(for (x <- 0 to 2) yield println())"
+    val expected = "for (x <- 0 to 2) yield println()"
+    val hint = hintBeginning + " (for (...) yield {...})"
+    testQuickFix(text, expected, hint)
+  }
+
+  def testForDo(): Unit = {
+    val text = "(for (x <- 0 to 2) do println())"
+    val expected = "for (x <- 0 to 2) do println()"
+    val hint = hintBeginning + " (for (...) do {...})"
+    testQuickFix(text, expected, hint)
+  }
 }

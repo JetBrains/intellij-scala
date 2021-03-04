@@ -105,7 +105,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
         }
         new ChildAttributes(indent, null)
       case _: ScBlockExpr | _: ScEarlyDefinitions | _: ScTemplateBody |
-           _: ScFor | _: ScWhile | _: ScCatchBlock | ElementType(ScalaTokenTypes.kYIELD)  =>
+           _: ScFor | _: ScWhile | _: ScCatchBlock | ElementType(ScalaTokenTypes.kYIELD | ScalaTokenTypes.kDO) =>
         val indent =
           if (braceShifted) {
             Indent.getNoneIndent

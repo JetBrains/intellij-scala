@@ -111,6 +111,9 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       consumer.renameStandardOption("BINARY_OPERATION_WRAP", ScalaBundle.message("wrapping.and.braces.panel.renamed.infix.expressions"))
       consumer.renameStandardOption("EXTENDS_LIST_WRAP"    , ScalaBundle.message("wrapping.and.braces.panel.renamed.extends.with.list"))
       consumer.renameStandardOption("EXTENDS_KEYWORD_WRAP" , ScalaBundle.message("wrapping.and.braces.panel.renamed.extends.keyword"))
+      // TODO: since in Scala 3 braces can be optional for both `for` and `yield` keyword,
+      //  this is a bad naming, because FOR_BRACE_FORCE kinda implies that it's about `for`, but actually affects `yield`
+      //  we could create 2 dedicated Scala3 setting and migrate old setting value
       consumer.renameStandardOption("FOR_BRACE_FORCE"      , ScalaBundle.message("wrapping.and.braces.panel.renamed.force.yield.braces"))
 
       //Binary expression section
@@ -268,6 +271,8 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
 
       opt("INDENT_BRACED_FUNCTION_ARGS", ScalaBundle.message("wrapping.and.braces.panel.indent.braced.arguments"), options.WRAPPING_METHOD_ARGUMENTS_WRAPPING)
       opt("DO_NOT_ALIGN_BLOCK_EXPR_PARAMS", ScalaBundle.message("wrapping.and.braces.panel.do.not.align.block.expression.parameters"), options.WRAPPING_METHOD_ARGUMENTS_WRAPPING)
+
+      opt("INDENT_YIELD_AFTER_ONE_LINE_ENUMERATORS", ScalaBundle.message("wrapping.and.braces.panel.for.indent.yield.after.one.line.enumerators"), options.WRAPPING_FOR_STATEMENT)
 
       val newLinesOptions: Array[(String, Int)] = {
         import ScalaCodeStyleSettings._
@@ -574,6 +579,9 @@ object ScalaLanguageCodeStyleSettingsProvider {
       |
       |  for {x <- 1 to 5
       |       y <- 5 to 10} yield x * y
+      |
+      |  for (x <- 1 to 5; y <- 5 to 10)
+      |  yield x * y
       |
       |  for {
       |    x <- 1 to 5
