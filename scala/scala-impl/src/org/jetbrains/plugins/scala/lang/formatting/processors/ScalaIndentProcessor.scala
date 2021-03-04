@@ -82,7 +82,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
     //TODO these are hack methods to facilitate indenting in cases when comment before def/val/var adds one more level of blocks
     def funIndent = childPsi match {
       case block: ScBlockExpr =>
-        if (!block.isBraceless && (settings.METHOD_BRACE_STYLE == NEXT_LINE_SHIFTED || settings.METHOD_BRACE_STYLE == NEXT_LINE_SHIFTED2))
+        if (block.isEnclosedByBraces && (settings.METHOD_BRACE_STYLE == NEXT_LINE_SHIFTED || settings.METHOD_BRACE_STYLE == NEXT_LINE_SHIFTED2))
           Indent.getNormalIndent
         else
           Indent.getNoneIndent

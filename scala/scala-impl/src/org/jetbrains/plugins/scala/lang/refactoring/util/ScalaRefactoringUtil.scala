@@ -921,7 +921,7 @@ object ScalaRefactoringUtil {
         ScalaBundle.message("cannot.refactor.constr.expression")
       case _: ScSelfInvocation =>
         ScalaBundle.message("cannot.refactor.self.invocation")
-      case block: ScBlock if block.isBraceless =>
+      case block: ScBlock if !block.isEnclosedByBraces =>
         ScalaBundle.message("cannot.refactor.not.expression")
       case (_: ScReferenceExpression) childOf (a: ScAssignment) if a.leftExpression == expr =>
         ScalaBundle.message("cannot.refactor.named.arg")
