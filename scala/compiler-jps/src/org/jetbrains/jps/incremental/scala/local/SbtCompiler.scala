@@ -133,7 +133,7 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
         // Keep files dirty
         compilationData.zincData.allSources.foreach(source => client.sourceStarted(source.getAbsolutePath))
 
-        val msg = JpsBundle.message("compilation.faild.when.compiling", compilationData.output, e.getMessage, e.getStackTrace.mkString("\n  "))
+        val msg = JpsBundle.message("compilation.failed.when.compiling", compilationData.output, e.getMessage, e.getStackTrace.mkString("\n  "))
         client.error(msg, None)
     }
 
