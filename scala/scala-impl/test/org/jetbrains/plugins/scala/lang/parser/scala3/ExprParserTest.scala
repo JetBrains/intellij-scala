@@ -136,6 +136,70 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
+  def test_if_then_else_SCL_18769a(): Unit = checkTree(
+    """
+      |if a then
+      |  b
+      |  else
+      |  c
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  IfStatement
+      |    PsiElement(if)('if')
+      |    PsiWhiteSpace(' ')
+      |    ReferenceExpression: a
+      |      PsiElement(identifier)('a')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(then)('then')
+      |    PsiWhiteSpace('\n  ')
+      |    ReferenceExpression: b
+      |      PsiElement(identifier)('b')
+      |    PsiWhiteSpace('\n  ')
+      |    PsiElement(else)('else')
+      |    PsiWhiteSpace('\n  ')
+      |    ReferenceExpression: c
+      |      PsiElement(identifier)('c')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_if_then_else_SCL_18769b(): Unit = checkTree(
+    """
+      |if a
+      |then
+      |  b
+      |  c
+      |  else
+      |  d
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  IfStatement
+      |    PsiElement(if)('if')
+      |    PsiWhiteSpace(' ')
+      |    ReferenceExpression: a
+      |      PsiElement(identifier)('a')
+      |    PsiWhiteSpace('\n')
+      |    PsiElement(then)('then')
+      |    BlockExpression
+      |      PsiWhiteSpace('\n  ')
+      |      ReferenceExpression: b
+      |        PsiElement(identifier)('b')
+      |      PsiWhiteSpace('\n  ')
+      |      ReferenceExpression: c
+      |        PsiElement(identifier)('c')
+      |    PsiWhiteSpace('\n  ')
+      |    PsiElement(else)('else')
+      |    PsiWhiteSpace('\n  ')
+      |    ReferenceExpression: d
+      |      PsiElement(identifier)('d')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
   def test_while_without_do_intended(): Unit = checkTree(
     """
       |while (a)
