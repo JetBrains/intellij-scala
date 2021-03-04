@@ -16,6 +16,14 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
   protected def exprPartParser: ParsingRule = exprParser
   protected def blockType: IElementType = ScCodeBlockElementType.BlockExpression
 
+  private final val isFollowSetIfIndented = Set(
+    ScalaTokenTypes.tRPARENTHESIS,
+    ScalaTokenTypes.tRBRACE,
+    ScalaTokenTypes.kELSE,
+    ScalaTokenTypes.kCATCH,
+    ScalaTokenTypes.kFINALLY,
+  )
+
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     if (!builder.isScala3) {
       return exprParser()
@@ -46,7 +54,7 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
           if (tt == ScalaTokenTypes.tSEMICOLON) {
             builder.advanceLexer() // ate ;
             parseRest(isBlock = true)
-          } else if (builder.eof() || tt == ScalaTokenTypes.tRPARENTHESIS || tt == ScalaTokenTypes.tRBRACE) {
+          } else if (builder.eof() || isFollowSetIfIndented(builder.getTokenType)) {
             isBlock
           } else if (!ResultExpr() && !BlockStat()) {
             builder.advanceLexer() // ate something
