@@ -98,19 +98,6 @@ trait ScBlock extends ScExpression
     case _ => None
   }
 
-  /** @return true if the block have braces
-   *          e.g. in Scala2 single line method body or in Scala 3 braceless syntax: {{{
-   *  def foo: Int =
-   *    val x = 1
-   *    val y = x + 2
-   *    y + 3
-   * }}}
-   */
-  def isBraceless: Boolean = {
-    val firstChild = this.getFirstChild
-    firstChild == null || firstChild.elementType != ScalaTokenTypes.tLBRACE
-  }
-
   def getLBrace: Option[PsiElement] =
     this.findFirstChildByType(ScalaTokenTypes.tLBRACE)
 
