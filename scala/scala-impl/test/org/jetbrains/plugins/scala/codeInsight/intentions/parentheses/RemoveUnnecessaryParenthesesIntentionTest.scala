@@ -6,6 +6,8 @@ import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 /**
  * Nikolay.Tropin
  * 6/27/13
+ *
+ * TODO: merge this test class with [[.expression.RemoveUnnecessaryParenthesesIntentionTest]]?
  */
 
 //test only removing clarifying paretheses here

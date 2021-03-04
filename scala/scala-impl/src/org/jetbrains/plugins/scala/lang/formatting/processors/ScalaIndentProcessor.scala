@@ -6,14 +6,15 @@ package processors
 import com.intellij.formatting.Indent
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiComment
-import com.intellij.psi.codeStyle.CommonCodeStyleSettings.{NEXT_LINE, NEXT_LINE_SHIFTED, NEXT_LINE_SHIFTED2}
-import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.psi.codeStyle.CommonCodeStyleSettings.{NEXT_LINE_SHIFTED, NEXT_LINE_SHIFTED2}
+import com.intellij.psi.impl.source.tree.{LeafPsiElement, PsiWhiteSpaceImpl, TreeElement}
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.isConstructorArgOrMemberFunctionParameter
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
+import org.jetbrains.plugins.scala.lang.parser.ScCodeBlockElementType.BlockExpression
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -111,12 +112,12 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       }
     }
 
-    if (nodeElementType == ScalaTokenTypes.kYIELD) {
+    if (isYieldOrDo(nodeElementType)) {
       childElementType match {
-        case ScalaTokenTypes.kYIELD => // skip
-        case ScCodeBlockElementType.BlockExpression =>
+        case `nodeElementType` => // skip
+        case BlockExpression =>
           return if (isBraceNextLineShifted) Indent.getNormalIndent else Indent.getNoneIndent
-        case _ =>
+        case _               =>
           return Indent.getNormalIndent
       }
     }
@@ -172,9 +173,10 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         }
       case _: ScCatchBlock =>
         childElementType match {
-          case ScalaTokenTypes.kCATCH => Indent.getNoneIndent
-          case _ if isBraceNextLineShifted => Indent.getNormalIndent
-          case _ => Indent.getNoneIndent
+          case ScalaTokenTypes.kCATCH                    => Indent.getNoneIndent
+          case ScalaElementType.CASE_CLAUSES             => Indent.getNormalIndent
+          case BlockExpression if isBraceNextLineShifted => Indent.getNormalIndent
+          case _                                         => Indent.getNoneIndent
         }
       case _: ScEarlyDefinitions | _: ScTemplateBody =>
         childElementType match {
@@ -213,11 +215,18 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         }
       case _: ScFor =>
         childElementType match {
-          case ScalaTokenTypes.kYIELD => Indent.getNormalIndent
+          case _ if isYieldOrDo(childElementType) =>
+            if (scalaSettings.INDENT_YIELD_AFTER_ONE_LINE_ENUMERATORS && isSimpleFor(child))
+              Indent.getNormalIndent
+            else
+              Indent.getNoneIndent
           case ScalaTokenTypes.tLBRACE =>
             if (isBraceNextLineShifted)Indent.getNormalIndent
             else Indent.getNoneIndent
-          case _ => valIndent
+          case ScalaElementType.ENUMERATORS =>
+            Indent.getNormalIndent
+          case _ =>
+            valIndent
         }
       case leaf: LeafPsiElement if leaf.getParent.is[ScFor] =>
         if (nodeElementType == ScalaTokenTypes.tLBRACE && childElementType != ScalaTokenTypes.tLBRACE && childElementType != ScalaTokenTypes.tRBRACE) {
@@ -316,5 +325,26 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case _ =>
         Indent.getNoneIndent
     }
+  }
+
+  /**
+   * Simple for comprehension has all the enumerators on a single line after `for` keyword
+   *
+   * @example {{{
+   *  for (x <- 0 to 2 if x > 1; y < 0 to 2)
+   *  yield x * y
+   * }}}
+   */
+  private def isSimpleFor(yieldNode: ASTNode): Boolean = {
+    val enumerators = yieldNode.treePrevNodes.find(_.getElementType == ScalaElementType.ENUMERATORS) match {
+      case Some(e) => e
+      case _ =>
+        return false
+    }
+    val singleLineEnumerators = !enumerators.textContains('\n')
+    singleLineEnumerators && (enumerators.getTreePrev match {
+      case ws: PsiWhiteSpaceImpl => !ws.textContains('\n')
+      case _                    => true
+    })
   }
 }

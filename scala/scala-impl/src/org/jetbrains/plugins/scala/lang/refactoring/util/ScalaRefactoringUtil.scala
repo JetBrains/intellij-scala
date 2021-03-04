@@ -590,7 +590,11 @@ object ScalaRefactoringUtil {
         builder.append("do {...} while (...)")
       case f: ScFor =>
         builder.append("for (...) ")
-        if (f.isYield) builder.append("yield ")
+
+        val yieldOrDo = f.yieldOrDoKeyword
+        val yieldOrDoStr = yieldOrDo.map(_.elementType).map(_.getDebugName + " ")
+        yieldOrDoStr.foreach(builder.append)
+
         builder.append("{...}")
       case f: ScFunctionExpr =>
         val arrow = ScalaPsiUtil.functionArrow(f.getProject)

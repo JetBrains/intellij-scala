@@ -613,7 +613,7 @@ object ScalaTypedHandler {
       case d: ScDo                      => (d.getFirstChild.eq, d.body, wrap(_, true))
       case w: ScWhile                   => (w.rightParen.contains, w.expression, wrap(_))
       case t: ScTry                     => (t.getFirstChild.eq, t.expression, wrap(_, true))
-      case f: ScFor                     => ((if (f.isYield) f.getYield else f.getRightBracket).contains, f.body, wrap(_))
+      case f: ScFor                     => (f.yieldOrDoKeyword.orElse(f.getRightBracket).contains, f.body, wrap(_))
       case ifExpr: ScIf =>
         if (ifExpr.rightParen.contains(prevElement))
           (_ => true, ifExpr.thenExpression, wrap(_, ifExpr.elseKeyword.isDefined))

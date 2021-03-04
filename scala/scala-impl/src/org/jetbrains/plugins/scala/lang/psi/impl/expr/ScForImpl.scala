@@ -29,7 +29,8 @@ import scala.collection.mutable
 class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
   override def isYield: Boolean = yieldKeyword != null
 
-  override def getYield: Option[PsiElement] = Option(yieldKeyword)
+  override def yieldOrDoKeyword: Option[PsiElement] =
+    Option(findChildByType[PsiElement](ScalaTokenTypes.YIELD_OR_DO))
 
   @inline
   private def yieldKeyword: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.kYIELD)

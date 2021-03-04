@@ -1317,8 +1317,14 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tRSQBRACKET, _, _, _) => COMMON_SPACING
       case (_, ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tRSQBRACKET, _, _) => NO_SPACING_WITH_NEWLINE
       //Case clauses
-      case (ScalaElementType.CASE_CLAUSE, _, _, _) => IMPORT_BETWEEN_SPACING
-      case (_, ScalaElementType.CASE_CLAUSE, _, _) => IMPORT_BETWEEN_SPACING
+      case (ScalaElementType.CASE_CLAUSE, _, _, _) =>
+        IMPORT_BETWEEN_SPACING
+      case (_, ScalaElementType.CASE_CLAUSE, _, _) =>
+        // support for Scala3 single `case clause` on the same line with `catch`:
+        // `try foo() catch case ex: Exception => println(42)`
+        val isScala3_OnlyCaseClause = rightNode.getTreeNext == null && leftElementType == ScalaTokenTypes.kCATCH
+        if (isScala3_OnlyCaseClause) COMMON_SPACING
+        else IMPORT_BETWEEN_SPACING
       //#
       case (ScalaTokenTypes.tINNER_CLASS, _, _, _) => NO_SPACING
       case (ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER, _, _) =>
