@@ -27,7 +27,7 @@ Plugin that implements Scala, sbt, Play 2, SSP and Hocon support in IntelliJ IDE
 In order to take part in Scala plugin development, you need:
 
 1. IntelliJ IDEA 2020.1 or higher with a compatible version of Scala plugin
-2. JDK 8
+2. JDK 11
 3. (optional but recommended) Enable "[internal mode](https://www.jetbrains.org/intellij/sdk/docs/reference_guide/internal_actions/enabling_internal.html)" in IDEA
 
 ### Setup
