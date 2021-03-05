@@ -106,6 +106,9 @@ package object project {
     def hasScala3: Boolean =
       scalaModuleSettings.exists(_.hasScala3)
 
+    def languageLevel: Option[ScalaLanguageLevel] =
+      scalaModuleSettings.map(_.scalaLanguageLevel)
+
     def hasNewCollectionsFramework: Boolean =
       scalaModuleSettings.exists(_.hasNewCollectionsFramework)
 
