@@ -22,6 +22,7 @@ object ImportOrderings {
       externalOriginOrdering.on(_.element) orElse
       (
         orderingByDistanceToLocalImports(place) orElse
+        orderingByPackageImportCountInProject(place) orElse
         specialPackageOrdering orElse
         orderingByPackageName
       ).on(_.qualifiedName)
@@ -63,6 +64,20 @@ object ImportOrderings {
   def orderingByImportCountInProject(implicit ctx: ProjectContext): Ordering[String] = {
     val cachedQualifierImportCount = cachify(ImportOrderingIndexer.qualifierImportCountF)
     Ordering.by(cachedQualifierImportCount)
+      .reverse // most imported should come first
+  }
+
+  /**
+   * Ordering by amount of times the import was used in other parts of the project
+   */
+  def orderingByPackageImportCountInProject(implicit ctx: ProjectContext): Ordering[String] = {
+    def packageOf(fqn: String): String = {
+      val idx = fqn.lastIndexOf('.')
+      if (idx >= 0) fqn.substring(0, idx) else fqn
+    }
+
+    val cachedQualifierImportCount = cachify(ImportOrderingIndexer.qualifierImportCountF)
+    Ordering.by(cachedQualifierImportCount compose packageOf)
       .reverse // most imported should come first
   }
 

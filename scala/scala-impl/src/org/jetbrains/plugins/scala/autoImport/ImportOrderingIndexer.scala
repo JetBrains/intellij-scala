@@ -35,7 +35,7 @@ final class ImportOrderingIndexer extends FileBasedIndexExtension[String, Void] 
               expr.qualifier match {
                 case Some(qualifier) =>
                   val qualName = qualifier.qualName
-                  // map.put(qualifier.qualName, null)
+                  map.put(qualifier.qualName, null)
 
                   // This might index some wrong import-paths because of relative imports,
                   // but it shouldn't be that harmful and speed is more important here
@@ -86,7 +86,7 @@ final class ImportOrderingIndexer extends FileBasedIndexExtension[String, Void] 
 
   override def dependsOnFileContent: Boolean = true
 
-  override def getVersion: Int = 12
+  override def getVersion: Int = 15
 }
 
 object ImportOrderingIndexer {
