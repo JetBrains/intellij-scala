@@ -17,8 +17,9 @@ object ImportOrderings {
    */
   def defaultImportOrdering(place: PsiElement): Ordering[ElementToImport] = {
     orderingByDeprecated.on[ElementToImport](_.element) orElse
+      sameFileOrdering(place).on(_.element) orElse
       orderingByImportCountInProject(place).on(_.qualifiedName) orElse
-      locationOrdering.on(_.element) orElse
+      externalOriginOrdering.on(_.element) orElse
       (
         orderingByDistanceToLocalImports(place) orElse
         specialPackageOrdering orElse
@@ -40,9 +41,19 @@ object ImportOrderings {
   val orderingByPackageName: Ordering[String] = PackageNameOrdering
 
   /**
+   * Ordering that orders elements that are in the same file as 'place' before those that are not in the same file.
+   */
+  def sameFileOrdering(place: PsiElement): Ordering[PsiElement] = {
+    place.containingFile match {
+      case Some(file) => Ordering.by(_.getContainingFile != file)
+      case None => (_, _) => 0 // if place is not in a file just have no ordering
+    }
+  }
+
+  /**
    * Ordering preferring local definitions before external ones
    */
-  def locationOrdering: Ordering[PsiElement] = {
+  def externalOriginOrdering: Ordering[PsiElement] = {
     Ordering.by { e => !e.getContainingFile.getVirtualFile.isInLocalFileSystem }
   }
 
