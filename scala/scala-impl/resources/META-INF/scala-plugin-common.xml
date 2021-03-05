@@ -60,6 +60,8 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
+        <statistics.projectUsagesCollector implementation="org.jetbrains.plugins.scala.collectors.ScalaProjectStateCollector"/>
+
         <annotator language="JAVA"
                    implementationClass="org.jetbrains.plugins.scala.annotator.template.SealedJavaInheritance"/>
         <annotator language="Scala"
