@@ -100,6 +100,8 @@
             <keyboard-shortcut first-keystroke="control alt W" keymap="$default"/>
             <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
         </action>
+        <action id="Scala.StopWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.topmenu.StopWorksheetAction" />
+        <action id="Scala.ShowWorksheetSettings" class="org.jetbrains.plugins.scala.worksheet.actions.topmenu.ShowWorksheetSettingsAction" />
         <action id="Scala.CleanWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.topmenu.CleanWorksheetAction" />
         <action id="Scala.CopyWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.topmenu.CopyWorksheetAction" />
     </actions>

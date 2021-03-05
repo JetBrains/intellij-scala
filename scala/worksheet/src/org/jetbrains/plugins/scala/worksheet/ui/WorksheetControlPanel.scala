@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.worksheet.ui
 
-import java.awt.Dimension
+import com.intellij.openapi.actionSystem.ex.ActionManagerEx
+import org.jetbrains.plugins.scala.actions.ActionManagerExExt
 
+import java.awt.Dimension
 import javax.swing._
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.worksheet.WorksheetCompilerExtension
@@ -13,12 +15,14 @@ import org.jetbrains.plugins.scala.worksheet.ui.WorksheetControlPanel._
 // TODO: check if Scala Plugin is unloadable if there are some worksheets with initialized top panel UI
 final class WorksheetControlPanel extends JPanel {
 
-  private val statusDisplay = new InteractiveStatusDisplay()
-  private val runAction = new RunWorksheetAction()
-  private val stopAction = new StopWorksheetAction(None)
-  private val cleanAction = new CleanWorksheetAction()
-  private val copyAction = new CopyWorksheetAction()
-  private val settingsAction = new ShowWorksheetSettingsAction()
+  private val actionManager = ActionManagerEx.getInstanceEx
+
+  private val statusDisplay = new InteractiveStatusDisplay
+  private val runAction = actionManager.getScalaActionOfType[RunWorksheetAction]
+  private val stopAction = actionManager.getScalaActionOfType[StopWorksheetAction]
+  private val cleanAction = actionManager.getScalaActionOfType[CleanWorksheetAction]
+  private val copyAction = actionManager.getScalaActionOfType[CopyWorksheetAction]
+  private val settingsAction = actionManager.getScalaActionOfType[ShowWorksheetSettingsAction]
   private val extraActions = WorksheetCompilerExtension.extraWorksheetActions()
 
   private var runEnabled = false
