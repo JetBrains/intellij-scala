@@ -1,0 +1,9 @@
+<idea-plugin>
+    <depends>com.intellij.completion.ml.ranking</depends>
+    <extensions defaultExtensionNs="com.intellij">
+        <completion.ml.ranking.features.policy language="Scala" implementationClass="org.jetbrains.plugins.scala.mlCompletion.ScalaCompletionFeaturesPolicy"/>
+        <completion.ml.elementFeatures language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ml.ScalaElementFeatureProvider"/>
+        <completion.ml.contextFeatures language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ml.ScalaContextFeatureProvider"/>
+        <completion.ml.model implementation="org.jetbrains.plugins.scala.mlCompletion.ScalaMlRankingProvider"/>
+    </extensions>
+</idea-plugin>
