@@ -46,6 +46,7 @@
     <depends optional="true" config-file="android-support.xml">org.jetbrains.android</depends>
     <depends optional="true" config-file="decompile-scala-to-java.xml">org.jetbrains.java.decompiler</depends>
     <depends optional="true" config-file="scala-devkit-integration.xml">DevKit</depends>
+    <depends optional="true" config-file="scala-ml-completion-integration.xml">com.intellij.completion.ml.ranking</depends>
 
     <xi:include href="scala-plugin-common.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="SBT.xml" xpointer="xpointer(/idea-plugin/*)"/>

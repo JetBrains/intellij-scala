@@ -38,7 +38,8 @@ lazy val scalaCommunity: sbt.Project =
       intelliLangIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
       propertiesIntegration % "test->test;compile->compile",
-      javaDecompilerIntegration
+      javaDecompilerIntegration,
+      mlCompletionIntegration % "test->test;compile->compile"
     )
     .settings(
       ideExcludedDirectories    := Seq(baseDirectory.value / "target"),
@@ -417,6 +418,15 @@ lazy val javaDecompilerIntegration =
     .dependsOn(scalaApi % Compile)
     .settings(
       intellijPlugins += "org.jetbrains.java.decompiler".toPlugin
+    )
+
+lazy val mlCompletionIntegration =
+  newProject("ml-completion", file("scala/integration/ml-completion"))
+    .dependsOn(scalaImpl)
+    .settings(
+      intellijPlugins += "com.intellij.completion.ml.ranking".toPlugin,
+      resolvers += Resolver.bintrayRepo("jetbrains", "intellij-third-party-dependencies"),
+      libraryDependencies += "org.jetbrains.intellij.deps.completion" % "completion-ranking-scala" % "0.3.1"
     )
 
 
