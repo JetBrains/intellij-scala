@@ -92,10 +92,14 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
 
   def addTypeAnnotation(ty: ScType, context: PsiElement, anchor: PsiElement): Unit =
     addTypeAnnotation(Some(ty), context, anchor)
-  def addTypeAnnotation(types: Option[ScType], context: PsiElement, anchor: PsiElement): Unit =
-    addTypeAnnotation(types.toSeq.map(TypeForAnnotation.apply(_)), context, anchor)
+
+  def addTypeAnnotation(tyOpt: Option[ScType], context: PsiElement, anchor: PsiElement): Unit = {
+    val ty = tyOpt.getOrElse(StdTypes.instance(context).Any)
+    addTypeAnnotation(Seq(TypeForAnnotation(ty)), context, anchor)
+  }
 
   def addTypeAnnotation(types: Seq[TypeForAnnotation], context: PsiElement, anchor: PsiElement): Unit = {
+    assert(types.nonEmpty)
     val tps = types.flatMap(_.typeWithSuperTypes)
     val validVariants = tps.reverse.flatMap(_.`type`().toOption).map(ScTypeText(_)(context))
 
