@@ -165,8 +165,10 @@ object ScalaTestLocationProvider {
     var offset: Int = lineStartOffset
     var elementAtLine: PsiElement = null
     var found = false
-    while (offset <= endOffset && !found) {
+    while (offset <= endOffset && !found && {
       elementAtLine = psiFile.findElementAt(offset)
+      elementAtLine != null
+    }) {
       if (!elementAtLine.isInstanceOf[PsiWhiteSpace]) {
         found = true
       }
