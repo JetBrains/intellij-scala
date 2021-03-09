@@ -63,6 +63,7 @@ abstract class AbstractCompiler extends Compiler {
         client.compilationPhase(phase)
         currentPhase = phase
       }
+      client.compilationUnit(unitPath)
     }
 
     override def advance(current: Int, total: Int, prevPhase: String, nextPhase: String): Boolean = {

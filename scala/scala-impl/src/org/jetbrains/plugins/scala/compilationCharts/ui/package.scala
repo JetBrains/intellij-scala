@@ -119,4 +119,6 @@ package object ui {
       new Color(shiftComponent(color.getRed), shiftComponent(color.getGreen), shiftComponent(color.getBlue))
     }
   }
+
+  private[ui] implicit val colorOrdering: Ordering[Level] = Ordering.by((_: Level).ordinal)
 }

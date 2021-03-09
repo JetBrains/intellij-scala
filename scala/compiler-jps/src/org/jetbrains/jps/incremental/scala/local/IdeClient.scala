@@ -53,6 +53,9 @@ abstract class IdeClient(compilerName: String,
   override def compilationPhase(name: String): Unit =
     context.processMessage(CompilerEvent.CompilationPhase(compilationId, compilationUnitId, name).toCustomMessage)
 
+  override def compilationUnit(path: String): Unit =
+    context.processMessage(CompilerEvent.CompilationUnit(compilationId, compilationUnitId, path).toCustomMessage)
+
   override def compilationEnd(sources: Set[File]): Unit =
     context.processMessage(CompilerEvent.CompilationFinished(compilationId, compilationUnitId, sources).toCustomMessage)
 

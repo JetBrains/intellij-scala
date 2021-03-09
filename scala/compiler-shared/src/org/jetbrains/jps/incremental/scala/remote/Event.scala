@@ -51,6 +51,9 @@ case class CompilationStartEvent() extends Event
 @SerialVersionUID(-6907027214131285462L)
 case class CompilationPhaseEvent(name: String) extends Event
 
+@SerialVersionUID(-3907022214131225432L)
+case class CompilationUnitEvent(path: String) extends Event
+
 @SerialVersionUID(2848760871163806524L)
 case class CompilationEndEvent(sources: Set[File]) extends Event
 

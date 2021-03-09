@@ -205,6 +205,13 @@ object ActionPanel {
     Zoom(100.millis, 4),
     Zoom(75.millis, 4),
     Zoom(50.millis, 4),
+    Zoom(25.millis, 4),
+    Zoom(15.millis, 4),
+    Zoom(10.millis, 4),
+    Zoom(7.millis, 4),
+    Zoom(5.millis, 4),
+    Zoom(2.millis, 4),
+    Zoom(1.millis, 4),
   ).sortBy(_.durationStep).reverse
 
   private final val DefaultZoomIndex = AvailableZooms.size / 2
