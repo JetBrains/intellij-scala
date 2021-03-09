@@ -45,76 +45,71 @@ ScalaFile
             ScTemplateBody
               PsiElement({)('{')
               PsiWhiteSpace('\n        ')
-              ScEnumCase: Cons
+              ScEnumCases: Cons
                 AnnotationsList
                   <empty list>
                 Modifiers
                   <empty list>
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
-                PsiElement(identifier)('Cons')
-                PrimaryConstructor
-                  AnnotationsList
-                    <empty list>
-                  Modifiers
-                    <empty list>
-                  Parameters
-                    ParametersClause
-                      PsiElement(()('(')
-                      ClassParameter: head
-                        AnnotationsList
-                          <empty list>
-                        Modifiers
-                          <empty list>
-                        PsiElement(identifier)('head')
-                        PsiElement(:)(':')
+                ScEnumCase: Cons
+                  PsiElement(identifier)('Cons')
+                  PrimaryConstructor
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        ClassParameter: head
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('head')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                        PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        ParameterType
-                          SimpleType: T
-                            CodeReferenceElement: T
-                              PsiElement(identifier)('T')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace(' ')
-                      ClassParameter: tail
-                        AnnotationsList
-                          <empty list>
-                        Modifiers
-                          <empty list>
-                        PsiElement(identifier)('tail')
-                        PsiElement(:)(':')
-                        PsiWhiteSpace(' ')
-                        ParameterType
-                          ParametrizedType: List[T]
-                            SimpleType: List
-                              CodeReferenceElement: List
-                                PsiElement(identifier)('List')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              SimpleType: T
-                                CodeReferenceElement: T
-                                  PsiElement(identifier)('T')
-                              PsiElement(])(']')
-                      PsiElement())(')')
-                ExtendsBlock
-                  <empty list>
+                        ClassParameter: tail
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('tail')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            ParametrizedType: List[T]
+                              SimpleType: List
+                                CodeReferenceElement: List
+                                  PsiElement(identifier)('List')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                SimpleType: T
+                                  CodeReferenceElement: T
+                                    PsiElement(identifier)('T')
+                                PsiElement(])(']')
+                        PsiElement())(')')
+                  ExtendsBlock
+                    <empty list>
               PsiWhiteSpace('\n        ')
-              ScEnumCase: Nil
+              ScEnumCases: Nil
                 AnnotationsList
                   <empty list>
                 Modifiers
                   <empty list>
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
-                PsiElement(identifier)('Nil')
-                PrimaryConstructor
-                  AnnotationsList
+                ScEnumCase: Nil
+                  PsiElement(identifier)('Nil')
+                  ExtendsBlock
                     <empty list>
-                  Modifiers
-                    <empty list>
-                  Parameters
-                    <empty list>
-                ExtendsBlock
-                  <empty list>
               PsiWhiteSpace('\n    ')
               PsiElement(})('}')
         PsiWhiteSpace('\n')

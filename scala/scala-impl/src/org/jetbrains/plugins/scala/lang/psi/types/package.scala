@@ -281,7 +281,7 @@ package object types {
       }
       case ScDesignatorType(cls: PsiClass)    => cls.superTypes
       case ScProjectionType(_, cls: PsiClass) => cls.superTypes
-      case _ => Seq.empty
+      case _                                  => Seq.empty
     }
 
     def widenToParent: ScType = {
