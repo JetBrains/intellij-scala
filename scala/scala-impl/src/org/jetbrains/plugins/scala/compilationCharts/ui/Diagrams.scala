@@ -26,8 +26,8 @@ object Diagrams {
       progressTime = progressTime
     )
     result.getOrElse(Diagrams(
-      ProgressDiagram(Seq.empty, progressRowCount),
-      MemoryDiagram(Seq.empty, metricsState.maxHeapSize),
+      ProgressDiagram(Vector.empty, progressRowCount),
+      MemoryDiagram(Vector.empty, metricsState.maxHeapSize),
       Duration.Zero
     ))
   }
@@ -72,7 +72,7 @@ object Diagrams {
             group +: insert(remainGroups, segment)
       }
 
-      rec(Seq.empty, segments)
+      rec(Vector.empty, segments)
     }
 
     val sortedState = progressState.toSeq.sortBy(_._2.startTime)
@@ -104,7 +104,7 @@ object Diagrams {
     }.map { case (timestamp, memory) =>
       val time = (timestamp - minTimestamp).nanos
       MemoryPoint(time, memory)
-    }.toSeq.sortBy(_.time)
+    }.toVector.sortBy(_.time)
 
     val maxMemory = metricsState.maxHeapSize
     MemoryDiagram(points, maxMemory)
