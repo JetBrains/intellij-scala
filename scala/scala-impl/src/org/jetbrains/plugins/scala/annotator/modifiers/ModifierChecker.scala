@@ -6,7 +6,6 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -164,7 +163,6 @@ private[annotator] object ModifierChecker {
               case SEALED =>
                 owner match {
                   case _: ScClass | _: ScTrait | _: ScClassParameter => checkDuplicates(modifierPsi, Sealed)
-                  case e: ScMember if e.getParent.is[ScTemplateBody] => checkDuplicates(modifierPsi, Sealed)
                   case _ =>
                     registerQuickFix(
                       ScalaBundle.message("sealed.modifier.is.not.allowed.here"),
