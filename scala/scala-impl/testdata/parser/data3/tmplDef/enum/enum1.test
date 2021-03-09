@@ -38,20 +38,27 @@ ScalaFile
             <empty list>
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          ListOfIdentifiers
-            Field identifier: NORTH
-              PsiElement(identifier)('NORTH')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            Field identifier: WEST
-              PsiElement(identifier)('WEST')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            Field identifier: SOUTH
-              PsiElement(identifier)('SOUTH')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            Field identifier: EAST
-              PsiElement(identifier)('EAST')
+          ScEnumCase: NORTH
+            PsiElement(identifier)('NORTH')
+            ExtendsBlock
+              <empty list>
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ScEnumCase: WEST
+            PsiElement(identifier)('WEST')
+            ExtendsBlock
+              <empty list>
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ScEnumCase: SOUTH
+            PsiElement(identifier)('SOUTH')
+            ExtendsBlock
+              <empty list>
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ScEnumCase: EAST
+            PsiElement(identifier)('EAST')
+            ExtendsBlock
+              <empty list>
         PsiWhiteSpace('\n')
         PsiElement(})('}')

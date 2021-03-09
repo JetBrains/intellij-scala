@@ -1,6 +1,10 @@
 package org.jetbrains.plugins.scala.lang.typeInference
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class EnumCaseWideningTest extends TypeInferenceTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_3_0
+
   def testWidenApplyResult(): Unit = doTest(
     s"""
        |enum Foo {
@@ -10,7 +14,7 @@ class EnumCaseWideningTest extends TypeInferenceTestBase {
        |object Test {
        |  val bar = ${START}Foo.Bar(1)$END
        |}
-       |//Foo with Product with Serializable
+       |//Foo with Product
        |""".stripMargin
   )
 
@@ -25,7 +29,7 @@ class EnumCaseWideningTest extends TypeInferenceTestBase {
        |  import Either._
        |  val r = ${START}Right(123)$END
        |}
-       |//Either[Nothing, Int] with Product with Serializable
+       |//Either[Nothing, Int] with Product
        |""".stripMargin
   )
 
@@ -88,7 +92,7 @@ class EnumCaseWideningTest extends TypeInferenceTestBase {
        |object A {
        |  val x = ${START}Foo.Bar(1)$END
        |}
-       |//Foo with X with Y with Product with Serializable
+       |//Foo with X with Y with Product
        |""".stripMargin
   )
 
@@ -103,7 +107,7 @@ class EnumCaseWideningTest extends TypeInferenceTestBase {
       |  import Option._
       |  val a = ${START}Option.Some(12223)$END
       |}
-      |//Int => Option[Int] with Product with Serializable
+      |//Int => Option[Int] with Product
       |""".stripMargin
   )
 }

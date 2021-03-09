@@ -46,247 +46,199 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n    ')
-        ScEnumCase: Mercury
+        ScEnumCases: Mercury
           AnnotationsList
             <empty list>
           Modifiers
             <empty list>
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('Mercury')
-          PrimaryConstructor
-            AnnotationsList
-              <empty list>
-            Modifiers
-              <empty list>
-            Parameters
-              <empty list>
-          PsiWhiteSpace(' ')
-          ExtendsBlock
-            PsiElement(extends)('extends')
+          ScEnumCase: Mercury
+            PsiElement(identifier)('Mercury')
             PsiWhiteSpace(' ')
-            TemplateParents
-              ConstructorInvocation
-                SimpleType: Planet
-                  CodeReferenceElement: Planet
-                    PsiElement(identifier)('Planet')
-                ArgumentList
-                  PsiElement(()('(')
-                  DoubleLiteral
-                    PsiElement(double)('3.3011e+23')
-                  PsiElement())(')')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Planet
+                    CodeReferenceElement: Planet
+                      PsiElement(identifier)('Planet')
+                  ArgumentList
+                    PsiElement(()('(')
+                    DoubleLiteral
+                      PsiElement(double)('3.3011e+23')
+                    PsiElement())(')')
         PsiWhiteSpace('\n    ')
-        ScEnumCase: Venus
+        ScEnumCases: Venus
           AnnotationsList
             <empty list>
           Modifiers
             <empty list>
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('Venus')
-          PrimaryConstructor
-            AnnotationsList
-              <empty list>
-            Modifiers
-              <empty list>
-            Parameters
-              <empty list>
-          PsiWhiteSpace('   ')
-          ExtendsBlock
-            PsiElement(extends)('extends')
-            PsiWhiteSpace(' ')
-            TemplateParents
-              ConstructorInvocation
-                SimpleType: Planet
-                  CodeReferenceElement: Planet
-                    PsiElement(identifier)('Planet')
-                ArgumentList
-                  PsiElement(()('(')
-                  DoubleLiteral
-                    PsiElement(double)('4.8675e+24')
-                  PsiElement())(')')
+          ScEnumCase: Venus
+            PsiElement(identifier)('Venus')
+            PsiWhiteSpace('   ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Planet
+                    CodeReferenceElement: Planet
+                      PsiElement(identifier)('Planet')
+                  ArgumentList
+                    PsiElement(()('(')
+                    DoubleLiteral
+                      PsiElement(double)('4.8675e+24')
+                    PsiElement())(')')
         PsiWhiteSpace('\n    ')
-        ScEnumCase: Earth
+        ScEnumCases: Earth
           AnnotationsList
             <empty list>
           Modifiers
             <empty list>
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('Earth')
-          PrimaryConstructor
-            AnnotationsList
-              <empty list>
-            Modifiers
-              <empty list>
-            Parameters
-              <empty list>
-          PsiWhiteSpace('   ')
-          ExtendsBlock
-            PsiElement(extends)('extends')
-            PsiWhiteSpace(' ')
-            TemplateParents
-              ConstructorInvocation
-                SimpleType: Planet
-                  CodeReferenceElement: Planet
-                    PsiElement(identifier)('Planet')
-                ArgumentList
-                  PsiElement(()('(')
-                  DoubleLiteral
-                    PsiElement(double)('5.972e+24')
-                  PsiElement())(')')
+          ScEnumCase: Earth
+            PsiElement(identifier)('Earth')
+            PsiWhiteSpace('   ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Planet
+                    CodeReferenceElement: Planet
+                      PsiElement(identifier)('Planet')
+                  ArgumentList
+                    PsiElement(()('(')
+                    DoubleLiteral
+                      PsiElement(double)('5.972e+24')
+                    PsiElement())(')')
         PsiWhiteSpace('\n    ')
-        ScEnumCase: Mars
+        ScEnumCases: Mars
           AnnotationsList
             <empty list>
           Modifiers
             <empty list>
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('Mars')
-          PrimaryConstructor
-            AnnotationsList
-              <empty list>
-            Modifiers
-              <empty list>
-            Parameters
-              <empty list>
-          PsiWhiteSpace('    ')
-          ExtendsBlock
-            PsiElement(extends)('extends')
-            PsiWhiteSpace(' ')
-            TemplateParents
-              ConstructorInvocation
-                SimpleType: Planet
-                  CodeReferenceElement: Planet
-                    PsiElement(identifier)('Planet')
-                ArgumentList
-                  PsiElement(()('(')
-                  DoubleLiteral
-                    PsiElement(double)('6.4171e+23')
-                  PsiElement())(')')
+          ScEnumCase: Mars
+            PsiElement(identifier)('Mars')
+            PsiWhiteSpace('    ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Planet
+                    CodeReferenceElement: Planet
+                      PsiElement(identifier)('Planet')
+                  ArgumentList
+                    PsiElement(()('(')
+                    DoubleLiteral
+                      PsiElement(double)('6.4171e+23')
+                    PsiElement())(')')
         PsiWhiteSpace('\n    ')
-        ScEnumCase: Jupiter
+        ScEnumCases: Jupiter
           AnnotationsList
             <empty list>
           Modifiers
             <empty list>
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('Jupiter')
-          PrimaryConstructor
-            AnnotationsList
-              <empty list>
-            Modifiers
-              <empty list>
-            Parameters
-              <empty list>
-          PsiWhiteSpace(' ')
-          ExtendsBlock
-            PsiElement(extends)('extends')
+          ScEnumCase: Jupiter
+            PsiElement(identifier)('Jupiter')
             PsiWhiteSpace(' ')
-            TemplateParents
-              ConstructorInvocation
-                SimpleType: Planet
-                  CodeReferenceElement: Planet
-                    PsiElement(identifier)('Planet')
-                ArgumentList
-                  PsiElement(()('(')
-                  DoubleLiteral
-                    PsiElement(double)('1.8982e+27')
-                  PsiElement())(')')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Planet
+                    CodeReferenceElement: Planet
+                      PsiElement(identifier)('Planet')
+                  ArgumentList
+                    PsiElement(()('(')
+                    DoubleLiteral
+                      PsiElement(double)('1.8982e+27')
+                    PsiElement())(')')
         PsiWhiteSpace('\n    ')
-        ScEnumCase: Saturn
+        ScEnumCases: Saturn
           AnnotationsList
             <empty list>
           Modifiers
             <empty list>
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('Saturn')
-          PrimaryConstructor
-            AnnotationsList
-              <empty list>
-            Modifiers
-              <empty list>
-            Parameters
-              <empty list>
-          PsiWhiteSpace('  ')
-          ExtendsBlock
-            PsiElement(extends)('extends')
-            PsiWhiteSpace(' ')
-            TemplateParents
-              ConstructorInvocation
-                SimpleType: Planet
-                  CodeReferenceElement: Planet
-                    PsiElement(identifier)('Planet')
-                ArgumentList
-                  PsiElement(()('(')
-                  DoubleLiteral
-                    PsiElement(double)('5.6834e+26')
-                  PsiElement())(')')
+          ScEnumCase: Saturn
+            PsiElement(identifier)('Saturn')
+            PsiWhiteSpace('  ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Planet
+                    CodeReferenceElement: Planet
+                      PsiElement(identifier)('Planet')
+                  ArgumentList
+                    PsiElement(()('(')
+                    DoubleLiteral
+                      PsiElement(double)('5.6834e+26')
+                    PsiElement())(')')
         PsiWhiteSpace('\n    ')
-        ScEnumCase: Uranus
+        ScEnumCases: Uranus
           AnnotationsList
             <empty list>
           Modifiers
             <empty list>
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('Uranus')
-          PrimaryConstructor
-            AnnotationsList
-              <empty list>
-            Modifiers
-              <empty list>
-            Parameters
-              <empty list>
-          PsiWhiteSpace('  ')
-          ExtendsBlock
-            PsiElement(extends)('extends')
-            PsiWhiteSpace(' ')
-            TemplateParents
-              ConstructorInvocation
-                SimpleType: Planet
-                  CodeReferenceElement: Planet
-                    PsiElement(identifier)('Planet')
-                ArgumentList
-                  PsiElement(()('(')
-                  DoubleLiteral
-                    PsiElement(double)('8.6810e+25')
-                  PsiElement())(')')
+          ScEnumCase: Uranus
+            PsiElement(identifier)('Uranus')
+            PsiWhiteSpace('  ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Planet
+                    CodeReferenceElement: Planet
+                      PsiElement(identifier)('Planet')
+                  ArgumentList
+                    PsiElement(()('(')
+                    DoubleLiteral
+                      PsiElement(double)('8.6810e+25')
+                    PsiElement())(')')
         PsiWhiteSpace('\n    ')
-        ScEnumCase: Neptune
+        ScEnumCases: Neptune
           AnnotationsList
             <empty list>
           Modifiers
             <empty list>
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('Neptune')
-          PrimaryConstructor
-            AnnotationsList
-              <empty list>
-            Modifiers
-              <empty list>
-            Parameters
-              <empty list>
-          PsiWhiteSpace(' ')
-          ExtendsBlock
-            PsiElement(extends)('extends')
+          ScEnumCase: Neptune
+            PsiElement(identifier)('Neptune')
             PsiWhiteSpace(' ')
-            TemplateParents
-              ConstructorInvocation
-                SimpleType: Planet
-                  CodeReferenceElement: Planet
-                    PsiElement(identifier)('Planet')
-                ArgumentList
-                  PsiElement(()('(')
-                  DoubleLiteral
-                    PsiElement(double)('1.024e+26')
-                  PsiElement())(')')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Planet
+                    CodeReferenceElement: Planet
+                      PsiElement(identifier)('Planet')
+                  ArgumentList
+                    PsiElement(()('(')
+                    DoubleLiteral
+                      PsiElement(double)('1.024e+26')
+                    PsiElement())(')')
         PsiWhiteSpace('\n\n    ')
-        ScEnumCase: Pluto
+        ScEnumCases: Pluto
           AnnotationsList
             <empty list>
           Modifiers
@@ -295,27 +247,21 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('Pluto')
-          PrimaryConstructor
-            AnnotationsList
-              <empty list>
-            Modifiers
-              <empty list>
-            Parameters
-              <empty list>
-          PsiWhiteSpace(' ')
-          ExtendsBlock
-            PsiElement(extends)('extends')
+          ScEnumCase: Pluto
+            PsiElement(identifier)('Pluto')
             PsiWhiteSpace(' ')
-            TemplateParents
-              ConstructorInvocation
-                SimpleType: Planet
-                  CodeReferenceElement: Planet
-                    PsiElement(identifier)('Planet')
-                ArgumentList
-                  PsiElement(()('(')
-                  DoubleLiteral
-                    PsiElement(double)('1.303e+22')
-                  PsiElement())(')')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Planet
+                    CodeReferenceElement: Planet
+                      PsiElement(identifier)('Planet')
+                  ArgumentList
+                    PsiElement(()('(')
+                    DoubleLiteral
+                      PsiElement(double)('1.303e+22')
+                    PsiElement())(')')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

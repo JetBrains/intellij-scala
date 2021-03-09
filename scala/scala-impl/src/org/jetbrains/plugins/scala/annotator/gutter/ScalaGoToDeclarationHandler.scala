@@ -126,7 +126,7 @@ object ScalaGoToDeclarationHandler {
 
     targets.flatMap { element =>
       val syntheticTargets = syntheticTarget(element)
-      if (syntheticTargets.isEmpty) Seq.empty
+      if (syntheticTargets.isEmpty) Seq(element)
       else                          syntheticTargets
     }.toArray
   }
