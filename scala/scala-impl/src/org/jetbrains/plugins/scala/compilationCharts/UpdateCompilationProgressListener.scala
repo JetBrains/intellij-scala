@@ -18,8 +18,8 @@ private class UpdateCompilationProgressListener(project: Project)
             finishTime = None,
             updateTime = timestamp,
             progress = 0.0,
-            phases = Seq.empty,
-            units = Seq.empty
+            phases = Vector.empty,
+            units = Vector.empty
           ))
         case CompilerEvent.CompilationPhase(_, _, name) =>
           state.updateLast(compilationUnitId)(state => state.copy(

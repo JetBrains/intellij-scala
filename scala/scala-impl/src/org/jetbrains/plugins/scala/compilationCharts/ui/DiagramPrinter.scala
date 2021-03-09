@@ -246,11 +246,11 @@ class MemoryDiagramPrinter(clip: Rectangle2D,
                      extraPointTime: FiniteDuration,
                      firstPoint: Boolean): Seq[MemoryPoint] = edgePoint match {
     case Some(MemoryPoint(`extraPointTime`, 0)) =>
-      Seq.empty
+      Vector.empty
     case Some(MemoryPoint(`extraPointTime`, _)) | None =>
-      Seq(MemoryPoint(extraPointTime, 0L))
+      Vector(MemoryPoint(extraPointTime, 0L))
     case Some(point) =>
-      val extraPoints = Seq(point.copy(time = extraPointTime), MemoryPoint(extraPointTime, 0L))
+      val extraPoints = Vector(point.copy(time = extraPointTime), MemoryPoint(extraPointTime, 0L))
       if (firstPoint) extraPoints.reverse else extraPoints
   }
 
