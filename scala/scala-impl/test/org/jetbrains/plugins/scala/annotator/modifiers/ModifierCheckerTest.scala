@@ -66,6 +66,58 @@ class ModifierCheckerTest extends SimpleTestCase {
     )
   }
 
+  // SCL-15981
+  def testAbstractMethodInTrait(): Unit = {
+    assertMessagesSorted(messages(
+      """
+        |trait Test {
+        |  abstract def foo(): Unit
+        |  abstract override def foo2(): Unit
+        |}
+      """.stripMargin
+    ))(
+      Error("abstract", "'abstract' modifier allowed only for classes or for definitions with 'override' modifier"),
+    )
+  }
+
+  def testAbstractMethodInClass(): Unit = {
+    assertMessagesSorted(messages(
+      """
+        |class Test {
+        |  abstract def foo(): Unit
+        |  abstract override def foo2(): Unit
+        |}
+      """.stripMargin
+    ))(
+      Error("abstract", "'abstract' modifier allowed only for classes or for definitions with 'override' modifier"),
+      Error("abstract", "'abstract override' modifier only allowed for members of traits"),
+    )
+
+    assertMessagesSorted(messages(
+      """
+        |abstract class Test {
+        |  abstract def foo(): Unit
+        |  abstract override def foo2(): Unit
+        |}
+      """.stripMargin
+    ))(
+      Error("abstract", "'abstract' modifier allowed only for classes or for definitions with 'override' modifier"),
+      Error("abstract", "'abstract override' modifier only allowed for members of traits"),
+    )
+  }
+
+  def testAbstractTrait(): Unit = {
+    assertMessagesSorted(messages(
+      """
+        |abstract trait Test
+      """.stripMargin
+    ))(
+      Warning("abstract", "'abstract' modifier is redundant for traits"),
+    )
+  }
+
+
+
   private def messages(@Language(value = "Scala") code: String) = {
     val file = code.parse
 

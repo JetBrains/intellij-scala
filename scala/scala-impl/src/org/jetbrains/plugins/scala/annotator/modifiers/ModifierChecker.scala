@@ -65,7 +65,7 @@ private[annotator] object ModifierChecker {
             val maybeModifier = if (accessModifier.isPrivate) Some(Private) else if (accessModifier.isProtected) Some(Protected) else None
             maybeModifier.foreach { modifier =>
               checkDuplicates(accessModifier, modifier)
-              if (owner.getContext.isInstanceOf[ScBlock]) {
+              if (owner.getContext.is[ScBlock]) {
                 registerQuickFix(
                   ScalaBundle.message("access.modifier.is.not.allowed.here", modifier.text()),
                   accessModifier,
@@ -119,7 +119,7 @@ private[annotator] object ModifierChecker {
                     )
                   case _: ScClass => checkDuplicates(modifierPsi, Final)
                   case _: ScObject => checkDuplicates(modifierPsi, Final)
-                  case e: ScMember if e.getParent.isInstanceOf[ScTemplateBody] || e.getParent.isInstanceOf[ScEarlyDefinitions] =>
+                  case e: ScMember if e.getParent.is[ScTemplateBody, ScEarlyDefinitions] =>
                     val redundant = (e.containingClass, e) match {
                       case (_, valMember: ScPatternDefinition) if valMember.typeElement.isEmpty &&
                         valMember.pList.simplePatterns => false // constant value definition, see SCL-11500
@@ -164,7 +164,7 @@ private[annotator] object ModifierChecker {
               case SEALED =>
                 owner match {
                   case _: ScClass | _: ScTrait | _: ScClassParameter => checkDuplicates(modifierPsi, Sealed)
-                  case e: ScMember if e.getParent.isInstanceOf[ScTemplateBody] => checkDuplicates(modifierPsi, Sealed)
+                  case e: ScMember if e.getParent.is[ScTemplateBody] => checkDuplicates(modifierPsi, Sealed)
                   case _ =>
                     registerQuickFix(
                       ScalaBundle.message("sealed.modifier.is.not.allowed.here"),
@@ -186,9 +186,9 @@ private[annotator] object ModifierChecker {
                     )
                   }
                   case member: ScMember if !member.isInstanceOf[ScTemplateBody] &&
-                    member.getParent.isInstanceOf[ScTemplateBody] =>
+                    member.getParent.is[ScTemplateBody] && owner.hasModifierPropertyScala(OVERRIDE) =>
                     // 'abstract override' modifier only allowed for members of traits
-                    if (!member.containingClass.isInstanceOf[ScTrait] && owner.hasModifierProperty(OVERRIDE)) {
+                    if (!member.containingClass.is[ScTrait]) {
                       registerQuickFix(
                         ScalaBundle.message("abstract.override.modifier.is.not.allowed"),
                         modifierPsi,
@@ -216,8 +216,7 @@ private[annotator] object ModifierChecker {
                       owner,
                       Override
                     )
-                  case member: ScMember if member.getParent.isInstanceOf[ScTemplateBody] ||
-                    member.getParent.isInstanceOf[ScEarlyDefinitions] =>
+                  case member: ScMember if member.getParent.is[ScTemplateBody, ScEarlyDefinitions] =>
                     checkDuplicates(modifierPsi, Override)
                   case _: ScClassParameter => checkDuplicates(modifierPsi, Override)
                   case _ =>
