@@ -62,6 +62,8 @@ trait Client {
 
   def compilationPhase(name: String): Unit
 
+  def compilationUnit(path: String): Unit
+
   def compilationEnd(sources: Set[File]): Unit
 
   def processingEnd(): Unit

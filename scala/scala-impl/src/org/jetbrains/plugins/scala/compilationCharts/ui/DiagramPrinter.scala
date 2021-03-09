@@ -9,6 +9,7 @@ import java.awt.geom.{Line2D, Point2D, Rectangle2D}
 import ProgressDiagramPrinter._
 
 import scala.concurrent.duration.{Duration, FiniteDuration}
+import scala.math.Ordering.Implicits._
 import scala.util.Random
 
 trait DiagramPrinter {
@@ -49,7 +50,7 @@ class ProgressDiagramPrinter(clip: Rectangle2D,
     def printSegment(graphics: Graphics2D,
                      segment: Segment,
                      row: Int): Unit = {
-      val Segment(CompilationUnitId(moduleName, testScope), from, to, progress, phases) = segment
+      val Segment(CompilationUnitId(moduleName, testScope), from, to, progress, phases, units) = segment
       val x = currentZoom.toPixels(from)
       val segmentClip = new Rectangle2D.Double(
         x,
@@ -65,16 +66,36 @@ class ProgressDiagramPrinter(clip: Rectangle2D,
         ProdModuleColor
       graphics.doInClip(segmentClip)(_.printRect(segmentClip, color))
 
-      if (currentLevel.ordinal > Level.Modules.ordinal) {
+      if (currentLevel >= Level.Phases) {
         phases.foreach { phase =>
-          graphics.setColor(colorOf(phase.name).withAlpha(128))
           val x = currentZoom.toPixels(phase.from)
-          graphics.fill(new Rectangle2D.Double(
+          val rectangle = new Rectangle2D.Double(
             x,
             getRowY(row) + SegmentGap + VerticalGap,
-            math.min(currentZoom.toPixels(phase.to), segmentClip.getMaxX - 1)  - x,
+            math.min(currentZoom.toPixels(phase.to), segmentClip.getMaxX - 1) - x,
             ProgressRowHeight - SegmentGap - VerticalGap * 2
-          ))
+          )
+          if (rectangle.width >= 1.0) {
+            val intenseColor = colorOf(phase.name)
+            graphics.setColor(if (currentLevel <= Level.Phases) intenseColor.withAlpha(128) else intenseColor)
+            graphics.fill(rectangle)
+          }
+        }
+      }
+
+      if (currentLevel >= Level.Units) {
+        units.foreach { unit =>
+          val x = currentZoom.toPixels(unit.from)
+          val rectangle = new Rectangle2D.Double(
+            x,
+            getRowY(row) + SegmentGap + VerticalGap * 2,
+            math.min(currentZoom.toPixels(unit.to), segmentClip.getMaxX - 1) - x - 1,
+            ProgressRowHeight - SegmentGap - VerticalGap * 4
+          )
+          if (rectangle.width >= 1.0) {
+            graphics.setColor(if (darkTheme) Color.BLACK else Color.WHITE)
+            graphics.fill(rectangle)
+          }
         }
       }
 
