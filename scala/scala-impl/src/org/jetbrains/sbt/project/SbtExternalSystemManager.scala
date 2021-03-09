@@ -199,9 +199,12 @@ object SbtExternalSystemManager {
 
     val allOptions = ideaProxyOptions ++ givenOptions
 
+    val ideaInstallRoot = PathManager.getHomePath
+
     allOptions
       .addDefaultOption(ideaManaged.key, ideaManaged.value)
       .addDefaultOption(fileEncoding.key, fileEncoding.value)
+      .addDefaultOption(ideaInstallationRootKey, ideaInstallRoot)
       .addPermSize(jreHome)
   }
 
@@ -262,6 +265,8 @@ object SbtExternalSystemManager {
 
     /** custom option to signal sbt instance is run from idea. */
     val ideaManaged: JvmOption = JvmOption("-Didea.managed", "true")
+
+    val ideaInstallationRootKey = "-Didea.installation.dir"
   }
 
 }
