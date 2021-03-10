@@ -112,6 +112,14 @@ object AutoBraceInsertionTools {
       case Some(expr) => (expr, caretWS, true)
       case None =>
         (previousExpressionInIndentationContext(wsBeforeCaret), c) match {
+          case (Some(_: ScBlock), _) =>
+            // do not insert braces if there is already a block like in
+            //
+            // def test =
+            // {
+            // }
+            // <caret>
+            return None
           case (Some(expr), Some(c)) if canBeContinuedWith(expr, c) =>
             // if we start typing something that could be a continuation of the previous construct, do not insert braces
             // for example:
