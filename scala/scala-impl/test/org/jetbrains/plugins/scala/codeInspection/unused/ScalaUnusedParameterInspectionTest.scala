@@ -334,4 +334,42 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
        |}
        |""".stripMargin
   )
+
+  // SCL-18600
+  def testUnusedAnnotation(): Unit = checkTextHasNoErrors(
+    s"""
+       |import scala.annotation.unused
+       |
+       |object Test {
+       |  def test(@unused param: Int): Unit = ()
+       |  private case class Test1(@unused param: Int)
+       |  private class Test2(@unused param: Int)
+       |  private class Test3(@unused val param: Int)
+       |}
+       |""".stripMargin
+  )
+
+  def testParamInClassWithUnusedAnnotation(): Unit = checkTextHasError(
+    s"""
+       |import scala.annotation.unused
+       |
+       |object Test {
+       |  @unused
+       |  private class Test($p: Int)
+       |}
+       |""".stripMargin
+  )
+
+  def testNoWarn(): Unit = checkTextHasNoErrors(
+    s"""
+       |import scala.annotation.nowarn
+       |
+       |object Test {
+       |  def test(@nowarn("unused") param: Int): Unit = ()
+       |  private case class Test1(@nowarn("unused") param: Int)
+       |  private class Test2(@nowarn("unused") param: Int)
+       |  private class Test3(@nowarn("unused") val param: Int)
+       |}
+       |""".stripMargin
+  )
 }
