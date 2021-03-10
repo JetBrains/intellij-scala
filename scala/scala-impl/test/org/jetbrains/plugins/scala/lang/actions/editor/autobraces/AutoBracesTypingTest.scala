@@ -589,4 +589,33 @@ class AutoBracesTypingTest extends AutoBraceTestBase {
        |""".stripMargin,
     ' '
   )
+
+  //
+  def testBracesOnNextLineStyle(): Unit = checkTypingInAllContexts(
+    s"""
+       |def test =
+       |{
+       |  expr
+       |}
+       |
+       |$CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    s"""
+       |def test =
+       |{
+       |  expr
+       |}
+       |
+       |x$CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    s"""
+       |def test =
+       |{
+       |  expr
+       |}
+       |
+       |x$CARET
+       |""".stripMargin -> ContinuationOnNewline,
+    'x'
+  )
 }
