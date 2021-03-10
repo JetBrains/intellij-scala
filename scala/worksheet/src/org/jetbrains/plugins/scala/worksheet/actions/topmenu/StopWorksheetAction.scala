@@ -6,9 +6,7 @@ import javax.swing.Icon
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.StopWorksheetAction.StoppableProcess
 
-class StopWorksheetAction() extends AnAction with TopComponentAction {
-
-  private var process: Option[StoppableProcess] = None
+class StopWorksheetAction(private var process: Option[StoppableProcess]) extends AnAction with TopComponentAction {
 
   override def genericText: String = WorksheetBundle.message("worksheet.stop.button")
 
