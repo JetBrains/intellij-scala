@@ -320,6 +320,57 @@ class ScalaDeprecationInspectionTest extends ScalaDeprecationInspectionTestBase 
          |""".stripMargin
     )
   }
+
+  def testUnusedDeprecatedInheritance(): Unit = checkTextHasNoErrors(
+    s"""
+       |@deprecatedInheritance
+       |class Test {
+       |  def test(): Int = 3
+       |}
+       |
+       |val x = new Test
+       |x.test()
+       |""".stripMargin
+  )
+
+  def testDeprecatedInheritanceWithoutConstructorCall(): Unit = checkTextHasError(
+    s"""
+       |@deprecatedInheritance
+       |class Base {
+       |  def test(): Int = 3
+       |}
+       |
+       |class Impl extends ${START}Base$END {
+       |  override test(): Int = 4
+       |}
+       |""".stripMargin
+  )
+
+  def testDeprecatedInheritanceWithConstructorCall(): Unit = checkTextHasError(
+    s"""
+       |@deprecatedInheritance
+       |class Base(i: Int) {
+       |  def test(): Int = 3
+       |}
+       |
+       |class Impl extends ${START}Base$END(666) {
+       |  override test(): Int = 4
+       |}
+       |""".stripMargin
+  )
+
+  def testDeprecatedInheritanceInNewExpr(): Unit = checkTextHasError(
+    s"""
+       |@deprecatedInheritance
+       |class Base {
+       |  def test(): Int = 3
+       |}
+       |
+       |new ${START}Base$END {
+       |  override test(): Int = 4
+       |}
+       |""".stripMargin
+  )
 }
 
 class ScalaDeprecationInspectionTest_where_deprecatedName_symbol_constructor_is_deprecated extends ScalaDeprecationInspectionTestBase {
