@@ -282,9 +282,18 @@ class ScalaDeprecationInspectionTest extends ScalaDeprecationInspectionTestBase 
       s"""class Child extends ${START}BaseClass$END with ${START}BaseInterface$END {}""".stripMargin
     }
   }
+
+  def testDeprecatedParamName(): Unit = {
+    val code =
+      s"""
+         |def inc(x: Int, @deprecatedName("y", "FooLib 12.0") n: Int): Int = x + n
+         |inc(1, ${START}y$END = 2)
+       """.stripMargin
+    checkTextHasError(code)
+  }
 }
 
-class ScalaDeprecationInspectionTest_where_duprecatedName_is_deprecated extends ScalaDeprecationInspectionTestBase {
+class ScalaDeprecationInspectionTest_where_deprecatedName_symbol_constructor_is_deprecated extends ScalaDeprecationInspectionTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version  <= LatestScalaVersions.Scala_2_12
 
