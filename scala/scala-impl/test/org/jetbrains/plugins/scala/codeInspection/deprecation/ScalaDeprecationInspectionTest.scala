@@ -291,6 +291,35 @@ class ScalaDeprecationInspectionTest extends ScalaDeprecationInspectionTestBase 
        """.stripMargin
     checkTextHasError(code)
   }
+
+  def testDeprecatedOverriding(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |trait Base {
+         |  @deprecatedOverriding
+         |  def test(): Int = 3
+         |}
+         |class Child extends Base {
+         |  this.test()
+         |}
+         |
+         |val x = new Child
+         |x.test()
+         |""".stripMargin
+    )
+
+    checkTextHasError(
+      s"""
+         |trait Base {
+         |  @deprecatedOverriding
+         |  def test(): Int = 3
+         |}
+         |class Child extends Base {
+         |  def ${START}test$END(): Int = 4
+         |}
+         |""".stripMargin
+    )
+  }
 }
 
 class ScalaDeprecationInspectionTest_where_deprecatedName_symbol_constructor_is_deprecated extends ScalaDeprecationInspectionTestBase {

@@ -5,6 +5,7 @@ package deprecation
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.deprecation.ScalaDeprecationInspection._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -64,12 +65,15 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
       }
 
     def checkOverridingDeprecated(superMethod: PsiMethod, method: ScFunction): Unit = {
-      val owner = superMethod match {
-        case o: PsiDocCommentOwner if o.isDeprecated => o
-        case _ => return
+      superMethod match {
+        case owner if owner.isDeprecated =>
+          val message = deprecationMessage(owner).getOrElse("")
+          registerDeprecationProblem(ScalaInspectionBundle.message("super.method.name.is.deprecated.with.message", method.name, message), method.nameId)
+        case owner  if owner.hasAnnotation("scala.deprecatedOverriding") =>
+          val message = deprecationMessage(owner).getOrElse("")
+          registerDeprecationProblem(ScalaInspectionBundle.message("overriding.is.deprecated", method.name, message), method.nameId)
+        case _ =>
       }
-      val message = deprecationMessage(owner).getOrElse("")
-      registerDeprecationProblem(ScalaInspectionBundle.message("super.method.name.is.deprecated.with.message", method.name, message), method.nameId)
     }
 
     new ScalaElementVisitor {
