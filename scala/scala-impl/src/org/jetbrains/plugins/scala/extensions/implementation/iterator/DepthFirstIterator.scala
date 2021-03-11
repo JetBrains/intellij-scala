@@ -2,13 +2,11 @@ package org.jetbrains.plugins.scala.extensions.implementation.iterator
 
 import com.intellij.psi.PsiElement
 
-import scala.collection.mutable
-
 /**
  * Pavel.Fatin, 09.05.2010
  */
 
-class DepthFirstIterator(element: PsiElement, predicate: PsiElement => Boolean) extends Iterator[PsiElement] {
+final class DepthFirstIterator(element: PsiElement, predicate: PsiElement => Boolean) extends Iterator[PsiElement] {
   private var stack: List[PsiElement] =
     if (element == null)  List.empty
     else                  List(element)
@@ -22,7 +20,7 @@ class DepthFirstIterator(element: PsiElement, predicate: PsiElement => Boolean) 
     element
   }
 
-  def pushChildren(element: PsiElement): Unit = {
+  private def pushChildren(element: PsiElement): Unit = {
       var child = element.getLastChild
       while (child != null) {
         stack = child +: stack
