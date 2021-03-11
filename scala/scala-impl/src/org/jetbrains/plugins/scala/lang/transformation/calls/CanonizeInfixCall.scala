@@ -16,8 +16,8 @@ class CanonizeInfixCall extends AbstractTransformer {
       val (a, b) = if (e.isRightAssoc) (r, l) else (l, r)
 
       val element = b match {
-        case block: ScBlockExpr => code"$a.$o {${block.exprs}}"
-        case _ => code"$a.$o($b)"
+        case block: ScBlockExpr => code"$a.${o.getText} {${block.exprs}}"
+        case _ => code"$a.${o.getText}($b)"
       }
 
       e.replace(element)
