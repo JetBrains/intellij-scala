@@ -40,4 +40,9 @@ class CanonizeInfixCallTest extends TransformerTest(new CanonizeInfixCall()) {
     before = "O.f(A)",
     after = "O.f(A)"
   )()
+
+  def testTwoInfix(): Unit = check(
+    before = "(3 + 4) + 5",
+    after = "(3 + 4).+(5)"
+  )()
 }
