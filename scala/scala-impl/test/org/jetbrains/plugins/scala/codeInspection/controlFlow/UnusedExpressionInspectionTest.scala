@@ -264,22 +264,6 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |}"""
   }
 
-  def testObject(): Unit = checkTextHasNoErrors {
-    """
-      |class Test {
-      |  def foo(): Unit = {
-      |    A
-      |    println("world")
-      |  }
-      |}
-      |
-      |object A {
-      |  println("hello")
-      |}
-      |
-      """
-  }
-
   def testConstructorCall(): Unit = checkTextHasNoErrors {
     """
       |class Test {
@@ -383,6 +367,16 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
       |  ()
       |}
       |""".stripMargin
+  )
+
+  def test_object(): Unit = checkTextHasError(
+    s"""
+       |object Blub
+       |
+       |def test(): Unit = {
+       |  ${START}Blub$END
+       |}
+       |""".stripMargin
   )
 }
 

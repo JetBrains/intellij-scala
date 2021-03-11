@@ -75,7 +75,7 @@ object SideEffectsUtil {
             case bp: ScBindingPattern =>
               val tp = bp.`type`()
               !(asArg && FunctionType.isFunctionType(tp.getOrAny))
-            case _: ScObject => false
+            case _: ScObject => true // not correct, but very likely that a lone object-ref has no sideeffect
             case p: ScParameter if p.isCallByNameParameter => false
             case p: ScParameter if !(asArg && FunctionType.isFunctionType(p.getRealParameterType.getOrAny)) => true
             case _: ScSyntheticFunction => true
