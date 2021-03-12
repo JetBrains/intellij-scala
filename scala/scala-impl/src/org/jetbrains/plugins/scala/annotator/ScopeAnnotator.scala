@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -45,10 +46,10 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
       val Definitions(types, functions, parameterless, fieldLikes, classParameters) = definitionsIn(elements)
 
       val clashes =
-        clashesOf(functions) :::
-        clashesOf(parameterless) :::
-        clashesOf(types) :::
-        clashesOf(fieldLikes) ::: Nil
+        clashesOf(functions) ++
+        clashesOf(parameterless) ++
+        clashesOf(types) ++
+        clashesOf(fieldLikes)
 
       //clashed class parameters were already highlighted
       val withoutClassParameters = clashes.toSet -- clashesOf(classParameters)
@@ -99,7 +100,7 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
           case e: ScFunction  =>
             if (e.typeParameters.isEmpty) { //generic functions are not supported
               functions ::= e
-              if (e.parameters.isEmpty || e.getContext.isInstanceOf[ScBlockExpr]) {
+              if (e.parameters.isEmpty || e.getContext.is[ScBlockExpr]) {
                 parameterless ::= e
               }
             }
@@ -132,7 +133,7 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
   }
 
   private def generatesFunction(td: ScTypedDefinition): Boolean = td.nameContext match {
-    case f: ScFunction => true
+    case _: ScFunction => true
     case v: ScValueOrVariable =>
       v.getModifierList.accessModifier match {
         case Some(am) => !(am.isPrivate && am.isThis)
@@ -141,30 +142,72 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
     case _ => false
   }
 
-  private def clashesOf(elements: List[ScNamedElement]): List[ScNamedElement] = {
-    val names = elements.map(nameOf).filterNot(_ == "_")
-    val clashedNames = names.diff(names.distinct)
-    elements.filter(e => clashedNames.contains(nameOf(e)))
+  // For the exact rules see:
+  // https://www.scala-lang.org/files/archive/spec/2.13/05-classes-and-objects.html#class-members
+  //
+  // We find clashes in three steps
+  //  1. we group together all elements that have the same name and the same erasure parameter types.
+  //  2. All elements that end up in the same group and are not functions with parameters are already clashes.
+  //     The functions are now grouped by their erasure return type.
+  //     Functions in the same group have the exact same erasure signature and must therefore be clashes.
+  //  3. The remaining functions will not clash if they do not have equivalent parameter types.
+  private def clashesOf(elements: Seq[ScNamedElement]): Seq[ScNamedElement] =
+    elements.groupBy(nameOf(_, withReturnType = false)).iterator.flatMap {
+      case ("_", _) => Nil
+      case (_, clashed) if clashed.size > 1 => clashesOf2(clashed)
+      case _ => Nil
+    }.toSeq
+
+  private def clashesOf2(elements: Seq[ScNamedElement]): Iterator[ScNamedElement] =
+    elements.head match {
+      case fun: ScFunction if fun.hasParameters && !fun.getParent.is[ScBlockExpr]  =>
+        val (withDifferentReturnTypes, withSameReturnTypes) = elements
+          .map(_.asInstanceOf[ScFunction])
+          .groupBy(fun => erasedReturnType(fun, fun.getContext.is[ScRefinement]))
+          .values
+          .partition(_.size == 1)
+
+        clashesOf3(withDifferentReturnTypes.flatten.to(ArraySeq)) ++ withSameReturnTypes.iterator.flatten
+      case _ =>
+        elements.iterator
+    }
+
+  private def clashesOf3(elements: Seq[ScFunction]): Iterator[ScFunction] = {
+    // At this point all elements have the same erasure parameter types but different erasure return types
+    // But they can still clash if they have equivalent parameter types, so we have to check them against each other
+    val result = Set.newBuilder[ScFunction]
+    for {
+      (a, ai) <- elements.iterator.zipWithIndex
+      b <- elements.iterator.drop(ai + 1)
+      if a.parametersTypes.zip(b.parametersTypes).forall { case (a, b) => a equiv b }
+    } result ++= Seq(a, b)
+
+    result.result().iterator
   }
 
-  private def nameOf(element: ScNamedElement): String = element match {
-    case f: ScFunction if !f.getParent.isInstanceOf[ScBlockExpr] =>
-      ScalaNamesUtil.clean(f.name) + signatureOf(f)
+  private def nameOf(element: ScNamedElement, withReturnType: Boolean = true): String = element match {
+    case f: ScFunction if !f.getParent.is[ScBlockExpr] =>
+      ScalaNamesUtil.clean(f.name) + signatureOf(f, withReturnType)
     case _ =>
       ScalaNamesUtil.clean(element.name)
   }
 
-  private def signatureOf(f: ScFunction): String = {
+  private def signatureOf(f: ScFunction, withReturnType: Boolean): String = {
     if (f.parameters.isEmpty)
       ""
     else {
-      val isInStructuralType = f.getContext.isInstanceOf[ScRefinement]
-      val params = f.paramClauses.clauses.map(format(_, isInStructuralType)).mkString
+      val isInStructuralType = f.getContext.is[ScRefinement]
+      val params = f.paramClauses.clauses.map(format(_, eraseParamType = !isInStructuralType)).mkString
       val returnType =
-        if (!isInStructuralType) erased(f.returnType.getOrAny.removeAliasDefinitions()).canonicalText
+        if (withReturnType && !isInStructuralType) erasedReturnType(f, isInStructuralType)
         else ""
       params + returnType
     }
+  }
+
+  private def erasedReturnType(f: ScFunction, isInStructuralType: Boolean): String = {
+    if (!isInStructuralType) erased(f.returnType.getOrAny.removeAliasDefinitions()).canonicalText
+    else ""
   }
 
   private def erased(t: ScType): ScType = {
@@ -185,14 +228,14 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
     }
   }
 
-  private def format(clause: ScParameterClause, isInStructuralType: Boolean) = {
+  private def format(clause: ScParameterClause, eraseParamType: Boolean) = {
     val parts = clause.parameters.map { p =>
       val `=>` = if (p.isCallByNameParameter) " => " else ""
       val `*` = if (p.isRepeatedParameter) "*" else ""
 
       val paramType = p.`type`().getOrAny.removeAliasDefinitions()
       val erasedType =
-        if (!isInStructuralType) erased(paramType)
+        if (eraseParamType) erased(paramType)
         else paramType
 
       `=>` + erasedType.canonicalText + `*`
