@@ -10,7 +10,7 @@ class CompilerLockBuildManagerListener
   extends BuildManagerListener {
 
   override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit = suppressAlreadyDisposed {
-    HighlightingCompiler.get(project).cancel()
+    CompilerHighlightingService.get(project).cancel()
     CompilerLock.get(project).lock(sessionId.toString)
   }
 
