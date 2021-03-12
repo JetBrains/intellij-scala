@@ -5,15 +5,17 @@ package deprecation
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.deprecation.ScalaDeprecationInspection._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
-import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScAnnotationsHolder, ScReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScAnnotationsHolder, ScConstructorInvocation, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScNewTemplateDefinition, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -63,13 +65,25 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
         case _ => ()
       }
 
-    def checkOverridingDeprecated(superMethod: PsiMethod, method: ScFunction): Unit = {
-      val owner = superMethod match {
-        case o: PsiDocCommentOwner if o.isDeprecated => o
-        case _ => return
+    def checkDeprecatedInheritance(result: ScalaResolveResult, elementToHighlight: PsiElement, name: String): Unit = {
+      result.getActualElement match {
+        case owner: PsiAnnotationOwner if owner.hasAnnotation("scala.deprecatedInheritance") =>
+          val message = deprecationMessage(owner).getOrElse("")
+          registerDeprecationProblem(ScalaInspectionBundle.message("inheriting.form.name.is.deprecated.message", name, message), elementToHighlight)
+        case _ =>
       }
-      val message = deprecationMessage(owner).getOrElse("")
-      registerDeprecationProblem(ScalaInspectionBundle.message("super.method.name.is.deprecated.with.message", method.name, message), method.nameId)
+    }
+
+    def checkOverridingDeprecated(superMethod: PsiMethod, method: ScFunction): Unit = {
+      superMethod match {
+        case owner if owner.isDeprecated =>
+          val message = deprecationMessage(owner).getOrElse("")
+          registerDeprecationProblem(ScalaInspectionBundle.message("super.method.name.is.deprecated.with.message", method.name, message), method.nameId)
+        case owner  if owner.hasAnnotation("scala.deprecatedOverriding") =>
+          val message = deprecationMessage(owner).getOrElse("")
+          registerDeprecationProblem(ScalaInspectionBundle.message("overriding.is.deprecated", method.name, message), method.nameId)
+        case _ =>
+      }
     }
 
     new ScalaElementVisitor {
@@ -82,7 +96,20 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
       override def visitReference(ref: ScReference): Unit =
         if (ref.isValid) {
           val resolveResult = ref.bind()
-          resolveResult.foreach(checkDeprecated(_, ref.nameId, ref.refName))
+          resolveResult.foreach { rr =>
+            ref match {
+                // find inheriting references like
+                //   class Test extends Base
+                //   new Test {  }
+                // but not
+                //   new Test
+              case Parent(Parent((_: ScConstructorInvocation) && Parent(Parent(exb: ScExtendsBlock))))
+                if !exb.getParent.is[ScNewTemplateDefinition] || exb.isAnonymousClass =>
+                checkDeprecatedInheritance(rr, ref.nameId, ref.refName)
+              case _ =>
+            }
+            checkDeprecated(rr, ref.nameId, ref.refName)
+          }
         }
 
       override def visitReferenceExpression(ref: ScReferenceExpression): Unit = visitReference(ref)
@@ -96,7 +123,7 @@ object ScalaDeprecationInspection {
   private val ScalaDeprecatedAnnotation = "scala.deprecated"
   private val ScalaDeprecatedAnnotationMessageField = "value"
 
-  private def deprecationMessage(commentOwner: PsiDocCommentOwner): Option[String] =
+  private def deprecationMessage(commentOwner: PsiElement): Option[String] =
     for {
       holder     <- commentOwner.asOptionOfUnsafe[ScAnnotationsHolder]
       annotation <- holder.annotations(ScalaDeprecatedAnnotation).headOption

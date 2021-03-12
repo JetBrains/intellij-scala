@@ -568,4 +568,38 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
        |}
        |""".stripMargin
   )
+
+  // SCL-18600
+  def testUnusedAnnotation(): Unit = checkTextHasNoErrors(
+    s"""
+       |import scala.annotation.unused
+       |
+       |private object Test {
+       |  @unused
+       |  private def test(): Unit = ()
+       |  @unused
+       |  private case class Test1()
+       |  @unused
+       |  private class Test2
+       |  @unused
+       |  private object Test3
+       |}
+       |""".stripMargin
+  )
+  def testNowarnAnnotation(): Unit = checkTextHasNoErrors(
+    s"""
+       |import scala.annotation.nowarn
+       |
+       |private object Test {
+       |  @nowarn("unused")
+       |  private def test(): Unit = ()
+       |  @nowarn("unused")
+       |  private case class Test1()
+       |  @nowarn("unused")
+       |  private class Test2
+       |  @nowarn("unused")
+       |  private object Test3
+       |}
+       |""".stripMargin
+  )
 }

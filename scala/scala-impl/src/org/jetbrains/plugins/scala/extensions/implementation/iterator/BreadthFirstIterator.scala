@@ -9,7 +9,7 @@ import scala.collection.mutable
  * Pavel.Fatin, 09.05.2010
  */
 
-class BreadthFirstIterator(element: PsiElement, predicate: PsiElement => Boolean) extends Iterator[PsiElement] {
+final class BreadthFirstIterator(element: PsiElement, predicate: PsiElement => Boolean) extends Iterator[PsiElement] {
   private val queue: mutable.Queue[PsiElement] =
     if (element != null) mutable.Queue(element)
     else mutable.Queue.empty
@@ -22,7 +22,7 @@ class BreadthFirstIterator(element: PsiElement, predicate: PsiElement => Boolean
     element
   }
 
-  def pushChildren(element: PsiElement): Unit = {
+  private def pushChildren(element: PsiElement): Unit = {
       var child = element.getFirstChild
       while (child != null) {
         queue.enqueue(child)

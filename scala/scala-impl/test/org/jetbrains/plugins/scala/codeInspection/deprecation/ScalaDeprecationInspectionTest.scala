@@ -282,9 +282,98 @@ class ScalaDeprecationInspectionTest extends ScalaDeprecationInspectionTestBase 
       s"""class Child extends ${START}BaseClass$END with ${START}BaseInterface$END {}""".stripMargin
     }
   }
+
+  def testDeprecatedParamName(): Unit = {
+    val code =
+      s"""
+         |def inc(x: Int, @deprecatedName("y", "FooLib 12.0") n: Int): Int = x + n
+         |inc(1, ${START}y$END = 2)
+       """.stripMargin
+    checkTextHasError(code)
+  }
+
+  def testDeprecatedOverriding(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |trait Base {
+         |  @deprecatedOverriding
+         |  def test(): Int = 3
+         |}
+         |class Child extends Base {
+         |  this.test()
+         |}
+         |
+         |val x = new Child
+         |x.test()
+         |""".stripMargin
+    )
+
+    checkTextHasError(
+      s"""
+         |trait Base {
+         |  @deprecatedOverriding
+         |  def test(): Int = 3
+         |}
+         |class Child extends Base {
+         |  def ${START}test$END(): Int = 4
+         |}
+         |""".stripMargin
+    )
+  }
+
+  def testUnusedDeprecatedInheritance(): Unit = checkTextHasNoErrors(
+    s"""
+       |@deprecatedInheritance
+       |class Test {
+       |  def test(): Int = 3
+       |}
+       |
+       |val x = new Test
+       |x.test()
+       |""".stripMargin
+  )
+
+  def testDeprecatedInheritanceWithoutConstructorCall(): Unit = checkTextHasError(
+    s"""
+       |@deprecatedInheritance
+       |class Base {
+       |  def test(): Int = 3
+       |}
+       |
+       |class Impl extends ${START}Base$END {
+       |  override test(): Int = 4
+       |}
+       |""".stripMargin
+  )
+
+  def testDeprecatedInheritanceWithConstructorCall(): Unit = checkTextHasError(
+    s"""
+       |@deprecatedInheritance
+       |class Base(i: Int) {
+       |  def test(): Int = 3
+       |}
+       |
+       |class Impl extends ${START}Base$END(666) {
+       |  override test(): Int = 4
+       |}
+       |""".stripMargin
+  )
+
+  def testDeprecatedInheritanceInNewExpr(): Unit = checkTextHasError(
+    s"""
+       |@deprecatedInheritance
+       |class Base {
+       |  def test(): Int = 3
+       |}
+       |
+       |new ${START}Base$END {
+       |  override test(): Int = 4
+       |}
+       |""".stripMargin
+  )
 }
 
-class ScalaDeprecationInspectionTest_where_duprecatedName_is_deprecated extends ScalaDeprecationInspectionTestBase {
+class ScalaDeprecationInspectionTest_where_deprecatedName_symbol_constructor_is_deprecated extends ScalaDeprecationInspectionTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version  <= LatestScalaVersions.Scala_2_12
 
