@@ -231,10 +231,10 @@ class ScopeAnnotatorTest extends SimpleTestCase {
   def testMembers(): Unit = {
     assertClashes("class C(p: Any) { val p = null }", "p")
     assertMatches(messages("class C(a: Any, b: Any) { val a = null; val b = null }")) {
-      case Error("b", _) :: Error("a", _) :: Error("a", _) :: Error("b", _) :: Nil =>
+      case Error("a", _) :: Error("a", _) :: Error("b", _) :: Error("b", _) :: Nil =>
     }
     assertMatches(messages("class C(a: Any)(b: Any) { val b = null; val a = null }")) {
-      case Error("a", _) :: Error("b", _) :: Error("a", _) :: Error("b", _) :: Nil =>
+      case Error("a", _) :: Error("a", _) :: Error("b", _) :: Error("b", _) :: Nil =>
     }
     assertClashes("class C(val p: Any) { val p = null }", "p")
     assertClashes("class C(var p: Any) { val p = null }", "p")
@@ -603,6 +603,36 @@ class ScopeAnnotatorTest extends SimpleTestCase {
         |  }
         |}
       """.stripMargin, "foo")
+  }
+
+  def testDifferentReturnTypes(): Unit = {
+    assertClashes(
+      """
+        |object Test {
+        |  def test(a: Int): Int = 0
+        |  def test(b: Int): Boolean = true
+        |}
+      """.stripMargin, "test")
+
+    assertFine(
+      """
+        |trait Option[+X]
+        |object Test {
+        |  def test(a: Option[Int]): Int = 0
+        |  def test(b: Option[Boolean]): Boolean = true
+        |}
+      """.stripMargin)
+
+    assertClashes(
+      """
+        |trait Option[+X]
+        |object Test {
+        |  type Opt[Y] = Option[Y]
+        |  def test(a: Opt[Int]): Int = 0
+        |  def test(b: Option[Int]): Boolean = true
+        |}
+      """.stripMargin, "test")
+
   }
 
   def clashesOf(@Language(value = "Scala", prefix = Header) code: String) = {
