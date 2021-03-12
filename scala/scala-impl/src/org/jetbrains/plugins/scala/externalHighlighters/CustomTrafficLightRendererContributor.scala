@@ -28,7 +28,7 @@ class CustomTrafficLightRendererContributor
     new TrafficLightRenderer(project, editor.getDocument) {
       override def getDaemonCodeAnalyzerStatus(severityRegistrar: SeverityRegistrar): DaemonCodeAnalyzerStatus = {
         def isHighlightingCompilerRunning(project: Project): Boolean =
-          HighlightingCompiler.get(project).isRunning
+          CompilerHighlightingService.get(project).isCompiling
 
         if (!project.isDisposed) { // EA-246923
           val compilerHighlightingInProgress =

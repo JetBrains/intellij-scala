@@ -155,6 +155,11 @@ package object extensions {
     def isScala2File: Boolean =
       file.getLanguage == ScalaLanguage.INSTANCE
 
+    def isScalaWorksheet: Boolean = file match {
+      case scalaFile: ScalaFile => scalaFile.isWorksheetFile
+      case _ => false
+    }
+
     private def viewProvider = file.getViewProvider
   }
 
