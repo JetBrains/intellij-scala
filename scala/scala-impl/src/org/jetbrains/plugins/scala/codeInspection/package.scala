@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -25,19 +26,24 @@ package object codeInspection {
   } yield textEditor.getEditor
 
   private[codeInspection] def expressionResultIsNotUsed(expression: ScExpression): Boolean =
-    isNonLastInBlock(expression) ||
+    parentCannotUseExprAsResult(expression) ||
       parents(expression).exists {
-        case e: ScExpression => isNonLastInBlock(e)
+        case e: ScExpression => parentCannotUseExprAsResult(e)
         case _ => false
       } ||
       isInUnitFunctionReturnPosition(expression)
 
-  private[this] def isNonLastInBlock(expression: ScExpression) = expression.getParent match {
+  private[this] def parentCannotUseExprAsResult(expression: ScExpression): Boolean = expression.getParent match {
     case block: ScBlock => !block.resultExpression.contains(expression)
+    case f: ScFor if f.body.contains(expression) => !f.isYield
+    case w: ScWhile if w.expression.contains(expression) => true
+    case w: ScDo if w.body.contains(expression) => true
+    case _: ScTemplateBody => true
+    case _: ScFinallyBlock => true
     case _ => false
   }
 
-  private[this] def parents(expression: ScExpression) = {
+  private[this] def parents(expression: ScExpression): Iterator[PsiElement] = {
     def isNotAncestor(maybeExpression: Option[ScExpression]) =
       maybeExpression.forall(!PsiTreeUtil.isAncestor(_, expression, false))
 

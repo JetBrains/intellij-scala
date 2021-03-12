@@ -55,21 +55,21 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
           param.asOptionOf[ScClassParameter].exists(isOverridingOrOverridden)
         def caseClassParam(param: ScParameter): Boolean =
           param.asOptionOf[ScClassParameter].exists(_.isCaseClassVal)
-        isLocalOrPrivate(fun).option(fun) ++: (
+        isLocalOrPrivate(fun).option(fun) ++:
           fun.parameters
-            .filterNot(_.isWildcard)
-            .filter(_.isPhysical)   // context bound are desugared into parameters, for example
-            .filterNot(_.isImplicitParameter)
-            .filterNot(caseClassParam)
-            .filterNot(nonPrivateClassMemberParam)
-            .filterNot(overridingParam)
-        )
+          .filterNot(_.isWildcard)
+          .filter(_.isPhysical)   // context bound are desugared into parameters, for example
+          .filterNot(_.isImplicitParameter)
+          .filterNot(caseClassParam)
+          .filterNot(nonPrivateClassMemberParam)
+          .filterNot(overridingParam)
       case caseClause: ScCaseClause => caseClause.pattern.toSeq.flatMap(_.bindings).filterNot(_.isWildcard)
       case declaredHolder: ScDeclaredElementsHolder => declaredHolder.declaredElements.filterNot(isOverridingOrOverridden)
       case enumerators: ScEnumerators => enumerators.patterns.flatMap(_.bindings).filterNot(_.isWildcard) //for statement
       case _ => Seq.empty
     }
     elements.flatMap {
+      case holder: PsiAnnotationOwner if hasUnusedAnnotation(holder) => Seq.empty
       case named: ScNamedElement =>
         if (!isElementUsed(named, isOnTheFly)) {
           Seq(ProblemInfo(named.nameId, ScalaUnusedSymbolInspection.annotationDescription, ProblemHighlightType.LIKE_UNUSED_SYMBOL, Seq(new DeleteUnusedElementFix(named))))
@@ -79,7 +79,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
   }
 
   override def shouldProcessElement(elem: PsiElement): Boolean = elem match {
-    case m: ScMember if m.hasModifierProperty(ScalaKeyword.IMPLICIT) => false
+    case m: ScMember if m.hasModifierPropertyScala(ScalaKeyword.IMPLICIT) => false
     case _: ScFunctionDeclaration => false
     case p: ScModifierListOwner if hasOverrideModifier(p) => false
     case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) => false
@@ -96,7 +96,7 @@ object ScalaUnusedSymbolInspection {
   val shortName: String = "ScalaUnusedSymbol"
 
   private def hasOverrideModifier(member: ScModifierListOwner): Boolean =
-    member.hasModifierProperty(ScalaModifier.OVERRIDE)
+    member.hasModifierPropertyScala(ScalaModifier.OVERRIDE)
 
   private def isOverridingOrOverridden(element: PsiNamedElement): Boolean =
     superValsSignatures(element, withSelfType = true).nonEmpty || isOverridden(element)
@@ -105,5 +105,11 @@ object ScalaUnusedSymbolInspection {
     hasOverrideModifier(func) || func.superSignatures.nonEmpty || isOverridden(func)
 
   private def isOverridden(member: PsiNamedElement): Boolean =
-      ScalaOverridingMemberSearcher.search(member, deep = false, withSelfType = true).nonEmpty
+    ScalaOverridingMemberSearcher.search(member, deep = false, withSelfType = true).nonEmpty
+
+  private def hasUnusedAnnotation(holder: PsiAnnotationOwner): Boolean =
+    holder.hasAnnotation("scala.annotation.unused") ||
+      // not entirely correct, but if we find @nowarn here in this situation
+      // we can assume that it is directed at the unusedness of the symbol
+      holder.hasAnnotation("scala.annotation.nowarn")
 }

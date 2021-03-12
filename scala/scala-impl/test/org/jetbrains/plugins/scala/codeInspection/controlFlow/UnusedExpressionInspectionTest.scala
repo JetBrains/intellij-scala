@@ -3,7 +3,6 @@ package codeInspection
 package controlFlow
 
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
 abstract class UnusedExpressionInspectionTestBase extends ScalaInspectionTestBase {
 
@@ -264,22 +263,6 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |}"""
   }
 
-  def testObject(): Unit = checkTextHasNoErrors {
-    """
-      |class Test {
-      |  def foo(): Unit = {
-      |    A
-      |    println("world")
-      |  }
-      |}
-      |
-      |object A {
-      |  println("hello")
-      |}
-      |
-      """
-  }
-
   def testConstructorCall(): Unit = checkTextHasNoErrors {
     """
       |class Test {
@@ -383,6 +366,78 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
       |  ()
       |}
       |""".stripMargin
+  )
+
+  def test_object(): Unit = checkTextHasError(
+    s"""
+       |object Blub
+       |
+       |def test(): Unit = {
+       |  ${START}Blub$END
+       |}
+       |""".stripMargin
+  )
+
+  def test_val_reference(): Unit = checkTextHasError(
+    s"""
+       |object Test {
+       |  val x = 0
+       |  ${START}x$END
+       |}
+       |""".stripMargin
+  )
+
+  def test_while_block(): Unit = checkTextHasError(
+    s"""
+       |while (true) {
+       |  ${START}3$END
+       |}
+       |""".stripMargin
+  )
+
+  def test_while_direct(): Unit = checkTextHasError(
+    s"""
+       |while (true)
+       |  ${START}3$END
+       |""".stripMargin
+  )
+
+  def test_do_while_direct(): Unit = checkTextHasError(
+    s"""
+       |do ${START}3$END while (true)
+       |""".stripMargin
+  )
+
+  def test_for_block(): Unit = checkTextHasError(
+    s"""
+       |for (a <- Sed(1)) {
+       |  ${START}3$END
+       |}
+       |""".stripMargin
+  )
+
+  def test_for_direct(): Unit = checkTextHasError(
+    s"""
+       |for (a <- Sed(1))
+       |  ${START}3$END
+       |""".stripMargin
+  )
+
+  def test_for_yield(): Unit = checkTextHasNoErrors(
+    s"""
+       |for (a <- Sed(1))
+       |  yield 3
+       |""".stripMargin
+  )
+
+
+  def test_finally(): Unit = checkTextHasError(
+    s"""
+       |def test(): Int = {
+       |  try 3
+       |  finally ${START}3$END
+       |}
+       |""".stripMargin
   )
 }
 

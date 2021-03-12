@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
-import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScSymbolLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScStringLiteral, ScSymbolLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
@@ -54,8 +54,11 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
     for {
       annotation <- annotations.find(_.typeElement.getText.contains("deprecatedName"))
       args <- annotation.constructorInvocation.args
-      ScSymbolLiteral(symbol) <- args.exprs.headOption
-    } yield symbol.name
+      name <- args.exprs.headOption collect {
+        case ScSymbolLiteral(symbol) => symbol.name
+        case ScStringLiteral(str) => str
+      }
+    } yield name
   }
 
   // in Scala 3 in a using clause you can have parameter without a name
