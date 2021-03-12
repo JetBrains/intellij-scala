@@ -13,6 +13,9 @@ class Bug3Test_2_13 extends Bug3TestBase {
 
   @Ignore // canBuildFrom is not available in 2.13
   override def testSCL7142(): Unit = ()
+
+  // new deprecatedName constructor
+  def testSCL18791(): Unit = {doTest()}
 }
 
 abstract class Bug3TestBase extends ResolveTestBase {

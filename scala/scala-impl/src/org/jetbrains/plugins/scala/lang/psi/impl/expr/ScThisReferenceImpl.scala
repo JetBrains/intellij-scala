@@ -6,7 +6,8 @@ package expr
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.ScalaBundle
+import com.intellij.psi.util.PsiTreeUtil.{getContextOfType, isContextAncestor}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -33,12 +34,14 @@ class ScThisReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) with
 
   override def refTemplate: Option[ScTemplateDefinition] = reference match {
     case Some(ref) => ref.resolve() match {
-      case td: ScTypeDefinition if PsiTreeUtil.isContextAncestor(td, ref, false) => Some(td)
+      case td: ScTypeDefinition if isContextAncestor(td, ref, false) => Some(td)
       case _ => None
     }
     case None =>
-      val encl = PsiTreeUtil.getContextOfType(this, false, classOf[ScTemplateBody])
-      if (encl != null) Some(PsiTreeUtil.getContextOfType(encl, false, classOf[ScTemplateDefinition])) else None
+      getContextOfType(this, false, classOf[ScTemplateBody])
+        .nullSafe
+        .map(getContextOfType(_, false, classOf[ScTemplateDefinition]))
+        .toOption
   }
 
   override def toString: String = "ThisReference"
