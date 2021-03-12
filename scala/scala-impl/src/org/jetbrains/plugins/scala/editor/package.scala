@@ -46,15 +46,7 @@ package object editor {
     def syncToDisk(project: Project): Unit =
       virtualFile.filter(_.isValid).foreach { file =>
         val requestor = FileDocumentManager.getInstance
-        val separator = if (document.getLineCount > 1)
-          FileDocumentManagerImpl.getLineSeparator(document, file)
-        else
-          "\n"
-        val documentText = document.getText
-        val text = if (separator != "\n")
-          StringUtil.convertLineSeparators(documentText, separator)
-        else
-          documentText
+        val text = textWithConvertedSeparators(file)
         val modificationStamp = document.getModificationStamp
         invokeAndWait {
           inWriteAction {
@@ -62,6 +54,18 @@ package object editor {
           }
         }
       }
+
+    def textWithConvertedSeparators(file: VirtualFile): String = {
+      val separator = if (document.getLineCount > 1)
+        FileDocumentManagerImpl.getLineSeparator(document, file)
+      else
+        "\n"
+      val documentText = document.getText
+      if (separator != "\n")
+        StringUtil.convertLineSeparators(documentText, separator)
+      else
+        documentText
+    }
   }
 
   implicit class EditorExt(private val editor: Editor) extends AnyVal {

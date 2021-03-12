@@ -26,7 +26,7 @@
         <extensionPoint name="importUsedProvider" interface="org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfoProvider" dynamic="true"/>
         <extensionPoint name="importOptimizerHelper" interface="org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizerHelper" dynamic="true"/>
         <extensionPoint name="referenceExtraResolver" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceExtraResolver" dynamic="true"/>
-        <extensionPoint name="highlightingCompilerHelper" interface="org.jetbrains.plugins.scala.externalHighlighters.HighlightingCompilerHelper" dynamic="true"/>
+        <extensionPoint name="worksheetCompiler" interface="org.jetbrains.plugins.scala.externalHighlighters.compiler.WorksheetCompiler" dynamic="true"/>
         <extensionPoint name="compilerSettingsProfileProvider" interface="org.jetbrains.plugins.scala.codeInspection.feature.ScalaCompilerSettingsProfileProvider" dynamic="true"/>
     </extensionPoints>
 
@@ -518,8 +518,6 @@
         <projectService serviceImplementation="scala.meta.intellij.MetaExpansionsManager"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"/>
-        <projectService serviceInterface="org.jetbrains.plugins.scala.externalHighlighters.HighlightingCompiler"
-                        serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.HighlightingCompilerImpl"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.CompileServerClient"
                         serviceImplementation="org.jetbrains.plugins.scala.compiler.CompileServerClientImpl"/>
 
@@ -1769,17 +1767,19 @@
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
                   class="org.jetbrains.plugins.scala.compiler.CompileServerLauncher$Listener"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.plugins.scala.externalHighlighters.RegisterCompilationListener"/>
-        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.externalHighlighters.ToggleHighlightingModeListener"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.plugins.scala.externalHighlighters.CompileOnProjectOpenedListener"/>
+                  class="org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingOnProjectOpenedListener"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.components.Scala3Disclaimer$ProjectListener"/>
+
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
                   class="org.jetbrains.plugins.scala.externalHighlighters.CompilerLockBuildManagerListener"/>
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
                   class="org.jetbrains.plugins.scala.externalHighlighters.DropProjectDataChangesBuildManagerListener"/>
+        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
+                  class="org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingOnPsiChangeListener"/>
+
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
                   class="org.jetbrains.plugins.scala.compilationCharts.CompilationChartsBuildManagerListener"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
@@ -1806,8 +1806,6 @@
 
         <listener topic="org.jetbrains.plugins.scala.compiler.CompilerEventListener"
                   class="org.jetbrains.plugins.scala.externalHighlighters.UpdateCompilerGeneratedStateListener"/>
-        <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
-                  class="org.jetbrains.plugins.scala.externalHighlighters.RegisterCompilationListener$MyFileEditorManagerListener"/>
 
         <listener topic="com.intellij.execution.ExecutionListener"
                   class="org.jetbrains.plugins.scala.runner.SyncOutputExecutionListener"/>
@@ -1817,6 +1815,9 @@
 
         <listener topic="org.jetbrains.plugins.scala.compiler.CompilerEventListener"
                   class="org.jetbrains.plugins.scala.compilationCharts.UpdateCompilationProgressListener"/>
+
+        <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
+                  class="org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingOnEditorSelectionChangedListener"/>
     </projectListeners>
     <actions>
         <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaTypeDefinitionAction">
