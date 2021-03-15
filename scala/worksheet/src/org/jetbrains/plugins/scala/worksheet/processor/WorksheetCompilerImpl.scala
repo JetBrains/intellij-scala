@@ -17,6 +17,9 @@ final class WorksheetCompilerImpl
         return
     }
 
+    if (file.getProject.isDisposed)
+      return
+
     val module = scalaFile.module.getOrElse(return)
     val compiler = new WorksheetCompiler(module, scalaFile)
     compiler.compileOnlySync(
