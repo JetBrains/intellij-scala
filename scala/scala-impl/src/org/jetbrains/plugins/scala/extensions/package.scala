@@ -1524,6 +1524,11 @@ package object extensions {
         logger.debug(message)
       }
 
+    def debugSafe(@NonNls message: => String, ex: Throwable): Unit =
+      if (logger.isDebugEnabled) {
+        logger.debug(message, ex)
+      }
+
     def traceSafe(@NonNls message: => String): Unit =
       if (logger.isTraceEnabled)
         logger.trace(message)
