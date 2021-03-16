@@ -1,0 +1,71 @@
+2 match
+  case 1 =>
+    "a" match
+      case "a" => "aa"
+      case "b" => "bb"
+  case 2 =>
+    22
+-----
+ScalaFile
+  MatchStatement
+    IntegerLiteral
+      PsiElement(integer)('2')
+    PsiWhiteSpace(' ')
+    PsiElement(match)('match')
+    PsiWhiteSpace('\n  ')
+    CaseClauses
+      CaseClause
+        PsiElement(case)('case')
+        PsiWhiteSpace(' ')
+        LiteralPattern
+          IntegerLiteral
+            PsiElement(integer)('1')
+        PsiWhiteSpace(' ')
+        PsiElement(=>)('=>')
+        PsiWhiteSpace('\n    ')
+        BlockOfExpressions
+          MatchStatement
+            StringLiteral
+              PsiElement(string content)('"a"')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n      ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"a"')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  StringLiteral
+                    PsiElement(string content)('"aa"')
+              PsiWhiteSpace('\n      ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('"b"')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  StringLiteral
+                    PsiElement(string content)('"bb"')
+      PsiWhiteSpace('\n  ')
+      CaseClause
+        PsiElement(case)('case')
+        PsiWhiteSpace(' ')
+        LiteralPattern
+          IntegerLiteral
+            PsiElement(integer)('2')
+        PsiWhiteSpace(' ')
+        PsiElement(=>)('=>')
+        PsiWhiteSpace('\n    ')
+        BlockOfExpressions
+          IntegerLiteral
+            PsiElement(integer)('22')

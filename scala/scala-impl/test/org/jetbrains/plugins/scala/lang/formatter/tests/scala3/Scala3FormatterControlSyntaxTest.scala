@@ -305,4 +305,139 @@ class Scala3FormatterControlSyntaxTest extends Scala3FormatterBaseTest {
       |    println(4)
       |""".stripMargin
   )
+
+  def testTryCatch_IndentedCaseClause(): Unit = doTextTestWithExtraSpaces(
+    """try println(42)
+      |catch
+      |  case ex: ClassCastException => ex.printStackTrace()
+      |    case ex: IndexOutOfBoundsException => ex.printStackTrace()
+      |      case ex: Exception => ex.printStackTrace()
+      |""".stripMargin,
+    """try println(42)
+      |catch
+      |  case ex: ClassCastException => ex.printStackTrace()
+      |  case ex: IndexOutOfBoundsException => ex.printStackTrace()
+      |  case ex: Exception => ex.printStackTrace()
+      |""".stripMargin
+  )
+
+  def testMatch(): Unit = doTextTest(
+    """Option(42) match
+      |  case Some(42) => println(1)
+      |    case _ => println(2)
+      |""".stripMargin,
+    """Option(42) match
+      |  case Some(42) => println(1)
+      |  case _ => println(2)
+      |""".stripMargin,
+    repeats = 3
+  )
+
+  def testMatch_InsideFunctionWithBraces(): Unit = doTextTest(
+    """def foo(): Unit = {
+      |  Option(42) match
+      |      case Some(42) => println(1)
+      |         case _ => println(2)
+      |}""".stripMargin,
+    """def foo(): Unit = {
+      |  Option(42) match
+      |    case Some(42) => println(1)
+      |    case _ => println(2)
+      |}""".stripMargin,
+    repeats = 3
+  )
+
+  def testMatch_IndentedCase(): Unit = doTextTest(
+    """1 match
+      |  case 1 => 11
+      |    case 2 => 22
+      |""".stripMargin,
+    """1 match
+      |  case 1 => 11
+      |  case 2 => 22
+      |""".stripMargin,
+  )
+
+  def testMatch_IndentedIncompleteCase(): Unit = doTextTest(
+    """1 match
+      |  case 1 => 11
+      |    case
+      |""".stripMargin,
+    """1 match
+      |  case 1 => 11
+      |  case
+      |""".stripMargin,
+  )
+
+  def testMatch_IndentedIncompleteCase_1(): Unit = doTextTest(
+    """1 match
+      |  case 1 => 11
+      |    case 2
+      |""".stripMargin,
+    """1 match
+      |  case 1 => 11
+      |  case 2
+      |""".stripMargin,
+  )
+
+  def testMatch_Nested(): Unit = doTextTest(
+    """3 match
+      |  case 1 => 11
+      |  case 2 =>
+      |    "a" match
+      |      case "a" => "aa"
+      |      case "b" => "bb"
+      |  case 3 => 33
+      |""".stripMargin
+  )
+
+  def testMatch_Nested_IndentedCase(): Unit = doTextTest(
+    """3 match
+      |  case 1 => 11
+      |  case 2 =>
+      |    "a" match
+      |      case "a" => "aa"
+      |        case "b" => "bb"
+      |  case 3 => 33
+      |""".stripMargin,
+    """3 match
+      |  case 1 => 11
+      |  case 2 =>
+      |    "a" match
+      |      case "a" => "aa"
+      |      case "b" => "bb"
+      |  case 3 => 33
+      |""".stripMargin
+  )
+
+  def testMatch_Nested_IndentedIncompleteCase(): Unit = doTextTest(
+    """3 match
+      |  case 1 => 11
+      |  case 2 =>
+      |    "a" match
+      |      case "a" => "aa"
+      |        case
+      |  case 3 => 33
+      |""".stripMargin,
+    """3 match
+      |  case 1 => 11
+      |  case 2 =>
+      |    "a" match
+      |      case "a" => "aa"
+      |      case
+      |  case 3 => 33
+      |""".stripMargin
+  )
+
+  def testMatch_CasesOnSameLine(): Unit = {
+    doTextTest(
+      """2 match
+        |  case 1 => 11 case 2 => 22
+        |""".stripMargin,
+      """2 match
+        |  case 1 => 11
+        |  case 2 => 22
+        |""".stripMargin
+    )
+  }
 }
