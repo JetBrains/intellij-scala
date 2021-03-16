@@ -20,14 +20,6 @@ package object tasty {
   @Nls
   val tastyName = "TASTy"
 
-  case class TastyFile(source: String, text: String, references: Seq[ReferenceData], types: Seq[TypeData])
-
-  case class Position(file: String, start: Int,  end: Int)
-
-  case class ReferenceData(position: Position, target: Position)
-
-  case class TypeData(position: Position, presentation: String)
-
   def isTastyEnabledFor(element: PsiElement): Boolean =
     ScalaHighlightingMode.showDotcErrors && element.isInScala3Module
 //    element.getLanguage.is(Scala3Language.INSTANCE) // TODO SCL-17237
