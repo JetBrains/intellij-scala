@@ -58,7 +58,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
 
     def exTpMatchesPattp = matchesPattern(exTp, widen(patType))
 
-    val neverMatches = !matchesPattern(exTp, patType) && isNeverSubType(exTp, patType)
+    val neverMatches = !matchesPattern(exTp, patType) && isNeverSubType(abstraction(patType), exTp)
 
     def isEliminatedByErasure = (exprType.extractClass, patType.extractClass) match {
       case (Some(cl1), Some(cl2)) if pattern.is[ScTypedPattern] => !isNeverSubClass(cl1, cl2)
@@ -179,19 +179,20 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
     builder.result()
   }
 
+  private def abstraction(scType: ScType, visited: Set[TypeParameterType] = Set.empty): ScType = {
+    scType.updateLeaves {
+      case tp: TypeParameterType =>
+        if (visited.contains(tp)) tp
+        else ScAbstractType(tp.typeParameter,
+          abstraction(tp.lowerType, visited + tp),
+          abstraction(tp.upperType, visited + tp)
+        )
+    }
+  }
+
   // TODO Should be in ScPattern, not in the annotator?
   @tailrec
   def matchesPattern(matching: ScType, matched: ScType): Boolean = {
-    def abstraction(scType: ScType, visited: Set[TypeParameterType] = Set.empty): ScType = {
-      scType.updateLeaves {
-        case tp: TypeParameterType =>
-          if (visited.contains(tp)) tp
-          else ScAbstractType(tp.typeParameter,
-            abstraction(tp.lowerType, visited + tp),
-            abstraction(tp.upperType, visited + tp)
-          )
-      }
-    }
 
     matching.weakConforms(matched) || ((matching, matched) match {
       case (arrayType(arg1), arrayType(arg2)) => matchesPattern(arg1, arg2)
