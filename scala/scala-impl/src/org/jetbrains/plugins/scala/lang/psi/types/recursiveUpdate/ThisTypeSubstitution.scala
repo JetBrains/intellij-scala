@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 import com.intellij.psi.{PsiClass, PsiTypeParameter}
 import org.jetbrains.plugins.scala.extensions.PsiMemberExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaration
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -27,31 +27,30 @@ private case class ThisTypeSubstitution(target: ScType) extends LeafSubstitution
   }
 
   @tailrec
-  private def doUpdateThisType(thisTp: ScThisType, target: ScType): ScType = {
+  private def doUpdateThisType(thisTp: ScThisType, target: ScType): ScType =
     if (isMoreNarrow(target, thisTp, Set.empty)) target
     else {
       containingClassType(target) match {
         case Some(targetContext) => doUpdateThisType(thisTp, targetContext)
-        case _ => thisTp
+        case _                   => thisTp
       }
     }
-  }
 
   private def hasRecursiveThisType(tp: ScType, clazz: ScTemplateDefinition): Boolean =
     tp.subtypeExists {
-      case ScThisType(`clazz`) => true
-      case _ => false
+      case tpe: ScThisType => isSameOrInheritor(clazz, tpe)
+      case _               => false
     }
 
   private def containingClassType(tp: ScType): Option[ScType] = tp match {
     case ScThisType(template) =>
       template.containingClass match {
         case td: ScTemplateDefinition => Some(ScThisType(td))
-        case _ => None
+        case _                        => None
       }
-    case ScProjectionType(newType, _) => Some(newType)
+    case ScProjectionType(newType, _)                       => Some(newType)
     case ParameterizedType(ScProjectionType(newType, _), _) => Some(newType)
-    case _ => None
+    case _                                                  => None
   }
 
   private def isSameOrInheritor(clazz: PsiClass, thisTp: ScThisType): Boolean =
