@@ -65,6 +65,7 @@ private object ScalaTypeHintsPass {
       .exists(_.hasCustomIndents)
 
   private[this] def adjacentDefinitionsFrom(it: Iterator[PsiElement]) = it.grouped(2).collect {
+    // can we just use `_: ScDefinitionWithAssignment` here?
     case Seq(ws: PsiWhiteSpace, definition @(_: ScPatternDefinition | _: ScVariableDefinition | _: ScFunctionDefinition))
       if ws.getText.count(_ == '\n') == 1 =>
       Definition(definition)

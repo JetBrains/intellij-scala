@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 * Date: 22.02.2008
 */
 
-trait ScPatternDefinition extends ScValue {
+trait ScPatternDefinition extends ScValue with ScDefinitionWithAssignment {
   def pList: ScPatternList
 
   def bindings: Seq[ScBindingPattern]

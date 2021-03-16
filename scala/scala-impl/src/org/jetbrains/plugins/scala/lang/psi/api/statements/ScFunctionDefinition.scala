@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.Cached
  *         Date: 22.02.2008
  *         Time: 9:49:36
  */
-trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
+trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner with ScDefinitionWithAssignment {
 
   def body: Option[ScExpression]
 
