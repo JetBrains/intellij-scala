@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 /**
  * @author Jason Zaugg
  */
-trait ScMacroDefinition extends ScFunction {
+trait ScMacroDefinition extends ScFunction with ScDefinitionWithAssignment {
   def typeElement: Option[ScTypeElement] = returnTypeElement
 
   def macroImplReference: Option[ScStableCodeReference]

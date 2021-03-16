@@ -1,0 +1,6 @@
+var foo(arg: Type) =<caret>
+  42
+-----
+var foo(arg: Type) =
+  <caret>
+  42
