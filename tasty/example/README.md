@@ -1,1 +1,0 @@
-Example of using TASTy Inspect & Reflect APIs from Scala 2.x, in-process, with dynamic compiler code instantiation.

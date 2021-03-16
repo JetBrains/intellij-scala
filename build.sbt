@@ -120,24 +120,12 @@ lazy val worksheetReplInterface =
       packageMethod :=  PackagingMethod.Standalone("lib/repl-interface.jar", static = true)
     )
 
-lazy val tastyProvided = newProject("tasty-provided", file("tasty/provided"))
-  .settings(scalaVersion := Versions.scalaVersion, packageMethod := PackagingMethod.Skip())
-
-lazy val tastyCompile = newProject("tasty-compile", file("tasty/compile"))
-  .dependsOn(tastyProvided % Provided)
-  .settings(scalaVersion := Versions.scalaVersion, packageMethod := PackagingMethod.Standalone("lib/tasty-compile.jar"))
-
-lazy val tastyRuntime = newProject("tasty-runtime", file("tasty/runtime"))
-  .dependsOn(tastyCompile % "compile-internal", tastyProvided % Provided)
-  .settings(scalaVersion := Versions.scalaVersion, packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-runtime.jar"))
-
-lazy val tastyExample = newProject("tasty-example", file("tasty/example"))
-  .dependsOn(tastyCompile, tastyProvided % Provided)
-  .settings(scalaVersion := Versions.scalaVersion, libraryDependencies += "org.scala-lang" % "scala3-library_3.0.0-M2" % "3.0.0-M2" % Runtime)
-
-// TODO Remove this synthetic module, package the Runtime dependency automatically.
-lazy val scala3LibraryJar = newProject("scala3-library-jar", file("target/tools/scala3-library-jar"))
-  .settings(libraryDependencies += "org.scala-lang" % "scala3-library_3.0.0-M2" % "3.0.0-M2", packageMethod := PackagingMethod.DepsOnly("lib"))
+lazy val tastyRuntime = Project("tasty-runtime", file("tasty/runtime"))
+  .settings(scalaVersion := "3.0.0-M2",
+    libraryDependencies += "org.scala-lang" % "scala3-tasty-inspector_3.0.0-M2" % "3.0.0-M2" % "compile-internal",
+    scalacOptions in Compile := Seq("-strict"), // TODO If there are no unique options, sbt import adds the module to a profile with macros enabled.
+    unmanagedSourceDirectories in Compile += baseDirectory.value / "src",
+    packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-runtime.jar"))
 
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
@@ -148,8 +136,6 @@ lazy val scalaImpl: sbt.Project =
       decompiler % "test->test;compile->compile",
       runners % "test->test;compile->compile",
       testRunners % "test->test;compile->compile",
-      tastyCompile,
-      tastyProvided % Provided
     )
     .dependsOn(scalatestFinders % "compile->compile")
     // scala-test-finders use different scala versions, so do not depend on it, just aggregate the tests
@@ -175,7 +161,7 @@ lazy val scalaImpl: sbt.Project =
       intellijPluginJars :=
         intellijPluginJars.value.map { case (descriptor, cp) => descriptor -> cp.filterNot(_.data.getName.contains("junit-jupiter-api")) },
       packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity),
-      packageAdditionalProjects := Seq(tastyRuntime, scala3LibraryJar),
+      packageAdditionalProjects := Seq(tastyRuntime),
       packageLibraryMappings ++= Seq(
         "org.scalameta" %% ".*" % ".*"                        -> Some("lib/scalameta.jar"),
         "com.thesamet.scalapb" %% "scalapb-runtime" % ".*"  -> None,
@@ -462,6 +448,7 @@ lazy val runtimeDependencies =
         Dependencies.tasty.inspector -> Some("lib/tasty/tasty-inspector.jar"),
         Dependencies.tasty.core % "3.0.0-M2" -> Some("lib/tasty/tasty-core.jar"),
         Dependencies.tasty.interfaces % "3.0.0-M2" -> Some("lib/tasty/scala-interfaces.jar"),
+        Dependencies.tasty.library % "3.0.0-M2" -> Some("lib/tasty/scala-library.jar"),
         Dependencies.tasty.compiler % "3.0.0-M2" -> Some("lib/tasty/scala-compiler.jar"),
       ),
       update := {
