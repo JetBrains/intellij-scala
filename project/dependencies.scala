@@ -132,6 +132,7 @@ object Dependencies {
     val inspector = "org.scala-lang" % "scala3-tasty-inspector_3.0.0-M2" % "3.0.0-M2"
     val core = "org.scala-lang" % "tasty-core_3.0.0-M2" % "3.0.0-M2"
     val interfaces = "org.scala-lang" % "scala3-interfaces" % "3.0.0-M2"
+    // TODO Remove when there will be a Scala 3 library in lib/
     val library = "org.scala-lang" % "scala3-library_3.0.0-M2" % "3.0.0-M2"
     val compiler = "org.scala-lang" % "scala3-compiler_3.0.0-M2" % "3.0.0-M2"
   }
@@ -209,5 +210,10 @@ object DependencyGroups {
     compilerBridgeSources_2_13,
     dottySbtBridge,
     scala3SbtBridge,
+    tasty.inspector,
+    tasty.core,
+    tasty.interfaces,
+    tasty.library,
+    tasty.compiler
   )
 }
