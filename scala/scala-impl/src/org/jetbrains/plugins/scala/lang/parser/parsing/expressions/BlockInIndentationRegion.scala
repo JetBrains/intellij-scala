@@ -29,6 +29,9 @@ object BlockInIndentationRegion extends ParsingRule {
         case ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tRBRACE =>
           return
 
+        case ScalaTokenTypes.kCASE =>
+          return
+
         case ScalaTokenTypes.tSEMICOLON =>
           builder.advanceLexer()
 
