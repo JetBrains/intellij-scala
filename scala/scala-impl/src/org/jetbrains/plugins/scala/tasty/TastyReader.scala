@@ -70,7 +70,7 @@ object TastyReader {
           "tasty-core.jar",
           "scala-interfaces.jar",
           "scala-compiler.jar",
-          "scala-library.jar")
+          "scala-library.jar") // TODO Use a Scala 3 library in lib/ (when there will be one)
           .map(new File(tastyDirectory, _)) ++
           Seq( // TODO Why do we also need this library in the URL classloader? (it work fine using the main method, but not from IDEA)
             s"scala-library-${BuildInfo.scalaVersion}.jar"
