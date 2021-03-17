@@ -59,4 +59,49 @@ class IfElseToOptionTest extends OperationsOnCollectionInspectionTest {
       "val x = 0; Option(x)"
     )
   }
+
+  def testBoxedJavaType(): Unit = doTest(
+    s"""
+       |val x: java.lang.Integer = null
+       |val y = ${START}if (null == x) None else Some(x)$END
+       |""".stripMargin,
+    """
+      |val x: java.lang.Integer = null
+      |val y = if (null == x) None else Some(x)
+      |""".stripMargin,
+    """
+      |val x: java.lang.Integer = null
+      |val y = Option(x)
+      |""".stripMargin
+  )
+
+
+  def testBoxedJavaTypeToInt(): Unit =
+    checkTextHasNoErrors(
+      """
+        |def test(x: java.lang.Integer): Option[Int] =
+        |  if (x == null) None else Some(x)
+        |""".stripMargin
+    )
+
+  def testBoxedJavaTypeAliasToInt(): Unit =
+    checkTextHasNoErrors(
+      """
+        |type X = java.lang.Integer
+        |def test(x: X): Option[Int] =
+        |  if (x == null) None else Some(x)
+        |""".stripMargin
+    )
+
+  def testConversionToPrimitive(): Unit =
+    checkTextHasNoErrors(
+      """
+        |trait X
+        |
+        |implicit def xtoInt(x: X): Int = 42
+        |
+        |def test(x: X): Option[Int] =
+        |  if (x == null) None else Some(x)
+        |""".stripMargin
+    )
 }
