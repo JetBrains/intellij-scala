@@ -34,6 +34,6 @@ trait ScPatternDefinition extends ScValue {
 
 object ScPatternDefinition {
   object expr {
-    def unapply(definition: ScPatternDefinition): Option[ScExpression] = Option(definition).flatMap(_.expr)
+    def unapply(definition: ScPatternDefinition): Option[ScExpression] = definition.expr
   }
 }

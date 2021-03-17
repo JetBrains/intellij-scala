@@ -72,7 +72,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
       case holder: PsiAnnotationOwner if hasUnusedAnnotation(holder) => Seq.empty
       case named: ScNamedElement =>
         if (!isElementUsed(named, isOnTheFly)) {
-          Seq(ProblemInfo(named.nameId, ScalaUnusedSymbolInspection.annotationDescription, ProblemHighlightType.LIKE_UNUSED_SYMBOL, Seq(new DeleteUnusedElementFix(named))))
+          Seq(ProblemInfo(named.nameId, ScalaUnusedSymbolInspection.annotationDescription, ProblemHighlightType.LIKE_UNUSED_SYMBOL, DeleteUnusedElementFix.quickfixesFor(named)))
         } else Seq.empty
       case _ => Seq.empty
     }

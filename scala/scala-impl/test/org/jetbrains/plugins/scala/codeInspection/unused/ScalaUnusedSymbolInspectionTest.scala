@@ -586,6 +586,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
        |}
        |""".stripMargin
   )
+
   def testNowarnAnnotation(): Unit = checkTextHasNoErrors(
     s"""
        |import scala.annotation.nowarn
@@ -602,4 +603,36 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
        |}
        |""".stripMargin
   )
+
+  def testSideEffectDefinition(): Unit = {
+    val text =
+      """
+        |object Test {
+        |  def test(): Int = 3
+        |  private val x = test()
+        |}
+        |""".stripMargin
+
+    testQuickFix(
+      text,
+      """
+        |object Test {
+        |  def test(): Int = 3
+        |}
+        |""".stripMargin,
+      hintWholeDefinition
+    )
+
+    testQuickFix(
+      text,
+      """
+        |object Test {
+        |  def test(): Int = 3
+        |
+        |  test()
+        |}
+        |""".stripMargin,
+      hintOnlyXBinding
+    )
+  }
 }
