@@ -598,8 +598,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     //
     // TODO: settings?
     rightPsi match {
-      case ScExtendsBlock.TemplateBody(body) if !body.isEnclosedByBraces =>
-        return WITHOUT_SPACING
+      case eb@ScExtendsBlock.TemplateBody(body) =>
+        val hasExtendsKeyword = eb.firstChild.map(_.elementType).contains(ScalaTokenTypes.kEXTENDS)
+        if (!hasExtendsKeyword && !body.isEnclosedByBraces)
+          return WITHOUT_SPACING
       case _ =>
     }
 
