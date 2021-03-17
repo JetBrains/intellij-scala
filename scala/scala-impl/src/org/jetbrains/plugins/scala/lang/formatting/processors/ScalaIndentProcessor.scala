@@ -166,9 +166,9 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
             Indent.getNormalIndent
           case _ => Indent.getNoneIndent
         }
-      case _: ScMatch =>
+      case _: ScMatch | _: ScMatchTypeElement=>
         childPsi match {
-          case _: ScCaseClauses if settings.INDENT_CASE_FROM_SWITCH => Indent.getNormalIndent
+          case _: ScCaseClauses | _: ScMatchTypeCases if settings.INDENT_CASE_FROM_SWITCH => Indent.getNormalIndent
           case _: PsiComment => Indent.getNormalIndent
           case _ => Indent.getNoneIndent
         }
