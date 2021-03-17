@@ -241,4 +241,40 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
         |}
         |""".stripMargin)
   }
+
+  def testTypeMatch_0(): Unit =
+    doTextTest(
+      """type Widen[Tup <: Tuple] <: Tuple = Tup match {
+        |  case EmptyTuple => EmptyTuple
+        |  case h *: t => h *: t
+        |}
+        |""".stripMargin
+    )
+
+  def testTypeMatch_1(): Unit =
+    doTextTest(
+      """type Widen[Tup <: Tuple] <: Tuple =
+        |  Tup match {
+        |    case EmptyTuple => EmptyTuple
+        |    case h *: t => h *: t
+        |  }
+        |""".stripMargin
+    )
+
+  def testTypeMatch_Braceless_0(): Unit =
+    doTextTest(
+      """type Widen[Tup <: Tuple] <: Tuple = Tup match
+        |  case EmptyTuple => EmptyTuple
+        |  case h *: t => h *: t
+        |""".stripMargin
+    )
+
+  def testTypeMatch_Braceless_1(): Unit =
+    doTextTest(
+      """type Widen[Tup <: Tuple] <: Tuple =
+        |  Tup match
+        |    case EmptyTuple => EmptyTuple
+        |    case h *: t => h *: t
+        |""".stripMargin
+    )
 }
