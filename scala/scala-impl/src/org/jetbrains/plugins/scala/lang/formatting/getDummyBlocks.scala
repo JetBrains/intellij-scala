@@ -175,18 +175,27 @@ class getDummyBlocks(private val block: ScalaBlock) {
         node.getFirstChildNode.getElementType == tMULTILINE_STRING && ss.supportMultilineString =>
         subBlocks.addAll(getMultilineStringBlocks(node))
         return subBlocks
-      case pack: ScPackaging if pack.isExplicit =>
-        val correctChildren = node.getChildren(null).filter(isNotEmptyNode)
-        val (beforeOpenBrace, afterOpenBrace) = correctChildren.span(_.getElementType != tLBRACE)
-        val hasValidTail = afterOpenBrace.nonEmpty && afterOpenBrace.head.getElementType == tLBRACE &&
-          afterOpenBrace.last.getElementType == tRBRACE
-        for (child <- if (hasValidTail) beforeOpenBrace else correctChildren) {
-          subBlocks.add(subBlock(child))
+      case pack: ScPackaging =>
+        /** see [[ScPackaging.findExplicitMarker]] doc */
+        val explicitMarker = pack.findExplicitMarker
+        explicitMarker match {
+          case Some(marker) =>
+            val markerNode = marker.getNode
+            val correctChildren = node.getChildren(null).filter(isNotEmptyNode)
+            val (beforeMarker, afterMarker) = correctChildren.span(_ != markerNode)
+            val hasValidTail = afterMarker.nonEmpty && (
+              afterMarker.head.getElementType == tLBRACE && afterMarker.last.getElementType == tRBRACE ||
+                afterMarker.head.getElementType == tCOLON
+              )
+            for (child <- if (hasValidTail) beforeMarker else correctChildren) {
+              subBlocks.add(subBlock(child))
+            }
+            if (hasValidTail) {
+              subBlocks.add(subBlock(afterMarker.head, afterMarker.last))
+            }
+            return subBlocks
+          case _ =>
         }
-        if (hasValidTail) {
-          subBlocks.add(subBlock(afterOpenBrace.head, afterOpenBrace.last))
-        }
-        return subBlocks
       case interpolated: ScInterpolatedStringLiteral =>
         //create and store alignment; required for support of multi-line interpolated strings (SCL-8665)
         alignmentsMap(interpolated.getProject).put(interpolated.createSmartPointer, buildQuotesAndMarginAlignments)
