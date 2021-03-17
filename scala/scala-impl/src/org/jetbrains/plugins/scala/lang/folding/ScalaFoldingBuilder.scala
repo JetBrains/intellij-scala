@@ -8,13 +8,15 @@ import com.intellij.openapi.util._
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.{ElementType, IteratorExt, ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder.{FoldingInfo, MatchExprOrMatchType}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScBraceOwner, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScParenthesisedTypeElement, ScTypeElement, ScTypeProjection}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScBraceOwner, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
@@ -25,9 +27,11 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubFileElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings
 
-import scala.jdk.CollectionConverters._
 import scala.collection._
+import scala.jdk.CollectionConverters._
 
+// TODO: do use ASTNode.getText or PsiElement.getText
+// TODO: extract shared string literals, like "{...}"
 class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
   import ScalaElementType._
   import ScalaFoldingUtil._
@@ -53,10 +57,11 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
         case ImportStatement if isGoodImport(node) =>
           descriptors add new FoldingDescriptor(node,
             new TextRange(nodeTextRange.getStartOffset + IMPORT_KEYWORD.length + 1, getImportEnd(node)))
-        case MATCH_STMT if isMultilineBodyInMatchStmt(node) =>
-          descriptors add new FoldingDescriptor(node,
-            new TextRange(nodeTextRange.getStartOffset + startOffsetForMatchStmt(node),
-              nodeTextRange.getEndOffset))
+        case MatchExprOrMatchType() =>
+          val infoOpt = multilineBodyInMatch(node)
+          infoOpt.foreach { info =>
+            descriptors add new FoldingDescriptor(node, info.range)
+          }
         case FUNCTION_DEFINITION =>
           psi match {
             case f: ScFunctionDefinition =>
@@ -181,7 +186,9 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
         case TEMPLATE_BODY => return "{...}"
         case PACKAGING => return "{...}"
         case ImportStatement => return "..."
-        case MATCH_STMT => return "{...}"
+        case MatchExprOrMatchType() =>
+          val info = multilineBodyInMatch(node)
+          return info.map(_.placeholder).getOrElse("{...}")
         case ScalaTokenTypes.tSH_COMMENT if node.getText.charAt(0) == ':' => return "::#!...::!#"
         case ScalaTokenTypes.tSH_COMMENT => return "#!...!#"
         case FUNCTION_DEFINITION =>
@@ -268,7 +275,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
           if foldingSettings.isCollapseImports => true
         case ScalaTokenTypes.tSH_COMMENT
           if foldingSettings.isCollapseShellComments => true
-        case MATCH_STMT
+        case MatchExprOrMatchType()
           if foldingSettings.isCollapseMultilineBlocks => true
         case ScCodeBlockElementType.BlockExpression
           if foldingSettings.isCollapseMultilineBlocks => true
@@ -297,36 +304,30 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
     node.getText.indexOf("\n") != -1
   }
 
-  private def isMultilineBodyInMatchStmt(node: ASTNode): Boolean = {
-    val children = node.getPsi.asInstanceOf[ScMatch].children
-    var index = 0
-    for (ch <- children) {
-      if (ch.isInstanceOf[PsiElement] && ch.getNode.getElementType == ScalaTokenTypes.kMATCH) {
-        val result = node.getText.substring(index + MATCH_KEYWORD.length)
-        return result.indexOf("\n") != -1
-      } else {
-        index += ch.getTextLength
-      }
-    }
-    false
-  }
+  /**
+   * @param node represents match expression or match type (Scala 3)
+   * @return Some(folding range, folding placegolder) - if the match is multiline andshould be folder<br>
+   *          None - otherise*/
+  private def multilineBodyInMatch(node: ASTNode): Option[FoldingInfo] = {
+    val children: Iterator[PsiElement] = node.getPsi.children
 
-  private def startOffsetForMatchStmt(node: ASTNode): Int = {
-    val children = node.getPsi.asInstanceOf[ScMatch].children
-    var offset = 0
-    var passedMatch = false
-    for (ch <- children) {
-      if (ch.isInstanceOf[PsiElement] && ch.getNode.getElementType == ScalaTokenTypes.kMATCH) {
-        offset += MATCH_KEYWORD.length
-        passedMatch = true
-      } else if (passedMatch) {
-        if (ch.isInstanceOf[PsiElement] && ch.getNode.getElementType == TokenType.WHITE_SPACE) offset += ch.getTextLength
-        return offset
-      } else {
-        offset += ch.getTextLength
+    val mathKeyword = children.dropWhile(_.elementType != ScalaTokenTypes.kMATCH).headOption
+    mathKeyword.flatMap  { mk =>
+      val textAfter = node.getText.substring(mk.getStartOffsetInParent)
+      val isMultiline = textAfter.contains('\n')
+      if (isMultiline) {
+        val nextLeaf = PsiTreeUtil.nextCodeLeaf(mk)
+        val (startOffset, placeholder) = nextLeaf match {
+          case openBrace@ElementType(ScalaTokenTypes.tLBRACE) =>
+            (openBrace.startOffset, "{...}")
+          case _ => // braceless match
+            (mk.endOffset, " ...")
+        }
+        val endOffset = node.getTextRange.getEndOffset
+        Some(FoldingInfo(TextRange.create(startOffset, endOffset), placeholder))
       }
+      else None
     }
-    0
   }
 
   private def isMultilineImport(node: ASTNode): Boolean = {
@@ -340,6 +341,8 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
     flag
   }
 
+  // TODO: rename/refactor
+  /** @return (isMultiline, foldingRange, foldingPlacegolder) */
   private def isMultilineFuncBody(func: ScFunctionDefinition): (Boolean, TextRange, String) = {
     val body = func.body.orNull
     if (body == null) return (false, null, "")
@@ -469,6 +472,16 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
 
   private def isBracelessBlock(element: PsiElement): Boolean =
     element.asOptionOf[ScBraceOwner].exists(!_.isEnclosedByBraces)
+}
+
+object ScalaFoldingBuilder {
+  private case class FoldingInfo(range: TextRange, placeholder: String)
+
+  private object MatchExprOrMatchType {
+    def unapply(el: IElementType): Boolean =
+      el == ScalaElementType.MATCH_STMT ||
+        el == ScalaElementType.MATCH_TYPE
+  }
 }
 
 private[folding] object ScalaFoldingUtil {

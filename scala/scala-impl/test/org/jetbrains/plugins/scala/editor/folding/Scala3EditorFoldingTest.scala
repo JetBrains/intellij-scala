@@ -31,4 +31,42 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
        |  println("test 2")$END
        |""".stripMargin
   )
+
+  def testMatch(): Unit = genericCheckRegions(
+    s"""1 match$INDENT_EXPR_ST
+       |  case 1 =>
+       |  case 2 =>
+       |  case 3 =>
+       |  case 4 =>$END
+       |""".stripMargin
+  )
+
+  def testMatch_WithBraces(): Unit = genericCheckRegions(
+    s"""1 match $BLOCK_ST{
+       |  case 1 =>
+       |  case 2 =>
+       |  case 3 =>
+       |  case 4 =>
+       |}$END
+       |""".stripMargin
+  )
+
+  def testMatchType(): Unit = genericCheckRegions(
+    s"""type Widen[Tup <: Tuple] <: Tuple =
+       |  Tup match$INDENT_EXPR_ST
+       |    case EmptyTuple => EmptyTuple
+       |    case EmptyTuple => EmptyTuple
+       |    case h *: t => h *: t$END
+       |""".stripMargin
+  )
+
+  def testMatchType_WithBraces(): Unit = genericCheckRegions(
+    s"""type Widen[Tup <: Tuple] <: Tuple =
+       |  Tup match $BLOCK_ST{
+       |    case EmptyTuple => EmptyTuple
+       |    case EmptyTuple => EmptyTuple
+       |    case h *: t => h *: t
+       |  }$END
+       |""".stripMargin
+  )
 }
