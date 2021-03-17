@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.formatter.tests.scala3
 
 class Scala3FormatterBracelessSyntaxTest extends Scala3FormatterBaseTest {
 
+  // TODO: rename (replace 'L' with `l`)
   private def doTextTestForALlDefTypes(codeWithDefDef: String): Unit = {
     val codeWithValDef = codeWithDefDef.replaceFirst("def", "val")
     val codeWithVarDef = codeWithDefDef.replaceFirst("def", "var")
@@ -124,6 +125,73 @@ class Scala3FormatterBracelessSyntaxTest extends Scala3FormatterBaseTest {
       |    println(2)
       |  end this
       |}
+      |""".stripMargin
+  )
+
+  def testFor_GeneratorWithIndentedBlock(): Unit = doForYieldDoTest(
+    """for {
+      |  x <-
+      |    var a = 1
+      |    val b = 3
+      |    a to b
+      |}
+      |yield x
+      |""".stripMargin
+  )
+
+  def testFor_GeneratorWithBlock(): Unit = doForYieldDoTest(
+    """for {
+      |  x <- {
+      |    var a = 1
+      |    val b = 3
+      |    a to b
+      |  }
+      |}
+      |yield x
+      |""".stripMargin
+  )
+
+  def testFor_GeneratorWithBlock_WithSingleExpressionOnNewLine(): Unit = doForYieldDoTest(
+    """for {
+      |  x <-
+      |    1 to 2
+      |}
+      |yield x
+      |""".stripMargin
+  )
+
+  def testFor_PatternEnumerator_WithIndentedBlock(): Unit = doForYieldDoTest(
+    """for {
+      |  x <- 1 to 2
+      |  y =
+      |    var a = 1
+      |    val b = 3
+      |    a to b
+      |}
+      |yield x
+      |""".stripMargin
+  )
+
+  def testFor_PatternEnumerator_WithBlock(): Unit = doForYieldDoTest(
+    """for {
+      |  x <- 1 to 2
+      |  y = {
+      |    var a = 1
+      |    val b = 3
+      |    a to b
+      |  }
+      |}
+      |yield x
+      |""".stripMargin
+  )
+
+  def testFor_PatternEnumerator_WithSingleExpressionOnNewLine(): Unit = doForYieldDoTest(
+    """for {
+      |  x <- 1 to 2
+      |  y =
+      |    42
+      |}
+      |yield x
       |""".stripMargin
   )
 }
