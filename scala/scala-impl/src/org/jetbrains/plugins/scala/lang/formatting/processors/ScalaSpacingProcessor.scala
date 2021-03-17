@@ -613,8 +613,11 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (leftPsi.isInstanceOf[ScStableCodeReference] && !rightPsi.isInstanceOf[ScPackaging]) {
       leftPsiParent match {
         case p: ScPackaging if p.reference.contains(leftPsi) =>
-          if (rightElementType != ScalaTokenTypes.tSEMICOLON && rightElementType != ScalaTokenTypes.tLBRACE) {
-            return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AFTER_PACKAGE + 1, keepLineBreaks, keepBlankLinesInCode)
+          rightElementType match {
+            // colon stand for Scala3 braceless package syntax `package p1.p2:\n  package p3`
+            case ScalaTokenTypes.tSEMICOLON | ScalaTokenTypes.tLBRACE | ScalaTokenTypes.tCOLON =>
+            case _ =>
+              return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AFTER_PACKAGE + 1, keepLineBreaks, keepBlankLinesInCode)
           }
         case _ =>
       }

@@ -142,6 +142,13 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       else if (isBraceNextLineShifted1) Indent.getNoneIndent
       else Indent.getNormalIndent
     }
+    if (nodeElementType == ScalaTokenTypes.tCOLON && nodeTreeParentElementType == ScalaElementType.PACKAGING) {
+      val res = if (childElementType == ScalaTokenTypes.tCOLON)
+        Indent.getNoneIndent
+      else
+        Indent.getNormalIndent
+      return res
+    }
 
     node.getPsi match {
       case expr: ScFunctionExpr =>

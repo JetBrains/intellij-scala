@@ -218,4 +218,27 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
       |}
       |""".stripMargin
   )
+
+  def testPackagingWithColon(): Unit = {
+    doTextTest(
+      """package p1:
+        |  def a = 1
+        |
+        |  package p2:
+        |    def b = 2
+        |""".stripMargin)
+  }
+
+  def testPackagingWithBraces(): Unit = {
+    doTextTest(
+      """package p1 {
+        |  def a = 1
+        |
+        |  package p2 {
+        |    def b = 2
+        |  }
+        |
+        |}
+        |""".stripMargin)
+  }
 }
