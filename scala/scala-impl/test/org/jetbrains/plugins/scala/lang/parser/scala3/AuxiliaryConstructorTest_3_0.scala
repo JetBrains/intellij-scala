@@ -159,7 +159,6 @@ class AuxiliaryConstructorTest_3_0 extends AuxiliaryConstructorTestBase with Sim
       |  PsiWhiteSpace('\n')""".stripMargin
   )
 
-  // TODO: shouldn't we add "PsiErrorElement:Wrong constructor expression" as for Scala 2?
   override def test_bad_missing_expr(): Unit = checkTree(
     """
       |class Test {
@@ -202,6 +201,8 @@ class AuxiliaryConstructorTest_3_0 extends AuxiliaryConstructorTestBase with Sim
       |              PsiElement())(')')
       |          PsiWhiteSpace(' ')
       |          PsiElement(=)('=')
+      |          PsiErrorElement:Wrong constructor expression
+      |            <empty list>
       |        PsiWhiteSpace('\n')
       |        PsiElement(})('}')
       |  PsiWhiteSpace('\n')""".stripMargin
