@@ -7,7 +7,7 @@ import com.intellij.formatting.Indent
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiComment
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings.{NEXT_LINE_SHIFTED, NEXT_LINE_SHIFTED2}
-import com.intellij.psi.impl.source.tree.{LeafPsiElement, PsiWhiteSpaceImpl, TreeElement}
+import com.intellij.psi.impl.source.tree.{LeafPsiElement, PsiWhiteSpaceImpl}
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.isConstructorArgOrMemberFunctionParameter
@@ -48,6 +48,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
     val settings = parent.commonSettings
     val scalaSettings = parent.settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
 
+    // todo: rename to parentNode
     val node = parent.getNode
     val nodeElementType = node.getElementType
     val nodeTreeParent = node.getTreeParent
@@ -279,8 +280,17 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
             }
           case _ => Indent.getNoneIndent
         }
-      case _: ScBlock => Indent.getNoneIndent
-      case _: ScEnumerators => Indent.getContinuationWithoutFirstIndent(false)
+      case _: ScBlock =>
+        Indent.getNoneIndent
+      case _: ScEnumerators =>
+        Indent.getContinuationWithoutFirstIndent(false)
+      case _: ScEnumerator =>
+        child match {
+          case _: ScBlock =>
+            Indent.getNoneIndent
+          case _ =>
+            Indent.getContinuationWithoutFirstIndent
+        }
       case _: ScExtendsBlock if childElementType != ScalaElementType.TEMPLATE_BODY => Indent.getContinuationIndent
       case _: ScExtendsBlock if settings.CLASS_BRACE_STYLE == NEXT_LINE_SHIFTED || settings.CLASS_BRACE_STYLE == NEXT_LINE_SHIFTED2 =>
         Indent.getNormalIndent
@@ -317,7 +327,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           Indent.getContinuationWithoutFirstIndent
         }
       case _: ScParameters | _: ScParameterClause | _: ScPattern | _: ScTemplateParents |
-              _: ScExpression | _: ScTypeElement | _: ScTypes |  _:  ScGenerator =>
+              _: ScExpression | _: ScTypeElement | _: ScTypes =>
         Indent.getContinuationWithoutFirstIndent
       case _: ScArgumentExprList =>
         if (ScalaTokenTypes.PARENTHESIS_TOKEN_SET.contains(childElementType)) Indent.getNoneIndent

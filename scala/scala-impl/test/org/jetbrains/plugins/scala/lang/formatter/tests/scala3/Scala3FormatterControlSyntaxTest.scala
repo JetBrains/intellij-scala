@@ -64,17 +64,6 @@ class Scala3FormatterControlSyntaxTest extends Scala3FormatterBaseTest {
       |""".stripMargin
   )
 
-  private def doTextTestWithExtraSpaces(before0: String): Unit =
-    doTextTestWithExtraSpaces(before0, before0)
-
-  private def doTextTestWithExtraSpaces(before0: String, after0: String): Unit = {
-    val before = before0.withNormalizedSeparator
-    val after = after0.withNormalizedSeparator
-    doTextTest(before, after)
-    val textWithExtraSpaces = before.replaceAll("\\s", "$0 ") // insert space after any other space/new line
-    doTextTest(textWithExtraSpaces, after)
-  }
-
   def testWhileDo(): Unit = doTextTestWithExtraSpaces(
     """while x >= 0 do x = f(x)
       |
@@ -102,16 +91,6 @@ class Scala3FormatterControlSyntaxTest extends Scala3FormatterBaseTest {
       |  println(x)
       |""".stripMargin
   )
-  private def doForYieldDoTest(before: String): Unit =
-    doForYieldDoTest(before, before)
-
-  private def doForYieldDoTest(before: String, after: String): Unit ={
-    doTextTestWithExtraSpaces(before, after)
-
-    val beforeWithDo = before.replace("yield", "do")
-    val afterWithDo = after.replace("yield", "do")
-    doTextTestWithExtraSpaces(beforeWithDo, afterWithDo)
-  }
 
   def testFor_OneLineFor_YieldOnSameLine(): Unit = doForYieldDoTest(
     """for x <- 0 to 2 yield x * 2
