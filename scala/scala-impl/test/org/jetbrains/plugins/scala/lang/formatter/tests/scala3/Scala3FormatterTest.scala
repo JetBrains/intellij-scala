@@ -84,6 +84,29 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
       |""".stripMargin
   )
 
+  def testColon_AfterTypeDefinition_WithParam_WithExtends(): Unit = doTextTest(
+    """trait Test()extends Object :
+      |  def test = ()
+      |
+      |class Test()extends Object :
+      |  def test = ()
+      |
+      |enum Enum()extends Object :
+      |  case A
+      |  case B
+      |""".stripMargin,
+    """trait Test() extends Object :
+      |  def test = ()
+      |
+      |class Test() extends Object :
+      |  def test = ()
+      |
+      |enum Enum() extends Object :
+      |  case A
+      |  case B
+      |""".stripMargin
+  )
+
   def testClassEnd(): Unit = doTextTest(
     """
       |class Test:
