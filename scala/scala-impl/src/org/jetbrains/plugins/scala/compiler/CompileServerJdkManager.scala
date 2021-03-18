@@ -27,6 +27,9 @@ object CompileServerJdkManager {
   final def getBuildProcessRuntimeSdk(project: Project): Sdk =
     getBuildProcessRuntimeJdk(project).first
 
+  final def getBuildProcessJdkVersion(project: Project): JavaSdkVersion =
+    getBuildProcessRuntimeJdk(project).second
+
   /**
    * Returns the Build Process runtime SDK.
    * The method isn't thread-safe, so the synchronized is used.
