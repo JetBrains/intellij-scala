@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.compiler
 
 import java.util
-
 import com.intellij.compiler.server.BuildProcessParametersProvider
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.JavaSdkVersion
 import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.plugins.scala.compiler.data.SbtData
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
@@ -18,7 +18,8 @@ class ScalaBuildProcessParametersProvider(project: Project)
   
   override def getVMArguments: util.List[String] = {
     customScalaCompilerInterfaceDir().toSeq ++
-    parallelCompilationOptions()
+    parallelCompilationOptions() ++
+    addOpens("java.base/java.util")
   }.asJava
 
   private def customScalaCompilerInterfaceDir(): Option[String] = {
@@ -32,13 +33,21 @@ class ScalaBuildProcessParametersProvider(project: Project)
     if (settings.COMPILE_SERVER_ENABLED)
       Seq(
         GlobalOptions.COMPILE_PARALLEL_MAX_THREADS_OPTION -> settings.COMPILE_SERVER_PARALLELISM,
-        GlobalOptions.COMPILE_PARALLEL_OPTION -> settings.COMPILE_SERVER_PARALLEL_COMPILATION
+        GlobalOptions.COMPILE_PARALLEL_OPTION -> settings.COMPILE_SERVER_PARALLEL_COMPILATION,
       ).map { case (key, value) =>
         s"-D$key=$value"
       }
     else
       Seq.empty
   }
+
+  private def addOpens(modulePackageList: String*): Seq[String] =
+    if (CompileServerJdkManager.getBuildProcessJdkVersion(project).isAtLeast(JavaSdkVersion.JDK_1_9))
+      modulePackageList.flatMap { modulePackage =>
+        Seq("--add-opens", s"$modulePackage=ALL-UNNAMED")
+      }
+    else
+      Seq.empty
 
   override def isProcessPreloadingEnabled: Boolean =
     !ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)
