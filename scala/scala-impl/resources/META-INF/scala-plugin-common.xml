@@ -26,7 +26,7 @@
         <extensionPoint name="importUsedProvider" interface="org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfoProvider" dynamic="true"/>
         <extensionPoint name="importOptimizerHelper" interface="org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizerHelper" dynamic="true"/>
         <extensionPoint name="referenceExtraResolver" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceExtraResolver" dynamic="true"/>
-        <extensionPoint name="worksheetCompiler" interface="org.jetbrains.plugins.scala.externalHighlighters.compiler.WorksheetCompiler" dynamic="true"/>
+        <extensionPoint name="worksheetCompiler" interface="org.jetbrains.plugins.scala.externalHighlighters.compiler.WorksheetHighlightingCompiler" dynamic="true"/>
         <extensionPoint name="compilerSettingsProfileProvider" interface="org.jetbrains.plugins.scala.codeInspection.feature.ScalaCompilerSettingsProfileProvider" dynamic="true"/>
     </extensionPoints>
 
@@ -566,7 +566,7 @@
                      description="Show errors from scala compiler in the editor"/>
         <registryKey key="dotty.highlighting.compiler.errors.in.editor" defaultValue="true" restartRequired="false"
                      description="Show errors from dotty compiler in the editor"/>
-        <registryKey key="scala.highlighting.compilation.delay.millis" defaultValue="500" restartRequired="false"
+        <registryKey key="scala.highlighting.compilation.delay.millis" defaultValue="750" restartRequired="false"
                      description="Delay between runs of the compilation for highlighting, millis"/>
         <registryKey key="scala.highlighting.compilation.timeout.to.show.progress.millis" defaultValue="7000" restartRequired="false"
                      description="The progress of compilation for highlighting will be shown after this timeout"/>

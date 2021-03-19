@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServerToken}
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
-import org.jetbrains.plugins.scala.util.{IntellijPlatformJars, LibraryJars, ScalaPluginJars, ScalaShutDownTracker}
+import org.jetbrains.plugins.scala.util.{IntellijPlatformJars, JvmOptions, LibraryJars, ScalaPluginJars, ScalaShutDownTracker}
 
 import java.io.{File, IOException}
 import java.nio.file.{Files, Path}
@@ -189,11 +189,12 @@ object CompileServerLauncher {
         }
 
         // SCL-18193
-        val addOpensOptions = if (jdk.version.exists(_ isAtLeast JavaSdkVersion.JDK_11))
-          Seq(
-            "--add-opens", "java.base/java.util=ALL-UNNAMED",
-            "--add-opens", "jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
-            "--add-opens", "jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
+        val addOpensOptions = if (jdk.version.exists(_ isAtLeast JavaSdkVersion.JDK_1_9))
+          JvmOptions.addOpens(
+            "java.base/java.util",
+            "jdk.compiler/com.sun.tools.javac.api",
+            "jdk.compiler/com.sun.tools.javac.util",
+            "java.base/sun.nio.ch"
           )
         else
           Seq.empty
