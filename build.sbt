@@ -122,10 +122,22 @@ lazy val worksheetReplInterface =
 
 lazy val tastyRuntime = Project("tasty-runtime", file("tasty/runtime"))
   .settings(scalaVersion := "3.0.0-M2",
-    libraryDependencies += "org.scala-lang" % "scala3-tasty-inspector_3.0.0-M2" % "3.0.0-M2" % "compile-internal",
+    libraryDependencies += "org.scala-lang" % "scala3-tasty-inspector_3.0.0-M2" % "3.0.0-M2",
     scalacOptions in Compile := Seq("-strict"), // TODO If there are no unique options, sbt import adds the module to a profile with macros enabled.
     unmanagedSourceDirectories in Compile += baseDirectory.value / "src",
-    packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-runtime.jar"))
+    packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-runtime.jar"),
+    packageLibraryMappings := Seq( // TODO Can we redirect all the dependency JARs to a subdirectory?  
+      "org.scala-lang" % "scala3-tasty-inspector_3.0.0-M2" % "3.0.0-M2" -> Some("lib/tasty/tasty-inspector.jar"),
+      "org.scala-lang" % "tasty-core_3.0.0-M2" % "3.0.0-M2" -> Some("lib/tasty/tasty-core.jar"),
+      "org.scala-lang" % "scala3-interfaces" % "3.0.0-M2" -> Some("lib/tasty/scala-interfaces.jar"),
+      // TODO Remove when there will be a Scala 3 library in lib/
+      "org.scala-lang" % "scala3-library_3.0.0-M2" % "3.0.0-M2" -> Some("lib/tasty/scala-library.jar"), 
+      "org.scala-lang" % "scala3-compiler_3.0.0-M2" % "3.0.0-M2" -> Some("lib/tasty/scala-compiler.jar"),
+      "org.scala-lang" %% "scala-library" % ".*" -> None,
+      "org.scala-sbt" %% ".*" % ".*" -> None,
+      "org.jline" %% ".*" % ".*" -> None,
+    ),
+  )
 
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
@@ -145,8 +157,7 @@ lazy val scalaImpl: sbt.Project =
     .settings(
       ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
       //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
-      libraryDependencies ++= DependencyGroups.scalaCommunity :+
-        "org.scala-lang" % "scala3-library_3.0.0-M2" % "3.0.0-M2" % Runtime, // TODO Runtime dependencies must be packaged automatically.
+      libraryDependencies ++= DependencyGroups.scalaCommunity,
       intellijPlugins ++= Seq(
         "org.intellij.intelliLang",
         "com.intellij.java-i18n",
@@ -445,11 +456,6 @@ lazy val runtimeDependencies =
         Dependencies.compilerBridgeSources_2_13 -> Some("lib/jps/compiler-interface-sources-2.13.jar"),
         Dependencies.compilerBridgeSources_2_11 -> Some("lib/jps/compiler-interface-sources-2.11.jar"),
         Dependencies.compilerBridgeSources_2_10 -> Some("lib/jps/compiler-interface-sources-2.10.jar"),
-        Dependencies.tasty.inspector -> Some("lib/tasty/tasty-inspector.jar"),
-        Dependencies.tasty.core % "3.0.0-M2" -> Some("lib/tasty/tasty-core.jar"),
-        Dependencies.tasty.interfaces % "3.0.0-M2" -> Some("lib/tasty/scala-interfaces.jar"),
-        Dependencies.tasty.library % "3.0.0-M2" -> Some("lib/tasty/scala-library.jar"),
-        Dependencies.tasty.compiler % "3.0.0-M2" -> Some("lib/tasty/scala-compiler.jar"),
       ),
       update := {
         LocalRepoPackager.localPluginRepo(

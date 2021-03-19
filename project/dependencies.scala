@@ -127,16 +127,6 @@ object Dependencies {
     val specs2_4x = "org.specs2" %% "specs2-core" % "4.8.3" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
   }
 
-  // TODO Use a lightweight TASTy library that doesn't require a full-blown Scala compiler (at least for indexing)
-  object tasty {
-    val inspector = "org.scala-lang" % "scala3-tasty-inspector_3.0.0-M2" % "3.0.0-M2"
-    val core = "org.scala-lang" % "tasty-core_3.0.0-M2" % "3.0.0-M2"
-    val interfaces = "org.scala-lang" % "scala3-interfaces" % "3.0.0-M2"
-    // TODO Remove when there will be a Scala 3 library in lib/
-    val library = "org.scala-lang" % "scala3-library_3.0.0-M2" % "3.0.0-M2"
-    val compiler = "org.scala-lang" % "scala3-compiler_3.0.0-M2" % "3.0.0-M2"
-  }
-
   /** The filtering function returns true for jars to be removed.
    * It's purpose is to exclude platform jars that may conflict with plugin dependencies. */
   val excludeJarsFromPlatformDependencies: File => Boolean = { file =>
@@ -210,10 +200,5 @@ object DependencyGroups {
     compilerBridgeSources_2_13,
     dottySbtBridge,
     scala3SbtBridge,
-    tasty.inspector,
-    tasty.core,
-    tasty.interfaces,
-    tasty.library,
-    tasty.compiler
   )
 }
