@@ -14,16 +14,14 @@ import scala.util.parsing.combinator.RegexParsers
 object ScalaPluginJars {
 
   val libRoot: File = {
-    if (ApplicationManager.getApplication.isUnitTestMode) {
-      new File(System.getProperty("plugin.path"), "lib")
-    } else {
-      val jarPath = new File(PathUtil.getJarPathForClass(getClass))
-      val isDevelopmentMode = jarPath.getName == "classes"
-      if (isDevelopmentMode) {
-        new File(jarPath.getParentFile, "lib")
-      } else  {
-        jarPath.getParentFile
-      }
+    val jarPath = new File(PathUtil.getJarPathForClass(this.getClass)) // scalaUltimate.jar
+    // TODO: looks like we do not need this check anymore
+    //  looks like dev idea classpath always contains path to jar file
+    val isDevelopmentMode = jarPath.getName == "classes"
+    if (isDevelopmentMode) {
+      new File(jarPath.getParentFile, "lib")
+    } else  {
+      jarPath.getParentFile
     }
   }
 
@@ -51,7 +49,7 @@ object IntellijPlatformJars {
   val utilJar        = new File(PathUtil.getJarPathForClass(classOf[FileUtil]))
   val trove4jJar     = new File(PathUtil.getJarPathForClass(classOf[TByteArrayList]))
   val fastUtilJar    = new File(PathUtil.getJarPathForClass(classOf[Int2ObjectMap[_]]))
-  val protobufJava = new File(PathUtil.getJarPathForClass(classOf[GeneratedMessageLite[_, _]]))
+  val protobufJava   = new File(PathUtil.getJarPathForClass(classOf[GeneratedMessageLite[_, _]]))
 }
 
 object LibraryJars {
