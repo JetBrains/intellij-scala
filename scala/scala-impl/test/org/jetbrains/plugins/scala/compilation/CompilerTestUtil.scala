@@ -141,10 +141,17 @@ object CompilerTestUtil {
   def withModifiedRegistryValue(key: String, newValue: Int): RevertableChange =
     withModifiedRegistryValueInternal[Int](key, newValue, _.asInteger(), _ setValue _)
 
+  // TODO: rename, add "run" prefix or something, cause it doesn't return RevertableChange
   def withErrorsFromCompiler(body: => Unit): Unit = {
     val newValue = true
     val revertable = withModifiedRegistryValue(ScalaHighlightingMode.ShowScalacErrorsKey, newValue) |+|
       withModifiedRegistryValue(ScalaHighlightingMode.ShowDotcErrorsKey, newValue)
     revertable.run(body)
+  }
+
+  def withErrorsFromCompilerDisabled: RevertableChange = {
+    val newValue = false
+    withModifiedRegistryValue(ScalaHighlightingMode.ShowScalacErrorsKey, newValue) |+|
+      withModifiedRegistryValue(ScalaHighlightingMode.ShowDotcErrorsKey, newValue)
   }
 }
