@@ -7,14 +7,14 @@ import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.plugins.scala.ExtensionPointDeclaration
 
 @ApiStatus.Internal
-trait WorksheetCompiler {
+trait WorksheetHighlightingCompiler {
 
   def compile(psiFile: PsiFile, document: Document, client: Client): Unit
 }
 
-object WorksheetCompiler
-  extends ExtensionPointDeclaration[WorksheetCompiler]("org.intellij.scala.worksheetCompiler")
-    with WorksheetCompiler {
+object WorksheetHighlightingCompiler
+  extends ExtensionPointDeclaration[WorksheetHighlightingCompiler]("org.intellij.scala.worksheetCompiler")
+    with WorksheetHighlightingCompiler {
 
   override def compile(psiFile: PsiFile, document: Document, client: Client): Unit =
     implementations.foreach(_.compile(psiFile, document, client))

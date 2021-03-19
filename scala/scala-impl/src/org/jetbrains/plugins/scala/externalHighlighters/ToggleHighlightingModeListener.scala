@@ -34,11 +34,11 @@ class ToggleHighlightingModeListener
       } else {
         ExternalHighlighters.eraseAllHighlightings(project)
       }
-      forceStandradHighlighting(project)
+      forceStandardHighlighting(project)
       CompileServerNotificationsService.get(project).resetNotifications()
     }
   
-  private def forceStandradHighlighting(project: Project): Unit = {
+  private def forceStandardHighlighting(project: Project): Unit = {
     ResolveCache.getInstance(project).clearCache(true)
     PsiManager.getInstance(project).dropPsiCaches()
     DaemonCodeAnalyzer.getInstance(project).restart()

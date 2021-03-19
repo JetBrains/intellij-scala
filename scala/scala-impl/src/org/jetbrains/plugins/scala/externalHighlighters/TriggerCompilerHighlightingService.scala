@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
+import com.intellij.ide.PowerSaveMode
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.{Service, ServiceManager}
 import com.intellij.openapi.editor.Document
@@ -25,40 +26,42 @@ final class TriggerCompilerHighlightingService(project: Project)
   private var alreadyHighlighted = Set.empty[Path]
   private var changedDocuments = Set.empty[Document]
 
-  private val threadPool = AppExecutorUtil.createBoundedApplicationPoolExecutor("ChangedDocumentsService", 1)
+  private val threadPool = AppExecutorUtil.createBoundedApplicationPoolExecutor("TriggerCompilerHighlighting", 1)
   private implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(threadPool)
 
   def triggerOnFileChange(psiFile: PsiFile, virtualFile: VirtualFile): Unit =
-    if (condition(psiFile, virtualFile)) virtualFile.findDocument.foreach { document =>
-      if (psiFile.isScalaWorksheet) {
-        triggerWorksheetCompilation(psiFile, document)
-      } else asyncAtomic {
-        val changedDocumentsSizeBefore = changedDocuments.size
-        changedDocuments += document
-        if (changedDocuments.size > 1 && changedDocuments.size != changedDocumentsSizeBefore)
-          triggerIncrementalCompilation()
-        else
-          triggerDocumentCompilation(document)
+    if (isHighlightingEnabled && isHighlightingEnabledFor(psiFile, virtualFile))
+      virtualFile.findDocument.foreach { document =>
+        if (psiFile.isScalaWorksheet) {
+          triggerWorksheetCompilation(psiFile, document, markHighlighted = None)
+        } else asyncAtomic {
+          val changedDocumentsSizeBefore = changedDocuments.size
+          changedDocuments += document
+          if (changedDocuments.size > 1 && changedDocuments.size != changedDocumentsSizeBefore)
+            triggerIncrementalCompilation()
+          else
+            triggerDocumentCompilation(document, markHighlighted = None)
+        }
       }
-    }
 
   def triggerOnSelectionChange(editor: FileEditor): Unit =
-    for {
-      virtualFile <- editor.getFile.nullSafe
-      psiFile <- inReadAction(PsiManager.getInstance(project).findFile(virtualFile)).nullSafe
-      if condition(psiFile, virtualFile)
-    } asyncAtomic {
-      val path = Paths.get(virtualFile.getCanonicalPath)
-      if (changedDocuments.nonEmpty)
-        triggerIncrementalCompilation()
-      else if (!alreadyHighlighted.contains(path))
-        inReadAction(virtualFile.findDocument).foreach { document =>
+    if (isHighlightingEnabled)
+      for {
+        virtualFile <- editor.getFile.nullSafe
+        psiFile <- inReadAction(PsiManager.getInstance(project).findFile(virtualFile)).nullSafe
+        if isHighlightingEnabledFor(psiFile, virtualFile)
+        pathString <- virtualFile.getCanonicalPath.nullSafe
+        document <- inReadAction(virtualFile.findDocument)
+      } asyncAtomic {
+        val path = Paths.get(pathString)
+        if (changedDocuments.nonEmpty)
+          triggerIncrementalCompilation()
+        else if (!alreadyHighlighted.contains(path))
           if (psiFile.isScalaWorksheet)
             triggerWorksheetCompilation(psiFile, document, markHighlighted = Some(path))
           else
             triggerDocumentCompilation(document, markHighlighted = Some(path))
-        }
-    }
+      }
 
   override def dispose(): Unit = {
     synchronized {
@@ -67,16 +70,18 @@ final class TriggerCompilerHighlightingService(project: Project)
     threadPool.shutdownNow()
   }
 
-  private def condition(psiFile: PsiFile, virtualFile: VirtualFile): Boolean = {
-    val isJavaOrScalaFile = psiFile match {
+  private def isHighlightingEnabled: Boolean =
+    !PowerSaveMode.isEnabled &&
+      ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED &&
+      ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)
+
+  private def isHighlightingEnabledFor(psiFile: PsiFile, virtualFile: VirtualFile): Boolean = {
+    lazy val isJavaOrScalaFile = psiFile match {
       case _ if psiFile.isScalaWorksheet => true
       case _: ScalaFile | _: PsiJavaFile if !JavaProjectRootsUtil.isOutsideJavaSourceRoot(psiFile) => true
       case _ => false
     }
-    ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED &&
-      virtualFile.isInLocalFileSystem &&
-      ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project) &&
-      isJavaOrScalaFile
+    virtualFile.isInLocalFileSystem && isJavaOrScalaFile
   }
 
   private def triggerIncrementalCompilation(): Unit = {
@@ -105,7 +110,7 @@ final class TriggerCompilerHighlightingService(project: Project)
   }
 
   private def triggerDocumentCompilation(document: Document,
-                                         markHighlighted: Option[Path] = None): Unit =
+                                         markHighlighted: Option[Path]): Unit =
     CompilerHighlightingService.get(project).triggerDocumentCompilation(
       document = document,
       afterCompilation = () => mark(markHighlighted)
@@ -113,7 +118,7 @@ final class TriggerCompilerHighlightingService(project: Project)
 
   private def triggerWorksheetCompilation(psiFile: PsiFile,
                                           document: Document,
-                                          markHighlighted: Option[Path] = None): Unit =
+                                          markHighlighted: Option[Path]): Unit =
     CompilerHighlightingService.get(project).triggerWorksheetCompilation(
       psiFile = psiFile,
       document = document,

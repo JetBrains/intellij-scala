@@ -7,6 +7,7 @@ import com.intellij.openapi.projectRoots.JavaSdkVersion
 import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.plugins.scala.compiler.data.SbtData
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
+import org.jetbrains.plugins.scala.util.JvmOptions
 
 import scala.jdk.CollectionConverters._
 
@@ -19,7 +20,7 @@ class ScalaBuildProcessParametersProvider(project: Project)
   override def getVMArguments: util.List[String] = {
     customScalaCompilerInterfaceDir().toSeq ++
     parallelCompilationOptions() ++
-    addOpens("java.base/java.util")
+    addOpens()
   }.asJava
 
   private def customScalaCompilerInterfaceDir(): Option[String] = {
@@ -41,11 +42,9 @@ class ScalaBuildProcessParametersProvider(project: Project)
       Seq.empty
   }
 
-  private def addOpens(modulePackageList: String*): Seq[String] =
+  private def addOpens(): Seq[String] =
     if (CompileServerJdkManager.getBuildProcessJdkVersion(project).isAtLeast(JavaSdkVersion.JDK_1_9))
-      modulePackageList.flatMap { modulePackage =>
-        Seq("--add-opens", s"$modulePackage=ALL-UNNAMED")
-      }
+      JvmOptions.addOpens("java.base/java.util")
     else
       Seq.empty
 
