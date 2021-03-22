@@ -93,7 +93,6 @@ final class ScSubstitutor private(_substitutions: Array[Update],   //Array is us
     }
   }
 
-
   def followed(other: ScSubstitutor): ScSubstitutor = {
     assertFullSubstitutor()
 
@@ -119,8 +118,6 @@ final class ScSubstitutor private(_substitutions: Array[Update],   //Array is us
   }
 
   def followUpdateThisType(tp: ScType): ScSubstitutor = {
-    assertFullSubstitutor()
-
     ScSubstitutor(tp).followed(this)
   }
 

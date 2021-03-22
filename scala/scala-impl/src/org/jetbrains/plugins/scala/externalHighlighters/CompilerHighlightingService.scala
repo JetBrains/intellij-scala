@@ -1,13 +1,15 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
+import com.intellij.codeInsight.lookup.LookupManager
+import com.intellij.codeInsight.template.TemplateManager
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.{Service, ServiceManager}
-import com.intellij.openapi.editor.Document
+import com.intellij.openapi.editor.{Document, EditorFactory}
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.SimpleModificationTracker
+import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.wm.ex.{StatusBarEx, WindowManagerEx}
 import com.intellij.psi.PsiFile
 import com.intellij.util.ui.UIUtil
@@ -15,7 +17,7 @@ import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.externalHighlighters.compiler.{DocumentCompiler, IncrementalCompiler, WorksheetCompiler}
+import org.jetbrains.plugins.scala.externalHighlighters.compiler._
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.util.RescheduledExecutor
 
@@ -33,25 +35,25 @@ final class CompilerHighlightingService(project: Project)
   private val worksheetExecutor = new RescheduledExecutor("WorksheetCompilerHighlighting", this)
   private val showIndicatorExecutor = new RescheduledExecutor("CompilerHighlightingIndicator", this)
 
-  private val modTracker = new SimpleModificationTracker
-
   @volatile private var progressIndicator: Option[ProgressIndicator] = None
 
   def triggerIncrementalCompilation(delayedProgressShow: Boolean = true,
                                     beforeCompilation: () => Unit = () => (),
                                     afterCompilation: () => Unit = () => ()): Unit =
-    scheduleCompilation(incrementalExecutor, delayedProgressShow) {
-      beforeCompilation()
-      try {
-        IncrementalCompiler.compile(project, _)
-      } finally {
-        afterCompilation()
+    incrementalExecutor.schedule(ScalaHighlightingMode.compilationDelay) {
+      performCompilation(delayedProgressShow) {
+        beforeCompilation()
+        try {
+          IncrementalCompiler.compile(project, _)
+        } finally {
+          afterCompilation()
+        }
       }
     }
 
   def triggerDocumentCompilation(document: Document,
                                  afterCompilation: () => Unit = () => ()): Unit =
-    scheduleCompilation(documentExecutor, delayedProgressShow = true) {
+    scheduleDocumentCompilation(documentExecutor, document) {
       try {
         DocumentCompiler.compile(project, document, _)
       } finally {
@@ -62,9 +64,9 @@ final class CompilerHighlightingService(project: Project)
   def triggerWorksheetCompilation(psiFile: PsiFile,
                                   document: Document,
                                   afterCompilation: () => Unit = () => ()): Unit =
-    scheduleCompilation(worksheetExecutor, delayedProgressShow = true) {
+    scheduleDocumentCompilation(worksheetExecutor, document) {
       try {
-        WorksheetCompiler.compile(psiFile, document, _)
+        WorksheetHighlightingCompiler.compile(psiFile, document, _)
       } finally {
         afterCompilation()
       }
@@ -81,15 +83,24 @@ final class CompilerHighlightingService(project: Project)
 
   // SCL-17295
   @nowarn("msg=pure expression")
-  @Cached(modTracker, null)
+  @Cached(ModificationTracker.NEVER_CHANGED, null)
   private def saveProjectOnce(): Unit =
     if (!project.isDisposed || project.isDefault) project.save()
 
-  private def scheduleCompilation(executor: RescheduledExecutor, delayedProgressShow: Boolean)
-                                 (compile: Client => Unit): Unit =
-    executor.schedule(ScalaHighlightingMode.compilationDelay) {
-      performCompilation(delayedProgressShow)(compile)
+  private def scheduleDocumentCompilation(executor: RescheduledExecutor, document: Document)
+                                         (compile: Client => Unit): Unit = {
+    val action = new RescheduledExecutor.Action {
+      override def perform(): Unit =
+        performCompilation(delayedProgressShow = true)(compile)
+
+      override def condition: Boolean =
+        EditorFactory.getInstance().editors(document, project).anyMatch { editor =>
+          LookupManager.getActiveLookup(editor) == null &&
+            TemplateManager.getInstance(project).getActiveTemplate(editor) == null
+        }
     }
+    executor.schedule(ScalaHighlightingMode.compilationDelay, action)
+  }
 
   private def performCompilation(delayedProgressShow: Boolean)
                                 (compile: Client => Unit): Unit = {
