@@ -1,6 +1,5 @@
 import Common._
 import Dependencies.{provided, sbtStructureExtractor}
-import org.jetbrains.sbtidea.Keys._
 import sbtide.Keys.ideSkipProject
 
 // Global build settings
