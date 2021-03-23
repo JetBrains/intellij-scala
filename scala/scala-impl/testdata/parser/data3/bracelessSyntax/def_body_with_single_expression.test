@@ -1,0 +1,26 @@
+def foo =
+  2 + 2
+-----
+ScalaFile
+  ScFunctionDefinition: foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    InfixExpression
+      IntegerLiteral
+        PsiElement(integer)('2')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: +
+        PsiElement(identifier)('+')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('2')

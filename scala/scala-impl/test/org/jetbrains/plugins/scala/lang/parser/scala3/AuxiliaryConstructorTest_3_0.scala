@@ -259,22 +259,23 @@ class AuxiliaryConstructorTest_3_0 extends AuxiliaryConstructorTestBase with Sim
       |              PsiElement())(')')
       |          PsiWhiteSpace(' ')
       |          PsiElement(=)('=')
-      |          PsiWhiteSpace('\n    ')
-      |          ScPatternDefinition: x
-      |            AnnotationsList
-      |              <empty list>
-      |            Modifiers
-      |              <empty list>
-      |            PsiElement(val)('val')
-      |            PsiWhiteSpace(' ')
-      |            ListOfPatterns
-      |              ReferencePattern: x
-      |                PsiElement(identifier)('x')
-      |            PsiWhiteSpace(' ')
-      |            PsiElement(=)('=')
-      |            PsiWhiteSpace(' ')
-      |            IntegerLiteral
-      |              PsiElement(integer)('42')
+      |          ConstructorBlock
+      |            PsiWhiteSpace('\n    ')
+      |            ScPatternDefinition: x
+      |              AnnotationsList
+      |                <empty list>
+      |              Modifiers
+      |                <empty list>
+      |              PsiElement(val)('val')
+      |              PsiWhiteSpace(' ')
+      |              ListOfPatterns
+      |                ReferencePattern: x
+      |                  PsiElement(identifier)('x')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(=)('=')
+      |              PsiWhiteSpace(' ')
+      |              IntegerLiteral
+      |                PsiElement(integer)('42')
       |        PsiWhiteSpace('\n')
       |        PsiElement(})('}')
       |  PsiWhiteSpace('\n')""".stripMargin
