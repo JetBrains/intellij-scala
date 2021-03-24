@@ -37,7 +37,7 @@ abstract class DottyCompilationTestBase(incrementalityType: IncrementalityType,
 
   override def githubRepoName: String = "scala3-example-project"
 
-  override def revision: String = "master"
+  override def revision: String = "main"
 
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq.empty
 
