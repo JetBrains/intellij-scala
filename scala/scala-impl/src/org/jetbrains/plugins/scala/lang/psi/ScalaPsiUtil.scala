@@ -1527,6 +1527,7 @@ object ScalaPsiUtil {
 
   def isImplicit(namedElement: PsiNamedElement): Boolean = {
     namedElement match {
+      case _: ScGiven                                => true
       case Implicit0Binding()                        => true /** See [[BetterMonadicForSupport]] */
       case owner: ScModifierListOwner                => hasImplicitModifier(owner)
       case inNameContext(owner: ScModifierListOwner) => hasImplicitModifier(owner)
@@ -1598,5 +1599,15 @@ object ScalaPsiUtil {
     }
 
     CodeEditUtil.removeChildren(list.getNode, begin, end)
+  }
+
+  def generateGivenOrExtensionName(tes: ScTypeElement*): String = {
+    // todo: implement correct naming : https://dotty.epfl.ch/docs/reference/contextual/relationship-implicits.html#anonymous-given-instances
+    var text = tes.map(_.getText).mkString("_")
+    text = text.replaceAll("=>", "_to_")
+    text = text.replaceAll("[^a-zA-Z_0-9]+", "_")
+    text = text.replaceAll("(^_+)|(_+$)", "")
+
+    "given_" + text
   }
 }

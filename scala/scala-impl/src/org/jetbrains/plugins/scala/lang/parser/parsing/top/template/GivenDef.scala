@@ -47,6 +47,9 @@ object GivenDef {
   private def parseGivenAlias()(implicit builder: ScalaPsiBuilder): Boolean = {
     val aliasMarker = builder.mark()
     if (Type.parse(builder) && builder.getTokenType == ScalaTokenTypes.tASSIGN) {
+      builder.mark().done(ScalaElementType.TYPE_PARAM_CLAUSE)
+      builder.mark().done(ScalaElementType.PARAM_CLAUSES)
+
       // given alias
       aliasMarker.drop()
       builder.advanceLexer() // ate =
