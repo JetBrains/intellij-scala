@@ -7,14 +7,14 @@ import scala.quoted._
 
 object SourceCode {
 
-  def showTree(using Quotes)(tree: quotes.reflect.Tree)(syntaxHighlight: SyntaxHighlight, rightHandSide: Boolean): String =
-    new SourceCodePrinter[quotes.type](syntaxHighlight).printTree(tree).result()
+  def showTree(using Quotes)(tree: quotes.reflect.Tree)(syntaxHighlight: SyntaxHighlight, fullNames: Boolean): String =
+    new SourceCodePrinter[quotes.type](syntaxHighlight, fullNames).printTree(tree).result()
 
-  def showType(using Quotes)(tpe: quotes.reflect.TypeRepr)(syntaxHighlight: SyntaxHighlight): String =
-    new SourceCodePrinter[quotes.type](syntaxHighlight).printType(tpe)(using None).result()
+  def showType(using Quotes)(tpe: quotes.reflect.TypeRepr)(syntaxHighlight: SyntaxHighlight, fullNames: Boolean): String =
+    new SourceCodePrinter[quotes.type](syntaxHighlight, fullNames).printType(tpe)(using None).result()
 
-  def showConstant(using Quotes)(const: quotes.reflect.Constant)(syntaxHighlight: SyntaxHighlight): String =
-    new SourceCodePrinter[quotes.type](syntaxHighlight).printConstant(const).result()
+  def showConstant(using Quotes)(const: quotes.reflect.Constant)(syntaxHighlight: SyntaxHighlight, fullNames: Boolean): String =
+    new SourceCodePrinter[quotes.type](syntaxHighlight, fullNames).printConstant(const).result()
 
   def showSymbol(using Quotes)(symbol: quotes.reflect.Symbol)(syntaxHighlight: SyntaxHighlight): String =
     symbol.fullName
@@ -28,21 +28,26 @@ object SourceCode {
     if (flags.is(Flags.CaseAccessor)) flagList += "caseAccessor"
     if (flags.is(Flags.Contravariant)) flagList += "contravariant"
     if (flags.is(Flags.Covariant)) flagList += "covariant"
+    if (flags.is(Flags.Deferred)) flagList += "deferred"
     if (flags.is(Flags.Enum)) flagList += "enum"
     if (flags.is(Flags.Erased)) flagList += "erased"
+    if (flags.is(Flags.Exported)) flagList += "exported"
     if (flags.is(Flags.ExtensionMethod)) flagList += "extension"
     if (flags.is(Flags.FieldAccessor)) flagList += "accessor"
     if (flags.is(Flags.Final)) flagList += "final"
     if (flags.is(Flags.HasDefault)) flagList += "hasDefault"
     if (flags.is(Flags.Implicit)) flagList += "implicit"
+    if (flags.is(Flags.Infix)) flagList += "infix"
     if (flags.is(Flags.Inline)) flagList += "inline"
     if (flags.is(Flags.JavaDefined)) flagList += "javaDefined"
+    if (flags.is(Flags.JavaStatic)) flagList += "static"
     if (flags.is(Flags.Lazy)) flagList += "lazy"
     if (flags.is(Flags.Local)) flagList += "local"
     if (flags.is(Flags.Macro)) flagList += "macro"
-    if (flags.is(Flags.ModuleClass)) flagList += "moduleClass"
+    if (flags.is(Flags.Method)) flagList += "method"
+    if (flags.is(Flags.Module)) flagList += "object"
     if (flags.is(Flags.Mutable)) flagList += "mutable"
-    if (flags.is(Flags.Object)) flagList += "object"
+    if (flags.is(Flags.NoInits)) flagList += "noInits"
     if (flags.is(Flags.Override)) flagList += "override"
     if (flags.is(Flags.Package)) flagList += "package"
     if (flags.is(Flags.Param)) flagList += "param"
@@ -56,10 +61,11 @@ object SourceCode {
     if (flags.is(Flags.Static)) flagList += "javaStatic"
     if (flags.is(Flags.Synthetic)) flagList += "synthetic"
     if (flags.is(Flags.Trait)) flagList += "trait"
+    if (flags.is(Flags.Transparent)) flagList += "transparent"
     flagList.result().mkString("/*", " ", "*/")
   }
 
-  class SourceCodePrinter[Q <: Quotes & Singleton](syntaxHighlight: SyntaxHighlight, rightHandSide: Boolean = true)(using val quotes: Q) {
+  class SourceCodePrinter[Q <: Quotes & Singleton](syntaxHighlight: SyntaxHighlight, fullNames: Boolean, rightHandSide: Boolean = true)(using val quotes: Q) {
     import syntaxHighlight._
     import quotes.reflect._
 
@@ -71,8 +77,8 @@ object SourceCode {
 
     private def collectReference(position: Position, target: Position): Unit = {
       // Skip references that are absent in original source file
-      if (position.exists && (position.start < position.end)) {
-        if (target.exists) {
+      if (position.start < position.end) {
+        if (target.sourceFile.toString != "<no file>") { // TODO 
           val targetFile = target.sourceFile.jpath.toFile
           import org.jetbrains.plugins.scala.tasty.Position
           references :+= ReferenceData(
@@ -85,7 +91,7 @@ object SourceCode {
     private def collectType(position: Position, length: Int, doPrintType: => Unit): Unit = {
       // TODO Why do positions of val and def symbols have zero length?
       // Skip types that are absent in original source file
-      if (position.exists && (position.start < position.end + length)) {
+      if (position.start < position.end + length) {
         val previousLength = sb.length()
         doPrintType
         val presentation = sb.substring(previousLength, sb.length())
@@ -143,8 +149,8 @@ object SourceCode {
       case tree @ PackageClause(name, stats) =>
         val stats1 = stats.collect {
           case stat: PackageClause => stat
-          case stat: Definition if !(stat.symbol.flags.is(Flags.Object) && stat.symbol.flags.is(Flags.Lazy)) => stat
-          case stat @ Import(_, _) => stat
+          case stat: Definition if !(stat.symbol.flags.is(Flags.Module) && stat.symbol.flags.is(Flags.Lazy)) => stat
+          case stat @ (_:Import | _:Export) => stat
         }
         name match {
           case Ident("<empty>") =>
@@ -159,31 +165,38 @@ object SourceCode {
         this += "import "
         printTree(expr)
         this += "."
-        printImportSelectors(selectors)
+        printSelectors(selectors)
 
-      case cdef @ ClassDef(name, DefDef(_, targs, argss, _, _), parents, derived, self, stats) =>
+      case Export(expr, selectors) =>
+        this += "export "
+        printTree(expr)
+        this += "."
+        printSelectors(selectors)
+
+      case cdef @ ClassDef(name, DefDef(_, paramss, _, _), parents, derived, self, stats) =>
         printDefAnnotations(cdef)
 
         val flags = cdef.symbol.flags
         if (flags.is(Flags.Implicit)) this += highlightKeyword("implicit ")
         if (flags.is(Flags.Sealed)) this += highlightKeyword("sealed ")
-        if (flags.is(Flags.Final) && !flags.is(Flags.Object)) this += highlightKeyword("final ")
+        if (flags.is(Flags.Final) && !flags.is(Flags.Module)) this += highlightKeyword("final ")
         if (flags.is(Flags.Case)) this += highlightKeyword("case ")
 
         if (name == "package$") {
           this += highlightKeyword("package object ") += highlightTypeDef(cdef.symbol.owner.name.stripSuffix("$"))
         }
-        else if (flags.is(Flags.Object)) this += highlightKeyword("object ") += highlightTypeDef(name.stripSuffix("$"))
+        else if (flags.is(Flags.Module)) this += highlightKeyword("object ") += highlightTypeDef(name.stripSuffix("$"))
         else if (flags.is(Flags.Trait)) this += highlightKeyword("trait ") += highlightTypeDef(name)
         else if (flags.is(Flags.Abstract)) this += highlightKeyword("abstract class ") += highlightTypeDef(name)
         else this += highlightKeyword("class ") += highlightTypeDef(name)
 
-        val typeParams = stats.collect { case targ: TypeDef => targ  }.filter(_.symbol.isTypeParam).zip(targs)
-        if (!flags.is(Flags.Object)) {
-          printTargsDefs(typeParams)
-          val it = argss.iterator
-          while (it.hasNext)
-            printArgsDefs(it.next())
+        if (!flags.is(Flags.Module)) {
+          for paramClause <- paramss do
+            paramClause match
+              case TermParamClause(params) =>
+                printArgsDefs(params)
+              case TypeParamClause(params) =>
+                printTargsDefs(stats.collect { case targ: TypeDef => targ  }.filter(_.symbol.isTypeParam).zip(params))
         }
 
         val parents1 = parents.filter {
@@ -211,11 +224,11 @@ object SourceCode {
           case Select(newTree: New, _) =>
             if (rightHandSide) {
               val tpt = newTree.tpt
-              collectReference(tpt.pos, tpt.symbol.pos) // TODO Handle more complex cases
+              tpt.symbol.pos.foreach(collectReference(tpt.pos, _)) // TODO Handle more complex cases
             }
             printType(newTree.tpe)(using Some(cdef.symbol))
           case parent: Term =>
-            throw new MatchError(parent.showExtractors)
+            throw new MatchError(parent.show(using Printer.TreeStructure))
         }
 
         def printSeparated(list: List[Tree /* Term | TypeTree */]): Unit = list match {
@@ -238,22 +251,22 @@ object SourceCode {
           def isUndecompilableCaseClassMethod: Boolean = {
             // Currently the compiler does not allow overriding some of the methods generated for case classes
             d.symbol.flags.is(Flags.Synthetic) &&
-            (d match {
-              case DefDef("apply" | "unapply" | "writeReplace", _, _, _, _) if d.symbol.owner.flags.is(Flags.Object) => true
-              case DefDef(n, _, _, _, _) if d.symbol.owner.flags.is(Flags.Case) =>
-                n == "copy" ||
-                n.matches("copy\\$default\\$[1-9][0-9]*") || // default parameters for the copy method
-                n.matches("_[1-9][0-9]*") || // Getters from Product
-                n == "productElementName"
-              case _ => false
-            })
+              (d match {
+                case DefDef("apply" | "unapply" | "writeReplace", _, _, _) if d.symbol.owner.flags.is(Flags.Module) => true
+                case DefDef(n, _, _, _) if d.symbol.owner.flags.is(Flags.Case) =>
+                  n == "copy" ||
+                    n.matches("copy\\$default\\$[1-9][0-9]*") || // default parameters for the copy method
+                    n.matches("_[1-9][0-9]*") || // Getters from Product
+                    n == "productElementName"
+                case _ => false
+              })
           }
-          def isInnerModuleObject = d.symbol.flags.is(Flags.Lazy) && d.symbol.flags.is(Flags.Object)
+          def isInnerModuleObject = d.symbol.flags.is(Flags.Lazy) && d.symbol.flags.is(Flags.Module)
           !flags.is(Flags.Param) && !flags.is(Flags.ParamAccessor) && !flags.is(Flags.FieldAccessor) && !isUndecompilableCaseClassMethod && !isInnerModuleObject
         }
         val stats1 = stats.collect {
           case stat: Definition if keepDefinition(stat) => stat
-          case stat @ Import(_, _) => stat
+          case stat @ (_:Import | _:Export) => stat
           case stat: Term => stat
         }
 
@@ -297,7 +310,7 @@ object SourceCode {
         val flags = vdef.symbol.flags
         if (flags.is(Flags.Implicit)) this += highlightKeyword("implicit ")
         if (flags.is(Flags.Override)) this += highlightKeyword("override ")
-        if (flags.is(Flags.Final) && !flags.is(Flags.Object)) this += highlightKeyword("final ")
+        if (flags.is(Flags.Final) && !flags.is(Flags.Module)) this += highlightKeyword("final ")
 
         printProtectedOrPrivate(vdef)
 
@@ -309,7 +322,7 @@ object SourceCode {
         this += highlightValDef(name1) += ": "
         printTypeTree(tpt)
         if (rightHandSide) {
-          collectType(vdef.symbol.pos, name1.length, printTypeTree(tpt))
+          vdef.symbol.pos.foreach(collectType(_, name1.length, printTypeTree(tpt)))
         }
         rhs match {
           case Some(tree) =>
@@ -321,7 +334,7 @@ object SourceCode {
 
       case While(cond, body) =>
         (cond, body) match {
-          case (Block(Block(Nil, body1) :: Nil, Block(Nil, cond1)), Literal(Constant.Unit())) =>
+          case (Block(Block(Nil, body1) :: Nil, Block(Nil, cond1)), Literal(UnitConstant())) =>
             this += highlightKeyword("do ")
             printTree(body1) += highlightKeyword(" while ")
             inParens(printTree(cond1))
@@ -331,7 +344,7 @@ object SourceCode {
             printTree(body)
         }
 
-      case ddef @ DefDef(name, targs, argss, tpt, rhs) =>
+      case ddef @ DefDef(name, paramss, tpt, rhs) =>
         printDefAnnotations(ddef)
 
         val isConstructor = name == "<init>"
@@ -340,21 +353,21 @@ object SourceCode {
         if (flags.is(Flags.Implicit)) this += highlightKeyword("implicit ")
         if (flags.is(Flags.Inline)) this += highlightKeyword("inline ")
         if (flags.is(Flags.Override)) this += highlightKeyword("override ")
-        if (flags.is(Flags.Final) && !flags.is(Flags.Object)) this += highlightKeyword("final ")
+        if (flags.is(Flags.Final) && !flags.is(Flags.Module)) this += highlightKeyword("final ")
 
         printProtectedOrPrivate(ddef)
 
         val name1: String = if (isConstructor) "this" else splicedName(ddef.symbol).getOrElse(name)
         this += highlightKeyword("def ") += highlightValDef(name1)
-        printTargsDefs(targs.zip(targs))
-        val it = argss.iterator
-        while (it.hasNext)
-          printArgsDefs(it.next())
+        for clause <-  paramss do
+          clause match
+            case TermParamClause(params) => printArgsDefs(params)
+            case TypeParamClause(params) => printTargsDefs(params.zip(params))
         if (!isConstructor) {
           this += ": "
           printTypeTree(tpt)
           if (rightHandSide) {
-            collectType(ddef.symbol.pos, name1.length, printTypeTree(tpt))
+            ddef.symbol.pos.foreach(collectType(_, name1.length, printTypeTree(tpt)))
           }
         }
         rhs match {
@@ -370,7 +383,7 @@ object SourceCode {
 
       case tree: Ident =>
         if (rightHandSide) {
-          collectReference(tree.pos, tree.symbol.pos)
+          tree.symbol.pos.foreach(collectReference(tree.pos, _))
           collectType(tree.pos, 0, printType(tree.tpe.widen))
         }
 
@@ -400,7 +413,7 @@ object SourceCode {
         this += "new "
         if (rightHandSide) {
           val tpt = tree.tpt
-          collectReference(tpt.pos, tpt.symbol.pos) // TODO Handle more complex cases
+          tpt.symbol.pos.foreach(collectReference(tpt.pos, _)) // TODO Handle more complex cases
         }
         printType(tree.tpe)
 
@@ -412,7 +425,7 @@ object SourceCode {
         this += "throw "
         printTree(expr)
 
-      case Apply(fn, args) if fn.symbol == Symbol.requiredMethod("scala.internal.Quoted.exprQuote") =>
+      case Apply(fn, args) if fn.symbol == Symbol.requiredMethod("scala.quoted.runtime.quote") =>
         args.head match {
           case Block(stats, expr) =>
             this += "'{"
@@ -427,12 +440,7 @@ object SourceCode {
             this += "}"
         }
 
-      case TypeApply(fn, args) if fn.symbol == Symbol.requiredMethod("scala.internal.Quoted.typeQuote") =>
-        this += "'["
-        printTypeTree(args.head)
-        this += "]"
-
-      case Apply(fn, arg :: Nil) if fn.symbol == Symbol.requiredMethod("scala.internal.Quoted.exprSplice") =>
+      case Apply(fn, arg :: Nil) if fn.symbol == Symbol.requiredMethod("scala.quoted.runtime.splice") =>
         this += "${"
         printTree(arg)
         this += "}"
@@ -519,7 +527,7 @@ object SourceCode {
 
       case Block(stats0, expr) =>
         val stats = stats0.filter {
-          case tree: ValDef => !tree.symbol.flags.is(Flags.Object)
+          case tree: ValDef => !tree.symbol.flags.is(Flags.Module)
           case _ => true
         }
         printFlatBlock(stats, expr)
@@ -582,7 +590,7 @@ object SourceCode {
         printTree(meth)
 
       case _ =>
-        throw new MatchError(tree.showExtractors)
+        throw new MatchError(tree.show(using Printer.TreeStructure))
 
     }
 
@@ -609,7 +617,7 @@ object SourceCode {
           while (it.hasNext)
             extractFlatStats(it.next())
           extractFlatStats(expansion)
-        case Literal(Constant.Unit()) => // ignore
+        case Literal(UnitConstant()) => // ignore
         case stat => flatStats += stat
       }
       def extractFlatExpr(term: Term): Term = term match {
@@ -636,8 +644,9 @@ object SourceCode {
 
     private def printFlatBlock(stats: List[Statement], expr: Term)(using elideThis: Option[Symbol]): this.type = {
       val (stats1, expr1) = flatBlock(stats, expr)
+      val splicedTypeAnnot = Symbol.requiredClass("scala.quoted.runtime.SplicedType").primaryConstructor
       val stats2 = stats1.filter {
-        case tree: TypeDef => !tree.symbol.annots.exists(_.symbol.maybeOwner == Symbol.requiredClass("scala.internal.Quoted.quoteTypeTag"))
+        case tree: TypeDef => !tree.symbol.hasAnnotation(splicedTypeAnnot)
         case _ => true
       }
       if (stats2.isEmpty) {
@@ -718,12 +727,12 @@ object SourceCode {
       this
     }
 
-    private def printImportSelectors(selectors: List[ImportSelector]): this.type = {
-      def printSeparated(list: List[ImportSelector]): Unit = list match {
+    private def printSelectors(selectors: List[Selector]): this.type = {
+      def printSeparated(list: List[Selector]): Unit = list match {
         case Nil =>
-        case x :: Nil => printImportSelector(x)
+        case x :: Nil => printSelector(x)
         case x :: xs =>
-          printImportSelector(x)
+          printSelector(x)
           this += ", "
           printSeparated(xs)
       }
@@ -968,7 +977,7 @@ object SourceCode {
           case Ident("unapply" | "unapplySeq") =>
             this += fun.symbol.owner.fullName.stripSuffix("$")
           case _ =>
-            throw new MatchError(fun.showExtractors)
+            throw new MatchError(fun.show(using Printer.TreeStructure))
         }
         inParens(printPatterns(patterns, ", "))
 
@@ -983,7 +992,7 @@ object SourceCode {
         printTree(v)
 
       case _ =>
-        throw new MatchError(pattern.showExtractors)
+        throw new MatchError(pattern.show(using Printer.TreeStructure))
 
     }
 
@@ -991,18 +1000,18 @@ object SourceCode {
     inline private val qSc = '"'
 
     def printConstant(const: Constant): this.type = const match {
-      case Constant.Unit() => this += highlightLiteral("()")
-      case Constant.Null() => this += highlightLiteral("null")
-      case Constant.Boolean(v) => this += highlightLiteral(v.toString)
-      case Constant.Byte(v) => this += highlightLiteral(v.toString)
-      case Constant.Short(v) => this += highlightLiteral(v.toString)
-      case Constant.Int(v) => this += highlightLiteral(v.toString)
-      case Constant.Long(v) => this += highlightLiteral(v.toString + "L")
-      case Constant.Float(v) => this += highlightLiteral(v.toString + "f")
-      case Constant.Double(v) => this += highlightLiteral(v.toString)
-      case Constant.Char(v) => this += highlightString(s"${qc}${escapedChar(v)}${qc}")
-      case Constant.String(v) => this += highlightString(s"${qSc}${escapedString(v)}${qSc}")
-      case Constant.ClassOf(v) =>
+      case UnitConstant() => this += highlightLiteral("()")
+      case NullConstant() => this += highlightLiteral("null")
+      case BooleanConstant(v) => this += highlightLiteral(v.toString)
+      case ByteConstant(v) => this += highlightLiteral(v.toString)
+      case ShortConstant(v) => this += highlightLiteral(v.toString)
+      case IntConstant(v) => this += highlightLiteral(v.toString)
+      case LongConstant(v) => this += highlightLiteral(v.toString + "L")
+      case FloatConstant(v) => this += highlightLiteral(v.toString + "f")
+      case DoubleConstant(v) => this += highlightLiteral(v.toString)
+      case CharConstant(v) => this += highlightString(s"${qc}${escapedChar(v)}${qc}")
+      case StringConstant(v) => this += highlightString(s"${qSc}${escapedString(v)}${qSc}")
+      case ClassOfConstant(v) =>
         this += "classOf"
         inSquare(printType(v))
     }
@@ -1020,13 +1029,13 @@ object SourceCode {
     }
 
     /** Print type tree
-      *
-      *  @param elideThis Shoud printing elide `C.this` for the given class `C`?
-      *                   None means no eliding.
-      *
-      *   Self type annotation and types in parent list should elide current class
-      *   prefix `C.this` to avoid type checking errors.
-      */
+     *
+     *  @param elideThis Shoud printing elide `C.this` for the given class `C`?
+     *                   None means no eliding.
+     *
+     *   Self type annotation and types in parent list should elide current class
+     *   prefix `C.this` to avoid type checking errors.
+     */
     private def printTypeTree(tree: TypeTree)(using elideThis: Option[Symbol] = None): this.type = tree match {
       case Inferred() =>
         // TODO try to move this logic into `printType`
@@ -1109,59 +1118,63 @@ object SourceCode {
         printTypeTree(tpt)
 
       case _ =>
-        throw new MatchError(tree.showExtractors)
+        throw new MatchError(tree.show(using Printer.TreeStructure))
 
     }
 
     /** Print type
-      *
-      *  @param elideThis Shoud printing elide `C.this` for the given class `C`?
-      *                   None means no eliding.
-      *
-      *   Self type annotation and types in parent list should elide current class
-      *   prefix `C.this` to avoid type checking errors.
-      */
+     *
+     *  @param elideThis Shoud printing elide `C.this` for the given class `C`?
+     *                   None means no eliding.
+     *
+     *   Self type annotation and types in parent list should elide current class
+     *   prefix `C.this` to avoid type checking errors.
+     */
     def printType(tpe: TypeRepr)(using elideThis: Option[Symbol] = None): this.type = tpe match {
       case ConstantType(const) =>
         printConstant(const)
 
       case tpe: TypeRef =>
         val sym = tpe.typeSymbol
-        tpe.qualifier match {
-          case ThisType(tp) if tp.typeSymbol == defn.RootClass || tp.typeSymbol == defn.EmptyPackageClass =>
-          case NoPrefix() =>
-            if (sym.owner.flags.is(Flags.Package)) {
-              // TODO should these be in the prefix? These are at least `scala`, `java` and `scala.collection`.
-              val packagePath = sym.owner.fullName.stripPrefix("<root>").stripPrefix("<empty>").stripPrefix(".")
-              if (packagePath != "")
-                this += packagePath += "."
-            }
-          case prefix: TermRef if prefix.termSymbol.isClassDef =>
-            printType(prefix)
-            this += "#"
-          case prefix: TypeRef if prefix.typeSymbol.isClassDef =>
-            printType(prefix)
-            this += "#"
-          case ThisType(TermRef(cdef, _)) if elideThis.nonEmpty && cdef == elideThis.get =>
-          case ThisType(TypeRef(cdef, _)) if elideThis.nonEmpty && cdef == elideThis.get =>
-          case prefix: TypeRepr =>
-            printType(prefix)
-            this += "."
-        }
+        if fullNames then
+          tpe.qualifier match {
+            case ThisType(tp) if tp.typeSymbol == defn.RootClass || tp.typeSymbol == defn.EmptyPackageClass =>
+            case NoPrefix() =>
+              if (sym.owner.flags.is(Flags.Package)) {
+                // TODO should these be in the prefix? These are at least `scala`, `java` and `scala.collection`.
+                val packagePath = sym.owner.fullName.stripPrefix("<root>").stripPrefix("<empty>").stripPrefix(".")
+                if (packagePath != "")
+                  this += packagePath += "."
+              }
+            case prefix: TermRef if prefix.termSymbol.isClassDef =>
+              printType(prefix)
+              this += "#"
+            case prefix: TypeRef if prefix.typeSymbol.isClassDef =>
+              printType(prefix)
+              this += "#"
+            case ThisType(TermRef(cdef, _)) if elideThis.nonEmpty && cdef == elideThis.get =>
+            case ThisType(TypeRef(cdef, _)) if elideThis.nonEmpty && cdef == elideThis.get =>
+            case prefix: TypeRepr =>
+              printType(prefix)
+              this += "."
+          }
         this += highlightTypeDef(sym.name.stripSuffix("$"))
 
       case TermRef(prefix, name) =>
-        prefix match {
-          case NoPrefix() =>
+        if fullNames then
+          prefix match {
+            case NoPrefix() =>
               this += highlightTypeDef(name)
-          case ThisType(tp) if tp.typeSymbol == defn.RootClass || tp.typeSymbol == defn.EmptyPackageClass =>
+            case ThisType(tp) if tp.typeSymbol == defn.RootClass || tp.typeSymbol == defn.EmptyPackageClass =>
               this += highlightTypeDef(name)
-          case _ =>
-            printType(prefix)
-            if (name != "package")
-              this += "." += highlightTypeDef(name)
-            this
-        }
+            case _ =>
+              printType(prefix)
+              if (name != "package")
+                this += "." += highlightTypeDef(name)
+              this
+          }
+        else
+          this += highlightTypeDef(name)
 
       case tpe @ Refinement(_, _, _) =>
         printRefinement(tpe)
@@ -1207,16 +1220,18 @@ object SourceCode {
 
       case ThisType(tp) =>
         tp match {
-          case tp: TypeRef if !tp.typeSymbol.flags.is(Flags.Object) =>
+          case tp: TypeRef if !tp.typeSymbol.flags.is(Flags.Module) =>
             printFullClassName(tp)
             this += highlightTypeDef(".this")
           case TypeRef(prefix, name) if name.endsWith("$") =>
-            prefix match {
-              case NoPrefix() =>
-              case ThisType(tp) if tp.typeSymbol == defn.RootClass || tp.typeSymbol == defn.EmptyPackageClass =>
-              case _ =>
-                printType(prefix)
-                this += "."
+            if (fullNames){
+              prefix match {
+                case NoPrefix() =>
+                case ThisType(tp) if tp.typeSymbol == defn.RootClass || tp.typeSymbol == defn.EmptyPackageClass =>
+                case _ =>
+                  printType(prefix)
+                  this += "."
+              }
             }
             this += highlightTypeDef(name.stripSuffix("$"))
           case _ =>
@@ -1273,18 +1288,25 @@ object SourceCode {
         printType(hi)
 
       case _ =>
-        throw new MatchError(tpe.showExtractors)
+        throw new MatchError(tpe.show(using Printer.TypeReprStructure))
     }
 
-    private def printImportSelector(sel: ImportSelector): this.type = sel match {
+    private def printSelector(sel: Selector): this.type = sel match {
       case SimpleSelector(name) => this += name
       case OmitSelector(name) => this += name += " => _"
       case RenameSelector(name, newName) => this += name += " => " += newName
+      case GivenSelector(bound) =>
+        bound match
+          case Some(tpt) =>
+            this += "given "
+            printTree(tpt)
+          case _ =>
+            this += "given"
     }
 
     private def printDefinitionName(tree: Definition): this.type = tree match {
       case ValDef(name, _, _) => this += highlightValDef(name)
-      case DefDef(name, _, _, _, _) => this += highlightValDef(name)
+      case DefDef(name, _, _, _) => this += highlightValDef(name)
       case ClassDef(name, _, _, _, _, _) => this += highlightTypeDef(name.stripSuffix("$"))
       case TypeDef(name, _) => this += highlightTypeDef(name)
     }
@@ -1308,12 +1330,12 @@ object SourceCode {
     }
 
     private def printDefAnnotations(definition: Definition)(using elideThis: Option[Symbol]): this.type = {
-      val annots = definition.symbol.annots.filter {
+      val annots = definition.symbol.annotations.filter {
         case Annotation(annot, _) =>
           val sym = annot.tpe.typeSymbol
           sym != Symbol.requiredClass("scala.forceInline") &&
-          sym.maybeOwner != Symbol.requiredPackage("scala.annotation.internal")
-        case x => throw new MatchError(x.showExtractors)
+            sym.maybeOwner != Symbol.requiredPackage("scala.annotation.internal")
+        case x => throw new MatchError(x.show(using Printer.TreeStructure))
       }
       printAnnotations(annots)
       if (annots.nonEmpty) this += " "
@@ -1433,7 +1455,7 @@ object SourceCode {
 
     private def printFullClassName(tp: TypeRepr): Unit = {
       def printClassPrefix(prefix: TypeRepr): Unit = prefix match {
-        case TypeRef(prefix2, name) =>
+        case TypeRef(prefix2, name) if fullNames =>
           printClassPrefix(prefix2)
           this += name += "."
         case _ =>
@@ -1511,7 +1533,7 @@ object SourceCode {
       object Sequence {
         def unapply(tpe: TypeRepr): Option[TypeRepr] = tpe match {
           case AppliedType(seq, (tp: TypeRepr) :: Nil)
-              if seq.typeSymbol == Symbol.requiredClass("scala.collection.Seq") || seq.typeSymbol == Symbol.requiredClass("scala.collection.immutable.Seq") =>
+            if seq.typeSymbol == Symbol.requiredClass("scala.collection.Seq") || seq.typeSymbol == Symbol.requiredClass("scala.collection.immutable.Seq") =>
             Some(tp)
           case _ => None
         }
