@@ -6,13 +6,12 @@ import java.nio.file.{Files, Paths, StandardCopyOption, StandardOpenOption}
 import java.util.jar.JarFile
 
 import com.intellij.util.PathUtil
-import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 
 import scala.util.Using
 
 object TastyReader {
-  private val MajorVersion = 25
-  private val MinorVersion = 1
+  private val MajorVersion = 28
+  private val MinorVersion = 0
 
   // A TASTy document is composed of a header, which contains a magic number 0x5CA1AB1F, a version number and a UUID.
   // * https://github.com/scala/scala/pull/9109/files#diff-f7bbafb9ed1dff384defaa69687349daa35b276a4320aa61046844b0014e0cb5R26
@@ -106,24 +105,24 @@ object TastyReader {
   // TODO Remove (convenience for debugging purposes)
   // NB: The plugin artifact must be build before running.
   // cd ~/IdeaProjects
-  // git clone https://github.com/lampepfl/dotty-example-project.git
-  // cd dotty-example-project ; sbt compile
+  // git clone https://github.com/scala/scala3-example-project
+  // cd scala3-example-project ; sbt compile
   def main(args: Array[String]): Unit = {
-    val DottyExampleProject = System.getProperty("user.home") + "/IdeaProjects/dotty-example-project"
+    val DottyExampleProject = System.getProperty("user.home") + "/IdeaProjects/scala3-example-project"
 
     def textAt(position: Position): String =
       if (position.start == -1) "<undefined>"
       else new String(Files.readAllBytes(Paths.get(DottyExampleProject + "/" + position.file))).substring(position.start, position.end)
 
     val exampleClasses = Seq(
-      "AutoParamTupling",
-      "ContextQueries",
+      "ContextFunctions",
       "Conversion",
       "EnumTypes",
-      "ImpliedInstances",
+      "GivenInstances",
       "IntersectionTypes",
       "Main",
       "MultiversalEquality",
+      "ParameterUntupling",
 //      "PatternMatching",
       "StructuralTypes",
       "TraitParams",
@@ -133,7 +132,7 @@ object TastyReader {
 
     assertExists(DottyExampleProject)
 
-    val outputDir = DottyExampleProject + "/target/scala-3.0.0-M2/classes"
+    val outputDir = DottyExampleProject + "/target/scala-3.0.0-RC1/classes"
     assertExists(outputDir)
 
     exampleClasses.foreach { fqn =>
