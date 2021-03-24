@@ -47,7 +47,11 @@ sealed trait MethodTypeProvider[+T <: PsiElement] {
 
 trait ScalaMethodTypeProvider[+T <: ScalaPsiElement] extends MethodTypeProvider[T] {
 
-  def nestedMethodType(n: Int, `type`: Option[ScType] = None, substitutor: ScSubstitutor = ScSubstitutor.empty): Option[ScType] =
+  def nestedMethodType(
+    n:           Int,
+    `type`:      Option[ScType] = None,
+    substitutor: ScSubstitutor  = ScSubstitutor.empty
+  ): Option[ScType] =
     nested(methodType(`type`), n)
       .map(substitutor)
 
@@ -75,7 +79,7 @@ object MethodTypeProvider {
     ScFunProvider(f)
 
   implicit def fromScMethodLike(ml: ScMethodLike): ScalaMethodTypeProvider[ScMethodLike] = ml match {
-    case f: ScFunction => ScFunctionProvider(f)
+    case f: ScFunction            => ScFunctionProvider(f)
     case pc: ScPrimaryConstructor => ScPrimaryConstructorProvider(pc)
   }
 
@@ -102,12 +106,11 @@ object MethodTypeProvider {
   private case class ScFunctionProvider(override val element: ScFunction)
     extends ScalaMethodTypeProvider[ScFunction] {
 
-    override def typeParameters: Seq[PsiTypeParameter] = {
+    override def typeParameters: Seq[PsiTypeParameter] =
       element match {
         case AuxiliaryConstructor.in(td: ScTypeDefinition) => td.typeParameters
-        case _ => element.typeParameters
+        case _                                             => element.typeParameters
       }
-    }
 
     override def methodType(returnType: Option[ScType]): ScType = {
       val retType = returnType.getOrElse(element.returnType.getOrAny)
@@ -124,7 +127,7 @@ object MethodTypeProvider {
       val clauses = element.effectiveParameterClauses
       if (clauses.nonEmpty)
         clauses.foldRight[ScType](retType) { (clause: ScParameterClause, tp: ScType) =>
-          ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)
+          ScMethodType(tp, clause.getSmartParameters, clause.isImplicitOrUsing)
         }
       else ScMethodType(retType, Seq.empty, isImplicit = false)
     }

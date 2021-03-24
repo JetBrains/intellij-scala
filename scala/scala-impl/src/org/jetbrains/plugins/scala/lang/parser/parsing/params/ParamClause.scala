@@ -40,9 +40,10 @@ object ParamClause extends ParsingRule {
     }
 
     if (builder.isScala3 && builder.tryParseSoftKeyword(ScalaTokenType.UsingKeyword)) {
-      if (!TypesAsParams()) {
-        Params()
-      }
+        if (!TypesAsParams()) {
+          val hasAtLeastOneParam = Params()
+          if (!hasAtLeastOneParam) builder.error(ScalaBundle.message("identifier.expected"))
+        }
     } else {
       Params()
     }

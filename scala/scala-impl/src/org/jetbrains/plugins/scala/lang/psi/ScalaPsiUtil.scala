@@ -1525,18 +1525,18 @@ object ScalaPsiUtil {
     addBefore[ScTypeAlias](typeAlias, parent, anchorOpt)
   }
 
-  def isImplicit(namedElement: PsiNamedElement): Boolean = {
+  def isImplicit(namedElement: PsiNamedElement): Boolean =
     namedElement match {
       case _: ScGiven                                => true
+      case _: ScGivenPattern                         => true
       case Implicit0Binding()                        => true /** See [[BetterMonadicForSupport]] */
       case owner: ScModifierListOwner                => hasImplicitModifier(owner)
       case inNameContext(owner: ScModifierListOwner) => hasImplicitModifier(owner)
       case _                                         => false
     }
-  }
 
   def hasImplicitModifier(modifierListOwner: ScModifierListOwner): Boolean = modifierListOwner match {
-    case p: ScParameter => p.isImplicitParameter
+    case p: ScParameter => p.isImplicitOrContextParameter
     case _              => modifierListOwner.hasModifierProperty("implicit")
   }
 
