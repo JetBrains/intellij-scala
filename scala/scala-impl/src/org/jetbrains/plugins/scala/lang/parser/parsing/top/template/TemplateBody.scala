@@ -6,6 +6,7 @@ package top
 package template
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SelfType
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
@@ -25,6 +26,7 @@ sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) ext
     val marker = builder.mark()
     builder.enableNewlines()
 
+    var canAcceptEnd = false
     val (blockIndentation, baseIndentation) = builder.getTokenType match {
       case `tLBRACE` =>
         builder.advanceLexer() // Ate {
@@ -33,7 +35,9 @@ sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) ext
         tok match {
           case InScala3(ScalaTokenTypes.tCOLON) =>
             builder.advanceLexer() // Ate :
+            canAcceptEnd = true
           case InScala3(_) if indentationCanStartWithoutColon =>
+            canAcceptEnd = true
           case _ =>
             marker.drop()
             builder.restoreNewlinesState()
@@ -41,7 +45,8 @@ sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) ext
         }
 
         val currentIndent = builder.currentIndentationWidth
-        builder.findPreviousIndent match {
+        val prevIndent = builder.findPreviousIndent
+        prevIndent match {
           case None =>
             // if something else comes after the colon in the same line
             // we have to rollback because it might be a typing like
@@ -53,6 +58,8 @@ sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) ext
           case indentO@Some(indent) if indent > currentIndent =>
             BlockIndentation.noBlock -> indentO
           case _ =>
+            if (canAcceptEnd)
+              End(builder.currentIndentationWidth)
             marker.done(ScalaElementType.TEMPLATE_BODY)
             builder.restoreNewlinesState()
             return true
@@ -68,6 +75,8 @@ sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) ext
 
     blockIndentation.drop()
     builder.restoreNewlinesState()
+    if (canAcceptEnd)
+      End(builder.currentIndentationWidth)
     marker.done(ScalaElementType.TEMPLATE_BODY)
 
     true

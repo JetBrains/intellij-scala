@@ -8,8 +8,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       | def blub = 3
       |end given
       |""".stripMargin,
-    """
-      |ScalaFile
+    """ScalaFile
       |  PsiWhiteSpace('\n')
       |  ScGivenDefinition: given_Test
       |    AnnotationsList
@@ -43,13 +42,12 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |          PsiWhiteSpace(' ')
       |          IntegerLiteral
       |            PsiElement(integer)('3')
-      |    PsiWhiteSpace('\n')
-      |    End: given
-      |      PsiElement(end)('end')
-      |      PsiWhiteSpace(' ')
-      |      PsiElement(given)('given')
-      |  PsiWhiteSpace('\n')
-      |""".stripMargin
+      |        PsiWhiteSpace('\n')
+      |        End: given
+      |          PsiElement(end)('end')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(given)('given')
+      |  PsiWhiteSpace('\n')""".stripMargin
   )
 
   def test_full(): Unit = checkTree(
