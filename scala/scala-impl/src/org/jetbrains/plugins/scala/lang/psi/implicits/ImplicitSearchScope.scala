@@ -66,17 +66,17 @@ object ImplicitSearchScope {
   private def isImplicitSearchBorder(elem: PsiElement): Boolean = elem match {
     //special treatment for case clauses and for comprehensions to
     //support `implicit0` from betterMonadicFor compiler plugin
-    case _: ScForBinding if elem.betterMonadicForEnabled   => true
-    case _: ScGenerator  if elem.betterMonadicForEnabled   => true
-    case _: ScCaseClause if elem.betterMonadicForEnabled   => true
-    case _: ScImportStmt | _: ScPackaging                  => true
-    case (_: ScParameters) childOf (m: ScMethodLike)       => hasImplicitClause(m)
-    case pc: ScPrimaryConstructor                          => hasImplicitClause(pc)
-    case (ps: ScParameters) childOf (_: ScFunctionExpr)    => ps.params.exists(_.isImplicitParameter)
-    case p: ScParameter                                    => p.isImplicitParameter
-    case m: ScMember                                       => m.hasModifierProperty("implicit")
-    case _: ScTemplateParents                              => true
-    case _                                                 => false
+    case _: ScForBinding                                => elem.isInScala3File || elem.betterMonadicForEnabled
+    case _: ScGenerator                                 => elem.isInScala3File || elem.betterMonadicForEnabled
+    case _: ScCaseClause                                => elem.isInScala3File || elem.betterMonadicForEnabled
+    case _: ScImportStmt | _: ScPackaging               => true
+    case (_: ScParameters) childOf (m: ScMethodLike)    => hasImplicitClause(m)
+    case pc: ScPrimaryConstructor                       => hasImplicitClause(pc)
+    case (ps: ScParameters) childOf (_: ScFunctionExpr) => ps.params.exists(_.isImplicitParameter)
+    case p: ScParameter                                 => p.isImplicitParameter
+    case m: ScMember                                    => m.hasModifierProperty("implicit")
+    case _: ScTemplateParents                           => true
+    case _                                              => false
   }
 
   private def hasImplicitClause(m: ScMethodLike): Boolean = m.effectiveParameterClauses.exists(_.isImplicit)

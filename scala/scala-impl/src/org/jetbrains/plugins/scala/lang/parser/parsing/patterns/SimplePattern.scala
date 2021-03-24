@@ -91,7 +91,10 @@ object SimplePattern extends ParsingRule {
         }
       case ScalaTokenType.GivenKeyword =>
         builder.advanceLexer() //Ate given
-        CompoundType.parse(builder, isPattern = true)
+
+        val hasTypeElement = CompoundType.parse(builder, isPattern = true)
+        if (!hasTypeElement) builder.error(ScalaBundle.message("type.expected"))
+
         simplePatternMarker.done(ScalaElementType.GIVEN_PATTERN)
         return true
       case _ =>

@@ -61,8 +61,8 @@ private[implicits] final class ImplicitParametersProcessor(override val getPlace
   private def isContextAncestor(c: ScalaResolveResult): Boolean = {
     val nameContext = ScalaPsiUtil.nameContext(c.element)
     nameContext match {
-      case _: ScCaseClause if getPlace.betterMonadicForEnabled => false
-      case _                                                   => PsiTreeUtil.isContextAncestor(nameContext, getPlace, false)
+      case _: ScCaseClause => !getPlace.betterMonadicForEnabled && !getPlace.isInScala3Module
+      case _               => PsiTreeUtil.isContextAncestor(nameContext, getPlace, false)
     }
   }
 }
