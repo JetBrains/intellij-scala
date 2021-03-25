@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.compilationCharts.ui.Common._
 import org.jetbrains.plugins.scala.compilationCharts.{CompilationProgressStateManager, CompileServerMetricsStateManager, Memory, Timestamp}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeLater}
 
+import java.io.File
 import javax.swing.UIManager
 import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.math.Ordering.Implicits._
@@ -45,6 +46,11 @@ class DiagramsComponent(chartsComponent: CompilationChartsComponent,
       val selectedRow = diagram.rowCount - (e.getPoint.y / ProgressRowHeight).toInt - 1
       val selectedTime = currentZoom.fromPixels(e.getPoint.x)
 
+      def fileNameIn(path: String): String = {
+        val i = path.lastIndexOf(File.separatorChar)
+        if (i >= 0) path.substring(i + 1) else "?"
+      }
+      
       // TODO Use more effective search?
       for (group <- diagram.segmentGroups.lift(selectedRow);
            segment <- group.find(segment => segment.from <= selectedTime && segment.to >= selectedTime);
@@ -53,7 +59,7 @@ class DiagramsComponent(chartsComponent: CompilationChartsComponent,
         // TODO Show duration, number of files, etc. (maybe also labels)
         // TODO Implement navigation to file / module
         setToolTipText(
-          unit.map(it => VfsUtil.extractFileName(it.path) + " | ").getOrElse("") +
+          unit.map(it => fileNameIn(it.path) + " | ").getOrElse("") +
             phase.map(_.name.capitalize + " | ").getOrElse("") +
             segment.unitId.moduleId
         )
