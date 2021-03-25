@@ -12,7 +12,7 @@ import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.isConstructorArgOrMemberFunctionParameter
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScCodeBlockElementType.BlockExpression
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -100,6 +100,22 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case _ => Indent.getNoneIndent
     }
 
+    def tryOrCatchBodyIndent: Indent = child match {
+      case block: ScBlock =>
+        if (isBraceNextLineShifted && block.isEnclosedByBraces)
+          Indent.getNormalIndent
+        else
+          Indent.getNoneIndent // do not indent braceless block
+      case _ =>
+        Indent.getNormalIndent
+    }
+
+    childElementType match {
+      case ScalaTokenType.EndKeyword | ScalaElementType.END_STMT =>
+        return Indent.getNoneIndent
+      case _ =>
+    }
+
     if (childElementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS ||
       childElementType == ScalaDocTokenType.DOC_COMMENT_END) {
       return Indent.getSpaceIndent(if (scalaSettings.USE_SCALADOC2_FORMATTING) 2 else 1)
@@ -176,15 +192,13 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case _: ScTry =>
         childElementType match {
           case ScalaTokenTypes.kTRY | ScalaElementType.CATCH_BLOCK | ScalaElementType.FINALLY_BLOCK => Indent.getNoneIndent
-          case _ if isBraceNextLineShifted => Indent.getNormalIndent
-          case _ => Indent.getNoneIndent
+          case _ => tryOrCatchBodyIndent
         }
       case _: ScCatchBlock =>
         childElementType match {
-          case ScalaTokenTypes.kCATCH                    => Indent.getNoneIndent
-          case ScalaElementType.CASE_CLAUSES             => Indent.getNormalIndent
-          case BlockExpression if isBraceNextLineShifted => Indent.getNormalIndent
-          case _                                         => Indent.getNoneIndent
+          case ScalaTokenTypes.kCATCH        => Indent.getNoneIndent
+          case ScalaElementType.CASE_CLAUSES => Indent.getNormalIndent
+          case _                             => tryOrCatchBodyIndent
         }
       case _: ScEarlyDefinitions | _: ScTemplateBody =>
         childElementType match {
