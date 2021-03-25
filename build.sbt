@@ -428,7 +428,7 @@ lazy val mlCompletionIntegration =
     .dependsOn(scalaImpl)
     .settings(
       intellijPlugins += "com.intellij.completion.ml.ranking".toPlugin,
-      resolvers += Resolver.bintrayRepo("jetbrains", "intellij-third-party-dependencies"),
+      resolvers += "intellij-dependencies" at "https://packages.jetbrains.team/maven/p/ij/intellij-dependencies/",
       libraryDependencies += "org.jetbrains.intellij.deps.completion" % "completion-ranking-scala" % "0.3.2"
     )
 
