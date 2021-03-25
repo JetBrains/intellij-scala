@@ -246,4 +246,89 @@ class Scala3FormatterBracelessSyntaxTest extends Scala3FormatterBaseTest {
       |""".stripMargin,
     actionRepeats = 3
   )
+
+  private val CommentPlaceholder = "<CommentPlaceholder>"
+  private def doTestWithAllComments(before: String): Unit = {
+    assert(before.contains(CommentPlaceholder))
+
+    doTextTest(before.replace(CommentPlaceholder, ""))
+    doTextTest(before.replace(CommentPlaceholder, "// line comment"))
+    doTextTest(before.replace(CommentPlaceholder, "/* block comment */"))
+    doTextTest(before.replace(CommentPlaceholder,
+      """
+        |/**
+        | * doc comment
+        | */""".stripMargin)
+    )
+  }
+
+  def testAssign_ToId_WithIndentedBlock(): Unit = doTestWithAllComments(
+    s"""class A {
+       |  var x: Int = 0
+       |}
+       |
+       |val a = new A
+       |$CommentPlaceholder
+       |a.x =
+       |  var x = 1
+       |  var y = 2
+       |  x + y
+       |""".stripMargin
+  )
+
+  def testAssign_ToId_WithBlock(): Unit = doTestWithAllComments(
+    s"""class A {
+       |  var x: Int = 0
+       |}
+       |
+       |val a = new A
+       |$CommentPlaceholder
+       |a.x = {
+       |  var x = 1
+       |  var y = 2
+       |  x + y
+       |}
+       |""".stripMargin
+  )
+
+  def testAssign_ToId_WithSingleExpression(): Unit = doTestWithAllComments(
+    s"""class A {
+       |  var x: Int = 0
+       |}
+       |
+       |val a = new A
+       |$CommentPlaceholder
+       |a.x =
+       |  1 + 2
+       |""".stripMargin
+  )
+
+  def testAssign_ToMap_ViaUpdateMethod_WithIndentedBlock(): Unit = doTestWithAllComments(
+    s"""val map = scala.collection.mutable.Map.empty[Int, Int]
+       |$CommentPlaceholder
+       |map(42) =
+       |  var x = 1
+       |  var y = 2
+       |  x + y
+       |""".stripMargin
+  )
+
+  def testAssign_ToMap_ViaUpdateMethod_WithBlock(): Unit = doTestWithAllComments(
+    s"""val map = scala.collection.mutable.Map.empty[Int, Int]
+       |$CommentPlaceholder
+       |map(42) = {
+       |  var x = 1
+       |  var y = 2
+       |  x + y
+       |}
+       |""".stripMargin
+  )
+
+  def testAssign_ToMap_ViaUpdateMethod_WithSingleExpression(): Unit = doTestWithAllComments(
+    s"""val map = scala.collection.mutable.Map.empty[Int, Int]
+       |$CommentPlaceholder
+       |map(42) =
+       |  1 + 2
+       |""".stripMargin
+  )
 }

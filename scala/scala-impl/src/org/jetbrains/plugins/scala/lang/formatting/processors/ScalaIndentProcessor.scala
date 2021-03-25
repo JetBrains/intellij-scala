@@ -60,6 +60,10 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
     val isBraceNextLineShifted2 = settings.BRACE_STYLE == NEXT_LINE_SHIFTED2
     val isBraceNextLineShifted = isBraceNextLineShifted1 || isBraceNextLineShifted2
 
+    val isMethodBraceNextLineShifted =
+      settings.METHOD_BRACE_STYLE == NEXT_LINE_SHIFTED ||
+        settings.METHOD_BRACE_STYLE == NEXT_LINE_SHIFTED2
+
     def processFunExpr(expr: ScFunctionExpr): Indent = expr.result match {
       case Some(e) if e == childPsi =>
         childPsi match {
@@ -81,33 +85,34 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case _ => Indent.getContinuationWithoutFirstIndent
     }
 
+    @inline def blockIndent(b: ScBlock, bracesShifted: Boolean): Indent =
+      if (bracesShifted && b.isEnclosedByBraces) Indent.getNormalIndent
+      else Indent.getNoneIndent
+
     //TODO these are hack methods to facilitate indenting in cases when comment before def/val/var adds one more level of blocks
     def funIndent = childPsi match {
-      case block: ScBlockExpr =>
-        if (block.isEnclosedByBraces && (settings.METHOD_BRACE_STYLE == NEXT_LINE_SHIFTED || settings.METHOD_BRACE_STYLE == NEXT_LINE_SHIFTED2))
-          Indent.getNormalIndent
-        else
-          Indent.getNoneIndent
-      case _: ScBlockStatement => Indent.getNormalIndent
       case _: ScParameters if scalaSettings.INDENT_FIRST_PARAMETER_CLAUSE => Indent.getContinuationIndent
-      case _ => Indent.getNoneIndent
+      case b: ScBlockExpr      => blockIndent(b, isMethodBraceNextLineShifted)
+      case _: ScBlockStatement => Indent.getNormalIndent
+      case _                   => Indent.getNoneIndent
     }
     def valIndent = childPsi match {
-      case _: ScBlockExpr if isBraceNextLineShifted => Indent.getNormalIndent
-      case _: ScBlockExpr => Indent.getNoneIndent
+      case b: ScBlockExpr      => blockIndent(b, isBraceNextLineShifted)
       case _: ScBlockStatement => Indent.getNormalIndent
       case _: ScTypeElement    => Indent.getNormalIndent
-      case _ => Indent.getNoneIndent
+      case _                   => Indent.getNoneIndent
     }
-
+    def assignmentIndent = childPsi match {
+      case b: ScBlockExpr      => blockIndent(b, isBraceNextLineShifted)
+      case _: ScBlockStatement =>
+        val isLeft = childPsi.getPrevSibling == null
+        if (isLeft) Indent.getNoneIndent
+        else Indent.getNormalIndent
+      case _                   => Indent.getNoneIndent
+    }
     def tryOrCatchBodyIndent: Indent = child match {
-      case block: ScBlock =>
-        if (isBraceNextLineShifted && block.isEnclosedByBraces)
-          Indent.getNormalIndent
-        else
-          Indent.getNoneIndent // do not indent braceless block
-      case _ =>
-        Indent.getNormalIndent
+      case b: ScBlock => blockIndent(b, isBraceNextLineShifted)
+      case _          => Indent.getNormalIndent
     }
 
     childElementType match {
@@ -220,6 +225,8 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         }
       case _: ScFunction =>
         funIndent
+      case _: ScAssignment =>
+        assignmentIndent
       case _ if nodeElementType == ScalaTokenTypes.kDEF ||
         TokenSets.FUNCTIONS.contains(nodeTreeParentElementType) &&
           ModifiersOrAnnotationOrLineComment.contains(nodeElementType) =>
