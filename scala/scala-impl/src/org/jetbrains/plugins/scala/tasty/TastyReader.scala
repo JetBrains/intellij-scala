@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.tasty
 
-import java.io.File
+import java.io.{File, FileNotFoundException}
 import java.net.URLClassLoader
 import java.nio.file.{Files, Paths, StandardCopyOption, StandardOpenOption}
 import java.util.jar.JarFile
@@ -62,21 +62,17 @@ object TastyReader {
   private lazy val api: TastyApi = {
     val jarFiles = {
       val tastyDirectory = tastyDirectoryFor(getClass)
-      val bundledJars =
-        Seq(
-          "tasty-runtime.jar",
-          "tasty-inspector.jar",
-          "tasty-core.jar",
-          "scala-interfaces.jar",
-          "scala-compiler.jar",
-          "scala-library.jar") // TODO Use a Scala 3 library in lib/ (when there will be one)
-          .map(new File(tastyDirectory, _)) ++
-          Seq( // TODO Why do we also need this library in the URL classloader? (it work fine using the main method, but not from IDEA)
-            s"scala-library.jar"
-            )
-            .map(new File(tastyDirectory.getParent, _))
-      bundledJars.foreach(file => assert(file.exists(), "Not found: " + file.getPath))
-      bundledJars
+      val tastyFiles = tastyDirectory.listFiles()
+      Seq(
+        "scala3-compiler",
+        "scala3-interfaces",
+        "scala3-library", // TODO Use scala3-library in lib/ (when there will be one)
+        "scala3-tasty-inspector",
+        "tasty-core",
+        "tasty-runtime",
+      ).map(prefix => tastyFiles.find(_.getName.startsWith(prefix)).getOrElse(throw new FileNotFoundException(prefix))) :+
+        // TODO Why do we also need this library in the URL classloader? (it work fine using the main method, but not from IDEA)
+        new File(tastyDirectory.getParent, s"scala-library.jar")
     }
 
     val consumeTastyImplClass = {
