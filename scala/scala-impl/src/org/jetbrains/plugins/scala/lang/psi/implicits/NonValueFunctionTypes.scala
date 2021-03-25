@@ -55,7 +55,8 @@ private object NonValueFunctionTypes {
                                 undefinedTypeData: UndefinedTypeData): Option[MethodTypeData] = {
 
     val typeParameters = fun.typeParameters
-    val implicitClause = fun.effectiveParameterClauses.lastOption.filter(_.isImplicit)
+    //@TODO: multiple using clauses
+    val implicitClause = fun.effectiveParameterClauses.lastOption.filter(_.isImplicitOrUsing)
 
     if (typeParameters.isEmpty && implicitClause.isEmpty) {
       None

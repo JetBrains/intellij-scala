@@ -226,7 +226,7 @@ class ImplicitCollector(place: PsiElement,
         if (isImplicitConversion && isPredefConforms(fun)) return None
 
         //to avoid checking implicit functions in case of simple implicit parameter search
-        val hasNonImplicitClause = fun.effectiveParameterClauses.exists(!_.isImplicit)
+        val hasNonImplicitClause = fun.effectiveParameterClauses.exists(!_.isImplicitOrUsing)
         if (hasNonImplicitClause) {
           val clause = fun.paramClauses.clauses.head
           val paramsCount = clause.parameters.size

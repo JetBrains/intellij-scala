@@ -652,7 +652,8 @@ object Compatibility {
                                        argClauseCount: Int): Seq[MissedParametersClause] = {
     var minParamClauses = paramClauses.length
 
-    val hasImplicitClause = paramClauses.lastOption.exists(_.isImplicit)
+    val hasImplicitClause = paramClauses.lastOption.exists(_.isImplicitOrUsing)
+    //@TODO: multiple using clauses
     if (hasImplicitClause)
       minParamClauses -= 1
 

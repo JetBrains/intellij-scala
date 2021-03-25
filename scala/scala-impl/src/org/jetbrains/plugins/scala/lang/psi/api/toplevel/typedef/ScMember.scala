@@ -50,6 +50,12 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   final def originalEnumElement_=(e: ScEnum): Unit =
     putUserData(originalEnumElementKey, e)
 
+  final def originalGivenElement: ScGivenDefinition =
+    getUserData(originalGivenElementKey)
+
+  final def originalGivenElement_=(e: ScGivenDefinition): Unit =
+    putUserData(originalGivenElementKey, e)
+
   /**
     * getContainingClassStrict(bar) == null in
     *
@@ -210,24 +216,20 @@ object ScMember {
   }
 
   private val syntheticNavigationElementKey = Key.create[PsiElement]("ScMember.syntheticNavigationElement")
+  private val syntheticContainingClassKey   = Key.create[ScTypeDefinition]("ScMember.syntheticContainingClass")
+  private val originalEnumElementKey        = Key.create[ScEnum]("ScMember.originalEnumElement")
+  private val originalGivenElementKey       = Key.create[ScGivenDefinition]("ScMember.originalGivenElement")
 
-  private val syntheticContainingClassKey = Key.create[ScTypeDefinition]("ScMember.syntheticContainingClass")
-
-  private val originalEnumElementKey = Key.create[ScEnum]("ScMember.originalEnumElement")
-
-  private def containingClass(member: ScMember,
-                              found: ScTemplateDefinition) = member match {
-    case _: ScFunction |
-         _: ScTypeDefinition =>
+  private def containingClass(member: ScMember, found: ScTemplateDefinition) = member match {
+    case _: ScFunction | _: ScTypeDefinition =>
       member.syntheticContainingClass match {
         case null if member.isSynthetic => found
-        case null => null
-        case clazz => clazz
+        case null                       => null
+        case clazz                      => clazz
       }
-    case _: ScTypeAlias |
-         _: ScValueOrVariable => member.syntheticContainingClass
+    case _: ScTypeAlias | _: ScValueOrVariable         => member.syntheticContainingClass
     case _: ScClassParameter | _: ScPrimaryConstructor => found
-    case _ => null
+    case _                                             => null
   }
 
   implicit class ScMemberExt(private val member: ScMember) extends AnyVal {

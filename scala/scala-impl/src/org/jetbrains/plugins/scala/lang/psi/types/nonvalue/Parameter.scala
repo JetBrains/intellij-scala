@@ -10,23 +10,26 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
   * Generalized parameter. It's not psi element. So can be used in any place.
   * Some difference
   */
-case class Parameter(name: String,
-                     deprecatedName: Option[String],
-                     paramType: ScType,
-                     expectedType: ScType,
-                     isDefault: Boolean = false,
-                     isRepeated: Boolean = false,
-                     isByName: Boolean = false,
-                     index: Int = -1,
-                     psiParam: Option[PsiParameter] = None,
-                     defaultType: Option[ScType] = None) {
+case class Parameter(
+  name:           String,
+  deprecatedName: Option[String],
+  paramType:      ScType,
+  expectedType:   ScType,
+  isDefault:      Boolean = false,
+  isRepeated:     Boolean = false,
+  isByName:       Boolean = false,
+  index:          Int = -1,
+  psiParam:       Option[PsiParameter] = None,
+  defaultType:    Option[ScType] = None
+) {
   def paramInCode: Option[ScParameter] = psiParam.collect {
     case parameter: ScParameter => parameter
   }
 
   def nameInCode: Option[String] = psiParam.map(_.getName)
 
-  def isImplicit: Boolean = paramInCode.exists(_.isImplicitParameter)
+  //@TODO: rename
+  def isImplicit: Boolean = paramInCode.exists(_.isImplicitOrContextParameter)
 }
 
 object Parameter {

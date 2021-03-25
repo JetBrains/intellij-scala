@@ -146,7 +146,7 @@ object MethodTypeProvider {
       if (clauses.isEmpty) return ScMethodType(retType, Seq.empty, isImplicit = false)
 
       clauses.foldRight[ScType](retType) { (clause: ScParameterClause, tp: ScType) =>
-        ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)
+        ScMethodType(tp, clause.getSmartParameters, clause.isImplicitOrUsing)
       }
     }
 

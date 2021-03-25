@@ -455,7 +455,7 @@ object MethodResolveProcessor {
       case JavaConstructor(constructor) => javaConstructorCompatibility(constructor)
       case fun: ScFunction if (typeArgElements.isEmpty ||
               typeArgElements.length == fun.typeParameters.length) && fun.paramClauses.clauses.length == 1 &&
-              fun.paramClauses.clauses.head.isImplicit &&
+              fun.paramClauses.clauses.head.isImplicitOrUsing && //@TODO: multiple using clauses ???
               argumentClauses.isEmpty =>
         addExpectedTypeProblems()
       //eta expansion
