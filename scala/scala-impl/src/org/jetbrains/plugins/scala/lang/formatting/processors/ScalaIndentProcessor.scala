@@ -110,7 +110,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         else Indent.getNormalIndent
       case _                   => Indent.getNoneIndent
     }
-    def tryOrCatchBodyIndent: Indent = child match {
+    def blockChildIndent: Indent = child match {
       case b: ScBlock => blockIndent(b, isBraceNextLineShifted)
       case _          => Indent.getNormalIndent
     }
@@ -197,13 +197,18 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case _: ScTry =>
         childElementType match {
           case ScalaTokenTypes.kTRY | ScalaElementType.CATCH_BLOCK | ScalaElementType.FINALLY_BLOCK => Indent.getNoneIndent
-          case _ => tryOrCatchBodyIndent
+          case _ => blockChildIndent
         }
       case _: ScCatchBlock =>
         childElementType match {
           case ScalaTokenTypes.kCATCH        => Indent.getNoneIndent
           case ScalaElementType.CASE_CLAUSES => Indent.getNormalIndent
-          case _                             => tryOrCatchBodyIndent
+          case _                             => blockChildIndent
+        }
+      case _: ScThrow =>
+        childElementType match {
+          case ScalaTokenTypes.kTHROW => Indent.getNoneIndent
+          case _                      => blockChildIndent
         }
       case _: ScEarlyDefinitions | _: ScTemplateBody =>
         childElementType match {

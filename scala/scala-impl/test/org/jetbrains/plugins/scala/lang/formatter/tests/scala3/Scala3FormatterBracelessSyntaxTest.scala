@@ -331,4 +331,35 @@ class Scala3FormatterBracelessSyntaxTest extends Scala3FormatterBaseTest {
        |  1 + 2
        |""".stripMargin
   )
+
+  def testThrow(): Unit = doTextTest(
+    """throw
+      |  1
+      |
+      |throw
+      |  1
+      |  2
+      |
+      |throw
+      |  1
+      |  2
+      |  3
+      |
+      |throw
+      |  var x = 1
+      |  var x = 2
+      |  3
+      |
+      |throw
+      |  class A
+      |  var x = 2
+      |  3
+      |
+      |throw
+      |  var x = 1
+      |
+      |throw
+      |  class A
+      |""".stripMargin
+  )
 }
