@@ -21,8 +21,6 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner with ScDef
 
   override def hasAssign: Boolean
 
-  def assignment: Option[PsiElement]
-
   def returnUsages: Set[ScExpression] = ScFunctionDefinitionExt(this).returnUsages
 
   override def controlFlowScope: Option[ScalaPsiElement] = body

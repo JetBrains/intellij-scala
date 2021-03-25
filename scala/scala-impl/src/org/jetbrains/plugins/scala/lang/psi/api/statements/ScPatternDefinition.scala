@@ -19,8 +19,6 @@ trait ScPatternDefinition extends ScValue with ScDefinitionWithAssignment {
 
   def bindings: Seq[ScBindingPattern]
 
-  def assignment: Option[PsiElement]
-
   def expr: Option[ScExpression]
 
   def isSimple: Boolean = pList.simplePatterns && bindings.size == 1
