@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 /**
@@ -18,5 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
  * }}}
  */
 trait ScDefinitionWithAssignment extends ScalaPsiElement {
-  // todo add base `assigment` method and share implementation between all inheritors if possible
+  def assignment: Option[PsiElement] = {
+    val node = getNode.findChildByType(ScalaTokenTypes.tASSIGN)
+    Option(if (node == null) null else node.getPsi)
+  }
 }

@@ -22,8 +22,6 @@ trait ScVariableDefinition extends ScVariable with ScDefinitionWithAssignment {
 
   override def declaredElements: Seq[ScBindingPattern] = bindings
 
-  def assignment: Option[PsiElement]
-
   def expr: Option[ScExpression]
 
   def isSimple: Boolean
