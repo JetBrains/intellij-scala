@@ -1,3 +1,4 @@
+import sbt.Keys.unmanagedBase
 import sbt._
 
 object Versions {
