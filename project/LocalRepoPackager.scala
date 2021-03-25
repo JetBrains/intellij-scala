@@ -12,7 +12,7 @@ import java.net.URI
 import java.nio.file.{Path, Paths}
 
 /**
-  * Download artifacts from jetbrains bintray to mimic a simple local ivy repo that sbt can resolve artifacts from.
+  * Download artifacts from Maven and map them into a local repository, so that sbt can resolve artifacts locally without depending on online resolvers.
   */
 object LocalRepoPackager extends AutoPlugin {
   

@@ -1,4 +1,3 @@
-import sbt.Keys.unmanagedBase
 import sbt._
 
 object Versions {
@@ -41,7 +40,7 @@ object Versions {
 
     val latest_0_12 = "0.12.4"
     val latest_0_13 = "0.13.18"
-    val latest_1_0 = "1.4.3"
+    val latest_1_0 = "1.4.9"
     val latest: String = latest_1_0
     // ATTENTION: after adding sbt major version, also update:
     // buildInfoKeys, Sbt.scala and SbtUtil.latestCompatibleVersion
