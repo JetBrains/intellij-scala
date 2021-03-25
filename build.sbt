@@ -125,16 +125,15 @@ lazy val tastyRuntime = Project("tasty-runtime", file("tasty/runtime"))
     scalacOptions in Compile := Seq("-strict"), // TODO If there are no unique options, sbt import adds the module to a profile with macros enabled.
     unmanagedSourceDirectories in Compile += baseDirectory.value / "src",
     packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-runtime.jar"),
-    packageLibraryMappings := Seq( // TODO Can we redirect all the dependency JARs to a subdirectory?
-      "org.scala-lang" % "scala3-tasty-inspector_3.0.0-RC1" % "3.0.0-RC1" -> Some("lib/tasty/tasty-inspector.jar"),
-      "org.scala-lang" % "tasty-core_3.0.0-RC1" % "3.0.0-RC1" -> Some("lib/tasty/tasty-core.jar"),
-      "org.scala-lang" % "scala3-interfaces" % "3.0.0-RC1" -> Some("lib/tasty/scala-interfaces.jar"),
-      // TODO Remove when there will be a Scala 3 library in lib/
-      "org.scala-lang" % "scala3-library_3.0.0-RC1" % "3.0.0-RC1" -> Some("lib/tasty/scala-library.jar"),
-      "org.scala-lang" % "scala3-compiler_3.0.0-RC1" % "3.0.0-RC1" -> Some("lib/tasty/scala-compiler.jar"),
+    packageLibraryBaseDir := file("lib/tasty/"),
+    // TODO Use scala3-library in lib/ (when there will be one)
+    packageLibraryMappings := Seq(
       "org.scala-lang" %% "scala-library" % ".*" -> None,
+      "org.scala-lang.modules" %% "scala-asm" % ".*" -> None,
       "org.scala-sbt" %% ".*" % ".*" -> None,
       "org.jline" %% ".*" % ".*" -> None,
+      "net.java.dev.jna" %% ".*" % ".*" -> None,
+      "com.google.protobuf" %% ".*" % ".*" -> None,
     ),
   )
 
