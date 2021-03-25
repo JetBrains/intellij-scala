@@ -285,6 +285,15 @@ class Scala3FormatterControlSyntaxTest extends Scala3FormatterBaseTest {
       |""".stripMargin
   )
 
+  def testTry_SingleExpressionOnNewLine(): Unit = doTextTestWithExtraSpaces(
+    """try
+      |  throw new Exception("test")
+      |catch {
+      |  case _ =>
+      |}
+      |""".stripMargin
+  )
+
   def testTryCatch_IndentedCaseClause(): Unit = doTextTestWithExtraSpaces(
     """try println(42)
       |catch
