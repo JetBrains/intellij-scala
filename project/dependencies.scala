@@ -1,3 +1,4 @@
+import sbt.Keys.unmanagedBase
 import sbt._
 
 object Versions {
@@ -100,7 +101,6 @@ object Dependencies {
   //  2. update version in scala-plugin-common.xml compilerServer.plugin classpath setting
   val compilerIndicesProtocol: ModuleID = "org.jetbrains.scala" %% "scala-compiler-indices-protocol" % compilerIndicesVersion
 
-  val nailgun: ModuleID = "org.jetbrains" % "nailgun-patched" % "1.0.1"
   val zinc = "org.scala-sbt" %% "zinc" % zincVersion
   val zincInterface = "org.scala-sbt" % "compiler-interface" % zincVersion
   val sbtInterface = "org.scala-sbt" % "util-interface" % "1.3.0"
