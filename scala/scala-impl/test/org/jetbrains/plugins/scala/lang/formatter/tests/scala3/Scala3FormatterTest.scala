@@ -300,4 +300,36 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
         |    case h *: t => h *: t
         |""".stripMargin
     )
+
+  def testContextFunctionExpression(): Unit = doTextTest(
+    """val x = (a: Int) ?=> 3
+      |
+      |val x = (a: Int) ?=>
+      |  3
+      |
+      |val x = (a: Int) ?=>
+      |  println(1)
+      |  println(2)
+      |  3
+      |
+      |val x = (a: Int) ?=> {
+      |  println(1)
+      |  println(2)
+      |  3
+      |}
+      |""".stripMargin
+  )
+
+  def testContextFunctionType(): Unit = doTextTest(
+    """import scala.concurrent.{ExecutionContext, Future}
+      |
+      |type Contextual1[T] = ExecutionContext ?=> T
+      |
+      |type Contextual2[T] = ExecutionContext ?=>
+      |  T
+      |
+      |type Contextual3[T] =
+      |  ExecutionContext ?=> T
+      |""".stripMargin
+  )
 }
