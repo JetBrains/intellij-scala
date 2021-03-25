@@ -15,11 +15,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 
 import scala.annotation.tailrec
 
-/*
-  TmplDef           ::=  ...
-                     |   ‘given’ GivenDef
-  GivenDef          ::=  [GivenSig] (AnnotType [‘=’ Expr] | StructuralInstance)
-  GivenSig          ::=  [id] [DefTypeParamClause] {UsingParamClause} ‘:’         -- one of `id`, `DefParamClause`, `UsingParamClause` must be present
+/**
+ * {{{
+ * TmplDef           ::=  given’ GivenDef
+ *                     |  ...
+ * GivenDef          ::=  [GivenSig] (AnnotType [‘=’ Expr] | StructuralInstance)
+ * GivenSig          ::=  [id] [DefTypeParamClause] {UsingParamClause} ‘:’         -- one of `id`, `DefParamClause`, `UsingParamClause` must be present
+ * }}}
  */
 object GivenDef {
   def parse(templateMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Unit = {
@@ -81,7 +83,7 @@ object GivenDef {
           builder.getTokenType match {
             case ScalaTokenTypes.tLBRACE => false
             case ScalaTokenTypes.tIDENTIFIER if nonConstructorStartId(builder.getTokenText) => false
-            case _ => true
+            case _ => !builder.newlineBeforeCurrentToken // new line after width is not supported
           }
 
         if (proceedWithConstructorInvocation && Constructor()) {
