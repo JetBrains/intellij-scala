@@ -1,7 +1,10 @@
 import Common._
-import Dependencies.{provided, sbtStructureExtractor}
+import Dependencies.provided
+import LocalRepoPackager.{localRepoDependencies, localRepoUpdate, relativeJarPath, sbtDep}
 import org.jetbrains.sbtidea.Keys._
 import sbtide.Keys.ideSkipProject
+
+import java.nio.file.Paths
 
 // Global build settings
 
@@ -191,11 +194,11 @@ lazy val scalaImpl: sbt.Project =
         BuildInfoKey.constant("sbtLatest_0_13", Versions.Sbt.latest_0_13),
         BuildInfoKey.constant("sbtLatest_1_0", Versions.Sbt.latest_1_0),
         BuildInfoKey.constant("sbtLatestVersion", Versions.sbtVersion),
-        BuildInfoKey.constant("sbtStructurePath_0_13",
-          LocalRepoPackager.relativeJarPath013("org.jetbrains", "sbt-structure-extractor", Versions.sbtStructureVersion)),
-        BuildInfoKey.constant("sbtStructurePath_1_0",
-          LocalRepoPackager.relativeJarPath1("org.jetbrains", "sbt-structure-extractor", Versions.sbtStructureVersion))
-      )
+        BuildInfoKey.constant("sbtStructurePath_0_13", 
+          relativeJarPath(sbtDep("org.jetbrains.scala","sbt-structure-extractor", Versions.sbtStructureVersion, "0.13"))),
+        BuildInfoKey.constant("sbtStructurePath_1_0", 
+          relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "1.0")))
+        )
     )
 
 lazy val compilerJps =
@@ -428,14 +431,9 @@ lazy val mlCompletionIntegration =
 
 // Utility projects
 
-val localRepoArtifacts =
-  ("org.jetbrains", sbtStructureExtractor.name,  Versions.sbtStructureVersion) ::
-  ("org.jetbrains", "sbt-idea-shell",            Versions.sbtIdeaShellVersion) ::
-  ("org.jetbrains.scala" ,"sbt-idea-compiler-indices", Versions.compilerIndicesVersion) :: Nil
-val localRepoPaths = LocalRepoPackager.localPluginRepoPaths(localRepoArtifacts)
-
 lazy val runtimeDependencies =
   (project in file("target/tools/runtime-dependencies"))
+    .enablePlugins(LocalRepoPackager)
     .settings(
       scalaVersion := Versions.scalaVersion,
       libraryDependencies := DependencyGroups.runtime,
@@ -456,17 +454,22 @@ lazy val runtimeDependencies =
         Dependencies.compilerBridgeSources_2_11 -> Some("lib/jps/compiler-interface-sources-2.11.jar"),
         Dependencies.compilerBridgeSources_2_10 -> Some("lib/jps/compiler-interface-sources-2.10.jar"),
       ),
+      localRepoDependencies := List(
+        sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.binary_0_13),
+        sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.binary_1_0),
+        sbtDep("org.jetbrains.scala", "sbt-idea-shell", Versions.sbtIdeaShellVersion, Versions.Sbt.binary_0_13),
+        sbtDep("org.jetbrains.scala", "sbt-idea-shell", Versions.sbtIdeaShellVersion, Versions.Sbt.binary_1_0),
+        sbtDep("org.jetbrains.scala", "sbt-idea-compiler-indices", Versions.compilerIndicesVersion, Versions.Sbt.binary_0_13),
+        sbtDep("org.jetbrains.scala", "sbt-idea-compiler-indices", Versions.compilerIndicesVersion, Versions.Sbt.binary_1_0)
+      ),
       update := {
-        LocalRepoPackager.localPluginRepo(
-          target.value / "repo",
-          localRepoPaths,
-          (ThisBuild/baseDirectory).value / "project" / "resources")
+        localRepoUpdate.value
         update.value
       },
       packageFileMappings ++= {
-        val repoBase = target.value / "repo"
-        localRepoPaths.map { path =>
-          repoBase / path -> s"repo/$path"
+        localRepoUpdate.value.map { case (src, trg) =>
+          val targetPath = Paths.get("repo").resolve(trg)
+          src.toFile -> targetPath.toString
         }
       }
     )

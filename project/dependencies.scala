@@ -11,9 +11,9 @@ object Versions {
   val zincVersion = "1.4.0-M12"
   val intellijVersion = "211.6222.4"
   val bspVersion = "2.0.0-M12+27-4994bd9d-SNAPSHOT"
-  val sbtStructureVersion: String = "2020.3"
-  val sbtIdeaShellVersion: String = "2018.3"
-  val compilerIndicesVersion = "1.0.8"
+  val sbtStructureVersion: String = "2021.1.1"
+  val sbtIdeaShellVersion: String = "2021.1.0"
+  val compilerIndicesVersion = "1.0.13"
   val scalaMetaVersion = "4.3.12"
   val paradiseVersion = "3.0.0-M11"
 
@@ -60,10 +60,6 @@ object Dependencies {
 
   import Versions._
 
-  val sbtStructureExtractor: ModuleID = "org.jetbrains" % "sbt-structure-extractor" % sbtStructureVersion
-  val sbtStructureExtractor_013: ModuleID = sbtPluginDependency(sbtStructureExtractor, Sbt.binary_0_13)
-  val sbtStructureExtractor_100: ModuleID = sbtPluginDependency(sbtStructureExtractor, Sbt.binary_1_0)
-
   val sbtLaunch: ModuleID = "org.scala-sbt" % "sbt-launch" % sbtVersion intransitive()
 //  val bloopLauncher: ModuleID = "ch.epfl.scala" % s"bloop-launcher_$scalaBinaryVersion" % bloopVersion
   val jamm: ModuleID = "com.github.jbellis" % "jamm" % "0.3.1"
@@ -74,7 +70,7 @@ object Dependencies {
   val scalaParallelCollections: ModuleID = "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
 //  val scalaParserCombinators: ModuleID = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2"
   // this actually needs the explicit version because something in packager breaks otherwise (???)
-  val sbtStructureCore: ModuleID = "org.jetbrains" %% "sbt-structure-core" % sbtStructureVersion
+  val sbtStructureCore: ModuleID = "org.jetbrains.scala" %% "sbt-structure-core" % sbtStructureVersion
   val evoInflector: ModuleID = "org.atteo" % "evo-inflector" % "1.2"
   // NOTE: current latest version is in https://github.com/unkarjedy/scalatest-finders.git repository
 
