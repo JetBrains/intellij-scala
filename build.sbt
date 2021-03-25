@@ -14,10 +14,11 @@ intellijBuild in ThisBuild := Versions.intellijVersion
 
 intellijPlatform in ThisBuild := intellijPlatform.in(Global).??(IntelliJPlatform.IdeaCommunity).value
 
-resolvers in ThisBuild ++=
-  BintrayJetbrains.allResolvers :+
-    Resolver.typesafeIvyRepo("releases") :+
-    Resolver.sonatypeRepo("snapshots")
+ resolvers in ThisBuild ++= Seq(
+   Resolver.sonatypeRepo("releases"),
+   Resolver.sonatypeRepo("staging"),
+   Resolver.sonatypeRepo("snapshots"),
+ )
 
 javacOptions in Global := globalJavacOptions
 
