@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScMethodLike,
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
@@ -70,36 +71,48 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
       if (r.isAssignment) {
         annotateAssignmentReference(reference)
       }
+
+      val refContext = reference.getContext
+      val targetElement = r.element
+
+      (targetElement, refContext) match {
+        case (typeParamOwner: PsiNamedElement with ScTypeParametersOwner, genericCall: ScGenericCall) =>
+          ScParameterizedTypeElementAnnotator.annotateTypeArgs(typeParamOwner, genericCall.typeArgs, r.substitutor)
+        case _ =>
+      }
+
       if (!r.isApplicable()) {
-        r.element match {
+        targetElement match {
           case Constructor(_) =>
           // don't handle constructors here
 
           case f @ (_: ScFunction | _: PsiMethod | _: ScSyntheticFunction) =>
-            reference.getContext match {
+            refContext match {
               case genCall: ScGenericCall =>
+                /* done by ScParameterizedTypeElementAnnotator.annotateTypeArgs
                 val missing = for (MissedTypeParameter(p) <- r.problems) yield p.name
                 missing match {
                   case Seq() =>
                   case as =>
-                    holder.createErrorAnnotation(genCall.typeArgs.getOrElse(genCall),
+                    holder.createErrorAnnotation(genCall.typeArgs,
                       ScalaBundle.message("annotator.error.unspecified.type.parameters", as.mkString(", ")))
                 }
+                 */
                 withoutNonHighlightables(r.problems, holder).foreach {
                   case MissedTypeParameter(_) =>
                   // handled in bulk above
                   case DoesNotTakeTypeParameters =>
-                    holder.createErrorAnnotation(genCall.typeArgs.getOrElse(genCall),
-                      ScalaBundle.message("annotator.error.does.not.take.type.parameters", f.name))
-                  case ExcessTypeArgument(arg) =>
-                    holder.createErrorAnnotation(arg,
-                      ScalaBundle.message("annotator.error.too.many.type.arguments", f.name))
-                  case DefaultTypeParameterMismatch(expected, actual) => genCall.typeArgs match {
-                    case Some(typeArgs) =>
-                      val message: String = ScalaBundle.message("type.mismatch.default.args.expected.actual", expected, actual)
-                      holder.createErrorAnnotation(typeArgs, message)
-                    case _ =>
-                  }
+                    // handled by ScParameterizedTypeElementAnnotator.annotateTypeArgs
+                    //holder.createErrorAnnotation(genCall.typeArgs,
+                    //  ScalaBundle.message("annotator.error.does.not.take.type.parameters", f.name))
+                  case ExcessTypeArgument(_) =>
+                    // handled by ScParameterizedTypeElementAnnotator.annotateTypeArgs
+                    //holder.createErrorAnnotation(arg,
+                    //  ScalaBundle.message("annotator.error.too.many.type.arguments", f.name))
+                  case DefaultTypeParameterMismatch(expected, actual) =>
+                    holder.createErrorAnnotation(
+                      genCall.typeArgs,
+                      ScalaBundle.message("type.mismatch.default.args.expected.actual", expected, actual))
                   case _ =>
                 }
               case call: MethodInvocation =>
@@ -193,7 +206,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                       "Internal applicability problem should not be get to the annotator, but found: " + description
                     )
                 }
-              case _ if !reference.isInstanceOf[ScInterpolatedPatternPrefix] =>
+              case _ if !reference.is[ScInterpolatedPatternPrefix] =>
                 r.problems.foreach {
                   case MissedParametersClause(_) =>
                     holder.createErrorAnnotation(
