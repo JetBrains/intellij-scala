@@ -26,10 +26,7 @@ abstract class DependencyManagerBase {
   protected val logLevel: Int = org.apache.ivy.util.Message.MSG_WARN
 
   protected val resolvers: Seq[Resolver] = Seq(
-    MavenResolver("central", "https://repo1.maven.org/maven2"),
-    MavenResolver("scalaz-releases", "https://dl.bintray.com/scalaz/releases"),
-    IvyResolver("typesafe-releases",
-      "https://repo.typesafe.com/typesafe/ivy-releases/[organisation]/[module]/[revision]/[type]s/[artifact](-[classifier]).[ext]")
+    MavenResolver("central", "https://repo1.maven.org/maven2")
   )
 
   private def mkIvyXml(deps: Seq[DependencyDescription]): String = {
