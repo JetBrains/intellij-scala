@@ -185,7 +185,6 @@ object DependencyGroups {
   )
 
   val runtime: Seq[ModuleID] = Seq(
-//    bloopLauncher,
     sbtLaunch,
     compilerBridgeSources_2_10,
     compilerBridgeSources_2_11,
