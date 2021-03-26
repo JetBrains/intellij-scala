@@ -26,7 +26,7 @@ trait Specs2_2_11_3_1_M_Base extends Specs2TestCase {
       "org.scalaz" %% "scalaz-core" % scalazVersion,
       "org.scalaz" %% "scalaz-concurrent" % scalazVersion,
       "org.scalaz" %% "scalaz-effect" % scalazVersion,
-      "org.scalaz.stream" %% "scalaz-stream" % "0.6a",
+      "org.scalaz.stream" %% "scalaz-stream" % "0.7.3",
       "org.scodec" %% "scodec-bits" % "1.1.0",
       "org.scodec" %% "scodec-core" % "1.7.0",
       "org.scala-lang.modules" %% "scala-xml" % "1.0.6"
