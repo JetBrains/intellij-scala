@@ -6,7 +6,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiNamedElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeElement, ScTypeVariableTypeElement, ScWildcardTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeArgs, ScTypeElement, ScTypeVariableTypeElement, ScWildcardTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScProjectionType}
@@ -21,57 +21,62 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
     val typeParamOwner = element.typeElement.getTypeNoConstructor.toOption
       .flatMap(_.extractDesignated(expandAliases = false))
       .collect { case t: PsiNamedElement with ScTypeParametersOwner => t }
-    typeParamOwner.foreach { typeParamOwner =>
-      val params = typeParamOwner.typeParameters
-      val typeArgList = element.typeArgList
-      val args = typeArgList.typeArgs
+    
+    val projSubstitutor = element.typeElement.`type`().toOption match {
+      case Some(p@ScProjectionType(proj, _)) => ScSubstitutor(proj).followed(p.actualSubst)
+      case Some(ParameterizedType(p@ScProjectionType(proj, _), _)) => ScSubstitutor(proj).followed(p.actualSubst)
+      case _ => ScSubstitutor.empty
+    }
 
-      if (args.length < params.length) {
-        // Annotate missing arguments
-        val missing = params.drop(args.length)
-        val missingText = missing.map(_.name).mkString(", ")
-        val range = args.lastOption
-          .map(e => new TextRange(e.endOffset - 1, typeArgList.endOffset))
-          .getOrElse(typeArgList.getTextRange)
-        holder.createErrorAnnotation(range, ScalaBundle.message("unspecified.type.parameters", missingText))
-      } else if (args.length > params.length) {
-        // Annotate to many arguments
-        if (typeParamOwner.typeParametersClause.isEmpty) {
-          holder.createErrorAnnotation(typeArgList, ScalaBundle.message("name.does.not.take.type.arguments", typeParamOwner.name))
-        } else {
-          val firstExcessiveArg = args(params.length)
-          val opening = firstExcessiveArg.prevSiblings.takeWhile(e => e.is[PsiWhiteSpace, PsiComment] || e.textMatches(",") || e.textMatches("[")).lastOption
-          val range = opening.map(e => new TextRange(e.startOffset, firstExcessiveArg.getTextOffset + 1)).getOrElse(firstExcessiveArg.getTextRange)
-          holder.createErrorAnnotation(range, ScalaBundle.message("too.many.type.arguments.for.typeparamowner", signatureOf(typeParamOwner)))
-        }
+    typeParamOwner.foreach(annotateTypeArgs(_, element.typeArgList, projSubstitutor))
+  }
+
+  def annotateTypeArgs(typeParamOwner: PsiNamedElement with ScTypeParametersOwner,
+                       typeArgList: ScTypeArgs,
+                       contextSubstitutor: ScSubstitutor)
+                      (implicit holder: ScalaAnnotationHolder): Unit = {
+
+    val params = typeParamOwner.typeParameters
+    val args = typeArgList.typeArgs
+
+    if (args.length < params.length) {
+      // Annotate missing arguments
+      val missing = params.drop(args.length)
+      val missingText = missing.map(_.name).mkString(", ")
+      val range = args.lastOption
+        .map(e => new TextRange(e.endOffset - 1, typeArgList.endOffset))
+        .getOrElse(typeArgList.getTextRange)
+      holder.createErrorAnnotation(range, ScalaBundle.message("unspecified.type.parameters", missingText))
+    } else if (args.length > params.length) {
+      // Annotate to many arguments
+      if (typeParamOwner.typeParametersClause.isEmpty) {
+        holder.createErrorAnnotation(typeArgList, ScalaBundle.message("name.does.not.take.type.arguments", typeParamOwner.name))
+      } else {
+        val firstExcessiveArg = args(params.length)
+        val opening = firstExcessiveArg.prevSiblings.takeWhile(e => e.is[PsiWhiteSpace, PsiComment] || e.textMatches(",") || e.textMatches("[")).lastOption
+        val range = opening.map(e => new TextRange(e.startOffset, firstExcessiveArg.getTextOffset + 1)).getOrElse(firstExcessiveArg.getTextRange)
+        holder.createErrorAnnotation(range, ScalaBundle.message("too.many.type.arguments.for.typeparamowner", signatureOf(typeParamOwner)))
       }
+    }
+    val substitute: ScSubstitutor = {
+      val (ps, as) = (
+        for {
+          (param, arg) <- params zip args
+          argTy <- arg.`type`().toOption
+        } yield (param, argTy)
+      ).unzip
+      contextSubstitutor followed ScSubstitutor.bind(ps, as)
+    }
 
-      implicit val tcp: TypePresentationContext = typeArgList
-      val substitute: ScSubstitutor = {
-        val projSubstitutor = element.typeElement.`type`().toOption match {
-          case Some(p@ScProjectionType(proj, _)) => ScSubstitutor(proj).followed(p.actualSubst)
-          case Some(ParameterizedType(p@ScProjectionType(proj, _), _)) => ScSubstitutor(proj).followed(p.actualSubst)
-          case _ => ScSubstitutor.empty
-        }
-
-        val (ps, as) = (
-          for {
-            (param, arg) <- params zip args
-            argTy <- arg.`type`().toOption
-          } yield (param, argTy)
-          ).unzip
-        projSubstitutor followed ScSubstitutor.bind(ps, as)
-      }
-
-      for {
-        // the zip will cut away missing or excessive arguments
-        (arg, param) <- args zip params
-        argTy <- arg.`type`().toOption
-        if !argTy.is[ScExistentialArgument, ScExistentialType]
-      } {
-        checkBounds(arg, argTy, param, substitute)
-        checkHigherKindedType(arg, argTy, param, substitute)
-      }
+    implicit val tcp: TypePresentationContext = typeArgList
+    for {
+      // the zip will cut away missing or excessive arguments
+      (arg, param) <- args zip params
+      argTy <- arg.`type`().toOption
+      if !argTy.is[ScExistentialArgument, ScExistentialType]
+    } {
+      checkBounds(arg, argTy, param, substitute)
+      checkHigherKindedType(arg, argTy, param, substitute)
     }
   }
 
