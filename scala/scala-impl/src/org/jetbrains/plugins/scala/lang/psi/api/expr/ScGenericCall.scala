@@ -16,9 +16,9 @@ trait ScGenericCall extends ScExpression {
 
   def referencedExpr: ScExpression = findChild[ScExpression].get
 
-  def typeArgs: Option[ScTypeArgs] = findChild[ScTypeArgs]
+  def typeArgs: ScTypeArgs = findChild[ScTypeArgs].get
 
-  def arguments: Seq[ScTypeElement] = typeArgs.fold(Seq.empty[ScTypeElement])(_.typeArgs)
+  def arguments: Seq[ScTypeElement] = typeArgs.typeArgs
 
   def shapeType: TypeResult
 
