@@ -290,10 +290,18 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
   def testTypeMismatchUnappliedGenericMethodTypeArgument(): Unit = assertErrors(
     "def f[T](t: T): Int = 1; val v: Int = f[Int]") // TODO missing arguments?
 
+  def testTypeMismatchUnappliedExtensionMethod(): Unit = assertErrors(
+    "implicit class AnyOps(val that: Any) { def f(x: Any): Unit = () }; val v: Int = 1.f",
+    Error("1.f", "Missing arguments for method f(Any)")) // TODO Exclude qualifier
+
   // TODO Highlight "& ", missing argument
   // The & is (incorrectly) highlighted by the LanguageFeatureInspection though, so there's at least some highlighting :)
   def testTypeMismatchUnappliedMethodInfix(): Unit = assertErrors(
     "object O { def &(i: String): Unit = () }; val v: Int = O &")
+
+  // TODO Highlight "-> ", missing argument
+  def testTypeMismatchUnappliedExtensionMethodInfix(): Unit = assertErrors(
+    "implicit class AnyOps(val that: Any) { def -> (x: Any): Unit = () }; val v: Int = 1 ->")
 
   def testTypeMismatchUnappliedCurrying(): Unit = assertErrors(
     "def f(i: Int)(s: String): Unit = (); val v: Int = f(1)",

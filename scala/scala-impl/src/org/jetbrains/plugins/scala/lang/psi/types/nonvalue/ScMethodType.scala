@@ -5,7 +5,7 @@ package types
 package nonvalue
 
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScGenericCall, ScMethodCall, ScReferenceExpression, ScUnderscoreSection}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScGenericCall, ScMethodCall, ScPostfixExpr, ScReferenceExpression, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 import scala.annotation.tailrec
@@ -63,6 +63,7 @@ object ScMethodType {
       }
       case _ => false
     }
+    case p: ScPostfixExpr => p.operation.bind().exists(_.problems.exists(_.is[MissedParametersClause]))
     case i: MethodInvocation => i.applicationProblems.exists(_.is[MissedValueParameter]) // Infix Expression
     case c: ScGenericCall => hasMethodType(c.referencedExpr)
     case _ => false
