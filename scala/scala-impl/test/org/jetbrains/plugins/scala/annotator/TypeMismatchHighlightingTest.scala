@@ -145,6 +145,12 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     Hint("new A.C[Int]", ": A.C[Int]"),
     Error("new A.C[Int]", "Expression of type A.C[Int] doesn't conform to expected type C[Int]"))
 
+  // Type alias, SCL-18827
+  def testTypeAliasSeq(): Unit = assertErrors(
+    "val v: Seq[String] = Seq[Int]()", // scala.Seq = seq.collection.immutable.Seq
+    Hint("Seq[Int]()", ": Seq[Int]"),
+    Error("Seq[Int]()", "Expression of type Seq[Int] doesn't conform to expected type Seq[String]"))
+  
   // TODO test fine-grained errors
   // TODO test error tooltips
 
