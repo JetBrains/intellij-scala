@@ -86,6 +86,7 @@ abstract class DottyCompilationTestBase(incrementalityType: IncrementalityType,
     getModule(githubRepoName)
 }
 
+@Ignore("flaky test")
 class DottyIdeaCompilationTest
   extends DottyCompilationTestBase(IncrementalityType.IDEA)
 
