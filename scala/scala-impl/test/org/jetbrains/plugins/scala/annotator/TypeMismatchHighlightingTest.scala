@@ -386,4 +386,10 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     "val x = (p: Int) => 1; val v: Int = x",
     Hint("x", ": Int => Int"),
     Error("x", "Expression of type Int => Int doesn't conform to expected type Int"))
+  
+  // Incomplete if-then-else, #SCL-18862
+
+  // TODO Highlight "1 ", else expected (currently there's no highlighting for "if", "if ()", and "if (true)" cases anyway) 
+  def testIncompleteIfThenElse(): Unit = assertErrors(
+    "val v: Int = if (true) 1")
 }

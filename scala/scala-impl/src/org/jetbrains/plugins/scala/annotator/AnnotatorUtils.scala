@@ -58,6 +58,12 @@ object AnnotatorUtils {
           e == parent.getLastChild && parent.getNextSibling.isInstanceOf[PsiErrorElement]
       }
 
+    // Most often it's an incomplete if-then-else, #SCL-18862
+    def isIfThen: Boolean = e match {
+      case it: ScIf => it.elseExpression.isEmpty
+      case _ => false  
+    }
+    
     // Don't show type mismatch for a whole function literal when result type doesn't match, SCL-16901
 
     def isFunctionLiteral = e match {
@@ -74,6 +80,7 @@ object AnnotatorUtils {
     def hasUnresolvedReferences = e.elements.exists(_.asOptionOf[ScReference].exists(_.multiResolveScala(false).isEmpty))
 
     hasParserErrors ||
+      isIfThen ||
       hasUnresolvedReferences ||
       !fromFunctionLiteral && (isFunctionLiteral || isResultOfFunctionLiteral)
   }
