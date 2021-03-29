@@ -36,7 +36,7 @@ object ScalaHighlightingMode {
       case _ => false
     }
 
-  def isShowErrorsFromCompilerEnabled(file: ScalaFile): Boolean = {
+  private def isShowErrorsFromCompilerEnabled(file: ScalaFile): Boolean = {
     val virtualFile = file match {
       case ScFile.VirtualFile(vFile) => vFile
       case _                         => return false
@@ -53,7 +53,7 @@ object ScalaHighlightingMode {
     }
   }
 
-  def isShowErrorsFromCompilerEnabled(javaFile: PsiJavaFile): Boolean =
+  private def isShowErrorsFromCompilerEnabled(javaFile: PsiJavaFile): Boolean =
     showDotcErrors && javaFile.isInScala3Module
 
   def showParserErrors(file: PsiFile): Boolean = {
