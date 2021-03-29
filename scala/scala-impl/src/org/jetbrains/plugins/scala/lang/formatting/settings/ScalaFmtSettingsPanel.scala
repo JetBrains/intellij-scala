@@ -7,7 +7,6 @@ import java.awt._
 import java.awt.event.{FocusEvent, FocusListener}
 import java.io.File
 import java.util.Collections.emptyList
-
 import com.intellij.icons.AllIcons
 import com.intellij.lang.Language
 import com.intellij.openapi.application.ModalityState
@@ -28,6 +27,7 @@ import com.intellij.ui.awt.RelativePoint
 import com.intellij.ui.components.panels.HorizontalLayout
 import com.intellij.ui.components.{JBCheckBox, JBTextField}
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
+
 import javax.swing._
 import javax.swing.event.ChangeEvent
 import org.apache.commons.lang.StringUtils
@@ -39,6 +39,8 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicServi
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.utils.ScalafmtConfigUtils
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigService, ScalafmtDynamicConfigServiceImpl, ScalafmtDynamicService}
+
+import scala.annotation.nowarn
 
 final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCodeStylePanelBase(settings, "Scalafmt") {
 
@@ -239,7 +241,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     useIntellijFormatterForRangeFormat.setSelected(scalaSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT)
     reformatOnFileSaveCheckBox.setSelected(scalaSettings.SCALAFMT_REFORMAT_ON_FILES_SAVE)
     fallBackToDefaultSettings.setSelected(scalaSettings.SCALAFMT_FALLBACK_TO_DEFAULT_SETTINGS)
-    externalFormatterSettingsPath.getButton.grabFocus()
+    externalFormatterSettingsPath.getButton.grabFocus(): @nowarn("cat=deprecation")
 
     isPanelEnabled = scalaSettings.USE_SCALAFMT_FORMATTER
     if (isPanelEnabled) {
@@ -358,7 +360,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
   }
 
   private def resetConfigBrowserFolderListener(): Unit = {
-    val button = externalFormatterSettingsPath.getButton
+    val button = externalFormatterSettingsPath.getButton: @nowarn("cat=deprecation")
     button.getActionListeners.foreach(button.removeActionListener)
 
     def updateConfigPath(configPath: String): Unit = {
