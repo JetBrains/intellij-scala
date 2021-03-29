@@ -35,6 +35,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocTag}
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 // TODO unify with ScMethodInvocationAnnotator and ScConstructorInvocationAnnotator
 object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
@@ -75,8 +76,13 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
       val refContext = reference.getContext
       val targetElement = r.element
 
+      def isKindProjector(genericCall: ScGenericCall): Boolean =
+        genericCall.kindProjectorPluginEnabled && {
+           val refText = genericCall.referencedExpr.getText
+            refText == "Lambda" || refText == "λ"
+        }
       (targetElement, refContext) match {
-        case (typeParamOwner: PsiNamedElement with ScTypeParametersOwner, genericCall: ScGenericCall) =>
+        case (typeParamOwner: PsiNamedElement with ScTypeParametersOwner, genericCall: ScGenericCall) if !isKindProjector(genericCall) =>
           ScParameterizedTypeElementAnnotator.annotateTypeArgs(typeParamOwner, genericCall.typeArgs, r.substitutor)
         case _ =>
       }
