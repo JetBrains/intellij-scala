@@ -133,19 +133,19 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
 
   def testDoesNotTakeTypeParameters(): Unit = {
     assertMatches(messages("def f = 0; f[Any]")) {
-      case Error("[Any]", "f does not take type parameters") :: Nil =>
+      case Error("[Any]", "f does not take type arguments") :: Nil =>
     }
   }
 
   def testMissingTypeParameter(): Unit = {
     assertMatches(messages("def f[A, B] = 0; f[Any]")) {
-      case Error("[Any]", "Unspecified type parameters: B") :: Nil =>
+      case Error("y]", "Unspecified type parameters: B") :: Nil =>
     }
   }
 
   def testExcessTypeParameter(): Unit = {
     assertMatches(messages("def f[A] = 0; f[Any, Any]")) {
-      case Error("Any", "Too many type arguments for f") :: Nil =>
+      case Error(", A", "Too many type arguments for f[A]") :: Nil =>
     }
   }
 
