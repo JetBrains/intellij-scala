@@ -41,7 +41,7 @@ class RemoteServerRunner(project: Project)
       this.callbacks :+= callback
 
     override def run(): Unit = {
-      val buildSystemDir = BuildManager.getLocalBuildSystemDirectory
+      val buildSystemDir = BuildManager.getInstance.getBuildSystemDirectory
       var unhandledException: Option[Throwable] = None
       try {
         for (i <- 0 until (COUNT - 1)) {

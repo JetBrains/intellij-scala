@@ -40,7 +40,7 @@ final class TriggerCompilerHighlightingService(project: Project)
           if (changedDocuments.size > 1 && changedDocuments.size != changedDocumentsSizeBefore)
             triggerIncrementalCompilation()
           else
-            triggerDocumentCompilation(document, psiFile, markHighlighted = None)
+            triggerDocumentCompilation(document, markHighlighted = None)
         }
       }
 
@@ -60,7 +60,7 @@ final class TriggerCompilerHighlightingService(project: Project)
           if (psiFile.isScalaWorksheet)
             triggerWorksheetCompilation(psiFile, document, markHighlighted = Some(path))
           else
-            triggerDocumentCompilation(document, psiFile, markHighlighted = Some(path))
+            triggerDocumentCompilation(document, markHighlighted = Some(path))
       }
 
   override def dispose(): Unit = {
@@ -110,13 +110,11 @@ final class TriggerCompilerHighlightingService(project: Project)
   }
 
   private def triggerDocumentCompilation(document: Document,
-                                         psiFile: PsiFile,
                                          markHighlighted: Option[Path]): Unit =
-    if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(psiFile))
-      CompilerHighlightingService.get(project).triggerDocumentCompilation(
-        document = document,
-        afterCompilation = () => mark(markHighlighted)
-      )
+    CompilerHighlightingService.get(project).triggerDocumentCompilation(
+      document = document,
+      afterCompilation = () => mark(markHighlighted)
+    )
 
   private def triggerWorksheetCompilation(psiFile: PsiFile,
                                           document: Document,
