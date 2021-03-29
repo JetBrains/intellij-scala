@@ -6,6 +6,7 @@ import com.intellij.ProjectTopics
 import com.intellij.execution.ExecutionException
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.editor.Document
+import com.intellij.openapi.externalSystem.ExternalSystemModulePropertyManager
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
 import com.intellij.openapi.module._
 import com.intellij.openapi.project.{DumbService, Project, ProjectUtil}
@@ -179,8 +180,10 @@ package object project {
       compilerConfiguration.getSettingsForModule(module)
 
     def configureScalaCompilerSettingsFrom(source: String, options: collection.Seq[String]): Unit = {
-      val projectDirectory = module.getProject.getBasePath
-      compilerConfiguration.configureSettingsForModule(module, source, ScalaCompilerSettings.fromOptions(withPathsRelativeTo(projectDirectory, options.toSeq)))
+      val baseDirectory = Option(ExternalSystemModulePropertyManager.getInstance(module).getLinkedProjectPath)
+        .getOrElse(module.getProject.getBasePath)
+      val compilerSettings = ScalaCompilerSettings.fromOptions(withPathsRelativeTo(baseDirectory, options.toSeq))
+      compilerConfiguration.configureSettingsForModule(module, source, compilerSettings)
     }
 
     private def withPathsRelativeTo(baseDirectory: String, options: Seq[String]): Seq[String] = options.map { option =>
