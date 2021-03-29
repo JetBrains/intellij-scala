@@ -25,12 +25,12 @@ private[compilerReferences] class CompilerReferenceIndexerScheduler(
 
     val task = indexer.toTask(job)
     logger.debug(s"Scheduled indexer job $job.")
-    jobQueue.run(task, null, new EmptyProgressIndicator)
+    jobQueue.run(task)
   }
 
   def schedule(@Nls title: String, runnable: () => Unit): Unit = synchronized {
     val t = task(project, title)(_ => runnable())
-    jobQueue.run(t, null, new EmptyProgressIndicator)
+    jobQueue.run(t)
   }
 
   override def scheduleAll(jobs: Seq[IndexingStage]): Unit = synchronized(jobs.foreach(schedule))
