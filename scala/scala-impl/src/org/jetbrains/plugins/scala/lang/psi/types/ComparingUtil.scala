@@ -63,11 +63,16 @@ object ComparingUtil {
     def isNeverSameType(sub: ScType, sup: ScType) = isNeverSubType(sub, sup, sameType = true)
 
     def isNeverSubArgs(subTps: Iterable[ScType], supTps: Iterable[ScType], tparams: Iterable[PsiTypeParameter]): Boolean = {
-      def isNeverSubArg(t1: ScType, t2: ScType, variance: Variance) = {
+      def isNeverSubArg(subTp: ScType, supTp: ScType, variance: Variance): Boolean = {
+
         variance match {
-          case Covariant     => isNeverSubType(t1, t2)
-          case Contravariant => isNeverSubType(t2, t1)
-          case Invariant     => !t1.equiv(t2)
+            // needed for type patterns like { case x: X[t] =>  }
+            // t is ScExistentialArgument and we cannot abstractify this in ScPatternAnnotator.abstraction
+            // TODO: implement correctly when TypePatterns are implemented
+          case _ if subTp.is[ScExistentialArgument] => false
+          case Covariant     => isNeverSubType(subTp, supTp)
+          case Contravariant => isNeverSubType(supTp, subTp)
+          case Invariant     => !subTp.equiv(supTp)
         }
       }
       def getVariance(tp: PsiTypeParameter) = tp match {
@@ -75,7 +80,7 @@ object ComparingUtil {
         case _ => Invariant
       }
       subTps.zip(supTps).zip(tparams.map(getVariance)).exists {
-        case ((t1, t2), vr) => isNeverSubArg(t1, t2, vr)
+        case ((subTp, supTp), vr) => isNeverSubArg(subTp, supTp, vr)
         case _ => false
       }
     }

@@ -677,4 +677,13 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
       )
     )
   }
+
+  def testGenericPattern(): Unit = assertNoErrors(
+    """
+      |sealed trait A[T]
+      |final class B[T] extends A[T]
+      |
+      |def f3(a: A[Int]) = a match { case b: B[t] => 3 }
+      |""".stripMargin
+  )
 }

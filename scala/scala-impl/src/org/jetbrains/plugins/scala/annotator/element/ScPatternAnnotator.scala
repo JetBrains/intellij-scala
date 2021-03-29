@@ -115,7 +115,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
           case _ => holder.createErrorAnnotation(arg, ScalaBundle.message("better.monadic.for.invalid.pattern"))
         }
       case _: ScInterpolationPattern => //do not check interpolated patterns for number of arguments
-      case (_: ScConstructorPattern|_: ScInfixPattern) => //check number of arguments
+      case _: ScConstructorPattern | _: ScInfixPattern => //check number of arguments
         val (reference, numPatterns) = pattern match {
           case constr: ScConstructorPattern => (Option(constr.ref), constr.args.patterns.length)
           case infix: ScInfixPattern =>
