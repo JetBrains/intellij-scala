@@ -120,12 +120,12 @@ object TypeCheckCanBeMatchInspection {
       }
     }
 
+    val typeArgs = isInstOfCall.typeArgs.typeArgs
     for {
-      args <- isInstOfCall.typeArgs
       condition <- ifStmt.condition
-      if args.typeArgs.size == 1
+      if typeArgs.size == 1
     } yield {
-      val typeElem = args.typeArgs.head
+      val typeElem = typeArgs.head
       val typeName0 = typeElem.getText
       val typeName = PsiTreeUtil.getChildOfType(typeElem, classOf[ScExistentialClause]) match {
         case null => typeName0
@@ -264,8 +264,7 @@ object TypeCheckCanBeMatchInspection {
       def baseAndType(call: ScGenericCall) = for {
         base <- baseExpr(call)
 
-        argument <- call.typeArgs
-        typeElements = argument.typeArgs
+        typeElements = call.typeArgs.typeArgs
         if typeElements.size == 1
       } yield (base, typeElements.head.calcType)
 
@@ -278,7 +277,7 @@ object TypeCheckCanBeMatchInspection {
             case _ => None
           }
 
-          if (asInstanceOfCall.exists(_.isInstanceOf[SyntheticNamedElement])) {
+          if (asInstanceOfCall.exists(_.is[SyntheticNamedElement])) {
             for {
               (base1, type1) <- baseAndType(isInstOfCall)
               (base2, type2) <- baseAndType(call)

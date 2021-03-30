@@ -50,7 +50,7 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
   }
 
   private def collectErrors(text: String): List[Message] = collectAnnotatorMessages(text).filter {
-    case error: Error => true
+    case _: Error => true
     case _ => false
   }
 
@@ -604,4 +604,86 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     assertNoErrors(text)
     checkWarning(text, "_: A", fruitless("C", "A"))
   }
+
+  // SCL-18802
+  def testTupleCovariance(): Unit = {
+    val text =
+      """
+        |object Test extends App {
+        |  sealed trait Option[A] // An Optional data type
+        |  object Option {
+        |    case class None[A]() extends Option[A]
+        |    case class Some[A](a: A) extends Option[A]
+        |  }
+        |  import Option._
+        |  def maxOptional(opt1: Option[Int], opt2: Option[Int]): Option[Int] = (opt1, opt2) match {
+        |    case (Some(n), Some(m)) => Some(Math.max(n, m))
+        |    case (None(), other) => other
+        |    case (other, None()) => other
+        |  }
+        |  println(maxOptional(Some(1), None()))
+        |}
+        |""".stripMargin
+
+    emptyMessages(text)
+  }
+
+  def testInvariance(): Unit = {
+    val text =
+      """
+        |sealed trait A
+        |trait B extends A
+        |
+        |sealed trait Base[T]
+        |class Impl[T] extends Base[T]
+        |
+        |def test(base: Base[A]): Unit = base match {
+        |  case x: Impl[A] =>
+        |  case x: Impl[B] =>
+        |  case x: Base[A] =>
+        |  case x: Base[B] =>
+        |}
+        |""".stripMargin
+
+    assertEquals(
+      collectAnnotatorMessages(text),
+      List(
+        Warning("x: Impl[B]", "fruitless type test: a value of type Base[A] cannot also be a Impl[B](but still might match its erasure)"),
+        Warning("x: Base[B]", "fruitless type test: a value of type Base[A] cannot also be a Base[B](but still might match its erasure)")
+      )
+    )
+  }
+
+  def testCovariance(): Unit = {
+    val text =
+      """
+        |sealed trait A
+        |final class F
+        |
+        |sealed trait Base[+T]
+        |class Impl[T] extends Base[T]
+        |
+        |def test(base: Base[A]): Unit = base match {
+        |  case x: Base[F] =>
+        |  case x: Impl[F] =>
+        |}
+        |""".stripMargin
+
+    assertEquals(
+      collectAnnotatorMessages(text),
+      List(
+        Warning("x: Base[F]", "fruitless type test: a value of type Base[A] cannot also be a Base[F](but still might match its erasure)"),
+        Warning("x: Impl[F]", "fruitless type test: a value of type Base[A] cannot also be a Impl[F](but still might match its erasure)")
+      )
+    )
+  }
+
+  def testGenericPattern(): Unit = assertNoErrors(
+    """
+      |sealed trait A[T]
+      |final class B[T] extends A[T]
+      |
+      |def f3(a: A[Int]) = a match { case b: B[t] => 3 }
+      |""".stripMargin
+  )
 }

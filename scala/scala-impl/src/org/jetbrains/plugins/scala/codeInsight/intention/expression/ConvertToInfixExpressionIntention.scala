@@ -63,10 +63,7 @@ class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
 
     val qual = referenceExpr.qualifier.get
     val operText = methodCallExpr.getInvokedExpr match {
-      case call: ScGenericCall => call.typeArgs match {
-        case Some(typeArgs) => referenceExpr.nameId.getText ++ typeArgs.getText
-        case _ => referenceExpr.nameId.getText
-      }
+      case call: ScGenericCall => referenceExpr.nameId.getText ++ call.typeArgs.getText
       case _ =>  referenceExpr.nameId.getText
     }
     val invokedExprText = methodCallExpr.getInvokedExpr.getText

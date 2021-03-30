@@ -101,8 +101,7 @@ final class ScUMethodCallExpression(
 
   override protected def getTypeArgs: Option[ScTypeArgs] =
     getReferencedExpr
-      .collect { case c: ScGenericCall => c }
-      .flatMap(_.typeArgs)
+      .collect { case c: ScGenericCall => c.typeArgs }
 
   override def getValueArgumentCount: Int = scExpression.args.exprs.size
 
@@ -150,7 +149,7 @@ final class ScUGenericCallExpression(
   override protected def getReferencedExpr: Option[ScExpression] =
     Option(scExpression.referencedExpr)
 
-  override protected def getTypeArgs: Option[ScTypeArgs] = scExpression.typeArgs
+  override protected def getTypeArgs: Option[ScTypeArgs] = Some(scExpression.typeArgs)
 
   override def getValueArgumentCount: Int = 0
 

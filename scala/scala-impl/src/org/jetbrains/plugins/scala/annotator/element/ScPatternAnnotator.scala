@@ -58,7 +58,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
 
     def exTpMatchesPattp = matchesPattern(exTp, widen(patType))
 
-    val neverMatches = !matchesPattern(exTp, patType) && isNeverSubType(exTp, patType)
+    val neverMatches = !matchesPattern(exTp, patType) && isNeverSubType(abstraction(patType), exTp)
 
     def isEliminatedByErasure = (exprType.extractClass, patType.extractClass) match {
       case (Some(cl1), Some(cl2)) if pattern.is[ScTypedPattern] => !isNeverSubClass(cl1, cl2)
@@ -115,7 +115,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
           case _ => holder.createErrorAnnotation(arg, ScalaBundle.message("better.monadic.for.invalid.pattern"))
         }
       case _: ScInterpolationPattern => //do not check interpolated patterns for number of arguments
-      case (_: ScConstructorPattern|_: ScInfixPattern) => //check number of arguments
+      case _: ScConstructorPattern | _: ScInfixPattern => //check number of arguments
         val (reference, numPatterns) = pattern match {
           case constr: ScConstructorPattern => (Option(constr.ref), constr.args.patterns.length)
           case infix: ScInfixPattern =>
@@ -179,19 +179,20 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
     builder.result()
   }
 
+  private def abstraction(scType: ScType, visited: Set[TypeParameterType] = Set.empty): ScType = {
+    scType.updateLeaves {
+      case tp: TypeParameterType =>
+        if (visited.contains(tp)) tp
+        else ScAbstractType(tp.typeParameter,
+          abstraction(tp.lowerType, visited + tp),
+          abstraction(tp.upperType, visited + tp)
+        )
+    }
+  }
+
   // TODO Should be in ScPattern, not in the annotator?
   @tailrec
   def matchesPattern(matching: ScType, matched: ScType): Boolean = {
-    def abstraction(scType: ScType, visited: Set[TypeParameterType] = Set.empty): ScType = {
-      scType.updateLeaves {
-        case tp: TypeParameterType =>
-          if (visited.contains(tp)) tp
-          else ScAbstractType(tp.typeParameter,
-            abstraction(tp.lowerType, visited + tp),
-            abstraction(tp.upperType, visited + tp)
-          )
-      }
-    }
 
     matching.weakConforms(matched) || ((matching, matched) match {
       case (arrayType(arg1), arrayType(arg2)) => matchesPattern(arg1, arg2)
