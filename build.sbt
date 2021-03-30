@@ -121,8 +121,8 @@ lazy val worksheetReplInterface =
     )
 
 lazy val tastyRuntime = Project("tasty-runtime", file("tasty/runtime"))
-  .settings(scalaVersion := "3.0.0-RC1",
-    libraryDependencies += "org.scala-lang" % "scala3-tasty-inspector_3.0.0-RC1" % "3.0.0-RC1",
+  .settings(scalaVersion := "3.0.0-RC2",
+    libraryDependencies += "org.scala-lang" % "scala3-tasty-inspector_3.0.0-RC2" % "3.0.0-RC2",
     scalacOptions in Compile := Seq("-strict"), // TODO If there are no unique options, sbt import adds the module to a profile with macros enabled.
     unmanagedSourceDirectories in Compile += baseDirectory.value / "src",
     packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-runtime.jar"),
