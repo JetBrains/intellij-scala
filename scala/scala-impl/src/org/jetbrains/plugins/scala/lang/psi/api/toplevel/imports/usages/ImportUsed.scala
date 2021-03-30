@@ -8,7 +8,7 @@ package usages
 
 
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, SmartPointerManager, SmartPsiElementPointer}
+import com.intellij.psi.{PsiAnchor, PsiElement}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -22,12 +22,12 @@ import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
  *
  * @author ilyas
  */
-sealed abstract class ImportUsed(private val pointer: SmartPsiElementPointer[PsiElement]) {
+sealed abstract class ImportUsed(private val psiAnchor: PsiAnchor) {
 
   def this(e: PsiElement) =
-   this(SmartPointerManager.createPointer(e))
+   this(PsiAnchor.create(e))
 
-  def element: PsiElement = pointer.getElement
+  def element: PsiElement = psiAnchor.retrieve()
 
   def isValid: Boolean = element.toOption.exists(_.isValid)
 
@@ -38,7 +38,11 @@ sealed abstract class ImportUsed(private val pointer: SmartPsiElementPointer[Psi
   def qualName: Option[String]
 
   def isAlwaysUsed: Boolean = {
-    val settings = ScalaCodeStyleSettings.getInstance(pointer.getProject)
+    val file = psiAnchor.getFile
+    if (file == null)
+      return true
+
+    val settings = ScalaCodeStyleSettings.getInstance(file.getProject)
     val isScala3 = Option(element).exists(_.isInScala3Module)
     qualName.exists(settings.isAlwaysUsedImport) || isLanguageFeatureImport || (ScalaHighlightingMode.showDotcErrors && isScala3)
   }
@@ -55,10 +59,10 @@ sealed abstract class ImportUsed(private val pointer: SmartPsiElementPointer[Psi
     }
   }
 
-  override def hashCode(): Int = pointer.hashCode()
+  override def hashCode(): Int = psiAnchor.hashCode()
 
   override def equals(obj: Any): Boolean = obj match {
-    case iu: ImportUsed => iu.pointer == pointer
+    case iu: ImportUsed => iu.psiAnchor == psiAnchor
     case _ => false
   }
 }
