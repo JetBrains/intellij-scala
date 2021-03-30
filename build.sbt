@@ -120,9 +120,9 @@ lazy val worksheetReplInterface =
     )
 
 lazy val tastyRuntime = Project("tasty-runtime", file("tasty/runtime"))
-  .settings(scalaVersion := "3.0.0-RC1",
+  .settings(scalaVersion := "3.0.0-RC2",
     intellijMainJars := Seq.empty,
-    libraryDependencies += "org.scala-lang" % "scala3-tasty-inspector_3.0.0-RC1" % "3.0.0-RC1" excludeAll(
+    libraryDependencies += "org.scala-lang" % "scala3-tasty-inspector_3.0.0-RC2" % "3.0.0-RC2" excludeAll(
       ExclusionRule(organization = "org.scala-lang.modules"),
       ExclusionRule(organization = "org.scala-sbt"),
       ExclusionRule(organization = "org.jline"),
