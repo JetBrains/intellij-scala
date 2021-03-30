@@ -308,7 +308,7 @@ lazy val scalatestFindersTests_3_2 = Project("scalatest-finders-tests-3_2", scal
   .dependsOn(scalatestFinders)
   .settings(
     scalatestFindersTestSettings,
-    scalaVersion := "2.13.5",
+    scalaVersion := "2.13.4",
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_2 % Test)
   )
 
