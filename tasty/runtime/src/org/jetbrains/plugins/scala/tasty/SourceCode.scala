@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.tasty
 
-// Copy of the corresponding source file from https://github.com/lampepfl/dotty (with amendments)
+// Copy of https://github.com/lampepfl/dotty/blob/3.0.0-RC1/compiler/src/scala/quoted/runtime/impl/printers/SourceCode.scala (with amendments)
 
 import scala.annotation.switch
 import scala.quoted._
 
+/** Printer for fully elaborated representation of the source code */
 object SourceCode {
 
   def showTree(using Quotes)(tree: quotes.reflect.Tree)(syntaxHighlight: SyntaxHighlight, fullNames: Boolean): String =
@@ -78,7 +79,7 @@ object SourceCode {
     private def collectReference(position: Position, target: Position): Unit = {
       // Skip references that are absent in original source file
       if (position.start < position.end) {
-        if (target.sourceFile.toString != "<no file>") { // TODO 
+        if (target.sourceFile.toString != "<no file>") { // TODO
           val targetFile = target.sourceFile.jpath.toFile
           import org.jetbrains.plugins.scala.tasty.Position
           references :+= ReferenceData(
@@ -251,15 +252,15 @@ object SourceCode {
           def isUndecompilableCaseClassMethod: Boolean = {
             // Currently the compiler does not allow overriding some of the methods generated for case classes
             d.symbol.flags.is(Flags.Synthetic) &&
-              (d match {
-                case DefDef("apply" | "unapply" | "writeReplace", _, _, _) if d.symbol.owner.flags.is(Flags.Module) => true
-                case DefDef(n, _, _, _) if d.symbol.owner.flags.is(Flags.Case) =>
-                  n == "copy" ||
-                    n.matches("copy\\$default\\$[1-9][0-9]*") || // default parameters for the copy method
-                    n.matches("_[1-9][0-9]*") || // Getters from Product
-                    n == "productElementName"
-                case _ => false
-              })
+            (d match {
+              case DefDef("apply" | "unapply" | "writeReplace", _, _, _) if d.symbol.owner.flags.is(Flags.Module) => true
+              case DefDef(n, _, _, _) if d.symbol.owner.flags.is(Flags.Case) =>
+                n == "copy" ||
+                n.matches("copy\\$default\\$[1-9][0-9]*") || // default parameters for the copy method
+                n.matches("_[1-9][0-9]*") || // Getters from Product
+                n == "productElementName"
+              case _ => false
+            })
           }
           def isInnerModuleObject = d.symbol.flags.is(Flags.Lazy) && d.symbol.flags.is(Flags.Module)
           !flags.is(Flags.Param) && !flags.is(Flags.ParamAccessor) && !flags.is(Flags.FieldAccessor) && !isUndecompilableCaseClassMethod && !isInnerModuleObject
@@ -1029,13 +1030,13 @@ object SourceCode {
     }
 
     /** Print type tree
-     *
-     *  @param elideThis Shoud printing elide `C.this` for the given class `C`?
-     *                   None means no eliding.
-     *
-     *   Self type annotation and types in parent list should elide current class
-     *   prefix `C.this` to avoid type checking errors.
-     */
+      *
+      *  @param elideThis Shoud printing elide `C.this` for the given class `C`?
+      *                   None means no eliding.
+      *
+      *   Self type annotation and types in parent list should elide current class
+      *   prefix `C.this` to avoid type checking errors.
+      */
     private def printTypeTree(tree: TypeTree)(using elideThis: Option[Symbol] = None): this.type = tree match {
       case Inferred() =>
         // TODO try to move this logic into `printType`
@@ -1123,13 +1124,13 @@ object SourceCode {
     }
 
     /** Print type
-     *
-     *  @param elideThis Shoud printing elide `C.this` for the given class `C`?
-     *                   None means no eliding.
-     *
-     *   Self type annotation and types in parent list should elide current class
-     *   prefix `C.this` to avoid type checking errors.
-     */
+      *
+      *  @param elideThis Shoud printing elide `C.this` for the given class `C`?
+      *                   None means no eliding.
+      *
+      *   Self type annotation and types in parent list should elide current class
+      *   prefix `C.this` to avoid type checking errors.
+      */
     def printType(tpe: TypeRepr)(using elideThis: Option[Symbol] = None): this.type = tpe match {
       case ConstantType(const) =>
         printConstant(const)
@@ -1164,9 +1165,9 @@ object SourceCode {
         if fullNames then
           prefix match {
             case NoPrefix() =>
-              this += highlightTypeDef(name)
+                this += highlightTypeDef(name)
             case ThisType(tp) if tp.typeSymbol == defn.RootClass || tp.typeSymbol == defn.EmptyPackageClass =>
-              this += highlightTypeDef(name)
+                this += highlightTypeDef(name)
             case _ =>
               printType(prefix)
               if (name != "package")
@@ -1334,7 +1335,7 @@ object SourceCode {
         case Annotation(annot, _) =>
           val sym = annot.tpe.typeSymbol
           sym != Symbol.requiredClass("scala.forceInline") &&
-            sym.maybeOwner != Symbol.requiredPackage("scala.annotation.internal")
+          sym.maybeOwner != Symbol.requiredPackage("scala.annotation.internal")
         case x => throw new MatchError(x.show(using Printer.TreeStructure))
       }
       printAnnotations(annots)
@@ -1533,7 +1534,7 @@ object SourceCode {
       object Sequence {
         def unapply(tpe: TypeRepr): Option[TypeRepr] = tpe match {
           case AppliedType(seq, (tp: TypeRepr) :: Nil)
-            if seq.typeSymbol == Symbol.requiredClass("scala.collection.Seq") || seq.typeSymbol == Symbol.requiredClass("scala.collection.immutable.Seq") =>
+              if seq.typeSymbol == Symbol.requiredClass("scala.collection.Seq") || seq.typeSymbol == Symbol.requiredClass("scala.collection.immutable.Seq") =>
             Some(tp)
           case _ => None
         }
