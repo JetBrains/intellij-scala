@@ -7,12 +7,13 @@ package synthetic
 
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
-import com.intellij.openapi.project.ProjectManagerListener
+import com.intellij.openapi.project.{DumbAwareRunnable, ProjectManagerListener}
 import com.intellij.openapi.startup.StartupManager
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.IncorrectOperationException
+
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
@@ -523,9 +524,9 @@ object SyntheticClasses {
 
 class SyntheticClassesListener extends ProjectManagerListener {
   override def projectOpened(project: Project): Unit = {
-    StartupManager.getInstance(project).registerPostStartupActivity { () =>
-      SyntheticClasses.get(project).registerClasses()
-    }
+    StartupManager.getInstance(project).registerPostStartupActivity(
+      (() => inReadAction(SyntheticClasses.get(project).registerClasses())): DumbAwareRunnable
+    )
   }
 
   override def projectClosing(project: Project): Unit = {
