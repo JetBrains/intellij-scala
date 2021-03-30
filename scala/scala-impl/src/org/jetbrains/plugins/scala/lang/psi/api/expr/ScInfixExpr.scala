@@ -28,10 +28,8 @@ trait ScInfixExpr extends ScExpression with ScSugarCallExpr with ScInfixElement 
 
   def right: ScExpression = unapply._3
 
-  def typeArgs: Option[ScTypeArgs] = getInvokedExpr match {
-    case gc: ScGenericCall => gc.typeArgs
-    case _                 => None
-  }
+  def typeArgs: Option[ScTypeArgs] =
+    getInvokedExpr.asOptionOf[ScGenericCall].map(_.typeArgs)
 
   override def getBaseExpr: ScExpression = {
     val withAssoc(base, _, _) = this

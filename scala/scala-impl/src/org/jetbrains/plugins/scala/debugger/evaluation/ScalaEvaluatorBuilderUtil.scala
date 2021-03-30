@@ -277,12 +277,10 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     def isInstanceOfEval: Evaluator = {
       unaryEval("isInstanceOf", eval => {
         val tp = ref.getParent match {
-          case gen: ScGenericCall => gen.typeArgs match {
-            case Some(args) => args.typeArgs match {
-              case Seq(arg) => arg.calcType
-              case _ => Nothing
-            }
-            case None => Nothing
+          case gen: ScGenericCall =>
+          gen.typeArgs.typeArgs match {
+            case Seq(arg) => arg.calcType
+            case _ => Nothing
           }
           case _ => Nothing
         }
@@ -1167,7 +1165,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           ref.`type`().getOrAny match {
             //isApplyOrUpdateCall does not work for generic calls
             case ExtractClass(psiClass) if psiClass.findMethodsByName("apply", true).nonEmpty =>
-              val typeArgsText = gen.typeArgs.map(_.getText).mkString
+              val typeArgsText = gen.typeArgs.getText.mkString
               val expr = applyCall(ref.getText, s"$typeArgsText${call.args.getText}$tailString")
               evaluatorFor(expr)
             case _ => throw EvaluationException(message)

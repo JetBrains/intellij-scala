@@ -143,4 +143,14 @@ class KindProjectorHighlightingTest extends ScalaLightCodeInsightFixtureTestAdap
         |}
         |""".stripMargin
     )
+
+
+  def testLambdaType(): Unit =
+    checkTextHasNoErrors(
+      """
+        |trait Hk[F[_]]
+        |
+        |def test: Hk[Lambda[x => List[x]]] = ???
+        |""".stripMargin
+    )
 }
