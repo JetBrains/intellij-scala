@@ -280,4 +280,60 @@ class AuxiliaryConstructorTest_3_0 extends AuxiliaryConstructorTestBase with Sim
       |        PsiElement(})('}')
       |  PsiWhiteSpace('\n')""".stripMargin
   )
+
+  override   def test_correct_single_expression_no_braces_2_unindented_body(): Unit = checkTree(
+    """
+      |class Test {
+      |  def this() =
+      | this()
+      |}
+      |""".stripMargin,
+    """ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScClass: Test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(class)('class')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('Test')
+      |    PrimaryConstructor
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      Parameters
+      |        <empty list>
+      |    PsiWhiteSpace(' ')
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement({)('{')
+      |        PsiWhiteSpace('\n  ')
+      |        ScFunctionDefinition: this
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(def)('def')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(this)('this')
+      |          Parameters
+      |            ParametersClause
+      |              PsiElement(()('(')
+      |              PsiElement())(')')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          PsiErrorElement:Line is indented too far to the left
+      |            <empty list>
+      |          PsiWhiteSpace('\n ')
+      |          SelfInvocation
+      |            PsiElement(this)('this')
+      |            ArgumentList
+      |              PsiElement(()('(')
+      |              PsiElement())(')')
+      |        PsiWhiteSpace('\n')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')""".stripMargin
+  )
 }

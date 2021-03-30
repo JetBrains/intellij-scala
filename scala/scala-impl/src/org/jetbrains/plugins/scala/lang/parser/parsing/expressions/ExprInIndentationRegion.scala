@@ -5,6 +5,7 @@ package parsing
 package expressions
 
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Extension
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
@@ -34,10 +35,27 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
       return exprParser()
     }
 
-    val indentationForExprBlock = builder.findPreviousIndent match {
+    val prevIndent = builder.findPreviousIndent
+    val indentationForExprBlock = prevIndent match {
       case Some(indent) => indent
       case None =>
-        return exprParser()
+        return exprParser() // expression doesn't start from a new line, parse single expression
+    }
+    val parentIndent = builder.currentIndentationWidth
+    indentationForExprBlock.compare(parentIndent) match {
+      case x if x > 0  => // ok, expression is indented
+      case x if x == 0 =>
+        return exprParser() // expression is not indented, parse single expression
+      case _           =>
+        val errorMarker = builder.mark()
+        errorMarker.error(ScalaBundle.message("line.is.indented.too.far.to.the.left"))
+        val parsed = exprParser()
+        if (!parsed) {
+          // we do not want to show the error if we do not have valid expression,
+          // e.g. in `class A {\n  def foo = \n}`
+          errorMarker.drop()
+        }
+        return parsed // expression is unindented, parse single expression
     }
 
     val blockMarker = builder.mark()

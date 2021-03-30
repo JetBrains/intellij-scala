@@ -388,4 +388,206 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_if_then_else_not_indented(): Unit = checkTree(
+    """class A {
+      |  if true then
+      |  println(1)
+      |  println(11)
+      |
+      |  if true then
+      |  println(1)
+      |  else
+      |  println(2)
+      |  println(22)
+      |}""".stripMargin,
+    """ScalaFile
+      |  ScClass: A
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(class)('class')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('A')
+      |    PrimaryConstructor
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      Parameters
+      |        <empty list>
+      |    PsiWhiteSpace(' ')
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement({)('{')
+      |        PsiWhiteSpace('\n  ')
+      |        IfStatement
+      |          PsiElement(if)('if')
+      |          PsiWhiteSpace(' ')
+      |          BooleanLiteral
+      |            PsiElement(true)('true')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(then)('then')
+      |          PsiWhiteSpace('\n  ')
+      |          MethodCall
+      |            ReferenceExpression: println
+      |              PsiElement(identifier)('println')
+      |            ArgumentList
+      |              PsiElement(()('(')
+      |              IntegerLiteral
+      |                PsiElement(integer)('1')
+      |              PsiElement())(')')
+      |        PsiWhiteSpace('\n  ')
+      |        MethodCall
+      |          ReferenceExpression: println
+      |            PsiElement(identifier)('println')
+      |          ArgumentList
+      |            PsiElement(()('(')
+      |            IntegerLiteral
+      |              PsiElement(integer)('11')
+      |            PsiElement())(')')
+      |        PsiWhiteSpace('\n\n  ')
+      |        IfStatement
+      |          PsiElement(if)('if')
+      |          PsiWhiteSpace(' ')
+      |          BooleanLiteral
+      |            PsiElement(true)('true')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(then)('then')
+      |          PsiWhiteSpace('\n  ')
+      |          MethodCall
+      |            ReferenceExpression: println
+      |              PsiElement(identifier)('println')
+      |            ArgumentList
+      |              PsiElement(()('(')
+      |              IntegerLiteral
+      |                PsiElement(integer)('1')
+      |              PsiElement())(')')
+      |          PsiWhiteSpace('\n  ')
+      |          PsiElement(else)('else')
+      |          PsiWhiteSpace('\n  ')
+      |          MethodCall
+      |            ReferenceExpression: println
+      |              PsiElement(identifier)('println')
+      |            ArgumentList
+      |              PsiElement(()('(')
+      |              IntegerLiteral
+      |                PsiElement(integer)('2')
+      |              PsiElement())(')')
+      |        PsiWhiteSpace('\n  ')
+      |        MethodCall
+      |          ReferenceExpression: println
+      |            PsiElement(identifier)('println')
+      |          ArgumentList
+      |            PsiElement(()('(')
+      |            IntegerLiteral
+      |              PsiElement(integer)('22')
+      |            PsiElement())(')')
+      |        PsiWhiteSpace('\n')
+      |        PsiElement(})('}')""".stripMargin
+  )
+  
+  def test_if_then_else_unindented(): Unit = checkTree(
+    """class A {
+      |  if true then
+      | println(1)
+      |  println(11)
+      |
+      |  if true then
+      |  println(1)
+      |  else
+      |println(2)
+      |  println(22)
+      |}""".stripMargin,
+    """ScalaFile
+      |  ScClass: A
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(class)('class')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('A')
+      |    PrimaryConstructor
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      Parameters
+      |        <empty list>
+      |    PsiWhiteSpace(' ')
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement({)('{')
+      |        PsiWhiteSpace('\n  ')
+      |        IfStatement
+      |          PsiElement(if)('if')
+      |          PsiWhiteSpace(' ')
+      |          BooleanLiteral
+      |            PsiElement(true)('true')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(then)('then')
+      |          PsiErrorElement:Line is indented too far to the left
+      |            <empty list>
+      |          PsiWhiteSpace('\n ')
+      |          MethodCall
+      |            ReferenceExpression: println
+      |              PsiElement(identifier)('println')
+      |            ArgumentList
+      |              PsiElement(()('(')
+      |              IntegerLiteral
+      |                PsiElement(integer)('1')
+      |              PsiElement())(')')
+      |        PsiWhiteSpace('\n  ')
+      |        MethodCall
+      |          ReferenceExpression: println
+      |            PsiElement(identifier)('println')
+      |          ArgumentList
+      |            PsiElement(()('(')
+      |            IntegerLiteral
+      |              PsiElement(integer)('11')
+      |            PsiElement())(')')
+      |        PsiWhiteSpace('\n\n  ')
+      |        IfStatement
+      |          PsiElement(if)('if')
+      |          PsiWhiteSpace(' ')
+      |          BooleanLiteral
+      |            PsiElement(true)('true')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(then)('then')
+      |          PsiWhiteSpace('\n  ')
+      |          MethodCall
+      |            ReferenceExpression: println
+      |              PsiElement(identifier)('println')
+      |            ArgumentList
+      |              PsiElement(()('(')
+      |              IntegerLiteral
+      |                PsiElement(integer)('1')
+      |              PsiElement())(')')
+      |          PsiWhiteSpace('\n  ')
+      |          PsiElement(else)('else')
+      |          PsiErrorElement:Line is indented too far to the left
+      |            <empty list>
+      |          PsiWhiteSpace('\n')
+      |          MethodCall
+      |            ReferenceExpression: println
+      |              PsiElement(identifier)('println')
+      |            ArgumentList
+      |              PsiElement(()('(')
+      |              IntegerLiteral
+      |                PsiElement(integer)('2')
+      |              PsiElement())(')')
+      |        PsiWhiteSpace('\n  ')
+      |        MethodCall
+      |          ReferenceExpression: println
+      |            PsiElement(identifier)('println')
+      |          ArgumentList
+      |            PsiElement(()('(')
+      |            IntegerLiteral
+      |              PsiElement(integer)('22')
+      |            PsiElement())(')')
+      |        PsiWhiteSpace('\n')
+      |        PsiElement(})('}')""".stripMargin
+  )
 }
