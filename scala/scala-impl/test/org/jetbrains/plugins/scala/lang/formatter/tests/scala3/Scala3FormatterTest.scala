@@ -84,6 +84,29 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
       |""".stripMargin
   )
 
+  def testColon_AfterTypeDefinition_WithParam_WithExtends(): Unit = doTextTest(
+    """trait Test()extends Object :
+      |  def test = ()
+      |
+      |class Test()extends Object :
+      |  def test = ()
+      |
+      |enum Enum()extends Object :
+      |  case A
+      |  case B
+      |""".stripMargin,
+    """trait Test() extends Object :
+      |  def test = ()
+      |
+      |class Test() extends Object :
+      |  def test = ()
+      |
+      |enum Enum() extends Object :
+      |  case A
+      |  case B
+      |""".stripMargin
+  )
+
   def testClassEnd(): Unit = doTextTest(
     """
       |class Test:
@@ -216,6 +239,97 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
     """given Id: Object with {
       |  def msg: String = ""
       |}
+      |""".stripMargin
+  )
+
+  def testPackagingWithColon(): Unit = {
+    doTextTest(
+      """package p1:
+        |  def a = 1
+        |
+        |  package p2:
+        |    def b = 2
+        |""".stripMargin)
+  }
+
+  def testPackagingWithBraces(): Unit = {
+    doTextTest(
+      """package p1 {
+        |  def a = 1
+        |
+        |  package p2 {
+        |    def b = 2
+        |  }
+        |
+        |}
+        |""".stripMargin)
+  }
+
+  def testTypeMatch_0(): Unit =
+    doTextTest(
+      """type Widen[Tup <: Tuple] <: Tuple = Tup match {
+        |  case EmptyTuple => EmptyTuple
+        |  case h *: t => h *: t
+        |}
+        |""".stripMargin
+    )
+
+  def testTypeMatch_1(): Unit =
+    doTextTest(
+      """type Widen[Tup <: Tuple] <: Tuple =
+        |  Tup match {
+        |    case EmptyTuple => EmptyTuple
+        |    case h *: t => h *: t
+        |  }
+        |""".stripMargin
+    )
+
+  def testTypeMatch_Braceless_0(): Unit =
+    doTextTest(
+      """type Widen[Tup <: Tuple] <: Tuple = Tup match
+        |  case EmptyTuple => EmptyTuple
+        |  case h *: t => h *: t
+        |""".stripMargin
+    )
+
+  def testTypeMatch_Braceless_1(): Unit =
+    doTextTest(
+      """type Widen[Tup <: Tuple] <: Tuple =
+        |  Tup match
+        |    case EmptyTuple => EmptyTuple
+        |    case h *: t => h *: t
+        |""".stripMargin
+    )
+
+  def testContextFunctionExpression(): Unit = doTextTest(
+    """val x = (a: Int) ?=> 3
+      |
+      |val x = (a: Int) ?=>
+      |  3
+      |
+      |val x = (a: Int) ?=>
+      |  println(1)
+      |  println(2)
+      |  3
+      |
+      |val x = (a: Int) ?=> {
+      |  println(1)
+      |  println(2)
+      |  3
+      |}
+      |""".stripMargin
+  )
+
+  def testContextFunctionType(): Unit = doTextTest(
+    """import scala.concurrent.{ExecutionContext, Future}
+      |
+      |type Contextual1[T] = ExecutionContext ?=> T
+      |
+      |type Contextual2[T] = ExecutionContext ?=>
+      |  T
+      |
+      |type Contextual3[T] =
+      |  ExecutionContext ?=> T
       |""".stripMargin
   )
 }

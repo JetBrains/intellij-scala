@@ -598,8 +598,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     //
     // TODO: settings?
     rightPsi match {
-      case ScExtendsBlock.TemplateBody(body) if !body.isEnclosedByBraces =>
-        return WITHOUT_SPACING
+      case eb@ScExtendsBlock.TemplateBody(body) =>
+        val hasExtendsKeyword = eb.firstChild.map(_.elementType).contains(ScalaTokenTypes.kEXTENDS)
+        if (!hasExtendsKeyword && !body.isEnclosedByBraces)
+          return WITHOUT_SPACING
       case _ =>
     }
 
@@ -613,8 +615,11 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (leftPsi.isInstanceOf[ScStableCodeReference] && !rightPsi.isInstanceOf[ScPackaging]) {
       leftPsiParent match {
         case p: ScPackaging if p.reference.contains(leftPsi) =>
-          if (rightElementType != ScalaTokenTypes.tSEMICOLON && rightElementType != ScalaTokenTypes.tLBRACE) {
-            return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AFTER_PACKAGE + 1, keepLineBreaks, keepBlankLinesInCode)
+          rightElementType match {
+            // colon stand for Scala3 braceless package syntax `package p1.p2:\n  package p3`
+            case ScalaTokenTypes.tSEMICOLON | ScalaTokenTypes.tLBRACE | ScalaTokenTypes.tCOLON =>
+            case _ =>
+              return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AFTER_PACKAGE + 1, keepLineBreaks, keepBlankLinesInCode)
           }
         case _ =>
       }
@@ -1317,8 +1322,14 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tRSQBRACKET, _, _, _) => COMMON_SPACING
       case (_, ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tRSQBRACKET, _, _) => NO_SPACING_WITH_NEWLINE
       //Case clauses
-      case (ScalaElementType.CASE_CLAUSE, _, _, _) => IMPORT_BETWEEN_SPACING
-      case (_, ScalaElementType.CASE_CLAUSE, _, _) => IMPORT_BETWEEN_SPACING
+      case (ScalaElementType.CASE_CLAUSE, _, _, _) =>
+        IMPORT_BETWEEN_SPACING
+      case (_, ScalaElementType.CASE_CLAUSE, _, _) =>
+        // support for Scala3 single `case clause` on the same line with `catch`:
+        // `try foo() catch case ex: Exception => println(42)`
+        val isScala3_OnlyCaseClause = rightNode.getTreeNext == null && leftElementType == ScalaTokenTypes.kCATCH
+        if (isScala3_OnlyCaseClause) COMMON_SPACING
+        else IMPORT_BETWEEN_SPACING
       //#
       case (ScalaTokenTypes.tINNER_CLASS, _, _, _) => NO_SPACING
       case (ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER, _, _) =>

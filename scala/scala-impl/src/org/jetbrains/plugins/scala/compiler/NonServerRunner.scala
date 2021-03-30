@@ -56,7 +56,7 @@ class NonServerRunner(project: Project) {
           val jdkPath = FileUtil.toCanonicalPath(jdk.executable.getPath)
           val runnerClassPath = classPathArg(jdk.tools.toSeq :+ ScalaPluginJars.scalaNailgunRunnerJar)
           val mainClassPath = classPathArg(jdk.tools.toSeq ++ CompileServerLauncher.compileServerJars)
-          val buildSystemDir = BuildManager.getInstance.getBuildSystemDirectory.toFile.getCanonicalPath
+          val buildSystemDir = BuildManager.getInstance.getBuildSystemDirectory(project).toFile.getCanonicalPath
           (jdkPath +: "-cp" +: runnerClassPath +: jvmParameters) ++
             (SERVER_CLASS_NAME +: mainClassPath +: buildSystemDir +: argsEncoded)
         }

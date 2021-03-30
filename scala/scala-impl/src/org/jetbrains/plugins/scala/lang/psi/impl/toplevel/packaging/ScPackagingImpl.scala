@@ -11,6 +11,7 @@ import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -21,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScPackageLike, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging.ScPackagingImpl.LeftBraceOrColon
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackagingStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 
@@ -53,7 +55,9 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
   override def packagings: Seq[ScPackaging] =
     getStubOrPsiChildren(ScalaElementType.PACKAGING, JavaArrayFactoryUtil.ScPackagingFactory).toSeq
 
-  override def isExplicit: Boolean = byStubOrPsi(_.isExplicit)(findLeftBrace.isDefined)
+  override def isExplicit: Boolean = byStubOrPsi(_.isExplicit)(findExplicitMarker.isDefined)
+  override def findExplicitMarker: Option[PsiElement] =
+    Option(findChildByFilter(LeftBraceOrColon))
 
   override def packageName: String = byStubOrPsi(_.packageName)(reference.fold("")(_.qualName))
 
@@ -119,7 +123,7 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
     val text = getText
     val endOffset = text.length
 
-    findLeftBrace match {
+    findExplicitMarker match {
       case Some(brace) =>
         val startOffset = brace.getTextRange.getEndOffset - getTextRange.getStartOffset
 
@@ -136,7 +140,7 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
   }
 
   override protected def childBeforeFirstImport: Option[PsiElement] =
-    findLeftBrace.orElse(reference)
+    findExplicitMarker.orElse(reference)
 
   override def parentScalaPackage: Option[ScPackageLike] = {
     Option(PsiTreeUtil.getContextOfType(this, true, classOf[ScPackageLike])).orElse {
@@ -147,14 +151,14 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
   override def immediateTypeDefinitions: Seq[ScTypeDefinition] =
     getStubOrPsiChildren(TYPE_DEFINITIONS, JavaArrayFactoryUtil.ScTypeDefinitionFactory).toSeq
 
-  private def findLeftBrace = Option(findChildByType[PsiElement](ScalaTokenTypes.tLBRACE))
-
   private def findPackage(name: String) =
     Option(JavaPsiFacade.getInstance(getProject).findPackage(name))
       .map(ScPackageImpl(_))
 }
 
 object ScPackagingImpl {
+
+  private val LeftBraceOrColon = TokenSet.create(ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tCOLON)
 
   private def fullPackageName(parentPackageName: String, packageName: String): String = {
     val infix = parentPackageName match {

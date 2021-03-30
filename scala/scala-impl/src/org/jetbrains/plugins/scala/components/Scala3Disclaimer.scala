@@ -1,23 +1,24 @@
 package org.jetbrains.plugins.scala.components
 
-import java.io.File
-import java.nio.file.Files
-import java.util
-import java.util.function.Consumer
-
 import com.intellij.notification._
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.{Project, ProjectManagerListener}
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaBundle}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.{ScalaProjectSettings, ScalaProjectSettingsConfigurable}
 import org.jetbrains.plugins.scala.util.NotificationUtil.HyperlinkListener
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaBundle}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.{SbtProjectSettings, SbtProjectSettingsListener}
+
+import java.io.File
+import java.nio.file.Files
+import java.util
+import java.util.function.Consumer
 
 object Scala3Disclaimer {
   private val DottyVersion = "scalaVersion\\s*:=\\s*\"(0\\.\\S+)\"".r
@@ -49,6 +50,9 @@ object Scala3Disclaimer {
   }
 
   private def onProjectLoaded(project: Project): Unit = {
+    if (ApplicationManager.getApplication.isUnitTestMode)
+      return // otherwise, it can lead to project leaks in tests
+
     val dottyVersion = dottyVersionIn(project)
 
     if (!isShownIn(project)) {

@@ -56,7 +56,7 @@ class ScalaSuppressForStatementFix(key: HighlightDisplayKey) extends ScalaSuppre
 
   override def getContainer(context: PsiElement): PsiElement = ScalaRefactoringUtil.findEnclosingBlockStatement(context) match {
     case None => null
-    case Some(_: ScFunctionDefinition | _: ScVariableDefinition | _: ScPatternDefinition | _: ScTypeAliasDefinition | _: ScMacroDefinition) => null
+    case Some(_: ScDefinitionWithAssignment) => null
     case Some(stmt) => stmt
   }
 }

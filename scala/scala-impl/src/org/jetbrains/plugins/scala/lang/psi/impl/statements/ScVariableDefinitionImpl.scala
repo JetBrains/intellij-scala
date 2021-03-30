@@ -27,9 +27,7 @@ final class ScVariableDefinitionImpl private[psi] (
   nodeType: ScPropertyElementType[ScVariableDefinition],
   node:     ASTNode
 ) extends ScValueOrVariableImpl(stub, nodeType, node)
-    with ScVariableDefinition {
-
-  override def assignment: Option[PsiElement] = Option(findChildByType[PsiElement](ScalaTokenTypes.tASSIGN))
+  with ScVariableDefinition {
 
   override def expr: Option[ScExpression] = byPsiOrStub(findChild[ScExpression])(_.bodyExpression)
 

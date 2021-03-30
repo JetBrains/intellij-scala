@@ -20,7 +20,7 @@ object IncrementalCompiler {
       .getOrElse(throw new IllegalStateException("Can't determine project path"))
     val globalOptionsPath = PathManager.getOptionsPath
     val dataStorageRootPath = Utils.getDataStorageRoot(
-      new File(PathKt.getSystemIndependentPath(BuildManager.getInstance.getBuildSystemDirectory)),
+      new File(PathKt.getSystemIndependentPath(BuildManager.getInstance.getBuildSystemDirectory(project))),
       projectPath
     ).getCanonicalPath
     val command = CompileServerCommand.CompileJps(

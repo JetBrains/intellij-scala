@@ -1,0 +1,18 @@
+if (true)
+else 2
+-----
+ScalaFile
+  IfStatement
+    PsiElement(if)('if')
+    PsiWhiteSpace(' ')
+    PsiElement(()('(')
+    BooleanLiteral
+      PsiElement(true)('true')
+    PsiElement())(')')
+    PsiErrorElement:Wrong expression
+      <empty list>
+    PsiWhiteSpace('\n')
+    PsiElement(else)('else')
+    PsiWhiteSpace(' ')
+    IntegerLiteral
+      PsiElement(integer)('2')

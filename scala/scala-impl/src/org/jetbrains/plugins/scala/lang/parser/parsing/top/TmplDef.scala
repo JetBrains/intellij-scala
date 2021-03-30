@@ -77,6 +77,14 @@ object TmplDef extends ParsingRule {
     val iw = builder.currentIndentationWidth
     builder.advanceLexer() // ate class
     if (rule()) {
+     /**
+      * Note: end marker is already parsed in TemplateBody,
+      * but there is one edge case when there is no any template body: {{{
+      *  class A
+      *  end A
+      * }}}
+      * (notice no colon `:` after class name)
+      */
       End(iw)
       templateMarker.done(elementType)
     } else {

@@ -20,7 +20,7 @@ trait ScFor extends ScExpression {
 
   def isYield: Boolean
 
-  def getYield: Option[PsiElement]
+  def yieldOrDoKeyword: Option[PsiElement]
 
   def enumerators: Option[ScEnumerators]
 

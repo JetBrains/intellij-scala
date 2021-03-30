@@ -15,6 +15,7 @@ package object parentheses {
     if (isOnTheFly) {
       val left = TextRange.create(0, 1)
       val right = TextRange.create(element.getTextLength - 1, element.getTextLength)
+      // TODO: shouldn't the highlighting level be taken from the inspection settings?
       holder.registerProblem(element, description, LIKE_UNUSED_SYMBOL, left, quickfix)
       holder.registerProblem(element, description, LIKE_UNUSED_SYMBOL, right, quickfix)
       if (element.getTextLength >= 4) { // for `(1)` it is enough to add quickfix only to parentheses

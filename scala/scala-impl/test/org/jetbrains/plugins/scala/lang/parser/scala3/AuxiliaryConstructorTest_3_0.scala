@@ -159,7 +159,6 @@ class AuxiliaryConstructorTest_3_0 extends AuxiliaryConstructorTestBase with Sim
       |  PsiWhiteSpace('\n')""".stripMargin
   )
 
-  // TODO: shouldn't we add "PsiErrorElement:Wrong constructor expression" as for Scala 2?
   override def test_bad_missing_expr(): Unit = checkTree(
     """
       |class Test {
@@ -202,6 +201,8 @@ class AuxiliaryConstructorTest_3_0 extends AuxiliaryConstructorTestBase with Sim
       |              PsiElement())(')')
       |          PsiWhiteSpace(' ')
       |          PsiElement(=)('=')
+      |          PsiErrorElement:Wrong constructor expression
+      |            <empty list>
       |        PsiWhiteSpace('\n')
       |        PsiElement(})('}')
       |  PsiWhiteSpace('\n')""".stripMargin
@@ -258,22 +259,23 @@ class AuxiliaryConstructorTest_3_0 extends AuxiliaryConstructorTestBase with Sim
       |              PsiElement())(')')
       |          PsiWhiteSpace(' ')
       |          PsiElement(=)('=')
-      |          PsiWhiteSpace('\n    ')
-      |          ScPatternDefinition: x
-      |            AnnotationsList
-      |              <empty list>
-      |            Modifiers
-      |              <empty list>
-      |            PsiElement(val)('val')
-      |            PsiWhiteSpace(' ')
-      |            ListOfPatterns
-      |              ReferencePattern: x
-      |                PsiElement(identifier)('x')
-      |            PsiWhiteSpace(' ')
-      |            PsiElement(=)('=')
-      |            PsiWhiteSpace(' ')
-      |            IntegerLiteral
-      |              PsiElement(integer)('42')
+      |          ConstructorBlock
+      |            PsiWhiteSpace('\n    ')
+      |            ScPatternDefinition: x
+      |              AnnotationsList
+      |                <empty list>
+      |              Modifiers
+      |                <empty list>
+      |              PsiElement(val)('val')
+      |              PsiWhiteSpace(' ')
+      |              ListOfPatterns
+      |                ReferencePattern: x
+      |                  PsiElement(identifier)('x')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(=)('=')
+      |              PsiWhiteSpace(' ')
+      |              IntegerLiteral
+      |                PsiElement(integer)('42')
       |        PsiWhiteSpace('\n')
       |        PsiElement(})('}')
       |  PsiWhiteSpace('\n')""".stripMargin

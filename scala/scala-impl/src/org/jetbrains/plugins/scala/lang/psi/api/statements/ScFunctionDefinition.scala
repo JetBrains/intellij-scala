@@ -15,13 +15,11 @@ import org.jetbrains.plugins.scala.macroAnnotations.Cached
  *         Date: 22.02.2008
  *         Time: 9:49:36
  */
-trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
+trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner with ScDefinitionWithAssignment {
 
   def body: Option[ScExpression]
 
   override def hasAssign: Boolean
-
-  def assignment: Option[PsiElement]
 
   def returnUsages: Set[ScExpression] = ScFunctionDefinitionExt(this).returnUsages
 

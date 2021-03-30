@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScPrimaryConstr
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScTypeAlias, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDefinitionWithAssignment, ScFunction, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
@@ -105,7 +105,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
         }
         new ChildAttributes(indent, null)
       case _: ScBlockExpr | _: ScEarlyDefinitions | _: ScTemplateBody |
-           _: ScFor | _: ScWhile | _: ScCatchBlock | ElementType(ScalaTokenTypes.kYIELD)  =>
+           _: ScFor | _: ScWhile | _: ScCatchBlock | ElementType(ScalaTokenTypes.kYIELD | ScalaTokenTypes.kDO) =>
         val indent =
           if (braceShifted) {
             Indent.getNoneIndent
@@ -166,7 +166,8 @@ class ScalaBlock(val parentBlock: ScalaBlock,
         new ChildAttributes(Indent.getNormalIndent, this.getAlignment) //by default suppose there will be simple expr
       case _: ScArgumentExprList =>
         new ChildAttributes(Indent.getNormalIndent, this.getAlignment)
-      case _: ScFunctionDefinition | _: ScTypeAlias =>
+      // def, var, val, type, given + `=`
+      case _: ScDefinitionWithAssignment =>
         new ChildAttributes(Indent.getNormalIndent, this.getAlignment)
       case _ =>
         new ChildAttributes(Indent.getNoneIndent, null)

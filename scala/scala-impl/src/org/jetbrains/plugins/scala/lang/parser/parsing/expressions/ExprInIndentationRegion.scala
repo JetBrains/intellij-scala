@@ -6,8 +6,10 @@ package expressions
 
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.Extension
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.statements.ConstrBlock
+import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{ConstrBlock, Def}
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 
 import scala.annotation.tailrec
 
@@ -42,9 +44,20 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
     builder.withIndentationWidth(indentationForExprBlock) {
 
       blockMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_WS_AND_COMMENT_TOKENS, null)
-      if (!exprPartParser()) {
-        BlockStat()
-      }
+
+      // We need to early parse those definitions which begin with a soft keyword
+      // (extension, inline, transparent, infix, open)
+      // If we don't parse them early, they will be wrongly parsed as expressions with errors.
+      // For example `extension (x: String)` will be parsed as a method call
+      val firstParsedAsDefWithSoftKeyword = Extension() || Def() || TmplDef()
+
+      val firstParsedAsExpr =
+        !firstParsedAsDefWithSoftKeyword && exprPartParser()
+
+      val firstParsedAsBlockStat =
+        firstParsedAsDefWithSoftKeyword || !firstParsedAsExpr && BlockStat()
+
+      val firstParsed = firstParsedAsExpr || firstParsedAsBlockStat
 
       @tailrec
       def parseRest(isBlock: Boolean): Boolean = {
@@ -67,14 +80,21 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
         }
       }
 
-      if (parseRest(isBlock = false)) {
+      /**
+       * If the first body element is not an expression, we also wrap it into block.
+       * E.g. in such silly definition with a single variable definition: {{{
+       *   def foo =
+       *     var inner = 42
+       * }}}
+       */
+      if (parseRest(isBlock = false) || firstParsedAsBlockStat) {
         blockMarker.done(blockType)
+        true
       } else {
         blockMarker.drop()
+        firstParsed
       }
     }
-
-    true
   }
 }
 

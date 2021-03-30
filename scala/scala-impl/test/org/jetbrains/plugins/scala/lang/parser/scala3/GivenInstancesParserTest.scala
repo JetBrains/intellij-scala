@@ -8,8 +8,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       | def blub = 3
       |end given
       |""".stripMargin,
-    """
-      |ScalaFile
+    """ScalaFile
       |  PsiWhiteSpace('\n')
       |  ScGivenDefinition: given_Test
       |    AnnotationsList
@@ -43,13 +42,216 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |          PsiWhiteSpace(' ')
       |          IntegerLiteral
       |            PsiElement(integer)('3')
-      |    PsiWhiteSpace('\n')
-      |    End: given
-      |      PsiElement(end)('end')
-      |      PsiWhiteSpace(' ')
-      |      PsiElement(given)('given')
+      |        PsiWhiteSpace('\n')
+      |        End: given
+      |          PsiElement(end)('end')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(given)('given')
+      |  PsiWhiteSpace('\n')""".stripMargin
+  )
+
+  def test_indentation_1(): Unit = checkTree(
+    """
+      |given Test with
+      | println(42)
+      | def blub = 3
+      |end given
+      |""".stripMargin,
+    """ScalaFile
       |  PsiWhiteSpace('\n')
-      |""".stripMargin
+      |  ScGivenDefinition: given_Test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(given)('given')
+      |    PsiWhiteSpace(' ')
+      |    ExtendsBlock
+      |      TemplateParents
+      |        ConstructorInvocation
+      |          SimpleType: Test
+      |            CodeReferenceElement: Test
+      |              PsiElement(identifier)('Test')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(with)('with')
+      |      PsiWhiteSpace('\n ')
+      |      ScTemplateBody
+      |        MethodCall
+      |          ReferenceExpression: println
+      |            PsiElement(identifier)('println')
+      |          ArgumentList
+      |            PsiElement(()('(')
+      |            IntegerLiteral
+      |              PsiElement(integer)('42')
+      |            PsiElement())(')')
+      |        PsiWhiteSpace('\n ')
+      |        ScFunctionDefinition: blub
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(def)('def')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('blub')
+      |          Parameters
+      |            <empty list>
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          PsiWhiteSpace(' ')
+      |          IntegerLiteral
+      |            PsiElement(integer)('3')
+      |        PsiWhiteSpace('\n')
+      |        End: given
+      |          PsiElement(end)('end')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(given)('given')
+      |  PsiWhiteSpace('\n')""".stripMargin
+  )
+
+  // can occur during typing, unindented expressions shouldn't be parsed as template body statements
+  def test_indentation_incomplete_body_followed_by_unindented_expressions(): Unit = checkTree(
+    """given Test with
+      |println(1)
+      |println(2)
+      |""".stripMargin,
+    """ScalaFile
+      |  ScGivenDefinition: given_Test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(given)('given')
+      |    PsiWhiteSpace(' ')
+      |    ExtendsBlock
+      |      TemplateParents
+      |        ConstructorInvocation
+      |          SimpleType: Test
+      |            CodeReferenceElement: Test
+      |              PsiElement(identifier)('Test')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(with)('with')
+      |      ScTemplateBody
+      |        <empty list>
+      |  PsiWhiteSpace('\n')
+      |  MethodCall
+      |    ReferenceExpression: println
+      |      PsiElement(identifier)('println')
+      |    ArgumentList
+      |      PsiElement(()('(')
+      |      IntegerLiteral
+      |        PsiElement(integer)('1')
+      |      PsiElement())(')')
+      |  PsiWhiteSpace('\n')
+      |  MethodCall
+      |    ReferenceExpression: println
+      |      PsiElement(identifier)('println')
+      |    ArgumentList
+      |      PsiElement(()('(')
+      |      IntegerLiteral
+      |        PsiElement(integer)('2')
+      |      PsiElement())(')')
+      |  PsiWhiteSpace('\n')""".stripMargin
+  )
+
+  def test_indentation_incomplete_body_followed_by_unindented_expressions_1(): Unit = checkTree(
+    """trait MarkerTrait(p: Int)
+      |given intOrd3: Ord[Int] with MarkerTrait(42) with
+      |println(1)
+      |println(2)
+      |""".stripMargin,
+    """ScalaFile
+      |  ScTrait: MarkerTrait
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(trait)('trait')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('MarkerTrait')
+      |    PrimaryConstructor
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      Parameters
+      |        ParametersClause
+      |          PsiElement(()('(')
+      |          ClassParameter: p
+      |            AnnotationsList
+      |              <empty list>
+      |            Modifiers
+      |              <empty list>
+      |            PsiElement(identifier)('p')
+      |            PsiElement(:)(':')
+      |            PsiWhiteSpace(' ')
+      |            ParameterType
+      |              SimpleType: Int
+      |                CodeReferenceElement: Int
+      |                  PsiElement(identifier)('Int')
+      |          PsiElement())(')')
+      |    ExtendsBlock
+      |      <empty list>
+      |  PsiWhiteSpace('\n')
+      |  ScGivenDefinition: intOrd3
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(given)('given')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('intOrd3')
+      |    Parameters
+      |      <empty list>
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    ExtendsBlock
+      |      TemplateParents
+      |        ConstructorInvocation
+      |          ParametrizedType: Ord[Int]
+      |            SimpleType: Ord
+      |              CodeReferenceElement: Ord
+      |                PsiElement(identifier)('Ord')
+      |            TypeArgumentsList
+      |              PsiElement([)('[')
+      |              SimpleType: Int
+      |                CodeReferenceElement: Int
+      |                  PsiElement(identifier)('Int')
+      |              PsiElement(])(']')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(with)('with')
+      |        PsiWhiteSpace(' ')
+      |        ConstructorInvocation
+      |          SimpleType: MarkerTrait
+      |            CodeReferenceElement: MarkerTrait
+      |              PsiElement(identifier)('MarkerTrait')
+      |          ArgumentList
+      |            PsiElement(()('(')
+      |            IntegerLiteral
+      |              PsiElement(integer)('42')
+      |            PsiElement())(')')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(with)('with')
+      |      ScTemplateBody
+      |        <empty list>
+      |  PsiWhiteSpace('\n')
+      |  MethodCall
+      |    ReferenceExpression: println
+      |      PsiElement(identifier)('println')
+      |    ArgumentList
+      |      PsiElement(()('(')
+      |      IntegerLiteral
+      |        PsiElement(integer)('1')
+      |      PsiElement())(')')
+      |  PsiWhiteSpace('\n')
+      |  MethodCall
+      |    ReferenceExpression: println
+      |      PsiElement(identifier)('println')
+      |    ArgumentList
+      |      PsiElement(()('(')
+      |      IntegerLiteral
+      |        PsiElement(integer)('2')
+      |      PsiElement())(')')
+      |  PsiWhiteSpace('\n')""".stripMargin
   )
 
   def test_full(): Unit = checkTree(

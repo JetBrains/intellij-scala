@@ -1,0 +1,6 @@
+val foo(arg: Type) =<caret>
+  42
+-----
+val foo(arg: Type) =
+  <caret>
+  42

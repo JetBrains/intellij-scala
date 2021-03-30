@@ -5,7 +5,7 @@ package parsing
 package top
 package template
 
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Export, Extension, Import}
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.{End, Export, Extension, Import}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Annotation, Expr, Expr1}
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements._
@@ -35,11 +35,26 @@ sealed abstract class Stat extends ParsingRule {
 }
 
 /**
- * [[TemplateStat]] ::= [[Import]]
- * | [[Export]]
- * | { [[Annotation]] [nl]} { [[Modifier]] } [[Def]]
- * | { [[Annotation]] [nl]} { [[Modifier]] } [[Dcl]]
- * | [[Expr]] // TODO [[Expr1]] in Scala 3
+ * Scala2
+ * {{{
+ * TemplateStat  ::=  Import
+ *                 |  {Annotation [nl]} {Modifier} Def
+ *                 |  {Annotation [nl]} {Modifier} Dcl
+ *                 |  Expr
+ * }}}
+ *
+ * Scala3:
+ * {{{
+ * TemplateStat  ::=  Import
+ *                 |  Export
+ *                 |  {Annotation [nl]} {Modifier} Def
+ *                 |  {Annotation [nl]} {Modifier} Dcl
+ *                 |  Extension
+ *                 |  Expr1
+ *                 |  EndMarker
+ * }}}
+ *
+ * NOTE: EndMarker is parsed inside TemplateBody
  */
 object TemplateStat extends Stat
 

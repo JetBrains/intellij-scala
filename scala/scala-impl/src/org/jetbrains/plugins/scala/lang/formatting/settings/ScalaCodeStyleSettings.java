@@ -68,6 +68,8 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean INDENT_FIRST_PARAMETER = true;
   public boolean INDENT_FIRST_PARAMETER_CLAUSE = false;
 
+  public boolean INDENT_YIELD_AFTER_ONE_LINE_ENUMERATORS = true;
+
   public String SCALAFMT_CONFIG_PATH = "";
   public boolean SCALAFMT_SHOW_INVALID_CODE_WARNINGS = true;
   public boolean SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = true;
@@ -100,8 +102,6 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   // actual operator callcall:
   public boolean SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES = false;
   public boolean SPACE_BEFORE_INFIX_OPERATOR_LIKE_METHOD_CALL_PARENTHESES = true;
-
-  public boolean INSERT_WHITESPACES_IN_SIMPLE_ONE_LINE_METHOD = true;
 
   public boolean SPACE_BEFORE_TYPE_COLON = false;
   public boolean SPACE_AFTER_TYPE_COLON = true;

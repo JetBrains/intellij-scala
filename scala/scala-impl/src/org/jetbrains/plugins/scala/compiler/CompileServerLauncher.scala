@@ -169,7 +169,7 @@ object CompileServerLauncher {
           settings.COMPILE_SERVER_PORT = freePort
           saveSettings()
         }
-        val buildSystemDir = BuildManager.getInstance.getBuildSystemDirectory
+        val buildSystemDir = BuildManager.getInstance.getBuildSystemDirectory(project)
         deleteOldTokenFile(buildSystemDir, freePort)
         val id = settings.COMPILE_SERVER_ID
 

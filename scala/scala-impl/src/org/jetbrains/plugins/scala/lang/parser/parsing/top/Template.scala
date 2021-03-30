@@ -26,6 +26,8 @@ sealed abstract class Template extends ParsingRule {
     val marker = builder.mark()
 
     builder.getTokenType match {
+      // TODO: drop `tUPPER_BOUND`, the syntax is not supported any more:
+      //  class A <: AnyRef
       case `kEXTENDS` | `tUPPER_BOUND` =>
         builder.advanceLexer() // Ate extends
 

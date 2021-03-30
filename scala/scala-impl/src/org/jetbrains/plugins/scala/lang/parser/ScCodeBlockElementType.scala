@@ -55,8 +55,9 @@ object ScCodeBlockElementType {
 
     override def getLanguageForParser(psi: PsiElement): Language =
       Option(psi).map(_.getLanguage) match {
-        case Some(Scala3Language.INSTANCE) => Scala3Language.INSTANCE
-        case _ => super.getLanguageForParser(psi)
+        // including WorksheetLanguage3
+        case Some(lang) if lang.isKindOf(Scala3Language.INSTANCE) => Scala3Language.INSTANCE
+        case _                                                    => super.getLanguageForParser(psi)
       }
   }
 

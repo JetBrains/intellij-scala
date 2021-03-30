@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOw
  * Time: 9:46:00
  */
 trait ScTypeAlias extends ScNamedElement
+  with ScDefinitionWithAssignment
   with ScPolymorphicElement
   with ScMember.WithBaseIconProvider
   with ScDocCommentOwner

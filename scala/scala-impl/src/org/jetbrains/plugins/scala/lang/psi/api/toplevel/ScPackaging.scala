@@ -4,6 +4,9 @@ package psi
 package api
 package toplevel
 
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging.ScPackagingImpl.LeftBraceOrColon
+
 trait ScPackaging extends ScImportsHolder
   with statements.ScDeclaredElementsHolder
   with ScPackageLike {
@@ -15,6 +18,22 @@ trait ScPackaging extends ScImportsHolder
   def fullPackageName: String
 
   def isExplicit: Boolean
+
+  /**
+   * Scala2: {{{
+   * package p1 {
+   *   package p2 {
+   *   }
+   * }
+   * }}}
+   * Scala3 also supports braceless package, with colon marker: {{{
+   *  package p1:
+   *    package p2:
+   * }}}
+   *
+   * @return `{` or `:` (in Scala3 braceless syntax)
+   */
+  def findExplicitMarker: Option[PsiElement]
 
   def bodyText: String
 

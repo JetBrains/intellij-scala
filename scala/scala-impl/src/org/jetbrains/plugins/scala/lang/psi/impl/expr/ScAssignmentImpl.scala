@@ -5,7 +5,7 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiField
+import com.intellij.psi.{PsiElement, PsiField}
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -57,8 +57,9 @@ class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
         }
       case methodCall: ScMethodCall =>
         val invokedExpr = methodCall.getInvokedExpr
-        val text = s"${invokedExpr.getText}.update(${methodCall.args.exprs.map(_.getText).mkString(",")}," +
-          s" ${rightExpression.map(_.getText).getOrElse("")}"
+        val key = methodCall.args.exprs.map(_.getText).mkString(",")
+        val value = rightExpression.map(textWithSafeIndentedBlock).getOrElse("")
+        val text = s"${invokedExpr.getText}.update($key, $value)"
         val mirrorExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, getContext, this)
         //todo: improve performance: do not re-evaluate resolve to "update" method
         mirrorExpr match {
@@ -68,6 +69,21 @@ class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
       case _ => None
     }
   }
+
+  // TODO: maybe it could extracted to some utility method
+  // Workaround for Scala3 braceless syntax:
+  // val map = scala.collection.mutable.Map.empty[Int, Int]
+  // map(42) =
+  //  var x = 1
+  //  var y = 2
+  //  x + y
+  private def textWithSafeIndentedBlock(element: PsiElement): String =
+    element match {
+      case block: ScBlock if !block.isEnclosedByBraces =>
+        "{\n" + block.getText + "\n}"
+      case _ =>
+        element.getText
+    }
 
   private def resolveAssignmentInner(shapeResolve: Boolean): Option[ScalaResolveResult] = {
     leftExpression match {
