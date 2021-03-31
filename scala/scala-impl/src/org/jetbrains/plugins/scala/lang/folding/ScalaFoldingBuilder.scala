@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings
 import scala.collection._
 import scala.jdk.CollectionConverters._
 
-// TODO: do use ASTNode.getText or PsiElement.getText
+// TODO: do not use ASTNode.getText or PsiElement.getText
 // TODO: extract shared string literals, like "{...}"
 class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
   import ScalaElementType._
