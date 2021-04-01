@@ -4,7 +4,7 @@ package base
 import com.intellij.lang.Language
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiComment, PsiElement, PsiFileFactory, PsiWhiteSpace}
-import com.intellij.testFramework.UsefulTestCase
+import com.intellij.testFramework.{LightProjectDescriptor, UsefulTestCase}
 import com.intellij.testFramework.fixtures._
 import org.intellij.lang.annotations.{Language => InputLanguage}
 import org.jetbrains.annotations.Nls
@@ -28,11 +28,16 @@ abstract class SimpleTestCase extends UsefulTestCase with MatcherAssertions {
   override def setUp(): Unit = {
     super.setUp()
     val fixtureBuilder: TestFixtureBuilder[IdeaProjectTestFixture] =
-      IdeaTestFixtureFactory.getFixtureFactory.createFixtureBuilder("SimpleTestCase")
+      IdeaTestFixtureFactory.getFixtureFactory.createLightFixtureBuilder(getProjectDescriptor)
 
     fixture = IdeaTestFixtureFactory.getFixtureFactory.createCodeInsightFixture(fixtureBuilder.getFixture)
     fixture.setUp()
   }
+
+  protected final def getProjectDescriptor: LightProjectDescriptor =
+    new ScalaLightProjectDescriptor(sharedProjectToken)
+
+  protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
 
   override def tearDown(): Unit = try {
     fixture.tearDown()

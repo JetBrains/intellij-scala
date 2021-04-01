@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.psi.PsiElement
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.base.SimpleTestCase
+import org.jetbrains.plugins.scala.base.{SharedTestProjectToken, SimpleTestCase}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
@@ -19,6 +19,9 @@ trait Fun1[-T, +R]    // T => R syntax doesn't work here because _root_.scala.Fu
 class A;
 class B;
 """
+
+  override protected def sharedProjectToken: SharedTestProjectToken =
+    SharedTestProjectToken(classOf[VarianceTestBase])
 
   protected def annotateFun(element: PsiElement, annotator: ScalaAnnotator, mock: AnnotatorHolderMock): Unit = {
     implicit val implicitMock: AnnotatorHolderMock = mock
