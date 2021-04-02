@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 
 import java.util.concurrent.TimeUnit
-
 import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.CompilerPaths
@@ -12,8 +11,12 @@ import com.intellij.util.AlarmFactory
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
+import org.jetbrains.plugins.scala.externalHighlighters.compiler.DocumentCompiler
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.project._
+import com.intellij.openapi.module.Module
+
+import java.io.File
 
 package object tasty {
   //noinspection ScalaExtractStringToBundle
@@ -39,17 +42,27 @@ package object tasty {
     }
 
     def apply(element: PsiElement): Option[TastyPath] = {
-      element.containingFile.flatMap { psiFile =>
-        element.module.flatMap { module =>
-          val index = ProjectFileIndex.SERVICE.getInstance(element.getProject)
-          val inTest = index.isInTestSourceContent(psiFile.getVirtualFile)
-          Option(CompilerPaths.getModuleOutputPath(module, inTest)).flatMap { outputDirectory =>
-            element.parentsInFile.filterByType[ScTypeDefinition].lastOption.map { topLevelTypeDefinition =>
-              TastyPath(outputDirectory, topLevelTypeDefinition.qualifiedName)
-            }
-          }
-        }
-      }
+      def getDocumentCompilerOutputDir(module: Module, className: String): Option[String] =
+        for {
+          outputDirectory <- DocumentCompiler.outputDirectoryFor(module)
+          tastyFile = outputDirectory.toPath.resolve(className.replace('.', File.separatorChar) + ".tasty").toFile
+          if tastyFile.exists()
+        } yield outputDirectory.getAbsolutePath
+
+      def getModuleOutputDir(module: Module): Option[String] =
+        for {
+          psiFile <- element.containingFile
+          virtualFile <- Option(psiFile.getVirtualFile)
+          inTest = ProjectFileIndex.SERVICE.getInstance(element.getProject).isInTestSourceContent(virtualFile)
+          outputDirectory <- Option(CompilerPaths.getModuleOutputPath(module, inTest))
+        } yield outputDirectory
+
+      for {
+        module <- element.module
+        topLevelTypeDefinition <- element.parentsInFile.filterByType[ScTypeDefinition].lastOption
+        className = topLevelTypeDefinition.qualifiedName
+        outputDirectory <- getDocumentCompilerOutputDir(module, className).orElse(getModuleOutputDir(module))
+      } yield TastyPath(outputDirectory, className)
     }
   }
 

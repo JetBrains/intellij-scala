@@ -55,7 +55,7 @@ final class CompilerHighlightingService(project: Project)
                                  afterCompilation: () => Unit = () => ()): Unit =
     scheduleDocumentCompilation(documentExecutor, document) {
       try {
-        DocumentCompiler.compile(project, document, _)
+        DocumentCompiler.get(project).compile(document, _)
       } finally {
         afterCompilation()
       }

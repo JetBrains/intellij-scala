@@ -13,6 +13,7 @@ import com.intellij.util.concurrency.AppExecutorUtil
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{PsiFileExt, ToNullSafe, inReadAction}
+import org.jetbrains.plugins.scala.externalHighlighters.compiler.DocumentCompiler
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 
@@ -97,6 +98,9 @@ final class TriggerCompilerHighlightingService(project: Project)
     def triggerSelectedDocumentCompilation(): Unit =
       FileEditorManager.getInstance(project).getSelectedEditor.nullSafe
         .foreach(triggerOnSelectionChange)
+        
+    def clearDocumentCompilerOutputDirectories(): Unit =
+      DocumentCompiler.get(project).clearOutputDirectories()
 
     CompilerHighlightingService.get(project).triggerIncrementalCompilation(
       beforeCompilation = { () =>
@@ -104,6 +108,7 @@ final class TriggerCompilerHighlightingService(project: Project)
       },
       afterCompilation = { () =>
         eraseAlreadyHighlighted()
+        clearDocumentCompilerOutputDirectories()
         triggerSelectedDocumentCompilation()
       }
     )
