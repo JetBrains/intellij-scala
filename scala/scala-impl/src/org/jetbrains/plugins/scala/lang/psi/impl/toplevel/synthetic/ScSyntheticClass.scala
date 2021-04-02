@@ -525,7 +525,16 @@ object SyntheticClasses {
 class SyntheticClassesListener extends ProjectManagerListener {
   override def projectOpened(project: Project): Unit = {
     StartupManager.getInstance(project).registerPostStartupActivity(
-      (() => inReadAction(SyntheticClasses.get(project).registerClasses())): DumbAwareRunnable
+      // NOTE: run `registerClasses` on EDT!
+      // Don't use `inReadAction`, it can significantly increase setup time for each test case.
+      // Details: DumbAware startup activity is run on the background thread.
+      // Under the hood `registerClasses` involves parsing of registered synthetic classes.
+      // This parsing can take a long time, if it's done on a background thread.
+      // This is because, during the parsing `ProgressManager.checkCanceled()` is being frequently called.
+      // And it calls `CoreProgressManager.sleepIfNeededToGivePriorityToAnotherThread`.
+      // This method causes the parsing thread to sleep 1s each time there is some other thread with a higher priority.
+      // This can increase light test project initialization from 0.1s to 12s on Windows (!)
+      (() => invokeAndWait(SyntheticClasses.get(project).registerClasses())): DumbAwareRunnable
     )
   }
 
