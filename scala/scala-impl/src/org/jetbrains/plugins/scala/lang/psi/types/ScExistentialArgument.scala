@@ -115,6 +115,9 @@ object ScExistentialArgument {
     override def isLazy: Boolean     = true
     override def isDeferred: Boolean = false
 
+    //todo: we break recursive existential arguments when replacing them with `Complete` instances
+    // for example trivial recursive update of `M forSome { type M <: A[M] }`
+    // will become `M1 forSome { type M1 <: A[M2] }`
     override def copyWithBounds(newLower: ScType, newUpper: ScType): ScExistentialArgument = {
       if (newLower != lower || newUpper != upper)
         Complete(name, typeParameters, newLower, newUpper)
