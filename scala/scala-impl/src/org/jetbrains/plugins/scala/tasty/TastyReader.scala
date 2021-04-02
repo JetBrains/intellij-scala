@@ -36,10 +36,12 @@ object TastyReader {
   // TODO fully-qualified name VS .tasty file path
   // There is no way to read a specific (one) .tasty file in a JAR using the API of https://github.com/lampepfl/dotty/blob/M2/tasty-inspector/src/scala/tasty/inspector/TastyInspector.scala?
   def read(tastyPath: TastyPath, rightHandSide: Boolean = true): Option[TastyFile] = {
+    val tastyFilePath = tastyPath.className.replace('.', File.separatorChar) + ".tasty"
     if (tastyPath.classpath.endsWith(".jar")) {
-      extracting(tastyPath.classpath, tastyPath.className.replace('.', '/') + ".tasty")(read(api, "", _, rightHandSide))
+      extracting(tastyPath.classpath, tastyFilePath)(read(api, "", _, rightHandSide))
     } else {
-      read(api, tastyPath.classpath, tastyPath.classpath + "/" + tastyPath.className + ".tasty", rightHandSide)
+      val absoluteTastyFilePath = s"${tastyPath.classpath}${File.separator}$tastyFilePath"
+      read(api, tastyPath.classpath, absoluteTastyFilePath, rightHandSide)
     }
   }
 
@@ -84,8 +86,11 @@ object TastyReader {
     consumeTastyImplClass.getDeclaredConstructor().newInstance().asInstanceOf[TastyApi]
   }
 
-  private def read(api: TastyApi, classpath: String, className: String, rightHandSide: Boolean): Option[TastyFile] =
-    api.read(classpath, className, rightHandSide)
+  private def read(api: TastyApi,
+                   classpath: String,
+                   absoluteTastyFilePath: String,
+                   rightHandSide: Boolean): Option[TastyFile] =
+    api.read(classpath, absoluteTastyFilePath, rightHandSide)
 
   private def tastyDirectoryFor(aClass: Class[_]): File = {
     val libDirectory = {
