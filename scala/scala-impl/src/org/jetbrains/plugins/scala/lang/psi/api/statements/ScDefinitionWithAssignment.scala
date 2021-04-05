@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 /**
- * Marker interface for definitions which follow by `=>` sign, for example: {{{
+ * Marker interface for definitions which follow by `=` sign, for example: {{{
  *   class Wrapper {
  *    def this(i: Int) = this()
  *    def foo = 1

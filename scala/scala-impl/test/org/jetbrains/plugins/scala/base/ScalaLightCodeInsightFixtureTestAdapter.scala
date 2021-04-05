@@ -50,10 +50,12 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     ScalaSDKLoader()
   )
 
-  override protected def getProjectDescriptor: LightProjectDescriptor = new ScalaLightProjectDescriptor() {
+  override protected def getProjectDescriptor: LightProjectDescriptor = new ScalaLightProjectDescriptor(sharedProjectToken) {
     override def tuneModule(module: Module): Unit = setUpLibraries(module)
     override def getSdk: Sdk = SmartJDKLoader.getOrCreateJDK()
   }
+
+  protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken.DoNotShare
 
   override def setUpLibraries(implicit module: Module): Unit = {
     Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)

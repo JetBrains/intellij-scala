@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.psi.applicability
 
-import org.jetbrains.plugins.scala.base.SimpleTestCase
+import org.jetbrains.plugins.scala.base.{SharedTestProjectToken, SimpleTestCase}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -25,7 +25,9 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
   object B extends L with B
   object C extends L with C
   """
- 
+
+  override protected def sharedProjectToken: SharedTestProjectToken =
+    SharedTestProjectToken(classOf[ApplicabilityTestBase])
   
   // following applications f()
   // function value applications

@@ -4,9 +4,10 @@ package annotator
 import com.intellij.psi.{PsiErrorElement, PsiReference}
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.annotator.element.ElementAnnotator
-import org.jetbrains.plugins.scala.base.SimpleTestCase
+import org.jetbrains.plugins.scala.base.{SharedTestProjectToken, SimpleTestCase}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.applicability.ApplicabilityTestBase
 import org.junit.Assert._
 
 /**
@@ -47,4 +48,7 @@ abstract class AnnotatorTestBase[T <: ScalaPsiElement : reflect.ClassTag] extend
   protected def annotate(element: T)
                         (implicit holder: ScalaAnnotationHolder): Unit =
     ElementAnnotator.annotate(element)
+
+  override protected def sharedProjectToken: SharedTestProjectToken =
+    SharedTestProjectToken(classOf[AnnotatorTestBase[_]])
 }

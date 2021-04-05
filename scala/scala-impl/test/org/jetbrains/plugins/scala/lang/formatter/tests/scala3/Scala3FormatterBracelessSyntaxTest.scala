@@ -362,4 +362,90 @@ class Scala3FormatterBracelessSyntaxTest extends Scala3FormatterBaseTest {
       |  class A
       |""".stripMargin
   )
+
+  def testNotIndentedBody_FunDef(): Unit = doTextTest(
+    """def foo =
+      |println("foo 1")
+      |println("foo 2")
+      |
+      |class A {
+      |  def foo =
+      |  println("foo 1")
+      |  println("foo 2")
+      |}""".stripMargin,
+    """def foo =
+      |  println("foo 1")
+      |println("foo 2")
+      |
+      |class A {
+      |  def foo =
+      |    println("foo 1")
+      |
+      |  println("foo 2")
+      |}""".stripMargin
+  )
+
+  def testNotIndentedBody_IfThenElse(): Unit = doTextTest(
+    """class A {
+      |  if true then
+      |  println(1)
+      |  println(11)
+      |
+      |  if true then
+      |  println(1)
+      |  else
+      |  println(2)
+      |  println(22)
+      |}""".stripMargin,
+    """class A {
+      |  if true then
+      |    println(1)
+      |  println(11)
+      |
+      |  if true then
+      |    println(1)
+      |  else
+      |    println(2)
+      |  println(22)
+      |}""".stripMargin
+  )
+
+  def testUnindentedBody_FunDef(): Unit = doTextTest(
+    """class A {
+      |  def foo =
+      | println("foo 1")
+      |  println("foo 2")
+      |}""".stripMargin,
+    """class A {
+      |  def foo =
+      |    println("foo 1")
+      |
+      |  println("foo 2")
+      |}""".stripMargin
+  )
+
+  def testUnindentedBody_IfThenElse(): Unit = doTextTest(
+    """class A {
+      |  if true then
+      | println(1)
+      |  println(11)
+      |
+      |  if true then
+      |  println(1)
+      |  else
+      |println(2)
+      |  println(22)
+      |}""".stripMargin,
+    """class A {
+      |  if true then
+      |    println(1)
+      |  println(11)
+      |
+      |  if true then
+      |    println(1)
+      |  else
+      |    println(2)
+      |  println(22)
+      |}""".stripMargin
+  )
 }

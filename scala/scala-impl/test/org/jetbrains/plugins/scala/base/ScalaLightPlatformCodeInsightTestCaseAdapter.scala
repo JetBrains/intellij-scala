@@ -42,6 +42,7 @@ abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatfor
     builder.result()
   }
 
+  // TODO: can we reuse the project between test cases in an isolated class in ScalaLightPlatformCodeInsightTestCaseAdapter inheritors?
   override protected def getProjectDescriptor: LightProjectDescriptor = new ScalaLightProjectDescriptor() {
     override def tuneModule(module: Module): Unit = afterSetUpProject(module)
 
