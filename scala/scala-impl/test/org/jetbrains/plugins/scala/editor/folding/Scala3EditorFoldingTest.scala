@@ -1,11 +1,13 @@
 package org.jetbrains.plugins.scala.editor.folding
+import org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.junit.Assert.{assertFalse, assertTrue}
 
 class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 
-  val BODY_ST = ST(":...")
-  val INDENT_EXPR_ST = ST(" ...")
+  protected val BODY_ST = ST(":...")
+  protected val INDENT_EXPR_ST = ST(" ...")
 
   def testBracelessClassBody(): Unit = genericCheckRegions(
     s"""
@@ -69,4 +71,27 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
        |  }$END
        |""".stripMargin
   )
+
+  def testTopLevelFunctionAsFirstFileElement(): Unit = withModifiedScalaFoldingSettings { settings =>
+    def codeExample(isCollapsedByDefault: Boolean): String = {
+      val collapsedMarker = if (isCollapsedByDefault) COLLAPSED_BY_DEFAULT_MARKER else ""
+      s"""@main
+         |def Main(args: String*): Unit =$INDENT_EXPR_ST$collapsedMarker
+         |  println("1")
+         |  println("2")$END
+         |end Main
+         |
+         |private def runExample(name: String)(f: => Unit): Unit =
+         |  println(Console.MAGENTA + s"$$name example:" + Console.RESET)
+         |  f
+         |  println()
+         |""".stripMargin
+    }
+
+    assertFalse(settings.isCollapseMultilineBlocks)
+    genericCheckRegions(codeExample(false))
+
+    settings.setCollapseMultilineBlocks(true)
+    genericCheckRegions(codeExample(true))
+  }
 }

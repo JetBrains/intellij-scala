@@ -243,9 +243,14 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
 
     val parent = node.getTreeParent
     val parentElementType = parent.getElementType
-    if (parentElementType.isInstanceOf[ScStubFileElementType] &&
-      node.getTreePrev == null && node.getElementType != PACKAGING &&
-            foldingSettings.isCollapseFileHeaders) true
+
+    val isFileHeader = {
+      val isFirstToplevelElement = parentElementType.isInstanceOf[ScStubFileElementType] && node.getTreePrev == null
+      isFirstToplevelElement && ScalaTokenTypes.COMMENTS_TOKEN_SET.contains(node.getElementType)
+    }
+
+    if (isFileHeader && foldingSettings.isCollapseFileHeaders)
+      true
     else if (parentElementType.isInstanceOf[ScStubFileElementType] &&
       node.getElementType == ImportStatement &&
             foldingSettings.isCollapseImports) true

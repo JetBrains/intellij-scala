@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.editor.folding
 
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
+import org.junit.Assert.{assertFalse, assertTrue}
 
 /**
  * User: Dmitry.Naydanov
@@ -106,7 +107,7 @@ class ScalaEditorFoldingTest extends ScalaEditorFoldingTestBase {
   def testSelectorImport(): Unit = {
     val text =
       s"""
-         |  import ${DOTS_ST}scala.collection.mutable.{
+         |  import $DOTS_ST${COLLAPSED_BY_DEFAULT_MARKER}scala.collection.mutable.{
          |    AbstractSeq, ArrayOps, Buffer
          |  }$END
          |
@@ -141,6 +142,24 @@ class ScalaEditorFoldingTest extends ScalaEditorFoldingTestBase {
 
     genericCheckRegions(text)
   }
+
+  def testBlockCommentAsFileHeader(): Unit =
+    withModifiedFoldingSettings { settings =>
+      def codeExample(isCollapsedByDefault: Boolean): String = {
+        val collapsedMarker = if (isCollapsedByDefault) COLLAPSED_BY_DEFAULT_MARKER else ""
+        s"""$DOTS_ST$collapsedMarker/*
+           | * Some comment in the beginning of the file
+           | */$END
+           |
+           |class A""".stripMargin
+      }
+
+      assertTrue(settings.COLLAPSE_FILE_HEADER)
+      genericCheckRegions(codeExample(true))
+
+      settings.COLLAPSE_FILE_HEADER = false
+      genericCheckRegions(codeExample(false))
+    }
 
   def testMlString(): Unit = {
     val text =
