@@ -434,13 +434,47 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |        PsiWhiteSpace(' ')
       |        IntegerLiteral
       |          PsiElement(integer)('1')
-      |    PsiWhiteSpace('\n')
-      |    End: extension
-      |      PsiElement(end)('end')
-      |      PsiWhiteSpace(' ')
-      |      PsiElement(identifier)('extension')
+      |      PsiWhiteSpace('\n')
+      |      End: extension
+      |        PsiElement(end)('end')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('extension')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
+  )
+
+
+  def test_end_empty_template_body(): Unit = checkTree(
+    """extension (x: String)
+      |end extension""".stripMargin,
+    """ScalaFile
+      |  Extension on String
+      |    PsiElement(extension)('extension')
+      |    PsiWhiteSpace(' ')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: x
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('x')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: String
+      |              CodeReferenceElement: String
+      |                PsiElement(identifier)('String')
+      |        PsiElement())(')')
+      |    PsiWhiteSpace('\n')
+      |    ScTemplateBody
+      |      PsiErrorElement:Expected at least one extension method
+      |        <empty list>
+      |      End: extension
+      |        PsiElement(end)('end')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('extension')""".stripMargin
   )
 
   // #EA-5880432

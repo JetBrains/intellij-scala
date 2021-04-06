@@ -41,7 +41,6 @@ object Extension extends ParsingRule {
 
     ExtMethods()
 
-    End(iw)
     marker.done(ScalaElementType.Extension)
     true
   }
@@ -67,12 +66,14 @@ object ExtMethods extends ParsingRule {
               (BlockIndentation.noBlock, indentO, false)
             } else {
               builder error ErrMsg("expected.at.least.one.extension.method")
+              End(builder.currentIndentationWidth)
               extensionBodyMarker.done(ScalaElementType.TEMPLATE_BODY)
               return true
             }
           case None =>
             if (hasColon) {
               builder error ScalaBundle.message("expected.new.line.after.colon")
+              End(builder.currentIndentationWidth)
               extensionBodyMarker.done(ScalaElementType.TEMPLATE_BODY)
               return true
             } else {
@@ -88,6 +89,7 @@ object ExtMethods extends ParsingRule {
       }
     }
     blockIndentation.drop()
+    End(builder.currentIndentationWidth)
     extensionBodyMarker.done(ScalaElementType.TEMPLATE_BODY)
     true
   }
