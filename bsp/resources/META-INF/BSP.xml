@@ -62,8 +62,6 @@
 
         <registryKey key="BSP.system.in.process" defaultValue="true" restartRequired="true"
                      description="Internal, do not change"/>
-
-        <untrustedModeProvider implementation="org.jetbrains.bsp.project.BspUntrustedModeProvider" />
     </extensions>
 
     <projectListeners>
