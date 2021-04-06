@@ -102,8 +102,6 @@
 
         <registryKey key="SBT.system.in.process" defaultValue="true" restartRequired="true"
                      description="Internal, do not change"/>
-
-        <untrustedModeProvider implementation="org.jetbrains.sbt.project.SbtUntrustedModeProvider" />
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala">
