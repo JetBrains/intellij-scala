@@ -26,4 +26,22 @@ class ConvertToJavaTypeTest extends TypeInferenceTestBase {
       |//java type: FBounded<Object>
       |""".stripMargin
   )
+
+  def testSCL18628(): Unit = doTest(
+    s"""
+       |trait A[+T]
+       |
+       |object Test {
+       |  type RecursiveExistential = M forSome {type M <: A[M] {
+       |    def simple: String
+       |  }}
+       |
+       |  def foo: RecursiveExistential = ???
+       |
+       |  ${START}foo$END
+       |}
+       |//java type: ? extends A<Object>
+       |""".stripMargin
+  )
+
 }
