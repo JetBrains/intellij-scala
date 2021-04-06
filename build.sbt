@@ -31,6 +31,7 @@ lazy val scalaCommunity: sbt.Project =
       bsp % "test->test;compile->compile",
       codeInsight % "test->test;compile->compile",
       dfa % "test->test;compile->compile",
+      traceLogger % "test->test;compile->compile",
       conversion % "test->test;compile->compile",
       uast % "test->test;compile->compile",
       worksheet % "test->test;compile->compile",
@@ -83,6 +84,25 @@ lazy val dfa = newProject(
 ).settings(
   testFrameworks in Test += TestFrameworks.ScalaTest,
   libraryDependencies ++= DependencyGroups.dfa,
+  scalacOptions ++= Seq(
+    "-deprecation",
+    "-unchecked",
+    "-feature",
+    "-Xlint",
+    "-Xfatal-warnings"
+  ),
+  // the internet says this is smart thing to do
+  scalacOptions in (Compile, console) ~= {
+    _.filterNot(Set("-Xlint"))
+  }
+)
+
+lazy val traceLogger = newProject(
+  "traceLogger",
+  file("scala/traceLogger")
+).settings(
+  libraryDependencies ++= DependencyGroups.traceLogger,
+  libraryDependencies ++= Seq(Dependencies.scalaReflect, Dependencies.scalaCompiler),
   scalacOptions ++= Seq(
     "-deprecation",
     "-unchecked",

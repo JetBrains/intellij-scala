@@ -176,6 +176,10 @@ object DependencyGroups {
     scalaTest
   )
 
+  val traceLogger: Seq[ModuleID] = Seq(
+    "com.lihaoyi" %% "upickle" % "1.3.8"
+  )
+
   val decompiler: Seq[ModuleID] = Seq(
     scalaLibrary,
     scalaReflect,
