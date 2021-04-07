@@ -180,7 +180,7 @@ package object project {
       compilerConfiguration.getSettingsForModule(module)
 
     def configureScalaCompilerSettingsFrom(source: String, options: collection.Seq[String]): Unit = {
-      val baseDirectory = Option(ExternalSystemModulePropertyManager.getInstance(module).getLinkedProjectPath)
+      val baseDirectory = Option(ExternalSystemModulePropertyManager.getInstance(module).getRootProjectPath)
         .getOrElse(module.getProject.getBasePath)
       val compilerSettings = ScalaCompilerSettings.fromOptions(withPathsRelativeTo(baseDirectory, options.toSeq))
       compilerConfiguration.configureSettingsForModule(module, source, compilerSettings)
