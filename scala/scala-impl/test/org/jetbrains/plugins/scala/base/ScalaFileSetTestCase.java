@@ -64,6 +64,10 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
         assertTrue("No tests found", testCount() > 0);
     }
 
+    protected SharedTestProjectToken sharedTestProjectToken() {
+        return SharedTestProjectToken.apply(this);
+    }
+
     protected void setUp(@NotNull Project project) {
         setSettings(project);
     }
@@ -171,6 +175,11 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
 
         private ActualTest(@NotNull File testFile) {
             myTestFile = testFile;
+        }
+
+        @Override
+        public SharedTestProjectToken sharedProjectToken() {
+            return ScalaFileSetTestCase.this.sharedTestProjectToken();
         }
 
         @Override
