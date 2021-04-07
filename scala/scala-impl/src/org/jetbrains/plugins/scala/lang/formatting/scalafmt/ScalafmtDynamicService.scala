@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
-import java.net.URL
+import com.intellij.openapi.application.ApplicationManager
 
+import java.net.URL
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
 import com.intellij.util.concurrency.annotations.RequiresEdt
@@ -40,7 +41,7 @@ object ScalafmtDynamicService {
   type ScalafmtVersion = String
   val DefaultVersion = "1.5.1"
 
-  def instance: ScalafmtDynamicService = ServiceManager.getService(classOf[ScalafmtDynamicService])
+  def instance: ScalafmtDynamicService = ApplicationManager.getApplication.getService(classOf[ScalafmtDynamicService])
 
   type ResolveResult = Either[ScalafmtResolveError, ScalafmtReflect]
 

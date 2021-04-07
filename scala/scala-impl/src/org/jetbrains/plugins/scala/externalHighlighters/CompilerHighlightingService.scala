@@ -156,5 +156,5 @@ final class CompilerHighlightingService(project: Project)
 object CompilerHighlightingService {
 
   def get(project: Project): CompilerHighlightingService =
-    ServiceManager.getService(project, classOf[CompilerHighlightingService])
+    project.getService(classOf[CompilerHighlightingService])
 }

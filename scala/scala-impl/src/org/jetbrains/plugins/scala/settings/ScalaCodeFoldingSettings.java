@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.settings;
 
-import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.application.ApplicationManager;
 
 public abstract class ScalaCodeFoldingSettings {
 
   public static ScalaCodeFoldingSettings getInstance() {
-    return ServiceManager.getService(ScalaCodeFoldingSettings.class);
+    return ApplicationManager.getApplication().getService(ScalaCodeFoldingSettings.class);
   }
 
   public abstract boolean isCollapseFileHeaders(); // from CodeFoldingSettings

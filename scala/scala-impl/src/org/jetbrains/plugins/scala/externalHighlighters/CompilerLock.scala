@@ -32,7 +32,7 @@ trait CompilerLock {
 object CompilerLock {
   
   def get(project: Project): CompilerLock =
-    ServiceManager.getService(project, classOf[CompilerLock])
+    project.getService(classOf[CompilerLock])
 }
 
 private class CompilerLockImpl(project: Project)

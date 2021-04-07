@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ServiceManager
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
@@ -22,5 +23,5 @@ trait ExpectedTypes {
 object ExpectedTypes {
   type ParameterType = (ScType, Option[ScTypeElement])
 
-  def instance(): ExpectedTypes = ServiceManager.getService(classOf[ExpectedTypes])
+  def instance(): ExpectedTypes = ApplicationManager.getApplication.getService(classOf[ExpectedTypes])
 }

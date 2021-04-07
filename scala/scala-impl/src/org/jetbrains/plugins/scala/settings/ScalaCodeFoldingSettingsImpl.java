@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.settings;
 
 import com.intellij.codeInsight.folding.CodeFoldingSettings;
 import com.intellij.codeInsight.folding.JavaCodeFoldingSettings;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
@@ -32,7 +33,7 @@ public class ScalaCodeFoldingSettingsImpl extends ScalaCodeFoldingSettings imple
   private boolean ADD_FOLDING_FOR_ALL_BLOCKS = false;
 
   public static ScalaCodeFoldingSettingsImpl getInstance() {
-    return ServiceManager.getService(ScalaCodeFoldingSettingsImpl.class);
+    return ApplicationManager.getApplication().getService(ScalaCodeFoldingSettingsImpl.class);
   }
 
   @Override

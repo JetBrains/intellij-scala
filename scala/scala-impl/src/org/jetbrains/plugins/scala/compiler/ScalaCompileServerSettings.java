@@ -49,6 +49,6 @@ public class ScalaCompileServerSettings implements PersistentStateComponent<Scal
   }
 
   public static ScalaCompileServerSettings getInstance() {
-    return ServiceManager.getService(ScalaCompileServerSettings.class);
+    return ApplicationManager.getApplication().getService(ScalaCompileServerSettings.class);
   }
 }

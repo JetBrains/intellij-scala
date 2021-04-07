@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings.migration
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.{ServiceManager, State, Storage}
 import com.intellij.psi.codeStyle.CodeStyleScheme
 import com.intellij.psi.impl.source.codeStyle.CodeStyleSchemesImpl
@@ -29,5 +30,5 @@ class ApplicationCodeStyleSettingsMigrationService extends CodeStyleSettingsMigr
 object ApplicationCodeStyleSettingsMigrationService {
 
   def instance: ApplicationCodeStyleSettingsMigrationService =
-    ServiceManager.getService(classOf[ApplicationCodeStyleSettingsMigrationService])
+    ApplicationManager.getApplication.getService(classOf[ApplicationCodeStyleSettingsMigrationService])
 }
