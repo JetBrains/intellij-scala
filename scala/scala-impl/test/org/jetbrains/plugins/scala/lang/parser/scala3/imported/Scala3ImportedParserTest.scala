@@ -5,20 +5,18 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.impl.DebugUtil.psiToString
 import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile}
+import org.jetbrains.plugins.scala.Scala3Language
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.scala3.imported.Scala3ImportedParserTest.rangesDirectory
-import org.jetbrains.plugins.scala.{PerfCycleTests, Scala3Language}
 import org.junit.Assert._
-import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 import org.junit.runners.AllTests
 
 import java.nio.file.Paths
 
 @RunWith(classOf[AllTests])
-@Category(Array(classOf[PerfCycleTests]))
 abstract class Scala3ImportedParserTestBase(dir: String) extends ScalaFileSetTestCase(dir) {
   override protected def getLanguage: Language = Scala3Language.INSTANCE
 
