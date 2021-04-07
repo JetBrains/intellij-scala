@@ -68,7 +68,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
   @NonNls private def repoPath: String = normalizePath(getRepoDir)
 
   @NonNls private def pluginResolverSetting: String =
-    raw"""resolvers += Resolver.file("Scala Plugin Bundles Repository",file(raw"$repoPath"))(Resolver.mavenStylePatterns)"""
+    raw"""resolvers += Resolver.file("Scala Plugin Bundled Repository",file(raw"$repoPath"))(Resolver.mavenStylePatterns)"""
 
   /** Plugins injected into user's global sbt build. */
   // TODO add configurable plugins somewhere for users and via API; factor this stuff out
