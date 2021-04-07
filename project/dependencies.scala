@@ -1,13 +1,13 @@
 import sbt._
 
 object Versions {
-  val scalaVersion: String = "2.13.2"
+  val scalaVersion: String = "2.13.5"
   val scalaBinaryVersion: String = Scala.binary_2_12 // TODO 2_13?
   // ATTENTION: when updating sbtVersion also update versions in MockSbt_1_0
   // NOTE: sbt-launch / bloop-launcher won't be fetched on refresh.
   // run runtimeDependencies/update manually
   val sbtVersion: String = Sbt.latest
-  val bloopVersion = "1.4.5"
+  val bloopVersion = "1.4.8"
   val zincVersion = "1.4.0-M12"
   val intellijVersion = "211.6693.14"
   val bspVersion = "2.0.0-M12+27-4994bd9d-SNAPSHOT"
