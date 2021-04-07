@@ -14,13 +14,15 @@ import org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder.{FoldingInfo
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScParenthesisedTypeElement, ScTypeElement, ScTypeProjection}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScBraceOwner, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScEnd, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenAlias
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScTypeAliasDefinitionImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubFileElementType
@@ -51,9 +53,14 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
     val psi = node.getPsi
     if (isMultiline(node) || isMultilineImport(node)) {
       node.getElementType match {
-        case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tSH_COMMENT | TEMPLATE_BODY |
-             ScalaDocElementTypes.SCALA_DOC_COMMENT =>
+        case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tSH_COMMENT | ScalaDocElementTypes.SCALA_DOC_COMMENT =>
           descriptors add new FoldingDescriptor(node, nodeTextRange)
+        case TEMPLATE_BODY =>
+          // extensions template body do not support `:` in the beginning,
+          // we should capture new line before
+          val isExtensionsTemplateBody  = node.getTreeParent.getElementType == ScalaElementType.Extension
+          val range = if (isExtensionsTemplateBody) captureWhitespaceBefore(node, nodeTextRange) else nodeTextRange
+          descriptors add new FoldingDescriptor(node, range)
         case ImportStatement if isGoodImport(node) =>
           descriptors add new FoldingDescriptor(node,
             new TextRange(nodeTextRange.getStartOffset + IMPORT_KEYWORD.length + 1, getImportEnd(node)))
@@ -62,54 +69,57 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
           infoOpt.foreach { info =>
             descriptors add new FoldingDescriptor(node, info.range)
           }
-        case FUNCTION_DEFINITION =>
-          psi match {
-            case f: ScFunctionDefinition =>
-              val (isMultilineBody, textRange, _) = isMultilineFuncBody(f)
-              if (isMultilineBody)
-                descriptors add new FoldingDescriptor(node, textRange)
-            case _ =>
-          }
         case _ =>
       }
+
       psi match {
         case p: ScPackaging if p.isExplicit =>
-          descriptors add new FoldingDescriptor(node,
-            new TextRange(nodeTextRange.getStartOffset + PACKAGE_KEYWORD.length + 1, nodeTextRange.getEndOffset))
+          val identifier = p.findFirstChildByType(ScalaElementType.REFERENCE)
+          val body = identifier.flatMap(_.nextElementNotWhitespace)
+          val startOffset = body match {
+            case Some(el) => el.getStartOffsetInParent
+            case None     => nodeTextRange.getStartOffset + PACKAGE_KEYWORD.length + 1
+          }
+          val range = new TextRange(startOffset, nodeTextRange.getEndOffset)
+          descriptors add new FoldingDescriptor(node, range)
         case p: ScLiteral if p.isMultiLineString =>
           descriptors add new FoldingDescriptor(node, nodeTextRange)
         case _: ScArgumentExprList =>
           descriptors add new FoldingDescriptor(node, nodeTextRange)
-        case _: ScBlockExpr
-          if foldingSettings.isFoldingForAllBlocks =>
-          descriptors add new FoldingDescriptor(node, nodeTextRange)
+        case definition: ScDefinitionWithAssignment =>
+          val body = definitionBody(definition)
+          body.foreach { b =>
+            val rangeNew = elementRangeWithEndMarkerAttached(b, b.getTextRange)
+            descriptors.add(new FoldingDescriptor(definition, rangeNew))
+          }
         case _ =>
       }
+
       val treeParent: ASTNode = node.getTreeParent
-      if (!foldingSettings.isFoldingForAllBlocks &&
-        treeParent != null && (treeParent.getPsi.isInstanceOf[ScArgumentExprList] ||
-        treeParent.getPsi.isInstanceOf[ScPatternDefinition] ||
-        treeParent.getPsi.isInstanceOf[ScVariableDefinition] ||
-        treeParent.getPsi.isInstanceOf[ScFor] ||
-        treeParent.getPsi.isInstanceOf[ScIf])) {
-        psi match {
-          case _: ScBlockExpr => descriptors add new FoldingDescriptor(node, nodeTextRange)
-          case _ =>
-        }
-      }
       if (treeParent != null) {
-        treeParent.getPsi match {
-          case inf: ScInfixExpr if inf.right == node.getPsi =>
-            psi match {
-              case _: ScBlockExpr => descriptors add new FoldingDescriptor(node, nodeTextRange)
+        psi match {
+          case block: ScBlockExpr =>
+            // definition with assignment block is attached to the definition itself and is already handled
+            if (foldingSettings.isFoldingForAllBlocks && !treeParent.getPsi.is[ScDefinitionWithAssignment]) {
+              val rangeNew = elementRangeWithEndMarkerAttached(block, nodeTextRange)
+              descriptors.add(new FoldingDescriptor(node, rangeNew))
+            }
+            else treeParent.getPsi match {
+              case _: ScArgumentExprList | _: ScFor | _: ScIf =>
+                val rangeNew = elementRangeWithEndMarkerAttached(block, nodeTextRange)
+                descriptors.add(new FoldingDescriptor(node, rangeNew))
+              case inf: ScInfixExpr if inf.right == node.getPsi => // SCL-3464
+                descriptors.add(new FoldingDescriptor(node, nodeTextRange))
               case _ =>
             }
-          case _ =>
-        }
-      }
-      if (treeParent != null && treeParent.getPsi.isInstanceOf[ScCaseClause]) {
-        psi match {
-          case _: ScBlock => descriptors add new FoldingDescriptor(node, nodeTextRange)
+          case _: ScBlock =>
+            treeParent.getPsi match {
+              // NOTE: it's actually the only possible left variant: case clause,
+              // it will be merged with the pattern match above after ScBlockImpl is removed
+              case _: ScCaseClause =>
+                descriptors.add(new FoldingDescriptor(node, nodeTextRange))
+              case _ =>
+            }
           case _ =>
         }
       }
@@ -168,52 +178,97 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
     }
   }
 
+  private def captureWhitespaceBefore(node: ASTNode, nodeRange: TextRange): TextRange =
+    node.getTreePrev match {
+      case ws: PsiWhiteSpace => TextRange.create(ws.getStartOffset, nodeRange.getEndOffset)
+      case _                 => nodeRange
+    }
+
+  // include end marker if it goes after the block
+  private def elementRangeWithEndMarkerAttached(element: PsiElement, elementRange: TextRange): TextRange =
+    element.nextSiblingNotWhitespace match {
+      case Some(end: ScEnd) => TextRange.create(elementRange.getStartOffset, end.endOffset)
+      case _                => elementRange
+    }
+
+  // TODO: maybe extract some proper base method should be extracted to ScDefinitionWithAssignment?
+  //  currently there are "expr", "body", none
+  private def definitionBody(da: ScDefinitionWithAssignment): Option[PsiElement] = {
+    def defaultBodyImpl = da.assignment.flatMap(_.nextSiblingNotWhitespaceComment)
+
+    da match {
+      case d: ScPatternDefinition  => d.expr
+      case d: ScVariableDefinition => d.expr
+      case d: ScFunctionDefinition => d.body
+      case _: ScGivenAlias         => defaultBodyImpl
+      case _: ScTypeAlias          => defaultBodyImpl
+      case _                       => None
+    }
+  }
+
   override def buildLanguageFoldRegions(descriptors: java.util.List[FoldingDescriptor], root: PsiElement, document: Document,
                                quick: Boolean): Unit = {
     val processedComments = new mutable.HashSet[PsiElement]
     val processedRegions = new mutable.HashSet[PsiElement]
     appendDescriptors(root.getNode, document, descriptors, processedComments, processedRegions)
+    //printFoldingsDebugInfo(descriptors)
+  }
+
+  private def printFoldingsDebugInfo(descriptors: java.util.List[FoldingDescriptor]): Unit = {
+    val infos = descriptors.iterator().asScala.map { d =>
+      s"  ${d.getRange}  ${d.getPlaceholderText}"
+    }.mkString("\n")
+    println(s"Foldings:\n$infos")
   }
 
   override def getLanguagePlaceholderText(node: ASTNode, textRange: TextRange): String = {
     if (isMultiline(node) || isMultilineImport(node)) {
       node.getElementType match {
-        case BLOCK => return if (isBracelessBlock(node)) "..." else "{...}"
-        case ScCodeBlockElementType.BlockExpression => return "{...}"
         case ScalaTokenTypes.tBLOCK_COMMENT => return "/.../"
         case ScalaDocElementTypes.SCALA_DOC_COMMENT => return "/**...*/"
-        case TEMPLATE_BODY if isBracelessBlock(node) => return ":..."
-        case TEMPLATE_BODY => return "{...}"
-        case PACKAGING => return "{...}"
+        case TEMPLATE_BODY =>
+          val result = Option(node.getFirstChildNode).map(_.getElementType) match {
+            case Some(ScalaTokenTypes.tLBRACE) => "{...}"
+            case Some(ScalaTokenTypes.tCOLON)  => ":..."
+            case _                             => " ..." // extensions do not support `:` in template body
+          }
+          return result
         case ImportStatement => return "..."
         case MatchExprOrMatchType() =>
           val info = multilineBodyInMatch(node)
           return info.map(_.placeholder).getOrElse("{...}")
         case ScalaTokenTypes.tSH_COMMENT if node.getText.charAt(0) == ':' => return "::#!...::!#"
         case ScalaTokenTypes.tSH_COMMENT => return "#!...!#"
-        case FUNCTION_DEFINITION =>
-          val (isMultilineBody, _, sign) = isMultilineFuncBody(node.getPsi.asInstanceOf[ScFunctionDefinition])
-          if (isMultilineBody) return sign
         case _ =>
       }
-      if (node.getPsi != null) {
-        node.getPsi match {
-          case literal: ScLiteral if literal.isMultiLineString => return "\"\"\"...\"\"\""
-          case _ =>
-        }
-        if (node.getPsi.isInstanceOf[ScArgumentExprList])
-          return "(...)"
-      }
-    }
-    if (node.getTreeParent != null && (ARG_EXPRS == node.getTreeParent.getElementType
-      || INFIX_EXPR == node.getTreeParent.getElementType
-      || PATTERN_DEFINITION == node.getTreeParent.getElementType
-      || VARIABLE_DEFINITION == node.getTreeParent.getElementType)) {
+
       node.getPsi match {
-        case _: ScBlockExpr => return "{...}"
-        case _ => return null
+        case literal: ScLiteral if literal.isMultiLineString =>
+          return "\"\"\"...\"\"\""
+        case _: ScArgumentExprList =>
+          return "(...)"
+        case p: ScPackaging =>
+          val marker = p.findExplicitMarker
+          val isBraceless = marker.exists(_.elementType == ScalaTokenTypes.tCOLON)
+          val res = if (isBraceless) ":..." else "{...}"
+          return res
+        case block: ScBlockExpr =>
+          val result = if (block.isEnclosedByBraces) "{...}" else " ..."
+          return result
+        case _: ScBlock => // it's basically case clause body
+          return "..."
+        case da: ScDefinitionWithAssignment =>
+          val body = definitionBody(da)
+          val res = body match {
+            case Some(block: ScBlockExpr) => if (block.isEnclosedByBraces) "{...}" else " ..."
+            case Some(_)                  => "..."
+            case None                     => null
+          }
+          return res
+        case _ =>
       }
     }
+
     node.getElementType match {
       case ScalaTokenTypes.tLINE_COMMENT =>
         if (!isCustomRegionStart(node.getText))
@@ -254,12 +309,6 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
     else if (parentElementType.isInstanceOf[ScStubFileElementType] &&
       node.getElementType == ImportStatement &&
             foldingSettings.isCollapseImports) true
-    else if (parent != null &&
-      PATTERN_DEFINITION == parentElementType &&
-            foldingSettings.isCollapseMultilineBlocks) true
-    else if (parent != null &&
-      VARIABLE_DEFINITION == parentElementType &&
-            foldingSettings.isCollapseMultilineBlocks) true
     else {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT
@@ -285,29 +334,24 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
         case ScCodeBlockElementType.BlockExpression
           if foldingSettings.isCollapseMultilineBlocks => true
         case SIMPLE_TYPE => true
-        case _ if psi.isInstanceOf[ScBlockExpr] &&
-          parentElementType == ARG_EXPRS &&
-                foldingSettings.isCollapseMethodCallBodies => true
-        case _ if parentElementType == FUNCTION_DEFINITION &&
-                foldingSettings.isCollapseMethodCallBodies &&
-          isMultilineFuncBody(parent.getPsi.asInstanceOf[ScFunctionDefinition])._1 => true
-        case _ if psi.isInstanceOf[ScTypeProjection] &&
-                foldingSettings.isCollapseTypeLambdas => true
-        case _ if psi.isInstanceOf[ScTypeElement] &&
-                foldingSettings.isCollapseTypeLambdas => true
-        case _ if psi.isInstanceOf[ScLiteral] &&
-          psi.asInstanceOf[ScLiteral].isMultiLineString &&
-                foldingSettings.isCollapseMultilineStrings => true
-        case _ if psi.isInstanceOf[ScArgumentExprList] &&
-                foldingSettings.isCollapseMultilineBlocks => true
-        case _ => false
+        case _ => psi match {
+          case _: ScBlockExpr => parent.getPsi match {
+            case _: ScArgumentExprList => foldingSettings.isCollapseMethodCallBodies
+            case _                     => false
+          }
+          case _: ScDefinitionWithAssignment => foldingSettings.isCollapseDefinitionWithAssignmentBodies
+          case _: ScTypeProjection           => foldingSettings.isCollapseTypeLambdas
+          case _: ScTypeElement              => foldingSettings.isCollapseTypeLambdas
+          case l: ScStringLiteral            => foldingSettings.isCollapseMultilineStrings && l.isMultiLineString
+          case _: ScArgumentExprList         => foldingSettings.isCollapseMultilineBlocks
+          case _                             => false
+        }
       }
     }
   }
 
-  private def isMultiline(node: ASTNode): Boolean = {
-    node.getText.indexOf("\n") != -1
-  }
+  private def isMultiline(node: ASTNode): Boolean =
+    node.textContains('\n')
 
   /**
    * @param node represents match expression or match type (Scala 3)
@@ -344,24 +388,6 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
       next = next.getTreeNext
     }
     flag
-  }
-
-  // TODO: rename/refactor
-  /** @return (isMultiline, foldingRange, foldingPlacegolder) */
-  private def isMultilineFuncBody(func: ScFunctionDefinition): (Boolean, TextRange, String) = {
-    val body = func.body.orNull
-    if (body == null) return (false, null, "")
-    val range = body.getTextRange
-    body match {
-      case _: ScBlock =>
-        val isCorrectRange = range.getStartOffset + 1 < range.getEndOffset
-        return (isCorrectRange, range, if (isBracelessBlock(body)) " ..." else "{...}")
-      case _ =>
-        val isMultilineBody = (body.getText.indexOf("\n") != -1) && (range.getStartOffset + 1 < range.getEndOffset)
-        val textRange = if (isMultilineBody) range else null
-        return (isMultilineBody, textRange, "...")
-    }
-    (false, null, "")
   }
 
   private def isGoodImport(node: ASTNode): Boolean = {
@@ -470,13 +496,6 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
 
   private def isSimpleRegionEnd(elementText: String): Boolean =
     elementText.contains("endregion")
-
-
-  private def isBracelessBlock(node: ASTNode): Boolean =
-    isBracelessBlock(node.getPsi)
-
-  private def isBracelessBlock(element: PsiElement): Boolean =
-    element.asOptionOf[ScBraceOwner].exists(!_.isEnclosedByBraces)
 }
 
 object ScalaFoldingBuilder {

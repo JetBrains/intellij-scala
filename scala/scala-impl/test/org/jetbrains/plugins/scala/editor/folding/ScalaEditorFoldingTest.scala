@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.editor.folding
 
-import org.jetbrains.plugins.scala.util.MultilineStringUtil
-import org.junit.Assert.{assertFalse, assertTrue}
+import org.junit.Assert.assertTrue
 
 /**
  * User: Dmitry.Naydanov
@@ -78,7 +77,7 @@ class ScalaEditorFoldingTest extends ScalaEditorFoldingTestBase {
     genericCheckRegions(text)
   }
 
-  def testMatchInner(): Unit = {
+  def testMatchInner_WithBraces(): Unit = {
     val text =
       s"""
          |1 match $BLOCK_ST{
@@ -86,6 +85,19 @@ class ScalaEditorFoldingTest extends ScalaEditorFoldingTestBase {
          |
          |    }$END
          |  }$END
+       """.stripMargin.replace("\r", "")
+
+    genericCheckRegions(text)
+  }
+
+  def testMatchInner(): Unit = {
+    val text =
+      s"""
+         |1 match $BLOCK_ST{
+         |  case 1 =>
+         |    ${DOTS_ST}println(1)
+         |    println(2)$END
+         |}$END
        """.stripMargin.replace("\r", "")
 
     genericCheckRegions(text)
@@ -143,36 +155,169 @@ class ScalaEditorFoldingTest extends ScalaEditorFoldingTestBase {
     genericCheckRegions(text)
   }
 
-  def testBlockCommentAsFileHeader(): Unit =
-    withModifiedFoldingSettings { settings =>
-      def codeExample(isCollapsedByDefault: Boolean): String = {
-        val collapsedMarker = if (isCollapsedByDefault) COLLAPSED_BY_DEFAULT_MARKER else ""
-        s"""$DOTS_ST$collapsedMarker/*
-           | * Some comment in the beginning of the file
-           | */$END
-           |
-           |class A""".stripMargin
-      }
-
-      assertTrue(settings.COLLAPSE_FILE_HEADER)
-      genericCheckRegions(codeExample(true))
-
-      settings.COLLAPSE_FILE_HEADER = false
-      genericCheckRegions(codeExample(false))
+  def testBlockCommentAsFileHeader(): Unit = runWithModifiedFoldingSettings { settings =>
+    def codeExample(isCollapsedByDefault: Boolean): String = {
+      val collapsedMarker = if (isCollapsedByDefault) COLLAPSED_BY_DEFAULT_MARKER else ""
+      s"""$COMMENT_ST$collapsedMarker/*
+         | * Some comment in the beginning of the file
+         | */$END
+         |
+         |class A""".stripMargin
     }
+
+    assertTrue(settings.COLLAPSE_FILE_HEADER)
+    genericCheckRegions(codeExample(true))
+
+    settings.COLLAPSE_FILE_HEADER = false
+    genericCheckRegions(codeExample(false))
+  }
 
   def testMlString(): Unit = {
     val text =
       s"""
-         | val tratata =
-         |   $MLS_ST${MultilineStringUtil.MultilineQuotes}
-         |     aaaaaa
-         |     aaaaaa
-         |     aaaaaa
-         |     aaaaaa
-         |   ${MultilineStringUtil.MultilineQuotes}$END
-       """.stripMargin.replace("\r", "")
+         |$MLS_ST\"\"\"
+         |   1
+         |   2
+         |   3
+         |\"\"\"$END
+         |""".stripMargin.replace("\r", "")
 
     genericCheckRegions(text)
   }
+
+  def testMlString_WithStripMargin(): Unit = {
+    val text =
+      s"""
+         |$MLS_ST\"\"\"
+         |  |1
+         |  |2
+         |  |3
+         |  |\"\"\"$END.stripMargin
+         |""".stripMargin.replace("\r", "")
+
+    genericCheckRegions(text)
+  }
+
+  def testMlString_WithStripMargin_AndTrim(): Unit = {
+    val text =
+      s"""
+         |$MLS_ST\"\"\"
+         |  |1
+         |  |2
+         |  |3
+         |  |\"\"\"$END.stripMargin.trim
+         |""".stripMargin.replace("\r", "")
+
+    genericCheckRegions(text)
+  }
+
+  // TODO: currently, two overlapping foldings are added:
+  //  1. for multiline definition body
+  //  2. for multiline string literal
+  //  It's a little bit inconvenient because "Collapse all foldings" action hides placeholder for multiline string """..."""
+  //  Looks like in theory in such cases we could avoid adding folding for the definition body
+  //  if the body "looks" as single-line when multiline string is collapsed
+  //  \
+  //  For example, for given method:
+  //    def foo =
+  //      """1
+  //        |2
+  //        |3""".stripMargin
+  //  we would like to see this placeholder:
+  //    def foo =
+  //      """...""".stripMargin
+  //  instead of:
+  //    def foo =
+  //      ...
+  def testMlString_AsDefinitionBody(): Unit = {
+    val text =
+      s"""val test =
+         | $DOTS_ST$MLS_ST\"\"\"
+         |   1
+         |   2
+         |   3
+         | \"\"\"$END$END
+         |
+         |def test =
+         | $DOTS_ST$MLS_ST\"\"\"
+         |   1
+         |   2
+         |   3
+         | \"\"\"$END$END
+       """.stripMargin.replace("\r", "")
+
+    genericCheckRegions(text, sortFoldings = true)
+  }
+
+  def testMlString_AsDefinitionBody_WithStripMargin(): Unit = {
+    val text =
+      s"""val test =
+         | $DOTS_ST$MLS_ST\"\"\"
+         |    |1
+         |    |2
+         |    |3
+         |    |\"\"\"$END.stripMargin$END
+         |
+         |def test =
+         |  $DOTS_ST$MLS_ST\"\"\"
+         |    |1
+         |    |2
+         |    |3
+         |    |\"\"\"$END.stripMargin$END
+         |""".stripMargin.replace("\r", "")
+
+    genericCheckRegions(text, sortFoldings = true)
+  }
+
+  def testMlString_AsDefinitionBody_WithStripMargin_AndTrim(): Unit = {
+    val text =
+      s"""val test =
+         |  $DOTS_ST$MLS_ST\"\"\"
+         |    |1
+         |    |2
+         |    |3
+         |    |\"\"\"$END.stripMargin.trim$END
+         |
+         |def test =
+         |  $DOTS_ST$MLS_ST\"\"\"
+         |    |1
+         |    |2
+         |    |3
+         |    |\"\"\"$END.stripMargin.trim$END
+         |""".stripMargin.replace("\r", "")
+
+    genericCheckRegions(text, sortFoldings = true)
+  }
+
+  // SCL-3464
+  def testCodeBlock_SCL_3464(): Unit = genericCheckRegions(
+    s""""foo" should $BLOCK_ST{
+       |  "return bar" in $BLOCK_ST{
+       |    // some code
+       |  }$END
+       |  "return baz" in $BLOCK_ST{
+       |    // some other code
+       |  }$END
+       |}$END
+       |""".stripMargin)
+
+  //SCL-4686
+  def testFor(): Unit = genericCheckRegions(
+    s"""for {
+       |  x <- 1 to 2
+       |  y <- 1 to 2
+       |} yield $BLOCK_ST{
+       |  println(1)
+       |  println(2)
+       |}$END""".stripMargin
+  )
+
+  def testTypeAlias(): Unit = genericCheckRegions(
+    s"""type T = ${DOTS_ST}Tuple3[
+      |  String,
+      |  Long,
+      |  Int
+      |]$END
+      |""".stripMargin
+  )
 }

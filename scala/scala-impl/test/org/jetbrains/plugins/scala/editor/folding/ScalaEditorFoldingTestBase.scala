@@ -5,10 +5,11 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.util.xmlb.XmlSerializerUtil
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.RevertableChange
+import org.jetbrains.plugins.scala.editor.folding.ScalaEditorFoldingTestBase.FoldingInfo
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder
 import org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings
-import org.junit.Assert.assertEquals
+import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -39,9 +40,16 @@ abstract class ScalaEditorFoldingTestBase extends ScalaLightCodeInsightFixtureTe
 
   override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
 
-  def genericCheckRegions(fileTextRaw: String): Unit = {
+  protected final def genericCheckRegions(fileTextRaw: String): Unit =
+    genericCheckRegions(fileTextRaw, sortFoldings = false)
+
+  /** @param sortFoldings whether to sort folding regions when comparing expected and actual foldings.<br>
+   *               The order in which folding regions are added in platform sometimes can be different
+   *               from the order of extraction of expected folding regions from the test data. This is mostly the case
+   *               when there are some overlapping regions with the same start offset. */
+  protected def genericCheckRegions(fileTextRaw: String, sortFoldings: Boolean): Unit = {
     val fileText = fileTextRaw.withNormalizedSeparator
-    val expectedRegions = new ArrayBuffer[ExpectedFolding]()
+    val expectedRegions = new ArrayBuffer[FoldingInfo]()
     val textWithoutMarkers = new StringBuilder(fileText.length)
     val openMarkers = mutable.Stack[(Int, String, Boolean)]()
 
@@ -74,7 +82,7 @@ abstract class ScalaEditorFoldingTestBase extends ScalaLightCodeInsightFixtureTe
             val (regionBegin, replacementText, isCollapsedByDefault) = openMarkers.pop()
             val regionEnd = idxInTargetFile
             pos = closestIdx + FOLD_END_MARKER.length
-            expectedRegions += ExpectedFolding(
+            expectedRegions += FoldingInfo(
               TextRange.create(regionBegin, regionEnd),
               replacementText,
               isCollapsedByDefault
@@ -95,42 +103,57 @@ abstract class ScalaEditorFoldingTestBase extends ScalaLightCodeInsightFixtureTe
     val myBuilder = new ScalaFoldingBuilder
     val regions = myBuilder.buildFoldRegions(myFixture.getFile.getNode, myFixture getDocument myFixture.getFile)
 
-    assertEquals(s"Different folding regions count", assumedRegionRanges.size, regions.length)
+    val actualFoldingInfos = regions.map(region => FoldingInfo(
+      region.getRange,
+      myBuilder.getLanguagePlaceholderText(region.getElement, region.getRange),
+      // using builder instead of `region.isCollapsedByDefault` because latest returns null by default
+      // when regions are obtained from `myBuilder.buildFoldRegions`
+      myBuilder.isCollapsedByDefault(region)
+    ))
 
-    (regions zip assumedRegionRanges).zipWithIndex foreach {
-      case ((region, ExpectedFolding(assumedRange, expectedPlaceholderText, isCollapsedByDefault)), idx) =>
-        def differentMessage(what: String) = s"Different $what in region #$idx"
+    val expected0 = assumedRegionRanges.toList
+    val actual0 = actualFoldingInfos.toList
+    import FoldingInfo.orderByRangeAndPlaceholder
+    val expected = if (sortFoldings) expected0.sorted else expected0
+    val actual = if (sortFoldings) actual0.sorted else actual0
+    assertCollectionEquals("Folding regions do not match", expected, actual)
+  }
 
-        assertEquals(differentMessage("range"), assumedRange, region.getRange)
-        val actualReplacementText = myBuilder.getLanguagePlaceholderText(region.getElement, region.getRange)
-        assertEquals(differentMessage("placeholder text"), expectedPlaceholderText, actualReplacementText)
 
-        // using builder instead of `region.isCollapsedByDefault` because latest returns null by default
-        // when regions are obtained from `myBuilder.buildFoldRegions`
-        val actualIsCollapsedByDefault = myBuilder.isCollapsedByDefault(region)
-        assertEquals(differentMessage("'isCollapsedByDefault' value"), isCollapsedByDefault, actualIsCollapsedByDefault)
+  protected class WithModifiedSettings[BeanType](beanInstanceGetter: () => BeanType) extends RevertableChange {
+    private var settingsBefore: BeanType = _
+    private lazy val settings : BeanType = beanInstanceGetter().ensuring(_ != null)
+
+    override def applyChange(): Unit = {
+      settingsBefore = XmlSerializerUtil.createCopy(settings)
+    }
+
+    override def revertChange(): Unit =
+      XmlSerializerUtil.copyBean(settingsBefore, settings)
+
+    final def run(body: BeanType => Unit): Unit = {
+      this.applyChange()
+      try
+        body(settings)
+      finally
+        this.revertChange()
     }
   }
 
-  private case class ExpectedFolding(range: TextRange, placeholder: String, isCollapsedByDefault: Boolean)
+  protected def runWithModifiedScalaFoldingSettings(body: ScalaCodeFoldingSettings => Unit): Unit =
+    new WithModifiedSettings(() => ScalaCodeFoldingSettings.getInstance()).run(body)
 
-  protected def withModifiedSettings[BeanType](beanInstanceGetter: () => BeanType)(body: BeanType => Unit): RevertableChange =
-    new RevertableChange {
-      private var settingsBefore: BeanType = _
-      private lazy val settings: BeanType = beanInstanceGetter().ensuring(_ != null)
+  protected def runWithModifiedFoldingSettings(body: CodeFoldingSettings => Unit): Unit =
+    new WithModifiedSettings(() => CodeFoldingSettings.getInstance()).run(body)
+}
 
-      override def applyChange(): Unit = {
-        settingsBefore = XmlSerializerUtil.createCopy(settings)
-        body(settings)
-      }
+object ScalaEditorFoldingTestBase {
 
-      override def revertChange(): Unit =
-        XmlSerializerUtil.copyBean(settingsBefore, settings)
-    }
+  private case class FoldingInfo(range: TextRange, placeholder: String, isCollapsedByDefault: Boolean)
 
-  protected def withModifiedScalaFoldingSettings(body: ScalaCodeFoldingSettings => Unit): RevertableChange =
-    withModifiedSettings(() => ScalaCodeFoldingSettings.getInstance())(body)
+  private object FoldingInfo {
+    implicit lazy val orderByRangeAndPlaceholder: Ordering[FoldingInfo] = Ordering.by(f => (f.range, f.placeholder))
 
-  protected def withModifiedFoldingSettings(body: CodeFoldingSettings => Unit): RevertableChange =
-    withModifiedSettings(() => CodeFoldingSettings.getInstance())(body)
+    implicit lazy val textRangeOrdering: Ordering[TextRange]   = Ordering.by(r => (r.getStartOffset, r.getEndOffset))
+  }
 }

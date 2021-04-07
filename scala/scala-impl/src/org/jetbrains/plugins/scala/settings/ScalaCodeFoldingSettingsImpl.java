@@ -21,6 +21,7 @@ public class ScalaCodeFoldingSettingsImpl extends ScalaCodeFoldingSettings imple
 
   private boolean FOLD_ARGUMENT_BLOCK = false;
   private boolean FOLD_TEMPLATE_BODIES = false;
+  private boolean FOLD_DEFINITION_BODIES = false;
   private boolean FOLD_SHELL_COMMENTS = true;
   private boolean FOLD_BLOCK_COMMENTS = false;
   private boolean FOLD_PACKAGINGS = false;
@@ -102,6 +103,16 @@ public class ScalaCodeFoldingSettingsImpl extends ScalaCodeFoldingSettings imple
   @Override
   public void setCollapseTemplateBodies(boolean value) {
     FOLD_TEMPLATE_BODIES = value;
+  }
+
+  @Override
+  public boolean isCollapseDefinitionWithAssignmentBodies() {
+    return FOLD_DEFINITION_BODIES;
+  }
+
+  @Override
+  public void setCollapseDefinitionWithAssignmentBodies(boolean value) {
+    FOLD_DEFINITION_BODIES = value;
   }
 
   @Override
