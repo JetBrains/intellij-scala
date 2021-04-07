@@ -66,5 +66,5 @@ private final class CompilationChartsUpdater(project: Project)
 private object CompilationChartsUpdater {
 
   def get(project: Project): CompilationChartsUpdater =
-    ServiceManager.getService(project, classOf[CompilationChartsUpdater])
+    project.getService(classOf[CompilationChartsUpdater])
 }

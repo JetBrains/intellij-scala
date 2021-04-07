@@ -155,7 +155,6 @@ object ImportAmmoniteDependenciesFix {
       case null => new BackgroundableProcessIndicator(
         project,
         WorksheetBundle.message("ammonite.config.display.name"),
-        PerformInBackgroundOption.ALWAYS_BACKGROUND,
         null,
         null,
         false

@@ -1,5 +1,6 @@
 package org.jetbrains.sbt.project.data.service
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
@@ -19,7 +20,7 @@ abstract class ProjectDataServiceTestCase extends HeavyPlatformTestCase {
     ExternalSystemApiUtil.executeProjectChangeAction(true, new DisposeAwareProjectChange(getProject) {
       override def execute(): Unit =
         ProjectRootManagerEx.getInstanceEx(getProject).mergeRootsChangesDuring(() => {
-          val projectDataManager = ServiceManager.getService(classOf[ProjectDataManager])
+          val projectDataManager = ApplicationManager.getApplication.getService(classOf[ProjectDataManager])
           projectDataManager.importData(projectData, getProject, new IdeModifiableModelsProviderImpl(getProject), true)
         })
     })

@@ -79,5 +79,5 @@ final class CompileServerNotificationsService(project: Project) {
 object CompileServerNotificationsService {
   
   def get(project: Project): CompileServerNotificationsService =
-    ServiceManager.getService(project, classOf[CompileServerNotificationsService])
+    project.getService(classOf[CompileServerNotificationsService])
 }

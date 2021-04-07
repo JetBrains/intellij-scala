@@ -1,23 +1,15 @@
 package org.jetbrains.plugins.scala.worksheet.actions
 
+
 import java.nio.file.Path
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.extensions.{PluginDescriptor, PluginId}
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.{Condition, Key}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.util.ExceptionUtilRt
-import com.intellij.util.messages.MessageBus
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.project.settings.CompilerProfileAwareModule
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetSyntheticModule.Log
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
-import org.picocontainer.PicoContainer
-
-import java.util
-import scala.annotation.nowarn
 
 /**
  * Lightweight module meant to be attached to a PsiFile via [[org.jetbrains.plugins.scala.project.UserDataKeys.SCALA_ATTACHED_MODULE]].
@@ -41,7 +33,7 @@ import scala.annotation.nowarn
 final class WorksheetSyntheticModule(
   virtualFile: VirtualFile,
   val cpModule: Module
-) extends Module
+) extends ModuleDelegate(cpModule)
   with CompilerProfileAwareModule {
 
   locally {
@@ -54,39 +46,15 @@ final class WorksheetSyntheticModule(
   override def dispose(): Unit =
     Log.debug(s"disposed $debugId")
 
-  override def getDisposed: Condition[_] = cpModule.getDisposed
-
-  override def isLoaded: Boolean = cpModule.isLoaded
-
   // doesn't have any file, representing the module
   override def getModuleFile: VirtualFile = null
   override def getModuleNioFile: Path = null
 
-  override def getProject: Project = cpModule.getProject
   // not quite clear, should the name be unique or not...
   override def getName: String = s"worksheet synthetic module for: ${virtualFile.getName}"
-  override def getModuleTypeName: String = super.getModuleTypeName
-  override def isDisposed: Boolean = cpModule.isDisposed
-
-  override def getComponent[T](interfaceClass: Class[T]): T = cpModule.getComponent(interfaceClass)
-  override def getPicoContainer: PicoContainer = cpModule.getPicoContainer
-  override def getMessageBus: MessageBus = cpModule.getMessageBus
-
-  override def getUserData[T](key: Key[T]): T = cpModule.getUserData(key)
-  override def putUserData[T](key: Key[T], value: T): Unit = cpModule.putUserData(key, value)
-
-  //noinspection ScalaDeprecation
-  @nowarn("cat=deprecation")
-  override def setOption(key: String, value: String): Unit = cpModule.setOption(key, value)
-  //noinspection ScalaDeprecation
-  @nowarn("cat=deprecation")
-  override def getOptionValue(key: String): String = cpModule.getOptionValue(key)
 
   private def worksheetFileScope: GlobalSearchScope =
     GlobalSearchScope.fileScope(getProject, virtualFile)
-
-  override def getModuleRuntimeScope(includeTests: Boolean): GlobalSearchScope =
-    cpModule.getModuleRuntimeScope(includeTests)
 
   override def getModuleScope: GlobalSearchScope =
     worksheetFileScope
@@ -111,27 +79,6 @@ final class WorksheetSyntheticModule(
 
   override def compilerProfileName: String =
     WorksheetFileSettings(getProject, virtualFile).getCompilerProfileName
-
-  override def createError(
-    error:    Throwable,
-    pluginId: PluginId
-  ): RuntimeException = cpModule.createError(error, pluginId)
-
-  override def createError(
-    message:  String,
-    pluginId: PluginId
-  ): RuntimeException = cpModule.createError(message, pluginId)
-
-  override def createError(
-    message:     String,
-    pluginId:    PluginId,
-    attachments: util.Map[String, String]
-  ): RuntimeException = cpModule.createError(message, pluginId, attachments)
-
-  override def loadClass[T](
-    className:        String,
-    pluginDescriptor: PluginDescriptor
-  ): Class[T] = cpModule.loadClass(className, pluginDescriptor)
 }
 
 object WorksheetSyntheticModule {

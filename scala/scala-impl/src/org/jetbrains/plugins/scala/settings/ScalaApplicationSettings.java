@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.settings;
 
 import com.intellij.codeInsight.CodeInsightSettings;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.*;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
@@ -88,7 +89,7 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   }
 
   public static ScalaApplicationSettings getInstance() {
-    return ServiceManager.getService(ScalaApplicationSettings.class);
+    return ApplicationManager.getApplication().getService(ScalaApplicationSettings.class);
   }
 
   public String[] getLikeOptionClasses() {

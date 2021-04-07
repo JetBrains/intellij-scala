@@ -45,7 +45,7 @@ trait CompileServerClient {
 object CompileServerClient {
 
   def get(project: Project): CompileServerClient =
-    ServiceManager.getService(project, classOf[CompileServerClient])
+    project.getService(classOf[CompileServerClient])
 }
 
 class CompileServerClientImpl(project: Project)

@@ -104,7 +104,7 @@ class BspCommunicationService extends Disposable {
 object BspCommunicationService {
 
   def getInstance: BspCommunicationService =
-    ServiceManager.getService(classOf[BspCommunicationService])
+    ApplicationManager.getApplication.getService(classOf[BspCommunicationService])
 
   private def projectPath(implicit project: Project): Option[String] =
     Option(ProjectUtil.guessProjectDir(project))

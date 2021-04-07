@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 package settings
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.{PersistentStateComponent, ServiceManager, State, Storage}
 import com.intellij.util.xmlb.XmlSerializerUtil
 import org.jetbrains.plugins.scala.extensions.BooleanExt
@@ -23,5 +24,5 @@ class CompilerIndicesSbtSettings extends PersistentStateComponent[CompilerIndice
 }
 
 object CompilerIndicesSbtSettings {
-  def apply(): CompilerIndicesSbtSettings = ServiceManager.getService(classOf[CompilerIndicesSbtSettings])
+  def apply(): CompilerIndicesSbtSettings = ApplicationManager.getApplication.getService(classOf[CompilerIndicesSbtSettings])
 }

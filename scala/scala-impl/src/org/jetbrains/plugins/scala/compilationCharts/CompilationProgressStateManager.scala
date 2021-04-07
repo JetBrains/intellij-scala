@@ -18,7 +18,7 @@ object CompilationProgressStateManager {
     update(project, CompilationProgressState.Empty)
 
   private def mutableState(project: Project): MutableState =
-    ServiceManager.getService(project, classOf[MutableState])
+    project.getService(classOf[MutableState])
 
   @Service
   private final class MutableState {

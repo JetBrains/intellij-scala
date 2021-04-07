@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
@@ -31,7 +32,7 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
     public static final int MAX_PRESENTATION_LENGTH = Byte.MAX_VALUE;
 
     public static ScalaCodeInsightSettings getInstance() {
-        return ServiceManager.getService(ScalaCodeInsightSettings.class);
+        return ApplicationManager.getApplication().getService(ScalaCodeInsightSettings.class);
     }
 
     //private fields are not serialized

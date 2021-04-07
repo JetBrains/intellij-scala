@@ -70,7 +70,6 @@ object SbtModuleBuilderUtil {
         ExternalProjectsManagerImpl.getInstance(project).init()
         ExternalSystemUtil.refreshProjects(
           new ImportSpecBuilder(project, SbtProjectSystem.Id)
-            .forceWhenUptodate()
             .use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
         )
       }

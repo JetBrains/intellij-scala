@@ -20,5 +20,5 @@ final class CompilationChartsComponentHolder {
 object CompilationChartsComponentHolder {
 
   def createOrGet(project: Project): CompilationChartsComponent =
-    ServiceManager.getService(project, classOf[CompilationChartsComponentHolder]).createOrGet(project)
+    project.getService(classOf[CompilationChartsComponentHolder]).createOrGet(project)
 }

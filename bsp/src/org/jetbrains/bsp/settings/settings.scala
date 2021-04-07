@@ -1,5 +1,6 @@
 package org.jetbrains.bsp.settings
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components._
 import com.intellij.openapi.externalSystem.model.settings.ExternalSystemExecutionSettings
 import com.intellij.openapi.externalSystem.service.settings.AbstractExternalProjectSettingsControl
@@ -10,10 +11,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.messages.Topic
 import com.intellij.util.xmlb.Converter
 import com.intellij.util.xmlb.annotations.{OptionTag, XCollection}
+
 import java.io.File
 import java.nio.file.{Path, Paths}
 import java.util
-
 import javax.swing.JCheckBox
 import org.jetbrains.bsp.settings.BspProjectSettings.{AutoConfig, AutoPreImport, BspServerConfig, BspServerConfigConverter, PreImportConfig, PreImportConfigConverter}
 import org.jetbrains.bsp.{BspBundle, _}
@@ -254,7 +255,7 @@ class BspSystemSettings extends PersistentStateComponent[BspSystemSettings.State
 }
 
 object BspSystemSettings {
-  def getInstance: BspSystemSettings = ServiceManager.getService(classOf[BspSystemSettings])
+  def getInstance: BspSystemSettings = ApplicationManager.getApplication.getService(classOf[BspSystemSettings])
 
   class State {
     @BeanProperty
