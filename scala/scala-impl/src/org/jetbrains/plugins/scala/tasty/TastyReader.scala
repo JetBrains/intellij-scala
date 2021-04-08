@@ -38,7 +38,8 @@ object TastyReader {
   def read(tastyPath: TastyPath, rightHandSide: Boolean = true): Option[TastyFile] = {
     val tastyFilePath = tastyPath.className.replace('.', File.separatorChar) + ".tasty"
     if (tastyPath.classpath.endsWith(".jar")) {
-      extracting(tastyPath.classpath, tastyFilePath)(read(api, "", _, rightHandSide))
+      // TODO Why TASTy API needs the classpath (while accepting an absolute path to a .tasty file)
+      extracting(tastyPath.classpath, tastyFilePath)(read(api, tastyPath.classpath, _, rightHandSide))
     } else {
       val absoluteTastyFilePath = s"${tastyPath.classpath}${File.separator}$tastyFilePath"
       read(api, tastyPath.classpath, absoluteTastyFilePath, rightHandSide)
