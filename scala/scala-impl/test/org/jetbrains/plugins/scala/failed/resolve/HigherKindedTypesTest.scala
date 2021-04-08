@@ -1,15 +1,12 @@
 package org.jetbrains.plugins.scala.failed.resolve
 
 import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.jetbrains.plugins.scala.codeInspection.internal.AnnotatorBasedErrorInspection
-import org.junit.experimental.categories.Category
 
 /**
   * Created by Roman.Shein on 02.09.2016.
   */
-@Category(Array(classOf[PerfCycleTests]))
 class HigherKindedTypesTest extends ScalaInspectionTestBase {
 
   override protected def shouldPass: Boolean = false

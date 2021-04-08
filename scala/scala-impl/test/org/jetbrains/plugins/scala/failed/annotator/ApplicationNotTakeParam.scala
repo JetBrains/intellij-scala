@@ -1,13 +1,10 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.junit.experimental.categories.Category
 
 /**
   * Created by kate on 3/29/16.
   */
-@Category(Array(classOf[PerfCycleTests]))
 class ApplicationNotTakeParam_Failing extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override protected def shouldPass: Boolean = false

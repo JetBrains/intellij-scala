@@ -1,10 +1,6 @@
 package org.jetbrains.sbt.shell
 
 import java.util.concurrent.TimeUnit
-
-import org.jetbrains.plugins.scala.PerfCycleTests
-import org.junit.experimental.categories.Category
-
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
@@ -12,7 +8,6 @@ import scala.concurrent.duration.Duration
 /**
   * Created by Roman.Shein on 27.03.2017.
   */
-@Category(Array(classOf[PerfCycleTests]))
 abstract class SettingQueryHandlerTest extends SbtProjectPlatformTestCase {
 
   def testFailedCommand(): Unit = {

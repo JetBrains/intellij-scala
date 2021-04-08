@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
 import com.intellij.psi.{PsiErrorElement, PsiReference}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Message, ScalaAnnotationHolder}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
@@ -10,9 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
-import org.jetbrains.plugins.scala.{PerfCycleTests, ScalaBundle}
 import org.junit.Assert._
-import org.junit.experimental.categories.Category
 
 /**
   * User: Dmitry.Naydanov
@@ -20,7 +19,6 @@ import org.junit.experimental.categories.Category
   * 
   *  
   */
-@Category(Array(classOf[PerfCycleTests]))
 class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter with MatcherAssertions {
 
   override protected def shouldPass: Boolean = false

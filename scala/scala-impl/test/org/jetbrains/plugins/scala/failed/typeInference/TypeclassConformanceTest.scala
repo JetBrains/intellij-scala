@@ -1,12 +1,9 @@
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.lang.typeConformance.TypeConformanceTestBase
-import org.junit.experimental.categories.Category
 
 /**
   * @author Anton Yalyshev
   * @since 06.07.2016.
   */
-@Category(Array(classOf[PerfCycleTests]))
 class TypeclassConformanceTest extends TypeConformanceTestBase {
 
   def testSCL10491(): Unit = doTest(

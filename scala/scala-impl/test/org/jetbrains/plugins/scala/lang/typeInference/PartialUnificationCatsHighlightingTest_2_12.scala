@@ -7,9 +7,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[PerfCycleTests]))
 class PartialUnificationCatsHighlightingTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
   override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_12
 

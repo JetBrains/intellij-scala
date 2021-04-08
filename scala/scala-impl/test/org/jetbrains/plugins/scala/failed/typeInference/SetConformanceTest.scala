@@ -1,14 +1,11 @@
 package org.jetbrains.plugins.scala.failed.typeInference
 
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.junit.experimental.categories.Category
 
 /**
   * @author Roman.Shein
   * @since 01.04.2016.
   */
-@Category(Array(classOf[PerfCycleTests]))
 class SetConformanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override protected def shouldPass: Boolean = false

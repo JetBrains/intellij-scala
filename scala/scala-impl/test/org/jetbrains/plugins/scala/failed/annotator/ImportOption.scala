@@ -1,14 +1,11 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.junit.experimental.categories.Category
 
 /**
   * Created by kate on 4/4/16.
   */
 
-@Category(Array(classOf[PerfCycleTests]))
 class ImportOption extends ScalaLightCodeInsightFixtureTestAdapter{
   override protected def shouldPass: Boolean = false
   //excluding Some, None from import fix highlighting problems

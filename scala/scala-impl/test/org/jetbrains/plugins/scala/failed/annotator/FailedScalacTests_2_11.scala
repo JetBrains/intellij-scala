@@ -1,14 +1,11 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
-import java.io.File
-
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.projectHighlighting.ScalacTestdataHighlightingTestBase_2_12
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.reporter.ConsoleReporter
-import org.junit.experimental.categories.Category
 
+import java.io.File
 import scala.reflect.NameTransformer
 
 
@@ -56,7 +53,6 @@ abstract class FailedScalacTestsBase_2_12 extends ScalacTestdataHighlightingTest
   }
 }
 
-@Category(Array(classOf[PerfCycleTests]))
 class FailedScalacTests_2_12 extends FailedScalacTestsBase_2_12 {
 
   override def testDirName = "failed"
@@ -141,7 +137,6 @@ class FailedScalacTests_2_12 extends FailedScalacTestsBase_2_12 {
   def `test_macro-bundle-disambiguate-nonbundle`(): Unit = doTest()
 }
 
-@Category(Array(classOf[PerfCycleTests]))
 class MacrosFailedScalacTests_2_12 extends FailedScalacTestsBase_2_12 {
   override def testDirName = "macros"
 
@@ -151,7 +146,6 @@ class MacrosFailedScalacTests_2_12 extends FailedScalacTestsBase_2_12 {
 }
 
 //these tests pass locally but sometimes fail on teamcity
-@Category(Array(classOf[PerfCycleTests]))
 class FlakyScalacTests_2_12 extends FailedScalacTestsBase_2_12 {
   override def testDirName = "flaky"
 

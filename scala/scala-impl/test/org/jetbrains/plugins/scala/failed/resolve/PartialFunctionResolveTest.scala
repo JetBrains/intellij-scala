@@ -1,12 +1,8 @@
 package org.jetbrains.plugins.scala.failed.resolve
 
-import org.jetbrains.plugins.scala.PerfCycleTests
-import org.junit.experimental.categories.Category
-
 /**
   * Created by Anton Yalyshev on 15/04/16.
   */
-@Category(Array(classOf[PerfCycleTests]))
 class PartialFunctionResolveTest extends FailedResolveCaretTestBase {
 
   def testSCL5464(): Unit = {

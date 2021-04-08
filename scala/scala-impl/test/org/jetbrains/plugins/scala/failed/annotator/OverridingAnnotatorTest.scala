@@ -1,13 +1,10 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.annotator.{Message, OverridingAnnotatorTestBase}
-import org.junit.experimental.categories.Category
 
 /**
   * Created by mucianm on 22.03.16.
   */
-@Category(Array(classOf[PerfCycleTests]))
 class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
 
   override protected def shouldPass: Boolean = false

@@ -1,13 +1,10 @@
 package org.jetbrains.plugins.scala.failed.typeInference
 
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.lang.typeConformance.TypeConformanceTestBase
-import org.junit.experimental.categories.Category
 
 /**
   * @author Nikolay.Tropin
   */
-@Category(Array(classOf[PerfCycleTests]))
 class ExistentialConformanceTest extends TypeConformanceTestBase {
 
   override protected def shouldPass: Boolean = false

@@ -5,8 +5,6 @@ package org.jetbrains.plugins.scala
 
 trait SlowTests
 
-trait PerfCycleTests
-
 trait HighlightingTests
 
 trait DebuggerTests
