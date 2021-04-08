@@ -13,7 +13,7 @@ private class TastyImpl extends TastyApi {
     // TODO TASTy inspect: provide an option to reuse the compiler instance, https://github.com/lampepfl/dotty-feature-requests/issues/97
     val inspector = new Inspector {
       override def inspect(using Quotes)(tastys: List[Tasty[quotes.type]]): Unit = tastys.foreach { tasty =>
-        val printer = new SourceCode.SourceCodePrinter[quotes.type](SyntaxHighlight.plain, fullNames = false, rightHandSide)
+        val printer = new SourceCode.SourceCodePrinter[quotes.type](SyntaxHighlight.plain, fullNames = true, rightHandSide)
         val text = printer.printTree(tasty.ast).result()
         def file(path: String) = {
           val i = path.replace('\\', '/').lastIndexOf("/")
